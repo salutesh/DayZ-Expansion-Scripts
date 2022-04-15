@@ -20,7 +20,7 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		CF_ModStorage = 1;
-		name = "$STR_MOD_EXPANSION_NAME";
+		name = "DayZ Expansion - Vehicles";
 		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";

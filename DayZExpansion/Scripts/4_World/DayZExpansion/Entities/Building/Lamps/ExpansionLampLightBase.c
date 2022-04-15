@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,7 +13,7 @@
 /**@class		ExpansionLampLightBase
  * @brief		
  **/
-class ExpansionLampLightBase: Static
+modded class ExpansionLampLightBase
 {
 	//! Expansion reference to point light class
 	protected ScriptedLightBase m_Light;
@@ -21,12 +21,18 @@ class ExpansionLampLightBase: Static
 	protected bool m_CanBeEnabled; //! Setting
 	protected bool m_ShouldBeEnabled; //! Setting
 	protected bool m_CastShadow; //! Setting
+
+	protected vector m_LampColor;
+	protected vector m_LampPosition;
 	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
 	void ExpansionLampLightBase()
 	{
+		m_LampColor = ConfigGetString("color").ToVector();
+		m_LampPosition = ConfigGetString("position").ToVector();
+
 		if ( IsMissionClient() )
 		{
 			ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
@@ -78,7 +84,7 @@ class ExpansionLampLightBase: Static
 	// ------------------------------------------------------------
 	vector GetLampPosition()
 	{
-		return "0 5 0";
+		return m_LampPosition;
 	}
 
 	// ------------------------------------------------------------
@@ -86,7 +92,7 @@ class ExpansionLampLightBase: Static
 	// ------------------------------------------------------------
 	vector GetLampColor()
 	{
-		return "1.0 0.7 0.4";
+		return m_LampColor;
 	}
 
 	protected bool LampInGenerator( vector generator )
@@ -120,9 +126,9 @@ class ExpansionLampLightBase: Static
 	// ------------------------------------------------------------
 	void Enable( vector position )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionLampLightBase::Enable - Start - " + position );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "Enable");
+#endif
 
 		if ( !LampInGenerator( position ) && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.AlwaysOnEverywhere )
 		{
@@ -132,10 +138,6 @@ class ExpansionLampLightBase: Static
 		m_ShouldBeEnabled = true;
 		
 		OnEnable();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionLampLightBase::Enable - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -222,9 +224,9 @@ class ExpansionLampLightBase: Static
 	// ------------------------------------------------------------
 	void Disable( vector position )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionLampLightBase::Disable - Start - " + position );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "Disable");
+#endif
 
 		if ( !LampInGenerator( position ) && GetExpansionSettings().GetGeneral().EnableLamps != LampModeEnum.AlwaysOnEverywhere )
 		{
@@ -234,10 +236,6 @@ class ExpansionLampLightBase: Static
 		m_ShouldBeEnabled = false;
 
 		OnDisable();
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionLampLightBase::Disable - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

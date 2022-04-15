@@ -3,14 +3,14 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-#ifdef EXPANSIONMOD
+#ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 {
 	ref ExpansionPartyModule m_PartyModule;
@@ -22,7 +22,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	ref ExpansionDialog_InviteParty m_InviteDialog;
 	ref ExpansionBookMenuTabPartyMemberEdit m_PartyTabMemberEdit;
 	
-	private TextWidget member_list_info;
 	private ButtonWidget party_delete_button;
 	private TextWidget party_delete_button_label;
 	
@@ -42,7 +41,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		m_BookMenu = book_menu;
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		if (!m_PartyTabController)
 			m_PartyTabController = ExpansionBookMenuTabPartyController.Cast(GetController());
@@ -92,7 +91,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		m_PartyTabController.PartyName = m_Party.GetPartyName() + " #STR_EXPANSION_BOOK_MEMBERS";
 		m_PartyTabController.NotifyPropertyChanged("PartyName");
 	
-		#ifdef EXPANSION_PARTY_MODULE_DEBUG
+		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("SetView - CanDelete(): " + GetPlayerPartyData().CanDelete());
 		EXLogPrint("SetView - CanInvite(): " + GetPlayerPartyData().CanInvite());
 		EXLogPrint("SetView - CanKick(): " + GetPlayerPartyData().CanKick());
@@ -131,7 +130,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	}
 	
 	void LoadMembers()
-	{		
+	{
+		ClearMermbers();
+		
 		if (m_Party && m_Party.GetPlayers().Count() > 0)
 		{
 			array<ref ExpansionPartyPlayerData> members = m_Party.GetPlayers();
@@ -168,23 +169,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 				}
 			}
 		}
-		
-		if (m_Party && m_Party.GetPlayers().Count() == 1)
-		{
-			if (member_list_info && !member_list_info.IsVisible())
-				member_list_info.Show(true);
-			
-			if (m_PartyTabController.MemberListInfo && m_PartyTabController.MemberListInfo != "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_MEMBERS")
-			{
-				m_PartyTabController.MemberListInfo = "#STR_EXPANSION_BOOK_TERRITORY_ERROR_NO_ONLINE_MEMBERS";
-				m_PartyTabController.NotifyPropertyChanged("MemberListInfo");
-			}
-		}
-		else if (m_Party && m_Party.GetPlayers().Count() > 2)
-		{
-			if (member_list_info && member_list_info.IsVisible())
-				member_list_info.Show(false);
-		}
 	}
 	
 	void LoadPlayers(string filter)
@@ -214,9 +198,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 				
 				if (!playerSync)
 					continue;
-				
-				Print(IsMember(playerSync.m_RUID));
-				Print(HasInvite(playerSync.m_RUID));
 					
 				if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
 				{
@@ -240,13 +221,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		else
 		{
 			array<PlayerIdentity> identitys = GetNearbyPlayerIdentitys(player.GetPosition(), m_PlayerSearchRadius);			
-			if (!identitys)
-			{
-				m_PartyTabController.PlayerListInfo = "0";
-				m_PartyTabController.NotifyPropertyChanged("PlayerListInfo");
-				return;
-			}
-			
+			if (!identitys) return;
 			for (int j = 0; j < identitys.Count(); ++j)
 			{					
 				for (int k = 0; k < ClientData.m_PlayerList.m_PlayerList.Count(); ++k)
@@ -278,17 +253,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 					}
 				}
 			}
-		}
-		
-		if (nmbPlayer > 0)
-		{
-			m_PartyTabController.PlayerListInfo = "#STR_EXPANSION_BOOK_TERRITORY_INVITE_SELECT";
-			m_PartyTabController.NotifyPropertyChanged("PlayerListInfo");
-		}
-		else
-		{
-			m_PartyTabController.PlayerListInfo = "#STR_EXPANSION_BOOK_TERRITORY_INVITE_EMPTY";
-			m_PartyTabController.NotifyPropertyChanged("PlayerListInfo");
 		}
 	}
 	
@@ -322,6 +286,18 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		}
 		
 		m_PartyTabController.PartyPlayerEntrys.Clear();
+	}
+	
+	void ClearMermbers()
+	{
+		for (int i = 0; i < m_PartyTabController.PartyMemberEntrys.Count(); ++i)
+		{
+			ExpansionBookMenuTabPartyMemberEntry entry = m_PartyTabController.PartyMemberEntrys[i];
+			entry.Hide();
+			entry = NULL;
+		}
+
+		m_PartyTabController.PartyMemberEntrys.Clear();
 	}
 	
 	array<PlayerIdentity> GetNearbyPlayerIdentitys(vector position, int radius)
@@ -546,19 +522,13 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	
 	override void Refresh()
 	{
-		Print("ExpansionBookMenuTabParty::Refresh - Start");
 		if (!m_PartyModule.HasParty())
 		{
-			Print("ExpansionBookMenuTabParty::Refresh - Player has no party!");
 			m_Party = NULL;
 			Hide();
-			
-			if (m_PartyTabController.PartyMemberEntrys.Count())
-				m_PartyTabController.PartyMemberEntrys.Clear();
 		}
 		else
 		{
-			Print("ExpansionBookMenuTabParty::Refresh - Player has party!");
 			GetParty();
 			SetView();
 			
@@ -567,7 +537,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 			if (GetPlayerPartyData().CanInvite())
 				LoadPlayers("");
 		}
-		Print("ExpansionBookMenuTabParty::Refresh - End");
 	}
 };
 
@@ -576,8 +545,6 @@ class ExpansionBookMenuTabPartyController: ExpansionViewController
 	ref ObservableCollection<ref ExpansionBookMenuTabPartyMemberEntry> PartyMemberEntrys = new ObservableCollection<ref ExpansionBookMenuTabPartyMemberEntry>(this);
 	ref ObservableCollection<ref ExpansionBookMenuTabPartyPlayerEntry> PartyPlayerEntrys  = new ObservableCollection<ref ExpansionBookMenuTabPartyPlayerEntry>(this);
 	string PartyName;
-	string MemberListInfo;
-	string PlayerListInfo;
 	string SearchFilter;
 };
 #endif

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -377,7 +377,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem(classNameToLower);
 			if (marketItem)
 			{
-				ExpansionMarketModule marketModule =  ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+				ExpansionMarketModule marketModule =  ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 				if (marketModule)
 				{
 					if (marketModule.GetClientZone().ItemExists(classNameToLower))
@@ -403,12 +403,17 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	}
 	
 	void DeleteItemPreset(ExpansionMarketMenuItemManagerPreset preset, string path)
-	{
+	{	
 		string file = path + preset.ClassName + "\\" + preset.PresetName + ".json";
 		if (FileExist(file))
+		{
 			DeleteFile(file);
+		}
 		else if (path.IndexOf(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER) == 0)
+		{
 			VestCleanup(preset);
+		}
+		
 		LoadLocalItemPresets();
 	}
 	

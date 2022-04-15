@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -55,9 +55,9 @@ modded class ZombieBase
 	// ------------------------------------------------------------	
 	void OnEnterZone(ExpansionZoneType type)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnEnterZone - start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnEnterZone");
+#endif
 
 		if (type == ExpansionZoneType.SAFE)
 		{
@@ -65,10 +65,6 @@ modded class ZombieBase
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnEnterZone - end");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -76,18 +72,14 @@ modded class ZombieBase
 	// ------------------------------------------------------------
 	void OnExitZone(ExpansionZoneType type)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnLeavingSafeZone - start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnExitZone");
+#endif
 
 		if (type == ExpansionZoneType.SAFE)
 		{
 			m_SafeZone = false;
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ZombieBase::OnLeavingSafeZone - end");
-		#endif
 	}
 
 	// ------------------------------------------------------------

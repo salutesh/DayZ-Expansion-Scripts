@@ -1,0 +1,451 @@
+PanelWidgetClass ExpansionGPS {
+ visible 0
+ disabled 0
+ clipchildren 0
+ keepsafezone 1
+ position 100 108
+ size 0.156 0.29
+ halign right_ref
+ valign bottom_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass GPSPanel {
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   {
+    PanelWidgetClass MapMarkerPanel {
+     ignorepointer 1
+     position 0.09733 0.192
+     size 0.80889 0.45109
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+    }
+    PanelWidgetClass GPSMapPanel {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 0.85 0.66
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      PanelWidgetClass GPSMapFrame {
+       visible 1
+       clipchildren 1
+       keepsafezone 1
+       position 0 0.015
+       size 0.95707 0.70343
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        MapWidgetClass Map {
+         keepsafezone 0
+         position 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass ""
+        }
+       }
+      }
+      PanelWidgetClass GPSStateMap {
+       ignorepointer 1
+       position 0 0.08
+       size 0.97 0.2
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        GridSpacerWidgetClass GPSStateMapPanel {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         priority 1
+         Padding 0
+         Margin 0
+         Columns 2
+         Rows 1
+         {
+          PanelWidgetClass GPSStateCoodsMapPanel {
+           ignorepointer 1
+           color 0.2039 0.2118 0.1608 1
+           position 0.041 0.281
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style rover_sim_colorable
+           {
+            TextWidgetClass GPSStateCoodsStateMap {
+             ignorepointer 1
+             color 0.451 0.4784 0.3529 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "COORDS"
+             font "gui/fonts/metron22"
+             "text color" 0 0 0 1
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+          PanelWidgetClass GPSStateMapMapPanel {
+           ignorepointer 1
+           color 0.2039 0.2118 0.1608 1
+           position 0.041 0.281
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style Outline
+           {
+            TextWidgetClass GPSStateMapMap {
+             ignorepointer 1
+             color 0.2039 0.2118 0.1608 1
+             size 1 1
+             halign center_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             text "MAP"
+             font "gui/fonts/metron22"
+             "text color" 0 0 0 1
+             "text halign" center
+             "text valign" center
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass GPSBackgroundStatsState {
+         visible 1
+         ignorepointer 1
+         color 0.451 0.4784 0.3529 1
+         size 1 0.97
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass MapStatsPanel {
+     visible 1
+     ignorepointer 1
+     keepsafezone 1
+     position 0 0
+     size 0.85 0.66
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      PanelWidgetClass player_direction {
+       ignorepointer 1
+       position 0 0.02
+       size 0.9 0.2
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        TextWidgetClass player_direction_value {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.25 0
+         size 0.77 0.95
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "360"
+         font "gui/fonts/metron-bold28"
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+        }
+        ImageWidgetClass player_direction_icon {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.05 0
+         size 32 32
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 ""
+         imageTexture "{F8DFE59A7D484C6F}DayZExpansion/Core/GUI/icons/hud/orientation_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+       }
+      }
+      PanelWidgetClass player_alt {
+       ignorepointer 1
+       position 0 0.22
+       size 0.9 0.2
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        TextWidgetClass player_alt_value {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.25 0
+         size 0.77 0.95
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "9999"
+         font "gui/fonts/metron-bold28"
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+        }
+        ImageWidgetClass player_alt_icon {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.05 0
+         size 32 32
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         image0 ""
+         imageTexture "{9E98F03477BC76EC}DayZExpansion/Core/GUI/icons/hud/map_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+       }
+      }
+      PanelWidgetClass player_position {
+       visible 1
+       ignorepointer 1
+       position 0 0.42
+       size 0.9 0.30045
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        TextWidgetClass player_position_value {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "9999 9999"
+         font "gui/fonts/metron-bold28"
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text halign" center
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass separator_0 {
+       ignorepointer 1
+       color 0.2039 0.2118 0.1608 0.549
+       position 0 0.22
+       size 1 0.01
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass separator_1 {
+       ignorepointer 1
+       color 0.2039 0.2118 0.1608 0.549
+       position 0 0.42
+       size 1 0.01
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style rover_sim_colorable
+      }
+      GridSpacerWidgetClass GPSStateStatsPanel {
+       ignorepointer 1
+       position 0 0.08
+       size 0.97 0.2
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       Padding 0
+       Margin 0
+       Columns 2
+       Rows 1
+       {
+        PanelWidgetClass GPSStateCoordStatsPanel {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.041 0.281
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style Outline
+         {
+          TextWidgetClass GPSStateCoordState {
+           ignorepointer 1
+           color 0.2039 0.2118 0.1608 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "COORDS"
+           font "gui/fonts/metron22"
+           "text color" 0 0 0 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+        PanelWidgetClass GPSStateMapStatsPanel {
+         ignorepointer 1
+         color 0.2039 0.2118 0.1608 1
+         position 0.041 0.281
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style rover_sim_colorable
+         {
+          TextWidgetClass GPSStateMapState {
+           ignorepointer 1
+           color 0.451 0.4784 0.3529 1
+           size 1 1
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "MAP"
+           font "gui/fonts/metron22"
+           "text color" 0 0 0 1
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass GPSBackgroundStats {
+       visible 1
+       ignorepointer 1
+       color 0.451 0.4784 0.3529 1
+       size 1 1
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style rover_sim_colorable
+      }
+     }
+    }
+    ImageWidgetClass GPSImage {
+     visible 1
+     ignorepointer 1
+     keepsafezone 1
+     position 0 0
+     size 1 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     imageTexture "{11F16516797A17F7}DayZExpansion/Navigation/GUI/textures/gps_new.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 0
+     stretch 1
+     "flip u" 0
+     "flip v" 0
+     filter 1
+     nocache 0
+    }
+   }
+  }
+ }
+}

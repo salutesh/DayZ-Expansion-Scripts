@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -18,21 +18,27 @@ modded class LoadingScreen
 	protected autoptr ExpansionLoadingScreenMessageData m_MessageRest;
 
 	protected autoptr array< ref ExpansionLoadingScreenMessageData > m_MessageJson;
+	protected autoptr ExpansionArray< ref ExpansionLoadingScreenMessageData > m_Expansion_MessageJson;
 
 	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
 
 	protected RestApi m_ExpansionRestApi;
+
+	static float s_Expansion_LoadingTime = -1;
+	static float s_Expansion_LoadingTimeStamp = -1;
+
+	bool m_UseExpansionLoadingScreen;
 
 	// ------------------------------------------------------------
 	// LoadingScreen Constructor
 	// ------------------------------------------------------------
 	void LoadingScreen(DayZGame game)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoadingScreen::LoadingScreen - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "LoadingScreen");
+#endif
 
-		JsonFileLoader< ref array< ref ExpansionLoadingScreenBackground > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingImages.json", m_Backgrounds );
+		m_Backgrounds = ExpansionLoadingScreenBackgrounds.Get();
 		JsonFileLoader< ref array< ref ExpansionLoadingScreenMessageData > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingMessages.json", m_MessageJson );
 
 		if (m_WidgetRoot)
@@ -88,10 +94,6 @@ modded class LoadingScreen
 			ProgressAsync.SetProgressData(m_ProgressLoading);
 		if ( m_ImageBackground )
 			ProgressAsync.SetUserData(m_ImageBackground);
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoadingScreen::LoadingScreen - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -108,9 +110,9 @@ modded class LoadingScreen
 	// ------------------------------------------------------------
 	override void Show()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoadingScreen::Show - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Show");
+#endif
 		
 		m_ProgressText.SetText("");
 		m_ProgressLoading.SetCurrent( 0.0 );
@@ -145,9 +147,44 @@ modded class LoadingScreen
 		if ( m_ImageBackground )
 			ProgressAsync.SetUserData( m_ImageBackground );
 		
+		//EXPrint(ToString() + "::Show");
+		m_UseExpansionLoadingScreen = true;
+		UpdateLoadingBackground();
+	}
+
+	void UpdateLoadingBackground()
+	{
+		float loadingTime = s_Expansion_LoadingTime;
+		float tickTime = m_DayZGame.GetTickTime();
+
+		if (s_Expansion_LoadingTimeStamp < 0)
+			s_Expansion_LoadingTime = 0;
+		else
+			s_Expansion_LoadingTime += tickTime - s_Expansion_LoadingTimeStamp;
+
+		s_Expansion_LoadingTimeStamp = tickTime;
+
+		//! Show each loading message and screen at least five seconds
+		if (loadingTime > -1 && s_Expansion_LoadingTime < 5)
+			return;
+
+		//EXPrint(ToString() + "::UpdateLoadingBackground - " + s_Expansion_LoadingTime);
+		s_Expansion_LoadingTime = 0;
+
 		if ( m_MessageJson )
 		{
-			m_MessageRest = m_MessageJson.GetRandomElement();
+			if ( !m_Expansion_MessageJson )
+				m_Expansion_MessageJson = new ExpansionArray< ref ExpansionLoadingScreenMessageData >;
+
+			if ( !m_Expansion_MessageJson.Count() )
+			{
+				foreach ( ExpansionLoadingScreenMessageData data: m_MessageJson )
+				{
+					m_Expansion_MessageJson.Insert(data);
+				}
+			}
+
+			m_MessageRest = m_Expansion_MessageJson.GetQuasiRandomElementAvoidRepetition();
 
 			m_LoadingMessage.SetText( m_MessageRest.message );
 			m_LoadingMessageAuthor.SetText( "#STR_EXPANSION_LOADING_MSG_SUBMITTEDBY" + " " + m_MessageRest.submitter );
@@ -160,9 +197,7 @@ modded class LoadingScreen
 		
 		string world_name = "default";
 
-		//! Game object does not exist yet during parts of the loading process
-		if (GetGame())
-			GetGame().GetWorldName(world_name);
+		m_DayZGame.GetWorldName(world_name);
 
 		world_name.ToLower();
 		
@@ -183,10 +218,14 @@ modded class LoadingScreen
 		}
 		
 		if (backgrounds)
-			m_ImageBackground.LoadImageFile( 0, backgrounds.Path.GetRandomElement() );
+			m_ImageBackground.LoadImageFile( 0, backgrounds.GetRandomPath() );
+	}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoadingScreen::Show - End");
-		#endif
+	override void OnUpdate( float timeslice )
+	{
+		super.OnUpdate(timeslice);
+
+		if (m_UseExpansionLoadingScreen && IsLoading())
+			UpdateLoadingBackground();
 	}
 };

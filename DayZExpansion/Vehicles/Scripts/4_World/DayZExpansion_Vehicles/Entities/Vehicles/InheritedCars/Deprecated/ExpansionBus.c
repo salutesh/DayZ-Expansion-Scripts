@@ -3,28 +3,23 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
 class ExpansionBus extends OffroadHatchback
 {
-	private CarLightBase m_BusLight1;
-	private CarLightBase m_BusLight2;
-	private CarLightBase m_BusLight3;
+	CarLightBase m_BusLight1;
+	CarLightBase m_BusLight2;
+	CarLightBase m_BusLight3;
 
-	// ------------------------------------------------------------
 	void ExpansionBus()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::Constructor - Start");
-		#endif
-
 		m_dmgContactCoef = 0.035;
-		
+
 		m_EngineStartOK = "Truck_01_engine_start_SoundSet";
 		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "Truck_01_engine_failed_start_sparkplugs_SoundSet";
@@ -33,105 +28,103 @@ class ExpansionBus extends OffroadHatchback
 
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
-		
-		// SetEventMask(EntityEvent.SIMULATE);
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::Constructor - End");
-		#endif
+		// SetEventMask(EntityEvent.SIMULATE);
 	}
 
 	override float GetTransportCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
+#endif
+
 		return 10.0;
 	}
 
 	override vector GetTransportCameraOffset()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
+#endif
+
 		return "-0.25 3.2 0";
 	}
 
-	// ------------------------------------------------------------
 	void ~ExpansionBus()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::Deconstructor - Start");
-		#endif
-
-		if ( IsMissionClient() )
+		if (IsMissionClient())
 		{
-			if ( m_BusLight1 )
+			if (m_BusLight1)
 				m_BusLight1.Destroy();
 
-			if ( m_BusLight2 )
+			if (m_BusLight2)
 				m_BusLight2.Destroy();
 
-			if ( m_BusLight2 )
+			if (m_BusLight2)
 				m_BusLight2.Destroy();
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::Deconstructor - End");
-		#endif
 	}
+
 	override string ExpansionGetWheelType(int slot_id)
 	{
-		if (InventorySlots.GetSlotName(slot_id) == "BusWheel_1_1" || InventorySlots.GetSlotName(slot_id) == "BusWheel_2_1"  )
+		if (InventorySlots.GetSlotName(slot_id) == "BusWheel_1_1" || InventorySlots.GetSlotName(slot_id) == "BusWheel_2_1")
 			return "ExpansionBusWheel";
 		else
 			return "ExpansionBusWheelDouble";
 	}
-	// ------------------------------------------------------------
+
 	void PartyBus()
 	{
-		Megaphone megaphone = Megaphone.Cast(GetInventory().CreateInInventory( "Megaphone" ));
+		Megaphone megaphone = Megaphone.Cast(GetInventory().CreateInInventory("Megaphone"));
 		megaphone.GetInventory().CreateAttachment("Battery9V");
 
-		megaphone = Megaphone.Cast(GetInventory().CreateInInventory( "Megaphone" ));
+		megaphone = Megaphone.Cast(GetInventory().CreateInInventory("Megaphone"));
 		megaphone.GetInventory().CreateAttachment("Battery9V");
 
-		megaphone = Megaphone.Cast(GetInventory().CreateInInventory( "Megaphone" ));
+		megaphone = Megaphone.Cast(GetInventory().CreateInInventory("Megaphone"));
 		megaphone.GetInventory().CreateAttachment("Battery9V");
 	}
 
-	// ------------------------------------------------------------
 	override int GetAnimInstance()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::GetAnimInstance");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
 
 		return ExpansionVehicleAnimInstances.EXPANSION_BUS;
 	}
 
-	// ------------------------------------------------------------
 	override CarRearLightBase CreateRearLight()
 	{
-		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionRearCarLights) );
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateRearLight");
+#endif
+		return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionRearCarLights));
 	}
-	
-	// ------------------------------------------------------------
+
 	override CarLightBase CreateFrontLight()
 	{
-		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionCarFrontLight) );
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
+
+		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionCarFrontLight));
 	}
 
-	// ------------------------------------------------------------
 	CarLightBase CreateBusLight()
 	{
-		return CarLightBase.Cast( ScriptedLightBase.CreateLight( ExpansionBusLights ) ); 
+		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionBusLights));
 	}
 
-	// ------------------------------------------------------------
 	override void UpdateLights(int new_gear = -1) // -1 is invalid gear.
 	{
-		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
+		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) // client side
 		{
 			ItemBase battery;
-			
-			if ( IsVitalTruckBattery() ) 
-				battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
-			
+
+			if (IsVitalTruckBattery())
+				battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+
 			if (battery)
 			{
 				if (m_HeadlightsOn)
@@ -153,27 +146,27 @@ class ExpansionBus extends OffroadHatchback
 
 					if (m_HeadlightsState == CarHeadlightBulbsState.BOTH)
 					{
-						if ( IsInherited( ExpansionBus ) ) 
+						if (IsInherited(ExpansionBus))
 						{
-							m_BusLight1.AttachOnObject(this, GetMemoryPointPos( "intlight1" ));
+							m_BusLight1.AttachOnObject(this, GetMemoryPointPos("intlight1"));
 							m_BusLight1.AggregateLight();
 
-							m_BusLight2.AttachOnObject(this, GetMemoryPointPos( "intlight2" ));
+							m_BusLight2.AttachOnObject(this, GetMemoryPointPos("intlight2"));
 							m_BusLight2.AggregateLight();
 
-							m_BusLight3.AttachOnObject(this, GetMemoryPointPos( "intlight3" ));
+							m_BusLight3.AttachOnObject(this, GetMemoryPointPos("intlight3"));
 							m_BusLight3.AggregateLight();
 						}
 					}
 
 					DashboardShineOn();
-					
-					if (!m_Headlight  &&  m_HeadlightsState != CarHeadlightBulbsState.NONE)
+
+					if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 					{
 						m_Headlight = CreateFrontLight();
 						TailLightsShineOn();
 					}
-					
+
 					if (m_HeadlightsState == CarHeadlightBulbsState.LEFT)
 					{
 						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
@@ -192,15 +185,15 @@ class ExpansionBus extends OffroadHatchback
 					{
 						vector local_pos_left = GetMemoryPointPos(m_LeftHeadlightPoint);
 						vector local_pos_right = GetMemoryPointPos(m_RightHeadlightPoint);
-						
-						vector local_pos_middle = (local_pos_left + local_pos_right) *0.5;
+
+						vector local_pos_middle = (local_pos_left + local_pos_right) * 0.5;
 						m_Headlight.AttachOnObject(this, local_pos_middle);
 						m_Headlight.AggregateLight();
 						LeftFrontLightShineOn();
 						RightFrontLightShineOn();
 					}
-					
-					if (m_Headlight  &&  m_HeadlightsState == CarHeadlightBulbsState.NONE)
+
+					if (m_Headlight && m_HeadlightsState == CarHeadlightBulbsState.NONE)
 					{
 						m_Headlight.FadeOut();
 						m_Headlight = null;
@@ -215,7 +208,7 @@ class ExpansionBus extends OffroadHatchback
 					DashboardShineOff();
 					LeftFrontLightShineOff();
 					RightFrontLightShineOff();
-					
+
 					if (m_Headlight)
 					{
 						m_Headlight.FadeOut();
@@ -240,19 +233,18 @@ class ExpansionBus extends OffroadHatchback
 						m_BusLight3 = null;
 					}
 				}
-			
-				if ( EngineIsOn() )
+
+				if (EngineIsOn())
 				{
 					int reverse_light_state = CarRearLightType.NONE;
-								
+
 					int gear;
-					
+
 					if (new_gear == -1)
 						gear = GetController().GetGear();
 					else
 						gear = new_gear;
-					
-					
+
 					if (gear == CarGear.REVERSE)
 					{
 						reverse_light_state = CarRearLightType.REVERSE_ONLY;
@@ -261,7 +253,7 @@ class ExpansionBus extends OffroadHatchback
 					{
 						reverse_light_state = CarRearLightType.NONE;
 					}
-					
+
 					if (m_BrakesArePressed)
 					{
 						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
@@ -273,14 +265,14 @@ class ExpansionBus extends OffroadHatchback
 							reverse_light_state = CarRearLightType.BRAKES_ONLY;
 						}
 					}
-					
-					if (reverse_light_state != CarRearLightType.NONE	&&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
+
+					if (reverse_light_state != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE && !m_RearLight)
 					{
 						m_RearLight = CreateRearLight();
 						vector local_pos = GetMemoryPointPos(m_ReverseLightPoint);
 						m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
 					}
-					
+
 					if (m_RearLight)
 					{
 						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
@@ -296,7 +288,7 @@ class ExpansionBus extends OffroadHatchback
 						else if (reverse_light_state == CarRearLightType.BRAKES_ONLY)
 						{
 							m_RearLight.SetAsSegregatedBrakeLight();
-							
+
 							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
 							{
 								ReverseLightsShineOff();
@@ -307,7 +299,7 @@ class ExpansionBus extends OffroadHatchback
 						{
 							m_RearLight.AggregateLight();
 							m_RearLight.SetFadeOutTime(1);
-							
+
 							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
 							{
 								BrakeLightsShineOn();
@@ -331,7 +323,7 @@ class ExpansionBus extends OffroadHatchback
 				{
 					BrakeLightsShineOff();
 					ReverseLightsShineOff();
-					
+
 					if (m_RearLight)
 					{
 						m_RearLight.FadeOut();
@@ -346,13 +338,13 @@ class ExpansionBus extends OffroadHatchback
 				DashboardShineOff();
 				BrakeLightsShineOff();
 				ReverseLightsShineOff();
-				
+
 				if (m_RearLight)
 				{
 					m_RearLight.FadeOut();
 					m_RearLight = null;
 				}
-				
+
 				if (m_Headlight)
 				{
 					m_Headlight.FadeOut();
@@ -380,8 +372,7 @@ class ExpansionBus extends OffroadHatchback
 		}
 	}
 
-	// ------------------------------------------------------------
-	override string GetDoorConditionPointFromSelection( string selection )
+	override string GetDoorConditionPointFromSelection(string selection)
 	{
 		return selection;
 
@@ -437,14 +428,13 @@ class ExpansionBus extends OffroadHatchback
 		*/
 	}
 
-	// ------------------------------------------------------------
-	override int GetSeatAnimationType( int posIdx )
+	override int GetSeatAnimationType(int posIdx)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::GetSeatAnimationType");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
 
-		switch( posIdx )
+		switch (posIdx)
 		{
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
@@ -494,10 +484,13 @@ class ExpansionBus extends OffroadHatchback
 
 		return 0;
 	}
-	
-	// ------------------------------------------------------------
-	override int GetCarDoorsState( string slotType )
+
+	override int GetCarDoorsState(string slotType)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetCarDoorsState").Add(slotType);
+#endif
+
 		/*
 		CarDoor carDoor;
 		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
@@ -506,17 +499,17 @@ class ExpansionBus extends OffroadHatchback
 		}
 		*/
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::GetCarDoorsState");
-		#endif
-
 		return CarDoorState.DOORS_MISSING;
 	}
-	
-	/* 
+
+	/*
 	// ------------------------------------------------------------
-	override float OnSound( CarSoundCtrl ctrl, float oldValue )
+	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
+#endif
+
 		switch ( ctrl )
 		{
 			case CarSoundCtrl.DOORS:
@@ -547,174 +540,184 @@ class ExpansionBus extends OffroadHatchback
 	}
 	*/
 
-	// ------------------------------------------------------------
-	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::CanReachDoorsFromSeat");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
 
-		return true;		
-	}
-	
-	// ------------------------------------------------------------
-	override bool CanReachSeatFromSeat( int currentSeat, int nextSeat )
-	{
-		return false;
-/*
-		switch( currentSeat )
-		{
-		case 11:
-			if ( nextSeat == 17 )
-				return true;
-			if ( nextSeat == 10 )
-				return true;
-			return false;
-		case 12:
-			if ( nextSeat == 18 )
-				return true;
-			if ( nextSeat == 9 )
-				return true;
-			return false;
-		case 13:
-			if ( nextSeat == 19 )
-				return true;
-			if ( nextSeat == 8 )
-				return true;
-			return false;
-		case 14:
-			if ( nextSeat == 20 )
-				return true;
-			if ( nextSeat == 3 )
-				return true;
-			if ( nextSeat == 2 )
-				return true;
-			return false;
-		case 15:
-			if ( nextSeat == 21 )
-				return true;
-			if ( nextSeat == 2 )
-				return true;
-			if ( nextSeat == 1 )
-				return true;
-			return false;
-		case 16:
-			if ( nextSeat == 22 )
-				return true;
-			if ( nextSeat == 1 )
-				return true;
-			return false;
-			
-		case 17:
-			if ( nextSeat == 11 )
-				return true;
-			return false;
-		case 18:
-			if ( nextSeat == 12 )
-				return true;
-			return false;
-		case 19:
-			if ( nextSeat == 13 )
-				return true;
-			return false;
-		case 20:
-			if ( nextSeat == 14 )
-				return true;
-			return false;
-		case 21:
-			if ( nextSeat == 15 )
-				return true;
-			return false;
-		case 22:
-			if ( nextSeat == 16 )
-				return true;
-			return false;
-		}
-		
-		return false;
-*/
+		return true;
 	}
 
 	// ------------------------------------------------------------
-	override string GetAnimSourceFromSelection( string selection )
+	override bool CanReachSeatFromSeat(int currentSeat, int nextSeat)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachSeatFromSeat").Add(currentSeat).Add(nextSeat);
+#endif
+
+		return false;
+		/*
+				switch( currentSeat )
+				{
+				case 11:
+					if ( nextSeat == 17 )
+						return true;
+					if ( nextSeat == 10 )
+						return true;
+					return false;
+				case 12:
+					if ( nextSeat == 18 )
+						return true;
+					if ( nextSeat == 9 )
+						return true;
+					return false;
+				case 13:
+					if ( nextSeat == 19 )
+						return true;
+					if ( nextSeat == 8 )
+						return true;
+					return false;
+				case 14:
+					if ( nextSeat == 20 )
+						return true;
+					if ( nextSeat == 3 )
+						return true;
+					if ( nextSeat == 2 )
+						return true;
+					return false;
+				case 15:
+					if ( nextSeat == 21 )
+						return true;
+					if ( nextSeat == 2 )
+						return true;
+					if ( nextSeat == 1 )
+						return true;
+					return false;
+				case 16:
+					if ( nextSeat == 22 )
+						return true;
+					if ( nextSeat == 1 )
+						return true;
+					return false;
+
+				case 17:
+					if ( nextSeat == 11 )
+						return true;
+					return false;
+				case 18:
+					if ( nextSeat == 12 )
+						return true;
+					return false;
+				case 19:
+					if ( nextSeat == 13 )
+						return true;
+					return false;
+				case 20:
+					if ( nextSeat == 14 )
+						return true;
+					return false;
+				case 21:
+					if ( nextSeat == 15 )
+						return true;
+					return false;
+				case 22:
+					if ( nextSeat == 16 )
+						return true;
+					return false;
+				}
+
+				return false;
+		*/
+	}
+
+	override string GetAnimSourceFromSelection(string selection)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetAnimSourceFromSelection").Add(selection);
+#endif
+
 		return "";
 	}
 
-	// ------------------------------------------------------------
-	override bool CrewCanGetThrough( int posIdx )
+	override bool CrewCanGetThrough(int posIdx)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
+
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::IsVitalCarBattery");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
 
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::IsVitalTruckBattery");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalTruckBattery");
+#endif
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::IsVitalSparkPlug");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalSparkPlug");
+#endif
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsVitalRadiator()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::IsVitalRadiator");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalRadiator");
+#endif
+
 		return true;
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsVitalGlowPlug()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::IsVitalGlowPlug");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalGlowPlug");
+#endif
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalEngineBelt()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBus::IsVitalEngineBelt");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalEngineBelt");
+#endif
 
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override float GetCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
+#endif
+
 		return 10;
 	}
 
-	override bool LeavingSeatDoesAttachment( int posIdx )
+	override bool LeavingSeatDoesAttachment(int posIdx)
 	{
-		// @CAMINOonPC#6971 Never implemented this after being told to for the past 3 months
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "LeavingSeatDoesAttachment").Add(posIdx);
+#endif
+
 		return true;
 	}
 };

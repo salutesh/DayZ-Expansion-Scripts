@@ -19,7 +19,7 @@ class CfgMods
 		inputs = "DayZExpansion/Book/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
-		name = "$STR_MOD_EXPANSION_NAME";
+		name = "DayZ Expansion - Book";
 		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";

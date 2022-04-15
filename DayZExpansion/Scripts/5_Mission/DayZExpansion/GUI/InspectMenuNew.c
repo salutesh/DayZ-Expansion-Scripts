@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,9 +14,10 @@ modded class InspectMenuNew
 {
 	override static void UpdateItemInfoLiquidType(Widget root_widget, EntityAI item)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InspectMenuNew::UpdateItemInfoLiquidType - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.UI, "InspectMenuNew", "UpdateItemInfoLiquidType").Add(root_widget).Add(item);
+#endif
+
 		if ( item.IsInherited( ZombieBase ) || item.IsInherited( Car ) ) return;
 		
 		ItemBase item_base = ItemBase.Cast( item );
@@ -108,8 +109,5 @@ modded class InspectMenuNew
 		{
 			WidgetTrySetText(root_widget, "ItemLiquidTypeWidget", "");
 		}
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("InspectMenuNew::UpdateItemInfoLiquidType - End");
-		#endif
 	}
-}
+};

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -26,10 +26,16 @@ modded class ItemBase
 		RegisterNetSyncVariableBool( "m_Expansion_IsAttached" );
 
 		GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( LongDeferredInit, 1000 );
+
+		//SetEventMask(EntityEvent.CONTACT);
 	}
 
 	void LongDeferredInit()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "LongDeferredInit");
+#endif
+
 	}
 	
 	override void OnStoreSave( ParamsWriteContext ctx )
@@ -37,7 +43,7 @@ modded class ItemBase
 		super.OnStoreSave( ctx );
 
 		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
 			return;
 		#endif
@@ -74,7 +80,7 @@ modded class ItemBase
 		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
 			return false;
 
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
 			return true;
 		#endif
@@ -119,7 +125,7 @@ modded class ItemBase
 		return true;
 	}
 
-	#ifdef CF_MODSTORAGE
+	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
@@ -222,16 +228,8 @@ modded class ItemBase
 	#ifndef EXPANSION_ITEM_ATTACHING_DISABLE
 	void CheckForAttachmentRaycast()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ItemBase::CheckForAttachmentRaycast - Start" );
-		#endif
-
 		if ( m_Expansion_IsAttached && m_Expansion_WorldAttachment )
 		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint( "ItemBase::CheckForAttachmentRaycast - End - Already Attached" );
-			#endif
-
 			return;
 		}
 			
@@ -265,10 +263,6 @@ modded class ItemBase
 				LinkToLocalSpaceOf( EntityAI.Cast( target ), tmLocal );
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "ItemBase::CheckForAttachmentRaycast - End" );
-		#endif
 	}
 	#else
 	void CheckForAttachmentRaycast()
@@ -591,14 +585,6 @@ modded class ItemBase
 			return true;
 
 		if (ExpansionVehicleBase.Cast(parent))
-			return true;
-
-		return false;
-	}
-
-	bool Expansion_CarContactActivates()
-	{
-		if (IsInherited(CarWheel))
 			return true;
 
 		return false;

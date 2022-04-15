@@ -1,21 +1,16 @@
 class ExpansionVehicleRotational : ExpansionVehicleModule
 {
-	float m_Rotation;
-	float m_PositionPrev;
-
 	float m_Velocity;
 	float m_Acceleration;
-
 	float m_Torque;
-
-	float m_RPM;
 
 	float m_Inertia;
 	float m_Ratio;
+	float m_InvRatio;
 	float m_Radius;
 
+	autoptr array<ExpansionVehicleRotational> m_Components = new array<ExpansionVehicleRotational>();
 	ExpansionVehicleRotational m_Parent;
-	ExpansionVehicleRotational m_Component;
 
 	void ExpansionVehicleRotational(EntityAI vehicle)
 	{
@@ -29,45 +24,98 @@ class ExpansionVehicleRotational : ExpansionVehicleModule
 		m_Control = false;
 		m_PreSimulate = true;
 		m_Simulate = true;
+		m_PostSimulate = true;
 		m_Animate = false;
 		m_Network = false;
 		
 		m_SelfDebugWindow = true;
 	}
 
+	void AddComponent(ExpansionVehicleRotational component)
+	{
+		component.m_Parent = this;
+		m_Components.Insert(component);
+	}
+
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-		m_Acceleration = m_Torque;
+		m_Torque = 0;
 
-		if (m_Component)
-		{
-			m_Component.m_Torque = m_Acceleration * m_Ratio * m_Radius;
-
-			float accel = m_Velocity - (m_Component.m_Velocity / m_Ratio);
-			m_Acceleration -= accel;// * pState.m_DeltaTime;
-		}
+		ProcessTorque(pState);
 	}
 
 	override void Simulate(ExpansionPhysicsState pState)
 	{
-		//m_Velocity = (m_PositionPrev - m_Rotation) / pState.m_DeltaTime;
-		//m_PositionPrev = m_Rotation;
+		m_Acceleration = 0;
 
-		m_Velocity += m_Acceleration * pState.m_DeltaTime;
-		m_Rotation += m_Velocity * pState.m_DeltaTime;
+		if (m_Ratio == 0.0) m_InvRatio = 0.0;
+		else m_InvRatio = 1.0 / m_Ratio;
 
-		m_Rotation = Math.WrapFloatInclusive(m_Rotation, 0, Math.PI2);
-		m_RPM = Math.AbsFloat(m_Velocity) * 30.0 / Math.PI;
+		ProcessAcceleration(pState);
 	}
 
-	static float FromRPM(float rpm)
+	float GetInertia()
+	{
+		float inertia = m_Inertia;
+		if (m_Parent) inertia *= m_Parent.GetInertia();
+		return inertia;
+	}
+
+	void ProcessTorque(ExpansionPhysicsState pState)
+	{
+		if (!m_Parent)
+		{
+			return;
+		}
+
+		m_Torque = m_Parent.m_Torque * m_Ratio;
+	}
+
+	void ProcessAcceleration(ExpansionPhysicsState pState)
+	{
+		if (m_Components.Count() == 0)
+		{
+			return;
+		}
+		/*
+		float acceleration = 0;
+		foreach (auto component : m_Components)
+		{
+			acceleration += component.m_Acceleration;
+		}
+
+		acceleration /= m_Components.Count();
+
+		m_Velocity += acceleration * pState.m_DeltaTime;
+		m_Acceleration = acceleration * m_InvRatio;
+		*/
+
+		float acceleration = 0;
+		foreach (auto component : m_Components)
+		{
+			acceleration += component.m_Velocity;
+		}
+
+		acceleration /= m_Components.Count();
+
+		m_Velocity = acceleration * m_InvRatio;
+	}
+
+	float FromRPM(float rpm)
 	{
 		return rpm * Math.PI / 30.0;
 	}
 
-	static float ToRPM(float rot)
+	float ToRPM(float rot)
 	{
 		return Math.AbsFloat(rot) * 30.0 / Math.PI;
+	}
+
+	float Sign(float number)
+	{
+		if (number < 0)
+			return -1;
+		return 1;
 	}
 
 #ifdef CF_DebugUI
@@ -76,19 +124,15 @@ class ExpansionVehicleRotational : ExpansionVehicleModule
 		super.CF_OnDebugUpdate(instance, type);
 
 		instance.Add("Parent", m_Parent);
-		instance.Add("Component", m_Component);
-
-		instance.Add("Ratio", m_Ratio);
-		instance.Add("Radius", m_Radius);
-		instance.Add("Inertia", m_Inertia);
+		instance.Add("Component Count", m_Components.Count());
+		for (int i = 0; i < m_Components.Count(); i++)
+		{
+			instance.Add("Component[" + i + "]", m_Components[i]);
+		}
 
 		instance.Add("Torque", m_Torque);
 		instance.Add("Acceleration", m_Acceleration);
 		instance.Add("Velocity", m_Velocity);
-
-		instance.Add("Position", m_Rotation);
-
-		instance.Add("RPM", m_RPM);
 
 		return true;
 	}

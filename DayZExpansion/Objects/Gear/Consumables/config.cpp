@@ -83,6 +83,17 @@ class CfgVehicles
 				range = 2.8;
 			};
 		};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 200;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+				};
+			};
+		};
 	};
 	class ExpansionBread1: Expansion_FoodBase
 	{

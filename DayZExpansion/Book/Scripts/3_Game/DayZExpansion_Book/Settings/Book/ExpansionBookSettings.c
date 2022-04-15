@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -29,9 +29,10 @@ class ExpansionBookSettingsV1: ExpansionBookSettingsBase
 	autoptr array< ref ExpansionRulesCategory > RuleCategories;
 }
 
-/**@class		ExpansionBookSettings
+/**
+ * @class		ExpansionBookSettings
  * @brief		Book settings class
- **/
+ */
 class ExpansionBookSettings: ExpansionBookSettingsBase
 {
 	static const int VERSION = 3;
@@ -49,14 +50,12 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings OnRecieve
-	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
+
 		ExpansionBookSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -70,32 +69,26 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 		ExpansionSettings.SI_Book.Invoke();
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::OnRecieve - End");
-		#endif
-
 		return true;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings OnSend
-	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
+#endif
+
 		ExpansionBookSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings Send
-	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::Send - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
+
 		if ( !IsMissionHost() )
 		{
 			return 0;
@@ -105,17 +98,15 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Book, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::Send - End and return");
-		#endif
 		return 0;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionBookSettings Copy
-	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
+#endif
+
 		ExpansionBookSettings s;
 		if ( !Class.CastTo( s, setting ) )
 			return false;
@@ -124,13 +115,12 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionBookSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::CopyInternal - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		EnableBookMenu = s.EnableBookMenu;
 		CreateBookmarks = s.CreateBookmarks;			
 		RuleCategories = s.RuleCategories;
@@ -143,54 +133,36 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		
 		ExpansionBookSettingsBase sb = s;
 		CopyInternal( sb );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::CopyInternal - End");
-		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings CopyInternal
-	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionBookSettingsBase s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::CopyInternal - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 		
 		EnableStatusTab = s.EnableStatusTab;
 		EnablePartyTab = s.EnablePartyTab;
 		EnableServerInfoTab = s.EnableServerInfoTab;
 		EnableServerRulesTab = s.EnableServerRulesTab;
 		EnableTerritoryTab = s.EnableTerritoryTab;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::CopyInternal - End");
-		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings IsLoaded
-	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
 		return m_IsLoaded;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings Unload
-	// ------------------------------------------------------------
 	override void Unload()
 	{
 		m_IsLoaded = false;
 	}
 	
-	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
 
 		m_IsLoaded = true;
 
@@ -200,7 +172,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 		if (bookSettingsExist)
 		{
-			EXPrint("[ExpansionBookSettings] Load existing setting file:" + EXPANSION_BOOK_SETTINGS);
+			CF_Log.Info("[ExpansionBookSettings] Load existing setting file:" + EXPANSION_BOOK_SETTINGS);
 			
 			ExpansionBookSettings settingsDefault = new ExpansionBookSettings;
 			settingsDefault.Defaults();
@@ -213,7 +185,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 			{
 				if (settingsBase.m_Version < 2)
 				{
-					EXPrint("[ExpansionBookSettings] Load - Converting v1 \"" + EXPANSION_BOOK_SETTINGS + "\" to v" + VERSION);
+					CF_Log.Info("[ExpansionBookSettings] Load - Converting v1 \"" + EXPANSION_BOOK_SETTINGS + "\" to v" + VERSION);
 					
 					ExpansionBookSettingsV1 settings_v1;
 					JsonFileLoader<ExpansionBookSettingsV1>.JsonLoadFile(EXPANSION_BOOK_SETTINGS, settings_v1);
@@ -324,46 +296,42 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		}
 		else
 		{
-			EXPrint("[ExpansionBookSettings] No existing setting file:" + EXPANSION_BOOK_SETTINGS + ". Creating defaults!");
+			CF_Log.Info("[ExpansionBookSettings] No existing setting file:" + EXPANSION_BOOK_SETTINGS + ". Creating defaults!");
+
 			Defaults();
 			save = true;
 		}
 		
 		if (save)
+		{
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBookSettings::Load - End - Loaded: " + bookSettingsExist);
-		#endif
-		
+		}
+
 		return bookSettingsExist;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionBookSettings OnSave
-	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		Print("[ExpansionBookSettings] Saving settings");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSave");
+#endif
 
 		JsonFileLoader<ExpansionBookSettings>.JsonSaveFile( EXPANSION_BOOK_SETTINGS, this );
 
 		return true;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings Update
-	// ------------------------------------------------------------
 	override void Update( ExpansionSettingBase setting )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
+#endif
+
 		super.Update( setting );
 
 		ExpansionSettings.SI_Book.Invoke();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionBookSettings Defaults
-	// ------------------------------------------------------------
 	override void Defaults()
 	{
 		m_Version = VERSION;	
@@ -384,9 +352,6 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		DefaultCraftingCategories();
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings DefaultRules
-	// ------------------------------------------------------------
 	void DefaultRules()
 	{		
 		ExpansionBookRuleCategory category = new ExpansionBookRuleCategory("General");
@@ -399,13 +364,12 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		RuleCategories.Insert(category);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings DefaultSettings
-	// ------------------------------------------------------------
 	void DefaultSettings()
 	{
-		#ifdef EXPANSIONMOD
-		ExpansionBookSettingCategory category = new ExpansionBookSettingCategory("Base-Building Settings");
+		ExpansionBookSettingCategory category;
+
+		#ifdef EXPANSIONMODBASEBUILDING
+		category = new ExpansionBookSettingCategory("Base-Building Settings");
 		category.AddSetting("Expansion.Settings.BaseBuilding.CanCraftVanillaBasebuilding");
 		category.AddSetting("Expansion.Settings.BaseBuilding.CanCraftExpansionBasebuilding");
 		SettingCategories.Insert(category);
@@ -418,17 +382,23 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		category.AddSetting("Expansion.Settings.Raid.ExplosionDamageMultiplier");
 		category.AddSetting("Expansion.Settings.Raid.ProjectileDamageMultiplier");
 		SettingCategories.Insert(category);
+		#endif
 		
+		#ifdef EXPANSIONMODNAVIGATION
 		category = new ExpansionBookSettingCategory("Map Settings");
 		category.AddSetting("Expansion.Settings.Map.NeedGPSItemForKeyBinding");
 		category.AddSetting("Expansion.Settings.Map.NeedMapItemForKeyBinding");
 		SettingCategories.Insert(category);
+		#endif
 		
+		#ifdef EXPANSIONMODGROUPS
 		category = new ExpansionBookSettingCategory("Party Settings");
 		category.AddSetting("Expansion.Settings.Party.MaxMembersInParty");
 		category.AddSetting("Expansion.Settings.Party.UseWholeMapForInviteList");
 		SettingCategories.Insert(category);
+		#endif
 		
+		#ifdef EXPANSIONMODBASEBUILDING
 		category = new ExpansionBookSettingCategory("Territory Settings");
 		category.AddSetting("Expansion.Settings.Territory.TerritorySize");
 		category.AddSetting("Expansion.Settings.Territory.UseWholeMapForInviteList");
@@ -436,9 +406,6 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings DefaultLinks
-	// ------------------------------------------------------------
 	void DefaultLinks()
 	{		
 		ExpansionBookLink link = new ExpansionBookLink("Homepage", "https://www.google.com/", "Homepage", ARGB(255,35,39,42));
@@ -469,9 +436,6 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		Links.Insert(link);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings DefaultDescriptions
-	// ------------------------------------------------------------
 	void DefaultDescriptions()
 	{
 		ExpansionBookDescriptionCategory category = new ExpansionBookDescriptionCategory("General Info");
@@ -489,9 +453,6 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		Descriptions.Insert(category);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings DefaultCraftingCategories
-	// ------------------------------------------------------------
 	void DefaultCraftingCategories()
 	{
 		ExpansionBookCraftingCategory category = new ExpansionBookCraftingCategory("Accessories");
@@ -625,25 +586,21 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		//CraftingCategories.Insert(new ExpansionBookCraftingCategory("Other"));
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionBookSettings SettingName
-	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Book Settings";
 	}
 };
 
-// ------------------------------------------------------------
-//! Old leacy classes (just still here for the setting conversion
-// ------------------------------------------------------------
+//---------------------------------------------------------------//
+// Old leacy classes (just still here for the setting conversion //
+//---------------------------------------------------------------//
 class ExpansionRulesCategory
 {
 	autoptr array< ref ExpansionRuleButton > RuleButtons;
 	string DisplayName;
 };
 
-// ------------------------------------------------------------
 class ExpansionRuleButton
 {
 	ref ExpansionRuleSection RuleSection;
@@ -652,14 +609,12 @@ class ExpansionRuleButton
 	string Icon;
 };
 
-// ------------------------------------------------------------
 class ExpansionRuleSection
 {
 	autoptr array< ref ExpansionRule > Rules;
 	string DetailLabel;
 };
 
-// ------------------------------------------------------------
 class ExpansionServerInfos
 {
 	ref array<ref ExpansionServerInfoButtonData> ServerButtons;
@@ -667,7 +622,6 @@ class ExpansionServerInfos
 	string ServerName;
 };
 
-// ------------------------------------------------------------
 class ExpansionServerInfoButtonData
 {
 	string IconPath;
@@ -676,7 +630,6 @@ class ExpansionServerInfoButtonData
 	int Color;
 };
 
-// ------------------------------------------------------------
 class ExpansionServerInfoSection 
 {
 	bool HasHeading;
@@ -684,7 +637,6 @@ class ExpansionServerInfoSection
 	string BodyText;
 };
 
-// ------------------------------------------------------------
 class ExpansionRule
 {
 	string DetailContent;

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -20,9 +20,9 @@ class ExpansionBlinkLight extends ExpansionPointLight
 	// ------------------------------------------------------------
 	void ExpansionBlinkLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBlinkLight::ExpansionBlinkLight - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "ExpansionBlinkLight");
+#endif
 		
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -30,10 +30,6 @@ class ExpansionBlinkLight extends ExpansionPointLight
 
 			m_Val = 0;
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBlinkLight::ExpansionBlinkLight - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -41,13 +37,10 @@ class ExpansionBlinkLight extends ExpansionPointLight
 	// ------------------------------------------------------------
 	void ~ExpansionBlinkLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBlinkLight::~ExpansionBlinkLight - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "~ExpansionBlinkLight");
+#endif
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBlinkLight::~ExpansionBlinkLight - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -55,9 +48,9 @@ class ExpansionBlinkLight extends ExpansionPointLight
 	// ------------------------------------------------------------
 	override void EOnFrame(IEntity other, float timeSlice)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBlinkLight::EOnFrame - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "EOnFrame");
+#endif
 		
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -82,9 +75,5 @@ class ExpansionBlinkLight extends ExpansionPointLight
 				}
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBlinkLight::EOnFrame - End");
-		#endif
 	}
-}
+};

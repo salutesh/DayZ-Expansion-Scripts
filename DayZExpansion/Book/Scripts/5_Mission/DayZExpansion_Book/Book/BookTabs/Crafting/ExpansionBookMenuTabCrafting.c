@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -120,15 +120,15 @@ class ExpansionBookMenuTabCrafting: ExpansionBookMenuTabBase
 			ExpansionBookMenuTabCraftingCategory catEntry = new ExpansionBookMenuTabCraftingCategory(this, cat);
 			m_CraftingTabController.CraftingCategoriesTabs.Insert(catEntry);
 
-			//EXPrint("Crafting category: " + cat.CategoryName);
+			CF_Log.Debug("Crafting category: " + cat.CategoryName);
 			foreach (ExpansionBookCraftingRecipe recipe : cat.Recipes)
 			{
 				//! Here we should add the recipe to the view.
-				//EXPrint("  Recipe name: " + recipe.GetDisplayName());
-				//EXPrint("    Recipe main result: " + recipe.Results[recipe.m_TempMainIndex].Format());
-				//EXPrint("    Recipe result(s): " + recipe.FormatItems(recipe.Results));
-				//EXPrint("    Ingredient(s) 1: " + recipe.FormatItems(recipe.Ingredients[0]));
-				//EXPrint("    Ingredient(s) 2: " + recipe.FormatItems(recipe.Ingredients[1]));
+				CF_Log.Debug("  Recipe name: " + recipe.GetDisplayName());
+				CF_Log.Debug("    Recipe main result: " + recipe.Results[recipe.m_TempMainIndex].Format());
+				CF_Log.Debug("    Recipe result(s): " + recipe.FormatItems(recipe.Results));
+				CF_Log.Debug("    Ingredient(s) 1: " + recipe.FormatItems(recipe.Ingredients[0]));
+				CF_Log.Debug("    Ingredient(s) 2: " + recipe.FormatItems(recipe.Ingredients[1]));
 				
 				ExpansionBookMenuTabCraftingResult entry = new ExpansionBookMenuTabCraftingResult(this, recipe);
 				catEntry.GetCraftingCategoryController().Results.Insert(entry);
@@ -266,10 +266,6 @@ class ExpansionBookMenuTabCrafting: ExpansionBookMenuTabBase
 		PlayDrawSound();
 	}
 	
-	void OnPrepareButtonClick()
-	{
-	}
-			
 	override void OnBackButtonClick()
 	{
 		super.OnBackButtonClick();

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fsm name="Reloading">
+	<variables>
+		<variable name="weapon" type="Weapon" />
+		<variable name="last_attempt_time" type="int" />
+	</variables>
+	<states default="Start">
+		<state name="Start">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				fsm.last_attempt_time = GetGame().GetTime();
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Reloading">
+			<variables>
+				<variable name="magazine" type="Magazine" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.RaiseWeapon(true);
+				unit.ReloadWeaponAI(fsm.weapon, magazine);
+			</event_entry>
+			<event_exit>
+				unit.RaiseWeapon(false);
+			</event_exit>
+			<event_update>
+				if (!unit.GetWeaponManager()) return EXIT;
+
+				if (unit.GetWeaponManager().IsRunning()) return CONTINUE;
+
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Reloading_Fail">
+			<variables>
+				<variable name="time" type="float" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.RaiseWeapon(false);
+
+				time = 0;
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+				time += DeltaTime;
+
+				// waiting for the weapon to be lowered
+				if (time &lt; 0.5)
+					return CONTINUE;
+
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Swapping_Gun">
+			<variables>
+				<variable name="item" type="ItemBase" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.LocalTakeEntityToHands(item);
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Swapping_Melee">
+			<variables>
+				<variable name="item" type="ItemBase" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.LocalTakeEntityToHands(item);
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+                return EXIT;
+            </event_update>
+		</state>
+		<state name="Removing">
+			<variables>
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+				if (unit.GetItemInHands() != fsm.weapon)
+					return EXIT;  // remove complete
+
+				InventoryLocation il_src = new InventoryLocation();
+				InventoryLocation il_dst = new InventoryLocation();
+
+				fsm.weapon.GetInventory().GetCurrentInventoryLocation(il_src);
+
+				//if (!unit.GetInventory().FindFreeLocationFor(fsm.weapon, FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.CARGO, il_dst))
+				//{
+					GameInventory.SetGroundPosByOwner(unit, fsm.weapon, il_dst);
+				//}
+				
+				unit.ServerTakeToDst(il_src, il_dst);
+
+                return CONTINUE;
+            </event_update>
+		</state>
+	</states>
+	<transitions>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+				int mi = fsm.weapon.GetCurrentMuzzle();
+				Magazine mag;
+				if (fsm.weapon.HasInternalMagazine(mi) &amp;&amp; fsm.weapon.GetInternalMagazineCartridgeCount(mi) &gt; 0)
+				{
+					dst.magazine = null;
+				}
+				else if (Class.CastTo(mag, fsm.weapon.GetMagazine(mi)) &amp;&amp; mag.GetAmmoCount() &gt; 0)
+				{
+					dst.magazine = mag;
+				}
+				else
+				{
+					dst.magazine = unit.GetMagazineToReload(fsm.weapon);
+					if (!dst.magazine) return FAIL;
+				}
+				
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Start" />
+			<to_state name="Reloading" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Start" />
+			<to_state name="Reloading_Fail" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+				//! TODO: Fix weapon change in MP
+				if (GetGame().IsMultiplayer()) return FAIL;
+
+				dst.item = unit.GetWeaponToUse(true);
+
+				if (!dst.item) return FAIL;
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Removing" />
+			<to_state name="Swapping_Gun" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1" y="0.3" />
+				<position_destination x="0" y="0.3" />
+			</editor_data>
+			<guard>
+				dst.item = unit.GetMeleeWeaponToUse();
+
+				if (!dst.item) return FAIL;
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Removing" />
+			<to_state name="Swapping_Melee" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Reloading_Fail" />
+			<to_state name="Removing" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Reloading" />
+			<to_state name="" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+				dst.magazine = unit.GetMagazineToReload(fsm.weapon);
+				if (!dst.magazine) return FAIL;
+				
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Swapping_Gun" />
+			<to_state name="Reloading" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Swapping_Gun" />
+			<to_state name="" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Swapping_Melee" />
+			<to_state name="" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="Removing" />
+			<to_state name="" />
+		</transition>
+	</transitions>
+</fsm>

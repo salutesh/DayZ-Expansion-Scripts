@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -351,7 +351,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionMarketSettings s)
 	{
-		EXPrint(ToString() + "::CopyInternal " + s);
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 
 		MarketSystemEnabled = s.MarketSystemEnabled;
 
@@ -381,7 +383,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			position.Copy(s.LandSpawnPositions[i]);
 			LandSpawnPositions.Insert(position);
 		}
-		EXPrint("LandSpawnPositions " + LandSpawnPositions.Count());
 		
 		//! Need to clear spawn positions first
 		AirSpawnPositions.Clear();
@@ -391,7 +392,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			position.Copy(s.AirSpawnPositions[i]);
 			AirSpawnPositions.Insert(position);
 		}
-		EXPrint("AirSpawnPositions " + AirSpawnPositions.Count());
 		
 		//! Need to clear spawn positions first
 		WaterSpawnPositions.Clear();
@@ -401,12 +401,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			position.Copy(s.WaterSpawnPositions[i]);
 			WaterSpawnPositions.Insert(position);
 		}
-		EXPrint("WaterSpawnPositions " + WaterSpawnPositions.Count());
 
 		if (!m_Categories.Count())
 		{
 			//! NEVER clear these here (dealt with by ClearMarketCaches which is called on mission finish), otherwise respawning will get rid of already synched categories and trader menu will be empty
-			EXPrint("Syncing categories from network categories");
 			for (i = 0; i < s.NetworkCategories.Count(); i++)
 			{
 				ExpansionMarketCategory category = new ExpansionMarketCategory;
@@ -414,7 +412,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 				m_Categories.Insert(category.CategoryID, category);
 			}
 		}
-		EXPrint("Categories " + m_Categories.Count());
 
 		ExpansionMarketSettingsBase sb = s;
 		CopyInternal(sb);
@@ -422,7 +419,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	
 	private void CopyInternal( ExpansionMarketSettingsBase s)
 	{
-		EXPrint(ToString() + "::CopyInternal " + s);
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
 
 		CurrencyIcon = s.CurrencyIcon;
 		
@@ -538,6 +537,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketFish);
 		AddDefaultCategory(new ExpansionMarketFishing);
 		AddDefaultCategory(new ExpansionMarketFood); 
+		AddDefaultCategory(new ExpansionMarketGardening);
 		AddDefaultCategory(new ExpansionMarketGhillies);
 		AddDefaultCategory(new ExpansionMarketGloves);
 		AddDefaultCategory(new ExpansionMarketHandguards);
@@ -549,7 +549,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketHelmets);
 		AddDefaultCategory(new ExpansionMarketKits);
 		AddDefaultCategory(new ExpansionMarketKnifes);
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODWEAPONS
 		AddDefaultCategory(new ExpansionMarketLaunchers);
 	#endif
 		AddDefaultCategory(new ExpansionMarketLights);
@@ -577,7 +577,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		AddDefaultCategory(new ExpansionMarketVegetables);
 		AddDefaultCategory(new ExpansionMarketVehicleParts);
 		AddDefaultCategory(new ExpansionMarketVests);
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODWEAPONS
 		AddDefaultCategory(new ExpansionMarketCrossbows);
 	#endif
 		AddDefaultCategory(new ExpansionMarketEvent);
@@ -598,13 +598,17 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		GetGame().GetWorldName(worldName);
 		worldName.ToLower();
 		
-		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
+		if ( worldName.IndexOf("gloom") == worldName.Length() - 5 )
+		{
+			worldName = worldName.Substring(0, worldName.Length() - 5);
+		}
+		
+		if (worldName == "chernarusplus")
 		{
 			m_TraderZones.Insert(new ExpansionMarketSvetloyarskZone);
 			m_TraderZones.Insert(new ExpansionMarketKrasnostavZone);
 			m_TraderZones.Insert(new ExpansionMarketKamenkaZone);
 			m_TraderZones.Insert(new ExpansionMarketKamenkaBoatsZone);
-			m_TraderZones.Insert(new ExpansionMarketBalotaAircraftsZone);
 			m_TraderZones.Insert(new ExpansionMarketBalotaAircraftsZone);
 			m_TraderZones.Insert(new ExpansionMarketGreenMountainZone);
 		}
@@ -617,6 +621,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		else if (worldName == "takistanplus")
 		{
 			m_TraderZones.Insert(new ExpansionMarketMarastarZone);
+		}
+		else if (worldName == "chiemsee")
+		{
+			m_TraderZones.Insert(new ExpansionMarketKiesWerkZone);
+			m_TraderZones.Insert(new ExpansionMarketNeviHoffZone);
 		}
 		else
 		{
@@ -676,7 +685,12 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		GetGame().GetWorldName(worldName);
 		worldName.ToLower();
 		
-		if (worldName == "chernarusplus" || worldName == "chernarusplusgloom")
+		if ( worldName.IndexOf("gloom") == worldName.Length() - 5 )
+		{
+			worldName = worldName.Substring(0, worldName.Length() - 5);
+		}
+		
+		if (worldName == "chernarusplus")
 		{
 			DefaultChernarusSpawnPositions();
 		}
@@ -687,6 +701,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		else if (worldName == "takistanplus")
 		{
 			DefaultTakistanSpawnPositions();
+		}
+		else if (worldName == "chiemsee")
+		{
+			DefaultChiemseeSpawnPositions();
 		}
 
 		//TraderPrint("DefaultTraderSpawnAreas - End");
@@ -841,6 +859,12 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		position.Position = Vector(4603.24, 4.2, 12332.2);
 		position.Orientation = Vector(203.0, 0.0, 0.0); 
 		LandSpawnPositions.Insert(position);
+	}
+	
+	// ------------------------------------------------------------
+	void DefaultChiemseeSpawnPositions()
+	{
+		//! TODO: Make Air, Boat and Ground spawn pos !
 	}
 	
 	// ------------------------------------------------------------

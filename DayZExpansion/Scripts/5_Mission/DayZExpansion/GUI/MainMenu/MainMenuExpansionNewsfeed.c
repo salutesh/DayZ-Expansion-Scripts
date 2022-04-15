@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -97,13 +97,8 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_SecText2.Update();
 		
 		//! Section 3
-		m_MainText3.Show(false);
-		//m_MainText3.SetText("");
-		//m_MainText3.Update();
-		
+		m_MainText3.Show(false);	
 		m_SecText3.Show(false);
-		//m_SecText3.SetText("");
-		//m_SecText3.Update();
 
 		m_Youtube.Show(false);
 

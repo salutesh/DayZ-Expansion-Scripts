@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionBoltCutters","ExpansionPropaneTorch","ExpansionToolBox"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Objects_Structures_Props"};
+		requiredAddons[] = {"DZ_Data"};
 	};
 };
 class CfgVehicles
@@ -95,6 +95,7 @@ class CfgVehicles
 		heavyitem = 1;
 		itemBehaviour = 2;
 		itemSize[] = {5,3};
+		inventorySlot[] = {"WoodenCrate","woodencrate_1","woodencrate_2","woodencrate_3","woodencrate_4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4","Truck_01_WoodenCrate5","Truck_01_WoodenCrate6"};
 		physLayer = "item_large";
 		carveNavmesh = 1;
 		canBeDigged = 1;

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -246,9 +246,7 @@ class ExpansionMarketCategory
 
 		m_Finalized = true;
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Finalized category ID " + CategoryID + " (" + m_FileName + "), " + m_Items.Count() + " items");
-		#endif
+		CF_Log.Debug("Finalized category ID " + CategoryID + " (" + m_FileName + "), " + m_Items.Count() + " items");
 	}
 	
 	void AddVariants(ExpansionMarketItem item, TIntArray variantIds = NULL, out int variantIdIdx = -1)
@@ -274,18 +272,17 @@ class ExpansionMarketCategory
 					//! Variants that do not already have an entry only need to synch stock, they will be automatically added on client
 					variant.m_StockOnly = true;
 					AddItemInternal(variant, false);
-					#ifdef EXPANSIONEXPRINT
-					EXPrint("Added variant " + className + " (ID " + variant.ItemID + ", idx " + variantIdIdx + ")");
-					#endif
+
+					CF_Log.Debug("Added variant " + className + " (ID " + variant.ItemID + ", idx " + variantIdIdx + ")");
+
 					if (variantIds)
 						variantIdIdx++;
 				}
-				#ifdef EXPANSIONEXPRINT
 				else
 				{
-					EXPrint("Setting variant " + className);
+					CF_Log.Debug("Setting variant " + className);
 				}
-				#endif
+				
 				variant.m_IsVariant = true;
 				variant.m_Parent = item;
 				item.Variants.Insert(className);

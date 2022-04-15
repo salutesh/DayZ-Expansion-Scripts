@@ -18,12 +18,12 @@ class CfgMods
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
 		extra = 0;
 		type = "mod";
-		name = "$STR_MOD_EXPANSION_NAME";
+		name = "DayZ Expansion - Missions";
 		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		tooltip = "DayZ Expansion - Name Tags";
+		tooltip = "DayZ Expansion - Missions";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";

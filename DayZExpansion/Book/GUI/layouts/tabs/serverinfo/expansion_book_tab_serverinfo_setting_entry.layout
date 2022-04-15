@@ -8,7 +8,7 @@ WrapSpacerWidgetClass ExpansionBookMenuTabServerInfoSettingEntry {
  vexactpos 0
  hexactsize 0
  vexactsize 1
- scriptclass "ExpansionBookMenuTabServerInfoSettingBaseController"
+ scriptclass "ExpansionBookMenuTabServerInfoSettingController"
  style Empty
  Padding 0
  Margin 0

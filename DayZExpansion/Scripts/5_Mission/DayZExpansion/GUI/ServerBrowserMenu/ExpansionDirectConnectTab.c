@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -21,29 +21,12 @@ class ExpansionDirectConnectTab extends ServerBrowserTab
 	protected string 										m_ServerIP;
 	protected int 											m_ServerPort;
 	protected string 										m_ServerPassword;
-	
-	// ------------------------------------------------------------
-	// ExpansionDirectConnectTab Constructor
-	// ------------------------------------------------------------
-	void ExpansionDirectConnectTab( Widget parent, ServerBrowserMenuNew menu, TabType type )
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDirectConnectTab::ExpansionDirectConnectTab - Start");
-		#endif
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDirectConnectTab::ExpansionDirectConnectTab - End");
-		#endif
-	}
-	
+		
 	// ------------------------------------------------------------
 	// Override Construct
 	// ------------------------------------------------------------
 	protected override void Construct( Widget parent, ServerBrowserMenuNew menu, TabType type )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDirectConnectTab::Construct - Start");
-		#endif
 		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/GUI/layouts/ui/server_browser/expansion_server_browser_tab_direct.layout", parent );
 	
 		m_IPSetting				= Widget.Cast( m_Root.FindAnyWidget( "direct_ip_setting" ) );
@@ -68,10 +51,6 @@ class ExpansionDirectConnectTab extends ServerBrowserTab
 		{
 			m_PortEditbox.SetText( port );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionDirectConnectTab::Construct - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

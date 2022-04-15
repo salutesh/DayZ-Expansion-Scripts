@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -14,9 +14,10 @@ class ExpansionRearBoatLights extends CarRearLightBase
 {
 	void ExpansionRearBoatLights()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRearBoatLights::Constructor - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "ExpansionRearBoatLights");
+#endif
+
 		m_SegregatedBrakeBrightness = 0;
 		m_SegregatedBrakeRadius = 0;
 		m_SegregatedBrakeAngle = 180;
@@ -39,19 +40,17 @@ class ExpansionRearBoatLights extends CarRearLightBase
 		SetFlareVisible(false);
 		
 		SegregateLight();
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionRearBoatLights::Constructor - End");
-		#endif
 	}
-}
+};
 
 class ExpansionBoatFrontLight extends CarLightBase
 {
 	void ExpansionBoatFrontLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatFrontLight::Constructor - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "ExpansionBoatFrontLight");
+#endif
+
 		m_SegregatedBrightness = 5;
 		m_SegregatedRadius = 60;
 		m_SegregatedAngle = 110;
@@ -66,8 +65,5 @@ class ExpansionBoatFrontLight extends CarLightBase
 		SetFadeOutTime(0.25);
 		
 		SegregateLight();
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionBoatFrontLight::Constructor - End");
-		#endif
 	}
-}
+};

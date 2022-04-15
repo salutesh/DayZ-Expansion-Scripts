@@ -1,0 +1,390 @@
+FrameWidgetClass ExpansionNumpadUI {
+ ignorepointer 1
+ position 1.5745 0
+ size 0.7 0.7
+ halign center_ref
+ valign center_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass CodeLockPanel {
+   ignorepointer 1
+   color 0 0 0 0
+   size 0.335 0.833
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   {
+    TextWidgetClass CodeText {
+     ignorepointer 1
+     position 0.00256 0.19322
+     size 0.36 0.05
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     text "#STR_EXPANSION_BB_CODE_LOCK_PIN"
+     font "gui/fonts/etelkatextpro"
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+    }
+    ButtonWidgetClass Button0 {
+     clipchildren 0
+     position 0.52391 0.54114
+     size 0.13217 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button0_Text {
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 0.807 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "0"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button1 {
+     position 0.16222 0.26628
+     size 0.13217 0.10447
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button1_Text {
+       ignorepointer 1
+       size 0.807 0.729
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "1"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button2 {
+     clipchildren 0
+     position 0.34094 0.23022
+     size 0.13217 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button2_Text {
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 0.807 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "2"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button3 {
+     clipchildren 0
+     position 0.52096 0.22811
+     size 0.13217 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button3_Text {
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 0.807 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "3"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button4 {
+     position 0.69882 0.26504
+     size 0.13217 0.10447
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button4_Text {
+       ignorepointer 1
+       size 0.807 0.729
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "4"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button5 {
+     clipchildren 1
+     position 0.10212 0.38715
+     size 0.19279 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button5_Text {
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 0.622 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "5"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button6 {
+     clipchildren 1
+     position 0.34164 0.38553
+     size 0.13217 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button6_Text {
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 0.807 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "6"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button7 {
+     clipchildren 1
+     position 0.5218 0.38455
+     size 0.13217 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button7_Text {
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 0.807 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "7"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button8 {
+     clipchildren 0
+     position 0.69972 0.38399
+     size 0.19279 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button8_Text {
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 0.622 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "8"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass Button9 {
+     clipchildren 1
+     position 0.34178 0.54159
+     size 0.13217 0.14079
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass Button9_Text {
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 0.807 0.541
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "9"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass ButtonClear {
+     clipchildren 1
+     position 0.11097 0.54314
+     size 0.18689 0.17768
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass ButtonClear_Text {
+       clipchildren 1
+       inheritalpha 0
+       ignorepointer 1
+       position 0.1 0.1
+       size 0.642 0.429
+       halign right_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "*"
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ButtonWidgetClass ButtonOk {
+     clipchildren 1
+     position 0.70119 0.53998
+     size 0.18689 0.17768
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     {
+      TextWidgetClass ButtonOk_Text {
+       clipchildren 1
+       ignorepointer 1
+       color 0.1529 0.6824 0.3765 1
+       position 0.1 0.1
+       size 0.642 0.429
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+    }
+    ImageWidgetClass LockState {
+     ignorepointer 1
+     position 0 0.194
+     size 0.031 0.022
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     image0 "set:expansion_notification_iconset image:icon_lock_unlocked"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+   }
+  }
+  ImageWidgetClass ImageWidget1 {
+   ignorepointer 0
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   imageTexture "{FBCB1F0B60E57FF4}DayZExpansion/BaseBuilding/GUI/textures/numpad.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+ }
+}

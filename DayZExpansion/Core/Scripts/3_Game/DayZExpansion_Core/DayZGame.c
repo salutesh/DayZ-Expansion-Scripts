@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -25,9 +25,9 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	void DayZGame()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZGame::DayZGame - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZGame");
+#endif
 
 		int year;
 		int month;
@@ -50,10 +50,6 @@ modded class DayZGame
 		{
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZGame::DayZGame - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -71,8 +67,7 @@ modded class DayZGame
     {
         super.GlobalsInit();
 
-		string path = "cfgVehicles";
-		string child_name = "";
+		string child_name;
         for (int i = m_CharClassNames.Count() - 1; i >= 0; i--)
 		{
             child_name = m_CharClassNames[i];
@@ -105,9 +100,9 @@ modded class DayZGame
 	// ------------------------------------------------------------
    	static string GetExpansionClientVersion()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("LoadingScreen::GetExpansionClientVersion - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "DayZGame", "GetExpansionClientVersion");
+#endif
 
 		array<ref ModInfo> mods = new array<ref ModInfo>;
 		string version;
@@ -121,10 +116,6 @@ modded class DayZGame
 				break;
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint( "LoadingScreen::GetExpansionClientVersion - Return: " + version );
-		#endif
 
 		return version;
 	}
@@ -206,18 +197,14 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZGame::FirearmEffects - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.WEAPONS, this, "FirearmEffects");
+#endif
 
 		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
 
 		if (m_ExpansionGame != NULL)
 			m_ExpansionGame.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZGame::FirearmEffects - End");
-		#endif
 	}
 
 	override void OnUpdate(bool doSim, float timeslice)
@@ -235,5 +222,85 @@ modded class DayZGame
 			return;
 		
 		super.OnRPC(sender, target, rpc_type, ctx);
+	}
+
+	override void CancelLoginTimeCountdown()
+	{
+		super.CancelLoginTimeCountdown();
+
+		auto menu = GetUIManager().GetMenu();
+		if (!menu)
+			return;
+
+		auto loginTime = LoginTimeBase.Cast(menu);
+		if (!loginTime)
+			return;
+
+		EXLogPrint("Closing " + loginTime);
+
+		if (loginTime.IsStatic())
+		{
+			loginTime.Hide();
+			delete loginTime;
+		}
+		else
+		{
+			loginTime.Close();
+		}
+
+		Expansion_UnlockControls();
+	}
+
+	bool Expansion_UseMouse()
+	{
+		#ifdef PLATFORM_CONSOLE
+		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		#else
+		return true;
+		#endif
+	}
+
+	bool Expansion_UseKeyboard()
+	{
+		#ifdef PLATFORM_CONSOLE
+		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
+		#else
+		return true;
+		#endif
+	}
+
+	bool Expansion_UseGamepad()
+	{
+		return true;
+	}
+
+	void Expansion_UnlockControls()
+	{
+		if (Expansion_UseMouse())
+		{
+			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_MOUSE);
+		}
+
+		auto menu = GetUIManager().GetMenu();
+		auto scriptViewMenu = GetExpansionGame().GetExpansionUIManager().GetMenu();
+
+		if ((menu && menu.UseMouse()) || (scriptViewMenu && scriptViewMenu.UseMouse()))
+		{
+			GetUIManager().ShowUICursor(true);
+		}
+		else
+		{
+			GetUIManager().ShowUICursor(false);
+		}
+
+		if (Expansion_UseKeyboard())
+		{
+			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_KEYBOARD);
+		}
+		
+		if (Expansion_UseGamepad())
+		{
+			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_GAMEPAD);
+		}
 	}
 };

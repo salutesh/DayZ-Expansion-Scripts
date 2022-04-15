@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -21,19 +21,15 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	override protected void OnServerInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::OnServerInit - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+#endif
 
 		LoadSetting( m_SettingsMarket);
 
 		m_NetworkedSettings.Insert( "expansionmarketsettings" );
 		
 		super.OnServerInit();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::OnServerInit - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -50,9 +46,9 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	override protected void CheckSettingsLoaded()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::CheckSettingsLoaded - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CheckSettingsLoaded");
+#endif
 
 		if ( !IsMissionClient() )
 		{
@@ -68,10 +64,6 @@ modded class ExpansionSettings
 			return;
 
 		super.CheckSettingsLoaded();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::CheckSettingsLoaded - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -90,9 +82,9 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	override void Send( notnull PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "[MARKET] ExpansionSettings::SendSettings - Start identity : " + identity );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
 
 		if ( IsMissionClient() )
 			return;
@@ -101,9 +93,6 @@ modded class ExpansionSettings
 
 		m_SettingsMarket.Send( identity );
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[MARKET] ExpansionSettings::SendSettings - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -111,9 +100,9 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::OnRPC - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
+#endif
 
 		if (super.OnRPC(sender, target, rpc_type, ctx))
 			return true;
@@ -126,17 +115,10 @@ modded class ExpansionSettings
 			case ExpansionSettingsRPC.Market:
 			{
 				Expansion_Assert_False( m_SettingsMarket.OnRecieve( ctx ), "Failed reading Market settings" );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_Market");
-				#endif
 
 				return true;
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::OnRPC - End");
-		#endif
 
 		return false;
 	}
@@ -147,9 +129,9 @@ modded class ExpansionSettings
 	// ------------------------------------------------------------
 	override void Save()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::Save - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
+#endif
 
 		super.Save();
 
@@ -157,10 +139,6 @@ modded class ExpansionSettings
 		{
 			m_SettingsMarket.Save();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[MARKET] ExpansionSettings::Save - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -170,4 +148,4 @@ modded class ExpansionSettings
 	{
 		return m_SettingsMarket;
 	}
-}
+};

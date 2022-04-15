@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -24,9 +24,9 @@ class ExpansionPointLight extends PointLightBase
 	// ------------------------------------------------------------
 	void ExpansionPointLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPointLight::ExpansionPointLight - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "ExpansionPointLight");
+#endif
 		
 		SetVisibleDuringDaylight(false);
 		SetCastShadow(false);
@@ -37,10 +37,6 @@ class ExpansionPointLight extends PointLightBase
 		
 		EnableSpecular(false);
 		EnableLinear(true);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPointLight::ExpansionPointLight - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -48,13 +44,10 @@ class ExpansionPointLight extends PointLightBase
 	// ------------------------------------------------------------
 	void ~ExpansionPointLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPointLight::~ExpansionPointLight - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "~ExpansionPointLight");
+#endif
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionPointLight::~ExpansionPointLight - End");
-		#endif
 	}
 
 	bool ExpansionGetEnabled()

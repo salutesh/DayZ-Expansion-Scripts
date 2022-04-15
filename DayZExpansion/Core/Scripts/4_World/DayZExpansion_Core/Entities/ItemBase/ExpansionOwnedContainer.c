@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -208,7 +208,7 @@ class ExpansionOwnedContainer: Container_Base
 
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if (GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 		{
 			super.OnStoreSave(ctx);
@@ -226,7 +226,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (Expansion_Assert_False(super.OnStoreLoad(ctx, version), "[" + this + "] Failed reading OnStoreLoad super"))
 			return false;
 
-		#ifdef CF_MODSTORAGE
+		#ifdef EXPANSION_MODSTORAGE
 		if (version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET)
 			return true;
 		#endif
@@ -237,7 +237,7 @@ class ExpansionOwnedContainer: Container_Base
 		return true;
 	}
 
-	#ifdef CF_MODSTORAGE
+	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);

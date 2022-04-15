@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -12,6 +12,7 @@
 
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT
+//#define EXPANSIONTRACE
 
 //! Enable it if you want to enable logging with EXLogPrint
 //#define EXPANSIONEXLOGPRINT
@@ -51,9 +52,6 @@
 
 // Enable it if you want mission event debug logs enabled
 //#define EXPANSION_MISSION_EVENT_DEBUG
-
-//! Enable it if you want party module debug logs enabled
-//#define EXPANSION_PARTY_MODULE_DEBUG
 
 //! Enable it if you want to enable kill-feed module debug logs
 //#define EXPANSION_KILLFEED_MODULE_DEBUG
@@ -121,9 +119,6 @@
 
 //! Enable or disable bunnyhopping 
 //#define EXPANSION_BUNNY_HOPPING
-
-//! Enable or disable party hud implementation 
-//#define EXPANSIONMOD_PARTYHUD_ENABLE
 
 //#define EXPANSION_SAFEZONE_BLOOD_REGEN_DISABLE
 //#define EXPANSION_SAFEZONE_BLOOD_TRANSFER_DISABLE

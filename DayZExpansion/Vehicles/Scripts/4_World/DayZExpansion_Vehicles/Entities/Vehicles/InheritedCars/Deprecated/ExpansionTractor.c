@@ -3,21 +3,26 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
-class ExpansionTractorDoorsDriver extends CarDoor {}
-class ExpansionTractorDoorsCodriver extends CarDoor {}
+ */
+class ExpansionTractorDoorsDriver extends CarDoor
+{
+};
+
+class ExpansionTractorDoorsCodriver extends CarDoor
+{
+};
 
 class ExpansionTractor extends CarScript
 {
 	void ExpansionTractor()
 	{
 		m_dmgContactCoef = 0.075;
-		
+
 		m_EngineStartOK = "Truck_01_engine_start_SoundSet";
 		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "Truck_01_engine_failed_start_sparkplugs_SoundSet";
@@ -30,207 +35,264 @@ class ExpansionTractor extends CarScript
 
 	override float GetTransportCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
+#endif
+
 		return 3.5;
 	}
 
 	override float GetCameraHeight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+#endif
+
 		return 2.2;
 	}
-	
+
 	override int GetAnimInstance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
+
 		return ExpansionVehicleAnimInstances.EXPANSION_TRACTOR;
 	}
 
-	override int GetSeatAnimationType( int posIdx )
+	override int GetSeatAnimationType(int posIdx)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
 		return DayZPlayerConstants.VEHICLESEAT_DRIVER;
 	}
 
 	override CarLightBase CreateFrontLight()
 	{
-		//TractorFrontLight
-		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionCarFrontLight) );
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
+
+		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionCarFrontLight));
 	}
 
 	override CarRearLightBase CreateRearLight()
 	{
-		//TractorRearLight
-		return CarRearLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionRearCarLights) );
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateRearLight");
+#endif
+		return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionRearCarLights));
 	}
 
 	override string ExpansionGetWheelType(int slot_id)
 	{
-		if (InventorySlots.GetSlotName(slot_id) == "ExpansionTractorFrontWheel_1_1" || InventorySlots.GetSlotName(slot_id) == "ExpansionTractorFrontWheel_2_1"  )
+		if (InventorySlots.GetSlotName(slot_id) == "ExpansionTractorFrontWheel_1_1" || InventorySlots.GetSlotName(slot_id) == "ExpansionTractorFrontWheel_2_1")
 			return "ExpansionTractorFrontWheel";
 		else
 			return "ExpansionTractorBackWheel";
 	}
 
-	override bool CanReleaseAttachment( EntityAI attachment )
+	override bool CanReleaseAttachment(EntityAI attachment)
 	{
-		if( !super.CanReleaseAttachment( attachment ) )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CanReleaseAttachment").Add(attachment);
+#endif
+
+		if (!super.CanReleaseAttachment(attachment))
 			return false;
-		
+
 		string attType = attachment.GetType();
-		
-		if ( EngineIsOn() )
+
+		if (EngineIsOn())
 		{
-			if ( attType == "CarBattery")
+			if (attType == "CarBattery")
 				return false;
 		}
 
 		return true;
 	}
 
-	override int GetCarDoorsState( string slotType )
+	override int GetCarDoorsState(string slotType)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetCarDoorsState").Add(slotType);
+#endif
+
 		CarDoor carDoor;
-		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
-		if ( !carDoor )
+		Class.CastTo(carDoor, FindAttachmentBySlotName(slotType));
+		if (!carDoor)
 			return CarDoorState.DOORS_MISSING;
 
-		switch( slotType )
+		switch (slotType)
 		{
-			case "ExpansionTractorDoorsDriver":
-				if ( GetAnimationPhase("ExpansionTractorDoorsDriver") > 0.5 )
-					return CarDoorState.DOORS_OPEN;
-				else
-					return CarDoorState.DOORS_CLOSED;
+		case "ExpansionTractorDoorsDriver":
+			if (GetAnimationPhase("ExpansionTractorDoorsDriver") > 0.5)
+				return CarDoorState.DOORS_OPEN;
+			else
+				return CarDoorState.DOORS_CLOSED;
 			break;
-			
-			case "ExpansionTractorDoorsCodriver":
-				if ( GetAnimationPhase("ExpansionTractorDoorsCodriver") > 0.5 )
-					return CarDoorState.DOORS_OPEN;
-				else
-					return CarDoorState.DOORS_CLOSED;
+
+		case "ExpansionTractorDoorsCodriver":
+			if (GetAnimationPhase("ExpansionTractorDoorsCodriver") > 0.5)
+				return CarDoorState.DOORS_OPEN;
+			else
+				return CarDoorState.DOORS_CLOSED;
 		}
-		
+
 		return CarDoorState.DOORS_MISSING;
 	}
 
-	override bool CrewCanGetThrough( int posIdx )
+	override bool CrewCanGetThrough(int posIdx)
 	{
-		CarDoor carDoor;
-		switch( posIdx )
-		{
-			case 0:
-				if ( GetCarDoorsState( "ExpansionTractorDoorsDriver" ) == CarDoorState.DOORS_CLOSED )
-					return false;
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
 
-				return true;
+		CarDoor carDoor;
+		switch (posIdx)
+		{
+		case 0:
+			if (GetCarDoorsState("ExpansionTractorDoorsDriver") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
 		}
 
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)
 	{
-		if ( GetAnimationPhase("ExpansionTractorDoorsCodriver") > 0.5 )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetDoorSelectionNameFromSeatPos").Add(posIdx);
+#endif
+
+		if (GetAnimationPhase("ExpansionTractorDoorsCodriver") > 0.5)
 			return "expansiontractordoorscodriver";
 
 		return "expansiontractordoorsdriver";
-		
-		//return super.GetDoorSelectionNameFromSeatPos(posIdx);
 	}
 
-	// ------------------------------------------------------------
 	override string GetDoorInvSlotNameFromSeatPos(int posIdx)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetDoorInvSlotNameFromSeatPos").Add(posIdx);
+#endif
+
 		return "ExpansionTractorDoorsDriver";
-		
-		return super.GetDoorInvSlotNameFromSeatPos(posIdx);
 	}
 
-	override float OnSound( CarSoundCtrl ctrl, float oldValue )
+	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionTractor::OnSound - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
+#endif
 
-		switch ( ctrl )
+		switch (ctrl)
 		{
-			case CarSoundCtrl.DOORS:
-				float newValue = 0;
+		case CarSoundCtrl.DOORS:
+			float newValue = 0;
 
-				//-----
-				if ( GetCarDoorsState( "ExpansionTractorDoorsDriver" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
+			//-----
+			if (GetCarDoorsState("ExpansionTractorDoorsDriver") == CarDoorState.DOORS_CLOSED)
+			{
+				newValue += 0.4;
+			}
 
-				if ( GetCarDoorsState( "ExpansionTractorDoorsCodriver" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
+			if (GetCarDoorsState("ExpansionTractorDoorsCodriver") == CarDoorState.DOORS_CLOSED)
+			{
+				newValue += 0.4;
+			}
 
-				if ( newValue > 1 )
-					newValue = 1;
+			if (newValue > 1)
+				newValue = 1;
 
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionTractor::OnSound - End");
-				#endif
-
-				return newValue;
-			default:
-				break;
+			return newValue;
+		default:
+			break;
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUAZ::OnSound - End");
-		#endif
 
 		return oldValue;
 	}
-	
-	override string GetAnimSourceFromSelection( string selection )
+
+	override string GetAnimSourceFromSelection(string selection)
 	{
-		switch( selection )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetAnimSourceFromSelection").Add(selection);
+#endif
+
+		switch (selection)
 		{
-			case "expansiontractordoorsdriver":
-				return "ExpansionTractorDoorsDriver";
-			case "expansiontractordoorscodriver":
-				return "ExpansionTractorDoorsCodriver";
+		case "expansiontractordoorsdriver":
+			return "ExpansionTractorDoorsDriver";
+		case "expansiontractordoorscodriver":
+			return "ExpansionTractorDoorsCodriver";
 		}
 		return "";
 	}
 
 	override bool IsVitalCarBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		return true;
 	}
 
 	override bool IsVitalTruckBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalTruckBattery");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalSparkPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalSparkPlug");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalGlowPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalGlowPlug");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalEngineBelt()
 	{
-		return false;
-	}
-	
-	override bool IsVitalRadiator()
-	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalEngineBelt");
+#endif
+
 		return false;
 	}
 
-	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	override bool IsVitalRadiator()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalRadiator");
+#endif
+
+		return false;
+	}
+
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
+
 		if (pDoorsSelection == "ExpansionTractorDoorsDriver")
 			return true;
 		if (pDoorsSelection == "ExpansionTractorDoorsCodriver")
@@ -238,4 +300,4 @@ class ExpansionTractor extends CarScript
 
 		return false;
 	}
-}
+};

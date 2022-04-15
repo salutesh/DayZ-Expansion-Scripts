@@ -16,9 +16,10 @@ class CfgMods
 	{
 		dir = "DayZExpansion/PlayerList";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
+		inputs = "DayZExpansion/PlayerList/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
-		name = "$STR_MOD_EXPANSION_NAME";
+		name = "DayZ Expansion - Player List";
 		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";

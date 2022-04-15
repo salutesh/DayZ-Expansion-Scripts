@@ -1,0 +1,4 @@
+class ExpansionLampLightBase : ExpansionStaticMapObject
+{
+
+};

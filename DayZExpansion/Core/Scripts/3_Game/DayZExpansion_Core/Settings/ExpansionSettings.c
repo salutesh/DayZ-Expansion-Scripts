@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,10 +15,14 @@ class ExpansionSettings
 	static ref ScriptInvoker SI_Debug = new ScriptInvoker();
 	static ref ScriptInvoker SI_Log = new ScriptInvoker();
 	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
+	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
 
 	protected autoptr ExpansionDebugSettings m_SettingsDebug;
 	protected autoptr ExpansionLogSettings m_SettingsLog;
 	protected autoptr ExpansionSafeZoneSettings m_SettingsSafeZone;
+	protected autoptr ExpansionNotificationSettings m_SettingsNotification;
+
+	protected autoptr ExpansionMonitoringSettings m_SettingsMonitoring;
 
 	protected bool m_GameInit = false;
 
@@ -31,10 +35,10 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	protected void OnServerInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::OnServerInit - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+#endif
+
 		if ( FileExist( EXPANSION_SETTINGS_FOLDER ) && IsMissionClient() )
 		{
 			DeleteFile( EXPANSION_SETTINGS_FOLDER );
@@ -48,15 +52,15 @@ class ExpansionSettings
 		LoadSetting( m_SettingsDebug );
 		LoadSetting( m_SettingsLog);
 		LoadSetting( m_SettingsSafeZone );
+		LoadSetting( m_SettingsNotification );
+
+		LoadSetting( m_SettingsMonitoring );
 
 		m_NetworkedSettings.Insert( "expansiondebugsettings" );
 		m_NetworkedSettings.Insert( "expansionlogsettings" );
+		m_NetworkedSettings.Insert( "expansionnotificationsettings" );
 		
 		m_SettingsLoaded = true;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::OnServerInit - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -65,6 +69,9 @@ class ExpansionSettings
 		m_SettingsDebug.Unload();
 		m_SettingsLog.Unload();
 		m_SettingsSafeZone.Unload();
+		m_SettingsNotification.Unload();
+
+		m_SettingsMonitoring.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -72,30 +79,17 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	void LoadSetting( ExpansionSettingBase setting )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::LoadSetting - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionSettings: Loading " + setting.ClassName() );
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "LoadSetting");
+#endif
+
 		if ( setting.Load() )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "ExpansionSettings: Successfully Loaded " + setting.ClassName() );
-			#endif
+			CF_Log.Info( "ExpansionSettings: Successfully Loaded " + setting.ClassName() );
 		} else
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "ExpansionSettings: Unsuccessful load, using defaults for " + setting.ClassName() );
-			#endif
-			
+			CF_Log.Info( "ExpansionSettings: Unsuccessful load, using defaults for " + setting.ClassName() );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::LoadSetting - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -103,15 +97,11 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	protected void OnClientInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::OnClientInit - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnClientInit");
+#endif
 
 		m_SettingsLoaded = false;
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::OnClientInit - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -151,9 +141,9 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	protected void CheckSettingsLoaded()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::CheckSettingsLoaded - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CheckSettingsLoaded");
+#endif
 
 		if ( !IsMissionClient() )
 		{
@@ -174,11 +164,13 @@ class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsSafeZone, m_SettingsLoaded ) )
 			return;
 
+		if ( !IsSettingLoaded( m_SettingsNotification, m_SettingsLoaded ) )
+			return;
+
+		if ( !IsSettingLoaded( m_SettingsMonitoring, m_SettingsLoaded ) )
+			return;
+
 		m_SettingsLoaded = true;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::CheckSettingsLoaded - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -189,6 +181,9 @@ class ExpansionSettings
 		m_SettingsDebug = new ExpansionDebugSettings;
 		m_SettingsLog = new ExpansionLogSettings;
 		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
+		m_SettingsNotification = new ExpansionNotificationSettings;
+
+		m_SettingsMonitoring = new ExpansionMonitoringSettings;
 
 		m_NetworkedSettings = new TStringArray;
 	}
@@ -219,9 +214,9 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	void Send( notnull PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "ExpansionSettings::SendSettings - Start identity : " + identity );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
 
 		if ( IsMissionClient() )
 			return;
@@ -232,10 +227,7 @@ class ExpansionSettings
 
 		m_SettingsDebug.Send( identity );
 		m_SettingsLog.Send( identity );
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionSettings::SendSettings - End");
-		#endif
+		m_SettingsNotification.Send( identity );
 	}
 	
 	// ------------------------------------------------------------
@@ -243,9 +235,9 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::OnRPC - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRPC");
+#endif
 
 		if ( rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT )
 			return false;
@@ -255,9 +247,6 @@ class ExpansionSettings
 			case ExpansionSettingsRPC.ListToLoad:
 			{
 				RPC_ListToLoad( ctx, sender, target );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC RPC_ListToLoad");
-				#endif
 
 				return true;
 			}
@@ -265,9 +254,6 @@ class ExpansionSettings
 			case ExpansionSettingsRPC.Debug:
 			{
 				Expansion_Assert_False( m_SettingsDebug.OnRecieve( ctx ), "Failed reading Debug settings" );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC m_SettingsDebug");
-				#endif
 
 				return true;
 			}
@@ -275,17 +261,17 @@ class ExpansionSettings
 			case ExpansionSettingsRPC.Log:
 			{
 				Expansion_Assert_False( m_SettingsLog.OnRecieve( ctx ), "Failed reading Log settings" );
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("ExpansionSettings::OnRPC m_SettingsLog");
-				#endif
+
+				return true;
+			}
+			
+			case ExpansionSettingsRPC.Notification:
+			{
+				Expansion_Assert_False( m_SettingsNotification.OnRecieve( ctx ), "Failed reading Notification settings" );
 
 				return true;
 			}
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::OnRPC - End");
-		#endif
 
 		return false;
 	}
@@ -309,20 +295,18 @@ class ExpansionSettings
 	// ------------------------------------------------------------
 	void Save()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::Save - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
+#endif
 
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
 			m_SettingsDebug.Save();
 			m_SettingsLog.Save();
 			m_SettingsSafeZone.Save();
+			m_SettingsNotification.Save();
+			m_SettingsMonitoring.Save();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSettings::Save - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -347,6 +331,22 @@ class ExpansionSettings
 	ExpansionSafeZoneSettings GetSafeZone()
 	{
 		return m_SettingsSafeZone;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionNotificationSettings GetNotification
+	// ------------------------------------------------------------
+	ExpansionNotificationSettings GetNotification()
+	{
+		return m_SettingsNotification;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionNotificationSettings GetNotification
+	// ------------------------------------------------------------
+	ExpansionMonitoringSettings GetMonitoring()
+	{
+		return m_SettingsMonitoring;
 	}
 };
 

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -136,8 +136,6 @@ class ExpansionBookMenuTabServerInfo: ExpansionBookMenuTabBase
 	void AddLinks()
 	{
 		ObservableCollection<ref ExpansionScriptView> bookmarksSideSpacerLeft = m_BookMenu.GetBookmarksSideSpacerLeft();
-		
-		Print(bookmarksSideSpacerLeft);
 		if (bookmarksSideSpacerLeft)
 		{
 			foreach (ExpansionBookLink link : GetExpansionSettings().GetBook().Links)
@@ -160,8 +158,6 @@ class ExpansionBookMenuTabServerInfo: ExpansionBookMenuTabBase
 	
 	void AddDescriptions()
 	{
-		Print(GetExpansionSettings().GetBook().Descriptions.Count());
-		
 		foreach (ExpansionBookDescriptionCategory category : GetExpansionSettings().GetBook().Descriptions)
 		{
 			ExpansionBookMenuTabServerInfoDescCategory descCategory = new ExpansionBookMenuTabServerInfoDescCategory(this, category);

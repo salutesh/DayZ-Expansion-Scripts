@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -123,12 +123,9 @@ class ExpansionActionConnectTow : ActionInteractBase
 				excluded.Insert(player);
 
 				vector towPosition = car.ModelToWorld(car.Expansion_GetTowPosition());
+				float towRadius = car.Expansion_GetTowLength();
 
 				GetGame().IsBoxColliding(towPosition, car.Expansion_GetTowDirection(), "5 5 5", excluded, collided);
-
-				float radius = 0.5;
-				if (m_IsWinch)
-					radius += 0.5;
 
 				foreach (Object o : collided)
 				{
@@ -157,7 +154,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 
 							if (other_car.Expansion_GetMass() * 0.9 < car.Expansion_GetMass())
 							{
-								if (other_car.Expansion_GetOverlappingTowConnection(towPosition, radius, out_index))
+								if (other_car.Expansion_GetOverlappingTowConnection(towPosition, towRadius, out_index))
 								{
 									out_car = other_car;
 									return true;
@@ -169,29 +166,11 @@ class ExpansionActionConnectTow : ActionInteractBase
 					ItemBase other_vehicle;
 					if (Class.CastTo(other_vehicle, o))
 					{
-						if (!other_vehicle.Expansion_IsBeingTowed() && !other_vehicle.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_vehicle))
+						if (!other_vehicle.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_vehicle))
 						{
 							m_IsWinch = car.Expansion_IsHelicopter();
 
-							//! Check if someone is inside the Vehicle the Helicopter is trying to winch
-							//! Goal is to prevent a exploit allowing to get inside people bases
-							if (m_IsWinch)
-							{
-								auto helicopter = ExpansionVehicleHelicopterBase.Cast(other_vehicle);
-
-								hasCrew = false;
-								for (i = 0; i < helicopter.CrewSize(); i++)
-								{
-									crew = helicopter.CrewMember(i);
-									if (crew)
-										hasCrew = true;
-								}
-
-								if (hasCrew)
-									continue;
-							}
-
-							if (other_vehicle.Expansion_GetOverlappingTowConnection(towPosition, radius, out_index))
+							if (other_vehicle.Expansion_GetOverlappingTowConnection(towPosition, towRadius, out_index))
 							{
 								out_car = other_vehicle;
 								return true;

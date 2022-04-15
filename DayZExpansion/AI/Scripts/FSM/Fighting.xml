@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fsm name="Fighting">
+	<variables>
+		<variable name="LastFireTime" type="int" />
+		<variable name="TimeBetweenFiring" type="int" default="5000" />
+	</variables>
+	<states default="Positioning">
+		<!-- EXPAND POSITIONING TO CHECK FOR LOS, RANGE, WEAPON -->
+		<state name="Positioning">
+			<variables>
+				<variable name="position" type="vector" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_update>
+				bool wantsLower = false;
+				bool wantsRaise = false;
+
+				if (GetGame().GetTime() - fsm.LastFireTime &gt; fsm.TimeBetweenFiring)
+				{
+					wantsLower = true;
+				}
+
+				auto target = unit.GetTarget();
+				if (target)
+				{
+					position = target.GetPosition(unit);
+					auto distance = vector.DistanceSq(unit.GetPosition(), position);
+					
+					bool shouldBeMeleeing = false;
+
+					auto hands = unit.GetHumanInventory().GetEntityInHands();
+					if (!hands)
+					{
+						shouldBeMeleeing = true;
+					}
+					else if (hands.IsWeapon())
+					{
+						if (distance &lt; 1.0)
+						{
+							shouldBeMeleeing = true;
+						}
+					}
+					else if (hands.IsMeleeWeapon())
+					{
+						shouldBeMeleeing = true;
+					}
+					
+					if (shouldBeMeleeing)
+					{
+						if (distance &lt; 4.0)
+						{
+							wantsRaise = true;
+						}
+						else
+						{
+							wantsLower = true;
+						}
+					}
+				}
+
+				if (wantsRaise)
+				{
+					unit.RaiseWeapon(true);
+				}
+				else if (!wantsLower)
+				{
+					unit.RaiseWeapon(false);
+				}
+
+				unit.OverridePosition(position);
+
+				return EXIT;
+            </event_update>
+		</state>
+		<state name="FireWeapon">
+			<variables>
+				<variable name="time" type="float" />
+				<variable name="target" type="eAITarget" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.RaiseWeapon(true);
+
+				time = 0;
+
+				fsm.LastFireTime = GetGame().GetTime();
+			</event_entry>
+			<event_exit>
+			</event_exit>
+			<event_update>
+				if (!target)
+					return EXIT;
+
+				auto lowPosition = target.GetPosition(unit);
+				auto aimPosition = lowPosition + target.GetAimOffset(unit);
+
+				time += DeltaTime;
+				unit.OverridePosition(lowPosition);
+				unit.LookAtPosition(aimPosition);
+				unit.AimAtPosition(aimPosition);
+
+				if (!unit.IsRaised() || !unit.IsWeaponRaiseCompleted())
+				{
+					unit.RaiseWeapon(true);
+
+					if (time >= 0.5)
+					{
+						return EXIT;
+					}
+
+					// waiting for the weapon to be raised
+					return CONTINUE;
+				}
+
+				unit.TryFireWeapon();
+
+				return EXIT;
+            </event_update>
+		</state>
+		<state name="Melee">
+			<variables>
+				<variable name="time" type="float" />
+				<variable name="target" type="eAITarget" />
+			</variables>
+			<editor_data>
+				<position x="333" y="374" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				time = 0;
+
+				fsm.LastFireTime = GetGame().GetTime();
+			</event_entry>
+			<event_update>
+				if (!target)
+					return EXIT;
+
+				auto lowPosition = target.GetPosition(unit);
+				auto aimPosition = lowPosition + target.GetAimOffset(unit);
+
+				time += DeltaTime;
+				unit.OverridePosition(lowPosition);
+				unit.LookAtPosition(aimPosition);
+				unit.AimAtPosition(aimPosition);
+
+				if (target.GetDistance(unit) &gt; 1.0)
+				{
+					if (time >= 0.5)
+					{
+						return EXIT;
+					}
+
+					return CONTINUE;
+				}
+
+				auto direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
+				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.75)
+				{
+					if (time >= 0.5)
+					{
+						return EXIT;
+					}
+
+					return CONTINUE;
+				}
+
+				unit.Notify_Melee();
+				time = 0;
+				
+				return EXIT;
+            </event_update>
+		</state>
+	</states>
+	<transitions>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+				// we are targetting an entity?
+				dst.target = unit.GetTarget();
+				if (!dst.target || !dst.target.IsMeleeViable(unit)) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Melee" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+				// we are aiming at something?
+				dst.target = unit.GetTarget();
+				if (!dst.target) return FAIL;
+
+				if (unit.IsInMelee()) return FAIL;
+
+				// we are holding a weapon
+				Weapon weapon;
+				if (!Class.CastTo(weapon, unit.GetItemInHands())) return FAIL;
+
+				//TODO: check line of sight
+				
+				int mi = weapon.GetCurrentMuzzle();
+				if (weapon.IsChamberEmpty(mi)) return FAIL;
+				if (weapon.IsChamberFiredOut(mi)) return FAIL;
+				if (weapon.IsChamberJammed(mi)) return FAIL;
+
+				return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="FireWeapon" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="0" y="0.7" />
+				<position_destination x="1" y="0.7" />
+			</editor_data>
+			<guard>
+                return SUCCESS;
+            </guard>
+			<event name="" />
+			<from_state name="" />
+			<to_state name="Positioning" />
+		</transition>
+	</transitions>
+</fsm>

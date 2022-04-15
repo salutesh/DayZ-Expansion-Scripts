@@ -3,66 +3,41 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class ExpansionAutorunModule: JMModuleBase
+[CF_RegisterModule(ExpansionAutorunModule)]
+class ExpansionAutorunModule: CF_ModuleWorld
 {
 	protected int m_AutoWalkMode = 0;
 	protected int m_OldAutoWalkMode = m_AutoWalkMode;
 	protected bool m_StartedWithSprint = false;
-	
-	void ExpansionAutorunModule()
+
+	override void OnInit()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::ExpansionAutorunModule - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::ExpansionAutorunModule - End");
-		#endif
+		super.OnInit();
+
+		EnableRPC();
 	}
-
-	/*
-	void ~ExpansionAutorunModule()
-	{
-
-	}*/
 
 	// ------------------------------------------------------------
 	// Expansion SHIFT
 	// ------------------------------------------------------------
 	static bool SHIFT()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::SHIFT - Start");
-		#endif
-		
+	{		
    		return( ( KeyState( KeyCode.KC_LSHIFT ) > 0 ) || ( KeyState( KeyCode.KC_RSHIFT ) > 0 ) );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::SHIFT - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion CTRL
 	// ------------------------------------------------------------
 	static bool CTRL()
-	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::CTRL - Start");
-		#endif
-		
+	{		
    		return( ( KeyState( KeyCode.KC_LCONTROL ) > 0 ) || ( KeyState( KeyCode.KC_RCONTROL ) > 0 ) );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::CTRL - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -70,10 +45,10 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	void AutorunSync(ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::AutorunSync - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunSync");
+#endif
+
 		if ( !IsMissionHost() )
 			return;
 		
@@ -106,10 +81,6 @@ class ExpansionAutorunModule: JMModuleBase
 
 		   	player.GetInputController().OverrideMovementAngle( true, 1 );
 	   	}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::AutorunSync - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -117,10 +88,10 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	void AutorunDisable(ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::AutorunDisable - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunDisable");
+#endif
+
 		if ( !IsMissionHost() )
 			return;
 		
@@ -133,10 +104,6 @@ class ExpansionAutorunModule: JMModuleBase
 
 		player.GetInputController().OverrideMovementSpeed( false, 1 );	
 		player.GetInputController().OverrideMovementAngle( false, 1 );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::AutorunDisable - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -144,10 +111,10 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	void AutoRun()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::AutoRun - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutoRun");
+#endif
+
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		
 		if ( m_AutoWalkMode > 0 && !SHIFT() )
@@ -171,10 +138,6 @@ class ExpansionAutorunModule: JMModuleBase
 				m_StartedWithSprint = false;
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::AutoRun - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -182,10 +145,10 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	void UpdateAutoWalk()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::UpdateAutoWalk - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "UpdateAutoWalk");
+#endif
+
 		if (GetGame() && GetGame().GetPlayer()) 
 		{
 			PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -230,10 +193,6 @@ class ExpansionAutorunModule: JMModuleBase
 				}
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::UpdateAutoWalk - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -263,27 +222,25 @@ class ExpansionAutorunModule: JMModuleBase
 	// ------------------------------------------------------------
 	// Override OnRPC
 	// ------------------------------------------------------------
-	#ifdef CF_BUGFIX_REF
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
-	#else
-	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
-	#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::OnRPC - Start");
-		#endif
-		switch ( rpc_type )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnRPC");
+#endif
+
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
 		{
 			case ExpansionAutoRunRPC.AUTORUNSYNC:
-				AutorunSync( ctx, sender, target );
+				AutorunSync( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 			
 			case ExpansionAutoRunRPC.AUTORUNDISABLE:
-				AutorunDisable( ctx, sender, target );
+				AutorunDisable( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		}
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionAutorunModule::OnRPC - End");
-		#endif
 	}
 };

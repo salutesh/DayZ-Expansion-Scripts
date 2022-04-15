@@ -3,14 +3,14 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-#ifdef EXPANSIONMOD
+#ifdef EXPANSIONMODGROUPS
 class ExpansionDialog_InviteParty: ExpansionDialogBookBase
 {
 	ref ExpansionDialogContent_Text m_Text;
@@ -70,7 +70,7 @@ class ExpansionDialogButton_Text_PartyInvite_Accept: ExpansionDialogBookButton_T
 			m_PartyTab = ExpansionBookMenuTabParty.Cast(m_PartyInviteDialog.GetParentView());
 		
 		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(GetModuleManager().GetModule(ExpansionPartyModule));
+			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 		
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

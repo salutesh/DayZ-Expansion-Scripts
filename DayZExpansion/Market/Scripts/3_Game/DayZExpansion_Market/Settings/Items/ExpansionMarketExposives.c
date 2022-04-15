@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -28,7 +28,7 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		AddItem("FlashGrenade", 			250,		500,		1,		100);
 
 		// SMOKE GRANADES
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODWEAPONS
 		AddItem("M18SmokeGrenade_Red", 		200,		400,		1,		100, null, {"M18SmokeGrenade_Green", "M18SmokeGrenade_Yellow", "M18SmokeGrenade_Purple", "M18SmokeGrenade_White", "Expansion_M18SmokeGrenade_Teargas"});
 		AddItem("Expansion_M18SmokeGrenade_Teargas", 	260,	520,	1,		100);
 	#else
@@ -41,9 +41,12 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		AddItem("RDG2SmokeGrenade_Black", 	200,		400,		1,		100, null, {"RDG2SmokeGrenade_White"});
 		//AddItem("RDG2SmokeGrenade_White", 	200,		400,		1,		100);
 		
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODMISSIONS
 		// Airdrop smoke
-		//AddItem("ExpansionSupplySignal", 	1000000,	2000000,	1,		100);
+		AddItem("ExpansionSupplySignal", 	1000000,	2000000,	1,		100);
+	#endif
+
+	#ifdef EXPANSIONMODBASEBUILDING
 
 		// EXPLOSIVE CHARGES
 		AddItem("ExpansionSatchel", 		500,		1000,		1,		100);

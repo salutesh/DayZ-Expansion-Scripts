@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Market_Objects
 	{
-		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderBaty","ExpansionTraderAIMirek","ExpansionTraderAIDenis","ExpansionTraderAIBoris","ExpansionTraderAICyril","ExpansionTraderAIElias","ExpansionTraderAIFrancis","ExpansionTraderAIGuo","ExpansionTraderAIHassan","ExpansionTraderAIIndar","ExpansionTraderAIJose","ExpansionTraderAIKaito","ExpansionTraderAILewis","ExpansionTraderAIManua","ExpansionTraderAINiki","ExpansionTraderAIOliver","ExpansionTraderAIPeter","ExpansionTraderAIQuinn","ExpansionTraderAIRolf","ExpansionTraderAISeth","ExpansionTraderAITaiki","ExpansionTraderAILinda","ExpansionTraderAIMaria","ExpansionTraderAIFrida","ExpansionTraderAIGabi","ExpansionTraderAIHelga","ExpansionTraderAIIrena","ExpansionTraderAIJudy","ExpansionTraderAIKeiko","ExpansionTraderAIEva","ExpansionTraderAINaomi","ExpansionTraderAIBaty"};
+		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderBaty"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs","DZ_Animals","DZ_Animals_Bliss","DZ_Characters","DZ_Characters_Zombies"};
@@ -313,35 +313,190 @@ class CfgVehicles
 		displayName = "Baty";
 		vehicleClass = "Expansion_Trader";
 	};
-	class ExpansionTraderAIMirek: ExpansionTraderMirek{};
-	class ExpansionTraderAIDenis: ExpansionTraderDenis{};
-	class ExpansionTraderAIBoris: ExpansionTraderBoris{};
-	class ExpansionTraderAICyril: ExpansionTraderCyril{};
-	class ExpansionTraderAIElias: ExpansionTraderElias{};
-	class ExpansionTraderAIFrancis: ExpansionTraderFrancis{};
-	class ExpansionTraderAIGuo: ExpansionTraderGuo{};
-	class ExpansionTraderAIHassan: ExpansionTraderHassan{};
-	class ExpansionTraderAIIndar: ExpansionTraderIndar{};
-	class ExpansionTraderAIJose: ExpansionTraderJose{};
-	class ExpansionTraderAIKaito: ExpansionTraderKaito{};
-	class ExpansionTraderAILewis: ExpansionTraderLewis{};
-	class ExpansionTraderAIManua: ExpansionTraderManua{};
-	class ExpansionTraderAINiki: ExpansionTraderNiki{};
-	class ExpansionTraderAIOliver: ExpansionTraderOliver{};
-	class ExpansionTraderAIPeter: ExpansionTraderPeter{};
-	class ExpansionTraderAIQuinn: ExpansionTraderQuinn{};
-	class ExpansionTraderAIRolf: ExpansionTraderRolf{};
-	class ExpansionTraderAISeth: ExpansionTraderSeth{};
-	class ExpansionTraderAITaiki: ExpansionTraderTaiki{};
-	class ExpansionTraderAILinda: ExpansionTraderLinda{};
-	class ExpansionTraderAIMaria: ExpansionTraderMaria{};
-	class ExpansionTraderAIFrida: ExpansionTraderFrida{};
-	class ExpansionTraderAIGabi: ExpansionTraderGabi{};
-	class ExpansionTraderAIHelga: ExpansionTraderHelga{};
-	class ExpansionTraderAIIrena: ExpansionTraderIrena{};
-	class ExpansionTraderAIJudy: ExpansionTraderJudy{};
-	class ExpansionTraderAIKeiko: ExpansionTraderKeiko{};
-	class ExpansionTraderAIEva: ExpansionTraderEva{};
-	class ExpansionTraderAINaomi: ExpansionTraderNaomi{};
-	class ExpansionTraderAIBaty: ExpansionTraderBaty{};
+	class eAI_SurvivorM_Mirek: SurvivorM_Mirek{};
+	class eAI_SurvivorM_Denis: SurvivorM_Denis{};
+	class eAI_SurvivorM_Boris: SurvivorM_Boris{};
+	class eAI_SurvivorM_Cyril: SurvivorM_Cyril{};
+	class eAI_SurvivorM_Elias: SurvivorM_Elias{};
+	class eAI_SurvivorM_Francis: SurvivorM_Francis{};
+	class eAI_SurvivorM_Guo: SurvivorM_Guo{};
+	class eAI_SurvivorM_Hassan: SurvivorM_Hassan{};
+	class eAI_SurvivorM_Indar: SurvivorM_Indar{};
+	class eAI_SurvivorM_Jose: SurvivorM_Jose{};
+	class eAI_SurvivorM_Kaito: SurvivorM_Kaito{};
+	class eAI_SurvivorM_Lewis: SurvivorM_Lewis{};
+	class eAI_SurvivorM_Manua: SurvivorM_Manua{};
+	class eAI_SurvivorM_Niki: SurvivorM_Niki{};
+	class eAI_SurvivorM_Oliver: SurvivorM_Oliver{};
+	class eAI_SurvivorM_Peter: SurvivorM_Peter{};
+	class eAI_SurvivorM_Quinn: SurvivorM_Quinn{};
+	class eAI_SurvivorM_Rolf: SurvivorM_Rolf{};
+	class eAI_SurvivorM_Seth: SurvivorM_Seth{};
+	class eAI_SurvivorM_Taiki: SurvivorM_Taiki{};
+	class eAI_SurvivorF_Linda: SurvivorF_Linda{};
+	class eAI_SurvivorF_Maria: SurvivorF_Maria{};
+	class eAI_SurvivorF_Frida: SurvivorF_Frida{};
+	class eAI_SurvivorF_Gabi: SurvivorF_Gabi{};
+	class eAI_SurvivorF_Helga: SurvivorF_Helga{};
+	class eAI_SurvivorF_Irena: SurvivorF_Irena{};
+	class eAI_SurvivorF_Judy: SurvivorF_Judy{};
+	class eAI_SurvivorF_Keiko: SurvivorF_Keiko{};
+	class eAI_SurvivorF_Eva: SurvivorF_Eva{};
+	class eAI_SurvivorF_Naomi: SurvivorF_Naomi{};
+	class eAI_SurvivorF_Baty: SurvivorF_Baty{};
+	class ExpansionTraderAIMirek: eAI_SurvivorM_Mirek
+	{
+		displayName = "Mirek";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIDenis: eAI_SurvivorM_Denis
+	{
+		displayName = "Denis";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIBoris: eAI_SurvivorM_Boris
+	{
+		displayName = "Boris";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAICyril: eAI_SurvivorM_Cyril
+	{
+		displayName = "Cyril";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIElias: eAI_SurvivorM_Elias
+	{
+		displayName = "Elias";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIFrancis: eAI_SurvivorM_Francis
+	{
+		displayName = "Francis";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIGuo: eAI_SurvivorM_Guo
+	{
+		displayName = "Guo";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIHassan: eAI_SurvivorM_Hassan
+	{
+		displayName = "Hassan";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIIndar: eAI_SurvivorM_Indar
+	{
+		displayName = "Indar";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIJose: eAI_SurvivorM_Jose
+	{
+		displayName = "Jose";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIKaito: eAI_SurvivorM_Kaito
+	{
+		displayName = "Kaito";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAILewis: eAI_SurvivorM_Lewis
+	{
+		displayName = "Lewis";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIManua: eAI_SurvivorM_Manua
+	{
+		displayName = "Manua";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAINiki: eAI_SurvivorM_Niki
+	{
+		displayName = "Niki";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIOliver: eAI_SurvivorM_Oliver
+	{
+		displayName = "Oliver";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIPeter: eAI_SurvivorM_Peter
+	{
+		displayName = "Peter";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIQuinn: eAI_SurvivorM_Quinn
+	{
+		displayName = "Quinn";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIRolf: eAI_SurvivorM_Rolf
+	{
+		displayName = "Rolf";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAISeth: eAI_SurvivorM_Seth
+	{
+		displayName = "Seth";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAITaiki: eAI_SurvivorM_Taiki
+	{
+		displayName = "Taiki";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAILinda: eAI_SurvivorF_Linda
+	{
+		displayName = "Linda";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIMaria: eAI_SurvivorF_Maria
+	{
+		displayName = "Maria";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIFrida: eAI_SurvivorF_Frida
+	{
+		displayName = "Frida";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIGabi: eAI_SurvivorF_Gabi
+	{
+		displayName = "Gabi";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIHelga: eAI_SurvivorF_Helga
+	{
+		displayName = "Helga";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIIrena: eAI_SurvivorF_Irena
+	{
+		displayName = "Irena";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIJudy: eAI_SurvivorF_Judy
+	{
+		displayName = "Judy";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIKeiko: eAI_SurvivorF_Keiko
+	{
+		displayName = "Keiko";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIEva: eAI_SurvivorF_Eva
+	{
+		displayName = "Eva";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAINaomi: eAI_SurvivorF_Naomi
+	{
+		displayName = "Naomi";
+		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionTraderAIBaty: eAI_SurvivorF_Baty
+	{
+		displayName = "Baty";
+		vehicleClass = "Expansion_Trader";
+	};
 };

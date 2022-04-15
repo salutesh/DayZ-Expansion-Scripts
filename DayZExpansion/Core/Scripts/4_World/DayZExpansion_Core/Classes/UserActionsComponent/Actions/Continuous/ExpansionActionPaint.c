@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -33,7 +33,7 @@ class ExpansionActionPaint: ActionContinuousBase
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
 		m_SpecialtyWeight = UASoftSkillsWeight.PRECISE_LOW;
 
-		Class.CastTo( m_SkinModule, GetModuleManager().GetModule( ExpansionSkinModule ) );
+		CF_Modules<ExpansionSkinModule>.Get(m_SkinModule);
 	}
 	
 	override void CreateConditionComponents()  
@@ -81,9 +81,9 @@ class ExpansionActionPaint: ActionContinuousBase
 	
 	override void OnStartServer( ActionData action_data )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionActionPaint::OnStartServer - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "OnStartServer");
+#endif
 
 		super.OnStartServer( action_data );
 
@@ -111,10 +111,6 @@ class ExpansionActionPaint: ActionContinuousBase
 		{
 			SEffectManager.PlaySound( "Expansion_Spraying_SoundSet", action_data.m_Target.GetObject().GetPosition() );
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionActionPaint::OnStartServer - End m_Car : " + car);
-		#endif
 	}
 
 	override void OnStartClient( ActionData action_data )

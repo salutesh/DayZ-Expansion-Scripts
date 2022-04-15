@@ -4,15 +4,19 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Objects_Gear
 	{
-		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
+		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","ExpansionUniversalWheel"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Scripts","DayZExpansion_Objects_Gear_Spraycans"};
+		requiredAddons[] = {"DZ_Gear_Camping","DZ_Scripts","DayZExpansion_Objects_Gear_Spraycans"};
 	};
 };
 class CfgVehicles
 {
 	class Inventory_Base;
+	class BatteryCharger: Inventory_Base
+	{
+		attachments[] = {"CarBattery","TruckBattery","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
+	};
 	class ExpansionStaticKeyGrinder: Inventory_Base
 	{
 		scope = 2;
@@ -42,10 +46,11 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_CAR_KEYS_DESC";
 		model = "DayZExpansion\Vehicles\Objects\Gear\vehicle_key_01.p3d";
 		animClass = "Knife";
-		rotationFlags = 17;
+		rotationFlags = 16;
 		weight = 4;
-		itemSize[] = {1,1};
+		itemSize[] = {1,2};
 		fragility = 0.01;
+		attachments[] = {"KeyChain"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -61,6 +66,71 @@ class CfgVehicles
 	class ExpansionCarAdminKey: ExpansionCarKey
 	{
 		displayName = "Admin Key";
+	};
+	class ExpansionKeyChainBase: Inventory_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_KEYCHAIN";
+		descriptionShort = "$STR_EXPANSION_KEYCHAIN_DESC";
+		model = "DayZExpansion\Vehicles\Objects\Gear\keychain\expansion_keychain.p3d";
+		rotationFlags = 16;
+		weight = 4;
+		itemSize[] = {1,1};
+		inventorySlot[] = {"KeyChain"};
+		fragility = 0.01;
+		hiddenSelections[] = {"body","label","ring"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_red_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_worn.rvmat","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn.rvmat","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring.rvmat"};
+	};
+	class ExpansionKeyChain_Red: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_red_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_White: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_white_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Black: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_black_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Blue: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_blue_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Green: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_green_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Grey: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_grey_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Orange: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_orange_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Pink: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_pink_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Purple: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_purple_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
+	};
+	class ExpansionKeyChain_Yellow: ExpansionKeyChainBase
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Objects\Gear\keychain\data\body_yellow_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\label_worn_co.paa","DayZExpansion\Vehicles\Objects\Gear\keychain\data\ring_co.paa"};
 	};
 	class GlowPlug: Inventory_Base
 	{
@@ -231,6 +301,32 @@ class CfgVehicles
 		};
 	};
 	class CarWheel;
+	class ExpansionUniversalWheel: CarWheel
+	{
+		scope = 2;
+		displayName = "Car Wheel";
+		descriptionShort = "$STR_CivSedanWheel1";
+		model = "\DZ\vehicles\wheeled\civiliansedan\proxy\sedanwheel.p3d";
+		inventorySlot[] = {"NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1","Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2","CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2","Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2","BusWheel_1_1","BusWheel_2_1","BusWheel_1_2","BusWheel_2_2","ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
+		rotationFlags = 4;
+		radiusByDamage[] = {0,0.34,0.3,0.3,0.9998,0.25,0.9999,0.2};
+		radius = 0.34;
+		friction = 0.96;
+		width = 0.16;
+		tyreRollResistance = 0.015;
+		tyreTread = 1;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 200;
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
 	class ExpansionSpraycanGreen;
 	class ExpansionSpraycanBlueline;
 	class ExpansionSpraycanDigital;
@@ -314,5 +410,21 @@ class CfgSlots
 		displayName = "$STR_EXPANSION_AIRCRAFT_BATTERY";
 		selection = "battery";
 		ghostIcon = "carbattery";
+	};
+	class Slot_KeyChain
+	{
+		name = "KeyChain";
+		displayName = "KeyChain";
+		ghostIcon = "missing";
+	};
+};
+class CfgNonAIVehicles
+{
+	class ProxyAttachment;
+	class Proxyexpansion_keychain: ProxyAttachment
+	{
+		scope = 2;
+		inventorySlot[] = {"KeyChain"};
+		model = "DayZExpansion\Vehicles\Objects\Gear\keychain\expansion_keychain.p3d";
 	};
 };

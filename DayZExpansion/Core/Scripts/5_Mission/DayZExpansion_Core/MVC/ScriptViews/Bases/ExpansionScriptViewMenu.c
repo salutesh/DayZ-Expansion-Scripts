@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -32,8 +32,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void Show()
 	{
-		super.Show();
-		
 		if (!CanShow())
 			return;
 		
@@ -54,8 +52,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void Hide()
 	{
-		super.Hide();
-		
 		UnlockControls();
 		SetIsVisible(false);
 		GetLayoutRoot().Show(false);
@@ -150,12 +146,20 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		super.ShowHud(state);
 
 		MissionGameplay mission = MissionGameplay.Cast(GetGame().GetMission());
-		mission.GetHud().ShowQuickbarUI(state);
-		mission.GetHud().ShowHudUI(state);
+		if (!mission.GetHud())
+			return;
+		
+		IngameHud hud = IngameHud.Cast(mission.GetHud());
+		if (hud)
+			return;
+		
+		hud.ShowQuickbarUI(state);
+		hud.ShowHudUI(state);
+		
 		if (state)
-			mission.GetHud().ShowCursor();
+			hud.ShowCursor();
 		else
-			mission.GetHud().HideCursor();
+			hud.HideCursor();
 	}
 	
 	override void ShowUICursor(bool state)

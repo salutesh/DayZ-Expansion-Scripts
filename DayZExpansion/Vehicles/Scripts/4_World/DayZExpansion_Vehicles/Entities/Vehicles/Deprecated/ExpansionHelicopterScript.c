@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -89,6 +89,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void AfterStoreLoad()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "LongDeferredInit");
+#endif
+
 		super.AfterStoreLoad();
 
 		//! Fix for helis saved to storage before dmgZone for engine/fueltank/reflector were added
@@ -111,6 +115,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void LongDeferredInit()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "LongDeferredInit");
+#endif
+
 		super.LongDeferredInit();
 
 		m_IsInitialized = true;
@@ -127,26 +135,46 @@ class ExpansionHelicopterScript extends CarScript
 
 	bool IsAutoHover()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsAutoHover");
+#endif
+
 		return m_Simulation.IsAutoHover();
 	}
 
 	void SwitchAutoHover()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SwitchAutoHover");
+#endif
+
 		m_Simulation.SwitchAutoHover();
 	}
 
 	bool IsFreeLook()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsFreeLook");
+#endif
+
 		return m_Simulation.IsFreeLook();
 	}
 
 	override void SwitchGear()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SwitchGear");
+#endif
+
 		Error("Not implemented!");
 	}
 
 	override void EOnContact(IEntity other, Contact extra)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "EOnContact").Add(other).Add(extra);
+#endif
+
 		//! Expansion helis do not receive vanilla OnContact (for some reason?), but some 3rd party ones do.
 		//! Only call OnContact if impulse is different from last impulse handled by OnContact.
 		//! Call order Expansion helis: EOnContact (called by base game), then OnContact (called by Expansion EOnContact)
@@ -160,6 +188,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "EOnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
+#endif
+
 		if (!m_IsInitialized)
 			return;
 
@@ -245,10 +277,6 @@ class ExpansionHelicopterScript extends CarScript
 			DecreaseHealth(dmgZone, "", additionalDmg);
 		}
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + " (mass " + m_State.m_Mass + ") " + dmgZone + " has been damaged by " + source + " with " + ammo + " for " + (dmg + additionalDmg) + " health points, remaining health " + GetHealth(dmgZone, "") + ", explode " + explode);
-		#endif
-
 		if (isGlobal)
 		{
 			//! Always damage engine proportionally when taking global damage
@@ -257,9 +285,6 @@ class ExpansionHelicopterScript extends CarScript
 			float engineHealthNew = engineMaxHealth * GetHealth01(dmgZone, "");
 			if (engineHealthNew < engineHealth)
 			{
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("Damaging engine proportionally by " + (engineHealth - engineHealthNew) + " health points");
-				#endif
 				SetHealth("Engine", "", engineHealthNew);
 			}
 		}
@@ -272,6 +297,10 @@ class ExpansionHelicopterScript extends CarScript
 	// ------------------------------------------------------------
 	override void ExpansionOnExplodeServer(int damageType, string ammoType)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "ExpansionOnExplodeServer").Add(damageType).Add(ammoType);
+#endif
+
 		super.ExpansionOnExplodeServer(damageType, ammoType);
 
 
@@ -404,6 +433,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void ExpansionOnExplodeClient(int damageType, string ammoType)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "ExpansionOnExplodeClient").Add(damageType).Add(ammoType);
+#endif
+
 		super.ExpansionOnExplodeClient(damageType, ammoType);
 
 		PlayerBase player;
@@ -536,6 +569,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
+#endif
+
 		if (m_State.m_Exploded)
 			return 0;
 
@@ -563,6 +600,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void SetActions()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SetActions");
+#endif
+
 		super.SetActions();
 
 		AddAction(ExpansionActionSwitchAutoHover);
@@ -571,11 +612,19 @@ class ExpansionHelicopterScript extends CarScript
 
 	override int GetAnimInstance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
+
 		return ExpansionVehicleAnimInstances.EX_HATCHBACK;
 	}
 
 	override int GetSeatAnimationType(int posIdx)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
 		switch (posIdx)
 		{
 		case 0:
@@ -591,31 +640,55 @@ class ExpansionHelicopterScript extends CarScript
 
 	override bool CanReachSeatFromDoors(string pSeatSelection, vector pFromPos, float pDistance = 1.0)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_3(ExpansionTracing.VEHICLES, this, "CanReachSeatFromDoors").Add(pSeatSelection).Add(pFromPos).Add(pDistance);
+#endif
+
 		return true;
 	}
 
 	override int Get3rdPersonCameraType()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Get3rdPersonCameraType");
+#endif
+
 		return DayZPlayerCameras.DAYZCAMERA_3RD_VEHICLE;
 	}
 
 	override bool CrewCanGetThrough(int posIdx)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
+
 		return true;
 	}
 
 	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
+
 		return true;
 	}
 
 	override bool IsVitalHelicopterBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		return true;
 	}
 
 	override bool IsVitalCarBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		if (m_CarBatteryVanillaState)
 		{
 			return IsVitalHelicopterBattery() || IsVitalAircraftBattery();
@@ -626,8 +699,8 @@ class ExpansionHelicopterScript extends CarScript
 
 	bool IsLanded()
 	{
-#ifdef EXPANSIONEXPRINT
-		EXLogPrint("ExpansionHelicopterScript::IsLanded - Start");
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsLanded");
 #endif
 
 		vector pos = GetPosition();
@@ -661,15 +734,15 @@ class ExpansionHelicopterScript extends CarScript
 
 		m_IsLanded = hit;
 
-#ifdef EXPANSIONEXPRINT
-		EXLogPrint(GetType() + "::IsLanded - End and return " + m_IsLanded);
-#endif
-
 		return m_IsLanded;
 	}
 
 	override bool Expansion_CanSimulate()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_CanSimulate");
+#endif
+
 		if ((GetGame().IsServer() && GetGame().IsMultiplayer()) && !m_IsInitialized)
 			return false;
 
@@ -678,6 +751,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override bool Expansion_ShouldDisableSimulation()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_ShouldDisableSimulation");
+#endif
+
 		//! NEVER return true for helis as it it interferes with vanilla collision handling and may cause the heli to get pushed into the ground
 		//! if the heli gets deactivated in CarScript::EOnSimulate if no driver while vanilla collision code is still running.
 		//! (CarScript doesn't have collision in inactive state, so will move through terrain as if it weren't there if it's pushed by an outside force).
@@ -687,91 +764,145 @@ class ExpansionHelicopterScript extends CarScript
 
 	override bool IsVitalSparkPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalSparkPlug");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalRadiator()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalRadiator");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalGlowPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalGlowPlug");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalIgniterPlug()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalIgniterPlug");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalHydraulicHoses()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHydraulicHoses");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalEngineBelt()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalEngineBelt");
+#endif
+
 		return false;
 	}
 
 	override bool IsVitalTruckBattery()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalTruckBattery");
+#endif
+
 		return false;
 	}
 
 	override CarLightBase CreateFrontLight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
+
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionHelicopterFrontLight));
 	}
 
 	override CarLightBase CreateRearLight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateRearLight");
+#endif
+
 		return CarRearLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionRearHelicopterLights));
 	}
 
 	override float GetCameraHeight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+#endif
+
 		return 5;
 	}
 
 	override float GetCameraDistance()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
+#endif
+
 		return 15;
 	}
 
 	override bool IsHelicopter()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsHelicopter");
+#endif
+
 		return true;
 	}
 
 	override bool IsCar()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsCar");
+#endif
+
 		return false;
 	}
 
 	float GetAutoHoverTargetHeight()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
+#endif
+
 		return m_Simulation.m_AutoHoverAltitude;
-	}
-
-	override bool Expansion_IsBeingTowed()
-	{
-		return m_Expansion_IsBeingTowed;
-	}
-
-	override bool Expansion_IsTowing()
-	{
-		return m_Expansion_IsTowing;
 	}
 
 	override int Expansion_NumberTowConnections()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
+#endif
+
 		return 1;
 	}
 
 	override void Expansion_GetTowConnection(int index, out vector position, out vector size)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_GetTowConnection").Add(index);
+#endif
+
 		vector minMax[2];
 		GetCollisionBox(minMax);
 
@@ -781,6 +912,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override vector Expansion_GetTowPosition()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowPosition");
+#endif
+
 		vector minMax[2];
 		GetCollisionBox(minMax);
 
@@ -789,6 +924,10 @@ class ExpansionHelicopterScript extends CarScript
 
 	override vector Expansion_GetTowDirection()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowDirection");
+#endif
+
 		vector transform[4];
 		GetTransform(transform);
 		return -transform[1];
@@ -796,12 +935,20 @@ class ExpansionHelicopterScript extends CarScript
 
 	override float Expansion_GetTowLength()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowLength");
+#endif
+
 		return 5.0;
 	}
 
 	//! Is it already towing something ? And is it locked ?
 	override bool Expansion_CanConnectTow(notnull Object other)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_CanConnectTow").Add(other);
+#endif
+
 		ItemBase item;
 		ExpansionVehicleBase evs;
 		CarScript cs;

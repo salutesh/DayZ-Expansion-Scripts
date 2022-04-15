@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -32,7 +32,7 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		AddItem("Barrel_Yellow", 				1500,		3000,		1,		100);*/
 		AddItem("SeaChest", 					2000,		4000,		1,		100);
 	
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionToolBox", 			500,		1000,		1,		100);
 		AddItem("ExpansionSafeMini", 			4000,		8000,		1,		100);
 		AddItem("ExpansionSafeMedium", 			6000,		12000,		1,		100);

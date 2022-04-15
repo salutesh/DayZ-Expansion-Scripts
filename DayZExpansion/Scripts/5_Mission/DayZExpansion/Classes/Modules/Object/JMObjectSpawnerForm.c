@@ -26,7 +26,6 @@ modded class JMObjectSpawnerForm
 		"red9",
 		"pvcbow",
 		"crossbow",
-		"augsteyr",
 		"m249",
 		"undersluggrenadem4",
 		"groza",
@@ -43,8 +42,10 @@ modded class JMObjectSpawnerForm
 		"derringer_pink",
 		"derringer_grey",
 		"fnx45_arrow",
+#ifdef DAYZ_1_16
 		"longhorn",
 		"p1",
+#endif
 		"makarovpb",
 		"mp133shotgun_pistolgrip",
 

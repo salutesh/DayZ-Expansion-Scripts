@@ -1,38 +1,37 @@
+class ExpansionTowConnection
+{
+	dJoint m_Joint;
+	EntityAI m_Parent;
+	bool m_Attached;
+};
+
 modded class ItemBase
 {
-	bool m_Expansion_AcceptingAttachment;
-	bool m_Expansion_CanPlayerAttach;
+	ref map<int, ref ExpansionTowConnection> m_Expansion_Connections = new map<int, ref ExpansionTowConnection>();
+	int m_Expansion_TowConnectionSynchMask;
+	int m_Expansion_TowConnectionMask;
 
-	dJoint m_Expansion_TowJoint;
 	int m_Expansion_TowConnectionIndex;
-	bool m_Expansion_IsBeingTowed;
 	bool m_Expansion_IsTowing;
 
-	EntityAI m_Expansion_ParentTow;
-	int m_Expansion_ParentTowNetworkIDLow;
-	int m_Expansion_ParentTowNetworkIDHigh;
-	int m_Expansion_ParentTowPersistentIDA;
-	int m_Expansion_ParentTowPersistentIDB;
-	int m_Expansion_ParentTowPersistentIDC;
-	int m_Expansion_ParentTowPersistentIDD;
-
 	EntityAI m_Expansion_ChildTow;
+
 	int m_Expansion_ChildTowNetworkIDLow;
 	int m_Expansion_ChildTowNetworkIDHigh;
-	int m_Expansion_ChildTowPersistentIDA;
-	int m_Expansion_ChildTowPersistentIDB;
-	int m_Expansion_ChildTowPersistentIDC;
-	int m_Expansion_ChildTowPersistentIDD;
 
 	void ItemBase()
 	{
-		RegisterNetSyncVariableBool("m_Expansion_IsBeingTowed");
 		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
-		RegisterNetSyncVariableInt("m_Expansion_TowConnectionIndex");
-		RegisterNetSyncVariableInt("m_Expansion_ParentTowNetworkIDLow");
-		RegisterNetSyncVariableInt("m_Expansion_ParentTowNetworkIDHigh");
+
+		RegisterNetSyncVariableInt("m_Expansion_TowConnectionSynchMask");
+
 		RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDLow");
 		RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDHigh");
+
+		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
+		{
+			m_Expansion_Connections[i] = new ExpansionTowConnection();
+		}
 	}
 
 	void Expansion_CreateTow(Object tow, int index)
@@ -43,33 +42,34 @@ modded class ItemBase
 		if (!Class.CastTo(car, tow) && !Class.CastTo(item, tow))
 			return;
 
-		if ((item && item.Expansion_IsBeingTowed()) || (car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
+		if ((car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
 			return;
 
 		m_Expansion_ChildTow = EntityAI.Cast(tow);
 		m_Expansion_IsTowing = true;
+		m_Expansion_TowConnectionIndex = index;
 
 		bool success = false;
 
 		if (car)
-			success = car.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), index);
+			success = car.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
 		else if (item)
-			success = item.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), index);
+			success = item.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
 
 		if (!success)
 		{
 			m_Expansion_ChildTow = null;
 			m_Expansion_IsTowing = false;
+			m_Expansion_TowConnectionIndex = -1;
 			return;
 		}
 
-		if (!IsMissionOffline())
+		if (!GetGame().IsClient())
 		{
 			m_Expansion_ChildTow.GetNetworkID(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh);
-		}
 
-		if (GetGame().IsServer())
 			SetSynchDirty();
+		}
 	}
 
 	bool Expansion_OnTowCreated(Object parent, vector towPos, int index)
@@ -82,14 +82,12 @@ modded class ItemBase
 
 		Expansion_GetTowConnection(index, connectionPoint, connectionSize);
 
-		m_Expansion_TowJoint = dJointCreateBallSocket(parent, this, towPos, connectionPoint, false, 0.1);
+		m_Expansion_TowConnectionSynchMask |= 1 << index;
+		m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
 
-		m_Expansion_TowConnectionIndex = index;
-		m_Expansion_ParentTow = EntityAI.Cast(parent);
-		m_Expansion_IsBeingTowed = true;
-
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-			m_Expansion_ParentTow.GetNetworkID(m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh);
+		m_Expansion_Connections[index].m_Joint = dJointCreateBallSocket(parent, this, towPos, connectionPoint, false, 0.1);
+		m_Expansion_Connections[index].m_Parent = EntityAI.Cast(parent);
+		m_Expansion_Connections[index].m_Attached = true;
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
@@ -114,37 +112,34 @@ modded class ItemBase
 
 			if (Class.CastTo(car, m_Expansion_ChildTow))
 			{
-				car.Expansion_OnTowDestroyed();
+				car.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
 			}
 
 			if (Class.CastTo(item, m_Expansion_ChildTow))
 			{
-				item.Expansion_OnTowDestroyed();
+				item.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
 			}
 
 			m_Expansion_ChildTow = NULL;
-
 			m_Expansion_IsTowing = false;
+			m_Expansion_TowConnectionIndex = -1;
 
 			if (GetGame().IsServer())
 				SetSynchDirty();
 		}
 	}
 
-	void Expansion_OnTowDestroyed()
+	void Expansion_OnTowDestroyed(EntityAI parent, int connectionIndex)
 	{
-		dJointDestroy(m_Expansion_TowJoint);
+		dJointDestroy(m_Expansion_Connections[connectionIndex].m_Joint);
+		m_Expansion_Connections[connectionIndex].m_Parent = null;
+		m_Expansion_Connections[connectionIndex].m_Attached = false;
 
-		m_Expansion_ParentTow = null;
-		m_Expansion_IsBeingTowed = false;
+		m_Expansion_TowConnectionSynchMask &= ~(1 << connectionIndex);
+		m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
-	}
-
-	bool Expansion_IsBeingTowed()
-	{
-		return m_Expansion_IsBeingTowed;
 	}
 
 	bool Expansion_IsTowing()
@@ -154,11 +149,19 @@ modded class ItemBase
 
 	int Expansion_NumberTowConnections()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
+#endif
+
 		return 0;
 	}
 
 	void Expansion_GetTowConnection(int index, out vector position, out vector size)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_GetTowConnection").Add(index);
+#endif
+
 	}
 
 	bool Expansion_GetOverlappingTowConnection(vector towPosition, float towRadius, out int index)
@@ -169,6 +172,9 @@ modded class ItemBase
 
 		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
 		{
+			if (m_Expansion_Connections[i].m_Attached)
+				continue;
+
 			vector conPos, conSize;
 			Expansion_GetTowConnection(i, conPos, conSize);
 
@@ -184,6 +190,10 @@ modded class ItemBase
 
 	vector Expansion_GetTowPosition()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowPosition");
+#endif
+
 		vector minMax[2];
 		GetCollisionBox(minMax);
 		return Vector(0.0, minMax[0][1], minMax[0][2] - dBodyGetCenterOfMass(this)[2]);
@@ -191,16 +201,28 @@ modded class ItemBase
 
 	vector Expansion_GetTowDirection()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowDirection");
+#endif
+
 		return -GetDirection();
 	}
 
 	float Expansion_GetTowLength()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowLength");
+#endif
+
 		return 0.4;
 	}
 
 	bool Expansion_CanConnectTow(notnull Object other)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_CanConnectTow").Add(other);
+#endif
+
 		return false;
 	}
 
@@ -233,7 +255,7 @@ modded class ItemBase
 		return m_Expansion_CanPlayerAttach;
 	}
 
-	bool Expansion_CanObjectAttach(Object obj)
+	override bool Expansion_CanObjectAttach(Object obj)
 	{
 		return Expansion_CanPlayerAttach();
 	}
@@ -242,24 +264,23 @@ modded class ItemBase
 	{
 		super.OnVariablesSynchronized();
 
-		if (!IsMissionOffline())
-		{
-			if (m_Expansion_IsBeingTowed)
-			{
-				m_Expansion_ParentTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh));
-			}
-			else
-			{
-				m_Expansion_ParentTow = NULL;
-			}
+		if (IsMissionOffline())
+			return;
 
-			if (m_Expansion_IsTowing)
+		m_Expansion_ChildTow = NULL;
+		if (m_Expansion_IsTowing)
+		{
+			m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
+		}
+
+		if (m_Expansion_TowConnectionMask != m_Expansion_TowConnectionSynchMask)
+		{
+			m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
+
+			for (int i = 0; i < Expansion_NumberTowConnections(); i++)
 			{
-				m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
-			}
-			else
-			{
-				m_Expansion_ChildTow = NULL;
+				int attached = (m_Expansion_TowConnectionMask >> i) & 1;
+				m_Expansion_Connections[i].m_Attached = attached;
 			}
 		}
 	}
@@ -269,30 +290,13 @@ modded class ItemBase
 		super.OnStoreSave(ctx);
 
 //! If we are saving game version target for ModStorage support (1st stable) or later
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 		if (GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET)
 			return;
 #endif
 
-		ctx.Write(m_Expansion_IsBeingTowed);
-		ctx.Write(m_Expansion_IsTowing);
-
-		if (m_Expansion_IsBeingTowed)
-		{
-			ctx.Write(m_Expansion_TowConnectionIndex);
-			ctx.Write(m_Expansion_ParentTowPersistentIDA);
-			ctx.Write(m_Expansion_ParentTowPersistentIDB);
-			ctx.Write(m_Expansion_ParentTowPersistentIDC);
-			ctx.Write(m_Expansion_ParentTowPersistentIDD);
-		}
-
-		if (m_Expansion_IsTowing)
-		{
-			ctx.Write(m_Expansion_ChildTowPersistentIDA);
-			ctx.Write(m_Expansion_ChildTowPersistentIDB);
-			ctx.Write(m_Expansion_ChildTowPersistentIDC);
-			ctx.Write(m_Expansion_ChildTowPersistentIDD);
-		}
+		ctx.Write(false);
+		ctx.Write(false);
 	}
 
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
@@ -300,7 +304,7 @@ modded class ItemBase
 		if (Expansion_Assert_False(super.OnStoreLoad(ctx, version), "[" + this + "] Failed reading OnStoreLoad super"))
 			return false;
 
-#ifdef CF_MODSTORAGE
+#ifdef EXPANSION_MODSTORAGE
 		if (version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET)
 			return true;
 #endif
@@ -308,52 +312,55 @@ modded class ItemBase
 		if (GetExpansionSaveVersion() < 34)
 			return true;
 
-		if (Expansion_Assert_False(ctx.Read(m_Expansion_IsBeingTowed), "[" + this + "] Failed reading m_Expansion_IsBeingTowed"))
+		bool l_Expansion_IsBeingTowed;
+		bool l_Expansion_IsTowing;
+
+		int l_Expansion_TowConnectionIndex;
+
+		int l_Expansion_ParentTowPersistentIDA;
+		int l_Expansion_ParentTowPersistentIDB;
+		int l_Expansion_ParentTowPersistentIDD;
+		int l_Expansion_ParentTowPersistentIDC;
+
+		int l_Expansion_ChildTowPersistentIDA;
+		int l_Expansion_ChildTowPersistentIDB;
+		int l_Expansion_ChildTowPersistentIDD;
+		int l_Expansion_ChildTowPersistentIDC;
+
+		if (Expansion_Assert_False(ctx.Read(l_Expansion_IsBeingTowed), "[" + this + "] Failed reading l_Expansion_IsBeingTowed"))
 			return false;
-		if (Expansion_Assert_False(ctx.Read(m_Expansion_IsTowing), "[" + this + "] Failed reading m_Expansion_IsTowing"))
+		if (Expansion_Assert_False(ctx.Read(l_Expansion_IsTowing), "[" + this + "] Failed reading l_Expansion_IsTowing"))
 			return false;
 
-		if (m_Expansion_IsBeingTowed)
+		if (l_Expansion_IsBeingTowed)
 		{
 			if (GetExpansionSaveVersion() >= 34)
 			{
-				if (Expansion_Assert_False(ctx.Read(m_Expansion_TowConnectionIndex), "[" + this + "] Failed reading m_Expansion_TowConnectionIndex"))
+				if (Expansion_Assert_False(ctx.Read(l_Expansion_TowConnectionIndex), "[" + this + "] Failed reading l_Expansion_TowConnectionIndex"))
 					return false;
 			}
 
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDA"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDA), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDA"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDB"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDB), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDB"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDC"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDC), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDC"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ParentTowPersistentIDD"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ParentTowPersistentIDD), "[" + this + "] Failed reading l_Expansion_ParentTowPersistentIDD"))
 				return false;
 		}
 
-		if (m_Expansion_IsTowing)
+		if (l_Expansion_IsTowing)
 		{
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDA"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDA), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDA"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDB"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDB), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDB"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDC"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDC), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDC"))
 				return false;
-			if (Expansion_Assert_False(ctx.Read(m_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading m_Expansion_ChildTowPersistentIDD"))
+			if (Expansion_Assert_False(ctx.Read(l_Expansion_ChildTowPersistentIDD), "[" + this + "] Failed reading l_Expansion_ChildTowPersistentIDD"))
 				return false;
 		}
-
-		m_Expansion_IsBeingTowed = false;
-		m_Expansion_IsTowing = false;
-
-		m_Expansion_ParentTowPersistentIDA = 0;
-		m_Expansion_ParentTowPersistentIDB = 0;
-		m_Expansion_ParentTowPersistentIDC = 0;
-		m_Expansion_ParentTowPersistentIDD = 0;
-		m_Expansion_ChildTowPersistentIDA = 0;
-		m_Expansion_ChildTowPersistentIDB = 0;
-		m_Expansion_ChildTowPersistentIDC = 0;
-		m_Expansion_ChildTowPersistentIDD = 0;
 
 		return true;
 	}

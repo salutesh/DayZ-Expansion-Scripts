@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -89,9 +89,9 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	static void LoadMissionObjectsFile( string name )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "Attempting to load mission object file: " + name );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, "ExpansionObjectSpawnTools", "LoadMissionObjectsFile");
+#endif
 
 		Object obj;
 		string className;
@@ -107,9 +107,7 @@ class ExpansionObjectSpawnTools
 		
 		while ( GetObjectFromMissionFile( file, className, position, rotation, special ) )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Attempt to create mission object " + className + " at " + position + " from file:" + filePath + ".");
-			#endif
+			CF_Log.Debug( "Attempt to create mission object " + className + " at " + position + " from file:" + filePath + ".");
 
 			int flags = ECE_CREATEPHYSICS;
 
@@ -142,9 +140,7 @@ class ExpansionObjectSpawnTools
 
 		CloseFile( file );
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "Created all objects from mission object file: " + filePath );
-		#endif
+		CF_Log.Debug( "Created all objects from mission object file: " + filePath );
 	}
 
 	// ------------------------------------------------------------
@@ -152,9 +148,11 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	static void ProcessMissionObject(Object obj)
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("Try to process mapping object: " + obj.ClassName());
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, "ExpansionObjectSpawnTools", "ProcessMissionObject");
+#endif
+
+		CF_Log.Debug("Try to process mapping object: " + obj.ClassName());
 
 		ItemBase item;
 
@@ -166,9 +164,7 @@ class ExpansionObjectSpawnTools
 				light.SetDiffuseColor(1,0,0);
 			}
 			
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
-			#endif
+			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
 		else if (obj.IsKindOf("Fireplace"))
 		{
@@ -188,9 +184,7 @@ class ExpansionObjectSpawnTools
 				fireplace.StartFire();
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
-			#endif
+			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
 		else if (obj.IsInherited(BarrelHoles_ColorBase))
 		{
@@ -213,9 +207,7 @@ class ExpansionObjectSpawnTools
 				barrel.StartFire();
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
-			#endif
+			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
 		else if (obj.IsKindOf("Roadflare"))
 		{
@@ -227,14 +219,11 @@ class ExpansionObjectSpawnTools
 				flare.SwitchLight(false); //! Flickering
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Processed mapping object: " + obj.ClassName() + "!" );
-			#endif
+			CF_Log.Debug( "Processed mapping object: " + obj.ClassName() + "!" );
 		}
 		#ifdef EXPANSIONMOD
 		else if (obj.IsInherited(BuildingWithFireplace))
 		{
-			Print("Process mapping object: " + obj.ClassName());
 			BuildingWithFireplace buildingWithFireplace;
 			bldr_land_misc_barel_fire_1 barel_1;
 			bldr_land_misc_barel_fire_2 barel_2;
@@ -283,9 +272,7 @@ class ExpansionObjectSpawnTools
 				}
 			}
 
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("Processed mapping object: " + obj.ClassName() + "!");
-			#endif
+			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
 		#endif
 	}
@@ -329,9 +316,11 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	static void LoadMissionTradersFile( string name )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "Attempting to load mission trader file: " + name );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, "ExpansionObjectSpawnTools", "LoadMissionTradersFile");
+#endif
+
+		CF_Log.Debug( "Attempting to load mission trader file: " + name );
 
 		Object obj;
 		EntityAI trader;
@@ -359,9 +348,7 @@ class ExpansionObjectSpawnTools
 			fileName = parts[1];
 			position = positions[0];
 
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
-			#endif
+			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
 			obj = GetGame().CreateObject( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
 			trader = EntityAI.Cast( obj );
@@ -431,11 +418,15 @@ class ExpansionObjectSpawnTools
 				//! See eAIGame::SpawnAI_Patrol
 				if ( traderAI )
 				{
+					#ifdef EXPANSIONMODAI
+					eAIGroup ownerGrp = traderAI.GetGroup();
+					#else
 					if ( eAIGlobal_HeadlessClient )
 						GetRPCManager().SendRPC( "eAI", "HCLinkObject", new Param1< PlayerBase >( traderAI ), false, eAIGlobal_HeadlessClient );
 
 					eAIGame game = MissionServer.Cast( GetGame().GetMission() ).GetEAIGame();
 					eAIGroup ownerGrp = game.GetGroupByLeader( traderAI );
+					#endif
 					ownerGrp.SetFaction( new eAIFactionCivilian() );
 					for ( j = 0; j < positions.Count(); j++ )
 					{
@@ -443,23 +434,23 @@ class ExpansionObjectSpawnTools
 						ownerGrp.AddWaypoint( positions[j] );
 					}
 			
+					#ifdef EXPANSIONMODAI
+					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.REVERSE);
+					#else
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( traderAI.RequestTransition, 10000, false, "Rejoin" );
 					
 					traderAI.SetAI( ownerGrp );
+					#endif
 				}
 				#endif
 
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint( "  Created" );
-				#endif
+				CF_Log.Debug( "  Created" );
 			}
 		}
 
 		CloseFile( file );
 
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint( "Created all traders from mission trader file: " + filePath );
-		#endif
+		CF_Log.Debug( "Created all traders from mission trader file: " + filePath );
 	}
 
 	// ------------------------------------------------------------

@@ -98,6 +98,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
+
+		m_SelfDebugWindow = true;
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()
@@ -119,7 +121,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	override void Init()
 	{
 		super.Init();
-		
+
 		ExpansionHelicopterScript heli;
 		if (!Class.CastTo(heli, m_Vehicle))
 			return;
@@ -975,16 +977,28 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	bool IsAutoHover()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsAutoHover");
+#endif
+
 		return m_AutoHover;
 	}
 
 	void SwitchAutoHover()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "SwitchAutoHover");
+#endif
+
 		m_AutoHover = !m_AutoHover;
 	}
 
 	bool IsFreeLook()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsFreeLook");
+#endif
+
 		return m_IsFreeLook;
 	}
 

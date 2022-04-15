@@ -1,0 +1,132 @@
+FrameWidgetClass rootFrame {
+ visible 0
+ clipchildren 0
+ ignorepointer 1
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ {
+  GridSpacerWidgetClass MarkerFrame {
+   clipchildren 0
+   ignorepointer 1
+   position 0 0
+   size 132 62
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style Colorable
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+   content_valign center
+   Columns 1
+   Rows 4
+   {
+    WrapSpacerWidgetClass ImageSpacer {
+     clipchildren 0
+     ignorepointer 1
+     position 0.118 0.122
+     size 1 0.4
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     {
+      ImageWidgetClass MarkerImage {
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 16 16
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       scaled 1
+       imageTexture "{B40287E36A28B065}DayZExpansion/Core/GUI/icons/hud/marker_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       "Transition width" 0
+      }
+     }
+    }
+    PanelWidgetClass TextSpacer0 {
+     ignorepointer 1
+     size 1 0.03
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+    }
+    TextWidgetClass MarkerText {
+     visible 1
+     clipchildren 0
+     ignorepointer 1
+     size 1 0.25
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Normal
+     text "Marker Name"
+     font "gui/fonts/etelkatextpro16"
+     "text offset" 0 0
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+    PanelWidgetClass TextSpacer {
+     ignorepointer 1
+     size 1 0.03
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+    }
+    TextWidgetClass MarkerDistance {
+     visible 1
+     clipchildren 0
+     ignorepointer 1
+     size 1 0.25
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Normal
+     text "1000 m"
+     font "gui/fonts/etelkatextpro16"
+     "text offset" 0 0
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+ }
+}

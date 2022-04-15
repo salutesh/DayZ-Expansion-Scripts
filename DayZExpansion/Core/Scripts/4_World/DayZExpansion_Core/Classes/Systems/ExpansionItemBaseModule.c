@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,8 +13,17 @@
 /**@class		ExpansionItemBaseModule
  * @brief		
  **/
-class ExpansionItemBaseModule : JMModuleBase
+
+[CF_RegisterModule(ExpansionItemBaseModule)]
+class ExpansionItemBaseModule : CF_ModuleWorld
 {
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableRPC();
+	}
+
 	void PlayDestroySound(vector position, string sound)
 	{
 		if (sound == string.Empty)
@@ -48,13 +57,13 @@ class ExpansionItemBaseModule : JMModuleBase
 		return ExpansionItemBaseModuleRPC.COUNT;
 	}
 
-#ifdef CF_BUGFIX_REF
-	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
-#else
-	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
-#endif
+	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		switch (rpc_type)
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch (rpc.ID)
 		{
 		case ExpansionItemBaseModuleRPC.PlayDestroySound:
 			if (GetGame().IsServer())
@@ -63,8 +72,8 @@ class ExpansionItemBaseModule : JMModuleBase
 			string sound;
 			vector position;
 
-			ctx.Read(position);
-			ctx.Read(sound);
+			rpc.Context.Read(position);
+			rpc.Context.Read(sound);
 
 			PlayDestroySoundImpl(position, sound);
 			break;

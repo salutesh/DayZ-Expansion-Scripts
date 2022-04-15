@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -29,9 +29,9 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 	void DayZPlayerCamera3rdPersonVehicle( DayZPlayer pPlayer, HumanInputController pInput )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::DayZPlayerCamera3rdPersonVehicle - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "DayZPlayerCamera3rdPersonVehicle").Add(pPlayer).Add(pInput);
+#endif
 
 		m_ExUpDownLockedAngle = -10;
 		
@@ -47,37 +47,28 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			m_fDistance 					= vehicle.GetTransportCameraDistance();
 			m_CameraOffsetMS				= vehicle.GetTransportCameraOffset();
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::DayZPlayerCamera3rdPersonVehicle - End");
-		#endif
 	}
 	
 	override void OnActivate( DayZPlayerCamera pPrevCamera, DayZPlayerCameraResult pPrevCameraResult )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnActivate - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnActivate").Add(pPrevCamera).Add(pPrevCameraResult);
+#endif
+
 		super.OnActivate( pPrevCamera, pPrevCameraResult );
 		
 		m_ExLagOffsetPosition = vector.Zero;
 		m_ExLagOffsetVelocityX[0] = 0;
 		m_ExLagOffsetVelocityY[0] = 0;
 		m_ExLagOffsetVelocityZ[0] = 0;
-
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnActivate - End");
-		#endif
 	}
 
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "OnUpdate").Add(pDt);
+#endif
+
 		m_ExDistanceMultiplier = 1.0;
 		m_ExHeightMultiplier = 1.0;
 
@@ -90,8 +81,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		pbPlayer.SetHeadInvisible_Ex( false );
 
-		//Print( "OnUpdate" );
-		//Print( pOutResult.m_CollisionIgnoreEntity );
+		pOutResult.m_CollisionIgnoreEntity = pbPlayer.GetParent();
 
 		ExpansionVehicleBase vehicle;
 		if ( Class.CastTo( vehicle, pOutResult.m_CollisionIgnoreEntity ) )
@@ -101,9 +91,6 @@ modded class DayZPlayerCamera3rdPersonVehicle
 				pOutResult.m_CollisionIgnoreEntity = NULL;
 			}
 		}
-
-		//Print( vehicle );
-		//Print( pOutResult.m_CollisionIgnoreEntity );
 
 		EntityAI entParent;
 		if ( !Class.CastTo( entParent, m_pPlayer.GetParent() ) )
@@ -134,14 +121,14 @@ modded class DayZPlayerCamera3rdPersonVehicle
 			OnUpdateHelicopter(pDt, helicopter, freelook, pOutResult);
 			return;
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("DayZPlayerCamera3rdPersonVehicle::OnUpdate - End");
-		#endif
 	}
 
 	void OnUpdateHelicopter( float pDt, EntityAI pHelicopter, bool pIsFreeLook, out DayZPlayerCameraResult pOutResult )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_3(ExpansionTracing.VEHICLES, this, "OnUpdateHelicopter").Add(pDt).Add(pHelicopter).Add(pIsFreeLook);
+#endif
+
 		vector playerTransformWS[4];
 		m_pPlayer.GetTransform( playerTransformWS );
 
@@ -197,5 +184,5 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		pOutResult.m_fDistance = m_fDistance * m_ExDistanceMultiplier;
 		pOutResult.m_fPositionModelSpace	= 1.0;
 	}
-}
+};
 #endif

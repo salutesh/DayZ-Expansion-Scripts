@@ -237,11 +237,6 @@ class DayZIntroSceneExpansion
 			while (GetObjectFromFile(file, className, position, rotation, special, attachments))
 			{	
 				Object obj;
-
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("Spawning object with chached collition: " + className + " on pos: " + position.ToString());
-				#endif
-
 				obj = GetGame().CreateObject(className, position);
 				if (!obj)
 					continue;
@@ -259,14 +254,10 @@ class DayZIntroSceneExpansion
 					{
 						for (int j = 0; j < attachments.Count(); j++)
 						{
-							Print( itemWithAttachment.GetType() + attachments[j]);
 							itemWithAttachment.GetInventory().CreateAttachment(attachments[j]);
 						}					
 					}
 				}
-				#ifdef EXPANSIONEXPRINT
-				EXPrint("Succesfully spawned object with chached collition: " + className + " on pos: " + position.ToString());
-				#endif
 
 				if ( !obj )
 					continue;					

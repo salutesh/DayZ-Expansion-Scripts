@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -24,10 +24,10 @@ class ExpansionStartingGearItem
 	// ------------------------------------------------------------
 	void ExpansionStartingGearItem(string className, int quantity = -1, array<string> attachments = null)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGearItem::ExpansionStartingGearItem - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionStartingGearItem");
+#endif
+
 		ClassName = className;
 		Quantity = quantity;
 		
@@ -38,10 +38,6 @@ class ExpansionStartingGearItem
 				Attachments.Insert(attachment);
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGearItem::ExpansionStartingGearItem - End");
-		#endif
 	}
 }
 
@@ -65,10 +61,10 @@ class ExpansionStartingGearBase
 	// ------------------------------------------------------------
 	void Defaults()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGearBase::~Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
+#endif
+
 		EnableStartingGear = true;
 		UseUpperGear = true;
 		UsePantsGear = false;
@@ -78,10 +74,6 @@ class ExpansionStartingGearBase
 		UseSecondaryWeapon = false;
 		ApplyEnergySources = true;
 		SetRandomHealth = true;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGearBase::~Defaults - End");
-		#endif
 	}
 }
 
@@ -121,10 +113,10 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGear::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
+#endif
+
 		super.Defaults();
 		
 		EnableStartingGear = true;
@@ -177,10 +169,6 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 				break;
 			}
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingGear::Defaults - End");
-		#endif
 	}
 };
 
@@ -207,10 +195,10 @@ class ExpansionStartingClothing
 	// ------------------------------------------------------------
 	void Defaults()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingClothing::Defaults - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
+#endif
+
 		EnableCustomClothing = true;
 		SetRandomHealth = true;
 		
@@ -246,9 +234,5 @@ class ExpansionStartingClothing
 		Backpacks.Insert("TaloonBag_Green");
 		Backpacks.Insert("TaloonBag_Orange");
 		Backpacks.Insert("TaloonBag_Violet");
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionStartingClothing::Defaults - End");
-		#endif
 	}
 };

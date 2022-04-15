@@ -1,0 +1,68 @@
+PanelWidgetClass NVPanel {
+ visible 0
+ ignorepointer 1
+ color 0 0 0 1
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ draggable 1
+ style blank
+ {
+  ImageWidgetClass NVOverlay {
+   visible 1
+   ignorepointer 1
+   color 0 0 0 1
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scaled 1
+   imageTexture "{D6E1D0FF81F35A23}DayZExpansion/GUI/textures/overlays/nightvision.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 1
+   "Transition width" 0
+  }
+  ImageWidgetClass NVBatteryIcon {
+   ignorepointer 1
+   position 0.05 0.05
+   size 64 64
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   imageTexture "{A0E9814C75266D63}DayZExpansion/Core/GUI/icons/hud/battery_high_64x64.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+  TextWidgetClass NVBatteryVal {
+   ignorepointer 1
+   position 0.05 0.09
+   size 64 0.05
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 0
+   font "gui/fonts/etelkatextpro16"
+   "exact text" 0
+   "size to text h" 0
+   "size to text v" 0
+   "text halign" center
+   "text valign" center
+  }
+ }
+}

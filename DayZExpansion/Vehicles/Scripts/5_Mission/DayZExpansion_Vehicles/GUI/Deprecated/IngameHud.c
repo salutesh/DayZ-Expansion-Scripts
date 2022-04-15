@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -55,16 +55,34 @@ modded class IngameHud
 	protected Widget			m_HelicopterHoverAltitudePanel;
 	protected TextWidget		m_HelicopterHoverAltitudeValue;
 	protected TextWidget		m_HelicopterHoverAltitudeLabel;
+
+	//! Plane	
+	protected Widget			m_PlanePanel;
+
+	protected ImageWidget		m_PlaneSpeedPointer;
+	protected ImageWidget		m_PlaneAltitudePointer;
+
+	protected TextWidget		m_PlaneSpeedValue;
+	protected TextWidget		m_PlaneAltitudeValue;
+
+	protected ImageWidget		m_PlaneTemperaturePointer;
+	protected ImageWidget		m_PlaneFuelPointer;
+
+	protected ImageWidget		m_PlaneBatteryLight;
+	protected ImageWidget		m_PlaneEngineLight;
+	protected ImageWidget		m_PlaneOilLight;
+
+	protected ProgressBarWidget m_PlaneThrottle;
+	protected ProgressBarWidget m_PlaneFlaps;
+
+	protected EntityAI			m_ExpansionVehicle;
 	
-	// ------------------------------------------------------------
-	// Override Init
-	// ------------------------------------------------------------	
 	override void Init( Widget hud_panel_widget )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::Init - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Init").Add(hud_panel_widget);
+#endif
+
 		super.Init( hud_panel_widget );
 		
 		//! Vehicle Panels
@@ -116,26 +134,77 @@ modded class IngameHud
 				m_HelicopterHoverAltitudeValue		= TextWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliHoverALTLabelCurrent") );
 				m_HelicopterHoverAltitudeLabel		= TextWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliHoverALTLabel") );
 			}
-		}
+			
+			//! Plane
+			m_PlanePanel							= GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Vehicles/GUI/layouts/hud/vehicles/plane.layout", m_LeftHudPanelWidget );
+			if ( m_PlanePanel )
+			{
+				m_PlanePanel.Show( false );
+			
+				m_PlaneTemperaturePointer			= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneTemperaturePointer") );
+				m_PlaneFuelPointer					= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneFuelPointer") );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::Init - End");
-		#endif
+				m_PlaneSpeedPointer					= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneSpeedPointer") );
+				m_PlaneAltitudePointer				= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneALTPointer") );
+		
+				m_PlaneSpeedValue					= TextWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneSpeedCurrent") );
+				m_PlaneAltitudeValue				= TextWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneALTCurrent") );
+
+				m_PlaneBatteryLight					= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneBatteryLight") );
+				m_PlaneEngineLight					= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneEngineLight") );
+				m_PlaneOilLight						= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneOilLight") );
+
+				m_PlaneThrottle						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneThrottleIndicator") );
+				m_PlaneFlaps						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneFlapsIndicator") );
+			}
+		}
 	}
 	
-	// ------------------------------------------------------------
-	// Override ShowVehicleInfo
-	// ------------------------------------------------------------	
 	override void ShowVehicleInfo()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::ShowVehicleInfo - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "ShowVehicleInfo");
+#endif
 
 		super.ShowVehicleInfo();
 
+		if ( !m_CurrentVehicle )
+		{
+			PlayerBase player;
+			if ( !Class.CastTo( player, GetGame().GetPlayer() ) )
+			{
+				return;
+			}
+
+			ExpansionHumanCommandVehicle exHcv = player.GetCommand_ExpansionVehicle();
+			if ( exHcv && exHcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER )
+			{
+				m_ExpansionVehicle = exHcv.GetTransport();
+			}
+			else
+			{
+				return;
+			}
+
+			m_InVehicleAsDriver	= true;
+	
+			TFloatArray gears = new TFloatArray;
+			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
+			
+			m_VehicleGearCount = gears.Count() + 1;
+				
+			m_HudPanelWidget.FindAnyWidget("PlayerPanel").Show( false );
+			m_Presence.Show( false );
+			m_StancePanel.Show( false );
+		}
+
 		ExpansionHelicopterScript d_helicopter;
+		ExpansionVehicleHelicopterBase helicopter;
+		ExpansionVehiclePlaneBase plane;
 		ExpansionBoatScript d_boat;
+		ExpansionVehicleBoatBase boat;
+		ExpansionVehicleBikeBase bike;
+		ExpansionVehicleCarBase exCar;
 
 		if ( Class.CastTo( d_helicopter, m_CurrentVehicle ) )
 		{
@@ -152,6 +221,32 @@ modded class IngameHud
 			}
 
 			m_VehiclePanel.Show( false );
+		} else if ( Class.CastTo( helicopter, m_ExpansionVehicle ) )
+		{
+			m_VehicleGearCount = -1;
+
+			if( !m_VehicleHasOil )
+			{
+				m_HelicopterBatteryLight.Show( false );
+			}
+				
+			if( !m_VehicleHasCoolant )
+			{
+				m_HelicopterOilLight.Show( false );
+			}
+		} else if ( Class.CastTo( plane, m_ExpansionVehicle ) )
+		{
+			m_VehicleGearCount = -1;
+
+			if( !m_VehicleHasOil )
+			{
+				m_PlaneBatteryLight.Show( false );
+			}
+				
+			if( !m_VehicleHasCoolant )
+			{
+				m_PlaneOilLight.Show( false );
+			}
 		} else if ( Class.CastTo( d_boat, m_CurrentVehicle ) )
 		{
 			float d_b_rpm_value_red = ( d_boat.EngineGetRPMRedline() / d_boat.EngineGetRPMMax() ) ;
@@ -163,11 +258,60 @@ modded class IngameHud
 			m_BoatPanel.Show( true );
 
 			m_VehiclePanel.Show( false );
-		}
+		} else if ( Class.CastTo( boat, m_ExpansionVehicle ) )
+		{
+			float b_rpm_value_red = ( boat.EngineGetRPMRedline() / boat.EngineGetRPMMax() ) ;
+			m_BoatRPMDial.SetMaskProgress( b_rpm_value_red );
+			m_BoatRPMRedline.SetMaskProgress( 1 - b_rpm_value_red );
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::ShowVehicleInfo - End");
-		#endif
+			m_BoatGearPanel.Show( true );
+
+			m_BoatPanel.Show( true );
+		} else if ( Class.CastTo( bike, m_ExpansionVehicle ) )
+		{
+			float bi_rpm_value_red = ( bike.EngineGetRPMRedline() / bike.EngineGetRPMMax() ) ;
+			m_VehicleRPMDial.SetMaskProgress( bi_rpm_value_red );
+			m_VehicleRPMRedline.SetMaskProgress( 1 - bi_rpm_value_red );
+
+			if ( !m_VehicleHasOil )
+			{
+				m_VehicleBatteryLight.Show( false );
+			}
+				
+			if ( !m_VehicleHasCoolant )
+			{
+				m_VehicleOilLight.Show( false );
+			}
+			
+			gears.Clear();
+			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
+		
+			m_VehicleGearCount = gears.Count();
+
+			m_VehiclePanel.Show( true );
+		} else if ( Class.CastTo( exCar, m_ExpansionVehicle ) )
+		{
+			float ex_rpm_value_red = ( exCar.EngineGetRPMRedline() / exCar.EngineGetRPMMax() ) ;
+			m_VehicleRPMDial.SetMaskProgress( ex_rpm_value_red );
+			m_VehicleRPMRedline.SetMaskProgress( 1 - ex_rpm_value_red );
+
+			if ( !m_VehicleHasOil )
+			{
+				m_VehicleBatteryLight.Show( false );
+			}
+				
+			if ( !m_VehicleHasCoolant )
+			{
+				m_VehicleOilLight.Show( false );
+			}
+			
+			gears.Clear();
+			GetGame().ConfigGetFloatArray( "CfgVehicles " + m_ExpansionVehicle.GetType() + " SimulationModule Gearbox ratios" , gears );
+		
+			m_VehicleGearCount = gears.Count();
+
+			m_VehiclePanel.Show( true );
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -175,18 +319,17 @@ modded class IngameHud
 	// ------------------------------------------------------------	
 	override void HideVehicleInfo()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::HideVehicleInfo - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "HideVehicleInfo");
+#endif
 
 		super.HideVehicleInfo();
-
+		
 		m_BoatPanel.Show( false );
+		m_PlanePanel.Show( false );
 		m_HelicopterPanel.Show( false );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::HideVehicleInfo - End");
-		#endif
+		
+		m_ExpansionVehicle = NULL;
 	}
 	
 	// ------------------------------------------------------------
@@ -194,16 +337,12 @@ modded class IngameHud
 	// ------------------------------------------------------------	
 	override void RefreshVehicleHud( float timeslice )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshVehicleHud - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "RefreshVehicleHud").Add(timeslice);
+#endif
 
 		if ( GetGame().GetUIManager().GetMenu() )
 		{
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("IngameHud::RefreshVehicleHud - Second Return");
-			#endif
-
 			return;
 		}
 
@@ -213,9 +352,23 @@ modded class IngameHud
 			m_HelicopterPanel.Show( true );
 			RefreshHelicopterHud_Deprecated( d_helicopter, timeslice );
 
-			#ifdef EXPANSIONEXPRINT
-			EXPrint("ExpansionIngameHud::RefreshVehicleHud - Helicopter");
-			#endif
+			return;
+		}
+
+		ExpansionVehicleHelicopterBase helicopter;
+		if ( Class.CastTo( helicopter, m_ExpansionVehicle ) )
+		{
+			m_HelicopterPanel.Show( true );
+			RefreshHelicopterHud( helicopter, timeslice );
+
+			return;
+		}
+
+		ExpansionVehiclePlaneBase plane;
+		if ( Class.CastTo( plane, m_ExpansionVehicle ) )
+		{
+			m_PlanePanel.Show( true );
+			RefreshPlaneHud( plane, timeslice );
 
 			return;
 		}
@@ -229,7 +382,35 @@ modded class IngameHud
 			return;
 		}
 
+		ExpansionVehicleBoatBase boat;
+		if ( Class.CastTo( boat, m_ExpansionVehicle ) )
+		{
+			m_BoatPanel.Show( true );
+			RefreshBoatHud( boat, timeslice );
+
+			return;
+		}
+
+		ExpansionVehicleBikeBase bike;
+		if ( Class.CastTo( bike, m_ExpansionVehicle ) )
+		{
+			m_VehiclePanel.Show( true );
+			RefreshBikeHud( bike, timeslice );
+
+			return;
+		}
+
+		ExpansionVehicleCarBase car;
+		if ( Class.CastTo( car, m_ExpansionVehicle ) )
+		{
+			m_VehiclePanel.Show( true );
+			RefreshCarHud( car, timeslice );
+
+			return;
+		}
+
 		m_BoatPanel.Show( false );
+		m_PlanePanel.Show( false );
 		m_HelicopterPanel.Show( false );
 
 		super.RefreshVehicleHud( timeslice );
@@ -243,10 +424,6 @@ modded class IngameHud
 		{
 			m_VehicleSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshVehicleHud - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -254,9 +431,9 @@ modded class IngameHud
 	// ------------------------------------------------------------	
 	private void RefreshHelicopterHud_Deprecated( ExpansionHelicopterScript helicopter, float timeslice )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshHelicopterHud_Deprecated - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshHelicopterHud_Deprecated").Add(helicopter).Add(timeslice);
+#endif
 
 		float h_speed_value = ( helicopter.GetSpeedometer() / 400 );	
 		float h_vert_speed_value = ( GetVelocity(helicopter)[1] / 400 );	
@@ -306,10 +483,96 @@ modded class IngameHud
 			m_HelicopterHoverAltitudePanel.Show( false );
 			m_HelicopterHoverAltitudeValue.SetText( "" );
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RefreshHelicopterHud
+	// ------------------------------------------------------------	
+	private void RefreshHelicopterHud( ExpansionVehicleHelicopterBase helicopter, float timeslice )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshHelicopterHud").Add(helicopter).Add(timeslice);
+#endif
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshHelicopterHud_Deprecated - End");
-		#endif
+		float h_speed_value = ( helicopter.GetSpeedometer() / 400 );	
+		float h_vert_speed_value = ( GetVelocity(helicopter)[1] / 400 );	
+		float h_alt_value = ( helicopter.GetPosition()[1] );
+		
+		m_HelicopterSpeedPointer.SetRotation( 0, 0, h_speed_value * 360 - 130, true );
+		m_HelicopterAltitudePointer.SetRotation( 0, 0, ( h_alt_value / 1600) * 360 - 130, true );
+		
+		m_HelicopterSpeedValue.SetText( Math.Floor( helicopter.GetSpeedometer() ).ToString() );
+		m_HelicopterAltitudeValue.SetText( Math.Floor( helicopter.GetPosition()[1] ).ToString() );
+
+		m_HelicopterFuelPointer.SetRotation( 0, 0, helicopter.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
+		m_HelicopterTemperaturePointer.SetRotation( 0, 0, helicopter.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
+		
+		int h_health = helicopter.GetHealthLevel( "Engine" );
+		int h_color;
+		
+		if ( h_health > 1 && h_health < 5 )
+		{
+			m_HelicopterEngineLight.Show( true );
+			h_color = ItemManager.GetItemHealthColor( helicopter, "Engine" );
+			
+			m_HelicopterEngineLight.SetColor( h_color );
+			m_HelicopterEngineLight.SetAlpha( 1 );
+		} else
+		{
+			m_HelicopterEngineLight.Show( false );
+		}
+		
+		if ( helicopter.IsAutoHover() )
+		{
+			m_HelicopterHoverAltitudePanel.Show( true );
+			m_HelicopterHoverAltitudeValue.SetText( Math.Round( helicopter.GetAutoHoverTargetHeight() ).ToString() );
+		}
+		else
+		{
+			m_HelicopterHoverAltitudePanel.Show( false );
+			m_HelicopterHoverAltitudeValue.SetText( "" );
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RefreshPlaneHud
+	// ------------------------------------------------------------	
+	private void RefreshPlaneHud( ExpansionVehiclePlaneBase plane, float timeslice )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshPlaneHud").Add(plane).Add(timeslice);
+#endif
+		
+		float p_speed_value = ( plane.GetSpeedometer() / 400 );	
+		float p_vert_speed_value = ( GetVelocity(plane)[1] / 400 );	
+		float p_alt_value = ( plane.GetPosition()[1] );
+		
+		m_PlaneSpeedPointer.SetRotation( 0, 0, p_speed_value * 360 - 130, true );
+		m_PlaneAltitudePointer.SetRotation( 0, 0, ( p_alt_value / 1600) * 360 - 130, true );
+		
+		m_PlaneSpeedValue.SetText( Math.Floor( plane.GetSpeedometer() ).ToString() );
+		m_PlaneAltitudeValue.SetText( Math.Floor( plane.GetPosition()[1] ).ToString() );
+
+		m_PlaneThrottle.SetCurrent( 50 );
+		m_PlaneFlaps.SetCurrent( 50 );
+		
+		m_PlaneFuelPointer.SetRotation( 0, 0, plane.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
+		m_PlaneTemperaturePointer.SetRotation( 0, 0, plane.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
+
+		int p_health = plane.GetHealthLevel( "Engine" );
+		int p_color;
+		
+		if ( p_health > 1 && p_health < 5 )
+		{
+			m_PlaneEngineLight.Show( true );
+			p_color = ItemManager.GetItemHealthColor( plane, "Engine" );
+			
+			m_PlaneEngineLight.SetColor( p_color );
+			m_PlaneEngineLight.SetAlpha( 1 );
+		} else
+		{
+			m_PlaneEngineLight.Show( false );
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -317,9 +580,9 @@ modded class IngameHud
 	// ------------------------------------------------------------	
 	private void RefreshBoatHud_Deprecated( ExpansionBoatScript boat, float timeslice )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshBoatHud - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshBoatHud_Deprecated").Add(boat).Add(timeslice);
+#endif
 
 		float rpm_value = ( boat.EngineGetRPM() / boat.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( boat.EngineGetRPMRedline() / boat.EngineGetRPMMax() ) ;
@@ -370,10 +633,210 @@ modded class IngameHud
 		
 		m_BoatGearNext.SetText( m_VehicleGearTable.Get( next_gear ) );
 		m_BoatGearPrev.SetText( m_VehicleGearTable.Get( prev_gear ) );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RefreshBoatHud
+	// ------------------------------------------------------------	
+	private void RefreshBoatHud( ExpansionVehicleBoatBase boat, float timeslice )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshBoatHud").Add(boat).Add(timeslice);
+#endif
+
+		float rpm_value = ( boat.EngineGetRPM() / boat.EngineGetRPMMax() ) ;
+		float rpm_value_red = ( boat.EngineGetRPMRedline() / boat.EngineGetRPMMax() ) ;
+			
+		float speed_value = ( boat.GetSpeedometer() / 400 );	
+
+		m_BoatRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
+		m_BoatSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
+		m_BoatSpeedValue.SetText( Math.Floor( boat.GetSpeedometer() ).ToString() );
+
+		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
+		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
+
+		int engaged_gear = boat.GetController().GetGear();	
+			
+		int prev_gear = engaged_gear - 1;
+		int next_gear = engaged_gear + 1;
+	
+		if ( engaged_gear == CarGear.NEUTRAL )
+		{
+			prev_gear = CarGear.REVERSE;
+		}
+		else if ( engaged_gear == CarGear.REVERSE )
+		{
+			prev_gear = -1;
+			next_gear = CarGear.NEUTRAL;
+		}
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("IngameHud::RefreshBoatHud_Deprecated - End");
-		#endif
+		m_BoatGearCurrent.SetText( m_VehicleGearTable.Get( engaged_gear ) );
+		
+		if ( next_gear > m_VehicleGearCount )
+		{
+			m_BoatGearNext.Show( false );
+		} else
+		{
+			m_BoatGearNext.Show( true );
+		}
+		
+		m_BoatGearNext.SetText( m_VehicleGearTable.Get( next_gear ) );
+		m_BoatGearPrev.SetText( m_VehicleGearTable.Get( prev_gear ) );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RefreshBikeHud
+	// ------------------------------------------------------------	
+	private void RefreshBikeHud( ExpansionVehicleBikeBase bike, float timeslice )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshBikeHud").Add(bike).Add(timeslice);
+#endif
+
+		float rpm_value = ( bike.EngineGetRPM() / bike.EngineGetRPMMax() ) ;
+		float rpm_value_red = ( bike.EngineGetRPMRedline() / bike.EngineGetRPMMax() ) ;
+		float speed_value = ( bike.GetSpeedometer() / 200 );
+		
+		m_VehicleRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
+		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
+		m_VehicleSpeedValue.SetText( Math.Floor( bike.GetSpeedometer() ).ToString() );
+
+		int engaged_gear = bike.GetController().GetGear();
+		
+		int prev_gear = engaged_gear - 1;
+		int next_gear = engaged_gear + 1;
+
+		if ( engaged_gear == CarGear.NEUTRAL )
+		{
+			prev_gear = CarGear.REVERSE;
+		} else if ( engaged_gear == CarGear.REVERSE )
+		{
+			prev_gear = -1;
+			next_gear = CarGear.NEUTRAL;
+		}
+		
+		bool newHealth = false;
+		
+		int health = bike.GetHealthLevel( "Engine" );
+		float oilAmount = bike.GetFluidFraction( CarFluid.OIL );
+		int color;
+		if ( bike.EngineGetRPM() > bike.EngineGetRPMRedline() /*|| (bike.EngineIsOn() && oilAmount < 0.25)*/ )
+		{
+			if ( m_TimeSinceLastEngineLightChange > 0.35 )
+			{
+				m_VehicleEngineLight.Show( !m_VehicleEngineLight.IsVisible() );
+				m_VehicleEngineLight.SetColor( Colors.COLOR_RUINED );
+				m_VehicleEngineLight.SetAlpha( 1 );
+				m_TimeSinceLastEngineLightChange = 0;
+			}
+
+			m_TimeSinceLastEngineLightChange += timeslice;
+			newHealth = true;
+		} else if ( health > 1 && health < 5 )
+		{
+			color = ItemManager.GetItemHealthColor( bike, "Engine" );
+			
+			m_VehicleEngineLight.SetColor( color );
+			m_VehicleEngineLight.SetAlpha( 1 );
+			m_VehicleEngineLight.Show( true );
+		} else
+		{
+			m_VehicleEngineLight.Show( false );
+		}
+
+		m_VehicleCurrentGearValue.SetText( m_VehicleGearTable.Get( engaged_gear ) );
+		
+		if ( next_gear > m_VehicleGearCount )
+		{
+			m_VehicleNextGearValue.Show( false );
+		} else
+		{
+			m_VehicleNextGearValue.Show( true );
+		}
+		
+		m_VehicleNextGearValue.SetText( m_VehicleGearTable.Get( next_gear ) );
+		m_VehiclePrevGearValue.SetText( m_VehicleGearTable.Get( prev_gear ) );
+			
+		m_VehicleFuelPointer.SetRotation( 0, 0, bike.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
+		m_VehicleTemperaturePointer.SetRotation( 0, 0, -1 * bike.GetFluidFraction( CarFluid.COOLANT ) * 260 + 130, true );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion RefreshCarHud
+	// ------------------------------------------------------------	
+	private void RefreshCarHud( ExpansionVehicleCarBase car, float timeslice )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshCarHud").Add(car).Add(timeslice);
+#endif
+
+		float rpm_value = ( car.EngineGetRPM() / car.EngineGetRPMMax() ) ;
+		float rpm_value_red = ( car.EngineGetRPMRedline() / car.EngineGetRPMMax() ) ;
+		float speed_value = ( car.GetSpeedometer() / 200 );
+		
+		m_VehicleRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
+		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
+		m_VehicleSpeedValue.SetText( Math.Floor( car.GetSpeedometer() ).ToString() );
+
+		int engaged_gear = car.GetController().GetGear();
+		
+		int prev_gear = engaged_gear - 1;
+		int next_gear = engaged_gear + 1;
+
+		if ( engaged_gear == CarGear.NEUTRAL )
+		{
+			prev_gear = CarGear.REVERSE;
+		} else if ( engaged_gear == CarGear.REVERSE )
+		{
+			prev_gear = -1;
+			next_gear = CarGear.NEUTRAL;
+		}
+		
+		bool newHealth = false;
+		
+		int health = car.GetHealthLevel( "Engine" );
+		float oilAmount = car.GetFluidFraction( CarFluid.OIL );
+		int color;
+		if ( car.EngineGetRPM() > car.EngineGetRPMRedline() /*|| (car.EngineIsOn() && oilAmount < 0.25)*/ )
+		{
+			if ( m_TimeSinceLastEngineLightChange > 0.35 )
+			{
+				m_VehicleEngineLight.Show( !m_VehicleEngineLight.IsVisible() );
+				m_VehicleEngineLight.SetColor( Colors.COLOR_RUINED );
+				m_VehicleEngineLight.SetAlpha( 1 );
+				m_TimeSinceLastEngineLightChange = 0;
+			}
+
+			m_TimeSinceLastEngineLightChange += timeslice;
+			newHealth = true;
+		} else if ( health > 1 && health < 5 )
+		{
+			color = ItemManager.GetItemHealthColor( car, "Engine" );
+			
+			m_VehicleEngineLight.SetColor( color );
+			m_VehicleEngineLight.SetAlpha( 1 );
+			m_VehicleEngineLight.Show( true );
+		} else
+		{
+			m_VehicleEngineLight.Show( false );
+		}
+
+		m_VehicleCurrentGearValue.SetText( m_VehicleGearTable.Get( engaged_gear ) );
+		
+		if ( next_gear > m_VehicleGearCount + 1 )
+		{
+			m_VehicleNextGearValue.Show( false );
+		} else
+		{
+			m_VehicleNextGearValue.Show( true );
+		}
+
+		m_VehicleNextGearValue.SetText( m_VehicleGearTable.Get( next_gear ) );
+		m_VehiclePrevGearValue.SetText( m_VehicleGearTable.Get( prev_gear ) );
+			
+		m_VehicleFuelPointer.SetRotation( 0, 0, car.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
+		m_VehicleTemperaturePointer.SetRotation( 0, 0, -1 * car.GetFluidFraction( CarFluid.COOLANT ) * 260 + 130, true );
 	}
 };
 #endif

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -71,14 +71,24 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 	vector m_ForwardWS;
 	vector m_AxleWS;
 
-	float m_SideForce;
+	float m_Rotation;
 
 	float m_Traction;
-	float m_TractionTorque;
+
+	float m_FeedbackTorque;
+	float m_BrakeTorque;
 
 	float m_Steering;
 
 	CF_Surface m_Surface;
+	float m_TyreRollResistance;
+	float m_TyreRollDrag;
+	float m_TyreRoughness;
+	float m_TyreTread;
+
+	float m_SlipRatio;
+	float m_PreviousContactVelocity;
+	float m_DifferentialSlipRatio;
 
 	void ExpansionVehicleWheel(EntityAI pVehicle, string pName, ExpansionVehicleAxle pAxle)
 	{
@@ -135,6 +145,11 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 	void OnWheelAttach(notnull ExpansionWheelBase pWheel)
 	{
 		m_WheelItem = pWheel;
+
+		m_TyreRollResistance = m_WheelItem.m_TyreRollResistance;
+		m_TyreRollDrag = m_WheelItem.m_TyreRollDrag;
+		m_TyreRoughness = m_WheelItem.m_TyreRoughness;
+		m_TyreTread = m_WheelItem.m_TyreTread;
 	}
 
 	void OnWheelDetach()
@@ -149,6 +164,7 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 
 		instance.Add("Wheel", m_WheelHub);
 		instance.Add("Contact", m_HasContact);
+		instance.Add("Slip Ratio", m_SlipRatio);
 
 		//instance.Add(m_Surface);
 
@@ -158,15 +174,13 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-		if (!m_WheelItem)
-		{
-			m_RPM = 0;
-			return;
-		}
+		super.PreSimulate(pState);
 
+		m_Radius = m_Axle.m_WheelHubRadius;
 		m_TraceRadius = m_Axle.m_WheelHubRadius;
 
-		m_Radius = m_WheelItem.m_Radius;
+		if (m_WheelItem)
+			m_Radius = m_WheelItem.m_Radius;
 
 		vector wheelTransform[4];
 		wheelTransform[0] = -m_InitialTransform[0];
@@ -182,10 +196,8 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 
 		m_TraceStart = m_TransformMS[3];
 
-		float safeChecking = 0; //Math.Max(-m_Vehicle.GetModelVelocityAt(m_TraceStart)[1] / 40.0, 0) * 5.0; //! checking 2 frames ahead
-
 		m_TraceUp = m_Axle.m_TravelMaxUp + m_Radius + m_Radius;
-		m_TraceDown = m_Axle.m_TravelMaxDown + m_Radius + safeChecking;
+		m_TraceDown = m_Axle.m_TravelMaxDown + m_Radius;
 
 		m_ContactLength = m_TraceUp + m_TraceDown;
 
@@ -249,10 +261,8 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 				suspensionForce = 0;
 
 			m_SuspensionForce = m_ContactNormal * suspensionForce;
-
-			string surfaceName;
-			GetGame().SurfaceGetType3D(m_ContactPositionWS[0], m_ContactPositionWS[1], m_ContactPositionWS[2], surfaceName);
-			m_Surface = CF_Surface.Get(surfaceName);
+			
+			m_Surface = CF_Surface.At(m_ContactPositionWS);
 		}
 
 		/*
@@ -288,45 +298,47 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 			m_Surface = null;
 		}
 
-		m_ContactVelocityTS = m_ContactVelocity.InvMultiply3(pState.m_Transform);
+		m_ContactVelocityTS = m_ContactVelocity.Multiply3(pState.m_Transform);
+			
+		if (m_HasContact)
+		{
+			float roadTorque = m_ContactVelocityTS[2] / m_Radius;
+			m_FeedbackTorque = roadTorque - m_Velocity;
+
+			m_BrakeTorque = Math.Clamp(roadTorque, -1.0, 1.0) * (m_Axle.m_Brake / m_Radius) * pState.m_InvMass;
+			
+			//Print(m_FeedbackTorque);
+
+			if (m_Surface)
+				m_BrakeTorque += -roadTorque * m_TyreRollResistance * m_Surface.VehicleSurface.RollResistance * m_Radius;
+
+			//m_Surface.m_VehicleSurface.m_RollDrag m_TyreRollDrag
+		}
+		else
+		{
+			m_FeedbackTorque = 0;
+
+			m_BrakeTorque = Math.Clamp(m_Velocity, -1.0, 1.0) * (m_Axle.m_Brake / m_Radius) * pState.m_InvMass;
+		}
 
 		Math3D.MatrixMultiply4(pState.m_Transform, m_TransformMS, m_TransformWS);
 
 #ifndef EXPANSION_WHEEL_DEBUG_DISABLE
 		pState.DBGDrawSphere(m_TransformWS[3], 0.05, 0xFF0000FF);
 #endif
-
-		super.PreSimulate(pState);
 	}
 
 	override void Simulate(ExpansionPhysicsState pState)
 	{
-		if (!m_WheelItem)
-			return;
+		//m_Acceleration = m_Torque;
+		//m_Velocity += m_Acceleration * pState.m_DeltaTime;
+
+		m_Velocity = m_ContactVelocityTS[2] / m_Radius;
 
 		vector impulse;
 		vector impulseTorque;
 
-		float previousVelocity = m_Velocity;
-
-		m_TractionTorque = m_Velocity + (m_Acceleration * pState.m_InvMass * pState.m_DeltaTime);
-
-		if (m_Velocity != 0.0)
-		{
-			m_Acceleration -= Math.Sign(m_Velocity) * m_Axle.m_Brake / m_Radius;
-			//m_Acceleration -= Math.Sign(m_Velocity) * pState.m_Mass * 0.5 / m_Radius;
-		}
-
-		m_Velocity += m_Acceleration * pState.m_InvMass * pState.m_DeltaTime;
-
-		if (m_Axle.m_Brake != 0.0)
-			m_Velocity = 0;
-
 		// if the velocity direction changes then just apply 0 velocity
-		if (previousVelocity < 0 && m_Velocity > 0)
-			m_Velocity = 0;
-		else if (m_Velocity < 0 && previousVelocity > 0)
-			m_Velocity = 0;
 
 		vector forward;
 		vector side;
@@ -336,48 +348,36 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 			impulse += m_SuspensionForce;
 			impulseTorque += m_ContactPosition * m_SuspensionForce;
 
-			m_TractionTorque -= m_ContactVelocityTS[2] / m_Radius;
-
 			vector axle = m_TransformWS[0];
 			float proj = vector.Dot(axle, m_ContactNormalWS);
 			axle -= m_ContactNormalWS * proj;
 			axle.Normalize();
 
-			m_SideForce = ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3(pState.m_Transform), m_ContactObject, "0 0 0", axle);
-
-			forward = m_TransformMS[2] * m_TractionTorque * m_Radius * pState.m_DeltaTime;
+			forward = m_TransformMS[2] * m_Torque * m_Radius * pState.m_DeltaTime;
 
 			impulse += forward;
 			impulseTorque += m_ContactPosition * forward;
 
-			side = m_TransformMS[0] * m_SideForce * pState.m_DeltaTime;
+			side = m_TransformMS[0] * ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3(pState.m_Transform), m_ContactObject, "0 0 0", axle) * pState.m_DeltaTime;
 
 			impulse += side;
 			impulseTorque += m_ContactPosition * side;
 		}
 
-		//m_TractionTorque = m_TractionTorque * pState.m_Mass;
-
-		m_Traction = m_TractionTorque * m_Radius;
-
 #ifndef EXPANSION_WHEEL_DEBUG_DISABLE
 		vector expectedPosition = m_SuspensionForce * pState.m_InvMass;
-		expectedPosition = expectedPosition + Vector(0.0, 0.0, m_Traction * pState.m_InvMass);
+		expectedPosition = expectedPosition + (forward * pState.m_InvMass);
 		pState.DBGDrawSphereMS(expectedPosition.Multiply4(m_TransformMS), 0.05, 0xFF00FFFF);
 #endif
 
 #ifndef EXPANSION_WHEEL_DEBUG_DISABLE
-		pState.DBGDrawLineDirectionMS(m_ContactPosition + "0 0.01 0", m_TransformMS[2] * (m_Velocity / m_Radius), 0xFFFF00FF);
+		pState.DBGDrawLineDirectionMS(m_ContactPosition + "0 0.01 0", m_TransformMS[2] * (m_Velocity * m_Radius), 0xFFFF00FF);
 		pState.DBGDrawLineDirectionMS(m_ContactPosition + "0 0.03 0", m_TransformMS[2] * m_ContactVelocityTS[2], 0xFFFFFF00);
-		pState.DBGDrawLineDirectionMS(m_ContactPosition + "0 0.05 0", m_TransformMS[2] * m_Traction, 0xFF00FF00);
+		pState.DBGDrawLineDirectionMS(m_ContactPosition + "0 0.05 0", forward * pState.m_InvMass * (1.0 / pState.m_DeltaTime), 0xFF00FF00);
 #endif
 
 		m_Rotation += m_Velocity * pState.m_DeltaTime;
 		m_Rotation = Math.WrapFloatInclusive(m_Rotation, 0, Math.PI2);
-		m_RPM = Math.AbsFloat(m_Velocity) * 30.0 / Math.PI;
-
-		if (m_Parent)
-			m_Parent.m_RPM = m_RPM * m_Ratio;
 
 		// convert wheel forces to world space
 		pState.m_Impulse += impulse.Multiply3(pState.m_Transform);

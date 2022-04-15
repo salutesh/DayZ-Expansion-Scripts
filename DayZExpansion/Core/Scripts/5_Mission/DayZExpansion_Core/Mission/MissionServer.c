@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -22,15 +22,11 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void MissionServer()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::MissionServer - Start");
-		#endif
-
-		GetExpansionSettings().GameInit();
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionServer");
+#endif
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::MissionServer - End");
-		#endif
+		GetExpansionSettings().GameInit();
 	}
 
 	// ------------------------------------------------------------
@@ -38,15 +34,11 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void ~MissionServer()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::~MissionServer - Start");
-		#endif
-				
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "~MissionServer");
+#endif
+			
 		DestroyNotificationSystem();
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::~MissionServer - End");
-		#endif
 	}
 
 	override void HandleBody(PlayerBase player)
@@ -65,9 +57,9 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void OnMissionStart()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::OnMissionStart - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnMissionStart");
+#endif
 		
 		super.OnMissionStart();
 		
@@ -86,10 +78,6 @@ modded class MissionServer
 		#endif
 
 		ExpansionObjectSpawnTools.FindMissionFiles(true, loadTraderNPCs);
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::OnMissionStart - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -97,17 +85,15 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void OnMissionLoaded()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::OnMissionLoaded - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnMissionLoaded");
+#endif
 		
 		super.OnMissionLoaded();
 		
 		GetDayZExpansion().OnLoaded();
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::OnMissionLoaded - End");
-		#endif
+		CF_ModuleCoreManager.OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
 	
 	// ------------------------------------------------------------
@@ -115,18 +101,14 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void OnMissionFinish()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::OnMissionFinish - Start");
-		#endif
-	   
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnMissionFinish");
+#endif
+		
 		super.OnMissionFinish();
 
 		//! Save settings on mission finish
 		g_exGlobalSettings.Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("MissionServer::OnMissionFinish - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -171,7 +153,8 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void DumpClassNameJSON(string mustContain = "")
 	{
-		ExpansionClassNameDump newDump = new ExpansionClassNameDump;
+		array<string> classNames();
+		Param1<array<string>> dump = new Param1<array<string>>(classNames);
 		
 		for (int i = 0; i < GetGame().ConfigGetChildrenCount("CfgVehicles"); i++)
 	    {
@@ -181,26 +164,18 @@ modded class MissionServer
 	        if (name == string.Empty)
 	            continue;
 	        
-			Print(name);
 			ExpansionString exName = new ExpansionString(name);
 			if (exName.EndsWith("_Base"))
 			{
-				Print("We hit a _Base");
 				continue;
 			}
 			
 			if (mustContain && !name.Contains(mustContain))
 				continue;
 		        
-		    newDump.ClassNames.Insert(name);	
+		    classNames.Insert(name);	
 	    }
 		
-		JsonFileLoader<ExpansionClassNameDump>.JsonSaveFile("$profile:\\" + mustContain + "ClassNames.json", newDump);
-		delete newDump;
+		JsonFileLoader<Param1<array<string>>>.JsonSaveFile("$profile:\\" + mustContain + "ClassNames.json", dump);
 	}
-};
-
-class ExpansionClassNameDump
-{
-	ref array<string> ClassNames = new array<string>;
 };

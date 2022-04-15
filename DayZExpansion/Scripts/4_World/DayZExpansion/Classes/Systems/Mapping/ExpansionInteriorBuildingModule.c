@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -16,7 +16,8 @@ class IviesPosition
 	float   	radius;	
 }
 
-class ExpansionInteriorBuildingModule: JMModuleBase
+[CF_RegisterModule(ExpansionInteriorBuildingModule)]
+class ExpansionInteriorBuildingModule: CF_ModuleWorld
 {
 	protected bool m_IsUnloadingInteriors;
 	protected bool m_IsLoadingInteriors;
@@ -36,9 +37,9 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ExpansionInteriorBuildingModule()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionInteriorBuildingModule::ExpansionInteriorBuildingModule - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "ExpansionInteriorBuildingModule");
+#endif
 
 		m_CachedCollision = new map<string, bool>;
 		m_AllSpawnedPositions = new multiMap<string, vector>;
@@ -46,10 +47,6 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 		LoadIviesPositions();
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionInteriorBuildingModule::ExpansionInteriorBuildingModule - End");
-		#endif
 	}
  	
 	// ------------------------------------------------------------
@@ -57,15 +54,11 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	// ------------------------------------------------------------
 	void ~ExpansionInteriorBuildingModule()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionInteriorBuildingModule::~ExpansionInteriorBuildingModule - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "~ExpansionInteriorBuildingModule");
+#endif
 		
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionInteriorBuildingModule::~ExpansionInteriorBuildingModule - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -74,28 +67,28 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	override void OnInit()
 	{
 		super.OnInit();
+
+		//EnableSettingsChanged();
 	}
 
-	
-	// ------------------------------------------------------------
-	// Expansion OnMissionFinish
-	// ------------------------------------------------------------
-	override void OnMissionFinish()
+	void OnSettingsUpdated()
 	{
-		super.OnMissionFinish();		
+		//OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
 
 	// ------------------------------------------------------------
-	// Expansion OnSettingsUpdated
+	// Expansion OnSettingsChanged
 	// ------------------------------------------------------------
-	override void OnSettingsUpdated()
+/*	override void OnSettingsChanged(Class sender, CF_EventArgs args)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "OnSettingsChanged");
+#endif
+
+		super.OnSettingsChanged(sender, args);
+
 		if ( !GetExpansionSettings().GetGeneral() || g_Game.IsLoading() )
 			return;
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::OnSettingsUpdated - Start");
-		#endif
 		
 		// not workin!
 		//Print(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
@@ -103,20 +96,24 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 
 		//LoadInteriors(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
 		//LoadIvys(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionInteriorBuildingModule::OnSettingsUpdated - End");
-		#endif
 	}
-	
+*/
 	
 	void AddBuildingSpawned( string type, vector pos )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "AddBuildingSpawned");
+#endif
+
 		m_AllSpawnedPositions.Insert( type, pos );
 	}
 	
 	bool AlreadySpawned( string type, vector pos )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "AlreadySpawned");
+#endif
+
 		array<vector> allPositions = m_AllSpawnedPositions.Get(type);
 		
 		if (allPositions)
@@ -135,6 +132,10 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	private void GetIviesPositions(out TVectorArray iviesPosition)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "GetIviesPositions");
+#endif
+
 		//! Set default markers depending on map name
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
@@ -280,6 +281,10 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 
 	private void LoadIviesPositions()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadIviesPositions");
+#endif
+
 		if ( !GetExpansionSettings().GetGeneral() )
 			return;
 
@@ -304,6 +309,10 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	void SaveCachedCollisions()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "SaveCachedCollisions");
+#endif
+
 		FileSerializer file = new FileSerializer;
 			
 		if (file.Open(EXPANSION_TEMP_INTERIORS, FileMode.WRITE ))
@@ -315,6 +324,10 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	void LoadCachedCollisions()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadCachedCollisions");
+#endif
+
 		if (FileExist(EXPANSION_TEMP_INTERIORS))
 		{
 			FileSerializer file = new FileSerializer;
@@ -329,6 +342,10 @@ class ExpansionInteriorBuildingModule: JMModuleBase
 	
 	bool ShouldIvySpawn(vector position)
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "ShouldIvySpawn");
+#endif
+
 		// If Ivys are disabled in settings, this will be NULL
 		if ( m_WhereIviesObjectsSpawn )
 		{

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -50,9 +50,9 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::OnRecieve - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
 
 		//Not sent to client under normal operation
 		m_IsLoaded = true;
@@ -67,10 +67,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		CopyInternal( setting );
 
 		m_IsLoaded = true;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::OnRecieve - End");
-		#endif
 
 		return true;
 	}
@@ -150,9 +146,9 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
 
 		m_IsLoaded = true;
 			
@@ -227,10 +223,6 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		
 		if (save)
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSafeZoneSettings::Load - End - Loaded: " + safezoneSettingsExist);
-		#endif
 		
 		return safezoneSettingsExist;
 	}

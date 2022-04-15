@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -44,6 +44,9 @@ modded class PlayerBase
 		}
 
 		s_AllPlayers = this;
+
+		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeferredClientInit, 100, false );
 	}
 	
 	void ~PlayerBase()
@@ -222,17 +225,24 @@ modded class PlayerBase
 
 	override void SetActions( out TInputActionMap InputActionMap )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[CORE] PlayerBase::SetActions start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "SetActions");
+#endif
 
 		super.SetActions( InputActionMap );
 
 		AddAction( ExpansionActionPaint, InputActionMap );
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnUnconsciousStart
+	// ------------------------------------------------------------
+	override void OnUnconsciousStart()
+	{
+		if ( IsMissionClient() && GetGame().GetUIManager().GetMenu() && GetGame().GetUIManager().GetMenu().IsVisible() )
+			GetGame().GetUIManager().CloseAll();
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("[CORE] PlayerBase::SetActions end");
-		#endif
+		super.OnUnconsciousStart();
 	}
 	
 	// ------------------------------------------------------------
@@ -240,11 +250,11 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void OnVariablesSynchronized()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnVariablesSynchronized");
+#endif
+
 		super.OnVariablesSynchronized();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::OnVariablesSynchronized - Start");
-		#endif
 		
 		if (!GetGame().IsClient())
 			return;
@@ -257,10 +267,6 @@ modded class PlayerBase
 		{
 			OnExitZone(ExpansionZoneType.SAFE);
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint(ToString() + "::OnVariablesSynchronized - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -268,17 +274,13 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void Init()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::Init start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "Init");
+#endif
 		
 		super.Init();
 
 		RegisterNetSyncVariableBool("m_SafeZoneSynchRemote");
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::Init end");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -312,39 +314,43 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void OnEnterZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnEnterZone");
-		Print(type);
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnEnterZone");
+#endif
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnEnterZone start");
-		#endif
-		
 		if (type == ExpansionZoneType.SAFE)
 		{
 			OnEnterSafeZone();
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnEnterZone end");
-		#endif
 	}
 
 	#ifdef ENFUSION_AI_PROJECT
 	protected eAIGroup ExpansionGetEAIGroup(bool createIfNoneExists = true)
 	{
+		#ifdef EXPANSIONMODAI
+		eAIGroup group = eAIGroup.GetGroupByLeader(this, false);
+		if (group)
+			return group;
+		#else
 		for (int i = 0; i < eAIGroup.GROUPS.Count(); i++) {
 			if (!eAIGroup.GROUPS[i]) continue;
 			eAIBase GrpLeader = eAIGroup.GROUPS[i].GetLeader();
 			if (GrpLeader && GrpLeader == this)
 				return eAIGroup.GROUPS[i];
 		}
+		#endif
 		
 		if (!createIfNoneExists) return null;
 		
+		#ifdef EXPANSIONMODAI
+		eAIGroup newGroup = eAIGroup.CreateGroup();
+		SetGroup(newGroup);
+		#else
 		eAIGroup newGroup = new eAIGroup();
 		newGroup.SetLeader(this);
 		eAIBase eAI_PB = eAIBase.Cast(this);
 		eAI_PB.SetGroup(newGroup);
+		#endif
 		return newGroup;
 	}
 	#endif
@@ -354,13 +360,10 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void OnExitZone(ExpansionZoneType type)
 	{
-		EXPrint(ToString() + "::OnExitZone");
-		Print(type);
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnExitZone");
+#endif
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnExitZone - Start");
-		#endif
-		
 		if (type == ExpansionZoneType.SAFE)
 		{
 			if (GetGame().IsClient())
@@ -383,10 +386,6 @@ modded class PlayerBase
 			//! Delay actually leaving the safezone by 10 seconds
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnLeftSafeZone, 10000, false);
 		}
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnExitZone - End");
-		#endif
 	}
 
 	bool Expansion_HasAdminToolGodMode()
@@ -460,14 +459,22 @@ modded class PlayerBase
 
 		#ifdef ENFUSION_AI_PROJECT
 		eAIFactionCivilian civilian = new eAIFactionCivilian();
+		#ifdef EXPANSIONMODAI
+		eAIGroup group = GetGroup();
+		#else
 		eAIBase eAI_PB = eAIBase.Cast(this);
 		eAIGroup group = eAI_PB.GetGroup();
+		#endif
 		if ( !group )
 		{
 			//! If (re)connecting in a safezone, there will be no group initially
 			group = ExpansionGetEAIGroup();
 		}
+		#ifdef EXPANSIONMODAI
+		if ( !group.GetFaction().IsFriendly( civilian ) )
+		#else
 		if ( !group.GetFaction().isFriendly( civilian ) )
+		#endif
 		{
 			m_eAI_Faction_NotInSafeZone = group.GetFaction();
 			EXPrint(ToString() + "::OnEnterZone " + GetPosition() + " - faction " + m_eAI_Faction_NotInSafeZone + " -> " + civilian );
@@ -484,14 +491,9 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void OnLeftSafeZone()
 	{
-		EXPrint(ToString() + "::OnLeftSafeZone");
-		Print(m_LeavingSafeZone);
-		Print(m_SafeZone);
-		Print(m_SafeZoneSynchRemote);
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnLeftSafeZone - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnLeftSafeZone");
+#endif
 
 		if (GetGame().IsClient())
 		{
@@ -537,18 +539,18 @@ modded class PlayerBase
 		if ( m_eAI_Faction_NotInSafeZone )
 		{
 			//! Assign original faction
-			eAIBase eAI_PB = eAIBase.Cast(this);
 			EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition() + " - assigning faction " + m_eAI_Faction_NotInSafeZone );
+			#ifdef EXPANSIONMODAI
+			GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
+			#else
+			eAIBase eAI_PB = eAIBase.Cast(this);
 			eAI_PB.GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
+			#endif
 			m_eAI_Faction_NotInSafeZone = NULL;
 		}
 		#endif
 	
 		SetSynchDirty();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("PlayerBase::OnLeftSafeZone - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -561,5 +563,22 @@ modded class PlayerBase
 		{
 			hic.OverrideRaise(!mode, false);
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// PlayerBase EEKilled
+	// ------------------------------------------------------------
+	override void EEKilled( Object killer )
+	{
+	#ifdef EXPANSIONMONITORMODULE
+		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
+		if (monitorModule && GetIdentity() != NULL)
+		{
+			string playerUID = GetIdentity().GetId();
+			vector pos = GetPosition();
+			monitorModule.AddLastPlayerDeathPos(playerUID, pos);
+		}
+	#endif
+		super.EEKilled(killer);
 	}
 }

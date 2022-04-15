@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<modded_inputs>
+    <inputs>
+        <actions>
+            <input name="UAExpansionMapDeleteMarker" loc="STR_EXPANSION_DELETE_MARKER" />
+			<input name="UAExpansionMapToggle" loc="STR_EXPANSION_TOGGLE_MAP" />
+			<input name="UAExpansionGPSToggle" loc="STR_EXPANSION_TOGGLE_GPS" />
+			<input name="UAExpansionCompassToggle" loc="STR_EXPANSION_TOGGLE_COMPASS" />    
+			<input name="UAExpansionGPSMapScaleDown" loc="STR_EXPANSION_GPS_MAP_SCALE_DOWN" />
+			<input name="UAExpansionGPSMapScaleUp" loc="STR_EXPANSION_GPS_MAP_SCALE_UP" />
+
+			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
+			<input name="UAExpansionServerMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_SERVER_MARKERS" />
+			
+			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
+        </actions>
+		
+		<exclude name="chatexpansion">
+			<input name="UAExpansionMapDeleteMarker" />
+			<input name="UAExpansionMapToggle" />
+			<input name="UAExpansionGPSToggle" />
+			<input name="UAExpansionCompassToggle" />
+			<input name="UAExpansionGPSMapScaleDown" />
+			<input name="UAExpansionGPSMapScaleUp" />
+		</exclude>
+    </inputs>
+
+    <preset>
+        <input name="UAExpansionMapDeleteMarker">
+            <btn name="kDelete" />
+        </input>
+		<input name="UAExpansionMapToggle">
+            <btn name="kM" />
+        </input>
+		<input name="UAExpansionGPSToggle">
+            <btn name="kN" />
+        </input>
+		<input name="UAExpansionCompassToggle">
+            <btn name="kI" />
+        </input>
+		<input name="UAExpansionGPSMapScaleDown">
+            <btn name="mWheelDown" />
+        </input>
+		<input name="UAExpansionGPSMapScaleUp">
+            <btn name="mWheelUp" />
+        </input>
+		<input name="UAExpansion3DMarkerToggle">
+            <btn name="kK" />
+        </input>
+		<input name="UAExpansionServerMarkersToggle">
+            <btn name="kMultiply" />
+        </input>
+		<input name="UAExpansionQuickMarker">
+            <btn name="kH" />
+        </input>
+    </preset>
+</modded_inputs>

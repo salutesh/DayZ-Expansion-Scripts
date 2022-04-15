@@ -3,46 +3,31 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class ExpansionSkinModule: JMModuleBase
+[CF_RegisterModule(ExpansionSkinModule)]
+class ExpansionSkinModule: CF_ModuleWorld
 {	
-	private ref map< string, ref ExpansionSkins > m_Skins;
-	private ref map< string, string > m_SkinBase;
-	private ref map< string, string > m_SkinName;
-	
-	// ------------------------------------------------------------
-	// ExpansionSkinModule Constructor
-	// ------------------------------------------------------------
-	void ExpansionSkinModule()
-	{
-		m_Skins = new map< string, ref ExpansionSkins >;
-		m_SkinBase = new map< string, string >;
-		m_SkinName = new map< string, string >;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSkinModule Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionSkinModule()
-	{
-		delete m_Skins;
-	}
-	
+	private autoptr map< string, ref ExpansionSkins > m_Skins = new map< string, ref ExpansionSkins >;
+	private autoptr map< string, string > m_SkinBase = new map< string, string >;
+	private autoptr map< string, string > m_SkinName = new map< string, string >;
+		
 	// ------------------------------------------------------------
 	// ExpansionSkinModule OnInit
 	// ------------------------------------------------------------
 	override void OnInit()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::OnInit - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "OnInit");
+#endif
+
+		super.OnInit();
+
 		int mod_count = GetGame().ConfigGetChildrenCount( "CfgMods" );
 		
 		for ( int i = 0; i < mod_count; ++i )
@@ -71,9 +56,7 @@ class ExpansionSkinModule: JMModuleBase
 				string folder = folders[j];
 				folder.Replace("/", "\\");
 
-				#ifdef EXPANSIONEXLOGPRINT
-				EXLogPrint( folder );
-				#endif
+				CF_Log.Debug( folder );
 
 				string folderName;
 				FileAttr fileAttr;
@@ -113,10 +96,6 @@ class ExpansionSkinModule: JMModuleBase
 		{
 			m_Skins.GetElement( k ).Sort();
 		}
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::OnInit - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -124,20 +103,16 @@ class ExpansionSkinModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void LoadClassSkins( string folder, string rootFolder )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::LoadClassSkins - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "LoadClassSkins");
+#endif
+
 		string path = rootFolder + "\\" + folder + "\\";
 		
 		string fileName;
 		FileAttr fileAttr;
 		FindFileHandle findFileHandle = FindFile( path + "*", fileName, fileAttr, FindFileFlags.ALL );
 		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print( findFileHandle );
-		#endif
-
 		if ( findFileHandle )
 		{
 			if ( fileName.Length() > 0 ) // && ( fileAttr & FileAttr.DIRECTORY) )
@@ -153,10 +128,6 @@ class ExpansionSkinModule: JMModuleBase
 				}
 			}
 		}
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkins::LoadClassSkins - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -164,9 +135,9 @@ class ExpansionSkinModule: JMModuleBase
 	// ------------------------------------------------------------
 	private void LoadSkinsForObject( string file, string rootFolder )
 	{
-		#ifdef EXPANSION_SKIN_LOGGING
-		Print( file );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "LoadSkinsForObject");
+#endif
 
 		int idx = file.IndexOf( "\\" );
 
@@ -292,10 +263,10 @@ class ExpansionSkinModule: JMModuleBase
 	// ------------------------------------------------------------
 	void RetrieveSkins( string classname, out array< ExpansionSkin > skinCopy, out string defaultSkin )
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkinModule::RetrieveSkins - Start " + classname);
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "RetrieveSkins");
+#endif
+
 		defaultSkin = "";
 
 		string path;
@@ -321,9 +292,6 @@ class ExpansionSkinModule: JMModuleBase
 		ExpansionSkins skins = m_Skins.Get( skinBase );
 		if ( !skins )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			Print("ExpansionSkinModule::RetrieveSkins - No Skins!");
-			#endif
 			return;
 		}
 
@@ -348,10 +316,6 @@ class ExpansionSkinModule: JMModuleBase
 
 		for ( int i = 0; i < skins.Count(); ++i )
 			skinCopy.Insert( skins.Get( i ) );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		Print("ExpansionSkinModule::RetrieveSkins - End");
-		#endif
 	}
 
 	string GetSkinBase( string classname )

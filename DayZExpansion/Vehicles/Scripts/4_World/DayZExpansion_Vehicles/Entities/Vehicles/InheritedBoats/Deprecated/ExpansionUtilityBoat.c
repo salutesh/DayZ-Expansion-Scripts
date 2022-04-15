@@ -3,63 +3,53 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
-*/
+ */
 
 class ExpansionUtilityBoat extends ExpansionBoatScript
 {
-	// ------------------------------------------------------------
 	void ExpansionUtilityBoat()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::Constructor - Start");
-		#endif
-
 		//! Vanilla
-		m_dmgContactCoef			= 0.018;
+		m_dmgContactCoef = 0.018;
 
 		//! Custom
-		m_MaxSpeed					= 60.0;
+		m_MaxSpeed = 60.0;
 
-		m_TurnCoef					= 0.075;
-	
-		m_Offset					= 0.66;
+		m_TurnCoef = 0.075;
 
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::Constructor - End");
-		#endif
+		m_Offset = 0.66;
 	}
-	
-	// ------------------------------------------------------------
+
 	override int GetAnimInstance()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::GetAnimInstance");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
+#endif
+
 		return ExpansionVehicleAnimInstances.EXPANSION_UTILITY_BOAT;
 	}
 
-	// ------------------------------------------------------------
 	override CarLightBase CreateFrontLight()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::CreateFrontLight");
-		#endif
-		return CarLightBase.Cast( ScriptedLightBase.CreateLight(ExpansionBoatFrontLight) );
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "CreateFrontLight");
+#endif
+
+		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionBoatFrontLight));
 	}
 
-	// ------------------------------------------------------------
-	override int GetSeatAnimationType( int posIdx )
+	override int GetSeatAnimationType(int posIdx)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::GetSeatAnimationType");
-		#endif
-		
-		switch( posIdx )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
+		switch (posIdx)
 		{
 		case 0:
 			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
@@ -75,101 +65,104 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 
 		return 0;
 	}
-	
-	// ------------------------------------------------------------
-	override bool CrewCanGetThrough( int posIdx )
+
+	override bool CrewCanGetThrough(int posIdx)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::CrewCanGetThrough");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "CrewCanGetThrough").Add(posIdx);
+#endif
+
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	override bool CanReachDoorsFromSeat( string pDoorsSelection, int pCurrentSeat )
+	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::CanReachDoorsFromSeat");
-		#endif
-		return true;		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
+#endif
+
+		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalCarBattery()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::IsVitalCarBattery");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
+#endif
+
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalTruckBattery()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::IsVitalTruckBattery");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalTruckBattery");
+#endif
+
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalSparkPlug()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::IsVitalSparkPlug");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalSparkPlug");
+#endif
+
 		return false;
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsVitalRadiator()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::IsVitalRadiator");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalRadiator");
+#endif
+
 		return false;
 	}
-	
-	// ------------------------------------------------------------
+
 	override bool IsVitalGlowPlug()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::IsVitalGlowPlug");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalGlowPlug");
+#endif
+
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsVitalEngineBelt()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionUtilityBoat::IsVitalEngineBelt");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalEngineBelt");
+#endif
+
 		return false;
 	}
 
-	// ------------------------------------------------------------
 	override void UpdateLights(int new_gear = -1)
 	{
-		if ( IsMissionClient() )
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "UpdateLights").Add(new_gear);
+#endif
+
+		if (IsMissionClient())
 		{
 			ItemBase battery;
-			
-			if ( IsVitalTruckBattery() ) 
-				battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
-			
+
+			if (IsVitalTruckBattery())
+				battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
+
 			if (battery)
 			{
 				if (m_HeadlightsOn)
 				{
 					DashboardShineOn();
-					
-					if (!m_Headlight  &&  m_HeadlightsState != CarHeadlightBulbsState.NONE)
+
+					if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 					{
 						m_Headlight = CreateFrontLight();
 						TailLightsShineOn();
 					}
-					
+
 					if (m_HeadlightsState == CarHeadlightBulbsState.LEFT)
 					{
 						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
@@ -188,15 +181,15 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 					{
 						vector local_pos_left = GetMemoryPointPos(m_LeftHeadlightPoint);
 						vector local_pos_right = GetMemoryPointPos(m_RightHeadlightPoint);
-						
-						vector local_pos_middle = (local_pos_left + local_pos_right) *0.5;
+
+						vector local_pos_middle = (local_pos_left + local_pos_right) * 0.5;
 						m_Headlight.AttachOnObject(this, local_pos_middle);
 						m_Headlight.AggregateLight();
 						LeftFrontLightShineOn();
 						RightFrontLightShineOn();
 					}
-					
-					if (m_Headlight  &&  m_HeadlightsState == CarHeadlightBulbsState.NONE)
+
+					if (m_Headlight && m_HeadlightsState == CarHeadlightBulbsState.NONE)
 					{
 						m_Headlight.FadeOut();
 						m_Headlight = null;
@@ -211,26 +204,25 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 					DashboardShineOff();
 					LeftFrontLightShineOff();
 					RightFrontLightShineOff();
-					
+
 					if (m_Headlight)
 					{
 						m_Headlight.FadeOut();
 						m_Headlight = null;
 					}
 				}
-			
-				if ( EngineIsOn() )
+
+				if (EngineIsOn())
 				{
 					int reverse_light_state = CarRearLightType.NONE;
-								
+
 					int gear;
-					
+
 					if (new_gear == -1)
 						gear = GetController().GetGear();
 					else
 						gear = new_gear;
-					
-					
+
 					if (gear == CarGear.REVERSE)
 					{
 						reverse_light_state = CarRearLightType.REVERSE_ONLY;
@@ -239,7 +231,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 					{
 						reverse_light_state = CarRearLightType.NONE;
 					}
-					
+
 					if (m_BrakesArePressed)
 					{
 						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
@@ -251,14 +243,14 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 							reverse_light_state = CarRearLightType.BRAKES_ONLY;
 						}
 					}
-					
-					if (reverse_light_state != CarRearLightType.NONE	&&  m_HeadlightsState != CarHeadlightBulbsState.NONE  &&  !m_RearLight)
+
+					if (reverse_light_state != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE && !m_RearLight)
 					{
 						m_RearLight = CreateRearLight();
 						vector local_pos = GetMemoryPointPos(m_ReverseLightPoint);
 						m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
 					}
-					
+
 					if (m_RearLight)
 					{
 						if (reverse_light_state == CarRearLightType.REVERSE_ONLY)
@@ -274,7 +266,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 						else if (reverse_light_state == CarRearLightType.BRAKES_ONLY)
 						{
 							m_RearLight.SetAsSegregatedBrakeLight();
-							
+
 							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
 							{
 								ReverseLightsShineOff();
@@ -285,7 +277,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 						{
 							m_RearLight.AggregateLight();
 							m_RearLight.SetFadeOutTime(1);
-							
+
 							if (m_HeadlightsState != CarHeadlightBulbsState.NONE)
 							{
 								BrakeLightsShineOn();
@@ -309,7 +301,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 				{
 					BrakeLightsShineOff();
 					ReverseLightsShineOff();
-					
+
 					if (m_RearLight)
 					{
 						m_RearLight.FadeOut();
@@ -324,13 +316,13 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 				DashboardShineOff();
 				BrakeLightsShineOff();
 				ReverseLightsShineOff();
-				
+
 				if (m_RearLight)
 				{
 					m_RearLight.FadeOut();
 					m_RearLight = null;
 				}
-				
+
 				if (m_Headlight)
 				{
 					m_Headlight.FadeOut();

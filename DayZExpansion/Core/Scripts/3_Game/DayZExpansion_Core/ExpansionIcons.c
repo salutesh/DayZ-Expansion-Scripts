@@ -3,31 +3,27 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-private static ref ExpansionIcons g_exp_MarkerIcons = NULL;
-
 class ExpansionIcons
 {
-	private autoptr map< string, ref ExpansionIcon > m_IconMap;
-	private autoptr array< ExpansionIcon > m_Icons;
+	private static ref ExpansionIcons s_Icons = new ExpansionIcons;
 
-	private autoptr array< string > m_OldIconSystem;
+	private autoptr map<string, ref ExpansionIcon> m_IconMap;
+	private autoptr array<ExpansionIcon> m_Icons;
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons Constructor
 	// ------------------------------------------------------------	
 	private void ExpansionIcons()
 	{
-		m_IconMap = new map< string, ref ExpansionIcon >();
-		m_Icons = new array< ExpansionIcon >();
-
-		m_OldIconSystem = new array< string >();
+		m_IconMap = new map<string, ref ExpansionIcon>();
+		m_Icons = new array<ExpansionIcon>();
 
 		Generate();
 	}
@@ -44,197 +40,210 @@ class ExpansionIcons
 	// ------------------------------------------------------------	
 	void Generate()
 	{
-		AddIcon( "Arrow",			"Arrow",			EXPANSION_NOTIFICATION_ICON_ARROW			);
-		AddIcon( "Error",			"Error",			EXPANSION_NOTIFICATION_ICON_ERROR			);
-		AddIcon( "Airdrop",			"Airdrop",			EXPANSION_NOTIFICATION_ICON_AIRDROP			);
-		AddIcon( "Car",				"Car",				EXPANSION_NOTIFICATION_ICON_CAR				);
-		AddIcon( "Car 2",				"Car",				EXPANSION_NOTIFICATION_ICON_CAR_2				);
-		AddIcon( "Craft",				"Craft",				EXPANSION_NOTIFICATION_ICON_CRAFT				);
-		AddIcon( "Deliver",			"Deliver",			EXPANSION_NOTIFICATION_ICON_DELIVER			);
-		AddIcon( "Radiation",		"Radiation",		EXPANSION_NOTIFICATION_ICON_RADIATION		);
-		AddIcon( "Trader",			"Trader",			EXPANSION_NOTIFICATION_ICON_TRADER			);
-		AddIcon( "Water 1",			"Water",			EXPANSION_NOTIFICATION_ICON_WATER_1			);
-		AddIcon( "Infected 1",		"Infected",			EXPANSION_NOTIFICATION_ICON_INFECTED_1		);
-		AddIcon( "Infected 2",		"Infected",			EXPANSION_NOTIFICATION_ICON_INFECTED_2		);
-		AddIcon( "Skull 1",			"Skull",			EXPANSION_NOTIFICATION_ICON_SKULL_1			);
-		AddIcon( "Helicopter",		"Helicopter",		EXPANSION_NOTIFICATION_ICON_HELI			);
-		AddIcon( "Base",			"Base",				EXPANSION_NOTIFICATION_ICON_HOME			);
-		AddIcon( "Boat",			"Boat",				EXPANSION_NOTIFICATION_ICON_BOAT			);
-		AddIcon( "Fishing",			"Fishing",			EXPANSION_NOTIFICATION_ICON_FISHING			);		
-		AddIcon( "Territory",		"Territory",		EXPANSION_NOTIFICATION_ICON_TERRITORY		);
-		AddIcon( "Bear",			"Bear",				EXPANSION_NOTIFICATION_ICON_BEAR			);
-		AddIcon( "Claw",			"Claw",				EXPANSION_NOTIFICATION_ICON_CLAW			);
-		AddIcon( "Drip",			"Drip",				EXPANSION_NOTIFICATION_ICON_DRIP			);
-		AddIcon( "Ear",				"Ear",				EXPANSION_NOTIFICATION_ICON_EAR				);
-		AddIcon( "Eye",				"Eye",				EXPANSION_NOTIFICATION_ICON_EYE				);
-		AddIcon( "Fireplace",		"Fireplace",		EXPANSION_NOTIFICATION_ICON_FIREPLACE		);
-		AddIcon( "Heart",			"Heart",			EXPANSION_NOTIFICATION_ICON_HEART			);
-		AddIcon( "Hook",			"Hook",				EXPANSION_NOTIFICATION_ICON_HOOK			);
-		AddIcon( "Info",			"Info",				EXPANSION_NOTIFICATION_ICON_INFO			);
-		AddIcon( "Knife",			"Knife",			EXPANSION_NOTIFICATION_ICON_KNIFE			);
-		AddIcon( "Marker",			"Marker",			EXPANSION_NOTIFICATION_ICON_MARKER			);
-		AddIcon( "Map Marker",		"Map Marker",		EXPANSION_NOTIFICATION_ICON_MAP_MARKER		);
-		AddIcon( "Menu",			"Menu",				EXPANSION_NOTIFICATION_ICON_MENU			);
-		AddIcon( "Moon",			"Moon",				EXPANSION_NOTIFICATION_ICON_MOON			);
-		AddIcon( "Pen",				"Pen",				EXPANSION_NOTIFICATION_ICON_PEN				);
-		AddIcon( "Persona",			"Persona",			EXPANSION_NOTIFICATION_ICON_PERSONA			);
-		AddIcon( "Pill",			"Pill",				EXPANSION_NOTIFICATION_ICON_PILL			);
-		AddIcon( "Questionmark",	"Questionmark",		EXPANSION_NOTIFICATION_ICON_QUESTIONMARK	);
-		AddIcon( "Skull 2",			"Skull",			EXPANSION_NOTIFICATION_ICON_SKULL_2			);
-		AddIcon( "Skull 3",			"Skull",			EXPANSION_NOTIFICATION_ICON_SKULL_3			);
-		AddIcon( "Star",			"Star",				EXPANSION_NOTIFICATION_ICON_STAR			);
-		AddIcon( "Sun",				"Sun",				EXPANSION_NOTIFICATION_ICON_SUN				);
-		AddIcon( "Tent",			"Tent",				EXPANSION_NOTIFICATION_ICON_TENT			);
-		AddIcon( "Thermometer",		"Thermometer",		EXPANSION_NOTIFICATION_ICON_THERMOMETER		);
-		AddIcon( "Water 2",			"Water",			EXPANSION_NOTIFICATION_ICON_WATER_2			);
-		AddIcon( "Book 1",			"Book",				EXPANSION_NOTIFICATION_ICON_BOOK_1			);
-		AddIcon( "Book 2",			"Book",				EXPANSION_NOTIFICATION_ICON_BOOK_2			);
-		AddIcon( "Ellipse",			"Ellipse",			EXPANSION_NOTIFICATION_ICON_ELLIPSE			);
-		AddIcon( "Square",			"Square",			EXPANSION_NOTIFICATION_ICON_SQUARE			);
-		AddIcon( "Grab",			"Grab",				EXPANSION_NOTIFICATION_ICON_GRAB			);
-		AddIcon( "Open Hand",		"Open Hand",		EXPANSION_NOTIFICATION_ICON_HAND_OPEN		);
-		AddIcon( "Map",				"Map",				EXPANSION_NOTIFICATION_ICON_MAP				);
-		AddIcon( "Note",			"Note",				EXPANSION_NOTIFICATION_ICON_NOTE			);
-		AddIcon( "Orientation",		"Orientation",		EXPANSION_NOTIFICATION_ICON_ORIENTATION		);
-		AddIcon( "Radio",			"Radio",			EXPANSION_NOTIFICATION_ICON_RADIO			);
-		AddIcon( "Shield",			"Shield",			EXPANSION_NOTIFICATION_ICON_SHIELD			);
-		AddIcon( "Snow",			"Snow",				EXPANSION_NOTIFICATION_ICON_SNOW			);
-		AddIcon( "Group",			"Group",			EXPANSION_NOTIFICATION_ICON_GROUP			);
-		AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_VEHICLE_CRASH	);
-		
+		AddIcon("Arrow", "DayZExpansion\\Core\\GUI\\icons\\hud\\arrow_64x64.edds");
+		AddIcon("Error", "set:expansion_notification_iconset image:icon_error");
+		AddIcon("Airdrop", "set:expansion_notification_iconset image:icon_airdrop");
+		AddIcon("Car", "set:expansion_notification_iconset image:icon_car");
+		AddIcon("Car 2", "DayZExpansion\\Core\\GUI\\icons\\hud\\car_64x64.edds");
+		AddIcon("Craft", "DayZExpansion\\Core\\GUI\\icons\\hud\\craft_64x64.edds");
+		AddIcon("Deliver", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_deliver.paa");
+		AddIcon("Radiation", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_radiation.paa");
+		AddIcon("Trader", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_trader.paa");
+		AddIcon("Water 1", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_water.paa");
+		AddIcon("Infected 1", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_zombie.paa");
+		AddIcon("Infected 2", "DayZExpansion\\Core\\GUI\\icons\\marker\\zombie.paa");
+		AddIcon("Skull 1", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_skull.paa");
+		AddIcon("Helicopter", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Helicopter_256x256.edds");
+		AddIcon("Base", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_home.paa");
+		AddIcon("Boat", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Boat_256x256.edds");
+		AddIcon("Fishing", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_fishing.paa");
+		AddIcon("Territory", "set:expansion_iconset image:icon_territory");
+		AddIcon("Bear", "DayZExpansion\\Core\\GUI\\icons\\hud\\bear_64x64.edds");
+		AddIcon("Claw", "DayZExpansion\\Core\\GUI\\icons\\hud\\claw_64x64.edds");
+		AddIcon("Drip", "DayZExpansion\\Core\\GUI\\icons\\hud\\drip_64x64.edds");
+		AddIcon("Ear", "DayZExpansion\\Core\\GUI\\icons\\hud\\ear_64x64.edds");
+		AddIcon("Eye", "DayZExpansion\\Core\\GUI\\icons\\hud\\eye_64x64.edds");
+		AddIcon("Fireplace", "DayZExpansion\\Core\\GUI\\icons\\hud\\fireplace_64x64.edds");
+		AddIcon("Heart", "DayZExpansion\\Core\\GUI\\icons\\hud\\heart_64x64.edds");
+		AddIcon("Hook", "DayZExpansion\\Core\\GUI\\icons\\hud\\hook_64x64.edds");
+		AddIcon("Info", "DayZExpansion\\Core\\GUI\\icons\\hud\\info_64x64.edds");
+		AddIcon("Knife", "DayZExpansion\\Core\\GUI\\icons\\hud\\knife_64x64.edds");
+		AddIcon("Marker", "DayZExpansion\\Core\\GUI\\icons\\hud\\marker_64x64.edds");
+		AddIcon("Map Marker", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_mapmarker.paa");
+		AddIcon("Menu", "DayZExpansion\\Core\\GUI\\icons\\hud\\menu_64x64.edds");
+		AddIcon("Moon", "DayZExpansion\\Core\\GUI\\icons\\hud\\moon_64x64.edds");
+		AddIcon("Pen", "DayZExpansion\\Core\\GUI\\icons\\hud\\pen_64x64.edds");
+		AddIcon("Persona", "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds");
+		AddIcon("Pill", "DayZExpansion\\Core\\GUI\\icons\\hud\\pill_64x64.edds");
+		AddIcon("Questionmark", "DayZExpansion\\Core\\GUI\\icons\\hud\\questionmark_64x64.edds");
+		AddIcon("Skull 2", "DayZExpansion\\Core\\GUI\\icons\\hud\\skull_1_64x64.edds");
+		AddIcon("Skull 3", "DayZExpansion\\Core\\GUI\\icons\\hud\\skull_2_64x64.edds");
+		AddIcon("Star", "DayZExpansion\\Core\\GUI\\icons\\hud\\star_64x64.edds");
+		AddIcon("Sun", "DayZExpansion\\Core\\GUI\\icons\\hud\\sun_64x64.edds");
+		AddIcon("Tent", "DayZExpansion\\Core\\GUI\\icons\\hud\\tent_64x64.edds");
+		AddIcon("Thermometer", "DayZExpansion\\Core\\GUI\\icons\\hud\\thermometer_1_64x64.edds");
+		AddIcon("Water 2", "DayZExpansion\\Core\\GUI\\icons\\hud\\water_64x64.edds");
+		AddIcon("Book 1", "DayZExpansion\\Core\\GUI\\icons\\hud\\book_1_64x64.edds");
+		AddIcon("Book 2", "DayZExpansion\\Core\\GUI\\icons\\hud\\book_2_64x64.edds");
+		AddIcon("Ellipse", "DayZExpansion\\Core\\GUI\\icons\\hud\\ellipse_64x64.edds");
+		AddIcon("Square", "DayZExpansion\\Core\\GUI\\icons\\hud\\square_64x64.edds");
+		AddIcon("Grab", "DayZExpansion\\Core\\GUI\\icons\\hud\\grab_64x64.edds");
+		AddIcon("Open Hand", "DayZExpansion\\Core\\GUI\\icons\\hud\\hand_open_64x64.edds");
+		AddIcon("Map", "DayZExpansion\\Core\\GUI\\icons\\hud\\map_64x64.edds");
+		AddIcon("Note", "DayZExpansion\\Core\\GUI\\icons\\hud\\note_64x64.edds");
+		AddIcon("Orientation", "DayZExpansion\\Core\\GUI\\icons\\hud\\orientation_64x64.edds");
+		AddIcon("Radio", "DayZExpansion\\Core\\GUI\\icons\\hud\\radio_64x64.edds");
+		AddIcon("Shield", "DayZExpansion\\Core\\GUI\\icons\\hud\\shield_64x64.edds");
+		AddIcon("Snow", "DayZExpansion\\Core\\GUI\\icons\\hud\\snow_64x64.edds");
+		AddIcon("Group", "set:expansion_notification_iconset image:icon_group");
+		AddIcon("Vehicle Crash", "DayZExpansion\\Core\\GUI\\icons\\marker\\crash.paa");
+
 		//! Newer icons
-		AddIcon( "Animal Skull",	"Animal Skull",	EXPANSION_NOTIFICATION_ICON_T_Animal_Skull );
-		AddIcon( "Apple",	"Apple",	EXPANSION_NOTIFICATION_ICON_T_Apple );
-		AddIcon( "Apple Core",	"Apple Core",	EXPANSION_NOTIFICATION_ICON_T_Apple_Core );
-		AddIcon( "Arrows",	"Arrows",	EXPANSION_NOTIFICATION_ICON_T_Arrows );
-		AddIcon( "Axe",	"Axe",	EXPANSION_NOTIFICATION_ICON_T_Axe );
-		AddIcon( "Backpack",	"Backpack",	EXPANSION_NOTIFICATION_ICON_T_BagPack );
-		AddIcon( "Bandage",	"Bandage",	EXPANSION_NOTIFICATION_ICON_T_Bandage );
-		AddIcon( "Batteries",	"Batteries",	EXPANSION_NOTIFICATION_ICON_T_Batteries );
-		AddIcon( "Berries",	"Berries",	EXPANSION_NOTIFICATION_ICON_T_Berries );
-		AddIcon( "Kitchen Knife Big",	"Kitchen Knife Big",	EXPANSION_NOTIFICATION_ICON_T_Big_Kitchen_Knife );
-		AddIcon( "Binoculars",	"Binoculars",	EXPANSION_NOTIFICATION_ICON_T_Binoculars );
-		AddIcon( "Bolt",	"Bolt",	EXPANSION_NOTIFICATION_ICON_T_Bolt );
-		AddIcon( "Bonfire",	"Bornfire",	EXPANSION_NOTIFICATION_ICON_T_Bonfire );
-		AddIcon( "Bottle",	"Bottle",	EXPANSION_NOTIFICATION_ICON_T_Bottle );
-		AddIcon( "Bow",	"Bow",	EXPANSION_NOTIFICATION_ICON_T_Bow );
-		AddIcon( "Broken Lighter",	"Broken Lighter",	EXPANSION_NOTIFICATION_ICON_T_BrokenLighter );
-		AddIcon( "Can Of Beans Big",	"Can Of Beans Big",	EXPANSION_NOTIFICATION_ICON_T_Can_Of_Beans_Big );
-		AddIcon( "Can Of Beans Small",	"Can Of Beans Small",	EXPANSION_NOTIFICATION_ICON_T_Can_Of_Beans_Small );
-		AddIcon( "Car Keys",	"Car Keys",	EXPANSION_NOTIFICATION_ICON_T_Car_Keys );
-		AddIcon( "Carrot",	"Carrot",	EXPANSION_NOTIFICATION_ICON_T_Carrot );
-		AddIcon( "Chain Saw",	"Chain Saw",	EXPANSION_NOTIFICATION_ICON_T_Chain_Saw );
-		AddIcon( "Chicken",	"Chicken",	EXPANSION_NOTIFICATION_ICON_T_Chicken );
-		AddIcon( "Chocolate",	"Chocolate",	EXPANSION_NOTIFICATION_ICON_T_Chocolate );
-		AddIcon( "Cigarets",	"Cigarets",	EXPANSION_NOTIFICATION_ICON_T_Cigarets );
-		AddIcon( "Cloth",	"Cloth ",	EXPANSION_NOTIFICATION_ICON_T_Cloth );
-		AddIcon( "Compass",	"Compass",	EXPANSION_NOTIFICATION_ICON_T_Compass );
-		AddIcon( "Corn",	"Corn",	EXPANSION_NOTIFICATION_ICON_T_Corn );
-		AddIcon( "Crowbar",	"Crowbar",	EXPANSION_NOTIFICATION_ICON_T_Crowbar );
-		AddIcon( "Cow",	"Cow",	EXPANSION_NOTIFICATION_ICON_T_Cow );
-		AddIcon( "Dinosaur Skull",	"Dinosaur Skull ",	EXPANSION_NOTIFICATION_ICON_T_Dinosaur_Skull );
-		AddIcon( "Dry Wood",	"Dry Wood",	EXPANSION_NOTIFICATION_ICON_T_Dry_Wood );
-		AddIcon( "Eatable Flowers",	"Eatable Flowers",	EXPANSION_NOTIFICATION_ICON_T_EatableFlowers );
-		AddIcon( "Electrical Tape",	"Electrical Tape",	EXPANSION_NOTIFICATION_ICON_T_ElectricalTape );
-		AddIcon( "Empty Can",	"Empty Can",	EXPANSION_NOTIFICATION_ICON_T_Empty_Can );
-		AddIcon( "Fish",	"Fish",	EXPANSION_NOTIFICATION_ICON_T_Fish );
-		AddIcon( "Flare",	"Flare",	EXPANSION_NOTIFICATION_ICON_T_Flare );
-		AddIcon( "Flare Gun",	"Flare Gun",	EXPANSION_NOTIFICATION_ICON_T_FlareGun );
-		AddIcon( "Flare Gun Ammo",	"Flare Gun Ammo",	EXPANSION_NOTIFICATION_ICON_T_FlareGunAmmo );
-		AddIcon( "Flashlight",	"Flashlight",	EXPANSION_NOTIFICATION_ICON_T_Flashlight );
-		AddIcon( "Fox",	"Fox",	EXPANSION_NOTIFICATION_ICON_T_Fox );
-		AddIcon( "Frying Pan",	"Frying Pan",	EXPANSION_NOTIFICATION_ICON_T_Frying_Pan );
-		AddIcon( "Gas",	"Gas",	EXPANSION_NOTIFICATION_ICON_T_Gas );
-		AddIcon( "Gas Mask",	"Gas Mask",	EXPANSION_NOTIFICATION_ICON_T_GasMask );
-		AddIcon( "Golf Club",	"Golf Club",	EXPANSION_NOTIFICATION_ICON_T_Golf_club );
-		AddIcon( "Goose",	"Goose",	EXPANSION_NOTIFICATION_ICON_T_Goose );
-		AddIcon( "Grenade",	"Grenade",	EXPANSION_NOTIFICATION_ICON_T_Grenade );
-		AddIcon( "Guitar",	"Guitar",	EXPANSION_NOTIFICATION_ICON_T_Guitar );
-		AddIcon( "Gun",	"Gun",	EXPANSION_NOTIFICATION_ICON_T_Gun );
-		AddIcon( "Gun Bullets",	"Gun Bullets",	EXPANSION_NOTIFICATION_ICON_T_Gun_Bullets );
-		AddIcon( "Hammer",	"Hammer",	EXPANSION_NOTIFICATION_ICON_T_Hammer );
-		AddIcon( "Herbal Medicine",	"Herbal Medicine",	EXPANSION_NOTIFICATION_ICON_T_HerbalMedicine );
-		AddIcon( "Home Made Grenade",	"Home Made Grenade",	EXPANSION_NOTIFICATION_ICON_T_HomeMadeGrenade );
-		AddIcon( "Human Skull",	"Human Skull",	EXPANSION_NOTIFICATION_ICON_T_HumanSkull );
-		AddIcon( "Insect",	"Insect",	EXPANSION_NOTIFICATION_ICON_T_Insect );
-		AddIcon( "Kitchen Knife",	"Kitchen Knife",	EXPANSION_NOTIFICATION_ICON_T_Kitchen_Knife );
-		AddIcon( "Ladder",	"Ladder",	EXPANSION_NOTIFICATION_ICON_T_Ladder );
-		AddIcon( "Lantern",	"Lantern",	EXPANSION_NOTIFICATION_ICON_T_Lantern );
-		AddIcon( "Lighter",	"Lighter",	EXPANSION_NOTIFICATION_ICON_T_Lighter );
-		AddIcon( "Machette",	"Machette",	EXPANSION_NOTIFICATION_ICON_T_Machette );
-		AddIcon( "Paper Map",	"Paper Map",	EXPANSION_NOTIFICATION_ICON_T_Map );
-		AddIcon( "Matches",	"Matches",	EXPANSION_NOTIFICATION_ICON_T_Matches );
-		AddIcon( "Medic Box",	"Medic Box",	EXPANSION_NOTIFICATION_ICON_T_Medic_Box );
-		AddIcon( "Mushrooms",	"Mushrooms",	EXPANSION_NOTIFICATION_ICON_T_Mushrooms );
-		AddIcon( "Nails",	"Nails",	EXPANSION_NOTIFICATION_ICON_T_Nails );
-		AddIcon( "Paper",	"Paper",	EXPANSION_NOTIFICATION_ICON_T_Paper );
-		AddIcon( "Pills",	"Pills",	EXPANSION_NOTIFICATION_ICON_T_Pills );
-		AddIcon( "Pipe Wrench",	"Pipe Wrench",	EXPANSION_NOTIFICATION_ICON_T_Pipe_wrench );
-		AddIcon( "Powder",	"Powder",	EXPANSION_NOTIFICATION_ICON_T_Powder );
-		AddIcon( "Pumpkin",	"Pumpkin",	EXPANSION_NOTIFICATION_ICON_T_Pumpkin );
-		AddIcon( "Rabbit",	"Rabbit",	EXPANSION_NOTIFICATION_ICON_T_Rabbit );
-		AddIcon( "Racoon",	"Racoon",	EXPANSION_NOTIFICATION_ICON_T_Racoon );
-		AddIcon( "Radio",	"Radio",	EXPANSION_NOTIFICATION_ICON_T_Radio );
-		AddIcon( "Rat",	"Rat",	EXPANSION_NOTIFICATION_ICON_T_Rat );
-		AddIcon( "Rock 1",	"Rock 1",	EXPANSION_NOTIFICATION_ICON_T_Rock_01 );
-		AddIcon( "Rock 2",	"Rock 2",	EXPANSION_NOTIFICATION_ICON_T_Rock_02 );
-		AddIcon( "Rope",	"Rope",	EXPANSION_NOTIFICATION_ICON_T_Rope );
-		AddIcon( "Saw",	"Saw",	EXPANSION_NOTIFICATION_ICON_T_Saw );
-		AddIcon( "Scrap Metal",	"Scrap Metal",	EXPANSION_NOTIFICATION_ICON_T_Scrap_Metal );
-		AddIcon( "Screwdriver",	"Screwdriver",	EXPANSION_NOTIFICATION_ICON_T_Screwdriver );
-		AddIcon( "Shotgun",	"Shotgun",	EXPANSION_NOTIFICATION_ICON_T_Shotgun );
-		AddIcon( "Shotgun Bullets",	"Shotgun Bullets",	EXPANSION_NOTIFICATION_ICON_T_Shotgun_Bullets );
-		AddIcon( "Shovel",	"Shovel",	EXPANSION_NOTIFICATION_ICON_T_Shovel );
-		AddIcon( "Soda",	"Soda",	EXPANSION_NOTIFICATION_ICON_T_Soda );
-		AddIcon( "Tent Small",	"Tent Small",	EXPANSION_NOTIFICATION_ICON_T_Tent );
-		AddIcon( "Walkie Talkie",	"Walkie Talkie",	EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie );
-		AddIcon( "Water Jug",	"Water Jug",	EXPANSION_NOTIFICATION_ICON_T_WaterJug );
-		AddIcon( "Wild Pork",	"Wild Pork",	EXPANSION_NOTIFICATION_ICON_T_WildPork );
-		AddIcon( "Worms",	"Worms",	EXPANSION_NOTIFICATION_ICON_T_Worms );
-		
+		AddIcon("Animal Skull", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Animal_Skull_256x256.edds");
+		AddIcon("Apple", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Apple_256x256.edds");
+		AddIcon("Apple Core", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Apple_Core_256x256.edds");
+		AddIcon("Arrows", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Arrows_256x256.edds");
+		AddIcon("Axe", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Axe_256x256.edds");
+		AddIcon("Backpack", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_BagPack_256x256.edds");
+		AddIcon("Bandage", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bandage_256x256.edds");
+		AddIcon("Batteries", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Batteries_256x256.edds");
+		AddIcon("Berries", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Berries_256x256.edds");
+		AddIcon("Kitchen Knife Big", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Big_Kitchen_Knife_256x256.edds");
+		AddIcon("Binoculars", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Binoculars_256x256.edds");
+		AddIcon("Bolt", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bolt_256x256.edds");
+		AddIcon("Bonfire", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bonfire_256x256.edds");
+		AddIcon("Bottle", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bottle_256x256.edds");
+		AddIcon("Bow", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bow_256x256.edds");
+		AddIcon("Broken Lighter", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_BrokenLighter_256x256.edds");
+		AddIcon("Can Of Beans Big", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Can_Of_Beans_Big_256x256.edds");
+		AddIcon("Can Of Beans Small", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Can_Of_Beans_Small_256x256.edds");
+		AddIcon("Car Keys", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Car_Keys_256x256.edds");
+		AddIcon("Carrot", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Carrot_256x256.edds");
+		AddIcon("Chain Saw", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Chain_Saw_256x256.edds");
+		AddIcon("Chicken", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Chicken_256x256.edds");
+		AddIcon("Chocolate", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Chocolate_bar_256x256.edds");
+		AddIcon("Cigarets", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cigarets_256x256.edds");
+		AddIcon("Cloth", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cloth_256x256.edds");
+		AddIcon("Compass", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Compass_256x256.edds");
+		AddIcon("Corn", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Corn_256x256.edds");
+		AddIcon("Crowbar", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Crowbar_256x256.edds");
+		AddIcon("Cow", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cow_256x256.edds");
+		AddIcon("Dinosaur Skull", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Dinosaur_Skull_256x256.edds");
+		AddIcon("Dry Wood", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Dry_Wood_256x256.edds");
+		AddIcon("Eatable Flowers", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_EatableFlowers_256x256.edds");
+		AddIcon("Electrical Tape", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_ElectricalTape_256x256.edds");
+		AddIcon("Empty Can", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Empty_Can_256x256.edds");
+		AddIcon("Fish", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Fish_256x256.edds");
+		AddIcon("Flare", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Flare_256x256.edds");
+		AddIcon("Flare Gun", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_FlareGun_256x256.edds");
+		AddIcon("Flare Gun Ammo", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_FlareGunAmmo_256x256.edds");
+		AddIcon("Flashlight", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Flashlight_256x256.edds");
+		AddIcon("Fox", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Fox_256x256.edds");
+		AddIcon("Frying Pan", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Frying_Pan_256x256.edds");
+		AddIcon("Gas", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Gas_256x256.edds");
+		AddIcon("Gas Mask", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_GasMask_256x256.edds");
+		AddIcon("Golf Club", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Golf_club_256x256.edds");
+		AddIcon("Goose", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Goose_256x256.edds");
+		AddIcon("Grenade", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Grenade_256x256.edds");
+		AddIcon("Guitar", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Guitar_256x256.edds");
+		AddIcon("Gun", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Gun_256x256.edds");
+		AddIcon("Gun Bullets", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Gun_Bullets_256x256.edds");
+		AddIcon("Hammer", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Hammer_256x256.edds");
+		AddIcon("Herbal Medicine", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_HerbalMedicine_256x256.edds");
+		AddIcon("Home Made Grenade", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_HomeMadeGrenade_256x256.edds");
+		AddIcon("Human Skull", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_HumanSkull_256x256.edds");
+		AddIcon("Insect", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Insect_256x256.edds");
+		AddIcon("Kitchen Knife", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Kitchen_Knife_256x256.edds");
+		AddIcon("Ladder", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Ladder_256x256.edds");
+		AddIcon("Lantern", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Lantern_256x256.edds");
+		AddIcon("Lighter", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Lighter_256x256.edds");
+		AddIcon("Machette", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Machette_256x256.edds");
+		AddIcon("Paper Map", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Map_256x256.edds");
+		AddIcon("Matches", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Matches_256x256.edds");
+		AddIcon("Medic Box", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Medic_Box_256x256.edds");
+		AddIcon("Mushrooms", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Mushrooms_256x256.edds");
+		AddIcon("Nails", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Nails_256x256.edds");
+		AddIcon("Paper", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Paper_256x256.edds");
+		AddIcon("Pills", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Pills_256x256.edds");
+		AddIcon("Pipe Wrench", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Pipe_wrench_256x256.edds");
+		AddIcon("Powder", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Powder_256x256.edds");
+		AddIcon("Pumpkin", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Pumpkin_256x256.edds");
+		AddIcon("Rabbit", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Rabbit_256x256.edds");
+		AddIcon("Racoon", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Racoon_256x256.edds");
+		AddIcon("Radio", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Radio_256x256.edds");
+		AddIcon("Rat", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Rat_256x256.edds");
+		AddIcon("Rock 1", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Rock_01_256x256.edds");
+		AddIcon("Rock 2", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Rock_02_256x256.edds");
+		AddIcon("Rope", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Rope_256x256.edds");
+		AddIcon("Saw", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Saw_256x256.edds");
+		AddIcon("Scrap Metal", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Scrap_Metal_256x256.edds");
+		AddIcon("Screwdriver", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Screwdriver_256x256.edds");
+		AddIcon("Shotgun", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Shotgun_256x256.edds");
+		AddIcon("Shotgun Bullets", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Shotgun_Bullets_256x256.edds");
+		AddIcon("Shovel", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Shovel_256x256.edds");
+		AddIcon("Soda", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Soda_256x256.edds");
+		AddIcon("Tent", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Tent_256x256.edds");
+		AddIcon("Walkie Talkie", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Wakie-Talkie_256x256.edds");
+		AddIcon("Water Jug", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_WaterJug_256x256.edds");
+		AddIcon("Wild Pork", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_WildPork_256x256.edds");
+		AddIcon("Worms", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Worms_256x256.edds");
+
 		//! Dont use yet
-		//AddIcon( "Three Stick ",	"Three Stick ",	EXPANSION_NOTIFICATION_ICON_T_Three_Stick );
-		//AddIcon( "Sleeping Bag",	"Sleeping Bag",	EXPANSION_NOTIFICATION_ICON_T_Sleeping_Bag );
-		//AddIcon( "Slingshot",	"Slingshot",	EXPANSION_NOTIFICATION_ICON_T_Slingshot );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Molotov );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Lizard );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Cooked_Meat_01 );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Cooked_Meat_02 );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Cooked_Meat_03 );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_of_bolts );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_01 );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_02 );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_03 );
-		//AddIcon( "Vehicle Crash",	"Vehicle Crash",	EXPANSION_NOTIFICATION_ICON_T_Collection_Of_Sticks_04 );
-		
+		//AddIcon("Three Stick", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Three_Stick_256x256.edds");
+		//AddIcon("Sleeping Bag", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Sleeping_Bag_256x256.edds");
+		//AddIcon("Slingshot", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Slingshot_256x256.edds");
+		//AddIcon("Molotov", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Molotov_256x256.edds");
+		//AddIcon("Lizard", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Lizard_256x256.edds");
+		//AddIcon("Cooked Meat 1", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cooked_Meat_01_256x256.edds");
+		//AddIcon("Cooked Meat 2", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cooked_Meat_02_256x256.edds");
+		//AddIcon("Cooked Meat 3", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cooked_Meat_03_256x256.edds");
+		//AddIcon("Collection Of Bolts", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Collection_of_bolts_256x256.edds");
+		//AddIcon("Collection Of Sticks 1", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Collection_Of_Sticks_01_256x256.edds");
+		//AddIcon("Collection Of Sticks 2", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Collection_Of_Sticks_02_256x256.edds");
+		//AddIcon("Collection Of Sticks 3", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Collection_Of_Sticks_03_256x256.edds");
+		//AddIcon("Collection Of Sticks 4", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Collection_Of_Sticks_04_256x256.edds");
+
 		//! Social Media Icons
-		AddIcon( "Discord",	"Discord",	EXPANSION_NOTIFICATION_ICON_Discord );
-		AddIcon( "Reddit",	"Reddit",	EXPANSION_NOTIFICATION_ICON_Reddit );
-		AddIcon( "Steam",	"Steam",	EXPANSION_NOTIFICATION_ICON_Steam );
-		AddIcon( "GitHub",	"GitHub",	EXPANSION_NOTIFICATION_ICON_GitHub );
-		AddIcon( "Homepage",	"Homepage",	EXPANSION_NOTIFICATION_ICON_Homepage );
-		AddIcon( "Forums",	"Forums",	EXPANSION_NOTIFICATION_ICON_Forums );
-		AddIcon( "Twitter",	"Twitter",	EXPANSION_NOTIFICATION_ICON_Twitter );
-		AddIcon( "YouTube",	"YouTube",	EXPANSION_NOTIFICATION_ICON_YouTube );
-		AddIcon( "Patreon",	"Patreon",	EXPANSION_NOTIFICATION_ICON_Patreon );
-		AddIcon( "Guilded",	"Guilded",	EXPANSION_NOTIFICATION_ICON_Guilded );
-		AddIcon( "PayPal",	"PayPal",	EXPANSION_NOTIFICATION_ICON_PayPal );
+		AddIcon("Discord", "set:expansion_iconset image:icon_discord");
+		AddIcon("Reddit", "set:expansion_iconset image:icon_reddit");
+		AddIcon("Steam", "set:expansion_iconset image:icon_steam");
+		AddIcon("GitHub", "set:expansion_iconset image:icon_github");
+		AddIcon("Homepage", "set:expansion_iconset image:icon_home");
+		AddIcon("Forums", "set:expansion_iconset image:icon_forums");
+		AddIcon("Twitter", "set:expansion_iconset image:icon_twitter");
+		AddIcon("YouTube", "set:expansion_iconset image:icon_youtube");
+		AddIcon("Patreon", "set:expansion_iconset image:icon_patreon");
+		AddIcon("Guilded", "set:expansion_iconset image:icon_guilded");
+		AddIcon("PayPal", "set:expansion_iconset image:icon_paypal");
+
+		//! Misc
+		AddIcon("Cross", "DayZExpansion\\Core\\GUI\\icons\\hud\\cross_64x64.edds");
+
+		AddIcon("Battery Full", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_high_64x64.edds");
+		AddIcon("Battery Med", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_med_64x64.edds");
+		AddIcon("Battery Low", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_low_64x64.edds");
+		AddIcon("Battery Empty", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_empty_64x64.edds");
+
+		//! Expansion logos
+		AddIcon("Expansion", "set:expansion_iconset image:icon_expansion_col");
+		AddIcon("Expansion B/W", "set:expansion_iconset image:icon_expansion_bw");
+		//AddIcon("Expansion White", "set:expansion_iconset image:icon_expansion_white");  //! Same as B/W
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons AddIcon
 	// ------------------------------------------------------------	
-	protected void AddIcon( string name, string localisation, string path )
+	protected void AddIcon(string name, string localisation, string path)
 	{
-		if ( localisation == "" )
+		if (localisation == "")
 			localisation = name;
 
-		ExpansionIcon icon = m_IconMap.Get( name );
-		if ( icon == NULL )
+		ExpansionIcon icon = m_IconMap.Get(name);
+		if (icon == NULL)
 		{
-			icon = new ExpansionIcon( name, localisation, path );
-			m_IconMap.Insert( name, icon );
-			m_Icons.Insert( icon );
+			icon = new ExpansionIcon(name, localisation, path);
+			m_IconMap.Insert(name, icon);
+			m_Icons.Insert(icon);
 		} else
 		{
 			icon.Name = name;
@@ -242,38 +251,34 @@ class ExpansionIcons
 			icon.Path = path;
 		}
 	}
+
+	protected void AddIcon(string name, string path)
+	{
+		AddIcon(name, name, path);
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons Count
 	// ------------------------------------------------------------	
 	static int Count()
 	{
-		if ( g_exp_MarkerIcons == NULL )
-			g_exp_MarkerIcons = new ExpansionIcons();
-
-		return g_exp_MarkerIcons.m_Icons.Count();
+		return s_Icons.m_Icons.Count();
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------	
-	static ExpansionIcon Get( int index )
+	static ExpansionIcon Get(int index)
 	{
-		if ( g_exp_MarkerIcons == NULL )
-			g_exp_MarkerIcons = new ExpansionIcons();
-		
-		return g_exp_MarkerIcons.m_Icons.Get( index );
+		return s_Icons.m_Icons.Get(index);
 	}
 	
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------
-	static ExpansionIcon Get( string name )
+	static ExpansionIcon Get(string name)
 	{
-		if ( g_exp_MarkerIcons == NULL )
-			g_exp_MarkerIcons = new ExpansionIcons();
-		
-		return g_exp_MarkerIcons.m_IconMap.Get( name );
+		return s_Icons.m_IconMap.Get(name);
 	}
 	
 	// ------------------------------------------------------------
@@ -286,5 +291,26 @@ class ExpansionIcons
 			return string.Empty;
 	
 		return icon.Path;
+	}
+
+	static array<ExpansionIcon> Sorted()
+	{
+		TStringArray namesSorted();
+
+		foreach (ExpansionIcon icon: s_Icons.m_Icons)
+		{
+			namesSorted.Insert(icon.Name);
+		}
+
+		namesSorted.Sort();
+
+		array<ExpansionIcon> iconsSorted();
+
+		foreach (string name: namesSorted)
+		{
+			iconsSorted.Insert(Get(name));
+		}
+
+		return iconsSorted;
 	}
 }

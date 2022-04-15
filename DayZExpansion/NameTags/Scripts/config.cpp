@@ -18,7 +18,7 @@ class CfgMods
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
 		extra = 0;
 		type = "mod";
-		name = "$STR_MOD_EXPANSION_NAME";
+		name = "DayZ Expansion - Name Tags";
 		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";

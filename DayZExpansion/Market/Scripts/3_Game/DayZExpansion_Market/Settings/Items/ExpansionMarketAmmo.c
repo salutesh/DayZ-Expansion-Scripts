@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -54,7 +54,7 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 
 		AddItem("Ammo_Flare", 								7,		14,		1,		500, null, {"Ammo_FlareBlue", "Ammo_FlareGreen", "Ammo_FlareRed"});
 
-	#ifdef EXPANSIONMOD
+	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Ammo_ArrowBolt", 				5,		10,		1,		500);
 
 		AddItem("ExpansionAmmoLAW", 						400,	800,	1,		500);

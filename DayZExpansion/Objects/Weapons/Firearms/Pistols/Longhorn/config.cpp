@@ -56,7 +56,7 @@ class cfgWeapons
 	{
 		scope = 2;
 		displayName = "$STR_cfgWeapons_LongHorn0";
-		descriptionShort = "$STR_cfgWeapons_LongHorn1";
+		descriptionShort = "The LongHorn is part of the official weaponry of vanilla DayZ 1.17. This item still exists so nobody loses their gear. Please do not spawn this item anymore.";
 		model = "DZ\weapons\pistols\longhorn\longhorn.p3d";
 		attachments[] = {"weaponOpticsCrossbow","suppressorImpro"};
 		itemSize[] = {4,2};

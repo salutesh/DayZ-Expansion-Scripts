@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -24,17 +24,13 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void Land_Lighthouse()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::Land_Lighthouse - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "Land_Lighthouse");
+#endif
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( OnSettingsUpdated, 1000 );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::Land_Lighthouse - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -42,20 +38,16 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void ~Land_Lighthouse()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::~Land_Lighthouse - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "~Land_Lighthouse");
+#endif
+
 		if ( GetGame() && m_Light )
 		{
 			GetGame().ObjectDelete( m_Light );
 		}
 
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
-
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::~Land_Lighthouse - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -63,6 +55,10 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	override void OnSettingsUpdated()	
 	{	
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnSettingsUpdated");
+#endif
+
 		if ( IsMissionClient() )
 		{
 			if ( GetExpansionSettings().GetGeneral() && GetExpansionClientSettings().CastLightShadows )
@@ -110,21 +106,21 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void Enable( vector position )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::Enable - Start - " + position );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.LIGHTHOUSE, this, "Enable").Add(position);
+#endif
 
 		m_ShouldBeEnabled = true;
 		
 		OnEnable();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::Enable - End");
-		#endif
 	}
 
 	protected void OnEnable()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnEnable");
+#endif
+
 		if ( IsMissionClient() )
 		{
 			if ( !IsEnabled() && m_CanBeEnabled )
@@ -163,21 +159,21 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void Disable( vector position )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::Disable - Start - " + position );
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.LIGHTHOUSE, this, "Disable").Add(position);
+#endif
 
 		m_ShouldBeEnabled = false;
 
 		OnDisable();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("Land_Lighthouse::Disable - End");
-		#endif
 	}
 
 	protected void OnDisable()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnDisable");
+#endif
+
 		if ( IsMissionClient() )
 		{
 			if ( m_Light )
@@ -203,4 +199,4 @@ class Land_Lighthouse extends House
 	{
 		return m_CanBeEnabled;
 	}	
-}
+};

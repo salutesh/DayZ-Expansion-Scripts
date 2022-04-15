@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -23,15 +23,13 @@ modded class CarScript
 	protected bool m_SafeZone;
 	protected string m_CurrentSkinName;
 	
+	bool m_Expansion_AcceptingAttachment;
+	
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
 	void CarScript()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::CarScript - Start");
-		#endif
-
 		m_allVehicles.Insert( this );
 	}
 	
@@ -40,10 +38,6 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void ~CarScript()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::~CarScript - Start");
-		#endif
-
 		if (!GetGame())
 			return;
 
@@ -54,10 +48,6 @@ modded class CarScript
 		{
 			m_allVehicles.Remove( i );
 		}
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("CarScript::~CarScript - End");
-		#endif
 	}
 	
 	static set< CarScript > GetAll()
@@ -126,6 +116,11 @@ modded class CarScript
 			SetAllowDamage(true);
 	}
 
+	bool Expansion_CanObjectAttach(Object obj)
+	{
+		return false;
+	}
+
 	override void EEInit()
 	{
 		super.EEInit();
@@ -134,7 +129,7 @@ modded class CarScript
 			m_Expansion_SafeZoneInstance.Update();
 	}
 
-	#ifdef CF_MODSTORAGE
+	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);

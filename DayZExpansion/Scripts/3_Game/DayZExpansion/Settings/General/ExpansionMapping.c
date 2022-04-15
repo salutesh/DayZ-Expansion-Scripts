@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -25,16 +25,12 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMapping()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMapping::ExpansionMapping - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMapping");
+#endif
+
 		Mapping = new TStringArray;
 		Interiors = new TStringArray;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMapping::ExpansionMapping - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -56,9 +52,9 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void Defaults()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMapping::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
+#endif
 		
 		//! Set default markers depending on map name
 		string world_name = "empty";
@@ -121,10 +117,6 @@ class ExpansionMapping
 		UseCustomMappingModule 			= false;
 		BuildingInteriors 				= false;
 		BuildingIvys					= false;
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMapping::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -132,9 +124,9 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingChernarus()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingChernarus::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingChernarus");
+#endif
 		
 		Mapping.Insert( "BerezhkiCave" );
 		Mapping.Insert( "Berezino" );
@@ -192,10 +184,6 @@ class ExpansionMapping
 		Mapping.Insert( "SvetloyarskNoCollision" );
 		Mapping.Insert( "SvetRoadForestNoCollision" );
 		Mapping.Insert( "TisyNoCollision" );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingChernarus::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -203,13 +191,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingLivonia()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingLivonia::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingLivonia::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingLivonia");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -217,13 +202,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingDeerIsle()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingDeerIsle::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingDeerIsle::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingDeerIsle");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -231,13 +213,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingNamalsk()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingNamalsk::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingNamalsk::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingNamalsk");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -245,13 +224,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingRostow()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingRostow::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingRostow::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingRostow");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -259,13 +235,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingChiemsee()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingChiemsee::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingChiemsee::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingChiemsee");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -273,13 +246,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingEsseker()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingEsseker::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingEsseker::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingEsseker");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -287,13 +257,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingValning()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingValning::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingValning::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingValning");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -301,13 +268,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingBanov()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingBanov::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingBanov::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingBanov");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -315,13 +279,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingSandbox()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingSandbox::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingSandbox::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingSandbox");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -329,13 +290,10 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionMappingExpansionTest()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingExpansionTest::Defaults - Start");
-		#endif
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionMappingExpansionTest::Defaults - End");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionMappingExpansionTest");
+#endif
+
 	}
 
 	// ------------------------------------------------------------
@@ -343,9 +301,9 @@ class ExpansionMapping
 	// ------------------------------------------------------------
 	void ExpansionBuildingInterior()
 	{
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionBuildingInterior::Defaults - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionBuildingInterior");
+#endif
 
 		Interiors.Insert( "Land_Barn_Brick2" );
 		Interiors.Insert( "Land_Barn_Metal_Big" );
@@ -399,9 +357,5 @@ class ExpansionMapping
 		Interiors.Insert( "Land_Lighthouse" );
 		Interiors.Insert( "Land_Power_Station" );
 		Interiors.Insert( "Land_Rail_Station_Big" );
-		
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("ExpansionBuildingInterior::Defaults - End");
-		#endif
 	}
 };

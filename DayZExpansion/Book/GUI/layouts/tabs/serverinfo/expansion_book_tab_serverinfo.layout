@@ -103,7 +103,7 @@ FrameWidgetClass ExpansionBookMenuTabServerinfo {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           scriptclass "ExpansionBookMenuTabServerInfoSettingBaseController"
+           scriptclass ""
            style Empty
            Padding 0
            Margin 0
@@ -147,7 +147,7 @@ FrameWidgetClass ExpansionBookMenuTabServerinfo {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           scriptclass "ExpansionBookMenuTabServerInfoSettingBaseController"
+           scriptclass ""
            style Empty
            Padding 0
            Margin 0

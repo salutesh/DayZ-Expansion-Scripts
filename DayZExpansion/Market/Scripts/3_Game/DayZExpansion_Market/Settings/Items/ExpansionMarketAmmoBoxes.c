@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -51,7 +51,7 @@ class ExpansionMarketAmmoBoxes: ExpansionMarketCategory
 		AddItem("AmmoBox_9x19_25rnd", 						40,			80,			1,		250);
 		AddItem("AmmoBox_9x39_20rnd", 						16,			32,			1,		250, null, {"AmmoBox_9x39AP_20rnd"});
 		AddItem("AmmoBox_9x39AP_20rnd", 					64,			128,		1,		250);
-	#ifdef EXPANSIONMOD	
+	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("AmmoBox_Expansion_46x30_25rnd", 			40,			80,			1,		250);
 		AddItem("AmmoBox_Expansion_338_15rnd", 				24,			48,			1,		250);
 		AddItem("Expansion_AmmoBox_8mm_15rnd", 				24,			48,			1,		250);

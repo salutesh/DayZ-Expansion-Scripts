@@ -4,10 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Core_Scripts
 	{
-		units[] = {};
+		units[] = {"ExpansionBakedMapObject","ExpansionPhysicsStructure"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"JM_CF_Scripts","DF_Scripts"};
+		requiredAddons[] = {"DayZExpansion_ModStorage_Scripts","DF_Scripts"};
 	};
 };
 class CfgMods
@@ -19,7 +19,7 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		CF_ModStorage = 1;
-		name = "$STR_MOD_EXPANSION_NAME";
+		name = "DayZ Expansion - Core";
 		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
 		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
@@ -66,5 +66,34 @@ class CfgMods
 				files[] = {"DayZExpansion/Core/Scripts/Common","DayZExpansion/Core/Scripts/5_Mission"};
 			};
 		};
+	};
+};
+class CfgVehicles
+{
+	class Inventory_Base;
+	class HouseNoDestruct;
+	class ExpansionBakedMapObject: HouseNoDestruct
+	{
+		scope = 2;
+	};
+	class ExpansionPhysicsStructure: Inventory_Base
+	{
+		scope = 2;
+		physLayer = "item_large";
+		overrideDrawArea = "8.0";
+		forceFarBubble = "true";
+	};
+};
+class CfgNonAIVehicles
+{
+	class StaticObject;
+	class ExpansionStaticMapObject: StaticObject
+	{
+		scope = 2;
+	};
+	class ExpansionLampLightBase: ExpansionStaticMapObject
+	{
+		color = "1.0 0.7 0.4";
+		position = "0 5 0";
 	};
 };

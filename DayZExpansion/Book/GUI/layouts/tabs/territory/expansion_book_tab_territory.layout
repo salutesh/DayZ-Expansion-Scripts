@@ -96,7 +96,7 @@ FrameWidgetClass ExpansionBookMenuTabTerritory {
          priority 1
          scriptclass "ViewBinding"
          style Empty
-         font "DayZExpansion/GUI/fonts/etelkatextpro24"
+         font "DayZExpansion/Core/GUI/fonts/etelkatextpro24"
          "text color" 0 0 0 1
          {
           TextWidgetClass territory_delete_button_label {

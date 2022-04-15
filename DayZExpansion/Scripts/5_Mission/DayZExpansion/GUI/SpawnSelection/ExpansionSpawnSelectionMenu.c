@@ -3,288 +3,290 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-class ExpansionSpawnSelectionMenu extends ExpansionUIScriptedMenu
+class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 {
-	ref array< ref ExpansionSpawnSelectionEntry > m_SpawnPointsEntrys;
-	ref array< ref ExpansionSpawnSelectionMarker > m_MapMarkers;
+	private ref array<ref ExpansionSpawSelectionMenuMapMarker> m_MapMarkers;
+	private vector m_SelectedSpawnPoint = Vector(0,0,0);
+	private int m_SelectedSpawnIndex = -1;
 	
-	protected ref ExpansionRespawnHandlerModule m_RespawnModule;
+	private ref ExpansionRespawnHandlerModule m_RespawnModule;
+	private MissionGameplay m_Mission;
+	private ref ExpansionSpawnSelectionMenuController m_SpawnSelectionMenuController;
+	private bool m_HasCooldown = false;
+	private bool m_SelectedSpawnIsTerritory = false;
+	private bool m_SelectedSpawnUseCooldown = false;
+	private int m_NextListIndex = 0;
 	
-	protected GridSpacerWidget m_ListGrid;
-	protected ButtonWidget m_Confirm;
-	protected TextWidget m_ConfirmLable;
-	protected ButtonWidget m_Random;
-	protected TextWidget m_RandomLable;
-	protected Widget m_MapPanel;
-	protected MapWidget m_Map;
+	private Widget MapSpacer;
+	private MapWidget Map_Widget;
+	private ButtonWidget Confirm;
+	private TextWidget ConfirmText;
+	private ButtonWidget Random;
+	private TextWidget RandomText;
 	
-	vector m_SelectedSpawnPoint = Vector(0,0,0);
-	
-	protected MissionGameplay m_Mission;
-	
-	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu Constructor
-	// ------------------------------------------------------------
 	void ExpansionSpawnSelectionMenu()
 	{
-		m_SpawnPointsEntrys = new array< ref ExpansionSpawnSelectionEntry >;
-		m_MapMarkers =  new array<ref ExpansionSpawnSelectionMarker>;
+		m_MapMarkers =  new array<ref ExpansionSpawSelectionMenuMapMarker>;
 		
-		Class.CastTo( m_RespawnModule, GetModuleManager().GetModule( ExpansionRespawnHandlerModule ) );
-		Class.CastTo( m_Mission, MissionGameplay.Cast( GetGame().GetMission() ) );
+		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
+		Class.CastTo(m_Mission, MissionGameplay.Cast(GetGame().GetMission()));
+		Class.CastTo(m_SpawnSelectionMenuController, GetController());
+		
+		Confirm.Show(false);
+		Confirm.Enable(false);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu Destructor
-	// ------------------------------------------------------------
 	void ~ExpansionSpawnSelectionMenu()
 	{
 		Clear();
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu Widget Init
-	// ------------------------------------------------------------
-	override Widget Init()
+	override string GetLayoutFile() 
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_spawn_selection_new.layout");
-		
-		m_ListGrid = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "ListGrid" ) );
-		m_Confirm = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "Confirm" ) );
-		m_ConfirmLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "ConfirmText" ) );
-		m_Random = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "Random" ) );
-		m_RandomLable = TextWidget.Cast( layoutRoot.FindAnyWidget( "RandomText" ) );
-		m_MapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "MapPanel" ) );
-		m_Map = MapWidget.Cast( layoutRoot.FindAnyWidget( "Map" ) );
-
-		Clear();
-		
-		return layoutRoot;
+		return "DayZExpansion/GUI/layouts/spawn_selection/expansion_spawn_selection.layout";
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu FillList
-	// ------------------------------------------------------------		
-	void FillList(array< ref ExpansionSpawnLocation> SpawnLocations, int type = 0)
+	override typename GetControllerType() 
 	{
-		if ( !SpawnLocations )
+		return ExpansionSpawnSelectionMenuController;
+	}
+	
+	void FillList(array<ref ExpansionSpawnLocation> SpawnLocations, int type = 0)
+	{
+		if (!SpawnLocations)
 			return;
 
-		int PrimaryColor = ARGB(255, 255, 255, 255);
-		int HoverColor 	 = ARGB(255, 255, 255, 255);
-
+		int primaryColor = ARGB(255,255,255,255);
+		int hoverColor = ARGB(255,255,255,255);
+		string markerIcon = "Map Marker";
+		bool isTerritory = false;
+		
 		//! You can use this switch case for modding purposes
-		switch( type )
+		switch (type)
 		{
 			case 0: //! Normal
-				PrimaryColor = ARGB(255, 211, 84, 0);
-				HoverColor 	 = ARGB(200, 255, 255, 255);
+				primaryColor = ARGB(255,226,65,66);
+				hoverColor = ARGB(255,255,255,255);
 			break;
 			case 1: //! Territory
-				PrimaryColor = ARGB(255, 0, 102, 204);
-				HoverColor 	 = ARGB(200, 255, 255, 255);
+				primaryColor = ARGB(255, 0, 102, 204);
+				hoverColor = ARGB(255,255,255,255);
+				markerIcon = "Territory";
+				isTerritory = true;
 			break;
 		}
-		
-		foreach( ExpansionSpawnLocation currenLocation : SpawnLocations )
+				
+		for (int i = 0; i < SpawnLocations.Count(); i++)
 		{
-			ExpansionSpawnSelectionEntry location_entry = new ExpansionSpawnSelectionEntry( m_ListGrid, currenLocation );
-			m_SpawnPointsEntrys.Insert( location_entry );
+			ExpansionSpawnLocation currenLocation = SpawnLocations[i];
+			ExpansionSpawSelectionMenuLocationEntry location_entry = new ExpansionSpawSelectionMenuLocationEntry(m_NextListIndex, currenLocation, isTerritory);
+			m_SpawnSelectionMenuController.SpawnLocationEntries.Insert(location_entry);
 			
 			//! Create map marker for territory
 			vector pos;
 			pos = currenLocation.Positions[0];
 			
-			ExpansionSpawnSelectionMarker marker = new ExpansionSpawnSelectionMarker( m_MapPanel, m_Map, true);
-			marker.SetIcon( ExpansionIcons.Get( 46 ) );
-			marker.SetPosition( pos );
-			marker.SetPrimaryColor( PrimaryColor );
-			marker.SetHoverColour( HoverColor );
-			marker.SetName( currenLocation.Name );
-			marker.SetLocation( currenLocation );
+			ExpansionSpawSelectionMenuMapMarker marker = new ExpansionSpawSelectionMenuMapMarker(MapSpacer, Map_Widget, true);
+			marker.SetIcon(markerIcon);
+			marker.SetPosition(pos);
+			marker.SetPrimaryColor(primaryColor);
+			marker.SetHoverColour(hoverColor);
+			marker.SetName(currenLocation.Name);
+			marker.SetLocation(i, currenLocation);
+			marker.SetIsTerritory(isTerritory);
 			
-			m_MapMarkers.Insert( marker );
+			marker.Show(); //! Need to show marker or it will never show up and color and icons dont get applied
+			
+			m_MapMarkers.Insert(marker);
+			
+			m_NextListIndex++;
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu ClearList
-	// ------------------------------------------------------------	
 	void Clear()
-	{		
-		m_SpawnPointsEntrys.Clear();
+	{
+		m_SpawnSelectionMenuController.SpawnLocationEntries.Clear();
 		m_MapMarkers.Clear();
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu OnShow
-	// ------------------------------------------------------------
-	void SetSpawnPoint( ExpansionSpawnLocation location, bool setmappos = true)
+	void SetSpawnPoint(int index, ExpansionSpawnLocation location, bool setmappos = true)
 	{
-		Print("ExpansionSpawnSelectionMenu::SetSpawnPoint - Start");
-		
 		m_SelectedSpawnPoint = location.Positions.GetRandomElement();
+		m_SelectedSpawnIndex = index;
+		m_SelectedSpawnIsTerritory = location.IsTerritory();
+		m_SelectedSpawnUseCooldown = location.UseCooldown();
+		m_SpawnSelectionMenuController.SelectedLocation = location.Name;
+		m_SpawnSelectionMenuController.NotifyPropertyChanged("SelectedLocation");
 		
-		if ( setmappos )
-		{			
+		if (setmappos)
+		{
 			vector mapPos = location.Positions[0];
-			
-			m_Map.SetScale( 0.2 );
-			m_Map.SetMapPos( Vector( mapPos[0] + 900.0, 0, mapPos[2] - 600.0 ) );
+			Map_Widget.SetScale(0.2);
+			Map_Widget.SetMapPos(Vector(mapPos[0] + 900.0, 0, mapPos[2] - 600.0));
 		}
 		
-		Print("ExpansionSpawnSelectionMenu::SetSpawnPoint - End");
+		Confirm.Show(true);
+		Confirm.Enable(true);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu OnShow
-	// ------------------------------------------------------------
 	override void OnShow()
 	{
 		super.OnShow();
-
-		GetGame().GetInput().ChangeGameFocus(1);
-		SetFocus( layoutRoot );
-		PPEffects.SetBlurMenu( 0.5 );
 		
-		m_Mission.GetHud().ShowHud( false );
-		m_Mission.GetHud().ShowQuickBar( false );
-		m_Mission.GetExpansionHud().ShowHud( false );
+		GetGame().GetInput().ChangeGameFocus(1);
+		SetFocus(GetLayoutRoot());
+		PPEffects.SetBlurMenu(0.5);
+		m_Mission.GetHud().ShowHud(false);
+		m_Mission.GetHud().ShowQuickBar(false);
+		m_SpawnSelectionMenuController.SelectedLocation = "NONE";
+		m_SpawnSelectionMenuController.NotifyPropertyChanged("SelectedLocation");
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu OnHide
-	// ------------------------------------------------------------
+	void ClearSpawnPoint()
+	{
+		m_SelectedSpawnPoint = vector.Zero;
+		m_SelectedSpawnIndex = -1;
+		m_SpawnSelectionMenuController.SelectedLocation = "NONE";
+		m_SpawnSelectionMenuController.NotifyPropertyChanged("SelectedLocation");
+	}
+	
 	override void OnHide()
 	{
 		super.OnHide();
-
-		if ( GetGame().GetMission() )
+		
+		if (GetGame().GetMission())
 		{
 			GetGame().GetInput().ResetGameFocus();
-			PPEffects.SetBlurMenu( 0.0 );
-			
-			m_Mission.GetHud().ShowHud( true );
-			m_Mission.GetHud().ShowQuickBar( true );
-			m_Mission.GetExpansionHud().ShowHud( true );
-			
+			PPEffects.SetBlurMenu(0.0);
+			m_Mission.GetHud().ShowHud(true);
+			m_Mission.GetHud().ShowQuickBar(true);
 			Clear();
 		}
 
 		//! If menu gets closed via nonstandard means, choose last selected spawn point
 		if (!m_RespawnModule.m_SpawnSelected)
-			m_RespawnModule.SelectSpawn(m_SelectedSpawnPoint);
+			m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPoint, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu OnClick
-	// ------------------------------------------------------------
-	override bool OnClick(Widget w, int x, int y, int button)
+	void Spawn()
 	{
-		Print("ExpansionSpawnSelectionMenu::OnClick - Start");
+		if (m_SelectedSpawnPoint != Vector(0, 0, 0) && m_SelectedSpawnIndex != -1)
+			m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPoint, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
+		
+		Confirm.Show(false);
+		Confirm.Enable(false);
+		Random.Show(false);
+		Random.Enable(false);
+	}
+	
+	void SpawnRandom()
+	{
+		m_RespawnModule.SelectRandomSpawn();
+		Confirm.Show(false);
+		Confirm.Enable(false);
+		Random.Show(false);
+		Random.Enable(false);
+	}
 
-		switch ( w )
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		switch (w)
 		{
-		case m_Confirm:
-			Print("ExpansionSpawnSelectionMenu::OnClick - m_Confirm");
-			if ( m_SelectedSpawnPoint != Vector( 0, 0, 0 ) )
-				m_RespawnModule.SelectSpawn( m_SelectedSpawnPoint );
-			m_Confirm.Enable(false);
-			break;
-		case m_Random:
-			Print("ExpansionSpawnSelectionMenu::OnClick - m_Random");
-			m_RespawnModule.SelectRandomSpawn();
-			m_Random.Enable(false);
-			break;
+			if (w == Confirm)
+			{
+				Confirm.SetColor(ARGB(255,220,220,220));
+				ConfirmText.SetColor(ARGB(255,0,0,0));
+			}
+			else if (w == Random)
+			{
+				Random.SetColor(ARGB(255,220,220,220));
+				RandomText.SetColor(ARGB(255,0,0,0));
+			}
 		}
 		
-		Print("ExpansionSpawnSelectionMenu::OnClick - End");
-		
-		return false;
+		return super.OnMouseEnter(w, x, y);;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu UseKeyboard
-	// ------------------------------------------------------------
-	override bool UseKeyboard() 
-	{ 
-		return false; 
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu UseMouse
-	// ------------------------------------------------------------
-	override bool UseMouse()
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		return true;
+		switch (w)
+		{
+			if (w == Confirm)
+			{
+				Confirm.SetColor(ARGB(255,0,0,0));
+				ConfirmText.SetColor(ARGB(255,220,220,220));
+			}
+			else if (w == Random)
+			{
+				Random.SetColor(ARGB(255,0,0,0));
+				RandomText.SetColor(ARGB(255,220,220,220));
+			}
+		}
+		
+		return super.OnMouseLeave(w, enterW, x, y);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu Update
-	// ------------------------------------------------------------
-	override void Update(float timeslice) 
+	override float GetUpdateTickRate()
+	{
+		return 0.01;
+	}
+	
+	override void Update() 
 	{
 		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
 		{
-			m_MapMarkers[i].Update(0.5);
+			m_MapMarkers[i].Update(0.3);
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu OnMouseEnter
-	// ------------------------------------------------------------
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{		
-		switch ( w )
-		{
-			case m_Confirm:
-			{
-				w.SetColor( ARGB( 255,255,255,255 ) );
-				m_ConfirmLable.SetColor( ARGB( 255,0,0,0 ) );
-				break;
-			}
-			
-			case m_Random:
-			{
-				w.SetColor( ARGB( 255,255,255,255 ) );
-				m_RandomLable.SetColor( ARGB( 255,0,0,0 ) );
-				break;
-			}
-		}
-		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionSpawnSelectionMenu OnMouseLeave
-	// ------------------------------------------------------------
-	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	ButtonWidget GetConfirmButton()
 	{
-		switch ( w )
+		return Confirm;
+	}
+	
+	MapWidget GetMapWidget()
+	{
+		return Map_Widget;
+	}
+	
+	void UpdateMarkerCooldownState(int index)
+	{
+		for (int i = 0; i < m_MapMarkers.Count(); i++)
 		{
-			case m_Confirm:
+			ExpansionSpawSelectionMenuMapMarker marker = m_MapMarkers[i];
+			if (marker.GetIndex() == index && !marker.IsDeathMarker())
 			{
-				w.SetColor( ARGB( 255,0,0,0 ) );
-				m_ConfirmLable.SetColor( ARGB( 255,255,255,255 ) );
-				break;
-			}
-			
-			case m_Random:
-			{
-				w.SetColor( ARGB( 255,0,0,0 ) );
-				m_RandomLable.SetColor( ARGB( 255,255,255,255 ) );
-				break;
+				marker.UpdateCooldown();
+				continue;
 			}
 		}
-		
-		return false;
 	}
-}
+	
+	void CreateDeathMarker(vector pos)
+	{
+		ExpansionSpawSelectionMenuMapMarker marker = new ExpansionSpawSelectionMenuMapMarker(MapSpacer, Map_Widget, true);
+		marker.SetIcon("Skull 3");
+		marker.SetPosition(pos);
+		marker.SetPrimaryColor(ARGB(255,106,0,0));
+		marker.SetHoverColour(ARGB(255,255,255,255));
+		marker.SetName("You died here!");
+		marker.SetIsDeathMarker(true);
+		marker.Show();
+		
+		m_MapMarkers.Insert(marker);
+	}
+};
+
+class ExpansionSpawnSelectionMenuController: ExpansionViewController
+{
+	ref ObservableCollection<ref ExpansionSpawSelectionMenuLocationEntry> SpawnLocationEntries = new ObservableCollection<ref ExpansionSpawSelectionMenuLocationEntry>(this);
+	string SelectedLocation;
+};
+

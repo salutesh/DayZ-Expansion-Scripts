@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -42,7 +42,7 @@ class ExpansionMarketFilters
 	void ExpansionMarketFilters()
 	{
 		if (!m_MarketModule)
-			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 
 		if (!m_AttachmentsMap)
 		{
@@ -447,7 +447,7 @@ class ExpansionMarketFilters
 	
 	static bool IsCustomizableClothing(string className)
 	{
-		return GetGame().IsKindOf(className, "Clothing_Base") && ClassNameHierarchyContains(className, "CfgVehicles", {"vest", "chestrig", "bag", "backpack", "rucksack", "belt"}, "Clothing_Base");
+		return GetGame().IsKindOf(className, "Clothing_Base") && ClassNameHierarchyContains(className, "CfgVehicles", {"vest", "chestrig", "bag", "backpack", "rucksack", "belt", "helmet", "headgear", "helm"}, "Clothing_Base");
 	}
 	
 	static bool IsWeapon(string className)
@@ -670,10 +670,7 @@ class ExpansionMarketFilters
 		{
 			return ExpansionMarketAttachType.LIGHT;
 		}
-		
-		//Print(slotNameToLower);
-		//Print(baseNameToLower);
-		//Print(classNameToLower);
+
 		return ExpansionMarketAttachType.OTHER;
 	}
 	
@@ -736,6 +733,9 @@ class ExpansionMarketFilters
 		}
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionMarketFilters AddAttachmentDenom
+	// ------------------------------------------------------------		
 	void AddAttachmentDenom(ExpansionMarketOutput output, string cfgPath)
 	{
 		TStringArray attachmentSlotNames = {};
@@ -808,10 +808,7 @@ class ExpansionMarketFilters
 		{
 			return ExpansionMarketAttachType.PATCHES;
 		}
-
-		//Print(slotNameToLower);
-		//Print(baseNameToLower);
-		//Print(classNameToLower);
+		
 		return ExpansionMarketAttachType.OTHER;
 	}
 	

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -124,6 +124,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		m_Version = VERSION;
 		m_ZoneName = "World";
 		m_DisplayName = "World Trader Zone";
+		m_FileName = m_ZoneName;
 		Position = "7500 0 7500"; 	
 		Radius = 15000;
 		BuyPricePercent = 100;
@@ -370,11 +371,11 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	// ------------------------------------------------------------
 	void RemoveStock( string className, int stock, bool inReserve = false )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "RemoveStock");
+#endif
+	
 		className.ToLower();
-
-		#ifdef EXPANSIONEXLOGPRINT
-		EXLogPrint("[ExpansionMarketTraderZone] RemoveStock | " + m_ZoneName + " | " + className + " | " + stock);
-		#endif
 
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
 		if ( !marketItem )
@@ -382,10 +383,6 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		
 		if ( Stock.Contains( className ) )
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("[ExpansionMarketTraderZone] RemoveStock contains " + className );
-			#endif
-
 			if ( !marketItem.IsStaticStock() )
 			{
 				int new_stock;
@@ -395,10 +392,6 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 					new_stock = ReservedZone.ReservedStock.Get( className ) + stock;
 
 					ReservedZone.ReservedStock.Set( className, new_stock );
-
-					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("[ExpansionMarketTraderZone] RemoveStock set " + className + " reserved stock : " + new_stock);
-					#endif
 				} 
 				else
 				{
@@ -408,19 +401,11 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 						new_stock = 0;
 
 					Stock.Set( className, new_stock );
-
-					#ifdef EXPANSIONEXLOGPRINT
-					EXLogPrint("[ExpansionMarketTraderZone] RemoveStock set " + className + " stock : " + new_stock);
-					#endif
 				}
 			}
 		} 
 		else 
 		{
-			#ifdef EXPANSIONEXLOGPRINT
-			EXLogPrint("[ExpansionMarketTraderZone] RemoveStock does not contain " + className);
-			#endif
-
 			Stock.Insert( className, 0 );
 			ReservedZone.ReservedStock.Insert( className, 0 );
 		}
@@ -442,11 +427,11 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	// ------------------------------------------------------------
 	int GetStock( string className, bool actual = false )
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "GetStock");
+#endif
+
 		className.ToLower();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionMarketTraderZone::GetStock - ClassName: " + className);
-		#endif
 
 		if (!ItemExists(className))
 		{

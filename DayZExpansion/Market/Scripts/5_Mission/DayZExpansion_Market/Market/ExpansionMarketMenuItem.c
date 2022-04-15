@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -68,7 +68,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			m_ItemController = ExpansionMarketMenuItemController.Cast(GetController());
 		
 		if (!m_MarketModule)
-			m_MarketModule = ExpansionMarketModule.Cast(GetModuleManager().GetModule(ExpansionMarketModule));
+			m_MarketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 		
 		market_item_header_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		market_item_header_text_small.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
@@ -278,7 +278,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			if (baseBuilding && baseBuilding.CanUseConstruction())
 			{
 				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
-				#ifdef EXPANSIONMOD
+				#ifdef EXPANSIONMODBASEBUILDING
 				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
 				#endif
 				if (isSupportedBB)

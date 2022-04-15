@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2021 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -37,10 +37,10 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::OnRecieve - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+#endif
+
 		ExpansionSocialMediaSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
@@ -53,10 +53,6 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_SocialMedia.Invoke();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::OnRecieve - End");
-		#endif
 
 		return true;
 	}
@@ -71,10 +67,10 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Send - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
+#endif
+
 		if ( !IsMissionHost() )
 		{
 			return 0;
@@ -84,55 +80,45 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.SocialMedia, true, identity );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Send - End and return");
-		#endif
 		return 0;
 	}
 
 	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Copy - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
+#endif
+
 		ExpansionSocialMediaSettings settings = ExpansionSocialMediaSettings.Cast( setting );
 		if ( !settings )
 			return false;
 
 		CopyInternal( settings );
 		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Send - End and return");
-		#endif
 		return true;
 	}
 
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionSocialMediaSettings s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::CopyInternal - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		//! Nothing to do here yet
 		
 		ExpansionSocialMediaSettingsBase sb = s;
 		CopyInternal( sb );
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionSocialMediaSettingsBase s )
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::CopyInternal - Start");
-		#endif
-		
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+
 		Discord = s.Discord;
 		Homepage = s.Homepage;
 		Forums = s.Forums;
@@ -140,10 +126,6 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		Steam = s.Steam;
 		Twitter = s.Twitter;
 		Guilded = s.Guilded;
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::CopyInternal - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -161,9 +143,9 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Load - Start");
-		#endif
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+#endif
 
 		m_IsLoaded = true;
 
@@ -209,10 +191,6 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		
 		if (save)
 			Save();
-		
-		#ifdef EXPANSIONEXPRINT
-		EXPrint("ExpansionSocialMediaSettings::Load - End - Loaded: " + socialMediaSettingsExist);
-		#endif
 		
 		return socialMediaSettingsExist;
 	}
