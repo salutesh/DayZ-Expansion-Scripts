@@ -5,10 +5,8 @@ PanelWidgetClass ExpansionPartyHud {
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
- position 0.00049 0
- size 1 1
- halign center_ref
- valign center_ref
+ size 0.06 0.9
+ valign bottom_ref
  hexactpos 0
  vexactpos 0
  hexactsize 0
@@ -26,7 +24,7 @@ PanelWidgetClass ExpansionPartyHud {
    ignorepointer 1
    keepsafezone 1
    position 0.005 0
-   size 0.06 0.9
+   size 1 1
    valign bottom_ref
    hexactpos 0
    vexactpos 0

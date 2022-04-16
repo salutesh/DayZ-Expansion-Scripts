@@ -78,10 +78,6 @@ class ExpansionUIManager
 			{
 				Error("[EXPANSION UI MANAGER]: Trying to register new menu " + className + " with id " + id + " to Expansion UI Manager, but there is already a other menu registered with this id [" + viewName + "]. Register failed!");
 			}
-			else
-			{
-				Error("[EXPANSION UI MANAGER]: Trying to register new menu " + className + " with id " + id + " to Expansion UI Manager, but the same menu is already registered. Skiped!");
-			}
 		}
 		else
 		{

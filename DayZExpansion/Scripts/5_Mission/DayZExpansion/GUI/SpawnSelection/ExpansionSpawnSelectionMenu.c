@@ -33,7 +33,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	
 	void ExpansionSpawnSelectionMenu()
 	{
-		m_MapMarkers =  new array<ref ExpansionSpawSelectionMenuMapMarker>;
+		m_MapMarkers = new array<ref ExpansionSpawSelectionMenuMapMarker>;
 		
 		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
 		Class.CastTo(m_Mission, MissionGameplay.Cast(GetGame().GetMission()));
@@ -99,7 +99,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			marker.SetPrimaryColor(primaryColor);
 			marker.SetHoverColour(hoverColor);
 			marker.SetName(currenLocation.Name);
-			marker.SetLocation(i, currenLocation);
+			marker.SetLocation(m_NextListIndex, currenLocation);
 			marker.SetIsTerritory(isTerritory);
 			
 			marker.Show(); //! Need to show marker or it will never show up and color and icons dont get applied

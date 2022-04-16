@@ -149,17 +149,13 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		if (!mission.GetHud())
 			return;
 		
-		IngameHud hud = IngameHud.Cast(mission.GetHud());
-		if (hud)
-			return;
-		
-		hud.ShowQuickbarUI(state);
-		hud.ShowHudUI(state);
+		mission.GetHud().ShowQuickbarUI(state);
+		mission.GetHud().ShowHudUI(state);
 		
 		if (state)
-			hud.ShowCursor();
+			mission.GetHud().ShowCursor();
 		else
-			hud.HideCursor();
+			mission.GetHud().HideCursor();
 	}
 	
 	override void ShowUICursor(bool state)
