@@ -180,15 +180,17 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		AddItem("ExpansionUh1hDoor_1_1", 					500,	1000,	1,		100);
 		AddItem("ExpansionUh1hDoor_1_2",					500,	1000,	1,		100);
 
-		AddItem("Expansion_Mh6_Door_1_1", 					500,	1000,	1,		100);
-		AddItem("Expansion_Mh6_Door_1_2",					500,	1000,	1,		100);
-		AddItem("Expansion_Mh6_Door_2_1", 					500,	1000,	1,		100);
-		AddItem("Expansion_Mh6_Door_2_2",					500,	1000,	1,		100);
+		AddItem("Expansion_Mh6_Door_1_1", 			500,	1000,	1,		100, null, {"Expansion_Mh6_Door_1_1_Black"});
+		AddItem("Expansion_Mh6_Door_1_2",					500,	1000,	1,		100, null, {"Expansion_Mh6_Door_1_2_Black"});
+		AddItem("Expansion_Mh6_Door_2_1", 					500,	1000,	1,		100, null, {"Expansion_Mh6_Door_2_1_Black"});
+		AddItem("Expansion_Mh6_Door_2_2",					500,	1000,	1,		100, null, {"Expansion_Mh6_Door_2_2_Black"});
 		
 		AddItem("ExpansionBusWheel",							600,	1200,	1,		100);
 		AddItem("ExpansionBusWheelDouble",					600,	1200,	1,		100);
 		
 		AddItem("ExpansionCarKey",							250,	500,	1,		100);
+		
+		AddItem("ExpansionKeyChain_Red",						100,	200,	1,		100, null, {"ExpansionKeyChain_White", "ExpansionKeyChain_Black", "ExpansionKeyChain_Blue", "ExpansionKeyChain_Green", "ExpansionKeyChain_Grey", "ExpansionKeyChain_Orange", "ExpansionKeyChain_Pink", "ExpansionKeyChain_Purp", "ExpansionKeyChain_Yellow"});
 	#endif
 	}
 };

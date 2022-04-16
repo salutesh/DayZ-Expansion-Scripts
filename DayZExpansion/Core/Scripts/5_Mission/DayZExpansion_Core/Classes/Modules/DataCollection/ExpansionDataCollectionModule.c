@@ -17,7 +17,11 @@
 class ExpansionDataCollectionModule: CF_ModuleWorld
 {
 	private autoptr map <string, ref ExpansionPlayerDataCollection> m_PlayerData;
-	private ref ScriptInvoker m_ModuleSI;
+	static ref ScriptInvoker m_ModuleSI = new ScriptInvoker();
+	
+	void ExpansionDataCollectionModule()
+	{		
+	}
 	
 	override bool IsServer()
 	{
@@ -42,9 +46,6 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		EnableRPC();
 				
 		m_PlayerData = new map <string, ref ExpansionPlayerDataCollection>;
-		
-		if (IsMissionClient() && !IsMissionHost())
-			m_ModuleSI = new ScriptInvoker();
 	}
 
 	override int GetRPCMin()
@@ -181,7 +182,10 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 				continue;
 		}
 		
-		GetModuleSI().Invoke();
+		if (!m_ModuleSI)
+			return;
+		
+		m_ModuleSI.Invoke();
 	}
 	
 	bool OnReceivePlayerData(ParamsReadContext ctx)
@@ -207,11 +211,6 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	map <string, ref ExpansionPlayerDataCollection> GetAllPlayers()
 	{
 		return m_PlayerData;
-	}
-	
-	ScriptInvoker GetModuleSI()
-	{
-		return m_ModuleSI;
 	}
 	
 	bool IsPlayerOnline(string uid)

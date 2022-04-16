@@ -27,8 +27,6 @@ class ExpansionRespawnDelayTimer
 		IsTerritory = isTerritory;
 		
 		SetTime();
-		
-		Print("[ExpansionRespawnDelayTimer] Added cooldown - Player UID: " + PlayerUID + " | Position Index: " + Index + " | Is Territory: " + IsTerritory);
 	}
 	
 	void SetTime()
@@ -37,8 +35,6 @@ class ExpansionRespawnDelayTimer
 			GetHourMinuteSecond(Hour, Minute, Second);
 		else
 			GetHourMinuteSecondUTC(Hour, Minute, Second);
-		
-		Print("[ExpansionRespawnDelayTimer] SetTime - Player UID: " + PlayerUID + " | Position Index: " + Index + " | Is Territory: " + IsTerritory + "| Time: " + Hour + ":" + Minute + ":" + Second);
 	}
 	
 	int GetTime()

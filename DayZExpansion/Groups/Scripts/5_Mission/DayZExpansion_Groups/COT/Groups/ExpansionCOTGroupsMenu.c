@@ -147,6 +147,13 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		m_MarkerIcons = new array<ref ExpansionCOTGroupsIconListEntry>;
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 	#endif
+		
+		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
+		if (!dataModule)
+			return;
+		
+		m_Module.m_COTGroupModuleSI.Insert(MenuCallback);
+		dataModule.m_ModuleSI.Insert(OnPlayerDataRecived);
 	}
 	
 	// ------------------------------------------------------------
@@ -163,6 +170,13 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		m_GroupMarkers.Clear();
 		m_MarkerIcons.Clear();
 	#endif
+		
+		if (m_Module)
+			m_Module.m_COTGroupModuleSI.Remove(MenuCallback);
+		
+		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
+		if (dataModule)		
+			dataModule.m_ModuleSI.Remove(OnPlayerDataRecived);
 		
 		delete layoutRoot;
 	}
@@ -1225,13 +1239,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		
 		if (!m_Module)
 			return;
-				
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (!dataModule)
-			return;
 		
-		m_Module.GetModuleSI().Insert(MenuCallback);
-		dataModule.GetModuleSI().Insert(OnPlayerDataRecived);
 		m_Module.RequestGroups(ExpansionCOTGroupsMenuCallback.GroupsInit);
 	}
 	
@@ -1241,16 +1249,6 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	override void OnHide()
 	{
 		super.OnHide();
-		
-		if (!m_Module)
-			return;
-		
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (!dataModule)
-			return;
-		
-		m_Module.GetModuleSI().Remove(MenuCallback);		
-		dataModule.GetModuleSI().Remove(OnPlayerDataRecived);
 	}
 	
 	// ------------------------------------------------------------

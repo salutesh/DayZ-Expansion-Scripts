@@ -140,6 +140,10 @@ class ExpansionSkinModule: CF_ModuleWorld
 #endif
 
 		int idx = file.IndexOf( "\\" );
+		if ( idx == -1 )
+			idx = file.IndexOf( "/" );
+		if ( idx == -1 )
+			return;  //! Fuck off Workbench
 
 		string classname = file.Substring( 0, idx );
 		string skinname = file.Substring( idx + 1, file.Length() - idx - 1 );

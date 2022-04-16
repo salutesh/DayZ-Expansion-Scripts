@@ -36,7 +36,7 @@ modded class IngameHud
 		{
 			if (!m_PartyHUD)
 			{
-				m_PartyHUD = new ExpansionPartyHud();
+				m_PartyHUD = new ExpansionPartyHud(m_HudPanelWidget);
 				ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 				if (partyModule && partyModule.m_PartyHUDInvoker)
 				{

@@ -1716,6 +1716,8 @@ modded class CarScript
 				if (!IsVitalRadiator())
 					coolant = 1.0;
 
+				oil = 1.0;
+				
 				float fuelConsumption;
 				m_EngineHealth = 0;
 				for (int i = 0; i < m_Engines.Count(); i++)

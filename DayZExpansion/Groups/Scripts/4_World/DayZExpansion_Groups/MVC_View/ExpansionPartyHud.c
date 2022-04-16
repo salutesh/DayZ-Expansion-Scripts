@@ -14,20 +14,25 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 {
 	ref ExpansionPartyHudController m_PartyHUDController;
 	private static autoptr map<string, ref ExpansionPartyHudMember> m_AllPartyHUDMembers;
+	private Widget m_Parent;
 	
-	void ExpansionPartyHud()
+	void ExpansionPartyHud(Widget parent)
 	{
+		m_Parent =parent;
+		
 		if (!m_PartyHUDController)
 			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());		
 		
 		if (!m_AllPartyHUDMembers)
 			m_AllPartyHUDMembers = new map<string, ref ExpansionPartyHudMember>;
+		
+		m_Parent.AddChild(GetLayoutRoot());
 	}
 	
 	void ~ExpansionPartyHud()
 	{
-		m_AllPartyHUDMembers.Clear();
-		m_PartyHUDController.PartyHUDMemberElements.Clear();
+		//m_AllPartyHUDMembers.Clear();
+		//m_PartyHUDController.PartyHUDMemberElements.Clear();
 	}
 	
 	override string GetLayoutFile() 

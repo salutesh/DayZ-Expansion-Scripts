@@ -14,7 +14,7 @@
 class ExpansionCOTGroupModule: JMRenderableModuleBase
 {
 	private ref map<int, ref ExpansionPartyData> m_Parties; //! Client
-	private ref ScriptInvoker m_COTGroupModuleSI;
+	static ref ScriptInvoker m_COTGroupModuleSI = new ScriptInvoker();;
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule Contrusctor
@@ -28,7 +28,6 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		if (IsMissionClient() && !IsMissionHost())
 		{
 			m_Parties = new map<int, ref ExpansionPartyData>;
-			m_COTGroupModuleSI = new ScriptInvoker();
 		}
 	}
 	
