@@ -29,6 +29,7 @@ class cfgWeapons
 		PPDOFProperties[] = {};
 		ironsightsExcludingOptics[] = {"M68Optic","M4_T3NRDSOptic","ReflexOptic","ACOGOptic"};
 		WeaponLength = 0.88;
+		barrelArmor = 7.75;
 		chamberedRound = "";
 		chamberSize = 1;
 		chamberableFrom[] = {"Ammo_308Win","Ammo_308WinTracer"};
@@ -54,12 +55,11 @@ class cfgWeapons
 		{
 			class OnFire
 			{
-				class MuzzleFlash{};
 				class SmokeCloud1
 				{
 					overrideParticle = "weapon_shot_winded_smoke";
 				};
-				class MuzzleFlash2
+				class MuzzleFlash
 				{
 					overrideParticle = "weapon_shot_m4a1_01";
 					ignoreIfSuppressed = 1;

@@ -509,7 +509,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
+		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetPlayerTerritoriesCount( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString())).Error(sender);
 			return;
@@ -1157,7 +1157,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetNumberOfTerritory( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
+		if ( GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer > 0 && GetPlayerTerritoriesCount( sender.GetId() ) >= GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_MAX_TERRITORY_PER_PLAYER", GetExpansionSettings().GetTerritory().MaxTerritoryPerPlayer.ToString())).Error(sender);
 			return;
@@ -1834,53 +1834,48 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		return m_Territories.Get( territoryID );
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionTerritoryModule IsPlayerInsideTerritory
-	// ------------------------------------------------------------
 	bool IsPlayerInsideTerritory( notnull PlayerIdentity identity )
 	{
-		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - Start");
-		#endif
-		
-		for ( int i = 0; i < m_Territories.Count(); i++ )
+		Error("DEPRECATED - use IsPlayerTerritoryMember");
+		return IsPlayerTerritoryMember( identity );
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionTerritoryModule IsPlayerTerritoryMember
+	// ------------------------------------------------------------
+	bool IsPlayerTerritoryMember( notnull PlayerIdentity identity )
+	{
+		foreach ( int id, ExpansionTerritory currentTerritory: m_Territories )
 		{
-			ExpansionTerritory currentTerritory = ExpansionTerritory.Cast( m_Territories.Get(i) );
 			if (!currentTerritory)
 			{
-				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-				EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - [ERROR] ExpansionTerritory is NULL!");
-				#endif
 				continue;
 			}
 			
 			array<ref ExpansionTerritoryMember> territoryMembers = currentTerritory.GetTerritoryMembers();
 			
-			for ( int j = 0; j < territoryMembers.Count(); j++ )
+			foreach ( ExpansionTerritoryMember currentMember: territoryMembers )
 			{
-				ExpansionTerritoryMember currentMember = ExpansionTerritoryMember.Cast( territoryMembers.Get(j) );
-				
 				if ( currentMember && currentMember.GetID() == identity.GetPlainId() )
 				{
-					#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-					EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - End and return true");
-					#endif
 					return true;
 				}
 			}
 		}
 		
-		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::IsPlayerInsideTerritory - End and return false");
-		#endif
-		
 		return false;
 	}
 	
+	int GetNumberOfTerritory( string playerUID )
+	{
+		Error("DEPRECATED - use GetPlayerTerritoriesCount");
+		return GetPlayerTerritoriesCount( playerUID );
+	}
+	
 	// ------------------------------------------------------------
-	// ExpansionTerritoryModule GetNumberOfTerritory
+	// ExpansionTerritoryModule GetPlayerTerritoriesCount
 	// ------------------------------------------------------------
-	int GetNumberOfTerritory(string playerUID = "")
+	int GetPlayerTerritoriesCount(string playerUID = "")
 	{
 		if (IsMissionClient())
 		{

@@ -55,13 +55,13 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
 	bool VehicleDropsRuinedDoors;
 	bool ExplodingVehicleDropsAttachments;
-	float ForcePilotSyncIntervalSeconds;
+	//float ForcePilotSyncIntervalSeconds;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -199,7 +199,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		PlacePlayerOnGroundOnReconnectInVehicle = s.PlacePlayerOnGroundOnReconnectInVehicle;
 		RevvingOverMaxRPMRuinsEngineInstantly = s.RevvingOverMaxRPMRuinsEngineInstantly;
 
-		ForcePilotSyncIntervalSeconds = s.ForcePilotSyncIntervalSeconds;
+		//ForcePilotSyncIntervalSeconds = s.ForcePilotSyncIntervalSeconds;
 
 		VehiclesConfig.Clear();
 		for (int i = 0; i < s.VehiclesConfig.Count(); i++)
@@ -306,9 +306,15 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					//! VehiclesConfig added with v4
 					VehiclesConfig = settingsDefault.VehiclesConfig;
 				}
-				else
+
+				if (settingsBase.m_Version >= 4)
 				{
 					JsonFileLoader<ExpansionVehicleSettings>.JsonLoadFile(EXPANSION_VEHICLE_SETTINGS, this);
+				}
+				else
+				{
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
 				}
 
 				if (settingsBase.m_Version < 5)
@@ -323,11 +329,25 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					ExplodingVehicleDropsAttachments = settingsDefault.ExplodingVehicleDropsAttachments;
 				}
 
-				if (settingsBase.m_Version < 8)
-					ForcePilotSyncIntervalSeconds = settingsDefault.ForcePilotSyncIntervalSeconds;
+				//! Not used, keeping it just in case
+				//if (settingsBase.m_Version < 8)
+					//ForcePilotSyncIntervalSeconds = settingsDefault.ForcePilotSyncIntervalSeconds;
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (settingsBase.m_Version < 9)
+				{
+					foreach (auto vehicleCfg: VehiclesConfig)
+					{
+						vehicleCfg.LockComplexity = 1.0;  //! Fallback
+						foreach (auto vehicleCfgDefault: settingsDefault.VehiclesConfig)
+						{
+							if (vehicleCfg.ClassName == vehicleCfgDefault.ClassName)
+							{
+								vehicleCfg.LockComplexity = vehicleCfgDefault.LockComplexity;
+								break;
+							}
+						}
+					}
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -415,15 +435,18 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		VehicleDropsRuinedDoors = true;
 		ExplodingVehicleDropsAttachments = true;
 
-		ForcePilotSyncIntervalSeconds = 1.0;
+		//ForcePilotSyncIntervalSeconds = 1.0;
 
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionVodnik", true));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUtilityBoat", true));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionZodiacBoat", true));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionLHD", true));
-		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMerlin", true));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionBus", true, 1.5));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionVodnik", true, 2.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUtilityBoat", true, 1.25));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionZodiacBoat", true, 0.5));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionLHD", true, 100.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMerlin", true, 4.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionMh6", false, 3.0));
+		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUh1h", false, 2.5));
 	}
 
 	override string SettingName()

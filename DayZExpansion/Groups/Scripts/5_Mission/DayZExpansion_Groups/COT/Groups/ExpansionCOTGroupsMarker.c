@@ -14,12 +14,8 @@
 #ifdef EXPANSIONMODNAVIGATION
 class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 {
+	private bool m_IsEditting = false;
 	private ExpansionCOTGroupsMenu m_COTGroupsMenu;
-	
-	void ExpansionCOTGroupsMapMarker(Widget parent, MapWidget mapWidget, bool autoInit = true)
-	{
-		
-	}
 	
 	void SetCOTGroupsMenu(ExpansionCOTGroupsMenu menu)
 	{
@@ -28,12 +24,12 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 	
 	override void Update(float pDt)
 	{
-		if (!IsDragging())
+		if (!m_Dragging)
 		{
 			float x, y;
-			vector mapPos = GetMapWidget().MapToScreen(GetPosition());
-			GetLayoutRoot().GetParent().GetScreenPos(x, y);
-			GetLayoutRoot().SetPos(mapPos[0] - x, mapPos[1] - y, true);
+			vector position = m_MapWidget.MapToScreen(m_WorldPosition);
+			m_LayoutRoot.GetParent().GetScreenPos(x, y); //! Map widget
+			m_LayoutRoot.SetPos(position[0] - x, position[1] - y, true);
 		}
 	}
 	
@@ -41,24 +37,26 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 	{
 		m_COTGroupsMenu.EditMarker(this);
 	}
+		
+	override void SetIcon(ExpansionIcon icon)
+	{
+		super.SetIcon(icon);
+
+		if (!m_CurrentExpansionIcon)
+			return;
+	}
 	
 	override bool OnDrag(Widget w, int x, int y)
 	{
 		if (w != NULL && IsDragWidget(w) && CanDrag())
 		{
 			m_LayoutRoot.GetPos(m_DragOffsetX, m_DragOffsetY);
-			
-			Print("ExpansionCOTGroupsMapMarker::OnDrag - Layout position: X: " + m_DragOffsetX + " | Y: " + m_DragOffsetY);
-			Print("ExpansionCOTGroupsMapMarker::OnDrag - Drag position: X: " + x + " | Y: " + y);
-			
-			m_DragOffsetX = x - m_DragOffsetX;
-			m_DragOffsetY = y - m_DragOffsetY;
-			
-			Print("ExpansionCOTGroupsMapMarker::OnDrag - Drag offset: X: " + m_DragOffsetX + " | Y: " + m_DragOffsetY);
-			
+			m_DragOffsetX = x;
+			m_DragOffsetY = y;
 			m_Dragging = true;
 			return true;
 		}
+
 		return false;
 	}
 
@@ -66,7 +64,6 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 	{
 		if (w != NULL && IsDragWidget(w) && CanDrag())
 		{
-			Print("ExpansionCOTGroupsMapMarker::OnDragging - Position: X: " + (x - m_DragOffsetX) + " | Y: " + (y - m_DragOffsetY));
 			SetPosition(x - m_DragOffsetX, y - m_DragOffsetY);
 			return true;
 		}
@@ -77,19 +74,11 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 	{
 		if (w != NULL && IsDragWidget(w) && CanDrag())
 		{
-			Print("ExpansionCOTGroupsMapMarker::OnDrop - Position: X: " + (x - m_DragOffsetX) + " | Y: " + (y - m_DragOffsetY));
 			SetPosition(x - m_DragOffsetX, y - m_DragOffsetY, true);
 			m_Dragging = false;
 			return true;
 		}
 		return false;
-	}
-	
-	override void OnDrop()
-	{
-		super.OnDrop();
-
-		
 	}
 	
 	override void SetPosition(int x, int y, bool performDropEvent = false)
@@ -100,9 +89,9 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 			m_CreationPosY = y;
 		}
 		
-		//m_LayoutRoot.SetPos(x, y, true);
-		vector newPos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
-		SetPosition(newPos, performDropEvent);
+		m_LayoutRoot.SetPos(x, y, true);
+		vector mapPos = m_MapWidget.ScreenToMap(Vector(x, y, 0));
+		SetPosition(mapPos, performDropEvent);
 	}
 
 	override void SetPosition(vector position, bool performDropEvent = false)
@@ -113,13 +102,41 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 		vector mPos = m_MapWidget.MapToScreen(m_WorldPosition);
 		
 		Print("ExpansionCOTGroupsMapMarker::SetPosition - World position: X: " + m_WorldPosition[0] + " | Y: " + m_WorldPosition[2]);
-		Print("ExpansionCOTGroupsMapMarker::SetPosition - Map position: X: " + mPos[0] + " | Y: " + mPos[2]);
+		Print("ExpansionCOTGroupsMapMarker::SetPosition - Screen position: X: " + mPos[0] + " | Y: " + mPos[1]);
 		
 		m_LayoutRoot.SetPos(mPos[0], mPos[1], true);
 		if (performDropEvent)
 		{
 			OnDrop();
 		}
+	}
+	
+	override void FocusOnMarker(bool shouldEdit = false)
+	{
+		vector worldPos = GetPosition();
+		float pos_x = worldPos[0];
+		float pos_y = worldPos[2];
+		
+		float map_width, map_height;
+		GetMapWidget().GetScreenSize(map_width, map_height);
+	
+		float shift_x = map_width;
+		float shift_y = map_height;
+		
+		vector map_pos = Vector(pos_x + shift_x, 0, pos_y - shift_y);
+		
+		GetMapWidget().SetScale(0.05);
+		GetMapWidget().SetMapPos(map_pos);
+	}
+	
+	override bool IsEditting()
+	{
+		return m_IsEditting;
+	}
+	
+	void SetIsEditting(bool state)
+	{
+		m_IsEditting = state;
 	}
 	
 	override bool CanDrag()

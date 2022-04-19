@@ -86,18 +86,16 @@ PanelWidgetClass ExpansionMarketItem {
       TextWidgetClass market_item_header_text {
        visible 1
        ignorepointer 1
-       position 0 0
-       size 1 1
+       size 1 26
        halign center_ref
        valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        style Normal
        text "ITEM DISPLAY NAME"
-       font "gui/fonts/etelkatextpro22"
        "exact text" 0
        "size to text h" 0
        "size to text v" 0
@@ -214,7 +212,9 @@ PanelWidgetClass ExpansionMarketItem {
        visible 1
        ignorepointer 1
        position 0.02 0
+       size 1 1
        halign right_ref
+       valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -222,6 +222,9 @@ PanelWidgetClass ExpansionMarketItem {
        fixaspect fixwidth
        style Colorable
        "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
        Columns 2
        Rows 1
        {
@@ -229,17 +232,16 @@ PanelWidgetClass ExpansionMarketItem {
          visible 1
          ignorepointer 1
          position 0 0
-         size 1 0.5
+         size 1 12
          halign right_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          scriptclass "ViewBinding"
          style None
          text "0"
-         font "gui/fonts/etelkatextpro22"
          "text offset" 0 0
          "exact text" 0
          "size to text h" 1
@@ -254,14 +256,13 @@ PanelWidgetClass ExpansionMarketItem {
         PanelWidgetClass market_item_info_buy_price_icon_panel {
          visible 1
          ignorepointer 1
-         position 0 0
-         size 1 0.5
-         halign left_ref
+         size 16 16
+         halign right_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          style blank
          {
           ImageWidgetClass market_item_info_buy_price_icon {
@@ -296,6 +297,8 @@ PanelWidgetClass ExpansionMarketItem {
        visible 1
        ignorepointer 1
        position 0.02 0
+       size 0 0
+       valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -303,46 +306,23 @@ PanelWidgetClass ExpansionMarketItem {
        fixaspect fixwidth
        style Colorable
        "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
        Columns 2
        Rows 1
        {
-        TextWidgetClass market_item_info_sell_price {
-         visible 1
-         ignorepointer 1
-         position 0 0
-         size 1 0.5
-         halign right_ref
-         valign center_ref
-         hexactpos 0
-         vexactpos 0
-         hexactsize 0
-         vexactsize 0
-         scriptclass "ViewBinding"
-         style None
-         text "0"
-         font "gui/fonts/etelkatextpro22"
-         "text offset" 0 0
-         "exact text" 0
-         "size to text h" 1
-         "text halign" right
-         "text valign" center
-         {
-          ScriptParamsClass {
-           Binding_Name "ItemSellPrice"
-          }
-         }
-        }
         PanelWidgetClass market_item_info_sell_price_icon_panel {
          visible 1
          ignorepointer 1
          position 0 0
-         size 1 0.5
+         size 16 16
          halign left_ref
          valign center_ref
          hexactpos 0
          vexactpos 0
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
          style blank
          {
           ImageWidgetClass market_item_info_sell_price_icon {
@@ -368,6 +348,31 @@ PanelWidgetClass ExpansionMarketItem {
              Binding_Name "CurrencyIcon"
             }
            }
+          }
+         }
+        }
+        TextWidgetClass market_item_info_sell_price {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 1 12
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         style None
+         text "0"
+         "text offset" 0 0
+         "exact text" 0
+         "size to text h" 1
+         "text halign" right
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ItemSellPrice"
           }
          }
         }
@@ -402,17 +407,17 @@ PanelWidgetClass ExpansionMarketItem {
       TextWidgetClass market_item_info_stock {
        visible 1
        ignorepointer 1
-       size 0.5 1
+       position 0.02 0
+       size 0.48 12
        halign right_ref
+       valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        style None
        text "Stock: 5"
-       font "gui/fonts/etelkatextpro16"
-       "text offset" -12 0
        "exact text" 0
        "text halign" right
        "text valign" center
@@ -425,17 +430,16 @@ PanelWidgetClass ExpansionMarketItem {
       TextWidgetClass market_item_info_player_stock {
        visible 1
        ignorepointer 1
-       position 0 0
-       size 0.5 1
+       position 0.02 0
+       size 0.48 12
+       valign center_ref
        hexactpos 0
        vexactpos 0
        hexactsize 0
-       vexactsize 0
+       vexactsize 1
        scriptclass "ViewBinding"
        style None
        text "On You: 4"
-       font "gui/fonts/etelkatextpro16"
-       "text offset" 12 0
        "exact text" 0
        "text valign" center
        {
@@ -583,14 +587,14 @@ PanelWidgetClass ExpansionMarketItem {
     TextWidgetClass market_item_fastbuy_text {
      disabled 0
      ignorepointer 1
-     position 0 0.02
-     size 1 1
+     size 1 16
+     halign center_ref
+     valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
-     vexactsize 0
+     vexactsize 1
      text "#STR_EXPANSION_MARKET_BUY"
-     font "gui/fonts/etelkatextpro22"
      "bold text" 0
      "exact text" 0
      "size to text h" 0
@@ -647,14 +651,14 @@ PanelWidgetClass ExpansionMarketItem {
     TextWidgetClass market_item_fastsell_text {
      disabled 0
      ignorepointer 1
-     position 0 0.02
-     size 1 1
+     size 1 16
+     halign center_ref
+     valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
-     vexactsize 0
+     vexactsize 1
      text "#STR_EXPANSION_MARKET_SELL"
-     font "gui/fonts/etelkatextpro22"
      "bold text" 0
      "exact text" 0
      "size to text h" 0

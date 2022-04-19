@@ -49,9 +49,9 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMapMarker IsDragWidget
+	// ExpansionMapMarker CanDrag
 	// ------------------------------------------------------------	
-	override bool IsDragWidget( Widget w )
+	override bool CanDrag()
 	{
 		return false;
 	}

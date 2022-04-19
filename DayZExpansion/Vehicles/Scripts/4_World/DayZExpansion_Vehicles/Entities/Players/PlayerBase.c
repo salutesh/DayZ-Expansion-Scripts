@@ -211,6 +211,9 @@ modded class PlayerBase
 
 	override bool IsInVehicle()
 	{
+		if (IsAttached())
+			return false;
+
 		if (super.IsInVehicle())
 			return true;
 

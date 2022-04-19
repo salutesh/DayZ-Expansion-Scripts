@@ -7,6 +7,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
  vexactpos 1
  hexactsize 1
  vexactsize 1
+ fixaspect fixwidth
  draggable 1
  scriptclass "ExpansionCOTGroupsMenu"
  style blank
@@ -15,11 +16,11 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    visible 1
    ignorepointer 1
    position 0 0
-   size 0.25 0.455
+   size 0.25 450
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     PanelWidgetClass groups_list_lable_panel {
@@ -139,12 +140,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
   PanelWidgetClass group_info_panel {
    visible 0
    ignorepointer 1
-   size 0.5 0.35
+   size 0.5 350
    halign center_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     TextWidgetClass group_info_label {
@@ -421,7 +422,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    disabled 0
    ignorepointer 1
    position 0.25 0.35
-   size 0.5 0.1
+   size 0.5 1
    hexactpos 0
    vexactpos 0
    hexactsize 0
@@ -542,12 +543,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    visible 0
    ignorepointer 1
    position 0 0
-   size 0.25 0.455
+   size 0.25 450
    halign right_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     PanelWidgetClass members_list_lable_panel {
@@ -667,12 +668,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
   PanelWidgetClass member_info_panel {
    visible 0
    ignorepointer 1
-   size 0.5 0.35
+   size 0.5 350
    halign center_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     TextWidgetClass member_info_label {
@@ -1005,7 +1006,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    disabled 0
    ignorepointer 1
    position 0.25 0.35
-   size 0.5 0.1
+   size 0.5 1
    hexactpos 0
    vexactpos 0
    hexactsize 0
@@ -1148,11 +1149,11 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    visible 0
    ignorepointer 1
    position 0 0
-   size 0.25 0.455
+   size 0.25 450
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     PanelWidgetClass players_list_lable_panel {
@@ -1272,12 +1273,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
   PanelWidgetClass player_info_panel {
    visible 0
    ignorepointer 1
-   size 0.5 0.4
+   size 0.5 350
    halign center_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     TextWidgetClass player_info_label {
@@ -1427,7 +1428,7 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    visible 0
    disabled 0
    ignorepointer 1
-   position 0.25 0.4
+   position 0.25 0.35
    size 0.5 0.1
    hexactpos 0
    vexactpos 0
@@ -1528,12 +1529,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
   PanelWidgetClass markers_list_panel {
    visible 0
    ignorepointer 1
-   size 0.25 0.54
+   size 0.25 550
    valign bottom_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     PanelWidgetClass markers_list_lable_panel {
@@ -1653,12 +1654,12 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
   PanelWidgetClass edit_info_panel {
    visible 0
    ignorepointer 1
-   size 0.5 0.4
+   size 0.5 450
    halign center_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
+   vexactsize 1
    style Outline
    {
     RichTextWidgetClass edit_info_label {
@@ -1683,14 +1684,13 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    visible 0
    ignorepointer 1
    position 0 0
-   size 0.2 0.54
+   size 0.25 550
    halign right_ref
    valign bottom_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
-   vexactsize 0
-   priority 2
+   vexactsize 1
    style Outline
    {
     PanelWidgetClass marker_edit_label_panel {
@@ -2048,15 +2048,14 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
    visible 0
    clipchildren 1
    ignorepointer 1
-   position 0.025 0.23
-   size 0.55 0.54
+   position 0 0
+   size 700 550
    halign center_ref
-   valign center_ref
+   valign bottom_ref
    hexactpos 0
    vexactpos 0
-   hexactsize 0
-   vexactsize 0
-   priority 50
+   hexactsize 1
+   vexactsize 1
    scriptclass ""
    style Outline
    {
@@ -2087,11 +2086,11 @@ PanelWidgetClass ExpansionCOTGroupsMenu {
         MapWidgetClass group_map {
          ignorepointer 0
          position 0 0
-         size 1 1
+         size 700 550
          hexactpos 1
          vexactpos 1
-         hexactsize 0
-         vexactsize 0
+         hexactsize 1
+         vexactsize 1
         }
        }
       }

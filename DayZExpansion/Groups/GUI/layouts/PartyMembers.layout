@@ -2,7 +2,7 @@ WrapSpacerWidgetClass LeftHUDPanel {
  visible 1
  clipchildren 0
  ignorepointer 1
- position 0.025 0.2
+ position 0.005 0.2
  size 0.1 0.7
  valign bottom_ref
  hexactpos 0

@@ -14,69 +14,56 @@
  * @brief		
  **/
 modded class MissionGameplay
-{
-	Chat m_Chat;
+{	
 	ExpansionChatChannels m_ChatChannel;
-	
-	ref WidgetFadeTimer m_ExpChatChannelFadeInTimer;
-	ref Timer m_ExpChatChannelFadeOutTimer;
-	
-	ref WidgetFadeTimer m_ExpChatChannelNameFadeInTimer;
-	ref Timer m_ExpChatChannelNameFadeOutTimer;
-	
-	Widget m_ChatChannelRootWidget;
-	Widget m_WidgetChatChannel;
-	TextWidget m_ChatChannelName;
-	Widget m_ChatRootWidget;
 	Widget m_ChatPanel;
-
+	Widget m_ChatChannelRootWidget;
+	TextWidget m_ChatChannelName;
+	
+	ref Timer m_ExChatChannelHideTimer;
+	
 	void MissionGameplay()
 	{
-		m_ChatRootWidget = null;
-		
-		m_ExpChatChannelFadeInTimer = new WidgetFadeTimer();
-		m_ExpChatChannelFadeOutTimer = new Timer(CALL_CATEGORY_GUI);
-		
-		m_ExpChatChannelNameFadeInTimer = new WidgetFadeTimer();
-		m_ExpChatChannelNameFadeOutTimer = new Timer(CALL_CATEGORY_GUI);
+		m_ExChatChannelHideTimer = new Timer;
 	}
-
+	
 	override void OnInit()
 	{
 		super.OnInit();
 		
-		InitChat();
+		InitExpansionChat();
 	}
 	
-	void InitChat()
+	void InitExpansionChat()
 	{
-		if (!m_ChatRootWidget && m_HudRootWidget)
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
+		m_ChatPanel = Widget.Cast(m_HudRootWidget.FindAnyWidget("ChatFrameWidget"));
+		if (m_Chat && m_ChatPanel)
 		{
-			m_ChatPanel = Widget.Cast(m_HudRootWidget.FindAnyWidget("ChatFrameWidget"));
-			m_ChatPanel.SetFlags(WidgetFlags.IGNOREPOINTER, true);
+			m_ChatChannelRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_channel.layout");
+			m_ChatChannelName = TextWidget.Cast(m_ChatChannelRootWidget.FindAnyWidget("ChatChannelName"));
 
-			m_ChatRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat.layout", m_ChatPanel);
-			m_Chat.Init(m_ChatRootWidget);
-
-			if (m_Chat)
+			ExpansionClientUIChatChannel chatChannel = GetExpansionClientSettings().DefaultChatChannel;
+			switch (chatChannel)
 			{
-				m_ChatChannelRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_channel.layout");
-				m_WidgetChatChannel = Widget.Cast(m_ChatChannelRootWidget.FindAnyWidget("ChatChannelPanel"));
-				m_ChatChannelName = TextWidget.Cast(m_ChatChannelRootWidget.FindAnyWidget("ChatChannelName"));
-
-				SwitchChatChannelToDirect();
+				case ExpansionClientUIChatChannel.DIRECT:
+					SwitchChatChannelToDirect();
+					break;
+				case ExpansionClientUIChatChannel.GLOBAL:
+					SwitchChatChannelToGlobal();
+					break;
+				default:
+					SwitchChatChannelToDirect();
+					break;
 			}
 		}
 	}
-
+	
 	override void ShowChat()
 	{
-		//! Disable fade-in/out timers while chat window is opened
-		m_ExpChatChannelFadeInTimer.Stop();
-		m_ExpChatChannelFadeOutTimer.Stop();
-		m_ExpChatChannelNameFadeInTimer.Stop();
-		m_ExpChatChannelNameFadeOutTimer.Stop();
-		
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		//! Disable certain controlls and inputs when the chat input menu gets opened.
 		PlayerControlDisable(INPUT_EXCLUDE_ALL);
 		PlayerControlDisable(INPUT_EXCLUDE_CHAT_EXPANSION);
@@ -104,7 +91,7 @@ modded class MissionGameplay
 		}
 				
 		//! Fade-in chat channel name widgets
-		FadeInChatChannel();
+		//FadeInChatChannel();
 		
 		//! Update mic voice level indicator widgets
 		int level = GetGame().GetVoiceLevel();
@@ -112,30 +99,27 @@ modded class MissionGameplay
 		
 		//! Open chat input menu
 		m_UIManager.EnterScriptedMenu(MENU_CHAT_INPUT, NULL);
+		
+		//! Show chat channel widgets
+		m_ChatChannelRootWidget.Show(true);
 	}
-
+	
 	override void HideChat()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		super.HideChat();
 
 		//! Enable inputs
 		GetUApi().GetInputByName("UAPersonView").ForceDisable(false);
-	}
-	
-	void FadeInChatChannel()
-	{
-		m_ExpChatChannelFadeInTimer.FadeIn(m_WidgetChatChannel, EXP_FADE_IN_DURATION);
-		m_ExpChatChannelNameFadeInTimer.FadeIn(m_ChatChannelName, EXP_FADE_IN_DURATION);
-	}
-	
-	void FadeOutChatChannel()
-	{
-		m_ExpChatChannelFadeOutTimer.Run(EXP_FADE_TIMEOUT, m_ExpChatChannelFadeInTimer, "FadeOut", new Param2<Widget, float>(m_WidgetChatChannel, EXP_FADE_OUT_DURATION));
-		m_ExpChatChannelNameFadeOutTimer.Run(EXP_FADE_TIMEOUT, m_ExpChatChannelNameFadeInTimer, "FadeOut", new Param2<Widget, float>(m_ChatChannelName, EXP_FADE_OUT_DURATION));
+		
+		m_ChatChannelRootWidget.Show(false);
 	}
 
 	void SwitchChatChannelToGlobal()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		if (GetExpansionSettings().GetChat().EnableGlobalChat)
 		{
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
@@ -150,6 +134,8 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToTeam()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 #ifdef EXPANSIONMODGROUPS
 		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 
@@ -170,9 +156,16 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToTransport()
 	{
-		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
-		Object parent = Object.Cast(player.GetParent());
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
+		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
+		if (!player || !player.GetParent())
+		{
+			SwitchChatChannelToAdmin();
+			return;
+		}
+		
+		Object parent = Object.Cast(player.GetParent());
 		if (parent && parent.IsTransport() && GetExpansionSettings().GetChat().EnableTransportChat)
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
@@ -187,6 +180,8 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToAdmin()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		if (GetPermissionsManager().HasPermission("Admin.Chat"))
 		{
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
@@ -201,6 +196,8 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToDirect()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 		m_ChatChannelName.SetText("Direct Chat");
 		m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
@@ -208,7 +205,10 @@ modded class MissionGameplay
 
 	void SwitchChannel()
 	{
-		FadeInChatChannel();
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
+		m_ChatChannelHideTimer.Stop();
+		m_ChatChannelRootWidget.Show(true);
 		
 		switch (m_ChatChannel)
 		{
@@ -231,6 +231,8 @@ modded class MissionGameplay
 			SwitchChatChannelToDirect();
 			break;
 		}
+		
+		m_ChatChannelHideTimer.Run(2, m_ChatChannelRootWidget, "Show", new Param1<bool>(false));
 	}
 
 	int GetChatChannel()
@@ -245,6 +247,8 @@ modded class MissionGameplay
 	
 	override void PlayerControlDisable(int mode)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		switch (mode)
 		{
 			case INPUT_EXCLUDE_CHAT_EXPANSION:
@@ -320,11 +324,8 @@ modded class MissionGameplay
 				if (input.LocalPress("UAExpansionChatSwitchChannel", false) && !inputIsFocused && !topMenu && !viewMenu)
 				{
 					SwitchChannel();
-					FadeOutChatChannel();
 				}
 			}
 		}
-
-		m_Chat.Update(timeslice);
 	}
 };

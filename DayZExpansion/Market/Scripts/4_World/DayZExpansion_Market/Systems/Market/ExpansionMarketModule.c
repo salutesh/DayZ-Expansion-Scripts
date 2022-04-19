@@ -34,7 +34,8 @@ enum ExpansionMarketResult
 	FailedCannotSell,
 	FailedCannotBuy,
 	FailedNotInPlayerPossession,
-	FailedItemDoesNotExistInTrader
+	FailedItemDoesNotExistInTrader,
+	FailedSellListMismatch
 }
 
 class ExpansionMarketPlayerInventory
@@ -58,6 +59,8 @@ class ExpansionMarketPlayerInventory
 
 	void Enumerate()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET);
+
 		array<EntityAI> items = new array<EntityAI>;
 		m_Player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 		AddPlayerItems(items);
@@ -192,16 +195,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 	
 	ref array<ref ExpansionMarketATM_Data> m_ATMData;
 
-	static ref map<string, ExpansionMarketItem> s_AmmoItems = new map<string, ExpansionMarketItem>;
+	ref map<string, ExpansionMarketItem> m_AmmoItems;
+
 	static ref map<string, string> s_AmmoBullets = new map<string, string>;
-	
+
 	// ------------------------------------------------------------
 	// ExpansionMarketModule Constructor
-	// ------------------------------------------------------------
+	// ------------------------------------------------------------	
 	void ExpansionMarketModule()
 	{
-		MarketModulePrint("ExpansionMarketModule - Start");
-		
 		m_TmpVariantIds = new TIntArray;
 		m_TmpNetworkCats = new map<int, ref ExpansionMarketCategory>;
 		m_TmpNetworkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
@@ -209,18 +211,61 @@ class ExpansionMarketModule: CF_ModuleWorld
 		m_MoneyTypes = new map<string, int>;
 		m_MoneyDenominations = new array<string>;
 
+		m_AmmoItems = new map<string, ExpansionMarketItem>;
+
 		m_ClientMarketZone = new ExpansionMarketClientTraderZone;
-		
+
 		m_ATMData = new array<ref ExpansionMarketATM_Data>;
+	}
 		
-		if (!FileExist(EXPANSION_ATM_FOLDER) && !IsMissionClient())
+	// ------------------------------------------------------------
+	// ExpansionMarketModule Deconstructor
+	// ------------------------------------------------------------
+	void ~ExpansionMarketModule()
+	{
+		delete m_LocalEntityInventory;
+		delete m_MoneyTypes;
+		delete m_MoneyDenominations;
+		delete m_ClientMarketZone;
+		delete m_ATMData;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMarketModule OnInit
+	// ------------------------------------------------------------	
+	override void OnInit()
+	{
+		super.OnInit();
+
+		EnableMissionStart();
+		EnableInvokeConnect();
+		EnableMissionFinish();
+		EnableMissionLoaded();
+		EnableRPC();
+	}
+	
+	// ------------------------------------------------------------
+	// Override OnMissionStart
+	// ------------------------------------------------------------	
+	override void OnMissionStart(Class sender, CF_EventArgs args)
+	{
+		MarketModulePrint("OnMissionStart - Start");
+				
+		super.OnMissionStart(sender, args);
+		
+		if (!IsMissionClient() && IsMissionHost())
 		{
-			MakeDirectory(EXPANSION_ATM_FOLDER);
+			if (!FileExist(EXPANSION_ATM_FOLDER))
+			{
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_ATM_FOLDER);
+			}
+			else if (FileExist(EXPANSION_ATM_FOLDER))
+			{
+				LoadATMData();
+			}
 		}
 		
-		LoadATMData();
-		
-		if (IsMissionClient())
+		if (IsMissionClient() && !IsMissionHost())
 		{
 			if (!FileExist(EXPANSION_MARKET_PRESETS_FOLDER))
 			{
@@ -238,29 +283,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			}
 		}
 		
-		MarketModulePrint("ExpansionMarketModule - End");
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketModule Deconstructor
-	// ------------------------------------------------------------
-	void ~ExpansionMarketModule()
-	{
-		delete m_LocalEntityInventory;
-		delete m_MoneyTypes;
-		delete m_MoneyDenominations;
-		delete m_ClientMarketZone;
-		delete m_ATMData;
-	}
-	
-	override void OnInit()
-	{
-		super.OnInit();
-
-		EnableInvokeConnect();
-		EnableMissionFinish();
-		EnableMissionLoaded();
-		EnableRPC();
+		MarketModulePrint("OnMissionStart - End");
 	}
 
 	// ------------------------------------------------------------
@@ -289,12 +312,19 @@ class ExpansionMarketModule: CF_ModuleWorld
 		m_MoneyTypes.Clear();
 		m_MoneyDenominations.Clear();
 		
+		m_AmmoItems.Clear();
+
+		if (IsMissionHost())
+		{
+			SaveATMData();
+		}
+		
 		if (IsMissionClient())
 		{
 			//! Clear cached categories and traders so that they are requested from server again after (e.g.) reconnect, to make sure they are in sync
 			GetExpansionSettings().GetMarket().ClearMarketCaches();
 		}
-
+		
 		MarketModulePrint("OnMissionFinish - End");
 	}
 
@@ -660,7 +690,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			foreach (string bulletClassName, TFloatArray modifiers: sellPriceModifiers)
 			{
 				ExpansionMarketItem ammoItem = NULL;
-				if (!s_AmmoItems.Find(bulletClassName, ammoItem))
+				if (!m_AmmoItems.Find(bulletClassName, ammoItem))
 				{
 					string ammoClassName = GetGame().ConfigGetTextOut("CfgAmmo " + bulletClassName + " spawnPileType");
 					ammoClassName.ToLower();
@@ -671,7 +701,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 						failedClassName = ammoClassName;
 						return false;
 					}
-					s_AmmoItems.Insert(bulletClassName, ammoItem);
+					m_AmmoItems.Insert(bulletClassName, ammoItem);
 				}
 				if (ammoItem)
 				{
@@ -716,10 +746,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
 
 			if (!attachment)
-			{
-				failedClassName = attachmentName;
-				return false;
-			}
+				continue;
 
 			if (!FindAttachmentsSellPriceInternal(attachment, attachmentEntity, sell, addedStock, zone, canSell, 1, 0.75, failedClassName))
 				return false;
@@ -732,9 +759,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		if (!sell.Trader.GetTraderMarket().Items[attachment.ClassName])
 		{
-			//! This attachment does not exist in the trader
-			failedClassName = attachment.ClassName;
-			return false;
+			//! This attachment does not exist in the trader, but we still allow to get rid of it (it will be deleted, and players won't receive money for it)
+			return true;
 		}
 		else if (!sell.Trader.GetTraderMarket().CanSellItem(attachment.ClassName))
 		{
@@ -2802,13 +2828,54 @@ class ExpansionMarketModule: CF_ModuleWorld
 			EXLogPrint("===============================================================================");
 			EXLogPrint("| MARKET SELL REQUEST FAILED!");
 
-			//! Result if the price the player has seen and agreed to in menu doesn't match anymore
-			//! the current item price of the trader because stock has changed enough to affect it
-			//! (another player was quicker to get his transaction through)
+			ExpansionMarketSellDebug sellDebug;
+
 			if (result == ExpansionMarketResult.Success && sellList.Price != currentPrice)
 			{
-				EXLogPrint("| Price mismatch between client and server.");
-				result = ExpansionMarketResult.FailedStockChange;
+				//! Check if there is a mismatch in the classnames the client sent to what the server sees
+
+				sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
+
+				bool clientSellListMismatch;
+				if (playerSentSellDebug.m_Items.Count() == sellDebug.m_Items.Count())
+				{
+					//! We got the expected number of items from client. Need to check if they are identical (= sell request likely failed due to stock change) or not
+					//! (= failed due to client inventory desync, although unlikely since then it's more likely the count would have already been different)
+
+					auto playerSentItems = playerSentSellDebug.GetItemClassNames();
+					auto items = sellDebug.GetItemClassNames();
+
+					//! Sort so we can directly compare and don't have to worry about order
+					playerSentItems.Sort();
+					items.Sort();
+
+					for (int i = 0; i < items.Count(); i++)
+					{
+						if (playerSentItems[i] != items[i])
+						{
+							clientSellListMismatch = true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					clientSellListMismatch = true;
+				}
+
+				if (!clientSellListMismatch)
+				{
+					//! The price the player has seen and agreed to in menu doesn't match anymore
+					//! the current item price of the trader because stock has changed enough to affect it
+					//! (another player was quicker to get his transaction through)
+					EXLogPrint("| Price mismatch between client and server.");
+					result = ExpansionMarketResult.FailedStockChange;
+				}
+				else
+				{
+					EXLogPrint("| Item list mismatch between client and server.");
+					result = ExpansionMarketResult.FailedSellListMismatch;
+				}
 			}
 			else if (result == ExpansionMarketResult.FailedItemDoesNotExistInTrader)
 			{
@@ -2818,7 +2885,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			
 			EXLogPrint("| Result code: " + typename.EnumToString(ExpansionMarketResult, result));
 
-			if (result == ExpansionMarketResult.FailedStockChange)
+			if (result == ExpansionMarketResult.FailedStockChange || result == ExpansionMarketResult.FailedSellListMismatch)
 			{
 				EXLogPrint("|");
 				EXLogPrint("| CLIENT transaction data");
@@ -2830,7 +2897,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 				EXLogPrint("| SERVER transaction data");
 				EXLogPrint("| -----------------------");
 				EXLogPrint("| Total sell price: " + sellList.Price);
-				auto sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
 				sellDebug.Dump();
 			}
 
@@ -3696,11 +3762,22 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			//! Strip '.json' extension
 			fileName = fileName.Substring(0, fileName.Length() - 5);
-
 			ExpansionMarketATM_Data data = ExpansionMarketATM_Data.Load(fileName);
 			m_ATMData.Insert(data);
 		}
 	}
+	
+	// ------------------------------------------------------------
+	// Expansion SaveATMData
+	// ------------------------------------------------------------
+	void SaveATMData()
+	{
+		foreach (ExpansionMarketATM_Data atmData: m_ATMData)
+		{
+			atmData.Save();
+		}
+	}
+	
 	
 	// ------------------------------------------------------------
 	// Expansion CreateATMData

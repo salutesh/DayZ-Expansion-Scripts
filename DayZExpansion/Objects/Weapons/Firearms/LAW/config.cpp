@@ -183,6 +183,7 @@ class CfgWeapons
 				class MuzzleFlash
 				{
 					ignoreIfSuppressed = 1;
+					overrideParticle = "weapon_shot_m4a1_01";
 					illuminateWorld = 1;
 					overridePoint = "Usti hlavne";
 				};
@@ -226,12 +227,11 @@ class CfgWeapons
 		{
 			class OnFire
 			{
-				class MuzzleFlash{};
 				class SmokeCloud1
 				{
 					overrideParticle = "weapon_shot_winded_smoke";
 				};
-				class MuzzleFlash2
+				class MuzzleFlash
 				{
 					overrideParticle = "weapon_shot_m4a1_01";
 					ignoreIfSuppressed = 1;

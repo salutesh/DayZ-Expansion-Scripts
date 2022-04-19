@@ -12,53 +12,18 @@
 
 modded class ChatInputMenu 
 {
-	private EditBoxWidget m_edit_box;
-
 	const int WHEEL_STEP = 20;
+	private EditBoxWidget m_edit_box;
 	private float m_Position;
-	ref Chat m_Chat;
-
-	void ChatInputMenu()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "ChatInputMenu");
-#endif
-
-		MissionGameplay.Cast( GetGame().GetMission() ).m_WidgetChatChannel.Show(true);
-		MissionGameplay.Cast( GetGame().GetMission() ).m_ChatChannelName.Show(true);
-
-		MissionGameplay.Cast( GetGame().GetMission() ).m_WidgetChatChannel.SetAlpha(0.75);
-		MissionGameplay.Cast( GetGame().GetMission() ).m_ChatChannelName.SetAlpha(1);
-
-		GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Insert( this.Update );
-	}
-
-	void ~ChatInputMenu()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "~ChatInputMenu");
-#endif
-
-		MissionGameplay.Cast( GetGame().GetMission() ).m_WidgetChatChannel.Show(false);
-		MissionGameplay.Cast( GetGame().GetMission() ).m_ChatChannelName.Show(false);
-
-		MissionGameplay.Cast( GetGame().GetMission() ).m_WidgetChatChannel.SetAlpha(0);
-		MissionGameplay.Cast( GetGame().GetMission() ).m_ChatChannelName.SetAlpha(0);
-
-		GetGame().GetUpdateQueue( CALL_CATEGORY_GUI ).Remove( this.Update );
-
-		GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater( GetGame().GetMission().HideChat, 300, false);
-	}
+	private ref Chat m_Chat;
 	
 	// Don't want the vanilla layout to load at all...
 	override Widget Init()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Init");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Chat/GUI/layouts/expansion_chat_input.layout" );
-		m_edit_box = EditBoxWidget.Cast( layoutRoot.FindAnyWidget( "InputEditBoxWidget" ) );
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_input.layout");
+		m_edit_box = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("InputEditBoxWidget"));
 
 		m_Position = 1;
 		
@@ -83,6 +48,8 @@ modded class ChatInputMenu
 	{				
 		if (!finished)
 			return false;
+
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
 		string text = m_edit_box.GetText();
 
@@ -131,33 +98,35 @@ modded class ChatInputMenu
 
 	override void OnShow()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnShow");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 		
-		m_Chat.OnChatInputShow();
-	}
-
-	override void OnHide()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnHide");
-#endif
+		super.OnShow();
 		
-		super.OnHide();
-		
-		m_Chat.OnChatInputHide();
+		if (m_Chat)
+			m_Chat.OnChatInputShow();
 	}
 
 	override bool OnMouseWheel(Widget w, int x, int y, int wheel)
-	{			
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		
 		//! Controlls scroll steps in the chat panel grid
-		float step = (1.0 / (m_Chat.GetContentHeight() - m_Chat.GetRootHeight())) * WHEEL_STEP;
+		float step = (1.0 / (m_Chat.GetChatWindow().GetContentHeight() - m_Chat.GetChatWindow().GetRootHeight())) * WHEEL_STEP;
 		m_Position += wheel * step;
 
-		m_Chat.SetPosition(m_Position);
-		m_Chat.UpdateScroller();
-
+		//m_Chat.GetChatWindow().SetPosition(m_Position);
+		//m_Chat.GetChatWindow().UpdateScroller();
+		
 		return true;
+	}
+	
+	override void OnHide()
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
+		super.OnHide();
+			
+		if (m_Chat)
+			m_Chat.OnChatInputHide();
 	}
 };

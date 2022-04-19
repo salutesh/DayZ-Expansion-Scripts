@@ -28,6 +28,7 @@ class cfgWeapons
 		PPDOFProperties[] = {1,0.5,50,120,4,10};
 		ironsightsExcludingOptics[] = {};
 		WeaponLength = 0.699;
+		barrelArmor = 5.9;
 		chamberSize = 1;
 		chamberedRound = "";
 		chamberableFrom[] = {"Ammo_9x19"};
@@ -76,6 +77,7 @@ class cfgWeapons
 			{
 				class MuzzleFlash
 				{
+					overrideParticle = "weapon_shot_mp5k_01";
 					ignoreIfSuppressed = 1;
 					illuminateWorld = 1;
 				};
@@ -381,6 +383,7 @@ class cfgWeapons
 			{
 				class MuzzleFlash
 				{
+					overrideParticle = "weapon_shot_vss_01";
 					ignoreIfSuppressed = 0;
 					illuminateWorld = 0;
 				};

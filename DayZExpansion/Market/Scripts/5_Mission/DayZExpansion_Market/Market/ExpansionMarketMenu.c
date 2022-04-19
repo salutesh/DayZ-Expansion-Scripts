@@ -47,6 +47,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected int m_PlayerStock;
 	protected int m_BuyPrice;
 	protected ref ExpansionMarketSell m_MarketSell;
+	protected ExpansionMarketResult m_LastFindSellPriceResult;
+	protected string m_LastFindSellPriceFailedClassName;
 	protected int m_SellPrice;
 	protected ExpansionMarketMenuState m_CurrentState = ExpansionMarketMenuState.LOADING;
 	protected float m_RequestMarketTraderDataAccum;
@@ -83,7 +85,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected ref ExpansionMarketMenuItemManager m_MarketMenuItemManager;
 	
 	protected EditBoxWidget market_filter_box;
-	protected Widget menu_info_content;
+	protected Widget market_menu_info;
 	protected ButtonWidget market_item_buy;
 	protected ButtonWidget market_item_sell;
 	protected ButtonWidget market_filter_clear;
@@ -1032,7 +1034,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (m_FilterOptionStrings.Count() > 0)
 		{
 			//! Filter(s) active, need to update complete view
-			menu_info_content.Show(false);
+			market_menu_info.Show(false);
 
 			//! Store state of selected filters
 			int i;
@@ -1271,7 +1273,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		m_SelectedMarketItemElement = itemElement;
 		m_SelectedMarketItem = itemElement.GetMarketItem();
 		
-		menu_info_content.Show(true);
+		market_menu_info.Show(true);
 
 		string itemClassName = GetPreviewClassName(GetSelectedMarketItem().ClassName, true);
 		
@@ -1764,7 +1766,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
 			}
 
-			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments());
+			m_MarketModule.FindSellPrice(PlayerBase.Cast(GetGame().GetPlayer()), items, m_TraderItemStock, m_Quantity, m_MarketSell, m_PlayerStock != 0 || m_SelectedMarketItemElement.GetIncludeAttachments(), m_LastFindSellPriceResult, m_LastFindSellPriceFailedClassName);
 			m_SellPrice = m_MarketSell.Price;
 
 			market_item_sell_price_text.SetColor(color); 
@@ -2392,15 +2394,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				text = "STR_EXPANSION_TRADER_NOT_IN_PLAYER_POSSESSION";
 				break;
 			}
-			
-			default:
-			{
-				MarketPrint("MenuCallback - unknown error");
-
-				title = "STR_EXPANSION_MARKET_TITLE";
-				text = "UNKNOWN ERROR";
-				break;
-			}
 
 			case ExpansionMarketResult.FailedItemDoesNotExistInTrader:
 			{
@@ -2408,6 +2401,25 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				title = "STR_EXPANSION_MARKET_TITLE";
 				text = "Transaction failed: " + GetDisplayName(itemClassName) + " (" + itemClassName + ") does not exist in the trader's item list.";
+				break;
+			}
+
+			//! Inventory desync or tampering attempt
+			case ExpansionMarketResult.FailedSellListMismatch:
+			{
+				MarketPrint("MenuCallback - sell list mismatch");
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Transaction failed: Your client sent a list of items to sell that is different from what the server sees.";
+				break;
+			}
+			
+			default:
+			{
+				MarketPrint("MenuCallback - unknown error");
+
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "UNKNOWN ERROR";
 				break;
 			}
 		}
@@ -2572,6 +2584,19 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "STR_EXPANSION_MARKET_DONT_HAVE_ITEM", EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 3, ExpansionNotificationType.MARKET).Create();
 			return;
 		}
+
+		//! We COULD check this on client and avoid a roundtrip to server, but then server owners
+		//! will not see in their logs if their market configuration is faulty/incomplete
+		//if (m_LastFindSellPriceResult != ExpansionMarketResult.Success)
+		//{
+		//	string itemClassName;
+		//	if (m_LastFindSellPriceResult == ExpansionMarketResult.FailedItemDoesNotExistInTrader)
+		//		itemClassName = m_LastFindSellPriceFailedClassName;
+		//	else
+		//		itemClassName = GetSelectedMarketItem().ClassName;
+		//	MenuCallback(itemClassName, m_LastFindSellPriceResult);
+		//	return;
+		//}
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_SELL);
 		m_MarketModule.RequestSell(GetSelectedMarketItem().ClassName, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);

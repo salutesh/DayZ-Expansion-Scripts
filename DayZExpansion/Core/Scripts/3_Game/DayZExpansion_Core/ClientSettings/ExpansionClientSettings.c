@@ -81,6 +81,7 @@ class ExpansionClientSettings
 	// Chat Settings
 	ExpansionClientUIChatSize HUDChatSize;
 	float HUDChatFadeOut;
+	ExpansionClientUIChatChannel DefaultChatChannel;
 	
 	bool ShowNameQuickMarkers;
 	bool ShowDistanceQuickMarkers;
@@ -458,6 +459,15 @@ class ExpansionClientSettings
 			return false;
 		}
 		
+		if ( version < 41 )
+			return true;
+		
+		if ( !ctx.Read( DefaultChatChannel ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DefaultChatChannel!");
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -546,6 +556,8 @@ class ExpansionClientSettings
 		ctx.Write( TurnOffAutoHoverDuringFlight );
 		
 		ctx.Write( Show3DPartyMemberIcon );
+		
+		ctx.Write( DefaultChatChannel );
 	}
 	
 	// -----------------------------------------------------------
@@ -681,6 +693,8 @@ class ExpansionClientSettings
 		DefaultMarkerLockState = false;
 		TurnOffAutoHoverDuringFlight = true;
 		Show3DPartyMemberIcon = true;
+		
+		DefaultChatChannel = ExpansionClientUIChatChannel.DIRECT;
 	}
 	
 	// -----------------------------------------------------------
@@ -697,6 +711,7 @@ class ExpansionClientSettings
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
 		
+	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 
 		//! Option to toggle view of all personal 3D Map-Markers
@@ -707,11 +722,13 @@ class ExpansionClientSettings
 		CreateToggle( "Show3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS_DESC" );
 		//! Option to toggle view of all 3D Global Server-Markers
 		CreateToggle( "Show3DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DGLOBALMARKERS_DESC" );
-		#ifdef EXPANSIONMODGROUPS
+	#ifdef EXPANSIONMODGROUPS
 		//! Option to show/hide the icon that gets displayed next to party member markers
 		CreateToggle( "Show3DPartyMemberIcon", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON_DESC" );
-		#endif
+	#endif
+	#endif
 		
+	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "2DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D" );
 		
 		//! Option to toggle view of all personal 2D Map-Markers
@@ -724,7 +741,8 @@ class ExpansionClientSettings
 		CreateToggle( "Show2DGlobalMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DGLOBALMARKERS_DESC" );
 		//! Option to set default marker lock state for new created map markers.
 		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
-
+	#endif
+		
 		CreateCategory( "Notifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS" );
 
 		//! Option to toggle notification sounds
@@ -744,15 +762,17 @@ class ExpansionClientSettings
 		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
 		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
-		
+	
 		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
-
+	#ifdef EXPANSIONMOD	
 		//! Option to change ear plug level 
 		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0 );
-	
+	#endif
+
+	#ifdef EXPANSIONMODNAVIGATION
 		//! Option to use the desired party member marker
 		//CreateEnum( "MemberMarkerType", ExpansionClientUIMemberMarkerType, "MemberMarkerType", "MemberMarkerType", "MemberMarkerType" );
-		//! Option to use the desired party member color instead of a randomized color
+		//! Option to set the 3D marker size
 		CreateEnum( "MarkerSize", ExpansionClientUIMarkerSize, "#STR_EXPANSION_SETTINGS_MARKER_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MARKER_SIZE_DESC" );
 		//! Option to toggle party Member name under their marker
 		CreateToggle( "ShowMemberNameMarker", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_MEMBER_MARKER_NAME_DESC" );
@@ -767,18 +787,23 @@ class ExpansionClientSettings
 		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
 
 		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
-
+		
 		//Color slider for party member on top of player head
 		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0 );
 		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0 );
 		//CreateSlider( "GreenColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_GREEN_HEAD_PLAYER_DESC", 0.0, 255.0 );
 		//CreateSlider( "BlueColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_BLUE_HEAD_PLAYER_DESC", 0.0, 255.0 );
-
+	
 		CreateSlider( "AlphaColorLookAtMinimum", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0 );
+	#endif
 		
+	#ifdef EXPANSIONMODCHAT
 		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
 		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 60.0 );
+		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );
+	#endif
 		
+	#ifdef EXPANSIONMODVEHICLE
 		CreateCategory( "Vehicles", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES" );
 		
 		//! Option to toggle the vehicle camera
@@ -795,15 +820,16 @@ class ExpansionClientSettings
 		//CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0 );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
-
-		#ifdef EXPANSIONMODMARKET
+	#endif
+	
+	#ifdef EXPANSIONMODMARKET
 		CreateCategory( "MarketMenu", "MARKET MENU" );
 		CreateToggle( "MarketMenuCategoriesState", "MARKET CATEGORIES TOGGLE STATE", "MarketMenu", "Automatically expand all categories when opening trader menu (WARNING: Performance hit!)" );
 		CreateToggle( "MarketMenuSkipConfirmations", "SKIP ALL MENU CONFIRMATIONS", "MarketMenu", "Skip all confirmations for buying/selling." );
 		CreateToggle( "MarketMenuFilterPurchasableState", "PURCHASABLES FILTER STATE", "MarketMenu", "Show only puchasable items by default." );
 		CreateToggle( "MarketMenuFilterSellableState", "SELLABLES FILTER STATE", "MarketMenu", "Show only sellable items by default." );
 		CreateToggle( "MarketMenuDisableSuccessNotifications", "DISABLE SUCCESS NOTIFICATIONS", "MarketMenu", "Disable notifications for successful purchases and sales." );
-		#endif
+	#endif
 	}
 	
 	// -----------------------------------------------------------

@@ -1,0 +1,359 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "body_inside",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_inside_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_inside.rvmat"
+		},
+		{
+			"HiddenSelection": "body_outdoor",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_outdoor_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+		},
+		{
+			"HiddenSelection": "bottom",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_bottom_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_bottom.rvmat"
+		}
+	],
+    "DamageZones": [
+		{
+			"Zone": "Chassis",
+			"HiddenSelections": [
+				"dmgzone_chassis"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_bottom_metal.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_bottom_metal.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_bottom_metal.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_bottom_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_bottom_damage.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Interior",
+			"HiddenSelections": [
+				"dmgzone_interior"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_inside.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_inside.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_inside_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_inside_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_inside_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Front",
+			"HiddenSelections": [
+				"dmgzone_front"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Hood",
+			"HiddenSelections": [
+				"dmgzone_doors"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Back",
+			"HiddenSelections": [
+				"dmgzone_back"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "FrameL",
+			"HiddenSelections": [
+				"dmgzone_w_frameL"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "FrameR",
+			"HiddenSelections": [
+				"dmgzone_w_frameR"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Roof",
+			"HiddenSelections": [
+				"dmgzone_roof"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_1_1",
+			"HiddenSelections": [
+				"dmgzone_fender_1_1"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_2_1",
+			"HiddenSelections": [
+				"dmgzone_fender_2_1"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_1_2",
+			"HiddenSelections": [
+				"dmgzone_fender_1_2"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Fender_2_2",
+			"HiddenSelections": [
+				"dmgzone_fender_2_2"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		}		
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

@@ -2,12 +2,11 @@ FrameWidgetClass ExpansionMarketMenu {
  visible 1
  clipchildren 0
  ignorepointer 1
- position 0 79
- size 1 0.85
- halign center_ref
- valign center_ref
- hexactpos 1
- vexactpos 1
+ position 0 0
+ size 1 1
+ valign bottom_ref
+ hexactpos 0
+ vexactpos 0
  hexactsize 0
  vexactsize 0
  scriptclass "ExpansionMarketMenuController"
@@ -15,10 +14,11 @@ FrameWidgetClass ExpansionMarketMenu {
   PanelWidgetClass market_menu_content {
    visible 1
    ignorepointer 1
-   position 0 -161
-   size 0.78 1.175
-   hexactpos 1
-   vexactpos 1
+   position 0 0
+   size 0.78 1
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    priority 1
@@ -67,18 +67,16 @@ FrameWidgetClass ExpansionMarketMenu {
            visible 1
            ignorepointer 1
            color 0.8627 0.8627 0.8627 1
-           position -0.15373 0
-           size 0.6 0.6
-           halign center_ref
+           position 0.05 0
+           size 0.59 26
            valign center_ref
            hexactpos 0
            vexactpos 0
            hexactsize 0
-           vexactsize 0
+           vexactsize 1
            scriptclass "ViewBinding"
-           style Normal
+           style Bold
            text "UNKNOWN TRADER"
-           font "gui/fonts/etelkatextpro22"
            "text offset" 25 2
            "bold text" 0
            "text sharpness" 1.014
@@ -142,19 +140,18 @@ FrameWidgetClass ExpansionMarketMenu {
              stretch 1
             }
             EditBoxWidgetClass market_filter_box {
-             size 0.84 0.6
+             size 0.84 26
              halign center_ref
              valign center_ref
              hexactpos 0
              vexactpos 0
              hexactsize 0
-             vexactsize 0
+             vexactsize 1
              style ServerBrowser
              text "#STR_EXPANSION_UPPERCASE_SEARCH"
              "limit visible" 0
              "Use default text" 1
              "exact text" 1
-             font "gui/fonts/etelkatextpro22"
             }
             ButtonWidgetClass market_filter_clear {
              position 0.007 0
@@ -331,7 +328,6 @@ FrameWidgetClass ExpansionMarketMenu {
              scriptclass ""
              style Bold
              text "#STR_EXPANSION_MARKET_OPTION_FILTER_SELLABLES"
-             font "gui/fonts/etelkatextpro22"
              "bold text" 1
              "exact text" 0
              "size to text h" 0
@@ -386,7 +382,6 @@ FrameWidgetClass ExpansionMarketMenu {
              scriptclass ""
              style Bold
              text "#STR_EXPANSION_MARKET_OPTION_FILTER_PURCHASABLES"
-             font "gui/fonts/etelkatextpro22"
              "bold text" 1
              "exact text" 0
              "size to text h" 0
@@ -447,7 +442,6 @@ FrameWidgetClass ExpansionMarketMenu {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_MARKET_TOGGLE_CATEGORIES"
-             font "gui/fonts/etelkatextpro22"
              "text halign" center
              "text valign" center
             }
@@ -496,7 +490,6 @@ FrameWidgetClass ExpansionMarketMenu {
              hexactsize 0
              vexactsize 0
              text "#STR_EXPANSION_MARKET_CLOSE_MENU"
-             font "gui/fonts/etelkatextpro22"
              "text halign" center
              "text valign" center
             }
@@ -535,7 +528,6 @@ FrameWidgetClass ExpansionMarketMenu {
          hexactsize 0
          vexactsize 0
          text "#STR_EXPANSION_MARKET_FILTER_OPTIONS"
-         font "gui/fonts/etelkatextpro22"
          "text offset" 10 0
          text_proportion 0.55
          "text valign" center
@@ -647,11 +639,11 @@ FrameWidgetClass ExpansionMarketMenu {
    ignorepointer 0
    color 0.0588 0.0588 0.0588 0.7843
    position 0 0
-   size 1 2
+   size 1 1
    halign center_ref
    valign center_ref
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    priority 1000
@@ -661,15 +653,15 @@ FrameWidgetClass ExpansionMarketMenu {
      visible 1
      ignorepointer 1
      position 0 0
-     size 1 1
+     size 1 64
      halign center_ref
      valign center_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0
-     vexactsize 0
+     vexactsize 1
+     style Bold
      text "#STR_EXPANSION_MARKET_LOADING"
-     font "gui/fonts/etelkatextpro28"
      "exact text" 0
      "size to text h" 0
      "size to text v" 1
@@ -683,11 +675,11 @@ FrameWidgetClass ExpansionMarketMenu {
    clipchildren 0
    ignorepointer 1
    color 0.1059 0.1059 0.1059 0.9412
-   position 0 -161
-   size 0.22 0.07
+   position 0 0
+   size 0.22 0.06
    halign right_ref
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    priority 1
@@ -739,15 +731,14 @@ FrameWidgetClass ExpansionMarketMenu {
          visible 1
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
-         size 0.5 0.8
+         size 0.5 26
          valign center_ref
          hexactpos 0
          vexactpos 0
          hexactsize 0
-         vexactsize 0
+         vexactsize 1
          style Bold
          text "#STR_EXPANSION_MARKET_CURRENCY_TITLE"
-         font "gui/fonts/etelkatextpro22"
          "text offset" 0 0
          "exact text" 0
          "size to text v" 0
@@ -764,7 +755,6 @@ FrameWidgetClass ExpansionMarketMenu {
          hexactsize 0
          vexactsize 0
          scriptclass "ViewBinding"
-         font "gui/fonts/etelkatextpro22"
          "exact text" 0
          "size to text v" 0
          "text halign" right
@@ -782,20 +772,20 @@ FrameWidgetClass ExpansionMarketMenu {
    }
   }
   PanelWidgetClass market_menu_info {
-   visible 1
+   visible 0
+   disabled 0
    ignorepointer 1
-   position 0 -0.00002
-   size 0.22 1.11
+   size 0.22 0.9417
    halign right_ref
    valign bottom_ref
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    priority 1
    {
     PanelWidgetClass menu_info_content {
-     visible 0
+     visible 1
      disabled 0
      clipchildren 1
      ignorepointer 1
@@ -835,10 +825,10 @@ FrameWidgetClass ExpansionMarketMenu {
         PanelWidgetClass menu_info_root {
          visible 1
          ignorepointer 1
-         position -2.46496 0
+         position 0 0
          size 1 1
-         hexactpos 1
-         vexactpos 1
+         hexactpos 0
+         vexactpos 0
          hexactsize 0
          vexactsize 0
          priority 3
@@ -876,7 +866,6 @@ FrameWidgetClass ExpansionMarketMenu {
              vexactsize 0
              scriptclass "ViewBinding"
              style Bold
-             font "gui/fonts/etelkatextpro22"
              "text offset" 0 0
              "exact text" 0
              "text halign" center
@@ -1026,15 +1015,14 @@ FrameWidgetClass ExpansionMarketMenu {
              clipchildren 0
              ignorepointer 1
              color 0.8627 0.8627 0.8627 1
-             position 0 0
-             size 0.37 0.45
+             position 0 0.1
+             size 0.42 26
              hexactpos 0
              vexactpos 0
              hexactsize 0
-             vexactsize 0
+             vexactsize 1
              scriptclass "ViewBinding"
              style Bold
-             font "gui/fonts/etelkatextpro22"
              "bold text" 1
              "exact text" 0
              "text halign" center
@@ -1050,15 +1038,15 @@ FrameWidgetClass ExpansionMarketMenu {
              clipchildren 0
              ignorepointer 1
              color 0.8627 0.8627 0.8627 1
-             size 0.37 0.45
+             position 0 0.1
+             size 0.42 26
              halign right_ref
              hexactpos 0
              vexactpos 0
              hexactsize 0
-             vexactsize 0
+             vexactsize 1
              scriptclass "ViewBinding"
              style Bold
-             font "gui/fonts/etelkatextpro22"
              "bold text" 1
              "exact text" 0
              "text halign" center
@@ -1110,16 +1098,15 @@ FrameWidgetClass ExpansionMarketMenu {
                    ignorepointer 1
                    color 0.8627 0.8627 0.8627 1
                    position 0 0
-                   size 1 1
+                   size 1 20
                    halign center_ref
                    valign center_ref
                    hexactpos 0
                    vexactpos 0
                    hexactsize 0
-                   vexactsize 0
+                   vexactsize 1
                    scriptclass "ViewBinding"
                    style Bold
-                   font "gui/fonts/etelkatextpro22"
                    "text color" 0 0 0 1
                    "exact text" 0
                    "size to text h" 0
@@ -1336,8 +1323,8 @@ FrameWidgetClass ExpansionMarketMenu {
           }
           PanelWidgetClass market_item_price_panel {
            ignorepointer 1
-           position 0 0.05
-           size 0.97 0.1
+           position 0 0.06
+           size 0.97 0.08
            halign center_ref
            valign bottom_ref
            hexactpos 0
@@ -1350,7 +1337,7 @@ FrameWidgetClass ExpansionMarketMenu {
              visible 1
              ignorepointer 1
              color 0.1098 0.1098 0.1098 0.9412
-             size 0.37 1
+             size 0.5 1
              hexactpos 0
              vexactpos 0
              hexactsize 0
@@ -1360,7 +1347,7 @@ FrameWidgetClass ExpansionMarketMenu {
               PanelWidgetClass market_item_sell {
                visible 0
                color 0.9059 0.298 0.2353 0.1569
-               size 1 0.5
+               size 1 0.6
                hexactpos 0
                vexactpos 0
                hexactsize 0
@@ -1398,16 +1385,15 @@ FrameWidgetClass ExpansionMarketMenu {
                 }
                 TextWidgetClass market_item_sell_text {
                  ignorepointer 1
-                 size 1 1
+                 size 1 26
                  halign center_ref
                  valign center_ref
                  hexactpos 0
                  vexactpos 0
                  hexactsize 0
-                 vexactsize 0
+                 vexactsize 1
                  scriptclass "ViewBinding"
                  text "[S] #STR_EXPANSION_MARKET_SELL"
-                 font "gui/fonts/etelkatextpro22"
                  "exact text" 0
                  "size to text h" 0
                  "size to text v" 0
@@ -1423,13 +1409,13 @@ FrameWidgetClass ExpansionMarketMenu {
               }
               PanelWidgetClass market_item_sell_price_panel {
                disabled 0
-               size 1 0.5
+               size 1 26
                halign center_ref
                valign bottom_ref
                hexactpos 0
                vexactpos 0
                hexactsize 0
-               vexactsize 0
+               vexactsize 1
                style blank
                {
                 GridSpacerWidgetClass market_item_sell_price {
@@ -1451,16 +1437,15 @@ FrameWidgetClass ExpansionMarketMenu {
                    ignorepointer 1
                    color 0.8627 0.8627 0.8627 1
                    position 0 0
-                   size 1 1
+                   size 1 26
                    halign right_ref
                    valign center_ref
                    hexactpos 0
                    vexactpos 0
                    hexactsize 0
-                   vexactsize 0
+                   vexactsize 1
                    scriptclass "ViewBinding"
                    style Normal
-                   font "gui/fonts/etelkatextpro22"
                    "text offset" 0 0
                    "exact text" 0
                    "size to text h" 1
@@ -1520,7 +1505,7 @@ FrameWidgetClass ExpansionMarketMenu {
              visible 1
              ignorepointer 1
              color 0.1059 0.1059 0.1059 1
-             size 0.37 1
+             size 0.5 1
              halign right_ref
              hexactpos 0
              vexactpos 0
@@ -1532,7 +1517,7 @@ FrameWidgetClass ExpansionMarketMenu {
                visible 0
                disabled 0
                color 0.1804 0.8 0.4431 0.1569
-               size 1 0.5
+               size 1 0.6
                halign right_ref
                hexactpos 0
                vexactpos 0
@@ -1573,14 +1558,14 @@ FrameWidgetClass ExpansionMarketMenu {
                 TextWidgetClass market_item_buy_text {
                  disabled 0
                  ignorepointer 1
-                 position 0 0.02
-                 size 1 1
+                 size 1 26
+                 halign center_ref
+                 valign center_ref
                  hexactpos 0
                  vexactpos 0
                  hexactsize 0
-                 vexactsize 0
+                 vexactsize 1
                  text "[B] #STR_EXPANSION_MARKET_BUY"
-                 font "gui/fonts/etelkatextpro22"
                  "bold text" 0
                  "exact text" 0
                  "size to text h" 0
@@ -1592,13 +1577,13 @@ FrameWidgetClass ExpansionMarketMenu {
               }
               PanelWidgetClass market_item_buy_price_panel {
                disabled 0
-               size 1 0.5
+               size 1 26
                halign center_ref
                valign bottom_ref
                hexactpos 0
                vexactpos 0
                hexactsize 0
-               vexactsize 0
+               vexactsize 1
                style blank
                {
                 GridSpacerWidgetClass market_item_buy_price {
@@ -1620,16 +1605,15 @@ FrameWidgetClass ExpansionMarketMenu {
                    ignorepointer 1
                    color 0.8627 0.8627 0.8627 1
                    position 0 0
-                   size 1 1
+                   size 1 26
                    halign right_ref
                    valign center_ref
                    hexactpos 0
                    vexactpos 0
                    hexactsize 0
-                   vexactsize 0
+                   vexactsize 1
                    scriptclass "ViewBinding"
                    style Normal
-                   font "gui/fonts/etelkatextpro22"
                    "text offset" 0 0
                    "exact text" 0
                    "size to text h" 1
@@ -1933,16 +1917,16 @@ FrameWidgetClass ExpansionMarketMenu {
              visible 1
              ignorepointer 1
              color 0.8627 0.8627 0.8627 1
-             position 0 0
-             size 1 1
+             size 1 24
+             halign center_ref
+             valign center_ref
              hexactpos 0
              vexactpos 0
              hexactsize 0
-             vexactsize 0
+             vexactsize 1
              scriptclass ""
              style Bold
              text "#STR_EXPANSION_MARKET_CUSTOMIZE"
-             font "gui/fonts/etelkatextpro22"
              "bold text" 1
              "exact text" 0
              "size to text h" 0
@@ -2003,16 +1987,17 @@ FrameWidgetClass ExpansionMarketMenu {
              visible 1
              ignorepointer 1
              color 0.8627 0.8627 0.8627 1
-             position 0.05 0
-             size 0.8419 1
+             position 0.1 0
+             size 0.8419 24
+             halign right_ref
+             valign center_ref
              hexactpos 0
              vexactpos 0
              hexactsize 0
-             vexactsize 0
+             vexactsize 1
              scriptclass ""
              style Bold
              text "#STR_EXPANSION_MARKET_OPTION_ATTACHMENTS"
-             font "gui/fonts/etelkatextpro22"
              "bold text" 1
              "exact text" 0
              "size to text h" 0
@@ -2027,7 +2012,7 @@ FrameWidgetClass ExpansionMarketMenu {
            inheritalpha 0
            ignorepointer 0
            color 0 0 0 0.9412
-           position 2.38428 664.42505
+           position 2.38428 664.42511
            size 1 0.038
            hexactpos 1
            vexactpos 1
@@ -2039,16 +2024,17 @@ FrameWidgetClass ExpansionMarketMenu {
             TextWidgetClass skin_selector_text {
              clipchildren 0
              ignorepointer 1
-             position 0 0
-             size 1 1
-             hexactpos 1
-             vexactpos 1
+             size 0.9 24
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
              hexactsize 0
-             vexactsize 0
+             vexactsize 1
+             scaled 1
+             style Bold
              text "#STR_EXPANSION_MARKET_VARIANTS"
-             font "gui/fonts/etelkatextpro22"
              "text offset" 10 0
-             text_proportion 0.55
+             "exact text" 0
              "text valign" center
             }
             FrameWidgetClass skin_selector_button {
@@ -2163,11 +2149,11 @@ FrameWidgetClass ExpansionMarketMenu {
    ignorepointer 1
    color 0 0 0 0.7843
    position 0 0
-   size 2 2
+   size 1.5 1
    halign center_ref
    valign center_ref
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    fixaspect outside

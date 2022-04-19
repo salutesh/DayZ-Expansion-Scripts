@@ -1,0 +1,41 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "body_outdoor",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\green\\lr_body_outdoor_g_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\green\\lr_body_outdoor.rvmat"
+		}
+	],
+    "DamageZones": [
+		{
+			"Zone": "Door_Outside",
+			"HiddenSelections": [
+				"dmgzone_hood"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_body_outdoor.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_damage.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_body_outdoor_destruct.rvmat"
+				}
+			]
+		}
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

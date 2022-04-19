@@ -87,10 +87,7 @@ class CfgVehicles
 class CfgNonAIVehicles
 {
 	class StaticObject;
-	class ExpansionStaticMapObject: StaticObject
-	{
-		scope = 2;
-	};
+	class ExpansionStaticMapObject: StaticObject{};
 	class ExpansionLampLightBase: ExpansionStaticMapObject
 	{
 		color = "1.0 0.7 0.4";

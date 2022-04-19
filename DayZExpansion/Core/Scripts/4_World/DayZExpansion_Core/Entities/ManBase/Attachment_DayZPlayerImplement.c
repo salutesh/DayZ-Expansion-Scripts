@@ -192,6 +192,11 @@ modded class DayZPlayerImplement
 		//AttachmentDebugPrint("-DayZPlayerImplement::Expansion_PrepareGettingInVehicle");
 	}
 
+	Object Expansion_GetAttachmentObject()
+	{
+		return m_ExAttachmentObject;
+	}
+
 	void Expansion_GettingOutVehicle()
 	{
 		if (!Class.CastTo(m_ExAttachmentObject, GetParent()))

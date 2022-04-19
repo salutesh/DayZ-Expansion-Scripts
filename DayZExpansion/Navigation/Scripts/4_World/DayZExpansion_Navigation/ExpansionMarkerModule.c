@@ -57,7 +57,19 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		m_AllData = new array<ref ExpansionMarkerClientData>();
 
 		m_CurrentData = NULL;
-
+		
+		#ifdef EXPANSION_MARKER_MODULE_DEBUG
+		EXPrint("ExpansionMarkerModule::OnInit - End");
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionMarkerModule OnMissionStart
+	// ------------------------------------------------------------
+	override void OnMissionStart(Class sender, CF_EventArgs args)
+	{
+		super.OnMissionStart(sender, args);
+		
 		//! Initialize all markers one by one
 		//! Personal marker
 		if ( GetExpansionSettings().GetMap().CanCreateMarker )
@@ -92,10 +104,6 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		if ( GetExpansionSettings().GetParty().EnableQuickMarker )
 			SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 	#endif
-		
-		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnInit - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

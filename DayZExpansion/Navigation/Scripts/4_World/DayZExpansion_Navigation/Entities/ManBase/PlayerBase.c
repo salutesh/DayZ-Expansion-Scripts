@@ -207,7 +207,7 @@ modded class PlayerBase
 	{
 		super.EEKilled(killer);
 		
-		if (GetExpansionSettings().GetMap().CreateDeathMarker)
+		if (GetExpansionSettings().GetMap().EnableMap && GetExpansionSettings().GetMap().CreateDeathMarker)
 		{
 			ExpansionMarkerModule module = ExpansionMarkerModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 			if (module && GetIdentity() != NULL)

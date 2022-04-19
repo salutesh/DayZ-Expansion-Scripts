@@ -10,6 +10,44 @@
  *
 */
 
+
+//! Call tracing that is not annoying or cumbersome to use and can be enabled on a per-class basis.
+//! Insert in each method at the top:
+//! auto trace = EXTrace.Start(ExpansionTracing.<ID>);
+//! static bool ExpansionTracing.<ID> needs to exist in Core\DayZExpansion_Core\3_Game\ExpansionTracing.c
+//! and be set to ENABLE (will enable if DayZDiag or DayZ Experimental) or uncomment global define EXPANSIONTRACE.
+//! DON'T use without wrapping in an ifdef in OnUpdate or anywhere else it would get called rapidly!
+class EXTrace
+{
+	int m_Ticks;
+
+	void EXTrace()
+	{
+		m_Ticks = TickCount(0);
+	}
+
+	void ~EXTrace()
+	{
+		int elapsed = TickCount(m_Ticks);
+		string stack;
+		DumpStackString(stack);
+		TStringArray stacka();
+		stack.Split("\n", stacka);
+		Print(string.Format("%1 [EXPANSION TRACE] %2ms %3", ExpansionStatic.GetTimestamp(), (elapsed / 10000.0).ToString(), stacka[1]));
+	}
+
+	static EXTrace Start(bool yes = true)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		return new EXTrace();
+	}
+}
+
 static bool Expansion_Assert_False( bool check, string message )
 {
 	if ( check == false )

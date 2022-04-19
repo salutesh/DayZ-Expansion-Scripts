@@ -86,7 +86,8 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 	{
 		if (m_EditButton && w == m_EditButton && m_Marker)
 		{
-			m_COTGroupsMenu.EditMarker(m_Marker, true);
+			m_Marker.FocusOnMarker();
+			m_COTGroupsMenu.EditMarker(m_Marker);
 		}
 		
 		return false;

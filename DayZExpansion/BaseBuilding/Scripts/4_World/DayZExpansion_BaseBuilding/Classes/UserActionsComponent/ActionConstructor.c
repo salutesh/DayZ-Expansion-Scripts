@@ -52,6 +52,7 @@ modded class ActionConstructor
 
 		//! Raiding
 		actions.Insert( ExpansionActionCrackSafe );
+		actions.Insert( ExpansionActionCrackContainer );
 		actions.Insert( ExpansionActionDestroyBarbedWire );
 		actions.Insert( ExpansionActionDestroyLock );
 

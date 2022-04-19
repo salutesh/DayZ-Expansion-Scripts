@@ -29,6 +29,7 @@ class cfgWeapons
 		PPDOFProperties[] = {1,0.6,50,200,4,10};
 		ironsightsExcludingOptics[] = {"M4_CarryHandleOptic","BUISOptic","M68Optic","M4_T3NRDSOptic","ReflexOptic","ACOGOptic"};
 		WeaponLength = 0.814784;
+		barrelArmor = 6.75;
 		chamberSize = 1;
 		chamberedRound = "";
 		chamberableFrom[] = {"Ammo_556x45","Ammo_556x45Tracer"};
@@ -301,25 +302,26 @@ class cfgWeapons
 				maxOverheatingValue = 60;
 				shotsToStartOverheating = 7;
 				overheatingDecayInterval = 1;
-				class SmokingBarrelBase
-				{
-					positionOffset[] = {0.2,0,0};
-					onlyWithinRainLimits[] = {0,0.2};
-				};
-				class SmokingBarrel1: SmokingBarrelBase
+				class SmokingBarrel1
 				{
 					overrideParticle = "smoking_barrel_small";
 					onlyWithinOverheatLimits[] = {0,0.2};
+					positionOffset[] = {0.2,0,0};
+					onlyWithinRainLimits[] = {0,0.2};
 				};
-				class SmokingBarrelHot1: SmokingBarrelBase
+				class SmokingBarrelHot1
 				{
 					overrideParticle = "smoking_barrel";
 					onlyWithinOverheatLimits[] = {0.2,0.6};
+					positionOffset[] = {0.2,0,0};
+					onlyWithinRainLimits[] = {0,0.2};
 				};
-				class SmokingBarrelHot3: SmokingBarrelBase
+				class SmokingBarrelHot3
 				{
 					overrideParticle = "smoking_barrel_heavy";
 					onlyWithinOverheatLimits[] = {0.6,1};
+					positionOffset[] = {0.2,0,0};
+					onlyWithinRainLimits[] = {0,0.2};
 				};
 				class SmokingBarrelHotSteam
 				{
