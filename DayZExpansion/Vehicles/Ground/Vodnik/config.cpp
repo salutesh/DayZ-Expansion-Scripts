@@ -50,7 +50,7 @@ class CfgSlots
 	class Slot_vodnikcodriverdoor
 	{
 		name = "vodnikcodriverdoor";
-		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_LEFT";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_RIGHT";
 		selection = "vodnikcodriverdoor";
 		ghostIcon = "doorfront";
 	};
@@ -161,12 +161,11 @@ class CfgVehicles
 	};
 	class ExpansionVodnikDoorCoDriver: ExpansionVodnikDoorDriver
 	{
-		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_LEFT";
+		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_RIGHT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_VODNIK_DOOR_RIGHT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\proxy\vodnikcodriverdoor.p3d";
 		inventorySlot = "vodnikcodriverdoor";
 		rotationFlags = 4;
-		itemBehaviour = 0;
 	};
 	class ExpansionVodnik: ExpansionBoatScript
 	{

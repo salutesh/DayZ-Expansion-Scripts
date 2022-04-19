@@ -72,7 +72,7 @@ modded class DayZGame
 		{
             child_name = m_CharClassNames[i];
 
-			if (child_name.Contains("Expansion") || child_name.Contains("Trader"))
+			if (child_name.Contains("Expansion") || child_name.Contains("Trader") || child_name.Contains("eAI"))
 			{
 				m_CharClassNames.RemoveOrdered(i);
 			}

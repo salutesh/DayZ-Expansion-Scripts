@@ -2,53 +2,17 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Worlds_ChernarusPlus
+	class DayZExpansion_Navigation_Worlds_ChernarusPlus
 	{
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Worlds_Chernarusplus_World","DZ_Gear_Navigation"};
+		requiredAddons[] = {"DZ_Worlds_Chernarusplus_World"};
 		worlds[] = {};
 	};
 };
 class CfgWorlds
 {
-	class Weather;
-	class Overcast;
-	class Weather1;
-	class Weather2;
-	class Weather3;
-	class Weather4;
-	class Weather5;
-	class LightingNew;
-	class C_Night;
-	class C_Astro1;
-	class C_Astro2;
-	class C_Astro3;
-	class C_Nautical1;
-	class C_Nautical2;
-	class C_Nautical3;
-	class C_Civil1;
-	class C_Civil2;
-	class C_Civil3;
-	class C_Day0;
-	class C_Day4;
-	class C_Day8;
-	class C_Day12;
-	class C_Day16;
-	class C_Day35;
-	class C_Day60;
-	class O_Night;
-	class O_Astro1;
-	class O_Nautical1;
-	class O_Civil1;
-	class O_Civil2;
-	class O_Day0;
-	class O_Day4;
-	class O_Day8;
-	class O_Day12;
-	class O_Day35;
-	class O_Day60;
 	class Settlement_Chernogorsk;
 	class Settlement_Novodmitrovsk;
 	class Settlement_Novoselki;
@@ -250,13 +214,7 @@ class CfgWorlds
 	class Local_AF_Balota;
 	class Local_AF_Krasno;
 	class Local_AF_Vybor;
-	class VolFog;
 	class Names;
-	class SoundMapValues;
-	class Subdivision;
-	class Fractal;
-	class WhiteNoise;
-	class DefaultLighting;
 	class CAWorld;
 	class ChernarusPlus: CAWorld
 	{

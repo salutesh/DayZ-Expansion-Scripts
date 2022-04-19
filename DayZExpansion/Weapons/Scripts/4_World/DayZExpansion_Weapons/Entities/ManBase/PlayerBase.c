@@ -15,9 +15,15 @@ modded class PlayerBase
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		if (ammo == "Bullet_Expansion_Taser")
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
+			Expansion_ProcessTaser();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
+	// This Function is meant for modders to add custom behaviours to the taser in a more friendly way
+	void Expansion_ProcessTaser()
+	{
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(WakePlayer, 9000, false);
 	}
 
 	// ------------------------------------------------------------

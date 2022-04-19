@@ -15,32 +15,32 @@
  **/
 class ExpansionRaidSettingsBase: ExpansionSettingBase
 {
-	float ExplosionTime;												//! Ammount of time it takes for explosive to explode.
+	float ExplosionTime;								//! Ammount of time it takes for explosive to explode.
 	autoptr TStringArray ExplosiveDamageWhitelist;		//! List of damage sources allowed to damage bases when whitelist is enabled. 
-	bool EnableExplosiveWhitelist;   								//! If enabled, only damage sources listed in ExplosiveDamageWhitelist will be able to damage walls. 
-	float ExplosionDamageMultiplier;								//! Damage multiplier from explosion.
-	float ProjectileDamageMultiplier;								//! Damage multiplier from projectiles.
-	bool CanRaidSafes;												//! If enabled, make safes raidable
-	float SafeExplosionDamageMultiplier;						//! Damage multiplier from explosion on safes.
-	float SafeProjectileDamageMultiplier;						//! Damage multiplier from explosion on safes.
-	autoptr TStringArray SafeRaidTools;						//! List of tools allowed for raiding safes
-	int SafeRaidToolTimeSeconds;								//! Time needed to raid safe with tool
-	int SafeRaidToolCycles;											//! Number of cycles needed to raid safe
-	float SafeRaidToolDamagePercent;							//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
-	bool CanRaidBarbedWire;										//! If enabled, make barbed wire raidable
+	bool EnableExplosiveWhitelist;   					//! If enabled, only damage sources listed in ExplosiveDamageWhitelist will be able to damage walls. 
+	float ExplosionDamageMultiplier;					//! Damage multiplier from explosion.
+	float ProjectileDamageMultiplier;					//! Damage multiplier from projectiles.
+	bool CanRaidSafes;									//! If enabled, make safes raidable
+	float SafeExplosionDamageMultiplier;				//! Damage multiplier from explosion on safes.
+	float SafeProjectileDamageMultiplier;				//! Damage multiplier from explosion on safes.
+	autoptr TStringArray SafeRaidTools;					//! List of tools allowed for raiding safes
+	int SafeRaidToolTimeSeconds;						//! Time needed to raid safe with tool
+	int SafeRaidToolCycles;								//! Number of cycles needed to raid safe
+	float SafeRaidToolDamagePercent;					//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+	bool CanRaidBarbedWire;								//! If enabled, make barbed wire raidable
 	autoptr TStringArray BarbedWireRaidTools;			//! List of tools allowed for raiding barbed wire
-	int BarbedWireRaidToolTimeSeconds;						//! Time needed to raid barbed wire with tool
-	int BarbedWireRaidToolCycles;								//! Number of cycles needed to raid barbed wire
+	int BarbedWireRaidToolTimeSeconds;					//! Time needed to raid barbed wire with tool
+	int BarbedWireRaidToolCycles;						//! Number of cycles needed to raid barbed wire
 	float BarbedWireRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
 	RaidLocksOnWallsEnum CanRaidLocksOnWalls;			//! If set to 1 make locks (both vanilla and Expansion) raidable on walls | 2 = only doors | 3 = only gates
-	bool CanRaidLocksOnFences;									//! If enabled, make locks (both vanilla and Expansion) raidable on fences
-	bool CanRaidLocksOnTents;									//! If enabled, make locks (both vanilla and Expansion) raidable on tents
-	autoptr TStringArray LockRaidTools;						//! List of tools allowed for raiding locks
-	int LockOnWallRaidToolTimeSeconds;						//! Time needed to raid lock on wall with tool. Disabled <= 0
+	bool CanRaidLocksOnFences;							//! If enabled, make locks (both vanilla and Expansion) raidable on fences
+	bool CanRaidLocksOnTents;							//! If enabled, make locks (both vanilla and Expansion) raidable on tents
+	autoptr TStringArray LockRaidTools;					//! List of tools allowed for raiding locks
+	int LockOnWallRaidToolTimeSeconds;					//! Time needed to raid lock on wall with tool. Disabled <= 0
 	int LockOnFenceRaidToolTimeSeconds;					//! Time needed to raid lock on fence with tool. Disabled <= 0
-	int LockOnTentRaidToolTimeSeconds;						//! Time needed to raid lock on tent with tool. Disabled <= 0
-	int LockRaidToolCycles;											//! Number of cycles needed to raid lock
-	float LockRaidToolDamagePercent;							//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+	int LockOnTentRaidToolTimeSeconds;					//! Time needed to raid lock on tent with tool. Disabled <= 0
+	int LockRaidToolCycles;								//! Number of cycles needed to raid lock
+	float LockRaidToolDamagePercent;					//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
 	BaseBuildingRaidEnum BaseBuildingRaidMode;			//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows
 	
 	// ------------------------------------------------------------
@@ -62,7 +62,13 @@ class ExpansionRaidSettingsBase: ExpansionSettingBase
  **/
 class ExpansionRaidSettings: ExpansionRaidSettingsBase
 {
-	static const int VERSION = 0;
+	static const int VERSION = 2;
+
+	bool CanRaidContainers;								//! If enabled, make safes raidable
+	autoptr TStringArray ContainerRaidTools;			//! List of tools allowed for raiding Containers
+	int ContainerRaidToolTimeSeconds;					//! Time needed to raid Container with tool
+	int ContainerRaidToolCycles;						//! Number of cycles needed to raid Container
+	float ContainerRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -74,6 +80,7 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionRaidSettings");
 #endif
 
+		ContainerRaidTools = new TStringArray;
 	}
 	
 	// ------------------------------------------------------------
@@ -85,6 +92,8 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 
 		ExplosiveDamageWhitelist.Clear();
 		delete ExplosiveDamageWhitelist;
+		ContainerRaidTools.Clear();
+		delete ContainerRaidTools;
 		SafeRaidTools.Clear();
 		delete SafeRaidTools;
 		BarbedWireRaidTools.Clear();
@@ -156,7 +165,12 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionRaidSettings s )
 	{
-		//!Nothing to do here yet
+		CanRaidContainers = s.CanRaidContainers;
+
+		ContainerRaidTools.Copy( s.ContainerRaidTools );
+		ContainerRaidToolTimeSeconds = s.ContainerRaidToolTimeSeconds;
+		ContainerRaidToolCycles = s.ContainerRaidToolCycles;
+		ContainerRaidToolDamagePercent = s.ContainerRaidToolDamagePercent;
 		
 		ExpansionRaidSettingsBase sb = s;
 		CopyInternal( sb );
@@ -254,10 +268,16 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
+				EXPrint("[ExpansionRaidSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_RAID_SETTINGS + "\" to v" + VERSION);
+
 				if (settingsBase.m_Version < 2)
 				{
-					EXPrint("[ExpansionRaidSettings] Load - Converting v1 \"" + EXPANSION_RAID_SETTINGS + "\" to v" + VERSION);
-					//!Nothing to do here yet
+					CanRaidContainers = settingsDefault.CanRaidContainers;
+
+					ContainerRaidTools.Copy( settingsDefault.ContainerRaidTools );
+					ContainerRaidToolTimeSeconds = settingsDefault.ContainerRaidToolTimeSeconds;
+					ContainerRaidToolCycles = settingsDefault.ContainerRaidToolCycles;
+					ContainerRaidToolDamagePercent = settingsDefault.ContainerRaidToolDamagePercent;
 				}
 				
 				//! Copy over old settings that haven't changed
@@ -327,8 +347,14 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		ProjectileDamageMultiplier = 1;
 		
 		CanRaidSafes = true;
+		CanRaidContainers = true;
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
+
+		ContainerRaidTools.Insert( "ExpansionPropaneTorch" );
+		ContainerRaidToolTimeSeconds = 10 * 60;
+		ContainerRaidToolCycles = 5;
+		ContainerRaidToolDamagePercent = 100;
 
 		SafeRaidTools.Insert( "ExpansionPropaneTorch" );
 		SafeRaidToolTimeSeconds = 10 * 60;

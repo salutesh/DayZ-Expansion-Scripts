@@ -14,10 +14,12 @@ class ExpansionVehiclesConfig
 {
 	string ClassName;
 	bool CanPlayerAttach;
+	float LockComplexity;
 
-	void ExpansionVehiclesConfig(string classname = "", bool canplayerattach = false)
+	void ExpansionVehiclesConfig(string classname = "", bool canplayerattach = false, float lockcomplexity = 1.0 )
 	{
 		ClassName = classname;
 		CanPlayerAttach = canplayerattach;
+		LockComplexity = lockcomplexity;
 	}
 };

@@ -17,230 +17,267 @@ class ExpansionChatMessage
 	string Text;
 }
 
-class ExpansionChatLine
+class ExpansionChatLineBase: ExpansionScriptView
 {
-	const float FADE_TIMEOUT = 30;
-	const float FADE_OUT_DURATION = 3;
-	const float FADE_IN_DURATION = 1;
-	
-	private const string EXP_RADIO_PREFIX = "Radio: ";
-	private const string EXP_GAME_PREFIX = "Game: ";
-	private const string EXP_ADMIN_PREFIX = "Admin: ";
-	private const string EXP_TRANSPORT_PREFIX = "Transport: ";
-
-	Widget m_RootWidget;
-	TextWidget m_NameWidget;
-	MultilineTextWidget m_TextWidget;
-	
-	private ref WidgetFadeTimer m_FadeInTimer;
-	private ref Timer m_FadeOutTimer;
-
-	private bool m_IsShown;
-	
+	private ref ExpansionChatLineController m_ChatLineController;
 	private ref Chat m_Chat;
 	
-	private string m_CurrentLayout;
-
-	void ExpansionChatLine(Widget root_widget, string layout, Chat chat)
+	private TextWidget SenderName;
+	private  TextWidget Message;
+	private ref WidgetFadeTimer m_FadeInTimer;
+	private Widget m_Parent;
+	private string m_LayoutPath;
+	
+	void ExpansionChatLineBase(Widget parent, Chat chat)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "ExpansionChatLine");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 		
-		m_CurrentLayout = layout;
-
-		m_RootWidget	= GetGame().GetWorkspace().CreateWidgets(layout, root_widget);
-		
-		m_NameWidget	= TextWidget.Cast(m_RootWidget.FindAnyWidget("ChatItemSenderWidget"));
-		m_TextWidget	= MultilineTextWidget.Cast(m_RootWidget.FindAnyWidget("ChatItemTextWidget"));
-		
-		m_RootWidget.Update();
-		m_RootWidget.Show(false);
-		
+		m_ChatLineController = ExpansionChatLineController.Cast(GetController());
+		m_Parent = parent;
 		m_Chat = chat;
-	}
-
-	void ~ExpansionChatLine()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "~ExpansionChatLine");
-#endif
-	
-		Clear();
 		
-		delete m_RootWidget;
-	}
+		m_Parent.AddChild(GetLayoutRoot());
 
-	private void ExpSetTextColor(int colour)
-	{
-		m_TextWidget.SetColor(colour);
+		GetLayoutRoot().Show(false);
 	}
 	
-	private void ExpSenderSetColour(int colour)
+	void ~ExpansionChatLineBase()
 	{
-		m_NameWidget.SetColor(colour);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
+		if (m_FadeInTimer)
+			m_FadeInTimer.Stop();
 	}
 	
 	void Set(ExpansionChatMessage message)	// Param 1 --> Channel, Param 2 --> sender name, Param 3 --> message, Param 4 ?? 
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Set");
-#endif
-		
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		MissionGameplay mission;
 		if (!Class.CastTo(mission, GetGame().GetMission()))
-		{
 			return;
-		}
 		
-		m_RootWidget.Show(false);
-		m_NameWidget.SetText("");
-		m_TextWidget.SetText("");
+		GetLayoutRoot().Show(false);
+		m_ChatLineController.SenderName = "";
+		m_ChatLineController.NotifyPropertyChanged("SenderName");
+		m_ChatLineController.Message = "";
+		m_ChatLineController.NotifyPropertyChanged("Message");
 
 		if (message == NULL)
-		{
 			return;
-		}
 		
-		m_RootWidget.Show(true);
+		GetLayoutRoot().Show(true);
 		
 		switch (message.Channel)
 		{
 		case CCSystem:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
-			m_NameWidget.SetText(" " + "Game" + ": ");
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
+			m_ChatLineController.SenderName = " " + "Game" + ": ";
 			break;
 		case CCAdmin:
 		case CCBattlEye:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));	
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));	
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));
 			
 			if ( message.From )
 			{
-				m_NameWidget.SetText(" " + message.From + ": ");
+				m_ChatLineController.SenderName = " " + message.From + ": ";
 			} else
 			{ 
-				m_NameWidget.SetText(" " + "Admin" + ": ");
+				m_ChatLineController.SenderName = " " + "Admin" + ": ";
 			}
 			break;
 		case CCTransmitter:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));	
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));
-			m_NameWidget.SetText(" " + "PAS" + ": ");
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));	
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));
+			m_ChatLineController.SenderName = " " + "PAS" + ": ";
 			break;
 		case ExpansionChatChannels.CCTransport:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));	
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));	
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));
 			
 			if ( message.From )
 			{
-				m_NameWidget.SetText(" " + message.From + ": ");
+				m_ChatLineController.SenderName = " " + message.From + ": ";
 			} else
 			{ 
-				m_NameWidget.SetText(" ");
+				m_ChatLineController.SenderName = " ";
 			}
 			break;
 		case ExpansionChatChannels.CCGlobal:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));	
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));	
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));
 			
 			if ( message.From )
 			{
-				m_NameWidget.SetText(" " + message.From + ": ");
+				m_ChatLineController.SenderName = " " + message.From + ": ";
 			} else
 			{ 
-				m_NameWidget.SetText(" ");
+				m_ChatLineController.SenderName = " ";
 			}
 			break;
 #ifdef EXPANSIONMODGROUPS
 		case ExpansionChatChannels.CCTeam:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));	
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));	
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));
 			
 			if (message.From)
 			{
-				m_NameWidget.SetText(" " + message.From + ": ");
+				m_ChatLineController.SenderName = " " + message.From + ": ";
 			} else
 			{ 
-				m_NameWidget.SetText(" ");
+				m_ChatLineController.SenderName = " ";
 			}
 			break;
 #endif
 		default:
-			ExpSenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));	
-			ExpSetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
+			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));	
+			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
 
 			if (message.From)
 			{
-				m_NameWidget.SetText(" " + message.From + ": ");
+				m_ChatLineController.SenderName = " " + message.From + ": ";
 			} else
 			{ 
-				m_NameWidget.SetText(" ");
+				m_ChatLineController.SenderName = " ";
 			}
 			break;
 		}
 
-		m_TextWidget.SetText(message.Text);	
-
-		if (!m_IsShown)
+		//! maxWordCharacters is the amount of charaters that can fit into one line before a line 
+		//! break need to happend with the current chat font size.
+		//! Note: Hardcoded values below assume 2560x1440 resolution, so need to adjust for other resolutions!
+		int maxWordCharacters;
+		ExpansionClientUIChatSize chatsize = GetExpansionClientSettings().HUDChatSize;
+		switch (chatsize)
 		{
-			m_IsShown = true;
+			case ExpansionClientUIChatSize.VERYSMALL:
+				maxWordCharacters = 52;
+				break;
+			case ExpansionClientUIChatSize.SMALL:
+				maxWordCharacters = 45;
+				break;
+			case ExpansionClientUIChatSize.MEDIUM:
+				maxWordCharacters = 39;
+				break;
+			case ExpansionClientUIChatSize.LARGE:
+				maxWordCharacters = 29;
+				break;
+			case ExpansionClientUIChatSize.VERYLARGE:
+				maxWordCharacters = 23;
+				break;
+		}
+		
+		//! adjust for actual screen res
+		int w, h;
+		GetScreenSize(w, h);
+		float adjust = maxWordCharacters * w / 2560.0;
+		maxWordCharacters = adjust;
 
+		//! split words and limit to max characters per word
+		string messageText;
+		if (maxWordCharacters > 0)
+		{
+			TStringArray words();
+			message.Text.Split(" ", words);
+			foreach (string word: words)
+			{
+				while (word.Length() > maxWordCharacters)
+				{
+					messageText += word.Substring(0, maxWordCharacters) + " ";
+					word = word.Substring(maxWordCharacters, word.Length() - maxWordCharacters);
+				}
+				messageText += word + " ";
+			}
+		}
+		else
+		{
+			messageText = message.Text;
+		}
+		
+		m_ChatLineController.Message = messageText;
+		m_ChatLineController.NotifyPropertiesChanged({"SenderName", "Message"});
+
+		if (!IsVisible())
+		{
 			FadeInChatLine();
 		}
 	}
-
+	
 	private void FadeInChatLine()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "FadeInChatLine");
-#endif
-		
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		m_Chat.OnChatInputShow();
 		
 		if (m_FadeInTimer)
 			m_FadeInTimer.Stop();	
 
 		m_FadeInTimer = new WidgetFadeTimer;
-		m_FadeInTimer.FadeIn(m_RootWidget, FADE_IN_DURATION);
+		m_FadeInTimer.FadeIn(GetLayoutRoot(), 1.5);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionChatLine FadeOutChatLine
-	// ------------------------------------------------------------
-	//! Not used
-	private void FadeOutChatLine()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "FadeOutChatLine");
-#endif
-		
-		if (m_FadeOutTimer)
-			m_FadeOutTimer.Stop();
-
-		m_FadeOutTimer	= new Timer(CALL_CATEGORY_GUI);
-		m_FadeOutTimer.Run(FADE_TIMEOUT, m_FadeInTimer, "FadeOut", new Param2<Widget, float>(m_RootWidget, FADE_OUT_DURATION));
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionChatLine Clear
-	// ------------------------------------------------------------
 	void Clear()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Clear");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
-		if (m_FadeOutTimer)
-			m_FadeOutTimer.Stop();
-		
 		if (m_FadeInTimer)
 			m_FadeInTimer.Stop();
 	}
-
-	string GetCurrentLayout()
+	
+	private void SetTextColor(int colour)
 	{
-		return m_CurrentLayout;
+		Message.SetColor(colour);
 	}
+	
+	private void SenderSetColour(int colour)
+	{
+		SenderName.SetColor(colour);
+	}
+	
+	override string GetLayoutFile() 
+	{
+		string path;
+		ExpansionClientUIChatSize chatsize = GetExpansionClientSettings().HUDChatSize;
+		switch (chatsize)
+		{
+			case ExpansionClientUIChatSize.VERYSMALL:
+				path = "DayZExpansion/Chat/GUI/layouts/expansion_chat_entry_verysmall.layout";
+				break;
+			case ExpansionClientUIChatSize.SMALL:
+				path = "DayZExpansion/Chat/GUI/layouts/expansion_chat_entry_small.layout";
+				break;
+			case ExpansionClientUIChatSize.MEDIUM:
+				path = "DayZExpansion/Chat/GUI/layouts/expansion_chat_entry_medium.layout";
+				break;
+			case ExpansionClientUIChatSize.LARGE:
+				path = "DayZExpansion/Chat/GUI/layouts/expansion_chat_entry_large.layout";
+				break;
+			case ExpansionClientUIChatSize.VERYLARGE:
+				path = "DayZExpansion/Chat/GUI/layouts/expansion_chat_entry_verylarge.layout";
+				break;
+			default:
+				path = "DayZExpansion/Chat/GUI/layouts/expansion_chat_entry_small.layout";
+				break;
+		}
+		
+		return path;
+	}
+	
+	override typename GetControllerType() 
+	{
+		return ExpansionChatLineController;
+	}
+	
+	Widget GetParentWidget()
+	{
+		return m_Parent;
+	}
+};
+
+class ExpansionChatLineController: ExpansionViewController
+{
+	string SenderName;
+	string Message;
 };

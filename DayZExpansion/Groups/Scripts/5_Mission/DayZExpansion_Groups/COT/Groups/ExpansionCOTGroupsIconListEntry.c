@@ -19,22 +19,22 @@ class ExpansionCOTGroupsIconListEntry extends ScriptedWidgetEventHandler
 	private TextWidget m_IconName;
 	private ButtonWidget m_EntryButton;
 	
-	private ExpansionIcon m_IconData;
-	private ExpansionCOTGroupsMapMarker m_Marker;
+	private int m_IconIndex;
 	private int m_Color;
+	private ExpansionCOTGroupsMenu m_COTGroupsMenu;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTGroupsIconListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionCOTGroupsIconListEntry(Widget parent, ExpansionIcon icon, ExpansionCOTGroupsMapMarker marker)
+	void ExpansionCOTGroupsIconListEntry(Widget parent, int iconIndex, ExpansionCOTGroupsMenu menu)
 	{
 		m_Root	= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Icon_List_Entry.layout", parent);
 		m_Icon = ImageWidget.Cast(m_Root.FindAnyWidget("entry_icon"));
 		m_IconName = TextWidget.Cast(m_Root.FindAnyWidget("icon_name"));
 		m_EntryButton = ButtonWidget.Cast(m_Root.FindAnyWidget("entry_button"));
 		
-		m_IconData = icon;
-		m_Marker = marker;
+		m_IconIndex = iconIndex;
+		m_COTGroupsMenu = menu;
 				
 		m_Root.SetHandler(this);
 		
@@ -54,11 +54,12 @@ class ExpansionCOTGroupsIconListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void SetEntry()
 	{
-		m_Icon.LoadImageFile(0, m_IconData.Path);
-		m_IconName.SetText(m_IconData.Name);
-		
-		m_Icon.SetColor(m_Marker.GetMarkerData().GetColor());
-		m_IconName.SetColor(m_Marker.GetMarkerData().GetColor());
+		ExpansionIcon icon = ExpansionIcons.Get(m_IconIndex);
+		if (icon)
+		{
+			m_Icon.LoadImageFile(0, icon.Path);
+			m_IconName.SetText(icon.Name);
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -75,7 +76,7 @@ class ExpansionCOTGroupsIconListEntry extends ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsIconListEntry UpdateSelection
 	// ------------------------------------------------------------	
-	void UpdateSelection(ExpansionIcon icon)
+	/*void UpdateSelection(ExpansionIcon icon)
 	{
 		UpdateSelection(icon.Name);
 	}
@@ -89,7 +90,7 @@ class ExpansionCOTGroupsIconListEntry extends ScriptedWidgetEventHandler
 			m_Root.SetColor(ARGB(100, 200, 0, 0));
 		else
 			m_Root.SetColor(ARGB(100, 0, 0, 0));
-	}
+	}*/
 	
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsIconListEntry OnClick
@@ -98,7 +99,7 @@ class ExpansionCOTGroupsIconListEntry extends ScriptedWidgetEventHandler
 	{
 		if (m_EntryButton && w == m_EntryButton)
 		{
-			m_Marker.SetIcon(m_IconData);
+			m_COTGroupsMenu.SetSelectedIcon(m_IconIndex);
 			return true;
 		}
 		

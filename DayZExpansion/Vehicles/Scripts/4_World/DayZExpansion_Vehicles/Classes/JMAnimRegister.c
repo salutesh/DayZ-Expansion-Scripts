@@ -67,6 +67,7 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("Expansion_Landrover_Left", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sedan_02/sedan_02_Trunk.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Landrover_Right", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sedan_02/sedan_02_Trunk.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Landrover_Trunk", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback/hatchback_trunk.anm");
+		pType.AddItemInHandsProfileIK("Expansion_Landrover_Hood", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback/hatchback_hood.anm");
 
 		pType.AddItemInHandsProfileIK("ExpansionAnWheel", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");
 		pType.AddItemInHandsProfileIK("ExpansionAnWheelSmall", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/hatchback_02/Hatchback_02_wheel.anm");

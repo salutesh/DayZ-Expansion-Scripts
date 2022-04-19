@@ -59,17 +59,16 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      visible 1
      ignorepointer 1
      position 104 0
-     size 1 1
+     size 0.83 24
      valign center_ref
      hexactpos 1
      vexactpos 1
      hexactsize 0
-     vexactsize 0
+     vexactsize 1
      priority 1
      scriptclass "ViewBinding"
-     style Normal
+     style Bold
      text "CATEGORY TITLE"
-     font "gui/fonts/etelkatextpro22"
      "exact text" 0
      "text halign" left
      "text valign" center
@@ -83,18 +82,17 @@ GridSpacerWidgetClass ExpansionMarketCategory {
      visible 1
      ignorepointer 1
      position 15 0
-     size 1 1
+     size 0.1 24
      halign right_ref
      valign center_ref
      hexactpos 1
      vexactpos 1
      hexactsize 0
-     vexactsize 0
+     vexactsize 1
      priority 1
      scriptclass "ViewBinding"
-     style Normal
+     style Bold
      text ""
-     font "gui/fonts/etelkatextpro22"
      "exact text" 0
      "text halign" right
      "text valign" center

@@ -182,3 +182,38 @@ class ExpansionTractorBackWheel extends CarWheel
 
 class ExpansionTractorFrontWheel_Ruined extends CarWheel{};
 class ExpansionTractorBackWheel_Ruined extends CarWheel{};
+
+/*class Expansion_Landrover_Wheel extends CarWheel
+{
+	override void EEKilled(Object killer)
+	{
+		string newWheel = "";
+		switch( GetType() )
+		{
+			case "Expansion_Landrover_Wheel":
+				newWheel = "Expansion_Landrover_Wheel_Ruined";
+			break;
+		}
+		if ( newWheel != "" )
+		{
+			ReplaceWheelLambda lambda = new ReplaceWheelLambda ( this, newWheel, NULL);
+			lambda.SetTransferParams(true, true, true);
+			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
+		}
+	}
+
+	override int GetMeleeTargetType()
+	{
+		return EMeleeTargetType.NONALIGNABLE;
+	}
+	
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionDetach);
+		AddAction(ActionAttachOnSelection);
+	}
+};
+
+class Expansion_Landrover_Wheel_Ruined extends Expansion_Landrover_Wheel{};*/

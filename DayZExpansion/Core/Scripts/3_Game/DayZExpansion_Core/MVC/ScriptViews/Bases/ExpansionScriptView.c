@@ -45,10 +45,7 @@ class ExpansionScriptViewBase: ScriptView
 	
 	void OnHide();
 	
-	bool CanShow()
-	{
-		return false;
-	}
+	bool CanShow();
 	
 	void Refresh();
 }

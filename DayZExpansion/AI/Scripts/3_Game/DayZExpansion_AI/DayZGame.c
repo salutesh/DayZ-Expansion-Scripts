@@ -2,24 +2,6 @@ modded class DayZGame
 {
 	private ref eAIManagerBase m_eAI_Manager;
 
-	void DayZGame()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "DayZGame");
-#endif
-
-		string child_name;
-        for (int i = m_CharClassNames.Count() - 1; i >= 0; i--)
-		{
-            child_name = m_CharClassNames[i];
-
-			if (child_name.Contains("eAI"))
-			{
-				m_CharClassNames.RemoveOrdered(i);
-			}
-		}
-	}
-
 	void eAICreateManager()
 	{
 #ifdef EAI_TRACE

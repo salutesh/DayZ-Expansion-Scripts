@@ -25,7 +25,7 @@ class ExpansionMarketSpraycans: ExpansionMarketCategory
 	
 	#ifdef EXPANSIONMODVEHICLE
 		//! COLORS
-		//AddItem("ExpansionSpraycanBlue",			100,	200,	1,		100);	//! NOT READY
+		AddItem("ExpansionSpraycanBlue",			100,	200,	1,		100);	//! NOT READY
 		//AddItem("ExpansionSpraycanBlueRust",			100,	200,	1,		100);	//! NOT READY
 		
 		AddItem("ExpansionSpraycanRed",			100,	200,	1,		100, null, {"ExpansionSpraycanRedRust"});

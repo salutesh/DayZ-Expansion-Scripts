@@ -162,6 +162,7 @@ modded class CarScript
 	protected float m_ModelZeroPointDistanceFromGround = -1;
 
 	protected bool m_Expansion_CanPlayerAttach;
+	protected float m_Expansion_LockComplexity = 1.0;
 
 	protected bool m_Expansion_EngineSync1;
 	protected bool m_Expansion_EngineSync2;
@@ -188,6 +189,7 @@ modded class CarScript
 
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
 		RegisterNetSyncVariableBool("m_Expansion_CanPlayerAttach");
+		RegisterNetSyncVariableFloat("m_Expansion_LockComplexity", 0, 0, 2);
 
 		RegisterNetSyncVariableBool("m_Expansion_IsBeingTowed");
 		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
@@ -352,6 +354,7 @@ modded class CarScript
 				if (IsKindOf(vehcfg.ClassName))
 				{
 					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
+					m_Expansion_LockComplexity = vehcfg.LockComplexity;					
 					break;
 				}
 			}
@@ -778,6 +781,18 @@ modded class CarScript
 	float Expansion_GetMass()
 	{
 		return m_Expansion_Mass;
+	}
+
+	float Expansion_GetRequiredTorque()
+	{
+		vector minMax[2];
+		GetCollisionBox(minMax);
+		return ( ( minMax[1][1] - minMax[0][1] ) * Expansion_GetMass() );
+	}
+
+	float Expansion_LockComplexity()
+	{
+		return m_Expansion_LockComplexity;
 	}
 
 	ExpansionVehicleLockState GetLockedState()

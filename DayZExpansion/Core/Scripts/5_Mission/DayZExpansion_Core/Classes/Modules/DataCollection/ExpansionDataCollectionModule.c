@@ -21,31 +21,18 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	void ExpansionDataCollectionModule()
 	{		
-	}
-	
-	override bool IsServer()
-	{
-		return true;
-	}
-
-	override bool IsClient()
-	{
-		return true;
+		m_PlayerData = new map <string, ref ExpansionPlayerDataCollection>;
 	}
 	
 	override void OnInit()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.DATACOLLECTION, this, "OnInit");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		super.OnInit();
 
 		EnableClientDisconnect();
 		EnableInvokeConnect();
-		
 		EnableRPC();
-				
-		m_PlayerData = new map <string, ref ExpansionPlayerDataCollection>;
 	}
 
 	override int GetRPCMin()
@@ -60,6 +47,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		super.OnRPC(sender, args);
 
 		auto rpc = CF_EventRPCArgs.Cast(args);
@@ -77,6 +66,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		super.OnInvokeConnect(sender, args);
 		
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
@@ -89,6 +80,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	private void OnPlayerConnect(PlayerBase player)
 	{		
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		if (!IsMissionHost())
 			return;
 		
@@ -110,6 +103,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		super.OnClientDisconnect(sender, args);
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
@@ -123,6 +118,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	private void OnPlayerDisconnect(string playerUID)
 	{		
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		if (!IsMissionHost())
 			return;
 		
@@ -137,6 +134,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	//! Client
 	void RequestPlayerData()
 	{		
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		if (!IsMissionClient())
 			return;
 		
@@ -147,6 +146,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	//! Server
 	void RPC_RequestPlayerData(ParamsReadContext ctx, PlayerIdentity sender)
 	{		
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		if (!IsMissionHost())
 			return;
 		
@@ -169,6 +170,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	//! Client
 	void RPC_SendPlayerData(ParamsReadContext ctx)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		if (!IsMissionClient())
 			return;
 		
@@ -190,6 +193,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	bool OnReceivePlayerData(ParamsReadContext ctx)
 	{		
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		string playerUID;
 		if (Expansion_Assert_False(ctx.Read(playerUID), "Failed to read player UID"))
 			return false;
@@ -215,6 +220,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	
 	bool IsPlayerOnline(string uid)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		foreach (string playerUID,  ExpansionPlayerDataCollection playerData: m_PlayerData)
 		{
 			if (playerData.PlayerUID == uid)
@@ -240,18 +247,24 @@ class ExpansionPlayerDataCollection: ExpansionDataCollection
 	
 	void SetFromPlayerBase(PlayerBase player)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		PlayerUID = player.GetIdentity().GetId();
 		Name = player.GetIdentity().GetName();
 	}
 	
 	override void OnSend(ParamsWriteContext ctx)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		ctx.Write(PlayerUID);
 		ctx.Write(Name);
 	}
 	
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
+
 		if (!ctx.Read(Name))
 			return false;
 		

@@ -169,6 +169,14 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		AddItem("ExpansionUAZDoorCargo1", 					500,	1000,	1,		100);
 		AddItem("ExpansionUAZDoorCargo2", 					500,	1000,	1,		100);
 		AddItem("ExpansionUAZWheel", 						600,	1200,	1,		100);
+
+		AddItem("Expansion_Landrover_Hood", 					400,	800,	1,		100);
+		AddItem("Expansion_Landrover_Driverdoor", 					500,	1000,	1,		100);
+		AddItem("Expansion_Landrover_Codriverdoor", 				500,	1000,	1,		100);
+		AddItem("Expansion_Landrover_Left", 					500,	1000,	1,		100);
+		AddItem("Expansion_Landrover_Right", 					500,	1000,	1,		100);
+		AddItem("Expansion_Landrover_Trunk", 					400,	800,	1,		100);
+		AddItem("Expansion_Landrover_Wheel", 						600,	1200,	1,		100);
 	
 		AddItem("ExpansionVodnikDoorDriver", 				500,	1000,	1,		100);
 		AddItem("ExpansionVodnikDoorCoDriver", 				500,	1000,	1,		100);

@@ -172,6 +172,18 @@ class ExpansionMarketSellDebug
 		}
 	}
 
+	TStringArray GetItemClassNames()
+	{
+		TStringArray classNames();
+
+		foreach (ExpansionMarketSellDebugItem debugItem: m_Items)
+		{
+			classNames.Insert(debugItem.ClassName);
+		}
+
+		return classNames;
+	}
+
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(m_ZoneSellPricePercent);

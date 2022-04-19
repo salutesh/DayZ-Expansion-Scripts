@@ -10,6 +10,7 @@ PanelWidgetClass ExpansionCompass {
  vexactpos 0
  hexactsize 0
  vexactsize 1
+ priority 10
  {
   PanelWidgetClass CompassBackground {
    visible 0

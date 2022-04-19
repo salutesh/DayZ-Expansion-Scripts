@@ -2,6 +2,8 @@ modded class MissionBase
 {
 	override UIScriptedMenu CreateScriptedMenu(int id)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
 		UIScriptedMenu menu = NULL;
 
 		switch (id)

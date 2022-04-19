@@ -31,6 +31,7 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		AddItem("Barrel_Red", 					1500,		3000,		1,		100);
 		AddItem("Barrel_Yellow", 				1500,		3000,		1,		100);*/
 		AddItem("SeaChest", 					2000,		4000,		1,		100);
+		AddItem("WoodenCrate", 					2000,		4000,		1,		100);
 	
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionToolBox", 			500,		1000,		1,		100);

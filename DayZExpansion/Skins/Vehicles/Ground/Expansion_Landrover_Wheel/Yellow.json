@@ -1,0 +1,69 @@
+{
+	"HiddenSelections": [
+		{
+			"HiddenSelection": "bottom",
+			"RVTexture": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_bottom_co.paa",
+			"RVMaterial": "DayZExpansion\\Vehicles\\Ground\\LandRover\\data\\lr_bottom_metal.rvmat"
+		}
+	],
+    "DamageZones": [
+		{
+			"Zone": "Rim",
+			"HiddenSelections": [
+				"dmgzone_rim"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_bottom_metal.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_bottom_metal.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_wheel_damaged.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_wheel_damaged.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_wheel_damaged.rvmat"
+				}
+			]
+		},
+		{
+			"Zone": "Tire",
+			"HiddenSelections": [
+				"dmgzone_tire"
+			],
+			"HealthLevels": [
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_bottom.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\lr_bottom.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_wheel_damaged.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_wheel_damaged.rvmat"
+				},
+				{
+					"RVTexture": "",
+					"RVMaterial": "dayzexpansion\\vehicles\\ground\\LandRover\\data\\damage\\lr_wheel_damaged.rvmat"
+				}
+			]
+		}		
+	],
+	"HornEXT": "Expansion_Horn_Ext_SoundSet",
+	"HornINT": "Expansion_Horn_Int_SoundSet"
+}

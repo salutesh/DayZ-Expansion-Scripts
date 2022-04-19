@@ -22,9 +22,9 @@ class CfgVehicles
 		weight = 100;
 		itemSize[] = {2,3};
 		stackedUnit = "ml";
-		varQuantityInit = 100.0;
+		varQuantityInit = 150.0;
 		varQuantityMin = 0.0;
-		varQuantityMax = 100.0;
+		varQuantityMax = 150.0;
 		quantityBar = 1;
 		lootTag[] = {"Work"};
 		lootCategory = "Materials";

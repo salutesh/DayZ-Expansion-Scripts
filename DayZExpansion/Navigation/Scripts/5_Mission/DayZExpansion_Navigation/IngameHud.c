@@ -217,33 +217,6 @@ modded class IngameHud
 				ToggleHUDGPS();
 			}
 		}
-
-		/*if (GetUApi().GetInputByName("UAExpansionGPSToggle").LocalHoldBegin() && GetExpansionSettings().GetMap().EnableHUDGPS && m_CloseTime > 0.75)
-		{
-			//! If it's already open, just close it
-			if (GetGPSState())
-			{
-				ToggleHUDGPS();
-			}
-			else if (!GetGPSState())
-			{
-				if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
-				{
-					if (!m_Player)
-						return;
-
-					if (m_Player.HasItemGPS())
-					{
-						m_HasGPSItem = true;
-						ToggleHUDGPS();
-					}
-				}
-				else
-				{
-					ToggleHUDGPS();
-				}
-			}
-		}*/
 	}
 
 	void UpdateCompass()
@@ -444,6 +417,23 @@ modded class IngameHud
 
 		m_MapWidget.SetScale(scale);
 		m_MapWidget.SetMapPos(map_pos);
+		
+		/*vector worldPos = GetGame().GetCurrentCameraPosition();
+		float pos_x = worldPos[0];
+		float pos_y = worldPos[2];
+		
+		float mapScale = GetCurrentGPSMapScale();
+		
+		float map_width, map_height;
+		m_MapWidget.GetScreenSize(map_width, map_height);
+	
+		float shift_x = map_width;
+		float shift_y = map_height;
+		
+		vector map_pos = Vector(pos_x + shift_x, 0, pos_y + shift_y);
+		
+		m_MapWidget.SetScale(mapScale);
+		m_MapWidget.SetMapPos(map_pos);*/
 	}
 
 	void RefreshCompass()
@@ -615,31 +605,5 @@ modded class IngameHud
 	{
 		m_GPSMapScale = scale;
 		RefreshGPSMap();
-	}
-
-	vector GetCurrentMapPos()
-	{
-		vector cameraPos;
-		vector mapPos;
-
-		cameraPos = GetGame().GetCurrentCameraPosition();
-		mapPos = m_MapWidget.MapToScreen(cameraPos);
-
-		return mapPos;
-	}
-
-	int GetCurrentMapDir()
-	{
-		vector cameraOri;
-		float yaw;
-		float normalizedAngle;
-		int dir;
-
-		cameraOri = GetGame().GetCurrentCameraDirection().VectorToAngles();
-		yaw = cameraOri[0];
-		normalizedAngle = Math.NormalizeAngle(yaw);
-		dir = Math.Round(normalizedAngle);
-
-		return dir;
 	}
 };

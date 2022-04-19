@@ -66,8 +66,10 @@ class cfgWeapons
 		{
 			class OnFire
 			{
-				class MuzzleFlash{};
-				class ChamberFlash{};
+				class MuzzleFlash
+				{
+					overrideParticle = "weapon_shot_vss_01";
+				};
 			};
 		};
 		class OpticsInfo: OpticsInfoRifle

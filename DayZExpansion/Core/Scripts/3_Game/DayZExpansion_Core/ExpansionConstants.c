@@ -31,10 +31,6 @@ enum ExpansionChatChannels
 	CCTeam = 512
 };
 
-const float EXP_FADE_TIMEOUT = 2.5;
-const float EXP_FADE_OUT_DURATION = 0.25;
-const float EXP_FADE_IN_DURATION = 0.25;
-
 /**
  * Expansion liquids types
  * @{
@@ -315,7 +311,7 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_SAVE;
 #endif
 
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 40;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 41;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 39;  //! Also used for groups
 
 //! Game SaveVersion (GAME_STORAGE_VERSION) at which 1st step of converting over to ModStorage should happen 
