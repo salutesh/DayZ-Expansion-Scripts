@@ -211,6 +211,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	void RPC_RequestGroups(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.View", sender))
+			return;
 
 		if (!IsMissionHost())
 			return;
@@ -327,6 +330,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_EditGroupName(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		int groupID;
 		if (!ctx.Read(groupID))
@@ -387,6 +393,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_DeleteGroup(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.DeleteGroup", sender))
+			return;
 
 		int partyID;
 		if (!ctx.Read(partyID))
@@ -446,6 +455,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_ChangeOwner(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		string playerUID;
 		if (!ctx.Read(playerUID))
@@ -533,6 +545,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_InvitePlayer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		string playerUID;
 		if (!ctx.Read(playerUID))
@@ -626,6 +641,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_UpdatePermissions(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		string playerUID;
 		if (!ctx.Read(playerUID))
@@ -724,6 +742,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_ChangeMoney(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		int partyID;
 		if (!ctx.Read(partyID))
@@ -797,6 +818,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_KickMember(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		int partyID;
 		if (!ctx.Read(partyID))
@@ -914,6 +938,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	private void RPC_CreateGroupMarker(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		
+		if (!GetPermissionsManager().HasPermission("Expansion.Groups.EditGroup", sender))
+			return;
 
 		int partyID;
 		if (!ctx.Read(partyID))

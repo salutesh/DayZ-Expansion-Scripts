@@ -62,7 +62,6 @@ class ExpansionAutorunModule: CF_ModuleWorld
 		PlayerBase player;
 		if ( !Class.CastTo( player, target ) )
 		{
-			Error("ExpansionAutorunModule::AutorunDisable can't read player");
 			return;
 		}
 
@@ -98,7 +97,6 @@ class ExpansionAutorunModule: CF_ModuleWorld
 		PlayerBase player;
 		if ( !Class.CastTo( player, target ) )
 		{
-			Error("ExpansionAutorunModule::AutorunDisable can't read player");
 			return;
 		}
 
