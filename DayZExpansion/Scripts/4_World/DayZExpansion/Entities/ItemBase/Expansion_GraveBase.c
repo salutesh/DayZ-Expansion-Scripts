@@ -158,7 +158,8 @@ class Expansion_GraveBase extends Inventory_Base
 				if (GetInventory().CanAddAttachment(item))
 				{
 					if (GetGame().IsMultiplayer())
-						entity.ServerTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
+						ServerTakeEntityToInventory( FindInventoryLocationType.ATTACHMENT, item );
+						//entity.ServerTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
 					else
 						entity.LocalTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
 				}

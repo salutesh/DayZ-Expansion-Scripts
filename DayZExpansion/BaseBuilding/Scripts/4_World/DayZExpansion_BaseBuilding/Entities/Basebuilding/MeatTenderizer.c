@@ -1,5 +1,5 @@
 /**
- * ExpansionKit.c
+ * MeatTenderizer.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,6 +10,15 @@
  *
 */
 
-/**@class		ExpansionKit
+/**@class		MeatTenderizer
  * @brief		
  **/
+modded class MeatTenderizer
+{
+	override void SetActions()
+	{
+		super.SetActions();
+
+		AddAction( ExpansionActionConvertFloor );
+	}
+}

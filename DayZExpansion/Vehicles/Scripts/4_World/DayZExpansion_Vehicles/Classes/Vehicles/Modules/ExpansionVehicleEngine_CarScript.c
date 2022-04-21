@@ -25,14 +25,20 @@ class ExpansionVehicleEngine_CarScript : ExpansionVehicleEngineBase
 		m_Network = false;
 
 		m_DamageZone = "Engine";
-		m_FuelConsumption = 0.0;
 
 		Class.CastTo(m_Car, m_Vehicle);
+
+		if (!m_Car.IsHelicopter())
+			m_FuelConsumption = 0.0;
 	}
 
 	override void ProcessHealth(float pDt, float pFuel, float pCoolant, float pOil, float pBrake, out float pOutHealth, out float pOutFuel)
 	{
-		m_RPM = m_Car.EngineGetRPM();
+		if (!m_Car.IsHelicopter())
+			m_RPM = m_Car.EngineGetRPM();
+		else
+			m_RPM = m_RPMIdle;  //! Make fuel consumption for helis work
+
 		m_RPMRedline = m_Car.EngineGetRPMRedline();
 		m_RPMMax = m_Car.EngineGetRPMMax();
 

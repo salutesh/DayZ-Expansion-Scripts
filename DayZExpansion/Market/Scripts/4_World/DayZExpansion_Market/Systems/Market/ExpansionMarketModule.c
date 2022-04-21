@@ -2765,7 +2765,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion Exec_RequestSell
 	// ------------------------------------------------------------
-	private void Exec_RequestSell(notnull PlayerBase player, string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, ExpansionMarketSellDebug playerSentSellDebug)
+	private void Exec_RequestSell(notnull PlayerBase player, string itemClassName, int count, int playerSentPrice, ExpansionTraderObjectBase trader, ExpansionMarketSellDebug playerSentSellDebug)
 	{
 		MarketModulePrint("Exec_RequestSell - Sart");
 		
@@ -2821,16 +2821,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		ExpansionMarketResult result;
 		string failedClassName;
+		ExpansionMarketSellDebug sellDebug;
 
 		//! Compare that price to the one the player sent
-		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result, failedClassName) || sellList.Price != currentPrice)
+		if (!FindSellPrice(player, inventory.m_Inventory, stock, count, sellList, true, result, failedClassName) || sellList.Price != playerSentPrice)
 		{
 			EXLogPrint("===============================================================================");
 			EXLogPrint("| MARKET SELL REQUEST FAILED!");
 
-			ExpansionMarketSellDebug sellDebug;
-
-			if (result == ExpansionMarketResult.Success && sellList.Price != currentPrice)
+			if (result == ExpansionMarketResult.Success && sellList.Price != playerSentPrice)
 			{
 				//! Check if there is a mismatch in the classnames the client sent to what the server sees
 
@@ -2887,17 +2886,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			if (result == ExpansionMarketResult.FailedStockChange || result == ExpansionMarketResult.FailedSellListMismatch)
 			{
-				EXLogPrint("|");
-				EXLogPrint("| CLIENT transaction data");
-				EXLogPrint("| -----------------------");
-				EXLogPrint("| Total sell price: " + currentPrice);
-				playerSentSellDebug.Dump();
-				
-				EXLogPrint("|");
-				EXLogPrint("| SERVER transaction data");
-				EXLogPrint("| -----------------------");
-				EXLogPrint("| Total sell price: " + sellList.Price);
-				sellDebug.Dump();
+				MarketSellDebug(playerSentPrice, sellList.Price, playerSentSellDebug, sellDebug);
 			}
 
 			EXLogPrint("===============================================================================");
@@ -2908,13 +2897,22 @@ class ExpansionMarketModule: CF_ModuleWorld
 			
 			return;
 		}
+		#ifdef EXPANSIONMODMARKET_DEBUG
+		else
+		{
+			EXLogPrint("===============================================================================");
+			EXLogPrint("| MARKET SELL REQUEST SUCCEEDED!");
+
+			sellDebug = new ExpansionMarketSellDebug(sellList, sellList.Trader.GetTraderZone());
+
+			MarketSellDebug(playerSentPrice, sellList.Price, playerSentSellDebug, sellDebug);
+
+			EXLogPrint("===============================================================================");
+		}
+		#endif
 		
 		sellList.Valid = true;
 		sellList.Time = GetGame().GetTime();
-
-		#ifdef EXPANSIONMODMARKET_DEBUG
-		sellList.Debug();
-		#endif
 
 		Callback(itemClassName, ExpansionMarketResult.RequestSellSuccess, player.GetIdentity());
 		
@@ -2923,6 +2921,21 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("Exec_RequestSell - End");
 	}
 	
+	void MarketSellDebug(int playerSentPrice, int actualPrice, ExpansionMarketSellDebug playerSentSellDebug, ExpansionMarketSellDebug sellDebug)
+	{
+		EXLogPrint("|");
+		EXLogPrint("| CLIENT transaction data");
+		EXLogPrint("| -----------------------");
+		EXLogPrint("| Total sell price: " + playerSentPrice);
+		playerSentSellDebug.Dump();
+
+		EXLogPrint("|");
+		EXLogPrint("| SERVER transaction data");
+		EXLogPrint("| -----------------------");
+		EXLogPrint("| Total sell price: " + actualPrice);
+		sellDebug.Dump();
+	}
+
 	/*
 	 * Called Client Only: The server will finalize the transaction with the 
 	 * details that were stored in RequestSell.

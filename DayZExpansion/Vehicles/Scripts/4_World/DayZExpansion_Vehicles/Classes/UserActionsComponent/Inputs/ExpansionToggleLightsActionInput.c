@@ -72,4 +72,9 @@ class ExpansionToggleLightsActionInput : DefaultActionInput
 			}
 		}
 	}
+	
+	override ActionBase GetAction()
+	{
+		return m_SelectAction;
+	}
 };

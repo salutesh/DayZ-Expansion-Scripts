@@ -170,6 +170,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 		else
 		{
+			//! Related: 0_Preload\3_Game\Analytics\AnalyticsManagerServer.c
 			player.StatRegister(AnalyticsManagerServer.STAT_DISTANCE);
 			player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
 			player.StatSyncToClient();
@@ -356,11 +357,13 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		player.GetStatWater().Set(player.GetStatWater().GetMax());
 		player.GetStatHeatComfort().Set(1);
 
+		//! FIXME (or not): Maybe moving the player causes desync. Just skip it for now.
+
 		//! Move player out of harm's way
-		vector pos = player.GetPosition();
-		pos[1] = -500;
+		//vector pos = player.GetPosition();
+		//pos[1] = -500;
 		//EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") spawned at " + player.GetPosition() + ", moving to " + pos);
-		player.SetPosition(pos);
+		//player.SetPosition(pos);
 	}
 	
 	// ------------------------------------------------------------
@@ -541,6 +544,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		player.m_PlayerOldPos = player.GetPosition();
 		player.m_Expansion_SpawnSelect = false;
 
+		//! Related: 0_Preload\3_Game\Analytics\AnalyticsManagerServer.c
 		player.StatRegister(AnalyticsManagerServer.STAT_DISTANCE);
 		player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
 		player.StatSyncToClient();

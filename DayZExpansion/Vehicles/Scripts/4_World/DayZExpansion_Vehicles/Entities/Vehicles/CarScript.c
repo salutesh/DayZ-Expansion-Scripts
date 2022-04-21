@@ -173,6 +173,8 @@ modded class CarScript
 
 	bool m_Expansion_dBodyIsActive; //! Used for debugging. PLEASE leave this in here.
 
+	bool m_Expansion_Killed;
+
 	void CarScript()
 	{
 		g_Expansion_Car = this;
@@ -374,6 +376,9 @@ modded class CarScript
 
 			for (i = 0; i < m_Lights.Count(); i++)
 			{
+				if (!m_Lights[i])
+					continue;
+
 				m_Lights[i].ExpansionSetEnabled(false);
 
 				GetGame().ObjectDelete(m_Lights[i]);
@@ -381,6 +386,9 @@ modded class CarScript
 
 			for (i = 0; i < m_Particles.Count(); i++)
 			{
+				if (!m_Particles[i])
+					continue;
+
 				m_Particles[i].Stop();
 
 				GetGame().ObjectDelete(m_Particles[i]);
@@ -1706,7 +1714,7 @@ modded class CarScript
 			m_FuelTankHealth = GetHealth01("FuelTank", "");
 		}
 
-		if (GetGame().IsServer() && Expansion_EnginesOn() > 0)
+		if (GetGame().IsServer() && Expansion_EngineIsOn())
 		{
 			CheckVitalItem(IsVitalCarBattery(), "CarBattery");
 			CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
@@ -1720,7 +1728,7 @@ modded class CarScript
 			//CheckVitalItem(IsVitalEngineBelt(), "EngineBelt");
 		}
 
-		if (Expansion_EnginesOn() > 0)
+		if (Expansion_EngineIsOn())
 		{
 			if (GetGame().IsServer())
 			{
@@ -1751,7 +1759,7 @@ modded class CarScript
 				if (brake > 0.0 && m_EngineHealth < 0.5)
 					LeakFluid(CarFluid.BRAKE);
 
-				if (oil > 0.0 && m_EngineHealth < 0.5)
+				if (oil > 0.0 && m_EngineHealth < 0.25)
 					LeakFluid(CarFluid.OIL);
 
 				if (fuelConsumption > 0.0)
@@ -1770,7 +1778,11 @@ modded class CarScript
 				}
 
 				if (m_exhaustFx)
+				{
 					m_exhaustFx.SetParticleStateLight();
+					if (!m_exhaustFx.IsPlaying())
+						m_exhaustFx.Start();
+				}
 
 				if (IsVitalRadiator() && SEffectManager.IsEffectExist(m_coolantPtcFx))
 					SEffectManager.Stop(m_coolantPtcFx);
@@ -1782,7 +1794,7 @@ modded class CarScript
 						if (!SEffectManager.IsEffectExist(m_coolantPtcFx))
 						{
 							m_coolantFx = new EffCoolantSteam();
-							m_coolantPtcFx = SEffectManager.PlayOnObject(m_coolantFx, this, m_coolantPtcPos);
+							m_coolantPtcFx = SEffectManager.PlayOnObject(m_coolantFx, this, m_coolantPtcPos, Vector(0,0,0));
 						}
 
 						if (GetFluidFraction(CarFluid.COOLANT) > 0)
@@ -1922,9 +1934,283 @@ modded class CarScript
 
 		SetCarBatteryStateForVanilla(true);
 
-		super.UpdateLights(new_gear);
+		if (IsCar())
+		{
+			super.UpdateLights(new_gear);
+		}
+		else
+		{
+			#ifndef SERVER
+			Expansion_UpdateLightsClient(new_gear);
+			#endif
+			Expansion_UpdateLightsServer(new_gear);
+		}
 
 		SetCarBatteryStateForVanilla(false);
+	}
+	
+	void Expansion_UpdateLightsClient(int newGear = -1)
+	{
+		ItemBase battery;
+			
+		if ( IsVitalCarBattery() ) 
+			battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
+		else if ( IsVitalTruckBattery() ) 
+			battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
+
+		if ( battery && battery.IsAlive() && battery.GetCompEM().GetEnergy() > 0 )
+		{
+			int gear;
+			
+			if (newGear == -1)
+			{
+				gear = GetController().GetGear();
+			}
+			else
+			{
+				gear = newGear;
+			}
+			
+			if (m_HeadlightsOn)
+			{
+				if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
+				{
+					m_Headlight = CreateFrontLight();
+				}
+				
+				if (m_Headlight)
+				{
+					switch (m_HeadlightsState)
+					{
+					case CarHeadlightBulbsState.LEFT:
+						m_Headlight.AttachOnMemoryPoint(this, m_LeftHeadlightPoint, m_LeftHeadlightTargetPoint);
+						m_Headlight.SegregateLight();
+						break;
+					case CarHeadlightBulbsState.RIGHT:
+						m_Headlight.AttachOnMemoryPoint(this, m_RightHeadlightPoint, m_RightHeadlightTargetPoint);
+						m_Headlight.SegregateLight();
+						break;
+					case CarHeadlightBulbsState.BOTH:
+						vector local_pos_left = GetMemoryPointPos(m_LeftHeadlightPoint);
+						vector local_pos_right = GetMemoryPointPos(m_RightHeadlightPoint);
+						
+						vector local_pos_middle = (local_pos_left + local_pos_right) * 0.5;
+						m_Headlight.AttachOnObject(this, local_pos_middle);
+						m_Headlight.AggregateLight();
+						break;
+					default:
+						m_Headlight.FadeOut();
+						m_Headlight = null;
+					}
+				}
+			}
+			else
+			{
+				if (m_Headlight)
+				{
+					m_Headlight.FadeOut();
+					m_Headlight = null;
+				}
+			}
+				
+			// brakes
+			if (m_BrakesArePressed)
+			{
+				switch (gear)
+				{
+				case CarGear.REVERSE:
+					m_RearLightType = CarRearLightType.BRAKES_AND_REVERSE;
+					break;
+				default:
+					m_RearLightType = CarRearLightType.BRAKES_ONLY;
+				}
+				//Debug.Log(string.Format("m_BrakesArePressed=%1, m_RearLightType=%2", m_BrakesArePressed.ToString(), EnumTools.EnumToString(CarRearLightType, m_RearLightType)));
+			}
+			else
+			{
+				switch (gear)
+				{
+				case CarGear.REVERSE:
+					m_RearLightType = CarRearLightType.REVERSE_ONLY;
+					break;
+				default:
+					m_RearLightType = CarRearLightType.NONE;
+				}
+				//Debug.Log(string.Format("m_BrakesArePressed=%1, m_RearLightType=%2", m_BrakesArePressed.ToString(), EnumTools.EnumToString(CarRearLightType, m_RearLightType)));
+			}
+
+			if (!m_RearLight && m_RearLightType != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE)
+			{
+				m_RearLight = CreateRearLight();
+				vector local_pos = GetMemoryPointPos(m_ReverseLightPoint);
+				m_RearLight.AttachOnObject(this, local_pos, "180 0 0");
+			}
+
+			// rear lights
+			if (m_RearLight && m_RearLightType != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE)
+			{
+				switch (m_RearLightType)
+				{
+				case CarRearLightType.BRAKES_ONLY:
+					m_RearLight.SetAsSegregatedBrakeLight();
+					break;
+				case CarRearLightType.REVERSE_ONLY:
+					m_RearLight.SetAsSegregatedReverseLight();
+					break;
+				case CarRearLightType.BRAKES_AND_REVERSE:
+					m_RearLight.AggregateLight();
+					m_RearLight.SetFadeOutTime(1);
+					break;
+				default:
+					m_RearLight.FadeOut();
+					m_RearLight = null;
+				}
+			}
+			else
+			{
+				if (m_RearLight)
+				{
+					m_RearLight.FadeOut();
+					m_RearLight = null;
+				}
+			}
+		}
+		else
+		{
+			if (m_RearLight)
+			{
+				m_RearLight.FadeOut();
+				m_RearLight = null;
+			}
+			
+			if (m_Headlight)
+			{
+				m_Headlight.FadeOut();
+				m_Headlight = null;
+			}
+		}
+	}
+	
+	void Expansion_UpdateLightsServer(int newGear = -1)
+	{
+		ItemBase battery;
+			
+		if ( IsVitalCarBattery() ) 
+			battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
+		else if ( IsVitalTruckBattery() ) 
+			battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
+
+		if ( battery && battery.IsAlive() && battery.GetCompEM().GetEnergy() > 0 )
+		{
+			int gear;
+			
+			if (newGear == -1)
+			{
+				gear = GetController().GetGear();
+			}
+			else
+			{
+				gear = newGear;
+			}
+			
+			if (m_HeadlightsOn)
+			{
+				DashboardShineOn();
+				TailLightsShineOn();
+				
+				switch (m_HeadlightsState)
+				{
+				case CarHeadlightBulbsState.LEFT:
+					LeftFrontLightShineOn();
+					RightFrontLightShineOff();
+					break;
+				case CarHeadlightBulbsState.RIGHT:
+					LeftFrontLightShineOff();
+					RightFrontLightShineOn();
+					break;
+				case CarHeadlightBulbsState.BOTH:
+					LeftFrontLightShineOn();
+					RightFrontLightShineOn();
+					break;
+				default:
+					LeftFrontLightShineOff();
+					RightFrontLightShineOff();
+				}
+				
+				//Debug.Log(string.Format("m_HeadlightsOn=%1, m_HeadlightsState=%2", m_HeadlightsOn.ToString(), EnumTools.EnumToString(CarHeadlightBulbsState, m_HeadlightsState)));
+			}
+			else
+			{
+				TailLightsShineOff();
+				DashboardShineOff();
+				LeftFrontLightShineOff();
+				RightFrontLightShineOff();
+			}
+				
+			// brakes
+			if (m_BrakesArePressed)
+			{
+				switch (gear)
+				{
+				case CarGear.REVERSE:
+					m_RearLightType = CarRearLightType.BRAKES_AND_REVERSE;
+					break;
+				default:
+					m_RearLightType = CarRearLightType.BRAKES_ONLY;
+				}
+
+				//Debug.Log(string.Format("m_BrakesArePressed=%1, m_RearLightType=%2", m_BrakesArePressed.ToString(), EnumTools.EnumToString(CarRearLightType, m_RearLightType)));
+			}
+			else
+			{
+				switch (gear)
+				{
+				case CarGear.REVERSE:
+					m_RearLightType = CarRearLightType.REVERSE_ONLY;
+					break;
+				default:
+					m_RearLightType = CarRearLightType.NONE;
+				}
+
+				//Debug.Log(string.Format("m_BrakesArePressed=%1, m_RearLightType=%2", m_BrakesArePressed.ToString(), EnumTools.EnumToString(CarRearLightType, m_RearLightType)));
+			}
+				
+			
+			// rear lights
+			if (m_RearLightType != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE)
+			{
+				switch (m_RearLightType)
+				{
+				case CarRearLightType.BRAKES_ONLY:
+					ReverseLightsShineOff();
+					BrakeLightsShineOn();
+					break;
+				case CarRearLightType.REVERSE_ONLY:
+					ReverseLightsShineOn();
+					BrakeLightsShineOff();
+					break;
+				case CarRearLightType.BRAKES_AND_REVERSE:
+					BrakeLightsShineOn();
+					ReverseLightsShineOn();
+					break;
+				default:
+					ReverseLightsShineOff();
+				}
+			}
+			else
+			{
+				ReverseLightsShineOff();
+				BrakeLightsShineOff();
+			}
+		}
+		else
+		{
+			LeftFrontLightShineOff();
+			RightFrontLightShineOff();
+			DashboardShineOff();
+			BrakeLightsShineOff();
+			ReverseLightsShineOff();
+		}
 	}
 
 	override CarRearLightBase CreateRearLight()
@@ -2293,12 +2579,18 @@ modded class CarScript
 			NetworkSend();
 		}
 
+		Expansion_OnBeforeApplyPhysics(m_State);
+
 		m_State.ApplyPhysics_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost);
 
 		OnPostSimulation(dt);
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
+	}
+
+	protected void Expansion_OnBeforeApplyPhysics(ExpansionPhysicsState pState)
+	{
 	}
 
 	void SetHasPilot(bool state)
@@ -2505,6 +2797,8 @@ modded class CarScript
 	 */
 	void Expansion_EngineStart(int index)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.VEHICLES, this, index.ToString());
+
 		if (index == 0)
 		{
 			EngineStart();
@@ -2537,60 +2831,85 @@ modded class CarScript
 		if (m_Exploded)
 			return false;
 
-		bool result = true;
-
 #ifndef DAYZ_1_16
-		if (!Expansion_EngineIsOn())
+		//! Vanilla does this check for us in OnBeforeEngineStart() if it's a car
+		if (!IsCar() && GetFluidFraction(CarFluid.FUEL) <= 0)
 		{
-			SetCarBatteryStateForVanilla(true);
-
-			EntityAI item2;
-
-			if (IsVitalIgniterPlug() || IsVitalSparkPlug() || IsVitalGlowPlug())
-			{
-				item2 = NULL;
-				if (IsVitalIgniterPlug())
-					item2 = FindAttachmentBySlotName("ExpansionIgniterPlug");
-				if (IsVitalSparkPlug())
-					item2 = FindAttachmentBySlotName("SparkPlug");
-				if (IsVitalGlowPlug())
-					item2 = FindAttachmentBySlotName("GlowPlug");
-
-				if (!item2 || item2.IsRuined())
-					result = false;
-			}
-
-			if (IsVitalHydraulicHoses() || IsVitalRadiator())
-			{
-				item2 = NULL;
-				if (IsVitalHydraulicHoses())
-					item2 = FindAttachmentBySlotName("ExpansionHydraulicHoses");
-				if (IsVitalRadiator())
-					item2 = FindAttachmentBySlotName("CarRadiator");
-
-				if (!item2 || item2.IsRuined())
-					result = false;
-			}
-
-			if (IsVitalHelicopterBattery() || IsVitalCarBattery() || IsVitalTruckBattery())
-			{
-				item2 = NULL;
-				if (IsVitalHelicopterBattery())
-					item2 = FindAttachmentBySlotName("ExpansionHelicopterBattery");
-				if (IsVitalCarBattery())
-					item2 = FindAttachmentBySlotName("CarBattery");
-				if (IsVitalTruckBattery())
-					item2 = FindAttachmentBySlotName("TruckBattery");
-
-				if (!item2 || item2.IsRuined())
-					result = false;
-			}
-
-			SetCarBatteryStateForVanilla(false);
+			return false;
 		}
+
+		EntityAI item2;
+
+		if (IsVitalIgniterPlug() || IsVitalSparkPlug() || IsVitalGlowPlug())
+		{
+			item2 = NULL;
+			if (IsVitalIgniterPlug())
+				item2 = FindAttachmentBySlotName("ExpansionIgniterPlug");
+			if (IsVitalSparkPlug())
+				item2 = FindAttachmentBySlotName("SparkPlug");
+			if (IsVitalGlowPlug())
+				item2 = FindAttachmentBySlotName("GlowPlug");
+
+			if (!item2 || item2.IsRuined())
+				return false;
+		}
+
+		if (IsVitalHydraulicHoses() || IsVitalRadiator())
+		{
+			item2 = NULL;
+			if (IsVitalHydraulicHoses())
+				item2 = FindAttachmentBySlotName("ExpansionHydraulicHoses");
+			if (IsVitalRadiator())
+				item2 = FindAttachmentBySlotName("CarRadiator");
+
+			if (!item2 || item2.IsRuined())
+				return false;
+		}
+
+		if (IsVitalHelicopterBattery() || IsVitalCarBattery() || IsVitalTruckBattery())
+		{
+			item2 = NULL;
+			if (IsVitalHelicopterBattery())
+				item2 = FindAttachmentBySlotName("ExpansionHelicopterBattery");
+			if (IsVitalCarBattery())
+				item2 = FindAttachmentBySlotName("CarBattery");
+			if (IsVitalTruckBattery())
+				item2 = FindAttachmentBySlotName("TruckBattery");
+
+			if (!item2 || item2.IsRuined() || item2.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
+				return false;
+		}
+
+		#ifndef SERVER
+		//! Vanilla does this for us in OnBeforeEngineStart() if it's a car
+		if (!IsCar())
+		{
+			PlayerBase player;
+			// play different sound based on selected camera
+			if (m_EngineStartOK && Class.CastTo(player, CrewMember(0)))
+			{
+				WaveKind waveKind = WaveKind.WAVEEFFECT;
+				if (!player.IsCameraInsideVehicle())
+				{
+					waveKind = WaveKind.WAVEEFFECTEX;
+				}
+
+				EffectSound sound = SEffectManager.CreateSound(m_EngineStartOK, ModelToWorld(GetEnginePos()));
+				if (sound)
+				{
+					sound.SetSoundWaveKind(waveKind);
+					sound.SoundPlay();
+					sound.SetAutodestroy(true);
+				}
+			}
+			
+			//! postpone the engine sound played from c++ on soundcontroller (via OnSound override)
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SetEngineStarted, 1000, false, true);
+		}
+		#endif
 #endif
 
-		return result;
+		return true;
 	}
 
 	/**
@@ -2667,6 +2986,7 @@ modded class CarScript
 		SetSynchDirty();
 	}
 
+	//! Get the number of Expansion engines that are on (does NOT include vanilla engine!)
 	int Expansion_EnginesOn()
 	{
 		return m_Expansion_EnginesOn;
@@ -3890,7 +4210,9 @@ modded class CarScript
 	{
 		super.EEKilled( killer );
 
-		if (GetExpansionSettings().GetLog().VehicleDestroyed)
+		if (GetExpansionSettings().GetLog().VehicleDestroyed && !m_Expansion_Killed)
     		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] "+GetType()+" was destroyed at pos=" + GetPosition());
+
+		m_Expansion_Killed = true;
 	}
 };

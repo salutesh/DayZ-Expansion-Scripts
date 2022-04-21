@@ -16,18 +16,38 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 	{
 		Object targetObject = target.GetParentOrObject();
 
-		if ( targetObject.IsInherited( TentBase ) )
-			m_Time =  GetExpansionSettings().GetRaid().LockOnTentRaidToolTimeSeconds;
-		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) )
-			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
-		else if ( targetObject.IsInherited( BaseBuildingBase ) )
-			m_Time =  GetExpansionSettings().GetRaid().LockOnFenceRaidToolTimeSeconds;
-		else
-			m_Time = GetExpansionSettings().GetRaid().SafeRaidToolTimeSeconds;
+		bool useContainerRaidSettings;
 
-		m_Cycles = GetExpansionSettings().GetRaid().LockRaidToolCycles;
+		if ( targetObject.IsInherited( TentBase ) )
+		{
+			m_Time =  GetExpansionSettings().GetRaid().LockOnTentRaidToolTimeSeconds;
+		}
+		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) )
+		{
+			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
+		}
+		else if ( targetObject.IsInherited( BaseBuildingBase ) )
+		{
+			m_Time =  GetExpansionSettings().GetRaid().LockOnFenceRaidToolTimeSeconds;
+		}
+		else
+		{
+			m_Time = GetExpansionSettings().GetRaid().LockOnContainerRaidToolTimeSeconds;
+			useContainerRaidSettings = true;
+		}
+
 		m_MinHealth01 = 0.01;  //! 1% health
-		m_ToolDamagePercent = GetExpansionSettings().GetRaid().LockRaidToolDamagePercent;
+
+		if ( !useContainerRaidSettings )
+		{
+			m_Cycles = GetExpansionSettings().GetRaid().LockRaidToolCycles;
+			m_ToolDamagePercent = GetExpansionSettings().GetRaid().LockRaidToolDamagePercent;
+		}
+		else
+		{
+			m_Cycles = GetExpansionSettings().GetRaid().LockOnContainerRaidToolCycles;
+			m_ToolDamagePercent = GetExpansionSettings().GetRaid().LockOnContainerRaidToolDamagePercent;
+		}
 	}
 
 	override bool DestroyCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
@@ -35,12 +55,14 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		if ( !super.DestroyCondition( player, target, item, camera_check ) )
 			return false;
 
-		ItemBase targetItem = ItemBase.Cast( target.GetParentOrObject() );
+		Object targetObject = target.GetParentOrObject();
+
+		ItemBase targetItem = ItemBase.Cast( targetObject );
 
 		if ( !targetItem )
 			return false;
 
-		Object actualTargetObject = GetActualTargetObject( target.GetParentOrObject() );
+		Object actualTargetObject = GetActualTargetObject( targetObject );
 
 		if ( !actualTargetObject )
 			return false;
@@ -51,12 +73,38 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		if ( !targetItem.ExpansionIsLocked() )
 			return false;
 
-		if ( GetExpansionSettings().GetRaid().LockRaidTools.Find( item.GetType() ) == -1 )
+		bool useContainerRaidSettings;
+
+		if ( targetObject.IsInherited( TentBase ) )
+		{
+			m_Time =  GetExpansionSettings().GetRaid().LockOnTentRaidToolTimeSeconds;
+		}
+		else if ( targetObject.IsInherited( ExpansionBaseBuilding ) )
+		{
+			m_Time = GetExpansionSettings().GetRaid().LockOnWallRaidToolTimeSeconds;
+		}
+		else if ( targetObject.IsInherited( BaseBuildingBase ) )
+		{
+			m_Time =  GetExpansionSettings().GetRaid().LockOnFenceRaidToolTimeSeconds;
+		}
+		else
+		{
+			m_Time = GetExpansionSettings().GetRaid().LockOnContainerRaidToolTimeSeconds;
+			useContainerRaidSettings = true;
+		}
+
+		TStringArray raidTools;
+		if ( !useContainerRaidSettings )
+			raidTools = GetExpansionSettings().GetRaid().LockRaidTools;
+		else
+			raidTools = GetExpansionSettings().GetRaid().LockOnContainerRaidTools;
+
+		if ( raidTools.Find( item.GetType() ) == -1 )
 			return false;
 
 		if ( targetItem.IsInherited( TentBase ) && IsMissionClient() )
 		{
-			Object targetObject = target.GetObject();  //! Only on client, NULL on server as we cannot use proxies here
+			targetObject = target.GetObject();  //! Only on client, NULL on server as we cannot use proxies here
 
 			if ( !targetObject )
 				return false;
@@ -100,6 +148,9 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 		if ( targetObject.IsInherited( Fence ) )
 			return GetExpansionSettings().GetRaid().CanRaidLocksOnFences;
+
+		if ( targetObject.IsInherited( Container_Base ) )
+			return GetExpansionSettings().GetRaid().CanRaidLocksOnContainers;
 
 		ExpansionWallBase wall;
 		if (Class.CastTo(wall, targetObject) && (wall.HasDoor() || wall.HasGate()))

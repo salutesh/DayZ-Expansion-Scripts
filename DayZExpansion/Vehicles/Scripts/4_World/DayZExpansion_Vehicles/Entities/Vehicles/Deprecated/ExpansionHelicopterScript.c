@@ -546,7 +546,7 @@ class ExpansionHelicopterScript extends CarScript
 		}
 	}
 
-	protected override void OnSimulation(ExpansionPhysicsState pState)
+	protected override void Expansion_OnBeforeApplyPhysics(ExpansionPhysicsState pState)
 	{
 		if (IsLanded())
 		{
@@ -560,10 +560,8 @@ class ExpansionHelicopterScript extends CarScript
 				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
 				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 			}
-			vector linearVelocity = GetVelocity(this) * m_Simulation.m_RotorSpeed;
-			SetVelocity(this, linearVelocity);
-			vector angularVelocity = dBodyGetAngularVelocity(this) * f;
-			dBodySetAngularVelocity(this, angularVelocity);
+			pState.m_LinearVelocity = pState.m_LinearVelocity * m_Simulation.m_RotorSpeed;
+			pState.m_AngularVelocity = pState.m_AngularVelocity * f;
 		}
 	}
 
@@ -714,6 +712,23 @@ class ExpansionHelicopterScript extends CarScript
 		vector start = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround() + 0.5, 0));
 		vector end = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround() - 0.5, 0));
 
+		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+		if (start[1] - surfaceY < 1)
+		{
+			if (!m_IsLanded)
+			{
+#ifdef EXPANSIONEXPRINT
+				EXPrint(ToString() + "::IsLanded surface");
+#endif
+
+				m_Expansion_IsLandedHitPos = Vector(pos[0], surfaceY, pos[2]);
+
+				m_IsLanded = true;
+			}
+
+			return true;
+		}
+
 		vector hitNormal;
 		int hitindex;
 		set<Object> hitObjects = new set<Object>;
@@ -731,6 +746,11 @@ class ExpansionHelicopterScript extends CarScript
 			}
 			hit = hitChildCount < hitObjects.Count();
 		}
+
+#ifdef EXPANSIONEXPRINT
+		if (hit != m_IsLanded)
+			EXPrint(ToString() + "::IsLanded " + hit);
+#endif
 
 		m_IsLanded = hit;
 

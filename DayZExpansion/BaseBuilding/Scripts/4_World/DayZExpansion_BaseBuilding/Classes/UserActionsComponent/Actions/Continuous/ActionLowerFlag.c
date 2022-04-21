@@ -15,8 +15,10 @@ modded class ActionLowerFlag
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		//! In this scenario the player don't need tools to dismantle. 
-		if ( player.IsInTerritory() ) {
-			if ( player.IsInsideOwnTerritory() ) {
+		if ( player.IsInTerritory() )
+		{
+			if ( player.IsInsideOwnTerritory() )
+			{
 				//! The player is in his own territory, let's parse the usual vanilla checks then
 				return super.ActionCondition( player, target, item );
 			}
@@ -27,6 +29,5 @@ modded class ActionLowerFlag
 
 		//! This is not a territory, Everyone can interact with then
 		return super.ActionCondition( player, target, item );
-	}
-	
+	}	
 };

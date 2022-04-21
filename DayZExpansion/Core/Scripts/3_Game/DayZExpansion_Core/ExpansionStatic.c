@@ -19,10 +19,15 @@
 //! DON'T use without wrapping in an ifdef in OnUpdate or anywhere else it would get called rapidly!
 class EXTrace
 {
-	int m_Ticks;
+	protected string m_Instance;
+	protected string m_Params[10];
+	protected int m_ParamsCount;
+	protected int m_Ticks;
 
-	void EXTrace()
+	void EXTrace(Class instance = null)
 	{
+		if (instance)
+			m_Instance = instance.ToString();
 		m_Ticks = TickCount(0);
 	}
 
@@ -33,10 +38,23 @@ class EXTrace
 		DumpStackString(stack);
 		TStringArray stacka();
 		stack.Split("\n", stacka);
-		Print(string.Format("%1 [EXPANSION TRACE] %2ms %3", ExpansionStatic.GetTimestamp(), (elapsed / 10000.0).ToString(), stacka[1]));
+		string res;
+		for (int i = 0; i < m_ParamsCount; i++)
+		{
+			res += m_Params[i] + " ";
+		}
+		if (m_Instance)
+			res += m_Instance + "::";
+		res += stacka[1];
+		Print(string.Format("%1 [EXPANSION TRACE] %2ms %3", ExpansionStatic.GetTimestamp(), (elapsed / 10000.0).ToString(), res));
 	}
 
-	static EXTrace Start(bool yes = true)
+	void Add(string param)
+	{
+		m_Params[m_ParamsCount++] = param;
+	}
+
+	static EXTrace Start(bool yes = true, Class instance = null, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "")
 	{
 		//! Unconditionally conditionally enable if define not defined kappa
 #ifndef EXPANSIONTRACE
@@ -44,7 +62,28 @@ class EXTrace
 			return null;
 #endif
 
-		return new EXTrace();
+		auto trace = new EXTrace(instance);
+		if (param0)
+			trace.Add(param0);
+		if (param1)
+			trace.Add(param1);
+		if (param2)
+			trace.Add(param2);
+		if (param3)
+			trace.Add(param3);
+		if (param4)
+			trace.Add(param4);
+		if (param5)
+			trace.Add(param5);
+		if (param6)
+			trace.Add(param6);
+		if (param7)
+			trace.Add(param7);
+		if (param8)
+			trace.Add(param8);
+		if (param9)
+			trace.Add(param9);
+		return trace;
 	}
 }
 

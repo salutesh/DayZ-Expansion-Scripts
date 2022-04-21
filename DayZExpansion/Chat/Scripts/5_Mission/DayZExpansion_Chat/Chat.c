@@ -90,7 +90,7 @@ modded class Chat
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Clear");
 #endif
 
-		m_ExChatUI.ClearChatLines();
+		//! DON'T clear chat lines
 	}
 		
 	ExpansionChatUIWindow GetChatWindow()

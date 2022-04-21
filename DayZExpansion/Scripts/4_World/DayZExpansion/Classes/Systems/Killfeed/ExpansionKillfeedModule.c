@@ -247,6 +247,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 						m_HitCheckDone = true;
 					}
 				}
+#ifdef EXPANSIONMODVEHICLE
 			} else if( source.IsInherited( ExpansionHelicopterScript ) || source.IsInherited( ExpansionVehicleHelicopterBase ) )	//! Vehicle Hit - Helicopter
 			{
 				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
@@ -354,6 +355,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					m_HitCheckDone = true;
 				}
 			}*/
+#endif
 		}
 		
 		#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
@@ -663,7 +665,9 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 									DiscordMessage( ExpansionKillFeedMessageType.CAR_CRASH, m_PlayerSteamWebhook, m_DisplayName );
 								}
 							}
-						} else if( car.IsHelicopter() )
+						}
+#ifdef EXPANSIONMODVEHICLE
+						else if( car.IsHelicopter() )
 						{
 							#ifdef EXPANSION_KILLFEED_MODULE_DEBUG
 							EXLogPrint("ExpansionKillFeedModule::OnPlayerSuicide - HumanCommandVehicle Heli BOOM: " + car.ClassName());
@@ -768,9 +772,11 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 								}
 							}
 						}
+#endif
 					}
 				}
-			}*/
+			}
+			*/
 		}
 			
 		//#ifdef EXPANSION_KILLFEED_MODULE_DEBUG

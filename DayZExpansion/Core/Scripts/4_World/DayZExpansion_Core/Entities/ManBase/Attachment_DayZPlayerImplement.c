@@ -573,12 +573,20 @@ modded class DayZPlayerImplement
 
 			if (!dBodyIsActive(m_ExAttachmentObject) && IsMissionHost())
 			{
-				if (!pPerformOnServer)
+				if (m_ExAttachmentObject.IsInherited(CarScript))
 				{
-					DayZPlayerSyncJunctures.ExpansionSendForceUnlink(this);
+					//! Allow climbing onto inactive vehicles (this is the only way to get into the Merlin from ground)
+					dBodyActive(m_ExAttachmentObject, ActiveState.ACTIVE);
 				}
+				else
+				{
+					if (!pPerformOnServer)
+					{
+						DayZPlayerSyncJunctures.ExpansionSendForceUnlink(this);
+					}
 
-				return;
+					return;
+				}
 			}
 
 			GetTransform(c_tmPlayer);
@@ -730,6 +738,12 @@ modded class DayZPlayerImplement
 			{
 				//AttachmentDebugPrint("START ATTACH");
 				//AttachmentDebugPrint("m_ExAttachmentObject: " + m_ExAttachmentObject);
+
+				if (m_ExAttachmentObject.IsInherited(CarScript) && !dBodyIsActive(m_ExAttachmentObject))
+				{
+					//! Needed to (e.g.) allow climb attaching to Merlin without getting teleported to sea
+					dBodyActive( m_ExAttachmentObject, ActiveState.ACTIVE );
+				}
 
 				GetTransform(m_ExTransformPlayer);
 				m_ExAttachmentObject.GetTransform(m_ExTransformTarget);

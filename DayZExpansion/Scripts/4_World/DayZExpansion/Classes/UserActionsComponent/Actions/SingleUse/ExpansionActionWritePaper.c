@@ -1,5 +1,5 @@
 /**
- * ActionOpenBook.c
+ * ExpansionActionWritePaper.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

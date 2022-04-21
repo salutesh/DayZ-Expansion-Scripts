@@ -68,26 +68,4 @@
 			}
 		}
 	}
-
-	override void EEOnCECreate()
-	{
-		super.EEOnCECreate();
-
-		//! There is no need for this now as no wild car spawns with a key rn?!
-		//array< EntityAI > items = new array< EntityAI >;
-		//GetInventory().EnumerateInventory( InventoryTraversalType.PREORDER, items );
-		//for ( int i = 0; i < items.Count(); i++ )
-		//{
-		//	ExpansionCarKey key;
-		//	if ( Class.CastTo( key, items[i] ) )
-		//	{
-		//		PairKeyTo( key );
-		//	}
-		//}
-
-		if (GetExpansionSettings().GetDebug().ShowVehicleDebugMarkers)
-		{
-			CreateServerMarker();
-		}
-	}
 };*/

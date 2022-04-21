@@ -28,5 +28,14 @@ class CfgMods
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
+		dependencies[] = {"World"};
+		class defs
+		{
+			class worldScriptModule
+			{
+				value = "";
+				files[] = {"DayZExpansion/MapAssets/Scripts/Common","DayZExpansion/MapAssets/Scripts/4_World"};
+			};
+		};
 	};
 };

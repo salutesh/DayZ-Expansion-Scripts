@@ -221,7 +221,7 @@ class ExpansionObjectSpawnTools
 
 			CF_Log.Debug( "Processed mapping object: " + obj.ClassName() + "!" );
 		}
-		#ifdef EXPANSIONMOD
+		#ifdef EXPANSIONMODMAPASSETS
 		else if (obj.IsInherited(BuildingWithFireplace))
 		{
 			BuildingWithFireplace buildingWithFireplace;

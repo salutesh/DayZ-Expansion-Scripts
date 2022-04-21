@@ -213,12 +213,6 @@ modded class MainMenu
 		LoadMods();
 		HideModWarning();
 
-		/*ExpansionBook book = ExpansionBook.Cast( GetGame().GetUIManager().FindMenu( MENU_EXPANSION_BOOK_MENU ) );
-		if ( book && book.IsVisible() )
-		{
-			book.Close();
-		}*/
-		
 		return;
 	}
 	

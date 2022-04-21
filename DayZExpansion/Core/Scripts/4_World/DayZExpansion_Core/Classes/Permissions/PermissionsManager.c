@@ -29,7 +29,7 @@ class ExpansionPermissionsManager
 
 	bool HasPermission( string permission )
 	{
-		if ( GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			Man player = GetGame().GetPlayer();
 			if (player && player.GetIdentity() )
@@ -46,11 +46,11 @@ class ExpansionPermissionsManager
 			case "Admin.Chat":
 			case "Expansion.Territories.Edit":
 				#ifdef VPPADMINTOOLS
+				if (!GetGame().IsDedicatedServer())
+					return IsAdminToolsToggledOn();
 				PermissionManager pm = GetPermissionManager();
 				if (!pm)
 					return false;
-				if (!GetGame().IsDedicatedServer())
-					return IsAdminToolsToggledOn();
 				//! I'm lazy and so SuperAdmins as well as anyone in group Admins will get blanket permission
 				if (pm.IsSuperAdmin(ihp.GetPlainId()))
 					return true;

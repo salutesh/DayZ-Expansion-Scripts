@@ -12,7 +12,6 @@ PanelWidgetClass ExpansionPartyHud {
  hexactsize 0
  vexactsize 0
  scaled 1
- priority 900
  draggable 0
  scriptclass "ExpansionPartyHudController"
  {

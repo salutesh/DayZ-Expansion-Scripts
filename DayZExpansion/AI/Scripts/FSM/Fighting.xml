@@ -70,7 +70,7 @@
 					unit.RaiseWeapon(false);
 				}
 
-				unit.OverridePosition(position);
+				unit.eAI_OverridePosition(position);
 
 				return EXIT;
             </event_update>
@@ -101,7 +101,7 @@
 				auto aimPosition = lowPosition + target.GetAimOffset(unit);
 
 				time += DeltaTime;
-				unit.OverridePosition(lowPosition);
+				unit.eAI_OverridePosition(lowPosition);
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 
@@ -145,7 +145,7 @@
 				auto aimPosition = lowPosition + target.GetAimOffset(unit);
 
 				time += DeltaTime;
-				unit.OverridePosition(lowPosition);
+				unit.eAI_OverridePosition(lowPosition);
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 

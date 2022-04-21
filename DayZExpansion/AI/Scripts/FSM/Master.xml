@@ -38,7 +38,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.OverridePosition(unit.GetPosition());
+				unit.eAI_OverridePosition(unit.GetPosition());
 			</event_entry>
 			<guard_exit>
 				return !(unit.IsUnconscious());
@@ -55,7 +55,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.OverridePosition(unit.GetPosition());
+				unit.eAI_OverridePosition(unit.GetPosition());
 			</event_entry>
 			<guard_exit>
 				return !(unit.IsTrading());
@@ -77,7 +77,7 @@
 			<event_exit>
 			</event_exit>
 			<event_update>
-				unit.OverridePosition(group.GetFormationPosition(unit));
+				unit.eAI_OverridePosition(group.GetFormationPosition(unit));
 
                 return EXIT;
             </event_update>
@@ -145,7 +145,7 @@
 
 				index = Math.Clamp(index, 0, path.Count() - 1);
 
-				unit.OverridePosition(path[index]);
+				unit.eAI_OverridePosition(path[index]);
 
                 return EXIT;
             </event_update>
