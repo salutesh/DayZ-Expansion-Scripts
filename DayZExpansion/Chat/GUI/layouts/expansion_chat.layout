@@ -10,7 +10,6 @@ PanelWidgetClass ExpansionChatUIWindow {
  hexactsize 1
  vexactsize 1
  scaled 1
- fixaspect fixwidth
  priority 3
  scriptclass "ExpansionChatUIWindowController"
  {
@@ -25,37 +24,6 @@ PanelWidgetClass ExpansionChatUIWindow {
    scaled 1
    scriptclass ""
    {
-    PanelWidgetClass ScrollerContainer {
-     visible 0
-     ignorepointer 1
-     color 0 0 0 0.1961
-     size 5 1
-     halign right_ref
-     valign bottom_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 1
-     vexactsize 0
-     fixaspect fixwidth
-     priority 1
-     style rover_sim_colorable
-     {
-      PanelWidgetClass Scroller {
-       ignorepointer 0
-       color 0.1569 0.1569 0.1569 0.7843
-       position 0 0
-       size 1 100
-       halign center_ref
-       valign top_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 0
-       vexactsize 1
-       fixaspect fixwidth
-       style rover_sim_colorable
-      }
-     }
-    }
     PanelWidgetClass ChatBackground {
      visible 0
      ignorepointer 1
@@ -76,6 +44,7 @@ PanelWidgetClass ExpansionChatUIWindow {
      vexactpos 1
      hexactsize 0
      vexactsize 0
+     style blank
      "Scrollbar V" 1
      "Scrollbar V Left" 1
      {
@@ -93,11 +62,12 @@ PanelWidgetClass ExpansionChatUIWindow {
        Rows 1
        {
         GridSpacerWidgetClass ContentRows {
+         ignorepointer 1
          position 0 0
-         size 1 1
+         size 445 1
          hexactpos 1
          vexactpos 1
-         hexactsize 0
+         hexactsize 1
          vexactsize 0
          "Size To Content V" 1
          Columns 1

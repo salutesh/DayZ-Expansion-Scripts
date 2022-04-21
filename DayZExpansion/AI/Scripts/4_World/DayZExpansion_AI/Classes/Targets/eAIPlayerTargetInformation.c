@@ -26,7 +26,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai);
+			float distance = GetDistance(ai) + 0.00001;
 			levelFactor = 10 / distance;
 
 			//! AI weapon

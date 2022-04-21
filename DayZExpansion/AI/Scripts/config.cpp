@@ -20,10 +20,10 @@ class CfgMods
 		hideName = 0;
 		hidePicture = 0;
 		name = "Enfusion AI System";
-		credits = "Ralian";
+		credits = "Enfusion AI and DayZ Expansion";
 		creditsJson = "DayZExpansion/AI/Scripts/Data/Credits.json";
-		author = "Ralian";
-		authorID = "0";
+		author = "Enfusion AI and DayZ Expansion";
+		authorID = "";
 		version = "0.1";
 		extra = 0;
 		type = "mod";
@@ -33,15 +33,15 @@ class CfgMods
 		{
 			class gameScriptModule
 			{
-				files[] = {"DayZExpansion/AI/Scripts/3_Game"};
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/3_Game"};
 			};
 			class worldScriptModule
 			{
-				files[] = {"DayZExpansion/AI/Scripts/4_World"};
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/4_World"};
 			};
 			class missionScriptModule
 			{
-				files[] = {"DayZExpansion/AI/Scripts/5_Mission"};
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/5_Mission"};
 			};
 		};
 	};

@@ -688,7 +688,9 @@ modded class ItemBase
 		}
 		else if (oldLoc.GetType() == InventoryLocationType.GROUND)
 		{
-			float lifetime = GetEconomyProfile().GetLifetime();
+			float lifetime;
+			if (GetEconomyProfile())
+				lifetime = GetEconomyProfile().GetLifetime();
 			if (m_Expansion_SZCleanup || GetLifetimeMax() < lifetime)
 			{
 				m_Expansion_SZCleanup = false;

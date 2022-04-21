@@ -1247,7 +1247,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 				continue;
 
 			PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(playerData.UID);
-			if (partyPlayer && partyPlayer.GetIdentity())
+			if (partyPlayer && partyPlayer.GetIdentity() && sender)
 			{
 				if (partyPlayer.GetIdentityUID() != sender.GetId())
 				{

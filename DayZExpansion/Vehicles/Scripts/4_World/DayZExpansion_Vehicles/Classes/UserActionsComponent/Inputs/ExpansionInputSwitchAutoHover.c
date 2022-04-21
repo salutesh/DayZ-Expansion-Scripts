@@ -67,4 +67,9 @@ class ExpansionInputSwitchAutoHover : DefaultActionInput
 			}
 		}
 	}
+	
+	override ActionBase GetAction()
+	{
+		return m_SelectAction;
+	}
 };

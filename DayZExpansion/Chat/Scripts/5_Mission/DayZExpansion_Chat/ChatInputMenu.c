@@ -124,7 +124,8 @@ modded class ChatInputMenu
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
-		super.OnHide();
+		if (GetGame() && GetGame().GetMission())  //! Prevent NULL pointer on game exit
+			super.OnHide();
 			
 		if (m_Chat)
 			m_Chat.OnChatInputHide();

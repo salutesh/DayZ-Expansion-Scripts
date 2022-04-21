@@ -28,6 +28,7 @@ class CfgMods
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
+		expansionSkins[] = {"DayZExpansion/Skins/Weapons/Explosives/","DayZExpansion/Skins/Weapons/Firearms/","DayZExpansion/Skins/Weapons/Melee/","DayZExpansion/Skins/Weapons/Pistols/","DayZExpansion/Skins/Weapons/Shotguns/","DayZExpansion/Skins/Weapons/Archery/","DayZExpansion/Skins/Weapons/Attachements/"};
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{

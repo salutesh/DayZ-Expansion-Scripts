@@ -93,7 +93,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		if ( Class.CastTo( flag, target.GetObject() ) )
 		{
 			//! Is the flag fully construced ?
-			float state = flag.GetAnimationPhase("flag_mast");
+			float state = 1.0;//flag.GetAnimationPhase("flag_mast");
 			if ( flag.FindAttachmentBySlotName("Material_FPole_Flag") && state >= 0.99 )
 			{
 				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG

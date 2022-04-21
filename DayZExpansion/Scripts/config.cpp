@@ -7,16 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionRadio"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_BaseBuilding_Scripts","DayZExpansion_Book_Scripts","DayZExpansion_Vehicles_Scripts","DayZExpansion_Weapons_Scripts"};
-	};
-};
-class CfgNoises
-{
-	class HeliExpansionNoise
-	{
-		type = "sound";
-		continuousRange = 300;
-		strength = 50;
+		requiredAddons[] = {"DayZExpansion_Core_Scripts"};
 	};
 };
 class CfgVehicles
@@ -107,7 +98,7 @@ class CfgMods
 		action = "";
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
-		expansionSkins[] = {"DayZExpansion/Skins/Character/HeadGear/","DayZExpansion/Skins/Gear/Container/","DayZExpansion/Skins/Gear/Cooking/","DayZExpansion/Skins/Gear/Tools/","DayZExpansion/Skins/Gear/Traps/","DayZExpansion/Skins/Weapons/Explosives/","DayZExpansion/Skins/Weapons/Firearms/","DayZExpansion/Skins/Weapons/Melee/","DayZExpansion/Skins/Weapons/Pistols/","DayZExpansion/Skins/Weapons/Shotguns/","DayZExpansion/Skins/Weapons/Archery/","DayZExpansion/Skins/Weapons/Attachements/"};
+		expansionSkins[] = {"DayZExpansion/Skins/Character/HeadGear/","DayZExpansion/Skins/Gear/Container/","DayZExpansion/Skins/Gear/Cooking/","DayZExpansion/Skins/Gear/Tools/","DayZExpansion/Skins/Gear/Traps/"};
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{

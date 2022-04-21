@@ -81,7 +81,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "CanReachDoorsFromSeat").Add(pDoorsSelection).Add(pCurrentSeat);
 #endif
 
-		return true;
+		return false;
 	}
 
 	override bool IsVitalCarBattery()

@@ -34,4 +34,16 @@ class ExpansionWoodPillarKit extends ExpansionKitLarge
 		
 		SetIsDeploySound( true );
 	}
+	
+	override void DisassembleKit(ItemBase item)
+	{
+		if (!IsHologram())
+		{
+			ItemBase stick = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick",GetPosition(),ECE_PLACE_ON_SURFACE));
+			MiscGameplayFunctions.TransferItemProperties(this, stick);
+			stick.SetQuantity(1);
+			Rope rope = Rope.Cast(item);
+			CreateRope(rope);
+		}
+	}
 }

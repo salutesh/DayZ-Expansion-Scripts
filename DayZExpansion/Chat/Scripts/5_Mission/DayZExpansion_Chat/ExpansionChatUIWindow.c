@@ -36,6 +36,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	ExpansionClientUIChatSize m_ChatSize;
 
+	bool m_ChatHover;
+
 	void ExpansionChatUIWindow(Widget parent, Chat chat)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
@@ -176,18 +178,15 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		{
 			m_ChatParams.Remove(m_ChatParams.Count() - 1);
 		}
-		
-		float vscroll = ChatScroller.GetVScrollPos01();
-		float threshold = 1.0 / m_ChatParams.Count() * (m_ChatParams.Count() - 1);
 
-		//! Only refresh scroll position if player hasn't scrolled up
-		RefreshChatMessages(vscroll >= threshold);
+		RefreshChatMessages();
 		
-		//! This will allow chat messages to fade out
-		HideChat();
+		//! This will allow chat messages to fade out, but only if chat input is not open
+		if (!IsVisible())
+			HideChat();
 	}
 
-	void RefreshChatMessages(bool updateScroller = true)
+	void RefreshChatMessages()
 	{
 		for (int i = 0; i < m_ChatLines.Count(); i++)
 		{
@@ -207,19 +206,6 @@ class ExpansionChatUIWindow: ExpansionScriptView
 					m_ChatLines[idx].Show();
 			}
 		}
-
-		if (updateScroller)
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(ScrollToBottom, 100, false);
-	}
-
-	void ScrollToBottom()
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
-
-		ChatScroller.VScrollToPos01(1);
-
-		if (ChatScroller.GetVScrollPos01() != 1)
-			GetGame().GetCallQueue(CALL_CATEGORY_GUI).CallLater(ScrollToBottom, 100, false);
 	}
 
 	void HideChat()
@@ -257,6 +243,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 			m_FadeOutTimerChat.Stop();
 		
 		ChatBackground.Show(true);
+		ChatScroller.SetAlpha(0.1);
 	}
 	
 	override void Hide()
@@ -270,6 +257,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		super.OnHide();
 
 		ChatBackground.Show(false);
+		ChatScroller.SetAlpha(0);
 		HideChat();
 	}
 
@@ -286,6 +274,41 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	Widget GetParentWidget()
 	{
 		return m_Parent;
+	}
+
+	override float GetUpdateTickRate()
+	{
+		return 0.1;
+	}
+
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if (w != NULL && w == ChatScroller)
+		{
+			m_ChatHover = true;
+			return true;
+		}
+
+		return super.OnMouseEnter(w, x, y);
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if (w != NULL && w == ChatScroller && enterW != ChatScroller)
+		{
+			m_ChatHover = false;
+			return true;
+		}
+
+		return super.OnMouseLeave(w, enterW, x, y);
+	}
+
+	override void Update()
+	{
+		//! Scroll new messages into view, but only if chat input is not open
+		//! OR if mouse is not hovering chat area
+		if (ChatScroller && (!IsVisible() || !m_ChatHover))
+			ChatScroller.VScrollToPos01(1);  //! STAY DOWN YOU FUCKER
 	}
 };
 

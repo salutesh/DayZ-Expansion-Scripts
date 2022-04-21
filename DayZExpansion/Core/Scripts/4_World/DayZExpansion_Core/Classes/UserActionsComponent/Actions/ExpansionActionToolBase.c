@@ -120,8 +120,9 @@ class ExpansionActionToolBase : ActionContinuousBase
 		if ( item.GetCompEM() && item.HasQuantity() )
 		{
 			//! Convert tool dmg pct to energy usage
+			//! (less ~10% so fully charged/filled tool will last for the configured number of raid cycles)
 			float energyMax = item.GetCompEM().GetEnergyMaxPristine();
-			item.GetCompEM().SetEnergyUsage( energyMax * m_ToolDamagePercent / 100.0 / m_Time );
+			item.GetCompEM().SetEnergyUsage( energyMax * m_ToolDamagePercent / 110.0 / m_Time );
 		}
 	}
 
@@ -143,7 +144,7 @@ class ExpansionActionToolBase : ActionContinuousBase
 		if ( !actualTargetObject )
 			return;
 
-		if ( !action_data.m_MainItem.GetCompEM() )
+		if ( !action_data.m_MainItem.GetCompEM() || action_data.m_MainItem.HasQuantity() )
 		{
 			if ( !action_data.m_MainItem.HasQuantity() )
 			{
@@ -161,6 +162,9 @@ class ExpansionActionToolBase : ActionContinuousBase
 			{
 				//! Deplete tool by converting tool dmg to quantity
 				float quantity = action_data.m_MainItem.GetQuantityMax() * m_ToolDamagePercent / 100.0;
+				//! If it's the last cycle and tool damage is set to 100%, the tool will be fully depleted no matter what
+				if ( actualTargetObject.GetHealth() > minHealth || m_ToolDamagePercent < 100.0 )
+					quantity /= m_Cycles;
 				action_data.m_MainItem.SetQuantity( action_data.m_MainItem.GetQuantity() - quantity );
 			}
 		}

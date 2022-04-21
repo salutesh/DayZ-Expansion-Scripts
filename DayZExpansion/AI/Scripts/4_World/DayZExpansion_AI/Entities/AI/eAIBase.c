@@ -574,6 +574,9 @@ class eAIBase extends PlayerBase
 		array<Object> newThreats = new array<Object>();
 		GetGame().GetObjectsAtPosition(GetPosition(), 30.0, newThreats, proxyCargos);
 
+		if ( !GetGroup() )
+			return;
+
 		float group_count = GetGroup().Count();
 
 		for (int i = 0; i < newThreats.Count(); i++)
@@ -735,10 +738,10 @@ class eAIBase extends PlayerBase
 	 * 
 	 * @param pPosition the target position for path finding
 	 */
-	void OverridePosition(vector pPosition)
+	void eAI_OverridePosition(vector pPosition)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "OverridePosition").Add(pPosition);
+		auto trace = CF_Trace_1(this, "eAI_OverridePosition").Add(pPosition);
 		#endif
 		
 		m_PathFinding.OverridePosition(pPosition);
@@ -1111,7 +1114,8 @@ class eAIBase extends PlayerBase
 		
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT && m_eAI_Command)
 		{
-			m_eAI_Command.SetLookDirection(m_eAI_LookDirection_ModelSpace);
+			if ( m_eAI_LookDirection_ModelSpace )
+				m_eAI_Command.SetLookDirection(m_eAI_LookDirection_ModelSpace);
 
 			eAICommandMove hcm;
 

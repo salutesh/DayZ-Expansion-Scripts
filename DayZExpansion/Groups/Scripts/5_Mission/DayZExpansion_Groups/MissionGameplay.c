@@ -20,11 +20,6 @@ modded class MissionGameplay
 	{
 		super.OnUpdate(timeslice);
 
-		if (!m_bLoaded)
-		{
-			return;
-		}
-
 		Man man = GetGame().GetPlayer(); //! Refernce to man
 		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
@@ -35,7 +30,11 @@ modded class MissionGameplay
 		{
 			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && showPartyHUDSetting)
 			{
-				if (topMenu || viewMenu)
+				bool isChatInputMenu;
+				if (topMenu)
+					isChatInputMenu = topMenu.IsInherited(ChatInputMenu);
+
+				if ((topMenu || viewMenu) && !isChatInputMenu)
 				{
 					if (m_Hud.GetPartyHUDState())
 						m_Hud.PartyHUDHide();

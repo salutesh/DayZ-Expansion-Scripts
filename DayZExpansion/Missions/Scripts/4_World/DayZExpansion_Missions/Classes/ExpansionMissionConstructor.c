@@ -20,11 +20,25 @@ class ExpansionMissionConstructor
 
 	void RegisterMissions( out TTypenameArray missions )
 	{
+		//! Airdrops
 		missions.Insert( ExpansionMissionEventAirdrop );
+		
+		//! DayZ rewritten Contaminated Areas
 		missions.Insert( ExpansionMissionEventContaminatedArea );
-
-		#ifdef EXPANSION_MISSION_HORDE
+		
+		#ifdef BUILD_EXPERIMENTAL
+		//! Zombie Horde
 		missions.Insert( ExpansionMissionEventHorde );
+		#ifdef EXPANSIONMODAI
+		//! AI General missions (Patrol, Faction War, Protecting Loot)
+		missions.Insert( ExpansionMissionEventAI );
+		
+		//! Airdrop with AI
+		//missions.Insert( ExpansionMissionEventAirdropAI );
+		
+		//! DayZ rewritten Contaminated Areas with AI
+		//missions.Insert( ExpansionMissionEventContaminatedArea );
+		#endif
 		#endif
 	}
 };

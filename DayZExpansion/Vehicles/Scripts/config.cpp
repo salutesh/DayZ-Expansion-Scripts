@@ -10,6 +10,15 @@ class CfgPatches
 		requiredAddons[] = {"DayZExpansion_Core_Scripts"};
 	};
 };
+class CfgNoises
+{
+	class HeliExpansionNoise
+	{
+		type = "sound";
+		continuousRange = 300;
+		strength = 50;
+	};
+};
 class CfgMods
 {
 	class DZ_Expansion_Vehicles

@@ -17,6 +17,7 @@ class eAIDynamicPatrol : eAIPatrol
 	eAIGroup m_Group;
 	float m_LastSpawn;
 	bool m_CanSpawn;
+	private bool m_WasGroupDestroyed;
 
 	/**
 	 * @brief Creates a dynamic patrol which spawns a patrol under the right conditions.
@@ -92,7 +93,17 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 
+		m_WasGroupDestroyed = true;
 		return true;
+	}
+
+	private bool WasGroupDestroyed()
+	{
+		#ifdef EAI_TRACE
+		auto trace = CF_Trace_0(this, "WasGroupDestroyed");
+		#endif
+
+		return m_WasGroupDestroyed;
 	}
 
 	void Spawn()
@@ -105,6 +116,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_LastSpawn = 0;
 		m_CanSpawn = false;
+		m_WasGroupDestroyed = false;
 
 		eAIBase ai = SpawnAI(m_Position);
 		m_Group = ai.GetGroup();
@@ -144,6 +156,12 @@ class eAIDynamicPatrol : eAIPatrol
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "OnUpdate");
 		#endif
+
+		if ( WasGroupDestroyed() && m_RespawnTime != -1 )
+		{
+			Print("Group died and are not allowed to respawn");
+			return;
+		}
 
 		super.OnUpdate();
 

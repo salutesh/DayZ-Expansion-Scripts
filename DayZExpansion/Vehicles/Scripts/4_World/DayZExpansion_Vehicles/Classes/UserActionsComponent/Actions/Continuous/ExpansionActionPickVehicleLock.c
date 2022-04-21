@@ -9,12 +9,7 @@ class ExpansionActionPickVehicleLockBase: ExpansionActionToolBase
 
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		CarScript car = CarScript.Cast( target.GetParentOrObject() );
-		float lockComplexity = 1.0;
-		if ( car )
-			lockComplexity = car.Expansion_LockComplexity();
-
-		m_Time = GetExpansionSettings().GetVehicle().PickLockTimeSeconds * lockComplexity;
+		m_Time = GetExpansionSettings().GetVehicle().PickLockTimeSeconds;
 		m_Cycles = 1;
 		m_ToolDamagePercent = GetExpansionSettings().GetVehicle().PickLockToolDamagePercent;
 	}
@@ -58,7 +53,9 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 
 		if ( carScript )
 		{
-			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent;
+			float lockComplexity = 1.0;
+			lockComplexity = carScript.Expansion_LockComplexity();
+			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent / lockComplexity;
 
 			#ifdef EXPANSIONMODVEHICLE
 			if ( GetExpansionSettings().GetLog().VehicleLockPicking )

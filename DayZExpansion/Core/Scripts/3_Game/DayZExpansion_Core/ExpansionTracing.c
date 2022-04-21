@@ -73,7 +73,7 @@ class ExpansionTracing
 
 	static bool UI;
 
-	static bool VEHICLES;
+	static bool VEHICLES = ENABLE;
 
 	static bool WEAPONS;
 

@@ -20,6 +20,18 @@ class ExpansionFloorKit extends ExpansionKitLarge
 		if ( IsMissionHost() )
 			ExpansionDeploy( player, position, orientation );
 	}
+	
+	override void DisassembleKit(ItemBase item)
+	{
+		if (!IsHologram())
+		{
+			ItemBase stick = ItemBase.Cast(GetGame().CreateObjectEx("WoodenStick",GetPosition(),ECE_PLACE_ON_SURFACE));
+			MiscGameplayFunctions.TransferItemProperties(this, stick);
+			stick.SetQuantity(4);
+			Rope rope = Rope.Cast(item);
+			CreateRope(rope);
+		}
+	}
 }
 
 class ExpansionRoofKit : ExpansionFloorKit

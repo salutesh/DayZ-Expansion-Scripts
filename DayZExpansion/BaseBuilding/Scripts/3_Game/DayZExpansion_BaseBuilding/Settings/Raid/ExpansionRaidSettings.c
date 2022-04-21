@@ -62,13 +62,13 @@ class ExpansionRaidSettingsBase: ExpansionSettingBase
  **/
 class ExpansionRaidSettings: ExpansionRaidSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
-	bool CanRaidContainers;								//! If enabled, make safes raidable
-	autoptr TStringArray ContainerRaidTools;			//! List of tools allowed for raiding Containers
-	int ContainerRaidToolTimeSeconds;					//! Time needed to raid Container with tool
-	int ContainerRaidToolCycles;						//! Number of cycles needed to raid Container
-	float ContainerRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+	bool CanRaidLocksOnContainers;							//! If enabled, makes code locked containers raidable
+	autoptr TStringArray LockOnContainerRaidTools;			//! List of tools allowed for raiding locks on containers
+	int LockOnContainerRaidToolTimeSeconds;					//! Time needed to raid lock on container with tool
+	int LockOnContainerRaidToolCycles;						//! Number of cycles needed to raid lock on container
+	float LockOnContainerRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -80,7 +80,7 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionRaidSettings");
 #endif
 
-		ContainerRaidTools = new TStringArray;
+		LockOnContainerRaidTools = new TStringArray;
 	}
 	
 	// ------------------------------------------------------------
@@ -92,8 +92,8 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 
 		ExplosiveDamageWhitelist.Clear();
 		delete ExplosiveDamageWhitelist;
-		ContainerRaidTools.Clear();
-		delete ContainerRaidTools;
+		LockOnContainerRaidTools.Clear();
+		delete LockOnContainerRaidTools;
 		SafeRaidTools.Clear();
 		delete SafeRaidTools;
 		BarbedWireRaidTools.Clear();
@@ -165,12 +165,12 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionRaidSettings s )
 	{
-		CanRaidContainers = s.CanRaidContainers;
+		CanRaidLocksOnContainers = s.CanRaidLocksOnContainers;
 
-		ContainerRaidTools.Copy( s.ContainerRaidTools );
-		ContainerRaidToolTimeSeconds = s.ContainerRaidToolTimeSeconds;
-		ContainerRaidToolCycles = s.ContainerRaidToolCycles;
-		ContainerRaidToolDamagePercent = s.ContainerRaidToolDamagePercent;
+		LockOnContainerRaidTools.Copy( s.LockOnContainerRaidTools );
+		LockOnContainerRaidToolTimeSeconds = s.LockOnContainerRaidToolTimeSeconds;
+		LockOnContainerRaidToolCycles = s.LockOnContainerRaidToolCycles;
+		LockOnContainerRaidToolDamagePercent = s.LockOnContainerRaidToolDamagePercent;
 		
 		ExpansionRaidSettingsBase sb = s;
 		CopyInternal( sb );
@@ -270,14 +270,14 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 			{
 				EXPrint("[ExpansionRaidSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_RAID_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 2)
+				if (settingsBase.m_Version < 3)
 				{
-					CanRaidContainers = settingsDefault.CanRaidContainers;
+					CanRaidLocksOnContainers = settingsDefault.CanRaidLocksOnContainers;
 
-					ContainerRaidTools.Copy( settingsDefault.ContainerRaidTools );
-					ContainerRaidToolTimeSeconds = settingsDefault.ContainerRaidToolTimeSeconds;
-					ContainerRaidToolCycles = settingsDefault.ContainerRaidToolCycles;
-					ContainerRaidToolDamagePercent = settingsDefault.ContainerRaidToolDamagePercent;
+					LockOnContainerRaidTools.Copy( settingsDefault.LockOnContainerRaidTools );
+					LockOnContainerRaidToolTimeSeconds = settingsDefault.LockOnContainerRaidToolTimeSeconds;
+					LockOnContainerRaidToolCycles = settingsDefault.LockOnContainerRaidToolCycles;
+					LockOnContainerRaidToolDamagePercent = settingsDefault.LockOnContainerRaidToolDamagePercent;
 				}
 				
 				//! Copy over old settings that haven't changed
@@ -347,14 +347,14 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		ProjectileDamageMultiplier = 1;
 		
 		CanRaidSafes = true;
-		CanRaidContainers = true;
+		CanRaidLocksOnContainers = true;
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
 
-		ContainerRaidTools.Insert( "ExpansionPropaneTorch" );
-		ContainerRaidToolTimeSeconds = 10 * 60;
-		ContainerRaidToolCycles = 5;
-		ContainerRaidToolDamagePercent = 100;
+		LockOnContainerRaidTools.Insert( "ExpansionPropaneTorch" );
+		LockOnContainerRaidToolTimeSeconds = 10 * 60;
+		LockOnContainerRaidToolCycles = 5;
+		LockOnContainerRaidToolDamagePercent = 100;
 
 		SafeRaidTools.Insert( "ExpansionPropaneTorch" );
 		SafeRaidToolTimeSeconds = 10 * 60;
