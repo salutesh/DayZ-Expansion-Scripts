@@ -632,6 +632,11 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( texturePath == "" || !flag )
 			return;
 		
+		//! TODO: Security. Flag may not have an associated territory, so we cannot check for territory admin.
+		ExpansionTerritory territory = flag.GetTerritory();
+		if (territory && !IsSenderTerritoryAdmin(ident, territory))
+			return;
+		
 		flag.SetFlagTexture( texturePath );
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -698,17 +703,16 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !flag || !sender )
 		{
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-			EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - [ERROR] Recived territory flag object is empty or NULL!");
+			EXLogPrint("ExpansionTerritoryModule::Exec_DeleteTerritoryPlayer - [ERROR] Recived territory flag object or sender is NULL!");
 			#endif
 
 			return;
 		}
 		
-		string playerSteamID = "";
-		if (sender) playerSteamID = sender.GetId();
+		string playerUID = sender.GetId();
 		string flagOwnerID = flag.GetOwnerID();
 		
-		if ( playerSteamID == flagOwnerID )
+		if ( playerUID == flagOwnerID )
 		{
 			ExpansionTerritory currentTerritory = flag.GetTerritory();
 			if (!currentTerritory) return;
@@ -742,7 +746,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			}
 		
 			if ( GetExpansionSettings().GetLog().Territory )
-				GetExpansionSettings().GetLog().PrintLog( "[Territory] Player \"" + sender.GetName() + "\" (id=" + playerSteamID + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
+				GetExpansionSettings().GetLog().PrintLog( "[Territory] Player \"" + sender.GetName() + "\" (id=" + playerUID + ")" + " deleted territory " + currentTerritory.GetTerritoryName() + " at " + currentTerritory.GetPosition() );
 			
 			//Don't forget to set it as null before to delete, to not do a infinte loop
 			flag.SetTerritory(null);
@@ -766,7 +770,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule DeleteTerritoryPlayer
-	// Called on client
+	// Called on client, to be called ONLY from admin tools
 	// ------------------------------------------------------------
 	void DeleteTerritoryAdmin( int territoryID )
 	{
@@ -799,6 +803,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		int territoryID;
 		if ( !ctx.Read( territoryID ) )
 			return;
+		
+		if ( !senderRPC || !GetPermissionsManager().HasPermission( "Expansion.Territories.Delete", senderRPC ) )
+			return;
 
 		Exec_DeleteTerritoryAdmin( territoryID, senderRPC );
 		
@@ -809,7 +816,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule Exec_DeleteTerritory
-	// Called on server
+	// Called on server. Note that this is also called in TerritoryFlag::EEDelete with NULL sender, so needs to work for that case as well
 	// ------------------------------------------------------------
 	void Exec_DeleteTerritoryAdmin( int territoryID, PlayerIdentity sender )
 	{
@@ -830,6 +837,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		ExpansionTerritory currentTerritory = flag.GetTerritory();
 		if ( !currentTerritory )
+			return;
+
+		if (sender && !IsSenderTerritoryAdmin(sender, currentTerritory))
 			return;
 		
 		array< ref ExpansionTerritoryMember > members = currentTerritory.GetTerritoryMembers();
@@ -1028,9 +1038,15 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		EXLogPrint("ExpansionTerritoryModule::Exec_RequestInvitePlayer - 5");
 		#endif
 
+		if ( !territory.IsMember( sender.GetId() ) )
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("You can only invite players to your own territory!", targetPlayer.GetIdentity().GetName())).Error(sender);
+			return;
+		}
+
 		if ( territory.IsMember( targetID ) || territory.HasInvite(targetID) )
 		{
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetName())).Error(sender);
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetIdentity().GetName())).Error(sender);
 			return;
 		}
 		
@@ -1051,7 +1067,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if (!territory.AddTerritoryInvite(invite))
 		{
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_INVITED", targetPlayer.GetName())).Error(sender);
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_INVITED", targetPlayer.GetIdentity().GetName())).Error(sender);
 			return;
 		}
 		
@@ -1061,7 +1077,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			GetExpansionSettings().GetLog().PrintLog("[Territory] Player \"" + targetPlayer.GetIdentity().GetName() + "\" (id=" + targetPlayer.GetIdentity().GetId() + " pos=" + targetPlayer.GetPosition() +") was invited to join the territory " + territory.GetTerritoryName() + " at " + territory.GetPosition() + " by the player \"" + sender.GetName() + "\" (id=" + sender.GetId() +")");
 		
 		//! Message to request sender
-		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_SENDER", targetPlayer.GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
+		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_SENDER", targetPlayer.GetIdentity().GetName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		
 		//! Message to request target
 		ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_INVITE_REQUEST_TARGET",  sender.GetName(), territory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(targetPlayer.GetIdentity());
@@ -1483,10 +1499,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		ExpansionTerritoryMember senderTerritory = territory.GetMember( sender.GetId() );
-		if ( !senderTerritory )
+		if ( !IsSenderTerritoryAdmin(sender, territory) )
 		{
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ERROR_NOSENDERTERRITORY").Error(sender);
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "You do not have permission to demote territory members!").Error(sender);
 			return;
 		}
 		
@@ -1497,9 +1512,15 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
-		if ( senderTerritory.GetRank() == ExpansionTerritoryRank.MEMBER )
+		if ( target.GetRank() == ExpansionTerritoryRank.MEMBER )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser( "STR_EXPANSION_TERRITORY_PLAYER_DEMOTE_ALREADYMEMBER", target.GetName())).Error(sender);
+			return;
+		}
+		
+		if ( target.GetRank() == ExpansionTerritoryRank.ADMIN )
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser( "Cannot demote territory admin!", target.GetName())).Error(sender);
 			return;
 		}
 		
@@ -2297,5 +2318,36 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	map<int, TerritoryFlag> GetAllTerritoryFlags()
 	{
 		return m_TerritoryFlags;
+	}
+
+	bool IsSenderTerritoryAdmin(PlayerIdentity sender, ExpansionTerritory territory)
+	{
+		if (!sender || !territory)
+			return false;
+
+		string uid = sender.GetId();
+		if (!uid)
+			return false;
+
+		//! Owner is always admin
+		if (uid == territory.GetOwnerID())
+			return true;
+
+		//! Check member for moderator permissions
+
+		ExpansionTerritoryMember member = territory.GetMember(uid);
+		if (!member)
+			return false;
+
+		ExpansionTerritoryRank rank = member.GetRank();
+		if (rank != ExpansionTerritoryRank.MODERATOR && rank != ExpansionTerritoryRank.ADMIN)
+			return false;
+
+		return true;
+	}
+
+	bool IsSenderTerritoryAdmin(PlayerIdentity sender, int territoryID)
+	{
+		return IsSenderTerritoryAdmin(sender, GetTerritory(territoryID));
 	}
 }

@@ -316,7 +316,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		ExpansionPartyPlayerData senderPlayer = party.GetPlayer(senderID);
 		if (!senderPlayer)
 		{
-			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
 			return;
 		}
 
@@ -627,9 +627,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 		
-		ExpansionPartyPlayerData senderPartyMember = GetPartyPlayerData(sender.GetId());
+		ExpansionPartyPlayerData senderPartyMember = party.GetPlayer(sender.GetId());
 		if (!senderPartyMember)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
 			return;
+		}
 		
 		if (!requestedByMember && !senderPartyMember.CanKick())
 		{
@@ -829,6 +832,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 
+		if (!party.IsMember(sender.GetId()))
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
+			return;
+		}
+
 		party.AddMarker(marker);
 		party.Save();
 
@@ -866,6 +875,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!party || partyId == -1)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(senderRPC);
+			return;
+		}
+
+		if (!party.IsMember(senderRPC.GetId()))
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(senderRPC);
 			return;
 		}
 
@@ -909,6 +924,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!party || partyId == -1)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
+			return;
+		}
+
+		if (!party.IsMember(sender.GetId()))
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
 			return;
 		}
 
@@ -960,6 +981,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!party || partyId == -1)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_NOT_EXIST").Error(sender);
+			return;
+		}
+
+		if (!party.IsMember(sender.GetId()))
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
 			return;
 		}
 
@@ -1066,6 +1093,19 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!senderParty || partyId == -1)
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "Could not get player's party data!").Error(sender);
+			return;
+		}
+
+		ExpansionPartyPlayerData senderPartyPlayer = senderParty.GetPlayer(sender.GetId());
+		if (!senderPartyPlayer)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYER_NOT_IN").Error(sender);
+			return;
+		}
+
+		if (!senderPartyPlayer.CanEdit())
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_CANTEDIT").Error(sender);
 			return;
 		}
 
