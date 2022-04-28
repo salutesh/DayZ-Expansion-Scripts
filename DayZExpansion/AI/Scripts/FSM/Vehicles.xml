@@ -22,7 +22,7 @@
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
 
-				unit.eAI_OverridePosition(position);
+				unit.OverrideTargetPosition(position);
 
                 return EXIT;
             </event_update>
@@ -51,7 +51,7 @@
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
 
-				unit.eAI_OverridePosition(position);
+				unit.OverrideTargetPosition(position);
 				
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
 				
@@ -82,7 +82,7 @@
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
 
-				unit.eAI_OverridePosition(position);
+				unit.OverrideTargetPosition(position);
 
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
 				
@@ -112,7 +112,7 @@
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
 
-				unit.eAI_OverridePosition(position);
+				unit.OverrideTargetPosition(position);
 				
 				auto vehCmd = unit.GetCommand_VehicleAI();
 				if (vehCmd &amp;&amp; vehCmd.IsGettingIn()) return CONTINUE;
@@ -161,7 +161,7 @@
 			<event_update>
 				if (!hasDoor) return EXIT;
 				
-				unit.eAI_OverridePosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition());
 
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
 				
@@ -194,7 +194,7 @@
 			<event_update>
 				if (!hasDoor) return EXIT;
 				
-				unit.eAI_OverridePosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition());
 
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
 				
@@ -214,7 +214,7 @@
 			<event_exit>
 			</event_exit>
 			<event_update>
-				unit.eAI_OverridePosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition());
 
 				auto vehCmd = unit.GetCommand_VehicleAI();
 				if (vehCmd &amp;&amp; vehCmd.IsGettingOut()) return CONTINUE;

@@ -82,7 +82,6 @@ class CfgMods
 	{
 		dir = "DayZExpansion";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
-		creditsJson = "DayZExpansion/Scripts/Data/Credits.json";
 		versionPath = "DayZExpansion/scripts/Data/Version.hpp";
 		inputs = "DayZExpansion/Scripts/Data/Inputs.xml";
 		extra = 0;

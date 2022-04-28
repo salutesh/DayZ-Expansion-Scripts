@@ -618,7 +618,7 @@ modded class DayZPlayerImplement
 		Object parent = m_ExAttachmentObject;
 
 		if ((IsMissionClient() || pPerformOnServer) && m_ExPlayerLinkType == ExpansionPlayerLink.NONE && !m_ExIsAwaitingServerLink)
-		{
+		{			
 			// GetParent() and parent must match
 			if (parent == GetParent())
 			{

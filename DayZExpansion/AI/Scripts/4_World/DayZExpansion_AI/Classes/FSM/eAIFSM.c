@@ -1,3 +1,5 @@
+#include "0_DayZExpansion_AI_Preload/Common/DayZExpansion_AI_Defines.c"
+
 class eAIFSM
 {
 	static const int EXIT = 0;

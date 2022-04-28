@@ -35,7 +35,7 @@ class eAIDynamicPatrol : eAIPatrol
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "SoldierLoadout.json", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0)
+	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "HumanLoadout.json", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -71,7 +71,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		ai.SetPosition(pos);
 
-		HumanLoadout.Apply(ai, m_Loadout);
+		ExpansionHumanLoadout.Apply(ai, m_Loadout, false, eAISettings.GetLoadoutDirectories());
 				
 		ai.SetMovementSpeedLimit(m_MovementSpeedLimit);
 
@@ -157,7 +157,7 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = CF_Trace_0(this, "OnUpdate");
 		#endif
 
-		if ( WasGroupDestroyed() && m_RespawnTime != -1 )
+		if ( WasGroupDestroyed() && m_RespawnTime == -1 )
 		{
 			Print("Group died and are not allowed to respawn");
 			return;
@@ -173,7 +173,7 @@ class eAIDynamicPatrol : eAIPatrol
 			patrolPos = leader.GetPosition();
 		}
 		
-		autoptr array<Man> players = {};
+		array<Man> players = {};
 		GetGame().GetPlayers(players);
 		float minimumDistance = 50000.0;
 		foreach (auto player : players)

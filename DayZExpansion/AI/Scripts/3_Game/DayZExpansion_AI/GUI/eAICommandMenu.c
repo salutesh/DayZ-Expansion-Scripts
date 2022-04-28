@@ -199,7 +199,7 @@ class eAICommandMenu extends UIScriptedMenu
 		if (category == eAICommandCategories.CATEGORIES)
 		{
 			// only show if we are in a group
-			if (GetDayZGame().eAIManagerGet().InGroup())
+			if (GetDayZGame().GetExpansionGame().InGroup())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_MOVEMENT, "Movement", eAICommandCategories.CATEGORIES));
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FORMATION, "Formation", eAICommandCategories.CATEGORIES));
@@ -207,7 +207,7 @@ class eAICommandMenu extends UIScriptedMenu
 			}
 			
 			// only show if we are an admin
-			if (GetDayZGame().eAIManagerGet().IsAdmin())
+			if (GetDayZGame().GetExpansionGame().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Debug", eAICommandCategories.CATEGORIES));
 			}
@@ -549,7 +549,7 @@ class eAICommandMenu extends UIScriptedMenu
 				instance.m_SelectedItem.GetUserData(selected);
 
 				if (selected)
-					g_Game.eAIManagerGet().GetCommandManager().Send(selected.GetID());
+					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID());
 			}
 		}
 	}

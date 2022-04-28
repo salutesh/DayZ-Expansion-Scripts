@@ -247,8 +247,9 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 						m_HitCheckDone = true;
 					}
 				}
+			}
 #ifdef EXPANSIONMODVEHICLE
-			} else if( source.IsInherited( ExpansionHelicopterScript ) || source.IsInherited( ExpansionVehicleHelicopterBase ) )	//! Vehicle Hit - Helicopter
+			else if( source.IsInherited( ExpansionHelicopterScript ) || source.IsInherited( ExpansionVehicleHelicopterBase ) )	//! Vehicle Hit - Helicopter
 			{
 				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
 				m_PlayerPrefix2 = "";
@@ -276,7 +277,8 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					
 					m_HitCheckDone = true;
 				}			
-			}/* else if( source.IsInherited( ExpansionPlaneScript ) || source.IsInherited( ExpansionVehiclePlaneBase ) )	//! Vehicle Hit - Helicopter
+			}
+			/*else if( source.IsInherited( ExpansionPlaneScript ) || source.IsInherited( ExpansionVehiclePlaneBase ) )	//! Vehicle Hit - Plane
 			{
 				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
 				m_PlayerPrefix2 = "";
@@ -302,7 +304,8 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					
 					m_HitCheckDone = true;
 				}
-			} else if( source.IsInherited( ExpansionBoatScript ) || source.IsInherited( ExpansionVehicleBoatBase ) )	//! Vehicle Hit - Helicopter
+			}
+			else if( source.IsInherited( ExpansionBoatScript ) || source.IsInherited( ExpansionVehicleBoatBase ) )	//! Vehicle Hit - Boat
 			{
 				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
 				m_PlayerPrefix2 = "";
@@ -328,7 +331,8 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					
 					m_HitCheckDone = true;
 				}
-			} else if( source.IsInherited( ExpansionBikeScript ) || source.IsInherited( ExpansionVehicleBikeBase ) )	//! Vehicle Hit - Helicopter
+			}
+			else if( source.IsInherited( ExpansionBikeScript ) || source.IsInherited( ExpansionVehicleBikeBase ) )	//! Vehicle Hit - Bike
 			{
 				m_Source = PlayerBase.Cast( EntityAI.Cast( source ).GetHierarchyParent() );
 				m_PlayerPrefix2 = "";

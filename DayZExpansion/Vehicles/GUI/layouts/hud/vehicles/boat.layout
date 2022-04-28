@@ -222,6 +222,36 @@ FrameWidgetClass ExpansionBoatPanel {
         }
        }
       }
+      PanelWidgetClass BoatShieldIndicator {
+       visible 1
+       position 0 94
+       size 68 30
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        ImageWidgetClass BoatShieldLight {
+         size 30 30
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         fixaspect inside
+         image0 "{4FE21B47020414D0}DayZExpansion/Core/GUI/icons/hud/shield_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         filter 1
+         nocache 0
+        }
+       }
+      }
       PanelWidgetClass BoatTemperatureIndicator {
        visible 1
        position 0 0

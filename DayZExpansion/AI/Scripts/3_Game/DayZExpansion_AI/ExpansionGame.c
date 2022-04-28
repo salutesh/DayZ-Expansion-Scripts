@@ -1,34 +1,21 @@
-class eAIManagerBase
+modded class ExpansionGame
 {
-	private static eAIManagerBase m_Instance_3; //! weak ref
-
 	protected ref eAICommandManager m_CommandManager;
 
 	private bool m_IsAdmin;
 	private bool m_InGroup;
 
-	void eAIManagerBase()
+	void ExpansionGame()
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "eAIManagerBase");
+		auto trace = CF_Trace_0(this, "ExpansionGame");
 #endif
-
-		m_Instance_3 = this;
 
 		// anything dependent on settings during init must be initialized first.
 		eAISettings.Init();
 
 		SetAdmin(false);
 		GetRPCManager().AddRPC("eAI", "RPC_SetAdmin", this, SingeplayerExecutionType.Client);
-	}
-
-	static eAIManagerBase Get3()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0("eAIManagerBase", "RPC_SetAdmin");
-#endif
-
-		return m_Instance_3;
 	}
 
 	eAICommandManager GetCommandManager()
@@ -103,8 +90,6 @@ class eAIManagerBase
 
 		SetAdmin(data.param1);
 	}
-
-	void OnUpdate(bool doSim, float timeslice) {}
 
 	void InvokeOnConnect(DayZPlayer player, PlayerIdentity identity)
 	{

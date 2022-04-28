@@ -16,14 +16,15 @@ class CfgMods
 	{
 		dir = "DayZExpansion/Core";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
+		creditsJson = "DayZExpansion/Core/Scripts/Data/Credits.json";
 		extra = 0;
 		type = "mod";
 		CF_ModStorage = 1;
 		name = "DayZ Expansion - Core";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_c";
+		logo = "set:expansion_mod_imageset image:mod_c";
+		logoSmall = "set:expansion_mod_imageset image:mod_c";
+		logoOver = "set:expansion_mod_imageset image:mod_c";
 		tooltip = "DayZ Expansion - Core";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";
@@ -34,7 +35,7 @@ class CfgMods
 		{
 			class imageSets
 			{
-				files[] = {"DayZExpansion/Core/GUI/imagesets/expansion_widgets.imageset","DayZExpansion/Core/GUI/imagesets/arrows.imageset","DayZExpansion/Core/GUI/imagesets/expansion_gui.imageset","DayZExpansion/Core/GUI/imagesets/expansion_iconset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_notification_iconset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_inventory.imageset"};
+				files[] = {"DayZExpansion/Core/GUI/imagesets/expansion_mod_imageset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_widgets.imageset","DayZExpansion/Core/GUI/imagesets/arrows.imageset","DayZExpansion/Core/GUI/imagesets/expansion_gui.imageset","DayZExpansion/Core/GUI/imagesets/expansion_iconset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_notification_iconset.imageset","DayZExpansion/Core/GUI/imagesets/expansion_inventory.imageset"};
 			};
 			class widgetStyles
 			{

@@ -919,7 +919,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			markerData.SetIcon("Skull 3");
 			markerData.SetColor(ARGB(255,106,0,0));
 			markerData.SetPosition(pos);
-			markerData.Set3D(true);
+			markerData.Set3D(GetExpansionSettings().GetMap().CanCreate3DMarker);
 			markerData.SetLockState(true);
 			CreateMarker(markerData);
 			m_DeathMarkerUID = markerData.GetUID();

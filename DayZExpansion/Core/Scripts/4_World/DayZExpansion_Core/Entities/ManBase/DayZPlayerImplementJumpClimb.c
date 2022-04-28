@@ -12,6 +12,29 @@
 
 modded class DayZPlayerImplementJumpClimb
 {
+	bool Expansion_Climb()
+	{
+		if (m_Player.m_ExClimbResult.m_bIsClimb || m_Player.m_ExClimbResult.m_bIsClimbOver)
+		{
+			int climbType = GetClimbType(m_Player.m_ExClimbResult.m_fClimbHeight);
+
+			if (climbType != -1 && m_Player.CanClimb(climbType, m_Player.m_ExClimbResult))
+			{
+				m_Player.OnClimbStart(climbType);
+				m_Player.StopHandEvent();
+
+				if (climbType == 1)
+					m_Player.DepleteStamina(EStaminaModifiers.VAULT);
+				else if (climbType == 2)
+					m_Player.DepleteStamina(EStaminaModifiers.CLIMB);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	override void JumpOrClimb()
 	{
 		SHumanCommandClimbSettings hcls = m_Player.GetDayZPlayerType().CommandClimbSettingsW();

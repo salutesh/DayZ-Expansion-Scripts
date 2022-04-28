@@ -12,8 +12,23 @@
 
 class ExpansionAttachmentHelper
 {
+	static bool HT_Loaded = false;
+	static typename HT_Base;
+	static typename HT_NullType;
+
+	static void Init()
+	{
+		// We don't want HypeTrain player attachment running as it will most likely interfere with our AI
+		// This is just a proof of concept to see if we can use this as a viable means for overriding
+		string name = "HypeTrain_PartBase";
+		HT_Base = name.ToType();
+		HT_Loaded = HT_Base != HT_NullType;
+	}
+
 	static bool CanAttachTo(Object child, Object target)
 	{
+		Init();
+			
 		if (!target)
 			return false;
 
@@ -33,6 +48,12 @@ class ExpansionAttachmentHelper
 				return false;
 
 			return item.Expansion_CanObjectAttach(child);
+		}
+
+		if (HT_Loaded)
+		{
+			if (target.IsInherited(HT_Base))
+				return true;
 		}
 
 		return false;
@@ -113,5 +134,27 @@ class ExpansionAttachmentHelper
 		}
 
 		return best;
+	}
+
+	static Object IsAttachment(Object owner, vector position, float radius)
+	{
+		vector boundingBox[2];
+
+		vector start = position;
+		vector end = position - Vector(0, radius, 0);
+
+		RaycastRVParams params = new RaycastRVParams(start, end, owner, radius);
+		params.sorted = true;
+		params.type = ObjIntersectGeom;
+		params.flags = CollisionFlags.ALLOBJECTS;
+
+		//! Initiate the raycast
+		array<ref RaycastRVResult> results = new array<ref RaycastRVResult>();
+		if (DayZPhysics.RaycastRVProxy(params, results))
+		{
+			return ExpansionAttachmentHelper.FindBestAttach(owner, results);
+		}
+
+		return null;
 	}
 };

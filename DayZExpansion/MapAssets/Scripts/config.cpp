@@ -19,10 +19,10 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		name = "DayZ Expansion - MapAssets";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_ma";
+		logo = "set:expansion_mod_imageset image:mod_ma";
+		logoSmall = "set:expansion_mod_imageset image:mod_ma";
+		logoOver = "set:expansion_mod_imageset image:mod_ma";
 		tooltip = "DayZ Expansion - MapAssets";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";

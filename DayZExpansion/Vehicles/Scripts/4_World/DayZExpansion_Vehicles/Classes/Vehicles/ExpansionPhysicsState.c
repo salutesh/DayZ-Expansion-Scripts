@@ -1,5 +1,7 @@
 class ExpansionPhysicsState
 {
+	static const float PING_INTERVAL = 1.0;
+
 	EntityAI m_Entity;
 	float m_DeltaTime;
 	float m_Substep;
@@ -79,7 +81,15 @@ class ExpansionPhysicsState
 	vector m_SyncOrientation;
 
 	bool m_IsSync;
-	float m_TimeSinceSync;
+	float m_TimeSinceDesync;
+	bool m_HaltPhysics;
+	float m_TimeSincePing;
+	bool m_ClientDesync;
+	bool m_NotifyDesyncInvulnerability;
+	float m_DesyncInvulnerabilityTimeoutSeconds;
+	bool m_IsInvulnerable;
+	bool m_IsInvulnerableSync;
+	float m_InvulnerabilityTime;
 
 	void ExpansionPhysicsState(EntityAI vehicle)
 	{
@@ -120,6 +130,8 @@ class ExpansionPhysicsState
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_OrientationX", 0, 0, 2);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_OrientationY", 0, 0, 2);
 		m_Entity.RegisterNetSyncVariableFloat(varName + ".m_OrientationZ", 0, 0, 2);
+
+		m_Entity.RegisterNetSyncVariableBool(varName + ".m_IsInvulnerable");
 	}
 
 	void Init()
@@ -137,7 +149,12 @@ class ExpansionPhysicsState
 		m_OrientationY = ori[1];
 		m_OrientationZ = ori[2];
 
+		//! Client/server (not netsynched), but used for different purpose
 		m_IsSync = true;
+
+		//! Server only
+		if (GetGame().IsServer())
+			m_DesyncInvulnerabilityTimeoutSeconds = GetExpansionSettings().GetVehicle().DesyncInvulnerabilityTimeoutSeconds;
 	}
 
 	void CreateDynamic()
@@ -224,35 +241,79 @@ class ExpansionPhysicsState
 		}
 	}
 
-	void ApplyPhysics_CarScript(float pDt, vector impulse, vector impulseTorque, bool isPhysHost)
+	void ApplyPhysics_CarScript(float pDt, vector impulse, vector impulseTorque, bool isPhysHost, DayZPlayerImplement driver = NULL)
 	{
+		EXTrace trace;
+
 		bool isServer = GetGame().IsServer();
+
+		if (!m_IsSync)
+			m_TimeSinceDesync += pDt;
+
+		if (m_IsInvulnerable)
+			m_InvulnerabilityTime += pDt;
 
 		if (!isServer && isPhysHost)
 		{
 			//! Client - player is driver
 
-			if (m_IsSync || m_TimeSinceSync > 1)
+			if (m_IsInvulnerable != m_IsInvulnerableSync)
 			{
-				//! If distance between position on client and last synced position from server is greater
-				//! than what the vehicle could realistically have traveled in one second, assume desync
-				float velocity = m_SyncLinearVelocity.Length();
-				m_IsSync = vector.DistanceSq(m_SyncPosition, m_Entity.GetPosition()) <= velocity * velocity + 1;
-				m_TimeSinceSync = 0;
+				m_IsInvulnerableSync = m_IsInvulnerable;
+				if (GetExpansionClientSettings().ShowDesyncInvulnerabilityNotifications)
+				{
+					//! @note We only want to show the notifications if the player is controlling this vehicle right now, that's why this is here and not in
+					//! OnVariablesSynchronized_CarScript (avoids an additional check for driver)
+					if (m_IsInvulnerable)
+						ExpansionNotification("Client Desync", "Temporary vehicle invulnerability ENABLED (this message may be delayed)", GetNotificationIcon(), COLOR_EXPANSION_NOTIFICATION_ORANGE).Create();
+					else
+						ExpansionNotification("Client Desync", "Timeout reached - temporary vehicle invulnerability DISABLED - was active for " + GetExpansionSettings().GetVehicle().DesyncInvulnerabilityTimeoutSeconds + " seconds", GetNotificationIcon(), COLOR_EXPANSION_NOTIFICATION_ORANGE).Create();
+				}
 			}
-			else
+
+			bool prevSync = m_IsSync;
+
+			//! If distance between position on client and last synced position from server is greater
+			//! than what the vehicle could realistically have traveled in one second (+/- 1m tolerance), assume desync
+			float velocity = m_SyncLinearVelocity.Length();
+			float distanceThresholdSq = velocity * velocity;
+			m_IsSync = vector.DistanceSq(m_SyncPosition, m_Entity.GetPosition()) <= distanceThresholdSq + 1;
+
+			float vehicleResyncTimeout = GetExpansionClientSettings().VehicleResyncTimeout;
+			if (vehicleResyncTimeout < 1.0)
+				vehicleResyncTimeout = 1.0;
+
+			if (prevSync && !m_IsSync)
 			{
-				m_TimeSinceSync += pDt;
+				m_TimeSinceDesync = 0;
+				m_InvulnerabilityTime = 0;
+
+				//! Let the server know we desynced
+				SendPing(true);
+			}
+			else if (!prevSync && m_IsSync)
+			{
+				m_HaltPhysics = false;
+
+				//! Let the server know we resynced
+				SendPing(false);
+			}
+			else if (!prevSync && !m_IsSync && m_TimeSinceDesync > vehicleResyncTimeout && !m_HaltPhysics)
+			{
+				trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced for " + m_TimeSinceDesync + " - halting physics updates");
+
+				//! If <VehicleResyncTimeout> seconds after we desynced we are still desynced, halt vehicle physics updates on client
+				m_HaltPhysics = true;
 			}
 		}
 
-		if (isServer || !isPhysHost || m_IsSync)
+		if (isServer || !isPhysHost || !m_HaltPhysics)
 		{
 			ApplyPhysics(pDt, impulse, impulseTorque);
 		}
 		else
 		{
-			//! Client - player is driver - desynced
+			//! Client - player is driver - desynced - halt physics
 
 			SetVelocity(m_Entity, "0 0 0");
 			dBodySetAngularVelocity(m_Entity, "0 0 0");
@@ -287,7 +348,67 @@ class ExpansionPhysicsState
 			m_OrientationX = ori[0];
 			m_OrientationY = ori[1];
 			m_OrientationZ = ori[2];
+
+			if (!m_DesyncInvulnerabilityTimeoutSeconds)
+				return;
+
+			if (m_IsInvulnerable)
+			{
+				if (m_InvulnerabilityTime > m_DesyncInvulnerabilityTimeoutSeconds)
+				{
+					trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Disabling temporary vehicle invulnerability");
+					m_Entity.SetAllowDamage(true);
+					m_IsInvulnerable = false;
+				}
+			}
+
+			//if (m_TimeSincePing > PING_INTERVAL * 1.25)
+			if (m_ClientDesync)
+			{
+				if (m_IsSync)
+				{
+					m_IsSync = false;
+					m_TimeSinceDesync = 0;
+					m_InvulnerabilityTime = 0;
+					if (m_Entity.GetAllowDamage())
+					{
+						trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing + " - enabling temporary vehicle invulnerability");
+						m_Entity.SetAllowDamage(false);
+						m_IsInvulnerable = true;
+					}
+					else
+					{
+						trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing);
+					}
+				}
+				else
+				{
+					m_TimeSincePing += pDt;
+				}
+			}
+			else if (!m_IsSync)
+			{
+				trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client resynced - time since desync " + m_TimeSinceDesync);
+				m_IsSync = true;
+			}
 		}
+		//else
+		//{
+			//if (m_TimeSincePing > PING_INTERVAL)
+			//{
+				//SendPing(m_ClientDesync);
+				//m_TimeSincePing = 0;
+			//}
+		//}
+	}
+
+	string GetNotificationIcon()
+	{
+		if (m_Entity.IsInherited(ExpansionHelicopterScript))
+			return "Helicopter";
+		else if (m_Entity.IsInherited(ExpansionBoatScript))
+			return "Boat";
+		return "Car";
 	}
 
 	void SetupSubstep(float pDt, float pSubstepDT, inout float pTime)
@@ -354,6 +475,13 @@ class ExpansionPhysicsState
 		m_ImpulseTorque = vector.Zero;
 	}
 
+	void SendPing(bool desync)
+	{
+		ScriptRPC rpc = new ScriptRPC();
+		rpc.Write(desync);
+		rpc.Send(m_Entity, ExpansionVehicleRPC.ClientPing, true, NULL);
+	}
+
 	void SendData(ExpansionVehicleNetworkMode mode, bool isServer)
 	{
 		// Only Client sync mode will attempt to overwrite the server values
@@ -390,6 +518,13 @@ class ExpansionPhysicsState
 			m_AngularAccelerationY = m_AngularAcceleration[1];
 			m_AngularAccelerationZ = m_AngularAcceleration[2];
 		}
+	}
+
+	void OnPing(ParamsReadContext ctx)
+	{
+		m_TimeSincePing = 0;
+		ctx.Read(m_ClientDesync);
+		auto trace = EXTrace.Start(EXTrace.VEHICLES, m_Entity, "Received client ping - desynced " + m_ClientDesync);
 	}
 
 	void OnRPC(ParamsReadContext ctx)

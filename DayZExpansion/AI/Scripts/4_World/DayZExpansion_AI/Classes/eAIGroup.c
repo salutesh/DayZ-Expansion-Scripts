@@ -16,6 +16,7 @@ enum eAIGroupFormationState
 class eAIGroup
 {
 	private static autoptr array<ref eAIGroup> s_AllGroups = new array<ref eAIGroup>();
+	private static int s_UpdateIndex;
 
 	private static int s_IDCounter = 0;
 
@@ -303,7 +304,7 @@ class eAIGroup
 		m_Form.Update(pDt);
 	}
 
-	static void UpdateAll(float pDt)
+	static void UpdateAll(float pDt, int groupsPerTick = 10)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIGroup", "UpdateAll");
@@ -313,8 +314,23 @@ class eAIGroup
 		if (!GetGame().IsServer())
 			return;
 
-		for (int i = 0; i < s_AllGroups.Count(); i++)
-			s_AllGroups[i].Update(pDt);
+		int count = s_AllGroups.Count();
+
+		if (!count)
+			return;
+
+		if (groupsPerTick > count)
+			groupsPerTick = count;
+
+		while (groupsPerTick > 0)
+		{
+			if (s_UpdateIndex >= count)
+				s_UpdateIndex = 0;
+
+			s_AllGroups[s_UpdateIndex++].Update(pDt);
+
+			groupsPerTick--;
+		} 
 	}
 
 	int GetMemberIndex(eAIBase ai)

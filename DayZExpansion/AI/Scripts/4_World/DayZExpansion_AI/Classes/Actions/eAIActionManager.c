@@ -44,9 +44,7 @@ class eAIActionManager: ActionManagerBase
 			{	
 				ActionBase action = m_ActionsArray.Get(i);
 				typename input_type_name = action.GetInputType();
-				ref ActionInput ai;
-			
-				ai = ActionInput.Cast(m_RegistredInputsMap.Get(input_type_name));
+				ActionInput ai = ActionInput.Cast(m_RegistredInputsMap.Get(input_type_name));
 				if(!ai)
 				{
 					ai = ActionInput.Cast(input_type_name.Spawn());

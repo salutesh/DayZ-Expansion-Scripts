@@ -6,7 +6,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	private int m_PreviousInteractionLayer;
 
 	private eAIBase m_Unit;
-	private eAIPathFinding m_PathFinding;
+	private ExpansionPathHandler m_PathFinding;
 
 	private float m_Turn;
 	private float m_TurnTarget;
@@ -30,8 +30,6 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	private float m_SpeedLimit;
 	private bool m_SpeedOverrider;
 	
-	private vector m_MovementCorrection;
-
 	private PhxInteractionLayers m_CollisionLayerMask = PhxInteractionLayers.ROADWAY|PhxInteractionLayers.BUILDING|PhxInteractionLayers.FENCE|PhxInteractionLayers.VEHICLE;
 	private Object m_HitObject; //! always null and low priority fix at BI
 	private vector m_HitPosition;
@@ -65,10 +63,27 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	override void SetLookDirection(vector pDirection)
 	{
 		vector angles = pDirection.VectorToAngles();
-		m_LookLR = angles[0];
-		m_LookUD = angles[1];
-		if (m_LookLR > 180) m_LookLR = m_LookLR - 360;
-		if (m_LookUD > 180) m_LookUD = m_LookUD - 360;
+
+		float lookLR = angles[0];
+		float lookUD = angles[1];
+
+		if (lookLR > 180) lookLR -= 360;
+		if (lookUD > 180) lookUD -= 360;
+
+		if (m_LookLR + 1.0 < lookLR)
+			m_LookLR += 1.0;
+		else if (m_LookLR - 1.0 > lookLR)
+			m_LookLR -= 1.0;
+		else
+			m_LookLR = lookLR;
+
+		if (m_LookUD + 1.0 < lookUD)
+			m_LookUD += 1.0;
+		else if (m_LookUD - 1.0 > lookUD)
+			m_LookUD -= 1.0;
+		else
+			m_LookUD = lookUD;
+	
 		m_Look = (Math.AbsFloat(m_LookLR) > 0.01) || (Math.AbsFloat(m_LookUD) > 0.01);
 	}
 
@@ -107,6 +122,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		m_TargetMovementDirection = pTarget;
 	}
 
+	void GetUp()
+	{
+		m_GetUp = true;
+	}
+
 	override void PreAnimUpdate(float pDt)
 	{
 		super.PreAnimUpdate(pDt);
@@ -121,47 +141,19 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		vector orientation = Math3D.MatrixToAngles(transform);
 		vector position = transform[3];
 
-		float wayPointDistance = 0.0;
-		int wayPointIndex;
 		vector wayPoint = position;
-
-		bool isFinal = true;
-		if (m_PathFinding.Count() >= 2)
-		{
-			wayPointIndex = m_PathFinding.Next(position);
-			wayPoint = m_PathFinding[wayPointIndex];
-
-			float y = GetGame().SurfaceY(wayPoint[0], wayPoint[2]);			
-			if (y > wayPoint[1]) wayPoint[1] = y;
-
-			DBGDrawSphere(wayPoint, 0.3, 0xFFFFFFFF);
-				
-			vector orig_WayPoint = wayPoint;
-			if (DayZPhysics.SphereCastBullet(wayPoint + Vector(0.0, 1.5, 0.0), wayPoint - Vector(0.0, 10.0, 0.0), 0.3, m_CollisionLayerMask|PhxInteractionLayers.TERRAIN, m_Player, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction)) wayPoint = m_HitPosition;
-			
-			DBGDrawSphere(wayPoint, 0.05, 0xFF0000FF);
-			
-			wayPointDistance = vector.DistanceSq(wayPoint, position);
-
-			isFinal = wayPointIndex == m_PathFinding.Count() - 1;
-		}
+		bool isFinal = m_PathFinding.GetNext(wayPoint) <= 2;
+		float wayPointDistance = vector.DistanceSq(position, wayPoint);
 
 		float minFinal = 0.3;
-
-		if (m_MovementSpeed != 0)
+		if (isFinal && wayPointDistance >= minFinal && wayPointDistance < 1.0)
 		{
-			vector pathDir = vector.Direction(position, wayPoint).Normalized();
-			m_TurnTarget = pathDir.VectorToAngles()[0];
+			//! If distance squared to waypoint is more than minFinal but less than 1.0,
+			//! subtract height diff squared from distance squared to make it more likely to fall below minFinal.
+			//! Prevents unit rotating in spot in case it cannot reach a waypoint due to height difference.
+			float yDiff = Math.AbsFloat(wayPoint[1] - position[1]);
+			wayPointDistance -= yDiff * yDiff;
 		}
-
-		m_Turn = orientation[0];
-
-		if (m_Turn > 180.0) m_Turn = m_Turn - 360.0;
-		if (m_TurnTarget > 180.0) m_TurnTarget = m_TurnTarget - 360.0;
-
-		m_TurnDifference = m_TurnTarget - m_Turn;
-		if (m_TurnDifference > 180.0) m_TurnDifference = m_TurnDifference - 360.0;
-		if (m_TurnDifference < -180.0) m_TurnDifference = m_TurnDifference + 360.0;
 
 		if (isFinal && wayPointDistance < minFinal)
 		{
@@ -187,6 +179,22 @@ class eAICommandMove extends ExpansionHumanCommandScript
 			}
 		}
 
+		if (m_MovementSpeed != 0)
+		{
+			vector pathDir = vector.Direction(position, wayPoint).Normalized();
+			
+			m_TurnTarget = pathDir.VectorToAngles()[0];
+		}
+
+		m_Turn = orientation[0];
+
+		if (m_Turn > 180.0) m_Turn = m_Turn - 360.0;
+		if (m_TurnTarget > 180.0) m_TurnTarget = m_TurnTarget - 360.0;
+
+		m_TurnDifference = Math.AngleDiff(m_TurnTarget, m_Turn);
+		if (m_TurnDifference > 180.0) m_TurnDifference = m_TurnDifference - 360.0;
+		if (m_TurnDifference < -180.0) m_TurnDifference = m_TurnDifference + 360.0;
+		
 		m_MovementDirection += Math.Clamp((m_TargetMovementDirection - m_MovementDirection) * pDt, -180.0, 180.0);
 
 		m_MovementSpeed = m_TargetSpeed;
@@ -255,69 +263,65 @@ class eAICommandMove extends ExpansionHumanCommandScript
 			m_Table.SetStance(this, 0);
 		}
 	}
-
+	
 	override void PrePhysUpdate(float pDt)
 	{
+		float rotation[4];
 		vector translation;
+		
 		PrePhys_GetTranslation(translation);
+		PrePhys_GetRotation(rotation);
+		
+		AnglesToQuat("0 0 0", rotation);
+		
 		vector position = m_Player.ModelToWorld(translation);
 
 		vector transform[4];
 		m_Player.GetTransform(transform);
-
-		// TODO: this is only temporary code and a better solution has to be found later on
-		// This fix is for when the AI is meant to be moving faster but height elevation is blocking us
-		// Reason why this is temporary; it effictively is telling the player to jump.
-		m_MovementCorrection = vector.Zero;
 		
 		//! make AI go fast for debugging navigation between large distances
 		//translation = translation * Math.Max(2.0 * m_MovementSpeed, 1);
 		
-		float minSpeed = 1.0 * pDt;
+		float minSpeed = 2.0 * pDt;
 		float minSpeedSq = minSpeed * minSpeed;
 		
 		float speed = translation.LengthSq();
 
+		vector checkPosition = position + (transform[2] * 0.5);
+		int doPseudoJump = 0xFFFF0000;
+		
 		dBodyEnableGravity(m_Player, true);
+			
 		if (m_MovementSpeed != 0 && speed < minSpeedSq)
 		{
-			vector checkPosition = position + (transform[2] * 0.25);
-
-			int doPseudoJump = 0xFFFF0000;
-				
-			if (DayZPhysics.SphereCastBullet(checkPosition + Vector(0.0, 0.4, 0.0), checkPosition, 0.5, m_CollisionLayerMask, m_Player, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction)) 
+			if (DayZPhysics.SphereCastBullet(checkPosition + Vector(0.0, 0.4, 0.0), position, 0.5, m_CollisionLayerMask, m_Player, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction)) 
 			{
 				checkPosition = m_HitPosition;
-
-				doPseudoJump = 0xFF00FF00;
 
 				float yDiff = checkPosition[1] - position[1];
 				
 				if (yDiff > 0.01 && yDiff <= 0.4)
 				{
-					m_MovementCorrection = Vector(0, yDiff / pDt, 0);
-
+					doPseudoJump = 0xFF00FF00;
+					
 					translation[1] = translation[1] + (yDiff * pDt * 1.1);
 					
 					dBodyEnableGravity(m_Player, false);
 				}
-			}
+			}			
 
-			DBGDrawSphere(checkPosition + Vector(0.0, 0.4, 0.0), 0.5, 0xFFFFFF00);
-			DBGDrawSphere(checkPosition, 0.5, 0xFFFFFF00);
-			DBGDrawSphere(checkPosition, 0.05, doPseudoJump);
+			//DBGDrawSphere(checkPosition + Vector(0.0, 0.4, 0.0), 0.5, 0xFFFFFF00);
+			//DBGDrawSphere(checkPosition, 0.1, 0xFFFFFF00);
+			//DBGDrawSphere(checkPosition, 0.05, doPseudoJump);
 		}
+			
 
+		PrePhys_SetRotation(rotation);
 		PrePhys_SetTranslation(translation);
 	}
 
 	override bool PostPhysUpdate(float pDt)
 	{
 		return true;
-	}
-
-	void GetUp()
-	{
-		m_GetUp = true;
 	}
 };

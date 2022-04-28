@@ -87,11 +87,9 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		
 		string playerUID = player.GetIdentity().GetId();
 		ExpansionPlayerDataCollection playerData;
-		if (m_PlayerData.Get(playerUID))
+		if (m_PlayerData.Find(playerUID, playerData))
 		{
-			playerData = m_PlayerData.Get(playerUID);
 			playerData.SetFromPlayerBase(player);
-			m_PlayerData.Set(playerUID, playerData);
 		}
 		else
 		{
@@ -152,12 +150,11 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 			return;
 		
 		ScriptRPC rpc = new ScriptRPC();		
-		int playersClount = GetAllPlayers().Count();
+		int playersClount = m_PlayerData.Count();
 		rpc.Write(playersClount);
 	
-		for (int i = 0; i < playersClount; i++)
+		foreach (auto player: m_PlayerData)
 		{
-			ExpansionPlayerDataCollection player = GetAllPlayers().GetElement(i);
 			if (!player)
 				continue;
 			
@@ -178,6 +175,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		int playersCount;
 		if (!ctx.Read(playersCount))
 			return;
+
+		m_PlayerData.Clear();
 		
 		for (int i = 0; i < playersCount; i++)
 		{

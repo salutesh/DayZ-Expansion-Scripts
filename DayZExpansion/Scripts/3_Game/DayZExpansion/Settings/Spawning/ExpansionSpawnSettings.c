@@ -37,7 +37,7 @@ class ExpansionSpawnSettingsBase: ExpansionSettingBase
  **/
 class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 	
 	ref ExpansionStartingGear StartingGear;
 	
@@ -47,7 +47,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	
 	bool EnableRespawnCooldowns;
 	int RespawnCooldown;
-	bool RespawnUTCTime;
+	int TerritoryRespawnCooldown;
 	bool PunishMultispawn;
 	int PunishCooldown;
 	int PunishTimeframe;
@@ -62,6 +62,13 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		StartingGear = new ExpansionStartingGear;
 	}
 	
+	int GetCooldown(bool territory = false)
+	{
+		if (territory)
+			return TerritoryRespawnCooldown;
+		return RespawnCooldown;
+	}
+
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -71,7 +78,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		if (!ctx.Read(EnableRespawnCooldowns))
 		{
-			Error("ExpansionSpawnSettings::OnRecieve RespawnCooldown");
+			Error("ExpansionSpawnSettings::OnRecieve EnableRespawnCooldowns");
 			return false;
 		}
 
@@ -80,10 +87,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 			Error("ExpansionSpawnSettings::OnRecieve RespawnCooldown");
 			return false;
 		}
-		
-		if (!ctx.Read(RespawnUTCTime))
+
+		if (!ctx.Read(TerritoryRespawnCooldown))
 		{
-			Error("ExpansionSpawnSettings::OnRecieve RespawnUTCTime");
+			Error("ExpansionSpawnSettings::OnRecieve TerritoryRespawnCooldown");
 			return false;
 		}
 		
@@ -125,7 +132,7 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		ctx.Write( EnableRespawnCooldowns );
 		ctx.Write( RespawnCooldown );
-		ctx.Write( RespawnUTCTime );
+		ctx.Write( TerritoryRespawnCooldown );
 		ctx.Write( PunishMultispawn );
 		ctx.Write( PunishCooldown );
 		ctx.Write( PunishTimeframe );
@@ -234,12 +241,16 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 					}
 					
 					EnableRespawnCooldowns = settingsDefault.EnableRespawnCooldowns;
-					RespawnUTCTime = settingsDefault.RespawnUTCTime;
 					RespawnCooldown = settingsDefault.RespawnCooldown;
 					PunishMultispawn = settingsDefault.PunishMultispawn;
 					PunishCooldown = settingsDefault.PunishCooldown;
 					PunishTimeframe = settingsDefault.PunishTimeframe;
 					CreateDeathMarker = settingsDefault.CreateDeathMarker;
+				}
+
+				if (settingsBase.m_Version < 5)
+				{
+					TerritoryRespawnCooldown = RespawnCooldown * 2;  //! Use equivalent of default (double normal respawn cooldown), but use actual configured cooldown
 				}
 
 				m_Version = VERSION;
@@ -300,8 +311,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		SpawnWaterValue = 500.0; 	//! 5000 is max
 
 		EnableRespawnCooldowns = true; //! Enable cooldown system for the spawn selection menu
-		RespawnUTCTime = false; //! UTC time is used for respawn point cooldown calcualtion
 		RespawnCooldown = 120; //! Respawn delay time in seconds
+		TerritoryRespawnCooldown = 240; //! Respawn delay time for territories in seconds
 		PunishMultispawn = true; //! If player uses the same spawn point twice or more then punish the player with additonal cooldown time
 		PunishCooldown = 120; // ! If "PunishMultispawn" is enabled and a player uses the same spawn point twice or more then punish the player with additonal cooldown time that is set here.
 		PunishTimeframe = 300; //! If "PunishMultispawn" is enabled and a player respawns twice or more on the same spawn point then he will get a additonal cooldown punishment set in the "PunishCooldown" setting. This setting here will mark the timeframe for when the player gets this punishment or not.

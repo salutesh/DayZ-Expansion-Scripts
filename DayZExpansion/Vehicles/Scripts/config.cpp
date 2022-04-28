@@ -30,10 +30,10 @@ class CfgMods
 		type = "mod";
 		CF_ModStorage = 1;
 		name = "DayZ Expansion - Vehicles";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_v";
+		logo = "set:expansion_mod_imageset image:mod_v";
+		logoSmall = "set:expansion_mod_imageset image:mod_v";
+		logoOver = "set:expansion_mod_imageset image:mod_v";
 		tooltip = "DayZ Expansion - Vehicles";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";

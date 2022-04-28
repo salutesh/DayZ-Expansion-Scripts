@@ -145,16 +145,19 @@
 				Magazine mag;
 				if (fsm.weapon.HasInternalMagazine(mi) &amp;&amp; fsm.weapon.GetInternalMagazineCartridgeCount(mi) &gt; 0)
 				{
+					EXTrace.Start0(EXTrace.AI, this, &quot;Reloading &quot; + fsm.weapon + &quot; from internal mag&quot;);
 					dst.magazine = null;
 				}
 				else if (Class.CastTo(mag, fsm.weapon.GetMagazine(mi)) &amp;&amp; mag.GetAmmoCount() &gt; 0)
 				{
+					EXTrace.Start0(EXTrace.AI, this, &quot;Reloading &quot; + fsm.weapon + &quot; from attached mag&quot;);
 					dst.magazine = mag;
 				}
 				else
 				{
 					dst.magazine = unit.GetMagazineToReload(fsm.weapon);
 					if (!dst.magazine) return FAIL;
+					EXTrace.Start0(EXTrace.AI, this, &quot;Reloading &quot; + fsm.weapon + &quot; from mag &quot; + dst.magazine);
 				}
 				
 				return SUCCESS;

@@ -803,68 +803,17 @@ class eAIRoadNetwork
 		return closest;
 	}
 
-	void FindPath(vector start, vector end, eAIPathFinding pathFinding)
+	void FindPath(vector start, vector end, ExpansionPathHandler pathFinding)
 	{
 		if (!m_IsEnabled) return;
 
 		//Print("+eAIRoadNetwork::FindPath");
-		GetGame().GameScript.Call(this, "_FindPath", new Param3<vector, vector, eAIPathFinding>(start, end, pathFinding));
+		//GetGame().GameScript.Call(this, "_FindPath", new Param3<vector, vector, ExpansionPathHandler>(start, end, pathFinding));
 		//thread _FindPath(start, end, pathFinding);
 		//Print("-eAIRoadNetwork::FindPath");
 	}
 
-	void _FindPath(Param3<vector, vector, eAIPathFinding> param)
+	void _FindPath(Param3<vector, vector, ExpansionPathHandler> param)
 	{
-		if (!m_IsEnabled) return;
-		
-		//Print("+eAIRoadNetwork::_FindPath");
-		
-		vector start = param.param1;
-		vector end = param.param2;
-		eAIPathFinding pathFinding = param.param3;
-		
-		Param2<eAIRoadNode, eAIRoadNodeSection> start_node = _GetClosestNode(start);
-		Param2<eAIRoadNode, eAIRoadNodeSection> end_node = _GetClosestNode(end);
-
-		//Print(end_node);
-		//Print(start_node.param1);
-		//Print(start_node.param2);
-
-		//Print(end_node);
-		//Print(end_node.param1);
-		//Print(end_node.param2);
-		
-		if (!start_node.param1) return;
-		if (!start_node.param2) return;
-		if (!end_node.param1) return;
-		if (!end_node.param2) return;
-		
-		array<vector> pathVec;
-		pathFinding.StartRoadPath(pathVec);
-			
-		array<PathNode> path();
-		AStar.Perform(start_node.param2, end_node.param2, path);
-
-		array<PathNode> nodePath();
-		if (path.Count() != 0)
-		{
-			eAIRoadNodeSection node0;
-			eAIRoadNodeSection node1;
-							
-			for (int i = path.Count() - 1; i > 0; i--)
-			{
-				node0 = eAIRoadNodeSection.Cast(path[i]);
-				node1 = eAIRoadNodeSection.Cast(path[i - 1]);
-
-				node0.PathTo(node1, nodePath);
-			}
-		}
-		
-		for (i = 0; i < nodePath.Count(); i++) pathVec.Insert(nodePath[i].m_Position);
-		//for (i = nodePath.Count() - 1; i >= 0; i--) pathVec.Insert(nodePath[i].m_Position);
-			
-		pathFinding.FinishRoadPath(pathVec, path);
-		
-		//Print("-eAIRoadNetwork::_FindPath");
 	}
 };

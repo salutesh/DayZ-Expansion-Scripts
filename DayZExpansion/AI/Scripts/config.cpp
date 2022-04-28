@@ -15,13 +15,15 @@ class CfgMods
 	class DZ_Expansion_AI
 	{
 		dir = "DayZExpansion/AI";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_ai";
+		logo = "set:expansion_mod_imageset image:mod_ai";
+		logoSmall = "set:expansion_mod_imageset image:mod_ai";
+		logoOver = "set:expansion_mod_imageset image:mod_ai";
 		action = "";
 		hideName = 0;
 		hidePicture = 0;
 		name = "Enfusion AI System";
 		credits = "Enfusion AI and DayZ Expansion";
-		creditsJson = "DayZExpansion/AI/Scripts/Data/Credits.json";
 		author = "Enfusion AI and DayZ Expansion";
 		authorID = "";
 		version = "0.1";

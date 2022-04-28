@@ -26,6 +26,8 @@ modded class IngameHud
 	protected ImageWidget		m_BoatTemperaturePointer;
 	protected ImageWidget		m_BoatFuelPointer;
 
+	protected ImageWidget		m_BoatShield;
+
 	protected ImageWidget		m_BoatBatteryLight;
 	protected ImageWidget		m_BoatEngineLight;
 	protected ImageWidget		m_BoatOilLight;
@@ -48,6 +50,8 @@ modded class IngameHud
 	protected ImageWidget		m_HelicopterTemperaturePointer;
 	protected ImageWidget		m_HelicopterFuelPointer;
 
+	protected ImageWidget		m_HelicopterShield;
+
 	protected ImageWidget		m_HelicopterBatteryLight;
 	protected ImageWidget		m_HelicopterEngineLight;
 	protected ImageWidget		m_HelicopterOilLight;
@@ -67,6 +71,8 @@ modded class IngameHud
 
 	protected ImageWidget		m_PlaneTemperaturePointer;
 	protected ImageWidget		m_PlaneFuelPointer;
+
+	protected ImageWidget		m_PlaneShield;
 
 	protected ImageWidget		m_PlaneBatteryLight;
 	protected ImageWidget		m_PlaneEngineLight;
@@ -108,6 +114,9 @@ modded class IngameHud
 				m_BoatGearPrev						= TextWidget.Cast( m_BoatPanel.FindAnyWidget("Prev") );
 				m_BoatGearCurrent					= TextWidget.Cast( m_BoatPanel.FindAnyWidget("Current") );
 				m_BoatGearNext						= TextWidget.Cast( m_BoatPanel.FindAnyWidget("Next") );
+
+				m_BoatShield					= ImageWidget.Cast( m_BoatPanel.FindAnyWidget("BoatShieldLight") );
+				m_BoatShield.SetColor( ARGB(255, 0, 255, 255) );
 			}
 			
 			//! Helicopter
@@ -133,6 +142,9 @@ modded class IngameHud
 				m_HelicopterHoverAltitudePanel		= Widget.Cast( m_HelicopterPanel.FindAnyWidget("HeliHoverALTIndicator") );
 				m_HelicopterHoverAltitudeValue		= TextWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliHoverALTLabelCurrent") );
 				m_HelicopterHoverAltitudeLabel		= TextWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliHoverALTLabel") );
+
+				m_HelicopterShield					= ImageWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliShieldLight") );
+				m_HelicopterShield.SetColor( ARGB(255, 0, 255, 255) );
 			}
 			
 			//! Plane
@@ -156,6 +168,9 @@ modded class IngameHud
 
 				m_PlaneThrottle						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneThrottleIndicator") );
 				m_PlaneFlaps						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneFlapsIndicator") );
+
+				m_PlaneShield					= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneShieldLight") );
+				m_PlaneShield.SetColor( ARGB(255, 0, 255, 255) );
 			}
 		}
 	}
@@ -424,6 +439,12 @@ modded class IngameHud
 		{
 			m_VehicleSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
 		}
+
+		if (m_CurrentVehicle && m_CurrentVehicle.m_State.m_IsInvulnerable)
+		{
+			m_VehicleEngineLight.Show( true );
+			m_VehicleEngineLight.SetColor( ARGB(255, 0, 255, 255) );
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -453,6 +474,8 @@ modded class IngameHud
 			m_HelicopterSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
 		}
 
+		m_HelicopterShield.Show(helicopter.m_State.m_IsInvulnerable);
+
 		m_HelicopterAltitudeValue.SetText( Math.Floor( helicopter.GetPosition()[1] ).ToString() );
 
 		m_HelicopterFuelPointer.SetRotation( 0, 0, helicopter.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
@@ -461,7 +484,12 @@ modded class IngameHud
 		int h_health = helicopter.GetHealthLevel( "Engine" );
 		int h_color;
 		
-		if ( h_health > 1 && h_health < 5 )
+		if (helicopter.m_State.m_IsInvulnerable)
+		{
+			m_HelicopterEngineLight.Show( true );
+			m_HelicopterEngineLight.SetColor( ARGB(255, 0, 255, 255) );
+		}
+		else if ( h_health > 1 && h_health < 5 )
 		{
 			m_HelicopterEngineLight.Show( true );
 			h_color = ItemManager.GetItemHealthColor( helicopter, "Engine" );
@@ -602,6 +630,8 @@ modded class IngameHud
 			m_BoatSpeedValue.SetText( Math.Floor( boat.GetSpeedometer() ).ToString() );
 			m_BoatSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
 		}
+
+		m_BoatShield.Show(boat.m_State.m_IsInvulnerable);
 
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );

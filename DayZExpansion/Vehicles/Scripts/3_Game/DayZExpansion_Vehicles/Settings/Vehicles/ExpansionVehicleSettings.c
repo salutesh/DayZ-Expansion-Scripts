@@ -55,13 +55,14 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
 	bool VehicleDropsRuinedDoors;
 	bool ExplodingVehicleDropsAttachments;
 	//float ForcePilotSyncIntervalSeconds;
+	float DesyncInvulnerabilityTimeoutSeconds;  //! Timeout for temporary vehicle godmode during desync. Set to 0 to disable.
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -117,6 +118,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
 
+		ctx.Read(DesyncInvulnerabilityTimeoutSeconds);
+
 		m_IsLoaded = true;
 
 		Update(NULL);
@@ -153,6 +156,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Write(PlacePlayerOnGroundOnReconnectInVehicle);
 		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
+
+		ctx.Write(DesyncInvulnerabilityTimeoutSeconds);
 
 		//! Don't send VehiclesConfig
 	}
@@ -349,6 +354,11 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					}
 				}
 
+				if (settingsBase.m_Version < 10)
+				{
+					DesyncInvulnerabilityTimeoutSeconds = settingsDefault.DesyncInvulnerabilityTimeoutSeconds;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -436,6 +446,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ExplodingVehicleDropsAttachments = true;
 
 		//ForcePilotSyncIntervalSeconds = 1.0;
+		DesyncInvulnerabilityTimeoutSeconds = 3.0;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

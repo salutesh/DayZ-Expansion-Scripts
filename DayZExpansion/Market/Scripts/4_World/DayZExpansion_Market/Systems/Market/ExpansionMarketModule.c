@@ -590,7 +590,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 				float incrementStockModifier;
 				float modifier = GetSellPriceModifier(itemEntity, incrementStockModifier, initialSellPriceModifier);
 
-				sell.AddItem(amountLeft, amountTaken, incrementStockModifier, itemEntity, sell.Item.ClassName);
+				if (canSell)
+				{
+					sell.AddItem(amountLeft, amountTaken, incrementStockModifier, itemEntity, sell.Item.ClassName);
+					sell.TotalAmount += amountTaken;
+				}
 
 				//! Process all attachments (and attachments of attachments)
 				float currentPrice = sell.Price;
@@ -598,11 +602,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 				{
 					result = ExpansionMarketResult.FailedItemDoesNotExistInTrader;
 					return false;
-				}
-
-				if (canSell)
-				{
-					sell.TotalAmount += amountTaken;
 				}
 
 				float price = 0;

@@ -18,7 +18,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	private ExpansionRespawnHandlerModule m_RespawnModule;
 	private bool m_HasCooldown = false;
 	private bool m_IsLocked = false;
-	private bool m_IsTerritroy = false;
+	private bool m_IsTerritory = false;
 	
 	private ButtonWidget spawn_entry;
 	private Widget background;
@@ -32,12 +32,17 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	{
 		m_Index = index;
 		m_Location = location;
-		m_IsTerritroy = isTerritory;
+		m_IsTerritory = isTerritory;
 		
 		Class.CastTo(m_SpawnSelectionEntryController, GetController());
 		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnModule);
 		
 		SetEntry();
+	}
+
+	ExpansionSpawnLocation GetLocation()
+	{
+		return m_Location;
 	}
 
 	override string GetLayoutFile()
@@ -53,7 +58,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	private void SetEntry()
 	{
 		SetDisplayName(m_Location.Name);
-		if (!m_IsTerritroy)
+		if (!m_IsTerritory)
 			SetIcon(ExpansionIcons.GetPath("Marker"));
 		else
 			SetIcon(ExpansionIcons.GetPath("Territory"));
@@ -63,33 +68,32 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	{
 		if (m_RespawnModule)
 		{
+			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(m_IsTerritory);
 			foreach (ExpansionRespawnDelayTimer timer: m_RespawnModule.m_PlayerRespawnDelays)
 			{
-				if (timer.Index == m_Index && timer.HasCooldown())
+				if (timer.Index != m_Index)
+					continue;
+
+				if (timer.HasCooldown())
 				{
 					int cooldownTime = timer.GetTimeDiff();
+					int cooldown = respawnCooldown;
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
 					{
-						if (cooldownTime < (GetExpansionSettings().GetSpawn().RespawnCooldown + timer.GetPunishment()))
-						{
-							m_HasCooldown = true;
-							SetDisplayTime((GetExpansionSettings().GetSpawn().RespawnCooldown + timer.GetPunishment()) - cooldownTime);
-							if (!m_IsLocked)
-								SetLocked();
-						}
+						cooldown += timer.GetPunishment();
 					}
-					else
+					if (cooldownTime < cooldown)
 					{
-						if (cooldownTime < GetExpansionSettings().GetSpawn().RespawnCooldown)
-						{
-							m_HasCooldown = true;
-							SetDisplayTime(GetExpansionSettings().GetSpawn().RespawnCooldown - cooldownTime);
-							if (!m_IsLocked)
-								SetLocked();
-						}
+						m_HasCooldown = true;
+					}
+					if (m_HasCooldown)
+					{
+						SetDisplayTime(respawnCooldown - cooldownTime);
+						if (!m_IsLocked)
+							SetLocked();
 					}
 				}
-				else if (timer.Index == m_Index && !timer.HasCooldown())
+				else
 				{
 					OnCooldownEnd();
 				}
@@ -97,6 +101,8 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 				ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 				if (spawnSelectionMenu)
 					spawnSelectionMenu.UpdateMarkerCooldownState(m_Index);
+
+				break;
 			}
 		}
 	}
@@ -156,8 +162,10 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 			{
 				ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 				if (menu && !m_HasCooldown)
+				{
 					menu.Spawn();
-				break;
+					return true;
+				}
 			}
 		}
 		
