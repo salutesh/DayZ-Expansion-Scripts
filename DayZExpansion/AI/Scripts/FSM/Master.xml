@@ -14,8 +14,6 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.OverridePath();
-
 				if (unit.IsRaised())
 					unit.RaiseWeapon(false);
 
@@ -32,18 +30,22 @@
 		</state>
 		<state name="Unconscious">
 			<variables>
+				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
 				<position x="551" y="94" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.eAI_OverridePosition(unit.GetPosition());
+				time = 0;
+				unit.OverrideTargetPosition(unit.GetPosition());
 			</event_entry>
 			<guard_exit>
-				return !(unit.IsUnconscious());
+				return !unit.IsUnconscious() && time > 3;
 			</guard_exit>
 			<event_update>
+				if (!unit.IsUnconscious())
+					time += DeltaTime;  //! Allow time to stand up so we don't instantly start firing
                 return EXIT;
             </event_update>
 		</state>
@@ -55,7 +57,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.eAI_OverridePosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition());
 			</event_entry>
 			<guard_exit>
 				return !(unit.IsTrading());
@@ -77,7 +79,7 @@
 			<event_exit>
 			</event_exit>
 			<event_update>
-				unit.eAI_OverridePosition(group.GetFormationPosition(unit));
+				unit.OverrideTargetPosition(group.GetFormationPosition(unit));
 
                 return EXIT;
             </event_update>
@@ -145,7 +147,7 @@
 
 				index = Math.Clamp(index, 0, path.Count() - 1);
 
-				unit.eAI_OverridePosition(path[index]);
+				unit.OverrideTargetPosition(path[index]);
 
                 return EXIT;
             </event_update>
@@ -356,10 +358,10 @@
 				if (!Class.CastTo(dst.sub_fsm.weapon, unit.GetItemInHands())) return FAIL;
 
 				int mi = dst.sub_fsm.weapon.GetCurrentMuzzle();
-				Magazine mag = dst.sub_fsm.weapon.GetMagazine(mi);
-				if (mag &amp;&amp; mag.GetAmmoCount() &gt; 0 &amp;&amp; !dst.sub_fsm.weapon.IsChamberFiredOut(mi)) return FAIL;
-
-				if (!dst.sub_fsm.weapon.IsChamberEmpty(mi) &amp;&amp; !dst.sub_fsm.weapon.IsChamberFiredOut(mi)) return FAIL;
+				bool isChamberEmpty = dst.sub_fsm.weapon.IsChamberEmpty(mi);
+				bool isChamberFiredOut = dst.sub_fsm.weapon.IsChamberFiredOut(mi);
+				if (!(isChamberFiredOut || isChamberEmpty)) return FAIL;
+				
 				if (dst.sub_fsm.weapon.IsChamberJammed(mi)) return FAIL;
 
 				// don't move to the state if the action manager is operating

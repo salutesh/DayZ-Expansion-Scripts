@@ -2,8 +2,6 @@ modded class MissionServer
 {
 	void MissionServer()
 	{
-		GetDayZGame().eAICreateManager();
-
 		CF_Log.Info("eAI - Loaded Server Mission");
 	}
 
@@ -11,6 +9,6 @@ modded class MissionServer
 	{
 		super.InvokeOnConnect(player, identity);
 
-		GetDayZGame().eAIManagerGet().InvokeOnConnect(player, identity);
+		GetDayZGame().GetExpansionGame().InvokeOnConnect(player, identity);
 	}
 };

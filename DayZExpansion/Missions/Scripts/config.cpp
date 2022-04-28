@@ -19,10 +19,10 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		name = "DayZ Expansion - Missions";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_mi";
+		logo = "set:expansion_mod_imageset image:mod_mi";
+		logoSmall = "set:expansion_mod_imageset image:mod_mi";
+		logoOver = "set:expansion_mod_imageset image:mod_mi";
 		tooltip = "DayZ Expansion - Missions";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";

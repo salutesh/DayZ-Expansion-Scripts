@@ -14,9 +14,8 @@ class ExpansionRespawnDelayTimer
 {
 	string PlayerUID;
 	int Index;
-	int Hour;
-	int Minute;
-	int Second;
+	int Timestamp;
+	int Now;
 	int Punishment;
 	bool IsTerritory;
 	
@@ -31,44 +30,12 @@ class ExpansionRespawnDelayTimer
 	
 	void SetTime()
 	{
-		if (!GetExpansionSettings().GetSpawn().RespawnUTCTime)
-			GetHourMinuteSecond(Hour, Minute, Second);
-		else
-			GetHourMinuteSecondUTC(Hour, Minute, Second);
-	}
-	
-	int GetTime()
-	{
-		int time;
-		time += Hour * 3600;
-		time += Minute * 60;
-		time += Second;
-		
-		return time;
+		Timestamp = CF_Date.Now(true).GetTimestamp();
 	}
 	
 	bool HasCooldown()
 	{
-		int currentTime;
-		int oldTime;
-		int hours;
-		int minutes;
-		int seconds;
-		
-		if (!GetExpansionSettings().GetSpawn().RespawnUTCTime)
-			GetHourMinuteSecond(hours, minutes, seconds);
-		else
-			GetHourMinuteSecondUTC(hours, minutes, seconds);
-		
-		currentTime += hours * 3600;
-		currentTime += minutes * 60;
-		currentTime += seconds;
-		
-		oldTime += Hour * 3600;
-		oldTime += Minute * 60;
-		oldTime += Second;
-				
-		if ((currentTime - oldTime) < (GetExpansionSettings().GetSpawn().RespawnCooldown + Punishment))
+		if (GetTimeDiff() < (GetExpansionSettings().GetSpawn().GetCooldown(IsTerritory) + Punishment))
 			return true;
 		
 		return false;
@@ -76,26 +43,9 @@ class ExpansionRespawnDelayTimer
 	
 	int GetTimeDiff()
 	{
-		int currentTime;
-		int oldTime;
-		int hours;
-		int minutes;
-		int seconds;
+		int currentTime = CF_Date.Now(true).GetTimestamp();
 		
-		if (!GetExpansionSettings().GetSpawn().RespawnUTCTime)
-			GetHourMinuteSecond(hours, minutes, seconds);
-		else
-			GetHourMinuteSecondUTC(hours, minutes, seconds);
-		
-		currentTime += hours * 3600;
-		currentTime += minutes * 60;
-		currentTime += seconds;
-		
-		oldTime += Hour * 3600;
-		oldTime += Minute * 60;
-		oldTime += Second;
-		
-		return (currentTime - oldTime);
+		return (currentTime - Timestamp);
 	}
 	
 	void SetPunishment(int sec)

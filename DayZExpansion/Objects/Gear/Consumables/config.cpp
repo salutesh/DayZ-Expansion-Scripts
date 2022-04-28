@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionMilkBottle","ExpansionBread1","ExpansionBread2","ExpansionBread3","ExpansionCheese1","ExpansionCheese2","ExpansionCheese3","ExpansionCheese4"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
+		requiredAddons[] = {"DZ_Gear_Food"};
 	};
 };
 class CfgLiquidDefinitions
@@ -27,12 +27,12 @@ class CfgLiquidDefinitions
 		};
 	};
 };
+class BaseFoodStageTransitions{};
+class FruitStageTransitions: BaseFoodStageTransitions{};
 class CfgVehicles
 {
-	class FruitStageTransitions;
 	class WaterBottle;
 	class Edible_Base;
-	class Food;
 	class ExpansionMilkBottle: WaterBottle
 	{
 		scope = 2;

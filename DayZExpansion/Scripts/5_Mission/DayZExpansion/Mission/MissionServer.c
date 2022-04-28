@@ -46,8 +46,8 @@ modded class MissionServer
 	override PlayerBase OnClientNewEvent( PlayerIdentity identity, vector pos, ParamsReadContext ctx )
 	{
 		PlayerBase player = super.OnClientNewEvent( identity, pos, ctx );
-		if (!player) //! Hacky fix
-			player = m_player;
+		if (!player)
+			return null;
 		
 		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
 		if (spawnHealth > 0 && spawnHealth <= player.GetMaxHealth("GlobalHealth", "Health"))
@@ -60,7 +60,7 @@ modded class MissionServer
 			player.GetStatWater().Set(GetExpansionSettings().GetSpawn().SpawnWaterValue);
 		
 		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
-			m_RespawnHandlerModule.StartSpawnSelection(player);
+			m_RespawnHandlerModule.StartSpawnSelection(player, identity);
 
 		return player;
 	}
@@ -70,6 +70,6 @@ modded class MissionServer
 		super.OnClientReadyEvent(identity, player);
 
 		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
-			m_RespawnHandlerModule.CheckResumeSpawnSelection(player);
+			m_RespawnHandlerModule.CheckResumeSpawnSelection(player, identity);
 	}
 }

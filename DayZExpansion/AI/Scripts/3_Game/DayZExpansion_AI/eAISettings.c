@@ -20,6 +20,8 @@ class eAISettings : JsonApiStruct
 
 	private int m_MaxDynamicPatrols = -1;
 
+	private bool m_Vaulting;
+
 	void SetLogLevel(CF_LogLevel logLevel)
 	{
 #ifdef EAI_TRACE
@@ -54,6 +56,11 @@ class eAISettings : JsonApiStruct
 #endif
 
 		return m_Instance.m_MaxDynamicPatrols;
+	}
+
+	static bool GetVaulting()
+	{
+		return m_Instance.m_Vaulting;
 	}
 
 	void SetAccuracy(float accuracy)
@@ -155,6 +162,12 @@ class eAISettings : JsonApiStruct
 		if (name == "MaxDynamicPatrols")
 		{
 			SetMaximumDynamicPatrols(value);
+			return;
+		}
+
+		if (name == "Vaulting")
+		{
+			m_Vaulting = value;
 			return;
 		}
 	}

@@ -17,6 +17,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	protected Widget optionWidget;
 	protected TextWidget settingLabel;
 	protected ButtonWidget settingButton;
+	protected TextWidget settingValue;
 
 	protected ExpansionSettingSerializationBase m_Setting;
 
@@ -41,6 +42,8 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 		settingLabel.SetText( m_Setting.m_Name );
 		optionWidget = Widget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_option" ) );
 		settingButton = ButtonWidget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_button" ) );
+		settingValue = TextWidget.Cast( layoutRoot.FindAnyWidget( "expansion_options_setting_value" ) );
+		settingValue.Show( false );
 		
 		layoutRoot.SetHandler( this );
 
@@ -116,6 +119,8 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 
 		m_Slider = new OptionSelectorSlider( optionWidget, value, this, false, setting.m_Min, setting.m_Max );
 		m_Slider.m_OptionChanged.Insert( OnSliderOptionChanged );
+		settingValue.Show( true );
+		settingValue.SetText( m_Slider.GetValue().ToString() );
 
 		m_ApplySetting.Insert( OnApplySetting_Slider );
 
@@ -128,6 +133,7 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 	private void OnSliderOptionChanged( float value )
 	{
 		m_Menu.SetChanged();
+		settingValue.SetText( m_Slider.GetValue().ToString() );
 	}
 	
 	// -----------------------------------------------------------

@@ -316,7 +316,7 @@ FrameWidgetClass ExpansionSpawnSelection {
      }
      {
       ScriptParamsClass {
-       Relay_Command "Spawn"
+       Relay_Command "SpawnRandom"
       }
      }
     }

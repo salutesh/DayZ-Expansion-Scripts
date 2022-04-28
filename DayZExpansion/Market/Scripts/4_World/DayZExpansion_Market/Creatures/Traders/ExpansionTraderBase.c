@@ -878,14 +878,14 @@ class ExpansionTraderZombieBase extends ZombieBase
 	{
 		if (type != ExpansionZoneType.SAFE) return;
 
-		m_SafeZone = true;
+		m_Expansion_IsInSafeZone = true;
 	}
 
 	override void OnExitZone(ExpansionZoneType type)
 	{
 		if (type != ExpansionZoneType.SAFE) return;
 
-		m_SafeZone = false;
+		m_Expansion_IsInSafeZone = false;
 	}
 
 	bool Expansion_IsTrader()

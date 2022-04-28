@@ -20,10 +20,10 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		name = "DayZ Expansion - Book";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_bk";
+		logo = "set:expansion_mod_imageset image:mod_bk";
+		logoSmall = "set:expansion_mod_imageset image:mod_bk";
+		logoOver = "set:expansion_mod_imageset image:mod_bk";
 		tooltip = "DayZ Expansion - Book";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";

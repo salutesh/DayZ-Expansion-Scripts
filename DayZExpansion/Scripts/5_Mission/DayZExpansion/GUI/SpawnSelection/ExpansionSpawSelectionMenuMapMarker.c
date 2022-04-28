@@ -34,34 +34,36 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 	{
 		if (m_RespawnModule)
 		{
+			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(m_IsTerritory);
 			foreach (ExpansionRespawnDelayTimer timer: m_RespawnModule.m_PlayerRespawnDelays)
 			{
-				if (timer.Index == m_Index && timer.HasCooldown())
+				if (timer.Index != m_Index)
+					continue;
+
+				if (timer.HasCooldown())
 				{
 					int cooldownTime = timer.GetTimeDiff();
+					int cooldown = respawnCooldown;
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
 					{
-						if (cooldownTime < (GetExpansionSettings().GetSpawn().RespawnCooldown + timer.GetPunishment()))
-						{
-							m_HasCooldown = true;
-							if (!m_IsLocked)
-								SetLocked();
-						}
+						cooldown += timer.GetPunishment();
 					}
-					else
+					if (cooldownTime < cooldown)
 					{
-						if (cooldownTime < GetExpansionSettings().GetSpawn().RespawnCooldown)
-						{
-							m_HasCooldown = true;
-							if (!m_IsLocked)
-								SetLocked();
-						}
+						m_HasCooldown = true;
+					}
+					if (m_HasCooldown)
+					{
+						if (!m_IsLocked)
+							SetLocked();
 					}
 				}
-				else if (timer.Index == m_Index && !timer.HasCooldown())
+				else
 				{
 					OnCooldownEnd();
 				}
+
+				break;
 			}
 		}
 	}
@@ -126,7 +128,10 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 		{
 			ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 			if (menu && !m_HasCooldown)
+			{
 				menu.Spawn();
+				return true;
+			}
 		}
 		
 		return super.OnDoubleClick(w, x, y, button);

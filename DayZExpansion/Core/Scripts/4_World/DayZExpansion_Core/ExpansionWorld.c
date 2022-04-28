@@ -10,4 +10,10 @@
  *
 */
 
-class ExpansionWorld: ExpansionGame {};
+class ExpansionWorld: ExpansionGame
+{
+	void ExpansionWorld()
+	{
+		ExpansionAttachmentHelper.Init();
+	}
+};

@@ -1,0 +1,110 @@
+ImageSetClass {
+ Name "expansion_mod_imageset"
+ RefSize 2104 520
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "{FB43C9E1B3773EF1}DayZExpansion/Core/GUI/imagesets/expansion_mod_imageset.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass mod_c {
+   Name "mod_c"
+   Pos 0 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_bb {
+   Name "mod_bb"
+   Pos 264 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_bk {
+   Name "mod_bk"
+   Pos 528 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_v {
+   Name "mod_v"
+   Pos 792 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_w {
+   Name "mod_w"
+   Pos 1056 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_nt {
+   Name "mod_nt"
+   Pos 1320 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_ch {
+   Name "mod_ch"
+   Pos 1584 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_g {
+   Name "mod_g"
+   Pos 1848 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_mi {
+   Name "mod_mi"
+   Pos 0 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_na {
+   Name "mod_na"
+   Pos 264 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_ai {
+   Name "mod_ai"
+   Pos 528 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_m {
+   Name "mod_m"
+   Pos 792 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_ma {
+   Name "mod_ma"
+   Pos 1056 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_l {
+   Name "mod_l"
+   Pos 1320 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_an {
+   Name "mod_an"
+   Pos 1584 264
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass mod_b {
+   Name "mod_b"
+   Pos 1848 264
+   Size 256 256
+   Flags 0
+  }
+ }
+ Groups {
+ }
+}

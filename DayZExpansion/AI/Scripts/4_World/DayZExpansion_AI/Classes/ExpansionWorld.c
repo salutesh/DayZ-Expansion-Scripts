@@ -5,19 +5,19 @@ enum eAIProcessingState
 	REMOVE
 };
 
-class eAIManagerImplement extends eAIManagerBase
+modded class ExpansionWorld
 {
-	private static eAIManagerImplement m_Instance_4; //! weak ref
+	private float m_UpdateInterval = 0.05;
+	private float m_UpdateTime;
+	private int m_GroupsPerTick = 5;
 
 	private ref eAIRoadNetwork m_Network;
 	private bool m_NetworkGenerate;
 	private vector m_NetworkPosition;
 	private float m_NetworkRadius;
 
-	void eAIManagerImplement()
+	void ExpansionWorld()
 	{
-		m_Instance_4 = this;
-		
 		m_CommandManager = new eAICommandManagerClient();
 
 		m_Network = new eAIRoadNetwork();
@@ -28,7 +28,13 @@ class eAIManagerImplement extends eAIManagerBase
 	{
 		super.OnUpdate(doSim, timeslice);
 
-		eAIGroup.UpdateAll(timeslice);
+		m_UpdateTime += timeslice;
+		if (m_UpdateTime < m_UpdateInterval)
+			return;
+
+		eAIGroup.UpdateAll(m_UpdateTime, m_GroupsPerTick);
+
+		m_UpdateTime = 0;
 
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
@@ -56,11 +62,6 @@ class eAIManagerImplement extends eAIManagerBase
 			GenerateRoadNetwork(pos, radius);
 		}
 */
-	}
-
-	static eAIManagerImplement Get4()
-	{
-		return m_Instance_4;
 	}
 
 	void GenerateRoadNetwork(vector position, float radius)

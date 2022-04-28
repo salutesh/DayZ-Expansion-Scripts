@@ -27,7 +27,7 @@
 				if (target)
 				{
 					position = target.GetPosition(unit);
-					auto distance = vector.DistanceSq(unit.GetPosition(), position);
+					auto distanceSq = vector.DistanceSq(unit.GetPosition(), position);
 					
 					bool shouldBeMeleeing = false;
 
@@ -38,7 +38,7 @@
 					}
 					else if (hands.IsWeapon())
 					{
-						if (distance &lt; 1.0)
+						if (distanceSq &lt;= 1.5)
 						{
 							shouldBeMeleeing = true;
 						}
@@ -50,7 +50,7 @@
 					
 					if (shouldBeMeleeing)
 					{
-						if (distance &lt; 4.0)
+						if (distanceSq &lt;= 4.0)
 						{
 							wantsRaise = true;
 						}
@@ -65,12 +65,12 @@
 				{
 					unit.RaiseWeapon(true);
 				}
-				else if (!wantsLower)
+				else if (wantsLower)
 				{
 					unit.RaiseWeapon(false);
 				}
 
-				unit.eAI_OverridePosition(position);
+				unit.OverrideTargetPosition(position);
 
 				return EXIT;
             </event_update>
@@ -101,7 +101,7 @@
 				auto aimPosition = lowPosition + target.GetAimOffset(unit);
 
 				time += DeltaTime;
-				unit.eAI_OverridePosition(lowPosition);
+				unit.OverrideTargetPosition(lowPosition);
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 
@@ -145,11 +145,11 @@
 				auto aimPosition = lowPosition + target.GetAimOffset(unit);
 
 				time += DeltaTime;
-				unit.eAI_OverridePosition(lowPosition);
+				unit.OverrideTargetPosition(lowPosition);
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 
-				if (target.GetDistance(unit) &gt; 1.0)
+				if (target.GetDistanceSq(unit) &gt; 1.5)
 				{
 					if (time >= 0.5)
 					{

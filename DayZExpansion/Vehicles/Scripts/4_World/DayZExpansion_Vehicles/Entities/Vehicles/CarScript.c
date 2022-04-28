@@ -1297,6 +1297,13 @@ modded class CarScript
 				m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", GetPosition());
 				m_SoundLock.SetSoundAutodestroy(true);
 			}
+
+			return;
+		}
+		case ExpansionVehicleRPC.ClientPing:
+		{
+			m_State.OnPing(ctx);
+			return;
 		}
 		}
 
@@ -2581,7 +2588,7 @@ modded class CarScript
 
 		Expansion_OnBeforeApplyPhysics(m_State);
 
-		m_State.ApplyPhysics_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost);
+		m_State.ApplyPhysics_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost, driver);
 
 		OnPostSimulation(dt);
 

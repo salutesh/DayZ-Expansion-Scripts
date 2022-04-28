@@ -11,19 +11,20 @@
 */
 
 modded class ZombieBase
-{	
-	private static ref set< ZombieBase > m_allInfected = new set< ZombieBase >;
+{
+	//! TODO: AllInfected isn't used anywhere, should get rid?
+	private static ref set< ZombieBase > m_Expansion_AllInfected = new set< ZombieBase >;
 	
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ZombieBase>(this);
 
-	protected bool m_SafeZone;
+	protected bool m_Expansion_IsInSafeZone;
 	
 	// ------------------------------------------------------------
 	// ZombieBase Consturctor
 	// ------------------------------------------------------------	
 	void ZombieBase()
 	{
-		m_allInfected.Insert( this );
+		m_Expansion_AllInfected.Insert( this );
 	}
 	
 	// ------------------------------------------------------------
@@ -34,10 +35,10 @@ modded class ZombieBase
 		if (!GetGame())
 			return;
 
-		int idx = m_allInfected.Find( this );
+		int idx = m_Expansion_AllInfected.Find( this );
 		if ( idx >= 0 )
 		{
-			m_allInfected.Remove( idx );
+			m_Expansion_AllInfected.Remove( idx );
 		}
 	}
 	
@@ -46,7 +47,7 @@ modded class ZombieBase
 	// ------------------------------------------------------------	
 	static set< ZombieBase > GetAll()
 	{
-		return m_allInfected;
+		return m_Expansion_AllInfected;
 	}
 	
 	
@@ -61,9 +62,10 @@ modded class ZombieBase
 
 		if (type == ExpansionZoneType.SAFE)
 		{
-			m_SafeZone = true;
+			m_Expansion_IsInSafeZone = true;
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Call( GetGame().ObjectDelete, this );
+			SetHealth(0);
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().ObjectDelete, 5000, false, this );
 		}
 	}
 	
@@ -78,7 +80,7 @@ modded class ZombieBase
 
 		if (type == ExpansionZoneType.SAFE)
 		{
-			m_SafeZone = false;
+			m_Expansion_IsInSafeZone = false;
 		}
 	}
 
@@ -87,6 +89,6 @@ modded class ZombieBase
 	// ------------------------------------------------------------
 	bool IsInSafeZone()
 	{
-		return m_SafeZone;
+		return m_Expansion_IsInSafeZone;
 	}
 }

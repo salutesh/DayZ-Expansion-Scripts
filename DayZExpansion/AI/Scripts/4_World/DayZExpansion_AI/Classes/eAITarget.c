@@ -76,11 +76,16 @@ class eAITarget
 
 	bool IsMeleeViable(eAIBase ai)
 	{
-		float dist = GetDistance(ai);
-		if (dist > 2.0)
+		auto zInfo = eAIZombieTargetInformation.Cast(info);
+		if (zInfo && zInfo.m_Crawling)
 			return false;
 
-		if (dist > 1.0 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
+		float distSq = GetDistanceSq(ai);
+		if (distSq > 4.0)
+			return false;
+
+		//! DayZPlayerMeleeFightLogic_LightHeavy.CLOSE_TARGET_DISTANCE = 1.5
+		if (distSq > 1.5 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			return false;
 
 		//! We don't punch the bear if we have a firearm with ammo

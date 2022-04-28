@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-class eAIManager extends eAIManagerImplement
+modded class DayZExpansion
 {
-	private static eAIManager m_Instance_5; //! weak ref
+	private static DayZExpansion m_Instance_5; //! weak ref
 
 	autoptr eAIAimingProfileManager m_AimingManager;
 	
 	const vector ZOMBIE_OFFSET = "20 0 0";
 	
-    void eAIManager()
+    void DayZExpansion()
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "eAIManager");
+		auto trace = CF_Trace_0(this, "DayZExpansion");
 		#endif
 
 		m_Instance_5 = this;
@@ -41,10 +41,10 @@ class eAIManager extends eAIManagerImplement
 		GetRPCManager().AddRPC("eAI", "ReqFormStop", this, SingeplayerExecutionType.Server);
     }
 
-	static eAIManager Get5()
+	static DayZExpansion Get5()
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0("eAIManager", "Get5");
+		auto trace = CF_Trace_0("DayZExpansion", "Get5");
 		#endif
 		
 		return m_Instance_5;
@@ -60,7 +60,7 @@ class eAIManager extends eAIManagerImplement
 	
 	//! @param owner Who is the manager of this AI
 	//! @param formOffset Where should this AI follow relative to the formation?
-	eAIBase SpawnAI_Helper(PlayerBase owner, string loadout = "SoldierLoadout.json")
+	eAIBase SpawnAI_Helper(PlayerBase owner, string loadout = "HumanLoadout.json")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "SpawnAI_Helper");
@@ -71,12 +71,12 @@ class eAIManager extends eAIManagerImplement
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
 
-		HumanLoadout.Apply(ai, loadout);
+		ExpansionHumanLoadout.Apply(ai, loadout, true, eAISettings.GetLoadoutDirectories());
 
 		return ai;
 	}
 	
-	eAIBase SpawnAI_Sentry(vector pos, string loadout = "SoldierLoadout.json")
+	eAIBase SpawnAI_Sentry(vector pos, string loadout = "HumanLoadout.json")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "SpawnAI_Sentry");
@@ -85,12 +85,12 @@ class eAIManager extends eAIManagerImplement
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
 
-		HumanLoadout.Apply(ai, loadout);
+		ExpansionHumanLoadout.Apply(ai, loadout, true, eAISettings.GetLoadoutDirectories());
 
 		return ai;
 	}
 	
-	eAIBase SpawnAI_Patrol(vector pos, string loadout = "SoldierLoadout.json")
+	eAIBase SpawnAI_Patrol(vector pos, string loadout = "HumanLoadout.json")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "SpawnAI_Patrol");
@@ -99,7 +99,7 @@ class eAIManager extends eAIManagerImplement
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
 
-		HumanLoadout.Apply(ai, loadout);
+		ExpansionHumanLoadout.Apply(ai, loadout, true, eAISettings.GetLoadoutDirectories());
 				
 		return ai;
 	}

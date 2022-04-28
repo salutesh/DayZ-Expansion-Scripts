@@ -51,6 +51,10 @@ class eAIFormation
 
 	float GetScale()
 	{
+#ifdef DIAG
+		m_Scale = 0.15;
+#endif
+
 		return m_Scale;
 	}
 

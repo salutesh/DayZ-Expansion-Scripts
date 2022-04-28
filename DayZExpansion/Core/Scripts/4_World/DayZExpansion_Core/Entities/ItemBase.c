@@ -323,10 +323,7 @@ modded class ItemBase
 	// This is just here so it can be overriden in derived classes, but should return a useful default.
 	bool CanBeDamaged()
 	{
-		// TODO: Hmmm. Being able to destroy is not necessarily the same as being able to damage, 
-		// although the former includes the ability to do the latter, just not vice versa.
-		// For now this should suffice, as it's unlikely that an item that cannot be destroyed will be able to get damaged?
-		return GetCanBeDestroyed();
+		return GetAllowDamage();
 	}
 
 	protected string GetDestroySound()

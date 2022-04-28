@@ -92,6 +92,9 @@ class ExpansionClientSettings
 	float VehicleCameraDistance;
 	float VehicleCameraOffsetY;
 	
+	float VehicleResyncTimeout;
+	bool ShowDesyncInvulnerabilityNotifications;
+	
 	bool MarketMenuCategoriesState;
 	bool MarketMenuSkipConfirmations;
 	bool MarketMenuFilterPurchasableState;
@@ -468,6 +471,21 @@ class ExpansionClientSettings
 			return false;
 		}
 		
+		if ( version < 42 )
+			return true;
+		
+		if ( !ctx.Read( VehicleResyncTimeout ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleResyncTimeout!");
+			return false;
+		}
+		
+		if ( !ctx.Read( ShowDesyncInvulnerabilityNotifications ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowDesyncInvulnerabilityNotifications!");
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -558,6 +576,9 @@ class ExpansionClientSettings
 		ctx.Write( Show3DPartyMemberIcon );
 		
 		ctx.Write( DefaultChatChannel );
+		
+		ctx.Write( VehicleResyncTimeout );
+		ctx.Write( ShowDesyncInvulnerabilityNotifications );
 	}
 	
 	// -----------------------------------------------------------
@@ -695,6 +716,9 @@ class ExpansionClientSettings
 		Show3DPartyMemberIcon = true;
 		
 		DefaultChatChannel = ExpansionClientUIChatChannel.DIRECT;
+
+		VehicleResyncTimeout = 5.0;
+		ShowDesyncInvulnerabilityNotifications = false;
 	}
 	
 	// -----------------------------------------------------------
@@ -820,6 +844,12 @@ class ExpansionClientSettings
 		//CreateSlider( "VehicleCameraOffsetY", "VEHICLE CAMERA OFFSET VERTICAL", "VEHICLE CAMERA OFFSET VERTICAL", "", -10.0, 5.0 );
 		
 		//CreateToggle( "UsePlaneMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_PLANE_MOUSE_CONTROL_DESC" );
+
+		//! @note Lower values for VehicleResyncTimeout allow for faster resync, but may cause more stutter in crowded areas of the map,
+		//! higher values may avoid stutter, but can result in more extreme vehicle position changes in case of reaching the timeout or prevent resync altogether.
+		//! A vehicle that fails to resync will remain in that state for the affected client until the player leaves the vehicle's network bubble.
+		CreateSlider( "VehicleResyncTimeout", "VEHICLE RESYNC TIMEOUT", "VEHICLE RESYNC TIMEOUT", "How long after desync and no resync has occurred vehicle physics updates are halted and position is restored to last known from server.", 1.0, 11.0 );
+		CreateToggle( "ShowDesyncInvulnerabilityNotifications", "INVULNERABILITY NOTIFICATIONS", "SHOW DESYNC INVULNERABILITY NOTIFICATIONS", "Show desync invulnerability notifications (after the fact)." );
 	#endif
 	
 	#ifdef EXPANSIONMODMARKET

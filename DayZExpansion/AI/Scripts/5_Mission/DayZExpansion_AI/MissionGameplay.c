@@ -10,8 +10,6 @@ modded class MissionGameplay
 
 		m_eAIRadialKey = GetUApi().GetInputByName("eAICommandMenu");
 
-		GetDayZGame().eAICreateManager();
-
 		CF_Log.Info("eAI - Loaded Client Mission");
 	}
 
@@ -23,7 +21,7 @@ modded class MissionGameplay
 
 		super.OnMissionStart();
 
-		if (IsMissionOffline()) GetDayZGame().eAIManagerGet().SetAdmin(true);
+		if (IsMissionOffline()) GetDayZGame().GetExpansionGame().SetAdmin(true);
 	}
 
 	override void OnMissionFinish()
@@ -34,7 +32,7 @@ modded class MissionGameplay
 
 		super.OnMissionFinish();
 
-		GetDayZGame().eAIManagerGet().SetAdmin(false);
+		GetDayZGame().GetExpansionGame().SetAdmin(false);
 	}
 
 	override void OnUpdate(float timeslice)
@@ -45,15 +43,20 @@ modded class MissionGameplay
 
 		super.OnUpdate(timeslice);
 
-		//TODO: move to 5_Mission/eAIManager
-
 		DayZPlayerImplement player;
 		Class.CastTo(player, GetGame().GetPlayer());
+
+		if (player && g_Expansion_Car && g_ExpansionNavMesh)
+		{
+			g_ExpansionNavMesh.DebugScripts();
+		}
+
+		//TODO: move to 5_Mission/DayZExpansion
 
 		// If we want to open the command menu, and nothing else is open
 		if (m_eAIRadialKey.LocalPress() && !GetGame().GetUIManager().GetMenu())
 		{
-			if (GetDayZGame().eAIManagerGet().IsAdmin() || (player && player.GetGroup()))
+			if (GetDayZGame().GetExpansionGame().IsAdmin() || (player && player.GetGroup()))
 			{
 				if (!eAICommandMenu.instance) new eAICommandMenu();
 				GetUIManager().ShowScriptedMenu(eAICommandMenu.instance, null);

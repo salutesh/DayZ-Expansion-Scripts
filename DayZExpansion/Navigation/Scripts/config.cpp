@@ -20,10 +20,10 @@ class CfgMods
 		extra = 0;
 		type = "mod";
 		name = "DayZ Expansion - Navigation";
-		picture = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logo = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoSmall = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
-		logoOver = "DayZExpansion/Core/GUI/textures/expansion_icon.edds";
+		picture = "set:expansion_mod_imageset image:mod_na";
+		logo = "set:expansion_mod_imageset image:mod_na";
+		logoSmall = "set:expansion_mod_imageset image:mod_na";
+		logoOver = "set:expansion_mod_imageset image:mod_na";
 		tooltip = "DayZ Expansion - Navigation";
 		overview = "$STR_MOD_EXPANSION_DESC";
 		action = "";

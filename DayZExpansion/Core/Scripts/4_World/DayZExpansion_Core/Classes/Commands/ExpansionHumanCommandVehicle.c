@@ -193,8 +193,13 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	override void PreAnimUpdate(float pDt)
 	{
 		super.PreAnimUpdate(pDt);
+		
+		float turn = 0;
 
-		PreAnim_SetFilteredHeading(0, 0.3, 180);
+		auto parent = Object.Cast(m_Player.GetParent());
+		if (parent) turn -= parent.GetOrientation()[0];
+
+		PreAnim_SetFilteredHeading(-turn * Math.DEG2RAD, 0.1, 30.0);
 
 		m_Table.SetLook(this, true);
 
@@ -335,7 +340,7 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		Math3D.QuatToMatrix(rotation, transform);
 		translation = translation.InvMultiply3(transform);
 		
-		PrePhys_SetRotation(rotation);
+		PrePhys_SetRotation(currentRotation);
 		PrePhys_SetTranslation(translation);
 		
 		DBGDrawLineDirectionMS(translation * (1.0 / pDt), 0x44FF00FF);

@@ -13,7 +13,7 @@
 class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 {
 	private ref array<ref ExpansionSpawSelectionMenuMapMarker> m_MapMarkers;
-	private vector m_SelectedSpawnPoint = Vector(0,0,0);
+	private int m_SelectedSpawnPointIndex = -1;
 	private int m_SelectedSpawnIndex = -1;
 	
 	private ref ExpansionRespawnHandlerModule m_RespawnModule;
@@ -118,7 +118,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	
 	void SetSpawnPoint(int index, ExpansionSpawnLocation location, bool setmappos = true)
 	{
-		m_SelectedSpawnPoint = location.Positions.GetRandomElement();
+		m_SelectedSpawnPointIndex = location.Positions.GetRandomIndex();
 		m_SelectedSpawnIndex = index;
 		m_SelectedSpawnIsTerritory = location.IsTerritory();
 		m_SelectedSpawnUseCooldown = location.UseCooldown();
@@ -151,7 +151,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	
 	void ClearSpawnPoint()
 	{
-		m_SelectedSpawnPoint = vector.Zero;
+		m_SelectedSpawnPointIndex = -1;
 		m_SelectedSpawnIndex = -1;
 		m_SpawnSelectionMenuController.SelectedLocation = "NONE";
 		m_SpawnSelectionMenuController.NotifyPropertyChanged("SelectedLocation");
@@ -169,17 +169,14 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			m_Mission.GetHud().ShowQuickBar(true);
 			Clear();
 		}
-
-		//! If menu gets closed via nonstandard means, choose last selected spawn point
-		if (!m_RespawnModule.m_SpawnSelected)
-			m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPoint, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
 	}
 	
 	void Spawn()
 	{
-		if (m_SelectedSpawnPoint != Vector(0, 0, 0) && m_SelectedSpawnIndex != -1)
-			m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPoint, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
-		
+		if (m_SelectedSpawnPointIndex == -1 || m_SelectedSpawnIndex == -1)
+			return;
+
+		m_RespawnModule.SelectSpawn(m_SelectedSpawnIndex, m_SelectedSpawnPointIndex, m_SelectedSpawnIsTerritory, m_SelectedSpawnUseCooldown);
 		Confirm.Show(false);
 		Confirm.Enable(false);
 		Random.Show(false);
@@ -188,7 +185,27 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	
 	void SpawnRandom()
 	{
-		m_RespawnModule.SelectRandomSpawn();
+		int count = m_SpawnSelectionMenuController.SpawnLocationEntries.Count();
+		if (!count)
+			return;
+
+		TIntArray candidates();
+		for (int i = 0; i < count; i++)
+		{
+			if (!m_SpawnSelectionMenuController.SpawnLocationEntries[i].HasCooldown())
+				candidates.Insert(i);
+		}
+
+		if (!candidates.Count())
+			return;
+
+		int idx = candidates.GetRandomElement();
+		ExpansionSpawnLocation loc = m_SpawnSelectionMenuController.SpawnLocationEntries[idx].GetLocation();
+
+		if (!loc.Positions.Count())
+			return;
+
+		m_RespawnModule.SelectSpawn(idx, loc.Positions.GetRandomIndex(), loc.IsTerritory, loc.UseCooldown);
 		Confirm.Show(false);
 		Confirm.Enable(false);
 		Random.Show(false);

@@ -95,6 +95,7 @@ enum ExpansionVehicleRPC
 	CrewSyncInit,
 	RequestCrewSync,
 	ClientSync,
+	ClientPing,
 	ControllerSync,
 	PlayLockSound,
 	COUNT
