@@ -315,19 +315,19 @@ class Expansion_Landrover_Base extends CarScript
 		switch( attType )
 		{
 			case "CarRadiator":
-				if ( GetCarDoorsState("expansion_landrover_hood") == EngineIsOn() )
+				if ( GetCarDoorsState("expansion_landrover_hood") == CarDoorState.DOORS_CLOSED || EngineIsOn() )
 					return false;
 			break;
 			case "HeadlightH7":
-				if ( GetCarDoorsState("expansion_landrover_hood") ==  EngineIsOn() )
+				if ( GetCarDoorsState("expansion_landrover_hood") == CarDoorState.DOORS_CLOSED || EngineIsOn() )
 					return false;
 			break;
 			case "CarBattery": 
-				if ( GetCarDoorsState("expansion_landrover_hood") ==  EngineIsOn() )
+				if ( GetCarDoorsState("expansion_landrover_hood") == CarDoorState.DOORS_CLOSED || EngineIsOn() )
 					return false;
 			break;
 			case "SparkPlug":
-				if ( GetCarDoorsState("expansion_landrover_hood") ==  EngineIsOn() )
+				if ( GetCarDoorsState("expansion_landrover_hood") == CarDoorState.DOORS_CLOSED || EngineIsOn() )
 					return false;
 			break;			
 			case "Expansion_Landrover_Wheel":
