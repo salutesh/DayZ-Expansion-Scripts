@@ -11,7 +11,7 @@
 */
 
 /**@class		DayZExpansion
- * @brief		
+ * @brief
  **/
 modded class DayZExpansion
 {
@@ -28,7 +28,6 @@ modded class DayZExpansion
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "~DayZExpansion");
 #endif
 
-		// HandActionThrow.OnThrow.Remove( this.OnThrow );
 	}
 
 	override void OnLoaded()
@@ -36,7 +35,6 @@ modded class DayZExpansion
 		if ( IsMissionHost() )
 		{
 			ExpansionSettings.SI_General.Invoke();
-			ExpansionSettings.SI_Spawn.Invoke();
 		}
 
 		super.OnLoaded();

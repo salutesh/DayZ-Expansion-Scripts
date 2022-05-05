@@ -342,7 +342,7 @@ class ExpansionSettings
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionNotificationSettings GetNotification
+	// Expansion ExpansionNotificationSettings GetMonitoring
 	// ------------------------------------------------------------
 	ExpansionMonitoringSettings GetMonitoring()
 	{

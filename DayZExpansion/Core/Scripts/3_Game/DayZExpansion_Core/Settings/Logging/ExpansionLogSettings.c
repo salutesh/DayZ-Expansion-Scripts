@@ -34,9 +34,12 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 	#ifdef EXPANSIONMOD
 	bool Killfeed;				//! If enabled, generate logs based on the killfeed module
-	bool SpawnSelection;		//! If enabled, generate logs when the player spawn
 	#endif
 
+	#ifdef EXPANSIONMODSPAWNSELECTION
+	bool SpawnSelection;		//! If enabled, generate logs when the player spawn
+	#endif
+	
 	#ifdef EXPANSIONMODGROUPS
 	bool Party;					//! If enabled, generate logs when the player create a party or invite someone
 	#endif
@@ -149,6 +152,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		#ifdef EXPANSIONMOD
 		Killfeed = s.Killfeed;
+		#endif
+
+		#ifdef EXPANSIONMODSPAWNSELECTION
 		SpawnSelection = s.SpawnSelection;
 		#endif
 
@@ -291,6 +297,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		#ifdef EXPANSIONMOD
 		Killfeed = true;
+		#endif
+
+		#ifdef EXPANSIONMODSPAWNSELECTION
 		SpawnSelection = true;
 		#endif
 

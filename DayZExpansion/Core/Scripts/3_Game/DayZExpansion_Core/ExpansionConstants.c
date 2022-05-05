@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -14,7 +14,7 @@
  * Expansion chat channels
  * @{
  */
-enum ExpansionChatChannels 
+enum ExpansionChatChannels
 {
 	//! Vanilla
 	CCSystem = 1,
@@ -52,9 +52,6 @@ const int MENU_EXPANSION_CODELOCK_MENU = MENU_EXPANSION_MENU_START + 0;
 const int MENU_EXPANSION_NUMPAD_MENU = MENU_EXPANSION_MENU_START + 1;
 const int MENU_EXPANSION_MAP = MENU_EXPANSION_MENU_START + 2;
 const int MENU_EXPANSION_FLAG_MENU = MENU_EXPANSION_MENU_START + 3;
-
-const int EXPANSION_MENU_START = 0;
-const int EXPANSION_MENU_SPAWNSELECTION = EXPANSION_MENU_START + 5;
 
 /**
  * Expansion UI Colors
@@ -94,7 +91,6 @@ static const string EXPANSION_MAPPING_EXT = ".map";
 
 static const string EXPANSION_GENERAL_SETTINGS = EXPANSION_SETTINGS_FOLDER + "GeneralSettings.json";
 static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
-static const string EXPANSION_SPAWN_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "SpawnSettings.json";
 static const string EXPANSION_AIRDROP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "AirdropSettings.json";
 static const string EXPANSION_BOT_SETTINGS = EXPANSION_SETTINGS_FOLDER + "BotSettings.json";
 static const string EXPANSION_MAP_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "MapSettings.json";
@@ -314,7 +310,7 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = EXPANSION_VERSION_SAVE;
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 42;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 39;  //! Also used for groups
 
-//! Game SaveVersion (GAME_STORAGE_VERSION) at which 1st step of converting over to ModStorage should happen 
+//! Game SaveVersion (GAME_STORAGE_VERSION) at which 1st step of converting over to ModStorage should happen
 //! after release of CF with ModStorage support.
 //! Final conversion step will happen with release of next DayZ version AFTER that.
 //! So, if CF with ModStorage releases (hypothetically) at game SaveVersion 127 (DayZ 1.16), set this also to 127,

@@ -1312,6 +1312,11 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 			}
 		}
 		
+		int mouse_x, mouse_y;
+		GetGame().GetMousePos(mouse_x, mouse_y);
+		vector mapPos = m_MapWidget.ScreenToMap(Vector(mouse_x, mouse_y, 0));
+		m_MarkerList.UpdatePosition(Math.Round(mapPos[0]), Math.Round(mapPos[2]));
+		
 		#ifdef EXPANSION_MAP_MENU_UPDATE_DEBUG
 		EXLogPrint("ExpansionMapMenu::Update - End");
 		#endif

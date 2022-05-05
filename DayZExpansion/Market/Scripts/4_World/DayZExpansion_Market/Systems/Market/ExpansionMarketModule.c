@@ -3685,7 +3685,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void OpenTraderMenu()
 	{
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu(EXPANSION_MENU_MARKET);
+		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionMarketMenu");
 	}
 	
 	// ------------------------------------------------------------
@@ -3693,7 +3693,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void OpenATMMenu()
 	{
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu(EXPANSION_MENU_ATM);
+		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionATMMenu");
 	}
 	
 	// ------------------------------------------------------------

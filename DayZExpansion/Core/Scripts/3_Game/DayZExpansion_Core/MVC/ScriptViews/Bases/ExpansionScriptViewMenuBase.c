@@ -12,7 +12,6 @@
 
 class ExpansionScriptViewMenuBase: ScriptView
 {
-	private int m_SVMenuID = -1;
 	private bool m_IsVisible = false;
 	
 	void ExpansionScriptViewMenuBase()
@@ -28,16 +27,6 @@ class ExpansionScriptViewMenuBase: ScriptView
 	bool IsVisible()
 	{
 		return m_IsVisible;
-	}
-	
-	void SetID(int id)
-	{
-		m_SVMenuID = id;
-	}
-	
-	int GetID()
-	{
-		return m_SVMenuID;
 	}
 	
 	void Show();

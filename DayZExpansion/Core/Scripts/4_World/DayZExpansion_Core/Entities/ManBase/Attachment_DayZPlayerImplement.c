@@ -106,6 +106,8 @@ modded class DayZPlayerImplement
 
 	void OnClimbStart(int climbType)
 	{
+		auto trace = EXTrace.Start(EXTrace.PLAYER, this);
+
 		//if ( m_ExPlayerLinkType != ExpansionPlayerLink.NONE || m_ExIsAwaitingServerLink || m_ExClimbType != -1 )
 		//	return;
 
@@ -115,6 +117,8 @@ modded class DayZPlayerImplement
 
 		if (!ExpansionAttachmentHelper.CanAttachTo(this, m_ExAttachmentObject))
 		{
+			EXTrace.Add(trace, "Cannot attach to " + m_ExAttachmentObject);
+
 			m_ExAttachmentObject = NULL;
 
 			StartCommand_Climb(m_ExClimbResult, m_ExClimbType);
@@ -126,6 +130,8 @@ modded class DayZPlayerImplement
 
 		if (m_ExAttachmentObject == GetParent())
 		{
+			EXTrace.Add(trace, "Can attach to parent " + m_ExAttachmentObject);
+
 			StartCommand_Climb(m_ExClimbResult, m_ExClimbType);
 
 			m_ExClimbType = -1;
@@ -135,6 +141,8 @@ modded class DayZPlayerImplement
 
 		if (GetParent())
 		{
+			EXTrace.Add(trace, "Unlink from parent " + GetParent());
+
 			UnlinkFromLocalSpace();
 
 			m_IsAttached = false;

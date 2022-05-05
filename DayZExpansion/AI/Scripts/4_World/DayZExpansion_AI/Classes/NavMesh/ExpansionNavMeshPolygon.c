@@ -17,13 +17,19 @@ class ExpansionNavMeshPolygon : PathNode
 	vector m_Vertices[VERTEX_COUNT];
 	float m_Plane[4];
 
-	void ExpansionNavMeshPolygon(LOD lod, Selection selection)
+	void ExpansionNavMeshPolygon(Object object, LOD lod, Selection selection)
 	{
+		string name = selection.GetName();
+
 		int count = selection.GetVertexCount();
 		if (count != VERTEX_COUNT)
 		{
-			CF_Log.Error("Expected count of 4: " + selection.GetName());
+			CF_Log.Error("Expected count of 4: " + name);
 		}
+		
+		TStringArray flags();
+		object.ConfigGetTextArray("NavMesh " + "p" + name + " flags", flags);
+		m_Flags = ExpansionPolyFlags.ToFlag(flags);
 
 		m_Indices[0] = selection.GetLODVertexIndex(0);
 		m_Indices[1] = selection.GetLODVertexIndex(1);
@@ -121,20 +127,44 @@ class ExpansionNavMeshPolygon : PathNode
 
 		vector vertices[3];
 		Shape shape;
+		float radius;
 		
 		int flags = ShapeFlags.NOZWRITE | ShapeFlags.TRANSP | ShapeFlags.DOUBLESIDE;
+
+		int color = m_Flags;
+		color |= 0x44 << 24;
+		
+		color = 0x445533AA;
 
 		vertices[0] = parent.ModelToWorld(m_Vertices[0]);
 		vertices[1] = parent.ModelToWorld(m_Vertices[3]);
 		vertices[2] = parent.ModelToWorld(m_Vertices[1]);
-		shape = Shape.CreateTris(0x446666EE, flags, vertices, 3);
+		shape = Shape.CreateTris(color, flags, vertices, 3);
 		navmesh.AddDebugShape(shape);
 
 		vertices[0] = parent.ModelToWorld(m_Vertices[3]);
 		vertices[1] = parent.ModelToWorld(m_Vertices[2]);
 		vertices[2] = parent.ModelToWorld(m_Vertices[1]);
-		shape = Shape.CreateTris(0x446666EE, flags, vertices, 3);
+		shape = Shape.CreateTris(color, flags, vertices, 3);
 		navmesh.AddDebugShape(shape);
+		
+		flags = ShapeFlags.NOZWRITE | ShapeFlags.TRANSP | ShapeFlags.DOUBLESIDE;
+		radius = 0.05;
+		
+		shape = Shape.CreateSphere(0xFFAA5533, flags, parent.ModelToWorld(m_Position), radius * 2.0);
+		navmesh.AddDebugShape(shape);
+		
+		foreach (ExpansionNavMeshPolygon neighbour : m_Neighbours)
+		{
+			vector direction = vector.Direction(m_Position, neighbour.m_Position).Normalized();
+			vector position = m_Position + (direction * m_Radius);
+			
+			position = SamplePosition(position);
+			position = position - (direction * radius);
+			
+			shape = Shape.CreateSphere(0xFFAA5533, flags, parent.ModelToWorld(position), radius);
+			navmesh.AddDebugShape(shape);
+		}
 	}
 
 	/**

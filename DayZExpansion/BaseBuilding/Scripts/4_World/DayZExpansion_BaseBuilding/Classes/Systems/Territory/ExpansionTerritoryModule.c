@@ -426,14 +426,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				}
 				#endif
 			}
-			
-		#ifdef EXPANSIONMODBOOK
-			ExpansionUIScriptedMenu menu;
-			if (Class.CastTo( menu, GetGame().GetUIManager().FindMenu(EXPANSION_MENU_BOOK)))
-			{
-				menu.Refresh();
-			}
-		#endif
 		}
 	}
 	
@@ -934,13 +926,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 
 		SetTerritoryInvites( invites );
-	#ifdef EXPANSIONMODBOOK
-		ExpansionUIScriptedMenu menu;
-		if (Class.CastTo(menu, GetGame().GetUIManager().FindMenu(EXPANSION_MENU_BOOK)))
-		{
-			menu.Refresh();
-		}
-	#endif
 	}
 		
 	// ------------------------------------------------------------

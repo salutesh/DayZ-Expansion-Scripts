@@ -1,0 +1,326 @@
+FrameWidgetClass ExpansionSpawnSelection {
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionSpawnSelectionMenuController"
+ {
+  ImageWidgetClass Background {
+   visible 1
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   imageTexture "{C595ED9ED316D080}DayZExpansion/SpawnSelection/GUI/textures/wood_background.edds"
+   mode opaque
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+  }
+  PanelWidgetClass Panel {
+   inheritalpha 0
+   ignorepointer 1
+   position 0.0008 0
+   size 0.95 0.95
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   draggable 0
+   style blank
+   {
+    PanelWidgetClass MapPanel {
+     ignorepointer 1
+     color 0 0 0 0.8078
+     position 0.01 0.09
+     size 0.68 0.77
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+     {
+      PanelWidgetClass MapSpacer {
+       visible 1
+       clipchildren 1
+       ignorepointer 0
+       keepsafezone 1
+       position 0 0
+       size 0.98 0.97
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       {
+        MapWidgetClass Map_Widget {
+         visible 1
+         clipchildren 1
+         keepsafezone 1
+         position 0 0
+         size 1 1
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass ""
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass ListPanel {
+     ignorepointer 1
+     position 0.01 0.09
+     size 0.29 0.77
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      PanelWidgetClass ListLabelPanel {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       color 0 0 0 0.8078
+       position 0 0
+       size 1 27
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultPanelTop
+       "no focus" 1
+       {
+        TextWidgetClass ListLabel {
+         clipchildren 1
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_SPAWNSELECTION_SPAWN_POINTS"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "exact text" 0
+         "text valign" center
+        }
+       }
+      }
+      ScrollWidgetClass ListGridScroller {
+       ignorepointer 0
+       color 0 0 0 0.8078
+       position 0 0.04
+       size 1.025 0.96
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Colorable
+       "Scrollbar V" 1
+       {
+        GridSpacerWidgetClass ListGrid {
+         ignorepointer 1
+         color 0 0 0 0
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 1
+         Rows 10
+         {
+          ScriptParamsClass {
+           Binding_Name "SpawnLocationEntries"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    WrapSpacerWidgetClass SelectedLocationPanel {
+     ignorepointer 1
+     position 0.01 0.06
+     size 0.29 0.04
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     {
+      GridSpacerWidgetClass SelectedLocationGrid {
+       visible 1
+       clipchildren 1
+       ignorepointer 0
+       color 0 0 0 0.8078
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass ""
+       style DayZDefaultPanel
+       Padding 0
+       Margin 0
+       Columns 2
+       Rows 1
+       {
+        TextWidgetClass SelectedLocationLabel {
+         clipchildren 0
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         size 0.5 1
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_SPAWNSELECTION_SELECTED_POS"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "exact text" 0
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+        }
+        TextWidgetClass SelectedLocation {
+         clipchildren 0
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         size 0.5 1
+         halign right_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "exact text" 0
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "SelectedLocation"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ButtonWidgetClass Confirm {
+     color 0 0 0 0.8078
+     position 0.42 0.06
+     size 0.15 0.04
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     style DayZDefaultButton
+     {
+      TextWidgetClass ConfirmText {
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "#STR_EXPANSION_SPAWNSELECTION_SPAWN"
+       font "gui/fonts/etelkatextpro"
+       "exact text" 0
+       "size to text h" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+     {
+      ScriptParamsClass {
+       Relay_Command "Spawn"
+      }
+     }
+    }
+    ButtonWidgetClass Random {
+     color 0 0 0 0.8078
+     position 0.13 0.06
+     size 0.15 0.04
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     style DayZDefaultButton
+     {
+      TextWidgetClass RandomText {
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "#STR_EXPANSION_SPAWNSELECTION_RANDOM"
+       font "gui/fonts/etelkatextpro"
+       "exact text" 0
+       "size to text h" 0
+       "text halign" center
+       "text valign" center
+      }
+     }
+     {
+      ScriptParamsClass {
+       Relay_Command "SpawnRandom"
+      }
+     }
+    }
+   }
+  }
+ }
+}

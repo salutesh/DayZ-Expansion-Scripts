@@ -62,6 +62,8 @@ class EXTrace
 
 	static bool GLOBAL;
 
+	static bool KILLFEED = ENABLE;
+
 	static bool LIGHTHOUSE;
 
 	static bool LIGHTS;
@@ -76,13 +78,15 @@ class EXTrace
 
 	static bool NOTIFICATIONS;
 
-	static bool PLAYER;
+	static bool PLAYER = ENABLE;
 
 	static bool PLAYER_MONITOR;
 	
 	static bool RESPAWN = ENABLE;
 
 	static bool SETTINGS;
+	
+	static bool SPAWNSELECTION;
 
 	static bool SKIN;
 
@@ -98,6 +102,7 @@ class EXTrace
 
 	//! -----------------------------------------------------------------------
 	
+	static string m_Indent = "                                  ";
 	protected string m_Instance;
 	protected string m_Params[10];
 	protected int m_ParamsCount;
@@ -124,10 +129,6 @@ class EXTrace
 			return;
 		m_End = end;
 		int elapsed = TickCount(m_Ticks);
-		string stack;
-		DumpStackString(stack);
-		TStringArray stacka();
-		stack.Split("\n", stacka);
 		string res;
 		for (int i = 0; i < m_ParamsCount; i++)
 		{
@@ -139,27 +140,51 @@ class EXTrace
 			if (depth != 0)
 				res += "::";
 		}
-		int n = start;
-		while (depth != 0)
+		if (depth == 0)
 		{
-			if (n > start)
-				res += "\n                            ";
-			res += stacka[n++];
-			if (depth > 0)
-				depth--;
-			if (n >= stacka.Count())
-				break;
+			DumpLine(res, elapsed, end);
 		}
-		string prefix;
-		if (end)
-			prefix = "~";
-		PrintFormat("%1 [%2EXPTRACE] %3ms %4", ExpansionStatic.GetTimestamp(), prefix, (elapsed / 10000.0).ToString(), res);
+		else
+		{
+			string stack;
+			DumpStackString(stack);
+			TStringArray stacka();
+			stack.Split("\n", stacka);
+			int n = start;
+			while (depth != 0 && n < stacka.Count())
+			{
+				if (n > start)
+					PrintFormat("%1%2", m_Indent, stacka[n++]);
+				else
+					DumpLine(res + stacka[n++], elapsed, end);
+				if (depth > 0)
+					depth--;
+			}
+		}
 		m_Ticks = TickCount(0);
 	}
 
-	void Add(string param)
+	//! @note max script log line length 256 characters
+	void DumpLine(string res, int elapsed, bool end = false)
+	{
+		string prefix;
+		if (end)
+			prefix = "~";
+		PrintFormat("%1 [%2EXTRACE] %3ms %4", ExpansionStatic.GetTimestamp(), prefix, (elapsed / 10000.0).ToString(), res);
+	}
+
+	EXTrace Add(string param)
 	{
 		m_Params[m_ParamsCount++] = param;
+		return this;
+	}
+
+	static void Add(EXTrace trace, string param)
+	{
+		if (!trace)
+			return;
+
+		trace.Add(param);
 	}
 
 	void SetDepth(int depth)

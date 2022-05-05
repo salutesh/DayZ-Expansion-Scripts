@@ -265,7 +265,7 @@ modded class MissionGameplay
 			ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(menu);
 			if (!playerListMenu)
 			{
-				uiManager.CreateSVMenu(EXPANSION_MENU_PLAYERLIST);
+				uiManager.CreateSVMenu("ExpansionPlayerListMenu");
 			} 
 			else if (playerListMenu && playerListMenu.IsVisible())
 			{

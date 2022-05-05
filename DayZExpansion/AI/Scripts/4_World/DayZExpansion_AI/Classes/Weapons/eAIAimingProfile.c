@@ -13,9 +13,14 @@ class eAIAimingProfile
 	vector m_Position;
 	vector m_Direction;
 
+	float m_Accuracy_Min;
+	float m_Accuracy_Max;
+
 	void eAIAimingProfile(eAIBase ai)
 	{
 		m_Player = ai;
+		m_Accuracy_Min = eAISettings.GetAccuracyMin();
+		m_Accuracy_Max = eAISettings.GetAccuracyMax();
 	}
 
 	void Update()
@@ -59,8 +64,17 @@ class eAIAimingProfile
 		vector transform[4];
 		m_Player.GetTransform(transform);
 
-		position = m_Position.Multiply4(transform);
-		direction = m_Direction.Multiply3(transform);
+		//! TODO: Accuracy could be influenced by stamina and status effects
+		float accuracy = Math.RandomFloat(m_Accuracy_Min, m_Accuracy_Max);
+
+		//! Lerp to adjust accuracy
+		position = vector.Lerp(m_Position, "0 1.5 0", accuracy).Multiply4(transform);
+
+		//! 100% guarantee to hit target
+		vector aimDirection = vector.Direction(position, m_Player.GetAimPosition()).Normalized();
+
+		//! Lerp to adjust accuracy
+		direction = vector.Lerp(m_Direction.Multiply3(transform), aimDirection, accuracy);
 
 		//if (verify && GetGame().GetTime() - m_LastUpdated > 1000.0) return false;
 

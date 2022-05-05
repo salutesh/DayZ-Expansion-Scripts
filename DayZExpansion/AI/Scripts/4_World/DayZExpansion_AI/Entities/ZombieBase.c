@@ -45,7 +45,8 @@ modded class ZombieBase
 
 	override bool ModCommandHandlerBefore(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
-		m_TargetInformation.m_Crawling = pCurrentCommandID == DayZInfectedConstants.COMMANDID_CRAWL;
+		if (pCurrentCommandID == DayZInfectedConstants.COMMANDID_CRAWL)
+			m_TargetInformation.m_Crawling = true;
 
 		return super.ModCommandHandlerBefore(pDt, pCurrentCommandID, pCurrentCommandFinished);
 	}

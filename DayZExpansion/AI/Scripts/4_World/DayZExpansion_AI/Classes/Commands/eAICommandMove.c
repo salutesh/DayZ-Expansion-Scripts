@@ -7,6 +7,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 	private eAIBase m_Unit;
 	private ExpansionPathHandler m_PathFinding;
+	private vector m_PrevWaypoint;
 
 	private float m_Turn;
 	private float m_TurnTarget;
@@ -18,6 +19,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 	private vector m_Direction;
 	private float m_MovementDirection;
+	private bool m_ForceMovementDirection;
 	private float m_TargetMovementDirection;
 
 	private bool m_Look;
@@ -37,6 +39,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	private float m_HitFraction;
 
 	private bool m_GetUp;
+	private int m_Stance;
 			
 	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
 	{
@@ -64,26 +67,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	{
 		vector angles = pDirection.VectorToAngles();
 
-		float lookLR = angles[0];
-		float lookUD = angles[1];
+		m_LookLR = angles[0];
+		m_LookUD = angles[1];
+		if (m_LookLR > 180) m_LookLR = m_LookLR - 360;
+		if (m_LookUD > 180) m_LookUD = m_LookUD - 360;
 
-		if (lookLR > 180) lookLR -= 360;
-		if (lookUD > 180) lookUD -= 360;
-
-		if (m_LookLR + 1.0 < lookLR)
-			m_LookLR += 1.0;
-		else if (m_LookLR - 1.0 > lookLR)
-			m_LookLR -= 1.0;
-		else
-			m_LookLR = lookLR;
-
-		if (m_LookUD + 1.0 < lookUD)
-			m_LookUD += 1.0;
-		else if (m_LookUD - 1.0 > lookUD)
-			m_LookUD -= 1.0;
-		else
-			m_LookUD = lookUD;
-	
 		m_Look = (Math.AbsFloat(m_LookLR) > 0.01) || (Math.AbsFloat(m_LookUD) > 0.01);
 	}
 
@@ -117,14 +105,20 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		m_SpeedOverrider = pActive;
 	}
 
-	void SetTargetDirection(float pTarget)
+	void SetTargetDirection(float pTarget, bool force = false)
 	{
 		m_TargetMovementDirection = pTarget;
+		m_ForceMovementDirection = force;
 	}
 
 	void GetUp()
 	{
 		m_GetUp = true;
+	}
+
+	void OverrideStance(int stance)
+	{
+		m_Stance = stance;
 	}
 
 	override void PreAnimUpdate(float pDt)
@@ -155,6 +149,21 @@ class eAICommandMove extends ExpansionHumanCommandScript
 			wayPointDistance -= yDiff * yDiff;
 		}
 
+		if (!isFinal && wayPoint == m_PrevWaypoint && wayPointDistance < minFinal)
+		{
+			//! Waypoint is identical to previous waypoint, but not final, and we are stuck spinning.
+			//! Move waypoint a bit further from AI, and see if that gets us better pathfinding next update.
+			wayPoint = position + m_Player.GetDirection();
+			m_PathFinding.m_Recalculate = true;
+			SetSpeedOverrider(true);
+			SetTargetSpeed(2.0);
+		}
+		else
+		{
+			m_PrevWaypoint = wayPoint;
+			m_PathFinding.m_Recalculate = false;
+		}
+
 		if (isFinal && wayPointDistance < minFinal)
 		{
 			SetTargetSpeed(0.0);
@@ -178,7 +187,9 @@ class eAICommandMove extends ExpansionHumanCommandScript
 				SetTargetSpeed(Math.Lerp(m_TargetSpeed, 3.0, pDt * 2.0));
 			}
 		}
-
+		
+		DBGDrawSphere(wayPoint, 0.05, 0xFF00FF00);
+		
 		if (m_MovementSpeed != 0)
 		{
 			vector pathDir = vector.Direction(position, wayPoint).Normalized();
@@ -195,7 +206,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		if (m_TurnDifference > 180.0) m_TurnDifference = m_TurnDifference - 360.0;
 		if (m_TurnDifference < -180.0) m_TurnDifference = m_TurnDifference + 360.0;
 		
-		m_MovementDirection += Math.Clamp((m_TargetMovementDirection - m_MovementDirection) * pDt, -180.0, 180.0);
+		float dirChangeSpeed = pDt;
+		if (m_ForceMovementDirection)
+			dirChangeSpeed *= 4;
+
+		m_MovementDirection += Math.Clamp((m_TargetMovementDirection - m_MovementDirection) * dirChangeSpeed, -180.0, 180.0);
 
 		m_MovementSpeed = m_TargetSpeed;
 		if (m_MovementSpeed > m_SpeedLimit && m_SpeedLimit != -1) m_MovementSpeed = m_SpeedLimit;	
@@ -260,7 +275,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		if (m_GetUp)
 		{
 			m_GetUp = false;
-			m_Table.SetStance(this, 0);
+			m_Table.SetStance(this, DayZPlayerConstants.STANCEIDX_ERECT);
+		}
+		else if (m_Stance)
+		{
+			m_Table.SetStance(this, m_Stance);
 		}
 	}
 	
@@ -304,9 +323,9 @@ class eAICommandMove extends ExpansionHumanCommandScript
 				{
 					doPseudoJump = 0xFF00FF00;
 					
-					translation[1] = translation[1] + (yDiff * pDt * 1.1);
+					//translation[1] = translation[1] + (yDiff * pDt * 1.1);
 					
-					dBodyEnableGravity(m_Player, false);
+					//dBodyEnableGravity(m_Player, false);
 				}
 			}			
 
@@ -314,7 +333,8 @@ class eAICommandMove extends ExpansionHumanCommandScript
 			//DBGDrawSphere(checkPosition, 0.1, 0xFFFFFF00);
 			//DBGDrawSphere(checkPosition, 0.05, doPseudoJump);
 		}
-			
+		
+		//translation = vector.Zero;
 
 		PrePhys_SetRotation(rotation);
 		PrePhys_SetTranslation(translation);

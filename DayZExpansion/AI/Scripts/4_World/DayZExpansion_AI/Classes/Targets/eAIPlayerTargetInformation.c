@@ -11,7 +11,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override float GetThreat(eAIBase ai = null)
 	{
-		if (m_Player.GetHealth("", "") <= 0.0)
+		if (ai == this || m_Player.GetHealth("", "") <= 0.0)
 			return 0.0;
 
 		float levelFactor = 0.5;
@@ -21,24 +21,30 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			if (!ai.PlayerIsEnemy(m_Player))
 				return 0.0;
 
-			auto player = PlayerBase.Cast(GetEntity());
+			auto player = PlayerBase.Cast(m_Player);
 			if (player && player.IsUnconscious())
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai) + 0.00001;
-			levelFactor = 10 / distance;
+			float distance = GetDistance(ai);
+			if (distance)
+				levelFactor = 10 / distance;
 
-			//! AI weapon
-			auto hands = ai.GetHumanInventory().GetEntityInHands();
-			if (hands)
+			//! Enemy weapon
+			auto enemyHands = m_Player.GetHumanInventory().GetEntityInHands();
+			if (enemyHands)
 			{
-				AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
+				AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor);
 
-				//! Enemy weapon
-				auto enemyHands = m_Player.GetHumanInventory().GetEntityInHands();
-				if (enemyHands)
-					AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor);
+				if (!m_Player.IsRaised())
+					levelFactor *= 0.5;
+
+				//! AI weapon
+				auto hands = ai.GetHumanInventory().GetEntityInHands();
+				if (hands)
+				{
+					AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
+				}
 			}
 		}
 
@@ -49,19 +55,19 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 	{
 		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base))
 		{
-			levelFactor *= 100;
+			levelFactor *= 4.472136;  //! If both AI and target have a bolt rifle, threat level 0.4 at 500 m
 		}
 		else if (weapon.IsInherited(Rifle_Base))
 		{
-			levelFactor *= 100;
+			levelFactor *= 3.0;  //! If both AI and target have a rifle, threat level 0.4 at 225 m
 		}
 		else if (weapon.IsInherited(Pistol_Base))
 		{
-			levelFactor *= 10;
+			levelFactor *= 2.0;  //! If both AI and target have a pistol, threat level 0.4 at 100 m
 		}
 		else if (weapon.IsInherited(Weapon_Base))
 		{
-			levelFactor *= 10;
+			levelFactor *= 2.0;
 		}
 	}
 
