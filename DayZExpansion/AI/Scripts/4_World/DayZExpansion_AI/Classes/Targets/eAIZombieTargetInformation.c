@@ -14,6 +14,11 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 		m_DIIP = m_Zombie.GetInputController();
 	}
 
+	override bool IsCrawling()
+	{
+		return m_Crawling;
+	}
+
 	override vector GetAimOffset(eAIBase ai = null)
 	{
 		if (m_Crawling)

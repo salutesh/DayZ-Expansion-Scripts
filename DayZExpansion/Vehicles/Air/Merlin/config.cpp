@@ -694,6 +694,51 @@ class CfgVehicles
 				};
 			};
 		};
+		class NavMesh
+		{
+			class pDefault
+			{
+				flags[] = {"WALK"};
+			};
+			class pVault
+			{
+				flags[] = {"CLIMB"};
+			};
+			class p1: pDefault{};
+			class p2: pDefault{};
+			class p3: pDefault{};
+			class p4: pDefault{};
+			class p5: pDefault{};
+			class p6: pDefault{};
+			class p7: pDefault{};
+			class p8: pDefault{};
+			class p9: pDefault{};
+			class p10: pDefault{};
+			class p11: pDefault{};
+			class p12: pDefault{};
+			class p13: pDefault{};
+			class p14: pDefault{};
+			class p15: pDefault{};
+			class p16: pDefault{};
+			class p17: pVault{};
+			class p18: pDefault{};
+			class p19: pDefault{};
+			class p20: pDefault{};
+			class p21: pDefault{};
+			class p22: pDefault{};
+			class p23: pDefault{};
+			class p24: pDefault{};
+			class p25: pDefault{};
+			class p26: pDefault{};
+			class p27: pDefault{};
+			class p28: pDefault{};
+			class p29: pDefault{};
+			class p30: pVault{};
+			class p31: pDefault{};
+			class p32: pDefault{};
+			class p33: pVault{};
+			class p34: pDefault{};
+		};
 	};
 	class Vehicle_ExpansionMerlin: ExpansionVehicleHelicopterBase
 	{

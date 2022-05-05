@@ -11,7 +11,8 @@ class eAISettings : JsonApiStruct
 	private CF_LogLevel m_LogLevel = CF_LogLevel.TRACE;
 	private bool m_LogLevelSavedAsString = true;
 
-	private float m_Accuracy = 0.5;
+	private float m_Accuracy_Min = 0.5;
+	private float m_Accuracy_Max = 0.5;
 
 	private ref array<string> m_LoadoutDirectories = {"$profile:eAI/"};
 	private bool m_LoadoutDirectoriesSavedAsArray = false;
@@ -20,7 +21,7 @@ class eAISettings : JsonApiStruct
 
 	private int m_MaxDynamicPatrols = -1;
 
-	private bool m_Vaulting;
+	private bool m_Vaulting = true;
 
 	void SetLogLevel(CF_LogLevel logLevel)
 	{
@@ -63,22 +64,40 @@ class eAISettings : JsonApiStruct
 		return m_Instance.m_Vaulting;
 	}
 
-	void SetAccuracy(float accuracy)
+	void SetAccuracyMin(float accuracy)
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "SetAccuracy").Add(accuracy);
+		auto trace = CF_Trace_1(this, "SetAccuracyMin").Add(accuracy);
 #endif
 
-		m_Accuracy = accuracy;
+		m_Accuracy_Min = accuracy;
 	}
 
-	static float GetAccuracy()
+	void SetAccuracyMax(float accuracy)
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_0("eAISettings", "GetAccuracy");
+		auto trace = CF_Trace_1(this, "SetAccuracyMax").Add(accuracy);
 #endif
 
-		return m_Instance.m_Accuracy;
+		m_Accuracy_Max = accuracy;
+	}
+
+	static float GetAccuracyMin()
+	{
+#ifdef EAI_TRACE
+		auto trace = CF_Trace_0("eAISettings", "GetAccuracyMin");
+#endif
+
+		return m_Instance.m_Accuracy_Min;
+	}
+
+	static float GetAccuracyMax()
+	{
+#ifdef EAI_TRACE
+		auto trace = CF_Trace_0("eAISettings", "GetAccuracyMax");
+#endif
+
+		return m_Instance.m_Accuracy_Max;
 	}
 
 	void AddLoadoutDirectory(string path)
@@ -210,9 +229,15 @@ class eAISettings : JsonApiStruct
 		auto trace = CF_Trace_2(this, "OnFloat").Add(name).Add(value);
 #endif
 
-		if (name == "Accuracy")
+		if (name == "AccuracyMin" || name == "Accuracy")
 		{
-			SetAccuracy(value);
+			SetAccuracyMin(value);
+			return;
+		}
+
+		if (name == "AccuracyMax" || name == "Accuracy")
+		{
+			SetAccuracyMax(value);
 			return;
 		}
 	}
@@ -282,7 +307,8 @@ class eAISettings : JsonApiStruct
 		}
 
 		StoreInteger("MaxDynamicPatrols", m_MaxDynamicPatrols);
-		StoreFloat("Accuracy", m_Accuracy);
+		StoreFloat("AccuracyMin", m_Accuracy_Min);
+		StoreFloat("AccuracyMax", m_Accuracy_Max);
 
 		if (m_LoadoutDirectoriesSavedAsArray || m_LoadoutDirectories.Count() > 1)
 		{

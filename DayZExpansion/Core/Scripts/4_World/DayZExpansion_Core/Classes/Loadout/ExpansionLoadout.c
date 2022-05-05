@@ -29,37 +29,37 @@ class ExpansionHumanLoadout
 			return;
 
 			loadout = loadout.BeginAttachment("HikingJacket_Blue", "Body");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("HikingJacket_Black", "Body");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("HikingJacket_Green", "Body");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("HikingBootsLow_Blue", "Feet");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("HikingBootsLow_Black", "Feet");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("HikingBootsLow_Grey", "Feet");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("TaloonBag_Blue", "Back");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginCargo("MakarovIJ70");
 				loadout.Chance = 0.2;
 				loadout = loadout.End();
@@ -74,25 +74,25 @@ class ExpansionHumanLoadout
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("PressVest_Blue", "Vest");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("BaseballCap_Blue", "Headgear");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("BaseballCap_Black", "Headgear");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("BaseballCap_Olive", "Headgear");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("SurgicalGloves_Blue", "Gloves");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("CivilianBelt", "Hips");
-			loadout.SetHealth(70, 100);
+			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("BaseballBat", "Melee");

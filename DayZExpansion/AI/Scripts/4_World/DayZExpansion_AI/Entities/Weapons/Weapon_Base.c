@@ -78,7 +78,34 @@ modded class Weapon_Base
 			string damageZone = "";
 			DamageSystem.GetDamageZoneFromComponentName(entity, componentName, damageZone);
 
-			entity.ProcessDirectDamage(DT_FIRE_ARM, this, damageZone, ammoType, entity.WorldToModel(hitPosition), 1.0);
+			//! Very rough, 0 m to 100 m to 500 m to 1000 m. TODO: Accurate damage calculation with projectile speed and weapon initSpeedMult
+			float distance = Math.Clamp(vector.DistanceSq(ai.GetPosition(), hitPosition), 0, 1000000);
+			float dmgCoefMax, dmgCoefMin;
+			float distance01;
+			if (distance <= 10000)
+			{
+				//! 100 m
+				dmgCoefMax = 1.0;
+				dmgCoefMin = 0.87;
+				distance01 = distance * 0.0001;
+			}
+			else if (distance <= 250000)
+			{
+				//! 500 m
+				dmgCoefMax = 0.87;
+				dmgCoefMin = 0.54 * 0.974538;
+				distance01 = distance * 0.000004 - 0.04;
+			}
+			else
+			{
+				//! 1000 m
+				dmgCoefMax = 0.54;
+				dmgCoefMin = 0.33 * 0.787879;
+				distance01 = distance * 0.000001 - 0.25;
+			}
+			float dmgCoef = Math.Lerp(dmgCoefMax, dmgCoefMin, distance01);
+			//EXPrint(ToString() + "::EEFired " + ammoType + " coef " + dmgCoef);
+			entity.ProcessDirectDamage(DT_FIRE_ARM, this, damageZone, ammoType, entity.WorldToModel(hitPosition), dmgCoef);
 		}
 	}
 	

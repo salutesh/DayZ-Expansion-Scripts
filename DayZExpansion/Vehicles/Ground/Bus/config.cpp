@@ -692,8 +692,8 @@ class CfgVehicles
 		class ObstacleGenerator
 		{
 			carve = 1;
-			timeToStationary = 1e-05;
-			moveThreshold = 1e-05;
+			timeToStationary = 5.0;
+			moveThreshold = 0.5;
 			class Shapes
 			{
 				class Cylindric

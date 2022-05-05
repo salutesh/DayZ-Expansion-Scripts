@@ -922,6 +922,137 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
           }
          }
         }
+        PanelWidgetClass MarkerListCursorPosPanel {
+         ignorepointer 1
+         position 6 0
+         size 255 35
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style blank
+         {
+          PanelWidgetClass PanelX {
+           ignorepointer 1
+           color 0.7529 0.2235 0.1686 0.549
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           style blank
+           {
+            TextWidgetClass X {
+             ignorepointer 1
+             color 1 1 1 0.549
+             size 26 26
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             text "X"
+             "text halign" center
+             "text valign" center
+            }
+            ImageWidgetClass ImageX {
+             ignorepointer 1
+             color 0.7529 0.2235 0.1686 0.549
+             size 30 30
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             imageTexture "{DDEDAF5A8B34B62D}DayZExpansion/Core/GUI/icons/hud/ellipse_out_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+             "flip u" 1
+             "flip v" 0
+            }
+           }
+          }
+          TextWidgetClass Pos_X {
+           ignorepointer 1
+           color 1 1 1 0.549
+           position 31 0
+           size 95 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           text "10000.00"
+           "text halign" center
+           "text valign" center
+          }
+          PanelWidgetClass PanelY {
+           ignorepointer 1
+           color 0.1608 0.502 0.7255 1
+           position 123 0
+           size 30 30
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           style blank
+           {
+            TextWidgetClass Y {
+             ignorepointer 1
+             color 1 1 1 0.549
+             size 26 26
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             text "Y"
+             "text halign" center
+             "text valign" center
+            }
+            ImageWidgetClass ImageY {
+             ignorepointer 1
+             color 0.1608 0.502 0.7255 0.549
+             size 30 30
+             halign center_ref
+             valign center_ref
+             hexactpos 1
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             imageTexture "{DDEDAF5A8B34B62D}DayZExpansion/Core/GUI/icons/hud/ellipse_out_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+           }
+          }
+          TextWidgetClass Pos_Y {
+           ignorepointer 1
+           color 1 1 1 0.549
+           position 152 0
+           size 100 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           text "10000.00"
+           "text halign" center
+           "text valign" center
+          }
+         }
+        }
        }
       }
      }

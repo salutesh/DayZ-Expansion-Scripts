@@ -10,9 +10,6 @@
  *
 */
 
-const int EXPANSION_MENU_MARKET = EXPANSION_MENU_START + 3;
-const int EXPANSION_MENU_ATM = EXPANSION_MENU_START + 4;
-
 //! Server
 static const string EXPANSION_MARKET_FOLDER = EXPANSION_FOLDER + "Market\\";
 static const string EXPANSION_TRADER_ZONES_FOLDER = EXPANSION_MISSION_FOLDER + "traderzones\\";

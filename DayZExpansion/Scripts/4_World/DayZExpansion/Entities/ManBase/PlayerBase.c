@@ -15,10 +15,9 @@ modded class PlayerBase
 	Object m_PlayerHeadingDir;
 
 	private bool m_HasCalledKillFeed;
-	
+
 	ExpansionKillFeedModule m_KillfeedModule;
-	
-	bool m_Expansion_SpawnSelect;
+	ItemBase m_Expansion_SuicideItem;
 
 	// ------------------------------------------------------------
 	// PlayerBase Constructor
@@ -42,15 +41,27 @@ modded class PlayerBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CreateGraveCross);
 		}
 	}
-	
-	/*override void Init()
+
+	// ------------------------------------------------------------
+	// Override Init
+	// ------------------------------------------------------------
+	override void Init()
 	{
 		super.Init();
-		
-		//! Vehicles mod will set this if loaded
-		if (!m_ExpansionST)
-			m_ExpansionST = new ExpansionHumanST(this);
-	}*/
+
+		CF_Modules<ExpansionKillFeedModule>.Get(m_KillfeedModule);
+	}
+
+	// ------------------------------------------------------------
+	// Override SetSuicide
+	// ------------------------------------------------------------
+	override void SetSuicide(bool state)
+	{
+		super.SetSuicide(state);
+
+		if (state)
+			m_Expansion_SuicideItem = GetItemInHands();
+	}
 
 	// ------------------------------------------------------------
 	// Override EEKilled
@@ -64,10 +75,18 @@ modded class PlayerBase
 		#endif
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
 		}
-		
+
 		super.EEKilled(killer);
+
+		if (GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity())
+		{
+			if ( m_KillfeedModule )
+			{
+				m_KillfeedModule.OnPlayerKilled( this, killer );
+			}
+		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// Override EEHitBy
 	// ------------------------------------------------------------
@@ -75,7 +94,6 @@ modded class PlayerBase
 	{
 		if ( GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity() )
 		{
-			m_KillfeedModule = ExpansionKillFeedModule.Cast( CF_ModuleCoreManager.Get( ExpansionKillFeedModule ) );
 			if ( m_KillfeedModule && !IPADACK() )
 			{
 				UpdateIPADACK( !IsAlive() );
@@ -84,21 +102,6 @@ modded class PlayerBase
 		}
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion SetActions
-	// ------------------------------------------------------------
-	override void SetActions( out TInputActionMap InputActionMap )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "SetActions");
-#endif
-
-		super.SetActions( InputActionMap );
-				
-		//AddAction( ExpansionActionStartPlayingGuitar, InputActionMap );
-		//AddAction( ExpansionActionStopPlayingGuitar, InputActionMap );
 	}
 
 	// ------------------------------------------------------------
@@ -130,7 +133,7 @@ modded class PlayerBase
 		//! Offset of 0.6 is to account for cross anchor point not being at the bottom of the cross,
 		//! if we change cross object and not using ECE_TRACE this needs to be adjusted!
 		float offsetY = 0.6;
-		
+
 		float playtime = StatGet("playtime");
 
 		if (playtime <= lifetimeThreshhold)
@@ -173,22 +176,22 @@ modded class PlayerBase
 			//! Add water depth so cross sits above water level (with bottom bit submerged slightly)
 			ground[1] = ground[1] + water_depth - 0.5;
 		}
-		
+
 		ground[1] = ground[1] + offsetY;
 
 		grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
-		
+
 		grave.MoveAttachmentsFromEntity(this, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());
-		
+
 		if (deleteBody)
 			Delete();
 	}
-	
+
 	// ------------------------------------------------------------
 	// PlayerBase Debug_PlayerForward
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void Debug_PlayerForward()
 	{
 #ifdef EXPANSIONTRACE
@@ -206,80 +209,5 @@ modded class PlayerBase
 
 		m_PlayerHeadingDir.SetPosition( pos );
 		m_PlayerHeadingDir.SetDirection( direction );
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ModCommandHandlerInside
-	// ------------------------------------------------------------
-	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	
-	{
-		if ( super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished ) )
-		{
-			return true;
-		}
-
-		if ( pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT )
-		{
-			//ExpansionHumanCommandGuitar ehcg = ExpansionHumanCommandGuitar.Cast( GetCommand_Script() );
-			//if ( ehcg != NULL )
-			//{
-			//	return true;
-			//}
-		}
-
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase HasItem
-	// ------------------------------------------------------------
-	//! Not used anywhere?!
-	/*bool HasItem( string name, out EntityAI item )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.PLAYER, this, "HasItem").Add(name);
-#endif
-
-		if ( !GetInventory() )
-			return false;
-		
-		for ( int att_i = 0; att_i < GetInventory().AttachmentCount(); ++att_i )
-		{
-			EntityAI attachment = GetInventory().GetAttachmentFromIndex( att_i );
-			CargoBase cargo = attachment.GetInventory().GetCargo();
-			
-			if ( !cargo )
-				continue;
-
-			for ( int cgo_i = 0; cgo_i < cargo.GetItemCount(); ++cgo_i )
-			{
-				EntityAI cargo_item = cargo.GetItem( cgo_i );
-				if ( !cargo_item )
-					continue;
-
-				if ( cargo_item.GetType() == name )
-					return Class.CastTo( item, cargo_item );
-			}
-		}
-			
-		return false;
-	}*/
-
-	/*
-	// ------------------------------------------------------------
-	// Expansion StartCommand_ExpansionGuitar
-	// ------------------------------------------------------------
-	override ExpansionHumanCommandGuitar StartCommand_ExpansionGuitar( Expansion_Guitar guitar )
-	{
-		ExpansionHumanCommandGuitar cmd = new ExpansionHumanCommandGuitar( this, guitar, m_ExpansionST );
-		StartCommand_Script( cmd );
-		return cmd;
-	}
-	*/
-
-	override void UpdatePlayerMeasures()
-	{
-		if (!m_Expansion_SpawnSelect)
-			super.UpdatePlayerMeasures();
 	}
 };

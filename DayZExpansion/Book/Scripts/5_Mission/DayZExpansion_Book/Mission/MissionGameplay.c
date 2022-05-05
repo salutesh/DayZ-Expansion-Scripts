@@ -69,7 +69,7 @@ modded class MissionGameplay
 		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(menu);
 		if (!bookMenu)
 		{
-			uiManager.CreateSVMenu(EXPANSION_MENU_BOOK);
+			uiManager.CreateSVMenu("ExpansionBookMenu");
 		} 
 		else if (bookMenu && bookMenu.IsVisible())
 		{

@@ -20,7 +20,7 @@ class ExpansionNavMesh
 		DestroyDebugShapes();
 	}
 
-	void Generate(LOD lod)
+	void Generate(Object object, LOD lod)
 	{
 		array<Selection> selections();
 		lod.GetSelections(selections);
@@ -33,7 +33,7 @@ class ExpansionNavMesh
 				return;
 			}
 
-			ExpansionNavMeshPolygon polygon = new ExpansionNavMeshPolygon(lod, selection);
+			ExpansionNavMeshPolygon polygon = new ExpansionNavMeshPolygon(object, lod, selection);
 			m_Polygons.Insert(polygon);
 		}
 		
@@ -55,17 +55,25 @@ class ExpansionNavMesh
 	}
 
 	/**
+	 * @brief Returns if the navmesh is valid. A valid navmesh is one with 1 or more polygons attached
+	 */
+	bool IsValid()
+	{
+		return m_Polygons.Count() > 0;
+	}
+
+	/**
 	 * @brief Finds a path within the mesh
 	 * 
 	 * @param start A positional value relative to the navmesh
 	 * @param end The target position for the path to reach
 	 * @param path [out] An array of vectors
 	 */
-	void FindPath(vector start, vector end, out array<vector> path)
+	void FindPath(vector start, vector end, PGFilter filter, out array<vector> path)
 	{
 		ExpansionNavMeshPolygon startPoly = SamplePolygon(start, start);
 		ExpansionNavMeshPolygon endPoly = SamplePolygon(end, end);
-		
+
 		if (startPoly == endPoly)
 		{
 			// No need to perform a search, we know the start and end already match
@@ -77,7 +85,7 @@ class ExpansionNavMesh
 		{
 			array<ExpansionNavMeshPolygon> polyPath();
 
-			AStar<ExpansionNavMeshPolygon>.Perform(startPoly, endPoly, polyPath);
+			AStar<ExpansionNavMeshPolygon>.Perform(startPoly, endPoly, filter, polyPath);
 
 			int count = polyPath.Count();
 			path.Resize(count);
@@ -103,6 +111,36 @@ class ExpansionNavMesh
 
 		// Debug viewing
 		m_LastFoundPath = path;
+	}
+
+	/**
+	 * @brief Finds a path within the mesh
+	 * 
+	 * @param start A positional value relative to the navmesh
+	 * @param end The target position for the path to reach
+	 */
+	bool Raycast(vector start, vector end, PGFilter filter, out vector hitPosition, out vector hitNormal)
+	{
+		ExpansionNavMeshPolygon startPoly = SamplePolygon(start, start);
+		ExpansionNavMeshPolygon endPoly = SamplePolygon(end, end);
+
+		int includeFlags = filter.GetIncludeFlags();
+		int excludeFlags = filter.GetExcludeFlags();
+
+		if (includeFlags & startPoly.m_Flags == 0)
+		{
+			return false;
+		}
+
+		if (excludeFlags & startPoly.m_Flags != 0)
+		{
+			return false;
+		}
+
+		hitPosition = start;
+		hitNormal = vector.Direction(start, end).Normalized();
+
+		return true;
 	}
 
 	/**
@@ -224,9 +262,7 @@ class ExpansionNavMesh
 	}
 
 	void DebugScripts()
-	{
-		return;
-		
+	{		
 		DayZPlayerImplement player;
 		if (!Class.CastTo(player, GetGame().GetPlayer()))
 			return;
@@ -234,9 +270,6 @@ class ExpansionNavMesh
 		vector cursorPosition = g_Expansion_Car.WorldToModel(GetPositionAtCursor(player));
 		vector snappedPosition = vector.Zero;
 		vector playerPosition = g_Expansion_Car.WorldToModel(player.GetPosition());
-
-		array<vector> path();
-		FindPath(playerPosition, cursorPosition, path);
 
 		SamplePosition(playerPosition, snappedPosition);
 

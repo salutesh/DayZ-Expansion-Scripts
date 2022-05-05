@@ -18,8 +18,6 @@ modded class DayZExpansion
 
 	autoptr eAIAimingProfileManager m_AimingManager;
 	
-	const vector ZOMBIE_OFFSET = "20 0 0";
-	
     void DayZExpansion()
 	{
 		#ifdef EAI_TRACE
@@ -104,6 +102,15 @@ modded class DayZExpansion
 		return ai;
 	}
 	
+	vector GetEntitySpawnPosition(DayZPlayer player)
+	{
+		vector position, direction, rotation;
+		player.GetCurrentCameraTransform(position, direction, rotation);
+		position = position + direction * 20;
+		position[1] = GetGame().SurfaceY(position[0], position[2]);
+		return position;
+	}
+
 	// Server Side: This RPC spawns a helper AI next to the player, and tells them to join the player's formation.
 	void SpawnAI(CallType type, ParamsReadContext ctx, PlayerIdentity sender, Object target)
 	{
@@ -132,7 +139,7 @@ modded class DayZExpansion
 			}
 			else
 			{
-				eAIBase sentry = SpawnAI_Sentry(data.param1.GetPosition() + ZOMBIE_OFFSET);
+				eAIBase sentry = SpawnAI_Sentry(GetEntitySpawnPosition(data.param1));
 				sentry.GetGroup().SetFaction(new eAIFactionWest());
 			}
 		}
@@ -160,7 +167,7 @@ modded class DayZExpansion
 			if (!GetGame().IsMultiplayer()) Class.CastTo(data.param1, GetGame().GetPlayer());
 			
             CF_Log.Debug("eAI: SpawnZombie RPC called.");
-			GetGame().CreateObject("ZmbF_JournalistNormal_Blue", data.param1.GetPosition() + ZOMBIE_OFFSET, false, true, true);
+			GetGame().CreateObject("ZmbF_JournalistNormal_Blue", GetEntitySpawnPosition(data.param1), false, true, true);
         }
 	}
 
@@ -184,7 +191,7 @@ modded class DayZExpansion
 			if (!GetGame().IsMultiplayer()) Class.CastTo(data.param1, GetGame().GetPlayer());
 			
             CF_Log.Debug("eAI: SpawnWolf RPC called.");
-			GetGame().CreateObject("Animal_CanisLupus_Grey", data.param1.GetPosition() + ZOMBIE_OFFSET, false, true, true);
+			GetGame().CreateObject("Animal_CanisLupus_Grey", GetEntitySpawnPosition(data.param1), false, true, true);
         }
 	}
 
@@ -208,7 +215,7 @@ modded class DayZExpansion
 			if (!GetGame().IsMultiplayer()) Class.CastTo(data.param1, GetGame().GetPlayer());
 			
             CF_Log.Debug("eAI: SpawnBear RPC called.");
-			GetGame().CreateObject("Animal_UrsusArctos", data.param1.GetPosition() + ZOMBIE_OFFSET, false, true, true);
+			GetGame().CreateObject("Animal_UrsusArctos", GetEntitySpawnPosition(data.param1), false, true, true);
         }
 	}
 	

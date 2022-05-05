@@ -12,24 +12,19 @@
 
 class ExpansionUIManager
 {
-	ref ExpansionScriptViewMenuBase m_CurrentMenu;
-	ref map<int, string> m_Menus;
-	ref map<int, ExpansionScriptViewMenuBase> m_ActiveMenus;
+	private ref ExpansionScriptViewMenuBase m_CurrentMenu;
+	private ref map<string, ExpansionScriptViewMenuBase> m_ActiveMenus;
 	
 	void ExpansionUIManager()
 	{	
 		m_CurrentMenu = NULL;
-		m_Menus = new map<int, string>;
-		m_ActiveMenus = new map<int, ExpansionScriptViewMenuBase>;
+		m_ActiveMenus = new map<string, ExpansionScriptViewMenuBase>;
 	}
 	
 	void SetMenu(ExpansionScriptViewMenuBase view)
 	{
 		if (m_CurrentMenu)
-		{
 			delete m_CurrentMenu;
-			m_CurrentMenu = NULL;
-		}
 		
 		m_CurrentMenu = view;
 	}
@@ -41,20 +36,14 @@ class ExpansionUIManager
 	
 	void CloseMenu()
 	{
-		ExpansionScriptViewMenuBase menu;
-		if (GetMenu())
+		if (m_CurrentMenu)
 		{
-			if (GetMenu().IsVisible())
-				GetMenu().Hide();
-			
-			Print("[EXPANSION UI MANAGER]: Deleting menu instance " + GetMenu() + " with id " + GetMenu().GetID() + " from UI manager.");
-			
-			if (GetActiveMenus().Find(GetMenu().GetID(), menu))
-			{
-				Print("[EXPANSION UI MANAGER]: Removing menu " + menu + " with id " + GetMenu().GetID() + " from UI manager.");
-				DestroySVMenu(GetMenu().GetID());
-				m_CurrentMenu = NULL;
-			}
+			if (m_CurrentMenu.IsVisible())
+				m_CurrentMenu.Hide();
+
+			Print("[EXPANSION UI MANAGER]: Removing menu " + m_CurrentMenu + " from UI manager.");
+			DestroySVMenu(m_CurrentMenu);
+			m_CurrentMenu = NULL;
 		}
 	}
 	
@@ -69,69 +58,37 @@ class ExpansionUIManager
 		}
 	}
 	
-	void RegisterMenu(int id, string className)
+	ExpansionScriptViewMenuBase CreateSVMenu(string viewName)
 	{
-		string viewName = "";
-		if (m_Menus.Find(id, viewName))	
-		{
-			if (viewName != className)
-			{
-				Error("[EXPANSION UI MANAGER]: Trying to register new menu " + className + " with id " + id + " to Expansion UI Manager, but there is already a other menu registered with this id [" + viewName + "]. Register failed!");
-			}
-		}
-		else
-		{
-			m_Menus.Insert(id, className);
-			Print("[EXPANSION UI MANAGER]: Registered menu " + className + " with id " + id + " in Expansion UI manager.");
-		}
-	}
-	
-	ExpansionScriptViewMenuBase CreateSVMenu(int id)
-	{
-		string viewName;
 		ExpansionScriptViewMenuBase viewMenu;
-		if (m_Menus.Find(id, viewName))
-		{			
-			if (!m_ActiveMenus.Find(id, viewMenu))
-			{
-				viewMenu = CreateMenuInstance(viewName);
-			}
-			else
-			{
-				delete viewMenu;
-				viewMenu = CreateMenuInstance(viewName);
-			}
-			
-			if (viewMenu)
-			{
-				viewMenu.SetID(id);
-				SetMenu(viewMenu);
-				m_ActiveMenus.Insert(id, viewMenu);
-				viewMenu.Show();
-				Print("[EXPANSION UI MANAGER]: Created menu " + viewMenu + " with id " + id + ".");
-			}
+		if (m_ActiveMenus.Find(viewName, viewMenu))
+			delete viewMenu;
+
+		viewMenu = CreateMenuInstance(viewName);
+
+		if (viewMenu)
+		{
+			SetMenu(viewMenu);
+			m_ActiveMenus.Insert(viewName, viewMenu);
+			viewMenu.Show();
+			Print("[EXPANSION UI MANAGER]: Created menu " + viewMenu + ".");
 		}
 		
 		return viewMenu;
 	}
 	
-	void DestroySVMenu(int id, bool doDelete = true)
+	void DestroySVMenu(ExpansionScriptViewMenuBase menu, bool doDelete = true)
 	{
 		ExpansionScriptViewMenuBase viewMenu;
-		if (m_ActiveMenus.Find(id, viewMenu))
+		if (m_ActiveMenus.Find(menu.ClassName(), viewMenu))
 		{
-			m_ActiveMenus.Remove(id);
+			m_ActiveMenus.Remove(menu.ClassName());
 			if (doDelete)
 				delete viewMenu;
 		}
 	}
 	
-	map<int, string> GetMenus()
-	{
-		return m_Menus;
-	}
-	
-	map<int, ExpansionScriptViewMenuBase> GetActiveMenus()
+	map<string, ExpansionScriptViewMenuBase> GetActiveMenus()
 	{
 		return m_ActiveMenus;
 	}

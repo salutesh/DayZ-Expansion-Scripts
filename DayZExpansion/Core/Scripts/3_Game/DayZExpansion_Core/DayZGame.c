@@ -224,6 +224,11 @@ modded class DayZGame
 		super.OnRPC(sender, target, rpc_type, ctx);
 	}
 
+	LoginTimeBase GetLoginTimeScreen()
+	{
+		return m_LoginTimeScreen;
+	}
+
 	override void CancelLoginTimeCountdown()
 	{
 		super.CancelLoginTimeCountdown();

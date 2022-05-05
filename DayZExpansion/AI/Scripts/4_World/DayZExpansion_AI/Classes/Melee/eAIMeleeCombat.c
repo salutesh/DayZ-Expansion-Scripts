@@ -29,6 +29,15 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 			meleeAttackType = 0.0;
 		}
 
+		if (m_TargetObject)
+		{
+			vector dir = vector.Direction(m_AI.GetPosition(), m_TargetObject.GetPosition());
+			vector angles = dir.VectorToAngles();
+			vector ori = m_AI.GetOrientation();
+			ori[0] = angles[0];
+			m_AI.SetOrientation(ori);
+		}
+
 		m_AI.StartCommand_Melee2(EntityAI.Cast(m_TargetObject), m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.SPRINT, meleeAttackType, m_HitPositionWS);
 	}
 
@@ -50,6 +59,15 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 		if (m_TargetObject && m_TargetType != EMeleeTargetType.NONALIGNABLE && vector.DistanceSq(m_AI.GetPosition(), m_TargetObject.GetPosition()) > 1.44)
 		{
 			meleeAttackType = 0.0;
+		}
+
+		if (m_TargetObject)
+		{
+			vector dir = vector.Direction(m_AI.GetPosition(), m_TargetObject.GetPosition());
+			vector angles = dir.VectorToAngles();
+			vector ori = m_AI.GetOrientation();
+			ori[0] = angles[0];
+			m_AI.SetOrientation(ori);
 		}
 
 		hcm2.ContinueCombo(m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.SPRINT, meleeAttackType, EntityAI.Cast(m_TargetObject), m_HitPositionWS);

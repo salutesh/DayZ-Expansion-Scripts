@@ -69,6 +69,11 @@ class eAITargetInformation
 		return true;
 	}
 
+	bool IsCrawling()
+	{
+		return false;
+	}
+
 	/**
 	 * @brief Abstract function. Get the position for the AI within the target. Each AI could have their own position for the target.
 	 *

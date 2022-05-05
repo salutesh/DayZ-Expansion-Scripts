@@ -78,7 +78,7 @@ class eAIDynamicPatrol : eAIPatrol
 		return ai;
 	}
 
-	private bool IsGroupDestroyed()
+	bool IsGroupDestroyed()
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "IsGroupDestroyed");
@@ -97,7 +97,7 @@ class eAIDynamicPatrol : eAIPatrol
 		return true;
 	}
 
-	private bool WasGroupDestroyed()
+	bool WasGroupDestroyed()
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "WasGroupDestroyed");

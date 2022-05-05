@@ -2386,7 +2386,7 @@ modded class CarScript
 
 		m_DebugShapes.Clear();
 
-		Expansion_DBGTowing();
+		//Expansion_DBGTowing();
 #endif
 
 		DayZPlayerImplement driver = DayZPlayerImplement.Cast(CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER));

@@ -8,23 +8,49 @@
 	<states default="Idle">
 		<state name="Idle">
 			<variables>
+				<variable name="time" type="float" />
+				<variable name="timeLower" type="float" />
 			</variables>
 			<editor_data>
 				<position x="551" y="94" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
+				time = 0;
 				if (unit.IsRaised())
-					unit.RaiseWeapon(false);
+					timeLower = Math.RandomFloat(0.5, 1.5);
 
-				if (unit.GetLookDirectionRecalculate())
-					unit.LookAtDirection(&quot;0 0 1&quot;);
+				if (!unit.GetTarget())
+				{
+					if (unit.GetLookDirectionRecalculate())
+						unit.LookAtDirection(&quot;0 0 1&quot;);
 
-				if (unit.GetAimDirectionRecalculate())
-					unit.AimAtDirection(&quot;0 0 1&quot;);
+					if (unit.GetAimDirectionRecalculate())
+					{
+						unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection());  //! Don't run to last target
+						unit.AimAtDirection(&quot;0 0 1&quot;);
+					}
+				}
+
+				unit.OverrideMovementDirection(false, 0);
+				unit.OverrideMovementSpeed(false, 0);
 			</event_entry>
 			<event_exit></event_exit>
 			<event_update>
+				if (!unit.GetTarget())
+				{
+					time += DeltaTime;
+
+					if (unit.IsRaised() &amp;&amp; time &lt; timeLower)
+						return CONTINUE;
+
+					unit.RaiseWeapon(false);
+				}
+				else if (!unit.CanRaiseWeapon())
+				{
+					unit.RaiseWeapon(false);
+				}
+
                 return EXIT;
             </event_update>
 		</state>

@@ -282,7 +282,7 @@ class eAIRoadNode extends eAIRoadNodeBase
 	{
 		FPrintln(file_handle, m_Index);
 		FPrintln(file_handle, m_Position);
-		FPrintln(file_handle, (int)m_Valid);
+		FPrintln(file_handle, m_Flags);
 		FPrintln(file_handle, m_Neighbours.Count());
 		for (int i = 0; i < m_Neighbours.Count(); i++)
 		{
@@ -302,7 +302,7 @@ class eAIRoadNode extends eAIRoadNodeBase
 		m_Position = line_content.ToVector();
 
 		FGets(file_handle, line_content);
-		m_Valid = line_content.ToInt();
+		m_Flags = line_content.ToInt();
 
 		FGets(file_handle, line_content);
 		count = line_content.ToInt();

@@ -9,11 +9,16 @@
 		<state name="Positioning">
 			<variables>
 				<variable name="position" type="vector" />
+				<variable name="time" type="float" />
+				<variable name="movementDirection" type="float" />
 			</variables>
 			<editor_data>
 				<position x="333" y="374" />
 				<size width="150" height="40" />
 			</editor_data>
+			<event_entry>
+				time = 0;
+			</event_entry>
 			<event_update>
 				bool wantsLower = false;
 				bool wantsRaise = false;
@@ -27,6 +32,7 @@
 				if (target)
 				{
 					position = target.GetPosition(unit);
+					auto aimPosition = position + target.GetAimOffset(unit);
 					auto distanceSq = vector.DistanceSq(unit.GetPosition(), position);
 					
 					bool shouldBeMeleeing = false;
@@ -38,7 +44,7 @@
 					}
 					else if (hands.IsWeapon())
 					{
-						if (distanceSq &lt;= 1.5)
+						if (distanceSq &lt;= 2.25)
 						{
 							shouldBeMeleeing = true;
 						}
@@ -59,13 +65,44 @@
 							wantsLower = true;
 						}
 					}
+
+					if (distanceSq &lt;= 1.0)
+					{
+						time += DeltaTime;
+						//unit.OverrideStance(DayZPlayerConstants.STANCEIDX_RAISEDERECT);
+						if (!movementDirection || time &gt; Math.RandomIntInclusive(1, 3))
+						{
+							if (Math.RandomIntInclusive(0, 1))
+								movementDirection = Math.RandomFloat(135, 180);
+							else
+								movementDirection = Math.RandomFloat(-135, -180);
+						}
+						unit.OverrideMovementDirection(true, movementDirection);
+						unit.OverrideMovementSpeed(true, Math.RandomIntInclusive(1, 2));
+					}
+					else
+					{
+						//unit.OverrideStance(0);
+						unit.OverrideMovementDirection(false, 0);
+						unit.OverrideMovementSpeed(false, 0);
+						time = 0;
+						movementDirection= 0;
+					}
+
+					unit.LookAtPosition(aimPosition);
+					unit.AimAtPosition(aimPosition);
+				}
+				else
+				{
+					unit.OverrideMovementDirection(false, 0);
+					unit.OverrideMovementSpeed(false, 0);
 				}
 
-				if (wantsRaise)
+				if (wantsRaise && unit.CanRaiseWeapon())
 				{
 					unit.RaiseWeapon(true);
 				}
-				else if (wantsLower)
+				else if (wantsLower || !unit.CanRaiseWeapon())
 				{
 					unit.RaiseWeapon(false);
 				}
@@ -127,6 +164,7 @@
 			<variables>
 				<variable name="time" type="float" />
 				<variable name="target" type="eAITarget" />
+				<variable name="movementDirection" type="float" />
 			</variables>
 			<editor_data>
 				<position x="333" y="374" />
@@ -149,10 +187,12 @@
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 
-				if (target.GetDistanceSq(unit) &gt; 1.5)
+				float distanceSq = target.GetDistanceSq(unit);
+				if (distanceSq &gt; 2.25)
 				{
-					if (time >= 0.5)
+					if (time &gt;= 0.5)
 					{
+						time = 0;
 						return EXIT;
 					}
 
@@ -160,18 +200,40 @@
 				}
 
 				auto direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
-				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.75)
+				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.75 || distanceSq &lt;= 1.0)
 				{
-					if (time >= 0.5)
+					if (time &gt;= Math.RandomIntInclusive(1, 3))
 					{
+						//unit.OverrideStance(0);
+						unit.OverrideMovementDirection(false, 0);
+						unit.OverrideMovementSpeed(false, 0);
+						time = 0;
+						movementDirection = 0;
 						return EXIT;
 					}
 
+					//unit.OverrideStance(DayZPlayerConstants.STANCEIDX_RAISEDERECT);
+					if (!movementDirection || time &gt; Math.RandomIntInclusive(1, 3))
+					{
+						if (Math.RandomIntInclusive(0, 1))
+							movementDirection = Math.RandomFloat(135, 180);
+						else
+							movementDirection = Math.RandomFloat(-135, -180);
+					}
+					unit.OverrideMovementDirection(true, movementDirection);
+					unit.OverrideMovementSpeed(true, Math.RandomIntInclusive(1, 2));
+
+					return CONTINUE;
+				}
+
+				if (unit.IsInMelee() &amp;&amp; time &lt; 0.3)
+				{
 					return CONTINUE;
 				}
 
 				unit.Notify_Melee();
 				time = 0;
+				movementDirection = 0;
 				
 				return EXIT;
             </event_update>
@@ -210,7 +272,8 @@
 				Weapon weapon;
 				if (!Class.CastTo(weapon, unit.GetItemInHands())) return FAIL;
 
-				//TODO: check line of sight
+				// CanRaiseWeapon will return false if there is no line of sight
+				if (!unit.CanRaiseWeapon()) return FAIL;
 				
 				int mi = weapon.GetCurrentMuzzle();
 				if (weapon.IsChamberEmpty(mi)) return FAIL;

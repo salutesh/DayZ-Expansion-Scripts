@@ -2,7 +2,7 @@
 
 class ExpansionPathHandler
 {
-	static bool ATTACHMENT_PATH_FINDING = false;
+	static bool ATTACHMENT_PATH_FINDING = true;
 	
 	eAIBase m_Unit;
 	float m_Time;
@@ -20,7 +20,10 @@ class ExpansionPathHandler
 
 	AIWorld m_AIWorld;
 
-	ref array<ref ExpansionDebugPathPoint> m_DebugPath = new array<ref ExpansionDebugPathPoint>();
+	ref array<ref ExpansionPathPoint> m_Path = new array<ref ExpansionPathPoint>();
+	ref array<vector> m_Points = new array<vector>();
+
+	bool m_Recalculate;
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
@@ -52,56 +55,80 @@ class ExpansionPathHandler
 
 		m_PathFilter = new PGFilter();
 
-		int in = PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE /* | PGPolyFlags.JUMP | PGPolyFlags.CLIMB*/;
+		int in = PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE | PGPolyFlags.SPECIAL;
 		int ex = PGPolyFlags.DISABLED | PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
 		int ec = PGPolyFlags.NONE;
 
-		m_PathFilter.SetCost(PGAreaType.LADDER, 3.0);
-		m_PathFilter.SetCost(PGAreaType.CRAWL, 0.0);
+		//m_PathFilter.SetCost(PGAreaType.LADDER, 3.0);
+		//m_PathFilter.SetCost(PGAreaType.CRAWL, 0.0);
 		m_PathFilter.SetCost(PGAreaType.CROUCH, 0.0);
-		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 0.0);
-		m_PathFilter.SetCost(PGAreaType.JUMP, 0.0);
-		m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
+		//m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 1.0);
+		//m_PathFilter.SetCost(PGAreaType.JUMP, 0.0);
+		//m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
 
-		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
+		//m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
 		// m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 0.0);
 
 		// m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
-		// m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
+		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
 
 		// m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 1.0);
-		m_PathFilter.SetCost(PGAreaType.OBJECTS, 1.0);
-		m_PathFilter.SetCost(PGAreaType.TERRAIN, 1.0);
-		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
-		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
+		//m_PathFilter.SetCost(PGAreaType.OBJECTS, 1.0);
+		//m_PathFilter.SetCost(PGAreaType.TERRAIN, 1.0);
+		//m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
+		//m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
 
 		m_PathFilter.SetFlags(in, ex, ec);
 	}
 
-	bool IsDoor(out vector hitPos)
+	bool Raycast(PGPolyFlags filter, float distance, out vector hitPos)
+	{
+		m_CheckFilter.SetFlags(filter, ~filter, PGPolyFlags.NONE);
+		m_CheckFilter.SetCost(PGAreaType.BUILDING, 1.0);
+		
+		vector p = m_Unit.GetPosition();
+		vector d = m_Unit.GetDirection();
+
+		vector p0 = p - (d * distance * 0.5);
+		vector p1 = p + (d * distance);
+		vector hitNor;
+
+		if (m_Current.NavMesh)
+		{
+			vector transform[4];
+			m_Current.Parent.GetTransform(transform);
+			return m_Current.NavMesh.Raycast(p0.Multiply4(transform), p1.Multiply4(transform), m_CheckFilter, hitPos, hitNor);
+		}
+
+		return m_AIWorld.RaycastNavMesh(p0, p1, m_CheckFilter, hitPos, hitNor);
+	}
+
+	bool IsDoor()
 	{
 		if (m_Count <= 1)
 			return false;
 
-		int in = PGPolyFlags.DOOR;
-		int ex = PGPolyFlags.WALK | PGPolyFlags.DISABLED | PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM | PGPolyFlags.INSIDE | PGPolyFlags.JUMP | PGPolyFlags.CLIMB;
-		int ec = PGPolyFlags.NONE;
+		return true;
 
-		m_CheckFilter.SetFlags(in, ex, ec);
-		m_CheckFilter.SetCost(PGAreaType.BUILDING, 1.0);
+		//vector hitPos;
+		//return Raycast(PGPolyFlags.DOOR, 1.5, hitPos);
+	}
 
-		vector p0 = m_Unit.GetPosition() - (m_Unit.GetDirection() * 0.5);
-		vector p1 = m_Next0.GetPosition() + (m_Unit.GetDirection() * 1.5);
+	bool IsVault()
+	{
+		if (m_Count <= 1)
+			return false;
+			
+		if (m_Current && m_Current.NavMesh)
+		{
+			vector hitPos;
+			return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
+		}
 
-#ifdef EAI_DEBUG_PATH
-#ifndef SERVER
-		//m_Unit.AddShape(Shape.CreateSphere(0xFF0000FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, p0, 0.2));
-		//m_Unit.AddShape(Shape.CreateSphere(0xFF0000FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, p1, 0.2));
-#endif
-#endif
+		return true;
 
-		vector hitNor;
-		return m_AIWorld.RaycastNavMesh(p0, p1, m_PathFilter, hitPos, hitNor);
+		//vector hitPos;
+		//return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
 	}
 
 	vector CalculateOffset()
@@ -135,17 +162,17 @@ class ExpansionPathHandler
 			index = 0;
 		}
 
-		if (index >= m_DebugPath.Count())
+		if (index >= m_Path.Count())
 		{
-			index = m_DebugPath.Count() - 1;
+			index = m_Path.Count() - 1;
 		}
 
-		return m_DebugPath[index].GetPosition();
+		return m_Path[index].GetPosition();
 	}
 
 	vector CalculateDebugOffset(int index)
 	{
-		if (m_DebugPath.Count() <= 2)
+		if (m_Path.Count() <= 2)
 		{
 			return vector.Zero;
 		}
@@ -193,13 +220,7 @@ class ExpansionPathHandler
 		}
 		
 #ifdef EAI_DEBUG_PATH
-#ifndef SERVER
-		vector pos;
-		if (IsDoor(pos))
-		{
-			//m_Unit.AddShape(Shape.CreateSphere(0xFF00FF00, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, pos, 0.3));
-		}
-		
+#ifndef SERVER		
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFFF0000, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Current.GetPosition(), 0.3));
 		//m_Unit.AddShape(Shape.CreateSphere(0xFF00FF00, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Target.GetPosition(), 0.3));
 		
@@ -208,18 +229,34 @@ class ExpansionPathHandler
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFFF00AA, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Next0.GetPosition(), 0.3));
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFAA00FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Next1.GetPosition(), 0.3));
 
-		int i;
+		int i;		
 		vector points[2];
+		
 		vector offset = vector.Zero;
 
-		vector offsetOffset = "0 0 0";
+		map<int, int> possibleFlags();
+		possibleFlags.Insert(PGPolyFlags.WALK, 			0xAAAA0000);
+		possibleFlags.Insert(PGPolyFlags.DISABLED,		0xAAFF0000);
+		possibleFlags.Insert(PGPolyFlags.DOOR,			0xAA0000FF);
+		possibleFlags.Insert(PGPolyFlags.INSIDE,		0xAA00FF00);
+		possibleFlags.Insert(PGPolyFlags.SWIM,			0xAA0000AA);
+		possibleFlags.Insert(PGPolyFlags.SWIM_SEA,		0xAA00AA00);
+		possibleFlags.Insert(PGPolyFlags.LADDER,		0xAAAA00FF);
+		possibleFlags.Insert(PGPolyFlags.JUMP_OVER,		0xAAFF00AA);
+		possibleFlags.Insert(PGPolyFlags.JUMP_DOWN,		0xAAFFAA00);
+		possibleFlags.Insert(PGPolyFlags.CLIMB,			0xAAAAFF00);
+		possibleFlags.Insert(PGPolyFlags.CRAWL,			0xAA00FFAA);
+		possibleFlags.Insert(PGPolyFlags.CROUCH,		0xAA00AAFF);
+		//possibleFlags.Insert(PGPolyFlags.UNREACHABLE,	0xAA000000);
 
-		for (i = 0; i < m_DebugPath.Count() - 1; i++)
+		float radius = 0.2;
+
+		for (i = 0; i < m_Count; i++)
 		{
-			bool isFinal = (i + 1) == (m_DebugPath.Count() - 1);
+			bool isFinal = i == (m_Count - 1);
 
 			int color = 0xFF00FF00;
-			if (m_DebugPath[i + 1].Parent)
+			if (m_Path[i].Parent)
 				color = 0xFF0000FF;
 
 			points[0] = GetDebugPosition(i);
@@ -227,17 +264,33 @@ class ExpansionPathHandler
 
 			m_Unit.AddShape(Shape.CreateLines(color, ShapeFlags.VISIBLE | ShapeFlags.NOZBUFFER, points, 2));
 
+			vector flagOffset = Vector(0, radius, 0);
+			int currentFlag = m_Path[i].Flags;
+			
+			foreach (auto flag, auto flagColor : possibleFlags)
+			{
+				if ((currentFlag & flag) == 0)
+				{
+					continue;
+				}
+
+				m_Unit.AddShape(Shape.CreateSphere(flagColor, ShapeFlags.NOOUTLINE | ShapeFlags.VISIBLE | ShapeFlags.TRANSP, points[0] + flagOffset, radius));
+				flagOffset = flagOffset + Vector(0, radius * 2, 0);
+			}
+
+			/*
 			if (i != 0)
 				offset = CalculateDebugOffset(i);
-			points[0] = points[0] + offset + offsetOffset;
+			points[0] = points[0] + offset;
 
 			offset = vector.Zero;
 
 			if (!isFinal)
 				offset = CalculateDebugOffset(i + 1);
-			points[1] = points[1] + offset + offsetOffset;
+			points[1] = points[1] + offset;
 
-			//m_Unit.AddShape(Shape.CreateLines(0xAAFF0000, ShapeFlags.VISIBLE | ShapeFlags.NOZBUFFER | ShapeFlags.TRANSP, points, 2));
+			m_Unit.AddShape(Shape.CreateLines(0xAAFF0000, ShapeFlags.VISIBLE | ShapeFlags.NOZBUFFER | ShapeFlags.TRANSP, points, 2));
+			*/
 		}
 #endif
 #endif
@@ -250,16 +303,26 @@ class ExpansionPathHandler
 #endif
 
 		m_Time += pDt;
+		
+		SetPathFilter();
 
 		UpdateCurrent();
-
+		
 		vector unitPosition = m_Unit.GetPosition();
 		vector unitVelocity = GetVelocity(m_Unit);
 
 		vector targetPosition = m_TargetReference.GetPosition();
 
-		bool recalculate = false;
-		if (m_Time >= ((pSimulationPrecision + 1.0) * 2.0))
+		bool recalculate = m_Recalculate;
+		bool recalculateFromNext = false;
+		
+#ifdef DIAG
+		recalculate = true;
+#endif
+
+		int i;
+		
+		if (!recalculate && m_Time >= ((pSimulationPrecision + 1.0) * 2.0))
 		{
 			recalculate = vector.DistanceSq(unitPosition, targetPosition) > 0.5;
 		}
@@ -273,6 +336,8 @@ class ExpansionPathHandler
 			if (d0 < d1)
 			{
 				recalculate = true;
+
+				//recalculateFromNext
 			}
 		}
 
@@ -280,10 +345,10 @@ class ExpansionPathHandler
 		{
 			m_Time = 0;
 
-			array<vector> path();
 			array<vector> tempPath();
 
-			m_DebugPath.Clear();
+			m_Points.Clear();
+			m_Count = 0;
 			
 			int F_STATE = -1;
 			int P_STATE = -1;
@@ -299,14 +364,14 @@ class ExpansionPathHandler
 					m_Target.Position = m_TargetReference.Position;
 					m_Target.OnParentUpdate();
 	
-					m_Target.FindPath(this, path);
+					m_Target.FindPath(this, m_Points);
 					
-					m_Count = path.Count();
+					m_Count = m_Points.Count();
 	
 					if (m_Count == 2)
 					{
-						vector pathDir = vector.Direction(path[0], path[1]).Normalized();
-						path[1] = path[1] + (pathDir * 2.0);
+						vector pathDir = vector.Direction(m_Points[0], m_Points[1]).Normalized();
+						m_Points[1] = m_Points[1] + (pathDir * 2.0);
 					}
 				}
 				else if (!m_Current.Parent && m_TargetReference.Parent) // moving to attachment
@@ -324,28 +389,52 @@ class ExpansionPathHandler
 					{
 						Print("Navmesh removed??");
 					}
-	
-					m_Target.FindPathFrom(m_TargetReference.GetPosition(), this, tempPath);
-					m_Count = tempPath.Count();
 					
-					//m_Unit.AddShape(Shape.CreateSphere(0xFFFF0000, ShapeFlags.NOZBUFFER, tempPath[m_Count - 1], 0.5));
+					vector checkingIfAlreadyOnPathsPosition = m_Target.Position;
 					
-					// Find the path to the entry
-						
-					m_Target.Position = m_Current.Position;
-					m_Target.Parent = null;
-					m_Target.OnParentUpdate();
-	
-					m_Target.FindPathFrom(tempPath[m_Count - 1], this, path);
-					m_Count = tempPath.Count() + path.Count();
+					m_Target.NavMesh.SamplePosition(checkingIfAlreadyOnPathsPosition, checkingIfAlreadyOnPathsPosition);
 					
-					m_DebugPath.Invert();
-					path.Invert();
+					float heightDiff = Math.AbsFloat(m_Target.Position[1] - checkingIfAlreadyOnPathsPosition[1]) * 2.0;
 					
-					for (int i = 0; i < tempPath.Count(); i++)
+					bool isAlreadyOnPaths = vector.Distance(checkingIfAlreadyOnPathsPosition, m_Target.Position) < heightDiff;
+			
+					if (isAlreadyOnPaths)
 					{
-						int ii = tempPath.Count() - (i + 1);
-						path.Insert(tempPath[ii]);
+						m_Target.Copy(m_TargetReference);
+		
+						m_Target.FindPath(this, m_Points);
+		
+						m_Count = m_Points.Count();
+					}
+					else
+					{
+						m_Target.FindPathFrom(m_TargetReference.GetPosition(), this, tempPath);
+						m_Count = tempPath.Count();
+						
+						// Find the path to the entry
+						
+						m_Target.Position = m_Current.Position;
+						m_Target.Parent = null;
+						m_Target.OnParentUpdate();
+						
+						vector closestPositionOnAttachment = tempPath[m_Count - 1];
+											
+						m_Target.FindPathFrom(closestPositionOnAttachment, this, m_Points);
+						
+						m_Path.RemoveOrdered(m_Count);
+						
+						m_Path.Invert();					
+						m_Points.Invert();
+						
+						m_Points.Remove(m_Points.Count() - 1);
+					
+						for (i = 0; i < tempPath.Count(); i++)
+						{
+							int ii = tempPath.Count() - (i + 1);
+							m_Points.Insert(tempPath[ii]);
+						}
+						
+						m_Count = m_Points.Count();
 					}
 				}
 				else if (m_TargetReference.Parent) // moving in attachment
@@ -354,9 +443,9 @@ class ExpansionPathHandler
 					
 					m_Target.Copy(m_TargetReference);
 	
-					m_Target.FindPath(this, path);
+					m_Target.FindPath(this, m_Points);
 	
-					m_Count = path.Count();
+					m_Count = m_Points.Count();
 				}
 				else if (!m_TargetReference.Parent) // moving in world
 				{
@@ -364,9 +453,9 @@ class ExpansionPathHandler
 					
 					m_Target.Copy(m_TargetReference);
 	
-					m_Target.FindPath(this, path);
+					m_Target.FindPath(this, m_Points);
 	
-					m_Count = path.Count();
+					m_Count = m_Points.Count();
 				}
 				else
 				{
@@ -379,43 +468,67 @@ class ExpansionPathHandler
 					
 				m_Target.Copy(m_TargetReference);
 
-				m_Target.FindPath(this, path);
+				m_Target.FindPath(this, m_Points);
 
-				m_Count = path.Count();
+				m_Count = m_Points.Count();
 			}
-
+			
 			if (m_Count > 2)
 			{
 				P_STATE = 1;
-				UpdatePoint(m_Next0, path[0]);
-				UpdatePoint(m_Next1, path[1]);
+				
+				UpdatePoint(m_Next0, m_Points[1]);
+				UpdatePoint(m_Next1, m_Points[2]);
 			}
 			else if (m_Count != 0)
 			{
 				P_STATE = 2;
-				UpdatePoint(m_Next0, path[1]);
+				
+				UpdatePoint(m_Next0, m_Points[1]);
 			}
 			else 
 			{
 				P_STATE = 3;
+				
 				m_Next0.Copy(m_Current);
 			}
 			
 			//Print(F_STATE);
 			//Print(P_STATE);
 		}
-
-		if (m_DebugPath.Count() > 0)
+		
+		if (m_Count == 2)
 		{
-			m_DebugPath[0].Position = unitPosition;
-			
-			if (m_DebugPath[0].Parent)
-			{
-				vector transform[4];
-				m_DebugPath[0].Parent.GetTransform(transform);
-	
-				m_DebugPath[0].Position = unitPosition.InvMultiply4(transform);
-			}
+			UpdatePoint(m_Next0, m_TargetReference.GetPosition());
+		}
+
+		if (m_Path.Count() < 3)
+		{
+			m_Path.Resize(3);
+		}
+
+		m_Path[0] = m_Current;
+		m_Path[1] = m_Next0;
+		m_Path[2] = m_Next1;
+
+		m_Path.Resize(m_Count + 1);
+
+		for (i = 2; i < m_Count; i++)
+		{
+			int actualIndex = i + 1;
+			ExpansionPathPoint pathPoint = m_Path[actualIndex];
+			UpdatePoint(pathPoint, m_Points[i]);
+			m_Path[actualIndex] = pathPoint;
+		}
+
+		for (i = 1; i < m_Count + 1; i++)
+		{
+			m_Path[i - 1].Next = m_Path[i];
+		}
+
+		for (i = 0; i < m_Count + 1; i++)
+		{
+			m_Path[i].UpdateFlags(this);
 		}
 
 #ifdef DIAG
@@ -425,7 +538,7 @@ class ExpansionPathHandler
 
 	int GetNext(out vector position)
 	{
-		position = m_Next0.GetPosition() + CalculateOffset();
+		position = m_Next0.GetPosition();// + CalculateOffset();
 		return m_Count;
 	}
 
@@ -468,7 +581,7 @@ class ExpansionPathHandler
 		// TODO: investigate why the same variable source must be used for 0th and 3rd parameter, and that it can't be a member variable for either
 		if (!m_AIWorld.SampleNavmeshPosition(inPos, 1.0, m_PathFilter, inPos))
 		{
-			inPos = oldPos;
+			//inPos = oldPos;
 		}
 
 		m_TargetReference.Position = inPos;

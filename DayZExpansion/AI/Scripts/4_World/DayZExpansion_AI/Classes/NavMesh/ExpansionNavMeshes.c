@@ -26,14 +26,27 @@ class ExpansionNavMeshes
 				
 				if (lodName != "paths") continue;
 				
-				navMesh.Generate(lod);
+				navMesh.Generate(object, lod);
 				break;
 			}
-			
-			m_Navmeshes.Insert(navMesh);
-			m_Objects.Insert(modelName, navMesh);
+
+			if (navMesh.IsValid())
+			{
+				m_Navmeshes.Insert(navMesh);
+				m_Objects.Insert(modelName, navMesh);
+			}
+			else
+			{
+				m_Objects.Insert(modelName, null);
+			}
 		}
 
 		return navMesh;
+	}
+
+	static void Clear()
+	{
+		m_Navmeshes.Clear();
+		m_Objects.Clear();
 	}
 };

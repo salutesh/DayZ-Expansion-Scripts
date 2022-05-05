@@ -156,24 +156,6 @@ modded class ItemBase
 		return true;
 	}
 	#endif
-	
-	override void EEOnAfterLoad()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "EEOnAfterLoad");
-#endif
-
-		super.EEOnAfterLoad();
-
-		if ( m_CanBeSkinned )
-		{
-			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
-			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
-			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
-
-			ExpansionOnSkinUpdate();
-		}
-	}
 
 	bool ExpansionIsLocked()
 	{
@@ -706,6 +688,19 @@ modded class ItemBase
     {
 		super.DeferredInit();
 
+		//! Skin
+
+		if ( GetGame().IsServer() && m_CanBeSkinned )
+		{
+			m_CurrentSkinIndex = m_SkinModule.GetSkinIndex( GetType(), m_CurrentSkinName );
+			m_CurrentSkinSynchRemote = m_CurrentSkinIndex;
+			m_CurrentSkin = m_Skins[ m_CurrentSkinIndex ];
+
+			ExpansionOnSkinUpdate();
+		}
+
+		//! Safezone item cleanup
+
 		if (!m_Expansion_IsStoreLoaded)
 			return;
 
@@ -721,7 +716,7 @@ modded class ItemBase
 	override void AfterStoreLoad()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "LongDeferredInit");
+		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "AfterStoreLoad");
 #endif
 
 		super.AfterStoreLoad();
