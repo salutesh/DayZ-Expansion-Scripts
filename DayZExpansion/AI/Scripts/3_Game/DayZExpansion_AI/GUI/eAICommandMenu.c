@@ -205,9 +205,8 @@ class eAICommandMenu extends UIScriptedMenu
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_FORMATION, "Formation", eAICommandCategories.CATEGORIES));
 				//gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_STATUS, "Status", eAICommandCategories.CATEGORIES));
 			}
-			
 			// only show if we are an admin
-			if (GetDayZGame().GetExpansionGame().IsAdmin())
+			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Debug", eAICommandCategories.CATEGORIES));
 			}
@@ -242,12 +241,12 @@ class eAICommandMenu extends UIScriptedMenu
 		//Category 4 - Debug
 		else if (category == eAICommandCategories.CAT_DEBUG)
 		{
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Spawn Ally", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Spawn Friendly AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_CLEARALL, "Clear All AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNBEAR, "Spawn Bear", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNWOLF, "Spawn Wolf", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNZOM, "Spawn Zombie", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Spawn Sentry", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Spawn Hostile AI", eAICommandCategories.CAT_DEBUG));
 			if (IsMissionOffline())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_TARGET_CREATE, "Create Debug Apple", eAICommandCategories.CAT_DEBUG));

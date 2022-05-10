@@ -92,8 +92,13 @@ class eAIFSMType
 
 		if (eAIFSMType.Contains(fileName)) return eAIFSMType.Get(fileName);
 
-		MakeDirectory("$profile:eAI/");
-		string script_path = "$profile:eAI/" + fileName + ".c";
+		if (!FileExist(EXPANSION_AI_FOLDER))
+			MakeDirectory(EXPANSION_AI_FOLDER);
+
+		if (!FileExist(EXPANSION_AI_UTILS_FOLDER))
+			MakeDirectory(EXPANSION_AI_UTILS_FOLDER);
+			
+		string script_path = EXPANSION_AI_UTILS_FOLDER + fileName + ".c";
 		FileHandle file = OpenFile(script_path, FileMode.WRITE);
 		if (!file) return null;
 
@@ -200,7 +205,9 @@ class eAIFSMType
 		FPrintln(file, "}");
 
 		FPrintln(file, "void Setup() {");
+#ifdef EAI_TRACE
 		FPrintln(file, "auto trace = CF_Trace_0(this, \"Setup\");");
+#endif
 
 		foreach (auto stateType0 : new_type.m_States)
 		{	

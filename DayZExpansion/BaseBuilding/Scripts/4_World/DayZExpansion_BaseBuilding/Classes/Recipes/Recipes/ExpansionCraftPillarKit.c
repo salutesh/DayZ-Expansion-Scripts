@@ -43,7 +43,7 @@ class ExpansionCraftPillarKit extends RecipeBase
 		
 		m_IngredientAddHealth[0] = 0;
 		m_IngredientSetHealth[0] = -1; 
-		m_IngredientAddQuantity[0] = 1;
+		m_IngredientAddQuantity[0] = -1;
 		m_IngredientDestroy[0] = true;
 		m_IngredientUseSoftSkills[0] = false;
 		

@@ -41,7 +41,10 @@
 			</editor_data>
 			<event_entry>
 				ExpansionFSMHelper.DoorAnimationSource(transport, seat, hasDoor, source);
-				if (hasDoor) transport.SetAnimationPhase(source, 1.0);
+				if (hasDoor)
+				{
+					transport.SetAnimationPhase(source, 1.0);
+				}
 			</event_entry>
 			<event_exit>
 			</event_exit>

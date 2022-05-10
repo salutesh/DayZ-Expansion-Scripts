@@ -1,11 +1,17 @@
 modded class DayZPlayerImplement
 {
+	static int DEBUG_EXPANSION_CLIMB = 0;
+	
 	private autoptr eAITargetInformation m_TargetInformation;
 
 	private eAIGroup m_eAI_Group;
 	private int m_eAI_GroupID;
 	private int m_eAI_GroupMemberIndex;
 	private int m_eAI_GroupMemberIndexSynch;
+
+#ifndef SERVER
+	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
+#endif
 
 	void DayZPlayerImplement()
 	{
@@ -168,5 +174,47 @@ modded class DayZPlayerImplement
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
+	vector Expansion_GetHeadingVector()
+	{
+		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
+	}
+
+#ifndef SERVER
+	void AddShape(Shape shape)
+	{
+		m_Expansion_DebugShapes.Insert(shape);
+	}
+#endif
+
+	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
+	{
+#ifndef SERVER
+		for (int i = m_Expansion_DebugShapes.Count() - 1; i >= 0; i--)
+			m_Expansion_DebugShapes[i].Destroy();
+		m_Expansion_DebugShapes.Clear();
+#endif
+
+		if (DEBUG_EXPANSION_CLIMB != 0)
+		{
+			PlayerBase playerPB = PlayerBase.Cast(this);
+	
+			SHumanCommandClimbResult result();
+			
+			if (DEBUG_EXPANSION_CLIMB & 0x01 != 0)
+			{
+				HumanCommandClimb.DoClimbTest(playerPB, result, 0);
+				ExpansionClimb.DebugClimb(playerPB, result, 0xAAFFFF00, 0xAA00FFFF);
+			}
+			
+			if (DEBUG_EXPANSION_CLIMB & 0x10 != 0)
+			{
+				ExpansionClimb.DoClimbTest(playerPB, result);
+				ExpansionClimb.DebugClimb(playerPB, result, 0xAAFF0000, 0xAA0000FF);
+			}
+		}
+
+		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
 	}
 };

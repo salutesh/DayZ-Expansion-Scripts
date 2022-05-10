@@ -1,6 +1,6 @@
 class eAIDynamicPatrol : eAIPatrol
 {
-	private static int NUMBER_DYNAMIC_PATROLS;
+	private static int m_NumberOfDynamicPatrols;
 
 	vector m_Position;
 	autoptr array<vector> m_Waypoints;
@@ -13,6 +13,7 @@ class eAIDynamicPatrol : eAIPatrol
 	int m_RespawnTime;
 	string m_Loadout;
 	ref eAIFaction m_Faction;
+	bool m_CanBeLooted;
 
 	eAIGroup m_Group;
 	float m_LastSpawn;
@@ -35,7 +36,7 @@ class eAIDynamicPatrol : eAIPatrol
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "HumanLoadout.json", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0)
+	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, bool canBeLooted = true)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -54,6 +55,7 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_DespawnRadius = maxR * 1.1;
 		patrol.m_MovementSpeedLimit = speedLimit;
 		patrol.m_Faction = faction;
+		patrol.m_CanBeLooted = canBeLooted;
 		patrol.m_CanSpawn = true;
 		if (patrol.m_Faction == null) patrol.m_Faction = new eAIFactionCivilian();
 		if (autoStart) patrol.Start();
@@ -71,7 +73,10 @@ class eAIDynamicPatrol : eAIPatrol
 
 		ai.SetPosition(pos);
 
-		ExpansionHumanLoadout.Apply(ai, m_Loadout, false, eAISettings.GetLoadoutDirectories());
+		if ( m_Loadout == "" )
+			m_Loadout = m_Faction.GetDefaultLoadout();
+
+		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
 				
 		ai.SetMovementSpeedLimit(m_MovementSpeedLimit);
 
@@ -120,6 +125,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		eAIBase ai = SpawnAI(m_Position);
 		m_Group = ai.GetGroup();
+		m_Group.SetCanBeLooted(m_CanBeLooted);
 		m_Group.SetFaction(m_Faction);
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
 		foreach (vector v : m_Waypoints) m_Group.AddWaypoint(v);
@@ -132,7 +138,7 @@ class eAIDynamicPatrol : eAIPatrol
 			count--;
 		}
 
-		NUMBER_DYNAMIC_PATROLS++;
+		m_NumberOfDynamicPatrols++;
 	}
 
 	void Despawn()
@@ -148,7 +154,8 @@ class eAIDynamicPatrol : eAIPatrol
 		m_LastSpawn = 0;
 		m_CanSpawn = false;
 
-		NUMBER_DYNAMIC_PATROLS = Math.Max(NUMBER_DYNAMIC_PATROLS - 1, 0);
+		if (m_NumberOfDynamicPatrols)
+			m_NumberOfDynamicPatrols--;
 	}
 
 	override void OnUpdate()
@@ -203,7 +210,8 @@ class eAIDynamicPatrol : eAIPatrol
 				m_LastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
 
 				bool timeCheck = m_LastSpawn > m_RespawnTime;
-				bool countCheck = eAISettings.GetMaximumDynamicPatrols() == -1 || NUMBER_DYNAMIC_PATROLS < eAISettings.GetMaximumDynamicPatrols();
+				int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
+				bool countCheck = maxPatrols == -1 || m_NumberOfDynamicPatrols < maxPatrols;
 
 				if (timeCheck && countCheck)
 				{

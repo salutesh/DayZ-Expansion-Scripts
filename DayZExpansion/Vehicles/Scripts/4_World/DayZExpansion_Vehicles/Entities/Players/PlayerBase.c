@@ -65,7 +65,7 @@ modded class PlayerBase
 		#endif
 	}
 	
-	override private void EOnContact( IEntity other, Contact extra )
+	override void EOnContact( IEntity other, Contact extra )
 	{
 		if( !IsAlive() || GetParent() == other || !IsMissionHost() )
 			return;

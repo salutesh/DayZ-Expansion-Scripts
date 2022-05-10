@@ -26,14 +26,12 @@
 						unit.LookAtDirection(&quot;0 0 1&quot;);
 
 					if (unit.GetAimDirectionRecalculate())
-					{
-						unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection());  //! Don't run to last target
 						unit.AimAtDirection(&quot;0 0 1&quot;);
-					}
 				}
 
 				unit.OverrideMovementDirection(false, 0);
-				unit.OverrideMovementSpeed(false, 0);
+				unit.OverrideMovementSpeed(true, 0);
+				unit.Expansion_GetUp();
 			</event_entry>
 			<event_exit></event_exit>
 			<event_update>
@@ -106,6 +104,7 @@
 			</event_exit>
 			<event_update>
 				unit.OverrideTargetPosition(group.GetFormationPosition(unit));
+				unit.OverrideMovementSpeed(false, 0);
 
                 return EXIT;
             </event_update>
@@ -174,6 +173,7 @@
 				index = Math.Clamp(index, 0, path.Count() - 1);
 
 				unit.OverrideTargetPosition(path[index]);
+				unit.OverrideMovementSpeed(false, 0);
 
                 return EXIT;
             </event_update>
@@ -445,7 +445,7 @@
 				<position_destination x="1" y="0.7" />
 			</editor_data>
 			<guard>
-                if (unit.GetThreatToSelf() &lt; 0.4) return FAIL;
+                if (unit.GetThreatToSelf(true) &lt; 0.4) return FAIL;
 
 				return SUCCESS;
             </guard>

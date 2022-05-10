@@ -154,7 +154,7 @@ class ExpansionNavMeshPolygon : PathNode
 		shape = Shape.CreateSphere(0xFFAA5533, flags, parent.ModelToWorld(m_Position), radius * 2.0);
 		navmesh.AddDebugShape(shape);
 		
-		foreach (ExpansionNavMeshPolygon neighbour : m_Neighbours)
+		foreach (auto neighbour : m_Neighbours)
 		{
 			vector direction = vector.Direction(m_Position, neighbour.m_Position).Normalized();
 			vector position = m_Position + (direction * m_Radius);

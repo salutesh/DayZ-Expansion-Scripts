@@ -39,7 +39,7 @@ modded class Weapon_Base
 		}
 
 		vector begin_point = position;
-		vector end_point = position + (direction * 500.0);
+		vector end_point = position + (direction * 1000.0);
 				
 		// Prep Raycast
 		set<Object> results = new set<Object>();

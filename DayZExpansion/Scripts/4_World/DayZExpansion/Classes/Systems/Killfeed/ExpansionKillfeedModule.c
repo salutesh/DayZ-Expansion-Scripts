@@ -748,7 +748,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		{
 			case ExpansionKillFeedMessageType.FALL:
 				return GetExpansionSettings().GetNotification().KillFeedFall;
-#ifdef EXPANSIONMODVEHICLE
 			case ExpansionKillFeedMessageType.CAR_HIT_DRIVER:
 				return GetExpansionSettings().GetNotification().KillFeedCarHitDriver;
 			case ExpansionKillFeedMessageType.CAR_HIT_NODRIVER:
@@ -757,6 +756,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				return GetExpansionSettings().GetNotification().KillFeedCarCrash;
 			case ExpansionKillFeedMessageType.CAR_CRASH_CREW:
 				return GetExpansionSettings().GetNotification().KillFeedCarCrashCrew;
+#ifdef EXPANSIONMODVEHICLE
 			case ExpansionKillFeedMessageType.HELI_HIT_DRIVER:
 				return GetExpansionSettings().GetNotification().KillFeedHeliHitDriver;
 			case ExpansionKillFeedMessageType.HELI_HIT_NODRIVER:

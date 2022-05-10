@@ -93,7 +93,9 @@ class eAITransitionType
 		if (guard.Count() > 0)
 		{
 			FPrintln(file, "override int Guard() {");
+#ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_0(this, \"Guard\");");
+#endif
 			FPrintln(file, guard[0].GetContent().GetContent());
 			FPrintln(file, "}");
 		}

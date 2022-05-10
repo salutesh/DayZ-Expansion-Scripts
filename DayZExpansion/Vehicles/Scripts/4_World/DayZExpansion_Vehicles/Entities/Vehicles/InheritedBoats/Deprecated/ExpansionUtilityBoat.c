@@ -42,7 +42,23 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionBoatFrontLight));
 	}
+    override float GetTransportCameraDistance()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
+#endif
 
+		return 9.0;
+	}
+
+	override float GetCameraHeight()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+#endif
+
+		return 2.0;
+	}
 	override int GetSeatAnimationType(int posIdx)
 	{
 #ifdef EXPANSIONTRACE

@@ -19,8 +19,8 @@ class eAIAimingProfile
 	void eAIAimingProfile(eAIBase ai)
 	{
 		m_Player = ai;
-		m_Accuracy_Min = eAISettings.GetAccuracyMin();
-		m_Accuracy_Max = eAISettings.GetAccuracyMax();
+		m_Accuracy_Min = GetExpansionSettings().GetAI().AccuracyMin;
+		m_Accuracy_Max = GetExpansionSettings().GetAI().AccuracyMax;
 	}
 
 	void Update()
@@ -65,6 +65,9 @@ class eAIAimingProfile
 		m_Player.GetTransform(transform);
 
 		//! TODO: Accuracy could be influenced by stamina and status effects
+		// m_Player.GetStatStamina().Get();
+		// m_Player.GetHealth("","");
+		// m_Player.GetStatHeatComfort().Get(); <= freezing ?
 		float accuracy = Math.RandomFloat(m_Accuracy_Min, m_Accuracy_Max);
 
 		//! Lerp to adjust accuracy

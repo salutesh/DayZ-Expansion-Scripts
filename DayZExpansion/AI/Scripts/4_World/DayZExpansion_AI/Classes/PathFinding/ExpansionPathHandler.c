@@ -55,28 +55,37 @@ class ExpansionPathHandler
 
 		m_PathFilter = new PGFilter();
 
-		int in = PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE | PGPolyFlags.SPECIAL;
-		int ex = PGPolyFlags.DISABLED | PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
+		int in = PGPolyFlags.UNREACHABLE | PGPolyFlags.DISABLED | PGPolyFlags.WALK | PGPolyFlags.DOOR | PGPolyFlags.INSIDE | PGPolyFlags.LADDER;
+		int ex = PGPolyFlags.CRAWL | PGPolyFlags.CROUCH | PGPolyFlags.SWIM_SEA | PGPolyFlags.SWIM;
 		int ec = PGPolyFlags.NONE;
 
-		//m_PathFilter.SetCost(PGAreaType.LADDER, 3.0);
-		//m_PathFilter.SetCost(PGAreaType.CRAWL, 0.0);
-		m_PathFilter.SetCost(PGAreaType.CROUCH, 0.0);
-		//m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 1.0);
-		//m_PathFilter.SetCost(PGAreaType.JUMP, 0.0);
-		//m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
+		if (eAIBase.AI_HANDLEVAULTING)
+		{
+			in |= PGPolyFlags.SPECIAL;
+		}
+		else
+		{
+			ex |= PGPolyFlags.SPECIAL;
+		}
 
-		//m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
-		// m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 0.0);
+		m_PathFilter.SetCost(PGAreaType.LADDER, 1.0);
+		m_PathFilter.SetCost(PGAreaType.CRAWL, 1.0);
+		m_PathFilter.SetCost(PGAreaType.CROUCH, 1.0);
+		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 1.0);
+		m_PathFilter.SetCost(PGAreaType.JUMP, 1.0);
+		m_PathFilter.SetCost(PGAreaType.WATER, 1.0);
 
-		// m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
+		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
+		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 1.0);
+
+		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
 		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
 
-		// m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 1.0);
-		//m_PathFilter.SetCost(PGAreaType.OBJECTS, 1.0);
-		//m_PathFilter.SetCost(PGAreaType.TERRAIN, 1.0);
-		//m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
-		//m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
+		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 1.0);
+		m_PathFilter.SetCost(PGAreaType.OBJECTS, 1.0);
+		m_PathFilter.SetCost(PGAreaType.TERRAIN, 1.0);
+		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
+		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
 
 		m_PathFilter.SetFlags(in, ex, ec);
 	}
@@ -235,18 +244,18 @@ class ExpansionPathHandler
 		vector offset = vector.Zero;
 
 		map<int, int> possibleFlags();
-		possibleFlags.Insert(PGPolyFlags.WALK, 			0xAAAA0000);
-		possibleFlags.Insert(PGPolyFlags.DISABLED,		0xAAFF0000);
-		possibleFlags.Insert(PGPolyFlags.DOOR,			0xAA0000FF);
-		possibleFlags.Insert(PGPolyFlags.INSIDE,		0xAA00FF00);
-		possibleFlags.Insert(PGPolyFlags.SWIM,			0xAA0000AA);
-		possibleFlags.Insert(PGPolyFlags.SWIM_SEA,		0xAA00AA00);
+		//possibleFlags.Insert(PGPolyFlags.WALK, 			0xAAAA0000);
+		//possibleFlags.Insert(PGPolyFlags.DISABLED,		0xAAFF0000);
+		//possibleFlags.Insert(PGPolyFlags.DOOR,			0xAA0000FF);
+		//possibleFlags.Insert(PGPolyFlags.INSIDE,		0xAA00FF00);
+		//possibleFlags.Insert(PGPolyFlags.SWIM,			0xAA0000AA);
+		//possibleFlags.Insert(PGPolyFlags.SWIM_SEA,		0xAA00AA00);
 		possibleFlags.Insert(PGPolyFlags.LADDER,		0xAAAA00FF);
 		possibleFlags.Insert(PGPolyFlags.JUMP_OVER,		0xAAFF00AA);
 		possibleFlags.Insert(PGPolyFlags.JUMP_DOWN,		0xAAFFAA00);
 		possibleFlags.Insert(PGPolyFlags.CLIMB,			0xAAAAFF00);
-		possibleFlags.Insert(PGPolyFlags.CRAWL,			0xAA00FFAA);
-		possibleFlags.Insert(PGPolyFlags.CROUCH,		0xAA00AAFF);
+		//possibleFlags.Insert(PGPolyFlags.CRAWL,			0xAA00FFAA);
+		//possibleFlags.Insert(PGPolyFlags.CROUCH,		0xAA00AAFF);
 		//possibleFlags.Insert(PGPolyFlags.UNREACHABLE,	0xAA000000);
 
 		float radius = 0.2;
@@ -304,11 +313,10 @@ class ExpansionPathHandler
 
 		m_Time += pDt;
 		
-		SetPathFilter();
-
-		UpdateCurrent();
+		//SetPathFilter();
 		
 		vector unitPosition = m_Unit.GetPosition();
+		vector unitDirection = m_Unit.GetDirection();
 		vector unitVelocity = GetVelocity(m_Unit);
 
 		vector targetPosition = m_TargetReference.GetPosition();
@@ -321,6 +329,24 @@ class ExpansionPathHandler
 #endif
 
 		int i;
+		
+		if (pSimulationPrecision < 0)
+		{
+			recalculate = true;
+			
+			// HACK FIX for recalculating while climbing
+			
+			unitPosition = unitPosition + (unitDirection * 0.5);
+			
+			
+			m_Current.Position = unitPosition;
+			m_Current.Parent = Object.Cast(m_Unit.GetParent());
+			m_Current.OnParentUpdate();
+		}
+		else
+		{
+			UpdateCurrent();
+		}
 		
 		if (!recalculate && m_Time >= ((pSimulationPrecision + 1.0) * 2.0))
 		{

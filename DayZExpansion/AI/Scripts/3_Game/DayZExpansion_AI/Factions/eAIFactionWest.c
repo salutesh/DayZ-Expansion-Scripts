@@ -3,6 +3,7 @@ class eAIFactionWest : eAIFaction
 	void eAIFactionWest()
 	{
 		m_Name = "West";
+		m_Loadout = "WestLoadout";
 	}
 
 	override bool IsFriendly(notnull eAIFaction other)
