@@ -10,7 +10,8 @@
  *
 */
 
-/*! Call tracing that can be enabled on a per-ID basis.
+/*
+ * Call tracing that can be enabled on a per-ID basis.
  * Insert in each method at the top one of the following:
  * 
  * auto trace = EXTrace.Start(EXTrace.<ID>);  //! Includes only 1st line of stack
@@ -79,6 +80,8 @@ class EXTrace
 	static bool NOTIFICATIONS;
 
 	static bool PLAYER = ENABLE;
+
+	static bool PLAYER_CONSTANT = PLAYER && true; // Will fill up the logs
 
 	static bool PLAYER_MONITOR;
 	
@@ -190,6 +193,22 @@ class EXTrace
 	void SetDepth(int depth)
 	{
 		m_Depth = depth;
+	}
+
+	static void Print(bool yes = true, Class instance = null, string msg = "")
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes || !msg)
+			return;
+#endif
+
+		string ts = ExpansionStatic.GetTimestamp();
+
+		if (instance)
+			PrintFormat("%1 [EXTRACE] %2 %3", ts, instance.ToString(), msg);
+		else
+			PrintFormat("%1 [EXTRACE] %2", ts, msg);
 	}
 
 	//! Includes 1st line of stack

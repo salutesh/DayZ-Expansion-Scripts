@@ -39,37 +39,4 @@ modded class MissionServer
 			super.EquipCharacter(char_data);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// OnClientNewEvent
-	// ------------------------------------------------------------
-	override PlayerBase OnClientNewEvent( PlayerIdentity identity, vector pos, ParamsReadContext ctx )
-	{
-		PlayerBase player = super.OnClientNewEvent( identity, pos, ctx );
-		if (!player)
-			return null;
-		
-		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
-		if (spawnHealth > 0 && spawnHealth <= player.GetMaxHealth("GlobalHealth", "Health"))
-			player.SetHealth("", "", spawnHealth );
-		
-		if (GetExpansionSettings().GetSpawn().SpawnEnergyValue <= player.GetStatEnergy().GetMax())
-			player.GetStatEnergy().Set(GetExpansionSettings().GetSpawn().SpawnEnergyValue);
-		
-		if (GetExpansionSettings().GetSpawn().SpawnWaterValue <= player.GetStatWater().GetMax())
-			player.GetStatWater().Set(GetExpansionSettings().GetSpawn().SpawnWaterValue);
-		
-		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
-			m_RespawnHandlerModule.StartSpawnSelection(player, identity);
-
-		return player;
-	}
-
-	override void OnClientReadyEvent(PlayerIdentity identity, PlayerBase player)
-	{
-		super.OnClientReadyEvent(identity, player);
-
-		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
-			m_RespawnHandlerModule.CheckResumeSpawnSelection(player, identity);
-	}
 }

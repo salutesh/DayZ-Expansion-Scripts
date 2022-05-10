@@ -1,5 +1,3 @@
-#include "0_DayZExpansion_AI_Preload/Common/DayZExpansion_AI_Defines.c"
-
 class eAIFSM
 {
 	static const int EXIT = 0;
@@ -230,6 +228,9 @@ class eAIFSM
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "Update").Add(pDt).Add(pSimulationPrecision);
 		#endif
+
+		if (!m_Unit)
+			return EXIT;
 
 		//CF_Log.Debug("m_CurrentState: %1", "" + m_CurrentState);
 

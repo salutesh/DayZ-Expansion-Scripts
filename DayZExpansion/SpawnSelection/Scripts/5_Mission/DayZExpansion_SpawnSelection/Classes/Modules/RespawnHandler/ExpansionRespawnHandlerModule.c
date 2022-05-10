@@ -47,6 +47,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		super.OnInit();
 		
+		EnableClientNew();
+		EnableClientReady();
 		EnableInvokeConnect();
 		EnableMissionFinish();
 		EnableMissionStart();
@@ -1044,5 +1046,31 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		
 		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns)
 			RespawnCountdownCheck(cArgs.Identity.GetId());
+	}
+
+	override void OnClientNew(Class sender, CF_EventArgs args)
+	{
+		auto cArgs = CF_EventNewPlayerArgs.Cast(args);
+		
+		float spawnHealth = GetExpansionSettings().GetSpawn().SpawnHealthValue;
+		if (spawnHealth > 0 && spawnHealth <= cArgs.Player.GetMaxHealth("GlobalHealth", "Health"))
+			cArgs.Player.SetHealth("", "", spawnHealth);
+		
+		if (GetExpansionSettings().GetSpawn().SpawnEnergyValue <= cArgs.Player.GetStatEnergy().GetMax())
+			cArgs.Player.GetStatEnergy().Set(GetExpansionSettings().GetSpawn().SpawnEnergyValue);
+		
+		if (GetExpansionSettings().GetSpawn().SpawnWaterValue <= cArgs.Player.GetStatWater().GetMax())
+			cArgs.Player.GetStatWater().Set(GetExpansionSettings().GetSpawn().SpawnWaterValue);
+		
+		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
+			StartSpawnSelection(cArgs.Player, cArgs.Identity);
+	}
+
+	override void OnClientReady(Class sender, CF_EventArgs args)
+	{
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (GetExpansionSettings().GetSpawn().EnableSpawnSelection)
+			CheckResumeSpawnSelection(cArgs.Player, cArgs.Identity);
 	}
 }

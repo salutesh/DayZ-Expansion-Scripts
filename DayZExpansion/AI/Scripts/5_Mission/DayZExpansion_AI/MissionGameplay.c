@@ -20,8 +20,6 @@ modded class MissionGameplay
 		#endif
 
 		super.OnMissionStart();
-
-		if (IsMissionOffline()) GetDayZGame().GetExpansionGame().SetAdmin(true);
 	}
 
 	override void OnMissionFinish()
@@ -31,8 +29,6 @@ modded class MissionGameplay
 		#endif
 
 		super.OnMissionFinish();
-
-		GetDayZGame().GetExpansionGame().SetAdmin(false);
 	}
 
 	override void OnUpdate(float timeslice)
@@ -46,17 +42,19 @@ modded class MissionGameplay
 		DayZPlayerImplement player;
 		Class.CastTo(player, GetGame().GetPlayer());
 
+#ifdef DIAG
 		if (player && g_Expansion_Car && g_ExpansionNavMesh)
 		{
 			g_ExpansionNavMesh.DebugScripts();
 		}
+#endif
 
 		//TODO: move to 5_Mission/DayZExpansion
 
 		// If we want to open the command menu, and nothing else is open
 		if (m_eAIRadialKey.LocalPress() && !GetGame().GetUIManager().GetMenu())
 		{
-			if (GetDayZGame().GetExpansionGame().IsAdmin() || (player && player.GetGroup()))
+			if (GetExpansionSettings().GetAI().IsAdmin() || (player && player.GetGroup()))
 			{
 				if (!eAICommandMenu.instance) new eAICommandMenu();
 				GetUIManager().ShowScriptedMenu(eAICommandMenu.instance, null);

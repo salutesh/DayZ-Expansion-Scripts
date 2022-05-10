@@ -36,7 +36,7 @@ class eAIRoadNetwork
 		m_WorldName = GetGame().GetWorldName();
 		m_CenterPoint = GetGame().ConfigGetVector("CfgWorlds " + m_WorldName + " centerPosition");
 
-		m_Directories.Insert("$profile:eAI");
+		m_Directories.Insert(EXPANSION_AI_UTILS_FOLDER);
 		m_Directories.Insert("DayZExpansion/AI/Scripts/Data/Roads");
 
 		int mod_count = GetGame().ConfigGetChildrenCount("CfgMods");

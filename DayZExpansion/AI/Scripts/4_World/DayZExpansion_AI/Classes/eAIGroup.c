@@ -40,6 +40,8 @@ class eAIGroup
 
 	private eAIGroupFormationState m_FormationState = eAIGroupFormationState.IN;
 
+	private bool m_CanBeLooted = true;
+
 	// return the group owned by leader, otherwise create a new one.
 	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true)
 	{
@@ -557,5 +559,15 @@ class eAIGroup
 				GetGame().ObjectDelete(ai);
 			}
 		}
+	}
+
+	void SetCanBeLooted(bool canBeLooted)
+	{
+		m_CanBeLooted = canBeLooted;
+	}
+
+	bool CanBeLooted()
+	{
+		return m_CanBeLooted;
 	}
 };

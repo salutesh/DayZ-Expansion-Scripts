@@ -30,13 +30,22 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			if (distance)
 				levelFactor = 10 / distance;
 
+			if (distance > 30)
+			{
+				//! Check if target is facing AI when not in near range (30 m)
+				vector targetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
+				float dot = vector.Dot(m_Player.GetDirection(), targetDirection);
+				if (dot < 0.75)  //! Target is facing away
+					return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
+			}
+
 			//! Enemy weapon
 			auto enemyHands = m_Player.GetHumanInventory().GetEntityInHands();
 			if (enemyHands)
 			{
 				AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor);
 
-				if (!m_Player.IsRaised())
+				if (enemyHands.IsWeapon() && !m_Player.IsRaised())
 					levelFactor *= 0.5;
 
 				//! AI weapon
@@ -53,21 +62,66 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	void AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor)
 	{
+		Weapon gun;
+		if (!Class.CastTo(gun, weapon))
+			return;
+
+		int mi = gun.GetCurrentMuzzle();
+
+		//! Check if gun has available bullets either in chamber or internal/attached mag
+		/* XXX: Not sure if going to use this, seems a bit redundant. Disabled for now
+		if (gun.IsChamberEmpty(mi) || gun.IsChamberFiredOut(mi))
+		{
+			if (gun.HasInternalMagazine(mi))
+			{
+				if (!gun.GetInternalMagazineCartridgeCount(mi))
+					return;
+			}
+			else
+			{
+				Magazine mag;
+				if (Class.CastTo(mag, gun.GetMagazine()))
+				{
+					if (!mag.GetAmmoCount())
+						return;
+				}
+				else
+				{
+					return;
+				}
+			}
+		}
+		*/
+
 		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base))
 		{
-			levelFactor *= 4.472136;  //! If both AI and target have a bolt rifle, threat level 0.4 at 500 m
+			levelFactor *= 4.472136;  //! If both AI and target have a 7.62x39 mm bolt rifle, threat level 0.4 at 500 m
 		}
 		else if (weapon.IsInherited(Rifle_Base))
 		{
-			levelFactor *= 3.0;  //! If both AI and target have a rifle, threat level 0.4 at 225 m
+			levelFactor *= 3.0;  //! If both AI and target have a 7.62x39 mm rifle, threat level 0.4 at 225 m
 		}
 		else if (weapon.IsInherited(Pistol_Base))
 		{
-			levelFactor *= 2.0;  //! If both AI and target have a pistol, threat level 0.4 at 100 m
+			levelFactor *= 2.0;  //! If both AI and target have a 19x9 mm pistol, threat level 0.4 at 36 m
 		}
 		else if (weapon.IsInherited(Weapon_Base))
 		{
 			levelFactor *= 2.0;
+		}
+
+		//! Now the fun part, scale threat level by health damage applied by ammo.
+		//! Use 7.62x39 mm round w/ 0.9 init speed mult as baseline (1.0).
+		string ammoTypeName = gun.GetChamberAmmoTypeName(mi);
+		if (ammoTypeName)
+		{
+			float damage = ExpansionWeaponUtils.GetDamageAppliedByAmmo(ammoTypeName);
+
+			if (damage)
+			{
+				float initSpeedMult = ExpansionWeaponUtils.GetWeaponInitSpeedMultiplier(gun.GetType());
+				levelFactor *= damage * initSpeedMult / 99.0;
+			}
 		}
 	}
 

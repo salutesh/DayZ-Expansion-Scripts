@@ -69,12 +69,12 @@ modded class DayZExpansion
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
 
-		ExpansionHumanLoadout.Apply(ai, loadout, true, eAISettings.GetLoadoutDirectories());
+		ExpansionHumanLoadout.Apply(ai, loadout, true);
 
 		return ai;
 	}
 	
-	eAIBase SpawnAI_Sentry(vector pos, string loadout = "HumanLoadout.json")
+	eAIBase SpawnAI_Sentry(vector pos, string loadout = "EastLoadout.json")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "SpawnAI_Sentry");
@@ -83,7 +83,7 @@ modded class DayZExpansion
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
 
-		ExpansionHumanLoadout.Apply(ai, loadout, true, eAISettings.GetLoadoutDirectories());
+		ExpansionHumanLoadout.Apply(ai, loadout, true);
 
 		return ai;
 	}
@@ -97,7 +97,7 @@ modded class DayZExpansion
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
 
-		ExpansionHumanLoadout.Apply(ai, loadout, true, eAISettings.GetLoadoutDirectories());
+		ExpansionHumanLoadout.Apply(ai, loadout, true);
 				
 		return ai;
 	}
@@ -123,9 +123,8 @@ modded class DayZExpansion
 
 		if (GetGame().IsMultiplayer())
 		{
-			string guid = sender.GetPlainId();
-			int idx = eAISettings.GetAdmins().Find(guid);
-			if (idx == -1) return;
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
 		}
 		
 		if(type == CallType.Server )
@@ -158,16 +157,15 @@ modded class DayZExpansion
 
 		if (GetGame().IsMultiplayer())
 		{
-			string guid = sender.GetPlainId();
-			int idx = eAISettings.GetAdmins().Find(guid);
-			if (idx == -1) return;
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
 		}
 
 		if(type == CallType.Server) {
 			if (!GetGame().IsMultiplayer()) Class.CastTo(data.param1, GetGame().GetPlayer());
 			
             CF_Log.Debug("eAI: SpawnZombie RPC called.");
-			GetGame().CreateObject("ZmbF_JournalistNormal_Blue", GetEntitySpawnPosition(data.param1), false, true, true);
+			GetGame().CreateObject(ExpansionStatic.GetWorkingZombieClasses().GetRandomElement(), GetEntitySpawnPosition(data.param1), false, true, true);
         }
 	}
 
@@ -182,9 +180,8 @@ modded class DayZExpansion
 
 		if (GetGame().IsMultiplayer())
 		{
-			string guid = sender.GetPlainId();
-			int idx = eAISettings.GetAdmins().Find(guid);
-			if (idx == -1) return;
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
 		}
 
 		if(type == CallType.Server) {
@@ -206,9 +203,8 @@ modded class DayZExpansion
 
 		if (GetGame().IsMultiplayer())
 		{
-			string guid = sender.GetPlainId();
-			int idx = eAISettings.GetAdmins().Find(guid);
-			if (idx == -1) return;
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
 		}
 
 		if(type == CallType.Server) {
@@ -231,9 +227,8 @@ modded class DayZExpansion
 		
 		if (GetGame().IsMultiplayer())
 		{
-			string guid = sender.GetPlainId();
-			int idx = eAISettings.GetAdmins().Find(guid);
-			if (idx == -1) return;
+			if (!GetExpansionSettings().GetAI().IsAdmin(sender))
+				return;
 		}
 		
 		if (type == CallType.Server)

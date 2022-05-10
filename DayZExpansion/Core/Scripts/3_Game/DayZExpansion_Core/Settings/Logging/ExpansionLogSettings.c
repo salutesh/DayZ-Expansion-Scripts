@@ -24,6 +24,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
 	bool VehicleTowing;			//! If enabled, generate logs about towing and untowing vehicles
 	bool VehicleLockPicking;	//! If enabled, generate logs about lockpicking a vehicle
+	bool VehicleDestroyed; 		// Print a log when a vehicle is destroyed
 	#endif
 
 	#ifdef EXPANSIONMODBASEBUILDING
@@ -58,12 +59,12 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool ATM;					//! If enabled, generate logs for ATM system actions by all players
 	#endif
 
+	#ifdef EXPANSIONMODAI
+	bool AIGeneral; 			// Print a log when a vehicle is destroyed
+	#endif
+
 	bool LogToScripts; 			// Should the prints be logged in the scripts logs ?
 	bool LogToADM; 				// Should the prints be logged in the ADM logs ?
-
-	#ifdef EXPANSIONMODVEHICLE
-	bool VehicleDestroyed; 		// Print a log when a vehicle is destroyed
-	#endif
 	
 	[NonSerialized()]
 	private string m_FileTimestamp;

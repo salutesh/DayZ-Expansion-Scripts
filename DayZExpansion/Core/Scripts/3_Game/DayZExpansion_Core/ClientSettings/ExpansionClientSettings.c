@@ -23,6 +23,9 @@ class ExpansionClientSettings
 
 	[NonSerialized()]
 	private ExpansionClientSettingCategory m_CurrentCategory;
+	
+	[NonSerialized()]
+	bool m_ShouldShowHUDCategory = false;
 
 	// Vehicles
 	bool UseCameraLock;
@@ -109,6 +112,16 @@ class ExpansionClientSettings
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionClientSettings");
 #endif
+
+		#ifdef EXPANSIONMOD
+		m_ShouldShowHUDCategory = true;
+		#endif
+		#ifdef EXPANSIONMODNAVIGATION
+		m_ShouldShowHUDCategory = true;
+		#endif
+		#ifdef EXPANSIONMODCHAT
+		m_ShouldShowHUDCategory = true;
+		#endif
 		
 		m_Categories = new array< ref ExpansionClientSettingCategory >;
 		
@@ -786,7 +799,7 @@ class ExpansionClientSettings
 		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
 		CreateToggle( "ShowPINCode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_SHOW_PIN_CODE_DESC" );
-	
+	if ( m_ShouldShowHUDCategory )
 		CreateCategory( "HUD", "#STR_EXPANSION_SETTINGS_HUD" );
 	#ifdef EXPANSIONMOD	
 		//! Option to change ear plug level 

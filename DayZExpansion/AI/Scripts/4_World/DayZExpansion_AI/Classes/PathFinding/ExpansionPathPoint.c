@@ -11,6 +11,13 @@ class ExpansionPathPoint
 
 	ExpansionPathPoint Next;
 
+	autoptr PGFilter m_Filter;
+
+	void ExpansionPathPoint()
+	{
+		m_Filter = new PGFilter();
+	}
+
 	vector GetPosition()
 	{
 		if (Parent)
@@ -76,22 +83,21 @@ class ExpansionPathPoint
 			return 0;
 		}
 		
-		PGFilter filter = new PGFilter();
-		filter.SetFlags(flag, PGPolyFlags.NONE, PGPolyFlags.NONE);
+		m_Filter.SetFlags(flag, PGPolyFlags.NONE, PGPolyFlags.NONE);
 		
-		filter.SetCost(PGAreaType.NONE, 10.0);
-		filter.SetCost(PGAreaType.TERRAIN, 10.0);
-		filter.SetCost(PGAreaType.DOOR_OPENED, 10.0);
-		filter.SetCost(PGAreaType.DOOR_CLOSED, 10.0);
-		filter.SetCost(PGAreaType.OBJECTS, 10.0);
-		filter.SetCost(PGAreaType.BUILDING, 10.0);
-		filter.SetCost(PGAreaType.ROADWAY, 10.0);
-		filter.SetCost(PGAreaType.ROADWAY_BUILDING, 10.0);
-		filter.SetCost(PGAreaType.LADDER, 10.0);
-		filter.SetCost(PGAreaType.CRAWL, 10.0);
-		filter.SetCost(PGAreaType.CROUCH, 10.0);
-		filter.SetCost(PGAreaType.FENCE_WALL, 10.0);
-		filter.SetCost(PGAreaType.JUMP, 10.0);
+		m_Filter.SetCost(PGAreaType.NONE, 10.0);
+		m_Filter.SetCost(PGAreaType.TERRAIN, 10.0);
+		m_Filter.SetCost(PGAreaType.DOOR_OPENED, 10.0);
+		m_Filter.SetCost(PGAreaType.DOOR_CLOSED, 10.0);
+		m_Filter.SetCost(PGAreaType.OBJECTS, 10.0);
+		m_Filter.SetCost(PGAreaType.BUILDING, 10.0);
+		m_Filter.SetCost(PGAreaType.ROADWAY, 10.0);
+		m_Filter.SetCost(PGAreaType.ROADWAY_BUILDING, 10.0);
+		m_Filter.SetCost(PGAreaType.LADDER, 10.0);
+		m_Filter.SetCost(PGAreaType.CRAWL, 10.0);
+		m_Filter.SetCost(PGAreaType.CROUCH, 10.0);
+		m_Filter.SetCost(PGAreaType.FENCE_WALL, 10.0);
+		m_Filter.SetCost(PGAreaType.JUMP, 10.0);
 		
 		vector direction = vector.Direction(Position, Next.Position).Normalized();
 		
@@ -100,7 +106,7 @@ class ExpansionPathPoint
 		vector hitPos;
 		vector hitNor;
 		
-		bool hit = GetGame().GetWorld().GetAIWorld().RaycastNavMesh(p0, p1, filter, hitPos, hitNor);
+		bool hit = GetGame().GetWorld().GetAIWorld().RaycastNavMesh(p0, p1, m_Filter, hitPos, hitNor);
 				
 		if (hit)
 		{
