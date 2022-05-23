@@ -37,9 +37,12 @@ class ExpansionSpawnSettingsBase: ExpansionSettingBase
  **/
 class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 	
 	ref ExpansionStartingGear StartingGear;
+	bool UseLoadouts;
+	ref array<ref ExpansionSpawnGearLoadouts> MaleLoadouts
+	ref array<ref ExpansionSpawnGearLoadouts> FemaleLoadouts
 	
 	float SpawnHealthValue;
 	float SpawnEnergyValue;
@@ -61,6 +64,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 	void ExpansionSpawnSettings()
 	{
 		StartingGear = new ExpansionStartingGear;
+		MaleLoadouts = new ref array<ref ExpansionSpawnGearLoadouts>;
+		FemaleLoadouts = new ref array<ref ExpansionSpawnGearLoadouts>;
 	}
 	
 	int GetCooldown(bool territory = false)
@@ -263,7 +268,15 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 				
 				if (settingsBase.m_Version < 6)
 				{
-					BackgroundImagePath = settingsDefault.BackgroundImagePath;				
+					BackgroundImagePath = settingsDefault.BackgroundImagePath;
+				}
+				
+				if (settingsBase.m_Version < 7)
+				{
+					StartingGear = settingsDefault.StartingGear;
+					UseLoadouts = settingsDefault.UseLoadouts;
+					MaleLoadouts = settingsDefault.MaleLoadouts;
+					FemaleLoadouts = settingsDefault.FemaleLoadouts;
 				}
 
 				m_Version = VERSION;
@@ -316,6 +329,10 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		
 		StartingGear.Defaults();
 		StartingClothing.Defaults();
+
+		UseLoadouts = false;
+		MaleLoadouts.Insert( new ExpansionSpawnGearLoadouts( "PlayerSurvivorLoadout", 1.0 ));
+		FemaleLoadouts.Insert( new ExpansionSpawnGearLoadouts( "PlayerSurvivorLoadout", 1.0 ));
 		
 		EnableSpawnSelection = false; 		//! Will be enabled if the map have a configured spawn location on generation
 		

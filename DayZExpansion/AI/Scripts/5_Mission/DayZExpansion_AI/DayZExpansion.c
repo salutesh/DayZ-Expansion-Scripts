@@ -74,7 +74,7 @@ modded class DayZExpansion
 		return ai;
 	}
 	
-	eAIBase SpawnAI_Sentry(vector pos, string loadout = "EastLoadout.json")
+	eAIBase SpawnAI_Sentry(vector pos, string loadout = "WestLoadout.json")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "SpawnAI_Sentry");
@@ -118,7 +118,7 @@ modded class DayZExpansion
 		auto trace = CF_Trace_0(this, "SpawnAI");
 		#endif
 
-		Param2<DayZPlayer, bool> data;
+		Param2<DayZPlayer, int> data;
         if (!ctx.Read(data)) return;
 
 		if (GetGame().IsMultiplayer())
@@ -132,14 +132,21 @@ modded class DayZExpansion
 			if (!GetGame().IsMultiplayer()) data.param1 = GetGame().GetPlayer();
 			
             CF_Log.Debug("eAI: spawn entity RPC called.");
-            if (data.param2)
+            vector pos = GetEntitySpawnPosition(data.param1);
+            eAIBase sentry;
+            switch (data.param2)
             {
-				SpawnAI_Helper(PlayerBase.Cast(data.param1));
-			}
-			else
-			{
-				eAIBase sentry = SpawnAI_Sentry(GetEntitySpawnPosition(data.param1));
-				sentry.GetGroup().SetFaction(new eAIFactionWest());
+				case eAICommands.DEB_SPAWNALLY:
+					SpawnAI_Helper(PlayerBase.Cast(data.param1));
+					break;
+				case eAICommands.DEB_SPAWNSENTRY:
+					sentry = SpawnAI_Sentry(pos);
+					sentry.GetGroup().SetFaction(new eAIFactionWest());
+					break;
+				case eAICommands.DEB_SPAWNGUARD:
+					sentry = SpawnAI_Sentry(pos);
+					sentry.GetGroup().SetFaction(new eAIFactionGuards());
+					break;
 			}
 		}
 	}
@@ -236,7 +243,7 @@ modded class DayZExpansion
 			if (!GetGame().IsMultiplayer()) Class.CastTo(data.param1, GetGame().GetPlayer());
 			
             CF_Log.Debug("eAI: ClearAllAI called.");
-			eAIGroup.DeleteAllAI();
+			eAIGroup.Admin_ClearAllAI();
 		}
 	}
 	

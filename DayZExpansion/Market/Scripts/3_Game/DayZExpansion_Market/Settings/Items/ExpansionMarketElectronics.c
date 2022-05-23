@@ -30,9 +30,8 @@ class ExpansionMarketElectronics: ExpansionMarketCategory
 		AddItem("NVGoggles", 						400,	800,	1,		100,	{"Battery9V"});
 		
 		AddItem("AlarmClock_Blue", 					30,		80,		1,		100, null, {"AlarmClock_Green", "AlarmClock_Red"});
-		#ifdef DAYZ_1_17
 		AddItem("KitchenTimer", 					30,		80,		1,		100);
-		#endif
+		
 		#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_tool_watch", 					40,		100,	1,		100, null, {"dzn_tool_watch2"});
 		#endif

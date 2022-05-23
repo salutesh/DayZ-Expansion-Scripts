@@ -76,6 +76,9 @@ class eAITarget
 
 	bool IsMeleeViable(eAIBase ai)
 	{
+		if (GetEntity().IsInherited(ItemBase))
+			return false;
+
 		if (info.IsCrawling())
 			return false;
 

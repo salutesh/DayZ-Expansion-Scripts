@@ -77,102 +77,7 @@ modded class ActionStartEngine
 		return false;
 	}
 
-#ifdef DAYZ_1_16
-	override void OnStartServer(ActionData action_data)
-	{
-		super.OnStartServer(action_data);
-
-		CarScript car; //! Don't use m_Car, use this local variable and assign on action start. This is performed on the server.
-		if (!Class.CastTo(car, action_data.m_Player.GetParent()))
-			return;
-
-		car.SetCarBatteryStateForVanilla(true);
-
-		if (!car.Expansion_EngineIsOn())
-		{
-			ExpansionHelicopterScript heli;
-			if (Class.CastTo(heli, car))
-			{
-				EntityAI item2;
-				m_SparkCon = false;
-				m_BeltCon = false;
-				m_BatteryCon = false;
-
-				if (heli.IsVitalIgniterPlug() || heli.IsVitalSparkPlug() || heli.IsVitalGlowPlug())
-				{
-					item2 = NULL;
-					if (heli.IsVitalIgniterPlug())
-						item2 = heli.FindAttachmentBySlotName("ExpansionIgniterPlug");
-					if (heli.IsVitalSparkPlug())
-						item2 = heli.FindAttachmentBySlotName("SparkPlug");
-					if (heli.IsVitalGlowPlug())
-						item2 = heli.FindAttachmentBySlotName("GlowPlug");
-
-					if (item2 && !item2.IsRuined())
-						m_SparkCon = true;
-				}
-				else
-				{
-					m_SparkCon = true;
-				}
-
-				if (heli.IsVitalHydraulicHoses() || heli.IsVitalRadiator())
-				{
-					item2 = NULL;
-					if (heli.IsVitalHydraulicHoses())
-						item2 = heli.FindAttachmentBySlotName("ExpansionHydraulicHoses");
-					if (heli.IsVitalRadiator())
-						item2 = heli.FindAttachmentBySlotName("CarRadiator");
-
-					if (item2 && !item2.IsRuined())
-						m_BeltCon = true;
-				}
-				else
-				{
-					m_BeltCon = true;
-				}
-
-				if (heli.IsVitalHelicopterBattery() || heli.IsVitalCarBattery() || heli.IsVitalTruckBattery())
-				{
-					item2 = NULL;
-					if (heli.IsVitalHelicopterBattery())
-						item2 = heli.FindAttachmentBySlotName("ExpansionHelicopterBattery");
-					if (heli.IsVitalCarBattery())
-						item2 = heli.FindAttachmentBySlotName("CarBattery");
-					if (heli.IsVitalTruckBattery())
-						item2 = heli.FindAttachmentBySlotName("TruckBattery");
-
-					if (item2 && !item2.IsRuined())
-						m_BatteryCon = true;
-				}
-				else
-				{
-					m_BatteryCon = true;
-				}
-			}
-		}
-
-		car.SetCarBatteryStateForVanilla(false);
-	}
-
 	override void OnFinishProgressServer(ActionData action_data)
-	{
-		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
-		if (vehCommand)
-		{
-			CarScript car;
-			if (Class.CastTo(car, vehCommand.GetTransport()))
-			{
-				if (m_FuelCon && m_BeltCon && m_SparkCon && m_BatteryCon)
-				{
-					int current = car.Expansion_EngineGetCurrent();
-					car.Expansion_EngineStart(current);
-				}
-			}
-		}
-	}
-#else
-	override void OnStartServer(ActionData action_data)
 	{
 		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
 		if (vehCommand)
@@ -189,5 +94,21 @@ modded class ActionStartEngine
 			}
 		}
 	}
-#endif
+
+	override void OnStartServer(ActionData action_data)
+	{
+		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
+		if (vehCommand)
+		{
+			Transport trans = vehCommand.GetTransport();
+			if (trans)
+			{
+				CarScript car;
+				if (Class.CastTo(car, trans))
+				{
+					car.OnBeforeEngineStart();
+				}
+			}
+		}
+	}
 };

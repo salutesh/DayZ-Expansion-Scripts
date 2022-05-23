@@ -15,7 +15,7 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
@@ -60,7 +60,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 	#endif
 
 	#ifdef EXPANSIONMODAI
-	bool AIGeneral; 			// Print a log when a vehicle is destroyed
+	bool AIGeneral; 			// If enabled, generate logs about AI. This logs will be non specific
+	bool AIPatrol; 				// If enabled, generate logs about AI Patrols
+	bool AICrashPatrol; 		// If enabled, generate logs about AI Crash Patrols
 	#endif
 
 	bool LogToScripts; 			// Should the prints be logged in the scripts logs ?
@@ -143,6 +145,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 		VehicleCarKey = s.VehicleCarKey;
 		VehicleTowing = s.VehicleTowing;
 		VehicleLockPicking = s.VehicleLockPicking;
+		VehicleDestroyed = s.VehicleDestroyed;
 		#endif
 
 		#ifdef EXPANSIONMODBASEBUILDING
@@ -177,14 +180,16 @@ class ExpansionLogSettings: ExpansionSettingBase
 		ATM = s.ATM;
 		#endif
 
+		#ifdef EXPANSIONMODAI
+		AIGeneral = s.AIGeneral;
+		AIPatrol = s.AIPatrol;
+		AICrashPatrol = s.AICrashPatrol;
+		#endif
+
 		AdminTools = s.AdminTools;
 
 		LogToScripts = s.LogToScripts;
 		LogToADM = s.LogToADM;
-
-		#ifdef EXPANSIONMODVEHICLE
-		VehicleDestroyed = s.VehicleDestroyed;
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -236,6 +241,19 @@ class ExpansionLogSettings: ExpansionSettingBase
 					VehicleDestroyed = settingsDefault.VehicleDestroyed;
 					#endif
 				}
+				if (m_Version < 3)
+				{
+					EXPrint("[ExpansionLogSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_LOG_SETTINGS + "\" to v" + VERSION);
+					
+					//! New with v3
+					#ifdef EXPANSIONMODAI
+					AIGeneral = settingsDefault.AIGeneral;
+					AIPatrol = settingsDefault.AIPatrol;
+					AICrashPatrol = settingsDefault.AICrashPatrol;
+					#endif
+				}
+
+				
 
 				m_Version = VERSION;
 				save = true;
@@ -315,6 +333,12 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		#ifdef EXPANSIONMODCHAT
 		Chat = true;
+		#endif
+
+		#ifdef EXPANSIONMODAI
+		AIGeneral = true;
+		AIPatrol = true;
+		AICrashPatrol = true;
 		#endif
 		
 		#ifdef EXPANSIONMODMARKET

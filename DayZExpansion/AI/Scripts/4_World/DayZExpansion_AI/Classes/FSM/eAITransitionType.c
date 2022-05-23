@@ -52,19 +52,34 @@ class eAITransitionType
 
 		string from_state_name;
 		auto from_state = xml_root_tag.GetTag("from_state");
-		if (from_state.Count() > 0) from_state_name = from_state[0].GetAttribute("name").ValueAsString();
+		if (from_state.Count() > 0)
+		{
+			auto from_state_name_attr = from_state[0].GetAttribute("name");
+			if (from_state_name_attr)
+				from_state_name = from_state_name_attr.ValueAsString();
+		}
 		string from_state_class = "eAIState";
 		if (from_state_name != "") from_state_class = "eAI_" + fsmName + "_" + from_state_name + "_State_" + eAIFSMType.s_ReloadNumber;
 
 		string to_state_name;
 		auto to_state = xml_root_tag.GetTag("to_state");
-		if (to_state.Count() > 0) to_state_name = to_state[0].GetAttribute("name").ValueAsString();
+		if (to_state.Count() > 0)
+		{
+			auto to_state_name_attr = to_state[0].GetAttribute("name");
+			if (to_state_name_attr)
+				to_state_name = to_state_name_attr.ValueAsString();
+		}
 		string to_state_class = "eAIState";
 		if (to_state_name != "") to_state_class = "eAI_" + fsmName + "_" + to_state_name + "_State_" + eAIFSMType.s_ReloadNumber;
 
 		string event_name;
 		auto evt = xml_root_tag.GetTag("event");
-		if (evt.Count() > 0) event_name = evt[0].GetAttribute("name").ValueAsString();
+		if (evt.Count() > 0)
+		{
+			auto evt_name_attr = evt[0].GetAttribute("name");
+			if (evt_name_attr)
+				event_name = evt_name_attr.ValueAsString();
+		}
 		string event_class = "";
 		if (event_name != "") event_class = "eAI_" + event_name + "_Event";
 

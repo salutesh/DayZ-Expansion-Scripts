@@ -6,12 +6,20 @@ class ExpansionHumanLoadout
 
 	static void Init()
 	{
-		// If there are more than 0 directories we can assume the system is initialized
-		if (ExpansionPrefab.s_Directories.Count() != 0)
+		if (FileExist(EXPANSION_LOADOUT_FOLDER))
 			return;
 
-		ExpansionPrefab.s_Directories.Insert(EXPANSION_AI_LOADOUT_FOLDER);
+		//! Move previous loadouts to new location
+		string loadoutFolderAI = EXPANSION_FOLDER + "AI\\Loadouts\\";
+		if (FileExist(loadoutFolderAI))
+		{
+			if (ExpansionSettingBase.MoveSettings(loadoutFolderAI, EXPANSION_LOADOUT_FOLDER))
+				return;
+		}
 
+		MakeDirectory(EXPANSION_LOADOUT_FOLDER);
+
+		// Armed Loadouts
 		DefaultHumanLoadout();
 		DefaultPoliceLoadout();
 		DefaultFireFighterLoadout();
@@ -23,7 +31,270 @@ class ExpansionHumanLoadout
 		DefaulWestLoadout();
 		DefaultSurvivorLoadout();
 		DefaultBanditLoadout();
+
+		// unnarmed Loadouts
+		DefaultPlayerSurviorLoadout();
+		DefaultPlayerMaleSuitLoadout();
+		DefaultPlayerFemaleSuitLoadout();
+
+		//DefaultPlayerFemaleSurviorLoadout();
+
+		//DefaultPlayerUniversalMedicLoadout();
+		//DefaultPlayerMaleMedicLoadout();
+		//DefaultPlayerFemaleMedicLoadout();
+
+		//DefaultPlayerFireFighterLoadout();
+		//DefaultPlayerMecanicLoadout();
+		//DefaultPlayerFisherLoadout();
 	}
+
+	static void DefaultPlayerFemaleSuitLoadout()
+	{		
+		// Generate the default PlayerFemaleSuitLoadout.json file
+		auto loadout = ExpansionLoadout.Create("PlayerFemaleSuitLoadout");
+
+		if (!loadout || FileExist(loadout.GetPath()))
+			return;
+
+			loadout = loadout.BeginAttachment("WomanSuit_Blue", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("WomanSuit_Brown", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Brown", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("WomanSuit_DarkGrey", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("WomanSuit_Khaki", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Khaki", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("WomanSuit_LightGrey", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_LightGrey", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("WomanSuit_White", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_White", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+            
+			loadout = loadout.BeginAttachment("WomanSuit_Black", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("DressShoes_White", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Beige", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Black", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Brown", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Sunburst", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+
+	static void DefaultPlayerMaleSuitLoadout()
+	{		
+		// Generate the default PlayerMaleSuitLoadout.json file
+		auto loadout = ExpansionLoadout.Create("PlayerMaleSuitLoadout");
+
+		if (!loadout || FileExist(loadout.GetPath()))
+			return;
+
+			loadout = loadout.BeginAttachment("ManSuit_Blue", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("ManSuit_Brown", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Brown", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("ManSuit_DarkGrey", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("ManSuit_Khaki", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Khaki", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("ManSuit_LightGrey", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_LightGrey", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+			loadout = loadout.BeginAttachment("ManSuit_White", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_White", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+            
+			loadout = loadout.BeginAttachment("ManSuit_Black", "Body");
+                loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
+                loadout.SetHealth(0.7, 1.0);
+                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("DressShoes_White", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Beige", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Black", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Brown", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("DressShoes_Sunburst", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+	
+	static void DefaultPlayerSurviorLoadout()
+	{
+		// Generate the default PlayerSurvivorLoadout.json file
+		auto loadout = ExpansionLoadout.Create("PlayerSurvivorLoadout");
+
+		if (!loadout || FileExist(loadout.GetPath()))
+			return;
+
+			loadout = loadout.BeginAttachment("Hoodie_Black", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Hoodie_Blue", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Hoodie_Brown", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Hoodie_Green", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Hoodie_Grey", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Hoodie_Red", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Shirt_BlueCheck", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Shirt_BlueCheckBright", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Shirt_GreenCheck", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Shirt_PlaneBlack", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Shirt_RedCheck", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Shirt_WhiteCheck", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("Jeans_Black", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Jeans_Blue", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Jeans_BlueDark", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Jeans_Brown", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Jeans_Green", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("Jeans_Grey", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("AthleticShoes_Black", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("AthleticShoes_Blue", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("AthleticShoes_Brown", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("AthleticShoes_Green", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("AthleticShoes_Grey", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
+		loadout.Save();
+	}
+
 	static void DefaultBanditLoadout()
 	{
 		// Generate the default BanditLoadout.json file
@@ -2494,6 +2765,14 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginAttachment("StunBaton", "Melee");
+			loadout.SetHealth(0.7, 1.0);
+			loadout.Chance = 0.8;
+				loadout = loadout.BeginAttachment("Battery9V");
+				loadout.Chance = 0.8;
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
 			loadout = loadout.BeginAttachment("MP5K", "Hands");
 				loadout = loadout.BeginAttachment("Mag_MP5_30Rnd");
 				loadout.Chance = 0.8;
@@ -2674,7 +2953,7 @@ class ExpansionHumanLoadout
 		ExpansionLoadout loadout = ExpansionLoadout.Load(name, forceReload);
 		if (!loadout)
 		{
-			Print("[AI] ERROR !!! Unknwon loadout requested ("+file+")");
+			Print("ERROR !!! Unknwon loadout requested ("+file+")");
 			return false;
 		}
 

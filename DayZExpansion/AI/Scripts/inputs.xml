@@ -2,15 +2,26 @@
 <modded_inputs>
 	<inputs>
 		<actions>
-			<input name="eAICommandMenu" loc="eAI Command Menu"/>
-			<input name="eAITestInput" loc="eAI Test Input"/>
+			<input name="eAICommandMenu" loc="STR_EXPANSION_AI_COMMAND_MENU"/>
+			<input name="eAITestInput" visible="false" />
 
-			<input name="eAITestLRIncrease" visible="false"/>
-			<input name="eAITestLRDecrease" visible="false"/>
+			<input name="eAITestLRIncrease" visible="false" />
+			<input name="eAITestLRDecrease" visible="false" />
 
-			<input name="eAITestUDIncrease" visible="false"/>
-			<input name="eAITestUDDecrease" visible="false"/>
+			<input name="eAITestUDIncrease" visible="false" />
+			<input name="eAITestUDDecrease" visible="false" />
 		</actions>
+
+<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
+		<sorting name="expansion_ai" loc="STR_MOD_EXPANSION_NAME">
+			<input name="eAICommandMenu" />
+			<input name="eAITestInput" />
+			<input name="eAITestLRIncrease" />
+			<input name="eAITestLRDecrease" />
+			<input name="eAITestUDIncrease" />
+			<input name="eAITestUDDecrease" />
+		</sorting>
+-->
 	</inputs>
 	<preset>
 		<input name="eAICommandMenu">

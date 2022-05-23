@@ -42,6 +42,9 @@ class eAIPatrol : Managed
 		auto trace = CF_Trace_0(this, "~eAIPatrol");
 		#endif
 
+		if (!GetGame())
+			return;
+
 		int idx = m_AllPatrols.Find(this);
 		if (idx != -1) m_AllPatrols.RemoveOrdered(idx);
 

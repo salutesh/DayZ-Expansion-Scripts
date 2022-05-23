@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef DAYZ_1_17
 modded class AttachmentCategoriesContainer
 {
 	override void InitGhostSlots( EntityAI entity )
@@ -49,3 +50,4 @@ modded class AttachmentCategoriesContainer
 		}
 	}
 };
+#endif

@@ -197,13 +197,9 @@ class ExpansionAirdropPlane extends House
 
 		m_SpawnRadius = maxRadius;
 
-		//! Generate a random point within radius (uniformly)
-		float r = m_SpawnRadius * Math.Sqrt( Math.RandomFloat01() );
-		float theta = Math.RandomFloat01() * 2 * Math.PI;
-
 		m_AirdropName = name;
 
-		m_AirdropPosition = Vector( dropPosition[0] + r * Math.Cos( theta ), position[1], dropPosition[2] + r * Math.Sin( theta ) );
+		m_AirdropPosition = ExpansionMath.GetRandomPointInCircle( Vector( dropPosition[0], position[1], dropPosition[2] ), m_SpawnRadius );
 
 		SetDirection( position - m_AirdropPosition );
 

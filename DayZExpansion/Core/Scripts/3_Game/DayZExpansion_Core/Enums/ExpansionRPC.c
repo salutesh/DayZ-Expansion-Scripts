@@ -262,6 +262,7 @@ enum ExpansionSettingsRPC
 	AirDrop,
 	Chat,
 	AI,
+	AIPATROL,
 	NotificationScheduler,
 	COUNT
 };

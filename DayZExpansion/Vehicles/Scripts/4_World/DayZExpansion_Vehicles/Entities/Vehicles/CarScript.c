@@ -1563,18 +1563,14 @@ modded class CarScript
 
 	override bool OnBeforeEngineStart()
 	{
-#ifndef DAYZ_1_16
 		SetCarBatteryStateForVanilla(true);
-#endif
 
 		bool result;
 
 		if (super.OnBeforeEngineStart())
 			result = true;
 
-#ifdef DAYZ_1_16
 		SetCarBatteryStateForVanilla(false);
-#endif
 
 		if (!result)
 			return false;
@@ -1776,7 +1772,11 @@ modded class CarScript
 					LeakFluid(CarFluid.OIL);
 
 				if (fuelConsumption > 0.0)
+				{
 					Leak(CarFluid.FUEL, fuelConsumption);
+					if (GetFluidFraction(CarFluid.FUEL) <= 0)
+						Expansion_EngineStop();
+				}
 			}
 
 			if (IsMissionClient())
@@ -2844,7 +2844,6 @@ modded class CarScript
 		if (m_Exploded)
 			return false;
 
-#ifndef DAYZ_1_16
 		//! Vanilla does this check for us in OnBeforeEngineStart() if it's a car
 		if (!IsCar() && GetFluidFraction(CarFluid.FUEL) <= 0)
 		{
@@ -2920,7 +2919,6 @@ modded class CarScript
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SetEngineStarted, 1000, false, true);
 		}
 		#endif
-#endif
 
 		return true;
 	}

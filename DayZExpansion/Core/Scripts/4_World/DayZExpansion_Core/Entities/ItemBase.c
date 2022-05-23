@@ -34,10 +34,13 @@ modded class ItemBase
 	bool m_Expansion_CanPlayerAttachSet;
 
 	bool m_Expansion_IsAdminTool;
+	bool m_Expansion_IsMeleeWeapon;
 
 	void ItemBase()
 	{
 		m_Expansion_IsAdminTool = ConfigGetBool("expansionIsAdminTool");
+
+		Expansion_SetIsMeleeWeapon();
 
 		ExpansionSetupSkins();
 
@@ -250,6 +253,38 @@ modded class ItemBase
 	bool ExpansionIsLiquidItem()
 	{
 		return IsLiquidContainer() || IsKindOf("SodaCan_ColorBase");
+	}
+
+	void Expansion_SetIsMeleeWeapon()
+	{
+		if (IsWeapon())
+			return;
+
+		if (IsMeleeWeapon())
+		{
+			//! basically any item has isMeleeWeapon=1 in config, but we only want actual viable melee options
+			//! (axes, knifes, sickles...)
+			TStringArray inventorySlot();
+			ConfigGetTextArray("inventorySlot", inventorySlot);
+			if (inventorySlot.Find("Shoulder") == -1 && inventorySlot.Find("Melee") == -1 && inventorySlot.Find("Knife") == -1)
+			{
+				TStringArray itemInfo();
+				ConfigGetTextArray("itemInfo", itemInfo);
+				if (itemInfo.Find("Knife") == -1 && itemInfo.Find("Axe") == -1)
+				{
+					string suicideAnim = ConfigGetString("suicideAnim");
+					if (!suicideAnim || suicideAnim != "woodaxe")
+						return;
+				}
+			}
+		}
+
+		m_Expansion_IsMeleeWeapon = true;
+	}
+
+	bool Expansion_IsMeleeWeapon()
+	{
+		return m_Expansion_IsMeleeWeapon;
 	}
 
 	/*! ExpansionActionOn<...>

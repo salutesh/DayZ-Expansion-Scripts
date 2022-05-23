@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <modded_inputs>
-    <inputs>
-        <actions>
-            <input name="UAExpansionBookToggle" loc="STR_EXPANSION_TOGGLE_BOOK" />
-        </actions>
-		
+	<inputs>
+		<actions>
+			<input name="UAExpansionBookToggle" loc="STR_EXPANSION_TOGGLE_BOOK" />
+		</actions>
+
 		<exclude name="chatexpansion">
 			<input name="UAExpansionBookToggle" />
 		</exclude>
-    </inputs>
-    <preset>
-        <input name="UAExpansionBookToggle">
-            <btn name="kB" />
-        </input>
-    </preset>
+
+<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
+		<sorting name="expansion_book" loc="STR_MOD_EXPANSION_NAME">
+			<input name="UAExpansionBookToggle" />
+		</sorting>
+-->
+	</inputs>
+	<preset>
+		<input name="UAExpansionBookToggle">
+			<btn name="kB" />
+		</input>
+	</preset>
 </modded_inputs>

@@ -30,9 +30,8 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 		if (ai)
 		{
 			// the further away the creature, the less likely it will be a threat
-			float distance = GetDistance(ai);
-			if (distance)
-				levelFactor = 10 / distance;
+			float distance = GetDistance(ai) + 0.01;
+			levelFactor = 10 / distance;
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);

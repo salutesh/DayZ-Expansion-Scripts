@@ -19,6 +19,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	private bool m_HasCooldown = false;
 	private bool m_IsLocked = false;
 	private bool m_IsTerritory = false;
+	private bool m_IsHighlighted = false;
 	
 	private ButtonWidget spawn_entry;
 	private Widget background;
@@ -69,10 +70,12 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		if (m_RespawnModule)
 		{
 			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(m_IsTerritory);
-			foreach (ExpansionRespawnDelayTimer timer: m_RespawnModule.m_PlayerRespawnDelays)
+			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_RespawnModule.m_PlayerRespawnDelays.GetElement(0);
+			if (playerCooldowns)
 			{
-				if (timer.Index != m_Index)
-					continue;
+				ExpansionRespawnDelayTimer timer = playerCooldowns[m_Index];
+				if (!timer)
+					return;
 
 				if (timer.HasCooldown())
 				{
@@ -101,8 +104,6 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 				ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 				if (spawnSelectionMenu)
 					spawnSelectionMenu.UpdateMarkerCooldownState(m_Index);
-
-				break;
 			}
 		}
 	}
@@ -130,7 +131,10 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		icon_locked.Show(false);
 		cooldown_icon.Show(false);
 		cooldown.Show(false);
-		background.SetColor(ARGB(255,0,0,0));
+		if (!m_IsHighlighted)
+			background.SetColor(ARGB(255,0,0,0));
+		else
+			background.SetColor(ARGB(255,220,220,220));
 	}
 	
 	void OnEntryButtonClick()
@@ -198,6 +202,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	
 	void SetHighlight()
 	{
+		m_IsHighlighted = true;
 		background.SetColor(ARGB(255,220,220,220));
 		name.SetColor(ARGB(255,0,0,0));
 		icon.SetColor(ARGB(255,0,0,0));
@@ -205,6 +210,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	
 	void SetNormal()
 	{
+		m_IsHighlighted = false;
 		if (!m_HasCooldown)
 			background.SetColor(ARGB(255,0,0,0));
 		else

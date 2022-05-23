@@ -30,10 +30,9 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 		AddItem("Magnum", 					400,	800,	1,		100);
 		AddItem("Deagle", 					400,	800,	1,		100,	{"Mag_Deagle_9Rnd"}, {"Deagle_Gold"});
 		AddItem("Deagle_Gold", 				500,	1000,	1,		100,	{"Mag_Deagle_9Rnd"});
-	#ifdef DAYZ_1_17
 		AddItem("P1", 						250,	400,	1,		100,	{"Mag_P1_8Rnd"});
 		AddItem("Longhorn",					200,	400,	1,		100);
-	#endif
+
 	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Expansion_M9", 			175,	350,	1,		100,	{"Mag_Expansion_M9_15Rnd"});
 		//AddItem("Expansion_Longhorn",		200,	400,	1,		100);

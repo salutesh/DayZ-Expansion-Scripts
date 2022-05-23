@@ -15,10 +15,9 @@
  **/
 modded class MissionGameplay
 {
-	//!	Earplug check
-	protected bool m_WasEarplugToggled;
-	//! Client/Player Data
-	protected bool m_DataSent;
+	//! PlayerList check
+	protected bool m_Expansion_PlayerListTogglePressed;
+	
 	//! Modules
 	ref ExpansionAutorunModule m_AutoRunModule;
 	
@@ -28,7 +27,6 @@ modded class MissionGameplay
 	void MissionGameplay()
 	{
 		CF_Modules<ExpansionAutorunModule>.Get(m_AutoRunModule);
-		m_DataSent = false;
 	}
 
 	// ------------------------------------------------------------
@@ -65,8 +63,8 @@ modded class MissionGameplay
 		Input input = GetGame().GetInput(); 	//! Reference to input
 		UIScriptedMenu topMenu = m_UIManager.GetMenu(); 	//! Expansion reference to menu
 		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
+		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(viewMenu);
 		
 		if (playerPB && playerPB.GetHumanInventory()) 
 		{
@@ -94,12 +92,17 @@ modded class MissionGameplay
 					}
 					
 					//! Toggle Player list menu
-					if (input.LocalPress("UAExpansionPlayerListToggle", false))
+					if (input.LocalPress("UAExpansionPlayerListToggle", false) && !m_Expansion_PlayerListTogglePressed)
 					{
+						m_Expansion_PlayerListTogglePressed = true;
 						if ((playerListMenu || !topMenu) && !inputIsFocused)
 						{
 							OnPlayerListTogglePressed();
 						}
+					}
+					else if (input.LocalRelease("UAExpansionPlayerListToggle", false) || input.LocalValue("UAExpansionPlayerListToggle", false) == 0)
+					{
+						m_Expansion_PlayerListTogglePressed = false;
 					}
 				}
 
@@ -119,13 +122,6 @@ modded class MissionGameplay
 							m_AutoRunModule.AutoRun();
 						}
 					}
-				}
-						
-				//! Data
-				if (!m_DataSent) 
-				{
-					ExpansionPlayerData();
-					m_DataSent = true;
 				}
 			}
 			
@@ -225,31 +221,6 @@ modded class MissionGameplay
 		{
 			energy_percent = googles.GetBatteryEnergy();					
 			m_Hud.SetNVBatteryState(energy_percent);
-		}
-	}
-		
-	// ------------------------------------------------------------
-	// Expansion ExpansionPlayerData
-	// ------------------------------------------------------------
-	void ExpansionPlayerData()
-	{		
-		Man man = GetGame().GetPlayer();
-		PlayerBase player = PlayerBase.Cast(man);
-		
-		#ifdef JM_COT
-		//! Offline Check?!
-		if (!GetPermissionsManager().GetClientPlayer())
-		{
-			m_DataSent = true;
-			return;
-		}
-		#endif
-
-		string guid = "OFFLINE";
-
-		if (player.GetIdentity())
-		{
-			guid = player.GetIdentityUID();
 		}
 	}
 	

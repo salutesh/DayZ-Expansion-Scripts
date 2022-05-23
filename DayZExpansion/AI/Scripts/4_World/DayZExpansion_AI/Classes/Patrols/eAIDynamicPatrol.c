@@ -5,18 +5,20 @@ class eAIDynamicPatrol : eAIPatrol
 	vector m_Position;
 	autoptr array<vector> m_Waypoints;
 	eAIWaypointBehavior m_WaypointBehaviour;
-	float m_MinimumRadius;
-	float m_MaximumRadius;
-	float m_DespawnRadius; // m_MaximumRadius + 10%
+	float m_MinimumRadiusSq;
+	float m_MaximumRadiusSq;
+	float m_DespawnRadiusSq; // m_MaximumRadiusSq + 10%
 	float m_MovementSpeedLimit;
+	float m_MovementThreatSpeedLimit;
 	int m_NumberOfAI;
 	int m_RespawnTime;
 	string m_Loadout;
 	ref eAIFaction m_Faction;
 	bool m_CanBeLooted;
+	bool m_UnlimitedReload;
 
 	eAIGroup m_Group;
-	float m_LastSpawn;
+	float m_TimeSinceLastSpawn;
 	bool m_CanSpawn;
 	private bool m_WasGroupDestroyed;
 
@@ -36,7 +38,7 @@ class eAIDynamicPatrol : eAIPatrol
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, bool canBeLooted = true)
+	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -50,12 +52,14 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_NumberOfAI = count;
 		patrol.m_Loadout = loadout;
 		patrol.m_RespawnTime = respawnTime;
-		patrol.m_MinimumRadius = minR;
-		patrol.m_MaximumRadius = maxR;
-		patrol.m_DespawnRadius = maxR * 1.1;
+		patrol.m_MinimumRadiusSq = Math.SqrFloat(minR);
+		patrol.m_MaximumRadiusSq = Math.SqrFloat(maxR);
+		patrol.m_DespawnRadiusSq = Math.SqrFloat(maxR * 1.1);
 		patrol.m_MovementSpeedLimit = speedLimit;
+		patrol.m_MovementThreatSpeedLimit = threatspeedLimit;
 		patrol.m_Faction = faction;
 		patrol.m_CanBeLooted = canBeLooted;
+		patrol.m_UnlimitedReload = unlimitedReload;
 		patrol.m_CanSpawn = true;
 		if (patrol.m_Faction == null) patrol.m_Faction = new eAIFactionCivilian();
 		if (autoStart) patrol.Start();
@@ -78,16 +82,18 @@ class eAIDynamicPatrol : eAIPatrol
 
 		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
 				
-		ai.SetMovementSpeedLimit(m_MovementSpeedLimit);
+		ai.SetMovementSpeedLimit(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
 
 		return ai;
 	}
 
-	bool IsGroupDestroyed()
+	bool WasGroupDestroyed()
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "IsGroupDestroyed");
-		#endif
+		if (!m_Group)
+			return false;
+
+		if (m_WasGroupDestroyed)
+			return false;
 
 		for (int i = 0; i < m_Group.Count(); i++)
 		{
@@ -99,16 +105,8 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_WasGroupDestroyed = true;
+
 		return true;
-	}
-
-	bool WasGroupDestroyed()
-	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "WasGroupDestroyed");
-		#endif
-
-		return m_WasGroupDestroyed;
 	}
 
 	void Spawn()
@@ -119,13 +117,14 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (m_Group) return;
 
-		m_LastSpawn = 0;
+		m_TimeSinceLastSpawn = 0;
 		m_CanSpawn = false;
 		m_WasGroupDestroyed = false;
 
 		eAIBase ai = SpawnAI(m_Position);
+		ai.eAI_SetCanBeLooted(m_CanBeLooted);
+		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 		m_Group = ai.GetGroup();
-		m_Group.SetCanBeLooted(m_CanBeLooted);
 		m_Group.SetFaction(m_Faction);
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
 		foreach (vector v : m_Waypoints) m_Group.AddWaypoint(v);
@@ -134,6 +133,8 @@ class eAIDynamicPatrol : eAIPatrol
 		while (count != 0)
 		{
 			ai = SpawnAI(m_Position);
+			ai.eAI_SetCanBeLooted(m_CanBeLooted);
+			ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 			ai.SetGroup(m_Group);
 			count--;
 		}
@@ -149,10 +150,9 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (!m_Group) return;
 
-		m_Group.RemoveAllMembers();
+		m_Group.ClearAI();
 		m_Group = null;
-		m_LastSpawn = 0;
-		m_CanSpawn = false;
+		m_TimeSinceLastSpawn = 0;
 
 		if (m_NumberOfDynamicPatrols)
 			m_NumberOfDynamicPatrols--;
@@ -166,7 +166,6 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if ( WasGroupDestroyed() && m_RespawnTime == -1 )
 		{
-			Print("Group died and are not allowed to respawn");
 			return;
 		}
 
@@ -182,42 +181,34 @@ class eAIDynamicPatrol : eAIPatrol
 		
 		array<Man> players = {};
 		GetGame().GetPlayers(players);
-		float minimumDistance = 50000.0;
+		float minimumDistanceSq = float.MAX;
 		foreach (auto player : players)
 		{
-			float dist = vector.Distance(patrolPos, player.GetPosition());
-			if (dist < minimumDistance && leader != player) minimumDistance = dist;
+			float distSq = vector.DistanceSq(patrolPos, player.GetPosition());
+			if (distSq < minimumDistanceSq && leader != player) minimumDistanceSq = distSq;
 		}
 
 		if (m_Group)
 		{
-			if (IsGroupDestroyed() || minimumDistance > m_DespawnRadius)
+			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
+			m_CanSpawn = m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime;
+
+			if (minimumDistanceSq > m_DespawnRadiusSq && m_CanSpawn)
 			{
 				Despawn();
 			}
 		}
-		else
+		else if (m_CanSpawn)
 		{
-			if (m_CanSpawn)
+			int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
+			if (maxPatrols > -1 && m_NumberOfDynamicPatrols >= maxPatrols)
 			{
-				if (minimumDistance < m_MaximumRadius && minimumDistance > m_MinimumRadius)
-				{
-					Spawn();
-				}
+				return;
 			}
-			else
+
+			if (minimumDistanceSq < m_MaximumRadiusSq && minimumDistanceSq > m_MinimumRadiusSq)
 			{
-				m_LastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
-
-				bool timeCheck = m_LastSpawn > m_RespawnTime;
-				int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
-				bool countCheck = maxPatrols == -1 || m_NumberOfDynamicPatrols < maxPatrols;
-
-				if (timeCheck && countCheck)
-				{
-					m_LastSpawn = 0;
-					m_CanSpawn = true;
-				}
+				Spawn();
 			}
 		}
 	}
@@ -227,9 +218,9 @@ class eAIDynamicPatrol : eAIPatrol
 		super.Debug();
 		
 		Print(m_Group);
-		Print(m_LastSpawn);
+		Print(m_TimeSinceLastSpawn);
 		Print(m_CanSpawn);
 		Print(m_NumberOfAI);
-		Print(IsGroupDestroyed());
+		Print(WasGroupDestroyed());
 	}
 };

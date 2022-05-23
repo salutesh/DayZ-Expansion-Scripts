@@ -1,16 +1,3 @@
-enum eAIWaypointBehavior
-{
-	HALT,
-	LOOP,
-	REVERSE
-};
-
-enum eAIGroupFormationState
-{
-	NONE,
-	IN
-};
-
 // TODO: sync to the client automatically within DayZPlayerImplement
 //  only data that needs to be known is just the id, members and faction
 class eAIGroup
@@ -39,8 +26,6 @@ class eAIGroup
 	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.REVERSE;
 
 	private eAIGroupFormationState m_FormationState = eAIGroupFormationState.IN;
-
-	private bool m_CanBeLooted = true;
 
 	// return the group owned by leader, otherwise create a new one.
 	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true)
@@ -113,9 +98,9 @@ class eAIGroup
 		m_TargetInformation = new eAIGroupTargetInformation(this);
 		m_Targets = new array<eAITargetInformation>();
 
-		m_Form = new eAIFormationVee(this);
-
 		m_Members = new array<DayZPlayerImplement>();
+
+		m_Form = new eAIFormationVee(this);
 
 		m_Waypoints = new array<vector>();
 
@@ -498,20 +483,6 @@ class eAIGroup
 		return true;
 	}
 
-	void RemoveAllMembers(bool autoDelete = true)
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "RemoveAllMembers").Add(autoDelete);
-#endif
-
-		m_Members.Clear();
-
-		if (autoDelete)
-		{
-			Delete();
-		}
-	}
-
 	DayZPlayerImplement GetMember(int i)
 	{
 #ifdef EAI_TRACE
@@ -539,35 +510,31 @@ class eAIGroup
 		return m_Members.Count();
 	}
 
-	static void DeleteAllAI()
+	//! Clears ALL AI from the server
+	static void Admin_ClearAllAI()
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_0("eAIGroup", "DeleteAllAI");
+		auto trace = CF_Trace_0("eAIGroup", "Admin_ClearAllAI");
 #endif
 
-		eAIBase ai;
 		foreach (eAIGroup group : s_AllGroups)
 		{
-			for (int i = group.Count() - 1; i > -1; i--)
-			{
-				if (!Class.CastTo(ai, group.GetMember(i)) || ai.GetType().Contains("ExpansionTraderAI"))
-				{
-					continue;
-				}
-
-				group.RemoveMember(i);
-				GetGame().ObjectDelete(ai);
-			}
+			group.ClearAI();
 		}
 	}
 
-	void SetCanBeLooted(bool canBeLooted)
+	void ClearAI(bool autodelete = true)
 	{
-		m_CanBeLooted = canBeLooted;
-	}
+		eAIBase ai;
+		for (int i = Count() - 1; i > -1; i--)
+		{
+			if (!Class.CastTo(ai, GetMember(i)) || ai.GetType().IndexOf("ExpansionTraderAI") == 0)
+			{
+				continue;
+			}
 
-	bool CanBeLooted()
-	{
-		return m_CanBeLooted;
+			RemoveMember(i, autodelete);
+			GetGame().ObjectDelete(ai);
+		}
 	}
 };

@@ -53,9 +53,10 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 
 		if ( carScript )
 		{
-			float lockComplexity = 1.0;
-			lockComplexity = carScript.Expansion_LockComplexity();
-			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent / lockComplexity;
+			float lockComplexity = carScript.Expansion_LockComplexity();
+			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent;
+			if (lockComplexity)
+				pickLockChancePercent /= lockComplexity;
 
 			#ifdef EXPANSIONMODVEHICLE
 			if ( GetExpansionSettings().GetLog().VehicleLockPicking )

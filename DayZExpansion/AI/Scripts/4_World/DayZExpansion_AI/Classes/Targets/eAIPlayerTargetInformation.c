@@ -26,9 +26,28 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai);
-			if (distance)
-				levelFactor = 10 / distance;
+			float distance = GetDistance(ai) + 0.0001;
+
+			//! Enemy weapon
+			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
+
+			//! Guards are friendly to everyone until the other player raises their weapon
+			if (ai.GetGroup() && ai.GetGroup().GetFaction().IsGuard() && !m_Player.IsRaised())
+			{
+				if (!enemyHands)
+					levelFactor = 0.15;  //! They eyeball you menacingly
+				else if (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon())
+					levelFactor = 0.2;  //! They aim at you
+				else
+					return 0.15;
+
+				if (distance > 30)
+					levelFactor *= (30 / distance);
+
+				return levelFactor;
+			}
+
+			levelFactor = 10 / distance;
 
 			if (distance > 30)
 			{
@@ -39,8 +58,6 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 					return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
 			}
 
-			//! Enemy weapon
-			auto enemyHands = m_Player.GetHumanInventory().GetEntityInHands();
 			if (enemyHands)
 			{
 				AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor);
@@ -101,7 +118,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 		{
 			levelFactor *= 3.0;  //! If both AI and target have a 7.62x39 mm rifle, threat level 0.4 at 225 m
 		}
-		else if (weapon.IsInherited(Pistol_Base))
+		else if (weapon.IsKindOf("Pistol_Base"))
 		{
 			levelFactor *= 2.0;  //! If both AI and target have a 19x9 mm pistol, threat level 0.4 at 36 m
 		}
@@ -142,10 +159,10 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			return "0 0.8 0";
 		}
 
-		// if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
-		//{
-		//	return "0 0.1 0";
-		// }
+		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
+		{
+			return "0 0.1 0";
+		}
 
 		return "0 0 0";
 	}

@@ -12,16 +12,14 @@
 
 class ExpansionRespawnDelayTimer
 {
-	string PlayerUID;
 	int Index;
 	int Timestamp;
 	int Now;
 	int Punishment;
 	bool IsTerritory;
 	
-	void ExpansionRespawnDelayTimer(string playerUID, int index, bool isTerritory = false)
+	void ExpansionRespawnDelayTimer(int index, bool isTerritory = false)
 	{
-		PlayerUID = playerUID;
 		Index = index;
 		IsTerritory = isTerritory;
 		

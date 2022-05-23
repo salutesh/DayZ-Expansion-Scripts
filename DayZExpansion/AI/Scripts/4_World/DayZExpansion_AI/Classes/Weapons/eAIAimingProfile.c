@@ -68,6 +68,7 @@ class eAIAimingProfile
 		// m_Player.GetStatStamina().Get();
 		// m_Player.GetHealth("","");
 		// m_Player.GetStatHeatComfort().Get(); <= freezing ?
+		// m_Player.GetAimingModel().GetSwayWeight();
 		float accuracy = Math.RandomFloat(m_Accuracy_Min, m_Accuracy_Max);
 
 		//! Lerp to adjust accuracy

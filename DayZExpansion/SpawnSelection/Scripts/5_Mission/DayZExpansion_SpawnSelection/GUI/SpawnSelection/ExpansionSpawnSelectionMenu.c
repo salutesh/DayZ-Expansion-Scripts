@@ -175,9 +175,14 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		{
 			GetGame().GetInput().ResetGameFocus();
 			PPEffects.SetBlurMenu(0.0);
-			m_Mission.GetHud().ShowHud(true);
-			m_Mission.GetHud().ShowQuickBar(true);
 			Clear();
+
+			IngameHud hud = IngameHud.Cast(m_Mission.GetHud());
+			if (!hud || !hud.GetHudPanelWidget())
+				return;
+
+			hud.ShowHud(true);
+			hud.ShowQuickBar(true);
 		}
 	}
 	
@@ -262,7 +267,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	
 	override float GetUpdateTickRate()
 	{
-		return 0.01;
+		return 0.1;
 	}
 	
 	override void Update() 
@@ -271,6 +276,9 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		{
 			m_MapMarkers[i].Update(0.3);
 		}
+
+		if (IsVisible())
+			LockControls();
 	}
 	
 	ButtonWidget GetConfirmButton()

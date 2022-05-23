@@ -12,23 +12,12 @@
 
 class ActionInviteToGroup: ActionInteractBase
 {
-#ifdef DAYZ_1_16
-	string m_Text;
-#endif
-
 	void ActionInviteToGroup()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_CROUCH;
 		m_Text = "#STR_EXPANSION_PARTY_INVITE_PLAYER";
 	}
-	
-#ifdef DAYZ_1_16
-	override string GetText()
-	{
-		return m_Text;
-	}
-#endif
 
 	override void CreateConditionComponents()  
 	{

@@ -66,7 +66,7 @@ class eAICommandMenu extends UIScriptedMenu
 	protected bool m_IsMenuClosing;
 
 	//instance
-	static eAICommandMenu instance;
+	static ref eAICommandMenu instance;
 
 	//============================================
 	// eAICommandMenu
@@ -74,21 +74,24 @@ class eAICommandMenu extends UIScriptedMenu
 	void eAICommandMenu()
 	{
 		m_GestureItems = new array < ref eAICommandMenuItem > ;
-
-		if (!instance)
-		{
-			instance = this;
-		}
 	}
 
 	void ~eAICommandMenu() {}
+
+	static void OpenMenu()
+	{
+		if (!instance)
+			instance = new eAICommandMenu();
+
+		GetGame().GetUIManager().ShowScriptedMenu(instance, null);
+	}
 
 	//============================================
 	// Init &Widget Events
 	//============================================
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("gui/layouts/radial_menu/radial_gestures/day_z_gestures.layout");
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/menu.layout");
 		m_GestureItemCardPanel = layoutRoot.FindAnyWidget(RadialMenu.RADIAL_ITEM_CARD_CONTAINER);
 
 		//register gestures menu
@@ -98,7 +101,7 @@ class eAICommandMenu extends UIScriptedMenu
 		RadialMenu.GetInstance().SetWidgetInitialized(false);
 
 		//set radial menu properties
-		RadialMenu.GetInstance().SetWidgetProperties("gui/layouts/radial_menu/radial_gestures/day_z_gesture_delimiter.layout");
+		RadialMenu.GetInstance().SetWidgetProperties("DayZExpansion/AI/GUI/layouts/radial_menu/delimiter.layout");
 
 		//create content (widgets) for items
 		RefreshGestures();
@@ -247,6 +250,7 @@ class eAICommandMenu extends UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNWOLF, "Spawn Wolf", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNZOM, "Spawn Zombie", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Spawn Hostile AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNGUARD, "Spawn Guard AI", eAICommandCategories.CAT_DEBUG));
 			if (IsMissionOffline())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_TARGET_CREATE, "Create Debug Apple", eAICommandCategories.CAT_DEBUG));
@@ -272,7 +276,7 @@ class eAICommandMenu extends UIScriptedMenu
 			eAICommandMenuItem gesture_item = m_GestureItems.Get(i);
 
 			//create item card
-			Widget gesture_item_card_widget = Widget.Cast(GetGame().GetWorkspace().CreateWidgets("gui/layouts/radial_menu/radial_gestures/day_z_gesture_item_card.layout", m_GestureItemCardPanel));
+			Widget gesture_item_card_widget = Widget.Cast(GetGame().GetWorkspace().CreateWidgets("DayZExpansion/AI/GUI/layouts/radial_menu/item_card.layout", m_GestureItemCardPanel));
 			gesture_item.SetRadialItemCard(gesture_item_card_widget);
 
 			//update item card widget

@@ -17,7 +17,7 @@ modded class ItemBase
 		auto trace = CF_Trace_0(this, "CreateTargetInformation");
 #endif
 
-		return new eAIEntityTargetInformation(this);
+		return new eAIItemTargetInformation(this);
 	}
 
 	eAITargetInformation GetTargetInformation()
@@ -27,6 +27,16 @@ modded class ItemBase
 #endif
 
 		return m_TargetInformation;
+	}
+
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		//! Ignore hit from bullet we create in WeaponBase::EEFired for bullet impact effect to prevent NULL pointers
+		//! due to source not being set when trying to determine damage animation
+		if (damageType == DT_FIRE_ARM && !source)
+			return false;
+
+		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
 	override void EEKilled(Object killer)
@@ -51,36 +61,9 @@ modded class ItemBase
 		if (!Class.CastTo(ai, newParentMan))
 			return;
 
-		if (IsWeapon())
-		{
-			ai.m_Weapons.Insert(this);
-			return;
-		}
+		EXTrace.Print(EXTrace.AI, this, "::EEInventoryIn - " + newParentMan);
 
-		if (IsMeleeWeapon())
-		{
-			//! basically any item has isMeleeWeapon=1 in config, but we only want actual viable melee options
-			//! (axes, knifes, sickles...)
-			TStringArray inventorySlot();
-			ConfigGetTextArray("inventorySlot", inventorySlot);
-			if (inventorySlot.Find("Shoulder") == -1 && inventorySlot.Find("Melee") == -1 && inventorySlot.Find("Knife") == -1)
-			{
-				if (ConfigGetString("animClass") != "Knife")
-				{
-					TStringArray itemInfo();
-					ConfigGetTextArray("itemInfo", itemInfo);
-					if (itemInfo.Find("Knife") == -1)
-					{
-						string suicideAnim = ConfigGetString("suicideAnim");
-						if (!suicideAnim || suicideAnim != "woodaxe")
-							return;
-					}
-				}
-			}
-
-			ai.m_MeleeWeapons.Insert(this);
-			return;
-		}
+		ai.eAI_AddItem(this);
 	}
 
 	override void EEInventoryOut(Man oldParentMan, EntityAI diz, EntityAI newParent)
@@ -91,16 +74,8 @@ modded class ItemBase
 		if (!Class.CastTo(ai, oldParentMan))
 			return;
 
-		if (IsWeapon())
-		{
-			ai.m_Weapons.RemoveItem(this);
-			return;
-		}
+		EXTrace.Print(EXTrace.AI, this, "::EEInventoryOut - " + oldParentMan);
 
-		if (IsMeleeWeapon())
-		{
-			ai.m_MeleeWeapons.RemoveItem(this);
-			return;
-		}
+		ai.eAI_RemoveItem(this);
 	}
 };

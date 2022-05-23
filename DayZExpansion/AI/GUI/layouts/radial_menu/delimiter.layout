@@ -1,0 +1,33 @@
+PanelWidgetClass RadialDelimiter {
+ clipchildren 0
+ color 1 1 1 0.1725
+ position 0 0
+ size 3 512
+ halign center_ref
+ valign center_ref
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ {
+  ImageWidgetClass DelimiterImage {
+   clipchildren 0
+   color 1 1 1 0.1804
+   position 0 -1
+   rotation 0 0 90
+   size 250 3
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   image0 "set:dayz_gui image:radial_delimiter"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   "flip u" 1
+   "flip v" 0
+  }
+ }
+}

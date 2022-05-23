@@ -197,20 +197,45 @@ class ExpansionPrefabObject : Managed
 			}
 
 			ItemBase item;
+			Magazine mag;
 			if (Class.CastTo(item, entity))
 			{
 				if (item.HasQuantity())
 				{
 					float quantity = Quantity.GetRandom();
 
-					if (quantity == 0 || quantity < item.GetQuantityMin())
+					float quantityMin;
+					float quantityMax;
+					if (Class.CastTo(mag, entity))
 					{
-						quantity = item.GetQuantityInit();
+						quantityMax = mag.GetAmmoMax();
+						if (mag.IsAmmoPile())
+							quantityMin = 1.0 / quantityMax;  //! Make sure ammo pile has at least one bullet
+					}
+					else
+					{
+						quantityMin = item.GetQuantityMin();
+						quantityMax = item.GetQuantityMax();
+					}
+
+					if (quantity == 0 || quantity < quantityMin)
+					{
+						if (mag)
+							quantity = 1.0;
+						else
+							quantity = item.GetQuantityInit();
 					}
 
 					if (quantity > 0)
 					{
-						item.SetQuantity(quantity);
+						if (mag)
+						{
+							mag.ServerSetAmmoCount(quantityMax * quantity);
+						}
+						else
+						{
+							item.SetQuantity(quantityMax * quantity);
+						}
 					}
 				}
 			}

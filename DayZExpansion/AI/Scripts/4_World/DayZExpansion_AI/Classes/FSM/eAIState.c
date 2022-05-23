@@ -34,8 +34,6 @@ class eAIState
 			instance.DecrementTab();
 		}
 
-		instance.Add("ExitGuard", ExitGuard(""));
-
 		return false;
 	}
 	#endif
@@ -56,13 +54,13 @@ class eAIState
 
 	}
 
-	bool ExitGuard(string Event)
-	{
-		return true;
-	}
-
 	int OnUpdate(float DeltaTime, int SimulationPrecision)
 	{
 		return CONTINUE;
+	}
+
+	int ExitGuard(float DeltaTime = 0)
+	{
+		return EXIT;
 	}
 };

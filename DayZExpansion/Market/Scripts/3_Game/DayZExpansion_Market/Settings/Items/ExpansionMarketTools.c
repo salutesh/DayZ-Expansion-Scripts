@@ -42,9 +42,8 @@ class ExpansionMarketTools: ExpansionMarketCategory
 		AddItem("FarmingHoe", 					12,	 	24,		1,		100);
 		AddItem("WoodAxe", 						20,	 	40,		1,		100);
 		AddItem("FirefighterAxe", 				30,	 	60,		1,		100);
-		#ifdef DAYZ_1_17
 		AddItem("Pitchfork", 					30,	 	60,		1,		100);
-		#endif
+
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionPropaneTorch", 		250,	500,	1,		100);
 		AddItem("ExpansionBoltCutters", 			200,	450,	1,		100);

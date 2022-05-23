@@ -176,13 +176,6 @@ class eAIFSM
 		eAIState src = m_CurrentState;
 		eAIState dst = new_state.param1;
 
-		if (dst == null)
-		{
-			CF_Log.Warn("No valid state found. Aborting.");
-
-			return false;
-		}
-
 		if (m_Running && m_CurrentState && m_CurrentState != dst)
 		{
 			CF_Log.Debug("Exiting state: " + m_CurrentState);
@@ -275,7 +268,7 @@ class eAIFSM
 
 		eAIState curr_state = s;
 
-		if (curr_state && curr_state.ExitGuard(e))
+		if (curr_state)
 		{
 			int count = m_Transitions.Count();
 			for (int i = 0; i < count; ++i)
@@ -302,13 +295,8 @@ class eAIFSM
 		return new Param2<eAIState, bool>(null, false);
 	}
 
-	bool ExitGuard(string e)
+	int ExitGuard(float DeltaTime = 0)
 	{
-		if (!m_CurrentState)
-		{
-			return true;
-		}
-
-		return m_CurrentState.ExitGuard(e);
+		return EXIT;
 	}
 };

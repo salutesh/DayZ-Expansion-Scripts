@@ -81,14 +81,14 @@ static const string EXPANSION_FOLDER = "$profile:ExpansionMod\\";
 static const string EXPANSION_MISSION_FOLDER = "$mission:expansion\\";
 
 static const string EXPANSION_SETTINGS_FOLDER = EXPANSION_FOLDER + "Settings\\";
+static const string EXPANSION_LOADOUT_FOLDER = EXPANSION_FOLDER + "Loadouts\\";
+static const string EXPANSION_GROUPS_FOLDER = EXPANSION_FOLDER + "Groups\\";
+static const string EXPANSION_LOG_FOLDER = EXPANSION_FOLDER + "Logs\\";
 static const string EXPANSION_AI_FOLDER = EXPANSION_FOLDER + "AI\\";
-static const string EXPANSION_AI_LOADOUT_FOLDER = EXPANSION_AI_FOLDER + "Loadouts\\";
 static const string EXPANSION_AI_PATROLS_FOLDER = EXPANSION_AI_FOLDER + "Patrols\\";
 static const string EXPANSION_AI_UTILS_FOLDER = EXPANSION_AI_FOLDER + "Utils\\";
 static const string EXPANSION_MISSION_SETTINGS_FOLDER = EXPANSION_MISSION_FOLDER + "settings\\";
-static const string EXPANSION_LOG_FOLDER = EXPANSION_FOLDER + "Logs\\";
 static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_MISSION_FOLDER + "missions\\";
-static const string EXPANSION_GROUPS_FOLDER = EXPANSION_FOLDER + "Groups\\";
 
 static const string EXPANSION_MAPPING_FOLDER = "DayZExpansion/Scripts/Data/Mapping/";
 static const string EXPANSION_MAPPING_EXT = ".map";
@@ -97,6 +97,7 @@ static const string EXPANSION_GENERAL_SETTINGS = EXPANSION_SETTINGS_FOLDER + "Ge
 static const string EXPANSION_BASE_BUILDING_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "BaseBuildingSettings.json";
 static const string EXPANSION_AIRDROP_SETTINGS = EXPANSION_SETTINGS_FOLDER + "AirdropSettings.json";
 static const string EXPANSION_AI_SETTINGS = EXPANSION_SETTINGS_FOLDER + "AISettings.json";
+static const string EXPANSION_AIPATROL_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "AIPatrolSettings.json";
 static const string EXPANSION_MAP_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "MapSettings.json";
 static const string EXPANSION_PARTY_SETTINGS = EXPANSION_SETTINGS_FOLDER + "PartySettings.json";
 static const string EXPANSION_SAFE_ZONES_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "SafeZoneSettings.json";

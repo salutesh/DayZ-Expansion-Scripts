@@ -351,4 +351,115 @@ class ExpansionItemSpawnHelper
 	protected static void ISHDebugPrint(string text)
 	{
 	}
+
+	//! Better version of InventoryLocation.DumpToString (includes slot name instead of ID)
+	static string DumpLocationToString(InventoryLocation loc)
+	{
+		string res = "{ type=" + typename.EnumToString(InventoryLocationType, loc.GetType());
+
+		res += " item=" + Object.GetDebugName(loc.GetItem());
+
+		if (loc.GetParent())
+			res += " parent=" + Object.GetDebugName(loc.GetParent());
+
+		switch (loc.GetType())
+		{
+			case InventoryLocationType.GROUND:
+				vector pos = loc.GetPos();
+				float dir[4];
+				loc.GetDir( dir );
+				res += " pos=(" + pos[0] + ", " + pos[1] + ", " + pos[2] + ")";
+				res += " dir=(" + dir[0] + ", " + dir[1] + ", " + dir[2] + ", " + dir[3] + ")";
+				break;
+			case InventoryLocationType.ATTACHMENT:
+				res += " slot=" + InventorySlots.GetSlotName(loc.GetSlot());
+				break;
+			case InventoryLocationType.CARGO:
+			case InventoryLocationType.PROXYCARGO:
+				res += " idx=" + loc.GetIdx() + " row=" + loc.GetRow() + " col=" + loc.GetCol() + " f=" + loc.GetFlip();
+				break;
+		}
+
+		res += " }";
+
+		return res;
+	}
+
+	//! https://pastebin.com/FFuaPFiT, except without bugs :P
+	static EntityAI Clone(EntityAI src, bool recursively = true, InventoryLocation location = null)
+	{
+		int idx;
+
+		EntityAI dst;
+		switch (location.GetType())
+		{
+			case InventoryLocationType.GROUND:
+				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
+				break;
+			case InventoryLocationType.ATTACHMENT:
+			case InventoryLocationType.HANDS:
+				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
+				break;
+			case InventoryLocationType.CARGO:
+			case InventoryLocationType.PROXYCARGO:
+				dst = location.GetParent().GetInventory().CreateEntityInCargoEx(src.GetType(), location.GetIdx(), location.GetRow(), location.GetCol(), location.GetFlip());  //! Only way to get flip correct
+				break;
+			default:
+				EXPrint("ExpansionItemSpawnHelper::Clone - unknown location type " + location.GetType());
+				return null;
+		}
+
+		if (!dst)
+		{
+			EXPrint("ExpansionItemSpawnHelper::Clone - failed to create " + src.GetType() + " at location " + DumpLocationToString(location));
+			return null;
+		}
+
+		EXPrint("ExpansionItemSpawnHelper::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
+
+		ScriptReadWriteContext ctx = new ScriptReadWriteContext;
+		src.OnStoreSave(ctx.GetWriteContext());
+		dst.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
+
+		TStringArray dmgZones();
+		src.GetDamageZones(dmgZones);
+
+		dst.SetHealth(src.GetHealth());
+		foreach (string dmgZone: dmgZones)
+		{
+			dst.SetHealth(dmgZone, "Health", src.GetHealth(dmgZone, "Health"));
+		}
+
+		dst.AfterStoreLoad();
+
+		if (recursively)
+		{
+			EntityAI cSrc;
+			InventoryLocation cLocation();
+			for (idx = 0; idx < src.GetInventory().AttachmentCount(); idx++)
+			{
+				cSrc = src.GetInventory().GetAttachmentFromIndex(idx);
+				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+                cLocation.SetParent(dst);
+				Clone(cSrc, recursively, cLocation);
+			}
+
+			if (src.GetInventory().GetCargo())
+			{
+				for (idx = 0; idx < src.GetInventory().GetCargo().GetItemCount(); idx++)
+				{
+					cSrc = src.GetInventory().GetCargo().GetItem(idx);
+					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+					cLocation.SetParent(dst);
+					Clone(cSrc, recursively, cLocation);
+				}
+			}
+		}
+
+		dst.EEOnAfterLoad();
+
+		dst.SetSynchDirty();
+
+		return dst;
+	}
 }

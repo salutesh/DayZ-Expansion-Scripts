@@ -1,125 +1,118 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <fsm name="Master">
 	<files>
-		<file name="Vehicles"/>
-		<file name="Fighting"/>
-		<file name="Reloading"/>
+		<file name="Vehicles" />
+		<file name="Fighting" />
+		<file name="Reloading" />
 	</files>
+	<variables>
+		<variable name="InitTime" type="int" />
+	</variables>
 	<states default="Idle">
 		<state name="Idle">
-			<variables>
-				<variable name="time" type="float" />
-				<variable name="timeLower" type="float" />
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="544" y="329" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				time = 0;
-				if (unit.IsRaised())
-					timeLower = Math.RandomFloat(0.5, 1.5);
-
+				if (!fsm.InitTime)
+					fsm.InitTime = GetGame().GetTime();
+				
 				if (!unit.GetTarget())
 				{
 					if (unit.GetLookDirectionRecalculate())
-						unit.LookAtDirection(&quot;0 0 1&quot;);
-
+						unit.LookAtDirection("0 0 1");
+				
 					if (unit.GetAimDirectionRecalculate())
-						unit.AimAtDirection(&quot;0 0 1&quot;);
+						unit.AimAtDirection("0 0 1");
 				}
-
+				
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(true, 0);
 				unit.Expansion_GetUp();
 			</event_entry>
-			<event_exit></event_exit>
+			<event_exit />
 			<event_update>
-				if (!unit.GetTarget())
-				{
-					time += DeltaTime;
-
-					if (unit.IsRaised() &amp;&amp; time &lt; timeLower)
-						return CONTINUE;
-
-					unit.RaiseWeapon(false);
-				}
-				else if (!unit.CanRaiseWeapon())
-				{
-					unit.RaiseWeapon(false);
-				}
-
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Unconscious">
 			<variables>
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="930.521210954633" y="249.063165761721" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
 				time = 0;
 				unit.OverrideTargetPosition(unit.GetPosition());
 			</event_entry>
-			<guard_exit>
-				return !unit.IsUnconscious() && time > 3;
-			</guard_exit>
+			<event_exit />
 			<event_update>
+				if (time &gt; 3)
+				{
+					return EXIT;
+				}
+				
 				if (!unit.IsUnconscious())
+				{
 					time += DeltaTime;  //! Allow time to stand up so we don't instantly start firing
-                return EXIT;
-            </event_update>
+				}
+				
+				return CONTINUE;
+			</event_update>
 		</state>
 		<state name="Trading">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="686.45281251958" y="165.742104279785" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
 				unit.OverrideTargetPosition(unit.GetPosition());
 			</event_entry>
-			<guard_exit>
-				return !(unit.IsTrading());
-			</guard_exit>
+			<event_exit />
 			<event_update>
-                return EXIT;
-            </event_update>
+				if (unit.IsTrading())
+				{
+					return CONTINUE;
+				}
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="FollowFormation">
 			<variables>
 				<variable name="group" type="eAIGroup" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="624.106428737142" y="513.955335435811" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
+				unit.Expansion_GetUp();
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				unit.OverrideTargetPosition(group.GetFormationPosition(unit));
+				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
-
-                return EXIT;
-            </event_update>
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="TraversingWaypoints">
 			<variables>
-				<variable name="path" type="ref array<vector>" />
+				<variable name="path" type="ref TVectorArray" />
 				<variable name="behaviour" type="eAIWaypointBehavior" />
 				<variable name="backtracking" type="bool" />
 				<variable name="index" type="int" />
-				<variable name="threshold" type="float" default="1.0"/>
+				<variable name="threshold" type="float" default="1.0" />
 				<variable name="previousDistance" type="float" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="460.36310970946" y="516.905251357419" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -129,8 +122,9 @@
 					path = { unit.GetPosition() };
 				}
 				behaviour = unit.GetGroup().GetWaypointBehaviour();
+				unit.Expansion_GetUp();
 			</event_entry>
-			<event_exit></event_exit>
+			<event_exit />
 			<event_update>
 				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
 				if (distance &lt; threshold)
@@ -145,9 +139,9 @@
 					//! Increase threshold until we are within distance.
 					threshold += 0.01;
 				}
-
+				
 				previousDistance = distance;
-
+				
 				if (index &lt; 0) 
 				{
 					if (behaviour == eAIWaypointBehavior.REVERSE)
@@ -169,28 +163,30 @@
 						index = 0;
 					}
 				}
-
+				
 				index = Math.Clamp(index, 0, path.Count() - 1);
-
+				
 				unit.OverrideTargetPosition(path[index]);
+				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
-
-                return EXIT;
-            </event_update>
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Vehicles" fsm="Vehicles">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="935.309194546504" y="363.138198458873" />
 				<size width="150" height="40" />
 			</editor_data>
+			<event_entry />
+			<event_exit />
+			<event_update />
 		</state>
 		<state name="Fighting" fsm="Fighting">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="354.686600687191" y="195.817136976937" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -200,14 +196,13 @@
 				unit.StopAimArbitration();
 			</event_exit>
 			<event_update>
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Weapon_Reloading" fsm="Reloading">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="249.537936881654" y="358.835451333598" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -216,301 +211,549 @@
 			<event_exit>
 				unit.StopAimArbitration();
 			</event_exit>
+			<event_update />
 		</state>
 		<state name="Weapon_Unjamming">
 			<variables>
 				<variable name="weapon" type="Weapon_Base" />
+				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="333" y="374" />
+				<position x="250.478975886238" y="278.453840426607" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
+				time = 0;
 				unit.RaiseWeapon(true);
-
+				
 				unit.StartActionObject(eAIActionWeaponUnjam, null);
 			</event_entry>
 			<event_exit>
 				unit.RaiseWeapon(false);
+				unit.OverrideMovementDirection(false, 0);
 			</event_exit>
 			<event_update>
 				if (!unit.GetWeaponManager()) return EXIT;
-
-				if (unit.GetWeaponManager().IsRunning()) return CONTINUE;
-
-                return EXIT;
-            </event_update>
+				
+				if (unit.GetWeaponManager().IsRunning())
+				{
+					time += DeltaTime;
+					if (time &gt; 10)  //! Looks like something went terribly wrong
+					{
+						EXTrace.Print(true, unit, "Weapon_Unjamming - timeout");
+						unit.eAI_Unbug("unjam");
+						return EXIT;
+					}
+					
+					auto target = unit.GetTarget();
+					if (target &amp;&amp; target.GetDistanceSq(unit) &lt;= 2.25)
+					{
+						unit.OverrideMovementDirection(true, -180);
+					}
+				
+					return CONTINUE;
+				}
+				
+				return EXIT;
+			</event_update>
+		</state>
+		<state name="TakeItemToHands">
+			<variables>
+				<variable name="item" type="ItemBase" />
+				<variable name="time" type="float" />
+			</variables>
+			<editor_data>
+				<position x="243.253877794781" y="447.732853681019" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
+				time = 0;
+				
+				if (!GetGame().IsMultiplayer())
+				{
+					//! It's that simple in offline. Why can't it be that simple in MP? :-(
+					unit.LocalTakeEntityToHands(item);
+					item = null;
+				}
+			</event_entry>
+			<event_exit />
+			<event_update>
+				if (time &lt; 1.5)
+				{
+					//! Wait briefly before doing anything to prevent cloning to hands failing or scuffed weapon holding
+					time += DeltaTime;
+					return CONTINUE;
+				}
+				
+				if (item)
+				{
+					unit.Expansion_CloneItemToHands(item);
+					item = null;
+					//! Wait again
+					time = 0;
+					return CONTINUE;
+				}
+				
+				return EXIT;
+			</event_update>
+		</state>
+		<state name="Bandaging_Self">
+			<variables>
+				<variable name="last_bandage_attempt_time" type="int" />
+				<variable name="bandage" type="ItemBase" />
+				<variable name="timeout" type="float" />
+				<variable name="time" type="float" />
+			</variables>
+			<editor_data>
+				<position x="243.253877794781" y="447.732853681019" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				last_bandage_attempt_time = GetGame().GetTime();
+				time = 0;
+				float effectivity = bandage.GetBandagingEffectivity();
+				if (effectivity &gt; 0)
+					timeout = UATimeSpent.BANDAGE / effectivity + 8.0;
+				else
+					timeout = 16.0;
+			</event_entry>
+			<event_exit>
+				unit.Expansion_GetUp(true);
+				if (bandage)
+				{
+					if (bandage.GetHealth() &lt;= 0.0 || !unit.Expansion_CloneItemToInventory(bandage))
+					{
+						unit.eAI_DropItem(bandage);
+					}
+				}
+			</event_exit>
+			<event_update>
+				if (unit.GetActionManager().GetRunningAction())
+				{
+					time += DeltaTime;
+					if (time &gt; timeout)  //! Looks like something went terribly wrong
+					{
+						EXTrace.Print(true, unit, "Bandaging_Self - timeout");
+						unit.eAI_Unbug("bandage");
+						time = 0;
+						return EXIT;
+					}
+					
+					return CONTINUE;
+				}
+				else
+				{
+					if (bandage)
+					{
+						if (unit.GetBleedingSourceCount() &amp;&amp; bandage.GetHealth() &gt; 0.0)
+						{
+							last_bandage_attempt_time = GetGame().GetTime();
+							time = 0;
+							
+							unit.StartActionObject(ActionBandageSelf, null);
+						}
+					}
+				}
+				
+				return EXIT;
+			</event_update>
 		</state>
 	</states>
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="977.472336543873" y="226.498443463138" />
+				<position_destination x="977.521210954633" y="249.063165761721" />
 			</editor_data>
 			<guard>
-                if (!(unit.IsUnconscious())) return FAIL;
-
+				if (!(unit.IsUnconscious())) return FAIL;
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="" />
+			</guard>
+			<event />
+			<from_state />
 			<to_state name="Unconscious" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="930.521210954633" y="269.962936077279" />
+				<position_destination x="694" y="341.086651264055" />
 			</editor_data>
 			<guard>
-                if (unit.IsUnconscious()) return FAIL;
-
+				if (unit.IsUnconscious()) return FAIL;
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
+			</guard>
+			<event />
 			<from_state name="Unconscious" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="759.585399543115" y="142.391827885125" />
+				<position_destination x="759.45281251958" y="165.742104279785" />
 			</editor_data>
 			<guard>
-                if (!(unit.IsTrading())) return FAIL;
-
+				if (!(unit.IsTrading())) return FAIL;
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="" />
+			</guard>
+			<event />
+			<from_state />
 			<to_state name="Trading" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="747.731447011985" y="205.742104279785" />
+				<position_destination x="637.094556721445" y="329" />
 			</editor_data>
 			<guard>
-                if (unit.IsTrading()) return FAIL;
-
+				if (unit.IsTrading()) return FAIL;
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
+			</guard>
+			<event />
 			<from_state name="Trading" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="747.731447011985" y="205.742104279785" />
+				<position_destination x="637.094556721445" y="329" />
 			</editor_data>
 			<guard>
-                if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
-
-                dst.group = unit.GetGroup();
-                if (!dst.group) return FAIL;
-
+				if (unit.IsInMelee()) return FAIL;
+				
+				if (!unit.GetBleedingSourceCount()) return FAIL;
+				
+				if (GetGame().GetTime() - dst.last_bandage_attempt_time &lt; 4000) return FAIL;
+				
+				auto hands = unit.GetItemInHands();
+				if (!hands) return FAIL;
+				
+				if (!(hands.IsInherited(BandageDressing) || hands.IsInherited(Rag)) || hands.GetHealth() &lt;= 0.0) return FAIL;
+				
+				dst.bandage = hands;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="" />
+			<to_state name="Bandaging_Self" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="747.731447011985" y="205.742104279785" />
+				<position_destination x="637.094556721445" y="329" />
+			</editor_data>
+			<guard>
+				if (unit.GetActionManager().GetRunningAction()) return FAIL;
+				
+				if (GetGame().GetTime() - src.last_bandage_attempt_time &lt; 4000) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="Bandaging_Self" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="638.223504581552" y="369" />
+				<position_destination x="641.610348161875" y="513.955335435811" />
+			</editor_data>
+			<guard>
+				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+				
+				dst.group = unit.GetGroup();
+				if (!dst.group) return FAIL;
+				
 				if (dst.group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
-
-                auto leader = dst.group.GetLeader();
-                if (!leader || leader == unit) return FAIL;
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				
+				auto leader = dst.group.GetLeader();
+				if (!leader || leader == unit) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Idle" />
 			<to_state name="FollowFormation" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="604.355068778326" y="369" />
+				<position_destination x="592.501116247196" y="516.905251357419" />
 			</editor_data>
 			<guard>
-                if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
-
-                auto group = unit.GetGroup();
-                if (!group) return FAIL;
-
+				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+				
+				auto group = unit.GetGroup();
+				if (!group) return FAIL;
+				
 				// we are the leader so we traverse the waypoints
-                auto leader = group.GetLeader();
-                if (leader &amp;&amp; leader != unit) return FAIL;
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				auto leader = group.GetLeader();
+				if (leader &amp;&amp; leader != unit) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Idle" />
 			<to_state name="TraversingWaypoints" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="579.51821585596" y="516.905251357419" />
+				<position_destination x="591.936642317143" y="369" />
 			</editor_data>
 			<guard>
-                if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
-
+				if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
+				
 				return FAIL;
-            </guard>
-			<event name="" />
+			</guard>
+			<event />
 			<from_state name="TraversingWaypoints" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="657.415618203381" y="513.955335435811" />
+				<position_destination x="652.899826762951" y="369" />
 			</editor_data>
 			<guard>
-                auto group = unit.GetGroup();
+				auto group = unit.GetGroup();
 				if (group &amp;&amp; group.GetFormationState() != eAIGroupFormationState.IN) return SUCCESS;
 				
-                if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
-
+				if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
+				
 				return FAIL;
-            </guard>
-			<event name="" />
+			</guard>
+			<event />
 			<from_state name="FollowFormation" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="313.086520870577" y="332.619542313248" />
+				<position_destination x="312.537936881655" y="358.835451333598" />
 			</editor_data>
 			<guard>
+				//! When the AI has just spawned, wait briefly before doing anything to prevent scuffed weapon holding
+				if (GetGame().GetTime() - fsm.InitTime &lt; 1500) return FAIL;
+				
 				if (GetGame().GetTime() - dst.sub_fsm.last_attempt_time &lt; 5000) return FAIL;
-
+				
+				if (unit.IsInMelee()) return FAIL;
+				
 				if (!Class.CastTo(dst.sub_fsm.weapon, unit.GetItemInHands())) return FAIL;
-
+				
+				//! Allow sub-FSM to handle destroyed weapon so it gets dropped
+				if (dst.sub_fsm.weapon.IsDamageDestroyed()) return SUCCESS;
+				
 				int mi = dst.sub_fsm.weapon.GetCurrentMuzzle();
 				bool isChamberEmpty = dst.sub_fsm.weapon.IsChamberEmpty(mi);
 				bool isChamberFiredOut = dst.sub_fsm.weapon.IsChamberFiredOut(mi);
 				if (!(isChamberFiredOut || isChamberEmpty)) return FAIL;
 				
 				if (dst.sub_fsm.weapon.IsChamberJammed(mi)) return FAIL;
-
+				
 				// don't move to the state if the action manager is operating
 				if (!unit.GetActionManager() || unit.GetActionManager().GetRunningAction()) return FAIL;
-
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="" />
+			</guard>
+			<event />
+			<from_state />
 			<to_state name="Weapon_Reloading" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="313.086520870577" y="420.113001471584" />
+				<position_destination x="313.253877794781" y="447.732853681019" />
 			</editor_data>
 			<guard>
-				if (!Class.CastTo(dst.weapon, unit.GetItemInHands())) return FAIL;
-
-				if (!unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
-
+				if (unit.IsInMelee()) return FAIL;
+				
+				//! Taking items to hands while raised breaks hands! Wait until lowered
+				if (unit.IsRaised()) return FAIL;
+				
+				ItemBase hands = unit.GetItemInHands();
+				
+				//! First check if we want to switch to bandage
+				if (unit.GetBleedingSourceCount() &amp;&amp; unit.GetThreatToSelf(true) &lt; 0.4)
+				{
+					if (!hands || !(hands.IsInherited(BandageDressing) || hands.IsInherited(Rag)) || hands.GetHealth() &lt;= 0.0)
+					{
+						//! Item in hand is either not bandage/rag or is ruined
+						dst.item = unit.GetBandageToUse();
+						if (dst.item)
+						{
+							//! If ruined, drop, else put in inventory (shoulder slot or cargo)
+							if (hands &amp;&amp; (hands.GetHealth() &lt;= 0.0 || !unit.Expansion_CloneItemToInventory(hands)))
+								unit.eAI_DropItem(hands);
+							
+							return SUCCESS;
+						}
+					}
+				}
+				
+				if (hands)
+					return FAIL;
+				
+				dst.item = unit.GetWeaponToUse(true);
+				if (dst.item)
+					return SUCCESS;
+				
+				eAITarget target = unit.GetTarget();
+				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase))
+				{
+					if (target.GetDistanceSq(unit) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
+					{
+						dst.item = ItemBase.Cast(target.GetEntity());
+					}
+				}
+				
+				if (dst.item)
+					return SUCCESS;
+				
+				dst.item = unit.GetMeleeWeaponToUse();
+				if (dst.item)
+					return SUCCESS;
+				
+				 return FAIL;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="TakeItemToHands" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="393.253877794781" y="466.399863735993" />
+				<position_destination x="565.970841534669" y="369" />
+			</editor_data>
+			<guard>
 				return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="" />
+			</guard>
+			<event />
+			<from_state name="TakeItemToHands" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="318.731260171115" y="252.464244245612" />
+				<position_destination x="319.478975886238" y="278.453840426607" />
+			</editor_data>
+			<guard>
+				if (unit.IsInMelee()) return FAIL;
+				
+				if (!Class.CastTo(dst.weapon, unit.GetItemInHands())) return FAIL;
+				
+				if (!unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state />
 			<to_state name="Weapon_Unjamming" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="399.537936881654" y="374.390613137228" />
+				<position_destination x="544" y="360.278764885883" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Weapon_Reloading" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="400.478975886238" y="299.315580440075" />
+				<position_destination x="544" y="346.731390564592" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Weapon_Unjamming" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="420.336567580795" y="168.357628667599" />
+				<position_destination x="420.686600687193" y="195.817136976937" />
 			</editor_data>
 			<guard>
-                if (unit.GetThreatToSelf(true) &lt; 0.4) return FAIL;
-
+				if (unit.GetThreatToSelf(true) &lt; 0.4) return FAIL;
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="" />
+			</guard>
+			<event />
+			<from_state />
 			<to_state name="Fighting" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="485.815543467033" y="235.817136976937" />
+				<position_destination x="556.939258653809" y="329" />
 			</editor_data>
 			<guard>
-                if (unit.GetThreatToSelf() &gt; 0.2) return FAIL;
-
+				if (unit.GetThreatToSelf() &gt; 0.2) return FAIL;
+				
+				if (unit.IsInMelee()) return FAIL;
+				
 				return SUCCESS;
-            </guard>
-			<event name="" />
+			</guard>
+			<event />
 			<from_state name="Fighting" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1003.43813732635" y="337.135333753678" />
+				<position_destination x="1003.3091945465" y="363.138198458873" />
 			</editor_data>
 			<guard>
-                auto group = unit.GetGroup();
-                if (!group) return FAIL;
-
+				auto group = unit.GetGroup();
+				if (!group) return FAIL;
+				
 				if (group.GetFormationState() != eAIGroupFormationState.IN) return FAIL;
-
-                auto leader = group.GetLeader();
-                if (!leader || leader == unit) return FAIL;
-
-                if (!leader.IsInTransport()) return FAIL;
-
+				
+				auto leader = group.GetLeader();
+				if (!leader || leader == unit) return FAIL;
+				
+				if (!leader.IsInTransport()) return FAIL;
+				
 				Transport transport;
-                if (!Class.CastTo(transport, leader.GetParent())) return FAIL;
-
+				if (!Class.CastTo(transport, leader.GetParent())) return FAIL;
+				
 				//TODO: make this event based instead and store as a variable within CarScript.
 				//Prevents looping through the crew and insteads just compares a bool.
 				for (int i = 1; i &lt; transport.CrewSize(); i++)
 				{
 					if (transport.CrewMember(i) == null)
 					{
-               			return SUCCESS;
+				  			return SUCCESS;
 					}
 				}
-
-                return FAIL;
-            </guard>
-			<event name="" />
-			<from_state name="" />
+				
+				return FAIL;
+			</guard>
+			<event />
+			<from_state />
 			<to_state name="Vehicles" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="935.309194546504" y="381.164300297873" />
+				<position_destination x="694" y="356.89192130556" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Vehicles" />
 			<to_state name="Idle" />
 		</transition>

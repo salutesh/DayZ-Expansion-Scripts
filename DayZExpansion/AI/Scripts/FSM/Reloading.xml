@@ -1,290 +1,192 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <fsm name="Reloading">
+	<files />
 	<variables>
-		<variable name="weapon" type="Weapon" />
+		<variable name="weapon" type="Weapon_Base" />
 		<variable name="last_attempt_time" type="int" />
+		<variable name="failed_attempts" type="int" />
 	</variables>
 	<states default="Start">
 		<state name="Start">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="333" y="374" />
+				<position x="553" y="360" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
 				fsm.last_attempt_time = GetGame().GetTime();
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Reloading">
 			<variables>
 				<variable name="magazine" type="Magazine" />
+				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="333" y="374" />
+				<position x="464.565289256198" y="475.213223140496" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
+				time = 0;
 				unit.RaiseWeapon(true);
 				unit.ReloadWeaponAI(fsm.weapon, magazine);
 			</event_entry>
 			<event_exit>
-				unit.RaiseWeapon(false);
+				unit.OverrideMovementDirection(false, 0);
 			</event_exit>
 			<event_update>
 				if (!unit.GetWeaponManager()) return EXIT;
-
-				if (unit.GetWeaponManager().IsRunning()) return CONTINUE;
-
-                return EXIT;
-            </event_update>
+				
+				if (unit.GetWeaponManager().IsRunning())
+				{
+					time += DeltaTime;
+					if (time &gt; 10)  //! Looks like something went terribly wrong
+					{
+						EXTrace.Print(true, unit, "Weapon_Reloading - Reloading - timeout");
+						unit.eAI_Unbug("reload");
+						return EXIT;
+					}
+					
+					auto target = unit.GetTarget();
+					if (target &amp;&amp; target.GetDistanceSq(unit) &lt;= 2.25)
+					{
+						unit.OverrideMovementDirection(true, -180);
+					}
+				
+					return CONTINUE;
+				}
+				
+				int mi = fsm.weapon.GetCurrentMuzzle();
+				if (fsm.weapon.IsChamberEmpty(mi))
+				{
+					fsm.failed_attempts++;
+					EXTrace.Print(true, unit, "Weapon_Reloading - Reloading - failed (" + fsm.failed_attempts + ")");
+					fsm.weapon.ValidateAndRepair();
+				}
+				else
+				{
+					fsm.failed_attempts = 0;
+				}
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Reloading_Fail">
 			<variables>
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="333" y="374" />
+				<position x="651.545454545455" y="473.876033057851" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
 				unit.RaiseWeapon(false);
-
+				
 				time = 0;
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				time += DeltaTime;
-
+				
 				// waiting for the weapon to be lowered
 				if (time &lt; 0.5)
 					return CONTINUE;
-
-                return EXIT;
-            </event_update>
-		</state>
-		<state name="Swapping_Gun">
-			<variables>
-				<variable name="item" type="ItemBase" />
-			</variables>
-			<editor_data>
-				<position x="333" y="374" />
-				<size width="150" height="40" />
-			</editor_data>
-			<event_entry>
-				unit.LocalTakeEntityToHands(item);
-			</event_entry>
-			<event_exit>
-			</event_exit>
-			<event_update>
-                return EXIT;
-            </event_update>
-		</state>
-		<state name="Swapping_Melee">
-			<variables>
-				<variable name="item" type="ItemBase" />
-			</variables>
-			<editor_data>
-				<position x="333" y="374" />
-				<size width="150" height="40" />
-			</editor_data>
-			<event_entry>
-				unit.LocalTakeEntityToHands(item);
-			</event_entry>
-			<event_exit>
-			</event_exit>
-			<event_update>
-                return EXIT;
-            </event_update>
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Removing">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="333" y="374" />
+				<position x="650.925619834711" y="553.735537190083" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_entry />
+			<event_exit />
 			<event_update>
 				if (unit.GetItemInHands() != fsm.weapon)
 					return EXIT;  // remove complete
-
-				InventoryLocation il_src = new InventoryLocation();
-				InventoryLocation il_dst = new InventoryLocation();
-
-				fsm.weapon.GetInventory().GetCurrentInventoryLocation(il_src);
-
-				//if (!unit.GetInventory().FindFreeLocationFor(fsm.weapon, FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.CARGO, il_dst))
-				//{
-					GameInventory.SetGroundPosByOwner(unit, fsm.weapon, il_dst);
-				//}
 				
-				unit.ServerTakeToDst(il_src, il_dst);
-
-                return CONTINUE;
-            </event_update>
+				unit.eAI_DropItem(fsm.weapon);
+				
+				return CONTINUE;
+			</event_update>
 		</state>
 	</states>
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="612.762721125606" y="400" />
+				<position_destination x="539.334805190902" y="475.213223140496" />
 			</editor_data>
 			<guard>
-				int mi = fsm.weapon.GetCurrentMuzzle();
-				Magazine mag;
-				if (fsm.weapon.HasInternalMagazine(mi) &amp;&amp; fsm.weapon.GetInternalMagazineCartridgeCount(mi) &gt; 0)
-				{
-					EXTrace.Start0(EXTrace.AI, this, &quot;Reloading &quot; + fsm.weapon + &quot; from internal mag&quot;);
-					dst.magazine = null;
-				}
-				else if (Class.CastTo(mag, fsm.weapon.GetMagazine(mi)) &amp;&amp; mag.GetAmmoCount() &gt; 0)
-				{
-					EXTrace.Start0(EXTrace.AI, this, &quot;Reloading &quot; + fsm.weapon + &quot; from attached mag&quot;);
-					dst.magazine = mag;
-				}
+				if (fsm.weapon.IsDamageDestroyed())
+					return FAIL;
+				
+				if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, dst.magazine)) return FAIL;
+				
+				if (!dst.magazine)
+					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from internal mag");
 				else
-				{
-					dst.magazine = unit.GetMagazineToReload(fsm.weapon);
-					if (!dst.magazine) return FAIL;
-					EXTrace.Start0(EXTrace.AI, this, &quot;Reloading &quot; + fsm.weapon + &quot; from mag &quot; + dst.magazine);
-				}
+					EXTrace.Start0(EXTrace.AI, this, "Reloading " + fsm.weapon + " from mag " + dst.magazine);
 				
 				return SUCCESS;
-            </guard>
-			<event name="" />
+			</guard>
+			<event />
 			<from_state name="Start" />
 			<to_state name="Reloading" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="645.547366983129" y="400" />
+				<position_destination x="716.545454545455" y="473.876033057851" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Start" />
 			<to_state name="Reloading_Fail" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="725.285218414043" y="513.876033057851" />
+				<position_destination x="726.111664695034" y="553.735537190083" />
 			</editor_data>
 			<guard>
-				//! TODO: Fix weapon change in MP
-				if (GetGame().IsMultiplayer()) return FAIL;
-
-				dst.item = unit.GetWeaponToUse(true);
-
-				if (!dst.item) return FAIL;
-                return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="Removing" />
-			<to_state name="Swapping_Gun" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
-			</editor_data>
-			<guard>
-				dst.item = unit.GetMeleeWeaponToUse();
-
-				if (!dst.item) return FAIL;
-                return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="Removing" />
-			<to_state name="Swapping_Melee" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
-			</editor_data>
-			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Reloading_Fail" />
 			<to_state name="Removing" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="536.029020066935" y="515.213223140496" />
+				<position_destination x="535.202573785944" y="553.12383705348" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="Reloading" />
-			<to_state name="" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
-			</editor_data>
-			<guard>
-				dst.magazine = unit.GetMagazineToReload(fsm.weapon);
-				if (!dst.magazine) return FAIL;
-				
 				return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="Swapping_Gun" />
-			<to_state name="Reloading" />
+			</guard>
+			<event />
+			<from_state name="Reloading" />
+			<to_state />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
+				<position_source x="722.925619834711" y="593.735537190083" />
+				<position_destination x="723.09671470528" y="626.613824192337" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="Swapping_Gun" />
-			<to_state name="" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
-			</editor_data>
-			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
-			<from_state name="Swapping_Melee" />
-			<to_state name="" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="0" y="0.7" />
-				<position_destination x="1" y="0.7" />
-			</editor_data>
-			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Removing" />
-			<to_state name="" />
+			<to_state />
 		</transition>
 	</transitions>
 </fsm>
