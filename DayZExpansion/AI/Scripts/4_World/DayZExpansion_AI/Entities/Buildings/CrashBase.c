@@ -1,16 +1,20 @@
 modded class CrashBase
 {
+	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 	ExpansionMarkerModule m_MarkerModule;
 	ExpansionMarkerData m_ServerMarker;
+	#endif
 	#endif
 
 	eAIDynamicPatrol m_ExpansionAIPatrol;
 
 	void CrashBase()
 	{
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
+		#endif
 		#endif
 	}
 
@@ -27,11 +31,13 @@ modded class CrashBase
 		{
 			m_ExpansionAIPatrol = PatrolManager().InitCrashPatrolSpawner(EventType(), GetPosition());
 
+			#ifdef DIAG
 			#ifdef EXPANSIONMODNAVIGATION
 			if ( !m_MarkerModule )
 				return;
 			
 			m_ServerMarker = m_MarkerModule.CreateServerMarker( EventType(), "Helicopter", GetPosition(), ARGB(255, 235, 50, 90), true );
+			#endif
 			#endif
 		}
 	}
@@ -40,11 +46,13 @@ modded class CrashBase
 	{
 		super.EEDelete( parent );
 
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		if ( !m_ServerMarker )
 			return;
 		
 		m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
+		#endif
 		#endif
 
 		if ( m_ExpansionAIPatrol )
@@ -53,9 +61,11 @@ modded class CrashBase
 
 	void ~CrashBase()
 	{
+		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
 		if ( m_ServerMarker && m_MarkerModule )
 			m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
+		#endif
 		#endif
 
 		if ( m_ExpansionAIPatrol )

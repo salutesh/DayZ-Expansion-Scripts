@@ -230,7 +230,9 @@ class ExpansionAIPatrolSettings: ExpansionSettingBase
             case "enoch":
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "WALK", "SPRINT", "HOLD OR PATROL", "WEST", "Wreck_UH1Y", "", -2, -2, true, false, 1.0));
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "WALK", "SPRINT", "HOLD OR PATROL", "EAST", "Wreck_Mi8", "", -2, -2, true, false, 1.0));
+                #ifdef EXPANSIONMODAI_ENABLEPOLICEWRECK
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "WALK", "SPRINT", "HOLD OR PATROL", "EAST", "Wreck_PoliceCar", "PoliceLoadout", -2, -2, true, false, 1.0));
+                #endif
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "JOG", "SPRINT", "HOLD OR PATROL", "WEST", "ContaminatedArea_Static", "NBCLoadout", -2, -2, true, false, 1.0));
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "JOG", "SPRINT", "HOLD OR PATROL", "WEST", "ContaminatedArea_Dynamic", "NBCLoadout", -2, -2, true, false, 1.0));
             break;
@@ -241,7 +243,9 @@ class ExpansionAIPatrolSettings: ExpansionSettingBase
 
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "WALK", "SPRINT", "PATROL", "WEST", "Wreck_UH1Y", "", -2, -2, true, false, 1.0));
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "WALK", "SPRINT", "PATROL", "EAST", "Wreck_Mi8", "", -2, -2, true, false, 1.0));
+                #ifdef EXPANSIONMODAI_ENABLEPOLICEWRECK
                 EventCrashPatrol.Insert( new ExpansionAICrashPatrol(-5, "WALK", "SPRINT", "HOLD", "EAST", "Wreck_PoliceCar", "PoliceLoadout", -2, -2, true, false, 1.0));
+                #endif
                 return;
             break;
 	    }
