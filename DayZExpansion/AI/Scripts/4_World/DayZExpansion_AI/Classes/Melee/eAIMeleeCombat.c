@@ -2,31 +2,29 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 {
 	eAIBase m_AI;
 	EntityAI m_Hands;
+	bool m_eAI_MeleeHeavy;
+	float m_eAI_MeleeAttackType;
 
 	void eAIMeleeCombat(DayZPlayerImplement player)
 	{
 		Class.CastTo(m_AI, player);
 	}
 
-	void Start()
+	float eAI_SetupMelee()
 	{
 		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
 
-		//GetMeleeTarget();
-		//GetHitZone();
-		//m_HitType = GetMeleeHitType();
-		//m_SprintAttack = m_HitType == EMeleeHitType.SPRINT;
 		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType());
 		TargetSelection();
 		if (m_HitType == EMeleeHitType.NONE)
 		{
-			return;
+			return false;
 		}
 
-		float meleeAttackType = 1.0;
-		if (m_TargetObject && m_TargetType != EMeleeTargetType.NONALIGNABLE && vector.DistanceSq(m_AI.GetPosition(), m_TargetObject.GetPosition()) > 1.44)
+		m_eAI_MeleeAttackType = 1.0;
+		if (m_TargetObject && m_TargetType != EMeleeTargetType.NONALIGNABLE && vector.DistanceSq(m_AI.GetPosition(), m_TargetObject.GetPosition()) > Math.SqrFloat(DayZPlayerMeleeFightLogic_LightHeavy.CLOSE_TARGET_DISTANCE))
 		{
-			meleeAttackType = 0.0;
+			m_eAI_MeleeAttackType = 0.0;
 		}
 
 		if (m_TargetObject)
@@ -38,46 +36,31 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 			m_AI.SetOrientation(ori);
 		}
 
-		m_AI.StartCommand_Melee2(EntityAI.Cast(m_TargetObject), m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.SPRINT, meleeAttackType, m_HitPositionWS);
+		m_eAI_MeleeHeavy = m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB;
+
+		return true;
+	}
+
+	void Start()
+	{
+		if (!eAI_SetupMelee())
+			return;
+
+		m_AI.StartCommand_Melee2(EntityAI.Cast(m_TargetObject), m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, m_HitPositionWS);
 	}
 
 	void Combo(HumanCommandMelee2 hcm2)
 	{
-		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
-
-		//GetMeleeTarget();
-		//GetHitZone();
-		//m_HitType = GetMeleeHitType();
-		Reset(InventoryItem.Cast(m_Hands), GetMeleeHitType());
-		TargetSelection();
-		if (m_HitType == EMeleeHitType.NONE)
-		{
+		if (!eAI_SetupMelee())
 			return;
-		}
 
-		float meleeAttackType = 1.0;
-		if (m_TargetObject && m_TargetType != EMeleeTargetType.NONALIGNABLE && vector.DistanceSq(m_AI.GetPosition(), m_TargetObject.GetPosition()) > 1.44)
-		{
-			meleeAttackType = 0.0;
-		}
-
-		if (m_TargetObject)
-		{
-			vector dir = vector.Direction(m_AI.GetPosition(), m_TargetObject.GetPosition());
-			vector angles = dir.VectorToAngles();
-			vector ori = m_AI.GetOrientation();
-			ori[0] = angles[0];
-			m_AI.SetOrientation(ori);
-		}
-
-		hcm2.ContinueCombo(m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.SPRINT, meleeAttackType, EntityAI.Cast(m_TargetObject), m_HitPositionWS);
+		hcm2.ContinueCombo(m_eAI_MeleeHeavy, m_eAI_MeleeAttackType, EntityAI.Cast(m_TargetObject), m_HitPositionWS);
 	}
 
 	void OnHit()
 	{
 		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
 		
-		//GetMeleeTarget();
 		m_HitType = GetMeleeHitType();
 		m_AI.GetMeleeFightLogic().eAI_EvaluateHit(InventoryItem.Cast(m_Hands));
 
@@ -95,46 +78,6 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 			break;
 		}
 	}
-
-//	void GetMeleeTarget()
-//	{
-//		vector pos = m_AI.GetPosition();
-//		vector dir = MiscGameplayFunctions.GetHeadingVector(m_AI);
-//
-//		float dist = m_WeaponRange + RANGE_EXTENDER_NORMAL;
-//		float tgtAngle = TARGETING_ANGLE_NORMAL;
-//		if (m_SprintAttack)
-//		{
-//			dist = m_WeaponRange + RANGE_EXTENDER_SPRINT;
-//			tgtAngle = TARGETING_ANGLE_SPRINT;
-//		}
-//
-//		m_TargetObject = DayZPlayerUtils.GetMeleeTarget(pos, dir, tgtAngle, dist, TARGETING_MIN_HEIGHT, TARGETING_MAX_HEIGHT, m_AI, m_TargetableObjects, m_AllTargetObjects);
-//EXPrint("GetMeleeTarget " + m_TargetObject);
-//		if (IsObstructed(m_TargetObject))
-//			m_TargetObject = null;
-//EXPrint("    GetMeleeTarget " + m_TargetObject);
-//
-//		m_WeaponMode = SelectWeaponMode(InventoryItem.Cast(m_Hands));
-//		m_WeaponRange = GetWeaponRange(InventoryItem.Cast(m_Hands), m_WeaponMode);
-//		m_AllTargetObjects.Clear();
-//	}
-
-//	void GetHitZone()
-//	{
-//		vector pos = m_AI.GetPosition() + "0.0 1.5 0.0";
-//		vector dir = m_AI.GetDirection();
-//
-//		m_RayStart = pos;
-//		m_RayEnd = pos + (dir * TARGETING_RAY_DIST);
-//
-//		set<Object> hitObjects = new set<Object>;
-//		int hitComponentIndex;
-//		float hitFraction;
-//		vector start, end, hitNormal, hitPosObstructed;
-//
-//		DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, m_HitPositionWS, hitNormal, m_HitZoneIdx, hitObjects, null, m_AI, false, false, ObjIntersectIFire, TARGETING_RAY_RADIUS);
-//	}
 
 	EMeleeHitType GetMeleeHitType()
 	{

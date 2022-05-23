@@ -27,10 +27,6 @@ modded class PlayerBase
 	protected bool m_SafeZoneSynchRemote;
 	protected bool m_LeavingSafeZone;
 
-	#ifdef ENFUSION_AI_PROJECT
-	private autoptr eAIFaction m_eAI_Faction_NotInSafeZone;
-	#endif
-
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<PlayerBase>(this);
 
 	void PlayerBase()
@@ -445,9 +441,6 @@ modded class PlayerBase
 		}
 
 		m_SafeZoneSynchRemote = true;
-
-		if (!Expansion_HasAdminToolGodMode())
-			SetAllowDamage(false);
 		
 		if ( GetIdentity() )
 		{
@@ -456,32 +449,6 @@ modded class PlayerBase
 			if ( GetExpansionSettings().GetLog().Safezone )
 				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
 		}
-
-		#ifdef ENFUSION_AI_PROJECT
-		eAIFactionCivilian civilian = new eAIFactionCivilian();
-		#ifdef EXPANSIONMODAI
-		eAIGroup group = GetGroup();
-		#else
-		eAIBase eAI_PB = eAIBase.Cast(this);
-		eAIGroup group = eAI_PB.GetGroup();
-		#endif
-		if ( !group )
-		{
-			//! If (re)connecting in a safezone, there will be no group initially
-			group = ExpansionGetEAIGroup();
-		}
-		#ifdef EXPANSIONMODAI
-		if ( !group.GetFaction().IsFriendly( civilian ) )
-		#else
-		if ( !group.GetFaction().isFriendly( civilian ) )
-		#endif
-		{
-			m_eAI_Faction_NotInSafeZone = group.GetFaction();
-			EXPrint(ToString() + "::OnEnterZone " + GetPosition() + " - faction " + m_eAI_Faction_NotInSafeZone + " -> " + civilian );
-			//! Assign a neutral faction so AI guards do not see us as a threat
-			group.SetFaction( civilian );
-		}
-		#endif
 	
 		SetSynchDirty();
 	}
@@ -522,9 +489,6 @@ modded class PlayerBase
 
 		m_SafeZoneSynchRemote = false;
 
-		if (!Expansion_HasAdminToolGodMode())
-			SetAllowDamage(true);
-
 		SetCanRaise(true);
 	
 		if ( GetIdentity() )
@@ -534,21 +498,6 @@ modded class PlayerBase
 			if ( GetExpansionSettings().GetLog().Safezone )
 				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
 		}
-
-		#ifdef ENFUSION_AI_PROJECT
-		if ( m_eAI_Faction_NotInSafeZone )
-		{
-			//! Assign original faction
-			EXPrint(ToString() + "::OnLeftSafeZone " + GetPosition() + " - assigning faction " + m_eAI_Faction_NotInSafeZone );
-			#ifdef EXPANSIONMODAI
-			GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
-			#else
-			eAIBase eAI_PB = eAIBase.Cast(this);
-			eAI_PB.GetGroup().SetFaction( m_eAI_Faction_NotInSafeZone );
-			#endif
-			m_eAI_Faction_NotInSafeZone = NULL;
-		}
-		#endif
 	
 		SetSynchDirty();
 	}
@@ -563,6 +512,14 @@ modded class PlayerBase
 		{
 			hic.OverrideRaise(!mode, false);
 		}
+	}
+
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (m_SafeZone)
+			return false;
+
+		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 	
 	// ------------------------------------------------------------

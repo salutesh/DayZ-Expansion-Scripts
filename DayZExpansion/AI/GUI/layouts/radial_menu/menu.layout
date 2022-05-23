@@ -1,0 +1,303 @@
+PanelWidgetClass GesturesMenu {
+ clipchildren 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ style blank
+ {
+  ImageWidgetClass GesturesBackground {
+   disabled 0
+   clipchildren 0
+   inheritalpha 0
+   ignorepointer 0
+   keepsafezone 0
+   position 0 0
+   size 1024 1024
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   fixaspect inside
+   imageTexture "{F150456F37AF9CA2}Gui/textures/radial8.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 1
+   nocache 0
+   {
+    PanelWidgetClass GesturesPanel {
+     disabled 0
+     clipchildren 0
+     inheritalpha 1
+     color 0.8353 0.8353 0.8353 0.6392
+     position 0 0
+     size 1024 1024
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect inside
+     priority 999
+     scriptclass "RadialMenu"
+     style blank
+     {
+      PanelWidgetClass RadialDelimiterContainer {
+       clipchildren 0
+       inheritalpha 1
+       position 0 0
+       size 1024 1024
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+      }
+      PanelWidgetClass RadialItemCardContainer {
+       clipchildren 0
+       inheritalpha 1
+       position 0 0
+       size 1024 1024
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 999
+      }
+      FrameWidgetClass RadialSelector {
+       visible 0
+       clipchildren 0
+       position -1 -1
+       size 268 268
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       {
+        ImageWidgetClass SelectorPointer {
+         visible 1
+         clipchildren 0
+         color 1 0 0 1
+         position 0 -9
+         size 100 32
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         image0 "set:dayz_gui image:radial_selector"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        ImageWidgetClass SelectorImage {
+         ignorepointer 1
+         color 1 0 0 1
+         position 0 5
+         size 256 128
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         imageTexture "{528E06782E5680C9}Gui/textures/radial_selector.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         filter 1
+         Mask "{5B7F9513017B8F1C}Gui/textures/radial_selector_mask.edds"
+         "Transition width" 0.01
+         Progress 0.5
+        }
+       }
+      }
+      TextWidgetClass CategoryName {
+       ignorepointer 1
+       size 48 48
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       text "Category name"
+       font "gui/fonts/sdf_MetronBook24"
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       "text halign" center
+       "text valign" center
+      }
+     }
+     {
+      ScriptParamsClass {
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass toolbar_bg {
+   visible 1
+   inheritalpha 0
+   color 0 0 0 0.549
+   size 1 0.1
+   halign center_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 3
+   style ToolbarWidget
+   {
+    WrapSpacerWidgetClass ConsoleToolbar {
+     clipchildren 0
+     position 0.05 0.1
+     size 800 48
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     priority 100
+     Padding 8
+     Margin 0
+     "Size To Content V" 1
+     content_halign right
+     content_valign center
+     {
+      GridSpacerWidgetClass Select {
+       clipchildren 0
+       size 120 48
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 3
+       Padding 5
+       Margin 1
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
+       Columns 2
+       Rows 1
+       {
+        RichTextWidgetClass SelectIcon {
+         clipchildren 0
+         inheritalpha 0
+         size 48 48
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         text "SelectIconData"
+         font "gui/fonts/sdf_MetronBook24"
+         "exact text" 1
+         "exact text size" 24
+         "size to text h" 1
+         "size to text v" 1
+         "text valign" center
+        }
+        TextWidgetClass SelectText {
+         clipchildren 0
+         position 40 0
+         size 80 48
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "#layout_xbox_ingame_menu_select"
+         font "gui/fonts/sdf_MetronLight24"
+         "exact text" 1
+         "exact text size" 22
+         "size to text h" 1
+         "size to text v" 0
+         "text valign" center
+        }
+       }
+      }
+      GridSpacerWidgetClass Back {
+       visible 0
+       clipchildren 0
+       size 220 30
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       Padding 5
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
+       Columns 2
+       Rows 1
+       {
+        ImageWidgetClass BackIcon {
+         clipchildren 0
+         inheritalpha 0
+         size 48 48
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         image0 "set:xbox_buttons image:B"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 0
+         "flip u" 0
+         "flip v" 0
+         filter 1
+         nocache 0
+        }
+        TextWidgetClass BackText {
+         clipchildren 0
+         position 40 0
+         size 60 48
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         text "#str_rootframe_toolbar_bg_consoletoolbar_back_backtext0"
+         font "gui/fonts/sdf_MetronLight24"
+         "exact text" 1
+         "exact text size" 22
+         "size to text h" 1
+         "size to text v" 0
+         "text valign" center
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

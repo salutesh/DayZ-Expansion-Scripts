@@ -23,6 +23,14 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	void MissionServer()
 	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionServer");
+#endif
+
+		//! 3_Game cannot call classes from 4_World - This 2 lines are not mandatory for any systems to work properly. Just to make it to generate on server startup
+		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
+			ExpansionHumanLoadout.Init();
+
 		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnHandlerModule);
 	}
 

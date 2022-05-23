@@ -127,7 +127,7 @@ class ExpansionSettingBase
 	}
 
 	//! @note if moving a directory, make sure paths end with "\\"
-	bool MoveSettings(string srcPath, string dstPath, string ext = "")
+	static bool MoveSettings(string srcPath, string dstPath, string ext = "")
 	{
 		EXPrint("Moving " + srcPath + " to " + dstPath);
 		if (ExpansionStatic.CopyFileOrDirectoryTree(srcPath, dstPath, ext, true))

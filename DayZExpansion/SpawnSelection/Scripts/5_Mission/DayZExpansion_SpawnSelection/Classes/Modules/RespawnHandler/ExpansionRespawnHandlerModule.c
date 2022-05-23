@@ -25,10 +25,12 @@ class ExpansionLastPlayerSpawnLocation
 [CF_RegisterModule(ExpansionRespawnHandlerModule)]
 class ExpansionRespawnHandlerModule: CF_ModuleWorld
 {
+	protected string s_Folder;
+	protected string s_CooldownsFolder;
 	protected string s_FileName;
 	ref map<string, ref ExpansionPlayerState> m_PlayerStartStates;
 	bool m_SpawnSelected;
-	ref array<ref ExpansionRespawnDelayTimer> m_PlayerRespawnDelays;
+	ref map<string, ref map<int, ref ExpansionRespawnDelayTimer>> m_PlayerRespawnDelays;
 	ref map<string, ref ExpansionLastPlayerSpawnLocation> m_PlayerLastIndex;
 
 	// ------------------------------------------------------------
@@ -37,7 +39,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	void ExpansionRespawnHandlerModule()
 	{
 		m_PlayerStartStates = new map<string, ref ExpansionPlayerState>;
-		m_PlayerRespawnDelays = new array<ref ExpansionRespawnDelayTimer>;
+		m_PlayerRespawnDelays = new map<string, ref map<int, ref ExpansionRespawnDelayTimer>>;
 		m_PlayerLastIndex = new map<string, ref ExpansionLastPlayerSpawnLocation>;
 	}
 	
@@ -410,9 +412,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		{
 			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(isTerritory);
 			string playerUID = sender.GetId();
-			foreach (ExpansionRespawnDelayTimer timer: m_PlayerRespawnDelays)
+			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+			if (playerCooldowns)
 			{
-				if (timer.PlayerUID == playerUID && timer.Index == index)
+				ExpansionRespawnDelayTimer timer = playerCooldowns[index];
+				if (timer)
 				{
 					int cooldownTime = timer.GetTimeDiff();
 					int cooldown = respawnCooldown;
@@ -424,7 +428,6 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 					{
 						hasCooldown = true;
 					}
-					break;
 				}
 			}
 
@@ -478,7 +481,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
+		{
+			Error(ToString() + "::Exec_SelectSpawn - ERROR: player or playerUID");
 			return;
+		}
 		
 		ExpansionPlayerState state = m_PlayerStartStates.Get(playerUID); //! This seems to fail and seems to return NULL on respawns?
 		if (!state)
@@ -491,7 +497,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		array<ref ExpansionSpawnLocation> territories = GetTerritoryList(playerUID);
 
 		if (pointIndex < 0 || pointIndex >= locations.Count() + territories.Count())
+		{
+			Error(ToString() + "::Exec_SelectSpawn - ERROR: Invalid location index");
 			return;  //! Invalid location index
+		}
 
 		ExpansionSpawnLocation loc;
 		
@@ -501,10 +510,16 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			loc = territories[pointIndex - locations.Count()];
 		
 		if (ProcessCooldown(sender, pointIndex, loc.IsTerritory, loc.UseCooldown))
+		{
+			Error(ToString() + "::Exec_SelectSpawn - ERROR: ProcessCooldown returned false");
 			return;
+		}
 
 		if (spawnPointIndex < 0 || spawnPointIndex >= loc.Positions.Count())
-			return;  //! Invalid position index
+		{
+			Error(ToString() + "::Exec_SelectSpawn - ERROR: Location doesn't have spawn points");
+			return;
+		}
 
 		vector spawnPoint = loc.Positions[spawnPointIndex];
 
@@ -538,6 +553,10 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			return;
 
 		PlayerIdentity identity = player.GetIdentity();
+
+		if ( !identity )
+			return; // can be NULL if the player rage quit
+
 		string uid = identity.GetId();
 
 		//! Make sure clothes and contained items are dry after using spawn select in case we were in the water
@@ -632,30 +651,24 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 				//! If items don't fit into inventory, they'll be placed in an ExpansionTemporaryOwnedContainer 
 
 				//! Add items to top/shirt/jacket
-				if (gear.UseUpperGear)
-					AddGear(player, gear.UpperGear, parent, "Body");
+				AddGear(player, gear.UpperGear, parent, "Body");
 				
 				//! Add items to pants
-				if (gear.UsePantsGear)
-					AddGear(player, gear.PantsGear, parent, "Legs");
+				AddGear(player, gear.PantsGear, parent, "Legs");
 				
 				//! Add items to backpack
-				if (gear.UseBackpackGear)
-					AddGear(player, gear.BackpackGear, parent, "Back");
+				AddGear(player, gear.BackpackGear, parent, "Back");
 				
 				//! Add items to vest
-				if (gear.UseVestGear)
-					AddGear(player, gear.VestGear, parent, "Vest");
+				AddGear(player, gear.VestGear, parent, "Vest");
 				
 				EntityAI parentPlayer = player;  //! Always use player as parent for shoulder/melee slots
 
 				//! Add primary weapon and its attachments
-				if (gear.UsePrimaryWeapon)
-					AddItem(player, gear.PrimaryWeapon, parentPlayer);
+				AddItem(player, gear.PrimaryWeapon, parentPlayer);
 				
 				//! Add secondary weapon and its attachments
-				if (gear.UseSecondaryWeapon)
-					AddItem(player, gear.SecondaryWeapon, parentPlayer);
+				AddItem(player, gear.SecondaryWeapon, parentPlayer);
 			}
 		}
 	}
@@ -677,9 +690,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 				//! respective player attachment slot item.
 				if (item.IsInherited(ExpansionTemporaryOwnedContainer))
 					parent = item;
-				}
-			else
-			{
+			} else {
 				AddItem(player, gearItem, parent);
 			}
 		}
@@ -732,6 +743,38 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			item.GetInventory().CreateAttachment("Battery9V");  //! TODO: Should probably be able to deal with arbitrary power sources?
 	}
 
+	string GetRandomLoadout(ref array<ref ExpansionSpawnGearLoadouts> loadouts)
+	{
+		bool IsZero = false;
+		while (!IsZero)
+		{
+			IsZero = true;
+			foreach (ExpansionSpawnGearLoadouts selectedLoadout : loadouts)
+			{
+				if (selectedLoadout.Chance == -1)
+					return loadouts.GetRandomElement().Loadout;
+					
+				if (selectedLoadout.Chance > 1)
+				{
+					if (GetExpansionSettings().GetLog().SpawnSelection)
+						GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] !!! ERROR !!! loadout ("+selectedLoadout.Loadout+") has a chance of "+selectedLoadout.Chance+" and shouldn't be greater than 1.0");
+
+					continue;
+				}
+
+				if (selectedLoadout.Chance > Math.RandomFloat(0.0, 1.0))
+					return selectedLoadout.Loadout;
+
+				IsZero = (selectedLoadout.Chance <= 0 );
+			}
+		}
+		
+		if (GetExpansionSettings().GetLog().SpawnSelection)
+			GetExpansionSettings().GetLog().PrintLog("[SpawnSelection] !!! ERROR !!! Couldn't fine a loadout with a chance greater than 0.0");
+
+		return "";
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule ExpansionEquipCharacter
 	// ------------------------------------------------------------
@@ -741,24 +784,39 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		if ( !IsMissionHost() )
 			return;
-		
-		ExpansionStartingClothing startingClothing;
-		if (Class.CastTo(startingClothing, GetExpansionSettings().GetSpawn().StartingClothing))
+
+		if ( GetExpansionSettings().GetSpawn().UseLoadouts )
 		{
-			AddClothing(player, startingClothing.Headgear, InventorySlots.HEADGEAR);
-			AddClothing(player, startingClothing.Glasses, InventorySlots.EYEWEAR);
-			AddClothing(player, startingClothing.Masks, InventorySlots.MASK);
-			AddClothing(player, startingClothing.Tops, InventorySlots.BODY);
-			AddClothing(player, startingClothing.Vests, InventorySlots.VEST);
-			AddClothing(player, startingClothing.Gloves, InventorySlots.GLOVES);
-			AddClothing(player, startingClothing.Pants, InventorySlots.LEGS);
-			AddClothing(player, startingClothing.Belts, InventorySlots.HIPS);
-			AddClothing(player, startingClothing.Shoes, InventorySlots.FEET);
-			AddClothing(player, startingClothing.Armbands, InventorySlots.ARMBAND);
-			AddClothing(player, startingClothing.Backpacks, InventorySlots.BACK);
+			string loadout;
+			if ( player.IsMale() )
+			{
+				loadout = GetRandomLoadout(GetExpansionSettings().GetSpawn().MaleLoadouts);
+			} else {
+				loadout = GetRandomLoadout(GetExpansionSettings().GetSpawn().FemaleLoadouts);
+			}
+
+			ExpansionHumanLoadout.Apply(player, loadout, false);
 			
-			SetExpansionStartingGear(player);
-		}
+			SetExpansionStartingGear(player); // allow players to still use the starting gear system if they want to
+		} else {
+			ExpansionStartingClothing startingClothing;
+			if (Class.CastTo(startingClothing, GetExpansionSettings().GetSpawn().StartingClothing))
+			{
+				AddClothing(player, startingClothing.Headgear, InventorySlots.HEADGEAR);
+				AddClothing(player, startingClothing.Glasses, InventorySlots.EYEWEAR);
+				AddClothing(player, startingClothing.Masks, InventorySlots.MASK);
+				AddClothing(player, startingClothing.Tops, InventorySlots.BODY);
+				AddClothing(player, startingClothing.Vests, InventorySlots.VEST);
+				AddClothing(player, startingClothing.Gloves, InventorySlots.GLOVES);
+				AddClothing(player, startingClothing.Pants, InventorySlots.LEGS);
+				AddClothing(player, startingClothing.Belts, InventorySlots.HIPS);
+				AddClothing(player, startingClothing.Shoes, InventorySlots.FEET);
+				AddClothing(player, startingClothing.Armbands, InventorySlots.ARMBAND);
+				AddClothing(player, startingClothing.Backpacks, InventorySlots.BACK);
+				
+				SetExpansionStartingGear(player);
+			}
+		}		
 	}
 	
 	private void AddClothing(PlayerBase player, TStringArray clothingItems, int slotId)
@@ -795,8 +853,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		string filename_old = EXPANSION_FOLDER + "playerstates.bin";
 
 		int instance_id = GetGame().ServerConfigGetInt( "instanceId" );
-		string folder = "$mission:storage_" + instance_id + "\\expansion";
-		s_FileName = folder + "\\spawnselect.bin";
+		string folder = "$mission:storage_" + instance_id + "\\expansion\\";
+		s_Folder = folder;
+		s_FileName = folder + "spawnselect.bin";
 
 		if (!FileExist(folder))
 			MakeDirectory(folder);
@@ -806,6 +865,11 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			if (CopyFile(filename_old, s_FileName))
 				DeleteFile(filename_old);
 		}
+
+		s_CooldownsFolder = folder + "cooldowns\\";
+
+		if (!FileExist(s_CooldownsFolder))
+			MakeDirectory(s_CooldownsFolder);
 
 		//! Load all states of players that haven't finished spawn select
 		Load();
@@ -852,6 +916,36 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		}
 	}
 
+	void SaveCooldowns(string playerUID)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+
+		string cooldownsFile = s_CooldownsFolder + playerUID + ".bin";
+
+		FileSerializer file = new FileSerializer;
+		if (file.Open(cooldownsFile, FileMode.WRITE))
+		{
+			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+			if (playerCooldowns)
+			{
+				file.Write(playerCooldowns.Count());
+				foreach (int index, ExpansionRespawnDelayTimer playerTimer: playerCooldowns)
+				{
+					file.Write(playerTimer);
+				}
+			}
+			else
+			{
+				file.Write(0);
+			}
+
+			ExpansionLastPlayerSpawnLocation last = m_PlayerLastIndex[playerUID];
+			file.Write(last);
+
+			file.Close();
+		}
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionRespawnHandlerModule Load
 	// ------------------------------------------------------------
@@ -891,15 +985,14 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	void AddCooldown(string playerUID, int index, bool isTerritory)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
-
-		if (!m_PlayerRespawnDelays)
-			m_PlayerRespawnDelays = new array<ref ExpansionRespawnDelayTimer>;
 		
 		bool hasCooldownEntry = false;
 		//! Check if player has a exiting cooldown entry for this spawn point index
-		foreach (ExpansionRespawnDelayTimer timer: m_PlayerRespawnDelays)
+		map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+		if (playerCooldowns)
 		{
-			if (timer.PlayerUID == playerUID && timer.Index == index)
+			ExpansionRespawnDelayTimer timer = playerCooldowns[index];
+			if (timer)
 			{
 				if (GetExpansionSettings().GetSpawn().PunishMultispawn)
 				{
@@ -922,14 +1015,18 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 				
 				hasCooldownEntry = true;
 				timer.SetTime(); //! Update timestamp for this hasCooldownEntry
-				break;
 			}
 		}
 		
 		//! Add new cooldown entry
 		if (!hasCooldownEntry)
 		{
-			m_PlayerRespawnDelays.Insert(new ExpansionRespawnDelayTimer(playerUID, index, isTerritory));
+			if (!playerCooldowns)
+			{
+				playerCooldowns = new map<int, ref ExpansionRespawnDelayTimer>;
+				m_PlayerRespawnDelays.Insert(playerUID, playerCooldowns);
+			}
+			playerCooldowns.Insert(index, new ExpansionRespawnDelayTimer(index, isTerritory));
 		}
 		
 		//! Save last used spawnpoint index
@@ -944,6 +1041,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			last = new ExpansionLastPlayerSpawnLocation(index, isTerritory);
 			m_PlayerLastIndex.Insert(playerUID, last);
 		}
+
+		SaveCooldowns(playerUID);
 	}
 	
 	// ------------------------------------------------------------
@@ -956,34 +1055,58 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
-		
-		if (!m_PlayerRespawnDelays || m_PlayerRespawnDelays.Count() == 0)
-			return;
+
+		map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_PlayerRespawnDelays[playerUID];
+		if (!playerCooldowns)
+		{
+			playerCooldowns = new map<int, ref ExpansionRespawnDelayTimer>;
+			m_PlayerRespawnDelays.Insert(playerUID, playerCooldowns);
+		}
+
+		if (!playerCooldowns.Count())
+		{
+			string cooldownsFile = s_CooldownsFolder + playerUID + ".bin";
+			if (FileExist(cooldownsFile))
+			{
+				FileSerializer file = new FileSerializer;
+				if (file.Open(cooldownsFile, FileMode.READ))
+				{
+					int count;
+					file.Read(count);
+
+					ExpansionRespawnDelayTimer playerTimer;
+					for (int i = 0; i < count; i++)
+					{
+						file.Read(playerTimer);
+						if (playerTimer)
+							playerCooldowns.Insert(playerTimer.Index, playerTimer);
+					}
+
+					ExpansionLastPlayerSpawnLocation last;
+					file.Read(last);
+					if (last)
+						m_PlayerLastIndex.Insert(playerUID, last);
+
+					file.Close();
+				}
+			}
+		}
 		
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
 			return;
 		
-		array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
-		foreach (ExpansionRespawnDelayTimer timer: m_PlayerRespawnDelays)
-		{
-			if (timer.PlayerUID == playerUID)
-			{
-				timer.Now = CF_Date.Now(true).GetTimestamp();
-				playerCooldowns.Insert(timer);
-			}
-		}
-		
-		map<string, ref ExpansionLastPlayerSpawnLocation> lastIndex = new map<string, ref ExpansionLastPlayerSpawnLocation>;
-		foreach (string playerID, ExpansionLastPlayerSpawnLocation last: m_PlayerLastIndex)
-		{
-			if (playerID == playerUID)
-				lastIndex.Insert(playerUID, last);
-		}
-		
 		ScriptRPC rpc = new ScriptRPC();
-		rpc.Write(playerCooldowns);
-		rpc.Write(lastIndex);
+
+		rpc.Write(playerCooldowns.Count());
+		foreach (int index, ExpansionRespawnDelayTimer timer: playerCooldowns)
+		{
+			timer.Now = CF_Date.Now(true).GetTimestamp();
+			rpc.Write(timer);
+		}
+
+		rpc.Write(m_PlayerLastIndex[playerUID]);
+
 		rpc.Send(NULL, ExpansionRespawnHandlerModuleRPC.CheckPlayerCooldowns, true, player.GetIdentity());
 	}
 	
@@ -998,33 +1121,35 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (!IsMissionClient())
 			return;
 
-		array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
+		array<ref ExpansionRespawnDelayTimer> playerCooldowns();
 		if (!ctx.Read(playerCooldowns))
 		{
 			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player cooldowns list");
 		}
-		
-		map<string, ref ExpansionLastPlayerSpawnLocation> lastIndex = new map<string, ref ExpansionLastPlayerSpawnLocation>;
-		if (!ctx.Read(lastIndex))
+
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		string playerUID = player.GetIdentityUID();
+
+		ExpansionLastPlayerSpawnLocation last;
+		if (!ctx.Read(last))
 		{
 			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player last index");
 		}
-		
-		if (!m_PlayerRespawnDelays)
-			m_PlayerRespawnDelays = new array<ref ExpansionRespawnDelayTimer>;
 			
 		int now = CF_Date.Now(true).GetTimestamp();
 
 		m_PlayerRespawnDelays.Clear();
+		map<int, ref ExpansionRespawnDelayTimer> timers();
+		m_PlayerRespawnDelays.Insert(playerUID, timers);
 		foreach (auto playerCooldown: playerCooldowns)
 		{
 			//! Correct for difference between client and server clock
 			playerCooldown.Timestamp += now - playerCooldown.Now;
 
-			m_PlayerRespawnDelays.Insert(playerCooldown);
+			timers.Insert(playerCooldown.Index, playerCooldown);
 		}
 		
-		m_PlayerLastIndex.Insert(lastIndex.GetKey(0), lastIndex.GetElement(0));
+		m_PlayerLastIndex.Insert(playerUID, last);
 	}
 	
 	// ------------------------------------------------------------

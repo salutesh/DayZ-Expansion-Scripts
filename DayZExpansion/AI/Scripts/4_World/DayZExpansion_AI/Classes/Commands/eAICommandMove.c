@@ -8,6 +8,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	private eAIBase m_Unit;
 	private ExpansionPathHandler m_PathFinding;
 	private vector m_PrevWaypoint;
+	private float m_WayPointDistance;
 
 	private float m_Turn;
 	private float m_TurnTarget;
@@ -66,11 +67,13 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	override void SetLookDirection(vector pDirection)
 	{
 		vector angles = pDirection.VectorToAngles();
+		SetLookAnglesRel(ExpansionMath.RelAngle(angles[0]), ExpansionMath.RelAngle(angles[1]));
+	}
 
-		m_LookLR = angles[0];
-		m_LookUD = angles[1];
-		if (m_LookLR > 180) m_LookLR = m_LookLR - 360;
-		if (m_LookUD > 180) m_LookUD = m_LookUD - 360;
+	override void SetLookAnglesRel(float lookLR, float lookUD)
+	{
+		m_LookLR = lookLR;
+		m_LookUD = lookUD;
 
 		m_Look = (Math.AbsFloat(m_LookLR) > 0.01) || (Math.AbsFloat(m_LookUD) > 0.01);
 	}
@@ -137,10 +140,10 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 		vector wayPoint = position;
 		bool isFinal = m_PathFinding.GetNext(wayPoint) <= 2;
-		float wayPointDistance = vector.DistanceSq(position, wayPoint);
+		m_WayPointDistance = vector.DistanceSq(position, wayPoint);
 
 		float minFinal = 0.3;
-		if (isFinal && wayPointDistance >= minFinal)
+		if (isFinal && m_WayPointDistance >= minFinal)
 		{
 			//! If distance squared to waypoint is more than minFinal, make sure unit can actually reach waypoint.
 			//! Prevents unit rotating in spot in case it cannot reach a waypoint due to height difference.
@@ -152,15 +155,17 @@ class eAICommandMove extends ExpansionHumanCommandScript
 			if (DayZPhysics.SphereCastBullet(wayPoint + Vector(0.0, 1.5, 0.0), wayPoint - Vector(0.0, 10.0, 0.0), 0.3, m_CollisionLayerMask|PhxInteractionLayers.TERRAIN, m_Player, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction))
 				wayPoint = m_HitPosition;
 
-			wayPointDistance = vector.DistanceSq(position, wayPoint);
+			m_WayPointDistance = vector.DistanceSq(position, wayPoint);
 		}
 
-		if (!isFinal && wayPoint == m_PrevWaypoint && wayPointDistance < 2.25)
+		if (!isFinal && wayPoint == m_PrevWaypoint && m_WayPointDistance < 2.25)
 		{
-			//! Waypoint is identical to previous waypoint, but not final, and we are stuck spinning.
-			//! Move waypoint a bit further from AI, and see if that gets us better pathfinding next update.
-			wayPoint = position + m_Player.GetDirection() * 1.5;
+			//! Waypoint is identical to previous waypoint, but not final.
+			//! Don't update turn target to prevent AI spinning in place.
+			//! All we can do now is hope for better pathfinding next update.
 			m_PathFinding.m_Recalculate = true;
+			//! Setting speed to jog seems to help against AI not vaulting when it should.
+			//! This will be reset in eAIBase::CommandHandler next update
 			SetSpeedOverrider(true);
 			SetTargetSpeed(2.0);
 		}
@@ -168,23 +173,20 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		{
 			m_PrevWaypoint = wayPoint;
 			m_PathFinding.m_Recalculate = false;
-		}
-
-		if (m_MovementSpeed != 0)
-		{
-			vector pathDir = vector.Direction(position, wayPoint).Normalized();
-			
-			m_TurnTarget = pathDir.VectorToAngles()[0];
+			if (m_MovementSpeed != 0)
+			{
+				vector pathDir = vector.Direction(position, wayPoint).Normalized();
+				
+				m_TurnTarget = pathDir.VectorToAngles()[0];
+			}
 		}
 
 		m_Turn = orientation[0];
 
-		if (m_Turn > 180.0) m_Turn = m_Turn - 360.0;
-		if (m_TurnTarget > 180.0) m_TurnTarget = m_TurnTarget - 360.0;
-
-		m_TurnDifference = Math.AngleDiff(m_Turn, m_TurnTarget);
+		//! Clockwise: Positive, counter-clockwise: Negative
+		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
 		
-		if (isFinal && wayPointDistance < minFinal)
+		if (isFinal && m_WayPointDistance < minFinal)
 		{
 			SetTargetSpeed(0.0);
 		}
@@ -194,11 +196,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		}
 		else if (!m_SpeedOverrider)
 		{
-			if (isFinal && wayPointDistance < 8.0)
+			if (isFinal && m_WayPointDistance < 8.0)
 			{
 				SetTargetSpeed(1.0);
 			}
-			else if (isFinal && wayPointDistance < 20.0)
+			else if (isFinal && m_WayPointDistance < 20.0)
 			{
 				SetTargetSpeed(2.0);
 			}
@@ -214,7 +216,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		if (m_ForceMovementDirection)
 			dirChangeSpeed *= 4;
 
-		m_MovementDirection += Math.Clamp((m_TargetMovementDirection - m_MovementDirection) * dirChangeSpeed, -180.0, 180.0);
+		m_MovementDirection = Math.Lerp(m_MovementDirection, m_TargetMovementDirection, dirChangeSpeed);
 
 		m_MovementSpeed = m_TargetSpeed;
 		if (m_MovementSpeed > m_SpeedLimit && m_SpeedLimit != -1) m_MovementSpeed = m_SpeedLimit;	
@@ -226,10 +228,8 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		m_Table.SetLookDirX(this, m_LookLR);
 		m_Table.SetLookDirY(this, m_LookUD);
 		
-		m_TurnVelocity = m_TurnPrevious - m_Turn;
+		m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
 		m_TurnPrevious = m_Turn;
-		if (m_TurnVelocity > 180.0) m_TurnVelocity = m_TurnVelocity - 360.0;
-		else if (m_TurnVelocity < -180.0) m_TurnVelocity = m_TurnVelocity + 360.0;
 		
 		if (m_MovementSpeed == 0)
 		{
@@ -270,10 +270,14 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		{
 			m_TurnState = TURN_STATE_NONE;
 
-			auto parent = Object.Cast(m_Player.GetParent());
-			if (parent) m_TurnTarget -= parent.GetOrientation()[0];
+			float turnTargetActual = m_TurnTarget;
 
-			PreAnim_SetFilteredHeading(-m_TurnTarget * Math.DEG2RAD, 0.1, 30.0);
+			auto parent = Object.Cast(m_Player.GetParent());
+			if (parent) turnTargetActual -= parent.GetOrientation()[0];
+
+			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
+
+			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.1, 30.0);
 		}
 
 		if (m_GetUp)
@@ -294,5 +298,10 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	override bool PostPhysUpdate(float pDt)
 	{
 		return true;
+	}
+
+	float GetWaypointDistance()
+	{
+		return m_WayPointDistance;
 	}
 };

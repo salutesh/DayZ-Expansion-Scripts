@@ -1,14 +1,10 @@
 modded class MissionGameplay
 {
-	UAInput m_eAIRadialKey;
-
 	void MissionGameplay()
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "MissionGameplay");
 		#endif
-
-		m_eAIRadialKey = GetUApi().GetInputByName("eAICommandMenu");
 
 		CF_Log.Info("eAI - Loaded Client Mission");
 	}
@@ -51,18 +47,19 @@ modded class MissionGameplay
 
 		//TODO: move to 5_Mission/DayZExpansion
 
+		Input input = GetGame().GetInput();
+
 		// If we want to open the command menu, and nothing else is open
-		if (m_eAIRadialKey.LocalPress() && !GetGame().GetUIManager().GetMenu())
+		if (input.LocalPress("eAICommandMenu", false) && !GetGame().GetUIManager().GetMenu())
 		{
 			if (GetExpansionSettings().GetAI().IsAdmin() || (player && player.GetGroup()))
 			{
-				if (!eAICommandMenu.instance) new eAICommandMenu();
-				GetUIManager().ShowScriptedMenu(eAICommandMenu.instance, null);
+				eAICommandMenu.OpenMenu();
 			}
 		}
 
 		// If we want to close the command menu, and our menu is open
-		if (m_eAIRadialKey.LocalRelease())
+		if (input.LocalRelease("eAICommandMenu", false) || input.LocalValue("eAICommandMenu", false) == 0)
 		{
 			auto menu = GetGame().GetUIManager().GetMenu();
 			if (menu && menu == eAICommandMenu.instance)

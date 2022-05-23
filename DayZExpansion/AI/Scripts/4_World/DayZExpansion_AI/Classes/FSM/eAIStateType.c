@@ -115,7 +115,7 @@ class eAIStateType
 #endif
 			FPrintln(file, "if (Event != \""+"\") m_SubFSM.Start(Event);");
 			FPrintln(file, "else m_SubFSM.StartDefault();");
-			if (event_entry.Count() > 0) FPrintln(file, event_entry[0].GetContent().GetContent());
+			FPrintTag0(file, event_entry);
 			FPrintln(file, "}");
 
 			FPrintln(file, "override void OnExit(string Event, bool Aborted, eAIState To) {");
@@ -123,7 +123,7 @@ class eAIStateType
 			FPrintln(file, "auto trace = CF_Trace_3(this, \"OnExit\").Add(Event).Add(Aborted).Add(To);");
 #endif
 			FPrintln(file, "if (Aborted) m_SubFSM.Abort(Event);");
-			if (event_exit.Count() > 0) FPrintln(file, event_exit[0].GetContent().GetContent());
+			FPrintTag0(file, event_exit);
 			FPrintln(file, "}");
 
 			FPrintln(file, "override int OnUpdate(float DeltaTime, int SimulationPrecision) {");
@@ -131,17 +131,17 @@ class eAIStateType
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnUpdate\").Add(DeltaTime).Add(SimulationPrecision);");
 #endif
 			FPrintln(file, "if (m_SubFSM.Update(DeltaTime, SimulationPrecision) == EXIT) return EXIT;");
-			if (event_update.Count() > 0) FPrintln(file, event_update[0].GetContent().GetContent());
-			else FPrintln(file, "return CONTINUE;");
+			if (!FPrintTag0(file, event_update))
+				FPrintln(file, "return CONTINUE;");
 			FPrintln(file, "}");
 
-			FPrintln(file, "override bool ExitGuard(string Event) {");
+			FPrintln(file, "override int ExitGuard(float DeltaTime = 0) {");
 #ifdef EAI_TRACE
-			FPrintln(file, "auto trace = CF_Trace_1(this, \"ExitGuard\").Add(Event);");
+			FPrintln(file, "auto trace = CF_Trace_1(this, \"ExitGuard\").Add(DeltaTime);");
 #endif
-			FPrintln(file, "if (!m_SubFSM.ExitGuard(Event)) return false;");
-			if (guard_exit.Count() > 0) FPrintln(file, guard_exit[0].GetContent().GetContent());
-			else FPrintln(file, "return true;");
+			FPrintln(file, "if (m_SubFSM.ExitGuard(DeltaTime) == CONTINUE) return CONTINUE;");
+			if (!FPrintTag0(file, guard_exit))
+				FPrintln(file, "return EXIT;");
 			FPrintln(file, "}");
 		}
 		else
@@ -150,30 +150,30 @@ class eAIStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnEntry\").Add(Event).Add(From);");
 #endif
-			if (event_entry.Count() > 0) FPrintln(file, event_entry[0].GetContent().GetContent());
+			FPrintTag0(file, event_entry);
 			FPrintln(file, "}");
 
 			FPrintln(file, "override void OnExit(string Event, bool Aborted, eAIState To) {");
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_3(this, \"OnExit\").Add(Event).Add(Aborted).Add(To);");
 #endif
-			if (event_exit.Count() > 0) FPrintln(file, event_exit[0].GetContent().GetContent());
+			FPrintTag0(file, event_exit);
 			FPrintln(file, "}");
 
 			FPrintln(file, "override int OnUpdate(float DeltaTime, int SimulationPrecision) {");
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnUpdate\").Add(DeltaTime).Add(SimulationPrecision);");
 #endif
-			if (event_update.Count() > 0) FPrintln(file, event_update[0].GetContent().GetContent());
-			else FPrintln(file, "return CONTINUE;");
+			if (!FPrintTag0(file, event_update))
+				FPrintln(file, "return CONTINUE;");
 			FPrintln(file, "}");
 
-			FPrintln(file, "override bool ExitGuard(string Event) {");
+			FPrintln(file, "override int ExitGuard(float DeltaTime = 0) {");
 #ifdef EAI_TRACE
-			FPrintln(file, "auto trace = CF_Trace_1(this, \"ExitGuard\").Add(Event);");
+			FPrintln(file, "auto trace = CF_Trace_1(this, \"ExitGuard\").Add(DeltaTime);");
 #endif
-			if (guard_exit.Count() > 0) FPrintln(file, guard_exit[0].GetContent().GetContent());
-			else FPrintln(file, "return true;");
+			if (!FPrintTag0(file, guard_exit))
+				FPrintln(file, "return EXIT;");
 			FPrintln(file, "}");
 		}
 
@@ -182,5 +182,20 @@ class eAIStateType
 		eAIStateType.Add(new_type);
 		
 		return new_type;
+	}
+
+	static bool FPrintTag0(FileHandle file, array<CF_XML_Tag> tags)
+	{
+		if (tags.Count() > 0)
+		{
+			string content = tags[0].GetContent().GetContent();
+			if (content.Trim())
+			{
+				FPrintln(file, content);
+				return true;
+			}
+		}
+
+		return false;
 	}
 };

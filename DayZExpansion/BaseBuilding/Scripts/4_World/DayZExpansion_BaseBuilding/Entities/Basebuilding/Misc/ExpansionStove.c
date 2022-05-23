@@ -43,6 +43,7 @@ class ExpansionStove extends FireplaceBase
 		m_CookingEquipment = equipment;
 	}
 	
+	#ifdef DAYZ_1_17
 	// ------------------------------------------------------------
 	// Expansion ClearCookingEquipment
 	// ------------------------------------------------------------
@@ -50,6 +51,7 @@ class ExpansionStove extends FireplaceBase
 	{
 		SetCookingEquipment( NULL );
 	}
+	#endif
 
 	// ------------------------------------------------------------
 	// Destructor

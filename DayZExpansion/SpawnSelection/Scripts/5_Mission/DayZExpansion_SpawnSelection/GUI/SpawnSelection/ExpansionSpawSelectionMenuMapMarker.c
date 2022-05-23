@@ -35,10 +35,12 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 		if (m_RespawnModule)
 		{
 			int respawnCooldown = GetExpansionSettings().GetSpawn().GetCooldown(m_IsTerritory);
-			foreach (ExpansionRespawnDelayTimer timer: m_RespawnModule.m_PlayerRespawnDelays)
+			map<int, ref ExpansionRespawnDelayTimer> playerCooldowns = m_RespawnModule.m_PlayerRespawnDelays.GetElement(0);
+			if (playerCooldowns)
 			{
-				if (timer.Index != m_Index)
-					continue;
+				ExpansionRespawnDelayTimer timer = playerCooldowns[m_Index];
+				if (!timer)
+					return;
 
 				if (timer.HasCooldown())
 				{
@@ -62,8 +64,6 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 				{
 					OnCooldownEnd();
 				}
-
-				break;
 			}
 		}
 	}

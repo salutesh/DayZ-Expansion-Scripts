@@ -956,10 +956,7 @@ class ExpansionTraderAIBase extends eAIBase
 	override bool PlayerIsEnemy(PlayerBase other)
 #endif
 	{
-		if ( !IsInSafeZone() )
-			return false;
-
-		return super.PlayerIsEnemy(other);
+		return false;
 	}
 
 #ifdef EXPANSIONMODAI

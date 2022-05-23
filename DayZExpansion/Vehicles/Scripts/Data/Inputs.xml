@@ -1,54 +1,53 @@
-
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <modded_inputs>
-    <inputs>
-        <actions>
-            <input name="UAExpansionHeliRocket" loc="STR_EXPANSION_HELICOPTER_ROCKET" visible="false" />
-            <input name="UAExpansionHeliFreeLook" loc="STR_EXPANSION_HELICOPTER_FREELOOK" />
-            <input name="UAExpansionHeliAutoHover" loc="STR_EXPANSION_HELICOPTER_TOGGLE_AUTOHOVER" />
-            <input name="UAExpansionHeliCollectiveUp" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_UP" />
-            <input name="UAExpansionHeliCollectiveDown" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_DOWN" />
-            <input name="UAExpansionHeliAntiTorqueLeft" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_LEFT" />
-            <input name="UAExpansionHeliAntiTorqueRight" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_RIGHT" />
-            <input name="UAExpansionHeliCyclicForward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_FORWARD" />
-            <input name="UAExpansionHeliCyclicBackward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_BACKWARD" />
-            <input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
-            <input name="UAExpansionHeliCyclicLeft" loc="STR_EXPANSION_HELICOPTER_CYCLIC_LEFT" />
-            <input name="UAExpansionHeliCargoDoorUp" visible="false" />
-            <input name="UAExpansionHeliCargoDoorDown" visible="false" />
+	<inputs>
+		<actions>
+			<input name="UAExpansionHeliRocket" loc="STR_EXPANSION_HELICOPTER_ROCKET" visible="false" />
+			<input name="UAExpansionHeliFreeLook" loc="STR_EXPANSION_HELICOPTER_FREELOOK" />
+			<input name="UAExpansionHeliAutoHover" loc="STR_EXPANSION_HELICOPTER_TOGGLE_AUTOHOVER" />
+			<input name="UAExpansionHeliCollectiveUp" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_UP" />
+			<input name="UAExpansionHeliCollectiveDown" loc="STR_EXPANSION_HELICOPTER_COLLECTIVE_DOWN" />
+			<input name="UAExpansionHeliAntiTorqueLeft" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_LEFT" />
+			<input name="UAExpansionHeliAntiTorqueRight" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_RIGHT" />
+			<input name="UAExpansionHeliCyclicForward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_FORWARD" />
+			<input name="UAExpansionHeliCyclicBackward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_BACKWARD" />
+			<input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
+			<input name="UAExpansionHeliCyclicLeft" loc="STR_EXPANSION_HELICOPTER_CYCLIC_LEFT" />
+			<input name="UAExpansionHeliCargoDoorUp" visible="false" />
+			<input name="UAExpansionHeliCargoDoorDown" visible="false" />
 
-            <input name="UAExpansionPlaneRocket" loc="STR_EXPANSION_PLANE_ROCKET" visible="false" /> 
-            <input name="UAExpansionPlaneFlare" loc="STR_EXPANSION_PLANE_FLARE" visible="false" />
+			<input name="UAExpansionPlaneRocket" loc="STR_EXPANSION_PLANE_ROCKET" visible="false" /> 
+			<input name="UAExpansionPlaneFlare" loc="STR_EXPANSION_PLANE_FLARE" visible="false" />
 			<input name="UAExpansionPlaneEngine" loc="STR_EXPANSION_PLANE_ENGINE" />
 			<input name="UAExpansionPlaneEngineUp" loc="STR_EXPANSION_PLANE_ENGINE_UP" />
 			<input name="UAExpansionPlaneEngineDown" loc="STR_EXPANSION_PLANE_ENGINE_DOWN" />
-            <input name="UAExpansionPlaneElevatorUp" loc="STR_EXPANSION_PLANE_ELEVATOR_UP" />
-            <input name="UAExpansionPlaneElevatorDown" loc="STR_EXPANSION_PLANE_ELEVATOR_DOWN" />
-            <input name="UAExpansionPlaneAileronLeft" loc="STR_EXPANSION_PLANE_AILERON_LEFT" />
-            <input name="UAExpansionPlaneAileronRight" loc="STR_EXPANSION_PLANE_AILERON_RIGHT" />
-            <input name="UAExpansionPlaneRudderLeft" loc="STR_EXPANSION_PLANE_RUDDER_RIGHT" />
-            <input name="UAExpansionPlaneRudderRight" loc="STR_EXPANSION_PLANE_RUDDER_LEFT" />
-            <input name="UAExpansionPlaneFlapsUp" loc="STR_EXPANSION_PLANE_FLAPS_UP" />
-            <input name="UAExpansionPlaneFlapsDown" loc="STR_EXPANSION_PLANE_FLAPS_DOWN" />
+			<input name="UAExpansionPlaneElevatorUp" loc="STR_EXPANSION_PLANE_ELEVATOR_UP" />
+			<input name="UAExpansionPlaneElevatorDown" loc="STR_EXPANSION_PLANE_ELEVATOR_DOWN" />
+			<input name="UAExpansionPlaneAileronLeft" loc="STR_EXPANSION_PLANE_AILERON_LEFT" />
+			<input name="UAExpansionPlaneAileronRight" loc="STR_EXPANSION_PLANE_AILERON_RIGHT" />
+			<input name="UAExpansionPlaneRudderLeft" loc="STR_EXPANSION_PLANE_RUDDER_RIGHT" />
+			<input name="UAExpansionPlaneRudderRight" loc="STR_EXPANSION_PLANE_RUDDER_LEFT" />
+			<input name="UAExpansionPlaneFlapsUp" loc="STR_EXPANSION_PLANE_FLAPS_UP" />
+			<input name="UAExpansionPlaneFlapsDown" loc="STR_EXPANSION_PLANE_FLAPS_DOWN" />
 
-            <input name="UAExpansionBoatMoveForward" loc="STR_EXPANSION_BOAT_MOVEFORWARD" />
-            <input name="UAExpansionBoatMoveBackward" loc="STR_EXPANSION_BOAT_MOVEBACKWARD" />
-            <input name="UAExpansionBoatRotateLeft" loc="STR_EXPANSION_BOAT_ROTATE_LEFT" />
-            <input name="UAExpansionBoatRotateRight" loc="STR_EXPANSION_BOAT_ROTATE_RIGHT" />
-            <input name="UAExpansionBoatTurbo" loc="STR_EXPANSION_BOAT_TURBO" />
+			<input name="UAExpansionBoatMoveForward" loc="STR_EXPANSION_BOAT_MOVEFORWARD" />
+			<input name="UAExpansionBoatMoveBackward" loc="STR_EXPANSION_BOAT_MOVEBACKWARD" />
+			<input name="UAExpansionBoatRotateLeft" loc="STR_EXPANSION_BOAT_ROTATE_LEFT" />
+			<input name="UAExpansionBoatRotateRight" loc="STR_EXPANSION_BOAT_ROTATE_RIGHT" />
+			<input name="UAExpansionBoatTurbo" loc="STR_EXPANSION_BOAT_TURBO" />
 
-            <input name="UAExpansionBikeGearUp" loc="STR_EXPANSION_BIKE_GEAR_UP" />
-            <input name="UAExpansionBikeGearDown" loc="STR_EXPANSION_BIKE_GEAR_DOWN" />
-            <input name="UAExpansionBikeMoveForward" loc="STR_EXPANSION_BIKE_MOVEFORWARD" />
-            <input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" />
-            <input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" />
-            <input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" />
-            <input name="UAExpansionBikeGentle" loc="STR_EXPANSION_BIKE_GENTLE" />
-            <input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" />
+			<input name="UAExpansionBikeGearUp" loc="STR_EXPANSION_BIKE_GEAR_UP" />
+			<input name="UAExpansionBikeGearDown" loc="STR_EXPANSION_BIKE_GEAR_DOWN" />
+			<input name="UAExpansionBikeMoveForward" loc="STR_EXPANSION_BIKE_MOVEFORWARD" />
+			<input name="UAExpansionBikeMoveBackward" loc="STR_EXPANSION_BIKE_MOVEBACKWARD" />
+			<input name="UAExpansionBikeRotateLeft" loc="STR_EXPANSION_BIKE_ROTATE_LEFT" />
+			<input name="UAExpansionBikeRotateRight" loc="STR_EXPANSION_BIKE_ROTATE_RIGHT" />
+			<input name="UAExpansionBikeGentle" loc="STR_EXPANSION_BIKE_GENTLE" />
+			<input name="UAExpansionBikeTurbo" loc="STR_EXPANSION_BIKE_TURBO" />
 
-            <input name="UAExpansionCarHorn" loc="STR_EXPANSION_VEHICLE_HORN" />
-            <input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
-        </actions>
+			<input name="UAExpansionCarHorn" loc="STR_EXPANSION_VEHICLE_HORN" />
+			<input name="UAExpansionCarRefill" loc="STR_EXPANSION_VEHICLE_REFILL" />
+		</actions>
 		
 		<exclude name="movementexpansion">
 			<input name="UAExpansionHeliCyclicForward" />
@@ -73,141 +72,186 @@
 			<input name="UAExpansionBoatRotateRight" />
 			<input name="UAExpansionBoatTurbo" />
 			<input name="UAExpansionCarHorn" />
-            <input name="UAExpansionCarRefill" />
+			<input name="UAExpansionCarRefill" />
 		</exclude>
 		
 		<exclude name="menuexpansion">
 			<include name="movementexpansion" />
 		</exclude>
-    </inputs>
 
-    <preset>
-        <input name="UAExpansionHeliRocket">
-            <btn name="kSpace" />
-        </input>
-        <input name="UAExpansionHeliFreeLook">
-            <btn name="kLMenu" />
-        </input>
-        <input name="UAExpansionHeliAutoHover">
-            <btn name="kX" />
-        </input>
-        <input name="UAExpansionHeliCyclicForward">
-            <btn name="kW" />
+<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
+		<sorting name="expansion_vehicles" loc="STR_MOD_EXPANSION_NAME">
+			<input name="UAExpansionHeliRocket" />
+			<input name="UAExpansionHeliFreeLook" />
+			<input name="UAExpansionHeliAutoHover" />
+			<input name="UAExpansionHeliCyclicForward" />
+			<input name="UAExpansionHeliCyclicBackward" />
+			<input name="UAExpansionHeliCyclicLeft" />
+			<input name="UAExpansionHeliCyclicRight" />
+			<input name="UAExpansionHeliCollectiveUp" />
+			<input name="UAExpansionHeliCollectiveDown" />
+			<input name="UAExpansionHeliAntiTorqueLeft" />
+			<input name="UAExpansionHeliAntiTorqueRight" />
+			<input name="UAExpansionHeliCargoDoorUp" />
+			<input name="UAExpansionHeliCargoDoorDown" />
+			<input name="UAExpansionPlaneFlare" />
+			<input name="UAExpansionPlaneEngine" />
+			<input name="UAExpansionPlaneEngineUp" />
+			<input name="UAExpansionPlaneEngineDown" />
+			<input name="UAExpansionPlaneElevatorUp" />
+			<input name="UAExpansionPlaneElevatorDown" />
+			<input name="UAExpansionPlaneAileronLeft" />
+			<input name="UAExpansionPlaneAileronRight" />
+			<input name="UAExpansionPlaneRudderLeft" />
+			<input name="UAExpansionPlaneRudderRight" />
+			<input name="UAExpansionPlaneFlapsUp" />
+			<input name="UAExpansionPlaneFlapsDown" />
+			<input name="UAExpansionBoatMoveForward" />
+			<input name="UAExpansionBoatMoveBackward" />
+			<input name="UAExpansionBoatRotateLeft" />
+			<input name="UAExpansionBoatRotateRight" />
+			<input name="UAExpansionBoatTurbo" />
+			<input name="UAExpansionBikeGearUp" />
+			<input name="UAExpansionBikeGearDown" />
+			<input name="UAExpansionBikeMoveForward" />
+			<input name="UAExpansionBikeMoveBackward" />
+			<input name="UAExpansionBikeRotateLeft" />
+			<input name="UAExpansionBikeRotateRight" />
+			<input name="UAExpansionBikeGentle" />
+			<input name="UAExpansionBikeTurbo" />
+			<input name="UAExpansionCarHorn" />
+			<input name="UAExpansionCarRefill" />
+		</sorting>
+-->
+	</inputs>
+
+	<preset>
+		<input name="UAExpansionHeliRocket">
+			<btn name="kSpace" />
+		</input>
+		<input name="UAExpansionHeliFreeLook">
+			<btn name="kLMenu" />
+		</input>
+		<input name="UAExpansionHeliAutoHover">
+			<btn name="kX" />
+		</input>
+		<input name="UAExpansionHeliCyclicForward">
+			<btn name="kW" />
             <btn name="x1LeftThumbUp" />
-        </input>
-        <input name="UAExpansionHeliCyclicBackward">
-            <btn name="kS" />
+		</input>
+		<input name="UAExpansionHeliCyclicBackward">
+			<btn name="kS" />
             <btn name="x1LeftThumbDown" />
-        </input>
-        <input name="UAExpansionHeliCyclicLeft">
-            <btn name="kA" />
+		</input>
+		<input name="UAExpansionHeliCyclicLeft">
+			<btn name="kA" />
             <btn name="x1LeftThumbLeft" />
-        </input>
-        <input name="UAExpansionHeliCyclicRight">
-            <btn name="kD" />
+		</input>
+		<input name="UAExpansionHeliCyclicRight">
+			<btn name="kD" />
             <btn name="x1LeftThumbRight" />
-        </input>
-        <input name="UAExpansionHeliCollectiveUp">
-            <btn name="kLShift" />
+		</input>
+		<input name="UAExpansionHeliCollectiveUp">
+			<btn name="kLShift" />
             <btn name="x1ShoulderRight" />
-        </input>
-        <input name="UAExpansionHeliCollectiveDown">
-            <btn name="kZ" />
+		</input>
+		<input name="UAExpansionHeliCollectiveDown">
+			<btn name="kZ" />
             <btn name="x1ShoulderLeft" />
-        </input>
-        <input name="UAExpansionHeliAntiTorqueLeft">
-            <btn name="kQ" />
+		</input>
+		<input name="UAExpansionHeliAntiTorqueLeft">
+			<btn name="kQ" />
             <btn name="x1TriggerLeft" />
-        </input>
-        <input name="UAExpansionHeliAntiTorqueRight">
-            <btn name="kE" />
+		</input>
+		<input name="UAExpansionHeliAntiTorqueRight">
+			<btn name="kE" />
             <btn name="x1TriggerRight" />
-        </input>
-        <input name="UAExpansionHeliCargoDoorUp">
-            <btn name="kO" />
-        </input>
-        <input name="UAExpansionHeliCargoDoorDown">
-            <btn name="kP" />
-        </input>
-        <input name="UAExpansionPlaneFlare">
-            <btn name="kSpace" />
-        </input>
-        <input name="UAExpansionPlaneEngine">
-        </input>
-        <input name="UAExpansionPlaneEngineUp">
-            <btn name="kLShift" />
-        </input>
-        <input name="UAExpansionPlaneEngineDown">
-            <btn name="kLControl" />
-        </input>
-        <input name="UAExpansionPlaneElevatorUp">
-            <btn name="kS" />
-        </input>
-        <input name="UAExpansionPlaneElevatorDown">
-            <btn name="kW" />
-        </input>
-        <input name="UAExpansionPlaneAileronLeft">
-            <btn name="kA" />
-        </input>
-        <input name="UAExpansionPlaneAileronRight">
-            <btn name="kD" />
-        </input>
-        <input name="UAExpansionPlaneRudderLeft">
-            <btn name="kQ" />
-        </input>
-        <input name="UAExpansionPlaneRudderRight">
-            <btn name="kE" />
-        </input>
-        <input name="UAExpansionPlaneFlapsUp" >
-            <btn name="kPrior" />
-        </input>
-        <input name="UAExpansionPlaneFlapsDown" >
-            <btn name="kNext" />
-        </input>
-        <input name="UAExpansionBoatMoveForward">
-            <btn name="kW" />
-        </input>
-        <input name="UAExpansionBoatMoveBackward">
-            <btn name="kS" />
-        </input>
-        <input name="UAExpansionBoatRotateLeft">
-            <btn name="kA" />
-        </input>
-        <input name="UAExpansionBoatRotateRight">
-            <btn name="kD" />
-        </input>
-        <input name="UAExpansionBoatTurbo">
-            <btn name="kLShift" />
-        </input>
-        <input name="UAExpansionBikeGearUp">
-            <btn name="kE" />
-        </input>
-        <input name="UAExpansionBikeGearDown">
-            <btn name="kQ" />
-        </input>
-        <input name="UAExpansionBikeMoveForward">
-            <btn name="kW" />
-        </input>
-        <input name="UAExpansionBikeMoveBackward">
-            <btn name="kS" />
-        </input>
-        <input name="UAExpansionBikeRotateLeft">
-            <btn name="kA" />
-        </input>
-        <input name="UAExpansionBikeRotateRight">
-            <btn name="kD" />
-        </input>
-        <input name="UAExpansionBikeGentle">
-            <btn name="kLControl" />
-        </input>
-        <input name="UAExpansionBikeTurbo">
-            <btn name="kLShift" />
-        </input>
-        <input name="UAExpansionCarHorn">
-            <btn name="kH" />
-        </input>
-        <input name="UAExpansionCarRefill">
-            <btn name="kR" />
-        </input>
-    </preset>
+		</input>
+		<input name="UAExpansionHeliCargoDoorUp">
+			<btn name="kO" />
+		</input>
+		<input name="UAExpansionHeliCargoDoorDown">
+			<btn name="kP" />
+		</input>
+		<input name="UAExpansionPlaneFlare">
+			<btn name="kSpace" />
+		</input>
+		<input name="UAExpansionPlaneEngine">
+		</input>
+		<input name="UAExpansionPlaneEngineUp">
+			<btn name="kLShift" />
+		</input>
+		<input name="UAExpansionPlaneEngineDown">
+			<btn name="kLControl" />
+		</input>
+		<input name="UAExpansionPlaneElevatorUp">
+			<btn name="kS" />
+		</input>
+		<input name="UAExpansionPlaneElevatorDown">
+			<btn name="kW" />
+		</input>
+		<input name="UAExpansionPlaneAileronLeft">
+			<btn name="kA" />
+		</input>
+		<input name="UAExpansionPlaneAileronRight">
+			<btn name="kD" />
+		</input>
+		<input name="UAExpansionPlaneRudderLeft">
+			<btn name="kQ" />
+		</input>
+		<input name="UAExpansionPlaneRudderRight">
+			<btn name="kE" />
+		</input>
+		<input name="UAExpansionPlaneFlapsUp" >
+			<btn name="kPrior" />
+		</input>
+		<input name="UAExpansionPlaneFlapsDown" >
+			<btn name="kNext" />
+		</input>
+		<input name="UAExpansionBoatMoveForward">
+			<btn name="kW" />
+		</input>
+		<input name="UAExpansionBoatMoveBackward">
+			<btn name="kS" />
+		</input>
+		<input name="UAExpansionBoatRotateLeft">
+			<btn name="kA" />
+		</input>
+		<input name="UAExpansionBoatRotateRight">
+			<btn name="kD" />
+		</input>
+		<input name="UAExpansionBoatTurbo">
+			<btn name="kLShift" />
+		</input>
+		<input name="UAExpansionBikeGearUp">
+			<btn name="kE" />
+		</input>
+		<input name="UAExpansionBikeGearDown">
+			<btn name="kQ" />
+		</input>
+		<input name="UAExpansionBikeMoveForward">
+			<btn name="kW" />
+		</input>
+		<input name="UAExpansionBikeMoveBackward">
+			<btn name="kS" />
+		</input>
+		<input name="UAExpansionBikeRotateLeft">
+			<btn name="kA" />
+		</input>
+		<input name="UAExpansionBikeRotateRight">
+			<btn name="kD" />
+		</input>
+		<input name="UAExpansionBikeGentle">
+			<btn name="kLControl" />
+		</input>
+		<input name="UAExpansionBikeTurbo">
+			<btn name="kLShift" />
+		</input>
+		<input name="UAExpansionCarHorn">
+			<btn name="kH" />
+		</input>
+		<input name="UAExpansionCarRefill">
+			<btn name="kR" />
+		</input>
+	</preset>
 </modded_inputs>

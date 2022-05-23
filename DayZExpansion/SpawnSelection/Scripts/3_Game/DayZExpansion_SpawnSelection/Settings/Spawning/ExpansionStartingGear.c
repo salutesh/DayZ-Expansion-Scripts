@@ -47,12 +47,6 @@ class ExpansionStartingGearItem
 class ExpansionStartingGearBase
 {
 	bool EnableStartingGear;				// If enabled, will use the starting gear configured in this file
-	bool UseUpperGear;						// If enabled, use the upper gear configured
-	bool UsePantsGear;						// If enabled, use the pants gear configured
-	bool UseBackpackGear;					// If enabled, use the backpack gear configured
-	bool UseVestGear;							// If enabled, use the vest gear configured
-	bool UsePrimaryWeapon;				// If enabled, use the primary weapon configured
-	bool UseSecondaryWeapon;			// If enabled, use the secondary weapon configured
 	bool ApplyEnergySources;				// If enabled this will apply batteries to all items that can fit/need one.
 	bool SetRandomHealth;					// If enabled this will add ramdom damage to all items that the player has.
 	
@@ -66,12 +60,6 @@ class ExpansionStartingGearBase
 #endif
 
 		EnableStartingGear = true;
-		UseUpperGear = true;
-		UsePantsGear = false;
-		UseBackpackGear = true;
-		UseVestGear = false;
-		UsePrimaryWeapon = false;
-		UseSecondaryWeapon = false;
 		ApplyEnergySources = true;
 		SetRandomHealth = true;
 	}
@@ -120,12 +108,6 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 		super.Defaults();
 		
 		EnableStartingGear = true;
-		UseUpperGear = true;
-		UsePantsGear = false;
-		UseBackpackGear = true;
-		UseVestGear = false;
-		UsePrimaryWeapon = false;
-		UseSecondaryWeapon = false;
 		
 		ApplyEnergySources = true;
 		SetRandomHealth = true;
@@ -158,14 +140,12 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 				UpperGear.Insert(new ExpansionStartingGearItem("RoadFlare", 2));
 				PantsGear.Insert(new ExpansionStartingGearItem("Heatpack"));
 				PantsGear.Insert(new ExpansionStartingGearItem("dzn_tool_watch"));
-				UsePantsGear = true;
 				break;
 			}
 			case "takistanplus":
 			{
 				UpperGear.Insert(new ExpansionStartingGearItem("Chemlight_White"));
 				PantsGear.Insert(new ExpansionStartingGearItem("Compass"));
-				UsePantsGear = true;
 				break;
 			}
 		}

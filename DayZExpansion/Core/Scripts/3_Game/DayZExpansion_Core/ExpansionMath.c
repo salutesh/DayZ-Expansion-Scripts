@@ -72,4 +72,65 @@ class ExpansionMath
             result = 1 - 2 * Math.Pow(1 - x, 2);
 		return edge0 + result * (edge1 - edge0);
 	}
+
+	//! Generate random point within ring (uniformly)
+	static vector GetRandomPointInRing(vector center, float minRadius, float maxRadius)
+	{
+		float maxRadiusSq = maxRadius * maxRadius;
+		float minRadiusSq = minRadius * minRadius;
+		float r = Math.Sqrt(Math.RandomFloat01() * (maxRadiusSq - minRadiusSq) + minRadiusSq);
+		float theta = Math.RandomFloat01() * 2 * Math.PI;
+
+		return Vector(center[0] + r * Math.Cos(theta), center[1], center[2] + r * Math.Sin(theta));
+	}
+
+	//! Generate random point within circle (uniformly)
+	static vector GetRandomPointInCircle(vector center, float radius)
+	{
+		float r = radius * Math.Sqrt( Math.RandomFloat01() );
+		float theta = Math.RandomFloat01() * 2 * Math.PI;
+
+		return Vector(center[0] + r * Math.Cos(theta), center[1], center[2] + r * Math.Sin(theta));
+	}
+
+	//! Converts angle in interval [0,360] to interval [-180,180]
+	static float RelAngle(float angle)
+	{
+		if (angle > 180)
+			return angle - 360;
+		return angle;
+	}
+
+	//! Converts angle in interval [-180,180] to interval [0,360]
+	static float AbsAngle(float angle)
+	{
+		if (angle < 0)
+			return angle + 360;
+		return angle;
+	}
+
+	/**
+	\brief Returns smallest possible angle difference
+		\param a \p float Angle in interval [0,360]
+		\param b \p float Target angle in interval [0,360]
+		\return \p float - Angle difference in interval [-180,180]
+		@code
+			Print( ExpansionMath.AngleDiff2(270.0, 0.0) );
+			Print( ExpansionMath.AngleDiff2(350.0, 1.0) );
+			Print( ExpansionMath.AngleDiff2(60.0, 275.0) );
+
+			>> 90.0
+			>> 11.0
+			>> -145.0
+		@endcode
+	*/
+	static float AngleDiff2(float a, float b)
+	{
+		float d = b - a;
+		if (d > 180)
+			return d - 360;
+		else if (d < -180)
+			return d + 360;
+		return d;
+	}
 }

@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef DAYZ_1_17
 modded class ZombieContainer
 {
 	override void InitGhostSlots()
@@ -40,3 +41,4 @@ modded class ZombieContainer
 		}
 	}
 };
+#endif

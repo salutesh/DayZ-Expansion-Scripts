@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Data
 	{
-		units[] = {"ExpansionCarDoorFix","ExpansionSpraycanBlack","ExpansionSpraycanBlackRust","ExpansionSpraycanGrey","ExpansionSpraycanGreyRust","ExpansionSpraycanWhite","ExpansionSpraycanWhiteRust","ExpansionSpraycanGreen","ExpansionSpraycanGreenRust","ExpansionSpraycanRed","ExpansionSpraycanRedRust","ExpansionSpraycanBlue","ExpansionSpraycanBlueRust","ExpansionSpraycanYellow","ExpansionSpraycanYellowRust","ExpansionSpraycanYellowBright","ExpansionSpraycanYellowBrightRust","ExpansionSpraycanWine","ExpansionSpraycanWineRust","ExpansionSpraycanLime","ExpansionSpraycanPolice","ExpansionSpraycanBanditKitty","ExpansionWheelBase","ExpansionVehicleBase","ExpansionVehicleBikeBase","ExpansionVehicleCarBase","ExpansionWreck","ExpansionHelicopterScript","ExpansionVehicleHelicopterBase","ExpansionVehiclePlaneBase"};
+		units[] = {"ExpansionCarDoorFix","ExpansionSpraycanBlack","ExpansionSpraycanBlackRust","ExpansionSpraycanGrey","ExpansionSpraycanGreyRust","ExpansionSpraycanWhite","ExpansionSpraycanWhiteRust","ExpansionSpraycanGreen","ExpansionSpraycanGreenRust","ExpansionSpraycanRed","ExpansionSpraycanRedRust","ExpansionSpraycanBlue","ExpansionSpraycanBlueRust","ExpansionSpraycanYellow","ExpansionSpraycanYellowRust","ExpansionSpraycanYellowBright","ExpansionSpraycanYellowBrightRust","ExpansionSpraycanWine","ExpansionSpraycanWineRust","ExpansionSpraycanLime","ExpansionSpraycanPolice","ExpansionSpraycanBanditKitty","ExpansionWreck"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled","DayZExpansion_Core_Scripts"};
@@ -317,14 +317,14 @@ class CfgVehicles
 	};
 	class ExpansionWheelBase: Inventory_Base
 	{
-		scope = 2;
+		scope = 0;
 		mass = 80.0;
 		radius = 0.536;
 		width = 0.316;
 	};
 	class ExpansionVehicleBase: Inventory_Base
 	{
-		scope = 2;
+		scope = 0;
 		vehicleClass = "Expansion_Vehicle";
 		bounding = "BSphere";
 		overrideDrawArea = "8.0";
@@ -339,7 +339,7 @@ class CfgVehicles
 	};
 	class ExpansionVehicleBikeBase: ExpansionVehicleBase
 	{
-		scope = 2;
+		scope = 0;
 		vehicleClass = "Expansion_Bicycle";
 		rotationFlags = 64;
 		storageCategory = 4;
@@ -406,7 +406,7 @@ class CfgVehicles
 	};
 	class ExpansionVehicleCarBase: ExpansionVehicleBase
 	{
-		scope = 2;
+		scope = 0;
 		vehicleClass = "Expansion_Car";
 		rotationFlags = 64;
 		storageCategory = 4;
@@ -602,7 +602,7 @@ class CfgVehicles
 	};
 	class ExpansionHelicopterScript: CarScript
 	{
-		scope = 2;
+		scope = 0;
 		vehicleClass = "Expansion_Helicopter";
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","GlowPlug"};
 		class Crew: Crew
@@ -805,7 +805,7 @@ class CfgVehicles
 	};
 	class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 	{
-		scope = 2;
+		scope = 0;
 		vehicleClass = "Expansion_Helicopter";
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","GlowPlug"};
 		class Crew: Crew
@@ -1197,7 +1197,7 @@ class CfgVehicles
 	};
 	class ExpansionVehiclePlaneBase: ExpansionVehicleBase
 	{
-		scope = 2;
+		scope = 0;
 		vehicleClass = "Expansion_Plane";
 		class AnimationSources
 		{

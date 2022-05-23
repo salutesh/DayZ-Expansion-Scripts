@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <modded_inputs>
-    <inputs>
-        <actions>
-            <input name="UAExpansionEarplugsToggle" loc="STR_EXPANSION_TOGGLE_EARPLUGS" />
-            <input name="UAExpansionAutoRunToggle" loc="STR_EXPANSION_TOGGLE_AUTORUN" />
-        </actions>
+	<inputs>
+		<actions>
+			<input name="UAExpansionEarplugsToggle" loc="STR_EXPANSION_TOGGLE_EARPLUGS" />
+			<input name="UAExpansionAutoRunToggle" loc="STR_EXPANSION_TOGGLE_AUTORUN" />
+		</actions>
 		
 		<exclude name="chatexpansion">
 			<input name="UAExpansionEarplugsToggle" />
 			<input name="UAExpansionAutoRunToggle" />
 		</exclude>
-    </inputs>
 
-    <preset>
-        <input name="UAExpansionEarplugsToggle">
-            <btn name="kP" />
-        </input>
-        <input name="UAExpansionAutoRunToggle">
-            <btn name="kZ" />
-        </input>
-    </preset>
+<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
+		<sorting name="expansion" loc="STR_MOD_EXPANSION_NAME">
+			<input name="UAExpansionEarplugsToggle" />
+			<input name="UAExpansionAutoRunToggle" />
+		</sorting>
+-->
+	</inputs>
+
+	<preset>
+		<input name="UAExpansionEarplugsToggle">
+			<btn name="kP" />
+		</input>
+		<input name="UAExpansionAutoRunToggle">
+			<btn name="kZ" />
+		</input>
+	</preset>
 </modded_inputs>

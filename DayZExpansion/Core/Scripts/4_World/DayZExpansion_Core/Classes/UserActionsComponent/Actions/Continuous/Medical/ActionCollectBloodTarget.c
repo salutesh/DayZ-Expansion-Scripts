@@ -20,18 +20,3 @@ modded class ActionCollectBloodTarget
 		return super.ActionCondition(player, target, item);
 	}
 };
-
-modded class ActionCollectBloodTargetLambda
-{
-	override void CopyOldPropertiesToNew (notnull EntityAI old_item, EntityAI new_item)
-	{
-		//! Make collecting blood from self in safezones actually decrease blood by temporarily disabling godmode
-		if (m_Target.IsInSafeZone())
-			m_Target.SetAllowDamage(true);
-
-		super.CopyOldPropertiesToNew(old_item, new_item);
-
-		if (m_Target.IsInSafeZone())
-			m_Target.SetAllowDamage(false);
-	}
-};

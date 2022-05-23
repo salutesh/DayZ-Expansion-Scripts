@@ -109,6 +109,9 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 	
 	bool IsMemberOnline(string uid)
 	{
+		if (!ClientData || !ClientData.m_PlayerList || !ClientData.m_PlayerList.m_PlayerList)
+			return false;
+		
 		foreach (SyncPlayer player : ClientData.m_PlayerList.m_PlayerList)
 		{
 			if (player.m_RUID == uid)

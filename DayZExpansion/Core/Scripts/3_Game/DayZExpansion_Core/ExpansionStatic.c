@@ -795,7 +795,7 @@ class ExpansionStatic
 		"eAI_SurvivorM_Taiki", "eAI_SurvivorF_Linda", "eAI_SurvivorF_Maria",
 		"eAI_SurvivorF_Frida", "eAI_SurvivorF_Gabi", "eAI_SurvivorF_Helga",
 		"eAI_SurvivorF_Irena", "eAI_SurvivorF_Judy", "eAI_SurvivorF_Keiko",
-		"eAI_SurvivorF_Lina", "eAI_SurvivorF_Naomi"};
+		"eAI_SurvivorF_Eva", "eAI_SurvivorF_Naomi", "eAI_SurvivorF_Baty"};
 	}
 	#endif
 

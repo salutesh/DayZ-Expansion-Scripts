@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <fsm name="Vehicles">
+	<files />
+	<variables />
 	<states default="GoTo">
 		<state name="GoTo">
 			<variables>
@@ -8,24 +10,23 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1240.9818389093" y="474.533421790161" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-                auto group = unit.GetGroup();
+				auto group = unit.GetGroup();
 				auto leader = group.GetLeader();
 				Class.CastTo(transport, leader.GetParent());
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
-
+				
 				unit.OverrideTargetPosition(position);
-
-                return EXIT;
-            </event_update>
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="GetIn_OpenDoor">
 			<variables>
@@ -36,7 +37,7 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1241" y="550.644739300538" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -46,20 +47,19 @@
 					transport.SetAnimationPhase(source, 1.0);
 				}
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				if (!hasDoor) return EXIT;
-
+				
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
-
+				
 				unit.OverrideTargetPosition(position);
 				
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
 				
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="GetIn_CloseDoor">
 			<variables>
@@ -70,27 +70,26 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1240.43814240661" y="707.749953289782" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
 				ExpansionFSMHelper.DoorAnimationSource(transport, seat, hasDoor, source);
 				if (hasDoor) transport.SetAnimationPhase(source, 0.0);
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				if (!hasDoor) return EXIT;
 				
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
-
+				
 				unit.OverrideTargetPosition(position);
-
+				
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
 				
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="GetIn">
 			<variables>
@@ -99,44 +98,40 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1241.04868248962" y="631.019715945429" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-                auto group = unit.GetGroup();
+				auto group = unit.GetGroup();
 				auto leader = group.GetLeader();
 				Class.CastTo(transport, leader.GetParent());
-
+				
 				unit.Notify_Transport(transport, seat);
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				vector direction;
 				transport.CrewEntryWS(seat, position, direction);
-
+				
 				unit.OverrideTargetPosition(position);
 				
 				auto vehCmd = unit.GetCommand_VehicleAI();
 				if (vehCmd &amp;&amp; vehCmd.IsGettingIn()) return CONTINUE;
-
-                return EXIT;
-            </event_update>
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Sitting">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1239.82498598693" y="782.144645880103" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_entry />
+			<event_exit />
 			<event_update>
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="GetOut_OpenDoor">
 			<variables>
@@ -147,7 +142,7 @@
 				<variable name="source" type="string" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1239.43814240661" y="864.453840426607" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -159,17 +154,16 @@
 					if (hasDoor) transport.SetAnimationPhase(source, 1.0);
 				}
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				if (!hasDoor) return EXIT;
 				
 				unit.OverrideTargetPosition(unit.GetPosition());
-
+				
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
 				
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="GetOut_CloseDoor">
 			<variables>
@@ -180,7 +174,7 @@
 				<variable name="source" type="string" />
 			</variables>
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1239.4738019182" y="1016.27987125479" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -192,58 +186,55 @@
 					if (hasDoor) transport.SetAnimationPhase(source, 0.0);
 				}
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				if (!hasDoor) return EXIT;
 				
 				unit.OverrideTargetPosition(unit.GetPosition());
-
+				
 				if (transport &amp;&amp; transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
 				
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="GetOut">
-			<variables>
-			</variables>
+			<variables />
 			<editor_data>
-				<position x="551" y="94" />
+				<position x="1237.98813306457" y="941.143311463732" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
 				unit.GetCommand_VehicleAI().GetOutVehicle();
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				unit.OverrideTargetPosition(unit.GetPosition());
-
+				
 				auto vehCmd = unit.GetCommand_VehicleAI();
 				if (vehCmd &amp;&amp; vehCmd.IsGettingOut()) return CONTINUE;
 				
-                return EXIT;
-            </event_update>
+				return EXIT;
+			</event_update>
 		</state>
 	</states>
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1307.9818389093" y="474.533421790161" />
+				<position_destination x="1308.04497760638" y="435.549452587199" />
 			</editor_data>
 			<guard>
-                auto group = unit.GetGroup();
-                if (!group) return SUCCESS;
-
-                auto leader = group.GetLeader();
-                if (!leader || leader == unit) return SUCCESS;
+				auto group = unit.GetGroup();
+				if (!group) return SUCCESS;
 				
-                if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) 
+				auto leader = group.GetLeader();
+				if (!leader || leader == unit) return SUCCESS;
+				
+				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) 
 				{
 					Transport transport;
 					if (!Class.CastTo(transport, leader.GetParent())) return SUCCESS;
-
+				
 					//TODO: make this event based instead and store as a variable within CarScript.
 					//Prevents looping through the crew and insteads just compares a bool.
 					for (int i = 1; i &lt; transport.CrewSize(); i++)
@@ -255,131 +246,131 @@
 						}
 					}
 				}
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GoTo" />
-			<to_state name="" />
+			<to_state />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1314.25419083697" y="514.533421790161" />
+				<position_destination x="1315" y="550.644739300538" />
 			</editor_data>
 			<guard>
 				dst.transport = src.transport;
 				dst.seat = src.seat;
 				dst.position = src.position;
-
-				if (vector.Distance(unit.GetPosition(), dst.position) > 0.5) return FAIL;
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				
+				if (vector.Distance(unit.GetPosition(), dst.position) &gt; 0.5) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GoTo" />
 			<to_state name="GetIn_OpenDoor" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1314.25419083697" y="590.644739300538" />
+				<position_destination x="1314.25419083697" y="631.019715945429" />
 			</editor_data>
 			<guard>
 				dst.transport = src.transport;
 				dst.seat = src.seat;
 				dst.position = src.position;
-
-				if (vector.Distance(unit.GetPosition(), dst.position) > 0.5) return FAIL;
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				
+				if (vector.Distance(unit.GetPosition(), dst.position) &gt; 0.5) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GetIn_OpenDoor" />
 			<to_state name="GetIn" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1314.25419083697" y="671.019715945429" />
+				<position_destination x="1315.38313869708" y="707.749953289782" />
 			</editor_data>
 			<guard>
 				dst.transport = src.transport;
 				dst.seat = src.seat;
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GetIn" />
 			<to_state name="GetIn_CloseDoor" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1313.12524297686" y="747.749953289782" />
+				<position_destination x="1313.68971690692" y="782.144645880103" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GetIn_CloseDoor" />
 			<to_state name="Sitting" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1311.4318211867" y="822.144645880103" />
+				<position_destination x="1310.43814240661" y="864.453840426607" />
 			</editor_data>
 			<guard>
-                auto group = unit.GetGroup();
-                if (!group) return SUCCESS;
-
-                auto leader = group.GetLeader();
-                if (!leader || leader == unit) return SUCCESS;
+				auto group = unit.GetGroup();
+				if (!group) return SUCCESS;
+				
+				auto leader = group.GetLeader();
+				if (!leader || leader == unit) return SUCCESS;
 				
 				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) return FAIL;
-
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="Sitting" />
 			<to_state name="GetOut_OpenDoor" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1309.17392546649" y="904.453840426607" />
+				<position_destination x="1309.98813306457" y="941.143311463732" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GetOut_OpenDoor" />
 			<to_state name="GetOut" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1306.91602974627" y="981.143311463732" />
+				<position_destination x="1308.30694995732" y="1016.27987125479" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GetOut" />
 			<to_state name="GetOut_CloseDoor" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1" y="0.3" />
-				<position_destination x="0" y="0.3" />
+				<position_source x="1308.4738019182" y="1056.27987125479" />
+				<position_destination x="1306.61352816716" y="1104.33240728083" />
 			</editor_data>
 			<guard>
-                return SUCCESS;
-            </guard>
-			<event name="" />
+				return SUCCESS;
+			</guard>
+			<event />
 			<from_state name="GetOut_CloseDoor" />
-			<to_state name="" />
+			<to_state />
 		</transition>
 	</transitions>
 </fsm>

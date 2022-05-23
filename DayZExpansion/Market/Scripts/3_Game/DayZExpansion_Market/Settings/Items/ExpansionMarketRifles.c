@@ -28,10 +28,9 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		AddItem("Repeater", 				350,	700,	1,		100);
 		AddItem("Mosin9130", 				400,	800,	1,		100);
 		AddItem("CZ527", 					500,	1000,	1,		100,	{"Mag_CZ527_5Rnd"});
-	#ifdef DAYZ_1_17
 		AddItem("CZ550", 					500,	1000,	1,		100,	{"Mag_CZ550_4Rnd"});
-	#endif
 		AddItem("Winchester70", 			500,	1000,	1,		100);
+
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", 			500,	1000,	1,		100);
 		AddItem("Expansion_M14", 			500,	1000,	1,		100,	{"Mag_Expansion_M14_10Rnd"});

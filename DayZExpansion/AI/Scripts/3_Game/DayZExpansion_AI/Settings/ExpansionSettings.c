@@ -13,8 +13,10 @@
 modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_AI = new ScriptInvoker();
+	static ref ScriptInvoker SI_AIPATROL = new ScriptInvoker();
 	
 	protected autoptr ExpansionAISettings m_SettingsAI;
+	protected autoptr ExpansionAIPatrolSettings m_SettingsAIPatrol;
 	
 	// ------------------------------------------------------------
 	// Expansion OnServerInit
@@ -26,8 +28,10 @@ modded class ExpansionSettings
 #endif
 
 		LoadSetting( m_SettingsAI );
+		LoadSetting( m_SettingsAIPatrol );
 
 		m_NetworkedSettings.Insert( "expansionAIsettings" );
+		m_NetworkedSettings.Insert( "expansionAIPatrolsettings" );
 		
 		super.OnServerInit();
 	}
@@ -38,6 +42,7 @@ modded class ExpansionSettings
 		super.Unload();
 
 		m_SettingsAI.Unload();
+		m_SettingsAIPatrol.Unload();
 	}
 	
 	// ------------------------------------------------------------
@@ -63,6 +68,9 @@ modded class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsAI, m_SettingsLoaded ) )
 			return;
 
+		if ( !IsSettingLoaded( m_SettingsAIPatrol, m_SettingsLoaded ) )
+			return;
+
 		super.CheckSettingsLoaded();
 	}
 	
@@ -72,6 +80,7 @@ modded class ExpansionSettings
 	override void Init()
 	{
 		m_SettingsAI = new ExpansionAISettings;
+		m_SettingsAIPatrol = new ExpansionAIPatrolSettings;
 
 		super.Init();
 	}
@@ -92,6 +101,7 @@ modded class ExpansionSettings
 		super.Send( identity );
 
 		m_SettingsAI.Send( identity );
+		m_SettingsAIPatrol.Send( identity );
 	}
 	
 	// ------------------------------------------------------------
@@ -117,6 +127,12 @@ modded class ExpansionSettings
 
 				return true;
 			}
+			case ExpansionSettingsRPC.AIPATROL:
+			{
+				Expansion_Assert_False( m_SettingsAIPatrol.OnRecieve( ctx ), "Failed reading AI settings" );
+
+				return true;
+			}
 		}
 
 		return false;
@@ -137,6 +153,7 @@ modded class ExpansionSettings
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
 			m_SettingsAI.Save();
+			m_SettingsAIPatrol.Save();
 		}
 	}
 	
@@ -146,5 +163,13 @@ modded class ExpansionSettings
 	ExpansionAISettings GetAI()
 	{
 		return m_SettingsAI;
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion ExpansionAISettings GetAIPatrol
+	// ------------------------------------------------------------
+	ExpansionAIPatrolSettings GetAIPatrol()
+	{
+		return m_SettingsAIPatrol;
 	}
 };

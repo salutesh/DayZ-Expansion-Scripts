@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <modded_inputs>
-    <inputs>
-        <actions>
-            <input name="UAExpansionChatSwitchChannel" loc="STR_EXPANSION_SWITCH_CHAT_CHANNEL" />
-            <input name="UAExpansionHideChatToggle" loc="STR_EXPANSION_CHATTOGGLE_TITLE"/>
-        </actions>
+	<inputs>
+		<actions>
+			<input name="UAExpansionChatSwitchChannel" loc="STR_EXPANSION_SWITCH_CHAT_CHANNEL" />
+			<input name="UAExpansionHideChatToggle" loc="STR_EXPANSION_CHATTOGGLE_TITLE"/>
+		</actions>
 		
 		<exclude name="chatexpansion">
 			<input name="UAExpansionHideChatToggle" />
 		</exclude>
-    </inputs>
 
-    <preset>
-        <input name="UAExpansionChatSwitchChannel">
-            <btn name="kComma" />
-        </input>
-        <input name="UAExpansionHideChatToggle">
-            <btn name="kDivide" />
-        </input>
-    </preset>
+<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
+		<sorting name="expansion_chat" loc="STR_MOD_EXPANSION_NAME">
+			<input name="UAExpansionChatSwitchChannel" />
+			<input name="UAExpansionHideChatToggle" />
+		</sorting>
+-->
+	</inputs>
+
+	<preset>
+		<input name="UAExpansionChatSwitchChannel">
+			<btn name="kComma" />
+		</input>
+		<input name="UAExpansionHideChatToggle">
+			<btn name="kDivide" />
+		</input>
+	</preset>
 </modded_inputs>

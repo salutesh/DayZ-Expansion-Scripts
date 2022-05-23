@@ -252,16 +252,10 @@ class ExpansionAISettings: ExpansionSettingBase
 		
 		if (save)
 			Save();
-		
-		if (!FileExist(EXPANSION_AI_FOLDER))
-			MakeDirectory(EXPANSION_AI_FOLDER);
-		
-		if (!FileExist(EXPANSION_AI_LOADOUT_FOLDER))
-			MakeDirectory(EXPANSION_AI_LOADOUT_FOLDER);
 
 		//! Copy over eAI loadouts
 		string humanLoadout = "$profile:eAI\\HumanLoadout.json";
-		string humanLoadoutAI = EXPANSION_AI_LOADOUT_FOLDER + "HumanLoadout.json";
+		string humanLoadoutAI = EXPANSION_LOADOUT_FOLDER + "HumanLoadout.json";
 		if (!FileExist(humanLoadoutAI) && FileExist(humanLoadout))
 		{
 			EXLogPrint("[ExpansionAISettings] Copying loadout " + humanLoadout + " to " + humanLoadoutAI);

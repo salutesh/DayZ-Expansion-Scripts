@@ -4,9 +4,6 @@ class ExpansionPrefab : ExpansionPrefabObject
 	static ref array<ExpansionPrefabObject> s_Begin = new array<ExpansionPrefabObject>();
 
 	[NonSerialized()]
-	static ref array<CF_String> s_Directories = new array<CF_String>();
-
-	[NonSerialized()]
 	static ref map<string, ref ExpansionPrefab> s_Prefabs = new map<string, ref ExpansionPrefab>();
 
 	[NonSerialized()]
@@ -26,14 +23,11 @@ class ExpansionPrefab : ExpansionPrefabObject
 			s_Prefabs.Insert(name, prefab);
 		}
 
-		foreach (string directory : s_Directories)
+		prefab.m_Path = EXPANSION_LOADOUT_FOLDER + name + ".json";
+		if (FileExist(prefab.m_Path))
 		{
-			prefab.m_Path = directory + "/" + name + ".json";
-			if (FileExist(prefab.m_Path))
-			{
-				JsonFileLoader<ExpansionPrefab>.JsonLoadFile(prefab.m_Path, prefab);
-				return prefab;
-			}
+			JsonFileLoader<ExpansionPrefab>.JsonLoadFile(prefab.m_Path, prefab);
+			return prefab;
 		}
 
 		return null;
@@ -67,14 +61,7 @@ class ExpansionPrefab : ExpansionPrefabObject
 
 		ExpansionPrefab prefab = new ExpansionPrefab();
 
-		foreach (CF_String directory : s_Directories)
-		{
-			// If the directory doesn't start with '$' then it can't be written into in most cases
-			if (directory.IndexOf("$") != 0)
-				continue;
-
-			prefab.m_Path = directory + "/" + name + ".json";
-		}
+		prefab.m_Path = EXPANSION_LOADOUT_FOLDER + name + ".json";
 
 		if (prefab.m_Path == string.Empty)
 		{
