@@ -47,21 +47,6 @@ class ExpansionAIPatrolSettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
 
-		ExpansionAIPatrolSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionAIPatrolSettings::OnRecieve setting");
-			return false;
-		}
-
-		CopyInternal( setting );
-		
-		m_IsLoaded = true;
-		
-		EXLogPrint("Received AI settings");
-
-		ExpansionSettings.SI_AI.Invoke();
-
 		return true;
 	}
 	
@@ -71,10 +56,6 @@ class ExpansionAIPatrolSettings: ExpansionSettingBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
 #endif
-		
-		ExpansionAIPatrolSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
 	}
 
 	// ------------------------------------------------------------
@@ -83,14 +64,6 @@ class ExpansionAIPatrolSettings: ExpansionSettingBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
 #endif
-		if ( !IsMissionHost() )
-		{
-			return 0;
-		}
-		
-		ScriptRPC rpc = new ScriptRPC;
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.AI, true, identity );
 		
 		return 0;
 	}
@@ -209,7 +182,11 @@ class ExpansionAIPatrolSettings: ExpansionSettingBase
 
         Enabled = true;
         RespawnTime = -1;
+        #ifdef DIAG
         MinDistRadius = 1;
+        #else
+        MinDistRadius = 400;
+        #endif
         MaxDistRadius = 1200;
     
         string worldName;

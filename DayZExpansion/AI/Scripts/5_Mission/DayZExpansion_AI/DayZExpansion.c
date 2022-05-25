@@ -107,7 +107,17 @@ modded class DayZExpansion
 		vector position, direction, rotation;
 		player.GetCurrentCameraTransform(position, direction, rotation);
 		position = position + direction * 20;
+		vector begPos = position + "0 1.5 0";
 		position[1] = GetGame().SurfaceY(position[0], position[2]);
+		PhxInteractionLayers collisionLayerMask;
+		collisionLayerMask |= PhxInteractionLayers.ROADWAY;
+		collisionLayerMask |= PhxInteractionLayers.BUILDING;
+		collisionLayerMask |= PhxInteractionLayers.FENCE;
+		collisionLayerMask |= PhxInteractionLayers.VEHICLE;
+		collisionLayerMask |= PhxInteractionLayers.TERRAIN;
+		vector hitPosition;
+		if (DayZPhysics.SphereCastBullet(begPos, position, 0.3, collisionLayerMask, player, null, hitPosition, null, null))
+			position = hitPosition;
 		return position;
 	}
 

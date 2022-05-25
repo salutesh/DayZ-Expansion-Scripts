@@ -207,27 +207,27 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 			return true;
 
 		vector player_pos = player.GetPosition();
+		vector floor_pos = GetPosition();
 
-		vector start = WorldToModel(player_pos);
-
-		vector end;
 		if (IsRoof())
 		{
-			//! Player is considered inside if below and within edges of roof
-			end = start + Vector(0, 5, 0);
+			//! Don't allow dismantling roof from above
+			if (player_pos[1] > floor_pos[1])
+				return false;
 		}
 		else
 		{
-			//! Player is considered inside if above and within edges of floor
-			end = start - Vector(0, 5, 0);
+			//! Don't allow dismantling floor from below
+			if (player_pos[1] + 1.5 < floor_pos[1])
+				return false;
 		}
 
 		vector minMax[2];
 		ExpansionGetCollisionBox(minMax);
 
-		float intersect = Math3D.IntersectRayBox( start, end, minMax[0], minMax[1] );
+		vector test_position = WorldToModel(player_pos);
 
-		return intersect > 0;
+		return Math.IsPointInRectangle(minMax[0], minMax[1], test_position);
 	}
 
 	override bool IsFacingPlayer( PlayerBase player, string selection )

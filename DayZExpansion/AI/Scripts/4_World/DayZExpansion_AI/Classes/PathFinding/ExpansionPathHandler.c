@@ -565,6 +565,21 @@ class ExpansionPathHandler
 	int GetNext(out vector position)
 	{
 		position = m_Next0.GetPosition();// + CalculateOffset();
+
+		//! Hack fix so AI doesn't fall from a large height (e.g. building top) and die
+		//! FIXME: Marked improvement, but doesn't always prevent AI just running over the edge :-(
+		vector unitPosition = m_Unit.GetPosition();
+		if (unitPosition[1] - position[1] > 2.5)
+		{
+			vector checkPosition = Vector(position[0], unitPosition[1], position[2]);
+			vector checkDirection = vector.Direction(unitPosition, checkPosition).Normalized() * 2;
+			if (!m_Unit.eAI_IsFallSafe(checkDirection))
+			{
+				position = unitPosition;
+				return 1;
+			}
+		}
+
 		return m_Count;
 	}
 

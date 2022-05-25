@@ -31,7 +31,6 @@ modded class ExpansionSettings
 		LoadSetting( m_SettingsAIPatrol );
 
 		m_NetworkedSettings.Insert( "expansionAIsettings" );
-		m_NetworkedSettings.Insert( "expansionAIPatrolsettings" );
 		
 		super.OnServerInit();
 	}
@@ -68,9 +67,6 @@ modded class ExpansionSettings
 		if ( !IsSettingLoaded( m_SettingsAI, m_SettingsLoaded ) )
 			return;
 
-		if ( !IsSettingLoaded( m_SettingsAIPatrol, m_SettingsLoaded ) )
-			return;
-
 		super.CheckSettingsLoaded();
 	}
 	
@@ -101,7 +97,6 @@ modded class ExpansionSettings
 		super.Send( identity );
 
 		m_SettingsAI.Send( identity );
-		m_SettingsAIPatrol.Send( identity );
 	}
 	
 	// ------------------------------------------------------------
@@ -124,12 +119,6 @@ modded class ExpansionSettings
 			case ExpansionSettingsRPC.AI:
 			{
 				Expansion_Assert_False( m_SettingsAI.OnRecieve( ctx ), "Failed reading AI settings" );
-
-				return true;
-			}
-			case ExpansionSettingsRPC.AIPATROL:
-			{
-				Expansion_Assert_False( m_SettingsAIPatrol.OnRecieve( ctx ), "Failed reading AI settings" );
 
 				return true;
 			}

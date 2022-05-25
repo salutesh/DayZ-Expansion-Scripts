@@ -155,7 +155,6 @@ class ExpansionSettingBase
 		}
 		else
 		{
-			Error("ERROR: Could not move " + srcPath + " to " + dstPath + "!");
 			return false;
 		}
 	}

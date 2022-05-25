@@ -217,6 +217,7 @@
 			<variables>
 				<variable name="weapon" type="Weapon_Base" />
 				<variable name="time" type="float" />
+				<variable name="failed_attempts" type="int" />
 			</variables>
 			<editor_data>
 				<position x="250.478975886238" y="278.453840426607" />
@@ -252,6 +253,17 @@
 					}
 				
 					return CONTINUE;
+				}
+				
+				if (unit.GetWeaponManager().CanUnjam(weapon))
+				{
+					failed_attempts++;
+					EXTrace.Print(true, unit, "Weapon_Unjamming - failed (" + failed_attempts + ")");
+					weapon.ValidateAndRepair();
+				}
+				else
+				{
+					failed_attempts = 0;
 				}
 				
 				return EXIT;
@@ -555,7 +567,7 @@
 				bool isChamberFiredOut = dst.sub_fsm.weapon.IsChamberFiredOut(mi);
 				if (!(isChamberFiredOut || isChamberEmpty)) return FAIL;
 				
-				if (dst.sub_fsm.weapon.IsChamberJammed(mi)) return FAIL;
+				if (unit.GetWeaponManager().CanUnjam(dst.sub_fsm.weapon)) return FAIL;
 				
 				// don't move to the state if the action manager is operating
 				if (!unit.GetActionManager() || unit.GetActionManager().GetRunningAction()) return FAIL;

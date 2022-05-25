@@ -113,7 +113,7 @@ class EXTrace
 	protected int m_Depth;  //! Default depth = 1 (first line of stack). Set to -1 to include whole stack, set to 0 to exclude stack.
 	protected bool m_End;
 
-	void EXTrace(Class instance = null)
+	private void EXTrace(Class instance = null)
 	{
 		if (instance)
 			m_Instance = instance.ToString();
@@ -176,10 +176,73 @@ class EXTrace
 		PrintFormat("%1 [%2EXTRACE] %3ms %4", ExpansionStatic.GetTimestamp(), prefix, (elapsed / 10000.0).ToString(), res);
 	}
 
+	EXTrace Add(bool param)
+	{
+		return Add(param.ToString());
+	}
+
+	EXTrace Add(int param)
+	{
+		return Add(param.ToString());
+	}
+
+	EXTrace Add(float param)
+	{
+		return Add(param.ToString());
+	}
+
+	EXTrace Add(vector param, bool beautify = true)
+	{
+		return Add(param.ToString(beautify));
+	}
+
+	EXTrace Add(typename param)
+	{
+		return Add(param.ToString());
+	}
+
+	EXTrace Add(Class param)
+	{
+		return Add(param.ToString());
+	}
+
 	EXTrace Add(string param)
 	{
 		m_Params[m_ParamsCount++] = param;
 		return this;
+	}
+
+	static void Add(EXTrace trace, bool param)
+	{
+		Add(trace, param);
+	}
+
+	static void Add(EXTrace trace, int param)
+	{
+		Add(trace, param);
+	}
+
+	static void Add(EXTrace trace, float param)
+	{
+		Add(trace, param);
+	}
+
+	static void Add(EXTrace trace, vector param, bool beautify = true)
+	{
+		if (!trace)
+			return;
+
+		trace.Add(param, beautify);
+	}
+
+	static void Add(EXTrace trace, typename param)
+	{
+		Add(trace, param);
+	}
+
+	static void Add(EXTrace trace, Class param)
+	{
+		Add(trace, param);
 	}
 
 	static void Add(EXTrace trace, string param)
