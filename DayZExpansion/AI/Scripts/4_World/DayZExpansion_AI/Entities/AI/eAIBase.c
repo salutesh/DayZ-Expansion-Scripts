@@ -1224,7 +1224,9 @@ class eAIBase extends PlayerBase
 		EntityAI dst = ExpansionItemSpawnHelper.Clone(src, true, location);
 		if (dst)
 		{
-			eAI_RemoveItem(src);
+			ItemBase item;
+			if (Class.CastTo(item, src))
+				eAI_RemoveItem(item);
 			GetGame().ObjectDelete(src);
 		}
 
@@ -2040,8 +2042,8 @@ class eAIBase extends PlayerBase
 			int mi = wpn.GetCurrentMuzzle();
 			if (GetWeaponManager().CanUnjam(wpn))
 			{
-				trace = EXTrace.Start0(EXTrace.AI, this, "Unjamming " + wpn);
-				GetWeaponManager().Unjam();
+				//! NEVER unjam while reloading, unjamming should ALWAYS be handled by unjamming state in FSM so that weapon manager timeout can be dealt with
+				trace = EXTrace.Start0(EXTrace.AI, this, "Not reloading jammed " + wpn);
 			}
 			else if (wpn.IsChamberFiredOut(mi) && wpn.GetInternalMagazineCartridgeCount(mi) > 0 && GetWeaponManager().CanEjectBullet(wpn))
 			{
@@ -2407,10 +2409,10 @@ class eAIBase extends PlayerBase
 
 	bool HandleVaulting(float pDt)
 	{
-		if (!m_PathFinding.IsVault())
-		{
+		//if (!m_PathFinding.IsVault())
+		//{
 		//	return false;
-		}
+		//}
 
 		SHumanCommandClimbSettings hcls = GetDayZPlayerType().CommandClimbSettingsW();
 		
@@ -2445,6 +2447,49 @@ class eAIBase extends PlayerBase
 
 		if (climbRes)
 		{
+			IEntity standPointParent;
+			vector standPoint;
+			vector checkPosition;
+			vector checkDirection;
+
+			if (climbRes.m_ClimbOverStandPoint != vector.Zero)
+			{
+				standPointParent = climbRes.m_ClimbOverStandPointParent;
+				standPoint = climbRes.m_ClimbOverStandPoint;
+			}
+			else if (climbRes.m_ClimbStandPoint != vector.Zero)
+			{
+				standPointParent = climbRes.m_ClimbStandPointParent;
+				standPoint = climbRes.m_ClimbStandPoint;
+			}
+			else
+			{
+				checkDirection = GetDirection() * 1.5;
+			}
+
+			if (standPoint != vector.Zero)
+			{
+				vector unitPosition = GetPosition();
+				Object standPointObject;
+				if (Class.CastTo(standPointObject, standPointParent))
+				{
+					//! Standpoint parent is object, local coordinates unequal world coordinates
+					vector transform[4];
+					standPointParent.GetTransform(transform);
+					checkPosition = standPoint.Multiply4(transform);
+				}
+				else
+				{
+					//! No standpoint parent or part of world, local coordinates equal world coordinates
+					checkPosition = standPoint;
+				}
+				checkPosition[1] = unitPosition[1];
+				checkDirection = vector.Direction(unitPosition, checkPosition);
+			}
+
+			if (!eAI_IsFallSafe(checkDirection))
+				return false;
+
 			if (!eAI_CanClimbOn(climbRes.m_GrabPointParent, climbRes))
 				return false;
 			if (!eAI_CanClimbOn(climbRes.m_ClimbStandPointParent, climbRes))
@@ -2475,6 +2520,35 @@ class eAIBase extends PlayerBase
 		EXTrace.Print(EXTrace.AI, this, "eAI_CanClimbOn " + Debug.GetDebugName(parent));
 
 		return true;
+	}
+
+	bool eAI_IsFallSafe(vector checkDirection)
+	{
+		vector position = GetPosition();
+		vector checkPosition = position + checkDirection;
+		vector begPos = Vector(checkPosition[0], checkPosition[1], checkPosition[2]);
+
+		checkPosition[1] = GetGame().SurfaceY(checkPosition[0], checkPosition[2]);
+
+		PhxInteractionLayers collisionLayerMask;
+		collisionLayerMask |= PhxInteractionLayers.ROADWAY;
+		collisionLayerMask |= PhxInteractionLayers.BUILDING;
+		collisionLayerMask |= PhxInteractionLayers.FENCE;
+		collisionLayerMask |= PhxInteractionLayers.VEHICLE;
+		collisionLayerMask |= PhxInteractionLayers.TERRAIN;
+
+		vector hitPosition;
+
+		if (DayZPhysics.RayCastBullet(begPos, checkPosition, collisionLayerMask, this, null, hitPosition, null, null))
+			checkPosition = hitPosition;
+
+		float fallHeight = position[1] - checkPosition[1];
+
+		bool isFallSafe = fallHeight <= 2.5 || (fallHeight <= 3.0 && GetHealth() >= 55.0);
+
+		//EXPrint("position " + position + " checkDirection " + checkDirection + " " + checkDirection.VectorToAngles() + " checkPosition " + checkPosition + " " + isFallSafe);
+
+		return isFallSafe;
 	}
 
 	void HandleBuildingDoors(float pDt)

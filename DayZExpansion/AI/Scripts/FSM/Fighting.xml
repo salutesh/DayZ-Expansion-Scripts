@@ -299,7 +299,8 @@
 				int mi = weapon.GetCurrentMuzzle();
 				if (weapon.IsChamberEmpty(mi)) return FAIL;
 				if (weapon.IsChamberFiredOut(mi)) return FAIL;
-				if (weapon.IsChamberJammed(mi)) return FAIL;
+				
+				if (unit.GetWeaponManager().CanUnjam(weapon)) return FAIL;
 				
 				return SUCCESS;
 			</guard>

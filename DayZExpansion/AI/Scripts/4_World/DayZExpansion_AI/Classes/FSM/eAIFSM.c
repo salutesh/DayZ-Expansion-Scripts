@@ -8,7 +8,6 @@ class eAIFSM
 
 	private eAIState m_CurrentState;
 	private eAIState m_ParentState;
-	private bool m_Running = true;
 
 	protected string m_Name;
 	protected string m_DefaultState;
@@ -136,18 +135,16 @@ class eAIFSM
 	
 	bool StartDefault()
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "StartDefault");
-		#endif
+		auto trace = EXTrace.Start(EXTrace.AI, this);
 
 		if (m_DefaultState == "") return Start();
 
 		eAIState src = m_CurrentState;
 		eAIState dst = GetState(m_DefaultState);
 
-		if (m_Running && src)
+		if (src)
 		{
-			CF_Log.Debug("Exiting state: " + src);
+			EXTrace.Print(EXTrace.AI, m_Unit, "Exiting " + src);
 			src.OnExit("", true, dst);
 		}
 	
@@ -155,7 +152,7 @@ class eAIFSM
 		
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("Starting state: " + m_CurrentState);
+			EXTrace.Print(EXTrace.AI, m_Unit, "Starting " + m_CurrentState);
 			m_CurrentState.OnEntry("", src);
 			return true;
 		}
@@ -167,18 +164,16 @@ class eAIFSM
 
 	bool Start(string e = "")
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "Start").Add(e);
-		#endif
+		auto trace = EXTrace.Start(EXTrace.AI, this, e);
 
 		Param2<eAIState, bool> new_state = FindSuitableTransition(m_CurrentState, "");
 
 		eAIState src = m_CurrentState;
 		eAIState dst = new_state.param1;
 
-		if (m_Running && m_CurrentState && m_CurrentState != dst)
+		if (m_CurrentState && m_CurrentState != dst)
 		{
-			CF_Log.Debug("Exiting state: " + m_CurrentState);
+			EXTrace.Print(EXTrace.AI, m_Unit, "Exiting " + m_CurrentState);
 			m_CurrentState.OnExit(e, true, dst);
 		}
 
@@ -186,7 +181,7 @@ class eAIFSM
 
 		if (m_CurrentState && src != m_CurrentState)
 		{
-			CF_Log.Debug("Starting state: " + m_CurrentState);
+			EXTrace.Print(EXTrace.AI, m_Unit, "Starting " + m_CurrentState);
 			m_CurrentState.OnEntry(e, src);
 			return true;
 		}
@@ -198,13 +193,11 @@ class eAIFSM
 
 	bool Abort(string e = "")
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "Abort").Add(e);
-		#endif
+		auto trace = EXTrace.Start(EXTrace.AI, this, e);
 
-		if (m_Running && m_CurrentState)
+		if (m_CurrentState)
 		{
-			CF_Log.Debug("Exiting state: " + m_CurrentState);
+			EXTrace.Print(EXTrace.AI, m_Unit, "Aborting " + m_CurrentState);
 			m_CurrentState.OnExit(e, true, null);
 			return true;
 		}
@@ -213,8 +206,8 @@ class eAIFSM
 	}
 
 	/**
-	 * @return true Tell the parent FSM that the child FSM is complete
-	 * @return false Tell the parent FSM that the child FSM is still running
+	 * @return EXIT Tell the parent FSM that the child FSM is complete
+	 * @return CONTINUE Tell the parent FSM that the child FSM is still running
 	 */
 	int Update(float pDt, int pSimulationPrecision)
 	{
@@ -230,27 +223,30 @@ class eAIFSM
 		if (m_CurrentState && m_CurrentState.OnUpdate(pDt, pSimulationPrecision) == CONTINUE) return CONTINUE;
 
 		Param2<eAIState, bool> new_state = FindSuitableTransition(m_CurrentState, "");
-		if (!new_state.param2 || (new_state.param2 && m_CurrentState == new_state.param1))
-		{	
-			if (!m_CurrentState) return EXIT;
+		if (!new_state.param2 || m_CurrentState == new_state.param1)
+		{
+			if (!m_CurrentState)
+			{
+				EXTrace.Print(EXTrace.AI, m_Unit, "Current state is NULL");
+				return EXIT;
+			}
 
 			return CONTINUE;
 		}
 
 		eAIState src = m_CurrentState;
 
+		EXTrace.Print(EXTrace.AI, m_Unit, "Exiting " + src);
 		if (m_CurrentState) m_CurrentState.OnExit("", false, new_state.param1);
 
 		m_CurrentState = new_state.param1;
 
 		if (m_CurrentState == null)
 		{
-			CF_Log.Info("State transition exit " + src.GetName());
 			return EXIT;
 		}
-		
-		CF_Log.Info("State transition " + src.GetName() + " -> " + m_CurrentState.GetName());
 
+		EXTrace.Print(EXTrace.AI, m_Unit, "Starting " + m_CurrentState);
 		m_CurrentState.OnEntry("", src);
 
 		return CONTINUE;
@@ -266,30 +262,22 @@ class eAIFSM
 
 		//TODO: store a reference to the transitions inside the state for that state
 
-		eAIState curr_state = s;
-
-		if (curr_state)
+		foreach (auto t: m_Transitions)
 		{
-			int count = m_Transitions.Count();
-			for (int i = 0; i < count; ++i)
+			if ((t.GetSource() == s || t.GetSource() == null) && (e == "" || t.GetEvent() == e))
 			{
-				auto t = m_Transitions.Get(i);
-				if ((t.GetSource() == curr_state || t.GetSource() == null) && (e == "" || (e != "" && t.GetEvent() == e)))
+				switch (t.Guard())
 				{
-					int guard = t.Guard();
-					switch (guard)
-					{
-					case eAITransition.SUCCESS:
+				case eAITransition.SUCCESS:
 #ifdef EAI_DEBUG_TRANSITION
-						if (curr_state != t.GetDestination())
-							EXPrint(m_Unit.ToString() + " transition " + curr_state + " -> " + t.GetDestination());
+					if (s != t.GetDestination())
+						EXPrint(m_Unit.ToString() + " transition " + s + " -> " + t.GetDestination());
 #endif
-						return new Param2<eAIState, bool>(t.GetDestination(), true);
-					case eAITransition.FAIL:
-						break;
-					}
+					return new Param2<eAIState, bool>(t.GetDestination(), true);
+				case eAITransition.FAIL:
+					break;
 				}
-			}	
+			}
 		}
 
 		return new Param2<eAIState, bool>(null, false);

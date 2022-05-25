@@ -715,7 +715,7 @@ class ExpansionStatic
 
 		if (!findFileHandle)
 		{
-			EXPrint("ERROR: CopyDirectoryTree " + srcDir + " " + dstDir + " findFileHandle is NULL");
+			//! FindFileHandle of NULL means there were no files found
 			return false;
 		}
 

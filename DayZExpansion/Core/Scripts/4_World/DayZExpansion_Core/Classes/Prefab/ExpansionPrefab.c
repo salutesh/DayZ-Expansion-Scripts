@@ -38,6 +38,11 @@ class ExpansionPrefab : ExpansionPrefabObject
 		return m_Path;
 	}
 
+	static string GetPath(string name)
+	{
+		return EXPANSION_LOADOUT_FOLDER + name + ".json";
+	}
+
 	override void Save()
 	{
 		JsonFileLoader<ExpansionPrefab>.JsonSaveFile(m_Path, this);
@@ -61,7 +66,7 @@ class ExpansionPrefab : ExpansionPrefabObject
 
 		ExpansionPrefab prefab = new ExpansionPrefab();
 
-		prefab.m_Path = EXPANSION_LOADOUT_FOLDER + name + ".json";
+		prefab.m_Path = GetPath(name);
 
 		if (prefab.m_Path == string.Empty)
 		{

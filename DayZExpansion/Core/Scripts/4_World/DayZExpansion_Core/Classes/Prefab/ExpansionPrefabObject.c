@@ -21,6 +21,9 @@ class ExpansionPrefabObject : Managed
 	// Construction parts built -> only works if object is basebuilding
 	autoptr array<string> ConstructionPartsBuilt = new array<string>();
 
+	// Sets of prefab objects (for making chance apply to whole set)
+	autoptr array<ref ExpansionPrefabObject> Sets = new array<ref ExpansionPrefabObject>();
+
 	ExpansionPrefabObject BeginAttachment(string className, string slotName = "")
 	{
 		ExpansionPrefabObject object = new ExpansionPrefabObject();
@@ -77,6 +80,16 @@ class ExpansionPrefabObject : Managed
 		ExpansionPrefab.s_Begin.Insert(this);
 
 		InventoryCargo.Insert(object);
+		return object;
+	}
+
+	ExpansionPrefabObject BeginSet()
+	{
+		ExpansionPrefabObject object = new ExpansionPrefabObject();
+
+		ExpansionPrefab.s_Begin.Insert(this);
+
+		Sets.Insert(object);
 		return object;
 	}
 
@@ -247,6 +260,23 @@ class ExpansionPrefabObject : Managed
 
 				array<ref ExpansionPrefabObject> candidates();
 				int index;
+
+				//! Select sets by chance
+				foreach (ExpansionPrefabObject selectedSet : Sets)
+				{
+					if (selectedSet.CanSpawn())
+						candidates.Insert(selectedSet);
+				}
+
+				//! Spawn sets in random order
+				while (candidates.Count())
+				{
+					index = candidates.GetRandomIndex();
+					selectedSet = candidates[index];
+					candidates.Remove(index);
+
+					selectedSet.Spawn(self);
+				}
 
 				foreach (auto slot : InventoryAttachments)
 				{

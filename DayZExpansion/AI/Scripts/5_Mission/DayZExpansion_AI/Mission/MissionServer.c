@@ -26,5 +26,7 @@ modded class MissionServer
 
 		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
 			ExpansionHumanLoadout.Init();
+
+		PatrolManager().InitPatrolSpawner();
 	}
 };

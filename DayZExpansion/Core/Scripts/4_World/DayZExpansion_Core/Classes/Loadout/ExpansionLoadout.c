@@ -6,18 +6,12 @@ class ExpansionHumanLoadout
 
 	static void Init()
 	{
-		if (FileExist(EXPANSION_LOADOUT_FOLDER))
-			return;
-
 		//! Move previous loadouts to new location
 		string loadoutFolderAI = EXPANSION_FOLDER + "AI\\Loadouts\\";
 		if (FileExist(loadoutFolderAI))
-		{
-			if (ExpansionSettingBase.MoveSettings(loadoutFolderAI, EXPANSION_LOADOUT_FOLDER))
-				return;
-		}
-
-		MakeDirectory(EXPANSION_LOADOUT_FOLDER);
+			ExpansionSettingBase.MoveSettings(loadoutFolderAI, EXPANSION_LOADOUT_FOLDER);
+		else if (!FileExist(EXPANSION_LOADOUT_FOLDER))
+			MakeDirectory(EXPANSION_LOADOUT_FOLDER);
 
 		// Armed Loadouts
 		DefaultHumanLoadout();
@@ -25,6 +19,7 @@ class ExpansionHumanLoadout
 		DefaultFireFighterLoadout();
 		DefaultTTSKOLoadout();
 		DefaultGorkaLoadout();
+		DefaultNBCLoadout();
 		
 		// Default faction loadouts
 		DefaulEastLoadout();
@@ -50,10 +45,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultPlayerFemaleSuitLoadout()
 	{		
+		if (FileExist(ExpansionLoadout.GetPath("PlayerFemaleSuitLoadout")))
+			return;
+
 		// Generate the default PlayerFemaleSuitLoadout.json file
 		auto loadout = ExpansionLoadout.Create("PlayerFemaleSuitLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("WomanSuit_Blue", "Body");
@@ -132,10 +130,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultPlayerMaleSuitLoadout()
 	{		
+		if (FileExist(ExpansionLoadout.GetPath("PlayerMaleSuitLoadout")))
+			return;
+
 		// Generate the default PlayerMaleSuitLoadout.json file
 		auto loadout = ExpansionLoadout.Create("PlayerMaleSuitLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("ManSuit_Blue", "Body");
@@ -214,10 +215,13 @@ class ExpansionHumanLoadout
 	
 	static void DefaultPlayerSurviorLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("PlayerSurvivorLoadout")))
+			return;
+
 		// Generate the default PlayerSurvivorLoadout.json file
 		auto loadout = ExpansionLoadout.Create("PlayerSurvivorLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("Hoodie_Black", "Body");
@@ -297,10 +301,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultBanditLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("BanditLoadout")))
+			return;
+
 		// Generate the default BanditLoadout.json file
 		auto loadout = ExpansionLoadout.Create("BanditLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("GorkaEJacket_Autumn", "Body");
@@ -876,10 +883,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultSurvivorLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("SurvivorLoadout")))
+			return;
+
 		// Generate the default SurvivorLoadout.json file
 		auto loadout = ExpansionLoadout.Create("SurvivorLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("GorkaEJacket_Autumn", "Body");
@@ -1390,10 +1400,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultFireFighterLoadout()
 	{		
+		if (FileExist(ExpansionLoadout.GetPath("FireFighterLoadout")))
+			return;
+
 		// Generate the default FireFighterLoadout.json file
 		auto loadout = ExpansionLoadout.Create("FireFighterLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("FirefighterJacket_Beige", "Body");
@@ -1465,10 +1478,13 @@ class ExpansionHumanLoadout
 
 	static void DefaulWestLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("WestLoadout")))
+			return;
+
 		// Generate the default WestLoadout.json file
 		auto loadout = ExpansionLoadout.Create("WestLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;			
 
 			loadout = loadout.BeginAttachment("USMCJacket_Desert", "Body");
@@ -1752,10 +1768,13 @@ class ExpansionHumanLoadout
 
 	static void DefaulEastLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("EastLoadout")))
+			return;
+
 		// Generate the default EastLoadout.json file
 		auto loadout = ExpansionLoadout.Create("EastLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("GorkaEJacket_Autumn", "Body");
@@ -2171,10 +2190,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultGorkaLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("GorkaLoadout")))
+			return;
+
 		// Generate the default GorkaLoadout.json file
 		auto loadout = ExpansionLoadout.Create("GorkaLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("GorkaEJacket_Autumn", "Body");
@@ -2535,10 +2557,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultTTSKOLoadout()
 	{
+		if (FileExist(ExpansionLoadout.GetPath("TTSKOLoadout")))
+			return;
+
 		// Generate the default TTSKOLoadout.json file
 		auto loadout = ExpansionLoadout.Create("TTSKOLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("TTsKOJacket_Camo", "Body");
@@ -2714,12 +2739,231 @@ class ExpansionHumanLoadout
 		loadout.Save();
 	}
 
+	static void DefaultNBCLoadout()
+	{
+		if (FileExist(ExpansionLoadout.GetPath("NBCLoadout")))
+			return;
+
+		// Generate the default NBCLoadout.json file
+		auto loadout = ExpansionLoadout.Create("NBCLoadout");
+
+		if (!loadout)
+			return;
+
+			//! NBC Gray
+			loadout = loadout.BeginSet();
+				loadout = loadout.BeginAttachment("NBCJacketGray", "Body");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+
+				loadout = loadout.BeginAttachment("NBCPantsGray", "Legs");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+
+				loadout = loadout.BeginAttachment("NBCBootsGray", "Feet");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+
+				loadout = loadout.BeginAttachment("NBCHoodGray", "Headgear");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+
+				loadout = loadout.BeginAttachment("NBCGlovesGray", "Gloves");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			//! NBC Yellow
+			loadout = loadout.BeginSet();
+				loadout = loadout.BeginAttachment("NBCJacketYellow", "Body");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+
+				loadout = loadout.BeginAttachment("NBCPantsYellow", "Legs");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			
+				loadout = loadout.BeginAttachment("NBCBootsYellow", "Feet");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			
+				loadout = loadout.BeginAttachment("NBCHoodYellow", "Headgear");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+
+				loadout = loadout.BeginAttachment("NBCGlovesYellow", "Gloves");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("TortillaBag", "Back");
+			loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.BeginCargo("MakarovIJ70");
+				loadout.Chance = 0.34;
+				loadout = loadout.End();
+
+				loadout = loadout.BeginCargo("Mag_IJ70_8Rnd");
+				loadout.Chance = 0.3;
+				loadout = loadout.End();
+
+				loadout = loadout.BeginCargo("Mag_IJ70_8Rnd");
+				loadout.Chance = 0.2;
+				loadout = loadout.End();
+				
+				loadout = loadout.BeginCargo("BandageDressing");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				
+				loadout = loadout.BeginCargo("BandageDressing");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				
+				loadout = loadout.BeginCargo("Chemlight_Green");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				
+				loadout = loadout.BeginCargo("Chemlight_Green");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				
+				loadout = loadout.BeginCargo("RDG2SmokeGrenade_Black");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				
+				loadout = loadout.BeginCargo("RDG2SmokeGrenade_White");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+
+				loadout = loadout.BeginCargo("Ammo_762x39");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("UKAssVest_Camo", "Vest");
+			loadout.SetHealth(0.7, 1.0);
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("UKAssVest_Olive", "Vest");
+			loadout.SetHealth(0.7, 1.0);
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("GasMask", "Mask");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("GP5GasMask", "Mask");
+			loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.BeginAttachment("GasMask_Filter", "");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("AirborneMask", "Mask");
+			loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.BeginAttachment("GasMask_Filter", "");
+				loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("MilitaryBelt", "Hips");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("AKS74U", "Hands");
+				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("KobraOptic");
+				loadout.Chance = 0.1;
+					loadout = loadout.BeginAttachment("Battery9V");
+					loadout = loadout.End();
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("AKM", "Hands");
+				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
+				loadout.Chance = 0.9;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("Mag_AKM_Drum75Rnd");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
+				loadout.Chance = 0.3;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
+				loadout.Chance = 0.3;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AK_WoodBttstck");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("KashtanOptic");
+				loadout.Chance = 0.1;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("KobraOptic");
+				loadout.Chance = 0.2;
+					loadout = loadout.BeginAttachment("Battery9V");
+					loadout = loadout.End();
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("PSO1Optic");
+				loadout.Chance = 0.2;
+					loadout = loadout.BeginAttachment("Battery9V");
+					loadout = loadout.End();
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("PP19", "Hands");
+				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("PP19_Bttstck");
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("PistolSuppressor");
+				loadout.Chance = 0.2;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("KobraOptic");
+				loadout.Chance = 0.2;
+					loadout = loadout.BeginAttachment("Battery9V");
+					loadout = loadout.End();
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("SKS", "Hands");
+				loadout = loadout.BeginAttachment("Ammo_762x39");
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Ammo_762x39");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("GasMask_Filter");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("AntiChemInjector");
+			loadout.Chance = 0.05;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+
 	static void DefaultPoliceLoadout()
 	{		
+		if (FileExist(ExpansionLoadout.GetPath("PoliceLoadout")))
+			return;
+
 		// Generate the default PoliceLoadout.json file
 		auto loadout = ExpansionLoadout.Create("PoliceLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("PoliceJacket", "Body");
@@ -2831,10 +3075,13 @@ class ExpansionHumanLoadout
 
 	static void DefaultHumanLoadout()
 	{		
+		if (FileExist(ExpansionLoadout.GetPath("HumanLoadout")))
+			return;
+
 		// Generate the default HumanLoadout.json file
 		auto loadout = ExpansionLoadout.Create("HumanLoadout");
 
-		if (!loadout || FileExist(loadout.GetPath()))
+		if (!loadout)
 			return;
 
 			loadout = loadout.BeginAttachment("HikingJacket_Blue", "Body");

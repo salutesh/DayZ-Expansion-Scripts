@@ -1,71 +1,60 @@
 modded class CrashBase
 {
-	#ifdef DIAG
-	#ifdef EXPANSIONMODNAVIGATION
+	#ifdef EAI_DEBUG_EVENTPATROL
 	ExpansionMarkerModule m_MarkerModule;
 	ExpansionMarkerData m_ServerMarker;
 	#endif
-	#endif
 
 	eAIDynamicPatrol m_ExpansionAIPatrol;
-
-	void CrashBase()
-	{
-		#ifdef DIAG
-		#ifdef EXPANSIONMODNAVIGATION
-		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
-		#endif
-		#endif
-	}
 
     string EventType()
     {
         return "";
     }
 
-	override void EEInit()
+	override void EEOnCECreate()
 	{
-		super.EEInit();
-        
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		super.EEOnCECreate();
+
+		eAI_CrashPatrol_Init();
+	}
+
+	override void AfterStoreLoad()
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		super.AfterStoreLoad();
+
+		eAI_CrashPatrol_Init();
+	}
+
+	void eAI_CrashPatrol_Init()
+	{
 		if ( !m_ExpansionAIPatrol )
 		{
 			m_ExpansionAIPatrol = PatrolManager().InitCrashPatrolSpawner(EventType(), GetPosition());
 
-			#ifdef DIAG
-			#ifdef EXPANSIONMODNAVIGATION
-			if ( !m_MarkerModule )
+			#ifdef EAI_DEBUG_EVENTPATROL
+			if ( !CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule) )
 				return;
 			
 			m_ServerMarker = m_MarkerModule.CreateServerMarker( EventType(), "Helicopter", GetPosition(), ARGB(255, 235, 50, 90), true );
 			#endif
-			#endif
 		}
-	}
-
-	override void EEDelete(EntityAI parent)
-	{
-		super.EEDelete( parent );
-
-		#ifdef DIAG
-		#ifdef EXPANSIONMODNAVIGATION
-		if ( !m_ServerMarker )
-			return;
-		
-		m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
-		#endif
-		#endif
-
-		if ( m_ExpansionAIPatrol )
-			m_ExpansionAIPatrol.Delete();
 	}
 
 	void ~CrashBase()
 	{
-		#ifdef DIAG
-		#ifdef EXPANSIONMODNAVIGATION
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		if (!GetGame() || !GetGame().IsServer())
+			return;
+
+		#ifdef EAI_DEBUG_EVENTPATROL
 		if ( m_ServerMarker && m_MarkerModule )
 			m_MarkerModule.RemoveServerMarker( m_ServerMarker.GetUID() );
-		#endif
 		#endif
 
 		if ( m_ExpansionAIPatrol )

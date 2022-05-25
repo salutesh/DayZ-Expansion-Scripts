@@ -335,39 +335,21 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( !IsLastStage() )
 			return true;
 
-		//! This is an almost verbatim copy of vanilla fence code, EXCEPT...
 		vector player_pos = player.GetPosition();
-		vector fence_pos = GetPosition();
-		vector ref_dir = GetDirection();
-		ref_dir[1] = 0;
-		ref_dir.Normalize();
-		 
-		vector x[2];
-		vector b1,b2;
-		ExpansionGetCollisionBox(x);  //! <-- ...EXCEPT this...
-		b1 = x[0];
-		b2 = x[1];
+		vector wall_pos = GetPosition();
 
-		vector dir_to_fence = fence_pos - player_pos;
-		dir_to_fence[1] = 0;
-		float len = dir_to_fence.Length();
-
-		dir_to_fence.Normalize();
-		
-		vector ref_dir_angle = ref_dir.VectorToAngles();
-		vector dir_to_fence_angle = dir_to_fence.VectorToAngles();
-		vector test_angles = dir_to_fence_angle - ref_dir_angle;
-		
-		vector test_position = test_angles.AnglesToVector() * len;
-		
-		if(test_position[0] < b1[0] || test_position[0] > b2[0] || test_position[2] < 0.2 || test_position[2] > 2.2 )
-		{
+		//! Don't allow dismantling from below/above
+		if (player_pos[1] >= wall_pos[1] + 3 || player_pos[1] + 3 <= wall_pos[1])
 			return false;
-		}
-		else
-		{
-			return player_pos[1] <= fence_pos[1] + 3;  //! <-- ...and this (i.e. don't allow dismantling from above)
-		}
+
+		vector minMax[2];
+		ExpansionGetCollisionBox(minMax);
+		minMax[0][2] = -3;
+		minMax[1][2] = 0;
+
+		vector test_position = WorldToModel(player_pos);
+
+		return Math.IsPointInRectangle(minMax[0], minMax[1], test_position);
 	}
 
 	override bool ExpansionIsOpenable()
