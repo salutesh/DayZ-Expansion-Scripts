@@ -4,13 +4,21 @@ class ExpansionHumanLoadout
 {
 	static const string FILETYPE = ".json";
 
+	protected static bool s_Initialized;
+
 	static void Init()
 	{
+		if (s_Initialized)
+			return;
+
+		s_Initialized = true;
+
 		//! Move previous loadouts to new location
 		string loadoutFolderAI = EXPANSION_FOLDER + "AI\\Loadouts\\";
 		if (FileExist(loadoutFolderAI))
 			ExpansionSettingBase.MoveSettings(loadoutFolderAI, EXPANSION_LOADOUT_FOLDER);
-		else if (!FileExist(EXPANSION_LOADOUT_FOLDER))
+
+		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
 			MakeDirectory(EXPANSION_LOADOUT_FOLDER);
 
 		// Armed Loadouts

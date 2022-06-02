@@ -82,12 +82,12 @@ class ExpansionAICrashPatrol
         } else {
             minspread = 5;
             maxspread = 20;
-            int amountofpatrols = Math.RandomInt(2,6);
+            int amountofpatrols = Math.RandomIntInclusive(2,6);
             if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
             {
                 minspread = 0;
                 maxspread = 150;
-                amountofpatrols = Math.RandomInt(4,8);
+                amountofpatrols = Math.RandomIntInclusive(4,8);
             }
             
 		    for (int i = 0; i < amountofpatrols; i++)
@@ -106,6 +106,11 @@ class ExpansionAICrashPatrol
     {
         switch (UnderThreatSpeed)
         {
+            case "STATIC":
+            {
+                return 0.0;
+                break;
+            }
             case "WALK":
             {
                 return 1.0;
@@ -123,7 +128,7 @@ class ExpansionAICrashPatrol
             }
             case "RANDOM":
             {
-                return Math.RandomInt(1,3);
+                return Math.RandomIntInclusive(1,3);
                 break;
             }
         }
@@ -136,6 +141,11 @@ class ExpansionAICrashPatrol
     {
         switch (Speed)
         {
+            case "STATIC":
+            {
+                return 0.0;
+                break;
+            }
             case "WALK":
             {
                 return 1.0;
@@ -153,7 +163,7 @@ class ExpansionAICrashPatrol
             }
             case "RANDOM":
             {
-                return Math.RandomInt(1,3);
+                return Math.RandomIntInclusive(1,3);
                 break;
             }
         }
@@ -176,6 +186,11 @@ class ExpansionAICrashPatrol
             case "LOOP":
             {
                 return eAIWaypointBehavior.LOOP; // Follow the waypoint's in the normal order (from start to finish)
+                break;
+            }
+            case "REVERSE":
+            {
+                return eAIWaypointBehavior.REVERSE; // Follow the waypoint's in the reversed order (from finish to start)
                 break;
             }
             case "HOLD OR PATROL":

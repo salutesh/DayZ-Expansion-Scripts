@@ -24,8 +24,7 @@ modded class MissionServer
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionServer");
 #endif
 
-		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
-			ExpansionHumanLoadout.Init();
+		ExpansionHumanLoadout.Init();
 
 		PatrolManager().InitPatrolSpawner();
 	}

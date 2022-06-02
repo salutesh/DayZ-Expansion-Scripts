@@ -28,8 +28,7 @@ modded class MissionServer
 #endif
 
 		//! 3_Game cannot call classes from 4_World - This 2 lines are not mandatory for any systems to work properly. Just to make it to generate on server startup
-		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
-			ExpansionHumanLoadout.Init();
+		ExpansionHumanLoadout.Init();
 
 		CF_Modules<ExpansionRespawnHandlerModule>.Get(m_RespawnHandlerModule);
 	}
