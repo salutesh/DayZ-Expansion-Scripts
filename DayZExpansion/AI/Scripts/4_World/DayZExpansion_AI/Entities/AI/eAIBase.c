@@ -2202,6 +2202,9 @@ class eAIBase extends PlayerBase
 
 	bool CanRaiseWeapon()
 	{
+		if (IsClimbing() || IsFalling())
+			return false;
+
 		return m_eAI_LOS && m_eAI_SideStepTimeout <= 0;
 	}
 

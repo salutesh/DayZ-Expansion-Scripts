@@ -624,9 +624,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( texturePath == "" || !flag )
 			return;
 		
-		//! TODO: Security. Flag may not have an associated territory, so we cannot check for territory admin.
 		ExpansionTerritory territory = flag.GetTerritory();
-		if (territory && !IsSenderTerritoryAdmin(ident, territory))
+		if (territory && territory.GetTerritoryID() != -1 && !IsSenderTerritoryAdmin(ident, territory))
 			return;
 		
 		flag.SetFlagTexture( texturePath );

@@ -173,11 +173,11 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 			{
 				if (GetExpansionClientSettings().StreamerMode)
 				{
-					player_Marker.SetName(new StringLocaliser("#STR_EXPANSION_MAP_MARKER_PLAYERMARKER_STREAMERMODE"));
+					player_Marker.SetName(new StringLocaliser("STR_EXPANSION_MAP_MARKER_PLAYERMARKER_STREAMERMODE"));
 				} 
 				else 
 				{
-					StringLocaliser text = new StringLocaliser("#STR_EXPANSION_MAP_MARKER_PLAYERMARKER", player.GetIdentityName());
+					StringLocaliser text = new StringLocaliser("STR_EXPANSION_MAP_MARKER_PLAYERMARKER", player.GetIdentityName());
 					player_Marker.SetName(text.Format());
 				}
 				

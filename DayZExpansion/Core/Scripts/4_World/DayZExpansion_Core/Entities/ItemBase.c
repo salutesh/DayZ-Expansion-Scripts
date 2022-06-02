@@ -12,8 +12,6 @@
 
 modded class ItemBase
 {
-	//! TODO: After we finally switch over to CF_ModStorage, we may still need a way to access Expansion storage save version outside of CF_OnStoreLoad/Save (e.g. AfterStoreLoad).
-	//! For now, CF_OnStoreLoad will set it as well when used.
 	protected int m_ExpansionSaveVersion;
 
 	//! Skinning
@@ -152,6 +150,10 @@ modded class ItemBase
 
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return true;
+
+		//! @note needed so we can sucessfully load player inventory when they haven't connected in the transition period
+		//! as well as menu character inventory (can cause client CTD otherwise)
+		m_ExpansionSaveVersion = ctx.GetVersion();
 
 		if (!ctx.Read(m_CurrentSkinName))
 			return false;

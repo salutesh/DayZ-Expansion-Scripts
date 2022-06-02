@@ -57,7 +57,7 @@ class ExpansionAIPatrol
             {
                 if ( WaypointsSpreadRadius < 0.0 )
                 {
-                    randomdist = Math.RandomInt(1,-WaypointsSpreadRadius);
+                    randomdist = Math.RandomIntInclusive(1,-WaypointsSpreadRadius);
                 } else {
                     randomdist = WaypointsSpreadRadius;
                 }
@@ -80,6 +80,11 @@ class ExpansionAIPatrol
     {
         switch (UnderThreatSpeed)
         {
+            case "STATIC":
+            {
+                return 0.0;
+                break;
+            }
             case "WALK":
             {
                 return 1.0;
@@ -97,7 +102,7 @@ class ExpansionAIPatrol
             }
             case "RANDOM":
             {
-                return Math.RandomInt(1,3);
+                return Math.RandomIntInclusive(1,3);
                 break;
             }
         }
@@ -110,6 +115,11 @@ class ExpansionAIPatrol
     {
         switch (Speed)
         {
+            case "STATIC":
+            {
+                return 0.0;
+                break;
+            }
             case "WALK":
             {
                 return 1.0;
@@ -127,7 +137,7 @@ class ExpansionAIPatrol
             }
             case "RANDOM":
             {
-                return Math.RandomInt(1,3);
+                return Math.RandomIntInclusive(1,3);
                 break;
             }
         }
@@ -141,7 +151,6 @@ class ExpansionAIPatrol
         switch (Behaviour)
         {
             case "REVERSE":
-            case "REVERSEPATROL":
             {
                 return eAIWaypointBehavior.REVERSE; // Follow the waypoints in reverse (from end to start)
                 break;

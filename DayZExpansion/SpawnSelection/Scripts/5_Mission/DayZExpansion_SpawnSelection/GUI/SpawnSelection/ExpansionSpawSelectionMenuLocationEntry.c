@@ -91,7 +91,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 					}
 					if (m_HasCooldown)
 					{
-						SetDisplayTime(respawnCooldown - cooldownTime);
+						SetDisplayTime(cooldown - cooldownTime);
 						if (!m_IsLocked)
 							SetLocked();
 					}
