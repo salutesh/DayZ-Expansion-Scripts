@@ -228,7 +228,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	
 	void SetDisplayTime(int cooldownTime)
 	{
-		m_SpawnSelectionEntryController.Cooldown = ExpansionStatic.FormatTime(cooldownTime, false);
+		m_SpawnSelectionEntryController.Cooldown = ExpansionStatic.FormatTimestamp(cooldownTime, false);
 		m_SpawnSelectionEntryController.NotifyPropertyChanged("Cooldown");
 	}
 	

@@ -278,4 +278,26 @@ class ExpansionMerlin : ExpansionHelicopterScript
 			}
 		}
 	}
+
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("ExpansionMerlinFrontWheel");
+			entity.GetInventory().CreateInInventory("ExpansionMerlinFrontWheel");
+			entity.GetInventory().CreateInInventory("ExpansionMerlinBackWheel");
+			entity.GetInventory().CreateInInventory("ExpansionMerlinBackWheel");
+
+			entity.GetInventory().CreateInInventory("ExpansionHydraulicHoses");
+			entity.GetInventory().CreateInInventory("ExpansionIgniterPlug");
+			entity.GetInventory().CreateInInventory("ExpansionHelicopterBattery");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
 };

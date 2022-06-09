@@ -1,0 +1,149 @@
+WrapSpacerWidgetClass ExpansionQuestHudEntry {
+ visible 1
+ clipchildren 1
+ size 1 1
+ halign right_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionQuestHUDEntryController"
+ style Empty
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ content_halign center
+ content_valign center
+ {
+  WrapSpacerWidgetClass Background {
+   ignorepointer 1
+   color 0 0 0 0.4706
+   size 1 1
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style DayZDefaultPanelSides
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+   content_valign center
+   {
+    WrapSpacerWidgetClass TitelPanel {
+     ignorepointer 1
+     position 0.044 0.125
+     size 1 16
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     {
+      ImageWidgetClass QuestIcon {
+       ignorepointer 1
+       size 16 16
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+      }
+      RichTextWidgetClass QuestTitle {
+       ignorepointer 1
+       position 0 0
+       size 0.92 1
+       halign right_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       font "gui/fonts/etelkatextpro16"
+       "text offset" 5 0
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       wrap 1
+       "condense whitespace" 1
+       "strip newlines" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "QuestName"
+        }
+       }
+      }
+     }
+    }
+    RichTextWidgetClass Objective {
+     ignorepointer 1
+     position 10 10
+     size 0.95 14
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     font "gui/fonts/etelkatextpro14"
+     "text offset" 5 0
+     "exact text" 1
+     "size to text h" 1
+     "size to text v" 1
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+     {
+      ScriptParamsClass {
+       Binding_Name "ObjectiveText"
+      }
+     }
+    }
+    PanelWidgetClass Spacer {
+     ignorepointer 1
+     color 0 0 0 1
+     size 0.96 2
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    WrapSpacerWidgetClass TargetEntries {
+     ignorepointer 1
+     position 0.06 0.159
+     size 0.95 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     scriptclass "ViewBinding"
+     style Empty
+     "Ignore invisible" 0
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     {
+      ScriptParamsClass {
+       Binding_Name "ObjectiveEntries"
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,126 @@
+PanelWidgetClass ExpansionBookMenuTabQuestsListEntry {
+ position 0 0
+ size 1 36
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ scriptclass "ExpansionBookMenuTabQuestsListEntryController"
+ style blank
+ {
+  ImageWidgetClass Background {
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   image0 "set:book_assets image:menu_element_5"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   "flip u" 0
+  }
+  ImageWidgetClass QuestIcon {
+   ignorepointer 1
+   color 1 0.7059 0.0941 1
+   position 50 0
+   size 36 36
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   imageTexture "{1595828A6EA76F98}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "QuestIcon"
+    }
+   }
+  }
+  TextWidgetClass Text {
+   ignorepointer 1
+   color 0 0 0 0.8627
+   position 86 0
+   size 0.98 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   text "Quest Title"
+   font "gui/fonts/etelkatextpro22"
+   "size to text h" 1
+   "size to text v" 0
+   "text halign" center
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "QuestTitle"
+    }
+   }
+  }
+  ButtonWidgetClass Button {
+   position 0 0
+   size 0.9 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    ScriptParamsClass {
+     Relay_Command "OnEntryClick"
+    }
+   }
+  }
+  ImageWidgetClass HideIcon {
+   visible 0
+   ignorepointer 1
+   color 0 0 0 1
+   position 50 0
+   size 36 36
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   imageTexture "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/eye_64x64.edds"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "HideIcon"
+    }
+   }
+  }
+  ButtonWidgetClass HideButton {
+   visible 0
+   position 50 0
+   size 36 36
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    ScriptParamsClass {
+     Relay_Command "OnHideButtonClick"
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+  }
+ }
+}

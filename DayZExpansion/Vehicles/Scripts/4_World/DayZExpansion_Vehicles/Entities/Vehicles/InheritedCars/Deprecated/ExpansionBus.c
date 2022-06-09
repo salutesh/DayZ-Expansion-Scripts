@@ -720,4 +720,27 @@ class ExpansionBus extends OffroadHatchback
 
 		return true;
 	}
+
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("ExpansionBusWheel");
+			entity.GetInventory().CreateInInventory("ExpansionBusWheel");
+			entity.GetInventory().CreateInInventory("ExpansionBusWheelDouble");
+			entity.GetInventory().CreateInInventory("ExpansionBusWheelDouble");
+
+			entity.GetInventory().CreateInInventory("TruckBattery");
+			entity.GetInventory().CreateInInventory("GlowPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");		
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
 };

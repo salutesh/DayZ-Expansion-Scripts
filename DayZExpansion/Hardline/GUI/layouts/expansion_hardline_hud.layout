@@ -1,0 +1,198 @@
+FrameWidgetClass ExpansionHardlineHUD {
+ clipchildren 0
+ ignorepointer 1
+ position 0 0
+ size 0.9 0.9
+ halign center_ref
+ valign center_ref
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionHardlineHUDController"
+ {
+  PanelWidgetClass HudPanel {
+   visible 1
+   clipchildren 0
+   inheritalpha 0
+   ignorepointer 1
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   {
+    GridSpacerWidgetClass NotifiersPanel {
+     visible 1
+     clipchildren 1
+     inheritalpha 0
+     ignorepointer 1
+     position 0 81
+     size 260 81
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     priority 100
+     Padding 5
+     Margin 0
+     "Size To Content H" 1
+     content_halign right
+     Rows 1
+     {
+      PanelWidgetClass Humanity {
+       visible 1
+       clipchildren 1
+       inheritalpha 0
+       ignorepointer 1
+       position 0 0
+       size 35 81
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect fixwidth
+       style blank
+       {
+        ImageWidgetClass HumanityIcon {
+         disabled 0
+         clipchildren 1
+         inheritalpha 0
+         ignorepointer 1
+         keepsafezone 0
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 35 35
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         fixaspect fixwidth
+         scriptclass "ViewBinding"
+         image0 ""
+         imageTexture ""
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         "flip v" 0
+         filter 1
+         nocache 0
+         {
+          ScriptParamsClass {
+           Binding_Name "HumanityIcon"
+          }
+         }
+        }
+        TextWidgetClass HumanityVal {
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 34 22
+         halign center_ref
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "100"
+         font "gui/fonts/etelkatextpro16"
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "HumanityVal"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass Sanity {
+       visible 0
+       clipchildren 1
+       inheritalpha 0
+       ignorepointer 1
+       position 35 0
+       size 35 81
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       fixaspect fixwidth
+       style blank
+       {
+        ImageWidgetClass SanityIcon {
+         disabled 0
+         clipchildren 1
+         inheritalpha 0
+         ignorepointer 1
+         keepsafezone 0
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 35 35
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         fixaspect fixwidth
+         scriptclass "ViewBinding"
+         image0 ""
+         imageTexture ""
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         "flip v" 0
+         filter 1
+         nocache 0
+         {
+          ScriptParamsClass {
+           Binding_Name "SanityIcon"
+          }
+         }
+        }
+        TextWidgetClass SanityVal {
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 34 22
+         halign center_ref
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "100"
+         font "gui/fonts/etelkatextpro16"
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "SanityVal"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -211,4 +211,20 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 
 		return "";
 	}
+
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("ExpansionHelicopterBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
 };
