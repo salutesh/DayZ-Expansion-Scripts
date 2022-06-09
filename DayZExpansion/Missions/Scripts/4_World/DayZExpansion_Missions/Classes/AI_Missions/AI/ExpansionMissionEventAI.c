@@ -145,7 +145,7 @@ class ExpansionMissionEventAI extends ExpansionMissionEventBase
 	eAIDynamicPatrol CreateExpansionAI(vector startpos, array<vector> waypoints, string loadout = "", int groupsize = -1, string faction = "")
 	{
 		eAIFaction efaction;
-		eAIWaypointBehavior waypointbehavior = eAIWaypointBehavior.REVERSE;
+		eAIWaypointBehavior waypointbehavior = eAIWaypointBehavior.ALTERNATE;
 		switch (faction)
 		{
 			case "West":

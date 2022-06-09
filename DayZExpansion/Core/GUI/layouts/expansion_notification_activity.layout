@@ -4,6 +4,7 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1
+ color 0.1059 0.1059 0.1059 0.4706
  size 0.25 0
  hexactpos 1
  vexactpos 1
@@ -17,6 +18,7 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
  "no focus" 1
  Padding 0
  Margin 0
+ "Size To Content H" 1
  "Size To Content V" 1
  {
   GridSpacerWidgetClass Notification {
@@ -227,6 +229,8 @@ WrapSpacerWidgetClass ExpansionNotificationViewActivity {
          "size to text v" 1
          "text valign" center
          wrap 1
+         "condense whitespace" 1
+         "strip newlines" 1
          {
           ScriptParamsClass {
            Binding_Name "NotificationText"

@@ -10,6 +10,7 @@ class eAIFactionGuards : eAIFaction
 	override bool IsFriendly(notnull eAIFaction other)
 	{
 		if (other.IsInherited(eAIFactionGuards)) return true;
+		if (other.IsInherited(eAIFactionPassive)) return true;
 		return false;
 	}
 };

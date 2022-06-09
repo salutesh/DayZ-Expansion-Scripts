@@ -21,7 +21,7 @@ class eAIFormation
 
 	vector ToWorld(vector fs)
 	{
-		if (m_Group.Count() > 0)
+		if (m_Group.Count() > 0 && m_Group.GetLeader())
 			m_Transform[3] = m_Group.GetLeader().GetPosition();
 
 		vector ws = fs.Multiply4(m_Transform);

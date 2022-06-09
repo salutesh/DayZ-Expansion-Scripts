@@ -154,7 +154,7 @@ class eAIBase extends PlayerBase
 		m_AimingProfile = new eAIAimingProfile(this);
 
 		m_eMeleeCombat = new eAIMeleeCombat(this);
-		;
+
 		m_MeleeCombat = m_eMeleeCombat;
 		m_MeleeFightLogic = new DayZPlayerMeleeFightLogic_LightHeavy(this);
 
@@ -559,6 +559,8 @@ class eAIBase extends PlayerBase
 	//! Unlike GetMagazineToReload, this can be used to check if there is a mag/ammo for a weapon that is not in hands
 	EntityAI GetMagazineInInventory(EntityAI weapon)
 	{
+		auto trace = EXTrace.Start(EXTrace.AI, this, weapon.ToString());
+
 		Weapon_Base weapon_base = Weapon_Base.Cast(weapon);
 		eAIWeaponManager weapon_manager = eAIWeaponManager.Cast(GetWeaponManager());
 		EntityAI magazine_to_reload;
@@ -923,7 +925,7 @@ class eAIBase extends PlayerBase
 					continue;
 
 			//! If the object is an item and we have an entity in hands or the object is not a weapon, ignore it
-			if (Class.CastTo(targetItem, obj) && (entityInHands || (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon()) || eAI_HasWeaponInInventory()))
+			if (Class.CastTo(targetItem, obj) && (entityInHands || (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon()) || GetGroup().GetFaction().IsInherited(eAIFactionPassive) || eAI_HasWeaponInInventory()))
 				continue;
 
 			if (obj.IsInherited(Building))

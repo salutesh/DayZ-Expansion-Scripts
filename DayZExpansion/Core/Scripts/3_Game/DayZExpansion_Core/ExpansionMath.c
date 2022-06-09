@@ -6,7 +6,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -16,7 +16,7 @@ class ExpansionMath
 	static float LinearConversion(float minFrom, float maxFrom, float value, float minTo = 0, float maxTo = 1, bool clamp = true)
 	{
 		float newValue = (((value - minFrom) * (maxTo - minTo)) / (maxFrom - minFrom)) + minTo;
-		
+
 		if (clamp)
 			newValue = Clamp(newValue, minTo, maxTo);
 
@@ -40,7 +40,7 @@ class ExpansionMath
 	//! which can't be used with negative integers
 	static float PascalTriangle(int a, int b)
 	{
-		float result = 1; 
+		float result = 1;
 		for (int i = 0; i < b; ++i)
 		{
 			result *= (a - i) / (i + 1);
@@ -72,6 +72,11 @@ class ExpansionMath
             result = 1 - 2 * Math.Pow(1 - x, 2);
 		return edge0 + result * (edge1 - edge0);
 	}
+
+	static vector ExRotateAroundPoint(vector point, vector pos, vector axis, float cosAngle, float sinAngle)
+    {
+        return vector.RotateAroundZero(pos - point, axis, cosAngle, sinAngle) + point;
+    }
 
 	//! Generate random point within ring (uniformly)
 	static vector GetRandomPointInRing(vector center, float minRadius, float maxRadius)

@@ -182,15 +182,16 @@ class ExpansionAICrashPatrol
                 return eAIWaypointBehavior.HALT; // They just don't move, they stay at their position
                 break;
             }
-            case "PATROL":
             case "LOOP":
             {
-                return eAIWaypointBehavior.LOOP; // Follow the waypoint's in the normal order (from start to finish)
+                return eAIWaypointBehavior.LOOP; // Follow the waypoints from start to finish, then go straight to start, repeat
                 break;
             }
+            case "PATROL":
             case "REVERSE":
+            case "ALTERNATE":
             {
-                return eAIWaypointBehavior.REVERSE; // Follow the waypoint's in the reversed order (from finish to start)
+                return eAIWaypointBehavior.ALTERNATE; // Follow the waypoints from start to finish, then from finish to start, repeat
                 break;
             }
             case "HOLD OR PATROL":
@@ -198,7 +199,7 @@ class ExpansionAICrashPatrol
                 if ( Math.RandomIntInclusive(0,1) )
                     return eAIWaypointBehavior.HALT; // They just don't move, they stay at their position
 
-                return eAIWaypointBehavior.LOOP; // Follow the waypoint's in the normal order (from start to finish)
+                return eAIWaypointBehavior.ALTERNATE; // Follow the waypoints from start to finish, then from finish to start, repeat
                 break;
             }
         }

@@ -260,10 +260,12 @@ enum ExpansionSettingsRPC
 	SafeZone,
 	Mission,
 	AirDrop,
+	Quest,
 	Chat,
 	AI,
 	AIPATROL,
 	NotificationScheduler,
+	Hardline,
 	COUNT
 };
 

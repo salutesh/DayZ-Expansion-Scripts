@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -13,15 +13,15 @@
 /*
  * Call tracing that can be enabled on a per-ID basis.
  * Insert in each method at the top one of the following:
- * 
+ *
  * auto trace = EXTrace.Start(EXTrace.<ID>);  //! Includes only 1st line of stack
  * auto trace = EXTrace.StartStack(EXTrace.<ID>);  //! Includes whole stack
  * auto trace = EXTrace.Start0(EXTrace.<ID>);  //! Excludes stack
- * 
+ *
  * Calling trace.Dump(<int> depth) will output the current stack with the desired depth (this happens automatically when the trace is destroyed).
  * Leave out the depth parameter to use default depth.
  * You can also change the default depth on-the-fly by calling trace.SetDepth(<int> depth).
- * 
+ *
  * static bool EXTrace.<ID> needs to exist in Core\DayZExpansion_Core\3_Game\ExpansionTracing.c
  * and be set to ENABLE (will enable if DayZDiag or DayZ Experimental) or uncomment global define EXPANSIONTRACE in DayZExpansion_Core_Defines.c
  * DON'T use without wrapping in ifdef EXPANSIONTRACE ... #endif in OnUpdate or anywhere else it would get called rapidly!
@@ -48,15 +48,15 @@ class EXTrace
 	static bool BASEBUILDING;
 
 	static bool BOOK;
-	
+
 	static bool CE;
 
 	static bool CHAT = ENABLE;
 
 	static bool CHICKEN;
-	
+
 	static bool COT_GROUPS = ENABLE;
-	
+
 	static bool DATACOLLECTION = ENABLE;
 
 	static bool GENERAL_ITEMS;
@@ -70,7 +70,7 @@ class EXTrace
 	static bool LIGHTS;
 
 	static bool MAPPING;
-	
+
 	static bool MARKER;
 
 	static bool MARKET;
@@ -84,11 +84,11 @@ class EXTrace
 	static bool PLAYER_CONSTANT = PLAYER && true; // Will fill up the logs
 
 	static bool PLAYER_MONITOR;
-	
+
 	static bool RESPAWN = ENABLE;
 
 	static bool SETTINGS;
-	
+
 	static bool SPAWNSELECTION;
 
 	static bool SKIN;
@@ -103,8 +103,10 @@ class EXTrace
 
 	static bool ZONES;
 
+	static bool QUESTS;
+
 	//! -----------------------------------------------------------------------
-	
+
 	static string m_Indent = "                                  ";
 	protected string m_Instance;
 	protected string m_Params[10];

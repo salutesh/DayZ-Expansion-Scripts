@@ -28,8 +28,10 @@ class ExpansionTerritorySettingsBase: ExpansionSettingBase
  **/
 class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 {
-	static const int VERSION = 0;
+	static const int VERSION = 2;
 	
+	float TerritoryAuthenticationRadius;	//! Players need to be in this radius to be able to accept a territory invite
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
@@ -111,7 +113,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
-		//!Nothing to do here yet
+		TerritoryAuthenticationRadius = s.TerritoryAuthenticationRadius;
 		
 		ExpansionTerritorySettingsBase sb = s;
 		CopyInternal( sb );
@@ -170,10 +172,11 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
+				EXPrint("[ExpansionTerritorySettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_TERRITORY_SETTINGS + "\" to v" + VERSION);
+
 				if (settingsBase.m_Version < 2)
 				{
-					EXPrint("[ExpansionTerritorySettings] Load - Converting v1 \"" + EXPANSION_TERRITORY_SETTINGS + "\" to v" + VERSION);
-					//!Nothing to do here yet
+					TerritoryAuthenticationRadius = settingsDefault.TerritoryAuthenticationRadius;
 				}
 				
 				//! Copy over old settings that haven't changed
@@ -220,6 +223,7 @@ class ExpansionTerritorySettings: ExpansionTerritorySettingsBase
 		TerritoryPerimeterSize = 150.0;
 		MaxMembersInTerritory = 10;
 		MaxTerritoryPerPlayer = 1;
+		TerritoryAuthenticationRadius = 150.0;
 	}
 	
 	// ------------------------------------------------------------

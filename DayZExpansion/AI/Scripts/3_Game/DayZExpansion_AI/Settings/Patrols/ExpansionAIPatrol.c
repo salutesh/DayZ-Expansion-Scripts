@@ -15,7 +15,7 @@ class ExpansionAIPatrol
     string Faction;                     // WEST, EAST, INSURGENT, CIVILIAN
     string LoadoutFile;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
     int NumberOfAI;                     // How many bots, -x will make it random between 0 and x
-    string Behaviour;                   // HALT, LOOP, REVERSE, HOLD OR PATROL
+    string Behaviour;                   // HALT, LOOP, ALTERNATE, HOLD OR PATROL
     string Speed;                       // WALK, JOG, SPRINT, RANDOM
     string UnderThreatSpeed;            // WALK, JOG, SPRINT, RANDOM
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
@@ -150,21 +150,22 @@ class ExpansionAIPatrol
     {
         switch (Behaviour)
         {
-            case "REVERSE":
-            {
-                return eAIWaypointBehavior.REVERSE; // Follow the waypoints in reverse (from end to start)
-                break;
-            }
             case "HOLD":
             case "HALT":
             {
                 return eAIWaypointBehavior.HALT; // They just don't move, they stay at their position
                 break;
             }
-            case "PATROL":
             case "LOOP":
             {
-                return eAIWaypointBehavior.LOOP; // Follow the waypoint's in the normal order (from start to finish)
+                return eAIWaypointBehavior.LOOP; // Follow the waypoints from start to finish, then go straight to start, repeat
+                break;
+            }
+            case "PATROL":
+            case "REVERSE":
+            case "ALTERNATE":
+            {
+                return eAIWaypointBehavior.ALTERNATE; // Follow the waypoints from start to finish, then from finish to start, repeat
                 break;
             }
             case "HOLD OR PATROL":
@@ -172,13 +173,13 @@ class ExpansionAIPatrol
                 if ( Math.RandomIntInclusive(0,1) )
                     return eAIWaypointBehavior.HALT; // They just don't move, they stay at their position
 
-                return eAIWaypointBehavior.LOOP; // Follow the waypoint's in the normal order (from start to finish)
+                return eAIWaypointBehavior.ALTERNATE; // Follow the waypoints from start to finish, then from finish to start, repeat
                 break;
             }
         }
 
         //! Unknown Behaviour, sending default behaviour
-        return eAIWaypointBehavior.REVERSE;
+        return eAIWaypointBehavior.ALTERNATE;
     }
 
     eAIFaction GetFaction()

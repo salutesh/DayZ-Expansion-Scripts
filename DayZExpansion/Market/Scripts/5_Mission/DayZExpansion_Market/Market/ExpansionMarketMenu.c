@@ -515,7 +515,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			//! Skip item if no filter matches
 			return false;
 		}
-
+		
 		MarketPrint("ExpansionMarketMenu::ShouldShowItem - End - No option filter is active. Add item: " + currentItem.ClassName);
 		return true;
 	}
@@ -529,7 +529,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		//! This deals with the case where different class names have the same display name
 		array<ExpansionMarketItem> itemsArray;
-		if (!tempItems.Find(displayName, itemsArray)) 
+		if (!tempItems.Find(displayName, itemsArray))
 		{
 			itemsArray = new array<ExpansionMarketItem>;
 			tempItems.Insert(displayName, itemsArray);

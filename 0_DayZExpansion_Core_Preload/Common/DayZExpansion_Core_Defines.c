@@ -56,6 +56,9 @@
 //! Enable it if you want to enable kill-feed module debug logs
 //#define EXPANSION_KILLFEED_MODULE_DEBUG
 
+//! Enable it if you want to enable notification module debug logs
+//#define EXPANSION_NOTIFICATION_MODULE_DEBUG
+
 //! Enable it if you want to marker module debug logs
 //#define EXPANSION_MARKER_MODULE_DEBUG
 

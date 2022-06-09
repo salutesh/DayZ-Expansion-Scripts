@@ -913,7 +913,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			}
 		}
 		else
-		{		
+		{
 			markerData = ExpansionMarkerData.Create(ExpansionMapMarkerType.PERSONAL);
 			markerData.SetName("You died here!");
 			markerData.SetIcon("Skull 3");

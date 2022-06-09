@@ -18,6 +18,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	Widget PlayerBloodPanel;
 	Widget PlayerStates;
 	Widget PlayerStances;
+	
 	ImageWidget Bones;
 	ImageWidget Sick;
 	ImageWidget Poisoned;
@@ -179,28 +180,40 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	{
 		if (GetExpansionSettings().GetParty().ShowHUDMemberStates)
 		{
-			if (player_states.m_Bones > 0)
+			if (Bones && player_states.m_Bones > 0)
+			{
 				Bones.Show(true);
-			else
+			}
+			else if (Bones && player_states.m_Bones <= 0)
+			{
 				Bones.Show(false);
+			}
 	
-			if (player_states.m_Sick > 0 || player_states.m_Cholera > 0 || player_states.m_Infection > 0 || player_states.m_Influenza > 0 || player_states.m_Salmonella > 0)
+			if (Sick && (player_states.m_Sick > 0 || player_states.m_Cholera > 0 || player_states.m_Infection > 0 || player_states.m_Influenza > 0 || player_states.m_Salmonella > 0))
+			{
 				Sick.Show(true);
-			else
+			}
+			else if (Sick && (player_states.m_Sick <= 0 || player_states.m_Cholera <= 0 || player_states.m_Infection <= 0 || player_states.m_Influenza <= 0 || player_states.m_Salmonella <= 0))
+			{
 				Sick.Show(false);
+			}
 		
-			if (player_states.m_Poison > 0)
+			if (Poisoned && player_states.m_Poison > 0)
+			{
 				Poisoned.Show(true);
-			else
+			}
+			else if (Poisoned && player_states.m_Poison <= 0)
+			{
 				Poisoned.Show(false);
+			}
 			
-			if (player_states.m_Cuts > 0)
+			if (Bleeding && BleedingCount && player_states.m_Cuts > 0)
 			{
 				Bleeding.Show(true);
 				BleedingCount.Show(true);
 				BleedingCount.SetText(player_states.m_Cuts.ToString());
 			}
-			else
+			else if (Bleeding && BleedingCount && player_states.m_Cuts <= 0)
 			{
 				Bleeding.Show(false);
 				BleedingCount.Show(false);
@@ -215,7 +228,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	}
 	
 	void UpdateStance(int stance)
-	{
+	{		
 		if (stance == 1)
 		{
 			StanceStand.Show(true);

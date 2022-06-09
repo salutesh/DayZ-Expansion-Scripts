@@ -84,7 +84,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		}
 	}
 	
-	void	UpdateItemStats()
+	void UpdateItemStats()
 	{
 		UpdateItemInfoWetness();
 		UpdateItemInfoTemperature();
@@ -92,7 +92,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		UpdateItemInfoFoodStage();
 		UpdateItemInfoCleanness();
 	}
-	
+		
 	bool ShowContent()
 	{
 		return m_ShowContent;

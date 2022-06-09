@@ -1163,6 +1163,13 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 		
+		float authenticationRadius = GetExpansionSettings().GetTerritory().TerritoryAuthenticationRadius;
+		if ( !IsInTerritory(senderPlayer.GetPosition(), authenticationRadius, flag) )
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ERROR_NOT_IN_TERRITORY", authenticationRadius, territory.GetTerritoryName())).Error(sender);
+			return;
+		}
+		
 		territory.RemoveTerritoryInvite( sender.GetId() );
 		territory.AddMember( sender.GetId(), sender.GetName() );
 		

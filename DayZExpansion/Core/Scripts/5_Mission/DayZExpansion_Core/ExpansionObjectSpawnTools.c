@@ -435,7 +435,7 @@ class ExpansionObjectSpawnTools
 					}
 			
 					#ifdef EXPANSIONMODAI
-					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.REVERSE);
+					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 					#else
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( traderAI.RequestTransition, 10000, false, "Rejoin" );
 					

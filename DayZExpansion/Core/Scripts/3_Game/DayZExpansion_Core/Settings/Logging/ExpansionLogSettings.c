@@ -19,7 +19,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
-	
+
 	#ifdef EXPANSIONMODVEHICLE
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
 	bool VehicleTowing;			//! If enabled, generate logs about towing and untowing vehicles
@@ -40,7 +40,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	#ifdef EXPANSIONMODSPAWNSELECTION
 	bool SpawnSelection;		//! If enabled, generate logs when the player spawn
 	#endif
-	
+
 	#ifdef EXPANSIONMODGROUPS
 	bool Party;					//! If enabled, generate logs when the player create a party or invite someone
 	#endif
@@ -67,13 +67,17 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 	bool LogToScripts; 			// Should the prints be logged in the scripts logs ?
 	bool LogToADM; 				// Should the prints be logged in the ADM logs ?
-	
+
+	#ifdef EXPANSIONMODHARDLINE
+	bool Hardline;			//! If enabled, generate logs for market system actions by all players
+	#endif
+
 	[NonSerialized()]
 	private string m_FileTimestamp;
 
 	[NonSerialized()]
 	private FileHandle m_FileLog;
-	
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -81,7 +85,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	void ExpansionLogSettings()
 	{
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -104,17 +108,17 @@ class ExpansionLogSettings: ExpansionSettingBase
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_Log.Invoke();
-		
+
 		return true;
 	}
-	
+
 	override void OnSend( ParamsWriteContext ctx )
 	{
 		ExpansionLogSettings thisSetting = this;
 
 		ctx.Write( thisSetting );
 	}
-	
+
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
@@ -166,7 +170,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 		MissionAirdrop = s.MissionAirdrop;
 		//MissionHorde = s.MissionHorde;
 		#endif
-		
+
 		#ifdef EXPANSIONMODGROUPS
 		Party = s.Party;
 		#endif
@@ -180,6 +184,10 @@ class ExpansionLogSettings: ExpansionSettingBase
 		ATM = s.ATM;
 		#endif
 
+		#ifdef EXPANSIONMODHARDLINE
+		Hardline = s.Hardline;
+		#endif
+
 		#ifdef EXPANSIONMODAI
 		AIGeneral = s.AIGeneral;
 		AIPatrol = s.AIPatrol;
@@ -191,7 +199,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 		LogToScripts = s.LogToScripts;
 		LogToADM = s.LogToADM;
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
@@ -222,7 +230,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 		if (logSettingsExist)
 		{
 			EXPrint("[ExpansionLogSettings] Load existing setting file:" + EXPANSION_LOG_SETTINGS);
-			
+
 			ExpansionLogSettings settingsDefault = new ExpansionLogSettings;
 			settingsDefault.Defaults();
 
@@ -233,7 +241,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 				if (m_Version < 2)
 				{
 					EXPrint("[ExpansionLogSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_LOG_SETTINGS + "\" to v" + VERSION);
-					
+
 					//! New with v2
 					LogToScripts = settingsDefault.LogToScripts;
 					LogToADM = settingsDefault.LogToADM;
@@ -244,7 +252,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 				if (m_Version < 3)
 				{
 					EXPrint("[ExpansionLogSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_LOG_SETTINGS + "\" to v" + VERSION);
-					
+
 					//! New with v3
 					#ifdef EXPANSIONMODAI
 					AIGeneral = settingsDefault.AIGeneral;
@@ -253,7 +261,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 					#endif
 				}
 
-				
+
 
 				m_Version = VERSION;
 				save = true;
@@ -265,7 +273,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 			Defaults();
 			save = true;
 		}
-		
+
 		if (save)
 			Save();
 
@@ -281,7 +289,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	override void Update( ExpansionSettingBase setting )
 	{
@@ -294,7 +302,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		m_Version = VERSION;
-		
+
 		Safezone = true;
 		AdminTools = true;
 
@@ -326,7 +334,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 		MissionAirdrop = true;
 		//MissionHorde = true;
 		#endif
-		
+
 		#ifdef EXPANSIONMODGROUPS
 		Party = true;
 		#endif
@@ -340,13 +348,17 @@ class ExpansionLogSettings: ExpansionSettingBase
 		AIPatrol = true;
 		AICrashPatrol = true;
 		#endif
-		
+
 		#ifdef EXPANSIONMODMARKET
 		Market = true;
 		ATM = true;
 		#endif
+
+		#ifdef EXPANSIONMODHARDLINE
+		Hardline = true;
+		#endif
 	}
-	
+
 	override string SettingName()
 	{
 		return "Log Settings";

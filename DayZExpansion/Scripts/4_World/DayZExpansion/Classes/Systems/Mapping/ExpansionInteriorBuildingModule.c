@@ -1,5 +1,5 @@
 /**
- * ExpansionWorldMappingModule.c
+ * ExpansionInteriorBuildingModule.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

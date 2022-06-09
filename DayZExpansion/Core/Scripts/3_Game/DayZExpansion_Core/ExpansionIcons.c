@@ -76,6 +76,8 @@ class ExpansionIcons
 		AddIcon("Persona", "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds");
 		AddIcon("Pill", "DayZExpansion\\Core\\GUI\\icons\\hud\\pill_64x64.edds");
 		AddIcon("Questionmark", "DayZExpansion\\Core\\GUI\\icons\\hud\\questionmark_64x64.edds");
+		AddIcon("Questionmark 2", "DayZExpansion\\Core\\GUI\\icons\\hud\\questionmark_2_64x64.edds");
+		AddIcon("Exclamationmark", "DayZExpansion\\Core\\GUI\\icons\\hud\\exclamationmark_64x64.edds");
 		AddIcon("Skull 2", "DayZExpansion\\Core\\GUI\\icons\\hud\\skull_1_64x64.edds");
 		AddIcon("Skull 3", "DayZExpansion\\Core\\GUI\\icons\\hud\\skull_2_64x64.edds");
 		AddIcon("Star", "DayZExpansion\\Core\\GUI\\icons\\hud\\star_64x64.edds");

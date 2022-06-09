@@ -1,5 +1,6 @@
 GridSpacerWidgetClass ExpansionNotificationViewBaguette {
  inheritalpha 0
+ color 0.1059 0.1059 0.1059 0.4706
  position 0 0
  size 1 32
  hexactpos 1
