@@ -1166,7 +1166,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		float authenticationRadius = GetExpansionSettings().GetTerritory().TerritoryAuthenticationRadius;
 		if ( !IsInTerritory(senderPlayer.GetPosition(), authenticationRadius, flag) )
 		{
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ERROR_NOT_IN_TERRITORY", authenticationRadius, territory.GetTerritoryName())).Error(sender);
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_PLAYER_ERROR_NOT_IN_TERRITORY", authenticationRadius.ToString(), territory.GetTerritoryName())).Error(sender);
 			return;
 		}
 		
