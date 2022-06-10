@@ -12,10 +12,10 @@
 
 class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 {
-	protected int Count = 0;
-	protected int Amount = 0;
-	protected float m_UpdateQueueTimer = 0;
-	protected const float UPDATE_TICK_TIME = 2.0;
+	private int Count = 0;
+	private int Amount = 0;
+	private float m_UpdateQueueTimer = 0;
+	private const float UPDATE_TICK_TIME = 2.0;
 
 	void SetCount(int count)
 	{

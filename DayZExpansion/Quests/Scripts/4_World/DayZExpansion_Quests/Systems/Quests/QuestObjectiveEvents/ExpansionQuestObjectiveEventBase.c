@@ -12,12 +12,12 @@
 
 class ExpansionQuestObjectiveEventBase
 {
-	protected int m_Index = -1;
-	protected ExpansionQuest m_Quest;
-	protected bool m_Completed = false;
-	protected bool m_Initialized = false;
-	protected bool m_Active = false;
-	protected ref ExpansionQuestObjectiveConfigBase m_ObjectiveConfig;
+	private int m_Index = -1;
+	private ExpansionQuest m_Quest;
+	private bool m_Completed = false;
+	private bool m_Initialized = false;
+	private bool m_Active = false;
+	private ref ExpansionQuestObjectiveConfigBase m_ObjectiveConfig;
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{

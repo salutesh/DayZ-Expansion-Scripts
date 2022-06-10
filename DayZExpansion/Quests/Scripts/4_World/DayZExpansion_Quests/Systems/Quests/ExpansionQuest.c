@@ -13,32 +13,32 @@
 //! Quest instance that handles all the quest events
 class ExpansionQuest
 {
-	protected ExpansionQuestModule m_QuestModule;
+	private ExpansionQuestModule m_QuestModule;
 
-	protected autoptr ExpansionQuestConfig Config;
-	protected int State = ExpansionQuestState.NONE;
-	protected autoptr array<Object> QuestItems = new array<Object>;	//! Normal items the player will recieve on quest start.
-	protected autoptr array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
-	protected PlayerBase m_Player;
-	protected string m_PlayerUID;
-	protected bool IsCompeleted = false;
-	protected bool m_Initialized = false;
+	private autoptr ExpansionQuestConfig Config;
+	private int State = ExpansionQuestState.NONE;
+	private autoptr array<Object> QuestItems = new array<Object>;	//! Normal items the player will recieve on quest start.
+	private autoptr array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
+	private PlayerBase m_Player;
+	private string m_PlayerUID;
+	private bool IsCompeleted = false;
+	private bool m_Initialized = false;
 
-	protected float m_UpdateQueueTimer; //! Server update que timer
-	protected int m_CurrentObjectiveTick;
-	protected const float UPDATE_TICK_TIME = 1.0; // refreshes 50 quests objectives every ten seconds (5 every sec.)
-	protected const int UPDATE_OBJECTIVES_PER_TICK = 5;
+	private float m_UpdateQueueTimer; //! Server update que timer
+	private int m_CurrentObjectiveTick;
+	private const float UPDATE_TICK_TIME = 1.0; // refreshes 50 quests objectives every ten seconds (5 every sec.)
+	private const int UPDATE_OBJECTIVES_PER_TICK = 5;
 
-	protected bool m_IsGroupQuest = false;
-	protected autoptr ExpansionPartyData m_Group;
-	protected int m_GroupID = -1;
+	private bool m_IsGroupQuest = false;
+	private autoptr ExpansionPartyData m_Group;
+	private int m_GroupID = -1;
 
-	protected int m_ObjectiveIndex = 0;
-	protected bool m_ObjectivesCreated = false;
+	private int m_ObjectiveIndex = 0;
+	private bool m_ObjectivesCreated = false;
 
-	protected autoptr ExpansionObjectSet m_ObjectsSet;
+	private autoptr ExpansionObjectSet m_ObjectsSet;
 	
-	protected int m_CurrentObjectiveIndex = -1;
+	private int m_CurrentObjectiveIndex = -1;
 
 	void ExpansionQuest(ExpansionQuestModule module)
 	{
@@ -1206,16 +1206,16 @@ class ExpansionQuest
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
 		QuestPrint("------------------------------------------------------------");
-		QuestPrint(ToString() + "::QuestDebug - Quest config: " + Config);
-		QuestPrint(ToString() + "::QuestDebug - Quest state: " + State);
-		QuestPrint(ToString() + "::QuestDebug - Quest items: " + QuestItems);
+		//QuestPrint(ToString() + "::QuestDebug - Quest config: " + Config);
+		//QuestPrint(ToString() + "::QuestDebug - Quest state: " + State);
+		//QuestPrint(ToString() + "::QuestDebug - Quest items: " + QuestItems);
 		QuestPrint(ToString() + "::QuestDebug - Quest player UID: " + m_PlayerUID);
 		QuestPrint(ToString() + "::QuestDebug - Quest player: " + m_Player);
-		QuestPrint(ToString() + "::QuestDebug - Quest completed: " + IsCompeleted);
-		QuestPrint(ToString() + "::QuestDebug - Quest initialized: " + m_Initialized);
+		//QuestPrint(ToString() + "::QuestDebug - Quest completed: " + IsCompeleted);
+		//QuestPrint(ToString() + "::QuestDebug - Quest initialized: " + m_Initialized);
 	#ifdef EXPANSIONMODGROUPS
-		QuestPrint(ToString() + "::QuestDebug - Quest is group quest: " + m_IsGroupQuest);
-		QuestPrint(ToString() + "::QuestDebug - Quest group: " + m_Group);
+		//QuestPrint(ToString() + "::QuestDebug - Quest is group quest: " + m_IsGroupQuest);
+		//QuestPrint(ToString() + "::QuestDebug - Quest group: " + m_Group);
 	#endif
 		QuestPrint("------------------------------------------------------------");
 	#endif

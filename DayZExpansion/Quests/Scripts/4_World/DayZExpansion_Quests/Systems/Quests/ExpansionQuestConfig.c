@@ -13,39 +13,39 @@
 class ExpansionQuestConfig
 {
 	//! Main parameters
-	protected int ID = -1; //! Unique quest ID.
-	protected int Type = -1;	//! Quest type from ExpansionQuestType.
-	protected string Title;	//! Quest title.
-	protected autoptr array<string> Descriptions; //! 0 - Description on getting quest | 1 - Description while quest is active | 2 - Description when take in quest.
-	protected string ObjectiveText; //! Short objective desctiption.
-	protected int PreQuest = -1; //! Pre-Quest Quest ID.
-	protected int FollowUpQuest = -1; //! Follow-up Quest ID.
-	protected int QuestGiverID = 1; //! Unique quest NPC ID of the NPC that will head out the quest.
-	protected int QuestTurnInID = 1;	//! Unique quest NPC ID of the NPC that will turn-in the quest when completed.
+	private int ID = -1; //! Unique quest ID.
+	private int Type = -1;	//! Quest type from ExpansionQuestType.
+	private string Title;	//! Quest title.
+	private autoptr array<string> Descriptions; //! 0 - Description on getting quest | 1 - Description while quest is active | 2 - Description when take in quest.
+	private string ObjectiveText; //! Short objective desctiption.
+	private int PreQuest = -1; //! Pre-Quest Quest ID.
+	private int FollowUpQuest = -1; //! Follow-up Quest ID.
+	private int QuestGiverID = 1; //! Unique quest NPC ID of the NPC that will head out the quest.
+	private int QuestTurnInID = 1;	//! Unique quest NPC ID of the NPC that will turn-in the quest when completed.
 
 	//! Additional quest logic controll parameters
-	protected bool IsAchivement = false;
-	protected bool Repeatable = false; //! Quest is a repeatable quest. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
-	protected bool IsDaylieQuest = false; //! Quest is daylie quest and has a daylie reset. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
-	protected bool IsWeeklyQuest = false; //! Quest is a weekly quest and has a weekly cooldown.
-	protected bool CancelQuestOnPlayerDead = false; //! Quest will be cancled if the quest player (or one of his group members when its a group quest) dies.
-	protected bool Autocomplet = false; //! Quest will be autocompleted when all quest ojectives are completed.
-	protected bool IsGroupQuest = false; //! Quest is a group quest.
+	private bool IsAchivement = false;
+	private bool Repeatable = false; //! Quest is a repeatable quest. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
+	private bool IsDaylieQuest = false; //! Quest is daylie quest and has a daylie reset. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
+	private bool IsWeeklyQuest = false; //! Quest is a weekly quest and has a weekly cooldown.
+	private bool CancelQuestOnPlayerDead = false; //! Quest will be cancled if the quest player (or one of his group members when its a group quest) dies.
+	private bool Autocomplet = false; //! Quest will be autocompleted when all quest ojectives are completed.
+	private bool IsGroupQuest = false; //! Quest is a group quest.
 
 #ifdef EXPANSIONMODHARDLINE
-	protected bool IsBanditQuest = false; //! Quest for bandits only
-	protected bool IsHeroQuest = false; //! Quest for heros only
+	private bool IsBanditQuest = false; //! Quest for bandits only
+	private bool IsHeroQuest = false; //! Quest for heros only
 #endif
 
 	//! Group quest parameters
-	protected string ObjectSetFileName = string.Empty; //! File name of the .map file that will get loaded
+	private string ObjectSetFileName = string.Empty; //! File name of the .map file that will get loaded
 	
 	//! Crazy ideas
-	protected string QuestClassName = string.Empty; //! Class name of the quest class used to create the quest instance if you want to use a cutomized quest class.
+	private string QuestClassName = string.Empty; //! Class name of the quest class used to create the quest instance if you want to use a cutomized quest class.
 	
-	protected autoptr array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
-	protected autoptr array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
-	protected autoptr array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
+	private autoptr array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
+	private autoptr array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
+	private autoptr array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
 
 	void ExpansionQuestConfig()
 	{

@@ -12,13 +12,13 @@
 
 class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 {
-	protected float m_UpdateQueueTimer;
-	protected const float UPDATE_TICK_TIME = 2.0;
-	protected ref ExpansionQuestsPlayerInventory m_PlayerEntityInventory;
-	protected ref array<EntityAI> m_PlayerItems;
+	private float m_UpdateQueueTimer;
+	private const float UPDATE_TICK_TIME = 2.0;
+	private ref ExpansionQuestsPlayerInventory m_PlayerEntityInventory;
+	private ref array<EntityAI> m_PlayerItems;
 #ifdef EXPANSIONMODGROUPS
-	protected ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
-	protected ref array<EntityAI> m_GroupItems;
+	private ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
+	private ref array<EntityAI> m_GroupItems;
 #endif
 
 	override void OnStart()

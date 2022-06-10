@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected ref ExpansionQuestObjectiveAIPatrol AIPatrol;
+	private ref ExpansionQuestObjectiveAIPatrol AIPatrol;
 
 	void SetAIPatrol(ExpansionQuestObjectiveAIPatrol patrol)
 	{

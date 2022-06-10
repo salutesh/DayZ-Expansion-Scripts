@@ -12,8 +12,8 @@
 
 class ExpansionQuestObjectiveTreasureHunt
 {
-	protected vector Position;
-	protected ref map<string, int> Items = new map<string, int>;
+	private vector Position;
+	private ref map<string, int> Items = new map<string, int>;
 
 	void AddItem(string className, int amount)
 	{

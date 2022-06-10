@@ -13,14 +13,14 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICamp
 {
-	protected ref array<vector> Positions = new array<vector>;
-	protected string NPCSpeed;
-	protected string NPCMode;
-	protected string NPCFaction;
-	protected string NPCLoadoutFile;
-	protected autoptr array<string> ClassNames = new array<string>;
-	protected bool SpecialWeapon = false;
-	protected autoptr array<string> AllowedWeapons = new array<string>;
+	private ref array<vector> Positions = new array<vector>;
+	private string NPCSpeed;
+	private string NPCMode;
+	private string NPCFaction;
+	private string NPCLoadoutFile;
+	private autoptr array<string> ClassNames = new array<string>;
+	private bool SpecialWeapon = false;
+	private autoptr array<string> AllowedWeapons = new array<string>;
 
 	void SetNPCSpeed(string npcSpeed)
 	{

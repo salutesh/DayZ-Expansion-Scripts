@@ -12,8 +12,8 @@
 
 class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 {
-	protected float m_UpdateQueueTimer = 0;
-	protected const float UPDATE_TICK_TIME = 2.0;
+	private float m_UpdateQueueTimer = 0;
+	private const float UPDATE_TICK_TIME = 2.0;
 	
 	override void OnStart()
 	{

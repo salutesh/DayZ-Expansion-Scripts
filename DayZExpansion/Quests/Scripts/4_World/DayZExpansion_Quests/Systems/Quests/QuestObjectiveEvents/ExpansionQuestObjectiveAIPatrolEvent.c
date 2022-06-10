@@ -13,15 +13,15 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 {
-	protected ref ExpansionQuestAIGroups AIGroupsData;
-	protected eAIDynamicPatrol QuestAIPatrol;
-	protected int m_TotalUnitsAmount = 0;
-	protected int m_TotalKillCount = 0; 
-	protected int m_UnitsToSpawn = 0;
-	protected float m_UpdateQueueTimer = 0;
-	protected const float UPDATE_TICK_TIME = 2.0;
-	protected int m_UnitsAmount = 0;
-	protected int m_KillCount = 0;
+	private ref ExpansionQuestAIGroups AIGroupsData;
+	private eAIDynamicPatrol QuestAIPatrol;
+	private int m_TotalUnitsAmount = 0;
+	private int m_TotalKillCount = 0; 
+	private int m_UnitsToSpawn = 0;
+	private float m_UpdateQueueTimer = 0;
+	private const float UPDATE_TICK_TIME = 2.0;
+	private int m_UnitsAmount = 0;
+	private int m_KillCount = 0;
 
 	//! Event called when the player starts the quest
 	override void OnStart()

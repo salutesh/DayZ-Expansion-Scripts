@@ -13,15 +13,15 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 {
-	protected float m_UpdateQueueTimer = 0;
-	protected const float UPDATE_TICK_TIME = 2.0;
-	protected ref array<eAIDynamicPatrol> AIPatrols = new array<eAIDynamicPatrol>;
-	protected int m_TotalKillCount = 0; 
-	protected int m_UnitsToSpawn = 0;
-	protected int m_TotalUnitsAmount = 0;
-	protected eAIGroup CampGroup;
-	protected ExpansionQuestObjectiveAICamp m_AICamp;
-	protected bool m_InitCheck = false;
+	private float m_UpdateQueueTimer = 0;
+	private const float UPDATE_TICK_TIME = 2.0;
+	private ref array<eAIDynamicPatrol> AIPatrols = new array<eAIDynamicPatrol>;
+	private int m_TotalKillCount = 0; 
+	private int m_UnitsToSpawn = 0;
+	private int m_TotalUnitsAmount = 0;
+	private eAIGroup CampGroup;
+	private ExpansionQuestObjectiveAICamp m_AICamp;
+	private bool m_InitCheck = false;
 	
 	//! Event called when the player starts the quest
 	override void OnStart()
@@ -52,31 +52,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
-		for (int i = 0; i < AIPatrols.Count(); i++)
-		{
-			eAIDynamicPatrol patrol = AIPatrols[i];
-			eAIGroup group = patrol.m_Group;
-
-			ObjectivePrint(ToString() + "::OnCleanup - Patrol: " + patrol.ToString());
-			ObjectivePrint(ToString() + "::OnCleanup - Patrol group: " + group.ToString());
-			ObjectivePrint(ToString() + "::OnCleanup - Patrol group members: " + group.Count());
-
-			for (int j = 0; j < group.Count(); j++)
-			{
-				DayZPlayerImplement member = group.GetMember(j);
-				if (!member || !member.IsAlive())
-					continue;
-
-				ObjectivePrint(ToString() + "::OnCleanup - Delete member: [" + j + "] " + member.ToString());
-
-				GetGame().ObjectDelete(member);
-			}
-
-			group.Delete();
-			patrol.Delete();
-		}
-
-		AIPatrols.Clear();
+		CleanupPatrol();
 		
 		super.OnCleanup();
 
@@ -88,9 +64,21 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCancel - Start");
 
+		CleanupPatrol();
+		
+		super.OnCancel();
+
+		ObjectivePrint(ToString() + "::OnCancel - End");
+	}
+	
+	void CleanupPatrol()
+	{
 		for (int i = 0; i < AIPatrols.Count(); i++)
 		{
 			eAIDynamicPatrol patrol = AIPatrols[i];
+			if (patrol.m_CanSpawn)
+				continue;
+			
 			eAIGroup group = patrol.m_Group;
 
 			ObjectivePrint(ToString() + "::OnCancel - Patrol: " + patrol.ToString());
@@ -111,12 +99,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			group.Delete();
 			patrol.Delete();
 		}
-
-		AIPatrols.Clear();
 		
-		super.OnCancel();
-
-		ObjectivePrint(ToString() + "::OnCancel - End");
+		AIPatrols.Clear();
 	}
 	
 	void OnEntityKilled(string typeName, string killer)

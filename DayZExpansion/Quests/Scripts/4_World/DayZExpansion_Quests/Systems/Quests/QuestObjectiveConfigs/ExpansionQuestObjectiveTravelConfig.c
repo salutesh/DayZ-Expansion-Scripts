@@ -12,9 +12,9 @@
 
 class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected vector Position = vector.Zero;
-	protected float MaxDistance = 0;
-	protected string MarkerName = string.Empty;
+	private vector Position = vector.Zero;
+	private float MaxDistance = 0;
+	private string MarkerName = string.Empty;
 
 	void SetPosition(vector pos)
 	{

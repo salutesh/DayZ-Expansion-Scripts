@@ -31,20 +31,20 @@ modded class ZombieBase
 			if (parent.IsMan() || parent.IsKindOf("PlayerBase") || parent.IsInherited(PlayerBase))
 			{
 				player = PlayerBase.Cast(killSource.GetHierarchyParent());
-				target = this;
+				target = EntityAI.Cast(this);
 				if (player && target)
 				{
-					questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
+					questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 				}
 			}
 		}
 		else if (killSource.IsMan() || killSource.IsKindOf("PlayerBase") || killSource.IsInherited(PlayerBase))
 		{
 			player = PlayerBase.Cast(killSource);
-			target = this;
+			target = EntityAI.Cast(this);
 			if (player && target)
 			{
-				questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
+				questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 			}
 		}
 	}

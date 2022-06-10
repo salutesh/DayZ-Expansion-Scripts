@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
+	private ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
 
 	void SetTreasureHunt(ExpansionQuestObjectiveTreasureHunt hunt)
 	{

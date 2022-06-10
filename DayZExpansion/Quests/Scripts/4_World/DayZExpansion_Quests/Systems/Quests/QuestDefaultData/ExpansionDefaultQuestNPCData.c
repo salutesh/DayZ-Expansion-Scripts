@@ -12,7 +12,7 @@
 
 class ExpansionDefaultQuestNPCData
 {
-	protected string m_WorldName;
+	private string m_WorldName;
 	
 	void ExpansionDefaultQuestNPCData(string worldName)
 	{

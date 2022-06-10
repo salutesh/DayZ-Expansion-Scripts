@@ -318,14 +318,18 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (Class.CastTo(killerPlayer, killerEntity))
 		{
 			killerIsPlayer = true;
+		#ifdef EXPANSIONMODAI
 			if (killerPlayer.IsAI())
 				killerIsAI = true;
+		#endif
 		}
 		else if (Class.CastTo(killerPlayer, killerEntity.GetHierarchyRootPlayer()))
 		{
 			killerIsPlayer = true;
+		#ifdef EXPANSIONMODAI
 			if (killerPlayer.IsAI())
 				killerIsAI = true;
+		#endif
 		}
 		else if (Class.CastTo(killerInfected, killerEntity))
 		{
@@ -335,15 +339,19 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		//! Set victim entity
 		if (Class.CastTo(victimPlayer, victim))
 		{
-			victimIsPlayer = true;		
+			victimIsPlayer = true;
+		#ifdef EXPANSIONMODAI
 			if (victimPlayer.IsAI())
 				victimIsAI = true;
+		#endif
 		}
 		else if (Class.CastTo(victimPlayer, victim.GetHierarchyRootPlayer()))
 		{
 			victimIsPlayer = true;
+		#ifdef EXPANSIONMODAI
 			if (victimPlayer.IsAI())
 				victimIsAI = true;
+		#endif
 		}
 		else if (Class.CastTo(victimInfected, victim))
 		{
@@ -371,9 +379,11 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			if (victimIsPlayer && !victimIsAI) 
 			{
 				HardlineModulePrint(ToString() + "::OnEntityKilled - Player victim type: " + victimPlayer.GetType());
-				HardlineModulePrint(ToString() + "::OnEntityKilled - Player victim is AI: " + victimPlayer.IsAI());
 				HardlineModulePrint(ToString() + "::OnEntityKilled - Player killer type: " + killerPlayer.GetType());
+			#ifdef EXPANSIONMODAI
+				HardlineModulePrint(ToString() + "::OnEntityKilled - Player victim is AI: " + victimPlayer.IsAI());
 				HardlineModulePrint(ToString() + "::OnEntityKilled - Player killer is AI: " + killerPlayer.IsAI());
+			#endif
 				
 				if (killerPlayer == victimPlayer)
 					return;
@@ -491,6 +501,20 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityChange.ToString());
 				ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 			}
+			else if (victimIsInfected)
+			{
+				int humanityOnKillInfected = GetExpansionSettings().GetHardline().HumanityOnKillInfected;
+				killerPlayerData.AddHumanity(humanityOnKillInfected);
+				killerPlayerData.OnInfectedKilled();
+												
+				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
+				SendPlayerHardlineData(killerPlayer.GetIdentity());
+				
+				title = new StringLocaliser("Infected Killed");
+				text = new StringLocaliser("Added %1 Humanity", humanityOnKillInfected.ToString());
+				ExpansionNotification(title, text, ExpansionIcons.GetPath("Infected 2"),  ARGB(255, 160, 223, 59), 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
+			}
+		#ifdef EXPANSIONMODAI
 			else if (victimIsPlayer && victimIsAI)
 			{
 				int humanityOnKillAI = GetExpansionSettings().GetHardline().HumanityOnKillAI;
@@ -524,20 +548,26 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityOnKillAI.ToString());
 				ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 			}
-			else if (victimIsInfected)
-			{
-				int humanityOnKillInfected = GetExpansionSettings().GetHardline().HumanityOnKillInfected;
-				killerPlayerData.AddHumanity(humanityOnKillInfected);
-				killerPlayerData.OnInfectedKilled();
-												
-				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayer.GetIdentity());
-				
-				title = new StringLocaliser("Infected Killed");
-				text = new StringLocaliser("Added %1 Humanity", humanityOnKillInfected.ToString());
-				ExpansionNotification(title, text, ExpansionIcons.GetPath("Infected 2"),  ARGB(255, 160, 223, 59), 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
-			}
+		#endif
 		}
+		else if (killerIsInfected)
+		{
+			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Infected - START");
+			
+			if (victimPlayer && !victimIsAI)
+				OnPlayerDeath(victimPlayer);
+		}
+		else if (!killerIsPlayer && !killerIsAI && !killerIsInfected)
+		{
+			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is UNKNOWN - START");
+			
+			if (victimIsAI)
+				return;
+			
+			if (victimPlayer)			
+				OnPlayerDeath(victimPlayer);
+		}
+	#ifdef EXPANSIONMODAI
 		else if (killerIsPlayer && killerIsAI)
 		{
 			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is AI - START");
@@ -545,23 +575,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			if (victimPlayer && !victimPlayer.IsAI())
 				OnPlayerDeath(victimPlayer);
 		}
-		else if (killerIsInfected)
-		{
-			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Infected - START");
-			
-			if (victimPlayer && !victimPlayer.IsAI())
-				OnPlayerDeath(victimPlayer);
-		}
-		else if (!killerIsPlayer && !killerIsAI && !killerIsInfected)
-		{
-			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is UNKNOWN - START");
-			
-			if (victimPlayer.IsAI())
-				return;
-			
-			if (victimPlayer)			
-				OnPlayerDeath(victimPlayer);
-		}
+	#endif
 		
 		HardlineModulePrint(ToString() + "::OnEntityKilled - End");
 	}
@@ -604,8 +618,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void OnPlayerPositiveAction(PlayerBase player, int humanity)
 	{
+	#ifdef EXPANSIONMODAI
 		if (player.IsAI())
 			return;
+	#endif
 		
 		string playerID = player.GetIdentity().GetId();		
 		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerID);
@@ -629,8 +645,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void OnPlayerNegativeAction(PlayerBase player, int humanity)
 	{
+	#ifdef EXPANSIONMODAI
 		if (player.IsAI())
 			return;
+	#endif
 		
 		string playerID = player.GetIdentity().GetId();		
 		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerID);
@@ -648,6 +666,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		SendPlayerHardlineData(player.GetIdentity());
 	}
 	
+#ifdef WRDG_DOGTAGS
 	// ------------------------------------------------------------
 	// ExpansionHardlineModule UpdatePlayerDogTag
 	// Server
@@ -728,7 +747,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			}
 		}
 	}
-	
+#endif
+
 	// ------------------------------------------------------------
 	// ExpansionHardlineModule HardlineModulePrint
 	// ------------------------------------------------------------
@@ -811,7 +831,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			player.SetHumanity(hardlinePlayerData.GetHumanity());
 		}
 		
+	#ifdef WRDG_DOGTAGS
 		UpdatePlayerDogTag(playerUID);
+	#endif
 		
 		ScriptRPC rpc = new ScriptRPC();
 		hardlinePlayerData.OnSend(rpc);

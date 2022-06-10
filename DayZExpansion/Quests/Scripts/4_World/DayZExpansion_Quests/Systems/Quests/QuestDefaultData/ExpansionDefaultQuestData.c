@@ -14,7 +14,7 @@
 //! We will need to handle all this data thrue a loaded config file for each quest template later
 class ExpansionDefaultQuestData
 {
-	protected string m_WorldName;
+	private string m_WorldName;
 	
 	void ExpansionDefaultQuestData(string worldName)
 	{
@@ -136,6 +136,7 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
+#ifdef EXPANSIONMODMARKET
 	//! Quest example template for a repeatable token quest
 #ifdef WRDG_DOGTAGS
 	ExpansionQuestConfig ExpansionQuestConfig004()
@@ -165,7 +166,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(10);
 		rewards.Insert(reward_1);
 
@@ -240,7 +241,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
@@ -281,7 +282,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
@@ -320,7 +321,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(1000);
 		rewards.Insert(reward_1);
 
@@ -363,7 +364,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
 
@@ -402,7 +403,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(200);
 		rewards.Insert(reward_1);
 
@@ -441,7 +442,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(1000);
 		rewards.Insert(reward_1);
 
@@ -480,7 +481,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(2000);
 		rewards.Insert(reward_1);
 
@@ -520,7 +521,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
 
@@ -559,7 +560,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(200);
 		rewards.Insert(reward_1);
 
@@ -598,7 +599,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(1000);
 		rewards.Insert(reward_1);
 
@@ -637,7 +638,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(2000);
 		rewards.Insert(reward_1);
 
@@ -715,7 +716,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(400);
 		rewards.Insert(reward_1);
 
@@ -747,7 +748,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
 
@@ -776,7 +777,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
@@ -835,7 +836,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
+		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
 		
@@ -843,5 +844,6 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
+#endif
 #endif
 };

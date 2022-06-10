@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestAIGroup
 {
-    string Faction;             // WEST, EAST, INSURGENT, CIVILIAN
+	string Faction;             // WEST, EAST, INSURGENT, CIVILIAN
     string LoadoutFile;         // a json file containing the loadout of this team
     int NumberOfAI;             // How many bots, -x will make it random between 0 and x
     string Behaviour;           // HALT, LOOP, REVERSE

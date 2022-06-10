@@ -12,11 +12,11 @@
 class ExpansionQuestRewardConfig
 {
 	//! Reward items
-	protected string ClassName;
-	protected int Amount = 0;
+	private string ClassName;
+	private int Amount = 0;
 
 #ifdef EXPANSIONMODHARDLINE
-	protected int Humanity = 0;
+	private int Humanity = 0;
 #endif
 
 	void SetClassName(string name)

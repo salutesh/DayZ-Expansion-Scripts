@@ -62,7 +62,7 @@ class ExpansionQuestPlayerData
 		return QuestTimestamps;
 	}
 
-	array<ref ExpansionQuestObjectivePlayerData> GetQuestObjectivesByQuestID(int questID)
+	/*array<ref ExpansionQuestObjectivePlayerData> GetQuestObjectivesByQuestID(int questID)
 	{
 		array<ref ExpansionQuestObjectivePlayerData> validObjectives = new array<ref ExpansionQuestObjectivePlayerData>;
 		for (int i = 0; i < QuestObjectives.Count(); i++)
@@ -73,7 +73,7 @@ class ExpansionQuestPlayerData
 		}
 
 		return validObjectives;
-	}
+	}*/
 
 	void UpdateQuestState(int questID, int state)
 	{

@@ -12,21 +12,20 @@
 
 class ExpansionQuestNpcData
 {
-	protected int ID;
-	protected string ClassName;
-	protected bool IsAI = false;
-	protected vector Position;
-	protected vector Orientation;
-	protected ref TStringArray Gear = new TStringArray;
-	protected ref array<int> QuestIDs = new array<int>;
-	protected string NPCName = "Unknown";
-	protected string DefaultNPCText = "What do you want? Leave me alown..!";
+	private int ID;
+	private string ClassName;
+	private bool IsAI = false;
+	private vector Position;
+	private vector Orientation;
+	private ref TStringArray Gear = new TStringArray;
+	private ref array<int> QuestIDs = new array<int>;
+	private string NPCName = "Unknown";
+	private string DefaultNPCText = "What do you want? Leave me alown..!";
 
 #ifdef EXPANSIONMODAI
-	protected ref array<vector> Waypoints = new array<vector>;
-	protected int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
+	private ref array<vector> Waypoints = new array<vector>;
+	private int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
 #endif
-
 
 	void SetID(int id)
 	{

@@ -12,10 +12,10 @@
 
 class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
-	protected vector Position = vector.Zero;
-	protected float MaxDistance = 0;
-	protected string MarkerName = string.Empty;
+	private autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
+	private vector Position = vector.Zero;
+	private float MaxDistance = 0;
+	private string MarkerName = string.Empty;
 	
 	void AddDelivery(int amount, string name)
 	{

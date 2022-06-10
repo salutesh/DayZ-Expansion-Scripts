@@ -12,13 +12,16 @@
 
 modded class PlayerBase
 {
+	// ------------------------------------------------------------
+	// PlayerBase SetActions
+	// ------------------------------------------------------------
 	override void SetActions( out TInputActionMap InputActionMap )
 	{
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenQuestMenu, InputActionMap);
 	}
-
+	
 	// ------------------------------------------------------------
 	// PlayerBase EEKilled
 	// ------------------------------------------------------------
@@ -29,6 +32,9 @@ modded class PlayerBase
 		EntityAI killSource = EntityAI.Cast(killer);
 
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+		if (!questModule)
+			return;
+		
 		PlayerBase player;
 		EntityAI target;
 
@@ -38,21 +44,26 @@ modded class PlayerBase
 			if (parent.IsMan() || parent.IsKindOf("PlayerBase") || parent.IsInherited(PlayerBase))
 			{
 				player = PlayerBase.Cast(killSource.GetHierarchyParent());
-				target = this;
+				target = EntityAI.Cast(this);
 				if (player && target)
 				{
-					Print(ToString() + "::EEKilled - Kill source: " + killSource.GetType() + " | Victim:" + ClassName());
-					questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
+					Print(ToString() + "::EEKilled - Target: " + target);
+					Print(ToString() + "::EEKilled - Kill source: " + killSource);
+					Print(ToString() + "::EEKilled - Killer player UID: " + player.GetIdentity().GetId());
+					questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 				}
 			}
 		}
 		else if (killSource.IsMan() || killSource.IsKindOf("PlayerBase") || killSource.IsInherited(PlayerBase))
 		{
 			player = PlayerBase.Cast(killSource);
-			target = this;
+			target = EntityAI.Cast(this);
 			if (player && target)
 			{
-				questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
+				Print(ToString() + "::EEKilled - Target: " + target);
+				Print(ToString() + "::EEKilled - Kill source: " + killSource);
+				Print(ToString() + "::EEKilled - Killer player UID: " + player.GetIdentity().GetId());
+				questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 			}
 		}
 	}

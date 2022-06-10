@@ -13,11 +13,11 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIP
 {
-	protected string NPCClassName;
-	protected string NPCSpeed;
-	protected string NPCMode;
-	protected string NPCFaction;
-	protected string NPCLoadoutFile;
+	private string NPCClassName;
+	private string NPCSpeed;
+	private string NPCMode;
+	private string NPCFaction;
+	private string NPCLoadoutFile;
 
 	void SetNPCSpeed(string npcSpeed)
 	{

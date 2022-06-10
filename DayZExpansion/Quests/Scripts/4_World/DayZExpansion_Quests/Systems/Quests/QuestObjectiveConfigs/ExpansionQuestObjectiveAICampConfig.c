@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected ref ExpansionQuestObjectiveAICamp AICamp;
+	private ref ExpansionQuestObjectiveAICamp AICamp;
 
 	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
 	{

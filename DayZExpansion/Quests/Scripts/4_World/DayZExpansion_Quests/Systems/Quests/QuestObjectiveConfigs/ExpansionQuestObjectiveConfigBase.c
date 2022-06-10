@@ -12,9 +12,9 @@
 
 class ExpansionQuestObjectiveConfigBase
 {
-	protected int ID = -1; //! Unique objective ID
-	protected int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
-	protected string ObjectiveText = string.Empty;
+	private int ID = -1; //! Unique objective ID
+	private int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
+	private string ObjectiveText = string.Empty;
 
 	void SetID(int id)
 	{

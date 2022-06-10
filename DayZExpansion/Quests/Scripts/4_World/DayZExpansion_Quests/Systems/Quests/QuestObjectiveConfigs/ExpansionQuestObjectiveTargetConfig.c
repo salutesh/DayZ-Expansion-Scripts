@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected autoptr ExpansionQuestObjectiveTarget Target;
+	private autoptr ExpansionQuestObjectiveTarget Target;
 
 	void SetTarget(ExpansionQuestObjectiveTarget target)
 	{

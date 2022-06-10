@@ -13,11 +13,11 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 {
-	protected float m_UpdateQueueTimer = 0;
-	protected const float UPDATE_TICK_TIME = 2.0;
+	private float m_UpdateQueueTimer = 0;
+	private const float UPDATE_TICK_TIME = 2.0;
 	
-	protected eAIBase m_VIP;
-	protected eAIGroup m_Group;
+	private eAIBase m_VIP;
+	private eAIGroup m_Group;
 
 	//! Event called when the player starts the quest
 	override void OnStart()

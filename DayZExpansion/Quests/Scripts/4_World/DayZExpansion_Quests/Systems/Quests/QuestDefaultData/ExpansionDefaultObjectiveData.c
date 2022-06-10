@@ -13,7 +13,7 @@
 
 class ExpansionDefaultObjectiveData
 {
-	protected string m_WorldName;
+	private string m_WorldName;
 	
 	void ExpansionDefaultObjectiveData(string worldName)
 	{

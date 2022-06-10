@@ -12,10 +12,10 @@
 
 class ExpansionQuestObjectiveTarget
 {
-	protected int Amount = -1;
-	protected autoptr array<string> ClassNames = new array<string>;
-	protected bool SpecialWeapon = false;
-	protected autoptr array<string> AllowedWeapons = new array<string>;
+	private int Amount = -1;
+	private autoptr array<string> ClassNames = new array<string>;
+	private bool SpecialWeapon = false;
+	private autoptr array<string> AllowedWeapons = new array<string>;
 
 	void SetAmount(int amount)
 	{

@@ -13,10 +13,10 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 {
-	protected vector Position = vector.Zero;
-	protected float MaxDistance = 0;
-	protected ref ExpansionQuestObjectiveAIVIP AIVIP;
-	protected string MarkerName = string.Empty;
+	private vector Position = vector.Zero;
+	private float MaxDistance = 0;
+	private ref ExpansionQuestObjectiveAIVIP AIVIP;
+	private string MarkerName = string.Empty;
 	
 	void SetPosition(vector pos)
 	{

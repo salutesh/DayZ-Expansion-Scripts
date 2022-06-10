@@ -47,7 +47,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	// --------------------------------------------------
 	// ExpansionQuestNpcBase SetActions
 	//---------------------------------------------------
-	void SetActions()
+	/*void SetActions()
 	{
 		AddAction(ExpansionActionOpenQuestMenu);
 	}
@@ -121,7 +121,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 			m_InputActionMap.Insert(ai, action_array);
 		}
 		action_array.Insert(action);
-	}
+	}*/
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcBase SetDisplayName
@@ -198,7 +198,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	void SetQuestNPCID(int id)
 	{
 		m_QuestNPCID = id;
-		//SetSynchDirty();
+		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------

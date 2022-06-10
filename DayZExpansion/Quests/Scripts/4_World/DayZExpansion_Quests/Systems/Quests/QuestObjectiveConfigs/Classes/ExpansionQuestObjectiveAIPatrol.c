@@ -13,16 +13,16 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIPatrol
 {
-	protected int NPCUnits;
-	protected vector StartPosition;
-	protected ref array<vector> Waypoints = new array<vector>;
-	protected string NPCSpeed;
-	protected string NPCMode;
-	protected string NPCFaction;
-	protected string NPCLoadoutFile;
-	protected autoptr array<string> ClassNames = new array<string>;
-	protected bool SpecialWeapon = false;
-	protected autoptr array<string> AllowedWeapons = new array<string>;
+	private int NPCUnits;
+	private vector StartPosition;
+	private ref array<vector> Waypoints = new array<vector>;
+	private string NPCSpeed;
+	private string NPCMode;
+	private string NPCFaction;
+	private string NPCLoadoutFile;
+	private autoptr array<string> ClassNames = new array<string>;
+	private bool SpecialWeapon = false;
+	private autoptr array<string> AllowedWeapons = new array<string>;
 
 	void SetNPCUnits(int units)
 	{

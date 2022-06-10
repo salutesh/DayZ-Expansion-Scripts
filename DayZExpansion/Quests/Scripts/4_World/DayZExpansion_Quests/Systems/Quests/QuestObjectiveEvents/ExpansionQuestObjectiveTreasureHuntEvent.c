@@ -12,10 +12,10 @@
 
 class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 {
-	protected ref array<Object> LootItems = new array<Object>;
-	protected UndergroundStash Stash;
-	protected SeaChest Chest;
-	protected vector StashPos;
+	private ref array<Object> LootItems = new array<Object>;
+	private UndergroundStash Stash;
+	private SeaChest Chest;
+	private vector StashPos;
 
 	override void OnStart()
 	{
