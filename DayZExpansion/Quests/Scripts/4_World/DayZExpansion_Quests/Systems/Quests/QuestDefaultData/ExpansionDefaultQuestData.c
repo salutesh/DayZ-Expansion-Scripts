@@ -70,10 +70,15 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(2);
 
 		//! Quest objectives
-		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
-		objective_1.SetID(1);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(2);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
 		questConfig.AddObjectiveConfig(objective_1);
+		
+		ExpansionQuestObjectiveTargetConfig objective_2 = new ExpansionQuestObjectiveTargetConfig();
+		objective_2.SetID(1);
+		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		questConfig.AddObjectiveConfig(objective_2);
 
 		//! Quest items on quest start
 		array <ExpansionQuestItemConfig> questItems = new array<ExpansionQuestItemConfig>;

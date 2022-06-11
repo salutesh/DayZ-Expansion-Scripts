@@ -14,9 +14,8 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 {
 #ifdef EXPANSIONMODAI
 	private ExpansionQuestNpcAIBase m_NPCAIObject;
-#else
-	private ExpansionQuestNpcBase m_NPCObject;
 #endif
+	private ExpansionQuestNpcBase m_NPCObject;
 	private ExpansionQuestModule m_QuestModule;
 	private ExpansionScriptViewMenuBase m_Menu;
 	string m_ActionText = "Get Quest";
@@ -56,34 +55,35 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 	{
 		super.ActionCondition(player, target, item);
 
-	#ifdef EXPANSIONMODAI
-		if (!Class.CastTo(m_NPCAIObject, target.GetParentOrObject()))
-			return false;
-	#else
-		if (!Class.CastTo(m_NPCObject, target.GetParentOrObject()))
-			return false;
-	#endif
-
-		if (!Class.CastTo(m_QuestModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
-			return false;
-
 		//! Dont show action if menu is already opened
 		if (Class.CastTo(m_Menu, GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu()))
 			return false;
-
+		
 		ExpansionQuestNpcData questNPCData;
 		int npcID;
-
+		
 	#ifdef EXPANSIONMODAI
-		npcID = m_NPCAIObject.GetQuestNPCID();
-		questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
-	#else
-		npcID = m_NPCObject.GetQuestNPCID();
-		questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
+		if (Class.CastTo(m_NPCAIObject, target.GetParentOrObject()))
+		{
+			npcID = m_NPCAIObject.GetQuestNPCID();
+			questNPCData = m_NPCAIObject.GetQuestNPCData();
+		}
 	#endif
 		
-		if (questNPCData) m_ActionText = "Talk to " + questNPCData.GetNPCName();
-		else m_ActionText = "Talk to Unknown";
+		if (Class.CastTo(m_NPCObject, target.GetParentOrObject()))
+		{
+			npcID = m_NPCObject.GetQuestNPCID();
+			questNPCData = m_NPCObject.GetQuestNPCData();
+		}
+		
+		if (questNPCData)
+		{
+			m_ActionText = "Talk to " + questNPCData.GetNPCName();
+		}
+		else
+		{
+			m_ActionText = "Talk to Unknown";
+		}
 
 		return true;
 	}
@@ -93,30 +93,20 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 		super.OnExecuteServer(action_data);
 
 		PlayerBase player = action_data.m_Player;
-		if (!player)
+		if (!player || !player.GetIdentity())
 			return;
-
-		if (!player.GetIdentity())
+		
+		if (!Class.CastTo(m_QuestModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
 			return;
 
 		int npcID;
 	#ifdef EXPANSIONMODAI
-		if (!Class.CastTo(m_NPCAIObject, action_data.m_Target.GetParentOrObject()))
-			return;
-
-		npcID = m_NPCAIObject.GetQuestNPCData().GetID();
-	#else
-		if (!Class.CastTo(m_NPCObject, action_data.m_Target.GetParentOrObject()))
-			return;
-
-		npcID = m_NPCObject.GetQuestNPCData().GetID();
+		if (Class.CastTo(m_NPCAIObject, action_data.m_Target.GetParentOrObject()))
+			npcID = m_NPCAIObject.GetQuestNPCData().GetID();
 	#endif
-
-		if (!Class.CastTo(m_QuestModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
-			return;
-
-		/*if (!m_QuestModule.HasQuestAtNPC(npcID, player.GetIdentity().GetId()))
-			return;*/
+		
+		if (Class.CastTo(m_NPCObject, action_data.m_Target.GetParentOrObject()))
+			npcID = m_NPCObject.GetQuestNPCData().GetID();
 
 		m_QuestModule.RequestOpenQuestMenu(npcID, player.GetIdentity());
 	}

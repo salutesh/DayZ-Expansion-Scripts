@@ -1939,6 +1939,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestObjectiveTravelConfig objective_t_1 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Travel_001();
 		objective_t_1.Save("Objective_T_1");
 		m_TravelObjectivesConfigs.Insert(1, objective_t_1);
+		
+		ExpansionQuestObjectiveTravelConfig objective_t_2 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Travel_002();
+		objective_t_2.Save("Objective_T_2");
+		m_TravelObjectivesConfigs.Insert(2, objective_t_2);
 	}
 
 	// -----------------------------------------------------------

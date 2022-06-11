@@ -436,9 +436,9 @@ class ExpansionQuest
 
 		#ifdef EXPANSIONMODNAVIGATION
 		#ifdef EXPANSIONMODAI
-			if (Config.GetType() == ExpansionQuestType.AICAMP || Config.GetType() == ExpansionQuestType.AIPATROL || Config.GetType() == ExpansionQuestType.AIVIP || Config.GetType() == ExpansionQuestType.DELIVERY || Config.GetType() == ExpansionQuestType.TRAVEL)
+			if (Config.GetType() == ExpansionQuestType.AICAMP || Config.GetType() == ExpansionQuestType.AIPATROL || Config.GetType() == ExpansionQuestType.AIVIP || Config.GetType() == ExpansionQuestType.DELIVERY || Config.GetType() == ExpansionQuestType.TRAVEL || Config.GetType() == ExpansionQuestType.TARGET)
 		#else
-			if (Config.GetType() == ExpansionQuestType.DELIVERY || Config.GetType() == ExpansionQuestType.TRAVEL)
+			if (Config.GetType() == ExpansionQuestType.DELIVERY || Config.GetType() == ExpansionQuestType.TRAVEL || Config.GetType() == ExpansionQuestType.TARGET)
 		#endif
 			{
 				RemoveMarkers();
@@ -712,7 +712,15 @@ class ExpansionQuest
 
 		//! Cleanup all spawned quest item objects if quest gets cleaned up while not completed
 		//! The items get readded to the player if he continues the quest in his next session.
-		CleanupQuestItems();
+		if (IsCompeleted() && GetQuestConfig().GetType() != ExpansionQuestType.TREASUREHUNT)
+		{
+			CleanupQuestItems();
+		}
+		else if (!IsCompeleted())
+		{
+			CleanupQuestItems();
+		}
+		
 		//! Cleanup all spawned static quest objects from the object set
 		CleanupSetObjects();
 
@@ -725,7 +733,7 @@ class ExpansionQuest
 
 	void CompletionCheck()
 	{
-		Print(ToString() + "::CompletionCheck - Start");
+		QuestPrint(ToString() + "::CompletionCheck - Start");
 		
 		int complededObjectives = 0;
 		for (int i = 0; i < QuestObjectives.Count(); ++i)
@@ -737,8 +745,8 @@ class ExpansionQuest
 			}
 		}
 
-		Print(ToString() + "::CompletionCheck - Completed objectives: " + complededObjectives);
-		Print(ToString() + "::CompletionCheck - Objectives count: " + QuestObjectives.Count());
+		QuestPrint(ToString() + "::CompletionCheck - Completed objectives: " + complededObjectives);
+		QuestPrint(ToString() + "::CompletionCheck - Objectives count: " + QuestObjectives.Count());
 		
 		if (complededObjectives == QuestObjectives.Count())
 		{
@@ -748,11 +756,11 @@ class ExpansionQuest
 		}
 		else if (complededObjectives < QuestObjectives.Count())
 		{
-			Print(ToString() + "::CompletionCheck - INCOMPLETE");
+			QuestPrint(ToString() + "::CompletionCheck - INCOMPLETE");
 			
 			OnQuestObjectivesIncomplete();
 			
-			Print(ToString() + "::CompletionCheck - Current active objective index: " + m_CurrentObjectiveIndex);
+			QuestPrint(ToString() + "::CompletionCheck - Current active objective index: " + m_CurrentObjectiveIndex);
 			
 			ExpansionQuestObjectiveEventBase currentActiveObjective = QuestObjectives[m_CurrentObjectiveIndex];
 			if (!currentActiveObjective)
@@ -761,7 +769,7 @@ class ExpansionQuest
 			if (!currentActiveObjective.IsActive() && currentActiveObjective.IsInitialized() && currentActiveObjective.IsCompleted()) //! Check if our currect active objective is completed and if so try to get the next objective in the list and start it
 			{
 				int next = m_CurrentObjectiveIndex + 1;
-				Print(ToString() + "::CompletionCheck - Current active objective is complered! Try to start next objective with index: " + next);
+				QuestPrint(ToString() + "::CompletionCheck - Current active objective is complered! Try to start next objective with index: " + next);
 				ExpansionQuestObjectiveEventBase nextObjective =  QuestObjectives[next]; //! Get the next objective from our objective list and start it
 				if (!nextObjective || nextObjective.IsInitialized() || nextObjective.IsActive())
 					return;
@@ -773,11 +781,11 @@ class ExpansionQuest
 				m_CurrentObjectiveIndex = next;	//! Set the new curret active objective index
 				nextObjective.OnStart();	//! Start the next objective
 
-				Print(ToString() + "::CompletionCheck - Started next quest objective event with index: " + next);
+				QuestPrint(ToString() + "::CompletionCheck - Started next quest objective event with index: " + next);
 			}
 		}
 		
-		Print(ToString() + "::CompletionCheck - End");
+		QuestPrint(ToString() + "::CompletionCheck - End");
 	}
 
 	//! Spawn object method

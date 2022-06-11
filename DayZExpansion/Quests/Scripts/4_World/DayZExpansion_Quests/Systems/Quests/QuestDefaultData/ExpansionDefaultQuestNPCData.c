@@ -23,8 +23,8 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
 		questNPC.SetID(1); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNpcAIDenis"); //! Class name of the NPC entity
-
+		questNPC.SetName("ExpansionNpcDenis"); //! Class name of the NPC entity
+		
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(1);
 		questIDs.Insert(3);
@@ -42,6 +42,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(200.0, 0, 0)); //! Quest NPC orientation
 		
 		#ifdef EXPANSIONMODAI
+			questNPC.SetName("ExpansionQuestNpcAIDenis"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8584.27, 14.73, 10511.6));
 		#endif
@@ -75,7 +76,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
 		questNPC.SetID(2); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNpcAIElias"); //! Class name of the NPC entity
+		questNPC.SetName("ExpansionNpcElias"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(1);
@@ -91,6 +92,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(-10.0, 0, 0)); //! Quest NPC orientation
 			
 		#ifdef EXPANSIONMODAI
+			questNPC.SetName("ExpansionQuestNpcAIElias"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8348.39, 15.1237, 10724.7));
 		#endif
@@ -126,7 +128,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
 		questNPC.SetID(3); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNpcAIJose"); //! Class name of the NPC entity
+		questNPC.SetName("ExpansionNpcJose"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(9);
@@ -150,6 +152,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
 
 	#ifdef EXPANSIONMODAI
+		questNPC.SetName("ExpansionQuestNpcAIJose"); //! Class name of the NPC entity
 		questNPC.SetIsAI(true);
 		questNPC.AddWaypoint(Vector(8563.02, 14.8878, 10537.7));
 	#endif
@@ -162,7 +165,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
 		questNPC.SetID(4); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNpcAIPeter"); //! Class name of the NPC entity
+		questNPC.SetName("ExpansionNpcPeter"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(13);
@@ -186,6 +189,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
 
 	#ifdef EXPANSIONMODAI
+		questNPC.SetName("ExpansionQuestNpcAIPeter"); //! Class name of the NPC entity
 		questNPC.SetIsAI(true);
 		questNPC.AddWaypoint(Vector(8597.82, 14.9004, 10493.3));
 	#endif

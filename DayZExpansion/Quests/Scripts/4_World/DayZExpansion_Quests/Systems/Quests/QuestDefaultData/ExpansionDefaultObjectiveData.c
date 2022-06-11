@@ -34,9 +34,30 @@ class ExpansionDefaultObjectiveData
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
 		}
-		else if (m_WorldName.Contains("chernarusplus"))
+		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
 		{
 			objective.SetPosition(Vector(3211.4, 0, 6088.99));
+		}
+
+		return objective;
+	}
+	
+	ExpansionQuestObjectiveTravelConfig ExpansionQuestObjective_Travel_002()
+	{
+		ExpansionQuestObjectiveTravelConfig objective = new ExpansionQuestObjectiveTravelConfig();
+		objective.SetID(2);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		objective.SetObjectiveText("Get to the Village");
+		objective.SetMaxDistance(20.0);
+		objective.SetMarkerName("Get to the Village");
+		
+		if (m_WorldName.Contains("namalsk"))
+		{
+			objective.SetPosition(Vector(8224.93, 0, 10811.0));
+		}
+		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		{
+			objective.SetPosition(Vector(2596.7, 306.1, 6378.47));
 		}
 
 		return objective;
@@ -81,7 +102,7 @@ class ExpansionDefaultObjectiveData
 		}
 		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
 		{
-			objective.SetPosition(Vector(3706.27, 0, 5987.08));
+			objective.SetPosition(Vector(3706.27, 402.012, 5987.08));
 		}
 
 		return objective;

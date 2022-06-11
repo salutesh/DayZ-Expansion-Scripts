@@ -13,14 +13,14 @@
 modded class ActionCheckPulse
 {
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
-	{
+	{		
+		if (target.GetObject().IsInherited(ExpansionQuestNpcBase))
+			return false;
+		
 	#ifdef EXPANSIONMODAI
-		if (player && target.GetObject().IsInherited(ExpansionQuestNpcAIBase))
+		if (target.GetObject().IsInherited(ExpansionQuestNpcAIBase))
 			return false;
 	#endif
-		
-		if (player && target.GetObject().IsInherited(ExpansionQuestNpcBase))
-			return false;
 		
 		return super.ActionCondition(player, target, item);
 	}
