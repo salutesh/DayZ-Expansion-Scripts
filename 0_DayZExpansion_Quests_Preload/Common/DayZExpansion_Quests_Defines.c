@@ -14,7 +14,7 @@
 #define EXPANSIONMODQUESTS
 
 //! Used for enabling the quest HUD (Its broken and does not work correctly).
-//#define EXPANSIONMODQUESTS_HUD_ENABLE
+#define EXPANSIONMODQUESTS_HUD_ENABLE
 
 //! Uncomment to enable expansion quest system debug logs
 //#define EXPANSIONMODQUESTSMODULEDEBUG
