@@ -136,7 +136,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		return GetObjectiveConfig().GetPosition();
 	}
 	
-	override int GetType()
+	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TRAVEL;
 	}

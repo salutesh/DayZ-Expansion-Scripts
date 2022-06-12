@@ -1,4 +1,4 @@
-WrapSpacerWidgetClass ExpansionQuestHudEntry {
+GridSpacerWidgetClass ExpansionQuestHudEntry {
  visible 1
  clipchildren 1
  size 1 1
@@ -13,10 +13,10 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
  Margin 0
  "Size To Content H" 1
  "Size To Content V" 1
- content_halign center
- content_valign center
+ Columns 1
+ Rows 1
  {
-  WrapSpacerWidgetClass Background {
+  GridSpacerWidgetClass Background {
    ignorepointer 1
    color 0 0 0 0.4706
    size 1 1
@@ -29,12 +29,12 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
    Margin 0
    "Size To Content H" 1
    "Size To Content V" 1
-   content_halign center
-   content_valign center
+   Columns 1
+   Rows 4
    {
     WrapSpacerWidgetClass TitelPanel {
      ignorepointer 1
-     position 0.044 0.125
+     position 0 0
      size 1 16
      hexactpos 0
      vexactpos 0
@@ -74,8 +74,6 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
        "size to text h" 1
        "size to text v" 1
        wrap 1
-       "condense whitespace" 1
-       "strip newlines" 1
        {
         ScriptParamsClass {
          Binding_Name "QuestName"
@@ -86,12 +84,12 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
     }
     RichTextWidgetClass Objective {
      ignorepointer 1
-     position 10 10
-     size 0.95 14
-     hexactpos 1
-     vexactpos 1
+     position 0 0
+     size 0.95 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      font "gui/fonts/etelkatextpro14"
      "text offset" 5 0
@@ -99,8 +97,6 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
      "size to text h" 1
      "size to text v" 1
      wrap 1
-     "condense whitespace" 1
-     "strip newlines" 1
      {
       ScriptParamsClass {
        Binding_Name "ObjectiveText"
@@ -110,38 +106,35 @@ WrapSpacerWidgetClass ExpansionQuestHudEntry {
     PanelWidgetClass Spacer {
      ignorepointer 1
      color 0 0 0 1
+     position 0 0
      size 0.96 2
      halign center_ref
      valign center_ref
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
      vexactsize 1
      style rover_sim_colorable
     }
-    WrapSpacerWidgetClass TargetEntries {
+    WrapSpacerWidgetClass ObjectiveEntries {
+     clipchildren 1
      ignorepointer 1
-     position 0.06 0.159
-     size 0.95 1
+     keepsafezone 1
+     position 0 0
+     size 0.96 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 0
      scaled 1
-     scriptclass "ViewBinding"
+     draggable 0
+     scriptclass ""
      style Empty
      "Ignore invisible" 0
-     Padding 0
+     Padding 5
      Margin 0
      "Size To Content H" 1
      "Size To Content V" 1
-     content_halign center
-     content_valign center
-     {
-      ScriptParamsClass {
-       Binding_Name "ObjectiveEntries"
-      }
-     }
     }
    }
   }

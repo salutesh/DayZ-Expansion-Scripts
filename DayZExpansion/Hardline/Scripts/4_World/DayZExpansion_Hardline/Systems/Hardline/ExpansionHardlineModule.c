@@ -154,8 +154,14 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		//! Maybe move this to the OnClientLogout method
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			if (cArgs.Identity) SavePlayerHardlineData(cArgs.Identity.GetId());
-			else SavePlayerHardlineData(cArgs.Player.GetIdentity().GetId());
+			if (cArgs.Identity)
+			{
+				SavePlayerHardlineData(cArgs.Identity.GetId());
+			}
+			else if (cArgs.Player.GetIdentity())
+			{
+				SavePlayerHardlineData(cArgs.Player.GetIdentity().GetId());
+			}
 		}
 	}
 

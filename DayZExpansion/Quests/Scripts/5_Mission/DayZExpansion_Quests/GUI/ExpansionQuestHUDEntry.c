@@ -18,7 +18,9 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	protected ExpansionQuestPlayerData  m_PlayerQuestData;
 	protected ImageWidget QuestIcon;
 	protected Widget Spacer;
-
+	protected WrapSpacerWidget ObjectiveEntries;
+	protected ref array<ref ExpansionQuestHUDObjective> m_ObjectiveEntries = new array<ref ExpansionQuestHUDObjective>;
+	
 	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPlayerData playerData)
 	{
 		m_QuestConfig = questConfig;
@@ -28,17 +30,18 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	
 	void ~ExpansionQuestHUDEntry()
 	{
-		m_QuestHUDEntryController.ObjectiveEntries.Clear();
+		m_ObjectiveEntries.Clear();
 	}
 
 	void SetEntry()
 	{
-		QuestPrint(ToString() + "::SetEntryQuest - Start");
+		QuestPrint(ToString() + "::SetEntry - Start");
 			
 		m_QuestHUDEntryController.QuestName = m_QuestConfig.GetTitle();
 		m_QuestHUDEntryController.NotifyPropertyChanged("QuestName");
 		
 		int state = m_PlayerQuestData.GetQuestStateByQuestID(m_QuestConfig.GetID());
+		
 		if (state < ExpansionQuestState.CAN_TURNIN)
 		{
 			m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
@@ -52,30 +55,39 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 
 		Spacer.SetColor(GetQuestColor(m_QuestConfig));
 		QuestIcon.SetColor(GetQuestColor(m_QuestConfig));
-
-		for (int i = 0; i < m_PlayerQuestData.GetQuestObjectives().Count(); i++)
+		
+		foreach (ExpansionQuestHUDObjective currentEntry: m_ObjectiveEntries)
 		{
-			ExpansionQuestObjectivePlayerData objective = m_PlayerQuestData.GetQuestObjectives()[i];
-			if (!objective)
-				continue;
-
-			if (objective.GetQuestID() == m_QuestConfig.GetID())			
-				AddObjective(objective, m_QuestConfig);
+			ObjectiveEntries.RemoveChild(currentEntry.GetLayoutRoot());
+			delete currentEntry;
 		}
 		
-		QuestPrint(ToString() + "::SetEntryQuest - End");
-	}
-
-	void AddObjective(ExpansionQuestObjectivePlayerData objective, ExpansionQuestConfig questConfig)
-	{
-		if (!m_QuestHUDEntryController.ObjectiveEntries)
-			m_QuestHUDEntryController.ReInit();
+		m_ObjectiveEntries.Clear();
 		
-		QuestPrint(ToString() + "::AddObjective - Start");
-		ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, questConfig);	
-		m_QuestHUDEntryController.ObjectiveEntries.Insert(objectiveEntry);
-
-		QuestPrint(ToString() + "::AddObjective - End");
+		Print(ToString() + "---------------------------------------------------------------------------");	
+		Print(ToString() + "::SetEntry - Add objectives for quest: " + m_QuestConfig.GetTitle());
+		int objectiveCount = 0;
+		array<ref ExpansionQuestObjectivePlayerData> objectives = m_PlayerQuestData.GetQuestObjectivesByQuestID(m_QuestConfig.GetID());
+		Print(ToString() + "::SetEntry - Got " + objectives.Count() + " objectives from players quest data.");
+		foreach (ExpansionQuestObjectivePlayerData objective: objectives)
+		{
+			if (!objective.IsActive())
+				continue;
+			
+			objectiveCount++;
+			Print(ToString() + "::SetEntry - Add objective entry for objective: " + objective.ToString() + " | Index: " + objectiveCount);
+			ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
+			ObjectiveEntries.AddChild(objectiveEntry.GetLayoutRoot());
+			m_ObjectiveEntries.Insert(objectiveEntry);
+			objectiveEntry.SetEntryObjective();
+		}
+		Print(ToString() + "---------------------------------------------------------------------------");	
+		Print(ToString() + "::SetEntry - Added " + objectiveCount +  " objectives!");
+		
+		ObjectiveEntries.Update();
+		GetLayoutRoot().Update();
+		
+		QuestPrint(ToString() + "::SetEntry - End");
 	}
 	
 	private int GetQuestColor(ExpansionQuestConfig quest)
@@ -144,12 +156,12 @@ class ExpansionQuestHUDEntryController: ExpansionViewController
 {
 	string QuestName;
 	string ObjectiveText;
-	ref ObservableCollection<ref ExpansionQuestHUDObjective> ObjectiveEntries = new ObservableCollection<ref ExpansionQuestHUDObjective>(this);
+	//ref ObservableCollection<ref ExpansionQuestHUDObjective> ObjectiveEntries = new ObservableCollection<ref ExpansionQuestHUDObjective>(this);
 	
-	void ReInit()
+	/*void ReInit()
 	{
 		if (!ObjectiveEntries)
 			ObjectiveEntries = new ObservableCollection<ref ExpansionQuestHUDObjective>(this);
-	}
+	}*/
 };
 #endif

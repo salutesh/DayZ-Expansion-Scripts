@@ -218,7 +218,7 @@ class ExpansionQuestObjectiveEventBase
 	//#endif
 	}
 	
-	int GetType()
+	int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.NONE;
 	}

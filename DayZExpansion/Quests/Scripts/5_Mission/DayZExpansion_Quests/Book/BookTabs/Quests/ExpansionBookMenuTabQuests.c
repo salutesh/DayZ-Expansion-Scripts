@@ -24,8 +24,6 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	private TextWidget cancel_quest_label;
 	private ButtonWidget hide_questhud_button;
 	private TextWidget hide_questhud_button_label;
-	private ScrollWidget quest_description_scroller;
-	private ScrollWidget reward_scroller;
 	private Widget humanity;
 
 	void ExpansionBookMenuTabQuests(ExpansionBookMenu book_menu)
@@ -158,8 +156,6 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 		m_Quest = quest;
 		quest_info_panel.Show(true);
-		quest_description_scroller.VScrollToPos01(0);
-		reward_scroller.VScrollToPos01(0);
 
 		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
 		m_QuestTabController.QuestTitle = quest.GetTitle();

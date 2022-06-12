@@ -230,7 +230,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		return StashPos;
 	}
 	
-	override int GetType()
+	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TREASUREHUNT;
 	}

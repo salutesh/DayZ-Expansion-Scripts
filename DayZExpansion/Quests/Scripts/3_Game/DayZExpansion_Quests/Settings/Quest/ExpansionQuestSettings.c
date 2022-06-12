@@ -30,6 +30,8 @@ class ExpansionQuestSettings: ExpansionSettingBase
 	string QuestCanceledText;
 	string QuestTurnInTitle;
 	string QuestTurnInText;
+	string QuestObjectiveCompletedTitle;
+	string QuestObjectiveCompletedText;
 	string AchivementCompletedTitle;
 	string AchivementCompletedText;
 
@@ -146,6 +148,9 @@ class ExpansionQuestSettings: ExpansionSettingBase
 		QuestTurnInTitle = s.QuestTurnInTitle;
 		QuestTurnInText = s.QuestTurnInText;
 		
+		QuestObjectiveCompletedTitle = s.QuestObjectiveCompletedTitle;
+		QuestObjectiveCompletedText = s.QuestObjectiveCompletedText;
+		
 		AchivementCompletedTitle = s.AchivementCompletedTitle;
 		AchivementCompletedText = s.AchivementCompletedText;
 	}
@@ -254,6 +259,9 @@ override void Update( ExpansionSettingBase setting )
 		
 		QuestTurnInTitle = "Quest Turn-In";
 		QuestTurnInText = "The quest %1 has been completed!";
+		
+		QuestObjectiveCompletedTitle = "Objective Completed";
+		QuestObjectiveCompletedText = "You have completed the objective %1 of the quest %2.";
 		
 		AchivementCompletedTitle = "Achievement \"%1\" completed!";
 		AchivementCompletedText = "You have completed the achievement %1";

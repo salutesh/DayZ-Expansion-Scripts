@@ -37,7 +37,6 @@ class ExpansionQuestConfig
 	private bool IsHeroQuest = false; //! Quest for heros only
 #endif
 
-	//! Group quest parameters
 	private string ObjectSetFileName = string.Empty; //! File name of the .map file that will get loaded
 	
 	//! Crazy ideas

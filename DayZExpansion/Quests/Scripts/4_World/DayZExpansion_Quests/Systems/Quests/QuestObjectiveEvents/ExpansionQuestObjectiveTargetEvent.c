@@ -123,7 +123,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 	
-	override int GetType()
+	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TARGET;
 	}

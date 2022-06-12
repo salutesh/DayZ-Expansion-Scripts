@@ -363,7 +363,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		return m_TotalUnitsAmount;
 	}
 
-	override int GetType()
+	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AIPATROL;
 	}

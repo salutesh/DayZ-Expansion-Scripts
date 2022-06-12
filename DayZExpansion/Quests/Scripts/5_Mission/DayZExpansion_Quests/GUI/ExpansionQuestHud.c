@@ -16,6 +16,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 	protected ref ExpansionQuestHUDController m_QuestHUDController;
 	protected ExpansionQuestModule m_QuestModule;
 	protected ref array<int> m_HiddenIDs = new array<int>;
+	protected WrapSpacerWidget QuestEntriesWraper;
+	protected ref array<ref ExpansionQuestHUDEntry> m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
 
 	void ExpansionQuestHUD()
 	{
@@ -30,17 +32,28 @@ class ExpansionQuestHUD: ExpansionScriptView
 	{
 		QuestPrint(ToString() + "::SetView - Start");
 		
-		m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		if (!m_QuestModule || !m_QuestHUDController || !playerData || !playerData.GetQuestStates())
+		if (!playerData || !playerData.GetQuestStates())
 			return;
-
-		if (m_QuestHUDController.QuestEntries.Count() > 0)
-			m_QuestHUDController.QuestEntries.Clear();
+		
+		if (playerData.GetQuestStates().Count() == 0)
+			return;
+		
+		if (!m_QuestModule)
+			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+					
+		if (!m_QuestEntries)
+		{
+			m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
+		}
+		else
+		{		
+			m_QuestEntries.Clear();
+		}
 
 		for (int i = 0; i < playerData.GetQuestStates().Count(); i++)
 		{
 			int questID = playerData.GetQuestStates().GetKey(i);
-			int state = playerData.GetQuestStates().GetElement(questID);
+			int state = playerData.GetQuestStates().GetElement(i);
 
 			QuestPrint(ToString() + "::SetView - Quest ID: " + questID);
 			QuestPrint(ToString() + "::SetView - Quest state: " + state);
@@ -55,7 +68,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 				QuestPrint(ToString() + "::SetView - Add new entry for quest: " + questID);
 
 				ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, playerData);
-				m_QuestHUDController.QuestEntries.Insert(entry);
+				QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
+				m_QuestEntries.Insert(entry);
 				entry.SetEntry();
 
 				int findeIndexHidden = -1;
@@ -134,7 +148,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 		{
 			Print(ToString() + "::ToggleQuestEntryVisibilityByID - SHOW");
 			m_HiddenIDs.Remove(findIndex);
-			entry.Hide();
+			entry.Show();
 		}
 
 		Print(ToString() + "::ToggleQuestEntryVisibilityByID - End");
@@ -143,9 +157,9 @@ class ExpansionQuestHUD: ExpansionScriptView
 	bool IsEntryHidden(int questID, out ExpansionQuestHUDEntry entry, out int findIndex)
 	{
 		findIndex = m_HiddenIDs.Find(questID);
-		for (int i = 0; i < m_QuestHUDController.QuestEntries.Count(); i++)
+		for (int i = 0; i < m_QuestEntries.Count(); i++)
 		{
-			entry = m_QuestHUDController.QuestEntries[i];
+			entry = m_QuestEntries[i];
 			if (entry.GetEntryQuestID() == questID)
 			{
 				if (findIndex == -1)
@@ -159,8 +173,5 @@ class ExpansionQuestHUD: ExpansionScriptView
 	}
 };
 
-class ExpansionQuestHUDController: ExpansionViewController
-{
-	ref ObservableCollection<ref ExpansionQuestHUDEntry> QuestEntries = new ObservableCollection<ref ExpansionQuestHUDEntry>(this);
-};
+class ExpansionQuestHUDController: ExpansionViewController {};
 #endif

@@ -194,7 +194,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	override int GetType()
+	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AIVIP;
 	}

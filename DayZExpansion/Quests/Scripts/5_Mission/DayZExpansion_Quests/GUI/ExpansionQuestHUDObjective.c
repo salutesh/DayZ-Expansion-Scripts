@@ -23,12 +23,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectivePlayerData objective, ExpansionQuestConfig questConfig)
 	{
-		Class.CastTo(m_QuestHUDObjectiveController, GetController());
+		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		
 		m_Objective = objective;
 		m_Quest = questConfig;
 		
-		SetEntryObjective();
+		//SetEntryObjective();
 	}
 
 	override string GetLayoutFile()
@@ -51,6 +51,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		QuestPrint(ToString() + "::SetEntryObjective - Start");
 		QuestPrint(ToString() + "::SetEntryObjective - objective type is: " + m_Objective.GetObjectiveType());
 				
+		if (!m_QuestHUDObjectiveController)
+			m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
+		
 		Spacer.SetColor(GetQuestColor(m_Quest));
 		
 		vector objectivePos;

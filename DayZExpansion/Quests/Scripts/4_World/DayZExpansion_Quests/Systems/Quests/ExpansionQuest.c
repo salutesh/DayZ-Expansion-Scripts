@@ -557,6 +557,9 @@ class ExpansionQuest
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenu, 1000, false, Config.GetQuestTurnInID(), GetPlayer().GetIdentity());
 			}
 		}
+		
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
+		//m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
 
 		QuestDebug();
 
@@ -596,6 +599,9 @@ class ExpansionQuest
 		//! Cleanup all spawned static quest objects from the object set
 		CleanupSetObjects();
 
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
+		//m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
+		
 		QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestCancel - End");
@@ -777,6 +783,8 @@ class ExpansionQuest
 			#ifdef EXPANSIONMODNAVIGATION
 				RemoveMarkers();
 			#endif
+				
+				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedText, currentActiveObjective.GetObjectiveConfig().GetObjectiveText(), Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
 				
 				m_CurrentObjectiveIndex = next;	//! Set the new curret active objective index
 				nextObjective.OnStart();	//! Start the next objective
@@ -1199,6 +1207,7 @@ class ExpansionQuest
 
 			CompletionCheck();
 			
+			m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
 			m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
 
 			m_UpdateQueueTimer = 0.0;
@@ -1232,10 +1241,10 @@ class ExpansionQuest
 		for (int i = 0; i < QuestObjectives.Count(); ++i)
 		{
 			ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
-			if (!objective || objective && objective.GetType() == ExpansionQuestObjectiveType.NONE)
+			if (!objective || objective && objective.GetObjectiveType() == ExpansionQuestObjectiveType.NONE)
 				return;
 			
-			switch (objective.GetType())
+			switch (objective.GetObjectiveType())
 			{
 				case ExpansionQuestObjectiveType.TARGET:
 				{

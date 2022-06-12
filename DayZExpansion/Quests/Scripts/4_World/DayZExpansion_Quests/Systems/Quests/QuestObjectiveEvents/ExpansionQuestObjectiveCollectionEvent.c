@@ -341,15 +341,19 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 
 	int GetCount()
 	{
-		if (!GetQuest().IsGroupQuest())
+		if (!GetQuest().IsGroupQuest() && m_PlayerItems)
+		{
 			return m_PlayerItems.Count();
-		else
+		}
+		else if (GetQuest().IsGroupQuest() && m_GroupItems)
+		{
 			return m_GroupItems.Count();
+		}
 
 		return -1;
 	}
 	
-	override int GetType()
+	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.COLLECT;
 	}
