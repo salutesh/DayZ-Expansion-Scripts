@@ -71,6 +71,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			array<vector> groupMemberPos = new array<vector>;
 			if (GetQuest().IsGroupQuest())
 			{
+			#ifdef EXPANSIONMODGROUPS
 				ExpansionPartyData group = GetQuest().GetGroup();
 				if (!group)
 					return;
@@ -109,6 +110,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 				}
 	
 				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
+			#endif
 			}
 			else
 			{

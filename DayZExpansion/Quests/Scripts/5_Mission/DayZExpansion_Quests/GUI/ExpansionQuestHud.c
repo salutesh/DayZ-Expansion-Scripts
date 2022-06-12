@@ -32,6 +32,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 	{
 		QuestPrint(ToString() + "::SetView - Start");
 		
+		m_QuestEntries.Clear();
+		
 		if (!playerData || !playerData.GetQuestStates())
 			return;
 		
@@ -44,10 +46,6 @@ class ExpansionQuestHUD: ExpansionScriptView
 		if (!m_QuestEntries)
 		{
 			m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
-		}
-		else
-		{		
-			m_QuestEntries.Clear();
 		}
 
 		for (int i = 0; i < playerData.GetQuestStates().Count(); i++)
@@ -114,7 +112,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	override float GetUpdateTickRate()
 	{
-		return 2.0;
+		return 1.0;
 	}
 
 	override void Update()

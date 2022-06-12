@@ -61,7 +61,7 @@ class ExpansionQuestObjectiveTarget
 	{
 		ctx.Write(Amount);
 
-		int i;
+		/*int i;
 
 		int namesCount = ClassNames.Count();
 		ctx.Write(namesCount);
@@ -77,7 +77,7 @@ class ExpansionQuestObjectiveTarget
 		for (i = 0; i < allowedCount; i++)
 		{
 			ctx.Write(AllowedWeapons[i]);
-		}
+		}*/
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -85,7 +85,7 @@ class ExpansionQuestObjectiveTarget
 		if (!ctx.Read(Amount))
 			return false;
 
-		int i;
+		/*int i;
 
 		int namesCount;
 		if (!ctx.Read(namesCount))
@@ -111,7 +111,7 @@ class ExpansionQuestObjectiveTarget
 				return false;
 
 			AddAllowedWeapon(name);
-		}
+		}*/
 
 		return true;
 	}

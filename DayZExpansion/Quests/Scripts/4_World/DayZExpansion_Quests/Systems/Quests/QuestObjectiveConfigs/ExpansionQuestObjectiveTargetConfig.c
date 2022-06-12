@@ -12,8 +12,30 @@
 
 class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfigBase
 {
+	private vector Position = vector.Zero;
+	private float MaxDistance = 0;
 	private autoptr ExpansionQuestObjectiveTarget Target;
 
+	void SetPosition(vector pos)
+	{
+		Position = pos;
+	}
+
+	override vector GetPosition()
+	{
+		return Position;
+	}
+
+	void SetMaxDistance(float max)
+	{
+		MaxDistance = max;
+	}
+
+	override float GetMaxDistance()
+	{
+		return MaxDistance;
+	}
+	
 	void SetTarget(ExpansionQuestObjectiveTarget target)
 	{
 		Target = target;

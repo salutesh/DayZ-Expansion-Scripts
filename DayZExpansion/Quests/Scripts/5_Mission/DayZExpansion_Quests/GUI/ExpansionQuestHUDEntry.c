@@ -156,12 +156,5 @@ class ExpansionQuestHUDEntryController: ExpansionViewController
 {
 	string QuestName;
 	string ObjectiveText;
-	//ref ObservableCollection<ref ExpansionQuestHUDObjective> ObjectiveEntries = new ObservableCollection<ref ExpansionQuestHUDObjective>(this);
-	
-	/*void ReInit()
-	{
-		if (!ObjectiveEntries)
-			ObjectiveEntries = new ObservableCollection<ref ExpansionQuestHUDObjective>(this);
-	}*/
 };
 #endif

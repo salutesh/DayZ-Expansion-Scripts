@@ -62,14 +62,33 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		super.OnContinue();
 	}
 
-	void OnEntityKilled(string typeName, string killer)
+	void OnEntityKilled(EntityAI victim, EntityAI killer)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
 
-		Print(ToString() + "::OnEntityKilled - Victim type: " + typeName);
-		Print(ToString() + "::OnEntityKilled - Killer type: " + killer);
+		string typeName = victim.ClassName();
+		string killerName = killer.GetType();
+		
+		PlayerBase killerPlayer;
+		vector playerPos;
+		if (Class.CastTo(killerPlayer, killer))
+		{
+			if (!IsInMaxRange(killerPlayer.GetPosition()))
+				return;
+		}
+		else if (Class.CastTo(killerPlayer, killer.GetHierarchyParent()))
+		{
+			if (!IsInMaxRange(killerPlayer.GetPosition()))
+			{
+				Print(ToString() + "::OnEntityKilled - Killer is out of legit kill range!");
+				return;
+			}
+		}
+		
+		//Print(ToString() + "::OnEntityKilled - Victim type: " + typeName);
+		//Print(ToString() + "::OnEntityKilled - Killer type: " + killerName);
 
 		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
 		if (!target)
@@ -80,7 +99,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (target.NeedSpecialWeapon())
 		{
 			findIndex = -1;
-			findIndex = target.GetAllowedWeapons().Find(killer);
+			findIndex = target.GetAllowedWeapons().Find(killerName);
 			if (findIndex == -1)
 				return;
 
@@ -100,6 +119,24 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
+	private bool IsInMaxRange(vector playerPos)
+	{
+		Print(ToString() + "::IsInMaxRange - Start");
+		vector position = GetObjectiveConfig().GetPosition();
+		float maxDistance = GetObjectiveConfig().GetMaxDistance();
+		float currentDistance = vector.Distance(playerPos, position);
+		position[1] = GetGame().SurfaceY(position[0], position[2]);
+
+		if (position != vector.Zero && currentDistance <= maxDistance)
+		{
+			Print(ToString() + "::IsInMaxRange - IS IN RANGE!");
+			return true;
+		}
+		
+		Print(ToString() + "::IsInMaxRange - IS OUT OF RANGE!");
+		return false;
+	}
+	
 	override void OnUpdate(float timeslice)
 	{
 		if (!IsInitialized() || IsCompleted())

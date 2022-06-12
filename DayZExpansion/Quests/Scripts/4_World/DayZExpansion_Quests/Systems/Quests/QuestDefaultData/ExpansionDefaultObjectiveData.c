@@ -115,6 +115,17 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
 		objective.SetObjectiveText("Kill 10 infected with a sledge hammer");
+		
+		if (m_WorldName == "namalsk")
+		{
+			objective.SetPosition(Vector(8224.93, 0, 10811.0));
+			objective.SetMaxDistance(150.0);
+		}
+		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		{
+			objective.SetPosition(Vector(2596.7, 306.1, 6378.47));
+			objective.SetMaxDistance(150.0);
+		}
 
 		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
 		//! Civilian Infected
@@ -567,7 +578,18 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveTreasureHunt hunt = new ExpansionQuestObjectiveTreasureHunt();
 		hunt.AddItem("MoneyRuble", 100);
 		hunt.AddItem("Zucchini", 1); //! For the luls
-		hunt.SetPosition(Vector(8541.46, 15.3878, 10299.1));
+		
+		if (m_WorldName == "namalsk")
+		{
+			hunt.AddPosition(Vector(8541.46, 15.3878, 10299.1));
+		}
+		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		{
+			hunt.AddPosition(Vector(2936.48, 350.404, 6369.39));
+			hunt.AddPosition(Vector(3143.35, 365.776, 6942.04));
+			hunt.AddPosition(Vector(5233.51, 290.881, 6246.37));
+		}
+		
 		objective.SetTreasureHunt(hunt);
 
 		return objective;

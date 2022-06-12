@@ -32,6 +32,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveConfigBase
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		super.OnSend(ctx);
+		
 		Collection.OnSend(ctx);
 	}
 

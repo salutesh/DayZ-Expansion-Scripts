@@ -1568,8 +1568,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!markerModule)
 			return;
 
-		pos[1] = GetGame().SurfaceY(pos[0], pos[2]) + 3.0;
-
+		pos[1] = pos[1] + 2.0;
 		ExpansionMarkerData markerData = ExpansionMarkerData.Create(ExpansionMapMarkerType.PERSONAL);
 		markerData.SetName(text);
 		markerData.SetIcon("Questionmark");
@@ -3775,7 +3774,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					{
 						ExpansionQuestObjectiveTargetEvent targetObjective;
 						if (Class.CastTo(targetObjective, objective))
-							targetObjective.OnEntityKilled(sourceType, killSourceType);
+							targetObjective.OnEntityKilled(source, killSource);
 					}
 					break;
 					

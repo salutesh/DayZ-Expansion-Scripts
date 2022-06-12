@@ -70,8 +70,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Start");
 	#endif
 
-		vector pos = treasureHunt.GetPosition();
+		vector pos = treasureHunt.GetPositions().GetRandomElement();
 		StashPos = pos;
+		treasureHunt.SetSelectedPosition(StashPos);
 		
 		//! Create the underground stash and hide it
 		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", pos, ECE_PLACE_ON_SURFACE)))
@@ -106,8 +107,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			return;
 
 		for (int i = 0; i < treasureHunt.GetItems().Count(); i++)
-		foreach (string name, int amount: treasureHunt.GetItems())
 		{
+			string name = treasureHunt.GetItems().GetKey(i);
+			int amount = treasureHunt.GetItems().GetElement(i);
+			
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Add item to chest: " + name + " x" + amount);
 		#endif
@@ -155,7 +158,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!treasureHunt)
 			return;
 
-		vector position = treasureHunt.GetPosition();
+		vector position = StashPos;
 		float maxDistance = 5.0;
 		float currentDistance;
 

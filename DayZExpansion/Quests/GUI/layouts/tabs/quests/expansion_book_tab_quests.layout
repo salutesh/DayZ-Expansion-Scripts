@@ -191,7 +191,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
      priority 2
      {
       ScrollWidgetClass quest_info_panel {
-       visible 1
+       visible 0
        ignorepointer 0
        position 0 0
        size 1.025 1

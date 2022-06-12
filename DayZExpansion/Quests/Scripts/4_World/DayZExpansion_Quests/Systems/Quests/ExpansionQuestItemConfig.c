@@ -48,17 +48,11 @@ class ExpansionQuestItemConfig
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		string name;
-		if (!ctx.Read(name))
+		if (!ctx.Read(ClassName))
 			return false;
-
-		ClassName = name;
-
-		int amount;
-		if (!ctx.Read(amount))
+		
+		if (!ctx.Read(Amount))
 			return false;
-
-		Amount = amount;
 
 		return true;
 	}

@@ -12,8 +12,11 @@
 
 class ExpansionQuestObjectiveTreasureHunt
 {
-	private vector Position;
+	private ref array<vector> Positions = new array<vector>;
 	private ref map<string, int> Items = new map<string, int>;
+	
+	[NonSerialized()]
+	private vector SelectedPosition;
 
 	void AddItem(string className, int amount)
 	{
@@ -25,39 +28,73 @@ class ExpansionQuestObjectiveTreasureHunt
 		return Items;
 	}
 
-	void SetPosition(vector pos)
+	void AddPosition(vector pos)
 	{
-		Position = pos;
+		Positions.Insert(pos);
 	}
 
-	vector GetPosition()
+	array<vector> GetPositions()
 	{
-		return Position;
+		return Positions;
+	}
+	
+	void SetSelectedPosition(vector pos)
+	{
+		SelectedPosition = pos;
+	}
+	
+	vector GetSelectedPosition()
+	{
+		return SelectedPosition;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
 	{
-		ctx.Write(Position);
+		ctx.Write(SelectedPosition);
+		
+		/*int posCount = Positions.Count();
+		ctx.Write(posCount);
+		foreach (vector pos: Positions)
+		{
+			ctx.Write(pos);
+		}
+		
+		ctx.Write(Positions);*/
 
-		int itemCount = Items.Count();
+		/*int itemCount = Items.Count();
 		ctx.Write(itemCount);
 		
 		foreach (string name, int amount: Items)
 		{
 			ctx.Write(name);
 			ctx.Write(amount);
-		}
+		}*/
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		vector pos;
-		if (!ctx.Read(pos))
-				return false;
+		if (!ctx.Read(SelectedPosition))
+			return false;
+		
+		/*if (!Positions)
+			Positions = new array<vector>;
+		else
+			Positions.Clear();
 
-		Position = pos;
-
-		if (!Items)
+		int posCount;
+		if (!ctx.Read(posCount))
+			return false;
+		
+		for (int i = 0; i < posCount; i++)
+		{
+			vector pos;
+			if (!ctx.Read(pos))
+			return false;
+			
+			Positions.Insert(pos);
+		}*/
+		
+		/*if (!Items)
 			Items = new map<string, int>;
 		else
 			Items.Clear();
@@ -77,7 +114,7 @@ class ExpansionQuestObjectiveTreasureHunt
 				return false;
 
 			Items.Insert(name, amount);
-		}
+		}*/
 
 		return true;
 	}
@@ -86,7 +123,11 @@ class ExpansionQuestObjectiveTreasureHunt
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - Position: " + Position);
+		foreach (vector pos: Positions)
+		{
+			Print(ToString() + "::QuestDebug - Position: " + pos);
+		}
+		
 		foreach (string item, int amount: Items)
 		{
 			Print(ToString() + "::QuestDebug - Item: " + item);

@@ -165,7 +165,8 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			Complete.Show(true);
 		}
 
-		m_QuestMenuController.QuestDescription = description;
+		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
+		m_QuestMenuController.QuestDescription = descriptiontext.Format();
 		m_QuestMenuController.QuestObjective = quest.GetObjectiveText();
 
 		m_QuestMenuController.NotifyPropertiesChanged({"QuestTitle", "QuestDescription", "QuestObjective"});

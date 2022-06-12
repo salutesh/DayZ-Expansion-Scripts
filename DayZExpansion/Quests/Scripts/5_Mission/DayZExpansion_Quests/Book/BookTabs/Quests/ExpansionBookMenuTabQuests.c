@@ -175,7 +175,8 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 		QuestPrint("ExpansionBookMenuTabQuests::SetQuest - description: " + description);
 
-		m_QuestTabController.QuestDescription = description;
+		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
+		m_QuestTabController.QuestDescription = descriptiontext.Format();
 		m_QuestTabController.QuestObjective = quest.GetObjectiveText();
 
 		m_QuestTabController.NotifyPropertiesChanged({"QuestTitle", "QuestDescription", "QuestObjective"});
@@ -254,12 +255,12 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		}
 	}
 
-	override void OnBackButtonClick()
+	/*override void OnBackButtonClick()
 	{
 		super.OnBackButtonClick();
 
 		Hide();
-	}
+	}*/
 
 	void OnCancelQuestButtonClick()
 	{

@@ -27,8 +27,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		
 		m_Objective = objective;
 		m_Quest = questConfig;
-		
-		//SetEntryObjective();
+	}
+	
+	void ~ExpansionQuestHUDObjective()
+	{
+		m_QuestHUDObjectiveController.DeliveryEnties.Clear();
 	}
 
 	override string GetLayoutFile()
@@ -39,11 +42,6 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	override typename GetControllerType()
 	{
 		return ExpansionQuestHUDObjectiveController;
-	}
-
-	void Clear()
-	{
-		//m_QuestHUDObjectiveController.DeliveryEnties.Clear();
 	}
 	
 	void SetEntryObjective()
@@ -133,7 +131,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					ExpansionQuestObjectiveTreasureHunt treasureHunt = treasureObjective.GetTreasureHunt();
 					if (treasureHunt)
 					{
-						objectivePos = treasureHunt.GetPosition();
+						objectivePos = treasureHunt.GetSelectedPosition();
 						if (GetGame().GetPlayer())
 						{
 							playerPos = GetGame().GetPlayer().GetPosition();
@@ -160,7 +158,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 				m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				/*ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
+				ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
 				if (Class.CastTo(deliveryObjective, objectiveConfigBase))
 				{
 					for (int i = 0; i < deliveryObjective.GetDeliveries().Count(); i++)
@@ -173,7 +171,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						}
 					}
 					QuestPrint(ToString() + "::SetEntryObjective - DELIVERY - ADDED");
-				}*/
+				}
 			}
 			break;
 			
@@ -219,18 +217,13 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AIVIP:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AIVIP");
-				/*m_QuestHUDObjectiveController.ObjectiveTarget = "Killed:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "Travel:";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-	
-				count = m_Objective.GetObjectiveCount();
-				amount = m_Objective.GetObjectiveAmount();
-	
-				QuestPrint(ToString() + "::SetEntryObjective - Count: " + count);
-				QuestPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-	
-				m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");*/
-				
+				objectivePos = m_Objective.GetObjectivePosition();
+				playerPos = GetGame().GetPlayer().GetPosition();
+				currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+				m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				QuestPrint(ToString() + "::SetEntryObjective - AIVIP - ADDED");
 			}
 			break;

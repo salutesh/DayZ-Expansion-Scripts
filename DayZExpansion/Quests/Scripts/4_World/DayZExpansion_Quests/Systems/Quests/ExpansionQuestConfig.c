@@ -16,7 +16,7 @@ class ExpansionQuestConfig
 	private int ID = -1; //! Unique quest ID.
 	private int Type = -1;	//! Quest type from ExpansionQuestType.
 	private string Title;	//! Quest title.
-	private autoptr array<string> Descriptions; //! 0 - Description on getting quest | 1 - Description while quest is active | 2 - Description when take in quest.
+	private ref array<string> Descriptions; //! 0 - Description on getting quest | 1 - Description while quest is active | 2 - Description when take in quest.
 	private string ObjectiveText; //! Short objective desctiption.
 	private int PreQuest = -1; //! Pre-Quest Quest ID.
 	private int FollowUpQuest = -1; //! Follow-up Quest ID.
@@ -42,9 +42,9 @@ class ExpansionQuestConfig
 	//! Crazy ideas
 	private string QuestClassName = string.Empty; //! Class name of the quest class used to create the quest instance if you want to use a cutomized quest class.
 	
-	private autoptr array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
-	private autoptr array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
-	private autoptr array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
+	private ref array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
+	private ref array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
+	private ref array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
 
 	void ExpansionQuestConfig()
 	{
