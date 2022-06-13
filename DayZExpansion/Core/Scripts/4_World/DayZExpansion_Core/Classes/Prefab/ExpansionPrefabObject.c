@@ -83,9 +83,10 @@ class ExpansionPrefabObject : Managed
 		return object;
 	}
 
-	ExpansionPrefabObject BeginSet()
+	ExpansionPrefabObject BeginSet(string setName = "")
 	{
 		ExpansionPrefabObject object = new ExpansionPrefabObject();
+		object.ClassName = setName;
 
 		ExpansionPrefab.s_Begin.Insert(this);
 
@@ -174,13 +175,13 @@ class ExpansionPrefabObject : Managed
 
 	bool CanSpawn()
 	{
-		if (Chance < Math.RandomFloat(0.0, 1.0))
+		if (!Chance || Chance < Math.RandomFloat(0.0, 1.0))
 			return false;
 
 		return true;
 	}
 
-	Object Spawn(Object self)
+	Object Spawn(Object self, bool ignoreCargo = false)
 	{
 		if (!self)
 		{
@@ -261,21 +262,45 @@ class ExpansionPrefabObject : Managed
 				array<ref ExpansionPrefabObject> candidates();
 				int index;
 
+				//! Cargo from root of any set needs to be spawned last so that cargo containers (e.g. clothing) added via attachments are already there
+				array<ref ExpansionPrefabObject> inventoryCargo();
+				if (!ignoreCargo)
+				{
+					foreach (ExpansionPrefabObject thisCargo: InventoryCargo)
+					{
+						inventoryCargo.Insert(thisCargo);
+					}
+				}
+				
 				//! Select sets by chance
 				foreach (ExpansionPrefabObject selectedSet : Sets)
 				{
 					if (selectedSet.CanSpawn())
+					{
 						candidates.Insert(selectedSet);
+					}
 				}
 
 				//! Spawn sets in random order
+				TStringArray setNames();  //! If set is named, will only spawn one per unique name
 				while (candidates.Count())
 				{
 					index = candidates.GetRandomIndex();
 					selectedSet = candidates[index];
 					candidates.Remove(index);
 
-					selectedSet.Spawn(self);
+					if (!selectedSet.ClassName || setNames.Find(selectedSet.ClassName) == -1)
+					{
+						selectedSet.Spawn(self, true);
+						foreach (ExpansionPrefabObject setCargo: selectedSet.InventoryCargo)
+						{
+							inventoryCargo.Insert(setCargo);
+						}
+						if (selectedSet.ClassName)
+						{
+							setNames.Insert(selectedSet.ClassName);
+						}
+					}
 				}
 
 				foreach (auto slot : InventoryAttachments)
@@ -340,8 +365,11 @@ class ExpansionPrefabObject : Managed
 
 				candidates.Clear();
 
+				if (ignoreCargo)
+					return self;
+
 				//! Select cargo by chance
-				foreach (ExpansionPrefabObject cargo : InventoryCargo)
+				foreach (ExpansionPrefabObject cargo : inventoryCargo)
 				{
 					if (cargo.CanSpawn())
 						candidates.Insert(cargo);

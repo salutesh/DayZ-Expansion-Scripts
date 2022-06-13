@@ -157,12 +157,15 @@ class ExpansionQuestNpcData
 			array<string> items = new array<string>;
 			GetGear()[i].Split("+", items);
 			EntityAI itemEnt = NULL;
+			
 			//! Spawn weapon in hands
 			if (questNPC.IsInherited(Man) && GetGame().ConfigIsExisting("CfgVehicles " + items[0] + " suicideAnim") || GetGame().IsKindOf(items[0], "Rifle_Base") || GetGame().IsKindOf(items[0], "Pistol_Base") || GetGame().IsKindOf(items[0], "Archery_Base") || GetGame().IsKindOf(items[0], "Launcher_Base"))
 				itemEnt = questNPC.GetHumanInventory().CreateInHands(items[0]);
+			
 			//! Spawn everything else in inventory
 			if (!itemEnt)
 				itemEnt = questNPC.GetInventory().CreateInInventory(items[0]);
+			
 			ItemBase itemBase = ItemBase.Cast(itemEnt);
 			if (itemEnt)
 			{
@@ -198,18 +201,20 @@ class ExpansionQuestNpcData
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNpcAIBase questNPC = ExpansionQuestNpcAIBase.Cast(enity);
-
 		for (int i = 0; i < GetGear().Count(); i++)
 		{
 			array<string> items = new array<string>;
 			GetGear()[i].Split("+", items);
 			EntityAI itemEnt = NULL;
+			
 			//! Spawn weapon in hands
 			if (questNPC.IsInherited(Man) && GetGame().ConfigIsExisting("CfgVehicles " + items[0] + " suicideAnim") || GetGame().IsKindOf(items[0], "Rifle_Base") || GetGame().IsKindOf(items[0], "Pistol_Base") || GetGame().IsKindOf(items[0], "Archery_Base") || GetGame().IsKindOf(items[0], "Launcher_Base"))
 				itemEnt = questNPC.GetHumanInventory().CreateInHands(items[0]);
+			
 			//! Spawn everything else in inventory
 			if (!itemEnt)
 				itemEnt = questNPC.GetInventory().CreateInInventory(items[0]);
+			
 			ItemBase itemBase = ItemBase.Cast(itemEnt);
 			if (itemEnt)
 			{

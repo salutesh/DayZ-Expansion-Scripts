@@ -124,7 +124,54 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		QuestModulePrint(ToString() + "::OnInit - End");
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule CreateDirectoryStructure
+	// ------------------------------------------------------------
+	private void CreateDirectoryStructure()
+	{
+		if (!FileExist(EXPANSION_QUESTS_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_FOLDER);
 
+		if (!FileExist(EXPANSION_QUESTS_QUESTS_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_QUESTS_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_PLAYERDATA_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_PLAYERDATA_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_NPCS_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_NPCS_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+
+	#ifdef EXPANSIONMODAI
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+		
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+	#endif
+	}
+	
 	// ------------------------------------------------------------
 	// ExpansionQuestModule OnMissionLoaded
 	// ------------------------------------------------------------
@@ -141,43 +188,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			if (!FileExist(EXPANSION_QUESTS_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_QUESTS_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_QUESTS_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_PLAYERDATA_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_PLAYERDATA_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_NPCS_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_NPCS_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
-
-		#ifdef EXPANSIONMODAI
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
-
-			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER))
-				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
-		#endif
+			CreateDirectoryStructure();
 		}
 
 		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server
@@ -2259,9 +2270,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 					npc.SetOrientation(questNPCData.GetOrientation());
 				}
 			}
-		#ifdef EXPANSIONMODAI
 			else
 			{
+			#ifdef EXPANSIONMODAI
 				ExpansionQuestNpcAIBase npcAI = questNPCData.SpawnNPCAI();
 				if (npcAI)
 				{
@@ -2298,8 +2309,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 					npcAI.SetAI( ownerGrp );
 					#endif
 				}
+			#endif
 			}
-		#endif
 		}
 	}
 
@@ -4008,6 +4019,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 							}
 						}
 						break;
+						
+						case ExpansionQuestObjectiveType.AIVIP:
+						{
+							QuestModulePrint(ToString() + "::UpdatePlayerQuestObjectiveData - Objective event type is: AIVIP");
+							ExpansionQuestObjectiveAIVIPEvent aiVIPObjective;
+							if (Class.CastTo(aiVIPObjective, currentObjective))
+							{
+								objectiveData.SetObjectivePosition(aiVIPObjective.GetPosition());
+							}
+						}
+						break;
+						
 					#endif
 					}
 	

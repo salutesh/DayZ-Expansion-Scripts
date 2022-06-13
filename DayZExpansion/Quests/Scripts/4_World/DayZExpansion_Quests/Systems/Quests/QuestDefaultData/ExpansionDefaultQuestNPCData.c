@@ -53,6 +53,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(282.0, 0, 0)); //! Quest NPC orientation
 			
 		#ifdef EXPANSIONMODAI
+			questNPC.SetName("ExpansionQuestNpcAIDenis"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3706.27, 402.012, 5987.08));
 		#endif
@@ -64,6 +65,11 @@ class ExpansionDefaultQuestNPCData
 		gear.Insert("Shirt_GreenCheck");
 		gear.Insert("NBCPantsGray");
 		gear.Insert("CombatBoots_Brown");
+		gear.Insert("M4A1");
+		gear.Insert("Mag_STANAG_60Rnd");
+		gear.Insert("M4_CQBBttstck");
+		gear.Insert("M4_MPHndgrd");
+		gear.Insert("ACOGOptic");
 		questNPC.SetGear(gear); //! Quest NPC gear
 
 		questNPC.SetNPCName("Peter");
@@ -103,6 +109,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(145.0, 0, 0)); //! Quest NPC orientation
 			
 		#ifdef EXPANSIONMODAI
+			questNPC.SetName("ExpansionQuestNpcAIElias"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3192.2, 296.707, 6093.31));
 		#endif
@@ -114,6 +121,11 @@ class ExpansionDefaultQuestNPCData
 		gear.Insert("Shirt_GreenCheck");
 		gear.Insert("NBCPantsGray");
 		gear.Insert("CombatBoots_Brown");
+		gear.Insert("M4A1");
+		gear.Insert("Mag_STANAG_60Rnd");
+		gear.Insert("M4_CQBBttstck");
+		gear.Insert("M4_MPHndgrd");
+		gear.Insert("ACOGOptic");
 		questNPC.SetGear(gear); //! Quest NPC gear
 
 		questNPC.SetNPCName("Steve");
@@ -146,16 +158,24 @@ class ExpansionDefaultQuestNPCData
 		gear.Insert("Shirt_GreenCheck");
 		gear.Insert("NBCPantsGray");
 		gear.Insert("CombatBoots_Brown");
+		gear.Insert("M4A1");
+		gear.Insert("Mag_STANAG_60Rnd");
+		gear.Insert("M4_CQBBttstck");
+		gear.Insert("M4_MPHndgrd");
+		gear.Insert("ACOGOptic");
 		questNPC.SetGear(gear); //! Quest NPC gear
 
 		questNPC.SetNPCName("Jose");
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
 
-	#ifdef EXPANSIONMODAI
-		questNPC.SetName("ExpansionQuestNpcAIJose"); //! Class name of the NPC entity
-		questNPC.SetIsAI(true);
-		questNPC.AddWaypoint(Vector(8563.02, 14.8878, 10537.7));
-	#endif
+		if (m_WorldName == "namalsk")
+		{
+		#ifdef EXPANSIONMODAI
+			questNPC.SetName("ExpansionQuestNpcAIJose"); //! Class name of the NPC entity
+			questNPC.SetIsAI(true);
+			questNPC.AddWaypoint(Vector(8563.02, 14.8878, 10537.7));
+		#endif
+		}
 
 		return questNPC;
 	}
@@ -183,16 +203,24 @@ class ExpansionDefaultQuestNPCData
 		gear.Insert("Shirt_GreenCheck");
 		gear.Insert("NBCPantsGray");
 		gear.Insert("CombatBoots_Brown");
+		gear.Insert("M4A1");
+		gear.Insert("Mag_STANAG_60Rnd");
+		gear.Insert("M4_CQBBttstck");
+		gear.Insert("M4_MPHndgrd");
+		gear.Insert("ACOGOptic");
 		questNPC.SetGear(gear); //! Quest NPC gear
 
 		questNPC.SetNPCName("Guillaume");
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
 
-	#ifdef EXPANSIONMODAI
-		questNPC.SetName("ExpansionQuestNpcAIPeter"); //! Class name of the NPC entity
-		questNPC.SetIsAI(true);
-		questNPC.AddWaypoint(Vector(8597.82, 14.9004, 10493.3));
-	#endif
+		if (m_WorldName == "namalsk")
+		{
+		#ifdef EXPANSIONMODAI
+			questNPC.SetName("ExpansionQuestNpcAIPeter"); //! Class name of the NPC entity
+			questNPC.SetIsAI(true);
+			questNPC.AddWaypoint(Vector(8597.82, 14.9004, 10493.3));
+		#endif
+		}
 
 		return questNPC;
 	}

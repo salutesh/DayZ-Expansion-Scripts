@@ -89,9 +89,7 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	static void LoadMissionObjectsFile( string name )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, "ExpansionObjectSpawnTools", "LoadMissionObjectsFile");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, null, objectFilesFolder + name);
 
 		Object obj;
 		string className;

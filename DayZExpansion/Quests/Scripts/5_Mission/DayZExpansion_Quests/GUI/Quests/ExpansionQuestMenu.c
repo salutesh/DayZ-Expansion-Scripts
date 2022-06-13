@@ -252,7 +252,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	void CloseMenu()
 	{
 		Hide();
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().DestroySVMenu(this);
+		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseMenu();
 	}
 
 	void OnCloseButtonClick()

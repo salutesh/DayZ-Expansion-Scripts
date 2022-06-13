@@ -37,7 +37,7 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
  **/
 class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 6;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;

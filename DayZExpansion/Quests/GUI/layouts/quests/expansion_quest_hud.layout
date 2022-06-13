@@ -1,7 +1,7 @@
 PanelWidgetClass ExpansionQuestHud {
  visible 1
  disabled 0
- clipchildren 1
+ clipchildren 0
  inheritalpha 0
  ignorepointer 1
  keepsafezone 1

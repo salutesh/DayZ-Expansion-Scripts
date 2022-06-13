@@ -181,19 +181,16 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(true);
 				OnComplete();
 			}
-			/*else if (position != vector.Zero && currentDistance > maxDistance)
-			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::OnUpdate - Incomplete!");
-			#endif
-				SetCompleted(false);
-				OnIncomplete();
-			}*/
 			
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
 
+	vector GetPosition()
+	{
+		return GetObjectiveConfig().GetPosition();
+	}
+	
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AIVIP;

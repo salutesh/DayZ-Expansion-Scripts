@@ -14,7 +14,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 {
 	private ref array<Object> LootItems = new array<Object>;
 	private UndergroundStash Stash;
-	private SeaChest Chest;
+	private ExpansionQuestSeaChest Chest;
 	private vector StashPos;
 
 	override void OnStart()
@@ -92,8 +92,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		//! Spawn the chest in the underground stash
 		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
+		if (!questPlayer)
+			return;
 
-		Object chestObj = Spawn("SeaChest", 1, questPlayer, stashEntity, pos, Vector(0, 0, 0));
+		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, pos, Vector(0, 0, 0));
 		if (!Class.CastTo(Chest, chestObj))
 			return;
 
@@ -101,6 +103,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Spawned chest in stash!");
 	#endif
 
+		Chest.ExpansionSetContainerOwner(questPlayer);
+		
 		//! Spawn the loot in the chest
 		EntityAI chestEntity;
 		if (!Class.CastTo(chestEntity, Chest))

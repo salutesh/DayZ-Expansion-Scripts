@@ -20,6 +20,9 @@ modded class PlayerBase
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenQuestMenu, InputActionMap);
+	#ifdef EXPANSIONMODAI
+		AddAction(ExpansionActionOpenQuestMenuAI, InputActionMap);
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -47,9 +50,6 @@ modded class PlayerBase
 				target = EntityAI.Cast(this);
 				if (player && target)
 				{
-					Print(ToString() + "::EEKilled - Target: " + target);
-					Print(ToString() + "::EEKilled - Kill source: " + killSource);
-					Print(ToString() + "::EEKilled - Killer player UID: " + player.GetIdentity().GetId());
 					questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 				}
 			}
@@ -60,9 +60,6 @@ modded class PlayerBase
 			target = EntityAI.Cast(this);
 			if (player && target)
 			{
-				Print(ToString() + "::EEKilled - Target: " + target);
-				Print(ToString() + "::EEKilled - Kill source: " + killSource);
-				Print(ToString() + "::EEKilled - Killer player UID: " + player.GetIdentity().GetId());
 				questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 			}
 		}

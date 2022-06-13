@@ -24,5 +24,8 @@ modded class ActionConstructor
 
 		//! Quests
 		actions.Insert(ExpansionActionOpenQuestMenu);
+	#ifdef EXPANSIONMODAI
+		actions.Insert(ExpansionActionOpenQuestMenuAI);
+	#endif
 	}
 }

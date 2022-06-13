@@ -17,6 +17,8 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 	static ref ScriptInvoker SI_LampDisable = new ScriptInvoker();
 
 	private autoptr array< vector > m_LightGenerators;
+
+	private string m_WorldName;
 	
 	protected ExpansionInteriorBuildingModule m_InteriorModule;
  	
@@ -35,10 +37,28 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 	{
 		super.OnInit();
 		
+		EnableMissionStart();
 		EnableMissionLoaded();
 		EnableRPC();
 	}
  	
+ 	override void OnMissionStart(Class sender, CF_EventArgs args)
+ 	{
+		super.OnMissionStart(sender, args);
+
+		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
+
+		if (GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule)
+		{
+			ExpansionObjectSpawnTools.objectFilesFolder = EXPANSION_MAPPING_FOLDER + m_WorldName + "/";
+			foreach (string name: GetExpansionSettings().GetGeneral().Mapping.Mapping)
+			{
+				ExpansionObjectSpawnTools.LoadMissionObjectsFile(name + EXPANSION_MAPPING_EXT);
+			}
+
+		}
+	}
+
 	// ------------------------------------------------------------
 	// Expansion OnMissionLoaded
 	// ------------------------------------------------------------
@@ -51,6 +71,21 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.Load, true );
 		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion AdjustWorldName
+	// ------------------------------------------------------------	
+	private string AdjustWorldName( string name )
+	{
+		string nName = name;
+		nName.ToLower();
+		if ( nName.Contains( "chernarusplus" ) )
+		{
+			return "chernarusplus";
+		}
+
+		return nName;
 	}
 	
 	// ------------------------------------------------------------

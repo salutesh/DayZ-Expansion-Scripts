@@ -530,7 +530,7 @@ class eAIBase extends PlayerBase
 				if (!Class.CastTo(gun, weapon))
 					continue;
 
-				if (eAI_HasAmmoForFirearm(gun, mag))
+				if (eAI_HasAmmoForFirearm(gun, mag, false))
 					return weapon;
 			}
 		}
@@ -925,7 +925,7 @@ class eAIBase extends PlayerBase
 					continue;
 
 			//! If the object is an item and we have an entity in hands or the object is not a weapon, ignore it
-			if (Class.CastTo(targetItem, obj) && (entityInHands || (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon()) || GetGroup().GetFaction().IsInherited(eAIFactionPassive) || eAI_HasWeaponInInventory()))
+			if (Class.CastTo(targetItem, obj) && (entityInHands || (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon()) || GetGroup().GetFaction().IsInherited(eAIFactionPassive)))
 				continue;
 
 			if (obj.IsInherited(Building))
@@ -1209,7 +1209,7 @@ class eAIBase extends PlayerBase
 		 * HANDS               = 16
 		 * PROXYCARGO          = 32
 		 * ANY_CARGO           = 40 (CARGO | PROXYCARGO)
-		 * ANY                 = 60 (ATTACHMENT | ANY_CARGO)
+		 * ANY                 = 60 (ATTACHMENT | ANY_CARGO | HANDS)
 		 * NO_SLOT_AUTO_ASSIGN = 64
 		 */
 		if (!flags)
