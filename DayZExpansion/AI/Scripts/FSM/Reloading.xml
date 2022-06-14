@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<fsm name="Reloading">
+<fsm name="Reloading" type="eAI">
 	<files />
 	<variables>
 		<variable name="weapon" type="Weapon_Base" />
@@ -10,7 +10,7 @@
 		<state name="Start">
 			<variables />
 			<editor_data>
-				<position x="553" y="360" />
+				<position x="561" y="364" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -27,7 +27,7 @@
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="464.565289256198" y="475.213223140496" />
+				<position x="457.565289256198" y="477.213223140496" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -80,7 +80,7 @@
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="651.545454545455" y="473.876033057851" />
+				<position x="649.545454545455" y="473.876033057851" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -102,7 +102,7 @@
 		<state name="Removing">
 			<variables />
 			<editor_data>
-				<position x="650.925619834711" y="553.735537190083" />
+				<position x="648.925619834711" y="557.735537190083" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry />
@@ -121,8 +121,8 @@
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="612.762721125606" y="400" />
-				<position_destination x="539.334805190902" y="475.213223140496" />
+				<position_source x="620.762721125606" y="404" />
+				<position_destination x="532.334805190902" y="477.213223140496" />
 			</editor_data>
 			<guard>
 				if (fsm.weapon.IsDamageDestroyed())
@@ -143,8 +143,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="645.547366983129" y="400" />
-				<position_destination x="716.545454545455" y="473.876033057851" />
+				<position_source x="653.547366983129" y="404" />
+				<position_destination x="714.545454545455" y="473.876033057851" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -155,8 +155,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="725.285218414043" y="513.876033057851" />
-				<position_destination x="726.111664695034" y="553.735537190083" />
+				<position_source x="723.285218414043" y="513.876033057851" />
+				<position_destination x="724.111664695034" y="557.735537190083" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -167,8 +167,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="536.029020066935" y="515.213223140496" />
-				<position_destination x="535.202573785944" y="553.12383705348" />
+				<position_source x="529.029020066935" y="517.213223140496" />
+				<position_destination x="528.202573785944" y="555.12383705348" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -179,8 +179,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="722.925619834711" y="593.735537190083" />
-				<position_destination x="723.09671470528" y="626.613824192337" />
+				<position_source x="720.925619834711" y="597.735537190083" />
+				<position_destination x="721.09671470528" y="630.613824192337" />
 			</editor_data>
 			<guard>
 				return SUCCESS;

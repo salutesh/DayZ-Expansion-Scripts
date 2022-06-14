@@ -13,6 +13,17 @@ class CfgPatches
 class CfgVehicles
 {
 	class Container_Base;
+	class HouseNoDestruct;
+	class ExpansionQuestStaticObject: HouseNoDestruct
+	{
+		forceFarBubble = "true";
+	};
+	class ExpansionQuestObjectBoard: ExpansionQuestStaticObject
+	{
+		displayName = "Quest Board";
+		descriptionShort = "Quest Board";
+		model = "DZ\structures\Furniture\School_equipment\blackboard.p3d";
+	};
 	class ExpansionTemporaryOwnedQuestContainer: Container_Base
 	{
 		scope = 2;

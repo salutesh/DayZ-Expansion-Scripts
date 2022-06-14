@@ -15,7 +15,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 {
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
-	
+
 	private eAIBase m_VIP;
 	private eAIGroup m_Group;
 
@@ -23,11 +23,11 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	override void OnStart()
 	{
 		ObjectivePrint(ToString() + "::OnStart - Start");
-		
+
 		CreateVIP();
-		
+
 		super.OnStart();
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		vector markerPosition = GetObjectiveConfig().GetPosition();
 		string markerName = GetObjectiveConfig().GetMarkerName();
@@ -36,20 +36,20 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 
 		ObjectivePrint(ToString() + "::OnStart - End");
 	}
-	
+
 	//! Event called when the player continues the quest after a server restart/reconnect
 	override void OnContinue()
 	{
 		ObjectivePrint(ToString() + "::OnContinue - Start");
 
 		CreateVIP();
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		vector markerPosition = GetObjectiveConfig().GetPosition();
 		string markerName = GetObjectiveConfig().GetMarkerName();
 		GetQuest().CreateClientMarker(markerPosition, markerName);
 	#endif
-		
+
 		super.OnContinue();
 
 		ObjectivePrint(ToString() + "::OnContinue - End");
@@ -63,22 +63,22 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 			npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_GREETING);
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 		}
-			
+
 		m_Group.SetLeader(m_VIP);
 		m_Group.AddWaypoint(GetObjectiveConfig().GetPosition());
-		
+
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 10000, false, m_VIP);
-		
+
 		super.OnComplete();
 	}
-	
+
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override void OnCleanup()
 	{
 		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
 		GetGame().ObjectDelete(m_VIP);
-		
+
 		super.OnCleanup();
 
 		ObjectivePrint(ToString() + "::OnCleanup - End");
@@ -90,7 +90,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnCancel - Start");
 
 		GetGame().ObjectDelete(m_VIP);
-		
+
 		super.OnCancel();
 
 		ObjectivePrint(ToString() + "::OnCancel - End");
@@ -102,9 +102,6 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
 
-		Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
-		Print(ToString() + "::OnEntityKilled - Killer type: " + killer.GetType());
-		
 		eAIBase victimAI = eAIBase.Cast(victim);
 		if (victimAI && victim == m_VIP)
 		{
@@ -117,18 +114,18 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		ExpansionQuestObjectiveAIVIP vip = GetObjectiveConfig().GetAIVIP();
 		if (!vip)
 			return;
-		
+
 		//vector pos = GetQuest().GetPlayer().GetPosition();
 		m_Group = eAIGroup.GetGroupByLeader(GetQuest().GetPlayer());
 		if (!m_Group)
 			return;
-		
+
 		m_VIP = SpawnAI_VIP(GetQuest().GetPlayer(), vip.GetNPCLoadoutFile());
 		if (!m_VIP)
 			return;
 
 		m_Group.SetFaction(new eAIFactionPassive());
-		
+
 		#ifdef EXPANSIONMODAI
 		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 		#else
@@ -136,7 +133,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		m_VIP.SetAI(m_Group);
 		#endif
 	}
-	
+
 	eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout.json")
 	{
 		#ifdef EAI_TRACE
@@ -152,7 +149,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 
 		return ai;
 	}
-	
+
 	override void OnUpdate(float timeslice)
 	{
 		if (!IsInitialized() || IsCompleted())
@@ -163,16 +160,16 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		{
 			vector position = GetObjectiveConfig().GetPosition();
 			float maxDistance = GetObjectiveConfig().GetMaxDistance();
-	
+
 			//! Set the position of the VIP AI NPC for the distance to the target location as our current position
 			vector vipPos = m_VIP.GetPosition();
 			float currentDistance = vector.Distance(vipPos, position);
-	
+
 			position[1] = GetGame().SurfaceY(position[0], position[2]);
-	
+
 			if (maxDistance < 10)
 				maxDistance = 10.0;
-			
+
 			if (position != vector.Zero && currentDistance <= maxDistance)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -181,7 +178,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(true);
 				OnComplete();
 			}
-			
+
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
@@ -190,7 +187,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	{
 		return GetObjectiveConfig().GetPosition();
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AIVIP;

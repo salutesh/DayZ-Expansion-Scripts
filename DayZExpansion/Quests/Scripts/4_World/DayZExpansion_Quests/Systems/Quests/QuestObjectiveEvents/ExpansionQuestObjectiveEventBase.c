@@ -48,12 +48,12 @@ class ExpansionQuestObjectiveEventBase
 	{
 		return m_Initialized;
 	}
-	
+
 	bool IsActive()
 	{
 		return m_Active;
 	}
-	
+
 	void SetIsActive(bool state)
 	{
 		m_Active = state;
@@ -96,25 +96,25 @@ class ExpansionQuestObjectiveEventBase
 	{
 		if (!m_Quest)
 			return;
-		
+
 		for (int i = 0; i < m_Quest.GetObjectives(); i++)
 		{
 			ExpansionQuestObjectiveEventBase objective = m_Quest.GetObjectives()[i];
 			if (!objective)
 				return;
-			
+
 			if (objective.GetIndex() == (GetIndex() + 1)) //! Get the next objective in the quests objective array
 				objective.OnStart();
 		}
-		
+
 		SetIsActive(false);
 	}
-	
+
 	void OnIncomplete()
 	{
 		if (!m_Quest)
 			return;
-		
+
 		SetIsActive(true);
 	}
 
@@ -161,6 +161,7 @@ class ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODAI
 		ExpansionQuestObjectiveAIPatrolConfig aiPatrolObjective;
 		ExpansionQuestObjectiveAICampConfig aiCampObjective;
+		ExpansionQuestObjectiveAIVIPConfig aiVIPObjective;
 	#endif
 
 		if (Class.CastTo(travelObjective, m_ObjectiveConfig))
@@ -187,6 +188,10 @@ class ExpansionQuestObjectiveEventBase
 		else if (Class.CastTo(aiCampObjective, m_ObjectiveConfig))
 		{
 			return aiCampObjective;
+		}
+		else if (Class.CastTo(aiVIPObjective, m_ObjectiveConfig))
+		{
+			return aiVIPObjective;
 		}
 	#endif
 
@@ -217,7 +222,7 @@ class ExpansionQuestObjectiveEventBase
 		Print(text);
 	//#endif
 	}
-	
+
 	int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.NONE;

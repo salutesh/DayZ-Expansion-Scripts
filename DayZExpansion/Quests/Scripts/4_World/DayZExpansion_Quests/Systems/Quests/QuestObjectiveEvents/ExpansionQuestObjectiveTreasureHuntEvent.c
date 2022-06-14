@@ -73,7 +73,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		vector pos = treasureHunt.GetPositions().GetRandomElement();
 		StashPos = pos;
 		treasureHunt.SetSelectedPosition(StashPos);
-		
+
 		//! Create the underground stash and hide it
 		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", pos, ECE_PLACE_ON_SURFACE)))
 			return;
@@ -104,7 +104,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		Chest.ExpansionSetContainerOwner(questPlayer);
-		
+
 		//! Spawn the loot in the chest
 		EntityAI chestEntity;
 		if (!Class.CastTo(chestEntity, Chest))
@@ -114,7 +114,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		{
 			string name = treasureHunt.GetItems().GetKey(i);
 			int amount = treasureHunt.GetItems().GetElement(i);
-			
+
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Add item to chest: " + name + " x" + amount);
 		#endif
@@ -236,7 +236,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	{
 		return StashPos;
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TREASUREHUNT;

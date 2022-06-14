@@ -12,10 +12,11 @@
 
 class ExpansionQuestMenu: ExpansionScriptViewMenu
 {
-	private ref ExpansionQuestMenuController m_QuestMenuController;
+	private autoptr ExpansionQuestMenuController m_QuestMenuController;
 	private ExpansionQuestModule m_QuestModule;
-	private ref array<ref ExpansionQuestConfig> m_Quests = new array<ref ExpansionQuestConfig>;
-	private ref ExpansionQuestConfig m_SelectedQuest;
+	private autoptr array<ref ExpansionQuestConfig> m_Quests = new array<ref ExpansionQuestConfig>;
+	private autoptr ExpansionQuestConfig m_SelectedQuest;
+	private autoptr ExpansionQuestRewardConfig m_SelectedReward;
 
 	private Widget QuestListPanel;
 	private Widget QuestDetailsPanel;
@@ -29,6 +30,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	private TextWidget CloseLable;
 	private WrapSpacerWidget ButtonsPanel;
 
+	private TextWidget Reward;
 	private Widget RewardPanel;
 	private ScrollWidget ObjectiveSectionScroller;
 	private RichTextWidget Objective;
@@ -50,6 +52,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		m_QuestModule.GetQuestMenuSI().Remove(SetQuests);
 		m_QuestMenuController.Quests.Clear();
+		m_Quests.Clear();
+		
+		m_SelectedQuest = NULL;
+		m_SelectedReward = NULL;
 	}
 
 	override string GetLayoutFile()
@@ -70,8 +76,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		if (!m_QuestModule)
 			return;
 
+		m_SelectedReward = NULL;
 		ButtonsPanel.Show(false);
-		
+
 		if (quests.Count() > 0)
 		{
 			QuestListContent.Show(true);
@@ -121,7 +128,27 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	void OnCompleteButtonClick()
 	{
-		m_QuestModule.RequestTurnInQuestClient(m_SelectedQuest.GetID());
+		if (!m_SelectedQuest)
+			return;
+		
+		if (m_SelectedQuest.NeedToSelectReward())
+		{
+			if (m_SelectedReward)
+			{
+				m_QuestModule.RequestTurnInQuestClient(m_SelectedQuest.GetID(), true, m_SelectedReward);
+			}
+			else
+			{
+				StringLocaliser title = new StringLocaliser("STR_EXPANSION_QUEST_TITLE", m_SelectedQuest.GetTitle());
+				StringLocaliser text = new StringLocaliser("STR_EXPANSION_QUEST_MENU_ERROR_REWARD");
+				ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR).Create();
+			}
+		}
+		else
+		{
+			m_QuestModule.RequestTurnInQuestClient(m_SelectedQuest.GetID());
+		}
+
 		ButtonsPanel.Show(false);
 		CloseMenu();
 	}
@@ -146,6 +173,8 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		m_SelectedQuest = quest;
 		m_QuestMenuController.QuestTitle = quest.GetTitle();
+		
+		m_SelectedQuest.QuestDebug();
 
 		string description;
 		if (!hasQuestState || hasQuestState && questState == ExpansionQuestState.NONE)
@@ -182,11 +211,24 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		else if (rewardsCount > 0)
 		{
 			RewardPanel.Show(true);
+			
+			if (quest.NeedToSelectReward() && quest.GetRewards().Count() > 1)
+			{
+				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARD_LABEL");
+			}
+			else
+			{
+				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
+			}
+			
 			int overallHumanityFromAllQuests;
 			for (i = 0; i < quest.GetRewards().Count(); i++)
 			{
 				ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
 				ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount());
+				rewardEntry.SetQuestRewardConfig(reward);
+				rewardEntry.SetQuestMenu(this);
+				rewardEntry.SetIsRewardEntry(true);
 				m_QuestMenuController.RewardEntries.Insert(rewardEntry);
 
 			#ifdef EXPANSIONMODHARDLINE
@@ -249,6 +291,20 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		QuestDebug(ToString() + "::SetQuest - End");
 	}
 
+	void SetSelectedReward(ExpansionQuestRewardConfig reward)
+	{
+		m_SelectedReward = reward;
+	}
+	
+	void ResetRewardElements()
+	{
+		for (int i = 0; i < m_QuestMenuController.RewardEntries.Count(); i++)
+		{
+			ExpansionQuestMenuItemEntry entry = m_QuestMenuController.RewardEntries[i];
+			entry.Reset();
+		}
+	}
+	
 	void CloseMenu()
 	{
 		Hide();
@@ -260,6 +316,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		CloseMenu();
 	}
 
+	ref ExpansionQuestConfig GetSelectedQuest()
+	{
+		return m_SelectedQuest;
+	}
+	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		if (w == Accept)

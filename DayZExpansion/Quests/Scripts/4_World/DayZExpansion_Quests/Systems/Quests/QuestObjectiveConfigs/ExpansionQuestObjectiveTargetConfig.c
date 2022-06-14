@@ -13,7 +13,7 @@
 class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfigBase
 {
 	private vector Position = vector.Zero;
-	private float MaxDistance = 0;
+	private float MaxDistance = -1;
 	private autoptr ExpansionQuestObjectiveTarget Target;
 
 	void SetPosition(vector pos)
@@ -35,7 +35,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfigBase
 	{
 		return MaxDistance;
 	}
-	
+
 	void SetTarget(ExpansionQuestObjectiveTarget target)
 	{
 		Target = target;

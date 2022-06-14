@@ -26,7 +26,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "SetQuestConfig").Add(sender).Add(ctx);
 	#endif
-		
+
    	 	SetConfig(config);
 		GetQuestConfig().QuestDebug();
 
@@ -39,7 +39,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestStart").Add(sender).Add(ctx);
 	#endif
-		
+
 		QuestPrint(ToString() + "::OnQuestStart - Start");
 
 		if (!ObjectivesCreated())
@@ -85,9 +85,9 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestObjectivesComplete").Add(sender).Add(ctx);
 	#endif
-		
+
 		QuestPrint(ToString() + "::OnQuestObjectivesComplete - Start");
-		
+
 		if (GetQuestState() >= ExpansionQuestState.CAN_TURNIN)
 		{
 			QuestPrint(ToString() + "::OnQuestObjectivesComplete - QUEST STATE IS ALREADY TURNIN!");
@@ -99,7 +99,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 			Error(ToString() + "::OnQuestObjectivesComplete - Can't get quest module!");
 			return;
 		}
-		
+
 		if (GetPlayer())
 		{
 			if (!GetQuestConfig())
@@ -110,7 +110,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 
 			GetQuestModule().OnQuestObjectivesComplete(GetQuestConfig().GetID(), GetPlayer());
 			SetQuestState(ExpansionQuestState.CAN_TURNIN);
-			
+
 		#ifdef EXPANSIONMODNAVIGATION
 			//! Create a marker on quest npc location for the player
 			ExpansionQuestNpcData questNPC = GetQuestModule().GetQuestNPCDataByID(GetQuestConfig().GetQuestTurnInID());
@@ -118,7 +118,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 			CreateClientMarker(npcPos, "Turn-In Quest");
 		#endif
 		}
-		
+
 		QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestObjectivesComplete - End");
@@ -130,7 +130,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestObjectivesIncomplete").Add(sender).Add(ctx);
 	#endif
-		
+
 		QuestPrint(ToString() + "::OnQuestObjectivesIncomplete - Start");
 
 		if (!GetQuestModule())
@@ -159,12 +159,12 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 	}
 
 	//! Event called when ever a quest is completed and turned-in
-	override void OnQuestTurnIn()
+	override void OnQuestTurnIn(ExpansionQuestRewardConfig reward = null)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestTurnIn").Add(sender).Add(ctx);
 	#endif
-		
+
 		QuestPrint(ToString() + "::OnQuestTurnIn - Start");
 
 		if (GetQuestState() > ExpansionQuestState.CAN_TURNIN)
@@ -199,7 +199,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 			}
 
 			//! Add all quest rewards to the players inventory
-			SpawnQuestRewards();
+			SpawnQuestRewards(reward);
 
 			SendNotification(new StringLocaliser("Quest Turn-In"), new StringLocaliser("The quest %1 has been completed!", GetQuestConfig().GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
 
@@ -222,7 +222,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestCancel").Add(sender).Add(ctx);
 	#endif
-		
+
 		QuestPrint(ToString() + "::OnQuestCancel - Start");
 
 		if (GetPlayer())
@@ -349,7 +349,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 		if (complededObjectives == GetObjectives().Count()) OnQuestObjectivesComplete();
 		else if (complededObjectives < GetObjectives().Count() && GetQuestState() != ExpansionQuestState.STARTED) OnQuestObjectivesIncomplete();
 	}
-	
+
 	override bool CanCompeteQuest()
 	{
 		int complededObjectives = 0;

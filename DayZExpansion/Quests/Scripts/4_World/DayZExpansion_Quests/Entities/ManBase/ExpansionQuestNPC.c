@@ -16,7 +16,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	bool m_ActionsInitialize;
 	private ref ExpansionHumanCommandTrader_ST m_CommandTraderTable;
 	private int m_QuestNPCID = -1;
-	private ExpansionQuestNpcData m_QuestNPCData;
+	private ref ExpansionQuestNpcData m_QuestNPCData;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcBase Constructor
@@ -59,10 +59,10 @@ class ExpansionQuestNpcBase extends DayZPlayer
 		m_InputActionMap = new TInputActionMap;
 		SetActions();
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcBase GetActions
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	override void GetActions(typename action_input_type, out array<ActionBase_Basic> actions)
 	{
 		if(!m_ActionsInitialize)
@@ -70,13 +70,13 @@ class ExpansionQuestNpcBase extends DayZPlayer
 			m_ActionsInitialize = true;
 			InitializeActions();
 		}
-		
+
 		actions = m_InputActionMap.Get(action_input_type);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcBase AddAction
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void AddAction(typename actionName)
 	{
 		ActionBase action = ActionManagerBase.GetAction(actionName);
@@ -87,26 +87,26 @@ class ExpansionQuestNpcBase extends DayZPlayer
 			m_ActionsInitialize = false;
 			return;
 		}
-		
+
 		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
-		
+
 		if(!action_array)
 		{
 			action_array = new array<ActionBase_Basic>;
 			m_InputActionMap.Insert(ai, action_array);
 		}
-		action_array.Insert(action); 
+		action_array.Insert(action);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcBase RemoveAction
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void RemoveAction(typename actionName)
 	{
 		ActionBase action = ActionManagerBase.GetAction(actionName);
 		typename ai = action.GetInputType();
 		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
-		
+
 		if(action_array)
 		{
 			for(int i = 0; i < action_array.Count(); i++)
@@ -119,7 +119,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 			action_array = new array<ActionBase_Basic>;
 			m_InputActionMap.Insert(ai, action_array);
 		}
-		action_array.Insert(action); 
+		action_array.Insert(action);
 	}
 
 	// ------------------------------------------------------------
@@ -145,16 +145,16 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	{
 		return false;
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcBase CommandHandler
 	// ------------------------------------------------------------
-	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished) 
+	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT)
 		{
-			HumanCommandScript hcs = GetCommand_Script();	
-		
+			HumanCommandScript hcs = GetCommand_Script();
+
 			ExpansionHumanCommandTrader traderCommand;
 			if (Class.CastTo(traderCommand, hcs))
 			{
@@ -164,7 +164,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 
 		if (m_CommandTraderTable == NULL)
 			m_CommandTraderTable = new ExpansionHumanCommandTrader_ST(this);
-		
+
 		StartCommand_Script(new ExpansionHumanCommandTrader(this, m_CommandTraderTable));
 	}
 
@@ -174,7 +174,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	void SetQuestNPCID(int id)
 	{
 		Print(ToString() + "::SetQuestNPCID - ID: " + id);
-		
+
 		m_QuestNPCID = id;
 		SetSynchDirty();
 	}
@@ -193,7 +193,7 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	void SetQuestNPCData(ExpansionQuestNpcData questNPCData)
 	{
 		Print(ToString() + "::SetQuestNPCData - Data: " + questNPCData.ToString());
-		
+
 		m_QuestNPCData = questNPCData;
 	}
 

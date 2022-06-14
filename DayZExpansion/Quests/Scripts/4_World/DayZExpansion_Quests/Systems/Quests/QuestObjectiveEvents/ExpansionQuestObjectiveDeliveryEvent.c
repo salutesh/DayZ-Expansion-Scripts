@@ -37,13 +37,13 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 
 			ObjectivesObjects.Insert(object);
 		}
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		vector markerPosition = GetObjectiveConfig().GetPosition();
 		string markerName = GetObjectiveConfig().GetMarkerName();
 		GetQuest().CreateClientMarker(markerPosition, markerName);
 	#endif
-		
+
 		super.OnStart();
 	}
 
@@ -86,7 +86,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 
 			ObjectivesObjects.Insert(object);
 		}
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		vector markerPosition = GetObjectiveConfig().GetPosition();
 		string markerName = GetObjectiveConfig().GetMarkerName();
@@ -168,7 +168,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 
 		return true;
 	}
-	
+
 #ifdef EXPANSIONMODNAVIGATION
 	override void OnRecreateClientMarkers()
 	{
@@ -183,7 +183,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 #endif
-	
+
 	override void OnUpdate(float timeslice)
 	{
 		if (!GetObjectiveConfig() || !GetQuest() || !GetQuest().GetPlayer() || !IsInitialized())
@@ -195,7 +195,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 			vector position = GetObjectiveConfig().GetPosition();
 			float maxDistance = GetObjectiveConfig().GetMaxDistance();
 			float currentDistance;
-	
+
 			//! Set the position of the group member that has the shortest distance to the target location
 			//! as our current position if the quest is a group quest.
 			array<vector> groupMemberPos = new array<vector>;
@@ -205,20 +205,20 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				ExpansionPartyData group = GetQuest().GetGroup();
 				if (!group)
 					return;
-	
+
 				for (int i = 0; i < group.GetPlayers().Count(); i++)
 				{
 					ExpansionPartyPlayerData playerGroupData = group.GetPlayers()[i];
 					if (!playerGroupData)
 						continue;
-	
+
 					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 					if (!groupPlayer)
 						continue;
-	
+
 					groupMemberPos.Insert(groupPlayer.GetPosition());
 				}
-	
+
 				float smallestDistance;
 				int posIndex;
 				bool firstSet = false;
@@ -238,7 +238,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 						posIndex = p;
 					}
 				}
-	
+
 				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 			#endif
 			}
@@ -247,12 +247,12 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				vector playerPos = GetQuest().GetPlayer().GetPosition();
 				currentDistance = vector.Distance(playerPos, position);
 			}
-	
+
 			position[1] = GetGame().SurfaceY(position[0], position[2]);
-	
+
 			if (maxDistance < 10)
 				maxDistance = 10.0;
-			
+
 			if (position != vector.Zero && currentDistance <= maxDistance && HasAllObjectivesItems())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -269,11 +269,11 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(false);
 				OnIncomplete();
 			}
-			
+
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.DELIVERY;

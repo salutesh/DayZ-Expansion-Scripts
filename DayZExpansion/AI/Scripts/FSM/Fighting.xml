@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<fsm name="Fighting">
+<fsm name="Fighting" type="eAI">
 	<files />
 	<variables>
 		<variable name="LastFireTime" type="int" />
@@ -130,7 +130,7 @@
 				<variable name="target" type="eAITarget" />
 			</variables>
 			<editor_data>
-				<position x="600" y="711" />
+				<position x="618.636363636364" y="715.727272727273" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -178,7 +178,7 @@
 				<variable name="movementDirection" type="float" />
 			</variables>
 			<editor_data>
-				<position x="1164" y="715" />
+				<position x="1155" y="711" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -194,8 +194,7 @@
 					unit.Expansion_CloneItemToInventory(hands);
 				}
 			</event_entry>
-			<event_exit>
-			</event_exit>
+			<event_exit />
 			<event_update>
 				if (!target)
 					return EXIT;
@@ -268,8 +267,8 @@
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="1238" y="684" />
-				<position_destination x="1237" y="715" />
+				<position_source x="1229" y="680" />
+				<position_destination x="1228" y="711" />
 			</editor_data>
 			<guard>
 				// we are targetting an entity?
@@ -287,8 +286,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="678" y="683" />
-				<position_destination x="678" y="711" />
+				<position_source x="696.636363636364" y="687.727272727273" />
+				<position_destination x="696.636363636364" y="715.727272727273" />
 			</editor_data>
 			<guard>
 				// we are aiming at something?

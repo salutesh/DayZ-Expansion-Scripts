@@ -60,58 +60,12 @@ class ExpansionQuestObjectiveTarget
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(Amount);
-
-		/*int i;
-
-		int namesCount = ClassNames.Count();
-		ctx.Write(namesCount);
-
-		for (i = 0; i < namesCount; i++)
-		{
-			ctx.Write(ClassNames[i]);
-		}
-
-		int allowedCount = AllowedWeapons.Count();
-		ctx.Write(allowedCount);
-
-		for (i = 0; i < allowedCount; i++)
-		{
-			ctx.Write(AllowedWeapons[i]);
-		}*/
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!ctx.Read(Amount))
 			return false;
-
-		/*int i;
-
-		int namesCount;
-		if (!ctx.Read(namesCount))
-			return false;
-
-		for (i = 0; i < namesCount; i++)
-		{
-			string name;
-			if (!ctx.Read(name))
-				return false;
-
-			AddClassName(name);
-		}
-
-		int allowedCount;
-		if (!ctx.Read(allowedCount))
-			return false;
-
-		for (i = 0; i < allowedCount; i++)
-		{
-			string allowed;
-			if (!ctx.Read(allowed))
-				return false;
-
-			AddAllowedWeapon(name);
-		}*/
 
 		return true;
 	}

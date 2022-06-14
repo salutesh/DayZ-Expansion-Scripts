@@ -34,7 +34,7 @@ modded class JMPlayerForm
 		m_PositionX.SetText(position[0].ToString());
 		m_PositionY.SetText(position[1].ToString());
 		m_PositionZ.SetText(position[2].ToString());
-		
+
         GetGame().CopyToClipboard("<" + position[0].ToString() + ", " + position[1].ToString() + ", " + position[2].ToString() + ">");
         StringLocaliser title = new StringLocaliser("Community Online Tools");
 		StringLocaliser text = new StringLocaliser("Copied position of selected player to clipboard. Position: (" + position[0].ToString() + ", " + position[1].ToString() + ", " + position[2].ToString() + ")");

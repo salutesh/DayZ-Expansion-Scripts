@@ -10,13 +10,8 @@
  *
 */
 
-/**@class		ExpansionQuestSettings
- * @brief		Vehicle settings class
- **/
-class ExpansionQuestSettings: ExpansionSettingBase
+class ExpansionQuestSettingsBase: ExpansionSettingBase
 {
-	static const int VERSION = 0;
-
 	bool EnableQuests;
 	bool EnableQuestLogTab;
 	bool CreateQuestNPCMarkers;
@@ -34,13 +29,27 @@ class ExpansionQuestSettings: ExpansionSettingBase
 	string QuestObjectiveCompletedText;
 	string AchivementCompletedTitle;
 	string AchivementCompletedText;
+}
 
+/**@class		ExpansionQuestSettings
+ * @brief		Vehicle settings class
+ **/
+class ExpansionQuestSettings: ExpansionQuestSettingsBase
+{
+	static const int VERSION = 1;
+	
+	string WeeklyQuestResetDay;
+	int WeeklyQuestResetHour;
+	int WeeklyQuestResteMinute;
+	int DailyQuestResetHour;
+	int DailyQuestResetMinute;
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
 	void ExpansionQuestSettings()
 	{
-		
+
 	}
 
 	// ------------------------------------------------------------
@@ -123,7 +132,7 @@ class ExpansionQuestSettings: ExpansionSettingBase
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal(ref ExpansionQuestSettings s)
+	private void CopyInternal(ref ExpansionQuestSettingsBase s)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
@@ -132,27 +141,46 @@ class ExpansionQuestSettings: ExpansionSettingBase
 		EnableQuests = s.EnableQuests;
 		EnableQuestLogTab = s.EnableQuestLogTab;
 		CreateQuestNPCMarkers = s.CreateQuestNPCMarkers;
-		
+
 		QuestAcceptedTitle = s.QuestAcceptedTitle;
 		QuestAcceptedText = s.QuestAcceptedText;
-		
+
 		QuestCompletedTitle = s.QuestCompletedTitle;
 		QuestCompletedText = s.QuestCompletedText;
-		
+
 		QuestFailedTitle = s.QuestFailedTitle;
 		QuestFailedText = s.QuestFailedText;
-		
+
 		QuestCanceledTitle = s.QuestCanceledTitle;
 		QuestCanceledText = s.QuestCanceledText;
-		
+
 		QuestTurnInTitle = s.QuestTurnInTitle;
 		QuestTurnInText = s.QuestTurnInText;
-		
+
 		QuestObjectiveCompletedTitle = s.QuestObjectiveCompletedTitle;
 		QuestObjectiveCompletedText = s.QuestObjectiveCompletedText;
-		
+
 		AchivementCompletedTitle = s.AchivementCompletedTitle;
 		AchivementCompletedText = s.AchivementCompletedText;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestSettings CopyInternal
+	// ------------------------------------------------------------	
+	private void CopyInternal(ref ExpansionQuestSettings s)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+		
+		WeeklyQuestResetDay = s.WeeklyQuestResetDay;
+		WeeklyQuestResetHour = s.WeeklyQuestResetHour;
+		WeeklyQuestResteMinute = s.WeeklyQuestResteMinute;
+		DailyQuestResetHour = s.DailyQuestResetHour;
+		DailyQuestResetMinute = s.DailyQuestResetMinute;
+		
+		ExpansionQuestSettingsBase sb = s;
+		CopyInternal( sb );
 	}
 
 	// ------------------------------------------------------------
@@ -181,14 +209,41 @@ class ExpansionQuestSettings: ExpansionSettingBase
 #endif
 
 		m_IsLoaded = true;
-
+		
 		bool save;
-
 		bool questSettingsExist = FileExist(EXPANSION_QUEST_SETTINGS);
-
 		if (questSettingsExist)
 		{
-			JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
+			ExpansionQuestSettings settingsDefault = new ExpansionQuestSettings;
+			settingsDefault.Defaults();
+			
+			ExpansionQuestSettingsBase settingsBase;
+			JsonFileLoader<ExpansionQuestSettingsBase>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, settingsBase);
+			if (settingsBase.m_Version < VERSION)
+			{
+				if (settingsBase.m_Version < 1)
+				{
+					WeeklyQuestResetDay = settingsDefault.WeeklyQuestResetDay;
+					WeeklyQuestResetHour = settingsDefault.WeeklyQuestResetHour;
+					WeeklyQuestResteMinute = settingsDefault.WeeklyQuestResteMinute;
+					DailyQuestResetHour = settingsDefault.DailyQuestResetHour;
+					DailyQuestResetMinute = settingsDefault.DailyQuestResetMinute;
+				}
+				else
+				{
+					JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
+				}
+				
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+
+				m_Version = VERSION;
+				save = true;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
+			}
 		}
 		else
 		{
@@ -244,27 +299,33 @@ override void Update( ExpansionSettingBase setting )
 		EnableQuests = true;
 		EnableQuestLogTab = true;
 		CreateQuestNPCMarkers = true;
-		
+
 		QuestAcceptedTitle = "Quest Accepted";
 		QuestAcceptedText = "The quest %1 has been accepted!";
-		
+
 		QuestCompletedTitle = "Quest Completed";
 		QuestCompletedText = "All objectives of the quest %1 have been completed";
-		
+
 		QuestFailedTitle = "Quest Failed";
 		QuestFailedText = "The quest %1 failed!";
-		
+
 		QuestCanceledTitle = "Quest Canceled";
 		QuestCanceledText = "The quest %1 has been canceled!";
-		
+
 		QuestTurnInTitle = "Quest Turn-In";
 		QuestTurnInText = "The quest %1 has been completed!";
-		
+
 		QuestObjectiveCompletedTitle = "Objective Completed";
 		QuestObjectiveCompletedText = "You have completed the objective %1 of the quest %2.";
-		
+
 		AchivementCompletedTitle = "Achievement \"%1\" completed!";
 		AchivementCompletedText = "You have completed the achievement %1";
+		
+		WeeklyQuestResetDay = "Wednesday";
+		WeeklyQuestResetHour = 8;
+		WeeklyQuestResteMinute = 0;
+		DailyQuestResetHour = 8;
+		DailyQuestResetMinute = 0;
 	}
 
 	// ------------------------------------------------------------

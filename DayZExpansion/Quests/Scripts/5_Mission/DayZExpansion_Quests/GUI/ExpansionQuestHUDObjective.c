@@ -20,15 +20,15 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	private TextWidget ObjectiveName;
 	private TextWidget ObjectiveTarget;
 	private TextWidget ObjectiveValue;
-	
+
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectivePlayerData objective, ExpansionQuestConfig questConfig)
 	{
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
-		
+
 		m_Objective = objective;
 		m_Quest = questConfig;
 	}
-	
+
 	void ~ExpansionQuestHUDObjective()
 	{
 		m_QuestHUDObjectiveController.DeliveryEnties.Clear();
@@ -43,17 +43,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	{
 		return ExpansionQuestHUDObjectiveController;
 	}
-	
+
 	void SetEntryObjective()
 	{
 		QuestPrint(ToString() + "::SetEntryObjective - Start");
 		QuestPrint(ToString() + "::SetEntryObjective - objective type is: " + m_Objective.GetObjectiveType());
-				
+
 		if (!m_QuestHUDObjectiveController)
 			m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
-		
+
 		Spacer.SetColor(GetQuestColor(m_Quest));
-		
+
 		vector objectivePos;
 		vector playerPos;
 		int currentDistance;
@@ -65,10 +65,10 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			return;
 
 		QuestPrint(ToString() + "::SetEntryObjective - Objective config: " + objectiveConfigBase);
-		
+
 		if (objectiveConfigBase.GetObjectiveText() != string.Empty) m_QuestHUDObjectiveController.ObjectiveName = objectiveConfigBase.GetObjectiveText();
 		else ObjectiveName.Show(false);
-		
+
 		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
 
 		switch (objectiveConfigBase.GetObjectiveType())
@@ -87,7 +87,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntryObjective - TARGET - ADDED");
 			}
 			break;
-			
+
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TRAVEL");
@@ -101,7 +101,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntryObjective - TRAVEL - ADDED");
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - COLLECT");
@@ -121,7 +121,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				}
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TREASUREHUNT");
@@ -146,13 +146,13 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				}
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - DELIVERY");
 				m_QuestHUDObjectiveController.ObjectiveTarget = "Deliver:";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-			
+
 				objectivePos = m_Objective.GetObjectivePosition();
 				playerPos = GetGame().GetPlayer().GetPosition();
 				currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
@@ -174,46 +174,46 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				}
 			}
 			break;
-			
+
 		#ifdef EXPANSIONMODAI
 			case ExpansionQuestObjectiveType.AIPATROL:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AIPATROL");
 				m_QuestHUDObjectiveController.ObjectiveTarget = "Killed:";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-	
+
 				count = m_Objective.GetObjectiveCount();
 				amount = m_Objective.GetObjectiveAmount();
-	
+
 				QuestPrint(ToString() + "::SetEntryObjective - Count: " + count);
 				QuestPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-	
+
 				m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				
+
 				QuestPrint(ToString() + "::SetEntryObjective - AIPATROL - ADDED");
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.AICAMP:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AICAMP");
 				m_QuestHUDObjectiveController.ObjectiveTarget = "Killed:";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-	
+
 				count = m_Objective.GetObjectiveCount();
 				amount = m_Objective.GetObjectiveAmount();
-	
+
 				QuestPrint(ToString() + "::SetEntryObjective - Count: " + count);
 				QuestPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-	
+
 				m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				
+
 				QuestPrint(ToString() + "::SetEntryObjective - AICAMP - ADDED");
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.AIVIP:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AIVIP");
@@ -229,7 +229,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			break;
 		#endif
 		}
-		
+
 		QuestPrint(ToString() + "::SetEntryObjective - End");
 	}
 
@@ -247,7 +247,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 		return NULL;
 	}
-	
+
 	private int GetQuestColor(ExpansionQuestConfig quest)
 	{
 		int color;

@@ -1,15 +1,17 @@
 PanelWidgetClass ExpansionQuestMenuRewardEntry {
  visible 1
+ ignorepointer 1
  position 0 0
- size 1 165
+ size 135 165
  hexactpos 0
  vexactpos 0
- hexactsize 0
+ hexactsize 1
  vexactsize 1
  scriptclass "ExpansionQuestMenuItemEntryController"
  style blank
  {
   ButtonWidgetClass reward_item_button {
+   ignorepointer 0
    color 0.8627 0.8627 0.8627 1
    size 1 1
    halign center_ref
@@ -18,8 +20,8 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
    hexactsize 0
    vexactsize 0
    priority 1
-   scriptclass ""
-   style Empty
+   scriptclass "ViewBinding"
+   style Default
    {
     PanelWidgetClass reward_item_preview_container {
      ignorepointer 1
@@ -71,6 +73,7 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
      {
       PanelWidgetClass reward_item_header_background {
        visible 1
+       ignorepointer 1
        color 0.1059 0.1059 0.1059 0.9412
        size 1 1
        halign center_ref
@@ -124,6 +127,7 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
      {
       PanelWidgetClass reward_item_footer_background {
        visible 1
+       ignorepointer 1
        color 0.1059 0.1059 0.1059 0.9412
        size 1 1
        halign center_ref
@@ -164,9 +168,15 @@ PanelWidgetClass ExpansionQuestMenuRewardEntry {
      }
     }
    }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnItemButtonClick"
+    }
+   }
   }
   PanelWidgetClass market_item_background {
    visible 1
+   ignorepointer 1
    color 0.1059 0.1059 0.1059 0.7843
    size 1 1
    halign center_ref

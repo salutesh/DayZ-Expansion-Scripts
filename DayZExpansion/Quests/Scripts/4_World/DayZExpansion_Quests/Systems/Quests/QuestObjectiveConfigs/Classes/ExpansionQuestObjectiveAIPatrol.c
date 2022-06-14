@@ -93,7 +93,7 @@ class ExpansionQuestObjectiveAIPatrol
 	{
 		return Waypoints;
 	}
-	
+
 	void AddClassName(string name)
 	{
 		ClassNames.Insert(name);

@@ -112,20 +112,6 @@ class ExpansionQuestPlayerData
 		}
 	}
 
-	/*void UpdatedObjectives(int questID, array<ref ExpansionQuestObjectivePlayerData> objectives)
-	{
-		foreach (ExpansionQuestObjectivePlayerData currentObjective: QuestObjectives)
-		{
-			if (currentObjective && currentObjective.GetQuestID() == questID)
-				QuestObjectives.RemoveItem(currentObjective);
-		}
-
-		foreach (ExpansionQuestObjectivePlayerData newObjective: objectives)
-		{
-			QuestObjectives.Insert(newObjective);
-		}
-	}*/
-	
 	void UpdateObjective(int questID, int objectiveIndex, ExpansionQuestObjectivePlayerData newData)
 	{
 		foreach (ExpansionQuestObjectivePlayerData currentObjective: QuestObjectives)
@@ -134,14 +120,14 @@ class ExpansionQuestPlayerData
 			{
 				if (currentObjective.GetQuestID() != questID)
 					continue;
-				
+
 				if (currentObjective.GetObjectiveIndex() != objectiveIndex)
 					continue;
-				
+
 				QuestObjectives.RemoveItem(currentObjective);
 			}
 		}
-		
+
 		QuestObjectives.Insert(newData);
 	}
 
@@ -149,7 +135,7 @@ class ExpansionQuestPlayerData
 	{
 		return QuestObjectives;
 	}
-	
+
 	void Save(string fileName)
 	{
 		if (CleanupQuestStates()) //! Cleanup all quest states that have no state
@@ -217,7 +203,7 @@ class ExpansionQuestPlayerData
 	{
 		if (!m_QuestModule)
 			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		
+
 		ExpansionQuestConfig questConfig = m_QuestModule.GetQuestConfigByID(questID);
 		if (!questConfig)
 		{
@@ -234,7 +220,7 @@ class ExpansionQuestPlayerData
 			timestamp = stamp;
 			if (timestamp.GetQuestID() == questID)
 			{
-				if (questConfig.IsDaylieQuest())
+				if (questConfig.IsDailyQuest())
 				{
 					return HasCooldown(questConfig.GetID(), daylie, remaining);
 				}
@@ -259,7 +245,7 @@ class ExpansionQuestPlayerData
 	void OnSend(ParamsWriteContext ctx)
 	{
 		int i;
-		
+
 		//! Quest objective states
 		int objectivesCount = QuestObjectives.Count();
 		ctx.Write(objectivesCount);
@@ -270,7 +256,7 @@ class ExpansionQuestPlayerData
 			if (objective)
 				objective.OnSend(ctx);
 		}
-		
+
 		//! Quest states
 		int statesCount = QuestStates.Count();
 		ctx.Write(statesCount);
@@ -279,7 +265,7 @@ class ExpansionQuestPlayerData
 		{
 			int idc = QuestStates.GetKey(i);
 			int state = QuestStates.GetElement(i);
-			
+
 			ctx.Write(idc);
 			ctx.Write(state);
 		}
@@ -287,7 +273,7 @@ class ExpansionQuestPlayerData
 		//! Quest cooldowns
 		int cooldownCount = QuestTimestamps.Count();
 		ctx.Write(cooldownCount);
-		
+
 		for (i = 0; i < QuestTimestamps.Count(); i++)
 		{
 			ExpansionQuestTimestampPlayerData timestampData = QuestTimestamps.Get(i);
@@ -306,13 +292,13 @@ class ExpansionQuestPlayerData
 			Error(ToString() + "::OnRecieve - objectivesCount");
 			return false;
 		}
-		
+
 		if (!QuestObjectives)
 		{
 			QuestObjectives = new array<ref ExpansionQuestObjectivePlayerData>;
 		}
 		else
-		{		
+		{
 			QuestObjectives.Clear();
 		}
 
@@ -334,7 +320,7 @@ class ExpansionQuestPlayerData
 			Error(ToString() + "::OnRecieve - statesCount");
 			return false;
 		}
-		
+
 		if (!QuestStates)
 		{
 			QuestStates = new map<int, int>;
@@ -369,13 +355,13 @@ class ExpansionQuestPlayerData
 			Error(ToString() + "::OnRecieve - cooldownCount");
 			return false;
 		}
-		
+
 		if (!QuestTimestamps)
 		{
 			QuestTimestamps = new array<ref ExpansionQuestTimestampPlayerData>;
 		}
 		else
-		{		
+		{
 			QuestTimestamps.Clear();
 		}
 

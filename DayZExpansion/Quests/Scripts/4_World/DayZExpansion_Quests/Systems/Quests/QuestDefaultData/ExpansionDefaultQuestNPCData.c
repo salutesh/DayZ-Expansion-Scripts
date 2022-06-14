@@ -13,34 +13,29 @@
 class ExpansionDefaultQuestNPCData
 {
 	private string m_WorldName;
-	
+
 	void ExpansionDefaultQuestNPCData(string worldName)
 	{
 		m_WorldName = worldName;
 	}
-	
+
 	 ExpansionQuestNpcData QuestNPCData_1()
 	{
 		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
 		questNPC.SetID(1); //! Unique NPC ID
 		questNPC.SetName("ExpansionNpcDenis"); //! Class name of the NPC entity
-		
+
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(1);
 		questIDs.Insert(3);
-		questIDs.Insert(4);
-		questIDs.Insert(5);
-		questIDs.Insert(6); //! AI patrol test quest [WIP]
-		questIDs.Insert(7); //! AI camp test quest [WIP]
-		questIDs.Insert(8);
 		questIDs.Insert(22);
 		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/ACCEPTABLE_DISTANCE
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			questNPC.SetPosition(Vector(8584.27, 14.73, 10511.6)); //! Quest NPC position
 			questNPC.SetOrientation(Vector(200.0, 0, 0)); //! Quest NPC orientation
-		
+
 		#ifdef EXPANSIONMODAI
 			questNPC.SetName("ExpansionQuestNpcAIDenis"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
@@ -51,7 +46,7 @@ class ExpansionDefaultQuestNPCData
 		{
 			questNPC.SetPosition(Vector(3706.27, 402.012, 5987.08)); //! Quest NPC position
 			questNPC.SetOrientation(Vector(282.0, 0, 0)); //! Quest NPC orientation
-			
+
 		#ifdef EXPANSIONMODAI
 			questNPC.SetName("ExpansionQuestNpcAIDenis"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
@@ -59,18 +54,7 @@ class ExpansionDefaultQuestNPCData
 		#endif
 		}
 
-		TStringArray gear = new TStringArray;
-		gear.Insert("GasMask");
-		gear.Insert("NBCJacketGray");
-		gear.Insert("Shirt_GreenCheck");
-		gear.Insert("NBCPantsGray");
-		gear.Insert("CombatBoots_Brown");
-		gear.Insert("M4A1");
-		gear.Insert("Mag_STANAG_60Rnd");
-		gear.Insert("M4_CQBBttstck");
-		gear.Insert("M4_MPHndgrd");
-		gear.Insert("ACOGOptic");
-		questNPC.SetGear(gear); //! Quest NPC gear
+		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
 
 		questNPC.SetNPCName("Peter");
 		questNPC.SetDefaultNPCText("Hm?");
@@ -91,12 +75,12 @@ class ExpansionDefaultQuestNPCData
 		questIDs.Insert(22);
 		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/accept
 		questNPC.SetOrientation(Vector(-10.0, 0, 0)); //! Quest NPC orientation
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			questNPC.SetPosition(Vector(8348.39, 15.1237, 10724.7)); //! Quest NPC position
 			questNPC.SetOrientation(Vector(-10.0, 0, 0)); //! Quest NPC orientation
-			
+
 		#ifdef EXPANSIONMODAI
 			questNPC.SetName("ExpansionQuestNpcAIElias"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
@@ -107,26 +91,17 @@ class ExpansionDefaultQuestNPCData
 		{
 			questNPC.SetPosition(Vector(3192.2, 296.707, 6093.31)); //! Quest NPC position
 			questNPC.SetOrientation(Vector(145.0, 0, 0)); //! Quest NPC orientation
-			
+
 		#ifdef EXPANSIONMODAI
 			questNPC.SetName("ExpansionQuestNpcAIElias"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3192.2, 296.707, 6093.31));
+			questNPC.SetEmoteID(EmoteConstants.ID_EMOTE_SITA);
+			questNPC.SetIsEmoteStatic(true);
 		#endif
 		}
 
-		TStringArray gear = new TStringArray;
-		gear.Insert("GasMask");
-		gear.Insert("NBCJacketGray");
-		gear.Insert("Shirt_GreenCheck");
-		gear.Insert("NBCPantsGray");
-		gear.Insert("CombatBoots_Brown");
-		gear.Insert("M4A1");
-		gear.Insert("Mag_STANAG_60Rnd");
-		gear.Insert("M4_CQBBttstck");
-		gear.Insert("M4_MPHndgrd");
-		gear.Insert("ACOGOptic");
-		questNPC.SetGear(gear); //! Quest NPC gear
+		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
 
 		questNPC.SetNPCName("Steve");
 		questNPC.SetDefaultNPCText("What do you want? I am bussy...");
@@ -152,18 +127,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetPosition(Vector(8563.02, 14.8878, 10537.7)); //! Quest NPC position
 		questNPC.SetOrientation(Vector(4.81, 0, 0)); //! Quest NPC orientation
 
-		TStringArray gear = new TStringArray;
-		gear.Insert("GasMask");
-		gear.Insert("NBCJacketGray");
-		gear.Insert("Shirt_GreenCheck");
-		gear.Insert("NBCPantsGray");
-		gear.Insert("CombatBoots_Brown");
-		gear.Insert("M4A1");
-		gear.Insert("Mag_STANAG_60Rnd");
-		gear.Insert("M4_CQBBttstck");
-		gear.Insert("M4_MPHndgrd");
-		gear.Insert("ACOGOptic");
-		questNPC.SetGear(gear); //! Quest NPC gear
+		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
 
 		questNPC.SetNPCName("Jose");
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
@@ -197,18 +161,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetPosition(Vector(8597.82, 14.9004, 10493.3)); //! Quest NPC position
 		questNPC.SetOrientation(Vector(-91.50, 0, 0)); //! Quest NPC orientation
 
-		TStringArray gear = new TStringArray;
-		gear.Insert("GasMask");
-		gear.Insert("NBCJacketGray");
-		gear.Insert("Shirt_GreenCheck");
-		gear.Insert("NBCPantsGray");
-		gear.Insert("CombatBoots_Brown");
-		gear.Insert("M4A1");
-		gear.Insert("Mag_STANAG_60Rnd");
-		gear.Insert("M4_CQBBttstck");
-		gear.Insert("M4_MPHndgrd");
-		gear.Insert("ACOGOptic");
-		questNPC.SetGear(gear); //! Quest NPC gear
+		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
 
 		questNPC.SetNPCName("Guillaume");
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
@@ -225,4 +178,34 @@ class ExpansionDefaultQuestNPCData
 		return questNPC;
 	}
 #endif
+	
+	//! Static Quest Object
+	ExpansionQuestNpcData QuestNPCData_5()
+	{
+		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
+		questNPC.SetID(5); //! Unique NPC ID
+		questNPC.SetName("ExpansionQuestObjectBoard"); //! Class name of the NPC entity
+		questNPC.SetIsStatic(true);
+
+		array<int> questIDs = new array<int>;
+		questIDs.Insert(4);
+		questIDs.Insert(5);
+		questIDs.Insert(6); //! AI patrol test quest [WIP]
+		questIDs.Insert(7); //! AI camp test quest [WIP]
+		questIDs.Insert(8);
+		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/accept
+
+		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
+
+		questNPC.SetNPCName("Blackboard");
+		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
+
+		if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplus")
+		{
+			questNPC.SetPosition(Vector(3706.91, 402.0, 5983.5)); //! Quest NPC position
+			questNPC.SetOrientation(Vector(80.0, 0, 0)); //! Quest NPC orientation
+		}
+
+		return questNPC;
+	}
 };

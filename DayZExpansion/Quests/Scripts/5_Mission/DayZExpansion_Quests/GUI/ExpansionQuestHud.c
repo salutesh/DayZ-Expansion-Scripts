@@ -31,18 +31,18 @@ class ExpansionQuestHUD: ExpansionScriptView
 	void SetView(ExpansionQuestPlayerData playerData)
 	{
 		QuestPrint(ToString() + "::SetView - Start");
-		
+
 		m_QuestEntries.Clear();
-		
+
 		if (!playerData || !playerData.GetQuestStates())
 			return;
-		
+
 		if (playerData.GetQuestStates().Count() == 0)
 			return;
-		
+
 		if (!m_QuestModule)
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-					
+
 		if (!m_QuestEntries)
 		{
 			m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
@@ -61,7 +61,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 				ExpansionQuestConfig questConfig = m_QuestModule.GetQuestConfigClientByID(questID);
 				if (!questConfig || questConfig.IsAchivement())
 					continue;
-	
+
 				QuestPrint(ToString() + "::SetView - Quest config: " + questConfig);
 				QuestPrint(ToString() + "::SetView - Add new entry for quest: " + questID);
 
@@ -72,11 +72,11 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 				int findeIndexHidden = -1;
 				findeIndexHidden = m_HiddenIDs.Find(questID);
-				if (findeIndexHidden == -1) 
+				if (findeIndexHidden == -1)
 				{
 					entry.Show();
 				}
-				else 
+				else
 				{
 					entry.Hide();
 				}

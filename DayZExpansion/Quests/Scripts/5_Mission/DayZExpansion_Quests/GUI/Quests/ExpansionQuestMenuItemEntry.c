@@ -16,6 +16,9 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	private string m_ClassName;
 	private int m_Amount;
 	private ref ExpansionItemTooltip m_ItemTooltip;
+	private bool m_IsRewardEntry = false;
+	private ExpansionQuestMenu m_QuestMenu;
+	private ExpansionQuestRewardConfig m_QuestRewardConfig;
 
 	private ButtonWidget reward_item_button;
 	EntityAI m_Object;
@@ -49,7 +52,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	{
 		if (m_ClassName == string.Empty)
 			return;
-
+		
 		m_QuestMenuItemEntryController.ItemName = ExpansionStatic.GetItemDisplayNameWithType(m_ClassName);
 		m_QuestMenuItemEntryController.NotifyPropertyChanged("ItemName");
 
@@ -61,6 +64,27 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 
 		m_QuestMenuItemEntryController.Preview = m_Object;
 		m_QuestMenuItemEntryController.NotifyPropertyChanged("Preview");
+	}
+	
+	void OnItemButtonClick()
+	{
+		if (!m_IsRewardEntry || !m_QuestMenu || !m_QuestRewardConfig)
+			return;
+		
+		if (!m_QuestMenu.GetSelectedQuest())
+			return;
+		
+		if (!m_QuestMenu.GetSelectedQuest().NeedToSelectReward())
+			return;
+				
+		m_QuestMenu.ResetRewardElements();
+		reward_item_button.SetColor(ARGB(140, 226, 65, 66));
+		m_QuestMenu.SetSelectedReward(m_QuestRewardConfig);
+	}
+	
+	void Reset()
+	{
+		reward_item_button.SetColor(ARGB(0, 0, 0, 0));
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -80,7 +104,32 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 
 		return super.OnMouseEnter(w, x, y);
 	}
+	
+	void SetQuestMenu(ExpansionQuestMenu questMenu)
+	{
+		m_QuestMenu = questMenu;
+	}
+	
+	void SetIsRewardEntry(bool state)
+	{
+		m_IsRewardEntry = state;
+	}
 
+	bool IsRewardEntry()
+	{
+		return m_IsRewardEntry;
+	}
+	
+	void SetQuestRewardConfig(ExpansionQuestRewardConfig config)
+	{
+		m_QuestRewardConfig = config;
+	}
+	
+	ButtonWidget GetItemButton()
+	{
+		return reward_item_button;
+	}
+	
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		switch (w)

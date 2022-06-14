@@ -113,7 +113,7 @@ class ExpansionQuestObjectivePlayerData
 	{
 		return IsCompleted;
 	}
-	
+
 	void SetActive(bool state)
 	{
 		IsActive = state;
@@ -179,7 +179,7 @@ class ExpansionQuestObjectivePlayerData
 
 		if (!ctx.Read(IsCompleted))
 			return false;
-		
+
 		if (!ctx.Read(IsActive))
 			return false;
 

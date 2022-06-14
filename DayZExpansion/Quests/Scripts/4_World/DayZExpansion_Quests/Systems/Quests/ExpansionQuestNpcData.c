@@ -10,23 +10,40 @@
  *
 */
 
-class ExpansionQuestNpcData
+class ExpansionQuestNpcDataBase
 {
-	private int ID;
-	private string ClassName;
-	private bool IsAI = false;
-	private vector Position;
-	private vector Orientation;
-	private ref TStringArray Gear = new TStringArray;
-	private ref array<int> QuestIDs = new array<int>;
-	private string NPCName = "Unknown";
-	private string DefaultNPCText = "What do you want? Leave me alown..!";
+	int ConfigVersion;
+	int ID;
+	string ClassName;
+	bool IsAI;
+	vector Position;
+	vector Orientation;
+	ref array<int> QuestIDs = new array<int>;
+	string NPCName = "Unknown";
+	string DefaultNPCText = "What do you want? Leave me alown..!";
 
 #ifdef EXPANSIONMODAI
-	private ref array<vector> Waypoints = new array<vector>;
-	private int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
+	ref array<vector> Waypoints = new array<vector>;
+	int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
 #endif
+}
 
+class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
+{
+	[NonSerialized()]
+	static int CONFIGVERSION = 1;
+	
+#ifdef EXPANSIONMODAI
+	bool NPCEmoteIsStatic;
+#endif
+	string NPCLoadoutFile;
+	bool IsStatic;
+	
+	void ExpansionQuestNpcData()
+	{
+		ConfigVersion = 1;
+	}
+	
 	void SetID(int id)
 	{
 		ID = id;
@@ -87,14 +104,14 @@ class ExpansionQuestNpcData
 		return Orientation;
 	}
 
-	void SetGear(TStringArray gear)
+	void SetLoadoutFile(string fileName)
 	{
-		Gear.InsertAll(gear);
+		NPCLoadoutFile = fileName;
 	}
-
-	TStringArray GetGear()
+	
+	string GetLoadoutFile()
 	{
-		return Gear;
+		return NPCLoadoutFile;
 	}
 
 	void SetNPCName(string name)
@@ -118,6 +135,16 @@ class ExpansionQuestNpcData
 	}
 
 #ifdef EXPANSIONMODAI
+	void SetIsEmoteStatic(bool state)
+	{
+		NPCEmoteIsStatic = state;
+	}
+	
+	bool IsEmoteStatic()
+	{
+		return NPCEmoteIsStatic;
+	}
+	
 	void AddWaypoint(vector waypoint)
 	{
 		Waypoints.Insert(waypoint);
@@ -138,6 +165,16 @@ class ExpansionQuestNpcData
 		return NPCEmoteID;
 	}
 #endif
+	
+	void SetIsStatic(bool state)
+	{
+		IsStatic = state;
+	}
+	
+	bool IsStatic()
+	{
+		return IsStatic;
+	}
 
 	ExpansionQuestNpcBase SpawnNPC()
 	{
@@ -151,33 +188,7 @@ class ExpansionQuestNpcData
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNpcBase questNPC = ExpansionQuestNpcBase.Cast(enity);
-
-		for (int i = 0; i < GetGear().Count(); i++)
-		{
-			array<string> items = new array<string>;
-			GetGear()[i].Split("+", items);
-			EntityAI itemEnt = NULL;
-			
-			//! Spawn weapon in hands
-			if (questNPC.IsInherited(Man) && GetGame().ConfigIsExisting("CfgVehicles " + items[0] + " suicideAnim") || GetGame().IsKindOf(items[0], "Rifle_Base") || GetGame().IsKindOf(items[0], "Pistol_Base") || GetGame().IsKindOf(items[0], "Archery_Base") || GetGame().IsKindOf(items[0], "Launcher_Base"))
-				itemEnt = questNPC.GetHumanInventory().CreateInHands(items[0]);
-			
-			//! Spawn everything else in inventory
-			if (!itemEnt)
-				itemEnt = questNPC.GetInventory().CreateInInventory(items[0]);
-			
-			ItemBase itemBase = ItemBase.Cast(itemEnt);
-			if (itemEnt)
-			{
-				for (int j = 1; j < items.Count(); j++)
-				{
-					if (itemBase)
-						itemBase.ExpansionCreateInInventory(items[j]);
-					else
-						itemEnt.GetInventory().CreateInInventory(items[j]);
-				}
-			}
-		}
+		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		if (Position)
 			questNPC.SetPosition(Position);
@@ -201,33 +212,8 @@ class ExpansionQuestNpcData
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNpcAIBase questNPC = ExpansionQuestNpcAIBase.Cast(enity);
-		for (int i = 0; i < GetGear().Count(); i++)
-		{
-			array<string> items = new array<string>;
-			GetGear()[i].Split("+", items);
-			EntityAI itemEnt = NULL;
-			
-			//! Spawn weapon in hands
-			if (questNPC.IsInherited(Man) && GetGame().ConfigIsExisting("CfgVehicles " + items[0] + " suicideAnim") || GetGame().IsKindOf(items[0], "Rifle_Base") || GetGame().IsKindOf(items[0], "Pistol_Base") || GetGame().IsKindOf(items[0], "Archery_Base") || GetGame().IsKindOf(items[0], "Launcher_Base"))
-				itemEnt = questNPC.GetHumanInventory().CreateInHands(items[0]);
-			
-			//! Spawn everything else in inventory
-			if (!itemEnt)
-				itemEnt = questNPC.GetInventory().CreateInInventory(items[0]);
-			
-			ItemBase itemBase = ItemBase.Cast(itemEnt);
-			if (itemEnt)
-			{
-				for (int j = 1; j < items.Count(); j++)
-				{
-					if (itemBase)
-						itemBase.ExpansionCreateInInventory(items[j]);
-					else
-						itemEnt.GetInventory().CreateInInventory(items[j]);
-				}
-			}
-		}
-		
+		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
+
 		questNPC.SetPosition(Position);
 		questNPC.SetOrientation(Orientation);
 		vector roll = questNPC.GetOrientation();
@@ -241,41 +227,107 @@ class ExpansionQuestNpcData
 			questNPC.SetAffectPathgraph(true, false);
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, questNPC);
 		}
-		
-		#ifdef EXPANSIONMODAI
+
+	#ifdef EXPANSIONMODAI
 		eAIGroup ownerGrp = questNPC.GetGroup();
-		#else
+	#else
 		if (eAIGlobal_HeadlessClient)
 			GetRPCManager().SendRPC("eAI", "HCLinkObject", new Param1< PlayerBase >(questNPC), false, eAIGlobal_HeadlessClient);
 
 		eAIGame game = MissionServer.Cast(GetGame().GetMission()).GetEAIGame();
 		eAIGroup ownerGrp = game.GetGroupByLeader(questNPC);
-		#endif
+	#endif
 		ownerGrp.SetFaction(new eAIFactionCivilian());
-		for (j = 0; j < Waypoints.Count(); j++)
+		for (int j = 0; j < Waypoints.Count(); j++)
 		{
 			EXPrint("Adding waypoint " + Waypoints[j]);
 			ownerGrp.AddWaypoint(Waypoints[j]);
 		}
 
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		if (Waypoints.Count() > 1)
 			ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 		else if (Waypoints.Count() <= 1)
 			ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.HALT);
-		#else
+	#else
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(questNPC.RequestTransition, 10000, false, "Rejoin");
 
 		questNPC.SetAI(ownerGrp);
-		#endif
+	#endif
 
 		return questNPC;
 	}
 #endif
 
+	ExpansionQuestStaticObject SpawnObject()
+	{
+		Object obj = GetGame().CreateObjectEx(GetName(), GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		
+		if (Position)
+			obj.SetPosition(Position);
+
+		if (Orientation)
+			obj.SetOrientation(Orientation);
+		
+		EntityAI enity = EntityAI.Cast(obj);
+		ExpansionQuestStaticObject questObject = ExpansionQuestStaticObject.Cast(enity);
+		questObject.SetPosition(Position);
+		questObject.SetOrientation(Orientation);
+		
+		return questObject;
+	}
+	
+	static ExpansionQuestNpcData Load(string fileName)
+	{
+		bool save;
+		CF_Log.Info("[ExpansionQuestNPCData] Load existing configuration file:" + fileName);
+
+		ExpansionQuestNpcData npcConfig;
+		ExpansionQuestNpcDataBase npcConfigBase;
+		JsonFileLoader<ExpansionQuestNpcDataBase>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
+		
+		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
+		{
+			CF_Log.Info("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			npcConfig = new ExpansionQuestNpcData();			
+			//! Copy over old configuration that haven't changed
+			npcConfig.CopyConfig(npcConfigBase);
+			npcConfig.ConfigVersion = CONFIGVERSION;
+			save = true;
+		}
+		else
+		{
+			JsonFileLoader<ExpansionQuestNpcData>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+		}
+		
+		if (save)
+		{
+			JsonFileLoader<ExpansionQuestNpcData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+		}
+		
+		return npcConfig;
+	}
+
 	void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestNpcData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".JSON", this);
+	}
+	
+	void CopyConfig(ExpansionQuestNpcDataBase npcDataBase)
+	{
+		ID = npcDataBase.ID;
+		ClassName = npcDataBase.ClassName;
+		IsAI = npcDataBase.IsAI;
+		Position = npcDataBase.Position;
+		Orientation = npcDataBase.Orientation;
+		QuestIDs = npcDataBase.QuestIDs;
+		NPCName = npcDataBase.NPCName;
+		DefaultNPCText = npcDataBase.DefaultNPCText; 
+	
+	#ifdef EXPANSIONMODAI
+		Waypoints = npcDataBase.Waypoints;
+		NPCEmoteID = npcDataBase.NPCEmoteID;
+	#endif
 	}
 
 	void OnSend(ParamsWriteContext ctx)

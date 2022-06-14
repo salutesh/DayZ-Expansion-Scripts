@@ -19,6 +19,9 @@ modded class ZombieBase
 	{
 		super.EEKilled(killer);
 
+		if (!killer)
+			return;
+		
 		EntityAI killSource = EntityAI.Cast(killer);
 
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));

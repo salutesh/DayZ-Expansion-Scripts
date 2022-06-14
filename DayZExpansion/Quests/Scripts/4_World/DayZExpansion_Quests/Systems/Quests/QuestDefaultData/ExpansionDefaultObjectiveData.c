@@ -14,12 +14,12 @@
 class ExpansionDefaultObjectiveData
 {
 	private string m_WorldName;
-	
+
 	void ExpansionDefaultObjectiveData(string worldName)
 	{
 		m_WorldName = worldName;
 	}
-	
+
 	//! TRAVEL OBJECTIVES
 	ExpansionQuestObjectiveTravelConfig ExpansionQuestObjective_Travel_001()
 	{
@@ -29,19 +29,19 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Village");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Village");
-		
+
 		if (m_WorldName.Contains("namalsk"))
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
 		}
 		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
 		{
-			objective.SetPosition(Vector(3211.4, 0, 6088.99));
+			objective.SetPosition(Vector(4333.37, 311.779, 6299.88));
 		}
 
 		return objective;
 	}
-	
+
 	ExpansionQuestObjectiveTravelConfig ExpansionQuestObjective_Travel_002()
 	{
 		ExpansionQuestObjectiveTravelConfig objective = new ExpansionQuestObjectiveTravelConfig();
@@ -50,7 +50,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Village");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Village");
-		
+
 		if (m_WorldName.Contains("namalsk"))
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
@@ -73,7 +73,7 @@ class ExpansionDefaultObjectiveData
 		objective.AddDelivery(1, "ExpansionQuestItemPaper");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Talk to Steve");
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			objective.SetPosition(Vector(8348.39, 0, 10724.7));
@@ -95,7 +95,7 @@ class ExpansionDefaultObjectiveData
 		objective.AddDelivery(1, "ExpansionQuestItemPackage");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Talk to Peter");
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			objective.SetPosition(Vector(8584.27, 0, 10511.6));
@@ -115,7 +115,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
 		objective.SetObjectiveText("Kill 10 infected with a sledge hammer");
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			objective.SetPosition(Vector(8224.93, 0, 10811.0));
@@ -578,7 +578,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveTreasureHunt hunt = new ExpansionQuestObjectiveTreasureHunt();
 		hunt.AddItem("MoneyRuble", 100);
 		hunt.AddItem("Zucchini", 1); //! For the luls
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			hunt.AddPosition(Vector(8541.46, 15.3878, 10299.1));
@@ -589,7 +589,7 @@ class ExpansionDefaultObjectiveData
 			hunt.AddPosition(Vector(3143.35, 365.776, 6942.04));
 			hunt.AddPosition(Vector(5233.51, 290.881, 6246.37));
 		}
-		
+
 		objective.SetTreasureHunt(hunt);
 
 		return objective;
@@ -616,7 +616,7 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.AddWaypoint(Vector(6967.4, 6.5, 11884.6));
 		aiPatrol.AddWaypoint(Vector(7216.6, 10.147, 11843.1));
 		aiPatrol.AddWaypoint(Vector(7405.78, 23.18, 11655.8));
-		
+
 		aiPatrol.AddClassName("eAI_SurvivorM_Mirek");
 		aiPatrol.AddClassName("eAI_SurvivorM_Denis");
 		aiPatrol.AddClassName("eAI_SurvivorM_Boris");
@@ -648,7 +648,7 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.AddClassName("eAI_SurvivorF_Eva");
 		aiPatrol.AddClassName("eAI_SurvivorF_Naomi");
 		aiPatrol.AddClassName("eAI_SurvivorF_Baty");
-		
+
 		objective.SetAIPatrol(aiPatrol);
 
 		return objective;
@@ -667,18 +667,34 @@ class ExpansionDefaultObjectiveData
 		aiCamp.SetNPCMode("HALT");
 		aiCamp.SetNPCFaction("WEST");
 		aiCamp.SetNPCLoadoutFile("BanditLoadout.json");
-		
-		aiCamp.AddPosition(Vector(8091.23, 15.37, 10832.4));
-		aiCamp.AddPosition(Vector(8095.07, 15.62, 10865.4));
-		aiCamp.AddPosition(Vector(8121.96, 16.09, 10850.6));
-		aiCamp.AddPosition(Vector(8124.99, 20.46, 10852.5));
-		aiCamp.AddPosition(Vector(8082.32, 15.37, 10838.6));
-		aiCamp.AddPosition(Vector(8123.08, 15.30, 10819.7));
-		aiCamp.AddPosition(Vector(8151.75, 15.45, 10815.7));
-		aiCamp.AddPosition(Vector(8165.89, 15.81, 10840.5));
-		aiCamp.AddPosition(Vector(8172.00, 15.90, 10886.2));
-		aiCamp.AddPosition(Vector(8117.52, 15.23, 10864.8));
-		
+
+		if (m_WorldName == "namalsk")
+		{
+			aiCamp.AddPosition(Vector(8091.23, 15.37, 10832.4));
+			aiCamp.AddPosition(Vector(8095.07, 15.62, 10865.4));
+			aiCamp.AddPosition(Vector(8121.96, 16.09, 10850.6));
+			aiCamp.AddPosition(Vector(8124.99, 20.46, 10852.5));
+			aiCamp.AddPosition(Vector(8082.32, 15.37, 10838.6));
+			aiCamp.AddPosition(Vector(8123.08, 15.30, 10819.7));
+			aiCamp.AddPosition(Vector(8151.75, 15.45, 10815.7));
+			aiCamp.AddPosition(Vector(8165.89, 15.81, 10840.5));
+			aiCamp.AddPosition(Vector(8172.00, 15.90, 10886.2));
+			aiCamp.AddPosition(Vector(8117.52, 15.23, 10864.8));
+		}
+		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		{
+			aiCamp.AddPosition(Vector(4351.33, 307.068, 6400.52));
+			aiCamp.AddPosition(Vector(4389.03, 302.802, 6391.77));
+			aiCamp.AddPosition(Vector(4416.67, 301.977, 6395.7));
+			aiCamp.AddPosition(Vector(4431.82, 298.901, 6452.22));
+			aiCamp.AddPosition(Vector(4418.52, 299.6, 6441.92));
+			aiCamp.AddPosition(Vector(4475.16, 295.22, 6461.57));
+			aiCamp.AddPosition(Vector(4485.01, 295.22, 6466.97));
+			aiCamp.AddPosition(Vector(4435.54, 297.747, 6470.3));
+			aiCamp.AddPosition(Vector(4556.3, 289.275, 6390.84));
+			aiCamp.AddPosition(Vector(4523.01, 290.427, 6448.3));
+		}
+
 		aiCamp.AddClassName("eAI_SurvivorM_Mirek");
 		aiCamp.AddClassName("eAI_SurvivorM_Denis");
 		aiCamp.AddClassName("eAI_SurvivorM_Boris");
@@ -710,12 +726,12 @@ class ExpansionDefaultObjectiveData
 		aiCamp.AddClassName("eAI_SurvivorF_Eva");
 		aiCamp.AddClassName("eAI_SurvivorF_Naomi");
 		aiCamp.AddClassName("eAI_SurvivorF_Baty");
-		
+
 		objective.SetAICamp(aiCamp);
-		
+
 		return objective;
 	}
-	
+
 	//! AI VIP OBJECTIVES
 	ExpansionQuestObjectiveAIVIPConfig ExpansionQuestObjective_AIVIP_001()
 	{
@@ -725,7 +741,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Bring the VIP to the marked location.");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Escort VIP");
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			objective.SetPosition(Vector(8348.39, 0, 10724.7));
@@ -734,15 +750,15 @@ class ExpansionDefaultObjectiveData
 		{
 			objective.SetPosition(Vector(3193.59, 296.707, 6090.57));
 		}
-		
+
 		ExpansionQuestObjectiveAIVIP aiVIP = new ExpansionQuestObjectiveAIVIP();
 		aiVIP.SetNPCSpeed("RUN");
 		aiVIP.SetNPCMode("HALT");
 		aiVIP.SetNPCFaction("Passive");
 		aiVIP.SetNPCLoadoutFile("BanditLoadout.json");
-		
+
 		objective.SetAIVIP(aiVIP);
-		
+
 		return objective;
 	}
 #endif

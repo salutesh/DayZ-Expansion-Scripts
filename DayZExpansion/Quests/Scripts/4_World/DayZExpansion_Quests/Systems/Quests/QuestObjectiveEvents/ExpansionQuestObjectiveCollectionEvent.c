@@ -252,7 +252,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	{
 		if (!IsInitialized())
 			return;
-		
+
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
@@ -299,7 +299,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				}
 			}
 		#endif
-			
+
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
@@ -352,7 +352,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 
 		return -1;
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.COLLECT;

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<fsm name="Master">
+<fsm name="Master" type="eAI">
 	<files>
 		<file name="Vehicles" />
 		<file name="Fighting" />
@@ -48,7 +48,7 @@
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="930.521210954633" y="249.063165761721" />
+				<position x="892.021210954633" y="252.363165761721" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -73,7 +73,7 @@
 		<state name="Trading">
 			<variables />
 			<editor_data>
-				<position x="686.45281251958" y="165.742104279785" />
+				<position x="646.85281251958" y="173.442104279785" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -93,7 +93,7 @@
 				<variable name="group" type="eAIGroup" />
 			</variables>
 			<editor_data>
-				<position x="624.106428737142" y="513.955335435811" />
+				<position x="705.506428737142" y="490.855335435811" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -118,7 +118,7 @@
 				<variable name="previousDistance" type="float" />
 			</variables>
 			<editor_data>
-				<position x="460.36310970946" y="516.905251357419" />
+				<position x="492.26310970946" y="542.205251357419" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -182,7 +182,7 @@
 		<state name="Vehicles" fsm="Vehicles">
 			<variables />
 			<editor_data>
-				<position x="935.309194546504" y="363.138198458873" />
+				<position x="895.709194546504" y="371.938198458873" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry />
@@ -192,7 +192,7 @@
 		<state name="Fighting" fsm="Fighting">
 			<variables />
 			<editor_data>
-				<position x="354.686600687191" y="195.817136976937" />
+				<position x="345.886600687191" y="193.617136976937" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -208,7 +208,7 @@
 		<state name="Weapon_Reloading" fsm="Reloading">
 			<variables />
 			<editor_data>
-				<position x="249.537936881654" y="358.835451333598" />
+				<position x="241.837936881654" y="365.435451333598" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -226,7 +226,7 @@
 				<variable name="failed_attempts" type="int" />
 			</variables>
 			<editor_data>
-				<position x="250.478975886238" y="278.453840426607" />
+				<position x="241.678975886238" y="283.953840426607" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -281,7 +281,7 @@
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="243.253877794781" y="447.732853681019" />
+				<position x="275.340877794781" y="547.920853681019" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -324,7 +324,7 @@
 				<variable name="time" type="float" />
 			</variables>
 			<editor_data>
-				<position x="243.253877794781" y="447.732853681019" />
+				<position x="246.619877794781" y="467.752853681019" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -381,8 +381,8 @@
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="977.472336543873" y="226.498443463138" />
-				<position_destination x="977.521210954633" y="249.063165761721" />
+				<position_source x="938.972336543873" y="229.798443463138" />
+				<position_destination x="939.021210954633" y="252.363165761721" />
 			</editor_data>
 			<guard>
 				if (!(unit.IsUnconscious())) return FAIL;
@@ -395,7 +395,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="930.521210954633" y="269.962936077279" />
+				<position_source x="892.021210954633" y="273.262936077279" />
 				<position_destination x="694" y="341.086651264055" />
 			</editor_data>
 			<guard>
@@ -409,8 +409,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="759.585399543115" y="142.391827885125" />
-				<position_destination x="759.45281251958" y="165.742104279785" />
+				<position_source x="719.985399543115" y="150.091827885125" />
+				<position_destination x="719.85281251958" y="173.442104279785" />
 			</editor_data>
 			<guard>
 				if (!(unit.IsTrading())) return FAIL;
@@ -423,7 +423,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="747.731447011985" y="205.742104279785" />
+				<position_source x="708.131447011985" y="213.442104279785" />
 				<position_destination x="637.094556721445" y="329" />
 			</editor_data>
 			<guard>
@@ -437,8 +437,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="747.731447011985" y="205.742104279785" />
-				<position_destination x="637.094556721445" y="329" />
+				<position_source x="323.444352352527" y="441.721949556564" />
+				<position_destination x="323.444352352527" y="467.752853681019" />
 			</editor_data>
 			<guard>
 				if (unit.IsInMelee()) return FAIL;
@@ -457,13 +457,13 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="" />
+			<from_state />
 			<to_state name="Bandaging_Self" />
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="747.731447011985" y="205.742104279785" />
-				<position_destination x="637.094556721445" y="329" />
+				<position_source x="392.845475445666" y="467.752853681019" />
+				<position_destination x="558.183798920839" y="369" />
 			</editor_data>
 			<guard>
 				if (unit.GetActionManager().GetRunningAction()) return FAIL;
@@ -479,7 +479,7 @@
 		<transition>
 			<editor_data>
 				<position_source x="638.223504581552" y="369" />
-				<position_destination x="641.610348161875" y="513.955335435811" />
+				<position_destination x="723.010348161875" y="490.855335435811" />
 			</editor_data>
 			<guard>
 				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
@@ -501,7 +501,7 @@
 		<transition>
 			<editor_data>
 				<position_source x="604.355068778326" y="369" />
-				<position_destination x="592.501116247196" y="516.905251357419" />
+				<position_destination x="624.401116247196" y="542.205251357419" />
 			</editor_data>
 			<guard>
 				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
@@ -521,7 +521,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="579.51821585596" y="516.905251357419" />
+				<position_source x="611.41821585596" y="542.205251357419" />
 				<position_destination x="591.936642317143" y="369" />
 			</editor_data>
 			<guard>
@@ -535,7 +535,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="657.415618203381" y="513.955335435811" />
+				<position_source x="738.815618203381" y="490.855335435811" />
 				<position_destination x="652.899826762951" y="369" />
 			</editor_data>
 			<guard>
@@ -552,8 +552,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="313.086520870577" y="332.619542313248" />
-				<position_destination x="312.537936881655" y="358.835451333598" />
+				<position_source x="305.386520870577" y="339.219542313248" />
+				<position_destination x="304.837936881655" y="365.435451333598" />
 			</editor_data>
 			<guard>
 				//! When the AI has just spawned, wait briefly before doing anything to prevent scuffed weapon holding
@@ -586,8 +586,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="313.086520870577" y="420.113001471584" />
-				<position_destination x="313.253877794781" y="447.732853681019" />
+				<position_source x="344.344352352527" y="520.921949556564" />
+				<position_destination x="345.340877794781" y="547.920853681019" />
 			</editor_data>
 			<guard>
 				if (unit.IsInMelee()) return FAIL;
@@ -646,8 +646,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="393.253877794781" y="466.399863735993" />
-				<position_destination x="565.970841534669" y="369" />
+				<position_source x="425.340877794781" y="566.587863735993" />
+				<position_destination x="587.553377501537" y="369" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -658,8 +658,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="318.731260171115" y="252.464244245612" />
-				<position_destination x="319.478975886238" y="278.453840426607" />
+				<position_source x="309.931260171115" y="257.964244245612" />
+				<position_destination x="310.678975886238" y="283.953840426607" />
 			</editor_data>
 			<guard>
 				if (unit.IsInMelee()) return FAIL;
@@ -676,7 +676,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="399.537936881654" y="374.390613137228" />
+				<position_source x="391.837936881654" y="380.990613137228" />
 				<position_destination x="544" y="360.278764885883" />
 			</editor_data>
 			<guard>
@@ -688,7 +688,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="400.478975886238" y="299.315580440075" />
+				<position_source x="391.678975886238" y="304.815580440075" />
 				<position_destination x="544" y="346.731390564592" />
 			</editor_data>
 			<guard>
@@ -700,8 +700,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="420.336567580795" y="168.357628667599" />
-				<position_destination x="420.686600687193" y="195.817136976937" />
+				<position_source x="411.536567580795" y="166.157628667599" />
+				<position_destination x="411.886600687193" y="193.617136976937" />
 			</editor_data>
 			<guard>
 				if (unit.GetThreatToSelf(true) &lt; 0.4) return FAIL;
@@ -714,7 +714,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="485.815543467033" y="235.817136976937" />
+				<position_source x="477.015543467033" y="233.617136976937" />
 				<position_destination x="556.939258653809" y="329" />
 			</editor_data>
 			<guard>
@@ -730,8 +730,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1003.43813732635" y="337.135333753678" />
-				<position_destination x="1003.3091945465" y="363.138198458873" />
+				<position_source x="963.83813732635" y="345.935333753678" />
+				<position_destination x="963.7091945465" y="371.938198458873" />
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
@@ -765,7 +765,7 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="935.309194546504" y="381.164300297873" />
+				<position_source x="895.709194546504" y="389.964300297873" />
 				<position_destination x="694" y="356.89192130556" />
 			</editor_data>
 			<guard>

@@ -193,7 +193,7 @@ class eAIBase extends PlayerBase
 			ai.Insert(ai0);
 		}
 
-		eAIFSMType.UnloadAll();
+		ExpansionFSMType.UnloadAll();
 
 		foreach (auto ai1 : ai)
 		{
@@ -203,11 +203,14 @@ class eAIBase extends PlayerBase
 
 	void LoadFSM()
 	{
-		eAIFSMType type = eAIFSMType.LoadXML("DayZExpansion/AI/scripts/FSM", "Master");
-		if (type)
+		ExpansionFSMType type = ExpansionFSMType.LoadXML("DayZExpansion/AI/scripts/FSM", "Master");
+		if (type && Class.CastTo(m_FSM, type.Spawn(ExpansionFSMOwnerType.Cast(this), null)))
 		{
-			m_FSM = type.Spawn(this, null);
 			m_FSM.StartDefault();
+		}
+		else
+		{
+			CF_Log.Error("Invalid FSM");
 		}
 	}
 

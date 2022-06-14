@@ -3125,7 +3125,7 @@ class ExpansionHumanLoadout
 		loadout.Save();
 	}
 
-	static bool Apply(DayZPlayerImplement player, string file, bool forceReload = false)
+	static bool Apply(DayZPlayer player, string file, bool forceReload = false)
 	{
 		ExpansionHumanLoadout.Init();
 		

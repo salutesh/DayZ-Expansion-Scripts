@@ -14,7 +14,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 {
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
-	
+
 	override void OnStart()
 	{
 		vector position = GetObjectiveConfig().GetPosition();
@@ -58,14 +58,14 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	{
 		if (!GetObjectiveConfig() || !GetQuest() || !GetQuest().GetPlayer() || !IsInitialized())
 			return;
-		
+
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
 			vector position = GetObjectiveConfig().GetPosition();
 			float maxDistance = GetObjectiveConfig().GetMaxDistance();
 			float currentDistance;
-	
+
 			//! Set the position of the group member that has the shortest distance to the target location
 			//! as our current position if the quest is a group quest.
 			array<vector> groupMemberPos = new array<vector>;
@@ -75,20 +75,20 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 				ExpansionPartyData group = GetQuest().GetGroup();
 				if (!group)
 					return;
-	
+
 				for (int i = 0; i < group.GetPlayers().Count(); i++)
 				{
 					ExpansionPartyPlayerData playerGroupData = group.GetPlayers()[i];
 					if (!playerGroupData)
 						continue;
-	
+
 					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 					if (!groupPlayer)
 						continue;
-	
+
 					groupMemberPos.Insert(groupPlayer.GetPosition());
 				}
-	
+
 				float smallestDistance;
 				int posIndex;
 				bool firstSet = false;
@@ -108,7 +108,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 						posIndex = p;
 					}
 				}
-	
+
 				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 			#endif
 			}
@@ -117,9 +117,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 				vector playerPos = GetQuest().GetPlayer().GetPosition();
 				currentDistance = vector.Distance(playerPos, position);
 			}
-	
+
 			position[1] = GetGame().SurfaceY(position[0], position[2]);
-	
+
 			if (position != vector.Zero && currentDistance <= maxDistance)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -128,7 +128,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(true);
 				OnComplete();
 			}
-			
+
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
@@ -137,7 +137,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	{
 		return GetObjectiveConfig().GetPosition();
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TRAVEL;

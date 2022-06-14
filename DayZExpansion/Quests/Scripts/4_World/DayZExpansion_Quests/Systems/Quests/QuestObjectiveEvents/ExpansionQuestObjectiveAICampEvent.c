@@ -16,13 +16,10 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
 	private ref array<eAIDynamicPatrol> AIPatrols = new array<eAIDynamicPatrol>;
-	private int m_TotalKillCount = 0; 
+	private int m_TotalKillCount = 0;
 	private int m_UnitsToSpawn = 0;
 	private int m_TotalUnitsAmount = 0;
-	private eAIGroup CampGroup;
-	private ExpansionQuestObjectiveAICamp m_AICamp;
-	private bool m_InitCheck = false;
-	
+
 	//! Event called when the player starts the quest
 	override void OnStart()
 	{
@@ -41,7 +38,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnContinue - Start");
 
 		CreateAICamp();
-		
+
 		super.OnContinue();
 
 		ObjectivePrint(ToString() + "::OnContinue - End");
@@ -53,7 +50,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
 		CleanupPatrol();
-		
+
 		super.OnCleanup();
 
 		ObjectivePrint(ToString() + "::OnCleanup - End");
@@ -65,20 +62,20 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnCancel - Start");
 
 		CleanupPatrol();
-		
+
 		super.OnCancel();
 
 		ObjectivePrint(ToString() + "::OnCancel - End");
 	}
-	
-	void CleanupPatrol()
+
+	private void CleanupPatrol()
 	{
 		for (int i = 0; i < AIPatrols.Count(); i++)
 		{
 			eAIDynamicPatrol patrol = AIPatrols[i];
 			if (patrol.m_CanSpawn)
 				continue;
-			
+
 			eAIGroup group = patrol.m_Group;
 
 			ObjectivePrint(ToString() + "::OnCancel - Patrol: " + patrol.ToString());
@@ -99,18 +96,35 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			group.Delete();
 			patrol.Delete();
 		}
-		
+
 		AIPatrols.Clear();
 	}
+
+	private bool KilledAICampMember(EntityAI victim)
+	{
+		DayZPlayerImplement victimPlayer;
+		if (!Class.CastTo(victimPlayer, victim))
+			return false;
+			
+		for (int i = 0; i < AIPatrols.Count(); i++)
+		{
+			eAIDynamicPatrol patrol = AIPatrols[i];
+			if (patrol.m_CanSpawn)
+				continue;
+
+			eAIGroup group = patrol.m_Group;
+			if (group && group.IsMember(victimPlayer))
+				return true;
+		}
+
+		return false;
+	}
 	
-	void OnEntityKilled(string typeName, string killer)
+	void OnEntityKilled(EntityAI victim, EntityAI killer)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
-
-		Print(ToString() + "::OnEntityKilled - Victim type: " + typeName);
-		Print(ToString() + "::OnEntityKilled - Killer type: " + killer);
 
 		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
 		if (!aiCamp)
@@ -121,36 +135,39 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (aiCamp.NeedSpecialWeapon())
 		{
 			findIndex = -1;
-			findIndex = aiCamp.GetAllowedWeapons().Find(killer);
+			findIndex = aiCamp.GetAllowedWeapons().Find(killer.GetType());
 			if (findIndex == -1)
 				return;
-
-			Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
 		}
-
+		
+		//! Check if killed entities class name is a valid one from our objective config
 		int amount = aiCamp.GetPositions().Count();
 		m_TotalUnitsAmount = amount;
 		findIndex = -1;
-		findIndex = aiCamp.GetClassNames().Find(typeName);
+		findIndex = aiCamp.GetClassNames().Find(victim.ClassName());
 		Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
 
-		if (findIndex > -1)
-		{
+		if (findIndex == -1)
+			return;
+		
+		//! Check if killed ai entity was part of this objective event group
+		if (KilledAICampMember(victim))	
+		{	
 			if (m_TotalKillCount < m_TotalUnitsAmount)
 				m_TotalKillCount++;
 		}
 	}
-	
+
 	override void OnUpdate(float timeslice)
 	{
 		if (!IsInitialized() || IsCompleted())
 			return;
-		
+
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
 			CleanupZeds(); //! Cleanups zeds at camp position.
-			
+
 			if (m_TotalKillCount >= m_TotalUnitsAmount)
 			{
 				SetCompleted(true);
@@ -161,7 +178,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	void CreateAICamp()
+	private void CreateAICamp()
 	{
 		ObjectivePrint(ToString() + "::CreateAICamp - Start");
 
@@ -172,13 +189,12 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (!aiCamp)
 			return;
 		
-		m_AICamp = aiCamp;
 		m_TotalUnitsAmount = aiCamp.GetPositions().Count();
 
 		//! If all the targets are already killed dont create patrol group
 		if (m_TotalKillCount >= m_TotalUnitsAmount)
 			return;
-		
+
 		m_UnitsToSpawn = m_TotalUnitsAmount - m_TotalKillCount;
 
 		for (int i = 0; i < m_UnitsToSpawn; i++)
@@ -203,7 +219,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::CreateAICamp - End");
 	}
 
-	eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group)
+	private eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group)
 	{
 		ObjectivePrint(ToString() + "::CreateQuestPatrol - Start");
 		Print("=================== Expansion Quest Camp AI ===================");
@@ -361,7 +377,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		Print(ToString() + "::CleanupZeds - End");
 	}
-	
+
 	void SetKillCount(int count)
 	{
 		m_TotalKillCount = count;
@@ -376,7 +392,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	{
 		return m_TotalUnitsAmount;
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AICAMP;

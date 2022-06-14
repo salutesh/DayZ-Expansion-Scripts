@@ -17,7 +17,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 	private float MaxDistance = 0;
 	private ref ExpansionQuestObjectiveAIVIP AIVIP;
 	private string MarkerName = string.Empty;
-	
+
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -37,7 +37,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 	{
 		return MaxDistance;
 	}
-	
+
 	void SetAIVIP(ExpansionQuestObjectiveAIVIP vip)
 	{
 		AIVIP = vip;
@@ -57,7 +57,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 	{
 		return MarkerName;
 	}
-	
+
 	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveAIVIPConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName + ".JSON", this);
@@ -68,7 +68,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 		super.OnSend(ctx);
 
 		AIVIP.OnSend(ctx);
-		
+
 		ctx.Write(Position);
 		ctx.Write(MaxDistance);
 		ctx.Write(MarkerName);
@@ -84,13 +84,13 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 
 		if (!AIVIP.OnRecieve(ctx))
 			return false;
-		
+
 		if (!ctx.Read(Position))
 			return false;
-		
+
 		if (!ctx.Read(MaxDistance))
 			return false;
-		
+
 		if (!ctx.Read(MarkerName))
 			return false;
 

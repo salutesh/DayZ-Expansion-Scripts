@@ -58,18 +58,18 @@ class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestIcon");
 		QuestIcon.SetColor(GetQuestColor(m_Quest));
-		
+
 	#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 		HideIcon.Show(true);
 		HideButton.Show(true);
-		
+
 		ExpansionQuestHUDEntry questEntry;
 		int findIndex = -1;
-		
+
 		ExpansionQuestHUD questHUD = mission.GetQuestHUD();
 		if (!questHUD)
 			return;
-		
+
 		if (!questHUD.IsEntryHidden(m_Quest.GetID(), questEntry, findIndex))
 		{
 			m_QuestMenuListEntryController.HideIcon = ExpansionIcons.GetPath("Eye");

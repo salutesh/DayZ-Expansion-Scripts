@@ -1,21 +1,24 @@
-class eAIFSMType
+class ExpansionFSMType
 {
 	static int s_ReloadNumber = 0;
 	
-	private static autoptr map<string, eAIFSMType> m_SpawnableTypes = new map<string, eAIFSMType>();
-	private static autoptr array<autoptr eAIFSMType> m_Types = new array<autoptr eAIFSMType>();
+	private static autoptr map<string, ExpansionFSMType> m_SpawnableTypes = new map<string, ExpansionFSMType>();
+	private static autoptr array<autoptr ExpansionFSMType> m_Types = new array<autoptr ExpansionFSMType>();
+
+	string m_Name;
+	string m_Type;
 
 	string m_ClassName;
 	ScriptModule m_Module;
 
 	autoptr array<string> m_Variables = new array<string>();
-	autoptr array<autoptr eAIStateType> m_States = new array<autoptr eAIStateType>();
-	autoptr array<autoptr eAITransitionType> m_Transitions = new array<autoptr eAITransitionType>();
+	autoptr array<autoptr ExpansionStateType> m_States = new array<autoptr ExpansionStateType>();
+	autoptr array<autoptr ExpansionTransitionType> m_Transitions = new array<autoptr ExpansionTransitionType>();
 
-	void eAIFSMType()
+	void ExpansionFSMType()
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "eAIFSMType");
+		auto trace = CF_Trace_0(this, "ExpansionFSMType");
 		#endif
 		
 	}
@@ -31,78 +34,89 @@ class eAIFSMType
 	static bool Contains(string name)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_1("eAIFSMType", "Contains").Add(name);
+		auto trace = CF_Trace_1("ExpansionFSMType", "Contains").Add(name);
 		#endif
 		
 		return m_SpawnableTypes.Contains(name);
 	}
 	
-	static void AddSpawnable(string name, eAIFSMType type)
+	static void AddSpawnable(string name, ExpansionFSMType type)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_2("eAIFSMType", "AddSpawnable").Add(name).Add(type);
+		auto trace = CF_Trace_2("ExpansionFSMType", "AddSpawnable").Add(name).Add(type);
 		#endif
 		
 		m_SpawnableTypes.Insert(name, type);
 	}
 
-	static void Add(eAIFSMType type)
+	static void Add(ExpansionFSMType type)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_1("eAIFSMType", "Add").Add(type);
+		auto trace = CF_Trace_1("ExpansionFSMType", "Add").Add(type);
 		#endif
 		
 		m_Types.Insert(type);
 	}
 
-	static eAIFSMType Get(string type)
+	static ExpansionFSMType Get(string type)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_1("eAIFSMType", "Get").Add(type);
+		auto trace = CF_Trace_1("ExpansionFSMType", "Get").Add(type);
 		#endif
 		
 		return m_SpawnableTypes[type];
 	}
 
-	eAIFSM Spawn(eAIBase unit, eAIState parentState)
+	ExpansionFSM Spawn(ExpansionFSMOwnerType owner, ExpansionState parentState)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_2(this, "Spawn").Add(unit).Add(parentState);
+		auto trace = CF_Trace_1(this, "Spawn").Add(owner).Add(parentState);
 		#endif
 		
-		eAIFSM retValue = null;
-		m_Module.CallFunctionParams(null, "Create_" + m_ClassName, retValue, new Param2<eAIBase, eAIState>(unit, parentState));
+		ExpansionFSM retValue = null;
+		Param params = new Param2<ExpansionFSMOwnerType, ExpansionState>(owner, parentState);
+		m_Module.CallFunctionParams(null, "Create_" + m_ClassName, retValue, params);
 		return retValue;
 	}
 
-	static eAIFSM Spawn(string type, eAIBase unit, eAIState parentState)
+	static ExpansionFSM Spawn(string type, ExpansionFSMOwnerType owner, ExpansionState parentState)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_3("eAIFSMType", "Spawn").Add(type).Add(unit).Add(parentState);
+		auto trace = CF_Trace_3("ExpansionFSMType", "Spawn").Add(type).Add(owner).Add(parentState);
 		#endif
 		
-		return m_SpawnableTypes[type].Spawn(unit, parentState);
+		return m_SpawnableTypes[type].Spawn(owner, parentState);
 	}
 	
-	static eAIFSMType LoadXML(string path, string fileName)
+	static ExpansionFSMType LoadXML(string path, string fileName)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_2("eAIFSMType", "LoadXML").Add(path).Add(fileName);
+		auto trace = CF_Trace_2("ExpansionFSMType", "LoadXML").Add(path).Add(fileName);
 		#endif
 
-		if (eAIFSMType.Contains(fileName)) return eAIFSMType.Get(fileName);
+		if (ExpansionFSMType.Contains(fileName))
+		{
+			return ExpansionFSMType.Get(fileName);
+		}
 
 		if (!FileExist(EXPANSION_AI_FOLDER))
+		{
 			MakeDirectory(EXPANSION_AI_FOLDER);
+		}
 
 		if (!FileExist(EXPANSION_AI_UTILS_FOLDER))
+		{
 			MakeDirectory(EXPANSION_AI_UTILS_FOLDER);
+		}
 			
 		string script_path = EXPANSION_AI_UTILS_FOLDER + fileName + ".c";
 		FileHandle file = OpenFile(script_path, FileMode.WRITE);
-		if (!file) return null;
+		if (!file)
+		{
+			return null;
+		}
 
-		eAIFSMType new_type = LoadXML(path, fileName, file);
+		ExpansionFSMType new_type = LoadXML(path, fileName, file);
 		
 		CloseFile(file);
 
@@ -119,21 +133,25 @@ class eAIFSMType
 		return new_type;
 	}
 
-	static eAIFSMType LoadXML(string path, string fileName, FileHandle file)
+	static ExpansionFSMType LoadXML(string path, string fileName, FileHandle file)
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_3("eAIFSMType", "LoadXML").Add(path).Add(fileName).Add("FileHandle");
+		auto trace = CF_Trace_3("ExpansionFSMType", "LoadXML").Add(path).Add(fileName).Add("FileHandle");
 		#endif
 
 		string actualFilePath = path + "/" + fileName + ".xml";
 		CF_Log.Debug(actualFilePath);
-		if (!FileExist(actualFilePath)) return null;
-		
+		if (!FileExist(actualFilePath))
+		{
+			return null;
+		}
+
 		CF_XML_Document document;
 		CF_XML.ReadDocument(actualFilePath, document);
 		
 		string name = document.Get("fsm")[0].GetAttribute("name").ValueAsString();
-		string class_name = "eAI_" + name + "_FSM_" + s_ReloadNumber;
+		string type = document.Get("fsm")[0].GetAttribute("type").ValueAsString();
+		string class_name = "Expansion_" + name + "_FSM_" + s_ReloadNumber;
 
 		auto files = document.Get("fsm");
 		files = files[0].GetTag("files");
@@ -144,23 +162,29 @@ class eAIFSMType
 			for (int i = 0; i < files.Count(); i++)
 			{
 				string subFSMName = files[i].GetAttribute("name").ValueAsString();
-				eAIFSMType.LoadXML(path, subFSMName, file);
+				ExpansionFSMType.LoadXML(path, subFSMName, file);
 			}
 		}
 
-		eAIFSMType new_type = new eAIFSMType();
-		new_type.m_ClassName = class_name;		
+		ExpansionFSMType new_type = new ExpansionFSMType();
+		new_type.m_Name = name;
+		new_type.m_Type = type;
+		new_type.m_ClassName = class_name;
 
 		auto states = document.Get("fsm");
 		states = states[0].GetTag("states");
 		auto defaultStateAttrib = states[0].GetAttribute("default");
 		string defaultState = "";
-		if (defaultStateAttrib)	defaultState = "eAI_" + name + "_" + defaultStateAttrib.ValueAsString() + "_State_" + eAIFSMType.s_ReloadNumber;
+		if (defaultStateAttrib)
+		{
+			defaultState = "Expansion_" + name + "_" + defaultStateAttrib.ValueAsString() + "_State_" + ExpansionFSMType.s_ReloadNumber;
+		}
+
 		states = states[0].GetTag("state");
 
 		foreach (auto state : states)
 		{
-			eAIStateType stateType = eAIStateType.LoadXML(name, state, file);
+			ExpansionStateType stateType = ExpansionStateType.LoadXML(new_type, state, file);
 			new_type.m_States.Insert(stateType);
 		}
 
@@ -169,11 +193,11 @@ class eAIFSMType
 		transitions = transitions[0].GetTag("transition");
 		foreach (auto transition : transitions)
 		{
-			eAITransitionType transitionType = eAITransitionType.LoadXML(name, transition, file);
+			ExpansionTransitionType transitionType = ExpansionTransitionType.LoadXML(new_type, transition, file);
 			new_type.m_Transitions.Insert(transitionType);
 		}
 
-		FPrintln(file, "class " + class_name + " extends eAIFSM {");
+		FPrintln(file, "class " + class_name + " extends " + type + "FSM {");
 
 		auto variables = document.Get("fsm");
 		variables = variables[0].GetTag("variables");
@@ -185,7 +209,10 @@ class eAIFSMType
 				string variable_name = variable.GetAttribute("name").ValueAsString();
 				string variable_type = variable.GetAttribute("type").ValueAsString();
 				string variable_default = "";
-				if (variable.GetAttribute("default")) variable_default = variable.GetAttribute("default").ValueAsString();
+				if (variable.GetAttribute("default"))
+				{
+					variable_default = variable.GetAttribute("default").ValueAsString();
+				}
 
 				new_type.m_Variables.Insert(variable_name);
 
@@ -197,11 +224,10 @@ class eAIFSMType
 			}
 		}
 			
-		FPrintln(file, "void " + class_name + "(eAIBase unit, eAIState parentState) {");
+		FPrintln(file, "void " + class_name + "(ExpansionFSMOwnerType owner, ExpansionState parentState) {");
 		FPrintln(file, "m_Name = \"" + name + "\";");
 		FPrintln(file, "m_DefaultState = \"" + defaultState + "\";");
 		FPrintln(file, "Setup();");
-		FPrintln(file, "SortTransitions();");
 		FPrintln(file, "}");
 
 		FPrintln(file, "void Setup() {");
@@ -210,24 +236,24 @@ class eAIFSMType
 #endif
 
 		foreach (auto stateType0 : new_type.m_States)
-		{	
-			FPrintln(file, "AddState(new " + stateType0.m_ClassName + "(this, m_Unit));");
+		{
+			FPrintln(file, "AddState(new " + stateType0.m_ClassName + "(this));");
 		}
 
 		foreach (auto transitionType0 : new_type.m_Transitions)
 		{
-			FPrintln(file, "AddTransition(new " + transitionType0.m_ClassName + "(this, m_Unit));");
+			FPrintln(file, "AddTransition(new " + transitionType0.m_ClassName + "(this));");
 		}
 
 		FPrintln(file, "}");
 
 		FPrintln(file, "}");
 
-		FPrintln(file, "eAIFSM Create_" + class_name + "(eAIBase unit, eAIState parentState) {");
-		FPrintln(file, "return new " + class_name + "(unit, parentState);");
+		FPrintln(file, "ExpansionFSM Create_" + class_name + "(ExpansionFSMOwnerType owner, ExpansionState parentState) {");
+		FPrintln(file, "return new " + class_name + "(owner, parentState);");
 		FPrintln(file, "}");
 
-		eAIFSMType.Add(new_type);
+		ExpansionFSMType.Add(new_type);
 		
 		return new_type;
 	}

@@ -50,7 +50,7 @@ class ExpansionQuestItemConfig
 	{
 		if (!ctx.Read(ClassName))
 			return false;
-		
+
 		if (!ctx.Read(Amount))
 			return false;
 

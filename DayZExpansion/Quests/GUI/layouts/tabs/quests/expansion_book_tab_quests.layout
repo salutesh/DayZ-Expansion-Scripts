@@ -493,8 +493,11 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                    vexactsize 0
                    scriptclass "ViewBinding"
                    style Empty
-                   Margin 0
+                   Padding 15
+                   Margin 5
                    "Size To Content V" 1
+                   content_halign center
+                   content_valign center
                    {
                     ScriptParamsClass {
                      Debug_Logging 0
@@ -603,9 +606,12 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
              hexactsize 0
              vexactsize 0
              scriptclass "ViewBinding"
-             Margin 0
+             Padding 15
+             Margin 5
              "Size To Content H" 1
              "Size To Content V" 1
+             content_halign center
+             content_valign center
              {
               ScriptParamsClass {
                Debug_Logging 0

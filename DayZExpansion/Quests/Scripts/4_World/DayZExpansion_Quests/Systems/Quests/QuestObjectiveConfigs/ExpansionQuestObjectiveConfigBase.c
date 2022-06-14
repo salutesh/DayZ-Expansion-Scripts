@@ -35,12 +35,12 @@ class ExpansionQuestObjectiveConfigBase
 	{
 		return ObjectiveType;
 	}
-	
+
 	void SetObjectiveText(string text)
 	{
 		ObjectiveText = text;
 	}
-	
+
 	string GetObjectiveText()
 	{
 		return ObjectiveText;
@@ -101,7 +101,7 @@ class ExpansionQuestObjectiveConfigBase
 	{
 		return NULL;
 	}
-	
+
 	ExpansionQuestObjectiveAIVIP GetAIVIP()
 	{
 		return NULL;
@@ -127,10 +127,10 @@ class ExpansionQuestObjectiveConfigBase
 
 		if (!ctx.Read(ObjectiveType))
 			return false;
-		
+
 		if (!ctx.Read(ObjectiveText))
 			return false;
-		
+
 		return true;
 	}
 

@@ -1,5 +1,5 @@
 /**
- * SeaChest.c
+ * ExpansionTemporaryOwnedQuestContainer.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -14,45 +14,43 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 {
 	protected bool m_ExpansionCanReceiveItems;
 	protected bool m_ExpansionStashDelete;
-	
+
 	void ExpansionTemporaryOwnedQuestContainer()
 	{
 		if (IsMissionHost())  //! Server or COM
 		{
 			SetAllowDamage(false);
-			
+
 			//! Check if empty every 5 seconds
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionCheckStorage, 5000, true );
 		}
 	}
-	
+
 	void ~ExpansionTemporaryOwnedQuestContainer()
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionCheckStorage);
-		
-		if (m_ExpansionStashDelete)
+		if (IsMissionHost())  //! Server or COM
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionStorageNotification);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionCheckStorage);
+	
+			if (m_ExpansionStashDelete)
+			{
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionStorageNotification);
+			}
 		}
 	}
 
-	/*override bool CanPutIntoHands(EntityAI parent)
-	{
-		return false;
-	}*/
-	
 	override bool CanPutInCargo(EntityAI parent)
 	{
 		if (parent.IsKindOf("UndergroundStash"))
 			return true;
-		
+
 		if (parent.IsInherited(UndergroundStash))
 			return true;
 
 		return super.CanPutInCargo(parent);
 	}
-	
+
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
 	{
 		return false;
@@ -82,11 +80,11 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 	{
 		if (!IsInStash() && !m_ExpansionStashDelete)
 			ExpansionDeleteStashAfterCooldown();
-		
+
 		if (IsEmpty())
 			ExpansionDeleteStorage();
 	}
-	
+
 	void ExpansionDeleteStashAfterCooldown()
 	{
 		m_ExpansionStashDelete = true;
@@ -100,16 +98,16 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 		if (IsMissionClient())  //! Client or COM
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
 	}
-	
+
 	bool IsInStash()
 	{
 		UndergroundStash stash;
 		if (Class.CastTo(stash, GetParent()))
 			return true;
-		
+
 		return false;
 	}
-	
+
 	void ExpansionStorageNotification(string msg)
 	{
 		if (IsEmpty())
@@ -128,7 +126,7 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 	void ExpansionDeleteStorage()
 	{
 		ExpansionStorageNotification("STR_EXPANSION_TEMPORARY_STORAGE_EXPIRED");
-		
+
 		GetGame().ObjectDelete(this);
 	}
 };

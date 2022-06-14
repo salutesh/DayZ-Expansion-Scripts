@@ -15,12 +15,12 @@
 class ExpansionDefaultQuestData
 {
 	private string m_WorldName;
-	
+
 	void ExpansionDefaultQuestData(string worldName)
 	{
 		m_WorldName = worldName;
 	}
-	
+
 	//! Quest example template for a quest chain of 3 quests with different objectives (move to location -> deliver item -> kill targets -> deliver item)
 	ExpansionQuestConfig ExpansionQuestConfig001()
 	{
@@ -74,7 +74,7 @@ class ExpansionDefaultQuestData
 		objective_1.SetID(2);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
 		questConfig.AddObjectiveConfig(objective_1);
-		
+
 		ExpansionQuestObjectiveTargetConfig objective_2 = new ExpansionQuestObjectiveTargetConfig();
 		objective_2.SetID(1);
 		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
@@ -135,9 +135,25 @@ class ExpansionDefaultQuestData
 		reward_1.SetClassName("TaloonBag_Blue");
 		reward_1.SetAmount(1);
 		rewards.Insert(reward_1);
+		
+		ExpansionQuestRewardConfig reward_2 = new ExpansionQuestRewardConfig;
+		reward_2.SetClassName("TaloonBag_Green");
+		reward_2.SetAmount(1);
+		rewards.Insert(reward_2);
+		
+		ExpansionQuestRewardConfig reward_3 = new ExpansionQuestRewardConfig;
+		reward_3.SetClassName("TaloonBag_Orange");
+		reward_3.SetAmount(1);
+		rewards.Insert(reward_3);
+		
+		ExpansionQuestRewardConfig reward_4 = new ExpansionQuestRewardConfig;
+		reward_4.SetClassName("TaloonBag_Violet");
+		reward_4.SetAmount(1);
+		rewards.Insert(reward_4);
 
 		questConfig.SetRewards(rewards);
-
+		questConfig.SetNeedToSelectReward(true);
+		
 		return questConfig;
 	}
 
@@ -157,10 +173,10 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Survivor.");
 		desc.Insert("Turn-in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsDaylieQuest(true); //! Set if the quest is a daylie quest and has as 24h cooldown if the quest is also repeatable.
+		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -195,11 +211,11 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsDaylieQuest(true); //! Set if the quest is a daylie quest and has as 24h cooldown if the quest is also repeatable.
-		questConfig.SetAutocomplet(true); //! Set if the quest is autocpmpleted
+		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
+		questConfig.SetAutocomplete(true); //! Set if the quest is autocompleted
 
 		//! Quest items on quest start
 		array <ExpansionQuestItemConfig> questItems = new array<ExpansionQuestItemConfig>;
@@ -233,8 +249,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 
 		//! Quest objectives
@@ -269,8 +285,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 
 		//! Quest objectives
@@ -278,7 +294,7 @@ class ExpansionDefaultQuestData
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
 		questConfig.AddObjectiveConfig(objective_1);
-		
+
 		ExpansionQuestObjectiveAICampConfig objective_2 = new ExpansionQuestObjectiveAICampConfig();
 		objective_2.SetID(1);
 		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.AICAMP);
@@ -312,8 +328,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsGroupQuest(true); //! Set if the quest is a group quest and can only accepted in a group by the group owner.
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
@@ -741,9 +757,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetType(ExpansionQuestType.ACHIVEMENT);
 		questConfig.SetTitle("Killed 10 Infected");
 		questConfig.SetObjectiveText("You have killed 10 infected and completed a server achievement! Reward: 100 Ruble");
-		questConfig.SetAutocomplet(true);
+		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
-		
+
 		//! Quest objectives
 		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
 		objective_1.SetID(3);
@@ -770,7 +786,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetType(ExpansionQuestType.ACHIVEMENT);
 		questConfig.SetTitle("Killed 100 Civilian Infected");
 		questConfig.SetObjectiveText("You have killed 100 civilian infected and completed a server achievement! Reward: 500 Ruble");
-		questConfig.SetAutocomplet(true);
+		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
 		//! Quest objectives
@@ -790,7 +806,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig021()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -830,21 +846,21 @@ class ExpansionDefaultQuestData
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
-		
+
 		//! Quest objectives
 		ExpansionQuestObjectiveAIVIPConfig objective_1 = new ExpansionQuestObjectiveAIVIPConfig();
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIVIP);
-		
+
 		questConfig.AddObjectiveConfig(objective_1);
-		
+
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
 		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
-		
+
 		questConfig.SetRewards(rewards);
 
 		return questConfig;

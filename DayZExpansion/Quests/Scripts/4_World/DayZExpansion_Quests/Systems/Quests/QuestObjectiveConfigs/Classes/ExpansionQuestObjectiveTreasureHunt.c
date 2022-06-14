@@ -14,7 +14,7 @@ class ExpansionQuestObjectiveTreasureHunt
 {
 	private ref array<vector> Positions = new array<vector>;
 	private ref map<string, int> Items = new map<string, int>;
-	
+
 	[NonSerialized()]
 	private vector SelectedPosition;
 
@@ -37,12 +37,12 @@ class ExpansionQuestObjectiveTreasureHunt
 	{
 		return Positions;
 	}
-	
+
 	void SetSelectedPosition(vector pos)
 	{
 		SelectedPosition = pos;
 	}
-	
+
 	vector GetSelectedPosition()
 	{
 		return SelectedPosition;
@@ -51,70 +51,12 @@ class ExpansionQuestObjectiveTreasureHunt
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(SelectedPosition);
-		
-		/*int posCount = Positions.Count();
-		ctx.Write(posCount);
-		foreach (vector pos: Positions)
-		{
-			ctx.Write(pos);
-		}
-		
-		ctx.Write(Positions);*/
-
-		/*int itemCount = Items.Count();
-		ctx.Write(itemCount);
-		
-		foreach (string name, int amount: Items)
-		{
-			ctx.Write(name);
-			ctx.Write(amount);
-		}*/
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!ctx.Read(SelectedPosition))
 			return false;
-		
-		/*if (!Positions)
-			Positions = new array<vector>;
-		else
-			Positions.Clear();
-
-		int posCount;
-		if (!ctx.Read(posCount))
-			return false;
-		
-		for (int i = 0; i < posCount; i++)
-		{
-			vector pos;
-			if (!ctx.Read(pos))
-			return false;
-			
-			Positions.Insert(pos);
-		}*/
-		
-		/*if (!Items)
-			Items = new map<string, int>;
-		else
-			Items.Clear();
-
-		int itemCount;
-		if (!ctx.Read(itemCount))
-			return false;
-
-		for (int i = 0; i < itemCount; i++)
-		{
-			string name;
-			if (!ctx.Read(name))
-				return false;
-
-			int amount;
-			if (!ctx.Read(amount))
-				return false;
-
-			Items.Insert(name, amount);
-		}*/
 
 		return true;
 	}
@@ -127,7 +69,7 @@ class ExpansionQuestObjectiveTreasureHunt
 		{
 			Print(ToString() + "::QuestDebug - Position: " + pos);
 		}
-		
+
 		foreach (string item, int amount: Items)
 		{
 			Print(ToString() + "::QuestDebug - Item: " + item);

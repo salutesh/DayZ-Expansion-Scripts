@@ -23,7 +23,7 @@ modded class MissionGameplay
 	{
 		//! Expansion Quest Hud
 		InitExpansionQuestHud();
-		
+
 		super.OnInit();
 	}
 

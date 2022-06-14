@@ -16,7 +16,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
 	private vector Position = vector.Zero;
 	private float MaxDistance = 0;
 	private string MarkerName = string.Empty;
-	
+
 	void AddDelivery(int amount, string name)
 	{
 		ExpansionQuestObjectiveDelivery delivery = new ExpansionQuestObjectiveDelivery();
@@ -24,7 +24,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
 		delivery.SetClassName(name);
 		Deliveries.Insert(delivery);
 	}
-	
+
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -44,7 +44,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
 	{
 		return MaxDistance;
 	}
-	
+
 	void SetMarkerName(string name)
 	{
 		MarkerName = name;
@@ -76,7 +76,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
 		{
 			delivery.OnSend(ctx);
 		}
-		
+
 		ctx.Write(Position);
 		ctx.Write(MaxDistance);
 		ctx.Write(MarkerName);
@@ -104,13 +104,13 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
 
 			Deliveries.Insert(delivery);
 		}
-		
+
 		if (!ctx.Read(Position))
 			return false;
 
 		if (!ctx.Read(MaxDistance))
 			return false;
-		
+
 		if (!ctx.Read(MarkerName))
 			return false;
 

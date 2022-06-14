@@ -20,11 +20,12 @@ modded class PlayerBase
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenQuestMenu, InputActionMap);
+		AddAction(ExpansionActionOpenQuestMenuObject, InputActionMap);
 	#ifdef EXPANSIONMODAI
 		AddAction(ExpansionActionOpenQuestMenuAI, InputActionMap);
 	#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	// PlayerBase EEKilled
 	// ------------------------------------------------------------
@@ -37,7 +38,7 @@ modded class PlayerBase
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 		if (!questModule)
 			return;
-		
+
 		PlayerBase player;
 		EntityAI target;
 
@@ -62,6 +63,16 @@ modded class PlayerBase
 			{
 				questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
 			}
+		}
+		else if (killSource.IsAnimal() || killSource.IsKindOf("AnimalBase") || killSource.IsInherited(AnimalBase))
+		{
+			target = EntityAI.Cast(this);
+			questModule.OnEntityKilled(target, killSource);
+		}
+		else if (killSource.IsZombie() || killSource.IsKindOf("ZombieBase") || killSource.IsInherited(ZombieBase))
+		{
+			target = EntityAI.Cast(this);
+			questModule.OnEntityKilled(target, killSource);
 		}
 	}
 };

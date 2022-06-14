@@ -71,7 +71,7 @@ class ExpansionQuestObjectiveAICamp
 	{
 		return Positions;
 	}
-	
+
 	void AddClassName(string name)
 	{
 		ClassNames.Insert(name);
@@ -106,7 +106,7 @@ class ExpansionQuestObjectiveAICamp
 	{
 		int positionsCount = Positions.Count();
 		ctx.Write(positionsCount);
-		
+
 		int i;
 		for (i = 0; i < Positions.Count(); i++)
 		{

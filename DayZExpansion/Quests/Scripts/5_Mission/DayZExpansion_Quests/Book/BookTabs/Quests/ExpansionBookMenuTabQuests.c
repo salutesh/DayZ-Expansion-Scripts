@@ -128,10 +128,10 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 				m_QuestTabController.Quests.Insert(questEntry);
 			}
 		}
-		
+
 	#ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 		hide_questhud_button.Show(true);
-		
+
 		MissionGameplay mission = MissionGameplay.Cast(GetDayZGame().GetMission());
 		if (mission)
 		{

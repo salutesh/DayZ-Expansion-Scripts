@@ -70,25 +70,27 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		string typeName = victim.ClassName();
 		string killerName = killer.GetType();
+		bool maxRangeCheck = false;
 		
+		//! Use max range check if used in config
+		if (GetObjectiveConfig().GetMaxDistance() != -1)
+			maxRangeCheck = true;
+
 		PlayerBase killerPlayer;
 		vector playerPos;
 		if (Class.CastTo(killerPlayer, killer))
 		{
-			if (!IsInMaxRange(killerPlayer.GetPosition()))
+			if (maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
 				return;
 		}
 		else if (Class.CastTo(killerPlayer, killer.GetHierarchyParent()))
 		{
-			if (!IsInMaxRange(killerPlayer.GetPosition()))
+			if (maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
 			{
 				Print(ToString() + "::OnEntityKilled - Killer is out of legit kill range!");
 				return;
 			}
 		}
-		
-		//Print(ToString() + "::OnEntityKilled - Victim type: " + typeName);
-		//Print(ToString() + "::OnEntityKilled - Killer type: " + killerName);
 
 		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
 		if (!target)
@@ -129,19 +131,17 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		if (position != vector.Zero && currentDistance <= maxDistance)
 		{
-			Print(ToString() + "::IsInMaxRange - IS IN RANGE!");
 			return true;
 		}
-		
-		Print(ToString() + "::IsInMaxRange - IS OUT OF RANGE!");
+
 		return false;
 	}
-	
+
 	override void OnUpdate(float timeslice)
 	{
 		if (!IsInitialized() || IsCompleted())
 			return;
-		
+
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
@@ -159,7 +159,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
-	
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TARGET;

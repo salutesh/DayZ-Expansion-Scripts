@@ -17,8 +17,9 @@
 class ExpansionQuestNpcAIBase extends eAIBase
 {
 	private int m_QuestNPCID = -1;
-	private ExpansionQuestNpcData m_QuestNPCData;
+	private ref ExpansionQuestNpcData m_QuestNPCData;
 	private int m_NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
+	private bool m_IsEmoteStatic = false;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcAIBase Constructor
@@ -28,13 +29,24 @@ class ExpansionQuestNpcAIBase extends eAIBase
 		if (IsMissionHost())
 		{
 			SetAllowDamage(false);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionFixPositionAndOrientation, 10000, true);
 		}
-		
+
 #ifdef EXPANSIONMODAI
 		SetMovementSpeedLimit(1.0);  //! Always walk
 #endif
 
 		RegisterNetSyncVariableInt("m_QuestNPCID");
+	}
+	
+	void ~ExpansionQuestNpcAIBase()
+	{
+		if (IsMissionHost())
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionFixPositionAndOrientation);
+			if (!m_IsEmoteStatic)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionPlayEmote);
+		}
 	}
 
 	override void DeferredInit()
@@ -103,7 +115,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	// ExpansionQuestNpcAIBase PlayRandomEmote
 	// ------------------------------------------------------------
 #ifdef EXPANSIONMODAI
-	void PlayRandomEmote()
+	void ExpansionPlayRandomEmote()
 	{
 		EmoteManager emoteManager = GetEmoteManager();
 		if (!emoteManager.IsEmotePlaying())
@@ -116,28 +128,33 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcAIBase SetEmote
 	// ------------------------------------------------------------
-	void SetEmote(int emoteID)
+	void ExpansionSetEmote(int emoteID, bool isStatic = false)
 	{
 		m_NPCEmoteID = emoteID;
+		m_IsEmoteStatic = isStatic;
+		
+		int emoteTime = Math.RandomInt(5000, 10000);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionPlayEmote, emoteTime, !m_IsEmoteStatic);
 	}
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcAIBase PlayEmote
 	// ------------------------------------------------------------
-	void PlayEmote()
+	void ExpansionPlayEmote()
 	{
 		EmoteManager emoteManager = GetEmoteManager();
 		if (!emoteManager.IsEmotePlaying())
 		{
 			emoteManager.PlayEmote(m_NPCEmoteID);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(emoteManager.ServerRequestEmoteCancel, 2000);
+			if (!m_IsEmoteStatic)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(emoteManager.ServerRequestEmoteCancel, 2000);
 		}
 	}
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNpcAIBase FixPositionAndOrientation
 	// ------------------------------------------------------------
-	void FixPositionAndOrientation()
+	void ExpansionFixPositionAndOrientation()
 	{
 		if (m_QuestNPCData)
 		{

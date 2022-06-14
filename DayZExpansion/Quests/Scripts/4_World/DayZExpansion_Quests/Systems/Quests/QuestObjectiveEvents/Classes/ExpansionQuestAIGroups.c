@@ -17,7 +17,7 @@ class ExpansionQuestAIGroups
 	float MinDistRadius = 300;			   		// If the player is closer than MinDistRadius from the spawn point, the group won't spawn
 	float MaxDistRadius = 1200;			    // Same but if the player is further away than MaxDistRadius, the bots won't spawn
 	ref array<ref ExpansionQuestAIGroup> Group;
-	
+
 	void ExpansionQuestAIGroups()
 	{
 		Group = new array< ref ExpansionQuestAIGroup >;

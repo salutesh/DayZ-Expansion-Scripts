@@ -19,6 +19,7 @@ static const string EXPANSION_QUESTS_MISSION_FOLDER = "$mission:expansion\\quest
 static const string EXPANSION_QUESTS_OBJECTS_FOLDER = EXPANSION_QUESTS_MISSION_FOLDER + "\\objects\\";
 
 static const string EXPANSION_QUESTS_FOLDER = EXPANSION_FOLDER + "Quests\\";
+static const string EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE = EXPANSION_QUESTS_FOLDER + "PresistentServerData.JSON";
 static const string EXPANSION_QUESTS_QUESTS_FOLDER = EXPANSION_QUESTS_FOLDER + "Quests\\";
 
 static const string EXPANSION_QUESTS_OBJECTIVES_FOLDER = EXPANSION_QUESTS_FOLDER + "Objectives\\";
