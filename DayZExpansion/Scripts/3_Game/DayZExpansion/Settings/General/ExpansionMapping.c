@@ -135,7 +135,6 @@ class ExpansionMapping
 		Mapping.Insert( "Chernogorsk_Forest1" );
 		Mapping.Insert( "Chernogorsk_Forest2" );
 		Mapping.Insert( "Chernogorsk_Highschool" );
-		Mapping.Insert( "DebugIsland" );
 		Mapping.Insert( "Elektrozavodsk" );
 		Mapping.Insert( "Evacuation" );
 		Mapping.Insert( "Factory" );
@@ -145,7 +144,6 @@ class ExpansionMapping
 		Mapping.Insert( "Krutoy_Cap" );
 		Mapping.Insert( "Myshkino" );
 		Mapping.Insert( "Nadezhdino" );
-		Mapping.Insert( "Nizhnoye" );
 		Mapping.Insert( "Novodmitrovsk" );
 		Mapping.Insert( "Radom_Stuff" );
 		Mapping.Insert( "Roads" );

@@ -2,7 +2,7 @@ enum eAIWaypointBehavior
 {
 	HALT,
 	LOOP,
-	REVERSE
+	ALTERNATE
 };
 
 enum eAIGroupFormationState

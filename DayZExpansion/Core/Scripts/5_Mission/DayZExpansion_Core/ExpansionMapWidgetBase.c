@@ -212,9 +212,9 @@ class ExpansionMapWidgetBase extends ScriptedWidgetEventHandler
 
 	void SetName(StringLocaliser name)
 	{
-		m_MarkerName = name.GetText();
-		m_Name.SetText(name.GetText());
-		m_EditName.SetText(name.GetText());
+		m_MarkerName = name.Format();
+		m_Name.SetText(name.Format());
+		m_EditName.SetText(name.Format());
 	}
 
 	void SetName(string name)

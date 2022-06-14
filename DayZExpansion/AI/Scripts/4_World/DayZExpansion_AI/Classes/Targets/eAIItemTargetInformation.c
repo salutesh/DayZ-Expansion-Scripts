@@ -18,7 +18,7 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 
 		if (ai)
 		{
-			if (ai.GetHumanInventory().GetEntityInHands() || ai.eAI_HasWeaponInInventory())
+			if (ai.GetHumanInventory().GetEntityInHands())
 				return 0.0;
 
 			if (m_Item.IsWeapon() || m_Item.Expansion_IsMeleeWeapon())

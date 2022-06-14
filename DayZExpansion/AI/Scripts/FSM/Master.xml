@@ -28,6 +28,12 @@
 						unit.AimAtDirection("0 0 1");
 				}
 				
+				auto hands = unit.GetItemInHands();
+				if (hands &amp;&amp; hands.HasEnergyManager() &amp;&amp; hands.GetCompEM().IsWorking() &amp;&amp; hands.GetCompEM().CanSwitchOff())
+				{
+					hands.GetCompEM().SwitchOff();
+				}
+				
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(true, 0);
 				unit.Expansion_GetUp();
@@ -144,7 +150,7 @@
 				
 				if (index &lt; 0) 
 				{
-					if (behaviour == eAIWaypointBehavior.REVERSE)
+					if (behaviour == eAIWaypointBehavior.ALTERNATE)
 					{
 						backtracking = false;
 						index = 1;
@@ -152,7 +158,7 @@
 				}
 				else if (index == path.Count())
 				{
-					if (behaviour == eAIWaypointBehavior.REVERSE)
+					if (behaviour == eAIWaypointBehavior.ALTERNATE)
 					{
 						backtracking = true;
 						index = path.Count() - 2;

@@ -7,12 +7,9 @@ class ExpansionSceneObject : ExpansionPrefabObject
 
 	autoptr array<ref ExpansionSceneObject> Children = new array<ref ExpansionSceneObject>();
 
-	override Object Spawn(Object self)
+	override Object Spawn(Object self, bool ignoreCargo = false)
 	{
 		self = super.Spawn(self);
-
-
-
 		return self;
 	}
 };

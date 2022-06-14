@@ -51,6 +51,14 @@ class CfgVehicles
 					hitpoints = 15;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
 				};
+				class Blood
+				{
+					hitpoints = 5000;
+				};
+				class Shock
+				{
+					hitpoints = 100;
+				};
 			};
 		};
 		class Skinning

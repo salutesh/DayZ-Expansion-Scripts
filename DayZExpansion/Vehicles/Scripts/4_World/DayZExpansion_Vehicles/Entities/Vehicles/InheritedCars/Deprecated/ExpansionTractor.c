@@ -300,4 +300,29 @@ class ExpansionTractor extends CarScript
 
 		return false;
 	}
+
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("ExpansionTractorFrontWheel");
+			entity.GetInventory().CreateInInventory("ExpansionTractorFrontWheel");
+			entity.GetInventory().CreateInInventory("ExpansionTractorBackWheel");
+			entity.GetInventory().CreateInInventory("ExpansionTractorBackWheel");
+
+			entity.GetInventory().CreateInInventory("ExpansionTractorDoorsDriver");
+			entity.GetInventory().CreateInInventory("ExpansionTractorDoorsCodriver");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");		
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
 };

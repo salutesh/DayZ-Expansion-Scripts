@@ -108,10 +108,11 @@
 			<event_entry />
 			<event_exit />
 			<event_update>
-				if (unit.GetItemInHands() != fsm.weapon)
+				if (!fsm.weapon || unit.GetItemInHands() != fsm.weapon)
 					return EXIT;  // remove complete
 				
-				unit.eAI_DropItem(fsm.weapon);
+				if (!unit.Expansion_CloneItemToInventory(fsm.weapon))
+					unit.eAI_DropItem(fsm.weapon);
 				
 				return CONTINUE;
 			</event_update>

@@ -25,13 +25,13 @@ class ExpansionHumanLoadout
 		DefaultHumanLoadout();
 		DefaultPoliceLoadout();
 		DefaultFireFighterLoadout();
-		DefaultTTSKOLoadout();
+		DefaultTTsKOLoadout();
 		DefaultGorkaLoadout();
 		DefaultNBCLoadout();
 		
 		// Default faction loadouts
-		DefaulEastLoadout();
-		DefaulWestLoadout();
+		DefaultEastLoadout();
+		DefaultWestLoadout();
 		DefaultSurvivorLoadout();
 		DefaultBanditLoadout();
 
@@ -652,6 +652,14 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("", "Melee");
 			loadout = loadout.End();
 			
+			DefaultSurvivorWeapon(loadout);
+
+		loadout.Save();
+	}
+
+	static void DefaultSurvivorWeapon(inout ExpansionPrefabObject loadout)
+	{
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AK101", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK101_30Rnd");
 				loadout = loadout.End();
@@ -685,6 +693,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK101_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK101_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AK74", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
@@ -720,6 +737,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AKS74U", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
@@ -732,6 +758,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AKM", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
 				loadout.Chance = 0.9;
@@ -769,6 +804,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AKM_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AKM_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("MP5K", "Hands");
 				loadout = loadout.BeginAttachment("Mag_MP5_30Rnd");
 				loadout.Chance = 0.8;
@@ -793,6 +837,18 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_MP5_15Rnd");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_MP5_15Rnd");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_MP5_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Mosin9130", "Hands");
 				loadout = loadout.BeginAttachment("Ammo_762x54");
 				loadout = loadout.End();
@@ -801,6 +857,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_762x54");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Ammo_762x54");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("SKS", "Hands");
 				loadout = loadout.BeginAttachment("Ammo_762x39");
 				loadout = loadout.End();
@@ -809,6 +874,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_762x39");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Ammo_762x39");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Ruger1022", "Hands");
 				loadout = loadout.BeginAttachment("Mag_Ruger1022_30Rnd");
 				loadout.Chance = 0.4;
@@ -817,6 +891,18 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_Ruger1022_15Rnd");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_Ruger1022_15Rnd");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_Ruger1022_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("CZ550", "Hands");
 				loadout = loadout.BeginAttachment("Mag_CZ550_4rnd");
 				loadout.Chance = 0.6;
@@ -828,16 +914,45 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_CZ550_10rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_CZ550_10rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("P1", "Hands");
 				loadout = loadout.BeginAttachment("Mag_P1_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_P1_8Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_P1_8Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Mp133Shotgun", "Hands");
 				loadout = loadout.BeginAttachment("Ammo_12gaSlug");
 				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("Ammo_12gaPellets");
+				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_12gaSlug");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Ammo_12gaPellets");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("CZ527", "Hands");
 				loadout = loadout.BeginAttachment("Mag_CZ527_5rnd");
 				loadout = loadout.End();
@@ -846,6 +961,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_CZ527_5rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_CZ527_5rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("UMP45", "Hands");
 				loadout = loadout.BeginAttachment("Mag_UMP_25Rnd");
 				loadout = loadout.End();
@@ -856,37 +980,97 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_UMP_25Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_UMP_25Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("CZ61", "Hands");
 				loadout = loadout.BeginAttachment("Mag_CZ61_20Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_CZ61_20Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_CZ61_20Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("FNX45", "Hands");
 				loadout = loadout.BeginAttachment("Mag_FNX45_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_FNX45_15Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_FNX45_15Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("MKII", "Hands");
 				loadout = loadout.BeginAttachment("Mag_MKII_10Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_MKII_10Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_MKII_10Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("CZ75", "Hands");
 				loadout = loadout.BeginAttachment("Mag_CZ75_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_CZ75_15Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_CZ75_15Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
 				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_IJ70_8Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_IJ70_8Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Glock19", "Hands");
 				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
-
-		loadout.Save();
+			
+			loadout = loadout.BeginCargo("Mag_Glock_15Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_Glock_15Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
 	}
 
 	static void DefaultSurvivorLoadout()
@@ -1169,239 +1353,7 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("", "Melee");
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("AK101", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK101_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AK74", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_Hndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AKS74U", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.1;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AKM", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
-				loadout.Chance = 0.9;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Mag_AKM_Drum75Rnd");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("MP5K", "Hands");
-				loadout = loadout.BeginAttachment("Mag_MP5_30Rnd");
-				loadout.Chance = 0.8;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Mag_MP5_15Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("MP5k_StockBttstck");
-				loadout.Chance = 0.8;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("MP5_PlasticHndgrd");
-				loadout.Chance = 0.8;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("MP5_RailHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("MP5_Compensator");
-				loadout.Chance = 0.2;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("ReflexOptic");
-				loadout.Chance = 0.1;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("Mosin9130", "Hands");
-				loadout = loadout.BeginAttachment("Ammo_762x54");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PUScopeOptic");
-				loadout.Chance = 0.4;
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("SKS", "Hands");
-				loadout = loadout.BeginAttachment("Ammo_762x39");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PUScopeOptic");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("Ruger1022", "Hands");
-				loadout = loadout.BeginAttachment("Mag_Ruger1022_30Rnd");
-				loadout.Chance = 0.4;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Mag_Ruger1022_15Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("CZ550", "Hands");
-				loadout = loadout.BeginAttachment("Mag_CZ550_4rnd");
-				loadout.Chance = 0.6;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Mag_CZ550_10rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("HuntingOptic");
-				loadout.Chance = 0.4;
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("P1", "Hands");
-				loadout = loadout.BeginAttachment("Mag_P1_8Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("Mp133Shotgun", "Hands");
-				loadout = loadout.BeginAttachment("Ammo_12gaSlug");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("CZ527", "Hands");
-				loadout = loadout.BeginAttachment("Mag_CZ527_5rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("HuntingOptic");
-				loadout.Chance = 0.5;
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("UMP45", "Hands");
-				loadout = loadout.BeginAttachment("Mag_UMP_25Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("ReflexOptic");
-				loadout.Chance = 0.1;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("CZ61", "Hands");
-				loadout = loadout.BeginAttachment("Mag_CZ61_20Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("FNX45", "Hands");
-				loadout = loadout.BeginAttachment("Mag_FNX45_15Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("MKII", "Hands");
-				loadout = loadout.BeginAttachment("Mag_MKII_10Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("CZ75", "Hands");
-				loadout = loadout.BeginAttachment("Mag_CZ75_15Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
-				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("Glock19", "Hands");
-				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
-				loadout = loadout.End();
-			loadout = loadout.End();
+			DefaultSurvivorWeapon(loadout);
 
 		loadout.Save();
 	}
@@ -1484,7 +1436,7 @@ class ExpansionHumanLoadout
 		loadout.Save();
 	}
 
-	static void DefaulWestLoadout()
+	static void DefaultWestLoadout()
 	{
 		if (FileExist(ExpansionLoadout.GetPath("WestLoadout")))
 			return;
@@ -1617,6 +1569,20 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
+			DefaultWestWeapon(loadout);
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+
+	static void DefaultWestWeapon(inout ExpansionPrefabObject loadout)
+	{
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Scout", "Hands");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_Scout_5Rnd");
@@ -1644,12 +1610,30 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_Scout_5Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_Scout_5Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("FAMAS", "Hands");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_FAMAS_25Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_FAMAS_25Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_FAMAS_25Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("M4A1", "Hands");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_STANAG_30Rnd");
@@ -1677,13 +1661,11 @@ class ExpansionHumanLoadout
 				loadout.Chance = 0.33;
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("M4_OEBttstck");
-				loadout.Chance = 0.33;
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("M4_MPHndgrd");
 				loadout.Chance = 0.33;
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("M4_PlasticHndgrd");
-				loadout.Chance = 0.33;
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("M4_RISHndgrd");
 				loadout.Chance = 0.33;
@@ -1718,12 +1700,30 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_STANAG_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_STANAG_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Aug", "Hands");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_Aug_30Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_Aug_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_Aug_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AugShort", "Hands");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_Aug_30Rnd");
@@ -1756,6 +1756,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_Aug_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_Aug_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("M16A2", "Hands");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_STANAG_60Rnd");
@@ -1765,16 +1774,16 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginCargo("Apple");
-			loadout.Chance = 0.1;
+			loadout = loadout.BeginCargo("Mag_STANAG_30Rnd");
+			loadout.Chance = 1.0;
 			loadout = loadout.End();
-			loadout = loadout.BeginCargo("BandageDressing");
+			loadout = loadout.BeginCargo("Mag_STANAG_30Rnd");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
-		loadout.Save();
+		loadout = loadout.End();
 	}
 
-	static void DefaulEastLoadout()
+	static void DefaultEastLoadout()
 	{
 		if (FileExist(ExpansionLoadout.GetPath("EastLoadout")))
 			return;
@@ -2024,6 +2033,20 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
+			DefaultEastWeapon(loadout);
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+	
+	static void DefaultEastWeapon(inout ExpansionPrefabObject loadout)
+	{
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AK101", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK101_30Rnd");
 				loadout = loadout.End();
@@ -2057,6 +2080,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK101_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK101_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AK74", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
@@ -2092,6 +2124,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AKS74U", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
@@ -2104,6 +2145,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AKM", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
 				loadout.Chance = 0.9;
@@ -2141,6 +2191,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AKM_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AKM_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("SVD", "Hands");
 				loadout = loadout.BeginAttachment("Mag_SVD_10Rnd");
 				loadout = loadout.End();
@@ -2151,6 +2210,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_SVD_10Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_SVD_10Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("PP19", "Hands");
 				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
 				loadout = loadout.End();
@@ -2166,6 +2234,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_PP19_64Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_PP19_64Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("FAL", "Hands");
 				loadout = loadout.BeginAttachment("Mag_FAL_20Rnd");
 				loadout = loadout.End();
@@ -2184,16 +2261,13 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginCargo("Apple");
-			loadout.Chance = 0.1;
+			loadout = loadout.BeginCargo("Mag_FAL_20Rnd");
+			loadout.Chance = 1.0;
 			loadout = loadout.End();
-			loadout = loadout.BeginCargo("BandageDressing");
+			loadout = loadout.BeginCargo("Mag_FAL_20Rnd");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
-			loadout = loadout.BeginCargo("Ammo_762x39");
-			loadout.Chance = 0.15;
-			loadout = loadout.End();
-		loadout.Save();
+		loadout = loadout.End();
 	}
 
 	static void DefaultGorkaLoadout()
@@ -2391,165 +2465,7 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("AK101", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK101_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AK74", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_Hndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AKS74U", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.1;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AKM", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
-				loadout.Chance = 0.9;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Mag_AKM_Drum75Rnd");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("SVD", "Hands");
-				loadout = loadout.BeginAttachment("Mag_SVD_10Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("PP19", "Hands");
-				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PP19_Bttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PistolSuppressor");
-				loadout.Chance = 0.2;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("FAL", "Hands");
-				loadout = loadout.BeginAttachment("Mag_FAL_20Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Fal_FoldingBttstck");
-				loadout.Chance = 0.5;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Fal_OeBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("ACOGOptic");
-				loadout.Chance = 0.2;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("ReflexOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
+			DefaultEastWeapon(loadout);
 			
 			loadout = loadout.BeginCargo("Apple");
 			loadout.Chance = 0.1;
@@ -2557,13 +2473,10 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginCargo("BandageDressing");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
-			loadout = loadout.BeginCargo("Ammo_762x39");
-			loadout.Chance = 0.15;
-			loadout = loadout.End();
 		loadout.Save();
 	}
 
-	static void DefaultTTSKOLoadout()
+	static void DefaultTTsKOLoadout()
 	{
 		if (FileExist(ExpansionLoadout.GetPath("TTSKOLoadout")))
 			return;
@@ -2666,6 +2579,20 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
+			DefaultTTsKOWeapon(loadout);
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("BandageDressing");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+
+	static void DefaultTTsKOWeapon(inout ExpansionPrefabObject loadout)
+	{
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AKS74U", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
@@ -2678,6 +2605,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AK74_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("AKM", "Hands");
 				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
 				loadout.Chance = 0.9;
@@ -2715,6 +2651,15 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_AKM_30Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_AKM_30Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("PP19", "Hands");
 				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
 				loadout = loadout.End();
@@ -2730,21 +2675,27 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_PP19_64Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_PP19_64Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+		
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("SKS", "Hands");
 				loadout = loadout.BeginAttachment("Ammo_762x39");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginCargo("Apple");
-			loadout.Chance = 0.1;
-			loadout = loadout.End();
-			loadout = loadout.BeginCargo("BandageDressing");
-			loadout.Chance = 0.15;
+			loadout = loadout.BeginCargo("Ammo_762x39");
+			loadout.Chance = 1.0;
 			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_762x39");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
-		loadout.Save();
+		loadout = loadout.End();
 	}
 
 	static void DefaultNBCLoadout()
@@ -2759,7 +2710,7 @@ class ExpansionHumanLoadout
 			return;
 
 			//! NBC Gray
-			loadout = loadout.BeginSet();
+			loadout = loadout.BeginSet("CLOTHING");
 				loadout = loadout.BeginAttachment("NBCJacketGray", "Body");
 				loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.End();
@@ -2782,7 +2733,7 @@ class ExpansionHumanLoadout
 			loadout = loadout.End();
 			
 			//! NBC Yellow
-			loadout = loadout.BeginSet();
+			loadout = loadout.BeginSet("CLOTHING");
 				loadout = loadout.BeginAttachment("NBCJacketYellow", "Body");
 				loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.End();
@@ -2876,82 +2827,13 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("AKS74U", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.1;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("AKM", "Hands");
-				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
-				loadout.Chance = 0.9;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Mag_AKM_Drum75Rnd");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_FoldingBttstck");
-				loadout.Chance = 0.3;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK74_WoodBttstck");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodBttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_PlasticHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("AK_WoodHndgrd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KashtanOptic");
-				loadout.Chance = 0.1;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PSO1Optic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("PP19", "Hands");
-				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PP19_Bttstck");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("PistolSuppressor");
-				loadout.Chance = 0.2;
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("KobraOptic");
-				loadout.Chance = 0.2;
-					loadout = loadout.BeginAttachment("Battery9V");
-					loadout = loadout.End();
-				loadout = loadout.End();
-			loadout = loadout.End();
-			
-			loadout = loadout.BeginAttachment("SKS", "Hands");
-				loadout = loadout.BeginAttachment("Ammo_762x39");
-				loadout = loadout.End();
-			loadout = loadout.End();
+			DefaultEastWeapon(loadout);
+			DefaultWestWeapon(loadout);
 			
 			loadout = loadout.BeginCargo("Apple");
 			loadout.Chance = 0.1;
 			loadout = loadout.End();
 			loadout = loadout.BeginCargo("BandageDressing");
-			loadout.Chance = 0.15;
-			loadout = loadout.End();
-			loadout = loadout.BeginCargo("Ammo_762x39");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
 			loadout = loadout.BeginCargo("GasMask_Filter");
@@ -3025,6 +2907,23 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			DefaultPoliceWeapon(loadout);
+			
+			loadout = loadout.BeginCargo("Apple");
+			loadout.Chance = 0.1;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Handcuffs");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("HandcuffKeys");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout.Save();
+	}
+
+	static void DefaultPoliceWeapon(inout ExpansionPrefabObject loadout)
+	{
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("MP5K", "Hands");
 				loadout = loadout.BeginAttachment("Mag_MP5_30Rnd");
 				loadout.Chance = 0.8;
@@ -3049,36 +2948,72 @@ class ExpansionHumanLoadout
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_MP5_30Rnd");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_MP5_30Rnd");
+			loadout.Chance = 0.5;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_MP5_15Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Mp133Shotgun", "Hands");
 				loadout = loadout.BeginAttachment("Ammo_12gaRubberSlug");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_12gaRubberSlug");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Ammo_12gaRubberSlug");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("CZ61", "Hands");
 				loadout = loadout.BeginAttachment("Mag_CZ61_20Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_CZ61_20Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_CZ61_20Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
 				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Mag_IJ70_8Rnd");
+			loadout.Chance = 1.0;
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Mag_IJ70_8Rnd");
+			loadout.Chance = 0.15;
+			loadout = loadout.End();
+		loadout = loadout.End();
+			
+		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Glock19", "Hands");
 				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginCargo("Apple");
-			loadout.Chance = 0.1;
+			loadout = loadout.BeginCargo("Mag_Glock_15Rnd");
+			loadout.Chance = 1.0;
 			loadout = loadout.End();
-			loadout = loadout.BeginCargo("Handcuffs");
+			loadout = loadout.BeginCargo("Mag_Glock_15Rnd");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
-			loadout = loadout.BeginCargo("HandcuffKeys");
-			loadout.Chance = 0.15;
-			loadout = loadout.End();
-		loadout.Save();
+		loadout = loadout.End();
 	}
 
 	static void DefaultHumanLoadout()
@@ -3190,7 +3125,7 @@ class ExpansionHumanLoadout
 		loadout.Save();
 	}
 
-	static bool Apply(DayZPlayerImplement player, string file, bool forceReload = false)
+	static bool Apply(DayZPlayer player, string file, bool forceReload = false)
 	{
 		ExpansionHumanLoadout.Init();
 		

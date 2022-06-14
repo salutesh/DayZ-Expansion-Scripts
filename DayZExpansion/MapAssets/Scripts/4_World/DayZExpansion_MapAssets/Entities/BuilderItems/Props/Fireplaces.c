@@ -69,10 +69,6 @@ class bldr_prop_FireplaceIndoor extends House
 class bldr_fire_barrel extends BarrelHoles_Red
 {
 	override protected void SpendFireConsumable( float amount ) {};
-	
-	override void SoundBarrelOpenPlay() {};
-	
-	override void SoundBarrelClosePlay() {};
 
 	override bool CanExtinguishFire()
 	{

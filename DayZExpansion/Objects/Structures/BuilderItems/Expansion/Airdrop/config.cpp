@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class BuilderItems_Expansion_Airdrop
 	{
-		units[] = {"bldr_expansion_Airdrop_Crate_Base","bldr_expansion_Airdrop_Crate_Base_Grounded","bldr_expansion_Airdrop_Crate_Basebuilding","bldr_expansion_Airdrop_Crate_Military","bldr_expansion_Airdrop_Crate_Medical","bldr_expansion_Airdrop_Crate_General","bldr_expansion_Airdrop_Crate_Basebuilding_Grounded","bldr_expansion_Airdrop_Crate_Military_Grounded","bldr_expansion_Airdrop_Crate_Medical_Grounded","bldr_expansion_Airdrop_Crate_General_Grounded","bldr_expansion_Airdrop_Plane"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Structures_Signs"};
@@ -15,7 +15,7 @@ class CfgVehicles
 	class HouseNoDestruct;
 	class bldr_expansion_Airdrop_Crate_Base: HouseNoDestruct
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Objects\airdrop\container.p3d";
 		hiddenSelections[] = {"body"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Airdrop\data\Airdrop_co.paa"};
@@ -66,7 +66,7 @@ class CfgVehicles
 	};
 	class bldr_expansion_Airdrop_Plane: HouseNoDestruct
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Objects\Airdrop\AirdropC130J.p3d";
 		class AnimationSources
 		{

@@ -97,6 +97,14 @@
 					unit.LookAtPosition(aimPosition);
 					unit.AimAtPosition(aimPosition);
 					unit.OverrideTargetPosition(position);
+					
+					if (hands &amp;&amp; (hands.IsWeapon() || distanceSq &lt;= 100.0))
+					{
+						if (hands.HasEnergyManager() &amp;&amp; !hands.GetCompEM().IsWorking() &amp;&amp; hands.GetCompEM().CanSwitchOn())
+						{
+							hands.GetCompEM().SwitchOn();
+						}
+					}
 				}
 				else
 				{

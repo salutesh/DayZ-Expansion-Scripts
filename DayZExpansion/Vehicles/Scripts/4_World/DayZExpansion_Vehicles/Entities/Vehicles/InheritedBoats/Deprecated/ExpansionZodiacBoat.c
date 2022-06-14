@@ -133,4 +133,19 @@ class ExpansionZodiacBoat extends ExpansionBoatScript
 
 		return "refill";
 	}
+
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("GlowPlug");
+			entity.GetInventory().CreateInInventory("TruckBattery");		
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
 };

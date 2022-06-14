@@ -15,6 +15,9 @@
  **/
 modded class MissionGameplay
 {
+	//! Book menu check
+	protected bool m_Expansion_BookMenuTogglePressed;
+	
     override void OnUpdate(float timeslice)   
 	{
 		super.OnUpdate(timeslice);
@@ -51,9 +54,15 @@ modded class MissionGameplay
 				{
 					if ((bookMenu || !topMenu) && !inputIsFocused)
 					{
-						if (input.LocalPress("UAExpansionBookToggle", false))
+						//! Toggle Book menu
+						if (input.LocalPress("UAExpansionBookToggle", false) && !m_Expansion_BookMenuTogglePressed)
 						{
+							m_Expansion_BookMenuTogglePressed = true;
 							OnBookTogglePressed();
+						}
+						else if (input.LocalRelease("UAExpansionBookToggle", false) || input.LocalValue("UAExpansionBookToggle", false) == 0)
+						{
+							m_Expansion_BookMenuTogglePressed = false;
 						}
 					}
 				}
@@ -64,16 +73,16 @@ modded class MissionGameplay
 	void OnBookTogglePressed()
 	{
 		ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();	//! Reference to expansion ui manager
-		ScriptView menu	= uiManager.GetMenu();														//! Reference to current opened script view menu
+		ScriptView menu = uiManager.GetMenu();	//! Reference to current opened script view menu
 		
 		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(menu);
 		if (!bookMenu)
 		{
 			uiManager.CreateSVMenu("ExpansionBookMenu");
-		} 
+		}
 		else if (bookMenu && bookMenu.IsVisible())
 		{
-			bookMenu.OnBackButtonClick();
+			uiManager.CloseMenu();
 		}
 	}
 }

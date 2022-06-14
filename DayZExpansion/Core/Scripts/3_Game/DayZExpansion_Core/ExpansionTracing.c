@@ -69,7 +69,7 @@ class EXTrace
 
 	static bool LIGHTS;
 
-	static bool MAPPING;
+	static bool MAPPING = ENABLE;
 	
 	static bool MARKER;
 

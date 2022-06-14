@@ -95,10 +95,7 @@ modded class MissionGameplay
 					if (input.LocalPress("UAExpansionPlayerListToggle", false) && !m_Expansion_PlayerListTogglePressed)
 					{
 						m_Expansion_PlayerListTogglePressed = true;
-						if ((playerListMenu || !topMenu) && !inputIsFocused)
-						{
-							OnPlayerListTogglePressed();
-						}
+						OnPlayerListTogglePressed();
 					}
 					else if (input.LocalRelease("UAExpansionPlayerListToggle", false) || input.LocalValue("UAExpansionPlayerListToggle", false) == 0)
 					{

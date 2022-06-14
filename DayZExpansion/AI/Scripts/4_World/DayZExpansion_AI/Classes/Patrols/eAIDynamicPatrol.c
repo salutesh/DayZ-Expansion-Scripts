@@ -83,6 +83,8 @@ class eAIDynamicPatrol : eAIPatrol
 		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
 				
 		ai.SetMovementSpeedLimit(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
+		ai.eAI_SetCanBeLooted(m_CanBeLooted);
+		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 
 		return ai;
 	}
@@ -122,8 +124,6 @@ class eAIDynamicPatrol : eAIPatrol
 		m_WasGroupDestroyed = false;
 
 		eAIBase ai = SpawnAI(m_Position);
-		ai.eAI_SetCanBeLooted(m_CanBeLooted);
-		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 		m_Group = ai.GetGroup();
 		m_Group.SetFaction(m_Faction);
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
@@ -133,8 +133,6 @@ class eAIDynamicPatrol : eAIPatrol
 		while (count != 0)
 		{
 			ai = SpawnAI(m_Position);
-			ai.eAI_SetCanBeLooted(m_CanBeLooted);
-			ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 			ai.SetGroup(m_Group);
 			count--;
 		}

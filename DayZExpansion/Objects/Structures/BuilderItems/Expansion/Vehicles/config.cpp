@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class BuilderItems_Expansion_Vehicles
 	{
-		units[] = {"bldr_expansion_Gyrocopter_Red","bldr_expansion_Gyrocopter_Animated_Red","bldr_expansion_C130J_Grey","bldr_expansion_C130J_Animated_Grey","bldr_expansion_An2_Green","bldr_expansion_An2_Animated_Green"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Structures_Signs"};
@@ -364,11 +364,11 @@ class CfgVehicles
 	};
 	class bldr_expansion_Gyrocopter_Red: bldr_expansion_Gyrocopter_Base
 	{
-		scope = 2;
+		scope = 1;
 	};
 	class bldr_expansion_Gyrocopter_Animated_Red: bldr_expansion_Gyrocopter_Animated_Base
 	{
-		scope = 2;
+		scope = 1;
 	};
 	class bldr_expansion_C130J_Base: HouseNoDestruct
 	{
@@ -396,11 +396,11 @@ class CfgVehicles
 	};
 	class bldr_expansion_C130J_Grey: bldr_expansion_C130J_Base
 	{
-		scope = 2;
+		scope = 1;
 	};
 	class bldr_expansion_C130J_Animated_Grey: bldr_expansion_C130J_Animated_Base
 	{
-		scope = 2;
+		scope = 1;
 	};
 	class bldr_expansion_An2_Base: HouseNoDestruct
 	{
@@ -428,10 +428,10 @@ class CfgVehicles
 	};
 	class bldr_expansion_An2_Green: bldr_expansion_An2_Base
 	{
-		scope = 2;
+		scope = 1;
 	};
 	class bldr_expansion_An2_Animated_Green: bldr_expansion_An2_Animated_Base
 	{
-		scope = 2;
+		scope = 1;
 	};
 };

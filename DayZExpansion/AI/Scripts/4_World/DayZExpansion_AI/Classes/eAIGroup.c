@@ -23,7 +23,7 @@ class eAIGroup
 	private autoptr eAIFaction m_Faction = new eAIFactionRaiders();
 
 	private autoptr array<vector> m_Waypoints;
-	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.REVERSE;
+	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.ALTERNATE;
 
 	private eAIGroupFormationState m_FormationState = eAIGroupFormationState.IN;
 

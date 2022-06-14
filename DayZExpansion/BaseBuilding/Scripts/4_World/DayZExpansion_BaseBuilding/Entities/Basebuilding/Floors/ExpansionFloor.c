@@ -218,7 +218,7 @@ class ExpansionFloorBase extends ExpansionBaseBuilding
 		else
 		{
 			//! Don't allow dismantling floor from below
-			if (player_pos[1] + 1.5 < floor_pos[1])
+			if (player_pos[1] < floor_pos[1])
 				return false;
 		}
 

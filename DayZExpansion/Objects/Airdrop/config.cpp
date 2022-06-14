@@ -39,8 +39,41 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 100000;
 					healthLevels[] = {};
+				};
+			};
+			class GlobalArmor
+			{
+				class Projectile
+				{
+					class Health
+					{
+						damage = 0.0;
+					};
+					class Blood
+					{
+						damage = 0.0;
+					};
+					class Shock
+					{
+						damage = 0.0;
+					};
+				};
+				class FragGrenade
+				{
+					class Health
+					{
+						damage = 0.0;
+					};
+					class Blood
+					{
+						damage = 0.0;
+					};
+					class Shock
+					{
+						damage = 0.0;
+					};
 				};
 			};
 		};
