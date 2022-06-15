@@ -20,12 +20,19 @@ class ExpansionMarketExplosives: ExpansionMarketCategory
 		DisplayName = ("#STR_EXPANSION_MARKET_CATEGORY_EXPLOSIVES" + " & " + "#STR_EXPANSION_MARKET_CATEGORY_GRENADES");
 		m_FileName = "Explosives_And_Grenades";
 		
-		// EXPLOSIVE GRANADES
+		// EXPLOSIVE GRENADES
 		AddItem("RGD5Grenade", 				300,		600,		1,		100);
 		AddItem("M67Grenade", 				300,		600,		1,		100);
 		
 		// FLASHBANGS
 		AddItem("FlashGrenade", 			250,		500,		1,		100);
+
+		//Base Raiding
+		AddItem("RemoteDetonator", 				300,		600,		1,		100);
+		AddItem("RemoteDetonatorTrigger", 		300,		600,		1,		100);
+		AddItem("ImprovisedExplosive", 			300,		600,		1,		100);
+		AddItem("Plastic_Explosive", 			300,		600,		1,		100);
+		AddItem("Grenade_ChemGas", 				300,		600,		1,		100);
 
 		// SMOKE GRANADES
 	#ifdef EXPANSIONMODWEAPONS

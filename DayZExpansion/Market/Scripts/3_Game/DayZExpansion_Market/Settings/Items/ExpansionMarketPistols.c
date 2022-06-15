@@ -21,6 +21,7 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 		m_FileName = "Pistols";
 
 		AddItem("MakarovIJ70", 				100,	200,	1,		100,	{"Mag_IJ70_8Rnd"});
+		AddItem("Derringer_Black", 			200,	600,	1,	    100,	{"Derringer_Grey"}, {"Derringer_Pink"});
 		AddItem("CZ75", 					135,	270,	1,		100,	{"Mag_CZ75_15Rnd"});
 		AddItem("FNX45", 					175,	350,	1,		100,	{"Mag_FNX45_15Rnd"});
 		AddItem("Glock19", 					300,	600,	1,		100,	{"Mag_Glock_15Rnd"});

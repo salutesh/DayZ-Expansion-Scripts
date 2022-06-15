@@ -48,7 +48,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 				else if (humanity > 0)
 				{
 					difference = m_CurrentHumanity - humanity;
-					m_CurrentHumanity =+ humanity;
+					m_CurrentHumanity += humanity;
 				}
 			}
 			else if (m_CurrentHumanity > 0)
@@ -144,12 +144,12 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		return path;
 	}
 	
-	void AddHumanity()
+	void AddHumanity(int difference)
 	{
 		
 	}
 	
-	void RemoveHumanity()
+	void RemoveHumanity(int difference)
 	{
 		
 	}
