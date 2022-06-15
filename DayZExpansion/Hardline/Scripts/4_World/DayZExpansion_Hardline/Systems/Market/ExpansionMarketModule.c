@@ -21,6 +21,7 @@ modded class ExpansionMarketModule
 		}
 		
 		ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
+		
 		int required;
 		if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
 		{			
@@ -41,6 +42,7 @@ modded class ExpansionMarketModule
 		}
 		
 		ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
+		
 		int required;
 		if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
 		{
@@ -56,21 +58,23 @@ modded class ExpansionMarketModule
 	bool HasRankForItem(PlayerBase player, int rarity, out int required)
 	{
 		int humanity = player.GetHumanity();
+		int negative;
+
 		if (player.IsHero())
 		{
-			if (rarity == ExpansionHardlineItemRarity.POOR < GetExpansionSettings().GetHardline().PoorItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.POOR && humanity < GetExpansionSettings().GetHardline().PoorItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().PoorItemRequirement;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.COMMON < GetExpansionSettings().GetHardline().CommonItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.COMMON && humanity < GetExpansionSettings().GetHardline().CommonItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().CommonItemRequirement;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.UNCOMMON < GetExpansionSettings().GetHardline().UncommonItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.UNCOMMON && humanity < GetExpansionSettings().GetHardline().UncommonItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().UncommonItemRequirement;
 				return false;
@@ -100,77 +104,85 @@ modded class ExpansionMarketModule
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC < GetExpansionSettings().GetHardline().ExoticItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.EXOTIC && humanity < GetExpansionSettings().GetHardline().ExoticItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().ExoticItemRequirement;
 				return false;
 			}
 		}
 		else if (player.IsBandit())
-		{
-			if (rarity == ExpansionHardlineItemRarity.POOR < -GetExpansionSettings().GetHardline().PoorItemRequirement)
+		{	
+			negative =- GetExpansionSettings().GetHardline().PoorItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.POOR && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().PoorItemRequirement;
+				required =- negative;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.COMMON < -GetExpansionSettings().GetHardline().CommonItemRequirement)
+			negative =- GetExpansionSettings().GetHardline().CommonItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.COMMON && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().CommonItemRequirement;
+				required =- negative;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.UNCOMMON < -GetExpansionSettings().GetHardline().UncommonItemRequirement)
+			negative =- GetExpansionSettings().GetHardline().UncommonItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.UNCOMMON && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().UncommonItemRequirement;
+				required =- negative;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.RARE && humanity < -GetExpansionSettings().GetHardline().RareItemRequirement)
+			negative =- GetExpansionSettings().GetHardline().RareItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.RARE && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().RareItemRequirement;
+				required =- negative;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.EPIC && humanity < -GetExpansionSettings().GetHardline().EpicItemRequirement)
+			negative =- GetExpansionSettings().GetHardline().EpicItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.EPIC && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().EpicItemRequirement;
+				required =- negative;				
+				return false;
+			}
+
+			negative =- GetExpansionSettings().GetHardline().LegendaryItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.LEGENDARY && humanity > negative)
+			{
+				required =- negative;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.LEGENDARY && humanity < -GetExpansionSettings().GetHardline().LegendaryItemRequirement)
+			negative =- GetExpansionSettings().GetHardline().MythicItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.MYTHIC && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().LegendaryItemRequirement;
+				required =- negative;
 				return false;
 			}
-			
-			if (rarity == ExpansionHardlineItemRarity.MYTHIC && humanity < -GetExpansionSettings().GetHardline().MythicItemRequirement)
+
+			negative =- GetExpansionSettings().GetHardline().ExoticItemRequirement;
+			if (rarity == ExpansionHardlineItemRarity.EXOTIC && humanity > negative)
 			{
-				required = -GetExpansionSettings().GetHardline().MythicItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC < -GetExpansionSettings().GetHardline().ExoticItemRequirement)
-			{
-				required = -GetExpansionSettings().GetHardline().ExoticItemRequirement;
+				required =- negative;
 				return false;
 			}
 		}
 		else if (!player.IsBandit() && !player.IsHero())
 		{
-			if (rarity == ExpansionHardlineItemRarity.POOR < GetExpansionSettings().GetHardline().PoorItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.POOR && humanity < GetExpansionSettings().GetHardline().PoorItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().PoorItemRequirement;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.COMMON < GetExpansionSettings().GetHardline().CommonItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.COMMON && humanity < GetExpansionSettings().GetHardline().CommonItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().CommonItemRequirement;
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.UNCOMMON < GetExpansionSettings().GetHardline().UncommonItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.UNCOMMON && humanity < GetExpansionSettings().GetHardline().UncommonItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().UncommonItemRequirement;
 				return false;
@@ -200,13 +212,13 @@ modded class ExpansionMarketModule
 				return false;
 			}
 			
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC < GetExpansionSettings().GetHardline().ExoticItemRequirement)
+			if (rarity == ExpansionHardlineItemRarity.EXOTIC && humanity < GetExpansionSettings().GetHardline().ExoticItemRequirement)
 			{
 				required = GetExpansionSettings().GetHardline().ExoticItemRequirement;
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 };

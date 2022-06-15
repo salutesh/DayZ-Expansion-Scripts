@@ -170,7 +170,7 @@ class ExpansionQuestPlayerData
 				continue;
 
 			ExpansionQuestTimestampPlayerData timestamp;
-			if (state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED && questConfig.IsRepeatable() && !HasCooldownOnQuest(questID, timestamp))
+			if (state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED && questConfig.IsRepeatable() && !HasCooldownOnQuest(questID, timestamp) && !questConfig.IsAchivement())
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 				Print(ToString() + "::CleanupQuestStates - Cleanup quest state data for quest with ID:" + questID + " | State: " + state);

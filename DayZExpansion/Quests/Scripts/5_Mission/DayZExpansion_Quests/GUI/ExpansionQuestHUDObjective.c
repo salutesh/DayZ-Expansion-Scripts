@@ -31,7 +31,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void ~ExpansionQuestHUDObjective()
 	{
-		m_QuestHUDObjectiveController.DeliveryEnties.Clear();
+		if (m_QuestHUDObjectiveController.DeliveryEnties)
+			m_QuestHUDObjectiveController.DeliveryEnties.Clear();
 	}
 
 	override string GetLayoutFile()

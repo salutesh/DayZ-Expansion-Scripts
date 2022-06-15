@@ -262,7 +262,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		}
 		
 		for (int i = 0; i < itemDataCount; i++)
-		{			
+		{
 			ExpansionHardlineItemData itemData = new ExpansionHardlineItemData();			
 			if ( !itemData.OnRecieve( ctx ) )
 			{
@@ -520,7 +520,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	#endif
 	
 	#ifdef EXPANSIONMODMARKET
-		AddItem("ExpansionGoldBar", ExpansionHardlineItemRarity.EPIC);
 		AddItem("ExpansionGoldBar", ExpansionHardlineItemRarity.EPIC);
 		AddItem("ExpansionGoldNugget", ExpansionHardlineItemRarity.EPIC);
 	#endif
@@ -1370,7 +1369,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("M4_Suppressor", ExpansionHardlineItemRarity.EPIC);
 		AddItem("AK_Suppressor", ExpansionHardlineItemRarity.EPIC);
 		AddItem("PistolSuppressor", ExpansionHardlineItemRarity.RARE);
-
 	}
 	
 	void AddItem(string type, int rarity)

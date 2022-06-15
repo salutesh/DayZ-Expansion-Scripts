@@ -224,8 +224,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		Rewards.InsertAll(rewards);
 	}
 
-	void AddReward
-
 	array<ref ExpansionQuestRewardConfig> GetRewards()
 	{
 		return Rewards;
@@ -345,7 +343,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		Autocomplete = state;
 	}
-
+	
 	bool IsAutocomplete()
 	{
 		return Autocomplete;
@@ -445,7 +443,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		Repeatable = questConfigBase.Repeatable;
 		IsDailyQuest = questConfigBase.IsDailyQuest;
 		IsWeeklyQuest = questConfigBase.IsWeeklyQuest;
-		CancelQuestOnPlayerDeath =questConfigBase.CancelQuestOnPlayerDeath;
+		CancelQuestOnPlayerDeath = questConfigBase.CancelQuestOnPlayerDeath;
 		Autocomplete = questConfigBase.Autocomplete;
 		IsGroupQuest = questConfigBase.IsGroupQuest;
 	#ifdef EXPANSIONMODHARDLINE

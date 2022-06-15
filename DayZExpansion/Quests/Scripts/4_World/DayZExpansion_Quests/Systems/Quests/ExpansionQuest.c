@@ -66,7 +66,7 @@ class ExpansionQuest
 		m_Player = NULL;
 
 		CleanupQuestItems();
-		CleanupSetObjects();
+		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 
 		QuestItems.Clear();
 		QuestObjectives.Clear();
@@ -93,7 +93,7 @@ class ExpansionQuest
 		SetConfig(config);
 		Config.QuestDebug();
 		CreateObjectivesFromConfig(); //! Create objective instances from quest config
-		CreateObjectsFromSet(); //! Create quest objects from quest config
+		m_QuestModule.CheckAndSpawnObjectSet(Config.GetID());  //! Create quest objects from quest config if not spawned already
 
 		QuestPrint(ToString() + "::SetQuestConfig - End");
 	}
@@ -254,7 +254,7 @@ class ExpansionQuest
 		return false;
 	}
 
-	private void CreateObjectsFromSet()
+	/*private void CreateObjectsFromSet()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "CreateObjectsFromSet").Add(sender).Add(ctx);
@@ -275,7 +275,7 @@ class ExpansionQuest
 			return;
 
 		m_ObjectsSet.Delete();
-	}
+	}*/
 
 	ExpansionQuestConfig GetQuestConfig()
 	{
@@ -503,7 +503,7 @@ class ExpansionQuest
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestTurnIn - Start");
-		
+
 		if (GetQuestState() > ExpansionQuestState.CAN_TURNIN)
 		{
 			QuestPrint(ToString() + "::OnQuestTurnIn - QUEST STATE INVALID FOR TURN-IN!");
@@ -524,11 +524,11 @@ class ExpansionQuest
 				Error(ToString() + "::OnQuestTurnIn - Could not get quest config!");
 				return;
 			}
-			
+
 			//! Add all quest rewards to the players inventory
 			if (!SpawnQuestRewards(reward))
 				return;
-			
+
 			SetQuestState(ExpansionQuestState.COMPLETED);
 
 			//! Call end event on all quest objectives
@@ -594,7 +594,7 @@ class ExpansionQuest
 		}
 
 		//! Cleanup all spawned static quest objects from the object set
-		CleanupSetObjects();
+		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
 		//m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
@@ -725,7 +725,7 @@ class ExpansionQuest
 		}
 
 		//! Cleanup all spawned static quest objects from the object set
-		CleanupSetObjects();
+		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 
 		SetInitialized(false);
 
@@ -934,7 +934,7 @@ class ExpansionQuest
 	#endif
 
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-		
+
 		if (!m_IsGroupQuest)
 		{
 			EntityAI playerEntity = m_Player;
@@ -953,7 +953,7 @@ class ExpansionQuest
 					Spawn(questReward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 				}
 			}
-			
+
 		#ifdef EXPANSIONMODHARDLINE
 			for (i = 0; i < Config.GetRewards().Count(); i++)
 			{
@@ -963,11 +963,11 @@ class ExpansionQuest
 					hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 					if (!hardlineModule)
 						return false;
-	
+
 					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
 					if (!hardlinePlayerData)
 						return false;
-	
+
 					if (humanity > 0)
 					{
 						hardlinePlayerData.AddHumanity(humanity);
@@ -998,7 +998,7 @@ class ExpansionQuest
 					{
 						if (!reward)
 							return false;
-						
+
 						Spawn(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 					}
 					else
@@ -1011,7 +1011,7 @@ class ExpansionQuest
 						}
 					}
 				}
-				
+
 			#ifdef EXPANSIONMODHARDLINE
 				for (i = 0; i < Config.GetRewards().Count(); i++)
 				{
@@ -1021,11 +1021,11 @@ class ExpansionQuest
 						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 						if (!hardlineModule)
 							return false;
-	
+
 						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
 						if (!hardlinePlayerData)
 							continue;
-	
+
 						if (humanity > 0)
 						{
 							hardlinePlayerData.AddHumanity(humanity);
@@ -1040,7 +1040,7 @@ class ExpansionQuest
 			}
 		}
 	#endif
-		
+
 		return true;
 	}
 
@@ -1089,7 +1089,9 @@ class ExpansionQuest
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 			if (!m_Player.IsAlive())
+			{
 				return false;
+			}
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && m_Group)
@@ -1098,11 +1100,13 @@ class ExpansionQuest
 			{
 				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
 				if (!playerGroupData)
-					return false;
+					continue;
 
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (groupPlayer && !groupPlayer.IsAlive())
+				{
 					return false;
+				}
 			}
 		}
 	#endif
@@ -1190,7 +1194,7 @@ class ExpansionQuest
 	{
 		m_CurrentObjectiveIndex = index;
 	}
-	
+
 	void OnUpdate(float timeslice)
 	{
 		if (GetGame().IsClient() || !IsInitialized() ||!ObjectivesCreated())

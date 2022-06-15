@@ -36,6 +36,25 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	#endif
 	}
 
+	override void OnContinue()
+	{
+	#ifdef EXPANSIONMODQUESTSDEBUG
+		Print("ExpansionQuestObjectiveTreasureHuntEvent::OnContinue - Start");
+	#endif
+		
+		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
+		if (!treasureHunt)
+			return;
+
+		CreateTreasure(treasureHunt);
+
+		super.OnContinue();
+		
+	#ifdef EXPANSIONMODQUESTSDEBUG
+		Print("ExpansionQuestObjectiveTreasureHuntEvent::OnContinue - Start");
+	#endif		
+	}
+	
 	/*override void OnComplete()
 	{
 		super.OnComplete();
@@ -44,12 +63,24 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	override void OnTurnIn()
 	{
 		super.OnTurnIn();
-	}
+	}*/
 
 	override void OnCleanup()
 	{
 		super.OnCleanup();
-	}*/
+		
+		//! Only cleanup the treasure if quest is not completed 
+		if (!GetQuest().IsCompeleted())
+		{
+			foreach (Object obj: LootItems)
+			{
+				GetGame().ObjectDelete(obj);
+			}
+	
+			GetGame().ObjectDelete(Chest);
+			GetGame().ObjectDelete(Stash);
+		}
+	}
 
 	override void OnCancel()
 	{
@@ -133,24 +164,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(name, player, parent, amount);
 
 		return obj;
-	}
-
-	override void OnContinue()
-	{
-		if (!GetQuest().GetPlayer())
-		{
-			GetQuest().SetPlayer();
-			if (!GetQuest().GetPlayer())
-				return;
-		}
-
-		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
-		if (!treasureHunt)
-			return;
-
-		CreateTreasure(treasureHunt);
-
-		super.OnContinue();
 	}
 
 	override void OnUpdate(float timeslice)

@@ -12,8 +12,12 @@
 
 class ExpansionHardlineHUD: ExpansionScriptView
 {
-	ref ExpansionHardlineHUDController m_HardlineHUDController;
-	ExpansionHardlineModule m_HardlineModule;
+	private ref ExpansionHardlineHUDController m_HardlineHUDController;
+	private ExpansionHardlineModule m_HardlineModule;
+	private int m_CurrentHumanity;
+	
+	private Widget HumanityAddVal;
+	private Widget HumanityRemoveVal;
 
 	void ExpansionHardlineHUD()
 	{
@@ -30,6 +34,45 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			return;
 		
 		int humanity = data.GetHumanity();
+		//! If humanity has changed show indicator
+		if (humanity != m_CurrentHumanity)
+		{
+			int difference;
+			if (m_CurrentHumanity < 0)
+			{
+				if (humanity < 0)
+				{
+					difference = m_CurrentHumanity + humanity;
+					m_CurrentHumanity =- humanity;
+				}
+				else if (humanity > 0)
+				{
+					difference = m_CurrentHumanity - humanity;
+					m_CurrentHumanity =+ humanity;
+				}
+			}
+			else if (m_CurrentHumanity > 0)
+			{
+				if (humanity < 0)
+				{
+					difference = m_CurrentHumanity - humanity;
+				}
+				else if (humanity > 0)
+				{
+					difference = m_CurrentHumanity + humanity;
+				}
+			}
+			
+			if (difference < 0)
+			{
+				RemoveHumanity(difference);
+			}
+			else if (difference > 0)
+			{
+				AddHumanity(difference);
+			}
+		}
+		
 		string path = GetHumanityIcon(humanity);
 		
 		m_HardlineHUDController.HumanityVal = humanity.ToString();
@@ -101,6 +144,16 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		return path;
 	}
 	
+	void AddHumanity()
+	{
+		
+	}
+	
+	void RemoveHumanity()
+	{
+		
+	}
+	
 	override typename GetControllerType()
 	{
 		return ExpansionHardlineHUDController;
@@ -147,4 +200,7 @@ class ExpansionHardlineHUDController: ExpansionViewController
 
 	string SanityVal;
 	string SanityIcon;
+	
+	string HumanityAddVal;
+	string HumanityRemoveVal;
 };

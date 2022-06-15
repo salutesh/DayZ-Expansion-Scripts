@@ -30,7 +30,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	private ref map<int, ExpansionQuestNpcAIBase> m_QuestNPCAIEntities; //! Server
 #endif
 	private ref map<int, ExpansionQuestStaticObject> m_QuestObjectEntities; //! Server
-	
+
 	//! Default server data
 	private ref ExpansionDefaultQuestNPCData m_DefaultQuestNPCData; //! Server
 	private ref ExpansionDefaultQuestData m_DefaultQuestConfigData;  //! Server
@@ -48,15 +48,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 	private ref map<int, ref ExpansionQuestObjectiveAIVIPConfig> m_AIVIPObjectivesConfigs; //! Server
 #endif
 
+	private ref array<ref ExpansionQuestObjectSet> m_QuestObjectSets;	//! Server
+
 	private float m_UpdateQueueTimer; //! Server update que timer
 	private int m_CurrentQuestTick; //! Server
 	private const float UPDATE_TICK_TIME = 1.0; // refreshes 100 active quests every ten seconds (10 every sec.)
 	private const int UPDATE_QUESTS_PER_TICK = 10; //! Server
-	
+
 	private float m_CheckResetTimer; //! Server quest reset check timer
 	private const float CHECK_TICK_TIME = 60.0; // refreshes 100 active quests every ten seconds (10 every sec.)
 	private ref ExpansionQuestPresistentServerData m_ServerData; //! Server
-	
+
 	//! Client only
 	private ref map<int, ref ExpansionQuestConfig> m_QuestClientConfigs;	//! Client
 	private ref ExpansionQuestPlayerData m_PlayerQuestData; //! Client
@@ -127,7 +129,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule CreateDirectoryStructure
 	// ------------------------------------------------------------
 	private void CreateDirectoryStructure()
-	{		
+	{
 		if (!FileExist(EXPANSION_QUESTS_FOLDER))
 			MakeDirectory(EXPANSION_QUESTS_FOLDER);
 
@@ -183,203 +185,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		super.OnMissionLoaded(sender, args);
 
-		m_QuestsNPCs = new map<int, ref ExpansionQuestNpcData>; //! Server & Client
-		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server & Client
-		m_PlayerDatas = new map<string, ref ExpansionQuestPlayerData>; //! Server & Client
-		
-		//! Server only
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{
-			CreateDirectoryStructure();
-			
-			if (!FileExist(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE))
-			{
-				m_ServerData = new ExpansionQuestPresistentServerData();
-				m_ServerData.Save();
-			}
-			else
-			{
-				m_ServerData = ExpansionQuestPresistentServerData.Load();
-			}
-			
-			m_TravelObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTravelConfig>;	//! Server
-			m_DeliveryObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveDeliveryConfig>; //! Server
-			m_TargetObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTargetConfig>; //! Server
-			m_CollectionObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveCollectionConfig>; //! Server
-			m_TreasureHuntObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTreasureHuntConfig>; //! Server
-	
-		#ifdef EXPANSIONMODAI
-			m_AIPatrolObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIPatrolConfig>; //! Server
-			m_AICampObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAICampConfig>; //! Server
-			m_AIVIPObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIVIPConfig>; //! Server
-		#endif
-
-			m_ActiveQuests = new array<ref ExpansionQuest>;
-			m_QuestNPCEntities = new map<int, ExpansionQuestNpcBase>;
-
-		#ifdef EXPANSIONMODAI
-			m_QuestNPCAIEntities = new map<int, ExpansionQuestNpcAIBase>;
-		#endif
-			
-			m_QuestObjectEntities = new map<int, ExpansionQuestStaticObject>;
-
-			string worldName;
-			GetGame().GetWorldName(worldName);
-			worldName.ToLower();
-
-			m_DefaultQuestNPCData = new ExpansionDefaultQuestNPCData(worldName);
-			m_DefaultQuestConfigData = new ExpansionDefaultQuestData(worldName);
-			m_DefaultObjectiveConfigData = new ExpansionDefaultObjectiveData(worldName);
-
-			//! OBJECTIVE FILES
-			//! TRAVEL OBJECTIVES
-			array<string> travelObjectiveFiles = new array<string>;
-			travelObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
-			if (travelObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(travelObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
-			}
-			else
-			{
-				DefaultTravelObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! TARGET OBJECTIVES
-			array<string> targetObjectiveFiles = new array<string>;
-			targetObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
-			if (targetObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(targetObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
-			}
-			else
-			{
-				DefaultTargetObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! DELIVERY OBJECTIVES
-			array<string> deliveryObjectiveFiles = new array<string>;
-			deliveryObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
-			if (deliveryObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(deliveryObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
-			}
-			else
-			{
-				DefaultDeliveryObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! COLLECTION OBJECTIVES
-			array<string> collectionObjectiveFiles = new array<string>;
-			collectionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
-			if (collectionObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(collectionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
-			}
-			else
-			{
-				DefaultCollectionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! TREASURE HUNT OBJECTIVES
-			array<string> treasureHuntObjectiveFiles = new array<string>;
-			treasureHuntObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
-			if (treasureHuntObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(treasureHuntObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
-			}
-			else
-			{
-				DefaultTreasureHuntObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-		#ifdef EXPANSIONMODAI
-			//! AI PATROL OBJECTIVES
-			array<string> aiPatrolObjectiveFiles = new array<string>;
-			aiPatrolObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
-			if (aiPatrolObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(aiPatrolObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
-			}
-			else
-			{
-				DefaultAIPatrolObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! AI CAMP OBJECTIVES
-			array<string> aiCampObjectiveFiles = new array<string>;
-			aiCampObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
-			if (aiCampObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(aiCampObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
-			}
-			else
-			{
-				DefaultAICampObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! AI VIP OBJECTIVES
-			array<string> aiVIPObjectiveFiles = new array<string>;
-			aiVIPObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
-			if (aiVIPObjectiveFiles.Count() > 0)
-			{
-				LoadObjectivesData(aiVIPObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
-			}
-			else
-			{
-				DefaultAIVIPObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-		#endif
-
-			//! QUEST FILES
-			array<string> questFiles = new array<string>;
-			questFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_QUESTS_FOLDER);
-			if (questFiles.Count() > 0)
-			{
-				LoadQuestData(questFiles); //! Server: Load existing quest data files from the server and load them into m_QuestConfigs.
-			}
-			else
-			{
-				DefaultQuestData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-			}
-
-			//! QUEST NPC FILES
-			array<string> questNPCFiles = new array<string>;
-			questNPCFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_NPCS_FOLDER);
-			if (questNPCFiles.Count() > 0)
-			{
-				LoadQuestNPCData(questNPCFiles); //! Server: Load existing quest NPCs data files from the server and load them into m_QuestsNPCs.
-			}
-			else
-			{
-				DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
-			}
-
-			LoadPlayerQuestData(); //! Server: Load all existing player quest data information into m_PlayerDatas.
-			SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
-		}
-
-		//! Client only
-		if (GetGame().IsClient())
-		{
-			if (!m_QuestClientConfigs)
-				m_QuestClientConfigs = new map<int, ref ExpansionQuestConfig>; //! Client
-
-			if (!m_QuestMenuInvoker)
-				m_QuestMenuInvoker = new ScriptInvoker(); //! Client
-
-		#ifdef EXPANSIONMODBOOK
-			if (!m_QuestLogInvoker)
-				m_QuestLogInvoker = new ScriptInvoker(); //! Client
-
-			if (!m_QuestLogCallbackInvoker)
-				m_QuestLogCallbackInvoker = new ScriptInvoker(); //! Client
-		#endif
-
-		#ifdef EXPANSIONMODNAVIGATION
-			if (!m_QuestMarkers)
-				m_QuestMarkers = new array<ref ExpansionQuestClientMarker>; //! Client
-		#endif
-		}
+		OnInitQuestModule();
 
 		QuestModulePrint(ToString() + "::OnMissionLoaded - End");
 	}
@@ -603,6 +409,215 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		m_HandleLogout = true;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule OnInitQuestModule
+	// ------------------------------------------------------------	
+	private void OnInitQuestModule()
+	{
+		m_QuestsNPCs = new map<int, ref ExpansionQuestNpcData>; //! Server & Client
+		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server & Client
+		m_PlayerDatas = new map<string, ref ExpansionQuestPlayerData>; //! Server & Client
+
+		//! Server only
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		{
+			CreateDirectoryStructure();
+
+			if (!FileExist(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE))
+			{
+				m_ServerData = new ExpansionQuestPresistentServerData();
+				m_ServerData.Save();
+			}
+			else
+			{
+				m_ServerData = ExpansionQuestPresistentServerData.Load();
+			}
+
+			m_TravelObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTravelConfig>;	//! Server
+			m_DeliveryObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveDeliveryConfig>; //! Server
+			m_TargetObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTargetConfig>; //! Server
+			m_CollectionObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveCollectionConfig>; //! Server
+			m_TreasureHuntObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTreasureHuntConfig>; //! Server
+
+		#ifdef EXPANSIONMODAI
+			m_AIPatrolObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIPatrolConfig>; //! Server
+			m_AICampObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAICampConfig>; //! Server
+			m_AIVIPObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIVIPConfig>; //! Server
+		#endif
+
+			m_QuestObjectSets = new array<ref ExpansionQuestObjectSet>;
+
+			m_ActiveQuests = new array<ref ExpansionQuest>;
+			m_QuestNPCEntities = new map<int, ExpansionQuestNpcBase>;
+
+		#ifdef EXPANSIONMODAI
+			m_QuestNPCAIEntities = new map<int, ExpansionQuestNpcAIBase>;
+		#endif
+
+			m_QuestObjectEntities = new map<int, ExpansionQuestStaticObject>;
+
+			string worldName;
+			GetGame().GetWorldName(worldName);
+			worldName.ToLower();
+
+			m_DefaultQuestNPCData = new ExpansionDefaultQuestNPCData(worldName);
+			m_DefaultQuestConfigData = new ExpansionDefaultQuestData(worldName);
+			m_DefaultObjectiveConfigData = new ExpansionDefaultObjectiveData(worldName);
+
+			//! OBJECTIVE FILES
+			//! TRAVEL OBJECTIVES
+			array<string> travelObjectiveFiles = new array<string>;
+			travelObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+			if (travelObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(travelObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+			}
+			else
+			{
+				DefaultTravelObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! TARGET OBJECTIVES
+			array<string> targetObjectiveFiles = new array<string>;
+			targetObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+			if (targetObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(targetObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+			}
+			else
+			{
+				DefaultTargetObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! DELIVERY OBJECTIVES
+			array<string> deliveryObjectiveFiles = new array<string>;
+			deliveryObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+			if (deliveryObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(deliveryObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+			}
+			else
+			{
+				DefaultDeliveryObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! COLLECTION OBJECTIVES
+			array<string> collectionObjectiveFiles = new array<string>;
+			collectionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+			if (collectionObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(collectionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+			}
+			else
+			{
+				DefaultCollectionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! TREASURE HUNT OBJECTIVES
+			array<string> treasureHuntObjectiveFiles = new array<string>;
+			treasureHuntObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+			if (treasureHuntObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(treasureHuntObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+			}
+			else
+			{
+				DefaultTreasureHuntObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+		#ifdef EXPANSIONMODAI
+			//! AI PATROL OBJECTIVES
+			array<string> aiPatrolObjectiveFiles = new array<string>;
+			aiPatrolObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+			if (aiPatrolObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(aiPatrolObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+			}
+			else
+			{
+				DefaultAIPatrolObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! AI CAMP OBJECTIVES
+			array<string> aiCampObjectiveFiles = new array<string>;
+			aiCampObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+			if (aiCampObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(aiCampObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+			}
+			else
+			{
+				DefaultAICampObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! AI VIP OBJECTIVES
+			array<string> aiVIPObjectiveFiles = new array<string>;
+			aiVIPObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+			if (aiVIPObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(aiVIPObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+			}
+			else
+			{
+				DefaultAIVIPObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+		#endif
+
+			//! QUEST FILES
+			array<string> questFiles = new array<string>;
+			questFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_QUESTS_FOLDER);
+			if (questFiles.Count() > 0)
+			{
+				LoadQuestData(questFiles); //! Server: Load existing quest data files from the server and load them into m_QuestConfigs.
+			}
+			else
+			{
+				DefaultQuestData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+
+			//! GET QUEST OBJECT SETS FROM QUESTS
+			LoadObjectSets();
+
+			//! QUEST NPC FILES
+			array<string> questNPCFiles = new array<string>;
+			questNPCFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_NPCS_FOLDER);
+			if (questNPCFiles.Count() > 0)
+			{
+				LoadQuestNPCData(questNPCFiles); //! Server: Load existing quest NPCs data files from the server and load them into m_QuestsNPCs.
+			}
+			else
+			{
+				DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
+			}
+
+			LoadPlayerQuestData(); //! Server: Load all existing player quest data information into m_PlayerDatas.
+			SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
+		}
+
+		//! Client only
+		if (GetGame().IsClient())
+		{
+			if (!m_QuestClientConfigs)
+				m_QuestClientConfigs = new map<int, ref ExpansionQuestConfig>; //! Client
+
+			if (!m_QuestMenuInvoker)
+				m_QuestMenuInvoker = new ScriptInvoker(); //! Client
+
+		#ifdef EXPANSIONMODBOOK
+			if (!m_QuestLogInvoker)
+				m_QuestLogInvoker = new ScriptInvoker(); //! Client
+
+			if (!m_QuestLogCallbackInvoker)
+				m_QuestLogCallbackInvoker = new ScriptInvoker(); //! Client
+		#endif
+
+		#ifdef EXPANSIONMODNAVIGATION
+			if (!m_QuestMarkers)
+				m_QuestMarkers = new array<ref ExpansionQuestClientMarker>; //! Client
+		#endif
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -1331,7 +1346,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Check if the quest is a daylie/weekly quest and if the player has still a cooldown on it.
 		//! ToDo: We want to do this check also for all group members so this cant be skipped!
-		int time;
 		if (configInstance.IsDailyQuest() || configInstance.IsWeeklyQuest())
 		{
 			int daylie = 86400; //! Day in seconds
@@ -1339,7 +1353,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 			bool hasCooldown = false;
 			int remaining;
 
-			//time = CF_Date.Now(true).GetTimestamp();
 			ExpansionQuestPlayerData playerData = GetPlayerQuestDataByUID(senderRPC.GetId());
 			if (configInstance.IsDailyQuest())
 			{
@@ -1437,13 +1450,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		newQuestInstance.OnQuestStart();
 
 		UpdateQuestStatesForQuestPlayers(newQuestInstance, ExpansionQuestState.STARTED);
-
-		if (newconfigInstance.IsDailyQuest() || newconfigInstance.IsWeeklyQuest())
-		{
-			time = CF_Date.Now(true).GetTimestamp();
-			QuestModulePrint(ToString() + "::RPC_CreateQuestInstance - Time: " + ExpansionStatic.FormatTimestamp(time, false));
-			UpdateQuestTimestampForQuestPlayers(newQuestInstance, time);
-		}
 
 		UpdatePlayerQuests(newQuestInstance);
 
@@ -1945,7 +1951,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		questNPC_4.Save("QuestNPC_4");
 		m_QuestsNPCs.Insert(4, questNPC_4);
 	#endif
-		
+
 		//! Quest NPC #5 - Static Obtect test
 		ExpansionQuestNpcData questNPC_5 = new ExpansionQuestNpcData();
 		questNPC_5 = GetDefaultQuestNPCData().QuestNPCData_5();
@@ -2561,6 +2567,65 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	// -----------------------------------------------------------
+	// ExpansionQuestModule LoadObjectSets
+	// Server
+	// -----------------------------------------------------------
+	private void LoadObjectSets()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "LoadObjectSets").Add(sender).Add(ctx);
+	#endif
+
+		foreach (ExpansionQuestConfig questConfig: m_QuestConfigs)
+		{
+			if (questConfig.GetObjectSetFileName() == string.Empty)
+				continue;
+
+			ExpansionQuestObjectSet questObjectSet = new ExpansionQuestObjectSet();
+			questObjectSet.SetQuestID(questConfig.GetID());
+			questObjectSet.SetObjectSetFileName(EXPANSION_QUESTS_OBJECTS_FOLDER, questConfig.GetObjectSetFileName());
+
+			m_QuestObjectSets.Insert(questObjectSet);
+		}
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestModule LoadObjectSets
+	// Server
+	// -----------------------------------------------------------
+	void CheckAndSpawnObjectSet(int questID)
+	{
+		foreach (ExpansionQuestObjectSet objectSet: m_QuestObjectSets)
+		{
+			if (objectSet.GetQuestID() != questID)
+				continue;
+
+			if (!objectSet.IsSpawned())
+				return;
+
+			objectSet.Spawn();
+		}
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestModule LoadObjectSets
+	// Server
+	// -----------------------------------------------------------
+	void CheckAndDeleteObjectSet(int questID)
+	{
+		foreach (ExpansionQuestObjectSet objectSet: m_QuestObjectSets)
+		{
+			if (objectSet.GetQuestID() != questID)
+				continue;
+
+			if (!objectSet.IsSpawned())
+				return;
+
+			objectSet.Delete();
+		}
+	}
+
+	// -----------------------------------------------------------
 	// ExpansionQuestModule GetQuestNPCData
 	// Server
 	// -----------------------------------------------------------
@@ -3046,7 +3111,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(selectReward);
 		if (selectReward)
 			selectedReward.OnSend(rpc);
-		
+
 		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCompleteQuest, false);
 
 		QuestModulePrint(ToString() + "::RequestTurnInQuestClient - End");
@@ -3083,14 +3148,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 			Error(ToString() + "::RPC_RequestCompleteQuest - Read playerUID");
 			return;
 		}
-		
+
 		bool rewardSelected;
 		if (!ctx.Read(rewardSelected))
 		{
 			Error(ToString() + "::RPC_RequestCompleteQuest - Read rewardSelected");
 			return;
 		}
-		
+
 		ExpansionQuestRewardConfig reward;
 		if (rewardSelected)
 		{
@@ -3107,12 +3172,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			Error(ToString() + "::RPC_RequestCompleteQuest - Sender is not quest player!");
 			return;
 		}
-		
+
 		if (rewardSelected)
 		{
 			if (!reward)
 				return;
-			
+
 			RequestCompleteQuestServer(questID, playerUID, identity, false, reward);
 		}
 		else
@@ -3146,7 +3211,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (quest.GetQuestConfig().GetID() == questID && quest.GetPlayerUID() == playerUID)
 			{
 				if (quest.CanCompeteQuest())
-				{					
+				{
 					CompleteQuest(quest, playerUID, identity, isAutoComplete, reward);
 				}
 			}
@@ -3173,6 +3238,33 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		quest.OnQuestTurnIn(reward);
 		RemoveClientMarkers(quest.GetQuestConfig().GetID(), identity);
+
+		if (quest.GetQuestConfig().IsDailyQuest() || quest.GetQuestConfig().IsWeeklyQuest())
+		{
+			int time = CF_Date.Now(true).GetTimestamp();
+			int weeklyResetHour = GetExpansionSettings().GetQuest().WeeklyQuestResetHour;
+			int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyQuestResteMinute;
+			int dailyResetHour = GetExpansionSettings().GetQuest().DailyQuestResetHour;
+			int dailyResetMinute = GetExpansionSettings().GetQuest().DailyQuestResetMinute;
+			int year, month, day, hour, minute, second;
+			CF_Date.TimestampToDate(time, year, month, day, hour, minute, second);
+
+			if (quest.GetQuestConfig().IsDailyQuest())
+			{
+				hour = dailyResetHour;
+				minute = dailyResetMinute;
+			}
+			else if (quest.GetQuestConfig().IsWeeklyQuest())
+			{
+				hour = weeklyResetHour;
+				minute = weeklyResetMinute;
+			}
+
+			time = CF_Date.CreateDateTime(year, month, day, hour, minute, second).GetTimestamp();
+
+			QuestModulePrint(ToString() + "::CompleteQuest - Add quest cooldown time: " + ExpansionStatic.FormatTimestamp(time, false));
+			UpdateQuestTimestampForQuestPlayers(quest, time);
+		}
 
 		UpdateQuestStatesForQuestPlayers(quest, ExpansionQuestState.COMPLETED);
 
@@ -3400,6 +3492,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			//! Create server achievement quests
 			CreateAchievementQuests(playerData, playerUID);
+			
+			//! Create auto start quests
+			CreateAutoStartQuests(playerData, playerUID);
 		}
 
 		QuestModulePrint(ToString() + "::PlayerQuestsInit - End");
@@ -3496,6 +3591,123 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		QuestModulePrint(ToString() + "::CreateAchievementQuests - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule CreateAutoStartQuests
+	// Called on server
+	// ------------------------------------------------------------
+	private void CreateAutoStartQuests(ExpansionQuestPlayerData playerData, string playerUID)
+	{
+		QuestModulePrint(ToString() + "::CreateAutoStartQuests - Start");
+
+		if (!playerData)
+		{
+			Error(ToString() + "::CreateAutoStartQuests - Could not get player quest data!");
+			return;
+		}
+
+		foreach (int questID, ExpansionQuestConfig questConfig: m_QuestConfigs)
+		{
+			if (questConfig)
+			{
+				if (questConfig.IsAchivement() || questConfig.IsGroupQuest() || questConfig.GetQuestGiverID() != -1 || questConfig.GetPreQuestID() != -1)
+				{
+					QuestModulePrint(ToString() + "::CreateAutoStartQuests - Quest with ID: " + questID +" is not a a falid auto start quest. Skip!");
+					continue;
+				}
+				
+				if (questConfig.IsDailyQuest() || questConfig.IsWeeklyQuest())
+				{
+					int daylie = 86400; //! Day in seconds
+					int weekly = 604800; //! Week in seconds
+					bool hasCooldown = false;
+					int remaining;
+
+					if (questConfig.IsDailyQuest())
+					{
+						hasCooldown = playerData.HasCooldown(questConfig.GetID(), daylie, remaining);
+						remaining = daylie - remaining;
+					}
+					else if (questConfig.IsWeeklyQuest())
+					{
+						hasCooldown = playerData.HasCooldown(questConfig.GetID(), weekly, remaining);
+						remaining = weekly - remaining;
+					}
+		
+					if (hasCooldown)
+					{
+						return;
+					}
+				}
+
+				int questState = playerData.GetQuestStateByQuestID(questID);
+				ExpansionQuestConfig newConfig;
+				ExpansionQuest quest;
+
+				//! If player has no quest state for this achievement quest we create the quest and update the players presistent quest data
+				if (questState == ExpansionQuestState.NONE)
+				{
+					//! Create new quest config instance
+					newConfig = new ExpansionQuestConfig();
+					if (!Class.CastTo(newConfig, questConfig))
+					{
+						Error(ToString() + "::CreateAutoStartQuests - Could not create new quest config instance for quest creation!");
+						continue;
+					}
+
+					newConfig.QuestDebug();
+
+					//! Create quest
+					QuestModulePrint(ToString() + "::CreateAutoStartQuests - Create new auto start quest for quest ID: " + questID);
+					quest = new ExpansionQuest(this);
+					quest.SetPlayerUID(playerUID);
+					quest.SetQuestConfig(newConfig);
+					m_ActiveQuests.Insert(quest);
+
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(quest.OnQuestStart, 3000, false);
+
+					playerData.QuestDebug();
+					quest.QuestDebug();
+				}
+				//! If the player is already on this archiment quest recreate it and update the progress from the players presistent quest data
+				else if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
+				{
+					QuestModulePrint(ToString() + "::CreateAutoStartQuests - Create achievement quest for quest ID: " + questID + " and add progress from player quest data [UID: " + playerUID + "]");
+					newConfig = new ExpansionQuestConfig();
+					if (!Class.CastTo(newConfig, questConfig))
+					{
+						Error(ToString() + "::PlayerQuestsInit - Could not create new quest config instance for quest creation!");
+						continue;
+					}
+
+					newConfig.QuestDebug();
+
+					//! Create quest
+					quest = new ExpansionQuest(this);
+					quest.SetPlayerUID(playerUID);
+					quest.SetQuestConfig(newConfig);
+					m_ActiveQuests.Insert(quest);
+
+					//! Get quest objectives progress from presistent player quest data
+					GetObjectiveProgressFromPlayerData(playerData, quest);
+
+					playerData.QuestDebug();
+					quest.QuestDebug();
+
+					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+					//! Continues quest 3 seconds after player has connected!
+					//! We do this here because otherwise there is a high chance we cant get the player entity
+					//! while we reinitalise the quest and so the quest cant be initialised correctly.
+					//! ToDo: Replace this with a proper event handler and fire all quest reinitalisations properly
+					//! after we can get the player entity or his group?!
+					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(quest.OnQuestContinue, 3000, false);
+				}
+			}
+		}
+
+		QuestModulePrint(ToString() + "::CreateAutoStartQuests - End");
 	}
 
 	// ------------------------------------------------------------
@@ -3748,7 +3960,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			ExpansionQuest quest = m_ActiveQuests[i];
 			if (quest.GetQuestConfig().GetType() != ExpansionQuestType.AIVIP)
 				continue;
-			
+
 			for (int j = 0; j < quest.GetObjectives().Count(); j++)
 			{
 				ExpansionQuestObjectiveEventBase objective = quest.GetObjectives()[j];
@@ -3757,10 +3969,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 					Error(ToString() + "::KilledVIPCheck - Could not get quest objective!");
 					continue;
 				}
-				
+
 				if (objective.GetObjectiveConfig().GetObjectiveType() != ExpansionQuestObjectiveType.AIVIP)
 					continue;
-				
+
 				ExpansionQuestObjectiveAIVIPEvent aiVIPObjective;
 				if (Class.CastTo(aiVIPObjective, objective))
 					aiVIPObjective.OnEntityKilled(victim, killSource);
@@ -3768,7 +3980,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 	}
 #endif
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule OnEntityKilled
 	// Server
@@ -3790,12 +4002,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			Error(ToString() + "::OnEntityKilled - Tryed to call OnEntityKilled on Client!");
 			return;
 		}
-		
+
 	#ifdef EXPANSIONMODAI
 		if (victim.IsInherited(eAIBase) || victim.IsKindOf("eAIBase"))
 			KilledVIPCheck(victim, killSource);
 	#endif
-		
+
 		if (playerUID == string.Empty)
 			return;
 
@@ -4210,7 +4422,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		QuestModulePrint(ToString() + "::UpdateQuestTimestampForQuestPlayers - End");
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule CheckWeeklyTimer
 	// ------------------------------------------------------------
@@ -4226,38 +4438,38 @@ class ExpansionQuestModule: CF_ModuleWorld
 		int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyQuestResteMinute;
 		int dailyResetHour = GetExpansionSettings().GetQuest().DailyQuestResetHour;
 		int dailyResetMinute = GetExpansionSettings().GetQuest().DailyQuestResetMinute;
-		
+
 		int lastWeeklyReset = m_ServerData.LastWeeklyReset;
 		int lastDailyReset = m_ServerData.LastDailyReset;
-		
+
 		if (lastWeeklyReset == 0)
 		{
 			m_ServerData.SetWeeklyResetTime();
 			lastWeeklyReset = m_ServerData.LastWeeklyReset;
 		}
-		
+
 		if (lastDailyReset == 0)
 		{
 			m_ServerData.SetWeeklyResetTime();
 			lastDailyReset = m_ServerData.LastDailyReset;
 		}
-		
+
 		//! Get last weekly reset time
 		int lastWeeklyYear, lastWeeklyMonth, lastWeeklyDay, lastWeeklyHour, lastWeeklyMinute, lastWeeklySecond;
 		CF_Date.TimestampToDate(lastWeeklyReset, lastWeeklyYear, lastWeeklyMonth, lastWeeklyDay, lastWeeklyHour, lastWeeklyMinute, lastWeeklySecond);
-		
+
 		//! Get last daily reset time
 		int lastDailyYear, lastDailyMonth, lastDailyDay, lastDailyHour, lastDailyMinute, lastDailySecond;
 		CF_Date.TimestampToDate(lastDailyReset, lastDailyYear, lastDailyMonth, lastDailyDay, lastDailyHour, lastDailyMinute, lastDailySecond);
-		
+
 		string lastWeeklyResetText = string.Format("%1-%2-%3 - %4:%5:%6", lastWeeklyDay, lastWeeklyMonth, lastWeeklyYear, lastWeeklyHour, lastWeeklyMinute, lastWeeklySecond);
 		string lastDailyResetText = string.Format("%1-%2-%3 - %4:%5:%6", lastDailyDay, lastDailyMonth, lastDailyYear, lastDailyHour, lastDailyMinute, lastDailySecond);
-		
+
 		QuestModulePrint(ToString() + "::CheckQuestResetTime - Todays day: " + dayName);
 		QuestModulePrint(ToString() + "::CheckQuestResetTime - Reset day: " + resetDay);
 		QuestModulePrint(ToString() + "::CheckQuestResetTime - Last Weekly reset was: " + lastWeeklyResetText);
 		QuestModulePrint(ToString() + "::CheckQuestResetTime - Last Daily reset was: " + lastWeeklyResetText);
-		
+
 		if (dayName == resetDay)
 		{
 			QuestModulePrint(ToString() + "::CheckQuestResetTime - Today is weekly quest reset day! Reset at " + weeklyResetHour + ":" + weeklyResetMinute);
@@ -4269,7 +4481,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				m_ServerData.Save();
 			}
 		}
-		
+
 		if (!m_ServerData.HasDailyResetCooldown() && minute >= dailyResetMinute && hour >= dailyResetHour)
 		{
 			QuestModulePrint(ToString() + "::CheckQuestResetTime - Execute daily quest reset!");
@@ -4278,7 +4490,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_ServerData.Save();
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule ResetWeeklyQuestCooldowns
 	// ------------------------------------------------------------
@@ -4292,7 +4504,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				ExpansionQuestConfig questConfig = GetQuestConfigByID(timeStamp.GetQuestID());
 				if (!questConfig)
 					continue;
-				
+
 				if (questConfig.IsWeeklyQuest())
 				{
 					timeStamp.SetTimestamp(0);
@@ -4301,7 +4513,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule ResetDailyQuestCooldowns
 	// ------------------------------------------------------------
@@ -4315,7 +4527,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				ExpansionQuestConfig questConfig = GetQuestConfigByID(timeStamp.GetQuestID());
 				if (!questConfig)
 					continue;
-				
+
 				if (questConfig.IsDailyQuest())
 				{
 					timeStamp.SetTimestamp(0);
@@ -4324,11 +4536,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule FormatMonth
 	// ------------------------------------------------------------
-	int FormatMonth(int month, int year) 
+	int FormatMonth(int month, int year)
 	{
 		int fmonth, leap;
 		if ((year % 100 == 0) && (year % 400 != 0))
@@ -4343,19 +4555,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 	  		leap = 0;
 		}
-	
+
 	  	fmonth = 3 + (2 - leap) * ((month + 2) / (2 * month))+ (5 * month + month / 9) / 2;
 		fmonth = fmonth % 7;
 		return fmonth;
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule GetDayName
 	// ------------------------------------------------------------
 	string GetDayName(int day)
 	{
 		string dayName;
-		switch (day) 
+		switch (day)
 		{
 			case 0:
 				dayName = "Saturday";
@@ -4382,24 +4594,24 @@ class ExpansionQuestModule: CF_ModuleWorld
 				dayName = "NONE";
 				break;
 		}
-		
+
 		return dayName;
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule GetDayOfWeek
 	// ------------------------------------------------------------
-	int GetDayOfWeek(int day, int month, int year) 
+	int GetDayOfWeek(int day, int month, int year)
 	{
 		int dayOfWeek;
 		int YY = year % 100;
 		int century = year / 100;
 		dayOfWeek = 1.25 * YY + FormatMonth(month, year) + day - 2 * (century % 4);
 		//! Remainder on division by 7
-		dayOfWeek = dayOfWeek % 7;		
+		dayOfWeek = dayOfWeek % 7;
 		return dayOfWeek;
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule QuestModuleQuestModulePrint
 	// ------------------------------------------------------------
@@ -4466,7 +4678,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			m_UpdateQueueTimer = 0.0;
 		}
-		
+
 		m_CheckResetTimer += update.DeltaTime;
 		if (m_CheckResetTimer >= CHECK_TICK_TIME)
 		{

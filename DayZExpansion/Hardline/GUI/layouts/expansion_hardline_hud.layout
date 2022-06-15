@@ -1,8 +1,9 @@
 FrameWidgetClass ExpansionHardlineHUD {
+ visible 1
  clipchildren 0
  ignorepointer 1
  position 0 0
- size 0.9 0.9
+ size 1 1
  halign center_ref
  valign center_ref
  hexactsize 0
@@ -15,7 +16,7 @@ FrameWidgetClass ExpansionHardlineHUD {
    inheritalpha 0
    ignorepointer 1
    position 0 0
-   size 1 1
+   size 0.91 0.9
    halign center_ref
    valign center_ref
    hexactpos 0
@@ -38,12 +39,48 @@ FrameWidgetClass ExpansionHardlineHUD {
      vexactsize 1
      fixaspect fixwidth
      priority 100
-     Padding 5
+     Padding 0
      Margin 0
      "Size To Content H" 1
+     "Size To Content V" 1
      content_halign right
-     Rows 1
+     Columns 1
      {
+      PanelWidgetClass HummanityAdd {
+       ignorepointer 1
+       position 10.4833 162.73799
+       size 34 22
+       halign right_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       {
+        TextWidgetClass HumanityAddVal {
+         visible 0
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         size 34 22
+         halign center_ref
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "+10"
+         font "gui/fonts/etelkatextpro12"
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "HumanityAddVal"
+          }
+         }
+        }
+       }
+      }
       PanelWidgetClass Humanity {
        visible 1
        clipchildren 1
@@ -78,7 +115,6 @@ FrameWidgetClass ExpansionHardlineHUD {
          fixaspect fixwidth
          scriptclass "ViewBinding"
          image0 ""
-         imageTexture ""
          mode blend
          "src alpha" 1
          "no wrap" 1
@@ -151,7 +187,6 @@ FrameWidgetClass ExpansionHardlineHUD {
          fixaspect fixwidth
          scriptclass "ViewBinding"
          image0 ""
-         imageTexture ""
          mode blend
          "src alpha" 1
          "no wrap" 1
@@ -185,6 +220,42 @@ FrameWidgetClass ExpansionHardlineHUD {
          {
           ScriptParamsClass {
            Binding_Name "SanityVal"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass HummanityRemove {
+       ignorepointer 1
+       position 10.4833 162.73799
+       size 34 22
+       halign right_ref
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       {
+        TextWidgetClass HumanityRemoveVal {
+         visible 0
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 34 22
+         halign center_ref
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "-10"
+         font "gui/fonts/etelkatextpro12"
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "HumanityRemoveVal"
           }
          }
         }

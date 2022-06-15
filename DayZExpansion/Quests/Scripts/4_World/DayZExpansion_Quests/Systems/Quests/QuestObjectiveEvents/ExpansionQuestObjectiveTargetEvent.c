@@ -68,9 +68,12 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
 
-		string typeName = victim.ClassName();
+		string className = victim.ClassName();
 		string killerName = killer.GetType();
 		bool maxRangeCheck = false;
+		
+		Print(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
+		Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
 		
 		//! Use max range check if used in config
 		if (GetObjectiveConfig().GetMaxDistance() != -1)
@@ -111,7 +114,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		int amount = target.GetAmount();
 		Amount = amount;
 		findIndex = -1;
-		findIndex = target.GetClassNames().Find(typeName);
+		findIndex = target.GetClassNames().Find(className);
 		Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
 
 		if (findIndex > -1)
@@ -123,7 +126,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 	private bool IsInMaxRange(vector playerPos)
 	{
-		Print(ToString() + "::IsInMaxRange - Start");
 		vector position = GetObjectiveConfig().GetPosition();
 		float maxDistance = GetObjectiveConfig().GetMaxDistance();
 		float currentDistance = vector.Distance(playerPos, position);

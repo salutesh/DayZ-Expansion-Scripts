@@ -11,7 +11,7 @@
 */
 
 //! Quest instance that handles all the quest events
-class ExpansionQuestNamalsk001: ExpansionQuest
+/*class ExpansionQuestNamalsk001: ExpansionQuest
 {
 	//! Called in constructor
 	override void OnInit(ExpansionQuestModule module)
@@ -243,7 +243,7 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 		}
 
 		//! Cleanup all spawned static quest objects from the object set
-		CleanupSetObjects();
+		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 
 		QuestDebug();
 
@@ -378,4 +378,4 @@ class ExpansionQuestNamalsk001: ExpansionQuest
 		QuestPrint("------------------------------------------------------------");
 	#endif
 	}
-};
+};*/
