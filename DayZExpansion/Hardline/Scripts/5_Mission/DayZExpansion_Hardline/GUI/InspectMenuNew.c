@@ -15,13 +15,18 @@ modded class InspectMenuNew
 	private ExpansionHardlineModule m_HardlineModule;
 	override Widget Init()
 	{
-		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout");
-		return layoutRoot;
+		if (GetExpansionSettings().GetHardline().UseItemRarity)
+		{
+			layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout");
+			return layoutRoot;
+		}
+		
+		return super.Init();
 	}
 
 	override void SetItem(EntityAI item)
 	{
-		if (item)
+		if (item && GetExpansionSettings().GetHardline().UseItemRarity)
 			InspectMenuNew.UpdateItemInfoRarity(layoutRoot, item);
 		
 		super.SetItem(item);

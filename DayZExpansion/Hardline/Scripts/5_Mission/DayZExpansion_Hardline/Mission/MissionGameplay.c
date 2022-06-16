@@ -20,7 +20,8 @@ modded class MissionGameplay
 	override void OnInit()
 	{
 		//! Expansion Hardline Hud
-		InitExpansionHardlineHud();
+		if (GetExpansionSettings().GetHardline().ShowHardlineHUD)
+			InitExpansionHardlineHud();
 
 		super.OnInit();
 	}
@@ -43,7 +44,7 @@ modded class MissionGameplay
 	{
 		super.OnUpdate( timeslice );
 
-		if ( !m_bLoaded )
+		if ( !m_bLoaded || !GetExpansionSettings().GetHardline().ShowHardlineHUD)
 		{
 			return;
 		}

@@ -235,8 +235,8 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				overallHumanityFromAllQuests += reward.GetHumanity();
 			#endif
 			}
-
-			if (overallHumanityFromAllQuests > 0)
+			
+			if (overallHumanityFromAllQuests > 0 && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				Humanity.Show(true);
 				m_QuestMenuController.HumanityVal = overallHumanityFromAllQuests.ToString();

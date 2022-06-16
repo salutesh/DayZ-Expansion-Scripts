@@ -51,10 +51,13 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void EEKilled(Object killer)
 	{
-		ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-		if (hardlineModule)
-		{
-			hardlineModule.OnEntityKilled(this, killer);
+		if  (GetExpansionSettings().GetHardline().UseHumanity)
+		{	
+			ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+			if (hardlineModule)
+			{
+				hardlineModule.OnEntityKilled(this, killer);
+			}
 		}
 
 		super.EEKilled(killer);

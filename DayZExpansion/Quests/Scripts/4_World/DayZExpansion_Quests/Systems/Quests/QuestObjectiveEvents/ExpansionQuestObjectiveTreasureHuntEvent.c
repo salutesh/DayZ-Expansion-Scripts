@@ -22,6 +22,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODQUESTSDEBUG
 		Print("ExpansionQuestObjectiveTreasureHuntEvent::OnStart - Start");
 	#endif
+		
+		if (!GetQuest().GetPlayer())
+		{
+			GetQuest().SetPlayer();
+			if (!GetQuest().GetPlayer())
+				return;
+		}
 
 		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
 		if (!treasureHunt)
@@ -41,6 +48,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODQUESTSDEBUG
 		Print("ExpansionQuestObjectiveTreasureHuntEvent::OnContinue - Start");
 	#endif
+		
+		if (!GetQuest().GetPlayer())
+		{
+			GetQuest().SetPlayer();
+			if (!GetQuest().GetPlayer())
+				return;
+		}
 		
 		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
 		if (!treasureHunt)

@@ -92,15 +92,8 @@ modded class ExpansionItemTooltip
 	{
 		Print(ToString() + "Show - Start");
 		
-        /*ExpansionHardlineModule hardlineModule;
-		if (!Class.CastTo(hardlineModule, CF_ModuleCoreManager.Get(ExpansionHardlineModule)))
-			return;
-
-		string type = m_Item.GetType();
-		Print(ToString() + "Show - Type: " + type);
-		hardlineModule.RequestHardlineItemData(type, NULL);*/
-		
-		UpdateItemRarity();
+		if (GetExpansionSettings().GetHardline().UseItemRarity)				
+			UpdateItemRarity();
 
 		super.Show();
 		

@@ -12,22 +12,28 @@
 
 modded class ItemManager
 {
-	void ItemManager(Widget roo )
+	void ItemManager(Widget root)
 	{
-		if (m_TooltipWidget)
+		if (GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			m_TooltipWidget = null;
-			delete m_TooltipWidget;
+			if (m_TooltipWidget)
+			{
+				m_TooltipWidget = null;
+				delete m_TooltipWidget;
+			}
+	
+			m_TooltipWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_tooltip.layout", root );
+			m_TooltipWidget.Show( false );
 		}
-
-		m_TooltipWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_tooltip.layout", root );
-		m_TooltipWidget.Show( false );
 	}
 	
 	override void PrepareTooltip(EntityAI item, int x = 0, int y = 0)
 	{
 		super.PrepareTooltip(item, x, y);
-		
+	
+		if (!GetExpansionSettings().GetHardline().UseItemRarity)
+			return;
+			
 		InspectMenuNew.UpdateItemInfoRarity(m_TooltipWidget, item);
 	}
 };

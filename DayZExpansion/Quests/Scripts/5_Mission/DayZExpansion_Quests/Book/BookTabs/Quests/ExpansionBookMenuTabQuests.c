@@ -201,7 +201,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 			#endif
 			}
 
-			if (overallHumanityFromAllQuests > 0)
+			if (overallHumanityFromAllQuests > 0 && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				humanity.Show(true);
 				m_QuestTabController.HumanityVal = overallHumanityFromAllQuests.ToString();

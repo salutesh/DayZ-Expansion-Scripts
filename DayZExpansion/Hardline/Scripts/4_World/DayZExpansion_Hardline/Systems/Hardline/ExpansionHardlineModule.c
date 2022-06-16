@@ -106,14 +106,14 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetupClientData, 1000, false, cArgs.Identity);
 		}
 		
 		if (GetGame().IsClient())
 		{
-			if (!m_HardlineHUDInvoker)
+			if (!m_HardlineHUDInvoker && GetExpansionSettings().GetHardline().ShowHardlineHUD)
 				m_HardlineHUDInvoker = new ScriptInvoker(); //! Client
 		}
 	}
@@ -131,7 +131,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			//! Send needed hardline module data to the client.
 			SetupClientData(cArgs.Identity);
@@ -152,7 +152,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 		
 		//! Maybe move this to the OnClientLogout method
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			if (cArgs.Identity)
 			{
@@ -163,20 +163,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				SavePlayerHardlineData(cArgs.Player.GetIdentity().GetId());
 			}
 		}
-	}
-
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule OnInvokeDisconnect
-	// -----------------------------------------------------------
-	override void OnInvokeDisconnect(Class sender, CF_EventArgs args)
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnInvokeDisconnect");
-	#endif
-
-		super.OnInvokeDisconnect(sender, args);
-
-		auto cArgs = CF_EventPlayerArgs.Cast(args);
 	}
 
 	// ------------------------------------------------------------

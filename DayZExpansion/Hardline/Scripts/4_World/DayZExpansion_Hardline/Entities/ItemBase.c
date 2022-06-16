@@ -17,14 +17,12 @@ modded class ItemBase
 	ref ExpansionHardlineItemData m_HardlineItemData;
 	int m_Rarity = ExpansionHardlineItemRarity.COMMON;
 
-    void ItemBase()
-    {
-		
-    }
-
 	override void DeferredInit()
     {
 		super.DeferredInit();
+		
+		if (!GetExpansionSettings().GetHardline().UseItemRarity)
+			return;
 		
 		string itemName = GetType();
 		itemName.ToLower();

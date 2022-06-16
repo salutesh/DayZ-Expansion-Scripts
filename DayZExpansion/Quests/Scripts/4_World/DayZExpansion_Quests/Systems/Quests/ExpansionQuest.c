@@ -55,7 +55,7 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::ExpansionQuest - End");
 	}
 
-	void ~ExpansionQuest()
+	/*void ~ExpansionQuest()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "~ExpansionQuest").Add(sender).Add(ctx);
@@ -72,7 +72,7 @@ class ExpansionQuest
 		QuestObjectives.Clear();
 
 		QuestPrint(ToString() + "::~ExpansionQuest - End");
-	}
+	}*/
 
 	//! Not used yet but we never know who can use it for modding this system
 	void OnInit(ExpansionQuestModule module)
@@ -354,7 +354,7 @@ class ExpansionQuest
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestStart - Start");
-
+		
 		if (!m_ObjectivesCreated)
 		{
 			Error(ToString() + "::OnQuestStart - Quest objectives not created!");
@@ -597,7 +597,7 @@ class ExpansionQuest
 		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
-		//m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
 
 		QuestDebug();
 
@@ -955,26 +955,29 @@ class ExpansionQuest
 			}
 
 		#ifdef EXPANSIONMODHARDLINE
-			for (i = 0; i < Config.GetRewards().Count(); i++)
-			{
-				humanity = Config.GetRewards()[i].GetHumanity();
-				if (humanity > 0 || humanity < 0)
+			if (GetExpansionSettings().GetHardline().UseHumanity)
+			{		
+				for (i = 0; i < Config.GetRewards().Count(); i++)
 				{
-					hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-					if (!hardlineModule)
-						return false;
-
-					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
-					if (!hardlinePlayerData)
-						return false;
-
-					if (humanity > 0)
+					humanity = Config.GetRewards()[i].GetHumanity();
+					if (humanity > 0 || humanity < 0)
 					{
-						hardlinePlayerData.AddHumanity(humanity);
-					}
-					else if (humanity < 0)
-					{
-						hardlinePlayerData.RemoveHumanity(humanity);
+						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+						if (!hardlineModule)
+							return false;
+	
+						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
+						if (!hardlinePlayerData)
+							return false;
+	
+						if (humanity > 0)
+						{
+							hardlinePlayerData.AddHumanity(humanity);
+						}
+						else if (humanity < 0)
+						{
+							hardlinePlayerData.RemoveHumanity(humanity);
+						}
 					}
 				}
 			}
@@ -1013,26 +1016,29 @@ class ExpansionQuest
 				}
 
 			#ifdef EXPANSIONMODHARDLINE
-				for (i = 0; i < Config.GetRewards().Count(); i++)
-				{
-					humanity = Config.GetRewards()[i].GetHumanity();
-					if (humanity > 0 || humanity < 0)
+				if (GetExpansionSettings().GetHardline().UseHumanity)
+				{	
+					for (i = 0; i < Config.GetRewards().Count(); i++)
 					{
-						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-						if (!hardlineModule)
-							return false;
-
-						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
-						if (!hardlinePlayerData)
-							continue;
-
-						if (humanity > 0)
+						humanity = Config.GetRewards()[i].GetHumanity();
+						if (humanity > 0 || humanity < 0)
 						{
-							hardlinePlayerData.AddHumanity(humanity);
-						}
-						else if (humanity < 0)
-						{
-							hardlinePlayerData.RemoveHumanity(humanity);
+							hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+							if (!hardlineModule)
+								return false;
+	
+							hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
+							if (!hardlinePlayerData)
+								continue;
+	
+							if (humanity > 0)
+							{
+								hardlinePlayerData.AddHumanity(humanity);
+							}
+							else if (humanity < 0)
+							{
+								hardlinePlayerData.RemoveHumanity(humanity);
+							}
 						}
 					}
 				}
@@ -1257,16 +1263,16 @@ class ExpansionQuest
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
 		QuestPrint("------------------------------------------------------------");
-		//QuestPrint(ToString() + "::QuestDebug - Quest config: " + Config);
-		//QuestPrint(ToString() + "::QuestDebug - Quest state: " + State);
-		//QuestPrint(ToString() + "::QuestDebug - Quest items: " + QuestItems);
+		QuestPrint(ToString() + "::QuestDebug - Quest config: " + Config);
+		QuestPrint(ToString() + "::QuestDebug - Quest state: " + State);
+		QuestPrint(ToString() + "::QuestDebug - Quest items: " + QuestItems);
 		QuestPrint(ToString() + "::QuestDebug - Quest player UID: " + m_PlayerUID);
 		QuestPrint(ToString() + "::QuestDebug - Quest player: " + m_Player);
-		//QuestPrint(ToString() + "::QuestDebug - Quest completed: " + IsCompeleted);
-		//QuestPrint(ToString() + "::QuestDebug - Quest initialized: " + m_Initialized);
+		QuestPrint(ToString() + "::QuestDebug - Quest completed: " + IsCompeleted);
+		QuestPrint(ToString() + "::QuestDebug - Quest initialized: " + m_Initialized);
 	#ifdef EXPANSIONMODGROUPS
-		//QuestPrint(ToString() + "::QuestDebug - Quest is group quest: " + m_IsGroupQuest);
-		//QuestPrint(ToString() + "::QuestDebug - Quest group: " + m_Group);
+		QuestPrint(ToString() + "::QuestDebug - Quest is group quest: " + m_IsGroupQuest);
+		QuestPrint(ToString() + "::QuestDebug - Quest group: " + m_Group);
 	#endif
 		QuestPrint("------------------------------------------------------------");
 	#endif

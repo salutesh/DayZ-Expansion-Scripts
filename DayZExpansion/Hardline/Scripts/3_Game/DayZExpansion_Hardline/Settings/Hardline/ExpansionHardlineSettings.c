@@ -15,22 +15,6 @@
  **/
 class ExpansionHardlineSettingsBase: ExpansionSettingBase
 {
-	// ------------------------------------------------------------
-	void ExpansionHardlineSettingsBase()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionHardlineSettingsBase");
-	#endif
-	}
-}
-
-/**@class		ExpansionHardlineSettings
- * @brief		Hardline settings class
- **/
-class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
-{
-	static const int VERSION = 0;
-	
 	//! Rank requirements
 	int RankBambi;
 	int RankSurvivor;
@@ -72,6 +56,26 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	int ExoticItemRequirement;
 	
 	autoptr array<ref ExpansionHardlineItemData> HardlineItemDatas;
+	
+	// ------------------------------------------------------------
+	void ExpansionHardlineSettingsBase()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionHardlineSettingsBase");
+	#endif
+	}
+}
+
+/**@class		ExpansionHardlineSettings
+ * @brief		Hardline settings class
+ **/
+class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
+{
+	static const int VERSION = 1;
+	
+	bool ShowHardlineHUD;
+	bool UseItemRarity;
+	bool UseHumanity;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -273,6 +277,24 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			HardlineItemDatas.Insert(itemData);
 		}
 		
+		if (!ctx.Read(ShowHardlineHUD))
+		{
+			Error(ToString() + "::OnRecieve ShowHardlineHUD");
+			return false;
+		}
+		
+		if (!ctx.Read(UseItemRarity))
+		{
+			Error(ToString() + "::OnRecieve UseItemRarity");
+			return false;
+		}
+		
+		if (!ctx.Read(UseHumanity))
+		{
+			Error(ToString() + "::OnRecieve UseHumanity");
+			return false;
+		}
+		
 		m_IsLoaded = true;
 
 		return true;
@@ -333,6 +355,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			
 			itemData.OnSend( ctx );
 		}
+
+		ctx.Write(ShowHardlineHUD);
+		ctx.Write(UseItemRarity);
+		ctx.Write(UseHumanity);
 	}
 
 	// ------------------------------------------------------------
@@ -353,13 +379,54 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		return 0;
 	}
 
-	// ------------------------------------------------------------
-	private void CopyInternal( ExpansionHardlineSettingsBase s)
+	private void CopyInternal( ExpansionHardlineSettings s )
 	{
-	#ifdef EXPANSIONTRACE
+#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-	#endif
+#endif
 
+		ShowHardlineHUD = s.ShowHardlineHUD;
+		UseItemRarity = s.UseItemRarity;
+		UseHumanity = s.UseHumanity;
+		
+		ExpansionHardlineSettingsBase sb = s;
+		CopyInternal( sb );
+	}
+	
+	private void CopyInternal( ExpansionHardlineSettingsBase s )
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+#endif
+		
+		RankBambi = s.RankBambi;
+		RankSurvivor = s.RankSurvivor;
+		RankScout = s.RankScout;
+		RankPathfinder = s.RankPathfinder;
+		RankHero = s.RankHero;
+		RankSuperhero = s.RankSuperhero;
+		RankLegend = s.RankLegend;
+		RankKleptomaniac = s.RankKleptomaniac;
+		RankBully = s.RankBully;
+		RankBandit = s.RankBandit;
+		RankKiller = s.RankKiller;
+		RankMadman = s.RankMadman;
+		HumanityBandageTarget = s.HumanityBandageTarget;
+		HumanityOnKillInfected = s.HumanityOnKillInfected;
+		HumanityOnKillAI = s.HumanityOnKillAI;
+		HumanityOnKillBambi = s.HumanityOnKillBambi;
+		HumanityOnKillHero = s.HumanityOnKillHero;
+		HumanityOnKillBandit = s.HumanityOnKillBandit;
+		HumanityLossOnDeath = s.HumanityLossOnDeath;
+		PoorItemRequirement = s.PoorItemRequirement;
+		CommonItemRequirement = s.CommonItemRequirement;
+		UncommonItemRequirement = s.UncommonItemRequirement;
+		RareItemRequirement = s.RareItemRequirement;
+		EpicItemRequirement = s.EpicItemRequirement;
+		LegendaryItemRequirement = s.LegendaryItemRequirement;
+		MythicItemRequirement = s.MythicItemRequirement;
+		ExoticItemRequirement = s.ExoticItemRequirement;
+		HardlineItemDatas = s.HardlineItemDatas;
 	}
 
 	// ------------------------------------------------------------
@@ -398,7 +465,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			if (settingsBase.m_Version < VERSION)
 			{
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
-
+				
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
+				
 				m_Version = VERSION;
 				save = true;
 			}
@@ -487,6 +557,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		LegendaryItemRequirement = 4000;
 		MythicItemRequirement = 5000;
 		ExoticItemRequirement = 10000;
+		
+		ShowHardlineHUD = false;
+		UseItemRarity = false;
+		UseHumanity = false;
 		
 		DefaultHardlineItemData();
 	}
