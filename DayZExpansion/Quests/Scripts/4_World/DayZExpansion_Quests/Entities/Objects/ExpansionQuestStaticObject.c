@@ -18,7 +18,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	private static ref set<ExpansionQuestStaticObject> m_allTraders = new set<ExpansionQuestStaticObject>;
 	private int m_QuestNPCID = -1;
 	private ref ExpansionQuestNpcData m_QuestNPCData;
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject Constructor
 	// ------------------------------------------------------------
@@ -28,13 +28,13 @@ class ExpansionQuestStaticObject extends BuildingSuper
 			SetAllowDamage(false);
 
 		m_allTraders.Insert(this);
-		
+
 		RegisterNetSyncVariableInt("m_QuestNPCID");
 	}
 
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject DeferredInit
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	override void DeferredInit()
     {
 		super.DeferredInit();
@@ -71,7 +71,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	{
 		return m_allTraders;
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject SetQuestNPCID
 	// ------------------------------------------------------------

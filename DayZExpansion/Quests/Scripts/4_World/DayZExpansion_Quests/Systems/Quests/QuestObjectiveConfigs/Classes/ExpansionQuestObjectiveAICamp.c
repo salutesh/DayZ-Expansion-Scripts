@@ -101,71 +101,7 @@ class ExpansionQuestObjectiveAICamp
 	{
 		return AllowedWeapons;
 	}
-
-	void OnSend(ParamsWriteContext ctx)
-	{
-		int positionsCount = Positions.Count();
-		ctx.Write(positionsCount);
-
-		int i;
-		for (i = 0; i < Positions.Count(); i++)
-		{
-			ctx.Write(Positions[i]);
-		}
-
-		ctx.Write(NPCSpeed);
-		ctx.Write(NPCMode);
-		ctx.Write(NPCFaction);
-		ctx.Write(NPCLoadoutFile);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!Positions)
-			Positions = new array<vector>;
-		else
-			Positions.Clear();
-
-		int positionsCount;
-		if (!ctx.Read(positionsCount))
-			return false;
-
-		for (int i = 0; i < positionsCount; i++)
-		{
-			vector pos;
-			if (!ctx.Read(pos))
-				return false;
-
-			Positions.Insert(pos);
-		}
-
-		string npcSpeed;
-		if (!ctx.Read(npcSpeed))
-			return false;
-
-		NPCSpeed = npcSpeed;
-
-		string npcMode;
-		if (!ctx.Read(npcMode))
-			return false;
-
-		NPCMode = npcMode;
-
-		string npcFaction;
-		if (!ctx.Read(npcFaction))
-			return false;
-
-		NPCFaction = npcFaction;
-
-		string loadoutFile;
-		if (!ctx.Read(loadoutFile))
-			return false;
-
-		NPCLoadoutFile = loadoutFile;
-
-		return true;
-	}
-
+	
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

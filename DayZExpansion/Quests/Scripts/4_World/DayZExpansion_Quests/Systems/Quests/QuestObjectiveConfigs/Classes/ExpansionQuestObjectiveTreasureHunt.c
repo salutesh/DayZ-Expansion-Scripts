@@ -15,9 +15,6 @@ class ExpansionQuestObjectiveTreasureHunt
 	private ref array<vector> Positions = new array<vector>;
 	private ref map<string, int> Items = new map<string, int>;
 
-	[NonSerialized()]
-	private vector SelectedPosition;
-
 	void AddItem(string className, int amount)
 	{
 		Items.Insert(className, amount);
@@ -36,29 +33,6 @@ class ExpansionQuestObjectiveTreasureHunt
 	array<vector> GetPositions()
 	{
 		return Positions;
-	}
-
-	void SetSelectedPosition(vector pos)
-	{
-		SelectedPosition = pos;
-	}
-
-	vector GetSelectedPosition()
-	{
-		return SelectedPosition;
-	}
-
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(SelectedPosition);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(SelectedPosition))
-			return false;
-
-		return true;
 	}
 
 	void QuestDebug()

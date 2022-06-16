@@ -30,27 +30,6 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveConfigBase
 		JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + ".JSON", this);
 	}
 
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-
-		AICamp.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		if (!AICamp)
-			AICamp = new ExpansionQuestObjectiveAICamp();
-
-		if (!AICamp.OnRecieve(ctx))
-			return false;
-
-		return true;
-	}
-
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

@@ -52,7 +52,6 @@ class ExpansionQuestObjectiveDelivery
 		return true;
 	}
 
-
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

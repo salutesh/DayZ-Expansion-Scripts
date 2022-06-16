@@ -57,19 +57,6 @@ class ExpansionQuestObjectiveTarget
 		return AllowedWeapons;
 	}
 
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(Amount);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(Amount))
-			return false;
-
-		return true;
-	}
-
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

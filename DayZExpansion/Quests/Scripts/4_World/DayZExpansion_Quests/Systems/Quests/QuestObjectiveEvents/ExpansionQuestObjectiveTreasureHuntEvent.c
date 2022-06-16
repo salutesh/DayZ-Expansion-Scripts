@@ -68,23 +68,18 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		Print("ExpansionQuestObjectiveTreasureHuntEvent::OnContinue - Start");
 	#endif		
 	}
-	
-	/*override void OnComplete()
-	{
-		super.OnComplete();
-	}
-
-	override void OnTurnIn()
-	{
-		super.OnTurnIn();
-	}*/
 
 	override void OnCleanup()
 	{
 		super.OnCleanup();
 		
-		//! Only cleanup the treasure if quest is not completed 
-		if (!GetQuest().IsCompeleted())
+		ExpansionQuestPlayerData questPlayerData = GetQuest().GetQuestModule().GetPlayerQuestDataByUID(GetQuest().GetPlayerUID());
+		if (!questPlayerData)
+			return;
+		
+		int state = questPlayerData.GetQuestStateByQuestID(GetQuest().GetQuestConfig().GetID());
+		//! Only cleanup the treasure if quest is not completed
+		if (state == ExpansionQuestState.STARTED)
 		{
 			foreach (Object obj: LootItems)
 			{
@@ -117,10 +112,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		vector pos = treasureHunt.GetPositions().GetRandomElement();
 		StashPos = pos;
-		treasureHunt.SetSelectedPosition(StashPos);
 
 		//! Create the underground stash and hide it
-		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", pos, ECE_PLACE_ON_SURFACE)))
+		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", StashPos, ECE_PLACE_ON_SURFACE)))
 			return;
 
 		if (Stash)
@@ -128,7 +122,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			Stash.PlaceOnGround();
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Spawned stash on pos: " + pos);
+		Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Spawned stash on pos: " + StashPos);
 	#endif
 
 		EntityAI stashEntity;
@@ -140,7 +134,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!questPlayer)
 			return;
 
-		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, pos, Vector(0, 0, 0));
+		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, StashPos, Vector(0, 0, 0));
 		if (!Class.CastTo(Chest, chestObj))
 			return;
 
@@ -163,7 +157,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Add item to chest: " + name + " x" + amount);
 		#endif
-			Object item = Spawn(name, amount, questPlayer, chestEntity, pos, Vector(0, 0, 0));
+			Object item = Spawn(name, amount, questPlayer, chestEntity, StashPos, Vector(0, 0, 0));
 
 			LootItems.Insert(item);
 		}
@@ -183,10 +177,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	override void OnUpdate(float timeslice)
 	{
 		if (!GetObjectiveConfig() || !GetQuest() || !IsInitialized())
-			return;
-
-		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
-		if (!treasureHunt)
 			return;
 
 		vector position = StashPos;

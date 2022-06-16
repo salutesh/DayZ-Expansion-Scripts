@@ -15,10 +15,10 @@ class ExpansionQuest
 {
 	private ExpansionQuestModule m_QuestModule;
 
-	private autoptr ExpansionQuestConfig Config;
+	private ref ExpansionQuestConfig Config;
 	private int State = ExpansionQuestState.NONE;
-	private autoptr array<Object> QuestItems = new array<Object>;	//! Normal items the player will recieve on quest start.
-	private autoptr array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
+	private ref array<Object> QuestItems = new array<Object>;	//! Normal items the player will recieve on quest start.
+	private ref array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
 	private PlayerBase m_Player;
 	private string m_PlayerUID;
 	private bool IsCompeleted = false;
@@ -30,13 +30,13 @@ class ExpansionQuest
 	private const int UPDATE_OBJECTIVES_PER_TICK = 5;
 
 	private bool m_IsGroupQuest = false;
-	private autoptr ExpansionPartyData m_Group;
+	private ref ExpansionPartyData m_Group;
 	private int m_GroupID = -1;
 
 	private int m_ObjectiveIndex = 0;
 	private bool m_ObjectivesCreated = false;
 
-	private autoptr ExpansionObjectSet m_ObjectsSet;
+	private ref ExpansionObjectSet m_ObjectsSet;
 
 	private int m_CurrentObjectiveIndex = -1;
 
@@ -55,7 +55,7 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::ExpansionQuest - End");
 	}
 
-	/*void ~ExpansionQuest()
+	void ~ExpansionQuest()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "~ExpansionQuest").Add(sender).Add(ctx);
@@ -66,13 +66,12 @@ class ExpansionQuest
 		m_Player = NULL;
 
 		CleanupQuestItems();
-		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 
 		QuestItems.Clear();
 		QuestObjectives.Clear();
 
 		QuestPrint(ToString() + "::~ExpansionQuest - End");
-	}*/
+	}
 
 	//! Not used yet but we never know who can use it for modding this system
 	void OnInit(ExpansionQuestModule module)
@@ -632,11 +631,10 @@ class ExpansionQuest
 			for (int i = 0; i < QuestObjectives.Count(); i++)
 			{
 				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
-				if (objective)
-				{
-					if (!objective.IsCompleted() && !objective.IsInitialized()) //! Only start the first objective as we will progress thrue all objective events in a sequential order
+				if (objective.GetIndex() == m_CurrentObjectiveIndex)
+				{			
+					if (!objective.IsCompleted() && !objective.IsInitialized()) //! Only start the last active objective
 					{
-						m_CurrentObjectiveIndex = objective.GetIndex();
 						objective.OnContinue();
 					}
 				}

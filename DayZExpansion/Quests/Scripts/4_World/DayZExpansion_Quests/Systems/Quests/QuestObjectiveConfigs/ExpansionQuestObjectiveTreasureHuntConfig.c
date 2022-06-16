@@ -29,27 +29,6 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveConfigBa
 		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + ".JSON", this);
 	}
 
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-
-		TreasureHunt.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		if (!TreasureHunt)
-			TreasureHunt = new ExpansionQuestObjectiveTreasureHunt();
-
-		if (!TreasureHunt.OnRecieve(ctx))
-			return false;
-
-		return true;
-	}
-
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

@@ -51,27 +51,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfigBase
 		JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + ".JSON", this);
 	}
 
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-
-		Target.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		if (!Target)
-			Target = new ExpansionQuestObjectiveTarget();
-
-		if (!Target.OnRecieve(ctx))
-			return false;
-
-		return true;
-	}
-
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

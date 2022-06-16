@@ -754,7 +754,7 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(19);
-		questConfig.SetType(ExpansionQuestType.ACHIVEMENT);
+		questConfig.SetType(ExpansionQuestType.TARGET);
 		questConfig.SetTitle("Killed 10 Infected");
 		questConfig.SetObjectiveText("You have killed 10 infected and completed a server achievement! Reward: 100 Ruble");
 		questConfig.SetAutocomplete(true);
@@ -783,7 +783,7 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(20);
-		questConfig.SetType(ExpansionQuestType.ACHIVEMENT);
+		questConfig.SetType(ExpansionQuestType.TARGET);
 		questConfig.SetTitle("Killed 100 Civilian Infected");
 		questConfig.SetObjectiveText("You have killed 100 civilian infected and completed a server achievement! Reward: 500 Ruble");
 		questConfig.SetAutocomplete(true);

@@ -67,8 +67,6 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 	{
 		super.OnSend(ctx);
 
-		AIVIP.OnSend(ctx);
-
 		ctx.Write(Position);
 		ctx.Write(MaxDistance);
 		ctx.Write(MarkerName);
@@ -77,12 +75,6 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!super.OnRecieve(ctx))
-			return false;
-
-		if (!AIVIP)
-			AIVIP = new ExpansionQuestObjectiveAIVIP();
-
-		if (!AIVIP.OnRecieve(ctx))
 			return false;
 
 		if (!ctx.Read(Position))

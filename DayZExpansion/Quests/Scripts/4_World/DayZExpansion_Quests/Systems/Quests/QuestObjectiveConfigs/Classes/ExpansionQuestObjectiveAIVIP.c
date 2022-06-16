@@ -69,43 +69,6 @@ class ExpansionQuestObjectiveAIVIP
 		return NPCClassName;
 	}
 
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(NPCSpeed);
-		ctx.Write(NPCMode);
-		ctx.Write(NPCFaction);
-		ctx.Write(NPCLoadoutFile);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		string npcSpeed;
-		if (!ctx.Read(npcSpeed))
-			return false;
-
-		NPCSpeed = npcSpeed;
-
-		string npcMode;
-		if (!ctx.Read(npcMode))
-			return false;
-
-		NPCMode = npcMode;
-
-		string npcFaction;
-		if (!ctx.Read(npcFaction))
-			return false;
-
-		NPCFaction = npcFaction;
-
-		string loadoutFile;
-		if (!ctx.Read(loadoutFile))
-			return false;
-
-		NPCLoadoutFile = loadoutFile;
-
-		return true;
-	}
-
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

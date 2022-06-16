@@ -21,8 +21,8 @@ class ExpansionQuestConfigBase
 	string ObjectiveText; //! Short objective desctiption.
 	int PreQuest = -1; //! Pre-Quest Quest ID.
 	int FollowUpQuest = -1; //! Follow-up Quest ID.
-	int QuestGiverID = 1; //! Unique quest NPC ID of the NPC that will head out the quest.
-	int QuestTurnInID = 1;	//! Unique quest NPC ID of the NPC that will turn-in the quest when completed.
+	int QuestGiverID = -1; //! Unique quest NPC ID of the NPC that will head out the quest.
+	int QuestTurnInID = -1;	//! Unique quest NPC ID of the NPC that will turn-in the quest when completed.
 
 	//! Additional quest logic controll parameters
 	bool IsAchivement = false;

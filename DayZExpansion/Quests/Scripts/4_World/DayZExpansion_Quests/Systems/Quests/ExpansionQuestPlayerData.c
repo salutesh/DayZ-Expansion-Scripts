@@ -166,11 +166,8 @@ class ExpansionQuestPlayerData
 				return false;
 			}
 
-			if (questConfig.IsAchivement())
-				continue;
-
 			ExpansionQuestTimestampPlayerData timestamp;
-			if (state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED && questConfig.IsRepeatable() && !HasCooldownOnQuest(questID, timestamp) && !questConfig.IsAchivement())
+			if ((state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED) && questConfig.IsRepeatable() && !HasCooldownOnQuest(questID, timestamp))
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 				Print(ToString() + "::CleanupQuestStates - Cleanup quest state data for quest with ID:" + questID + " | State: " + state);

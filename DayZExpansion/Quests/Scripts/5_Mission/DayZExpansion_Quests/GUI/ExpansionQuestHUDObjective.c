@@ -126,24 +126,16 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TREASUREHUNT");
-				ExpansionQuestObjectiveTreasureHuntConfig treasureObjective;
-				if (Class.CastTo(treasureObjective, objectiveConfigBase))
+				objectivePos = m_Objective.GetObjectivePosition();
+				if (GetGame().GetPlayer())
 				{
-					ExpansionQuestObjectiveTreasureHunt treasureHunt = treasureObjective.GetTreasureHunt();
-					if (treasureHunt)
-					{
-						objectivePos = treasureHunt.GetSelectedPosition();
-						if (GetGame().GetPlayer())
-						{
-							playerPos = GetGame().GetPlayer().GetPosition();
-							currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
-							m_QuestHUDObjectiveController.ObjectiveTarget = "Find treasure:";
-							m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-							m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
-							m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-							QuestPrint(ToString() + "::SetEntryObjective - TREASUREHUNT - ADDED");
-						}
-					}
+					playerPos = GetGame().GetPlayer().GetPosition();
+					currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+					m_QuestHUDObjectiveController.ObjectiveTarget = "Find treasure:";
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+					m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					QuestPrint(ToString() + "::SetEntryObjective - TREASUREHUNT - ADDED");
 				}
 			}
 			break;
