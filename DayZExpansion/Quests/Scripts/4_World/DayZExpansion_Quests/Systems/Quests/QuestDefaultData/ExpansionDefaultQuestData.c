@@ -851,7 +851,7 @@ class ExpansionDefaultQuestData
 		ExpansionQuestObjectiveAIVIPConfig objective_1 = new ExpansionQuestObjectiveAIVIPConfig();
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIVIP);
-
+		objective_1.SetTimeLimit(180);
 		questConfig.AddObjectiveConfig(objective_1);
 
 		//! Quest rewards on quest completion
@@ -867,4 +867,33 @@ class ExpansionDefaultQuestData
 	}
 #endif
 #endif
+	
+	ExpansionQuestConfig ExpansionQuestConfig023()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(23);
+		questConfig.SetType(ExpansionQuestType.ACTION);
+		questConfig.SetTitle("Lockpick your first Vehicle");
+		questConfig.SetObjectiveText("You have lockpick your first Vehicle and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetAutocomplete(true);
+		questConfig.SetIsAchivement(true);
+
+		//! Quest objectives
+		ExpansionQuestObjectiveActionConfig objective_1 = new ExpansionQuestObjectiveActionConfig();
+		objective_1.SetID(1);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetAmount(500);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
 };

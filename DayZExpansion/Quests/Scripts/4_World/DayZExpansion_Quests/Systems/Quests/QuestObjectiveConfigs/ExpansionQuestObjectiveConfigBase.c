@@ -10,12 +10,35 @@
  *
 */
 
-class ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveConfigBasement
 {
-	private int ID = -1; //! Unique objective ID
-	private int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
-	private string ObjectiveText = string.Empty;
+	int ConfigVersion;
+	int ID = -1; //! Unique objective ID
+	int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
+	string ObjectiveText = string.Empty;
+};
 
+class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
+{
+	[NonSerialized()]
+	static int CONFIGVERSION = 1;
+	
+	int TimeLimit = - 1;
+	
+	void ExpansionQuestObjectiveConfigBase()
+	{
+		ConfigVersion = 1;
+	}
+
+	void CopyQuestBaseConfig(ExpansionQuestObjectiveConfigBase config)
+	{
+		ConfigVersion = config.ConfigVersion;
+		ID = config.ID;
+		ObjectiveType = config.ObjectiveType;
+		ObjectiveText = config.ObjectiveText;
+		TimeLimit = config.TimeLimit;
+	}
+	
 	void SetID(int id)
 	{
 		ID = id;
@@ -46,6 +69,16 @@ class ExpansionQuestObjectiveConfigBase
 		return ObjectiveText;
 	}
 
+	void SetTimeLimit(int time)
+	{
+		TimeLimit = time;
+	}
+	
+	int GetTimeLimit()
+	{
+		return TimeLimit;
+	}
+	
 	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
 	{
 		return NULL;
@@ -80,6 +113,11 @@ class ExpansionQuestObjectiveConfigBase
 	{
 		return string.Empty;
 	}
+	
+	array<string> GetActionNames()
+	{
+		return NULL;
+	}
 
 	ExpansionQuestObjectiveCollection GetCollection()
 	{
@@ -108,9 +146,40 @@ class ExpansionQuestObjectiveConfigBase
 	}
 #endif
 
+	static ExpansionQuestObjectiveConfigBase Load(string fileName)
+	{
+		CF_Log.Info("[ExpansionQuestObjectiveConfigBase] Load existing configuration file:" + fileName);
+
+		ExpansionQuestObjectiveConfigBase npcConfig;
+		ExpansionQuestObjectiveConfigBasement npcConfigBase;
+		JsonFileLoader<ExpansionQuestObjectiveConfigBasement>.JsonLoadFile(fileName, npcConfigBase);
+		
+		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
+		{
+			CF_Log.Info("[ExpansionQuestObjectiveConfigBase] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			npcConfig = new ExpansionQuestObjectiveConfigBase();			
+			//! Copy over old configuration that haven't changed
+			npcConfig.CopyConfig(npcConfigBase);
+			npcConfig.ConfigVersion = CONFIGVERSION;
+		}
+		else
+		{
+			JsonFileLoader<ExpansionQuestObjectiveConfigBase>.JsonLoadFile(fileName, npcConfig);
+		}
+		
+		return npcConfig;
+	}
+	
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveConfigBase>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveConfigBase>.JsonSaveFile(fileName + ".JSON", this);
+	}
+	
+	void CopyConfig(ExpansionQuestObjectiveConfigBasement configBase)
+	{
+		ID = configBase.ID;
+		ObjectiveType = configBase.ObjectiveType;
+		ObjectiveText = configBase.ObjectiveText;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
@@ -118,10 +187,11 @@ class ExpansionQuestObjectiveConfigBase
 		ctx.Write(ID);
 		ctx.Write(ObjectiveType);
 		ctx.Write(ObjectiveText);
+		ctx.Write(TimeLimit);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
-	{
+	{		
 		if (!ctx.Read(ID))
 			return false;
 
@@ -129,6 +199,9 @@ class ExpansionQuestObjectiveConfigBase
 			return false;
 
 		if (!ctx.Read(ObjectiveText))
+			return false;
+		
+		if (!ctx.Read(TimeLimit))
 			return false;
 
 		return true;
@@ -141,6 +214,7 @@ class ExpansionQuestObjectiveConfigBase
 		Print(ToString() + "::QuestDebug - Objective ID: " + ID);
 		Print(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
 		Print(ToString() + "::QuestDebug - ObjectiveText: " + ObjectiveText);
+		Print(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
 		Print("------------------------------------------------------------");
 	#endif
 	}

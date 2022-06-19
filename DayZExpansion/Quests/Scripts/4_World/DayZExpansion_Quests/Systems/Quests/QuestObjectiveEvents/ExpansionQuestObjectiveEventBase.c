@@ -18,6 +18,9 @@ class ExpansionQuestObjectiveEventBase
 	private bool m_Initialized = false;
 	private bool m_Active = false;
 	private ref ExpansionQuestObjectiveConfigBase m_ObjectiveConfig;
+	private int m_TimeLimit = -1;	
+	private float m_TimeLimitTimer = 0;
+	private const float UPDATE_TIME_LIMIT_TICK_TIME = 1.0;
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
@@ -83,7 +86,25 @@ class ExpansionQuestObjectiveEventBase
 	{
 		return m_ObjectiveConfig;
 	}
-
+	
+	void SetTimeLimit(int time)
+	{
+		m_TimeLimit = time;
+	}
+	
+	int GetTimeLimit()
+	{		
+		return m_TimeLimit;
+	}
+	
+	void OnTimeLimitReached()
+	{
+		if (!GetQuest().GetPlayer().GetIdentity())
+			return;
+		
+		GetQuest().GetQuestModule().CancelQuestServer(GetQuest().GetQuestConfig().GetID(), GetQuest().GetPlayer().GetIdentity());
+	}
+	
 	//! Event called when the player starts the quest
 	void OnStart()
 	{
@@ -119,7 +140,11 @@ class ExpansionQuestObjectiveEventBase
 	}
 
 	//! Event called when quest is completed and turned-in
-	void OnTurnIn();
+	void OnTurnIn()
+	{
+		SetInitialized(false);
+		SetIsActive(false);
+	}
 
 	void OnCancel()
 	{
@@ -148,8 +173,22 @@ class ExpansionQuestObjectiveEventBase
 
 	void OnUpdate(float timeslice)
 	{
-		if (!IsInitialized() || IsCompleted() || !GetQuest() || !GetQuest().GetPlayer())
+		if (!IsInitialized() || !IsActive() || IsCompleted() || !GetQuest() || !GetQuest().GetPlayer() || !GetObjectiveConfig())
 			return;
+		
+		if (m_TimeLimit > -1)
+		{
+			m_TimeLimitTimer += timeslice;
+			if (m_TimeLimitTimer >= UPDATE_TIME_LIMIT_TICK_TIME)
+			{
+				m_TimeLimit -= UPDATE_TIME_LIMIT_TICK_TIME;
+				if (m_TimeLimit <= 0)
+				{
+					OnTimeLimitReached();
+					m_TimeLimit = -1;
+				}
+			}
+		}
 	}
 
 	ExpansionQuestObjectiveConfigBase GetObjectiveConfig()
@@ -158,6 +197,7 @@ class ExpansionQuestObjectiveEventBase
 		ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
 		ExpansionQuestObjectiveTargetConfig targetObjective;
 		ExpansionQuestObjectiveCollectionConfig collectionObjective;
+		ExpansionQuestObjectiveActionConfig actionObjective;
 	#ifdef EXPANSIONMODAI
 		ExpansionQuestObjectiveAIPatrolConfig aiPatrolObjective;
 		ExpansionQuestObjectiveAICampConfig aiCampObjective;
@@ -179,6 +219,14 @@ class ExpansionQuestObjectiveEventBase
 		else if (Class.CastTo(collectionObjective, m_ObjectiveConfig))
 		{
 			return collectionObjective;
+		}
+		else if (Class.CastTo(collectionObjective, m_ObjectiveConfig))
+		{
+			return collectionObjective;
+		}
+		else if (Class.CastTo(actionObjective, m_ObjectiveConfig))
+		{
+			return actionObjective;
 		}
 	#ifdef EXPANSIONMODAI
 		else if (Class.CastTo(aiPatrolObjective, m_ObjectiveConfig))
@@ -213,14 +261,16 @@ class ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective Initialized: " + m_Initialized);
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective active: " + m_Active);
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective config: " + m_ObjectiveConfig);
+		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective time limit: " + m_TimeLimit);
+		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective time remaining: " + GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(OnTimeLimitReached));
 		ObjectivePrint("------------------------------------------------------------");
 	}
 
 	void ObjectivePrint(string text)
 	{
-	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(text);
-	//#endif
+	#endif
 	}
 
 	int GetObjectiveType()

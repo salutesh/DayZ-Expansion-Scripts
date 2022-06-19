@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestObjectiveAICampConfig.c
+ * ExpansionQuestObjectiveActionConfig.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,26 +10,25 @@
  *
 */
 
-#ifdef EXPANSIONMODAI
-class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveConfigBase
 {
-	private ref ExpansionQuestObjectiveAICamp AICamp;
+	ref array<string> ActionNames = new array<string>;
 
-	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
+	void AddActionName(string name)
 	{
-		AICamp = camp;
+		ActionNames.Insert(name);
 	}
 
-	override ExpansionQuestObjectiveAICamp GetAICamp()
+	array<string> GetActionNames()
 	{
-		return AICamp;
+		return ActionNames;
 	}
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveActionConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName + ".JSON", this);
 	}
-	
+
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		super.OnSend(ctx);
@@ -42,13 +41,9 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveConfigBase
 
 		return true;
 	}
-
+	
 	override void QuestDebug()
 	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		if (AICamp)
-			AICamp.QuestDebug();
-	#endif
+
 	}
 };
-#endif

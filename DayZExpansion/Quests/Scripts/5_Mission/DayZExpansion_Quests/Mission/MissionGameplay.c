@@ -106,11 +106,7 @@ modded class MissionGameplay
 
 	void ToggleQuestHUD()
 	{
-		Print("MissionGameplay::ToggleQuestHUD - Start");
-
 		m_HideHUD = !m_HideHUD;
-
-		Print("MissionGameplay::ToggleQuestHUD - End");
 	}
 
 	bool QuestHudState()

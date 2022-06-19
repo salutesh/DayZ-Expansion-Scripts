@@ -14,17 +14,17 @@
 modded class ExpansionPartyData
 {
 	private bool m_ManualLeave;
-	
+
 	// ------------------------------------------------------------
 	// Expansion RemoveMember
 	// ------------------------------------------------------------
 	override bool RemoveMember(string uid)
 	{
 		m_ManualLeave = true;
-		
+
 		return super.RemoveMember(uid);
 	}
-	
+
 	//! We send all the group quests to the new group member
 	//! ToDo: Might want to check if the joned player has already
 	//! completed the quests that are active for this group so he cant
@@ -56,11 +56,15 @@ modded class ExpansionPartyData
 		#endif
 			if (activeQuestInstance.IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
 			{
+			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 				Print(ToString() + "::OnJoin - There is a active group quest instance for this player! Add quest.");
+			#endif
 				//! Make sure player has the correct quest state for this quest in his quest data.
-				playerQuestData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
+				if (playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
+					return;
+				
+				playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig());
 				playerQuestData.Save(playerUID);
-
 				activeQuestInstance.OnGroupMemberJoined(playerUID);
 			}
 		}
@@ -111,13 +115,13 @@ modded class ExpansionPartyData
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 				Print(ToString() + "::OnLeave - There is a active group quest instance for this player! Remove quest.");
 			#endif
-				
+
 				if (m_ManualLeave)
 				{
 					playerQuestData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), ExpansionQuestState.NONE);
 					m_ManualLeave = false;
 				}
-				
+
 				playerQuestData.Save(playerUID);
 				activeQuestInstance.OnGroupMemberLeave(playerUID);
 			}

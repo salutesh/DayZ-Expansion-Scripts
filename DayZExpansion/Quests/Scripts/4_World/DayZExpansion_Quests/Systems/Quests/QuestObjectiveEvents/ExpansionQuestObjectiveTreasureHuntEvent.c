@@ -176,8 +176,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnUpdate(float timeslice)
 	{
-		if (!GetObjectiveConfig() || !GetQuest() || !IsInitialized())
-			return;
+		super.OnUpdate(timeslice);
 
 		vector position = StashPos;
 		float maxDistance = 5.0;

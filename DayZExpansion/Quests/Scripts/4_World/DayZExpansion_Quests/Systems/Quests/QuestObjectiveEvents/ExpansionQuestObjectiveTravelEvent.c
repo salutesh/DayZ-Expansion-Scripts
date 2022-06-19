@@ -56,8 +56,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnUpdate(float timeslice)
 	{
-		if (!GetObjectiveConfig() || !GetQuest() || !GetQuest().GetPlayer() || !IsInitialized())
-			return;
+		super.OnUpdate(timeslice);
 
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)

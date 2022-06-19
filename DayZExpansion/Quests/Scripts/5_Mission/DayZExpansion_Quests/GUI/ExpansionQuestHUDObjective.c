@@ -17,9 +17,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	private ExpansionQuestObjectivePlayerData m_Objective;
 	private ExpansionQuestConfig m_Quest;
 	private Widget Spacer;
-	private TextWidget ObjectiveName;
-	private TextWidget ObjectiveTarget;
-	private TextWidget ObjectiveValue;
+	private RichTextWidget ObjectiveName;
+	private RichTextWidget ObjectiveTime;
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectivePlayerData objective, ExpansionQuestConfig questConfig)
 	{
@@ -67,10 +66,38 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 		QuestPrint(ToString() + "::SetEntryObjective - Objective config: " + objectiveConfigBase);
 
-		if (objectiveConfigBase.GetObjectiveText() != string.Empty) m_QuestHUDObjectiveController.ObjectiveName = objectiveConfigBase.GetObjectiveText();
-		else ObjectiveName.Show(false);
-
-		m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
+		if (objectiveConfigBase.GetObjectiveText() != string.Empty)
+		{
+			m_QuestHUDObjectiveController.ObjectiveName = objectiveConfigBase.GetObjectiveText();
+			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
+		}
+		else 
+		{
+			ObjectiveName.Show(false);
+		}
+		
+		if (m_Objective.GetTimeLimit() > -1)
+		{
+			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "Time Remaining: " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
+			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
+			
+			if (m_Objective.GetTimeLimit() > 60)
+			{
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_INFO);
+			}
+			else if (m_Objective.GetTimeLimit() <= 60)
+			{
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ORANGE);
+			}
+			else if (m_Objective.GetTimeLimit() <= 10)
+			{
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
+			}
+		}
+		else
+		{
+			ObjectiveTime.Show(false);
+		}
 
 		switch (objectiveConfigBase.GetObjectiveType())
 		{
@@ -298,5 +325,6 @@ class ExpansionQuestHUDObjectiveController: ExpansionViewController
 	string ObjectiveName;
 	string ObjectiveTarget;
 	string ObjectiveValue;
+	string ObjectiveTimeLimit;
 };
 #endif

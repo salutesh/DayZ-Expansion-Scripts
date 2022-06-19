@@ -29,6 +29,11 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	string QuestObjectiveCompletedText;
 	string AchivementCompletedTitle;
 	string AchivementCompletedText;
+	string WeeklyQuestResetDay;
+	int WeeklyQuestResetHour;
+	int WeeklyQuestResteMinute;
+	int DailyQuestResetHour;
+	int DailyQuestResetMinute;
 }
 
 /**@class		ExpansionQuestSettings
@@ -36,13 +41,9 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 1;
+	static const int VERSION = 2;
 	
-	string WeeklyQuestResetDay;
-	int WeeklyQuestResetHour;
-	int WeeklyQuestResteMinute;
-	int DailyQuestResetHour;
-	int DailyQuestResetMinute;
+	bool UseUTCTime;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -162,6 +163,13 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 		AchivementCompletedTitle = s.AchivementCompletedTitle;
 		AchivementCompletedText = s.AchivementCompletedText;
+		
+		//! Version 1
+		WeeklyQuestResetDay = s.WeeklyQuestResetDay;
+		WeeklyQuestResetHour = s.WeeklyQuestResetHour;
+		WeeklyQuestResteMinute = s.WeeklyQuestResteMinute;
+		DailyQuestResetHour = s.DailyQuestResetHour;
+		DailyQuestResetMinute = s.DailyQuestResetMinute;
 	}
 	
 	// ------------------------------------------------------------
@@ -173,11 +181,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 		
-		WeeklyQuestResetDay = s.WeeklyQuestResetDay;
-		WeeklyQuestResetHour = s.WeeklyQuestResetHour;
-		WeeklyQuestResteMinute = s.WeeklyQuestResteMinute;
-		DailyQuestResetHour = s.DailyQuestResetHour;
-		DailyQuestResetMinute = s.DailyQuestResetMinute;
+		UseUTCTime = s.UseUTCTime;
 		
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
@@ -326,6 +330,8 @@ override void Update( ExpansionSettingBase setting )
 		WeeklyQuestResteMinute = 0;
 		DailyQuestResetHour = 8;
 		DailyQuestResetMinute = 0;
+		
+		UseUTCTime = false;
 	}
 
 	// ------------------------------------------------------------

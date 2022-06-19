@@ -67,19 +67,39 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		QuestPrint(ToString() + "---------------------------------------------------------------------------");
 		QuestPrint(ToString() + "::SetEntry - Add objectives for quest: " + m_QuestConfig.GetTitle());
 		int objectiveCount = 0;
-		array<ref ExpansionQuestObjectivePlayerData> objectives = m_PlayerQuestData.GetQuestObjectivesByQuestID(m_QuestConfig.GetID());
-		QuestPrint(ToString() + "::SetEntry - Got " + objectives.Count() + " objectives from players quest data.");
-		foreach (ExpansionQuestObjectivePlayerData objective: objectives)
+		//array<ref ExpansionQuestObjectivePlayerData> objectives = new array<ref ExpansionQuestObjectivePlayerData>;
+		//objectives = m_PlayerQuestData.GetQuestObjectivesByQuestID(m_QuestConfig.GetID());
+		//QuestPrint(ToString() + "::SetEntry - Got " + objectives.Count() + " objectives from players quest data.");
+		for (int i = 0; i < m_QuestConfig.GetObjectives().Count(); i++)
 		{
-			if (!objective.IsActive())
+			QuestPrint(ToString() + "::SetEntry - Adding objectives!");
+			ExpansionQuestObjectiveConfigBase objectiveConfig = m_QuestConfig.GetObjectives().Get(i);
+			if (!objectiveConfig)
+			{
+				QuestPrint(ToString() + "::SetEntry - F1");
 				continue;
-
-			objectiveCount++;
-			QuestPrint(ToString() + "::SetEntry - Add objective entry for objective: " + objective.ToString() + " | Index: " + objectiveCount);
-			ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
-			ObjectiveEntries.AddChild(objectiveEntry.GetLayoutRoot());
-			m_ObjectiveEntries.Insert(objectiveEntry);
-			objectiveEntry.SetEntryObjective();
+			}
+			
+			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfigBase: " + objectiveConfig.ToString());
+			
+			ExpansionQuestObjectivePlayerData objective = m_PlayerQuestData.GetQuestObjectiveByQuestIDAndIndex(m_QuestConfig.GetID(), i);
+			if (objective)
+			{
+				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectivePlayerData: " + objective.ToString());
+				
+				if (!objective.IsActive())
+				{
+					QuestPrint(ToString() + "::SetEntry - F2");
+					continue;
+				}
+				
+				objectiveCount++;
+				QuestPrint(ToString() + "::SetEntry - Add objective entry for objective: " + objective.ToString() + " | Index: " + objectiveCount);
+				ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
+				ObjectiveEntries.AddChild(objectiveEntry.GetLayoutRoot());
+				m_ObjectiveEntries.Insert(objectiveEntry);
+				objectiveEntry.SetEntryObjective();
+			}
 		}
 		QuestPrint(ToString() + "---------------------------------------------------------------------------");
 		QuestPrint(ToString() + "::SetEntry - Added " + objectiveCount +  " objectives!");

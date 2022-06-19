@@ -116,11 +116,12 @@ class ExpansionQuest
 		//! Create quest objectives based on quest config.
 		for (int i = 0; i < Config.GetObjectives().Count(); i++)
 		{
-			ExpansionQuestObjectiveConfigBase objectiveConfig = Config.GetObjectives()[i];
+			ref ExpansionQuestObjectiveConfigBase objectiveConfig = Config.GetObjectives()[i];
 			int objectiveID = objectiveConfig.GetID();
 			int objectiveType = objectiveConfig.GetObjectiveType();
+			int time = objectiveConfig.GetTimeLimit();
 
-			if (CreateObjective(m_ObjectiveIndex, objectiveType, objectiveID))
+			if (CreateObjective(m_ObjectiveIndex, objectiveType, objectiveID, time))
 			{
 				QuestPrint(ToString() + "::CreateObjectivesFromConfig - Created quest objective for quest with ID:" + Config.GetID() + " [Type:" + objectiveType + " | ID: " + objectiveID + " | Index: " + m_ObjectiveIndex + "]");
 				m_ObjectiveIndex++;
@@ -138,7 +139,7 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::CreateObjectivesFromConfig - End");
 	}
 
-	private bool CreateObjective(int index, int objectiveType, int objectiveID)
+	private bool CreateObjective(int index, int objectiveType, int objectiveID, int time)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "CreateObjective").Add(sender).Add(ctx);
@@ -155,6 +156,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveTravelEvent travelObjectiveEvent = new ExpansionQuestObjectiveTravelEvent(this);
 				travelObjectiveEvent.SetIndex(index);
 				travelObjectiveEvent.SetObjectiveConfig(travelConfig);
+				travelObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(travelObjectiveEvent);
 				return true;
 			}
@@ -167,6 +169,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveDeliveryEvent deliveryObjectiveEvent = new ExpansionQuestObjectiveDeliveryEvent(this);
 				deliveryObjectiveEvent.SetIndex(index);
 				deliveryObjectiveEvent.SetObjectiveConfig(deliveryConfig);
+				deliveryObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(deliveryObjectiveEvent);
 				return true;
 			}
@@ -179,6 +182,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveTargetEvent targetObjectiveEvent = new ExpansionQuestObjectiveTargetEvent(this);
 				targetObjectiveEvent.SetIndex(index);
 				targetObjectiveEvent.SetObjectiveConfig(targetConfig);
+				targetObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(targetObjectiveEvent);
 				return true;
 			}
@@ -191,6 +195,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveCollectionEvent collectionObjectiveEvent = new ExpansionQuestObjectiveCollectionEvent(this);
 				collectionObjectiveEvent.SetIndex(index);
 				collectionObjectiveEvent.SetObjectiveConfig(collectionConfig);
+				collectionObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(collectionObjectiveEvent);
 				return true;
 			}
@@ -203,12 +208,27 @@ class ExpansionQuest
 				ExpansionQuestObjectiveTreasureHuntEvent treasureHuntObjectiveEvent = new ExpansionQuestObjectiveTreasureHuntEvent(this);
 				treasureHuntObjectiveEvent.SetIndex(index);
 				treasureHuntObjectiveEvent.SetObjectiveConfig(treasureHuntConfig);
+				treasureHuntObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(treasureHuntObjectiveEvent);
+				return true;
+			}
+			case ExpansionQuestObjectiveType.ACTION:
+			{
+				ExpansionQuestObjectiveActionConfig actionObjectiveConfig = m_QuestModule.GetActionObjectiveConfigByID(objectiveID);
+				if (!actionObjectiveConfig)
+					return false;
+
+				ExpansionQuestObjectiveActionEvent actionObjectiveEvent = new ExpansionQuestObjectiveActionEvent(this);
+				actionObjectiveEvent.SetIndex(index);
+				actionObjectiveEvent.SetObjectiveConfig(actionObjectiveConfig);
+				actionObjectiveEvent.SetTimeLimit(time);
+				QuestObjectives.Insert(actionObjectiveEvent);
 				return true;
 			}
 			case ExpansionQuestObjectiveType.SCRIPTED:
 			{
-
+				//! Nothing to do here yet!
+				return false;
 			}
 		#ifdef EXPANSIONMODAI
 			case ExpansionQuestObjectiveType.AIPATROL:
@@ -220,6 +240,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveAIPatrolEvent aiPatrolObjectiveEvent = new ExpansionQuestObjectiveAIPatrolEvent(this);
 				aiPatrolObjectiveEvent.SetIndex(index);
 				aiPatrolObjectiveEvent.SetObjectiveConfig(aiPatrolConfig);
+				aiPatrolObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(aiPatrolObjectiveEvent);
 				return true;
 			}
@@ -232,6 +253,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveAICampEvent aiCampObjectiveEvent = new ExpansionQuestObjectiveAICampEvent(this);
 				aiCampObjectiveEvent.SetIndex(index);
 				aiCampObjectiveEvent.SetObjectiveConfig(aiCampConfig);
+				aiCampObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(aiCampObjectiveEvent);
 				return true;
 			}
@@ -244,6 +266,7 @@ class ExpansionQuest
 				ExpansionQuestObjectiveAIVIPEvent aiVIPObjectiveEvent = new ExpansionQuestObjectiveAIVIPEvent(this);
 				aiVIPObjectiveEvent.SetIndex(index);
 				aiVIPObjectiveEvent.SetObjectiveConfig(aiVIPConfig);
+				aiVIPObjectiveEvent.SetTimeLimit(time);
 				QuestObjectives.Insert(aiVIPObjectiveEvent);
 				return true;
 			}
@@ -353,7 +376,7 @@ class ExpansionQuest
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestStart - Start");
-		
+
 		if (!m_ObjectivesCreated)
 		{
 			Error(ToString() + "::OnQuestStart - Quest objectives not created!");
@@ -376,7 +399,6 @@ class ExpansionQuest
 				if (objective && objective.GetIndex() == 0) //! Only start the first objective as we will progress thrue all objective events in a sequential order
 				{
 					m_CurrentObjectiveIndex = objective.GetIndex();
-					Print(ToString() + "::OnQuestStart - Start first objective with index: " + m_CurrentObjectiveIndex);
 					objective.OnStart();
 				}
 			}
@@ -632,7 +654,7 @@ class ExpansionQuest
 			{
 				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
 				if (objective.GetIndex() == m_CurrentObjectiveIndex)
-				{			
+				{
 					if (!objective.IsCompleted() && !objective.IsInitialized()) //! Only start the last active objective
 					{
 						objective.OnContinue();
@@ -751,16 +773,13 @@ class ExpansionQuest
 
 		if (complededObjectives == QuestObjectives.Count())
 		{
-			Print(ToString() + "::CompletionCheck - ALL COMPLETED");
-
+			QuestPrint(ToString() + "::CompletionCheck - ALL COMPLETED");
 			OnQuestObjectivesComplete();
 		}
 		else if (complededObjectives < QuestObjectives.Count())
 		{
 			QuestPrint(ToString() + "::CompletionCheck - INCOMPLETE");
-
 			OnQuestObjectivesIncomplete();
-
 			QuestPrint(ToString() + "::CompletionCheck - Current active objective index: " + m_CurrentObjectiveIndex);
 
 			ExpansionQuestObjectiveEventBase currentActiveObjective = QuestObjectives[m_CurrentObjectiveIndex];
@@ -954,7 +973,7 @@ class ExpansionQuest
 
 		#ifdef EXPANSIONMODHARDLINE
 			if (GetExpansionSettings().GetHardline().UseHumanity)
-			{		
+			{
 				for (i = 0; i < Config.GetRewards().Count(); i++)
 				{
 					humanity = Config.GetRewards()[i].GetHumanity();
@@ -963,11 +982,11 @@ class ExpansionQuest
 						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 						if (!hardlineModule)
 							return false;
-	
+
 						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
 						if (!hardlinePlayerData)
 							return false;
-	
+
 						if (humanity > 0)
 						{
 							hardlinePlayerData.AddHumanity(humanity);
@@ -1015,7 +1034,7 @@ class ExpansionQuest
 
 			#ifdef EXPANSIONMODHARDLINE
 				if (GetExpansionSettings().GetHardline().UseHumanity)
-				{	
+				{
 					for (i = 0; i < Config.GetRewards().Count(); i++)
 					{
 						humanity = Config.GetRewards()[i].GetHumanity();
@@ -1024,11 +1043,11 @@ class ExpansionQuest
 							hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 							if (!hardlineModule)
 								return false;
-	
+
 							hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
 							if (!hardlinePlayerData)
 								continue;
-	
+
 							if (humanity > 0)
 							{
 								hardlinePlayerData.AddHumanity(humanity);
@@ -1321,6 +1340,14 @@ class ExpansionQuest
 					ExpansionQuestObjectiveTreasureHuntEvent treasureEvent;
 					if (Class.CastTo(treasureEvent, objective))
 						treasureEvent.QuestDebug();
+				}
+				break;
+
+				case ExpansionQuestObjectiveType.ACTION:
+				{
+					ExpansionQuestObjectiveActionEvent actionEvent;
+					if (Class.CastTo(actionEvent, objective))
+						actionEvent.QuestDebug();
 				}
 				break;
 			#ifdef EXPANSIONMODAI

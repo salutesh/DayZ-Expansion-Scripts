@@ -21,5 +21,6 @@ enum ExpansionQuestType
 	AIPATROL,
 	AICAMP,
 	AIVIP,
+	ACTION,
 	CLASS
 };

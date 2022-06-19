@@ -160,8 +160,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnUpdate(float timeslice)
 	{
-		if (!IsInitialized() || IsCompleted())
-			return;
+		super.OnUpdate(timeslice);
 
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)

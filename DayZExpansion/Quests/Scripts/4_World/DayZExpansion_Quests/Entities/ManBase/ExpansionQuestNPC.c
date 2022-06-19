@@ -173,8 +173,6 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
-		Print(ToString() + "::SetQuestNPCID - ID: " + id);
-
 		m_QuestNPCID = id;
 		SetSynchDirty();
 	}
@@ -192,8 +190,6 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	// ------------------------------------------------------------
 	void SetQuestNPCData(ExpansionQuestNpcData questNPCData)
 	{
-		Print(ToString() + "::SetQuestNPCData - Data: " + questNPCData.ToString());
-
 		m_QuestNPCData = questNPCData;
 	}
 

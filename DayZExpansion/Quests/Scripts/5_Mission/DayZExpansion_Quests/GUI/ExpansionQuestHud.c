@@ -34,10 +34,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 		m_QuestEntries.Clear();
 
-		if (!playerData || !playerData.GetQuestStates())
-			return;
-
-		if (playerData.GetQuestStates().Count() == 0)
+		if (!playerData)
 			return;
 
 		if (!m_QuestModule)
@@ -48,10 +45,11 @@ class ExpansionQuestHUD: ExpansionScriptView
 			m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
 		}
 
-		for (int i = 0; i < playerData.GetQuestStates().Count(); i++)
+		for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
 		{
-			int questID = playerData.GetQuestStates().GetKey(i);
-			int state = playerData.GetQuestStates().GetElement(i);
+			ExpansionQuestPresistentPlayerData data = playerData.GetQuestDatas().Get(i);
+			int questID = data.QuestID;
+			int state = data.State;
 
 			QuestPrint(ToString() + "::SetView - Quest ID: " + questID);
 			QuestPrint(ToString() + "::SetView - Quest state: " + state);
@@ -80,8 +78,6 @@ class ExpansionQuestHUD: ExpansionScriptView
 				{
 					entry.Hide();
 				}
-
-				QuestPrint(ToString() + "::SetView - Objectives count: " + playerData.GetQuestObjectives().Count());
 			}
 		}
 
@@ -112,7 +108,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	override float GetUpdateTickRate()
 	{
-		return 1.0;
+		return 0.5;
 	}
 
 	override void Update()
@@ -132,24 +128,18 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void ToggleQuestEntryVisibilityByID(int questID)
 	{
-		Print(ToString() + "::ToggleQuestEntryVisibilityByID - Start");
-
 		ExpansionQuestHUDEntry entry;
 		int findIndex = -1;
 		if (!IsEntryHidden(questID, entry, findIndex))
 		{
-			Print(ToString() + "::ToggleQuestEntryVisibilityByID - HIDE");
 			m_HiddenIDs.Insert(questID);
 			entry.Hide();
 		}
 		else
 		{
-			Print(ToString() + "::ToggleQuestEntryVisibilityByID - SHOW");
 			m_HiddenIDs.Remove(findIndex);
 			entry.Show();
 		}
-
-		Print(ToString() + "::ToggleQuestEntryVisibilityByID - End");
 	}
 
 	bool IsEntryHidden(int questID, out ExpansionQuestHUDEntry entry, out int findIndex)

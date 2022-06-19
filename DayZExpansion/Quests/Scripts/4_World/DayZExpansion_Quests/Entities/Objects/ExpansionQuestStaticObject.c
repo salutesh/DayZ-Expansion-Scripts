@@ -77,8 +77,6 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
-		Print(ToString() + "::SetQuestNPCID - ID: " + id);
-
 		m_QuestNPCID = id;
 		SetSynchDirty();
 	}
@@ -96,8 +94,6 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	// ------------------------------------------------------------
 	void SetQuestNPCData(ExpansionQuestNpcData questNPCData)
 	{
-		Print(ToString() + "::SetQuestNPCData - Data: " + questNPCData.ToString());
-
 		m_QuestNPCData = questNPCData;
 	}
 

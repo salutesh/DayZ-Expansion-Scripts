@@ -67,13 +67,13 @@ class ExpansionQuestConfigBase
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
 	[NonSerialized()]
-	static int CONFIGVERSION = 1;
+	static int CONFIGVERSION = 2;
 
 	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.
-	
+
 	void ExpansionQuestConfig()
 	{
-		ConfigVersion = 1;
+		ConfigVersion = 2;
 	}
 
 	void ~ExpansionQuestConfig()
@@ -173,6 +173,14 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig;
 				if (Class.CastTo(treasureHuntConfig, config))
 					Objectives.Insert(treasureHuntConfig);
+			}
+			break;
+
+			case ExpansionQuestObjectiveType.ACTION:
+			{
+				ExpansionQuestObjectiveActionConfig actionConfig;
+				if (Class.CastTo(actionConfig, config))
+					Objectives.Insert(actionConfig);
 			}
 			break;
 
@@ -343,7 +351,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		Autocomplete = state;
 	}
-	
+
 	bool IsAutocomplete()
 	{
 		return Autocomplete;
@@ -380,12 +388,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		return IsHeroQuest;
 	}
 #endif
-	
+
 	void SetNeedToSelectReward(bool sate)
 	{
 		NeedToSelectReward = sate;
 	}
-	
+
 	bool NeedToSelectReward()
 	{
 		return NeedToSelectReward;
@@ -399,13 +407,25 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ExpansionQuestConfig questConfig;
 		ExpansionQuestConfigBase questConfigBase;
 		JsonFileLoader<ExpansionQuestConfigBase>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase);
-		
+
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
 		{
 			CF_Log.Info("[ExpansionQuestConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
-			questConfig = new ExpansionQuestConfig();			
+			questConfig = new ExpansionQuestConfig();
+
 			//! Copy over old configuration that haven't changed
 			questConfig.CopyConfig(questConfigBase);
+
+			if (questConfigBase.ConfigVersion < 2)
+			{
+				for (int i = 0; i < questConfigBase.Objectives.Count(); i++)
+				{
+					ExpansionQuestObjectiveConfigBase objective =  questConfigBase.Objectives[i];
+					objective.TimeLimit = -1;
+					objective.ConfigVersion = ExpansionQuestObjectiveConfigBase.CONFIGVERSION;
+				}
+			}
+
 			questConfig.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
@@ -413,12 +433,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		{
 			JsonFileLoader<ExpansionQuestConfig>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfig);
 		}
-		
+
 		if (save)
 		{
 			JsonFileLoader<ExpansionQuestConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfig);
 		}
-		
+
 		return questConfig;
 	}
 
@@ -426,7 +446,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		JsonFileLoader<ExpansionQuestConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName + ".JSON", this);
 	}
-	
+
 	void CopyConfig(ExpansionQuestConfigBase questConfigBase)
 	{
 		ConfigVersion = questConfigBase.ConfigVersion;
@@ -540,6 +560,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				treasureHuntConfig.OnSend(ctx);
 				QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - SUCCESS");
 			}
+			else if (objectiveType == ExpansionQuestObjectiveType.ACTION)
+			{
+				QuestPrint("ExpansionQuestConfig::OnSend - ACTION");
+				ExpansionQuestObjectiveActionConfig actionConfig = questModule.GetActionObjectiveConfigByID(objectiveID);
+				actionConfig.OnSend(ctx);
+				QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - SUCCESS");
+			}
 		#ifdef EXPANSIONMODAI
 			else if (objectiveType == ExpansionQuestObjectiveType.AIPATROL)
 			{
@@ -580,7 +607,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		{
 			Rewards[i].OnSend(ctx);
 		}
-		
+
 		ctx.Write(NeedToSelectReward);
 	}
 
@@ -814,10 +841,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 			Rewards.Insert(reward);
 		}
-		
+
 		if (!ctx.Read(NeedToSelectReward))
 			return false;
-		
+
 		return true;
 	}
 
@@ -869,7 +896,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		QuestPrint(ToString() + "::QuestDebug - IsWeeklyQuest: " + IsWeeklyQuest);
 		QuestPrint(ToString() + "::QuestDebug - CancelQuestOnPlayerDeath: " + CancelQuestOnPlayerDeath);
 		QuestPrint(ToString() + "::QuestDebug - Autocomplete: " + Autocomplete);
-		//Print(ToString() + "::QuestDebug - IsAchievement: " + IsAchievement);
+		QuestPrint(ToString() + "::QuestDebug - IsAchivement: " + IsAchivement);
 		QuestPrint(ToString() + "::QuestDebug - ObjectSetFileName: " + ObjectSetFileName);
 	#ifdef EXPANSIONMODHARDLINE
 		QuestPrint(ToString() + "::QuestDebug - IsBanditQuest: " + IsBanditQuest);

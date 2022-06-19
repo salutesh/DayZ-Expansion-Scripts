@@ -762,4 +762,17 @@ class ExpansionDefaultObjectiveData
 		return objective;
 	}
 #endif
+	
+	//! ACTION OBJECTIVES
+	ExpansionQuestObjectiveActionConfig ExpansionQuestObjective_Action_001()
+	{
+		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
+		objective.SetID(1);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		objective.AddActionName("ExpansionVehicleActionPickLock");
+		objective.AddActionName("ExpansionActionPickVehicleLockBase");
+		objective.AddActionName("ExpansionActionPickVehicleLock");
+		
+		return objective;
+	}
 };

@@ -29,6 +29,19 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveConfigBase
 	{
 		JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + ".JSON", this);
 	}
+	
+	override void OnSend(ParamsWriteContext ctx)
+	{
+		super.OnSend(ctx);
+	}
+
+	override bool OnRecieve(ParamsReadContext ctx)
+	{
+		if (!super.OnRecieve(ctx))
+			return false;
+
+		return true;
+	}
 
 	override void QuestDebug()
 	{

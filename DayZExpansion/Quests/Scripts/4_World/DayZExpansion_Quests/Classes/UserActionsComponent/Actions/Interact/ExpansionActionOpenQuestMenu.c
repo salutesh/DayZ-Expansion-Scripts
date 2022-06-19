@@ -63,8 +63,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 			return false;
 
 		int npcID = m_NPCObject.GetQuestNPCID();
-		ExpansionQuestNpcData questNPCData = m_NPCObject.GetQuestNPCData();
-
+		ref ExpansionQuestNpcData questNPCData = m_NPCObject.GetQuestNPCData();
 		if (!questNPCData)
 			questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
 
@@ -146,7 +145,7 @@ class ExpansionActionOpenQuestMenuObject: ActionInteractBase
 			return false;
 		
 		int npcID = m_NPCObject.GetQuestNPCID();		
-		ExpansionQuestNpcData questNPCData = m_NPCObject.GetQuestNPCData();
+		ref ExpansionQuestNpcData questNPCData = m_NPCObject.GetQuestNPCData();
 		if (!questNPCData)
 			questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
 		
@@ -229,8 +228,7 @@ class ExpansionActionOpenQuestMenuAI: ActionInteractBase
 			return false;
 
 		int npcID = m_NPCAIObject.GetQuestNPCID();
-		ExpansionQuestNpcData questNPCData = m_NPCAIObject.GetQuestNPCData();
-
+		ref ExpansionQuestNpcData questNPCData = m_NPCAIObject.GetQuestNPCData();
 		if (!questNPCData)
 			questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
 

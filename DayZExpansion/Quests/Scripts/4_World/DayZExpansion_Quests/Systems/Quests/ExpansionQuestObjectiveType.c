@@ -21,5 +21,6 @@ enum ExpansionQuestObjectiveType
 	AIPATROL,
 	AICAMP,
 	AIVIP,
+	ACTION,
 	SCRIPTED
 };

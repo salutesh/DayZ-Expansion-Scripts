@@ -10,79 +10,38 @@
  *
 */
 
+//! DEPRECATED BUT STILL HERE FOR CONVERSION
 class ExpansionQuestTimestampPlayerData
 {
-	private int QuestID = -1;
-	private int Timestamp = -1;
+	int QuestID = -1;
+	int Timestamp = -1;
+};
 
-	void SetQuestID(int id)
-	{
-		QuestID = id;
-	}
-
-	int GetQuestID()
-	{
-		return QuestID;
-	}
-
-	void SetTimestamp(int time)
-	{
-		Timestamp = time;
-	}
-
-	int GetTimestamp()
-	{
-		return Timestamp;
-	}
-
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(QuestID);
-		ctx.Write(Timestamp);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(QuestID))
-			return false;
-
-		if (!ctx.Read(Timestamp))
-			return false;
-
-		return true;
-	}
-
-	void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - QuestID: " + QuestID);
-		Print(ToString() + "::QuestDebug - Timestamp: " + Timestamp);
-		Print("------------------------------------------------------------");
-	#endif
-	}
+//! DEPRECATED BUT STILL HERE FOR CONVERSION
+class ExpansionQuestObjectivePlayerDataV0
+{
+	int QuestID = -1;
+	int ObjectiveIndex = -1;
+	int ObjectiveType = ExpansionQuestObjectiveType.NONE;
+	bool IsCompleted = false;
+	bool IsActive = false;
+	int ObjectiveAmount = -1;
+	int ObjectiveCount = -1;
+	vector ObjectivePosition = vector.Zero;
 };
 
 class ExpansionQuestObjectivePlayerData
 {
-	private int QuestID = -1;
-	private int ObjectiveIndex = -1;
-	private int ObjectiveType = ExpansionQuestObjectiveType.NONE;
-	private bool IsCompleted = false;
-	private bool IsActive = false;
-	private int ObjectiveAmount = -1;
-	private int ObjectiveCount = -1;
-	private vector ObjectivePosition = vector.Zero;
+	int ObjectiveIndex = -1;
+	int ObjectiveType = ExpansionQuestObjectiveType.NONE;
+	bool IsCompleted = false;
+	bool IsActive = false;
+	int ObjectiveAmount = -1;
+	int ObjectiveCount = -1;
+	vector ObjectivePosition = vector.Zero;
 
-	void SetQuestID(int id)
-	{
-		QuestID = id;
-	}
-
-	int GetQuestID()
-	{
-		return QuestID;
-	}
+	bool ActionState = false;
+	int TimeLimit = -1;
 
 	void SetObjectiveIndex(int index)
 	{
@@ -154,9 +113,28 @@ class ExpansionQuestObjectivePlayerData
 		return ObjectivePosition;
 	}
 
+	void SetActionState(bool state)
+	{
+		ActionState = state;
+	}
+
+	bool GetActionState()
+	{
+		return ActionState;
+	}
+
+	void SetTimeLimit(int time)
+	{
+		TimeLimit = time;
+	}
+
+	int GetTimeLimit()
+	{
+		return TimeLimit;
+	}
+
 	void OnSend(ParamsWriteContext ctx)
 	{
-		ctx.Write(QuestID);
 		ctx.Write(ObjectiveIndex);
 		ctx.Write(ObjectiveType);
 		ctx.Write(IsCompleted);
@@ -164,13 +142,12 @@ class ExpansionQuestObjectivePlayerData
 		ctx.Write(ObjectiveAmount);
 		ctx.Write(ObjectiveCount);
 		ctx.Write(ObjectivePosition);
+		ctx.Write(ActionState);
+		ctx.Write(TimeLimit);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		if (!ctx.Read(QuestID))
-			return false;
-
 		if (!ctx.Read(ObjectiveIndex))
 			return false;
 
@@ -192,6 +169,12 @@ class ExpansionQuestObjectivePlayerData
 		if (!ctx.Read(ObjectivePosition))
 			return false;
 
+		if (!ctx.Read(ActionState))
+			return false;
+
+		if (!ctx.Read(TimeLimit))
+			return false;
+
 		return true;
 	}
 
@@ -199,7 +182,6 @@ class ExpansionQuestObjectivePlayerData
 	{
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - QuestID: " + QuestID);
 		Print(ToString() + "::QuestDebug - ObjectiveIndex: " + ObjectiveIndex);
 		Print(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
 		Print(ToString() + "::QuestDebug - IsCompleted: " + IsCompleted);
@@ -207,6 +189,8 @@ class ExpansionQuestObjectivePlayerData
 		Print(ToString() + "::QuestDebug - ObjectiveAmount: " + ObjectiveAmount);
 		Print(ToString() + "::QuestDebug - ObjectiveCount: " + ObjectiveCount);
 		Print(ToString() + "::QuestDebug - ObjectivePosition: " + ObjectivePosition);
+		Print(ToString() + "::QuestDebug - ActionState: " + ActionState);
+		Print(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
 		Print("------------------------------------------------------------");
 	#endif
 	}

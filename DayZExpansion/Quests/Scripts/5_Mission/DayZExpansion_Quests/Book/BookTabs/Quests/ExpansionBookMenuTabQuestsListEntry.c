@@ -48,7 +48,6 @@ class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 		int questState = m_QuestMenu.GetQuestModule().GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
 		if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
 		{
-			//QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Exclamationmark"));
 			m_QuestMenuListEntryController.QuestIcon = ExpansionIcons.GetPath("Exclamationmark");
 		}
 		else if (questState == ExpansionQuestState.NONE)
@@ -135,8 +134,6 @@ class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 #ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 	void OnHideButtonClick()
 	{
-		Print("ExpansionBookMenuTabQuestsListEntry::OnHideButtonClick - Start");
-
 		if (!m_Quest)
 			return;
 
@@ -157,7 +154,6 @@ class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 		else m_QuestMenuListEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
 
 		m_QuestMenuListEntryController.NotifyPropertyChanged("HideIcon");
-		Print("ExpansionBookMenuTabQuestsListEntry::OnHideButtonClick - End");
 	}
 #endif
 
