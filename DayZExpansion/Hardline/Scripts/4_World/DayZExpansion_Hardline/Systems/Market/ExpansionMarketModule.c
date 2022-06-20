@@ -20,15 +20,17 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
-		
-		int required;
-		if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
-		{			
-			StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
-			StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to buy!", required.ToString());
-			ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
-			return;
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
+		{
+			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
+			int required;
+			if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
+			{
+				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
+				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to buy!", required.ToString());
+				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
+				return;
+			}
 		}
 
 		super.Exec_RequestPurchase(player, itemClassName, count, currentPrice, trader, includeAttachments, skinIndex, attachmentIDs);
@@ -41,15 +43,17 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
-		
-		int required;
-		if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
-			StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to sell!", required.ToString());
-			ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
-			return;
+			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
+			int required;
+			if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
+			{
+				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
+				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to sell!", required.ToString());
+				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
+				return;
+			}
 		}
 		
 		super.Exec_RequestSell(player, itemClassName, count, playerSentPrice, trader, playerSentSellDebug);

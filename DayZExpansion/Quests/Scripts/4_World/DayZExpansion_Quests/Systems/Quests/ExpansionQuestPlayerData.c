@@ -88,6 +88,7 @@ class ExpansionQuestPresistentPlayerData
 
 	void QuestDebug()
 	{
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
 		Print("------------------------------------------------------------");
 		Print(ToString() + "::QuestDebug - Quest ID: " + QuestID);
 		Print(ToString() + "::QuestDebug - Quest State: " + State);
@@ -97,6 +98,7 @@ class ExpansionQuestPresistentPlayerData
 			QuestObjectives[i].QuestDebug();
 		}
 		Print("------------------------------------------------------------");
+	#endif
 	}
 };
 
@@ -438,7 +440,12 @@ class ExpansionQuestPlayerData: ExpansionQuestPlayerDataBase
 			}
 
 			int timestamp;
-			if ((data.State == ExpansionQuestState.NONE || data.State == ExpansionQuestState.COMPLETED) && !questConfig.IsRepeatable() && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
+			if (data.State == ExpansionQuestState.COMPLETED && !questConfig.IsRepeatable() && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
+			{
+				QuestPrint(ToString() + "::CleanupQuestData - Cleanup quest state data for quest with ID:" + data.QuestID + " | State: " + data.State);
+				QuestDatas.Remove(i);
+			}
+			else if (data.State == ExpansionQuestState.NONE && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
 			{
 				QuestPrint(ToString() + "::CleanupQuestData - Cleanup quest state data for quest with ID:" + data.QuestID + " | State: " + data.State);
 				QuestDatas.Remove(i);
@@ -472,7 +479,7 @@ class ExpansionQuestPlayerData: ExpansionQuestPlayerDataBase
 
 			if (data.Timestamp > 0)
 			{
-				timestamp = data.Timestamp;
+				timestamp = data.Timestamp;				
 				if (questConfig.IsDailyQuest())
 				{
 					return HasCooldown(data.QuestID, daylie, remaining);

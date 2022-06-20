@@ -118,6 +118,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		EnableInvokeDisconnect();
 		EnableClientLogout();
 		EnableClientLogoutCancelled();
+		EnableClientNew();
 		EnableClientReady();
 		EnableClientDisconnect();
 		EnableUpdate();
@@ -417,6 +418,29 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		QuestModulePrint(ToString() + "::OnMissionLoaded - End");
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule OnClientNew
+	// ------------------------------------------------------------
+	override void OnClientNew(Class sender, CF_EventArgs args)
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnClientNew");
+	#endif
+
+		QuestModulePrint(ToString() + "::OnClientNew - Start");
+
+		super.OnClientNew(sender, args);
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		{
+			QuestModulePrint(ToString() + "::OnClientNew - Setup player quests for player with UID: " + cArgs.Identity.GetId());
+			SendQuestNPCDataServer(cArgs.Identity); //! Send all quest npc datas to the players client.
+			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players presistent quest data to the client and recreates existig quests for the player on the server.
+		}
+		QuestModulePrint(ToString() + "::OnClientNew - End");
+	}
 
 	// ------------------------------------------------------------
 	// ExpansionQuestModule OnClientReady
@@ -432,13 +456,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 		super.OnClientReady(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
-
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			QuestModulePrint(ToString() + "::OnClientReady - Setup player quests for player with UID: " + cArgs.Identity.GetId());
-
 			SendQuestNPCDataServer(cArgs.Identity); //! Send all quest npc datas to the players client.
-
 			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players presistent quest data to the client and recreates existig quests for the player on the server.
 		}
 		QuestModulePrint(ToString() + "::OnClientReady - End");
@@ -1151,12 +1172,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		questPlayerData.SetQuestModule(this);
-		m_PlayerDatas.Insert(playerUID, questPlayerData);
-
-		PlayerQuestsInit(questPlayerData, playerUID); //! If the player has existing player data we need to initialize any exisitng quests that he started on the server
-
+		
+		ExpansionQuestPlayerData existingPlayerData;
+		if (!m_PlayerDatas.Find(playerUID, existingPlayerData))
+		{
+			m_PlayerDatas.Insert(playerUID, questPlayerData);
+			PlayerQuestsInit(questPlayerData, playerUID); //! If the player has existing player data we need to initialize any exisitng quests that he started on the server
+		}
+		else
+		{
+			PlayerQuestsInit(existingPlayerData, playerUID); //! If the player has existing player data we need to initialize any exisitng quests that he started on the server
+		}
+		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SendPlayerQuestServer, 2000, false, identity); //! Send all quest config. datas the player should be able to see to the players client.
-
 		QuestModulePrint(ToString() + "::SetupClientData - End");
 	}
 
@@ -1393,7 +1421,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			if (hasCooldown)
 			{
-				string timestamp = ExpansionStatic.FormatTime(cooldown, false);
+				string timestamp = ExpansionStatic.FormatTimestamp(cooldown, false);
 				ExpansionNotification(new StringLocaliser("Quest Cooldown"), new StringLocaliser("This quest is still on cooldown! Come back in " + timestamp), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 				return;
 			}

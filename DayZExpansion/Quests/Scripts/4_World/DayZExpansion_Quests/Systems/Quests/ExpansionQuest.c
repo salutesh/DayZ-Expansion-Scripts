@@ -628,7 +628,6 @@ class ExpansionQuest
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 		if (m_Player)
 		{
-			//m_QuestModule.OnCancelQuest(Config.GetID(), GetPlayer());
 			SetQuestState(ExpansionQuestState.NONE);
 
 			//! Cancel all active quest objectives
@@ -648,12 +647,11 @@ class ExpansionQuest
 
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
-
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
 		m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
 
+		SetInitialized(false);
 		QuestDebug();
-
 		QuestPrint(ToString() + "::OnQuestCancel - End");
 	}
 
@@ -1282,7 +1280,7 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	void RemoveMarkers()
 	{
-		if (!m_IsGroupQuest)
+		if (!m_IsGroupQuest && m_Player)
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 			m_QuestModule.RemoveClientMarkers(Config.GetID(), m_Player.GetIdentity());

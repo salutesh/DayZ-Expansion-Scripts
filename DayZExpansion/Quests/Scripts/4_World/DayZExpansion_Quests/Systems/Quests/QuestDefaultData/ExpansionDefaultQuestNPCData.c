@@ -205,6 +205,11 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetPosition(Vector(3706.91, 402.0, 5983.5)); //! Quest NPC position
 			questNPC.SetOrientation(Vector(80.0, 0, 0)); //! Quest NPC orientation
 		}
+		else if (m_WorldName == "namalsk")
+		{
+			questNPC.SetPosition(Vector(8584.04, 14.7324, 10515.8)); //! Quest NPC position
+			questNPC.SetOrientation(Vector(215.0, 0, 0)); //! Quest NPC orientation
+		}
 
 		return questNPC;
 	}
