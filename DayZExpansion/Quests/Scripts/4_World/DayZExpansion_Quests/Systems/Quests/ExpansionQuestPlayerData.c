@@ -533,20 +533,18 @@ class ExpansionQuestPlayerData: ExpansionQuestPlayerDataBase
 		int timestamp = GetQuestTimestampByQuestID(questID);
 		if (timestamp == -1)
 		{
-			Print(ToString() + "::HasCooldown - Time -1 for quest with ID: " + questID);
+			QuestPrint(ToString() + "::HasCooldown - Time -1 for quest with ID: " + questID);
+			return false;
 		}
 
 		timedif = GetTimeDiff(timestamp);
-		
-		Print("------------------------------------------------------------------------------------------------");
-		Print(ToString() + "::HasCooldown - Time for quest with ID: " + timestamp);
-		Print(ToString() + "::HasCooldown - Timestamp for quest with ID: " + ExpansionStatic.FormatTimestamp(timestamp, false));
-		Print(ToString() + "::HasCooldown - Formated time for quest with ID: " + ExpansionStatic.FormatTime(timestamp, false));
-		
-		Print(ToString() + "::HasCooldown - Time difference for quest with ID: " + timedif);
-		Print(ToString() + "::HasCooldown - Timestamp difference for quest with ID: " + ExpansionStatic.FormatTimestamp(timedif, false));
-		Print(ToString() + "::HasCooldown - Formated time difference for quest with ID: " + ExpansionStatic.FormatTime(timedif, false));
-		Print("------------------------------------------------------------------------------------------------");
+		QuestPrint("------------------------------------------------------------------------------------------------");
+		QuestPrint(ToString() + "::HasCooldown - Time for quest with ID: " + timestamp);
+		QuestPrint(ToString() + "::HasCooldown - Formated time for quest with ID: " + ExpansionStatic.FormatTime(timestamp, false));
+		QuestPrint("------------------------------------------------------------------------------------------------");
+		QuestPrint(ToString() + "::HasCooldown - Time difference for quest with ID: " + timedif);
+		QuestPrint(ToString() + "::HasCooldown - Formated time difference for quest with ID: " + ExpansionStatic.FormatTime(timedif, false));
+		QuestPrint("------------------------------------------------------------------------------------------------");
 		
 		if (timedif < cooldown)
 			return true;

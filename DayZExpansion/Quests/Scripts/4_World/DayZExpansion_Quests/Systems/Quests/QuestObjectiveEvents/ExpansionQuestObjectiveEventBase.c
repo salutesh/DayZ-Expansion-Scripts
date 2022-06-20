@@ -128,7 +128,12 @@ class ExpansionQuestObjectiveEventBase
 				objective.OnStart();
 		}
 
-		SetIsActive(false);
+	#ifdef EXPANSIONMODAI
+		if (GetObjectiveType() == ExpansionQuestObjectiveType.TRAVEL || GetObjectiveType() == ExpansionQuestObjectiveType.TARGET || GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || GetObjectiveType() == ExpansionQuestObjectiveType.AIVIP || GetObjectiveType() == ExpansionQuestObjectiveType.AICAMP || GetObjectiveType() == ExpansionQuestObjectiveType.AIPATROL  || GetObjectiveType() == ExpansionQuestObjectiveType.AIVIP)
+	#else
+		if (GetObjectiveType() == ExpansionQuestObjectiveType.TRAVEL || GetObjectiveType() == ExpansionQuestObjectiveType.TARGET || GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT)
+	#endif
+			SetIsActive(false);
 	}
 
 	void OnIncomplete()
@@ -163,7 +168,7 @@ class ExpansionQuestObjectiveEventBase
 	void OnCleanup()
 	{
 		SetInitialized(false);
-		SetIsActive(false);
+		//SetIsActive(false);
 	}
 
 #ifdef EXPANSIONMODNAVIGATION

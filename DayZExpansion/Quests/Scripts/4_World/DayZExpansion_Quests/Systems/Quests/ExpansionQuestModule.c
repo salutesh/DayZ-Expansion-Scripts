@@ -1141,10 +1141,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			questPlayerData = new ExpansionQuestPlayerData();
 			questPlayerData.Save(playerUID);
 			QuestModulePrint(ToString() + "::SetupClientData - Created new presistent player quest data for player UID: " + playerUID);
+			GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - SetupClientData - Created new presistent player quest data for player UID: " + playerUID);
 		}
 		else
 		{
 			QuestModulePrint(ToString() + "::SetupClientData - Loaded existend player quest data for player with UID: " + playerUID);
+			GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - SetupClientData - Loaded existend player quest data for player with UID: " + playerUID);
 			questPlayerData.QuestDebug();
 		}
 
@@ -1481,6 +1483,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	#endif
+		
+		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CreateQuestInstance - Created new quest instance for player with UID " + playerUID + " for quest " + questID);
+		newQuestInstance.QuestLog();
 
 		QuestModulePrint(ToString() + "::RPC_CreateQuestInstance - End");
 	}
@@ -1642,12 +1647,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			int questID = currentQuest.GetQuestConfig().GetID();
 		#ifdef EXPANSIONMODNAVIGATION
-			if (!currentQuest.IsGroupQuest()) RemoveClientMarkers(questID, identity);
+			if (!currentQuest.IsGroupQuest())
+			{
+				RemoveClientMarkers(questID, identity);
+			}
 		#ifdef EXPANSIONMODGROUPS
-			else if (currentQuest.IsGroupQuest()) RemoveClientMarkers(questID, identity);
+			else if (currentQuest.IsGroupQuest()) 
+			{
+				RemoveClientMarkers(questID, identity);
+			}
 		#endif
 		#endif
-
+			
 			currentQuest.CleanupQuestItems();
 		}
 
@@ -1898,7 +1909,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_ActiveQuests.RemoveItem(quest);
 			delete quest;
 		}
-
+		
+		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CancelQuestServer - Player with UID " + identity.GetId() + " has cancelled quest " + questID);
 		QuestModulePrint(ToString() + "::CancelQuestServer - End");
 	}
 
@@ -2693,7 +2705,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 	}
 
-
 	// -----------------------------------------------------------
 	// ExpansionQuestModule GetQuestData
 	// Server
@@ -3332,7 +3343,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	#endif
-
+		
+		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CompleteQuest - Player with UID " + identity.GetId() + " has completed quest " + quest.GetQuestConfig().GetID());
+		quest.QuestLog();
 		QuestModulePrint(ToString() + "::CompleteQuest - End");
 	}
 
@@ -3454,9 +3467,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 						continue;
 
 					QuestModulePrint(ToString() + "::PlayerQuestsInit - There is a active group quest instance for this player! Add quest.");
+					GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - PlayerQuestsInit - Add player [" + playerUID + "] to active goup quest instance for quest: " + activeQuestInstance.GetQuestConfig().GetID() + " - Quest owner UID: " + activeQuestInstance.GetPlayerUID());
 					//! Make sure player has the correct quest state for this quest in his quest data.
-					playerData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
-					playerData.Save(playerUID);
+					//playerData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
+					//playerData.Save(playerUID);
 
 					activeQuestInstance.OnGroupMemberJoined(playerUID);
 				}
@@ -3468,19 +3482,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 				if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
 				{
 					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create new quest instance for quest: " + questID + " - Creator UID: " + playerUID);
+					GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - PlayerQuestsInit - Create new quest instance for quest: " + questID + " - Creator UID: " + playerUID);
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 					//! Create new quest config. instance for the quest
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 					ExpansionQuestConfig configInstance = GetQuestConfigByID(questID);
-					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-					//! Create new quest config instance
-					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-					/*ExpansionQuestConfig newConfigInstance = new ExpansionQuestConfig();
-					if (!Class.CastTo(newConfigInstance, configInstance))
-					{
-						Error(ToString() + "::PlayerQuestsInit - Could not create new quest config instance for quest creation!");
-						continue;
-					}*/
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 					//! Create quest instance and set current quest status from presistent player quest data
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3554,20 +3560,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 
 				int playerQuestState = playerData.GetQuestStateByQuestID(configQuestID);
-				//ExpansionQuestConfig newConfig;
 				ExpansionQuest autoQuest;
 
 				//! If player has no quest state for this achievement quest we create the quest and update the players presistent quest data
 				if (playerQuestState == ExpansionQuestState.NONE)
 				{
-					//! Create new quest config instance
-					/*newConfig = new ExpansionQuestConfig();
-					if (!Class.CastTo(newConfig, questConfig))
-					{
-						Error(ToString() + "::PlayerQuestsInit - Could not create new quest config instance for quest creation!");
-						continue;
-					}*/
-
 					if (playerData.HasDataForQuest(questConfig.GetID()))
 						continue;
 
@@ -3589,12 +3586,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 				else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
 				{
 					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create achievement quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
-					/*newConfig = new ExpansionQuestConfig();
-					if (!Class.CastTo(newConfig, questConfig))
-					{
-						Error(ToString() + "::PlayerQuestsInit - Could not create new quest config instance for quest creation!");
-						continue;
-					}*/
 
 					questConfig.QuestDebug();
 

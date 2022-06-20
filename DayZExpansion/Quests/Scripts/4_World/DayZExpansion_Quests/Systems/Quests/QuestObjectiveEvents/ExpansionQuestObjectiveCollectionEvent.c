@@ -23,8 +23,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnStart()
 	{
-		if (GetQuest().IsGroupQuest() && !GetQuest().GetGroup())
-			return;
+		super.OnStart();
 
 		if (!m_PlayerItems)
 			m_PlayerItems = new array<EntityAI>;
@@ -44,8 +43,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			EnumerateGroupInventory(GetQuest().GetGroup());
 		}
 	#endif
-
-		super.OnStart();
 	}
 
 	override void OnComplete()
@@ -90,6 +87,25 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	override void OnContinue()
 	{
 		super.OnContinue();
+		
+		if (!m_PlayerItems)
+			m_PlayerItems = new array<EntityAI>;
+
+	#ifdef EXPANSIONMODGROUPS
+		if (!m_GroupItems)
+			m_GroupItems = new array<EntityAI>;
+	#endif
+
+		if (!GetQuest().IsGroupQuest())
+		{
+			EnumeratePlayerInventory(GetQuest().GetPlayer());
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			EnumerateGroupInventory(GetQuest().GetGroup());
+		}
+	#endif
 	}
 
 	override void OnCleanup()
@@ -266,6 +282,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - TRUE");
 				#endif
 					SetCompleted(false);
+					OnIncomplete();
 				}
 				else
 				{
@@ -273,6 +290,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - FALSE");
 				#endif
 					SetCompleted(true);
+					OnComplete();
 				}
 			}
 		#ifdef EXPANSIONMODGROUPS
@@ -349,7 +367,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			return m_GroupItems.Count();
 		}
 
-		return -1;
+		return 0;
 	}
 
 	override int GetObjectiveType()
