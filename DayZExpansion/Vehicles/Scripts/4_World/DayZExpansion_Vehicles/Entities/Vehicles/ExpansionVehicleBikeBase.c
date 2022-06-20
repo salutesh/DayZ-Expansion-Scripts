@@ -271,7 +271,7 @@ class ExpansionVehicleBikeBase extends ExpansionVehicleBase
 
 			stabilize = stabilize.InvMultiply3(pState.m_Transform);
 			stabilize[2] = 0;
-			pState.m_ImpulseTorque += (applyPosition * stabilize).Multiply3(pState.m_Transform) * pState.m_DeltaTime;
+			pState.m_Torque += (applyPosition * stabilize).Multiply3(pState.m_Transform);
 		}
 		else if (m_AirControl) //! we are in the air
 		{

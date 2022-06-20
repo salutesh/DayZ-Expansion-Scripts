@@ -15,7 +15,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 	private autoptr array<Object> ObjectivesObjects = new array<Object>;
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
-
+	
 	override void OnStart()
 	{
 		if (!GetObjectiveConfig())
@@ -137,24 +137,24 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 			if (!obj)
 				continue;
 
-			ExpansionQuestItemBase objectiveItem = ExpansionQuestItemBase.Cast(obj);
-			if (objectiveItem.GetHierarchyParent())
+			ItemBase item = ItemBase.Cast(obj);
+			if (item.GetHierarchyParent())
 			{
-				ItemBase item;
+				ItemBase parentItem;
 				PlayerBase parentPlayer;
-				if (Class.CastTo(item, objectiveItem.GetHierarchyParent()))
+				if (Class.CastTo(parentItem, item.GetHierarchyParent()))
 				{
-					if (!Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()))
+					if (!Class.CastTo(parentPlayer, parentItem.GetHierarchyRootPlayer()))
 					{
 						return false;
 					}
-					else if (Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()))
+					else if (Class.CastTo(parentPlayer, parentItem.GetHierarchyRootPlayer()))
 					{
 						if (parentPlayer != GetQuest().GetPlayer())
 							return false;
 					}
 				}
-				else if (Class.CastTo(parentPlayer, objectiveItem.GetHierarchyParent()) )
+				else if (Class.CastTo(parentPlayer, item.GetHierarchyParent()) )
 				{
 					if (parentPlayer != GetQuest().GetPlayer())
 						return false;
@@ -252,7 +252,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 			if (maxDistance < 10)
 				maxDistance = 10.0;
 
-			if (position != vector.Zero && currentDistance <= maxDistance && HasAllObjectivesItems())
+			if (position != vector.Zero && currentDistance <= maxDistance && HasAllObjectivesItems() && !IsCompleted())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				Print(ToString() + "::OnUpdate - Complete!");
@@ -260,7 +260,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(true);
 				OnComplete();
 			}
-			else if (position != vector.Zero && currentDistance > maxDistance || !HasAllObjectivesItems())
+			else if ((position != vector.Zero && currentDistance > maxDistance || !HasAllObjectivesItems()) && IsCompleted())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				Print(ToString() + "::OnUpdate - Incomplete!");

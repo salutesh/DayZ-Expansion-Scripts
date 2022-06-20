@@ -10,7 +10,7 @@
  *
 */
 
-#ifndef EXPANSION_OBSOLTE_CAMERA
+#ifndef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCamera1stPerson
 {
 	override void Ex_OnUpdate(float pDt, out DayZPlayerCameraResult pOutResult)

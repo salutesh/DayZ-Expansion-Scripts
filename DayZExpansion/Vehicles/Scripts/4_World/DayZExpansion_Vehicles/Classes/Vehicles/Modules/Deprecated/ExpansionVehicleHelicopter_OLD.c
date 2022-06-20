@@ -521,8 +521,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 			dBodySetDamping(m_Vehicle, 0.0, 0.0);
 
-			pState.m_Impulse += force * pState.m_DeltaTime;
-			pState.m_ImpulseTorque += torque * pState.m_DeltaTime;
+			pState.m_Force += force;
+			pState.m_Torque += torque;
 		}
 		else if (m_Controller.m_State[HELICOPTER_CONTROLLER_INDEX])
 		{
@@ -636,7 +636,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_BackRotorSpeed = Math.Clamp(m_BackRotorSpeed + change, -m_AntiTorqueMax, m_AntiTorqueMax);
 
 		if (pState.m_Exploded)
+		{
 			return;
+		}
 
 		if (pState.m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0)
 		{
@@ -705,9 +707,13 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				float forwardZ = pState.m_Transform[2][2];
 
 				if (forwardX == 0.0 && forwardZ == 0.0)
+				{
 					m_Bank = Math.Sign(sideY);
+				}
 				else
+				{
 					m_Bank = sideY / ((forwardX * forwardX) + (forwardZ * forwardZ));
+				}
 			}
 
 			// tail
@@ -804,8 +810,8 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			force += Vector(0, buoyancyForce, 0);
 		}
 
-		pState.m_Impulse += force * pState.m_DeltaTime;
-		pState.m_ImpulseTorque += torque * pState.m_DeltaTime;
+		pState.m_Force += force;
+		pState.m_Torque += torque;
 	}
 
 	override void Animate(ExpansionPhysicsState pState)

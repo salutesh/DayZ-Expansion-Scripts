@@ -186,7 +186,18 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		if (KilledAIPatrolMember(victim))
 		{
 			if (m_TotalKillCount < m_TotalUnitsAmount)
+			{
 				m_TotalKillCount++;
+				
+				if (GetQuest())
+					GetQuest().UpdateQuestPlayersObjectiveData();
+			}
+		}
+		
+		if (m_TotalKillCount >= m_TotalUnitsAmount)
+		{
+			SetCompleted(true);
+			OnComplete();
 		}
 	}
 	
@@ -206,23 +217,6 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		return false;
-	}
-
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-
-		m_UpdateQueueTimer += timeslice;
-		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
-		{
-			if (m_TotalKillCount >= m_TotalUnitsAmount)
-			{
-				SetCompleted(true);
-				OnComplete();
-			}
-
-			m_UpdateQueueTimer = 0.0;
-		}
 	}
 
 	private void InitQuestPatrols()

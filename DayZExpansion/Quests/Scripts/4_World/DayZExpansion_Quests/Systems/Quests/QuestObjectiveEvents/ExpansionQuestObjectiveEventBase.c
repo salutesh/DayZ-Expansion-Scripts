@@ -21,6 +21,8 @@ class ExpansionQuestObjectiveEventBase
 	private int m_TimeLimit = -1;	
 	private float m_TimeLimitTimer = 0;
 	private const float UPDATE_TIME_LIMIT_TICK_TIME = 1.0;
+	private float m_TimeLimitSyncTimer = 0;
+	private const float UPDATE_TIME_SYNC_TIME = 10.0;
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
@@ -115,12 +117,12 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when objective is completed
 	void OnComplete()
 	{
-		if (!m_Quest)
+		if (!GetQuest())
 			return;
 
-		for (int i = 0; i < m_Quest.GetObjectives(); i++)
+		for (int i = 0; i < GetQuest().GetObjectives(); i++)
 		{
-			ExpansionQuestObjectiveEventBase objective = m_Quest.GetObjectives()[i];
+			ExpansionQuestObjectiveEventBase objective = GetQuest().GetObjectives()[i];
 			if (!objective)
 				return;
 
@@ -134,14 +136,18 @@ class ExpansionQuestObjectiveEventBase
 		if (GetObjectiveType() == ExpansionQuestObjectiveType.TRAVEL || GetObjectiveType() == ExpansionQuestObjectiveType.TARGET || GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT)
 	#endif
 			SetIsActive(false);
+		
+		GetQuest().CompletionCheck();
 	}
 
 	void OnIncomplete()
 	{
-		if (!m_Quest)
+		if (!GetQuest())
 			return;
 
 		SetIsActive(true);
+		
+		GetQuest().CompletionCheck();
 	}
 
 	//! Event called when quest is completed and turned-in
@@ -168,7 +174,6 @@ class ExpansionQuestObjectiveEventBase
 	void OnCleanup()
 	{
 		SetInitialized(false);
-		//SetIsActive(false);
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -192,6 +197,15 @@ class ExpansionQuestObjectiveEventBase
 					OnTimeLimitReached();
 					m_TimeLimit = -1;
 				}
+				
+				m_TimeLimitTimer = 0;
+			}
+			
+			m_TimeLimitSyncTimer +=timeslice;
+			if (m_TimeLimit > 0 && m_TimeLimitSyncTimer >= UPDATE_TIME_SYNC_TIME)
+			{
+				GetQuest().UpdateQuestPlayersObjectiveData();
+				m_TimeLimitSyncTimer = 0;
 			}
 		}
 	}
@@ -256,7 +270,7 @@ class ExpansionQuestObjectiveEventBase
 	{
 		return true;
 	}
-
+	
 	void QuestDebug()
 	{
 		ObjectivePrint("------------------------------------------------------------");

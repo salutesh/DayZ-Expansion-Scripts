@@ -12,6 +12,14 @@
 
 #define EXPANSIONMOD
 
+//! Enable it if you want to enable mapping module debug logs
+//#define EXPANSION_MAPPING_MODULE_DEBUG
+
+//#define EXPANSION_INTERIOR_RANDONMIZATION
+
+//! Enable to disable character szene main menu changes
+//#define EXPANSION_MAINMENU_NEW_DISABLE
+
 #ifndef EXPANSIONMONITORMODULE
 #define EXPANSIONMONITORMODULE
 #endif

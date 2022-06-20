@@ -32,11 +32,8 @@ class ExpansionQuestConfigBase
 	bool CancelQuestOnPlayerDeath = false; //! Quest will be cancled if the quest player (or one of his group members when its a group quest) dies.
 	bool Autocomplete = false; //! Quest will be autocompleted when all quest ojectives are completed.
 	bool IsGroupQuest = false; //! Quest is a group quest.
-
-#ifdef EXPANSIONMODHARDLINE
 	bool IsBanditQuest = false; //! Quest for bandits only
 	bool IsHeroQuest = false; //! Quest for heros only
-#endif
 
 	string ObjectSetFileName = string.Empty; //! File name of the .map file that will get loaded
 
@@ -367,7 +364,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		return CancelQuestOnPlayerDeath;
 	}
 
-#ifdef EXPANSIONMODHARDLINE
 	void SetIsBanditQuest(bool state)
 	{
 		IsBanditQuest = state;
@@ -387,7 +383,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		return IsHeroQuest;
 	}
-#endif
 
 	void SetNeedToSelectReward(bool sate)
 	{
@@ -466,10 +461,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		CancelQuestOnPlayerDeath = questConfigBase.CancelQuestOnPlayerDeath;
 		Autocomplete = questConfigBase.Autocomplete;
 		IsGroupQuest = questConfigBase.IsGroupQuest;
-	#ifdef EXPANSIONMODHARDLINE
 		IsBanditQuest = questConfigBase.IsBanditQuest;
 		IsHeroQuest = questConfigBase.IsHeroQuest;
-	#endif
 		ObjectSetFileName = questConfigBase.ObjectSetFileName;
 		QuestClassName = questConfigBase.QuestClassName;
 		Objectives = questConfigBase.Objectives;
@@ -505,10 +498,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ctx.Write(CancelQuestOnPlayerDeath);
 		ctx.Write(Autocomplete);
 		ctx.Write(IsGroupQuest);
-	#ifdef EXPANSIONMODHARDLINE
 		ctx.Write(IsBanditQuest);
 		ctx.Write(IsHeroQuest);
-	#endif
 
 		//! Objectives
 		int objectivesCount = Objectives.Count();
@@ -673,13 +664,11 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		if (!ctx.Read(IsGroupQuest))
 			return false;
 
-	#ifdef EXPANSIONMODHARDLINE
 		if (!ctx.Read(IsBanditQuest))
 			return false;
 
 		if (!ctx.Read(IsHeroQuest))
 			return false;
-	#endif
 
 		int objectivesCount;
 		if (!ctx.Read(objectivesCount))
@@ -898,10 +887,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		QuestPrint(ToString() + "::QuestDebug - Autocomplete: " + Autocomplete);
 		QuestPrint(ToString() + "::QuestDebug - IsAchivement: " + IsAchivement);
 		QuestPrint(ToString() + "::QuestDebug - ObjectSetFileName: " + ObjectSetFileName);
-	#ifdef EXPANSIONMODHARDLINE
 		QuestPrint(ToString() + "::QuestDebug - IsBanditQuest: " + IsBanditQuest);
 		QuestPrint(ToString() + "::QuestDebug - IsHeroQuest: " + IsHeroQuest);
-	#endif
 		QuestPrint(ToString() + "::QuestDebug - NeedToSelectReward: " + NeedToSelectReward);
 		QuestPrint("------------------------------------------------------------");
 	#endif

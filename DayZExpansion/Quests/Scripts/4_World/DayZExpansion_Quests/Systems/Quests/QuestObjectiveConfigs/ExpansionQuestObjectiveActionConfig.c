@@ -19,7 +19,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveConfigBase
 		ActionNames.Insert(name);
 	}
 
-	array<string> GetActionNames()
+	override array<string> GetActionNames()
 	{
 		return ActionNames;
 	}

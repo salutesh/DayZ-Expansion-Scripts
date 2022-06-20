@@ -78,7 +78,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		
 		if (m_Objective.GetTimeLimit() > -1)
 		{
-			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "Time Remaining: " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
+			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
 			
 			if (m_Objective.GetTimeLimit() > 60)
@@ -104,7 +104,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.TARGET:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TARGET");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Killed:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_KILLED";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 				count = m_Objective.GetObjectiveCount();
 				amount = m_Objective.GetObjectiveAmount();
@@ -119,7 +119,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TRAVEL");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Travel:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 				objectivePos = m_Objective.GetObjectivePosition();
 				playerPos = GetGame().GetPlayer().GetPosition();
@@ -140,9 +140,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					if (collection)
 					{
 						string displayName = ExpansionStatic.GetItemDisplayNameWithType(collection.GetClassName());
-						m_QuestHUDObjectiveController.ObjectiveTarget = "Collect " + displayName;
+						m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT " + displayName;
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-						m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetObjectiveCount().ToString() + " of " + collection.GetAmount().ToString();
+						m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetObjectiveCount().ToString() + "/" + collection.GetAmount().ToString();
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 						QuestPrint(ToString() + "::SetEntryObjective - COLLECT - ADDED");
 					}
@@ -158,7 +158,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				{
 					playerPos = GetGame().GetPlayer().GetPosition();
 					currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
-					m_QuestHUDObjectiveController.ObjectiveTarget = "Find treasure:";
+					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TREASURE";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 					m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
@@ -170,7 +170,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - DELIVERY");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Deliver:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_DELIVER";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 				objectivePos = m_Objective.GetObjectivePosition();
@@ -199,7 +199,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AIPATROL:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AIPATROL");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Killed:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_KILLED";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 				count = m_Objective.GetObjectiveCount();
@@ -218,7 +218,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AICAMP:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AICAMP");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Killed:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_KILLED";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 				count = m_Objective.GetObjectiveCount();
@@ -237,7 +237,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AIVIP:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AIVIP");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Travel:";
+				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 				objectivePos = m_Objective.GetObjectivePosition();
 				playerPos = GetGame().GetPlayer().GetPosition();

@@ -13,8 +13,6 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 {
-	private float m_UpdateQueueTimer = 0;
-	private const float UPDATE_TICK_TIME = 2.0;
 	private ref array<eAIDynamicPatrol> AIPatrols = new array<eAIDynamicPatrol>;
 	private int m_TotalKillCount = 0;
 	private int m_UnitsToSpawn = 0;
@@ -27,6 +25,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		CreateAICamp();
 
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CleanupZeds, 30000, true);
+		
 		super.OnStart();
 
 		ObjectivePrint(ToString() + "::OnStart - End");
@@ -39,6 +39,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		CreateAICamp();
 
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CleanupZeds, 30000, true);
+		
 		super.OnContinue();
 
 		ObjectivePrint(ToString() + "::OnContinue - End");
@@ -51,6 +53,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		CleanupPatrol();
 
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CleanupZeds);
+		
 		super.OnCleanup();
 
 		ObjectivePrint(ToString() + "::OnCleanup - End");
@@ -63,6 +67,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		CleanupPatrol();
 
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CleanupZeds);
+		
 		super.OnCancel();
 
 		ObjectivePrint(ToString() + "::OnCancel - End");
@@ -152,28 +158,20 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		
 		//! Check if killed ai entity was part of this objective event group
 		if (KilledAICampMember(victim))	
-		{	
-			if (m_TotalKillCount < m_TotalUnitsAmount)
-				m_TotalKillCount++;
-		}
-	}
-
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-
-		m_UpdateQueueTimer += timeslice;
-		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
-			CleanupZeds(); //! Cleanups zeds at camp position.
-
-			if (m_TotalKillCount >= m_TotalUnitsAmount)
+			if (m_TotalKillCount < m_TotalUnitsAmount)
 			{
-				SetCompleted(true);
-				OnComplete();
+				m_TotalKillCount++;
+				
+				if (GetQuest())
+					GetQuest().UpdateQuestPlayersObjectiveData();
 			}
-
-			m_UpdateQueueTimer = 0.0;
+		}
+		
+		if (m_TotalKillCount >= m_TotalUnitsAmount)
+		{
+			SetCompleted(true);
+			OnComplete();
 		}
 	}
 

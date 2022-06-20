@@ -204,7 +204,8 @@ class eAIBase extends PlayerBase
 	void LoadFSM()
 	{
 		ExpansionFSMType type = ExpansionFSMType.LoadXML("DayZExpansion/AI/scripts/FSM", "Master");
-		if (type && Class.CastTo(m_FSM, type.Spawn(ExpansionFSMOwnerType.Cast(this), null)))
+		ExpansionFSMOwnerType owner = this;
+		if (type && Class.CastTo(m_FSM, type.Spawn(owner, null)))
 		{
 			m_FSM.StartDefault();
 		}

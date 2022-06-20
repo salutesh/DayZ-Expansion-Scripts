@@ -185,7 +185,7 @@ class ExpansionQuestNpcAINiki: ExpansionQuestNpcAIBase {};
 class ExpansionQuestNpcAIOliver: ExpansionQuestNpcAIBase {};
 class ExpansionQuestNpcAIPeter: ExpansionQuestNpcAIBase {};
 class ExpansionQuestNpcAIQuinn: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIRolf: ExpansionQuestNpcAIBase  {};
+class ExpansionQuestNpcAIRolf: ExpansionQuestNpcAIBase {};
 class ExpansionQuestNpcAISeth: ExpansionQuestNpcAIBase {};
 class ExpansionQuestNpcAITaiki: ExpansionQuestNpcAIBase {};
 class ExpansionQuestNpcAILinda: ExpansionQuestNpcAIBase {};

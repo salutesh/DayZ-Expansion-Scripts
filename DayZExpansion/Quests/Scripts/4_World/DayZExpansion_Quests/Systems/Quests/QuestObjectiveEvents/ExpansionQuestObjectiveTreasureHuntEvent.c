@@ -238,11 +238,11 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		position[1] = GetGame().SurfaceY(position[0], position[2]);
 
-		if (position != vector.Zero && currentDistance <= maxDistance)
+		if (position != vector.Zero && currentDistance <= maxDistance && !IsCompleted())
 		{
 			SetCompleted(true);
 		}
-		else if (position != vector.Zero && currentDistance > maxDistance)
+		else if (position != vector.Zero && currentDistance > maxDistance && IsCompleted())
 		{
 			SetCompleted(false);
 		}

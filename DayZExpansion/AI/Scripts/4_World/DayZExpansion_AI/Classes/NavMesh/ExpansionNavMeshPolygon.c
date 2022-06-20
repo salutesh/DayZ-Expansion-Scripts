@@ -1,5 +1,3 @@
-// TODO: optimize for Enforce Script
-
 class ExpansionNavMeshPolygon : PathNode
 {
 	static const int INDEX_COUNT = 4;
@@ -125,7 +123,7 @@ class ExpansionNavMeshPolygon : PathNode
 		auto trace = CF_Trace_0(this, "DrawDebug");
 #endif
 
-		vector vertices[3];
+		vector vertices[6];
 		Shape shape;
 		float radius;
 		
@@ -139,13 +137,10 @@ class ExpansionNavMeshPolygon : PathNode
 		vertices[0] = parent.ModelToWorld(m_Vertices[0]);
 		vertices[1] = parent.ModelToWorld(m_Vertices[3]);
 		vertices[2] = parent.ModelToWorld(m_Vertices[1]);
-		shape = Shape.CreateTris(color, flags, vertices, 3);
-		navmesh.AddDebugShape(shape);
-
-		vertices[0] = parent.ModelToWorld(m_Vertices[3]);
-		vertices[1] = parent.ModelToWorld(m_Vertices[2]);
-		vertices[2] = parent.ModelToWorld(m_Vertices[1]);
-		shape = Shape.CreateTris(color, flags, vertices, 3);
+		vertices[3] = parent.ModelToWorld(m_Vertices[3]);
+		vertices[4] = parent.ModelToWorld(m_Vertices[2]);
+		vertices[5] = parent.ModelToWorld(m_Vertices[1]);
+		shape = Shape.CreateTris(color, flags, vertices, 2);
 		navmesh.AddDebugShape(shape);
 		
 		flags = ShapeFlags.NOZWRITE | ShapeFlags.TRANSP | ShapeFlags.DOUBLESIDE;

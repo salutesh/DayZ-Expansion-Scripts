@@ -119,7 +119,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 			position[1] = GetGame().SurfaceY(position[0], position[2]);
 
-			if (position != vector.Zero && currentDistance <= maxDistance)
+			if (position != vector.Zero && currentDistance <= maxDistance && !IsCompleted())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				Print(ToString() + "::OnUpdate - Complete!");

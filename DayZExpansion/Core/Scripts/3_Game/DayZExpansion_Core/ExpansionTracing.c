@@ -59,7 +59,7 @@ class EXTrace
 
 	static bool DATACOLLECTION = ENABLE;
 
-	static bool GENERAL_ITEMS;
+	static bool GENERAL_ITEMS = ENABLE;
 
 	static bool GLOBAL;
 
@@ -216,17 +216,17 @@ class EXTrace
 
 	static void Add(EXTrace trace, bool param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, int param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, float param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, vector param, bool beautify = true)
@@ -239,12 +239,12 @@ class EXTrace
 
 	static void Add(EXTrace trace, typename param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, Class param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, string param)

@@ -54,7 +54,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 			QuestPrint(ToString() + "::SetView - Quest ID: " + questID);
 			QuestPrint(ToString() + "::SetView - Quest state: " + state);
 
-			if (state < ExpansionQuestState.COMPLETED)
+			if (state > ExpansionQuestState.NONE && state < ExpansionQuestState.COMPLETED)
 			{
 				ExpansionQuestConfig questConfig = m_QuestModule.GetQuestConfigClientByID(questID);
 				if (!questConfig || questConfig.IsAchivement())

@@ -26,7 +26,7 @@ class ExpansionQuest
 
 	private float m_UpdateQueueTimer; //! Server update que timer
 	private int m_CurrentObjectiveTick;
-	private const float UPDATE_TICK_TIME = 1.0; // refreshes 50 quests objectives every ten seconds (5 every sec.)
+	private const float UPDATE_TICK_TIME = 1.0; // refreshes 50 quests objectives every ten seconds (1 every sec.)
 	private const int UPDATE_OBJECTIVES_PER_TICK = 5;
 
 	private bool m_IsGroupQuest = false;
@@ -429,6 +429,10 @@ class ExpansionQuest
 			if (!Config.IsAchivement())
 				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestAcceptedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestAcceptedText, Config.GetTitle()), ExpansionIcons.GetPath("Questionmark 2"), COLOR_EXPANSION_NOTIFICATION_INFO);
 		}
+		
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
+		m_QuestModule.UpdatePlayerQuests(this);
 
 		QuestDebug();
 
@@ -468,7 +472,6 @@ class ExpansionQuest
 				return;
 			}
 
-			m_QuestModule.OnQuestObjectivesComplete(Config.GetID(), m_Player);
 			SetQuestState(ExpansionQuestState.CAN_TURNIN);
 
 			if (!Config.IsAchivement())
@@ -496,6 +499,9 @@ class ExpansionQuest
 			if (Config.IsAutocomplete())
 				m_QuestModule.RequestCompleteQuestServer(Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
 		}
+		
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 
 		QuestDebug();
 
@@ -529,14 +535,13 @@ class ExpansionQuest
 				return;
 			}
 
-			m_QuestModule.OnQuestObjectivesIncomplete(Config.GetID(), m_Player);
 			SetQuestState(ExpansionQuestState.STARTED);
 		}
 		
 		#ifdef EXPANSIONMODNAVIGATION
 			RemoveMarkers();
 		#endif
-
+		
 		QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestObjectivesIncomplete - End");
@@ -606,7 +611,7 @@ class ExpansionQuest
 			}
 		}
 
-		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 
 		QuestDebug();
 
@@ -648,7 +653,6 @@ class ExpansionQuest
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
-		m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
 
 		SetInitialized(false);
 		QuestDebug();
@@ -701,6 +705,9 @@ class ExpansionQuest
 			SetInitialized(true);
 		}
 
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
+		
 		QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestContinue - End");
@@ -853,7 +860,10 @@ class ExpansionQuest
 
 				m_CurrentObjectiveIndex = next;	//! Set the new curret active objective index
 				nextObjective.OnStart();	//! Start the next objective
-
+				
+				m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+				m_QuestModule.UpdateQuestPlayersObjectiveData(this);
+				
 				QuestPrint(ToString() + "::CompletionCheck - Started next quest objective event with index: " + next);
 			}
 		}
@@ -1352,16 +1362,16 @@ class ExpansionQuest
 		if (GetGame().IsClient() || !IsInitialized() ||!ObjectivesCreated())
 			return;
 
-		//! Autocancel quest on player dead if param is enabled
-		if (Config.CancelQuestOnPlayerDeath() && !QuestPlayersAlive())
-		{
-			m_QuestModule.CancelQuestServer(Config.GetID(), m_Player.GetIdentity());
-			return;
-		}
-
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
+			//! Autocancel quest on player dead if param is enabled
+			if (Config.CancelQuestOnPlayerDeath() && !QuestPlayersAlive())
+			{
+				m_QuestModule.CancelQuestServer(Config.GetID(), m_Player.GetIdentity());
+				return;
+			}
+			
 			if (QuestObjectives.Count() > 0)
 			{
 				for (int i = 0; i < UPDATE_OBJECTIVES_PER_TICK; ++i)
@@ -1375,7 +1385,7 @@ class ExpansionQuest
 					if (!objective)
 						continue;
 
-					if (objective.IsInitialized())
+					if (objective.IsInitialized() && objective.IsActive())
 						objective.OnUpdate(timeslice);
 
 					m_CurrentObjectiveTick++;
@@ -1389,13 +1399,19 @@ class ExpansionQuest
 				m_CurrentObjectiveTick = 0;
 			}
 
-			CompletionCheck();
-
-			m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
-			m_QuestModule.UpdateQuestPlayersObjectiveData(this); //! Update the quest players presistent data
-
 			m_UpdateQueueTimer = 0.0;
 		}
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionQuest UpdateQuestPlayersObjectiveData
+	// -----------------------------------------------------------
+	void UpdateQuestPlayersObjectiveData()
+	{
+		if (!m_QuestModule)
+			return;
+		
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 	}
 
 	// -----------------------------------------------------------

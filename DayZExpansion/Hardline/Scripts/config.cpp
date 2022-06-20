@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Scripts","DayZExpansion_Core","DayZExpansion_Scripts","DayZExpansion_Vehicles_Scripts","DayZExpansion_Book_Scripts","DayZExpansion_Market_Scripts"};
+		requiredAddons[] = {"DZ_Scripts","DayZExpansion_Core"};
 	};
 };
 class CfgMods

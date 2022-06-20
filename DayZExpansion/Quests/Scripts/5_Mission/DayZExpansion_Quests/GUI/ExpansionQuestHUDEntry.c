@@ -48,7 +48,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		}
 		else if (state == ExpansionQuestState.CAN_TURNIN)
 		{
-			m_QuestHUDEntryController.ObjectiveText = "COMPLETED -> TURN-IN";
+			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
 		}
 
 		m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");

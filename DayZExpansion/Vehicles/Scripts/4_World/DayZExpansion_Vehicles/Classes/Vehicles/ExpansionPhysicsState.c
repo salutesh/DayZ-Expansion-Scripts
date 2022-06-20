@@ -1,14 +1,14 @@
+//! TODO: Reduce the number of varibales
 class ExpansionPhysicsState
 {
 	static const float PING_INTERVAL = 1.0;
 
 	EntityAI m_Entity;
-	float m_DeltaTime;
-	float m_Substep;
-	float m_SubstepTime;
 
-	vector m_Impulse;
-	vector m_ImpulseTorque;
+	float m_DeltaTime;
+
+	vector m_Force;
+	vector m_Torque;
 
 	vector m_LinearVelocity;   // World Space
 	vector m_LinearVelocityMS; // Model Space
@@ -226,22 +226,29 @@ class ExpansionPhysicsState
 		m_InvMass = 1.0 / m_Mass;
 		m_Center = dBodyGetCenterOfMass(m_Entity);
 
+		m_DeltaTime = pDt;
+
+		m_Force = vector.Zero;
+		m_Torque = vector.Zero;
+
 		dBodyGetInvInertiaTensorWorld(m_Entity, m_TensorWorld);
 
 		m_LinearVelocity = GetVelocity(m_Entity);
 		m_AngularVelocity = dBodyGetAngularVelocity(m_Entity);
 	}
 
-	void ApplyPhysics(float pDt, vector impulse, vector impulseTorque)
+	void ApplySimulation(float pDt, vector impulse, vector impulseTorque)
 	{
-		if (dBodyIsActive(m_Entity) && dBodyIsDynamic(m_Entity))
+		if (!dBodyIsActive(m_Entity) || !dBodyIsDynamic(m_Entity))
 		{
-			SetVelocity(m_Entity, m_LinearVelocity);
-			dBodySetAngularVelocity(m_Entity, m_AngularVelocity);
+			return;
 		}
+		
+		dBodyApplyForce(m_Entity, m_Force);
+		dBodyApplyTorque(m_Entity, m_Torque);
 	}
 
-	void ApplyPhysics_CarScript(float pDt, vector impulse, vector impulseTorque, bool isPhysHost, DayZPlayerImplement driver = NULL)
+	void ApplySimulation_CarScript(float pDt, vector impulse, vector impulseTorque, bool isPhysHost, DayZPlayerImplement driver = NULL)
 	{
 		EXTrace trace;
 
@@ -309,7 +316,7 @@ class ExpansionPhysicsState
 
 		if (isServer || !isPhysHost || !m_HaltPhysics)
 		{
-			ApplyPhysics(pDt, impulse, impulseTorque);
+			ApplySimulation(pDt, impulse, impulseTorque);
 		}
 		else
 		{
@@ -356,7 +363,7 @@ class ExpansionPhysicsState
 			{
 				if (m_InvulnerabilityTime > m_DesyncInvulnerabilityTimeoutSeconds)
 				{
-					trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Disabling temporary vehicle invulnerability");
+					//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Disabling temporary vehicle invulnerability");
 					m_Entity.SetAllowDamage(true);
 					m_IsInvulnerable = false;
 				}
@@ -372,13 +379,13 @@ class ExpansionPhysicsState
 					m_InvulnerabilityTime = 0;
 					if (m_Entity.GetAllowDamage())
 					{
-						trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing + " - enabling temporary vehicle invulnerability");
+						//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing + " - enabling temporary vehicle invulnerability");
 						m_Entity.SetAllowDamage(false);
 						m_IsInvulnerable = true;
 					}
 					else
 					{
-						trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing);
+						//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced - time since last ping from client " + m_TimeSincePing);
 					}
 				}
 				else
@@ -388,7 +395,7 @@ class ExpansionPhysicsState
 			}
 			else if (!m_IsSync)
 			{
-				trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client resynced - time since desync " + m_TimeSinceDesync);
+				//trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client resynced - time since desync " + m_TimeSinceDesync);
 				m_IsSync = true;
 			}
 		}
@@ -409,70 +416,6 @@ class ExpansionPhysicsState
 		else if (m_Entity.IsInherited(ExpansionBoatScript))
 			return "Boat";
 		return "Car";
-	}
-
-	void SetupSubstep(float pDt, float pSubstepDT, inout float pTime)
-	{
-		m_Substep = pSubstepDT;
-		m_DeltaTime = pDt * pSubstepDT;
-		m_SubstepTime = pTime;
-		pTime += pSubstepDT;
-
-		m_Impulse = vector.Zero;
-		m_ImpulseTorque = vector.Zero;
-	}
-
-	void PostSubtep(inout vector impulse, inout vector impulseTorque)
-	{
-		impulse = impulse + m_Impulse;
-		impulseTorque = impulseTorque + m_ImpulseTorque;
-
-		DBGDrawLineDirectionMS(Vector(0, 0, (m_SubstepTime - 0.5) * 2.0), m_Impulse.Multiply3(m_Transform), ARGB(255, 255, m_Substep * 255, 255));
-
-		m_LastLinearVelocity = m_LinearVelocity;
-		m_LinearAcceleration = m_Impulse * m_InvMass;
-		m_LinearVelocity = m_LinearVelocity + m_LinearAcceleration;
-
-		m_LastAngularVelocity = m_AngularVelocity;
-		m_AngularAcceleration = m_ImpulseTorque.InvMultiply3(m_TensorWorld);
-		m_AngularVelocity = m_AngularVelocity + m_AngularAcceleration;
-
-		m_LinearVelocityMS = m_LinearVelocity.InvMultiply3(m_Transform);
-		m_LinearAccelerationMS = m_LinearAcceleration.InvMultiply3(m_Transform);
-
-		m_AngularVelocityMS = m_AngularVelocity.InvMultiply3(m_Transform);
-		m_AngularAccelerationMS = m_AngularAcceleration.InvMultiply3(m_Transform);
-
-		vector mat[3];
-		mat[0] = m_Transform[0];
-		mat[1] = m_Transform[1];
-		mat[2] = m_Transform[2];
-
-		m_Transform[0][0] = 0.0;
-		m_Transform[1][1] = 0.0;
-		m_Transform[2][2] = 0.0;
-
-		m_Transform[0][1] = -m_AngularAcceleration[2];
-		m_Transform[1][0] = m_AngularAcceleration[2];
-		m_Transform[2][0] = -m_AngularAcceleration[1];
-		m_Transform[0][2] = m_AngularAcceleration[1];
-		m_Transform[1][2] = -m_AngularAcceleration[0];
-		m_Transform[2][1] = m_AngularAcceleration[0];
-
-		Math3D.MatrixInvMultiply3(m_Transform, m_Transform, m_Transform);
-
-		m_Transform[0] = mat[0] + m_Transform[0];
-		m_Transform[1] = mat[1] + m_Transform[1];
-		m_Transform[2] = mat[2] + m_Transform[2];
-
-		m_Transform[0].Normalize();
-		m_Transform[1].Normalize();
-		m_Transform[2].Normalize();
-
-		m_Transform[3] = m_Transform[3] + m_LinearAcceleration;
-
-		m_Impulse = vector.Zero;
-		m_ImpulseTorque = vector.Zero;
 	}
 
 	void SendPing(bool desync)
@@ -534,12 +477,16 @@ class ExpansionPhysicsState
 
 		// check if this is an old state and if so, remove it
 		if (m_Time > time)
+		{
 			return;
-
+		}
+		
 		m_Time = time;
 		m_TimeSince = (m_Entity.GetSimulationTimeStamp() - m_Time) / 1000.0;
 		if (m_TimeSince < 0)
+		{
 			m_TimeSince = 0;
+		}
 
 		vector pos;
 		vector ori;

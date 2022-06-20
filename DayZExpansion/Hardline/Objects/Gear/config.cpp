@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"Dogtag_Scout","Dogtag_Pathfinder","Dogtag_Superhero","Dogtag_Legend","Dogtag_Kleptomaniac","Dogtag_Bully","Dogtag_Killer","Dogtag_Madman"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Scripts","DayZExpansion_Core","DayZExpansion_Scripts","DayZExpansion_Vehicles_Scripts","DayZExpansion_Book_Scripts","DayZExpansion_Market_Scripts","Dogtags_Gear"};
+		requiredAddons[] = {"DZ_Scripts","DayZExpansion_Core","Dogtags_Gear"};
 	};
 };
 class cfgVehicles

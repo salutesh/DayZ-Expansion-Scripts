@@ -10,7 +10,7 @@
  *
 */
 
-#ifdef EXPANSION_OBSOLTE_CAMERA
+#ifdef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCamera1stPersonVehicle
 {
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )

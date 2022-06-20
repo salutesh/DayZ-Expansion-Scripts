@@ -721,6 +721,62 @@ modded class ItemBase
 		}
 	}
 
+	override void OnInventoryEnter(Man player)
+	{
+		super.OnInventoryEnter(player);
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+			pb.Expansion_OnInventoryUpdate(this, true);
+	}
+
+	override void OnInventoryExit(Man player)
+	{
+		super.OnInventoryExit(player);
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+			pb.Expansion_OnInventoryUpdate(this, false);
+	}
+
+	override void OnWorkStart()
+	{
+		super.OnWorkStart();
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, GetHierarchyRootPlayer()))
+			pb.Expansion_OnInventoryUpdate(this, true, true);
+	}
+
+	override void OnWorkStop()
+	{
+		super.OnWorkStop();
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, GetHierarchyRootPlayer()))
+			pb.Expansion_OnInventoryUpdate(this, true, true);
+	}
+
+	typename Expansion_GetFamilyType()
+	{
+		if (IsInherited(ItemCompass))
+		{
+			return ItemCompass;
+		}
+		else if (IsInherited(ItemMap))
+		{
+			return ItemMap;
+		}
+		else
+		{
+			ExpansionString className = new ExpansionString(ClassName());
+			if (className.EndsWith("_ColorBase"))
+				return className.Get().ToType();
+		}
+		
+		return Type();
+	}
+
 	override void DeferredInit()
     {
 		super.DeferredInit();

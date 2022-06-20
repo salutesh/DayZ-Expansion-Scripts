@@ -10,98 +10,6 @@
  *
 */
 
-class ExpansionQuestPresistentPlayerData
-{
-	int QuestID = -1;
-	int State = ExpansionQuestState.NONE;
-	int Timestamp = -1;
-	ref array<ref ExpansionQuestObjectivePlayerData> QuestObjectives = new array<ref ExpansionQuestObjectivePlayerData>;
-
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(QuestID);
-		ctx.Write(State);
-		ctx.Write(Timestamp);
-
-		//! Quest objective states
-		int objectivesCount = QuestObjectives.Count();
-		ctx.Write(objectivesCount);
-		for (int i = 0; i < QuestObjectives.Count(); i++)
-		{
-			ExpansionQuestObjectivePlayerData objective = QuestObjectives.Get(i);
-			if (objective)
-				objective.OnSend(ctx);
-		}
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(QuestID))
-		{
-			Error(ToString() + "::OnRecieve - QuestID");
-			return false;
-		}
-
-		if (!ctx.Read(State))
-		{
-			Error(ToString() + "::OnRecieve - State");
-			return false;
-		}
-
-		if (!ctx.Read(Timestamp))
-		{
-			Error(ToString() + "::OnRecieve - Timestamp");
-			return false;
-		}
-
-		int objectivesCount;
-		if (!ctx.Read(objectivesCount))
-		{
-			Error(ToString() + "::OnRecieve - objectivesCount");
-			return false;
-		}
-
-		if (!QuestObjectives)
-		{
-			QuestObjectives = new array<ref ExpansionQuestObjectivePlayerData>;
-		}
-		else
-		{
-			QuestObjectives.Clear();
-		}
-
-		for (int i = 0; i < objectivesCount; i++)
-		{
-			ExpansionQuestObjectivePlayerData objective = new ExpansionQuestObjectivePlayerData();
-			if (!objective.OnRecieve(ctx))
-			{
-				Error(ToString() + "::OnRecieve - objective");
-				return false;
-			}
-
-			QuestObjectives.Insert(objective);
-		}
-
-
-		return true;
-	}
-
-	void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - Quest ID: " + QuestID);
-		Print(ToString() + "::QuestDebug - Quest State: " + State);
-		Print(ToString() + "::QuestDebug - Quest Timestamp: " + Timestamp);
-		for (int i = 0; i < QuestObjectives.Count(); i++)
-		{
-			QuestObjectives[i].QuestDebug();
-		}
-		Print("------------------------------------------------------------");
-	#endif
-	}
-};
-
 class ExpansionQuestPlayerDataBase
 {
 	int ConfigVersion = 0;
@@ -440,13 +348,11 @@ class ExpansionQuestPlayerData: ExpansionQuestPlayerDataBase
 			}
 
 			int timestamp;
-			if (data.State == ExpansionQuestState.COMPLETED && !questConfig.IsRepeatable() && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
+			if (data.State == ExpansionQuestState.NONE && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
 			{
-				QuestPrint(ToString() + "::CleanupQuestData - Cleanup quest state data for quest with ID:" + data.QuestID + " | State: " + data.State);
-				QuestDatas.Remove(i);
-			}
-			else if (data.State == ExpansionQuestState.NONE && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
-			{
+				if (questConfig.GetFollowUpQuestID() > 0 || questConfig.GetPreQuestID() > 0)
+					continue;
+				
 				QuestPrint(ToString() + "::CleanupQuestData - Cleanup quest state data for quest with ID:" + data.QuestID + " | State: " + data.State);
 				QuestDatas.Remove(i);
 			}
@@ -479,7 +385,7 @@ class ExpansionQuestPlayerData: ExpansionQuestPlayerDataBase
 
 			if (data.Timestamp > 0)
 			{
-				timestamp = data.Timestamp;				
+				timestamp = data.Timestamp;
 				if (questConfig.IsDailyQuest())
 				{
 					return HasCooldown(data.QuestID, daylie, remaining);
@@ -552,7 +458,7 @@ class ExpansionQuestPlayerData: ExpansionQuestPlayerDataBase
 		QuestPrint(ToString() + "::HasCooldown - Time difference for quest with ID: " + timedif);
 		QuestPrint(ToString() + "::HasCooldown - Formated time difference for quest with ID: " + ExpansionStatic.FormatTime(timedif, false));
 		QuestPrint("------------------------------------------------------------------------------------------------");
-		
+
 		if (timedif < cooldown)
 			return true;
 

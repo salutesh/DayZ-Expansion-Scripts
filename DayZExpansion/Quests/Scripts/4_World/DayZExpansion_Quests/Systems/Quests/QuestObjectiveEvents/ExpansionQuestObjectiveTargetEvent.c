@@ -120,7 +120,18 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (findIndex > -1)
 		{
 			if (Count < amount)
+			{
 				Count++;
+				
+				if (GetQuest())
+					GetQuest().UpdateQuestPlayersObjectiveData();
+			}
+		}
+		
+		if (Count >= amount)
+		{
+			SetCompleted(true);
+			OnComplete();
 		}
 	}
 
@@ -137,28 +148,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		return false;
-	}
-
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-
-		m_UpdateQueueTimer += timeslice;
-		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
-		{
-			ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
-			if (!target)
-				return;
-
-			int amount = target.GetAmount();
-			if (Count >= amount)
-			{
-				SetCompleted(true);
-				OnComplete();
-			}
-
-			m_UpdateQueueTimer = 0.0;
-		}
 	}
 
 	override int GetObjectiveType()

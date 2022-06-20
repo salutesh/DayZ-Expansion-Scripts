@@ -11,8 +11,8 @@
 			<input name="UAExpansionHeliAntiTorqueRight" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_RIGHT" />
 			<input name="UAExpansionHeliCyclicForward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_FORWARD" />
 			<input name="UAExpansionHeliCyclicBackward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_BACKWARD" />
-			<input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
 			<input name="UAExpansionHeliCyclicLeft" loc="STR_EXPANSION_HELICOPTER_CYCLIC_LEFT" />
+			<input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
 			<input name="UAExpansionHeliCargoDoorUp" visible="false" />
 			<input name="UAExpansionHeliCargoDoorDown" visible="false" />
 

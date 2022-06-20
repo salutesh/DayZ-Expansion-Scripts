@@ -10,7 +10,7 @@
  *
 */
 
-#ifdef EXPANSION_OBSOLTE_CAMERA
+#ifdef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCamera3rdPersonVehicle
 {
 	float m_ExUpDownLockedAngle;

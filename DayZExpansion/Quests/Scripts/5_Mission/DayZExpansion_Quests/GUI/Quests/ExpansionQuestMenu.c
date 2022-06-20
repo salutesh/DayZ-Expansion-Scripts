@@ -89,6 +89,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				ExpansionQuestConfig quest = quests[i];
 				if (!quest || quest.IsAchivement())
 					continue;
+				
+			#ifdef EXPANSIONMODHARDLINE
+				if (quest.IsBanditQuest() || quest.IsHeroQuest() && !GetExpansionSettings().GetHardline().UseHumanity)
+					continue;
+			#endif
 
 				m_Quests.Insert(quest);
 				ExpansionQuestMenuListEntry questEntry = new ExpansionQuestMenuListEntry(quest, this);

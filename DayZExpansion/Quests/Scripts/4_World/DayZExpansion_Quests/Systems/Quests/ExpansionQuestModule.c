@@ -1495,10 +1495,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		newQuestInstance.OnQuestStart();
 
-		UpdateQuestStatesForQuestPlayers(newQuestInstance, ExpansionQuestState.STARTED);
-
-		UpdatePlayerQuests(newQuestInstance);
-
 	#ifdef EXPANSIONMODAI
 		ExpansionQuestNpcAIBase npc = GetQuestNPCAIByID(configInstance.GetQuestGiverID());
 		if (npc)
@@ -1930,8 +1926,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 			}
 		#endif
-
-			UpdateQuestStatesForQuestPlayers(quest, ExpansionQuestState.NONE);
 
 			quest.OnQuestCancel();
 			m_ActiveQuests.RemoveItem(quest);
@@ -2752,7 +2746,26 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig questData = ExpansionQuestConfig.Load(fileName);
 		if (questData)
 		{
-			QuestModulePrint(ToString() + "::GetQuestData - Adding quest data from file " + fileName);
+			QuestModulePrint(ToString() + "::GetQuestData - Try adding quest data from file " + fileName);
+
+			bool isAIModLoaded;
+			bool isHardlineModLoaded;
+		#ifdef EXPANSIONMODAI
+			isAIModLoaded = true;
+		#endif
+			
+			if ((questData.GetType() == ExpansionQuestType.AIPATROL || questData.GetType() == ExpansionQuestType.AICAMP || questData.GetType() == ExpansionQuestType.AIVIP)  && !isAIModLoaded)
+				return;
+			
+		#ifdef EXPANSIONMODHARDLINE
+			isHardlineModLoaded = true;
+			if ((questData.IsBanditQuest() || questData.IsHeroQuest()) && !GetExpansionSettings().GetHardline().UseHumanity)
+				return;
+		#endif
+
+			if ((questData.IsBanditQuest() || questData.IsHeroQuest()) && !isHardlineModLoaded)
+				return;
+			
 			m_QuestConfigs.Insert(questData.GetID(), questData);
 		}
 	}
@@ -3080,88 +3093,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestModule OnQuestObjectivesComplete
-	// Server
-	// ------------------------------------------------------------
-	//! Gets called when a player completed all quest objectives for a certain quest
-	void OnQuestObjectivesComplete(int questID, PlayerBase player)
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestObjectivesComplete").Add(sender).Add(ctx);
-	#endif
-
-		QuestModulePrint(ToString() + "::OnQuestObjectivesComplete - Start");
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::OnQuestObjectivesComplete - Tryed to call OnQuestObjectivesComplete on Client!");
-			return;
-		}
-
-		for (int i = 0; i < m_ActiveQuests.Count(); i++)
-		{
-			ExpansionQuest quest = m_ActiveQuests[i];
-			if (!quest)
-			{
-				Error(ToString() + "::OnQuestObjectivesComplete - Could not get quest from active quest array!");
-				continue;
-			}
-
-			string playerUID = player.GetIdentity().GetId();
-			if (quest.GetPlayerUID() != playerUID)
-				continue;
-
-			//! Get quest from active quest instances
-			if (quest.GetQuestConfig().GetID() == questID)
-			{
-				quest.SetQuestState(ExpansionQuestState.CAN_TURNIN);
-				UpdateQuestStatesForQuestPlayers(quest, ExpansionQuestState.CAN_TURNIN);
-			}
-		}
-
-		QuestModulePrint(ToString() + "::OnQuestObjectivesComplete - End");
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestModule OnQuestObjectivesIncomplete
-	// Server
-	// ------------------------------------------------------------
-	void OnQuestObjectivesIncomplete(int questID, PlayerBase player)
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestObjectivesIncomplete").Add(sender).Add(ctx);
-	#endif
-
-		QuestModulePrint(ToString() + "::OnQuestObjectivesIncomplete - Start");
-
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::OnQuestObjectivesIncomplete - Tryed to call OnQuestObjectivesIncomplete on Client!");
-			return;
-		}
-
-		for (int i = 0; i < m_ActiveQuests.Count(); i++)
-		{
-			ExpansionQuest quest = m_ActiveQuests[i];
-			if (!quest)
-			{
-				Error(ToString() + "::OnQuestObjectivesIncomplete - Could not get quest from active quest array!");
-				continue;
-			}
-
-			string playerUID = player.GetIdentity().GetId();
-			if (quest.GetPlayerUID() != playerUID)
-				continue;
-
-			//! Get quest from active quest instances
-			if (quest.GetQuestConfig().GetID() == questID)
-				UpdateQuestStatesForQuestPlayers(quest, ExpansionQuestState.STARTED);
-		}
-
-		QuestModulePrint(ToString() + "::OnQuestObjectivesIncomplete - End");
-	}
-
-	// ------------------------------------------------------------
 	// ExpansionQuestModule RequestTurnInQuestClient
 	// Client
 	// ------------------------------------------------------------
@@ -3354,8 +3285,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		quest.OnQuestTurnIn(reward);
 		RemoveClientMarkers(quest.GetQuestConfig().GetID(), identity);
 
-		UpdateQuestStatesForQuestPlayers(quest, ExpansionQuestState.COMPLETED);
-
 	#ifdef EXPANSIONMODAI
 		if (!isAutoComplete)
 		{
@@ -3496,9 +3425,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 					QuestModulePrint(ToString() + "::PlayerQuestsInit - There is a active group quest instance for this player! Add quest.");
 					GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - PlayerQuestsInit - Add player [" + playerUID + "] to active goup quest instance for quest: " + activeQuestInstance.GetQuestConfig().GetID() + " - Quest owner UID: " + activeQuestInstance.GetPlayerUID());
-					//! Make sure player has the correct quest state for this quest in his quest data.
-					//playerData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
-					//playerData.Save(playerUID);
 
 					activeQuestInstance.OnGroupMemberJoined(playerUID);
 				}
@@ -3867,14 +3793,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 					}
 				}
 			#endif
-
-				if (playerQuestData)
-				{
-					playerQuestData.UpdateQuestState(quest.GetQuestConfig().GetID(), quest.GetQuestState());
-					playerQuestData.Save(quest.GetPlayerUID());
-				}
-
-				UpdatePlayerQuestObjectiveData(quest, playerUID);
 
 				//! Delete quest
 				CheckAndDeleteObjectSet(quest.GetQuestConfig().GetID());

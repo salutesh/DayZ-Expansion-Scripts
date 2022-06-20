@@ -276,7 +276,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
 				EnumeratePlayerInventory(player);
 
-				if (!HasAllCollectionItems())
+				if (!HasAllCollectionItems() && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - TRUE");
@@ -284,7 +284,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					SetCompleted(false);
 					OnIncomplete();
 				}
-				else
+				else if (HasAllCollectionItems() && !IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - FALSE");
@@ -298,7 +298,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			{
 				EnumerateGroupInventory(GetQuest().GetGroup());
 
-				if (!HasGroupAllCollectionItems())
+				if (!HasGroupAllCollectionItems() && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - TRUE");
@@ -306,7 +306,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					SetCompleted(false);
 					OnIncomplete();
 				}
-				else
+				else if (HasGroupAllCollectionItems() && !IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - FALSE");

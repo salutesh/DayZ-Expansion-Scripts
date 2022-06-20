@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_UAZ
 	{
-		units[] = {"ExpansionStaticWreckUAZ","ExpansionStaticWreckUAZRoofless","ExpansionUAZWheel","ExpansionUAZWheel_Ruined","Vehicle_ExpansionUAZWheel","ExpansionUAZDoorDriver","ExpansionUAZDoorCoDriver","ExpansionUAZDoorCargo1","ExpansionUAZDoorCargo2","ExpansionUAZ","ExpansionUAZRoofless","ExpansionUAZCargoRoofless","ExpansionUAZCargo","Vehicle_ExpansionUAZ","Vehicle_ExpansionUAZRoofless","Vehicle_ExpansionUAZCargoRoofless","Vehicle_ExpansionUAZCargo","ExpansionSpraycanGreen","ExpansionUAZ_Green","ExpansionUAZCargo_Green","ExpansionUAZRoofless_Green","ExpansionUAZCargoRoofless_Green","Vehicle_ExpansionUAZ_Green","Vehicle_ExpansionUAZCargo_Green","Vehicle_ExpansionUAZRoofless_Green","Vehicle_ExpansionUAZCargoRoofless_Green","ExpansionUAZDoorDriver_Green","ExpansionUAZDoorCoDriver_Green","ExpansionUAZDoorCargo1_Green","ExpansionUAZDoorCargo2_Green","ExpansionSpraycanBlack","ExpansionUAZ_Black","ExpansionUAZCargo_Black","ExpansionUAZRoofless_Black","ExpansionUAZCargoRoofless_Black","Vehicle_ExpansionUAZ_Black","Vehicle_ExpansionUAZCargo_Black","Vehicle_ExpansionUAZRoofless_Black","Vehicle_ExpansionUAZCargoRoofless_Black","ExpansionUAZDoorDriver_Black","ExpansionUAZDoorCoDriver_Black","ExpansionUAZDoorCargo1_Black","ExpansionUAZDoorCargo2_Black","ExpansionSpraycanLightGreen","ExpansionUAZ_LightGreen","ExpansionUAZCargo_LightGreen","ExpansionUAZRoofless_LightGreen","ExpansionUAZCargoRoofless_LightGreen","Vehicle_ExpansionUAZ_LightGreen","Vehicle_ExpansionUAZCargo_LightGreen","Vehicle_ExpansionUAZRoofless_LightGreen","Vehicle_ExpansionUAZCargoRoofless_LightGreen","ExpansionUAZDoorDriver_LightGreen","ExpansionUAZDoorCoDriver_LightGreen","ExpansionUAZDoorCargo1_LightGreen","ExpansionUAZDoorCargo2_LightGreen"};
+		units[] = {"ExpansionStaticWreckUAZ","ExpansionStaticWreckUAZRoofless","ExpansionUAZWheel","ExpansionUAZWheel_Ruined","Vehicle_ExpansionUAZWheel","ExpansionUAZDoorDriver","ExpansionUAZDoorCoDriver","ExpansionUAZDoorCargo1","ExpansionUAZDoorCargo2","ExpansionUAZDoorTrunk","ExpansionUAZDoorHood","ExpansionUAZ","ExpansionUAZRoofless","ExpansionUAZCargoRoofless","ExpansionUAZCargo","Vehicle_ExpansionUAZ","Vehicle_ExpansionUAZRoofless","Vehicle_ExpansionUAZCargoRoofless","Vehicle_ExpansionUAZCargo","ExpansionSpraycanGreen","ExpansionUAZ_Green","ExpansionUAZCargo_Green","ExpansionUAZRoofless_Green","ExpansionUAZCargoRoofless_Green","Vehicle_ExpansionUAZ_Green","Vehicle_ExpansionUAZCargo_Green","Vehicle_ExpansionUAZRoofless_Green","Vehicle_ExpansionUAZCargoRoofless_Green","ExpansionUAZDoorDriver_Green","ExpansionUAZDoorCoDriver_Green","ExpansionUAZDoorCargo1_Green","ExpansionUAZDoorCargo2_Green","ExpansionUAZDoorHood_Green","ExpansionSpraycanBlack","ExpansionUAZ_Black","ExpansionUAZCargo_Black","ExpansionUAZRoofless_Black","ExpansionUAZCargoRoofless_Black","Vehicle_ExpansionUAZ_Black","Vehicle_ExpansionUAZCargo_Black","Vehicle_ExpansionUAZRoofless_Black","Vehicle_ExpansionUAZCargoRoofless_Black","ExpansionUAZDoorDriver_Black","ExpansionUAZDoorCoDriver_Black","ExpansionUAZDoorCargo1_Black","ExpansionUAZDoorCargo2_Black","ExpansionUAZDoorHood_Black","ExpansionSpraycanLightGreen","ExpansionUAZ_LightGreen","ExpansionUAZCargo_LightGreen","ExpansionUAZRoofless_LightGreen","ExpansionUAZCargoRoofless_LightGreen","Vehicle_ExpansionUAZ_LightGreen","Vehicle_ExpansionUAZCargo_LightGreen","Vehicle_ExpansionUAZRoofless_LightGreen","Vehicle_ExpansionUAZCargoRoofless_LightGreen","ExpansionUAZDoorDriver_LightGreen","ExpansionUAZDoorCoDriver_LightGreen","ExpansionUAZDoorCargo1_LightGreen","ExpansionUAZDoorCargo2_LightGreen","ExpansionUAZDoorHood_LightGreen"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -523,6 +523,7 @@ class CfgVehicles
 	};
 	class ExpansionUAZDoorTrunk: CarDoor
 	{
+		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_TRUNK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_TRUNK_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazTrunkdoor.p3d";
@@ -535,6 +536,7 @@ class CfgVehicles
 	};
 	class ExpansionUAZDoorHood: CarDoor
 	{
+		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_HOOD";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_DOOR_HOOD_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\uazHooddoor.p3d";
