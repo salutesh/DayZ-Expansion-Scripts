@@ -139,10 +139,31 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					ExpansionQuestObjectiveCollection collection = collectionObjective.GetCollection();
 					if (collection)
 					{
+						int minus;
 						string displayName = ExpansionStatic.GetItemDisplayNameWithType(collection.GetClassName());
+						PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+						amount = collection.GetAmount();
+						
+					#ifdef WRDG_DOGTAGS
+						if (collection.GetClassName().Contains("Dogtag"))
+						{
+							int slotId = InventorySlots.GetSlotIdFromString("Dogtag");
+							Dogtag_Base playerDogTag;
+							EntityAI slotItem = player.GetInventory().FindAttachment(slotId);
+							if (Class.CastTo(playerDogTag, slotItem))
+							{
+								if (playerDogTag.ClassName() == collection.GetClassName())
+								{
+									minus++;
+								}
+							}
+						}
+					#endif
+						
+						count = player.Expansion_GetInventoryCount(collection.GetClassName().ToType()) - minus;
 						m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT " + displayName;
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-						m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetObjectiveCount().ToString() + "/" + collection.GetAmount().ToString();
+						m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 						QuestPrint(ToString() + "::SetEntryObjective - COLLECT - ADDED");
 					}
@@ -309,6 +330,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	#endif
 
 		return color;
+	}
+	
+	void UpdateEntry(ExpansionQuestObjectivePlayerData objective)
+	{
+		m_Objective = objective;
+		SetEntryObjective();
+	}
+	
+	ExpansionQuestObjectivePlayerData GetObjectiveData()
+	{
+		return m_Objective;
 	}
 
 	void QuestPrint(string text)

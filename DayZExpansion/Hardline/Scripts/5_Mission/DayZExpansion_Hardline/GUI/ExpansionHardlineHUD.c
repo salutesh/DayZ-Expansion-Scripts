@@ -183,7 +183,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	
 	override void Update()
 	{
-		if (m_HardlineModule)
+		if (m_HardlineModule && GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			if (!m_HardlineModule.GetHardlineClientData())
 				return;

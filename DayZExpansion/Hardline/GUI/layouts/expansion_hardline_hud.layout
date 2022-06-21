@@ -44,6 +44,7 @@ FrameWidgetClass ExpansionHardlineHUD {
      Columns 1
      {
       PanelWidgetClass HummanityAdd {
+       visible 0
        ignorepointer 1
        position 10.4833 162.73799
        size 34 22
@@ -79,7 +80,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        }
       }
       PanelWidgetClass Humanity {
-       visible 1
+       visible 0
        clipchildren 1
        inheritalpha 0
        ignorepointer 1
@@ -222,6 +223,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        }
       }
       PanelWidgetClass HummanityRemove {
+       visible 0
        ignorepointer 1
        position 10.4833 162.73799
        size 34 22
