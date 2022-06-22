@@ -29,7 +29,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 		if (IsMissionHost())
 		{
 			SetAllowDamage(false);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionFixPositionAndOrientation, 10000, true);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionFixPositionAndOrientation, 10000);
 		}
 
 #ifdef EXPANSIONMODAI

@@ -82,7 +82,7 @@ class ExpansionQuestsPlayerInventory
 			if (!item)
 				continue;
 
-			if (item.ClassName() == typeName || item.GetType() == typeName)
+			if (item.Type().ToString() == typeName)
 			{
 				items.Insert(item);
 			}

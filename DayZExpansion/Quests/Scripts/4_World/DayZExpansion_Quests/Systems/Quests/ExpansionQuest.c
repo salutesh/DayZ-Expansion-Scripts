@@ -15,7 +15,7 @@ class ExpansionQuest
 {
 	private ExpansionQuestModule m_QuestModule;
 
-	private ref ExpansionQuestConfig Config;
+	private ExpansionQuestConfig Config;
 	private int State = ExpansionQuestState.NONE;
 	private ref array<Object> QuestItems = new array<Object>;	//! Normal items the player will recieve on quest start.
 	private ref array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
@@ -30,7 +30,7 @@ class ExpansionQuest
 	private const int UPDATE_OBJECTIVES_PER_TICK = 5;
 
 	private bool m_IsGroupQuest = false;
-	private ref ExpansionPartyData m_Group;
+	private ExpansionPartyData m_Group;
 	private int m_GroupID = -1;
 
 	private int m_ObjectiveIndex = 0;
@@ -65,12 +65,10 @@ class ExpansionQuest
 
 		QuestPrint(ToString() + "::~ExpansionQuest - Start");
 
-		m_Player = NULL;
-
-		CleanupQuestItems();
-
-		QuestItems.Clear();
-		QuestObjectives.Clear();
+		//m_Player = NULL;
+		//CleanupQuestItems();
+		//QuestItems.Clear();
+		//QuestObjectives.Clear();
 
 		QuestPrint(ToString() + "::~ExpansionQuest - End");
 	}
@@ -574,8 +572,14 @@ class ExpansionQuest
 			}
 
 			//! Add all quest rewards to the players inventory
-			if (!SpawnQuestRewards(reward))
-				return;
+			if (GetQuestConfig().GetRewards().Count() > 0)
+			{
+				if (!SpawnQuestRewards(reward))
+				{
+					Error(ToString() + "::OnQuestTurnIn - Could not get spawn quest reward!");
+					return;
+				}
+			}
 
 			SetQuestState(ExpansionQuestState.COMPLETED);
 
@@ -1041,7 +1045,6 @@ class ExpansionQuest
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "SpawnQuestRewards").Add(sender).Add(ctx);
 	#endif
 
-		int i;
 		ExpansionQuestRewardConfig questReward;
 	#ifdef EXPANSIONMODHARDLINE
 		int humanity;
@@ -1063,7 +1066,7 @@ class ExpansionQuest
 			}
 			else
 			{
-				for (i = 0; i < Config.GetRewards().Count(); i++)
+				for (int i = 0; i < Config.GetRewards().Count(); i++)
 				{
 					questReward = Config.GetRewards()[i];
 					Spawn(questReward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
@@ -1073,9 +1076,9 @@ class ExpansionQuest
 		#ifdef EXPANSIONMODHARDLINE
 			if (GetExpansionSettings().GetHardline().UseHumanity)
 			{
-				for (i = 0; i < Config.GetRewards().Count(); i++)
+				for (int h = 0; h < Config.GetRewards().Count(); h++)
 				{
-					humanity = Config.GetRewards()[i].GetHumanity();
+					humanity = Config.GetRewards()[h].GetHumanity();
 					if (humanity > 0 || humanity < 0)
 					{
 						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
@@ -1105,27 +1108,39 @@ class ExpansionQuest
 			QuestPrint(ToString() + "::SpawnQuestRewards - Group: " + m_Group);
 			QuestPrint(ToString() + "::SpawnQuestRewards - Group players: " + m_Group.GetPlayers());
 			QuestPrint(ToString() + "::SpawnQuestRewards - Group players count: " + m_Group.GetPlayers().Count());
-
-			for (i = 0; i < m_Group.GetPlayers().Count(); i++)
+			
+			for (int j = 0; j < m_Group.GetPlayers().Count(); j++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[j];
+				if (!playerGroupData)
+				{
+					Error(ToString() + "::SpawnQuestRewards - Could not get group members party data!");
+					continue;
+				}
+				
+				QuestPrint(ToString() + "::SpawnQuestRewards - Spawn quest reward for player with UID: " + playerGroupData.GetID());
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				EntityAI groupPlayerEntity = groupPlayer;
-				if (groupPlayer && groupPlayer.GetIdentity())
+				EntityAI groupPlayerEntity = EntityAI.Cast(groupPlayer);
+				if (groupPlayer)
 				{
 					if (Config.NeedToSelectReward)
 					{
 						if (!reward)
+						{
+							QuestPrint(ToString() + "::SpawnQuestRewards - No reward selected!");
 							return false;
-
+						}
+						
+						QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
 						Spawn(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 					}
 					else
 					{
 						//! Add all quest rewards to the players inventory
-						for (int j = 0; j < Config.GetRewards().Count(); j++)
+						for (int k = 0; k < Config.GetRewards().Count(); k++)
 						{
-							questReward = Config.GetRewards()[j];
+							questReward = Config.GetRewards()[k];
+							QuestPrint(ToString() + "::SpawnQuestRewards - Spawn reward: [" + k + "] " + questReward.ToString());	
 							Spawn(questReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
 						}
 					}
@@ -1134,9 +1149,9 @@ class ExpansionQuest
 			#ifdef EXPANSIONMODHARDLINE
 				if (GetExpansionSettings().GetHardline().UseHumanity)
 				{
-					for (i = 0; i < Config.GetRewards().Count(); i++)
+					for (int gh = 0; gh < Config.GetRewards().Count(); gh++)
 					{
-						humanity = Config.GetRewards()[i].GetHumanity();
+						humanity = Config.GetRewards()[gh].GetHumanity();
 						if (humanity > 0 || humanity < 0)
 						{
 							hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));

@@ -54,15 +54,11 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnTurnIn()
 	{
-		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
-		if (!collection)
-			return;
-
+		Print(ToString() + "::OnTurnIn - Start");
+		
 		if (!GetQuest().IsGroupQuest())
 		{
-			if (m_PlayerItems.Count() != collection.GetAmount())
-				return;
-
+			Print(ToString() + "::OnTurnIn - NORMAL QUEST");
 			for (int i = 0; i < m_PlayerItems.Count(); i++)
 			{
 				EntityAI item = m_PlayerItems[i];
@@ -70,20 +66,22 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			}
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else
+		else if (GetQuest().IsGroupQuest())
 		{
-			if (m_GroupItems.Count() != collection.GetAmount())
-				return;
-
+			Print(ToString() + "::OnTurnIn - GROUP QUEST");
 			for (int g = 0; g < m_GroupItems.Count(); g++)
 			{
-				EntityAI groupItem = m_PlayerItems[g];
+				EntityAI groupItem = m_GroupItems[g];
+				Print(ToString() + "::OnTurnIn - Delete collection item: " + groupItem.ToString());
+				Print(ToString() + "::OnTurnIn - Type name: " + groupItem.Type().ToString());
 				GetGame().ObjectDelete(groupItem);
 			}
 		}
 	#endif
 
 		super.OnTurnIn();
+		
+		Print(ToString() + "::OnTurnIn - End");
 	}
 
 	override void OnContinue()
@@ -176,8 +174,10 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			for (int i = 0; i < items.Count(); i++)
 			{
 				EntityAI item = items[i];
+				Print(ToString() + "::HasGroupAllQuestItems - Item: " + item.Type().ToString());
 				if (CanCountItem(item, true))
 				{
+					Print(ToString() + "::HasGroupAllQuestItems - Add item: " + item.Type().ToString());
 					m_GroupItems.Insert(item);
 					currentCount++;
 				}
@@ -189,12 +189,14 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			}
 		}
 
-		return true;
+		return false;
 	}
 #endif
 
 	private bool CanCountItem(EntityAI item, bool checkIfRuined = false)
 	{
+		Print(ToString() + "::CanCountItem - Start");
+		
 		if (checkIfRuined && item.IsRuined())
 			return false;
 
@@ -223,34 +225,12 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		if (Class.CastTo(key, item) && key.IsMaster())
 			return false;
 		#endif
-
-	#ifdef WRDG_DOGTAGS
-		Dogtag_Base dogTag;
-		if (Class.CastTo(dogTag, item))
-		{
-		#ifdef EXPANSIONMODQUESTSDEBUG
-			Print(ToString() + "::CanCountItem - Item is Dogtag");
-		#endif
-			int slotId = InventorySlots.GetSlotIdFromString("Dogtag");
-			Dogtag_Base playerDogTag;
-			PlayerBase player = PlayerBase.Cast(dogTag.GetHierarchyRootPlayer());
-			EntityAI slotItem = player.GetInventory().FindAttachment(slotId);
-			if (Class.CastTo(playerDogTag, slotItem))
-			{
-				if (dogTag == playerDogTag)
-				{
-				#ifdef EXPANSIONMODQUESTSDEBUG
-					Print(ToString() + "::CanCountItem - Dogtag is players dogtag! Don't add!");
-				#endif
-					return false;
-				}
-			}
-		}
-	#endif
-
+		
+		Print(ToString() + "::CanCountItem - End and return true!");
+		
 		return true;
 	}
-
+	
 	void EnumeratePlayerInventory(PlayerBase player)
 	{
 		if (!player || !player.IsAlive() || !player.GetInventory())
@@ -296,7 +276,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				}
 			}
 		#ifdef EXPANSIONMODGROUPS
-			else if (GetQuest().IsGroupQuest())
+			else
 			{
 				EnumerateGroupInventory(GetQuest().GetGroup());
 
@@ -329,7 +309,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			}
 			else if (GetQuest().IsGroupQuest() && m_GroupItems)
 			{
-				if (m_UpdateCount != m_PlayerItems.Count())
+				if (m_UpdateCount != m_GroupItems.Count())
 				{
 					m_UpdateCount = m_GroupItems.Count();
 					GetQuest().UpdateQuestPlayersObjectiveData();

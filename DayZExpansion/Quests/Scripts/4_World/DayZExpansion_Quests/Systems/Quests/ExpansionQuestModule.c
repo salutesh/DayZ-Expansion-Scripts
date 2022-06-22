@@ -1485,6 +1485,23 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 
 			newQuestInstance.SetGroup(groupData);
+			
+			for (int i = 0; i < groupData.GetPlayers().Count(); i++)
+			{
+				ExpansionPartyPlayerData playerPartyData =  groupData.GetPlayers()[i];
+				if (!playerPartyData)
+					continue;
+				
+				ExpansionQuestPlayerData partyPlayerQuestData = GetPlayerQuestDataByUID(playerPartyData.GetID());
+				if (!partyPlayerQuestData)
+					return;
+		
+				if (!partyPlayerQuestData.HasDataForQuest(questID))
+				{
+					partyPlayerQuestData.AddQuestData(configInstance);
+				}
+				
+			}
 		}
 	#endif
 

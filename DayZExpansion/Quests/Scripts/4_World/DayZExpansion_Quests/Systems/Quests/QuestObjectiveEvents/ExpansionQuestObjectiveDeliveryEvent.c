@@ -236,9 +236,9 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 						smallestDistance = dist;
 						posIndex = p;
 					}
+					
+					currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 				}
-
-				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 			#endif
 			}
 			else
