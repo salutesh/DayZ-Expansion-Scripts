@@ -526,21 +526,14 @@ class ExpansionQuest
 			return;
 		}
 
-		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-		if (m_Player)
-		{
-			if (!Config && Config.GetID() == -1)
-			{
-				Error(ToString() + "::OnQuestObjectivesIncomplete - Could not get quest config!");
-				return;
-			}
-
-			SetQuestState(ExpansionQuestState.STARTED);
-		}
+		SetQuestState(ExpansionQuestState.STARTED);
 		
 		#ifdef EXPANSIONMODNAVIGATION
 			RemoveMarkers();
 		#endif
+		
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 		
 		QuestDebug();
 
@@ -652,7 +645,7 @@ class ExpansionQuest
 
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
-		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players presistent data
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players persistent data
 
 		SetInitialized(false);
 		QuestDebug();

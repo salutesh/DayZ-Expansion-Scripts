@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestPresistentPlayerData.c
+ * ExpansionQuestPersistentPlayerData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestPresistentPlayerData
+class ExpansionQuestPersistentPlayerData
 {
 	int QuestID = -1;
 	int State = ExpansionQuestState.NONE;

@@ -17,7 +17,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 	protected ExpansionQuestModule m_QuestModule;
 	protected ref array<int> m_HiddenIDs = new array<int>;
 	protected WrapSpacerWidget QuestEntriesWraper;
-	protected ref map<int, ref ExpansionQuestHUDEntry> m_QuestEntries = new map<int, ref ExpansionQuestHUDEntry>;
+	protected ref array<ref ExpansionQuestHUDEntry> m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
 
 	void ExpansionQuestHUD()
 	{
@@ -26,37 +26,28 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 		if (!m_QuestModule)
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
-		if (!m_QuestEntries)
-			m_QuestEntries = new map<int, ref ExpansionQuestHUDEntry>;
 	}
 
 	void SetView(ExpansionQuestPlayerData playerData)
 	{
 		QuestPrint(ToString() + "::SetView - Start");
 
+		m_QuestEntries.Clear();
+
 		if (!playerData)
 			return;
-		
-		for (int e = 0; e < m_QuestEntries.Count(); e++)
+
+		if (!m_QuestModule)
+			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+
+		if (!m_QuestEntries)
 		{
-			int entryQuestID = m_QuestEntries.GetKey(e);
-			ExpansionQuestHUDEntry hudEntry = m_QuestEntries.GetElement(e);
-			if (hudEntry)
-			{
-				if (!HasDataForEntry(entryQuestID, playerData))
-				{
-					QuestEntriesWraper.RemoveChild(hudEntry.GetLayoutRoot());
-					delete hudEntry;
-					m_QuestEntries.Remove(entryQuestID);
-				}
-			}
+			m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
 		}
-		
-		
+
 		for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
 		{
-			ExpansionQuestPresistentPlayerData data = playerData.GetQuestDatas().Get(i);
+			ExpansionQuestPersistentPlayerData data = playerData.GetQuestDatas().Get(i);
 			int questID = data.QuestID;
 			int state = data.State;
 
@@ -72,65 +63,25 @@ class ExpansionQuestHUD: ExpansionScriptView
 				QuestPrint(ToString() + "::SetView - Quest config: " + questConfig);
 				QuestPrint(ToString() + "::SetView - Add new entry for quest: " + questID);
 
-				ref ExpansionQuestHUDEntry existringEntry;
-				if (!GetEntryByQuestID(questConfig.GetID(), existringEntry))
+				ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, data);
+				QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
+				m_QuestEntries.Insert(entry);
+				entry.SetEntry();
+
+				int findeIndexHidden = -1;
+				findeIndexHidden = m_HiddenIDs.Find(questID);
+				if (findeIndexHidden == -1)
 				{
-					ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, playerData);
-					QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
-					m_QuestEntries.Insert(questConfig.GetID(), entry);
-					entry.SetEntry();
-	
-					int findeIndexHidden = -1;
-					findeIndexHidden = m_HiddenIDs.Find(questID);
-					if (findeIndexHidden == -1)
-					{
-						entry.Show();
-					}
-					else
-					{
-						entry.Hide();
-					}
+					entry.Show();
 				}
-				else if (GetEntryByQuestID(questConfig.GetID(), existringEntry))
+				else
 				{
-					existringEntry.UpdateEntry(playerData);
+					entry.Hide();
 				}
 			}
 		}
 
 		QuestPrint(ToString() + "::SetView - End");
-	}
-	
-	bool GetEntryByQuestID(int questID, out ref ExpansionQuestHUDEntry entry)
-	{
-		ref ExpansionQuestHUDEntry foundEntry;
-		if (m_QuestEntries.Find(questID, foundEntry))
-		{
-			entry = foundEntry;
-			return true;
-		}
-		
-		return false;
-	}
-	
-	bool HasDataForEntry(int questID, ExpansionQuestPlayerData playerData)
-	{
-		for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
-		{
-			ExpansionQuestPresistentPlayerData data = playerData.GetQuestDatas().Get(i);
-			int dataQuestID = data.QuestID;
-			if (dataQuestID == questID)
-			{
-				if (data.State == ExpansionQuestState.NONE)
-				{
-					return false
-				}
-				
-				return true;
-			}
-		}
-		
-		return false;
 	}
 
 	void ShowHud(bool state)

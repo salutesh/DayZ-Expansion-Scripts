@@ -15,16 +15,16 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDEntryController m_QuestHUDEntryController;
 	protected ExpansionQuestConfig m_QuestConfig;
-	protected ExpansionQuestPlayerData  m_PlayerQuestData;
+	protected ExpansionQuestPersistentPlayerData  m_QuestData;
 	protected ImageWidget QuestIcon;
 	protected Widget Spacer;
 	protected WrapSpacerWidget ObjectiveEntries;
 	protected ref array<ref ExpansionQuestHUDObjective> m_ObjectiveEntries = new array<ref ExpansionQuestHUDObjective>;
 
-	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPlayerData playerData)
+	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPersistentPlayerData questData)
 	{
 		m_QuestConfig = questConfig;
-		m_PlayerQuestData = playerData;
+		m_QuestData = questData;
 		m_QuestHUDEntryController = ExpansionQuestHUDEntryController.Cast(GetController());
 	}
 
@@ -40,8 +40,8 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		m_QuestHUDEntryController.QuestName = m_QuestConfig.GetTitle();
 		m_QuestHUDEntryController.NotifyPropertyChanged("QuestName");
 
-		int state = m_PlayerQuestData.GetQuestStateByQuestID(m_QuestConfig.GetID());
-		if (state < ExpansionQuestState.CAN_TURNIN)
+		int state = m_QuestData.State;
+		if (state == ExpansionQuestState.STARTED)
 		{
 			m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
 		}
@@ -54,6 +54,14 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 
 		Spacer.SetColor(GetQuestColor(m_QuestConfig));
 		QuestIcon.SetColor(GetQuestColor(m_QuestConfig));
+
+		foreach (ExpansionQuestHUDObjective currentEntry: m_ObjectiveEntries)
+		{
+			ObjectiveEntries.RemoveChild(currentEntry.GetLayoutRoot());
+			delete currentEntry;
+		}
+
+		m_ObjectiveEntries.Clear();
 
 		QuestPrint(ToString() + "---------------------------------------------------------------------------");
 		QuestPrint(ToString() + "::SetEntry - Add objectives for quest: " + m_QuestConfig.GetTitle());
@@ -70,7 +78,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 			
 			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfigBase: " + objectiveConfig.ToString());
 			
-			ExpansionQuestObjectivePlayerData objective = m_PlayerQuestData.GetQuestObjectiveByQuestIDAndIndex(m_QuestConfig.GetID(), i);
+			ExpansionQuestObjectivePlayerData objective = m_QuestData.QuestObjectives.Get(i)
 			if (objective)
 			{
 				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectivePlayerData: " + objective.ToString());
@@ -89,7 +97,6 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 				objectiveEntry.SetEntryObjective();
 			}
 		}
-		
 		QuestPrint(ToString() + "---------------------------------------------------------------------------");
 		QuestPrint(ToString() + "::SetEntry - Added " + objectiveCount +  " objectives!");
 
@@ -97,42 +104,6 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		GetLayoutRoot().Update();
 
 		QuestPrint(ToString() + "::SetEntry - End");
-	}
-	
-	void UpdateEntry(ExpansionQuestPlayerData playerData)
-	{
-		m_PlayerQuestData = playerData;
-		
-		int state = m_PlayerQuestData.GetQuestStateByQuestID(m_QuestConfig.GetID());
-		if (state < ExpansionQuestState.CAN_TURNIN)
-		{
-			m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
-			m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
-		}
-		else
-		{
-			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
-			m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
-		}
-		
-		for (int i = 0; i < m_ObjectiveEntries.Count(); i++)
-		{
-			ExpansionQuestHUDObjective objectiveEntry = m_ObjectiveEntries[i];
-			if (!objectiveEntry)
-				continue;
-			
-			if (!objectiveEntry.GetObjectiveData() || !m_QuestConfig)
-				continue;
-			
-			ExpansionQuestObjectivePlayerData objective = playerData.GetQuestObjectiveByQuestIDAndIndex(m_QuestConfig.GetID(), objectiveEntry.GetObjectiveData().GetObjectiveIndex());
-			if (objective)
-			{
-				objectiveEntry.UpdateEntry(objective);
-			}
-		}
-		
-		ObjectiveEntries.Update();
-		GetLayoutRoot().Update();
 	}
 
 	private int GetQuestColor(ExpansionQuestConfig quest)

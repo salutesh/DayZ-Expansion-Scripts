@@ -58,7 +58,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	private float m_CheckResetTimer; //! Server quest reset check timer
 	private const float CHECK_TICK_TIME = 60.0; // refreshes 100 active quests every ten seconds (10 every sec.)
-	private ref ExpansionQuestPresistentServerData m_ServerData; //! Server
+	private ref ExpansionQuestPersistentServerData m_ServerData; //! Server
 
 	//! Client only
 	private ref map<int, ref ExpansionQuestConfig> m_QuestClientConfigs;	//! Client
@@ -184,14 +184,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void CreateAndLoadFileStructure()
 	{
-		if (!FileExist(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE))
+		if (!FileExist(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE))
 		{
-			m_ServerData = new ExpansionQuestPresistentServerData();
+			m_ServerData = new ExpansionQuestPersistentServerData();
 			m_ServerData.Save();
 		}
 		else
 		{
-			m_ServerData = ExpansionQuestPresistentServerData.Load();
+			m_ServerData = ExpansionQuestPersistentServerData.Load();
 		}
 
 		//! OBJECTIVE FILES
@@ -437,7 +437,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			QuestModulePrint(ToString() + "::OnClientNew - Setup player quests for player with UID: " + cArgs.Identity.GetId());
 			SendQuestNPCDataServer(cArgs.Identity); //! Send all quest npc datas to the players client.
-			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players presistent quest data to the client and recreates existig quests for the player on the server.
+			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players persistent quest data to the client and recreates existig quests for the player on the server.
 		}
 		QuestModulePrint(ToString() + "::OnClientNew - End");
 	}
@@ -460,7 +460,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			QuestModulePrint(ToString() + "::OnClientReady - Setup player quests for player with UID: " + cArgs.Identity.GetId());
 			SendQuestNPCDataServer(cArgs.Identity); //! Send all quest npc datas to the players client.
-			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players presistent quest data to the client and recreates existig quests for the player on the server.
+			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players persistent quest data to the client and recreates existig quests for the player on the server.
 		}
 		QuestModulePrint(ToString() + "::OnClientReady - End");
 	}
@@ -569,7 +569,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 
 				// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-				//! Update and save the presistent player quest data
+				//! Update and save the persistent player quest data
 				// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 				if (quest.GetQuestState() == ExpansionQuestState.STARTED || quest.GetQuestState() == ExpansionQuestState.CAN_TURNIN)
 				{
@@ -1161,8 +1161,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! If the player has no exiting quest data then we create a new instance for him and add it to m_PlayerDatas
 			questPlayerData = new ExpansionQuestPlayerData();
 			questPlayerData.Save(playerUID);
-			QuestModulePrint(ToString() + "::SetupClientData - Created new presistent player quest data for player UID: " + playerUID);
-			GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - SetupClientData - Created new presistent player quest data for player UID: " + playerUID);
+			QuestModulePrint(ToString() + "::SetupClientData - Created new persistent player quest data for player UID: " + playerUID);
+			GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - SetupClientData - Created new persistent player quest data for player UID: " + playerUID);
 		}
 		else
 		{
@@ -2306,6 +2306,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig quest_23 = m_DefaultQuestConfigData.ExpansionQuestConfig023();
 		quest_23.Save("Quest_23");
 		m_QuestConfigs.Insert(23, quest_23);
+		
+		//! Quest #24 - Example template for a collection quest
+		ExpansionQuestConfig quest_24 = m_DefaultQuestConfigData.ExpansionQuestConfig024();
+		quest_24.Save("Quest_24");
+		m_QuestConfigs.Insert(24, quest_24);
 	}
 
 	// -----------------------------------------------------------
@@ -2840,7 +2845,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			for (int i = 0; i < playerQuestData.GetQuestDatas().Count(); i++)
 			{
-				ExpansionQuestPresistentPlayerData playerData = playerQuestData.GetQuestDatas().Get(i);
+				ExpansionQuestPersistentPlayerData playerData = playerQuestData.GetQuestDatas().Get(i);
 				int questID = playerData.QuestID;
 
 				ExpansionQuestConfig questConfig = GetQuestConfigByID(questID);
@@ -3310,8 +3315,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule PlayerQuestInit
 	// Server
 	// ------------------------------------------------------------
-	//! Handles reinitialisation of quests for a player from presistent data
-	//! We need to get and handle the presistent quest progress and objective data of the player
+	//! Handles reinitialisation of quests for a player from persistent data
+	//! We need to get and handle the persistent quest progress and objective data of the player
 	//! so the progress of the quest objectives contiues and no quest progress is lost.
 	private void PlayerQuestsInit(ExpansionQuestPlayerData playerData, string playerUID)
 	{
@@ -3390,7 +3395,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
 			{
-				ExpansionQuestPresistentPlayerData data =  playerData.GetQuestDatas().Get(i);
+				ExpansionQuestPersistentPlayerData data =  playerData.GetQuestDatas().Get(i);
 				int questID = data.QuestID;
 				int questState = data.State;
 
@@ -3442,7 +3447,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 					ExpansionQuestConfig configInstance = GetQuestConfigByID(questID);
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-					//! Create quest instance and set current quest status from presistent player quest data
+					//! Create quest instance and set current quest status from persistent player quest data
 					// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 					ExpansionQuest quest = new ExpansionQuest(this);
 
@@ -3484,7 +3489,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					quest.SetQuestConfig(configInstance);
 					quest.SetQuestState(questState);
 
-					//! Get quest objectives progress from presistent player quest data
+					//! Get quest objectives progress from persistent player quest data
 					GetObjectiveProgressFromPlayerData(playerData, quest);
 					m_ActiveQuests.Insert(quest);
 
@@ -3516,7 +3521,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				int playerQuestState = playerData.GetQuestStateByQuestID(configQuestID);
 				ExpansionQuest autoQuest;
 
-				//! If player has no quest state for this achievement quest we create the quest and update the players presistent quest data
+				//! If player has no quest state for this achievement quest we create the quest and update the players persistent quest data
 				if (playerQuestState == ExpansionQuestState.NONE)
 				{
 					if (playerData.HasDataForQuest(questConfig.GetID()))
@@ -3536,7 +3541,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					playerData.QuestDebug();
 					autoQuest.QuestDebug();
 				}
-				//! If the player is already on this archiement/auto-start quest recreate it and update the progress from the players presistent quest data
+				//! If the player is already on this archiement/auto-start quest recreate it and update the progress from the players persistent quest data
 				else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
 				{
 					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create achievement quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
@@ -3549,7 +3554,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					autoQuest.SetQuestConfig(questConfig);
 					m_ActiveQuests.Insert(autoQuest);
 
-					//! Get quest objectives progress from presistent player quest data
+					//! Get quest objectives progress from persistent player quest data
 					GetObjectiveProgressFromPlayerData(playerData, autoQuest);
 
 					playerData.QuestDebug();
@@ -3598,8 +3603,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule PlayerQuestInit
 	// Server
 	// ------------------------------------------------------------
-	//! Handles reinitialisation of quests objectives for a player from his presistent quest data
-	//! We need to get and handle the presistent objective data of the player so the progress of the quest objectives continues and no quest progress is lost.
+	//! Handles reinitialisation of quests objectives for a player from his persistent quest data
+	//! We need to get and handle the persistent objective data of the player so the progress of the quest objectives continues and no quest progress is lost.
 	private void GetObjectiveProgressFromPlayerData(ExpansionQuestPlayerData playerData, ExpansionQuest quest)
 	{
 	#ifdef EXPANSIONTRACE
@@ -3616,7 +3621,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		for (int d = 0; d < playerData.GetQuestDatas().Count(); d++)
 		{
-			ExpansionQuestPresistentPlayerData data = playerData.GetQuestDatas().Get(d);
+			ExpansionQuestPersistentPlayerData data = playerData.GetQuestDatas().Get(d);
 			if (data.QuestID != quest.GetQuestConfig().GetID())
 				continue;
 
@@ -3661,7 +3666,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 								if (target)
 								{
 									// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-									//! Get kill count progress from presistent data
+									//! Get kill count progress from persistent data
 									// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 									target.SetCount(objectiveData.GetObjectiveCount());
 									QuestModulePrint(ToString() + "::GetObjectiveProgressFromPlayerData - Objective progress added: TARGET");
@@ -4459,7 +4464,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
 			{
-				ExpansionQuestPresistentPlayerData data =  playerData.GetQuestDatas().Get(i);
+				ExpansionQuestPersistentPlayerData data =  playerData.GetQuestDatas().Get(i);
 				ExpansionQuestConfig questConfig = GetQuestConfigByID(data.QuestID);
 				if (!questConfig)
 					continue;
@@ -4482,7 +4487,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
 			{
-				ExpansionQuestPresistentPlayerData data =  playerData.GetQuestDatas().Get(i);
+				ExpansionQuestPersistentPlayerData data =  playerData.GetQuestDatas().Get(i);
 				ExpansionQuestConfig questConfig = GetQuestConfigByID(data.QuestID);
 				if (!questConfig)
 					continue;

@@ -896,4 +896,40 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
+	
+	ExpansionQuestConfig ExpansionQuestConfig024()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(24);
+		questConfig.SetType(ExpansionQuestType.COLLECT);
+		questConfig.SetTitle("Apple Juice");
+		questConfig.SetObjectiveText("Get 5 Apples");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER");
+		desc.Insert("Obtain 5 apples.");
+		desc.Insert("Turn-in quest to get reward.");
+		questConfig.SetDescriptions(desc);
+		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
+		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
+
+		//! Quest objectives
+		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
+		objective_1.SetID(2);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetAmount(10);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
 };

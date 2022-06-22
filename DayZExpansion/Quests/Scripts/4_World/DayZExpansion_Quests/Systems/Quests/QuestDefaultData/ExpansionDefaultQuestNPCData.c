@@ -29,6 +29,7 @@ class ExpansionDefaultQuestNPCData
 		questIDs.Insert(1);
 		questIDs.Insert(3);
 		questIDs.Insert(22);
+		questIDs.Insert(24);
 		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/ACCEPTABLE_DISTANCE
 
 		if (m_WorldName == "namalsk")

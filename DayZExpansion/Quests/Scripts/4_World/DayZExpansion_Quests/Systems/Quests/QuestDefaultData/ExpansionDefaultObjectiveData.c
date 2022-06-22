@@ -403,11 +403,11 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect 10 apples");
+		objective.SetObjectiveText("Collect 5 apples");
 
 		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
 		collection.SetClassName("Apple");
-		collection.SetAmount(10);
+		collection.SetAmount(5);
 		objective.AddCollection(collection);
 
 		return objective;

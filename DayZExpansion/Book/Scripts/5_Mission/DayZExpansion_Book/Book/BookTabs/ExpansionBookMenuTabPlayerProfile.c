@@ -211,11 +211,11 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	{
 #ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
-		if (!monitorModule)
-			return;
-		
-		string playerID = GetGame().GetPlayer().GetIdentity().GetId();
-		monitorModule.RequestPlayerStats(playerID);
+		if (monitorModule)
+		{
+			string playerID = GetGame().GetPlayer().GetIdentity().GetId();
+			monitorModule.RequestPlayerStats(playerID);
+		}
 #endif
 	}
 };

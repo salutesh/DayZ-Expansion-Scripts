@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestPresistentServerData.c
+ * ExpansionQuestPersistentServerData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,14 +10,14 @@
  *
 */
 
-class ExpansionQuestPresistentServerDataBase
+class ExpansionQuestPersistentServerDataBase
 {
 	int ConfigVersion;
 	int LastWeeklyReset;
 	int LastDailyReset;
 };
 
-class ExpansionQuestPresistentServerData: ExpansionQuestPresistentServerDataBase
+class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 {
 	[NonSerialized()]
 	static int CONFIGVERSION = 0;
@@ -86,19 +86,19 @@ class ExpansionQuestPresistentServerData: ExpansionQuestPresistentServerDataBase
 		return false;
 	}
 
-	static ExpansionQuestPresistentServerData Load()
+	static ExpansionQuestPersistentServerData Load()
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestPresistentServerData] Load existing configuration file:" + EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE);
+		CF_Log.Info("[ExpansionQuestPersistentServerData] Load existing configuration file:" + EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE);
 
-		ExpansionQuestPresistentServerData data;
-		ExpansionQuestPresistentServerDataBase dataBase;
-		JsonFileLoader<ExpansionQuestPresistentServerDataBase>.JsonLoadFile(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE, dataBase);
+		ExpansionQuestPersistentServerData data;
+		ExpansionQuestPersistentServerDataBase dataBase;
+		JsonFileLoader<ExpansionQuestPersistentServerDataBase>.JsonLoadFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, dataBase);
 
 		if (dataBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestPresistentServerData] Convert existing configuration file:" + EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE + " to version " + CONFIGVERSION);
-			data = new ExpansionQuestPresistentServerData();
+			CF_Log.Info("[ExpansionQuestPersistentServerData] Convert existing configuration file:" + EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE + " to version " + CONFIGVERSION);
+			data = new ExpansionQuestPersistentServerData();
 			//! Copy over old configuration that haven't changed
 			data.CopyConfig(dataBase);
 			data.ConfigVersion = CONFIGVERSION;
@@ -106,12 +106,12 @@ class ExpansionQuestPresistentServerData: ExpansionQuestPresistentServerDataBase
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestPresistentServerData>.JsonLoadFile(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE, data);
+			JsonFileLoader<ExpansionQuestPersistentServerData>.JsonLoadFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, data);
 		}
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestPresistentServerData>.JsonSaveFile(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE, data);
+			JsonFileLoader<ExpansionQuestPersistentServerData>.JsonSaveFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, data);
 		}
 
 		return data;
@@ -119,10 +119,10 @@ class ExpansionQuestPresistentServerData: ExpansionQuestPresistentServerDataBase
 
 	void Save()
 	{
-		JsonFileLoader<ExpansionQuestPresistentServerData>.JsonSaveFile(EXPANSION_QUESTS_PRESISTENT_SERVER_DATA_FILE, this);
+		JsonFileLoader<ExpansionQuestPersistentServerData>.JsonSaveFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, this);
 	}
 
-	void CopyConfig(ExpansionQuestPresistentServerDataBase dataBase)
+	void CopyConfig(ExpansionQuestPersistentServerDataBase dataBase)
 	{
 		LastWeeklyReset = dataBase.LastWeeklyReset;
 		LastDailyReset = dataBase.LastDailyReset;

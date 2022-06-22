@@ -31,9 +31,7 @@ modded class ItemManager
 	{
 		super.PrepareTooltip(item, x, y);
 	
-		if (!GetExpansionSettings().GetHardline().UseItemRarity)
-			return;
-			
-		InspectMenuNew.UpdateItemInfoRarity(m_TooltipWidget, item);
+		if (GetExpansionSettings().GetHardline().UseItemRarity)
+			InspectMenuNew.UpdateItemInfoRarity(m_TooltipWidget, item);
 	}
 };

@@ -43,7 +43,7 @@ FrameWidgetClass ExpansionHardlineHUD {
      content_halign right
      Columns 1
      {
-      PanelWidgetClass HummanityAdd {
+      PanelWidgetClass HumanityAdd {
        visible 0
        ignorepointer 1
        position 10.4833 162.73799
@@ -222,7 +222,7 @@ FrameWidgetClass ExpansionHardlineHUD {
         }
        }
       }
-      PanelWidgetClass HummanityRemove {
+      PanelWidgetClass HumanityRemove {
        visible 0
        ignorepointer 1
        position 10.4833 162.73799

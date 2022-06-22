@@ -20,11 +20,11 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	private ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
 	private ref array<EntityAI> m_GroupItems;
 #endif
+	
+	private int m_UpdateCount;
 
 	override void OnStart()
 	{
-		super.OnStart();
-
 		if (!m_PlayerItems)
 			m_PlayerItems = new array<EntityAI>;
 
@@ -43,6 +43,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			EnumerateGroupInventory(GetQuest().GetGroup());
 		}
 	#endif
+		
+		super.OnStart();
 	}
 
 	override void OnComplete()
@@ -85,9 +87,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	}
 
 	override void OnContinue()
-	{
-		super.OnContinue();
-		
+	{		
 		if (!m_PlayerItems)
 			m_PlayerItems = new array<EntityAI>;
 
@@ -106,6 +106,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			EnumerateGroupInventory(GetQuest().GetGroup());
 		}
 	#endif
+		
+		super.OnContinue();
 	}
 
 	override void OnCleanup()
@@ -142,7 +144,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				}
 			}
 
-			if (currentCount == collection.GetAmount())
+			if (currentCount >= collection.GetAmount())
 			{
 				return true;
 			}
@@ -181,9 +183,9 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				}
 			}
 
-			if (currentCount < collection.GetAmount())
+			if (currentCount >= collection.GetAmount())
 			{
-				return false;
+				return true;
 			}
 		}
 
@@ -317,6 +319,23 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			}
 		#endif
 
+			if (!GetQuest().IsGroupQuest() && m_PlayerItems)
+			{
+				if (m_UpdateCount != m_PlayerItems.Count())
+				{
+					m_UpdateCount = m_PlayerItems.Count();
+					GetQuest().UpdateQuestPlayersObjectiveData();
+				}
+			}
+			else if (GetQuest().IsGroupQuest() && m_GroupItems)
+			{
+				if (m_UpdateCount != m_PlayerItems.Count())
+				{
+					m_UpdateCount = m_GroupItems.Count();
+					GetQuest().UpdateQuestPlayersObjectiveData();
+				}
+			}
+			
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
@@ -344,13 +363,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-#ifdef WRDG_DOGTAGS
-	void CreateRewardFromDogTagStats(Dogtag_Base dogtag)
-	{
-
-	}
-#endif
-
 	int GetAmmount()
 	{
 		return GetObjectiveConfig().GetCollection().GetAmount();
@@ -366,7 +378,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		{
 			return m_GroupItems.Count();
 		}
-
+		
 		return 0;
 	}
 

@@ -166,15 +166,14 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			return;
 
 		bool hasQuestState = false;
-		ExpansionQuestState questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
-		if (questState)
+		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
+		if (questState > ExpansionQuestState.NONE)
 			hasQuestState = true;
 
 		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
 		QuestListPanel.Show(false);
 		ButtonsPanel.Show(true);
 		QuestDetailsPanel.Show(true);
-		Complete.Show(false);
 
 		m_SelectedQuest = quest;
 		m_QuestMenuController.QuestTitle = quest.GetTitle();
@@ -186,11 +185,13 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		{
 			description = quest.GetDescriptions()[0];
 			Accept.Show(true);
+			Complete.Show(false);
 		}
 		else if (hasQuestState && questState == ExpansionQuestState.STARTED)
 		{
 			description = quest.GetDescriptions()[1];
 			Accept.Show(false);
+			Complete.Show(false);
 		}
 		else if (hasQuestState && questState == ExpansionQuestState.CAN_TURNIN)
 		{
