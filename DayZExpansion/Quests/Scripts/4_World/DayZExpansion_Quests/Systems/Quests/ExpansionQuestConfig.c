@@ -39,11 +39,14 @@ class ExpansionQuestConfigBase
 
 	//! Crazy ideas
 	string QuestClassName = string.Empty; //! Class name of the quest class used to create the quest instance if you want to use a cutomized quest class.
-
+	
 	ref array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
 	ref array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
 	ref array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
 
+	//! Added with version 2
+	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.
+	
 	void ExpansionQuestConfigBase()
 	{
 		Descriptions = new array<string>;
@@ -64,13 +67,14 @@ class ExpansionQuestConfigBase
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
 	[NonSerialized()]
-	static int CONFIGVERSION = 2;
-
-	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.
-
+	static int CONFIGVERSION = 3;
+	
+	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
+	int HumanityReward = 0; //! Humanity reward when completing the quest.
+	
 	void ExpansionQuestConfig()
 	{
-		ConfigVersion = 2;
+		ConfigVersion = 3;
 	}
 
 	void ~ExpansionQuestConfig()
@@ -393,6 +397,26 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		return NeedToSelectReward;
 	}
+	
+	void SetRewardForGroupOwnerOnly(bool sate)
+	{
+		RewardsForGroupOwnerOnly = sate;
+	}
+
+	bool RewardsForGroupOwnerOnly()
+	{
+		return RewardsForGroupOwnerOnly;
+	}
+	
+	void SetHumanityReward(int humanity)
+	{
+		HumanityReward = humanity;
+	}
+	
+	int GetHumanityReward()
+	{
+		return HumanityReward;
+	}
 
 	static ExpansionQuestConfig Load(string fileName)
 	{
@@ -468,6 +492,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		Objectives = questConfigBase.Objectives;
 		QuestItems = questConfigBase.QuestItems;
 		Rewards = questConfigBase.Rewards;
+		NeedToSelectReward = questConfigBase.NeedToSelectReward;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
@@ -600,6 +625,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		}
 
 		ctx.Write(NeedToSelectReward);
+		ctx.Write(RewardsForGroupOwnerOnly);
+		ctx.Write(HumanityReward);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -833,6 +860,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 		if (!ctx.Read(NeedToSelectReward))
 			return false;
+		
+		if (!ctx.Read(RewardsForGroupOwnerOnly))
+			return false;
+		
+		if (!ctx.Read(HumanityReward))
+			return false;
 
 		return true;
 	}
@@ -890,6 +923,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		QuestPrint(ToString() + "::QuestDebug - IsBanditQuest: " + IsBanditQuest);
 		QuestPrint(ToString() + "::QuestDebug - IsHeroQuest: " + IsHeroQuest);
 		QuestPrint(ToString() + "::QuestDebug - NeedToSelectReward: " + NeedToSelectReward);
+		QuestPrint(ToString() + "::QuestDebug - RewardsForGroupOwnerOnly: " + RewardsForGroupOwnerOnly);
+		QuestPrint(ToString() + "::QuestDebug - HumanityReward: " + HumanityReward);
 		QuestPrint("------------------------------------------------------------");
 	#endif
 	}

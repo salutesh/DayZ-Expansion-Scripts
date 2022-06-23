@@ -3204,6 +3204,34 @@ class ExpansionQuestModule: CF_ModuleWorld
 				return;
 			}
 		}
+	
+	#ifdef EXPANSIONMODGROUPS
+		ExpansionQuestConfig questConfig = GetQuestConfigByID(questID);
+		if (!questConfig)
+			return;
+		
+		if (questConfig.IsGroupQuest())	
+		{
+			ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+			if (!partyModule)
+				return;
+			
+			ExpansionPartyPlayerData playerPartyData = partyModule.GetPartyPlayerData(playerUID);
+			if (!playerPartyData)
+				return;
+			
+			ExpansionPartyData partyData = playerPartyData.GetParty();
+			if (!partyData)
+				return;
+			
+			//! Only group owner can accept quest!
+			if (partyData.GetOwnerUID() != playerUID)
+			{
+				ExpansionNotification(new StringLocaliser("Group Quest"), new StringLocaliser("Only a group owner can turn-in a group quest!"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
+				return;
+			}
+		}
+	#endif
 
 		if (identity.GetId() != playerUID)
 		{
@@ -3368,7 +3396,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	#ifdef EXPANSIONMODGROUPS
 		array<int> activeGroupQuestIDs = new array<int>;
-
 		ExpansionPartyModule partyModule;
 		if (!Class.CastTo(partyModule,CF_ModuleCoreManager.Get(ExpansionPartyModule)))
 		{
@@ -3398,6 +3425,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				QuestModulePrint(ToString() + "::PlayerQuestsInit - There is already a active quest instance for this quest. Skip this quest for quest init!");
 				activeGroupQuestIDs.Insert(activeQuest.GetQuestConfig().GetID());
+				if (!playerData.HasDataForQuest(activeQuest.GetQuestConfig().GetID()))
+				{
+					QuestModulePrint(ToString() + "::PlayerQuestsInit - Add quest to players quest data!");
+					ExpansionQuestConfig activeQuestConfig = GetQuestConfigByID(activeQuest.GetQuestConfig().GetID());
+					playerData.AddQuestData(activeQuestConfig);
+					UpdateQuestPlayersObjectiveData(activeQuest);
+				}
 			}
 		}
 	#endif

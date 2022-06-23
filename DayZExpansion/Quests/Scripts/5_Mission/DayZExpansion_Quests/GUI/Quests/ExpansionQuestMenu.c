@@ -227,7 +227,6 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
 			}
 			
-			int overallHumanityFromAllQuests;
 			for (i = 0; i < quest.GetRewards().Count(); i++)
 			{
 				ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
@@ -236,16 +235,12 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				rewardEntry.SetQuestMenu(this);
 				rewardEntry.SetIsRewardEntry(true);
 				m_QuestMenuController.RewardEntries.Insert(rewardEntry);
-
-			#ifdef EXPANSIONMODHARDLINE
-				overallHumanityFromAllQuests += reward.GetHumanity();
-			#endif
 			}
 			
-			if (overallHumanityFromAllQuests > 0 && GetExpansionSettings().GetHardline().UseHumanity)
+			if (quest.GetHumanityReward() != 0 && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				Humanity.Show(true);
-				m_QuestMenuController.HumanityVal = overallHumanityFromAllQuests.ToString();
+				m_QuestMenuController.HumanityVal = quest.GetHumanityReward().ToString();
 				m_QuestMenuController.NotifyPropertyChanged("HumanityVal");
 			}
 			else

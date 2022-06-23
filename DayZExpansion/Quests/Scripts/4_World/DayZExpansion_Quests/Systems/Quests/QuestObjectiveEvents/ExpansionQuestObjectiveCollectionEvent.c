@@ -261,7 +261,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				if (!HasAllCollectionItems() && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - TRUE");
+					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
 				#endif
 					SetCompleted(false);
 					OnIncomplete();
@@ -269,21 +269,21 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				else if (HasAllCollectionItems() && !IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - FALSE");
+					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
 				#endif
 					SetCompleted(true);
 					OnComplete();
 				}
 			}
-		#ifdef EXPANSIONMODGROUPS
 			else
 			{
+			#ifdef EXPANSIONMODGROUPS
 				EnumerateGroupInventory(GetQuest().GetGroup());
 
 				if (!HasGroupAllCollectionItems() && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - TRUE");
+					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
 				#endif
 					SetCompleted(false);
 					OnIncomplete();
@@ -291,13 +291,13 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				else if (HasGroupAllCollectionItems() && !IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - FALSE");
+					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
 				#endif
 					SetCompleted(true);
 					OnComplete();
 				}
+			#endif
 			}
-		#endif
 
 			if (!GetQuest().IsGroupQuest() && m_PlayerItems)
 			{

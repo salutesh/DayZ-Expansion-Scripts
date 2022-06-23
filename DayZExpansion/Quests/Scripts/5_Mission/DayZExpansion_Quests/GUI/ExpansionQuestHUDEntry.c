@@ -78,7 +78,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 			
 			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfigBase: " + objectiveConfig.ToString());
 			
-			ExpansionQuestObjectivePlayerData objective = m_QuestData.QuestObjectives.Get(i)
+			ExpansionQuestObjectivePlayerData objective = m_QuestData.QuestObjectives.Get(i);
 			if (objective)
 			{
 				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectivePlayerData: " + objective.ToString());

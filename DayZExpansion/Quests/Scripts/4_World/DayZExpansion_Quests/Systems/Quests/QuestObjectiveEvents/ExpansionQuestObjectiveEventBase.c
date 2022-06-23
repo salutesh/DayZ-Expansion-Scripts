@@ -119,23 +119,6 @@ class ExpansionQuestObjectiveEventBase
 	{
 		if (!GetQuest())
 			return;
-
-		for (int i = 0; i < GetQuest().GetObjectives(); i++)
-		{
-			ExpansionQuestObjectiveEventBase objective = GetQuest().GetObjectives()[i];
-			if (!objective)
-				return;
-
-			if (objective.GetIndex() == (GetIndex() + 1)) //! Get the next objective in the quests objective array
-				objective.OnStart();
-		}
-
-	#ifdef EXPANSIONMODAI
-		if (GetObjectiveType() == ExpansionQuestObjectiveType.TRAVEL || GetObjectiveType() == ExpansionQuestObjectiveType.TARGET || GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || GetObjectiveType() == ExpansionQuestObjectiveType.AIVIP || GetObjectiveType() == ExpansionQuestObjectiveType.AICAMP || GetObjectiveType() == ExpansionQuestObjectiveType.AIPATROL  || GetObjectiveType() == ExpansionQuestObjectiveType.AIVIP)
-	#else
-		if (GetObjectiveType() == ExpansionQuestObjectiveType.TRAVEL || GetObjectiveType() == ExpansionQuestObjectiveType.TARGET || GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT)
-	#endif
-			SetIsActive(false);
 		
 		GetQuest().CompletionCheck();
 	}

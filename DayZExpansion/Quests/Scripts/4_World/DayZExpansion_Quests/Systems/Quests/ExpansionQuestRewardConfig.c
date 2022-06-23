@@ -15,10 +15,6 @@ class ExpansionQuestRewardConfig
 	private string ClassName;
 	private int Amount = 0;
 
-#ifdef EXPANSIONMODHARDLINE
-	private int Humanity = 0;
-#endif
-
 	void SetClassName(string name)
 	{
 		ClassName = name;
@@ -44,25 +40,10 @@ class ExpansionQuestRewardConfig
 		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase");
 	}
 
-#ifdef EXPANSIONMODHARDLINE
-	void SetHumanity(int humanity)
-	{
-		Humanity = humanity;
-	}
-
-	int GetHumanity()
-	{
-		return Humanity;
-	}
-#endif
-
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(ClassName);
 		ctx.Write(Amount);
-	#ifdef EXPANSIONMODHARDLINE
-		ctx.Write(Humanity);
-	#endif
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -72,11 +53,6 @@ class ExpansionQuestRewardConfig
 
 		if (!ctx.Read(Amount))
 			return false;
-
-	#ifdef EXPANSIONMODHARDLINE
-		if (!ctx.Read(Humanity))
-			return false;
-	#endif
 
 		return true;
 	}

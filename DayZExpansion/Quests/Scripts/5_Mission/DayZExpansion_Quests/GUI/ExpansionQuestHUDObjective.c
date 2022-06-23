@@ -65,9 +65,20 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 		QuestPrint(ToString() + "::SetEntryObjective - Objective config: " + objectiveConfigBase);
 
+		bool completed = m_Objective.IsCompleted();
 		if (objectiveConfigBase.GetObjectiveText() != string.Empty)
 		{
-			m_QuestHUDObjectiveController.ObjectiveName = objectiveConfigBase.GetObjectiveText();
+			string objectiveState;
+			if (completed)
+			{
+				objectiveState = "[Completed] ";
+			}
+			else
+			{
+				objectiveState = "[Incomplete] ";
+			}
+			
+			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + objectiveConfigBase.GetObjectiveText();
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
 		}
 		else 
