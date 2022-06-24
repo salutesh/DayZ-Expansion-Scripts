@@ -19,9 +19,8 @@ class ExpansionMarketSvetloyarskZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "Svetloyarsk";
 		m_DisplayName = "Svetloyarsk Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "Svetloyarsk";
 
 		Position = "14377.1 4.1 13272.9"; 	
 		Radius = 500;

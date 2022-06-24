@@ -275,19 +275,28 @@ class ExpansionMissionModule: CF_ModuleWorld
 			ExpansionMissionEventBase missionEvent = ExpansionMissionEventBase.Cast( missionType.Spawn() );
 
 			if ( !missionEvent )
+			{
+				EXTrace.Print(EXTrace.MISSIONS, this, "Ignoring invalid mission " + missionClassName);
 				continue;
+			}
+
+			EXTrace.Print(EXTrace.MISSIONS, this, "Loading mission " + fileName);
+
+			missionEvent.LoadMission( EXPANSION_MISSIONS_FOLDER + fileName );
+
+			if ( !missionEvent.Enabled )
+			{
+				EXTrace.Print(EXTrace.MISSIONS, this, "Ignoring disabled mission " + fileName);
+				continue;
+			}
 
 			ExpansionMissionMeta missionMeta = new ExpansionMissionMeta;
 
-			missionMeta.MissionPath = EXPANSION_MISSIONS_FOLDER + fileName;
+			missionMeta.MissionPath = missionEvent.GetPath();
 			missionMeta.MissionType = missionClassName;
 			missionMeta.MissionEvent = missionEvent;
 
 			m_MissionSettings.Missions.Insert( missionMeta );
-
-			missionEvent.LoadMission( missionMeta.MissionPath );
-
-			missionMeta.MissionEvent = missionEvent;
 
 			m_Missions.Insert( missionEvent );
 		}
@@ -398,9 +407,11 @@ class ExpansionMissionModule: CF_ModuleWorld
 		
 		int index = ExpansionStatic.GetWeightedRandom( weights );
 
+		EXTrace.Print(EXTrace.MISSIONS, this, "Selected mission index " + index);
+
 		if ( index > -1 )
 		{
-			CF_Log.Debug("ExpansionMissionModule::FindNewMission - selected " + m_Missions[ index ].MissionName + " - weight: " + weights[index] );
+			EXTrace.Print(EXTrace.MISSIONS, this, "Selected mission " + m_Missions[ index ].MissionName + " - weight: " + weights[index] );
 			
 			StartMissionInternal( m_Missions[ index ] );
 			return true;

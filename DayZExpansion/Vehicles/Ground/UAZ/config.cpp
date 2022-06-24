@@ -712,8 +712,8 @@ class CfgVehicles
 					{
 						swayBar = 1700;
 						stiffness = 21000;
-						compression = 2250;
-						damping = 8750;
+						compression = 2200;
+						damping = 7600;
 						travelMaxUp = 0.1587;
 						travelMaxDown = 0.1059;
 					};

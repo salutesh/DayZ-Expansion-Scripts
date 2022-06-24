@@ -3125,7 +3125,7 @@ class ExpansionHumanLoadout
 		loadout.Save();
 	}
 
-	static bool Apply(DayZPlayer player, string file, bool forceReload = false)
+	static bool Apply(EntityAI other, string file, bool forceReload = false)
 	{
 		ExpansionHumanLoadout.Init();
 		
@@ -3147,7 +3147,7 @@ class ExpansionHumanLoadout
 			return false;
 		}
 
-		loadout.SpawnOn(player);
+		loadout.SpawnOn(other);
 		return true;
 	}
 };

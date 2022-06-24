@@ -95,7 +95,6 @@ class eAIBase extends PlayerBase
 	private float m_eAI_SideStepTimeout;
 	private bool m_eAI_LOS;
 
-	private bool m_eAI_CanBeLooted = true;
 	private bool m_eAI_UnlimitedReload;
 
 	// Path Finding
@@ -445,48 +444,6 @@ class eAIBase extends PlayerBase
 		}
 	}
 
-	void eAI_SetCanBeLooted(bool canBeLooted)
-	{
-		m_eAI_CanBeLooted = canBeLooted;
-	}
-
-	override void EEKilled(Object killer)
-	{
-		super.EEKilled(killer);
-
-		if (!m_eAI_CanBeLooted)
-			Expansion_LockInventory();
-	}
-
-	void Expansion_LockInventory()
-	{
-		int attcount = GetInventory().AttachmentCount();
-		for (int att = 0; att < attcount; att++)
-		{ 
-			EntityAI attachmentEntity = GetInventory().GetAttachmentFromIndex(att);
-			if (attachmentEntity)
-				attachmentEntity.GetInventory().LockInventory(10134);
-		}
-		GetInventory().LockInventory(10134);
-	}
-
-	void Expansion_UnlockInventory()
-	{
-		int attcount = GetInventory().AttachmentCount();
-		for (int att = 0; att < attcount; att++)
-		{ 
-			EntityAI attachmentEntity = GetInventory().GetAttachmentFromIndex(att);
-			if (attachmentEntity)
-				attachmentEntity.GetInventory().UnlockInventory(10134);
-		}
-		GetInventory().UnlockInventory(10134);
-	}
-
-	override bool CanBeSkinned()
-	{
-		return m_eAI_CanBeLooted;
-	}
-
 	override bool IsAI()
 	{
 		return true;
@@ -789,6 +746,10 @@ class eAIBase extends PlayerBase
 					{
 						auto hands = GetItemInHands();
 						if (GetWeaponManager().IsRunning() || (hands && (hands.IsInherited(BandageDressing) || hands.IsInherited(Rag))))
+							return;
+
+						ExpansionState state = m_FSM.GetState();
+						if (state && state.GetName() != "Idle" && state.GetName() != "FollowFormation" && state.GetName() != "TraversingWaypoints")
 							return;
 
 						int emoteId;
@@ -1521,10 +1482,14 @@ class eAIBase extends PlayerBase
 			HandleWeapons(pDt, entityInHands, hic, exitIronSights);
 		}
 
+		GetDayZPlayerInventory().HandleInventory(pDt);
+
 		if (m_WeaponManager)
 			m_WeaponManager.Update(pDt);
 		if (m_EmoteManager)
 			m_EmoteManager.Update(pDt);
+		if (m_RGSManager)
+			 m_RGSManager.Update();
 		if (m_StaminaHandler)
 			m_StaminaHandler.Update(pDt, pCurrentCommandID);
 		if (m_InjuryHandler)
@@ -2358,9 +2323,6 @@ class eAIBase extends PlayerBase
 		eAI_DropItemInHands();
 
 		super.OnUnconsciousStart();
-
-		if (!m_eAI_CanBeLooted)
-			Expansion_LockInventory();
 	}
 
 	override void OnUnconsciousStop(int pCurrentCommandID)
@@ -2368,9 +2330,6 @@ class eAIBase extends PlayerBase
 		super.OnUnconsciousStop(pCurrentCommandID);
 
 		Expansion_GetUp(true);
-
-		if (!m_eAI_CanBeLooted)
-			Expansion_UnlockInventory();
 	}
 
 	void eAI_DropItemInHands()
@@ -2382,14 +2341,17 @@ class eAIBase extends PlayerBase
 
 	void eAI_DropItem(ItemBase item)
 	{
-		InventoryLocation il_src = new InventoryLocation();
-		InventoryLocation il_dst = new InventoryLocation();
+		//! XXX: DayZ 1.18 made dropping weapon unreliable. Clone to ground instead.
+		//InventoryLocation il_src = new InventoryLocation();
+		//InventoryLocation il_dst = new InventoryLocation();
 
-		item.GetInventory().GetCurrentInventoryLocation(il_src);
+		//item.GetInventory().GetCurrentInventoryLocation(il_src);
 
-		GameInventory.SetGroundPosByOwner(this, item, il_dst);
+		//GameInventory.SetGroundPosByOwner(this, item, il_dst);
 
-		ServerTakeToDst(il_src, il_dst);
+		//ServerTakeToDst(il_src, il_dst);
+
+		Expansion_CloneItemToGround(item, GetPosition());
 	}
 
 	void Expansion_GetUp(bool force = false)

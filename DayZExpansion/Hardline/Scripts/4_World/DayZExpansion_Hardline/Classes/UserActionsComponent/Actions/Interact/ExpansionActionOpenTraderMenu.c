@@ -19,10 +19,10 @@ modded class ExpansionActionOpenTraderMenu
 
 		m_TraderObject = ExpansionMarketModule.GetTraderFromObject(target.GetObject(), false);
 		
-		if (m_TraderObject.GetTraderMarket().TraderName == "HeroTrader" && !player.IsHero())
+		if (m_TraderObject.GetTraderMarket().DisplayName == "HeroTrader" && !player.IsHero())
 			return false;
 		
-		if (m_TraderObject.GetTraderMarket().TraderName == "BanditTrader" && !player.IsBandit())
+		if (m_TraderObject.GetTraderMarket().DisplayName == "BanditTrader" && !player.IsBandit())
 			return false;
 
 		return true;

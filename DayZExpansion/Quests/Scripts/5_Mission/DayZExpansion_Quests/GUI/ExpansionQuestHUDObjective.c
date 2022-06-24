@@ -71,11 +71,13 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			string objectiveState;
 			if (completed)
 			{
-				objectiveState = "[Completed] ";
+				string completeKey = "#STR_EXPANSION_QUEST_HUD_COMPLETE";
+				objectiveState = "[" + completeKey + "] ";
 			}
 			else
 			{
-				objectiveState = "[Incomplete] ";
+				string incompleteKey = "#STR_EXPANSION_QUEST_HUD_INCOMPLETE";
+				objectiveState = "[" + incompleteKey + "] ";
 			}
 			
 			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + objectiveConfigBase.GetObjectiveText();

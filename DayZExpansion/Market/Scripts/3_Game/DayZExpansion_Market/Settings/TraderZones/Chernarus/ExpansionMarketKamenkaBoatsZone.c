@@ -19,9 +19,8 @@ class ExpansionMarketKamenkaBoatsZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "KamenkaBoats";
 		m_DisplayName = "Kamenka Boats Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "KamenkaBoats";
 
 		Position = "1756.1 2.2 2025.47"; 	
 		Radius = 100;

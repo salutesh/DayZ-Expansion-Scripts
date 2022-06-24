@@ -247,6 +247,17 @@ modded class PlayerBase
 			GetGame().GetUIManager().CloseAll();
 
 		super.OnUnconsciousStart();
+
+		if (!m_Expansion_CanBeLooted)
+			Expansion_LockInventory();
+	}
+
+	override void OnUnconsciousStop(int pCurrentCommandID)
+	{
+		super.OnUnconsciousStop(pCurrentCommandID);
+
+		if (!m_Expansion_CanBeLooted)
+			Expansion_UnlockInventory();
 	}
 	
 	// ------------------------------------------------------------

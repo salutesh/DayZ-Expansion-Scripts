@@ -107,3 +107,5 @@ class ExpansionQuestStaticObject extends BuildingSuper
 };
 
 class ExpansionQuestObjectBoard: ExpansionQuestStaticObject {};
+class ExpansionQuestBoardSmall : ExpansionQuestStaticObject {};
+class ExpansionQuestBoardLarge : ExpansionQuestStaticObject {};

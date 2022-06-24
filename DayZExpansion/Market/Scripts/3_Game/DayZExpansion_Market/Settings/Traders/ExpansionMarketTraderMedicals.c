@@ -19,7 +19,6 @@ class ExpansionMarketTraderMedicals: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Medicals";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_MEDICALS";
 		m_FileName = "Medicals";
 		TraderIcon = "Medic Box";

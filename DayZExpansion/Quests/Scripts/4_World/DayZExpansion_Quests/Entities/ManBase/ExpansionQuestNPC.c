@@ -10,11 +10,8 @@
  *
 */
 
-class ExpansionQuestNpcBase extends DayZPlayer
+class ExpansionQuestNpcBase extends ExpansionNPCBase
 {
-	protected ref TInputActionMap m_InputActionMap;
-	bool m_ActionsInitialize;
-	private ref ExpansionHumanCommandTrader_ST m_CommandTraderTable;
 	private int m_QuestNPCID = -1;
 	private ref ExpansionQuestNpcData m_QuestNPCData;
 
@@ -144,28 +141,6 @@ class ExpansionQuestNpcBase extends DayZPlayer
 	override bool CanPutIntoHands(EntityAI parent)
 	{
 		return false;
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNpcBase CommandHandler
-	// ------------------------------------------------------------
-	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
-	{
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT)
-		{
-			HumanCommandScript hcs = GetCommand_Script();
-
-			ExpansionHumanCommandTrader traderCommand;
-			if (Class.CastTo(traderCommand, hcs))
-			{
-				return;
-			}
-		}
-
-		if (m_CommandTraderTable == NULL)
-			m_CommandTraderTable = new ExpansionHumanCommandTrader_ST(this);
-
-		StartCommand_Script(new ExpansionHumanCommandTrader(this, m_CommandTraderTable));
 	}
 
 	// ------------------------------------------------------------

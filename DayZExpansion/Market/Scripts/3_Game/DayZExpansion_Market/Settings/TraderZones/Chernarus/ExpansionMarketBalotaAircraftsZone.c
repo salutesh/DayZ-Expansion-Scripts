@@ -19,9 +19,8 @@ class ExpansionMarketBalotaAircraftsZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "BalotaAircrafts";
 		m_DisplayName = "Balota Aircrafts Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "BalotaAircrafts";
 
 		Position = "4971.0 10.5 2436.36"; 	
 		Radius = 100;

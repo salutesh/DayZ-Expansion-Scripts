@@ -19,7 +19,6 @@ class ExpansionMarketTraderAttachments: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Attachments";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_ATTACHMENTS";
 		m_FileName = "Attachments";
 		TraderIcon = "Scrap Metal";

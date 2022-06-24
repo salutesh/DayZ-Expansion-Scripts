@@ -19,7 +19,6 @@ class ExpansionMarketTraderClothing: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Clothing";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CLOTHING";
 		m_FileName = "Clothing";
 		TraderIcon = "Backpack";

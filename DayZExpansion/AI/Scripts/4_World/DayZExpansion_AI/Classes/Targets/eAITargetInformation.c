@@ -474,10 +474,10 @@ class eAITargetInformation
 	// and for some circumstances using templates just won't work.
 	//
 	// wherever possible, please use
-	//	'eAIEntity<DayZPlayerImplement>.GetTargetInformation(GetGame().GetPlayer())`
+	//	'eAIEntity<PlayerBase>.GetTargetInformation(GetGame().GetPlayer())`
 	static eAITargetInformation GetTargetInformation(Object entity)
 	{
-		DayZPlayerImplement player;
+		PlayerBase player;
 		if (Class.CastTo(player, entity))
 			return player.GetTargetInformation();
 

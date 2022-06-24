@@ -19,9 +19,8 @@ class ExpansionMarketGreenMountainZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "GreenMountain";
 		m_DisplayName = "Green Mountain Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "GreenMountain";
 
 		Position = "3728.27 403.0 6003.6"; 	
 		Radius = 500;

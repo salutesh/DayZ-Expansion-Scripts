@@ -19,9 +19,8 @@ class ExpansionMarketNeviHoffZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "NeviHoff";
 		m_DisplayName = "NeviHoff Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "NeviHoff";
 
 		Position = "6244.14013671875 43.900001525878909 7498.0"; 	
 		Radius = 300;

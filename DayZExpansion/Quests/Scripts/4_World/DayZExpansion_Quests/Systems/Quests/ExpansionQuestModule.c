@@ -20,6 +20,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 {
 	//! Server only
 	private ref map<string, ref ExpansionQuestPlayerData> m_PlayerDatas; //! Server
+	private ref map<string, ref array<int>> m_PlayerGroups; //! Server
 	private ref array<ref ExpansionQuest> m_ActiveQuests; //! Server
 	private ref map<int, ref ExpansionQuestNpcData> m_QuestsNPCs; //! Server
 	private ref map<int, ref ExpansionQuestConfig> m_QuestConfigs;	//! Server
@@ -352,6 +353,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_QuestsNPCs = new map<int, ref ExpansionQuestNpcData>; //! Server & Client
 		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server & Client
 		m_PlayerDatas = new map<string, ref ExpansionQuestPlayerData>; //! Server & Client
+		m_PlayerGroups = new map<string, ref array<int>>; //! Server & Client
 
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
@@ -567,63 +569,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 					Error(ToString() + "::OnMissionFinish - Could not get quest!");
 					continue;
 				}
-
-				// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+				
 				//! Update and save the persistent player quest data
-				// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-				if (quest.GetQuestState() == ExpansionQuestState.STARTED || quest.GetQuestState() == ExpansionQuestState.CAN_TURNIN)
-				{
-					int questID = quest.GetQuestConfig().GetID();
-					int timestamp;
-					ExpansionQuestPlayerData playerData;
-
-					if (!quest.IsGroupQuest())
-					{
-						playerData = GetPlayerQuestDataByUID(quest.GetPlayerUID());
-						if (playerData && playerData.HasCooldownOnQuest(questID, timestamp))
-						{
-							playerData.UpdateQuestTimestamp(questID, 0);
-						}
-					}
-				#ifdef EXPANSIONMODGROUPS
-					else if (quest.IsGroupQuest() && quest.GetGroup())
-					{
-						ExpansionPartyData group = quest.GetGroup();
-						{
-							Error(ToString() + "::OnMissionFinish - Could not get group from quest!");
-							return;
-						}
-
-						for (int j = 0; j < quest.GetGroup().GetPlayers().Count(); j++)
-						{
-							ExpansionPartyPlayerData playerGroupData = quest.GetGroup().GetPlayers()[j];
-							if (!playerGroupData)
-							{
-								Error(ToString() + "::OnMissionFinish - Could not get group player data from groups player array!");
-								continue;
-							}
-
-							playerData = GetPlayerQuestDataByUID(playerGroupData.GetID());
-							if (playerData && playerData.HasCooldownOnQuest(questID, timestamp))
-							{
-								playerData.UpdateQuestTimestamp(questID, 0);
-							}
-						}
-					}
-				#endif
-
-					playerData.UpdateQuestState(quest.GetQuestConfig().GetID(), quest.GetQuestState());
-				}
-
+				UpdateQuestPlayersObjectiveData(quest);
+				UpdateQuestStatesForQuestPlayers(quest, quest.GetQuestState());
+	
 				//! Delete quest
 				quest.OnQuestCleanup();
 				quest.QuestDebug();
 				m_ActiveQuests.Remove(i);
 				delete quest;
 			}
-		}
 
 		QuestModulePrint(ToString() + "::OnMissionFinish - End");
+		}
 	}
 
 	// -----------------------------------------------------------
@@ -4626,7 +4585,43 @@ class ExpansionQuestModule: CF_ModuleWorld
 		dayOfWeek = dayOfWeek % 7;
 		return dayOfWeek;
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule AddPlayerGroupID
+	// ------------------------------------------------------------
+	void AddPlayerGroupID(string playerUID, int groupID)
+	{
+		array<int> groupIDs;
+		if (m_PlayerGroups.Find(playerUID, groupIDs))
+		{
+			if (groupIDs.Find(groupID) == -1)
+			{
+				groupIDs.Insert(groupID);
+			}
+		}
+		else
+		{
+			groupIDs = new array<int>;
+			groupIDs.Insert(groupID);
+			m_PlayerGroups.Insert(playerUID, groupIDs);
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule AddPlayerGroupID
+	// ------------------------------------------------------------
+	bool WasPlayerInGroup(string playerUID, int groupID)
+	{
+		array<int> groupIDs;
+		if (m_PlayerGroups.Find(playerUID, groupIDs))
+		{
+			if (groupIDs.Find(groupID) > -1)
+				return true;
+		}
+		
+		return false;
+	}
+	
 	// ------------------------------------------------------------
 	// ExpansionQuestModule QuestModuleQuestModulePrint
 	// ------------------------------------------------------------

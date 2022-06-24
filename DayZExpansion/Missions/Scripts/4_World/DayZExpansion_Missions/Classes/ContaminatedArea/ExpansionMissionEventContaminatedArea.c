@@ -114,6 +114,8 @@ class ExpansionMissionEventContaminatedArea extends ExpansionMissionEventBase
 
 	override protected string OnDefaultMission(int index)
 	{
+		Enabled = false;
+
 		PlayerData.AroundPartName = "graphics/particles/contaminated_area_gas_around";
 		PlayerData.TinyPartName = "graphics/particles/contaminated_area_gas_around_tiny";
 		PlayerData.PPERequesterType = "PPERequester_ContaminatedAreaTint";

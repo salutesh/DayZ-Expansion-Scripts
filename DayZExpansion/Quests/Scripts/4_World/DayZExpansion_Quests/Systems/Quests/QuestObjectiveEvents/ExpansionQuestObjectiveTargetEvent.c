@@ -69,11 +69,36 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		string className = victim.ClassName();
-		string killerName = killer.GetType();
+		string killerName = killer.Type().ToString();
 		bool maxRangeCheck = false;
 		
-		Print(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
-		Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
+		//Print(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
+		//Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
+		
+		//! PvP quest objective. Check if the victim is a quest player
+		// of this quest and if its a group quest make sure he was not in the involved party before.
+		// If he is in therelated group or was in it we dont count the kill!
+	#ifdef EXPANSIONMODGROUPS
+		if (className == "SurvivorBase")
+		{
+			if (GetQuest().IsGroupQuest())
+			{
+				PlayerBase victimPlayer;
+				if (Class.CastTo(victimPlayer, victim))
+				{
+					string victimPlayerUID = victimPlayer.GetIdentity().GetId();
+					int groupID = GetQuest().GetGroupID();
+					ExpansionPartyModule partymodule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+					if (!partymodule)
+						return;
+					
+					ExpansionPartyPlayerData victimPartyData = partymodule.GetPartyPlayerData(victimPlayerUID);
+					if (victimPartyData && victimPartyData.GetParty().GetPartyID() == groupID || GetQuest().GetQuestModule().WasPlayerInGroup(victimPlayerUID, groupID))
+						return;
+				}
+			}
+		}
+	#endif
 		
 		//! Use max range check if used in config
 		if (GetObjectiveConfig().GetMaxDistance() != -1)

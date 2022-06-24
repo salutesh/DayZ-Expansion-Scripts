@@ -75,7 +75,7 @@ class EXTrace
 
 	static bool MARKET;
 
-	static bool MISSIONS;
+	static bool MISSIONS = ENABLE;
 
 	static bool NOTIFICATIONS;
 

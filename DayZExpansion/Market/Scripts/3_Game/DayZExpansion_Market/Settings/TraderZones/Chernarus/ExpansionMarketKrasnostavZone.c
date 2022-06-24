@@ -19,9 +19,8 @@ class ExpansionMarketKrasnostavZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "Krasnostav";
 		m_DisplayName = "Krasnostav Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "Krasnostav";
 
 		Position = "11924.7 140.7 12527.0"; 	
 		Radius = 1000;

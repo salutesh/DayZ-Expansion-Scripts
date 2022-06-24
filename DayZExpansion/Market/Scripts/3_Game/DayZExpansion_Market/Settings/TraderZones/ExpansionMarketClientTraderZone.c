@@ -14,7 +14,7 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 {
 	void ExpansionMarketClientTraderZone()
 	{
-		m_ZoneName = "Client";
+		m_FileName = "Client";
 	}
 
 	override void Defaults()
@@ -26,7 +26,7 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 	{
 		className.ToLower();
 
-		//! Print("[ExpansionMarketClientTraderZone] RemoveStock " + m_ZoneName + " " + className + " " + stock);
+		//! Print("[ExpansionMarketClientTraderZone] RemoveStock " + m_FileName + " " + className + " " + stock);
 
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
 		if ( !marketItem )

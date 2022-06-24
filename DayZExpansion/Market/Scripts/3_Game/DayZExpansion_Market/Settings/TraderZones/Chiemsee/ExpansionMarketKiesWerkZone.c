@@ -19,9 +19,8 @@ class ExpansionMarketKiesWerkZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "KiesWerk";
 		m_DisplayName = "KiesWerk Airfield Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "KiesWerk";
 
 		Position = "3264.6201171875 20.903200149536134 4740.669921875"; 	
 		Radius = 400;

@@ -5,9 +5,6 @@
 		<file name="Fighting" />
 		<file name="Reloading" />
 	</files>
-	<variables>
-		<variable name="InitTime" type="int" />
-	</variables>
 	<states default="Idle">
 		<state name="Idle">
 			<variables />
@@ -16,9 +13,6 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				if (!fsm.InitTime)
-					fsm.InitTime = GetGame().GetTime();
-				
 				if (!unit.GetTarget())
 				{
 					if (unit.GetLookDirectionRecalculate())
@@ -266,6 +260,10 @@
 					failed_attempts++;
 					EXTrace.Print(true, unit, "Weapon_Unjamming - failed (" + failed_attempts + ")");
 					weapon.ValidateAndRepair();
+					if (failed_attempts &gt; 5)
+					{
+						unit.eAI_DropItem(weapon);
+					}
 				}
 				else
 				{
@@ -292,24 +290,18 @@
 				{
 					//! It's that simple in offline. Why can't it be that simple in MP? :-(
 					unit.LocalTakeEntityToHands(item);
-					item = null;
+				}
+				else
+				{
+					unit.Expansion_CloneItemToHands(item);
 				}
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (time &lt; 1.5)
+				if (time &lt; 1.0)
 				{
 					//! Wait briefly before doing anything to prevent cloning to hands failing or scuffed weapon holding
 					time += DeltaTime;
-					return CONTINUE;
-				}
-				
-				if (item)
-				{
-					unit.Expansion_CloneItemToHands(item);
-					item = null;
-					//! Wait again
-					time = 0;
 					return CONTINUE;
 				}
 				
@@ -556,9 +548,6 @@
 				<position_destination x="304.837936881655" y="365.435451333598" />
 			</editor_data>
 			<guard>
-				//! When the AI has just spawned, wait briefly before doing anything to prevent scuffed weapon holding
-				if (GetGame().GetTime() - fsm.InitTime &lt; 1500) return FAIL;
-				
 				if (GetGame().GetTime() - dst.sub_fsm.last_attempt_time &lt; 5000) return FAIL;
 				
 				if (unit.IsInMelee()) return FAIL;

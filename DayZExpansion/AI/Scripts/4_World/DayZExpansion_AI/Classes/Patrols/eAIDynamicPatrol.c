@@ -83,7 +83,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
 				
 		ai.SetMovementSpeedLimit(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
-		ai.eAI_SetCanBeLooted(m_CanBeLooted);
+		ai.Expansion_SetCanBeLooted(m_CanBeLooted);
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 
 		return ai;

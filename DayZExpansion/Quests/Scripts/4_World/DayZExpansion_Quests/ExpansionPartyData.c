@@ -47,6 +47,8 @@ modded class ExpansionPartyData
 			Error(ToString() + "::OnJoin - Could not get quest player data!");
 			return;
 		}
+		
+		questModule.AddPlayerGroupID(playerUID, player.GetParty().GetPartyID());
 
 		for (int a = 0; a < questModule.GetActiveQuests().Count(); a++)
 		{

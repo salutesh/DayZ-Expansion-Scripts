@@ -42,12 +42,6 @@ modded class ItemBase
 		#endif
 		}
     }
-	
-	/*void SetHardlineItemData(ExpansionHardlineItemData data)
-	{
-		m_HardlineItemData = data;
-		m_Rarity = data.GetRarity();
-	}*/
 
     ExpansionHardlineItemData GetHardlineItemData()
 	{

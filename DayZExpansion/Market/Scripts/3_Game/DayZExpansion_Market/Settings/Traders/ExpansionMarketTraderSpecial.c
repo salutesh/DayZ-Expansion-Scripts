@@ -19,7 +19,6 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Special";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_SPECIAL";
 		m_FileName = "Special";
 		TraderIcon = "Grenade";

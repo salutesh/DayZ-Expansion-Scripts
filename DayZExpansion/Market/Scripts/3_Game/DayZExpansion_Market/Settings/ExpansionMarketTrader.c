@@ -26,7 +26,6 @@ class ExpansionMarketTraderBase
 	[NonSerialized()]
 	string m_FileName;
 
-	string TraderName;
 	string DisplayName;
 }
 
@@ -37,7 +36,7 @@ class ExpansionMarketTraderV3 : ExpansionMarketTraderBase
 
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	string TraderIcon;
 
@@ -83,7 +82,6 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		//! Automatically convert outdated trader files to current version
 		if (settingsBase.m_Version < VERSION)
 		{
-			settings.TraderName = settingsBase.TraderName;
 			settings.DisplayName = settingsBase.DisplayName;
 
 			EXPrint("ExpansionMarketTrader::Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_TRADER_FOLDER + name + "\" to v" + VERSION);
@@ -158,7 +156,6 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	// ------------------------------------------------------------
 	void Defaults()
 	{
-		TraderName = "NA";
 		DisplayName = "NA";
 		m_FileName = "INVALID-FILE-NAME";
 		TraderIcon = "Trader";
@@ -187,7 +184,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( item );
 		if ( marketItem )
 		{
-			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + TraderName + " items array");
+			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + m_FileName + " items array");
 
 			return AddItemInternal( marketItem, buySell );
 		}

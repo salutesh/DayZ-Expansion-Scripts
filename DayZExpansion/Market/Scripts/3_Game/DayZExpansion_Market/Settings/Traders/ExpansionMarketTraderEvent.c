@@ -19,7 +19,6 @@ class ExpansionMarketTraderEvent: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Event";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_EVENT";
 		m_FileName = "Event";
 		TraderIcon = "Questionmark";

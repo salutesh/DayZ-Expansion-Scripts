@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Dta_Core
 	{
-		units[] = {"ExpansionPickup","ExpansionPickupCone","ExpansionDebugCone","ExpansionDebugConeSmall","ExplosionPoint","ExplosionSmall","ExpansionNpcDenis","ExpansionNpcBoris","ExpansionNpcCyril","ExpansionNpcElias","ExpansionNpcFrancis","ExpansionNpcGuo","ExpansionNpcHassan","ExpansionNpcIndar","ExpansionNpcJose","ExpansionNpcKaito","ExpansionNpcLewis","ExpansionNpcManua","ExpansionNpcNiki","ExpansionNpcOliver","ExpansionNpcPeter","ExpansionNpcQuinn","ExpansionNpcRolf","ExpansionNpcSeth","ExpansionNpcTaiki","ExpansionNpcLinda","ExpansionNpcMaria","ExpansionNpcFrida","ExpansionNpcGabi","ExpansionNpcHelga","ExpansionNpcIrena","ExpansionNpcJudy","ExpansionNpcKeiko","ExpansionNpcEva","ExpansionNpcNaomi","ExpansionSoldierMirek","ExpansionSoldierDenis","ExpansionSoldierBoris","ExpansionSoldierCyril","ExpansionSoldierElias","ExpansionSoldierFrancis","ExpansionSoldierGuo","ExpansionSoldierHassan","ExpansionSoldierIndar","ExpansionSoldierJose","ExpansionSoldierKaito","ExpansionSoldierLewis","ExpansionSoldierManua","ExpansionSoldierNiki","ExpansionSoldierOliver","ExpansionSoldierPeter","ExpansionSoldierQuinn","ExpansionSoldierRolf","ExpansionSoldierSeth","ExpansionSoldierTaiki","ExpansionSoldierLinda","ExpansionSoldierMaria","ExpansionSoldierFrida","ExpansionSoldierGabi","ExpansionSoldierHelga","ExpansionSoldierIrena","ExpansionSoldierJudy","ExpansionSoldierKeiko","ExpansionSoldierEva","ExpansionSoldierNaomi","ExpansionSoldier2Mirek","ExpansionSoldier2Denis","ExpansionSoldier2Boris","ExpansionSoldier2Cyril","ExpansionSoldier2Elias","ExpansionSoldier2Francis","ExpansionSoldier2Guo","ExpansionSoldier2Hassan","ExpansionSoldier2Indar","ExpansionSoldier2Jose","ExpansionSoldier2Kaito","ExpansionSoldier2Lewis","ExpansionSoldier2Manua","ExpansionSoldier2Niki","ExpansionSoldier2Oliver","ExpansionSoldier2Peter","ExpansionSoldier2Quinn","ExpansionSoldier2Rolf","ExpansionSoldier2Seth","ExpansionSoldier2Taiki","ExpansionSoldier2Linda","ExpansionSoldier2Maria","ExpansionSoldier2Frida","ExpansionSoldier2Gabi","ExpansionSoldier2Helga","ExpansionSoldier2Irena","ExpansionSoldier2Judy","ExpansionSoldier2Keiko","ExpansionSoldier2Eva","ExpansionSoldier2Naomi"};
+		units[] = {"ExpansionPickup","ExpansionPickupCone","ExpansionDebugCone","ExpansionDebugConeSmall","ExplosionPoint","ExplosionSmall","ExpansionNPCDenis","ExpansionNPCBoris","ExpansionNPCCyril","ExpansionNPCElias","ExpansionNPCFrancis","ExpansionNPCGuo","ExpansionNPCHassan","ExpansionNPCIndar","ExpansionNPCJose","ExpansionNPCKaito","ExpansionNPCLewis","ExpansionNPCManua","ExpansionNPCNiki","ExpansionNPCOliver","ExpansionNPCPeter","ExpansionNPCQuinn","ExpansionNPCRolf","ExpansionNPCSeth","ExpansionNPCTaiki","ExpansionNPCLinda","ExpansionNPCMaria","ExpansionNPCFrida","ExpansionNPCGabi","ExpansionNPCHelga","ExpansionNPCIrena","ExpansionNPCJudy","ExpansionNPCKeiko","ExpansionNPCEva","ExpansionNPCNaomi","ExpansionNPCBaty","ExpansionSoldierMirek","ExpansionSoldierDenis","ExpansionSoldierBoris","ExpansionSoldierCyril","ExpansionSoldierElias","ExpansionSoldierFrancis","ExpansionSoldierGuo","ExpansionSoldierHassan","ExpansionSoldierIndar","ExpansionSoldierJose","ExpansionSoldierKaito","ExpansionSoldierLewis","ExpansionSoldierManua","ExpansionSoldierNiki","ExpansionSoldierOliver","ExpansionSoldierPeter","ExpansionSoldierQuinn","ExpansionSoldierRolf","ExpansionSoldierSeth","ExpansionSoldierTaiki","ExpansionSoldierLinda","ExpansionSoldierMaria","ExpansionSoldierFrida","ExpansionSoldierGabi","ExpansionSoldierHelga","ExpansionSoldierIrena","ExpansionSoldierJudy","ExpansionSoldierKeiko","ExpansionSoldierEva","ExpansionSoldierNaomi","ExpansionSoldierBaty","ExpansionSoldier2Mirek","ExpansionSoldier2Denis","ExpansionSoldier2Boris","ExpansionSoldier2Cyril","ExpansionSoldier2Elias","ExpansionSoldier2Francis","ExpansionSoldier2Guo","ExpansionSoldier2Hassan","ExpansionSoldier2Indar","ExpansionSoldier2Jose","ExpansionSoldier2Kaito","ExpansionSoldier2Lewis","ExpansionSoldier2Manua","ExpansionSoldier2Niki","ExpansionSoldier2Oliver","ExpansionSoldier2Peter","ExpansionSoldier2Quinn","ExpansionSoldier2Rolf","ExpansionSoldier2Seth","ExpansionSoldier2Taiki","ExpansionSoldier2Linda","ExpansionSoldier2Maria","ExpansionSoldier2Frida","ExpansionSoldier2Gabi","ExpansionSoldier2Helga","ExpansionSoldier2Irena","ExpansionSoldier2Judy","ExpansionSoldier2Keiko","ExpansionSoldier2Eva","ExpansionSoldier2Naomi","ExpansionSoldier2Baty"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Characters","DZ_Scripts","DZ_AI"};
@@ -364,6 +364,7 @@ class CfgVehicles
 	class SurvivorF_Keiko;
 	class SurvivorF_Eva;
 	class SurvivorF_Naomi;
+	class SurvivorF_Baty;
 	class ExpansionPickup: Inventory_Base
 	{
 		scope = 2;
@@ -396,147 +397,152 @@ class CfgVehicles
 	{
 		scope = 2;
 	};
-	class ExpansionNpcDenis: SurvivorM_Denis
+	class ExpansionNPCDenis: SurvivorM_Denis
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcBoris: SurvivorM_Boris
+	class ExpansionNPCBoris: SurvivorM_Boris
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcCyril: SurvivorM_Cyril
+	class ExpansionNPCCyril: SurvivorM_Cyril
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcElias: SurvivorM_Elias
+	class ExpansionNPCElias: SurvivorM_Elias
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcFrancis: SurvivorM_Francis
+	class ExpansionNPCFrancis: SurvivorM_Francis
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcGuo: SurvivorM_Guo
+	class ExpansionNPCGuo: SurvivorM_Guo
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcHassan: SurvivorM_Hassan
+	class ExpansionNPCHassan: SurvivorM_Hassan
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcIndar: SurvivorM_Indar
+	class ExpansionNPCIndar: SurvivorM_Indar
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcJose: SurvivorM_Jose
+	class ExpansionNPCJose: SurvivorM_Jose
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcKaito: SurvivorM_Kaito
+	class ExpansionNPCKaito: SurvivorM_Kaito
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcLewis: SurvivorM_Lewis
+	class ExpansionNPCLewis: SurvivorM_Lewis
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcManua: SurvivorM_Manua
+	class ExpansionNPCManua: SurvivorM_Manua
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcNiki: SurvivorM_Niki
+	class ExpansionNPCNiki: SurvivorM_Niki
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcOliver: SurvivorM_Oliver
+	class ExpansionNPCOliver: SurvivorM_Oliver
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcPeter: SurvivorM_Peter
+	class ExpansionNPCPeter: SurvivorM_Peter
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcQuinn: SurvivorM_Quinn
+	class ExpansionNPCQuinn: SurvivorM_Quinn
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcRolf: SurvivorM_Rolf
+	class ExpansionNPCRolf: SurvivorM_Rolf
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcSeth: SurvivorM_Seth
+	class ExpansionNPCSeth: SurvivorM_Seth
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcTaiki: SurvivorM_Taiki
+	class ExpansionNPCTaiki: SurvivorM_Taiki
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcLinda: SurvivorF_Linda
+	class ExpansionNPCLinda: SurvivorF_Linda
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcMaria: SurvivorF_Maria
+	class ExpansionNPCMaria: SurvivorF_Maria
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcFrida: SurvivorF_Frida
+	class ExpansionNPCFrida: SurvivorF_Frida
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcGabi: SurvivorF_Gabi
+	class ExpansionNPCGabi: SurvivorF_Gabi
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcHelga: SurvivorF_Helga
+	class ExpansionNPCHelga: SurvivorF_Helga
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcIrena: SurvivorF_Irena
+	class ExpansionNPCIrena: SurvivorF_Irena
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcJudy: SurvivorF_Judy
+	class ExpansionNPCJudy: SurvivorF_Judy
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcKeiko: SurvivorF_Keiko
+	class ExpansionNPCKeiko: SurvivorF_Keiko
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcEva: SurvivorF_Eva
+	class ExpansionNPCEva: SurvivorF_Eva
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionNpcNaomi: SurvivorF_Naomi
+	class ExpansionNPCNaomi: SurvivorF_Naomi
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionNPCBaty: SurvivorF_Baty
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
@@ -691,6 +697,11 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Soldier";
 	};
+	class ExpansionSoldierBaty: SurvivorF_Baty
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Soldier";
+	};
 	class ExpansionSoldier2Mirek: SurvivorM_Mirek
 	{
 		scope = 2;
@@ -837,6 +848,11 @@ class CfgVehicles
 		vehicleClass = "Expansion_Soldier";
 	};
 	class ExpansionSoldier2Naomi: SurvivorF_Naomi
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Soldier";
+	};
+	class ExpansionSoldier2Baty: SurvivorF_Baty
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Soldier";

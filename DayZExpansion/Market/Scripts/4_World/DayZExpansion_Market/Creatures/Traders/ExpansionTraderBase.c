@@ -13,15 +13,9 @@
 /**@class		ExpansionTraderNPCBase
  * @brief		This class handles trader NPCs
  **/
-class ExpansionTraderNPCBase extends DayZPlayer
+class ExpansionTraderNPCBase: ExpansionNPCBase
 {
 	private static ref set<ExpansionTraderNPCBase> m_allTraders = new set<ExpansionTraderNPCBase>;
-
-	protected ref TInputActionMap m_InputActionMap;
-
-	bool m_ActionsInitialize;
-
-	private ref ExpansionHumanCommandTrader_ST m_CommandTraderTable;
 
 	private ref ExpansionTraderObjectBase m_TraderObject;
 	
@@ -48,8 +42,6 @@ class ExpansionTraderNPCBase extends DayZPlayer
 	{
 		if (!GetGame())
 			return;
-
-		delete m_CommandTraderTable;
 		
 		int idx = m_allTraders.Find(this);
 		if (idx >= 0)
@@ -67,85 +59,6 @@ class ExpansionTraderNPCBase extends DayZPlayer
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase SetActions
-	// ------------------------------------------------------------
-	void SetActions()
-	{
-		//AddAction(ExpansionActionOpenTraderMenu);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase InitializeActions
-	// ------------------------------------------------------------
-	void InitializeActions()
-	{
-		m_InputActionMap = new TInputActionMap;
-		SetActions();
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase GetActions
-	// ------------------------------------------------------------	
-	override void GetActions(typename action_input_type, out array<ActionBase_Basic> actions)
-	{
-		if(!m_ActionsInitialize)
-		{
-			m_ActionsInitialize = true;
-			InitializeActions();
-		}
-		
-		actions = m_InputActionMap.Get(action_input_type);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase AddAction
-	// ------------------------------------------------------------	
-	void AddAction(typename actionName)
-	{
-		ActionBase action = ActionManagerBase.GetAction(actionName);
-
-		typename ai = action.GetInputType();
-		if(!ai)
-		{
-			m_ActionsInitialize = false;
-			return;
-		}
-		
-		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
-		
-		if(!action_array)
-		{
-			action_array = new array<ActionBase_Basic>;
-			m_InputActionMap.Insert(ai, action_array);
-		}
-		action_array.Insert(action); 
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase RemoveAction
-	// ------------------------------------------------------------	
-	void RemoveAction(typename actionName)
-	{
-		ActionBase action = ActionManagerBase.GetAction(actionName);
-		typename ai = action.GetInputType();
-		array<ActionBase_Basic> action_array = m_InputActionMap.Get( ai );
-		
-		if(action_array)
-		{
-			for(int i = 0; i < action_array.Count(); i++)
-			{
-				if(action == action_array.Get(i))
-				{
-					action_array.Remove(i);
-				}
-			}
-			action_array = new array<ActionBase_Basic>;
-			m_InputActionMap.Insert(ai, action_array);
-		}
-		action_array.Insert(action); 
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionTraderNPCBase OnRPC
 	// ------------------------------------------------------------
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
@@ -154,52 +67,6 @@ class ExpansionTraderNPCBase extends DayZPlayer
 
 		if (m_TraderObject)
 			m_TraderObject.OnRPC(sender, rpc_type, ctx);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase IsInventoryVisible
-	// ------------------------------------------------------------
-	override bool IsInventoryVisible()
-	{
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase CanDisplayCargo
-	// ------------------------------------------------------------
-	override bool CanDisplayCargo()
-	{
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase CanPutIntoHands
-	// ------------------------------------------------------------
-	override bool CanPutIntoHands(EntityAI parent)
-	{
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase CommandHandler
-	// ------------------------------------------------------------
-	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished) 
-	{
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT)
-		{
-			HumanCommandScript hcs = GetCommand_Script();	
-		
-			ExpansionHumanCommandTrader traderCommand;
-			if (Class.CastTo(traderCommand, hcs))
-			{
-				return;
-			}
-		}
-
-		if (m_CommandTraderTable == NULL)
-			m_CommandTraderTable = new ExpansionHumanCommandTrader_ST(this);
-		
-		StartCommand_Script(new ExpansionHumanCommandTrader(this, m_CommandTraderTable));
 	}
 
 	void SetTraderObject(ExpansionTraderObjectBase traderObject)
@@ -383,7 +250,6 @@ class ExpansionTraderObjectBase
 			ScriptRPC rpc = new ScriptRPC();
 
 			rpc.Write(m_Trader.m_FileName);
-			rpc.Write(m_Trader.TraderName);
 			rpc.Write(m_Trader.DisplayName);
 			rpc.Write(m_Trader.TraderIcon);
 			rpc.Write(m_Trader.Currencies);
@@ -404,9 +270,6 @@ class ExpansionTraderObjectBase
 				m_Trader.m_FileName = fileName;
 				GetExpansionSettings().GetMarket().AddMarketTrader(m_Trader);
 			}
-
-			if (!ctx.Read(m_Trader.TraderName))
-				return;
 
 			if (!ctx.Read(m_Trader.DisplayName))
 				return;
@@ -431,7 +294,7 @@ class ExpansionTraderObjectBase
 			return;
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
-		EXPrint(ToString() + "::UpdateTraderZone - trader " + m_Trader.TraderName + " - trader zone " + m_TraderZone.m_DisplayName + " - stock before update");
+		EXPrint(ToString() + "::UpdateTraderZone - trader " + m_Trader.m_FileName + " - trader zone " + m_TraderZone.m_DisplayName + " - stock before update");
 		m_TraderZone.DebugPrint();
 		#endif
 
@@ -458,7 +321,7 @@ class ExpansionTraderObjectBase
 			m_TraderZone.Save();
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
-		EXPrint(ToString() + "::UpdateTraderZone - trader " + m_Trader.TraderName + " - trader zone " + m_TraderZone.m_DisplayName + " - stock after update");
+		EXPrint(ToString() + "::UpdateTraderZone - trader " + m_Trader.m_FileName + " - trader zone " + m_TraderZone.m_DisplayName + " - stock after update");
 		m_TraderZone.DebugPrint();
 		#endif
 	}

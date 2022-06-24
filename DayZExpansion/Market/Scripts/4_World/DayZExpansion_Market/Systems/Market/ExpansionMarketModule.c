@@ -501,7 +501,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		if (!sell.Trader.GetTraderMarket().CanSellItem(sell.Item.ClassName))
 		{
-			EXPrint(ToString() + "::FindSellPrice - Cannot sell " + sell.Item.ClassName + " to " + sell.Trader.GetTraderMarket().TraderName + " trader");
+			EXPrint(ToString() + "::FindSellPrice - Cannot sell " + sell.Item.ClassName + " to " + sell.Trader.GetTraderMarket().m_FileName + " trader");
 			result = ExpansionMarketResult.FailedCannotSell;
 			return false;
 		}
@@ -763,7 +763,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		else if (!sell.Trader.GetTraderMarket().CanSellItem(attachment.ClassName))
 		{
-			EXPrint(ToString() + "::FindSellPrice - INFO: Cannot sell attachment " + attachment.ClassName + " to " + sell.Trader.GetTraderMarket().TraderName + " trader");
+			EXPrint(ToString() + "::FindSellPrice - INFO: Cannot sell attachment " + attachment.ClassName + " to " + sell.Trader.GetTraderMarket().m_FileName + " trader");
 			//! This attachment cannot be sold to the trader, but we still allow to get rid of it (it will be deleted, and players won't receive money for it)
 			return true;
 		}
@@ -2452,7 +2452,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		Callback(itemClassName, ExpansionMarketResult.RequestPurchaseSuccess, player.GetIdentity(), (int) includeAttachments, skinIndex);
 		
-		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to purchase %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().TraderName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
+		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to purchase %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().m_FileName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
 		
 		MarketModulePrint("Exec_RequestPurchase - End");
 	}
@@ -2611,7 +2611,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		CheckSpawn(player, parent, attachmentNotAttached);
 
-		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has bought %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) for a price of %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), reserve.RootItem.ClassName, reserve.TotalAmount, reserve.Trader.GetTraderMarket().TraderName, reserve.Trader.GetDisplayName(), reserve.Trader.GetTraderZone().m_DisplayName, reserve.Trader.GetTraderZone().Position.ToString(), reserve.Price));	
+		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has bought %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) for a price of %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), reserve.RootItem.ClassName, reserve.TotalAmount, reserve.Trader.GetTraderMarket().m_FileName, reserve.Trader.GetDisplayName(), reserve.Trader.GetTraderZone().m_DisplayName, reserve.Trader.GetTraderZone().Position.ToString(), reserve.Price));	
 		
 		Callback(itemClassName, ExpansionMarketResult.PurchaseSuccess, player.GetIdentity(), reserve.TotalAmount, reserve.Price);
 		
@@ -2915,7 +2915,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		Callback(itemClassName, ExpansionMarketResult.RequestSellSuccess, player.GetIdentity());
 		
-		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to sell %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().TraderName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
+		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has send a requested to sell %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8).", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, count, trader.GetTraderMarket().m_FileName, trader.GetDisplayName(), trader.GetTraderZone().m_DisplayName, trader.GetTraderZone().Position.ToString()));
 
 		MarketModulePrint("Exec_RequestSell - End");
 	}
@@ -3033,7 +3033,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		zone.Save();
 
-		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has sold %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) and got %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, sell.TotalAmount, sell.Trader.GetTraderMarket().TraderName, sell.Trader.GetDisplayName(), sell.Trader.GetTraderZone().m_DisplayName, sell.Trader.GetTraderZone().Position.ToString(), sell.Price));	
+		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has sold %3 x%4 at the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) and got %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), itemClassName, sell.TotalAmount, sell.Trader.GetTraderMarket().m_FileName, sell.Trader.GetDisplayName(), sell.Trader.GetTraderZone().m_DisplayName, sell.Trader.GetTraderZone().Position.ToString(), sell.Price));	
 		
 		Callback(itemClassName, ExpansionMarketResult.SellSuccess, player.GetIdentity(), sell.TotalAmount, sell.Price);
 		

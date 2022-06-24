@@ -19,7 +19,6 @@ class ExpansionMarketTraderConsumables: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Consumables";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CONSUMABLES";
 		m_FileName = "Consumables";
 		TraderIcon = "Can Of Beans Big";

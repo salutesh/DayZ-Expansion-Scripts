@@ -19,7 +19,6 @@ class ExpansionMarketTraderClothingAccessoires: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Clothing_Accessoires";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CLOTHING_ACCESSORIES";
 		m_FileName = "Clothing_Accessoires";
 		TraderIcon = "Backpack";

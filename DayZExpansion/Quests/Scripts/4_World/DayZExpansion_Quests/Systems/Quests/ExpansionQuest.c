@@ -736,12 +736,19 @@ class ExpansionQuest
 			EntityAI playerEntity = m_Player;
 			ExpansionQuestItemConfig questItem;
 			Object obj;
+			ItemBase questItemBase;
 			
 			//! Add all quest items again to the players inventory
 			for (int i = 0; i < Config.GetQuestItems().Count(); i++)
 			{
 				questItem = Config.GetQuestItems()[i];
 				obj = Spawn(questItem, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+				
+				if (Class.CastTo(questItemBase, obj))
+				{
+					questItemBase.SetIsQuestItem(true);
+				}
+				
 				QuestItems.Insert(obj);
 			}
 		}
@@ -766,6 +773,12 @@ class ExpansionQuest
 					{
 						questItem = Config.GetQuestItems()[g];
 						obj = Spawn(questItem, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
+						
+						if (Class.CastTo(questItemBase, obj))
+						{
+							questItemBase.SetIsQuestItem(true);
+						}
+						
 						QuestItems.Insert(obj);
 					}
 				}
