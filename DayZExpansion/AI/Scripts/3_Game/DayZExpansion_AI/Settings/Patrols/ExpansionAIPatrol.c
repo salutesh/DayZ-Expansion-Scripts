@@ -13,7 +13,6 @@
 class ExpansionAIPatrol: ExpansionAIPatrolBase
 {
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
-	float WaypointsSpreadRadius;        // if set to 0, the bots will go exactly on the position of each waypoints. Beyond 0, they will take a random waypoint location around the original position in the area. If bellow 0 (negative), each waypoints will have a different radius size between the -value choosen and -1
 	vector StartPos;                    // where the group is going to spawn
 	autoptr TVectorArray Waypoints;     // a list of positions to create a path to follow
 
@@ -23,7 +22,9 @@ class ExpansionAIPatrol: ExpansionAIPatrolBase
 		RespawnTime = respawntime;
 		MinDistRadius = mindistradius;
 		MaxDistRadius = maxdistradius;
-		WaypointsSpreadRadius = wprnd;
+		if (wprnd < 0.0)
+			MinSpreadRadius = 1;
+		MaxSpreadRadius = Math.AbsFloat(wprnd);
 		StartPos = startpos;
 		Waypoints = way;
 		CanBeLooted = canbelooted;
@@ -33,19 +34,12 @@ class ExpansionAIPatrol: ExpansionAIPatrolBase
 
 	TVectorArray GetWaypoints()
 	{
-		if ( WaypointsSpreadRadius != 0.0 )
+		if ( MaxSpreadRadius != 0.0 )
 		{
-			float randomdist;
 			TVectorArray RndWaypoints = new TVectorArray;
 			foreach (vector waypoint: Waypoints)
 			{
-				if ( WaypointsSpreadRadius < 0.0 )
-				{
-					waypoint = ExpansionMath.GetRandomPointInRing(waypoint, 1, -WaypointsSpreadRadius);
-				} else {
-					waypoint = ExpansionMath.GetRandomPointInCircle(waypoint, WaypointsSpreadRadius);
-				}
-
+				waypoint = ExpansionMath.GetRandomPointInRing(waypoint, MinSpreadRadius, MaxSpreadRadius);
 				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
 
 				RndWaypoints.Insert(waypoint);

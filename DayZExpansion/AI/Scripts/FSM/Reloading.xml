@@ -60,6 +60,8 @@
 					return CONTINUE;
 				}
 				
+				if (!fsm.weapon) return EXIT;
+				
 				int mi = fsm.weapon.GetCurrentMuzzle();
 				if (fsm.weapon.IsChamberEmpty(mi))
 				{
@@ -93,7 +95,7 @@
 				time += DeltaTime;
 				
 				// waiting for the weapon to be lowered
-				if (time &lt; 0.5)
+				if (fsm.weapon &amp;&amp; time &lt; 0.5)
 					return CONTINUE;
 				
 				return EXIT;
@@ -125,7 +127,7 @@
 				<position_destination x="532.334805190902" y="477.213223140496" />
 			</editor_data>
 			<guard>
-				if (fsm.weapon.IsDamageDestroyed())
+				if (!fsm.weapon || fsm.weapon.IsDamageDestroyed())
 					return FAIL;
 				
 				if (!unit.eAI_HasAmmoForFirearm(fsm.weapon, dst.magazine)) return FAIL;

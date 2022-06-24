@@ -105,6 +105,7 @@ class eAIBase extends PlayerBase
 
 	float m_eAI_UpdateTargetsTick;
 	autoptr array<Object> m_eAI_PotentialTargetObjects = new array<Object>();
+	int m_eAI_CurrentPotentialTargetIndex;
 	PlayerBase m_eAI_PotentialTargetPlayer;
 	float m_eAI_UpdateNearTargetsTime;
 	int m_eAI_UpdateNearTargetsCount;
@@ -327,7 +328,12 @@ class eAIBase extends PlayerBase
 				return false;
 
 			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()))
-				return false;
+			{
+				if (GetGroup().GetFaction().IsInherited(eAIFactionPassive))
+					return player.GetTargetInformation().IsTargetted(GetGroup());
+				else
+					return false;
+			}
 
 			//! If the other player is a guard and we are not a guard, consider them an enemy if WE raise our weapon
 			//! (because then THEY will consider us a threat)
@@ -425,12 +431,12 @@ class eAIBase extends PlayerBase
 		}
 
 		PlayerBase player;
-		if (Class.CastTo(player, source))
+		if (Class.CastTo(player, source.GetHierarchyRootPlayer()))
 		{
 			if (!player.GetTargetInformation().IsTargetted(GetGroup()))
 			{
 				//! target the attacking player for upto 2 minutes
-				player.GetTargetInformation().AddAI(this, 1200000);
+				player.GetTargetInformation().AddAI(this, 120000);
 			}
 		}
 
@@ -820,9 +826,10 @@ class eAIBase extends PlayerBase
 		vector center = GetPosition();
 
 		m_eAI_UpdateTargetsTick += pDt;
-		if (m_eAI_UpdateTargetsTick > Math.RandomFloat(0.1, 0.2))
+		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetObjects.Count() && m_eAI_UpdateTargetsTick > Math.RandomFloat(0.1, 0.2))
 		{
 			m_eAI_UpdateTargetsTick = 0;
+			m_eAI_CurrentPotentialTargetIndex = 0;
 
 			//! Get animals/Zs in near range (30 m)
 
@@ -835,7 +842,8 @@ class eAIBase extends PlayerBase
 
 #ifdef EAI_TRACE
 			elapsed = TickCount(ticks);
-			m_eAI_UpdateNearTargetsTime += elapsed / 10000.0;
+			float time = elapsed / 10000.0;
+			m_eAI_UpdateNearTargetsTime += time;
 			m_eAI_UpdateNearTargetsCount++;
 			float timeAvg = m_eAI_UpdateNearTargetsTime / m_eAI_UpdateNearTargetsCount;
 
@@ -862,10 +870,9 @@ class eAIBase extends PlayerBase
 
 		m_eAI_PotentialTargetPlayer = player;
 
-		Object playerObject;
-		if (player && player != this && Math.IsPointInCircle(center, 1000, player.GetPosition()))
+		Object playerObject = player;
+		if (player && player != this && m_eAI_PotentialTargetObjects.Find(playerObject) == -1 && Math.IsPointInCircle(center, 1000, player.GetPosition()))
 		{
-			playerObject = player;
 			m_eAI_PotentialTargetObjects.Insert(playerObject);
 
 #ifdef EAI_TRACE
@@ -882,8 +889,12 @@ class eAIBase extends PlayerBase
 
 		int nonItemTargetCount;
 
-		foreach (Object obj: m_eAI_PotentialTargetObjects)
+		while (m_eAI_CurrentPotentialTargetIndex < m_eAI_PotentialTargetObjects.Count())
 		{
+			Object obj = m_eAI_PotentialTargetObjects[m_eAI_CurrentPotentialTargetIndex++];
+			if (!obj)
+				continue;
+
 			PlayerBase playerThreat;
 			if (Class.CastTo(playerThreat, obj))
 				if (GetGroup() && GetGroup().IsMember(playerThreat))
@@ -917,7 +928,8 @@ class eAIBase extends PlayerBase
 					continue;
 			}
 
-			target.AddAI(this);
+			if (!GetGroup().GetFaction().IsInherited(eAIFactionPassive) && (!playerThreat || !playerThreat.GetGroup() || !playerThreat.GetGroup().GetFaction().IsInherited(eAIFactionPassive)))
+				target.AddAI(this);
 
 			if (!obj.IsInherited(ItemBase))
 				nonItemTargetCount++;
@@ -926,7 +938,8 @@ class eAIBase extends PlayerBase
 				break;
 		}
 
-		m_eAI_PotentialTargetObjects.Clear();
+		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetObjects.Count())
+			m_eAI_PotentialTargetObjects.Clear();
 	}
 
 	// TODO: Use CF_PriorityQueue<T>

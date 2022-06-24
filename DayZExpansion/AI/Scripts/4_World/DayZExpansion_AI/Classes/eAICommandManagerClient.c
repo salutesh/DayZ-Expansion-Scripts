@@ -6,12 +6,9 @@ class eAICommandManagerClient : eAICommandManager
 		switch (cmd)
 		{
 			case eAICommands.DEB_SPAWNALLY:
-				GetRPCManager().SendRPC("eAI", "SpawnAI", new Param2<DayZPlayer, int>(GetGame().GetPlayer(), cmd));
-				return true;
 			case eAICommands.DEB_SPAWNSENTRY:
-				GetRPCManager().SendRPC("eAI", "SpawnAI", new Param2<DayZPlayer, int>(GetGame().GetPlayer(), cmd));
-				return true;
 			case eAICommands.DEB_SPAWNGUARD:
+			case eAICommands.DEB_SPAWNPASSIVE:
 				GetRPCManager().SendRPC("eAI", "SpawnAI", new Param2<DayZPlayer, int>(GetGame().GetPlayer(), cmd));
 				return true;
 			

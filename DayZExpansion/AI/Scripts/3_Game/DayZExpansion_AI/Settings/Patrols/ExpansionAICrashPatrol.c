@@ -12,7 +12,7 @@
 
 class ExpansionAICrashPatrol: ExpansionAIPatrolBase
 {
-	string EventName;           // Wreck_UH1Y, Wreck_Mi8, Wreck_PoliceCar, ContaminatedArea_Static, ContaminatedArea_Dynamic
+	string EventName;           // Any valid BuildingBase type
 
 	void ExpansionAICrashPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "PATROL", string fac = "WEST", string eventtype = "Wreck_UH1Y", string loa = "", float mindistradius = -2, float maxdistradius = -2, bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0)
 	{
@@ -20,67 +20,75 @@ class ExpansionAICrashPatrol: ExpansionAIPatrolBase
 		LoadoutFile = loa;
 		MinDistRadius = mindistradius;
 		MaxDistRadius = maxdistradius;
+		DefaultSpread();
 		CanBeLooted = canbelooted;
 		UnlimitedReload = unlimitedreload;
 		Chance = chance;
 	}
 
 	//! TODO: Improve the spread code, this is very unoptimised
+	void DefaultSpread()
+	{
+		if (Behaviour == "HALT")
+		{
+			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
+			{
+				MinSpreadRadius = 0;
+				MaxSpreadRadius = 50;
+			}
+			else
+			{
+				MinSpreadRadius = 5;
+				MaxSpreadRadius = 10;
+			}
+		}
+		else
+		{
+			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
+			{
+				MinSpreadRadius = 0;
+				MaxSpreadRadius = 150;
+			}
+			else
+			{
+				MinSpreadRadius = 5;
+				MaxSpreadRadius = 20;
+			}
+		}
+	}
+
 	vector GetStartPosition(vector position)
 	{
-		float minspread = 5;
-		float maxspread = 10;
-		if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
-		{
-			minspread = 0;
-			maxspread = 50;
-		}
-
-		position = ExpansionMath.GetRandomPointInRing(position, minspread, maxspread);
+		position = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
 		position = ExpansionStatic.GetSurfacePosition(position);
 
 		return position;
 	}
 
-	//! TODO: Improve the spread code, this is very unoptimised
-	ref TVectorArray GetWaypoints(vector position, int beh = eAIWaypointBehavior.HALT )
+	TVectorArray GetWaypoints(vector position, int beh = eAIWaypointBehavior.HALT )
 	{
-		ref TVectorArray waypoints = new ref TVectorArray;
+		TVectorArray waypoints = new TVectorArray;
 		vector waypoint;
-		float minspread;
-		float maxspread;
-		if ( beh == eAIWaypointBehavior.HALT )
-		{
-			minspread = 5;
-			maxspread = 15;
-			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
-			{
-				minspread = 0;
-				maxspread = 50;
-			}
+		int amountofwaypoints;
 
-			waypoint = ExpansionMath.GetRandomPointInRing(position, minspread, maxspread);
+		if (beh == eAIWaypointBehavior.HALT)
+		{
+			amountofwaypoints = 1;
+		}
+		else
+		{
+			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
+				amountofwaypoints = Math.RandomIntInclusive(4, 8);
+			else
+				amountofwaypoints = Math.RandomIntInclusive(2, 6);
+		}
+
+		for (int i = 0; i < amountofwaypoints; i++)
+		{
+			waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
 			waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
 
 			waypoints.Insert(waypoint);
-		} else {
-			minspread = 5;
-			maxspread = 20;
-			int amountofwaypoints = Math.RandomIntInclusive(2, 6);
-			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
-			{
-				minspread = 0;
-				maxspread = 150;
-				amountofwaypoints = Math.RandomIntInclusive(4, 8);
-			}
-			
-			for (int i = 0; i < amountofwaypoints; i++)
-			{
-				waypoint = ExpansionMath.GetRandomPointInRing(position, minspread, maxspread);
-				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
-
-				waypoints.Insert(waypoint);
-			}
 		}
 
 		return waypoints;

@@ -211,7 +211,7 @@ class eAICommandMenu extends UIScriptedMenu
 			// only show if we are an admin
 			if (GetExpansionSettings().GetAI().IsAdmin())
 			{
-				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Debug", eAICommandCategories.CATEGORIES));
+				gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_DEBUG, "Spawn", eAICommandCategories.CATEGORIES));
 			}
 		}
 
@@ -244,13 +244,14 @@ class eAICommandMenu extends UIScriptedMenu
 		//Category 4 - Debug
 		else if (category == eAICommandCategories.CAT_DEBUG)
 		{
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Spawn Friendly AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNALLY, "Friendly AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_CLEARALL, "Clear All AI", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNBEAR, "Spawn Bear", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNWOLF, "Spawn Wolf", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNZOM, "Spawn Zombie", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Spawn Hostile AI", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNGUARD, "Spawn Guard AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNBEAR, "Bear", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNWOLF, "Wolf", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNZOM, "Zombie", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Hostile AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNGUARD, "Guard AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNPASSIVE, "Passive AI", eAICommandCategories.CAT_DEBUG));
 			if (IsMissionOffline())
 			{
 				gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_TARGET_CREATE, "Create Debug Apple", eAICommandCategories.CAT_DEBUG));

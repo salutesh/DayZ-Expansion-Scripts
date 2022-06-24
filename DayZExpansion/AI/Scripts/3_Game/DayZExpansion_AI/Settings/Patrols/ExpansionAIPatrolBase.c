@@ -20,6 +20,8 @@ class ExpansionAIPatrolBase
 	string UnderThreatSpeed;            // WALK, JOG, SPRINT, RANDOM
 	float MinDistRadius;	            // If the player is closer than MinDistRadius from the spawn point, the group won't spawn, if set to -2, will use the general setting instead
 	float MaxDistRadius;	            // Same but if the player is further away than MaxDistRadius, the bots won't spawn, if set to -2, will use the general setting instead
+	float MinSpreadRadius;
+	float MaxSpreadRadius;
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
 	bool UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
 	float Chance;                       // chance for this patrol to spawn

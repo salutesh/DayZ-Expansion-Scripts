@@ -30,8 +30,10 @@ class ExpansionQuest
 	private const int UPDATE_OBJECTIVES_PER_TICK = 5;
 
 	private bool m_IsGroupQuest = false;
-	private ExpansionPartyData m_Group;
+#ifdef EXPANSIONMODGROUPS
+	private ref ExpansionPartyData m_Group;
 	private int m_GroupID = -1;
+#endif
 
 	private int m_ObjectiveIndex = 0;
 	private bool m_ObjectivesCreated = false;
@@ -335,7 +337,7 @@ class ExpansionQuest
 	PlayerBase GetPlayer()
 	{
 		//! Try to return at leats one active group member
-	#ifdef EXPANSIONMODGROUPS
+	/*#ifdef EXPANSIONMODGROUPS
 		if (m_Group)
 		{
 			for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
@@ -349,7 +351,7 @@ class ExpansionQuest
 				}
 			}
 		}
-	#endif
+	#endif*/
 
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 		return m_Player;
@@ -752,9 +754,9 @@ class ExpansionQuest
 				QuestItems.Insert(obj);
 			}
 		}
+	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && m_Group)
 		{
-	#ifdef EXPANSIONMODGROUPS
 			for (int j = 0; j < m_Group.GetPlayers().Count(); j++)
 			{
 				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[j];

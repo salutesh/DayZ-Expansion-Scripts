@@ -157,6 +157,10 @@ modded class DayZExpansion
 					sentry = SpawnAI_Sentry(pos);
 					sentry.GetGroup().SetFaction(new eAIFactionGuards());
 					break;
+				case eAICommands.DEB_SPAWNPASSIVE:
+					sentry = SpawnAI_Sentry(pos);
+					sentry.GetGroup().SetFaction(new eAIFactionPassive());
+					break;
 			}
 		}
 	}
