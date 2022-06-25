@@ -21,31 +21,15 @@ modded class AnimalBase
 
 		EntityAI killSource = EntityAI.Cast(killer);
 
+		if (!killSource)
+			return;
+
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 		PlayerBase player;
-		EntityAI target;
 
-		if (killSource.GetHierarchyParent())
+		if (Class.CastTo(player, killSource.GetHierarchyRootPlayer()) && player.GetIdentity())
 		{
-			Object parent = killSource.GetHierarchyParent();
-			if (parent.IsMan() || parent.IsKindOf("PlayerBase") || parent.IsInherited(PlayerBase))
-			{
-				player = PlayerBase.Cast(killSource.GetHierarchyParent());
-				target = EntityAI.Cast(this);
-				if (player && target)
-				{
-					questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
-				}
-			}
-		}
-		else if (killSource.IsMan() || killSource.IsKindOf("PlayerBase") || killSource.IsInherited(PlayerBase))
-		{
-			player = PlayerBase.Cast(killSource);
-			target = EntityAI.Cast(this);
-			if (player && target)
-			{
-				questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
-			}
+			questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
 		}
 	}
 };

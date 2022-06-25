@@ -15,7 +15,7 @@
  **/
 class ExpansionQuestStaticObject extends BuildingSuper
 {
-	private static ref set<ExpansionQuestStaticObject> m_allTraders = new set<ExpansionQuestStaticObject>;
+	private static ref set<ExpansionQuestStaticObject> m_Expansion_AllQuestObjects = new set<ExpansionQuestStaticObject>;
 	private int m_QuestNPCID = -1;
 	private ref ExpansionQuestNpcData m_QuestNPCData;
 
@@ -27,7 +27,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 		if (IsMissionHost())
 			SetAllowDamage(false);
 
-		m_allTraders.Insert(this);
+		m_Expansion_AllQuestObjects.Insert(this);
 
 		RegisterNetSyncVariableInt("m_QuestNPCID");
 	}
@@ -57,10 +57,10 @@ class ExpansionQuestStaticObject extends BuildingSuper
 		if (!GetGame())
 			return;
 
-		int idx = m_allTraders.Find(this);
+		int idx = m_Expansion_AllQuestObjects.Find(this);
 		if (idx >= 0)
 		{
-			m_allTraders.Remove(idx);
+			m_Expansion_AllQuestObjects.Remove(idx);
 		}
 	}
 
@@ -69,7 +69,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	// ------------------------------------------------------------
 	static set<ExpansionQuestStaticObject> GetAll()
 	{
-		return m_allTraders;
+		return m_Expansion_AllQuestObjects;
 	}
 
 	// ------------------------------------------------------------

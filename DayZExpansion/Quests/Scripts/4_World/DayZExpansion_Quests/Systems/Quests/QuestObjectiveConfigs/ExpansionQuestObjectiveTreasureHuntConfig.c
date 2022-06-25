@@ -9,11 +9,15 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
-class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveTreasureHuntConfigBase:ExpansionQuestObjectiveConfigBase
 {
-	private ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
+	ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
+};
 
+class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasureHuntConfigBase
+{
+	bool ShowDistance = true;
+	
 	void SetTreasureHunt(ExpansionQuestObjectiveTreasureHunt hunt)
 	{
 		TreasureHunt = hunt;
@@ -23,15 +27,65 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveConfigBa
 	{
 		return TreasureHunt;
 	}
+	
+	bool ShowDistance()
+	{
+		return ShowDistance;
+	}
+	
+	static ExpansionQuestObjectiveTreasureHuntConfig Load(string fileName)
+	{
+		bool save;
+		CF_Log.Info("[ExpansionQuestObjectiveTreasureHuntConfig] Load existing configuration file:" + fileName);
 
-	override void Save(string fileName)
+		ExpansionQuestObjectiveTreasureHuntConfig config;
+		ExpansionQuestObjectiveTreasureHuntConfigBase configBase;
+		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfigBase>.JsonLoadFile(fileName, configBase);
+
+		if (configBase.ConfigVersion < CONFIGVERSION)
+		{
+			CF_Log.Info("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			config = new ExpansionQuestObjectiveTreasureHuntConfig();
+
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
+
+			config.ConfigVersion = CONFIGVERSION;
+			save = true;
+		}
+		else
+		{
+			JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonLoadFile(fileName, config);
+		}
+
+		if (save)
+		{
+			JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(fileName, config);
+		}
+
+		return config;
+	}
+
+	void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + ".JSON", this);
+	}
+
+	void CopyConfig(ExpansionQuestObjectiveTreasureHuntConfigBase configBase)
+	{
+		ID = configBase.ID;
+		ObjectiveType = configBase.ObjectiveType;
+		ObjectiveText = configBase.ObjectiveText;
+		TimeLimit = configBase.TimeLimit;
+		
+		TreasureHunt = configBase.TreasureHunt;
 	}
 	
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		super.OnSend(ctx);
+		
+		ctx.Write(ShowDistance);
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
@@ -39,6 +93,9 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveConfigBa
 		if (!super.OnRecieve(ctx))
 			return false;
 
+		if (!ctx.Read(ShowDistance))
+			return false;
+		
 		return true;
 	}
 

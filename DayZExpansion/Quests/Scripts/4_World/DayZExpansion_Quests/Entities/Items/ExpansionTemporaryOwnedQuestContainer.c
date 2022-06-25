@@ -42,9 +42,6 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 
 	override bool CanPutInCargo(EntityAI parent)
 	{
-		if (parent.IsKindOf("UndergroundStash"))
-			return true;
-
 		if (parent.IsInherited(UndergroundStash))
 			return true;
 

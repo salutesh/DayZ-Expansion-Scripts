@@ -187,7 +187,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		array<vector> groupMemberPos = new array<vector>;
 		if (GetQuest().IsGroupQuest())
 		{
-			Print(ToString() + "::OnUpdate - GROUP QUEST");
+			//Print(ToString() + "::OnUpdate - GROUP QUEST");
 		#ifdef EXPANSIONMODGROUPS
 			ExpansionPartyData group = GetQuest().GetGroup();
 			if (!group)
@@ -224,11 +224,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 					posIndex = p;
 				}
 				
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				Print(ToString() + "::OnUpdate - Target position: " + position);
 				Print(ToString() + "::OnUpdate - Index: " + p);
 				Print(ToString() + "::OnUpdate - Position: " + groupMemberPos[p]);
 				Print(ToString() + "::OnUpdate - Distance: " + dist);
 				Print(ToString() + "::OnUpdate - Smallest distance: " + smallestDistance);
+			#endif
 			}
 			
 			currentDistance = vector.Distance(groupMemberPos[posIndex], position);
@@ -242,8 +244,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		position[1] = GetGame().SurfaceY(position[0], position[2]);
-		
+	
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::OnUpdate - Current distance: " + currentDistance);
+	#endif
 
 		if (currentDistance <= maxDistance && !IsCompleted())
 		{

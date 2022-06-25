@@ -12,20 +12,20 @@
 
 modded class ItemBase
 {
-	private bool m_IsQuestItem = false;
+	private bool m_Expansion_IsQuestItem = false;
 
 	void ItemBase()
 	{
-		RegisterNetSyncVariableInt("m_IsQuestItem");
+		RegisterNetSyncVariableInt("m_Expansion_IsQuestItem");
 	}
 	
 	bool IsQuestItem()
 	{
-		return m_IsQuestItem;
+		return m_Expansion_IsQuestItem;
 	}
 
 	void SetIsQuestItem(bool state)
 	{
-		m_IsQuestItem = state;
+		m_Expansion_IsQuestItem = state;
 	}
 };

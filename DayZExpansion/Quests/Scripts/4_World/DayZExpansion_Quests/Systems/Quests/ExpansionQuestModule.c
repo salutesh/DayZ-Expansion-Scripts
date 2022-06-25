@@ -2508,8 +2508,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			case ExpansionQuestObjectiveType.TRAVEL:
 			{
-				ExpansionQuestObjectiveTravelConfig travelConfig = new ExpansionQuestObjectiveTravelConfig();
-				JsonFileLoader<ExpansionQuestObjectiveTravelConfig>.JsonLoadFile(path + fileName, travelConfig);
+				ExpansionQuestObjectiveTravelConfig travelConfig = ExpansionQuestObjectiveTravelConfig.Load(path + fileName);
 				if (!travelConfig)
 					return;
 
@@ -2552,8 +2551,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
-				ExpansionQuestObjectiveTreasureHuntConfig treasureConfig = new ExpansionQuestObjectiveTreasureHuntConfig();
-				JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonLoadFile(path + fileName, treasureConfig);
+				ExpansionQuestObjectiveTreasureHuntConfig treasureConfig = ExpansionQuestObjectiveTreasureHuntConfig.Load(path + fileName);
 				if (!treasureConfig)
 					return;
 
@@ -3898,7 +3896,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 	#ifdef EXPANSIONMODAI
-		if (victim.IsInherited(eAIBase) || victim.IsKindOf("eAIBase"))
+		if (victim.IsInherited(eAIBase))
 			KilledVIPCheck(victim, killSource);
 	#endif
 

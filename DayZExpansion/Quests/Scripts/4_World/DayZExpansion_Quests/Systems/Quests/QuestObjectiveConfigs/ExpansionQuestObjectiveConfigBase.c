@@ -16,27 +16,17 @@ class ExpansionQuestObjectiveConfigBasement
 	int ID = -1; //! Unique objective ID
 	int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
 	string ObjectiveText = string.Empty;
+	int TimeLimit = - 1;
 };
 
 class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 {
 	[NonSerialized()]
-	static int CONFIGVERSION = 1;
-	
-	int TimeLimit = - 1;
+	static int CONFIGVERSION = 2;
 	
 	void ExpansionQuestObjectiveConfigBase()
 	{
-		ConfigVersion = 1;
-	}
-
-	void CopyQuestBaseConfig(ExpansionQuestObjectiveConfigBase config)
-	{
-		ConfigVersion = config.ConfigVersion;
-		ID = config.ID;
-		ObjectiveType = config.ObjectiveType;
-		ObjectiveText = config.ObjectiveText;
-		TimeLimit = config.TimeLimit;
+		ConfigVersion = 2;
 	}
 	
 	void SetID(int id)
@@ -180,6 +170,7 @@ class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 		ID = configBase.ID;
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
+		TimeLimit = configBase.TimeLimit;
 	}
 
 	void OnSend(ParamsWriteContext ctx)

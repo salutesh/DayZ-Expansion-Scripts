@@ -28,11 +28,6 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		m_QuestHUDEntryController = ExpansionQuestHUDEntryController.Cast(GetController());
 	}
 
-	void ~ExpansionQuestHUDEntry()
-	{
-		m_ObjectiveEntries.Clear();
-	}
-
 	void SetEntry()
 	{
 		QuestPrint(ToString() + "::SetEntry - Start");

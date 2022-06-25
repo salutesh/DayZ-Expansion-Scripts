@@ -35,44 +35,27 @@ modded class PlayerBase
 
 		EntityAI killSource = EntityAI.Cast(killer);
 
+		if (!killSource)
+			return;
+
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 		if (!questModule)
 			return;
 
 		PlayerBase player;
-		EntityAI target;
 
-		if (killSource.GetHierarchyParent())
+		if (Class.CastTo(player, killSource.GetHierarchyRootPlayer()))
 		{
-			Object parent = killSource.GetHierarchyParent();
-			if (parent.IsMan() || parent.IsKindOf("PlayerBase") || parent.IsInherited(PlayerBase))
-			{
-				player = PlayerBase.Cast(killSource.GetHierarchyParent());
-				target = EntityAI.Cast(this);
-				if (player && target)
-				{
-					questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
-				}
-			}
+			if (player.GetIdentity())
+				questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
 		}
-		else if (killSource.IsMan() || killSource.IsKindOf("PlayerBase") || killSource.IsInherited(PlayerBase))
+		else if (killSource.IsAnimal() || killSource.IsInherited(AnimalBase))
 		{
-			player = PlayerBase.Cast(killSource);
-			target = EntityAI.Cast(this);
-			if (player && target)
-			{
-				questModule.OnEntityKilled(target, killSource, player.GetIdentity().GetId());
-			}
+			questModule.OnEntityKilled(this, killSource);
 		}
-		else if (killSource.IsAnimal() || killSource.IsKindOf("AnimalBase") || killSource.IsInherited(AnimalBase))
+		else if (killSource.IsZombie() || killSource.IsInherited(ZombieBase))
 		{
-			target = EntityAI.Cast(this);
-			questModule.OnEntityKilled(target, killSource);
-		}
-		else if (killSource.IsZombie() || killSource.IsKindOf("ZombieBase") || killSource.IsInherited(ZombieBase))
-		{
-			target = EntityAI.Cast(this);
-			questModule.OnEntityKilled(target, killSource);
+			questModule.OnEntityKilled(this, killSource);
 		}
 	}
 };

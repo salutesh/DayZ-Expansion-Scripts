@@ -112,8 +112,6 @@ class ExpansionQuestObjectiveEventBase
 	{
 		SetInitialized(true);
 		SetIsActive(true);
-		
-		GetQuest().UpdateQuestPlayersObjectiveData();
 	}
 
 	//! Event called when objective is completed
@@ -140,16 +138,12 @@ class ExpansionQuestObjectiveEventBase
 	{
 		SetInitialized(false);
 		SetIsActive(false);
-		
-		GetQuest().UpdateQuestPlayersObjectiveData();
 	}
 
 	void OnCancel()
 	{
 		SetInitialized(false);
 		SetIsActive(false);
-		
-		GetQuest().UpdateQuestPlayersObjectiveData();
 	}
 
 	//! Event called when the player continues the quest after a server restart/reconnect
@@ -157,8 +151,6 @@ class ExpansionQuestObjectiveEventBase
 	{
 		SetInitialized(true);
 		SetIsActive(true);
-		
-		GetQuest().UpdateQuestPlayersObjectiveData();
 	}
 
 	//! Event called when the quest gets cleaned up

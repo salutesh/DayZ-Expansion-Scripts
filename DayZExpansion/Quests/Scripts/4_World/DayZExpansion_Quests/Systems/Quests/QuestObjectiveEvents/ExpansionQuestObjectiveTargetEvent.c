@@ -69,11 +69,17 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		string className = victim.ClassName();
-		string killerName = killer.Type().ToString();
+		string killerName = killer.GetType();
 		bool maxRangeCheck = false;
 		
-		//Print(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
-		//Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
+		Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
+		Print(ToString() + "::OnEntityKilled - Victim type: " + victim.Type().ToString());
+		Print(ToString() + "::OnEntityKilled - Killer class name: " + killer.ClassName());
+		Print(ToString() + "::OnEntityKilled - Killer type: " + killer.GetType());
+		Print(ToString() + "::OnEntityKilled - Killer type: " + killer.Type().ToString());
+	#endif
 		
 		//! PvP quest objective. Check if the victim is a quest player
 		// of this quest and if its a group quest make sure he was not in the involved party before.
@@ -133,14 +139,14 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			if (findIndex == -1)
 				return;
 
-			Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
+			//Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
 		}
 
 		int amount = target.GetAmount();
 		Amount = amount;
 		findIndex = -1;
 		findIndex = target.GetClassNames().Find(className);
-		Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
+		//Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
 
 		if (findIndex > -1)
 		{

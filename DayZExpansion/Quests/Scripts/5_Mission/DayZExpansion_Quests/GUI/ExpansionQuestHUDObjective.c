@@ -19,6 +19,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	private Widget Spacer;
 	private RichTextWidget ObjectiveName;
 	private RichTextWidget ObjectiveTime;
+	private WrapSpacerWidget ObjectiveWrapper;
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectivePlayerData objective, ExpansionQuestConfig questConfig)
 	{
@@ -131,14 +132,25 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TRAVEL");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-				objectivePos = m_Objective.GetObjectivePosition();
-				playerPos = GetGame().GetPlayer().GetPosition();
-				currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
-				m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				QuestPrint(ToString() + "::SetEntryObjective - TRAVEL - ADDED");
+				ExpansionQuestObjectiveTravelConfig travelObjective;
+				if (Class.CastTo(travelObjective, objectiveConfigBase))
+				{
+					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+					if (travelObjective.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+					else
+					{
+						ObjectiveWrapper.Show(false);
+					}
+					QuestPrint(ToString() + "::SetEntryObjective - TRAVEL - ADDED");
+				}
 			}
 			break;
 
@@ -165,15 +177,23 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - TREASUREHUNT");
-				objectivePos = m_Objective.GetObjectivePosition();
-				if (GetGame().GetPlayer())
+				ExpansionQuestObjectiveTreasureHuntConfig treasureObjective;
+				if (Class.CastTo(treasureObjective, objectiveConfigBase))
 				{
-					playerPos = GetGame().GetPlayer().GetPosition();
-					currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TREASURE";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
-					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					if (treasureObjective.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+					else
+					{
+						ObjectiveWrapper.Show(false);
+					}
 					QuestPrint(ToString() + "::SetEntryObjective - TREASUREHUNT - ADDED");
 				}
 			}

@@ -31,7 +31,7 @@ class ExpansionQuest
 
 	private bool m_IsGroupQuest = false;
 #ifdef EXPANSIONMODGROUPS
-	private ref ExpansionPartyData m_Group;
+	private ExpansionPartyData m_Group;
 	private int m_GroupID = -1;
 #endif
 
@@ -849,6 +849,9 @@ class ExpansionQuest
 
 		SetInitialized(false);
 
+		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
+		
 		QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestCleanup - End");
@@ -904,6 +907,7 @@ class ExpansionQuest
 				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedText, currentActiveObjective.GetObjectiveConfig().GetObjectiveText(), Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
 
 				nextObjective.OnStart();	//! Start the next objective
+				
 				m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 				m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 				
