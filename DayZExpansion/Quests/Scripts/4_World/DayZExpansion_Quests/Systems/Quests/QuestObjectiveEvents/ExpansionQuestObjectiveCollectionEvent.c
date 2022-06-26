@@ -56,10 +56,15 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	{
 		Print(ToString() + "::OnTurnIn - Start");
 		
+		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
+		if (!collection)
+			return;
+		
+		int amountToDelete = collection.GetAmount();
 		if (!GetQuest().IsGroupQuest())
 		{
 			Print(ToString() + "::OnTurnIn - NORMAL QUEST");
-			for (int i = 0; i < m_PlayerItems.Count(); i++)
+			for (int i = 0; i < amountToDelete; i++)
 			{
 				EntityAI item = m_PlayerItems[i];
 				GetGame().ObjectDelete(item);
@@ -69,7 +74,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		else if (GetQuest().IsGroupQuest())
 		{
 			Print(ToString() + "::OnTurnIn - GROUP QUEST");
-			for (int g = 0; g < m_GroupItems.Count(); g++)
+			for (int g = 0; g < amountToDelete; g++)
 			{
 				EntityAI groupItem = m_GroupItems[g];
 				Print(ToString() + "::OnTurnIn - Delete collection item: " + groupItem.ToString());

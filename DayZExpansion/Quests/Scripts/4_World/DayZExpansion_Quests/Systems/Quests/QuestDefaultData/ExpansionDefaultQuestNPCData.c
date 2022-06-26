@@ -185,7 +185,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(5); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestObjectBoard"); //! Class name of the NPC entity
+		questNPC.SetName("ExpansionQuestBoardLarge"); //! Class name of the NPC entity
 		questNPC.SetIsStatic(true);
 
 		array<int> questIDs = new array<int>;
@@ -196,9 +196,7 @@ class ExpansionDefaultQuestNPCData
 		questIDs.Insert(8);
 		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/accept
 
-		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
-
-		questNPC.SetNPCName("Blackboard");
+		questNPC.SetNPCName("Quest Board");
 		questNPC.SetDefaultNPCText("There is nothing to do here for you...");
 
 		if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplus")
@@ -208,8 +206,8 @@ class ExpansionDefaultQuestNPCData
 		}
 		else if (m_WorldName == "namalsk")
 		{
-			questNPC.SetPosition(Vector(8584.04, 14.7324, 10515.8)); //! Quest NPC position
-			questNPC.SetOrientation(Vector(215.0, 0, 0)); //! Quest NPC orientation
+			questNPC.SetPosition(Vector(8584.44, 15.80, 10516.00)); //! Quest NPC position
+			questNPC.SetOrientation(Vector(300.0, 0, 0)); //! Quest NPC orientation
 		}
 
 		return questNPC;

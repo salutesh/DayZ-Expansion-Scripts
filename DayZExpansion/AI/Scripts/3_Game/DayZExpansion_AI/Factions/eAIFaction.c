@@ -23,4 +23,15 @@ class eAIFaction
 	{
 		return m_IsGuard;
 	}
+
+	static eAIFaction Create(string factionName)
+	{
+		typename faction = ("eAIFaction" + factionName).ToType();
+		if (faction)
+			return faction.Spawn();
+		else
+			Error("Invalid faction name " + factionName);
+
+		return new eAIFactionRaiders();
+	}
 };

@@ -608,7 +608,7 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.SetNPCUnits(4);
 		aiPatrol.SetNPCSpeed("RUN");
 		aiPatrol.SetNPCMode("REVERSE");
-		aiPatrol.SetNPCFaction("WEST");
+		aiPatrol.SetNPCFaction("West");
 		aiPatrol.SetNPCLoadoutFile("BanditLoadout.json");
 		aiPatrol.SetStartPosition(Vector(6307.7, 14.4, 11810.6));
 		aiPatrol.AddWaypoint(Vector(6307.7, 14.4, 11810.6));
@@ -665,7 +665,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveAICamp aiCamp = new ExpansionQuestObjectiveAICamp();
 		aiCamp.SetNPCSpeed("RUN");
 		aiCamp.SetNPCMode("HALT");
-		aiCamp.SetNPCFaction("WEST");
+		aiCamp.SetNPCFaction("West");
 		aiCamp.SetNPCLoadoutFile("BanditLoadout.json");
 
 		if (m_WorldName == "namalsk")

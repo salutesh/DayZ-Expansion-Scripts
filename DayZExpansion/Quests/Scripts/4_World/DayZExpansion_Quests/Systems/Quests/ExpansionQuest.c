@@ -68,9 +68,9 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::~ExpansionQuest - Start");
 
 		m_Player = NULL;
-		//CleanupQuestItems();
-		//QuestItems.Clear();
-		//QuestObjectives.Clear();
+		CleanupQuestItems();
+		QuestItems.Clear();
+		QuestObjectives.Clear();
 
 		QuestPrint(ToString() + "::~ExpansionQuest - End");
 	}

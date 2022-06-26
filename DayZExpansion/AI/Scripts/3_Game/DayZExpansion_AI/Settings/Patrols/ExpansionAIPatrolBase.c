@@ -109,15 +109,7 @@ class ExpansionAIPatrolBase
 
 	eAIFaction GetFaction()
 	{
-		if (Faction)
-		{
-			typename faction = ("eAIFaction" + Faction).ToType();
-			if (faction)
-				return faction.Spawn();
-		}
-
-		//! Unknown Faction, sending default faction
-		return new eAIFactionCivilian();
+		return eAIFaction.Create(Faction);
 	}
 
 	//! Update faction string to v3

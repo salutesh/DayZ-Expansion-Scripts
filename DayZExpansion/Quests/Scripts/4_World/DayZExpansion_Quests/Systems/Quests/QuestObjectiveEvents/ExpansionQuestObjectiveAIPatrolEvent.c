@@ -272,7 +272,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 				startpos[1] = group.StartPos[1];
 
 			Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.StartPos+" and will patrol at "+group.Waypoints);
-	 		Class.CastTo(QuestAIPatrol, eAIDynamicPatrol.Create(startpos, group.Waypoints, GetAIBehaviour(group.Behaviour), group.LoadoutFile, aiSum, AIGroupsData.RespawnTime, GetAIFaction(group.Faction), true, AIGroupsData.MinDistRadius, AIGroupsData.MaxDistRadius, GetAISpeed(group.Speed)));
+	 		Class.CastTo(QuestAIPatrol, eAIDynamicPatrol.Create(startpos, group.Waypoints, GetAIBehaviour(group.Behaviour), group.LoadoutFile, aiSum, AIGroupsData.RespawnTime, eAIFaction.Create(group.Faction), true, AIGroupsData.MinDistRadius, AIGroupsData.MaxDistRadius, GetAISpeed(group.Speed)));
 		}
 		Print("=================== Expansion Quest Patrol AI ===================");
 		ObjectivePrint(ToString() + "::InitQuestPatrols - End");
@@ -326,36 +326,6 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 
 	    //! Unknown Behaviour, sending default behaviour
 	    return eAIWaypointBehavior.ALTERNATE;
-	}
-
-	private eAIFaction GetAIFaction(string faction)
-	{
-	    switch (faction)
-	    {
-	        case "WEST":
-	        {
-	            return new eAIFactionWest(); // Friendly toward WEST and CIVILIANS
-	            break;
-	        }
-	        case "EAST":
-	        {
-	            return new eAIFactionEast(); // Friendly toward EAST and CIVILIANS
-	            break;
-	        }
-	        case "INSURGENT":
-	        {
-	            return new eAIFactionRaiders(); // Hostile toward everyone
-	            break;
-	        }
-	        case "CIVILIAN":
-	        {
-	            return new eAIFactionCivilian(); // They like everyone
-	            break;
-	        }
-	    }
-
-	    //! Unknown Faction, sending default faction
-	    return new eAIFactionCivilian();
 	}
 
 	void SetKillCount(int count)

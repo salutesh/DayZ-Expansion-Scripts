@@ -36,12 +36,12 @@ modded class MissionServer
 		string factionName = GetExpansionSettings().GetAI().PlayerFactions.GetRandomElement();
 		if (factionName)
 		{
-			typename faction = ("eAIFaction" + factionName).ToType();
+			eAIFaction faction = eAIFaction.Create(factionName);
 			if (faction)
 			{
 				EXTrace.Print(EXTrace.AI, player, "Setting faction " + faction.ToString());
 				eAIGroup group = eAIGroup.GetGroupByLeader(player);
-				group.SetFaction(faction.Spawn());
+				group.SetFaction(faction);
 			}
 		}
 	}

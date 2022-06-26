@@ -288,14 +288,14 @@ class ExpansionObjectSpawnTools
 			if (token.IndexOf("faction:") == 0)
 			{
 				string factionName = token.Substring(8, token.Length() - 8);
-				typename faction = ("eAIFaction" + factionName).ToType();
+				eAIFaction faction = eAIFaction.Create(factionName);
 				if (faction)
 				{
 					if (Class.CastTo(ai, entity))
 					{
 						EXTrace.Print(EXTrace.AI, ai, "Setting faction " + faction.ToString());
 						eAIGroup group = eAIGroup.GetGroupByLeader(ai);
-						group.SetFaction(faction.Spawn());
+						group.SetFaction(faction);
 					}
 				}
 				continue;

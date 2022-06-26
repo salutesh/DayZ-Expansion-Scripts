@@ -267,7 +267,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.StartPos+" and will patrol at "+group.Waypoints);
 
-		eAIDynamicPatrol patrol = eAIDynamicPatrol.Create(startpos, group.Waypoints, GetAIBehaviour(group.Behaviour), group.LoadoutFile, aiSum, -1, GetAIFaction(group.Faction), true, 20, 600, GetAISpeed(group.Speed));
+		eAIDynamicPatrol patrol = eAIDynamicPatrol.Create(startpos, group.Waypoints, GetAIBehaviour(group.Behaviour), group.LoadoutFile, aiSum, -1, eAIFaction.Create(group.Faction), true, 20, 600, GetAISpeed(group.Speed));
 
 		Print("=================== Expansion Quest Camp AI ===================");
 		ObjectivePrint(ToString() + "::CreateQuestPatrol - End and return: " + patrol.ToString());
@@ -323,36 +323,6 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	    //! Unknown Behaviour, sending default behaviour
 	    return eAIWaypointBehavior.ALTERNATE;
-	}
-
-	private eAIFaction GetAIFaction(string faction)
-	{
-	    switch (faction)
-	    {
-	        case "WEST":
-	        {
-	            return new eAIFactionWest(); // Friendly toward WEST and CIVILIANS
-	            break;
-	        }
-	        case "EAST":
-	        {
-	            return new eAIFactionEast(); // Friendly toward EAST and CIVILIANS
-	            break;
-	        }
-	        case "INSURGENT":
-	        {
-	            return new eAIFactionRaiders(); // Hostile toward everyone
-	            break;
-	        }
-	        case "CIVILIAN":
-	        {
-	            return new eAIFactionCivilian(); // They like everyone
-	            break;
-	        }
-	    }
-
-	    //! Unknown Faction, sending default faction
-	    return new eAIFactionCivilian();
 	}
 
 	private void CleanupZeds()
