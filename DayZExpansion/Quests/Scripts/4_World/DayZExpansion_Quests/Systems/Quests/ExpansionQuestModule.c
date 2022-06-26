@@ -3547,21 +3547,24 @@ class ExpansionQuestModule: CF_ModuleWorld
 					playerData.AddQuestData(questConfig);
 					questConfig.QuestDebug();
 					//! Create quest
-					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create new achievement quest for quest ID: " + configQuestID);
+					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create new achievement/auto-start quest for quest ID: " + configQuestID);
 					autoQuest = new ExpansionQuest(this);
 					autoQuest.SetPlayerUID(playerUID);
 					autoQuest.SetQuestConfig(questConfig);
 					m_ActiveQuests.Insert(autoQuest);
 
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(autoQuest.OnQuestStart, 3000, false);
-
+					
+					playerData.UpdateQuestState(questConfig.GetID(), ExpansionQuestState.STARTED);
+					UpdatePlayerQuestObjectiveData(autoQuest, playerUID);
+					
 					playerData.QuestDebug();
 					autoQuest.QuestDebug();
 				}
 				//! If the player is already on this archiement/auto-start quest recreate it and update the progress from the players persistent quest data
-				else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
+				else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.COMPLETED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
 				{
-					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create achievement quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
+					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create achievement/auto-start quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
 
 					questConfig.QuestDebug();
 
