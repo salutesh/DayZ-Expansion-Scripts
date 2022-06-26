@@ -15,13 +15,13 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDEntryController m_QuestHUDEntryController;
 	protected ExpansionQuestConfig m_QuestConfig;
-	protected ExpansionQuestPersistentPlayerData  m_QuestData;
+	protected ExpansionQuestPersistentQuestData  m_QuestData;
 	protected ImageWidget QuestIcon;
 	protected Widget Spacer;
 	protected WrapSpacerWidget ObjectiveEntries;
 	protected ref array<ref ExpansionQuestHUDObjective> m_ObjectiveEntries = new array<ref ExpansionQuestHUDObjective>;
 
-	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPersistentPlayerData questData)
+	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPersistentQuestData questData)
 	{
 		m_QuestConfig = questConfig;
 		m_QuestData = questData;
@@ -73,10 +73,10 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 			
 			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfigBase: " + objectiveConfig.ToString());
 			
-			ExpansionQuestObjectivePlayerData objective = m_QuestData.QuestObjectives.Get(i);
+			ExpansionQuestObjectiveData objective = m_QuestData.QuestObjectives.Get(i);
 			if (objective)
 			{
-				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectivePlayerData: " + objective.ToString());
+				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveData: " + objective.ToString());
 				
 				if (!objective.IsActive())
 				{

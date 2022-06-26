@@ -14,24 +14,18 @@
 class ExpansionQuestHUDObjective: ExpansionScriptView
 {
 	private ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
-	private ExpansionQuestObjectivePlayerData m_Objective;
+	private ExpansionQuestObjectiveData m_Objective;
 	private ExpansionQuestConfig m_Quest;
 	private Widget Spacer;
 	private RichTextWidget ObjectiveName;
 	private RichTextWidget ObjectiveTime;
 	private WrapSpacerWidget ObjectiveWrapper;
 
-	void ExpansionQuestHUDObjective(ExpansionQuestObjectivePlayerData objective, ExpansionQuestConfig questConfig)
+	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
 	{
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		m_Objective = objective;
 		m_Quest = questConfig;
-	}
-
-	void ~ExpansionQuestHUDObjective()
-	{
-		if (m_QuestHUDObjectiveController.DeliveryEnties)
-			m_QuestHUDObjectiveController.DeliveryEnties.Clear();
 	}
 
 	override string GetLayoutFile()

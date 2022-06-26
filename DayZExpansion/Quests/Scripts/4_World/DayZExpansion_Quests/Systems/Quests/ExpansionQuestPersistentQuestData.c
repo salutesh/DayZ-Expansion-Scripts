@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestPersistentPlayerData.c
+ * ExpansionQuestPersistentQuestData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,13 +10,14 @@
  *
 */
 
-class ExpansionQuestPersistentPlayerData
+class ExpansionQuestPersistentQuestData
 {
 	int QuestID = -1;
 	int State = ExpansionQuestState.NONE;
 	int Timestamp = -1;
-	ref array<ref ExpansionQuestObjectivePlayerData> QuestObjectives = new array<ref ExpansionQuestObjectivePlayerData>;
-
+	ref array<ref ExpansionQuestObjectiveData> QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
+	int LastUpdateTime;
+		
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(QuestID);
@@ -28,7 +29,7 @@ class ExpansionQuestPersistentPlayerData
 		ctx.Write(objectivesCount);
 		for (int i = 0; i < QuestObjectives.Count(); i++)
 		{
-			ExpansionQuestObjectivePlayerData objective = QuestObjectives.Get(i);
+			ExpansionQuestObjectiveData objective = QuestObjectives.Get(i);
 			if (objective)
 				objective.OnSend(ctx);
 		}
@@ -63,7 +64,7 @@ class ExpansionQuestPersistentPlayerData
 
 		if (!QuestObjectives)
 		{
-			QuestObjectives = new array<ref ExpansionQuestObjectivePlayerData>;
+			QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
 		}
 		else
 		{
@@ -72,7 +73,7 @@ class ExpansionQuestPersistentPlayerData
 
 		for (int i = 0; i < objectivesCount; i++)
 		{
-			ExpansionQuestObjectivePlayerData objective = new ExpansionQuestObjectivePlayerData();
+			ExpansionQuestObjectiveData objective = new ExpansionQuestObjectiveData();
 			if (!objective.OnRecieve(ctx))
 			{
 				Error(ToString() + "::OnRecieve - objective");

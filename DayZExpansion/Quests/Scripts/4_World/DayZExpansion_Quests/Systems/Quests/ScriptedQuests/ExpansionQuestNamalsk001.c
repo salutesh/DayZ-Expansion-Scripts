@@ -113,7 +113,7 @@
 
 		#ifdef EXPANSIONMODNAVIGATION
 			//! Create a marker on quest npc location for the player
-			ExpansionQuestNpcData questNPC = GetQuestModule().GetQuestNPCDataByID(GetQuestConfig().GetQuestTurnInID());
+			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(GetQuestConfig().GetQuestTurnInID());
 			vector npcPos = questNPC.GetPosition();
 			CreateClientMarker(npcPos, "Turn-In Quest");
 		#endif

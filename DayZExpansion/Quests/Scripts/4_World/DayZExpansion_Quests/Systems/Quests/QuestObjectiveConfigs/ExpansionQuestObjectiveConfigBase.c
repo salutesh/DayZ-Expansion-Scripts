@@ -22,11 +22,11 @@ class ExpansionQuestObjectiveConfigBasement
 class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 {
 	[NonSerialized()]
-	static int CONFIGVERSION = 2;
+	static int CONFIGVERSION = 3;
 	
 	void ExpansionQuestObjectiveConfigBase()
 	{
-		ConfigVersion = 2;
+		ConfigVersion = 3;
 	}
 	
 	void SetID(int id)

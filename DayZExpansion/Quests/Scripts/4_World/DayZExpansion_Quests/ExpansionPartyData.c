@@ -41,7 +41,7 @@ modded class ExpansionPartyData
 		}
 
 		string playerUID = player.GetID();
-		ExpansionQuestPlayerData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
+		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
 			Error(ToString() + "::OnJoin - Could not get quest player data!");
@@ -66,7 +66,8 @@ modded class ExpansionPartyData
 					return;
 				
 				playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig());
-				playerQuestData.Save(playerUID);
+				playerQuestData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
+				questModule.UpdatePlayerQuestObjectiveData(activeQuestInstance, playerUID);
 				activeQuestInstance.OnGroupMemberJoined(playerUID);
 			}
 		}
@@ -99,7 +100,7 @@ modded class ExpansionPartyData
 		}
 
 		string playerUID = player.GetID();
-		ExpansionQuestPlayerData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
+		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
 			Error(ToString() + "::OnLeave - Could not get quest player data!");

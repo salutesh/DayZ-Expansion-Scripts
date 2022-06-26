@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -32,6 +32,8 @@ class ExpansionAISettings: ExpansionSettingBase
 	float FormationScale;
 #endif
 
+	autoptr TStringArray PlayerFactions;  //! If non-empty, player will automatically join one of these factions on connect
+
 	[NonSerialized()]
 	private bool m_IsAdmin;
 	
@@ -41,6 +43,7 @@ class ExpansionAISettings: ExpansionSettingBase
 	void ExpansionAISettings()
 	{
 		Admins = new TStringArray;
+		PlayerFactions = new TStringArray;
 	}
 	
 	// ------------------------------------------------------------
@@ -59,12 +62,6 @@ class ExpansionAISettings: ExpansionSettingBase
 		if ( !ctx.Read( AccuracyMax ) )
 		{
 			Error("ExpansionAISettings::OnRecieve AccuracyMax");
-			return false;
-		}
-
-		if ( !ctx.Read( MaximumDynamicPatrols ) )
-		{
-			Error("ExpansionAISettings::OnRecieve MaximumDynamicPatrols");
 			return false;
 		}
 
@@ -112,7 +109,6 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		ctx.Write( AccuracyMin );
 		ctx.Write( AccuracyMax );
-		ctx.Write( MaximumDynamicPatrols );
 		ctx.Write( Vaulting );
 		ctx.Write( Manners );
 

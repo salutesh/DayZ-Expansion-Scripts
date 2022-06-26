@@ -19,9 +19,9 @@ class ExpansionDefaultQuestNPCData
 		m_WorldName = worldName;
 	}
 
-	 ExpansionQuestNpcData QuestNPCData_1()
+	 ExpansionQuestNPCData QuestNPCData_1()
 	{
-		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
+		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(1); //! Unique NPC ID
 		questNPC.SetName("ExpansionNpcDenis"); //! Class name of the NPC entity
 
@@ -63,9 +63,9 @@ class ExpansionDefaultQuestNPCData
 		return questNPC;
 	}
 
-	ExpansionQuestNpcData QuestNPCData_2()
+	ExpansionQuestNPCData QuestNPCData_2()
 	{
-		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
+		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(2); //! Unique NPC ID
 		questNPC.SetName("ExpansionNpcElias"); //! Class name of the NPC entity
 
@@ -112,9 +112,9 @@ class ExpansionDefaultQuestNPCData
 
 #ifdef EXPANSIONMODHARDLINE
 	//! Bandit Quest NPC
-	ExpansionQuestNpcData QuestNPCData_3()
+	ExpansionQuestNPCData QuestNPCData_3()
 	{
-		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
+		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(3); //! Unique NPC ID
 		questNPC.SetName("ExpansionNpcJose"); //! Class name of the NPC entity
 
@@ -146,9 +146,9 @@ class ExpansionDefaultQuestNPCData
 	}
 
 	//! Hero Quest NPC
-	ExpansionQuestNpcData QuestNPCData_4()
+	ExpansionQuestNPCData QuestNPCData_4()
 	{
-		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
+		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(4); //! Unique NPC ID
 		questNPC.SetName("ExpansionNpcPeter"); //! Class name of the NPC entity
 
@@ -181,9 +181,9 @@ class ExpansionDefaultQuestNPCData
 #endif
 	
 	//! Static Quest Object
-	ExpansionQuestNpcData QuestNPCData_5()
+	ExpansionQuestNPCData QuestNPCData_5()
 	{
-		ExpansionQuestNpcData questNPC = new ExpansionQuestNpcData;
+		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(5); //! Unique NPC ID
 		questNPC.SetName("ExpansionQuestObjectBoard"); //! Class name of the NPC entity
 		questNPC.SetIsStatic(true);

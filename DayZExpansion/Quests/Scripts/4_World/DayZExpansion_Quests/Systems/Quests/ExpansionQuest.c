@@ -488,7 +488,7 @@ class ExpansionQuest
 			}
 
 			//! Create a marker on quest npc location for the player
-			ExpansionQuestNpcData questNPC = GetQuestModule().GetQuestNPCDataByID(Config.GetQuestTurnInID());
+			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(Config.GetQuestTurnInID());
 			if (questNPC)
 			{
 				vector npcPos = questNPC.GetPosition();

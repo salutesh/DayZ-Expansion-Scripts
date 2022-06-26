@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestNpcAIBase.c
+ * ExpansionQuestNPCAIBase.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,20 +11,20 @@
 */
 
 #ifdef ENFUSION_AI_PROJECT
-/**@class		ExpansionQuestNpcAIBase
+/**@class		ExpansionQuestNPCAIBase
  * @brief		This class quest AI NPCs
  **/
-class ExpansionQuestNpcAIBase extends eAIBase
+class ExpansionQuestNPCAIBase extends eAIBase
 {
 	private int m_QuestNPCID = -1;
-	private ref ExpansionQuestNpcData m_QuestNPCData;
+	private ref ExpansionQuestNPCData m_QuestNPCData;
 	private int m_NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
 	private bool m_IsEmoteStatic = false;
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase Constructor
+	// ExpansionQuestNPCAIBase Constructor
 	// ------------------------------------------------------------
-	void ExpansionQuestNpcAIBase()
+	void ExpansionQuestNPCAIBase()
 	{
 		if (IsMissionHost())
 		{
@@ -39,7 +39,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 		RegisterNetSyncVariableInt("m_QuestNPCID");
 	}
 	
-	void ~ExpansionQuestNpcAIBase()
+	void ~ExpansionQuestNPCAIBase()
 	{
 		if (IsMissionHost())
 		{
@@ -64,7 +64,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
     }
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase Constructor
+	// ExpansionQuestNPCAIBase Constructor
 	// ------------------------------------------------------------
 #ifdef EXPANSIONMODAI
 	override bool PlayerIsEnemy(EntityAI other)
@@ -79,7 +79,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase SetQuestNPCID
+	// ExpansionQuestNPCAIBase SetQuestNPCID
 	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
@@ -88,7 +88,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase GetQuestNPCID
+	// ExpansionQuestNPCAIBase GetQuestNPCID
 	// ------------------------------------------------------------
 	int GetQuestNPCID()
 	{
@@ -96,23 +96,23 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase SetQuestNPCData
+	// ExpansionQuestNPCAIBase SetQuestNPCData
 	// ------------------------------------------------------------
-	void SetQuestNPCData(ExpansionQuestNpcData questNPCData)
+	void SetQuestNPCData(ExpansionQuestNPCData questNPCData)
 	{
 		m_QuestNPCData = questNPCData;
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase GetQuestNPCData
+	// ExpansionQuestNPCAIBase GetQuestNPCData
 	// ------------------------------------------------------------
-	ExpansionQuestNpcData GetQuestNPCData()
+	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase PlayRandomEmote
+	// ExpansionQuestNPCAIBase PlayRandomEmote
 	// ------------------------------------------------------------
 #ifdef EXPANSIONMODAI
 	void ExpansionPlayRandomEmote()
@@ -126,7 +126,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase SetEmote
+	// ExpansionQuestNPCAIBase SetEmote
 	// ------------------------------------------------------------
 	void ExpansionSetEmote(int emoteID, bool isStatic = false)
 	{
@@ -138,7 +138,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase PlayEmote
+	// ExpansionQuestNPCAIBase PlayEmote
 	// ------------------------------------------------------------
 	void ExpansionPlayEmote()
 	{
@@ -152,7 +152,7 @@ class ExpansionQuestNpcAIBase extends eAIBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcAIBase FixPositionAndOrientation
+	// ExpansionQuestNPCAIBase FixPositionAndOrientation
 	// ------------------------------------------------------------
 	void ExpansionFixPositionAndOrientation()
 	{
@@ -168,35 +168,35 @@ class ExpansionQuestNpcAIBase extends eAIBase
 #endif
 };
 
-class ExpansionQuestNpcAIMirek: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIDenis: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIBoris: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAICyril: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIElias: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIFrancis: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIGuo: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIHassan: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIIndar: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIJose: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIKaito: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAILewis: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIManua: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAINiki: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIOliver: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIPeter: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIQuinn: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIRolf: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAISeth: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAITaiki: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAILinda: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIMaria: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIFrida: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIGabi: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIHelga: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIIrena: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIJudy: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIKeiko: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIEva: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAINaomi: ExpansionQuestNpcAIBase {};
-class ExpansionQuestNpcAIBaty: ExpansionQuestNpcAIBase {};
+class ExpansionQuestNPCAIMirek: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIDenis: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIBoris: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAICyril: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIElias: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIFrancis: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIGuo: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIHassan: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIIndar: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIJose: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIKaito: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAILewis: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIManua: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAINiki: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIOliver: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIPeter: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIQuinn: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIRolf: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAISeth: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAITaiki: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAILinda: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIMaria: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIFrida: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIGabi: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIHelga: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIIrena: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIJudy: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIKeiko: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIEva: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAINaomi: ExpansionQuestNPCAIBase {};
+class ExpansionQuestNPCAIBaty: ExpansionQuestNPCAIBase {};
 #endif

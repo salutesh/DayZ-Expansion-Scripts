@@ -12,7 +12,7 @@
 
 class ExpansionActionOpenQuestMenu: ActionInteractBase
 {
-	private ExpansionQuestNpcBase m_NPCObject;
+	private ExpansionQuestNPCBase m_NPCObject;
 	private ExpansionQuestModule m_QuestModule;
 	private ExpansionScriptViewMenuBase m_Menu;
 	private string m_ActionText = "Talk to Unknown";
@@ -63,7 +63,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 			return false;
 
 		int npcID = m_NPCObject.GetQuestNPCID();
-		ref ExpansionQuestNpcData questNPCData = m_NPCObject.GetQuestNPCData();
+		ref ExpansionQuestNPCData questNPCData = m_NPCObject.GetQuestNPCData();
 		if (!questNPCData)
 			questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
 
@@ -145,7 +145,7 @@ class ExpansionActionOpenQuestMenuObject: ActionInteractBase
 			return false;
 		
 		int npcID = m_NPCObject.GetQuestNPCID();		
-		ref ExpansionQuestNpcData questNPCData = m_NPCObject.GetQuestNPCData();
+		ref ExpansionQuestNPCData questNPCData = m_NPCObject.GetQuestNPCData();
 		if (!questNPCData)
 			questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
 		
@@ -177,7 +177,7 @@ class ExpansionActionOpenQuestMenuObject: ActionInteractBase
 #ifdef EXPANSIONMODAI
 class ExpansionActionOpenQuestMenuAI: ActionInteractBase
 {
-	private ExpansionQuestNpcAIBase m_NPCAIObject;
+	private ExpansionQuestNPCAIBase m_NPCAIObject;
 	private ExpansionQuestModule m_QuestModule;
 	private ExpansionScriptViewMenuBase m_Menu;
 	private string m_ActionText = "Talk to Unknown";
@@ -228,7 +228,7 @@ class ExpansionActionOpenQuestMenuAI: ActionInteractBase
 			return false;
 
 		int npcID = m_NPCAIObject.GetQuestNPCID();
-		ref ExpansionQuestNpcData questNPCData = m_NPCAIObject.GetQuestNPCData();
+		ref ExpansionQuestNPCData questNPCData = m_NPCAIObject.GetQuestNPCData();
 		if (!questNPCData)
 			questNPCData = m_QuestModule.GetQuestNPCDataByID(npcID);
 

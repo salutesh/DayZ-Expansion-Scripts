@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestObjectivePlayerData.c
+ * ExpansionQuestObjectiveData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,14 +11,14 @@
 */
 
 //! DEPRECATED BUT STILL HERE FOR CONVERSION
-class ExpansionQuestTimestampPlayerData
+class ExpansionQuestTimestampData
 {
 	int QuestID = -1;
 	int Timestamp = -1;
 };
 
 //! DEPRECATED BUT STILL HERE FOR CONVERSION
-class ExpansionQuestObjectivePlayerDataV0
+class ExpansionQuestObjectiveDataV0
 {
 	int QuestID = -1;
 	int ObjectiveIndex = -1;
@@ -30,7 +30,7 @@ class ExpansionQuestObjectivePlayerDataV0
 	vector ObjectivePosition = vector.Zero;
 };
 
-class ExpansionQuestObjectivePlayerData
+class ExpansionQuestObjectiveData
 {
 	int ObjectiveIndex = -1;
 	int ObjectiveType = ExpansionQuestObjectiveType.NONE;

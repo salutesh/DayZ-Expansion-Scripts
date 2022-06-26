@@ -28,7 +28,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 	}
 
-	void SetView(ExpansionQuestPlayerData playerData)
+	void SetView(ExpansionQuestPersistentData playerData)
 	{
 		QuestPrint(ToString() + "::SetView - Start");
 
@@ -47,7 +47,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 		for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
 		{
-			ExpansionQuestPersistentPlayerData data = playerData.GetQuestDatas().Get(i);
+			ExpansionQuestPersistentQuestData data = playerData.GetQuestDatas().Get(i);
 			int questID = data.QuestID;
 			int state = data.State;
 

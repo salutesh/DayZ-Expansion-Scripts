@@ -11,13 +11,12 @@
 */
 class ExpansionQuestObjectiveTreasureHuntConfigBase:ExpansionQuestObjectiveConfigBase
 {
+	bool ShowDistance = true;
 	ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
 };
 
 class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasureHuntConfigBase
 {
-	bool ShowDistance = true;
-	
 	void SetTreasureHunt(ExpansionQuestObjectiveTreasureHunt hunt)
 	{
 		TreasureHunt = hunt;

@@ -10,15 +10,15 @@
  *
 */
 
-class ExpansionQuestNpcBase extends ExpansionNPCBase
+class ExpansionQuestNPCBase: ExpansionNPCBase
 {
 	private int m_QuestNPCID = -1;
-	private ref ExpansionQuestNpcData m_QuestNPCData;
+	private ref ExpansionQuestNPCData m_QuestNPCData;
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcBase Constructor
+	// ExpansionQuestNPCBase Constructor
 	// ------------------------------------------------------------
-	void ExpansionQuestNpcBase()
+	void ExpansionQuestNPCBase()
 	{
 		if (IsMissionHost())
 			SetAllowDamage(false);
@@ -41,7 +41,7 @@ class ExpansionQuestNpcBase extends ExpansionNPCBase
     }
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcBase SetQuestNPCID
+	// ExpansionQuestNPCBase SetQuestNPCID
 	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
@@ -50,7 +50,7 @@ class ExpansionQuestNpcBase extends ExpansionNPCBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcBase GetQuestNPCID
+	// ExpansionQuestNPCBase GetQuestNPCID
 	// ------------------------------------------------------------
 	int GetQuestNPCID()
 	{
@@ -58,50 +58,50 @@ class ExpansionQuestNpcBase extends ExpansionNPCBase
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcBase SetQuestNPCData
+	// ExpansionQuestNPCBase SetQuestNPCData
 	// ------------------------------------------------------------
-	void SetQuestNPCData(ExpansionQuestNpcData questNPCData)
+	void SetQuestNPCData(ExpansionQuestNPCData questNPCData)
 	{
 		m_QuestNPCData = questNPCData;
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestNpcBase GetQuestNPCData
+	// ExpansionQuestNPCBase GetQuestNPCData
 	// ------------------------------------------------------------
-	ExpansionQuestNpcData GetQuestNPCData()
+	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
 	}
 };
 
-class ExpansionNpcMirek: ExpansionQuestNpcBase {};
-class ExpansionNpcDenis: ExpansionQuestNpcBase {};
-class ExpansionNpcBoris: ExpansionQuestNpcBase {};
-class ExpansionNpcCyril: ExpansionQuestNpcBase {};
-class ExpansionNpcElias: ExpansionQuestNpcBase {};
-class ExpansionNpcFrancis: ExpansionQuestNpcBase {};
-class ExpansionNpcGuo: ExpansionQuestNpcBase {};
-class ExpansionNpcHassan: ExpansionQuestNpcBase {};
-class ExpansionNpcIndar: ExpansionQuestNpcBase {};
-class ExpansionNpcJose: ExpansionQuestNpcBase {};
-class ExpansionNpcKaito: ExpansionQuestNpcBase {};
-class ExpansionNpcLewis: ExpansionQuestNpcBase {};
-class ExpansionNpcManua: ExpansionQuestNpcBase {};
-class ExpansionNpcNiki: ExpansionQuestNpcBase {};
-class ExpansionNpcOliver: ExpansionQuestNpcBase {};
-class ExpansionNpcPeter: ExpansionQuestNpcBase {};
-class ExpansionNpcQuinn: ExpansionQuestNpcBase {};
-class ExpansionNpcRolf: ExpansionQuestNpcBase  {};
-class ExpansionNpcSeth: ExpansionQuestNpcBase {};
-class ExpansionNpcTaiki: ExpansionQuestNpcBase {};
-class ExpansionNpcLinda: ExpansionQuestNpcBase {};
-class ExpansionNpcMaria: ExpansionQuestNpcBase {};
-class ExpansionNpcFrida: ExpansionQuestNpcBase {};
-class ExpansionNpcGabi: ExpansionQuestNpcBase {};
-class ExpansionNpcHelga: ExpansionQuestNpcBase {};
-class ExpansionNpcIrena: ExpansionQuestNpcBase {};
-class ExpansionNpcJudy: ExpansionQuestNpcBase {};
-class ExpansionNpcKeiko: ExpansionQuestNpcBase {};
-class ExpansionNpcEva: ExpansionQuestNpcBase {};
-class ExpansionNpcNaomi: ExpansionQuestNpcBase {};
-class ExpansionNpcBaty: ExpansionQuestNpcBase {};
+class ExpansionQuestNPCMirek: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCDenis: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCBoris: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCCyril: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCElias: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCFrancis: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCGuo: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCHassan: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCIndar: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCJose: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCKaito: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCLewis: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCManua: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCNiki: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCOliver: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCPeter: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCQuinn: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCRolf: ExpansionQuestNPCBase  {};
+class ExpansionQuestNPCSeth: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCTaiki: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCLinda: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCMaria: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCFrida: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCGabi: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCHelga: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCIrena: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCJudy: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCKeiko: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCEva: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCNaomi: ExpansionQuestNPCBase {};
+class ExpansionQuestNPCBaty: ExpansionQuestNPCBase {};

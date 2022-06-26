@@ -68,7 +68,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		return ExpansionQuestMenuController;
 	}
 
-	void SetQuests(array<ref ExpansionQuestConfig> quests, ExpansionQuestNpcData questNPCData)
+	void SetQuests(array<ref ExpansionQuestConfig> quests, ExpansionQuestNPCData questNPCData)
 	{
 		QuestDebug(ToString() + "::SetQuests - Start");
 		QuestDebug(ToString() + "::SetQuests - Quest: " + quests.ToString());

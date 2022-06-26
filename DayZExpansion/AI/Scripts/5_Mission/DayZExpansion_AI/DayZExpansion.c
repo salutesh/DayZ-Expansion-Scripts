@@ -151,7 +151,7 @@ modded class DayZExpansion
 					break;
 				case eAICommands.DEB_SPAWNSENTRY:
 					sentry = SpawnAI_Sentry(pos);
-					sentry.GetGroup().SetFaction(new eAIFactionWest());
+					sentry.GetGroup().SetFaction(new eAIFactionMercenaries());
 					break;
 				case eAICommands.DEB_SPAWNGUARD:
 					sentry = SpawnAI_Sentry(pos);

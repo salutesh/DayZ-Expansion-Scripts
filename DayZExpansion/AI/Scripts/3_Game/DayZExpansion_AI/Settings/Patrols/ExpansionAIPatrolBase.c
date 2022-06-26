@@ -12,7 +12,7 @@
 
 class ExpansionAIPatrolBase
 {
-	string Faction;                     // WEST, EAST, INSURGENT, CIVILIAN
+	string Faction;                     // Raiders, Mercenaries, West, East, Guards, Civilian, Passive
 	string LoadoutFile;                 // a json file containing the loadout of this team - if empty, will use the default loadout of the faction
 	int NumberOfAI;                     // How many bots, -x will make it random between 0 and x
 	string Behaviour;                   // HALT, LOOP, ALTERNATE, HOLD OR PATROL
@@ -109,36 +109,35 @@ class ExpansionAIPatrolBase
 
 	eAIFaction GetFaction()
 	{
-		switch (Faction)
+		if (Faction)
 		{
-			case "WEST":
-			{
-				return new eAIFactionWest(); // Friendly toward WEST and CIVILIANS
-			}
-			case "EAST":
-			{
-				return new eAIFactionEast(); // Friendly toward EAST and CIVILIANS
-			}
-			case "RAIDERS":
-			case "INSURGENT":
-			{
-				return new eAIFactionRaiders(); // Hostile toward everyone
-			}
-			case "CIVILIAN":
-			{
-				return new eAIFactionCivilian(); // They like everyone
-			}
-			case "GUARDS":
-			{
-				return new eAIFactionGuards(); // They like everyone until the other party raises their weapon (and is not a guard themselves)
-			}
-			case "PASSIVE":
-			{
-				return new eAIFactionPassive(); // Won't fight AI or players unless attacked
-			}
+			typename faction = ("eAIFaction" + Faction).ToType();
+			if (faction)
+				return faction.Spawn();
 		}
 
 		//! Unknown Faction, sending default faction
 		return new eAIFactionCivilian();
+	}
+
+	//! Update faction string to v3
+	void UpdateFaction()
+	{
+		switch (Faction)
+		{
+			case "INSURGENT":
+				Faction = "Raiders";
+				break;
+			case "WEST":
+			case "EAST":
+			case "RAIDERS":
+			case "CIVILIAN":
+			case "GUARDS":
+			case "PASSIVE":
+				string lowerpart = Faction.Substring(1, Faction.Length() - 1);
+				lowerpart.ToLower();
+				Faction = Faction[0] + lowerpart;
+				break;
+		}
 	}
 };

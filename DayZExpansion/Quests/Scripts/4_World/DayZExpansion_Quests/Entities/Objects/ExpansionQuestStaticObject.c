@@ -17,7 +17,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 {
 	private static ref set<ExpansionQuestStaticObject> m_Expansion_AllQuestObjects = new set<ExpansionQuestStaticObject>;
 	private int m_QuestNPCID = -1;
-	private ref ExpansionQuestNpcData m_QuestNPCData;
+	private ref ExpansionQuestNPCData m_QuestNPCData;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject Constructor
@@ -92,7 +92,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject SetQuestNPCData
 	// ------------------------------------------------------------
-	void SetQuestNPCData(ExpansionQuestNpcData questNPCData)
+	void SetQuestNPCData(ExpansionQuestNPCData questNPCData)
 	{
 		m_QuestNPCData = questNPCData;
 	}
@@ -100,7 +100,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject GetQuestNPCData
 	// ------------------------------------------------------------
-	ExpansionQuestNpcData GetQuestNPCData()
+	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
 	}

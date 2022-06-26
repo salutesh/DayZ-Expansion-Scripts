@@ -71,7 +71,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnCleanup()
 	{		
-		ExpansionQuestPlayerData questPlayerData = GetQuest().GetQuestModule().GetPlayerQuestDataByUID(GetQuest().GetPlayerUID());
+		ExpansionQuestPersistentData questPlayerData = GetQuest().GetQuestModule().GetPlayerQuestDataByUID(GetQuest().GetPlayerUID());
 		if (!questPlayerData)
 			return;
 		
@@ -177,7 +177,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	override void OnUpdate(float timeslice)
 	{
 		super.OnUpdate(timeslice);
-
+				
 		vector position = StashPos;
 		float maxDistance = 5.0;
 		float currentDistance;
@@ -185,7 +185,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		//! Set the position of the group member that has the shortest distance to the target location
 		//! as our current position if the quest is a group quest.
 		array<vector> groupMemberPos = new array<vector>;
-		if (GetQuest().IsGroupQuest())
+		if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
 		{
 			//Print(ToString() + "::OnUpdate - GROUP QUEST");
 		#ifdef EXPANSIONMODGROUPS
@@ -237,7 +237,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			groupMemberPos.Clear();
 		#endif
 		}
-		else if (!GetQuest().IsGroupQuest())
+		else if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
 		{
 			vector playerPos = GetQuest().GetPlayer().GetPosition();
 			currentDistance = vector.Distance(playerPos, position);

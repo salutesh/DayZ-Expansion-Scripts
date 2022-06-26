@@ -28,4 +28,21 @@ modded class MissionServer
 
 		PatrolManager().InitPatrolSpawner();
 	}
+
+	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
+	{
+		super.InvokeOnConnect(player, identity);
+
+		string factionName = GetExpansionSettings().GetAI().PlayerFactions.GetRandomElement();
+		if (factionName)
+		{
+			typename faction = ("eAIFaction" + factionName).ToType();
+			if (faction)
+			{
+				EXTrace.Print(EXTrace.AI, player, "Setting faction " + faction.ToString());
+				eAIGroup group = eAIGroup.GetGroupByLeader(player);
+				group.SetFaction(faction.Spawn());
+			}
+		}
+	}
 };

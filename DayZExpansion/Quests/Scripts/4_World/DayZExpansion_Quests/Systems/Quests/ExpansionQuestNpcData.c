@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestNpcData.c
+ * ExpansionQuestNPCData.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestNpcDataBase
+class ExpansionQuestNPCDataBase
 {
 	int ConfigVersion;
 	int ID;
@@ -28,7 +28,7 @@ class ExpansionQuestNpcDataBase
 #endif
 }
 
-class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
+class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 {
 	[NonSerialized()]
 	static int CONFIGVERSION = 1;
@@ -39,7 +39,7 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 	string NPCLoadoutFile;
 	bool IsStatic;
 	
-	void ExpansionQuestNpcData()
+	void ExpansionQuestNPCData()
 	{
 		ConfigVersion = 1;
 	}
@@ -176,7 +176,7 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 		return IsStatic;
 	}
 
-	ExpansionQuestNpcBase SpawnNPC()
+	ExpansionQuestNPCBase SpawnNPC()
 	{
 		Object obj = GetGame().CreateObjectEx(GetName(), GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 
@@ -187,7 +187,7 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 			obj.SetOrientation(Orientation);
 
 		EntityAI enity = EntityAI.Cast(obj);
-		ExpansionQuestNpcBase questNPC = ExpansionQuestNpcBase.Cast(enity);
+		ExpansionQuestNPCBase questNPC = ExpansionQuestNPCBase.Cast(enity);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		if (Position)
@@ -200,7 +200,7 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 	}
 
 #ifdef EXPANSIONMODAI
-	ExpansionQuestNpcAIBase SpawnNPCAI()
+	ExpansionQuestNPCAIBase SpawnNPCAI()
 	{
 		Object obj = GetGame().CreateObjectEx(GetName(), GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 
@@ -211,7 +211,7 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 			obj.SetOrientation(Orientation);
 
 		EntityAI enity = EntityAI.Cast(obj);
-		ExpansionQuestNpcAIBase questNPC = ExpansionQuestNpcAIBase.Cast(enity);
+		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(enity);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		questNPC.SetPosition(Position);
@@ -277,19 +277,19 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 		return questObject;
 	}
 	
-	static ExpansionQuestNpcData Load(string fileName)
+	static ExpansionQuestNPCData Load(string fileName)
 	{
 		bool save;
 		CF_Log.Info("[ExpansionQuestNPCData] Load existing configuration file:" + fileName);
 
-		ExpansionQuestNpcData npcConfig;
-		ExpansionQuestNpcDataBase npcConfigBase;
-		JsonFileLoader<ExpansionQuestNpcDataBase>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
+		ExpansionQuestNPCData npcConfig;
+		ExpansionQuestNPCDataBase npcConfigBase;
+		JsonFileLoader<ExpansionQuestNPCDataBase>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
 		
 		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
 		{
 			CF_Log.Info("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
-			npcConfig = new ExpansionQuestNpcData();			
+			npcConfig = new ExpansionQuestNPCData();			
 			//! Copy over old configuration that haven't changed
 			npcConfig.CopyConfig(npcConfigBase);
 			npcConfig.ConfigVersion = CONFIGVERSION;
@@ -297,12 +297,12 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestNpcData>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			JsonFileLoader<ExpansionQuestNPCData>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
 		}
 		
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestNpcData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
 		}
 		
 		return npcConfig;
@@ -310,10 +310,10 @@ class ExpansionQuestNpcData: ExpansionQuestNpcDataBase
 
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestNpcData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".JSON", this);
 	}
 	
-	void CopyConfig(ExpansionQuestNpcDataBase npcDataBase)
+	void CopyConfig(ExpansionQuestNPCDataBase npcDataBase)
 	{
 		ID = npcDataBase.ID;
 		ClassName = npcDataBase.ClassName;
