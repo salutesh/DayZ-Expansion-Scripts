@@ -163,6 +163,22 @@ class eAIGroup
 		auto trace = CF_Trace_0(this, "SetWaypointBehaviour");
 #endif
 
+		switch (bhv)
+		{
+			case eAIWaypointBehavior.HALT_OR_LOOP:
+				if (Math.RandomIntInclusive(0, 1))
+					bhv = eAIWaypointBehavior.HALT;
+				else
+					bhv = eAIWaypointBehavior.LOOP;
+				break;
+			case eAIWaypointBehavior.HALT_OR_ALTERNATE:
+				if (Math.RandomIntInclusive(0, 1))
+					bhv = eAIWaypointBehavior.HALT;
+				else
+					bhv = eAIWaypointBehavior.ALTERNATE;
+				break;
+		}
+
 		m_WaypointBehaviour = bhv;
 	}
 

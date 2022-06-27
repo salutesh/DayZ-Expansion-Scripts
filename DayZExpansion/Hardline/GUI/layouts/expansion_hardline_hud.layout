@@ -13,7 +13,7 @@ FrameWidgetClass ExpansionHardlineHUD {
    inheritalpha 0
    ignorepointer 1
    position 0 0
-   size 0.905 0.9
+   size 0.902 0.9
    halign center_ref
    valign center_ref
    hexactpos 0

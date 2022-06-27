@@ -10,20 +10,14 @@
  *
 */
 
-class ExpansionAICrashPatrol: ExpansionAIPatrolBase
+class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
 {
 	string EventName;           // Any valid BuildingBase type
 
-	void ExpansionAICrashPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "PATROL", string fac = "WEST", string eventtype = "Wreck_UH1Y", string loa = "", float mindistradius = -2, float maxdistradius = -2, bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0)
+	void ExpansionAICrashPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, string eventtype = "Wreck_UH1Y")
 	{
 		EventName = eventtype;
-		LoadoutFile = loa;
-		MinDistRadius = mindistradius;
-		MaxDistRadius = maxdistradius;
 		DefaultSpread();
-		CanBeLooted = canbelooted;
-		UnlimitedReload = unlimitedreload;
-		Chance = chance;
 	}
 
 	//! TODO: Improve the spread code, this is very unoptimised

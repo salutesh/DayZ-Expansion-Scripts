@@ -610,7 +610,6 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.SetNPCMode("REVERSE");
 		aiPatrol.SetNPCFaction("West");
 		aiPatrol.SetNPCLoadoutFile("BanditLoadout.json");
-		aiPatrol.SetStartPosition(Vector(6307.7, 14.4, 11810.6));
 		aiPatrol.AddWaypoint(Vector(6307.7, 14.4, 11810.6));
 		aiPatrol.AddWaypoint(Vector(6519.9, 17.3, 11901.6));
 		aiPatrol.AddWaypoint(Vector(6967.4, 6.5, 11884.6));

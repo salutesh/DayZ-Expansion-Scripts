@@ -10,26 +10,18 @@
  *
 */
 
-class ExpansionAIPatrol: ExpansionAIPatrolBase
+class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 {
 	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
-	vector StartPos;                    // where the group is going to spawn
 	autoptr TVectorArray Waypoints;     // a list of positions to create a path to follow
 
-	void ExpansionAIPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "PATROL", string fac = "WEST", string loa = "HumanLoadout", float respawntime = -2, float mindistradius = -2, float maxdistradius = -2, float wprnd = 0, vector startpos = "0 0 0", TVectorArray way = null, bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0)
+	void ExpansionAIPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "HumanLoadout", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, float respawntime = -2, float wprnd = 0, TVectorArray way = null)
 	{
-		LoadoutFile = loa;
 		RespawnTime = respawntime;
-		MinDistRadius = mindistradius;
-		MaxDistRadius = maxdistradius;
 		if (wprnd < 0.0)
 			MinSpreadRadius = 1;
 		MaxSpreadRadius = Math.AbsFloat(wprnd);
-		StartPos = startpos;
 		Waypoints = way;
-		CanBeLooted = canbelooted;
-		UnlimitedReload = unlimitedreload;
-		Chance = chance;
 	}
 
 	TVectorArray GetWaypoints()

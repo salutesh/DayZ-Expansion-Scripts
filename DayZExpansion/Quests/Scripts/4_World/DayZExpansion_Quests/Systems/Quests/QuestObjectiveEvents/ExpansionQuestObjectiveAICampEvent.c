@@ -200,7 +200,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			array<vector> waypoint = new array<vector>;
 			waypoint.Insert(pos);
 
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), pos, waypoint);
+			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), true, false, waypoint);
 			eAIDynamicPatrol patrol = CreateQuestPatrol(group);
 			if (!patrol)
 				return;
@@ -216,9 +216,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::CreateAICamp - End");
 	}
 
-	private eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group)
+	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, float minDistRadius = 20, float maxDistRadius = 600 )
 	{
-		ObjectivePrint(ToString() + "::CreateQuestPatrol - Start");
 		Print("=================== Expansion Quest Camp AI ===================");
 		int aiSum;
 		if ( group.NumberOfAI != 0 )
@@ -229,7 +228,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			}
 			else
 			{
-				aiSum = group.NumberOfAI;
+				aiSum = group.NumberOfAI - killCount;
 			}
 		}
 		else
@@ -241,88 +240,31 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
         if ( !group.Waypoints )
         {
             Print("!!! ERROR !!!");
-            Print("[QUESTS] Couldn't read the Waypoints (validate your file with a json validator)");
+            Print("[QUESTS] No waypoints (validate your file with a json validator)");
             Print("!!! ERROR !!!");
            return NULL;
         }
 
-		vector startpos = group.StartPos;
+		vector startpos = group.Waypoints[0];
 		if ( !startpos || startpos == "0 0 0" )
 		{
-		    if ( !group.Waypoints[0] || group.Waypoints[0] == "0 0 0" )
-            {
-                Print("!!! ERROR !!!");
-                Print("[QUESTS] Couldn't find a spawn location. StartPos and at least the first Waypoints are both set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
-                Print("!!! ERROR !!!");
-                return NULL;
-            }
-
-			startpos = group.Waypoints[0];
+			Print("!!! ERROR !!!");
+			Print("[QUESTS] Couldn't find a spawn location. First waypoint is set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
+			Print("!!! ERROR !!!");
+			return NULL;
 		}
 
 		// Safety in case the Y is bellow the ground
 		startpos = ExpansionStatic.GetSurfacePosition(startpos);
-		if ( startpos[1] < group.StartPos[1] )
-			startpos[1] = group.StartPos[1];
+		if ( startpos[1] < group.Waypoints[0][1] )
+			startpos[1] = group.Waypoints[0][1];
 
-		Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.StartPos+" and will patrol at "+group.Waypoints);
+		Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]+" and will patrol at "+group.Waypoints);
 
-		eAIDynamicPatrol patrol = eAIDynamicPatrol.Create(startpos, group.Waypoints, GetAIBehaviour(group.Behaviour), group.LoadoutFile, aiSum, -1, eAIFaction.Create(group.Faction), true, 20, 600, GetAISpeed(group.Speed));
+		eAIDynamicPatrol patrol = eAIDynamicPatrol.Create(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, eAIFaction.Create(group.Faction), true, minDistRadius, maxDistRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
 
 		Print("=================== Expansion Quest Camp AI ===================");
-		ObjectivePrint(ToString() + "::CreateQuestPatrol - End and return: " + patrol.ToString());
-
 		return patrol;
-	}
-
-	private float GetAISpeed(string speed)
-	{
-	    switch (speed)
-	    {
-	        case "WALK":
-	        {
-	            return 1.0;
-	            break;
-	        }
-	        case "JOG":
-	        {
-	            return 2.0;
-	            break;
-	        }
-	        case "SPRINT":
-	        {
-	            return 3.0;
-	            break;
-	        }
-	    }
-
-	    //! Unknown speed, sending default speed
-	    return 2.0;
-	}
-
-	private int GetAIBehaviour(string beh)
-	{
-	    switch (beh)
-	    {
-	        case "ALTERNATE":
-	        {
-	            return eAIWaypointBehavior.ALTERNATE; // Follow the waypoints in reverse (from end to start)
-	            break;
-	        }
-	        case "HALT":
-	        {
-	            return eAIWaypointBehavior.HALT; // They just don't move, they stay at their position
-	            break;
-	        }
-	        case "LOOP":
-	        {
-	            return eAIWaypointBehavior.LOOP; // Follow the waypoint's in the normal order (from start to finish)
-	            break;
-	        }
-	    }
-
-	    //! Unknown Behaviour, sending default behaviour
-	    return eAIWaypointBehavior.ALTERNATE;
 	}
 
 	private void CleanupZeds()

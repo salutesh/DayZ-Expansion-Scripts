@@ -14,7 +14,6 @@
 class ExpansionQuestObjectiveAIPatrol
 {
 	private int NPCUnits;
-	private vector StartPosition;
 	private ref array<vector> Waypoints = new array<vector>;
 	private string NPCSpeed;
 	private string NPCMode;
@@ -74,16 +73,6 @@ class ExpansionQuestObjectiveAIPatrol
 		return NPCLoadoutFile;
 	}
 
-	void SetStartPosition(vector pos)
-	{
-		StartPosition = pos;
-	}
-
-	vector GetStartPosition()
-	{
-		return StartPosition;
-	}
-
 	void AddWaypoint(vector waypoint)
 	{
 		Waypoints.Insert(waypoint);
@@ -129,7 +118,6 @@ class ExpansionQuestObjectiveAIPatrol
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print("------------------------------------------------------------");
 		Print(ToString() + "::QuestDebug - NPCUnits: " + NPCUnits);
-		Print(ToString() + "::QuestDebug - StartPosition: " + StartPosition);
 		for (int i = 0; i < Waypoints.Count(); ++i)
 		{
 			Print(ToString() + "::QuestDebug - Waypoint" + i + " :" + Waypoints[i]);

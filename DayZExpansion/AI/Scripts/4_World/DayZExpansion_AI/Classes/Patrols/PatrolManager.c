@@ -10,46 +10,46 @@ class PatrolManager
         if ( !m_AIPatrolSettings.Enabled )
             return NULL;
 
-        foreach(ExpansionAICrashPatrol group: m_AIPatrolSettings.EventCrashPatrol)
+        foreach(ExpansionAICrashPatrol patrol: m_AIPatrolSettings.EventCrashPatrol)
         {
-            if (group.EventName != type)
+            if (patrol.EventName != type)
                 continue;
 
-            if (group.Chance < Math.RandomFloat(0.0, 1.0))
+            if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
                 continue;
 
             int aiSum;
-            if ( group.NumberOfAI != 0 )
+            if ( patrol.NumberOfAI != 0 )
             {
-                if ( group.NumberOfAI < 0 )
+                if ( patrol.NumberOfAI < 0 )
                 {
-                    aiSum = Math.RandomInt(1,-group.NumberOfAI);
+                    aiSum = Math.RandomInt(1,-patrol.NumberOfAI);
                 } else {
-                    aiSum = group.NumberOfAI;
+                    aiSum = patrol.NumberOfAI;
                 }
             } else {
-                CrashPatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping the "+group.EventName+" group");
+                CrashPatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping the "+patrol.EventName+" patrol");
                 continue;
             }
 
             float mindistradius = 0;
             float maxdistradius = 0;
-            int behaviour = group.GetBehaviour();
-            vector startpos = group.GetStartPosition(position);
-            TVectorArray waypoints = group.GetWaypoints(position, behaviour);
+            eAIWaypointBehavior behaviour = patrol.GetBehaviour();
+            vector startpos = patrol.GetStartPosition(position);
+            TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
 
-            if ( group.MinDistRadius == -2 )
+            if ( patrol.MinDistRadius == -2 )
             {
                 mindistradius = m_AIPatrolSettings.MinDistRadius;
             } else {
-                mindistradius = group.MinDistRadius;
+                mindistradius = patrol.MinDistRadius;
             }
 
-            if ( group.MaxDistRadius == -2 )
+            if ( patrol.MaxDistRadius == -2 )
             {
                 maxdistradius = m_AIPatrolSettings.MaxDistRadius;
             } else {
-                maxdistradius = group.MaxDistRadius;
+                maxdistradius = patrol.MaxDistRadius;
             }
             
             if (mindistradius > maxdistradius)
@@ -59,8 +59,8 @@ class PatrolManager
                 CrashPatrolLog("!!! ERROR !!!");
             }
 
-            CrashPatrolLog("Spawning "+aiSum+" "+group.Faction+" bots near a "+group.EventName+" at "+startpos);
-            return eAIDynamicPatrol.Create(startpos, waypoints, behaviour, group.LoadoutFile, aiSum, -1, eAIFaction.Create(group.Faction), true, mindistradius, maxdistradius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+            CrashPatrolLog("Spawning "+aiSum+" "+patrol.Faction+" bots near a "+patrol.EventName+" at "+startpos);
+            return eAIDynamicPatrol.Create(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, -1, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
 
         return NULL;
@@ -80,71 +80,66 @@ class PatrolManager
         float mindistradius = 0;
         float maxdistradius = 0;
 
-        foreach(ExpansionAIPatrol group: m_AIPatrolSettings.Patrol)
+        foreach(ExpansionAIPatrol patrol: m_AIPatrolSettings.Patrol)
         {
-		    if (group.Chance < Math.RandomFloat(0.0, 1.0))
+		    if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
                 continue;
 
             int aiSum;
-            if ( group.NumberOfAI != 0 )
+            if ( patrol.NumberOfAI != 0 )
             {
-                if ( group.NumberOfAI < 0 )
+                if ( patrol.NumberOfAI < 0 )
                 {
-                    aiSum = Math.RandomInt(1,-group.NumberOfAI);
+                    aiSum = Math.RandomInt(1,-patrol.NumberOfAI);
                 } else {
-                    aiSum = group.NumberOfAI;
+                    aiSum = patrol.NumberOfAI;
                 }
             } else {
-                PatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping this group...");
+                PatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
                 continue;
             }
 
-            if ( !group.Waypoints )
+            if ( !patrol.Waypoints )
             {
                 PatrolLog("!!! ERROR !!!");
-                PatrolLog("Couldn't read the Waypoints (validate your file with a json validator)");
+                PatrolLog("No waypoints (validate your file with a json validator)");
                 PatrolLog("!!! ERROR !!!");
                 continue;
             }
 
-            vector startpos = group.StartPos;
+            vector startpos = patrol.Waypoints[0];
             if ( !startpos || startpos == "0 0 0" )
             {
-                if ( !group.Waypoints[0] || group.Waypoints[0] == "0 0 0" )
-                {
-                    PatrolLog("!!! ERROR !!!");
-                    PatrolLog("Couldn't find a spawn location. StartPos and at least the first Waypoints are both set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
-                    PatrolLog("!!! ERROR !!!");
-                    continue;
-                }
-
-                startpos = group.Waypoints[0];
+                PatrolLog("!!! ERROR !!!");
+                PatrolLog("Couldn't find a spawn location. First waypoint is set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
+                PatrolLog("!!! ERROR !!!");
+                continue;
             }
 
             // Safety in case the Y is bellow the ground
             startpos = ExpansionStatic.GetSurfacePosition(startpos);
-            if ( startpos[1] < group.StartPos[1] )
-                startpos[1] = group.StartPos[1];
+            if ( startpos[1] < patrol.Waypoints[0][1] )
+                startpos[1] = patrol.Waypoints[0][1];
 
-            if ( group.RespawnTime == -2 )
+            if ( patrol.RespawnTime == -2 )
             {
                 respawntime = m_AIPatrolSettings.RespawnTime;
             } else {
-                respawntime = group.RespawnTime;
+                respawntime = patrol.RespawnTime;
             }
 
-            if ( group.MinDistRadius == -2 )
+            if ( patrol.MinDistRadius == -2 )
             {
                 mindistradius = m_AIPatrolSettings.MinDistRadius;
             } else {
-                mindistradius = group.MinDistRadius;
+                mindistradius = patrol.MinDistRadius;
             }
 
-            if ( group.MaxDistRadius == -2 )
+            if ( patrol.MaxDistRadius == -2 )
             {
                 maxdistradius = m_AIPatrolSettings.MaxDistRadius;
             } else {
-                maxdistradius = group.MaxDistRadius;
+                maxdistradius = patrol.MaxDistRadius;
             }
 
             if (mindistradius > maxdistradius)
@@ -154,8 +149,8 @@ class PatrolManager
                 PatrolLog("!!! ERROR !!!");
             }
 
-            PatrolLog("Spawning "+aiSum+" "+group.Faction+" bots at "+startpos);
-            eAIDynamicPatrol.Create(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawntime, eAIFaction.Create(group.Faction), true, mindistradius, maxdistradius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+            PatrolLog("Spawning "+aiSum+" "+patrol.Faction+" bots at "+startpos);
+            eAIDynamicPatrol.Create(startpos, patrol.Waypoints, patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
         PatrolLog("=================== Patrol Spawner END ===================");
     }

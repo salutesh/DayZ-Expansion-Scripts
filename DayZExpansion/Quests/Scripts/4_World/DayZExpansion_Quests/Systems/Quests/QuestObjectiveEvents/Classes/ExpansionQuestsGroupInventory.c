@@ -86,7 +86,7 @@ class ExpansionQuestsGroupInventory
 			if (!item)
 				continue;
 		
-			if (item.Type().ToString() == typeName)
+			if (item.Type().ToString() == typeName || item.ClassName() == typeName || item.GetType() == typeName)
 			{
 				items.Insert(item);
 			}
