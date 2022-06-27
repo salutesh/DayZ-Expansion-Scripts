@@ -257,57 +257,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		JsonFileLoader<ExpansionQuestPersistentDataBase>.JsonLoadFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON", playerDataBase);
 
 		if (playerDataBase.ConfigVersion < CONFIGVERSION)
-		{
-			//! Version 0 -> 1
-			/*if (playerDataBase.ConfigVersion == 0)
-			{
-				ExpansionQuestPersistentDatasBaseV0 dataV0;
-				JsonFileLoader<ExpansionQuestPersistentDatasBaseV0>.JsonLoadFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON", dataV0);
-				CF_Log.Info("[ExpansionQuestPersistentData] Convert existing configuration file:" + fileName + " from version " + playerDataBase.ConfigVersion + " to version " + CONFIGVERSION);
-				playerData = new ExpansionQuestPersistentData();
-
-				//! Cleanup the file if there is no quest states
-				if (dataV0.QuestStates.Count() == 0)
-				{
-					DeleteFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON");
-					return NULL;
-				}
-
-				for (int i = 0; i < dataV0.QuestStates.Count(); i++)
-				{
-					int questID = dataV0.QuestStates.GetKey(i);
-					int state = dataV0.QuestStates.GetElement(i);
-
-					ExpansionQuestPersistentQuestData data = new ExpansionQuestPersistentQuestData();
-					data.QuestID = questID;
-					data.State = state;
-
-					if (state > ExpansionQuestState.NONE || state < ExpansionQuestState.COMPLETED)
-					{
-						//! Objective conversion V0 -> V1
-						ref array<ref ExpansionQuestObjectiveDataV0> validObjectives = new array<ref ExpansionQuestObjectiveDataV0>;
-						validObjectives = dataV0.GetQuestObjectivesByQuestID(questID);
-						for (int j = 0; j < dataV0.GetQuestObjectivesByQuestID(questID).Count(); j++)
-						{
-							ExpansionQuestObjectiveDataV0 objectiveDataV0 = validObjectives[j];
-
-							ExpansionQuestObjectiveData objectiveData = new ExpansionQuestObjectiveData();
-							objectiveData.ObjectiveIndex = objectiveDataV0.ObjectiveIndex;
-							objectiveData.ObjectiveType = objectiveDataV0.ObjectiveType;
-							objectiveData.IsCompleted = objectiveDataV0.IsCompleted;
-							objectiveData.IsActive = objectiveDataV0.IsActive;
-							objectiveData.ObjectiveAmount = objectiveDataV0.ObjectiveAmount;
-							objectiveData.ObjectiveCount = objectiveDataV0.ObjectiveCount;
-							objectiveData.ObjectivePosition = objectiveDataV0.ObjectivePosition;
-							data.QuestObjectives.Insert(objectiveData);
-						}
-					}
-
-					data.Timestamp = dataV0.GetQuestTimeStampByQuestID(questID);
-					playerData.QuestDatas.Insert(data);
-				}
-			}*/
-			
+		{			
 			//! Copy over old configuration that haven't changed
 			playerData.CopyConfig(playerDataBase);
 			playerData.ConfigVersion = CONFIGVERSION;
@@ -346,32 +296,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 	void CopyConfig(ExpansionQuestPersistentDataBase dataBase)
 	{
-		/*for (int i = 0; i < dataBase.QuestDatas.Count(); i++)
-		{
-			ExpansionQuestPersistentQuestData questData = dataBase.QuestDatas[i];
-			ExpansionQuestPersistentQuestData data = new ExpansionQuestPersistentQuestData();
-			data.QuestID = questData.QuestID;
-			data.State = questData.State;
-			data.Timestamp = questData.Timestamp;
-
-			for (int j = 0; j < questData.QuestObjectives.Count(); j++)
-			{
-				ExpansionQuestObjectiveData oldData = questData.QuestObjectives[j];
-				ExpansionQuestObjectiveData objectiveData = new ExpansionQuestObjectiveData();
-				objectiveData.ObjectiveIndex = oldData.ObjectiveIndex;
-				objectiveData.ObjectiveType = oldData.ObjectiveType;
-				objectiveData.IsCompleted = oldData.IsCompleted;
-				objectiveData.IsActive = oldData.IsActive;
-				objectiveData.ObjectiveAmount = oldData.ObjectiveAmount;
-				objectiveData.ObjectiveCount = oldData.ObjectiveCount;
-				objectiveData.ObjectivePosition = oldData.ObjectivePosition;
-				objectiveData.ActionState = oldData.ActionState;
-				objectiveData.TimeLimit = oldData.TimeLimit;
-				data.QuestObjectives.Insert(objectiveData);
-			}
-
-			QuestDatas.Insert(data);
-		}*/
+		//! Nothing to do here yet!
 	}
 
 	private bool CleanupQuestData()

@@ -336,23 +336,6 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	PlayerBase GetPlayer()
 	{
-		//! Try to return at leats one active group member
-	/*#ifdef EXPANSIONMODGROUPS
-		if (m_Group)
-		{
-			for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
-			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
-				if (playerGroupData)
-				{
-					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-					if (groupPlayer)
-						return groupPlayer;
-				}
-			}
-		}
-	#endif*/
-
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 		return m_Player;
 	}

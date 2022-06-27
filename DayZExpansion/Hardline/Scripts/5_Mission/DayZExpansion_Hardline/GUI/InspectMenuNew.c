@@ -44,7 +44,7 @@ modded class InspectMenuNew
 			type.ToLower();
 			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(type);
 			if (!itemData)
-				rarity = ExpansionHardlineItemRarity.COMMON;
+				rarity = ExpansionHardlineItemRarity.NONE;
 			else
 				rarity = itemData.GetRarity();
 			
@@ -97,6 +97,12 @@ modded class InspectMenuNew
 					color = EXPASNION_ITEM_COLOR_POOR;
 					text = "Poor";
 					break;
+				}
+				case ExpansionHardlineItemRarity.NONE:
+				{
+					Widget rarityElement = root_widget.FindAnyWidget("ItemRarityWidget");
+					rarityElement.Show(false);
+					return;
 				}
 			}
 		}

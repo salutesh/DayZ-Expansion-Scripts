@@ -183,164 +183,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestModule CreateDirectoryStructure
-	// Server
-	// ------------------------------------------------------------
-	private void CreateAndLoadFileStructure()
-	{
-		if (!FileExist(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE))
-		{
-			m_ServerData = new ExpansionQuestPersistentServerData();
-			m_ServerData.Save();
-		}
-		else
-		{
-			m_ServerData = ExpansionQuestPersistentServerData.Load();
-		}
-
-		//! OBJECTIVE FILES
-		//! TRAVEL OBJECTIVES
-		array<string> travelObjectiveFiles = new array<string>;
-		travelObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
-		if (travelObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(travelObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
-		}
-		else
-		{
-			DefaultTravelObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! TARGET OBJECTIVES
-		array<string> targetObjectiveFiles = new array<string>;
-		targetObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
-		if (targetObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(targetObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
-		}
-		else
-		{
-			DefaultTargetObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! DELIVERY OBJECTIVES
-		array<string> deliveryObjectiveFiles = new array<string>;
-		deliveryObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
-		if (deliveryObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(deliveryObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
-		}
-		else
-		{
-			DefaultDeliveryObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! COLLECTION OBJECTIVES
-		array<string> collectionObjectiveFiles = new array<string>;
-		collectionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
-		if (collectionObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(collectionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
-		}
-		else
-		{
-			DefaultCollectionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! TREASURE HUNT OBJECTIVES
-		array<string> treasureHuntObjectiveFiles = new array<string>;
-		treasureHuntObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
-		if (treasureHuntObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(treasureHuntObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
-		}
-		else
-		{
-			DefaultTreasureHuntObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! ACTION OBJECTIVES
-		array<string> actionObjectiveFiles = new array<string>;
-		actionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
-		if (actionObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(actionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
-		}
-		else
-		{
-			DefaultActionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-	#ifdef EXPANSIONMODAI
-		//! AI PATROL OBJECTIVES
-		array<string> aiPatrolObjectiveFiles = new array<string>;
-		aiPatrolObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
-		if (aiPatrolObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(aiPatrolObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
-		}
-		else
-		{
-			DefaultAIPatrolObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! AI CAMP OBJECTIVES
-		array<string> aiCampObjectiveFiles = new array<string>;
-		aiCampObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
-		if (aiCampObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(aiCampObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
-		}
-		else
-		{
-			DefaultAICampObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! AI VIP OBJECTIVES
-		array<string> aiVIPObjectiveFiles = new array<string>;
-		aiVIPObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
-		if (aiVIPObjectiveFiles.Count() > 0)
-		{
-			LoadObjectivesData(aiVIPObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
-		}
-		else
-		{
-			DefaultAIVIPObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-	#endif
-
-		//! QUEST FILES
-		array<string> questFiles = new array<string>;
-		questFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_QUESTS_FOLDER);
-		if (questFiles.Count() > 0)
-		{
-			LoadQuestData(questFiles); //! Server: Load existing quest data files from the server and load them into m_QuestConfigs.
-		}
-		else
-		{
-			DefaultQuestData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
-		}
-
-		//! GET QUEST OBJECT SETS FROM QUESTS
-		LoadObjectSets();
-
-		//! QUEST NPC FILES
-		array<string> questNPCFiles = new array<string>;
-		questNPCFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_NPCS_FOLDER);
-		if (questNPCFiles.Count() > 0)
-		{
-			LoadQuestNPCData(questNPCFiles); //! Server: Load existing quest NPCs data files from the server and load them into m_QuestsNPCs.
-		}
-		else
-		{
-			DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
-		}
-
-		LoadPlayerQuestData(); //! Server: Load all existing player quest data information into m_PlayerDatas.
-		SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
-	}
-
-	// ------------------------------------------------------------
 	// ExpansionQuestModule OnMissionLoaded
 	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
@@ -393,12 +235,161 @@ class ExpansionQuestModule: CF_ModuleWorld
 			string worldName;
 			GetGame().GetWorldName(worldName);
 			worldName.ToLower();
-
+		
 			m_DefaultQuestNPCData = new ExpansionDefaultQuestNPCData(worldName);
 			m_DefaultQuestConfigData = new ExpansionDefaultQuestData(worldName);
 			m_DefaultObjectiveConfigData = new ExpansionDefaultObjectiveData(worldName);
-
-			CreateAndLoadFileStructure();
+			
+			if (!FileExist(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE))
+			{
+				m_ServerData = new ExpansionQuestPersistentServerData();
+				m_ServerData.Save();
+			}
+			else
+			{
+				m_ServerData = ExpansionQuestPersistentServerData.Load();
+			}
+	
+			//! OBJECTIVE FILES
+			//! TRAVEL OBJECTIVES
+			array<string> travelObjectiveFiles = new array<string>;
+			travelObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+			if (travelObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(travelObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+			}
+			else
+			{
+				DefaultTravelObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! TARGET OBJECTIVES
+			array<string> targetObjectiveFiles = new array<string>;
+			targetObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+			if (targetObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(targetObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+			}
+			else
+			{
+				DefaultTargetObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! DELIVERY OBJECTIVES
+			array<string> deliveryObjectiveFiles = new array<string>;
+			deliveryObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+			if (deliveryObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(deliveryObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+			}
+			else
+			{
+				DefaultDeliveryObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! COLLECTION OBJECTIVES
+			array<string> collectionObjectiveFiles = new array<string>;
+			collectionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+			if (collectionObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(collectionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+			}
+			else
+			{
+				DefaultCollectionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! TREASURE HUNT OBJECTIVES
+			array<string> treasureHuntObjectiveFiles = new array<string>;
+			treasureHuntObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+			if (treasureHuntObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(treasureHuntObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+			}
+			else
+			{
+				DefaultTreasureHuntObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! ACTION OBJECTIVES
+			array<string> actionObjectiveFiles = new array<string>;
+			actionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
+			if (actionObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(actionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
+			}
+			else
+			{
+				DefaultActionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+		#ifdef EXPANSIONMODAI
+			//! AI PATROL OBJECTIVES
+			array<string> aiPatrolObjectiveFiles = new array<string>;
+			aiPatrolObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+			if (aiPatrolObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(aiPatrolObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+			}
+			else
+			{
+				DefaultAIPatrolObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! AI CAMP OBJECTIVES
+			array<string> aiCampObjectiveFiles = new array<string>;
+			aiCampObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+			if (aiCampObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(aiCampObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+			}
+			else
+			{
+				DefaultAICampObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! AI VIP OBJECTIVES
+			array<string> aiVIPObjectiveFiles = new array<string>;
+			aiVIPObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+			if (aiVIPObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(aiVIPObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+			}
+			else
+			{
+				DefaultAIVIPObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+		#endif
+	
+			//! QUEST FILES
+			array<string> questFiles = new array<string>;
+			questFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_QUESTS_FOLDER);
+			if (questFiles.Count() > 0)
+			{
+				LoadQuestData(questFiles); //! Server: Load existing quest data files from the server and load them into m_QuestConfigs.
+			}
+			else
+			{
+				DefaultQuestData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+	
+			//! GET QUEST OBJECT SETS FROM QUESTS
+			LoadObjectSets();
+	
+			//! QUEST NPC FILES
+			array<string> questNPCFiles = new array<string>;
+			questNPCFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_NPCS_FOLDER);
+			if (questNPCFiles.Count() > 0)
+			{
+				LoadQuestNPCData(questNPCFiles); //! Server: Load existing quest NPCs data files from the server and load them into m_QuestsNPCs.
+			}
+			else
+			{
+				DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
+			}
+	
+			LoadPlayerQuestData(); //! Server: Load all existing player quest data information into m_PlayerDatas.
+			SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
 		}
 
 		//! Client only
@@ -3480,16 +3471,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 							delete quest;
 							continue;
 						}
-
-						// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-						//! Check if player is the group owner otherwise skip group quest creation
-						// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-						/*if (groupData.GetOwnerUID() != playerUID)
-						{
-							QuestModulePrint(ToString() + "::PlayerQuestsInit - Player is not the owner of his group! Skip quest creation!");
-							delete quest;
-							continue;
-						}*/
 
 						QuestModulePrint(ToString() + "::PlayerQuestsInit - Player is owner of group! Set group quest parameters for quest: " + questID);
 						//! Set the quest group!

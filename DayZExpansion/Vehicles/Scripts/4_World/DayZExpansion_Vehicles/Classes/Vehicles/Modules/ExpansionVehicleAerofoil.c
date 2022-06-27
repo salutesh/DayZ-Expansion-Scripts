@@ -207,8 +207,8 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		if (Math.AbsFloat(m_AirflowMagnitudeSq) < 0.0001)
 			return;
 
-		vector force = (m_Up * m_PressureCoef * m_LiftCoef) + (m_AirFlowNormal * m_PressureCoef * m_DragCoef);
-		force = force * pState.m_DeltaTime;
+		vector impulse = (m_Up * m_PressureCoef * m_LiftCoef) + (m_AirFlowNormal * m_PressureCoef * m_DragCoef);
+		impulse = impulse * pState.m_DeltaTime;
 
 		vector position = m_Position;
 		if (m_Type == ExpansionVehicleAerofoilType.Wing)
@@ -224,10 +224,10 @@ class ExpansionVehicleAerofoil : ExpansionVehicleModule
 		pState.DBGDrawSphereMS(position, 0.3, 0xFFFFFFFF);
 		pState.DBGDrawSphereMS(m_Position, 0.5, 0xFFFF00FF);
 
-		pState.DBGDrawImpulseMS(position, force);
+		pState.DBGDrawImpulseMS(position, impulse);
 
-		pState.m_Force += force.Multiply3(pState.m_Transform);
-		pState.m_Torque += (position * force).Multiply3(pState.m_Transform);
+		pState.m_Impulse += impulse.Multiply3(pState.m_Transform);
+		pState.m_ImpulseTorque += (position * impulse).Multiply3(pState.m_Transform);
 	}
 
 	override void Animate(ExpansionPhysicsState pState)

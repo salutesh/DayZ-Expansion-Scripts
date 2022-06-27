@@ -138,15 +138,20 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			findIndex = target.GetAllowedWeapons().Find(killerName);
 			if (findIndex == -1)
 				return;
-
-			//Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
+			
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
+		#endif
 		}
 
 		int amount = target.GetAmount();
 		Amount = amount;
 		findIndex = -1;
 		findIndex = target.GetClassNames().Find(className);
-		//Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
+		
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
+	#endif
 
 		if (findIndex > -1)
 		{

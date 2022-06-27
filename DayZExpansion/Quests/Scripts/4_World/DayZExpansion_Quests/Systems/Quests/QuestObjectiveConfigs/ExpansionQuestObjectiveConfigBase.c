@@ -160,10 +160,7 @@ class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 		return npcConfig;
 	}
 	
-	void Save(string fileName)
-	{
-		JsonFileLoader<ExpansionQuestObjectiveConfigBase>.JsonSaveFile(fileName + ".JSON", this);
-	}
+	void Save(string fileName);
 	
 	void CopyConfig(ExpansionQuestObjectiveConfigBasement configBase)
 	{

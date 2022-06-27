@@ -107,11 +107,6 @@ class ExpansionAIPatrolBase
 		return eAIWaypointBehavior.ALTERNATE;
 	}
 
-	eAIFaction GetFaction()
-	{
-		return eAIFaction.Create(Faction);
-	}
-
 	//! Update faction string to v3
 	void UpdateFaction()
 	{

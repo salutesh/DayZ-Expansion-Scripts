@@ -1118,10 +1118,10 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		float speed = pState.m_LinearVelocityMS[2];
 		float drag = m_AirDragConstant * -Expansion_GetDensity(GetPosition()) * speed * speed;
-		pState.m_Force += Vector(0, 0, drag).Multiply3(pState.m_Transform);
+		pState.m_Impulse += Vector(0, 0, drag).Multiply3(pState.m_Transform) * pState.m_DeltaTime;
 
 		vector gravity = dGetGravity(this);
-		pState.m_Torque += gravity * pState.m_Mass;
+		pState.m_Impulse += gravity * pState.m_Mass * pState.m_DeltaTime;
 	}
 
 	void OnPostSimulation(float pDt)
@@ -1366,13 +1366,23 @@ class ExpansionVehicleBase extends ItemBase
 		{
 			m_State.SetupSimulation(dt);
 
-			m_State.CalculateAltitudeLimiter();
+			int substeps = 1;
+			float substepDT = 1.0 / substeps;
+			float substepTime = 0.0;
+			for (i = 0; i < substeps; i++)
+			{
+				m_State.SetupSubstep(dt, substepDT, substepTime);
 
-			m_Event_PreSimulate.PreSimulate(m_State);
+				m_State.CalculateAltitudeLimiter();
 
-			OnSimulation(m_State);
+				m_Event_PreSimulate.PreSimulate(m_State);
 
-			m_Event_Simulate.Simulate(m_State);
+				OnSimulation(m_State);
+
+				m_Event_Simulate.Simulate(m_State);
+
+				m_State.PostSubtep(impulse, impulseTorque);
+			}
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 			m_State.EstimateTransform(dt, m_DbgTransform);
@@ -1384,14 +1394,12 @@ class ExpansionVehicleBase extends ItemBase
 			NetworkSend();
 		}
 
-		m_State.ApplySimulation(dt, impulse, impulseTorque);
+		m_State.ApplyPhysics(dt, impulse, impulseTorque);
 
 		OnPostSimulation(dt);
 
 		if (GetGame().IsMultiplayer())
-		{
 			SetSynchDirty();
-		}
 	}
 
 	void SetHasPilot(bool state)

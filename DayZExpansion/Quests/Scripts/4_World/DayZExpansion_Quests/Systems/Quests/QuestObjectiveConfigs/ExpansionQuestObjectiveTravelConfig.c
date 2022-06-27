@@ -90,7 +90,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveTravelConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveTravelConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER  + fileName + ".JSON", this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveTravelConfigBase configBase)

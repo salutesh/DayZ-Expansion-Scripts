@@ -77,11 +77,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ConfigVersion = 3;
 	}
 
-	void ~ExpansionQuestConfig()
-	{
-
-	}
-
 	void SetType(int type)
 	{
 		Type = type;

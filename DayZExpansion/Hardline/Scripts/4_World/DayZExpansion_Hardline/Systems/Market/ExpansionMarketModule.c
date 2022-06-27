@@ -64,7 +64,12 @@ modded class ExpansionMarketModule
 		int humanity = player.GetHumanity();
 		int negative;
 
-		if (player.IsHero())
+		if (rarity == ExpansionHardlineItemRarity.NONE)
+		{
+			required = 0;
+			return true;
+		}
+		else if (player.IsHero())
 		{
 			if (rarity == ExpansionHardlineItemRarity.POOR && humanity < GetExpansionSettings().GetHardline().PoorItemRequirement)
 			{

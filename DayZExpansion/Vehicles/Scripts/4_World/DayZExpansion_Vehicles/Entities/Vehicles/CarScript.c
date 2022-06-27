@@ -2563,14 +2563,24 @@ modded class CarScript
 		if (m_IsPhysicsHost)
 		{
 			m_State.SetupSimulation(dt);
-			
-			m_State.CalculateAltitudeLimiter();
 
-			m_Event_PreSimulate.PreSimulate(m_State);
+			int substeps = 1;
+			float substepDT = 1.0 / substeps;
+			float substepTime = 0.0;
+			for (i = 0; i < substeps; i++)
+			{
+				m_State.SetupSubstep(dt, substepDT, substepTime);
 
-			OnSimulation(m_State);
+				m_State.CalculateAltitudeLimiter();
 
-			m_Event_Simulate.Simulate(m_State);
+				m_Event_PreSimulate.PreSimulate(m_State);
+
+				OnSimulation(m_State);
+
+				m_Event_Simulate.Simulate(m_State);
+
+				m_State.PostSubtep(impulse, impulseTorque);
+			}
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 			m_State.EstimateTransform(dt, m_DbgTransform);
@@ -2584,14 +2594,12 @@ modded class CarScript
 
 		Expansion_OnBeforeApplyPhysics(m_State);
 
-		m_State.ApplySimulation_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost, driver);
+		m_State.ApplyPhysics_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost, driver);
 
 		OnPostSimulation(dt);
 
 		if (GetGame().IsServer())
-		{
 			SetSynchDirty();
-		}
 	}
 
 	protected void Expansion_OnBeforeApplyPhysics(ExpansionPhysicsState pState)

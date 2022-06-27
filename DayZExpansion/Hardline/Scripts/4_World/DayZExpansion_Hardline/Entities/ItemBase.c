@@ -15,7 +15,7 @@ static const int RPC_EXP_HARDLINE_DATA = -25301;
 modded class ItemBase
 {
 	ref ExpansionHardlineItemData m_HardlineItemData;
-	int m_Rarity = ExpansionHardlineItemRarity.COMMON;
+	int m_Rarity = ExpansionHardlineItemRarity.NONE;
 
 	override void DeferredInit()
     {

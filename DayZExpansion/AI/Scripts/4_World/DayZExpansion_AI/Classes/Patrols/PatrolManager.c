@@ -60,7 +60,7 @@ class PatrolManager
             }
 
             CrashPatrolLog("Spawning "+aiSum+" "+group.Faction+" bots near a "+group.EventName+" at "+startpos);
-            return eAIDynamicPatrol.Create(startpos, waypoints, behaviour, group.LoadoutFile, aiSum, -1, group.GetFaction(), true, mindistradius, maxdistradius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+            return eAIDynamicPatrol.Create(startpos, waypoints, behaviour, group.LoadoutFile, aiSum, -1, eAIFaction.Create(group.Faction), true, mindistradius, maxdistradius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
         }
 
         return NULL;
@@ -155,7 +155,7 @@ class PatrolManager
             }
 
             PatrolLog("Spawning "+aiSum+" "+group.Faction+" bots at "+startpos);
-            eAIDynamicPatrol.Create(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawntime, group.GetFaction(), true, mindistradius, maxdistradius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+            eAIDynamicPatrol.Create(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawntime, eAIFaction.Create(group.Faction), true, mindistradius, maxdistradius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
         }
         PatrolLog("=================== Patrol Spawner END ===================");
     }

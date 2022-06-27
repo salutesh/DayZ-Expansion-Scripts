@@ -75,6 +75,10 @@ modded class ExpansionItemTooltip
                 text = "Common";
                 break;
             }
+			case ExpansionHardlineItemRarity.NONE:
+            {
+                return;
+            }
         }
 
 		Print(ToString() + "UpdateItemRarity - Type:" + itemBase.GetType());

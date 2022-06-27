@@ -12,7 +12,8 @@
 
 enum ExpansionHardlineItemRarity
 {
-	POOR = 1,
+	NONE = 0
+	POOR,
 	COMMON,
 	UNCOMMON,
 	RARE,
