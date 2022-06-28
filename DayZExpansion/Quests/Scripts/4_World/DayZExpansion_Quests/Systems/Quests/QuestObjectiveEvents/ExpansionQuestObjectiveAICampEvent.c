@@ -99,8 +99,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 				GetGame().ObjectDelete(member);
 			}
 
-			group.Delete();
-			patrol.Delete();
+			patrol.Despawn();
+			eAIGroup.DeleteGroup(group);
 		}
 
 		AIPatrols.Clear();

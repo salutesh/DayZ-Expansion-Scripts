@@ -51,14 +51,6 @@ class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
 		}
 	}
 
-	vector GetStartPosition(vector position)
-	{
-		position = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
-		position = ExpansionStatic.GetSurfacePosition(position);
-
-		return position;
-	}
-
 	TVectorArray GetWaypoints(vector position, int beh = eAIWaypointBehavior.HALT )
 	{
 		TVectorArray waypoints = new TVectorArray;

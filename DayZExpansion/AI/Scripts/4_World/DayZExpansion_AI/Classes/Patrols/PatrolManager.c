@@ -35,8 +35,8 @@ class PatrolManager
             float mindistradius = 0;
             float maxdistradius = 0;
             eAIWaypointBehavior behaviour = patrol.GetBehaviour();
-            vector startpos = patrol.GetStartPosition(position);
             TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
+            vector startpos = waypoints[0];
 
             if ( patrol.MinDistRadius == -2 )
             {

@@ -20,8 +20,6 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	private int m_UnitsToSpawn = 0;
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
-	private int m_UnitsAmount = 0;
-	private int m_KillCount = 0;
 
 	//! Event called when the player starts the quest
 	override void OnStart()
@@ -37,9 +35,8 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 
 		if (!AIGroupsData)
 			AIGroupsData = new ExpansionQuestAIGroups();
-
-		m_UnitsAmount = aiPatrol.GetNPCUnits();
-		m_TotalUnitsAmount = m_UnitsAmount;
+		
+		m_TotalUnitsAmount =aiPatrol.GetNPCUnits();
 
 		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_TotalUnitsAmount, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), true, false, aiPatrol.GetWaypoints());
 		AIGroupsData.Group = group;
@@ -81,8 +78,6 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		if (!AIGroupsData)
 			AIGroupsData = new ExpansionQuestAIGroups();
 
-		m_UnitsAmount = aiPatrol.GetNPCUnits();
-
 		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_TotalUnitsAmount, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), true, false, aiPatrol.GetWaypoints());
 		AIGroupsData.Group = group;
 		InitQuestPatrols();
@@ -102,23 +97,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
-		eAIGroup group = QuestAIPatrol.m_Group;
-		if (group)
-		{
-			for (int j = 0; j < group.Count(); j++)
-			{
-				DayZPlayerImplement member = group.GetMember(j);
-				if (!member || member && !member.IsAlive())
-					continue;
-
-				ObjectivePrint(ToString() + "::OnCancel - Delete member: [" + j + "] " + member.ToString());
-
-				GetGame().ObjectDelete(member);
-			}
-
-			group.Delete();
-			QuestAIPatrol.Delete();
-		}
+		CleanupPatrol();
 
 		super.OnCleanup();
 
@@ -130,6 +109,17 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCancel - Start");
 
+		CleanupPatrol();
+
+		super.OnCancel();
+
+		ObjectivePrint(ToString() + "::OnCancel - End");
+	}
+	
+	void CleanupPatrol()
+	{
+		ObjectivePrint(ToString() + "::CleanupPatrol - Start");
+
 		eAIGroup group = QuestAIPatrol.m_Group;
 		if (group)
 		{
@@ -139,18 +129,16 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 				if (!member)
 					continue;
 
-				ObjectivePrint(ToString() + "::OnCancel - Delete member: [" + j + "] " + member.ToString());
+				ObjectivePrint(ToString() + "::CleanupPatrol - Delete member: [" + j + "] " + member.ToString());
 
 				GetGame().ObjectDelete(member);
 			}
 
-			group.Delete();
-			QuestAIPatrol.Delete();
+			QuestAIPatrol.Despawn();
+			eAIGroup.DeleteGroup(group);
 		}
 
-		super.OnCancel();
-
-		ObjectivePrint(ToString() + "::OnCancel - End");
+		ObjectivePrint(ToString() + "::CleanupPatrol - End");
 	}
 
 	void OnEntityKilled(EntityAI victim, EntityAI killer)
@@ -222,7 +210,14 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	private void InitQuestPatrols()
 	{
 		ObjectivePrint(ToString() + "::InitQuestPatrols - Start");
-		QuestAIPatrol = ExpansionQuestObjectiveAICampEvent.CreateQuestPatrol(AIGroupsData.Group, m_KillCount, AIGroupsData.RespawnTime, AIGroupsData.MinDistRadius, AIGroupsData.MaxDistRadius);
+		
+		ObjectivePrint(ToString() + "::InitQuestPatrols - Group data: " + AIGroupsData.Group);
+		ObjectivePrint(ToString() + "::InitQuestPatrols - Units killed: " + m_TotalKillCount);
+		ObjectivePrint(ToString() + "::InitQuestPatrols - Group respawn time: " + AIGroupsData.RespawnTime);
+		ObjectivePrint(ToString() + "::InitQuestPatrols - Group min distance: " + AIGroupsData.MinDistRadius);
+		ObjectivePrint(ToString() + "::InitQuestPatrols - Group max distance: " + AIGroupsData.MaxDistRadius);
+		 
+		QuestAIPatrol = ExpansionQuestObjectiveAICampEvent.CreateQuestPatrol(AIGroupsData.Group, m_TotalKillCount, AIGroupsData.RespawnTime, AIGroupsData.MinDistRadius, AIGroupsData.MaxDistRadius);
 		ObjectivePrint(ToString() + "::InitQuestPatrols - End");
 	}
 
