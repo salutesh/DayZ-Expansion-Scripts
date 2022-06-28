@@ -29,7 +29,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	private ButtonWidget Close;
 	private TextWidget CloseLable;
 	private WrapSpacerWidget ButtonsPanel;
-
+	
 	private TextWidget Reward;
 	private Widget RewardPanel;
 	private ScrollWidget ObjectiveSectionScroller;
@@ -78,6 +78,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		m_SelectedReward = NULL;
 		ButtonsPanel.Show(false);
+		
+		m_QuestMenuController.QuestNPCName = questNPCData.GetNPCName();
+		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
 
 		if (quests.Count() > 0)
 		{
@@ -389,6 +392,7 @@ class ExpansionQuestMenuController: ExpansionViewController
 	string QuestObjective;
 	string DefaultText;
 	string HumanityVal;
+	string QuestNPCName;
 	ref ObservableCollection<ref ExpansionQuestMenuListEntry> Quests = new ObservableCollection<ref ExpansionQuestMenuListEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);

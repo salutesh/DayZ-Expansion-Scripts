@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionQuestNPCDenis","ExpansionQuestNPCBoris","ExpansionQuestNPCCyril","ExpansionQuestNPCElias","ExpansionQuestNPCFrancis","ExpansionQuestNPCGuo","ExpansionQuestNPCHassan","ExpansionQuestNPCIndar","ExpansionQuestNPCJose","ExpansionQuestNPCKaito","ExpansionQuestNPCLewis","ExpansionQuestNPCManua","ExpansionQuestNPCNiki","ExpansionQuestNPCOliver","ExpansionQuestNPCPeter","ExpansionQuestNPCQuinn","ExpansionQuestNPCRolf","ExpansionQuestNPCSeth","ExpansionQuestNPCTaiki","ExpansionQuestNPCLinda","ExpansionQuestNPCMaria","ExpansionQuestNPCFrida","ExpansionQuestNPCGabi","ExpansionQuestNPCHelga","ExpansionQuestNPCIrena","ExpansionQuestNPCJudy","ExpansionQuestNPCKeiko","ExpansionQuestNPCLina","ExpansionQuestNPCNaomi","ExpansionQuestItemBase","ExpansionQuestItemPaper","ExpansionQuestItemPackage"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Characters","DZ_Scripts","DZ_AI","DayZExpansion_Dta_Core"};
+		requiredAddons[] = {"DZ_Characters","DZ_Scripts","DZ_AI","DayZExpansion_Dta_Core"};
 	};
 };
 class CfgVehicleClasses

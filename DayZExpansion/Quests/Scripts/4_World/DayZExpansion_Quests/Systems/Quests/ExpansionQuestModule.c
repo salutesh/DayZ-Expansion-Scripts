@@ -28,7 +28,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	private ref map<int, ref ExpansionQuestNPCData> m_QuestsNPCs; //! Server
 	private ref map<int, ref ExpansionQuestConfig> m_QuestConfigs;	//! Server
 
-	//private ref map<int, PlayerBase> m_QuestNPCEntities;
 	private ref map<int, ExpansionQuestNPCBase> m_QuestNPCEntities; //! Server
 #ifdef EXPANSIONMODAI
 	private ref map<int, ExpansionQuestNPCAIBase> m_QuestNPCAIEntities; //! Server
@@ -1082,7 +1081,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ExpansionQuestPersistentData data = new 	ExpansionQuestPersistentData;
+		ExpansionQuestPersistentData data = new ExpansionQuestPersistentData();
 		//! Need to apply the variable from a new instance here here and cant use the existing one?!
 		if (!data.OnRecieve(ctx))
 		{
@@ -1091,7 +1090,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		m_PlayerQuestData = data;
-
 		m_PlayerQuestData.SetQuestModule(this);
 		m_PlayerQuestData.QuestDebug();
 
@@ -1190,6 +1188,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
+		SendPlayerQuestData(identity);
+		
 		string playerUID = identity.GetId();
 		array<ref ExpansionQuestConfig> validQuests = new array<ref ExpansionQuestConfig>;
 		validQuests = GetNPCQuests(questNPCID, playerUID);
@@ -1216,7 +1216,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			questConfig.OnSend(rpc);
 		}
-
+		
 	#ifdef EXPANSIONMODAI
 		ExpansionQuestNPCAIBase npc = GetQuestNPCAIByID(questNPCID);
 		if (npc)
@@ -1235,7 +1235,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#endif
 
 		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestOpenQuestMenu, false, identity);
-
+		
 		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - End");
 	}
 
@@ -4969,7 +4969,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			
 			if (foundPatrols.Count() == killedPatrolsCount)
 			{
-				foundPatrols = patrols;
+				foundPatrols.Clear();
+				for (int j = 0; j < patrols.Count(); ++j)
+				{
+					foundPatrols.Insert(patrols[j]);
+				}
 			}
 		}
 		else

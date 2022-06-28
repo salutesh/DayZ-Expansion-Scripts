@@ -39,16 +39,17 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		if (state == ExpansionQuestState.STARTED)
 		{
 			m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
+			Spacer.SetColor(GetQuestColor(m_QuestConfig));
+			QuestIcon.SetColor(GetQuestColor(m_QuestConfig));
 		}
 		else if (state == ExpansionQuestState.CAN_TURNIN)
 		{
 			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
+			Spacer.SetColor(ARGB(255, 39, 174, 96));
+			QuestIcon.SetColor(ARGB(255, 39, 174, 96));
 		}
 
 		m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
-
-		Spacer.SetColor(GetQuestColor(m_QuestConfig));
-		QuestIcon.SetColor(GetQuestColor(m_QuestConfig));
 
 		foreach (ExpansionQuestHUDObjective currentEntry: m_ObjectiveEntries)
 		{
@@ -101,39 +102,43 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		QuestPrint(ToString() + "::SetEntry - End");
 	}
 
-	private int GetQuestColor(ExpansionQuestConfig quest)
+	int GetQuestColor(ExpansionQuestConfig quest)
 	{
 		int color;
 	#ifdef EXPANSIONMODHARDLINE
+	#ifdef EXPANSIONMODAI
+		if (quest.IsRepeatable() && !quest.IsGroupQuest() && !quest.IsBanditQuest() && !quest.IsHeroQuest() && quest.GetType() != ExpansionQuestType.AIPATROL && quest.GetType() != ExpansionQuestType.AICAMP)
+	#else
 		if (quest.IsRepeatable() && !quest.IsGroupQuest() && !quest.IsBanditQuest() && !quest.IsHeroQuest())
+	#endif
 	#else
 		if (quest.IsRepeatable() && !quest.IsGroupQuest())
 	#endif
 		{
-			color = ARGB(120, 52, 152, 219);
+			color = ARGB(255, 52, 152, 219);
 		}
 		else if (quest.IsGroupQuest())
 		{
-			color = ARGB(120, 226, 65, 66);
+			color = ARGB(255, 192, 57, 43);
 		}
 		else if (!quest.IsGroupQuest() && !quest.IsRepeatable())
 		{
-			color = ARGB(120, 241, 196, 15);
+			color = ARGB(255, 241, 196, 15);
 		}
 	#ifdef EXPANSIONMODHARDLINE
 		else if (quest.IsBanditQuest())
 		{
-			color = ARGB(120, 225, 112, 85);
+			color = COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE;
 		}
 		else if (quest.IsHeroQuest())
 		{
-			color = ARGB(120, 26, 188, 156);
+			color = COLOR_EXPANSION_NOTIFICATION_TURQUOISE;
 		}
 	#endif
 	#ifdef EXPANSIONMODAI
 		else if (quest.GetType() == ExpansionQuestType.AIPATROL || quest.GetType() == ExpansionQuestType.AICAMP)
 		{
-			color = ARGB(120, 75, 101, 132);
+			color = ARGB(255, 142, 68, 173);
 		}
 	#endif
 

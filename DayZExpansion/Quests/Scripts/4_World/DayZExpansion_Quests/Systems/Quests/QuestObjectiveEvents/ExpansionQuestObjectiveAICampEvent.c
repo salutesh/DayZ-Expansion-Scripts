@@ -13,7 +13,6 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 {
-	//private ref array<eAIDynamicPatrol> AIPatrols = new array<eAIDynamicPatrol>;
 	private int m_TotalKillCount = 0;
 	private int m_UnitsToSpawn = 0;
 	private int m_TotalUnitsAmount = 0;
@@ -45,8 +44,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
-		/*if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
-			CleanupPatrol();*/
+		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
+			CleanupPatrol();
 
 		super.OnCleanup();
 
@@ -58,8 +57,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCancel - Start");
 
-		/*if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
-			CleanupPatrol();*/
+		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
+			CleanupPatrol();
 
 		super.OnCancel();
 
@@ -68,23 +67,23 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	private void CleanupPatrol()
 	{
-		array<eAIDynamicPatrol> questPatrols;
-		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
-			return;
-		
-		for (int i = 0; i < questPatrols.Count(); i++)
+		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))	
 		{
-			eAIDynamicPatrol patrol = questPatrols[i];
-			if (patrol.m_CanSpawn)
-				continue;
-
-			eAIGroup group = patrol.m_Group;
-			ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
-			ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
-			ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
-
-			patrol.Despawn();
-			patrol.Delete();
+			for (int i = 0; i < questPatrols.Count(); i++)
+			{
+				eAIDynamicPatrol patrol = questPatrols[i];
+				if (patrol.m_CanSpawn)
+					continue;
+	
+				eAIGroup group = patrol.m_Group;
+				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
+				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
+				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
+	
+				patrol.Despawn();
+				patrol.Delete();
+			}
 		}
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CleanupZeds);
@@ -235,6 +234,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		
 		GetQuest().GetQuestModule().SetQuestPatrols(GetQuest().GetQuestConfig().GetID(), questPatrols);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CleanupZeds, 30000, true);
+		
+	#ifdef EXPANSIONMODNAVIGATION
+		string markerName = GetQuest().GetQuestConfig().GetObjectives().Get(GetIndex()).GetObjectiveText();
+		GetQuest().CreateClientMarker(aiCamp.GetPositions()[0], markerName);
+	#endif
 		
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}

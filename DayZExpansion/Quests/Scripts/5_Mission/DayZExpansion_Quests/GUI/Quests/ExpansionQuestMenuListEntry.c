@@ -47,20 +47,28 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		if (!m_Quest || !m_QuestModule || !m_QuestModule.GetClientQuestData())
 			return;
 
+		QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Exclamationmark"));
+		QuestIcon.LoadImageFile(1, ExpansionIcons.GetPath("Questionmark 2"));
+		
 		m_QuestMenuListEntryController.QuestTitle = m_Quest.GetTitle();
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestTitle");
-
-		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
-		if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
+		
+		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());				
+		if (questState == ExpansionQuestState.NONE)
 		{
-			QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Exclamationmark"));
+			QuestIcon.SetImage(1);
+			QuestIcon.SetColor(GetQuestColor(m_Quest));
 		}
-		else if (questState == ExpansionQuestState.NONE)
+		else if (questState == ExpansionQuestState.STARTED)
 		{
-			QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Questionmark 2"));
+			QuestIcon.SetImage(0);
+			QuestIcon.SetColor(GetQuestColor(m_Quest));
 		}
-
-		QuestIcon.SetColor(GetQuestColor(m_Quest));
+		else if (questState == ExpansionQuestState.CAN_TURNIN)
+		{
+			QuestIcon.SetImage(1);
+			QuestIcon.SetColor(ARGB(255, 39, 174, 96));
+		}
 	}
 
 	int GetQuestColor(ExpansionQuestConfig quest)
@@ -80,7 +88,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		}
 		else if (quest.IsGroupQuest())
 		{
-			color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
+			color = ARGB(255, 192, 57, 43);
 		}
 		else if (!quest.IsGroupQuest() && !quest.IsRepeatable())
 		{
@@ -99,7 +107,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	#ifdef EXPANSIONMODAI
 		else if (quest.GetType() == ExpansionQuestType.AIPATROL || quest.GetType() == ExpansionQuestType.AICAMP)
 		{
-			color = ARGB(255, 75, 101, 132);
+			color = ARGB(255, 142, 68, 173);
 		}
 	#endif
 

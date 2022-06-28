@@ -44,8 +44,8 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
-		/*if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
-			CleanupPatrol();*/
+		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
+			CleanupPatrol();
 	
 		super.OnCleanup();
 
@@ -57,8 +57,8 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnCancel - Start");
 
-		/*if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
-			CleanupPatrol();*/
+		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
+			CleanupPatrol();
 
 		super.OnCancel();
 
@@ -203,7 +203,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		GetQuest().GetQuestModule().SetQuestPatrols(GetQuest().GetQuestConfig().GetID(), questPatrols);
 		
 	#ifdef EXPANSIONMODNAVIGATION
-		string markerName = GetObjectiveConfig().GetObjectiveText();
+		string markerName = GetQuest().GetQuestConfig().GetObjectives().Get(GetIndex()).GetObjectiveText();
 		GetQuest().CreateClientMarker(aiPatrol.GetWaypoints()[0], markerName);
 	#endif
 		
@@ -212,23 +212,23 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 
 	private void CleanupPatrol()
 	{
-		array<eAIDynamicPatrol> questPatrols;
-		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
-			return;
-		
-		for (int i = 0; i < questPatrols.Count(); i++)
-		{
-			eAIDynamicPatrol patrol = questPatrols[i];
-			if (patrol.m_CanSpawn)
-				continue;
-
-			eAIGroup group = patrol.m_Group;
-			ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
-			ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
-			ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
-
-			patrol.Despawn();
-			patrol.Delete();
+		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
+		{	
+			for (int i = 0; i < questPatrols.Count(); i++)
+			{
+				eAIDynamicPatrol patrol = questPatrols[i];
+				if (patrol.m_CanSpawn)
+					continue;
+	
+				eAIGroup group = patrol.m_Group;
+				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
+				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
+				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
+	
+				patrol.Despawn();
+				patrol.Delete();
+			}
 		}
 		
 		GetQuest().GetQuestModule().RemoveQuestPatrol(GetQuest().GetQuestConfig().GetID());

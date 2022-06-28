@@ -32,32 +32,91 @@ FrameWidgetClass ExpansionQuestMenu {
      hexactsize 0
      vexactsize 0
      {
-      ScrollWidgetClass ScrollWidget0 {
+      WrapSpacerWidgetClass QuestListWraper {
        ignorepointer 1
        position 0 0
-       size 1.025 0.93007
+       size 1 0.9301
        hexactpos 0
        vexactpos 0
        hexactsize 0
        vexactsize 0
-       "Scrollbar V" 1
+       Padding 0
+       Margin 0
        {
-        WrapSpacerWidgetClass QuestListContent {
+        PanelWidgetClass NamePanel {
          ignorepointer 1
-         position 0 0.04
-         size 0.9 1
-         halign center_ref
+         size 1 0.05
          hexactpos 0
          vexactpos 0
          hexactsize 0
          vexactsize 0
-         scriptclass "ViewBinding"
-         Margin 0
-         "Size To Content H" 1
-         "Size To Content V" 1
+         style blank
          {
-          ScriptParamsClass {
-           Binding_Name "Quests"
+          ImageWidgetClass NameBackground {
+           ignorepointer 1
+           position 0 0
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           imageTexture "{83BCD979158894A5}DayZExpansion/Book/GUI/textures/paper_5.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           "flip u" 0
+           "flip v" 0
+           filter 1
+          }
+          TextWidgetClass Name {
+           ignorepointer 1
+           color 0 0 0 1
+           position 0 0
+           size 0.97772 42
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Bold
+           text "Name"
+           font "gui/fonts/etelkatextpro22"
+           "text color" 0 0 0 1
+           "text halign" center
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "QuestNPCName"
+            }
+           }
+          }
+         }
+        }
+        ScrollWidgetClass ScrollWidget0 {
+         ignorepointer 1
+         position 0.021 0.013
+         size 1.02 0.94
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          WrapSpacerWidgetClass QuestListContent {
+           ignorepointer 1
+           size 0.98 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           Margin 0
+           "Size To Content V" 1
+           {
+            ScriptParamsClass {
+             Binding_Name "Quests"
+            }
+           }
           }
          }
         }
