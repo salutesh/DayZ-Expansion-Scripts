@@ -51,6 +51,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	private ref map<int, ref ExpansionQuestObjectiveAIPatrolConfig> m_AIPatrolObjectivesConfigs;	//! Server
 	private ref map<int, ref ExpansionQuestObjectiveAICampConfig> m_AICampObjectivesConfigs;	//! Server
 	private ref map<int, ref ExpansionQuestObjectiveAIVIPConfig> m_AIVIPObjectivesConfigs; //! Server
+	static ref map<int, ref array<eAIDynamicPatrol>> m_GlobalAIPatrols;
 #endif
 
 	private ref array<ref ExpansionQuestObjectSet> m_QuestObjectSets;	//! Server
@@ -77,8 +78,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 #ifdef EXPANSIONMODNAVIGATION
 	private ref array<ref ExpansionQuestClientMarker> m_QuestMarkers; //! Client
 #endif
-
-	private bool m_HandleLogout = false; //! Client
 
 	// ------------------------------------------------------------
 	// ExpansionQuestModule Constructor
@@ -119,7 +118,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		EnableMissionFinish();
 		EnableMissionLoaded();
-		EnableInvokeDisconnect();
+		EnableInvokeConnect();
 		EnableClientLogout();
 		EnableClientLogoutCancelled();
 		EnableClientNew();
@@ -203,6 +202,30 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_PlayerGroups = new map<string, ref array<int>>; //! Server & Client
 	#endif
 		
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		{
+			ServerModuleInit();
+		}
+
+		if (GetGame().IsClient())
+		{
+			ClientModuleInit();
+		}
+
+		QuestModulePrint(ToString() + "::OnMissionLoaded - End");
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule ServerModuleInit
+	// ------------------------------------------------------------
+	void ServerModuleInit()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "ServerModuleInit");
+	#endif
+
+		QuestModulePrint(ToString() + "::ServerModuleInit - Start");
+		
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
@@ -219,6 +242,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_AIPatrolObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIPatrolConfig>; //! Server
 			m_AICampObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAICampConfig>; //! Server
 			m_AIVIPObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIVIPConfig>; //! Server
+			m_GlobalAIPatrols = new map<int, ref array<eAIDynamicPatrol>>; //! Server
 		#endif
 
 			m_QuestObjectSets = new array<ref ExpansionQuestObjectSet>;
@@ -391,8 +415,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 			LoadPlayerQuestData(); //! Server: Load all existing player quest data information into m_PlayerDatas.
 			SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
 		}
+		
+		QuestModulePrint(ToString() + "::ServerModuleInit - End");
+	}
 
-		//! Client only
+	// ------------------------------------------------------------
+	// ExpansionQuestModule ClientModuleInit
+	// ------------------------------------------------------------
+	void ClientModuleInit()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "ClientModuleInit");
+	#endif
+
+		QuestModulePrint(ToString() + "::ClientModuleInit - Start");
+		
 		if (GetGame().IsClient())
 		{
 			if (!m_QuestClientConfigs)
@@ -414,54 +451,32 @@ class ExpansionQuestModule: CF_ModuleWorld
 				m_QuestMarkers = new array<ref ExpansionQuestClientMarker>; //! Client
 		#endif
 		}
-
-		QuestModulePrint(ToString() + "::OnMissionLoaded - End");
+		
+		QuestModulePrint(ToString() + "::ClientModuleInit - End");
 	}
-	
+
 	// ------------------------------------------------------------
-	// ExpansionQuestModule OnClientNew
+	// ExpansionQuestModule OnInvokeConnect
 	// ------------------------------------------------------------
-	override void OnClientNew(Class sender, CF_EventArgs args)
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnClientNew");
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnInvokeConnect");
 	#endif
 
-		QuestModulePrint(ToString() + "::OnClientNew - Start");
+		QuestModulePrint(ToString() + "::OnInvokeConnect - Start");
 
-		super.OnClientNew(sender, args);
+		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			QuestModulePrint(ToString() + "::OnClientNew - Setup player quests for player with UID: " + cArgs.Identity.GetId());
+			QuestModulePrint(ToString() + "::OnInvokeConnect - Setup player quests for player with UID: " + cArgs.Identity.GetId());
 			SendQuestNPCDataServer(cArgs.Identity); //! Send all quest npc datas to the players client.
 			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players persistent quest data to the client and recreates existig quests for the player on the server.
 		}
-		QuestModulePrint(ToString() + "::OnClientNew - End");
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestModule OnClientReady
-	// ------------------------------------------------------------
-	override void OnClientReady(Class sender, CF_EventArgs args)
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnClientReady");
-	#endif
-
-		QuestModulePrint(ToString() + "::OnClientReady - Start");
-
-		super.OnClientReady(sender, args);
-
-		auto cArgs = CF_EventPlayerArgs.Cast(args);
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{
-			QuestModulePrint(ToString() + "::OnClientReady - Setup player quests for player with UID: " + cArgs.Identity.GetId());
-			SendQuestNPCDataServer(cArgs.Identity); //! Send all quest npc datas to the players client.
-			SetupClientData(cArgs.Identity); //! Client setup procudure. Sends needed data like the players persistent quest data to the client and recreates existig quests for the player on the server.
-		}
-		QuestModulePrint(ToString() + "::OnClientReady - End");
+		
+		QuestModulePrint(ToString() + "::OnInvokeConnect - End");
 	}
 
 	// -----------------------------------------------------------
@@ -537,7 +552,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			QuestModulePrint(ToString() + "::OnClientLogoutCancelled - Identity from Player: " + cArgs.Player.GetIdentity().ToString());
 			QuestModulePrint(ToString() + "::OnClientLogoutCancelled - UID: " + cArgs.Player.GetIdentity().GetId());
 
-			if (cArgs.Player && !m_HandleLogout)
+			if (cArgs.Player)
 			{
 				HandleClientLogoutCancelled(cArgs.Player.GetIdentity().GetId());
 			}
@@ -608,8 +623,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			quest.CreateQuestItems();
 		}
-
-		m_HandleLogout = true;
 	}
 
 	// ------------------------------------------------------------
@@ -1660,8 +1673,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 			
 			currentQuest.CleanupQuestItems();
 		}
-
-		m_HandleLogout = false;
 	}
 
 	// ------------------------------------------------------------
@@ -2572,8 +2583,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		#ifdef EXPANSIONMODAI
 			case ExpansionQuestObjectiveType.AIPATROL:
 			{
-				ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = new ExpansionQuestObjectiveAIPatrolConfig();
-				JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonLoadFile(path + fileName, aiPatrolConfig);
+				ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = ExpansionQuestObjectiveAIPatrolConfig.Load(path + fileName);
 				if (!aiPatrolConfig)
 					return;
 
@@ -2583,8 +2593,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			case ExpansionQuestObjectiveType.AICAMP:
 			{
-				ExpansionQuestObjectiveAICampConfig aiCampConfig = new ExpansionQuestObjectiveAICampConfig();
-				JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonLoadFile(path + fileName, aiCampConfig);
+				ExpansionQuestObjectiveAICampConfig aiCampConfig = ExpansionQuestObjectiveAICampConfig.Load(path + fileName);
 				if (!aiCampConfig)
 					return;
 
@@ -3543,7 +3552,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					autoQuest.QuestDebug();
 				}
 				//! If the player is already on this archiement/auto-start quest recreate it and update the progress from the players persistent quest data
-				else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.COMPLETED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
+				else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
 				{
 					QuestModulePrint(ToString() + "::PlayerQuestsInit - Create achievement/auto-start quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
 
@@ -4923,6 +4932,65 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		return m_QuestNPCAIEntities.Get(id);
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule QuestPatrolExists
+	// Server
+	// ------------------------------------------------------------
+	bool QuestPatrolExists(int questID, out array<eAIDynamicPatrol> patrols)
+	{
+		array<eAIDynamicPatrol> foundPatrols = new array<eAIDynamicPatrol>;
+		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
+		{
+			patrols = foundPatrols;
+			return true;
+		}
+
+		return false;
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule SetQuestPatrol
+	// Server
+	// ------------------------------------------------------------
+	void SetQuestPatrols(int questID, array<eAIDynamicPatrol> patrols)
+	{
+		array<eAIDynamicPatrol> foundPatrols = new array<eAIDynamicPatrol>;
+		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
+		{
+			//! Check if current patrol has been killed.
+			int killedPatrolsCount;
+			for (int i = 0; i < foundPatrols.Count(); ++i)
+			{
+				eAIDynamicPatrol questPatrol = foundPatrols[i];
+				if (questPatrol.WasGroupDestroyed())
+					killedPatrolsCount++;
+			}
+			
+			if (foundPatrols.Count() == killedPatrolsCount)
+			{
+				foundPatrols = patrols;
+			}
+		}
+		else
+		{
+			m_GlobalAIPatrols.Insert(questID, patrols);
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule RemoveQuestPatrol
+	// Server
+	// ------------------------------------------------------------
+	void RemoveQuestPatrol(int questID)
+	{
+		array<eAIDynamicPatrol> foundPatrols;
+		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
+		{
+			foundPatrols.Clear();
+			m_GlobalAIPatrols.Remove(questID);
+		}
+	}
 #endif
 
 	// ------------------------------------------------------------
@@ -4950,5 +5018,32 @@ class ExpansionQuestModule: CF_ModuleWorld
 	ExpansionQuest CreateQuestInstance(string className)
 	{
 		return ExpansionQuest.Cast(className.ToType().Spawn());
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule IsOtherQuestInstanceActive
+	// Server
+	// ------------------------------------------------------------
+	bool IsOtherQuestInstanceActive(ExpansionQuest quest)
+	{
+		for (int i = 0; i < m_ActiveQuests.Count(); ++i)
+		{
+			ExpansionQuest activeQuest = m_ActiveQuests.Get(i);
+			if (!activeQuest)
+				continue;
+			
+			if (activeQuest.GetQuestConfig().GetID() != quest.GetQuestConfig().GetID())
+				continue;
+			
+			if (activeQuest == quest)
+				continue;
+			
+			if (activeQuest.GetQuestState() != ExpansionQuestState.STARTED)
+				continue;
+			
+			return true;
+		}
+		
+		return false;
 	}
  };

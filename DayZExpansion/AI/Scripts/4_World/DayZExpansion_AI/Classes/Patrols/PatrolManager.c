@@ -1,18 +1,18 @@
-class PatrolManager
+class ExpansionAIPatrolManager
 {
-    ExpansionAIPatrolSettings m_AIPatrolSettings;
+    static ExpansionAIPatrolSettings s_AIPatrolSettings;
 
-    eAIDynamicPatrol InitCrashPatrolSpawner(string type, vector position)
+    static eAIDynamicPatrol InitObjectPatrol(string type, vector position)
     {
-        if ( !m_AIPatrolSettings )
-            m_AIPatrolSettings = GetExpansionSettings().GetAIPatrol();
+        if ( !s_AIPatrolSettings )
+            s_AIPatrolSettings = GetExpansionSettings().GetAIPatrol();
 
-        if ( !m_AIPatrolSettings.Enabled )
+        if ( !s_AIPatrolSettings.Enabled )
             return NULL;
 
-        foreach(ExpansionAICrashPatrol patrol: m_AIPatrolSettings.EventCrashPatrol)
+        foreach(ExpansionAIObjectPatrol patrol: s_AIPatrolSettings.ObjectPatrols)
         {
-            if (patrol.EventName != type)
+            if (!patrol.ClassName || patrol.ClassName != type)
                 continue;
 
             if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
@@ -28,7 +28,7 @@ class PatrolManager
                     aiSum = patrol.NumberOfAI;
                 }
             } else {
-                CrashPatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping the "+patrol.EventName+" patrol");
+                ObjectPatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping the "+patrol.ClassName+" patrol");
                 continue;
             }
 
@@ -40,38 +40,38 @@ class PatrolManager
 
             if ( patrol.MinDistRadius == -2 )
             {
-                mindistradius = m_AIPatrolSettings.MinDistRadius;
+                mindistradius = s_AIPatrolSettings.MinDistRadius;
             } else {
                 mindistradius = patrol.MinDistRadius;
             }
 
             if ( patrol.MaxDistRadius == -2 )
             {
-                maxdistradius = m_AIPatrolSettings.MaxDistRadius;
+                maxdistradius = s_AIPatrolSettings.MaxDistRadius;
             } else {
                 maxdistradius = patrol.MaxDistRadius;
             }
             
             if (mindistradius > maxdistradius)
             {
-                CrashPatrolLog("!!! ERROR !!!");
-                CrashPatrolLog("MinDistRadius has a larger radius than MaxDistRadius (MinDistRadius should be smaller than MaxDistRadius)");
-                CrashPatrolLog("!!! ERROR !!!");
+                ObjectPatrolLog("!!! ERROR !!!");
+                ObjectPatrolLog("MinDistRadius has a larger radius than MaxDistRadius (MinDistRadius should be smaller than MaxDistRadius)");
+                ObjectPatrolLog("!!! ERROR !!!");
             }
 
-            CrashPatrolLog("Spawning "+aiSum+" "+patrol.Faction+" bots near a "+patrol.EventName+" at "+startpos);
+            ObjectPatrolLog("Spawning "+aiSum+" "+patrol.Faction+" bots near a "+patrol.ClassName+" at "+startpos);
             return eAIDynamicPatrol.Create(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, -1, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
 
         return NULL;
     }
 
-    void InitPatrolSpawner()
+    static void InitPatrols()
     {
-        if ( !m_AIPatrolSettings )
-            m_AIPatrolSettings = GetExpansionSettings().GetAIPatrol();
+        if ( !s_AIPatrolSettings )
+            s_AIPatrolSettings = GetExpansionSettings().GetAIPatrol();
 
-        if ( !m_AIPatrolSettings.Enabled )
+        if ( !s_AIPatrolSettings.Enabled )
             return;
             
         PatrolLog("=================== Patrol Spawner START ===================");
@@ -80,7 +80,7 @@ class PatrolManager
         float mindistradius = 0;
         float maxdistradius = 0;
 
-        foreach(ExpansionAIPatrol patrol: m_AIPatrolSettings.Patrol)
+        foreach(ExpansionAIPatrol patrol: s_AIPatrolSettings.Patrols)
         {
 		    if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
                 continue;
@@ -123,21 +123,21 @@ class PatrolManager
 
             if ( patrol.RespawnTime == -2 )
             {
-                respawntime = m_AIPatrolSettings.RespawnTime;
+                respawntime = s_AIPatrolSettings.RespawnTime;
             } else {
                 respawntime = patrol.RespawnTime;
             }
 
             if ( patrol.MinDistRadius == -2 )
             {
-                mindistradius = m_AIPatrolSettings.MinDistRadius;
+                mindistradius = s_AIPatrolSettings.MinDistRadius;
             } else {
                 mindistradius = patrol.MinDistRadius;
             }
 
             if ( patrol.MaxDistRadius == -2 )
             {
-                maxdistradius = m_AIPatrolSettings.MaxDistRadius;
+                maxdistradius = s_AIPatrolSettings.MaxDistRadius;
             } else {
                 maxdistradius = patrol.MaxDistRadius;
             }
@@ -155,13 +155,13 @@ class PatrolManager
         PatrolLog("=================== Patrol Spawner END ===================");
     }
 
-    private void CrashPatrolLog(string msg)
+    private static void ObjectPatrolLog(string msg)
     {
-        if ( GetExpansionSettings().GetLog().AICrashPatrol )
-            GetExpansionSettings().GetLog().PrintLog("[AI Crash Patrol] " +msg);
+        if ( GetExpansionSettings().GetLog().AIObjectPatrol )
+            GetExpansionSettings().GetLog().PrintLog("[AI Object Patrol] " +msg);
     }
 
-    private void PatrolLog(string msg)
+    private static void PatrolLog(string msg)
     {
         if ( GetExpansionSettings().GetLog().AIPatrol )
             GetExpansionSettings().GetLog().PrintLog("[AI Patrol] " +msg);

@@ -6,6 +6,7 @@ class eAIDynamicPatrolSpawner<Class T>
 	#endif
 
 	eAIDynamicPatrol m_ExpansionAIPatrol;
+	bool m_Initialized;
 
 	T m_Object;
 
@@ -16,12 +17,14 @@ class eAIDynamicPatrolSpawner<Class T>
 
 	void Init()
 	{
-		if (m_ExpansionAIPatrol)
+		if (m_Initialized)
 			return;
+
+		m_Initialized = true;
 
 		string type = m_Object.GetType();
 
-		m_ExpansionAIPatrol = PatrolManager().InitCrashPatrolSpawner(type, m_Object.GetPosition());
+		m_ExpansionAIPatrol = ExpansionAIPatrolManager.InitObjectPatrol(type, m_Object.GetPosition());
 		if (!m_ExpansionAIPatrol)
 			return;
 

@@ -18,5 +18,7 @@ enum eAIMovementSpeed
 	STATIC,
 	WALK,
 	JOG,
-	SPRINT
+	SPRINT,
+	RANDOM,
+	RANDOM_NONSTATIC
 };

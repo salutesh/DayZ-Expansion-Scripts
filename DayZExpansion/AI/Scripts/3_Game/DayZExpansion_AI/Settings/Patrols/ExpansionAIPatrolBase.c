@@ -82,6 +82,12 @@ class ExpansionAISpawnBase
 				Behaviour = "HALT_OR_ALTERNATE";
 				break;
 		}
+
+		if (Speed == "RANDOM")
+			Speed = "RANDOM_NONSTATIC";
+
+		if (UnderThreatSpeed == "RANDOM")
+			UnderThreatSpeed = "RANDOM_NONSTATIC";
 	}
 };
 

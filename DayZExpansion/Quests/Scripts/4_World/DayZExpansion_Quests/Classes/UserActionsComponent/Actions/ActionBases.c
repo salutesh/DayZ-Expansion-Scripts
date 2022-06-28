@@ -37,3 +37,31 @@ modded class AnimatedActionBase
 		questModule.OnActionUsed(this, action_data);
 	}
 };
+
+modded class ActionSplintSelf	
+{
+	override void OnFinishProgressServer(ActionData action_data)
+	{
+		super.OnFinishProgressServer(action_data);
+		
+		ExpansionQuestModule questModule;
+		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
+			return;
+
+		questModule.OnActionUsed(this, action_data);
+	}
+};
+
+modded class ActionSplintTarget	
+{
+	override void OnFinishProgressServer(ActionData action_data)
+	{
+		super.OnFinishProgressServer(action_data);
+		
+		ExpansionQuestModule questModule;
+		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
+			return;
+
+		questModule.OnActionUsed(this, action_data);
+	}
+};

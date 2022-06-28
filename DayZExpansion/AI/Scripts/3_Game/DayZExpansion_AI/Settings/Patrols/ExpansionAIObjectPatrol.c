@@ -1,5 +1,5 @@
 /**
- * ExpansionAICrashPatrol.c
+ * ExpansionAIObjectPatrol.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,13 +10,13 @@
  *
 */
 
-class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
+class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 {
-	string EventName;           // Any valid BuildingBase type
+	string ClassName;           // Any valid BuildingBase type
 
-	void ExpansionAICrashPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, string eventtype = "Wreck_UH1Y")
+	void ExpansionAIObjectPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, string classname = "Wreck_UH1Y")
 	{
-		EventName = eventtype;
+		ClassName = classname;
 		DefaultSpread();
 	}
 
@@ -25,7 +25,7 @@ class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
 	{
 		if (Behaviour == "HALT")
 		{
-			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
+			if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic")
 			{
 				MinSpreadRadius = 0;
 				MaxSpreadRadius = 50;
@@ -38,7 +38,7 @@ class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
 		}
 		else
 		{
-			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
+			if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic")
 			{
 				MinSpreadRadius = 0;
 				MaxSpreadRadius = 150;
@@ -63,7 +63,7 @@ class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
 		}
 		else
 		{
-			if (EventName == "ContaminatedArea_Static" || EventName == "ContaminatedArea_Dynamic")
+			if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic")
 				amountofwaypoints = Math.RandomIntInclusive(4, 8);
 			else
 				amountofwaypoints = Math.RandomIntInclusive(2, 6);
@@ -79,4 +79,10 @@ class ExpansionAICrashPatrol: ExpansionAIDynamicSpawnBase
 
 		return waypoints;
 	}
+};
+
+//! Legacy
+class ExpansionAICrashPatrol: ExpansionAIObjectPatrol
+{
+	string EventName;
 };

@@ -761,7 +761,7 @@ class ExpansionTraderZombieBase extends ZombieBase
 /**@class		ExpansionTraderAIBase
  * @brief		This class handles AI traders
  **/
-class ExpansionTraderAIBase extends eAIBase
+class ExpansionTraderAIBase extends eAINPCBase
 {
 	private ref ExpansionTraderObjectBase m_TraderObject;
 

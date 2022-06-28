@@ -1141,10 +1141,23 @@ class eAIBase extends PlayerBase
 
 	void SetMovementSpeedLimit(int pSpeed, int pSpeedUnderThreat = -1)
 	{
-		m_MovementSpeedLimit = pSpeed;
+		m_MovementSpeedLimit = eAI_GetMovementSpeed(pSpeed);
 		if (pSpeedUnderThreat == -1)
 			pSpeedUnderThreat = pSpeed;
-		m_MovementSpeedLimitUnderThreat = pSpeedUnderThreat;
+		m_MovementSpeedLimitUnderThreat = eAI_GetMovementSpeed(pSpeedUnderThreat);
+	}
+
+	static int eAI_GetMovementSpeed(eAIMovementSpeed pSpeed)
+	{
+		switch (pSpeed)
+		{
+			case eAIMovementSpeed.RANDOM:
+				return Math.RandomIntInclusive(0, 3);
+			case eAIMovementSpeed.RANDOM_NONSTATIC:
+				return Math.RandomIntInclusive(1, 3);
+		}
+
+		return pSpeed;
 	}
 
 	void CreateDebugApple()

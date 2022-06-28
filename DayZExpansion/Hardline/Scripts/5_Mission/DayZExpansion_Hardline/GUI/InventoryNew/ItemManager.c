@@ -23,7 +23,7 @@ modded class ItemManager
 			}
 	
 			m_TooltipWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_tooltip.layout", root );
-			m_TooltipWidget.Show( false );
+			m_TooltipWidget.Show(false);
 		}
 	}
 	

@@ -22,11 +22,11 @@ class ExpansionQuestObjectiveConfigBasement
 class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 {
 	[NonSerialized()]
-	static int CONFIGVERSION = 3;
+	static int CONFIGVERSION = 4;
 	
 	void ExpansionQuestObjectiveConfigBase()
 	{
-		ConfigVersion = 3;
+		ConfigVersion = 4;
 	}
 	
 	void SetID(int id)
@@ -107,6 +107,16 @@ class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 	array<string> GetActionNames()
 	{
 		return NULL;
+	}
+	
+	float GetMaxDistRadius()
+	{
+		return 50;
+	}
+	
+	float GetMinDistRadius()
+	{
+		return 150;
 	}
 
 	ExpansionQuestObjectiveCollection GetCollection()

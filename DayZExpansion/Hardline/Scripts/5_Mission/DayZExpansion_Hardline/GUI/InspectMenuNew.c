@@ -44,9 +44,20 @@ modded class InspectMenuNew
 			type.ToLower();
 			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(type);
 			if (!itemData)
+			{
 				rarity = ExpansionHardlineItemRarity.NONE;
+			}
 			else
+			{
 				rarity = itemData.GetRarity();
+			}
+			
+			ImageWidget rarityElement = ImageWidget.Cast(root_widget.FindAnyWidget("ItemRarityWidgetBackground"));			
+			if (rarity == ExpansionHardlineItemRarity.NONE)
+			{
+				rarityElement.Show(false);
+				return;
+			}
 			
 			switch (rarity)
 			{
@@ -54,59 +65,61 @@ modded class InspectMenuNew
 				{
 					color = EXPASNION_ITEM_COLOR_MYTHIC;
 					text = "Mythic";
-					break;
 				}
+				break;
+				
 				case ExpansionHardlineItemRarity.EXOTIC:
 				{
 					color = EXPASNION_ITEM_COLOR_EXOTIC;
 					text = "Exotic";
-					break;
 				}
+				break;
+				
 				case ExpansionHardlineItemRarity.LEGENDARY:
 				{
 					color = EXPASNION_ITEM_COLOR_LEGENDARY;
 					text = "Legendary";
-					break;
 				}
+				break;
+				
 				case ExpansionHardlineItemRarity.EPIC:
 				{
 					color = EXPASNION_ITEM_COLOR_EPIC;
 					text = "Epic";
-					break;
 				}
+				break;
+
 				case ExpansionHardlineItemRarity.RARE:
 				{
 					color = EXPASNION_ITEM_COLOR_RARE;
 					text = "Rare";
-					break;
 				}
+				break;
+				
 				case ExpansionHardlineItemRarity.UNCOMMON:
 				{
 					color = EXPASNION_ITEM_COLOR_UNCOMMON;
 					text = "Uncommon";
-					break;
 				}
+				break;
+				
 				case ExpansionHardlineItemRarity.COMMON:
 				{
 					color = EXPASNION_ITEM_COLOR_COMMON;
 					text = "Common";
-					break;
 				}
+				break;
+				
 				case ExpansionHardlineItemRarity.POOR:
 				{
 					color = EXPASNION_ITEM_COLOR_POOR;
 					text = "Poor";
-					break;
 				}
-				case ExpansionHardlineItemRarity.NONE:
-				{
-					Widget rarityElement = root_widget.FindAnyWidget("ItemRarityWidget");
-					rarityElement.Show(false);
-					return;
-				}
+				break;
 			}
 		}
-
+		
+		rarityElement.Show(true);
 		WidgetTrySetText(root_widget, "ItemRarityWidget", text, color);
 	}
 };

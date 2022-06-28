@@ -26,7 +26,7 @@ modded class MissionServer
 
 		ExpansionHumanLoadout.Init();
 
-		PatrolManager().InitPatrolSpawner();
+		ExpansionAIPatrolManager.InitPatrols();
 	}
 
 	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)

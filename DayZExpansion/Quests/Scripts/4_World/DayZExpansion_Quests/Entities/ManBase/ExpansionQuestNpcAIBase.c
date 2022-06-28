@@ -14,7 +14,7 @@
 /**@class		ExpansionQuestNPCAIBase
  * @brief		This class quest AI NPCs
  **/
-class ExpansionQuestNPCAIBase extends eAIBase
+class ExpansionQuestNPCAIBase extends eAINPCBase
 {
 	private int m_QuestNPCID = -1;
 	private ref ExpansionQuestNPCData m_QuestNPCData;

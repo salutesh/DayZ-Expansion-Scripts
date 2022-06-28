@@ -10,7 +10,7 @@
  *
 */
 
-#ifdef EXPANSIONMODAI
+/*#ifdef EXPANSIONMODAI
 class ExpansionQuestAIGroups
 {
 	float RespawnTime = -1;					// Time in seconds before the dead group will respawn. If set to -1, they won't respawn
@@ -18,4 +18,4 @@ class ExpansionQuestAIGroups
 	float MaxDistRadius = 1200;			    // Same but if the player is further away than MaxDistRadius, the bots won't spawn
 	ref ExpansionQuestAIGroup Group;
 };
-#endif
+#endif*/

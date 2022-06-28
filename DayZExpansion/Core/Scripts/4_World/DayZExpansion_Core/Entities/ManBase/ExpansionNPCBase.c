@@ -16,6 +16,18 @@ class ExpansionNPCBase extends DayZPlayerImplement
 
 	bool m_ActionsInitialize;
 
+	void ExpansionNPCBase()
+	{
+		#ifdef EXPANSIONMODAI
+		if (GetGame().IsServer())
+		{
+			eAIGroup group = eAIGroup.CreateGroup();
+			group.SetFaction(new eAIFactionPassive());
+			SetGroup(group);
+		}
+		#endif
+	}
+
 	void SetActions()
 	{
 	}
