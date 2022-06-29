@@ -2557,30 +2557,17 @@ modded class CarScript
 		m_State.m_HasDriver = driver && m_IsPhysicsHost;
 		m_State.m_Exploded = m_Exploded;
 
-		vector impulse;
-		vector impulseTorque;
-
 		if (m_IsPhysicsHost)
 		{
 			m_State.SetupSimulation(dt);
+			
+			m_State.CalculateAltitudeLimiter();
 
-			int substeps = 1;
-			float substepDT = 1.0 / substeps;
-			float substepTime = 0.0;
-			for (i = 0; i < substeps; i++)
-			{
-				m_State.SetupSubstep(dt, substepDT, substepTime);
+			m_Event_PreSimulate.PreSimulate(m_State);
 
-				m_State.CalculateAltitudeLimiter();
+			OnSimulation(m_State);
 
-				m_Event_PreSimulate.PreSimulate(m_State);
-
-				OnSimulation(m_State);
-
-				m_Event_Simulate.Simulate(m_State);
-
-				m_State.PostSubtep(impulse, impulseTorque);
-			}
+			m_Event_Simulate.Simulate(m_State);
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 			m_State.EstimateTransform(dt, m_DbgTransform);
@@ -2592,18 +2579,14 @@ modded class CarScript
 			NetworkSend();
 		}
 
-		Expansion_OnBeforeApplyPhysics(m_State);
-
-		m_State.ApplyPhysics_CarScript(dt, impulse, impulseTorque, m_IsPhysicsHost, driver);
+		m_State.ApplySimulation_CarScript(dt, m_IsPhysicsHost, driver);
 
 		OnPostSimulation(dt);
 
 		if (GetGame().IsServer())
+		{
 			SetSynchDirty();
-	}
-
-	protected void Expansion_OnBeforeApplyPhysics(ExpansionPhysicsState pState)
-	{
+		}
 	}
 
 	void SetHasPilot(bool state)

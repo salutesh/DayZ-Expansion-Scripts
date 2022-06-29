@@ -196,17 +196,16 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 				ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount());
 				m_QuestTabController.RewardEntries.Insert(rewardEntry);
 			}
-
+		
+			humanity.Show(false);
+		#ifdef EXPANSIONMODHARDLINE
 			if (quest.GetHumanityReward() != 0 && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				humanity.Show(true);
 				m_QuestTabController.HumanityVal = quest.GetHumanityReward().ToString();
 				m_QuestTabController.NotifyPropertyChanged("HumanityVal");
 			}
-			else
-			{
-				humanity.Show(false);
-			}
+		#endif
 		}
 
 		m_QuestTabController.ObjectiveItems.Clear();

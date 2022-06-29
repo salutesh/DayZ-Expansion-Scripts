@@ -44,16 +44,16 @@ class ExpansionVehicleBuoyantPoint : ExpansionVehicleModule
 		if (m_Depth <= 0)
 			return;
 
-		vector buoyancy = -dGetGravity(m_Vehicle) * pState.m_Mass * m_Depth * pState.m_DeltaTime * 0.5;
+		vector buoyancy = -dGetGravity(m_Vehicle) * pState.m_Mass * m_Depth * 0.5;
 
-		vector drag = -m_Velocity * pState.m_Mass * pState.m_DeltaTime * 0.25;
+		vector drag = -m_Velocity * pState.m_Mass * 0.25;
 
-		vector impulse = (buoyancy + drag).InvMultiply3(pState.m_Transform);
+		vector force = (buoyancy + drag).InvMultiply3(pState.m_Transform);
 
-		pState.DBGDrawImpulseMS(m_Position, impulse);
+		pState.DBGDrawImpulseMS(m_Position, force);
 
-		pState.m_Impulse += impulse.Multiply3(pState.m_Transform);
-		pState.m_ImpulseTorque += (m_Position * impulse).Multiply3(pState.m_Transform);
+		pState.m_Force += force.Multiply3(pState.m_Transform);
+		pState.m_Torque += (m_Position * force).Multiply3(pState.m_Transform);
 	}
 
 #ifdef CF_DebugUI

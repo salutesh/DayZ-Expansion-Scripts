@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONMODGROUPS
 class ExpansionQuestsGroupInventory
 {
 	ref array<string> m_GroupPlayers = new array<string>;
@@ -98,3 +99,4 @@ class ExpansionQuestsGroupInventory
 		return false;
 	}
 };
+#endif

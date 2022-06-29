@@ -441,8 +441,8 @@ class ExpansionBoatScript extends CarScript
 
 		dBodySetDamping(this, 0.0, 0.5);
 
-		pState.m_Impulse += force * pState.m_DeltaTime;
-		pState.m_ImpulseTorque += torque * pState.m_DeltaTime;
+		pState.m_Force += force;
+		pState.m_Torque += torque;
 	}
 
 	override void EOnPostSimulate(IEntity other, float timeSlice)

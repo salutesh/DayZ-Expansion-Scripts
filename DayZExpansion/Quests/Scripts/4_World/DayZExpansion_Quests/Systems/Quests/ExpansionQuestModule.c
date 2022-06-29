@@ -613,8 +613,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 				continue;
 			}
 
-			if (quest.IsGroupQuest() && !quest.IsQuestGroupMember(playerUID) || !quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
+			if (!quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
 				continue;
+			
+		#ifdef EXPANSIONMODGROUPS
+			if (quest.IsGroupQuest() && !quest.IsQuestGroupMember(playerUID))
+				continue;
+		#endif
 
 		#ifdef EXPANSIONMODNAVIGATION
 			quest.OnRecreateClientMarkers();
@@ -829,7 +834,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void UpdatePlayerQuests(ExpansionQuest quest)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "UpdatePlayerQuests").Add(sender).Add(ctx);
 	#endif
 
@@ -1535,6 +1540,48 @@ class ExpansionQuestModule: CF_ModuleWorld
 		QuestModulePrint(ToString() + "::CompleteQuestClient - End");
 	}
 
+	// ------------------------------------------------------------
+	// ExpansionQuestModule HandleClientLogout
+	// Called on server
+	// ------------------------------------------------------------
+	//! Handles deletion of quest markers and quest items if
+	//! a quest player starts a logout.
+	void HandleClientLogout(PlayerIdentity identity)
+	{
+		//! Prepare client marker deletion
+		string playerUID = identity.GetId();
+		for (int i = 0; i < m_ActiveQuests.Count(); i++)
+		{
+			ExpansionQuest currentQuest = m_ActiveQuests[i];
+			if (!currentQuest)
+				continue;
+
+			if (!currentQuest.IsGroupQuest() && currentQuest.GetPlayerUID() != playerUID)
+				continue;
+			
+		#ifdef EXPANSIONMODGROUPS
+			if (currentQuest.IsGroupQuest() && !currentQuest.IsQuestGroupMember(playerUID))
+				continue;
+		#endif
+
+		#ifdef EXPANSIONMODNAVIGATION
+			int questID = currentQuest.GetQuestConfig().GetID();
+			if (!currentQuest.IsGroupQuest())
+			{
+				RemoveClientMarkers(questID, identity);
+			}
+		#ifdef EXPANSIONMODGROUPS
+			else if (currentQuest.IsGroupQuest()) 
+			{
+				RemoveClientMarkers(questID, identity);
+			}
+		#endif
+		#endif
+			
+			currentQuest.CleanupQuestItems();
+		}
+	}
+	
 #ifdef EXPANSIONMODNAVIGATION
 	// ------------------------------------------------------------
 	// ExpansionQuestModule CreateClientMarker
@@ -1636,43 +1683,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_QuestMarkers.Insert(markerClientData);
 
 		QuestModulePrint(ToString() + "::CreateMarkerClient - End");
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestModule HandleClientLogout
-	// Called on server
-	// ------------------------------------------------------------
-	//! Handles deletion of quest markers and quest items if
-	//! a quest player starts a logout.
-	void HandleClientLogout(PlayerIdentity identity)
-	{
-		//! Prepare client marker deletion
-		string playerUID = identity.GetId();
-		for (int i = 0; i < m_ActiveQuests.Count(); i++)
-		{
-			ExpansionQuest currentQuest = m_ActiveQuests[i];
-			if (!currentQuest)
-				continue;
-
-			if (currentQuest.IsGroupQuest() && !currentQuest.IsQuestGroupMember(playerUID) || !currentQuest.IsGroupQuest() && currentQuest.GetPlayerUID() != playerUID)
-				continue;
-
-			int questID = currentQuest.GetQuestConfig().GetID();
-		#ifdef EXPANSIONMODNAVIGATION
-			if (!currentQuest.IsGroupQuest())
-			{
-				RemoveClientMarkers(questID, identity);
-			}
-		#ifdef EXPANSIONMODGROUPS
-			else if (currentQuest.IsGroupQuest()) 
-			{
-				RemoveClientMarkers(questID, identity);
-			}
-		#endif
-		#endif
-			
-			currentQuest.CleanupQuestItems();
-		}
 	}
 
 	// ------------------------------------------------------------
@@ -1862,7 +1872,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int timestamp;
 			if (!quest.IsGroupQuest())
 			{
+			#ifdef EXPANSIONMODNAVIGATION
 				RemoveClientMarkers(questID, identity);
+			#endif
 
 				ExpansionQuestPersistentData playerData = GetPlayerQuestDataByUID(identity.GetId());
 				if (!playerData)
@@ -1891,7 +1903,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 					if (groupPlayer)
 					{
+					#ifdef EXPANSIONMODNAVIGATION
 						RemoveClientMarkers(questID, groupPlayer.GetIdentity());
+					#endif
 
 						ScriptRPC rpc = new ScriptRPC();
 						rpc.Write(ExpansionQuestModuleCallback.CANCELED_QUEST);
@@ -2105,6 +2119,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_CollectionObjectivesConfigs.Insert(12, objective_c_12);
 	#endif
 	#endif
+		
+		ExpansionQuestObjectiveCollectionConfig objective_c_13 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Collection_013();
+		objective_c_13.Save("Objective_C_13");
+		m_CollectionObjectivesConfigs.Insert(13, objective_c_13);
+		
+		ExpansionQuestObjectiveCollectionConfig objective_c_14 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Collection_014();
+		objective_c_14.Save("Objective_C_14");
+		m_CollectionObjectivesConfigs.Insert(14, objective_c_14);
 	}
 
 	// -----------------------------------------------------------
@@ -2297,6 +2319,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig quest_24 = m_DefaultQuestConfigData.ExpansionQuestConfig024();
 		quest_24.Save("Quest_24");
 		m_QuestConfigs.Insert(24, quest_24);
+		
+		//! Quest #25 - Example template for a collection quest
+		ExpansionQuestConfig quest_25 = m_DefaultQuestConfigData.ExpansionQuestConfig025();
+		quest_25.Save("Quest_25");
+		m_QuestConfigs.Insert(25, quest_25);
 	}
 
 	// -----------------------------------------------------------
@@ -3298,7 +3325,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		quest.OnQuestTurnIn(reward);
+	#ifdef EXPANSIONMODNAVIGATION
 		RemoveClientMarkers(quest.GetQuestConfig().GetID(), identity);
+	#endif
 
 	#ifdef EXPANSIONMODAI
 		if (!isAutoComplete)
@@ -4631,6 +4660,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		return dayOfWeek;
 	}
 	
+#ifdef EXPANSIONMODGROUPS
 	// ------------------------------------------------------------
 	// ExpansionQuestModule AddPlayerGroupID
 	// ------------------------------------------------------------
@@ -4666,7 +4696,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 		
 		return false;
 	}
-	
+#endif
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule QuestModuleQuestModulePrint
 	// ------------------------------------------------------------

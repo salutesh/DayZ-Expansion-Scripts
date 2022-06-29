@@ -30,6 +30,7 @@ class ExpansionDefaultQuestNPCData
 		questIDs.Insert(3);
 		questIDs.Insert(22);
 		questIDs.Insert(24);
+		questIDs.Insert(25);
 		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/ACCEPTABLE_DISTANCE
 
 		if (m_WorldName == "namalsk")
@@ -189,11 +190,17 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetIsStatic(true);
 
 		array<int> questIDs = new array<int>;
+	#ifdef WRDG_DOGTAGS
 		questIDs.Insert(4);
+	#endif
 		questIDs.Insert(5);
+	#ifdef EXPANSIONMODAI
 		questIDs.Insert(6); //! AI patrol test quest [WIP]
 		questIDs.Insert(7); //! AI camp test quest [WIP]
+	#endif
+	#ifdef EXPANSIONMODGROUPS
 		questIDs.Insert(8);
+	#endif
 		questNPC.SetQuestIDs(questIDs); //! Quests IDs of the quests this NPC can head-out/accept
 
 		questNPC.SetNPCName("Quest Board");
@@ -206,8 +213,8 @@ class ExpansionDefaultQuestNPCData
 		}
 		else if (m_WorldName == "namalsk")
 		{
-			questNPC.SetPosition(Vector(8584.44, 15.80, 10516.00)); //! Quest NPC position
-			questNPC.SetOrientation(Vector(300.0, 0, 0)); //! Quest NPC orientation
+			questNPC.SetPosition(Vector(8584.236328, 15.967732, 10515.956055)); //! Quest NPC position
+			questNPC.SetOrientation(Vector(-58.060162, 0, 0)); //! Quest NPC orientation
 		}
 
 		return questNPC;

@@ -1118,10 +1118,10 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		float speed = pState.m_LinearVelocityMS[2];
 		float drag = m_AirDragConstant * -Expansion_GetDensity(GetPosition()) * speed * speed;
-		pState.m_Impulse += Vector(0, 0, drag).Multiply3(pState.m_Transform) * pState.m_DeltaTime;
+		pState.m_Force += Vector(0, 0, drag).Multiply3(pState.m_Transform);
 
 		vector gravity = dGetGravity(this);
-		pState.m_Impulse += gravity * pState.m_Mass * pState.m_DeltaTime;
+		pState.m_Torque += gravity * pState.m_Mass;
 	}
 
 	void OnPostSimulation(float pDt)
@@ -1359,30 +1359,17 @@ class ExpansionVehicleBase extends ItemBase
 		m_State.m_HasDriver = driver && m_IsPhysicsHost;
 		m_State.m_Exploded = m_Exploded;
 
-		vector impulse;
-		vector impulseTorque;
-
 		if (m_IsPhysicsHost)
 		{
 			m_State.SetupSimulation(dt);
 
-			int substeps = 1;
-			float substepDT = 1.0 / substeps;
-			float substepTime = 0.0;
-			for (i = 0; i < substeps; i++)
-			{
-				m_State.SetupSubstep(dt, substepDT, substepTime);
+			m_State.CalculateAltitudeLimiter();
 
-				m_State.CalculateAltitudeLimiter();
+			m_Event_PreSimulate.PreSimulate(m_State);
 
-				m_Event_PreSimulate.PreSimulate(m_State);
+			OnSimulation(m_State);
 
-				OnSimulation(m_State);
-
-				m_Event_Simulate.Simulate(m_State);
-
-				m_State.PostSubtep(impulse, impulseTorque);
-			}
+			m_Event_Simulate.Simulate(m_State);
 
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 			m_State.EstimateTransform(dt, m_DbgTransform);
@@ -1394,12 +1381,14 @@ class ExpansionVehicleBase extends ItemBase
 			NetworkSend();
 		}
 
-		m_State.ApplyPhysics(dt, impulse, impulseTorque);
+		m_State.ApplySimulation(dt);
 
 		OnPostSimulation(dt);
 
 		if (GetGame().IsMultiplayer())
+		{
 			SetSynchDirty();
+		}
 	}
 
 	void SetHasPilot(bool state)

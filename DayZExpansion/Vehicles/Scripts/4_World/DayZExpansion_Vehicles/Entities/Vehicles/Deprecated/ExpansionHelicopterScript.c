@@ -546,7 +546,7 @@ class ExpansionHelicopterScript extends CarScript
 		}
 	}
 
-	protected override void Expansion_OnBeforeApplyPhysics(ExpansionPhysicsState pState)
+	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
 		if (IsLanded())
 		{
@@ -560,9 +560,11 @@ class ExpansionHelicopterScript extends CarScript
 				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
 				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 			}
-			pState.m_LinearVelocity = pState.m_LinearVelocity * m_Simulation.m_RotorSpeed;
-			pState.m_AngularVelocity = pState.m_AngularVelocity * f;
+			SetVelocity(this, GetVelocity(this) * m_Simulation.m_RotorSpeed);
+			dBodySetAngularVelocity(this, dBodyGetAngularVelocity(this) * f);
 		}
+
+		super.EOnPostSimulate(other, timeSlice);
 	}
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)

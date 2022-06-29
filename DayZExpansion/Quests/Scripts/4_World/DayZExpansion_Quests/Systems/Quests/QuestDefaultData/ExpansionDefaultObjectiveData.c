@@ -566,6 +566,36 @@ class ExpansionDefaultObjectiveData
 	}
 #endif
 #endif
+	
+	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_013()
+	{
+		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
+		objective.SetID(13);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		objective.SetObjectiveText("Craft a improvised fishing rod!");
+
+		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
+		collection.SetClassName("ImprovisedFishingRod");
+		collection.SetAmount(1);
+		objective.AddCollection(collection);
+
+		return objective;
+	}
+	
+	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_014()
+	{
+		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
+		objective.SetID(14);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		objective.SetObjectiveText("Catch a Mackerel");
+
+		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
+		collection.SetClassName("Mackerel");
+		collection.SetAmount(1);
+		objective.AddCollection(collection);
+
+		return objective;
+	}
 
 	//! TREASURE HUNT OBJECTIVES
 	ExpansionQuestObjectiveTreasureHuntConfig ExpansionQuestObjective_TreasureHunt_001()
@@ -771,6 +801,16 @@ class ExpansionDefaultObjectiveData
 		objective.AddActionName("ExpansionVehicleActionPickLock");
 		objective.AddActionName("ExpansionActionPickVehicleLockBase");
 		objective.AddActionName("ExpansionActionPickVehicleLock");
+		
+		return objective;
+	}
+	
+	ExpansionQuestObjectiveActionConfig ExpansionQuestObjective_Action_002()
+	{
+		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
+		objective.SetID(2);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		objective.AddActionName("ExpansionVehicleActionPickLock");
 		
 		return objective;
 	}

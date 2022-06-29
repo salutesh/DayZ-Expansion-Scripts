@@ -157,7 +157,6 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-#ifdef EXPANSIONMODMARKET
 	//! Quest example template for a repeatable token quest
 #ifdef WRDG_DOGTAGS
 	ExpansionQuestConfig ExpansionQuestConfig004()
@@ -372,9 +371,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsBanditQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -411,9 +408,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsBanditQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -450,9 +445,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsBanditQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -489,9 +482,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsBanditQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -529,9 +520,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsHeroQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -568,9 +557,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsHeroQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -607,9 +594,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsHeroQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -646,9 +631,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsHeroQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -685,9 +668,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsBanditQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -724,9 +705,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-	#ifdef EXPANSIONMODHARDLINE
 		questConfig.SetIsHeroQuest(true);
-	#endif
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
@@ -866,7 +845,6 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 #endif
-#endif
 	
 	ExpansionQuestConfig ExpansionQuestConfig023()
 	{
@@ -927,6 +905,50 @@ class ExpansionDefaultQuestData
 		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(10);
 		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+	
+	ExpansionQuestConfig ExpansionQuestConfig025()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(25);
+		questConfig.SetType(ExpansionQuestType.COLLECT);
+		questConfig.SetTitle("Catch a Fish");
+		questConfig.SetObjectiveText("Craft a improvidsed fishing rod and catch a Mackerel!");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER");
+		desc.Insert("Craft a improvidsed fishing rod and catch a Mackerel.");
+		desc.Insert("Turn-in quest to get reward.");
+		questConfig.SetDescriptions(desc);
+		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
+		objective_1.SetID(13);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		questConfig.AddObjectiveConfig(objective_1);
+		
+		ExpansionQuestObjectiveCollectionConfig objective_2 = new ExpansionQuestObjectiveCollectionConfig();
+		objective_2.SetID(14);
+		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		questConfig.AddObjectiveConfig(objective_2);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetAmount(10);
+		rewards.Insert(reward_1);
+		
+		ExpansionQuestRewardConfig reward_2 = new ExpansionQuestRewardConfig;
+		reward_2.SetClassName("ImprovisedFishingRod");
+		reward_2.SetAmount(1);
+		rewards.Insert(reward_2);
 
 		questConfig.SetRewards(rewards);
 

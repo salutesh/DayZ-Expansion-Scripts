@@ -240,16 +240,15 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				m_QuestMenuController.RewardEntries.Insert(rewardEntry);
 			}
 			
+			Humanity.Show(false);
+		#ifdef EXPANSIONMODHARDLINE
 			if (quest.GetHumanityReward() != 0 && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				Humanity.Show(true);
 				m_QuestMenuController.HumanityVal = quest.GetHumanityReward().ToString();
 				m_QuestMenuController.NotifyPropertyChanged("HumanityVal");
 			}
-			else
-			{
-				Humanity.Show(false);
-			}
+		#endif
 		}
 
 		m_QuestMenuController.ObjectiveItems.Clear();

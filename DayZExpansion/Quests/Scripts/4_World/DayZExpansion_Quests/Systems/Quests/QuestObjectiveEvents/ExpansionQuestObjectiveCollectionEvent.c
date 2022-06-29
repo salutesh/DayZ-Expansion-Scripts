@@ -312,6 +312,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					GetQuest().UpdateQuestPlayersObjectiveData();
 				}
 			}
+		#ifdef EXPANSIONMODGROUPS
 			else if (GetQuest().IsGroupQuest() && m_GroupItems)
 			{
 				if (m_UpdateCount != m_GroupItems.Count())
@@ -320,6 +321,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					GetQuest().UpdateQuestPlayersObjectiveData();
 				}
 			}
+		#endif
 			
 			m_UpdateQueueTimer = 0.0;
 		}
@@ -359,10 +361,12 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		{
 			return m_PlayerItems.Count();
 		}
+	#ifdef EXPANSIONMODGROUPS
 		else if (GetQuest().IsGroupQuest() && m_GroupItems)
 		{
 			return m_GroupItems.Count();
 		}
+	#endif
 		
 		return 0;
 	}
