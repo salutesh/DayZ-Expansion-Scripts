@@ -766,6 +766,18 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 				Objectives.Insert(treasureHuntConfig);
 			}
+			else if (objectiveType == ExpansionQuestObjectiveType.ACTION)
+			{
+				QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION");
+				ExpansionQuestObjectiveActionConfig actionConfig = new ExpansionQuestObjectiveActionConfig();
+				if (!actionConfig.OnRecieve(ctx))
+				{
+					Error("ExpansionQuestConfig::OnRecieve - ACTION");
+					return false;
+				}
+
+				Objectives.Insert(actionConfig);
+			}
 		#ifdef EXPANSIONMODAI
 			else if (objectiveType == ExpansionQuestObjectiveType.AIPATROL)
 			{

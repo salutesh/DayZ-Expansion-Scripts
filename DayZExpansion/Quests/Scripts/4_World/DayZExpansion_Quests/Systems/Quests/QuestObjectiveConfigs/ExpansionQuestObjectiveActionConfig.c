@@ -41,9 +41,4 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveConfigBase
 
 		return true;
 	}
-	
-	override void QuestDebug()
-	{
-
-	}
 };
