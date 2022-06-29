@@ -240,6 +240,11 @@ class CfgVehicles
 		displayName = "Baty";
 		vehicleClass = "Expansion_Trader";
 	};
+	class ExpansionQuestNPCMirek: eAI_SurvivorM_Mirek
+	{
+		displayName = "Mirek";
+		vehicleClass = "Expansion_Trader";
+	};
 	class ExpansionQuestNPCDenis: SurvivorM_Denis
 	{
 		scope = 2;
