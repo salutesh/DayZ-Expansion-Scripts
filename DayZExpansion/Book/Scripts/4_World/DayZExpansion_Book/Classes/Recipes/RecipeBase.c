@@ -167,9 +167,9 @@ modded class RecipeBase
 	array<ref ExpansionBookCraftingItem> ExpansionGetItems(map<string, ref ExpansionBookCraftingItem> tmp)
 	{
 		array<ref ExpansionBookCraftingItem> items = new array<ref ExpansionBookCraftingItem>;
-		for (int i = 0; i < tmp.Count(); i++)
+		foreach (string displayName, ExpansionBookCraftingItem item: tmp)
 		{
-			items.Insert(tmp.GetElement(i));
+			items.Insert(item);
 		}
 		return items;
 	}

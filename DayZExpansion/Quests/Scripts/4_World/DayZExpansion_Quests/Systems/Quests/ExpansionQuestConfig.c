@@ -22,7 +22,7 @@ class ExpansionQuestConfigBase
 	int PreQuest = -1; //! Pre-Quest Quest ID.
 	int FollowUpQuest = -1; //! Follow-up Quest ID.
 	int QuestGiverID = -1; //! Unique quest NPC ID of the NPC that will head out the quest.
-	int QuestTurnInID = -1;	//! Unique quest NPC ID of the NPC that will turn-in the quest when completed.
+	int QuestTurnInID = -1;	//! Unique quest NPC ID of the NPC to turn in the quest when completed.
 
 	//! Additional quest logic controll parameters
 	bool IsAchivement = false;
@@ -40,7 +40,7 @@ class ExpansionQuestConfigBase
 	//! Crazy ideas
 	string QuestClassName = string.Empty; //! Class name of the quest class used to create the quest instance if you want to use a cutomized quest class.
 	
-	ref array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
+	ref array<ref ExpansionQuestObjectiveConfig> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
 	ref array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
 	ref array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
 
@@ -50,7 +50,7 @@ class ExpansionQuestConfigBase
 	void ExpansionQuestConfigBase()
 	{
 		Descriptions = new array<string>;
-		Objectives = new array<ref ExpansionQuestObjectiveConfigBase>;
+		Objectives = new array<ref ExpansionQuestObjectiveConfig>;
 		QuestItems = new array<ref ExpansionQuestItemConfig>;
 		Rewards = new array<ref ExpansionQuestRewardConfig>;
 	}
@@ -66,8 +66,7 @@ class ExpansionQuestConfigBase
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
-	[NonSerialized()]
-	static int CONFIGVERSION = 3;
+	static const int CONFIGVERSION = 3;
 	
 	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
 	int HumanityReward = 0; //! Humanity reward when completing the quest.
@@ -127,7 +126,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		return Descriptions;
 	}
 
-	void AddObjectiveConfig(ExpansionQuestObjectiveConfigBase config)
+	void AddObjectiveConfig(ExpansionQuestObjectiveConfig config)
 	{
 		int type = config.GetObjectiveType();
 		switch (type)
@@ -208,7 +207,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		}
 	}
 
-	array<ref ExpansionQuestObjectiveConfigBase> GetObjectives()
+	array<ref ExpansionQuestObjectiveConfig> GetObjectives()
 	{
 		return Objectives;
 	}
@@ -434,9 +433,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			{
 				for (int i = 0; i < questConfigBase.Objectives.Count(); i++)
 				{
-					ExpansionQuestObjectiveConfigBase objective =  questConfigBase.Objectives[i];
+					ExpansionQuestObjectiveConfig objective =  questConfigBase.Objectives[i];
 					objective.TimeLimit = -1;
-					objective.ConfigVersion = ExpansionQuestObjectiveConfigBase.CONFIGVERSION;
+					objective.ConfigVersion = ExpansionQuestObjectiveConfig.CONFIGVERSION;
 				}
 			}
 
@@ -535,7 +534,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			int objectiveID = Objectives[i].GetID();
 			ctx.Write(objectiveType);
 
-			ExpansionQuestObjectiveConfigBase configBase = Objectives[i];
+			ExpansionQuestObjectiveConfig configBase = Objectives[i];
 			if (objectiveType == ExpansionQuestObjectiveType.DELIVERY)
 			{
 				QuestPrint("ExpansionQuestConfig::OnSend - DELIVER");
@@ -698,7 +697,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 		//! Objectives
 		if (!Objectives)
-			Objectives = new array<ref ExpansionQuestObjectiveConfigBase>;
+			Objectives = new array<ref ExpansionQuestObjectiveConfig>;
 
 		for (i = 0; i < objectivesCount; i++)
 		{
@@ -904,7 +903,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		int i;
 		for (i = 0; i < Objectives.Count(); ++i)
 		{
-			ExpansionQuestObjectiveConfigBase objectiveConfig = Objectives[i];
+			ExpansionQuestObjectiveConfig objectiveConfig = Objectives[i];
 			objectiveConfig.QuestDebug();
 		}
 

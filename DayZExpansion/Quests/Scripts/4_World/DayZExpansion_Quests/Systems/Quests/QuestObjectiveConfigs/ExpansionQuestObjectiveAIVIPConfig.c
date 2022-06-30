@@ -11,7 +11,7 @@
 */
 
 #ifdef EXPANSIONMODAI
-class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveConfig
 {
 	private vector Position = vector.Zero;
 	private float MaxDistance = 0;

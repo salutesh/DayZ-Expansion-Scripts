@@ -11,7 +11,7 @@
 */
 
 #ifdef EXPANSIONMODAI
-class ExpansionQuestObjectiveAICampConfigBase: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveAICampConfigBase: ExpansionQuestObjectiveConfig
 {
 	ref ExpansionQuestObjectiveAICamp AICamp;
 }

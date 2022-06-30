@@ -307,10 +307,19 @@ modded class ItemBase
 		Print("ItemBase::OnItemLocationChanged - Start");
 		#endif
 
+		super.OnItemLocationChanged( old_owner, new_owner );
+
+		if ( !GetGame().IsServer() )
+		{
+			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
+			Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
+			#endif
+
+			return;
+		}
+
 		DayZPlayerImplement old_owner_dpi = NULL;
 		DayZPlayerImplement new_owner_dpi = NULL;
-
-		bool shouldSuper = true;
 		
 		if ( old_owner )
 		{
@@ -332,51 +341,6 @@ modded class ItemBase
 			{
 				new_owner_dpi = DayZPlayerImplement.Cast( new_owner.GetHierarchyRootPlayer() );
 			}
-		}
-
-		//! super OnItemLocationChanged wants PlayerBase class, AI is Man so this is to prevent the super method from being called.
-		if ( old_owner && old_owner.IsMan() && !PlayerBase.Cast( old_owner ) )
-		{
-			shouldSuper = false;
-		} else if ( new_owner && new_owner.IsMan() && !PlayerBase.Cast( new_owner ) )
-		{
-			shouldSuper = false;
-		}
-
-		#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-		Print( shouldSuper );
-		Print( old_owner );
-		Print( new_owner );
-		Print( old_owner_dpi );
-		Print( new_owner_dpi );
-		
-		if ( new_owner )
-			Print( "new_owner IsMan: " + new_owner.IsMan() );
-
-		if ( old_owner )
-			Print( "old_owner IsMan: " + old_owner.IsMan() );
-		#endif
-		
-		if ( shouldSuper )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::OnItemLocationChanged - Start - Calling Super" );
-			#endif
-
-			super.OnItemLocationChanged( old_owner, new_owner );
-
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::OnItemLocationChanged - End - Calling Super" );
-			#endif
-		}
-
-		if ( !GetGame().IsServer() )
-		{
-			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
-			Print( "ItemBase::OnItemLocationChanged - End - Not Server" );
-			#endif
-
-			return;
 		}
 
 		EntityAI parent = NULL;

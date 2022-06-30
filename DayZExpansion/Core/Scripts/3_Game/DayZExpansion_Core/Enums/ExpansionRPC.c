@@ -111,6 +111,7 @@ enum ExpansionMarkerRPC
 enum ExpansionEntityRPC
 {
 	INVALID = 20180,
+	NameOverride,
 	COUNT
 };
 

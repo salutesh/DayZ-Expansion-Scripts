@@ -51,11 +51,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	void DebugPrint()
 	{
 		//! Print( "DebugPrint Count: " + Stock.Count() );
-		for (int i = 0 ; i < Stock.Count(); i++)
+		foreach (string clsName, int stock: Stock)
 		{
-			string clsName = Stock.GetKey( i );
-			
-			Print( "Item " + clsName + " | Stock " + Stock.Get( clsName ) + " | Reserved " + ReservedZone.ReservedStock.Get( clsName ) );
+			Print( "Item " + clsName + " | Stock " + stock + " | Reserved " + ReservedZone.ReservedStock.Get( clsName ) );
 		}
 	}
 

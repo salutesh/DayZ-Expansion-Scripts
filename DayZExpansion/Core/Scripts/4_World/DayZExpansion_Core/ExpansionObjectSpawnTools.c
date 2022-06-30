@@ -283,6 +283,8 @@ class ExpansionObjectSpawnTools
 		foreach (string token: tokens)
 		{
 			DayZPlayerImplement ai;
+			BuildingBase building;
+			ZombieBase zombie;
 
 #ifdef ENFUSION_AI_PROJECT
 			if (token.IndexOf("faction:") == 0)
@@ -315,6 +317,24 @@ class ExpansionObjectSpawnTools
 			{
 				string loadout = token.Substring(8, token.Length() - 8);
 				ExpansionHumanLoadout.Apply(entity, loadout);
+				continue;
+			}
+
+			if (token.IndexOf("name:") == 0)
+			{
+				string name = token.Substring(5, token.Length() - 5);
+				if (Class.CastTo(ai, entity) && ai.m_Expansion_NameOverride)
+				{
+					ai.m_Expansion_NameOverride.Set(name);
+				}
+				else if (Class.CastTo(building, entity) && building.m_Expansion_NameOverride)
+				{
+					building.m_Expansion_NameOverride.Set(name);
+				}
+				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NameOverride)
+				{
+					zombie.m_Expansion_NameOverride.Set(name);
+				}
 				continue;
 			}
 

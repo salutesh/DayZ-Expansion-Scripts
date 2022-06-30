@@ -194,13 +194,18 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 			vector position = GetObjectiveConfig().GetPosition();
 			float maxDistance = GetObjectiveConfig().GetMaxDistance();
 			float currentDistance;
-
-			//! Set the position of the group member that has the shortest distance to the target location
-			//! as our current position if the quest is a group quest.
 			array<vector> groupMemberPos = new array<vector>;
-			if (GetQuest().IsGroupQuest())
+			
+			if (GetQuest().GetPlayer())
 			{
-			#ifdef EXPANSIONMODGROUPS
+				vector playerPos = GetQuest().GetPlayer().GetPosition();
+				currentDistance = vector.Distance(playerPos, position);
+			}
+		#ifdef EXPANSIONMODGROUPS
+			else if (GetQuest().IsGroupQuest() && GetQuest().GetGroup())
+			{
+				//! Set the position of the group member that has the shortest distance to the target location
+				//! as our current position if the quest is a group quest.
 				ExpansionPartyData group = GetQuest().GetGroup();
 				if (!group)
 					return;
@@ -239,13 +244,8 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 					
 					currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 				}
-			#endif
 			}
-			else
-			{
-				vector playerPos = GetQuest().GetPlayer().GetPosition();
-				currentDistance = vector.Distance(playerPos, position);
-			}
+		#endif
 
 			position[1] = GetGame().SurfaceY(position[0], position[2]);
 

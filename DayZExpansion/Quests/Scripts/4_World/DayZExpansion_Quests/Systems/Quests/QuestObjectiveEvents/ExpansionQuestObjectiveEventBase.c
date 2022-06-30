@@ -17,7 +17,7 @@ class ExpansionQuestObjectiveEventBase
 	private bool m_Completed = false;
 	private bool m_Initialized = false;
 	private bool m_Active = false;
-	private ref ExpansionQuestObjectiveConfigBase m_ObjectiveConfig;
+	private ref ExpansionQuestObjectiveConfig m_ObjectiveConfig;
 	private int m_TimeLimit = -1;	
 	private float m_TimeLimitTimer = 0;
 	private const float UPDATE_TIME_LIMIT_TICK_TIME = 1.0;
@@ -79,12 +79,12 @@ class ExpansionQuestObjectiveEventBase
 		m_Initialized = state;
 	}
 
-	void SetObjectiveConfig(ExpansionQuestObjectiveConfigBase config)
+	void SetObjectiveConfig(ExpansionQuestObjectiveConfig config)
 	{
 		m_ObjectiveConfig = config;
 	}
 
-	ExpansionQuestObjectiveConfigBase GetObjectiveConfigBase()
+	ExpansionQuestObjectiveConfig GetObjectiveConfigBase()
 	{
 		return m_ObjectiveConfig;
 	}
@@ -193,7 +193,7 @@ class ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	ExpansionQuestObjectiveConfigBase GetObjectiveConfig()
+	ExpansionQuestObjectiveConfig GetObjectiveConfig()
 	{
 		ExpansionQuestObjectiveTravelConfig travelObjective;
 		ExpansionQuestObjectiveDeliveryConfig deliveryObjective;

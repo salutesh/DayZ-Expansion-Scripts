@@ -15,6 +15,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 {
 	//! Server and client side
 	private ref map<int, ref ExpansionPartyData> m_Parties;
+	private ref TIntArray m_PartyIDs;
 
 	//! Client side
 	private ref ExpansionPartyData m_Party;
@@ -35,6 +36,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 	{
 		//! Used server and client side
 		m_Parties = new map<int, ref ExpansionPartyData>();
+		m_PartyIDs = new TIntArray();
 
 		//! Used only client side
 		m_Party = NULL;
@@ -68,6 +70,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 	protected void ClearPlayerParty()
 	{
 		m_Parties.Clear();
+		m_PartyIDs.Clear();
 		m_Party = NULL;
 		m_PartyInvites.Clear();
 	}
@@ -102,7 +105,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 				if (party.OnStoreLoad(file, version))
 				{
 					party.InitMaps();
-					m_Parties.Insert(party.GetPartyID(), party);
+					AddParty(party.GetPartyID(), party);
 
 					if (m_NextPartyID <= party.GetPartyID())
 					{
@@ -124,7 +127,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 							EXPrint(ToString() + "::OnMissionStart - WARNING: Removing player '" + player.GetName() + "' (id=" + player.GetID() + ") from group '" + party.GetPartyName() + "' (id=" + party.GetPartyID() + ") since they are already a member of group '" + playerParty.GetPartyName() + "' (id=" + playerParty.GetPartyID() + ")");
 							if (player.GetID() == party.GetOwnerUID())
 							{
-								m_Parties.Remove(party.GetPartyID());
+								RemoveParty(party.GetPartyID());
 								party.Delete();
 							}
 							else
@@ -145,6 +148,18 @@ class ExpansionPartyModule: CF_ModuleWorld
 				}
 			}
 		}
+	}
+
+	private void AddParty(int partyID, ExpansionPartyData party)
+	{
+		m_Parties.Insert(partyID, party);
+		m_PartyIDs.Insert(partyID);
+	}
+
+	private void RemoveParty(int partyID)
+	{
+		m_Parties.Remove(partyID);
+		m_PartyIDs.RemoveItem(partyID);
 	}
 
 	override int GetRPCMin()
@@ -272,7 +287,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		newParty.SetupExpansionPartyData(player, partyName);
 		newParty.Save();
 
-		m_Parties.Insert(m_NextPartyID, newParty);
+		AddParty(m_NextPartyID, newParty);
 
 		UpdatePartyMembersServer(m_NextPartyID++);
 
@@ -374,7 +389,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			}
 		}
 
-		m_Parties.Remove(party.GetPartyID());
+		RemoveParty(party.GetPartyID());
 		party.Delete();
 
 		return true;
@@ -718,7 +733,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (!party)
 		{
 			party = new ExpansionPartyData( id );
-			m_Parties.Insert( id, party );
+			AddParty( id, party );
 		}
 
 		if (Expansion_Assert_False(party.OnRecieve(ctx), "Failed to read party"))
@@ -1418,10 +1433,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 						m_CurrentPartyTick = 0;
 					}
 
-					ExpansionPartyData party = m_Parties.GetElement(m_CurrentPartyTick);
-					if (party.GetPlayers().Count() > 0)
+					int partyID = m_PartyIDs[m_CurrentPartyTick];
+					ExpansionPartyData party = m_Parties[partyID];
+					array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
+					if (players.Count() > 0)
 					{
-						if (m_CurrentPlayerTick >= party.GetPlayers().Count())
+						if (m_CurrentPlayerTick >= players.Count())
 						{
 							m_CurrentPlayerTick = 0;
 						}
@@ -1435,7 +1452,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 						while (updatedPlayers < UPDATE_PLAYERS_PER_TICK)
 						{
 
-							ExpansionPartyPlayerData playerData = party.GetPlayers()[m_CurrentPlayerTick];
+							ExpansionPartyPlayerData playerData = players[m_CurrentPlayerTick];
 							PlayerBase active_player = PlayerBase.GetPlayerByUID(playerData.UID);
 							if (active_player && active_player.GetIdentity())
 							{
@@ -1445,7 +1462,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 							m_CurrentPlayerTick++;
 
-							if (m_CurrentPlayerTick == party.GetPlayers().Count())
+							if (m_CurrentPlayerTick == players.Count())
 							{
 								break;
 							}
@@ -1455,7 +1472,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 						updatedParties++;
 					}
 
-					if (m_CurrentPlayerTick == party.GetPlayers().Count())
+					if (m_CurrentPlayerTick == players.Count())
 					{
 						m_CurrentPartyTick++;
 						m_CurrentPlayerTick = 0;

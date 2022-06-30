@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveConfig
 {
 	private ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
 

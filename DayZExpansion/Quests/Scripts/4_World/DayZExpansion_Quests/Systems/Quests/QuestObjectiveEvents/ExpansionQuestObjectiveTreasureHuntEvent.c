@@ -149,11 +149,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(chestEntity, Chest))
 			return;
 
-		for (int i = 0; i < treasureHunt.GetItems().Count(); i++)
+		map<string, int> items = treasureHunt.GetItems();
+		foreach (string name, int amount: items)
 		{
-			string name = treasureHunt.GetItems().GetKey(i);
-			int amount = treasureHunt.GetItems().GetElement(i);
-
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			Print("ExpansionQuestObjectiveTreasureHuntEvent::CreateTreasure - Add item to chest: " + name + " x" + amount);
 		#endif

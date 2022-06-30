@@ -11,7 +11,7 @@
 */
 
 #ifdef EXPANSIONMODAI
-class ExpansionQuestObjectiveAIPatrolConfigBase: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveAIPatrolConfigBase: ExpansionQuestObjectiveConfig
 {
 	ref ExpansionQuestObjectiveAIPatrol AIPatrol;
 }

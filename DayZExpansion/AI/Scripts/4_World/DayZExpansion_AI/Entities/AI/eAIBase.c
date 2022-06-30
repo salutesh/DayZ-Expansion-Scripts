@@ -386,40 +386,7 @@ class eAIBase extends PlayerBase
 		if (!IsAI() || !GetGroup())
 			return;
 
-		if (EXTrace.AI)
-		{
-			string dmgTypeStr;
-			switch (damageType)
-			{
-				case DT_CLOSE_COMBAT:
-					dmgTypeStr = "DT_CLOSE_COMBAT";
-					break;
-				case DT_FIRE_ARM:
-					dmgTypeStr = "DT_FIRE_ARM";
-					break;
-				case DT_EXPLOSION:
-					dmgTypeStr = "DT_EXPLOSION";
-					break;
-				case DT_CUSTOM:
-					dmgTypeStr = "DT_CUSTOM";
-					break;
-				default:
-					dmgTypeStr = "UNKNOWN";
-			}
-
-			string msg = "EEHitBy ";
-			msg += damageResult.GetDamage(dmgZone, "Health").ToString() + " ";
-			msg += damageResult.GetDamage(dmgZone, "Blood").ToString() + " ";
-			msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
-			msg += dmgTypeStr + " ";
-			msg += source.ToString() + " ";
-			msg += component.ToString() + " ";
-			msg += dmgZone + " ";
-			msg += ammo + " ";
-			msg += modelPos.ToString() + " ";
-			msg += speedCoef.ToString();
-			EXTrace.Print(EXTrace.AI, this, msg);
-		}
+		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
 		ZombieBase zmb;
 		if (Class.CastTo(zmb, source))

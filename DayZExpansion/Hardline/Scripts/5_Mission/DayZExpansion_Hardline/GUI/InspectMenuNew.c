@@ -12,47 +12,32 @@
 
 modded class InspectMenuNew
 {
-	private ExpansionHardlineModule m_HardlineModule;
 	override Widget Init()
 	{
-		if (GetExpansionSettings().GetHardline().UseItemRarity)
-		{
-			layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout");
-			return layoutRoot;
-		}
-		
-		return super.Init();
+		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout");
+		return layoutRoot;
 	}
 
 	override void SetItem(EntityAI item)
 	{
-		if (item && GetExpansionSettings().GetHardline().UseItemRarity)
-			InspectMenuNew.UpdateItemInfoRarity(layoutRoot, item);
+		InspectMenuNew.UpdateItemInfoRarity(layoutRoot, item);
 		
 		super.SetItem(item);
 	}
 	
 	static void UpdateItemInfoRarity(Widget root_widget, EntityAI item)
 	{
+		ImageWidget rarityElement = ImageWidget.Cast(root_widget.FindAnyWidget("ItemRarityWidgetBackground"));
+		if (!rarityElement)
+			return;
+
 		ItemBase itemBase = ItemBase.Cast(item);
-		if (itemBase && itemBase.GetRarity() != -1)
+		if (itemBase && GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			int rarity;
+			ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
 			int color;
 			string text;
-			string type = item.GetType();
-			type.ToLower();
-			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(type);
-			if (!itemData)
-			{
-				rarity = ExpansionHardlineItemRarity.NONE;
-			}
-			else
-			{
-				rarity = itemData.GetRarity();
-			}
 			
-			ImageWidget rarityElement = ImageWidget.Cast(root_widget.FindAnyWidget("ItemRarityWidgetBackground"));			
 			if (rarity == ExpansionHardlineItemRarity.NONE)
 			{
 				rarityElement.Show(false);
@@ -117,9 +102,13 @@ modded class InspectMenuNew
 				}
 				break;
 			}
+
+			rarityElement.Show(true);
+			WidgetTrySetText(root_widget, "ItemRarityWidget", text, color);
+
+			return;
 		}
-		
-		rarityElement.Show(true);
-		WidgetTrySetText(root_widget, "ItemRarityWidget", text, color);
+
+		rarityElement.Show(false);
 	}
 };

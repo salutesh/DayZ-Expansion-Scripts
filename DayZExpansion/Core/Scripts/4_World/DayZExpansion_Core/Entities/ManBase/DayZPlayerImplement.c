@@ -16,6 +16,8 @@ modded class DayZPlayerImplement
 
 	protected bool m_Expansion_CanBeLooted = true;
 
+	ref ExpansionNameOverride m_Expansion_NameOverride;
+
 	void Expansion_SetCanBeLooted(bool canBeLooted)
 	{
 		m_Expansion_CanBeLooted = canBeLooted;
@@ -59,5 +61,21 @@ modded class DayZPlayerImplement
 			return false;
 
 		return super.CanBeSkinned();
+	}
+
+	override bool NameOverride(out string output)
+	{
+		if (m_Expansion_NameOverride && m_Expansion_NameOverride.Get(output))
+			return true;
+		else
+			return super.NameOverride(output);
+	}
+
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		super.OnRPC(sender, rpc_type, ctx);
+
+		if (m_Expansion_NameOverride)
+			m_Expansion_NameOverride.OnRPC(sender, rpc_type, ctx);
 	}
 };

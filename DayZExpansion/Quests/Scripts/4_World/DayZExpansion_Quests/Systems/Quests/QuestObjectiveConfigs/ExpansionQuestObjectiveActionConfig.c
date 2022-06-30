@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveConfig
 {
 	ref array<string> ActionNames = new array<string>;
 

@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
 	float MaxDistance = 0;
@@ -88,7 +88,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		return config;
 	}
 
-	void Save(string fileName)
+	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveTravelConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER  + fileName + ".JSON", this);
 	}

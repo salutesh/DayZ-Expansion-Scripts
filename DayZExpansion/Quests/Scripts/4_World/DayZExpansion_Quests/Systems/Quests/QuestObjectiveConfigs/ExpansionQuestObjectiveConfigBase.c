@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestObjectiveConfigBasement
+class ExpansionQuestObjectiveConfigBase
 {
 	int ConfigVersion;
 	int ID = -1; //! Unique objective ID
@@ -19,12 +19,11 @@ class ExpansionQuestObjectiveConfigBasement
 	int TimeLimit = - 1;
 };
 
-class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
+class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	[NonSerialized()]
-	static int CONFIGVERSION = 4;
+	static const int CONFIGVERSION = 4;
 	
-	void ExpansionQuestObjectiveConfigBase()
+	void ExpansionQuestObjectiveConfig()
 	{
 		ConfigVersion = 4;
 	}
@@ -145,34 +144,10 @@ class ExpansionQuestObjectiveConfigBase: ExpansionQuestObjectiveConfigBasement
 		return NULL;
 	}
 #endif
-
-	static ExpansionQuestObjectiveConfigBase Load(string fileName)
-	{
-		CF_Log.Info("[ExpansionQuestObjectiveConfigBase] Load existing configuration file:" + fileName);
-
-		ExpansionQuestObjectiveConfigBase npcConfig;
-		ExpansionQuestObjectiveConfigBasement npcConfigBase;
-		JsonFileLoader<ExpansionQuestObjectiveConfigBasement>.JsonLoadFile(fileName, npcConfigBase);
-		
-		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
-		{
-			CF_Log.Info("[ExpansionQuestObjectiveConfigBase] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
-			npcConfig = new ExpansionQuestObjectiveConfigBase();			
-			//! Copy over old configuration that haven't changed
-			npcConfig.CopyConfig(npcConfigBase);
-			npcConfig.ConfigVersion = CONFIGVERSION;
-		}
-		else
-		{
-			JsonFileLoader<ExpansionQuestObjectiveConfigBase>.JsonLoadFile(fileName, npcConfig);
-		}
-		
-		return npcConfig;
-	}
 	
 	void Save(string fileName);
 	
-	void CopyConfig(ExpansionQuestObjectiveConfigBasement configBase)
+	void CopyConfig(ExpansionQuestObjectiveConfigBase configBase)
 	{
 		ID = configBase.ID;
 		ObjectiveType = configBase.ObjectiveType;

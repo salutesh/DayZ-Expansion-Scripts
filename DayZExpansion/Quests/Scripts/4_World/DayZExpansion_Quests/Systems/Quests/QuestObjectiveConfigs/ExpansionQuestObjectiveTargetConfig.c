@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfig
 {
 	private vector Position = vector.Zero;
 	private float MaxDistance = -1;

@@ -23,14 +23,15 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 		if (IsMissionHost())
 			SetAllowDamage(false);
 
-		RegisterNetSyncVariableInt("m_QuestNPCID");
+		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestNPCBase DeferredInit
+	// ------------------------------------------------------------
 	override void DeferredInit()
     {
 		super.DeferredInit();
-
-		SetSynchDirty();
 
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 		Print("-----------------------------------------------------------------------------------------");

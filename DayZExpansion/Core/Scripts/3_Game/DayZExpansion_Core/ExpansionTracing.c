@@ -45,7 +45,7 @@ class EXTrace
 
 	static bool AI = ENABLE;
 
-	static bool BASEBUILDING;
+	static bool BASEBUILDING = ENABLE;
 
 	static bool BOOK;
 
@@ -62,6 +62,8 @@ class EXTrace
 	static bool GENERAL_ITEMS = ENABLE;
 
 	static bool GLOBAL;
+
+	static bool HARDLINE = ENABLE;
 
 	static bool KILLFEED = ENABLE;
 
@@ -274,6 +276,52 @@ class EXTrace
 			PrintFormat("%1 [EXTRACE] %2 %3", ts, instance.ToString(), msg);
 		else
 			PrintFormat("%1 [EXTRACE] %2", ts, msg);
+	}
+
+	static void PrintHit(bool yes = true, Class instance = null, string msg = "", TotalDamageResult damageResult = null, int damageType = 0, EntityAI source = null, int component = 0, string dmgZone = "", string ammo = "", vector modelPos = "0 0 0", float speedCoef = 1.0)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return;
+#endif
+
+		if (msg)
+			msg += " ";
+
+		msg += damageResult.GetDamage(dmgZone, "Health").ToString() + " ";
+		if (instance && instance.IsInherited(Man))
+		{
+			msg += damageResult.GetDamage(dmgZone, "Blood").ToString() + " ";
+			msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
+		}
+
+		switch (damageType)
+		{
+			case DT_CLOSE_COMBAT:
+				msg += "DT_CLOSE_COMBAT ";
+				break;
+			case DT_FIRE_ARM:
+				msg += "DT_FIRE_ARM ";
+				break;
+			case DT_EXPLOSION:
+				msg += "DT_EXPLOSION ";
+				break;
+			case DT_CUSTOM:
+				msg += "DT_CUSTOM ";
+				break;
+			default:
+				msg += "UNKNOWN ";
+		}
+
+		msg += source.ToString() + " ";
+		msg += component.ToString() + " ";
+		msg += dmgZone + " ";
+		msg += ammo + " ";
+		msg += modelPos.ToString() + " ";
+		msg += speedCoef.ToString();
+
+		Print(true, instance, msg);
 	}
 
 	//! Includes 1st line of stack

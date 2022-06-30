@@ -20,10 +20,6 @@ modded class PlayerBase
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenQuestMenu, InputActionMap);
-		AddAction(ExpansionActionOpenQuestMenuObject, InputActionMap);
-	#ifdef EXPANSIONMODAI
-		AddAction(ExpansionActionOpenQuestMenuAI, InputActionMap);
-	#endif
 	}
 
 	// ------------------------------------------------------------

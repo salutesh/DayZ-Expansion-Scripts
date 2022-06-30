@@ -14,7 +14,11 @@
 /**@class		ExpansionQuestNPCAIBase
  * @brief		This class quest AI NPCs
  **/
+#ifdef EXPANSIONMODAI
 class ExpansionQuestNPCAIBase extends eAINPCBase
+#else
+class ExpansionQuestNPCAIBase extends eAIBase
+#endif
 {
 	private int m_QuestNPCID = -1;
 	private ref ExpansionQuestNPCData m_QuestNPCData;
@@ -36,9 +40,12 @@ class ExpansionQuestNPCAIBase extends eAINPCBase
 		SetMovementSpeedLimit(1.0);  //! Always walk
 #endif
 
-		RegisterNetSyncVariableInt("m_QuestNPCID");
+		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
 	
+	// ------------------------------------------------------------
+	// ExpansionQuestNPCAIBase Deconstructor
+	// ------------------------------------------------------------
 	void ~ExpansionQuestNPCAIBase()
 	{
 		if (IsMissionHost())
@@ -48,12 +55,13 @@ class ExpansionQuestNPCAIBase extends eAINPCBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionPlayEmote);
 		}
 	}
-
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestNPCAIBase DeferredInit
+	// ------------------------------------------------------------
 	override void DeferredInit()
     {
 		super.DeferredInit();
-
-		SetSynchDirty();
 
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 		Print("-----------------------------------------------------------------------------------------");
@@ -72,10 +80,7 @@ class ExpansionQuestNPCAIBase extends eAINPCBase
 	override bool PlayerIsEnemy(PlayerBase other)
 #endif
 	{
-		if ( !IsInSafeZone() )
-			return false;
-
-		return super.PlayerIsEnemy(other);
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -114,7 +119,6 @@ class ExpansionQuestNPCAIBase extends eAINPCBase
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCAIBase PlayRandomEmote
 	// ------------------------------------------------------------
-#ifdef EXPANSIONMODAI
 	void ExpansionPlayRandomEmote()
 	{
 		EmoteManager emoteManager = GetEmoteManager();
@@ -165,7 +169,6 @@ class ExpansionQuestNPCAIBase extends eAINPCBase
 				SetOrientation(m_QuestNPCData.GetOrientation());
 		}
 	}
-#endif
 };
 
 class ExpansionQuestNPCAIMirek: ExpansionQuestNPCAIBase {};

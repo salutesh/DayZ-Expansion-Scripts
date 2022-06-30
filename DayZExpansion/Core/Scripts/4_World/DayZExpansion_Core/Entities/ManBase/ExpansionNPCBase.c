@@ -26,6 +26,8 @@ class ExpansionNPCBase extends DayZPlayerImplement
 			SetGroup(group);
 		}
 		#endif
+
+		m_Expansion_NameOverride = new ExpansionNameOverride(this);
 	}
 
 	void SetActions()

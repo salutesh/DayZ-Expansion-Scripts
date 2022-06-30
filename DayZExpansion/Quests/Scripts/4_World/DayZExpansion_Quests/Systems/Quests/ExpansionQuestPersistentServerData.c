@@ -19,8 +19,8 @@ class ExpansionQuestPersistentServerDataBase
 
 class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 {
-	[NonSerialized()]
-	static int CONFIGVERSION = 0;
+	static const int CONFIGVERSION = 0;
+
 	[NonSerialized()]
 	static int DAY_TIME = 86400; //! Day in seconds
 	[NonSerialized()]

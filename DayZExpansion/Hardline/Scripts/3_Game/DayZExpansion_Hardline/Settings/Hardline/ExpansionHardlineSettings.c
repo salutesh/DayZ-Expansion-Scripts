@@ -55,7 +55,9 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	int MythicItemRequirement;
 	int ExoticItemRequirement;
 	
-	autoptr array<ref ExpansionHardlineItemData> HardlineItemDatas;
+	bool ShowHardlineHUD;
+	bool UseItemRarity;
+	bool UseHumanity;
 	
 	// ------------------------------------------------------------
 	void ExpansionHardlineSettingsBase()
@@ -66,24 +68,28 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	}
 }
 
+class ExpansionHardlineSettingsV1: ExpansionHardlineSettingsBase
+{
+	autoptr array<ref ExpansionHardlineItemData> HardlineItemDatas;
+}
+
 /**@class		ExpansionHardlineSettings
  * @brief		Hardline settings class
  **/
 class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 {
-	static const int VERSION = 1;
-	
-	bool ShowHardlineHUD;
-	bool UseItemRarity;
-	bool UseHumanity;
+	static const int VERSION = 2;
+
+	//! Needs to be always last
+	ref map<string, ExpansionHardlineItemRarity> ItemRarity;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
 	// ------------------------------------------------------------
-	void ExpansionSpawnSettings()
+	void ExpansionHardlineSettings()
 	{
-		HardlineItemDatas = new array<ref ExpansionHardlineItemData>
+		ItemRarity = new map<string, ExpansionHardlineItemRarity>;
 	}
 
 	// ------------------------------------------------------------
@@ -92,9 +98,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 	#endif
-
-		if (!HardlineItemDatas)
-			HardlineItemDatas = new array<ref ExpansionHardlineItemData>;
 				
 		if (!ctx.Read(RankBambi))
 		{
@@ -258,25 +261,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			return false;
 		}
 		
-		int itemDataCount;
-		if ( !ctx.Read( itemDataCount ) )
-		{
-			Error(ToString() + "::OnRecieve Hardline item data count");
-			return false;
-		}
-		
-		for (int i = 0; i < itemDataCount; i++)
-		{
-			ExpansionHardlineItemData itemData = new ExpansionHardlineItemData();			
-			if ( !itemData.OnRecieve( ctx ) )
-			{
-				Error(ToString() + "::OnRecieve Hardline item data");
-				return false;
-			}
-			
-			HardlineItemDatas.Insert(itemData);
-		}
-		
 		if (!ctx.Read(ShowHardlineHUD))
 		{
 			Error(ToString() + "::OnRecieve ShowHardlineHUD");
@@ -343,18 +327,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		ctx.Write(LegendaryItemRequirement);
 		ctx.Write(MythicItemRequirement);
 		ctx.Write(ExoticItemRequirement);
-		
-		int itemDataCount = HardlineItemDatas.Count();
-		ctx.Write( itemDataCount );
-		
-		for (int i = 0; i < itemDataCount; i++)
-		{
-			ExpansionHardlineItemData itemData = HardlineItemDatas.Get(i);
-			if (!itemData)
-				continue;
-			
-			itemData.OnSend( ctx );
-		}
 
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseItemRarity);
@@ -385,9 +357,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
-		ShowHardlineHUD = s.ShowHardlineHUD;
-		UseItemRarity = s.UseItemRarity;
-		UseHumanity = s.UseHumanity;
+		ItemRarity = s.ItemRarity;
 		
 		ExpansionHardlineSettingsBase sb = s;
 		CopyInternal( sb );
@@ -426,7 +396,9 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		LegendaryItemRequirement = s.LegendaryItemRequirement;
 		MythicItemRequirement = s.MythicItemRequirement;
 		ExoticItemRequirement = s.ExoticItemRequirement;
-		HardlineItemDatas = s.HardlineItemDatas;
+		ShowHardlineHUD = s.ShowHardlineHUD;
+		UseItemRarity = s.UseItemRarity;
+		UseHumanity = s.UseHumanity;
 	}
 
 	// ------------------------------------------------------------
@@ -465,9 +437,23 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			if (settingsBase.m_Version < VERSION)
 			{
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
-				
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
+
+				if (settingsBase.m_Version < 2)
+				{
+					ExpansionHardlineSettingsV1 settingsV1;
+					JsonFileLoader<ExpansionHardlineSettingsV1>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settingsV1);
+
+					foreach (ExpansionHardlineItemData itemData: settingsV1.HardlineItemDatas)
+					{
+						if (!itemData.ClassName)
+							continue;
+
+						AddItem(itemData.ClassName, itemData.Rarity);
+					}
+				}
 				
 				m_Version = VERSION;
 				save = true;
@@ -562,20 +548,16 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		UseItemRarity = false;
 		UseHumanity = false;
 		
-		DefaultHardlineItemData();
+		DefaultItemRarity();
 	}
 
 	// -----------------------------------------------------------
-	// ExpansionHardlineModule LoadItemHardlineData
-	// Server
+	// ExpansionHardlineModule DefaultItemRarity
 	// -----------------------------------------------------------
-	void DefaultHardlineItemData()
+	void DefaultItemRarity()
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
-		
-		if (!HardlineItemDatas)
-			HardlineItemDatas = new array<ref ExpansionHardlineItemData>;
 
 		string worldName;
 		GetGame().GetWorldName(worldName);
@@ -1445,13 +1427,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("PistolSuppressor", ExpansionHardlineItemRarity.RARE);
 	}
 	
-	void AddItem(string type, int rarity)
+	void AddItem(string type, ExpansionHardlineItemRarity rarity)
 	{
-		ExpansionHardlineItemData data = new ExpansionHardlineItemData;
 		type.ToLower();
-		data.SetType(type);
-		data.SetRatity(rarity);
-		HardlineItemDatas.Insert(data);
+		ItemRarity.Insert(type, rarity);
 	}
 	
 	override string SettingName()
@@ -1459,21 +1438,14 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		return "Hardline Settings";
 	}
 	
-	ExpansionHardlineItemData GetHardlineItemDataByType(string type)
+	ExpansionHardlineItemRarity GetHardlineItemRarityByType(string type)
 	{
-		if (!HardlineItemDatas || HardlineItemDatas.Count() == 0)
-			return NULL;
-		
-		for (int i = 0; i < HardlineItemDatas.Count(); i++)
-		{
-			ExpansionHardlineItemData current = HardlineItemDatas[i];
-			if (!current)
-				continue;
-			
-			if (current.GetType() == type)
-				return current;
-		}
-		
-		return NULL;
+		type.ToLower();
+
+		ExpansionHardlineItemRarity rarity;
+		if (ItemRarity.Find(type, rarity))
+			return rarity;
+
+		return ExpansionHardlineItemRarity.NONE;
 	}
 };

@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfig
 {
 	private autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
 	private vector Position = vector.Zero;

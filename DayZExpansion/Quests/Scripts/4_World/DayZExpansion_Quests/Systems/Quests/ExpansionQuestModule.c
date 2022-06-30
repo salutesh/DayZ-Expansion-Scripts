@@ -735,21 +735,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 		string playerUID = identity.GetId();
 
 		ScriptRPC rpc = new ScriptRPC();
-
 		int npcCount = m_QuestsNPCs.Count();
 		rpc.Write(npcCount);
-
-		foreach (int npcID, ExpansionQuestNPCData npcData: m_QuestsNPCs)
+		
+		for (int i = 0; i < m_QuestsNPCs.Count(); i++)
 		{
+			ExpansionQuestNPCData npcData = m_QuestsNPCs[i];
 			if (!npcData)
-			{
-				Error(ToString() + "::SendQuestNPCDataServer - Error on getting quest npc data!");
 				continue;
-			}
-
+			
 			npcData.OnSend(rpc);
 		}
-
+		
 		rpc.Send(NULL, ExpansionQuestModuleRPC.SendQuestNPCData, false, identity);
 
 		QuestModulePrint(ToString() + "::SendQuestNPCDataServer - End");
@@ -1662,7 +1659,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 
 		pos[1] = pos[1] + 2.0;
-		ExpansionMarkerData markerData = ExpansionMarkerData.Create(ExpansionMapMarkerType.PERSONAL);
+		ExpansionMarkerData markerData = ExpansionMarkerData.Create(ExpansionMapMarkerType.PERSONAL, "", true);
 		markerData.SetName(text);
 		markerData.SetIcon("Questionmark");
 		markerData.SetColor(ARGB(255,241,196,15));
@@ -2534,8 +2531,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ExpansionQuestObjectiveConfigBase objectiveBaseData = new ExpansionQuestObjectiveConfigBase();
-		JsonFileLoader<ExpansionQuestObjectiveConfigBase>.JsonLoadFile(path + fileName, objectiveBaseData);
+		ExpansionQuestObjectiveConfig objectiveBaseData = new ExpansionQuestObjectiveConfig();
+		JsonFileLoader<ExpansionQuestObjectiveConfig>.JsonLoadFile(path + fileName, objectiveBaseData);
 		if (!objectiveBaseData)
 			return;
 
@@ -3219,7 +3216,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! Only group owner can accept quest!
 			if (partyData.GetOwnerUID() != playerUID)
 			{
-				ExpansionNotification(new StringLocaliser("Group Quest"), new StringLocaliser("Only a group owner can turn-in a group quest!"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
+				ExpansionNotification(new StringLocaliser("Group Quest"), new StringLocaliser("Only a group owner can turn in a group quest!"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 				return;
 			}
 		}
@@ -4776,7 +4773,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule GetClientQuestData
 	// Client
 	// ------------------------------------------------------------
-	ref ExpansionQuestPersistentData GetClientQuestData()
+	ExpansionQuestPersistentData GetClientQuestData()
 	{
 		return m_PlayerQuestData;
 	}
@@ -4785,7 +4782,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule GetClientQuestNPCData
 	// Client
 	// ------------------------------------------------------------
-	ref ExpansionQuestNPCData GetClientQuestNPCData()
+	ExpansionQuestNPCData GetClientQuestNPCData()
 	{
 		return m_ClientQuestNPC;
 	}
@@ -4823,7 +4820,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule GetQuestByID
 	// Server
 	// -----------------------------------------------------------
-	ref ExpansionQuestConfig GetQuestConfigByID(int id)
+	ExpansionQuestConfig GetQuestConfigByID(int id)
 	{
 		return m_QuestConfigs.Get(id);
 	}
@@ -4832,34 +4829,29 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionQuestModule GetQuestByID
 	// Client
 	// -----------------------------------------------------------
-	ref ExpansionQuestConfig GetQuestConfigClientByID(int id)
+	ExpansionQuestConfig GetQuestConfigClientByID(int id)
 	{
 		return m_QuestClientConfigs.Get(id);
 	}
 
 	// -----------------------------------------------------------
-	// ExpansionQuestModule GetCurrentClientQuestNPCData
-	// Client
-	// -----------------------------------------------------------
-	ref ExpansionQuestNPCData GetCurrentClientQuestNPCData()
-	{
-		return m_ClientQuestNPC;
-	}
-
-	// -----------------------------------------------------------
 	// ExpansionQuestModule GetQuestNPCDataByID
-	// Server &  client
+	// Server & client
 	// -----------------------------------------------------------
-	ref ExpansionQuestNPCData GetQuestNPCDataByID(int id)
+	ExpansionQuestNPCData GetQuestNPCDataByID(int id)
 	{
-		return m_QuestsNPCs.Get(id);
+		ExpansionQuestNPCData foundData;
+		if (m_QuestsNPCs.Find(id, foundData))
+			return foundData;
+		
+		return NULL;
 	}
 
 	// -----------------------------------------------------------
 	// ExpansionQuestModule GetPlayerQuestDataByUID
 	// Server
 	// -----------------------------------------------------------
-	ref ExpansionQuestPersistentData GetPlayerQuestDataByUID(string playerUID)
+	ExpansionQuestPersistentData GetPlayerQuestDataByUID(string playerUID)
 	{
 		return m_PlayerDatas.Get(playerUID);
 	}

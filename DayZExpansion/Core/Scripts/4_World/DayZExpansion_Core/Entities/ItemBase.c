@@ -679,7 +679,25 @@ modded class ItemBase
 	
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		super.EEItemLocationChanged(oldLoc, newLoc);
+		DayZPlayerImplement old_owner_dpi;
+		DayZPlayerImplement new_owner_dpi;
+
+		bool shouldSuper = true;
+		
+		if (oldLoc.GetParent())
+			old_owner_dpi = DayZPlayerImplement.Cast(oldLoc.GetParent().GetHierarchyRootPlayer());
+		
+		if (newLoc.GetParent())
+			new_owner_dpi = DayZPlayerImplement.Cast(newLoc.GetParent().GetHierarchyRootPlayer());
+
+		//! super EEItemLocationChanged wants PlayerBase class, NPCs are DayZPlayerImplement so this is to prevent the super method from being called.
+		if (old_owner_dpi && !PlayerBase.Cast(old_owner_dpi))
+			shouldSuper = false;
+		else if (new_owner_dpi && !PlayerBase.Cast(new_owner_dpi))
+			shouldSuper = false;
+		
+		if (shouldSuper)
+			super.EEItemLocationChanged(oldLoc, newLoc);
 
 		if (!GetGame().IsServer())
 			return;

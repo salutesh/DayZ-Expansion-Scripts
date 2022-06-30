@@ -59,7 +59,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
 
 		questNPC.SetNPCName("Peter");
-		questNPC.SetDefaultNPCText("Hm?");
+		questNPC.SetDefaultNPCText("Hmm?");
 
 		return questNPC;
 	}
@@ -106,7 +106,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetLoadoutFile("NBCLoadout"); //! Quest NPC gear
 
 		questNPC.SetNPCName("Steve");
-		questNPC.SetDefaultNPCText("What do you want? I am bussy...");
+		questNPC.SetDefaultNPCText("What do you want? I am busy...");
 
 		return questNPC;
 	}

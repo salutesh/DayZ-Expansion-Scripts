@@ -596,6 +596,8 @@ class ExpansionTraderStaticBase extends BuildingSuper
 
 		m_allTraders.Insert(this);
 
+		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
 	}
@@ -680,6 +682,8 @@ class ExpansionTraderZombieBase extends ZombieBase
 
 		m_allTraders.Insert(this);
 
+		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
 	}
@@ -761,7 +765,11 @@ class ExpansionTraderZombieBase extends ZombieBase
 /**@class		ExpansionTraderAIBase
  * @brief		This class handles AI traders
  **/
+#ifdef EXPANSIONMODAI
 class ExpansionTraderAIBase extends eAINPCBase
+#else
+class ExpansionTraderAIBase extends eAIBase
+#endif
 {
 	private ref ExpansionTraderObjectBase m_TraderObject;
 

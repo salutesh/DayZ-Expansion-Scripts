@@ -255,7 +255,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		for (i = 0; i < quest.GetObjectives().Count(); i++)
 		{
-			ExpansionQuestObjectiveConfigBase objective = quest.GetObjectives()[i];
+			ExpansionQuestObjectiveConfig objective = quest.GetObjectives()[i];
 			int objectiveType = objective.GetObjectiveType();
 			QuestDebug(ToString() + "::SetQuest - Objective type: " + objectiveType);
 			ExpansionQuestObjectiveTargetConfig objectiveTarget;

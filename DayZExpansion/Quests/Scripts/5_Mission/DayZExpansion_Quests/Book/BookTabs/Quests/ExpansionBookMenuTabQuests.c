@@ -211,7 +211,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		m_QuestTabController.ObjectiveItems.Clear();
 		for (i = 0; i < quest.GetObjectives().Count(); i++)
 		{
-			ExpansionQuestObjectiveConfigBase objective = quest.GetObjectives()[i];
+			ExpansionQuestObjectiveConfig objective = quest.GetObjectives()[i];
 			int objectiveType = objective.GetObjectiveType();
 			QuestPrint(ToString() + "::SetQuest - Objective type: " + objectiveType);
 			ExpansionQuestObjectiveTargetConfig objectiveTarget;

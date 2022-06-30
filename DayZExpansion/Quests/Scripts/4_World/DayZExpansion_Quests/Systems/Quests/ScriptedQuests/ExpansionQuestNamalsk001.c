@@ -115,7 +115,7 @@
 			//! Create a marker on quest npc location for the player
 			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(GetQuestConfig().GetQuestTurnInID());
 			vector npcPos = questNPC.GetPosition();
-			CreateClientMarker(npcPos, "Turn-In Quest");
+			CreateClientMarker(npcPos, "Turn In Quest");
 		#endif
 		}
 

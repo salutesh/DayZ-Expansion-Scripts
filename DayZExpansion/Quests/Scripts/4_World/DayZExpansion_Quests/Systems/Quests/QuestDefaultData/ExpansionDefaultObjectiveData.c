@@ -114,7 +114,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveTargetConfig objective = new ExpansionQuestObjectiveTargetConfig();
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
-		objective.SetObjectiveText("Kill 10 infected with a sledge hammer");
+		objective.SetObjectiveText("Kill 10 Infected with a sledgehammer");
 
 		if (m_WorldName == "namalsk")
 		{
@@ -209,7 +209,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveTargetConfig objective = new ExpansionQuestObjectiveTargetConfig();
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
-		objective.SetObjectiveText("Kill 100 infected");
+		objective.SetObjectiveText("Kill 100 Infected");
 
 		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
 		//! Civilian Infected
@@ -291,7 +291,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveTargetConfig objective = new ExpansionQuestObjectiveTargetConfig();
 		objective.SetID(3);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
-		objective.SetObjectiveText("Kill 10 infected");
+		objective.SetObjectiveText("Kill 10 Infected");
 
 		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
 		//! Civilian Infected
@@ -572,7 +572,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
 		objective.SetID(13);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Craft a improvised fishing rod!");
+		objective.SetObjectiveText("Craft an improvised fishing rod!");
 
 		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
 		collection.SetClassName("ImprovisedFishingRod");
@@ -587,7 +587,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
 		objective.SetID(14);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Catch a Mackerel");
+		objective.SetObjectiveText("Catch a mackerel");
 
 		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
 		collection.SetClassName("Mackerel");
@@ -632,7 +632,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveAIPatrolConfig objective = new ExpansionQuestObjectiveAIPatrolConfig();
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIPATROL);
-		objective.SetObjectiveText("Kill all 4 units of the bandit patrol at the market location");
+		objective.SetObjectiveText("Kill all 4 units of the bandit patrol at the marked location");
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = new ExpansionQuestObjectiveAIPatrol();
 		aiPatrol.SetNPCUnits(4);
@@ -689,7 +689,7 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveAICampConfig objective = new ExpansionQuestObjectiveAICampConfig();
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.AICAMP);
-		objective.SetObjectiveText("Kill all 10 bandits at the market location");
+		objective.SetObjectiveText("Kill all 10 bandits at the marked location");
 
 		ExpansionQuestObjectiveAICamp aiCamp = new ExpansionQuestObjectiveAICamp();
 		aiCamp.SetNPCSpeed("RUN");

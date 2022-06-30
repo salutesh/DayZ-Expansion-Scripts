@@ -29,11 +29,11 @@ class ExpansionDefaultQuestData
 		questConfig.SetID(1); //! Unique quest ID - Need to be the same as when registered in the quest module
 		questConfig.SetType(ExpansionQuestType.DELIVERY);
 		questConfig.SetTitle("A dirty rats job"); //! Quest title
-		questConfig.SetObjectiveText("Deliver the Note and talk to Steve."); //! Quest objectives text
+		questConfig.SetObjectiveText("Deliver the note and talk to Steve."); //! Quest objectives text
 		array<string> desc = new array<string>;
-		desc.Insert("Shit man who are you? %1 is your name? Oh shit i thought we'd already dealt with all of you. ** (He stares at you for a moment and then beginns to smile) ** Ah nevermind...today is your lucky day my friend! If you do me a little favor, I'll make sure you get off this island as soon as possible. I swear on my mother's beard! All you have to do is take this NOTE here to my useless colleague Steve and have him read it and then he will give something to you. Bring it to me! You find Steve in the little village down the street in the north west. Make sure he reads the note and dont come back with empty hands!"); //! 0 - Quest description on getting quest
-		desc.Insert("I thought i made clear what you need to do?! Go to Steve now and don't come back with empty Hands!"); //! 1 - Quest description while quest is active
-		desc.Insert("Look at that... an other little bambie in the forests of death..."); //! 2 - Quest description when take in quest
+		desc.Insert("Shit man, who are you? Is your name %1? I thought we already dealt with you. ** (He stares at you for a moment and then begins to smile) ** Ah nevermind... Today is your lucky day, my friend! If you do me a little favor, I'll make sure you get off this island as soon as possible. I swear by my mother's beard! All you have to do is take this NOTE here to my useless colleague Steve and have him read it, then he will give something to you. Bring it to me! You can find Steve in the little village down the street in the north west. Make sure he reads the note and don't come back with empty hands!"); //! 0 - Quest description on getting quest
+		desc.Insert("I thought I made clear what you need to do?! Go to Steve now and don't come back with empty hands!"); //! 1 - Quest description while quest is active
+		desc.Insert("Look at that... Another little bambi in the forests of death..."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 
 		questConfig.SetPreQuestID(-1); //! Pre-quest ID
@@ -57,11 +57,11 @@ class ExpansionDefaultQuestData
 		questConfig.SetID(2);
 		questConfig.SetType(ExpansionQuestType.TARGET);
 		questConfig.SetTitle("A favor for Steve...");
-		questConfig.SetObjectiveText("Kill 10 civilian infected humans with the Sledge-Hammer.");
+		questConfig.SetObjectiveText("Kill 10 civilian Infected with Steve's sledgehammer.");
 		array<string> desc = new array<string>;
-		desc.Insert("So Peter sends you hm? Well i have what he wants but he still owes me something... But i am also not a bad guy. Lets say if you do me a favor, too, I'll give you what Steve wants and even more. I gotta keep watch around here and make sure no shit happens here and i want you to take this sledgehammer and clean up the village with it. There are a few infected people who have to be eliminated before they start moving into the camp."); //! 0 - Quest description on getting quest
+		desc.Insert("So, Peter sends you, hmm? Well I have what he wants, although he still owes me something... But I'm also not a bad guy. Let's say if you do me a favor, too, I'll give you what Steve wants and even more. I gotta keep watch and make sure no shit happens around here. I want you to take this sledgehammer and clean up the village with it. There are a few Infected that have to be eliminated before they start moving into the camp."); //! 0 - Quest description on getting quest
 		desc.Insert("You are not done yet? How hard can it be to smash some heads with that hammer... Come back when the job is done!"); //! 1 - Quest description while quest is active
-		desc.Insert("Oh there you are! I thought the infected got your ass and killed you.. Well here is your reward."); //! 2 - Quest description when take in quest
+		desc.Insert("Oh there you are! I thought the Infected got your ass and killed you... Well, here is your reward."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 
 		questConfig.SetPreQuestID(1);
@@ -115,7 +115,7 @@ class ExpansionDefaultQuestData
 		array<string> desc = new array<string>;
 		desc.Insert("Oh right, here's what Peter wants. Bring it to him and he will be satisfied. Don't even think about opening the package! Just go and bring it to him.");
 		desc.Insert("What are you doing still here? Go to Peter!");
-		desc.Insert("Why did this take so long?..You go what I wanted? ** (He looks at the package in your hands with wide eyes and rips it out of your hands) ** Good!....What? Your way out? Well what should i say but i lied to you. There is no fucking way out from this hell and you will die here as we all. You can have this backpack and try your luck out there. I am sorry i lied to you but we all have to see how we somehow survive here. I wish you good luck out there...you will need it.");
+		desc.Insert("Why did this take so long?... You got what I wanted? ** (He looks at the package with wide eyes and rips it out of your hands) ** Good!... What? Your way out? Well what should I say, but I lied to you. There is no fucking way out of this hell, and you will die here as we all. You can have this backpack and try your luck out there. I am sorry I lied to you, but we all have to see how we somehow survive here. I wish you good luck out there... You will need it.");
 		questConfig.SetDescriptions(desc);
 
 		questConfig.SetPreQuestID(2); //! Pre-quest ID
@@ -168,9 +168,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("Survivor - Dog Tag");
 		questConfig.SetObjectiveText("Exchange a survivor dog tag");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a bambi player for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a bambi player for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Survivor.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
@@ -321,7 +321,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetID(8);
 		questConfig.SetType(ExpansionQuestType.TARGET);
 		questConfig.SetTitle("Kill - Civilian Infected");
-		questConfig.SetObjectiveText("Kill 100 civilian infected.");
+		questConfig.SetObjectiveText("Kill 100 civilian Infected.");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
@@ -363,9 +363,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Scout");
 		questConfig.SetObjectiveText("Obtain a Scout dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Scout rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Scout rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Scout.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
@@ -400,9 +400,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Pathfinder");
 		questConfig.SetObjectiveText("Obtain a Pathfinder dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Pathfinder rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Pathfinder rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Pathfinder.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
@@ -437,9 +437,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Superhero");
 		questConfig.SetObjectiveText("Obtain a Superhero dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Superhero rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Superhero rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Superhero.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
@@ -471,12 +471,12 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(12);
 		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Legend");
-		questConfig.SetObjectiveText("Obtain a Legend dog tag.");
+		questConfig.SetTitle("[Dog Tag] Legendary");
+		questConfig.SetObjectiveText("Obtain a Legendary dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Legend rank for me i will give you something when you come back to me and give me the dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Legend.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("If you kill a player with the Legendary rank for me, I will give you something when you come back to me and give me their dog tag.");
+		desc.Insert("Obtain a dog tag from a player with the rank: Legendary.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
@@ -512,9 +512,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Kleptomaniac");
 		questConfig.SetObjectiveText("Obtain a Kleptomaniac dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Kleptomaniac rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Kleptomaniac rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Kleptomaniac.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
@@ -549,9 +549,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Bully");
 		questConfig.SetObjectiveText("Obtain a Bully dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Bully rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Bully rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Bully.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
@@ -586,9 +586,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Killer");
 		questConfig.SetObjectiveText("Obtain a Killer dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Killer rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Killer rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Killer.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
@@ -623,9 +623,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Madman");
 		questConfig.SetObjectiveText("Obtain a Madman dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Madman rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a Player with the Madman rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Madman.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
@@ -660,9 +660,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Hero");
 		questConfig.SetObjectiveText("Obtain a Hero dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Hero rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Hero rank for me, I will give you something when you come back to me and give me the dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Hero.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
@@ -697,9 +697,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("[Dog Tag] Bandit");
 		questConfig.SetObjectiveText("Obtain a Bandit dog tag.");
 		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Bandit rank for me i will give you something when you come back to me and give me the dog tag.");
+		desc.Insert("If you kill a player with the Bandit rank for me, I will give you something when you come back to me and give me their dog tag.");
 		desc.Insert("Obtain a dog tag from a player with the rank: Bandit.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
@@ -735,7 +735,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetID(19);
 		questConfig.SetType(ExpansionQuestType.TARGET);
 		questConfig.SetTitle("Killed 10 Infected");
-		questConfig.SetObjectiveText("You have killed 10 infected and completed a server achievement! Reward: 100 Ruble");
+		questConfig.SetObjectiveText("You have killed 10 Infected and completed a server achievement! Reward: 100 Ruble");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -763,8 +763,8 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(20);
 		questConfig.SetType(ExpansionQuestType.TARGET);
-		questConfig.SetTitle("Killed 100 Civilian Infected");
-		questConfig.SetObjectiveText("You have killed 100 civilian infected and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetTitle("Killed 100 civilian Infected");
+		questConfig.SetObjectiveText("You have killed 100 civilian Infected and completed a server achievement! Reward: 500 Ruble");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -852,8 +852,8 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(23);
 		questConfig.SetType(ExpansionQuestType.ACTION);
-		questConfig.SetTitle("Lockpick your first Vehicle");
-		questConfig.SetObjectiveText("You have lockpick your first Vehicle and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetTitle("Lockpick your first vehicle");
+		questConfig.SetObjectiveText("You have lockpicked your first vehicle and completed a server achievement! Reward: 500 Ruble");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -886,7 +886,7 @@ class ExpansionDefaultQuestData
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("Obtain 5 apples.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
@@ -918,11 +918,11 @@ class ExpansionDefaultQuestData
 		questConfig.SetID(25);
 		questConfig.SetType(ExpansionQuestType.COLLECT);
 		questConfig.SetTitle("Catch a Fish");
-		questConfig.SetObjectiveText("Craft a improvidsed fishing rod and catch a Mackerel!");
+		questConfig.SetObjectiveText("Craft an improvised fishing rod and catch a mackerel!");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
-		desc.Insert("Craft a improvidsed fishing rod and catch a Mackerel.");
-		desc.Insert("Turn-in quest to get reward.");
+		desc.Insert("Craft an improvidsed fishing rod and catch a mackerel.");
+		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
 		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest

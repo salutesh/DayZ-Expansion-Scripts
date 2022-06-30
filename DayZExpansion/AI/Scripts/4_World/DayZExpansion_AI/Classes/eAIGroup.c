@@ -544,7 +544,7 @@ class eAIGroup
 		eAIBase ai;
 		for (int i = Count() - 1; i > -1; i--)
 		{
-			if (!Class.CastTo(ai, GetMember(i)) || ai.GetType().IndexOf("ExpansionTraderAI") == 0)
+			if (!Class.CastTo(ai, GetMember(i)) || ai.IsInherited(eAINPCBase))
 			{
 				continue;
 			}

@@ -119,7 +119,7 @@ class ExpansionQuest
 		//! Create quest objectives based on quest config.
 		for (int i = 0; i < Config.GetObjectives().Count(); i++)
 		{
-			ref ExpansionQuestObjectiveConfigBase objectiveConfig = Config.GetObjectives()[i];
+			ref ExpansionQuestObjectiveConfig objectiveConfig = Config.GetObjectives()[i];
 			int objectiveID = objectiveConfig.GetID();
 			int objectiveType = objectiveConfig.GetObjectiveType();
 			int time = objectiveConfig.GetTimeLimit();
@@ -475,7 +475,7 @@ class ExpansionQuest
 			if (questNPC)
 			{
 				vector npcPos = questNPC.GetPosition();
-				CreateClientMarker(npcPos, "Turn-In Quest");
+				CreateClientMarker(npcPos, "Turn In Quest");
 			}
 		#endif
 
@@ -751,7 +751,7 @@ class ExpansionQuest
 				
 				QuestPrint(ToString() + "::CreateQuestItems - Spawn quest items for player with UID: " + playerGroupData.GetID());
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				EntityAI groupPlayerEntity = EntityAI.Cast(groupPlayer);
+				EntityAI groupPlayerEntity = groupPlayer;
 				if (groupPlayer)
 				{
 					for (int g = 0; g < Config.GetQuestItems().Count(); g++)
@@ -1149,7 +1149,7 @@ class ExpansionQuest
 				
 				QuestPrint(ToString() + "::SpawnQuestRewards - Spawn quest reward for player with UID: " + playerGroupData.GetID());
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				EntityAI groupPlayerEntity = EntityAI.Cast(groupPlayer);
+				EntityAI groupPlayerEntity = groupPlayer;
 				if (groupPlayer)
 				{
 					if (Config.NeedToSelectReward)

@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class ExpansionQuestObjectiveTreasureHuntConfigBase:ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveTreasureHuntConfigBase:ExpansionQuestObjectiveConfig
 {
 	bool ShowDistance = true;
 	ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
@@ -65,7 +65,7 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		return config;
 	}
 
-	void Save(string fileName)
+	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + ".JSON", this);
 	}

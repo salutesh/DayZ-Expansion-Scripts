@@ -59,7 +59,7 @@ class ExpansionAIPatrolManager
                 ObjectPatrolLog("!!! ERROR !!!");
             }
 
-            ObjectPatrolLog("Spawning "+aiSum+" "+patrol.Faction+" bots near a "+patrol.ClassName+" at "+startpos);
+            ObjectPatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots near "+patrol.ClassName+" at "+startpos);
             return eAIDynamicPatrol.Create(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, -1, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
 
@@ -149,7 +149,7 @@ class ExpansionAIPatrolManager
                 PatrolLog("!!! ERROR !!!");
             }
 
-            PatrolLog("Spawning "+aiSum+" "+patrol.Faction+" bots at "+startpos);
+            PatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots at "+startpos);
             eAIDynamicPatrol.Create(startpos, patrol.Waypoints, patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
         PatrolLog("=================== Patrol Spawner END ===================");

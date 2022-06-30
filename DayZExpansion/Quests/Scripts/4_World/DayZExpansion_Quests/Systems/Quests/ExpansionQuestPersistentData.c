@@ -50,8 +50,8 @@ class ExpansionQuestPersistentDatasBaseV0
 //! Pesistent player quest data handled in the quest module
 class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 {
-	[NonSerialized()]
-	static int CONFIGVERSION = 1;
+	static const int CONFIGVERSION = 1;
+
 	[NonSerialized()]
 	private ExpansionQuestModule m_QuestModule;
 

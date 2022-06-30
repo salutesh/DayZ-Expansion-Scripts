@@ -96,11 +96,13 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 				if (!m_ItemTooltip && m_Object)
 				{
 					m_ItemTooltip = new ExpansionItemTooltip(m_Object);
+					m_ItemTooltip.SetContentOffset(-100.0, 0.0);
 					m_ItemTooltip.Show();
 				}
 				break;
 			}
 		}
+		
 
 		return super.OnMouseEnter(w, x, y);
 	}

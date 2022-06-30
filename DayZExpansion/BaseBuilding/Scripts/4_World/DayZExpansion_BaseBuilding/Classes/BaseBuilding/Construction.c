@@ -131,10 +131,8 @@ modded class Construction
 
 	bool IsPartBuiltForSnapPoint( int idx )
 	{
-		for ( int i = 0; i < m_ConstructionParts.Count(); i++ )
+		foreach (string key, ConstructionPart value: m_ConstructionParts)
 		{
-			string key = m_ConstructionParts.GetKey( i );
-			ConstructionPart value = m_ConstructionParts.Get( key );
 			if ( value.IsBuilt() && value.m_SnappingShow.Find( idx ) > -1 )
 				return true;
 		}

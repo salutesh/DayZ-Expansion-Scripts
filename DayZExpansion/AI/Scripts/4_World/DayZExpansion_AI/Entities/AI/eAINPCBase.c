@@ -8,5 +8,7 @@ class eAINPCBase: eAIBase
 		{
 			GetGroup().SetFaction(new eAIFactionPassive());
 		}
+
+		m_Expansion_NameOverride = new ExpansionNameOverride(this);
 	}
 }

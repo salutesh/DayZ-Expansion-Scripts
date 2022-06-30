@@ -20,7 +20,7 @@ class ExpansionQuestNPCDataBase
 	vector Orientation;
 	ref array<int> QuestIDs = new array<int>;
 	string NPCName = "Unknown";
-	string DefaultNPCText = "What do you want? Leave me alown..!";
+	string DefaultNPCText = "What do you want? Leave me alone!";
 
 #ifdef EXPANSIONMODAI
 	ref array<vector> Waypoints = new array<vector>;
@@ -30,8 +30,7 @@ class ExpansionQuestNPCDataBase
 
 class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 {
-	[NonSerialized()]
-	static int CONFIGVERSION = 1;
+	static const int CONFIGVERSION = 1;
 	
 #ifdef EXPANSIONMODAI
 	bool NPCEmoteIsStatic;
@@ -188,6 +187,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNPCBase questNPC = ExpansionQuestNPCBase.Cast(enity);
+		questNPC.m_Expansion_NameOverride.Set(NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		if (Position)
@@ -212,6 +212,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(enity);
+		questNPC.m_Expansion_NameOverride.Set(NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		questNPC.SetPosition(Position);
@@ -273,6 +274,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		ExpansionQuestStaticObject questObject = ExpansionQuestStaticObject.Cast(enity);
 		questObject.SetPosition(Position);
 		questObject.SetOrientation(Orientation);
+		questObject.m_Expansion_NameOverride.Set(NPCName);
 		
 		return questObject;
 	}

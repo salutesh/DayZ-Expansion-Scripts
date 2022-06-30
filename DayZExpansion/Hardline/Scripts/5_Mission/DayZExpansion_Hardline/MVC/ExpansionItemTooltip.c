@@ -28,7 +28,7 @@ modded class ExpansionItemTooltip
 		if (!Class.CastTo(itemBase, m_Item))
 			return;
 		
-		int rarity = itemBase.GetRarity();
+		ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
 		string text;
 		int color;
         switch (rarity)

@@ -24,6 +24,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	//Server only
 	private ref map<string, ref ExpansionSyncedPlayerStats> m_Stats;
 	private ref map<string, ref ExpansionSyncedPlayerStates> m_States;
+	private ref TStringArray m_PlayerIDs;
 	
 	private float m_UpdateQueueTimer;
 	private int m_CurrentPlayerTick;
@@ -65,6 +66,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 		m_Stats = new map<string, ref ExpansionSyncedPlayerStats>;
 		m_States = new map<string, ref ExpansionSyncedPlayerStates>;
+
+		m_PlayerIDs = new TStringArray();
 
 		m_ClientStats = new ExpansionSyncedPlayerStats;
 		m_ClientStates = new ExpansionSyncedPlayerStates;
@@ -168,6 +171,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		string playerID = cArgs.Player.GetIdentity().GetId();
 		AddPlayerStats(playerID);
 		AddPlayerStates(playerID);
+
+		if (m_PlayerIDs.Find(playerID) == -1)
+			m_PlayerIDs.Insert(playerID);
 		
 		SyncLastDeathPos(cArgs.Player);
 	}
@@ -219,6 +225,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		string playerID = cArgs.Identity.GetId();
 		RemovePlayerStats(playerID);
 		RemovePlayerStates(playerID);
+		m_PlayerIDs.RemoveItem(playerID);
 	}
 	
 	// ------------------------------------------------------------
@@ -236,16 +243,16 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		m_UpdateQueueTimer += update.DeltaTime;
 		if ( m_UpdateQueueTimer >= UPDATE_TICK_TIME )
 		{
-			if (m_Stats.Count() > 0)
+			if (m_PlayerIDs.Count() > 0)
 			{
 				for (int i = 0; i < UPDATE_PLAYERS_PER_TICK; ++i) 
 				{
-					if (m_CurrentPlayerTick >= m_Stats.Count())
+					if (m_CurrentPlayerTick >= m_PlayerIDs.Count())
 					{
 						m_CurrentPlayerTick = 0;
 					}
 					
-					string currentPlayerID = m_Stats.GetKey(m_CurrentPlayerTick);
+					string currentPlayerID = m_PlayerIDs[m_CurrentPlayerTick];
 					if (currentPlayerID == "")
 					{
 						Error("ExpansionMonitorModule::OnUpdate - Player ID is empty!");
@@ -257,7 +264,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 					
 					m_CurrentPlayerTick++;
 
-					if (m_CurrentPlayerTick == m_Stats.Count())
+					if (m_CurrentPlayerTick == m_PlayerIDs.Count())
 					{
 						break;
 					}

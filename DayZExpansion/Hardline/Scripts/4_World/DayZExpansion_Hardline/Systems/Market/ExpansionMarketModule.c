@@ -22,9 +22,9 @@ modded class ExpansionMarketModule
 		
 		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
+			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(itemClassName);
 			int required;
-			if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
+			if (rarity && !HasRankForItem(player, rarity, required))
 			{
 				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
 				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to buy!", required.ToString());
@@ -45,9 +45,9 @@ modded class ExpansionMarketModule
 		
 		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemClassName);
+			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(itemClassName);
 			int required;
-			if (itemData && !HasRankForItem(player, itemData.GetRarity(), required))
+			if (rarity && !HasRankForItem(player, rarity, required))
 			{
 				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
 				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to sell!", required.ToString());

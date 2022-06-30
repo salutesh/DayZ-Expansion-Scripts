@@ -4126,11 +4126,8 @@ modded class CarScript
 		bool playLightSound = false;
 		bool playHeavySound = false;
 
-		for (int i = 0; i < contactZonesCount; ++i)
+		foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
 		{
-			string zoneName = m_ContactCache.GetKey(i);
-			array<ref CarContactData> data = m_ContactCache[zoneName];
-
 			float dmg;
 
 			int contactCount = data.Count();

@@ -54,27 +54,30 @@ class ExpansionMarkerClientData : Managed
 		file.Write(m_PersonalMarkers.Count());
 		for (int i = 0; i < m_PersonalMarkers.Count(); ++i)
 		{
+			if (!m_PersonalMarkers[i].m_Persist)
+				continue;
+
 			file.Write(m_PersonalMarkers[i].GetUID());
 			m_PersonalMarkers[i].OnStoreSave(file);
 		}
 
 		file.Write(m_MarkerInfo_Server.Count());
-		for (i = 0; i < m_MarkerInfo_Server.Count(); ++i)
+		foreach (string serverMarkerID, ExpansionMarkerClientInfo serverMarkerInfo: m_MarkerInfo_Server)
 		{
-			m_MarkerInfo_Server.GetElement(i).OnStoreSave(file);
+			serverMarkerInfo.OnStoreSave(file);
 		}
 	#ifdef EXPANSIONMODGROUPS
 		file.Write(m_PartyUID);
 		file.Write(m_MarkerInfo_Party.Count());
-		for (i = 0; i < m_MarkerInfo_Party.Count(); ++i)
+		foreach (string partyMarkerID, ExpansionMarkerClientInfo partyMarkerInfo: m_MarkerInfo_Party)
 		{
-			m_MarkerInfo_Party.GetElement(i).OnStoreSave(file);
+			partyMarkerInfo.OnStoreSave(file);
 		}
 
 		file.Write(m_MarkerInfo_PartyPlayers.Count());
-		for (i = 0; i < m_MarkerInfo_PartyPlayers.Count(); ++i)
+		foreach (string partyPlayerMarkerID, ExpansionMarkerClientInfo partyPlayerMarkerInfo: m_MarkerInfo_PartyPlayers)
 		{
-			m_MarkerInfo_PartyPlayers.GetElement(i).OnStoreSave(file);
+			partyPlayerMarkerInfo.OnStoreSave(file);
 		}
 	#endif
 	}

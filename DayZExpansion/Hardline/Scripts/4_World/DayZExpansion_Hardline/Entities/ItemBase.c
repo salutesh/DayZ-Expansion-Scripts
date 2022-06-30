@@ -10,51 +10,45 @@
  *
 */
 
-static const int RPC_EXP_HARDLINE_DATA = -25301;
-
 modded class ItemBase
 {
-	ref ExpansionHardlineItemData m_HardlineItemData;
-	int m_Rarity = ExpansionHardlineItemRarity.NONE;
+	protected int m_Expansion_Rarity = ExpansionHardlineItemRarity.NONE;
 
-	override void DeferredInit()
-    {
-		super.DeferredInit();
-		
-		if (!GetExpansionSettings().GetHardline().UseItemRarity)
-			return;
-		
-		string itemName = GetType();
-		itemName.ToLower();
-		ExpansionHardlineItemData itemData = GetExpansionSettings().GetHardline().GetHardlineItemDataByType(itemName);
-		if (itemData)
+	void ItemBase()
+	{
+		RegisterNetSyncVariableInt("m_Expansion_Rarity", EnumTools.GetEnumValue(ExpansionHardlineItemRarity, 0), EnumTools.GetLastEnumValue(ExpansionHardlineItemRarity));
+
+		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			m_HardlineItemData = itemData;
-			m_Rarity = itemData.GetRarity();
-		
+			m_Expansion_Rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(GetType());
+
 		#ifdef EXPANSIONMODHARDLINEDEBUG
-			Print("-----------------------------------------------------------------------------------------");
-			Print(ToString() + "::DeferredInit - Hardline item class name: " + ClassName());
-			Print(ToString() + "::DeferredInit - Hardline item type name: " + GetType());
-			Print(ToString() + "::DeferredInit - Hardline item data: " + m_HardlineItemData);
-			Print(ToString() + "::DeferredInit - Hardline item rarity: " + m_Rarity);
-			Print("-----------------------------------------------------------------------------------------");
+			EXTrace.Print(EXTrace.HARDLINE, this, "- Hardline item rarity: " + typename.EnumToString(ExpansionHardlineItemRarity, m_Expansion_Rarity));
 		#endif
 		}
-    }
-
-    ExpansionHardlineItemData GetHardlineItemData()
-	{
-		return m_HardlineItemData;
 	}
 
-	int GetRarity()
+	ExpansionHardlineItemRarity Expansion_GetRarity()
 	{
-		return m_Rarity;
+		return m_Expansion_Rarity;
 	}
 
-	void SetRarity(int rarity)
+	void Expansion_SetRarity(ExpansionHardlineItemRarity rarity)
 	{
-		m_Rarity = rarity;
+		if (!GetGame().IsServer())
+			return;
+
+		m_Expansion_Rarity = rarity;
+
+		SetSynchDirty();
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+	#ifdef EXPANSIONMODHARDLINEDEBUG
+		EXTrace.Print(EXTrace.HARDLINE, this, "- Hardline item rarity: " + typename.EnumToString(ExpansionHardlineItemRarity, m_Expansion_Rarity));
+	#endif
 	}
 };

@@ -19,6 +19,8 @@ modded class ZombieBase
 
 	protected bool m_Expansion_IsInSafeZone;
 	
+	ref ExpansionNameOverride m_Expansion_NameOverride;
+
 	// ------------------------------------------------------------
 	// ZombieBase Consturctor
 	// ------------------------------------------------------------	
@@ -90,5 +92,21 @@ modded class ZombieBase
 	bool IsInSafeZone()
 	{
 		return m_Expansion_IsInSafeZone;
+	}
+
+	override bool NameOverride(out string output)
+	{
+		if (m_Expansion_NameOverride && m_Expansion_NameOverride.Get(output))
+			return true;
+		else
+			return super.NameOverride(output);
+	}
+
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
+	{
+		super.OnRPC(sender, rpc_type, ctx);
+
+		if (m_Expansion_NameOverride)
+			m_Expansion_NameOverride.OnRPC(sender, rpc_type, ctx);
 	}
 }

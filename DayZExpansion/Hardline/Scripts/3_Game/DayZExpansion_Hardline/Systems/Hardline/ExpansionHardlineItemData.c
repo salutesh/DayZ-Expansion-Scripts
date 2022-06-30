@@ -10,10 +10,11 @@
  *
 */
 
+//! Legacy, settings v1
 class ExpansionHardlineItemData
 {
 	string ClassName;
-	int Rarity;
+	ExpansionHardlineItemRarity Rarity;
 
 	void SetType(string type)
 	{
@@ -25,30 +26,13 @@ class ExpansionHardlineItemData
 		return ClassName;
 	}
 	
-	void SetRatity(int rarity)
+	void SetRatity(ExpansionHardlineItemRarity rarity)
 	{
 		Rarity = rarity;
 	}
 
-	int GetRarity()
+	ExpansionHardlineItemRarity GetRarity()
 	{
 		return Rarity;
-	}
-	
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(ClassName);
-		ctx.Write(Rarity);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(ClassName))
-			return false;
-		
-		if (!ctx.Read(Rarity))
-			return false;
-		
-		return true;
 	}
 };

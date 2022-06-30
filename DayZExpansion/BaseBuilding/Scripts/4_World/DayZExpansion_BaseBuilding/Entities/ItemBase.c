@@ -17,17 +17,8 @@ modded class ItemBase
 	protected ref ExpansionElectricityConnection m_ElectricitySource;
 	protected ref array< ItemBase > m_ElectricityConnections;
 
-	/*! We need to keep track of base parts health so we can reliably 'heal' them when damage multiplier is zero
-	    (for that, we need to know the health of the item before it was damaged, i.e. *before* EEHitBy runs).
-
-		Items considered 'base parts' are currently anything inheriting from ExpansionBaseBuildingBase and ExpansionSafeBase.
-
-		All actions that affect those base part's health (e.g. raiding, repairing) should update m_CurrentHealth afterwards
-		by either setting the respective damage zone health in m_CurrentHealth directly or calling UpdateCurrentHealthMap,
-		but there is a 'catch-all' in EEHealthLevelChanged to catch at least major changes in health we didn't think about.
-	*/
-	ref TStringArray m_DmgZones;
-	ref map< string, float > m_CurrentHealth;
+	protected ref map< string, float > m_Expansion_HealthBeforeHit;
+	protected float m_Expansion_DamageMultiplier;
 
 	protected bool m_Expansion_IsOpenable;
 	protected bool m_Expansion_IsOpened;
@@ -68,20 +59,7 @@ modded class ItemBase
 		
 		if ( IsMissionHost() && ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) ) )
 		{
-			m_DmgZones = new TStringArray;
-			GetDamageZones( m_DmgZones );
-			if ( m_DmgZones.Count() == 0 )
-				m_DmgZones.Insert( "GlobalHealth" );
-			//string dmgZones;
-			//for ( int i = 0; i < m_DmgZones.Count(); i++ )
-			//{
-				//dmgZones += " " + m_DmgZones[i];
-			//}
-			//Print(GetType() + " ItemBase::ItemBase dmgZones :" + dmgZones);
-			m_CurrentHealth = new map< string, float >;
-			//! Init current health map to max health
-			//! EEOnAfterLoad will call this again to set actual health if loading from storage
-			UpdateCurrentHealthMap( "ItemBase::ItemBase" );
+			m_Expansion_HealthBeforeHit = new map< string, float >;
 		}
 	}
 	
@@ -182,23 +160,6 @@ modded class ItemBase
 			return false;
 
 		return true;
-	}
-
-	void UpdateCurrentHealthMap( string caller = "" )
-	{
-		if ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) )
-		{
-			//Print(GetType() + " " + caller + " -> ItemBase::UpdateCurrentHealthMap");
-			for ( int i = 0; i < m_DmgZones.Count(); i++ )
-			{
-				float health = GetHealth( m_DmgZones[i], "Health" );
-				if ( m_CurrentHealth[m_DmgZones[i]] != health )
-				{
-					//Print(GetType() + " " + caller + " -> ItemBase::UpdateCurrentHealthMap " + m_DmgZones[i] + " health : " + health);
-					m_CurrentHealth[m_DmgZones[i]] = health;
-				}
-			}
-		}
 	}
 
 	/**
@@ -1156,8 +1117,6 @@ modded class ItemBase
 		super.EEOnAfterLoad();
 
 		m_ElectricitySource.OnAfterLoad();
-
-		UpdateCurrentHealthMap( "ItemBase::EEOnAfterLoad" );
 	}
 
 	//============================================
@@ -1193,31 +1152,6 @@ modded class ItemBase
 		m_ElectricitySource.OnVariablesSynchronized();
 	}
 	
-	//============================================
-	// Explode
-	//============================================
- 	override void Explode(int damageType, string ammoType = "")
-	{
-		super.Explode( damageType, ammoType );
-
-		BuildingBase.ExpansionExplode( this, ammoType );
-	}
-
-	//============================================
-	// EEHealthLevelChanged
-	//============================================
-	override void EEHealthLevelChanged( int oldLevel, int newLevel, string zone )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GENERAL_ITEMS, this, "EEHealthLevelChanged");
-#endif
-
-		super.EEHealthLevelChanged( oldLevel, newLevel, zone );
-		
-		if ( IsMissionHost() )
-			UpdateCurrentHealthMap( "ItemBase::EEHealthLevelChanged" );
-	}
-	
 	/**
 	 * @param damageResult 
 	 * @param source 
@@ -1229,8 +1163,6 @@ modded class ItemBase
 	 *  
 	 * This override only exists to either increase or negate (partly or fully) the base damage by applying any respective damage multipliers,
 	 * and logs the result to the admin log.
-	 * 
-	 * TODO: Better linking to the vanilla damage system but still keep damage multipliers
 	 */
 	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
 	{
@@ -1238,48 +1170,76 @@ modded class ItemBase
 
 		if ( !IsInherited( ExpansionBaseBuilding ) && !IsInherited( ExpansionSafeBase ) )
 			return;
+
+		EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
 		string damageZone = dmgZone;
 		if ( damageZone == "" )
 			damageZone = "GlobalHealth";
 
-		//Print(GetType() + " ItemBase::EEHitby m_CurentHealth " + m_CurrentHealth[damageZone] + " health " + GetHealth(damageZone, "Health"));
-
-		float health = m_CurrentHealth[damageZone];  // Health before damage
+		float health = m_Expansion_HealthBeforeHit[dmgZone];
 		float dmg = damageResult.GetDamage( damageZone, "Health" );  // Base damage
-		float damageMultiplier;
 
 		if ( damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM )
 		{
-			if ( IsInherited( ExpansionSafeBase ) )
-			{
-				if ( damageType == DT_EXPLOSION )
-				{
-					damageMultiplier = GetExpansionSettings().GetRaid().SafeExplosionDamageMultiplier;
-				} else
-				{
-					damageMultiplier = GetExpansionSettings().GetRaid().SafeProjectileDamageMultiplier;
-				}
-			} else
-			{
-				if ( damageType == DT_EXPLOSION )
-				{
-					damageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
-				} else
-				{
-					damageMultiplier = GetExpansionSettings().GetRaid().ProjectileDamageMultiplier;
-				}
-			}
-
 			// damageMultiplier > 1 applies bonus damage
 			// damageMultiplier < 1 negates damage (partly if multiplier > 0 or fully if 0)
 			// damageMultiplier == 1 effectively does nothing
 			if ( health > 0 )
-				SetHealth( damageZone, "Health", Math.Max( health - ( dmg * damageMultiplier ), 0 ) );
+				SetHealth( damageZone, "Health", Math.Max( health - ( dmg * m_Expansion_DamageMultiplier ), 0 ) );
 		}
 
-		m_CurrentHealth[damageZone] = GetHealth( damageZone, "Health" );
+		RaidLog( source, damageZone, health, dmg, m_Expansion_DamageMultiplier );
+	}
 
-		RaidLog( source, damageZone, health, dmg, damageMultiplier );
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (IsInherited(ExpansionBaseBuilding) || IsInherited(ExpansionSafeBase))
+		{
+			EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+			if (damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM)
+			{
+				if (IsInherited(ExpansionSafeBase))
+				{
+					if (damageType == DT_EXPLOSION)
+						m_Expansion_DamageMultiplier = GetExpansionSettings().GetRaid().SafeExplosionDamageMultiplier;
+					else
+						m_Expansion_DamageMultiplier = GetExpansionSettings().GetRaid().SafeProjectileDamageMultiplier;
+				}
+				else
+				{
+					if (damageType == DT_EXPLOSION)
+						m_Expansion_DamageMultiplier = GetExpansionSettings().GetRaid().ExplosionDamageMultiplier;
+					else
+						m_Expansion_DamageMultiplier = GetExpansionSettings().GetRaid().ProjectileDamageMultiplier;
+				}
+
+				if (!m_Expansion_DamageMultiplier)
+					return false;
+
+				if (damageType == DT_EXPLOSION)
+				{
+					bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
+
+					foreach (string type: GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist)
+					{
+						if (source.IsKindOf(type))
+						{
+							dealDamage = true;
+							break;
+						}
+					}
+
+					if (!dealDamage)
+						return false;
+				}
+
+				m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");
+			}
+		}
+
+		return super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
 	}
 
 	void RaidLog( EntityAI source, string damageZone, float health, float dmg, float damageMultiplier )

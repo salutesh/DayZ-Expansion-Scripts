@@ -65,14 +65,14 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		for (int i = 0; i < m_QuestConfig.GetObjectives().Count(); i++)
 		{
 			QuestPrint(ToString() + "::SetEntry - Adding objectives!");
-			ExpansionQuestObjectiveConfigBase objectiveConfig = m_QuestConfig.GetObjectives().Get(i);
+			ExpansionQuestObjectiveConfig objectiveConfig = m_QuestConfig.GetObjectives().Get(i);
 			if (!objectiveConfig)
 			{
 				QuestPrint(ToString() + "::SetEntry - F1");
 				continue;
 			}
 			
-			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfigBase: " + objectiveConfig.ToString());
+			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfig: " + objectiveConfig.ToString());
 			
 			ExpansionQuestObjectiveData objective = m_QuestData.QuestObjectives.Get(i);
 			if (objective)

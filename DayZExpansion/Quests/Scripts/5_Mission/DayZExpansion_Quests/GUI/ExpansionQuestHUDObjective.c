@@ -54,7 +54,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		int count;
 		int amount;
 
-		ExpansionQuestObjectiveConfigBase objectiveConfigBase = GetObjectiveConfigBaseByType(m_Quest, m_Objective.GetObjectiveType());
+		ExpansionQuestObjectiveConfig objectiveConfigBase = GetObjectiveConfigBaseByType(m_Quest, m_Objective.GetObjectiveType());
 		if (!objectiveConfigBase)
 			return;
 
@@ -279,11 +279,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		QuestPrint(ToString() + "::SetEntryObjective - End");
 	}
 
-	ExpansionQuestObjectiveConfigBase GetObjectiveConfigBaseByType(ExpansionQuestConfig questConfig, int objectiveType)
+	ExpansionQuestObjectiveConfig GetObjectiveConfigBaseByType(ExpansionQuestConfig questConfig, int objectiveType)
 	{
 		for (int i = 0; i < questConfig.GetObjectives().Count(); i++)
 		{
-			ExpansionQuestObjectiveConfigBase objectiveConfigBase = questConfig.GetObjectives()[i];
+			ExpansionQuestObjectiveConfig objectiveConfigBase = questConfig.GetObjectives()[i];
 			if (!objectiveConfigBase)
 				continue;
 

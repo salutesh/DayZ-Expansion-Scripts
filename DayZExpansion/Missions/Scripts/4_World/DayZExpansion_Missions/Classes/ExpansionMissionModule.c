@@ -116,9 +116,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 			m_MissionTypes = new map< string, typename >;
 		}
 
-		for ( int i = 0; i < m_MissionTypes.Count(); i++ )
+		foreach (string missionClassName, typename missionType: m_MissionTypes)
 		{
-			m_MissionTypesArray.Insert( m_MissionTypes.GetElement( i ) );
+			m_MissionTypesArray.Insert(missionType);
 		}
 
 		if ( m_MissionSettings.DidGenerateDefaults() )
@@ -219,10 +219,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "DefaultMissions");
 #endif
 	
-		for ( int i = 0; i < m_MissionTypes.Count(); i++ )
+		foreach (string missionClassName, typename missionType: m_MissionTypes)
 		{
-			typename missionType = m_MissionTypes.GetElement( i );
-
 			ExpansionMissionEventBase missionEvent = ExpansionMissionEventBase.Cast( missionType.Spawn() );
 
 			if ( !missionEvent )
@@ -240,7 +238,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 				ExpansionMissionMeta missionMeta = new ExpansionMissionMeta;
 
 				missionMeta.MissionPath = missionEvent.GetPath();
-				missionMeta.MissionType = m_MissionTypes.GetKey( i );
+				missionMeta.MissionType = missionClassName;
 				missionMeta.MissionEvent = missionEvent;
 
 				m_MissionSettings.Missions.Insert( missionMeta );
@@ -542,9 +540,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 	{
 		array< ref ExpansionMissionSerializedType > serialized = new array< ref ExpansionMissionSerializedType >;
 
-		for ( int i = 0; i < m_MissionsTyped.Count(); i++ )
+		foreach (typename missionType, array< ExpansionMissionEventBase > missions: m_MissionsTyped)
 		{
-			serialized.Insert( new ExpansionMissionSerializedType( m_MissionsTyped.GetKey( i ).ToString(), m_MissionsTyped.GetElement( i ) ) );
+			serialized.Insert( new ExpansionMissionSerializedType( missionType.ToString(), missions ) );
 		}
 
 		return serialized;
