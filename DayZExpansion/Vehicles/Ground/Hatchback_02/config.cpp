@@ -805,7 +805,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Hood: CarDoor
+	class Hatchback_02_Hood: Hatchback_02_Door_1_1
 	{
 		defaultSkin = "Red";
 		class DamageSystem
@@ -835,7 +835,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Trunk: CarDoor
+	class Hatchback_02_Trunk: Hatchback_02_Door_1_1
 	{
 		defaultSkin = "Red";
 		class DamageSystem

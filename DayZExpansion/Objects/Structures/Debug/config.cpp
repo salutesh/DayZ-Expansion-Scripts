@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {"ExpansionAdminHammer","ExpansionDebugRod","ExpansionDebugRod_Red","ExpansionDebugRod_Orange","ExpansionDebugRod_Blue","ExpansionDebugRod_Purple","ExpansionDebugRodBig","ExpansionDebugRodBig_Red","ExpansionDebugRodBig_Orange","ExpansionDebugRodBig_Blue","ExpansionDebugRodBig_Purple","ExpansionDebugBox","ExpansionDebugBox_Red","ExpansionDebugBox_Orange","ExpansionDebugBox_Blue","ExpansionDebugBox_Purple","ExpansionNetSyncDebugObject","ExpansionDebugLine","ExpansionDebugLine_Red","ExpansionDebugLine_Orange","ExpansionDebugLine_Blue","ExpansionDebugLine_Purple","ExpansionDebugNoticeMe","ExpansionDebugNoticeMe_Red","ExpansionDebugNoticeMe_Orange","ExpansionDebugNoticeMe_Blue","ExpansionDebugNoticeMe_Purple","ExpansionDebugArrow","ExpansionDebugArrow_Red","ExpansionDebugArrow_Orange","ExpansionDebugArrow_Blue","ExpansionDebugArrow_Purple"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Tools"};
 	};
 };
 class CfgVehicles

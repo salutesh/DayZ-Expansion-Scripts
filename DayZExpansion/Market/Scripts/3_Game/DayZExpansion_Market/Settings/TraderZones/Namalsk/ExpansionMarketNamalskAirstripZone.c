@@ -19,9 +19,8 @@ class ExpansionMarketNamalskAirstripZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "NamalskAirstrip";
 		m_DisplayName = "Airstrip Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "NamalskAirstrip";
 
 		Position = "6302.0 21.21 9513.0";
 		Radius = 400;

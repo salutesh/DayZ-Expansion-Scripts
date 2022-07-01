@@ -15,3 +15,12 @@
 
 //! Used for map mod debugging
 //#define EXPANSIONMODNAVIGATION_DEBUG
+
+//! Enable it if you want to marker module debug logs
+//#define EXPANSION_MARKER_MODULE_DEBUG
+
+//! Enable it if you want to enable map menu debug logs
+//#define EXPANSION_MAP_MENU_DEBUG
+
+//! Enable it if you want to enable map menu update debug logs
+//#define EXPANSION_MAP_MENU_UPDATE_DEBUG

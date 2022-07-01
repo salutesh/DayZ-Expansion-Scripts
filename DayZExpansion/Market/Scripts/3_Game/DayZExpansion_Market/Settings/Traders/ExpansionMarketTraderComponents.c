@@ -19,7 +19,6 @@ class ExpansionMarketTraderComponents: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Components";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_COMPONENTS";
 		m_FileName = "Components";
 		TraderIcon = "Hammer";

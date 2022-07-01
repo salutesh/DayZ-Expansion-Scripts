@@ -178,7 +178,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		return -1;
 	}
 	
-	private void CreateUpdateTimer()
+	void CreateUpdateTimer()
 	{
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
@@ -187,7 +187,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		}
 	}
 	
-	private void DestroyUpdateTimer()
+	void DestroyUpdateTimer()
 	{
 		if (m_UpdateTimer)
 		{

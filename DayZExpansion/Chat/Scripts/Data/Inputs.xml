@@ -10,12 +10,10 @@
 			<input name="UAExpansionHideChatToggle" />
 		</exclude>
 
-<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
-		<sorting name="expansion_chat" loc="STR_MOD_EXPANSION_NAME">
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionChatSwitchChannel" />
 			<input name="UAExpansionHideChatToggle" />
 		</sorting>
--->
 	</inputs>
 
 	<preset>

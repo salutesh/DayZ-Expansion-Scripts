@@ -95,9 +95,8 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 						itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
 						int countItems;
 						
-						for (int k = 0; k < m_PlayerItem.ContainerItems.Count(); k++)
+						foreach (string containerName, int containerItems: m_PlayerItem.ContainerItems)
 						{
-							int containerItems = m_PlayerItem.ContainerItems.GetElement(k);
 							countItems += containerItems;
 						}
 						
@@ -117,9 +116,8 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 						itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
 						int countAttachments;
 						
-						for (int l = 0; l < m_PlayerItem.ContainerItems.Count(); l++)
+						foreach (string attachmentName, int attachmentItems: m_PlayerItem.ContainerItems)
 						{
-							int attachmentItems = m_PlayerItem.ContainerItems.GetElement(l);
 							countAttachments += attachmentItems;
 						}
 						

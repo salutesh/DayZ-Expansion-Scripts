@@ -19,7 +19,6 @@ class ExpansionMarketTraderAircraft: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Aircraft";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_AIRCRAFT";
 		m_FileName = "Aircraft";
 		TraderIcon = "Helicopter";

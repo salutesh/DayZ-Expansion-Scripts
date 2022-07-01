@@ -92,9 +92,9 @@ class ExpansionSkinModule: CF_ModuleWorld
 			}
 		}
 
-		for ( int k = 0; k < m_Skins.Count(); ++k )
+		foreach (string classname, ExpansionSkins skins: m_Skins )
 		{
-			m_Skins.GetElement( k ).Sort();
+			skins.Sort();
 		}
 	}
 	

@@ -142,7 +142,7 @@ class ExpansionVehicleProp : ExpansionVehicleModule
 			m_Velocity = m_Velocity.Multiply3(controlledTransform);
 		}
 		
-		vector impulse = direction * (torque / m_RotorRadius) * pState.m_Mass * pState.m_DeltaTime;
+		vector force = direction * (torque / m_RotorRadius) * pState.m_Mass;
 
 		float rps = m_Controller.m_RPM[m_EngineIndex] / 60.0;
 		m_UseBlur = false;
@@ -158,11 +158,11 @@ class ExpansionVehicleProp : ExpansionVehicleModule
 
 		pState.DBGDrawLineDirectionMS(m_Position, direction);
 
-		pState.DBGDrawImpulseMS(m_Position, impulse);
+		pState.DBGDrawImpulseMS(m_Position, force);
 		pState.DBGDrawSphereMS(m_Position, 0.2);
 
-		pState.m_Impulse += impulse.Multiply3(pState.m_Transform);
-		pState.m_ImpulseTorque += (m_Position * impulse).Multiply3(pState.m_Transform);
+		pState.m_Force += force.Multiply3(pState.m_Transform);
+		pState.m_Torque += (m_Position * force).Multiply3(pState.m_Transform);
 	}
 
 	override void Animate(ExpansionPhysicsState pState)

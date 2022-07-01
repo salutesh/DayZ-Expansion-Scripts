@@ -11,8 +11,8 @@
 			<input name="UAExpansionHeliAntiTorqueRight" loc="STR_EXPANSION_HELICOPTER_ANTI_TORQUE_RIGHT" />
 			<input name="UAExpansionHeliCyclicForward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_FORWARD" />
 			<input name="UAExpansionHeliCyclicBackward" loc="STR_EXPANSION_HELICOPTER_CYCLIC_BACKWARD" />
-			<input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
 			<input name="UAExpansionHeliCyclicLeft" loc="STR_EXPANSION_HELICOPTER_CYCLIC_LEFT" />
+			<input name="UAExpansionHeliCyclicRight" loc="STR_EXPANSION_HELICOPTER_CYCLIC_RIGHT" />
 			<input name="UAExpansionHeliCargoDoorUp" visible="false" />
 			<input name="UAExpansionHeliCargoDoorDown" visible="false" />
 
@@ -79,8 +79,7 @@
 			<include name="movementexpansion" />
 		</exclude>
 
-<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
-		<sorting name="expansion_vehicles" loc="STR_MOD_EXPANSION_NAME">
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionHeliRocket" />
 			<input name="UAExpansionHeliFreeLook" />
 			<input name="UAExpansionHeliAutoHover" />
@@ -122,7 +121,6 @@
 			<input name="UAExpansionCarHorn" />
 			<input name="UAExpansionCarRefill" />
 		</sorting>
--->
 	</inputs>
 
 	<preset>
@@ -153,19 +151,19 @@
 		</input>
 		<input name="UAExpansionHeliCollectiveUp">
 			<btn name="kLShift" />
-            <btn name="x1ShoulderRight" />
+            <btn name="x1TriggerRight" />
 		</input>
 		<input name="UAExpansionHeliCollectiveDown">
 			<btn name="kZ" />
-            <btn name="x1ShoulderLeft" />
+            <btn name="x1TriggerLeft" />
 		</input>
 		<input name="UAExpansionHeliAntiTorqueLeft">
 			<btn name="kQ" />
-            <btn name="x1TriggerLeft" />
+            <btn name="x1ShoulderLeft" />
 		</input>
 		<input name="UAExpansionHeliAntiTorqueRight">
 			<btn name="kE" />
-            <btn name="x1TriggerRight" />
+            <btn name="x1ShoulderRight" />
 		</input>
 		<input name="UAExpansionHeliCargoDoorUp">
 			<btn name="kO" />

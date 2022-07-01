@@ -10,7 +10,7 @@
  *
 */
 
-#ifndef EXPANSION_OBSOLTE_CAMERA
+#ifndef EXPANSION_OBSOLETE_CAMERA
 modded class DayZPlayerCameraBase
 {
 	PlayerBase m_Ex_Player;

@@ -123,7 +123,6 @@ modded class IngameHud
 		{
 			if (GetGPSMapState())
 				m_PlayerArrowMarker.Hide();
-			return;
 		}
 		else
 		{

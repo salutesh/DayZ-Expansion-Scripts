@@ -275,6 +275,92 @@ class ExpansionObjectSpawnTools
 		#endif
 	}
 
+	static void ProcessGear(EntityAI entity, string gear)
+	{
+		TStringArray tokens();
+		gear.Split(",", tokens);
+
+		foreach (string token: tokens)
+		{
+			DayZPlayerImplement ai;
+			BuildingBase building;
+			ZombieBase zombie;
+
+#ifdef ENFUSION_AI_PROJECT
+			if (token.IndexOf("faction:") == 0)
+			{
+				string factionName = token.Substring(8, token.Length() - 8);
+				eAIFaction faction = eAIFaction.Create(factionName);
+				if (faction)
+				{
+					if (Class.CastTo(ai, entity))
+					{
+						EXTrace.Print(EXTrace.AI, ai, "Setting faction " + faction.ToString());
+						eAIGroup group = eAIGroup.GetGroupByLeader(ai);
+						group.SetFaction(faction);
+					}
+				}
+				continue;
+			}
+#endif
+
+			if (token == "canbelooted:false" || token == "canbelooted:0")
+			{
+				if (Class.CastTo(ai, entity))
+				{
+					ai.Expansion_SetCanBeLooted(false);
+				}
+				continue;
+			}
+
+			if (token.IndexOf("loadout:") == 0)
+			{
+				string loadout = token.Substring(8, token.Length() - 8);
+				ExpansionHumanLoadout.Apply(entity, loadout);
+				continue;
+			}
+
+			if (token.IndexOf("name:") == 0)
+			{
+				string name = token.Substring(5, token.Length() - 5);
+				if (Class.CastTo(ai, entity) && ai.m_Expansion_NameOverride)
+				{
+					ai.m_Expansion_NameOverride.Set(name);
+				}
+				else if (Class.CastTo(building, entity) && building.m_Expansion_NameOverride)
+				{
+					building.m_Expansion_NameOverride.Set(name);
+				}
+				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NameOverride)
+				{
+					zombie.m_Expansion_NameOverride.Set(name);
+				}
+				continue;
+			}
+
+			array<string> items = new array<string>;
+			token.Split("+", items);
+			EntityAI itemEnt = NULL;
+			//! Spawn weapon in hands
+			if ( entity.IsInherited( Man ) && GetGame().ConfigIsExisting( "CfgVehicles " + items[0] + " suicideAnim" ) || GetGame().IsKindOf( items[0], "Rifle_Base" ) || GetGame().IsKindOf( items[0], "Pistol_Base" ) || GetGame().IsKindOf( items[0], "Archery_Base" ) || GetGame().IsKindOf( items[0], "Launcher_Base" ) )
+				itemEnt = Man.Cast( entity ).GetHumanInventory().CreateInHands( items[0] );
+			//! Spawn everything else in inventory
+			if ( !itemEnt )
+				itemEnt = entity.GetInventory().CreateInInventory( items[0] );
+			ItemBase itemBase = ItemBase.Cast( itemEnt );
+			if ( itemEnt )
+			{
+				for ( int j = 1; j < items.Count(); j++ )
+				{
+					if ( itemBase )
+						itemBase.ExpansionCreateInInventory( items[j] );
+					else
+						itemEnt.GetInventory().CreateInInventory( items[j] );
+				}
+			}
+		}
+	}
+
 	// ------------------------------------------------------------
 	// Expansion GetObjectFromMissionFile
 	// ------------------------------------------------------------
@@ -328,7 +414,7 @@ class ExpansionObjectSpawnTools
 		array<vector> positions;
 		vector position;
 		vector rotation;
-		TStringArray gear = new TStringArray;
+		string gear;
 
 		string filePath = traderFilesFolder + name;
 		FileHandle file = OpenFile( filePath, FileMode.READ );
@@ -369,29 +455,7 @@ class ExpansionObjectSpawnTools
 				
 				if ( gear )
 				{
-					for( i = 0; i < gear.Count(); i++ )
-					{
-						array<string> items = new array<string>;
-						gear[i].Split("+", items);
-						EntityAI itemEnt = NULL;
-						//! Spawn weapon in hands
-						if ( trader.IsInherited( Man ) && GetGame().ConfigIsExisting( "CfgVehicles " + items[0] + " suicideAnim" ) || GetGame().IsKindOf( items[0], "Rifle_Base" ) || GetGame().IsKindOf( items[0], "Pistol_Base" ) || GetGame().IsKindOf( items[0], "Archery_Base" ) || GetGame().IsKindOf( items[0], "Launcher_Base" ) )
-							itemEnt = Man.Cast( trader ).GetHumanInventory().CreateInHands( items[0] );
-						//! Spawn everything else in inventory
-						if ( !itemEnt )
-							itemEnt = trader.GetInventory().CreateInInventory( items[0] );
-						ItemBase itemBase = ItemBase.Cast( itemEnt );
-						if ( itemEnt )
-						{
-							for ( j = 1; j < items.Count(); j++ )
-							{
-								if ( itemBase )
-									itemBase.ExpansionCreateInInventory( items[j] );
-								else
-									itemEnt.GetInventory().CreateInInventory( items[j] );
-							}
-						}
-					}
+					ProcessGear(trader, gear);
 				}
 
 				ExpansionTraderNPCBase traderNPC;
@@ -454,7 +518,7 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	// Expansion GetTraderFromMissionFile
 	// ------------------------------------------------------------
-	static bool GetTraderFromMissionFile( FileHandle file, out string name, out array<vector> positions, out vector rotation, out TStringArray gear )
+	static bool GetTraderFromMissionFile( FileHandle file, out string name, out array<vector> positions, out vector rotation, out string gear )
 	{
 		string line;
 		int lineSize = FGets( file, line );
@@ -489,10 +553,7 @@ class ExpansionObjectSpawnTools
 		}
 		rotation = tokens.Get( 2 ).ToVector();
 
-		string gears_array = tokens.Get( 3 );
-		TStringArray geartokens = new TStringArray;
-		gears_array.Split( ",", geartokens );
-		gear = geartokens;
+		gear = tokens.Get( 3 );
 		
 		return true;
 	}

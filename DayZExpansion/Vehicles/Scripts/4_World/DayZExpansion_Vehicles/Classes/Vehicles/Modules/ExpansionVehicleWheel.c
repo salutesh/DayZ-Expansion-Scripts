@@ -256,7 +256,7 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 				compression = m_Axle.m_Compression * m_SuspensionRelativeVelocity;
 
 			float suspension = m_Axle.m_Stiffness * m_SuspensionLength * m_SuspensionInvContact;
-			float suspensionForce = (suspension - compression) * pState.m_DeltaTime;
+			float suspensionForce = (suspension - compression);
 			if (suspensionForce < 0)
 				suspensionForce = 0;
 
@@ -335,8 +335,8 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 
 		m_Velocity = m_ContactVelocityTS[2] / m_Radius;
 
-		vector impulse;
-		vector impulseTorque;
+		vector force;
+		vector torque;
 
 		// if the velocity direction changes then just apply 0 velocity
 
@@ -345,23 +345,23 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 
 		if (m_HasContact)
 		{
-			impulse += m_SuspensionForce;
-			impulseTorque += m_ContactPosition * m_SuspensionForce;
+			force += m_SuspensionForce;
+			torque += m_ContactPosition * m_SuspensionForce;
 
 			vector axle = m_TransformWS[0];
 			float proj = vector.Dot(axle, m_ContactNormalWS);
 			axle -= m_ContactNormalWS * proj;
 			axle.Normalize();
 
-			forward = m_TransformMS[2] * m_Torque * m_Radius * pState.m_DeltaTime;
+			forward = m_TransformMS[2] * m_Torque * m_Radius;
 
-			impulse += forward;
-			impulseTorque += m_ContactPosition * forward;
+			force += forward;
+			torque += m_ContactPosition * forward;
 
-			side = m_TransformMS[0] * ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3(pState.m_Transform), m_ContactObject, "0 0 0", axle) * pState.m_DeltaTime;
+			side = m_TransformMS[0] * ExpansionPhysics.ResolveSingleBilateral(m_Vehicle, m_ContactPosition, m_ContactVelocity.Multiply3(pState.m_Transform), m_ContactObject, "0 0 0", axle);
 
-			impulse += side;
-			impulseTorque += m_ContactPosition * side;
+			force += side;
+			torque += m_ContactPosition * side;
 		}
 
 #ifndef EXPANSION_WHEEL_DEBUG_DISABLE
@@ -380,8 +380,8 @@ class ExpansionVehicleWheel : ExpansionVehicleRotational
 		m_Rotation = Math.WrapFloatInclusive(m_Rotation, 0, Math.PI2);
 
 		// convert wheel forces to world space
-		pState.m_Impulse += impulse.Multiply3(pState.m_Transform);
-		pState.m_ImpulseTorque += impulseTorque.Multiply3(pState.m_Transform);
+		pState.m_Force += force.Multiply3(pState.m_Transform);
+		pState.m_Torque += torque.Multiply3(pState.m_Transform);
 	}
 
 	override void Animate(ExpansionPhysicsState pState)

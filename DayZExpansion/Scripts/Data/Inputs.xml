@@ -11,12 +11,10 @@
 			<input name="UAExpansionAutoRunToggle" />
 		</exclude>
 
-<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
-		<sorting name="expansion" loc="STR_MOD_EXPANSION_NAME">
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionEarplugsToggle" />
 			<input name="UAExpansionAutoRunToggle" />
 		</sorting>
--->
 	</inputs>
 
 	<preset>

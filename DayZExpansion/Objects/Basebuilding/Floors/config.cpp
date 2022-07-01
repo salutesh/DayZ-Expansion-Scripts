@@ -144,7 +144,7 @@ class CfgVehicles
 				{
 					class Health
 					{
-						damage = 0;
+						damage = 1;
 					};
 					class Blood
 					{

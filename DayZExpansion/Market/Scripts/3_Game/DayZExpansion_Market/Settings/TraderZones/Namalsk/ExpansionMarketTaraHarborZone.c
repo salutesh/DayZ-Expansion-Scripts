@@ -19,9 +19,8 @@ class ExpansionMarketTaraHarborZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "TaraHarbor";
 		m_DisplayName = "Tara Harbor Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "TaraHarbor";
 
 		Position = "8043.48 2.65 7593.5";
 		Radius = 400;

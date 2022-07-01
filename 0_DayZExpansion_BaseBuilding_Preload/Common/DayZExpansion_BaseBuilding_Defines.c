@@ -16,6 +16,15 @@
 
 //#define EXPANSION_VICINITY_DEBUG
 
+//! Enable it if you want to enable territry module debug logs
+//#define EXPANSION_TERRITORY_MODULE_DEBUG
+
+//! Enable it if you want to enable territry dev debug
+//#define EXPANSION_TERRITORY_DEV_DEBUG
+
+//! Enable it if you want to enable COT territory module debug logs
+//#define EXPANSION_COT_TERRITORY_MODULE_DEBUG
+
 //! Enable it if you want to DISABLE chicken stuff
 #define EXPANSION_CHICKEN_DISABLE
 

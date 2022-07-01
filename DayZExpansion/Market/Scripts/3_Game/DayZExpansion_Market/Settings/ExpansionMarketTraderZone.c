@@ -22,12 +22,11 @@ class ExpansionMarketTraderZoneV4: ExpansionMarketTraderZoneBase
 
 class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 {
-	static int VERSION = 5;
+	static int VERSION = 6;
 
 	[NonSerialized()]
 	string m_FileName;
 
-	string m_ZoneName;
 	string m_DisplayName;
 
 	vector Position;
@@ -52,11 +51,9 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	void DebugPrint()
 	{
 		//! Print( "DebugPrint Count: " + Stock.Count() );
-		for (int i = 0 ; i < Stock.Count(); i++)
+		foreach (string clsName, int stock: Stock)
 		{
-			string clsName = Stock.GetKey( i );
-			
-			Print( "Item " + clsName + " | Stock " + Stock.Get( clsName ) + " | Reserved " + ReservedZone.ReservedStock.Get( clsName ) );
+			Print( "Item " + clsName + " | Stock " + stock + " | Reserved " + ReservedZone.ReservedStock.Get( clsName ) );
 		}
 	}
 
@@ -122,9 +119,8 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	void Defaults()
 	{
 		m_Version = VERSION;
-		m_ZoneName = "World";
 		m_DisplayName = "World Trader Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "World";
 		Position = "7500 0 7500"; 	
 		Radius = 15000;
 		BuyPricePercent = 100;
@@ -481,7 +477,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 			}
 			foreach (string className_toRemove : toRemove)
 			{
-				EXPrint("ExpansionMarketTraderZone::Update - " + m_ZoneName + " - removing " + className_toRemove);
+				EXPrint("ExpansionMarketTraderZone::Update - " + m_FileName + " - removing " + className_toRemove);
 				Stock.Remove(className_toRemove);
 			}
 			removed = toRemove.Count();
@@ -497,7 +493,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 				{
 					if (!Stock.Contains(item.ClassName))
 					{
-						EXPrint("ExpansionMarketTraderZone::Update - " + m_ZoneName + " - adding " + item.ClassName);
+						EXPrint("ExpansionMarketTraderZone::Update - " + m_FileName + " - adding " + item.ClassName);
 						int newStock;
 						if (item.IsStaticStock())
 							newStock = 1;

@@ -23,4 +23,18 @@ class eAIFaction
 	{
 		return m_IsGuard;
 	}
+
+	static eAIFaction Create(string factionName)
+	{
+		typename faction = ("eAIFaction" + factionName).ToType();
+		if (faction)
+			//! @note w/o the cast to eAIFaction, the compiler warns about unsafe downcasting.
+			//! Of course the compiler is wrong, because we're casting up, not down, so this cast here is just there to satisfy compiler shortcomings.
+			//! Yes I wrote this comment for the sole reason that I'm annoyed by this.
+			return eAIFaction.Cast(faction.Spawn());
+		else
+			Error("Invalid faction name " + factionName);
+
+		return new eAIFactionRaiders();
+	}
 };

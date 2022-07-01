@@ -235,9 +235,9 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		rpc.Write(callBack);
 		rpc.Write(partiesCount);
 		
-		for (int i = 0; i < partiesCount; i++)
+		map<int, ref ExpansionPartyData> parties = module.GetAllParties();
+		foreach (int partyID, ExpansionPartyData party: parties)
 		{
-			ExpansionPartyData party = module.GetAllParties().GetElement(i);
 			if (!party)
 				continue;
 			

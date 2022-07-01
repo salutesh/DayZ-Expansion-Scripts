@@ -19,7 +19,6 @@ class ExpansionMarketTraderVehicleParts: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Vehicle_Parts";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_VEHICLE_PARTS";
 		m_FileName = "Vehicle_Parts";
 		TraderIcon = "Gas";

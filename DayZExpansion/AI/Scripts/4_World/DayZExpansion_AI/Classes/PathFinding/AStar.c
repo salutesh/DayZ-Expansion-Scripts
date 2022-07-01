@@ -17,6 +17,7 @@ class AStar<Class NodeType>
 		int excludeFlags = filter.GetExcludeFlags();
 
 		NodeType current = null;
+		NodeType next = null;
 
 		mappedPath[start] = null;
 		cost[start] = 0.0;
@@ -39,8 +40,10 @@ class AStar<Class NodeType>
 				break;
 			}
 			
-			foreach (NodeType next : current.m_Neighbours)
+			foreach (auto neighbour : current.m_Neighbours)
 			{
+				Class.CastTo(next, neighbour);
+
 				if (includeFlags & next.m_Flags == 0)
 				{
 				//	break;

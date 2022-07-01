@@ -111,6 +111,7 @@ enum ExpansionMarkerRPC
 enum ExpansionEntityRPC
 {
 	INVALID = 20180,
+	NameOverride,
 	COUNT
 };
 
@@ -260,10 +261,12 @@ enum ExpansionSettingsRPC
 	SafeZone,
 	Mission,
 	AirDrop,
+	Quest,
 	Chat,
 	AI,
 	AIPATROL,
 	NotificationScheduler,
+	Hardline,
 	COUNT
 };
 

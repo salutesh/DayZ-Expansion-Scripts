@@ -9,11 +9,9 @@
 			<input name="UAExpansionBookToggle" />
 		</exclude>
 
-<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
-		<sorting name="expansion_book" loc="STR_MOD_EXPANSION_NAME">
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionBookToggle" />
 		</sorting>
--->
 	</inputs>
 	<preset>
 		<input name="UAExpansionBookToggle">

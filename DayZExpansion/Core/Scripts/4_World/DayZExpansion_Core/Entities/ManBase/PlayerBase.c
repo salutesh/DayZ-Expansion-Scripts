@@ -10,6 +10,12 @@
  *
 */
 
+class ExpansionInventoryItemType
+{
+	int Count;
+	int WorkingCount;
+}
+
 modded class PlayerBase
 {
 	protected string m_PlayerUID;
@@ -28,6 +34,8 @@ modded class PlayerBase
 	protected bool m_LeavingSafeZone;
 
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<PlayerBase>(this);
+
+	ref map<typename, ref ExpansionInventoryItemType> m_Expansion_InventoryItemTypes = new map<typename, ref ExpansionInventoryItemType>;
 
 	void PlayerBase()
 	{
@@ -239,6 +247,17 @@ modded class PlayerBase
 			GetGame().GetUIManager().CloseAll();
 
 		super.OnUnconsciousStart();
+
+		if (!m_Expansion_CanBeLooted)
+			Expansion_LockInventory();
+	}
+
+	override void OnUnconsciousStop(int pCurrentCommandID)
+	{
+		super.OnUnconsciousStop(pCurrentCommandID);
+
+		if (!m_Expansion_CanBeLooted)
+			Expansion_UnlockInventory();
 	}
 	
 	// ------------------------------------------------------------
@@ -594,5 +613,101 @@ modded class PlayerBase
 				m_Hud.ShowQuickbarUI(true);
 			}
 		}
+	}
+
+	void Expansion_OnInventoryUpdate(ItemBase item, bool inInventory = true, bool checkWorking = false)
+	{
+#ifdef EXPANSION_TRACE
+		auto trace = EXTrace.Start0(ExpansionTracing.GENERAL_ITEMS, this, "Expansion_OnInventoryUpdate");
+		EXTrace.Add(trace, item.ToString());
+		EXTrace.Add(trace, inInventory);
+		EXTrace.Add(trace, checkWorking);
+#endif
+
+		typename type = item.Type();
+		typename familyType = item.Expansion_GetFamilyType();
+
+		Expansion_OnInventoryUpdateEx(type, item, inInventory, checkWorking);
+#ifdef EXPANSION_TRACE
+		ExpansionInventoryItemType itemType = m_Expansion_InventoryItemTypes[type];
+		if (itemType)
+		{
+			EXTrace.Add(trace, itemType.Count);
+			EXTrace.Add(trace, itemType.WorkingCount);
+		}
+#endif
+
+		if (familyType != type)
+		{
+			Expansion_OnInventoryUpdateEx(familyType, item, inInventory, checkWorking);
+#ifdef EXPANSION_TRACE
+			itemType = m_Expansion_InventoryItemTypes[familyType];
+			if (itemType)
+			{
+				EXTrace.Add(trace, itemType.Count);
+				EXTrace.Add(trace, itemType.WorkingCount);
+			}
+#endif
+}
+
+	}
+
+	void Expansion_OnInventoryUpdateEx(typename type, ItemBase item, bool inInventory = true, bool checkWorking = false)
+	{
+		ExpansionInventoryItemType itemType;
+
+		bool found = m_Expansion_InventoryItemTypes.Find(type, itemType);
+
+		if (inInventory)
+		{
+			if (!found)
+			{
+				itemType = new ExpansionInventoryItemType;
+				m_Expansion_InventoryItemTypes[type] = itemType;
+			}
+
+			if (!checkWorking)
+			{
+				//! Item entered inventory
+				itemType.Count++;
+			}
+			else if (item.GetCompEM())
+			{
+				//! Item already in inventory
+				if (item.GetCompEM().IsWorking())
+					itemType.WorkingCount++;
+				else if (found && itemType.WorkingCount > 0)
+					itemType.WorkingCount--;
+			}
+		}
+		else if (found)
+		{
+			//! Item exited inventory
+			if (itemType.Count > 1)
+			{
+				itemType.Count--;
+				if (item.GetCompEM() && item.GetCompEM().IsWorking() && itemType.WorkingCount > 0)
+					itemType.WorkingCount--;
+			}
+			else
+			{
+				m_Expansion_InventoryItemTypes.Remove(type);
+			}
+		}
+	}
+
+	int Expansion_GetInventoryCount(typename type, bool working = false)
+	{
+		ExpansionInventoryItemType itemType;
+
+		if (m_Expansion_InventoryItemTypes.Find(type, itemType))
+		{
+			if (working)
+				return itemType.WorkingCount;
+			else
+				return itemType.Count;
+		}
+
+		return 0;
 	}
 }

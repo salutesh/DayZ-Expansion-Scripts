@@ -487,9 +487,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		if (!territories_module)
 			return;
 	
-		for ( int i = 0; i < territories_module.GetAllTerritoryFlags().Count(); ++i )
+		map<int, TerritoryFlag> territoryFlags = territories_module.GetAllTerritoryFlags();
+		foreach (int territoryID, TerritoryFlag currentFlag: territoryFlags)
 		{
-			TerritoryFlag currentFlag = territories_module.GetAllTerritoryFlags().GetElement(i);
 			if (!currentFlag) 
 			{
 				#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG

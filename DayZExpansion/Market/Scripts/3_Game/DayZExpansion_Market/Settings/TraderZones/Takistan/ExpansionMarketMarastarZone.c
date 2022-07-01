@@ -19,9 +19,8 @@ class ExpansionMarketMarastarZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "Marastar";
 		m_DisplayName = "Marastar Oasis Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "Marastar";
 
 		Position = "4611.26 4.6 12334.0";
 		Radius = 500;

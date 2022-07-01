@@ -14,3 +14,9 @@
 #define EXPANSIONMODMISSIONS
 
 //#define EXPANSION_MISSION_HORDE
+
+//! Enable to check player count mins for missions
+#define EXPANSION_MISSION_PLAYERCOUNT_CHECK
+
+// Enable it if you want mission event debug logs enabled
+//#define EXPANSION_MISSION_EVENT_DEBUG

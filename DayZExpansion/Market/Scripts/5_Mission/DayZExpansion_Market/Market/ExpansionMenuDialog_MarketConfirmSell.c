@@ -152,12 +152,10 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			ExpansionMenuDialogContent_WrapSpacer_Entry entry;
 			string name;
 			if (playerItem.ContainerItems.Count() > 1)
-			{		
-				for (int i = 0; i < playerItem.ContainerItems.Count(); i++)
+			{
+				foreach (string containerItemName, int quantity: playerItem.ContainerItems)
 				{
-					name = playerItem.ContainerItems.GetKey(i);
-					int quantity = playerItem.ContainerItems.Get(name);
-					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(name));	
+					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(containerItemName));
 					entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
 					m_WrapSpacer.AddSpacerContent(entry);
 				}

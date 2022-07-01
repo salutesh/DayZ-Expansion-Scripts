@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -13,15 +13,15 @@
 /*
  * Call tracing that can be enabled on a per-ID basis.
  * Insert in each method at the top one of the following:
- * 
+ *
  * auto trace = EXTrace.Start(EXTrace.<ID>);  //! Includes only 1st line of stack
  * auto trace = EXTrace.StartStack(EXTrace.<ID>);  //! Includes whole stack
  * auto trace = EXTrace.Start0(EXTrace.<ID>);  //! Excludes stack
- * 
+ *
  * Calling trace.Dump(<int> depth) will output the current stack with the desired depth (this happens automatically when the trace is destroyed).
  * Leave out the depth parameter to use default depth.
  * You can also change the default depth on-the-fly by calling trace.SetDepth(<int> depth).
- * 
+ *
  * static bool EXTrace.<ID> needs to exist in Core\DayZExpansion_Core\3_Game\ExpansionTracing.c
  * and be set to ENABLE (will enable if DayZDiag or DayZ Experimental) or uncomment global define EXPANSIONTRACE in DayZExpansion_Core_Defines.c
  * DON'T use without wrapping in ifdef EXPANSIONTRACE ... #endif in OnUpdate or anywhere else it would get called rapidly!
@@ -45,23 +45,25 @@ class EXTrace
 
 	static bool AI = ENABLE;
 
-	static bool BASEBUILDING;
+	static bool BASEBUILDING = ENABLE;
 
 	static bool BOOK;
-	
+
 	static bool CE;
 
 	static bool CHAT = ENABLE;
 
 	static bool CHICKEN;
-	
+
 	static bool COT_GROUPS = ENABLE;
-	
+
 	static bool DATACOLLECTION = ENABLE;
 
-	static bool GENERAL_ITEMS;
+	static bool GENERAL_ITEMS = ENABLE;
 
 	static bool GLOBAL;
+
+	static bool HARDLINE = ENABLE;
 
 	static bool KILLFEED = ENABLE;
 
@@ -70,12 +72,12 @@ class EXTrace
 	static bool LIGHTS;
 
 	static bool MAPPING = ENABLE;
-	
+
 	static bool MARKER;
 
 	static bool MARKET;
 
-	static bool MISSIONS;
+	static bool MISSIONS = ENABLE;
 
 	static bool NOTIFICATIONS;
 
@@ -84,11 +86,11 @@ class EXTrace
 	static bool PLAYER_CONSTANT = PLAYER && true; // Will fill up the logs
 
 	static bool PLAYER_MONITOR;
-	
+
 	static bool RESPAWN = ENABLE;
 
 	static bool SETTINGS;
-	
+
 	static bool SPAWNSELECTION;
 
 	static bool SKIN;
@@ -103,8 +105,10 @@ class EXTrace
 
 	static bool ZONES;
 
+	static bool QUESTS;
+
 	//! -----------------------------------------------------------------------
-	
+
 	static string m_Indent = "                                  ";
 	protected string m_Instance;
 	protected string m_Params[10];
@@ -214,17 +218,17 @@ class EXTrace
 
 	static void Add(EXTrace trace, bool param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, int param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, float param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, vector param, bool beautify = true)
@@ -237,12 +241,12 @@ class EXTrace
 
 	static void Add(EXTrace trace, typename param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, Class param)
 	{
-		Add(trace, param);
+		Add(trace, param.ToString());
 	}
 
 	static void Add(EXTrace trace, string param)
@@ -272,6 +276,52 @@ class EXTrace
 			PrintFormat("%1 [EXTRACE] %2 %3", ts, instance.ToString(), msg);
 		else
 			PrintFormat("%1 [EXTRACE] %2", ts, msg);
+	}
+
+	static void PrintHit(bool yes = true, Class instance = null, string msg = "", TotalDamageResult damageResult = null, int damageType = 0, EntityAI source = null, int component = 0, string dmgZone = "", string ammo = "", vector modelPos = "0 0 0", float speedCoef = 1.0)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return;
+#endif
+
+		if (msg)
+			msg += " ";
+
+		msg += damageResult.GetDamage(dmgZone, "Health").ToString() + " ";
+		if (instance && instance.IsInherited(Man))
+		{
+			msg += damageResult.GetDamage(dmgZone, "Blood").ToString() + " ";
+			msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
+		}
+
+		switch (damageType)
+		{
+			case DT_CLOSE_COMBAT:
+				msg += "DT_CLOSE_COMBAT ";
+				break;
+			case DT_FIRE_ARM:
+				msg += "DT_FIRE_ARM ";
+				break;
+			case DT_EXPLOSION:
+				msg += "DT_EXPLOSION ";
+				break;
+			case DT_CUSTOM:
+				msg += "DT_CUSTOM ";
+				break;
+			default:
+				msg += "UNKNOWN ";
+		}
+
+		msg += source.ToString() + " ";
+		msg += component.ToString() + " ";
+		msg += dmgZone + " ";
+		msg += ammo + " ";
+		msg += modelPos.ToString() + " ";
+		msg += speedCoef.ToString();
+
+		Print(true, instance, msg);
 	}
 
 	//! Includes 1st line of stack

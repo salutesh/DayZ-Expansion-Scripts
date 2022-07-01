@@ -12,3 +12,6 @@
 
 //! Used for third party mods, if they want to know if expansion is loaded
 #define EXPANSIONMODWEAPONS
+
+//#define EXPANSION_WEAPON_DEBUG_OBJECTS
+//#define EXPANSION_WEAPON_BULLET_TRACE

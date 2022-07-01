@@ -19,7 +19,6 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Weapons";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_WEAPONS";
 		m_FileName = "Weapons";
 		TraderIcon = "Shotgun";

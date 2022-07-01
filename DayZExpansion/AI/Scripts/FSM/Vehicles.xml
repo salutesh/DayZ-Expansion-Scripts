@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<fsm name="Vehicles">
+<fsm name="Vehicles" type="eAI">
 	<files />
 	<variables />
 	<states default="GoTo">
@@ -10,7 +10,7 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="1240.9818389093" y="474.533421790161" />
+				<position x="1149.9818389093" y="451.533421790161" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -37,7 +37,7 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="1241" y="550.644739300538" />
+				<position x="1239" y="550.644739300538" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -70,7 +70,7 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="1240.43814240661" y="707.749953289782" />
+				<position x="1239.43814240661" y="710.749953289782" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -98,7 +98,7 @@
 				<variable name="position" type="vector" />
 			</variables>
 			<editor_data>
-				<position x="1241.04868248962" y="631.019715945429" />
+				<position x="1239.04868248962" y="629.019715945429" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -124,7 +124,7 @@
 		<state name="Sitting">
 			<variables />
 			<editor_data>
-				<position x="1239.82498598693" y="782.144645880103" />
+				<position x="1239.82498598693" y="781.144645880103" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry />
@@ -142,7 +142,7 @@
 				<variable name="source" type="string" />
 			</variables>
 			<editor_data>
-				<position x="1239.43814240661" y="864.453840426607" />
+				<position x="1237.43814240661" y="862.453840426607" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -174,7 +174,7 @@
 				<variable name="source" type="string" />
 			</variables>
 			<editor_data>
-				<position x="1239.4738019182" y="1016.27987125479" />
+				<position x="1238.4738019182" y="1020.27987125479" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -200,7 +200,7 @@
 		<state name="GetOut">
 			<variables />
 			<editor_data>
-				<position x="1237.98813306457" y="941.143311463732" />
+				<position x="1238.98813306457" y="939.143311463732" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
@@ -220,8 +220,8 @@
 	<transitions>
 		<transition>
 			<editor_data>
-				<position_source x="1307.9818389093" y="474.533421790161" />
-				<position_destination x="1308.04497760638" y="435.549452587199" />
+				<position_source x="1178" y="491.533421790161" />
+				<position_destination x="1177" y="526" />
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
@@ -255,8 +255,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1314.25419083697" y="514.533421790161" />
-				<position_destination x="1315" y="550.644739300538" />
+				<position_source x="1260" y="491.533421790161" />
+				<position_destination x="1313" y="550.644739300538" />
 			</editor_data>
 			<guard>
 				dst.transport = src.transport;
@@ -273,8 +273,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1314.25419083697" y="590.644739300538" />
-				<position_destination x="1314.25419083697" y="631.019715945429" />
+				<position_source x="1312.25419083697" y="590.644739300538" />
+				<position_destination x="1312.25419083697" y="629.019715945429" />
 			</editor_data>
 			<guard>
 				dst.transport = src.transport;
@@ -291,8 +291,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1314.25419083697" y="671.019715945429" />
-				<position_destination x="1315.38313869708" y="707.749953289782" />
+				<position_source x="1312.25419083697" y="669.019715945429" />
+				<position_destination x="1314.38313869708" y="710.749953289782" />
 			</editor_data>
 			<guard>
 				dst.transport = src.transport;
@@ -306,8 +306,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1313.12524297686" y="747.749953289782" />
-				<position_destination x="1313.68971690692" y="782.144645880103" />
+				<position_source x="1312.12524297686" y="750.749953289782" />
+				<position_destination x="1313.68971690692" y="781.144645880103" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -318,8 +318,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1311.4318211867" y="822.144645880103" />
-				<position_destination x="1310.43814240661" y="864.453840426607" />
+				<position_source x="1311.4318211867" y="821.144645880103" />
+				<position_destination x="1308.43814240661" y="862.453840426607" />
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
@@ -338,8 +338,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1309.17392546649" y="904.453840426607" />
-				<position_destination x="1309.98813306457" y="941.143311463732" />
+				<position_source x="1307.17392546649" y="902.453840426607" />
+				<position_destination x="1310.98813306457" y="939.143311463732" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -350,8 +350,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1306.91602974627" y="981.143311463732" />
-				<position_destination x="1308.30694995732" y="1016.27987125479" />
+				<position_source x="1307.91602974627" y="979.143311463732" />
+				<position_destination x="1307.30694995732" y="1020.27987125479" />
 			</editor_data>
 			<guard>
 				return SUCCESS;
@@ -362,8 +362,8 @@
 		</transition>
 		<transition>
 			<editor_data>
-				<position_source x="1308.4738019182" y="1056.27987125479" />
-				<position_destination x="1306.61352816716" y="1104.33240728083" />
+				<position_source x="1307.4738019182" y="1060.27987125479" />
+				<position_destination x="1305.61352816716" y="1108.33240728083" />
 			</editor_data>
 			<guard>
 				return SUCCESS;

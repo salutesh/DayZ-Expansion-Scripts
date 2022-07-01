@@ -19,7 +19,6 @@ class ExpansionMarketTraderBoats: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Boats";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_BOATS";
 		m_FileName = "Boats";
 		TraderIcon = "Boat";

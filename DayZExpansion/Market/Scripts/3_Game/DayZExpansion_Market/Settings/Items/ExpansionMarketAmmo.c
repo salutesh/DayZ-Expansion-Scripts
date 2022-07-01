@@ -54,6 +54,8 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 
 		AddItem("Ammo_Flare", 								7,		14,		1,		500, null, {"Ammo_FlareBlue", "Ammo_FlareGreen", "Ammo_FlareRed"});
 
+		AddItem("Ammo_40mm_Explosive", 						500,    1000,	1,	    500, null, {"Ammo_40mm_ChemGas", "Ammo_40mm_Smoke_Black", "Ammo_40mm_Smoke_Green", "Ammo_40mm_Smoke_White", "Ammo_40mm_Smoke_Red"});
+
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Ammo_ArrowBolt", 				5,		10,		1,		500);
 

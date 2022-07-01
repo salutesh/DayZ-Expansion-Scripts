@@ -28,6 +28,7 @@ class ExpansionMarketLights: ExpansionMarketCategory
 
 		AddItem("Roadflare", 					4,		8,		1,		100);
 		AddItem("Matchbox", 					6,		12,		1,		100);
+		AddItem("FireworksLauncher", 			500,	1000,	1,		100);
 		AddItem("PetrolLighter", 				8,		16,		1,		100);
 		AddItem("Flashlight", 					15,		30,		1,		100,	{"Battery9V"});
 		AddItem("XmasLights", 					25,		50,		1,		100);

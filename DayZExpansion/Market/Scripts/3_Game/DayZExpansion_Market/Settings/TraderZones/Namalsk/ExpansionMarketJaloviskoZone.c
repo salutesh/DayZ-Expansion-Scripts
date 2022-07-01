@@ -19,9 +19,8 @@ class ExpansionMarketJaloviskoZone: ExpansionMarketTraderZone
 	{
 		super.Defaults();
 		
-		m_ZoneName = "Jalovisko";
 		m_DisplayName = "Jalovisko Trading Zone";
-		m_FileName = m_ZoneName;
+		m_FileName = "Jalovisko";
 
 		Position = "8583.67 24.55 10515.0";
 		Radius = 400;

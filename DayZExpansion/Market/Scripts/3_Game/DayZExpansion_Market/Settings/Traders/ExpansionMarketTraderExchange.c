@@ -19,7 +19,6 @@ class ExpansionMarketTraderExchange: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "Exchange";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_EXCHANGE";
 		m_FileName = "Exchange";
 		TraderIcon = "Trader";

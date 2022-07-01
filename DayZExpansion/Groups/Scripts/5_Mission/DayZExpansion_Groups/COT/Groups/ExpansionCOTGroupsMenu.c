@@ -378,9 +378,9 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		if (!m_Module || m_Module.GetAllGroups().Count() == 0)
 			return;
 
-		for (int i = 0; i < m_Module.GetAllGroups().Count(); i++)
+		map<int, ref ExpansionPartyData> groups = m_Module.GetAllGroups();
+		foreach (int partyID, ExpansionPartyData group: groups)
 		{
-			ExpansionPartyData group = m_Module.GetAllGroups().GetElement(i);
 			if (!group)
 				continue;
 
@@ -403,9 +403,9 @@ class ExpansionCOTGroupsMenu: JMFormBase
 
 		m_ServerPlayers.Clear();
 
-		for (int i = 0; i < dataCollection.GetAllPlayers().Count(); ++i)
+		map <string, ref ExpansionPlayerDataCollection> players = dataCollection.GetAllPlayers();
+		foreach (string playerUID, ExpansionPlayerDataCollection player: players)
 		{
-			ExpansionPlayerDataCollection player = dataCollection.GetAllPlayers().GetElement(i);
 			if (!player)
 				continue;
 

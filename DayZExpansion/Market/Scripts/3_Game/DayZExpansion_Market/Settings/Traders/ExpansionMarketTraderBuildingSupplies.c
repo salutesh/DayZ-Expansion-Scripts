@@ -19,7 +19,6 @@ class ExpansionMarketTraderBuildingSupplies: ExpansionMarketTrader
 	{
 		super.Defaults();
 		
-		TraderName = "BuildingSupplies";
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_BUILDING_SUPPLIES";
 		m_FileName = "BuildingSupplies";
 		TraderIcon = "Nails";

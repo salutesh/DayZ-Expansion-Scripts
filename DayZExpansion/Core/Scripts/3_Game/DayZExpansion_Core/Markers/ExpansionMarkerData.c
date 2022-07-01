@@ -24,6 +24,8 @@ class ExpansionMarkerData
 	protected int m_Color;
 	protected vector m_Position;
 	protected bool m_Locked = false;
+
+	bool m_Persist = true;
 	
 	[NonSerialized()]
 	protected Object m_Object;
@@ -36,29 +38,30 @@ class ExpansionMarkerData
 	[NonSerialized()]
 	protected ScriptedWidgetEventHandler m_Handler;
 
-	void ExpansionMarkerData( string uid = "" )
+	void ExpansionMarkerData( string uid = "", bool persist = true )
 	{
 		m_UID = uid;
 		m_Handler = NULL;
+		m_Persist = persist;
 		
 		SetVisibility( EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
 	}
 
-	static ExpansionMarkerData Create( ExpansionMapMarkerType type, string uid = "" )
+	static ExpansionMarkerData Create( ExpansionMapMarkerType type, string uid = "", bool persist = true )
 	{
 		switch ( type )
 		{
 		case ExpansionMapMarkerType.PERSONAL:
-			return new ExpansionPersonalMarkerData( uid );
+			return new ExpansionPersonalMarkerData( uid, persist );
 		case ExpansionMapMarkerType.SERVER:
-			return new ExpansionServerMarkerData( uid );
+			return new ExpansionServerMarkerData( uid, persist );
 	#ifdef EXPANSIONMODGROUPS
 		case ExpansionMapMarkerType.PARTY:
-			return new ExpansionPartyMarkerData( uid );
+			return new ExpansionPartyMarkerData( uid, persist );
 		case ExpansionMapMarkerType.PLAYER:
-			return new ExpansionPlayerMarkerData( uid );
+			return new ExpansionPlayerMarkerData( uid, persist );
 		case ExpansionMapMarkerType.PARTY_QUICK:
-			return new ExpansionPartyQuickMarkerData( uid );
+			return new ExpansionPartyQuickMarkerData( uid, persist );
 	#endif
 		}
 

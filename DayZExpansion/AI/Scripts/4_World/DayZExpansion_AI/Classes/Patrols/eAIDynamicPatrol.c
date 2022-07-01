@@ -11,7 +11,7 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_MovementSpeedLimit;
 	float m_MovementThreatSpeedLimit;
 	int m_NumberOfAI;
-	int m_RespawnTime;
+	int m_RespawnTime; // negative respawn time = patrol won't respawn
 	string m_Loadout;
 	ref eAIFaction m_Faction;
 	bool m_CanBeLooted;
@@ -83,7 +83,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
 				
 		ai.SetMovementSpeedLimit(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
-		ai.eAI_SetCanBeLooted(m_CanBeLooted);
+		ai.Expansion_SetCanBeLooted(m_CanBeLooted);
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 
 		return ai;
@@ -95,7 +95,7 @@ class eAIDynamicPatrol : eAIPatrol
 			return false;
 
 		if (m_WasGroupDestroyed)
-			return false;
+			return true;
 
 		for (int i = 0; i < m_Group.Count(); i++)
 		{
@@ -162,12 +162,30 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = CF_Trace_0(this, "OnUpdate");
 		#endif
 
-		if ( WasGroupDestroyed() && m_RespawnTime == -1 )
+		if ( WasGroupDestroyed() && m_RespawnTime < 0 )
 		{
 			return;
 		}
 
-		super.OnUpdate();
+		if (m_Group)
+		{
+			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
+			m_CanSpawn = m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime;
+		}
+
+		if (!m_CanSpawn)
+		{
+			return;
+		}
+
+		if (!m_Group)
+		{
+			int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
+			if (maxPatrols > -1 && m_NumberOfDynamicPatrols >= maxPatrols)
+			{
+				return;
+			}
+		}
 
 		vector patrolPos = m_Position;
 		DayZPlayerImplement leader = null;
@@ -188,22 +206,13 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (m_Group)
 		{
-			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
-			m_CanSpawn = m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime;
-
-			if (minimumDistanceSq > m_DespawnRadiusSq && m_CanSpawn)
+			if (minimumDistanceSq > m_DespawnRadiusSq)
 			{
 				Despawn();
 			}
 		}
-		else if (m_CanSpawn)
+		else
 		{
-			int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
-			if (maxPatrols > -1 && m_NumberOfDynamicPatrols >= maxPatrols)
-			{
-				return;
-			}
-
 			if (minimumDistanceSq < m_MaximumRadiusSq && minimumDistanceSq > m_MinimumRadiusSq)
 			{
 				Spawn();

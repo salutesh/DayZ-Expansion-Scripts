@@ -14,14 +14,12 @@
 			<input name="UAExpansionSnappingToggle" />
 		</exclude>
 
-<!-- DayZ 1.18 keybind category. Disabled until it actually works in vanilla in a sensible way.
-		<sorting name="expansion_basebuilding" loc="STR_MOD_EXPANSION_NAME">
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionSnappingDirectionNext" />
 			<input name="UAExpansionSnappingDirectionPrevious" />
 			<input name="UAExpansionSnappingToggle" />
 			<input name="UAExpansionHologramNextPlacing" />
 		</sorting>
--->
 	</inputs>
 
 	<preset>

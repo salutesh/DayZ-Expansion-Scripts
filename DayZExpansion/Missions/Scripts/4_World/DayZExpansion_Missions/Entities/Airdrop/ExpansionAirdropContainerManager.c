@@ -147,11 +147,30 @@ class ExpansionAirdropContainerManager
 		vector spawnPos = spawnPosStr.ToVector();
 		string type = Infected.GetRandomElement();
 
+#ifdef ENFUSION_AI_PROJECT
+		bool isAI = type.IndexOf("eAI_Survivor") == 0;
+		TStringArray parts();
+		if (isAI)
+		{
+			type.Split("|", parts);
+			type = parts[0];
+			parts.Remove(0);
+		}
+#endif
+
 		//! TODO: Create Z slightly in ground to give effect as if they emerge from underground? Also, is there a way to affect Z stance (crouching)?
-		Object obj = GetGame().CreateObject( type, Vector( spawnPos[0], 0, spawnPos[2] ), false, true );
+		Object obj = GetGame().CreateObject( type, spawnPos, false, GetGame().IsKindOf(type, "DZ_LightAI") );
 
 		if ( obj )
 		{
+#ifdef ENFUSION_AI_PROJECT
+			DayZPlayerImplement ai;
+			if (isAI && Class.CastTo(ai, obj) && parts.Count())
+			{
+				ExpansionObjectSpawnTools.ProcessGear(ai, parts[0]);
+			}
+#endif
+
 			m_Infected.Insert( obj );
 		} else
 		{

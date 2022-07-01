@@ -26,6 +26,23 @@ modded class MissionServer
 
 		ExpansionHumanLoadout.Init();
 
-		PatrolManager().InitPatrolSpawner();
+		ExpansionAIPatrolManager.InitPatrols();
+	}
+
+	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
+	{
+		super.InvokeOnConnect(player, identity);
+
+		string factionName = GetExpansionSettings().GetAI().PlayerFactions.GetRandomElement();
+		if (factionName)
+		{
+			eAIFaction faction = eAIFaction.Create(factionName);
+			if (faction)
+			{
+				EXTrace.Print(EXTrace.AI, player, "Setting faction " + faction.ToString());
+				eAIGroup group = eAIGroup.GetGroupByLeader(player);
+				group.SetFaction(faction);
+			}
+		}
 	}
 };

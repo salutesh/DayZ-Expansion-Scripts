@@ -679,7 +679,25 @@ modded class ItemBase
 	
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		super.EEItemLocationChanged(oldLoc, newLoc);
+		DayZPlayerImplement old_owner_dpi;
+		DayZPlayerImplement new_owner_dpi;
+
+		bool shouldSuper = true;
+		
+		if (oldLoc.GetParent())
+			old_owner_dpi = DayZPlayerImplement.Cast(oldLoc.GetParent().GetHierarchyRootPlayer());
+		
+		if (newLoc.GetParent())
+			new_owner_dpi = DayZPlayerImplement.Cast(newLoc.GetParent().GetHierarchyRootPlayer());
+
+		//! super EEItemLocationChanged wants PlayerBase class, NPCs are DayZPlayerImplement so this is to prevent the super method from being called.
+		if (old_owner_dpi && !PlayerBase.Cast(old_owner_dpi))
+			shouldSuper = false;
+		else if (new_owner_dpi && !PlayerBase.Cast(new_owner_dpi))
+			shouldSuper = false;
+		
+		if (shouldSuper)
+			super.EEItemLocationChanged(oldLoc, newLoc);
 
 		if (!GetGame().IsServer())
 			return;
@@ -719,6 +737,62 @@ modded class ItemBase
 				#endif
 			}
 		}
+	}
+
+	override void OnInventoryEnter(Man player)
+	{
+		super.OnInventoryEnter(player);
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+			pb.Expansion_OnInventoryUpdate(this, true);
+	}
+
+	override void OnInventoryExit(Man player)
+	{
+		super.OnInventoryExit(player);
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, player))
+			pb.Expansion_OnInventoryUpdate(this, false);
+	}
+
+	override void OnWorkStart()
+	{
+		super.OnWorkStart();
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, GetHierarchyRootPlayer()))
+			pb.Expansion_OnInventoryUpdate(this, true, true);
+	}
+
+	override void OnWorkStop()
+	{
+		super.OnWorkStop();
+
+		PlayerBase pb;
+		if (Class.CastTo(pb, GetHierarchyRootPlayer()))
+			pb.Expansion_OnInventoryUpdate(this, true, true);
+	}
+
+	typename Expansion_GetFamilyType()
+	{
+		if (IsInherited(ItemCompass))
+		{
+			return ItemCompass;
+		}
+		else if (IsInherited(ItemMap))
+		{
+			return ItemMap;
+		}
+		else
+		{
+			ExpansionString className = new ExpansionString(ClassName());
+			if (className.EndsWith("_ColorBase"))
+				return className.Get().ToType();
+		}
+		
+		return Type();
 	}
 
 	override void DeferredInit()

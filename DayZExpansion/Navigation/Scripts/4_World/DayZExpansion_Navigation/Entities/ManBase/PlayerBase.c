@@ -12,11 +12,6 @@
 
 modded class PlayerBase
 {
-	protected int m_CountMap;
-	protected int m_CountGPS;
-	protected int m_CountPen;
-	protected int m_CountCompass;
-
 	//Only server side
 	protected int m_QuickMarkerColor;
 	
@@ -25,11 +20,6 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void PlayerBase()
 	{
-		m_CountMap = 0;
-		m_CountGPS = 0;
-		m_CountPen = 0;
-		m_CountCompass = 0;
-		
 		SetRandomQuickMarkerColor();
 	}
 
@@ -111,14 +101,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetHasItemMap(bool state)
 	{
-		if (state)
-		{
-			m_CountMap += 1;
-		}
-		else if (m_CountMap > 0)
-		{
-			m_CountMap -= 1;
-		}
+		Error("DEPRECATED");
 	}
 	
 	// ------------------------------------------------------------
@@ -126,7 +109,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemMap()
 	{
-		return m_CountMap > 0;
+		return Expansion_GetInventoryCount(ItemMap) > 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -134,14 +117,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetHasItemGPS(bool state)
 	{
-		if (state)
-		{
-			m_CountGPS += 1;
-		} 
-		else if (m_CountGPS > 0)
-		{
-			m_CountGPS -= 1;
-		}
+		Error("DEPRECATED");
 	}
 	
 	// ------------------------------------------------------------
@@ -149,7 +125,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemGPS()
 	{
-		return m_CountGPS > 0;
+		return Expansion_GetInventoryCount(ExpansionGPS, true) > 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -157,14 +133,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetHasItemPen(bool state)
 	{
-		if (state)
-		{
-			m_CountPen += 1;
-		} 
-		else if (m_CountPen > 0)
-		{
-			m_CountPen -= 1;
-		}
+		Error("DEPRECATED");
 	}
 	
 	// ------------------------------------------------------------
@@ -172,7 +141,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemPen()
 	{
-		return m_CountPen > 0;
+		return Expansion_GetInventoryCount(Pen_ColorBase) > 0;
 	}
 	
 	// ------------------------------------------------------------
@@ -180,16 +149,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	void SetHasItemCompass(bool state)
 	{
-		if (state)
-		{
-			m_CountCompass += 1;
-		} 
-		else if (m_CountCompass > 0)
-		{
-			m_CountCompass -= 1;
-		}
-		
-		Print("m_CountCompass: " + m_CountCompass);
+		Error("DEPRECATED");
 	}
 	
 	// ------------------------------------------------------------
@@ -197,7 +157,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	bool HasItemCompass()
 	{
-		return m_CountCompass > 0;
+		return Expansion_GetInventoryCount(ItemCompass) > 0;
 	}
 	
 	// ------------------------------------------------------------
