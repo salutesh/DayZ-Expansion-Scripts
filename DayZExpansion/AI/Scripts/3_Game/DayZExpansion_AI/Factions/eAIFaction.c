@@ -24,9 +24,14 @@ class eAIFaction
 		return m_IsGuard;
 	}
 
+	static typename GetType(string factionName)
+	{
+		return ("eAIFaction" + factionName).ToType();
+	}
+
 	static eAIFaction Create(string factionName)
 	{
-		typename faction = ("eAIFaction" + factionName).ToType();
+		typename faction = GetType(factionName);
 		if (faction)
 			//! @note w/o the cast to eAIFaction, the compiler warns about unsafe downcasting.
 			//! Of course the compiler is wrong, because we're casting up, not down, so this cast here is just there to satisfy compiler shortcomings.

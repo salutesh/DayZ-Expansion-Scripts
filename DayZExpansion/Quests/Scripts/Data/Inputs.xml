@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<modded_inputs>
+	<inputs>
+		<actions>
+			<input name="UAExpansionQuestToggle" loc="STR_EXPANSION_QUEST_TOGGLE" />
+		</actions>
+
+		<exclude name="questexpansion">
+			<input name="UAExpansionQuestToggle" />
+		</exclude>
+
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
+			<input name="UAExpansionQuestToggle" />
+		</sorting>
+	</inputs>
+	<preset>
+		<input name="UAExpansionQuestToggle">
+			<btn name="kSlash" />
+		</input>
+	</preset>
+</modded_inputs>

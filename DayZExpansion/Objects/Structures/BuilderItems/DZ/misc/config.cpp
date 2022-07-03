@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Gear_Cooking","DZ_Structures_Signs"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Camping","DZ_Gear_Consumables","DZ_Gear_Cooking","DZ_Structures_Signs"};
 	};
 };
 class CfgVehicles

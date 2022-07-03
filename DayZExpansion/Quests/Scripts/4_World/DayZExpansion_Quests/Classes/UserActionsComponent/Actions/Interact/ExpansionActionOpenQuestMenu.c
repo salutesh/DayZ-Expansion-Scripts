@@ -55,7 +55,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 	#ifdef ENFUSION_AI_PROJECT
 		if (!npc && !npcAI && !npcObject)
 	#else
-		if (!npc &&!npcObject)
+		if (!npc && !npcObject)
 	#endif
 			return false;
 
@@ -98,24 +98,6 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 		if (!Class.CastTo(targetObject, action_data.m_Target.GetParentOrObject()))
 			return;
 
-		auto npc = ExpansionQuestNPCBase.Cast(targetObject);
-	#ifdef ENFUSION_AI_PROJECT
-		auto npcAI = ExpansionQuestNPCAIBase.Cast(targetObject);
-	#endif
-		auto npcObject = ExpansionQuestStaticObject.Cast(targetObject);
-
-		int npcID;
-		if (npc)
-			npcID = npc.GetQuestNPCID();
-	#ifdef ENFUSION_AI_PROJECT
-		else if (npcAI)
-			npcID = npcAI.GetQuestNPCID();
-	#endif
-		else if (npcObject)
-			npcID = npcObject.GetQuestNPCID();
-		else
-			return;
-
-		m_Expansion_QuestModule.RequestOpenQuestMenu(npcID, player.GetIdentity());
+		m_Expansion_QuestModule.RequestOpenQuestMenu(targetObject, player.GetIdentity());
 	}
 }

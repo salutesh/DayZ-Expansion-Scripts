@@ -323,17 +323,17 @@ class ExpansionObjectSpawnTools
 			if (token.IndexOf("name:") == 0)
 			{
 				string name = token.Substring(5, token.Length() - 5);
-				if (Class.CastTo(ai, entity) && ai.m_Expansion_NameOverride)
+				if (Class.CastTo(ai, entity) && ai.m_Expansion_NetsyncData)
 				{
-					ai.m_Expansion_NameOverride.Set(name);
+					ai.m_Expansion_NetsyncData.Set(0, name);
 				}
-				else if (Class.CastTo(building, entity) && building.m_Expansion_NameOverride)
+				else if (Class.CastTo(building, entity) && building.m_Expansion_NetsyncData)
 				{
-					building.m_Expansion_NameOverride.Set(name);
+					building.m_Expansion_NetsyncData.Set(0, name);
 				}
-				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NameOverride)
+				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NetsyncData)
 				{
-					zombie.m_Expansion_NameOverride.Set(name);
+					zombie.m_Expansion_NetsyncData.Set(0, name);
 				}
 				continue;
 			}

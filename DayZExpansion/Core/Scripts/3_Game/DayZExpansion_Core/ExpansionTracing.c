@@ -87,6 +87,8 @@ class EXTrace
 
 	static bool PLAYER_MONITOR;
 
+	static bool QUESTS = ENABLE;
+
 	static bool RESPAWN = ENABLE;
 
 	static bool SETTINGS;
@@ -104,8 +106,6 @@ class EXTrace
 	static bool WEAPONS;
 
 	static bool ZONES;
-
-	static bool QUESTS;
 
 	//! -----------------------------------------------------------------------
 

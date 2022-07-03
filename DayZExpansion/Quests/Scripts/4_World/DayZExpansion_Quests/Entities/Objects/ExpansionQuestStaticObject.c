@@ -28,7 +28,7 @@ class ExpansionQuestStaticObject extends BuildingSuper
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 
-		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
 
 	// ------------------------------------------------------------

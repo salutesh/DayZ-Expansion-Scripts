@@ -33,6 +33,9 @@ modded class ExpansionPartyData
 	{
 		super.OnJoin(player);
 
+		if (!GetExpansionSettings().GetQuest().EnableQuests)
+			return;
+
 		ExpansionQuestModule questModule;
 		if (!Class.CastTo(questModule,CF_ModuleCoreManager.Get(ExpansionQuestModule)))
 		{
@@ -44,7 +47,7 @@ modded class ExpansionPartyData
 		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
-			Error(ToString() + "::OnJoin - Could not get quest player data!");
+			EXPrint(ToString() + "::OnJoin - No player quest data!");
 			return;
 		}
 		
@@ -92,6 +95,9 @@ modded class ExpansionPartyData
 	{
 		super.OnLeave(player);
 
+		if (!GetExpansionSettings().GetQuest().EnableQuests)
+			return;
+
 		ExpansionQuestModule questModule;
 		if (!Class.CastTo(questModule,CF_ModuleCoreManager.Get(ExpansionQuestModule)))
 		{
@@ -103,7 +109,7 @@ modded class ExpansionPartyData
 		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
-			Error(ToString() + "::OnLeave - Could not get quest player data!");
+			EXPrint(ToString() + "::OnLeave - No player quest data!");
 			return;
 		}
 

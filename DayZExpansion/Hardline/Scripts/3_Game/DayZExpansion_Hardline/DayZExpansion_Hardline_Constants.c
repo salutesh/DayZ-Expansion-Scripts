@@ -1,5 +1,5 @@
 /**
- * DayZExpansion_Quest_Constants.c
+ * DayZExpansion_Hardline_Constants.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,7 +11,7 @@
 */
 
 /**
- * Expansion quest system folder paths
+ * Expansion hardline system folder paths
  * @{
  */
 static const string EXPANSION_HARDLINE_FOLDER = EXPANSION_FOLDER + "Hardline\\";

@@ -21,6 +21,13 @@ class ExpansionHumanLoadout
 		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
 			MakeDirectory(EXPANSION_LOADOUT_FOLDER);
 
+		//! Load existing loadouts
+		TStringArray loadouts = ExpansionStatic.FindFilesInLocation(EXPANSION_LOADOUT_FOLDER, ".json");
+		foreach (string loadout: loadouts)
+		{
+			ExpansionLoadout.Load(loadout.Substring(0, loadout.Length() - 5));
+		}
+
 		// Armed Loadouts
 		DefaultHumanLoadout();
 		DefaultPoliceLoadout();

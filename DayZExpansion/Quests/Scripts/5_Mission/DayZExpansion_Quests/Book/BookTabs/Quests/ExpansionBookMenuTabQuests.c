@@ -10,7 +10,7 @@
  *
 */
 
-//#ifdef EXPANSIONMODBOOK
+#ifdef EXPANSIONMODBOOK
 class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 {
 	private ref ExpansionBookMenuTabQuestsController m_QuestTabController;
@@ -64,7 +64,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 	override bool CanShow()
 	{
-		return GetExpansionSettings().GetQuest().EnableQuestLogTab;
+		return (GetExpansionSettings().GetQuest().EnableQuestLogTab && GetExpansionSettings().GetQuest().EnableQuests);
 	}
 
 	override void OnShow()
@@ -354,4 +354,4 @@ class ExpansionBookMenuTabQuestsController: ExpansionViewController
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 };
-//#endif
+#endif

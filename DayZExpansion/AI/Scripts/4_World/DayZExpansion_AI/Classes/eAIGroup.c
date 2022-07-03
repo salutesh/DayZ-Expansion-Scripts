@@ -20,7 +20,7 @@ class eAIGroup
 	private autoptr eAIFormation m_Form;
 
 	// Group identity
-	private autoptr eAIFaction m_Faction = new eAIFactionRaiders();
+	private ref eAIFaction m_Faction;
 
 	private autoptr array<vector> m_Waypoints;
 	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.ALTERNATE;
@@ -28,10 +28,10 @@ class eAIGroup
 	private eAIGroupFormationState m_FormationState = eAIGroupFormationState.IN;
 
 	// return the group owned by leader, otherwise create a new one.
-	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true)
+	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null)
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_2("eAIGroup", "eAIGroup::GetGroupByLeader").Add(leader).Add(createIfNoneExists);
+		auto trace = CF_Trace_2("eAIGroup", "eAIGroup::GetGroupByLeader").Add(leader).Add(createIfNoneExists).Add(faction);
 #endif
 
 		for (int i = 0; i < s_AllGroups.Count(); i++)
@@ -41,7 +41,7 @@ class eAIGroup
 		if (!createIfNoneExists)
 			return null;
 
-		eAIGroup group = CreateGroup();
+		eAIGroup group = CreateGroup(faction);
 		leader.SetGroup(group);
 		return group;
 	}
@@ -64,13 +64,13 @@ class eAIGroup
 		return group;
 	}
 
-	static eAIGroup CreateGroup()
+	static eAIGroup CreateGroup(eAIFaction faction = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIGroup", "eAIGroup::CreateGroup");
 #endif
 
-		eAIGroup group = new eAIGroup();
+		eAIGroup group = new eAIGroup(faction);
 
 		s_IDCounter++;
 		group.m_ID = s_IDCounter;
@@ -89,7 +89,7 @@ class eAIGroup
 		delete group;
 	}
 
-	private void eAIGroup()
+	private void eAIGroup(eAIFaction faction = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "eAIGroup");
@@ -101,6 +101,11 @@ class eAIGroup
 		m_Members = new array<DayZPlayerImplement>();
 
 		m_Form = new eAIFormationVee(this);
+
+		if (faction)
+			m_Faction = faction;
+		else
+			m_Faction = new eAIFactionRaiders();
 
 		m_Waypoints = new array<vector>();
 

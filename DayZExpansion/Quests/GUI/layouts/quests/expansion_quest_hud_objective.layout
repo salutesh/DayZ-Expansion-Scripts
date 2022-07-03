@@ -1,5 +1,6 @@
 WrapSpacerWidgetClass ExpansionQuestHudObjective {
  clipchildren 1
+ ignorepointer 1
  size 1 1
  hexactpos 0
  vexactpos 0
@@ -32,12 +33,13 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
    {
     RichTextWidgetClass ObjectiveName {
      ignorepointer 1
-     size 0.95 28
+     position 0 0
+     size 0.95 0.03
      halign center_ref
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      font "gui/fonts/etelkatextpro14"
      "text offset" 5 0
@@ -55,12 +57,13 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
     }
     RichTextWidgetClass ObjectiveTime {
      ignorepointer 1
-     size 0.95 14
+     position 0 0
+     size 0.95 0.03
      halign center_ref
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
-     vexactsize 1
+     vexactsize 0
      scriptclass "ViewBinding"
      font "gui/fonts/etelkatextpro14"
      "text offset" 5 0
@@ -93,12 +96,12 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      {
       RichTextWidgetClass ObjectiveTarget {
        ignorepointer 1
-       position 10 10
-       size 0.5 14
-       hexactpos 1
-       vexactpos 1
+       position 0.007 0.714
+       size 0.5 1
+       hexactpos 0
+       vexactpos 0
        hexactsize 0
-       vexactsize 1
+       vexactsize 0
        scriptclass "ViewBinding"
        font "gui/fonts/etelkatextpro14"
        "text offset" 5 0
@@ -116,12 +119,12 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
       }
       RichTextWidgetClass ObjectiveValue {
        ignorepointer 1
-       position 9 10
-       size 0.5 14
-       hexactpos 1
-       vexactpos 1
+       position 0.006 0.714
+       size 0.5 1
+       hexactpos 0
+       vexactpos 0
        hexactsize 0
-       vexactsize 1
+       vexactsize 0
        scriptclass "ViewBinding"
        font "gui/fonts/etelkatextpro14"
        "text offset" 5 0
@@ -165,11 +168,12 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
    visible 0
    ignorepointer 1
    color 0 0 0 1
+   position 0 0
    size 0.95 2
    halign center_ref
    valign center_ref
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 1
    style rover_sim_colorable

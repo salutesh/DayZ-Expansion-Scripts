@@ -124,7 +124,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		if (!m_VIP)
 			return;
 
-		m_Group.SetFaction(new eAIFactionPassive());
+		m_VIP.eAI_SetPassive();
 
 		#ifdef EXPANSIONMODAI
 		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
@@ -153,6 +153,10 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	override void OnUpdate(float timeslice)
 	{
 		super.OnUpdate(timeslice);
+
+		//! TODO: Check if OnUpdate is still running after Quest got auto-canceled when timeout reached
+		if (!m_VIP)
+			return;
 
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)

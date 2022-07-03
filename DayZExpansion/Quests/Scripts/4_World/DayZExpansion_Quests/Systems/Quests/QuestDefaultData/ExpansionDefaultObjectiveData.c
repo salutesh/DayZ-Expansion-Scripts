@@ -636,15 +636,27 @@ class ExpansionDefaultObjectiveData
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = new ExpansionQuestObjectiveAIPatrol();
 		aiPatrol.SetNPCUnits(4);
-		aiPatrol.SetNPCSpeed("RUN");
+		aiPatrol.SetNPCSpeed("WALK");
 		aiPatrol.SetNPCMode("REVERSE");
 		aiPatrol.SetNPCFaction("West");
 		aiPatrol.SetNPCLoadoutFile("BanditLoadout.json");
-		aiPatrol.AddWaypoint(Vector(6307.7, 14.4, 11810.6));
-		aiPatrol.AddWaypoint(Vector(6519.9, 17.3, 11901.6));
-		aiPatrol.AddWaypoint(Vector(6967.4, 6.5, 11884.6));
-		aiPatrol.AddWaypoint(Vector(7216.6, 10.147, 11843.1));
-		aiPatrol.AddWaypoint(Vector(7405.78, 23.18, 11655.8));
+		
+		if (m_WorldName == "namalsk")
+		{
+			aiPatrol.AddWaypoint(Vector(6307.7, 14.4, 11810.6));
+			aiPatrol.AddWaypoint(Vector(6519.9, 17.3, 11901.6));
+			aiPatrol.AddWaypoint(Vector(6967.4, 6.5, 11884.6));
+			aiPatrol.AddWaypoint(Vector(7216.6, 10.147, 11843.1));
+			aiPatrol.AddWaypoint(Vector(7405.78, 23.18, 11655.8));
+		}
+		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
+		{
+			aiPatrol.AddWaypoint(Vector(6914.7, 403.027, 11381.7));
+			aiPatrol.AddWaypoint(Vector(6931.27, 399.86, 11456.7));
+			aiPatrol.AddWaypoint(Vector(6891.92, 397.455, 11496.1));
+			aiPatrol.AddWaypoint(Vector(6850.88, 399.147, 11468.1));
+			aiPatrol.AddWaypoint(Vector(6883.98, 403.192, 11380.8));
+		}
 
 		aiPatrol.AddClassName("eAI_SurvivorM_Mirek");
 		aiPatrol.AddClassName("eAI_SurvivorM_Denis");

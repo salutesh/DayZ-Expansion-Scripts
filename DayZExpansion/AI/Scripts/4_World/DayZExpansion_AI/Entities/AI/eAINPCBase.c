@@ -1,14 +1,21 @@
 class eAINPCBase: eAIBase
 {
-	override void Init()
+	override void Expansion_Init()
 	{
-		super.Init();
-
 		if (GetGame().IsServer())
 		{
-			GetGroup().SetFaction(new eAIFactionPassive());
+			m_eAI_FactionType = eAIFactionPassive;
+			eAI_SetPassive();  //! In case this NPC joins another group that's part of a non-passive faction, we still want the NPC to be passive
 		}
 
-		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+		super.Expansion_Init();
+
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
+	}
+
+	//! Vanilla, prevent being targeted by Zs/animals
+	override bool CanBeTargetedByAI(EntityAI ai)
+	{
+		return false;
 	}
 }

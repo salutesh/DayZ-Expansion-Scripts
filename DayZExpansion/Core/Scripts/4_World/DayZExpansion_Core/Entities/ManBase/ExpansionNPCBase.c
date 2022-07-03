@@ -16,18 +16,19 @@ class ExpansionNPCBase extends DayZPlayerImplement
 
 	bool m_ActionsInitialize;
 
-	void ExpansionNPCBase()
+	override void Expansion_Init()
 	{
 		#ifdef EXPANSIONMODAI
 		if (GetGame().IsServer())
 		{
-			eAIGroup group = eAIGroup.CreateGroup();
-			group.SetFaction(new eAIFactionPassive());
-			SetGroup(group);
+			m_eAI_FactionType = eAIFactionPassive;
+			eAI_SetPassive();  //! In case this NPC joins another group that's part of a non-passive faction, we still want the NPC to be passive
 		}
 		#endif
 
-		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+		super.Expansion_Init();
+
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
 
 	void SetActions()
@@ -111,6 +112,12 @@ class ExpansionNPCBase extends DayZPlayerImplement
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished) 
 	{
+	}
+
+	//! Vanilla, prevent being targeted by Zs/animals
+	override bool CanBeTargetedByAI(EntityAI ai)
+	{
+		return false;
 	}
 }
 

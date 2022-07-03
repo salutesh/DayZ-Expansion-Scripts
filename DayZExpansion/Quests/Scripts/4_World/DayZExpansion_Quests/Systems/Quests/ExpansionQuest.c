@@ -569,11 +569,11 @@ class ExpansionQuest
 			SetQuestState(ExpansionQuestState.COMPLETED);
 
 			//! Call end event on all quest objectives
-			for (int i = 0; i < GetObjectives().Count(); i++)
+			for (int i = QuestObjectives.Count() - 1; i >= 0; i--)
 			{
-				ExpansionQuestObjectiveEventBase objective = GetObjectives()[i];
+				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
 				objective.OnTurnIn();
-				delete objective;
+				QuestObjectives.RemoveOrdered(i);
 			}
 
 			if (!Config.IsAchivement())
@@ -618,11 +618,11 @@ class ExpansionQuest
 			SetQuestState(ExpansionQuestState.NONE);
 
 			//! Cancel all active quest objectives
-			for (int i = 0; i < GetObjectives().Count(); i++)
+			for (int i = QuestObjectives.Count() - 1; i >= 0; i--)
 			{
-				ExpansionQuestObjectiveEventBase objective = GetObjectives()[i];
+				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
 				objective.OnCancel();
-				delete objective;
+				QuestObjectives.RemoveOrdered(i);
 			}
 
 			//! Remove all quest items from player/world
@@ -1227,7 +1227,8 @@ class ExpansionQuest
 		if (!m_IsGroupQuest)
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-			ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
+			if (m_Player)
+				ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && m_Group)
@@ -1259,7 +1260,7 @@ class ExpansionQuest
 		 if (!m_IsGroupQuest)
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-			if (!m_Player.IsAlive())
+			if (m_Player && !m_Player.IsAlive())
 			{
 				return false;
 			}

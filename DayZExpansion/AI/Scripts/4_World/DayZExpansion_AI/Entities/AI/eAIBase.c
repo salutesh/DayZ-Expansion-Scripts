@@ -165,8 +165,6 @@ class eAIBase extends PlayerBase
 
 		if (GetGame().IsServer())
 		{
-			SetGroup(eAIGroup.CreateGroup());
-
 			LoadFSM();
 		}
 
@@ -176,6 +174,16 @@ class eAIBase extends PlayerBase
 		//! Vehicles mod will set this in PlayerBase::Init if loaded
 		if (!m_ExpansionST)
 			m_ExpansionST = new ExpansionHumanST(this);
+	}
+
+	override void Expansion_Init()
+	{
+		if (GetGame().IsServer() && !m_eAI_FactionType)
+		{
+			m_eAI_FactionType = eAIFactionRaiders;
+		}
+
+		super.Expansion_Init();
 	}
 
 	static void ReloadAllFSM()
@@ -312,7 +320,7 @@ class eAIBase extends PlayerBase
 		auto trace = CF_Trace_1(this, "PlayerIsEnemy").Add(other);
 #endif
 
-		PlayerBase player = PlayerBase.Cast(other);
+		DayZPlayerImplement player = DayZPlayerImplement.Cast(other);
 		if (!player)
 			return true;
 
@@ -329,7 +337,7 @@ class eAIBase extends PlayerBase
 
 			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()))
 			{
-				if (GetGroup().GetFaction().IsInherited(eAIFactionPassive))
+				if (eAI_IsPassive())
 					return player.GetTargetInformation().IsTargetted(GetGroup());
 				else
 					return false;
@@ -787,7 +795,10 @@ class eAIBase extends PlayerBase
 		// TODO: use particle system instead
 		// XXX: I have no clue what the above comment means -lava76
 
-		if (!GetGroup())
+		if (!GetGroup())  //! This should never happen
+			return;
+
+		if (eAI_IsPassive())
 			return;
 
 		vector center = GetPosition();
@@ -849,12 +860,11 @@ class eAIBase extends PlayerBase
 #endif
 		}
 
-		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
+		DayZPlayerImplement playerThreat;
 		ItemBase targetItem;
+		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
 
 		float group_count = GetGroup().Count();
-
-		int nonItemTargetCount;
 
 		while (m_eAI_CurrentPotentialTargetIndex < m_eAI_PotentialTargetObjects.Count())
 		{
@@ -862,18 +872,24 @@ class eAIBase extends PlayerBase
 			if (!obj)
 				continue;
 
-			PlayerBase playerThreat;
 			if (Class.CastTo(playerThreat, obj))
-				if (GetGroup() && GetGroup().IsMember(playerThreat))
+			{
+				if (playerThreat.eAI_IsPassive())
 					continue;
-
-			//! If the object is an item and we have an entity in hands or the object is not a weapon, ignore it
-			if (Class.CastTo(targetItem, obj) && (entityInHands || (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon()) || GetGroup().GetFaction().IsInherited(eAIFactionPassive)))
+				if (GetGroup().IsMember(playerThreat))
+					continue;
+			}
+			else if (Class.CastTo(targetItem, obj))
+			{
+				//! If the object is an item, ignore it if any of the following conditions are met
+				if (entityInHands)
+					continue;
+				if (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon())
+					continue;
+			}
+			else if (obj.IsInherited(Building))
 				continue;
-
-			if (obj.IsInherited(Building))
-				continue;
-			if (obj.IsInherited(Transport))
+			else if (obj.IsInherited(Transport))
 				continue;
 
 			eAITargetInformation target = eAITargetInformation.GetTargetInformation(obj);
@@ -895,13 +911,9 @@ class eAIBase extends PlayerBase
 					continue;
 			}
 
-			if (!GetGroup().GetFaction().IsInherited(eAIFactionPassive) && (!playerThreat || !playerThreat.GetGroup() || !playerThreat.GetGroup().GetFaction().IsInherited(eAIFactionPassive)))
-				target.AddAI(this);
+			target.AddAI(this);
 
-			if (!obj.IsInherited(ItemBase))
-				nonItemTargetCount++;
-
-			if (nonItemTargetCount * 2 > group_count)
+			if (m_eAI_Targets.Count() * 2 > group_count)
 				break;
 		}
 
@@ -1893,7 +1905,7 @@ class eAIBase extends PlayerBase
 		if (!m_eAI_LOS)
 			return;
 
-		PlayerBase player;
+		DayZPlayerImplement player;
 
 		bool sideStep;
 

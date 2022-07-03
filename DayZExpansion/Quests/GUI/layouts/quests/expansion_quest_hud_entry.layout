@@ -1,6 +1,7 @@
 GridSpacerWidgetClass ExpansionQuestHudEntry {
  visible 1
  clipchildren 1
+ inheritalpha 1
  size 1 1
  halign right_ref
  hexactpos 0
@@ -47,9 +48,10 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
      {
       ImageWidgetClass QuestIcon {
        ignorepointer 1
+       position 0 0
        size 16 16
-       hexactpos 1
-       vexactpos 1
+       hexactpos 0
+       vexactpos 0
        hexactsize 1
        vexactsize 1
        imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"

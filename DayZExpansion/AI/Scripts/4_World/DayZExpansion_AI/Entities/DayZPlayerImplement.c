@@ -5,9 +5,12 @@ modded class DayZPlayerImplement
 	private autoptr eAITargetInformation m_TargetInformation;
 
 	private eAIGroup m_eAI_Group;
+	protected typename m_eAI_FactionType;
 	private int m_eAI_GroupID;
 	private int m_eAI_GroupMemberIndex;
 	private int m_eAI_GroupMemberIndexSynch;
+
+	private bool m_eAI_IsPassive;
 
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
@@ -27,6 +30,19 @@ modded class DayZPlayerImplement
 		m_eAI_GroupID = -1;
 		m_eAI_GroupMemberIndex = 0;
 		m_eAI_GroupMemberIndex = m_eAI_GroupMemberIndexSynch;
+	}
+
+	override void Expansion_Init()
+	{
+		super.Expansion_Init();
+
+		if (GetGame().IsServer() && m_eAI_FactionType)
+		{
+			//! @note w/o the cast to eAIFaction, the compiler warns about unsafe downcasting.
+			//! Of course the compiler is wrong, because we're casting up, not down, so this cast here is just there to satisfy compiler shortcomings.
+			//! Yes I wrote this comment for the sole reason that I'm annoyed by this.
+			SetGroup(eAIGroup.CreateGroup(eAIFaction.Cast(m_eAI_FactionType.Spawn())));
+		}
 	}
 
 	protected eAITargetInformation CreateTargetInformation()
@@ -160,6 +176,20 @@ modded class DayZPlayerImplement
 
 			m_eAI_Group.Client_SetMemberIndex(this, m_eAI_GroupMemberIndexSynch);
 		}
+	}
+
+	void eAI_SetPassive(bool state = true)
+	{
+		m_eAI_IsPassive = state;
+	}
+
+	bool eAI_IsPassive()
+	{
+		if (m_eAI_IsPassive)
+			return true;
+		if (m_eAI_Group)
+			return m_eAI_Group.GetFaction().IsInherited(eAIFactionPassive);
+		return false;
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

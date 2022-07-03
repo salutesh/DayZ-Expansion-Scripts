@@ -40,8 +40,7 @@ modded class MissionServer
 			if (faction)
 			{
 				EXTrace.Print(EXTrace.AI, player, "Setting faction " + faction.ToString());
-				eAIGroup group = eAIGroup.GetGroupByLeader(player);
-				group.SetFaction(faction);
+				eAIGroup group = eAIGroup.GetGroupByLeader(player, true, faction);
 			}
 		}
 	}

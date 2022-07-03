@@ -62,7 +62,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnMissionStart");
+		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnMissionStart");
 	#endif
 
 		super.OnMissionStart(sender, args);
@@ -74,7 +74,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnMissionLoaded");
+		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnMissionLoaded");
 	#endif
 
 		super.OnMissionLoaded(sender, args);
@@ -88,8 +88,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				MakeDirectory(EXPANSION_HARDLINE_FOLDER);
 				MakeDirectory(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
 			}
-		
-			LoadPlayerHardlineData();
 		}
 	}
 	
@@ -99,7 +97,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnInvokeConnect");
+		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnInvokeConnect");
 	#endif
 
 		super.OnInvokeConnect(sender, args);
@@ -124,7 +122,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	override void OnClientReady(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnClientReady");
+		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnClientReady");
 	#endif
 
 		super.OnClientReady(sender, args);
@@ -144,7 +142,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnClientDisconnect");
+		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnClientDisconnect");
 	#endif
 
 		super.OnClientDisconnect(sender, args);
@@ -179,47 +177,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			playerData.Save(playerUID);
 	}
 	
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule GetPlayerHardlineData
-	// Server
-	// -----------------------------------------------------------
-	void GetPlayerHardlineData(string fileName)
-	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
-
-		if (!m_PlayerDatas)
-			m_PlayerDatas = new map<string, ref ExpansionHardlinePlayerData>;
-		
-		string playerUID = fileName.Substring(0, 44); //! Get playerUID from file name
-		ExpansionHardlinePlayerData hardlinePlayerData = ExpansionHardlinePlayerData.LoadPlayerHardlineData(playerUID);
-		if (hardlinePlayerData)
-		{
-			HardlineModulePrint("GetPlayerHardlineData - Adding player hardline data for player with ID: " + playerUID);
-			m_PlayerDatas.Insert(playerUID, hardlinePlayerData);
-		}
-	}
-
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule LoadPlayerHardlineData
-	// Server
-	// -----------------------------------------------------------
-	void LoadPlayerHardlineData()
-	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
-
-		array<string> playerHardlineDataFiles = new array<string>;
-		playerHardlineDataFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
-		if (playerHardlineDataFiles.Count() >= 0)
-		{
-			for (int i = 0; i < playerHardlineDataFiles.Count(); i++)
-			{
-				GetPlayerHardlineData(playerHardlineDataFiles[i]);
-			}
-		}
-	}
-	
 	// ------------------------------------------------------------
 	// ExpansionHardlineModule SetupClientData
 	// Called on server
@@ -238,14 +195,17 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		ref ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerUID);
 		if (!hardlinePlayerData)
 		{
-			//! If the player has no exiting hardline data then we create a new instance for him and add it to m_PlayerDatas
+			//! If we don't have cached player hardline data, check if file exists and load it, else use fresh instance as-is
 			hardlinePlayerData = new ExpansionHardlinePlayerData();
 			m_PlayerDatas.Insert(playerUID, hardlinePlayerData);
-			HardlineModulePrint("ExpansionHardlineModule::SetupClientData - Created new player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+			if (hardlinePlayerData.Load(playerUID))
+				HardlineModulePrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+			else
+				HardlineModulePrint("ExpansionHardlineModule::SetupClientData - Created new player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
 		}
 		else if (hardlinePlayerData)
 		{
-			HardlineModulePrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+			HardlineModulePrint("ExpansionHardlineModule::SetupClientData - Got cached player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
 			PlayerHardlineInit(hardlinePlayerData, identity);
 		}
 	}
@@ -262,7 +222,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (!playerData)
 			return;
 
-		SendPlayerHardlineData(identity);
+		SendPlayerHardlineData(playerData, identity);
 	}
 	
 	// -----------------------------------------------------------
@@ -390,104 +350,43 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				
 				int victimHumanity = victimPlayerData.GetHumanity();
 				
-				//! If killerPlayer is bandit
-				if (killerHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
+				bool killerIsBandit = killerHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac;
+				bool killerIsHero = killerHumanity >= GetExpansionSettings().GetHardline().RankScout;
+
+				bool victimIsBandit = victimHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac;
+				bool victimIsHero = victimHumanity >= GetExpansionSettings().GetHardline().RankScout;
+
+				if (victimIsBandit)
 				{
-					//! If victimPlayer is bandit
-					if (victimHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBandit * victimPlayerData.GetRank();
-						killerPlayerData.AddHumanity(humanityChange);
-						humanityText = "Added";
-						
-						killerPlayerData.OnKillBandit();
-					}
-					//! If victimPlayer is hero
-					else if (victimHumanity >= GetExpansionSettings().GetHardline().RankScout)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillHero * victimPlayerData.GetRank();
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillHero();
-					}
-					//! If victimPlayer is neutral
-					else if (victimHumanity < GetExpansionSettings().GetHardline().RankScout && victimHumanity > GetExpansionSettings().GetHardline().RankKleptomaniac)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillBambi();
-					}
+					humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBandit * victimPlayerData.GetRank();
+					killerPlayerData.OnKillBandit();
 				}
-				//! If killerPlayer is hero
-				else if (killerHumanity >= GetExpansionSettings().GetHardline().RankScout)
+				else if (victimIsHero)
 				{
-					//! If victimPlayer is bandit
-					if (victimHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBandit * victimPlayerData.GetRank();
-						killerPlayerData.AddHumanity(humanityChange);
-						humanityText = "Added";
-						
-						killerPlayerData.OnKillBandit();
-					}
-					//! If victimPlayer is hero
-					else if (victimHumanity >= GetExpansionSettings().GetHardline().RankScout)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillHero * victimPlayerData.GetRank();
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillHero();
-					}
-					//! If victimPlayer is neutral
-					else if (victimHumanity < GetExpansionSettings().GetHardline().RankScout && victimHumanity > GetExpansionSettings().GetHardline().RankKleptomaniac)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillBambi();
-					}
+					humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillHero * victimPlayerData.GetRank();
+					killerPlayerData.OnKillHero();
 				}
-				//! If killerPlayer is neutral
-				else if (killerHumanity < GetExpansionSettings().GetHardline().RankScout && killerHumanity > GetExpansionSettings().GetHardline().RankKleptomaniac)
+				else
 				{
-					//! If victimPlayer is bandit
-					if (victimHumanity < GetExpansionSettings().GetHardline().RankKleptomaniac)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBandit * victimPlayerData.GetRank();
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillBandit();
-					}
-					//! If victimPlayer is hero
-					else if (victimHumanity > GetExpansionSettings().GetHardline().RankScout)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillHero * victimPlayerData.GetRank();
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillHero();
-					}
-					//! If victimPlayer is neutral
-					else if (victimHumanity < GetExpansionSettings().GetHardline().RankScout && victimHumanity > GetExpansionSettings().GetHardline().RankKleptomaniac)
-					{
-						humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
-						killerPlayerData.RemoveHumanity(humanityChange);
-						humanityText = "Removed";
-						
-						killerPlayerData.OnKillBambi();
-					}
+					humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
+					killerPlayerData.OnKillBambi();
+				}
+
+				if ((killerIsBandit || killerIsHero) && victimIsBandit)
+				{
+					killerPlayerData.AddHumanity(humanityChange);
+					humanityText = "Added";
+				}
+				else
+				{
+					killerPlayerData.RemoveHumanity(humanityChange);
+					humanityText = "Removed";
 				}
 					
 				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayer.GetIdentity());
+				SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
 				
-				SendPlayerHardlineData(victimPlayer.GetIdentity());
+				SendPlayerHardlineData(victimPlayerData, victimPlayer.GetIdentity());
 						
 				title = new StringLocaliser("Killed %1", victimPlayerData.GetRankName());
 				text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityChange.ToString());
@@ -500,7 +399,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				killerPlayerData.OnInfectedKilled();
 												
 				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayer.GetIdentity());
+				SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
 				
 				title = new StringLocaliser("Infected Killed");
 				text = new StringLocaliser("Added %1 Humanity", humanityOnKillInfected.ToString());
@@ -517,15 +416,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 					killerPlayerData.RemoveHumanity(humanityOnKillAI);
 					humanityText = "Removed";
 				}
-				//! If killerPlayer is hero
-				else if (killerHumanity >= GetExpansionSettings().GetHardline().RankScout)
+				//! If killerPlayer is hero or neutral
+				else
 				{
-					killerPlayerData.AddHumanity(humanityOnKillAI);
-					humanityText = "Added";
-				}
-				//! If killerPlayer is neutral
-				else if (killerHumanity > GetExpansionSettings().GetHardline().RankKleptomaniac || killerHumanity < GetExpansionSettings().GetHardline().RankScout)
-				{					
 					killerPlayerData.AddHumanity(humanityOnKillAI);
 					humanityText = "Added";
 				}
@@ -534,7 +427,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				
 								
 				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayer.GetIdentity());
+				SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
 						
 				title = new StringLocaliser("Killed %1", victim.GetDisplayName());
 				text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityOnKillAI.ToString());
@@ -628,7 +521,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		ExpansionNotification(title, text, ExpansionIcons.GetPath("Star"),  COLOR_EXPANSION_NOTIFICATION_AMETHYST, 2, ExpansionNotificationType.ACTIVITY).Create(player.GetIdentity());
 		
 		hardlinePlayerData.Save(player.GetIdentity().GetId());		
-		SendPlayerHardlineData(player.GetIdentity());
+		SendPlayerHardlineData(hardlinePlayerData, player.GetIdentity());
 	}
 	
 	// ------------------------------------------------------------
@@ -655,7 +548,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		ExpansionNotification(title, text, ExpansionIcons.GetPath("Star"),  COLOR_EXPANSION_NOTIFICATION_AMETHYST, 2, ExpansionNotificationType.ACTIVITY).Create(player.GetIdentity());
 		
 		hardlinePlayerData.Save(player.GetIdentity().GetId());		
-		SendPlayerHardlineData(player.GetIdentity());
+		SendPlayerHardlineData(hardlinePlayerData, player.GetIdentity());
 	}
 	
 #ifdef WRDG_DOGTAGS
@@ -773,7 +666,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnRPC");
+		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnRPC");
 	#endif
 
 		super.OnRPC(sender, args);
@@ -791,7 +684,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionHardlineModule SendPlayerQuestData
+	// ExpansionHardlineModule SendPlayerHardlineData
 	// Called on server
 	// ------------------------------------------------------------
 	void SendPlayerHardlineData(PlayerIdentity identity)
@@ -799,13 +692,18 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
-		//! Get existing player quest data if there is a exiting one in m_PlayerDatas
-		string playerUID = identity.GetId();
-		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerUID);
+		//! Get existing player hardline data if there is a exiting one in m_PlayerDatas
+		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(identity.GetId());
+
+		SendPlayerHardlineData(hardlinePlayerData, identity);
+	}
+
+	void SendPlayerHardlineData(ExpansionHardlinePlayerData hardlinePlayerData, PlayerIdentity identity)
+	{
 		if (!hardlinePlayerData)
 			return;
 		
-		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
+		PlayerBase player = PlayerBase.GetPlayerByUID(identity.GetId());
 		if (player)
 		{
 			player.SetIsBandit(false);
@@ -824,7 +722,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		}
 		
 	#ifdef WRDG_DOGTAGS
-		UpdatePlayerDogTag(playerUID);
+		UpdatePlayerDogTag(identity.GetId());
 	#endif
 		
 		ScriptRPC rpc = new ScriptRPC();
@@ -834,7 +732,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestModule RPC_SendPlayerHardlineData
+	// ExpansionHardlineModule RPC_SendPlayerHardlineData
 	// Called on client
 	// ------------------------------------------------------------
 	private void RPC_SendPlayerHardlineData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
@@ -874,7 +772,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionQuestModule GetHardlineClientData
+	// ExpansionHardlineModule GetHardlineClientData
 	// Called on client
 	// ------------------------------------------------------------	
 	ExpansionHardlinePlayerData GetHardlineClientData()
@@ -883,7 +781,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionQuestModule GetHardlineHUDInvoker
+	// ExpansionHardlineModule GetHardlineHUDInvoker
 	// Called on client
 	// ------------------------------------------------------------
 	ScriptInvoker GetHardlineHUDInvoker()

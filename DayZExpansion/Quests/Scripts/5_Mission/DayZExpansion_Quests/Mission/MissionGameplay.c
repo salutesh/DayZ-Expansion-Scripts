@@ -13,6 +13,7 @@
 #ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 modded class MissionGameplay
 {
+	protected bool m_Expansion_QuestHUDTogglePressed;
 	private ref ExpansionQuestHUD m_ExpansionQuestHUD;
 	private bool m_HideHUD = false;
 
@@ -46,64 +47,65 @@ modded class MissionGameplay
 	{
 		super.OnUpdate( timeslice );
 
-		if ( !m_bLoaded )
+		if (GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			return;
-		}
-
-		//! Checking for keyboard focus
-		bool inputIsFocused = false;
-
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
-
-		if ( focusedWidget )
-		{
-			if ( focusedWidget.ClassName().Contains( "EditBoxWidget" ) )
+			//! Checking for keyboard focus
+			bool inputIsFocused = false;
+			//! Reference to focused windget
+			Widget focusedWidget = GetFocus();
+			if  (focusedWidget)
 			{
-				inputIsFocused = true;
-			}
-			else if ( focusedWidget.ClassName().Contains( "MultilineEditBoxWidget" ) )
-			{
-				inputIsFocused = true;
-			}
-		}
-
-		Man man = GetGame().GetPlayer(); //! Refernce to man
-		Input input = GetGame().GetInput(); //! Reference to input
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
-		PlayerBase playerPB = PlayerBase.Cast( man ); //! Expansion reference to player
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-
-		if (playerPB && playerPB.GetHumanInventory())
-		{
-			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
-			{
-				if (!m_Hud.GetHudState() && m_HideHUD)
+				if (focusedWidget.ClassName().Contains("EditBoxWidget"))
 				{
-					m_ExpansionQuestHUD.ShowHud(false);
+					inputIsFocused = true;
 				}
-				else if (m_Hud.GetHudState()  && !m_HideHUD)
+				else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
 				{
-					m_ExpansionQuestHUD.ShowHud(true);
+					inputIsFocused = true;
 				}
-
-				if (viewMenu || topMenu || m_HideHUD)
+			}
+	
+			Man man = GetGame().GetPlayer(); //! Refernce to man
+			Input input = GetGame().GetInput(); //! Reference to input
+			UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
+			PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
+			ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+	
+			if (playerPB && playerPB.GetHumanInventory())
+			{
+				if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 				{
-					m_ExpansionQuestHUD.ShowHud(false);
+					if (viewMenu || topMenu || m_HideHUD)
+					{
+						m_ExpansionQuestHUD.ShowHud(false);
+					}
+					else
+					{
+						m_ExpansionQuestHUD.ShowHud(true);
+					}
+					
+					if ((m_ExpansionQuestHUD || !topMenu) && !inputIsFocused)
+					{
+						//! Toggle Quest HUD
+						if (input.LocalPress("UAExpansionQuestToggle", false) && !m_Expansion_QuestHUDTogglePressed)
+						{
+							m_Expansion_QuestHUDTogglePressed = true;
+							ToggleQuestHUD();
+						}
+						else if (input.LocalRelease("UAExpansionQuestToggle", false) || input.LocalValue("UAExpansionQuestToggle", false) == 0)
+						{
+							m_Expansion_QuestHUDTogglePressed = false;
+						}
+					}
 				}
 				else
 				{
-					m_ExpansionQuestHUD.ShowHud(true);
+					m_ExpansionQuestHUD.ShowHud(false);
 				}
-			}
-			else
-			{
-				m_ExpansionQuestHUD.ShowHud(false);
 			}
 		}
 	}
-
+	
 	void ToggleQuestHUD()
 	{
 		m_HideHUD = !m_HideHUD;

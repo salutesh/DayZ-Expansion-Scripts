@@ -30,6 +30,10 @@ enum ExpansionPlayerRank
 
 class ExpansionHardlinePlayerData
 {
+	static const int CONFIGVERSION = 2;
+
+	int ConfigVersion;
+	
 	private int Rank = ExpansionPlayerRank.BAMBI;
 	
 	private int Humanity = 100;
@@ -45,6 +49,11 @@ class ExpansionHardlinePlayerData
 	
 	[NonSerialized()]
 	ExpansionHardlineModule m_HardlineModule;
+
+	void ExpansionHardlinePlayerData()
+	{
+		ConfigVersion = CONFIGVERSION;
+	}
 	
 	int GetRank()
 	{
@@ -92,48 +101,48 @@ class ExpansionHardlinePlayerData
 	void UpdateRankFromHumanity()
 	{
 		int rank = 0;
-		if (Humanity >= 1000)
+		if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
 		{
-			if (Humanity >= 1000)
+			if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
 			{
 				rank = ExpansionPlayerRank.SCOUT;
 			}
-			else if (Humanity >= 2000)
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankPathfinder)
 			{
 				rank = ExpansionPlayerRank.PATHFINDER;
 			}
-			else if (Humanity >= 3000)
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankHero)
 			{
 				rank = ExpansionPlayerRank.HERO;
 			}
-			else if (Humanity >= 4000)
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankSuperhero)
 			{
 				rank = ExpansionPlayerRank.SUPERHERO;
 			}
-			else if (Humanity >= 5000)
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankLegend)
 			{
 				rank = ExpansionPlayerRank.LEGEND;
 			}
 		}
-		else if (Humanity <= -1000)
+		else if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
 		{
-			if (Humanity <= -1000)
+			if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
 			{
 				rank = ExpansionPlayerRank.KLEPTOMANIAC;
 			}
-			else if (Humanity <= -2000)
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankBully)
 			{
 				rank = ExpansionPlayerRank.BULLY;
 			}
-			else if (Humanity <= -3000)
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankBandit)
 			{
 				rank = ExpansionPlayerRank.BANDIT;
 			}
-			else if (Humanity <= -4000)
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankKiller)
 			{
 				rank = ExpansionPlayerRank.KILLER;
 			}
-			else if (Humanity <= -5000)
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankMadman)
 			{
 				rank = ExpansionPlayerRank.MADMAN;
 			}
@@ -257,15 +266,44 @@ class ExpansionHardlinePlayerData
 	
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionHardlinePlayerData>.JsonSaveFile(EXPANSION_HARDLINE_PLAYERDATA_FOLDER+ fileName + ".JSON", this);
+		FileSerializer file = new FileSerializer();
+		if (file.Open(EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
+		{
+			file.Write(ConfigVersion);
+
+			OnSend(file);
+
+			file.Close();
+		}
 	}
 	
-	static ExpansionHardlinePlayerData LoadPlayerHardlineData(string fileName)
+	bool Load(string fileName)
 	{
-		ExpansionHardlinePlayerData data = new ExpansionHardlinePlayerData();
-		JsonFileLoader<ExpansionHardlinePlayerData>.JsonLoadFile(EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".json", data);		
+		string legacyPath = EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".JSON";
+		string path = EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin";
+		if (FileExist(path))
+		{
+			FileSerializer file = new FileSerializer();
+			if (file.Open(path, FileMode.READ))
+			{
+				file.Read(ConfigVersion);
+
+				OnRecieve(file);
+
+				file.Close();
+			}
+			return true;
+		}
+		else if (FileExist(legacyPath))
+		{
+			JsonFileLoader<ExpansionHardlinePlayerData>.JsonLoadFile(legacyPath, this);
+			ConfigVersion = CONFIGVERSION;
+			DeleteFile(legacyPath);
+			Save(fileName);
+			return true;
+		}
 		
-		return data;
+		return false;
 	}
 	
 	void OnSend(ParamsWriteContext ctx)

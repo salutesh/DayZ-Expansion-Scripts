@@ -596,7 +596,7 @@ class ExpansionTraderStaticBase extends BuildingSuper
 
 		m_allTraders.Insert(this);
 
-		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
@@ -682,7 +682,7 @@ class ExpansionTraderZombieBase extends ZombieBase
 
 		m_allTraders.Insert(this);
 
-		m_Expansion_NameOverride = new ExpansionNameOverride(this);
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);

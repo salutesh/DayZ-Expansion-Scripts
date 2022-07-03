@@ -1149,7 +1149,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			timers.Insert(playerCooldown.Index, playerCooldown);
 		}
 		
-		m_PlayerLastIndex.Insert(playerUID, last);
+		if (last)
+			m_PlayerLastIndex.Insert(playerUID, last);
 	}
 	
 	// ------------------------------------------------------------

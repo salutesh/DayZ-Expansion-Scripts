@@ -59,7 +59,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	
 	void ExpansionQuestPersistentData()
 	{
-		ConfigVersion = 1;
+		ConfigVersion = CONFIGVERSION;
 	}
 
 	void SetQuestModule(ExpansionQuestModule questModule)
@@ -247,46 +247,63 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		QuestPrint(ToString() + "::UpdateObjective - End");
 	}
 
-	static ExpansionQuestPersistentData Load(string fileName)
+	bool Load(string fileName)
 	{
-		bool save;
 		CF_Log.Info("[ExpansionQuestPersistentData] Load existing configuration file:" + fileName);
 
-		ExpansionQuestPersistentData playerData;
-		ExpansionQuestPersistentDataBase playerDataBase;
-		JsonFileLoader<ExpansionQuestPersistentDataBase>.JsonLoadFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON", playerDataBase);
-
-		if (playerDataBase.ConfigVersion < CONFIGVERSION)
-		{			
-			//! Copy over old configuration that haven't changed
-			playerData.CopyConfig(playerDataBase);
-			playerData.ConfigVersion = CONFIGVERSION;
-			save = true;
-		}
-		else
+		string legacyPath = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON";
+		string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin";
+		if (FileExist(path))
 		{
-			JsonFileLoader<ExpansionQuestPersistentData>.JsonLoadFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON", playerData);
-			//! Cleanup the file if there is no quest states and return no data
-			if (playerData.QuestDatas.Count() == 0)
+			FileSerializer file = new FileSerializer();
+			if (file.Open(path, FileMode.READ))
 			{
-				DeleteFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON");
-				return NULL;
+				file.Read(ConfigVersion);
+
+				OnRecieve(file);
+
+				file.Close();
 			}
+			return true;
 		}
-
-		if (save)
+		else if (FileExist(legacyPath))
 		{
-			JsonFileLoader<ExpansionQuestPersistentData>.JsonSaveFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON", playerData);
+			ExpansionQuestPersistentDataBase playerDataBase;
+			JsonFileLoader<ExpansionQuestPersistentDataBase>.JsonLoadFile(legacyPath, playerDataBase);
+			if (playerDataBase.ConfigVersion < CONFIGVERSION)
+			{
+				//! Copy over old configuration that hasn't changed
+				CopyConfig(playerDataBase);
+			}
+			else
+			{
+				ExpansionQuestPersistentData playerData;
+				JsonFileLoader<ExpansionQuestPersistentData>.JsonLoadFile(legacyPath, playerData);
+				CopyConfig(playerData);
+			}
+			ConfigVersion = CONFIGVERSION;
+			DeleteFile(legacyPath);
+			if (QuestDatas.Count())
+				Save(fileName);
+			return true;
 		}
 
-		return playerData;
+		return false;
 	}
 
 	void Save(string fileName)
 	{
 		if (CleanupQuestData()) //! Cleanup all quest states that have no state
 		{
-			JsonFileLoader<ExpansionQuestPersistentData>.JsonSaveFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON", this);
+			FileSerializer file = new FileSerializer();
+			if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
+			{
+				file.Write(ConfigVersion);
+
+				OnSend(file);
+
+				file.Close();
+			}
 		}
 		else
 		{
@@ -297,6 +314,11 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	void CopyConfig(ExpansionQuestPersistentDataBase dataBase)
 	{
 		//! Nothing to do here yet!
+	}
+
+	void CopyConfig(ExpansionQuestPersistentData data)
+	{
+		QuestDatas = data.QuestDatas;
 	}
 
 	private bool CleanupQuestData()

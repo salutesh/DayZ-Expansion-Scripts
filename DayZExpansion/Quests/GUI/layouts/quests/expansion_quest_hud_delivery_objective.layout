@@ -1,5 +1,6 @@
 WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
  clipchildren 1
+ ignorepointer 1
  size 0.95 1
  halign right_ref
  hexactpos 0
@@ -31,22 +32,22 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
    {
     PanelWidgetClass PanelWidget0 {
      ignorepointer 1
-     position 10 10
+     position 0.007 0.73
      size 0.9 14
-     hexactpos 1
-     vexactpos 1
+     hexactpos 0
+     vexactpos 0
      hexactsize 0
      vexactsize 1
      {
       TextWidgetClass DeliveryValue {
        ignorepointer 1
        position 9 0
-       size 0.5 14
+       size 0.5 1
        halign right_ref
        hexactpos 1
        vexactpos 1
        hexactsize 0
-       vexactsize 1
+       vexactsize 0
        scriptclass "ViewBinding"
        text "0/10"
        font "gui/fonts/etelkatextpro14"
@@ -62,11 +63,11 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
       TextWidgetClass DeliveryName {
        ignorepointer 1
        position 14 0
-       size 0.48 14
+       size 0.48 1
        hexactpos 1
        vexactpos 1
        hexactsize 0
-       vexactsize 1
+       vexactsize 0
        scriptclass "ViewBinding"
        text "ClassName"
        font "gui/fonts/etelkatextpro14"
@@ -81,6 +82,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
       }
       ImageWidgetClass DeliveryIcon {
        ignorepointer 1
+       position 0 0
        size 14 14
        hexactpos 1
        vexactpos 1
