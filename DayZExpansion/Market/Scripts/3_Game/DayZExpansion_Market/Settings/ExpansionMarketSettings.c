@@ -357,7 +357,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 		MarketSystemEnabled = s.MarketSystemEnabled;
 
-		SellPricePercent = s.SellPricePercent;
+		//! @note Round to avoid mismatch between server and client due to quantization
+		SellPricePercent = Math.Round(s.SellPricePercent);
 
 		MarketMenuColors = s.MarketMenuColors;
 		
@@ -1047,6 +1048,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			{
 				JsonFileLoader<ExpansionMarketSettings>.JsonLoadFile(EXPANSION_MARKET_SETTINGS, this);
 			}
+
+			//! @note Round to avoid mismatch between server and client due to quantization
+			SellPricePercent = Math.Round(SellPricePercent);
 
 			MarketMenuColors.Update();
 

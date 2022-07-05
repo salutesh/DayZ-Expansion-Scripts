@@ -22,8 +22,6 @@ class ExpansionQuestNPCAIBase extends eAIBase
 {
 	private int m_QuestNPCID = -1;
 	private ref ExpansionQuestNPCData m_QuestNPCData;
-	private int m_NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
-	private bool m_IsEmoteStatic = false;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCAIBase Constructor
@@ -37,7 +35,7 @@ class ExpansionQuestNPCAIBase extends eAIBase
 		}
 
 #ifdef EXPANSIONMODAI
-		SetMovementSpeedLimit(1.0);  //! Always walk
+		SetMovementSpeedLimits(1.0);  //! Always walk
 #endif
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
@@ -51,8 +49,6 @@ class ExpansionQuestNPCAIBase extends eAIBase
 		if (IsMissionHost())
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionFixPositionAndOrientation);
-			if (!m_IsEmoteStatic)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionPlayEmote);
 		}
 	}
 	
@@ -126,32 +122,6 @@ class ExpansionQuestNPCAIBase extends eAIBase
 		{
 			emoteManager.PlayEmote(EmoteConstants.ID_EMOTE_WATCHING);
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(emoteManager.ServerRequestEmoteCancel, 2000);
-		}
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase SetEmote
-	// ------------------------------------------------------------
-	void ExpansionSetEmote(int emoteID, bool isStatic = false)
-	{
-		m_NPCEmoteID = emoteID;
-		m_IsEmoteStatic = isStatic;
-		
-		int emoteTime = Math.RandomInt(5000, 10000);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionPlayEmote, emoteTime, !m_IsEmoteStatic);
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase PlayEmote
-	// ------------------------------------------------------------
-	void ExpansionPlayEmote()
-	{
-		EmoteManager emoteManager = GetEmoteManager();
-		if (!emoteManager.IsEmotePlaying())
-		{
-			emoteManager.PlayEmote(m_NPCEmoteID);
-			if (!m_IsEmoteStatic)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(emoteManager.ServerRequestEmoteCancel, 2000);
 		}
 	}
 

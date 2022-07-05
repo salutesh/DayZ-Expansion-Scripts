@@ -7,7 +7,7 @@ class eAIDynamicPatrol : eAIPatrol
 	eAIWaypointBehavior m_WaypointBehaviour;
 	float m_MinimumRadiusSq;
 	float m_MaximumRadiusSq;
-	float m_DespawnRadiusSq; // m_MaximumRadiusSq + 10%
+	float m_DespawnRadiusSq;
 	float m_MovementSpeedLimit;
 	float m_MovementThreatSpeedLimit;
 	int m_NumberOfAI;
@@ -34,11 +34,12 @@ class eAIDynamicPatrol : eAIPatrol
 	 * @param respawnTime the time between patrol spawns
 	 * @param minR miminum distance between the patrol and nearest player for a patrol to not (re)spawn
 	 * @param maxR maximum distance between the patrol and nearest player for a patrol to (re)spawn
+	 * @param despawnR maximum distance between the patrol and nearest player for a patrol to despawn
 	 * @param speedLimit movement speed limit 1.0 = walk, 2.0 = jog, 3.0 = sprint
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
+	static eAIDynamicPatrol CreateEx(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float despawnR = 880, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -54,7 +55,7 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_RespawnTime = respawnTime;
 		patrol.m_MinimumRadiusSq = Math.SqrFloat(minR);
 		patrol.m_MaximumRadiusSq = Math.SqrFloat(maxR);
-		patrol.m_DespawnRadiusSq = Math.SqrFloat(maxR * 1.1);
+		patrol.m_DespawnRadiusSq = Math.SqrFloat(despawnR);
 		patrol.m_MovementSpeedLimit = speedLimit;
 		patrol.m_MovementThreatSpeedLimit = threatspeedLimit;
 		patrol.m_Faction = faction;
@@ -64,6 +65,12 @@ class eAIDynamicPatrol : eAIPatrol
 		if (patrol.m_Faction == null) patrol.m_Faction = new eAIFactionCivilian();
 		if (autoStart) patrol.Start();
 		return patrol;
+	}
+
+	//! Legacy w/ despawnR = maxR * 1.1 for people still using it
+	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
+	{
+		return CreateEx(pos, waypoints, behaviour, loadout, count, respawnTime, faction, autoStart, minR, maxR, maxR * 1.1, speedLimit, threatspeedLimit, canBeLooted, unlimitedReload);
 	}
 
 	private eAIBase SpawnAI(vector pos)
@@ -82,7 +89,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		ExpansionHumanLoadout.Apply(ai, m_Loadout, false);
 				
-		ai.SetMovementSpeedLimit(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
+		ai.SetMovementSpeedLimits(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
 		ai.Expansion_SetCanBeLooted(m_CanBeLooted);
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 
@@ -107,6 +114,9 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 
 		m_WasGroupDestroyed = true;
+
+		if (m_NumberOfDynamicPatrols)
+			m_NumberOfDynamicPatrols--;
 
 		return true;
 	}
@@ -150,9 +160,8 @@ class eAIDynamicPatrol : eAIPatrol
 
 		m_Group.ClearAI();
 		m_Group = null;
-		m_TimeSinceLastSpawn = 0;
 
-		if (m_NumberOfDynamicPatrols)
+		if (!m_WasGroupDestroyed && m_NumberOfDynamicPatrols)
 			m_NumberOfDynamicPatrols--;
 	}
 
@@ -167,19 +176,19 @@ class eAIDynamicPatrol : eAIPatrol
 			return;
 		}
 
-		if (m_Group)
+		if (!m_CanSpawn && (!m_Group || m_WasGroupDestroyed))
 		{
 			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
 			m_CanSpawn = m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime;
 		}
 
-		if (!m_CanSpawn)
-		{
-			return;
-		}
-
 		if (!m_Group)
 		{
+			if (!m_CanSpawn)
+			{
+				return;
+			}
+
 			int maxPatrols = GetExpansionSettings().GetAI().MaximumDynamicPatrols;
 			if (maxPatrols > -1 && m_NumberOfDynamicPatrols >= maxPatrols)
 			{

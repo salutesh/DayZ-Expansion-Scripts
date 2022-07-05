@@ -117,6 +117,9 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		super.OnMissionLoaded(sender, args);
 		
+		if (GetGame().IsDedicatedServer())
+			return;
+
 		ReadLocalServerMarkers();
 
 		if ( IsMissionOffline() )
@@ -174,6 +177,9 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		#endif
 
 		super.OnMissionFinish(sender, args);
+		
+		if (GetGame().IsDedicatedServer())
+			return;
 
 		SaveLocalServerMarkers();
 

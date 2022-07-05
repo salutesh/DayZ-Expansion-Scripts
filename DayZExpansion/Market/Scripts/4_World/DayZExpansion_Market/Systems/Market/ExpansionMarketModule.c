@@ -525,7 +525,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (sellPricePct < 0)
 				sellPricePct = zone.SellPricePercent;
 			if (sellPricePct < 0)
-				sellPricePct = Math.Round(GetExpansionSettings().GetMarket().SellPricePercent);
+				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
 			initialSellPriceModifier = sellPricePct / 100;
 		}
 
@@ -789,7 +789,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (sellPricePct < 0)
 				sellPricePct = zone.SellPricePercent;
 			if (sellPricePct < 0)
-				sellPricePct = Math.Round(GetExpansionSettings().GetMarket().SellPricePercent);
+				sellPricePct = GetExpansionSettings().GetMarket().SellPricePercent;
 			initialSellPriceModifier = sellPricePct / 100;
 		}
 

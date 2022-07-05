@@ -10,7 +10,6 @@ class ExpansionFSM
 
 	private ExpansionState m_CurrentState;
 	private ExpansionState m_ParentState;
-	private bool m_Running = true;
 
 	protected ExpansionFSMOwnerType m_Owner;
 
@@ -24,6 +23,7 @@ class ExpansionFSM
 		#endif
 
 		m_Owner = owner;
+		m_ParentState = parentState;
 
 		m_States = new array<ref ExpansionState>();
 		m_Transitions = new array<ref ExpansionTransition>();
@@ -133,7 +133,7 @@ class ExpansionFSM
 		ExpansionState src = m_CurrentState;
 		ExpansionState dst = GetState(m_DefaultState);
 
-		if (m_Running && src)
+		if (src)
 		{
 			CF_Log.Debug("Exiting state: " + src);
 			src.OnExit("", true, dst);
@@ -164,14 +164,7 @@ class ExpansionFSM
 		ExpansionState src = m_CurrentState;
 		ExpansionState dst = new_state.param1;
 
-		if (dst == null)
-		{
-			CF_Log.Warn("No valid state found. Aborting.");
-
-			return false;
-		}
-
-		if (m_Running && m_CurrentState && m_CurrentState != dst)
+		if (m_CurrentState && m_CurrentState != dst)
 		{
 			CF_Log.Debug("Exiting state: " + m_CurrentState);
 			m_CurrentState.OnExit(e, true, dst);
@@ -197,7 +190,7 @@ class ExpansionFSM
 		auto trace = CF_Trace_1(this, "Abort").Add(e);
 		#endif
 
-		if (m_Running && m_CurrentState)
+		if (m_CurrentState)
 		{
 			CF_Log.Debug("Exiting state: " + m_CurrentState);
 			m_CurrentState.OnExit(e, true, null);
@@ -208,14 +201,17 @@ class ExpansionFSM
 	}
 
 	/**
-	 * @return true Tell the parent FSM that the child FSM is complete
-	 * @return false Tell the parent FSM that the child FSM is still running
+	 * @return EXIT Tell the parent FSM that the child FSM is complete
+	 * @return CONTINUE Tell the parent FSM that the child FSM is still running
 	 */
 	int Update(float pDt, int pSimulationPrecision)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "Update").Add(pDt).Add(pSimulationPrecision);
 		#endif
+
+		if (!m_Owner)
+			return EXIT;
 
 		//CF_Log.Debug("m_CurrentState: %1", "" + m_CurrentState);
 
@@ -225,7 +221,7 @@ class ExpansionFSM
 		}
 		
 		Param2<ExpansionState, bool> new_state = FindSuitableTransition(m_CurrentState, "");
-		if (!new_state.param2 || (new_state.param2 && m_CurrentState == new_state.param1))
+		if (!new_state.param2 || m_CurrentState == new_state.param1)
 		{	
 			if (!m_CurrentState)
 			{
@@ -264,26 +260,22 @@ class ExpansionFSM
 
 		//TODO: store a reference to the transitions inside the state for that state
 
-		ExpansionState curr_state = s;
-
-		if (curr_state)
+		foreach (auto t: m_Transitions)
 		{
-			int count = m_Transitions.Count();
-			for (int i = 0; i < count; ++i)
+			if ((t.GetSource() == s || t.GetSource() == null) && (e == "" || t.GetEvent() == e))
 			{
-				auto t = m_Transitions.Get(i);
-				if ((t.GetSource() == curr_state || t.GetSource() == null) && (e == "" || (e != "" && t.GetEvent() == e)))
+				switch (t.Guard())
 				{
-					int guard = t.Guard();
-					switch (guard)
-					{
-					case ExpansionTransition.SUCCESS:
-						return new Param2<ExpansionState, bool>(t.GetDestination(), true);
-					case ExpansionTransition.FAIL:
-						break;
-					}
+				case ExpansionTransition.SUCCESS:
+#ifdef EAI_DEBUG_TRANSITION
+					if (s != t.GetDestination())
+						EXPrint(m_Owner.ToString() + " transition " + s + " -> " + t.GetDestination());
+#endif
+					return new Param2<ExpansionState, bool>(t.GetDestination(), true);
+				case ExpansionTransition.FAIL:
+					break;
 				}
-			}	
+			}
 		}
 
 		return new Param2<ExpansionState, bool>(null, false);

@@ -99,25 +99,25 @@ modded class ExpansionMarketModule
 				return GetExpansionSettings().GetHardline().PoorItemRequirement;
 			
 			case ExpansionHardlineItemRarity.COMMON:
-				return GetExpansionSettings().GetHardline().CommonItemRequirement);
+				return GetExpansionSettings().GetHardline().CommonItemRequirement;
 			
 			case ExpansionHardlineItemRarity.UNCOMMON:
-				return GetExpansionSettings().GetHardline().UncommonItemRequirement);
+				return GetExpansionSettings().GetHardline().UncommonItemRequirement;
 			
 			case ExpansionHardlineItemRarity.RARE:
-				return GetExpansionSettings().GetHardline().RareItemRequirement);
+				return GetExpansionSettings().GetHardline().RareItemRequirement;
 			
 			case ExpansionHardlineItemRarity.EPIC:
-				return GetExpansionSettings().GetHardline().EpicItemRequirement);
+				return GetExpansionSettings().GetHardline().EpicItemRequirement;
 			
 			case ExpansionHardlineItemRarity.LEGENDARY:
-				return GetExpansionSettings().GetHardline().LegendaryItemRequirement);
+				return GetExpansionSettings().GetHardline().LegendaryItemRequirement;
 			
 			case ExpansionHardlineItemRarity.MYTHIC:
-				return GetExpansionSettings().GetHardline().MythicItemRequirement);
+				return GetExpansionSettings().GetHardline().MythicItemRequirement;
 			
 			case ExpansionHardlineItemRarity.EXOTIC:
-				return GetExpansionSettings().GetHardline().ExoticItemRequirement);
+				return GetExpansionSettings().GetHardline().ExoticItemRequirement;
 		}
 
 		return 0;

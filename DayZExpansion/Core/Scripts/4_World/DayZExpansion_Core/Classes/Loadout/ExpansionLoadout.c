@@ -19,14 +19,20 @@ class ExpansionHumanLoadout
 			ExpansionSettingBase.MoveSettings(loadoutFolderAI, EXPANSION_LOADOUT_FOLDER);
 
 		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
-			MakeDirectory(EXPANSION_LOADOUT_FOLDER);
-
-		//! Load existing loadouts
-		TStringArray loadouts = ExpansionStatic.FindFilesInLocation(EXPANSION_LOADOUT_FOLDER, ".json");
-		foreach (string loadout: loadouts)
 		{
-			ExpansionLoadout.Load(loadout.Substring(0, loadout.Length() - 5));
+			MakeDirectory(EXPANSION_LOADOUT_FOLDER);
 		}
+		else
+		{
+			//! Load existing loadouts
+			TStringArray loadouts = ExpansionStatic.FindFilesInLocation(EXPANSION_LOADOUT_FOLDER, ".json");
+			foreach (string loadout: loadouts)
+			{
+				ExpansionLoadout.Load(loadout.Substring(0, loadout.Length() - 5));
+			}
+		}
+
+		//! Always create default loadouts if they don't exist
 
 		// Armed Loadouts
 		DefaultHumanLoadout();

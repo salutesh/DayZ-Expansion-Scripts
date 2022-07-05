@@ -665,10 +665,12 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 				EntityAI parentPlayer = player;  //! Always use player as parent for shoulder/melee slots
 
 				//! Add primary weapon and its attachments
-				AddItem(player, gear.PrimaryWeapon, parentPlayer);
+				if (gear.PrimaryWeapon)
+					AddItem(player, gear.PrimaryWeapon, parentPlayer);
 				
 				//! Add secondary weapon and its attachments
-				AddItem(player, gear.SecondaryWeapon, parentPlayer);
+				if (gear.SecondaryWeapon)
+					AddItem(player, gear.SecondaryWeapon, parentPlayer);
 			}
 		}
 	}

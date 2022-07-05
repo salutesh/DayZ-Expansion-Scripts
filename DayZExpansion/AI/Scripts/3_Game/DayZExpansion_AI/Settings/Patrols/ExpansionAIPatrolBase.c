@@ -95,6 +95,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 {
 	float MinDistRadius;	            // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn, if set to -2, will use the general setting instead
 	float MaxDistRadius;	            // Same but if the player is further away than MaxDistRadius, the bots won't spawn, if set to -2, will use the general setting instead
+	float DespawnRadius;
 	float MinSpreadRadius;
 	float MaxSpreadRadius;
 	float Chance;                       // chance for this patrol to spawn
@@ -104,5 +105,6 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 		Chance = chance;
 		MinDistRadius = mindistradius;
 		MaxDistRadius = maxdistradius;
+		DespawnRadius = maxdistradius * 1.1;
 	}
 };

@@ -17,6 +17,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	private ScrollWidget rules_list_scroller;
 	private ExpansionQuestModule m_QuestModule;
 	private ExpansionQuestConfig m_Quest;
+	private ref ExpansionDialog_CancelQuest m_CancelQuestDialog;
 
 	private Widget quest_info_panel;
 	private Widget reward_panel;
@@ -137,11 +138,11 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		{
 			if (!mission.QuestHudState())
 			{
-				m_QuestTabController.HideButtonText = "Hide HUD";
+				m_QuestTabController.HideButtonText = "#STR_EXPANSION_QUEST_MENU_HIDE_HUD";
 			}
 			else
 			{
-				m_QuestTabController.HideButtonText = "Show HUD";
+				m_QuestTabController.HideButtonText = "#STR_EXPANSION_QUEST_MENU_SHOW_HUD";
 			}
 
 			m_QuestTabController.NotifyPropertyChanged("HideButtonText");
@@ -250,14 +251,15 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		}
 	}
 
-	/*override void OnBackButtonClick()
-	{
-		super.OnBackButtonClick();
-
-		Hide();
-	}*/
-
 	void OnCancelQuestButtonClick()
+	{
+		if (!m_CancelQuestDialog)
+			m_CancelQuestDialog = new ExpansionDialog_CancelQuest(this);
+		
+		m_CancelQuestDialog.Show();
+	}
+	
+	void OnConfirmCancelQuest()
 	{
 		if (!m_Quest)
 			return;
@@ -301,6 +303,11 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	ExpansionQuestModule GetQuestModule()
 	{
 		return m_QuestModule;
+	}
+	
+	ExpansionQuestConfig GetQuest()
+	{
+		return m_Quest;
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -353,5 +360,110 @@ class ExpansionBookMenuTabQuestsController: ExpansionViewController
 	ref ObservableCollection<ref ExpansionBookMenuTabQuestsListEntry> Quests = new ObservableCollection<ref ExpansionBookMenuTabQuestsListEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
+};
+
+class ExpansionDialog_CancelQuest: ExpansionDialogBookBase
+{
+	ref ExpansionDialogContent_Text m_Text;
+	ref ExpansionDialogButton_Text_CancelQuest_Accept m_AcceptButton;
+	ref ExpansionDialogButton_Text_CancelQuest_Cancel m_CancelButton;	
+	ExpansionBookMenuTabQuests m_QuestsTab;
+		
+	void ExpansionDialog_CancelQuest(ExpansionScriptView parentView)
+	{
+		m_ParentView = parentView;
+		
+		if (!m_QuestsTab)
+			m_QuestsTab = ExpansionBookMenuTabQuests.Cast(GetParentView());
+		
+		if (!m_Text)
+		{
+			m_Text = new ExpansionDialogContent_Text(this);
+			AddContent(m_Text);
+			m_Text.SetText("#STR_EXPANSION_QUEST_CONFIRM_CANCEL_TEXT");
+			m_Text.SetTextColor(ARGB(255,0,0,0));
+			m_Text.Show();
+		}
+		
+		if (!m_AcceptButton)
+		{
+			m_AcceptButton = new ExpansionDialogButton_Text_CancelQuest_Accept(this);
+			AddButton(m_AcceptButton);
+			m_AcceptButton.Show();
+		}
+		
+		if (!m_CancelButton)
+		{
+			m_CancelButton = new ExpansionDialogButton_Text_CancelQuest_Cancel(this);
+			AddButton(m_CancelButton);
+			m_CancelButton.Show();
+		}
+	}
+	
+	override string GetDialogTitle()
+	{		
+		return "#STR_EXPANSION_QUEST_MENU_CANCEL_QUEST";
+	}
+};
+
+class ExpansionDialogButton_Text_CancelQuest_Accept: ExpansionDialogBookButton_Text
+{
+	ExpansionDialog_CancelQuest m_CancelQuestDialog;
+	ExpansionBookMenuTabQuests m_QuestTab;
+	ExpansionQuestModule m_QuestModule;
+	
+	void ExpansionDialogButton_Text_CancelQuest_Accept(ExpansionDialogBase dialog)
+	{
+		if (!m_CancelQuestDialog)
+			m_CancelQuestDialog = ExpansionDialog_CancelQuest.Cast(GetDialog());
+		
+		if (!m_QuestTab)
+			m_QuestTab = ExpansionBookMenuTabQuests.Cast(m_CancelQuestDialog.GetParentView());
+		
+		if (!m_QuestModule)
+			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+		
+		SetButtonText("#STR_EXPANSION_ACCEPT");
+		SetTextColor(ARGB(255,0,0,0));
+	}
+	
+	override void OnButtonClick()
+	{
+		if (m_QuestTab)
+		{
+			m_QuestTab.OnConfirmCancelQuest();
+		}
+		
+		m_CancelQuestDialog.Hide();
+		
+		ExpansionUIManager uiManager = GetDayZExpansion().GetExpansionUIManager();
+		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(uiManager.GetMenu());
+		if (bookMenu)
+			GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+	}
+};
+
+class ExpansionDialogButton_Text_CancelQuest_Cancel: ExpansionDialogBookButton_Text
+{
+	ExpansionDialog_CancelQuest m_CancelQuestDialog;
+	ExpansionBookMenuTabQuests m_QuestTab;
+	
+	void ExpansionDialogButton_Text_CancelQuest_Cancel(ExpansionDialogBase dialog)
+	{
+		if (!m_CancelQuestDialog)
+			m_CancelQuestDialog = ExpansionDialog_CancelQuest.Cast(GetDialog());
+		
+		if (!m_QuestTab)
+			m_QuestTab = ExpansionBookMenuTabQuests.Cast(m_CancelQuestDialog.GetParentView());
+		
+		SetButtonText("#STR_EXPANSION_CANCEL");
+		SetTextColor(ARGB(255,0,0,0));
+	}
+	
+	override void OnButtonClick()
+	{
+		m_CancelQuestDialog.Hide();
+		m_QuestTab.Show();
+	}
 };
 #endif

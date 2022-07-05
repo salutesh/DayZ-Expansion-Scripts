@@ -85,6 +85,7 @@
 		<state name="FollowFormation">
 			<variables>
 				<variable name="group" type="eAIGroup" />
+				<variable name="speedLimit" type="int" />
 			</variables>
 			<editor_data>
 				<position x="705.506428737142" y="490.855335435811" />
@@ -92,12 +93,16 @@
 			</editor_data>
 			<event_entry>
 				unit.Expansion_GetUp();
+				speedLimit = unit.GetMovementSpeedLimit();
 			</event_entry>
-			<event_exit />
+			<event_exit>
+				unit.SetMovementSpeedLimit(speedLimit);  //! Restore speed limit
+			</event_exit>
 			<event_update>
 				unit.OverrideTargetPosition(group.GetFormationPosition(unit));
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
+				unit.SetMovementSpeedLimit(3);  //! Make sure AI can reach formation positions when following leader by overriding speed limit 
 				
 				return EXIT;
 			</event_update>
@@ -191,6 +196,8 @@
 			</editor_data>
 			<event_entry>
 				unit.UpdateAimArbitration();
+				if (unit.GetEmoteManager().IsEmotePlaying())
+					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit>
 				unit.StopAimArbitration();
@@ -207,6 +214,8 @@
 			</editor_data>
 			<event_entry>
 				unit.UpdateAimArbitration();
+				if (unit.GetEmoteManager().IsEmotePlaying())
+					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit>
 				unit.StopAimArbitration();
@@ -366,6 +375,20 @@
 					}
 				}
 				
+				return EXIT;
+			</event_update>
+		</state>
+		<state name="PlayEmote">
+			<variables />
+			<editor_data>
+				<position x="445.886600687191" y="293.617136976937" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				unit.Expansion_PlayEmote();
+			</event_entry>
+			<event_exit />
+			<event_update>
 				return EXIT;
 			</event_update>
 		</state>
@@ -694,6 +717,7 @@
 			</editor_data>
 			<guard>
 				if (unit.GetThreatToSelf(true) &lt; 0.4) return FAIL;
+				if (unit.GetActionManager().GetRunningAction()) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -762,6 +786,41 @@
 			</guard>
 			<event />
 			<from_state name="Vehicles" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="995.709194546504" y="489.964300297873" />
+				<position_destination x="794" y="456.89192130556" />
+			</editor_data>
+			<guard>
+				if (!unit.m_Expansion_EmoteID) return FAIL;
+				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetEmoteManager().Expansion_GetCurrentGesture() == unit.m_Expansion_EmoteID) return FAIL;
+				if (unit.GetThreatToSelf(true) &gt; 0.2) return FAIL;
+				if (unit.IsInMelee()) return FAIL;
+				if (unit.GetWeaponManager().IsRunning()) return FAIL;
+				if (unit.GetActionManager().GetRunningAction()) return FAIL;
+				
+				auto hands = unit.GetItemInHands();
+				if (hands &amp;&amp; (hands.IsInherited(BandageDressing) || hands.IsInherited(Rag)))
+					return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="PlayEmote" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1095.709194546504" y="589.964300297873" />
+				<position_destination x="894" y="556.89192130556" />
+			</editor_data>
+			<guard>
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="PlayEmote" />
 			<to_state name="Idle" />
 		</transition>
 	</transitions>

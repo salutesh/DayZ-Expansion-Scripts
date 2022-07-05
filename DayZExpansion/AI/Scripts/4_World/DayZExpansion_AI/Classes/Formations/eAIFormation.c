@@ -12,8 +12,7 @@ class eAIFormation
 		m_Group = group;
 		m_Scale = 1.0;
 
-		if (m_Group && m_Group.Count() > 0)
-			UpdateTransform(m_Group.GetLeader().GetPosition(), m_Group.GetLeader().GetDirection());
+		UpdateTransform(vector.Zero, vector.Forward);
 	}
 
 	// Abstract function that returns the position in local space relative to the formation transformation at any given time.
@@ -36,6 +35,12 @@ class eAIFormation
 
 		vector newPos = m_Group.GetLeader().GetPosition();
 		vector oldPos = m_Transform[3];
+
+		if (oldPos == vector.Zero)
+		{
+			UpdateTransform(newPos, m_Group.GetLeader().GetDirection());
+			return;
+		}
 
 		if (vector.DistanceSq(newPos, oldPos) < m_DirRecalcDistSq)
 			return;

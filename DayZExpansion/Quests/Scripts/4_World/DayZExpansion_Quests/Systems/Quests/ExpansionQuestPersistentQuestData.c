@@ -18,6 +18,18 @@ class ExpansionQuestPersistentQuestData
 	ref array<ref ExpansionQuestObjectiveData> QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
 	int LastUpdateTime;
 		
+	ExpansionQuestObjectiveData GetObjectiveByIndex(int index)
+	{
+		for (int i = 0; i < QuestObjectives.Count(); i++)
+		{
+			ExpansionQuestObjectiveData objective = QuestObjectives[i];
+			if (objective && objective.GetObjectiveIndex() == index)
+				return objective;
+		}
+		
+		return NULL;
+	}
+	
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(QuestID);
@@ -34,7 +46,7 @@ class ExpansionQuestPersistentQuestData
 				objective.OnSend(ctx);
 		}
 	}
-
+	
 	bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!ctx.Read(QuestID))

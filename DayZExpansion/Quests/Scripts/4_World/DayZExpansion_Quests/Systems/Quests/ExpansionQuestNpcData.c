@@ -224,31 +224,17 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, questNPC);
 		}
 
-	#ifdef EXPANSIONMODAI
 		eAIGroup ownerGrp = questNPC.GetGroup();
-	#else
-		if (eAIGlobal_HeadlessClient)
-			GetRPCManager().SendRPC("eAI", "HCLinkObject", new Param1< PlayerBase >(questNPC), false, eAIGlobal_HeadlessClient);
-
-		eAIGame game = MissionServer.Cast(GetGame().GetMission()).GetEAIGame();
-		eAIGroup ownerGrp = game.GetGroupByLeader(questNPC);
-	#endif
 		for (int j = 0; j < Waypoints.Count(); j++)
 		{
 			EXPrint("Adding waypoint " + Waypoints[j]);
 			ownerGrp.AddWaypoint(Waypoints[j]);
 		}
 
-	#ifdef EXPANSIONMODAI
 		if (Waypoints.Count() > 1)
 			ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 		else if (Waypoints.Count() <= 1)
 			ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.HALT);
-	#else
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(questNPC.RequestTransition, 10000, false, "Rejoin");
-
-		questNPC.SetAI(ownerGrp);
-	#endif
 
 		return questNPC;
 	}

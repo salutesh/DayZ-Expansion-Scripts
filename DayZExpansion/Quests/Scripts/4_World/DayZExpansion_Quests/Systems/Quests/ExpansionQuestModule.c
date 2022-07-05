@@ -498,10 +498,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Maybe move this to the OnClientLogout method
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			if (cArgs.Player.GetIdentity())
-			{
-				CleanupPlayerQuests(cArgs.Player.GetIdentity().GetId());
-			}
+			if (!cArgs.Player || !cArgs.Player.GetIdentity())
+				return;
+			
+			CleanupPlayerQuests(cArgs.Player.GetIdentity().GetId());
 		}
 
 		QuestModulePrint(ToString() + "::OnClientDisconnect - End");
@@ -523,7 +523,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
+		{
+			if (!cArgs.Identity)
+				return;
+
 			HandleClientLogout(cArgs.Identity);
+		}
 
 		QuestModulePrint(ToString() + "::OnClientLogout - End");
 	}
@@ -551,10 +556,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 			QuestModulePrint(ToString() + "::OnClientLogoutCancelled - Identity from Player: " + cArgs.Player.GetIdentity().ToString());
 			QuestModulePrint(ToString() + "::OnClientLogoutCancelled - UID: " + cArgs.Player.GetIdentity().GetId());
 
-			if (cArgs.Player)
-			{
-				HandleClientLogoutCancelled(cArgs.Player.GetIdentity().GetId());
-			}
+			if (!cArgs.Player)
+				return;
+			
+			HandleClientLogoutCancelled(cArgs.Player.GetIdentity().GetId());
 		}
 
 		QuestModulePrint(ToString() + "::OnClientLogoutCancelled - End");
@@ -590,9 +595,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 				quest.QuestDebug();
 				m_ActiveQuests.Remove(i);
 			}
-
-		QuestModulePrint(ToString() + "::OnMissionFinish - End");
 		}
+		
+		QuestModulePrint(ToString() + "::OnMissionFinish - End");
 	}
 
 	// -----------------------------------------------------------
@@ -1084,7 +1089,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	void RequestOpenQuestMenu(int questNPCID, PlayerIdentity identity)
 	{
 		Object target = GetQuestNPCByID(questNPCID);
-	#ifdef ENFUSION_AI_PROJECT
+	#ifdef EXPANSIONMODAI
 		if (!target)
 			target = GetQuestNPCAIByID(questNPCID);
 	#endif
@@ -2328,9 +2333,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 					object.SetOrientation(questNPCData.GetOrientation());
 				}
 			}
+			#ifdef EXPANSIONMODAI
 			else if (questNPCData.IsAI() && !questNPCData.IsStatic())
 			{
-			#ifdef EXPANSIONMODAI
 				ExpansionQuestNPCAIBase npcAI = questNPCData.SpawnNPCAI();
 				if (npcAI)
 				{
@@ -2340,33 +2345,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 					npcAI.SetPosition(questNPCData.GetPosition());
 					npcAI.SetOrientation(questNPCData.GetOrientation());
-					npcAI.ExpansionSetEmote(questNPCData.GetEmoteID(), questNPCData.IsEmoteStatic());
+					npcAI.Expansion_SetEmote(questNPCData.GetEmoteID(), !questNPCData.IsEmoteStatic());
 
-					#ifdef EXPANSIONMODAI
 					eAIGroup ownerGrp = npcAI.GetGroup();
-					#else
-					if ( eAIGlobal_HeadlessClient )
-						GetRPCManager().SendRPC( "eAI", "HCLinkObject", new Param1< PlayerBase >( npcAI ), false, eAIGlobal_HeadlessClient );
-
-					eAIGame game = MissionServer.Cast( GetGame().GetMission() ).GetEAIGame();
-					eAIGroup ownerGrp = game.GetGroupByLeader( npcAI );
-					#endif
 
 					for (int j = 0; j < questNPCData.GetWaypoints().Count(); j++ )
 					{
 						ownerGrp.AddWaypoint( questNPCData.GetWaypoints()[j] );
 					}
 
-					#ifdef EXPANSIONMODAI
 					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
-					#else
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( npcAI.RequestTransition, 10000, false, "Rejoin" );
-
-					npcAI.SetAI( ownerGrp );
-					#endif
 				}
-			#endif
 			}
+			#endif
 		}
 	}
 
@@ -3960,7 +3951,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		QuestModulePrint(ToString() + "::OnActionUsed - Action data: " + actionData.ToString());
 
 		PlayerBase player = actionData.m_Player;
-		if (!player)
+		if (!player || !player.GetIdentity())
 			return;
 
 		string playerUID = player.GetIdentity().GetId();
@@ -4596,7 +4587,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	void QuestModulePrint(string text)
 	{
 	//#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, this, text);
+		EXTrace.Print(EXTrace.QUESTS, null, text);
 	//#endif
 	}
 	
@@ -4605,7 +4596,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void QuestRPCPrint(string text)
 	{
-		EXTrace.Print(EXTrace.QUESTS, this, text);
+		EXTrace.Print(EXTrace.QUESTS, null, text);
 	}
 
 	// ------------------------------------------------------------

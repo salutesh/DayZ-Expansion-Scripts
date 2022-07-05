@@ -20,6 +20,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 {
 	float MinDistRadius = 50;
 	float MaxDistRadius = 150;
+	float DespawnRadius = 880;
 	
 	void SetAIPatrol(ExpansionQuestObjectiveAIPatrol patrol)
 	{
@@ -51,6 +52,16 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		return MaxDistRadius;
 	}
 	
+	void SetDespawnRadius(float dist)
+	{
+		DespawnRadius = dist;
+	}
+	
+	override float GetDespawnRadius()
+	{
+		return DespawnRadius;
+	}
+	
 	static ExpansionQuestObjectiveAIPatrolConfig Load(string fileName)
 	{
 		bool save;
@@ -75,6 +86,9 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		{
 			JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonLoadFile(fileName, config);
 		}
+
+		if (!config.DespawnRadius)
+			config.DespawnRadius = 880;
 
 		if (save)
 		{

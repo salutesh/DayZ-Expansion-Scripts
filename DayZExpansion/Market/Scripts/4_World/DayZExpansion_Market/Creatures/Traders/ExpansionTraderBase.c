@@ -784,7 +784,7 @@ class ExpansionTraderAIBase extends eAIBase
 		}
 
 #ifdef EXPANSIONMODAI
-		SetMovementSpeedLimit(1.0);  //! Always walk
+		SetMovementSpeedLimits(1.0);  //! Always walk
 #endif
 
 		if (GetGame() && GetGame().IsClient())

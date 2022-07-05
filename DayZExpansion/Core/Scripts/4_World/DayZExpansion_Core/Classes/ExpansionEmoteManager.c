@@ -45,4 +45,9 @@ modded class EmoteManager
 		
 		super.CreateBleedingEffect( Callback_ID );
 	}
+
+	int Expansion_GetCurrentGesture()
+	{
+		return m_CurrentGestureID;
+	}
 };

@@ -20,6 +20,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 {
 	float MinDistRadius = 50;
 	float MaxDistRadius = 150;
+	float DespawnRadius = 880;
 	
 	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
 	{
@@ -50,6 +51,16 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	{
 		return MaxDistRadius;
 	}
+	
+	void SetDespawnRadius(float dist)
+	{
+		DespawnRadius = dist;
+	}
+	
+	override float GetDespawnRadius()
+	{
+		return DespawnRadius;
+	}
 
 	static ExpansionQuestObjectiveAICampConfig Load(string fileName)
 	{
@@ -75,6 +86,9 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		{
 			JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonLoadFile(fileName, config);
 		}
+
+		if (!config.DespawnRadius)
+			config.DespawnRadius = 880;
 
 		if (save)
 		{

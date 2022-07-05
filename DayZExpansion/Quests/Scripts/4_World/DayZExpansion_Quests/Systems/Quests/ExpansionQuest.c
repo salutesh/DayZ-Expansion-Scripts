@@ -700,14 +700,17 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	void CleanupQuestItems()
 	{
+		if (!GetGame())
+			return;
+
 		if (!QuestItems || QuestItems.Count() == 0)
 			return;
 
 		//! Remove all quest items from player/world
-		for (int i = 0; i < QuestItems.Count(); i++)
+		foreach (Object obj: QuestItems)
 		{
-			Object obj = QuestItems[i];
-			GetGame().ObjectDelete(obj);
+			if (obj)
+				GetGame().ObjectDelete(obj);
 		}
 	}
 
@@ -1227,8 +1230,10 @@ class ExpansionQuest
 		if (!m_IsGroupQuest)
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-			if (m_Player)
-				ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
+			if (!m_Player)
+				return;
+			
+			ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && m_Group)
@@ -1243,10 +1248,10 @@ class ExpansionQuest
 				}
 
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				if (groupPlayer)
-				{
-					ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(groupPlayer.GetIdentity());
-				}
+				if (!groupPlayer)
+					continue;
+				
+				ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(groupPlayer.GetIdentity());
 			}
 		}
 	#endif

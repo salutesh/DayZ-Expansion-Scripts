@@ -22,9 +22,12 @@ modded class PlayerBase
 	protected string m_PlayerSteam;
 	protected string m_PlayerName;
 
-	private static autoptr map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
+	private static autoptr map< string, PlayerBase > s_Expansion_AllPlayersUID = new map< string, PlayerBase >;
 
-	static PlayerBase s_AllPlayers;
+	private static ref set<PlayerBase> s_Expansion_AllPlayers = new set<PlayerBase>;
+
+	//! XXX: Linked list DOES NOT WORK
+	//static PlayerBase s_AllPlayers;
 	
 	PlayerBase m_Expansion_NextPlayer;
 	PlayerBase m_Expansion_PrevPlayer;
@@ -36,15 +39,17 @@ modded class PlayerBase
 
 	void PlayerBase()
 	{
-		m_Expansion_NextPlayer = s_AllPlayers;
-		m_Expansion_PrevPlayer = null;
+		//m_Expansion_NextPlayer = s_AllPlayers;
+		//m_Expansion_PrevPlayer = null;
 
-		if (m_Expansion_NextPlayer)
-		{
-			m_Expansion_NextPlayer.m_Expansion_PrevPlayer = this;
-		}
+		//if (m_Expansion_NextPlayer)
+		//{
+			//m_Expansion_NextPlayer.m_Expansion_PrevPlayer = this;
+		//}
 
-		s_AllPlayers = this;
+		//s_AllPlayers = this;
+
+		s_Expansion_AllPlayers.Insert(this);
 
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeferredClientInit, 100, false );
@@ -52,33 +57,47 @@ modded class PlayerBase
 	
 	void ~PlayerBase()
 	{
-		if (m_Expansion_PrevPlayer)
+		if (!GetGame())
+			return;
+
+		//if (s_AllPlayers == this)
+		//{
+			//s_AllPlayers = m_Expansion_NextPlayer;
+		//}
+
+		//if (m_Expansion_PrevPlayer)
+		//{
+			//m_Expansion_PrevPlayer.m_Expansion_NextPlayer = m_Expansion_NextPlayer;
+		//}
+
+		//if (m_Expansion_NextPlayer)
+		//{
+			//m_Expansion_NextPlayer.m_Expansion_PrevPlayer = m_Expansion_PrevPlayer;
+		//}
+	
+		if ( m_PlayerUID && s_Expansion_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{
-			m_Expansion_PrevPlayer.m_Expansion_NextPlayer = m_Expansion_NextPlayer;
+			s_Expansion_AllPlayersUID.Remove( m_PlayerUID );
 		}
 
-		if (m_Expansion_NextPlayer)
-		{
-			m_Expansion_NextPlayer.m_Expansion_PrevPlayer = m_Expansion_PrevPlayer;
-		}
-	
-		if ( m_AllPlayersUID && m_PlayerUID && m_AllPlayersUID.Get( m_PlayerUID ) == this )
-		{
-			m_AllPlayersUID.Remove( m_PlayerUID );
-		}
+		int index = s_Expansion_AllPlayers.Find(this);
+		if (index > -1)
+			s_Expansion_AllPlayers.Remove(index);
 	}
 
 	static void Expansion_SendNear(ScriptRPC rpc, int id, vector position, float distance, Object target = null, bool guaranteed = false)
 	{
-		PlayerBase player = s_AllPlayers;
-		while (player)
+		float distanceSq = distance * distance;
+		//PlayerBase player = s_AllPlayers;
+		//while (player)
+		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
 		{
-			if (player.GetIdentity() && vector.Distance(player.GetPosition(), position) < distance)
+			if (player.GetIdentity() && vector.DistanceSq(player.GetPosition(), position) < distanceSq)
 			{
 				rpc.Send(target, id, guaranteed, player.GetIdentity());
 			}
 
-			player = player.m_Expansion_NextPlayer;
+			//player = player.m_Expansion_NextPlayer;
 		}
 	}
 
@@ -117,12 +136,17 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase GetAll
 	// ------------------------------------------------------------
-	static array< PlayerBase > GetAll()
-	{
-		Error("DEPRECATED");
-		return new array< PlayerBase >();
-	}
+	//static array< PlayerBase > GetAll()
+	//{
+		//Error("DEPRECATED");
+		//return new array< PlayerBase >();
+	//}
 	
+	static set< PlayerBase > GetAll()
+	{
+		return s_Expansion_AllPlayers;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetPlayerByUID
 	// string id = PlayerIdentity::GetId()
@@ -132,7 +156,7 @@ modded class PlayerBase
 	{
 		if ( IsMissionHost() )
 		{
-			return m_AllPlayersUID.Get( id );
+			return s_Expansion_AllPlayersUID.Get( id );
 		} else
 		{
 			for ( int j = 0; j < ClientData.m_PlayerBaseList.Count(); ++j )
@@ -196,7 +220,7 @@ modded class PlayerBase
 		}
 
 		if ( player.m_PlayerUID != "" )
-			m_AllPlayersUID.Set( player.m_PlayerUID, player );
+			s_Expansion_AllPlayersUID.Set( player.m_PlayerUID, player );
 	}
 	
 	// ------------------------------------------------------------
@@ -205,7 +229,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	static void RemovePlayer( string id )
 	{
-		m_AllPlayersUID.Remove( id );
+		s_Expansion_AllPlayersUID.Remove( id );
 	}	
 		
 	// ------------------------------------------------------------
@@ -622,8 +646,7 @@ modded class PlayerBase
 				EXTrace.Add(trace, itemType.WorkingCount);
 			}
 #endif
-}
-
+		}
 	}
 
 	void Expansion_OnInventoryUpdateEx(typename type, ItemBase item, bool inInventory = true, bool checkWorking = false)
