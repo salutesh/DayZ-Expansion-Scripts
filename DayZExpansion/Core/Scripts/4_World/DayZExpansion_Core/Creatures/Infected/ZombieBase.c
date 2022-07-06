@@ -19,7 +19,7 @@ modded class ZombieBase
 
 	protected bool m_Expansion_IsInSafeZone;
 	
-	ref ExpansionNameOverride m_Expansion_NameOverride;
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
 	// ------------------------------------------------------------
 	// ZombieBase Consturctor
@@ -96,7 +96,7 @@ modded class ZombieBase
 
 	override bool NameOverride(out string output)
 	{
-		if (m_Expansion_NameOverride && m_Expansion_NameOverride.Get(output))
+		if (m_Expansion_NetsyncData && m_Expansion_NetsyncData.Get(0, output))
 			return true;
 		else
 			return super.NameOverride(output);
@@ -106,7 +106,7 @@ modded class ZombieBase
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		if (m_Expansion_NameOverride)
-			m_Expansion_NameOverride.OnRPC(sender, rpc_type, ctx);
+		if (m_Expansion_NetsyncData)
+			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 }

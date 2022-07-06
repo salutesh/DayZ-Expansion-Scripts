@@ -54,7 +54,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		int count;
 		int amount;
 
-		ExpansionQuestObjectiveConfig objectiveConfigBase = GetObjectiveConfigBaseByType(m_Quest, m_Objective.GetObjectiveType());
+		ExpansionQuestObjectiveConfig objectiveConfigBase = m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()];
 		if (!objectiveConfigBase)
 			return;
 
@@ -117,7 +117,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				amount = m_Objective.GetObjectiveAmount();
 				QuestPrint(ToString() + "::SetEntryObjective - Count: " + count);
 				QuestPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-				m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
+				m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				QuestPrint(ToString() + "::SetEntryObjective - TARGET - ADDED");
 			}
@@ -160,7 +160,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						string displayName = ExpansionStatic.GetItemDisplayNameWithType(collection.GetClassName());
 						m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT " + displayName;
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-						m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetObjectiveCount().ToString() + "/" + collection.GetAmount().ToString();
+						count = m_Objective.GetObjectiveCount();
+						amount = collection.GetAmount();
+						m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 						QuestPrint(ToString() + "::SetEntryObjective - COLLECT - ADDED");
 					}
@@ -234,7 +236,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntryObjective - Count: " + count);
 				QuestPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
 
-				m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
+				m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 
 				QuestPrint(ToString() + "::SetEntryObjective - AIPATROL - ADDED");
@@ -253,7 +255,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntryObjective - Count: " + count);
 				QuestPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
 
-				m_QuestHUDObjectiveController.ObjectiveValue = count.ToString() + "/" + amount.ToString();
+				m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 
 				QuestPrint(ToString() + "::SetEntryObjective - AICAMP - ADDED");
@@ -277,21 +279,6 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		}
 
 		QuestPrint(ToString() + "::SetEntryObjective - End");
-	}
-
-	ExpansionQuestObjectiveConfig GetObjectiveConfigBaseByType(ExpansionQuestConfig questConfig, int objectiveType)
-	{
-		for (int i = 0; i < questConfig.GetObjectives().Count(); i++)
-		{
-			ExpansionQuestObjectiveConfig objectiveConfigBase = questConfig.GetObjectives()[i];
-			if (!objectiveConfigBase)
-				continue;
-
-			if (objectiveConfigBase.GetObjectiveType() == objectiveType)
-				return objectiveConfigBase;
-		}
-
-		return NULL;
 	}
 
 	private int GetQuestColor(ExpansionQuestConfig quest)

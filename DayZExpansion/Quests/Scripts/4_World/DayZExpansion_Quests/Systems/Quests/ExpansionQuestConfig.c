@@ -54,14 +54,6 @@ class ExpansionQuestConfigBase
 		QuestItems = new array<ref ExpansionQuestItemConfig>;
 		Rewards = new array<ref ExpansionQuestRewardConfig>;
 	}
-
-	void ~ExpansionQuestConfigBase()
-	{
-		delete Descriptions;
-		delete Objectives;
-		delete QuestItems;
-		delete Rewards;
-	}
 };
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase

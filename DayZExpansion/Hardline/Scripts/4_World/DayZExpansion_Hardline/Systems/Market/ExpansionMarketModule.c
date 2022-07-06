@@ -24,7 +24,7 @@ modded class ExpansionMarketModule
 		{
 			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(itemClassName);
 			int required;
-			if (rarity && !HasRankForItem(player, rarity, required))
+			if (rarity && !HasRankForRarity(player, rarity, required))
 			{
 				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
 				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to buy!", required.ToString());
@@ -47,7 +47,7 @@ modded class ExpansionMarketModule
 		{
 			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(itemClassName);
 			int required;
-			if (rarity && !HasRankForItem(player, rarity, required))
+			if (rarity && !HasRankForRarity(player, rarity, required))
 			{
 				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
 				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to sell!", required.ToString());
@@ -59,176 +59,68 @@ modded class ExpansionMarketModule
 		super.Exec_RequestSell(player, itemClassName, count, playerSentPrice, trader, playerSentSellDebug);
 	}
 	
-	bool HasRankForItem(PlayerBase player, int rarity, out int required)
+	bool HasRankForRarity(PlayerBase player, ExpansionHardlineItemRarity rarity, out int required)
 	{
-		int humanity = player.GetHumanity();
-		int negative;
-
 		if (rarity == ExpansionHardlineItemRarity.NONE)
 		{
-			required = 0;
 			return true;
 		}
-		else if (player.IsHero())
+
+		int humanity = player.GetHumanity();
+		int rank = GetRankForRarity(rarity);
+
+		if (player.IsBandit())
 		{
-			if (rarity == ExpansionHardlineItemRarity.POOR && humanity < GetExpansionSettings().GetHardline().PoorItemRequirement)
+			if (humanity > -rank)
 			{
-				required = GetExpansionSettings().GetHardline().PoorItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.COMMON && humanity < GetExpansionSettings().GetHardline().CommonItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().CommonItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.UNCOMMON && humanity < GetExpansionSettings().GetHardline().UncommonItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().UncommonItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.RARE && humanity < GetExpansionSettings().GetHardline().RareItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().RareItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.EPIC && humanity < GetExpansionSettings().GetHardline().EpicItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().EpicItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.LEGENDARY && humanity < GetExpansionSettings().GetHardline().LegendaryItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().LegendaryItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.MYTHIC && humanity < GetExpansionSettings().GetHardline().MythicItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().MythicItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC && humanity < GetExpansionSettings().GetHardline().ExoticItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().ExoticItemRequirement;
+				required = -rank;
 				return false;
 			}
 		}
-		else if (player.IsBandit())
-		{	
-			negative =- GetExpansionSettings().GetHardline().PoorItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.POOR && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-			
-			negative =- GetExpansionSettings().GetHardline().CommonItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.COMMON && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-			
-			negative =- GetExpansionSettings().GetHardline().UncommonItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.UNCOMMON && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-			
-			negative =- GetExpansionSettings().GetHardline().RareItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.RARE && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-			
-			negative =- GetExpansionSettings().GetHardline().EpicItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.EPIC && humanity > negative)
-			{
-				required =- negative;				
-				return false;
-			}
-
-			negative =- GetExpansionSettings().GetHardline().LegendaryItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.LEGENDARY && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-			
-			negative =- GetExpansionSettings().GetHardline().MythicItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.MYTHIC && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-
-			negative =- GetExpansionSettings().GetHardline().ExoticItemRequirement;
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC && humanity > negative)
-			{
-				required =- negative;
-				return false;
-			}
-		}
-		else if (!player.IsBandit() && !player.IsHero())
+		else
 		{
-			if (rarity == ExpansionHardlineItemRarity.POOR && humanity < GetExpansionSettings().GetHardline().PoorItemRequirement)
+			//! Hero / bambi
+
+			if (humanity < rank)
 			{
-				required = GetExpansionSettings().GetHardline().PoorItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.COMMON && humanity < GetExpansionSettings().GetHardline().CommonItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().CommonItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.UNCOMMON && humanity < GetExpansionSettings().GetHardline().UncommonItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().UncommonItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.RARE && humanity < GetExpansionSettings().GetHardline().RareItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().RareItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.EPIC && humanity < GetExpansionSettings().GetHardline().EpicItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().EpicItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.LEGENDARY && humanity < GetExpansionSettings().GetHardline().LegendaryItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().LegendaryItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.MYTHIC && humanity < GetExpansionSettings().GetHardline().MythicItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().MythicItemRequirement;
-				return false;
-			}
-			
-			if (rarity == ExpansionHardlineItemRarity.EXOTIC && humanity < GetExpansionSettings().GetHardline().ExoticItemRequirement)
-			{
-				required = GetExpansionSettings().GetHardline().ExoticItemRequirement;
+				required = rank;
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	int GetRankForRarity(ExpansionHardlineItemRarity rarity)
+	{
+		switch (rarity)
+		{
+			case ExpansionHardlineItemRarity.POOR:
+				return GetExpansionSettings().GetHardline().PoorItemRequirement;
+			
+			case ExpansionHardlineItemRarity.COMMON:
+				return GetExpansionSettings().GetHardline().CommonItemRequirement;
+			
+			case ExpansionHardlineItemRarity.UNCOMMON:
+				return GetExpansionSettings().GetHardline().UncommonItemRequirement;
+			
+			case ExpansionHardlineItemRarity.RARE:
+				return GetExpansionSettings().GetHardline().RareItemRequirement;
+			
+			case ExpansionHardlineItemRarity.EPIC:
+				return GetExpansionSettings().GetHardline().EpicItemRequirement;
+			
+			case ExpansionHardlineItemRarity.LEGENDARY:
+				return GetExpansionSettings().GetHardline().LegendaryItemRequirement;
+			
+			case ExpansionHardlineItemRarity.MYTHIC:
+				return GetExpansionSettings().GetHardline().MythicItemRequirement;
+			
+			case ExpansionHardlineItemRarity.EXOTIC:
+				return GetExpansionSettings().GetHardline().ExoticItemRequirement;
+		}
+
+		return 0;
 	}
 };
 #endif

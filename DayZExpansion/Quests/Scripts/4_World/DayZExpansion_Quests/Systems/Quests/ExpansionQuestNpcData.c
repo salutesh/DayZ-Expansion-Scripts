@@ -53,14 +53,9 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		return ID;
 	}
 
-	void SetName(string className)
+	void SetClassName(string className)
 	{
 		ClassName = className;
-	}
-
-	string GetName()
-	{
-		return ClassName;
 	}
 
 	void SetIsAI(bool state)
@@ -177,7 +172,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	ExpansionQuestNPCBase SpawnNPC()
 	{
-		Object obj = GetGame().CreateObjectEx(GetName(), GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 
 		if (Position)
 			obj.SetPosition(Position);
@@ -187,7 +182,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNPCBase questNPC = ExpansionQuestNPCBase.Cast(enity);
-		questNPC.m_Expansion_NameOverride.Set(NPCName);
+		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		if (Position)
@@ -202,7 +197,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 #ifdef EXPANSIONMODAI
 	ExpansionQuestNPCAIBase SpawnNPCAI()
 	{
-		Object obj = GetGame().CreateObjectEx(GetName(), GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 
 		if (Position)
 			obj.SetPosition(Position);
@@ -212,7 +207,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(enity);
-		questNPC.m_Expansion_NameOverride.Set(NPCName);
+		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		questNPC.SetPosition(Position);
@@ -229,32 +224,17 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, questNPC);
 		}
 
-	#ifdef EXPANSIONMODAI
 		eAIGroup ownerGrp = questNPC.GetGroup();
-	#else
-		if (eAIGlobal_HeadlessClient)
-			GetRPCManager().SendRPC("eAI", "HCLinkObject", new Param1< PlayerBase >(questNPC), false, eAIGlobal_HeadlessClient);
-
-		eAIGame game = MissionServer.Cast(GetGame().GetMission()).GetEAIGame();
-		eAIGroup ownerGrp = game.GetGroupByLeader(questNPC);
-	#endif
-		ownerGrp.SetFaction(new eAIFactionCivilian());
 		for (int j = 0; j < Waypoints.Count(); j++)
 		{
 			EXPrint("Adding waypoint " + Waypoints[j]);
 			ownerGrp.AddWaypoint(Waypoints[j]);
 		}
 
-	#ifdef EXPANSIONMODAI
 		if (Waypoints.Count() > 1)
 			ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 		else if (Waypoints.Count() <= 1)
 			ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.HALT);
-	#else
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(questNPC.RequestTransition, 10000, false, "Rejoin");
-
-		questNPC.SetAI(ownerGrp);
-	#endif
 
 		return questNPC;
 	}
@@ -262,7 +242,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	ExpansionQuestStaticObject SpawnObject()
 	{
-		Object obj = GetGame().CreateObjectEx(GetName(), GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 		
 		if (Position)
 			obj.SetPosition(Position);
@@ -274,7 +254,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		ExpansionQuestStaticObject questObject = ExpansionQuestStaticObject.Cast(enity);
 		questObject.SetPosition(Position);
 		questObject.SetOrientation(Orientation);
-		questObject.m_Expansion_NameOverride.Set(NPCName);
+		questObject.m_Expansion_NetsyncData.Set(0, NPCName);
 		
 		return questObject;
 	}
@@ -330,43 +310,6 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		Waypoints = npcDataBase.Waypoints;
 		NPCEmoteID = npcDataBase.NPCEmoteID;
 	#endif
-	}
-
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(ID);
-		ctx.Write(ClassName);
-		ctx.Write(NPCName);
-		ctx.Write(DefaultNPCText);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(ID))
-		{
-			Error(ToString() + "::OnRecieve - ID");
-			return false;
-		}
-
-		if (!ctx.Read(ClassName))
-		{
-			Error(ToString() + "::OnRecieve - ClassName");
-			return false;
-		}
-
-		if (!ctx.Read(NPCName))
-		{
-			Error(ToString() + "::OnRecieve - NPCName");
-			return false;
-		}
-
-		if (!ctx.Read(DefaultNPCText))
-		{
-			Error(ToString() + "::OnRecieve - DefaultNPCText");
-			return false;
-		}
-
-		return true;
 	}
 
 	void QuestDebug()

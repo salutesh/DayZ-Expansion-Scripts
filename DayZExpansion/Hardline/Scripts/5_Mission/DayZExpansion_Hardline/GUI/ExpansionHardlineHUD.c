@@ -91,57 +91,49 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	{
 		string path = ExpansionIcons.GetPath("Persona");
 		//! If player is hero
-		if (humanity > 1000)
+		if (humanity > GetExpansionSettings().GetHardline().RankScout)
 		{
-			if (humanity > 1000)
+			if (humanity > GetExpansionSettings().GetHardline().RankScout)
 			{
 				path = "set:expansion_notification_iconset image:icon_hero_1";
 			}
-			
-			if (humanity > 2000)
+			else if (humanity > GetExpansionSettings().GetHardline().RankPathfinder)
 			{
 				path = "set:expansion_notification_iconset image:icon_hero_2";
 			}
-			
-			if (humanity > 3000)
+			else if (humanity > GetExpansionSettings().GetHardline().RankHero)
 			{
 				path = "set:expansion_notification_iconset image:icon_hero_3";
 			}
-			
-			if (humanity > 4000)
+			else if (humanity > GetExpansionSettings().GetHardline().RankSuperhero)
 			{
 				path = "set:expansion_notification_iconset image:icon_hero_4";
 			}
-			
-			if (humanity > 5000)
+			else if (humanity > GetExpansionSettings().GetHardline().RankLegend)
 			{
 				path = "set:expansion_notification_iconset image:icon_hero_5";
 			}
 		}
 		//! If player is badit
-		else if (humanity < -1000)
+		else if (humanity < GetExpansionSettings().GetHardline().RankKleptomaniac)
 		{
-			if (humanity < -1000)
+			if (humanity < GetExpansionSettings().GetHardline().RankKleptomaniac)
 			{
 				path = "set:expansion_notification_iconset image:icon_bandit_1";
 			}
-			
-			if (humanity < -2000)
+			else if (humanity < GetExpansionSettings().GetHardline().RankBully)
 			{
 				path = "set:expansion_notification_iconset image:icon_bandit_2";
 			}
-			
-			if (humanity < -3000)
+			else if (humanity < GetExpansionSettings().GetHardline().RankBandit)
 			{
 				path = "set:expansion_notification_iconset image:icon_bandit_3";
 			}
-			
-			if (humanity < -4000)
+			else if (humanity < GetExpansionSettings().GetHardline().RankKiller)
 			{
 				path = "set:expansion_notification_iconset image:icon_bandit_4";
 			}
-			
-			if (humanity < -5000)
+			else if (humanity < GetExpansionSettings().GetHardline().RankMadman)
 			{
 				path = "set:expansion_notification_iconset image:icon_bandit_5";
 			}

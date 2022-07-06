@@ -32,7 +32,7 @@ class ExpansionQuestsGroupInventory
 
 	void EnumerateGroupInventory()
 	{
-		Print(ToString() + ":: EnumerateGroupInventory - Start");
+		EXTrace.Start(EXTrace.QUESTS, this);
 		
 		m_GroupInventory.Clear();
 		array<EntityAI> items = new array<EntityAI>;
@@ -51,7 +51,8 @@ class ExpansionQuestsGroupInventory
 
 	private void AddGroupPlayerItems(array<EntityAI> items, PlayerBase player)
 	{
-		Print(ToString() + "::AddGroupPlayerItems - Start");
+		EXTrace.Start(EXTrace.QUESTS, this);
+
 		for (int i = 0; i < items.Count(); i++)
 		{
 			EntityAI item = items[i];
@@ -81,13 +82,12 @@ class ExpansionQuestsGroupInventory
 	bool HasItem(string typeName, out array<EntityAI> items)
 	{
 		items = new array<EntityAI>;
-		for (int i = 0; i < m_GroupInventory.Count(); i++)
+		foreach (EntityAI item: m_GroupInventory)
 		{
-			EntityAI item = m_GroupInventory[i];
 			if (!item)
 				continue;
 		
-			if (item.Type().ToString() == typeName || item.ClassName() == typeName || item.GetType() == typeName)
+			if (item.IsKindOf(typeName) || item.ClassName() == typeName)
 			{
 				items.Insert(item);
 			}

@@ -16,7 +16,49 @@ modded class DayZPlayerImplement
 
 	protected bool m_Expansion_CanBeLooted = true;
 
-	ref ExpansionNameOverride m_Expansion_NameOverride;
+	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<DayZPlayerImplement>(this);
+
+	protected bool m_Expansion_IsInSafeZone;
+
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;
+
+	void DayZPlayerImplement()
+	{
+		Expansion_Init();
+	}
+
+	void Expansion_Init()
+	{
+	}
+
+	void OnEnterZone(ExpansionZoneType type)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnEnterZone");
+#endif
+
+		if (type == ExpansionZoneType.SAFE)
+		{
+			m_Expansion_IsInSafeZone = true;
+		}
+	}
+
+	void OnExitZone(ExpansionZoneType type)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnExitZone");
+#endif
+
+		if (type == ExpansionZoneType.SAFE)
+		{
+			m_Expansion_IsInSafeZone = false;
+		}
+	}
+	
+	bool IsInSafeZone()
+	{
+		return m_Expansion_IsInSafeZone;
+	}
 
 	void Expansion_SetCanBeLooted(bool canBeLooted)
 	{
@@ -65,7 +107,7 @@ modded class DayZPlayerImplement
 
 	override bool NameOverride(out string output)
 	{
-		if (m_Expansion_NameOverride && m_Expansion_NameOverride.Get(output))
+		if (m_Expansion_NetsyncData && m_Expansion_NetsyncData.Get(0, output))
 			return true;
 		else
 			return super.NameOverride(output);
@@ -75,7 +117,7 @@ modded class DayZPlayerImplement
 	{
 		super.OnRPC(sender, rpc_type, ctx);
 
-		if (m_Expansion_NameOverride)
-			m_Expansion_NameOverride.OnRPC(sender, rpc_type, ctx);
+		if (m_Expansion_NetsyncData)
+			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 };

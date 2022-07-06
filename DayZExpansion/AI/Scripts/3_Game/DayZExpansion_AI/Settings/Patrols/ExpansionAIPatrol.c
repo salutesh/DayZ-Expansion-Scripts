@@ -26,20 +26,22 @@ class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 
 	TVectorArray GetWaypoints()
 	{
-		if ( MaxSpreadRadius != 0.0 )
-		{
-			TVectorArray RndWaypoints = new TVectorArray;
-			foreach (vector waypoint: Waypoints)
-			{
-				waypoint = ExpansionMath.GetRandomPointInRing(waypoint, MinSpreadRadius, MaxSpreadRadius);
-				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
+		TVectorArray waypoints();
 
-				RndWaypoints.Insert(waypoint);
+		vector surfacePosition;
+		foreach (vector waypoint: Waypoints)
+		{
+			if (MaxSpreadRadius > 0)
+				waypoint = ExpansionMath.GetRandomPointInRing(waypoint, MinSpreadRadius, MaxSpreadRadius);
+			surfacePosition = ExpansionStatic.GetSurfacePosition(waypoint);
+			if (surfacePosition[1] > waypoint[1])
+			{
+				waypoint[1] = surfacePosition[1];
 			}
 
-			return RndWaypoints;
+			waypoints.Insert(waypoint);
 		}
 
-		return Waypoints;
+		return waypoints;
 	}
 };

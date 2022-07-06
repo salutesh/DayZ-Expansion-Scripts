@@ -107,7 +107,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	#endif
 		
 		//! Use max range check if used in config
-		if (GetObjectiveConfig().GetMaxDistance() != -1)
+		if (GetObjectiveConfig().GetMaxDistance() > -1)
 			maxRangeCheck = true;
 
 		PlayerBase killerPlayer;

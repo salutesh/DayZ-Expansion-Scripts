@@ -785,11 +785,9 @@ modded class ItemBase
 		{
 			return ItemMap;
 		}
-		else
+		else if (IsInherited(Pen_ColorBase))
 		{
-			ExpansionString className = new ExpansionString(ClassName());
-			if (className.EndsWith("_ColorBase"))
-				return className.Get().ToType();
+			return Pen_ColorBase;
 		}
 		
 		return Type();

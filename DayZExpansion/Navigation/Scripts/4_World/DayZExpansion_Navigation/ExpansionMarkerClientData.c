@@ -51,14 +51,19 @@ class ExpansionMarkerClientData : Managed
 		file.Write(m_Port);
 
 		file.Write(m_NextPersonalUID);
-		file.Write(m_PersonalMarkers.Count());
-		for (int i = 0; i < m_PersonalMarkers.Count(); ++i)
-		{
-			if (!m_PersonalMarkers[i].m_Persist)
-				continue;
 
-			file.Write(m_PersonalMarkers[i].GetUID());
-			m_PersonalMarkers[i].OnStoreSave(file);
+		array<ref ExpansionMarkerData> persistentPersonalMarkers();
+		foreach (ExpansionMarkerData personalMarkerData: m_PersonalMarkers)
+		{
+			if (personalMarkerData.m_Persist)
+				persistentPersonalMarkers.Insert(personalMarkerData);
+		}
+
+		file.Write(persistentPersonalMarkers.Count());
+		foreach (ExpansionMarkerData persistentPersonalMarkerData: persistentPersonalMarkers)
+		{
+			file.Write(persistentPersonalMarkerData.GetUID());
+			persistentPersonalMarkerData.OnStoreSave(file);
 		}
 
 		file.Write(m_MarkerInfo_Server.Count());

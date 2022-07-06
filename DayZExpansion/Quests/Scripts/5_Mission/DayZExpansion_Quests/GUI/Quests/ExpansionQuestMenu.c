@@ -68,10 +68,12 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		return ExpansionQuestMenuController;
 	}
 
-	void SetQuests(array<ref ExpansionQuestConfig> quests, ExpansionQuestNPCData questNPCData)
+	void SetQuests(array<ref ExpansionQuestConfig> quests, string npcName, string defaultText)
 	{
 		QuestDebug(ToString() + "::SetQuests - Start");
 		QuestDebug(ToString() + "::SetQuests - Quest: " + quests.ToString());
+		QuestDebug(ToString() + "::SetQuests - NPC name: " + npcName);
+		QuestDebug(ToString() + "::SetQuests - NPC default text: " + defaultText);
 
 		if (!m_QuestModule)
 			return;
@@ -79,7 +81,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		m_SelectedReward = NULL;
 		ButtonsPanel.Show(false);
 		
-		m_QuestMenuController.QuestNPCName = questNPCData.GetNPCName();
+		m_QuestMenuController.QuestNPCName = npcName;
 		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
 
 		if (quests.Count() > 0)
@@ -105,13 +107,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 		else if (quests.Count() == 0)
 		{
-			if (!questNPCData)
-				return;
-
 			QuestListContent.Show(false);
 			DefaultPanel.Show(true);
 
-			m_QuestMenuController.DefaultText = questNPCData.GetDefaultNPCText();
+			m_QuestMenuController.DefaultText = defaultText;
 			m_QuestMenuController.NotifyPropertyChanged("DefaultText");
 		}
 
@@ -378,9 +377,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	void QuestDebug(string text)
 	{
-	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
-	#endif
+	//#ifdef EXPANSIONMODQUESTSUIDEBUG
+		EXTrace.Print(EXTrace.QUESTS, null, text);
+	//#endif
 	}
 };
 

@@ -119,7 +119,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(victimPlayer, victim))
 			return false;
 			
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 			return false;
 		
@@ -154,7 +154,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		if (m_TotalKillCount >= m_TotalUnitsAmount)
 			return;
 		
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 		{
 			//! Check if the previous patrol groups related to this quest have been killed
@@ -195,7 +195,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		
 		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
 		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), true, false, aiPatrol.GetWaypoints());
-		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAICampEvent.CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius());
+		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAICampEvent.CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 		if (!patrol)
 			return;
 		
@@ -212,7 +212,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 
 	private void CleanupPatrol()
 	{
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 		{	
 			for (int i = 0; i < questPatrols.Count(); i++)

@@ -109,9 +109,7 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void ExpansionClientSettings()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionClientSettings");
-#endif
+		auto trace = EXTrace.StartStack(ExpansionTracing.ENABLE, this);
 
 		#ifdef EXPANSIONMOD
 		m_ShouldShowHUDCategory = true;
@@ -1021,6 +1019,9 @@ static ExpansionClientSettings GetExpansionClientSettings()
 #ifdef EXPANSIONTRACE
 	auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, "GetExpansionClientSettings");
 #endif
+
+	if (GetGame().IsDedicatedServer())
+		return null;
 
 	if ( !g_ExClientSettings )
 	{

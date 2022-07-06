@@ -117,6 +117,11 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	{
 		return 150;
 	}
+	
+	float GetDespawnRadius()
+	{
+		return 880;
+	}
 
 	ExpansionQuestObjectiveCollection GetCollection()
 	{

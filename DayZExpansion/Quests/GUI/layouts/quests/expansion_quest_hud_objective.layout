@@ -97,7 +97,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
       RichTextWidgetClass ObjectiveTarget {
        ignorepointer 1
        position 0.007 0.714
-       size 0.5 1
+       size 0.8 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -120,18 +120,18 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
       RichTextWidgetClass ObjectiveValue {
        ignorepointer 1
        position 0.006 0.714
-       size 0.5 1
+       size 0.2 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
        vexactsize 0
        scriptclass "ViewBinding"
        font "gui/fonts/etelkatextpro14"
-       "text offset" 5 0
+       "text offset" 0 0
        "exact text" 1
        "size to text h" 1
        "size to text v" 1
-       wrap 1
+       wrap 0
        "condense whitespace" 1
        "strip newlines" 1
        {

@@ -67,7 +67,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	private void CleanupPatrol()
 	{
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))	
 		{
 			for (int i = 0; i < questPatrols.Count(); i++)
@@ -96,7 +96,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(victimPlayer, victim))
 			return false;
 			
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 			return false;
 		
@@ -178,7 +178,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (m_TotalKillCount >= m_TotalUnitsAmount)
 			return;
 		
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 		{
 			//! Check if the previous patrol groups related to this quest have been killed
@@ -225,7 +225,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			waypoint.Insert(pos);
 
 			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), true, false, waypoint);
-			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius());
+			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 			if (!patrol)
 				return;
 
@@ -243,7 +243,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}
 	
-	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, float minDistRadius = 20, float maxDistRadius = 600)
+	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
 	{
 		Print("=================== Expansion Quest AI Patrol ===================");
 		int aiSum;
@@ -288,7 +288,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]+" and will patrol at "+group.Waypoints);
 
-		eAIDynamicPatrol patrol = eAIDynamicPatrol.Create(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, eAIFaction.Create(group.Faction), true, minDistRadius, maxDistRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, eAIFaction.Create(group.Faction), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
 
 		Print("=================== Expansion Quest AI Patrol ===================");
 		return patrol;

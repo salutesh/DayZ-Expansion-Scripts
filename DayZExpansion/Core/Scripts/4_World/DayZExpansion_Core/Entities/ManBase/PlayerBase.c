@@ -22,32 +22,34 @@ modded class PlayerBase
 	protected string m_PlayerSteam;
 	protected string m_PlayerName;
 
-	private static autoptr map< string, PlayerBase > m_AllPlayersUID = new map< string, PlayerBase >;
+	private static autoptr map< string, PlayerBase > s_Expansion_AllPlayersUID = new map< string, PlayerBase >;
 
-	static PlayerBase s_AllPlayers;
+	private static ref set<PlayerBase> s_Expansion_AllPlayers = new set<PlayerBase>;
+
+	//! XXX: Linked list DOES NOT WORK
+	//static PlayerBase s_AllPlayers;
 	
 	PlayerBase m_Expansion_NextPlayer;
 	PlayerBase m_Expansion_PrevPlayer;
 
-	protected bool m_SafeZone;
-	protected bool m_SafeZoneSynchRemote;
-	protected bool m_LeavingSafeZone;
-
-	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<PlayerBase>(this);
+	protected bool m_Expansion_IsInSafeZoneSynchRemote;
+	protected bool m_Expansion_LeavingSafeZone;
 
 	ref map<typename, ref ExpansionInventoryItemType> m_Expansion_InventoryItemTypes = new map<typename, ref ExpansionInventoryItemType>;
 
 	void PlayerBase()
 	{
-		m_Expansion_NextPlayer = s_AllPlayers;
-		m_Expansion_PrevPlayer = null;
+		//m_Expansion_NextPlayer = s_AllPlayers;
+		//m_Expansion_PrevPlayer = null;
 
-		if (m_Expansion_NextPlayer)
-		{
-			m_Expansion_NextPlayer.m_Expansion_PrevPlayer = this;
-		}
+		//if (m_Expansion_NextPlayer)
+		//{
+			//m_Expansion_NextPlayer.m_Expansion_PrevPlayer = this;
+		//}
 
-		s_AllPlayers = this;
+		//s_AllPlayers = this;
+
+		s_Expansion_AllPlayers.Insert(this);
 
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeferredClientInit, 100, false );
@@ -55,33 +57,47 @@ modded class PlayerBase
 	
 	void ~PlayerBase()
 	{
-		if (m_Expansion_PrevPlayer)
+		if (!GetGame())
+			return;
+
+		//if (s_AllPlayers == this)
+		//{
+			//s_AllPlayers = m_Expansion_NextPlayer;
+		//}
+
+		//if (m_Expansion_PrevPlayer)
+		//{
+			//m_Expansion_PrevPlayer.m_Expansion_NextPlayer = m_Expansion_NextPlayer;
+		//}
+
+		//if (m_Expansion_NextPlayer)
+		//{
+			//m_Expansion_NextPlayer.m_Expansion_PrevPlayer = m_Expansion_PrevPlayer;
+		//}
+	
+		if ( m_PlayerUID && s_Expansion_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{
-			m_Expansion_PrevPlayer.m_Expansion_NextPlayer = m_Expansion_NextPlayer;
+			s_Expansion_AllPlayersUID.Remove( m_PlayerUID );
 		}
 
-		if (m_Expansion_NextPlayer)
-		{
-			m_Expansion_NextPlayer.m_Expansion_PrevPlayer = m_Expansion_PrevPlayer;
-		}
-	
-		if ( m_AllPlayersUID && m_PlayerUID && m_AllPlayersUID.Get( m_PlayerUID ) == this )
-		{
-			m_AllPlayersUID.Remove( m_PlayerUID );
-		}
+		int index = s_Expansion_AllPlayers.Find(this);
+		if (index > -1)
+			s_Expansion_AllPlayers.Remove(index);
 	}
 
 	static void Expansion_SendNear(ScriptRPC rpc, int id, vector position, float distance, Object target = null, bool guaranteed = false)
 	{
-		PlayerBase player = s_AllPlayers;
-		while (player)
+		float distanceSq = distance * distance;
+		//PlayerBase player = s_AllPlayers;
+		//while (player)
+		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
 		{
-			if (player.GetIdentity() && vector.Distance(player.GetPosition(), position) < distance)
+			if (player.GetIdentity() && vector.DistanceSq(player.GetPosition(), position) < distanceSq)
 			{
 				rpc.Send(target, id, guaranteed, player.GetIdentity());
 			}
 
-			player = player.m_Expansion_NextPlayer;
+			//player = player.m_Expansion_NextPlayer;
 		}
 	}
 
@@ -120,12 +136,17 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase GetAll
 	// ------------------------------------------------------------
-	static array< PlayerBase > GetAll()
-	{
-		Error("DEPRECATED");
-		return new array< PlayerBase >();
-	}
+	//static array< PlayerBase > GetAll()
+	//{
+		//Error("DEPRECATED");
+		//return new array< PlayerBase >();
+	//}
 	
+	static set< PlayerBase > GetAll()
+	{
+		return s_Expansion_AllPlayers;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetPlayerByUID
 	// string id = PlayerIdentity::GetId()
@@ -135,7 +156,7 @@ modded class PlayerBase
 	{
 		if ( IsMissionHost() )
 		{
-			return m_AllPlayersUID.Get( id );
+			return s_Expansion_AllPlayersUID.Get( id );
 		} else
 		{
 			for ( int j = 0; j < ClientData.m_PlayerBaseList.Count(); ++j )
@@ -152,21 +173,13 @@ modded class PlayerBase
 		return NULL;
 	}
 
-	//! GetPlayerByUID should probably be used over this where possible because it incurs less cost.
-	//! Functionality-wise, this is identical to COT's GetPlayerObjectByIdentity
+	//! GetPlayerByUID should probably be used over this where possible
 	static PlayerBase ExpansionGetPlayerByIdentity( PlayerIdentity identity )
 	{
 		if ( !GetGame().IsMultiplayer() )
 			return PlayerBase.Cast( GetGame().GetPlayer() );
-		
-		if ( identity == NULL )
-			return NULL;
 
-		int networkIdLowBits;
-		int networkIdHighBits;
-		GetGame().GetPlayerNetworkIDByIdentityID( identity.GetPlayerId(), networkIdLowBits, networkIdHighBits );
-
-		return PlayerBase.Cast( GetGame().GetObjectByNetworkId( networkIdLowBits, networkIdHighBits ) );
+		return GetPlayerByUID(identity.GetId());
 	}
 
 	// ------------------------------------------------------------
@@ -207,7 +220,7 @@ modded class PlayerBase
 		}
 
 		if ( player.m_PlayerUID != "" )
-			m_AllPlayersUID.Set( player.m_PlayerUID, player );
+			s_Expansion_AllPlayersUID.Set( player.m_PlayerUID, player );
 	}
 	
 	// ------------------------------------------------------------
@@ -216,7 +229,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	static void RemovePlayer( string id )
 	{
-		m_AllPlayersUID.Remove( id );
+		s_Expansion_AllPlayersUID.Remove( id );
 	}	
 		
 	// ------------------------------------------------------------
@@ -274,11 +287,11 @@ modded class PlayerBase
 		if (!GetGame().IsClient())
 			return;
 
-		if ( m_SafeZoneSynchRemote && !m_SafeZone )
+		if ( m_Expansion_IsInSafeZoneSynchRemote && !m_Expansion_IsInSafeZone )
 		{
 			OnEnterZone(ExpansionZoneType.SAFE);
 		} 
-		else if ( !m_SafeZoneSynchRemote && m_SafeZone )
+		else if ( !m_Expansion_IsInSafeZoneSynchRemote && m_Expansion_IsInSafeZone )
 		{
 			OnExitZone(ExpansionZoneType.SAFE);
 		}
@@ -295,15 +308,7 @@ modded class PlayerBase
 		
 		super.Init();
 
-		RegisterNetSyncVariableBool("m_SafeZoneSynchRemote");
-	}
-	
-	// ------------------------------------------------------------
-	// PlayerBase IsInSafeZone
-	// ------------------------------------------------------------
-	bool IsInSafeZone()
-	{
-		return m_SafeZone;
+		RegisterNetSyncVariableBool("m_Expansion_IsInSafeZoneSynchRemote");
 	}
 
 	override void OnConnect()
@@ -327,7 +332,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase OnEnterZone, server + client
 	// ------------------------------------------------------------
-	void OnEnterZone(ExpansionZoneType type)
+	override void OnEnterZone(ExpansionZoneType type)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnEnterZone");
@@ -373,7 +378,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase OnExitZone, only server side
 	// ------------------------------------------------------------
-	void OnExitZone(ExpansionZoneType type)
+	override void OnExitZone(ExpansionZoneType type)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnExitZone");
@@ -388,7 +393,7 @@ modded class PlayerBase
 				return;
 			}
 
-			m_LeavingSafeZone = true;
+			m_Expansion_LeavingSafeZone = true;
 
 			if ( GetIdentity() )
 				ExpansionNotification("STR_EXPANSION_SAFEZONE_TITLE", "STR_EXPANSION_SAFEZONE_LEAVING", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_AMETHYST).Create(GetIdentity());
@@ -427,22 +432,19 @@ modded class PlayerBase
 			return;
 
 		EXPrint(ToString() + "::OnEnterSafeZone");
-		Print(m_LeavingSafeZone);
-		Print(m_SafeZone);
-		Print(m_SafeZoneSynchRemote);
+		Print(m_Expansion_LeavingSafeZone);
+		Print(m_Expansion_IsInSafeZone);
+		Print(m_Expansion_IsInSafeZoneSynchRemote);
 
-		m_SafeZone = true;
-		m_LeavingSafeZone = false;
+		m_Expansion_IsInSafeZone = true;
+		m_Expansion_LeavingSafeZone = false;
 
 		#ifdef ENFUSION_AI_PROJECT
-		#ifdef EXPANSIONMODMARKET
 		if (IsAI())
 		{
-			//! If this is a trader AI, we still want it to be able to raise hands in safezones
-			if (IsInherited(ExpansionTraderAIBase))
-				return;
+			//! If this is AI, we still want it to be able to raise hands in safezones so it can reload its weapon
+			return;
 		}
-		#endif
 		#endif
 
 		SetCanRaise(false);
@@ -459,7 +461,7 @@ modded class PlayerBase
 				MiscGameplayFunctions.TransformRestrainItem(item_in_hands, null, null, this);
 		}
 
-		m_SafeZoneSynchRemote = true;
+		m_Expansion_IsInSafeZoneSynchRemote = true;
 		
 		if ( GetIdentity() )
 		{
@@ -483,30 +485,26 @@ modded class PlayerBase
 
 		if (GetGame().IsClient())
 		{
-			m_SafeZone = false;
+			m_Expansion_IsInSafeZone = false;
 			SetCanRaise(true);
 			return;
 		}
 
-		if (!m_LeavingSafeZone)
+		if (!m_Expansion_LeavingSafeZone)
 			return;
 		
-		m_LeavingSafeZone = false;
+		m_Expansion_LeavingSafeZone = false;
 
-		m_SafeZone = false;
+		m_Expansion_IsInSafeZone = false;
 
 		#ifdef ENFUSION_AI_PROJECT
-		#ifdef EXPANSIONMODMARKET
 		if (IsAI())
 		{
-			//! If this is a trader AI, we don't want it to be able to take damage outside a safezone
-			if (IsInherited(ExpansionTraderAIBase))
-				return;
+			return;
 		}
 		#endif
-		#endif
 
-		m_SafeZoneSynchRemote = false;
+		m_Expansion_IsInSafeZoneSynchRemote = false;
 
 		SetCanRaise(true);
 	
@@ -535,7 +533,7 @@ modded class PlayerBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		if (m_SafeZone)
+		if (m_Expansion_IsInSafeZone)
 			return false;
 
 		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -648,8 +646,7 @@ modded class PlayerBase
 				EXTrace.Add(trace, itemType.WorkingCount);
 			}
 #endif
-}
-
+		}
 	}
 
 	void Expansion_OnInventoryUpdateEx(typename type, ItemBase item, bool inInventory = true, bool checkWorking = false)

@@ -124,7 +124,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		if (!m_VIP)
 			return;
 
-		m_Group.SetFaction(new eAIFactionPassive());
+		m_VIP.eAI_SetPassive();
 
 		#ifdef EXPANSIONMODAI
 		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
@@ -137,7 +137,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout.json")
 	{
 		#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SpawnAI_Helper");
+		auto trace = CF_Trace_0(this, "SpawnAI_VIP");
 		#endif
 
 		eAIBase ai;
@@ -145,7 +145,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
 
-		ExpansionHumanLoadout.Apply(ai, loadout, true);
+		ExpansionHumanLoadout.Apply(ai, loadout, false);
 
 		return ai;
 	}
@@ -153,6 +153,10 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	override void OnUpdate(float timeslice)
 	{
 		super.OnUpdate(timeslice);
+
+		//! TODO: Check if OnUpdate is still running after Quest got auto-canceled when timeout reached
+		if (!m_VIP)
+			return;
 
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)

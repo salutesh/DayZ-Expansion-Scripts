@@ -29,7 +29,9 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
+
+	float DespawnRadius;
 
 	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols;
 	ref array< ref ExpansionAIPatrol > Patrols;
@@ -103,6 +105,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		RespawnTime = s.RespawnTime;
 		MinDistRadius = s.MinDistRadius;
 		MaxDistRadius = s.MaxDistRadius;
+		DespawnRadius = s.DespawnRadius;
         ObjectPatrols = s.ObjectPatrols;
         Patrols = s.Patrols;
 	}
@@ -161,6 +164,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					Patrols = settingsV4.Patrol;
 				}
 
+				if (m_Version < 6)
+					DespawnRadius = MaxDistRadius * 1.1;
+
 				foreach (ExpansionAIPatrol patrol: Patrols)
 				{
 					if (m_Version < 2)
@@ -171,6 +177,14 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 					if (m_Version < 4)
 						patrol.UpdateSettings();
+
+					if (m_Version < 6)
+					{
+						if (patrol.MaxDistRadius <= 0)
+							patrol.DespawnRadius = -2;
+						else
+							patrol.DespawnRadius = patrol.MaxDistRadius * 1.1;
+					}
 				}
 
 				m_Version = VERSION;
@@ -200,9 +214,21 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (settingsBase.m_Version < 4)
 					objectPatrol.UpdateSettings();
 
-				if (!GetGame().IsKindOf(objectPatrol.ClassName, "House"))
+				if (settingsBase.m_Version < 6)
 				{
-					Error("[ExpansionAIPatrolSettings] Ignoring " + objectPatrol.ClassName + " because it is not a BuildingBase!");
+					if (objectPatrol.MaxDistRadius <= 0)
+						objectPatrol.DespawnRadius = -2;
+					else
+						objectPatrol.DespawnRadius = objectPatrol.MaxDistRadius * 1.1;
+				}
+
+				if (!objectPatrol.ClassName)
+				{
+					Error("[ExpansionAIPatrolSettings] Ignoring empty object patrol classname!");
+				}
+				else if (!GetGame().IsKindOf(objectPatrol.ClassName, "House"))
+				{
+					Error("[ExpansionAIPatrolSettings] Ignoring object patrol classname '" + objectPatrol.ClassName + "' because it is not a BuildingBase!");
 				}
 			}
 
@@ -257,7 +283,8 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
         #else
         MinDistRadius = 400;
         #endif
-        MaxDistRadius = 1200;
+        MaxDistRadius = 1000;
+        DespawnRadius = 1100;
     
         string worldName;
         GetGame().GetWorldName(worldName);

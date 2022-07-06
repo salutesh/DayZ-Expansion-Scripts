@@ -12,7 +12,7 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
  style Empty
  Padding 0
  Margin 0
- "Size To Content H" 1
+ "Size To Content H" 0
  "Size To Content V" 1
  Columns 1
  Rows 1
@@ -28,7 +28,7 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
    vexactsize 0
    style DayZDefaultPanelSides
    Margin 0
-   "Size To Content H" 1
+   "Size To Content H" 0
    "Size To Content V" 1
    Columns 1
    Rows 4
@@ -43,7 +43,7 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
      vexactsize 1
      Padding 0
      Margin 0
-     "Size To Content H" 1
+     "Size To Content H" 0
      "Size To Content V" 1
      {
       ImageWidgetClass QuestIcon {
@@ -137,7 +137,7 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
      "Ignore invisible" 0
      Padding 5
      Margin 0
-     "Size To Content H" 1
+     "Size To Content H" 0
      "Size To Content V" 1
     }
    }

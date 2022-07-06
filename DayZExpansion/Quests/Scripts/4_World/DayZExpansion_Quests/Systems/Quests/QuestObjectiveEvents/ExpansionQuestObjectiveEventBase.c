@@ -83,11 +83,6 @@ class ExpansionQuestObjectiveEventBase
 	{
 		m_ObjectiveConfig = config;
 	}
-
-	ExpansionQuestObjectiveConfig GetObjectiveConfigBase()
-	{
-		return m_ObjectiveConfig;
-	}
 	
 	void SetTimeLimit(int time)
 	{
@@ -195,56 +190,6 @@ class ExpansionQuestObjectiveEventBase
 
 	ExpansionQuestObjectiveConfig GetObjectiveConfig()
 	{
-		ExpansionQuestObjectiveTravelConfig travelObjective;
-		ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
-		ExpansionQuestObjectiveTargetConfig targetObjective;
-		ExpansionQuestObjectiveCollectionConfig collectionObjective;
-		ExpansionQuestObjectiveActionConfig actionObjective;
-	#ifdef EXPANSIONMODAI
-		ExpansionQuestObjectiveAIPatrolConfig aiPatrolObjective;
-		ExpansionQuestObjectiveAICampConfig aiCampObjective;
-		ExpansionQuestObjectiveAIVIPConfig aiVIPObjective;
-	#endif
-
-		if (Class.CastTo(travelObjective, m_ObjectiveConfig))
-		{
-			return travelObjective;
-		}
-		else if (Class.CastTo(deliveryObjective, m_ObjectiveConfig))
-		{
-			return deliveryObjective;
-		}
-		else if (Class.CastTo(targetObjective, m_ObjectiveConfig))
-		{
-			return targetObjective;
-		}
-		else if (Class.CastTo(collectionObjective, m_ObjectiveConfig))
-		{
-			return collectionObjective;
-		}
-		else if (Class.CastTo(collectionObjective, m_ObjectiveConfig))
-		{
-			return collectionObjective;
-		}
-		else if (Class.CastTo(actionObjective, m_ObjectiveConfig))
-		{
-			return actionObjective;
-		}
-	#ifdef EXPANSIONMODAI
-		else if (Class.CastTo(aiPatrolObjective, m_ObjectiveConfig))
-		{
-			return aiPatrolObjective;
-		}
-		else if (Class.CastTo(aiCampObjective, m_ObjectiveConfig))
-		{
-			return aiCampObjective;
-		}
-		else if (Class.CastTo(aiVIPObjective, m_ObjectiveConfig))
-		{
-			return aiVIPObjective;
-		}
-	#endif
-
 		return m_ObjectiveConfig;
 	}
 

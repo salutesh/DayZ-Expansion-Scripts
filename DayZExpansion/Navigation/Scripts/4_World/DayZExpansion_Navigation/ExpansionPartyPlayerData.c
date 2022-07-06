@@ -17,7 +17,8 @@ modded class ExpansionPartyPlayerData
 	
 	void ExpansionPartyPlayerData(ExpansionPartyData party)
 	{
-		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
+		if (GetExpansionClientSettings())
+			GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 		CreateMarker();
 	}
 	
@@ -26,7 +27,8 @@ modded class ExpansionPartyPlayerData
 		if ( QuickMarker )
 			delete QuickMarker;
 			
-		GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
+		if (GetGame() && GetExpansionClientSettings())
+			GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
 	}
 	
 	void InitMarker()

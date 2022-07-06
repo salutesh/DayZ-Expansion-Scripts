@@ -16,7 +16,7 @@ modded class ItemBase
 
 	void ItemBase()
 	{
-		RegisterNetSyncVariableInt("m_Expansion_IsQuestItem");
+		RegisterNetSyncVariableBool("m_Expansion_IsQuestItem");
 	}
 	
 	bool IsQuestItem()

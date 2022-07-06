@@ -34,6 +34,7 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	int WeeklyQuestResteMinute;
 	int DailyQuestResetHour;
 	int DailyQuestResetMinute;
+	bool UseUTCTime;
 }
 
 /**@class		ExpansionQuestSettings
@@ -41,10 +42,17 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 2;
-	
-	bool UseUTCTime;
-	
+	static const int VERSION = 3;
+
+	string QuestCooldownTitle;
+	string QuestCooldownText;
+
+	string QuestNotInGroupTitle;
+	string QuestNotInGroupText;
+
+	string QuestNotGroupOwnerTitle;
+	string QuestNotGroupOwnerText;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -163,26 +171,36 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 		AchivementCompletedTitle = s.AchivementCompletedTitle;
 		AchivementCompletedText = s.AchivementCompletedText;
-		
+
 		//! Version 1
 		WeeklyQuestResetDay = s.WeeklyQuestResetDay;
 		WeeklyQuestResetHour = s.WeeklyQuestResetHour;
 		WeeklyQuestResteMinute = s.WeeklyQuestResteMinute;
 		DailyQuestResetHour = s.DailyQuestResetHour;
 		DailyQuestResetMinute = s.DailyQuestResetMinute;
+
+		//! Version 2
+		UseUTCTime = s.UseUTCTime;
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings CopyInternal
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	private void CopyInternal(ref ExpansionQuestSettings s)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
-		
-		UseUTCTime = s.UseUTCTime;
-		
+
+		QuestCooldownTitle = s.QuestCooldownTitle;
+		QuestCooldownText = s.QuestCooldownText;
+
+		QuestNotInGroupTitle = s.QuestNotInGroupTitle;
+		QuestNotInGroupText = s.QuestNotInGroupText;
+
+		QuestNotGroupOwnerTitle = s.QuestNotGroupOwnerTitle;
+		QuestNotGroupOwnerText = s.QuestNotGroupOwnerText;
+
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
 	}
@@ -213,14 +231,14 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 #endif
 
 		m_IsLoaded = true;
-		
+
 		bool save;
 		bool questSettingsExist = FileExist(EXPANSION_QUEST_SETTINGS);
 		if (questSettingsExist)
 		{
 			ExpansionQuestSettings settingsDefault = new ExpansionQuestSettings;
 			settingsDefault.Defaults();
-			
+
 			ExpansionQuestSettingsBase settingsBase;
 			JsonFileLoader<ExpansionQuestSettingsBase>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, settingsBase);
 			if (settingsBase.m_Version < VERSION)
@@ -233,11 +251,23 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					DailyQuestResetHour = settingsDefault.DailyQuestResetHour;
 					DailyQuestResetMinute = settingsDefault.DailyQuestResetMinute;
 				}
+
+				if (settingsBase.m_Version < 3)
+				{
+					QuestCooldownTitle = settingsDefault.QuestCooldownTitle;
+					QuestCooldownText = settingsDefault.QuestCooldownText;
+
+					QuestNotInGroupTitle = settingsDefault.QuestNotInGroupTitle;
+					QuestNotInGroupText = settingsDefault.QuestNotInGroupText;
+
+					QuestNotGroupOwnerTitle = settingsDefault.QuestNotGroupOwnerTitle;
+					QuestNotGroupOwnerText = settingsDefault.QuestNotGroupOwnerText;
+				}
 				else
 				{
 					JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
 				}
-				
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -324,13 +354,22 @@ override void Update( ExpansionSettingBase setting )
 
 		AchivementCompletedTitle = "Achievement \"%1\" completed!";
 		AchivementCompletedText = "You have completed the achievement %1";
-		
+
+		QuestCooldownTitle = "Quest Cooldown";
+		QuestCooldownText = "This quest is still on cooldown! Come back in %1";
+
+		QuestNotInGroupTitle = "Group Quest";
+		QuestNotInGroupText = "Group quests can only accepted while in a group!";
+
+		QuestNotGroupOwnerTitle = "Group Quest";
+		QuestNotGroupOwnerText = "Only a group owner can accept and turn-in group quest!";
+
 		WeeklyQuestResetDay = "Wednesday";
 		WeeklyQuestResetHour = 8;
 		WeeklyQuestResteMinute = 0;
 		DailyQuestResetHour = 8;
 		DailyQuestResetMinute = 0;
-		
+
 		UseUTCTime = false;
 	}
 

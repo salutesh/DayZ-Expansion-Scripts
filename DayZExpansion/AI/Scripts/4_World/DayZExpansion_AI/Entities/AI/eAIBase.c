@@ -107,8 +107,13 @@ class eAIBase extends PlayerBase
 	autoptr array<Object> m_eAI_PotentialTargetObjects = new array<Object>();
 	int m_eAI_CurrentPotentialTargetIndex;
 	PlayerBase m_eAI_PotentialTargetPlayer;
+	int m_eAI_CurrentPotentialTargetPlayerIndex;
 	float m_eAI_UpdateNearTargetsTime;
 	int m_eAI_UpdateNearTargetsCount;
+
+	int m_Expansion_EmoteID;
+	bool m_Expansion_EmoteAutoCancel;
+	int m_Expansion_EmoteAutoCancelDelay; //! ms
 
 	void eAIBase()
 	{
@@ -165,8 +170,6 @@ class eAIBase extends PlayerBase
 
 		if (GetGame().IsServer())
 		{
-			SetGroup(eAIGroup.CreateGroup());
-
 			LoadFSM();
 		}
 
@@ -176,6 +179,16 @@ class eAIBase extends PlayerBase
 		//! Vehicles mod will set this in PlayerBase::Init if loaded
 		if (!m_ExpansionST)
 			m_ExpansionST = new ExpansionHumanST(this);
+	}
+
+	override void Expansion_Init()
+	{
+		if (GetGame().IsServer() && !m_eAI_FactionType)
+		{
+			m_eAI_FactionType = eAIFactionRaiders;
+		}
+
+		super.Expansion_Init();
 	}
 
 	static void ReloadAllFSM()
@@ -233,6 +246,12 @@ class eAIBase extends PlayerBase
 		if (IsAI() && GetGroup())
 		{
 			GetGroup().RemoveMember(GetGroup().GetIndex(this));
+		}
+
+		if (GetGame().IsServer())
+		{
+			if (!m_Expansion_EmoteAutoCancel)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_PlayEmote);
 		}
 	}
 
@@ -312,7 +331,7 @@ class eAIBase extends PlayerBase
 		auto trace = CF_Trace_1(this, "PlayerIsEnemy").Add(other);
 #endif
 
-		PlayerBase player = PlayerBase.Cast(other);
+		DayZPlayerImplement player = DayZPlayerImplement.Cast(other);
 		if (!player)
 			return true;
 
@@ -329,7 +348,7 @@ class eAIBase extends PlayerBase
 
 			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()))
 			{
-				if (GetGroup().GetFaction().IsInherited(eAIFactionPassive))
+				if (eAI_IsPassive())
 					return player.GetTargetInformation().IsTargetted(GetGroup());
 				else
 					return false;
@@ -717,21 +736,12 @@ class eAIBase extends PlayerBase
 				{
 					if (m_eAI_CurrentThreatToSelf <= 0.2 && !GetExpansionSettings().GetAI().Manners)
 					{
-						auto hands = GetItemInHands();
-						if (GetWeaponManager().IsRunning() || (hands && (hands.IsInherited(BandageDressing) || hands.IsInherited(Rag))))
-							return;
-
-						ExpansionState state = m_FSM.GetState();
-						if (state && state.GetName() != "Idle" && state.GetName() != "FollowFormation" && state.GetName() != "TraversingWaypoints")
-							return;
-
 						int emoteId;
-						switch (Math.RandomInt(1, 5))
+						switch (Math.RandomIntInclusive(1, 5))
 						{
-							//! @note use only emotes that don't need to be canceled for simplicity sake
-							//case 0:
-								//emoteId = EmoteConstants.ID_EMOTE_TAUNT
-								//break;
+							case 0:
+								emoteId = EmoteConstants.ID_EMOTE_TAUNT;
+								break;
 							case 1:
 								emoteId = EmoteConstants.ID_EMOTE_TAUNTELBOW;
 								break;
@@ -744,13 +754,12 @@ class eAIBase extends PlayerBase
 							case 4:
 								emoteId = EmoteConstants.ID_EMOTE_CLAP;
 								break;
-							//! @note dancing takes too long to be viable :-(
-							//case 5:
-								//emoteId = EmoteConstants.ID_EMOTE_DANCE
-								//break;
+							case 5:
+								emoteId = EmoteConstants.ID_EMOTE_DANCE;
+								break;
 						}
 						//EXPrint(ToString() + " can play emote? " + m_EmoteManager.CanPlayEmote(emoteId));
-						m_EmoteManager.PlayEmote(emoteId);
+						Expansion_SetEmote(emoteId, true);
 					}
 				}
 			}
@@ -787,7 +796,10 @@ class eAIBase extends PlayerBase
 		// TODO: use particle system instead
 		// XXX: I have no clue what the above comment means -lava76
 
-		if (!GetGroup())
+		if (!GetGroup())  //! This should never happen
+			return;
+
+		if (eAI_IsPassive())
 			return;
 
 		vector center = GetPosition();
@@ -825,17 +837,28 @@ class eAIBase extends PlayerBase
 #endif
 
 		PlayerBase player;
-		if (m_eAI_PotentialTargetPlayer)
-		{
-			player = m_eAI_PotentialTargetPlayer.m_Expansion_NextPlayer;
-		}
+		//if (m_eAI_PotentialTargetPlayer)
+		//{
+			//player = m_eAI_PotentialTargetPlayer.m_Expansion_NextPlayer;
+			//if (!player)
+				//EXTrace.Print(EXTrace.AI, this, "NextPlayer is NULL!");
+		//}
 
-		if (!player)
-		{
-			player = s_AllPlayers;
-		}
+		//if (!player)
+		//{
+			//player = s_AllPlayers;
+			//if (!player)
+				//EXTrace.Print(EXTrace.AI, this, "s_AllPlayers is NULL!");
+		//}
 
-		m_eAI_PotentialTargetPlayer = player;
+		//m_eAI_PotentialTargetPlayer = player;
+
+		set<PlayerBase> allPlayers = GetAll();
+
+		if (m_eAI_CurrentPotentialTargetPlayerIndex >= allPlayers.Count())
+			m_eAI_CurrentPotentialTargetPlayerIndex = 0;
+
+		player = allPlayers[m_eAI_CurrentPotentialTargetPlayerIndex++];
 
 		Object playerObject = player;
 		if (player && player != this && m_eAI_PotentialTargetObjects.Find(playerObject) == -1 && Math.IsPointInCircle(center, 1000, player.GetPosition()))
@@ -849,12 +872,11 @@ class eAIBase extends PlayerBase
 #endif
 		}
 
-		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
+		DayZPlayerImplement playerThreat;
 		ItemBase targetItem;
+		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
 
 		float group_count = GetGroup().Count();
-
-		int nonItemTargetCount;
 
 		while (m_eAI_CurrentPotentialTargetIndex < m_eAI_PotentialTargetObjects.Count())
 		{
@@ -862,18 +884,26 @@ class eAIBase extends PlayerBase
 			if (!obj)
 				continue;
 
-			PlayerBase playerThreat;
 			if (Class.CastTo(playerThreat, obj))
-				if (GetGroup() && GetGroup().IsMember(playerThreat))
+			{
+				if (playerThreat == this)
 					continue;
-
-			//! If the object is an item and we have an entity in hands or the object is not a weapon, ignore it
-			if (Class.CastTo(targetItem, obj) && (entityInHands || (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon()) || GetGroup().GetFaction().IsInherited(eAIFactionPassive)))
+				if (playerThreat.eAI_IsPassive())
+					continue;
+				if (GetGroup().IsMember(playerThreat))
+					continue;
+			}
+			else if (Class.CastTo(targetItem, obj))
+			{
+				//! If the object is an item, ignore it if any of the following conditions are met
+				if (entityInHands)
+					continue;
+				if (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon())
+					continue;
+			}
+			else if (obj.IsInherited(Building))
 				continue;
-
-			if (obj.IsInherited(Building))
-				continue;
-			if (obj.IsInherited(Transport))
+			else if (obj.IsInherited(Transport))
 				continue;
 
 			eAITargetInformation target = eAITargetInformation.GetTargetInformation(obj);
@@ -883,25 +913,31 @@ class eAIBase extends PlayerBase
 			if (!target.IsActive())
 				continue;
 
-			if ((targetItem && target.ShouldRemove(this)) || target.ShouldRemove())
+			if (obj.IsInherited(ItemBase))
+			{
+				if (target.ShouldRemove(this))
+					continue;
+			}
+			else if (target.ShouldRemove())
+			{
 				continue;
+			}
 
 			int num_ai_in_group_targetting = 0;
 			if (target.IsTargetted(GetGroup(), num_ai_in_group_targetting))
 			{
+				float num_ai_in_group_not_targeting = group_count - num_ai_in_group_targetting;
+				if (!num_ai_in_group_not_targeting)
+					continue;
 				float threatLevel = target.GetThreat(this);
-				float frac = (group_count - num_ai_in_group_targetting) / group_count;
+				float frac = num_ai_in_group_not_targeting / group_count;
 				if ((frac * threatLevel) < (1.0 / group_count))
 					continue;
 			}
 
-			if (!GetGroup().GetFaction().IsInherited(eAIFactionPassive) && (!playerThreat || !playerThreat.GetGroup() || !playerThreat.GetGroup().GetFaction().IsInherited(eAIFactionPassive)))
-				target.AddAI(this);
+			target.AddAI(this);
 
-			if (!obj.IsInherited(ItemBase))
-				nonItemTargetCount++;
-
-			if (nonItemTargetCount * 2 > group_count)
+			if (m_eAI_Targets.Count() * 2 > group_count)
 				break;
 		}
 
@@ -1106,12 +1142,22 @@ class eAIBase extends PlayerBase
 		move.OverrideStance(pStanceIdx);
 	}
 
-	void SetMovementSpeedLimit(int pSpeed, int pSpeedUnderThreat = -1)
+	void SetMovementSpeedLimit(int pSpeed)
 	{
 		m_MovementSpeedLimit = eAI_GetMovementSpeed(pSpeed);
+	}
+
+	void SetMovementSpeedLimits(int pSpeed, int pSpeedUnderThreat = -1)
+	{
+		SetMovementSpeedLimit(pSpeed);
 		if (pSpeedUnderThreat == -1)
 			pSpeedUnderThreat = pSpeed;
 		m_MovementSpeedLimitUnderThreat = eAI_GetMovementSpeed(pSpeedUnderThreat);
+	}
+
+	int GetMovementSpeedLimit()
+	{
+		return m_MovementSpeedLimit;
 	}
 
 	static int eAI_GetMovementSpeed(eAIMovementSpeed pSpeed)
@@ -1893,15 +1939,15 @@ class eAIBase extends PlayerBase
 		if (!m_eAI_LOS)
 			return;
 
-		PlayerBase player;
+		DayZPlayerImplement player;
 
 		bool sideStep;
 
+		m_eAI_LOS = false;
 		foreach (Object obj: results)
 		{
 			if (obj.IsTree() || obj.IsBush())
 			{
-				m_eAI_LOS = false;
 				sideStep = true;
 				break;
 			}
@@ -1910,8 +1956,11 @@ class eAIBase extends PlayerBase
 			{
 				if (!PlayerIsEnemy(player))
 				{
-					m_eAI_LOS = false;
 					sideStep = true;
+				}
+				else
+				{
+					m_eAI_LOS = true;
 				}
 				//! If player is an enemy, but not the target, we don't care if they get shot when they are in the way
 				break;
@@ -1925,9 +1974,15 @@ class eAIBase extends PlayerBase
 
 			if (obj != targetEntity)
 			{
-				if (!obj.IsInherited(ZombieBase) && !obj.IsInherited(AnimalBase))
-					m_eAI_LOS = false;
+				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))
+					m_eAI_LOS = true;
 				//! If object is zombie or animal but not the target, we don't care if they get shot when they are in the way
+				break;
+			}
+			else
+			{
+				//! Right on target
+				m_eAI_LOS = true;
 				break;
 			}
 		}
@@ -2349,8 +2404,13 @@ class eAIBase extends PlayerBase
 
 	void Expansion_GetUp(bool force = false)
 	{
-		if (!force && IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
-			return;
+		if (!force)
+		{
+			if (IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
+				return;
+			if (m_EmoteManager.IsEmotePlaying())
+				return;
+		}
 
 		EXTrace.Print(EXTrace.AI, this, "Expansion_GetUp " + force);
 
@@ -2364,6 +2424,71 @@ class eAIBase extends PlayerBase
 		{
 			cm.ForceStanceUp(DayZPlayerConstants.STANCEIDX_ERECT);
 		}
+	}
+
+	//! @brief Set emote for playing
+	//! Setting autoCancel to true will automatically cancel the emote if it is a static pose
+	//! @note Emote will not play instantly! Will play when AI FSM can transition to PlayEmote state
+	void Expansion_SetEmote(int emoteID, bool autoCancel = false, int autoCancelDelay = 0)
+	{
+		m_Expansion_EmoteID = emoteID;
+		m_Expansion_EmoteAutoCancel = autoCancel;
+		m_Expansion_EmoteAutoCancelDelay = autoCancelDelay;
+	}
+
+	void Expansion_PlayEmote()
+	{
+		if (!m_Expansion_EmoteID)
+			return;
+
+		if (!m_EmoteManager.IsEmotePlaying() && m_EmoteManager.CanPlayEmote(m_Expansion_EmoteID))
+		{
+			m_EmoteManager.PlayEmote(m_Expansion_EmoteID);
+			if (m_Expansion_EmoteAutoCancel)
+			{
+				int delay;
+				switch (m_Expansion_EmoteID)
+				{
+					//! These emotes are temporary poses and don't need to be canceled
+					case EmoteConstants.ID_EMOTE_TAUNTKISS:
+					case EmoteConstants.ID_EMOTE_TAUNTELBOW:
+					case EmoteConstants.ID_EMOTE_THROAT:
+					case EmoteConstants.ID_EMOTE_DANCE:
+					case EmoteConstants.ID_EMOTE_DABBING:
+					case EmoteConstants.ID_EMOTE_CLAP:
+					case EmoteConstants.ID_EMOTE_TAUNTTHINK:
+					case EmoteConstants.ID_EMOTE_MOVE:
+					case EmoteConstants.ID_EMOTE_DOWN:
+					case EmoteConstants.ID_EMOTE_COME:
+					case EmoteConstants.ID_EMOTE_NOD:
+					case EmoteConstants.ID_EMOTE_SHAKE:
+					case EmoteConstants.ID_EMOTE_SHRUG:
+					case EmoteConstants.ID_EMOTE_VOMIT:
+						break;
+
+					//! These emotes are static poses with looping animation
+					case EmoteConstants.ID_EMOTE_SOS:
+						if (m_Expansion_EmoteAutoCancelDelay)
+							delay = m_Expansion_EmoteAutoCancelDelay;
+						else
+							delay = 4000;
+						break;
+
+					//! Assume static pose
+					default:
+						if (m_Expansion_EmoteAutoCancelDelay)
+							delay = m_Expansion_EmoteAutoCancelDelay;
+						else
+							delay = 2000;
+						break;
+				}
+				if (delay)
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_EmoteManager.ServerRequestEmoteCancel, delay);
+			}
+		}
+
+		if (m_Expansion_EmoteAutoCancel)
+			m_Expansion_EmoteID = 0;
 	}
 
 	override vector Expansion_GetHeadingVector()

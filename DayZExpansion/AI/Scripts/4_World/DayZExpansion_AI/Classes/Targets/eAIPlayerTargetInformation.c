@@ -2,7 +2,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 {
 	private const float DISTANCE_COEF = 0.00001;
 
-	private PlayerBase m_Player;
+	private DayZPlayerImplement m_Player;
 
 	void eAIPlayerTargetInformation(EntityAI target)
 	{
@@ -21,7 +21,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			if (!ai.PlayerIsEnemy(m_Player))
 				return 0.0;
 
-			if (m_Player && m_Player.IsUnconscious())
+			if (m_Player.IsUnconscious())
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat

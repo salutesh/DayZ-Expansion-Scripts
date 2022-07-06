@@ -214,6 +214,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 
 		foreach (ExpansionMapMarkerListEntry entry: listEntries)
 		{
+			if (!entry.GetData())
+				continue;
 			markerNames.Insert(entry.GetData().GetName());
 		}
 
@@ -221,6 +223,8 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 
 		foreach (ExpansionMapMarkerListEntry currentEntry: listEntries)
 		{
+			if (!currentEntry.GetData())
+				continue;
 			string name = currentEntry.GetData().GetName();
 			int index = markerNames.Find(name);
 			currentEntry.SetSort(index, false);

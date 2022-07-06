@@ -23,7 +23,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(1); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNPCDenis"); //! Class name of the NPC entity
+		questNPC.SetClassName("ExpansionQuestNPCDenis"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(1);
@@ -39,7 +39,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(200.0, 0, 0)); //! Quest NPC orientation
 
 		#ifdef EXPANSIONMODAI
-			questNPC.SetName("ExpansionQuestNPCAIDenis"); //! Class name of the NPC entity
+			questNPC.SetClassName("ExpansionQuestNPCAIDenis"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8584.27, 14.73, 10511.6));
 		#endif
@@ -50,7 +50,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(282.0, 0, 0)); //! Quest NPC orientation
 
 		#ifdef EXPANSIONMODAI
-			questNPC.SetName("ExpansionQuestNPCAIDenis"); //! Class name of the NPC entity
+			questNPC.SetClassName("ExpansionQuestNPCAIDenis"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3706.27, 402.012, 5987.08));
 		#endif
@@ -68,7 +68,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(2); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNPCElias"); //! Class name of the NPC entity
+		questNPC.SetClassName("ExpansionQuestNPCElias"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(1);
@@ -84,7 +84,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(-10.0, 0, 0)); //! Quest NPC orientation
 
 		#ifdef EXPANSIONMODAI
-			questNPC.SetName("ExpansionQuestNPCAIElias"); //! Class name of the NPC entity
+			questNPC.SetClassName("ExpansionQuestNPCAIElias"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8348.39, 15.1237, 10724.7));
 		#endif
@@ -95,7 +95,7 @@ class ExpansionDefaultQuestNPCData
 			questNPC.SetOrientation(Vector(145.0, 0, 0)); //! Quest NPC orientation
 
 		#ifdef EXPANSIONMODAI
-			questNPC.SetName("ExpansionQuestNPCAIElias"); //! Class name of the NPC entity
+			questNPC.SetClassName("ExpansionQuestNPCAIElias"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(3192.2, 296.707, 6093.31));
 			questNPC.SetEmoteID(EmoteConstants.ID_EMOTE_SITA);
@@ -117,7 +117,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(3); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNPCJose"); //! Class name of the NPC entity
+		questNPC.SetClassName("ExpansionQuestNPCJose"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(9);
@@ -137,7 +137,7 @@ class ExpansionDefaultQuestNPCData
 		if (m_WorldName == "namalsk")
 		{
 		#ifdef EXPANSIONMODAI
-			questNPC.SetName("ExpansionQuestNPCAIJose"); //! Class name of the NPC entity
+			questNPC.SetClassName("ExpansionQuestNPCAIJose"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8563.02, 14.8878, 10537.7));
 		#endif
@@ -151,7 +151,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(4); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestNPCPeter"); //! Class name of the NPC entity
+		questNPC.SetClassName("ExpansionQuestNPCPeter"); //! Class name of the NPC entity
 
 		array<int> questIDs = new array<int>;
 		questIDs.Insert(13);
@@ -171,7 +171,7 @@ class ExpansionDefaultQuestNPCData
 		if (m_WorldName == "namalsk")
 		{
 		#ifdef EXPANSIONMODAI
-			questNPC.SetName("ExpansionQuestNPCAIPeter"); //! Class name of the NPC entity
+			questNPC.SetClassName("ExpansionQuestNPCAIPeter"); //! Class name of the NPC entity
 			questNPC.SetIsAI(true);
 			questNPC.AddWaypoint(Vector(8597.82, 14.9004, 10493.3));
 		#endif
@@ -186,7 +186,7 @@ class ExpansionDefaultQuestNPCData
 	{
 		ExpansionQuestNPCData questNPC = new ExpansionQuestNPCData;
 		questNPC.SetID(5); //! Unique NPC ID
-		questNPC.SetName("ExpansionQuestBoardLarge"); //! Class name of the NPC entity
+		questNPC.SetClassName("ExpansionQuestBoardLarge"); //! Class name of the NPC entity
 		questNPC.SetIsStatic(true);
 
 		array<int> questIDs = new array<int>;
@@ -208,8 +208,8 @@ class ExpansionDefaultQuestNPCData
 
 		if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplus")
 		{
-			questNPC.SetPosition(Vector(3706.91, 402.0, 5983.5)); //! Quest NPC position
-			questNPC.SetOrientation(Vector(80.0, 0, 0)); //! Quest NPC orientation
+			questNPC.SetPosition(Vector(3706.61, 403.25, 5983.4)); //! Quest NPC position
+			questNPC.SetOrientation(Vector(170.99, 0, 0)); //! Quest NPC orientation
 		}
 		else if (m_WorldName == "namalsk")
 		{

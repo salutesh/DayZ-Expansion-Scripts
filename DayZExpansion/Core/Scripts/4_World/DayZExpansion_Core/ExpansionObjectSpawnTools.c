@@ -286,7 +286,7 @@ class ExpansionObjectSpawnTools
 			BuildingBase building;
 			ZombieBase zombie;
 
-#ifdef ENFUSION_AI_PROJECT
+#ifdef EXPANSIONMODAI
 			if (token.IndexOf("faction:") == 0)
 			{
 				string factionName = token.Substring(8, token.Length() - 8);
@@ -323,17 +323,17 @@ class ExpansionObjectSpawnTools
 			if (token.IndexOf("name:") == 0)
 			{
 				string name = token.Substring(5, token.Length() - 5);
-				if (Class.CastTo(ai, entity) && ai.m_Expansion_NameOverride)
+				if (Class.CastTo(ai, entity) && ai.m_Expansion_NetsyncData)
 				{
-					ai.m_Expansion_NameOverride.Set(name);
+					ai.m_Expansion_NetsyncData.Set(0, name);
 				}
-				else if (Class.CastTo(building, entity) && building.m_Expansion_NameOverride)
+				else if (Class.CastTo(building, entity) && building.m_Expansion_NetsyncData)
 				{
-					building.m_Expansion_NameOverride.Set(name);
+					building.m_Expansion_NetsyncData.Set(0, name);
 				}
-				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NameOverride)
+				else if (Class.CastTo(zombie, entity) && zombie.m_Expansion_NetsyncData)
 				{
-					zombie.m_Expansion_NameOverride.Set(name);
+					zombie.m_Expansion_NetsyncData.Set(0, name);
 				}
 				continue;
 			}
@@ -476,33 +476,17 @@ class ExpansionObjectSpawnTools
 				#endif
 				EXPrint("LoadMissionTradersFile trader " + trader + " fileName " + fileName);
 			
-				#ifdef ENFUSION_AI_PROJECT
-				//! See eAIGame::SpawnAI_Patrol
+				#ifdef EXPANSIONMODAI
 				if ( traderAI )
 				{
-					#ifdef EXPANSIONMODAI
 					eAIGroup ownerGrp = traderAI.GetGroup();
-					#else
-					if ( eAIGlobal_HeadlessClient )
-						GetRPCManager().SendRPC( "eAI", "HCLinkObject", new Param1< PlayerBase >( traderAI ), false, eAIGlobal_HeadlessClient );
-
-					eAIGame game = MissionServer.Cast( GetGame().GetMission() ).GetEAIGame();
-					eAIGroup ownerGrp = game.GetGroupByLeader( traderAI );
-					#endif
-					ownerGrp.SetFaction( new eAIFactionCivilian() );
 					for ( j = 0; j < positions.Count(); j++ )
 					{
 						EXPrint("Adding waypoint " + positions[j]);
 						ownerGrp.AddWaypoint( positions[j] );
 					}
 			
-					#ifdef EXPANSIONMODAI
 					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
-					#else
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( traderAI.RequestTransition, 10000, false, "Rejoin" );
-					
-					traderAI.SetAI( ownerGrp );
-					#endif
 				}
 				#endif
 
