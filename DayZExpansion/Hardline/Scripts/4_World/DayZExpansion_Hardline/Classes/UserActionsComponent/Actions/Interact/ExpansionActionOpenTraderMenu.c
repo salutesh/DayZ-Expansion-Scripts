@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSIONMODMARKET
 modded class ExpansionActionOpenTraderMenu
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
@@ -28,3 +29,4 @@ modded class ExpansionActionOpenTraderMenu
 		return true;
 	}
 }
+#endif

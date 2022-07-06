@@ -1391,7 +1391,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			QuestModulePrint(ToString() + "::RPC_CreateQuestInstance - Quest is a group quest. Apply needed parameters!");
 			//! If the player that is accepting the quest has a group we set the group owner as the main quest player
 			ExpansionPartyModule partyModule;
-			if (!Class.CastTo(partyModule,CF_ModuleCoreManager.Get(ExpansionPartyModule)))
+			if (!Class.CastTo(partyModule, CF_ModuleCoreManager.Get(ExpansionPartyModule)))
 			{
 				Error(ToString() + "::RPC_CreateQuestInstance - Could not get party module!");
 				return;
@@ -1404,13 +1404,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 				ExpansionNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestNotInGroupTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestNotInGroupText), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 				return;
 			}
-
-			ExpansionPartyData groupData = groupPlayerData.GetParty();
+			
+			int partyID = groupPlayerData.GetParty().GetPartyID();
+			ExpansionPartyData groupData = partyModule.GetPartyByID(partyID);
 			if (!groupData)
 			{
+				Error(ToString() + "::RPC_CreateQuestInstance - Could not get party data for party with ID: " + partyID);
 				return;
 			}
 
+			QuestRPCPrint(ToString() + "::RPC_CreateQuestInstance - Group data of player with ID: " + playerUID);
+			QuestRPCPrint(ToString() + "::RPC_CreateQuestInstance - Group data: " + groupData.ToString());
+			QuestRPCPrint(ToString() + "::RPC_CreateQuestInstance - Group ID: " + groupData.GetPartyID());
+			
 			//! Only group owner can accept quest!
 			if (groupData.GetOwnerUID() != playerUID)
 			{
@@ -1418,7 +1424,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				return;
 			}
 
-			newQuestInstance.SetGroup(groupData);
+			newQuestInstance.SetGroup(partyID);
 			
 			for (int i = 0; i < groupData.GetPlayers().Count(); i++)
 			{
@@ -1428,22 +1434,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 				
 				ExpansionQuestPersistentData partyPlayerQuestData = GetPlayerQuestDataByUID(playerPartyData.GetID());
 				if (!partyPlayerQuestData)
-					return;
+					continue;
 		
 				if (!partyPlayerQuestData.HasDataForQuest(questID))
 				{
 					partyPlayerQuestData.AddQuestData(configInstance);
 				}
-				
 			}
 		}
 	#endif
 
 		newQuestInstance.SetQuestConfig(configInstance);
 		m_ActiveQuests.Insert(newQuestInstance);
-
+		
 		newQuestInstance.QuestDebug();
-
 		newQuestInstance.OnQuestStart();
 
 	#ifdef EXPANSIONMODAI
@@ -3391,7 +3395,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 						QuestModulePrint(ToString() + "::PlayerQuestsInit - Player is owner of group! Set group quest parameters for quest: " + questID);
 						//! Set the quest group!
-						quest.SetGroup(playerGroupData.GetParty());
+						quest.SetGroup(playerGroupData.GetParty().GetPartyID());
 					}
 					else if (configInstance.IsGroupQuest() && !playerGroupData)
 					{
@@ -3878,6 +3882,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 					Error(ToString() + "::OnEntityKilled - Could not get quest objective!");
 					continue;
 				}
+				
+				if (!objective.IsActive() || objective.IsCompleted())
+					continue;
 
 				//! Run thrue all possible objective types
 				switch (objective.GetObjectiveConfig().GetObjectiveType())
@@ -3981,7 +3988,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					continue;
 				}
 
-				if (!objective.IsActive())
+				if (!objective.IsActive() || objective.IsCompleted())
 					continue;
 
 				//! Run thrue all possible objective types
@@ -4847,7 +4854,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	bool QuestPatrolExists(int questID, out array<eAIDynamicPatrol> patrols)
 	{
-		array<eAIDynamicPatrol> foundPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> foundPatrols;
 		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
 		{
 			patrols = foundPatrols;
@@ -4863,7 +4870,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SetQuestPatrols(int questID, array<eAIDynamicPatrol> patrols)
 	{
-		array<eAIDynamicPatrol> foundPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> foundPatrols;
 		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
 		{
 			//! Check if current patrol has been killed.

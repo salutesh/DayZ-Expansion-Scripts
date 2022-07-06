@@ -31,7 +31,7 @@ class ExpansionQuest
 
 	private bool m_IsGroupQuest = false;
 #ifdef EXPANSIONMODGROUPS
-	private ExpansionPartyData m_Group;
+	//private ExpansionPartyData m_Group;
 	private int m_GroupID = -1;
 #endif
 
@@ -741,11 +741,11 @@ class ExpansionQuest
 			}
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (m_IsGroupQuest && m_Group)
+		else if (m_IsGroupQuest && GetGroup())
 		{
-			for (int j = 0; j < m_Group.GetPlayers().Count(); j++)
+			for (int j = 0; j < GetGroup().GetPlayers().Count(); j++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[j];
+				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[j];
 				if (!playerGroupData)
 				{
 					Error(ToString() + "::CreateQuestItems - Could not get group members party data!");
@@ -854,6 +854,9 @@ class ExpansionQuest
 		for (int i = 0; i < QuestObjectives.Count(); ++i)
 		{
 			ExpansionQuestObjectiveEventBase currentObjective = QuestObjectives.Get(i);
+			if (!currentObjective || !currentObjective.IsActive())
+				continue;
+			
 			if (currentObjective && currentObjective.IsCompleted() && currentObjective.CompletionCheck())
 			{
 				complededObjectives++;
@@ -1000,15 +1003,15 @@ class ExpansionQuest
 	// ExpansionQuest SetGroup
 	// -----------------------------------------------------------
 #ifdef EXPANSIONMODGROUPS
-	void SetGroup(ExpansionPartyData group)
+	void SetGroup(int groupID)
 	{
 		QuestPrint(ToString() + "::SetGroup - Start");
 
-		m_Group = group;
-		m_GroupID = group.GetPartyID();
+		//m_Group = group;
+		m_GroupID = groupID;
 		m_IsGroupQuest = true;
 
-		QuestPrint(ToString() + "::SetGroup - Group: " + m_Group);
+		//QuestPrint(ToString() + "::SetGroup - Group: " + m_Group);
 		QuestPrint(ToString() + "::SetGroup - Group ID: " + m_GroupID);
 		QuestPrint(ToString() + "::SetGroup - Quest is group quest: " + m_IsGroupQuest);
 
@@ -1020,7 +1023,13 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	ExpansionPartyData GetGroup()
 	{
-		return m_Group;
+		ExpansionPartyModule partyModule;
+		if (Class.CastTo(partyModule, CF_ModuleCoreManager.Get(ExpansionPartyModule)))
+		{
+			return partyModule.GetPartyByID(m_GroupID);
+		}
+		
+		return NULL;
 	}
 
 	// -----------------------------------------------------------
@@ -1036,12 +1045,12 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	bool IsQuestGroupMember(string playerUID)
 	{
-		if (!m_Group)
+		if (!GetGroup())
 			return false;
 
-		for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
+		for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
 		{
-			ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+			ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
 			if (playerGroupData && playerGroupData.GetID() == playerUID)
 				return true;
 		}
@@ -1054,12 +1063,12 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	bool IsOtherGroupMemberOnline(string excludeUID)
 	{
-		if (!m_Group)
+		if (!GetGroup())
 			return false;
 
-		for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
+		for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
 		{
-			ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+			ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
 			if (playerGroupData && playerGroupData.GetID() != excludeUID)
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
@@ -1132,15 +1141,15 @@ class ExpansionQuest
 		#endif
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (m_IsGroupQuest && m_Group)
+		else if (m_IsGroupQuest && GetGroup())
 		{
-			QuestPrint(ToString() + "::SpawnQuestRewards - Group: " + m_Group);
-			QuestPrint(ToString() + "::SpawnQuestRewards - Group players: " + m_Group.GetPlayers());
-			QuestPrint(ToString() + "::SpawnQuestRewards - Group players count: " + m_Group.GetPlayers().Count());
+			QuestPrint(ToString() + "::SpawnQuestRewards - Group: " + GetGroup());
+			QuestPrint(ToString() + "::SpawnQuestRewards - Group players: " + GetGroup().GetPlayers());
+			QuestPrint(ToString() + "::SpawnQuestRewards - Group players count: " + GetGroup().GetPlayers().Count());
 			
-			for (int j = 0; j < m_Group.GetPlayers().Count(); j++)
+			for (int j = 0; j < GetGroup().GetPlayers().Count(); j++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[j];
+				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[j];
 				if (!playerGroupData)
 				{
 					Error(ToString() + "::SpawnQuestRewards - Could not get group members party data!");
@@ -1236,11 +1245,11 @@ class ExpansionQuest
 			ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (m_IsGroupQuest && m_Group)
+		else if (m_IsGroupQuest && GetGroup())
 		{
-			for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
+			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
 				if (!playerGroupData)
 				{
 					Error(ToString() + "::SendNotification - Can't get party data from quest group data for index: " + i);
@@ -1271,11 +1280,11 @@ class ExpansionQuest
 			}
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (m_IsGroupQuest && m_Group)
+		else if (m_IsGroupQuest && GetGroup())
 		{
-			for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
+			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
 				if (!playerGroupData)
 					continue;
 
@@ -1300,14 +1309,15 @@ class ExpansionQuest
 		if (!m_IsGroupQuest)
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-			m_QuestModule.CreateClientMarker(pos, name, Config.GetID(), m_Player.GetIdentity());
+			if (m_Player)
+				m_QuestModule.CreateClientMarker(pos, name, Config.GetID(), m_Player.GetIdentity());
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (m_IsGroupQuest && m_Group)
+		else if (GetGroup())
 		{
-			for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
+			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
 				if (!playerGroupData)
 					continue;
 
@@ -1326,17 +1336,18 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	void RemoveMarkers()
 	{
-		if (!m_IsGroupQuest && m_Player)
+		if (!m_IsGroupQuest)
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-			m_QuestModule.RemoveClientMarkers(Config.GetID(), m_Player.GetIdentity());
+			if (m_Player)
+				m_QuestModule.RemoveClientMarkers(Config.GetID(), m_Player.GetIdentity());
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (m_IsGroupQuest && m_Group)
+		else if (GetGroup())
 		{
-			for (int i = 0; i < m_Group.GetPlayers().Count(); i++)
+			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
 			{
-				ExpansionPartyPlayerData playerGroupData = m_Group.GetPlayers()[i];
+				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
 				if (!playerGroupData)
 					continue;
 
@@ -1487,7 +1498,7 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::QuestDebug - Quest initialized: " + m_Initialized);
 	#ifdef EXPANSIONMODGROUPS
 		QuestPrint(ToString() + "::QuestDebug - Quest is group quest: " + m_IsGroupQuest);
-		QuestPrint(ToString() + "::QuestDebug - Quest group: " + m_Group);
+		QuestPrint(ToString() + "::QuestDebug - Quest group: " + GetGroup());
 	#endif
 		QuestPrint("------------------------------------------------------------");
 	#endif

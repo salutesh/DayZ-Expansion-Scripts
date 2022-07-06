@@ -67,7 +67,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	private void CleanupPatrol()
 	{
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))	
 		{
 			for (int i = 0; i < questPatrols.Count(); i++)
@@ -96,7 +96,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(victimPlayer, victim))
 			return false;
 			
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 			return false;
 		
@@ -178,7 +178,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (m_TotalKillCount >= m_TotalUnitsAmount)
 			return;
 		
-		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
+		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
 		{
 			//! Check if the previous patrol groups related to this quest have been killed
