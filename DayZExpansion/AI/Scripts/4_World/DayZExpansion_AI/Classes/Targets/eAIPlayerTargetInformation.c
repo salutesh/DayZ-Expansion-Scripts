@@ -1,6 +1,6 @@
 class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 {
-	private const float DISTANCE_COEF = 0.00001;
+	private const float DISTANCE_COEF = 0.0001;
 
 	private DayZPlayerImplement m_Player;
 
@@ -25,7 +25,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai) + 0.0001;
+			float distance = GetDistance(ai) + DISTANCE_COEF;
 
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
@@ -50,37 +50,51 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 			if (distance > 30)
 			{
-				//! Check if target is facing AI when not in near range (30 m)
-				vector targetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
-				float dot = vector.Dot(m_Player.GetDirection(), targetDirection);
-				if (dot < 0.75)  //! Target is facing away
-					return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
+				//! Check if target is facing AI or AI is facing target when not in near range (30 m)
+				vector fromTargetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
+				float fromTargetDot = vector.Dot(m_Player.GetDirection(), fromTargetDirection);
+				vector toTargetDirection = vector.Direction(ai.GetPosition(), m_Player.GetPosition()).Normalized();
+				float toTargetDot = vector.Dot(ai.GetDirection(), toTargetDirection);
+				if (fromTargetDot < 0.75 && toTargetDot < 0.75)  //! Target is facing away and AI is facing away
+					return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
 			}
 
-			if (enemyHands)
+			//! Enemy is within 30 m, or farher than 30 m but looking in our direction,
+			//! or we are looking in their direction
+
+			//! Only adjust threat level based on enemy weapon if AI has a weapon in hands to fight back to begin with
+			//! Threat level from lowest to highest:
+			//! AI bare fists: Distance, look direction and enemy weapon if close affect threat level
+			//! AI weapon, enemy bare fists or unraised weapon: Distance, look direction and AI weapon affect threat level
+			//! AI weapon, enemy raised weapon: Distance, look direction, AI weapon and enemy weapon affect threat level
+			//! This should ensure that AI doesn't take fist fights over long distances or against armed enemies unless they are close,
+			//! and prioritizes enemies with raised weapons
+			auto hands = ai.GetHumanInventory().GetEntityInHands();
+			bool hasLOS = ai.eAI_HasLOS();
+			if ((hands && AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor, hasLOS)) || distance <= 30)
 			{
-				AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor);
-
-				if (enemyHands.IsWeapon() && !m_Player.IsRaised())
-					levelFactor *= 0.5;
-
-				//! AI weapon
-				auto hands = ai.GetHumanInventory().GetEntityInHands();
-				if (hands)
+				if (enemyHands)
 				{
-					AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
+					//! Enemy weapon is raised or enemy is close
+					if (m_Player.IsRaised() || distance <= 30)
+					{
+						AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor, hasLOS);
+
+						if (m_Player.IsRaised())
+							levelFactor *= ExpansionMath.LinearConversion(0, 1000, distance, 2.0, 1.0);
+					}
 				}
 			}
 		}
 
-		return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
+		return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
 	}
 
-	void AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor)
+	static bool AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor, bool hasLOS = true)
 	{
 		Weapon gun;
 		if (!Class.CastTo(gun, weapon))
-			return;
+			return false;
 
 		int mi = gun.GetCurrentMuzzle();
 
@@ -109,25 +123,34 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 		}
 		*/
 
-		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base))
+		//! Multiplicator based on weapon and attachments
+		ItemOptics optics;
+		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, weapon.GetAttachmentByType(ItemOptics)) && optics.GetZeroingDistanceZoomMax() >= distance))
 		{
-			levelFactor *= 4.472136;  //! If both AI and target have a 7.62x39 mm bolt rifle, threat level 0.4 at 500 m
+			levelFactor *= 10.0;  //! If either AI or target have a 5.56x45 mm bolt rifle, threat level 0.4 at 500 m
 		}
-		else if (weapon.IsInherited(Rifle_Base))
+		else if (weapon.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
 		{
-			levelFactor *= 3.0;  //! If both AI and target have a 7.62x39 mm rifle, threat level 0.4 at 225 m
+			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm rifle, threat level 0.4 at 250 m
 		}
 		else if (weapon.IsKindOf("Pistol_Base"))
 		{
-			levelFactor *= 2.0;  //! If both AI and target have a 19x9 mm pistol, threat level 0.4 at 36 m
+			levelFactor *= 5.0;  //! If either AI or target have a 19x9 mm pistol, threat level 0.4 at 50 m
 		}
-		else if (weapon.IsInherited(Weapon_Base))
+		else if (weapon.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
 		{
-			levelFactor *= 2.0;
+			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 300 m
+		}
+		else
+		{
+			return false;
 		}
 
+		if (!hasLOS)
+			levelFactor *= 0.5;
+
 		//! Now the fun part, scale threat level by health damage applied by ammo.
-		//! Use 7.62x39 mm round w/ 0.9 init speed mult as baseline (1.0).
+		//! Use 110 damage w/ 1.0 init speed mult as baseline (1.0).
 		string ammoTypeName = gun.GetChamberAmmoTypeName(mi);
 		if (ammoTypeName)
 		{
@@ -136,14 +159,19 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			if (damage)
 			{
 				float initSpeedMult = ExpansionWeaponUtils.GetWeaponInitSpeedMultiplier(gun.GetType());
-				levelFactor *= damage * initSpeedMult / 99.0;
+				damage *= initSpeedMult;
+				if (damage < 22.0)
+					damage = 22;  //! In combination with lowest multiplicator above, makes sure overall level factor can not go lower than input value
+				levelFactor *= damage / 55.0;
 			}
 		}
+
+		return true;
 	}
 
 	override bool ShouldRemove(eAIBase ai = null)
 	{
-		return GetThreat(ai) <= 0.1;
+		return GetThreat(ai) <= 0.01;  //! Will remove if 1000 m away and no LOS
 	}
 
 	override vector GetAimOffset(eAIBase ai = null)

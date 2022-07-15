@@ -26,7 +26,12 @@ class bldr_expansion_Sign_RoadBarrier_LightOn  extends House
 		{
 			if ( !m_Light )
 			{
+#ifdef EXPANSIONMODCORE
 				m_Light = ScriptedLightBase.CreateLight( ExpansionPointLight, "0 0 0" );
+#else
+				//! TODO: Use some kind of light
+				return;
+#endif
 
 				m_Light.FadeIn(0.3);			
 				m_Light.SetCastShadow(true);				

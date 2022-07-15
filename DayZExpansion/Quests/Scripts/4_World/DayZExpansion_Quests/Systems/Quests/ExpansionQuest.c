@@ -730,7 +730,7 @@ class ExpansionQuest
 			for (int i = 0; i < Config.GetQuestItems().Count(); i++)
 			{
 				questItem = Config.GetQuestItems()[i];
-				obj = Spawn(questItem, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+				obj = Spawn(questItem, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation(), questItem.GetAmount());
 				
 				if (Class.CastTo(questItemBase, obj))
 				{
@@ -760,7 +760,7 @@ class ExpansionQuest
 					for (int g = 0; g < Config.GetQuestItems().Count(); g++)
 					{
 						questItem = Config.GetQuestItems()[g];
-						obj = Spawn(questItem, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
+						obj = Spawn(questItem, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation(), questItem.GetAmount());
 						
 						if (Class.CastTo(questItemBase, obj))
 						{
@@ -907,15 +907,43 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::CompletionCheck - End");
 	}
 
+	private void SpawnReward(ExpansionQuestRewardConfig reward, PlayerBase player, EntityAI parent, vector pos, vector ori)
+	{
+		int remainingAmount = reward.GetAmount();
+		while (remainingAmount > 0)
+		{
+			int remainingAmountBefore = remainingAmount;		
+			Object obj = Spawn(reward, player, parent, pos, ori, remainingAmount);
+			if (!obj)
+			{
+				Error("Error: Couldn't spawn " + reward.GetClassName());
+				break;
+			}
+
+			if (remainingAmount == remainingAmountBefore)
+			{
+				//! Should not be possible, just in case...
+				Error("Error: Spawning " + reward.GetClassName() + " did not affect remaining amount!");
+				break;
+			}
+		}
+	}
+	
 	// -----------------------------------------------------------
 	// ExpansionQuest Spawn
 	// -----------------------------------------------------------
 	//! Spawn object method
-	private Object Spawn(ExpansionQuestItemConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation)
+	private Object Spawn(ExpansionQuestItemConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount)
 	{
 		Object obj;
-		if (!item.IsVehicle()) obj = ExpansionItemSpawnHelper.SpawnOnParent(item.GetClassName(), player, parent, item.GetAmount());
-		else obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, item.GetAmount());
+		if (!item.IsVehicle())
+		{
+			obj = ExpansionItemSpawnHelper.SpawnOnParent(item.GetClassName(), player, parent, remainingAmount);
+		}
+		else 
+		{
+			obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, remainingAmount);
+		}
 
 		return obj;
 	}
@@ -923,11 +951,17 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	// ExpansionQuest Spawn
 	// -----------------------------------------------------------
-	private Object Spawn(ExpansionQuestRewardConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation)
+	private Object Spawn(ExpansionQuestRewardConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount)
 	{
 		Object obj;
-		if (!item.IsVehicle()) obj = ExpansionItemSpawnHelper.SpawnOnParent(item.GetClassName(), player, parent, item.GetAmount());
-		else obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, item.GetAmount());
+		if (!item.IsVehicle())
+		{ 
+			obj = ExpansionItemSpawnHelper.SpawnOnParent(item.GetClassName(), player, parent, remainingAmount);
+		}
+		else
+		{
+			obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, remainingAmount);
+		}
 
 		return obj;
 	}
@@ -1102,19 +1136,23 @@ class ExpansionQuest
 		if (!m_IsGroupQuest)
 		{
 			EntityAI playerEntity = m_Player;
+			int remainingAmount;
+			int remainingAmountBefore;
+			Object obj;
+			
 			if (Config.NeedToSelectReward())
 			{
 				if (!reward)
 					return false;
 
-				Spawn(reward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+				SpawnReward(reward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 			}
 			else
 			{
 				for (int i = 0; i < Config.GetRewards().Count(); i++)
 				{
 					questReward = Config.GetRewards()[i];
-					Spawn(questReward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+					SpawnReward(questReward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 				}
 			}
 
@@ -1173,7 +1211,7 @@ class ExpansionQuest
 						}
 						
 						QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
-						Spawn(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+						SpawnReward(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 					}
 					else
 					{
@@ -1181,8 +1219,8 @@ class ExpansionQuest
 						for (int k = 0; k < Config.GetRewards().Count(); k++)
 						{
 							questReward = Config.GetRewards()[k];
-							QuestPrint(ToString() + "::SpawnQuestRewards - Spawn reward: [" + k + "] " + questReward.ToString());	
-							Spawn(questReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
+							QuestPrint(ToString() + "::SpawnQuestRewards - Spawn reward: [" + k + "] " + questReward.ToString());
+							SpawnReward(questReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
 						}
 					}
 				}

@@ -430,6 +430,7 @@ class eAIGroup
 		auto trace = CF_Trace_0(this, "SetFormation");
 #endif
 
+		f.SetGroup(this);
 		m_Form = f;
 	}
 
@@ -555,7 +556,15 @@ class eAIGroup
 			}
 
 			RemoveMember(i, autodelete);
-			GetGame().ObjectDelete(ai);
+			auto hands = ai.GetHumanInventory().GetEntityInHands();
+			//! Prevent AI from dropping item in hands on death
+			if (hands)
+				GetGame().ObjectDelete(hands);
+			ai.SetAllowDamage(true);
+			//! Kill AI to remove collision
+			ai.SetHealth(0);
+			//! Delete body after delay (don't remove it too early after death or invisible collision will still be there, five seconds seems to work well)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 5000, false, ai);
 		}
 	}
 };

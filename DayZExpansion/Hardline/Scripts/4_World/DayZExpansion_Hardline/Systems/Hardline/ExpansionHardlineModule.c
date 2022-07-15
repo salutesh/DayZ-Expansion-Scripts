@@ -383,27 +383,33 @@ class ExpansionHardlineModule: CF_ModuleWorld
 					humanityText = "Removed";
 				}
 					
-				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-				
-				SendPlayerHardlineData(victimPlayerData, victimPlayer.GetIdentity());
-						
-				title = new StringLocaliser("Killed %1", victimPlayerData.GetRankName());
-				text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityChange.ToString());
-				ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
+				if (humanityChange != 0)
+				{
+					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
+					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
+					
+					SendPlayerHardlineData(victimPlayerData, victimPlayer.GetIdentity());
+							
+					title = new StringLocaliser("Killed %1", victimPlayerData.GetRankName());
+					text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityChange.ToString());
+					ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
+				}
 			}
 			else if (victimIsInfected)
 			{
 				int humanityOnKillInfected = GetExpansionSettings().GetHardline().HumanityOnKillInfected;
-				killerPlayerData.AddHumanity(humanityOnKillInfected);
+				if (humanityOnKillInfected != 0)
+				{
+					killerPlayerData.AddHumanity(humanityOnKillInfected);
+													
+					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
+					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
+					
+					title = new StringLocaliser("Infected Killed");
+					text = new StringLocaliser("Added %1 Humanity", humanityOnKillInfected.ToString());
+					ExpansionNotification(title, text, ExpansionIcons.GetPath("Infected 2"),  ARGB(255, 160, 223, 59), 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
+				}
 				killerPlayerData.OnInfectedKilled();
-												
-				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-				
-				title = new StringLocaliser("Infected Killed");
-				text = new StringLocaliser("Added %1 Humanity", humanityOnKillInfected.ToString());
-				ExpansionNotification(title, text, ExpansionIcons.GetPath("Infected 2"),  ARGB(255, 160, 223, 59), 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 			}
 		#ifdef EXPANSIONMODAI
 			else if (victimIsPlayer && victimIsAI)
@@ -425,13 +431,15 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				
 				killerPlayerData.OnAIKilled();
 				
-								
-				killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-				SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-						
-				title = new StringLocaliser("Killed %1", victim.GetDisplayName());
-				text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityOnKillAI.ToString());
-				ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
+				if (humanityOnKillAI != 0)
+				{
+					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
+					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
+							
+					title = new StringLocaliser("Killed %1", victim.GetDisplayName());
+					text = new StringLocaliser("%1 %2 Humanity", humanityText, humanityOnKillAI.ToString());
+					ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
+				}
 			}
 		#endif
 		}
@@ -512,6 +520,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerID);
 		if (!hardlinePlayerData)
 			return;
+
+		if (humanity == 0)
+			return;
 		
 		hardlinePlayerData.AddHumanity(humanity);
 			
@@ -540,6 +551,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (!hardlinePlayerData)
 			return;
 		
+		if (humanity == 0)
+			return;
+
 		hardlinePlayerData.RemoveHumanity(humanity);
 			
 		StringLocaliser title = new StringLocaliser("Negative Action");

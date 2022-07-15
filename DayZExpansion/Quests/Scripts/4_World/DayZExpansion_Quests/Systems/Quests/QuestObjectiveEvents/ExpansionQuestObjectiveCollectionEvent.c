@@ -140,10 +140,11 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			for (int i = 0; i < items.Count(); i++)
 			{
 				EntityAI item = items[i];
-				if (CanCountItem(item, true))
+				int itemCount = GetItemAmount(item);
+				currentCount += itemCount;
+				if (itemCount > 0)
 				{
 					m_PlayerItems.Insert(item);
-					currentCount++;
 				}
 			}
 
@@ -180,11 +181,11 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			{
 				EntityAI item = items[i];
 				Print(ToString() + "::HasGroupAllQuestItems - Item: " + item.Type().ToString());
-				if (CanCountItem(item, true))
+				int itemCount = GetItemAmount(item);
+				currentCount += itemCount;
+				if (itemCount > 0)
 				{
-					Print(ToString() + "::HasGroupAllQuestItems - Add item: " + item.Type().ToString());
 					m_GroupItems.Insert(item);
-					currentCount++;
 				}
 			}
 
@@ -198,6 +199,55 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	}
 #endif
 
+	private int GetItemAmount(EntityAI item)
+	{
+		int amount;
+		ItemBase itemBase = ItemBase.Cast(item);		
+		if (item.IsKindOf("Container_Base"))
+		{
+			amount = 1;
+		}
+		else if (item.IsKindOf("ExpansionSpraycanBase"))
+		{
+			amount = 1;
+		}
+		else if (item.IsKindOf("Edible_Base"))
+		{
+			//! Food and liquid containers
+			amount = 1;
+		}
+		else if (item.IsInherited(MagazineStorage))
+		{
+			amount = 1;
+		}
+		else if (item.IsKindOf("Ammunition_Base"))
+		{
+			if (item.IsAmmoPile())
+			{
+				//! This looks like a wierd method but this how we get the actual ammo amount from an ammo pile
+				Magazine magazine = Magazine.Cast(item);
+				amount = magazine.GetAmmoCount();
+			}
+		}
+		else if (item.HasEnergyManager())
+		{
+			amount = 1;
+		}
+		else if (itemBase && itemBase.ConfigGetBool("canBeSplit"))
+		{
+			amount = item.GetQuantity();
+		}
+		else
+		{
+			amount = 1;
+		}
+		
+		if (!CanCountItem(item))
+			amount = -amount;
+		
+		return amount;
+	}
+	
 	private bool CanCountItem(EntityAI item, bool checkIfRuined = false)
 	{
 		Print(ToString() + "::CanCountItem - Start");
@@ -280,9 +330,9 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					OnComplete();
 				}
 			}
+		#ifdef EXPANSIONMODGROUPS
 			else
 			{
-			#ifdef EXPANSIONMODGROUPS
 				EnumerateGroupInventory(GetQuest().GetGroup());
 
 				if (!HasGroupAllCollectionItems() && IsCompleted())
@@ -301,8 +351,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 					SetCompleted(true);
 					OnComplete();
 				}
-			#endif
 			}
+		#endif
 
 			if (!GetQuest().IsGroupQuest() && m_PlayerItems)
 			{
@@ -357,14 +407,28 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 
 	int GetCount()
 	{
+		int count;
+		int itemCount;
 		if (!GetQuest().IsGroupQuest() && m_PlayerItems)
 		{
-			return m_PlayerItems.Count();
+			foreach (EntityAI playerItem: m_PlayerItems)
+			{
+				itemCount = GetItemAmount(playerItem);
+				count += itemCount;
+			}
+			
+			return count;
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (GetQuest().IsGroupQuest() && m_GroupItems)
 		{
-			return m_GroupItems.Count();
+			foreach (EntityAI groupItem: m_GroupItems)
+			{
+				itemCount = GetItemAmount(groupItem);
+				count += itemCount;
+			}			
+			
+			return count;
 		}
 	#endif
 		

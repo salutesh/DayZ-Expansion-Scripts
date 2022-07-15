@@ -53,6 +53,7 @@ class CfgVehicles
 	class SurvivorF_Eva;
 	class SurvivorF_Baty;
 	class Inventory_Base;
+	class HouseNoDestruct;
 	class Paper;
 	class eAI_SurvivorM_Mirek: SurvivorM_Mirek{};
 	class eAI_SurvivorM_Denis: SurvivorM_Denis{};
@@ -452,5 +453,17 @@ class CfgVehicles
 				};
 			};
 		};
+	};
+	class ExpansionQuestObjectPaper: HouseNoDestruct
+	{
+		scope = 1;
+		model = "\dz\gear\consumables\Paper.p3d";
+		forceFarBubble = "true";
+	};
+	class ExpansionQuestObjectLocker: HouseNoDestruct
+	{
+		scope = 1;
+		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v1.p3d";
+		forceFarBubble = "true";
 	};
 };

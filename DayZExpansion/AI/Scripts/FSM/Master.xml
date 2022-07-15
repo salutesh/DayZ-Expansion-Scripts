@@ -131,7 +131,8 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
-				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
+				vector direction = vector.Direction(unit.GetPosition(), path[index]);
+				float distance = direction.LengthSq();
 				if (distance &lt; threshold)
 				{
 					if (backtracking) index--;
@@ -171,9 +172,16 @@
 				
 				index = Math.Clamp(index, 0, path.Count() - 1);
 				
-				unit.OverrideTargetPosition(path[index]);
+				bool isFinal;
+				if (behaviour != eAIWaypointBehavior.LOOP)
+					isFinal = index == 0 || index == path.Count() - 1;
+				
+				unit.OverrideTargetPosition(path[index], isFinal);
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
+				
+				unit.Expansion_DebugObject_Deferred(index + 12, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", direction.Normalized());
+				unit.Expansion_DebugObject_Deferred(path.Count() + 12, path[index], "ExpansionDebugNoticeMe", direction.Normalized());
 				
 				return EXIT;
 			</event_update>
@@ -371,6 +379,8 @@
 							time = 0;
 							
 							unit.StartActionObject(ActionBandageSelf, null);
+							
+							return CONTINUE;
 						}
 					}
 				}

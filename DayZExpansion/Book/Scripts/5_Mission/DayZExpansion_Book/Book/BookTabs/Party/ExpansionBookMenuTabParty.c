@@ -34,7 +34,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	private Widget book_menu_content_left;
 		
 	private int m_PlayerSearchRadius = 25;
-	SyncPlayer m_Player;
+	ref SyncPlayer m_Player;
 	
 	void ExpansionBookMenuTabParty(ExpansionBookMenu book_menu)
 	{
@@ -187,72 +187,40 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 			
 		int nmbPlayer = 0;
 		ExpansionBookMenuTabPartyPlayerEntry entry;
-		SyncPlayer playerSync;
 		string playerName;
 		
+		set<ref SyncPlayer> players;
 		if (GetExpansionSettings().GetParty().UseWholeMapForInviteList)
 		{
-			for (int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); ++i)
-			{
-				playerSync = ClientData.m_PlayerList.m_PlayerList[i];
-				
-				if (!playerSync)
-					continue;
-					
-				if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
-				{
-					continue;
-				}
-				
-				if (filter != "")
-				{
-					playerName = playerSync.m_PlayerName;
-					playerName.ToLower();
-		
-					if (playerName.IndexOf(filter) == -1)
-						continue;
-				}
-				
-				nmbPlayer++;
-				
-				AddPlayerEntry(playerSync);
-			}
+			players = SyncPlayer.Expansion_GetAll();
 		}
 		else
 		{
-			array<PlayerIdentity> identitys = GetNearbyPlayerIdentitys(player.GetPosition(), m_PlayerSearchRadius);			
-			if (!identitys) return;
-			for (int j = 0; j < identitys.Count(); ++j)
-			{					
-				for (int k = 0; k < ClientData.m_PlayerList.m_PlayerList.Count(); ++k)
-				{					
-					playerSync = ClientData.m_PlayerList.m_PlayerList[k];
-					
-					if (!playerSync)
-						continue;
-									
-					if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
-					{
-						continue;
-					}
-					
-					if (filter != "")
-					{
-						playerName = playerSync.m_PlayerName;
-						playerName.ToLower();
-			
-						if (playerName.IndexOf(filter) == -1)
-							continue;
-					}
-										
-					if (playerSync && playerSync.m_RUID == identitys[j].GetId())
-					{
-						nmbPlayer++;
-						
-						AddPlayerEntry(playerSync);
-					}
-				}
+			players = SyncPlayer.Expansion_GetInSphere(player.GetPosition(), m_PlayerSearchRadius);
+		}
+
+		foreach (SyncPlayer playerSync: players)
+		{
+			if (playerSync.m_RUID == player.GetIdentity().GetId())
+				continue;
+
+			if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
+			{
+				continue;
 			}
+
+			if (filter != "")
+			{
+				playerName = playerSync.m_PlayerName;
+				playerName.ToLower();
+	
+				if (playerName.IndexOf(filter) == -1)
+					continue;
+			}
+
+			nmbPlayer++;
+
+			AddPlayerEntry(playerSync);
 		}
 	}
 	
@@ -298,29 +266,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		}
 
 		m_PartyTabController.PartyMemberEntrys.Clear();
-	}
-	
-	array<PlayerIdentity> GetNearbyPlayerIdentitys(vector position, int radius)
-	{
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase>;
-		array<PlayerIdentity> identitys = new array<PlayerIdentity>;
-		
-		GetGame().GetObjectsAtPosition(position, radius, objects, proxyCargos);
-		
-		if (objects.Count() > 0)
-		{
-			foreach (Object obj : objects)
-			{
-				PlayerBase player;
-				if (Class.CastTo(player, obj))
-				{
-					identitys.Insert(player.GetIdentity());
-				}
-			}
-		}
-		
-		return identitys;
 	}
 	
 	void InvitePlayer(SyncPlayer player)

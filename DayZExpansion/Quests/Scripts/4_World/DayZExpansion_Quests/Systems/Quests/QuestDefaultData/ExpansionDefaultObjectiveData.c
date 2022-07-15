@@ -62,6 +62,27 @@ class ExpansionDefaultObjectiveData
 
 		return objective;
 	}
+	
+	ExpansionQuestObjectiveTravelConfig ExpansionQuestObjective_Travel_003()
+	{
+		ExpansionQuestObjectiveTravelConfig objective = new ExpansionQuestObjectiveTravelConfig();
+		objective.SetID(3);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		objective.SetObjectiveText("Get to the Camp");
+		objective.SetMaxDistance(20.0);
+		objective.SetMarkerName("Get to the Camp");
+
+		if (m_WorldName.Contains("namalsk"))
+		{
+			objective.SetPosition(Vector(8584.27, 14.73, 10511.6));
+		}
+		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		{
+			objective.SetPosition(Vector(3706.27, 402.012, 5987.08));
+		}
+
+		return objective;
+	}
 
 	//! DELIVERY OBJECTIVES
 	ExpansionQuestObjectiveDeliveryConfig ExpansionQuestObjective_Delivery_001()
@@ -639,6 +660,7 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.SetNPCSpeed("WALK");
 		aiPatrol.SetNPCMode("REVERSE");
 		aiPatrol.SetNPCFaction("West");
+		aiPatrol.NPCFormation = "RANDOM";
 		aiPatrol.SetNPCLoadoutFile("BanditLoadout.json");
 		
 		if (m_WorldName == "namalsk")

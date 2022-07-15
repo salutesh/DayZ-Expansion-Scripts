@@ -18,6 +18,7 @@ class ExpansionQuestObjectiveAIPatrol
 	private string NPCSpeed;
 	private string NPCMode;
 	private string NPCFaction;
+	string NPCFormation;
 	private string NPCLoadoutFile;
 	private autoptr array<string> ClassNames = new array<string>;
 	private bool SpecialWeapon = false;
@@ -125,6 +126,7 @@ class ExpansionQuestObjectiveAIPatrol
 		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCSpeed);
 		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCMode);
 		Print(ToString() + "::QuestDebug - NPCFaction: " + NPCFaction);
+		Print(ToString() + "::QuestDebug - NPCFormation: " + NPCFormation);
 		Print(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
 		Print("------------------------------------------------------------");
 	#endif

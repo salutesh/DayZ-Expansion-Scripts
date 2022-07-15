@@ -126,18 +126,22 @@ class eAIAimingProfileManager
 		eAIAimingProfile profile = ai.GetAimingProfile();
 		Man arbiter = profile.m_Arbiter;
 
-		// TODO: figure out why 'sender' and 'arbiter' differ when there should only be 1 PlayerIdentity on the server...
-		// if (!arbiter || arbiter && arbiter.GetIdentity() != sender) return;
+		//! @note we cannot check identity instances for equality directly, they are NEVER the same instance.
+		//! Use the ID to check whether identity instances point to the same underlying identity.
+		if (!arbiter || arbiter.GetIdentity().GetId() != sender.GetId()) return;
 
 		eAIAimingProfile_SyncParams param;
 		if (!ctx.Read(param))
 			return;
 
-		profile.m_LastUpdated = param.param1;
-		if (param.param2)
-			Class.CastTo(profile.m_Hands, GetGame().GetObjectByNetworkId(param.param3, param.param4));
+		//profile.m_LastUpdated = param.param1;
+		//! @note GetObjectByNetworkId is SLOW on server, don't use there!
+		//if (param.param2)
+			//Class.CastTo(profile.m_Hands, GetGame().GetObjectByNetworkId(param.param3, param.param4));
 
-		profile.m_Position = param.param5;
-		profile.m_Direction = param.param6;
+		//profile.m_Position = param.param5;
+		//profile.m_Direction = param.param6;
+		profile.m_Position = param.param1;
+		profile.m_Direction = param.param2;
 	}
 };

@@ -15,64 +15,12 @@ modded class ExpansionSettings
 	static ref ScriptInvoker SI_Airdrop = new ScriptInvoker();
 	static ref ScriptInvoker SI_Mission = new ScriptInvoker();
 
-	autoptr ExpansionAirdropSettings m_SettingsAirdrop;
-	autoptr ExpansionMissionSettings m_SettingsMission;
-
-	override protected void OnServerInit()
-	{
-		LoadSetting(m_SettingsAirdrop);
-		LoadSetting(m_SettingsMission);
-
-		// m_NetworkedSettings.Insert( "expansionairdropsettings" );
-		// m_NetworkedSettings.Insert( "expansionmissionsettings" );
-
-		super.OnServerInit();
-	}
-
-	override void Unload()
-	{
-		super.Unload();
-
-		m_SettingsAirdrop.Unload();
-		m_SettingsMission.Unload();
-	}
-
-	override protected void CheckSettingsLoaded()
-	{
-		if (!IsMissionClient())
-		{
-			m_SettingsLoaded = true;
-
-			return;
-		}
-
-		if (m_SettingsLoaded)
-			return;
-
-		if (!IsSettingLoaded(m_SettingsAirdrop, m_SettingsLoaded))
-			return;
-
-		if (!IsSettingLoaded(m_SettingsMission, m_SettingsLoaded))
-			return;
-
-		super.CheckSettingsLoaded();
-	}
-
 	override void Init()
 	{
-		m_SettingsAirdrop = new ExpansionAirdropSettings;
-		m_SettingsMission = new ExpansionMissionSettings;
 		super.Init();
-	}
 
-	override void Send(notnull PlayerIdentity identity)
-	{
-		if (IsMissionClient())
-			return;
-
-		super.Send(identity);
-
-		m_SettingsAirdrop.Send(identity);
+		Init(ExpansionAirdropSettings);
+		Init(ExpansionMissionSettings);
 	}
 
 	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
@@ -87,8 +35,7 @@ modded class ExpansionSettings
 		{
 		case ExpansionSettingsRPC.AirDrop:
 		{
-			Expansion_Assert_False(m_SettingsAirdrop.OnRecieve(ctx), "Failed reading AirDrop settings");
-
+			Receive(ExpansionAirdropSettings, ctx);
 			return true;
 		}
 		}
@@ -96,23 +43,13 @@ modded class ExpansionSettings
 		return false;
 	}
 
-	override void Save()
+	ExpansionAirdropSettings GetAirdrop(bool checkLoaded = true)
 	{
-		super.Save();
-
-		if (IsMissionHost() && GetGame().IsMultiplayer())
-		{
-			m_SettingsAirdrop.Save();
-			m_SettingsMission.Save();
-		}
+		return ExpansionAirdropSettings.Cast(Get(ExpansionAirdropSettings, checkLoaded));
 	}
 
-	ExpansionAirdropSettings GetAirdrop()
+	ExpansionMissionSettings GetMission(bool checkLoaded = true)
 	{
-		return m_SettingsAirdrop;
-	}
-	ExpansionMissionSettings GetMission()
-	{
-		return m_SettingsMission;
+		return ExpansionMissionSettings.Cast(Get(ExpansionMissionSettings, checkLoaded));
 	}
 };

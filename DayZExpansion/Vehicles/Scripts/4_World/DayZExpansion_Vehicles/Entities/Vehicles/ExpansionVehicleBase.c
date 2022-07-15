@@ -2070,7 +2070,9 @@ class ExpansionVehicleBase extends ItemBase
 		if (!m_Crew[posIdx].GetPlayer())
 			return false;
 
-		return m_Crew[posIdx].GetPlayer().GetIdentity() == identity;
+		//! @note we cannot check identity instances for equality directly, they are NEVER the same instance.
+		//! Use the ID to check whether identity instances point to the same underlying identity.
+		return m_Crew[posIdx].GetPlayer().GetIdentity().GetId() == identity.GetId();
 	}
 
 	//! Performs transfer of player from world into vehicle on given position.

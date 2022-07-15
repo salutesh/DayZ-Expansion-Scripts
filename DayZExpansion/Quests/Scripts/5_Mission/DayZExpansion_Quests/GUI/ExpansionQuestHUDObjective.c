@@ -276,6 +276,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			}
 			break;
 		#endif
+			
+			case ExpansionQuestObjectiveType.ACTION:
+			{
+				QuestPrint(ToString() + "::SetEntryObjective - ACTION");
+				m_QuestHUDObjectiveController.ObjectiveTarget = "Action used: ";
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+				m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetActionState().ToString();
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				QuestPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
+			}
+			break;
 		}
 
 		QuestPrint(ToString() + "::SetEntryObjective - End");

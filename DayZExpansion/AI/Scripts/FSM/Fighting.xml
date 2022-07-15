@@ -186,6 +186,8 @@
 				
 				fsm.LastFireTime = GetGame().GetTime();
 				
+				unit.Expansion_GetUp();
+				
 				//! FIXME: Pistols fuck up the hand animation state.
 				//! Ugly workaround: Put away when entering melee.
 				auto hands = unit.GetItemInHands();

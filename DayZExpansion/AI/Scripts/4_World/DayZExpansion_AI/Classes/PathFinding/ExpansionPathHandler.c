@@ -14,6 +14,9 @@ class ExpansionPathHandler
 	ref ExpansionPathPoint m_Target;
 	ref ExpansionPathPoint m_TargetReference;
 
+	vector m_OverridePosition;
+	bool m_OverridingPosition;
+
 	int m_Count;
 	ref ExpansionPathPoint m_Next0;
 	ref ExpansionPathPoint m_Next1;
@@ -78,7 +81,7 @@ class ExpansionPathHandler
 		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
 		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 1.0);
 
-		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);
+		m_PathFilter.SetCost(PGAreaType.ROADWAY, 1.0);
 		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
 
 		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 1.0);
@@ -138,6 +141,27 @@ class ExpansionPathHandler
 
 		//vector hitPos;
 		//return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
+	}
+	
+	bool IsBlocked(vector start, vector end)
+	{
+		#ifdef EAI_TRACE
+		auto trace = CF_Trace_2(this, "IsBlocked").Add(start).Add(end);
+		#endif
+
+		vector hitPos;
+		vector hitNormal;
+		
+		return m_AIWorld.RaycastNavMesh(start, end, m_PathFilter, hitPos, hitNormal);
+	}
+	
+	bool IsBlocked(vector start, vector end, out vector hitPos, out vector hitNormal)
+	{
+		#ifdef EAI_TRACE
+		auto trace = CF_Trace_2(this, "IsBlocked").Add(start).Add(end);
+		#endif
+
+		return m_AIWorld.RaycastNavMesh(start, end, m_PathFilter, hitPos, hitNormal);
 	}
 
 	vector CalculateOffset()
@@ -608,6 +632,9 @@ class ExpansionPathHandler
 		auto trace = CF_Trace_1(this, "pPosition").Add(pPosition);
 #endif
 
+		if (m_OverridingPosition)
+			pPosition = m_OverridePosition;
+
 		vector oldPos = m_TargetReference.Position;
 
 		UpdatePoint(m_TargetReference, pPosition);
@@ -626,5 +653,21 @@ class ExpansionPathHandler
 		}
 
 		m_TargetReference.Position = inPos;
+	}
+
+	void OverridePosition(vector pPosition)
+	{
+		m_OverridePosition = pPosition;
+		m_OverridingPosition = true;
+	}
+
+	bool GetOverride()
+	{
+		return m_OverridingPosition;
+	}
+
+	void StopOverride()
+	{
+		m_OverridingPosition = false;
 	}
 };

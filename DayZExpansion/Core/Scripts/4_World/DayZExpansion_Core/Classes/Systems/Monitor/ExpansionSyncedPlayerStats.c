@@ -14,10 +14,23 @@
  * @brief		This class handles the sycronised player stats values
  **/
 
+enum ExpansionPlayerStanceStatus
+{
+	UNKNOWN,
+	STAND,
+	CROUCH,
+	PRONE,
+	CAR,
+	HELICOPTER,
+	BOAT,
+	DEAD,
+	UNCONSCIOUS
+}
+
 class ExpansionSyncedPlayerStates
 {
 	//! Not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
-	string m_ID;
+	string m_PlainID;
 	
 	int m_Bones;
 	int m_Sick;
@@ -27,33 +40,49 @@ class ExpansionSyncedPlayerStates
 	int m_Poison;
 	int m_Infection;
 	int m_Cuts;
-	int m_Stance;
-	ref array<int> m_States;
+	ExpansionPlayerStanceStatus m_Stance;
 
 	void OnSend(ParamsWriteContext ctx)
 	{
-		if (!m_States)
-			m_States = new array<int>;
-		
-		m_States = {m_Bones, m_Sick, m_Cholera, m_Influenza, m_Salmonella, m_Poison, m_Infection, m_Cuts, m_Stance};
-
-		ctx.Write(m_States);
+		ctx.Write(m_Bones);
+		ctx.Write(m_Sick);
+		ctx.Write(m_Cholera);
+		ctx.Write(m_Influenza);
+		ctx.Write(m_Salmonella);
+		ctx.Write(m_Poison);
+		ctx.Write(m_Infection);
+		ctx.Write(m_Cuts);
+		ctx.Write(m_Stance);
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		if (!ctx.Read(m_States));
+		if (!ctx.Read(m_Bones))
 			return false;
 		
-		m_Bones = m_States.Get(0);
-		m_Sick = m_States.Get(1);
-		m_Cholera = m_States.Get(2);
-		m_Influenza = m_States.Get(3);
-		m_Salmonella = m_States.Get(4);
-		m_Poison = m_States.Get(5);
-		m_Infection = m_States.Get(6);
-		m_Cuts = m_States.Get(7);
-		m_Stance = m_States.Get(8);
+		if (!ctx.Read(m_Sick))
+			return false;
+		
+		if (!ctx.Read(m_Cholera))
+			return false;
+		
+		if (!ctx.Read(m_Influenza))
+			return false;
+		
+		if (!ctx.Read(m_Salmonella))
+			return false;
+		
+		if (!ctx.Read(m_Poison))
+			return false;
+		
+		if (!ctx.Read(m_Infection))
+			return false;
+		
+		if (!ctx.Read(m_Cuts))
+			return false;
+		
+		if (!ctx.Read(m_Stance))
+			return false;
 
 		return true;
 	}
@@ -62,38 +91,47 @@ class ExpansionSyncedPlayerStates
 class ExpansionSyncedPlayerStats
 {
 	//! Not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
-	string m_ID;
+	string m_PlainID;
 
 	int m_Health;
 	int m_Blood;
 	int m_Water;
 	int m_Energy;
+
+	//! @note not synced for client player (can get synced values from StaminaHandler)
 	int m_Stamina;
+
+	//! @note not synced for client player (can just use GetStat)
 	float m_Distance;
 	float m_Playtime;
-	float m_PlayersKilled;
-	float m_InfectedKilled;
-	float m_AnimalsKilled;
+	int m_PlayersKilled;
+	int m_InfectedKilled;
+	int m_AnimalsKilled;
 	float m_LongestShot;
-	int m_Weight;
 
-	void OnSend(ParamsWriteContext ctx)
+	//! @note not synced (can calculate on client)
+	float m_Weight;
+
+	void OnSend(ParamsWriteContext ctx, bool includeRegisteredStats = false)
 	{
 		ctx.Write(m_Health);
 		ctx.Write(m_Blood);
 		ctx.Write(m_Water);
 		ctx.Write(m_Energy);
-		ctx.Write(m_Stamina);
-		ctx.Write(m_Distance);
-		ctx.Write(m_Playtime);
-		ctx.Write(m_PlayersKilled);
-		ctx.Write(m_InfectedKilled);
-		ctx.Write(m_AnimalsKilled);
-		ctx.Write(m_LongestShot);
-		ctx.Write(m_Weight);
+
+		if (includeRegisteredStats)
+		{
+			ctx.Write(m_Stamina);
+			ctx.Write(m_Distance);
+			ctx.Write(m_Playtime);
+			ctx.Write(m_PlayersKilled);
+			ctx.Write(m_InfectedKilled);
+			ctx.Write(m_AnimalsKilled);
+			ctx.Write(m_LongestShot);
+		}
 	}
 
-	bool OnRecieve( ParamsReadContext ctx )
+	bool OnRecieve( ParamsReadContext ctx, bool includeRegisteredStats = false )
 	{		
 		if (!ctx.Read(m_Health))
 			return false;
@@ -107,30 +145,45 @@ class ExpansionSyncedPlayerStats
 		if (!ctx.Read(m_Energy))
 			return false;
 		
-		if (!ctx.Read(m_Stamina))
-			return false;
-		
-		if (!ctx.Read(m_Distance))
-			return false;
-		
-		if (!ctx.Read(m_Playtime))
-			return false;
-		
-		if (!ctx.Read(m_PlayersKilled))
-			return false;
-		
-		if (!ctx.Read(m_InfectedKilled))
-			return false;
-		
-		if (!ctx.Read(m_AnimalsKilled))
-			return false;
-		
-		if (!ctx.Read(m_LongestShot))
-			return false;
-		
-		if (!ctx.Read(m_Weight))
-			return false;
+		if (includeRegisteredStats)
+		{
+			if (!ctx.Read(m_Stamina))
+				return false;
+			
+			if (!ctx.Read(m_Distance))
+				return false;
+			
+			if (!ctx.Read(m_Playtime))
+				return false;
+			
+			if (!ctx.Read(m_PlayersKilled))
+				return false;
+			
+			if (!ctx.Read(m_InfectedKilled))
+				return false;
+			
+			if (!ctx.Read(m_AnimalsKilled))
+				return false;
+			
+			if (!ctx.Read(m_LongestShot))
+				return false;
+		}
 
 		return true;
+	}
+
+	void Acquire(PlayerBase player)
+	{
+		m_Stamina = player.m_StaminaHandler.GetSyncedStaminaNormalized() * 100;
+
+		m_Distance = player.StatGet(AnalyticsManagerServer.STAT_DISTANCE);
+		m_Playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
+		m_PlayersKilled = player.StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
+		m_InfectedKilled = player.StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
+		m_AnimalsKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
+		m_LongestShot = player.StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
+
+		player.UpdateWeight();
+		m_Weight = player.GetWeight();
 	}
 };

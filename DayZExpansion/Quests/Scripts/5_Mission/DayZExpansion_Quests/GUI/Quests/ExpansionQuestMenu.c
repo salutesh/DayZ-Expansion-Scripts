@@ -22,12 +22,16 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	private Widget QuestDetailsPanel;
 	private ButtonWidget Accept;
 	private TextWidget AcceptLable;
+	private Widget AcceptBackground;
 	private ButtonWidget Complete;
 	private TextWidget CompleteLable;
+	private Widget CompleteBackground;
 	private ButtonWidget Cancel;
 	private TextWidget CancelLable;
+	private Widget CancelBackground;
 	private ButtonWidget Close;
 	private TextWidget CloseLable;
+	private Widget CloseBackground;
 	private WrapSpacerWidget ButtonsPanel;
 	
 	private TextWidget Reward;
@@ -122,7 +126,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		if (!m_SelectedQuest)
 			return;
 
-		m_QuestModule.AcceptQuestClient(m_SelectedQuest);
+		m_QuestModule.CreateQuestInstance(m_SelectedQuest.GetID());
 		CloseMenu();
 	}
 
@@ -327,19 +331,23 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		if (w == Accept)
 		{
-			AcceptLable.SetColor(ARGB(255, 220, 220, 220));
+			AcceptBackground.SetColor(ARGB(200, 220, 220, 220));
+			AcceptLable.SetColor(ARGB(255, 0, 0, 0));
 		}
 		else if (w == Complete)
 		{
-			CompleteLable.SetColor(ARGB(255, 220, 220, 220));
+			CompleteBackground.SetColor(ARGB(200, 220, 220, 220));
+			CompleteLable.SetColor(ARGB(255, 0, 0, 0));
 		}
 		else if (w == Cancel)
 		{
-			CancelLable.SetColor(ARGB(255, 220, 220, 220));
+			CancelBackground.SetColor(ARGB(200, 220, 220, 220));
+			CancelLable.SetColor(ARGB(255, 0, 0, 0));
 		}
 		else if (w == Close)
 		{
-			CloseLable.SetColor(ARGB(255, 220, 220, 220));
+			CloseBackground.SetColor(ARGB(200, 220, 220, 220));
+			CloseLable.SetColor(ARGB(255, 0, 0, 0));
 		}
 
 		return super.OnMouseEnter(w, x, y);;
@@ -349,19 +357,23 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		if (w == Accept)
 		{
-			AcceptLable.SetColor(ARGB(255, 0, 0, 0));
+			AcceptBackground.SetColor(ARGB(200, 0, 0, 0));
+			AcceptLable.SetColor(ARGB(255, 220, 220, 220));
 		}
 		else if (w == Complete)
 		{
-			CompleteLable.SetColor(ARGB(255, 0, 0, 0));
+			CompleteBackground.SetColor(ARGB(200, 0, 0, 0));
+			CompleteLable.SetColor(ARGB(255, 220, 220, 220));
 		}
 		else if (w == Cancel)
 		{
-			CancelLable.SetColor(ARGB(255, 0, 0, 0));
+			CancelBackground.SetColor(ARGB(200, 0, 0, 0));
+			CancelLable.SetColor(ARGB(255, 220, 220, 220));
 		}
 		else if (w == Close)
 		{
-			CloseLable.SetColor(ARGB(255, 0, 0, 0));
+			CloseBackground.SetColor(ARGB(200, 0, 0, 0));
+			CloseLable.SetColor(ARGB(255, 220, 220, 220));
 		}
 
 		return super.OnMouseLeave(w, enterW, x, y);

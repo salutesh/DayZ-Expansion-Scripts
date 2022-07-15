@@ -13,7 +13,6 @@ class CfgPatches
 class CfgVehicles
 {
 	class Hammer;
-	class Inventory_Base;
 	class HouseNoDestruct;
 	class ExpansionDebugCylinder: HouseNoDestruct
 	{
@@ -26,7 +25,7 @@ class CfgVehicles
 		displayName = "Admin Hammer";
 		expansionIsAdminTool = 1;
 	};
-	class ExpansionDebugRod: Inventory_Base
+	class ExpansionDebugRod: HouseNoDestruct
 	{
 		scope = 2;
 		model = "DayZExpansion\Objects\Structures\Debug\DebugRod.p3d";

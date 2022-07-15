@@ -39,7 +39,7 @@ modded class LoadingScreen
 #endif
 
 		m_Backgrounds = ExpansionLoadingScreenBackgrounds.Get();
-		JsonFileLoader< ref array< ref ExpansionLoadingScreenMessageData > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingMessages.json", m_MessageJson );
+		JsonFileLoader< array< ref ExpansionLoadingScreenMessageData > >.JsonLoadFile( "DayZExpansion/Scripts/Data/LoadingMessages.json", m_MessageJson );
 
 		if (m_WidgetRoot)
 		{

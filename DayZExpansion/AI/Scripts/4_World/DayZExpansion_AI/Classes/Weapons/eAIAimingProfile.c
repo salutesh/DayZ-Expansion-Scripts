@@ -1,13 +1,16 @@
-typedef Param6<int, bool, int, int, vector, vector> eAIAimingProfile_SyncParams;
+//typedef Param6<int, bool, int, int, vector, vector> eAIAimingProfile_SyncParams;
+typedef Param2<vector, vector> eAIAimingProfile_SyncParams;
 
 class eAIAimingProfile
 {
+	static vector s_Position = "0 1.5 0";
+
 	Man m_Arbiter;
 
 	EntityAI m_Hands;
 	eAIBase m_Player;
 
-	int m_LastUpdated;
+	//int m_LastUpdated;
 
 	// model space position and direction, re-calculate worldspace on action
 	vector m_Position;
@@ -30,7 +33,7 @@ class eAIAimingProfile
 #endif
 
 		m_Hands = m_Player.GetHumanInventory().GetEntityInHands();
-		m_LastUpdated = GetGame().GetTime();
+		//m_LastUpdated = GetGame().GetTime();
 
 		Weapon_Base weapon;
 		if (Class.CastTo(weapon, m_Hands))
@@ -69,16 +72,47 @@ class eAIAimingProfile
 		// m_Player.GetHealth("","");
 		// m_Player.GetStatHeatComfort().Get(); <= freezing ?
 		// m_Player.GetAimingModel().GetSwayWeight();
-		float accuracy = Math.RandomFloat(m_Accuracy_Min, m_Accuracy_Max);
+		float accuracy = 1.0;  //! Default accuracy for Zs and animals
 
-		//! Lerp to adjust accuracy
-		position = vector.Lerp(m_Position, "0 1.5 0", accuracy).Multiply4(transform);
+		position = s_Position.Multiply4(transform);
 
 		//! 100% guarantee to hit target
-		vector aimDirection = vector.Direction(position, m_Player.GetAimPosition()).Normalized();
+		direction = vector.Direction(position, m_Player.GetAimPosition());
 
-		//! Lerp to adjust accuracy
-		direction = vector.Lerp(m_Direction.Multiply3(transform), aimDirection, accuracy);
+		if (m_Player.GetTarget().GetEntity().IsInherited(PlayerBase))
+		{
+			//! More complex accuracy if target is a player/AI
+
+			float distSq = direction.LengthSq();
+
+			float accuracyMin = m_Accuracy_Min;
+			float accuracyMax = m_Accuracy_Max;
+
+			m_Hands = m_Player.GetHumanInventory().GetEntityInHands();
+			Weapon_Base weapon;
+			ItemOptics optics;
+			if (accuracyMin < 1 && Class.CastTo(weapon, m_Hands) && Class.CastTo(optics, weapon.GetAttachmentByType(ItemOptics)))
+			{
+				float zoomMin = optics.GetZeroingDistanceZoomMin();
+				float zoomMax = optics.GetZeroingDistanceZoomMax();
+				float zoomMinSq = zoomMin * zoomMin;
+				float zoomMaxSq = zoomMax * zoomMax;
+
+				//! If target distance is within zeroing range, give accuracy bonus.
+				//! Gradual dropoff due to squared values.
+				if (zoomMaxSq > 0 && distSq >= zoomMinSq)
+				{
+					accuracyMin = ExpansionMath.LinearConversion(0, zoomMaxSq + zoomMinSq, distSq, accuracyMax, accuracyMin);
+					if (distSq <= zoomMaxSq)
+						accuracyMax = ExpansionMath.LinearConversion(zoomMinSq, zoomMaxSq, distSq, 1.0, accuracyMax);
+				}
+			}
+
+			accuracy = Math.RandomFloat(accuracyMin, accuracyMax);
+
+			//! Lerp to adjust accuracy
+			direction = vector.Lerp(m_Direction.Multiply3(transform), direction.Normalized(), accuracy);
+		}
 
 		//if (verify && GetGame().GetTime() - m_LastUpdated > 1000.0) return false;
 
@@ -118,49 +152,53 @@ class eAIAimingProfile
 
 		if (GetGame().IsServer()) return;
 
-		int low, high;
-		bool hasHands = m_Hands != null;
-		if (hasHands)
-		{
-			m_Hands.GetNetworkID(low, high);
-		}
+		//int low, high;
+		//bool hasHands = m_Hands != null;
+		//if (hasHands)
+		//{
+			//m_Hands.GetNetworkID(low, high);
+		//}
 		
-		auto syncParams = new eAIAimingProfile_SyncParams(m_LastUpdated, hasHands, low, high, m_Position, m_Direction);
+		//auto syncParams = new eAIAimingProfile_SyncParams(m_LastUpdated, hasHands, low, high, m_Position, m_Direction);
+		auto syncParams = new eAIAimingProfile_SyncParams(m_Position, m_Direction);
 
 		GetRPCManager().SendRPC("eAIAimingProfileManager", "OnSync", syncParams, false, null, m_Player);
 	}
 
+	//! TODO: Unused, remove?
 	void Serialize(ParamsWriteContext ctx)
 	{
-		ctx.Write(m_LastUpdated);
+		//ctx.Write(m_LastUpdated);
 
-		ctx.Write(m_Hands != null);
-		if (m_Hands)
-		{
-			int low, high;
-			m_Hands.GetNetworkID(low, high);
-			ctx.Write(low);
-			ctx.Write(high);
-		}
+		//ctx.Write(m_Hands != null);
+		//if (m_Hands)
+		//{
+			//int low, high;
+			//m_Hands.GetNetworkID(low, high);
+			//ctx.Write(low);
+			//ctx.Write(high);
+		//}
 
 		ctx.Write(m_Position);
 		ctx.Write(m_Direction);
 	}
 
+	//! TODO: Unused, remove?
 	void Deserialize(ParamsReadContext ctx)
 	{
-		ctx.Read(m_LastUpdated);
+		//ctx.Read(m_LastUpdated);
 
-		bool hasHands;
-		ctx.Read(hasHands);
-		if (hasHands)
-		{
-			int low, high;
-			ctx.Read(low);
-			ctx.Read(high);
+		//bool hasHands;
+		//ctx.Read(hasHands);
+		//if (hasHands)
+		//{
+			//int low, high;
+			//ctx.Read(low);
+			//ctx.Read(high);
 			
-			Class.CastTo(m_Hands, GetGame().GetObjectByNetworkId(low, high));
-		}
+			//! @note GetObjectByNetworkId is SLOW on server, don't use there!
+			//Class.CastTo(m_Hands, GetGame().GetObjectByNetworkId(low, high));
+		//}
 
 		ctx.Read(m_Position);
 		ctx.Read(m_Direction);

@@ -69,7 +69,7 @@ class ExpansionAIPatrolManager
             }
 
             ObjectPatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots near "+patrol.ClassName+" at "+startpos);
-            return eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, -1, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+            return eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, -1, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
 
         return NULL;
@@ -167,7 +167,7 @@ class ExpansionAIPatrolManager
             }
 
             PatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots at "+startpos);
-            eAIDynamicPatrol.CreateEx(startpos, patrol.GetWaypoints(), patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, eAIFaction.Create(patrol.Faction), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+            eAIDynamicPatrol.CreateEx(startpos, patrol.GetWaypoints(), patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         }
         PatrolLog("=================== Patrol Spawner END ===================");
     }

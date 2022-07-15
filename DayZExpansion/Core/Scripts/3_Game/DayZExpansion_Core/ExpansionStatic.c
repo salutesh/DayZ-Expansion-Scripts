@@ -26,7 +26,12 @@ static bool Expansion_Assert_False( bool check, string message )
 // -----------------------------------------------------------
 static void EXPrint( string s, string prefix = " [EXPANSION DEBUG]: " )
 {
-	Print( ExpansionStatic.GetTimestamp() + prefix + s );
+	PrintFormat("%1%2%3", ExpansionStatic.GetTimestamp(), prefix, s );
+}
+
+static void EXPrint( Class instance, string s, string prefix = " [EXPANSION DEBUG]: " )
+{
+	PrintFormat("%1%2%3 %4", ExpansionStatic.GetTimestamp(), prefix, instance.ToString(), s );
 }
 
 // -----------------------------------------------------------
@@ -35,6 +40,11 @@ static void EXPrint( string s, string prefix = " [EXPANSION DEBUG]: " )
 static void EXLogPrint( string s )
 {
 	EXPrint( s, " [EXPANSION LOG]: " );
+}
+
+static void EXLogPrint( Class instance, string s )
+{
+	EXPrint( instance, s, " [EXPANSION LOG]: " );
 }
 
 // -----------------------------------------------------------
@@ -285,6 +295,50 @@ class ExpansionStatic
 	static bool ItemExists(string type_name)
 	{
 		return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
+	}
+
+	//! Inheritance check, case insensitive for cfg class; equality check, case sensitive for script class (if not empty string)
+	static bool IsAnyOf(string cfg_class_name, TStringArray cfg_parent_names, string script_class_name = string.Empty)
+	{
+		bool check_script_class_name = script_class_name != string.Empty && script_class_name != cfg_class_name;
+		foreach (string cfg_parent_name: cfg_parent_names)
+		{
+			if (check_script_class_name && cfg_parent_name == script_class_name)
+				return true;
+			if (GetGame().IsKindOf(cfg_class_name, cfg_parent_name))
+				return true;
+		}
+		return false;
+	}
+
+	static bool IsAnyOf(Object obj, TStringArray cfg_parent_names, bool check_script_class_name = false)
+	{
+		string script_class_name;
+		if (check_script_class_name)
+			script_class_name = obj.ClassName();
+		return IsAnyOf(obj.GetType(), cfg_parent_names, script_class_name);
+	}
+
+	//! Equality check based on typename
+	static bool IsAnyOf(typename type, TTypenameArray parent_types)
+	{
+		foreach (typename parent_type: parent_types)
+		{
+			if (type == parent_type)
+				return true;
+		}
+		return false;
+	}
+
+	//! Inheritance check based on instance
+	static bool IsAnyOf(Class instance, TTypenameArray parent_types)
+	{
+		foreach (typename parent_type: parent_types)
+		{
+			if (instance.IsInherited(parent_type))
+				return true;
+		}
+		return false;
 	}
 
 	//! TODO: Maybe use CF_Byte after next CF update?
@@ -930,6 +984,20 @@ class ExpansionStatic
 	static bool INPUT_STANCE()
 	{
    		return GetGame().GetInput().LocalPress( "UAStance", false );
+	}
+
+	static void MessageNearPlayers(vector position, float radius, string msg)
+	{
+		float radiusSq = radius * radius;
+		array<Man> players();
+		GetGame().GetPlayers(players);
+		foreach (Man player: players)
+		{
+			if (vector.DistanceSq(position, player.GetPosition()) < radiusSq)
+			{
+				GetGame().RPCSingleParam(player, ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>(msg), true, player.GetIdentity());
+			}
+		}
 	}
 
 	static vector GetSurfacePosition(vector position)

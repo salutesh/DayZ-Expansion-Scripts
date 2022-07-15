@@ -17,67 +17,35 @@ class ExpansionSettings
 	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
 
-	protected autoptr ExpansionDebugSettings m_SettingsDebug;
-	protected autoptr ExpansionLogSettings m_SettingsLog;
-	protected autoptr ExpansionSafeZoneSettings m_SettingsSafeZone;
-	protected autoptr ExpansionNotificationSettings m_SettingsNotification;
-
-	protected autoptr ExpansionMonitoringSettings m_SettingsMonitoring;
-
 	protected bool m_GameInit = false;
 
-	protected bool m_SettingsLoaded;
-	protected bool m_Debug;
-	protected ref TStringArray m_NetworkedSettings;
-	
-	// ------------------------------------------------------------
-	// Expansion OnServerInit
-	// ------------------------------------------------------------
-	protected void OnServerInit()
+	protected ref map<typename, ref ExpansionSettingBase> m_Settings = new map<typename, ref ExpansionSettingBase>;
+	protected autoptr array<ExpansionSettingBase> m_SettingsOrdered = new array<ExpansionSettingBase>;
+	protected ref map<typename, int> m_Warnings = new map<typename, int>;
+
+	void ServerInit()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
-#endif
+		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
 
-		if ( FileExist( EXPANSION_SETTINGS_FOLDER ) && IsMissionClient() )
+		Init();
+
+		foreach (ExpansionSettingBase setting: m_SettingsOrdered)
 		{
-			DeleteFile( EXPANSION_SETTINGS_FOLDER );
+			Load(setting);
 		}
-		
-		if ( FileExist( EXPANSION_LOG_FOLDER ) && IsMissionClient() )
-		{
-			DeleteFile( EXPANSION_LOG_FOLDER );
-		}
-
-		LoadSetting( m_SettingsDebug );
-		LoadSetting( m_SettingsLog);
-		LoadSetting( m_SettingsSafeZone );
-		LoadSetting( m_SettingsNotification );
-
-		LoadSetting( m_SettingsMonitoring );
-
-		m_NetworkedSettings.Insert( "expansiondebugsettings" );
-		m_NetworkedSettings.Insert( "expansionlogsettings" );
-		m_NetworkedSettings.Insert( "expansionnotificationsettings" );
-		
-		m_SettingsLoaded = true;
 	}
 
-	// ------------------------------------------------------------
 	void Unload()
 	{
-		m_SettingsDebug.Unload();
-		m_SettingsLog.Unload();
-		m_SettingsSafeZone.Unload();
-		m_SettingsNotification.Unload();
+		auto trace = EXTrace.StartStack(EXTrace.ENABLE, this);
 
-		m_SettingsMonitoring.Unload();
+		foreach (ExpansionSettingBase setting: m_SettingsOrdered)
+		{
+			setting.Unload();
+		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion LoadSetting
-	// ------------------------------------------------------------
-	void LoadSetting( ExpansionSettingBase setting )
+
+	void Load(ExpansionSettingBase setting)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "LoadSetting");
@@ -92,126 +60,57 @@ class ExpansionSettings
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Expansion OnClientInit
-	// ------------------------------------------------------------
-	protected void OnClientInit()
+	bool IsLoaded(typename type)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnClientInit");
-#endif
-
-		m_SettingsLoaded = false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsSettingsLoaded
-	// ------------------------------------------------------------
-	bool IsSettingsLoaded()
-	{
-		return m_SettingsLoaded;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsSettingLoaded
-	// ------------------------------------------------------------
-	bool IsSettingLoaded( ExpansionSettingBase setting, out bool settingsLoaded )
-	{
-		string name = setting.ClassName();
-		name.ToLower();
-
-		if ( m_NetworkedSettings.Find( name ) > -1 )
+		ExpansionSettingBase setting;
+		if (m_Settings.Find(type, setting))
 		{
-			if ( !setting.IsLoaded() )
-			{
-				settingsLoaded = false;
-
-				return false;
-			}
-			
-			return true;
+			if (setting.IsLoaded())
+				return true;
 		}
 
-		return true;
+		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion CheckSettingsLoaded
-	// Called on Client
-	// ------------------------------------------------------------
-	protected void CheckSettingsLoaded()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CheckSettingsLoaded");
-#endif
 
-		if ( !IsMissionClient() )
-		{
-			m_SettingsLoaded = true;
-
-			return;
-		}
-
-		if ( m_SettingsLoaded )
-			return;
-		
-		if ( !IsSettingLoaded( m_SettingsDebug, m_SettingsLoaded ) )
-			return;
-		
-		if ( !IsSettingLoaded( m_SettingsLog, m_SettingsLoaded ) )
-			return;
-
-		if ( !IsSettingLoaded( m_SettingsSafeZone, m_SettingsLoaded ) )
-			return;
-
-		if ( !IsSettingLoaded( m_SettingsNotification, m_SettingsLoaded ) )
-			return;
-
-		if ( !IsSettingLoaded( m_SettingsMonitoring, m_SettingsLoaded ) )
-			return;
-
-		m_SettingsLoaded = true;
-	}
-	
-	// ------------------------------------------------------------
-	// Override Init
-	// ------------------------------------------------------------
 	void Init()
 	{
-		m_SettingsDebug = new ExpansionDebugSettings;
-		m_SettingsLog = new ExpansionLogSettings;
-		m_SettingsSafeZone = new ExpansionSafeZoneSettings;
-		m_SettingsNotification = new ExpansionNotificationSettings;
+		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
 
-		m_SettingsMonitoring = new ExpansionMonitoringSettings;
+		Init(ExpansionDebugSettings);
+		Init(ExpansionLogSettings);
+		Init(ExpansionSafeZoneSettings);
+		Init(ExpansionNotificationSettings);
+		Init(ExpansionMonitoringSettings);
+	}
 
-		m_NetworkedSettings = new TStringArray;
+	void Init(typename type)
+	{
+		if (!m_Settings.Contains(type))
+		{
+			auto setting = ExpansionSettingBase.Cast(type.Spawn());
+			m_Settings.Insert(type, setting);
+			m_SettingsOrdered.Insert(setting);
+		}
 	}
 
 	void GameInit()
 	{
+		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
+
 		if (m_GameInit)
 		{
 			Unload();
 
 			m_GameInit = false;
 		}
-
-		if ( GetGame().IsMissionMainMenu() )
-			return;
-
-		if ( IsMissionHost() )  //! Server and offline mode
-			OnServerInit();
 		else
-			OnClientInit();
+		{
+			m_GameInit = true;
+		}
 
-		m_GameInit = true;
+		Init();
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Send
-	// Can only be called on the server.
-	// ------------------------------------------------------------
+
 	void Send( notnull PlayerIdentity identity )
 	{
 #ifdef EXPANSIONTRACE
@@ -221,18 +120,12 @@ class ExpansionSettings
 		if ( IsMissionClient() )
 			return;
 
-		ScriptRPC rpc = new ScriptRPC;
-		rpc.Write( m_NetworkedSettings );
-		rpc.Send( NULL, ExpansionSettingsRPC.ListToLoad, true, identity );
-
-		m_SettingsDebug.Send( identity );
-		m_SettingsLog.Send( identity );
-		m_SettingsNotification.Send( identity );
+		foreach (ExpansionSettingBase setting: m_SettingsOrdered)
+		{
+			setting.Send(identity);
+		}
 	}
-	
-	// ------------------------------------------------------------
-	// OnRPC
-	// ------------------------------------------------------------
+
 	bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 #ifdef EXPANSIONTRACE
@@ -244,55 +137,39 @@ class ExpansionSettings
 		
 		switch ( rpc_type )
 		{
-			case ExpansionSettingsRPC.ListToLoad:
-			{
-				RPC_ListToLoad( ctx, sender, target );
-
-				return true;
-			}
-			
 			case ExpansionSettingsRPC.Debug:
 			{
-				Expansion_Assert_False( m_SettingsDebug.OnRecieve( ctx ), "Failed reading Debug settings" );
-
+				Receive(ExpansionDebugSettings, ctx);
 				return true;
 			}
 			
 			case ExpansionSettingsRPC.Log:
 			{
-				Expansion_Assert_False( m_SettingsLog.OnRecieve( ctx ), "Failed reading Log settings" );
-
+				Receive(ExpansionLogSettings, ctx);
 				return true;
 			}
 			
 			case ExpansionSettingsRPC.Notification:
 			{
-				Expansion_Assert_False( m_SettingsNotification.OnRecieve( ctx ), "Failed reading Notification settings" );
-
+				Receive(ExpansionNotificationSettings, ctx);
 				return true;
 			}
 		}
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion RPC_ListToLoad
-	// Called on client
-	// ------------------------------------------------------------
-	private void RPC_ListToLoad( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
+
+	void Receive(typename type, ParamsReadContext ctx)
 	{
-		TStringArray listToLoads = new TStringArray;
-		if ( !ctx.Read( listToLoads ) )
+		auto trace = EXTrace.Start(EXTrace.ENABLE, this, type.ToString());
+
+		if (GetGame().IsDedicatedServer())
 			return;
 
-		m_NetworkedSettings = listToLoads;
+		Init(type);
+		Expansion_Assert_False(m_Settings[type].OnRecieve(ctx), "Failed reading " + type.ToString() );
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Save
-	// Called on server
-	// ------------------------------------------------------------
+
 	void Save()
 	{
 #ifdef EXPANSIONTRACE
@@ -301,52 +178,67 @@ class ExpansionSettings
 
 		if ( IsMissionHost() && GetGame().IsMultiplayer() )
 		{
-			m_SettingsDebug.Save();
-			m_SettingsLog.Save();
-			m_SettingsSafeZone.Save();
-			m_SettingsNotification.Save();
-			m_SettingsMonitoring.Save();
+			foreach (ExpansionSettingBase setting: m_SettingsOrdered)
+			{
+				setting.Save();
+			}
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion ExpansionDebugSettings GetDebug
-	// ------------------------------------------------------------
-	ExpansionDebugSettings GetDebug()
+	ExpansionSettingBase Get(typename type, bool checkLoaded = true)
 	{
-		return m_SettingsDebug;
+		auto setting = m_Settings[type];
+		if (checkLoaded && setting && !setting.IsLoaded() && (!GetGame().GetMission() || GetGame().GetMission().IsGame() || GetGame().GetMission().IsServer()))
+			WarnNotLoaded(type);
+
+		return setting;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionLogSettings GetLog
-	// ------------------------------------------------------------
-	ExpansionLogSettings GetLog()
+
+	private void WarnNotLoaded(typename type)
 	{
-		return m_SettingsLog;
+		int count;
+		if (!m_Warnings.Find(type, count))
+			m_Warnings.Insert(type, 1);
+		else
+			m_Warnings[type] = ++count;
+
+		if (count % 10 == 0)
+		{
+			string suffix;
+			if (count)
+				suffix = " (there have been " + count + " more suppressed warnings)";
+			if (GetGame().IsServer())
+				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
+			else
+				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been received!" + suffix);
+			EXTrace trace = EXTrace.StartStack(true);
+			trace.SetStart(5);
+		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionSafeZoneSettings GetSafeZone
-	// ------------------------------------------------------------
-	ExpansionSafeZoneSettings GetSafeZone()
+
+	ExpansionDebugSettings GetDebug(bool checkLoaded = true)
 	{
-		return m_SettingsSafeZone;
+		return ExpansionDebugSettings.Cast(Get(ExpansionDebugSettings, checkLoaded));
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionNotificationSettings GetNotification
-	// ------------------------------------------------------------
-	ExpansionNotificationSettings GetNotification()
+
+	ExpansionLogSettings GetLog(bool checkLoaded = true)
 	{
-		return m_SettingsNotification;
+		return ExpansionLogSettings.Cast(Get(ExpansionLogSettings, checkLoaded));
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionNotificationSettings GetMonitoring
-	// ------------------------------------------------------------
-	ExpansionMonitoringSettings GetMonitoring()
+
+	ExpansionSafeZoneSettings GetSafeZone(bool checkLoaded = true)
 	{
-		return m_SettingsMonitoring;
+		return ExpansionSafeZoneSettings.Cast(Get(ExpansionSafeZoneSettings, checkLoaded));
+	}
+
+	ExpansionNotificationSettings GetNotification(bool checkLoaded = true)
+	{
+		return ExpansionNotificationSettings.Cast(Get(ExpansionNotificationSettings, checkLoaded));
+	}
+
+	ExpansionMonitoringSettings GetMonitoring(bool checkLoaded = true)
+	{
+		return ExpansionMonitoringSettings.Cast(Get(ExpansionMonitoringSettings, checkLoaded));
 	}
 };
 
@@ -357,8 +249,6 @@ static ExpansionSettings GetExpansionSettings()
 	if ( g_exGlobalSettings == NULL )
 	{
 		g_exGlobalSettings = new ExpansionSettings();
-
-		g_exGlobalSettings.Init();
 	}
 
 	return g_exGlobalSettings;

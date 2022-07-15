@@ -188,9 +188,12 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void RefreshChatMessages()
 	{
-		for (int i = 0; i < m_ChatLines.Count(); i++)
+		int count = m_ChatLines.Count();
+		if (count != m_MaxChatMessages)  //! Still creating chat lines
+			return;
+		for (int i = 0; i < count; i++)
 		{
-			int idx = m_MaxChatMessages - (i + 1);
+			int idx = count - (i + 1);
 
 			if (i < m_ChatParams.Count())
 			{

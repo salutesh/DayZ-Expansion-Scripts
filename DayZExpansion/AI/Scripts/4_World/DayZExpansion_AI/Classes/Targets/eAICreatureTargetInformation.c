@@ -30,11 +30,18 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 		if (ai)
 		{
 			// the further away the creature, the less likely it will be a threat
-			float distance = GetDistance(ai) + 0.01;
+			float distance = GetDistance(ai) + DISTANCE_COEF;
 			levelFactor = 10 / distance;
+
+			if (levelFactor > 0.4)
+			{
+				auto hands = ai.GetHumanInventory().GetEntityInHands();
+				if (hands)
+					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
+			}
 		}
 
-		return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
+		return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
 	}
 
 	override bool ShouldRemove(eAIBase ai = null)

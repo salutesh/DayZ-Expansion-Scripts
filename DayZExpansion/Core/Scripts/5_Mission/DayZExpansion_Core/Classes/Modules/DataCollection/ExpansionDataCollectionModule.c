@@ -13,6 +13,7 @@
 /**@class		ExpansionDataCollectionModule
  * @brief		This class handles the data collection system
  **/
+//! TODO: Get rid of RPCs and use SyncPlayerList on client
 [CF_RegisterModule(ExpansionDataCollectionModule)]
 class ExpansionDataCollectionModule: CF_ModuleWorld
 {
@@ -87,16 +88,13 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		
 		string playerUID = player.GetIdentity().GetId();
 		ExpansionPlayerDataCollection playerData;
-		if (m_PlayerData.Find(playerUID, playerData))
-		{
-			playerData.SetFromPlayerBase(player);
-		}
-		else
+		if (!m_PlayerData.Find(playerUID, playerData))
 		{
 			playerData = new ExpansionPlayerDataCollection();
-			playerData.SetFromPlayerBase(player);
 			m_PlayerData.Insert(playerUID, playerData);
 		}
+
+		playerData.SetFromPlayerBase(player);
 	}
 	
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
@@ -121,10 +119,8 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		if (!IsMissionHost())
 			return;
 		
-		ExpansionPlayerDataCollection playerData;
-		if (m_PlayerData.Get(playerUID))
+		if (m_PlayerData.Contains(playerUID))
 		{
-			playerData = m_PlayerData.Get(playerUID);
 			m_PlayerData.Remove(playerUID);
 		}
 	}
@@ -153,12 +149,12 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		int playersClount = m_PlayerData.Count();
 		rpc.Write(playersClount);
 	
-		foreach (auto player: m_PlayerData)
+		foreach (auto playerData: m_PlayerData)
 		{
-			if (!player)
+			if (!playerData)
 				continue;
 			
-			player.OnSend(rpc);
+			playerData.OnSend(rpc);
 		}
 		
  		rpc.Send(NULL, ExpansionDataCollectionRPC.SendPlayerData, false, sender);
@@ -198,38 +194,23 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		if (Expansion_Assert_False(ctx.Read(playerUID), "Failed to read player UID"))
 			return false;
 
-		ExpansionPlayerDataCollection player = m_PlayerData.Get(playerUID);
-		if (!player)
+		ExpansionPlayerDataCollection playerData;
+		if (!m_PlayerData.Find(playerUID, playerData))
 		{
-			player = new ExpansionPlayerDataCollection();
-			player.PlayerUID = playerUID;
+			playerData = new ExpansionPlayerDataCollection();
+			playerData.PlayerUID = playerUID;
+			m_PlayerData.Insert(playerUID, playerData);
 		}
 
-		if (Expansion_Assert_False(player.OnRecieve(ctx), "Failed to read player data"))
+		if (Expansion_Assert_False(playerData.OnRecieve(ctx), "Failed to read player data"))
 			return false;
 		
-		m_PlayerData.Insert(playerUID, player);
 		return true;
 	}
 	
 	map <string, ref ExpansionPlayerDataCollection> GetAllPlayers()
 	{
 		return m_PlayerData;
-	}
-	
-	bool IsPlayerOnline(string uid)
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
-
-		foreach (string playerUID,  ExpansionPlayerDataCollection playerData: m_PlayerData)
-		{
-			if (playerData.PlayerUID == uid)
-			{
-				return true;
-			}
-		}
-		
-		return false;
 	}
 };
 

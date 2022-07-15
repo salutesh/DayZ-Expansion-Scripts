@@ -338,66 +338,34 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			
 		string playerID = GetGame().GetPlayer().GetIdentity().GetId();
 		ExpansionATMMenuPlayerEntry entry;
-		SyncPlayer playerSync;
 		int i;
 		string playerName;
 		
+		set<ref SyncPlayer> players;
 		if (GetExpansionSettings().GetMarket().UseWholeMapForATMPlayerList)
 		{
-			for (i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); ++i)
-			{
-				playerSync = ClientData.m_PlayerList.m_PlayerList[i];
-				
-				if (!playerSync)
-					continue;
-					
-				if (filter != "")
-				{
-					playerName = playerSync.m_PlayerName;
-					playerName.ToLower();
-		
-					if (playerName.IndexOf(filter) == -1)
-						continue;
-				}
-				
-				if (playerSync && playerSync.m_RUID != "" && playerSync.m_RUID != playerID)
-				{
-					AddPlayerEntry(playerSync);
-				}
-			}
+			players = SyncPlayer.Expansion_GetAll();
 		}
 		else
 		{
-			array<PlayerIdentity> identitys = GetNearbyPlayerIdentitys(player.GetPosition(), m_PlayerSearchRadius);			
-			if (!identitys)
+			players = SyncPlayer.Expansion_GetInSphere(player.GetPosition(), m_PlayerSearchRadius);
+		}
+
+		foreach (SyncPlayer playerSync: players)
+		{
+			if (playerSync.m_RUID == playerID)
+				continue;
+
+			if (filter != "")
 			{
-				return;
+				playerName = playerSync.m_PlayerName;
+				playerName.ToLower();
+	
+				if (playerName.IndexOf(filter) == -1)
+					continue;
 			}
-			
-			for (i = 0; i < identitys.Count(); ++i)
-			{
-				for (int k = 0; k < ClientData.m_PlayerList.m_PlayerList.Count(); ++k)
-				{				
-					playerSync = ClientData.m_PlayerList.m_PlayerList[k];
-					
-					if (!playerSync)
-						continue;
-					
-					if (filter != "")
-					{
-						playerName = playerSync.m_PlayerName;
-						playerName.ToLower();
-			
-						if (playerName.IndexOf(filter) == -1)
-							continue;
-					}
-										
-					if (playerSync && playerSync.m_RUID == identitys[i].GetId() && playerSync.m_RUID != playerID)
-					{
-						AddPlayerEntry(playerSync);
-					}
-				}
-			}
+
+			AddPlayerEntry(playerSync);
 		}
 	}
 	
@@ -705,32 +673,6 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		}
 		
 		return super.OnMouseLeave(w, enterW, x, y);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetNearbyPlayerIdentitys
-	// ------------------------------------------------------------
-	array<PlayerIdentity> GetNearbyPlayerIdentitys(vector position, int radius)
-	{
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase>;
-		array<PlayerIdentity> identitys = new array<PlayerIdentity>;
-		
-		GetGame().GetObjectsAtPosition(position, radius, objects, proxyCargos);
-		
-		if (objects.Count() > 0)
-		{
-			foreach (Object obj : objects)
-			{
-				PlayerBase player;
-				if (Class.CastTo(player, obj))
-				{
-					identitys.Insert(player.GetIdentity());
-				}
-			}
-		}
-		
-		return identitys;
 	}
 };
 

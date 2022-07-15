@@ -14,7 +14,6 @@
 class ExpansionBookMenuTabPartyPlayerEntry: ExpansionScriptView
 {
 	ref ExpansionBookMenuTabParty m_PartyTab;
-	PlayerIdentity m_Identity;
 	ref SyncPlayer m_Player;
 	ref ExpansionBookMenuTabPartyPlayerEntryController m_EntryController;
 	

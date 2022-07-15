@@ -77,6 +77,9 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 			waypoints.Insert(waypoint);
 		}
 
+		if (WaypointInterpolation)
+			return PathInterpolated(waypoints, typename.StringToEnum(ECurveType, WaypointInterpolation));
+
 		return waypoints;
 	}
 };

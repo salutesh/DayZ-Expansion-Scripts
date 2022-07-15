@@ -168,7 +168,7 @@ class CfgMagazines
 		scope = 2;
 		itemSize[] = {4,2};
 		displayName = "$STR_EXPANSION_RPG7_WARHEAD";
-		descriptionShort = "$STR_CfgMagazines_Ammo_LAW_HE1";
+		descriptionShort = "$STR_EXPANSION_RPG7_WARHEAD_DESC";
 		model = "DayZExpansion\Objects\Weapons\Firearms\RPG7\fx\rpg7_ammoheat_round.p3d";
 		rotationFlags = 34;
 		weight = 1800;

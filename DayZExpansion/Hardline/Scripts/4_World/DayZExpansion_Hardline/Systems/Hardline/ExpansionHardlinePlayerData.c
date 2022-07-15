@@ -103,48 +103,48 @@ class ExpansionHardlinePlayerData
 		int rank = 0;
 		if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
 		{
-			if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
+			if (Humanity >= GetExpansionSettings().GetHardline().RankLegend)
 			{
-				rank = ExpansionPlayerRank.SCOUT;
-			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankPathfinder)
-			{
-				rank = ExpansionPlayerRank.PATHFINDER;
-			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankHero)
-			{
-				rank = ExpansionPlayerRank.HERO;
+				rank = ExpansionPlayerRank.LEGEND;
 			}
 			else if (Humanity >= GetExpansionSettings().GetHardline().RankSuperhero)
 			{
 				rank = ExpansionPlayerRank.SUPERHERO;
 			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankLegend)
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankHero)
 			{
-				rank = ExpansionPlayerRank.LEGEND;
+				rank = ExpansionPlayerRank.HERO;
+			}
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankPathfinder)
+			{
+				rank = ExpansionPlayerRank.PATHFINDER;
+			}
+			else if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
+			{
+				rank = ExpansionPlayerRank.SCOUT;
 			}
 		}
 		else if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
 		{
-			if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
+			if (Humanity <= GetExpansionSettings().GetHardline().RankMadman)
 			{
-				rank = ExpansionPlayerRank.KLEPTOMANIAC;
-			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankBully)
-			{
-				rank = ExpansionPlayerRank.BULLY;
-			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankBandit)
-			{
-				rank = ExpansionPlayerRank.BANDIT;
+				rank = ExpansionPlayerRank.MADMAN;
 			}
 			else if (Humanity <= GetExpansionSettings().GetHardline().RankKiller)
 			{
 				rank = ExpansionPlayerRank.KILLER;
 			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankMadman)
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankBandit)
 			{
-				rank = ExpansionPlayerRank.MADMAN;
+				rank = ExpansionPlayerRank.BANDIT;
+			}
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankBully)
+			{
+				rank = ExpansionPlayerRank.BULLY;
+			}
+			else if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
+			{
+				rank = ExpansionPlayerRank.KLEPTOMANIAC;
 			}
 		}
 		

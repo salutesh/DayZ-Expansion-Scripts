@@ -1180,6 +1180,29 @@ modded class ItemBase
 		float health = m_Expansion_HealthBeforeHit[dmgZone];
 		float dmg = damageResult.GetDamage( damageZone, "Health" );  // Base damage
 
+		if ( damageType == DT_EXPLOSION && !source.GetHierarchyRootPlayer() )
+		{
+			//! Use our own damage system for consistent explosion damage
+			//! Note that this only works if damage source root is not a player,
+			//! else won't be able to get source's position in relation to target
+
+			if (ammo == "")
+				ammo = source.ConfigGetString("ammoType");
+
+			if (ammo)
+			{
+				float baseDmg = GetGame().ConfigGetFloat("CfgAmmo " + ammo + " DamageApplied Health damage");
+				if (baseDmg > dmg)
+					dmg = baseDmg;
+			}
+
+			float blastDistance = vector.Distance(GetPosition(), source.GetPosition());
+			float blastRange = 5;
+			float blastDropoffRange = 2.5;
+			if (blastDistance > blastDropoffRange)
+				dmg *= ExpansionMath.LinearConversion(blastRange, blastDropoffRange, blastDistance);
+		}
+
 		if ( damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM )
 		{
 			// damageMultiplier > 1 applies bonus damage
@@ -1194,6 +1217,9 @@ modded class ItemBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+		if (!CanBeDamaged())
+			return false;
+
 		if (IsInherited(ExpansionBaseBuilding) || IsInherited(ExpansionSafeBase))
 		{
 			EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
@@ -1222,17 +1248,22 @@ modded class ItemBase
 				{
 					bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
 
-					foreach (string type: GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist)
-					{
-						if (source.IsKindOf(type))
-						{
-							dealDamage = true;
-							break;
-						}
-					}
-
 					if (!dealDamage)
-						return false;
+					{
+						foreach (string type: GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist)
+						{
+							if (source.IsKindOf(type))
+							{
+								if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
+									GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + GetType() + " has been hit by whitelisted explosive " + type);
+								dealDamage = true;
+								break;
+							}
+						}
+
+						if (!dealDamage)
+							return false;
+					}
 				}
 
 				m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");

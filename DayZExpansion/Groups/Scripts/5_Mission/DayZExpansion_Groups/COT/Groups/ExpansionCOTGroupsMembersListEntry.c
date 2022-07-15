@@ -55,25 +55,12 @@ class ExpansionCOTGroupsMembersListEntry extends ScriptedWidgetEventHandler
 		m_MemberName.SetText(m_PlayerData.GetName());
 		
 		int color;
-		if (IsOnline(m_PlayerData.GetID()))
+		if (PlayerBase.Expansion_IsOnline(m_PlayerData.GetID()))
 			color =  ARGB(255, 39, 174, 96);
 		else
 			color = ARGB(255, 192, 57, 43);
 		
 		m_OnlineIcon.SetColor(color);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMembersListEntry IsOnline
-	// ------------------------------------------------------------	
-	bool IsOnline(string uid)
-	{
-		foreach (SyncPlayer player : ClientData.m_PlayerList.m_PlayerList)
-		{
-			if (player.m_RUID == uid)
-				return true;
-		}
-		return false;
 	}
 	
 	// ------------------------------------------------------------

@@ -80,30 +80,6 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		m_Territory = territory;
 	}
 	
-	bool IsPlayerOnline(string uid)
-	{
-		if (GetGame().GetPlayer().GetIdentity().GetId() == uid)
-		{
-			return true;
-		}
-		else
-		{
-			for (int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); i++)
-			{
-				SyncPlayer player = ClientData.m_PlayerList.m_PlayerList[i];
-				if (player)
-				{
-					if (player.m_RUID == uid)
-					{
-						return true;
-					}
-				}
-			}
-		}
-		
-		return false;
-	}
-	
 	void SetTab(ExpansionTerritoryMember member)
 	{
 		if (!member)
@@ -112,7 +88,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		if (!m_MemberEditController)
 			m_MemberEditController = ExpansionBookMenuTabTerritoryMemberEditController.Cast(GetController());
 			
-		if (IsPlayerOnline(member.GetID()))
+		if (PlayerBase.Expansion_IsOnline(member.GetID()))
 		{
 			SetMemberPreview(member.GetID());
 			member_status_icon.SetColor(ARGB(255, 22, 160, 133));

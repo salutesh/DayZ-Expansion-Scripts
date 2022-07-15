@@ -43,7 +43,7 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 		m_EntryController.MemberName = member.GetName();
 		m_EntryController.NotifyPropertyChanged("MemberName");
 		
-		if (IsPlayerOnline(m_Member.GetID()))
+		if (PlayerBase.Expansion_IsOnline(m_Member.GetID()))
 		{
 			member_entry_icon.SetColor(ARGB(255, 22, 160, 133));
 		} 
@@ -107,24 +107,6 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 		return ExpansionBookMenuTabTerritoryMemberEntryController;
 	}
 	
-	bool IsPlayerOnline( string uid )
-	{
-		for ( int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); i++ )
-		{
-			SyncPlayer player = ClientData.m_PlayerList.m_PlayerList.Get( i );
-
-			if ( player )
-			{
-				if ( player.m_RUID == uid )
-				{
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-	
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		if (w == member_entry_button)
@@ -142,7 +124,7 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 		{
 			member_entry_label.SetColor(ARGB(255, 0, 0, 0));
 			
-			if (IsPlayerOnline(m_Member.GetID()))
+			if (PlayerBase.Expansion_IsOnline(m_Member.GetID()))
 			{
 				member_entry_icon.SetColor(ARGB(255, 22, 160, 133));
 			} 

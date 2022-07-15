@@ -141,7 +141,7 @@ modded class Weapon_Base
 				initSpeed *= initSpeedMultiplier;
 			float speed = initSpeed;
 			float distance = vector.Distance(ai.GetPosition(), hitPosition);
-			float simulationStep = 0.025 + 0.025 * (distance / 1000.0);  //! How fine-grained our prediction will be
+			float simulationStep = 0.05;  //! How fine-grained our prediction will be (could use simulationStep config value, but it's always set to 0.05 anyway, so...)
 			float distanceTraveled;
 			int n;
 			while (distanceTraveled < distance)

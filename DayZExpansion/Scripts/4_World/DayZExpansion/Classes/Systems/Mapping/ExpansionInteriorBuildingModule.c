@@ -43,8 +43,6 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 
 		m_CachedCollision = new map<string, bool>;
 		m_AllSpawnedPositions = new multiMap<string, vector>;
-		
-		LoadIviesPositions();
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 	}
@@ -68,7 +66,15 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 	{
 		super.OnInit();
 
+		EnableMissionStart();
 		//EnableSettingsChanged();
+	}
+ 	
+ 	override void OnMissionStart(Class sender, CF_EventArgs args)
+ 	{
+		super.OnMissionStart(sender, args);
+		
+		LoadIviesPositions();
 	}
 
 	void OnSettingsUpdated()

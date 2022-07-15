@@ -75,23 +75,23 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		if (!aiPatrol)
 			return;
 
-		int findIndex;
 		//! If the ai camp need to be killed with a special weapon check incoming killer class type
 		if (aiPatrol.NeedSpecialWeapon())
 		{
-			findIndex = -1;
-			findIndex = aiPatrol.GetAllowedWeapons().Find(killer.GetType());
-			if (findIndex == -1)
+			if (!ExpansionStatic.IsAnyOf(killer.GetType(), aiPatrol.GetAllowedWeapons(), killer.ClassName()))
 				return;
 		}
 		
 		//! Check if killed entities class name is a valid one from our objective config
 		int amount = aiPatrol.GetNPCUnits();
 		m_TotalUnitsAmount = amount;
-		findIndex = -1;
-		findIndex = aiPatrol.GetClassNames().Find(victim.ClassName());
+		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), aiPatrol.GetClassNames(), victim.ClassName());
 
-		if (findIndex == -1)
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::OnEntityKilled - Target found: " + found);
+	#endif
+
+		if (!found)
 			return;
 
 		//! Check if killed ai entity was part of this objective event group
@@ -195,6 +195,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		
 		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
 		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), true, false, aiPatrol.GetWaypoints());
+		group.Formation = aiPatrol.NPCFormation;
 		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAICampEvent.CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 		if (!patrol)
 			return;
@@ -222,9 +223,12 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 					continue;
 	
 				eAIGroup group = patrol.m_Group;
-				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
-				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
-				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
+				if (group)
+				{
+					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
+					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
+					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
+				}
 	
 				patrol.Despawn();
 				patrol.Delete();

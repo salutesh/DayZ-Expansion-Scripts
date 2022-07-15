@@ -527,6 +527,8 @@ class ExpansionPartyData
 	}
 #endif
 
+	//! TODO: Most party data should only be sent if changed
+	//! The only thing to be synced periodically should be member positions
 	void OnSend( ParamsWriteContext ctx, bool syncMarkers = true, string playerID = string.Empty )
 	{
 		ctx.Write( PartyID );

@@ -48,7 +48,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfig
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + ".json", this);
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

@@ -27,12 +27,7 @@ class ExpansionQuestObjectiveEventBase
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
 		m_Quest = quest;
-
-		OnInit();
 	}
-
-	//! Init
-	void OnInit();
 
 	void SetIndex(int index)
 	{

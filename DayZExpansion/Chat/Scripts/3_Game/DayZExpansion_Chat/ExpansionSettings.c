@@ -14,57 +14,11 @@ modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Chat = new ScriptInvoker();
 
-	autoptr ExpansionChatSettings m_SettingsChat;
-
-	override protected void OnServerInit()
-	{
-		LoadSetting(m_SettingsChat);
-
-		m_NetworkedSettings.Insert("expansionchatsettings");
-
-		super.OnServerInit();
-	}
-
-	override void Unload()
-	{
-		super.Unload();
-
-		m_SettingsChat.Unload();
-	}
-
-	override protected void CheckSettingsLoaded()
-	{
-		if (!IsMissionClient())
-		{
-			m_SettingsLoaded = true;
-
-			return;
-		}
-
-		if (m_SettingsLoaded)
-			return;
-
-		if (!IsSettingLoaded(m_SettingsChat, m_SettingsLoaded))
-			return;
-
-		super.CheckSettingsLoaded();
-	}
-
 	override void Init()
 	{
-		m_SettingsChat = new ExpansionChatSettings;
-
 		super.Init();
-	}
 
-	override void Send(notnull PlayerIdentity identity)
-	{
-		if (IsMissionClient())
-			return;
-
-		super.Send(identity);
-
-		m_SettingsChat.Send(identity);
+		Init(ExpansionChatSettings);
 	}
 
 	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
@@ -79,8 +33,7 @@ modded class ExpansionSettings
 		{
 		case ExpansionSettingsRPC.Chat:
 		{
-			Expansion_Assert_False(m_SettingsChat.OnRecieve(ctx), "Failed reading Chat settings");
-
+			Receive(ExpansionChatSettings, ctx);
 			return true;
 		}
 		}
@@ -88,18 +41,8 @@ modded class ExpansionSettings
 		return false;
 	}
 
-	override void Save()
+	ExpansionChatSettings GetChat(bool checkLoaded = true)
 	{
-		super.Save();
-
-		if (IsMissionHost() && GetGame().IsMultiplayer())
-		{
-			m_SettingsChat.Save();
-		}
-	}
-
-	ExpansionChatSettings GetChat()
-	{
-		return m_SettingsChat;
+		return ExpansionChatSettings.Cast(Get(ExpansionChatSettings, checkLoaded));
 	}
 };

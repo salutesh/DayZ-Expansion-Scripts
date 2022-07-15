@@ -346,7 +346,7 @@ class Expansion_Landrover_Base extends CarScript
 		return true;
 	}
 	
-	bool CanReceiveAttachment (EntityAI attachment, int slotId)
+	override bool CanReceiveAttachment (EntityAI attachment, int slotId)
     {
         string slot_name = InventorySlots.GetSlotName(slotId);
         
