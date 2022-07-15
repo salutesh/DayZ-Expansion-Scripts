@@ -67,7 +67,7 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + ".json", this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveTreasureHuntConfigBase configBase)

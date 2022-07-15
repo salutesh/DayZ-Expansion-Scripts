@@ -265,89 +265,44 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 			
 		int nmbPlayer = 0;
 		ExpansionBookMenuTabTerritoryPlayerEntry entry;
-		SyncPlayer playerSync;
 		string playerName;
 		
+		set<ref SyncPlayer> players;
 		if (GetExpansionSettings().GetTerritory().UseWholeMapForInviteList)
-		{			
-			for (int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); ++i)
-			{
-				playerSync = ClientData.m_PlayerList.m_PlayerList[i];	
-						
-				if (!playerSync)
-				{
-					continue;
-				}
-				
-				if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
-				{
-					continue;
-				}
-				
-				if (filter != "")
-				{
-					playerName = playerSync.m_PlayerName;
-					playerName.ToLower();
-		
-					if (playerName.IndexOf(filter) == -1)
-					{
-						continue;
-					}
-				}
-				
-				nmbPlayer++;
-			
-				AddPlayerEntry(playerSync);
-			}
-			
-			if (m_TerritoryTabController.TerritoryPlayerEntrys.Count() > 0)
-				m_TerritoryTabController.NotifyPropertyChanged("TerritoryPlayerEntrys");
+		{
+			players = SyncPlayer.Expansion_GetAll();
 		}
 		else
 		{
-			array<PlayerIdentity> identitys = GetNearbyPlayerIdentitys(player.GetPosition(), m_PlayerSearchRadius);			
-			if (!identitys)
-			{
-				m_TerritoryTabController.PlayerListInfo = "0";
-				m_TerritoryTabController.NotifyPropertyChanged("PlayerListInfo");
-				return;
-			}
-						
-			for (int j = 0; j < identitys.Count(); ++j)
-			{			
-				for (int k = 0; k < ClientData.m_PlayerList.m_PlayerList.Count(); ++k)
-				{										
-					playerSync = ClientData.m_PlayerList.m_PlayerList[k];
-					
-					if (!playerSync)
-						continue;
-						
-					if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
-					{
-						continue;
-					}
-					
-					if (filter != "")
-					{
-						playerName = playerSync.m_PlayerName;
-						playerName.ToLower();
-			
-						if (playerName.IndexOf(filter) == -1)
-							continue;
-					}
-										
-					if (playerSync && playerSync.m_RUID == identitys[j].GetId())
-					{
-						nmbPlayer++;
-						
-						AddPlayerEntry(playerSync);
-					}
-				}
-			}
-			
-			if (m_TerritoryTabController.TerritoryPlayerEntrys.Count() > 0)
-				m_TerritoryTabController.NotifyPropertyChanged("TerritoryPlayerEntrys");
+			players = SyncPlayer.Expansion_GetInSphere(player.GetPosition(), m_PlayerSearchRadius);
 		}
+
+		foreach (SyncPlayer playerSync: players)
+		{
+			if (playerSync.m_RUID == player.GetIdentity().GetId())
+				continue;
+
+			if (IsMember(playerSync.m_RUID) || HasInvite(playerSync.m_RUID))
+			{
+				continue;
+			}
+
+			if (filter != "")
+			{
+				playerName = playerSync.m_PlayerName;
+				playerName.ToLower();
+	
+				if (playerName.IndexOf(filter) == -1)
+					continue;
+			}
+
+			nmbPlayer++;
+
+			AddPlayerEntry(playerSync);
+		}
+
+		if (m_TerritoryTabController.TerritoryPlayerEntrys.Count() > 0)
+			m_TerritoryTabController.NotifyPropertyChanged("TerritoryPlayerEntrys");
 		
 		/*if (nmbPlayer > 0)
 		{

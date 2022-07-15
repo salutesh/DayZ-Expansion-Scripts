@@ -30,9 +30,6 @@ modded class MissionGameplay
 		
 		if (IsMissionClient())
 			GetExpansionClientSettings().Load();
-
-		if (!IsMissionOffline() && g_exGlobalSettings)
-			g_exGlobalSettings.Unload();
 		
 		CreateExpansionUIMenuManager();
 	}
@@ -45,9 +42,6 @@ modded class MissionGameplay
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "~MissionGameplay");
 #endif
-	
-		if (g_exGlobalSettings)
-			g_exGlobalSettings.Unload();
 		
 		DestroyExpansionUIMenuManager();
 		DestroyNotificationSystem();

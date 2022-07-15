@@ -29,7 +29,7 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
 	float DespawnRadius;
 
@@ -185,6 +185,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 						else
 							patrol.DespawnRadius = patrol.MaxDistRadius * 1.1;
 					}
+
+					if (m_Version < 7)
+						patrol.Formation = "RANDOM";
 				}
 
 				m_Version = VERSION;
@@ -221,6 +224,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					else
 						objectPatrol.DespawnRadius = objectPatrol.MaxDistRadius * 1.1;
 				}
+
+				if (settingsBase.m_Version < 7)
+					objectPatrol.Formation = "RANDOM";
 
 				if (!objectPatrol.ClassName)
 				{

@@ -21,11 +21,11 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 4;
+	static const int CONFIGVERSION = 5;
 	
 	void ExpansionQuestObjectiveConfig()
 	{
-		ConfigVersion = 4;
+		ConfigVersion = CONFIGVERSION;
 	}
 	
 	void SetID(int id)

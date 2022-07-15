@@ -79,6 +79,8 @@ class eAIBase extends PlayerBase
 	private bool m_MovementDirectionActive;
 	private float m_MovementDirection;
 	private float m_SideStepAngle;
+	private bool m_eAI_TurnTargetActive;
+	private float m_eAI_TurnTarget;
 
 	private bool m_WeaponRaised;
 	private bool m_WeaponRaisedPrev;
@@ -98,7 +100,12 @@ class eAIBase extends PlayerBase
 	private bool m_eAI_UnlimitedReload;
 
 	// Path Finding
+#ifndef EAI_USE_LEGACY_PATHFINDING
 	private ref ExpansionPathHandler m_PathFinding;
+#else
+	private ref eAIPathFinding m_PathFinding;
+#endif
+	bool m_eAI_TargetPositionIsFinal;
 
 	private Apple m_DebugTargetApple;
 	private vector m_DebugTargetOrientation;
@@ -114,6 +121,8 @@ class eAIBase extends PlayerBase
 	int m_Expansion_EmoteID;
 	bool m_Expansion_EmoteAutoCancel;
 	int m_Expansion_EmoteAutoCancelDelay; //! ms
+
+	ref map<int, Object> m_Expansion_DebugObjects = new map<int, Object>();
 
 	void eAIBase()
 	{
@@ -166,7 +175,11 @@ class eAIBase extends PlayerBase
 		m_WeaponManager = new eAIWeaponManager(this);
 		m_ShockHandler = new eAIShockHandler(this);
 
+#ifndef EAI_USE_LEGACY_PATHFINDING
 		m_PathFinding = new ExpansionPathHandler(this);
+#else
+		m_PathFinding = new eAIPathFinding(this);
+#endif
 
 		if (GetGame().IsServer())
 		{
@@ -189,6 +202,56 @@ class eAIBase extends PlayerBase
 		}
 
 		super.Expansion_Init();
+	}
+
+	//! Vanilla, can this AI be targeted by Zs/Animals?
+	override bool CanBeTargetedByAI(EntityAI ai)
+	{
+		if (GetGroup())
+			return !GetGroup().GetFaction().IsFriendly(ai);
+
+		return super.CanBeTargetedByAI(ai);
+	}
+
+	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero)
+	{
+#ifdef DIAG
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction);
+#endif
+	}
+
+	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero)
+	{
+#ifdef DIAG
+		if (!m_Expansion_DebugObjects[i])
+		{
+			m_Expansion_DebugObjects[i] = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
+			if (dBodyIsSet(m_Expansion_DebugObjects[i]))
+				dBodyDestroy(m_Expansion_DebugObjects[i]);  //! Remove physics
+			EntityAI ent;
+			if (Class.CastTo(ent, m_Expansion_DebugObjects[i]))
+				ent.SetLifetime(300);
+		}
+		else
+		{
+			m_Expansion_DebugObjects[i].SetPosition(position);
+		}
+
+		if (direction != vector.Zero)
+		{
+			m_Expansion_DebugObjects[i].SetDirection(direction);
+		}
+#endif
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		foreach (Object obj: m_Expansion_DebugObjects)
+		{
+			GetGame().ObjectDelete(obj);
+		}
 	}
 
 	static void ReloadAllFSM()
@@ -441,7 +504,11 @@ class eAIBase extends PlayerBase
 		return true;
 	}
 
+#ifndef EAI_USE_LEGACY_PATHFINDING
 	ExpansionPathHandler GetPathFinding()
+#else
+	eAIPathFinding GetPathFinding()
+#endif
 	{
 		return m_PathFinding;
 	}
@@ -810,7 +877,7 @@ class eAIBase extends PlayerBase
 			m_eAI_UpdateTargetsTick = 0;
 			m_eAI_CurrentPotentialTargetIndex = 0;
 
-			//! Get animals/Zs in near range (30 m)
+			//! Get objects in near range (30 m)
 
 #ifdef EAI_TRACE
 			ticks = TickCount(0);
@@ -874,6 +941,7 @@ class eAIBase extends PlayerBase
 
 		DayZPlayerImplement playerThreat;
 		ItemBase targetItem;
+		EntityAI targetEntity;
 		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
 
 		float group_count = GetGroup().Count();
@@ -890,7 +958,7 @@ class eAIBase extends PlayerBase
 					continue;
 				if (playerThreat.eAI_IsPassive())
 					continue;
-				if (GetGroup().IsMember(playerThreat))
+				if (!PlayerIsEnemy(playerThreat))
 					continue;
 			}
 			else if (Class.CastTo(targetItem, obj))
@@ -904,6 +972,8 @@ class eAIBase extends PlayerBase
 			else if (obj.IsInherited(Building))
 				continue;
 			else if (obj.IsInherited(Transport))
+				continue;
+			else if (Class.CastTo(targetEntity, obj) && GetGroup().GetFaction().IsFriendly(targetEntity))
 				continue;
 
 			eAITargetInformation target = eAITargetInformation.GetTargetInformation(obj);
@@ -1058,41 +1128,24 @@ class eAIBase extends PlayerBase
 	 *
 	 * @param pPosition the target position for path finding
 	 */
-	void OverrideTargetPosition(vector pPosition)
+	void OverrideTargetPosition(vector pPosition, bool isFinal = true)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "OverrideTargetPosition").Add(pPosition);
 #endif
 
-		//! XXX: This is a workaround for AI sometimes not moving despite old movement command still active.
-		//! Just restart it to make the AI move again.
-		if (m_eAI_MovementCheckTimeout <= 0.0)
-		{
-			if (pPosition != m_eAI_LastMovementCheckTargetPosition)
-			{
-				m_eAI_MovementCheckTimeout = 3.0;
-				m_eAI_LastMovementCheckTargetPosition = pPosition;
-				m_eAI_LastMovementCheckUnitPosition = GetPosition();
-			}
-		}
-		else
-		{
-			m_eAI_MovementCheckTimeout -= 0.033333;
-			if (m_eAI_MovementCheckTimeout <= 0.0)
-			{
-				vector currentPosition = GetPosition();
-				eAICommandMove hcm;
-				if (currentPosition == m_eAI_LastMovementCheckUnitPosition && eAICommandMove.CastTo(hcm, m_eAI_Command) && hcm.GetWaypointDistance() >= 0.3)
-				{
-					EXTrace.Print(EXTrace.AI, this, "MOVE YOU BASTARD " + m_eAI_Command);
-					StartCommand_MoveAI();
-					//eAI_Unbug("move");
-				}
-
-			}
-		}
-			
+#ifndef EAI_USE_LEGACY_PATHFINDING
 		m_PathFinding.SetTarget(pPosition);
+#else
+		m_PathFinding.OverridePosition(pPosition);
+#endif
+		m_eAI_TargetPositionIsFinal = isFinal;
+	}
+
+	void OverrideTurnTarget(bool pActive, float angle)
+	{
+		m_eAI_TurnTargetActive = pActive;
+		m_eAI_TurnTarget = angle;
 	}
 
 	/**
@@ -1457,7 +1510,11 @@ class eAIBase extends PlayerBase
 			eAITarget target = m_eAI_Targets[0];
 			if (target.HasInfo())
 			{
+#ifndef EAI_USE_LEGACY_PATHFINDING
 				m_PathFinding.SetTarget(target.GetPosition(this));
+#else
+				m_PathFinding.OverridePosition(target.GetPosition(this));
+#endif
 			}
 		}
 
@@ -1852,17 +1909,25 @@ class eAIBase extends PlayerBase
 				if (m_WeaponRaised)
 					speedLimit = Math.Min(speedLimit, 1);
 
-				float turnTarget = GetOrientation()[0];
+				float turnTarget;
 
-				if (m_eAI_Targets.Count() > 0)
+				if (m_eAI_TurnTargetActive)
+				{
+					turnTarget = m_eAI_TurnTarget;
+				}
+				else if (m_eAI_Targets.Count() > 0)
 				{
 					if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_LookRelAngles[0]) > 90)
 					{
 						turnTarget = vector.Direction(GetPosition(), m_eAI_AimPosition_WorldSpace).Normalized().VectorToAngles()[0];
 					}
 				}
+				else
+				{
+					turnTarget = GetOrientation()[0];
+				}
 
-				hcm.SetTurnTarget(turnTarget);
+				hcm.SetTurnTarget(turnTarget, m_eAI_TurnTargetActive);
 
 				if (m_StaminaHandler && !CanConsumeStamina(EStaminaConsumers.SPRINT) || !CanSprint())
 				{
@@ -1914,7 +1979,10 @@ class eAIBase extends PlayerBase
 			return;
 
 		if (!m_eAI_Targets.Count())
+		{
+			m_eAI_LOS = false;
 			return;
+		}
 
 		EntityAI targetEntity = GetTarget().GetEntity();
 
@@ -1933,7 +2001,7 @@ class eAIBase extends PlayerBase
 
 		set< Object > results = new set< Object >;
 		bool hadLos = m_eAI_LOS;
-		m_eAI_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectGeom, 0.5);
+		m_eAI_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectGeom, 0.3);
 		if (!m_eAI_LOS && hadLos)
 			EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
 		if (!m_eAI_LOS)
@@ -2000,16 +2068,30 @@ class eAIBase extends PlayerBase
 			float dot = vector.Dot(GetDirection(), targetDirection);
 			if (dot >= 0.75)
 			{
+				vector transform[4];
+				GetTransform(transform);
+				bool blockedLeft = m_PathFinding.IsBlocked(transform[3], transform[3] + (-0.5 * transform[0]));
+				bool blockedRight = m_PathFinding.IsBlocked(transform[3], transform[3] + (0.5 * transform[0]));
 				//! Move, b*tch, get out the way :-)
 				m_eAI_SideStepTimeout = 1.5;
-				if (Math.RandomIntInclusive(0, 1))
+				if (blockedLeft && blockedRight)
+					//! Backpedal
+					m_SideStepAngle = -180;
+				else if (blockedLeft || (!blockedRight && Math.RandomIntInclusive(0, 1)))
+					//! Go right if only blocked left or 50% chance go right if neither blocked left/right
 					m_SideStepAngle = 90;
 				else
+					//! Go left
 					m_SideStepAngle = -90;
 				EXTrace.Print(EXTrace.AI, this, "sidestep " + m_SideStepAngle + " " + obj);
 				OverrideMovementDirection(true, m_SideStepAngle);
 			}
 		}
+	}
+
+	bool eAI_HasLOS()
+	{
+		return m_eAI_LOS;
 	}
 
 	override void OnScheduledTick(float deltaTime)
@@ -2303,7 +2385,7 @@ class eAIBase extends PlayerBase
 		return m_eAI_AimDirection_ModelSpace;
 	}
 
-	vector GetAimPosition()
+	override vector GetAimPosition()
 	{
 		return m_eAI_AimPosition_WorldSpace;
 	}
@@ -2518,6 +2600,24 @@ class eAIBase extends PlayerBase
 		{
 			return false;
 		}
+
+		return true;
+	}
+
+	bool eAI_IsClimb()
+	{
+		if (!m_ExClimbResult)
+			return false;
+
+		if (!m_ExClimbResult.m_bIsClimb && !m_ExClimbResult.m_bIsClimbOver)
+			return false;
+			
+		if (!eAI_CanClimbOn(m_ExClimbResult.m_GrabPointParent, m_ExClimbResult))
+			return false;
+		if (!eAI_CanClimbOn(m_ExClimbResult.m_ClimbStandPointParent, m_ExClimbResult))
+			return false;
+		if (!eAI_CanClimbOn(m_ExClimbResult.m_ClimbOverStandPointParent, m_ExClimbResult))
+			return false;
 
 		return true;
 	}

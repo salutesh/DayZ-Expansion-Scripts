@@ -14,57 +14,11 @@ modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Party = new ScriptInvoker();
 
-	autoptr ExpansionPartySettings m_SettingsParty;
-
-	override protected void OnServerInit()
-	{
-		LoadSetting(m_SettingsParty);
-
-		m_NetworkedSettings.Insert( "expansionpartysettings" );
-
-		super.OnServerInit();
-	}
-
-	override void Unload()
-	{
-		super.Unload();
-
-		m_SettingsParty.Unload();
-	}
-
-	override protected void CheckSettingsLoaded()
-	{
-		if (!IsMissionClient())
-		{
-			m_SettingsLoaded = true;
-
-			return;
-		}
-
-		if (m_SettingsLoaded)
-			return;
-
-		if (!IsSettingLoaded(m_SettingsParty, m_SettingsLoaded))
-			return;
-
-		super.CheckSettingsLoaded();
-	}
-
 	override void Init()
 	{
-		m_SettingsParty = new ExpansionPartySettings;
-
 		super.Init();
-	}
 
-	override void Send(notnull PlayerIdentity identity)
-	{
-		if (IsMissionClient())
-			return;
-
-		super.Send(identity);
-
-		m_SettingsParty.Send(identity);
+		Init(ExpansionPartySettings);
 	}
 
 	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
@@ -79,7 +33,7 @@ modded class ExpansionSettings
 		{
 		case ExpansionSettingsRPC.Party:
 		{
-			Expansion_Assert_False(m_SettingsParty.OnRecieve(ctx), "Failed reading Party settings");
+			Receive(ExpansionPartySettings, ctx);
 
 			return true;
 		}
@@ -88,18 +42,8 @@ modded class ExpansionSettings
 		return false;
 	}
 
-	override void Save()
+	ExpansionPartySettings GetParty(bool checkLoaded = true)
 	{
-		super.Save();
-
-		if (IsMissionHost() && GetGame().IsMultiplayer())
-		{
-			m_SettingsParty.Save();
-		}
-	}
-
-	ExpansionPartySettings GetParty()
-	{
-		return m_SettingsParty;
+		return ExpansionPartySettings.Cast(Get(ExpansionPartySettings, checkLoaded));
 	}
 };

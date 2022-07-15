@@ -1,18 +1,27 @@
 class eAIFormation
 {
-	private const float m_DirRecalcDistSq = 9.0;
+	static const float DIR_RECALC_DIST_SQ = 9.0;
+
+	static autoptr TTypenameArray s_FormationTypes = {eAIFormationColumn, eAIFormationFile, eAIFormationVee, eAIFormationWall};
 
 	private vector m_Transform[4];
 	private float m_Scale;
 
 	private eAIGroup m_Group;
 
-	void eAIFormation(eAIGroup group)
+	private vector m_LastUpdatePosition;
+
+	void eAIFormation(eAIGroup group = null)
 	{
 		m_Group = group;
 		m_Scale = 1.0;
 
 		UpdateTransform(vector.Zero, vector.Forward);
+	}
+
+	void SetGroup(eAIGroup group)
+	{
+		m_Group = group;
 	}
 
 	// Abstract function that returns the position in local space relative to the formation transformation at any given time.
@@ -34,19 +43,22 @@ class eAIFormation
 			return;
 
 		vector newPos = m_Group.GetLeader().GetPosition();
-		vector oldPos = m_Transform[3];
 
-		if (oldPos == vector.Zero)
+		if (m_LastUpdatePosition == vector.Zero)
 		{
 			UpdateTransform(newPos, m_Group.GetLeader().GetDirection());
 			return;
 		}
 
-		if (vector.DistanceSq(newPos, oldPos) < m_DirRecalcDistSq)
+		vector dir = vector.Direction(m_LastUpdatePosition, newPos);
+		float dist = dir.LengthSq();
+		if (dist < DIR_RECALC_DIST_SQ)
+		{
 			return;
+		}
 
 		// Update the transformation matrix
-		UpdateTransform(newPos, vector.Direction(newPos, oldPos).Normalized());
+		UpdateTransform(newPos, dir.Normalized());
 	}
 
 	void UpdateTransform(vector newPos, vector dir)
@@ -54,7 +66,8 @@ class eAIFormation
 		m_Transform[3] = newPos;
 		m_Transform[2] = dir;
 		m_Transform[1] = "0 1 0";
-		m_Transform[0] = m_Transform[2].Perpend();
+		m_Transform[0] = dir.Perpend();
+		m_LastUpdatePosition = newPos;
 	}
 
 	void SetScale(float separation)
@@ -73,4 +86,25 @@ class eAIFormation
 
 	// Unused thus far
 	void SetSize(int num_of_people) {}
+
+	static typename GetType(string formationName)
+	{
+		if (formationName == "RANDOM")
+			return s_FormationTypes.GetRandomElement();
+		return ("eAIFormation" + formationName).ToType();
+	}
+
+	static eAIFormation Create(string formationName)
+	{
+		typename formation = GetType(formationName);
+		if (formation)
+			//! @note w/o the cast to eAIFormation, the compiler warns about unsafe downcasting.
+			//! Of course the compiler is wrong, because we're casting up, not down, so this cast here is just there to satisfy compiler shortcomings.
+			//! Yes I wrote this comment for the sole reason that I'm annoyed by this.
+			return eAIFormation.Cast(formation.Spawn());
+		else
+			Error("Invalid formation name " + formationName);
+
+		return new eAIFormationVee();
+	}
 };

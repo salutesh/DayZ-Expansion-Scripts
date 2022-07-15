@@ -14,94 +14,15 @@ modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_AI = new ScriptInvoker();
 	static ref ScriptInvoker SI_AIPATROL = new ScriptInvoker();
-	
-	protected autoptr ExpansionAISettings m_SettingsAI;
-	protected autoptr ExpansionAIPatrolSettings m_SettingsAIPatrol;
-	
-	// ------------------------------------------------------------
-	// Expansion OnServerInit
-	// ------------------------------------------------------------
-	override protected void OnServerInit()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
-#endif
 
-		LoadSetting( m_SettingsAI );
-		LoadSetting( m_SettingsAIPatrol );
-
-		m_NetworkedSettings.Insert( "expansionAIsettings" );
-		
-		super.OnServerInit();
-	}
-
-	// ------------------------------------------------------------
-	override void Unload()
-	{
-		super.Unload();
-
-		m_SettingsAI.Unload();
-		m_SettingsAIPatrol.Unload();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CheckSettingsLoaded
-	// Called on Client
-	// ------------------------------------------------------------
-	override protected void CheckSettingsLoaded()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CheckSettingsLoaded");
-#endif
-
-		if ( !IsMissionClient() )
-		{
-			m_SettingsLoaded = true;
-
-			return;
-		}
-
-		if ( m_SettingsLoaded )
-			return;
-
-		if ( !IsSettingLoaded( m_SettingsAI, m_SettingsLoaded ) )
-			return;
-
-		super.CheckSettingsLoaded();
-	}
-	
-	// ------------------------------------------------------------
-	// Override Init
-	// ------------------------------------------------------------
 	override void Init()
 	{
-		m_SettingsAI = new ExpansionAISettings;
-		m_SettingsAIPatrol = new ExpansionAIPatrolSettings;
-
 		super.Init();
+
+		Init(ExpansionAISettings);
+		Init(ExpansionAIPatrolSettings);
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Send
-	// Can only be called on the server.
-	// ------------------------------------------------------------
-	override void Send( notnull PlayerIdentity identity )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
 
-		if ( IsMissionClient() )
-			return;
-
-		super.Send( identity );
-
-		m_SettingsAI.Send( identity );
-	}
-	
-	// ------------------------------------------------------------
-	// OnRPC
-	// ------------------------------------------------------------
 	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 #ifdef EXPANSIONTRACE
@@ -118,7 +39,7 @@ modded class ExpansionSettings
 		{
 			case ExpansionSettingsRPC.AI:
 			{
-				Expansion_Assert_False( m_SettingsAI.OnRecieve( ctx ), "Failed reading AI settings" );
+				Receive(ExpansionAISettings, ctx);
 
 				return true;
 			}
@@ -126,39 +47,14 @@ modded class ExpansionSettings
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Save
-	// Called on server
-	// ------------------------------------------------------------
-	override void Save()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
-#endif
 
-		super.Save();
+	ExpansionAISettings GetAI(bool checkLoaded = true)
+	{
+		return ExpansionAISettings.Cast(Get(ExpansionAISettings, checkLoaded));
+	}
 
-		if ( IsMissionHost() && GetGame().IsMultiplayer() )
-		{
-			m_SettingsAI.Save();
-			m_SettingsAIPatrol.Save();
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionAISettings GetAI
-	// ------------------------------------------------------------
-	ExpansionAISettings GetAI()
+	ExpansionAIPatrolSettings GetAIPatrol(bool checkLoaded = true)
 	{
-		return m_SettingsAI;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionAISettings GetAIPatrol
-	// ------------------------------------------------------------
-	ExpansionAIPatrolSettings GetAIPatrol()
-	{
-		return m_SettingsAIPatrol;
+		return ExpansionAIPatrolSettings.Cast(Get(ExpansionAIPatrolSettings, checkLoaded));
 	}
 };

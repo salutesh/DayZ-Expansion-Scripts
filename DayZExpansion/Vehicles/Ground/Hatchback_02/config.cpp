@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Hatchback_02
 	{
-		units[] = {"Vehicle_Hatchback_02_Wheel","Vehicle_Hatchback_02_Wheel_Ruined","Vehicle_Hatchback_02","Vehicle_Hatchback_02_Red","Vehicle_Hatchback_02_Black","Vehicle_Hatchback_02_Blue","Vehicle_Hatchback_02_RedRust","Vehicle_Hatchback_02_BlackRust","Vehicle_Hatchback_02_BlueRust","Vehicle_Hatchback_02_BanditKitty"};
+		units[] = {"Vehicle_Hatchback_02_Wheel","Vehicle_Hatchback_02_Wheel_Ruined","Vehicle_Hatchback_02","Hatchback_02_Hood","Hatchback_02_Trunk","Vehicle_Hatchback_02_Red","Hatchback_02_Hood_Red","Hatchback_02_Trunk_Red","Vehicle_Hatchback_02_Black","Hatchback_02_Hood_Black","Hatchback_02_Trunk_Black","Vehicle_Hatchback_02_Blue","Hatchback_02_Hood_Blue","Hatchback_02_Trunk_Blue","Vehicle_Hatchback_02_RedRust","Hatchback_02_Hood_RedRust","Hatchback_02_Trunk_RedRust","Vehicle_Hatchback_02_BlackRust","Hatchback_02_Hood_BlackRust","Hatchback_02_Trunk_BlackRust","Vehicle_Hatchback_02_BlueRust","Hatchback_02_Hood_BlueRust","Hatchback_02_Trunk_BlueRust","Vehicle_Hatchback_02_BanditKitty","Hatchback_02_Hood_BanditKitty","Hatchback_02_Trunk_BanditKitty"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -805,8 +805,9 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Hood: Hatchback_02_Door_1_1
+	class Hatchback_02_Hood: CarDoor
 	{
+		scope = 2;
 		defaultSkin = "Red";
 		class DamageSystem
 		{
@@ -835,8 +836,9 @@ class CfgVehicles
 			};
 		};
 	};
-	class Hatchback_02_Trunk: Hatchback_02_Door_1_1
+	class Hatchback_02_Trunk: CarDoor
 	{
+		scope = 2;
 		defaultSkin = "Red";
 		class DamageSystem
 		{

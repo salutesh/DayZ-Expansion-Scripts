@@ -115,6 +115,7 @@ class EXTrace
 	protected int m_ParamsCount;
 	protected int m_Ticks;
 	protected int m_Depth;  //! Default depth = 1 (first line of stack). Set to -1 to include whole stack, set to 0 to exclude stack.
+	protected int m_Start;  //! Default start = 2 (second line of stack)
 	protected bool m_End;
 
 	private void EXTrace(Class instance = null)
@@ -123,11 +124,12 @@ class EXTrace
 			m_Instance = instance.ToString();
 		m_Ticks = TickCount(0);
 		m_Depth = 1;
+		m_Start = 2;
 	}
 
 	void ~EXTrace()
 	{
-		Dump(m_Depth, 2, true);
+		Dump(m_Depth, m_Start, true);
 	}
 
 	void Dump(int depth = 1, int start = 1, bool end = false)
@@ -260,6 +262,11 @@ class EXTrace
 	void SetDepth(int depth)
 	{
 		m_Depth = depth;
+	}
+
+	void SetStart(int start)
+	{
+		m_Start = start;
 	}
 
 	static void Print(bool yes = true, Class instance = null, string msg = "")

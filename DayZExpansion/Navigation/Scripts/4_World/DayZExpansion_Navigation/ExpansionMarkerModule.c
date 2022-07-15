@@ -453,7 +453,6 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			}
 
 			GetExpansionSettings().GetMap().AddServerMarker( marker );
-			GetExpansionSettings().GetMap().Send( NULL );
 
 			#ifdef EXPANSION_MARKER_MODULE_DEBUG
 			EXPrint("ExpansionMarkerModule::CreateServerMarker - End and return marker: " + marker.ToString());
@@ -479,8 +478,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		if ( !IsMissionHost() || !GetExpansionSettings().GetMap() )		
 			return;
 
-		if ( GetExpansionSettings().GetMap().RemoveServerMarker( uid ) )
-			GetExpansionSettings().GetMap().Send( NULL );
+		GetExpansionSettings().GetMap().RemoveServerMarker( uid );
 	}
 	
 	// ------------------------------------------------------------

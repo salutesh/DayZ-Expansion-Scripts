@@ -13,8 +13,6 @@
 class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabPlayerProfileController m_PlayerProfileController;
-
-	string m_PlayerID;
 		
 	Widget hab_suicides_spacer;
 	Widget hab_affinity_spacer;
@@ -29,6 +27,9 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	PlayerPreviewWidget player_preview;
 	
 	protected bool m_MouseButtonIsDown;
+
+	bool m_ShowHaBStats;
+	bool m_Updated;
 	
 	void ExpansionBookMenuTabPlayerProfile(ExpansionBookMenu book_menu)
 	{
@@ -41,9 +42,13 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			return;
 		
 		monitorModule.m_StatsInvoker.Insert(SetStats);
-		m_PlayerID = GetGame().GetPlayer().GetIdentity().GetId();
-		monitorModule.RequestPlayerStats(m_PlayerID);
 #endif
+
+		#ifdef HEROESANDBANDITSMOD
+		m_ShowHaBStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
+		#endif
+
+		UpdateHaBUIElements();
 	}
 	
 	void ~ExpansionBookMenuTabPlayerProfile()
@@ -59,9 +64,11 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	
 	void SetStats(ExpansionSyncedPlayerStats stats)
 	{
-		if (!stats || stats.m_ID != m_PlayerID)
+		if (!stats || stats.m_PlainID != string.Empty)
 			return;
 		
+		stats.Acquire(PlayerBase.Cast(GetGame().GetPlayer()));
+
 		//! Profile stats
 		m_PlayerProfileController.ProfileTimePlayed = ExpansionStatic.GetTimeString(stats.m_Playtime);	
 		m_PlayerProfileController.ProfileLongestShot = ExpansionStatic.GetDistanceString(stats.m_LongestShot);
@@ -69,11 +76,8 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " Kills";		
 		m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " Kills";		
 
-		bool showHabStats;
-
 		#ifdef HEROESANDBANDITSMOD
-		showHabStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
-		if (showHabStats)
+		if (m_ShowHaBStats)
 		{
 			m_PlayerProfileController.HaB_Affinity = g_HeroesAndBanditsPlayer.getAffinity().DisplayName;
 			m_PlayerProfileController.HaB_Level = g_HeroesAndBanditsPlayer.getLevel().Name;
@@ -97,12 +101,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		}
 		#endif
 
-		hab_suicides_spacer.Show(showHabStats);
-		hab_affinity_spacer.Show(showHabStats);
-		hab_level_spacer.Show(showHabStats);
-		hab_humanity_spacer.Show(showHabStats);
-		hab_medic_spacer.Show(showHabStats);
-		hab_raid_spacer.Show(showHabStats);
+		UpdateHaBUIElements();
 
 		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);	
 		m_PlayerProfileController.ProfileWeight = ExpansionStatic.GetWeightString(stats.m_Weight);
@@ -131,6 +130,16 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		
 		array<string> player_properties = {"PlayerHealth", "PlayerHealthValue", "PlayerBlood", "PlayerBloodValue", "PlayerWater", "PlayerWaterValue", "PlayerEnergy", "PlayerEnergyValue", "PlayerStamina", "PlayerStaminaValue"};
 		m_PlayerProfileController.NotifyPropertiesChanged(player_properties);
+	}
+
+	void UpdateHaBUIElements()
+	{
+		hab_suicides_spacer.Show(m_ShowHaBStats);
+		hab_affinity_spacer.Show(m_ShowHaBStats);
+		hab_level_spacer.Show(m_ShowHaBStats);
+		hab_humanity_spacer.Show(m_ShowHaBStats);
+		hab_medic_spacer.Show(m_ShowHaBStats);
+		hab_raid_spacer.Show(m_ShowHaBStats);
 	}
 	
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)
@@ -204,17 +213,41 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	
 	override float GetUpdateTickRate()
 	{
+		if (!IsVisible())
+			return -1;
+
 		return 1.0;
 	}
 	
+	override void OnShow()
+	{
+		super.OnShow();
+		
+		Update();  //! 1st update immediately after first shown
+		m_Updated = true;
+
+		if (!GetExpansionSettings().GetMonitoring().Enabled)
+			return;
+
+		CreateUpdateTimer();
+	}
+
 	override void Update()
 	{
 #ifdef EXPANSIONMONITORMODULE
+		if (m_Updated)
+		{
+			m_Updated = false;
+			return
+		}
+
+		if (!IsVisible())
+			return;
+
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (monitorModule)
 		{
-			string playerID = GetGame().GetPlayer().GetIdentity().GetId();
-			monitorModule.RequestPlayerStats(playerID);
+			monitorModule.RequestPlayerStats();
 		}
 #endif
 	}

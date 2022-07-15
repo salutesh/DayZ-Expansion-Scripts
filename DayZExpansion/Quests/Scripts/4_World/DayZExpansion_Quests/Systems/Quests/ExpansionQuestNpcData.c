@@ -40,7 +40,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	
 	void ExpansionQuestNPCData()
 	{
-		ConfigVersion = 1;
+		ConfigVersion = CONFIGVERSION;
 	}
 	
 	void SetID(int id)
@@ -292,7 +292,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".json", this);
 	}
 	
 	void CopyConfig(ExpansionQuestNPCDataBase npcDataBase)

@@ -65,7 +65,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	
 	void ExpansionQuestConfig()
 	{
-		ConfigVersion = 3;
+		ConfigVersion = CONFIGVERSION;
 	}
 
 	void SetType(int type)
@@ -449,7 +449,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName + ".json", this);
 	}
 
 	void CopyConfig(ExpansionQuestConfigBase questConfigBase)

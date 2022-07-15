@@ -132,6 +132,8 @@ enum ExpansionMonitorRPC
 	SendPlayerStats,
 	RequestPlayerStates,
 	SendPlayerStates,
+	RequestPlayerStatsAndStates,
+	SendPlayerStatsAndStates,
 	SyncLastDeathPos,
 	COUNT
 };
@@ -238,14 +240,16 @@ enum ExpansionESPModificationModuleRPC
 	COUNT
 };
 
+//! @note We are getting close to 30 enums in settingsrpc, need to increment following rpcs when we get there
 enum ExpansionSettingsRPC
 {
 	INVALID = 30000,
-	ListToLoad,
 	Debug,
 	Book,
 	BaseBuilding,
 	Map,
+	AddServerMarker,
+	RemoveServerMarker,
 	Market,
 	Notification,
 	Party,
@@ -264,10 +268,9 @@ enum ExpansionSettingsRPC
 	Quest,
 	Chat,
 	AI,
-	AIPATROL,
 	NotificationScheduler,
 	Hardline,
-	COUNT
+	COUNT  //! 28
 };
 
 enum ExpansionCOTBookModuleRPC

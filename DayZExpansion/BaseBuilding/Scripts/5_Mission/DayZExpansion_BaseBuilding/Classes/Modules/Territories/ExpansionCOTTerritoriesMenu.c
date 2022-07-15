@@ -252,8 +252,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			marker.SetIcon( ExpansionIcons.Get( "Marker" ) );
 			marker.SetPosition( pos[0], pos[1] );
 			marker.SetCOTMenu( this );
-			marker.SetPrimaryColor( ARGB( 200, 142, 68, 173 ) );
-			marker.SetHoverColour( ARGB( 200, 255, 255, 255 ) );
+			marker.SetPrimaryColor( ARGB( 255, 142, 68, 173 ) );
+			marker.SetHoverColour( ARGB( 255, 0, 0, 0 ) );
 			marker.SetName( name );
 			marker.SetTerritory( currentTerritory );
 			
@@ -656,7 +656,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		m_MemberID.SetText( member.GetID() );	
 		m_MemberRank.SetText( member.GetRankName() );	
 		
-		if ( IsOnline( member.GetID() ) )
+		if ( PlayerBase.Expansion_IsOnline( member.GetID() ) )
 		{
 			m_MemberStatus.SetText( "Online" );
 			m_MemberStatusIcon.SetColor( ARGB( 255, 39, 174, 96 ) );
@@ -748,27 +748,6 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetContainerObjectInfo - End" );
 		#endif
-	}
-
-	// ------------------------------------------------------------
-	// IsOnline
-	// ------------------------------------------------------------
-	bool IsOnline( string uid )
-	{
-		for ( int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); i++ )
-		{
-			SyncPlayer player = ClientData.m_PlayerList.m_PlayerList.Get( i );
-
-			if ( player )
-			{
-				if ( player.m_RUID == uid )
-				{
-					return true;
-				}
-			}
-		}
-		
-		return false;
 	}
 	
 	// ------------------------------------------------------------

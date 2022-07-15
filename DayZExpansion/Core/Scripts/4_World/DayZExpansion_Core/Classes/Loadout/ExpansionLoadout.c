@@ -673,7 +673,7 @@ class ExpansionHumanLoadout
 	static void DefaultSurvivorWeapon(inout ExpansionPrefabObject loadout)
 	{
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AK101", "Hands");
+			loadout = loadout.BeginAttachment("AK101", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK101_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
@@ -715,7 +715,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AK74", "Hands");
+			loadout = loadout.BeginAttachment("AK74", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
@@ -759,7 +759,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AKS74U", "Hands");
+			loadout = loadout.BeginAttachment("AKS74U", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
@@ -780,7 +780,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AKM", "Hands");
+			loadout = loadout.BeginAttachment("AKM", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
 				loadout.Chance = 0.9;
 				loadout = loadout.End();
@@ -826,7 +826,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MP5K", "Hands");
+			loadout = loadout.BeginAttachment("MP5K", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_MP5_30Rnd");
 				loadout.Chance = 0.8;
 				loadout = loadout.End();
@@ -862,7 +862,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Mosin9130", "Hands");
+			loadout = loadout.BeginAttachment("Mosin9130", "Shoulder");
 				loadout = loadout.BeginAttachment("Ammo_762x54");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PUScopeOptic");
@@ -879,7 +879,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("SKS", "Hands");
+			loadout = loadout.BeginAttachment("SKS", "Shoulder");
 				loadout = loadout.BeginAttachment("Ammo_762x39");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PUScopeOptic");
@@ -896,7 +896,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Ruger1022", "Hands");
+			loadout = loadout.BeginAttachment("Ruger1022", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_Ruger1022_30Rnd");
 				loadout.Chance = 0.4;
 				loadout = loadout.End();
@@ -916,7 +916,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("CZ550", "Hands");
+			loadout = loadout.BeginAttachment("CZ550", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_CZ550_4rnd");
 				loadout.Chance = 0.6;
 				loadout = loadout.End();
@@ -936,7 +936,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("P1", "Hands");
+			loadout = loadout.BeginAttachment("P1", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_P1_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -950,7 +950,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Mp133Shotgun", "Hands");
+			loadout = loadout.BeginAttachment("Mp133Shotgun", "Shoulder");
 				loadout = loadout.BeginAttachment("Ammo_12gaSlug");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("Ammo_12gaPellets");
@@ -966,7 +966,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("CZ527", "Hands");
+			loadout = loadout.BeginAttachment("CZ527", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_CZ527_5rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("HuntingOptic");
@@ -983,7 +983,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("UMP45", "Hands");
+			loadout = loadout.BeginAttachment("UMP45", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_UMP_25Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("ReflexOptic");
@@ -1002,7 +1002,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("CZ61", "Hands");
+			loadout = loadout.BeginAttachment("CZ61", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_CZ61_20Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1016,7 +1016,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("FNX45", "Hands");
+			loadout = loadout.BeginAttachment("FNX45", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_FNX45_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1030,7 +1030,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MKII", "Hands");
+			loadout = loadout.BeginAttachment("MKII", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_MKII_10Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1044,7 +1044,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("CZ75", "Hands");
+			loadout = loadout.BeginAttachment("CZ75", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_CZ75_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1058,7 +1058,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
+			loadout = loadout.BeginAttachment("MakarovIJ70", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1072,7 +1072,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Glock19", "Hands");
+			loadout = loadout.BeginAttachment("Glock19", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1596,7 +1596,7 @@ class ExpansionHumanLoadout
 	static void DefaultWestWeapon(inout ExpansionPrefabObject loadout)
 	{
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Scout", "Hands");
+			loadout = loadout.BeginAttachment("Scout", "Shoulder");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_Scout_5Rnd");
 				loadout = loadout.End();
@@ -1632,7 +1632,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("FAMAS", "Hands");
+			loadout = loadout.BeginAttachment("FAMAS", "Shoulder");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_FAMAS_25Rnd");
 				loadout = loadout.End();
@@ -1647,7 +1647,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("M4A1", "Hands");
+			loadout = loadout.BeginAttachment("M4A1", "Shoulder");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_STANAG_30Rnd");
 				loadout.Chance = 0.60;
@@ -1722,7 +1722,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Aug", "Hands");
+			loadout = loadout.BeginAttachment("Aug", "Shoulder");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_Aug_30Rnd");
 				loadout = loadout.End();
@@ -1737,7 +1737,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AugShort", "Hands");
+			loadout = loadout.BeginAttachment("AugShort", "Shoulder");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_Aug_30Rnd");
 				loadout = loadout.End();
@@ -1778,7 +1778,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("M16A2", "Hands");
+			loadout = loadout.BeginAttachment("M16A2", "Shoulder");
 			loadout.SetHealth(0.7, 1.0);
 				loadout = loadout.BeginAttachment("Mag_STANAG_60Rnd");
 				loadout.Chance = 0.2;
@@ -2060,7 +2060,7 @@ class ExpansionHumanLoadout
 	static void DefaultEastWeapon(inout ExpansionPrefabObject loadout)
 	{
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AK101", "Hands");
+			loadout = loadout.BeginAttachment("AK101", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK101_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
@@ -2102,7 +2102,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AK74", "Hands");
+			loadout = loadout.BeginAttachment("AK74", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AK_PlasticBttstck");
@@ -2146,7 +2146,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AKS74U", "Hands");
+			loadout = loadout.BeginAttachment("AKS74U", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
@@ -2167,7 +2167,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AKM", "Hands");
+			loadout = loadout.BeginAttachment("AKM", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
 				loadout.Chance = 0.9;
 				loadout = loadout.End();
@@ -2213,7 +2213,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("SVD", "Hands");
+			loadout = loadout.BeginAttachment("SVD", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_SVD_10Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PSO1Optic");
@@ -2232,7 +2232,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("PP19", "Hands");
+			loadout = loadout.BeginAttachment("PP19", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PP19_Bttstck");
@@ -2256,7 +2256,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("FAL", "Hands");
+			loadout = loadout.BeginAttachment("FAL", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_FAL_20Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("Fal_FoldingBttstck");
@@ -2606,7 +2606,7 @@ class ExpansionHumanLoadout
 	static void DefaultTTsKOWeapon(inout ExpansionPrefabObject loadout)
 	{
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AKS74U", "Hands");
+			loadout = loadout.BeginAttachment("AKS74U", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AK74_30Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AKS74U_Bttstck");
@@ -2627,7 +2627,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("AKM", "Hands");
+			loadout = loadout.BeginAttachment("AKM", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AKM_30Rnd");
 				loadout.Chance = 0.9;
 				loadout = loadout.End();
@@ -2673,7 +2673,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("PP19", "Hands");
+			loadout = loadout.BeginAttachment("PP19", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_PP19_64Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PP19_Bttstck");
@@ -2697,7 +2697,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 		
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("SKS", "Hands");
+			loadout = loadout.BeginAttachment("SKS", "Shoulder");
 				loadout = loadout.BeginAttachment("Ammo_762x39");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -2937,7 +2937,7 @@ class ExpansionHumanLoadout
 	static void DefaultPoliceWeapon(inout ExpansionPrefabObject loadout)
 	{
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MP5K", "Hands");
+			loadout = loadout.BeginAttachment("MP5K", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_MP5_30Rnd");
 				loadout.Chance = 0.8;
 				loadout = loadout.End();
@@ -2973,7 +2973,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Mp133Shotgun", "Hands");
+			loadout = loadout.BeginAttachment("Mp133Shotgun", "Shoulder");
 				loadout = loadout.BeginAttachment("Ammo_12gaRubberSlug");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -2987,7 +2987,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("CZ61", "Hands");
+			loadout = loadout.BeginAttachment("CZ61", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_CZ61_20Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -3001,7 +3001,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
+			loadout = loadout.BeginAttachment("MakarovIJ70", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -3015,7 +3015,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Glock19", "Hands");
+			loadout = loadout.BeginAttachment("Glock19", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -3110,7 +3110,7 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("BaseballBat", "Melee");
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("AKM", "Hands");
+			loadout = loadout.BeginAttachment("AKM", "Shoulder");
 				loadout = loadout.BeginAttachment("Mag_AKM_Drum75Rnd");
 				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("AK_PlasticBttstck");

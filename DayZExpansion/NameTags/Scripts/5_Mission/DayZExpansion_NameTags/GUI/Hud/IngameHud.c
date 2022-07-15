@@ -17,31 +17,6 @@ modded class IngameHud
 	protected ImageWidget m_PlayerTagIcon;
 	protected string m_PlayerTagIconPath;
 	
-	void IngameHud()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "IngameHud");
-#endif
-
-		string path = GetExpansionSettings().GetNameTags().PlayerTagsIcon;
-		if (path != string.Empty)
-		{
-			string icon = ExpansionIcons.GetPath(path);
-			if (icon != string.Empty)
-			{
-				 m_PlayerTagIconPath = icon;
-			}
-			else
-			{
-				m_PlayerTagIconPath = path;
-			}
-		}
-		else
-		{
-			m_PlayerTagIconPath = "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds";
-		}
-	}
-	
 	override void Update( float timeslice )
 	{
 		super.Update(timeslice);
@@ -127,6 +102,8 @@ modded class IngameHud
 				m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NameTags/GUI/layouts/expansion_hud_player_tag.layout");
 				m_PlayerTagText = TextWidget.Cast(m_PlayerTag.FindAnyWidget("TagText"));
 				m_PlayerTagIcon = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIcon"));
+				if (!m_PlayerTagIconPath)
+					Expansion_SetPlayerTagIconPath();
 				m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
 				m_PlayerTagIcon.SetImage(0);
 			}
@@ -163,6 +140,27 @@ modded class IngameHud
 				m_PlayerTagIcon.Show(false);
 				m_CurrentTaggedPlayer = null;
 			}
+		}
+	}
+
+	void Expansion_SetPlayerTagIconPath()
+	{
+		string path = GetExpansionSettings().GetNameTags().PlayerTagsIcon;
+		if (path != string.Empty)
+		{
+			string icon = ExpansionIcons.GetPath(path);
+			if (icon != string.Empty)
+			{
+				 m_PlayerTagIconPath = icon;
+			}
+			else
+			{
+				m_PlayerTagIconPath = path;
+			}
+		}
+		else
+		{
+			m_PlayerTagIconPath = "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds";
 		}
 	}
 };

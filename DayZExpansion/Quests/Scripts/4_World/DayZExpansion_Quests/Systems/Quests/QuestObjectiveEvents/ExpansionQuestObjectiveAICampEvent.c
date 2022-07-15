@@ -78,8 +78,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	
 				eAIGroup group = patrol.m_Group;
 				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
-				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
-				ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
+				if (group)
+				{
+					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
+					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
+				}
 	
 				patrol.Despawn();
 				patrol.Delete();
@@ -124,22 +127,21 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if (!aiCamp)
 			return;
 		
-		int findIndex;
 		//! If the ai camp need to be killed with a special weapon check incoming killer class type
 		if (aiCamp.NeedSpecialWeapon())
 		{
-			findIndex = -1;
-			findIndex = aiCamp.GetAllowedWeapons().Find(killer.GetType());
-			if (findIndex == -1)
+			if (!ExpansionStatic.IsAnyOf(killer.GetType(), aiCamp.GetAllowedWeapons(), killer.ClassName()))
 				return;
 		}
 		
 		//! Check if killed entities class name is a valid one from our objective config
-		findIndex = -1;
-		findIndex = aiCamp.GetClassNames().Find(victim.ClassName());
-		Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
+		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), aiCamp.GetClassNames(), victim.ClassName());
 
-		if (findIndex == -1)
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::OnEntityKilled - Target found: " + found);
+	#endif
+
+		if (!found)
 			return;
 		
 		//! Check if killed ai entity was part of this objective event group
@@ -225,6 +227,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			waypoint.Insert(pos);
 
 			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), true, false, waypoint);
+			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
 			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 			if (!patrol)
 				return;
@@ -288,7 +291,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]+" and will patrol at "+group.Waypoints);
 
-		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, eAIFaction.Create(group.Faction), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, eAIFaction.Create(group.Faction), eAIFormation.Create(group.Formation), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
 
 		Print("=================== Expansion Quest AI Patrol ===================");
 		return patrol;

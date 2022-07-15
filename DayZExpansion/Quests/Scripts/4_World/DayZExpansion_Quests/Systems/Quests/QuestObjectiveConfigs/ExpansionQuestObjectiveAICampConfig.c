@@ -100,7 +100,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + ".json", this);
 	}
 	
 	void CopyConfig(ExpansionQuestObjectiveAICampConfigBase configBase)

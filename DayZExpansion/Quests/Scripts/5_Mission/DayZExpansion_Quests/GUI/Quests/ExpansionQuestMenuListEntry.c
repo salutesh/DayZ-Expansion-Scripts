@@ -17,6 +17,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	private ExpansionQuestMenu m_QuestMenu;
 	private ExpansionQuestModule m_QuestModule;
 
+	private Widget Background;
 	private ButtonWidget Button;
 	private TextWidget Text;
 	private ImageWidget QuestIcon;
@@ -67,7 +68,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		else if (questState == ExpansionQuestState.CAN_TURNIN)
 		{
 			QuestIcon.SetImage(1);
-			QuestIcon.SetColor(ARGB(255, 39, 174, 96));
+			QuestIcon.SetColor(ARGB(200, 39, 174, 96));
 		}
 	}
 
@@ -84,30 +85,30 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		if (quest.IsRepeatable() && !quest.IsGroupQuest())
 	#endif
 		{
-			color = ARGB(255, 52, 152, 219);
+			color = ARGB(200, 52, 152, 219);
 		}
 		else if (quest.IsGroupQuest())
 		{
-			color = ARGB(255, 192, 57, 43);
+			color = ARGB(200, 192, 57, 43);
 		}
 		else if (!quest.IsGroupQuest() && !quest.IsRepeatable())
 		{
-			color = ARGB(255, 241, 196, 15);
+			color = ARGB(200, 241, 196, 15);
 		}
 	#ifdef EXPANSIONMODHARDLINE
 		else if (quest.IsBanditQuest())
 		{
-			color = COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE;
+			color = ARGB(200, 225, 112, 85);
 		}
 		else if (quest.IsHeroQuest())
 		{
-			color = COLOR_EXPANSION_NOTIFICATION_TURQUOISE;
+			color = ARGB(200, 26, 188, 156);
 		}
 	#endif
 	#ifdef EXPANSIONMODAI
 		else if (quest.GetType() == ExpansionQuestType.AIPATROL || quest.GetType() == ExpansionQuestType.AICAMP)
 		{
-			color = ARGB(255, 142, 68, 173);
+			color = ARGB(200, 142, 68, 173);
 		}
 	#endif
 
@@ -148,12 +149,14 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 	void SetHighlight()
 	{
-		Text.SetColor(ARGB(255, 220, 220, 220));
+		Text.SetColor(ARGB(255, 0, 0, 0));
+		Background.SetColor(ARGB(200, 220, 220, 220));
 	}
 
 	void SetNormal()
 	{
-		Text.SetColor(ARGB(255, 0, 0, 0));
+		Text.SetColor(ARGB(255, 220, 220, 220));
+		Background.SetColor(ARGB(200, 0, 0, 0));
 	}
 };
 

@@ -85,7 +85,7 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 		SetTraderObject(new ExpansionTraderObjectBase(this, fileName));
 	}
 
-	bool Expansion_IsTrader()
+	override bool Expansion_IsTrader()
 	{
 		return true;
 	}

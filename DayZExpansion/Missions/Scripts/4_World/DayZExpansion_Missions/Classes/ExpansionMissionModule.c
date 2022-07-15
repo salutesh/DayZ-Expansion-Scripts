@@ -89,8 +89,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		m_MissionsTyped = new map< typename, ref array< ExpansionMissionEventBase > >;
 
-		m_MissionSettings = GetExpansionSettings().GetMission();
-
 		m_RunningMissions = new array< ExpansionMissionEventBase >;
 
 		ExpansionMissionSettings.SI_OnSave.Insert( SaveMissions );
@@ -120,6 +118,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 		{
 			m_MissionTypesArray.Insert(missionType);
 		}
+
+		m_MissionSettings = GetExpansionSettings().GetMission();
 
 		if ( m_MissionSettings.DidGenerateDefaults() )
 		{

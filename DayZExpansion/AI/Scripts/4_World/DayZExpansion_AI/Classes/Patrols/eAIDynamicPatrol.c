@@ -14,6 +14,7 @@ class eAIDynamicPatrol : eAIPatrol
 	int m_RespawnTime; // negative respawn time = patrol won't respawn
 	string m_Loadout;
 	ref eAIFaction m_Faction;
+	ref eAIFormation m_Formation;
 	bool m_CanBeLooted;
 	bool m_UnlimitedReload;
 
@@ -39,7 +40,7 @@ class eAIDynamicPatrol : eAIPatrol
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol CreateEx(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float despawnR = 880, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
+	static eAIDynamicPatrol CreateEx(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, eAIFormation formation = null, bool autoStart = true, float minR = 300, float maxR = 800, float despawnR = 880, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -59,10 +60,12 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_MovementSpeedLimit = speedLimit;
 		patrol.m_MovementThreatSpeedLimit = threatspeedLimit;
 		patrol.m_Faction = faction;
+		patrol.m_Formation = formation;
 		patrol.m_CanBeLooted = canBeLooted;
 		patrol.m_UnlimitedReload = unlimitedReload;
 		patrol.m_CanSpawn = true;
 		if (patrol.m_Faction == null) patrol.m_Faction = new eAIFactionCivilian();
+		if (patrol.m_Formation == null) patrol.m_Formation = new eAIFormationVee();
 		if (autoStart) patrol.Start();
 		return patrol;
 	}
@@ -70,7 +73,7 @@ class eAIDynamicPatrol : eAIPatrol
 	//! Legacy w/ despawnR = maxR * 1.1 for people still using it
 	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
 	{
-		return CreateEx(pos, waypoints, behaviour, loadout, count, respawnTime, faction, autoStart, minR, maxR, maxR * 1.1, speedLimit, threatspeedLimit, canBeLooted, unlimitedReload);
+		return CreateEx(pos, waypoints, behaviour, loadout, count, respawnTime, faction, null, autoStart, minR, maxR, maxR * 1.1, speedLimit, threatspeedLimit, canBeLooted, unlimitedReload);
 	}
 
 	private eAIBase SpawnAI(vector pos)
@@ -136,6 +139,7 @@ class eAIDynamicPatrol : eAIPatrol
 		eAIBase ai = SpawnAI(m_Position);
 		m_Group = ai.GetGroup();
 		m_Group.SetFaction(m_Faction);
+		m_Group.SetFormation(m_Formation);
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
 		foreach (vector v : m_Waypoints) m_Group.AddWaypoint(v);
 

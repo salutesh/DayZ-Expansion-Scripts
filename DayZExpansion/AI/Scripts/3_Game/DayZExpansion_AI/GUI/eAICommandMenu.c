@@ -249,7 +249,8 @@ class eAICommandMenu extends UIScriptedMenu
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNBEAR, "Bear", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNWOLF, "Wolf", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNZOM, "Zombie", eAICommandCategories.CAT_DEBUG));
-			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Hostile AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSENTRY, "Mercenary AI", eAICommandCategories.CAT_DEBUG));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNSHAMAN, "Shaman AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNGUARD, "Guard AI", eAICommandCategories.CAT_DEBUG));
 			gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_SPAWNPASSIVE, "Passive AI", eAICommandCategories.CAT_DEBUG));
 			if (IsMissionOffline())

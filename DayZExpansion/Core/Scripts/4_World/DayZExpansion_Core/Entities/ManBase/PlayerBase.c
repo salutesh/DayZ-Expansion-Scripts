@@ -147,29 +147,100 @@ modded class PlayerBase
 		return s_Expansion_AllPlayers;
 	}
 
+	static set<PlayerBase> Expansion_GetInSphere(vector position, int radius)
+	{
+		int radiusSq = radius * radius;
+		set<PlayerBase> players();
+
+		if ( IsMissionHost() )
+		{
+			foreach (PlayerBase pb: s_Expansion_AllPlayersUID)
+			{
+				if (vector.DistanceSq(position, pb.GetPosition()) > radiusSq)
+					continue;
+
+				players.Insert(pb);
+			}
+		}
+		else
+		{
+			PlayerBase pbc;
+			//! @note ClientData.m_PlayerBaseList only contains players in network bubble
+			foreach (Man player: ClientData.m_PlayerBaseList)
+			{
+				if (!Class.CastTo( pbc, player ))
+					continue;
+
+				if (vector.DistanceSq(position, pbc.GetPosition()) > radiusSq)
+					continue;
+
+				players.Insert(pbc);
+			}
+		}
+		
+		return players;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetPlayerByUID
 	// string id = PlayerIdentity::GetId()
-	// Can be used on server/client side
+	// Can be used on server/client side (note that on client, will only see players in network bubble)
 	// ------------------------------------------------------------
 	static PlayerBase GetPlayerByUID( string id )
 	{
 		if ( IsMissionHost() )
 		{
 			return s_Expansion_AllPlayersUID.Get( id );
-		} else
+		}
+		else
 		{
-			for ( int j = 0; j < ClientData.m_PlayerBaseList.Count(); ++j )
+			PlayerBase pbc;
+			//! @note ClientData.m_PlayerBaseList only contains players in network bubble
+			foreach (Man player: ClientData.m_PlayerBaseList)
 			{
-				PlayerBase player;
-				if ( !Class.CastTo( player, ClientData.m_PlayerBaseList[j] ) || !player.GetIdentity() )
+				if ( !Class.CastTo( pbc, player ) || !pbc.GetIdentity() )
 					continue;
 				
-				if ( player.GetIdentity().GetId() == id )
-					return player;
+				if ( pbc.GetIdentity().GetId() == id )
+					return pbc;
 			}
 		}
 		
+		return NULL;
+	}
+
+	// ------------------------------------------------------------
+	// PlayerBase Expansion_GetByPlainID
+	// string id = PlayerIdentity::GetPlainId()
+	// Can be used on server/client side (note that on client, will only see players in network bubble)
+	static PlayerBase Expansion_GetByPlainID(string id)
+	{
+		if ( IsMissionHost() )
+		{
+			foreach (PlayerBase pb: s_Expansion_AllPlayersUID)
+			{
+				if (!pb.GetIdentity())
+					continue;
+				
+				if ( pb.GetIdentity().GetPlainId() == id )
+					return pb;
+			}
+		}
+		else if (ClientData.m_PlayerList && ClientData.m_PlayerList.m_PlayerList)
+		{
+			//! @note on client, PlayerIdentity::GetPlainId() will return empty string,
+			//! so we have to find corresponding SyncPlayer and can then match with associated player using normal (hashed) ID.
+			//! While ClientData.m_PlayerList.m_PlayerList contains ALL players, ClientData.m_PlayerBaseList only contains players in network bubble
+			foreach (SyncPlayer syncPlayer: ClientData.m_PlayerList.m_PlayerList)
+			{
+				if (!syncPlayer)
+					continue;
+
+				if (syncPlayer.m_UID == id)
+					return GetPlayerByUID(syncPlayer.m_RUID);
+			}
+		}
+
 		return NULL;
 	}
 
@@ -180,6 +251,27 @@ modded class PlayerBase
 			return PlayerBase.Cast( GetGame().GetPlayer() );
 
 		return GetPlayerByUID(identity.GetId());
+	}
+
+	static bool Expansion_IsOnline(string uid)
+	{
+		if ( IsMissionHost() )
+		{
+			return s_Expansion_AllPlayersUID.Contains(uid);
+		}
+		else if (ClientData.m_PlayerList && ClientData.m_PlayerList.m_PlayerList)
+		{
+			foreach (SyncPlayer syncPlayer: ClientData.m_PlayerList.m_PlayerList)
+			{
+				if (!syncPlayer)
+					continue;
+
+				if (syncPlayer.m_RUID == uid)
+					return true;
+			}
+		}
+		
+		return false;
 	}
 
 	// ------------------------------------------------------------

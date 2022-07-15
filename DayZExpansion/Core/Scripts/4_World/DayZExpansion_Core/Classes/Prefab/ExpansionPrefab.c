@@ -33,7 +33,7 @@ class ExpansionPrefab : ExpansionPrefabObject
 		return null;
 	}
 
-	string GetPath()
+	override string GetPath()
 	{
 		return m_Path;
 	}

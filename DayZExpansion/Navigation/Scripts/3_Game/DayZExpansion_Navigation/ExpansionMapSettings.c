@@ -31,7 +31,7 @@ class ExpansionMapSettingsBase: ExpansionSettingBase
 	bool EnableServerMarkers;							//! Show server markers
 	bool ShowNameOnServerMarkers;				//! Show the name of server markers
 	bool ShowDistanceOnServerMarkers;			//! Show the distance of server markers
-		
+
 	//! WARNING, Do not send over ExpansionMapSettings as a variable, use OnSend.
 	//! Failure will result in ServerMarkers incurring a memory leak on the client.
 	ref array< ref ExpansionMarkerData > ServerMarkers;
@@ -43,11 +43,11 @@ class ExpansionMapSettingsBase: ExpansionSettingBase
 class ExpansionMapSettings: ExpansionMapSettingsBase
 {
 	static const int VERSION = 4;
-	
+
 	//! v2
 	bool EnableHUDCompass;							//! Allow player to use HUD Compass.
 	bool NeedCompassItemForHUDCompass;		//! Requires Compass Item to show the hud compass.
-	bool NeedGPSItemForHUDCompass;			//! Requires GPS Item to show the hud compass.		
+	bool NeedGPSItemForHUDCompass;			//! Requires GPS Item to show the hud compass.
 	int CompassColor;										//! Color of the HUD Compass.
 
 	//! v3
@@ -55,35 +55,35 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 	//! v4 (moved from GeneralSettings)
 	bool PlayerLocationNotifier;
-	
+
 	[NonSerialized()]
 	private ref map< string, ExpansionMarkerData > ServerMarkersMap;
-	
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
-	
+
 	// ------------------------------------------------------------
 	void ExpansionMapSettings()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::ExpansionMapSettings - Start");
 		#endif
-		
+
 		ServerMarkers = new array< ref ExpansionMarkerData >;
 		ServerMarkersMap = new map< string, ExpansionMarkerData >;
-		
+
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::ExpansionMapSettings - End");
 		#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	void ~ExpansionMapSettings()
 	{
 		delete ServerMarkers;
 		delete ServerMarkersMap;
 	}
-	
+
 	// ------------------------------------------------------------
 	bool AddServerMarker(  ExpansionMarkerData marker )
 	{
@@ -92,7 +92,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 			string newUid = "" + Math.RandomInt( 0, int.MAX );
 			while ( ServerMarkersMap.Get( newUid ) )
 				newUid = "" + Math.RandomInt( 0, int.MAX );
-			
+
 			marker.SetUID( newUid );
 		} else if ( ServerMarkersMap.Get( marker.GetUID() ) )
 			return false;
@@ -100,21 +100,29 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		ServerMarkers.Insert( marker );
 		ServerMarkersMap.Insert( marker.GetUID(), marker );
 
+		if (EnableServerMarkers && GetGame().IsDedicatedServer())
+		{
+			ScriptRPC rpc = new ScriptRPC;
+			rpc.Write(marker.GetUID());
+			marker.OnSend(rpc);
+			rpc.Send(null, ExpansionSettingsRPC.AddServerMarker, true);
+		}
+
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	bool RemoveServerMarker( string uid )
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::RemoveServerMarker - Start");
 		#endif
-		
+
 		ExpansionMarkerData server_markerMap = ServerMarkersMap.Get( uid );
 		if ( server_markerMap )
 		{
 			ServerMarkersMap.Remove( uid );
-		
+
 			for ( int index = 0; index < ServerMarkers.Count(); ++index )
 			{
 				ExpansionMarkerData server_marker = ServerMarkers[index];
@@ -123,12 +131,19 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 					ServerMarkers.Remove( index );
 				}
 			}
-			
+
 			delete server_markerMap;
-			
+
+			if (EnableServerMarkers && GetGame().IsDedicatedServer())
+			{
+				ScriptRPC rpc = new ScriptRPC;
+				rpc.Write(uid);
+				rpc.Send(null, ExpansionSettingsRPC.RemoveServerMarker, true);
+			}
+
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -190,10 +205,10 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		int index = 0;
 		int removeIndex = 0;
 		string uid = "";
-		
+
 		if ( !ctx.Read( count ) )
 			return false;
-			
+
 		ExpansionMarkerData marker;
 		array< string > checkArr = ServerMarkersMap.GetKeyArray();
 		for ( index = 0; index < count; ++index )
@@ -226,14 +241,14 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_Map.Invoke();
-		
+
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMapSettings::OnRecieve - End");
 		#endif
 
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
@@ -245,7 +260,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		ctx.Write( NeedGPSItemForCreateMarker );
 		ctx.Write( CanCreateMarker );
 		ctx.Write( CanCreate3DMarker );
-		ctx.Write( ShowDistanceOnPersonalMarkers );		
+		ctx.Write( ShowDistanceOnPersonalMarkers );
 		ctx.Write( CanOpenMapWithKeyBinding );
 		ctx.Write( EnableHUDGPS );
 		ctx.Write( NeedGPSItemForKeyBinding );
@@ -259,12 +274,13 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		ctx.Write( CompassColor );
 		ctx.Write( CreateDeathMarker );
 		ctx.Write( PlayerLocationNotifier );
-		
+
 		int count = 0;
 		int index = 0;
 		string uid = "";
-		
-		count = ServerMarkers.Count();
+
+		if (EnableServerMarkers)
+			count = ServerMarkers.Count();
 		ctx.Write( count );
 		for ( index = 0; index < count; ++index )
 		{
@@ -279,16 +295,16 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
 #endif
-		
+
 		if ( !IsMissionHost() )
 		{
 			return 0;
 		}
-		
+
 		ScriptRPC rpc = new ScriptRPC;
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Map, true, identity );
-		
+
 		return 0;
 	}
 
@@ -317,11 +333,11 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		//! v4 (moved from GeneralSettings)
 		PlayerLocationNotifier = s.PlayerLocationNotifier;
-		
+
 		ExpansionMapSettingsBase sb = s;
 		CopyInternal( sb, copyServerMarkers );
 	}
-	
+
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionMapSettingsBase s, bool copyServerMarkers = true )
 	{
@@ -352,7 +368,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		NeedGPSItemForKeyBinding = s.NeedGPSItemForKeyBinding;
 		NeedMapItemForKeyBinding = s.NeedMapItemForKeyBinding;
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
@@ -364,7 +380,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	{
 		m_IsLoaded = false;
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
@@ -373,7 +389,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 #endif
 
 		m_IsLoaded = true;
-			
+
 		//! Move existing settings file over from old location in $profile to new location in $mission
 		string fileNameOld = EXPANSION_SETTINGS_FOLDER + "MapSettings.json";
 		if (FileExist(fileNameOld))
@@ -386,7 +402,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		if (mapSettingsExist)
 		{
 			EXPrint("[ExpansionMapSettings] Load existing setting file:" + EXPANSION_MAP_SETTINGS);
-			
+
 			ExpansionMapSettings settingsDefault = new ExpansionMapSettings;
 			settingsDefault.Defaults();
 
@@ -431,10 +447,23 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 				JsonFileLoader<ExpansionMapSettings>.JsonLoadFile(EXPANSION_MAP_SETTINGS, this);
 			}
 
-			for (int index = 0; index < ServerMarkers.Count(); ++index)
+			vector surfacePosition;
+			vector markerPosition;
+
+			foreach (auto serverMarker: ServerMarkers)
 			{
-				if (ServerMarkers[index])
-					ServerMarkersMap.Insert(ServerMarkers[index].GetUID(), ServerMarkers[index]);
+				markerPosition = serverMarker.GetPosition();
+				surfacePosition = ExpansionStatic.GetSurfacePosition(markerPosition);
+
+				// If the marker pos is below the terrain, update it's position and save the change
+				// This is meant to fix "faulty" markers configured by server hosters
+				if (surfacePosition[1] > markerPosition[1])
+				{
+					serverMarker.SetPosition(surfacePosition);
+					save = true;
+				}
+
+				ServerMarkersMap.Insert(serverMarker.GetUID(), serverMarker);
 			}
 		}
 		else
@@ -443,10 +472,10 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 			Defaults();
 			save = true;
 		}
-		
+
 		if (save)
 			Save();
-		
+
 		return mapSettingsExist;
 	}
 
@@ -454,7 +483,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	override bool OnSave()
 	{
 		Print("[ExpansionMapSettings] Saving settings");
-		
+
 		JsonFileLoader<ExpansionMapSettings>.JsonSaveFile( EXPANSION_MAP_SETTINGS, this );
 
 		return true;
@@ -464,7 +493,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	override void Defaults()
 	{
 		m_Version = VERSION;
-		
+
 		EnableMap = true;
 		UseMapOnMapItem = true;
 		NeedPenItemForCreateMarker = false;
@@ -474,38 +503,38 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		CanCreateMarker = true;
 		CanCreate3DMarker = true;
 		ShowDistanceOnPersonalMarkers = true;
-		
+
 		EnableServerMarkers = true;
 
 		CanOpenMapWithKeyBinding = true;
-		
+
 		ShowNameOnServerMarkers = true;
 		ShowDistanceOnServerMarkers = true;
-	
+
 		EnableHUDGPS = true;
 
 		NeedGPSItemForKeyBinding = true;
 		NeedMapItemForKeyBinding = false;
-		
+
 		EnableHUDCompass = true;
 		NeedCompassItemForHUDCompass = true;
 		NeedGPSItemForHUDCompass = true;
 		CompassColor = ARGB(255,255,255,255);
 		CreateDeathMarker = true;
-		
+
 		PlayerLocationNotifier = true;
-		
+
 	#ifdef EXPANSIONMODMARKET
-		
+
 		string world_name = "empty";
 		GetGame().GetWorldName(world_name);
 		world_name.ToLower();
-		
+
 		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
 		{
 			world_name = world_name.Substring(0, world_name.Length() - 5);
 		}
-		
+
 		switch ( world_name )
 		{
 			case "chernarusplus":
@@ -530,7 +559,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 			}
 		}
 	#endif
-		
+
 		int index = 0;
 		for (index = 0; index < ServerMarkers.Count(); ++index)
 		{
@@ -538,7 +567,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 				ServerMarkersMap.Insert(ServerMarkers[index].GetUID(), ServerMarkers[index]);
 		}
 	}
-	
+
 	void DefaultChernarusMarkers()
 	{
 		//! Krasnostrav Airsrip Trader
@@ -549,9 +578,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(11882, 143, 12466));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
-		
+
 		ServerMarkers.Insert(marker);
-		
+
 		//! Kamenka Trader
 		marker = new ExpansionServerMarkerData("ServerMarker_Trader_Kamenka");
 		marker.Set3D(true);
@@ -560,9 +589,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(1101, 8, 2382));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
-		
+
 		ServerMarkers.Insert(marker);
-		
+
 		//! Boats Kamenka Trader
 		marker = new ExpansionServerMarkerData("ServerMarker_Boats_Kamenka");
 		marker.Set3D(true);
@@ -571,9 +600,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(1756, 4, 2027));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
-		
+
 		ServerMarkers.Insert(marker);
-		
+
 		//! Aircrafts Balota Trader
 		marker = new ExpansionServerMarkerData("ServerMarker_Aircrafts_Balota");
 		marker.Set3D(true);
@@ -584,7 +613,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
 
 		ServerMarkers.Insert(marker);
-		
+
 		//! Boats Svetloyarsk Trader
 		marker = new ExpansionServerMarkerData("ServerMarker_Boats_Svetloyarsk");
 		marker.Set3D(true);
@@ -595,7 +624,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
 
 		ServerMarkers.Insert(marker);
-		
+
 		//! Green Montain Trader
 		marker = new ExpansionServerMarkerData("ServerMarker_Trader_Green_Montain");
 		marker.Set3D(true);
@@ -607,7 +636,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		ServerMarkers.Insert(marker);
 	}
-	
+
 	void DefaultNamalskMarkers()
 	{
 		//! Airsrip Trader
@@ -618,9 +647,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(6305, 26, 9521));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
-		
+
 		ServerMarkers.Insert(marker);
-		
+
 		//! Jalovisko Trader Camp
 		marker = new ExpansionServerMarkerData("ServerMarker_Trader_Jalovisko");
 		marker.Set3D(true);
@@ -629,9 +658,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(8583.67, 29, 10515));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
-		
+
 		ServerMarkers.Insert(marker);
-		
+
 		//!  Tara Harbor
 		marker = new ExpansionServerMarkerData("ServerMarker_Trader_TaraHarbor");
 		marker.Set3D(true);
@@ -640,10 +669,10 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		marker.SetColor(-13710223);
 		marker.SetPosition(Vector(8043.45, 10, 7593.45));
 		marker.SetVisibility(EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP);
-		
+
 		ServerMarkers.Insert(marker);
 	}
-	
+
 	void DefaultTakistanMarkers()
 	{
 		//! Marastar Oasis
@@ -657,7 +686,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		ServerMarkers.Insert(marker);
 	}
-	
+
 	void DefaultChiemseeMarkers()
 	{
 		//! NeviHoff
@@ -682,7 +711,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		ServerMarkers.Insert(marker);
 	}
-	
+
 	// ------------------------------------------------------------
 	override string SettingName()
 	{

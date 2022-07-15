@@ -429,6 +429,10 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		if (!senderPlayer || !targetPlayer)
 		{
+			if (!senderPlayer)
+				EXPrint(ToString() + "::RPC_InvitePlayerServer - could not find sender player " + sender.GetId());
+			if (!targetPlayer)
+				EXPrint(ToString() + "::RPC_InvitePlayerServer - could not find target player " + targetID);
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_PLAYERBASE").Error(sender);
 			return;
 		}

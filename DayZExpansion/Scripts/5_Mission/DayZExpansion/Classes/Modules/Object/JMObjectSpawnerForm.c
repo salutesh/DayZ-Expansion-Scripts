@@ -79,7 +79,9 @@ modded class JMObjectSpawnerForm
 	private static ref array< string > itemsList =
 	{
 		"placing",
+#ifndef DIAG
 		"debug",
+#endif
 		"bldr_",
 		#ifndef EXPANSION_COT_VEHICLE_JACOB
 		"vehicle_",

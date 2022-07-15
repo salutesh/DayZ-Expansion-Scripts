@@ -99,30 +99,6 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		m_Player = player;
 	}
 	
-	bool IsPlayerOnline(string uid)
-	{
-		if (GetGame().GetPlayer().GetIdentity().GetId() == uid)
-		{
-			return true;
-		}
-		else
-		{
-			for (int i = 0; i < ClientData.m_PlayerList.m_PlayerList.Count(); i++)
-			{
-				SyncPlayer player = ClientData.m_PlayerList.m_PlayerList[i];
-				if (player)
-				{
-					if (player.m_RUID == uid)
-					{
-						return true;
-					}
-				}
-			}
-		}
-		
-		return false;
-	}
-	
 	void SetTab()
 	{
 		if (!GetMemberPartyData())
@@ -149,7 +125,7 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		m_MemberEditController.MemberName = GetMemberPartyData().GetName();
 		m_MemberEditController.NotifyPropertyChanged("MemberName");
 		
-		if (IsPlayerOnline(GetMemberPartyData().GetID()))
+		if (PlayerBase.Expansion_IsOnline(GetMemberPartyData().GetID()))
 		{
 			SetMemberPreview(GetMemberPartyData().GetID());
 			member_status_icon.SetColor(ARGB(255, 22, 160, 133));

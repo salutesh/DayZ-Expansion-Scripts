@@ -13,91 +13,14 @@
 modded class ExpansionSettings
 {
 	static ref ScriptInvoker SI_Market = new ScriptInvoker();
-	
-	protected autoptr ExpansionMarketSettings m_SettingsMarket;
-	
-	// ------------------------------------------------------------
-	// Expansion OnServerInit
-	// ------------------------------------------------------------
-	override protected void OnServerInit()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
-#endif
 
-		LoadSetting( m_SettingsMarket);
-
-		m_NetworkedSettings.Insert( "expansionmarketsettings" );
-		
-		super.OnServerInit();
-	}
-
-	// ------------------------------------------------------------
-	override void Unload()
-	{
-		super.Unload();
-
-		m_SettingsMarket.Unload();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CheckSettingsLoaded
-	// Called on Client
-	// ------------------------------------------------------------
-	override protected void CheckSettingsLoaded()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CheckSettingsLoaded");
-#endif
-
-		if ( !IsMissionClient() )
-		{
-			m_SettingsLoaded = true;
-
-			return;
-		}
-
-		if ( m_SettingsLoaded )
-			return;
-		
-		if ( !IsSettingLoaded( m_SettingsMarket, m_SettingsLoaded ) )
-			return;
-
-		super.CheckSettingsLoaded();
-	}
-	
-	// ------------------------------------------------------------
-	// Override Init
-	// ------------------------------------------------------------
 	override void Init()
 	{
-		m_SettingsMarket = new ExpansionMarketSettings;
-
 		super.Init();
+
+		Init(ExpansionMarketSettings);
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Send
-	// Can only be called on the server.
-	// ------------------------------------------------------------
-	override void Send( notnull PlayerIdentity identity )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
 
-		if ( IsMissionClient() )
-			return;
-
-		super.Send( identity );
-
-		m_SettingsMarket.Send( identity );
-
-	}
-	
-	// ------------------------------------------------------------
-	// OnRPC
-	// ------------------------------------------------------------
 	override bool OnRPC( PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx )
 	{
 #ifdef EXPANSIONTRACE
@@ -114,38 +37,16 @@ modded class ExpansionSettings
 		{
 			case ExpansionSettingsRPC.Market:
 			{
-				Expansion_Assert_False( m_SettingsMarket.OnRecieve( ctx ), "Failed reading Market settings" );
-
+				Receive(ExpansionMarketSettings, ctx);
 				return true;
 			}
 		}
 
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Save
-	// Called on server
-	// ------------------------------------------------------------
-	override void Save()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
-#endif
 
-		super.Save();
-
-		if ( IsMissionHost() && GetGame().IsMultiplayer() )
-		{
-			m_SettingsMarket.Save();
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionMarketSettings GetMarket
-	// ------------------------------------------------------------
-	ExpansionMarketSettings GetMarket()
+	ExpansionMarketSettings GetMarket(bool checkLoaded = true)
 	{
-		return m_SettingsMarket;
+		return ExpansionMarketSettings.Cast(Get(ExpansionMarketSettings, checkLoaded));
 	}
 };

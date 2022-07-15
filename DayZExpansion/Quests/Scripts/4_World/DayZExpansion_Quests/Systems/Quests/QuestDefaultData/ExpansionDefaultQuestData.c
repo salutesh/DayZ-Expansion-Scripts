@@ -35,8 +35,6 @@ class ExpansionDefaultQuestData
 		desc.Insert("I thought I made clear what you need to do?! Go to Steve now and don't come back with empty hands!"); //! 1 - Quest description while quest is active
 		desc.Insert("Look at that... Another little bambi in the forests of death..."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
-
-		questConfig.SetPreQuestID(-1); //! Pre-quest ID
 		questConfig.SetFollowUpQuestID(2); //! Follow-up quest ID
 		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
@@ -119,7 +117,6 @@ class ExpansionDefaultQuestData
 		questConfig.SetDescriptions(desc);
 
 		questConfig.SetPreQuestID(2); //! Pre-quest ID
-		questConfig.SetFollowUpQuestID(-1); //! Follow-up quest ID
 		questConfig.SetQuestGiverID(2); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 
@@ -799,8 +796,6 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
 		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
-
-		questConfig.SetPreQuestID(-1); //! Pre-quest ID
 		questConfig.SetFollowUpQuestID(22); //! Follow-up quest ID
 		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.SetQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
@@ -951,6 +946,55 @@ class ExpansionDefaultQuestData
 		rewards.Insert(reward_2);
 
 		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+	
+	ExpansionQuestConfig ExpansionQuestConfig026()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(26); //! Unique quest ID - Need to be the same as when registered in the quest module
+		questConfig.SetType(ExpansionQuestType.TRAVEL);
+		questConfig.SetTitle("Welcome to Hell"); //! Quest title
+		questConfig.SetObjectiveText("Visit the camp at the marker location."); //! Quest objectives text
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(3);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		return questConfig;
+	}
+	
+	ExpansionQuestConfig ExpansionQuestConfig027()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(27); //! Unique quest ID - Need to be the same as when registered in the quest module
+		questConfig.SetType(ExpansionQuestType.CLASS);
+		questConfig.SetTitle("Welcome to Namalsk"); //! Quest title
+		questConfig.SetObjectiveText("Visit the camp at the marker location."); //! Quest objectives text
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetQuestClassName("ExpansionScriptedtQuestTemplate");
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(3);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		questConfig.AddObjectiveConfig(objective_1);
 
 		return questConfig;
 	}

@@ -10,34 +10,23 @@
  *
 */
 #ifdef EXPANSIONMODGROUPSHUD
-class ExpansionPartyHud extends ExpansionScriptViewBase
+class ExpansionPartyHud: ExpansionScriptViewBase
 {
-	ref ExpansionPartyHudController m_PartyHUDController;
-	private static autoptr map<string, ref ExpansionPartyHudMember> m_AllPartyHUDMembers;
-	private Widget m_Parent;
+	protected ref ExpansionPartyHudController m_PartyHUDController;
+	protected static autoptr map<string, ref ExpansionPartyHudMember> m_AllPartyHUDMembers;
 	
-	void ExpansionPartyHud(Widget parent)
-	{
-		m_Parent =parent;
-		
+	void ExpansionPartyHud()
+	{		
 		if (!m_PartyHUDController)
 			m_PartyHUDController = ExpansionPartyHudController.Cast(GetController());		
 		
 		if (!m_AllPartyHUDMembers)
 			m_AllPartyHUDMembers = new map<string, ref ExpansionPartyHudMember>;
+	}
 		
-		m_Parent.AddChild(GetLayoutRoot());
-	}
-	
-	void ~ExpansionPartyHud()
-	{
-		//m_AllPartyHUDMembers.Clear();
-		//m_PartyHUDController.PartyHUDMemberElements.Clear();
-	}
-	
 	override string GetLayoutFile() 
 	{
-		return "DayZExpansion/Groups/GUI/layouts/expansion_party_hud_new.layout";
+		return "DayZExpansion/Groups/GUI/layouts/expansion_party_hud.layout";
 	}
 	
 	override typename GetControllerType() 
@@ -45,9 +34,9 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 		return ExpansionPartyHudController;
 	}
 	
-	void AddMember(string playerID, string playerName)
+	void AddMember(string playerID, string playerPlainID, string playerName)
 	{
-		ref ExpansionPartyHudMember newMember = new ExpansionPartyHudMember(playerID, playerName);
+		ExpansionPartyHudMember newMember = new ExpansionPartyHudMember(playerPlainID, playerName);
 		m_PartyHUDController.PartyHUDMemberElements.Insert(newMember); // <-- Here it crashes?!
 		m_AllPartyHUDMembers.Insert(playerID, newMember);
 	}
@@ -59,8 +48,7 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 		
 		if (member)
 		{
-			int index = -1;
-			index = m_PartyHUDController.PartyHUDMemberElements.Find(member);
+			int index = m_PartyHUDController.PartyHUDMemberElements.Find(member);
 			if (index > -1)
 			{
 				m_PartyHUDController.PartyHUDMemberElements[index] = NULL;
@@ -75,6 +63,8 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 	
 	void UpdateMembers(map<string, string> members)
 	{
+		TStringArray toRemove();
+
 		array<string> currentMembers = new array<string>;
 		foreach (string currentMemberID, ExpansionPartyHudMember currentMember: m_AllPartyHUDMembers)
 		{
@@ -85,42 +75,31 @@ class ExpansionPartyHud extends ExpansionScriptViewBase
 				currentMembers.Insert(currentMemberID);
 			}
 			
-			if (!isStillMember || !IsMemberOnline(currentMemberID))
+			if (!isStillMember || !PlayerBase.Expansion_IsOnline(currentMemberID))
 			{
-				int index = -1;
-				index = m_PartyHUDController.PartyHUDMemberElements.Find(currentMember);
+				int index = m_PartyHUDController.PartyHUDMemberElements.Find(currentMember);
 				if (index > -1)
 				{
-					RemoveMember(currentMemberID);
+					toRemove.Insert(currentMemberID);
 				}
 			}
 		}
 		
+		foreach (string removeID: toRemove)
+		{
+			RemoveMember(removeID);
+		}
+
 		foreach (string playerID, string playerName: members)
 		{
-			int memberIndex = -1;
-			memberIndex = currentMembers.Find(playerID);
-			if (memberIndex == -1 && playerID != GetGame().GetPlayer().GetIdentity().GetId() && IsMemberOnline(playerID))
+			int memberIndex = currentMembers.Find(playerID);
+			if (memberIndex == -1 && playerID != GetGame().GetPlayer().GetIdentity().GetId())
 			{
-				AddMember(playerID, playerName);
+				SyncPlayer syncPlayer = SyncPlayer.Expansion_GetByID(playerID);
+				if (syncPlayer)
+					AddMember(playerID, syncPlayer.m_UID, playerName);
 			}
 		}
-	}
-	
-	bool IsMemberOnline(string uid)
-	{
-		if (!ClientData || !ClientData.m_PlayerList || !ClientData.m_PlayerList.m_PlayerList)
-			return false;
-		
-		foreach (SyncPlayer player : ClientData.m_PlayerList.m_PlayerList)
-		{
-			if (player.m_RUID == uid)
-			{
-				return true;
-			}
-		}
-		
-		return false;
 	}
 	
 	void ClearMembers()

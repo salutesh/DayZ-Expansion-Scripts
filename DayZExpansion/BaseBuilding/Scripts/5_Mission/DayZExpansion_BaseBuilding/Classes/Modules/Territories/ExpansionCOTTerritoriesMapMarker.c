@@ -44,21 +44,14 @@ class ExpansionCOTTerritoriesMapMarker : ExpansionMapWidgetBase
 		GetLayoutRoot().GetParent().GetScreenPos(x, y);
 		GetLayoutRoot().SetPos(mapPos[0] - x, mapPos[1] - y, true);
 	}
-
-	override bool OnClick(Widget w, int x, int y, int button)
+	
+	override void OnMarkerClick()
 	{
-		switch (w)
+		ExpansionCOTTerritoriesMenu menu = ExpansionCOTTerritoriesMenu.Cast(m_Menu);
+		if (menu)
 		{
-		case m_Frame:
-			ExpansionCOTTerritoriesMenu menu = ExpansionCOTTerritoriesMenu.Cast(m_Menu);
-			if (menu)
-			{
-				menu.SetTerritoryInfo(m_Territory);
-			}
-			break;
+			menu.SetTerritoryInfo(m_Territory);
 		}
-
-		return false;
 	}
 	
 	override bool CanDrag()

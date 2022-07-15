@@ -134,7 +134,7 @@ modded class PlayerBase
 		//! if we change cross object and not using ECE_TRACE this needs to be adjusted!
 		float offsetY = 0.6;
 
-		float playtime = StatGet("playtime");
+		float playtime = StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 
 		if (playtime <= lifetimeThreshhold)
 		{

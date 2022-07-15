@@ -71,7 +71,7 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 			m_MemberName.SetText( m_Member.GetName() );
 			m_MemberID.SetText( m_Member.GetID() );
 			
-			if ( IsOnline( m_Member.GetID() ) )
+			if ( PlayerBase.Expansion_IsOnline( m_Member.GetID() ) )
 			{
 				m_MemberStateIcon.SetColor( ARGB( 255, 39, 174, 96 ) );
 			}
@@ -84,22 +84,6 @@ class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesMemberListEntry::SetMemberEntry - End");
 		#endif
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTerritoriesCOTMemberListEntry IsOnline
-	// ------------------------------------------------------------
-	bool IsOnline( string uid )
-	{
-		foreach(  SyncPlayer player : ClientData.m_PlayerList.m_PlayerList )
-		{
-			if ( player.m_RUID == uid )
-			{
-				return true;
-			}
-		}
-		
-		return false;
 	}
 	
 	// ------------------------------------------------------------

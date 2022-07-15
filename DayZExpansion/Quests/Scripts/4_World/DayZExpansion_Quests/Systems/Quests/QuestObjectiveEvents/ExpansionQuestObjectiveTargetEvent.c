@@ -68,8 +68,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
 
-		string className = victim.ClassName();
-		string killerName = killer.GetType();
 		bool maxRangeCheck = false;
 		
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -85,23 +83,20 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		// of this quest and if its a group quest make sure he was not in the involved party before.
 		// If he is in therelated group or was in it we dont count the kill!
 	#ifdef EXPANSIONMODGROUPS
-		if (className == "SurvivorBase")
+		PlayerBase victimPlayer;
+		if (Class.CastTo(victimPlayer, victim) && victimPlayer.GetIdentity())
 		{
 			if (GetQuest().IsGroupQuest())
 			{
-				PlayerBase victimPlayer;
-				if (Class.CastTo(victimPlayer, victim))
-				{
-					string victimPlayerUID = victimPlayer.GetIdentity().GetId();
-					int groupID = GetQuest().GetGroupID();
-					ExpansionPartyModule partymodule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-					if (!partymodule)
-						return;
-					
-					ExpansionPartyPlayerData victimPartyData = partymodule.GetPartyPlayerData(victimPlayerUID);
-					if (victimPartyData && victimPartyData.GetParty().GetPartyID() == groupID || GetQuest().GetQuestModule().WasPlayerInGroup(victimPlayerUID, groupID))
-						return;
-				}
+				string victimPlayerUID = victimPlayer.GetIdentity().GetId();
+				int groupID = GetQuest().GetGroupID();
+				ExpansionPartyModule partymodule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+				if (!partymodule)
+					return;
+				
+				ExpansionPartyPlayerData victimPartyData = partymodule.GetPartyPlayerData(victimPlayerUID);
+				if (victimPartyData && victimPartyData.GetParty().GetPartyID() == groupID || GetQuest().GetQuestModule().WasPlayerInGroup(victimPlayerUID, groupID))
+					return;
 			}
 		}
 	#endif
@@ -131,12 +126,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			return;
 
 		//! If the target need to be killed with a special weapon check incoming killer class type
-		int findIndex;
 		if (target.NeedSpecialWeapon())
 		{
-			findIndex = -1;
-			findIndex = target.GetAllowedWeapons().Find(killerName);
-			if (findIndex == -1)
+			if (!ExpansionStatic.IsAnyOf(killer.GetType(), target.GetAllowedWeapons(), killer.ClassName()))
 				return;
 			
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -146,14 +138,13 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		int amount = target.GetAmount();
 		Amount = amount;
-		findIndex = -1;
-		findIndex = target.GetClassNames().Find(className);
+		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), target.GetClassNames(), victim.ClassName());
 		
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnEntityKilled - Target find index: " + findIndex);
+		Print(ToString() + "::OnEntityKilled - Target found: " + found);
 	#endif
 
-		if (findIndex > -1)
+		if (found)
 		{
 			if (Count < amount)
 			{

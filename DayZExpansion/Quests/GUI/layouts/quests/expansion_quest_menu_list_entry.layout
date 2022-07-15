@@ -8,27 +8,24 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
  scriptclass "ExpansionQuestMenuListEntryController"
  style blank
  {
-  ImageWidgetClass Background {
+  PanelWidgetClass Background {
    ignorepointer 1
+   color 0 0 0 0.7843
    position 0 0
    size 1 1
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 0
-   image0 "set:book_assets image:menu_element_5"
-   mode blend
-   "src alpha" 1
-   stretch 1
-   "flip u" 0
+   style UIDefaultPanel
   }
   ImageWidgetClass QuestIcon {
    ignorepointer 1
-   color 1 0.7059 0.0941 1
-   position 50 0
+   color 1 0.7059 0.0941 0.7843
+   position 0.013 0
    size 36 36
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 1
    vexactsize 1
    scriptclass "ViewBinding"
@@ -44,11 +41,11 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
   }
   TextWidgetClass Text {
    ignorepointer 1
-   color 0 0 0 0.8627
-   position 86 0
+   color 0.8627 0.8627 0.8627 1
+   position 0.08 0
    size 0.98 1
-   hexactpos 1
-   vexactpos 1
+   hexactpos 0
+   vexactpos 0
    hexactsize 0
    vexactsize 0
    scriptclass "ViewBinding"

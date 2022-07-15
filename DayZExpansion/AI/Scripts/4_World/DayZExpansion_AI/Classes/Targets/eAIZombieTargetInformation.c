@@ -56,19 +56,22 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 			break;
 		}
 
-		levelFactor *= 0.75;
-		if (m_DIIP.GetTargetEntity() == ai)
-			levelFactor *= 2.0;
-
 		if (ai)
 		{
 			// the further away the zombie, the less likely it will be a threat
-			float distance = GetDistance(ai) * DISTANCE_COEF;
-			if (distance > 1.0)
-				levelFactor = levelFactor / distance;
+			float distance = GetDistance(ai) + DISTANCE_COEF;
+			levelFactor *= 10 / distance;
+
+			if (m_DIIP.GetTargetEntity() == ai)
+			{
+				levelFactor *= 2.0;
+				auto hands = ai.GetHumanInventory().GetEntityInHands();
+				if (hands)
+					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
+			}
 		}
 
-		return Math.Clamp(levelFactor, 0.0, 1.0 / DISTANCE_COEF);
+		return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
 	}
 
 	override bool ShouldRemove(eAIBase ai = null)

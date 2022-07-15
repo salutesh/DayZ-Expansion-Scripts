@@ -74,10 +74,28 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
 			CF_Log.Info("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveAIPatrolConfig();
 
-			//! Copy over old configuration that haven't changed
-			config.CopyConfig(configBase);
+			if (configBase.ConfigVersion < 4)
+			{
+				config = new ExpansionQuestObjectiveAIPatrolConfig();
+
+				//! Copy over old configuration that haven't changed
+				config.CopyConfig(configBase);
+
+				config.MinDistRadius = 50;
+				config.MaxDistRadius = 150;
+				config.DespawnRadius = 880;
+			}
+			else
+			{
+				JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonLoadFile(fileName, config);
+			}
+
+			if (configBase.ConfigVersion < 5)
+			{
+				if (config.AIPatrol)
+					config.AIPatrol.NPCFormation = "RANDOM";
+			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
@@ -100,7 +118,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + ".JSON", this);
+		JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + ".json", this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveAIPatrolConfigBase configBase)

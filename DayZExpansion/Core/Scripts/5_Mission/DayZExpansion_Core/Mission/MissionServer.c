@@ -26,7 +26,7 @@ modded class MissionServer
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionServer");
 #endif
 		
-		GetExpansionSettings().GameInit();
+		GetExpansionSettings().ServerInit();
 	}
 
 	// ------------------------------------------------------------

@@ -16,7 +16,12 @@ class eAIFaction
 
 	bool IsFriendly(notnull eAIFaction other)
 	{
-		return true;
+		return false;
+	}
+
+	bool IsFriendly(EntityAI other)
+	{
+		return false;
 	}
 
 	bool IsGuard()
