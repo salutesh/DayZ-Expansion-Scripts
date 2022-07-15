@@ -1,5 +1,5 @@
 /**
- * ExpansionMarketTraderClothingAccessoires.c
+ * ExpansionMarketTraderClothingAccessories.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMarketTraderClothingAccessoires: ExpansionMarketTrader
+class ExpansionMarketTraderClothingAccessories: ExpansionMarketTrader
 {
 	// ------------------------------------------------------------
 	// Expansion Defaults
@@ -20,7 +20,7 @@ class ExpansionMarketTraderClothingAccessoires: ExpansionMarketTrader
 		super.Defaults();
 		
 		DisplayName = "#STR_EXPANSION_MARKET_TRADER_CLOTHING_ACCESSORIES";
-		m_FileName = "Clothing_Accessoires";
+		m_FileName = "Clothing_Accessories";
 		TraderIcon = "Backpack";
 		
 		Categories.Insert("Helmets");

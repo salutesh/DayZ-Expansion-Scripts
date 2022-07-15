@@ -654,7 +654,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		m_Traders.Insert(new ExpansionMarketTraderAttachments);
 		m_Traders.Insert(new ExpansionMarketTraderBuildingSupplies);
 		m_Traders.Insert(new ExpansionMarketTraderClothing);
-		m_Traders.Insert(new ExpansionMarketTraderClothingAccessoires);
+		m_Traders.Insert(new ExpansionMarketTraderClothingAccessories);
 		m_Traders.Insert(new ExpansionMarketTraderComponents);
 		m_Traders.Insert(new ExpansionMarketTraderConsumables);
 		m_Traders.Insert(new ExpansionMarketTraderEvent);

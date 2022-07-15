@@ -361,7 +361,7 @@ modded class PlayerBase
 	{
 		super.OnUnconsciousStop(pCurrentCommandID);
 
-		if (!m_Expansion_CanBeLooted)
+		if (IsAlive() && !m_Expansion_CanBeLooted)
 			Expansion_UnlockInventory();
 	}
 	
