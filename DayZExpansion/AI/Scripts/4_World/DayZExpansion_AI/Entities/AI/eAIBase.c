@@ -2792,6 +2792,15 @@ class eAIBase extends PlayerBase
 			 * Events are stored in the transitions
 			 */
 
+			//! Decrease chance of AI getting stuck between wall and opened door by temporarily limiting speed to walking
+			int speedLimit = m_MovementSpeedLimit;
+			int speedLimitThreat = m_MovementSpeedLimitUnderThreat;
+			if (speedLimit > 1 || speedLimitThreat > 1)
+			{
+				SetMovementSpeedLimits(1, 1);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 1500, false, speedLimit, speedLimitThreat);
+			}
+
 			building.OpenDoor(doorIndex);
 			
 			ActionInteractBaseCB.Cast(AddCommandModifier_Action(DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW,ActionInteractBaseCB));

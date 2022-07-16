@@ -115,6 +115,7 @@
 				<variable name="index" type="int" />
 				<variable name="threshold" type="float" default="1.0" />
 				<variable name="previousDistance" type="float" />
+				<variable name="previousWayPoint" type="vector" />
 			</variables>
 			<editor_data>
 				<position x="492.26310970946" y="542.205251357419" />
@@ -128,13 +129,15 @@
 				}
 				behaviour = unit.GetGroup().GetWaypointBehaviour();
 				unit.Expansion_GetUp();
+				if (previousWayPoint == vector.Zero &amp;&amp; path.Count() &gt; 1)
+					previousWayPoint = path[0] - vector.Direction(path[0], path[1]).Normalized();
 			</event_entry>
 			<event_exit />
 			<event_update>
-				vector direction = vector.Direction(unit.GetPosition(), path[index]);
-				float distance = direction.LengthSq();
+				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
 				if (distance &lt; threshold)
 				{
+					previousWayPoint = path[index];
 					if (backtracking) index--;
 					else index++;
 					threshold = 1.0;
@@ -180,8 +183,13 @@
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
 				
-				unit.Expansion_DebugObject_Deferred(index + 12, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", direction.Normalized());
-				unit.Expansion_DebugObject_Deferred(path.Count() + 12, path[index], "ExpansionDebugNoticeMe", direction.Normalized());
+				vector direction;
+				if (path.Count() &gt; 1)
+					direction = vector.Direction(previousWayPoint, path[index]).Normalized();
+				else
+					direction = unit.GetDirection();
+				unit.Expansion_DebugObject_Deferred(index + 16, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", direction);
+				unit.Expansion_DebugObject_Deferred(path.Count() + 16, path[index], "ExpansionDebugNoticeMe", unit.GetDirection());
 				
 				return EXIT;
 			</event_update>

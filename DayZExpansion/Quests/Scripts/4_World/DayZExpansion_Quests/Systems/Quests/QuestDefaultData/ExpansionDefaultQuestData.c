@@ -57,7 +57,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("A favor for Steve...");
 		questConfig.SetObjectiveText("Kill 10 civilian Infected with Steve's sledgehammer.");
 		array<string> desc = new array<string>;
-		desc.Insert("So, Peter sends you, hmm? Well I have what he wants, although he still owes me something... But I'm also not a bad guy. Let's say if you do me a favor, too, I'll give you what Steve wants and even more. I gotta keep watch and make sure no shit happens around here. I want you to take this sledgehammer and clean up the village with it. There are a few Infected that have to be eliminated before they start moving into the camp."); //! 0 - Quest description on getting quest
+		desc.Insert("So, Peter sends you, hmm? Well I have what he wants, although he still owes me something... But I'm also not a bad guy. Let's say if you do me a favor, too, I'll give you what Peter wants and even more. I gotta keep watch and make sure no shit happens around here. I want you to take this sledgehammer and clean up the village with it. There are a few Infected that have to be eliminated before they start moving into the camp."); //! 0 - Quest description on getting quest
 		desc.Insert("You are not done yet? How hard can it be to smash some heads with that hammer... Come back when the job is done!"); //! 1 - Quest description while quest is active
 		desc.Insert("Oh there you are! I thought the Infected got your ass and killed you... Well, here is your reward."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);

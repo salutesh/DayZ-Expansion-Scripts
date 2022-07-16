@@ -3,7 +3,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	static const int TURN_STATE_NONE = 0;
 	static const int TURN_STATE_TURNING = 1;
 	
-	static const vector CHECK_MIN_HEIGHT = "0 1.1 0";
+	static const vector CHECK_MIN_HEIGHT = "0 1.25 0";
 
 	static const int ORIGINAL_WAYPOINT = 0;
 	static const int CORRECTED_WAYPOINT = 1;
@@ -17,6 +17,10 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	static const int BLOCKED_HITPOSITION = 9;
 	static const int CHECK_BACKWARD_BLOCKED = 10;
 	static const int CHECK_BACKWARD_OK = 11;
+	static const int BLOCKED_FORWARD_HITPOSITION = 12;
+	static const int BLOCKED_LEFT_HITPOSITION = 13;
+	static const int BLOCKED_RIGHT_HITPOSITION = 14;
+	static const int BLOCKED_BACKWARD_HITPOSITION = 15;
 	
 	static int s_InstanceCount;
 	private int m_InstanceNum;
@@ -75,6 +79,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	private float m_OverrideMovementTimeout;
 	private float m_OverrideTargetMovementDirection;
 	private vector m_OverrideWaypoint;
+	private float m_DebugTime;
 
 	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
 	{
@@ -209,82 +214,114 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		if (m_OverrideMovementTimeout > 0)
 		{
 			m_OverrideMovementTimeout -= pDt;
+			m_DebugTime = m_OverrideMovementTimeout;
 		}
 		else
+		{
+			m_PathFinding.StopOverride();
+			if (m_DebugTime > 0)
+				m_DebugTime -= pDt;
+		}
+
+		//! Try and avoid obstacles if we are moving and not climbing
+		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.eAI_IsClimb())
 		{
 			bool chg;
 #ifdef DIAG
 			string msg;
 #endif
 
-			m_PathFinding.StopOverride();
-
-			if (m_MovementSpeed && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.eAI_IsClimb())
+			//! Always check fwd
+			vector fb = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2])).Normalized();
+			vector checkFwd = position + (0.5 * fb);
+			vector checkBwd = position + (-0.5 * fb);
+			blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkFwd + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 0.5, true);
+			if (blockedForward)
 			{
-				vector fb = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2])).Normalized();
-				vector checkFwd = position + (0.5 * fb);
-				vector checkBwd = position + (-0.5 * fb);
-				blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkFwd + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed);
+				m_Unit.Expansion_DebugObject_Deferred(BLOCKED_FORWARD_HITPOSITION, forwardPos, "ExpansionDebugBox_Purple");
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_ORIGIN, position + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugBox_Blue", fb);
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_FORWARD_BLOCKED, checkFwd + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", fb);
+			}
 
-				if (blockedForward != m_LastBlockedForward)
+			if (blockedForward != m_LastBlockedForward)
+			{
+				m_LastBlockedForward = blockedForward;
+				chg = true;
+			}
+
+			//! If during movement overriding we are no longer blocked in the fwd direction, stop overriding imediately
+			if (!blockedForward && m_OverrideMovementTimeout > 0)
+			{
+				m_OverrideMovementTimeout = 0;
+				m_OverrideTargetMovementDirection = 0;
+				m_ForceMovementDirection = true;
+			}
+			//! Check left/right/bwd if blocked forward or already overriding movement
+			else if (blockedForward || m_OverrideMovementTimeout > 0)
+			{
+				//! Ready to play pinball
+
+				vector lr = fb.Perpend();
+				vector checkLeft = position + (0.5 * lr);
+				vector checkRight = position + (-0.5 * lr);
+				blockedLeft = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction, position + lr + CHECK_MIN_HEIGHT, 0.5);
+				if (blockedLeft)
+					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_LEFT_HITPOSITION, leftPos, "ExpansionDebugBox_Purple", outNormal);
+				blockedRight = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction, position - lr + CHECK_MIN_HEIGHT, 0.5);
+				if (blockedRight)
+					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_RIGHT_HITPOSITION, rightPos, "ExpansionDebugBox_Purple", outNormal);
+
+				//! Only check bwd if we were backpedaling
+				if (m_OverrideTargetMovementDirection == -180 && m_OverrideMovementTimeout <= 0)
 				{
-					m_LastBlockedForward = blockedForward;
+					blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkBwd + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction);
+					if (blockedBackward)
+						m_Unit.Expansion_DebugObject_Deferred(BLOCKED_BACKWARD_HITPOSITION, backwardPos, "ExpansionDebugBox_Purple", outNormal);
+
+					backwardPos = checkBwd;
+				}
+
+				//if (blockedLeft && blockedRight)
+				//{
+					//float leftDist;
+					//float rightDist;
+					//if (blockedLeft)
+						//leftDist = vector.DistanceSq(position, leftPos);
+					//if (blockedRight)
+						//rightDist = vector.DistanceSq(position, rightPos);
+					//if (Math.Max(leftDist, rightDist) - Math.Min(leftDist, rightDist) > 0.25)
+					//{
+						//blockedLeft = leftDist < rightDist;
+						//blockedRight = leftDist > rightDist;
+					//}
+				//}
+
+				//if (blockedLeft && !m_PathFinding.IsBlocked(position, checkRight, rightPos, outNormal))
+					rightPos = checkRight;
+				//if (blockedRight && !m_PathFinding.IsBlocked(position, checkLeft, leftPos, outNormal))
+					leftPos = checkLeft;
+
+				if (blockedLeft != m_LastBlockedLeft)
+				{
+					m_LastBlockedLeft = blockedLeft;
 					chg = true;
 				}
 
-				if (blockedForward)
+				if (blockedRight != m_LastBlockedRight)
 				{
-					vector lr = fb.Perpend();
-					vector checkLeft = position + (0.5 * lr);
-					vector checkRight = position + (-0.5 * lr);
-					blockedLeft = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction);
-					blockedRight = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction);
+					m_LastBlockedRight = blockedRight;
+					chg = true;
+				}
+				
+				if (blockedBackward != m_LastBlockedBackward)
+				{
+					m_LastBlockedBackward = blockedBackward;
+					chg = true;
+				}
 
-					if (blockedLeft && blockedRight)
-					{
-						blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkBwd + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction);
-						if (!blockedBackward)
-							backwardPos = checkBwd;
-					}
-
-					//if (blockedLeft || blockedRight)
-					//{
-						//float leftDist;
-						//float rightDist;
-						//if (blockedLeft)
-							//leftDist = vector.DistanceSq(position, leftPos);
-						//if (blockedRight)
-							//rightDist = vector.DistanceSq(position, rightPos);
-						//if (Math.Max(leftDist, rightDist) - Math.Min(leftDist, rightDist) > 0.25)
-						//{
-							//blockedLeft = leftDist < rightDist;
-							//blockedRight = leftDist > rightDist;
-						//}
-					//}
-
-					//if (blockedLeft && !m_PathFinding.IsBlocked(position, checkRight, rightPos, outNormal))
-						rightPos = checkRight;
-					//if (blockedRight && !m_PathFinding.IsBlocked(position, checkLeft, leftPos, outNormal))
-						leftPos = checkLeft;
-
-					if (blockedLeft != m_LastBlockedLeft)
-					{
-						m_LastBlockedLeft = blockedLeft;
-						chg = true;
-					}
-
-					if (blockedRight != m_LastBlockedRight)
-					{
-						m_LastBlockedRight = blockedRight;
-						chg = true;
-					}
-
-					if (blockedBackward != m_LastBlockedBackward)
-					{
-						m_LastBlockedBackward = blockedBackward;
-						chg = true;
-					}
-
+				//! If change in blocked directions or currently not overriding movement, adjust movement direction
+				if (blockedForward || chg)
+				{
 					if (m_MovementSpeed > 2)
 					{
 						//! Limiting speed to jog helps obstacle avoidance while strafing
@@ -294,9 +331,58 @@ class eAICommandMove extends ExpansionHumanCommandScript
 						m_MovementSpeed = 2;
 					}
 
-					m_Unit.Expansion_DebugObject_Deferred(CHECK_ORIGIN, position + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugBox_Blue", fb);
-					m_Unit.Expansion_DebugObject_Deferred(CHECK_FORWARD_BLOCKED, checkFwd + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", fb);
-					if (blockedLeft && blockedRight && !blockedBackward)
+					//! Check which direction we want to move. Moving left is always the fall-through case
+					bool moveRight;
+					bool backPedal;
+					if (blockedLeft && blockedRight)
+					{
+						if (blockedBackward)
+						{
+							if (m_OverrideMovementTimeout > 0)
+							{
+								//! If already moving right, keep moving right
+								if (m_OverrideTargetMovementDirection == 90)
+									moveRight = true;
+								//! If already backpedaling, keep backpedaling
+								else if (m_OverrideTargetMovementDirection == -180)
+									backPedal = true;
+							}
+							else
+							{
+								//! 33% chance move right or backpedal if all directions blocked (because what choice do we have)
+								int roll = Math.RandomIntInclusive(0, 2);
+								if (roll == 1)
+									moveRight = true;
+								else if (roll == 2)
+									backPedal = true;
+							}
+						}
+						else
+						{
+							backPedal = true;
+						}
+					}
+					else if (blockedLeft && !blockedRight)
+					{
+						//! Go right if blocked left
+						moveRight = true;
+					}
+					else if (!blockedLeft && !blockedRight)
+					{
+						if (m_OverrideMovementTimeout > 0)
+						{
+							//! If already moving right, keep moving right
+							if (m_OverrideTargetMovementDirection == 90)
+								moveRight = true;
+						}
+						//! 50% chance move right if neither blocked left/right
+						else if (Math.RandomIntInclusive(0, 1))
+						{
+							moveRight = true;
+						}
+					}
+
+					if (backPedal)
 					{
 						//! Backpedal
 						//if (Math.RandomIntInclusive(0, 1))
@@ -304,120 +390,132 @@ class eAICommandMove extends ExpansionHumanCommandScript
 						//else
 							//m_OverrideTargetMovementDirection = Math.RandomFloat(135.0, 180.0);
 						m_OverrideTargetMovementDirection = -180;
-						m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
+						if (m_OverrideMovementTimeout <= 0)
+							m_OverrideMovementTimeout = 1 / m_MovementSpeed;
 						m_OverrideWaypoint = backwardPos;
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, checkLeft + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", lr);
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, checkRight + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", -lr);
+						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, checkLeft + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", lr);
+						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, checkRight + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", -lr);
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_OK, "0 0 0", "ExpansionDebugArrow");
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, "0 0 0", "ExpansionDebugArrow");
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
+						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, checkBwd + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow", -fb);
 					}
-					else if (blockedLeft || ((!blockedRight || blockedBackward) && Math.RandomIntInclusive(0, 1)))
+					else if (moveRight)
 					{
-						//! Go right if only blocked left or 50% chance go right if neither blocked left/right
 						m_OverrideTargetMovementDirection = 90.0;
-						m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
+						if (m_OverrideMovementTimeout <= 0)
+							m_OverrideMovementTimeout = 1 / m_MovementSpeed;
 						if (blockedLeft)
 						{
 							m_OverrideWaypoint = rightPos;
-							m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, checkLeft + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", lr);
+							m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, checkLeft + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", lr);
 							m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_OK, "0 0 0", "ExpansionDebugArrow");
 						}
 						else
 						{
 							m_OverrideWaypoint = checkRight;
-							m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
+							m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
 							m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_OK, checkLeft + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow", lr);
 						}
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
+						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, checkRight + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow", -lr);
 					}
 					else
 					{
 						//! Go left
 						m_OverrideTargetMovementDirection = -90.0;
-						m_OverrideMovementTimeout = 1.5 / m_MovementSpeed;
+						if (m_OverrideMovementTimeout <= 0)
+							m_OverrideMovementTimeout = 1 / m_MovementSpeed;
 						if (blockedRight)
 						{
 							m_OverrideWaypoint = leftPos;
-							m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, checkRight + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", -lr);
+							m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, checkRight + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", -lr);
 							m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, "0 0 0", "ExpansionDebugArrow");
 						}
 						else
 						{
 							m_OverrideWaypoint = checkLeft;
-							m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
+							m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
 							m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, checkRight + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow", -lr);
 						}
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
+						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
 						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_OK, checkLeft + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow", lr);
-					}
-
-					if (blockedBackward)
-					{
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, checkBwd + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", -fb);
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, "0 0 0", "ExpansionDebugArrow");
-					}
-					else if (!blockedLeft || !blockedRight)
-					{
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, "0 0 0", "ExpansionDebugArrow");
 					}
 
 					//m_PathFinding.OverridePosition(m_OverrideWaypoint);
 					m_Unit.Expansion_DebugObject_Deferred(OVERRIDDEN_WAYPOINT, m_OverrideWaypoint, "ExpansionDebugBox_Orange");
-
-					chg = true;
-#ifdef DIAG
-					msg = "blocked";
-#endif
 				}
-				else if (chg)
-				{
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_ORIGIN])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_ORIGIN, "0 0 0", "ExpansionDebugBox_Blue");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_FORWARD_BLOCKED])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_FORWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_LEFT_BLOCKED])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_RIGHT_BLOCKED])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_LEFT_OK])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_OK, "0 0 0", "ExpansionDebugArrow");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_RIGHT_OK])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, "0 0 0", "ExpansionDebugArrow");
-					if (m_Unit.m_Expansion_DebugObjects[OVERRIDDEN_WAYPOINT])
-						m_Unit.Expansion_DebugObject_Deferred(OVERRIDDEN_WAYPOINT, "0 0 0", "ExpansionDebugBox_Orange");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_BACKWARD_BLOCKED])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
-					if (m_Unit.m_Expansion_DebugObjects[CHECK_BACKWARD_OK])
-						m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, "0 0 0", "ExpansionDebugArrow");
 
-#ifdef DIAG
-					msg = "not blocked";
-#endif
+				if (blockedBackward)
+				{
+					m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, checkBwd + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", -fb);
+					m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, "0 0 0", "ExpansionDebugArrow");
+				}
+				else if (!blockedLeft || !blockedRight)
+				{
+					m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
+					m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, "0 0 0", "ExpansionDebugArrow");
 				}
 			}
 
 #ifdef DIAG
 			if (chg)
 			{
-				if (blockedForward)
-					msg += " fwd";
-				if (blockedLeft)
-					msg += " left";
-				if (blockedRight)
-					msg += " right";
-				if (blockedBackward)
-					msg += " bwd";
 				if (blockedForward || blockedLeft || blockedRight || blockedBackward)
+				{
+					msg = "blocked";
+					if (blockedForward)
+						msg += " fwd";
+					if (blockedLeft)
+						msg += " left";
+					if (blockedRight)
+						msg += " right";
+					if (blockedBackward)
+						msg += " bwd";
 					msg += " move " + m_OverrideTargetMovementDirection;
+				}
+				else
+				{
+					msg = "not blocked";
+				}
 				EXTrace.Print(EXTrace.AI, m_Player, msg);
-				ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 30, m_Unit.ToString() + " " + m_InstanceNum.ToString() + " " + msg);
+				//ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 30, m_Unit.ToString() + " " + m_InstanceNum.ToString() + " " + msg);
 			}
 #endif
 		}
+
+#ifdef DIAG
+		if (m_OverrideMovementTimeout <= 0 && !blockedForward && !blockedLeft && !blockedRight && !blockedBackward && m_DebugTime <= 0)
+		{
+			//! No longer blocked and no longer overriding movement
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_ORIGIN])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_ORIGIN, "0 0 0", "ExpansionDebugBox_Blue");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_FORWARD_BLOCKED])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_FORWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Red");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_LEFT_BLOCKED])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_RIGHT_BLOCKED])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_LEFT_OK])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_OK, "0 0 0", "ExpansionDebugArrow");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_RIGHT_OK])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_OK, "0 0 0", "ExpansionDebugArrow");
+			if (m_Unit.m_Expansion_DebugObjects[OVERRIDDEN_WAYPOINT])
+				m_Unit.Expansion_DebugObject_Deferred(OVERRIDDEN_WAYPOINT, "0 0 0", "ExpansionDebugBox_Orange");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_BACKWARD_BLOCKED])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_BLOCKED, "0 0 0", "ExpansionDebugArrow_Orange");
+			if (m_Unit.m_Expansion_DebugObjects[CHECK_BACKWARD_OK])
+				m_Unit.Expansion_DebugObject_Deferred(CHECK_BACKWARD_OK, "0 0 0", "ExpansionDebugArrow");
+			if (m_Unit.m_Expansion_DebugObjects[BLOCKED_FORWARD_HITPOSITION])
+				m_Unit.Expansion_DebugObject_Deferred(BLOCKED_FORWARD_HITPOSITION, "0 0 0", "ExpansionDebugBox_Purple");
+			if (m_Unit.m_Expansion_DebugObjects[BLOCKED_LEFT_HITPOSITION])
+				m_Unit.Expansion_DebugObject_Deferred(BLOCKED_LEFT_HITPOSITION, "0 0 0", "ExpansionDebugBox_Purple");
+			if (m_Unit.m_Expansion_DebugObjects[BLOCKED_RIGHT_HITPOSITION])
+				m_Unit.Expansion_DebugObject_Deferred(BLOCKED_RIGHT_HITPOSITION, "0 0 0", "ExpansionDebugBox_Purple");
+			if (m_Unit.m_Expansion_DebugObjects[BLOCKED_BACKWARD_HITPOSITION])
+				m_Unit.Expansion_DebugObject_Deferred(BLOCKED_BACKWARD_HITPOSITION, "0 0 0", "ExpansionDebugBox_Purple");
+		}
+#endif
 
 		float minFinal = 0.3;
 
@@ -430,29 +528,6 @@ class eAICommandMove extends ExpansionHumanCommandScript
 				m_PrevWaypoint = wayPoint;
 				if (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget)
 					m_TurnTarget = pathDir2D.Normalized().VectorToAngles()[0];
-			}
-			else if (!isFinal && m_OverrideMovementTimeout <= 0 && wayPoint == m_PrevWaypoint)
-			{
-				//! Don't update turn target to prevent AI spinning in place.
-				//! Attempt to move waypoint further towards target.
-				if (m_WaypointTime > 1.5 && m_PathFinding.IsBlocked(position, m_PathFinding.m_TargetReference.Position, wayPoint, outNormal))
-				{
-					m_WaypointTime = 0;
-					m_OverrideTargetMovementDirection = 0;
-					m_OverrideMovementTimeout = 1.5;
-					m_PathFinding.OverridePosition(wayPoint);
-					//! Setting speed to jog seems to help against AI not vaulting when it should.
-					//! This will be reset in eAIBase::CommandHandler next update
-					SetSpeedOverrider(true);
-					SetTargetSpeed(2.0);
-#ifdef DIAG
-					ExpansionStatic.MessageNearPlayers(m_Unit.GetPosition(), 30, m_Unit.ToString() + " " + m_InstanceNum.ToString() + " wp " + wayPoint + " dist " + m_WayPointDistance2D);
-#endif
-				}
-				else
-				{
-					m_WaypointTime += pDt;
-				}
 			}
 		}
 
@@ -604,21 +679,21 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		return true;
 	}
 
-	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.7)
+	private bool Raycast(vector start, vector end, out vector hitPosition, out vector hitNormal, out float hitFraction, vector endRV = vector.Zero, float radiusRV = 0.25, bool includeAI = false)
 	{
 		if (endRV == vector.Zero)
 			endRV = end;
 
 		bool hit;
 
-		//! 1st raycast specifically for trees and plain objects except scenery
+		//! 1st raycast specifically for trees
 		int contactComponent;
 		set<Object> results();
 		if (DayZPhysics.RaycastRV(start, endRV, hitPosition, hitNormal, contactComponent, results, null, m_Unit, false, false, ObjIntersectGeom, radiusRV))
 		{
 			foreach (Object obj: results)
 			{
-				if (obj.IsTree() || (obj.IsPlainObject() && !obj.IsScenery() && !obj.IsRock()))
+				if (obj.IsTree())
 					hit = true;
 			}
 		}
@@ -627,15 +702,12 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		if (!hit)
 		{
 			Object hitObject;
-			PhxInteractionLayers hit_mask = PhxInteractionLayers.CHARACTER | PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE | PhxInteractionLayers.AI;
-			hit = DayZPhysics.RayCastBullet(start, end, hit_mask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
+			PhxInteractionLayers hit_mask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE;
+			if (includeAI)
+				hit_mask |= PhxInteractionLayers.CHARACTER | PhxInteractionLayers.AI;
+			hit = DayZPhysics.SphereCastBullet(start, end, 0.25, hit_mask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
 			hitFraction = 1.0 - hitFraction;
 		}
-
-		if (hit)
-			m_Unit.Expansion_DebugObject_Deferred(BLOCKED_HITPOSITION, hitPosition, "ExpansionDebugBox_Purple");
-		else
-			m_Unit.Expansion_DebugObject_Deferred(BLOCKED_HITPOSITION, "0 0 0", "ExpansionDebugBox_Purple");
 			
 #ifndef SERVER
 		int debugColour = 0xFF00AAFF;

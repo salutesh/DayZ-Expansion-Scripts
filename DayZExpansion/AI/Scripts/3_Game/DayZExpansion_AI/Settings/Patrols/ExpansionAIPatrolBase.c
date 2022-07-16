@@ -124,14 +124,14 @@ class ExpansionAISpawnBase
 
 			float angle = curveDir2D.VectorToAngles()[0];
 
-			if (/*t != Math.Round(t) && */interpolatedPath.Count() > 1 && t < tEnd)
+			if (t != Math.Round(t) && interpolatedPath.Count() > 1 && t < tEnd)
 			{
-				float angleDiff = Math.AbsFloat(ExpansionMath.AngleDiff2(previousAngle, angle));
+				float angleDiff = Math.AbsFloat(angle - previousAngle);
 				if (angleDiff < 5.0)
 					continue;
 			}
 
-			if (/*t == Math.Round(t) || */curveDir2D.Length() > 4.472136 || t == tEnd)
+			if (t == Math.Round(t) || curveDir2D.Length() > 4.472136 || t == tEnd)
 			{
 				previousPoint3D = point3D;
 				previousAngle = angle;

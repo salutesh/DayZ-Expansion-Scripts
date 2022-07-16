@@ -81,8 +81,8 @@ modded class JMObjectSpawnerForm
 		"placing",
 #ifndef DIAG
 		"debug",
-#endif
 		"bldr_",
+#endif
 		#ifndef EXPANSION_COT_VEHICLE_JACOB
 		"vehicle_",
 		#endif
