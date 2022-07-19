@@ -16,18 +16,6 @@
 modded class MissionServer
 {
 	bool EXPANSION_CLASSNAME_DUMP = false;
-	
-	// ------------------------------------------------------------
-	// MissionServer Constructor
-	// ------------------------------------------------------------
-	void MissionServer()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionServer");
-#endif
-		
-		GetExpansionSettings().ServerInit();
-	}
 
 	// ------------------------------------------------------------
 	// MissionServer Destructor

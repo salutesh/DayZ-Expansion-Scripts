@@ -33,6 +33,7 @@ class DayZExpansion: ExpansionWorld
 		//! Version checking
 		Expansion_LoadVersion();
 
+		//! Initialize settings
 		GetExpansionSettings();
 	}
 

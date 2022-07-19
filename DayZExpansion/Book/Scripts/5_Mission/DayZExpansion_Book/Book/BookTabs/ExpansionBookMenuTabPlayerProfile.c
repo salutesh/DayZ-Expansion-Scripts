@@ -247,7 +247,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (monitorModule)
 		{
-			monitorModule.RequestPlayerStats();
+			monitorModule.RequestPlayerStats("", true);
 		}
 #endif
 	}

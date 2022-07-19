@@ -107,6 +107,8 @@ class eAIBase extends PlayerBase
 #endif
 	bool m_eAI_TargetPositionIsFinal;
 
+	private float m_eAI_DoorInteractionTimeout;
+
 	private Apple m_DebugTargetApple;
 	private vector m_DebugTargetOrientation;
 
@@ -1558,6 +1560,9 @@ class eAIBase extends PlayerBase
 			}
 		}
 
+		if (m_eAI_DoorInteractionTimeout)
+			m_eAI_DoorInteractionTimeout -= pDt;
+
 		if (m_eAI_LookDirection_Recalculate)
 		{
 			m_eAI_LookDirectionTarget_ModelSpace = vector.Direction(GetPosition() + "0 1.5 0", m_eAI_LookPosition_WorldSpace).Normalized().InvMultiply3(m_ExTransformPlayer);
@@ -2742,6 +2747,9 @@ class eAIBase extends PlayerBase
 
 	void HandleBuildingDoors(float pDt)
 	{
+		if (m_eAI_DoorInteractionTimeout > 0)
+			return;
+
 		if (!m_PathFinding.IsDoor())
 		{
 			return;
@@ -2753,7 +2761,7 @@ class eAIBase extends PlayerBase
 		vector p0 = position;
 		vector p1 = position + (direction * 1.5);
 
-		RaycastRVParams params(p0, p1, this, 1.0);
+		RaycastRVParams params(p0, p1, this, 0.5);
 		array<ref RaycastRVResult> results();
 		array<Object> excluded();
 		excluded.Insert(this);
@@ -2775,12 +2783,19 @@ class eAIBase extends PlayerBase
 			if (doorIndex == -1)
 				continue;
 
+			bool isStuck = false;
+
 			if (building.IsDoorOpen(doorIndex))
-				continue;
+			{
+				eAICommandMove move;
+				if (Class.CastTo(move, m_eAI_Command))
+					isStuck = move.IsStuck();
+				if (!isStuck)
+					continue;
+			}
 
 			if (building.IsDoorLocked(doorIndex))
 				continue;
-
 
 			/**
 			 * TODO: Use FSM events to notify that the door should be opened. 
@@ -2801,9 +2816,18 @@ class eAIBase extends PlayerBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 1500, false, speedLimit, speedLimitThreat);
 			}
 
-			building.OpenDoor(doorIndex);
+			if (isStuck)
+			{
+				building.CloseDoor(doorIndex);
+			}
+			else
+			{
+				building.OpenDoor(doorIndex);
+			}
 			
 			ActionInteractBaseCB.Cast(AddCommandModifier_Action(DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW,ActionInteractBaseCB));
+
+			m_eAI_DoorInteractionTimeout = 1.5;
 			return;
 		}
 	}

@@ -249,6 +249,11 @@ static ExpansionSettings GetExpansionSettings()
 	if ( g_exGlobalSettings == NULL )
 	{
 		g_exGlobalSettings = new ExpansionSettings();
+#ifdef SERVER
+		g_exGlobalSettings.ServerInit();
+#else
+		g_exGlobalSettings.GameInit();
+#endif
 	}
 
 	return g_exGlobalSettings;

@@ -54,7 +54,7 @@ modded class InGameMenu
 	
 	protected Widget							m_NewsfeedPanel;
 	protected ref ExpansionNewsfeed 	m_ExpansionNewsfeed;
-	
+
 	// ------------------------------------------------------------
 	// Override Init
 	// ------------------------------------------------------------
@@ -206,14 +206,32 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	void GetValuesFromMonitor()
 	{
+/*
 		m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 		m_Playtime = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 		m_PlayersKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
 		m_InfectedKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 		m_AnimalsKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 		m_LongestShot = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
+*/
+#ifdef EXPANSIONMONITORMODULE
+		ExpansionMonitorModule monitor;
+		if ( !CF_Modules<ExpansionMonitorModule>.Get(monitor))
+			return;
+		
+		ExpansionSyncedPlayerStats player_stats = monitor.GetClientStats();
+		if ( !player_stats )
+			return;
+
+		m_Distance = player_stats.m_Distance;
+		m_Playtime = player_stats.m_Playtime;
+		m_PlayersKilled = player_stats.m_PlayersKilled;
+		m_InfectedKilled = player_stats.m_InfectedKilled;
+		m_AnimalsKilled = player_stats.m_AnimalsKilled;
+		m_LongestShot = player_stats.m_LongestShot;
+#endif
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion UpdatePlayerStatValues
 	// ------------------------------------------------------------

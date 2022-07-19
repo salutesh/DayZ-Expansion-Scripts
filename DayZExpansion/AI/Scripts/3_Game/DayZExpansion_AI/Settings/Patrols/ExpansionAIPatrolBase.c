@@ -90,58 +90,6 @@ class ExpansionAISpawnBase
 		if (UnderThreatSpeed == "RANDOM")
 			UnderThreatSpeed = "RANDOM_NONSTATIC";
 	}
-
-	TVectorArray PathInterpolated(TVectorArray path, ECurveType curveType = ECurveType.CatmullRom)
-	{
-		TVectorArray points();
-		TVectorArray interpolatedPath = {path[0]};
-
-		foreach (vector pathPoint: path)
-		{
-			points.Insert(Vector(pathPoint[0], pathPoint[2], 0));
-		}
-
-		int index;
-		float t;
-		float step = 0.01;
-		float tEnd = path.Count() - 1;
-		vector previousPoint3D = path[0];
-		float previousAngle;
-		while (t < tEnd)
-		{
-			t += step;
-
-			float f = t - Math.Floor(t);
-			//if (f > 0.25 && f < 0.75)
-				//continue;
-
-			vector curvePoint = Math3D.Curve(curveType, t / tEnd, points);
-			float y = GetGame().SurfaceY(curvePoint[0], curvePoint[1]);
-			vector point3D = Vector(curvePoint[0], y, curvePoint[1]);
-
-			previousPoint3D[1] = point3D[1];
-			vector curveDir2D = vector.Direction(previousPoint3D, point3D);
-
-			float angle = curveDir2D.VectorToAngles()[0];
-
-			if (t != Math.Round(t) && interpolatedPath.Count() > 1 && t < tEnd)
-			{
-				float angleDiff = Math.AbsFloat(angle - previousAngle);
-				if (angleDiff < 5.0)
-					continue;
-			}
-
-			if (t == Math.Round(t) || curveDir2D.Length() > 4.472136 || t == tEnd)
-			{
-				previousPoint3D = point3D;
-				previousAngle = angle;
-
-				interpolatedPath.Insert(point3D);
-			}
-		}
-
-		return interpolatedPath;
-	}
 };
 
 class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase

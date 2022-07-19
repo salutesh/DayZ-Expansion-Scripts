@@ -57,28 +57,65 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 		vector waypoint;
 		int amountofwaypoints;
 
-		if (beh == eAIWaypointBehavior.HALT)
+		if (!MinSpreadRadius)
+			MinSpreadRadius = 5;
+		if (MaxSpreadRadius < MinSpreadRadius)
+			MaxSpreadRadius = MinSpreadRadius + 5;
+
+		if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic" || beh == eAIWaypointBehavior.HALT)
 		{
-			amountofwaypoints = 1;
+			if (beh == eAIWaypointBehavior.HALT)
+				amountofwaypoints = 1;
+			else
+				amountofwaypoints = Math.RandomIntInclusive(4, 8);
+
+			for (int i = 0; i < amountofwaypoints; i++)
+			{
+				waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
+				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
+
+				waypoints.Insert(waypoint);
+			}
 		}
 		else
 		{
-			if (ClassName == "ContaminatedArea_Static" || ClassName == "ContaminatedArea_Dynamic")
-				amountofwaypoints = Math.RandomIntInclusive(4, 8);
-			else
-				amountofwaypoints = Math.RandomIntInclusive(2, 6);
-		}
+			//! For wrecks, we let AI follow a roughly circular pattern around the wreck so they don't run into it
 
-		for (int i = 0; i < amountofwaypoints; i++)
-		{
-			waypoint = ExpansionMath.GetRandomPointInRing(position, MinSpreadRadius, MaxSpreadRadius);
-			waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
+			int ccw = Math.RandomIntInclusive(0, 1);
+			float angle = Math.RandomFloat(0, 360);
+			float angleIncCumulative;
 
-			waypoints.Insert(waypoint);
+			//! This will generate anywhere from 8 to 10 waypoints
+			while (true)
+			{
+				waypoint = ExpansionMath.GetRandomPointAtDegrees(position, angle, MinSpreadRadius, MaxSpreadRadius);
+				waypoint = ExpansionStatic.GetSurfacePosition(waypoint);
+
+				waypoints.Insert(waypoint);
+
+				float angleInc = Math.RandomFloat(36, 45);
+
+				angleIncCumulative += angleInc;
+				if (angleIncCumulative > 360)
+					break;
+
+				if (ccw)
+				{
+					angle -= angleInc;
+					if (angle < 0)
+						angle += 360;
+				}
+				else
+				{
+					angle += angleInc;
+					if (angle > 360)
+						angle -= 360;
+				}
+			}
 		}
 
 		if (WaypointInterpolation)
-			return PathInterpolated(waypoints, typename.StringToEnum(ECurveType, WaypointInterpolation));
+			return ExpansionMath.PathInterpolated(waypoints, typename.StringToEnum(ECurveType, WaypointInterpolation), MaxSpreadRadius > 0);
 
 		return waypoints;
 	}

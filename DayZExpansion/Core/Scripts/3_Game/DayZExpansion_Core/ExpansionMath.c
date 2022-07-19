@@ -78,15 +78,30 @@ class ExpansionMath
         return vector.RotateAroundZero(pos - point, axis, cosAngle, sinAngle) + point;
     }
 
-	//! Generate random point within ring (uniformly)
-	static vector GetRandomPointInRing(vector center, float minRadius, float maxRadius)
+	//! Generate random point at angle in dregrees
+	static vector GetRandomPointAtDegrees(vector center, float degrees, float minRadius, float maxRadius)
+	{
+		float theta = degrees * Math.PI / 180.0;
+
+		return GetRandomPointAtRadians(center, theta, minRadius, maxRadius);
+	}
+
+	//! Generate random point at angle in radians
+	static vector GetRandomPointAtRadians(vector center, float theta, float minRadius, float maxRadius)
 	{
 		float maxRadiusSq = maxRadius * maxRadius;
 		float minRadiusSq = minRadius * minRadius;
 		float r = Math.Sqrt(Math.RandomFloat01() * (maxRadiusSq - minRadiusSq) + minRadiusSq);
-		float theta = Math.RandomFloat01() * 2 * Math.PI;
 
 		return Vector(center[0] + r * Math.Cos(theta), center[1], center[2] + r * Math.Sin(theta));
+	}
+
+	//! Generate random point within ring (uniformly)
+	static vector GetRandomPointInRing(vector center, float minRadius, float maxRadius)
+	{
+		float theta = Math.RandomFloat01() * 2 * Math.PI;
+
+		return GetRandomPointAtRadians(center, theta, minRadius, maxRadius);
 	}
 
 	//! Generate random point within circle (uniformly)
@@ -137,5 +152,245 @@ class ExpansionMath
 		else if (d < -180)
 			return d + 360;
 		return d;
+	}
+
+	/**
+	 * @brief Smooth values (moving average)
+	 * 
+	 * @param passses   Number of passes
+	 * @param weights   Float array containing weighting factors. Its length
+	 *                  determines the size of the window to use.
+	 *                  Defaults to {1.0, 1.0, 1.0}
+	 * @param protect   Int array containing indexes of values to protect
+	 */
+	static TFloatArray MovingAvg(TFloatArray values, int passes = 1, TFloatArray weights = null, TIntArray protect = null)
+	{
+		TFloatArray data();
+		TFloatArray window();
+
+		if (!weights || weights.Count() < 3 || weights.Count() % 2 != 1)
+		{
+			if (weights)
+				CF_Log.Warn("Invalid weight count %1, has to be uneven and >= 3 - using default weights {1, 1, 1}", weights.Count().ToString());
+			window.Insert(1.0);
+			window.Insert(1.0);
+			window.Insert(1.0);
+		}
+		else
+		{
+			window.Copy(weights);
+		}
+
+		data.Copy(values);
+
+		for (int npass = 0; npass < passes; npass++)
+		{
+			_MovingAvg(data, window, protect);
+		}
+
+		return data;
+	}
+
+	private static void _MovingAvg(inout TFloatArray data, TFloatArray window, TIntArray protect)
+	{
+		for (int j = 0; j < data.Count(); j++)
+		{
+			float v = data[j];
+			TFloatArray tmpwindow();
+			tmpwindow.Copy(window);
+			if (j > 0 && j < data.Count() - 1 && (!protect || protect.Find(j) == -1))
+			{
+				while (tmpwindow.Count() >= 3)
+				{
+					int tl = (tmpwindow.Count() - 1) / 2;
+					// Print(j + " " + tl + " " + tmpwindow);
+					if (tl > 0 && j - tl >= 0 && j + tl <= data.Count() - 1)
+					{
+						TFloatArray windowslice();
+						for (int k = j - tl; k < j + tl + 1; k++)
+							windowslice.Insert(data[k]);
+						float windowsize = 0;
+						float tmpwindowsum = 0;
+						for (int l = 0; l < tmpwindow.Count(); l++)
+						{
+							windowsize += tmpwindow[l] * windowslice[l];
+							tmpwindowsum += tmpwindow[l];
+						}
+						v = windowsize / tmpwindowsum;
+						break;
+					}
+					else
+					{
+						tmpwindow.RemoveOrdered(0);
+						tmpwindow.Remove(tmpwindow.Count() - 1);
+					}
+				}
+			}
+			data[j] = v;
+		}
+	}
+
+	/**
+	 * @brief Interpolate path
+	 * 
+	 * @param path        Array of vectors
+	 * @param curveType   The type of curve that should be used for interpolation
+	 * @param smooth      If path should be smoothed after applying curve interpolation (may help against overly sharp changes in angle)
+	 */
+	static TVectorArray PathInterpolated(TVectorArray path, ECurveType curveType = ECurveType.CatmullRom, bool smooth = true)
+	{
+		auto trace = EXTrace.Start(EXTrace.ENABLE);
+
+		if (path.Count() < 3)
+			return path;
+
+		float minDistance = 4.472136;
+
+		TVectorArray points();
+		TVectorArray interpolatedPath();
+
+#ifdef DIAG
+		EXTrace.Print(EXTrace.ENABLE, null, "Original points");
+#endif
+
+		foreach (vector pathPoint: path)
+		{
+			points.Insert(Vector(pathPoint[0], pathPoint[2], 0));
+			
+#ifdef DIAG
+			EXTrace.Print(EXTrace.ENABLE, null, pathPoint[0].ToString() + " " + pathPoint[2].ToString());
+#endif
+		}
+
+		//! 1st pass - insert linearly interpolated points roughly every 100 m where needed to make path more evenly spaced
+		//! (helps against overly sharp turns in curve interpolation)
+		TVectorArray intermediatePoints = {points[0]};
+		
+#ifdef DIAG
+		EXTrace.Print(EXTrace.ENABLE, null, "Intermediate points");
+		EXTrace.Print(EXTrace.ENABLE, null, points[0][0].ToString() + " " + points[0][1].ToString());
+#endif
+
+		for (int i = 1; i < points.Count(); i++)
+		{
+			float pointDistance = vector.Distance(points[i - 1], points[i]);
+			int steps;
+
+			if (pointDistance >= 200.0)
+				steps = Math.Floor(pointDistance / 100.0);
+			else
+				steps = 1;
+
+			for (int j = 1; j <= steps; j++)
+			{
+				vector intermediatePoint = vector.Lerp(points[i - 1], points[i], j / steps);
+				intermediatePoints.Insert(intermediatePoint);
+
+#ifdef DIAG
+				EXTrace.Print(EXTrace.ENABLE, null, intermediatePoint[0].ToString() + " " + intermediatePoint[1].ToString());
+#endif
+			}
+		}
+
+		//! Curve interpolation
+#ifdef DIAG
+		EXTrace.Print(EXTrace.ENABLE, null, "Filtered interpolated points - " + typename.EnumToString(ECurveType, curveType));
+#endif
+
+		float t;
+		float step = 0.01;
+		float tEnd = points.Count() - 1;
+		vector previousPoint3D;
+		vector curveDir2D;
+		float previousAngle;
+		float angleDiff;
+		float distance;
+
+		while (t < tEnd)
+		{
+			vector curvePoint = Math3D.Curve(curveType, t / tEnd, intermediatePoints);
+
+//#ifdef DIAG
+			//EXTrace.Print(EXTrace.ENABLE, null, curvePoint[0].ToString() + " " + curvePoint[1].ToString());
+//#endif
+
+			vector point3D = Vector(curvePoint[0], 0, curvePoint[1]);
+
+			float tCur = t;
+			t += step;
+
+			if (tCur)
+				curveDir2D = vector.Direction(previousPoint3D, point3D);
+	
+			previousPoint3D = point3D;
+
+			if (tCur)
+			{
+				distance += curveDir2D.Length();
+
+				if (/*tCur != Math.Round(tCur) &&*/ tCur < tEnd)
+				{
+					float angle = curveDir2D.VectorToAngles()[0];
+					angleDiff += Math.AbsFloat(angle - previousAngle);
+					previousAngle = angle;
+					if (angleDiff < 5.0)
+						continue;
+				}
+			}
+
+			if (!tCur || /*tCur == Math.Round(tCur) ||*/ distance > minDistance || tCur == tEnd)
+			{
+				distance = 0;
+				angleDiff = 0;
+
+				interpolatedPath.Insert(point3D);
+#ifdef DIAG
+				EXTrace.Print(EXTrace.ENABLE, null, point3D[0].ToString() + " " + point3D[2].ToString());
+#endif
+			}
+		}
+
+		if (smooth)
+		{
+			//! Smoothing pass - moving avg
+#ifdef DIAG
+			EXTrace.Print(EXTrace.ENABLE, null, "Smoothing pass - moving avg");
+#endif
+
+			TFloatArray x();
+			TFloatArray z();
+
+			foreach (vector xyz: interpolatedPath)
+			{
+				x.Insert(xyz[0]);
+				z.Insert(xyz[2]);
+			}
+
+			x = ExpansionMath.MovingAvg(x);
+			z = ExpansionMath.MovingAvg(z);
+
+			for (int k = 0; k < interpolatedPath.Count(); k++)
+			{
+				vector smoothedPoint = Vector(x[k], 0, z[k]);
+				interpolatedPath[k] = smoothedPoint;
+
+#ifdef DIAG
+				EXTrace.Print(EXTrace.ENABLE, null, x[k].ToString() + " " + z[k].ToString());
+#endif
+			}
+		}
+
+		//! Final pass - set Y to surface
+		for (int l = 0; l < interpolatedPath.Count(); l++)
+		{
+			vector interpolatedPoint = interpolatedPath[l];
+			interpolatedPoint[1] = GetGame().SurfaceY(interpolatedPath[l][0], interpolatedPath[l][2]);
+			interpolatedPath[l] = interpolatedPoint;
+#ifdef DIAG
+			EXTrace.Print(EXTrace.ENABLE, null, interpolatedPath[l].ToString(false));
+#endif
+		}
+
+		return interpolatedPath;
 	}
 }
