@@ -25,8 +25,6 @@ modded class MissionGameplay
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionGameplay");
 #endif
-	
-		GetExpansionSettings().GameInit();
 		
 		if (IsMissionClient())
 			GetExpansionClientSettings().Load();

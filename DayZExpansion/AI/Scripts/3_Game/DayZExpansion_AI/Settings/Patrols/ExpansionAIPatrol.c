@@ -43,7 +43,7 @@ class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 		}
 
 		if (WaypointInterpolation)
-			return PathInterpolated(waypoints, typename.StringToEnum(ECurveType, WaypointInterpolation));
+			return ExpansionMath.PathInterpolated(waypoints, typename.StringToEnum(ECurveType, WaypointInterpolation), MaxSpreadRadius > 0);
 
 		return waypoints;
 	}

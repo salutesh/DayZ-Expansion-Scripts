@@ -105,15 +105,16 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 		switch ( rpc.ID )
 		{
-		//! TODO: Remove sync RPCs altogether (already disabled)?
 		case ExpansionMonitorRPC.SyncStats:
-			m_ClientStats.OnRecieve(rpc.Context);
+			m_ClientStats.OnRecieve(rpc.Context, true, false);
+/*
 			m_ClientStats.m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 			m_ClientStats.m_Playtime = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 			m_ClientStats.m_PlayersKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
 			m_ClientStats.m_InfectedKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 			m_ClientStats.m_AnimalsKilled = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 			m_ClientStats.m_LongestShot = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
+*/
 			m_StatsInvoker.Invoke(m_ClientStats);
 			break;
 		case ExpansionMonitorRPC.SyncStates:
@@ -325,16 +326,19 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		UpdateStats(stats, player, false, false);
 	}
 
-	private void UpdateStats(ExpansionSyncedPlayerStats stats, PlayerBase player, bool send = false, bool includeRegisteredStats = false)
+	private void UpdateStats(ExpansionSyncedPlayerStats stats, PlayerBase player, bool send = false, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
-		stats.m_Health = CalcHealth(player);
-		stats.m_Blood = CalcBlood(player);
-		stats.m_Water = CalcWater(player);
-		stats.m_Energy = CalcEnergy(player);
+		if (includeBaseStats)
+		{
+			stats.m_Health = CalcHealth(player);
+			stats.m_Blood = CalcBlood(player);
+			stats.m_Water = CalcWater(player);
+			stats.m_Energy = CalcEnergy(player);
+		}
 
 		if (includeRegisteredStats)
 		{
-			stats.m_Stamina = CalcStamina(player);
+			//stats.m_Stamina = CalcStamina(player);
 			stats.m_Distance = player.StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 			stats.m_Playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 			stats.m_PlayersKilled = player.StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
@@ -346,9 +350,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!send)
 			return;
 
-		//! TODO: Remove sync RPC altogether (already disabled)?
 		ScriptRPC rpc = new ScriptRPC();
-		stats.OnSend(rpc);
+		stats.OnSend(rpc, includeRegisteredStats, includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
 		rpc.Send(NULL, ExpansionMonitorRPC.SyncStats, false, player.GetIdentity());
 	}
@@ -393,7 +396,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!send)
 			return;
 
-		//! TODO: Remove sync RPC altogether (already disabled)?
 		ScriptRPC rpc = new ScriptRPC();
 		states.OnSend(rpc);
 		//! @note guaranteed = false is intentional here (performance)
@@ -768,13 +770,14 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule RequestPlayerStats
 	// Called from client - if empty string given as playerID, use sender ID
 	// ------------------------------------------------------------
-	void RequestPlayerStats(string playerID = "", bool includeRegisteredStats = false)
+	void RequestPlayerStats(string playerID = "", bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats);
 
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
+		rpc.Write(includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
 		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStats, false);
 	}
@@ -800,15 +803,40 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!ctx.Read(includeRegisteredStats))
 			return;
 
+		bool includeBaseStats;
+		if (!ctx.Read(includeBaseStats))
+			return;
+
+		if (!sender)
+			return;
+
 		PlayerBase player;
 		if (playerID)
 		{
 			player = PlayerBase.Expansion_GetByPlainID(playerID);
+
+			if (!player)
+			{
+				EXPrint("[ExpansionMonitorModule] WARNING: Player with plain ID " + playerID + " was not found");
+				return;
+			}
 		}
 		else
 		{
 			playerID = sender.GetPlainId();
 			player = PlayerBase.GetPlayerByUID(sender.GetId());
+
+			if (!player)
+			{
+				EXPrint("[ExpansionMonitorModule] WARNING: Player with ID " + sender.GetId() + " (plain ID " + playerID + ") was not found");
+				return;
+			}
+		}
+
+		if (!playerID)
+		{
+			EXPrint("[ExpansionMonitorModule] WARNING: Player plain ID is empty string");
+			return;
 		}
 
 		ExpansionSyncedPlayerStats playerStats;
@@ -819,7 +847,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			{
 				return;
 			}
-			UpdateStats(playerStats, player, false, includeRegisteredStats);
+			UpdateStats(playerStats, player, false, includeRegisteredStats, includeBaseStats);
 		}
 		
 		ExpansionSyncedPlayerStates playerStates;
@@ -833,7 +861,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			UpdateStates(playerStates, player, false);
 		}
 		
-		SendPlayerStatsAndStates(playerStats, playerStates, originalPlayerID, sender, includeRegisteredStats);
+		SendPlayerStatsAndStates(playerStats, playerStates, originalPlayerID, sender, includeRegisteredStats, includeBaseStats);
 	}
 	
 	// ------------------------------------------------------------
@@ -851,17 +879,18 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule SendPlayerStatsAndStates
 	// Called on server
 	// ------------------------------------------------------------
-	void SendPlayerStatsAndStates(ExpansionSyncedPlayerStats playerStats, ExpansionSyncedPlayerStates playerStates, string playerID, PlayerIdentity ident, bool includeRegisteredStats = false)
+	void SendPlayerStatsAndStates(ExpansionSyncedPlayerStats playerStats, ExpansionSyncedPlayerStates playerStates, string playerID, PlayerIdentity ident, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats);
+		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
 		ScriptRPC rpc = new ScriptRPC();
 
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
+		rpc.Write(includeBaseStats);
 
 		if (playerStats)
-			playerStats.OnSend(rpc, includeRegisteredStats);
+			playerStats.OnSend(rpc, includeRegisteredStats, includeBaseStats);
 
 		if (playerStates)
 			playerStates.OnSend(rpc);
@@ -897,10 +926,14 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!ctx.Read(includeRegisteredStats))
 			return;
 		
+		bool includeBaseStats;
+		if (!ctx.Read(includeBaseStats))
+			return;
+		
 		if (includeStats)
 		{
 			ExpansionSyncedPlayerStats playerStats();
-			if (!playerStats.OnRecieve(ctx, includeRegisteredStats))
+			if (!playerStats.OnRecieve(ctx, includeRegisteredStats, includeBaseStats))
 				return;
 
 			playerStats.m_PlainID = playerID;
@@ -1005,6 +1038,17 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		rpc.Send(null, ExpansionMonitorRPC.SyncLastDeathPos, true, player.GetIdentity());
 	}
 	
+	void SyncStatsToClient(PlayerBase player)
+	{
+		string playerID = player.GetIdentity().GetPlainId();
+
+		auto playerStats = GetPlayerStatsByID(playerID);
+		if (!playerStats)
+			return;
+
+		UpdateStats(playerStats, player, true, true, false);
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMonitorModule RPC_SyncLastDeathPos
 	// Called on client

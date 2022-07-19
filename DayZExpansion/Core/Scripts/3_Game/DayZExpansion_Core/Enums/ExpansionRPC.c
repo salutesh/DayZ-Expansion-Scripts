@@ -260,15 +260,15 @@ enum ExpansionSettingsRPC
 	General,
 	PlayerList,
 	SocialMedia,
-	Log,
+	Log,  //! Not used, settings don't need to be available on client
 	NameTags,
-	SafeZone,
-	Mission,
-	AirDrop,
+	SafeZone,  //! Not used, settings don't need to be available on client
+	Mission,  //! Not used, settings don't need to be available on client
+	AirDrop,  //! Not used, settings don't need to be available on client
 	Quest,
 	Chat,
 	AI,
-	NotificationScheduler,
+	NotificationScheduler,  //! Not used, settings don't need to be available on client
 	Hardline,
 	COUNT  //! 28
 };

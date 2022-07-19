@@ -14,6 +14,7 @@ class ExpansionQuestObjectiveTarget
 {
 	private int Amount = -1;
 	private autoptr array<string> ClassNames = new array<string>;
+	bool CountSelfKill;
 	private bool SpecialWeapon = false;
 	private autoptr array<string> AllowedWeapons = new array<string>;
 

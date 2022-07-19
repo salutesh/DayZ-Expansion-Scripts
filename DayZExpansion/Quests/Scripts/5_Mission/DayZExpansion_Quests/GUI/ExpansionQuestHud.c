@@ -113,7 +113,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	override void Update()
 	{
-		if (m_QuestModule)
+		if (m_QuestModule && GetGame().GetPlayer())
 		{
 			SetView(m_QuestModule.GetClientQuestData());
 		}

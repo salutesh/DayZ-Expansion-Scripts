@@ -68,6 +68,10 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
 
+		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
+		if (!target)
+			return;
+
 		bool maxRangeCheck = false;
 		
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -79,14 +83,18 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		Print(ToString() + "::OnEntityKilled - Killer type: " + killer.Type().ToString());
 	#endif
 		
-		//! PvP quest objective. Check if the victim is a quest player
-		// of this quest and if its a group quest make sure he was not in the involved party before.
-		// If he is in therelated group or was in it we dont count the kill!
-	#ifdef EXPANSIONMODGROUPS
 		PlayerBase victimPlayer;
-		if (Class.CastTo(victimPlayer, victim) && victimPlayer.GetIdentity())
+		if (Class.CastTo(victimPlayer, victim))
 		{
-			if (GetQuest().IsGroupQuest())
+			//! Check if this was a self-kill
+			if (GetQuest().GetPlayer() == victimPlayer && !target.CountSelfKill)
+				return;
+
+		#ifdef EXPANSIONMODGROUPS
+			//! PvP quest objective. Check if the victim is a quest player
+			//! of this quest and if its a group quest make sure he was not in the involved party before.
+			//! If he is in the related group or was in it we dont count the kill!
+			if (GetQuest().IsGroupQuest() && victimPlayer.GetIdentity())
 			{
 				string victimPlayerUID = victimPlayer.GetIdentity().GetId();
 				int groupID = GetQuest().GetGroupID();
@@ -98,8 +106,8 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				if (victimPartyData && victimPartyData.GetParty().GetPartyID() == groupID || GetQuest().GetQuestModule().WasPlayerInGroup(victimPlayerUID, groupID))
 					return;
 			}
+		#endif
 		}
-	#endif
 		
 		//! Use max range check if used in config
 		if (GetObjectiveConfig().GetMaxDistance() > -1)
@@ -120,10 +128,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				return;
 			}
 		}
-
-		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
-		if (!target)
-			return;
 
 		//! If the target need to be killed with a special weapon check incoming killer class type
 		if (target.NeedSpecialWeapon())

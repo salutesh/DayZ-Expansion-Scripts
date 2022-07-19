@@ -348,9 +348,9 @@ class ExpansionPathHandler
 		bool recalculate = m_Recalculate;
 		bool recalculateFromNext = false;
 		
-#ifdef DIAG
-		recalculate = true;
-#endif
+//#ifdef DIAG
+		//recalculate = true;
+//#endif
 
 		int i;
 		
@@ -529,6 +529,18 @@ class ExpansionPathHandler
 				
 				UpdatePoint(m_Next0, m_Points[1]);
 				UpdatePoint(m_Next1, m_Points[2]);
+
+				if (m_Unit.AI_HANDLEVAULTING && !m_Next0.Parent && !m_Next1.Parent)
+				{
+					vector hitPos, hitNormal;
+					if (IsBlocked(m_Next0.Position, m_Next1.Position, hitPos, hitNormal))
+					{
+						//! Move the waypoint closer to target to entice the AI to vault if possible
+						//! (otherwise might get stuck at e.g. wall_woodf_5.p3d which is easily vaultable)
+						if (vector.DistanceSq(hitPos, m_Next1.Position) < vector.DistanceSq(m_Next0.Position, m_Next1.Position))
+							m_Next0.Position = hitPos - vector.Direction(hitPos, m_Next0.Position).Normalized() * 0.5;
+					}
+				}
 			}
 			else if (m_Count != 0)
 			{

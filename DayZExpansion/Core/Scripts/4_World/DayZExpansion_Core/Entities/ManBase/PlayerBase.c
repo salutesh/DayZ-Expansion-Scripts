@@ -77,7 +77,7 @@ modded class PlayerBase
 	
 		if ( m_PlayerUID && s_Expansion_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{
-			s_Expansion_AllPlayersUID.Remove( m_PlayerUID );
+			RemovePlayer( m_PlayerUID );
 		}
 
 		int index = s_Expansion_AllPlayers.Find(this);
@@ -643,6 +643,8 @@ modded class PlayerBase
 			string playerUID = GetIdentity().GetId();
 			vector pos = GetPosition();
 			monitorModule.AddLastPlayerDeathPos(playerUID, pos);
+			if (GetGame().IsServer())
+				monitorModule.SyncStatsToClient(this);
 		}
 	#endif
 		super.EEKilled(killer);

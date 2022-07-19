@@ -29,7 +29,7 @@ enum ExpansionPlayerStanceStatus
 
 class ExpansionSyncedPlayerStates
 {
-	//! Not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
+	//! ID not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
 	string m_PlainID;
 	
 	int m_Bones;
@@ -90,7 +90,7 @@ class ExpansionSyncedPlayerStates
 
 class ExpansionSyncedPlayerStats
 {
-	//! Not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
+	//! ID not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
 	string m_PlainID;
 
 	int m_Health;
@@ -112,16 +112,19 @@ class ExpansionSyncedPlayerStats
 	//! @note not synced (can calculate on client)
 	float m_Weight;
 
-	void OnSend(ParamsWriteContext ctx, bool includeRegisteredStats = false)
+	void OnSend(ParamsWriteContext ctx, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
-		ctx.Write(m_Health);
-		ctx.Write(m_Blood);
-		ctx.Write(m_Water);
-		ctx.Write(m_Energy);
+		if (includeBaseStats)
+		{
+			ctx.Write(m_Health);
+			ctx.Write(m_Blood);
+			ctx.Write(m_Water);
+			ctx.Write(m_Energy);
+		}
 
 		if (includeRegisteredStats)
 		{
-			ctx.Write(m_Stamina);
+			//ctx.Write(m_Stamina);
 			ctx.Write(m_Distance);
 			ctx.Write(m_Playtime);
 			ctx.Write(m_PlayersKilled);
@@ -131,24 +134,27 @@ class ExpansionSyncedPlayerStats
 		}
 	}
 
-	bool OnRecieve( ParamsReadContext ctx, bool includeRegisteredStats = false )
-	{		
-		if (!ctx.Read(m_Health))
-			return false;
-		
-		if (!ctx.Read(m_Blood))
-			return false;
-		
-		if (!ctx.Read(m_Water))
-			return false;
-		
-		if (!ctx.Read(m_Energy))
-			return false;
+	bool OnRecieve( ParamsReadContext ctx, bool includeRegisteredStats = false, bool includeBaseStats = true )
+	{
+		if (includeBaseStats)
+		{
+			if (!ctx.Read(m_Health))
+				return false;
+			
+			if (!ctx.Read(m_Blood))
+				return false;
+			
+			if (!ctx.Read(m_Water))
+				return false;
+			
+			if (!ctx.Read(m_Energy))
+				return false;
+		}
 		
 		if (includeRegisteredStats)
 		{
-			if (!ctx.Read(m_Stamina))
-				return false;
+			//if (!ctx.Read(m_Stamina))
+				//return false;
 			
 			if (!ctx.Read(m_Distance))
 				return false;
@@ -176,12 +182,14 @@ class ExpansionSyncedPlayerStats
 	{
 		m_Stamina = player.m_StaminaHandler.GetSyncedStaminaNormalized() * 100;
 
+/*
 		m_Distance = player.StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 		m_Playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 		m_PlayersKilled = player.StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
 		m_InfectedKilled = player.StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 		m_AnimalsKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 		m_LongestShot = player.StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
+*/
 
 		player.UpdateWeight();
 		m_Weight = player.GetWeight();
