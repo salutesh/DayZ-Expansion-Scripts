@@ -18,12 +18,8 @@ class ExpansionSafeZoneCircle: ExpansionSafeZoneElement
 	vector Center;
 	float Radius;
 
-	// ------------------------------------------------------------
-	// Expansion ExpansionSafeZoneCircle
-	// ------------------------------------------------------------
 	void ExpansionSafeZoneCircle( vector center, float radius )
 	{
-		this.Type = ExpansionSafeZoneTypes.CIRCLE;
 		this.Center = center;
 		this.Radius = radius;
 	}

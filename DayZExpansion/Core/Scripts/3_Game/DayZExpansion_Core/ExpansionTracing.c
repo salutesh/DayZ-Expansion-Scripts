@@ -63,6 +63,8 @@ class EXTrace
 
 	static bool GLOBAL;
 
+	static bool GROUPS = ENABLE;
+
 	static bool HARDLINE = ENABLE;
 
 	static bool KILLFEED = ENABLE;
@@ -103,7 +105,7 @@ class EXTrace
 
 	static bool VEHICLES = ENABLE;
 
-	static bool WEAPONS;
+	static bool WEAPONS = ENABLE;
 
 	static bool ZONES;
 
@@ -303,23 +305,7 @@ class EXTrace
 			msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
 		}
 
-		switch (damageType)
-		{
-			case DT_CLOSE_COMBAT:
-				msg += "DT_CLOSE_COMBAT ";
-				break;
-			case DT_FIRE_ARM:
-				msg += "DT_FIRE_ARM ";
-				break;
-			case DT_EXPLOSION:
-				msg += "DT_EXPLOSION ";
-				break;
-			case DT_CUSTOM:
-				msg += "DT_CUSTOM ";
-				break;
-			default:
-				msg += "UNKNOWN ";
-		}
+		msg += ExpansionStatic.DamageTypeToString(damageType) + " ";
 
 		msg += source.ToString() + " ";
 		msg += component.ToString() + " ";

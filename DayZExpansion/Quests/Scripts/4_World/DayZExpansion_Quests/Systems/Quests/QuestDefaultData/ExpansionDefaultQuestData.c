@@ -923,9 +923,9 @@ class ExpansionDefaultQuestData
 		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(13);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		ExpansionQuestObjectiveCraftingConfig objective_1 = new ExpansionQuestObjectiveCraftingConfig();
+		objective_1.SetID(1);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.CRAFTING);
 		questConfig.AddObjectiveConfig(objective_1);
 		
 		ExpansionQuestObjectiveCollectionConfig objective_2 = new ExpansionQuestObjectiveCollectionConfig();

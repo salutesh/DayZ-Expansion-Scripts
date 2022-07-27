@@ -19,7 +19,6 @@ class ExpansionSafeZonePolygon : ExpansionSafeZoneElement
 
 	void ExpansionSafeZonePolygon(TVectorArray positions)
 	{
-		Type = ExpansionSafeZoneTypes.POLYGON;
 		Positions = positions;
 	}
 

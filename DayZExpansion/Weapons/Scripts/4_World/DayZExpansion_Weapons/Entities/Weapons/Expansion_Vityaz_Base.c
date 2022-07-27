@@ -53,10 +53,12 @@ class Expansion_Vityaz_Base: RifleBoltFree_Base
 		return super.CanEnterIronsights();
 	}
 
-	override bool CanDisplayAttachmentSlot( string slot_name )
-	{
-		if (!super.CanDisplayAttachmentSlot(slot_name))
-			return false;   
+	override bool CanDisplayAttachmentSlot(int slot_id)
+	{	
+		if (!super.CanDisplayAttachmentSlot(slot_id))
+			return false;
+
+		string slot_name = InventorySlots.GetSlotName(slot_id);   
 		
 		if ( slot_name == "weaponOpticsAK" )
 		{

@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
@@ -89,6 +89,8 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	ref ExpansionMarketMenuColors MarketMenuColors;
 	
 	autoptr TStringArray Currencies;
+
+	autoptr TStringArray VehicleKeys;
 	
 	[NonSerialized()]
 	protected autoptr map<int, ref ExpansionMarketCategory> m_Categories;
@@ -116,6 +118,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		m_Traders = new array<ref ExpansionMarketTrader>;
 
 		Currencies = new TStringArray;
+		VehicleKeys = new TStringArray;
 		
 		//! Ammo boxes and corresponding ammo are only needed on client
 		if (!GetGame().IsDedicatedServer() && !s_MarketAmmoBoxes.Count())
@@ -314,6 +317,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		ctx.Write(MaxLargeVehicleDistanceToTrader);
 		ctx.Write(LargeVehicles);
 		ctx.Write(Currencies);
+
 		//! Do not send vehicle spawn positions (only used on server)
 
 		MarketMenuColors.OnSend(ctx);
@@ -372,6 +376,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		LargeVehicles.Copy(s.LargeVehicles);
 		
 		Currencies.Copy(s.Currencies);
+		VehicleKeys.Copy(s.VehicleKeys);
 
 		int i;
 		ExpansionMarketSpawnPosition position;
@@ -505,6 +510,18 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		Currencies.Insert("expansiongoldnugget");
 		Currencies.Insert("expansionsilverbar");
 		Currencies.Insert("expansionsilvernugget");
+
+		#ifdef EXPANSIONMODVEHICLE
+		VehicleKeys.Insert("ExpansionCarKey");
+		#endif
+
+		#ifdef MuchCarKey
+		VehicleKeys.Insert("MCK_CarKey_Blue");
+		VehicleKeys.Insert("MCK_CarKey_Green");
+		VehicleKeys.Insert("MCK_CarKey_White");
+		VehicleKeys.Insert("MCK_CarKey_Yellow");
+		VehicleKeys.Insert("MCK_CarKey_Red");
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -1039,6 +1056,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 					Currencies.Copy(settingsDefault.Currencies);
 				}
 				
+				if (settingsBase.m_Version < 10)
+				{
+					VehicleKeys.Copy(settingsDefault.VehicleKeys);
+				}
+
 				CopyInternal(settingsBase);
 
 				m_Version = VERSION;

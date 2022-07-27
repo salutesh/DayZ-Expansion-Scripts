@@ -188,8 +188,8 @@
 					direction = vector.Direction(previousWayPoint, path[index]).Normalized();
 				else
 					direction = unit.GetDirection();
-				unit.Expansion_DebugObject_Deferred(index + 16, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", direction);
-				unit.Expansion_DebugObject_Deferred(path.Count() + 16, path[index], "ExpansionDebugNoticeMe", unit.GetDirection());
+				unit.Expansion_DebugObject_Deferred(index + 18, path[index] - "0 1.5 0", "ExpansionDebugNoticeMe_Red", direction);
+				unit.Expansion_DebugObject_Deferred(path.Count() + 18, path[index], "ExpansionDebugNoticeMe", unit.GetDirection());
 				
 				return EXIT;
 			</event_update>
@@ -211,12 +211,10 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.UpdateAimArbitration();
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit>
-				unit.StopAimArbitration();
 			</event_exit>
 			<event_update>
 				return EXIT;
@@ -229,12 +227,10 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.UpdateAimArbitration();
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
 			</event_entry>
 			<event_exit>
-				unit.StopAimArbitration();
 			</event_exit>
 			<event_update />
 		</state>

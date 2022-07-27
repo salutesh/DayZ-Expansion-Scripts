@@ -38,15 +38,17 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	protected int m_CurrentHealth;
 	protected int m_CurrentBlood;
 	
+	string m_PlayerID;
 	protected string m_PlayerPlainID;
 	protected string m_PlayerName;
 	
 	protected ref Timer m_UpdateTimer;
 	
-	void ExpansionPartyHudMember(string playerPlainID, string playerName)
+	void ExpansionPartyHudMember(string playerID, string playerPlainID, string playerName)
 	{
-		EXTrace.Start(EXTrace.PLAYER_MONITOR, this, playerPlainID, playerName);
+		auto trace = EXTrace.Start(EXTrace.GROUPS, this, playerPlainID, playerName);
 
+		m_PlayerID = playerID;
 		m_PlayerPlainID = playerPlainID;
 		m_PlayerName = playerName;
 		
@@ -68,6 +70,8 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void ~ExpansionPartyHudMember()
 	{
+		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
+
 #ifdef EXPANSIONMONITORMODULE
 		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
 			return;
@@ -102,16 +106,16 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void OnDataRecived( ExpansionSyncedPlayerStats player_stats)
 	{
-		EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
+		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
 
-		if (m_PlayerPlainID != player_stats.m_PlainID) return;
+		if (m_PlayerPlainID != player_stats.m_PlainID || !player_stats.m_HasBaseStats) return;
 
 		SetStats(player_stats);
 	}
 	
 	void OnStateDataRecived( ExpansionSyncedPlayerStates player_states)
 	{
-		EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_states.m_PlainID);
+		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_states.m_PlainID);
 
 		if (m_PlayerPlainID != player_states.m_PlainID) 
 			return;
@@ -368,7 +372,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	
 	void CreateUpdateTimer()
 	{
-		EXTrace.Start(EXTrace.PLAYER_MONITOR, this);
+		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
 
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{

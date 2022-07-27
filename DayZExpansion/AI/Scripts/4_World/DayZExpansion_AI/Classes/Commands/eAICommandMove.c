@@ -148,6 +148,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		return m_MovementSpeed;
 	}
 
+	float GetCurrentMovementAngle()
+	{
+		return m_MovementDirection;
+	}
+
 	void SetSpeedOverrider(bool pActive)
 	{
 		m_SpeedOverrider = pActive;

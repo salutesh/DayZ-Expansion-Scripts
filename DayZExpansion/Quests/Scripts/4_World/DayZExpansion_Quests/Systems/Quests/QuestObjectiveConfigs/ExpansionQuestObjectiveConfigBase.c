@@ -108,6 +108,11 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 		return NULL;
 	}
 	
+	array<string> GetItemNames()
+	{
+		return NULL;
+	}
+	
 	float GetMaxDistRadius()
 	{
 		return 50;

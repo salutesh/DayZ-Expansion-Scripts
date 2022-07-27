@@ -262,9 +262,15 @@ class eAICommandMenu extends UIScriptedMenu
 			//gesture_items.Insert(new eAICommandMenuItem(eAICommands.DEB_GRPMGR, "Group Manager", eAICommandCategories.CAT_DEBUG));
 		}
 
+		//Category 4 - Debug
+		else if (category == eAICommandCategories.CAT_EMPTY)
+		{
+			Close();
+		}
+
 		if (gesture_items.Count() == 1)
 		{
-			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_EMPTY, "NULL", eAICommandCategories.CATEGORIES));
+			gesture_items.Insert(new eAICommandMenuItem(eAICommandCategories.CAT_EMPTY, "", eAICommandCategories.CATEGORIES));
 		}
 	}
 

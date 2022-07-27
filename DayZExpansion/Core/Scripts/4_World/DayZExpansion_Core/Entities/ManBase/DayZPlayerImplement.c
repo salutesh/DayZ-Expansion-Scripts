@@ -70,31 +70,8 @@ modded class DayZPlayerImplement
 		super.EEKilled(killer);
 
 		if (!m_Expansion_CanBeLooted)
-			Expansion_LockInventory();
-	}
-
-	void Expansion_LockInventory()
-	{
-		int attcount = GetInventory().AttachmentCount();
-		for (int att = 0; att < attcount; att++)
-		{ 
-			EntityAI attachmentEntity = GetInventory().GetAttachmentFromIndex(att);
-			if (attachmentEntity)
-				attachmentEntity.GetInventory().LockInventory(10134);
-		}
-		GetInventory().LockInventory(10134);
-	}
-
-	void Expansion_UnlockInventory()
-	{
-		int attcount = GetInventory().AttachmentCount();
-		for (int att = 0; att < attcount; att++)
-		{ 
-			EntityAI attachmentEntity = GetInventory().GetAttachmentFromIndex(att);
-			if (attachmentEntity)
-				attachmentEntity.GetInventory().UnlockInventory(10134);
-		}
-		GetInventory().UnlockInventory(10134);
+			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
+			ExpansionStatic.LockInventoryRecursive(this, 10134);
 	}
 
 	override bool CanBeSkinned()

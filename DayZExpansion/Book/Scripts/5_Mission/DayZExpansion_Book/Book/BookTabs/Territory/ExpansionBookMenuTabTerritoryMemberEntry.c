@@ -16,18 +16,19 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 	ref ExpansionTerritoryModule m_TerritoryModule;
 	ref ExpansionBookMenuTabTerritory m_TerritoryTab;
 	ref ExpansionTerritoryMember m_Member;
-	ref ExpansionTerritory m_Territroy;
+	int m_TerritoryID;
 	ref ExpansionBookMenuTabTerritoryMemberEntryController m_EntryController;
 	
 	private TextWidget member_entry_label;
 	private ImageWidget member_entry_icon;
 	private ButtonWidget member_entry_button;
 	
-	void ExpansionBookMenuTabTerritoryMemberEntry(ExpansionBookMenuTabTerritory tab, ExpansionTerritoryMember member, ExpansionTerritory territory)
+	bool m_MouseHover;
+
+	void ExpansionBookMenuTabTerritoryMemberEntry(ExpansionBookMenuTabTerritory tab, ExpansionTerritoryMember member, int territoryID)
 	{
 		m_TerritoryTab = tab;
-		m_Member = member;
-		m_Territroy = territory;
+		m_TerritoryID = territoryID;
 		
 		if (!m_EntryController)
 			m_EntryController = ExpansionBookMenuTabTerritoryMemberEntryController.Cast(GetController());
@@ -35,14 +36,30 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 		if (!m_TerritoryModule)
 			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 		
-		SetEntry(m_Member);
+		SetEntry(member);
 	}
 	
-	void SetEntry(ExpansionTerritoryMember member)
+	void SetEntry(ExpansionTerritoryMember member, bool setBackground = true)
 	{
-		m_EntryController.MemberName = member.GetName();
+		m_Member = member;
+
+		m_EntryController.MemberName = m_Member.GetName();
 		m_EntryController.NotifyPropertyChanged("MemberName");
 		
+		UpdateOnlineState();
+		
+		if (!setBackground)
+			return;
+		
+		m_EntryController.Background = GetRandomElementBackground();
+		m_EntryController.NotifyPropertyChanged("Background");
+	}
+	
+	void UpdateOnlineState()
+	{
+		if (m_MouseHover)
+			return;
+
 		if (PlayerBase.Expansion_IsOnline(m_Member.GetID()))
 		{
 			member_entry_icon.SetColor(ARGB(255, 22, 160, 133));
@@ -51,11 +68,8 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 		{
 			member_entry_icon.SetColor(ARGB(255, 192, 57, 43));
 		}
-		
-		m_EntryController.Background = GetRandomElementBackground();
-		m_EntryController.NotifyPropertyChanged("Background");
 	}
-	
+
 	string GetRandomElementBackground()
 	{
 		TStringArray backgrounds = new TStringArray;
@@ -91,7 +105,7 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 			{
 				m_TerritoryTab.Hide();
 				m_TerritoryTab.GetMemberEditTab().SetMember(m_Member);
-				m_TerritoryTab.GetMemberEditTab().SetTerritory(m_Territroy);
+				m_TerritoryTab.GetMemberEditTab().SetTerritoryID(m_TerritoryID);
 				m_TerritoryTab.GetMemberEditTab().Show();
 			}
 		}
@@ -111,6 +125,7 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 	{
 		if (w == member_entry_button)
 		{
+			m_MouseHover = true;
 			member_entry_label.SetColor(ARGB(255, 220, 220, 220));
 			member_entry_icon.SetColor(ARGB(255, 220, 220, 220));
 		}
@@ -122,16 +137,10 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 	{
 		if (w == member_entry_button)
 		{
+			m_MouseHover = false;
 			member_entry_label.SetColor(ARGB(255, 0, 0, 0));
 			
-			if (PlayerBase.Expansion_IsOnline(m_Member.GetID()))
-			{
-				member_entry_icon.SetColor(ARGB(255, 22, 160, 133));
-			} 
-			else 
-			{
-				member_entry_icon.SetColor(ARGB(255, 192, 57, 43));
-			}
+			UpdateOnlineState();
 		}
 		
 		return super.OnMouseLeave(w, enterW, x, y);

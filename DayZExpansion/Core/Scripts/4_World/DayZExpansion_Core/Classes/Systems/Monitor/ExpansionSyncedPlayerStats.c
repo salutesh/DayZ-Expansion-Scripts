@@ -93,6 +93,7 @@ class ExpansionSyncedPlayerStats
 	//! ID not synched in 'OnSend', applied in 'RPC_SendPlayerStats'
 	string m_PlainID;
 
+	bool m_HasBaseStats;
 	int m_Health;
 	int m_Blood;
 	int m_Water;
@@ -101,7 +102,7 @@ class ExpansionSyncedPlayerStats
 	//! @note not synced for client player (can get synced values from StaminaHandler)
 	int m_Stamina;
 
-	//! @note not synced for client player (can just use GetStat)
+	bool m_HasRegisteredStats;
 	float m_Distance;
 	float m_Playtime;
 	int m_PlayersKilled;
@@ -149,6 +150,8 @@ class ExpansionSyncedPlayerStats
 			
 			if (!ctx.Read(m_Energy))
 				return false;
+
+			m_HasBaseStats = true;
 		}
 		
 		if (includeRegisteredStats)
@@ -173,6 +176,8 @@ class ExpansionSyncedPlayerStats
 			
 			if (!ctx.Read(m_LongestShot))
 				return false;
+
+			m_HasRegisteredStats = true;
 		}
 
 		return true;

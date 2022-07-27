@@ -9,7 +9,7 @@ class CfgPatches
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
 		magazines[] = {"ExpansionAmmoRPG"};
-		ammo[] = {"ExpansionRocketRPG","ExpansionRocket_Ammo","ExpansionC4_Ammo"};
+		ammo[] = {"ExpansionRocketRPG","ExpansionRocket_Ammo"};
 	};
 };
 class CfgAmmoTypes
@@ -86,39 +86,6 @@ class CfgAmmo
 			class Health
 			{
 				damage = 300;
-			};
-			class Blood
-			{
-				damage = 0;
-			};
-			class Shock
-			{
-				damage = 0;
-			};
-		};
-		class NoiseExplosion
-		{
-			strength = 100;
-			type = "shot";
-		};
-	};
-	class ExpansionC4_Ammo: DefaultAmmo
-	{
-		indirectHit = 1;
-		indirectHitRange = 3;
-		explosive = 1;
-		typicalSpeed = 3;
-		initSpeed = 3;
-		simulation = "shotShell";
-		simulationStep = 0.05;
-		soundSetExplosion[] = {"Grenade_explosion_SoundSet","Grenade_Tail_SoundSet"};
-		class DamageApplied
-		{
-			type = "FragGrenade";
-			bleedThreshold = 0.4;
-			class Health
-			{
-				damage = 600;
 			};
 			class Blood
 			{

@@ -1257,10 +1257,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		
 		//! Launchers
 		AddItem("Flaregun", ExpansionHardlineItemRarity.RARE);
+		AddItem("M79", ExpansionHardlineItemRarity.LEGENDARY);
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("ExpansionLAW", ExpansionHardlineItemRarity.LEGENDARY);
 		AddItem("ExpansionRPG7", ExpansionHardlineItemRarity.LEGENDARY);
-		AddItem("Expansion_M79", ExpansionHardlineItemRarity.LEGENDARY);
 	#endif
 		
 		//! Lights

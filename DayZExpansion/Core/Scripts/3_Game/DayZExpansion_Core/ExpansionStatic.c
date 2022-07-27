@@ -75,6 +75,23 @@ class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
 
+	static string DamageTypeToString(int damageType)
+	{
+		switch (damageType)
+		{
+			case DT_CLOSE_COMBAT:
+				return "DT_CLOSE_COMBAT";
+			case DT_FIRE_ARM:
+				return "DT_FIRE_ARM";
+			case DT_EXPLOSION:
+				return "DT_EXPLOSION";
+			case DT_CUSTOM:
+				return "DT_CUSTOM";
+		}
+
+		return "UNKNOWN";
+	}
+
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
@@ -1049,6 +1066,30 @@ class ExpansionStatic
 	static bool SurfaceIsWater(float x, float z)
 	{
 		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
+	}
+
+	static void LockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)
+	{
+		int attcount = entity.GetInventory().AttachmentCount();
+		for (int att = 0; att < attcount; att++)
+		{ 
+			EntityAI attachmentEntity = entity.GetInventory().GetAttachmentFromIndex(att);
+			if (attachmentEntity)
+				LockInventoryRecursive(attachmentEntity, lockType);
+		}
+		entity.GetInventory().LockInventory(lockType);
+	}
+
+	static void UnlockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)
+	{
+		int attcount = entity.GetInventory().AttachmentCount();
+		for (int att = 0; att < attcount; att++)
+		{ 
+			EntityAI attachmentEntity = entity.GetInventory().GetAttachmentFromIndex(att);
+			if (attachmentEntity)
+				UnlockInventoryRecursive(attachmentEntity, lockType);
+		}
+		entity.GetInventory().UnlockInventory(lockType);
 	}
 
 	//! Only kept for compatibility with old mods, remove after next update

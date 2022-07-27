@@ -55,6 +55,9 @@ modded class ExpansionWorld
 		}
 		#endif
 
+		if (!GetGame().IsServer())
+			return;
+
 		string M203SmokeItem = "Expansion_M203Round_Smoke_White";
 		switch ( ammoType )
 		{
@@ -173,7 +176,7 @@ modded class ExpansionWorld
 			}				
 			case "ExpansionRocketLAW":
 			{
-				GetGame().CreateObject( "Expansion_RPG_Explosion", pos );
+				GetGame().CreateObject( "Expansion_LAW_Explosion", pos );
 				break;
 			}			
 		}

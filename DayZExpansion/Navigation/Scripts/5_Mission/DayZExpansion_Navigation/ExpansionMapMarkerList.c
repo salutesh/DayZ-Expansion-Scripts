@@ -109,7 +109,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_PartyMarkers3DToggleIcon = ImageWidget.Cast(m_Root.FindAnyWidget("visibility_marker_option_party_3d_icon"));	
 		
 		m_MemberMarkersPanel = Widget.Cast(m_Root.FindAnyWidget("MemberMarkerPanel"));
-		m_PartyMarkersPanel.Show(true);
+		m_MemberMarkersPanel.Show(true);
 		m_MemberMarkersToggle = ButtonWidget.Cast(m_Root.FindAnyWidget("MemberMarkerHeaderButton"));
 		m_MemberMarkersToggleIcon = ImageWidget.Cast(m_Root.FindAnyWidget("MemberMarkerHeaderIcon"));
 		m_MemberMarkersContent = WrapSpacerWidget.Cast(m_Root.FindAnyWidget("MemberMarkerContent"));

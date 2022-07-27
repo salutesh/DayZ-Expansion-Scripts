@@ -45,6 +45,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	private ref map<int, ref ExpansionQuestObjectiveCollectionConfig> m_CollectionObjectivesConfigs;	//! Server
 	private ref map<int, ref ExpansionQuestObjectiveTreasureHuntConfig> m_TreasureHuntObjectivesConfigs;	//! Server
 	private ref map<int, ref ExpansionQuestObjectiveActionConfig> m_ActionObjectivesConfigs; //! Server
+	private ref map<int, ref ExpansionQuestObjectiveCraftingConfig> m_CraftingObjectivesConfigs; //! Server
 
 #ifdef EXPANSIONMODAI
 	private ref map<int, ref ExpansionQuestObjectiveAIPatrolConfig> m_AIPatrolObjectivesConfigs;	//! Server
@@ -167,6 +168,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER))
 			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
 
+		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER))
+			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER);
+		
 	#ifdef EXPANSIONMODAI
 		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER))
 			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
@@ -233,6 +237,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_CollectionObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveCollectionConfig>; //! Server
 			m_TreasureHuntObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveTreasureHuntConfig>; //! Server
 			m_ActionObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveActionConfig>; //! Server
+			m_CraftingObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveCraftingConfig>; //! Server
 
 		#ifdef EXPANSIONMODAI
 			m_AIPatrolObjectivesConfigs = new map<int, ref ExpansionQuestObjectiveAIPatrolConfig>; //! Server
@@ -346,6 +351,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 			else
 			{
 				DefaultActionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
+			}
+			
+			//! CRAFTING OBJECTIVES
+			array<string> craftingObjectiveFiles = new array<string>;
+			craftingObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER, ".json");
+			if (craftingObjectiveFiles.Count() > 0)
+			{
+				LoadObjectivesData(craftingObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER);
+			}
+			else
+			{
+				DefaultCraftingObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 	
 		#ifdef EXPANSIONMODAI
@@ -2146,12 +2163,22 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// -----------------------------------------------------------
 	private void DefaultActionObjectivesData()
 	{
-		//! Its very empty here
 		ExpansionQuestObjectiveActionConfig objective_a_1 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Action_001();
 		objective_a_1.Save("Objective_A_1");
 		m_ActionObjectivesConfigs.Insert(1, objective_a_1);
 	}
-
+	
+	// -----------------------------------------------------------
+	// ExpansionQuestModule DefaultCraftingObjectivesData
+	// Server
+	// -----------------------------------------------------------
+	private void DefaultCraftingObjectivesData()
+	{
+		ExpansionQuestObjectiveCraftingConfig objective_cr_1 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Crafting_001();
+		objective_cr_1.Save("Objective_CR_1");
+		m_CraftingObjectivesConfigs.Insert(1, objective_cr_1);
+	}
+	
 #ifdef EXPANSIONMODAI
 	// -----------------------------------------------------------
 	// ExpansionQuestModule DefaultTreasureHuntObjectivesData
@@ -2538,6 +2565,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 					return;
 
 				m_ActionObjectivesConfigs.Insert(objectiveID, actionConfig);
+			}
+			break;
+			
+			case ExpansionQuestObjectiveType.CRAFTING:
+			{
+				ExpansionQuestObjectiveCraftingConfig craftingConfig = new ExpansionQuestObjectiveCraftingConfig();
+				JsonFileLoader<ExpansionQuestObjectiveCraftingConfig>.JsonLoadFile(path + fileName, craftingConfig);
+				if (!craftingConfig)
+					return;
+
+				m_CraftingObjectivesConfigs.Insert(objectiveID, craftingConfig);
 			}
 			break;
 
@@ -3670,6 +3708,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 						switch (objectiveData.GetObjectiveType())
 						{
+							case ExpansionQuestObjectiveType.ACTION:
+							{
+								QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: ACTION");
+								ExpansionQuestObjectiveActionEvent action = ExpansionQuestObjectiveActionEvent.Cast(objective);
+								if (action)
+								{
+									action.SetActionState(objectiveData.GetActionState());
+									QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: ACTION");
+								}
+							}
+							break;
+							
 							case ExpansionQuestObjectiveType.TARGET:
 							{
 								QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: TARGET");
@@ -3684,8 +3734,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 								}
 							}
 							break;
+							
+							case ExpansionQuestObjectiveType.CRAFTING:
+							{
+								QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: CRAFTING");
+								ExpansionQuestObjectiveCraftingEvent craft = ExpansionQuestObjectiveCraftingEvent.Cast(objective);
+								if (craft)
+								{
+									craft.SetCraftingState(objectiveData.GetActionState());
+									QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: CRAFTING");
+								}
+							}
+							break;
 
-							case ExpansionQuestObjectiveType.TRAVEL:
+							/*case ExpansionQuestObjectiveType.TRAVEL:
 							{
 								QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: TRAVEL");
 								ExpansionQuestObjectiveTravelEvent travel = ExpansionQuestObjectiveTravelEvent.Cast(objective);
@@ -3727,7 +3789,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 									QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: TREASUREHUNT");
 								}
 							}
-							break;
+							break;*/
 
 						#ifdef EXPANSIONMODAI
 							case ExpansionQuestObjectiveType.AIPATROL:
@@ -4053,6 +4115,71 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule OnItemsCrafted
+	// Server
+	// ------------------------------------------------------------
+	void OnItemsCrafted(PlayerBase player, array<ItemBase> spawned_objects)
+	{
+		QuestModulePrint(ToString() + "::OnItemsCrafted - Start");
+
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		{
+			Error(ToString() + "::OnItemsCrafted - Tryed to call OnItemsCrafted on Client!");
+			return;
+		}
+		
+		if (!GetExpansionSettings().GetQuest().EnableQuests)
+			return;
+		
+		if (!player || !player.GetIdentity())
+			return;
+		
+		string playerUID = player.GetIdentity().GetId();
+		if (playerUID == string.Empty)
+			return;
+
+		for (int i = 0; i < m_ActiveQuests.Count(); i++)
+		{
+			ExpansionQuest quest = m_ActiveQuests[i];
+			if (!quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
+				continue;
+
+		#ifdef EXPANSIONMODGROUPS
+			if (quest.IsGroupQuest() && !quest.IsQuestGroupMember(playerUID))
+				continue;
+		#endif
+
+			if (quest.IsCompeleted() || quest.GetQuestState() == ExpansionQuestState.COMPLETED)
+				continue;
+
+			for (int j = 0; j < quest.GetObjectives().Count(); j++)
+			{
+				ExpansionQuestObjectiveEventBase objective = quest.GetObjectives()[j];
+				if (!objective)
+				{
+					Error(ToString() + "::OnItemsCrafted - Could not get quest objective!");
+					continue;
+				}
+
+				if (!objective.IsActive() || objective.IsCompleted())
+					continue;
+
+				//! Run thrue all possible objective types
+				switch (objective.GetObjectiveConfig().GetObjectiveType())
+				{
+					case ExpansionQuestObjectiveType.CRAFTING:
+					{
+						ExpansionQuestObjectiveCraftingEvent craftingObjective;
+						if (Class.CastTo(craftingObjective, objective))
+							craftingObjective.OnItemsCrafted(player, spawned_objects);
+					}
+					break;
+				}
+			}
+		}
+	}
 
 	// ------------------------------------------------------------
 	// ExpansionQuestModule UpdateQuestPlayersObjectiveData
@@ -4229,6 +4356,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 							if (Class.CastTo(actionObjective, currentObjective))
 							{
 								objectiveData.SetActionState(actionObjective.GetActionState());
+							}
+						}
+						break;
+						
+						case ExpansionQuestObjectiveType.CRAFTING:
+						{
+							QuestModulePrint(ToString() + "::UpdatePlayerQuestObjectiveData - Objective event type is: CRAFTING");
+							ExpansionQuestObjectiveCraftingEvent craftingObjective;
+							if (Class.CastTo(craftingObjective, currentObjective))
+							{
+								objectiveData.SetActionState(craftingObjective.GetCraftingState());
 							}
 						}
 						break;
@@ -4861,6 +4999,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	ExpansionQuestObjectiveActionConfig GetActionObjectiveConfigByID(int id)
 	{
 		return m_ActionObjectivesConfigs.Get(id);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule GetCraftingObjectiveConfigByID
+	// Server
+	// ------------------------------------------------------------
+	ExpansionQuestObjectiveCraftingConfig GetCraftingObjectiveConfigByID(int id)
+	{
+		return m_CraftingObjectivesConfigs.Get(id);
 	}
 
 #ifdef EXPANSIONMODAI

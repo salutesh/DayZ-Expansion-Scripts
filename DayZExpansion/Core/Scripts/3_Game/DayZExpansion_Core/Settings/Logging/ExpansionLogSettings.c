@@ -15,10 +15,11 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
+	bool ExplosionDamageSystem;			//! If enabled, generate logs of the Expansion explosion damage system when used
 
 	#ifdef EXPANSIONMODVEHICLE
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
@@ -144,6 +145,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 #endif
 
 		Safezone = s.Safezone;
+		ExplosionDamageSystem = s.ExplosionDamageSystem;
 
 		#ifdef EXPANSIONMODVEHICLE
 		VehicleCarKey = s.VehicleCarKey;
@@ -264,6 +266,11 @@ class ExpansionLogSettings: ExpansionSettingBase
 				}
 				#endif
 
+				if (m_Version < 5)
+				{
+					ExplosionDamageSystem = settingsDefault.ExplosionDamageSystem;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -306,6 +313,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		Safezone = true;
 		AdminTools = true;
+		ExplosionDamageSystem = true;
 
 		LogToScripts = false;
 		LogToADM = false;

@@ -36,7 +36,12 @@ class ExpansionMarketTraderV3 : ExpansionMarketTraderBase
 
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
+
+	#ifdef EXPANSIONMODHARDLINE
+	int MinRequiredHumanity
+	int MaxRequiredHumanity
+	#endif
 
 	string TraderIcon;
 
@@ -109,6 +114,14 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			if (settingsBase.m_Version < 6)
 				settings.TraderIcon = settingsDefault.TraderIcon;
 
+			if (settingsBase.m_Version < 9)
+			{
+				#ifdef EXPANSIONMODHARDLINE
+				settings.MinRequiredHumanity = settingsDefault.MinRequiredHumanity;
+				settings.MaxRequiredHumanity = settingsDefault.MaxRequiredHumanity;
+				#endif
+			}
+			
 			settings.m_Version = VERSION;
 			settings.m_FileName = name;
 			
@@ -159,6 +172,11 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		DisplayName = "NA";
 		m_FileName = "INVALID-FILE-NAME";
 		TraderIcon = "Trader";
+		
+		#ifdef EXPANSIONMODHARDLINE
+		MinRequiredHumanity = -9999;
+		MaxRequiredHumanity = 9999;
+		#endif
 
 		DefaultCurrencies();
 	}

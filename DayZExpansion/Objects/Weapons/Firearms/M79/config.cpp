@@ -12,102 +12,14 @@ class CfgPatches
 		ammo[] = {"DummyShockDamage","Bullet_Expansion_M203_Smoke_Base","Bullet_Expansion_M203_Smoke_White","Bullet_Expansion_M203_Smoke_Red","Bullet_Expansion_M203_Smoke_Green","Bullet_Expansion_M203_Smoke_Yellow","Bullet_Expansion_M203_Smoke_Purple","Bullet_Expansion_M203_Smoke_Teargas","Bullet_Expansion_M203_Sticky_Smoke_White","Bullet_Expansion_M203_Sticky_Smoke_Red","Bullet_Expansion_M203_Sticky_Smoke_Green","Bullet_Expansion_M203_Sticky_Smoke_Yellow","Bullet_Expansion_M203_Sticky_Smoke_Purple","Bullet_Expansion_M203_Sticky_Smoke_Teargas","Bullet_Expansion_M203_HE"};
 	};
 };
-class Mode_Safe;
-class Mode_SemiAuto;
-class Mode_Single;
-class Mode_Burst;
-class Mode_FullAuto;
-class OpticsInfoRifle;
 class cfgWeapons
 {
-	class Rifle_Base;
-	class Expansion_M79_Base: Rifle_Base
-	{
-		scope = 0;
-		weight = 3200;
-		absorbency = 0;
-		repairableWithKits[] = {5,1};
-		repairCosts[] = {30,25};
-		PPDOFProperties[] = {1,0.5,10,180,4,10};
-		ironsightsExcludingOptics[] = {};
-		DisplayMagazine = 0;
-		WeaponLength = 0.78105503;
-		chamberSize = 1;
-		chamberedRound = "";
-		chamberableFrom[] = {"Ammo_Expansion_M203_Smoke_White","Ammo_Expansion_M203_Smoke_Red","Ammo_Expansion_M203_Smoke_Green","Ammo_Expansion_M203_Smoke_Yellow","Ammo_Expansion_M203_Smoke_Purple","Ammo_Expansion_M203_Smoke_Teargas","Ammo_Expansion_M203_Sticky_Smoke_White","Ammo_Expansion_M203_Sticky_Smoke_Red","Ammo_Expansion_M203_Sticky_Smoke_Green","Ammo_Expansion_M203_Sticky_Smoke_Yellow","Ammo_Expansion_M203_Sticky_Smoke_Purple","Ammo_Expansion_M203_Sticky_Smoke_Teargas","Ammo_Expansion_M203_HE"};
-		magazines[] = {};
-		ejectType = 3;
-		recoilModifier[] = {2.5,2.5,2.5};
-		swayModifier[] = {1,1,1};
-		reloadAction = "ReloadIZH18";
-		shotAction = "";
-		modes[] = {"Single"};
-		class Single: Mode_Single
-		{
-			soundSetShot[] = {"Expansion_M79_Shot_SoundSet"};
-			reloadTime = 1;
-			recoil = "recoil_izh18";
-			recoilProne = "recoil_izh18_prone";
-			dispersion = 0.001;
-			magazineSlot = "magazine";
-		};
-		class Particles
-		{
-			class OnFire
-			{
-				class MuzzleFlash
-				{
-					ignoreIfSuppressed = 1;
-					illuminateWorld = 1;
-					overridePoint = "Usti hlavne";
-				};
-				class ChamberFlash
-				{
-					overridePoint = "dust_point";
-					overrideParticle = "weapon_dust_izh18_01";
-				};
-			};
-		};
-		class OpticsInfo: OpticsInfoRifle
-		{
-			memoryPointCamera = "eye";
-			discreteDistance[] = {50,100,200,300,400,500,600,700,800,900,1000};
-			discreteDistanceInitIndex = 0;
-			modelOptics = "-";
-			distanceZoomMin = 100;
-			distanceZoomMax = 100;
-		};
-	};
-	class Expansion_M79: Expansion_M79_Base
+	class M79;
+	class Expansion_M79: M79
 	{
 		scope = 2;
-		displayName = "$STR_EXPANSION_M79";
-		descriptionShort = "$STR_EXPANSION_M79_DESC";
-		model = "DayZExpansion\Objects\Weapons\Firearms\M79\m79.p3d";
-		attachments[] = {};
-		itemSize[] = {9,3};
-		class Particles
-		{
-			class OnFire
-			{
-				class MuzzleFlash
-				{
-					overrideParticle = "weapon_shot_izh18_01";
-					ignoreIfSuppressed = 1;
-				};
-			};
-		};
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 300;
-					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Weapons\Firearms\M79\m79\data\M79.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\M79\m79\data\M79.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\M79\m79\data\M79_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\M79\m79\data\M79_damage.rvmat"}},{0.0,{"DayZExpansion\Objects\Weapons\Firearms\M79\m79\data\M79_destroy.rvmat"}}};
-				};
-			};
-		};
+		descriptionShort = "The M79 is part of the official weaponry of vanilla DayZ 1.18. This item still exists so nobody loses their gear. Please do not spawn this item anymore. This item will be removed from the mod in a few months.";
+		chamberableFrom[] += {"Ammo_Expansion_M203_Smoke_White","Ammo_Expansion_M203_Smoke_Red","Ammo_Expansion_M203_Smoke_Green","Ammo_Expansion_M203_Smoke_Yellow","Ammo_Expansion_M203_Smoke_Purple","Ammo_Expansion_M203_Smoke_Teargas","Ammo_Expansion_M203_Sticky_Smoke_White","Ammo_Expansion_M203_Sticky_Smoke_Red","Ammo_Expansion_M203_Sticky_Smoke_Green","Ammo_Expansion_M203_Sticky_Smoke_Yellow","Ammo_Expansion_M203_Sticky_Smoke_Purple","Ammo_Expansion_M203_Sticky_Smoke_Teargas","Ammo_Expansion_M203_HE"};
 	};
 };
 class CfgMagazines

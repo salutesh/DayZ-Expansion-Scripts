@@ -47,6 +47,16 @@ modded class Weapon_Base
 		{
 			if (results.Count() > 0)
 				Class.CastTo(entity, results[0]);
+			if (entity == ai.GetTarget().GetEntity())
+			{
+				ai.Expansion_DebugObject_Deferred(16, hitPosition, "ExpansionDebugBox", ai.GetDirection(), position);
+				ai.Expansion_DebugObject_Deferred(17, "0 0 0", "ExpansionDebugBox_Red");
+			}
+			else
+			{
+				ai.Expansion_DebugObject_Deferred(16, "0 0 0", "ExpansionDebugBox");
+				ai.Expansion_DebugObject_Deferred(17, hitPosition, "ExpansionDebugBox_Red", ai.GetDirection(), position);
+			}
 			return true;
 		}
 
@@ -59,11 +69,11 @@ modded class Weapon_Base
 			float distance = vector.Distance(unitPosition, aimPosition);
 			vector missedPosition = position + (direction * distance);
 			string missed;
-			float missedUD = missedPosition[1] - aimPosition[1];
-			float missedLR = vector.Distance(missedPosition, aimPosition);
-			if (Math.AbsFloat(missedUD) > missedLR)
+			float missedUD = Math.AbsFloat(missedPosition[1] - aimPosition[1]);
+			float missedLR = vector.Distance(missedPosition, aimPosition) - missedUD;
+			if (missedUD > missedLR)
 			{
-				if (missedUD > 0)
+				if (missedPosition[1] > aimPosition[1])
 					missed = "high";
 				else
 					missed = "low";
@@ -82,6 +92,9 @@ modded class Weapon_Base
 					missed = "right";
 			}
 			EXTrace.Print(true, ai, "didn't hit because it was aiming " + missed + " (actual " + aimPosition + " missed " + missedPosition + ")");
+
+			ai.Expansion_DebugObject_Deferred(16, "0 0 0", "ExpansionDebugBox");
+			ai.Expansion_DebugObject_Deferred(17, missedPosition, "ExpansionDebugBox_Red", ai.GetDirection(), position);
 		}
 
 		return false;

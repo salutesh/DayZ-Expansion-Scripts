@@ -318,7 +318,10 @@ class ExpansionMarkerData
 		ctx.Write( m_Position );
 
 		ctx.Write( m_Locked );
-		
+	}
+
+	void OnSendObject( ParamsWriteContext ctx )
+	{
 		if ( m_Object )
 		{
 			ctx.Write( true );
@@ -349,6 +352,11 @@ class ExpansionMarkerData
 		if ( !ctx.Read( m_Locked ) )
 			return false;
 
+		return true;
+	}
+
+	bool OnReceiveObject( ParamsReadContext ctx )
+	{
 		bool hasObject;
 		if ( !ctx.Read( hasObject ) )
 			return false;

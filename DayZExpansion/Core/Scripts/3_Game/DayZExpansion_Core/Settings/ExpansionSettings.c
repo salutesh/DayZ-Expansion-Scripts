@@ -16,6 +16,7 @@ class ExpansionSettings
 	static ref ScriptInvoker SI_Log = new ScriptInvoker();
 	static ref ScriptInvoker SI_SafeZone = new ScriptInvoker();
 	static ref ScriptInvoker SI_Notification = new ScriptInvoker();
+	static ref ScriptInvoker SI_DamageSystem = new ScriptInvoker();
 
 	protected bool m_GameInit = false;
 
@@ -81,6 +82,7 @@ class ExpansionSettings
 		Init(ExpansionSafeZoneSettings);
 		Init(ExpansionNotificationSettings);
 		Init(ExpansionMonitoringSettings);
+		Init(ExpansionDamageSystemSettings);
 	}
 
 	void Init(typename type)
@@ -239,6 +241,11 @@ class ExpansionSettings
 	ExpansionMonitoringSettings GetMonitoring(bool checkLoaded = true)
 	{
 		return ExpansionMonitoringSettings.Cast(Get(ExpansionMonitoringSettings, checkLoaded));
+	}
+
+	ExpansionDamageSystemSettings GetDamageSystem(bool checkLoaded = true)
+	{
+		return ExpansionDamageSystemSettings.Cast(Get(ExpansionDamageSystemSettings, checkLoaded));
 	}
 };
 

@@ -287,6 +287,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
 			}
 			break;
+			
+			case ExpansionQuestObjectiveType.CRAFTING:
+			{
+				QuestPrint(ToString() + "::SetEntryObjective - CRAFTING");
+				m_QuestHUDObjectiveController.ObjectiveTarget = "Item crafted: ";
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+				m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetActionState().ToString();
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				QuestPrint(ToString() + "::SetEntryObjective - CRAFTING - ADDED");
+			}
+			break;
 		}
 
 		QuestPrint(ToString() + "::SetEntryObjective - End");

@@ -551,12 +551,14 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return true;
 	}
 
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
-		if ( !super.CanDisplayAttachmentSlot( slot_name ) )
+		if (!super.CanDisplayAttachmentSlot(slot_id))
 		{
 			return false;
 		}
+
+		string slot_name = InventorySlots.GetSlotName(slot_id);
 
 		if ( !ExpansionCanAcceptCodeLock( slot_name ) )
 		{

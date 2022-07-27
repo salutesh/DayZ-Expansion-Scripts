@@ -2,42 +2,17 @@
 
 class CfgPatches
 {
-	class DayZExpansion_Objects_Explosives
+	class DayZExpansion_Objects_Explosives_Licensed
 	{
-		units[] = {"ExpansionSatchel","Expansion_C4_Explosion"};
+		units[] = {"ExpansionSatchel"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		ammo[] = {"ExpansionDummy_Explosive"};
-	};
-};
-class CfgAmmo
-{
-	class Dummy_Heavy;
-	class ExpansionDummy_Explosive: Dummy_Heavy
-	{
-		class DamageApplied
-		{
-			type = "Melee";
-			class Health
-			{
-				damage = 100;
-			};
-			class Blood
-			{
-				damage = 10;
-			};
-			class Shock
-			{
-				damage = 15;
-			};
-		};
 	};
 };
 class CfgVehicles
 {
 	class Inventory_Base;
-	class HouseNoDestruct;
 	class ExpansionExplosive: Inventory_Base
 	{
 		scope = 1;
@@ -83,11 +58,5 @@ class CfgVehicles
 	class ExpansionExplosiveBase: ExpansionExplosive
 	{
 		scope = 1;
-	};
-	class Expansion_C4_Explosion: HouseNoDestruct
-	{
-		scope = 2;
-		model = "\DZ\data\lightpoint.p3d";
-		ammoType = "ExpansionC4_Ammo";
 	};
 };

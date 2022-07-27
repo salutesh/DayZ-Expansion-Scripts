@@ -1,5 +1,5 @@
 /**
- * ExpansionDialog_DeleteTerritory.c
+ * ExpansionDialog_LeaveTerritory.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -94,13 +94,13 @@ class ExpansionDialogButton_Text_TerritroyLeave_Accept: ExpansionDialogBookButto
 
 class ExpansionDialogButton_Text_TerritroyLeave_Cancel: ExpansionDialogBookButton_Text
 {
-	ref ExpansionDialog_DeleteTerritory m_DeleteTerritoryDialog;
+	ref ExpansionDialog_LeaveTerritory m_DeleteTerritoryDialog;
 	ref ExpansionBookMenuTabTerritory m_TerritoryTab;
 	
 	void ExpansionDialogButton_Text_TerritroyLeave_Cancel(ExpansionDialogBase dialog)
 	{
 		if (!m_DeleteTerritoryDialog)
-			m_DeleteTerritoryDialog = ExpansionDialog_DeleteTerritory.Cast(GetDialog());
+			m_DeleteTerritoryDialog = ExpansionDialog_LeaveTerritory.Cast(GetDialog());
 		
 		if (!m_TerritoryTab)
 			m_TerritoryTab = ExpansionBookMenuTabTerritory.Cast(m_DeleteTerritoryDialog.GetParentView());

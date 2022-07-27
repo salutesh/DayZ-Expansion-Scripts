@@ -17,9 +17,6 @@ modded class ItemBase
 	protected ref ExpansionElectricityConnection m_ElectricitySource;
 	protected ref array< ItemBase > m_ElectricityConnections;
 
-	protected ref map< string, float > m_Expansion_HealthBeforeHit;
-	protected float m_Expansion_DamageMultiplier;
-
 	protected bool m_Expansion_IsOpenable;
 	protected bool m_Expansion_IsOpened;
 	protected bool m_Locked;
@@ -55,11 +52,6 @@ modded class ItemBase
 			//RegisterNetSyncVariableBool( "m_IsOnSynch" );
 			//RegisterNetSyncVariableInt( "m_SourceNetLow" );
 			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
-		}
-		
-		if ( IsMissionHost() && ( IsInherited( ExpansionBaseBuilding ) || IsInherited( ExpansionSafeBase ) ) )
-		{
-			m_Expansion_HealthBeforeHit = new map< string, float >;
 		}
 	}
 	
@@ -1151,79 +1143,21 @@ modded class ItemBase
 
 		m_ElectricitySource.OnVariablesSynchronized();
 	}
-	
-	/**
-	 * @param damageResult 
-	 * @param source 
-	 * @param component 
-	 * @param dmgZone 
-	 * @param ammo 
-	 * @param modelPos 
-	 * @param speedCoef 
-	 *  
-	 * This override only exists to either increase or negate (partly or fully) the base damage by applying any respective damage multipliers,
-	 * and logs the result to the admin log.
-	 */
-	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )
-	{
-		super.EEHitBy( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
-
-		if ( !IsInherited( ExpansionBaseBuilding ) && !IsInherited( ExpansionSafeBase ) )
-			return;
-
-		EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
-		string damageZone = dmgZone;
-		if ( damageZone == "" )
-			damageZone = "GlobalHealth";
-
-		float health = m_Expansion_HealthBeforeHit[dmgZone];
-		float dmg = damageResult.GetDamage( damageZone, "Health" );  // Base damage
-
-		if ( damageType == DT_EXPLOSION && !source.GetHierarchyRootPlayer() )
-		{
-			//! Use our own damage system for consistent explosion damage
-			//! Note that this only works if damage source root is not a player,
-			//! else won't be able to get source's position in relation to target
-
-			if (ammo == "")
-				ammo = source.ConfigGetString("ammoType");
-
-			if (ammo)
-			{
-				float baseDmg = GetGame().ConfigGetFloat("CfgAmmo " + ammo + " DamageApplied Health damage");
-				if (baseDmg > dmg)
-					dmg = baseDmg;
-			}
-
-			float blastDistance = vector.Distance(GetPosition(), source.GetPosition());
-			float blastRange = 5;
-			float blastDropoffRange = 2.5;
-			if (blastDistance > blastDropoffRange)
-				dmg *= ExpansionMath.LinearConversion(blastRange, blastDropoffRange, blastDistance);
-		}
-
-		if ( damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM )
-		{
-			// damageMultiplier > 1 applies bonus damage
-			// damageMultiplier < 1 negates damage (partly if multiplier > 0 or fully if 0)
-			// damageMultiplier == 1 effectively does nothing
-			if ( health > 0 )
-				SetHealth( damageZone, "Health", Math.Max( health - ( dmg * m_Expansion_DamageMultiplier ), 0 ) );
-		}
-
-		RaidLog( source, damageZone, health, dmg, m_Expansion_DamageMultiplier );
-	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+#ifdef DIAG
+		EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+#endif
+
+		if (!super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
 		if (!CanBeDamaged())
 			return false;
 
 		if (IsInherited(ExpansionBaseBuilding) || IsInherited(ExpansionSafeBase))
 		{
-			EXTrace.PrintHit(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
 			if (damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM)
 			{
 				if (IsInherited(ExpansionSafeBase))
@@ -1246,62 +1180,22 @@ modded class ItemBase
 
 				if (damageType == DT_EXPLOSION)
 				{
-					bool dealDamage = !GetExpansionSettings().GetRaid().EnableExplosiveWhitelist;
-
-					if (!dealDamage)
+					if (GetExpansionSettings().GetRaid().EnableExplosiveWhitelist)
 					{
-						foreach (string type: GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist)
-						{
-							if (source.IsKindOf(type))
-							{
-								if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
-									GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + GetType() + " has been hit by whitelisted explosive " + type);
-								dealDamage = true;
-								break;
-							}
-						}
-
-						if (!dealDamage)
+						if (!source)
 							return false;
+
+						if (!ExpansionStatic.IsAnyOf(source, GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist, true))
+							return false;
+
+						if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
+							GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + ToString() + " at " + GetPosition() + " has been hit by whitelisted explosive " + source);
 					}
 				}
-
-				m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");
 			}
 		}
 
-		return super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef );
-	}
-
-	void RaidLog( EntityAI source, string damageZone, float health, float dmg, float damageMultiplier )
-	{
-		PlayerBase player;
-		string playerId;
-		string playerName;
-		string playerDesc;
-
-		if ( source && ( Class.CastTo( player, source ) || Class.CastTo( player, source.GetHierarchyRootPlayer() ) ) )
-		{
-			playerId = player.GetIdentityUID();
-			playerName = player.GetIdentityName();
-
-			playerDesc = "Player \"" + playerName + "\" (ID = \"" + playerId + "\" at " + player.GetPosition() + ")";
-		} else
-		{
-			playerDesc = "A player";
-		}
-
-		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
-		{
-			if ( ( dmg * damageMultiplier ) != 0 )
-			{
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ------------------------- Expansion BaseRaiding Damage Report -------------------------" );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with a " + source.GetType() + " at " + GetPosition() );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ---------------------------------------------------------------------------------------" );
-			}
-		}
+		return true;
 	}
 
 	void ExpansionDropServer( PlayerBase player )

@@ -31,10 +31,6 @@ class eAIBase extends PlayerBase
 	float m_eAI_CurrentThreatToSelfActive;
 	float m_eAI_PreviousThreatToSelfActive;
 
-	// Aiming and aim arbitration
-	bool m_AimArbitration = false;
-	private Man m_CurrentArbiter = null;
-
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
 	private int m_eAI_CurrentCommandID;
@@ -69,8 +65,6 @@ class eAIBase extends PlayerBase
 	private vector m_eAI_AimDirection_ModelSpace;
 	private vector m_eAI_AimDirectionTarget_ModelSpace;
 	private bool m_eAI_AimDirection_Recalculate;
-
-	private eAIAimingState m_AimingState;
 
 	private bool m_MovementSpeedActive;
 	private int m_MovementSpeed;
@@ -209,20 +203,23 @@ class eAIBase extends PlayerBase
 	//! Vanilla, can this AI be targeted by Zs/Animals?
 	override bool CanBeTargetedByAI(EntityAI ai)
 	{
+		if (!super.CanBeTargetedByAI(ai))
+			return false;
+
 		if (GetGroup())
 			return !GetGroup().GetFaction().IsFriendly(ai);
 
-		return super.CanBeTargetedByAI(ai);
+		return true;
 	}
 
-	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero)
+	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
 	{
 #ifdef DIAG
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin);
 #endif
 	}
 
-	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero)
+	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
 	{
 #ifdef DIAG
 		if (!m_Expansion_DebugObjects[i])
@@ -242,6 +239,13 @@ class eAIBase extends PlayerBase
 		if (direction != vector.Zero)
 		{
 			m_Expansion_DebugObjects[i].SetDirection(direction);
+		}
+
+		if (origin != vector.Zero)
+		{
+			ExpansionDebugRod rod;
+			if (Class.CastTo(rod, m_Expansion_DebugObjects[i]))
+				rod.Expansion_DrawDebugLine(origin);
 		}
 #endif
 	}
@@ -345,49 +349,6 @@ class eAIBase extends PlayerBase
 
 		m_eActionManager = new eAIActionManager(this);
 		m_ActionManager = m_eActionManager;
-	}
-
-	// Used for deciding the best aim arbiter for the AI.
-	// TODO: particle system
-	Man GetNearestPlayer()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "GetNearestPlayer");
-#endif
-
-		array<Man> players = {};
-		GetGame().GetPlayers(players);
-		float min = 999999.0;
-		float temp;
-		Man closest = null;
-		foreach (Man p : players)
-		{
-			temp = vector.DistanceSq(GetPosition(), p.GetPosition());
-			if (temp < min)
-			{
-				min = temp;
-				closest = p;
-			}
-		}
-		return closest;
-	}
-
-	void StopAimArbitration()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "StopAimArbitration");
-#endif
-
-		m_AimingState = eAIAimingState.INACTIVE;
-	}
-
-	void UpdateAimArbitration()
-	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "UpdateAimArbitration");
-#endif
-
-		m_AimingState = eAIAimingState.ACTIVE;
 	}
 
 	bool PlayerIsEnemy(EntityAI other)
@@ -688,28 +649,6 @@ class eAIBase extends PlayerBase
 	bool IsInMelee()
 	{
 		return m_eAI_MeleeTimeout > 0;
-	}
-
-	void CreateAimingProfile()
-	{
-		if (GetGame().IsServer())
-			return;
-
-		if (m_AimingProfile)
-			return;
-
-		m_AimingProfile = new eAIAimingProfile(this);
-	}
-
-	void DestroyAimingProfile()
-	{
-		if (GetGame().IsServer())
-			return;
-
-		if (!m_AimingProfile)
-			return;
-
-		delete m_AimingProfile;
 	}
 
 	eAIAimingProfile GetAimingProfile()
@@ -1583,7 +1522,7 @@ class eAIBase extends PlayerBase
 			HandleWeapons(pDt, entityInHands, hic, exitIronSights);
 		}
 
-		GetDayZPlayerInventory().HandleInventory(pDt);
+		//GetDayZPlayerInventory().HandleInventory(pDt);
 
 		if (m_WeaponManager)
 			m_WeaponManager.Update(pDt);
@@ -1606,19 +1545,8 @@ class eAIBase extends PlayerBase
 
 		OnScheduledTick(pDt);
 
-		auto nearestPlayer = GetNearestPlayer();
-		if (nearestPlayer && m_FSM)
+		if (m_FSM)
 			m_FSM.Update(pDt, simulationPrecision);
-
-		switch (m_AimingState)
-		{
-		case eAIAimingState.INACTIVE:
-			GetAimingProfile().UpdateArbiter(null);
-			break;
-		case eAIAimingState.ACTIVE:
-			GetAimingProfile().UpdateArbiter(nearestPlayer);
-			break;
-		}
 
 		bool skipScript;
 
@@ -2581,6 +2509,24 @@ class eAIBase extends PlayerBase
 	override vector Expansion_GetHeadingVector()
 	{
 		return Vector(GetOrientation()[0], 0, 0).AnglesToVector();
+	}
+
+	override float Expansion_GetMovementSpeed()
+	{
+		eAICommandMove cmd = GetCommand_MoveAI();
+		if (cmd)
+			return cmd.GetCurrentMovementSpeed();
+
+		return 0.0;
+	}
+
+	override float Expansion_GetMovementAngle()
+	{
+		eAICommandMove cmd = GetCommand_MoveAI();
+		if (cmd)
+			return cmd.GetCurrentMovementAngle();
+
+		return 0.0;
 	}
 
 	bool HandleVaulting(float pDt)

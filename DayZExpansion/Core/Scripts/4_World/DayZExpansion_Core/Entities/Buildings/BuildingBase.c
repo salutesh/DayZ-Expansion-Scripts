@@ -29,4 +29,11 @@ modded class BuildingBase
 		if (m_Expansion_NetsyncData)
 			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
+
+	override void Explode(int damageType, string ammoType = "")
+	{
+		ExpansionDamageSystem.OnBeforeExplode(this, damageType, ammoType);
+
+		super.Explode(damageType, ammoType);
+	}
 }

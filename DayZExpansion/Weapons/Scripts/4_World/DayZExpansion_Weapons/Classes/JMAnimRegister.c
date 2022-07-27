@@ -67,14 +67,12 @@ modded class ModItemRegisterCallbacks
 		super.RegisterPistol( pType, pBehavior );
 		
 		pType.AddItemInHandsProfileIK("Expansion_M9_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz75.asi", pBehavior, "dz/anims/anm/player/ik/weapons/CZ75.anm", "dz/anims/anm/player/reloads/CZ75/w_CZ75_states.anm");	
-		pType.AddItemInHandsProfileIK("Expansion_Longhorn_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_flaregun.asi", pBehavior, "dz/anims/anm/player/ik/weapons/flaregun.anm", "dz/anims/anm/player/reloads/Flaregun/w_Flaregun_states.anm");
 	}
 
 	override void RegisterFireArms( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
 	{
 		super.RegisterFireArms( pType, pBehavior );
 
-		pType.AddItemInHandsProfileIK("Expansion_M79_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_izh18.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_MPX_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_m4a1.asi", pBehavior, "dz/anims/anm/player/ik/weapons/m4a1_ik.anm", "dz/anims/anm/player/reloads/M4A1/w_M4A1_states.anm");	   
 		pType.AddItemInHandsProfileIK("Expansion_AWM_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz527.asi", pBehavior, "dz/anims/anm/player/ik/weapons/cz527.anm", "dz/anims/anm/player/reloads/cz527/w_CZ527_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Kar98_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_mosin1903.asi", pBehavior, "dz/anims/anm/player/ik/weapons/mosin9130.anm","dz/anims/anm/player/reloads/Mosin_1903/w_mosin1903_states.anm");
@@ -115,13 +113,7 @@ modded class ModItemRegisterCallbacks
 		array<string> CrossbowBoneRemap = { "release", "Weapon_Bone_02", "barrel", "Weapon_Bone_01", "trigger", "Weapon_Trigger","ejector","Weapon_Bone_03","bullet", "Weapon_Bullet", };
 		pType.AddItemBoneRemap("ExpansionCrossbow_Base", CrossbowBoneRemap);
 		
-		array<string> m79BoneRemap = { "release", "Weapon_Bone_02", "barrel", "Weapon_Bone_01", "trigger", "Weapon_Trigger","ejector","Weapon_Bone_03","bullet", "Weapon_Bullet", };
-		pType.AddItemBoneRemap("Expansion_M79_Base", m79BoneRemap);		
-		
 		array<string> RPG7BoneRemap = { "release", "Weapon_Bone_02", "barrel", "Weapon_Bone_01", "trigger", "Weapon_Trigger","ejector","Weapon_Bone_03","bullet", "Weapon_Bullet", };
 		pType.AddItemBoneRemap("ExpansionRPG7Base", RPG7BoneRemap);
-		
-		array<string> WorkingLongHornBoneRemap = { "hammer", "Weapon_Bone_02", "reload", "Weapon_Bone_01", "trigger", "Weapon_Trigger" ,"bullet", "Weapon_Bullet" };
-		pType.AddItemBoneRemap("Expansion_Longhorn_Base", WorkingLongHornBoneRemap);
 	}
 }

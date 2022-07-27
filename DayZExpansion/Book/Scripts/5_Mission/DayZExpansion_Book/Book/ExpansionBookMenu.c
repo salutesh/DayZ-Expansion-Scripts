@@ -33,10 +33,16 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 		if (!m_BookManager)
 		{
 			m_BookManager = new ExpansionBookMenuManager();
-			m_BookManager.RegisterBookMenuTabs(this);
 		}
 		
 		UpdateBookTabs();
+
+#ifdef EXPANSIONMODBASEBUILDING
+		ExpansionTerritoryModule.SI_Callback.Insert(Callback);
+#endif
+#ifdef EXPANSIONMODGROUPS
+		ExpansionPartyModule.SI_Callback.Insert(Callback);
+#endif
 	}
 	
 	void ~ExpansionBookMenu()
@@ -255,6 +261,13 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 		
 		if (GetLastOpenedTab())
 			GetLastOpenedTab().Hide();
+
+#ifdef EXPANSIONMODBASEBUILDING
+		ExpansionTerritoryModule.SI_Callback.Remove(Callback);
+#endif
+#ifdef EXPANSIONMODGROUPS
+		ExpansionPartyModule.SI_Callback.Remove(Callback);
+#endif
 	}
 	
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -300,24 +313,39 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 		GetUApi().UpdateControls();
 	}
 	
-	#ifdef EXPANSIONMODGROUPS
-	override void Refresh()
+	void Callback(int rpc_type)
 	{
-		ExpansionBookMenuTabParty partyTab;
-		ExpansionBookMenuTabPartyInvites partyInvitesTab;
-		if (m_LastOpenedTab)
+		switch (rpc_type)
 		{
-			if (Class.CastTo(partyTab, m_LastOpenedTab))
-			{
-				partyTab.Refresh();
-			}
-			else if (Class.CastTo(partyInvitesTab, m_LastOpenedTab))
-			{
-				partyInvitesTab.Refresh();
-			}
+		#ifdef EXPANSIONMODGROUPS
+			case ExpansionPartyModuleRPC.UpdatePlayer:
+				ExpansionBookMenuTabParty partyTab;
+				if (Class.CastTo(partyTab, m_LastOpenedTab))
+					partyTab.Refresh();
+				break;
+			case ExpansionPartyModuleRPC.SyncPlayerInvites:
+				ExpansionBookMenuTabPartyInvites partyInvitesTab;
+				if (Class.CastTo(partyInvitesTab, m_LastOpenedTab))
+					partyInvitesTab.Refresh();
+				break;
+		#endif
+		#ifdef EXPANSIONMODBASEBUILDING
+			case ExpansionTerritoryModuleRPC.UpdateClient:
+				//! Refresh territory tab even if not last opened tab because that information is used to determine if it can be shown to begin with
+				ExpansionBookMenuTabTerritory territoryTab = m_BookManager.GetTerritoryTab();
+				if (territoryTab)
+					territoryTab.Refresh();
+				break;
+			case ExpansionTerritoryModuleRPC.SyncPlayerInvites:
+				ExpansionBookMenuTabTerritoryInvites territoryInvitesTab;
+				if (Class.CastTo(territoryInvitesTab, m_LastOpenedTab))
+					territoryInvitesTab.Refresh();
+				break;
+		#endif
+			default:
+				break;
 		}
 	}
-	#endif
 };
 
 class ExpansionBookMenuController: ExpansionViewController

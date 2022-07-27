@@ -39,5 +39,25 @@ class ExpansionPlayerMarkerData : ExpansionMarkerData
 
 		return position;
 	}
+
+	void OnSend( ParamsWriteContext ctx )
+	{
+		ctx.Write( m_Color );
+		
+		ctx.Write( m_Position );
+		
+		OnSendObject( ctx );
+	}
+
+	bool OnRecieve( ParamsReadContext ctx )
+	{
+		if ( !ctx.Read( m_Color ) )
+			return false;
+
+		if ( !ctx.Read( m_Position ) )
+			return false;
+
+		return OnReceiveObject( ctx );
+	}
 };
 #endif

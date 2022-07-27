@@ -15,16 +15,6 @@
  **/
 class ExpansionSafeZoneElement : Managed
 {
-	ExpansionSafeZoneTypes Type;
-
-	// ------------------------------------------------------------
-	// Expansion ExpansionSafeZoneElement
-	// ------------------------------------------------------------
-	void ExpansionSafeZoneElement()
-	{
-		Type = ExpansionSafeZoneTypes.UNKNOWN;
-	}
-
 	ExpansionZone Create()
 	{
 		return null;

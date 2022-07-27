@@ -16,11 +16,14 @@ modded class ActionBandageTarget
 	{
 		super.OnFinishProgressServer(action_data);
 
-		PlayerBase ntarget;
-		Class.CastTo(ntarget, action_data.m_Target.GetObject());
-		if (action_data.m_Player != ntarget)
+		if (GetExpansionSettings().GetHardline().HumanityBandageTarget > 0)
 		{
-			m_HardlineModule.OnPlayerPositiveAction(action_data.m_Player, GetExpansionSettings().GetHardline().HumanityBandageTarget);
+			PlayerBase ntarget;
+			Class.CastTo(ntarget, action_data.m_Target.GetObject());
+			if (action_data.m_Player != ntarget)
+			{
+				m_HardlineModule.OnPlayerPositiveAction(action_data.m_Player, GetExpansionSettings().GetHardline().HumanityBandageTarget);
+			}
 		}
 	}
 };

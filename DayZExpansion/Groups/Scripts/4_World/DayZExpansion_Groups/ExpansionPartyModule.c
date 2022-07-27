@@ -13,6 +13,8 @@
 [CF_RegisterModule(ExpansionPartyModule)]
 class ExpansionPartyModule: CF_ModuleWorld
 {
+	static ref ScriptInvoker SI_Callback = new ScriptInvoker();
+
 	//! Server and client side
 	private ref map<int, ref ExpansionPartyData> m_Parties;
 	private ref TIntArray m_PartyIDs;
@@ -30,7 +32,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 	private int m_CurrentPlayerTick;
 	private int m_CurrentPartyTick;
 
-	static ref ScriptInvoker m_PartyHUDInvoker;
+	static ref ScriptInvoker m_PartyHUDInvoker = new ScriptInvoker();
 
 	void ExpansionPartyModule()
 	{
@@ -41,8 +43,6 @@ class ExpansionPartyModule: CF_ModuleWorld
 		//! Used only client side
 		m_Party = NULL;
 		m_PartyInvites = new array<ref ExpansionPartyInviteData>();
-		
-		m_PartyHUDInvoker = new ScriptInvoker();
 	}
 
 	void ~ExpansionPartyModule()
@@ -251,7 +251,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(ctx.Read(m_PartyInvites), "[" + this + "] Failed reading invites"))
 			return;
 
-		UpdateMenu();
+		SI_Callback.Invoke(ExpansionPartyModuleRPC.SyncPlayerInvites);
 	}
 
 	void CreateParty(string partyName)
@@ -811,7 +811,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		}
 		#endif
 
-		UpdateMenu();
+		SI_Callback.Invoke(ExpansionPartyModuleRPC.UpdatePlayer);
 
 		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
 		{
@@ -1503,13 +1503,6 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return NULL;
 
 		return m_Parties.Get(partyID);
-	}
-
-	protected void UpdateMenu()
-	{
-		ExpansionScriptViewMenuBase menu = GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu();
-		if (menu)
-			menu.Refresh();
 	}
 	
 	map<int, ref ExpansionPartyData> GetAllParties()

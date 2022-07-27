@@ -15,7 +15,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabTerritoryMemberEditController m_MemberEditController;
 	ref ExpansionTerritoryMember m_Member;
-	ref ExpansionTerritory m_Territory;
+	int m_TerritoryID = -1;
 	ref ExpansionBookMenuTabTerritory m_TerritoryTab;
 	ref ExpansionTerritoryModule m_TerritoryModule;
 	
@@ -43,13 +43,16 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		if (!m_MemberEditController)
 			m_MemberEditController = ExpansionBookMenuTabTerritoryMemberEditController.Cast(GetController());
 		
-		if (!m_TerritoryTab)
-			m_TerritoryTab = ExpansionBookMenuTabTerritory.Cast(GetParentTab());
-		
 		if (!m_TerritoryModule)
 			m_TerritoryModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 	}
 	
+	override void SetParentTab(ExpansionBookMenuTabBase tab)
+	{
+		super.SetParentTab(tab);
+		m_TerritoryTab = ExpansionBookMenuTabTerritory.Cast(tab);
+	}
+
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Book/GUI/layouts/tabs/territory/expansion_book_tab_territory_member_edit.layout";
@@ -75,22 +78,19 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		m_Member = member;
 	}
 	
-	void SetTerritory(ExpansionTerritory territory)
+	void SetTerritoryID(int territoryID)
 	{
-		m_Territory = territory;
+		m_TerritoryID = territoryID;
 	}
 	
-	void SetTab(ExpansionTerritoryMember member)
+	void SetTab()
 	{
-		if (!member)
+		if (!m_Member)
 			return;
 		
-		if (!m_MemberEditController)
-			m_MemberEditController = ExpansionBookMenuTabTerritoryMemberEditController.Cast(GetController());
-			
-		if (PlayerBase.Expansion_IsOnline(member.GetID()))
+		if (PlayerBase.Expansion_IsOnline(m_Member.GetID()))
 		{
-			SetMemberPreview(member.GetID());
+			SetMemberPreview(m_Member.GetID());
 			member_status_icon.SetColor(ARGB(255, 22, 160, 133));
 			m_MemberEditController.MemberStatus = "Online";
 			m_MemberEditController.NotifyPropertyChanged("MemberStatus");
@@ -102,19 +102,16 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 			m_MemberEditController.NotifyPropertyChanged("MemberStatus");
 		}
 		
-		m_MemberEditController.MemberName = member.GetName();
+		m_MemberEditController.MemberName = m_Member.GetName();
 		m_MemberEditController.NotifyPropertyChanged("MemberName");
 		
-		m_MemberEditController.MemberRank = member.GetRankName();
+		m_MemberEditController.MemberRank = m_Member.GetRankName();
 		m_MemberEditController.NotifyPropertyChanged("MemberRank");
 		
-		if (m_TerritoryTab.GetPlayerRank() == ExpansionTerritoryRank.MEMBER)
-		{
-			option_promote_button.Show(false);
-			option_demote_button.Show(false);
-			option_kick_button.Show(false);
-			option_cancel_button.Show(false);
-		}
+		bool show = m_TerritoryTab.GetPlayerRank() != ExpansionTerritoryRank.MEMBER && m_Member.GetID() != GetGame().GetPlayer().GetIdentity().GetId();
+		option_promote_button.Show(show && m_Member.GetRank() != ExpansionTerritoryRank.MODERATOR);
+		option_demote_button.Show(show && m_Member.GetRank() != ExpansionTerritoryRank.MEMBER);
+		option_kick_button.Show(show);
 	}
 	
 	void SetMemberPreview(string id)
@@ -132,12 +129,15 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		if (!m_Member)
 			return;
 		
-		if (!m_Territory)
+		if (m_TerritoryID < 0)
 			return;
 		
 		if (m_Member.GetRank() == ExpansionTerritoryRank.MEMBER)
 		{
-			m_TerritoryModule.PromoteMember(m_Territory.GetTerritoryID(), m_Member);				
+			m_TerritoryModule.PromoteMember(m_TerritoryID, m_Member);				
+			//! Pre-empt changes for snappier UI
+			m_Member.SetRank(ExpansionTerritoryRank.MODERATOR);
+			SetTab();
 		}
 		else if (m_Member.GetRank() == ExpansionTerritoryRank.MODERATOR || m_Member.GetRank() == ExpansionTerritoryRank.ADMIN)
 		{
@@ -149,12 +149,13 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 	{
 		switch (m_Member.GetRank())
 		{
-		case ExpansionTerritoryRank.MEMBER:
-			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_CANT_DEMOTE_SELF").Error();
-			break;
 		case ExpansionTerritoryRank.MODERATOR:
-			m_TerritoryModule.DemoteMember(m_Territory.GetTerritoryID(), m_Member);	
+			m_TerritoryModule.DemoteMember(m_TerritoryID, m_Member);	
+			//! Pre-empt changes for snappier UI
+			m_Member.SetRank(ExpansionTerritoryRank.MEMBER);
+			SetTab();
 			break;
+		case ExpansionTerritoryRank.MEMBER:
 		case ExpansionTerritoryRank.ADMIN:
 			if (m_Member.GetID() == GetGame().GetPlayer().GetIdentity().GetId())
 			{
@@ -170,6 +171,9 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 	
 	void OnKickButtonClick()
 	{
+		if (m_TerritoryID < 0)
+			return;
+
 		if (m_Member.GetRank() != ExpansionTerritoryRank.ADMIN)
 		{
 			if (m_Member.GetRank() == ExpansionTerritoryRank.MODERATOR && m_TerritoryTab.GetPlayerRank() == ExpansionTerritoryRank.MODERATOR)
@@ -178,7 +182,9 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 			}
 			else
 			{
-				m_TerritoryModule.KickMember(m_Territory.GetTerritoryID(), m_Member);
+				m_TerritoryModule.KickMember(m_TerritoryID, m_Member);
+				Hide();
+				m_TerritoryTab.Show();
 			}	
 		}
 		else
@@ -192,9 +198,8 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 	
 	void OnCancelButtonClick()
 	{
-		ExpansionBookMenuTabBase tab = GetParentTab();
 		Hide();
-		tab.Show();
+		m_TerritoryTab.Show();
 	}
 	
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)
@@ -214,8 +219,7 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 	{
 		super.OnShow();
 		
-		if (m_Member)
-			SetTab(m_Member);
+		SetTab();
 	}
 	
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )

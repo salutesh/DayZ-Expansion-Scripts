@@ -13,6 +13,8 @@
 [CF_RegisterModule(ExpansionTerritoryModule)]
 class ExpansionTerritoryModule: CF_ModuleWorld
 {
+	static ref ScriptInvoker SI_Callback = new ScriptInvoker();
+
 	///////////////////////// STATIC VARS /////////////////////////////////
 	static const int 									m_TerritorySize_Level_1 = 50;
 	static const int 									m_TerritorySize_Level_2 = 100;
@@ -426,6 +428,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				}
 				#endif
 			}
+
+			SI_Callback.Invoke(ExpansionTerritoryModuleRPC.UpdateClient);
 		}
 	}
 	
@@ -1028,9 +1032,15 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		}
 
-		if ( territory.IsMember( targetID ) || territory.HasInvite(targetID) )
+		if ( territory.IsMember( targetID ) )
 		{
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ALREADY_MEMBER", targetPlayer.GetIdentity().GetName())).Error(sender);
+			return;
+		}
+
+		if ( territory.HasInvite(targetID) )
+		{
+			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_ERROR_INVITED", targetPlayer.GetIdentity().GetName())).Error(sender);
 			return;
 		}
 		
@@ -2278,6 +2288,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			return;
 		
 		m_TerritoryInvites = invites;
+
+		SI_Callback.Invoke(ExpansionTerritoryModuleRPC.SyncPlayerInvites);
 	}
 	
 	// ------------------------------------------------------------

@@ -15,8 +15,6 @@
 modded class DayZExpansion
 {
 	private static DayZExpansion m_Instance_5; //! weak ref
-
-	autoptr eAIAimingProfileManager m_AimingManager;
 	
     void DayZExpansion()
 	{
@@ -25,8 +23,6 @@ modded class DayZExpansion
 		#endif
 
 		m_Instance_5 = this;
-
-		m_AimingManager = new eAIAimingProfileManager();
 		
 		GetRPCManager().AddRPC("eAI", "SpawnAI", this, SingeplayerExecutionType.Server);
 		GetRPCManager().AddRPC("eAI", "SpawnZombie", this, SingeplayerExecutionType.Server);
@@ -46,14 +42,6 @@ modded class DayZExpansion
 		#endif
 		
 		return m_Instance_5;
-	}
-	
-	override void OnUpdate(bool doSim, float timeslice)
-	{
-		super.OnUpdate(doSim, timeslice);
-		
-		//! only needs to be called on MP client
-		if (GetGame().IsClient()) m_AimingManager.Update(timeslice);
 	}
 	
 	//! @param owner Who is the manager of this AI

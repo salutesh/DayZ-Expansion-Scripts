@@ -247,8 +247,6 @@ modded class MissionGameplay
 	
 	override void PlayerControlDisable(int mode)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
-
 		switch (mode)
 		{
 			case INPUT_EXCLUDE_CHAT_EXPANSION:

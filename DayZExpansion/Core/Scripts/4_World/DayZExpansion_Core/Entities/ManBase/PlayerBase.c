@@ -354,7 +354,8 @@ modded class PlayerBase
 		super.OnUnconsciousStart();
 
 		if (!m_Expansion_CanBeLooted)
-			Expansion_LockInventory();
+			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
+			ExpansionStatic.LockInventoryRecursive(this, 10134);
 	}
 
 	override void OnUnconsciousStop(int pCurrentCommandID)
@@ -362,7 +363,8 @@ modded class PlayerBase
 		super.OnUnconsciousStop(pCurrentCommandID);
 
 		if (IsAlive() && !m_Expansion_CanBeLooted)
-			Expansion_UnlockInventory();
+			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
+			ExpansionStatic.UnlockInventoryRecursive(this, 10134);
 	}
 	
 	// ------------------------------------------------------------
@@ -625,10 +627,13 @@ modded class PlayerBase
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
 		if (m_Expansion_IsInSafeZone)
 			return false;
 
-		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		return true;
 	}
 	
 	// ------------------------------------------------------------
@@ -667,60 +672,20 @@ modded class PlayerBase
 		return super.CanReceiveItemIntoHands(item_to_hands);
 	}
 
-	override void OnPlayerLoaded()
+	void Expansion_OnInventoryUpdate(ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
-
-		//! Workaround for vanilla timing bug. It's basically chance if OnPlayerLoaded gets called before or after OnRespawnEvent is received on client,
-		//! which has the effect that if a server is using respawnTime > 0 and OnRespawnEvent is received before OnPlayerLoaded is called,
-		//! then the respawn timer screen may be closed before the countdown finishes due to the call to GetGame().GetUIManager().CloseAll() in OnPlayerLoaded.
-
-		Hud hud;
-		LoginTimeBase loginTimeScreen = GetDayZGame().GetLoginTimeScreen();
-		if (loginTimeScreen && loginTimeScreen.IsRespawn() && loginTimeScreen.IsVisible())
-		{
-			hud = m_Hud;
-			m_Hud = null;
-		}
-
-		super.OnPlayerLoaded();
-
-		if (hud)
-		{
-			m_Hud = hud;
-
-			//! The following is almost equivalent to the relevant part in vanilla OnPlayerLoaded,
-			//! EXCEPT we DON'T call GetGame().GetUIManager().CloseAll()
-			if (IsControlledPlayer())
-			{
-				m_Hud.UpdateBloodName();
-				PPERequesterBank.GetRequester(PPERequester_DeathDarkening).Stop();
-				PPERequesterBank.GetRequester(PPERequester_ShockHitReaction).Stop();
-				PPERequesterBank.GetRequester(PPERequester_UnconEffects).Stop();
-				//GetGame().GetUIManager().CloseAll();
-				GetGame().GetMission().SetPlayerRespawning(false);
-				GetGame().GetMission().OnPlayerRespawned(this);
-				
-				m_Hud.ShowHudUI( true );
-				m_Hud.ShowQuickbarUI(true);
-			}
-		}
-	}
-
-	void Expansion_OnInventoryUpdate(ItemBase item, bool inInventory = true, bool checkWorking = false)
-	{
-#ifdef EXPANSION_TRACE
+#ifdef DIAG
 		auto trace = EXTrace.Start0(ExpansionTracing.GENERAL_ITEMS, this, "Expansion_OnInventoryUpdate");
 		EXTrace.Add(trace, item.ToString());
 		EXTrace.Add(trace, inInventory);
-		EXTrace.Add(trace, checkWorking);
+		EXTrace.Add(trace, checkOnlyIfWorking);
 #endif
 
 		typename type = item.Type();
 		typename familyType = item.Expansion_GetFamilyType();
 
-		Expansion_OnInventoryUpdateEx(type, item, inInventory, checkWorking);
-#ifdef EXPANSION_TRACE
+		Expansion_OnInventoryUpdateEx(type, item, inInventory, checkOnlyIfWorking);
+#ifdef DIAG
 		ExpansionInventoryItemType itemType = m_Expansion_InventoryItemTypes[type];
 		if (itemType)
 		{
@@ -731,8 +696,8 @@ modded class PlayerBase
 
 		if (familyType != type)
 		{
-			Expansion_OnInventoryUpdateEx(familyType, item, inInventory, checkWorking);
-#ifdef EXPANSION_TRACE
+			Expansion_OnInventoryUpdateEx(familyType, item, inInventory, checkOnlyIfWorking);
+#ifdef DIAG
 			itemType = m_Expansion_InventoryItemTypes[familyType];
 			if (itemType)
 			{
@@ -743,7 +708,7 @@ modded class PlayerBase
 		}
 	}
 
-	void Expansion_OnInventoryUpdateEx(typename type, ItemBase item, bool inInventory = true, bool checkWorking = false)
+	void Expansion_OnInventoryUpdateEx(typename type, ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{
 		ExpansionInventoryItemType itemType;
 
@@ -757,17 +722,18 @@ modded class PlayerBase
 				m_Expansion_InventoryItemTypes[type] = itemType;
 			}
 
-			if (!checkWorking)
+			if (!checkOnlyIfWorking || !found)
 			{
 				//! Item entered inventory
 				itemType.Count++;
 			}
-			else if (item.GetCompEM())
+
+			if (item.GetCompEM())
 			{
-				//! Item already in inventory
 				if (item.GetCompEM().IsWorking())
 					itemType.WorkingCount++;
-				else if (found && itemType.WorkingCount > 0)
+				else if (found && checkOnlyIfWorking && itemType.WorkingCount > 0)
+					//! Item already in inventory
 					itemType.WorkingCount--;
 			}
 		}

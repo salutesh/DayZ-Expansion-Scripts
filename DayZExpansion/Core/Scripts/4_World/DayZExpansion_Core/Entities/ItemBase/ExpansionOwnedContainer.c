@@ -32,9 +32,9 @@ class ExpansionOwnedContainer: Container_Base
 		return !IsMissionClient() || ExpansionIsContainerOwner();
 	}
 
-	override bool CanDisplayAttachmentSlot(string slot_name)
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
-		if (!super.CanDisplayAttachmentSlot(slot_name))
+		if (!super.CanDisplayAttachmentSlot(slot_id))
 			return false;
 
 		return ExpansionIsContainerOwner();

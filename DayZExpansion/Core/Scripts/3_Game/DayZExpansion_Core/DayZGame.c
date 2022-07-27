@@ -110,10 +110,16 @@ modded class DayZGame
 		GetDayZGame().GetModInfos( mods );
 		for ( int i = 0; i < mods.Count(); ++i )
 		{
-			if ( mods[i].GetName().IndexOf( "DayZ" ) == 0 && mods[i].GetName().IndexOf( "Expansion" ) == 5 )
+			string modName = mods[i].GetName();
+			if (modName[0] == "@")
+				modName = modName.Substring(1, modName.Length() - 1);
+			if ( modName.IndexOf( "DayZ-Expansion" ) == 0 && modName.IndexOf("DayZ-Expansion-Core") != 0 )
 			{
-				version = mods[i].GetVersion();
-				break;
+				string modVersion = mods[i].GetVersion();
+				if (!modVersion)
+					modVersion = "0.0.0";
+				if (modVersion > version)
+					version = modVersion;
 			}
 		}
 
@@ -201,10 +207,10 @@ modded class DayZGame
 		auto trace = CF_Trace_0(ExpansionTracing.WEAPONS, this, "FirearmEffects");
 #endif
 
-		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
-
 		if (m_ExpansionGame != NULL)
 			m_ExpansionGame.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
+
+		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
 	}
 
 	override void OnUpdate(bool doSim, float timeslice)
@@ -222,90 +228,5 @@ modded class DayZGame
 			return;
 		
 		super.OnRPC(sender, target, rpc_type, ctx);
-	}
-
-	LoginTimeBase GetLoginTimeScreen()
-	{
-		return m_LoginTimeScreen;
-	}
-
-	override void CancelLoginTimeCountdown()
-	{
-		super.CancelLoginTimeCountdown();
-
-		auto menu = GetUIManager().GetMenu();
-		if (!menu)
-			return;
-
-		auto loginTime = LoginTimeBase.Cast(menu);
-		if (!loginTime)
-			return;
-
-		EXLogPrint("Closing " + loginTime);
-
-		if (loginTime.IsStatic())
-		{
-			loginTime.Hide();
-			delete loginTime;
-		}
-		else
-		{
-			loginTime.Close();
-		}
-
-		Expansion_UnlockControls();
-	}
-
-	bool Expansion_UseMouse()
-	{
-		#ifdef PLATFORM_CONSOLE
-		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
-		#else
-		return true;
-		#endif
-	}
-
-	bool Expansion_UseKeyboard()
-	{
-		#ifdef PLATFORM_CONSOLE
-		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
-		#else
-		return true;
-		#endif
-	}
-
-	bool Expansion_UseGamepad()
-	{
-		return true;
-	}
-
-	void Expansion_UnlockControls()
-	{
-		if (Expansion_UseMouse())
-		{
-			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_MOUSE);
-		}
-
-		auto menu = GetUIManager().GetMenu();
-		auto scriptViewMenu = GetExpansionGame().GetExpansionUIManager().GetMenu();
-
-		if ((menu && menu.UseMouse()) || (scriptViewMenu && scriptViewMenu.UseMouse()))
-		{
-			GetUIManager().ShowUICursor(true);
-		}
-		else
-		{
-			GetUIManager().ShowUICursor(false);
-		}
-
-		if (Expansion_UseKeyboard())
-		{
-			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_KEYBOARD);
-		}
-		
-		if (Expansion_UseGamepad())
-		{
-			GetInput().ChangeGameFocus(-1, INPUT_DEVICE_GAMEPAD);
-		}
 	}
 };

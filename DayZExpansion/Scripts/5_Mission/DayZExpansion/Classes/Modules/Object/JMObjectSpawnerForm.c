@@ -82,10 +82,8 @@ modded class JMObjectSpawnerForm
 #ifndef DIAG
 		"debug",
 		"bldr_",
-#endif
-		#ifndef EXPANSION_COT_VEHICLE_JACOB
 		"vehicle_",
-		#endif
+#endif
 		"proxy"
 	};
 

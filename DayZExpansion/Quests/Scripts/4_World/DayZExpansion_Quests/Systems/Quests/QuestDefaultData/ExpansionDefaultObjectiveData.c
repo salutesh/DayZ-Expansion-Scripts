@@ -848,4 +848,15 @@ class ExpansionDefaultObjectiveData
 		
 		return objective;
 	}
+	
+	//! CRAFTING OBJECTIVES
+	ExpansionQuestObjectiveCraftingConfig ExpansionQuestObjective_Crafting_001()
+	{
+		ExpansionQuestObjectiveCraftingConfig objective = new ExpansionQuestObjectiveCraftingConfig();
+		objective.SetID(1);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.CRAFTING);
+		objective.AddItemName("ImprovisedFishingRod");
+		
+		return objective;
+	}
 };

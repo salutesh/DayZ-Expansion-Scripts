@@ -23,12 +23,13 @@ class cfgWeapons
 		scope = 0;
 		weight = 2540;
 		absorbency = 0;
-		repairableWithKits[] = {5,1};
-		repairCosts[] = {30,25};
-		PPDOFProperties[] = {1,0.5,50,120,4,10};
+		repairableWithKits[] = {1};
+		repairCosts[] = {25};
+		PPDOFProperties[] = {1,0.75,40,180,4,10};
 		ironsightsExcludingOptics[] = {};
 		WeaponLength = 0.699;
-		barrelArmor = 5.9;
+		barrelArmor = 1.25;
+		initSpeedMultiplier = 1.05;
 		chamberSize = 1;
 		chamberedRound = "";
 		chamberableFrom[] = {"Ammo_9x19"};
@@ -36,6 +37,7 @@ class cfgWeapons
 		magazineSwitchTime = 0.5;
 		ejectType = 1;
 		recoilModifier[] = {1,1,1};
+		swayModifier[] = {1.2,1.2,1};
 		simpleHiddenSelections[] = {};
 		drySound[] = {"dz\sounds\weapons\firearms\m4a1\m4_dry",0.5,1,20};
 		reloadAction = "ReloadMP5";

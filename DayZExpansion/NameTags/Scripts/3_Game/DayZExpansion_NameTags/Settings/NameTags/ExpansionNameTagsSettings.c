@@ -18,6 +18,10 @@ class ExpansionNameTagsSettingsBase: ExpansionSettingBase
 	bool EnablePlayerTags;
 	int PlayerTagViewRange;
 	string PlayerTagsIcon;
+}
+
+class ExpansionNameTagsSettingsV0: ExpansionNameTagsSettingsBase
+{
 	bool ShowPlayerTagsInSafeZones;
 	bool ShowPlayerTagsInTerritories;
 }
@@ -27,7 +31,13 @@ class ExpansionNameTagsSettingsBase: ExpansionSettingBase
  **/
 class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 {
-	static const int VERSION = 0;
+	static const int VERSION = 2;
+
+	int PlayerTagsColor;
+	int PlayerNameColor;
+
+	bool OnlyInSafeZones;
+	bool OnlyInTerritories;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -110,6 +120,11 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 
 		ExpansionNameTagsSettingsBase sb = s;
 		CopyInternal( sb );
+		PlayerTagsColor = s.PlayerTagsColor;
+		PlayerNameColor = s.PlayerNameColor;
+
+		OnlyInSafeZones = s.OnlyInSafeZones;
+		OnlyInTerritories = s.OnlyInTerritories;
 	}
 	
 	// ------------------------------------------------------------
@@ -122,10 +137,9 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 #endif
 
 		EnablePlayerTags = s.EnablePlayerTags;
+
 		PlayerTagViewRange = s.PlayerTagViewRange;
 		PlayerTagsIcon = s.PlayerTagsIcon;
-		ShowPlayerTagsInSafeZones = s.ShowPlayerTagsInSafeZones;
-		ShowPlayerTagsInTerritories = s.ShowPlayerTagsInTerritories;
 	}
 	
 	// ------------------------------------------------------------
@@ -169,7 +183,27 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
-				//! Nothing to do here yet
+				EXPrint("[ExpansionNotificationSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMETAGS_SETTINGS + "\" to v" + VERSION);
+
+				if (settingsBase.m_Version < 1)
+				{
+					CopyInternal(settingsBase);
+
+					PlayerTagsColor = settingsDefault.PlayerTagsColor;
+					PlayerNameColor = settingsDefault.PlayerNameColor;
+
+					ExpansionNameTagsSettingsV0 settingsV0;
+					JsonFileLoader<ExpansionNameTagsSettingsV0>.JsonLoadFile(EXPANSION_NAMETAGS_SETTINGS, settingsV0);
+					OnlyInSafeZones = settingsV0.ShowPlayerTagsInSafeZones;
+					OnlyInTerritories = settingsV0.ShowPlayerTagsInTerritories;
+				}
+				else
+				{
+					JsonFileLoader<ExpansionNameTagsSettings>.JsonLoadFile(EXPANSION_NAMETAGS_SETTINGS, this);
+				}
+
+				m_Version = VERSION;
+				save = true;
 			}
 			else
 			{
@@ -221,8 +255,10 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		EnablePlayerTags = true;
 		PlayerTagViewRange = 5;
 		PlayerTagsIcon = EXPANSION_NOTIFICATION_ICON_PERSONA;
-		ShowPlayerTagsInSafeZones = true;
-		ShowPlayerTagsInTerritories= true;
+		PlayerTagsColor = -1;
+		PlayerNameColor = -1;
+		OnlyInSafeZones = false;
+		OnlyInTerritories = false;
 	}
 		
 	// ------------------------------------------------------------
