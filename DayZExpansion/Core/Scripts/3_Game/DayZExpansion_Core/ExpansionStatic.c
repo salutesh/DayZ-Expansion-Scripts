@@ -75,23 +75,6 @@ class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
 
-	static string DamageTypeToString(int damageType)
-	{
-		switch (damageType)
-		{
-			case DT_CLOSE_COMBAT:
-				return "DT_CLOSE_COMBAT";
-			case DT_FIRE_ARM:
-				return "DT_FIRE_ARM";
-			case DT_EXPLOSION:
-				return "DT_EXPLOSION";
-			case DT_CUSTOM:
-				return "DT_CUSTOM";
-		}
-
-		return "UNKNOWN";
-	}
-
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
@@ -1066,6 +1049,20 @@ class ExpansionStatic
 	static bool SurfaceIsWater(float x, float z)
 	{
 		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
+	}
+
+	static string VectorToString(vector vec, bool beautify = true, int precision = 2)
+	{
+		float m = Math.Pow(10, precision);
+		TStringArray output();
+
+		for (int i = 0; i < 3; i++)
+			output.Insert((Math.Round(vec[i] * m) / m).ToString());
+
+		if (beautify)
+			return "<" + ExpansionString.JoinStrings(output, ", ") + ">";
+		else
+			return ExpansionString.JoinStrings(output, " ");
 	}
 
 	static void LockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)

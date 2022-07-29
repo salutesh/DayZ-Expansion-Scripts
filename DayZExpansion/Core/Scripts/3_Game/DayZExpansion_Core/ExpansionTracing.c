@@ -305,7 +305,7 @@ class EXTrace
 			msg += damageResult.GetDamage(dmgZone, "Shock").ToString() + " ";
 		}
 
-		msg += ExpansionStatic.DamageTypeToString(damageType) + " ";
+		msg += typename.EnumToString(DamageType, damageType) + " ";
 
 		msg += source.ToString() + " ";
 		msg += component.ToString() + " ";

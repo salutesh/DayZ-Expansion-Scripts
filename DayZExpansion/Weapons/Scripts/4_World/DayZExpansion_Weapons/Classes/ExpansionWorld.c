@@ -59,6 +59,7 @@ modded class ExpansionWorld
 			return;
 
 		string M203SmokeItem = "Expansion_M203Round_Smoke_White";
+		Object explosion;
 		switch ( ammoType )
 		{
 			case "Expansion_Arrow_Bolt":
@@ -106,7 +107,7 @@ modded class ExpansionWorld
 			}
 			case "Bullet_Expansion_M203_HE":
 			{
-				GetGame().CreateObject( "Expansion_M203_HE_Explosion", pos );
+				explosion = GetGame().CreateObject( "Expansion_M203_HE_Explosion", pos );
 				break;
 			}
 			case "Bullet_Expansion_M203_Smoke_White":
@@ -171,12 +172,12 @@ modded class ExpansionWorld
 			}	
 			case "ExpansionRocketRPG":
 			{
-				GetGame().CreateObject( "Expansion_RPG_Explosion", pos );
+				explosion = GetGame().CreateObject( "Expansion_RPG_Explosion", pos );
 				break;
 			}				
 			case "ExpansionRocketLAW":
 			{
-				GetGame().CreateObject( "Expansion_LAW_Explosion", pos );
+				explosion = GetGame().CreateObject( "Expansion_LAW_Explosion", pos );
 				break;
 			}			
 		}
@@ -190,6 +191,10 @@ modded class ExpansionWorld
 			dBodyDestroy( physicsObj );
 			autoptr PhysicsGeomDef geoms[] = { PhysicsGeomDef("", dGeomCreateSphere( 0.15 ), "material/default", 0xffffffff) };
 			dBodyCreateDynamicEx( physicsObj , "0 0 0", 1.0, geoms );			
-		}	
+		}
+		else if (explosion)
+		{
+			explosion.SetDirection(vector.Direction(source.GetPosition(), pos));
+		}
 	}
 };

@@ -612,18 +612,23 @@ modded class ItemBase
 
 		bool applyDamageCorrection = (damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM) && m_Expansion_DamageMultiplier != 1.0;
 
-		if (damageType == DT_EXPLOSION && source && !source.GetHierarchyRootPlayer() && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
+		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
 		{
-			//! Use our own damage system for consistent explosion damage
-			//! Note that this only works if damage source root is not a player,
-			//! else won't be able to get source's position in relation to target
+			ExpansionDamageSystem.OnExplosionHit(source, this, ammo);
 
-			float baseDmg = ExpansionDamageSystem.GetExplosionDamage(source, this, ammo);
-			if (baseDmg > dmg)
+			//! Use our own damage system for consistent explosion damage
+			//! Note that this only works as intended if damage source root is not a player,
+			//! else won't be able to get actual source's position in relation to target
+
+			if (source && !source.GetHierarchyRootPlayer())
 			{
-				ExpansionDamageSystem.Log("Overriding " + source.ToString() + " damage dealt to " + ToString() + " at " + GetPosition() + " " + dmg.ToString() + " -> " + baseDmg.ToString());
-				dmg = baseDmg;
-				applyDamageCorrection = true;
+				float baseDmg = ExpansionDamageSystem.GetExplosionDamage(source, this, ammo);
+				if (baseDmg > dmg)
+				{
+					ExpansionDamageSystem.Log("Overriding " + source.ToString() + " damage dealt to " + ToString() + " at " + GetPosition() + " " + dmg.ToString() + " -> " + baseDmg.ToString());
+					dmg = baseDmg;
+					applyDamageCorrection = true;
+				}
 			}
 		}
 
@@ -638,7 +643,7 @@ modded class ItemBase
 
 #ifdef EXPANSIONMODBASEBUILDING
 		if (IsInherited(ExpansionBaseBuilding) || IsInherited(ExpansionSafeBase))
-			RaidLog(source, damageZone, health, dmg, m_Expansion_DamageMultiplier);
+			RaidLog(source, damageZone, ammo, health, dmg, m_Expansion_DamageMultiplier);
 #endif
 	}
 
@@ -655,33 +660,43 @@ modded class ItemBase
 #ifdef EXPANSIONMODBASEBUILDING
 	void RaidLog( EntityAI source, string damageZone, float health, float dmg, float damageMultiplier )
 	{
+		RaidLog( source, damageZone, "", health, dmg, damageMultiplier );
+	}
+
+	void RaidLog( EntityAI source, string damageZone, string ammo, float health, float dmg, float damageMultiplier )
+	{
+		if ( !GetExpansionSettings().GetLog().BaseBuildingRaiding )
+			return;
+			
+		if ( ( dmg * damageMultiplier ) == 0 )
+			return;
+
 		PlayerBase player;
-		string playerId;
-		string playerName;
 		string playerDesc;
 
-		if ( source && ( Class.CastTo( player, source ) || Class.CastTo( player, source.GetHierarchyRootPlayer() ) ) )
+		if ( source && Class.CastTo( player, source.GetHierarchyRootPlayer() ) )
 		{
-			playerId = player.GetIdentityUID();
-			playerName = player.GetIdentityName();
-
-			playerDesc = "Player \"" + playerName + "\" (ID = \"" + playerId + "\" at " + player.GetPosition() + ")";
+			playerDesc = "Player \"" + player.GetIdentityName() + "\" (ID " + player.GetIdentityUID() + ") at " + ExpansionStatic.VectorToString(player.GetPosition());
 		} else
 		{
 			playerDesc = "A player";
 		}
 
-		if ( GetExpansionSettings().GetLog().BaseBuildingRaiding )
-		{
-			if ( ( dmg * damageMultiplier ) != 0 )
-			{
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ------------------------- Expansion BaseRaiding Damage Report -------------------------" );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] BaseRaiding: " + playerDesc + " damaged a base part (" + GetType() + ") (" + health + " current health)" );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] BaseRaiding: They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with " + source.GetType() + " at " + GetPosition() );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] Expansion BaseRaiding: Health after damage applied: " + GetHealth( damageZone, "Health" ) );
-				GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ---------------------------------------------------------------------------------------" );
-			}
-		}
+		string sourceDesc;
+
+		if (source)
+			sourceDesc = source.GetType();
+		else
+			sourceDesc = "<unknown source>";
+
+		if (ammo)
+			sourceDesc = ammo + " from " + sourceDesc;
+
+		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ------------------------- Expansion Base Raiding Damage Report -------------------------" );
+		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] " + playerDesc + " damaged " + GetType() + " at " + ExpansionStatic.VectorToString(GetPosition()) );
+		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] They dealt "  + dmg + " * " + damageMultiplier + " = " + ( dmg * damageMultiplier ) + " damage with " + sourceDesc );
+		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] " + damageZone + " hitpoints decreased from " + health + " to " + GetHealth( damageZone, "Health" ) );
+		GetExpansionSettings().GetLog().PrintLog( "[BaseBuildingRaiding] ----------------------------------------------------------------------------------------" );
 	}
 #endif
 
@@ -712,7 +727,7 @@ modded class ItemBase
 		if (!GetInventory())
 			return NULL;
 
-		//! NOTE: Both actual magazines and ammon inherit from Magazine_Base, so we check destroyOnEmpty if it's actually a mag or not
+		//! NOTE: Both actual magazines and ammo inherit from Magazine_Base, so we check destroyOnEmpty if it's actually a mag or not
 		if (IsInherited(Weapon_Base) && GetGame().ConfigIsExisting("CfgMagazines " + className) && !GetGame().ConfigGetInt("CfgMagazines " + className + " destroyOnEmpty"))
 		{
 			//! It's an actual magazine
