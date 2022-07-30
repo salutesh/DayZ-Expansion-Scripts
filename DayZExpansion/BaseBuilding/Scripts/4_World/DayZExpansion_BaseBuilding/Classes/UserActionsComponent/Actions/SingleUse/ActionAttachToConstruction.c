@@ -17,4 +17,27 @@ modded class ActionAttachToConstruction
 		m_ConditionItem = new CCINonRuined;
 		m_ConditionTarget = new CCTNone;
 	}
+
+	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	{
+		if (super.ActionCondition(player, target, item))
+			return true;
+
+		ExpansionBaseBuilding exbb;
+		if (Class.CastTo(exbb, target.GetObject()))
+		{
+			ConstructionActionData construction_action_data = player.GetConstructionActionData();
+			int slot_id = construction_action_data.GetAttachmentSlotFromSelection(player, exbb, item, "interact");
+			if (slot_id != -1)
+			{
+				if (exbb.CheckSlotVerticalDistance(slot_id, player) && exbb.IsPlayerInside(player, ""))
+				{
+					construction_action_data.SetSlotId(slot_id);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }

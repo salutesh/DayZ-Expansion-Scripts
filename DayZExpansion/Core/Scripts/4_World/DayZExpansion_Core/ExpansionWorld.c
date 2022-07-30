@@ -43,7 +43,7 @@ class ExpansionWorld: ExpansionGame
 				{
 					string explosionAmmoType = GetExpansionSettings().GetDamageSystem().ExplosiveProjectiles[ammoType];
 					if (explosionAmmoType)
-						ExpansionDamageSystem.OnBeforeExplode(source, DT_EXPLOSION, explosionAmmoType, pos);
+						ExpansionDamageSystem.OnBeforeExplode(EntityAI.Cast(source), DT_EXPLOSION, explosionAmmoType, pos);
 				}
 			}
 		}
