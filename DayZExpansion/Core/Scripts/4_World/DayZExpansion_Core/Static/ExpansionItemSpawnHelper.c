@@ -275,7 +275,7 @@ class ExpansionItemSpawnHelper
 		ExpansionVehicleBase exVeh;
 		ExpansionCarKey expkey;
 		#endif
-		#ifdef MuchCarKey
+		#ifdef MuchCarKey_ExpTest
 		MCK_CarKey_Base MCKkey;
 		int mck_id;
 		#endif
@@ -300,7 +300,7 @@ class ExpansionItemSpawnHelper
 					vehicle.LockCar(expkey);
 				}
 				#endif
-				#ifdef MuchCarKey
+				#ifdef MuchCarKey_ExpTest
 				if (Class.CastTo(MCKkey, keyb))
 				{
 					mck_id = MCKkey.GenerateNewID();
@@ -334,7 +334,7 @@ class ExpansionItemSpawnHelper
 					exVeh.PairKeyTo(expkey);
 					exVeh.LockCar(expkey);
 				}
-				#ifdef MuchCarKey
+				#ifdef MuchCarKey_ExpTest
 				if (Class.CastTo(MCKkey, keyb))
 				{
 					mck_id = MCKkey.GenerateNewID();
