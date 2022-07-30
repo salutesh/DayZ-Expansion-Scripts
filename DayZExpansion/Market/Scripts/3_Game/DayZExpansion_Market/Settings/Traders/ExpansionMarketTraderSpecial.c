@@ -29,7 +29,7 @@ class ExpansionMarketTraderSpecial: ExpansionMarketTrader
 		// LAUNCHERS
 		AddItem("ExpansionLAW");
 		AddItem("ExpansionRPG7");
-		AddItem("Expansion_M79");
+		//AddItem("Expansion_M79");
 
 		// LAUNCHER AMMO
 		AddItem("ExpansionAmmoLAW");

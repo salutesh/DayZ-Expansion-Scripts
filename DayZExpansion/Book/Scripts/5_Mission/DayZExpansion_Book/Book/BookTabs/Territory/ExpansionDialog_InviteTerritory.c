@@ -1,5 +1,5 @@
 /**
- * ExpansionDialog_DeleteTerritory.c
+ * ExpansionDialog_InviteTerritory.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

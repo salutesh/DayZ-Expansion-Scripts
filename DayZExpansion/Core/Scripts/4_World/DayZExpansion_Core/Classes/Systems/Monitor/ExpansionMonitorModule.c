@@ -702,25 +702,25 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		
 		if (!Class.CastTo(car, player.GetParent()))
 		{
-			if ((player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDERECT) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT)) && !player.IsUnconscious())
-			{
-				stance = ExpansionPlayerStanceStatus.STAND;
-			}
-			else if ((player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_CROUCH) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDCROUCH)) && !player.IsUnconscious())
-			{
-				stance = ExpansionPlayerStanceStatus.CROUCH;
-			}
-			else if ((player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDPRONE)) && !player.IsUnconscious())
-			{
-				stance = ExpansionPlayerStanceStatus.PRONE;
-			}
-			else if (!player.IsAlive())
+			if (!player.IsAlive())
 			{
 				stance = ExpansionPlayerStanceStatus.DEAD;
 			}
 			else if (player.IsUnconscious())
 			{
 				stance = ExpansionPlayerStanceStatus.UNCONSCIOUS;
+			}
+			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDERECT) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT))
+			{
+				stance = ExpansionPlayerStanceStatus.STAND;
+			}
+			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_CROUCH) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDCROUCH))
+			{
+				stance = ExpansionPlayerStanceStatus.CROUCH;
+			}
+			else if (player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE) || player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
+			{
+				stance = ExpansionPlayerStanceStatus.PRONE;
 			}
 		}
 		else
@@ -772,7 +772,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPlayerStats(string playerID = "", bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats);
+		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(playerID);
@@ -788,7 +788,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestPlayerStatsAndStates(ParamsReadContext ctx, PlayerIdentity sender, bool includeStats = true, bool includeStates = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this);
+		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
@@ -796,15 +796,17 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		string playerID;
 		if (!ctx.Read(playerID))
 			return;
+
+		EXTrace.Add(trace, playerID);
 		
 		string originalPlayerID = playerID;
 
 		bool includeRegisteredStats;
-		if (!ctx.Read(includeRegisteredStats))
+		if (includeStats && !ctx.Read(includeRegisteredStats))
 			return;
 
 		bool includeBaseStats;
-		if (!ctx.Read(includeBaseStats))
+		if (includeStats && !ctx.Read(includeBaseStats))
 			return;
 
 		if (!sender)
@@ -881,16 +883,18 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SendPlayerStatsAndStates(ExpansionSyncedPlayerStats playerStats, ExpansionSyncedPlayerStates playerStates, string playerID, PlayerIdentity ident, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
+		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + playerStats, "" + playerStates, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
 		ScriptRPC rpc = new ScriptRPC();
 
 		rpc.Write(playerID);
-		rpc.Write(includeRegisteredStats);
-		rpc.Write(includeBaseStats);
 
 		if (playerStats)
+		{
+			rpc.Write(includeRegisteredStats);
+			rpc.Write(includeBaseStats);
 			playerStats.OnSend(rpc, includeRegisteredStats, includeBaseStats);
+		}
 
 		if (playerStates)
 			playerStates.OnSend(rpc);
@@ -913,7 +917,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SendPlayerStatsAndStates(ParamsReadContext ctx, bool includeStats = true, bool includeStates = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this);
+		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
 
 		if (!GetGame().IsClient())
 			return;
@@ -921,13 +925,15 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		string playerID;
 		if (!ctx.Read(playerID))
 			return;
+
+		EXTrace.Add(trace, playerID);
 		
 		bool includeRegisteredStats;
-		if (!ctx.Read(includeRegisteredStats))
+		if (includeStats && !ctx.Read(includeRegisteredStats))
 			return;
 		
 		bool includeBaseStats;
-		if (!ctx.Read(includeBaseStats))
+		if (includeStats && !ctx.Read(includeBaseStats))
 			return;
 		
 		if (includeStats)
@@ -984,13 +990,14 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ExpansionMonitorModule RequestPlayerStatsAndStates
 	// Called from client
 	// ------------------------------------------------------------
-	void RequestPlayerStatsAndStates(string playerID, bool includeRegisteredStats = false)
+	void RequestPlayerStatsAndStates(string playerID, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats);
+		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
+		rpc.Write(includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
 		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStatsAndStates, false);
 	}

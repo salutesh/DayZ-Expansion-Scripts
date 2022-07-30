@@ -10,7 +10,7 @@
  *
 */
 
-modded class ActionForceDrink
+/*modded class ActionForceDrink
 {
 	override ActionData CreateActionData()
 	{
@@ -95,4 +95,4 @@ modded class ActionForceDrink
 			}
 		}
 	}
-};
+};*/

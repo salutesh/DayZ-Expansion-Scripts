@@ -330,14 +330,16 @@ modded class TentBase
 		}
 	}
 
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
+		string slot_name = InventorySlots.GetSlotName(slot_id);
+
         if ( slot_name == "Att_ExpansionCodeLock" )
 		{
 			return ExpansionCanAttachCodeLock();
 		}
 
-		return super.CanDisplayAttachmentSlot( slot_name );
+		return super.CanDisplayAttachmentSlot(slot_id);
 	}
 
 	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )

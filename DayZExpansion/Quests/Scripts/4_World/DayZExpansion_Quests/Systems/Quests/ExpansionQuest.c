@@ -231,6 +231,19 @@ class ExpansionQuest
 				QuestObjectives.Insert(actionObjectiveEvent);
 				return true;
 			}
+			case ExpansionQuestObjectiveType.CRAFTING:
+			{
+				ExpansionQuestObjectiveCraftingConfig craftingObjectiveConfig = m_QuestModule.GetCraftingObjectiveConfigByID(objectiveID);
+				if (!craftingObjectiveConfig)
+					return false;
+
+				ExpansionQuestObjectiveCraftingEvent craftingObjectiveEvent = new ExpansionQuestObjectiveCraftingEvent(this);
+				craftingObjectiveEvent.SetIndex(index);
+				craftingObjectiveEvent.SetObjectiveConfig(craftingObjectiveConfig);
+				craftingObjectiveEvent.SetTimeLimit(time);
+				QuestObjectives.Insert(craftingObjectiveEvent);
+				return true;
+			}
 			case ExpansionQuestObjectiveType.SCRIPTED:
 			{
 				//! Nothing to do here yet!
@@ -1595,6 +1608,14 @@ class ExpansionQuest
 					ExpansionQuestObjectiveActionEvent actionEvent;
 					if (Class.CastTo(actionEvent, objective))
 						actionEvent.QuestDebug();
+				}
+				break;
+				
+				case ExpansionQuestObjectiveType.CRAFTING:
+				{
+					ExpansionQuestObjectiveCraftingEvent craftingEvent;
+					if (Class.CastTo(craftingEvent, objective))
+						craftingEvent.QuestDebug();
 				}
 				break;
 			#ifdef EXPANSIONMODAI

@@ -32,7 +32,6 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	private ImageWidget player_list_filter_clear_icon;
 	
 	private int m_PlayerSearchRadius = 25;
-	private string m_CurrentSearchCharacters = "";
 	
 	private bool m_IsEditingMember = false;
 	private bool m_ChangeList = false;
@@ -175,6 +174,9 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ------------------------------------------------------------	
 	void SetTerritoryView()
 	{
+		if (!m_Territory)
+			return;
+
 		m_TerritoryTabController.TerritroyName = m_Territory.GetTerritoryName() + " #STR_EXPANSION_BOOK_MEMBERS";
 		m_TerritoryTabController.NotifyPropertyChanged("TerritroyName");
 		
@@ -194,21 +196,39 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ExpansionBookMenuTabTerritory LoadMembers
 	// ------------------------------------------------------------	
 	void LoadMembers()
-	{		
-		if (m_TerritoryTabController.TerritoryMemberEntrys.Count() > 0)
-			m_TerritoryTabController.TerritoryMemberEntrys.Clear();
-		
+	{
 		if (m_Territory && m_Territory.GetTerritoryMembers().Count() > 0)
 		{
 			array<ref ExpansionTerritoryMember> members = m_Territory.GetTerritoryMembers();
-			for (int i = 0; i < members.Count(); ++i)
+			TStringArray memberUIDs = m_Territory.GetTerritoryMemberIDs();
+			foreach (ExpansionTerritoryMember memberData: members)
 			{
-				ExpansionBookMenuTabTerritoryMemberEntry entry = new ExpansionBookMenuTabTerritoryMemberEntry(this, members[i], m_Territory);
-				m_TerritoryTabController.TerritoryMemberEntrys.Insert(entry);
+				ExpansionBookMenuTabTerritoryMemberEntry entry = null;
+				for (int e = m_TerritoryTabController.TerritoryMemberEntrys.Count() - 1; e >= 0; e--)
+				{
+					ExpansionBookMenuTabTerritoryMemberEntry existingEntry = m_TerritoryTabController.TerritoryMemberEntrys[e];
+					
+					if (existingEntry.m_Member && existingEntry.m_Member.GetID() == memberData.GetID())
+						entry = existingEntry;
+					//! If the entry is related to an old member that is no longer in the territory then remove the entry
+					else if (!existingEntry.m_Member || memberUIDs.Find(existingEntry.m_Member.GetID()) == -1)
+						m_TerritoryTabController.TerritoryMemberEntrys.RemoveOrdered(e);
+				}
+				//! If the teritory member has an entry already then skip the entry creation
+				if (!entry)
+				{
+					entry = new ExpansionBookMenuTabTerritoryMemberEntry(this, memberData, m_Territory.GetTerritoryID());
+					m_TerritoryTabController.TerritoryMemberEntrys.Insert(entry);
+				}
+				else
+				{
+					entry.SetEntry(memberData, false);
+				}
 			}
-			
-			if (m_TerritoryTabController.TerritoryMemberEntrys.Count() > 0)
-				m_TerritoryTabController.NotifyPropertyChanged("TerritoryMemberEntrys");
+		}
+		else
+		{
+			ClearMembers();
 		}
 		
 		/*if (m_Territory && m_Territory.GetTerritoryMembers().Count() == 1)
@@ -231,16 +251,13 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ------------------------------------------------------------	
 	void ClearMembers()
 	{
-		if (m_TerritoryTabController.TerritoryMemberEntrys.Count() > 0)
+		for (int i = 0; i < m_TerritoryTabController.TerritoryMemberEntrys.Count(); ++i)
 		{
-			for (int i = 0; i < m_TerritoryTabController.TerritoryMemberEntrys.Count(); ++i)
-			{
-				ExpansionBookMenuTabTerritoryMemberEntry entry = m_TerritoryTabController.TerritoryMemberEntrys[i];
-				entry.Hide();
-				m_TerritoryTabController.TerritoryMemberEntrys.Remove(i);
-				delete entry;
-			}
+			ExpansionBookMenuTabTerritoryMemberEntry entry = m_TerritoryTabController.TerritoryMemberEntrys[i];
+			entry.Hide();
 		}
+
+		m_TerritoryTabController.TerritoryMemberEntrys.Clear();
 	}
 
 	// ------------------------------------------------------------
@@ -254,17 +271,9 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (!player) 
 			return;
-		
-		if (!m_TerritoryTabController)
-			m_TerritoryTabController = ExpansionBookMenuTabTerritoryController.Cast(GetController());
 	
-		string filterNormal = filter;
 		filter.ToLower();
-		
-		ClearPlayers();
 			
-		int nmbPlayer = 0;
-		ExpansionBookMenuTabTerritoryPlayerEntry entry;
 		string playerName;
 		
 		set<ref SyncPlayer> players;
@@ -276,6 +285,9 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		{
 			players = SyncPlayer.Expansion_GetInSphere(player.GetPosition(), m_PlayerSearchRadius);
 		}
+
+		array<ref SyncPlayer> filteredPlayers();
+		TStringArray filteredUIDs();
 
 		foreach (SyncPlayer playerSync: players)
 		{
@@ -296,15 +308,33 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 					continue;
 			}
 
-			nmbPlayer++;
-
-			AddPlayerEntry(playerSync);
+			filteredPlayers.Insert(playerSync);
+			filteredUIDs.Insert(playerSync.m_RUID);
 		}
 
-		if (m_TerritoryTabController.TerritoryPlayerEntrys.Count() > 0)
-			m_TerritoryTabController.NotifyPropertyChanged("TerritoryPlayerEntrys");
+		if (!filteredPlayers.Count())
+			ClearPlayers();
+
+		foreach (SyncPlayer filteredPlayer: filteredPlayers)
+		{
+			bool isInList = false;
+			for (int i = m_TerritoryTabController.TerritoryPlayerEntrys.Count() - 1; i >= 0; i--)
+			{
+				ExpansionBookMenuTabTerritoryPlayerEntry entry = m_TerritoryTabController.TerritoryPlayerEntrys[i];
+				if (entry.m_Player.m_RUID == filteredPlayer.m_RUID)
+					isInList = true;
+				else if (filteredUIDs.Find(entry.m_Player.m_RUID) == -1)
+					m_TerritoryTabController.TerritoryPlayerEntrys.RemoveOrdered(i);
+			}
+			
+			if (!isInList)
+			{
+				ExpansionBookMenuTabTerritoryPlayerEntry newEntry = new ExpansionBookMenuTabTerritoryPlayerEntry(this, filteredPlayer);
+				m_TerritoryTabController.TerritoryPlayerEntrys.Insert(newEntry);
+			}
+		}
 		
-		/*if (nmbPlayer > 0)
+		/*if (filteredPlayers.Count() > 0)
 		{
 			m_TerritoryTabController.PlayerListInfo = "#STR_EXPANSION_BOOK_TERRITORY_INVITE_SELECT";
 			m_TerritoryTabController.NotifyPropertyChanged("PlayerListInfo");
@@ -315,43 +345,19 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 			m_TerritoryTabController.NotifyPropertyChanged("PlayerListInfo");
 		}*/
 	}
-	
-	void AddPlayerEntry(SyncPlayer playerSync)
-	{
-		bool isInList = false;
-		for (int i = 0; i < m_TerritoryTabController.TerritoryPlayerEntrys.Count(); ++i)
-		{
-			ExpansionBookMenuTabTerritoryPlayerEntry entry = m_TerritoryTabController.TerritoryPlayerEntrys[i];
-			if (entry.m_Player.m_RUID == playerSync.m_RUID)
-			{
-				isInList = true;
-				break;
-			}
-		}
-		
-		if (!isInList)
-		{
-			ExpansionBookMenuTabTerritoryPlayerEntry newEntry = new ExpansionBookMenuTabTerritoryPlayerEntry(this, playerSync);
-			m_TerritoryTabController.TerritoryPlayerEntrys.Insert(newEntry);
-		}
-	}
 
 	// ------------------------------------------------------------
 	// ExpansionBookMenuTabTerritory ClearPlayers
 	// ------------------------------------------------------------	
 	void ClearPlayers()
 	{
-		if (m_TerritoryTabController.TerritoryPlayerEntrys.Count() > 0)
+		for (int i = 0; i < m_TerritoryTabController.TerritoryPlayerEntrys.Count(); ++i)
 		{
-			for (int i = 0; i < m_TerritoryTabController.TerritoryPlayerEntrys.Count(); ++i)
-			{
-				ExpansionBookMenuTabTerritoryPlayerEntry entry = m_TerritoryTabController.TerritoryPlayerEntrys[i];
-				entry.Hide();
-				entry = NULL;
-			}
-			
-			m_TerritoryTabController.TerritoryPlayerEntrys.Clear();
+			ExpansionBookMenuTabTerritoryPlayerEntry entry = m_TerritoryTabController.TerritoryPlayerEntrys[i];
+			entry.Hide();
 		}
+		
+		m_TerritoryTabController.TerritoryPlayerEntrys.Clear();
 	}
 
 	// ------------------------------------------------------------
@@ -512,23 +518,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		
 		SetView();
 		LoadMembers();
-		LoadPlayers("");
 		SwitchMovementLockState(true);
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionBookMenuTabTerritory OnChange
-	// ------------------------------------------------------------
-	override bool OnChange(Widget w, int x, int y, bool finished)
-	{
-		if (w == player_list_filter_editbox)
-		{
-			m_ChangeList = true;
-			m_CurrentSearchCharacters = "";
-			m_CurrentSearchCharacters = player_list_filter_editbox.GetText();
-		}
-		
-		return super.OnChange(w, x, y, finished);
 	}
 
 	// ------------------------------------------------------------
@@ -536,7 +526,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ------------------------------------------------------------	
 	override float GetUpdateTickRate()
 	{
-		return 0.1;
+		return 1.0;
 	}
 
 	// ------------------------------------------------------------
@@ -545,12 +535,27 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	override void Update()
 	{
 		super.Update();
+
+		if (!IsVisible())
+			return;
 		
-		if ((m_CurrentSearchCharacters == "" || m_CurrentSearchCharacters != "") && m_ChangeList)
+		LoadPlayers(player_list_filter_editbox.GetText());
+	}
+
+	override void Refresh()
+	{
+		EXTrace.Start(EXTrace.BASEBUILDING, this);
+
+		SetTerritory();
+
+		if (!m_Territory)
 		{
-			ClearPlayers();
-			LoadPlayers(m_CurrentSearchCharacters);
-			m_ChangeList = false;
+			Hide();
+		}
+		else
+		{
+			SetView();
+			LoadMembers();
 		}
 	}
 
@@ -606,6 +611,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 
 class ExpansionBookMenuTabTerritoryController: ExpansionViewController 
 {
+	//! TODO: These two collections should really be dictionaries mapping UID to entry
 	ref ObservableCollection<ref ExpansionBookMenuTabTerritoryMemberEntry> TerritoryMemberEntrys = new ObservableCollection<ref ExpansionBookMenuTabTerritoryMemberEntry>(this);
 	ref ObservableCollection<ref ExpansionBookMenuTabTerritoryPlayerEntry> TerritoryPlayerEntrys = new ObservableCollection<ref ExpansionBookMenuTabTerritoryPlayerEntry>(this);
 	string MemberListInfo;

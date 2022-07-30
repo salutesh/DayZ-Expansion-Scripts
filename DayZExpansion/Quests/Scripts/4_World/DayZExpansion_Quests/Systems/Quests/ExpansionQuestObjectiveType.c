@@ -22,5 +22,6 @@ enum ExpansionQuestObjectiveType
 	AICAMP,
 	AIVIP,
 	ACTION,
+	CRAFTING,
 	SCRIPTED
 };

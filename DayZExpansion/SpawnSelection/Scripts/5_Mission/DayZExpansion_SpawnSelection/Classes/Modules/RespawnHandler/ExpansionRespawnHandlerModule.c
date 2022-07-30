@@ -389,7 +389,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		m_SpawnSelected = true;
 		
-		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), index, isTerritory, useCooldown))
+		if (ProcessCooldown(GetGame().GetPlayer().GetIdentity(), index, isTerritory, useCooldown, false))
 			return;
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
@@ -402,7 +402,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	
 	//! Check existing cooldowns and add if none present.
 	//! Return true if point index already had a cooldown (that hasn't expired), false otherwise.
-	bool ProcessCooldown(PlayerIdentity sender, int index, bool isTerritory, bool useCooldown)
+	bool ProcessCooldown(PlayerIdentity sender, int index, bool isTerritory, bool useCooldown, bool addCooldown = true)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
 
@@ -433,7 +433,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 			if (!hasCooldown)
 			{
-				AddCooldown(playerUID, index, isTerritory);
+				if (addCooldown)
+					AddCooldown(playerUID, index, isTerritory);
 			}
 			else
 			{
@@ -508,16 +509,15 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			loc = locations[pointIndex];
 		else
 			loc = territories[pointIndex - locations.Count()];
-		
-		if (ProcessCooldown(sender, pointIndex, loc.IsTerritory, loc.UseCooldown))
-		{
-			Error(ToString() + "::Exec_SelectSpawn - ERROR: ProcessCooldown returned false");
-			return;
-		}
 
 		if (spawnPointIndex < 0 || spawnPointIndex >= loc.Positions.Count())
 		{
 			Error(ToString() + "::Exec_SelectSpawn - ERROR: Location doesn't have spawn points");
+			return;
+		}
+		
+		if (ProcessCooldown(sender, pointIndex, loc.IsTerritory, loc.UseCooldown))
+		{
 			return;
 		}
 

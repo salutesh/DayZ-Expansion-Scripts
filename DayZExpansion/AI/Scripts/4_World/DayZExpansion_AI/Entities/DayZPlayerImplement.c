@@ -216,11 +216,6 @@ modded class DayZPlayerImplement
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
-	vector Expansion_GetHeadingVector()
-	{
-		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
-	}
-
 #ifndef SERVER
 	void AddShape(Shape shape)
 	{

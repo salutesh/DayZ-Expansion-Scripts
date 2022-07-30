@@ -22,5 +22,6 @@ enum ExpansionQuestType
 	AICAMP,
 	AIVIP,
 	ACTION,
+	CRAFTING,
 	CLASS
 };

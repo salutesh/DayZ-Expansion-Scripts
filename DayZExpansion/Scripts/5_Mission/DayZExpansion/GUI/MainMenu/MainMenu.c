@@ -88,6 +88,9 @@ modded class MainMenu
 		string version;
 		GetGame().GetVersion( version );
 		string expansion_version;	
+
+		if ( GetDayZGame() )
+			expansion_version = GetDayZGame().GetExpansionClientVersion();
 				
 		//! Newsfeed
 		m_NewsfeedPanel = Widget.Cast(layoutRoot.FindAnyWidget("NewsFeedPanel"));
@@ -103,22 +106,14 @@ modded class MainMenu
 		logo.SetImage(0);
 		m_NewsfeedPanel.Show(false);
 		
-		if ( GetDayZGame() )
-		{
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
+		if (expansion_version)
 			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version + " #STR_EDITOR_MAIN_MENU_VERSION" + " " + GetEditor().Version);
-		}
 		#else
-		if ( GetDayZGame() )
-		{
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
+		if (expansion_version)
 			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
-		}
-		else
-		{
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
-		}
 		#endif
+		else
+			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
 		
 		GetGame().GetUIManager().ScreenFadeOut(0);
 

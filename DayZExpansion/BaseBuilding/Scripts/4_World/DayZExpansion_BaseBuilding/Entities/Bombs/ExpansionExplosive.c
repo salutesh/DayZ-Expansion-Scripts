@@ -127,7 +127,8 @@ class ExpansionExplosive extends ItemBase
 
 			//! Explode( DT_EXPLOSION, "ExpansionRocket_Ammo" );
 			//ExpansionCreateExplosion( this, "ExpansionRocket_Ammo", 5, 500 );
-			GetGame().CreateObject( "Expansion_C4_Explosion", this.GetPosition() );
+			Object explosion = GetGame().CreateObject( "Expansion_C4_Explosion", this.GetPosition() );
+			explosion.SetDirection(GetDirection());
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveLater, 150, false ); 
 
 			if ( !GetGame().IsMultiplayer() )

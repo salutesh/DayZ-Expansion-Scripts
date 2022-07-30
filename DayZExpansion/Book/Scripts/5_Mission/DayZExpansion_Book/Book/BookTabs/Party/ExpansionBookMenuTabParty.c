@@ -78,7 +78,7 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		}
 	}
 	
-	void GetParty()
+	void SetParty()
 	{
 		m_Party = m_PartyModule.GetParty();
 	}
@@ -131,43 +131,44 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	
 	void LoadMembers()
 	{
-		ClearMermbers();
-		
 		if (m_Party && m_Party.GetPlayers().Count() > 0)
 		{
+			ExpansionPartyPlayerData playerData = m_Party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
+
 			array<ref ExpansionPartyPlayerData> members = m_Party.GetPlayers();
-			for (int i = 0; i < members.Count(); ++i)
+			foreach (ExpansionPartyPlayerData memberData: members)
 			{
-				ExpansionPartyPlayerData memberData = members[i];
-				ExpansionPartyPlayerData playerData = m_Party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
-				
-				//! Dont add a entry for the player itself, only his party members
-				if (memberData.GetID() == playerData.GetID())
-					continue;
-				
-				ExpansionBookMenuTabPartyMemberEntry entry;
-				bool hasEntry = false;
-				if (m_PartyTabController.PartyMemberEntrys.Count() > 0)
+				ExpansionBookMenuTabPartyMemberEntry entry = null;
+				for (int e = m_PartyTabController.PartyMemberEntrys.Count() - 1; e >= 0; e--)
 				{
-					for (int e = 0; e < m_PartyTabController.PartyMemberEntrys.Count(); ++e)
-					{
-						ExpansionBookMenuTabPartyMemberEntry existingEntry = m_PartyTabController.PartyMemberEntrys[e];
-						
-						if (existingEntry.m_Member.GetID() == memberData.GetID())
-							hasEntry = true;
-						
-						//! If the entry is related to a old member that is no longer the party then remove the entry
-						if (members.Find(existingEntry.m_Member) == -1)
-							m_PartyTabController.PartyMemberEntrys.Remove(e);
-					}
+					ExpansionBookMenuTabPartyMemberEntry existingEntry = m_PartyTabController.PartyMemberEntrys[e];
+					
+					if (existingEntry.m_Member && existingEntry.m_Member.GetID() == memberData.GetID())
+						entry = existingEntry;
+					//! If the entry is related to an old member that is no longer in the party then remove the entry
+					else if (!existingEntry.m_Member || members.Find(existingEntry.m_Member) == -1)
+						m_PartyTabController.PartyMemberEntrys.RemoveOrdered(e);
 				}
-				//! If the party member has a entry already then skip the entry creation
-				if (!hasEntry)
+
+				//! Dont add a entry for the player itself, only other party members XXX: WHY?
+				//if (memberData.GetID() == playerData.GetID())
+					//continue;
+				
+				//! If the party member has an entry already then skip the entry creation
+				if (!entry)
 				{
 					entry = new ExpansionBookMenuTabPartyMemberEntry(this, memberData);
 					m_PartyTabController.PartyMemberEntrys.Insert(entry);
 				}
+				else
+				{
+					entry.SetEntry(memberData, false);
+				}
 			}
+		}
+		else
+		{
+			ClearMembers();
 		}
 	}
 	
@@ -179,14 +180,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (!player) 
 			return;
-	
-		ClearPlayers();
 		
-		string filterNormal = filter;
 		filter.ToLower();
 			
-		int nmbPlayer = 0;
-		ExpansionBookMenuTabPartyPlayerEntry entry;
 		string playerName;
 		
 		set<ref SyncPlayer> players;
@@ -198,6 +194,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		{
 			players = SyncPlayer.Expansion_GetInSphere(player.GetPosition(), m_PlayerSearchRadius);
 		}
+
+		array<ref SyncPlayer> filteredPlayers();
+		TStringArray filteredUIDs();
 
 		foreach (SyncPlayer playerSync: players)
 		{
@@ -218,29 +217,30 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 					continue;
 			}
 
-			nmbPlayer++;
+			filteredPlayers.Insert(playerSync);
+			filteredUIDs.Insert(playerSync.m_RUID);
+		}
 
-			AddPlayerEntry(playerSync);
-		}
-	}
-	
-	void AddPlayerEntry(SyncPlayer playerSync)
-	{
-		bool isInList = false;
-		for (int i = 0; i < m_PartyTabController.PartyPlayerEntrys.Count(); ++i)
+		if (!filteredPlayers.Count())
+			ClearPlayers();
+
+		foreach (SyncPlayer filteredPlayer: filteredPlayers)
 		{
-			ExpansionBookMenuTabPartyPlayerEntry entry = m_PartyTabController.PartyPlayerEntrys[i];
-			if (entry.m_Player.m_RUID == playerSync.m_RUID)
+			bool isInList = false;
+			for (int i = m_PartyTabController.PartyPlayerEntrys.Count() - 1; i >= 0; i--)
 			{
-				isInList = true;
-				break;
+				ExpansionBookMenuTabPartyPlayerEntry entry = m_PartyTabController.PartyPlayerEntrys[i];
+				if (entry.m_Player.m_RUID == filteredPlayer.m_RUID)
+					isInList = true;
+				else if (filteredUIDs.Find(entry.m_Player.m_RUID) == -1)
+					m_PartyTabController.PartyPlayerEntrys.RemoveOrdered(i);
 			}
-		}
-		
-		if (!isInList)
-		{
-			ExpansionBookMenuTabPartyPlayerEntry newEntry = new ExpansionBookMenuTabPartyPlayerEntry(this, playerSync);
-			m_PartyTabController.PartyPlayerEntrys.Insert(newEntry);
+			
+			if (!isInList)
+			{
+				ExpansionBookMenuTabPartyPlayerEntry newEntry = new ExpansionBookMenuTabPartyPlayerEntry(this, filteredPlayer);
+				m_PartyTabController.PartyPlayerEntrys.Insert(newEntry);
+			}
 		}
 	}
 	
@@ -250,19 +250,17 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		{
 			ExpansionBookMenuTabPartyPlayerEntry entry = m_PartyTabController.PartyPlayerEntrys[i];
 			entry.Hide();
-			entry = NULL;
 		}
 		
 		m_PartyTabController.PartyPlayerEntrys.Clear();
 	}
 	
-	void ClearMermbers()
+	void ClearMembers()
 	{
 		for (int i = 0; i < m_PartyTabController.PartyMemberEntrys.Count(); ++i)
 		{
 			ExpansionBookMenuTabPartyMemberEntry entry = m_PartyTabController.PartyMemberEntrys[i];
 			entry.Hide();
-			entry = NULL;
 		}
 
 		m_PartyTabController.PartyMemberEntrys.Clear();
@@ -369,7 +367,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	{
 		super.OnShow();
 		
-		if (!m_PartyModule.HasParty())
+		SetParty();
+
+		if (!m_Party)
 		{
 			if (!m_CreatePartyDialog)
 				m_CreatePartyDialog = new ExpansionDialog_CreateParty(this);
@@ -379,13 +379,8 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		}
 		else
 		{
-			GetParty();
 			SetView();
-			
 			LoadMembers();
-			
-			if (GetPlayerPartyData().CanInvite())
-				LoadPlayers("");
 		}
 		
 		SwitchMovementLockState(true);
@@ -450,43 +445,46 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		
 		Hide();
 	}
-	
-	override bool OnChange(Widget w, int x, int y, bool finished)
+
+	override float GetUpdateTickRate()
 	{
-		if (w == player_list_filter_editbox)
-		{
-			if (GetPlayerPartyData().CanInvite())
-			{
-				LoadPlayers(player_list_filter_editbox.GetText());
-				return true;
-			}
-		}
-		
-		return false;
+		return 1.0;
+	}
+
+	override void Update()
+	{
+		super.Update();
+
+		if (!IsVisible())
+			return;
+
+		if (m_Party && GetPlayerPartyData().CanInvite())
+			LoadPlayers(player_list_filter_editbox.GetText());
+		else
+			ClearPlayers();
 	}
 	
 	override void Refresh()
 	{
-		if (!m_PartyModule.HasParty())
+		EXTrace.Start(EXTrace.GROUPS, this);
+
+		SetParty();
+
+		if (!m_Party)
 		{
-			m_Party = NULL;
 			Hide();
 		}
 		else
 		{
-			GetParty();
 			SetView();
-			
 			LoadMembers();
-			
-			if (GetPlayerPartyData().CanInvite())
-				LoadPlayers("");
 		}
 	}
 };
 
 class ExpansionBookMenuTabPartyController: ExpansionViewController 
 {
+	//! TODO: These two collections should really be dictionaries mapping UID to entry
 	ref ObservableCollection<ref ExpansionBookMenuTabPartyMemberEntry> PartyMemberEntrys = new ObservableCollection<ref ExpansionBookMenuTabPartyMemberEntry>(this);
 	ref ObservableCollection<ref ExpansionBookMenuTabPartyPlayerEntry> PartyPlayerEntrys  = new ObservableCollection<ref ExpansionBookMenuTabPartyPlayerEntry>(this);
 	string PartyName;

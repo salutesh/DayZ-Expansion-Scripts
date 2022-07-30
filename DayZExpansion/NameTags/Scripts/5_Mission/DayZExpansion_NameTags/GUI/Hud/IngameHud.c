@@ -16,6 +16,8 @@ modded class IngameHud
 	//! Player Tag
 	protected ImageWidget m_PlayerTagIcon;
 	protected string m_PlayerTagIconPath;
+	protected int m_PlayerTagIconColor;
+	protected int m_PlayerNameIconColor;
 	
 	override void Update( float timeslice )
 	{
@@ -36,8 +38,8 @@ modded class IngameHud
 		if (!GetGame().GetPlayer())
 			return;
 
-		bool safeZone = GetExpansionSettings().GetNameTags().ShowPlayerTagsInSafeZones;
-		bool territory = GetExpansionSettings().GetNameTags().ShowPlayerTagsInTerritories;
+		bool safeZone = GetExpansionSettings().GetNameTags().OnlyInSafeZones;
+		bool territory = GetExpansionSettings().GetNameTags().OnlyInTerritories;
 		float viewrange = GetExpansionSettings().GetNameTags().PlayerTagViewRange;
 		vector head_pos = GetGame().GetCurrentCameraPosition();
 		float distance;
@@ -104,6 +106,8 @@ modded class IngameHud
 				m_PlayerTagIcon = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIcon"));
 				if (!m_PlayerTagIconPath)
 					Expansion_SetPlayerTagIconPath();
+				m_PlayerTagIcon.SetColor(m_PlayerTagIconColor);
+				m_PlayerTagText.SetColor(m_PlayerNameIconColor);
 				m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
 				m_PlayerTagIcon.SetImage(0);
 			}
@@ -162,5 +166,9 @@ modded class IngameHud
 		{
 			m_PlayerTagIconPath = "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds";
 		}
+		
+		m_PlayerTagIconColor = GetExpansionSettings().GetNameTags().PlayerTagsColor;
+		m_PlayerNameIconColor = GetExpansionSettings().GetNameTags().PlayerNameColor;
+		
 	}
 };

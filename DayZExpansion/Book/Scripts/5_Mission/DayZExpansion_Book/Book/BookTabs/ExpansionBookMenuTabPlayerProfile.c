@@ -64,7 +64,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	
 	void SetStats(ExpansionSyncedPlayerStats stats)
 	{
-		if (!stats || stats.m_PlainID != string.Empty)
+		if (!stats || stats.m_PlainID != string.Empty || !stats.m_HasBaseStats || !stats.m_HasRegisteredStats)
 			return;
 		
 		stats.Acquire(PlayerBase.Cast(GetGame().GetPlayer()));

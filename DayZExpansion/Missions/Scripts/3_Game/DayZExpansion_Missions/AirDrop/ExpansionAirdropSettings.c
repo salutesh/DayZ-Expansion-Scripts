@@ -953,7 +953,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 			new ExpansionAirdropLoot( "Saiga", saiga_1, 0.22, -1, saigaVariants ),
 
-			new ExpansionAirdropLoot( "Expansion_M79", NULL , 0.1 ),
+			new ExpansionAirdropLoot( "M79", NULL , 0.1 ),
 
 			new ExpansionAirdropLoot( "ExpansionRPG7", NULL , 0.1 ),
 			new ExpansionAirdropLoot( "ExpansionLAW", NULL , 0.1 ),

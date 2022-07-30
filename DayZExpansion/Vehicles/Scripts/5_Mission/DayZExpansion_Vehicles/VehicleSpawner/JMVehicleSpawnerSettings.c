@@ -50,7 +50,7 @@ modded class JMVehicleSpawnerSettings
 		//DefaultExpansion250N();
 		//DefaultExpansionOldBike();
 
-		//#ifdef EXPANSION_COT_VEHICLE_JACOB
+#ifdef DIAG
 		DefaultVehicle_ExpansionMerlin();
 		DefaultVehicle_ExpansionMh6();
 		DefaultVehicle_ExpansionUh1h();
@@ -85,7 +85,7 @@ modded class JMVehicleSpawnerSettings
 		//DefaultVehicle_Truck_01_Chassis();
 		//DefaultVehicle_Truck_01_Cargo();
 		//DefaultVehicle_Truck_01_Command();
-		//#endif
+#endif
 	}
 
 	void DefaultVehicle_ExpansionMerlin()

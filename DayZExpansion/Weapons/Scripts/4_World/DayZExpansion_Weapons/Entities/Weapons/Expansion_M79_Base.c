@@ -10,12 +10,4 @@
  *
 */
 
-class Expansion_M79_Base: RifleSingleShot_Base
-{
-	override RecoilBase SpawnRecoilObject()
-	{
-		return new Izh18Recoil(this);
-	}
-};
-
-class Expansion_M79: Expansion_M79_Base {};
+class Expansion_M79: M79 {};

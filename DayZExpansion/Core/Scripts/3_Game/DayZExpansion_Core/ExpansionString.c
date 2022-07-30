@@ -97,7 +97,7 @@ class ExpansionString
 		string output = "";
 		for (int i = 0; i < strings.Count(); i++)
 		{
-			if (output)
+			if (glue && output)
 				output += glue;
 			output += strings[i];
 		}

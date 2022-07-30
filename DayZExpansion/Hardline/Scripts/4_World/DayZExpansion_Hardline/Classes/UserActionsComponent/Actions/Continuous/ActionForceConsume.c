@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionHardlineActionData : ActionData
+/*class ExpansionHardlineActionData : ActionData
 {
 	int m_QuantityOnActionStart = 0;
 	int m_LiquidType;
@@ -103,4 +103,4 @@ modded class ActionForceConsume
 			}
 		}
 	}
-};
+};*/

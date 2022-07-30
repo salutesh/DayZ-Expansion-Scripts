@@ -13,12 +13,12 @@
 #ifdef EXPANSIONMODGROUPS
 class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 {
-	ExpansionBookMenuTabPartyMemberEditController m_MemberEditController;
-	ExpansionPartyPlayerData m_Member;
-	ExpansionPartyPlayerData m_Player;
-	ExpansionPartyData m_Party;
-	ExpansionBookMenuTabParty m_PartyTab;
-	ExpansionPartyModule m_PartyModule;
+	ref ExpansionBookMenuTabPartyMemberEditController m_MemberEditController;
+	ref ExpansionPartyPlayerData m_Member;
+	ref ExpansionPartyPlayerData m_Player;
+	ref ExpansionPartyData m_Party;
+	ref ExpansionBookMenuTabParty m_PartyTab;
+	ref ExpansionPartyModule m_PartyModule;
 	
 	private ImageWidget member_status_icon;
 	private PlayerPreviewWidget book_member_preview;
@@ -53,8 +53,6 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 	
 	protected bool m_MouseButtonIsDown;
 	
-	int m_Permissions;
-	
 	void ExpansionBookMenuTabPartyMemberEdit(ExpansionBookMenu book_menu)
 	{
 		m_BookMenu = book_menu;
@@ -62,13 +60,16 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		if (!m_MemberEditController)
 			m_MemberEditController = ExpansionBookMenuTabPartyMemberEditController.Cast(GetController());
 		
-		if (!m_PartyTab)
-			m_PartyTab = ExpansionBookMenuTabParty.Cast(GetParentTab());
-		
 		if (!m_PartyModule)
 			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 	}
 	
+	override void SetParentTab(ExpansionBookMenuTabBase tab)
+	{
+		super.SetParentTab(tab);
+		m_PartyTab = ExpansionBookMenuTabParty.Cast(tab);
+	}
+
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Book/GUI/layouts/tabs/party/expansion_book_tab_party_member_edit.layout";
@@ -102,7 +103,10 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 	void SetTab()
 	{
 		if (!GetMemberPartyData())
+		{
+			HideAllAdminControls();
 			return;
+		}
 	
 		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::SetTab - Member Can Edit: " + GetMemberPartyData().CanEdit());
@@ -114,9 +118,6 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		EXLogPrint("ExpansionBookMenuTabPartyMemberEdit::SetTab - Member Permissions: " + GetMemberPartyData().GetPermissions().ToString());
 		#endif
 		#endif
-		
-		if (!m_MemberEditController)
-			m_MemberEditController = ExpansionBookMenuTabPartyMemberEditController.Cast(GetController());
 		
 		#ifdef EXPANSIONMODGROUPS_DEBUG
 		EXLogPrint("ExpansionBookMenuTabTerritoryMemberEdit::SetTab - Member: " + GetMemberPartyData());
@@ -142,38 +143,44 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 		//! If editing member is owner of the party or if the player using the menu dont has edit permissions the hide the permisson checkboxes
 		if (!GetPlayerPartyData().CanEdit() || GetMemberPartyData().GetID() == m_Party.GetOwnerUID())
 		{
-			option_kick_button.Show(false);
-			member_perm_edit_spacer.Show(false);
-			member_perm_kick_spacer.Show(false);
-			member_perm_delete_spacer.Show(false);
-			member_perm_invite_spacer.Show(false);
-			option_save_button.Show(false);
-			option_save_label.Show(false);
-			//! No need to hide the withdraw elements as its hidden in the layout by default
+			HideAllAdminControls();
 		}
-		else if (GetPlayerPartyData().CanEdit()) //! If player has the right to edit members then display the permisson checkboxes
+		else //! If player has the right to edit members then display the permisson checkboxes
 		{
+			option_kick_button.Show(true);
+			option_save_button.Show(true);
+			option_save_label.Show(true);
+
+			member_perm_edit_spacer.Show(true);
 			member_perm_edit_checkbox.SetChecked(GetMemberPartyData().CanEdit());
+			member_perm_kick_spacer.Show(true);
 			member_perm_kick_checkbox.SetChecked(GetMemberPartyData().CanKick());
+			member_perm_delete_spacer.Show(true);
 			member_perm_delete_checkbox.SetChecked(GetMemberPartyData().CanDelete());
+			member_perm_invite_spacer.Show(true);
 			member_perm_invite_checkbox.SetChecked(GetMemberPartyData().CanInvite());
 		#ifdef EXPANSIONMODMARKET
 			member_perm_withdraw_spacer.Show(true); //! Show withdraw elements when market mod is loaded
 			member_perm_withdraw_checkbox.SetChecked(GetMemberPartyData().CanWithdrawMoney());
 		#endif
-		
-			if (m_Party.GetOwnerUID() == GetMemberPartyData().GetID())
-			{
-				option_kick_button.Show(false);
-			}
-			else
-			{
-				option_save_button.Show(true);
-				option_save_label.Show(true);
-			}
 		}
 	}
 	
+	void HideAllAdminControls()
+	{
+		option_kick_button.Show(false);
+		option_save_button.Show(false);
+		option_save_label.Show(false);
+
+		member_perm_edit_spacer.Show(false);
+		member_perm_kick_spacer.Show(false);
+		member_perm_delete_spacer.Show(false);
+		member_perm_invite_spacer.Show(false);
+	#ifdef EXPANSIONMODMARKET
+		member_perm_withdraw_spacer.Show(false);
+	#endif
+	}
+
 	void SetMemberPreview(string id)
 	{
 		DayZPlayer player = PlayerBase.GetPlayerByUID(id);
@@ -187,13 +194,14 @@ class ExpansionBookMenuTabPartyMemberEdit: ExpansionBookMenuTabBase
 	void OnKickButtonClick()
 	{
 		m_PartyModule.RemovePartyMember(GetMemberPartyData().GetID());
+		Hide();
+		m_PartyTab.Show();
 	}
 	
 	void OnCancelButtonClick()
 	{
-		ExpansionBookMenuTabBase tab = GetParentTab();
 		Hide();
-		tab.Show();
+		m_PartyTab.Show();
 	}
 	
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)

@@ -153,9 +153,10 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	void SetupExpansionPartyData( PlayerBase pPb, string partyName )
 	{
+		PartyName = partyName;
+
 	   	ExpansionPartyPlayerData player = AddPlayer( pPb, true );
 
-		PartyName = partyName;
 		OwnerUID = player.UID;
 		OwnerName = player.Name;
 	}
@@ -165,12 +166,8 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	ExpansionPartyPlayerData AddPlayer( PlayerBase pPb, bool owner = false )
 	{
-		string uid = pPb.GetIdentityUID();
-		string name = pPb.GetIdentityName();
-
 		ExpansionPartyPlayerData player = new ExpansionPartyPlayerData(this);
-		player.UID = uid;
-		player.Name = name;
+		player.UID = pPb.GetIdentityUID();
 		player.OnJoin( pPb );
 		OnJoin( player );
 	#ifdef EXPANSIONMODNAVIGATION
@@ -534,7 +531,6 @@ class ExpansionPartyData
 		ctx.Write( PartyID );
 		ctx.Write( PartyName );
 		ctx.Write( OwnerUID );
-		ctx.Write( OwnerName );
 
 		int count = 0;
 		int index = 0;
@@ -623,8 +619,6 @@ class ExpansionPartyData
 			return false;
 		if ( !ctx.Read( OwnerUID ) )
 			return false;
-		if ( !ctx.Read( OwnerName ) )
-			return false;
 
 		string uid = "";
 
@@ -659,6 +653,9 @@ class ExpansionPartyData
 			if ( !ctx.Read( player.Name ) )
 				return false;
 
+			if ( uid == OwnerUID )
+				OwnerName = player.Name;
+
 			if ( !ctx.Read( player.Permissions ) )
 				return false;
 
@@ -674,6 +671,11 @@ class ExpansionPartyData
 
 				if ( !player.Marker.OnRecieve( ctx ) )
 					return false;
+
+				if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowMemberNameMarker)
+					player.Marker.SetName(player.Name);
+				player.Marker.Set3D(true);
+				player.Marker.SetIcon(ExpansionIcons.Get("Persona"));
 			} else
 			{
 				if ( player.Marker )
@@ -691,6 +693,10 @@ class ExpansionPartyData
 
 				if ( !player.QuickMarker.OnRecieve( ctx ) )
 					return false;
+
+				player.QuickMarker.SetName(player.Name);
+				player.QuickMarker.Set3D(true);
+				player.QuickMarker.SetIcon(ExpansionIcons.Get("Map Marker"));
 			} else
 			{
 				if ( player.QuickMarker )

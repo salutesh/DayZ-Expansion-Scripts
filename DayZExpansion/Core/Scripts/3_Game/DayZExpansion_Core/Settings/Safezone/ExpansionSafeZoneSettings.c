@@ -34,13 +34,13 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
+	int ActorsPerTick;
 	bool DisableVehicleDamageInSafeZone;
 	bool EnableForceSZCleanup;
 	float ItemLifetimeInSafeZone;
 	autoptr TStringArray ForceSZCleanup_ExcludedItems = new TStringArray;
-	int ActorsPerTick;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -180,19 +180,17 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 					JsonFileLoader<ExpansionSafeZoneSettingsV0>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, settings_v0);
 
 					DisableVehicleDamageInSafeZone = settings_v0.EnableVehicleinvincibleInsideSafeZone;
+
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
 				}
 				else
 				{
 					JsonFileLoader<ExpansionSafeZoneSettings>.JsonLoadFile(EXPANSION_SAFE_ZONES_SETTINGS, this);
 				}
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
-
 				if (settingsBase.m_Version < 3)
-				{
 					EnableForceSZCleanup = settingsDefault.EnableForceSZCleanup;
-				}
 
 				if (settingsBase.m_Version < 4)
 					ItemLifetimeInSafeZone = settingsDefault.ItemLifetimeInSafeZone;

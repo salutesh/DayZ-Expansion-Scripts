@@ -254,8 +254,8 @@ class ExpansionItemSpawnHelper
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
-	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, TStringArray attachments = NULL, int skinIndex = -1, inout bool attachmentNotAttached = false )
-	{		
+	static Object SpawnVehicle( string className, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, TStringArray attachments = NULL, int skinIndex = -1,  string carKeyName = "", inout bool attachmentNotAttached = false )
+	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnVehicle");
 #endif
@@ -270,9 +270,13 @@ class ExpansionItemSpawnHelper
 		remainingAmount--;
 
 		CarScript vehicle;
+		ItemBase keyb;
 		#ifdef EXPANSIONMODVEHICLE
 		ExpansionVehicleBase exVeh;
-		ExpansionCarKey key;
+		ExpansionCarKey expkey;
+		#endif
+		#ifdef MuchCarKey
+		MCK_CarKey_Base MCKkey;
 		#endif
 		if (Class.CastTo(vehicle, obj))
 		{
@@ -284,18 +288,30 @@ class ExpansionItemSpawnHelper
 			if (skinIndex > -1)
 				vehicle.ExpansionSetSkin(skinIndex);
 
-			#ifdef EXPANSIONMODVEHICLE
-			if (vehicle.CanBeLocked())
+			if (carKeyName != "")
 			{
-				Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
+				Class.CastTo(keyb, SpawnInInventorySecure(carKeyName, player, parent));
 
-				if (key)
+				#ifdef EXPANSIONMODVEHICLE
+				if (Class.CastTo(expkey, keyb) && vehicle.CanBeLocked())
 				{
-					vehicle.PairKeyTo(key);
-					vehicle.LockCar(key);
+					vehicle.PairKeyTo(expkey);
+					vehicle.LockCar(expkey);
 				}
+				#endif
+				#ifdef MuchCarKey
+				if (Class.CastTo(MCKkey, keyb))
+				{
+					int mck_id = MCKkey.GenerateNewID();
+					MCKkey.SetNewMCKId(mck_id);
+					vehicle.m_CarKeyId = mck_id;
+					vehicle.m_HasCKAssigned = true;
+					vehicle.m_IsCKLocked = true;
+					vehicle.SynchronizeValues(); 
+					vehicle.ResetLifetime();
+				}
+				#endif
 			}
-			#endif
 		}
 		#ifdef EXPANSIONMODVEHICLE
 		else if (Class.CastTo(exVeh, obj))
@@ -308,15 +324,27 @@ class ExpansionItemSpawnHelper
 			if (skinIndex > -1)
 				exVeh.ExpansionSetSkin(skinIndex);
 
-			if (exVeh.CanBeLocked())
+			if (carKeyName != "")
 			{
-				Class.CastTo(key, SpawnInInventorySecure("ExpansionCarKey", player, parent));
+				Class.CastTo(keyb, SpawnInInventorySecure(carKeyName, player, parent));
 
-				if (key)
+				if (Class.CastTo(expkey, keyb) && exVeh.CanBeLocked())
 				{
-					exVeh.PairKeyTo(key);
-					exVeh.LockCar(key);
+					exVeh.PairKeyTo(expkey);
+					exVeh.LockCar(expkey);
 				}
+				#ifdef MuchCarKey
+				if (Class.CastTo(MCKkey, keyb))
+				{
+					int mck_id = MCKkey.GenerateNewID();
+					MCKkey.SetNewMCKId(mck_id);
+					exVeh.m_CarKeyId = mck_id;
+					exVeh.m_HasCKAssigned = true;
+					exVeh.m_IsCKLocked = true;
+					exVeh.SynchronizeValues(); 
+					exVeh.ResetLifetime();
+				}
+				#endif
 			}
 		}
 		#endif

@@ -12,10 +12,12 @@
 
 class Expansion_AWM_Base: BoltActionRifle_ExternalMagazine_Base
 {
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{	
-		if (!super.CanDisplayAttachmentSlot(slot_name))
-			return false;   
+		if (!super.CanDisplayAttachmentSlot(slot_id))
+			return false;
+
+		string slot_name = InventorySlots.GetSlotName(slot_id);   
 		
 		if ( slot_name == "sniperOptics" )
 		{

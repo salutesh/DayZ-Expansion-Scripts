@@ -14,18 +14,19 @@
 class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 {
 	ref ExpansionBookMenuTabPartyMemberEntryController m_EntryController;
-	ExpansionBookMenuTabParty m_PartyTab;
-	ExpansionPartyPlayerData m_Member;
-	ExpansionPartyModule m_PartyModule;
+	ref ExpansionBookMenuTabParty m_PartyTab;
+	ref ExpansionPartyPlayerData m_Member;
+	ref ExpansionPartyModule m_PartyModule;
 
 	private TextWidget member_entry_label;
 	private ImageWidget member_entry_icon;
 	private ButtonWidget member_entry_button;
 	
+	bool m_MouseHover;
+
 	void ExpansionBookMenuTabPartyMemberEntry(ExpansionBookMenuTabParty tab, ExpansionPartyPlayerData member)
 	{
 		m_PartyTab = tab;
-		m_Member = member;
 		
 		if (!m_EntryController)
 			m_EntryController = ExpansionBookMenuTabPartyMemberEntryController.Cast(GetController());
@@ -33,14 +34,30 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 		if (!m_PartyModule)
 			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 
-		SetEntry();
+		SetEntry(member);
 	}
 	
-	void SetEntry()
+	void SetEntry(ExpansionPartyPlayerData member, bool setBackground = true)
 	{
+		m_Member = member;
+
 		m_EntryController.MemberName = m_Member.Name;
 		m_EntryController.NotifyPropertyChanged("MemberName");
 		
+		UpdateOnlineState();
+		
+		if (!setBackground)
+			return;
+
+		m_EntryController.Background = GetRandomElementBackground();
+		m_EntryController.NotifyPropertyChanged("Background");
+	}
+	
+	void UpdateOnlineState()
+	{
+		if (m_MouseHover)
+			return;
+
 		if (PlayerBase.Expansion_IsOnline(m_Member.UID))
 		{
 			member_entry_icon.SetColor(ARGB(255, 22, 160, 133));
@@ -49,11 +66,8 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 		{
 			member_entry_icon.SetColor(ARGB(255, 192, 57, 43));
 		}
-		
-		m_EntryController.Background = GetRandomElementBackground();
-		m_EntryController.NotifyPropertyChanged("Background");
 	}
-	
+
 	string GetRandomElementBackground()
 	{
 		TStringArray backgrounds = new TStringArray;
@@ -110,6 +124,7 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 	{
 		if (w == member_entry_button)
 		{
+			m_MouseHover = true;
 			member_entry_label.SetColor(ARGB(255, 220, 220, 220));
 			member_entry_icon.SetColor(ARGB(255, 220, 220, 220));
 		}
@@ -121,16 +136,10 @@ class ExpansionBookMenuTabPartyMemberEntry: ExpansionScriptView
 	{
 		if (w == member_entry_button)
 		{
+			m_MouseHover = false;
 			member_entry_label.SetColor(ARGB(255, 0, 0, 0));
 			
-			if (PlayerBase.Expansion_IsOnline(m_Member.UID))
-			{
-				member_entry_icon.SetColor(ARGB(255, 22, 160, 133));
-			} 
-			else 
-			{
-				member_entry_icon.SetColor(ARGB(255, 192, 57, 43));
-			}
+			UpdateOnlineState();
 		}
 		
 		return super.OnMouseLeave(w, enterW, x, y);

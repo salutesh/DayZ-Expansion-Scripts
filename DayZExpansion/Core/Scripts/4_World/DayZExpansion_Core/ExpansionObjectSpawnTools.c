@@ -298,6 +298,7 @@ class ExpansionObjectSpawnTools
 						EXTrace.Print(EXTrace.AI, ai, "Setting faction " + faction.ToString());
 						eAIGroup group = eAIGroup.GetGroupByLeader(ai);
 						group.SetFaction(faction);
+						ai.eAI_SetPassive(false);
 					}
 				}
 				continue;

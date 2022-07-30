@@ -17,28 +17,28 @@ class CfgSlots
 		name = "Att_ExpansionCodeLock";
 		displayName = "$STR_EXPANSION_BB_CODE_LOCK";
 		selection = "att_codelocklock";
-		expansionghostIcon = "set:expansion_inventory image:codelock";
+		ghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionCodeLock_1
 	{
 		name = "Att_ExpansionCodeLock_1";
 		displayName = "$STR_EXPANSION_BB_CODE_LOCK";
 		selection = "att_codelocklock";
-		expansionghostIcon = "set:expansion_inventory image:codelock";
+		ghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionCodeLock_2
 	{
 		name = "Att_ExpansionCodeLock_2";
 		displayName = "$STR_EXPANSION_BB_CODE_LOCK";
 		selection = "att_codelocklock";
-		expansionghostIcon = "set:expansion_inventory image:codelock";
+		ghostIcon = "set:expansion_inventory image:codelock";
 	};
 	class Slot_Att_ExpansionLumber
 	{
 		name = "Att_ExpansionLumber";
 		displayName = "$STR_EXPANSION_LUMBER_LARGE";
 		selection = "att_lumber";
-		expansionGhostIcon = "set:expansion_inventory image:lumber_3";
+		ghostIcon = "set:expansion_inventory image:lumber_3";
 		stackMax = 10;
 	};
 	class Slot_Att_ExpansionLumberHalf
@@ -46,7 +46,7 @@ class CfgSlots
 		name = "Att_ExpansionLumberHalf";
 		displayName = "$STR_EXPANSION_LUMBER_BIG";
 		selection = "att_lumber";
-		expansionGhostIcon = "set:expansion_inventory image:lumber_15";
+		ghostIcon = "set:expansion_inventory image:lumber_15";
 		stackMax = 10;
 	};
 	class Slot_Att_ExpansionLumberThird
@@ -54,7 +54,7 @@ class CfgSlots
 		name = "Att_ExpansionLumberThird";
 		displayName = "$STR_EXPANSION_LUMBER_MEDIUM";
 		selection = "att_lumber";
-		expansionGhostIcon = "set:expansion_inventory image:lumber_1";
+		ghostIcon = "set:expansion_inventory image:lumber_1";
 		stackMax = 10;
 	};
 	class Slot_Att_ExpansionLumberFourth
@@ -62,7 +62,7 @@ class CfgSlots
 		name = "Att_ExpansionLumberFourth";
 		displayName = "$STR_EXPANSION_LUMBER_SMALL";
 		selection = "att_lumber";
-		expansionGhostIcon = "set:expansion_inventory image:lumber_05";
+		ghostIcon = "set:expansion_inventory image:lumber_05";
 		stackMax = 10;
 	};
 };

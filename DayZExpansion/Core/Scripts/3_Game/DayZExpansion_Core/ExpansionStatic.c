@@ -1051,6 +1051,44 @@ class ExpansionStatic
 		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
 	}
 
+	static string VectorToString(vector vec, bool beautify = true, int precision = 2)
+	{
+		float m = Math.Pow(10, precision);
+		TStringArray output();
+
+		for (int i = 0; i < 3; i++)
+			output.Insert((Math.Round(vec[i] * m) / m).ToString());
+
+		if (beautify)
+			return "<" + ExpansionString.JoinStrings(output, ", ") + ">";
+		else
+			return ExpansionString.JoinStrings(output, " ");
+	}
+
+	static void LockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)
+	{
+		int attcount = entity.GetInventory().AttachmentCount();
+		for (int att = 0; att < attcount; att++)
+		{ 
+			EntityAI attachmentEntity = entity.GetInventory().GetAttachmentFromIndex(att);
+			if (attachmentEntity)
+				LockInventoryRecursive(attachmentEntity, lockType);
+		}
+		entity.GetInventory().LockInventory(lockType);
+	}
+
+	static void UnlockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)
+	{
+		int attcount = entity.GetInventory().AttachmentCount();
+		for (int att = 0; att < attcount; att++)
+		{ 
+			EntityAI attachmentEntity = entity.GetInventory().GetAttachmentFromIndex(att);
+			if (attachmentEntity)
+				UnlockInventoryRecursive(attachmentEntity, lockType);
+		}
+		entity.GetInventory().UnlockInventory(lockType);
+	}
+
 	//! Only kept for compatibility with old mods, remove after next update
 	void LoadFlagTextures()
 	{

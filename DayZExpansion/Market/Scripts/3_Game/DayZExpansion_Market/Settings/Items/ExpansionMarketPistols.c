@@ -36,7 +36,6 @@ class ExpansionMarketPistols: ExpansionMarketCategory
 
 	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Expansion_M9", 			175,	350,	1,		100,	{"Mag_Expansion_M9_15Rnd"});
-		//AddItem("Expansion_Longhorn",		200,	400,	1,		100);
 	#endif
 	}
 };

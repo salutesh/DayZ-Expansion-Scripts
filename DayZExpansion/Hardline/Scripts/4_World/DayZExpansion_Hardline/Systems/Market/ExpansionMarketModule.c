@@ -26,8 +26,8 @@ modded class ExpansionMarketModule
 			int required;
 			if (rarity && !HasRankForRarity(player, rarity, required))
 			{
-				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
-				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to buy!", required.ToString());
+				StringLocaliser rankTitle = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
+				StringLocaliser rankText = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW_BUY_DESC", required.ToString());
 				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 				return;
 			}
@@ -49,8 +49,8 @@ modded class ExpansionMarketModule
 			int required;
 			if (rarity && !HasRankForRarity(player, rarity, required))
 			{
-				StringLocaliser rankTitle = new StringLocaliser("Rank to low!");
-				StringLocaliser rankText = new StringLocaliser("This item requires %1 humanity to sell!", required.ToString());
+				StringLocaliser rankTitle = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
+				StringLocaliser rankText = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW_SELL_DESC", required.ToString());
 				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 				return;
 			}

@@ -170,6 +170,14 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 					Objectives.Insert(actionConfig);
 			}
 			break;
+			
+			case ExpansionQuestObjectiveType.CRAFTING:
+			{
+				ExpansionQuestObjectiveCraftingConfig craftingConfig;
+				if (Class.CastTo(craftingConfig, config))
+					Objectives.Insert(craftingConfig);
+			}
+			break;
 
 		#ifdef EXPANSIONMODAI
 			case ExpansionQuestObjectiveType.AIPATROL:
@@ -569,6 +577,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				actionConfig.OnSend(ctx);
 				QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - SUCCESS");
 			}
+			else if (objectiveType == ExpansionQuestObjectiveType.CRAFTING)
+			{
+				QuestPrint("ExpansionQuestConfig::OnSend - CRAFTING");
+				ExpansionQuestObjectiveCraftingConfig craftingConfig = questModule.GetCraftingObjectiveConfigByID(objectiveID);
+				craftingConfig.OnSend(ctx);
+				QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - SUCCESS");
+			}
 		#ifdef EXPANSIONMODAI
 			else if (objectiveType == ExpansionQuestObjectiveType.AIPATROL)
 			{
@@ -768,6 +783,18 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 
 				Objectives.Insert(actionConfig);
+			}
+			else if (objectiveType == ExpansionQuestObjectiveType.CRAFTING)
+			{
+				QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING");
+				ExpansionQuestObjectiveCraftingConfig craftingConfig = new ExpansionQuestObjectiveCraftingConfig();
+				if (!craftingConfig.OnRecieve(ctx))
+				{
+					Error("ExpansionQuestConfig::OnRecieve - CRAFTING");
+					return false;
+				}
+
+				Objectives.Insert(craftingConfig);
 			}
 		#ifdef EXPANSIONMODAI
 			else if (objectiveType == ExpansionQuestObjectiveType.AIPATROL)

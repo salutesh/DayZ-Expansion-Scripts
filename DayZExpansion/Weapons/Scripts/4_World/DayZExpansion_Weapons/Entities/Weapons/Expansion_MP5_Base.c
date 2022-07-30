@@ -56,10 +56,12 @@ class Expansion_MP5_Base: RifleBoltLock_Base
 		return super.CanReleaseAttachment(attachment);
 	}
 
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot( int slot_id )
 	{	
-		if (!super.CanDisplayAttachmentSlot(slot_name))
+		if (!super.CanDisplayAttachmentSlot(slot_id))
 			return false;   
+
+		string slot_name = InventorySlots.GetSlotName(slot_id);
 		
 		if ( slot_name == "weaponOptics" )
 		{
@@ -72,10 +74,12 @@ class Expansion_MP5_Base: RifleBoltLock_Base
 
 class Expansion_MP5: Expansion_MP5_Base
 {
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{	
-		if (!super.CanDisplayAttachmentSlot(slot_name))
+		if (!super.CanDisplayAttachmentSlot(slot_id))
 			return false;
+
+		string slot_name = InventorySlots.GetSlotName(slot_id);
 		
 		if ( slot_name == "pistolMuzzle" )
 		{

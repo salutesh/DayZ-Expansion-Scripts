@@ -16,4 +16,38 @@ class ExpansionWorld: ExpansionGame
 	{
 		ExpansionAttachmentHelper.Init();
 	}
+
+	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
+	{
+#ifdef DIAG
+		string msg;
+		msg += "" + directHit + " ";
+		msg += "" + componentIndex + " ";
+		msg += "" + surface + " ";
+		msg += "" + pos + " ";
+		msg += "" + surfNormal + " ";
+		msg += "" + exitPos + " ";
+		msg += "" + inSpeed + " ";
+		msg += "" + outSpeed + " ";
+		msg += "" + isWater + " ";
+		msg += "" + deflected + " ";
+		msg += "" + ammoType;
+		EXTrace.Print(EXTrace.WEAPONS, source, msg);
+#endif
+
+		if (GetGame().IsServer())
+		{
+			if (source && source.ShootsExplosiveAmmo() && !deflected && outSpeed == vector.Zero)
+			{
+				if (GetExpansionSettings().GetDamageSystem().Enabled)
+				{
+					string explosionAmmoType = GetExpansionSettings().GetDamageSystem().ExplosiveProjectiles[ammoType];
+					if (explosionAmmoType)
+						ExpansionDamageSystem.OnBeforeExplode(EntityAI.Cast(source), DT_EXPLOSION, explosionAmmoType, pos);
+				}
+			}
+		}
+
+		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
+	}
 };

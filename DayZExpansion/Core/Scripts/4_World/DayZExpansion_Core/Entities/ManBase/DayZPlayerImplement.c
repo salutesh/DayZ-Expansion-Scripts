@@ -70,31 +70,8 @@ modded class DayZPlayerImplement
 		super.EEKilled(killer);
 
 		if (!m_Expansion_CanBeLooted)
-			Expansion_LockInventory();
-	}
-
-	void Expansion_LockInventory()
-	{
-		int attcount = GetInventory().AttachmentCount();
-		for (int att = 0; att < attcount; att++)
-		{ 
-			EntityAI attachmentEntity = GetInventory().GetAttachmentFromIndex(att);
-			if (attachmentEntity)
-				attachmentEntity.GetInventory().LockInventory(10134);
-		}
-		GetInventory().LockInventory(10134);
-	}
-
-	void Expansion_UnlockInventory()
-	{
-		int attcount = GetInventory().AttachmentCount();
-		for (int att = 0; att < attcount; att++)
-		{ 
-			EntityAI attachmentEntity = GetInventory().GetAttachmentFromIndex(att);
-			if (attachmentEntity)
-				attachmentEntity.GetInventory().UnlockInventory(10134);
-		}
-		GetInventory().UnlockInventory(10134);
+			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
+			ExpansionStatic.LockInventoryRecursive(this, 10134);
 	}
 
 	override bool CanBeSkinned()
@@ -119,5 +96,28 @@ modded class DayZPlayerImplement
 
 		if (m_Expansion_NetsyncData)
 			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
+	}
+
+	vector Expansion_GetHeadingVector()
+	{
+		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
+	}
+
+	float Expansion_GetMovementSpeed()
+	{
+		HumanCommandMove hcm = GetCommand_Move();
+		if (hcm)
+			return hcm.GetCurrentMovementSpeed();
+
+		return 0.0;
+	}
+
+	float Expansion_GetMovementAngle()
+	{
+		HumanCommandMove hcm = GetCommand_Move();
+		if (hcm)
+			return hcm.GetCurrentMovementAngle();
+
+		return 0.0;
 	}
 };

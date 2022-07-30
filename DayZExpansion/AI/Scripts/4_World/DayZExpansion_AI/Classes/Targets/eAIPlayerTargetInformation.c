@@ -71,12 +71,12 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			//! and prioritizes enemies with raised weapons
 			auto hands = ai.GetHumanInventory().GetEntityInHands();
 			bool hasLOS = ai.eAI_HasLOS();
-			if ((hands && AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor, hasLOS)) || distance <= 30)
+			if ((hands && AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor, hasLOS)) || distance <= 30 || hasLOS)
 			{
 				if (enemyHands)
 				{
 					//! Enemy weapon is raised or enemy is close
-					if (m_Player.IsRaised() || distance <= 30)
+					if (m_Player.IsRaised() || distance <= 30 || hasLOS)
 					{
 						AdjustThreatLevelBasedOnWeapon(enemyHands, distance, levelFactor, hasLOS);
 

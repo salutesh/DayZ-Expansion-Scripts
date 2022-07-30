@@ -25,6 +25,12 @@ modded class ExpansionActionOpenTraderMenu
 		
 		if (m_TraderObject.GetTraderMarket().DisplayName == "BanditTrader" && !player.IsBandit())
 			return false;
+		
+		if ( GetGame().IsServer() )
+		{
+			if (m_TraderObject.GetTraderMarket().MinRequiredHumanity > player.GetHumanity() || m_TraderObject.GetTraderMarket().MaxRequiredHumanity < player.GetHumanity())
+				return false;
+		}
 
 		return true;
 	}

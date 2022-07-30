@@ -157,40 +157,40 @@ class ExpansionHardlinePlayerData
 		switch (Rank)
 		{
 			case ExpansionPlayerRank.BAMBI:
-				rankName = "Bambi";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_BAMBI";
 				break;
 			case ExpansionPlayerRank.SURVIVOR:
-				rankName = "Survivor";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_SURVIVOR";
 				break;
 			case ExpansionPlayerRank.SCOUT:
-				rankName = "Scout";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_SCOUT";
 				break;
 			case ExpansionPlayerRank.PATHFINDER:
-				rankName = "Pathfinder";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_PATHFINDER";
 				break;
 			case ExpansionPlayerRank.HERO:
-				rankName = "Hero";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_HERO";
 				break;
 			case ExpansionPlayerRank.SUPERHERO:
-				rankName = "Superhero";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_SUPERHERO";
 				break;
 			case ExpansionPlayerRank.LEGEND:
-				rankName = "Legend";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_LEGEND";
 				break;
 			case ExpansionPlayerRank.KLEPTOMANIAC:
-				rankName = "Kleptomaniac";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_KLEPTOMANIAC";
 				break;
 			case ExpansionPlayerRank.BULLY:
-				rankName = "Bully";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_BULLY";
 				break;
 			case ExpansionPlayerRank.BANDIT:
-				rankName = "Bandit";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_BANDIT";
 				break;
 			case ExpansionPlayerRank.KILLER:
-				rankName = "Killer";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_KILLER";
 				break;
 			case ExpansionPlayerRank.MADMAN:
-				rankName = "Madman";
+				rankName = "#STR_EXPANSION_HARDLINE_RANK_MADMAN";
 				break;
 		}
 		return rankName;

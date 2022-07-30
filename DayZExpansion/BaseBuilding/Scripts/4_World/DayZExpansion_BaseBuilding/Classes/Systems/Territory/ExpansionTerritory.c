@@ -168,17 +168,7 @@ class ExpansionTerritory
 
 		if (!invite) return false;
 		
-		int idx = -1;
-		for (int i = 0; i < Invites.Count(); ++i)
-		{
-			if (Invites[i] && Invites[i].UID == invite.UID)
-			{
-				idx = i;
-				break;
-			}
-		}
-		
-		if (idx > -1)
+		if (HasInvite(invite.UID))
 		{
 			return false;
 		}
@@ -269,6 +259,16 @@ class ExpansionTerritory
 	array<ref ExpansionTerritoryMember> GetTerritoryMembers()
 	{
 		return TerritoryMembers;
+	}
+
+	TStringArray GetTerritoryMemberIDs()
+	{
+		TStringArray ids();
+		foreach (auto member: TerritoryMembers)
+		{
+			ids.Insert(member.GetID());
+		}
+		return ids;
 	}
 	
 	// ------------------------------------------------------------

@@ -232,7 +232,15 @@ class ExpansionVehicleBase extends ItemBase
 
 	void ExpansionVehicleBase()
 	{
-		Print("[" + this + "] ExpansionVehicleBase WAS SPAWNED - NOT READY FOR PRODUCTION");
+#ifndef DIAG
+		if (GetGame().IsServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Delete);
+
+		if (!GetGame().IsDedicatedServer())
+			ExpansionNotification("ERROR", GetType() + " IS NOT READY FOR PRODUCTION! Use " + GetType().Substring(8, GetType().Length() - 8) + " instead.").Error();
+	
+		Print(GetType() + " IS NOT READY FOR PRODUCTION! Use " + GetType().Substring(8, GetType().Length() - 8) + " instead");
+#endif
 
 		SetFlags(EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false);
 		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE);

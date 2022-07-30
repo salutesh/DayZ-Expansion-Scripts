@@ -112,6 +112,7 @@ static const string EXPANSION_LOG_SETTINGS = EXPANSION_SETTINGS_FOLDER + "LogsSe
 static const string EXPANSION_SOCIALMEDIA_SETTINGS = EXPANSION_SETTINGS_FOLDER + "SocialMediaSettings.json";
 static const string EXPANSION_CHAT_SETTINGS = EXPANSION_SETTINGS_FOLDER + "ChatSettings.json";
 static const string EXPANSION_MONITORING_SETTINGS = EXPANSION_SETTINGS_FOLDER + "MonitoringSettings.json";
+static const string EXPANSION_DAMAGESYSTEM_SETTINGS = EXPANSION_SETTINGS_FOLDER + "DamageSystemSettings.json";
 
 static const string EXPANSION_TEMP_INTERIORS = EXPANSION_FOLDER + "TempInteriors.bin";
 

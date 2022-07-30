@@ -49,56 +49,56 @@ modded class InspectMenuNew
 				case ExpansionHardlineItemRarity.MYTHIC:
 				{
 					color = EXPASNION_ITEM_COLOR_MYTHIC;
-					text = "Mythic";
+					text = "#STR_EXPANSION_HARDLINE_MYTHIC";
 				}
 				break;
 				
 				case ExpansionHardlineItemRarity.EXOTIC:
 				{
 					color = EXPASNION_ITEM_COLOR_EXOTIC;
-					text = "Exotic";
+					text = "#STR_EXPANSION_HARDLINE_EXOTIC";
 				}
 				break;
 				
 				case ExpansionHardlineItemRarity.LEGENDARY:
 				{
 					color = EXPASNION_ITEM_COLOR_LEGENDARY;
-					text = "Legendary";
+					text = "#STR_EXPANSION_HARDLINE_LEGENDARY";
 				}
 				break;
 				
 				case ExpansionHardlineItemRarity.EPIC:
 				{
 					color = EXPASNION_ITEM_COLOR_EPIC;
-					text = "Epic";
+					text = "#STR_EXPANSION_HARDLINE_EPIC";
 				}
 				break;
 
 				case ExpansionHardlineItemRarity.RARE:
 				{
 					color = EXPASNION_ITEM_COLOR_RARE;
-					text = "Rare";
+					text = "#STR_EXPANSION_HARDLINE_RARE";
 				}
 				break;
 				
 				case ExpansionHardlineItemRarity.UNCOMMON:
 				{
 					color = EXPASNION_ITEM_COLOR_UNCOMMON;
-					text = "Uncommon";
+					text = "#STR_EXPANSION_HARDLINE_UNCOMMON";
 				}
 				break;
 				
 				case ExpansionHardlineItemRarity.COMMON:
 				{
 					color = EXPASNION_ITEM_COLOR_COMMON;
-					text = "Common";
+					text = "#STR_EXPANSION_HARDLINE_COMMON";
 				}
 				break;
 				
 				case ExpansionHardlineItemRarity.POOR:
 				{
 					color = EXPASNION_ITEM_COLOR_POOR;
-					text = "Poor";
+					text = "#STR_EXPANSION_HARDLINE_POOR";
 				}
 				break;
 			}

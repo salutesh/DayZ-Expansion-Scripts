@@ -68,7 +68,14 @@ class bldr_prop_FireplaceIndoor extends House
 
 class bldr_fire_barrel extends BarrelHoles_Red
 {
+	protected bool m_bldr_Opened;
+
 	override protected void SpendFireConsumable( float amount ) {};
+
+	void bldr_fire_barrel()
+	{
+		SetAllowDamage(false);
+	}
 
 	override bool CanExtinguishFire()
 	{
@@ -84,11 +91,34 @@ class bldr_fire_barrel extends BarrelHoles_Red
 	{
 		return false;
 	}
+
+	override void SoundBarrelOpenPlay()
+	{
+		if (!m_bldr_Opened)
+		{
+			m_bldr_Opened = true;
+			super.SoundBarrelOpenPlay();
+		}
+	}
+
+	override void SoundBarrelClosePlay()
+	{
+		if (m_bldr_Opened)
+		{
+			m_bldr_Opened = false;
+			super.SoundBarrelClosePlay();
+		}
+	}
 }
 
 class bldr_fireplace extends Fireplace
 {
 	override protected void SpendFireConsumable( float amount ) {};
+
+	void bldr_fireplace()
+	{
+		SetAllowDamage(false);
+	}
 
 	override bool CanExtinguishFire()
 	{
@@ -110,6 +140,7 @@ class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
 {
 	void bldr_Chemlight_ColorBase()
 	{
+		SetAllowDamage(false);
 		CreateLight();
 	}
 	
@@ -200,7 +231,7 @@ class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
 		return false;
 	}
 	
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
 		return false;
 	}
@@ -267,7 +298,9 @@ class bldr_Chemlight_Yellow extends bldr_Chemlight_ColorBase {};
 class bldr_PortableGasLamp_Prop extends PortableGasLamp
 {
 	void bldr_PortableGasLamp_Prop()
-	{		
+	{
+		SetAllowDamage(false);
+
 		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side
 		{
 			m_Light = PortableGasLampLight.Cast( ScriptedLightBase.CreateLight( PortableGasLampLight, "0 0 0") );
@@ -368,7 +401,7 @@ class bldr_PortableGasLamp_Prop extends PortableGasLamp
 		return false;
 	}
 	
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
 		return false;
 	}
@@ -419,6 +452,7 @@ class bldr_Candle extends Candle
 	
 	void bldr_Candle()
 	{
+		SetAllowDamage(false);
 		CreateLight();
 		
 		SetObjectMaterial( 0, "dz\gear\tools\data\candle_flame.rvmat" );
@@ -511,7 +545,7 @@ class bldr_Candle extends Candle
 		return false;
 	}
 	
-	override bool CanDisplayAttachmentSlot( string slot_name )
+	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
 		return false;
 	}
@@ -568,6 +602,7 @@ class bldr_Spotlight extends Spotlight
 	
 	void bldr_Spotlight()
 	{
+		SetAllowDamage(false);
 		Unfold();
 		
 		if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() ) // client side

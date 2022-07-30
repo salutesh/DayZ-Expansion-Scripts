@@ -36,35 +36,6 @@ modded class ExpansionPartyPlayerData
 		if (m_TempMarkerData)
 		{
 			m_TempMarkerData.SetUID(UID);
-			m_TempMarkerData.SetIcon(ExpansionIcons.Get("Persona"));
-			m_TempMarkerData.Set3D(true);
-			if (GetExpansionClientSettings() && !GetExpansionClientSettings().ShowMemberNameMarker)
-			{
-				m_TempMarkerData.SetName("");
-			} 
-			else if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowMemberNameMarker)
-			{
-				m_TempMarkerData.SetName(Name);
-			}
-			
-			int markerColorA;
-			int markerColorR;
-			int markerColorG;
-			int markerColorB;
-			ExpansionStatic.IntToARGB(m_TempMarkerData.GetColor(), markerColorA, markerColorR, markerColorG, markerColorB);
-			
-			m_TempMarkerData.SetColor(ARGB(255, markerColorR, markerColorG, markerColorB));
-		}
-		else if (Marker)
-		{
-			if (GetExpansionClientSettings() && !GetExpansionClientSettings().ShowMemberNameMarker)
-			{
-				Marker.SetName("");
-			} 
-			else if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowMemberNameMarker)
-			{
-				Marker.SetName(Name);
-			}
 		}
 	}
 
@@ -121,10 +92,8 @@ modded class ExpansionPartyPlayerData
 
 		if (QuickMarker)
 		{
-			QuickMarker.SetIcon(ExpansionIcons.Get("Map Marker"));
 			QuickMarker.SetColor(m_TempMarkerData.GetColor());
 			QuickMarker.SetPosition(position);
-			QuickMarker.SetName(Name);
 		}
 	}
 	

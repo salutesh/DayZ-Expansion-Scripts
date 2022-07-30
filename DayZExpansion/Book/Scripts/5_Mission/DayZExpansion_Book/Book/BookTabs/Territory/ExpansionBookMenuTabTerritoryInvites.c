@@ -229,6 +229,11 @@ class ExpansionBookMenuTabTerritoryInvites: ExpansionBookMenuTabBase
 	{
 		return GetExpansionSettings().GetBook().EnableTerritoryTab;
 	}
+
+	override void Refresh()
+	{
+		LoadInvites();
+	}
 };
 
 class ExpansionBookMenuTabTerritoryInvitesController: ExpansionViewController

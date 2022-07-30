@@ -32,6 +32,8 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	private TextWidget RandomText;
 	private ImageWidget Background;
 	
+	bool m_DebugMonitorHidden;
+
 	void ExpansionSpawnSelectionMenu()
 	{
 		Print("ExpansionSpawnSelectionMenu - Start");
@@ -183,6 +185,26 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 
 			hud.ShowHud(true);
 			hud.ShowQuickBar(true);
+
+			//! Show debug monitor again if it was shown before
+			if (m_DebugMonitorHidden)
+			{
+				if (DebugMonitor.Instance)
+				{
+					EXTrace.Print(EXTrace.RESPAWN, this, "Showing vanilla debug monitor");
+					DebugMonitor.Instance.Show();
+				}
+#ifdef JM_COT
+#ifndef JM_COT_DEBUGMONITOR_REMOVED
+				if (JMDebugMonitor.Instance)
+				{
+					EXTrace.Print(EXTrace.RESPAWN, this, "Showing COT debug monitor");
+					JMDebugMonitor.Instance.ForceShow();
+				}
+#endif
+#endif
+				m_DebugMonitorHidden = false;
+			}
 		}
 	}
 	
@@ -278,7 +300,28 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		}
 
 		if (IsVisible())
+		{
 			LockControls();
+
+			//! Hide debug monitor because if our menu was created first, the debug monitor will have higher Z-order and
+			//! prevent interaction due to its root widget filling the whole screen
+			if (DebugMonitor.Instance && DebugMonitor.Instance.IsVisible())
+			{
+				EXTrace.Print(EXTrace.RESPAWN, this, "Hiding vanilla debug monitor");
+				DebugMonitor.Instance.Hide();
+				m_DebugMonitorHidden = true;
+			}
+#ifdef JM_COT
+#ifndef JM_COT_DEBUGMONITOR_REMOVED
+			if (JMDebugMonitor.Instance && JMDebugMonitor.Instance.IsVisible())
+			{
+				EXTrace.Print(EXTrace.RESPAWN, this, "Hiding COT debug monitor");
+				JMDebugMonitor.Instance.ForceHide();
+				m_DebugMonitorHidden = true;
+			}
+#endif
+#endif
+		}
 	}
 	
 	ButtonWidget GetConfirmButton()
