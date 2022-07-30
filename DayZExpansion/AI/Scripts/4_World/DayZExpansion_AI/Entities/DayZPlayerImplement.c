@@ -216,29 +216,6 @@ modded class DayZPlayerImplement
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
-	vector Expansion_GetHeadingVector()
-	{
-		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
-	}
-
-	float Expansion_GetMovementSpeed()
-	{
-		HumanCommandMove hcm = GetCommand_Move();
-		if (hcm)
-			return hcm.GetCurrentMovementSpeed();
-
-		return 0.0;
-	}
-
-	float Expansion_GetMovementAngle()
-	{
-		HumanCommandMove hcm = GetCommand_Move();
-		if (hcm)
-			return hcm.GetCurrentMovementAngle();
-
-		return 0.0;
-	}
-
 #ifndef SERVER
 	void AddShape(Shape shape)
 	{

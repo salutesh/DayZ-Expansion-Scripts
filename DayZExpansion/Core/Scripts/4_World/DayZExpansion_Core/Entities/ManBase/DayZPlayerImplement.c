@@ -97,4 +97,27 @@ modded class DayZPlayerImplement
 		if (m_Expansion_NetsyncData)
 			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
+
+	vector Expansion_GetHeadingVector()
+	{
+		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
+	}
+
+	float Expansion_GetMovementSpeed()
+	{
+		HumanCommandMove hcm = GetCommand_Move();
+		if (hcm)
+			return hcm.GetCurrentMovementSpeed();
+
+		return 0.0;
+	}
+
+	float Expansion_GetMovementAngle()
+	{
+		HumanCommandMove hcm = GetCommand_Move();
+		if (hcm)
+			return hcm.GetCurrentMovementAngle();
+
+		return 0.0;
+	}
 };
