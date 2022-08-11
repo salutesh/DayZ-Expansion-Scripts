@@ -14,6 +14,9 @@ modded class ActionDismantlePart
 {
 	override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
 	{
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		//! Check if nothing is wrong with the basic checks, will skip only if DismantleAnywhere is enabled
 		if ( !GetExpansionSettings().GetBaseBuilding().DismantleAnywhere && !super.DismantleCondition( player, target, item, camera_check ) )
 			return false;

@@ -21,6 +21,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 	float MinDistRadius = 50;
 	float MaxDistRadius = 150;
 	float DespawnRadius = 880;
+	bool CanLootAI = true;
 	
 	void SetAIPatrol(ExpansionQuestObjectiveAIPatrol patrol)
 	{
@@ -62,6 +63,16 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		return DespawnRadius;
 	}
 	
+	void SetCanLootAI(bool state)
+	{
+		CanLootAI = state;
+	}
+	
+	override bool CanLootAI()
+	{
+		return CanLootAI;
+	}
+	
 	static ExpansionQuestObjectiveAIPatrolConfig Load(string fileName)
 	{
 		bool save;
@@ -95,6 +106,11 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 			{
 				if (config.AIPatrol)
 					config.AIPatrol.NPCFormation = "RANDOM";
+			}
+			
+			if (configBase.ConfigVersion < 6)
+			{
+				config.CanLootAI = true;
 			}
 
 			config.ConfigVersion = CONFIGVERSION;

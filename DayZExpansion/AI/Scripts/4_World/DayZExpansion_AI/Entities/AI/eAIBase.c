@@ -132,7 +132,8 @@ class eAIBase extends PlayerBase
 
 		s_AllAI.Insert(this);
 
-		AI_HANDLEVAULTING = GetExpansionSettings().GetAI().Vaulting;
+		if (GetGame().IsServer())
+			AI_HANDLEVAULTING = GetExpansionSettings().GetAI().Vaulting;
 
 		SetEventMask(EntityEvent.INIT);
 	}
@@ -171,14 +172,14 @@ class eAIBase extends PlayerBase
 		m_WeaponManager = new eAIWeaponManager(this);
 		m_ShockHandler = new eAIShockHandler(this);
 
-#ifndef EAI_USE_LEGACY_PATHFINDING
-		m_PathFinding = new ExpansionPathHandler(this);
-#else
-		m_PathFinding = new eAIPathFinding(this);
-#endif
-
 		if (GetGame().IsServer())
 		{
+#ifndef EAI_USE_LEGACY_PATHFINDING
+			m_PathFinding = new ExpansionPathHandler(this);
+#else
+			m_PathFinding = new eAIPathFinding(this);
+#endif
+
 			LoadFSM();
 		}
 
@@ -501,7 +502,7 @@ class eAIBase extends PlayerBase
 #endif
 
 		// very messy :)
-		Weapon gun;
+		Weapon_Base gun;
 		Magazine mag;
 		foreach (ItemBase weapon: m_Weapons)
 		{
@@ -1301,16 +1302,9 @@ class eAIBase extends PlayerBase
 		return m_Weapons.Count() > 0;
 	}
 
-	bool eAI_HasAmmoForFirearm(Weapon gun, out Magazine mag, bool checkMagsInInventory = true)
+	bool eAI_HasAmmoForFirearm(Weapon_Base gun, out Magazine mag, bool checkMagsInInventory = true)
 	{
-		mag = null;
-
-		int mi = gun.GetCurrentMuzzle();
-		if (!gun.IsChamberEmpty(mi) && !gun.IsChamberFiredOut(mi))
-			return true;
-		if (gun.HasInternalMagazine(mi) && gun.GetInternalMagazineCartridgeCount(mi))
-			return true;
-		if (Class.CastTo(mag, gun.GetMagazine(mi)) && mag.GetAmmoCount())
+		if (gun.Expansion_HasAmmo(mag))
 			return true;
 
 		bool found = m_eAI_EvaluatedFirearmTypes.Find(gun.Type(), mag);
@@ -1947,7 +1941,7 @@ class eAIBase extends PlayerBase
 		m_eAI_LOS = false;
 		foreach (Object obj: results)
 		{
-			if (obj.IsTree() || obj.IsBush())
+			if (obj.IsTree())
 			{
 				sideStep = true;
 				break;

@@ -57,48 +57,10 @@ modded class ItemBase
 	
 	//============================================
 	// GetExpansionSaveVersion
-	// OBSOLETE
 	//============================================
 	int GetExpansionSaveVersion()
 	{
 		return m_ExpansionSaveVersion;
-	}
-	
-	//============================================
-	// OnStoreSave
-	//============================================
-	override void OnStoreSave( ParamsWriteContext ctx )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GENERAL_ITEMS, this, "OnStoreSave");
-#endif
-
-		CF_Log.Debug("[CORE] ItemBase::OnStoreSave " + this + " " + GetGame().SaveVersion());
-
-		//! If we are saving after game version target for ModStorage support (1st stable)
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
-		ctx.Write( m_ExpansionSaveVersion );
-
-		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-
-		ctx.Write( m_CurrentSkinName );
 	}
 		
 	//============================================
@@ -109,37 +71,10 @@ modded class ItemBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GENERAL_ITEMS, this, "OnStoreLoad");
 #endif
+		
+		m_Expansion_IsStoreLoaded = true;
 
-		CF_Log.Debug("[CORE] ItemBase::OnStoreLoad " + this + " " + version);
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[CORE] [" + this + "] Failed reading m_ExpansionSaveVersion" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[CORE] [" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		if ( GetExpansionSaveVersion() < 22 )
-			return true;
-
-		string currentSkinName = m_CurrentSkinName;
-
-		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
-			return false;
-
-		if ( m_CurrentSkinName == "" )
-			m_CurrentSkinName = currentSkinName;
-
-		return true;
+		return super.OnStoreLoad( ctx, version );
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -951,17 +886,6 @@ modded class ItemBase
 		ExpansionCreateCleanup();
     }
 
-	override void AfterStoreLoad()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "AfterStoreLoad");
-#endif
-
-		super.AfterStoreLoad();
-		
-		m_Expansion_IsStoreLoaded = true;
-	}
-
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
@@ -1062,5 +986,85 @@ modded class ItemBase
 	bool Expansion_IsAdminTool()
 	{
 		return m_Expansion_IsAdminTool;
+	}
+
+	bool Expansion_IsStackable()
+	{
+		return m_CanThisBeSplit;
+	}
+
+	//! @brief Attempt to set stack amount if item is stackable. Return true if operation was performed, false if not.
+	//! Giving a negative amount is allowed (treated the same as an amount of zero) if deleteIfZero = true.
+	//! @note Valid to call on non-stackable items only if amount = 1 (no-op) or amount <= 0 and deleteIfZero = true
+	bool Expansion_SetStackAmount(int amount, bool deleteIfZero = false)
+	{
+		if (amount <= 0 && deleteIfZero)
+		{
+			Delete();
+			return true;
+		}
+
+		if (!m_CanThisBeSplit)
+		{
+			if (amount != 1)
+				Error(ToString() + " is not a stackable item, cannot set stack amount to " + amount + "!");
+			return false;
+		}
+
+		if (amount < 0)
+		{
+			Error(ToString() + " cannot set stack amount to negative!");
+			return false;
+		}
+
+		if (IsAmmoPile())
+		{
+			auto mag = Magazine.Cast(this);
+			int ammoMax = mag.GetAmmoMax();
+			if (amount > ammoMax)
+				amount = ammoMax;
+			if (GetGame().IsServer())
+				mag.ServerSetAmmoCount(amount);
+			else
+				mag.LocalSetAmmoCount(amount);
+		}
+		else
+		{
+			//! No max check needed since it's handled by SetQuantity
+			SetQuantity(amount);
+		}
+
+		return true;
+	}
+
+	//! @brief Attempt to decrease stack by amount. Return true if operation was performed, false if not.
+	//! @note Changes amountToDelete in-place.
+	bool Expansion_DecreaseStackAmount(inout int amountToDelete, bool deleteIfZero = false)
+	{
+		int amount = Expansion_GetStackAmount();
+		if (!Expansion_SetStackAmount(amount - amountToDelete, deleteIfZero))
+			return false;
+		if (amount >= amountToDelete)
+			amountToDelete = 0;
+		else
+			amountToDelete -= amount;
+		return true;
+	}
+
+	//! @brief Get stack amount of item.
+	//! @note Valid to call on non-stackable items (will return 1)
+	int Expansion_GetStackAmount()
+	{
+		if (IsAmmoPile())
+		{
+			auto mag = Magazine.Cast(this);
+			return mag.GetAmmoCount();
+		}
+		else if (m_CanThisBeSplit)
+		{
+			return GetQuantity();
+		}
+
+		return 1;
 	}
 };

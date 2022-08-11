@@ -14,7 +14,7 @@ modded class StaminaHandler
 {
 	override void Update(float deltaT, int pCurrentCommandID)
 	{		
-		if ( GetExpansionSettings().GetGeneral().UnlimitedStamina )
+		if ( GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().UnlimitedStamina )
 		{
 			m_Player.m_CargoLoad = 0;
 

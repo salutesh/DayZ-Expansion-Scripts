@@ -23,7 +23,7 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 
 			if (m_Item.IsWeapon() || m_Item.Expansion_IsMeleeWeapon())
 			{
-				Weapon gun;
+				Weapon_Base gun;
 				if (Class.CastTo(gun, m_Item))
 				{
 					Magazine mag;

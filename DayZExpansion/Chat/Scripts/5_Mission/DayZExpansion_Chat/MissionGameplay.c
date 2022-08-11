@@ -25,6 +25,13 @@ modded class MissionGameplay
 	void MissionGameplay()
 	{
 		m_ExChatChannelHideTimer = new Timer;
+
+		ExpansionSettings.SI_Chat.Insert(Expansion_OnChatSettingsReceived);
+	}
+	
+	void ~MissionGameplay()
+	{
+		ExpansionSettings.SI_Chat.Remove(Expansion_OnChatSettingsReceived);
 	}
 	
 	override void OnInit()
@@ -44,19 +51,21 @@ modded class MissionGameplay
 			m_ChatChannelRootWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_channel.layout");
 			m_ChatChannelName = TextWidget.Cast(m_ChatChannelRootWidget.FindAnyWidget("ChatChannelName"));
 
-			ExpansionClientUIChatChannel chatChannel = GetExpansionClientSettings().DefaultChatChannel;
-			switch (chatChannel)
-			{
-				case ExpansionClientUIChatChannel.DIRECT:
-					SwitchChatChannelToDirect();
-					break;
-				case ExpansionClientUIChatChannel.GLOBAL:
-					SwitchChatChannelToGlobal();
-					break;
-				default:
-					SwitchChatChannelToDirect();
-					break;
-			}
+			//! Set default to direct
+			SwitchChatChannelToDirect();
+		}
+	}
+
+	void Expansion_OnChatSettingsReceived()
+	{
+		ExpansionSettings.SI_Chat.Remove(Expansion_OnChatSettingsReceived);
+
+		ExpansionClientUIChatChannel chatChannel = GetExpansionClientSettings().DefaultChatChannel;
+		switch (chatChannel)
+		{
+			case ExpansionClientUIChatChannel.GLOBAL:
+				SwitchChatChannelToGlobal();
+				break;
 		}
 	}
 	
@@ -84,11 +93,8 @@ modded class MissionGameplay
 			if (!parent || !parent.IsTransport() || !GetExpansionSettings().GetChat().EnableTransportChat)
 				SwitchChatChannelToDirect();
 		}
-		else if (m_ChatChannel == ExpansionChatChannels.CCDirect)
-		{
-			//! Initialize direct chat channel name to correct color
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
-		}
+
+		UpdateChannelColor();
 				
 		//! Fade-in chat channel name widgets
 		//FadeInChatChannel();
@@ -124,7 +130,6 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCGlobal;
 			m_ChatChannelName.SetText("Global Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));
 		}
 		else
 		{
@@ -143,7 +148,6 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTeam;
 			m_ChatChannelName.SetText("Team Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));
 		}
 		else
 		{
@@ -170,7 +174,6 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCTransport;
 			m_ChatChannelName.SetText("Transport Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));
 		}
 		else
 		{
@@ -186,7 +189,6 @@ modded class MissionGameplay
 		{
 			m_ChatChannel = ExpansionChatChannels.CCAdmin;
 			m_ChatChannelName.SetText("Admin Chat");
-			m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));
 		}
 		else
 		{
@@ -200,7 +202,6 @@ modded class MissionGameplay
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 		m_ChatChannelName.SetText("Direct Chat");
-		m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
 	}
 
 	void SwitchChannel()
@@ -232,7 +233,20 @@ modded class MissionGameplay
 			break;
 		}
 		
+		UpdateChannelColor();
+
 		m_ChatChannelHideTimer.Run(2, m_ChatChannelRootWidget, "Show", new Param1<bool>(false));
+	}
+
+	void UpdateChannelColor()
+	{
+		//! Initialize chat channel name to correct color
+		string chatChannelName = typename.EnumToString(ExpansionChatChannels, m_ChatChannel);
+		if (chatChannelName == "CCTeam")
+			chatChannelName = "Party";
+		else
+			chatChannelName = chatChannelName.Substring(2, chatChannelName.Length() - 2);
+		m_ChatChannelName.SetColor(GetExpansionSettings().GetChat().ChatColors.Get(chatChannelName + "ChatColor"));
 	}
 
 	int GetChatChannel()

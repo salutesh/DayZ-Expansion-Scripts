@@ -32,6 +32,9 @@ modded class BuildingBase
 		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "BuildingBase");
 #endif
 		
+		if (!GetGame().IsServer())
+			return;
+
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000, false);
 		

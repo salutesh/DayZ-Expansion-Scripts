@@ -229,10 +229,58 @@ PanelWidgetClass ExpansionNewsFeed {
        "Size To Content H" 1
        "Size To Content V" 1
        {
-        ButtonWidgetClass feedback_tracker {
+        ButtonWidgetClass discord {
          ignorepointer 0
          color 1 1 1 0.549
-         size 0.31 36
+         size 0.28 36
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style Empty
+         "next left" "twitter"
+         "next right" "play"
+         "next up" "news_sec_2"
+         "next down" "news_sec_2"
+         font "gui/fonts/sdf_MetronLight24"
+         {
+          TextWidgetClass discord_text {
+           clipchildren 0
+           ignorepointer 1
+           position 36 0
+           size 110 0.35
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 0
+           userID 153
+           text "Expansion Discord"
+           font "gui/fonts/sdf_MetronLight24"
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass discord_image {
+           clipchildren 0
+           ignorepointer 1
+           position 5 0
+           size 26 26
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           fixaspect fixwidth
+           image0 "set:expansion_iconset image:icon_discord"
+           mode blend
+           "src alpha" 1
+          }
+         }
+        }
+        ButtonWidgetClass wiki {
+         ignorepointer 0
+         color 1 1 1 0.549
+         size 0.26 36
          valign bottom_ref
          hexactpos 1
          vexactpos 1
@@ -245,26 +293,26 @@ PanelWidgetClass ExpansionNewsFeed {
          "next down" "news_sec_1"
          font "gui/fonts/sdf_MetronLight24"
          {
-          TextWidgetClass feedback_tracker_text {
+          TextWidgetClass wiki_text {
            clipchildren 0
            ignorepointer 1
            position 36 0
-           size 115 0.35
+           size 95 0.35
            valign center_ref
            hexactpos 1
            vexactpos 1
            hexactsize 1
            vexactsize 0
            userID 150
-           text "Expansion Feedback"
+           text "Expansion Wiki"
            font "gui/fonts/sdf_MetronLight24"
            "exact text" 0
            "text valign" center
           }
-          ImageWidgetClass feedback_tracker_image {
+          ImageWidgetClass wiki_image {
            clipchildren 0
            ignorepointer 1
-           position 5 -4
+           position 4 0
            size 26 26
            valign center_ref
            hexactpos 1
@@ -272,7 +320,7 @@ PanelWidgetClass ExpansionNewsFeed {
            hexactsize 1
            vexactsize 1
            fixaspect fixwidth
-           image0 "set:dayz_gui image:icon_feedback"
+           image0 "set:expansion_notification_iconset image:icon_info"
            mode blend
            "src alpha" 1
            stretch 0
@@ -372,105 +420,6 @@ PanelWidgetClass ExpansionNewsFeed {
            vexactsize 1
            fixaspect fixwidth
            image0 "set:dayz_gui image:icon_youtube"
-           mode blend
-           "src alpha" 1
-          }
-         }
-        }
-        ButtonWidgetClass wiki {
-         ignorepointer 0
-         color 1 1 1 0.549
-         size 0.26 36
-         valign bottom_ref
-         hexactpos 1
-         vexactpos 1
-         hexactsize 0
-         vexactsize 1
-         style Empty
-         "next left" "play"
-         "next right" "dayz_forums"
-         "next up" "news_sec_1"
-         "next down" "news_sec_1"
-         font "gui/fonts/sdf_MetronLight24"
-         {
-          TextWidgetClass wiki_text {
-           clipchildren 0
-           ignorepointer 1
-           position 36 0
-           size 95 0.35
-           valign center_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 1
-           vexactsize 0
-           userID 150
-           text "Expansion Wiki"
-           font "gui/fonts/sdf_MetronLight24"
-           "exact text" 0
-           "text valign" center
-          }
-          ImageWidgetClass wiki_image {
-           clipchildren 0
-           ignorepointer 1
-           position 4 0
-           size 26 26
-           valign center_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 1
-           vexactsize 1
-           fixaspect fixwidth
-           image0 "set:expansion_notification_iconset image:icon_info"
-           imageTexture ""
-           mode blend
-           "src alpha" 1
-           stretch 0
-          }
-         }
-        }
-        ButtonWidgetClass discord {
-         ignorepointer 0
-         color 1 1 1 0.549
-         size 0.28 36
-         hexactpos 1
-         vexactpos 1
-         hexactsize 0
-         vexactsize 1
-         style Empty
-         "next left" "twitter"
-         "next right" "play"
-         "next up" "news_sec_2"
-         "next down" "news_sec_2"
-         font "gui/fonts/sdf_MetronLight24"
-         {
-          TextWidgetClass discord_text {
-           clipchildren 0
-           ignorepointer 1
-           position 36 0
-           size 110 0.35
-           valign center_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 1
-           vexactsize 0
-           userID 153
-           text "Expansion Discord"
-           font "gui/fonts/sdf_MetronLight24"
-           "exact text" 0
-           "text valign" center
-          }
-          ImageWidgetClass discord_image {
-           clipchildren 0
-           ignorepointer 1
-           position 5 0
-           size 26 26
-           valign center_ref
-           hexactpos 1
-           vexactpos 1
-           hexactsize 1
-           vexactsize 1
-           fixaspect fixwidth
-           image0 "set:expansion_iconset image:icon_discord"
            mode blend
            "src alpha" 1
           }

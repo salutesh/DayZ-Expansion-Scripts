@@ -186,8 +186,8 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			{
 				if (playerItem.GetItem().GetHierarchyParent())
 				{
-					name = ExpansionStatic.GetItemDisplayNameWithType(playerItem.GetItem().GetHierarchyParent().Type().ToString());
-					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(name));	
+					name = playerItem.GetItem().GetHierarchyParent().GetDisplayName();
+					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, name);	
 					entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
 					m_WrapSpacer.AddSpacerContent(entry);
 					m_AdditionalText.SetText("#STR_EXPANSION_MARKET_SELL_DIALOG_WARNING_ATTACHED");

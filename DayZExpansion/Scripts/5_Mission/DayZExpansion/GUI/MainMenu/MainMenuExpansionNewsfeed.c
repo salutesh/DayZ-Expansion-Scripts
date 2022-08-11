@@ -13,8 +13,6 @@
 class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 {
 	protected Widget m_Root;
-	protected Widget m_Feedback;
-	protected TextWidget m_FeedbackText;
 	protected Widget m_Twitter;
 	protected TextWidget m_TwitterText;
 	protected Widget m_Youtube;
@@ -49,8 +47,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	{				
 		m_Root				= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/GUI/layouts/ui/expansion_newsfeed.layout", parent);
 
-		m_Feedback			= Widget.Cast(m_Root.FindAnyWidget("feedback_tracker"));
-		m_FeedbackText		= TextWidget.Cast(m_Feedback.FindWidget("feedback_tracker_text" ));
 		m_Twitter			= Widget.Cast(m_Root.FindAnyWidget("twitter"));
 		m_TwitterText		= TextWidget.Cast(m_Twitter.FindWidget("twitter_text" ));
 		m_Youtube			= Widget.Cast(m_Root.FindAnyWidget("youtube"));
@@ -104,7 +100,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 
 		//! Use social media settings.
 		//! This will work if we are currently connected to the server or have been connected previously without closing the game.
-		if ( GetExpansionSettings().GetSocialMedia() )
+		if ( GetExpansionSettings().GetSocialMedia(false).IsLoaded() )
 		{
 			m_DiscordURL = GetExpansionSettings().GetSocialMedia().Discord;
 			if ( m_DiscordURL != EXPANSION_DISCORD_URL )
@@ -112,14 +108,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 				m_DiscordText.SetText("Server Discord");
 				m_DiscordText.Update();
 				m_Discord.Show(m_DiscordURL != "");
-			}
-
-			m_FeedbackURL = GetExpansionSettings().GetSocialMedia().Forums;
-			if ( m_FeedbackURL != EXPANSION_FEEDBACK_URL )
-			{
-				m_FeedbackText.SetText("Server Forums");
-				m_FeedbackText.Update();
-				m_Feedback.Show(m_FeedbackURL != "");
 			}
 
 			m_TwitterHandle = GetExpansionSettings().GetSocialMedia().Twitter;
@@ -155,14 +143,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	{
 		GetGame().OpenURL(m_DiscordURL);
 	}
-
-	// ------------------------------------------------------------
-	// OpenFeedback
-	// ------------------------------------------------------------	
-	void OpenFeedback()
-	{
-		GetGame().OpenURL(m_FeedbackURL);
-	}
 	
 	// ------------------------------------------------------------
 	// OpenTwitter
@@ -197,9 +177,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		{	
 			switch(w)
 			{
-				case m_Feedback:
-					OpenFeedback();
-				break;
 				case m_Twitter:
 					OpenTwitter();
 				break;
@@ -277,7 +254,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	{
 		if(w)
 		{
-			return (w == m_Feedback || w == m_Twitter || w == m_Youtube || w == m_Discord || w == m_Wiki);
+			return (w == m_Twitter || w == m_Youtube || w == m_Discord || w == m_Wiki);
 		}
 		return false;
 	}

@@ -24,6 +24,16 @@ modded class IngameHud
 
 	Widget m_EarPlugsPanel;
 	
+	void IngameHud()
+	{
+		ExpansionSettings.SI_General.Insert(Expansion_OnGeneralSettingsUpdated);
+	}
+	
+	void ~IngameHud()
+	{
+		ExpansionSettings.SI_General.Remove(Expansion_OnGeneralSettingsUpdated);
+	}
+
 	override void Init(Widget hud_panel_widget)
 	{
 		super.Init(hud_panel_widget);
@@ -57,11 +67,14 @@ modded class IngameHud
 		}
 	}
 
+	void Expansion_OnGeneralSettingsUpdated()
+	{
+		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay;
+	}
+
 	override void RefreshHudVisibility()
 	{
 		super.RefreshHudVisibility();
-
-		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay;
 
 		if (m_NVPanel)
 		{

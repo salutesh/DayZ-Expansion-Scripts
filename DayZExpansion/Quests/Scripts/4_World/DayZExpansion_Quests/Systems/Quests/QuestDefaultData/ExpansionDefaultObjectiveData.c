@@ -654,7 +654,8 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIPATROL);
 		objective.SetObjectiveText("Kill all 4 units of the bandit patrol at the marked location");
-
+		objective.SetCanLootAI(true);
+		
 		ExpansionQuestObjectiveAIPatrol aiPatrol = new ExpansionQuestObjectiveAIPatrol();
 		aiPatrol.SetNPCUnits(4);
 		aiPatrol.SetNPCSpeed("WALK");
@@ -724,7 +725,8 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.AICAMP);
 		objective.SetObjectiveText("Kill all 10 bandits at the marked location");
-
+		objective.SetCanLootAI(true);
+		
 		ExpansionQuestObjectiveAICamp aiCamp = new ExpansionQuestObjectiveAICamp();
 		aiCamp.SetNPCSpeed("RUN");
 		aiCamp.SetNPCMode("HALT");

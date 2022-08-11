@@ -89,57 +89,35 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 	string GetHumanityIcon(int humanity)
 	{
-		string path = ExpansionIcons.GetPath("Persona");
-		//! If player is hero
-		if (humanity > GetExpansionSettings().GetHardline().RankScout)
+		ExpansionHardlineRank rank = GetExpansionSettings().GetHardline().GetRank(humanity);
+		switch (rank)
 		{
-			if (humanity > GetExpansionSettings().GetHardline().RankScout)
-			{
-				path = "set:expansion_notification_iconset image:icon_hero_1";
-			}
-			else if (humanity > GetExpansionSettings().GetHardline().RankPathfinder)
-			{
-				path = "set:expansion_notification_iconset image:icon_hero_2";
-			}
-			else if (humanity > GetExpansionSettings().GetHardline().RankHero)
-			{
-				path = "set:expansion_notification_iconset image:icon_hero_3";
-			}
-			else if (humanity > GetExpansionSettings().GetHardline().RankSuperhero)
-			{
-				path = "set:expansion_notification_iconset image:icon_hero_4";
-			}
-			else if (humanity > GetExpansionSettings().GetHardline().RankLegend)
-			{
-				path = "set:expansion_notification_iconset image:icon_hero_5";
-			}
-		}
-		//! If player is badit
-		else if (humanity < GetExpansionSettings().GetHardline().RankKleptomaniac)
-		{
-			if (humanity < GetExpansionSettings().GetHardline().RankKleptomaniac)
-			{
-				path = "set:expansion_notification_iconset image:icon_bandit_1";
-			}
-			else if (humanity < GetExpansionSettings().GetHardline().RankBully)
-			{
-				path = "set:expansion_notification_iconset image:icon_bandit_2";
-			}
-			else if (humanity < GetExpansionSettings().GetHardline().RankBandit)
-			{
-				path = "set:expansion_notification_iconset image:icon_bandit_3";
-			}
-			else if (humanity < GetExpansionSettings().GetHardline().RankKiller)
-			{
-				path = "set:expansion_notification_iconset image:icon_bandit_4";
-			}
-			else if (humanity < GetExpansionSettings().GetHardline().RankMadman)
-			{
-				path = "set:expansion_notification_iconset image:icon_bandit_5";
-			}
+			//! If player is hero
+			case ExpansionHardlineRank.Scout:
+				return "set:expansion_notification_iconset image:icon_hero_1";
+			case ExpansionHardlineRank.Pathfinder:
+				return "set:expansion_notification_iconset image:icon_hero_2";
+			case ExpansionHardlineRank.Hero:
+				return "set:expansion_notification_iconset image:icon_hero_3";
+			case ExpansionHardlineRank.Superhero:
+				return "set:expansion_notification_iconset image:icon_hero_4";
+			case ExpansionHardlineRank.Legend:
+				return "set:expansion_notification_iconset image:icon_hero_5";
+
+			//! If player is bandit
+			case ExpansionHardlineRank.Kleptomaniac:
+				return "set:expansion_notification_iconset image:icon_bandit_1";
+			case ExpansionHardlineRank.Bully:
+				return "set:expansion_notification_iconset image:icon_bandit_2";
+			case ExpansionHardlineRank.Bandit:
+				return "set:expansion_notification_iconset image:icon_bandit_3";
+			case ExpansionHardlineRank.Killer:
+				return "set:expansion_notification_iconset image:icon_bandit_4";
+			case ExpansionHardlineRank.Madman:
+				return "set:expansion_notification_iconset image:icon_bandit_5";
 		}
 		
-		return path;
+		return ExpansionIcons.GetPath("Persona");
 	}
 	
 	void AddHumanity(int difference)
@@ -189,7 +167,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	
 	override void Update()
 	{
-		if (m_HardlineModule && GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().ShowHardlineHUD)
+		if (m_HardlineModule && GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().ShowHardlineHUD)
 		{
 			if (!m_HardlineModule.GetHardlineClientData())
 				return;

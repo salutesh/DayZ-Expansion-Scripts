@@ -17,7 +17,7 @@ modded class ZombieBase
 	// ------------------------------------------------------------
 	override void EEKilled(Object killer)
 	{
-		if  (GetExpansionSettings().GetHardline().UseHumanity)
+		if  (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().HumanityOnKillInfected > 0)
 		{
 			ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 			if (hardlineModule)

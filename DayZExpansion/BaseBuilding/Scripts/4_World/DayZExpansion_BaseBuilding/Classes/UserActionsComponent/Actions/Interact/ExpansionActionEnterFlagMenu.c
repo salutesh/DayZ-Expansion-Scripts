@@ -85,6 +85,9 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		if ( !m_TerritoryModule )
 			return false;
 		
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled )
 			return false;
 		

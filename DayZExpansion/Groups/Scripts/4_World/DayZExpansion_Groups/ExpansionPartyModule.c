@@ -813,7 +813,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		SI_Callback.Invoke(ExpansionPartyModuleRPC.UpdatePlayer);
 
-		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		if (GetExpansionSettings().GetParty(false).IsLoaded() && GetExpansionSettings().GetParty().ShowPartyMemberHUD)
 		{
 			if (m_PartyHUDInvoker) m_PartyHUDInvoker.Invoke();
 		}

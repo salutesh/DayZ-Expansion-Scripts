@@ -335,75 +335,6 @@ modded class PlayerBase
 		return m_ExpansionSaveVersion;
 	}
 
-	override void OnStoreSave( ParamsWriteContext ctx )
-	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] PlayerBase::OnStoreSave " + this + " " + GetGame().SaveVersion());
-		#endif
-
-		//! If we are saving after game version target for ModStorage support (1st stable)
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
-		ctx.Write( m_ExpansionSaveVersion );
-
-		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-		
-		ctx.Write( m_WasInVehicle );
-		ctx.Write( m_Expansion_SessionTimeStamp );
-	}
-	
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		#ifdef EXPANSION_STORAGE_DEBUG
-		EXPrint("[VEHICLES] PlayerBase::OnStoreLoad " + this + " " + version);
-		#endif
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[" + this + "] Failed reading m_ExpansionSaveVersion" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-		
-		//! With CF_ModStorage enabled, the code below won't be ran unless an old CE is loaded. To prevent server wipes, the code below will stay.
-
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-		
-		if ( Expansion_Assert_False( ctx.Read( m_WasInVehicle ), "[" + this + "] Failed reading m_WasInVehicle" ) )
-			return false;
-
-		if ( m_ExpansionSaveVersion < 30 )
-			return true;
-		
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_SessionTimeStamp ), "[" + this + "] Failed reading m_Expansion_SessionTimeStamp" ) )
-			return false;
-
-		return true;
-	}
-
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
@@ -456,8 +387,8 @@ modded class PlayerBase
 			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && sessionTimeStamp == GetDayZGame().ExpansionGetStartTime())
 				return;
 
-			//! Temp god mode just to be safe
-			SetAllowDamage(false);
+			//! Temporarily disable fall damage
+			Expansion_SetAllowDamage("FallDamage", false);
 
 			//! CallLater so vehicle attachment code etc has a chance to run first
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlacePlayerOnGround, 1500);
@@ -568,9 +499,8 @@ modded class PlayerBase
 				m_WasInVehicle = false;
 			}
 
-			//! Disable temp god mode again if not in safezone - after a delay or player may still die from fall dmg
-			if (!IsInSafeZone())
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetAllowDamage, 1500, false, true);
+			//! Enable fall damage again - after a delay or player may still die from it
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamage, 1500, false, "FallDamage", true);
 		}
 	}
 };

@@ -39,6 +39,9 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 			
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetMarket(false).IsLoaded())
+			return false;
+
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return false;
 		

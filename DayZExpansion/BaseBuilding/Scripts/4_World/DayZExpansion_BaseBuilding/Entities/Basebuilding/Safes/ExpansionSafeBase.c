@@ -142,68 +142,6 @@ class ExpansionSafeBase extends Container_Base
 		return false;
 	}
 
-	/**
-	\brief Saving class to storage
-		\param 	
-	*/
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-		
-		ctx.Write( m_Expansion_IsOpened );
-		ctx.Write( m_Locked );
-		ctx.Write( m_Code );
-
-		ctx.Write( m_KnownUIDs );
-	}
-
-	/**
-	\brief Loading class to storage
-		\param 	
-	*/
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return true;
-		#endif
-		
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened ), "[" + this + "] Failed reading m_Expansion_IsOpened" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-			return false;
-
-		m_CodeLength = m_Code.Length();
-
-		if ( m_ExpansionSaveVersion < 38 )
-		{
-			bool hasCode;
-			if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
-				return false;
-		}
-
-		if ( m_ExpansionSaveVersion >= 20 )
-		{
-			if ( Expansion_Assert_False( ctx.Read( m_KnownUIDs ), "[" + this + "] Failed reading m_KnownUIDs" ) )
-				return false;
-		}
-
-		return true;
-	}
-
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{

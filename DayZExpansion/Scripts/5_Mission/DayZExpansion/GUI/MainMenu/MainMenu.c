@@ -177,6 +177,14 @@ modded class MainMenu
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Refresh");
 #endif
 		
+		string name;
+		
+		if ( m_CustomScene || m_ScenePC )
+		{
+			OnChangeCharacter();
+			//name = m_ScenePC.GetIntroCharacter().GetCharacterName();
+		}
+
 		string version;
 		GetGame().GetVersion( version );
 		string expansion_version;	
@@ -203,9 +211,8 @@ modded class MainMenu
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "OnShow");
 #endif
 		
-		SetFocus( null );
-		OnChangeCharacter();
-		LoadMods();
+		super.OnShow();
+
 		HideModWarning();
 
 		return;
@@ -226,7 +233,7 @@ modded class MainMenu
 		
 	}
 
-	#ifndef EXPANSION_MAINMENU_NEW_DISABLE
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
 	{
 		if ( w == m_CharacterRotationFrame )
@@ -235,18 +242,6 @@ modded class MainMenu
 				m_CustomScene.CharacterRotationStart();		
 			if (m_ScenePC)
 				m_ScenePC.CharacterRotationStart();
-			return true;
-		}
-		else if ( w == m_Play )
-		{
-			m_LastFocusedButton = m_Play;
-			Play();
-			return true;
-		}
-		else if ( w == m_ChooseServer )
-		{
-			m_LastFocusedButton = m_ChooseServer;
-			OpenMenuServerBrowser();
 			return true;
 		}
 		
@@ -309,108 +304,74 @@ modded class MainMenu
 		if (m_CustomScene && m_CustomScene.GetIntroCharacter() && m_CustomScene.GetIntroCharacter().GetCharacterID() == -1)
 		{
 			return true;
-		}		
-		if (m_ScenePC && m_ScenePC.GetIntroCharacter() && m_ScenePC.GetIntroCharacter().GetCharacterID() == -1)
-		{
-			return true;
 		}
-		return false;
+		return super.CanSaveDefaultCharacter();
 	}	
 	
 	override void OpenMenuServerBrowser()
 	{
-		EnterScriptedMenu(MENU_SERVER_BROWSER);
-		PlayerBase player;		
 		//saves demounit for further use
 		if (m_CustomScene && m_CustomScene.GetIntroCharacter() && m_CustomScene.GetIntroCharacter().GetCharacterID() == -1 )
 		{
-			player = m_CustomScene.GetIntroCharacter().GetCharacterObj();
+			PlayerBase player = m_CustomScene.GetIntroCharacter().GetCharacterObj();
 			if(player && player.GetInventory() && player.GetInventory().FindAttachment(InventorySlots.BODY))
 			{
 				//todo - save default char here if none exists
 				//m_CustomScene.GetIntroCharacter().SaveCharacterSetup();
 			}
-		}		
-		if (m_ScenePC && m_ScenePC.GetIntroCharacter() && m_ScenePC.GetIntroCharacter().GetCharacterID() == -1 )
-		{
-			player = m_ScenePC.GetIntroCharacter().GetCharacterObj();
-			if(player && player.GetInventory() && player.GetInventory().FindAttachment(InventorySlots.BODY))
-			{
-				//todo - save default char here if none exists
-				//m_ScenePC.GetIntroCharacter().SaveCharacterSetup();
-			}
 		}
+
+		super.OpenMenuServerBrowser();
 	}
 
 	override void NextCharacter()
 	{
-		int charID;
 		if ( m_CustomScene && m_CustomScene.GetIntroCharacter() )
 		{
-			charID = m_CustomScene.GetIntroCharacter().GetNextCharacterID();
+			int charID = m_CustomScene.GetIntroCharacter().GetNextCharacterID();
 			//m_CustomScene.GetIntroCharacter().SaveCharName();
 			if( charID != m_CustomScene.GetIntroCharacter().GetCharacterID())
 			{
 				m_CustomScene.GetIntroCharacter().SetCharacterID(charID);
 				OnChangeCharacter();
 			}
-		}		
-		if ( m_ScenePC && m_ScenePC.GetIntroCharacter() )
-		{
-			charID = m_ScenePC.GetIntroCharacter().GetNextCharacterID();
-			//m_ScenePC.GetIntroCharacter().SaveCharName();
-			if( charID != m_ScenePC.GetIntroCharacter().GetCharacterID())
-			{
-				m_ScenePC.GetIntroCharacter().SetCharacterID(charID);
-				OnChangeCharacter();
-			}
 		}
+
+		super.NextCharacter();
 	}
 	
 	override void PreviousCharacter()
 	{
-		int charID;
 		if ( m_CustomScene && m_CustomScene.GetIntroCharacter() )
 		{
 			//m_CustomScene.GetIntroCharacter().SaveCharName();
-			charID = m_CustomScene.GetIntroCharacter().GetPrevCharacterID();
+			int charID = m_CustomScene.GetIntroCharacter().GetPrevCharacterID();
 			if( charID != m_CustomScene.GetIntroCharacter().GetCharacterID())
 			{
 				m_CustomScene.GetIntroCharacter().SetCharacterID(charID);
 				OnChangeCharacter();
 			}
-		}		
-		if ( m_ScenePC && m_ScenePC.GetIntroCharacter() )
-		{
-			//m_ScenePC.GetIntroCharacter().SaveCharName();
-			charID = m_ScenePC.GetIntroCharacter().GetPrevCharacterID();
-			if( charID != m_ScenePC.GetIntroCharacter().GetCharacterID())
-			{
-				m_ScenePC.GetIntroCharacter().SetCharacterID(charID);
-				OnChangeCharacter();
-			}
 		}
+
+		super.PreviousCharacter();
 	}
 	
 	override void OnChangeCharacter(bool create_character = true)
 	{
-		int charID;
-		Widget w;
-		TextWidget text;
 		if ( m_CustomScene && m_CustomScene.GetIntroCharacter() )
 		{
-			charID = m_CustomScene.GetIntroCharacter().GetCharacterID();
+			int charID = m_CustomScene.GetIntroCharacter().GetCharacterID();
 			if (create_character)
 			{
 				m_CustomScene.GetIntroCharacter().CreateNewCharacterById( charID );
 			}
 			m_PlayerName.SetText( m_CustomScene.GetIntroCharacter().GetCharacterNameById( charID ) );
 			
-			w = m_CustomizeCharacter.FindAnyWidget(m_CustomizeCharacter.GetName() + "_label");
+			Widget w = m_CustomizeCharacter.FindAnyWidget(m_CustomizeCharacter.GetName() + "_label");
 			
 			if ( w )
 			{
-				text = TextWidget.Cast( w );
+				TextWidget text = TextWidget.Cast( w );
 				
 				if( m_CustomScene.GetIntroCharacter().IsDefaultCharacter() )
 				{
@@ -431,42 +392,10 @@ modded class MainMenu
 			
 			//update character stats
 			m_Stats.UpdateStats();
-		}		
-		if ( m_ScenePC && m_ScenePC.GetIntroCharacter() )
-		{
-			charID = m_ScenePC.GetIntroCharacter().GetCharacterID();
-			if (create_character)
-			{
-				m_ScenePC.GetIntroCharacter().CreateNewCharacterById( charID );
-			}
-			m_PlayerName.SetText( m_ScenePC.GetIntroCharacter().GetCharacterNameById( charID ) );
-			
-			w = m_CustomizeCharacter.FindAnyWidget(m_CustomizeCharacter.GetName() + "_label");
-			
-			if ( w )
-			{
-				text = TextWidget.Cast( w );
-				
-				if( m_ScenePC.GetIntroCharacter().IsDefaultCharacter() )
-				{
-					text.SetText("#layout_main_menu_customize_char");
-				}
-				else
-				{
-					text.SetText("#layout_main_menu_rename");
-				}
-			}
-			if (m_ScenePC.GetIntroCharacter().GetCharacterObj() )
-			{
-				if ( m_ScenePC.GetIntroCharacter().GetCharacterObj().IsMale() )
-					m_ScenePC.GetIntroCharacter().SetCharacterGender(ECharGender.Male);
-				else
-					m_ScenePC.GetIntroCharacter().SetCharacterGender(ECharGender.Female);
-			}
-			
-			//update character stats
-			m_Stats.UpdateStats();
 		}
+
+		super.OnChangeCharacter(create_character);
+
 		if (m_CustomScene)
 		{
 			m_CustomScene.SetAnim();

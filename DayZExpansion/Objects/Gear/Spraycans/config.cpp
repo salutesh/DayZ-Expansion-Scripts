@@ -17,7 +17,7 @@ class CfgVehicles
 	{
 		scope = 0;
 		displayName = "$STR_EXPANSION_SPRAYCAN_BASE_NAME";
-		descriptionShort = "$STR_EXPANSION_SPRAYCAN_BASE_DESCRIPTION";
+		descriptionShort = "$STR_EXPANSION_SPRAYCAN_BASE_DESC";
 		model = "\dz\gear\consumables\spraycan.p3d";
 		weight = 100;
 		itemSize[] = {2,3};

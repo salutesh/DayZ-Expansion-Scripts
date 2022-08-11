@@ -79,7 +79,7 @@ modded class MissionGameplay
 					//! Autorun
 					if (input.LocalPress("UAExpansionAutoRunToggle", false))
 					{
-						if (!man.GetParent() && GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableAutoRun)
+						if (!man.GetParent() && GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableAutoRun)
 						{
 							m_AutoRunModule.AutoRun();
 						}
@@ -106,7 +106,7 @@ modded class MissionGameplay
 				if (m_AutoRunModule)
 				{
 					//! Autowalk
-					if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableAutoRun)
+					if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableAutoRun)
 					{
 						m_AutoRunModule.UpdateAutoWalk();
 					}
@@ -123,7 +123,7 @@ modded class MissionGameplay
 			}
 			
 			//! Nightvision check
-			if (GetExpansionSettings() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay)
+			if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay)
 			{
 				PlayerCheckNV(playerPB);
 			}

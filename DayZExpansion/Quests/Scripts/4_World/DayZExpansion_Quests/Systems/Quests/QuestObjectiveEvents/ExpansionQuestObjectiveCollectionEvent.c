@@ -64,22 +64,30 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		if (!GetQuest().IsGroupQuest())
 		{
 			Print(ToString() + "::OnTurnIn - NORMAL QUEST");
-			for (int i = 0; i < amountToDelete; i++)
+			for (int i = 0; i < m_PlayerItems.Count(); i++)
 			{
-				EntityAI item = m_PlayerItems[i];
-				GetGame().ObjectDelete(item);
+				if (amountToDelete > 0)
+				{
+					DeleteCollectionItem(m_PlayerItems[i], amountToDelete);
+				}
+				
+				if (amountToDelete == 0)
+					break;
 			}
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (GetQuest().IsGroupQuest())
 		{
 			Print(ToString() + "::OnTurnIn - GROUP QUEST");
-			for (int g = 0; g < amountToDelete; g++)
+			for (int g = 0; g < m_GroupItems.Count(); g++)
 			{
-				EntityAI groupItem = m_GroupItems[g];
-				Print(ToString() + "::OnTurnIn - Delete collection item: " + groupItem.ToString());
-				Print(ToString() + "::OnTurnIn - Type name: " + groupItem.Type().ToString());
-				GetGame().ObjectDelete(groupItem);
+				if (amountToDelete > 0)
+				{
+					DeleteCollectionItem(m_GroupItems[g], amountToDelete);
+				}
+				
+				if (amountToDelete == 0)
+					break;
 			}
 		}
 	#endif
@@ -87,6 +95,21 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		super.OnTurnIn();
 		
 		Print(ToString() + "::OnTurnIn - End");
+	}
+	
+	private void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
+	{
+		ItemBase itemBase;
+		if (Class.CastTo(itemBase, item) && itemBase.Expansion_IsStackable())
+		{
+			itemBase.Expansion_DecreaseStackAmount(amountToDelete, true);
+		}
+		else
+		{
+			//! Everything else
+			GetGame().ObjectDelete(item);
+			amountToDelete--;
+		}
 	}
 
 	override void OnContinue()
@@ -202,40 +225,11 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	private int GetItemAmount(EntityAI item)
 	{
 		int amount;
-		ItemBase itemBase = ItemBase.Cast(item);		
-		if (item.IsKindOf("Container_Base"))
+		ItemBase itemBase;
+
+		if (Class.CastTo(itemBase, item))
 		{
-			amount = 1;
-		}
-		else if (item.IsKindOf("ExpansionSpraycanBase"))
-		{
-			amount = 1;
-		}
-		else if (item.IsKindOf("Edible_Base"))
-		{
-			//! Food and liquid containers
-			amount = 1;
-		}
-		else if (item.IsInherited(MagazineStorage))
-		{
-			amount = 1;
-		}
-		else if (item.IsKindOf("Ammunition_Base"))
-		{
-			if (item.IsAmmoPile())
-			{
-				//! This looks like a wierd method but this how we get the actual ammo amount from an ammo pile
-				Magazine magazine = Magazine.Cast(item);
-				amount = magazine.GetAmmoCount();
-			}
-		}
-		else if (item.HasEnergyManager())
-		{
-			amount = 1;
-		}
-		else if (itemBase && itemBase.ConfigGetBool("canBeSplit"))
-		{
-			amount = item.GetQuantity();
+			amount = itemBase.Expansion_GetStackAmount();
 		}
 		else
 		{
@@ -400,7 +394,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	int GetAmmount()
+	int GetAmount()
 	{
 		return GetObjectiveConfig().GetCollection().GetAmount();
 	}

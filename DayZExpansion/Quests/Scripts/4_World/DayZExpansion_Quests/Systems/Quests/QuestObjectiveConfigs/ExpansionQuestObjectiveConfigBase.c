@@ -21,7 +21,7 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 5;
+	static const int CONFIGVERSION = 6;
 	
 	void ExpansionQuestObjectiveConfig()
 	{
@@ -126,6 +126,11 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	float GetDespawnRadius()
 	{
 		return 880;
+	}
+	
+	bool CanLootAI()
+	{
+		return false;
 	}
 
 	ExpansionQuestObjectiveCollection GetCollection()

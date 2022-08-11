@@ -226,7 +226,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			array<vector> waypoint = new array<vector>;
 			waypoint.Insert(pos);
 
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), true, false, waypoint);
+			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), GetObjectiveConfig().CanLootAI(), false, waypoint);
 			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
 			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 			if (!patrol)

@@ -55,6 +55,24 @@ modded class InGameMenu
 	protected Widget							m_NewsfeedPanel;
 	protected ref ExpansionNewsfeed 	m_ExpansionNewsfeed;
 
+	void InGameMenu()
+	{
+#ifdef EXPANSIONMONITORMODULE
+		ExpansionMonitorModule monitor;
+		if ( CF_Modules<ExpansionMonitorModule>.Get(monitor))
+			monitor.m_StatsInvoker.Insert(OnDataReceived);
+#endif
+	}
+
+	void ~InGameMenu()
+	{
+#ifdef EXPANSIONMONITORMODULE
+		ExpansionMonitorModule monitor;
+		if ( CF_Modules<ExpansionMonitorModule>.Get(monitor))
+			monitor.m_StatsInvoker.Remove(OnDataReceived);
+#endif
+	}
+
 	// ------------------------------------------------------------
 	// Override Init
 	// ------------------------------------------------------------
@@ -138,7 +156,7 @@ modded class InGameMenu
 		m_DeadScreenFadeInIncrement	= 1 / DEAD_SCREEN_FADEIN_TIME;
 		m_DeadScreenImageFadeInIncrement = 1 / DEAD_SCREEN_IMAGE_FADEIN_TIME;
 		
-		if ( !GetExpansionSettings().GetGeneral().UseDeathScreenStatistics )
+		if ( !GetExpansionSettings().GetGeneral().UseDeathScreenStatistics || !GetValuesFromMonitor() )
 			m_DeadSceenStatsButtonPanel.Show(false);
 		
 		HudShow( false );
@@ -163,7 +181,7 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	override void Update( float timeslice )
 	{		
-		if ( GetExpansionSettings().GetGeneral().UseDeathScreen && m_ExpansionShowDeadScreen )
+		if ( GetExpansionSettings().GetGeneral().UseDeathScreen && g_ExpansionShowDeadScreen )
 		{
 			m_TimerSlice += timeslice;
 			if (m_TimerSlice >= 0.01)
@@ -176,10 +194,20 @@ modded class InGameMenu
 		super.Update( timeslice );
 	}
 	
+	void OnDataReceived( ExpansionSyncedPlayerStats player_stats)
+	{
+		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_stats.m_PlainID);
+
+		if (GetGame().GetPlayer().GetIdentity().GetPlainId() != player_stats.m_PlainID || !player_stats.m_HasRegisteredStats) return;
+
+		if ( GetExpansionSettings().GetGeneral().UseDeathScreenStatistics && GetValuesFromMonitor() )
+			m_DeadSceenStatsButtonPanel.Show(true);
+	}
+
 	// ------------------------------------------------------------
 	// Expansion GetValuesFromMonitor
 	// ------------------------------------------------------------
-	void GetValuesFromMonitor()
+	bool GetValuesFromMonitor()
 	{
 /*
 		m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
@@ -192,11 +220,11 @@ modded class InGameMenu
 #ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitor;
 		if ( !CF_Modules<ExpansionMonitorModule>.Get(monitor))
-			return;
+			return false;
 		
 		ExpansionSyncedPlayerStats player_stats = monitor.GetClientStats();
-		if ( !player_stats )
-			return;
+		if ( !player_stats || !player_stats.m_HasRegisteredStats )
+			return false;
 
 		m_Distance = player_stats.m_Distance;
 		m_Playtime = player_stats.m_Playtime;
@@ -204,7 +232,11 @@ modded class InGameMenu
 		m_InfectedKilled = player_stats.m_InfectedKilled;
 		m_AnimalsKilled = player_stats.m_AnimalsKilled;
 		m_LongestShot = player_stats.m_LongestShot;
+
+		return true;
 #endif
+
+		return false;
 	}
 
 	// ------------------------------------------------------------
@@ -212,8 +244,6 @@ modded class InGameMenu
 	// ------------------------------------------------------------
 	private void UpdatePlayerStatValues()
 	{
-		GetValuesFromMonitor();
-
 		if ( GetGame().GetPlayer() && GetGame().GetPlayer().GetIdentity() )
 		{
 			string name = GetGame().GetPlayer().GetIdentity().GetName();

@@ -15,7 +15,7 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
@@ -25,7 +25,12 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool VehicleCarKey;			//! If enabled, generate logs about pairing, unpairing, locking, unlocking vehicles with car keys
 	bool VehicleTowing;			//! If enabled, generate logs about towing and untowing vehicles
 	bool VehicleLockPicking;	//! If enabled, generate logs about lockpicking a vehicle
-	bool VehicleDestroyed; 		// Print a log when a vehicle is destroyed
+	bool VehicleDestroyed; 		//! Print a log when a vehicle is destroyed
+	bool VehicleAttachments;
+	bool VehicleEnter;
+	bool VehicleLeave;
+	bool VehicleDeleted;
+	bool VehicleEngine;
 	#endif
 
 	#ifdef EXPANSIONMODBASEBUILDING
@@ -152,6 +157,11 @@ class ExpansionLogSettings: ExpansionSettingBase
 		VehicleTowing = s.VehicleTowing;
 		VehicleLockPicking = s.VehicleLockPicking;
 		VehicleDestroyed = s.VehicleDestroyed;
+		VehicleAttachments = s.VehicleAttachments;
+		VehicleEnter = s.VehicleEnter;
+		VehicleLeave = s.VehicleLeave;
+		VehicleDeleted = s.VehicleDeleted;
+		VehicleEngine = s.VehicleEngine;
 		#endif
 
 		#ifdef EXPANSIONMODBASEBUILDING
@@ -271,6 +281,17 @@ class ExpansionLogSettings: ExpansionSettingBase
 					ExplosionDamageSystem = settingsDefault.ExplosionDamageSystem;
 				}
 
+				#ifdef EXPANSIONMODVEHICLE
+				if (m_Version < 6)
+				{
+					VehicleAttachments = settingsDefault.VehicleAttachments;
+					VehicleEnter = settingsDefault.VehicleEnter;
+					VehicleLeave = settingsDefault.VehicleLeave;
+					VehicleDeleted = settingsDefault.VehicleDeleted;
+					VehicleEngine = settingsDefault.VehicleEngine;
+				}
+				#endif
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -323,6 +344,11 @@ class ExpansionLogSettings: ExpansionSettingBase
 		VehicleCarKey = true;
 		VehicleTowing = true;
 		VehicleLockPicking = true;
+		VehicleAttachments = true;
+		VehicleEnter = true;
+		VehicleLeave = true;
+		VehicleDeleted = true;
+		VehicleEngine = true;
 		#endif
 
 		#ifdef EXPANSIONMODBASEBUILDING

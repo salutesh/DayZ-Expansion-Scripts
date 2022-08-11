@@ -89,6 +89,18 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 		
 		Print("ExpansionActionOpenTraderMenu::OnStartClient - Start");
 		
+		/**
+		 * Client/server handshake
+		 * 
+		 * Client: RequestTraderData
+		 * Server: RPC_RequestTraderData
+		 * Server: LoadTraderData
+		 * Client: RPC_LoadTraderData
+		 * Client: RequestTraderItems
+		 * Server: RPC_RequestTraderItems
+		 * Server: LoadTraderItems
+		 * Client: RPC_LoadTraderItems
+		 **/
 		m_MarketModule.RequestTraderData(m_TraderObject);
 		m_MarketModule.OpenTraderMenu();
 	}

@@ -585,7 +585,7 @@
 				<position_destination x="304.837936881655" y="365.435451333598" />
 			</editor_data>
 			<guard>
-				if (GetGame().GetTime() - dst.sub_fsm.last_attempt_time &lt; 5000) return FAIL;
+				if (GetGame().GetTime() - dst.sub_fsm.last_attempt_time &lt; 1000) return FAIL;
 				
 				if (unit.IsInMelee()) return FAIL;
 				
@@ -594,10 +594,7 @@
 				//! Allow sub-FSM to handle destroyed weapon so it gets dropped
 				if (dst.sub_fsm.weapon.IsDamageDestroyed()) return SUCCESS;
 				
-				int mi = dst.sub_fsm.weapon.GetCurrentMuzzle();
-				bool isChamberEmpty = dst.sub_fsm.weapon.IsChamberEmpty(mi);
-				bool isChamberFiredOut = dst.sub_fsm.weapon.IsChamberFiredOut(mi);
-				if (!(isChamberFiredOut || isChamberEmpty)) return FAIL;
+				if (dst.sub_fsm.weapon.Expansion_IsChambered()) return FAIL;
 				
 				if (unit.GetWeaponManager().CanUnjam(dst.sub_fsm.weapon)) return FAIL;
 				

@@ -19,6 +19,7 @@ modded class DayZGame
 	protected int m_Expansion_StartTime;
 
 	protected vector m_WorldCenterPosition;
+	protected bool m_Expansion_IsMissionMainMenu;
 	
 	// ------------------------------------------------------------
 	// DayZGame Constructor
@@ -228,5 +229,15 @@ modded class DayZGame
 			return;
 		
 		super.OnRPC(sender, target, rpc_type, ctx);
+	}
+
+	void Expansion_SetIsMissionMainMenu(bool state)
+	{
+		m_Expansion_IsMissionMainMenu = state;
+	}
+
+	bool Expansion_IsMissionMainMenu()
+	{
+		return m_Expansion_IsMissionMainMenu;
 	}
 };

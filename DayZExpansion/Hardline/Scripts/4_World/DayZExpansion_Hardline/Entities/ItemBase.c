@@ -20,7 +20,7 @@ modded class ItemBase
 
 		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseItemRarity)
 		{
-			m_Expansion_Rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(GetType());
+			m_Expansion_Rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(GetType());
 
 		#ifdef EXPANSIONMODHARDLINEDEBUG
 			EXTrace.Print(EXTrace.HARDLINE, this, "- Hardline item rarity: " + typename.EnumToString(ExpansionHardlineItemRarity, m_Expansion_Rarity));

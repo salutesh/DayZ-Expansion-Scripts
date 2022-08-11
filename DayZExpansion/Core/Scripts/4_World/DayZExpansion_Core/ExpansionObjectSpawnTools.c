@@ -16,7 +16,7 @@ class ExpansionObjectSpawnTools
 	static string objectFilesFolder;
 	static string traderFilesFolder;
 		
-	void ~ExpansionObjectSpawnTools()
+	static void DeleteFireplaces()
 	{
 		Print("Clear up static fireplaces: " + firePlacesToDelete.Count());
 		foreach (Entity fireplace: firePlacesToDelete)
@@ -152,8 +152,6 @@ class ExpansionObjectSpawnTools
 
 		CF_Log.Debug("Try to process mapping object: " + obj.ClassName());
 
-		ItemBase item;
-
 		if (obj.IsInherited(ExpansionPointLight))
 		{
 			ExpansionPointLight light = ExpansionPointLight.Cast(obj);
@@ -164,50 +162,13 @@ class ExpansionObjectSpawnTools
 			
 			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
-		else if (obj.IsKindOf("Fireplace"))
+		else if (obj.IsInherited(FireplaceBase))
 		{
-			Fireplace fireplace = Fireplace.Cast(obj);
-			if (fireplace)
-			{
-				//! Add bark
-				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Bark_Oak"));
-				item.SetQuantity(8);
-				//! Add firewood
-				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Firewood"));
-				item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
-				//! Add sticks
-				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("WoodenStick"));
-				item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
-
-				fireplace.StartFire();
-			}
+			ProcessFireplace(obj);
 
 			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
-		else if (obj.IsInherited(BarrelHoles_ColorBase))
-		{
-			BarrelHoles_Red barrel = BarrelHoles_Red.Cast(obj);
-			if (barrel) 
-			{
-				//! Need to open barrel first, otherwise can't add items
-				barrel.Open();
-
-				//! Add bark
-				item = ItemBase.Cast(barrel.GetInventory().CreateAttachment("Bark_Oak"));
-				item.SetQuantity(8);
-				//! Add firewood
-				item = ItemBase.Cast(barrel.GetInventory().CreateAttachment("Firewood"));
-				item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
-				//! Add sticks
-				item = ItemBase.Cast(barrel.GetInventory().CreateAttachment("WoodenStick"));
-				item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
-
-				barrel.StartFire();
-			}
-
-			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
-		}
-		else if (obj.IsKindOf("Roadflare"))
+		else if (obj.IsInherited(Roadflare))
 		{
 			Roadflare flare = Roadflare.Cast( obj );
 			if (flare) 
@@ -249,30 +210,37 @@ class ExpansionObjectSpawnTools
 				Object obj_fireplace = GetGame().CreateObjectEx("FireplaceIndoor", fire_place_pos_world, ECE_PLACE_ON_SURFACE|ECE_NOLIFETIME);
 				firePlacesToDelete.Insert(EntityAI.Cast(obj_fireplace));
 				
-				FireplaceIndoor fp_indoor = FireplaceIndoor.Cast(obj_fireplace);
-				if (fp_indoor)
-				{
-					fp_indoor.SetFirePointIndex(fire_point_index);
-					fp_indoor.SetSmokePointPosition(smokePos);
-					fp_indoor.SetOrientation("0 0 0");
-
-					//! Add bark
-					item = ItemBase.Cast(fp_indoor.GetInventory().CreateAttachment("Bark_Oak"));
-					item.SetQuantity(8);
-					//! Add firewood
-					item = ItemBase.Cast(fp_indoor.GetInventory().CreateAttachment("Firewood"));
-					item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
-					//! Add sticks
-					item = ItemBase.Cast(fp_indoor.GetInventory().CreateAttachment("WoodenStick"));
-					item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
-					
-					fp_indoor.StartFire();
-				}
+				ProcessFireplace(obj_fireplace);
 			}
 
 			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
 		#endif
+	}
+
+	static void ProcessFireplace(Object obj)
+	{
+		FireplaceBase fireplace = FireplaceBase.Cast(obj);
+		if (fireplace)
+		{
+			ItemBase item;
+
+			//! Need to open barrel first, otherwise can't add items
+			if (fireplace.IsInherited(BarrelHoles_ColorBase))
+				fireplace.Open();
+
+			//! Add bark
+			item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Bark_Oak"));
+			item.SetQuantity(8);
+			//! Add firewood
+			item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Firewood"));
+			item.SetQuantity(6);  //! Can only increase stack over 1 AFTER it has been attached because stack max depends on slot!
+			//! Add sticks
+			item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("WoodenStick"));
+			item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
+
+			fireplace.StartFire();
+		}
 	}
 
 	static void ProcessGear(EntityAI entity, string gear)

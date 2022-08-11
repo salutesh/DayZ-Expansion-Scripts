@@ -66,12 +66,12 @@ modded class IngameHud
 		m_HasCompassItem = false;
 		m_ExpansionCompassToggle = true;
 
-		GetExpansionClientSettings().SI_UpdateSetting.Insert(RefreshHudVisibility);
+		ExpansionSettings.SI_Map.Insert(Expansion_OnNavigationSettingsUpdated);
 	}
 
 	void ~IngameHud()
 	{
-		GetExpansionClientSettings().SI_UpdateSetting.Remove(RefreshHudVisibility);
+		ExpansionSettings.SI_Map.Remove(Expansion_OnNavigationSettingsUpdated);
 	}
 
 	override void Init(Widget hud_panel_widget)
@@ -130,6 +130,9 @@ modded class IngameHud
 				m_PlayerArrowMarker.Hide();
 		}
 		
+		if (!GetExpansionSettings().GetMap(false).IsLoaded())
+			return;
+
 		if (GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2)
 		{
 			if (m_PlayerArrowMarker)
@@ -185,7 +188,7 @@ modded class IngameHud
 			UpdateGPS();
 
 			//! COMPASS HUD
-			if (GetExpansionSettings() && GetExpansionSettings().GetMap())
+			if (GetExpansionSettings().GetMap())
 			{
 				if (GetExpansionSettings().GetMap().EnableHUDCompass)
 				{
@@ -255,13 +258,16 @@ modded class IngameHud
 		}
 	}
 
-	override void RefreshHudVisibility()
+	void Expansion_OnNavigationSettingsUpdated()
 	{
-		super.RefreshHudVisibility();
-
 		m_ExpansionGPSSetting = GetExpansionSettings().GetMap().EnableHUDGPS;
 		m_ExpansionGPSPosSetting = GetExpansionSettings().GetMap().ShowPlayerPosition;
 		m_ExpansionCompassSetting = GetExpansionSettings().GetMap().EnableHUDCompass;
+	}
+
+	override void RefreshHudVisibility()
+	{
+		super.RefreshHudVisibility();
 
 		if (m_GPSPanel)
 		{

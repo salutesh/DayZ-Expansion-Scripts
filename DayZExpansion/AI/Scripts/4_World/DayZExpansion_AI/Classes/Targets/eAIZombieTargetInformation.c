@@ -1,7 +1,5 @@
 class eAIZombieTargetInformation extends eAIEntityTargetInformation
 {
-	private const float DISTANCE_COEF = 0.001;
-
 	private ZombieBase m_Zombie;
 	private DayZInfectedInputController m_DIIP;
 
@@ -49,18 +47,20 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 			levelFactor = 0.50;
 			break;
 		case DayZInfectedConstants.MINDSTATE_CHASE:
-			levelFactor = 0.75;
+			levelFactor = 1.0;
 			break;
 		case DayZInfectedConstants.MINDSTATE_FIGHT:
-			levelFactor = 1.00;
+			levelFactor = 2.00;
 			break;
 		}
 
 		if (ai)
 		{
 			// the further away the zombie, the less likely it will be a threat
-			float distance = GetDistance(ai) + DISTANCE_COEF;
+			float distance = GetDistance(ai) + 0.1;
 			levelFactor *= 10 / distance;
+			if (levelFactor > 1.0)
+				levelFactor = Math.Pow(levelFactor, 2.0);
 
 			if (m_DIIP.GetTargetEntity() == ai)
 			{
@@ -71,7 +71,7 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 			}
 		}
 
-		return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
+		return Math.Clamp(levelFactor, 0.0, 1000000.0);
 	}
 
 	override bool ShouldRemove(eAIBase ai = null)

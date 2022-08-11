@@ -29,84 +29,25 @@ modded class ExpansionItemTooltip
 			return;
 		
 		ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
-		string text;
-		int color;
-        switch (rarity)
-        {
-            case ExpansionHardlineItemRarity.MYTHIC:
-            {
-                color = EXPASNION_ITEM_COLOR_MYTHIC;
-                text = "#STR_EXPANSION_HARDLINE_MYTHIC";
-                break;
-            }
-            case ExpansionHardlineItemRarity.EXOTIC:
-            {
-                color = EXPASNION_ITEM_COLOR_EXOTIC;
-                text = "#STR_EXPANSION_HARDLINE_EXOTIC";
-                break;
-            }
-            case ExpansionHardlineItemRarity.LEGENDARY:
-            {
-                color = EXPASNION_ITEM_COLOR_LEGENDARY;
-                text = "#STR_EXPANSION_HARDLINE_LEGENDARY";
-                break;
-            }
-            case ExpansionHardlineItemRarity.EPIC:
-            {
-                color = EXPASNION_ITEM_COLOR_EPIC;
-                text = "#STR_EXPANSION_HARDLINE_EPIC";
-                break;
-            }
-            case ExpansionHardlineItemRarity.RARE:
-            {
-                color = EXPASNION_ITEM_COLOR_RARE;
-                text = "#STR_EXPANSION_HARDLINE_RARE";
-                break;
-            }
-            case ExpansionHardlineItemRarity.UNCOMMON:
-            {
-                color = EXPASNION_ITEM_COLOR_UNCOMMON;
-                text = "#STR_EXPANSION_HARDLINE_UNCOMMON";
-                break;
-            }
-            case ExpansionHardlineItemRarity.COMMON:
-            {
-                color = EXPASNION_ITEM_COLOR_COMMON;
-                text = "#STR_EXPANSION_HARDLINE_COMMON";
-                break;
-            }
-            case ExpansionHardlineItemRarity.POOR:
-            {
-                color = EXPASNION_ITEM_COLOR_POOR;
-                text = "#STR_EXPANSION_HARDLINE_POOR";
-                break;
-            }
-			case ExpansionHardlineItemRarity.NONE:
-            {
-                return;
-            }
-        }
+			
+		if (rarity == ExpansionHardlineItemRarity.NONE)
+			return;
 
-		Print(ToString() + "UpdateItemRarity - Type:" + itemBase.GetType());
-		Print(ToString() + "UpdateItemRarity - Rarity:" + rarity);
-        Print(ToString() + "UpdateItemRarity - Text:" + text);
-        Print(ToString() + "UpdateItemRarity - Color:" + color);
+		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
+		string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
+		int color;
+		typename type = ExpansionHardlineItemRarityColor;
+		ExpansionStatic.GetVariableIntByName(type, rarityName, color);
 
         ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
         m_ItemTooltipController.ItemStatsElements.Insert(element);
-
-        Print(ToString() + "UpdateItemRarity - End");
 	}
 		
     override void Show()
 	{
-		Print(ToString() + "Show - Start");
-		
 		if (GetExpansionSettings().GetHardline().UseItemRarity)				
 			UpdateItemRarity();
 
 		super.Show();
-		
-		Print(ToString() + "Show - End");
 	}
 };

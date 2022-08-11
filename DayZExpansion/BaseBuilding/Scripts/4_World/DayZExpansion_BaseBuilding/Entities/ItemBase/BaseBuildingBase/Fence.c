@@ -96,43 +96,6 @@ modded class Fence
 		
 		return false;
 	}
-	
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return true;
-		#endif
-
-		if ( m_ExpansionSaveVersion < 19 )
-			return true;
-
-		if ( m_ExpansionSaveVersion < 38 )
-		{
-			if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
-				return false;
-	
-			if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-				return false;
-
-			m_CodeLength = m_Code.Length();
-	
-			bool hasCode;
-			if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
-				return false;
-		}
-		
-		//! If Code Locks on the Fence it will remove them Just calling later so simplify and ensure that the code lock has been created
-		if ( !ExpansionCanAttachCodeLock() )
-		{
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.ExpansionCodeLockRemove, 1000, false );
-		}
-		
-		return true;
-	}
 
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)

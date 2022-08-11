@@ -187,7 +187,7 @@ class ExpansionActionConnectTow : ActionInteractBase
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
 		// only check on connection
-		if (GetExpansionSettings() && !GetExpansionSettings().GetVehicle().Towing)
+		if (!GetExpansionSettings().GetVehicle(false).IsLoaded() || !GetExpansionSettings().GetVehicle().Towing)
 			return false;
 
 		if (!super.ActionCondition(player, target, item))

@@ -206,23 +206,12 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		else if (hardlinePlayerData)
 		{
 			HardlineModulePrint("ExpansionHardlineModule::SetupClientData - Got cached player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
-			PlayerHardlineInit(hardlinePlayerData, identity);
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule PlayerHardlineInit
-	// Server
-	// ------------------------------------------------------------
-	void PlayerHardlineInit(ExpansionHardlinePlayerData playerData, PlayerIdentity identity)
-	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+
+		if (!hardlinePlayerData)
 			return;
 
-		if (!playerData)
-			return;
-
-		SendPlayerHardlineData(playerData, identity);
+		SendPlayerHardlineData(hardlinePlayerData, identity);
 	}
 	
 	// -----------------------------------------------------------
@@ -375,12 +364,12 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				if ((killerIsBandit || killerIsHero) && victimIsBandit)
 				{
 					killerPlayerData.AddHumanity(humanityChange);
-					humanityText = "#STR_EXPANSION_HARDLINE_ADDED";
+					humanityText = "STR_EXPANSION_HARDLINE_ADDED";
 				}
 				else
 				{
 					killerPlayerData.RemoveHumanity(humanityChange);
-					humanityText = "#STR_EXPANSION_HARDLINE_REMOVED";
+					humanityText = "STR_EXPANSION_HARDLINE_REMOVED";
 				}
 					
 				if (humanityChange != 0)
@@ -390,8 +379,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 					
 					SendPlayerHardlineData(victimPlayerData, victimPlayer.GetIdentity());
 							
-					title = new StringLocaliser("#STR_EXPANSION_HARDLINE_KILLED", victimPlayerData.GetRankName());
-					text = new StringLocaliser("#STR_EXPANSION_HARDLINE_HUMANITY_CHANGE", humanityText, humanityChange.ToString());
+					title = new StringLocaliser("STR_EXPANSION_HARDLINE_KILLED", victimPlayerData.GetRankDisplayName());
+					text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_CHANGE", humanityText, humanityChange.ToString());
 					ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 				}
 			}
@@ -406,7 +395,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
 					
 					title = new StringLocaliser("Infected Killed");
-					text = new StringLocaliser("#STR_EXPANSION_HARDLINE_HUMANITY_ADDED", humanityOnKillInfected.ToString());
+					text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_ADDED", humanityOnKillInfected.ToString());
 					ExpansionNotification(title, text, ExpansionIcons.GetPath("Infected 2"),  ARGB(255, 160, 223, 59), 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 				}
 				
@@ -421,13 +410,13 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				if (killerHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
 				{
 					killerPlayerData.RemoveHumanity(humanityOnKillAI);
-					humanityText = "#STR_EXPANSION_HARDLINE_REMOVED";
+					humanityText = "STR_EXPANSION_HARDLINE_REMOVED";
 				}
 				//! If killerPlayer is hero or neutral
 				else
 				{
 					killerPlayerData.AddHumanity(humanityOnKillAI);
-					humanityText = "#STR_EXPANSION_HARDLINE_ADDED";
+					humanityText = "STR_EXPANSION_HARDLINE_ADDED";
 				}
 				
 				killerPlayerData.OnAIKilled();
@@ -437,8 +426,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
 					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
 							
-					title = new StringLocaliser("#STR_EXPANSION_HARDLINE_KILLED", victim.GetDisplayName());
-					text = new StringLocaliser("#STR_EXPANSION_HARDLINE_HUMANITY_CHANGE", humanityText, humanityOnKillAI.ToString());
+					title = new StringLocaliser("STR_EXPANSION_HARDLINE_KILLED", victim.GetDisplayName());
+					text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_CHANGE", humanityText, humanityOnKillAI.ToString());
 					ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 				}
 			}
@@ -527,8 +516,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 		hardlinePlayerData.AddHumanity(humanity);
 			
-		StringLocaliser title = new StringLocaliser("#STR_EXPANSION_HARDLINE_ACTION_POSITIVE");
-		StringLocaliser text = new StringLocaliser("#STR_EXPANSION_HARDLINE_HUMANITY_ADDED", humanity.ToString());
+		StringLocaliser title = new StringLocaliser("STR_EXPANSION_HARDLINE_ACTION_POSITIVE");
+		StringLocaliser text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_ADDED", humanity.ToString());
 		
 		ExpansionNotification(title, text, ExpansionIcons.GetPath("Star"),  COLOR_EXPANSION_NOTIFICATION_AMETHYST, 2, ExpansionNotificationType.ACTIVITY).Create(player.GetIdentity());
 		
@@ -557,8 +546,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		hardlinePlayerData.RemoveHumanity(humanity);
 			
-		StringLocaliser title = new StringLocaliser("#STR_EXPANSION_HARDLINE_ACTION_NEGATIVE");
-		StringLocaliser text = new StringLocaliser("#STR_EXPANSION_HARDLINE_HUMANITY_REMOVED", humanity.ToString());
+		StringLocaliser title = new StringLocaliser("STR_EXPANSION_HARDLINE_ACTION_NEGATIVE");
+		StringLocaliser text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_REMOVED", humanity.ToString());
 		
 		ExpansionNotification(title, text, ExpansionIcons.GetPath("Star"),  COLOR_EXPANSION_NOTIFICATION_AMETHYST, 2, ExpansionNotificationType.ACTIVITY).Create(player.GetIdentity());
 		
@@ -576,70 +565,15 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);		
 		if (player && player.HasDogtag())
 		{
-			int slotId = InventorySlots.GetSlotIdFromString("Dogtag");
-			Dogtag_Base newTag;
 			Dogtag_Base currentTag = Dogtag_Base.Cast(player.FindAttachmentBySlotName("Dogtag"));
 			if (currentTag)
 			{
 				ExpansionHardlinePlayerData data = GetPlayerHardlineDataByUID(playerID);
 				if (data)
 				{
-					string dogTagType;
-					switch (data.GetRank())
-					{
-						case ExpansionPlayerRank.SCOUT:
-						{
-							dogTagType = "Dogtag_Scout";
-							break;
-						}
-						case ExpansionPlayerRank.PATHFINDER:
-						{
-							dogTagType = "Dogtag_Pathfinder";
-							break;
-						}
-						case ExpansionPlayerRank.HERO:
-						{
-							dogTagType = "Dogtag_Hero";
-							break;
-						}
-						case ExpansionPlayerRank.SUPERHERO:
-						{
-							dogTagType = "Dogtag_Superhero";
-							break;
-						}
-						case ExpansionPlayerRank.LEGEND:
-						{
-							dogTagType = "Dogtag_Legend";
-							break;
-						}
-						case ExpansionPlayerRank.KLEPTOMANIAC:
-						{
-							dogTagType = "Dogtag_Kleptomaniac";
-							break;
-						}
-						case ExpansionPlayerRank.BULLY:
-						{
-							dogTagType = "Dogtag_Bully";
-							break;
-						}
-						case ExpansionPlayerRank.BANDIT:
-						{
-							dogTagType = "Dogtag_Bandit";
-							break;
-						}
-						case ExpansionPlayerRank.KILLER:
-						{
-							dogTagType = "Dogtag_Killer";
-							break;
-						}
-						case ExpansionPlayerRank.MADMAN:
-						{
-							dogTagType = "Dogtag_Madman";
-							break;
-						}
-					}
+					string dogTagType = "Dogtag_" + typename.EnumToString(ExpansionHardlineRank, data.GetRank());
 					
-					if (dogTagType != "" && currentTag.GetType() != dogTagType)
+					if (dogTagType != "Dogtag_" && currentTag.GetType() != dogTagType)
 					{
 						currentTag.ReplaceDogtag(dogTagType);
 					}
@@ -721,18 +655,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		PlayerBase player = PlayerBase.GetPlayerByUID(identity.GetId());
 		if (player)
 		{
-			player.SetIsBandit(false);
-			player.SetIsHero(false);
-						
-			if (hardlinePlayerData.GetHumanity() <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-			{
-				player.SetIsBandit(true);
-			}
-			else if (hardlinePlayerData.GetHumanity() >= GetExpansionSettings().GetHardline().RankScout)			
-			{
-				player.SetIsHero(true);
-			}
-			
 			player.SetHumanity(hardlinePlayerData.GetHumanity());
 		}
 		
@@ -742,7 +664,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 		ScriptRPC rpc = new ScriptRPC();
 		hardlinePlayerData.OnSend(rpc);
-		GetExpansionSettings().GetHardline().OnSend(rpc);
 		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendPlayerHardlineData, false, identity);
 	}
 
@@ -763,25 +684,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			Error("ExpansionHardlineModule::RPC_SendPlayerHardlineData - Error on recieving hardline player data!");
 			return;
 		}
-		
-		if (!GetExpansionSettings().GetHardline().OnRecieve(ctx))
-			return;
 
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player)
 		{
-			player.SetIsBandit(false);
-			player.SetIsHero(false);
-			
-			if (m_HardlinePlayerData.GetHumanity() <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-			{
-				player.SetIsBandit(true);
-			}
-			else if (m_HardlinePlayerData.GetHumanity() >= GetExpansionSettings().GetHardline().RankScout)			
-			{
-				player.SetIsHero(true);
-			}
-			
 			player.SetHumanity(m_HardlinePlayerData.GetHumanity());
 		}
 	}

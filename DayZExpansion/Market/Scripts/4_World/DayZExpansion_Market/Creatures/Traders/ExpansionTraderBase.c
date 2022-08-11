@@ -263,12 +263,13 @@ class ExpansionTraderObjectBase
 			if (!ctx.Read(fileName))
 				return;
 				
-			m_Trader = GetExpansionSettings().GetMarket().GetMarketTrader(fileName);
+			auto marketSettings = GetExpansionSettings().GetMarket(false);
+			m_Trader = marketSettings.GetMarketTrader(fileName);
 			if (!m_Trader)
 			{
 				m_Trader = new ExpansionMarketTrader;
 				m_Trader.m_FileName = fileName;
-				GetExpansionSettings().GetMarket().AddMarketTrader(m_Trader);
+				marketSettings.AddMarketTrader(m_Trader);
 			}
 
 			if (!ctx.Read(m_Trader.DisplayName))
@@ -548,11 +549,6 @@ class ExpansionTraderObjectBase
 			return string.Empty;
 
 		string traderName = GetTraderMarket().DisplayName;
-		if (traderName.Contains("#"))
-		{
-			StringLocaliser name = new StringLocaliser(traderName);
-			traderName = name.Format();
-		}
 
 		if (!m_TraderEntity)
 			return traderName;

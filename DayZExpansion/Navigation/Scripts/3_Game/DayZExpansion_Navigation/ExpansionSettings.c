@@ -44,7 +44,8 @@ modded class ExpansionSettings
 			{
 				auto marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.SERVER, uid_add);
 				marker.OnRecieve(ctx);
-				GetExpansionSettings().GetMap().AddServerMarker(marker);
+				if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to add marker if map settings not yet received
+					GetExpansionSettings().GetMap().AddServerMarker(marker);
 			}
 			return true;
 
@@ -52,7 +53,8 @@ modded class ExpansionSettings
 			string uid_remove;
 			if (!Expansion_Assert_False(ctx.Read(uid_remove), "ExpansionSettingsRPC.RemoveServerMarker - Failed reading marker UID"))
 			{
-				GetExpansionSettings().GetMap().RemoveServerMarker(uid_remove);
+				if (GetExpansionSettings().GetMap(false).IsLoaded()) //! No need to remove marker if map settings not yet received
+					GetExpansionSettings().GetMap().RemoveServerMarker(uid_remove);
 			}
 			return true;
 		}

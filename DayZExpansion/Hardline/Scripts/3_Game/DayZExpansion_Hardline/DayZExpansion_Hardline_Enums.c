@@ -13,14 +13,14 @@
 enum ExpansionHardlineItemRarity
 {
 	NONE = 0
-	POOR,
-	COMMON,
-	UNCOMMON,
-	RARE,
-	EPIC,
-	LEGENDARY,
-	MYTHIC,
-	EXOTIC
+	Poor,
+	Common,
+	Uncommon,
+	Rare,
+	Epic,
+	Legendary,
+	Mythic,
+	Exotic
 };
 
 enum ExpansionHardlineItemTier
@@ -33,4 +33,26 @@ enum ExpansionHardlineItemTier
 	TIER_6,
     TIER_7,
     TIER_8
+};
+
+enum ExpansionHardlineRank
+{
+	INVALID = 0,
+
+	Bambi,
+	Survivor,
+
+	//! Hero ranks
+	Scout,
+	Pathfinder,
+	Hero,
+	Superhero,
+	Legend,
+
+	//! Bandit ranks
+	Kleptomaniac,
+	Bully,
+	Bandit,
+	Killer,
+	Madman
 };

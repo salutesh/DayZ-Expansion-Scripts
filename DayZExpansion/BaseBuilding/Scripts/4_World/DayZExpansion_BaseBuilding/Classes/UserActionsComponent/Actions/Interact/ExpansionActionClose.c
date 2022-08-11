@@ -39,6 +39,9 @@ class ExpansionActionClose: ActionInteractBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		if ( !Class.CastTo( m_Target, target.GetObject() ) )
 			if ( !Class.CastTo( m_Target, target.GetParent() ) )
 				return false;

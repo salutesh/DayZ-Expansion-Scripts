@@ -114,14 +114,14 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	{
 		m_MarketItemManagerController.ItemCategories.Clear();
 
-		m_MarketItemManagerController.ItemPreview = m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject();
-		m_MarketItemManagerController.NotifyPropertyChanged("ItemPreview");
+		RefreshPreview();
 				
-		string className = m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType();
-		m_MarketItemManagerController.ItemName = ExpansionStatic.GetItemDisplayNameWithType(className);
+		auto previewObject = m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject();
+		string className = previewObject.GetType();
+		m_MarketItemManagerController.ItemName = previewObject.GetDisplayName();
 		m_MarketItemManagerController.NotifyPropertyChanged("ItemName");
 			
-		if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
+		if (previewObject.IsWeapon())
 		{
 			AddCategory(className, "#STR_CfgMagazine0", {ExpansionMarketAttachType.MAGAZINE}, "magazine");
 			AddCategory(className, "#STR_CfgWeaponOptics0", {ExpansionMarketAttachType.OPTIC}, "weaponoptics");
@@ -135,8 +135,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			AddCategory(className, "#STR_CfgFlashlight0", {ExpansionMarketAttachType.LIGHT}, "weaponflashlight");
 			AddCategory(className, "#STR_EXPANSION_CfgOther0", {ExpansionMarketAttachType.OTHER}, "shoulderright");
 		}
-		
-		if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsClothing())
+		else if (previewObject.IsClothing())
 		{
 			AddCategory(className, "#STR_CfgBelt_Left0", {ExpansionMarketAttachType.CANTEENS}, "canteen");
 			AddCategory(className, "#STR_CfgVestGrenade0", {ExpansionMarketAttachType.GRENADES}, "grenade");

@@ -210,7 +210,30 @@ modded class ActionGetInTransport
 		super.OnEndServer(action_data);
 
 		action_data.m_Player.SetInVehicle(true);
-		if (car && car.IsHelicopter())
+		if (!car)
+			return;
+
+		if (car.IsHelicopter())
 			car.SetHasPilot(car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != NULL);  //! So we are able to detect if pilot got disconnected or got out on own accord
+		
+		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
+		{
+			int componentIndex = action_data.m_Target.GetComponentIndex();
+			int crew_index = car.CrewPositionIndex(componentIndex);
+			string seat;
+			if (crew_index == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			{
+				if (car.IsHelicopter() || car.IsPlane())
+					seat = "pilot";
+				else
+					seat = "driver";
+			}
+			else
+			{
+				seat = "passenger";
+			}
+
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] entered vehicle " + car.GetDisplayName() + " (pos=" + car.GetPosition() + ", type=" + car.GetType() + ") as " + seat);
+		}
 	}
 };

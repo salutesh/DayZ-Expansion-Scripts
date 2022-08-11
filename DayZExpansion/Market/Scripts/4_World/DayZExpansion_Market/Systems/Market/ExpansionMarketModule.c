@@ -294,6 +294,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("OnMissionLoaded - Start");
 		
 		super.OnMissionLoaded(sender, args);
+
+		if (!GetGame().IsServer())
+			return;
 		
 		LoadMoneyPrice();
 		
@@ -958,51 +961,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 	int GetItemAmount(EntityAI item)
 	{
 		int amount;
-		
-		ItemBase itemBase = ItemBase.Cast(item);
+		ItemBase itemBase;
 		
 		MarketModulePrint("GetItemAmount - Item type:" + item.GetType());
 		
-		if (item.IsKindOf("Container_Base"))
+		if (Class.CastTo(itemBase, item))
 		{
-			amount = 1;
-		}
-		else if (item.IsKindOf("ExpansionSpraycanBase"))
-		{
-			amount = 1;
-		}
-		else if (item.IsKindOf("Edible_Base"))
-		{
-			//! Food and liquid containers
-			amount = 1;
-		}
-		else if (item.IsInherited(MagazineStorage))
-		{
-			amount = 1;
-		}
-		else if (item.IsKindOf("Ammunition_Base"))
-		{
-			if (item.IsAmmoPile())
-			{
-				MarketModulePrint("GetItemAmount - Ammo Pile");
-				//! This looks like a wierd method but this how we get the actual ammo amount from an ammo pile
-				Magazine magazine = Magazine.Cast(item);
-				amount = magazine.GetAmmoCount();
-			}
-		}
-		else if (item.HasEnergyManager())
-		{
-			MarketModulePrint("GetItemAmount - Battery");
-			amount = 1;
-		}
-		else if (itemBase && itemBase.ConfigGetBool("canBeSplit"))
-		{
-			MarketModulePrint("GetItemAmount - Stackable");
-			amount = item.GetQuantity();
+			amount = itemBase.Expansion_GetStackAmount();
 		}
 		else
 		{
-			MarketModulePrint("GetItemAmount - Else");
 			amount = 1;
 		}
 		

@@ -66,7 +66,7 @@ PanelWidgetClass ExpansionDeadScreen {
      hexactsize 1
      vexactsize 1
      style Normal
-     text "#STR_EXPANSION_DEADSCREEN_STATS_TITLE"
+     text ""
      font "gui/fonts/sdf_MetronBook24"
      "text color" 1 1 1 1
      "italic text" 0

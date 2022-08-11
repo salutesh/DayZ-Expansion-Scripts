@@ -1,7 +1,5 @@
 class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 {
-	private const float DISTANCE_COEF = 0.0001;
-
 	private DayZPlayerImplement m_Player;
 
 	void eAIPlayerTargetInformation(EntityAI target)
@@ -25,7 +23,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai) + DISTANCE_COEF;
+			float distance = GetDistance(ai) + 0.1;
 
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
@@ -56,7 +54,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 				vector toTargetDirection = vector.Direction(ai.GetPosition(), m_Player.GetPosition()).Normalized();
 				float toTargetDot = vector.Dot(ai.GetDirection(), toTargetDirection);
 				if (fromTargetDot < 0.75 && toTargetDot < 0.75)  //! Target is facing away and AI is facing away
-					return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
+					return Math.Clamp(levelFactor, 0.0, 1000000.0);
 			}
 
 			//! Enemy is within 30 m, or farher than 30 m but looking in our direction,
@@ -87,12 +85,12 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			}
 		}
 
-		return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
+		return Math.Clamp(levelFactor, 0.0, 1000000.0);
 	}
 
 	static bool AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor, bool hasLOS = true)
 	{
-		Weapon gun;
+		Weapon_Base gun;
 		if (!Class.CastTo(gun, weapon))
 			return false;
 
@@ -100,34 +98,15 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 		//! Check if gun has available bullets either in chamber or internal/attached mag
 		/* XXX: Not sure if going to use this, seems a bit redundant. Disabled for now
-		if (gun.IsChamberEmpty(mi) || gun.IsChamberFiredOut(mi))
-		{
-			if (gun.HasInternalMagazine(mi))
-			{
-				if (!gun.GetInternalMagazineCartridgeCount(mi))
-					return;
-			}
-			else
-			{
-				Magazine mag;
-				if (Class.CastTo(mag, gun.GetMagazine()))
-				{
-					if (!mag.GetAmmoCount())
-						return;
-				}
-				else
-				{
-					return;
-				}
-			}
-		}
+		if (!gun.Expansion_HasAmmo())
+			return;
 		*/
 
 		//! Multiplicator based on weapon and attachments
 		ItemOptics optics;
 		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, weapon.GetAttachmentByType(ItemOptics)) && optics.GetZeroingDistanceZoomMax() >= distance))
 		{
-			levelFactor *= 10.0;  //! If either AI or target have a 5.56x45 mm bolt rifle, threat level 0.4 at 500 m
+			levelFactor *= 7.333333;  //! If either AI or target have a 7.62x54 mm bolt rifle, threat level 0.4 at 500 m
 		}
 		else if (weapon.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
 		{
@@ -139,7 +118,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 		}
 		else if (weapon.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
 		{
-			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 300 m
+			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 250 m
 		}
 		else
 		{
@@ -160,9 +139,8 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			{
 				float initSpeedMult = ExpansionWeaponUtils.GetWeaponInitSpeedMultiplier(gun.GetType());
 				damage *= initSpeedMult;
-				if (damage < 22.0)
-					damage = 22;  //! In combination with lowest multiplicator above, makes sure overall level factor can not go lower than input value
-				levelFactor *= damage / 55.0;
+				//! In combination with lowest multiplicator above, makes sure overall level factor can not go lower than input value
+				levelFactor *= Math.Clamp(damage, 22.0, 10000.0) / 55.0;
 			}
 		}
 

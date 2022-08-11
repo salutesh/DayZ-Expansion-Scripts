@@ -60,7 +60,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		if (!ShowContent())
 			Content.Show(false);
 		
-		m_ItemTooltipController.ItemName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetType());
+		m_ItemTooltipController.ItemName = m_Item.GetDisplayName();
 		m_ItemTooltipController.NotifyPropertyChanged("ItemName");
 		
 		if (!m_Item.IsInherited(ZombieBase) && !m_Item.IsInherited(Car))
@@ -694,7 +694,7 @@ class ExpansionItemPreviewTooltip: ExpansionScriptView
 	{
 		m_ItemTooltipController.ItemPreview = m_Item;
 		m_ItemTooltipController.NotifyPropertyChanged("ItemPreview");
-		m_ItemTooltipController.ItemName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetType());
+		m_ItemTooltipController.ItemName = m_Item.GetDisplayName();
 		m_ItemTooltipController.NotifyPropertyChanged("ItemName");
 	}
 	

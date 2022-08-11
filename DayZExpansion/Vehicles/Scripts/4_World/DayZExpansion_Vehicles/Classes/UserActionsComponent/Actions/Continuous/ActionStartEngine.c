@@ -90,6 +90,9 @@ modded class ActionStartEngine
 				{
 					int current = car.Expansion_EngineGetCurrent();
 					car.Expansion_EngineStart(current);
+
+					if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
+						GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] started vehicle " + car.GetDisplayName() + " (pos=" + car.GetPosition() + ", type=" + car.GetType() + ")");
 				}
 			}
 		}

@@ -46,6 +46,9 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
  	{
 		super.OnMissionStart(sender, args);
 
+		if (!GetGame().IsServer())
+			return;
+
 		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
 
 		if (GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule)
@@ -177,8 +180,6 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 			{
 				SI_LampEnable.Invoke( m_LightGenerators[i] );
 			}
-
-			ExpansionSettings.SI_General.Invoke();
 		}
 	}
 	

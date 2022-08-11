@@ -73,6 +73,9 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
  	override void OnMissionStart(Class sender, CF_EventArgs args)
  	{
 		super.OnMissionStart(sender, args);
+
+		if (!GetGame().IsServer())
+			return;
 		
 		LoadIviesPositions();
 	}

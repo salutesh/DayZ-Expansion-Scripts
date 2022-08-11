@@ -16,20 +16,13 @@
 class ExpansionSpraycanBase: ItemBase
 {
 	// ------------------------------------------------------------
-	// ExpansionSpraycanBase NameOverride
-	// ------------------------------------------------------------	
-	override bool NameOverride( out string output )
-	{
-		output = ExpansionStatic.GetItemDisplayNameWithType(GetType());
-		return true;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionSpraycanBase DescriptionOverride
 	// ------------------------------------------------------------	
 	override bool DescriptionOverride(out string output)
 	{
-		output = ExpansionStatic.GetItemDescriptionWithType(GetType());
+		output = ConfigGetString("descriptionShort");
+		if (output.IndexOf("STR_EXPANSION_SPRAYCAN_") == 0)
+			output = "#STR_EXPANSION_SPRAYCAN_BASE_DESC";
 		return true;
 	}
 	

@@ -78,6 +78,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	private ref array<ref ExpansionQuestClientMarker> m_QuestMarkers; //! Client
 #endif
 
+	string m_Folder;
+	string m_QuestItemsFileName;
+	ref map<int, ref map<int, ref map<int, ref map<int, bool>>>> m_QuestItemIDs;
+
 	// ------------------------------------------------------------
 	// ExpansionQuestModule Constructor
 	// ------------------------------------------------------------
@@ -88,6 +92,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#endif
 
 		QuestModulePrint(ToString() + "::ExpansionQuestModule - Start");
+
+		m_QuestItemIDs = new map<int, ref map<int, ref map<int, ref map<int, bool>>>>;
 
 		QuestModulePrint(ToString() + "::ExpansionQuestModule - End");
 	}
@@ -115,8 +121,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		super.OnInit();
 
-		EnableMissionFinish();
+		EnableMissionStart();
 		EnableMissionLoaded();
+		EnableMissionFinish();
 		EnableInvokeConnect();
 		EnableClientLogout();
 		EnableClientLogoutCancelled();
@@ -181,6 +188,25 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER))
 			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
 	#endif
+
+		if (!FileExist(m_Folder))
+			MakeDirectory(m_Folder);
+	}
+
+	override void OnMissionStart(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS);
+
+		super.OnMissionStart(sender, args);
+
+		if (!GetGame().IsDedicatedServer())
+			return;
+
+		int instance_id = GetGame().ServerConfigGetInt( "instanceId" );
+		string folder = "$mission:storage_" + instance_id + "\\expansion\\";
+		m_Folder = folder;
+		m_QuestItemsFileName = folder + "questitems.bin";
+		LoadQuestItemIDs();
 	}
 
 	// ------------------------------------------------------------
@@ -649,6 +675,146 @@ class ExpansionQuestModule: CF_ModuleWorld
 			quest.CreateQuestItems();
 		}
 	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule WorldCleanup
+	// ------------------------------------------------------------
+	void WorldCleanup(EntityAI entity, bool objDelete = true)
+	{
+		int b1, b2, b3, b4;
+		entity.GetPersistentID(b1, b2, b3, b4);
+
+		map<int, ref map<int, ref map<int, bool>>> m1 = m_QuestItemIDs[b1];
+		if (m1)
+		{
+			map<int, ref map<int, bool>> m2 = m1[b2];
+			if (m2)
+			{
+				map<int, bool> m3 = m2[b3];
+				if (m3 && m3[b4])
+				{
+					EXTrace.Print(EXTrace.QUESTS, entity, "Deleted");
+					if (objDelete)
+						GetGame().ObjectDelete(entity);
+					m3.Remove(b4);
+					if (!m3.Count())
+					{
+						m2.Remove(b3);
+						if (!m2.Count())
+						{
+							m1.Remove(b2);
+							if (!m1.Count())
+							{
+								m_QuestItemIDs.Remove(b1);
+							}
+						}
+					}
+					SaveQuestItemIDs();
+				}
+			}
+		}
+	}
+
+	private void LoadQuestItemIDs()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (!FileExist(m_QuestItemsFileName))
+			return;
+
+		FileSerializer file = new FileSerializer;
+		if (file.Open(m_QuestItemsFileName, FileMode.READ))
+		{
+			int count;
+
+			while (true)
+			{
+				int b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+
+				file.Read(b1);
+				file.Read(b2);
+				file.Read(b3);
+				file.Read(b4);
+
+				if (!b1 && !b2 && !b3 && !b4)
+					break;
+
+				EXTrace.Print(EXTrace.QUESTS, this, "Read " + ExpansionStatic.IntToHex(b1) + " " + ExpansionStatic.IntToHex(b2) + " " + ExpansionStatic.IntToHex(b3) + " " + ExpansionStatic.IntToHex(b4));
+
+				map<int, ref map<int, ref map<int, bool>>> m1 = m_QuestItemIDs[b1];
+				if (!m1)
+				{
+					m1 = new map<int, ref map<int, ref map<int, bool>>>;
+					m_QuestItemIDs.Insert(b1, m1);
+				}
+				map<int, ref map<int, bool>> m2 = m1[b2];
+				if (!m2)
+				{
+					m2 = new map<int, ref map<int, bool>>;
+					m1[b2] = m2;
+				}
+				map<int, bool> m3 = m2[b3];
+				if (!m3)
+				{
+					m3 = new map<int, bool>;
+					m2[b3] = m3;
+				}
+				m3[b4] = true;
+
+				count++;
+			}
+
+			file.Close();
+
+			EXTrace.Print(EXTrace.QUESTS, this, "Loaded " + count + " quest item IDs");
+		}
+	}
+
+	private void SaveQuestItemIDs()
+	{
+		FileSerializer file = new FileSerializer;
+		if (file.Open(m_QuestItemsFileName, FileMode.WRITE))
+		{
+			foreach (int b1, map<int, ref map<int, ref map<int, bool>>> m1: m_QuestItemIDs)
+			{
+				foreach (int b2, map<int, ref map<int, bool>> m2: m1)
+				{
+					foreach (int b3, map<int, bool> m3: m2)
+					{
+						foreach (int b4, bool v: m3)
+						{
+							file.Write(b1);
+							file.Write(b2);
+							file.Write(b3);
+							file.Write(b4);
+						}
+					}
+				}
+			}
+			file.Close();
+		}
+	}
+
+	//! @brief register entity for cleanup on next server start.
+	//! @note will only work correctly if called from CF_OnStoreSave() otherwise GetPersistentID won't return an actual persistent ID.
+	//! Don't call twice for same entity.
+	void RegisterEntityForCleanup(EntityAI entity)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, entity.ToString());
+
+		int b1, b2, b3, b4;
+		entity.GetPersistentID(b1, b2, b3, b4);
+
+		FileSerializer file = new FileSerializer;
+		if (file.Open(m_QuestItemsFileName, FileMode.APPEND))
+		{
+			file.Write(b1);
+			file.Write(b2);
+			file.Write(b3);
+			file.Write(b4);
+			file.Close();
+		}
+	}
 
 	// ------------------------------------------------------------
 	// ExpansionQuestModule GetRPCMin
@@ -969,7 +1135,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_QuestClientConfigs.Insert(questConfig.GetID(), questConfig);
 		}
 
+	#ifdef EXPANSIONMODBOOK
 		GetQuestLogSI().Invoke(m_QuestClientConfigs);
+	#endif
 
 		QuestModulePrint(ToString() + "::RPC_SendPlayerQuests - End");
 	}
@@ -1617,6 +1785,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(pos);
 		rpc.Write(text);
 		rpc.Write(questID);
+		rpc.Write(GetExpansionSettings().GetMap().CanCreate3DMarker);
 		rpc.Send(null, ExpansionQuestModuleRPC.CreateClientMarker, true, identity);
 
 		QuestModulePrint(ToString() + "::CreateClientMarker - End");
@@ -1652,7 +1821,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ctx.Read(questID))
 			return;
 
-		CreateMarkerClient(pos, text, questID);
+		bool is3D;
+		if (!ctx.Read(is3D))
+			return;
+
+		CreateMarkerClient(pos, text, questID, is3D);
 
 		QuestModulePrint(ToString() + "::RPC_CreateClientMarker - End");
 	}
@@ -1661,7 +1834,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionMarkerModule CreateMarkerClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void CreateMarkerClient(vector pos, string text, int questID)
+	private void CreateMarkerClient(vector pos, string text, int questID, bool is3D)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "CreateMarkerClient").Add(sender).Add(ctx);
@@ -1679,7 +1852,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		markerData.SetIcon("Questionmark");
 		markerData.SetColor(ARGB(255,241,196,15));
 		markerData.SetPosition(pos);
-		markerData.Set3D(GetExpansionSettings().GetMap().CanCreate3DMarker);
+		markerData.Set3D(is3D);
 		markerData.SetLockState(true);
 		markerModule.CreateMarker(markerData);
 
@@ -2356,11 +2529,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig quest_26 = m_DefaultQuestConfigData.ExpansionQuestConfig026();
 		quest_26.Save("Quest_26");
 		m_QuestConfigs.Insert(26, quest_26);
-		
-		//! Quest #27 - Example template for a scripted auto-start quest
-		ExpansionQuestConfig quest_27 = m_DefaultQuestConfigData.ExpansionQuestConfig027();
-		quest_27.Save("Quest_27");
-		m_QuestConfigs.Insert(27, quest_27);
 	}
 
 	// -----------------------------------------------------------
@@ -4303,7 +4471,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 							ExpansionQuestObjectiveCollectionEvent collectionObjective;
 							if (Class.CastTo(collectionObjective, currentObjective))
 							{
-								objectiveData.SetObjectiveAmount(collectionObjective.GetAmmount());
+								objectiveData.SetObjectiveAmount(collectionObjective.GetAmount());
 								objectiveData.SetObjectiveCount(collectionObjective.GetCount());
 							}
 						}
