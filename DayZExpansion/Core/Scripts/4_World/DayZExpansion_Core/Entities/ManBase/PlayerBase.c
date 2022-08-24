@@ -343,6 +343,22 @@ modded class PlayerBase
 		AddAction( ExpansionActionPaint, InputActionMap );
 	}
 	
+	override bool DropItem(ItemBase item)
+	{
+		if (super.DropItem(item))
+		{
+			if (!m_Expansion_CanBeLooted)
+			{
+				item.SetTakeable(false);
+				item.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion OnUnconsciousStart
 	// ------------------------------------------------------------

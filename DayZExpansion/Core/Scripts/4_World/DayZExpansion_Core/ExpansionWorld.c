@@ -50,4 +50,14 @@ class ExpansionWorld: ExpansionGame
 
 		super.FirearmEffects(source, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
 	}
+
+	override void WriteRemovedWorldObjects(ParamsReadContext ctx)
+	{
+		ExpansionWorldObjectsModule.WriteRemovedObjects(ctx);
+	}
+
+	override void ReadRemovedWorldObjects(ParamsReadContext ctx)
+	{
+		ExpansionWorldObjectsModule.RPC_RemoveObjects(ctx);
+	}
 };

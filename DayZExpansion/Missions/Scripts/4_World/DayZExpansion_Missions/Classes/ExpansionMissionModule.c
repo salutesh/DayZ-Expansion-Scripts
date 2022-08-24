@@ -37,7 +37,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ExpansionMissionModule()
 	{
-		ExpansionSettings.SI_Mission.Insert( OnSettingsChanged );
+		ExpansionSettings.SI_Mission.Insert( OnSettingsUpdated );
 
 		m_MissionConstructor = ExpansionMissionConstructor;
 	}
@@ -47,7 +47,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ~ExpansionMissionModule()
 	{
-		ExpansionSettings.SI_Mission.Remove( OnSettingsChanged );
+		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
 
 		if(m_lowPlayerCheckRunning)
 		{
@@ -546,5 +546,9 @@ class ExpansionMissionModule: CF_ModuleWorld
 		}
 
 		return serialized;
+	}
+
+	void OnSettingsUpdated()
+	{
 	}
 };

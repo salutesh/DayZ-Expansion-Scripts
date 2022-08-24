@@ -17,28 +17,17 @@ modded class ExpansionActionOpenTraderMenu
 	{
 		if (!super.ActionCondition(player, target, item))
 			return false;
-
-		m_TraderObject = ExpansionMarketModule.GetTraderFromObject(target.GetObject(), false);
 		
-		//! TODO: Conditions should be moved to market module and checked in Exec_RequestPurchase / Exec_RequestSell as well
-
-		if (m_TraderObject.GetTraderMarket().DisplayName == "Hero Trader" && !player.IsHero())
-			return false;
-		
-		if (m_TraderObject.GetTraderMarket().DisplayName == "Bandit Trader" && !player.IsBandit())
-			return false;
-		
+		//! TODO: Condition should be moved to modded market module within Hardline and checked in Exec_RequestPurchase / Exec_RequestSell as well
 		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			int minHumanity = m_TraderObject.GetTraderMarket().MinRequiredHumanity;
 			int maxHumanity = m_TraderObject.GetTraderMarket().MaxRequiredHumanity;
-			//! 1 < -2147483647 == true >:(
-			bool humanityLow;
-			if ((player.GetHumanity() >= 0 && minHumanity >= 0) || (player.GetHumanity() < 0 && minHumanity < 0))
-				humanityLow = player.GetHumanity() < minHumanity;
-			else if (player.GetHumanity() < 0 && minHumanity >= 0)
-				humanityLow = true;
-			if (humanityLow || player.GetHumanity() > maxHumanity)
+			int humanity = player.GetHumanity();
+			//! Integer comparison involving negative numbers is broken, 1 < -2147483647 == true >:(
+			//! https://feedback.bistudio.com/T167065
+			//! IsInRangeInt works correctly though
+			if (!Math.IsInRangeInt(player.GetHumanity(), minHumanity, maxHumanity))
 			{
 				if (player.GetIdentity())
 				{

@@ -14,7 +14,7 @@ modded class Land_House_1B01_Pub
 {
 	override bool HasInterior()
 	{
-		return true;
+		return false;
 	}
 
 	override bool HasIvys()

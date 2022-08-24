@@ -14,7 +14,7 @@ modded class Land_Village_Pub
 {
 	override bool HasInterior()
 	{
-		return true;
+		return false;
 	}
 
 	override bool HasIvys()

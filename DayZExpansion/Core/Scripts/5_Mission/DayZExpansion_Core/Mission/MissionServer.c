@@ -59,14 +59,6 @@ modded class MissionServer
 			DumpClassNameJSON();
 			DumpClassNameJSON("Expansion");
 		}
-
-		bool loadTraderNPCs;
-
-		#ifdef EXPANSIONMODMARKET
-		loadTraderNPCs = GetExpansionSettings().GetMarket().MarketSystemEnabled;
-		#endif
-
-		ExpansionObjectSpawnTools.FindMissionFiles(true, loadTraderNPCs);
 	}
 	
 	// ------------------------------------------------------------
@@ -83,18 +75,6 @@ modded class MissionServer
 		GetDayZExpansion().OnLoaded();
 
 		CF_ModuleCoreManager.OnSettingsChanged(this, CF_EventArgs.Empty);
-	}
-	
-	// ------------------------------------------------------------
-	// OnMissionFinish
-	// ------------------------------------------------------------
-	override void OnMissionFinish()
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.GLOBAL, this);
-		
-		super.OnMissionFinish();
-
-		ExpansionObjectSpawnTools.DeleteFireplaces();
 	}
 	
 	// ------------------------------------------------------------
@@ -117,10 +97,6 @@ modded class MissionServer
 #else
 		GetExpansionSettings().Send( identity );
 #endif
-		
-		//! Leave this here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
-		if ( !player.GetIdentity() )
-			EXPrint("WARNING: Player without identity connecting! " + player + " " + identity);
 
 		PlayerBase.AddPlayer( player, identity );
 		

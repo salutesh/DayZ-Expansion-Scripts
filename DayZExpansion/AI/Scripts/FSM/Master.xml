@@ -255,7 +255,7 @@
 				unit.OverrideMovementDirection(false, 0);
 			</event_exit>
 			<event_update>
-				if (!unit.GetWeaponManager()) return EXIT;
+				if (!unit.GetWeaponManager() || unit.IsUnconscious()) return EXIT;
 				
 				if (unit.GetWeaponManager().IsRunning())
 				{
@@ -360,6 +360,8 @@
 				}
 			</event_exit>
 			<event_update>
+				if (unit.IsUnconscious()) return EXIT;
+				
 				if (unit.GetActionManager().GetRunningAction())
 				{
 					time += DeltaTime;

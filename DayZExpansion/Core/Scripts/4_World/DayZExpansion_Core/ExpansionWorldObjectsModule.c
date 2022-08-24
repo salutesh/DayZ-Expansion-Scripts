@@ -1,5 +1,5 @@
 /**
- * ExpansionObjectSpawnTools.c
+ * ExpansionWorldObjectsModule.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,19 +10,179 @@
  *
 */
 
-class ExpansionObjectSpawnTools
+class ExpansionRemovedObject: OLinkT
 {
-	static ref array<EntityAI> firePlacesToDelete = new array<EntityAI>;
-	static string objectFilesFolder;
-	static string traderFilesFolder;
+	int Flags;
+	int EventMask;
+
+	void ExpansionRemovedObject(Object init)
+	{
+		Flags = init.GetFlags();
+		EventMask = init.GetEventMask();
+	}
+}
+
+[CF_RegisterModule(ExpansionWorldObjectsModule)]
+class ExpansionWorldObjectsModule: CF_ModuleWorld
+{
+	static const string MISSION_OBJECT_FILES_FOLDER = "$mission:expansion\\objects\\";
+	static const string MISSION_TRADER_FILES_FOLDER = "$mission:expansion\\traders\\";
+
+	static ref array<Object> s_FirePlacesToDelete = new array<Object>;
+
+	static ref map<Object, ref ExpansionRemovedObject> s_RemovedObjects = new map<Object, ref ExpansionRemovedObject>;
+	static bool s_RemovedObjectsReceived;
+
+	override void OnInit()
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
+
+		super.OnInit();
 		
+		EnableMissionStart();
+		EnableMissionFinish();
+		EnableInvokeConnect();
+		EnableRPC();
+	}
+
+	override int GetRPCMin()
+	{
+		return ExpansionWorldObjectsModuleRPC.INVALID;
+	}
+	
+	override int GetRPCMax()
+	{
+		return ExpansionWorldObjectsModuleRPC.COUNT;
+	}
+
+	override void OnMissionStart(Class sender, CF_EventArgs args)
+ 	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
+
+		super.OnMissionStart(sender, args);
+
+		if (!GetGame().IsServer())
+			return;
+
+		bool loadTraderNPCs;
+
+		#ifdef EXPANSIONMODMARKET
+		loadTraderNPCs = GetExpansionSettings().GetMarket().MarketSystemEnabled;
+		#endif
+
+		FindMissionFiles(true, loadTraderNPCs);
+	}
+
+	override void OnMissionFinish(Class sender, CF_EventArgs args)
+ 	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
+
+		super.OnMissionFinish(sender, args);
+
+		RestoreRemovedObjects();
+		DeleteFireplaces();
+	}
+
+	static void RestoreRemovedObjects()
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+
+		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
+		{
+			if (!obj || !removedObj)
+				continue;
+
+			EXTrace.Print(EXTrace.MAPPING, null, "Restoring object " + obj + " at " + obj.GetPosition());
+			obj.SetFlags(removedObj.Flags, true);
+			obj.SetEventMask(removedObj.EventMask);
+			obj.SetScale(1.0);
+		}
+
+		s_RemovedObjects.Clear();
+	}
+
+	override void OnInvokeConnect(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
+
+		super.OnInvokeConnect(sender, args);
+
+//! If Expansion Main is loaded, removed objects are sent as part of general settings RPC to avoid race conditions (building interiors checks if object was removed)
+#ifndef EXPANSIONMOD
+		if (!GetGame().IsServer())
+			return;
+
+		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		if (!cArgs.Identity)
+			return;
+
+		EXTrace.Add(trace, cArgs.Identity.GetId());
+
+		ScriptRPC rpc = new ScriptRPC();
+		WriteRemovedObjects(rpc);
+		rpc.Send(NULL, ExpansionWorldObjectsModuleRPC.RemoveObjects, true, cArgs.Identity);
+#endif
+	}
+
+	static void WriteRemovedObjects(ParamsWriteContext ctx)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+
+		ctx.Write(s_RemovedObjects.Count());
+		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
+		{
+			int low, high;
+			obj.GetNetworkID(low, high);
+			ctx.Write(low);
+			ctx.Write(high);
+		}
+	}
+
+	override void OnRPC(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
+
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch (rpc.ID)
+		{
+			case ExpansionWorldObjectsModuleRPC.RemoveObjects:
+				RPC_RemoveObjects(rpc.Context);
+				break;
+		}
+	}
+
+	static void RPC_RemoveObjects(ParamsReadContext ctx)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+
+		int count;
+		ctx.Read(count);
+		while (count)
+		{
+			int low, high;
+			if (!ctx.Read(low))
+				break;
+			if (!ctx.Read(high))
+				break;
+			Object obj = GetGame().GetObjectByNetworkId(low, high);
+			if (obj)
+				RemoveObject(obj);
+			count--;
+		}
+	}
+
 	static void DeleteFireplaces()
 	{
-		Print("Clear up static fireplaces: " + firePlacesToDelete.Count());
-		foreach (Entity fireplace: firePlacesToDelete)
+		Print("Clear up static fireplaces: " + s_FirePlacesToDelete.Count());
+		foreach (Object fireplace: s_FirePlacesToDelete)
 		{
 			GetGame().ObjectDelete(fireplace);
 		}
+		s_FirePlacesToDelete.Clear();
 	}
 	
 	//! @note No-op, only kept for backwards compat with old init files
@@ -36,12 +196,9 @@ class ExpansionObjectSpawnTools
 		array<string> objectFiles;
 		array<string> traderFiles;
 
-		objectFilesFolder = "$mission:expansion\\objects\\";
-		traderFilesFolder = "$mission:expansion\\traders\\";
-
-		if ( loadObjects && FileExist( objectFilesFolder ) )
+		if ( loadObjects && FileExist( MISSION_OBJECT_FILES_FOLDER ) )
 		{
-			objectFiles = ExpansionStatic.FindFilesInLocation(objectFilesFolder);
+			objectFiles = ExpansionStatic.FindFilesInLocation(MISSION_OBJECT_FILES_FOLDER, ".map");
 			if (objectFiles.Count() >= 0)
 			{
 				LoadMissionObjects(objectFiles);
@@ -49,9 +206,9 @@ class ExpansionObjectSpawnTools
 		}
 
 	#ifdef EXPANSIONMODMARKET
-		if ( loadTraders && FileExist( traderFilesFolder ) )
+		if ( loadTraders && FileExist( MISSION_TRADER_FILES_FOLDER ) )
 		{
-			traderFiles = ExpansionStatic.FindFilesInLocation(traderFilesFolder);
+			traderFiles = ExpansionStatic.FindFilesInLocation(MISSION_TRADER_FILES_FOLDER, ".map");
 			if (traderFiles.Count() >= 0)
 			{
 
@@ -89,65 +246,187 @@ class ExpansionObjectSpawnTools
 	// ------------------------------------------------------------
 	static void LoadMissionObjectsFile( string name )
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, null, objectFilesFolder + name);
+		string filePath = MISSION_OBJECT_FILES_FOLDER + name;
+		LoadObjectsFile(filePath);
+
+		CF_Log.Debug( "Created all objects from mission object file: " + filePath );
+	}
+
+	static void LoadObjectsFile(string filePath, array<Object> createdObjects = NULL)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, null, filePath);
+
+		FileHandle file = OpenFile( filePath, FileMode.READ );
+		if ( !file )
+			return;
 
 		Object obj;
 		string className;
 		vector position;
 		vector rotation;
-		string special;
-
-		string filePath = objectFilesFolder + name;
-		FileHandle file = OpenFile( filePath, FileMode.READ );
-
-		if ( !file )
-			return;
+		bool special;
+		bool takeable;
+		bool shouldRemove;
+		float radius;
 		
-		while ( GetObjectFromMissionFile( file, className, position, rotation, special ) )
+		while ( GetObjectFromFile( file, className, position, rotation, special, takeable, shouldRemove, radius ) )
 		{
-			CF_Log.Debug( "Attempt to create mission object " + className + " at " + position + " from file:" + filePath + ".");
-
-			int flags = ECE_CREATEPHYSICS;
-
-			obj = GetGame().CreateObjectEx( className, position, flags );
-				if ( !obj )
-					continue;
-
-			obj.SetFlags(EntityFlags.STATIC, false);
-
-			obj.SetPosition( position );
-			obj.SetOrientation( rotation );
-
-			FixObjectCollision( obj );
-
-			if ( obj.CanAffectPathgraph() )
+			if (shouldRemove)
 			{
-				obj.SetAffectPathgraph( true, false );
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
-			}
+				CF_Log.Debug( "Attempt to remove object " + className + " at " + position + " from file:" + filePath + ".");
 
-			EntityAI entityAI = EntityAI.Cast( obj );
-			if ( entityAI )
+				RemoveObjects(className, position, radius);
+			}
+			else
 			{
-				if (IsMissionHost()) entityAI.SetLifetime(1.0);
-			}
+				CF_Log.Debug( "Attempt to create object " + className + " at " + position + " from file:" + filePath + ".");
 
-			if ( special == "true")
-				ProcessMissionObject( obj );
+				obj = SpawnObject(className, position, rotation, special, takeable);
+				if (obj && createdObjects)
+					createdObjects.Insert(obj);
+			}
 		}
 
 		CloseFile( file );
-
-		CF_Log.Debug( "Created all objects from mission object file: " + filePath );
 	}
 
-	// ------------------------------------------------------------
-	// Expansion ProcessMissionObject
-	// ------------------------------------------------------------
-	static void ProcessMissionObject(Object obj)
+	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
+	{
+		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME;
+
+		Object obj = GetGame().CreateObjectEx( className, position, flags );
+		if ( !obj )
+			return NULL;
+
+		obj.SetFlags(EntityFlags.STATIC, false);
+
+		obj.SetPosition( position );
+		obj.SetOrientation( rotation );
+
+		FixObjectCollision( obj );
+
+		if ( obj.CanAffectPathgraph() )
+		{
+			obj.SetAffectPathgraph( true, false );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
+		}
+
+		if (!takeable)
+		{
+			ItemBase item = ItemBase.Cast( obj );
+			if (item)
+				item.SetTakeable(false);
+		}
+
+		if (special)
+			ProcessObject( obj );
+
+		return obj;
+	}
+
+	static array<Object> FindObjects(string className, vector position, float radius = 0.1)
+	{
+		array<Object> objects = {};
+		GetGame().GetObjectsAtPosition3D(position, radius, objects, null);
+
+		if (className == "*")
+			return objects;
+
+		int doPartialMatch;
+		string classNameStart;
+		string classNameEnd;
+
+		int index = className.IndexOf("*");
+
+		if (index > -1)
+		{
+			if (index == 0)
+			{
+				//! Ends with
+				doPartialMatch = 1;
+				className = className.Substring(1, className.Length() - 1);
+			}
+			else if (index == className.Length() - 1)
+			{
+				//! Starts with
+				doPartialMatch = 2;
+				className = className.Substring(0, index);
+			}
+			else
+			{
+				//! Starts/ends with
+				doPartialMatch = 3;
+				classNameStart = className.Substring(0, index);
+				classNameEnd = className.Substring(index + 1, className.Length() - 1 - index);
+			}
+		}
+
+		array<Object> filteredOjects = {};
+		foreach (Object obj: objects)
+		{
+			string type;
+			g_Game.ObjectGetType(obj, type);
+			auto exType = new ExpansionString(type);
+			bool match;
+			switch (doPartialMatch)
+			{
+				case 0:
+					match = type == className;
+					break;
+				case 1:
+					match = exType.EndsWith(className);
+					break;
+				case 2:
+					match = exType.StartsWith(className);
+					break;
+				case 3:
+					match = exType.StartsWith(classNameStart) && exType.EndsWith(classNameEnd);
+					break;
+			}
+			if (match)
+				filteredOjects.Insert(obj);
+		}
+
+		return filteredOjects;
+	}
+
+	static void RemoveObjects(string className, vector position, float radius = 0.1)
+	{
+		array<Object> objects = FindObjects(className, position, radius);
+		if (!objects.Count())
+		{
+			EXPrint("[ExpansionWorldObjectsModule::RemoveObject] Warning: Object " + className + " not found at " + position);
+			return;
+		}
+
+		foreach (Object obj: objects)
+		{
+			RemoveObject(obj);
+		}
+	}
+
+	static void RemoveObject(Object obj)
+	{
+		if (!s_RemovedObjects[obj])
+		{
+			s_RemovedObjects[obj] = new ExpansionRemovedObject(obj);
+		}
+
+		EXTrace.Print(EXTrace.MAPPING, null, "Removing object " + obj + " at " + obj.GetPosition());
+
+		EntityFlags flags = obj.GetFlags();
+		EntityEvent events = obj.GetEventMask();
+		obj.ClearFlags(flags, true);
+		obj.ClearEventMask(events);
+		obj.SetEventMask(EntityEvent.NOTVISIBLE);
+		obj.SetScale(0.0);
+		dBodyDestroy(obj); //! Remove collision
+	}
+
+	static void ProcessObject(Object obj)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, "ExpansionObjectSpawnTools", "ProcessMissionObject");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
 #endif
 
 		CF_Log.Debug("Try to process mapping object: " + obj.ClassName());
@@ -208,7 +487,7 @@ class ExpansionObjectSpawnTools
 				vector smokePos = smoke_point_pos_world;
 				
 				Object obj_fireplace = GetGame().CreateObjectEx("FireplaceIndoor", fire_place_pos_world, ECE_PLACE_ON_SURFACE|ECE_NOLIFETIME);
-				firePlacesToDelete.Insert(EntityAI.Cast(obj_fireplace));
+				s_FirePlacesToDelete.Insert(obj_fireplace);
 				
 				ProcessFireplace(obj_fireplace);
 			}
@@ -331,9 +610,9 @@ class ExpansionObjectSpawnTools
 	}
 
 	// ------------------------------------------------------------
-	// Expansion GetObjectFromMissionFile
+	// Expansion GetObjectFromFile
 	// ------------------------------------------------------------
-	static bool GetObjectFromMissionFile( FileHandle file, out string name, out vector position, out vector rotation, out string special = "false" )
+	static bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out bool special = false, out bool takeable = true, out bool shouldRemove = false, out float radius = 0.1 )
 	{
 		string line;
 		int lineSize = FGets( file, line );
@@ -346,8 +625,20 @@ class ExpansionObjectSpawnTools
 
 		name = tokens.Get( 0 );
 		position = tokens.Get( 1 ).ToVector();
-		rotation = tokens.Get( 2 ).ToVector();
-		special = tokens.Get( 3 );
+		shouldRemove = name[0] == "-";
+		if (shouldRemove)
+		{
+			name = name.Substring(1, name.Length() - 1);
+			radius = tokens.Get( 2 ).ToFloat();
+			if (!radius)
+				radius = 0.1;
+		}
+		else
+		{
+			rotation = tokens.Get( 2 ).ToVector();
+			special = tokens.Get( 3 ) == "true";
+			takeable = tokens.Get( 4 ) != "false";
+		}
 		
 		return true;
 	}
@@ -370,7 +661,7 @@ class ExpansionObjectSpawnTools
 	static void LoadMissionTradersFile( string name )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, "ExpansionObjectSpawnTools", "LoadMissionTradersFile");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
 #endif
 
 		CF_Log.Debug( "Attempting to load mission trader file: " + name );
@@ -385,7 +676,7 @@ class ExpansionObjectSpawnTools
 		vector rotation;
 		string gear;
 
-		string filePath = traderFilesFolder + name;
+		string filePath = MISSION_TRADER_FILES_FOLDER + name;
 		FileHandle file = OpenFile( filePath, FileMode.READ );
 
 		if ( !file )
@@ -512,3 +803,5 @@ class ExpansionObjectSpawnTools
 	}
 	#endif
 }
+
+typedef ExpansionWorldObjectsModule ExpansionObjectSpawnTools;

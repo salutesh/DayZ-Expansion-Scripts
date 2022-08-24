@@ -56,7 +56,6 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	int ExoticItemRequirement;
 	
 	bool ShowHardlineHUD;
-	bool UseItemRarity;
 	bool UseHumanity;
 	
 	// ------------------------------------------------------------
@@ -73,12 +72,21 @@ class ExpansionHardlineSettingsV1: ExpansionHardlineSettingsBase
 	autoptr array<ref ExpansionHardlineItemData> HardlineItemDatas;
 }
 
+class ExpansionHardlineSettingsV2: ExpansionHardlineSettingsBase
+{
+	bool UseItemRarity;
+}
+
 /**@class		ExpansionHardlineSettings
  * @brief		Hardline settings class
  **/
 class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
+
+	bool EnableItemRarity;
+	bool UseItemRarityForMarketPurchase;
+	bool UseItemRarityForMarketSell;
 
 	//! Needs to be always last
 	ref map<string, ExpansionHardlineItemRarity> ItemRarity;
@@ -267,15 +275,27 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			return false;
 		}
 		
-		if (!ctx.Read(UseItemRarity))
-		{
-			Error(ToString() + "::OnRecieve UseItemRarity");
-			return false;
-		}
-		
 		if (!ctx.Read(UseHumanity))
 		{
 			Error(ToString() + "::OnRecieve UseHumanity");
+			return false;
+		}
+		
+		if (!ctx.Read(EnableItemRarity))
+		{
+			Error(ToString() + "::OnRecieve EnableItemRarity");
+			return false;
+		}
+		
+		if (!ctx.Read(UseItemRarityForMarketPurchase))
+		{
+			Error(ToString() + "::OnRecieve UseItemRarityForMarketPurchase");
+			return false;
+		}
+		
+		if (!ctx.Read(UseItemRarityForMarketSell))
+		{
+			Error(ToString() + "::OnRecieve UseItemRarityForMarketSell");
 			return false;
 		}
 		
@@ -329,8 +349,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		ctx.Write(ExoticItemRequirement);
 
 		ctx.Write(ShowHardlineHUD);
-		ctx.Write(UseItemRarity);
 		ctx.Write(UseHumanity);
+		ctx.Write(EnableItemRarity);
+		ctx.Write(UseItemRarityForMarketPurchase);
+		ctx.Write(UseItemRarityForMarketSell);
 	}
 
 	// ------------------------------------------------------------
@@ -356,6 +378,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
+
+		EnableItemRarity = s.EnableItemRarity;
+		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
+		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
 
 		ItemRarity = s.ItemRarity;
 		
@@ -397,7 +423,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		MythicItemRequirement = s.MythicItemRequirement;
 		ExoticItemRequirement = s.ExoticItemRequirement;
 		ShowHardlineHUD = s.ShowHardlineHUD;
-		UseItemRarity = s.UseItemRarity;
 		UseHumanity = s.UseHumanity;
 	}
 
@@ -438,8 +463,11 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			{
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (settingsBase.m_Version < 3)
+				{
+					//! Copy over old settings that haven't changed
+					CopyInternal(settingsBase);
+				}
 
 				if (settingsBase.m_Version < 2)
 				{
@@ -453,6 +481,23 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 
 						AddItem(itemData.ClassName, itemData.Rarity);
 					}
+				}
+				else
+				{
+					ExpansionHardlineSettings settings;
+					JsonFileLoader<ExpansionHardlineSettings>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settings);
+
+					ItemRarity = settings.ItemRarity;
+				}
+
+				if (settingsBase.m_Version < 3)
+				{
+					ExpansionHardlineSettingsV2 settingsV2;
+					JsonFileLoader<ExpansionHardlineSettingsV2>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settingsV2);
+
+					EnableItemRarity = settingsV2.UseItemRarity;
+					UseItemRarityForMarketPurchase = settingsV2.UseItemRarity;
+					UseItemRarityForMarketSell = settingsV2.UseItemRarity;
 				}
 				
 				m_Version = VERSION;
@@ -545,8 +590,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		ExoticItemRequirement = 10000;
 		
 		ShowHardlineHUD = false;
-		UseItemRarity = false;
 		UseHumanity = false;
+		EnableItemRarity = false;
+		UseItemRarityForMarketPurchase = false;
+		UseItemRarityForMarketSell = false;
 		
 		DefaultItemRarity();
 	}

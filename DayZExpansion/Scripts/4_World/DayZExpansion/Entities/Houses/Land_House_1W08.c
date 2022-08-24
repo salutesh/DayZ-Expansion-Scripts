@@ -14,7 +14,7 @@ modded class Land_House_1W08
 {
 	override bool HasInterior()
 	{
-		return true;
+		return false;
 	}
 	
 	override void SpawnInterior()

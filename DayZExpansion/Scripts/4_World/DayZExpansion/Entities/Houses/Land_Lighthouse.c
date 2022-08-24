@@ -24,13 +24,12 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void Land_Lighthouse()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "Land_Lighthouse");
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this);
+
+#ifndef SERVER
+		if (GetExpansionSettings().GetGeneral(false).IsLoaded())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( OnSettingsUpdated, 1000 );
 #endif
-
-		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
-
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( OnSettingsUpdated, 1000 );
 	}
 
 	// ------------------------------------------------------------
@@ -38,30 +37,24 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void ~Land_Lighthouse()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "~Land_Lighthouse");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this);
 
 		if ( GetGame() && m_Light )
 		{
 			GetGame().ObjectDelete( m_Light );
 		}
-
-		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
 	}
 	
 	// ------------------------------------------------------------
 	// OnSettingsUpdated
 	// ------------------------------------------------------------
 	override void OnSettingsUpdated()	
-	{	
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnSettingsUpdated");
-#endif
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this);
 
 		if ( IsMissionClient() )
 		{
-			if ( GetExpansionSettings().GetGeneral() && GetExpansionClientSettings().CastLightShadows )
+			if ( GetExpansionClientSettings().CastLightShadows )
 			{
 				m_CastShadows = true;
 			}
@@ -70,12 +63,10 @@ class Land_Lighthouse extends House
 				m_CastShadows = false;
 			}
 			
-			if ( GetExpansionSettings().GetGeneral() && GetExpansionSettings().GetGeneral().EnableLighthouses )
+			if ( GetExpansionSettings().GetGeneral().EnableLighthouses )
 			{
 				m_ShouldBeEnabled = true;
 				m_CanBeEnabled = true;
-				
-				OnEnable();
 			}
 			else
 			{
@@ -106,9 +97,7 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void Enable( vector position )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.LIGHTHOUSE, this, "Enable").Add(position);
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this, "" + position);
 
 		m_ShouldBeEnabled = true;
 		
@@ -117,9 +106,7 @@ class Land_Lighthouse extends House
 
 	protected void OnEnable()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnEnable");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this);
 
 		if ( IsMissionClient() )
 		{
@@ -159,9 +146,7 @@ class Land_Lighthouse extends House
 	// ------------------------------------------------------------
 	void Disable( vector position )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.LIGHTHOUSE, this, "Disable").Add(position);
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this, "" + position);
 
 		m_ShouldBeEnabled = false;
 
@@ -170,9 +155,7 @@ class Land_Lighthouse extends House
 
 	protected void OnDisable()
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "OnDisable");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.LIGHTHOUSE, this);
 
 		if ( IsMissionClient() )
 		{

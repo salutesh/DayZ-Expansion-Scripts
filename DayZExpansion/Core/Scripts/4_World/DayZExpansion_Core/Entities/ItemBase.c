@@ -26,6 +26,7 @@ modded class ItemBase
 	protected autoptr array< ExpansionSkin > m_Skins;
 	protected bool m_Expansion_SZCleanup;
 	protected bool m_Expansion_IsStoreLoaded;
+	protected bool m_Expansion_IsStoreSaved;
 
 	protected ref map<string, float> m_Expansion_HealthBeforeHit;
 	protected float m_Expansion_DamageMultiplier = 1.0;
@@ -38,6 +39,8 @@ modded class ItemBase
 	bool m_Expansion_IsMeleeWeapon;
 
 	bool m_Expansion_IsWorking;
+
+	protected int m_Expansion_QueuedActions;
 
 	void ItemBase()
 	{
@@ -81,6 +84,12 @@ modded class ItemBase
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
+
+		//! Queue world untakeable items for next server start
+		if (!m_IsTakeable && !m_Expansion_IsStoreSaved && !GetHierarchyParent() && GetLifetime())
+			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+
+		m_Expansion_IsStoreSaved = true;
 
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
@@ -642,12 +651,7 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		//TODO: store as global variable until new CF module system is added?
-		ExpansionItemBaseModule module;
-		if (CF_Modules<ExpansionItemBaseModule>.Get(module))
-		{
-			module.PlayDestroySound(GetPosition(), GetDestroySound());
-		}
+		ExpansionItemBaseModule.s_Instance.PlayDestroySound(GetPosition(), GetDestroySound());
 
 		ExpansionOnDestroyed( killer );
 	}
@@ -872,11 +876,20 @@ modded class ItemBase
 			ExpansionOnSkinUpdate();
 		}
 
-		//! Safezone item cleanup
-
 		if (!m_Expansion_IsStoreLoaded)
 			return;
 
+		//! Ideally would do the following in AfterStoreLoad, but vanilla doesn't always call super >:(
+	
+		ExpansionDeferredCreateCleanup();
+
+		int actions = ExpansionItemBaseModule.s_Instance.ProcessQueuedEntityActions(this);
+		if ((actions & ExpansionItemBaseModule.SETUNTAKEABLE) == ExpansionItemBaseModule.SETUNTAKEABLE && GetLifetime())
+			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+    }
+
+	void ExpansionDeferredCreateCleanup()
+	{
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
 
@@ -884,7 +897,33 @@ modded class ItemBase
 			return;
 
 		ExpansionCreateCleanup();
-    }
+	}
+
+	override void SetTakeable(bool pState)
+	{
+		super.SetTakeable(pState);
+
+		if (!m_Expansion_QueuedActions || GetHierarchyParent())
+			return;
+
+		if (pState)
+		{
+			//! Deferred removal of setuntakeable entity action from queue
+			Expansion_DequeueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+		}
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		if (!m_Expansion_QueuedActions || GetHierarchyParent())
+			return;
+
+		//! Deferred removal of all entity actions from queue
+		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);
+		m_Expansion_QueuedActions = 0;
+	}
 
 	override void OnCEUpdate()
 	{
@@ -1066,5 +1105,25 @@ modded class ItemBase
 		}
 
 		return 1;
+	}
+
+	void Expansion_QueueEntityActions(int actions)
+	{
+		if ((m_Expansion_QueuedActions & actions) == actions)  //! Already queued
+			return;
+
+		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, actions);
+
+		m_Expansion_QueuedActions |= actions;
+	}
+
+	void Expansion_DequeueEntityActions(int actions)
+	{
+		if ((m_Expansion_QueuedActions & actions) == 0)  //! Not queued
+			return;
+
+		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -actions);
+
+		m_Expansion_QueuedActions &= ~actions;
 	}
 };

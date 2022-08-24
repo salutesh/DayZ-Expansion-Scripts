@@ -67,6 +67,11 @@ modded class DayZPlayerImplement
 		m_Expansion_CanBeLooted = canBeLooted;
 	}
 
+	bool Expansion_CanBeLooted()
+	{
+		return m_Expansion_CanBeLooted;
+	}
+
 	void Expansion_SetAllowDamage(string ammoType, bool state)
 	{
 		//! @note State is inverted so we can easily check m_Expansion_DisabledAmmoDamage[ammoType] to see whether it's disabled
@@ -138,5 +143,23 @@ modded class DayZPlayerImplement
 			return hcm.GetCurrentMovementAngle();
 
 		return 0.0;
+	}
+};
+
+modded class DayZPlayerCommandDeathCallback
+{
+	override void OnSimulationEnd()
+	{
+		EntityAI itemInHands;
+		if (GetGame().IsServer())
+			itemInHands = m_pPlayer.GetHumanInventory().GetEntityInHands();
+
+		super.OnSimulationEnd();
+
+		if (itemInHands && !m_pPlayer.Expansion_CanBeLooted())
+		{
+			itemInHands.SetTakeable(false);
+			itemInHands.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+		}
 	}
 };

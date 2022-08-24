@@ -228,7 +228,9 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), GetObjectiveConfig().CanLootAI(), false, waypoint);
 			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
-			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 500, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
+			group.AccuracyMin = aiCamp.NPCAccuracyMin;
+			group.AccuracyMax = aiCamp.NPCAccuracyMax;
+			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 			if (!patrol)
 				return;
 
@@ -246,7 +248,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}
 	
-	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
+	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
 	{
 		Print("=================== Expansion Quest AI Patrol ===================");
 		int aiSum;
@@ -291,7 +293,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 		Print("[QUESTS] Spawning "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]+" and will patrol at "+group.Waypoints);
 
-		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, eAIFaction.Create(group.Faction), eAIFormation.Create(group.Formation), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, despawnTime, eAIFaction.Create(group.Faction), eAIFormation.Create(group.Formation), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
+        patrol.SetAccuracy(group.AccuracyMin, group.AccuracyMax);
 
 		Print("=================== Expansion Quest AI Patrol ===================");
 		return patrol;

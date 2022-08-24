@@ -92,7 +92,16 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 			if (configBase.ConfigVersion < 6)
 			{
-					config.CanLootAI = true;
+				config.CanLootAI = true;
+			}
+
+			if (configBase.ConfigVersion < 7)
+			{
+				if (config.AICamp)
+				{
+					config.AICamp.NPCAccuracyMin = -1;
+					config.AICamp.NPCAccuracyMax = -1;
+				}
 			}
 			
 			config.ConfigVersion = CONFIGVERSION;

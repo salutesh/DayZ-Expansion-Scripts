@@ -25,7 +25,7 @@ class ExpansionPointLight extends PointLightBase
 	void ExpansionPointLight()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "ExpansionPointLight");
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "ExpansionPointLight");
 #endif
 		
 		SetVisibleDuringDaylight(false);
@@ -45,7 +45,7 @@ class ExpansionPointLight extends PointLightBase
 	void ~ExpansionPointLight()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "~ExpansionPointLight");
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "~ExpansionPointLight");
 #endif
 		
 	}

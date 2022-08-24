@@ -26,12 +26,22 @@ class ExpansionString
 		return m_String;
 	}
 
+	bool StartsWith(string prefix)
+	{
+		return m_String.IndexOf(prefix) == 0;
+	}
+
 	bool EndsWith(string suffix)
 	{
 		int suffixLength = suffix.Length();
 		if (m_String.Length() < suffixLength)
 			return false;
 		return m_String.IndexOf(suffix) == m_String.Length() - suffixLength;
+	}
+
+	bool Equals(string cmp)
+	{
+		return m_String == cmp;
 	}
 
 	bool EqualsCaseInsensitive(string cmp)
@@ -78,6 +88,18 @@ class ExpansionString
 		}
 
 		return s_ToAscii.Get(character[0]);
+	}
+
+	/**
+	 * @brief Removes the first character from the string
+	 * 
+	 * @param str input string
+	 * 
+	 * @return a copy of str with the first character removed
+	 */
+	static string RemoveFirstChar( string str ) 
+	{
+		return str.Substring( 1, str.Length() - 1 );
 	}
 
 	/**

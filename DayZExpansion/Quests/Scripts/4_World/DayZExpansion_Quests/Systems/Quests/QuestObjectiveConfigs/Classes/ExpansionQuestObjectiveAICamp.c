@@ -18,6 +18,8 @@ class ExpansionQuestObjectiveAICamp
 	private string NPCMode;
 	private string NPCFaction;
 	private string NPCLoadoutFile;
+	float NPCAccuracyMin;
+	float NPCAccuracyMax;
 	private autoptr array<string> ClassNames = new array<string>;
 	private bool SpecialWeapon = false;
 	private autoptr array<string> AllowedWeapons = new array<string>;

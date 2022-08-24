@@ -113,6 +113,15 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 				config.CanLootAI = true;
 			}
 
+			if (configBase.ConfigVersion < 7)
+			{
+				if (config.AIPatrol)
+				{
+					config.AIPatrol.NPCAccuracyMin = -1;
+					config.AIPatrol.NPCAccuracyMax = -1;
+				}
+			}
+
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}

@@ -251,7 +251,7 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
+           text "#STR_EXPANSION_CANCEL"
            text_proportion 0.55
            font "gui/fonts/etelkatextpro22"
            switch normal
@@ -415,7 +415,7 @@ FrameWidgetClass ExpansionFlagMenu {
            "next right" ""
            "next up" ""
            "next down" ""
-           text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
+           text "#STR_EXPANSION_CANCEL"
            text_proportion 0.55
            font "gui/fonts/etelkatextpro22"
            switch normal
@@ -458,7 +458,7 @@ FrameWidgetClass ExpansionFlagMenu {
            vexactpos 0
            hexactsize 0
            vexactsize 0
-           text "#STR_EXPANSION_BOOK_TERRITORY_MEMBER_DEFAULT"
+           text ""
            font "gui/fonts/etelkatextpro22"
            "exact text" 1
            "exact text size" 22
@@ -650,7 +650,7 @@ FrameWidgetClass ExpansionFlagMenu {
      vexactsize 0
      userID 1
      style EmptyHighlight
-     text "#STR_EXPANSION_BOOK_TERRITORY_DELETE_TERRITORY_CANCEL"
+     text "#STR_EXPANSION_CANCEL"
      font "gui/fonts/etelkatextpro22"
     }
     PanelWidgetClass Separator {

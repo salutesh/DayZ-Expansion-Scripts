@@ -69,7 +69,7 @@ class EXTrace
 
 	static bool KILLFEED = ENABLE;
 
-	static bool LIGHTHOUSE;
+	static bool LIGHTHOUSE = ENABLE;
 
 	static bool LIGHTS;
 
@@ -77,11 +77,13 @@ class EXTrace
 
 	static bool MARKER;
 
-	static bool MARKET;
+	static bool MARKET = ENABLE;
 
 	static bool MISSIONS = ENABLE;
 
 	static bool NOTIFICATIONS;
+
+	static bool PATH_INTERPOLATION;
 
 	static bool PLAYER = ENABLE;
 

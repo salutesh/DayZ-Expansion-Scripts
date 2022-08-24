@@ -35,7 +35,11 @@ class ExpansionMarketItem
 	[NonSerialized()]
 	private int m_MinPriceThreshold;
 
-	int SellPricePercent;
+	//! @note not netsynced directly! Encoded to bfloat16 and sent packed together with BuySell and QuantityPercent
+	float SellPricePercent;
+
+	//! @note integer representation of bfloat16
+	int m_SellPricePercent;
 
 	int MaxStockThreshold;
 	int MinStockThreshold;
@@ -69,7 +73,7 @@ class ExpansionMarketItem
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
 	// ------------------------------------------------------------
-	void ExpansionMarketItem( int catID, string className, int minPrice, int maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, int sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = null)
+	void ExpansionMarketItem( int catID, string className, int minPrice, int maxPrice, int minStock, int maxStock, array<string> attachments = null, array<string> variants = null, float sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = null)
 	{
 		if (itemID == -1)
 			ItemID = ++m_CurrentItemId;
@@ -123,7 +127,6 @@ class ExpansionMarketItem
 	
 	void SanityCheckAndRepair()
 	{
-
 		if ( MinPriceThreshold < 0 )
 		{
 			Error("[ExpansionMarketItem] The minimum price must be 0 or higher for '" + ClassName + "'");
@@ -150,6 +153,14 @@ class ExpansionMarketItem
 
 		m_MinPriceThreshold = MinPriceThreshold;
 		m_MaxPriceThreshold = MaxPriceThreshold;
+
+		//! Convert to integer representation of bfloat16
+		m_SellPricePercent = CF_Cast<float, int>.Reinterpret(SellPricePercent) >> 16;
+		//! Convert integer representation of bfloat16 back to float to make sure values used on server and client are the same
+		SellPricePercent = CF_Cast<int, float>.Reinterpret(m_SellPricePercent << 16);
+
+		if (EXTrace.MARKET && SellPricePercent != -1)
+			EXTrace.Print(true, this, ClassName + " SellPricePercent " + SellPricePercent);
 	}
 
 	void SetAttachmentsFromIDs()

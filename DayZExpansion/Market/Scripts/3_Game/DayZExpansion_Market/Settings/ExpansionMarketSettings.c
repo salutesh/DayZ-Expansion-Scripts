@@ -361,8 +361,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 		MarketSystemEnabled = s.MarketSystemEnabled;
 
-		//! @note Round to avoid mismatch between server and client due to quantization
-		SellPricePercent = Math.Round(s.SellPricePercent);
+		SellPricePercent = s.SellPricePercent;
 
 		MarketMenuColors = s.MarketMenuColors;
 		
@@ -457,9 +456,12 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			return existingItem;
 		}
 
-		int sellPricePercent = networkItem.Packed & 0x0000ffff;
-		if (sellPricePercent > 0x00007fff)
-			sellPricePercent -= 0x00010000;
+		int sellPricePercentEncoded = networkItem.Packed & 0x0000ffff;
+		if (sellPricePercentEncoded > 0x00007fff)
+			sellPricePercentEncoded -= 0x00010000;
+
+		//! Convert integer representation of bfloat16 back to float
+		float sellPricePercent = CF_Cast<int, float>.Reinterpret(sellPricePercentEncoded << 16);
 
 		int quantityPercent = (networkItem.Packed & 0x00ff0000) >> 16;
 		if (quantityPercent > 0x7f)
@@ -1070,9 +1072,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			{
 				JsonFileLoader<ExpansionMarketSettings>.JsonLoadFile(EXPANSION_MARKET_SETTINGS, this);
 			}
-
-			//! @note Round to avoid mismatch between server and client due to quantization
-			SellPricePercent = Math.Round(SellPricePercent);
 
 			MarketMenuColors.Update();
 

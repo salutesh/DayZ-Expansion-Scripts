@@ -39,12 +39,12 @@
 				unit.OverrideMovementDirection(false, 0);
 			</event_exit>
 			<event_update>
-				if (!unit.GetWeaponManager()) return EXIT;
+				if (!unit.GetWeaponManager() || unit.IsUnconscious()) return EXIT;
 				
 				if (unit.GetWeaponManager().IsRunning())
 				{
 					time += DeltaTime;
-					if (time &gt; 10)  //! Looks like something went terribly wrong
+					if (time &gt; 12)  //! Looks like something went terribly wrong
 					{
 						EXTrace.Print(true, unit, "Weapon_Reloading - Reloading - timeout");
 						unit.eAI_Unbug("reload");

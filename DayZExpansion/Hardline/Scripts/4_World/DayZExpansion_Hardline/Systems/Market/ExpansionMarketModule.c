@@ -20,7 +20,7 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarityForMarketPurchase)
 		{
 			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
 			int required;
@@ -43,7 +43,7 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarityForMarketSell)
 		{
 			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
 			int required;

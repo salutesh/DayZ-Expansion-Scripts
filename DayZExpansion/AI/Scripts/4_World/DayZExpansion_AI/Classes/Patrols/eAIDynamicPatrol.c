@@ -12,11 +12,14 @@ class eAIDynamicPatrol : eAIPatrol
 	float m_MovementThreatSpeedLimit;
 	int m_NumberOfAI;
 	int m_RespawnTime; // negative respawn time = patrol won't respawn
+	int m_DespawnTime; // if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted
 	string m_Loadout;
 	ref eAIFaction m_Faction;
 	ref eAIFormation m_Formation;
 	bool m_CanBeLooted;
 	bool m_UnlimitedReload;
+	float m_AccuracyMin; // negative = use general setting
+	float m_AccuracyMax; // negative = use general setting
 
 	eAIGroup m_Group;
 	float m_TimeSinceLastSpawn;
@@ -31,16 +34,22 @@ class eAIDynamicPatrol : eAIPatrol
 	 * @param behaviour how the waypoints will be traversed
 	 * @param loadout the loadout each member is given @todo change to AI "type" which may have a different FSM/Goal tree
 	 * @param count the number of ai to be spawned in the patrol
-	 * @param faction the faction the patrol will be spawned to
 	 * @param respawnTime the time between patrol spawns
+	 * @param despawnTime the time until patrol despawns if no players in despawn radius
+	 * @param faction the faction the patrol will be spawned to
+	 * @param formation the group's formation
+	 * @param autoStart whether the patrol should automatically start its update loop - otherwise, have to call Start() manually
 	 * @param minR miminum distance between the patrol and nearest player for a patrol to not (re)spawn
 	 * @param maxR maximum distance between the patrol and nearest player for a patrol to (re)spawn
 	 * @param despawnR maximum distance between the patrol and nearest player for a patrol to despawn
 	 * @param speedLimit movement speed limit 1.0 = walk, 2.0 = jog, 3.0 = sprint
+	 * @param threatspeedLimit movement speed limit under threat 1.0 = walk, 2.0 = jog, 3.0 = sprint
+	 * @param unlimitedReload if spare mag in inventory, will be able to reload infinitely
 	 * 
 	 * @return the patrol instance
 	 */
-	static eAIDynamicPatrol CreateEx(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, eAIFormation formation = null, bool autoStart = true, float minR = 300, float maxR = 800, float despawnR = 880, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
+	//! @note hard function param limit seems to be 17, adding anymore will cause CTD
+	static eAIDynamicPatrol CreateEx(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, int despawnTime = 600, eAIFaction faction = null, eAIFormation formation = null, bool autoStart = true, float minR = 300, float maxR = 800, float despawnR = 880, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false/*, float accuracyMin = -1, float accuracyMax = -1*/)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0("eAIDynamicPatrol", "Create");
@@ -54,6 +63,7 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_NumberOfAI = count;
 		patrol.m_Loadout = loadout;
 		patrol.m_RespawnTime = respawnTime;
+		patrol.m_DespawnTime = despawnTime;
 		patrol.m_MinimumRadiusSq = Math.SqrFloat(minR);
 		patrol.m_MaximumRadiusSq = Math.SqrFloat(maxR);
 		patrol.m_DespawnRadiusSq = Math.SqrFloat(despawnR);
@@ -63,6 +73,8 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_Formation = formation;
 		patrol.m_CanBeLooted = canBeLooted;
 		patrol.m_UnlimitedReload = unlimitedReload;
+		//patrol.m_AccuracyMin = accuracyMin;
+		//patrol.m_AccuracyMax = accuracyMax;
 		patrol.m_CanSpawn = true;
 		if (patrol.m_Faction == null) patrol.m_Faction = new eAIFactionCivilian();
 		if (patrol.m_Formation == null) patrol.m_Formation = new eAIFormationVee();
@@ -73,7 +85,13 @@ class eAIDynamicPatrol : eAIPatrol
 	//! Legacy w/ despawnR = maxR * 1.1 for people still using it
 	static eAIDynamicPatrol Create(vector pos, array<vector> waypoints, eAIWaypointBehavior behaviour, string loadout = "", int count = 1, int respawnTime = 600, eAIFaction faction = null, bool autoStart = true, float minR = 300, float maxR = 800, float speedLimit = 3.0, float threatspeedLimit = 3.0, bool canBeLooted = true, bool unlimitedReload = false)
 	{
-		return CreateEx(pos, waypoints, behaviour, loadout, count, respawnTime, faction, null, autoStart, minR, maxR, maxR * 1.1, speedLimit, threatspeedLimit, canBeLooted, unlimitedReload);
+		return CreateEx(pos, waypoints, behaviour, loadout, count, respawnTime, 600, faction, null, autoStart, minR, maxR, maxR * 1.1, speedLimit, threatspeedLimit, canBeLooted, unlimitedReload);
+	}
+
+	void SetAccuracy(float accuracyMin, float accuracyMax)
+	{
+		m_AccuracyMin = accuracyMin;
+		m_AccuracyMax = accuracyMax;
 	}
 
 	private eAIBase SpawnAI(vector pos)
@@ -95,6 +113,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.SetMovementSpeedLimits(m_MovementSpeedLimit, m_MovementThreatSpeedLimit);
 		ai.Expansion_SetCanBeLooted(m_CanBeLooted);
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
+		ai.eAI_SetAccuracy(m_AccuracyMin, m_AccuracyMax);
 
 		return ai;
 	}
@@ -143,12 +162,10 @@ class eAIDynamicPatrol : eAIPatrol
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
 		foreach (vector v : m_Waypoints) m_Group.AddWaypoint(v);
 
-		int count = m_NumberOfAI - 1;
-		while (count != 0)
+		for (int i = 1; i < m_NumberOfAI; i++)
 		{
-			ai = SpawnAI(m_Position);
+			ai = SpawnAI(m_Formation.ToWorld(m_Formation.GetPosition(i)));
 			ai.SetGroup(m_Group);
-			count--;
 		}
 
 		m_NumberOfDynamicPatrols++;
@@ -161,6 +178,8 @@ class eAIDynamicPatrol : eAIPatrol
 		#endif
 
 		if (!m_Group) return;
+
+		m_TimeSinceLastSpawn = 0;
 
 		m_Group.ClearAI();
 		m_Group = null;
@@ -221,7 +240,9 @@ class eAIDynamicPatrol : eAIPatrol
 		{
 			if (minimumDistanceSq > m_DespawnRadiusSq)
 			{
-				Despawn();
+				m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
+				if (m_TimeSinceLastSpawn >= m_DespawnTime)
+					Despawn();
 			}
 		}
 		else

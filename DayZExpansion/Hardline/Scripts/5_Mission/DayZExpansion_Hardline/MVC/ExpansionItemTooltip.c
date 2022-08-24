@@ -45,7 +45,7 @@ modded class ExpansionItemTooltip
 		
     override void Show()
 	{
-		if (GetExpansionSettings().GetHardline().UseItemRarity)				
+		if (GetExpansionSettings().GetHardline().EnableItemRarity)
 			UpdateItemRarity();
 
 		super.Show();

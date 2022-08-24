@@ -239,7 +239,7 @@ class ExpansionMath
 	 */
 	static TVectorArray PathInterpolated(TVectorArray path, ECurveType curveType = ECurveType.CatmullRom, bool smooth = true)
 	{
-		auto trace = EXTrace.Start(EXTrace.ENABLE);
+		auto trace = EXTrace.Start(EXTrace.PATH_INTERPOLATION);
 
 		if (path.Count() < 3)
 			return path;
@@ -250,7 +250,7 @@ class ExpansionMath
 		TVectorArray interpolatedPath();
 
 #ifdef DIAG
-		EXTrace.Print(EXTrace.ENABLE, null, "Original points");
+		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Original points");
 #endif
 
 		foreach (vector pathPoint: path)
@@ -258,7 +258,7 @@ class ExpansionMath
 			points.Insert(Vector(pathPoint[0], pathPoint[2], 0));
 			
 #ifdef DIAG
-			EXTrace.Print(EXTrace.ENABLE, null, pathPoint[0].ToString() + " " + pathPoint[2].ToString());
+			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, pathPoint[0].ToString() + " " + pathPoint[2].ToString());
 #endif
 		}
 
@@ -267,8 +267,8 @@ class ExpansionMath
 		TVectorArray intermediatePoints = {points[0]};
 		
 #ifdef DIAG
-		EXTrace.Print(EXTrace.ENABLE, null, "Intermediate points");
-		EXTrace.Print(EXTrace.ENABLE, null, points[0][0].ToString() + " " + points[0][1].ToString());
+		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Intermediate points");
+		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, points[0][0].ToString() + " " + points[0][1].ToString());
 #endif
 
 		for (int i = 1; i < points.Count(); i++)
@@ -287,14 +287,14 @@ class ExpansionMath
 				intermediatePoints.Insert(intermediatePoint);
 
 #ifdef DIAG
-				EXTrace.Print(EXTrace.ENABLE, null, intermediatePoint[0].ToString() + " " + intermediatePoint[1].ToString());
+				EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, intermediatePoint[0].ToString() + " " + intermediatePoint[1].ToString());
 #endif
 			}
 		}
 
 		//! Curve interpolation
 #ifdef DIAG
-		EXTrace.Print(EXTrace.ENABLE, null, "Filtered interpolated points - " + typename.EnumToString(ECurveType, curveType));
+		EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Filtered interpolated points - " + typename.EnumToString(ECurveType, curveType));
 #endif
 
 		float t;
@@ -311,7 +311,7 @@ class ExpansionMath
 			vector curvePoint = Math3D.Curve(curveType, t / tEnd, intermediatePoints);
 
 //#ifdef DIAG
-			//EXTrace.Print(EXTrace.ENABLE, null, curvePoint[0].ToString() + " " + curvePoint[1].ToString());
+			//EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, curvePoint[0].ToString() + " " + curvePoint[1].ToString());
 //#endif
 
 			vector point3D = Vector(curvePoint[0], 0, curvePoint[1]);
@@ -345,7 +345,7 @@ class ExpansionMath
 
 				interpolatedPath.Insert(point3D);
 #ifdef DIAG
-				EXTrace.Print(EXTrace.ENABLE, null, point3D[0].ToString() + " " + point3D[2].ToString());
+				EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, point3D[0].ToString() + " " + point3D[2].ToString());
 #endif
 			}
 		}
@@ -354,7 +354,7 @@ class ExpansionMath
 		{
 			//! Smoothing pass - moving avg
 #ifdef DIAG
-			EXTrace.Print(EXTrace.ENABLE, null, "Smoothing pass - moving avg");
+			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, "Smoothing pass - moving avg");
 #endif
 
 			TFloatArray x();
@@ -375,7 +375,7 @@ class ExpansionMath
 				interpolatedPath[k] = smoothedPoint;
 
 #ifdef DIAG
-				EXTrace.Print(EXTrace.ENABLE, null, x[k].ToString() + " " + z[k].ToString());
+				EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, x[k].ToString() + " " + z[k].ToString());
 #endif
 			}
 		}
@@ -387,10 +387,27 @@ class ExpansionMath
 			interpolatedPoint[1] = GetGame().SurfaceY(interpolatedPath[l][0], interpolatedPath[l][2]);
 			interpolatedPath[l] = interpolatedPoint;
 #ifdef DIAG
-			EXTrace.Print(EXTrace.ENABLE, null, interpolatedPath[l].ToString(false));
+			EXTrace.Print(EXTrace.PATH_INTERPOLATION, null, interpolatedPath[l].ToString(false));
 #endif
 		}
 
 		return interpolatedPath;
+	}
+
+	//! @brief Compares two numbers
+	//! Returns 1 if a > b, zero if a == b and -1 if a < b
+	//! This function can be used to work-around broken integer comparison involving negative numbers in EnForce
+	//! https://feedback.bistudio.com/T167065
+	static int Cmp(int a, int b)
+	{
+		if (a == b)
+			return 0;
+
+		float af = a, bf = b;
+
+		if (af > bf)
+			return 1;
+
+		return -1;
 	}
 }

@@ -31,9 +31,10 @@ enum ExpansionPartyModuleRPC
 	COUNT
 };
 
-enum ExpansionWorldMappingModuleRPC
+enum ExpansionWorldObjectsModuleRPC
 {
 	INVALID = 20040,
+	RemoveObjects,
 	TurnOn,
 	TurnOff,
 	Load,

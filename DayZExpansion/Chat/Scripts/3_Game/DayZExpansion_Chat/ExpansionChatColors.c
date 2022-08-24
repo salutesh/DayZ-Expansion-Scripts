@@ -26,11 +26,11 @@ class ExpansionChatColors: ExpansionColorSettingsBase
 
 		//! Make sure none of the colors are zero (all transparent) and set defaults
 		if (!Get("SystemChatColor"))
-			Set("SystemChatColor", ARGB(255, 186, 69, 186));
+			Set("SystemChatColor", ARGB(255, 235, 69, 235));
 		if (!Get("AdminChatColor"))
-			Set("AdminChatColor", ARGB(255, 192, 57, 43));
+			Set("AdminChatColor", ARGB(255, 255, 57, 43));
 		if (!Get("GlobalChatColor"))
-			Set("GlobalChatColor", ARGB(255, 88, 195, 247));
+			Set("GlobalChatColor", ARGB(255, 88, 195, 255));
 		if (!Get("DirectChatColor"))
 			Set("DirectChatColor", ARGB(255, 255, 255, 255));
 		if (!Get("TransportChatColor"))

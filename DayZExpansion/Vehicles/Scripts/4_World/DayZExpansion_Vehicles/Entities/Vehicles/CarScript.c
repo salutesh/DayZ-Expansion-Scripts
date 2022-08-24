@@ -413,10 +413,12 @@ modded class CarScript
 	{
 		super.EEDelete(parent);
 
+#ifdef SERVER
 		if (GetExpansionSettings().GetLog().VehicleDeleted)
 		{
 			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] Vehicle " + GetType() + " deleted! (pos=" + GetPosition().ToString() + ")");
 		}
+#endif
 	}
 
 	override void AfterStoreLoad()

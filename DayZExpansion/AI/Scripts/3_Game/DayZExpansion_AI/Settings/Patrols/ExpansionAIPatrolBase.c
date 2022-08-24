@@ -21,6 +21,8 @@ class ExpansionAISpawnBase
 	string UnderThreatSpeed;            // 
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
 	bool UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
+	float AccuracyMin;
+	float AccuracyMax;
 
 	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
 	{
@@ -32,6 +34,8 @@ class ExpansionAISpawnBase
 		LoadoutFile = loa;
 		CanBeLooted = canbelooted;
 		UnlimitedReload = unlimitedreload;
+		AccuracyMin = -1;
+		AccuracyMax = -1;
 	}
 
 	float GetSpeed()
@@ -101,6 +105,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	float MaxSpreadRadius;
 	float Chance;                       // chance for this patrol to spawn
 	string WaypointInterpolation;
+	float DespawnTime;					// if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted. If set to -1, will use general setting instead
 
 	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2)
 	{
@@ -108,5 +113,6 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 		MinDistRadius = mindistradius;
 		MaxDistRadius = maxdistradius;
 		DespawnRadius = maxdistradius * 1.1;
+		DespawnTime = -1;
 	}
 };

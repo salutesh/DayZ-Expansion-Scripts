@@ -32,7 +32,7 @@ modded class InspectMenuNew
 			return;
 
 		ItemBase itemBase = ItemBase.Cast(item);
-		if (itemBase && GetExpansionSettings().GetHardline().UseItemRarity)
+		if (itemBase && GetExpansionSettings().GetHardline().EnableItemRarity)
 		{
 			ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
 			

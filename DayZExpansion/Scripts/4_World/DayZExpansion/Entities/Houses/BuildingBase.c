@@ -15,7 +15,8 @@ modded class BuildingBase
 	//Array of weak references is needed
 	static autoptr array<BuildingBase> m_AllBuldingsInteriors = new array<BuildingBase>;
 	
-	protected ExpansionInteriorBuildingModule m_InteriorModule;
+	protected static ExpansionInteriorBuildingModule s_InteriorModule;
+	static int s_Expansion_LoadCustomObjectsDelay;
 	
 	autoptr array<Object> m_InteriorObjects = {};
 	autoptr array<Object> m_IvyObjects = {};
@@ -29,16 +30,14 @@ modded class BuildingBase
 	void BuildingBase()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "BuildingBase");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this, GetType());
 #endif
-		
-		if (!GetGame().IsServer())
-			return;
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ReloadCustomObjects, 8000, false);
-		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetGodMode, 8000, false);
+
+#ifdef SERVER
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(OnSettingsUpdated);
+#endif
 	}
 		
 	// ------------------------------------------------------------
@@ -47,32 +46,10 @@ modded class BuildingBase
 	void ~BuildingBase()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "~BuildingBase");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this, GetType());
 #endif
 
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
-		//UnloadInterior();
-		//UnloadIvys();
-	}
-	
-	// ------------------------------------------------------------
-	// IsBuildingListed
-	// ------------------------------------------------------------
-	bool IsBuildingListed()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "IsBuildingListed");
-#endif
-		
-		for ( int x = 0; x < GetExpansionSettings().GetGeneral().Mapping.Interiors.Count(); ++x )
-		{
-			if ( this.IsKindOf( GetExpansionSettings().GetGeneral().Mapping.Interiors[x] ) )
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 	
 	// ------------------------------------------------------------
@@ -81,49 +58,55 @@ modded class BuildingBase
 	void OnSettingsUpdated()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "OnSettingsUpdated");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
-		
-		if ( IsMissionHost() )
+		if (GetGame().IsDedicatedServer())
+			SetGodMode();
+
+		if (!HasInterior() && !HasIvys())
+			return;
+
+		if (ExpansionWorldObjectsModule.s_RemovedObjects[this])
+			return;
+
+		auto mapping = GetExpansionSettings().GetGeneral().Mapping;
+
+		bool loadInterior = HasInterior() && mapping.BuildingInteriors && ExpansionStatic.IsAnyOf(this, mapping.Interiors, false);
+		bool loadIvys = HasIvys() && mapping.BuildingIvys;
+
+		if (!loadInterior && !loadIvys)
+			return;
+
+		if (GetGame().IsDedicatedServer())
 		{
-			if ( HasInterior() ) {
-				if ( GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors && IsBuildingListed() )
-					LoadInterior();
-				else 
-					UnloadInterior();
-			}
-		
-			if ( HasIvys() ) {
-				if ( GetExpansionSettings().GetGeneral().Mapping.BuildingIvys )
-					LoadIvys();	
-				else
-					UnloadIvys();
-			}
+			LoadCustomObjects(loadInterior, loadIvys);
+		}
+		else
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadCustomObjects, s_Expansion_LoadCustomObjectsDelay, false, loadInterior, loadIvys);
+
+			//! @note buildings are initialized map-wide even on client (unlike other entities)
+			//! Load objects every 5 ms to avoid bogging down client
+			s_Expansion_LoadCustomObjectsDelay += 5;
+			if (ExpansionMath.Cmp(s_Expansion_LoadCustomObjectsDelay, 0) == -1)
+				s_Expansion_LoadCustomObjectsDelay = 1000;
 		}
 	}
 	
 	// ------------------------------------------------------------
-	// BuildingBase ReloadCustomObjects
+	// BuildingBase LoadCustomObjects
 	// ------------------------------------------------------------
-	void ReloadCustomObjects()
+	void LoadCustomObjects(bool loadInterior, bool loadIvys)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "ReloadCustomObjects");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 		
-		if ( HasInterior() ) {
-			if ( GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors && IsBuildingListed() )
-				LoadInterior();
-			else 
-				UnloadInterior();
-		}
+		if (loadInterior)
+			LoadInterior();
 	
-		if ( HasIvys() ) {
-			if ( GetExpansionSettings().GetGeneral().Mapping.BuildingIvys )
-				LoadIvys();	
-			else
-				UnloadIvys();
-		}
+		if (loadIvys)
+			LoadIvys();
 	}
 	
 	// ------------------------------------------------------------
@@ -143,18 +126,6 @@ modded class BuildingBase
 	}
 	
 	// ------------------------------------------------------------
-	// BuildingBase FixObjectCollision
-	// ------------------------------------------------------------
-	private void FixObjectCollision( Object obj )
-	{
-		vector roll = obj.GetOrientation();
-		roll[2] = roll[2] - 1;
-		obj.SetOrientation( roll );
-		roll[2] = roll[2] + 1;
-		obj.SetOrientation( roll );
-	}
-	
-	// ------------------------------------------------------------
 	// BuildingBase SpawnInteriorIvy
 	// ------------------------------------------------------------
 	protected Object SpawnInteriorIvy( string type, vector position, vector orientation )
@@ -170,7 +141,7 @@ modded class BuildingBase
 		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
 
-		FixObjectCollision( obj );
+		ExpansionObjectSpawnTools.FixObjectCollision( obj );
 		
 		Entity ent;
 		if (Class.CastTo(ent, obj)) {
@@ -200,19 +171,19 @@ modded class BuildingBase
 		ConvertTransformToWorld( position, orientation, position, orientation );
 
 		Object obj;
-		if ( !m_InteriorModule.m_CachedCollision.Find( type, hasCollision ) )
+		if ( !s_InteriorModule.m_CachedCollision.Find( type, hasCollision ) )
 		{
 			obj = GetGame().CreateObjectEx( type, position, ECE_CREATEPHYSICS | ECE_LOCAL );
 			if ( !obj )
 			{
-				m_InteriorModule.m_CachedCollision.Insert( type, false );
+				s_InteriorModule.m_CachedCollision.Insert( type, false );
 				return NULL;
 			}
 			
 			vector minMax[2];
 			hasCollision = obj.GetCollisionBox( minMax );
 			
-			m_InteriorModule.m_CachedCollision.Insert( type, hasCollision );
+			s_InteriorModule.m_CachedCollision.Insert( type, hasCollision );
 			
 			GetGame().ObjectDelete( obj );
 		}
@@ -229,7 +200,7 @@ modded class BuildingBase
 		}
 		
 		// don't use CreateObject, it does a bunch of unnecessary stuff
-		int flags = ECE_CREATEPHYSICS;
+		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME;
 		if ( IsMissionClient() )
 			flags |= ECE_LOCAL; // create_local
 		
@@ -238,11 +209,11 @@ modded class BuildingBase
 			return NULL;
 		
 		//Tell engine it will represent static object
-		//obj.SetFlags( EntityFlags.STATIC, false );
+		obj.SetFlags( EntityFlags.STATIC, false );
 		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
 
-		FixObjectCollision( obj );
+		ExpansionObjectSpawnTools.FixObjectCollision( obj );
 		
 		if ( obj.CanAffectPathgraph() ) {
 			obj.SetAffectPathgraph( true, false );
@@ -250,24 +221,10 @@ modded class BuildingBase
 
 		Entity ent = Entity.Cast(obj);
 		if (ent)
-		{			
+		{
 			ItemBase item = ItemBase.Cast( ent );
-			EntityAI ent_ai;
 			if (item)
-			{
-				// TODO: Do we actually need this, i.e. is there anything that we spawn that inherits from ItemBase?
-
 				item.SetTakeable(false);
-				
-				// Make it not CE saved (would this actually work as intended?)
-				if ( IsMissionHost() ) 
-					item.SetLifetimeMax(1.0);
-			} else if ( Class.CastTo( ent_ai, obj ) )
-			{
-				// Set lifetime to 45 days, otherwise it would default to roughly half an hour
-				if ( IsMissionHost() )
-					ent_ai.SetLifetimeMax(3888000);
-			}
 		
 			ent.DisableSimulation(true);
 		}
@@ -283,25 +240,38 @@ modded class BuildingBase
 	void LoadInterior()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadInterior");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
-		
-		if (m_InteriorsLoaded) {
-			return;
-		}
-				
 
-		if ( !m_InteriorModule ) {
-			CF_Modules<ExpansionInteriorBuildingModule>.Get(m_InteriorModule);
+		if (m_InteriorObjects.Count())
+		{
+			int deleted;
+			foreach (auto obj: m_InteriorObjects)
+			{
+				if (!obj)
+					deleted++;
+			}
+			//! The game will automatically delete the objects on mission end (disconnect/quit)
+			//! This condition will always be met on client reconnect
+			if (deleted == m_InteriorObjects.Count())
+				m_InteriorObjects.Clear();
+			//! This condition should never be met
+			else if (!deleted)
+				return;
+			//! This `else` just exists as a safety
+			else
+				UnloadInterior();
 		}
-		
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.LoadInterior);
+
+		if ( !s_InteriorModule ) {
+			CF_Modules<ExpansionInteriorBuildingModule>.Get(s_InteriorModule);
+		}
 		
 		SpawnInterior();
 		m_InteriorsLoaded = true;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
-		m_InteriorModule.SaveCachedCollisions();
+		if (GetGame().IsDedicatedServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
 	}
 	
 	// ------------------------------------------------------------
@@ -310,18 +280,38 @@ modded class BuildingBase
 	void LoadIvys()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadIvys");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 		
-		if (m_IvysLoaded || !IsMissionClient()) {
+		if (!IsMissionClient()) {
 			return;
 		}
+
+		if (m_IvyObjects.Count())
+		{
+			int deleted;
+			foreach (auto obj: m_IvyObjects)
+			{
+				if (!obj)
+					deleted++;
+			}
+			//! The game will automatically delete the objects on mission end (disconnect/quit)
+			//! This condition will always be met on client reconnect
+			if (deleted == m_IvyObjects.Count())
+				m_IvyObjects.Clear();
+			//! This condition should never be met
+			else if (!deleted)
+				return;
+			//! This `else` just exists as a safety
+			else
+				UnloadIvys();
+		}
 				
-		if (!m_InteriorModule) {
-			CF_Modules<ExpansionInteriorBuildingModule>.Get(m_InteriorModule);
+		if (!s_InteriorModule) {
+			CF_Modules<ExpansionInteriorBuildingModule>.Get(s_InteriorModule);
 		}
 		
-		if (m_InteriorModule.ShouldIvySpawn(GetPosition())) {
+		if (s_InteriorModule.ShouldIvySpawn(GetPosition())) {
 			SpawnIvys();
 		}
 		
@@ -334,7 +324,7 @@ modded class BuildingBase
 	void UnloadInterior()
 	{	
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "UnloadInterior");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 		
 		if (!m_InteriorsLoaded) {
@@ -362,7 +352,7 @@ modded class BuildingBase
 	void UnloadIvys()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "UnloadIvys");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 		
 		if (!m_IvysLoaded) {

@@ -18,7 +18,7 @@ modded class ItemBase
 	{
 		RegisterNetSyncVariableInt("m_Expansion_Rarity", EnumTools.GetEnumValue(ExpansionHardlineItemRarity, 0), EnumTools.GetLastEnumValue(ExpansionHardlineItemRarity));
 
-		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseItemRarity)
+		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().EnableItemRarity)
 		{
 			m_Expansion_Rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(GetType());
 

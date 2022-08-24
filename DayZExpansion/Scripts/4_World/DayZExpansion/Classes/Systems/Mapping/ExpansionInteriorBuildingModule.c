@@ -19,18 +19,11 @@ class IviesPosition
 [CF_RegisterModule(ExpansionInteriorBuildingModule)]
 class ExpansionInteriorBuildingModule: CF_ModuleWorld
 {
-	protected bool m_IsUnloadingInteriors;
-	protected bool m_IsLoadingInteriors;
-	
 	autoptr array< ref IviesPosition > m_WhereIviesObjectsSpawn;
 	
 	//string is classname of the object, and bool, to know if it has collision or not
 	autoptr map<string, bool> m_CachedCollision;
-	
-	//Use multimap so you can get log(n) for type and n for position
-	protected autoptr multiMap<string, vector> m_AllSpawnedPositions;
-	
-	
+	protected int m_LastSavedCount;
  	
 	// ------------------------------------------------------------
 	// ExpansionInteriorBuildingModule Constructor
@@ -38,11 +31,10 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 	void ExpansionInteriorBuildingModule()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "ExpansionInteriorBuildingModule");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
 		m_CachedCollision = new map<string, bool>;
-		m_AllSpawnedPositions = new multiMap<string, vector>;
 
 		ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 	}
@@ -53,7 +45,7 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 	void ~ExpansionInteriorBuildingModule()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "~ExpansionInteriorBuildingModule");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 		
 		ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
@@ -67,82 +59,34 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionStart();
-		//EnableSettingsChanged();
 	}
  	
  	override void OnMissionStart(Class sender, CF_EventArgs args)
  	{
 		super.OnMissionStart(sender, args);
 
-		if (!GetGame().IsServer())
-			return;
-		
-		LoadIviesPositions();
+		BuildingBase.s_Expansion_LoadCustomObjectsDelay = 1000;
+
+		LoadCachedCollisions();
 	}
 
 	void OnSettingsUpdated()
 	{
-		//OnSettingsChanged(this, CF_EventArgs.Empty);
-	}
-
-	// ------------------------------------------------------------
-	// Expansion OnSettingsChanged
-	// ------------------------------------------------------------
-/*	override void OnSettingsChanged(Class sender, CF_EventArgs args)
-	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "OnSettingsChanged");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
-		super.OnSettingsChanged(sender, args);
-
-		if ( !GetExpansionSettings().GetGeneral() || g_Game.IsLoading() )
-			return;
-		
-		// not workin!
-		//Print(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
-		//Print(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
-
-		//LoadInteriors(GetExpansionSettings().GetGeneral().Mapping.BuildingInteriors);
-		//LoadIvys(GetExpansionSettings().GetGeneral().Mapping.BuildingIvys);
-	}
-*/
-	
-	void AddBuildingSpawned( string type, vector pos )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "AddBuildingSpawned");
-#endif
-
-		m_AllSpawnedPositions.Insert( type, pos );
-	}
-	
-	bool AlreadySpawned( string type, vector pos )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "AlreadySpawned");
-#endif
-
-		array<vector> allPositions = m_AllSpawnedPositions.Get(type);
-		
-		if (allPositions)
+		if (!GetGame().IsDedicatedServer())
 		{
-			for ( int i = 0; i < allPositions.Count(); ++i )
-			{
-				if (vector.Distance( allPositions[i], pos ) < 0.25)
-				{
-					return true;
-				}
-			}
+			LoadIviesPositions();
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SaveCachedCollisions, 20000, false);
 		}
-		
-		return false;
 	}
 	
 	private void GetIviesPositions(out TVectorArray iviesPosition)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "GetIviesPositions");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
 		//! Set default markers depending on map name
@@ -291,7 +235,7 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 	private void LoadIviesPositions()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadIviesPositions");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
 		if ( !GetExpansionSettings().GetGeneral() )
@@ -319,8 +263,11 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 	void SaveCachedCollisions()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "SaveCachedCollisions");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
+
+		if (m_LastSavedCount == m_CachedCollision.Count())
+			return;
 
 		FileSerializer file = new FileSerializer;
 			
@@ -329,12 +276,14 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 			file.Write(m_CachedCollision);
 			file.Close();
 		}
+
+		m_LastSavedCount = m_CachedCollision.Count();
 	}
 	
 	void LoadCachedCollisions()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "LoadCachedCollisions");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
 		if (FileExist(EXPANSION_TEMP_INTERIORS))
@@ -352,7 +301,7 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 	bool ShouldIvySpawn(vector position)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MAPPING, this, "ShouldIvySpawn");
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
 		// If Ivys are disabled in settings, this will be NULL
