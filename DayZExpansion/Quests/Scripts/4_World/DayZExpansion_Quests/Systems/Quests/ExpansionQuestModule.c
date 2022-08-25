@@ -115,8 +115,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		super.OnInit();
 
-		EnableMissionFinish();
 		EnableMissionLoaded();
+		EnableMissionFinish();
 		EnableInvokeConnect();
 		EnableClientLogout();
 		EnableClientLogoutCancelled();
@@ -969,7 +969,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_QuestClientConfigs.Insert(questConfig.GetID(), questConfig);
 		}
 
+	#ifdef EXPANSIONMODBOOK
 		GetQuestLogSI().Invoke(m_QuestClientConfigs);
+	#endif
 
 		QuestModulePrint(ToString() + "::RPC_SendPlayerQuests - End");
 	}
@@ -1617,6 +1619,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(pos);
 		rpc.Write(text);
 		rpc.Write(questID);
+		rpc.Write(GetExpansionSettings().GetMap().CanCreate3DMarker);
 		rpc.Send(null, ExpansionQuestModuleRPC.CreateClientMarker, true, identity);
 
 		QuestModulePrint(ToString() + "::CreateClientMarker - End");
@@ -1652,7 +1655,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ctx.Read(questID))
 			return;
 
-		CreateMarkerClient(pos, text, questID);
+		bool is3D;
+		if (!ctx.Read(is3D))
+			return;
+
+		CreateMarkerClient(pos, text, questID, is3D);
 
 		QuestModulePrint(ToString() + "::RPC_CreateClientMarker - End");
 	}
@@ -1661,7 +1668,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// ExpansionMarkerModule CreateMarkerClient
 	// Called on client
 	// ------------------------------------------------------------
-	private void CreateMarkerClient(vector pos, string text, int questID)
+	private void CreateMarkerClient(vector pos, string text, int questID, bool is3D)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "CreateMarkerClient").Add(sender).Add(ctx);
@@ -1679,7 +1686,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		markerData.SetIcon("Questionmark");
 		markerData.SetColor(ARGB(255,241,196,15));
 		markerData.SetPosition(pos);
-		markerData.Set3D(GetExpansionSettings().GetMap().CanCreate3DMarker);
+		markerData.Set3D(is3D);
 		markerData.SetLockState(true);
 		markerModule.CreateMarker(markerData);
 
@@ -2356,11 +2363,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig quest_26 = m_DefaultQuestConfigData.ExpansionQuestConfig026();
 		quest_26.Save("Quest_26");
 		m_QuestConfigs.Insert(26, quest_26);
-		
-		//! Quest #27 - Example template for a scripted auto-start quest
-		ExpansionQuestConfig quest_27 = m_DefaultQuestConfigData.ExpansionQuestConfig027();
-		quest_27.Save("Quest_27");
-		m_QuestConfigs.Insert(27, quest_27);
 	}
 
 	// -----------------------------------------------------------
@@ -4303,7 +4305,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 							ExpansionQuestObjectiveCollectionEvent collectionObjective;
 							if (Class.CastTo(collectionObjective, currentObjective))
 							{
-								objectiveData.SetObjectiveAmount(collectionObjective.GetAmmount());
+								objectiveData.SetObjectiveAmount(collectionObjective.GetAmount());
 								objectiveData.SetObjectiveCount(collectionObjective.GetCount());
 							}
 						}
@@ -5127,6 +5129,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	ExpansionQuestNPCBase GetQuestNPCByID(int id)
 	{
 		return m_QuestNPCEntities.Get(id);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule GetQuestNPCByID
+	// Server
+	// ------------------------------------------------------------
+	ExpansionQuestStaticObject GetQuestObjectByID(int id)
+	{
+		return m_QuestObjectEntities.Get(id);
 	}
 	
 	// ------------------------------------------------------------

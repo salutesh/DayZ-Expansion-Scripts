@@ -47,7 +47,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        visible 0
        ignorepointer 1
        position 10.4833 162.73799
-       size 34 22
+       size 60 22
        halign right_ref
        valign bottom_ref
        hexactpos 1
@@ -59,7 +59,7 @@ FrameWidgetClass ExpansionHardlineHUD {
          visible 1
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
-         size 34 22
+         size 60 22
          halign center_ref
          valign bottom_ref
          hexactpos 1
@@ -85,7 +85,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        inheritalpha 0
        ignorepointer 1
        position 0 0
-       size 35 81
+       size 60 81
        halign right_ref
        valign center_ref
        hexactpos 1
@@ -131,7 +131,7 @@ FrameWidgetClass ExpansionHardlineHUD {
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
          position 0 0
-         size 34 22
+         size 60 20
          halign center_ref
          valign bottom_ref
          hexactpos 1
@@ -226,7 +226,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        visible 0
        ignorepointer 1
        position 10.4833 162.73799
-       size 34 22
+       size 60 22
        halign right_ref
        valign bottom_ref
        hexactpos 1
@@ -239,7 +239,7 @@ FrameWidgetClass ExpansionHardlineHUD {
          ignorepointer 1
          color 0.8627 0.8627 0.8627 1
          position 0 0
-         size 34 22
+         size 60 22
          halign center_ref
          valign bottom_ref
          hexactpos 1

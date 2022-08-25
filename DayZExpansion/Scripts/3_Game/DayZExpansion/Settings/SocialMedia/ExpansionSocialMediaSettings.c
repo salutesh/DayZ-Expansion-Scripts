@@ -137,7 +137,7 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	// ------------------------------------------------------------
 	override void Unload()
 	{
-		m_IsLoaded = false;
+		//! Never unload social media settings cause they are used in main menu
 	}
 	
 	// ------------------------------------------------------------

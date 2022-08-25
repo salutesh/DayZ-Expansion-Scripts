@@ -154,7 +154,30 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 			action_data.m_Player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
 
 		action_data.m_Player.SetInVehicle( true );
-		if (Class.CastTo(transport, action_data.m_Target.GetObject()) && transport.IsHelicopter())
+		if (!Class.CastTo(transport, action_data.m_Target.GetObject()))
+			return;
+
+		if (transport.IsHelicopter())
 			transport.SetHasPilot(transport.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER) != NULL);  //! So we are able to detect if pilot got disconnected or got out on own accord
+		
+		if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEnter)
+		{
+			int componentIndex = action_data.m_Target.GetComponentIndex();
+			int crew_index = transport.CrewPositionIndex(componentIndex);
+			string seat;
+			if (crew_index == DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			{
+				if (transport.IsHelicopter() || transport.IsPlane())
+					seat = "pilot";
+				else
+					seat = "driver";
+			}
+			else
+			{
+				seat = "passenger";
+			}
+
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] entered vehicle " + transport.GetDisplayName() + " (pos=" + transport.GetPosition() + ", type=" + transport.GetType() + ") as " + seat);
+		}
 	}
 }

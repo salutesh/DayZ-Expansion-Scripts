@@ -81,69 +81,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return super.CanBeDamaged();
 	}
 
-	override void OnStoreSave( ParamsWriteContext ctx )
-	{
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-		
-		ctx.Write( m_HasWindow );
-		ctx.Write( m_HasDoor );
-		ctx.Write( m_HasGate );
-		ctx.Write( m_HasWall );
-		ctx.Write( m_Expansion_IsOpened );
-		ctx.Write( m_Expansion_IsOpened1 );
-		ctx.Write( m_Expansion_IsOpened2 );
-		ctx.Write( m_Expansion_IsOpened3 );
-		ctx.Write( m_Expansion_IsOpened4 );
-	}
-
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return true;
-		#endif
-
-		if ( Expansion_Assert_False( ctx.Read( m_HasWindow ), "[" + this + "] Failed reading m_HasWindow" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_HasDoor ), "[" + this + "] Failed reading m_HasDoor" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_HasGate ), "[" + this + "] Failed reading m_HasGate" ) )
-			return false;
-
-		if ( m_ExpansionSaveVersion < 18 )
-			return true;
-
-		if ( Expansion_Assert_False( ctx.Read( m_HasWall ), "[" + this + "] Failed reading m_HasWall" ) )
-			return false;
-
-		if ( GetExpansionSaveVersion() < 23 )
-			return true;
-
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened ), "[" + this + "] Failed reading m_Expansion_IsOpened" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened1 ), "[" + this + "] Failed reading m_Expansion_IsOpened1" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened2 ), "[" + this + "] Failed reading m_Expansion_IsOpened2" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened3 ), "[" + this + "] Failed reading m_Expansion_IsOpened3" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Expansion_IsOpened4 ), "[" + this + "] Failed reading m_Expansion_IsOpened4" ) )
-			return false;
-		
-		return true;
-	}
-
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{

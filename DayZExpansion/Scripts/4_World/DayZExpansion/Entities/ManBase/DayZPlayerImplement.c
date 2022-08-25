@@ -10,7 +10,7 @@
  *
 */
 
-static bool m_ExpansionShowDeadScreen = false;
+static bool g_ExpansionShowDeadScreen = false;
 
 modded class DayZPlayerImplement
 {
@@ -22,35 +22,25 @@ modded class DayZPlayerImplement
 		super.ShowDeadScreen( show, duration );
 
 		#ifndef NO_GUI
-		if ( show && IsPlayerSelected() )
-		{
-			GetGame().GetUIManager().ScreenFadeIn( duration, "#dayz_implement_dead", FadeColors.BLACK, FadeColors.WHITE );
-		}
-		else
-		{
-			GetGame().GetUIManager().ScreenFadeOut(0);
-		}
+		if (!GetExpansionSettings().GetGeneral(false).IsLoaded())
+			return;
 
 		if (duration > 0)
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( StopDeathDarkeningEffect, duration*1000, false );
-
 			if (GetExpansionSettings().GetGeneral().UseDeathScreen)
-				m_ExpansionShowDeadScreen = true;
+				g_ExpansionShowDeadScreen = true;
 		}
 		else
 		{
-			GetGame().GetCallQueue( CALL_CATEGORY_GUI ).Call( StopDeathDarkeningEffect );
-
 			if (GetExpansionSettings().GetGeneral().UseDeathScreen)
-				m_ExpansionShowDeadScreen = false;
+				g_ExpansionShowDeadScreen = false;
 		}
 		#endif
 	}
 
 	override bool IsShootingFromCamera()
 	{
-		bool disableMagicCrosshair = GetExpansionSettings().GetGeneral().DisableMagicCrosshair;
+		bool disableMagicCrosshair = GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().DisableMagicCrosshair;
 		return !disableMagicCrosshair;
 	}
 }

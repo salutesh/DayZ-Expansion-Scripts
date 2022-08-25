@@ -309,35 +309,16 @@ class ExpansionMapping
 		Interiors.Insert( "Land_BarnMetal_Big_Grey" );
 
 		Interiors.Insert( "Land_City_Hospital" );
-		Interiors.Insert( "Land_City_School" );
 
 		Interiors.Insert( "Land_Garage_Big" );
 		Interiors.Insert( "Land_Garage_Row_Big" );
 		Interiors.Insert( "Land_Shed_Closed" );
 
-		Interiors.Insert( "Land_Village_Pub" );
-		Interiors.Insert( "Land_House_1B01_Pub" );
-
 		Interiors.Insert( "Land_House_1W01" );
 		Interiors.Insert( "Land_House_1W02" );
-		Interiors.Insert( "Land_House_1W03" );
-		Interiors.Insert( "Land_House_1W04" );
-		Interiors.Insert( "Land_House_1W05" );
 		Interiors.Insert( "Land_House_1W06" );
 		Interiors.Insert( "Land_House_1W07" );
-		Interiors.Insert( "Land_House_1W08" );
-		Interiors.Insert( "Land_House_1W09" );
-		Interiors.Insert( "Land_House_1W10" );
 		Interiors.Insert( "Land_House_1W11" );
-		Interiors.Insert( "Land_House_1W12" );
-
-		Interiors.Insert( "Land_House_1W03_Brown" );
-		Interiors.Insert( "Land_House_1W04_Yellow" );
-		Interiors.Insert( "Land_House_1W05_Yellow" );
-		Interiors.Insert( "Land_House_1W08_Brown" );
-		Interiors.Insert( "Land_House_1W09_Yellow" );
-		Interiors.Insert( "Land_House_1W10_Brown" );
-		Interiors.Insert( "Land_House_1W12_Brown" );
 
 		Interiors.Insert( "Land_House_2B01" );
 		Interiors.Insert( "Land_House_2B02" );
@@ -347,13 +328,7 @@ class ExpansionMapping
 		Interiors.Insert( "Land_House_2W01" );
 		Interiors.Insert( "Land_House_2W02" );
 		Interiors.Insert( "Land_House_2W03" );
-		Interiors.Insert( "Land_House_2W04" );
 		
-		Interiors.Insert( "Land_House_2W03_Brown" );
-		Interiors.Insert( "Land_House_2W04_Yellow" );
-		
-		Interiors.Insert( "Land_Lighthouse" );
-		Interiors.Insert( "Land_Power_Station" );
 		Interiors.Insert( "Land_Rail_Station_Big" );
 	}
 };

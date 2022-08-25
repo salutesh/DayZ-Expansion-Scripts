@@ -20,6 +20,8 @@ class ExpansionQuestObjectiveAIPatrol
 	private string NPCFaction;
 	string NPCFormation;
 	private string NPCLoadoutFile;
+	float NPCAccuracyMin;
+	float NPCAccuracyMax;
 	private autoptr array<string> ClassNames = new array<string>;
 	private bool SpecialWeapon = false;
 	private autoptr array<string> AllowedWeapons = new array<string>;

@@ -61,7 +61,7 @@ FrameWidgetClass ExpansionATMMenu {
          hexactsize 0
          vexactsize 0
          style Normal
-         text "#STR_EXPANSION_ATM_UI_PERSONALLOCKER"
+         text "#STR_EXPANSION_ATM_UI_PERSONAL_ACCOUNT"
          font "gui/fonts/etelkatextpro22"
          "exact text" 1
          "exact text size" 22
@@ -719,7 +719,7 @@ FrameWidgetClass ExpansionATMMenu {
          hexactsize 0
          vexactsize 0
          style Normal
-         text "#STR_EXPANSION_ATM_UI_PARTYLOCKER"
+         text "#STR_EXPANSION_ATM_UI_PARTY_ACCOUNT"
          font "gui/fonts/etelkatextpro22"
          "exact text" 1
          "exact text size" 22
@@ -1130,7 +1130,7 @@ FrameWidgetClass ExpansionATMMenu {
    vexactsize 1
    priority 1
    style Normal
-   text "#STR_EXPANSION_ATM_UI_PERSONALLOCKER"
+   text "#STR_EXPANSION_ATM_UI_TITLE"
    font "gui/fonts/etelkatextpro48"
    "text color" 0.8157 0.1255 0.7843 1
    "exact text" 0

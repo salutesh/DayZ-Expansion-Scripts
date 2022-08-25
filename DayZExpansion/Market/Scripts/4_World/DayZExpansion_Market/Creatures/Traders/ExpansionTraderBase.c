@@ -263,12 +263,13 @@ class ExpansionTraderObjectBase
 			if (!ctx.Read(fileName))
 				return;
 				
-			m_Trader = GetExpansionSettings().GetMarket().GetMarketTrader(fileName);
+			auto marketSettings = GetExpansionSettings().GetMarket(false);
+			m_Trader = marketSettings.GetMarketTrader(fileName);
 			if (!m_Trader)
 			{
 				m_Trader = new ExpansionMarketTrader;
 				m_Trader.m_FileName = fileName;
-				GetExpansionSettings().GetMarket().AddMarketTrader(m_Trader);
+				marketSettings.AddMarketTrader(m_Trader);
 			}
 
 			if (!ctx.Read(m_Trader.DisplayName))
@@ -380,11 +381,15 @@ class ExpansionTraderObjectBase
 		{
 			case "Expansion_Boat":
 			case "Expansion_Ship":
+			case "Vehicles_Boat":
+			case "Vehicles_Ship":
 				positions = GetExpansionSettings().GetMarket().WaterSpawnPositions;
 				spawnType = ExpansionMarketVehicleSpawnType.WATER;
 				break;
 			case "Expansion_Helicopter":
 			case "Expansion_Plane":
+			case "Vehicles_Helicopter":
+			case "Vehicles_Plane":
 				positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
 				spawnType = ExpansionMarketVehicleSpawnType.AIR;
 				break;
@@ -548,11 +553,6 @@ class ExpansionTraderObjectBase
 			return string.Empty;
 
 		string traderName = GetTraderMarket().DisplayName;
-		if (traderName.Contains("#"))
-		{
-			StringLocaliser name = new StringLocaliser(traderName);
-			traderName = name.Format();
-		}
 
 		if (!m_TraderEntity)
 			return traderName;

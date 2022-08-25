@@ -319,53 +319,6 @@ class ExpansionTerritory
 		return TerritoryLevel;
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion OnStoreSave
-	// ------------------------------------------------------------
-	void OnStoreSave_OLD( ParamsWriteContext ctx )
-	{
-		ctx.Write( TerritoryID );
-		ctx.Write( TerritoryName );
-		ctx.Write( TerritoryPosition );
-		ctx.Write( TerritoryLevel );
-		ctx.Write( TerritoryOwnerID );
-		ctx.Write( TerritoryFlagTexturePath );
-		ctx.Write( TerritoryMembers );
-		ctx.Write( Invites );
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnStoreLoad
-	// ------------------------------------------------------------
-	bool OnStoreLoad_OLD( ParamsReadContext ctx, int expansionVersion )
-	{
-		if ( Expansion_Assert_False( ctx.Read( TerritoryID ), "[" + this + "] Failed reading TerritoryID" ) )
-			return false;
-			
-		if ( Expansion_Assert_False( ctx.Read( TerritoryName ), "[" + this + "] Failed reading TerritoryName" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( TerritoryPosition ), "[" + this + "] Failed reading TerritoryPosition" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( TerritoryLevel ), "[" + this + "] Failed reading TerritoryLevel" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( TerritoryOwnerID ), "[" + this + "] Failed reading TerritoryOwnerID" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( TerritoryFlagTexturePath ), "[" + this + "] Failed reading TerritoryFlagTexturePath" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( TerritoryMembers ), "[" + this + "] Failed reading TerritoryMembers" ) )
-			return false;
-
-		if ( Expansion_Assert_False( ctx.Read( Invites ), "[" + this + "] Failed reading Invites" ) )
-			return false;
-		
-		return true;
-	}
-	
 	#ifdef EXPANSION_MODSTORAGE
 	// ------------------------------------------------------------
 	// Expansion OnStoreSave

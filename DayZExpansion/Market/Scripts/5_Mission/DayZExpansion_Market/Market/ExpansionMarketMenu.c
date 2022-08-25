@@ -1108,21 +1108,21 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			if (m_MarketFilters.GetWeaponMagazines(shoulder_left).Count() > 0)
 			{
-				StringLocaliser primary_mag = new StringLocaliser(GetDisplayName(shoulder_left.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_MAGAZINES");
+				StringLocaliser primary_mag = new StringLocaliser(shoulder_left.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_MAGAZINES");
 				ExpansionMarketMenuDropdownElement_FilterPrimeMag primemag_filter = new ExpansionMarketMenuDropdownElement_FilterPrimeMag(this, primary_mag);
 				m_MarketMenuController.DropdownElements.Insert(primemag_filter);
 			}
 
 			if (m_MarketFilters.GetWeaponAttachments(shoulder_left).Count() > 0)
 			{
-				StringLocaliser primary_attach = new StringLocaliser(GetDisplayName(shoulder_left.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_ATTACHMENTS");
+				StringLocaliser primary_attach = new StringLocaliser(shoulder_left.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_ATTACHMENTS");
 				ExpansionMarketMenuDropdownElement_FilterPrimeAttach primeattach_filter = new ExpansionMarketMenuDropdownElement_FilterPrimeAttach(this, primary_attach);
 				m_MarketMenuController.DropdownElements.Insert(primeattach_filter);
 			}
 
 			if (m_MarketFilters.GetWeaponBullets(shoulder_left).Count() > 0)
 			{
-				StringLocaliser primary_bullets = new StringLocaliser(GetDisplayName(shoulder_left.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_BULLETS");
+				StringLocaliser primary_bullets = new StringLocaliser(shoulder_left.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_BULLETS");
 				ExpansionMarketMenuDropdownElement_FilterPrimeBullet primebullet_filter = new ExpansionMarketMenuDropdownElement_FilterPrimeBullet(this, primary_bullets);
 				m_MarketMenuController.DropdownElements.Insert(primebullet_filter);
 			}
@@ -1134,21 +1134,21 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			if (m_MarketFilters.GetWeaponMagazines(shoulder_right).Count() > 0)
 			{
-				StringLocaliser second_mag = new StringLocaliser(GetDisplayName(shoulder_right.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_MAGAZINES");
+				StringLocaliser second_mag = new StringLocaliser(shoulder_right.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_MAGAZINES");
 				ExpansionMarketMenuDropdownElement_FilterSecondMag secondmag_filter = new ExpansionMarketMenuDropdownElement_FilterSecondMag(this, second_mag);
 				m_MarketMenuController.DropdownElements.Insert(secondmag_filter);
 			}
 
 			if (m_MarketFilters.GetWeaponAttachments(shoulder_right).Count() > 0)
 			{
-				StringLocaliser second_attach = new StringLocaliser(GetDisplayName(shoulder_right.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_ATTACHMENTS");
+				StringLocaliser second_attach = new StringLocaliser(shoulder_right.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_ATTACHMENTS");
 				ExpansionMarketMenuDropdownElement_FilterSecondAttach secondattach_filter = new ExpansionMarketMenuDropdownElement_FilterSecondAttach(this, second_attach);
 				m_MarketMenuController.DropdownElements.Insert(secondattach_filter);
 			}
 
 			if (m_MarketFilters.GetWeaponBullets(shoulder_right).Count() > 0)
 			{
-				StringLocaliser second_bullets = new StringLocaliser(GetDisplayName(shoulder_right.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_BULLETS");
+				StringLocaliser second_bullets = new StringLocaliser(shoulder_right.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_BULLETS");
 				ExpansionMarketMenuDropdownElement_FilterSecondBullet secondbullet_filter = new ExpansionMarketMenuDropdownElement_FilterSecondBullet(this, second_bullets);
 				m_MarketMenuController.DropdownElements.Insert(secondbullet_filter);
 			}
@@ -1160,21 +1160,21 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			if (m_MarketFilters.GetWeaponMagazines(hands).Count() > 0)
 			{
-				StringLocaliser hand_mag = new StringLocaliser(GetDisplayName(hands.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_MAGAZINES");		
+				StringLocaliser hand_mag = new StringLocaliser(hands.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_MAGAZINES");		
 				ExpansionMarketMenuDropdownElement_FilterHandMag handmag_filter = new ExpansionMarketMenuDropdownElement_FilterHandMag(this, hand_mag);
 				m_MarketMenuController.DropdownElements.Insert(handmag_filter);
 			}
 
 			if (m_MarketFilters.GetWeaponAttachments(hands).Count() > 0)
 			{
-				StringLocaliser hand_attach = new StringLocaliser(GetDisplayName(hands.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_ATTACHMENTS");
+				StringLocaliser hand_attach = new StringLocaliser(hands.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_ATTACHMENTS");
 				ExpansionMarketMenuDropdownElement_FilterHandAttach handattach_filter = new ExpansionMarketMenuDropdownElement_FilterHandAttach(this, hand_attach);
 				m_MarketMenuController.DropdownElements.Insert(handattach_filter);
 			}
 
 			if (m_MarketFilters.GetWeaponBullets(hands).Count() > 0)
 			{
-				StringLocaliser hand_bullets = new StringLocaliser(GetDisplayName(hands.GetType()) + " #STR_EXPANSION_MARKET_OPTION_FILTER_BULLETS");
+				StringLocaliser hand_bullets = new StringLocaliser(hands.GetDisplayName() + " #STR_EXPANSION_MARKET_OPTION_FILTER_BULLETS");
 				ExpansionMarketMenuDropdownElement_FilterHandBullet handbullet_filter = new ExpansionMarketMenuDropdownElement_FilterHandBullet(this, hand_bullets);
 				m_MarketMenuController.DropdownElements.Insert(handbullet_filter);
 			}
@@ -1675,7 +1675,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				m_AttachmentsTooltip = new ExpansionMarketMenuTooltip();
 				m_AttachmentsTooltip.Hide();
 				m_AttachmentsTooltip.SetContentOffset(-0.234375, 0.006944);
-				m_AttachmentsTooltip.SetTitle(ExpansionStatic.GetItemDisplayNameWithType(GetSelectedMarketItemElement().GetMarketItem().ClassName) + " #STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TITLE");
+				m_AttachmentsTooltip.SetTitle(GetSelectedMarketItemElement().GetPreviewObject().GetDisplayName() + " #STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TITLE");
 				m_AttachmentsTooltip.SetText("#STR_EXPANSION_MARKET_TOOLTIP_ATTACHMENTS_TEXT");
 				m_AttachmentsTooltip.ClearEntries();
 				foreach (string attachment: GetSelectedMarketItemElement().GetMarketItem().SpawnAttachments)

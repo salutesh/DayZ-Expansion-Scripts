@@ -59,6 +59,9 @@ class ExpansionActionChangeCodeLock: ActionInteractBase
 	// -----------------------------------------------------------
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		m_Tent = TentBase.Cast( target.GetParent() );
 		if ( m_Tent ) {
 			m_Target = ItemBase.Cast( target.GetParent() );

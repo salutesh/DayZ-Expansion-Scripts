@@ -624,7 +624,9 @@ class ExpansionVehicleBase extends ItemBase
 		m_Particles = new array<Particle>;
 
 		ExpansionSettings.SI_Vehicle.Insert(OnSettingsUpdated);
-		OnSettingsUpdated();
+
+		if (GetGame().IsServer())
+			m_Event_SettingsChanged.SettingsChanged();
 
 		LoadConstantVariables();
 
@@ -684,6 +686,8 @@ class ExpansionVehicleBase extends ItemBase
 
 	override void EEDelete(EntityAI parent)
 	{
+		super.EEDelete(parent);
+		
 		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
 		{
 			if (SEffectManager.IsEffectExist(m_coolantPtcFx))
@@ -700,6 +704,11 @@ class ExpansionVehicleBase extends ItemBase
 
 			if (m_RearLight)
 				m_RearLight.Destroy();
+		}
+		
+		if (GetExpansionSettings().GetLog().VehicleDeleted)
+		{
+			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] Vehicle " + GetType() + " deleted! (pos=" + GetPosition().ToString() + ")");
 		}
 	}
 
@@ -831,8 +840,6 @@ class ExpansionVehicleBase extends ItemBase
 		//m_NetworkMode = GetExpansionSettings().GetVehicle().VehicleSync;
 
 		m_Event_SettingsChanged.SettingsChanged();
-
-		SetSynchDirty();
 	}
 
 	override void OnCreatePhysics()

@@ -10,11 +10,13 @@
  *
 */
 
-/**@class		ExpansionGeneralSettingsBase
- * @brief		General settings base class
+/**@class		ExpansionGeneralSettings
+ * @brief		General settings class
  **/
-class ExpansionGeneralSettingsBase: ExpansionSettingBase
+class ExpansionGeneralSettings: ExpansionSettingBase
 {
+	static const int VERSION = 8;
+
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
@@ -30,14 +32,8 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool UseDeathScreen;
 	bool UseDeathScreenStatistics;
 	bool UseNewsFeedInGameMenu;
-}
 
-/**@class		ExpansionGeneralSettings
- * @brief		General settings class
- **/
-class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
-{
-	static const int VERSION = 6;
+	ref ExpansionHudIndicatorColors HUDColors;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -45,6 +41,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionGeneralSettings()
 	{
+		HUDColors = new ExpansionHudIndicatorColors;
 		Mapping = new ExpansionMapping;
 	}
 
@@ -65,6 +62,22 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Read(EnableGravecross);
 		ctx.Read(GravecrossDeleteBody);
 		ctx.Read(GravecrossTimeThreshold);
+
+		GetDayZGame().GetExpansionGame().ReadRemovedWorldObjects(ctx);
+
+		int interiorCount;
+		ctx.Read(interiorCount);
+		Mapping.BuildingInteriors = interiorCount > 0;
+		while (interiorCount)
+		{
+			string interior;
+			ctx.Read(interior);
+			Mapping.Interiors.Insert(interior);
+			interiorCount--;
+		}
+
+		ctx.Read(Mapping.BuildingIvys);
+
 		ctx.Read(EnableLamps);
 		ctx.Read(EnableGenerators);
 		ctx.Read(EnableLighthouses);
@@ -75,6 +88,10 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Read(UseDeathScreen);
 		ctx.Read(UseDeathScreenStatistics);
 		ctx.Read(UseNewsFeedInGameMenu);
+
+		HUDColors.OnReceive(ctx);
+
+		HUDColors.Update();
 
 		m_IsLoaded = true;
 
@@ -89,7 +106,26 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Write(EnableGravecross);
 		ctx.Write(GravecrossDeleteBody);
 		ctx.Write(GravecrossTimeThreshold);
-		//! Do not send mapping
+
+		GetDayZGame().GetExpansionGame().WriteRemovedWorldObjects(ctx);
+
+		//! Do not send mapping, but do send interiors if enabled as interiors w/o collision are created only clientside
+		if (Mapping.BuildingInteriors)
+		{
+			ctx.Write(Mapping.Interiors.Count());
+			foreach (string interior: Mapping.Interiors)
+			{
+				ctx.Write(interior);
+			}
+		}
+		else
+		{
+			ctx.Write(0);
+		}
+
+		//! Ivys are created only clientside
+		ctx.Write(Mapping.BuildingIvys);
+
 		ctx.Write(EnableLamps);
 		ctx.Write(EnableGenerators);
 		ctx.Write(EnableLighthouses);
@@ -100,6 +136,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Write(UseDeathScreen);
 		ctx.Write(UseDeathScreenStatistics);
 		ctx.Write(UseNewsFeedInGameMenu);
+
+		HUDColors.OnSend(ctx);
 	}
 
 	// ------------------------------------------------------------
@@ -136,20 +174,9 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionGeneralSettings s )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-
-		ExpansionGeneralSettingsBase sb = s;
-		CopyInternal( sb );
-	}
-
-	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionGeneralSettingsBase s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
@@ -170,6 +197,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		UseDeathScreen = s.UseDeathScreen;
 		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
 		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
+		HUDColors = s.HUDColors;
 	}
 	
 	// ------------------------------------------------------------
@@ -204,24 +232,42 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			ExpansionGeneralSettings settingsDefault = new ExpansionGeneralSettings;
 			settingsDefault.Defaults();
 
-			ExpansionGeneralSettingsBase settingsBase;
+			JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 
-			JsonFileLoader<ExpansionGeneralSettingsBase>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, settingsBase);
-
-			if (settingsBase.m_Version < VERSION)
+			if (m_Version < VERSION)
 			{
-				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
+				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 0)
+				if (m_Version < 7)
 				{
-					//! Placeholder
-
-					//! Copy over old settings that haven't changed
-					CopyInternal(settingsBase);
+					//! Remove buildings without custom interiors from existing settings
+					Mapping.Interiors.RemoveItem( "Land_City_School" );
+					Mapping.Interiors.RemoveItem( "Land_Village_Pub" );
+					Mapping.Interiors.RemoveItem( "Land_House_1B01_Pub" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W03" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W04" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W05" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W08" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W09" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W10" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W12" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W03_Brown" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W04_Yellow" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W05_Yellow" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W08_Brown" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W09_Yellow" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W10_Brown" );
+					Mapping.Interiors.RemoveItem( "Land_House_1W12_Brown" );
+					Mapping.Interiors.RemoveItem( "Land_House_2W04" );
+					Mapping.Interiors.RemoveItem( "Land_House_2W03_Brown" );
+					Mapping.Interiors.RemoveItem( "Land_House_2W04_Yellow" );
+					Mapping.Interiors.RemoveItem( "Land_Lighthouse" );
+					Mapping.Interiors.RemoveItem( "Land_Power_Station" );
 				}
-				else
+
+				if (m_Version < 8)
 				{
-					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
+					HUDColors = settingsDefault.HUDColors;
 				}
 
 				m_Version = VERSION;
@@ -231,6 +277,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			{
 				JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 			}
+
+			HUDColors.Update();
 		}
 		else
 		{
@@ -238,7 +286,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			Defaults();
 			save = true;
 		}
-		
+
 		if (save)
 			Save();
 		
@@ -290,6 +338,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		UseDeathScreenStatistics = true;
 		
 		UseNewsFeedInGameMenu = true;
+
+		HUDColors.Update();
 	}
 	
 	// ------------------------------------------------------------

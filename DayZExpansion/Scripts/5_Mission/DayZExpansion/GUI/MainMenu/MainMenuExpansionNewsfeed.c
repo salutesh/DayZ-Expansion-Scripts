@@ -32,7 +32,7 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 	protected RichTextWidget m_SecText3;
 
 	protected static const string EXPANSION_DISCORD_URL = "https://discord.gg/WabhFUa";
-	protected static const string EXPANSION_FEEDBACK_URL = "https://exp.thurston.pw/";
+	protected static const string EXPANSION_FEEDBACK_URL = "";
 	protected static const string EXPANSION_TWITTER_HANDLE = "DayZExpansion";
 	protected static const string EXPANSION_YOUTUBE_URL = "https://www.youtube.com/channel/UCZNgSvIEWfru963tQZOAVJg";
 	protected static const string EXPANSION_WIKI_URL = "https://github.com/salutesh/DayZ-Expansion-Scripts/wiki";
@@ -97,21 +97,18 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 		m_SecText2.Update();
 		
 		//! Section 3
-		m_MainText3.Show(false);	
+		m_MainText3.Show(false);
 		m_SecText3.Show(false);
-
-		m_Youtube.Show(false);
 
 		//! Use social media settings.
 		//! This will work if we are currently connected to the server or have been connected previously without closing the game.
-		if ( GetExpansionSettings().GetSocialMedia() )
+		if ( GetExpansionSettings().GetSocialMedia(false).IsLoaded() )
 		{
 			m_DiscordURL = GetExpansionSettings().GetSocialMedia().Discord;
 			if ( m_DiscordURL != EXPANSION_DISCORD_URL )
 			{
 				m_DiscordText.SetText("Server Discord");
 				m_DiscordText.Update();
-				m_Discord.Show(m_DiscordURL != "");
 			}
 
 			m_FeedbackURL = GetExpansionSettings().GetSocialMedia().Forums;
@@ -119,7 +116,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 			{
 				m_FeedbackText.SetText("Server Forums");
 				m_FeedbackText.Update();
-				m_Feedback.Show(m_FeedbackURL != "");
 			}
 
 			m_TwitterHandle = GetExpansionSettings().GetSocialMedia().Twitter;
@@ -127,7 +123,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 			{
 				m_TwitterText.SetText("@" + m_TwitterHandle);
 				m_TwitterText.Update();
-				m_Twitter.Show(m_TwitterHandle != "");
 			}
 
 			m_YoutubeURL = GetExpansionSettings().GetSocialMedia().YouTube;
@@ -135,7 +130,6 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 			{
 				m_YoutubeText.SetText("YouTube");
 				m_YoutubeText.Update();
-				m_Youtube.Show(m_YoutubeURL != "");
 			}
 
 			m_WikiURL = GetExpansionSettings().GetSocialMedia().Homepage;
@@ -143,9 +137,14 @@ class ExpansionNewsfeed extends ScriptedWidgetEventHandler
 			{
 				m_WikiText.SetText("Homepage");
 				m_WikiText.Update();
-				m_Wiki.Show(m_WikiURL != "");
 			}
 		}
+
+		m_Discord.Show(m_DiscordURL != "");
+		m_Feedback.Show(m_FeedbackURL != "");
+		m_Twitter.Show(m_TwitterHandle != "");
+		m_Youtube.Show(m_YoutubeURL != "");
+		m_Wiki.Show(m_WikiURL != "");
 	}
 	
 	// ------------------------------------------------------------

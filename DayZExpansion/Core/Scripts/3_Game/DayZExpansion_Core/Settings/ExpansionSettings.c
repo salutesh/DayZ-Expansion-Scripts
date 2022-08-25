@@ -190,7 +190,7 @@ class ExpansionSettings
 	ExpansionSettingBase Get(typename type, bool checkLoaded = true)
 	{
 		auto setting = m_Settings[type];
-		if (checkLoaded && setting && !setting.IsLoaded() && (!GetGame().GetMission() || GetGame().GetMission().IsGame() || GetGame().GetMission().IsServer()))
+		if (checkLoaded && setting && !setting.IsLoaded() && (!GetGame().GetMission() || GetGame().GetMission().IsMissionGameplay() || GetGame().GetMission().IsServer() || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())))
 			WarnNotLoaded(type);
 
 		return setting;

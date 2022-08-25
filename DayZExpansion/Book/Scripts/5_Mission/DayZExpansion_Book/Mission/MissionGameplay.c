@@ -22,7 +22,7 @@ modded class MissionGameplay
 	{
 		super.OnUpdate(timeslice);
 		
-		if (GetExpansionSettings().GetBook().EnableBookMenu)
+		if (GetExpansionSettings().GetBook(false).IsLoaded() && GetExpansionSettings().GetBook().EnableBookMenu)
 		{
 			//! Checking for keyboard focus
 			bool inputIsFocused = false;

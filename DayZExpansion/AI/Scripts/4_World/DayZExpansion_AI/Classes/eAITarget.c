@@ -83,24 +83,22 @@ class eAITarget
 			return false;
 
 		float distSq = GetDistanceSq(ai);
-		if (distSq > 4.0)
+		if (distSq > 3.24)
 			return false;
 
 		//! DayZPlayerMeleeFightLogic_LightHeavy.CLOSE_TARGET_DISTANCE = 1.5
 		if (distSq > 2.25 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			return false;
 
+		auto weapon = Weapon_Base.Cast(ai.GetItemInHands());
+		bool hasAmmo = weapon && weapon.Expansion_HasAmmo();
+		if (distSq > 1.0 && hasAmmo)
+			return false;
+
 		//! We don't punch the bear if we have a firearm with ammo
 		if (GetEntity().IsInherited(Animal_UrsusArctos))
 		{
-			Weapon weapon = Weapon.Cast(ai.GetItemInHands());
-			if (!weapon)
-				return true;
-			int mi = weapon.GetCurrentMuzzle();
-			if (!weapon.IsChamberEmpty(mi))
-				return false;
-			Magazine mag = weapon.GetMagazine(mi);
-			if (mag && mag.GetAmmoCount() > 0)
+			if (hasAmmo)
 				return false;
 		}
 		else

@@ -138,10 +138,10 @@ modded class ActionDeployObject
 			}
 		}
 
-		if ( GetExpansionSettings().GetTerritory() && !GetExpansionSettings().GetTerritory().EnableTerritories )
+		if ( !GetExpansionSettings().GetTerritory(false).IsLoaded() || !GetExpansionSettings().GetTerritory().EnableTerritories )
 			return super.ActionCondition( player, target, item );
 
-		if ( GetExpansionSettings().GetBaseBuilding() )
+		if ( GetExpansionSettings().GetBaseBuilding(false).IsLoaded() )
 		{
 			if ( GetExpansionSettings().GetBaseBuilding().AllowBuildingWithoutATerritory == true && !isDisallowedOutsideBuildZone )
 			{

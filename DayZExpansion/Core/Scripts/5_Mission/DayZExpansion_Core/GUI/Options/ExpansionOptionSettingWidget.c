@@ -118,6 +118,8 @@ class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
 		float value = setting.GetValue();
 
 		m_Slider = new OptionSelectorSlider( optionWidget, value, this, false, setting.m_Min, setting.m_Max );
+		if (setting.m_Step)
+			m_Slider.SetStep(setting.m_Step / (setting.m_Max - setting.m_Min));
 		m_Slider.m_OptionChanged.Insert( OnSliderOptionChanged );
 		settingValue.Show( true );
 		settingValue.SetText( m_Slider.GetValue().ToString() );

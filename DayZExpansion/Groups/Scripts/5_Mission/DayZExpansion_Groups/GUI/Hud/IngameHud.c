@@ -32,7 +32,7 @@ modded class IngameHud
 	{
 		super.Update(timeslice);
 	
-		if (GetExpansionSettings().GetParty().ShowPartyMemberHUD)
+		if (GetExpansionSettings().GetParty(false).IsLoaded() && GetExpansionSettings().GetParty().ShowPartyMemberHUD)
 		{
 			if (!m_PartyHUD)
 			{

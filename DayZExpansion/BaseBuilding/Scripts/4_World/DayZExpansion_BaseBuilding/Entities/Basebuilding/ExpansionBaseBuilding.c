@@ -38,7 +38,8 @@ modded class ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	void ExpansionBaseBuilding()
 	{
-		SetAllowDamage(CanBeDamaged());
+		if (GetGame().IsServer())
+			SetAllowDamage(CanBeDamaged());
 	}
 
 	// ------------------------------------------------------------
@@ -395,37 +396,6 @@ modded class ExpansionBaseBuilding
 		super.OnVariablesSynchronized();
 
 		m_WasSynced = true;
-	}
-
-	/**
-	\brief Loading class to storage
-		\param 	
-	*/
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return true;
-		#endif
-		
-		if ( m_ExpansionSaveVersion >= 38 )
-			return true;
-
-		if ( Expansion_Assert_False( ctx.Read( m_Locked ), "[" + this + "] Failed reading m_Locked" ) )
-			return false;
-		if ( Expansion_Assert_False( ctx.Read( m_Code ), "[" + this + "] Failed reading m_Code" ) )
-			return false;
-
-		m_CodeLength = m_Code.Length();
-
-		bool hasCode;
-		if ( Expansion_Assert_False( ctx.Read( hasCode ), "[" + this + "] Failed reading hasCode" ) )
-			return false;
-
-		return true;
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

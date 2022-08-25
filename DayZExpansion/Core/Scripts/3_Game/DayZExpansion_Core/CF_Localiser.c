@@ -16,6 +16,10 @@ modded class CF_Localiser
 	{
 		string valueUpper = value;
 		valueUpper.ToUpper();
+#ifdef DIAG
+		if (valueUpper.IndexOf("#STR_") == 0)
+			Error("Wrong use of CF_Localiser, localizable strings must not start with #");
+#endif
 		bool translates = valueUpper.IndexOf("STR_") == 0;
 		return Set(index, value, translates);
 	}

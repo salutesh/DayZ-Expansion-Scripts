@@ -602,9 +602,10 @@ class ExpansionPathHandler
 	{
 		position = m_Next0.GetPosition();// + CalculateOffset();
 
+		vector unitPosition = m_Unit.GetPosition();
+
 		//! Hack fix so AI doesn't fall from a large height (e.g. building top) and die
 		//! FIXME: Marked improvement, but doesn't always prevent AI just running over the edge :-(
-		vector unitPosition = m_Unit.GetPosition();
 		if (unitPosition[1] - position[1] > 2.5)
 		{
 			vector checkPosition = Vector(position[0], unitPosition[1], position[2]);
@@ -614,6 +615,14 @@ class ExpansionPathHandler
 				position = unitPosition;
 				return 1;
 			}
+		}
+
+		//! Hack fix so AI doesn't go into deep water
+		float waterDepth = GetGame().GetWaterDepth(position);
+		if (waterDepth > 0.5)
+		{
+			position = unitPosition;
+			return 1;
 		}
 
 		return m_Count;

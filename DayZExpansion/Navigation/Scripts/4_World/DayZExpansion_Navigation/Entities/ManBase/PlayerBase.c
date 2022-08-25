@@ -27,26 +27,6 @@ modded class PlayerBase
 	// PlayerBase Destructor
 	// ------------------------------------------------------------
 	void ~PlayerBase() {};
-	
-	// ------------------------------------------------------------
-	// PlayerBase DeferredClientInit
-	// ------------------------------------------------------------
-	override void DeferredClientInit()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "DeferredClientInit");
-#endif
-
-		super.DeferredClientInit();
-		
-		//! Only run this on this client's player, not other playerbase entities (it will be handled in their client if they are players)
-		if (GetGame() && IsMissionClient() && GetGame().GetPlayer() == this && GetModuleManager())
-		{
-			ExpansionMarkerModule module;
-			if (CF_Modules<ExpansionMarkerModule>.Get(module))
-				module.Refresh();
-		}
-	}
 
 	// ------------------------------------------------------------
 	// Expansion SetRandomQuickMarkerColor

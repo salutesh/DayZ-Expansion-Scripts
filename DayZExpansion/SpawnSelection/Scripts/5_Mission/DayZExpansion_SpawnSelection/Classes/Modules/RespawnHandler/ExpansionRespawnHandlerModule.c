@@ -187,7 +187,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			//! Related: 0_Preload\3_Game\Analytics\AnalyticsManagerServer.c
 			player.StatRegister(AnalyticsManagerServer.STAT_DISTANCE);
 			player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
-			player.StatSyncToClient();
+			//player.StatSyncToClient();
 		}
 	}
 
@@ -577,7 +577,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		//! Related: 0_Preload\3_Game\Analytics\AnalyticsManagerServer.c
 		player.StatRegister(AnalyticsManagerServer.STAT_DISTANCE);
 		player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
-		player.StatSyncToClient();
+		//player.StatSyncToClient();
 		
 		ScriptRPC rpc = new ScriptRPC();
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, identity);

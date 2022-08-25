@@ -20,6 +20,14 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	private ref array<ref Expansion3DMarker> m_3DMarkers;
 	private string m_DeathMarkerUID;
 	
+	void ExpansionMarkerModule()
+	{
+		ExpansionSettings.SI_Map.Insert(OnSettingsUpdated);
+#ifdef EXPANSIONMODGROUPS
+		ExpansionSettings.SI_Party.Insert(OnSettingsUpdated);
+#endif
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule Destructor
 	// ------------------------------------------------------------
@@ -31,6 +39,11 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		
 		delete m_3DMarkers;
 		
+		ExpansionSettings.SI_Map.Remove(OnSettingsUpdated);
+#ifdef EXPANSIONMODGROUPS
+		ExpansionSettings.SI_Party.Remove(OnSettingsUpdated);
+#endif
+
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
 		EXPrint("ExpansionMarkerModule::~ExpansionMarkerModule - End");
 		#endif
@@ -50,7 +63,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		EnableMissionFinish();
 		EnableMissionLoaded();
 		EnableRPC();
-		EnableSettingsChanged();
+		//EnableSettingsChanged();
 		EnableUpdate();
 
 		m_3DMarkers = new array<ref Expansion3DMarker>();
@@ -189,21 +202,19 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnSettingsChanged
+	// ExpansionMarkerModule OnSettingsUpdated
 	// ------------------------------------------------------------
 	
-	override void OnSettingsChanged(Class sender, CF_EventArgs args)
+	void OnSettingsUpdated()
 	{
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnSettingsChanged - Start");
+		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - Start");
 		#endif
-
-		super.OnSettingsChanged(sender, args);
 
 		Refresh();
 
 		#ifdef EXPANSION_MARKER_MODULE_DEBUG
-		EXPrint("ExpansionMarkerModule::OnSettingsChanged - End");
+		EXPrint("ExpansionMarkerModule::OnSettingsUpdated - End");
 		#endif
 	}
 	
@@ -661,6 +672,13 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	{		
 		if ( !m_CurrentData )
 			return;
+
+		if (!GetExpansionSettings().GetMap(false).IsLoaded())
+			return;
+#ifdef EXPANSIONMODGROUPS
+		if (!GetExpansionSettings().GetParty(false).IsLoaded())
+			return;
+#endif
 
 		//Print( "ExpansionMarkerModule::Refresh" );
 

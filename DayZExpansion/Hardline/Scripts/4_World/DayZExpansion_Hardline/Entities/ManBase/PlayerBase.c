@@ -12,28 +12,16 @@
 
 modded class PlayerBase
 {
-	private bool m_IsBandit;
-	private bool m_IsHero;
 	private int m_Humanity;
 	
 	bool IsHero()
 	{
-		return m_IsHero:
-	}
-	
-	void SetIsHero(bool state)
-	{
-		m_IsHero = state;
+		return m_Humanity >= GetExpansionSettings().GetHardline().RankScout;
 	}
 	
 	bool IsBandit()
 	{
-		return m_IsBandit:
-	}
-	
-	void SetIsBandit(bool state)
-	{
-		m_IsBandit = state;
+		return m_Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac;
 	}
 	
 	void SetHumanity(int humanity)

@@ -61,7 +61,7 @@
 					
 					if (shouldBeMeleeing)
 					{
-						if (distanceSq &lt;= 4.0)
+						if (distanceSq &lt;= 3.24)
 						{
 							wantsRaise = true;
 						}
@@ -299,15 +299,13 @@
 				if (unit.IsInMelee()) return FAIL;
 				
 				// we are holding a weapon
-				Weapon weapon;
+				Weapon_Base weapon;
 				if (!Class.CastTo(weapon, unit.GetItemInHands())) return FAIL;
 				
 				// CanRaiseWeapon will return false if there is no line of sight
 				if (!unit.CanRaiseWeapon()) return FAIL;
 				
-				int mi = weapon.GetCurrentMuzzle();
-				if (weapon.IsChamberEmpty(mi)) return FAIL;
-				if (weapon.IsChamberFiredOut(mi)) return FAIL;
+				if (!weapon.Expansion_IsChambered()) return FAIL;
 				
 				if (unit.GetWeaponManager().CanUnjam(weapon)) return FAIL;
 				

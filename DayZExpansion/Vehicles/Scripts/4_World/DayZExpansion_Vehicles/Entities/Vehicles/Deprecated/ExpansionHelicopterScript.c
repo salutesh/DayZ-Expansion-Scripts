@@ -563,8 +563,6 @@ class ExpansionHelicopterScript extends CarScript
 			SetVelocity(this, GetVelocity(this) * m_Simulation.m_RotorSpeed);
 			dBodySetAngularVelocity(this, dBodyGetAngularVelocity(this) * f);
 		}
-
-		super.EOnPostSimulate(other, timeSlice);
 	}
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)

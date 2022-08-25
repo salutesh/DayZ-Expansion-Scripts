@@ -4,16 +4,9 @@ class eAIAimingProfile
 
 	eAIBase m_Player;
 
-	float m_Accuracy_Min;
-	float m_Accuracy_Max;
-
 	void eAIAimingProfile(eAIBase ai)
 	{
 		m_Player = ai;
-#ifdef SERVER
-		m_Accuracy_Min = GetExpansionSettings().GetAI().AccuracyMin;
-		m_Accuracy_Max = GetExpansionSettings().GetAI().AccuracyMax;
-#endif
 	}
 
 	bool Get(out vector position, out vector direction)
@@ -39,8 +32,8 @@ class eAIAimingProfile
 
 			float distSq = direction.LengthSq();
 
-			float accuracyMin = m_Accuracy_Min;
-			float accuracyMax = m_Accuracy_Max;
+			float accuracyMin = m_Player.m_eAI_AccuracyMin;
+			float accuracyMax = m_Player.m_eAI_AccuracyMax;
 
 			Weapon_Base weapon;
 			ItemOptics optics;

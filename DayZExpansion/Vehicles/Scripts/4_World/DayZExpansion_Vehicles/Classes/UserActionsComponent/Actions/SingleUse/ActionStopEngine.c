@@ -65,6 +65,9 @@ modded class ActionStopEngine
 						EffectSound sound = SEffectManager.PlaySound(m_Car.m_EngineStopFuel, m_Car.GetPosition());
 						sound.SetSoundAutodestroy(true);
 					}
+
+					if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
+						GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] stopped vehicle " + m_Car.GetDisplayName() + " (pos=" + m_Car.GetPosition() + ", type=" + m_Car.GetType() + ")");
 				}
 			}
 		}

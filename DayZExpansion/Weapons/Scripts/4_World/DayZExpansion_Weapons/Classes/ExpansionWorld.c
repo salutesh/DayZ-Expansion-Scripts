@@ -64,44 +64,41 @@ modded class ExpansionWorld
 		{
 			case "Expansion_Arrow_Bolt":
 			{
-				if ( IsMissionHost() )
+				if ( source )
 				{
-					if ( ammoType == "Expansion_Arrow_Bolt" )
-					{
-						vector setDir = vector.Direction( pos, source.GetPosition() );
-						EntityAI arrow_obj = EntityAI.Cast( g_Game.CreateObject( "Expansion_Ammo_ArrowBolt", pos ) );
-						arrow_obj.SetOrientation( setDir.VectorToAngles() );
-						Magazine arrow_obj2 = Magazine.Cast( arrow_obj );
-						arrow_obj2.LocalSetAmmoCount(1);
-						
+					vector setDir = vector.Direction( pos, source.GetPosition() );
+					EntityAI arrow_obj = EntityAI.Cast( g_Game.CreateObject( "Expansion_Ammo_ArrowBolt", pos ) );
+					arrow_obj.SetOrientation( setDir.VectorToAngles() );
+					Magazine arrow_obj2 = Magazine.Cast( arrow_obj );
+					arrow_obj2.LocalSetAmmoCount(1);
+					
 /* 						if ( directHit.IsKindOf("SurvivorBase") )
+					{
+						PlayerBase player;
+						EntityAI entRep;
+						if ( !Class.CastTo( player, directHit ) )
 						{
-							PlayerBase player;
-							EntityAI entRep;
-							if ( !Class.CastTo( player, directHit ) )
-							{
-								if ( !Class.CastTo( entRep, directHit ) )
-									return;
-									
-								if ( !Class.CastTo( player, entRep.GetHierarchyRootPlayer() ) )
-									return;
-							}
+							if ( !Class.CastTo( entRep, directHit ) )
+								return;
+								
+							if ( !Class.CastTo( player, entRep.GetHierarchyRootPlayer() ) )
+								return;
+						}
 
-							BleedingSourcesManagerBase bleedingManager = player.GetBleedingManagerServer();
-							int bit = bleedingManager.Expansion_GetBitFromSelectionID( componentIndex );
+						BleedingSourcesManagerBase bleedingManager = player.GetBleedingManagerServer();
+						int bit = bleedingManager.Expansion_GetBitFromSelectionID( componentIndex );
 
-							BleedingSourceZone zone = bleedingManager.Expansion_GetBleedingSourceMeta( bit );
-							string bone_name = zone.GetBoneName();
-							vector bone_orient = zone.GetOrientation();
-							int bone_idx = player.GetBoneIndexByName( bone_name );
+						BleedingSourceZone zone = bleedingManager.Expansion_GetBleedingSourceMeta( bit );
+						string bone_name = zone.GetBoneName();
+						vector bone_orient = zone.GetOrientation();
+						int bone_idx = player.GetBoneIndexByName( bone_name );
 
-							arrow_obj.SetPosition( "0 0 0" );
-							arrow_obj.SetOrientation( "0 0 0" );
-							player.AddChild( arrow_obj, bone_idx );
+						arrow_obj.SetPosition( "0 0 0" );
+						arrow_obj.SetOrientation( "0 0 0" );
+						player.AddChild( arrow_obj, bone_idx );
 
-							arrow_obj.SetOrientation( bone_orient + setDir.VectorToAngles() );
-						} */
-					}
+						arrow_obj.SetOrientation( bone_orient + setDir.VectorToAngles() );
+					} */
 				}
 				break;
 			}
@@ -192,7 +189,7 @@ modded class ExpansionWorld
 			autoptr PhysicsGeomDef geoms[] = { PhysicsGeomDef("", dGeomCreateSphere( 0.15 ), "material/default", 0xffffffff) };
 			dBodyCreateDynamicEx( physicsObj , "0 0 0", 1.0, geoms );			
 		}
-		else if (explosion)
+		else if (explosion && source)
 		{
 			explosion.SetDirection(vector.Direction(source.GetPosition(), pos));
 		}

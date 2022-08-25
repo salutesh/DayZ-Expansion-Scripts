@@ -13,6 +13,7 @@
 class ExpansionAIPatrolSettingsBase: ExpansionSettingBase
 {
     bool Enabled;
+	float DespawnTime;				    // If all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted.
 	float RespawnTime;				    // Time in seconds before the dead patrol will respawn. If set to -1, they won't respawn
 	float MinDistRadius;			    // If the player is closer than MinDistRadius from the spawn point, the patrol won't spawn
 	float MaxDistRadius;			    // Same but if the player is further away than MaxDistRadius, the bots won't spawn
@@ -29,9 +30,12 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	float DespawnRadius;
+
+	float AccuracyMin;
+	float AccuracyMax;
 
 	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols;
 	ref array< ref ExpansionAIPatrol > Patrols;
@@ -103,9 +107,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 #endif
 		Enabled = s.Enabled;
 		RespawnTime = s.RespawnTime;
+		DespawnTime = s.DespawnTime;
 		MinDistRadius = s.MinDistRadius;
 		MaxDistRadius = s.MaxDistRadius;
 		DespawnRadius = s.DespawnRadius;
+		AccuracyMin = s.AccuracyMin;
+		AccuracyMax = s.AccuracyMax;
         ObjectPatrols = s.ObjectPatrols;
         Patrols = s.Patrols;
 	}
@@ -167,6 +174,13 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (m_Version < 6)
 					DespawnRadius = MaxDistRadius * 1.1;
 
+				if (m_Version < 8)
+				{
+					DespawnTime = settingsDefault.DespawnTime;
+					AccuracyMin = settingsDefault.AccuracyMin;
+					AccuracyMax = settingsDefault.AccuracyMax;
+				}
+
 				foreach (ExpansionAIPatrol patrol: Patrols)
 				{
 					if (m_Version < 2)
@@ -188,6 +202,13 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 					if (m_Version < 7)
 						patrol.Formation = "RANDOM";
+
+					if (m_Version < 8)
+					{
+						patrol.DespawnTime = -1;
+						patrol.AccuracyMin = -1;
+						patrol.AccuracyMax = -1;
+					}
 				}
 
 				m_Version = VERSION;
@@ -227,6 +248,13 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 				if (settingsBase.m_Version < 7)
 					objectPatrol.Formation = "RANDOM";
+
+				if (settingsBase.m_Version < 8)
+				{
+					objectPatrol.DespawnTime = -1;
+					objectPatrol.AccuracyMin = -1;
+					objectPatrol.AccuracyMax = -1;
+				}
 
 				if (!objectPatrol.ClassName)
 				{
@@ -284,6 +312,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
         Enabled = true;
         RespawnTime = -1;
+        DespawnTime = 600;
         #ifdef DIAG
         MinDistRadius = 1;
         #else
@@ -291,6 +320,8 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
         #endif
         MaxDistRadius = 1000;
         DespawnRadius = 1100;
+		AccuracyMin = -1;
+		AccuracyMax = -1;
     
         string worldName;
         GetGame().GetWorldName(worldName);

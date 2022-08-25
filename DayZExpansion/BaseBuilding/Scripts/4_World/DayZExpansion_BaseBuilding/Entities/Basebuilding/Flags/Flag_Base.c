@@ -82,46 +82,6 @@ modded class Flag_Base
 	{
 		return m_FlagTexturePath;
 	}
-	
-	// ------------------------------------------------------------
-	// TerritoryFlag OnStoreSave
-	// ------------------------------------------------------------	
-	override void OnStoreSave( ParamsWriteContext ctx )
-	{
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-		
-		super.OnStoreSave( ctx );
-		
-		ctx.Write( m_FlagTexturePath );
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnStoreLoad
-	// ------------------------------------------------------------	
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return true;
-		#endif
-
-		if ( Expansion_Assert_False( ctx.Read( m_FlagTexturePath ), "[" + this + "] Failed reading m_FlagTexturePath" ) )
-			return false;
-
-		//! TODO: Remove this again after next update...
-		ExpansionFixFlagTexturePath();
-		
-		return true;
-	}
 
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
@@ -145,32 +105,9 @@ modded class Flag_Base
 		if (!ctx.Read(m_FlagTexturePath))
 			return false;
 
-		//! TODO: Remove this again after next update...
-		ExpansionFixFlagTexturePath();
-
 		return true;
 	}
 	#endif
-
-	//! TODO: Remove this again after next update...
-	private void ExpansionFixFlagTexturePath()
-	{
-		string texturePath = m_FlagTexturePath;
-		texturePath.ToLower();
-		ExpansionString exFlagTexturePath = new ExpansionString(texturePath);
-		if (exFlagTexturePath.EndsWith("\\flag_borduriens_co.paa"))
-			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_BORDURIA;
-		else if (exFlagTexturePath.EndsWith("\\flag_czech_co.paa"))
-			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_CZECHIA;
-		else if (exFlagTexturePath.EndsWith("\\flag_finnish_co.paa"))
-			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_BORDURIA;
-		else if (exFlagTexturePath.EndsWith("\\flag_irish_co.paa"))
-			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_IRELAND;
-		else if (exFlagTexturePath.EndsWith("\\flag_scottish_co.paa"))
-			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_SCOTLAND;
-		else if (exFlagTexturePath.EndsWith("\\flag_swedish_co.paa"))
-			m_FlagTexturePath = EXPANSION_FLAG_COUNTRIES_SWEDEN;
-	}
 
 	override void AfterStoreLoad()
 	{

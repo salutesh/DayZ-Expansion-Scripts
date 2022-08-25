@@ -252,7 +252,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		//! @note for QuantityPercent, we use 0x0..0x7f for 0..127 and 0x80..0xff for -128..-1, this needs to be dealt with when decoding!
 		//! @note for SellPricePercent, we use 0x0..0x00007fff for 0..32767 and 0x00008000..0x0000ffff for -32768..-1, this needs to be dealt with when decoding!
 		int buySell = tItem.BuySell;
-		item.Packed = ((buySell & 0xff) << 24) | ((tItem.MarketItem.QuantityPercent & 0xff) << 16) | (tItem.MarketItem.SellPricePercent & 0x0000ffff);
+		item.Packed = ((buySell & 0xff) << 24) | ((tItem.MarketItem.QuantityPercent & 0xff) << 16) | (tItem.MarketItem.m_SellPricePercent & 0x0000ffff);
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketTraderZone::GetNetworkItemSerialization - End " + tItem.MarketItem.ClassName);

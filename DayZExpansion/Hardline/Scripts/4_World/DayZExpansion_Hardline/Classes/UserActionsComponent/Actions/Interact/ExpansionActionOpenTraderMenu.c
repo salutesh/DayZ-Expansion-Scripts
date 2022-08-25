@@ -17,19 +17,32 @@ modded class ExpansionActionOpenTraderMenu
 	{
 		if (!super.ActionCondition(player, target, item))
 			return false;
-
-		m_TraderObject = ExpansionMarketModule.GetTraderFromObject(target.GetObject(), false);
 		
-		if (m_TraderObject.GetTraderMarket().DisplayName == "HeroTrader" && !player.IsHero())
-			return false;
-		
-		if (m_TraderObject.GetTraderMarket().DisplayName == "BanditTrader" && !player.IsBandit())
-			return false;
-		
-		if ( GetGame().IsServer() )
+		//! TODO: Condition should be moved to modded market module within Hardline and checked in Exec_RequestPurchase / Exec_RequestSell as well
+		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
-			if (m_TraderObject.GetTraderMarket().MinRequiredHumanity > player.GetHumanity() || m_TraderObject.GetTraderMarket().MaxRequiredHumanity < player.GetHumanity())
+			int minHumanity = m_TraderObject.GetTraderMarket().MinRequiredHumanity;
+			int maxHumanity = m_TraderObject.GetTraderMarket().MaxRequiredHumanity;
+			int humanity = player.GetHumanity();
+			//! Integer comparison involving negative numbers is broken, 1 < -2147483647 == true >:(
+			//! https://feedback.bistudio.com/T167065
+			//! IsInRangeInt works correctly though
+			if (!Math.IsInRangeInt(player.GetHumanity(), minHumanity, maxHumanity))
+			{
+				if (player.GetIdentity())
+				{
+					ExpansionHardlineRank minRank;
+					ExpansionHardlineRank maxRank;
+					int minRankReq;
+					int maxRankReq;
+					GetExpansionSettings().GetHardline().GetRankRange(minHumanity, maxHumanity, minRank, maxRank, minRankReq, maxRankReq);
+					string minRankKey = "STR_EXPANSION_HARDLINE_RANK_" + typename.EnumToString(ExpansionHardlineRank, minRank);
+					string maxRankKey = "STR_EXPANSION_HARDLINE_RANK_" + typename.EnumToString(ExpansionHardlineRank, maxRank);
+					ExpansionNotification("STR_EXPANSION_HARDLINE_HUMANITY_OUTOFRANGE", new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_OUTOFRANGE_TRADER", minHumanity.ToString(), minRankKey, maxHumanity.ToString(), maxRankKey), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
+				}
+
 				return false;
+			}
 		}
 
 		return true;

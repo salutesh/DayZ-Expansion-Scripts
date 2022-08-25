@@ -1,5 +1,5 @@
 /**
- * ExpansionWorldMappingModule.c
+ * ExpansionWorldObjectsModule.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,8 +10,7 @@
  *
 */
 
-[CF_RegisterModule(ExpansionWorldMappingModule)]
-class ExpansionWorldMappingModule: CF_ModuleWorld
+modded class ExpansionWorldObjectsModule
 {
 	static ref ScriptInvoker SI_LampEnable = new ScriptInvoker();
 	static ref ScriptInvoker SI_LampDisable = new ScriptInvoker();
@@ -19,13 +18,11 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 	private autoptr array< vector > m_LightGenerators;
 
 	private string m_WorldName;
-	
-	protected ExpansionInteriorBuildingModule m_InteriorModule;
  	
 	// ------------------------------------------------------------
-	// ExpansionWorldMappingModule Constructor
+	// ExpansionWorldObjectsModule Constructor
 	// ------------------------------------------------------------
-	void ExpansionWorldMappingModule()
+	void ExpansionWorldObjectsModule()
 	{
 		m_LightGenerators = new array< vector >;
 	}
@@ -37,23 +34,23 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 	{
 		super.OnInit();
 		
-		EnableMissionStart();
 		EnableMissionLoaded();
-		EnableRPC();
 	}
  	
  	override void OnMissionStart(Class sender, CF_EventArgs args)
  	{
 		super.OnMissionStart(sender, args);
 
+		if (!GetGame().IsServer())
+			return;
+
 		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
 
 		if (GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule)
 		{
-			ExpansionObjectSpawnTools.objectFilesFolder = EXPANSION_MAPPING_FOLDER + m_WorldName + "/";
 			foreach (string name: GetExpansionSettings().GetGeneral().Mapping.Mapping)
 			{
-				ExpansionObjectSpawnTools.LoadMissionObjectsFile(name + EXPANSION_MAPPING_EXT);
+				LoadObjectsFile(EXPANSION_MAPPING_FOLDER + m_WorldName + "/" + name + EXPANSION_MAPPING_EXT);
 			}
 
 		}
@@ -69,7 +66,7 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 		if ( !IsMissionOffline() && IsMissionClient() )
 		{
 			ScriptRPC rpc = new ScriptRPC();
-			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.Load, true );
+			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true );
 		}
 	}
 	
@@ -89,22 +86,6 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion GetRPCMin
-	// ------------------------------------------------------------	
-	override int GetRPCMin()
-	{
-		return ExpansionWorldMappingModuleRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion GetRPCMax
-	// ------------------------------------------------------------	
-	override int GetRPCMax()
-	{
-		return ExpansionWorldMappingModuleRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion OnRPC
 	// ------------------------------------------------------------	
 	override void OnRPC(Class sender, CF_EventArgs args)
@@ -115,13 +96,13 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 
 		switch ( rpc.ID )
 		{
-		case ExpansionWorldMappingModuleRPC.TurnOn:
+		case ExpansionWorldObjectsModuleRPC.TurnOn:
 			RPC_TurnOn( rpc.Context, rpc.Sender, rpc.Target );
 			break;
-		case ExpansionWorldMappingModuleRPC.TurnOff:
+		case ExpansionWorldObjectsModuleRPC.TurnOff:
 			RPC_TurnOff( rpc.Context, rpc.Sender, rpc.Target );
 			break;
-		case ExpansionWorldMappingModuleRPC.Load:
+		case ExpansionWorldObjectsModuleRPC.Load:
 			RPC_Load( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		}
@@ -168,7 +149,7 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 		{
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write( m_LightGenerators );
-			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.Load, true, senderRPC );
+			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true, senderRPC );
 		} else
 		{
 			ctx.Read( m_LightGenerators );
@@ -177,8 +158,6 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 			{
 				SI_LampEnable.Invoke( m_LightGenerators[i] );
 			}
-
-			ExpansionSettings.SI_General.Invoke();
 		}
 	}
 	
@@ -200,7 +179,7 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 		{
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write( position );
-			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.TurnOn, true, NULL );
+			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.TurnOn, true, NULL );
 		}
 
 		#ifdef EXPANSION_MAPPING_MODULE_DEBUG
@@ -227,7 +206,7 @@ class ExpansionWorldMappingModule: CF_ModuleWorld
 		{
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write( position );
-			rpc.Send( NULL, ExpansionWorldMappingModuleRPC.TurnOff, true, NULL );
+			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.TurnOff, true, NULL );
 		}
 
 		#ifdef EXPANSION_MAPPING_MODULE_DEBUG

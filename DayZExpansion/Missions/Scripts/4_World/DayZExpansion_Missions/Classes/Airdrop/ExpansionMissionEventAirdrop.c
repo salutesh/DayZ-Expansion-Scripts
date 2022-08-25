@@ -431,37 +431,43 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				
 		switch (world_name)
 		{
+			case "banov":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
 			case "chernarusplus":
 				return ExpansionMissionAirdropChernarus( index );
-			break;
-			case "enoch":
-				return ExpansionMissionAirdropLivonia( index );
-			break;
-			case "deerisle":
-				return ExpansionMissionAirdropDeerIsle( index );
-			break;
-			case "namalsk":
-				return ExpansionMissionAirdropNamalsk( index );
 			break;
 			case "chiemsee":
 				return ExpansionMissionAirdropChiemsee( index );
 			break;
-			case "rostow":
-				return ExpansionMissionAirdropRandom( index ); //! TODO
+			case "deerisle":
+				return ExpansionMissionAirdropDeerIsle( index );
+			break;
+			case "enoch":
+				return ExpansionMissionAirdropLivonia( index );
 			break;
 			case "esseker":
 				return ExpansionMissionAirdropRandom( index ); //! TODO
 			break;
-			case "valning":
+			case "expansiontest":
 				return ExpansionMissionAirdropRandom( index ); //! TODO
 			break;
-			case "banov":
+			case "iztek":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "namalsk":
+				return ExpansionMissionAirdropNamalsk( index );
+			break;
+			case "takistanplus":
+				return ExpansionMissionAirdropRandom( index ); //! TODO
+			break;
+			case "rostow":
 				return ExpansionMissionAirdropRandom( index ); //! TODO
 			break;
 			case "sandbox":
 				return ExpansionMissionAirdropSandbox( index );
 			break;
-			case "expansiontest":
+			case "valning":
 				return ExpansionMissionAirdropRandom( index ); //! TODO
 			break;
 		}

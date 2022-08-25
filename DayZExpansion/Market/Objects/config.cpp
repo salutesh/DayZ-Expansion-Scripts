@@ -4,10 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Market_Objects
 	{
-		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderBaty"};
+		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderBaty","ExpansionBanknoteUSD","ExpansionBanknoteEuro","ExpansionBanknoteHryvnia"};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs","DZ_Animals","DZ_Animals_Bliss","DZ_Characters","DZ_Characters_Zombies"};
+		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs","DZ_Animals","DZ_Animals_Bliss","DZ_Characters","DZ_Characters_Zombies","DayZExpansion_Dta_Core","DayZExpansion_Core_Objects_Currencies"};
 	};
 };
 class CfgVehicles
@@ -48,18 +48,23 @@ class CfgVehicles
 	class SurvivorF_Baty;
 	class ZmbM_HermitSkinny_Base;
 	class ZmbM_JournalistSkinny;
+	class ExpansionATMBase;
+	class ExpansionMoneyBanknote_Base;
 	class ExpansionTraderStaticBase: HouseNoDestruct
 	{
-		forceFarBubble = "true";
+		scope = 0;
+		vehicleClass = "Expansion_Static";
 	};
 	class ExpansionTraderPumpkin: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_Pumpkin0";
 		descriptionShort = "$STR_Pumpkin1";
 		model = "\DZ\characters\headgear\PumpkinHelmet_g.p3d";
 	};
 	class ExpansionTraderZucchini: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_Zucchini0";
 		descriptionShort = "$STR_Zucchini1";
 		model = "\dz\gear\food\zucchini.p3d";
@@ -67,6 +72,7 @@ class CfgVehicles
 	};
 	class ExpansionExchangeMachine: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "Exchange Machine";
 		descriptionShort = "Exchange Machine";
 		model = "\DayZExpansion\Market\Objects\Exchange_Machine\Exchange_Machine.p3d";
@@ -74,36 +80,42 @@ class CfgVehicles
 	};
 	class ExpansionTraderLockerClosedBlueV1: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_EXPANSION_VENDING_MACHINE";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v1.p3d";
 		rotationFlags = 12;
 	};
 	class ExpansionTraderLockerClosedBlueV2: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_EXPANSION_VENDING_MACHINE";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v2.p3d";
 		rotationFlags = 12;
 	};
 	class ExpansionTraderLockerClosedBlueV3: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_EXPANSION_VENDING_MACHINE";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v3.p3d";
 		rotationFlags = 12;
 	};
 	class ExpansionTraderLockerClosedV1: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_EXPANSION_VENDING_MACHINE";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_v1.p3d";
 		rotationFlags = 12;
 	};
 	class ExpansionTraderLockerClosedV2: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_EXPANSION_VENDING_MACHINE";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_v2.p3d";
 		rotationFlags = 12;
 	};
 	class ExpansionTraderLockerClosedV3: ExpansionTraderStaticBase
 	{
+		scope = 1;
 		displayName = "$STR_EXPANSION_VENDING_MACHINE";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_v3.p3d";
 		rotationFlags = 12;
@@ -498,5 +510,50 @@ class CfgVehicles
 	{
 		displayName = "Baty";
 		vehicleClass = "Expansion_Trader";
+	};
+	class ExpansionATM_Base: ExpansionATMBase
+	{
+		scope = 0;
+		displayName = "$STR_EXPANSION_ATM";
+		model = "dayzexpansion\market\objects\atm\expansion_atm.p3d";
+		hiddenSelections[] = {"zbytek"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\market\objects\atm\data\expansion_atm.rvmat"};
+		rotationFlags = 12;
+	};
+	class ExpansionATM_1: ExpansionATM_Base
+	{
+		scope = 1;
+		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_01_co.paa"};
+	};
+	class ExpansionATM_2: ExpansionATM_Base
+	{
+		scope = 1;
+		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_02_co.paa"};
+	};
+	class ExpansionATM_3: ExpansionATM_Base
+	{
+		scope = 1;
+		hiddenSelectionsTextures[] = {"dayzexpansion\market\objects\atm\data\expansion_atm_03_co.paa"};
+	};
+	class ExpansionBanknoteUSD: ExpansionMoneyBanknote_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_BANKNOTES_USD";
+		descriptionShort = "$STR_EXPANSION_BANKNOTES_USD_DESC";
+		model = "dayzexpansion\market\objects\currency\USD.p3d";
+	};
+	class ExpansionBanknoteEuro: ExpansionMoneyBanknote_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_BANKNOTES_EURO";
+		descriptionShort = "$STR_EXPANSION_BANKNOTES_EURO_DESC";
+		model = "dayzexpansion\market\objects\currency\Euro.p3d";
+	};
+	class ExpansionBanknoteHryvnia: ExpansionMoneyBanknote_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_BANKNOTES_HRYVNIA";
+		descriptionShort = "$STR_EXPANSION_BANKNOTES_HRYVNIA_DESC";
+		model = "dayzexpansion\market\objects\currency\Hryvnia.p3d";
 	};
 };

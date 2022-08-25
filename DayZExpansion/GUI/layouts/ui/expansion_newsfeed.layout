@@ -307,7 +307,7 @@ PanelWidgetClass ExpansionNewsFeed {
            hexactsize 1
            vexactsize 0
            userID 152
-           text "@DayZExpansion#"
+           text "@DayZExpansion"
            font "gui/fonts/sdf_MetronLight24"
            "exact text" 0
            "text valign" center

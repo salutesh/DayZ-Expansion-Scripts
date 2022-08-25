@@ -24,7 +24,7 @@ modded class IngameHud
 		super.Update(timeslice);
 	
 		//! Player Tags		
-		if (GetExpansionSettings().GetNameTags().EnablePlayerTags)
+		if (GetExpansionSettings().GetNameTags(false).IsLoaded() && GetExpansionSettings().GetNameTags().EnablePlayerTags)
 		{
 			RefreshPlayerTagsEx();
 

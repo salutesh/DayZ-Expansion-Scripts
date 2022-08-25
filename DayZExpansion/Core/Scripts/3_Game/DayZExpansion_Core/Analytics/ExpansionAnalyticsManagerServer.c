@@ -26,7 +26,7 @@ modded class AnalyticsManagerServer
 		super.OnPlayerConnect( player );
 		
 		player.StatRegister( EXP_STAT_ANIMALS_KILLED );
-		player.StatSyncToClient();
+		//player.StatSyncToClient();
 	}
 	
 	// ------------------------------------------------------------
@@ -65,6 +65,6 @@ modded class AnalyticsManagerServer
 #endif
 
 		killer.StatUpdate( EXP_STAT_ANIMALS_KILLED, 1 );
-		killer.StatSyncToClient();
+		//killer.StatSyncToClient();
 	}
 };

@@ -31,9 +31,10 @@ modded class MissionServer
 
 	override void HandleBody(PlayerBase player)
 	{
-		//! Avoid exploit where you are just outside safezone, get shot uncon, fall backwards into safezone,
-		//! then disconnect and reconnect to dupe your character
-		//! (your other unconscious body will still be on the ground inside safezone due to having gained godmode from it)
+		//! Avoid exploit where players that are given (temporary) godmode for any reason (e.g. through a 3rd party mod,
+		//! since Expansion no longer uses player godmode for anything),
+		//! can disconnect while uncon or restrained and reconnect to dupe their character and all their gear
+		//! (the other unconscious body will still be on the ground due to the game not being able to kill it)
 		if (player.IsUnconscious() || player.IsRestrained())
 			player.SetAllowDamage(true);
 
@@ -58,14 +59,6 @@ modded class MissionServer
 			DumpClassNameJSON();
 			DumpClassNameJSON("Expansion");
 		}
-
-		bool loadTraderNPCs;
-
-		#ifdef EXPANSIONMODMARKET
-		loadTraderNPCs = GetExpansionSettings().GetMarket().MarketSystemEnabled;
-		#endif
-
-		ExpansionObjectSpawnTools.FindMissionFiles(true, loadTraderNPCs);
 	}
 	
 	// ------------------------------------------------------------
@@ -85,21 +78,6 @@ modded class MissionServer
 	}
 	
 	// ------------------------------------------------------------
-	// OnMissionFinish
-	// ------------------------------------------------------------
-	override void OnMissionFinish()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnMissionFinish");
-#endif
-		
-		super.OnMissionFinish();
-
-		//! Save settings on mission finish
-		g_exGlobalSettings.Save();
-	}
-	
-	// ------------------------------------------------------------
 	// OnClientReconnectEvent
 	// ------------------------------------------------------------
 	override void OnClientReconnectEvent( PlayerIdentity identity, PlayerBase player )
@@ -114,16 +92,21 @@ modded class MissionServer
 	// ------------------------------------------------------------
 	override void InvokeOnConnect( PlayerBase player, PlayerIdentity identity )
 	{
+#ifdef EXPANSION_SETTINGS_DELAY
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SendSettings, 20000, false, player);
+#else
 		GetExpansionSettings().Send( identity );
-		
-		//! Leave this here. If someone complains about vehicle desync as pilot, ask them about server logs and exact timestamp, then use this to check whether the desyncing player had an identity on connect.
-		if ( !player.GetIdentity() )
-			EXPrint("WARNING: Player without identity connecting! " + player + " " + identity);
+#endif
 
 		PlayerBase.AddPlayer( player, identity );
 		
 		//! Do after, because some modules use PlayerIdentity setup inside AddPlayer of PlayerBase class
 		super.InvokeOnConnect( player, identity );
+	}
+	
+	void Expansion_SendSettings(PlayerBase player)
+	{
+		GetExpansionSettings().Send(player.GetIdentity());
 	}
 
 	// ------------------------------------------------------------

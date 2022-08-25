@@ -18,14 +18,14 @@ class ExpansionPartyQuickMarkerData : ExpansionMarkerData
 		return ExpansionMapMarkerType.PARTY_QUICK;
 	}
 
-	void OnSend( ParamsWriteContext ctx )
+	override void OnSend( ParamsWriteContext ctx )
 	{
 		ctx.Write( m_Color );
 		
 		ctx.Write( m_Position );
 	}
 
-	bool OnRecieve( ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		if ( !ctx.Read( m_Color ) )
 			return false;

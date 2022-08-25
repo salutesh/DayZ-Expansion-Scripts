@@ -16,7 +16,7 @@ modded class ActionBandageTarget
 	{
 		super.OnFinishProgressServer(action_data);
 
-		if (GetExpansionSettings().GetHardline().HumanityBandageTarget > 0)
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().HumanityBandageTarget > 0)
 		{
 			PlayerBase ntarget;
 			Class.CastTo(ntarget, action_data.m_Target.GetObject());

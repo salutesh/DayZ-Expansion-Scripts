@@ -10,31 +10,11 @@
  *
 */
 
-enum ExpansionPlayerRank
-{
-	BAMBI = 1,
-	SURVIVOR,
-	//! Hero player ranks
-	SCOUT,
-	PATHFINDER,
-	HERO,
-	SUPERHERO,
-	LEGEND,
-	//! Bandit player ranks
-	KLEPTOMANIAC,
-	BULLY,
-	BANDIT,
-	KILLER,
-	MADMAN
-};
-
 class ExpansionHardlinePlayerData
 {
-	static const int CONFIGVERSION = 2;
+	static const int CONFIGVERSION = 3;
 
 	int ConfigVersion;
-	
-	private int Rank = ExpansionPlayerRank.BAMBI;
 	
 	private int Humanity = 100;
 	private int Sanity = 100;
@@ -42,7 +22,6 @@ class ExpansionHardlinePlayerData
 	private int HeroKills = 0;
 	private int BanditKills = 0;
 	private int BambiKills = 0;
-	private int TotalPlayerKills = 0;
 	private int AIKills = 0;
 	private int InfectedKills = 0;
 	private int PlayerDeaths = 0;
@@ -57,7 +36,7 @@ class ExpansionHardlinePlayerData
 	
 	int GetRank()
 	{
-		return Rank;
+		return GetExpansionSettings().GetHardline().GetRank(Humanity);
 	}
 	
 	int GetHumanity()
@@ -68,19 +47,16 @@ class ExpansionHardlinePlayerData
 	void AddHumanity(int humanity)
 	{
 		Humanity += humanity;
-		UpdateRankFromHumanity();
 	}
 	
 	void RemoveHumanity(int humanity)
 	{
 		Humanity -= humanity;
-		UpdateRankFromHumanity();
 	}
 	
 	void ResetHumanity()
 	{
 		Humanity = 100;
-		UpdateRankFromHumanity();
 	}
 	
 	int GetSanity()
@@ -98,108 +74,14 @@ class ExpansionHardlinePlayerData
 		Sanity -= sanity;
 	}
 	
-	void UpdateRankFromHumanity()
+	string GetRankDisplayName()
 	{
-		int rank = 0;
-		if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
-		{
-			if (Humanity >= GetExpansionSettings().GetHardline().RankLegend)
-			{
-				rank = ExpansionPlayerRank.LEGEND;
-			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankSuperhero)
-			{
-				rank = ExpansionPlayerRank.SUPERHERO;
-			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankHero)
-			{
-				rank = ExpansionPlayerRank.HERO;
-			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankPathfinder)
-			{
-				rank = ExpansionPlayerRank.PATHFINDER;
-			}
-			else if (Humanity >= GetExpansionSettings().GetHardline().RankScout)
-			{
-				rank = ExpansionPlayerRank.SCOUT;
-			}
-		}
-		else if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-		{
-			if (Humanity <= GetExpansionSettings().GetHardline().RankMadman)
-			{
-				rank = ExpansionPlayerRank.MADMAN;
-			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankKiller)
-			{
-				rank = ExpansionPlayerRank.KILLER;
-			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankBandit)
-			{
-				rank = ExpansionPlayerRank.BANDIT;
-			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankBully)
-			{
-				rank = ExpansionPlayerRank.BULLY;
-			}
-			else if (Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-			{
-				rank = ExpansionPlayerRank.KLEPTOMANIAC;
-			}
-		}
-		
-		Rank = rank;
-	}
-	
-	string GetRankName()
-	{
-		string rankName;
-		switch (Rank)
-		{
-			case ExpansionPlayerRank.BAMBI:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_BAMBI";
-				break;
-			case ExpansionPlayerRank.SURVIVOR:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_SURVIVOR";
-				break;
-			case ExpansionPlayerRank.SCOUT:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_SCOUT";
-				break;
-			case ExpansionPlayerRank.PATHFINDER:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_PATHFINDER";
-				break;
-			case ExpansionPlayerRank.HERO:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_HERO";
-				break;
-			case ExpansionPlayerRank.SUPERHERO:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_SUPERHERO";
-				break;
-			case ExpansionPlayerRank.LEGEND:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_LEGEND";
-				break;
-			case ExpansionPlayerRank.KLEPTOMANIAC:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_KLEPTOMANIAC";
-				break;
-			case ExpansionPlayerRank.BULLY:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_BULLY";
-				break;
-			case ExpansionPlayerRank.BANDIT:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_BANDIT";
-				break;
-			case ExpansionPlayerRank.KILLER:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_KILLER";
-				break;
-			case ExpansionPlayerRank.MADMAN:
-				rankName = "#STR_EXPANSION_HARDLINE_RANK_MADMAN";
-				break;
-		}
-		return rankName;
+		return "STR_EXPANSION_HARDLINE_RANK_" + typename.EnumToString(ExpansionHardlineRank, GetRank());
 	}
 	
 	void OnKillBandit()
 	{
 		BanditKills++;
-		TotalPlayerKills++;
 	}
 	
 	int GetBanditKills()
@@ -210,7 +92,6 @@ class ExpansionHardlinePlayerData
 	void OnKillHero()
 	{
 		HeroKills++;
-		TotalPlayerKills++;
 	}
 	
 	int GetHeroKills()
@@ -221,7 +102,6 @@ class ExpansionHardlinePlayerData
 	void OnKillBambi()
 	{
 		BambiKills++;
-		TotalPlayerKills++;
 	}
 	
 	int GetBambiKills()
@@ -231,7 +111,7 @@ class ExpansionHardlinePlayerData
 	
 	int GetTotalPlayerKills()
 	{
-		return TotalPlayerKills;
+		return BanditKills + HeroKills + BambiKills;
 	}
 	
 	void OnAIKilled()
@@ -292,6 +172,7 @@ class ExpansionHardlinePlayerData
 
 				file.Close();
 			}
+			ConfigVersion = CONFIGVERSION;
 			return true;
 		}
 		else if (FileExist(legacyPath))
@@ -308,15 +189,12 @@ class ExpansionHardlinePlayerData
 	
 	void OnSend(ParamsWriteContext ctx)
 	{
-		ctx.Write(Rank);
-		
 		ctx.Write(Humanity);
 		ctx.Write(Sanity);
 		
 		ctx.Write(HeroKills);
 		ctx.Write(BanditKills);
 		ctx.Write(BambiKills);
-		ctx.Write(TotalPlayerKills);
 		ctx.Write(AIKills);
 		ctx.Write(InfectedKills);
 		ctx.Write(PlayerDeaths);
@@ -324,7 +202,8 @@ class ExpansionHardlinePlayerData
 	
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		if (!ctx.Read(Rank))
+		int rank;
+		if (ConfigVersion < 3 && !ctx.Read(rank))
 		{
 			Error(ToString() + "::OnRecieve Rank");
 			return false;
@@ -360,7 +239,8 @@ class ExpansionHardlinePlayerData
 			return false;
 		}
 		
-		if (!ctx.Read(TotalPlayerKills))
+		int totalPlayerKills;
+		if (ConfigVersion < 3 && !ctx.Read(totalPlayerKills))
 		{
 			Error(ToString() + "::OnRecieve TotalPlayerKills");
 			return false;

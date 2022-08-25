@@ -110,4 +110,7 @@ class ExpansionSilverNugget: ExpansionMoneyBase {}
 class ExpansionSilverBar: ExpansionMoneyBase {}
 class ExpansionGoldNugget: ExpansionMoneyBase {}
 class ExpansionGoldBar: ExpansionMoneyBase {}
+class ExpansionBanknoteUSD: ExpansionMoneyBase {}
+class ExpansionBanknoteEuro: ExpansionMoneyBase {}
+class ExpansionBanknoteHryvnia: ExpansionMoneyBase {}
  

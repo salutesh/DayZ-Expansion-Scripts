@@ -862,10 +862,15 @@ class CfgVehicles
 		scope = 0;
 		vehicleClass = "Expansion_Currency";
 	};
-	class ExpansionATMLocker: HouseNoDestruct
+	class ExpansionATMBase: HouseNoDestruct
+	{
+		scope = 0;
+		vehicleClass = "Expansion_Static";
+	};
+	class ExpansionATMLocker: ExpansionATMBase
 	{
 		scope = 1;
-		vehicleClass = "Expansion_Static";
+		displayName = "$STR_EXPANSION_ATM_LOCKER";
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v1.p3d";
 	};
 };

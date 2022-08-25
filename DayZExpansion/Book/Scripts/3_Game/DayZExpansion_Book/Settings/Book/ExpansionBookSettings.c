@@ -411,7 +411,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		ExpansionBookLink link = new ExpansionBookLink("Homepage", "https://www.google.com/", "Homepage", ARGB(255,35,39,42));
 		Links.Insert(link);
 		
-		link = new ExpansionBookLink("Feedback", "https://exp.thurston.pw/", "Forums", ARGB(255,35,39,42));
+		link = new ExpansionBookLink("Feedback", "https://www.google.com/", "Forums", ARGB(255,35,39,42));
 		Links.Insert(link);
 		
 		link = new ExpansionBookLink("Discord", "https://www.google.com/", "Discord", ARGB(255,114,137,218));

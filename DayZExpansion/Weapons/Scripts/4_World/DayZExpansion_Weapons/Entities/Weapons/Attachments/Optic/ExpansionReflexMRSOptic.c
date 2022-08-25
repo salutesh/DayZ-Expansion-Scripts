@@ -125,37 +125,6 @@ class ExpansionReflexMRSOptic: ItemOptics
 
 		AddAction( ExpansionActionCycleOpticsModeInHands );
 	}
-	
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-		
-		super.OnStoreSave( ctx );
-				
-		ctx.Write( m_CurrentMode );
-	}
-
-	override bool OnStoreLoad( ParamsReadContext ctx, int version )
-	{
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET || m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return true;
-		#endif
-		
-		if ( Expansion_Assert_False( ctx.Read( m_CurrentMode ), "[" + this + "] Failed reading m_CurrentMode" ) )
-			return false;
-			
-		return true;
-	}
 
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)

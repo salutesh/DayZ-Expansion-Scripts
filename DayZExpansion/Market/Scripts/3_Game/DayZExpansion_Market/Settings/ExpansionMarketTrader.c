@@ -174,8 +174,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		TraderIcon = "Trader";
 		
 		#ifdef EXPANSIONMODHARDLINE
-		MinRequiredHumanity = -9999;
-		MaxRequiredHumanity = 9999;
+		MinRequiredHumanity = int.MIN;
+		MaxRequiredHumanity = int.MAX;
 		#endif
 
 		DefaultCurrencies();

@@ -22,8 +22,34 @@ modded class IngameHud
 	TextWidget m_NVBatteryVal;
 	int m_NVBatteryState;
 
+	int BATTERY_EMPTY_COLOR = ARGB(255, 231, 76, 60);
+	int BATTERY_LOW_COLOR = ARGB(255, 230, 126, 34);
+	int BATTERY_MED_COLOR = ARGB(255, 243, 156, 18);
+	int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
+
+	int m_StaminaBarColor;
+	int m_NotifierDividerColor;
+	int m_TemperatureBurningColor;
+	int m_TemperatureHotColor;
+	int m_TemperatureIdealColor;
+	int m_TemperatureColdColor;
+	int m_TemperatureFreezingColor;
+	int m_NotifiersIdealColor;
+	int m_NotifiersHalfColor;
+	int m_NotifiersLowColor;
+
 	Widget m_EarPlugsPanel;
 	
+	void IngameHud()
+	{
+		ExpansionSettings.SI_General.Insert(Expansion_OnGeneralSettingsUpdated);
+	}
+	
+	void ~IngameHud()
+	{
+		ExpansionSettings.SI_General.Remove(Expansion_OnGeneralSettingsUpdated);
+	}
+
 	override void Init(Widget hud_panel_widget)
 	{
 		super.Init(hud_panel_widget);
@@ -56,12 +82,126 @@ modded class IngameHud
 			UpdateNV();
 		}
 	}
+	
+	override void DisplayTendencyNormal( int key, int tendency, int status )
+	{
+		ImageWidget w;
+		Class.CastTo(w,  m_Notifiers.FindAnyWidget( String( "Icon" + m_StatesWidgetNames.Get( key ) ) ) );
+
+		if( w )
+		{
+			w.SetImage( Math.Clamp( status - 1, 0, 4 ) );
+			float alpha = w.GetAlpha();
+			
+			switch( status )
+			{
+				case 3:
+					w.SetColor( m_NotifiersHalfColor );
+					m_TendencyStatusCritical.Remove( w );				//remove from blinking group
+                break;
+				case 4:
+					w.SetColor( m_NotifiersLowColor );
+					m_TendencyStatusCritical.Remove( w );				//remove from blinking group
+                break;
+				case 5:
+					if ( !m_TendencyStatusCritical.Contains( w ) )
+					{
+						m_TendencyStatusCritical.Insert( w, m_NotifiersLowColor );	//add to blinking group
+					}
+                break;
+				default:
+					w.SetColor( m_NotifiersIdealColor );
+					m_TendencyStatusCritical.Remove( w );
+                break;
+			}
+		}	
+	}
+
+	override void DisplayTendencyTemp( int key, int tendency, int status )
+	{
+		ImageWidget w = ImageWidget.Cast( m_Notifiers.FindAnyWidget( String( "Icon" + m_StatesWidgetNames.Get( key ) ) ) );
+		TextWidget temp_top = TextWidget.Cast( m_Notifiers.FindAnyWidget( "TemperatureValueTop" ) );
+		TextWidget temp_bot = TextWidget.Cast( m_Notifiers.FindAnyWidget( "TemperatureValueBottom" ) );
+		float alpha = w.GetAlpha();
+		
+		if ( tendency < 0 )
+		{
+			temp_top.Show( true );
+			temp_bot.Show( false );
+		}
+		else
+		{
+			temp_top.Show( false );
+			temp_bot.Show( true );
+		}
+		
+		switch( status )
+		{
+			case 2:
+				w.SetColor( m_TemperatureHotColor );		//WARNING_PLUS
+				m_TendencyStatusCritical.Remove( w );
+				w.SetImage( 1 );				
+				break;
+			case 3:
+				w.SetColor( m_TemperatureBurningColor );		//CRITICAL_PLUS
+				m_TendencyStatusCritical.Remove( w );
+				w.SetImage( 0 );
+				break;
+			case 4:
+				if ( !m_TendencyStatusCritical.Contains( w ) )		//BLINKING_PLUS
+				{
+					m_TendencyStatusCritical.Insert( w, m_TemperatureBurningColor );
+				}
+				w.SetImage( 0 );
+				break;
+			case 5:
+				w.SetColor( m_TemperatureColdColor );		//WARNING_MINUS
+				m_TendencyStatusCritical.Remove( w );
+				w.SetImage( 3 );
+				break;
+			case 6:
+				w.SetColor( m_TemperatureFreezingColor );	//CRITICAL_MINUS
+				m_TendencyStatusCritical.Remove( w );
+				w.SetImage( 4 );
+				break;
+			case 7:													//BLINKING_MINUS
+				if ( !m_TendencyStatusCritical.Contains( w ) )
+				{
+					m_TendencyStatusCritical.Insert( w, m_TemperatureFreezingColor );
+				}
+				w.SetImage( 4 );
+				break;				
+			default:
+				w.SetColor( m_TemperatureIdealColor );
+				m_TendencyStatusCritical.Remove( w );
+				w.SetImage( 2 );
+				break;
+		}
+	}
+
+	void Expansion_OnGeneralSettingsUpdated()
+	{
+		ExpansionGeneralSettings settings = GetExpansionSettings().GetGeneral();
+
+		m_ExpansionNVSetting 		= settings.EnableHUDNightvisionOverlay;
+		m_StaminaBarColor 			= settings.HUDColors.Get("StaminaBarColor");
+		m_NotifierDividerColor 		= settings.HUDColors.Get("NotifierDividerColor");
+		m_TemperatureBurningColor 	= settings.HUDColors.Get("TemperatureBurningColor");
+		m_TemperatureHotColor 		= settings.HUDColors.Get("TemperatureHotColor");
+		m_TemperatureIdealColor 	= settings.HUDColors.Get("TemperatureIdealColor");
+		m_TemperatureColdColor 		= settings.HUDColors.Get("TemperatureColdColor");
+		m_TemperatureFreezingColor 	= settings.HUDColors.Get("TemperatureFreezingColor");
+		m_NotifiersIdealColor 		= settings.HUDColors.Get("NotifiersIdealColor");
+		m_NotifiersHalfColor 		= settings.HUDColors.Get("NotifiersHalfColor");
+		m_NotifiersLowColor 		= settings.HUDColors.Get("NotifiersLowColor");
+		
+        m_Stamina.SetColor(m_StaminaBarColor);
+		m_BadgeNotifierDivider.SetColor(m_NotifierDividerColor);
+	}
 
 	override void RefreshHudVisibility()
 	{
 		super.RefreshHudVisibility();
-
-		m_ExpansionNVSetting = GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay;
 
 		if (m_NVPanel)
 		{
@@ -85,11 +225,6 @@ modded class IngameHud
 	{
 		return m_ExpansionHudNVState;
 	}
-
-	int BATTERY_EMPTY_COLOR = ARGB(255, 231, 76, 60);
-	int BATTERY_LOW_COLOR = ARGB(255, 230, 126, 34);
-	int BATTERY_MED_COLOR = ARGB(255, 243, 156, 18);
-	int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
 
 	void RefreshNVBatteryState(int percent)
 	{

@@ -175,7 +175,7 @@ class ExpansionMarketCategory
 	// 'minPrice' the lowest the item will sell at when it has reached 'maxStock'
 	// 'maxPrice' the highest the item will sell at when it has reached 'minStock'
 	// ------------------------------------------------------------
-	ExpansionMarketItem AddItem( string className, int minPrice, int maxPrice, int minStock, int maxStock, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = NULL )
+	ExpansionMarketItem AddItem( string className, int minPrice, int maxPrice, int minStock, int maxStock, array< string > attachments = NULL, array< string > variants = NULL, float sellPricePercent = -1, int quantityPercent = -1, int itemID = -1, array<int> attachmentIDs = NULL )
 	{
 		className.ToLower();
 
@@ -195,7 +195,7 @@ class ExpansionMarketCategory
 	// 'minPrice' the lowest the item will sell at when it has reached 'maxStock'
 	// 'maxPrice' the highest the item will sell at when it has reached 'maxStock'
 	// ------------------------------------------------------------
-	ExpansionMarketItem AddStaticItem( string className, int staticPrice, array< string > attachments = NULL, array< string > variants = NULL, int sellPricePercent = -1, int quantityPercent = -1 )
+	ExpansionMarketItem AddStaticItem( string className, int staticPrice, array< string > attachments = NULL, array< string > variants = NULL, float sellPricePercent = -1, int quantityPercent = -1 )
 	{
 		return AddItem( className, staticPrice, staticPrice, 1, 1, attachments, variants, sellPricePercent, quantityPercent );
 	}

@@ -47,7 +47,7 @@ modded class MissionGameplay
 	{
 		super.OnUpdate( timeslice );
 
-		if (GetExpansionSettings().GetQuest().EnableQuests)
+		if (GetExpansionSettings().GetQuest(false).IsLoaded() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
 			//! Checking for keyboard focus
 			bool inputIsFocused = false;

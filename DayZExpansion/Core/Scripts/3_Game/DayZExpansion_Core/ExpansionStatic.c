@@ -160,6 +160,8 @@ class ExpansionStatic
 	// -----------------------------------------------------------
 	// Expansion String GetItemDisplayNameWithType
 	// -----------------------------------------------------------
+	//! @note this is for the rare cases where we only have a classname, not an object.
+	//! If we have an object, should use <object>.GetDisplayName() instead.
 	static string GetItemDisplayNameWithType( string type_name, map<string, string> cache = NULL )
 	{
 		string cfg_name;
@@ -200,6 +202,8 @@ class ExpansionStatic
 	// -----------------------------------------------------------
 	// Expansion String GetItemDescriptionWithType
 	// -----------------------------------------------------------
+	//! @note this is for the rare cases where we only have a classname, not an object.
+	//! If we have an object, should use <object>.ConfigGetString('descriptionShort') instead.
 	static string GetItemDescriptionWithType( string type_name, map<string, string> cache = NULL )
 	{
 		string cfg_des;
@@ -1063,6 +1067,21 @@ class ExpansionStatic
 			return "<" + ExpansionString.JoinStrings(output, ", ") + ">";
 		else
 			return ExpansionString.JoinStrings(output, " ");
+	}
+
+	static bool GetVariableIntByName(typename type, string name, out int val)
+	{
+		int count = type.GetVariableCount();
+		for (int i = 0; i < count; i++)
+		{
+			if (type.GetVariableName(i) != name)
+				continue;
+				
+			type.GetVariableValue(null, i, val);
+			return true;
+		}
+
+		return false;
 	}
 
 	static void LockInventoryRecursive(EntityAI entity, int lockType = HIDE_INV_FROM_SCRIPT)

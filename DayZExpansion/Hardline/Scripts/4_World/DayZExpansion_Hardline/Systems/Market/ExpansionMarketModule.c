@@ -20,14 +20,14 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarityForMarketPurchase)
 		{
-			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(itemClassName);
+			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
 			int required;
-			if (rarity && !HasRankForRarity(player, rarity, required))
+			if (rarity && !HasHumanityForRarity(player, rarity, required))
 			{
-				StringLocaliser rankTitle = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
-				StringLocaliser rankText = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW_BUY_DESC", required.ToString());
+				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
+				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW_BUY_DESC", required.ToString());
 				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 				return;
 			}
@@ -43,14 +43,14 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarity)
+		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarityForMarketSell)
 		{
-			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetHardlineItemRarityByType(itemClassName);
+			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
 			int required;
-			if (rarity && !HasRankForRarity(player, rarity, required))
+			if (rarity && !HasHumanityForRarity(player, rarity, required))
 			{
-				StringLocaliser rankTitle = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
-				StringLocaliser rankText = new StringLocaliser("#STR_EXPANSION_HARDLINE_MARKET_RANKLOW_SELL_DESC", required.ToString());
+				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
+				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW_SELL_DESC", required.ToString());
 				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 				return;
 			}
@@ -59,68 +59,19 @@ modded class ExpansionMarketModule
 		super.Exec_RequestSell(player, itemClassName, count, playerSentPrice, trader, playerSentSellDebug);
 	}
 	
-	bool HasRankForRarity(PlayerBase player, ExpansionHardlineItemRarity rarity, out int required)
+	bool HasHumanityForRarity(PlayerBase player, ExpansionHardlineItemRarity rarity, out int required)
 	{
 		if (rarity == ExpansionHardlineItemRarity.NONE)
 		{
 			return true;
 		}
 
-		int humanity = player.GetHumanity();
-		int rank = GetRankForRarity(rarity);
+		required = GetExpansionSettings().GetHardline().GetHumanityForRarity(rarity);
 
 		if (player.IsBandit())
-		{
-			if (humanity > -rank)
-			{
-				required = -rank;
-				return false;
-			}
-		}
-		else
-		{
-			//! Hero / bambi
+			required = -required;
 
-			if (humanity < rank)
-			{
-				required = rank;
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	int GetRankForRarity(ExpansionHardlineItemRarity rarity)
-	{
-		switch (rarity)
-		{
-			case ExpansionHardlineItemRarity.POOR:
-				return GetExpansionSettings().GetHardline().PoorItemRequirement;
-			
-			case ExpansionHardlineItemRarity.COMMON:
-				return GetExpansionSettings().GetHardline().CommonItemRequirement;
-			
-			case ExpansionHardlineItemRarity.UNCOMMON:
-				return GetExpansionSettings().GetHardline().UncommonItemRequirement;
-			
-			case ExpansionHardlineItemRarity.RARE:
-				return GetExpansionSettings().GetHardline().RareItemRequirement;
-			
-			case ExpansionHardlineItemRarity.EPIC:
-				return GetExpansionSettings().GetHardline().EpicItemRequirement;
-			
-			case ExpansionHardlineItemRarity.LEGENDARY:
-				return GetExpansionSettings().GetHardline().LegendaryItemRequirement;
-			
-			case ExpansionHardlineItemRarity.MYTHIC:
-				return GetExpansionSettings().GetHardline().MythicItemRequirement;
-			
-			case ExpansionHardlineItemRarity.EXOTIC:
-				return GetExpansionSettings().GetHardline().ExoticItemRequirement;
-		}
-
-		return 0;
+		return Math.AbsFloat(player.GetHumanity()) >= Math.AbsFloat(required);
 	}
 };
 #endif

@@ -119,6 +119,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (Stash)
 		{
+			Stash.SetIsQuestItem(true);
 			Stash.PlaceOnGround();
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

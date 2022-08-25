@@ -40,7 +40,7 @@ class ExpansionPlayerMarkerData : ExpansionMarkerData
 		return position;
 	}
 
-	void OnSend( ParamsWriteContext ctx )
+	override void OnSend( ParamsWriteContext ctx )
 	{
 		ctx.Write( m_Color );
 		
@@ -49,7 +49,7 @@ class ExpansionPlayerMarkerData : ExpansionMarkerData
 		OnSendObject( ctx );
 	}
 
-	bool OnRecieve( ParamsReadContext ctx )
+	override bool OnRecieve( ParamsReadContext ctx )
 	{
 		if ( !ctx.Read( m_Color ) )
 			return false;

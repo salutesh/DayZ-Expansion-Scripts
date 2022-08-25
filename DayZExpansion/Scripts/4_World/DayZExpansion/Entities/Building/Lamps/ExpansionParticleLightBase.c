@@ -26,8 +26,8 @@ class ExpansionParticleLightBase: ExpansionLampLightBase
 		{
 			ExpansionSettings.SI_General.Insert( OnSettingsUpdated );
 			GetExpansionClientSettings().SI_UpdateSetting.Insert( OnSettingsUpdated );
-			ExpansionWorldMappingModule.SI_LampEnable.Insert( Enable );
-			ExpansionWorldMappingModule.SI_LampDisable.Insert( Disable );
+			ExpansionWorldObjectsModule.SI_LampEnable.Insert( Enable );
+			ExpansionWorldObjectsModule.SI_LampDisable.Insert( Disable );
 		}
 		
 	}
@@ -41,8 +41,8 @@ class ExpansionParticleLightBase: ExpansionLampLightBase
 		{
 			ExpansionSettings.SI_General.Remove( OnSettingsUpdated );
 			GetExpansionClientSettings().SI_UpdateSetting.Remove( OnSettingsUpdated );
-			ExpansionWorldMappingModule.SI_LampEnable.Remove( Enable );
-			ExpansionWorldMappingModule.SI_LampDisable.Remove( Disable );
+			ExpansionWorldObjectsModule.SI_LampEnable.Remove( Enable );
+			ExpansionWorldObjectsModule.SI_LampDisable.Remove( Disable );
 		}
 	}
 	

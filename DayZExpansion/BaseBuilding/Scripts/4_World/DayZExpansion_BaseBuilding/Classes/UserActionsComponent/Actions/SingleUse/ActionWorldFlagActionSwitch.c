@@ -23,6 +23,9 @@ modded class ActionWorldFlagActionSwitch
 				return super.ActionCondition( player, target, item );
 			}
 			
+			if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+				return false;
+
 			TerritoryFlag totem = TerritoryFlag.Cast( target.GetObject() );
 			if ( !totem )
 				return false;

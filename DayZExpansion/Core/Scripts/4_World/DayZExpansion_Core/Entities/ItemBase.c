@@ -26,6 +26,7 @@ modded class ItemBase
 	protected autoptr array< ExpansionSkin > m_Skins;
 	protected bool m_Expansion_SZCleanup;
 	protected bool m_Expansion_IsStoreLoaded;
+	protected bool m_Expansion_IsStoreSaved;
 
 	protected ref map<string, float> m_Expansion_HealthBeforeHit;
 	protected float m_Expansion_DamageMultiplier = 1.0;
@@ -38,6 +39,8 @@ modded class ItemBase
 	bool m_Expansion_IsMeleeWeapon;
 
 	bool m_Expansion_IsWorking;
+
+	protected int m_Expansion_QueuedActions;
 
 	void ItemBase()
 	{
@@ -57,48 +60,10 @@ modded class ItemBase
 	
 	//============================================
 	// GetExpansionSaveVersion
-	// OBSOLETE
 	//============================================
 	int GetExpansionSaveVersion()
 	{
 		return m_ExpansionSaveVersion;
-	}
-	
-	//============================================
-	// OnStoreSave
-	//============================================
-	override void OnStoreSave( ParamsWriteContext ctx )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GENERAL_ITEMS, this, "OnStoreSave");
-#endif
-
-		CF_Log.Debug("[CORE] ItemBase::OnStoreSave " + this + " " + GetGame().SaveVersion());
-
-		//! If we are saving after game version target for ModStorage support (1st stable)
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		m_ExpansionSaveVersion = EXPANSION_VERSION_CURRENT_SAVE;
-		ctx.Write( m_ExpansionSaveVersion );
-
-		//! If we are saving game version target for ModStorage support (1st stable) or later
-		#ifdef EXPANSION_MODSTORAGE
-		if ( GetGame().SaveVersion() >= EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-		{
-			super.OnStoreSave( ctx );
-			return;
-		}
-		#endif
-
-		super.OnStoreSave( ctx );
-
-		ctx.Write( m_CurrentSkinName );
 	}
 		
 	//============================================
@@ -109,43 +74,22 @@ modded class ItemBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GENERAL_ITEMS, this, "OnStoreLoad");
 #endif
+		
+		m_Expansion_IsStoreLoaded = true;
 
-		CF_Log.Debug("[CORE] ItemBase::OnStoreLoad " + this + " " + version);
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( version > EXPANSION_VERSION_GAME_MODSTORAGE_TARGET )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( Expansion_Assert_False( ctx.Read( m_ExpansionSaveVersion ), "[CORE] [" + this + "] Failed reading m_ExpansionSaveVersion" ) )
-			return false;
-
-		#ifdef EXPANSION_MODSTORAGE
-		if ( m_ExpansionSaveVersion > EXPANSION_VERSION_SAVE_MODSTORAGE_TARGET )
-			return super.OnStoreLoad( ctx, version );
-		#endif
-
-		if ( Expansion_Assert_False( super.OnStoreLoad( ctx, version ), "[CORE] [" + this + "] Failed reading OnStoreLoad super" ) )
-			return false;
-
-		if ( GetExpansionSaveVersion() < 22 )
-			return true;
-
-		string currentSkinName = m_CurrentSkinName;
-
-		if ( Expansion_Assert_False( ctx.Read( m_CurrentSkinName ), "[" + this + "] Failed reading m_CurrentSkinName" ) )
-			return false;
-
-		if ( m_CurrentSkinName == "" )
-			m_CurrentSkinName = currentSkinName;
-
-		return true;
+		return super.OnStoreLoad( ctx, version );
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
+
+		//! Queue world untakeable items for next server start
+		if (!m_IsTakeable && !m_Expansion_IsStoreSaved && !GetHierarchyParent() && GetLifetime())
+			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+
+		m_Expansion_IsStoreSaved = true;
 
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
@@ -707,12 +651,7 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		//TODO: store as global variable until new CF module system is added?
-		ExpansionItemBaseModule module;
-		if (CF_Modules<ExpansionItemBaseModule>.Get(module))
-		{
-			module.PlayDestroySound(GetPosition(), GetDestroySound());
-		}
+		ExpansionItemBaseModule.s_Instance.PlayDestroySound(GetPosition(), GetDestroySound());
 
 		ExpansionOnDestroyed( killer );
 	}
@@ -937,11 +876,20 @@ modded class ItemBase
 			ExpansionOnSkinUpdate();
 		}
 
-		//! Safezone item cleanup
-
 		if (!m_Expansion_IsStoreLoaded)
 			return;
 
+		//! Ideally would do the following in AfterStoreLoad, but vanilla doesn't always call super >:(
+	
+		ExpansionDeferredCreateCleanup();
+
+		int actions = ExpansionItemBaseModule.s_Instance.ProcessQueuedEntityActions(this);
+		if ((actions & ExpansionItemBaseModule.SETUNTAKEABLE) == ExpansionItemBaseModule.SETUNTAKEABLE && GetLifetime())
+			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+    }
+
+	void ExpansionDeferredCreateCleanup()
+	{
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
 
@@ -949,17 +897,32 @@ modded class ItemBase
 			return;
 
 		ExpansionCreateCleanup();
-    }
+	}
 
-	override void AfterStoreLoad()
+	override void SetTakeable(bool pState)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "AfterStoreLoad");
-#endif
+		super.SetTakeable(pState);
 
-		super.AfterStoreLoad();
-		
-		m_Expansion_IsStoreLoaded = true;
+		if (!m_Expansion_QueuedActions || GetHierarchyParent())
+			return;
+
+		if (pState)
+		{
+			//! Deferred removal of setuntakeable entity action from queue
+			Expansion_DequeueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+		}
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		if (!m_Expansion_QueuedActions || GetHierarchyParent())
+			return;
+
+		//! Deferred removal of all entity actions from queue
+		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -int.MAX);
+		m_Expansion_QueuedActions = 0;
 	}
 
 	override void OnCEUpdate()
@@ -1062,5 +1025,105 @@ modded class ItemBase
 	bool Expansion_IsAdminTool()
 	{
 		return m_Expansion_IsAdminTool;
+	}
+
+	bool Expansion_IsStackable()
+	{
+		return m_CanThisBeSplit;
+	}
+
+	//! @brief Attempt to set stack amount if item is stackable. Return true if operation was performed, false if not.
+	//! Giving a negative amount is allowed (treated the same as an amount of zero) if deleteIfZero = true.
+	//! @note Valid to call on non-stackable items only if amount = 1 (no-op) or amount <= 0 and deleteIfZero = true
+	bool Expansion_SetStackAmount(int amount, bool deleteIfZero = false)
+	{
+		if (amount <= 0 && deleteIfZero)
+		{
+			Delete();
+			return true;
+		}
+
+		if (!m_CanThisBeSplit)
+		{
+			if (amount != 1)
+				Error(ToString() + " is not a stackable item, cannot set stack amount to " + amount + "!");
+			return false;
+		}
+
+		if (amount < 0)
+		{
+			Error(ToString() + " cannot set stack amount to negative!");
+			return false;
+		}
+
+		if (IsAmmoPile())
+		{
+			auto mag = Magazine.Cast(this);
+			int ammoMax = mag.GetAmmoMax();
+			if (amount > ammoMax)
+				amount = ammoMax;
+			if (GetGame().IsServer())
+				mag.ServerSetAmmoCount(amount);
+			else
+				mag.LocalSetAmmoCount(amount);
+		}
+		else
+		{
+			//! No max check needed since it's handled by SetQuantity
+			SetQuantity(amount);
+		}
+
+		return true;
+	}
+
+	//! @brief Attempt to decrease stack by amount. Return true if operation was performed, false if not.
+	//! @note Changes amountToDelete in-place.
+	bool Expansion_DecreaseStackAmount(inout int amountToDelete, bool deleteIfZero = false)
+	{
+		int amount = Expansion_GetStackAmount();
+		if (!Expansion_SetStackAmount(amount - amountToDelete, deleteIfZero))
+			return false;
+		if (amount >= amountToDelete)
+			amountToDelete = 0;
+		else
+			amountToDelete -= amount;
+		return true;
+	}
+
+	//! @brief Get stack amount of item.
+	//! @note Valid to call on non-stackable items (will return 1)
+	int Expansion_GetStackAmount()
+	{
+		if (IsAmmoPile())
+		{
+			auto mag = Magazine.Cast(this);
+			return mag.GetAmmoCount();
+		}
+		else if (m_CanThisBeSplit)
+		{
+			return GetQuantity();
+		}
+
+		return 1;
+	}
+
+	void Expansion_QueueEntityActions(int actions)
+	{
+		if ((m_Expansion_QueuedActions & actions) == actions)  //! Already queued
+			return;
+
+		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, actions);
+
+		m_Expansion_QueuedActions |= actions;
+	}
+
+	void Expansion_DequeueEntityActions(int actions)
+	{
+		if ((m_Expansion_QueuedActions & actions) == 0)  //! Not queued
+			return;
+
+		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -actions);
+
+		m_Expansion_QueuedActions &= ~actions;
 	}
 };

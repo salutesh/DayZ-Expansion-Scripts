@@ -14,7 +14,7 @@ class Land_House_2W04 extends BuildingSuper
 {
 	override bool HasInterior()
 	{
-		return true;
+		return false;
 	}
 	
 	override void SpawnInterior()

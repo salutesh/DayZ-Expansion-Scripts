@@ -32,6 +32,7 @@ class ExpansionAIPatrolManager
                 continue;
             }
 
+            float despawntime = 0;
             float mindistradius = 0;
             float maxdistradius = 0;
             float despawnradius = 0;
@@ -39,6 +40,13 @@ class ExpansionAIPatrolManager
             eAIWaypointBehavior behaviour = patrol.GetBehaviour();
             TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
             vector startpos = waypoints[0];
+
+            if ( patrol.DespawnTime < 0 )
+            {
+                despawntime = s_AIPatrolSettings.DespawnTime;
+            } else {
+                despawntime = patrol.DespawnTime;
+            }
 
             if ( patrol.MinDistRadius <= 0 )
             {
@@ -69,7 +77,9 @@ class ExpansionAIPatrolManager
             }
 
             ObjectPatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots near "+patrol.ClassName+" at "+startpos);
-            return eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, -1, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+            auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, 0, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+            dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
+            return dynPatrol;
         }
 
         return NULL;
@@ -86,6 +96,7 @@ class ExpansionAIPatrolManager
         PatrolLog("=================== Patrol Spawner START ===================");
 
         float respawntime = 0;
+        float despawntime = 0;
         float mindistradius = 0;
         float maxdistradius = 0;
         float despawnradius = 0;
@@ -138,6 +149,13 @@ class ExpansionAIPatrolManager
                 respawntime = patrol.RespawnTime;
             }
 
+            if ( patrol.DespawnTime < 0 )
+            {
+                despawntime = s_AIPatrolSettings.DespawnTime;
+            } else {
+                despawntime = patrol.DespawnTime;
+            }
+
             if ( patrol.MinDistRadius <= 0 )
             {
                 mindistradius = s_AIPatrolSettings.MinDistRadius;
@@ -167,7 +185,8 @@ class ExpansionAIPatrolManager
             }
 
             PatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots at "+startpos);
-            eAIDynamicPatrol.CreateEx(startpos, patrol.GetWaypoints(), patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+            auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, patrol.GetWaypoints(), patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+            dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
         }
         PatrolLog("=================== Patrol Spawner END ===================");
     }

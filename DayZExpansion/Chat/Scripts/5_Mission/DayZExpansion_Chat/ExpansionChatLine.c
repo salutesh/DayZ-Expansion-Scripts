@@ -23,7 +23,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 	private ref Chat m_Chat;
 	
 	private TextWidget SenderName;
-	private  TextWidget Message;
+	private TextWidget Message;
 	private ref WidgetFadeTimer m_FadeInTimer;
 	private Widget m_Parent;
 	private string m_LayoutPath;
@@ -51,20 +51,23 @@ class ExpansionChatLineBase: ExpansionScriptView
 	
 	void Set(ExpansionChatMessage message)	// Param 1 --> Channel, Param 2 --> sender name, Param 3 --> message, Param 4 ?? 
 	{
+#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+#endif
 
 		MissionGameplay mission;
 		if (!Class.CastTo(mission, GetGame().GetMission()))
 			return;
 		
-		GetLayoutRoot().Show(false);
-		m_ChatLineController.SenderName = "";
-		m_ChatLineController.NotifyPropertyChanged("SenderName");
-		m_ChatLineController.Message = "";
-		m_ChatLineController.NotifyPropertyChanged("Message");
-
-		if (message == NULL)
+		if (!message)
+		{
+			GetLayoutRoot().Show(false);
+			m_ChatLineController.SenderName = "";
+			m_ChatLineController.NotifyPropertyChanged("SenderName");
+			m_ChatLineController.Message = "";
+			m_ChatLineController.NotifyPropertyChanged("Message");
 			return;
+		}
 		
 		GetLayoutRoot().Show(true);
 		
@@ -145,30 +148,33 @@ class ExpansionChatLineBase: ExpansionScriptView
 			break;
 		}
 
-		//! maxWordCharacters is the amount of charaters that can fit into one line before a line 
+		//! maxLineCharacters is the amount of charaters that can fit into one line before a line 
 		//! break need to happend with the current chat font size.
 		//! Note: Hardcoded values below assume 2560x1440 resolution, so need to adjust for other resolutions!
-		int maxWordCharacters;
+		int maxLineCharacters;
 		ExpansionClientUIChatSize chatsize = GetExpansionClientSettings().HUDChatSize;
 		switch (chatsize)
 		{
 			case ExpansionClientUIChatSize.VERYSMALL:
-				maxWordCharacters = 52;
+				maxLineCharacters = 56;
 				break;
 			case ExpansionClientUIChatSize.SMALL:
-				maxWordCharacters = 45;
+				maxLineCharacters = 50;
 				break;
 			case ExpansionClientUIChatSize.MEDIUM:
-				maxWordCharacters = 39;
+				maxLineCharacters = 42;
 				break;
 			case ExpansionClientUIChatSize.LARGE:
-				maxWordCharacters = 29;
+				maxLineCharacters = 30;
 				break;
 			case ExpansionClientUIChatSize.VERYLARGE:
-				maxWordCharacters = 23;
+				maxLineCharacters = 24;
 				break;
 		}
 		
+		int senderCharacters = m_ChatLineController.SenderName.Length();
+		int maxWordCharacters = maxLineCharacters - senderCharacters;
+
 		//! adjust for actual screen res
 		int w, h;
 		GetScreenSize(w, h);
@@ -203,6 +209,13 @@ class ExpansionChatLineBase: ExpansionScriptView
 		{
 			FadeInChatLine();
 		}
+
+		//! Adjust message size so it actually fits and doesn't get cut off
+		float root_w, root_h;
+		GetLayoutRoot().GetScreenSize(root_w, root_h);
+		float sender_w, sender_h;
+		SenderName.GetScreenSize(sender_w, sender_h);
+		Message.SetSize(1.0 - sender_w / root_w, 1.0);
 	}
 	
 	private void FadeInChatLine()

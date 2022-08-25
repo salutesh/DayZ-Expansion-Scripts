@@ -147,7 +147,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
-		if (!IsMissionClient() || (!GetExpansionSettings().GetNotification() && !GetExpansionSettings().GetNotification().ShowTerritoryNotifications))
+		if (!IsMissionClient() || !GetExpansionSettings().GetNotification(false).IsLoaded() || !GetExpansionSettings().GetNotification().ShowTerritoryNotifications)
 			return;
 
 		auto update = CF_EventUpdateArgs.Cast(args);
@@ -2037,6 +2037,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 		if ( territorySize <= 0 )
 		{
+			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+				return false;
+
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 		}
 		
@@ -2156,6 +2159,12 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		EXPrint("ExpansionTerritoryModule::IsInsideOwnTerritoryOrPerimeter - Start");
 		#endif
 
+		if (territorySize <= 0 || perimeterSize <= 0)
+		{
+			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+				return false;
+		}
+
 		if ( territorySize <= 0 )
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 
@@ -2179,6 +2188,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	{
 		if ( territorySize <= 0 )
 		{
+			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+				return NULL;
+
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 		}
 
@@ -2258,6 +2270,12 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXPrint("ExpansionTerritoryModule::IsInTerritoryOrPerimeter - Start");
 		#endif
+
+		if (territorySize <= 0 || perimeterSize <= 0)
+		{
+			if (GetGame().IsClient() && !GetExpansionSettings().GetTerritory(false).IsLoaded())
+				return false;
+		}
 
 		if ( territorySize <= 0 )
 			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;

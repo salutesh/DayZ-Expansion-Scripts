@@ -84,12 +84,18 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		m_MarketMenu = menu;
 		m_Category = category;
 
-		if (!m_CategoryController)
-			m_CategoryController = ExpansionMarketMenuCategoryController.Cast(GetController());
-		
+		m_CategoryController = ExpansionMarketMenuCategoryController.Cast(GetController());
 		m_CategoryController.CategoryName = m_Category.DisplayName;
-		if (m_Category.Icon != string.Empty)
+		
+		if (ExpansionIcons.GetPath(m_Category.Icon) != string.Empty)
+		{
 			m_CategoryController.CategoryIcon = ExpansionIcons.GetPath(m_Category.Icon);
+		}
+		else
+		{
+			m_CategoryController.CategoryIcon = m_Category.Icon;
+		}
+		
 		m_CategoryController.NotifyPropertiesChanged({"CategoryName", "CategoryIcon"});
 
 		m_TempItems = tempItems;

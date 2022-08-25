@@ -111,8 +111,8 @@ class ExpansionGenerator: ItemBase
 		if ( !IsMissionHost() )
 			return;
 
-		ExpansionWorldMappingModule module;
-		if ( CF_Modules<ExpansionWorldMappingModule>.Get(module) )
+		ExpansionWorldObjectsModule module;
+		if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
 		{
 			module.TurnOnGenerator( GetPosition() );
 		}
@@ -129,8 +129,8 @@ class ExpansionGenerator: ItemBase
 		if ( !IsMissionHost() )
 			return;
 
-		ExpansionWorldMappingModule module;
-		if ( CF_Modules<ExpansionWorldMappingModule>.Get(module) )
+		ExpansionWorldObjectsModule module;
+		if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
 		{
 			module.TurnOffGenerator( GetPosition() );
 		}

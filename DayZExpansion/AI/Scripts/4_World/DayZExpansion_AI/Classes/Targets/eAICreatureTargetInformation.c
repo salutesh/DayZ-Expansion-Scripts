@@ -1,7 +1,5 @@
 class eAICreatureTargetInformation extends eAIEntityTargetInformation
 {
-	private const float DISTANCE_COEF = 0.001;
-
 	private DayZCreatureAI m_Creature;
 
 	void eAICreatureTargetInformation(EntityAI target)
@@ -30,18 +28,21 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 		if (ai)
 		{
 			// the further away the creature, the less likely it will be a threat
-			float distance = GetDistance(ai) + DISTANCE_COEF;
+			float distance = GetDistance(ai) + 0.1;
 			levelFactor = 10 / distance;
+			if (levelFactor > 1.0)
+				levelFactor = Math.Pow(levelFactor, 2.0);
 
 			if (levelFactor > 0.4)
 			{
+				levelFactor *= 2.0;
 				auto hands = ai.GetHumanInventory().GetEntityInHands();
 				if (hands)
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
 		}
 
-		return Math.Clamp(levelFactor, 0.0, 10.0 / DISTANCE_COEF);
+		return Math.Clamp(levelFactor, 0.0, 1000000.0);
 	}
 
 	override bool ShouldRemove(eAIBase ai = null)

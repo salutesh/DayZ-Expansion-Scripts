@@ -40,6 +40,7 @@ class ExpansionMarketMenuTooltipEntry: ExpansionScriptView
 
 	void SetView()
 	{
+		//! TODO: This should use <object>.GetDisplayName() instead because we already have the preview object
 		string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Label);
 		if (displayName != string.Empty)
 		{

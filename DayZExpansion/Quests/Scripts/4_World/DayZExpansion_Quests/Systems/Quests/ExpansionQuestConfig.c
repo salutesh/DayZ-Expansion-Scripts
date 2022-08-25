@@ -58,7 +58,7 @@ class ExpansionQuestConfigBase
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
-	static const int CONFIGVERSION = 3;
+	static const int CONFIGVERSION = 4;
 	
 	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
 	int HumanityReward = 0; //! Humanity reward when completing the quest.

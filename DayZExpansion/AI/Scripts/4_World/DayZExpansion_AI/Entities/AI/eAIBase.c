@@ -30,10 +30,13 @@ class eAIBase extends PlayerBase
 	float m_eAI_PreviousThreatToSelf;
 	float m_eAI_CurrentThreatToSelfActive;
 	float m_eAI_PreviousThreatToSelfActive;
+	float m_eAI_AccuracyMin;
+	float m_eAI_AccuracyMax;
 
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
 	private int m_eAI_CurrentCommandID;
+	private float m_eAI_CommandTime;
 
 	private bool m_eAI_UnconsciousVehicle;
 
@@ -132,7 +135,8 @@ class eAIBase extends PlayerBase
 
 		s_AllAI.Insert(this);
 
-		AI_HANDLEVAULTING = GetExpansionSettings().GetAI().Vaulting;
+		if (GetGame().IsServer())
+			AI_HANDLEVAULTING = GetExpansionSettings().GetAI().Vaulting;
 
 		SetEventMask(EntityEvent.INIT);
 	}
@@ -171,14 +175,16 @@ class eAIBase extends PlayerBase
 		m_WeaponManager = new eAIWeaponManager(this);
 		m_ShockHandler = new eAIShockHandler(this);
 
-#ifndef EAI_USE_LEGACY_PATHFINDING
-		m_PathFinding = new ExpansionPathHandler(this);
-#else
-		m_PathFinding = new eAIPathFinding(this);
-#endif
-
 		if (GetGame().IsServer())
 		{
+			eAI_SetAccuracy(-1, -1);
+
+#ifndef EAI_USE_LEGACY_PATHFINDING
+			m_PathFinding = new ExpansionPathHandler(this);
+#else
+			m_PathFinding = new eAIPathFinding(this);
+#endif
+
 			LoadFSM();
 		}
 
@@ -501,7 +507,7 @@ class eAIBase extends PlayerBase
 #endif
 
 		// very messy :)
-		Weapon gun;
+		Weapon_Base gun;
 		Magazine mag;
 		foreach (ItemBase weapon: m_Weapons)
 		{
@@ -644,6 +650,26 @@ class eAIBase extends PlayerBase
 	void eAI_SetUnlimitedReload(bool unlimitedReload)
 	{
 		m_eAI_UnlimitedReload = unlimitedReload;
+	}
+
+	void eAI_SetAccuracy(float accuracyMin, float accuracyMax)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+		EXTrace.Add(trace, accuracyMin);
+		EXTrace.Add(trace, accuracyMax);
+
+		if (accuracyMin <= 0)
+			accuracyMin = GetExpansionSettings().GetAI().AccuracyMin;
+
+		m_eAI_AccuracyMin = accuracyMin;
+
+		if (accuracyMax <= 0)
+			accuracyMax = GetExpansionSettings().GetAI().AccuracyMax;
+
+		m_eAI_AccuracyMax = accuracyMax;
+
+		EXTrace.Add(trace, m_eAI_AccuracyMin);
+		EXTrace.Add(trace, m_eAI_AccuracyMax);
 	}
 
 	bool IsInMelee()
@@ -1228,6 +1254,12 @@ class eAIBase extends PlayerBase
 			if (Class.CastTo(item, src))
 				eAI_RemoveItem(item);
 			GetGame().ObjectDelete(src);
+
+			if (location.GetType() == InventoryLocationType.GROUND && !m_Expansion_CanBeLooted)
+			{
+				dst.SetTakeable(false);
+				dst.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+			}
 		}
 
 		return dst;
@@ -1301,16 +1333,9 @@ class eAIBase extends PlayerBase
 		return m_Weapons.Count() > 0;
 	}
 
-	bool eAI_HasAmmoForFirearm(Weapon gun, out Magazine mag, bool checkMagsInInventory = true)
+	bool eAI_HasAmmoForFirearm(Weapon_Base gun, out Magazine mag, bool checkMagsInInventory = true)
 	{
-		mag = null;
-
-		int mi = gun.GetCurrentMuzzle();
-		if (!gun.IsChamberEmpty(mi) && !gun.IsChamberFiredOut(mi))
-			return true;
-		if (gun.HasInternalMagazine(mi) && gun.GetInternalMagazineCartridgeCount(mi))
-			return true;
-		if (Class.CastTo(mag, gun.GetMagazine(mi)) && mag.GetAmmoCount())
+		if (gun.Expansion_HasAmmo(mag))
 			return true;
 
 		bool found = m_eAI_EvaluatedFirearmTypes.Find(gun.Type(), mag);
@@ -1410,6 +1435,8 @@ class eAIBase extends PlayerBase
 
 		//! Used for animated/continuous action progress
 		m_dT = pDt;
+
+		m_eAI_CommandTime += pDt;
 
 		// CarScript car;
 		// if (Class.CastTo(car, GetParent()))
@@ -1526,7 +1553,7 @@ class eAIBase extends PlayerBase
 
 		if (m_WeaponManager)
 			m_WeaponManager.Update(pDt);
-		if (m_EmoteManager)
+		if (m_EmoteManager && IsPlayerSelected())
 			m_EmoteManager.Update(pDt);
 		if (m_RGSManager)
 			 m_RGSManager.Update();
@@ -1545,7 +1572,8 @@ class eAIBase extends PlayerBase
 
 		OnScheduledTick(pDt);
 
-		if (m_FSM)
+		//! Do FSM update only after delay, else initial gun holding will look scuffed
+		if (m_FSM && m_eAI_CommandTime > pDt)
 			m_FSM.Update(pDt, simulationPrecision);
 
 		bool skipScript;
@@ -1754,8 +1782,9 @@ class eAIBase extends PlayerBase
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_MOVE)
 		{
 			//! COMMANDID_MOVE will be running if the AI was just spawned
-			// CF_Log.Error("'COMMANDID_MOVE' was running. This shouldn't happen ever.");
-			StartCommand_MoveAI();
+			//! IMPORTANT: Start AI move only after delay, else hand anim state will be broken!
+			if (m_eAI_CommandTime > pDt)
+				StartCommand_MoveAI();
 			// return;
 		}
 
@@ -1947,7 +1976,7 @@ class eAIBase extends PlayerBase
 		m_eAI_LOS = false;
 		foreach (Object obj: results)
 		{
-			if (obj.IsTree() || obj.IsBush())
+			if (obj.IsTree())
 			{
 				sideStep = true;
 				break;

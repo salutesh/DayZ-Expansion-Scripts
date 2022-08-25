@@ -104,6 +104,14 @@ class ExpansionGame
 	{
 	}
 	
+	void WriteRemovedWorldObjects(ParamsReadContext ctx)
+	{
+	}
+
+	void ReadRemovedWorldObjects(ParamsReadContext ctx)
+	{
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionGame OnRPC
 	// ------------------------------------------------------------

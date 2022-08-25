@@ -21,6 +21,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	float MinDistRadius = 50;
 	float MaxDistRadius = 150;
 	float DespawnRadius = 880;
+	bool CanLootAI = true;
 	
 	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
 	{
@@ -61,6 +62,16 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	{
 		return DespawnRadius;
 	}
+	
+	void SetCanLootAI(bool state)
+	{
+		CanLootAI = state;
+	}
+	
+	override bool CanLootAI()
+	{
+		return CanLootAI;
+	}
 
 	static ExpansionQuestObjectiveAICampConfig Load(string fileName)
 	{
@@ -79,6 +90,20 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
 
+			if (configBase.ConfigVersion < 6)
+			{
+				config.CanLootAI = true;
+			}
+
+			if (configBase.ConfigVersion < 7)
+			{
+				if (config.AICamp)
+				{
+					config.AICamp.NPCAccuracyMin = -1;
+					config.AICamp.NPCAccuracyMax = -1;
+				}
+			}
+			
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}

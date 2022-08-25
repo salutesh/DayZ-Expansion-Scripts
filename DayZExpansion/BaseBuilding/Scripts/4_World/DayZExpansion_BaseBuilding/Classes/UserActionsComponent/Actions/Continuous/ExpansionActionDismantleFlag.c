@@ -52,6 +52,9 @@ class ExpansionActionDismantleFlag: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetBaseBuilding(false).IsLoaded())
+			return false;
+
 		if ( !GetExpansionSettings().GetBaseBuilding().SimpleTerritory )
 			return false;
 

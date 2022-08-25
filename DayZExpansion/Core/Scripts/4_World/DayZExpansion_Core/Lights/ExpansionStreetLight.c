@@ -21,7 +21,7 @@ class ExpansionStreetLight extends SpotLightBase
 	void ExpansionStreetLight()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "ExpansionStreetLight");
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "ExpansionStreetLight");
 #endif
 		
 		SetVisibleDuringDaylight( false );
@@ -47,7 +47,7 @@ class ExpansionStreetLight extends SpotLightBase
 	void ~ExpansionStreetLight()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.LIGHTHOUSE, this, "~ExpansionStreetLight");
+		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "~ExpansionStreetLight");
 #endif
 		
 	}

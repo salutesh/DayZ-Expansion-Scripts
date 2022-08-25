@@ -14,11 +14,10 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 {	
 	private ExpansionMarketModule m_MarketModule;
 
-	string m_ActionText = "#STR_EXPANSION_ATM_INTERACT";
-	
 	void ExpansionActionOpenATMMenu()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
+		m_Text = "#use";
 	}
 	
 	override void CreateConditionComponents()  
@@ -27,18 +26,11 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 		m_ConditionTarget = new CCTObject(UAMaxDistances.BASEBUILDING);
 	}
 
-	override string GetText()
-	{
-		return m_ActionText;
-	}
-
-	override typename GetInputType()
-	{
-		return InteractActionInput;
-	}
-			
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!GetExpansionSettings().GetMarket(false).IsLoaded())
+			return false;
+
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return false;
 		
@@ -47,6 +39,14 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 
 		if (!m_MarketModule.CanOpenMenu())
 			return false;
+		
+		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		{
+			if ( !target.GetObject() )
+				return false;
+
+			m_Text = "#use" + " - " + target.GetObject().GetDisplayName();
+		}
 
 		return true;
 	}
@@ -59,8 +59,6 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 	override void OnStartClient(ActionData action_data)
 	{
 		super.OnStartClient(action_data);
-		
-		Print("ExpansionActionOpenTraderMenu::OnStartClient - Start");
 		
 		m_MarketModule.RequestPlayerATMData();
 		m_MarketModule.OpenATMMenu();

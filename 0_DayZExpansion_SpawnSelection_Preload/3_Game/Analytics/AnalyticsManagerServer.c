@@ -21,7 +21,7 @@ modded class AnalyticsManagerServer
 			player.StatRegister( STAT_INFECTED_KILLED );
 			player.StatRegister( STAT_LONGEST_SURVIVOR_HIT );
 
-			player.StatSyncToClient();
+			//player.StatSyncToClient();
 		}
 		else
 		{

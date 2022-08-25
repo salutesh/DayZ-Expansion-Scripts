@@ -76,54 +76,49 @@ class ExpansionHumanLoadout
 			return;
 
 			loadout = loadout.BeginAttachment("WomanSuit_Blue", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("WomanSuit_Brown", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Brown", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("WomanSuit_DarkGrey", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("WomanSuit_Khaki", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Khaki", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("WomanSuit_LightGrey", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_LightGrey", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("WomanSuit_White", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("WomanSuit_Black", "Body");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 
-			loadout = loadout.BeginAttachment("WomanSuit_White", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_White", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-            
-			loadout = loadout.BeginAttachment("WomanSuit_Black", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Brown", "Legs");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			
+			loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Khaki", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_LightGrey", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_White", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+		
 			loadout = loadout.BeginAttachment("DressShoes_White", "Feet");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
@@ -161,54 +156,49 @@ class ExpansionHumanLoadout
 			return;
 
 			loadout = loadout.BeginAttachment("ManSuit_Blue", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("ManSuit_Brown", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Brown", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("ManSuit_DarkGrey", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("ManSuit_Khaki", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Khaki", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-
 			loadout = loadout.BeginAttachment("ManSuit_LightGrey", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_LightGrey", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("ManSuit_White", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("ManSuit_Black", "Body");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 
-			loadout = loadout.BeginAttachment("ManSuit_White", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_White", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Blue", "Legs");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-            
-			loadout = loadout.BeginAttachment("ManSuit_Black", "Body");
-                loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
-                loadout.SetHealth(0.7, 1.0);
-                loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Brown", "Legs");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			
+			loadout = loadout.BeginAttachment("SlacksPants_DarkGrey", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Khaki", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_LightGrey", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_White", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			loadout = loadout.BeginAttachment("SlacksPants_Black", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+		
 			loadout = loadout.BeginAttachment("DressShoes_White", "Feet");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();

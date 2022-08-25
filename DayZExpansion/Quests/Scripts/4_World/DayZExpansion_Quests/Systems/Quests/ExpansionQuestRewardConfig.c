@@ -9,11 +9,16 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class ExpansionQuestRewardConfig
+
+class ExpansionQuestRewardConfigBase
 {
-	//! Reward items
-	private string ClassName;
-	private int Amount = 0;
+	string ClassName;
+	int Amount = 0;
+};
+
+class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
+{
+	ref TStringArray Attachments;
 
 	void SetClassName(string name)
 	{
@@ -38,6 +43,16 @@ class ExpansionQuestRewardConfig
 	bool IsVehicle()
 	{
 		return GetGame().IsKindOf(ClassName, "CarScript") || GetGame().IsKindOf(ClassName, "ExpansionVehicleBase");
+	}
+
+	void AddAttachment(string name)
+	{
+		Attachments.Insert(name);
+	}
+
+	TStringArray GetAttachments()
+	{
+		return Attachments;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
