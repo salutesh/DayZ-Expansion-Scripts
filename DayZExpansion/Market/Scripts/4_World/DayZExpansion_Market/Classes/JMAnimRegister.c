@@ -18,5 +18,6 @@ modded class ModItemRegisterCallbacks
 
 		pType.AddItemInHandsProfileIK("ExpansionMoneyNugget_Base", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior,	"dz/anims/anm/player/ik/gear/SmallStone.anm");
 		pType.AddItemInHandsProfileIK("ExpansionMoneyBar_Base", "dz/anims/workspaces/player/player_main/props/player_main_1h_scope.asi", pBehavior, "dz/anims/anm/player/ik/attachments/optic/optic_m4_carryhandle.anm");
+		pType.AddItemInHandsProfileIK("ExpansionMoneyBanknote_Base", "dz/anims/workspaces/player/player_main/props/player_main_STANAG_mag.asi", pBehavior, 	"dz/anims/anm/player/ik/attachments/magazines/magazine_cz527.anm");
 	}
 }

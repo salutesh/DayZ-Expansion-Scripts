@@ -15,27 +15,16 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 	private ref ExpansionTraderObjectBase m_TraderObject;
 	private ExpansionMarketModule m_MarketModule;
 	
-	string m_ActionText = "#STR_USRACT_TRADE";
-	
 	void ExpansionActionOpenTraderMenu()
 	{
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
+		m_Text = "#STR_USRACT_TRADE";
 	}
 	
 	override void CreateConditionComponents()  
 	{	
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTObject(UAMaxDistances.BASEBUILDING);
-	}
-
-	override string GetText()
-	{
-		return m_ActionText;
-	}
-
-	override typename GetInputType()
-	{
-		return InteractActionInput;
 	}
 			
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
@@ -56,7 +45,7 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 			if ( !m_TraderObject || !m_TraderObject.GetTraderMarket() )
 				return false;
 
-			m_ActionText = "#STR_USRACT_TRADE" + " - " + m_TraderObject.GetDisplayName();
+			m_Text = "#STR_USRACT_TRADE" + " - " + m_TraderObject.GetDisplayName();
 		}
 
 		return true;

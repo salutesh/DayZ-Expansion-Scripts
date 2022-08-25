@@ -10,11 +10,13 @@
  *
 */
 
-/**@class		ExpansionGeneralSettingsBase
- * @brief		General settings base class
+/**@class		ExpansionGeneralSettings
+ * @brief		General settings class
  **/
-class ExpansionGeneralSettingsBase: ExpansionSettingBase
+class ExpansionGeneralSettings: ExpansionSettingBase
 {
+	static const int VERSION = 8;
+
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
@@ -30,14 +32,8 @@ class ExpansionGeneralSettingsBase: ExpansionSettingBase
 	bool UseDeathScreen;
 	bool UseDeathScreenStatistics;
 	bool UseNewsFeedInGameMenu;
-}
 
-/**@class		ExpansionGeneralSettings
- * @brief		General settings class
- **/
-class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
-{
-	static const int VERSION = 7;
+	ref ExpansionHudIndicatorColors HUDColors;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -45,6 +41,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 	// ------------------------------------------------------------
 	void ExpansionGeneralSettings()
 	{
+		HUDColors = new ExpansionHudIndicatorColors;
 		Mapping = new ExpansionMapping;
 	}
 
@@ -92,6 +89,10 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Read(UseDeathScreenStatistics);
 		ctx.Read(UseNewsFeedInGameMenu);
 
+		HUDColors.OnReceive(ctx);
+
+		HUDColors.Update();
+
 		m_IsLoaded = true;
 
 		ExpansionSettings.SI_General.Invoke();
@@ -135,6 +136,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		ctx.Write(UseDeathScreen);
 		ctx.Write(UseDeathScreenStatistics);
 		ctx.Write(UseNewsFeedInGameMenu);
+
+		HUDColors.OnSend(ctx);
 	}
 
 	// ------------------------------------------------------------
@@ -171,20 +174,9 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionGeneralSettings s )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-
-		ExpansionGeneralSettingsBase sb = s;
-		CopyInternal( sb );
-	}
-
-	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionGeneralSettingsBase s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
@@ -205,6 +197,7 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		UseDeathScreen = s.UseDeathScreen;
 		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
 		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
+		HUDColors = s.HUDColors;
 	}
 	
 	// ------------------------------------------------------------
@@ -239,19 +232,14 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			ExpansionGeneralSettings settingsDefault = new ExpansionGeneralSettings;
 			settingsDefault.Defaults();
 
-			ExpansionGeneralSettingsBase settingsBase;
+			JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 
-			JsonFileLoader<ExpansionGeneralSettingsBase>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, settingsBase);
-
-			if (settingsBase.m_Version < VERSION)
+			if (m_Version < VERSION)
 			{
-				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
+				EXPrint("[ExpansionGeneralSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_GENERAL_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 7)
+				if (m_Version < 7)
 				{
-					//! Copy over old settings that haven't changed
-					CopyInternal(settingsBase);
-
 					//! Remove buildings without custom interiors from existing settings
 					Mapping.Interiors.RemoveItem( "Land_City_School" );
 					Mapping.Interiors.RemoveItem( "Land_Village_Pub" );
@@ -276,9 +264,10 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 					Mapping.Interiors.RemoveItem( "Land_Lighthouse" );
 					Mapping.Interiors.RemoveItem( "Land_Power_Station" );
 				}
-				else
+
+				if (m_Version < 8)
 				{
-					JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
+					HUDColors = settingsDefault.HUDColors;
 				}
 
 				m_Version = VERSION;
@@ -288,6 +277,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 			{
 				JsonFileLoader<ExpansionGeneralSettings>.JsonLoadFile(EXPANSION_GENERAL_SETTINGS, this);
 			}
+
+			HUDColors.Update();
 		}
 		else
 		{
@@ -347,6 +338,8 @@ class ExpansionGeneralSettings: ExpansionGeneralSettingsBase
 		UseDeathScreenStatistics = true;
 		
 		UseNewsFeedInGameMenu = true;
+
+		HUDColors.Update();
 	}
 	
 	// ------------------------------------------------------------

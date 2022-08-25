@@ -176,13 +176,14 @@ modded class MainMenu
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Refresh");
 #endif
-		
-		string name;
-		
+
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 		if ( m_CustomScene || m_ScenePC )
+#else
+		if ( m_ScenePC )
+#endif
 		{
 			OnChangeCharacter();
-			//name = m_ScenePC.GetIntroCharacter().GetCharacterName();
 		}
 
 		string version;
@@ -430,7 +431,7 @@ modded class MainMenu
 			OpenMenuServerBrowser();
 		}
 	}		
-	#endif
+#endif
 	
 	// ------------------------------------------------------------
 	// ShowNewsfeed

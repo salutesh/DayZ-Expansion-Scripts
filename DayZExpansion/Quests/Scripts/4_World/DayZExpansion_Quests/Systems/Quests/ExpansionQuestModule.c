@@ -5132,6 +5132,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
+	// ExpansionQuestModule GetQuestNPCByID
+	// Server
+	// ------------------------------------------------------------
+	ExpansionQuestStaticObject GetQuestObjectByID(int id)
+	{
+		return m_QuestObjectEntities.Get(id);
+	}
+	
+	// ------------------------------------------------------------
 	// ExpansionQuestModule IsOtherQuestInstanceActive
 	// Server
 	// ------------------------------------------------------------

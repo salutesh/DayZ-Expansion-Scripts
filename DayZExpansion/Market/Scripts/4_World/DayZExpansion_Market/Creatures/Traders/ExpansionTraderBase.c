@@ -381,11 +381,15 @@ class ExpansionTraderObjectBase
 		{
 			case "Expansion_Boat":
 			case "Expansion_Ship":
+			case "Vehicles_Boat":
+			case "Vehicles_Ship":
 				positions = GetExpansionSettings().GetMarket().WaterSpawnPositions;
 				spawnType = ExpansionMarketVehicleSpawnType.WATER;
 				break;
 			case "Expansion_Helicopter":
 			case "Expansion_Plane":
+			case "Vehicles_Helicopter":
+			case "Vehicles_Plane":
 				positions = GetExpansionSettings().GetMarket().AirSpawnPositions;
 				spawnType = ExpansionMarketVehicleSpawnType.AIR;
 				break;

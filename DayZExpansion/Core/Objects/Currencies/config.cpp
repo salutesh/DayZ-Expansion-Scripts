@@ -38,6 +38,43 @@ class CfgVehicles
 	{
 		scope = 0;
 	};
+	class ExpansionMoneyBar_Base: ExpansionMoneyBase
+	{
+		scope = 0;
+	};
+	class ExpansionMoneyCoin_Base: ExpansionMoneyBase
+	{
+		scope = 0;
+	};
+	class ExpansionMoneyBanknote_Base: ExpansionMoneyBase
+	{
+		scope = 0;
+		itemSize[] = {1,2};
+		weight = 0;
+		varQuantityMax = 50000;
+		varStackMax = 50000;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 100;
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem
+				{
+					soundSet = "pickUpPaper_SoundSet";
+					id = 797;
+				};
+			};
+		};
+	};
 	class ExpansionGoldNugget: ExpansionMoneyNugget_Base
 	{
 		scope = 2;
@@ -55,10 +92,6 @@ class CfgVehicles
 		vehicleClass = "Expansion_Trader";
 		displayName = "$STR_EXPANSION_SILVER_NUGGET";
 		descriptionShort = "$STR_EXPANSION_SILVER_NUGGET_DESC";
-	};
-	class ExpansionMoneyBar_Base: ExpansionMoneyBase
-	{
-		scope = 0;
 	};
 	class ExpansionSilverBar: ExpansionMoneyBar_Base
 	{

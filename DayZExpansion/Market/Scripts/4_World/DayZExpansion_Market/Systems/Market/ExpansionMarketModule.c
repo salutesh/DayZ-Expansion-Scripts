@@ -4791,6 +4791,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void ExpansionLogATM(string message)
 	{
 		if (GetExpansionSettings().GetLog().ATM)
-			GetExpansionSettings().GetLog().PrintLog("[ATM Locker] " + message);
+			GetExpansionSettings().GetLog().PrintLog("[ATM] " + message);
 	}
 }
