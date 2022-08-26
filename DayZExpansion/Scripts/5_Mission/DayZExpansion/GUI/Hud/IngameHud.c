@@ -27,16 +27,16 @@ modded class IngameHud
 	int BATTERY_MED_COLOR = ARGB(255, 243, 156, 18);
 	int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
 
-	int m_StaminaBarColor;
-	int m_NotifierDividerColor;
-	int m_TemperatureBurningColor;
-	int m_TemperatureHotColor;
-	int m_TemperatureIdealColor;
-	int m_TemperatureColdColor;
-	int m_TemperatureFreezingColor;
-	int m_NotifiersIdealColor;
-	int m_NotifiersHalfColor;
-	int m_NotifiersLowColor;
+	int m_StaminaBarColor = ARGB(255, 255, 255, 255);
+	int m_NotifierDividerColor = ARGB(255, 220, 220, 220);
+	int m_TemperatureBurningColor = ARGB(255, 220, 0, 0);
+	int m_TemperatureHotColor = ARGB(255, 220, 220, 0);
+	int m_TemperatureIdealColor = ARGB(255, 220, 220, 220);
+	int m_TemperatureColdColor = ARGB(255, 0, 206, 209);
+	int m_TemperatureFreezingColor = ARGB(255, 30, 144, 220);
+	int m_NotifiersIdealColor = ARGB(255, 220, 220, 220);
+	int m_NotifiersHalfColor = ARGB(255, 220, 220, 0);
+	int m_NotifiersLowColor = ARGB(255, 220, 0, 0);
 
 	Widget m_EarPlugsPanel;
 	

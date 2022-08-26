@@ -111,4 +111,31 @@ modded class Weapon_Base
 
 		return false;
 	}
+
+	//! Prevent weapon pickup if it's set to untakeable (e.g. if AI is unlootable)
+	override bool CanPutAsAttachment( EntityAI parent )
+	{
+		if (!super.CanPutAsAttachment(parent))
+			return false;
+
+		return IsTakeable();
+	}
+
+	//! Prevent weapon pickup if it's set to untakeable (e.g. if AI is unlootable)
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		if (!super.CanPutInCargo(parent))
+			return false;
+
+		return IsTakeable();
+	}
+
+	//! Prevent weapon pickup if it's set to untakeable (e.g. if AI is unlootable)
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		if (!super.CanPutIntoHands(parent))
+			return false;
+
+		return IsTakeable();
+	}
 }
