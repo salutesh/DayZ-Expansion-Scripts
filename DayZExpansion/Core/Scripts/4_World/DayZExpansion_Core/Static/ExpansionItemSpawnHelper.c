@@ -104,7 +104,12 @@ class ExpansionItemSpawnHelper
 			remainingAmount--;
 
 			if (item.HasQuantity())
-				item.SetQuantity(item.GetQuantityMax() * quantityPercent / 100);
+			{
+				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
+				if (item.ConfigGetBool("canBeSplit"))
+					itemQuantity = Math.Round(itemQuantity);
+				item.SetQuantity(itemQuantity);
+			}
 		}
 		else if (item.ConfigGetBool("canBeSplit"))
 		{

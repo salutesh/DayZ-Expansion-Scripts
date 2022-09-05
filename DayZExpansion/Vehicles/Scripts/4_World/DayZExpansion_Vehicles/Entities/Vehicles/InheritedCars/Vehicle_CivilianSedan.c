@@ -318,7 +318,7 @@ class Vehicle_CivilianSedan extends ExpansionVehicleCarBase
 			break;
 		}
 
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override string GetAnimSourceFromSelection(string selection)

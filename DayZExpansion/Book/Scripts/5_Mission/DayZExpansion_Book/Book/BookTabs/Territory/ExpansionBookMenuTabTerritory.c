@@ -455,8 +455,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	{
 		ExpansionTerritoryRank rank;
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-		ExpansionTerritory territory = m_TerritoryModule.GetTerritory(player.GetTerritoryIDInside());
-		ExpansionTerritoryMember member = territory.GetMember(player.GetIdentity().GetId());
+		ExpansionTerritoryMember member = m_Territory.GetMember(player.GetIdentity().GetId());
 		rank = member.GetRank();
 		return rank;
 	}

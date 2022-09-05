@@ -15,35 +15,20 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	private bool m_CraftingState;
 	private bool m_CallLater;
 
-	override void OnStart()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
-	#endif
-
-		super.OnStart();
-	}
-
-	override void OnContinue()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
-	#endif
-
-		super.OnContinue();
-	}
-
 	void OnItemsCrafted(PlayerBase player, array<ItemBase> spawned_objects)
 	{
-		QuestPrint(ToString() + "::OnItemsCrafted - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnItemsCrafted");
+	#endif
 		
 		bool hasItem;
 		foreach (ItemBase item: spawned_objects)
 		{
-			if (GetObjectiveConfig().GetItemNames().Find(item.ClassName()) == -1)
-				continue;
-			
-			hasItem = true;
+			if (ExpansionStatic.IsAnyOf(item, GetObjectiveConfig().GetItemNames(), true))
+			{
+				hasItem = true;
+				break;
+			}
 		}
 		
 		if (hasItem)
@@ -52,8 +37,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			SetCompleted(true);
 			OnComplete();
 		}
-
-		QuestPrint(ToString() + "::OnItemsCrafted - End");
 	}
 
 	bool GetCraftingState()
@@ -66,20 +49,8 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		m_CraftingState = state;
 	}
 
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-	}
-
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.CRAFTING;
-	}
-
-	void QuestPrint(string text)
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
-	#endif
 	}
 };

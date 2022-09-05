@@ -201,10 +201,6 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		m_Version = VERSION;
-		
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
 
 		Enabled = true;
 

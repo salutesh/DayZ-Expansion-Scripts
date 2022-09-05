@@ -463,14 +463,11 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			{
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 3)
+				if (settingsBase.m_Version < 2)
 				{
 					//! Copy over old settings that haven't changed
 					CopyInternal(settingsBase);
-				}
 
-				if (settingsBase.m_Version < 2)
-				{
 					ExpansionHardlineSettingsV1 settingsV1;
 					JsonFileLoader<ExpansionHardlineSettingsV1>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settingsV1);
 
@@ -484,10 +481,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 				}
 				else
 				{
-					ExpansionHardlineSettings settings;
-					JsonFileLoader<ExpansionHardlineSettings>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settings);
-
-					ItemRarity = settings.ItemRarity;
+					JsonFileLoader<ExpansionHardlineSettings>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, this);
 				}
 
 				if (settingsBase.m_Version < 3)
@@ -513,6 +507,15 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			EXPrint("[ExpansionHardlineSettings] No existing setting file:" + EXPANSION_HARDLINE_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
+		}
+
+		//! Make sure item classnames are lowercase
+		map<string, ExpansionHardlineItemRarity> itemRarity();
+		itemRarity.Copy(ItemRarity);
+		ItemRarity.Clear();
+		foreach (string className, ExpansionHardlineItemRarity rarity: itemRarity)
+		{
+			AddItem(className, rarity);
 		}
 
 		if (save)
@@ -605,10 +608,6 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
-
-		string worldName;
-		GetGame().GetWorldName(worldName);
-		worldName.ToLower();
 		
 	#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_module_card", ExpansionHardlineItemRarity.Mythic);

@@ -17,18 +17,25 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	private int m_CurrentHumanity;
 	
 	private Widget Humanity;
-	private Widget HumanityAdd;
-	private Widget HumanityRemove;
-	private TextWidget HumanityAddVal;
-	private TextWidget HumanityRemoveVal;
-
+	private TextWidget HumanityVal;
+	private Widget HumanityChange;
+	private TextWidget HumanityChangeVal;
+	
+	private ref WidgetFadeTimer	m_HumanityChangeFadeTimer;
+	private ref Timer m_HumanityChangeTimer;
+	private ref Timer m_HumanityChangeFadeOut;
+	private bool m_ViewInit = false;
+	private float m_StartPosX, m_StartPosY;
+	private float m_LastYPos = 0;
+	private bool m_FadedOut = false;
+	
 	void ExpansionHardlineHUD()
 	{
-		if (!m_HardlineHUDController)
-			m_HardlineHUDController = ExpansionHardlineHUDController.Cast(GetController());
-
-		if (!m_HardlineModule)
-			m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+		m_HardlineHUDController = ExpansionHardlineHUDController.Cast(GetController());
+		m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+		m_HumanityChangeFadeTimer = new WidgetFadeTimer;
+		m_HumanityChangeTimer = new Timer(CALL_CATEGORY_GUI);
+		m_HumanityChangeFadeOut = new Timer(CALL_CATEGORY_GUI);
 	}
 
 	void SetView(ExpansionHardlinePlayerData data)
@@ -36,55 +43,41 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		if (!data)
 			return;
 		
-		Humanity.Show(true);
-		int humanity = data.GetHumanity();
-		//! If humanity has changed show indicator
-		if (humanity != m_CurrentHumanity)
-		{
-			int difference;
-			if (m_CurrentHumanity < 0)
-			{
-				if (humanity < 0)
-				{
-					difference = humanity - m_CurrentHumanity;
-					m_CurrentHumanity =- humanity;
-				}
-				else if (humanity > 0)
-				{
-					difference = humanity - m_CurrentHumanity;
-					m_CurrentHumanity += humanity;
-				}
-			}
-			else if (m_CurrentHumanity > 0)
-			{
-				if (humanity < 0)
-				{
-					difference = m_CurrentHumanity - humanity;
-				}
-				else if (humanity > 0)
-				{
-					difference = m_CurrentHumanity - humanity;
-				}
-			}
-			
-			m_CurrentHumanity = humanity;
-			
-			/*if (difference < 0)
-			{
-				RemoveHumanity(difference);
-			}
-			else if (difference > 0)
-			{
-				AddHumanity(difference);
-			}*/
+		if (!m_ViewInit)
+		{		
+			Humanity.Show(true);
+			HumanityChange.GetPos(m_StartPosX, m_StartPosY);
+			m_ViewInit = true;
 		}
 		
-		string path = GetHumanityIcon(humanity);
+		int humanity = data.GetHumanity();		
+		int difference;
 		
-		m_HardlineHUDController.HumanityVal = humanity.ToString();
-		m_HardlineHUDController.HumanityIcon = path;
-
-		m_HardlineHUDController.NotifyPropertiesChanged({"HumanityVal", "HumanityIcon"});
+		if (m_CurrentHumanity == 0)
+			m_CurrentHumanity = humanity;
+		
+		if (humanity > m_CurrentHumanity || humanity < m_CurrentHumanity )
+		{
+			difference = humanity - m_CurrentHumanity;
+			m_CurrentHumanity = humanity;
+		}
+		
+		if (difference < 0 || difference > 0)
+		{
+			OnHumanityChangeReset();
+			OnHumanityChange(difference);
+			
+			m_HardlineHUDController.HumanityVal = Math.RandomInt(0, humanity).ToString();
+			m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+		}
+		else if (difference == 0)
+		{
+			m_HardlineHUDController.HumanityVal = humanity.ToString();
+			m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+			
+			m_HardlineHUDController.HumanityIcon = GetHumanityIcon(humanity);
+			m_HardlineHUDController.NotifyPropertyChanged("HumanityIcon");
+		}
 	}
 
 	string GetHumanityIcon(int humanity)
@@ -120,22 +113,72 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		return ExpansionIcons.GetPath("Persona");
 	}
 	
-	void AddHumanity(int difference)
-	{
-		HumanityAdd.Show(true);
-		HumanityRemove.Show(false);
+	void OnHumanityChange(int difference)
+	{	
+		string text;
+		if (difference > 0)
+		{
+			text = "+" + difference.ToString();
+			HumanityChangeVal.SetColor(ARGB(200, 46, 204, 113));
+		}
+		else if (difference < 0)
+		{
+			text = difference.ToString();
+			HumanityChangeVal.SetColor(ARGB(200, 231, 76, 60));
+		}
 		
-		m_HardlineHUDController.HumanityAddVal = difference.ToString();
-		m_HardlineHUDController.NotifyPropertyChanged("HumanityAddVal");
+		m_HardlineHUDController.HumanityChangeValue = text;
+		m_HardlineHUDController.NotifyPropertyChanged("HumanityChangeValue");
+		m_HumanityChangeFadeTimer.FadeIn(HumanityChangeVal, 3.0, true);
+		m_HumanityChangeTimer.Run(0.01, this, "UpdateHumanityChange", NULL, true);
+	}
+		
+	void UpdateHumanityChange()
+	{
+		float finalXPos, finalYPos; 
+		HumanityVal.GetPos(finalXPos, finalYPos);
+		
+		float x, y;
+		HumanityChange.GetPos(x, y);		
+		m_LastYPos = y;
+		
+		if (m_LastYPos > finalYPos)
+		{
+			float newY = m_LastYPos - 1.0;	
+			HumanityChange.SetPos(x, newY, true);
+			
+			m_HardlineHUDController.HumanityVal = Math.RandomInt(0, m_CurrentHumanity).ToString();
+			m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+		}
+		else if (m_LastYPos <= finalYPos)
+		{
+			HumanityVal.Show(false);
+			m_HumanityChangeTimer.Stop();
+			m_HumanityChangeTimer.Run(1.0, this, "OnHumanityChangeFadeOut");
+		}
 	}
 	
-	void RemoveHumanity(int difference)
+	void OnHumanityChangeFadeOut()
 	{
-		HumanityRemove.Show(true);
-		HumanityAdd.Show(false);
+		m_HumanityChangeFadeTimer.FadeOut(HumanityChangeVal, 3.0, true);
+		m_HumanityChangeFadeOut.Run(3.0, this, "OnHumanityChangeReset");
+	}
+	
+	void OnHumanityChangeReset()
+	{
+		m_HumanityChangeTimer.Stop();
+		m_HumanityChangeFadeOut.Stop();
 		
-		m_HardlineHUDController.HumanityRemoveVal = difference.ToString();
-		m_HardlineHUDController.NotifyPropertyChanged("HumanityRemoveVal");
+		HumanityChangeVal.SetAlpha(0);
+		HumanityChange.SetPos(m_StartPosX, m_StartPosY);
+
+		HumanityVal.Show(true);
+		
+		m_HardlineHUDController.HumanityVal = m_CurrentHumanity.ToString();
+		m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+
+		m_HardlineHUDController.HumanityIcon = GetHumanityIcon(m_CurrentHumanity);
+		m_HardlineHUDController.NotifyPropertyChanged("HumanityIcon");
 	}
 	
 	override typename GetControllerType()
@@ -162,7 +205,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	
 	override float GetUpdateTickRate()
 	{
-		return 2.0;
+		return 1.0;
 	}
 	
 	override void Update()
@@ -181,10 +224,7 @@ class ExpansionHardlineHUDController: ExpansionViewController
 {
 	string HumanityVal;
 	string HumanityIcon;
-
 	string SanityVal;
-	string SanityIcon;
-	
-	string HumanityAddVal;
-	string HumanityRemoveVal;
+	string SanityIcon;	
+	string HumanityChangeValue;
 };

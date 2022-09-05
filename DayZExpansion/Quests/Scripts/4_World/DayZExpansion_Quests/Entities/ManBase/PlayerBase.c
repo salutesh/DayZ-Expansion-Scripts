@@ -40,18 +40,6 @@ modded class PlayerBase
 
 		PlayerBase player;
 
-		if (Class.CastTo(player, killSource.GetHierarchyRootPlayer()))
-		{
-			if (player.GetIdentity())
-				questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
-		}
-		else if (killSource.IsAnimal() || killSource.IsInherited(AnimalBase))
-		{
-			questModule.OnEntityKilled(this, killSource);
-		}
-		else if (killSource.IsZombie() || killSource.IsInherited(ZombieBase))
-		{
-			questModule.OnEntityKilled(this, killSource);
-		}
+		questModule.OnEntityKilled(this, killSource, killSource.GetHierarchyRootPlayer());
 	}
 };

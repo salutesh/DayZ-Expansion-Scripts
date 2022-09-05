@@ -203,7 +203,7 @@ class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
 			break;
 		}
 
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)

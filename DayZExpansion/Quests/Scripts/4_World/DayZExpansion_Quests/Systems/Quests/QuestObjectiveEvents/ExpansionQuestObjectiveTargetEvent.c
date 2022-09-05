@@ -38,11 +38,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
 	#endif
 
-		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
-		if (!target)
-			return;
-
-		Amount = target.GetAmount();
+		TargetEventStart();
 
 		super.OnStart();
 	}
@@ -53,16 +49,25 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
 	#endif
 
+		TargetEventStart();
+
+		super.OnContinue();
+	}
+	
+	private void TargetEventStart()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TargetEventStart");
+	#endif
+
 		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
 		if (!target)
 			return;
 
 		Amount = target.GetAmount();
-
-		super.OnContinue();
 	}
 
-	void OnEntityKilled(EntityAI victim, EntityAI killer)
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
@@ -70,6 +75,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
 		if (!target)
+			return;
+		
+		if (ExpansionStatic.IsAnyOf(victim.GetType(), target.GetExcludedClassNames(), victim.ClassName()))
 			return;
 
 		bool maxRangeCheck = false;
@@ -113,14 +121,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (GetObjectiveConfig().GetMaxDistance() > -1)
 			maxRangeCheck = true;
 
-		PlayerBase killerPlayer;
-		vector playerPos;
-		if (Class.CastTo(killerPlayer, killer))
-		{
-			if (maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
-				return;
-		}
-		else if (Class.CastTo(killerPlayer, killer.GetHierarchyParent()))
+		if (killerPlayer)
 		{
 			if (maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
 			{
@@ -170,10 +171,10 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	{
 		vector position = GetObjectiveConfig().GetPosition();
 		float maxDistance = GetObjectiveConfig().GetMaxDistance();
-		float currentDistance = vector.Distance(playerPos, position);
+		float currentDistanceSq = vector.DistanceSq(playerPos, position);
 		position[1] = GetGame().SurfaceY(position[0], position[2]);
 
-		if (position != vector.Zero && currentDistance <= maxDistance)
+		if (position != vector.Zero && currentDistanceSq <= maxDistance * maxDistance)
 		{
 			return true;
 		}

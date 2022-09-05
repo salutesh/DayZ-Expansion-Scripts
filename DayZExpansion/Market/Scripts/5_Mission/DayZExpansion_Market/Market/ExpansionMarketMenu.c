@@ -117,10 +117,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected ButtonWidget player_info_content;
 	protected Widget market_item_buy_price_panel;
 	protected Widget market_item_sell_price_panel;
-	protected ButtonWidget market_footer_categories_toggle;
+	protected ButtonWidget market_footer_categories_toggle_button;
 	protected TextWidget market_footer_categories_label;
 	protected ButtonWidget market_item_info_attachments_setup_button;
-	protected ButtonWidget market_footer_close_menu;
+	protected ButtonWidget market_footer_close_menu_button;
 	protected TextWidget market_footer_close_menu_label;
 	protected Widget market_item_description_panel;
 	protected Widget market_item_description_spacer;
@@ -477,6 +477,40 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("CreateMenuCategories - End");
 	}
 	
+	static void CreatePreviewObject(string className, inout EntityAI preview)
+	{
+		if (preview)
+		{
+			if (CF_String.EqualsIgnoreCase(preview.GetType(), className))
+			{
+				//! Same classname, remove all attachments
+				for (int i = preview.GetInventory().AttachmentCount() - 1; i >= 0; i--)
+				{
+					EntityAI attachment = preview.GetInventory().GetAttachmentFromIndex(i);
+					if (attachment)
+						GetGame().ObjectDelete(attachment);
+				}
+
+				return;
+			}
+			else
+			{
+				//! Different classname, delete old preview object
+				GetGame().ObjectDelete(preview);
+			}
+		}
+
+		if (!GetGame().IsKindOf(className, "DZ_LightAI"))
+		{
+			preview = EntityAI.Cast(GetGame().CreateObjectEx(className, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+#ifdef EXPANSIONMODHARDLINE
+			ItemBase item;
+			if (GetExpansionSettings().GetHardline().EnableItemRarity && Class.CastTo(item, preview))
+				item.Expansion_SetRarity(GetExpansionSettings().GetHardline().GetItemRarityByType(item.GetType()));
+#endif
+		}
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarketMenu ShouldShowItem
 	// ------------------------------------------------------------	
@@ -2828,10 +2862,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				if (m_SellDenomsTooltip && ExpansionMarketMenuTooltipController.Cast(m_SellDenomsTooltip.GetController()).SpacerEntries.Count())
 					m_SellDenomsTooltip.Show();
 				break;
-			case market_footer_categories_toggle:
+			case market_footer_categories_toggle_button:
 				market_footer_categories_label.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorToggleCategoriesText"));
 				break;
-			case market_footer_close_menu:
+			case market_footer_close_menu_button:
 				market_footer_close_menu_label.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorToggleCategoriesText"));
 				break;
 			case market_item_info_attachments_checkbox:
@@ -2879,10 +2913,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			case market_item_sell_price_panel:
 				if (m_SellDenomsTooltip) m_SellDenomsTooltip.Hide();
 				break;
-			case market_footer_categories_toggle:
+			case market_footer_categories_toggle_button:
 				market_footer_categories_label.SetColor(ARGB(255, 255, 255, 255));
 				break;
-			case market_footer_close_menu:
+			case market_footer_close_menu_button:
 				market_footer_close_menu_label.SetColor(ARGB(255, 255, 255, 255));
 				break;
 			case market_item_info_attachments_checkbox:

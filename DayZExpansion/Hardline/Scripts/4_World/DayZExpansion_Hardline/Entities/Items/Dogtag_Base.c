@@ -13,7 +13,88 @@
 #ifdef WRDG_DOGTAGS
 modded class Dogtag_Base
 {
+	protected int m_HardlineHumanity;
+	
+	void Dogtag_Base()
+	{
+		RegisterNetSyncVariableInt("m_HardlineHumanity");
+	}
+	
+	override bool DescriptionOverride(out string output)
+	{
+		bool modified = super.DescriptionOverride(output);
+		
+		if (GetExpansionSettings().GetHardline().UseHumanity)
+		{
+			PlayerBase player;
+			if (Class.CastTo(player, GetHierarchyRootPlayer()))
+				m_HardlineHumanity = player.GetHumanity();
+			output += string.Format("#STR_EXPANSION_HARDLINE_HUMANITY_LABEL %1\n", m_HardlineHumanity);
+			modified = true;
+		}
+		
+		return modified;
+	}
+	
+	#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
 
+		auto ctx = storage[DZ_Expansion_Hardline];
+		if (!ctx) return;
+		
+		ctx.Write(m_HardlineHumanity);
+	}
+
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_Hardline];
+		if (!ctx) return true;
+
+		if (!ctx.Read(m_HardlineHumanity))
+			return false;
+
+		return true;
+	}
+	#endif
+	
+	override void OnRPCRead(PlayerIdentity sender, ref ParamsReadContext ctx)
+	{
+		super.OnRPCRead(sender, ctx);
+		
+		if (GetExpansionSettings().GetHardline().UseHumanity)
+		{
+			ctx.Read(m_HardlineHumanity);
+		}
+	}
+
+	override void OnRPCWrite(ScriptRPC rpc)
+	{
+		super.OnRPCWrite(rpc);
+		
+		if (GetExpansionSettings().GetHardline().UseHumanity)
+		{
+			rpc.Write(m_HardlineHumanity);
+		}
+	}
+	
+	void SetHardlineHumanity(float humanity)
+	{
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_HardlineHumanity = humanity;
+			SetSynchDirty();
+		}
+	}
+	
+	int GetHardlineHumanity()
+	{
+		return m_HardlineHumanity;
+	}
 };
 
 class Dogtag_Scout : Dogtag_Base {};

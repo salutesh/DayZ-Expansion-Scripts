@@ -35,12 +35,10 @@ modded class ItemBase
 
 	void Expansion_SetRarity(ExpansionHardlineItemRarity rarity)
 	{
-		if (!GetGame().IsServer())
-			return;
-
 		m_Expansion_Rarity = rarity;
 
-		SetSynchDirty();
+		if (GetGame().IsServer())
+			SetSynchDirty();
 	}
 
 	override void OnVariablesSynchronized()

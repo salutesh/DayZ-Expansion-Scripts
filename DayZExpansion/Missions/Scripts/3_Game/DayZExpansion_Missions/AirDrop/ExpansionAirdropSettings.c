@@ -1083,16 +1083,15 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 		if( Containers )
 		{
-			//! Set default markers depending on map name
-			string world_name = "empty";
-			GetGame().GetWorldName(world_name);
-			world_name.ToLower();
-			
-			if ( world_name.Contains( "namalsk" ) || world_name.Contains( "namalskgloom" ) )
+			//! Set defaults depending on map name
+			switch (ExpansionStatic.GetCanonicalWorldName())
 			{
-				Containers.Insert( new ExpansionAirdropLootContainer( "ExpansionAirdropContainer_Military_WinterCamo", 0, 20, Loot, Infected, itemCount, infectedCount ) );
-			} else {
-				Containers.Insert( new ExpansionAirdropLootContainer( "ExpansionAirdropContainer_Military", 0, 20, Loot, Infected, itemCount, infectedCount ) );
+				case "namalsk":
+					Containers.Insert( new ExpansionAirdropLootContainer( "ExpansionAirdropContainer_Military_WinterCamo", 0, 20, Loot, Infected, itemCount, infectedCount ) );
+					break;
+				default:
+					Containers.Insert( new ExpansionAirdropLootContainer( "ExpansionAirdropContainer_Military", 0, 20, Loot, Infected, itemCount, infectedCount ) );
+					break;
 			}
 		}
 	}

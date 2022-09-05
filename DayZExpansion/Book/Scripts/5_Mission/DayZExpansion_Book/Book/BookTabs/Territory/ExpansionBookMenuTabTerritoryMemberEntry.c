@@ -87,7 +87,7 @@ class ExpansionBookMenuTabTerritoryMemberEntry: ExpansionScriptView
 	void OnEditButtonClick()
 	{
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());		
-		ExpansionTerritory player_territory = m_TerritoryModule.GetTerritory(player.GetTerritoryIDInside());
+		ExpansionTerritory player_territory = m_TerritoryModule.GetTerritory(m_TerritoryID);
 		ExpansionTerritoryMember player_member = player_territory.GetMember(player.GetIdentity().GetId());
 		
 		if (!player_member)

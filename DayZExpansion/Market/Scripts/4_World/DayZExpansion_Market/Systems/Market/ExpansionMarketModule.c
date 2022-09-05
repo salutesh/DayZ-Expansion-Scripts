@@ -378,7 +378,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		foreach (int categoryID, ExpansionMarketCategory category : categories)
 		{
-			if (!category.IsExchange())
+			if (!category.IsExchange)
 				continue;
 
 			//! Loop through all the items in this category to get the different price denominations
@@ -522,7 +522,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		float initialSellPriceModifier = 1;
 
-		if (!GetItemCategory(sell.Item).IsExchange())
+		if (!GetItemCategory(sell.Item).IsExchange)
 		{
 			float sellPricePct = sell.Item.SellPricePercent;
 			if (sellPricePct < 0)
@@ -786,7 +786,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		float initialSellPriceModifier = 1;
 
-		if (!GetItemCategory(attachment).IsExchange())
+		if (!GetItemCategory(attachment).IsExchange)
 		{
 			float sellPricePct = attachment.SellPricePercent;
 			if (sellPricePct < 0)
@@ -965,7 +965,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		MarketModulePrint("GetItemAmount - Item type:" + item.GetType());
 		
-		if (Class.CastTo(itemBase, item))
+		//! @note the exception for Edible_Base is for things like TetracyclineAntibiotics that are
+		//! stackable/splittable in vanilla but are awkward to buy/sell as individual pills
+		if (!item.IsInherited(Edible_Base) && Class.CastTo(itemBase, item))
 		{
 			amount = itemBase.Expansion_GetStackAmount();
 		}
@@ -1360,7 +1362,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (currencies && currencies.Find(type) == -1)
 				continue;
 
-			if (marketItem && GetItemCategory(marketItem).IsExchange() && currentDenomination < lastCurrencyIdx && type == marketItem.ClassName)
+			if (marketItem && GetItemCategory(marketItem).IsExchange && currentDenomination < lastCurrencyIdx && type == marketItem.ClassName)
 			{
 				//! Apply exchange logic, exclude this currency
 				continue;
@@ -1536,7 +1538,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (!player && currencies && currencies.Find(m_MoneyDenominations[j]) == -1)
 				continue;
 
-			if (marketItem && GetItemCategory(marketItem).IsExchange() && j < lastCurrencyIdx && m_MoneyDenominations[j] == marketItem.ClassName)
+			if (marketItem && GetItemCategory(marketItem).IsExchange && j < lastCurrencyIdx && m_MoneyDenominations[j] == marketItem.ClassName)
 			{
 				//! Apply exchange logic, exclude this currency
 				continue;
@@ -1606,7 +1608,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (!player && currencies && currencies.Find(m_MoneyDenominations[i]) == -1)
 				continue;
 
-			if (marketItem && GetItemCategory(marketItem).IsExchange() && i < lastCurrencyIdx && m_MoneyDenominations[i] == marketItem.ClassName)
+			if (marketItem && GetItemCategory(marketItem).IsExchange && i < lastCurrencyIdx && m_MoneyDenominations[i] == marketItem.ClassName)
 			{
 				//! Apply exchange logic, exclude this currency
 				continue;
@@ -3386,7 +3388,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 				//EXPrint("RPC_LoadTraderItems - " + networkItems[i].ClassName + " (ID " + networkItems[i].ItemID + ") - stock: " + networkItems[i].Stock);
 				item = GetExpansionSettings().GetMarket().UpdateMarketItem_Client(networkItems[i]);
 				m_ClientMarketZone.SetStock(networkItems[i].ClassName, networkItems[i].Stock);
-				int buySell = networkItems[i].Packed >> 24;
+				int param1 = networkItems[i].Packed >> 24;
+				int rarity = param1 >> 4;
+#ifdef EXPANSIONMODHARDLINE
+				if (rarity)
+					GetExpansionSettings().GetHardline().ItemRarity[networkItems[i].ClassName] = rarity;
+#endif
+				int buySell = param1 & ~(rarity << 4);
 				trader.GetTraderMarket().AddItemInternal(item, buySell);
 				if (!m_TmpNetworkCats.Contains(networkItems[i].CategoryID))
 					m_TmpNetworkCats.Insert(networkItems[i].CategoryID, GetExpansionSettings().GetMarket().GetCategory(networkItems[i].CategoryID));

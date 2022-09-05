@@ -214,7 +214,7 @@ class ExpansionTractor extends CarScript
 			break;
 		}
 
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override string GetAnimSourceFromSelection(string selection)

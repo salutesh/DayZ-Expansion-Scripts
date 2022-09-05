@@ -37,7 +37,7 @@ modded class ActionDetach
 		{
 			if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleAttachments)
 			{
-				GetExpansionSettings().GetLog().PrintLog("[VehicleAttachments] Player " + action_data.m_Player.GetIdentity().GetName() + " (uid=" + action_data.m_Player.GetIdentity().GetId() + ") detached " + action_data.m_Target.GetObject().GetDisplayName() + " (type=" + action_data.m_Target.GetObject().GetType() + ") from vehicle " + car.GetDisplayName() + "(pos=" + car.GetPosition() + " type=" + car.GetType() + ")");
+				GetExpansionSettings().GetLog().PrintLog("[VehicleAttachments] Player " + action_data.m_Player.GetIdentity().GetName() + " (uid=" + action_data.m_Player.GetIdentity().GetId() + ") detached " + action_data.m_Target.GetObject().GetDisplayName() + " (type=" + action_data.m_Target.GetObject().GetType() + ") from vehicle " + car.GetDisplayName() + "(id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
 			}
 		}
 	}

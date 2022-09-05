@@ -110,7 +110,7 @@ modded class PlayerBase
 
 			if ( m_TransportHitVelocity.Length() > 2.5 )
 			{
-				float damage = m_TransportHitVelocity.Length();
+				float damage = m_TransportHitVelocity.Length() * GetExpansionSettings().GetVehicle().VehicleRoadKillDamageMultiplier;
 				if ( transport && damage )
 					ProcessDirectDamage( DT_CUSTOM, transport, "", "TransportHit", "0 0 0", damage );
 			} else

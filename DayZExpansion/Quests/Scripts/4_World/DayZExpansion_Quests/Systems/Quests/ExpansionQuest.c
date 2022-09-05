@@ -380,7 +380,7 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	// ExpansionQuest OnQuestStart
 	// -----------------------------------------------------------
-	//! Event called when a quest is stated
+	//! Event called when a quest is started
 	void OnQuestStart()
 	{
 	#ifdef EXPANSIONTRACE
@@ -404,14 +404,20 @@ class ExpansionQuest
 				return;
 			}
 
-			//! Start all quest objectives
-			for (int i = 0; i < GetObjectives().Count(); i++)
+			//! Start quest objectives
+			ExpansionQuestObjectiveEventBase objective = GetObjectives()[0];				
+			//! We only start the first objective as we will progress thrue all objective events in a sequential order.
+			//! Only exception for now is when the quest has a COLLECT and TREASUREHUNT objective, then we want to activate them all.
+			if (objective && objective.GetIndex() == 0)
 			{
-				ExpansionQuestObjectiveEventBase objective = GetObjectives()[i];
-				if (objective && objective.GetIndex() == 0) //! Only start the first objective as we will progress thrue all objective events in a sequential order
+				m_CurrentObjectiveIndex = 0;
+				objective.OnStart();
+				
+				ExpansionQuestObjectiveEventBase nextObjective = GetObjectives()[1];
+				if ((objective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT) && nextObjective && (nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT))
 				{
-					m_CurrentObjectiveIndex = objective.GetIndex();
-					objective.OnStart();
+					m_CurrentObjectiveIndex = 1;
+					nextObjective.OnStart();
 				}
 			}
 
@@ -570,14 +576,8 @@ class ExpansionQuest
 			}
 
 			//! Add all quest rewards to the players inventory
-			if (GetQuestConfig().GetRewards().Count() > 0)
-			{
-				if (!SpawnQuestRewards(reward))
-				{
-					Error(ToString() + "::OnQuestTurnIn - Could not get spawn quest reward!");
-					return;
-				}
-			}
+			if (GetQuestConfig().GetRewards().Count() > 0 || GetQuestConfig().GetHumanityReward() > 0)
+				SpawnQuestRewards(reward);
 
 			SetQuestState(ExpansionQuestState.COMPLETED);
 
@@ -682,14 +682,23 @@ class ExpansionQuest
 			}
 
 			//! Continue active quest objectives
-			for (int i = 0; i < QuestObjectives.Count(); i++)
+			for (int i = 0; i < GetObjectives().Count(); i++)
 			{
-				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
-				if (objective.GetIndex() == m_CurrentObjectiveIndex)
+				ExpansionQuestObjectiveEventBase objective = GetObjectives()[i];	
+				//! We only start the last active objective as we will progress thrue all objective events in a sequential order.
+				//! Only exception for now is when the quest has a COLLECT and TREASUREHUNT objective, then we want to activate them all.
+				if (objective && objective.GetIndex() == m_CurrentObjectiveIndex)
 				{
-					if (!objective.IsInitialized()) //! Only start the last active objective
+					if (!objective.IsInitialized()) //! Only start objectives that are not initialized yet
 					{
 						objective.OnContinue();
+						
+						int prev = i - 1;
+						ExpansionQuestObjectiveEventBase prevObjective = GetObjectives()[prev];	
+						if ((objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || objective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT) && prevObjective && (prevObjective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || prevObjective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT))
+						{
+							prevObjective.OnContinue();
+						}
 					}
 				}
 			}
@@ -1131,7 +1140,7 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	// ExpansionQuest SpawnQuestRewards
 	// -----------------------------------------------------------
-	bool SpawnQuestRewards(ExpansionQuestRewardConfig reward = null)
+	void SpawnQuestRewards(ExpansionQuestRewardConfig reward = null)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "SpawnQuestRewards").Add(sender).Add(ctx);
@@ -1155,10 +1164,11 @@ class ExpansionQuest
 			
 			if (Config.NeedToSelectReward())
 			{
-				if (!reward)
-					return false;
-
-				SpawnReward(reward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+				if (reward)
+				{
+					QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
+					SpawnReward(reward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+				}
 			}
 			else
 			{
@@ -1173,20 +1183,24 @@ class ExpansionQuest
 			if (GetExpansionSettings().GetHardline().UseHumanity && Config.GetHumanityReward() != 0)
 			{
 				hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-				if (!hardlineModule)
-					return false;
-
-				hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
-				if (!hardlinePlayerData)
-					return false;
-				
-				if (Config.GetHumanityReward() > 0)
+				if (hardlineModule)
 				{
-					hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
-				}
-				else if (Config.GetHumanityReward() < 0)
-				{
-					hardlinePlayerData.RemoveHumanity(Config.GetHumanityReward());
+					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
+					if (hardlinePlayerData)
+					{					
+						if (Config.GetHumanityReward() > 0)
+						{
+							hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
+							hardlinePlayerData.Save(m_Player.GetIdentity().GetId());
+							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, m_Player.GetIdentity());
+						}
+						else if (Config.GetHumanityReward() < 0)
+						{
+							hardlinePlayerData.RemoveHumanity(Config.GetHumanityReward());
+							hardlinePlayerData.Save(m_Player.GetIdentity().GetId());
+							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, m_Player.GetIdentity());
+						}
+					}
 				}
 			}
 		#endif
@@ -1201,69 +1215,65 @@ class ExpansionQuest
 			for (int j = 0; j < GetGroup().GetPlayers().Count(); j++)
 			{
 				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[j];
-				if (!playerGroupData)
+				if (playerGroupData)
 				{
-					Error(ToString() + "::SpawnQuestRewards - Could not get group members party data!");
-					continue;
-				}
-				
-				if (Config.RewardsForGroupOwnerOnly() && playerGroupData.GetID() != m_PlayerUID)
-					continue;
-				
-				QuestPrint(ToString() + "::SpawnQuestRewards - Spawn quest reward for player with UID: " + playerGroupData.GetID());
-				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				EntityAI groupPlayerEntity = groupPlayer;
-				if (groupPlayer)
-				{
-					if (Config.NeedToSelectReward)
-					{
-						if (!reward)
-						{
-							QuestPrint(ToString() + "::SpawnQuestRewards - No reward selected!");
-							return false;
-						}
-						
-						QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
-						SpawnReward(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
-					}
-					else
-					{
-						//! Add all quest rewards to the players inventory
-						for (int k = 0; k < Config.GetRewards().Count(); k++)
-						{
-							questReward = Config.GetRewards()[k];
-							QuestPrint(ToString() + "::SpawnQuestRewards - Spawn reward: [" + k + "] " + questReward.ToString());
-							SpawnReward(questReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
-						}
-					}
-				}
-
-			#ifdef EXPANSIONMODHARDLINE
-				if (GetExpansionSettings().GetHardline().UseHumanity && Config.GetHumanityReward() != 0)
-				{
-					hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-					if (!hardlineModule)
-						return false;
-
-					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
-					if (!hardlinePlayerData)
-						return false;
+					if (Config.RewardsForGroupOwnerOnly() && playerGroupData.GetID() != m_PlayerUID)
+						continue;
 					
-					if (Config.GetHumanityReward() > 0)
+					QuestPrint(ToString() + "::SpawnQuestRewards - Spawn quest reward for player with UID: " + playerGroupData.GetID());
+					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
+					EntityAI groupPlayerEntity = groupPlayer;
+					if (groupPlayer)
 					{
-						hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
+						if (Config.NeedToSelectReward)
+						{
+							if (reward)
+							{						
+								QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
+								SpawnReward(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
+							}
+						}
+						else
+						{
+							//! Add all quest rewards to the players inventory
+							for (int k = 0; k < Config.GetRewards().Count(); k++)
+							{
+								questReward = Config.GetRewards()[k];
+								QuestPrint(ToString() + "::SpawnQuestRewards - Spawn reward: [" + k + "] " + questReward.ToString());
+								SpawnReward(questReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
+							}
+						}
 					}
-					else if (Config.GetHumanityReward() < 0)
+	
+				#ifdef EXPANSIONMODHARDLINE
+					if (GetExpansionSettings().GetHardline().UseHumanity && Config.GetHumanityReward() != 0)
 					{
-						hardlinePlayerData.RemoveHumanity(Config.GetHumanityReward());
+						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+						if (hardlineModule)
+						{
+							hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
+							if (hardlinePlayerData)
+							{							
+								if (Config.GetHumanityReward() > 0)
+								{
+									hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
+									hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
+									hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
+								}
+								else if (Config.GetHumanityReward() < 0)
+								{
+									hardlinePlayerData.RemoveHumanity(Config.GetHumanityReward());
+									hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
+									hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
+								}
+							}
+						}
 					}
+				#endif
 				}
-			#endif
 			}
 		}
 	#endif
-
-		return true;
 	}
 
 	// -----------------------------------------------------------

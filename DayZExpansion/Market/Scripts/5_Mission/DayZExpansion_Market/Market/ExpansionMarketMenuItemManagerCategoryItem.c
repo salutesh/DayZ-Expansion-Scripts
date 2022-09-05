@@ -63,7 +63,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		GetCategoryItemController().NotifyPropertyChanged("ItemName");
 
 		UpdateView();
-		CreatePreviewObject();
+		ExpansionMarketMenu.CreatePreviewObject(m_ItemClassName, m_Object);
 	}
 
 	int GetCount()
@@ -76,7 +76,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 			if (attachment == classNameLower)
 				count++;
 		}
-EXPrint("Attached: " + count + " " + classNameLower);
+		EXTrace.Print(EXTrace.MARKET, this, "Attached: " + count + " " + classNameLower);
 		return count;
 	}
 	
@@ -85,7 +85,9 @@ EXPrint("Attached: " + count + " " + classNameLower);
 		EntityAI parent = EntityAI.Cast(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject());
 
 		if (parent)
-			m_CanBeAttached = CanAttachAttachment(parent, m_ItemClassName);
+			m_CanBeAttached = CanAttachAttachment(parent, m_ItemClassName, false);
+		else
+			m_CanBeAttached = false;
 
 		m_CanBeAttachedOrReplaceConflicting = m_CanBeAttached;
 
@@ -98,23 +100,36 @@ EXPrint("Attached: " + count + " " + classNameLower);
 			//! Special case: This item can only be attached to specific other item(s)
 			Hide();
 		}
-		else
+		else if (parent)
 		{
-			//! Item cannot be attached. Check if another attachment is conflicting (slot only)
-			m_CanBeAttachedOrReplaceConflicting = IsAttachmentConflicting(m_ItemClassName, true);
+			//! Item cannot be attached to parent in its current state. Check if another attachment is conflicting (slot only)
+			string conflictingAttachment;
+			m_CanBeAttachedOrReplaceConflicting = IsAttachmentConflicting(m_ItemClassName, true, conflictingAttachment);
+			if (m_CanBeAttachedOrReplaceConflicting && conflictingAttachment)
+			{
+				//! Temporarily remove conflicting attachment
+				RemoveAttachment(parent, conflictingAttachment);
+				//! Try to attach
+				m_CanBeAttachedOrReplaceConflicting = CanAttachAttachment(parent, m_ItemClassName, false);
+				//! Add conflicting attachment back
+				ExpansionItemSpawnHelper.SpawnAttachment(conflictingAttachment, parent);
+			}
 		}
 
+		int count = GetCount();
 		string color;
-		if (m_CanBeAttachedOrReplaceConflicting)
+		if (m_CanBeAttachedOrReplaceConflicting || count > 0)
 			color = "BaseColorHeaders";
 		else
 			color = "ColorSellButton";
 		item_element_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get(color));
 
-		int count = GetCount();
 		item_element_decrement.Show(count > 0);
 		item_element_increment.Show(m_CanBeAttached || (count == 0 && m_CanBeAttachedOrReplaceConflicting));
-		item_element_tooltip.Show(!m_CanBeAttachedOrReplaceConflicting);
+		item_element_tooltip.Show(!m_CanBeAttachedOrReplaceConflicting && count == 0);
+
+		if (!IsVisible() && (m_CanBeAttached || m_CanBeAttachedOrReplaceConflicting))
+			Show();
 	}
 
 	bool IsSpecialCase(EntityAI parent)
@@ -146,12 +161,11 @@ EXPrint("Attached: " + count + " " + classNameLower);
 	}
 	
 	//! Check if this item can be attached to parent at all
-	bool CanAttachAttachment(EntityAI parent, string attachment, bool includeExisting = false)
+	bool CanAttachAttachment(EntityAI parent, string attachment, bool includeExisting = false, out bool hasExistingAttachment = false)
 	{
 		if (includeExisting)
 		{
 			//! If an item of the same class is already attached, check if it can be removed & reattached
-			ExpansionString exAttachment = new ExpansionString(attachment);
 			InventoryLocation loc = new InventoryLocation;
 
 			for (int i = parent.GetInventory().AttachmentCount() - 1; i >= 0; i--)
@@ -159,21 +173,22 @@ EXPrint("Attached: " + count + " " + classNameLower);
 				EntityAI item = parent.GetInventory().GetAttachmentFromIndex(i);
 				if (item)
 				{
-					if (exAttachment.EqualsCaseInsensitive(item.GetType()))
+					if (CF_String.EqualsIgnoreCase(attachment, item.GetType()))
 					{
+						hasExistingAttachment = true;
 						item.GetInventory().GetCurrentInventoryLocation(loc);
 						if (!GameInventory.LocationRemoveEntity(loc))
 						{
-							EXPrint("Could NOT remove existing " + item.GetType());
+							EXTrace.Print(EXTrace.MARKET, parent, "Could NOT remove existing " + item.GetType());
 						}
 						else if (!GameInventory.LocationAddEntity(loc))
 						{
-							EXPrint("Could NOT reattach existing " + item.GetType());
+							EXTrace.Print(EXTrace.MARKET, parent, "Could NOT reattach existing " + item.GetType());
 							GetGame().ObjectDelete(item);
 						}
 						else
 						{
-							EXPrint("Can reattach existing " + item.GetType());
+							EXTrace.Print(EXTrace.MARKET, parent, "Can reattach existing " + item.GetType());
 							return true;
 						}
 						return false;
@@ -182,17 +197,17 @@ EXPrint("Attached: " + count + " " + classNameLower);
 			}
 		}
 
-		//! Try to create attachment on parent. If this succeeds, attaching is possible.
+		//! Try to create attachment on parent. If this succeeds, attaching is possible on parent in its current state.
 		EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachment, parent);
 		if (attachmentEntity)
 		{
 			GetGame().ObjectDelete(attachmentEntity);
 
-EXPrint("Can attach " + attachment);
+			EXTrace.Print(EXTrace.MARKET, parent, "Can attach " + attachment);
 			return true;
 		}
 
-EXPrint("Can NOT attach " + attachment);
+		EXTrace.Print(EXTrace.MARKET, parent, "Can NOT attach " + attachment);
 		return false;
 	}
 	
@@ -314,7 +329,7 @@ EXPrint("Can NOT attach " + attachment);
 			}
 		}
 		
-EXPrint("Adding " + classNameToLower);
+		EXTrace.Print(EXTrace.MARKET, this, "Adding " + classNameToLower);
 		m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Insert(classNameToLower);
 		
 		//! UpdatePreview needs to be called before calling UpdateAttachments
@@ -373,6 +388,22 @@ EXPrint("Adding " + classNameToLower);
 		}
 	}
 
+	void RemoveAttachment(EntityAI parent, string attachment)
+	{
+		for (int i = parent.GetInventory().AttachmentCount() - 1; i >= 0; i--)
+		{
+			EntityAI item = parent.GetInventory().GetAttachmentFromIndex(i);
+			if (item)
+			{
+				if (CF_String.EqualsIgnoreCase(attachment, item.GetType()))
+				{
+					GetGame().ObjectDelete(item);
+					break;
+				}
+			}
+		}
+	}
+
 	int RemoveAttachment(string className)
 	{
 		string classNameToLower = className;
@@ -381,7 +412,7 @@ EXPrint("Adding " + classNameToLower);
 		int findIndexAttachment = m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.Find(classNameToLower);
 		if (findIndexAttachment > -1)
 		{
-EXPrint("Removing " + classNameToLower);
+			EXTrace.Print(EXTrace.MARKET, this, "Removing " + classNameToLower);
 			m_MarketMenu.GetSelectedMarketItem().SpawnAttachments.RemoveOrdered(findIndexAttachment);
 		}
 
@@ -400,9 +431,10 @@ EXPrint("Removing " + classNameToLower);
 		TStringArray attachments = m_MarketMenu.GetSelectedMarketItem().SpawnAttachments;
 		for (int j = attachments.Count() - 1; j >= 0; j--)
 		{
-			if (!CanAttachAttachment(parent, attachments[j], true))
+			bool hasExistingAttachment = false;
+			if (!CanAttachAttachment(parent, attachments[j], true, hasExistingAttachment) || !hasExistingAttachment)
 			{
-				attachments.Remove(j);
+				attachments.RemoveOrdered(j);
 			}
 		}
 	}
@@ -416,39 +448,9 @@ EXPrint("Removing " + classNameToLower);
 	{
 		//! Check if the attachment we want to add to the spawn attachment is conflicting
 		//! with an existing attachment (same slot name or same attachment type)
-		bool hasSameSlotName = false;
 		TStringArray inventory_slots = {};
-		TStringArray tmp;
-		string slot;
-		string path;
 		
-		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
-			path = "CfgVehicles " + className;
-		else if (GetGame().ConfigIsExisting("CfgMagazines " + className))
-			path = "CfgMagazines " + className;
-			
-		switch (GetGame().ConfigGetType(path + " inventorySlot")) 
-		{
-			case CT_ARRAY: 
-			{
-				GetGame().ConfigGetTextArray(path + " inventorySlot", inventory_slots);
-				tmp = inventory_slots;
-				inventory_slots = new TStringArray;
-				foreach (string inventory_slot: tmp)
-				{
-					inventory_slot.ToLower();
-					inventory_slots.Insert(inventory_slot);
-				}
-				break;
-			}
-			
-			case CT_STRING: 
-			{
-				GetGame().ConfigGetText(path + " inventorySlot", slot);
-				slot.ToLower();
-				break;
-			}
-		}
+		GetAttachmentSlots(className, inventory_slots);
 		
 		if (!checkSlotOnly)
 		{
@@ -466,42 +468,14 @@ EXPrint("Removing " + classNameToLower);
 				{
 					//! Only allow one of each attachment type
 					conflictingAttachment = attachment_name;
-EXPrint(className + " is conflicting with existing " + conflictingAttachment);
+					EXTrace.Print(EXTrace.MARKET, this, className + " is conflicting with existing " + conflictingAttachment);
 					return true;
 				}
 			}
 
 			TStringArray attachment_inventory_slots = {};
-			string attachment_slot;
-			string attachment_path;
 			
-			if (GetGame().ConfigIsExisting("CfgVehicles " + attachment_name))
-				attachment_path = "CfgVehicles " + attachment_name;
-			else if (GetGame().ConfigIsExisting("CfgMagazines " + attachment_name))
-				attachment_path = "CfgMagazines " + attachment_name;
-			
-			switch (GetGame().ConfigGetType(attachment_path + " inventorySlot")) 
-			{
-				case CT_ARRAY: 
-				{
-					GetGame().ConfigGetTextArray(attachment_path + " inventorySlot", attachment_inventory_slots);
-					tmp = attachment_inventory_slots;
-					attachment_inventory_slots = new TStringArray;
-					foreach (string attachment_inventory_slot: tmp)
-					{
-						attachment_inventory_slot.ToLower();
-						attachment_inventory_slots.Insert(attachment_inventory_slot);
-					}
-					break;
-				}
-				
-				case CT_STRING: 
-				{
-					GetGame().ConfigGetText(attachment_path + " inventorySlot", attachment_slot);
-					attachment_slot.ToLower();
-					break;
-				}
-			}
+			GetAttachmentSlots(attachment_name, attachment_inventory_slots);
 			
 			if (inventory_slots.Count() > 0)
 			{
@@ -511,44 +485,16 @@ EXPrint(className + " is conflicting with existing " + conflictingAttachment);
 					{
 						if (attachment_inventory_slots.Find(slotName1) > -1)
 						{
-							hasSameSlotName = true;
 							conflictingAttachment = attachment_name;
 							break;
 						}
 					}
 				}
-				else if (attachment_slot != "")
-				{
-					if (inventory_slots.Find(attachment_slot) > -1)
-					{
-						hasSameSlotName = true;
-						conflictingAttachment = attachment_name;
-					}
-				}
-			}
-			else if (slot != "")
-			{
-				if (attachment_inventory_slots.Count() > 0)
-				{
-					if (attachment_inventory_slots.Find(slot) > -1)
-					{
-						hasSameSlotName = true;
-						conflictingAttachment = attachment_name;
-					}
-				}
-				else if (attachment_slot != "")
-				{
-					if (attachment_slot == slot)
-					{
-						hasSameSlotName = true;
-						conflictingAttachment = attachment_name;
-					}
-				}
 			}
 
-			if (hasSameSlotName)
+			if (conflictingAttachment)
 			{
-EXPrint(className + " is conflicting with existing " + conflictingAttachment);
+				EXTrace.Print(EXTrace.MARKET, this, className + " is conflicting with existing " + conflictingAttachment + " in slot " + slotName1);
 				return true;
 			}
 		}
@@ -556,19 +502,45 @@ EXPrint(className + " is conflicting with existing " + conflictingAttachment);
 		return false;
 	}
 	
-	void CreatePreviewObject()
+	//! TODO: Move this to ExpansionStatic maybe?
+	static bool GetAttachmentSlots(string className, out TStringArray inventory_slots)
 	{
-		if (m_Object)
-		{
-			GetGame().ObjectDelete(m_Object);
-		}
-		
-		if (!GetGame().IsKindOf(m_ItemClassName, "DZ_LightAI"))
-			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(m_ItemClassName, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+		string path;
+		if (GetGame().ConfigIsExisting("CfgVehicles " + className))
+			path = "CfgVehicles " + className;
+		else if (GetGame().ConfigIsExisting("CfgMagazines " + className))
+			path = "CfgMagazines " + className;
 		else
-			m_Object = NULL;
+			return false;
+
+		switch (GetGame().ConfigGetType(path + " inventorySlot")) 
+		{
+			case CT_ARRAY: 
+			{
+				GetGame().ConfigGetTextArray(path + " inventorySlot", inventory_slots);
+				TStringArray tmp = inventory_slots;
+				inventory_slots = new TStringArray;
+				foreach (string inventory_slot: tmp)
+				{
+					inventory_slot.ToLower();
+					inventory_slots.Insert(inventory_slot);
+				}
+				return true;
+			}
+			
+			case CT_STRING: 
+			{
+				string slot;
+				GetGame().ConfigGetText(path + " inventorySlot", slot);
+				slot.ToLower();
+				inventory_slots.Insert(slot);
+				return true;
+			}
+		}
+
+		return false;
 	}
-	
+
 	string GetItemClassName()
 	{
 		return m_ItemClassName;

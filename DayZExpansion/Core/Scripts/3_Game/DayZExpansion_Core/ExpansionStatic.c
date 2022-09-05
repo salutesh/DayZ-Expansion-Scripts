@@ -673,6 +673,18 @@ class ExpansionStatic
 		return out_string.Trim();
 	}
 
+	static string GetPersistentIDString(EntityAI entity)
+	{
+		int b1, b2, b3, b4;
+		entity.GetPersistentID(b1, b2, b3, b4);
+		string id;
+		id += IntToHex(b1);
+		id += IntToHex(b2);
+		id += IntToHex(b3);
+		id += IntToHex(b4);
+		return id;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion GetWeightedRandom
 	// ------------------------------------------------------------
@@ -1053,6 +1065,22 @@ class ExpansionStatic
 	static bool SurfaceIsWater(float x, float z)
 	{
 		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
+	}
+
+	//! @brief return lowercase game world name, with "gloom" suffix removed (if present)
+	static string GetCanonicalWorldName(CGame game = NULL)
+	{
+		if (!game)
+			game = GetGame();
+
+		string worldName;
+		game.GetWorldName(worldName);
+		worldName.ToLower();
+
+		if (worldName.IndexOf("gloom") == worldName.Length() - 5)
+			worldName = worldName.Substring(0, worldName.Length() - 5);
+
+		return worldName;
 	}
 
 	static string VectorToString(vector vec, bool beautify = true, int precision = 2)

@@ -18,6 +18,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	Widget hab_affinity_spacer;
 	Widget hab_level_spacer;
 	Widget hab_humanity_spacer;
+	TextWidget hab_humanity_label;
 	Widget hab_medic_spacer;
 	Widget hab_raid_spacer;
 
@@ -31,22 +32,32 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	bool m_ShowHaBStats;
 	bool m_Updated;
 	
+	bool m_ShowHardlineStats;
+#ifdef EXPANSIONMODHARDLINE
+	ExpansionHardlineModule m_HardlineModule;
+#endif
+	
 	void ExpansionBookMenuTabPlayerProfile(ExpansionBookMenu book_menu)
 	{
 		if (!m_PlayerProfileController)
 			m_PlayerProfileController = ExpansionBookMenuTabPlayerProfileController.Cast(GetController());
 		
-#ifdef EXPANSIONMONITORMODULE
+	#ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
 		
 		monitorModule.m_StatsInvoker.Insert(SetStats);
-#endif
+	#endif
 
-		#ifdef HEROESANDBANDITSMOD
+	#ifdef HEROESANDBANDITSMOD
 		m_ShowHaBStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
-		#endif
+	#endif
+		
+	#ifdef EXPANSIONMODHARDLINE
+		m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseHumanity);
+	#endif
 
 		UpdateHaBUIElements();
 	}
@@ -76,11 +87,12 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " Kills";		
 		m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " Kills";		
 
-		#ifdef HEROESANDBANDITSMOD
+	#ifdef HEROESANDBANDITSMOD
 		if (m_ShowHaBStats)
 		{
 			m_PlayerProfileController.HaB_Affinity = g_HeroesAndBanditsPlayer.getAffinity().DisplayName;
 			m_PlayerProfileController.HaB_Level = g_HeroesAndBanditsPlayer.getLevel().Name;
+			m_PlayerProfileController.HaB_HumanityLabel = "#HAB_HUMANITY";
 			if ( GetHeroesAndBanditsSettings().Mode != 1 )
 			{
 				m_PlayerProfileController.HaB_Humanity = ExpansionStatic.GetValueString(g_HeroesAndBanditsPlayer.getHumanity());
@@ -97,12 +109,12 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			m_PlayerProfileController.HaB_Raid = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Raid") );
 			m_PlayerProfileController.HaB_Suicides = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Sucide") );
 
-			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_Affinity", "HaB_Level", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
+			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_Affinity", "HaB_Level", "HaB_HumanityLabel", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
 		}
-		#endif
+	#endif
 
 		UpdateHaBUIElements();
-
+		
 		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);	
 		m_PlayerProfileController.ProfileWeight = ExpansionStatic.GetWeightString(stats.m_Weight);
 		
@@ -130,6 +142,18 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		
 		array<string> player_properties = {"PlayerHealth", "PlayerHealthValue", "PlayerBlood", "PlayerBloodValue", "PlayerWater", "PlayerWaterValue", "PlayerEnergy", "PlayerEnergyValue", "PlayerStamina", "PlayerStaminaValue"};
 		m_PlayerProfileController.NotifyPropertiesChanged(player_properties);
+		
+	#ifdef EXPANSIONMODHARDLINE
+		if (m_ShowHardlineStats && m_HardlineModule)
+		{
+			int humanity = m_HardlineModule.GetHardlineClientData().GetHumanity();
+			m_PlayerProfileController.HaB_HumanityLabel = "#STR_EXPANSION_BOOK_STATUS_CONDITION_HUMANITY";
+			m_PlayerProfileController.HaB_Humanity = humanity.ToString();
+			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_HumanityLabel", "HaB_Humanity"});
+		}
+	#endif
+		
+		UpdateHardlineUIElements();
 	}
 
 	void UpdateHaBUIElements()
@@ -140,6 +164,11 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		hab_humanity_spacer.Show(m_ShowHaBStats);
 		hab_medic_spacer.Show(m_ShowHaBStats);
 		hab_raid_spacer.Show(m_ShowHaBStats);
+	}
+	
+	void UpdateHardlineUIElements()
+	{
+		hab_humanity_spacer.Show(m_ShowHardlineStats);
 	}
 	
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)
@@ -234,7 +263,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 
 	override void Update()
 	{
-#ifdef EXPANSIONMONITORMODULE
+	#ifdef EXPANSIONMONITORMODULE
 		if (m_Updated)
 		{
 			m_Updated = false;
@@ -249,7 +278,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		{
 			monitorModule.RequestPlayerStats("", true);
 		}
-#endif
+	#endif
 	}
 };
 
@@ -273,13 +302,13 @@ class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 	string PlayerEnergyValue;
 	float PlayerStamina;
 	string PlayerStaminaValue;
-
-	#ifdef HEROESANDBANDITSMOD
+	
+	//! Heros and Bandits
 	string HaB_Affinity;
 	string HaB_Level;
+	string HaB_HumanityLabel;
 	string HaB_Humanity;
 	string HaB_Medic;
 	string HaB_Raid;
 	string HaB_Suicides;
-	#endif
 };

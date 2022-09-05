@@ -197,4 +197,9 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	}
 	
 	void Update();
+	
+	bool CanClose()
+	{
+		return true;
+	}
 }

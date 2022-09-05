@@ -159,6 +159,10 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
 
+		//! Client only!
+		if (GetGame().IsDedicatedServer())
+			return;
+
 		int count;
 		ctx.Read(count);
 		while (count)
@@ -230,18 +234,6 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// Expansion FixObjectCollision
-	// ------------------------------------------------------------
-	static void FixObjectCollision( Object obj )
-	{
-		vector roll = obj.GetOrientation();
-		roll[2] = roll[2] - 1;
-		obj.SetOrientation( roll );
-		roll[2] = roll[2] + 1;
-		obj.SetOrientation( roll );
-	}
-
-	// ------------------------------------------------------------
 	// Expansion LoadMissionObjectsFile
 	// ------------------------------------------------------------
 	static void LoadMissionObjectsFile( string name )
@@ -292,7 +284,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
-		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME;
+		int flags = ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS;
 
 		Object obj = GetGame().CreateObjectEx( className, position, flags );
 		if ( !obj )
@@ -300,14 +292,12 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		obj.SetFlags(EntityFlags.STATIC, false);
 
-		obj.SetPosition( position );
 		obj.SetOrientation( rotation );
-
-		FixObjectCollision( obj );
+		obj.SetAffectPathgraph( true, false );
+		obj.Update();
 
 		if ( obj.CanAffectPathgraph() )
 		{
-			obj.SetAffectPathgraph( true, false );
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
 		}
 
@@ -695,24 +685,18 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
 			obj = GetGame().CreateObject( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
+			obj.SetOrientation( rotation );
+			obj.SetAffectPathgraph( true, false );
+			obj.Update();
+
+			if ( obj.CanAffectPathgraph() )
+			{
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
+			}
+
 			trader = EntityAI.Cast( obj );
-			
 			if ( trader )
 			{
-				trader.SetPosition( position );
-				trader.SetOrientation( rotation );
-				vector roll = trader.GetOrientation();
-				roll [ 2 ] = roll [ 2 ] - 1;
-				trader.SetOrientation( roll );
-				roll [ 2 ] = roll [ 2 ] + 1;
-				trader.SetOrientation( roll );
-
-				if ( trader.CanAffectPathgraph() )
-				{
-					trader.SetAffectPathgraph( true, false );
-					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, trader );
-				}
-				
 				if ( gear )
 				{
 					ProcessGear(trader, gear);

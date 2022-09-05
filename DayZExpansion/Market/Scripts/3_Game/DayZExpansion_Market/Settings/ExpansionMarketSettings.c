@@ -184,7 +184,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			//! Strip '.json' extension
 			fileName = fileName.Substring(0, fileName.Length() - 5);
 
-			ExpansionMarketCategory category = ExpansionMarketCategory.Load(fileName);
+			auto category = ExpansionMarketCategory.Load(fileName);
+			if (!category)
+				continue;
 
 			TraderPrint("LoadCategories - Adding category ID " + category.CategoryID + " (" + category.m_FileName + ")");
 			m_Categories.Insert(category.CategoryID, category);
@@ -221,7 +223,10 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			//! Strip '.json' extension
 			fileName = fileName.Substring(0, fileName.Length() - 5);
 
-			ExpansionMarketTraderZone zone = ExpansionMarketTraderZone.Load(fileName);
+			auto zone = ExpansionMarketTraderZone.Load(fileName);
+			if (!zone)
+				continue;
+
 			zone.Update();
 			m_TraderZones.Insert(zone);
 		}
@@ -252,7 +257,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			//! Strip '.json' extension
 			fileName = fileName.Substring(0, fileName.Length() - 5);
 
-			m_Traders.Insert(ExpansionMarketTrader.Load(fileName));
+			auto trader = ExpansionMarketTrader.Load(fileName);
+			if (!trader)
+				continue;
+
+			m_Traders.Insert(trader);
 		}
 		
 		//TraderPrint("LoadTraders - End");
@@ -493,7 +502,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		MaxVehicleDistanceToTrader = 120;
 		MaxLargeVehicleDistanceToTrader = 744;
 		LargeVehicles.Insert("expansionlhd");
-		DefaultTraderSpawnAreas();
+		DefaultVehicleSpawnPositions();
 		MarketMenuColors.Update();
 		
 		CurrencyIcon = "DayZExpansion/Market/GUI/icons/coinstack2_64x64.edds";
@@ -614,42 +623,32 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	protected void DefaultTraderZones()
 	{		
 		//TraderPrint("DefaultTraderZones - Start");
-		string worldName;
-		GetGame().GetWorldName(worldName);
-		worldName.ToLower();
 		
-		if ( worldName.IndexOf("gloom") == worldName.Length() - 5 )
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
-			worldName = worldName.Substring(0, worldName.Length() - 5);
-		}
-		
-		if (worldName == "chernarusplus")
-		{
-			m_TraderZones.Insert(new ExpansionMarketSvetloyarskZone);
-			m_TraderZones.Insert(new ExpansionMarketKrasnostavZone);
-			m_TraderZones.Insert(new ExpansionMarketKamenkaZone);
-			m_TraderZones.Insert(new ExpansionMarketKamenkaBoatsZone);
-			m_TraderZones.Insert(new ExpansionMarketBalotaAircraftsZone);
-			m_TraderZones.Insert(new ExpansionMarketGreenMountainZone);
-		}
-		else if (worldName == "namalsk")
-		{
-			m_TraderZones.Insert(new ExpansionMarketJaloviskoZone);
-			m_TraderZones.Insert(new ExpansionMarketNamalskAirstripZone);
-			m_TraderZones.Insert(new ExpansionMarketTaraHarborZone);
-		}
-		else if (worldName == "takistanplus")
-		{
-			m_TraderZones.Insert(new ExpansionMarketMarastarZone);
-		}
-		else if (worldName == "chiemsee")
-		{
-			m_TraderZones.Insert(new ExpansionMarketKiesWerkZone);
-			m_TraderZones.Insert(new ExpansionMarketNeviHoffZone);
-		}
-		else
-		{
-			m_TraderZones.Insert(new ExpansionMarketTraderZone);
+			case "chernarusplus":
+				m_TraderZones.Insert(new ExpansionMarketSvetloyarskZone);
+				m_TraderZones.Insert(new ExpansionMarketKrasnostavZone);
+				m_TraderZones.Insert(new ExpansionMarketKamenkaZone);
+				m_TraderZones.Insert(new ExpansionMarketKamenkaBoatsZone);
+				m_TraderZones.Insert(new ExpansionMarketBalotaAircraftsZone);
+				m_TraderZones.Insert(new ExpansionMarketGreenMountainZone);
+				break;
+			case "namalsk":
+				m_TraderZones.Insert(new ExpansionMarketJaloviskoZone);
+				m_TraderZones.Insert(new ExpansionMarketNamalskAirstripZone);
+				m_TraderZones.Insert(new ExpansionMarketTaraHarborZone);
+				break;
+			case "takistanplus":
+				m_TraderZones.Insert(new ExpansionMarketMarastarZone);
+				break;
+			case "chiemsee":
+				m_TraderZones.Insert(new ExpansionMarketKiesWerkZone);
+				m_TraderZones.Insert(new ExpansionMarketNeviHoffZone);
+				break;
+			default:
+				m_TraderZones.Insert(new ExpansionMarketTraderZone);
+				break;
 		}
 		
 		for (int i = 0; i < m_TraderZones.Count(); i++)
@@ -697,37 +696,27 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	protected void DefaultTraderSpawnAreas()
+	protected void DefaultVehicleSpawnPositions()
 	{
-		//TraderPrint("DefaultTraderSpawnAreas - Start");
+		//TraderPrint("DefaultVehicleSpawnAreas - Start");
 
-		string worldName;
-		GetGame().GetWorldName(worldName);
-		worldName.ToLower();
-		
-		if ( worldName.IndexOf("gloom") == worldName.Length() - 5 )
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
-			worldName = worldName.Substring(0, worldName.Length() - 5);
-		}
-		
-		if (worldName == "chernarusplus")
-		{
-			DefaultChernarusSpawnPositions();
-		}
-		else if (worldName == "namalsk")
-		{
-			DefaultNamalskSpawnPositions();
-		}
-		else if (worldName == "takistanplus")
-		{
-			DefaultTakistanSpawnPositions();
-		}
-		else if (worldName == "chiemsee")
-		{
-			DefaultChiemseeSpawnPositions();
+			case "chernarusplus":
+				DefaultChernarusSpawnPositions();
+				break;
+			case "namalsk":
+				DefaultNamalskSpawnPositions();
+				break;
+			case "takistanplus":
+				DefaultTakistanSpawnPositions();
+				break;
+			case "chiemsee":
+				DefaultChiemseeSpawnPositions();
+				break;
 		}
 
-		//TraderPrint("DefaultTraderSpawnAreas - End");
+		//TraderPrint("DefaultVehicleSpawnAreas - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -916,7 +905,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		//! Settings have to be loaded BEFORE categories, else NetworkCategories will not be updated correctly!
 		if (marketSettingsExist)
 		{
-			EXPrint("[ExpansionMapSettings] Load existing setting file:" + EXPANSION_MARKET_SETTINGS);
+			EXPrint("[ExpansionMarketSettings] Load existing setting file:" + EXPANSION_MARKET_SETTINGS);
 			
 			ExpansionMarketSettings settingsDefault = new ExpansionMarketSettings;
 			settingsDefault.Defaults();
@@ -1168,6 +1157,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		return m_Categories.Get(id);
 	}
 
+	//! Server only
 	ExpansionMarketCategory GetCategory(string fileName)
 	{
 		foreach (int categoryID, ExpansionMarketCategory currentCategory : m_Categories)
@@ -1267,19 +1257,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	void TraderPrint(string text)
 	{
 		Print("ExpansionMarketSettings::" + text );
-	}
-	
-	// ------------------------------------------------------------
-	bool IsMapChernarus()
-	{
-		string MissionWorldName = "empty";
-		GetGame().GetWorldName(MissionWorldName);
-		MissionWorldName.ToLower();
-		
-		if (MissionWorldName.Contains("chernarus"))
-			return true;
-		
-		return false;
 	}
 	
 	// ------------------------------------------------------------	

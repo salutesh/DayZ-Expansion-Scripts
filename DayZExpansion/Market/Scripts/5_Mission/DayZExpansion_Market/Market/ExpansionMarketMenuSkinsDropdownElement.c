@@ -58,7 +58,7 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 		m_ElementController.Text = m_SkinName;
 		m_ElementController.NotifyPropertyChanged("Text");
 		
-		CreatePreviewObject();
+		ExpansionMarketMenu.CreatePreviewObject(m_ClassName, m_Object);
 	}
 			
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -106,19 +106,6 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 			m_MarketMenu.SetSkinSelectorState();
 			m_MarketMenu.GetSelectedMarketItemElement().UpdateSelectedVariantOrSkin(m_ClassName, m_SkinIndex);
 		}
-	}
-	
-	void CreatePreviewObject()
-	{
-		if (m_Object)
-		{
-			GetGame().ObjectDelete(m_Object);
-		}
-		
-		if (!GetGame().IsKindOf(m_ClassName, "DZ_LightAI"))
-			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(m_ClassName, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
-		else
-			m_Object = NULL;
 	}
 }
 

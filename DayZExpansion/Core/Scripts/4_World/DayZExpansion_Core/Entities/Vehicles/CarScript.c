@@ -129,6 +129,14 @@ modded class CarScript
 			m_Expansion_SafeZoneInstance.Update();
 	}
 
+	override void DamageCrew(float dmg)
+	{
+		if (IsInSafeZone())
+			return;
+
+		super.DamageCrew(dmg);
+	}
+
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{

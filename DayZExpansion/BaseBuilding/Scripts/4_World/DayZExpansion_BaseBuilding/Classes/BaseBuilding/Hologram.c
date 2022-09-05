@@ -282,10 +282,10 @@ modded class Hologram
 			Class.CastTo(entity_for_placing, GetGame().CreateObjectEx( "GardenPlot", m_Projection.GetPosition(), ECE_OBJECT_SWAP ));
 		}
 
-		if( entity_for_placing.CanAffectPathgraph() )
-		{		
-			entity_for_placing.SetAffectPathgraph( true, false );
+		entity_for_placing.SetAffectPathgraph( true, false );
 
+		if( entity_for_placing.CanAffectPathgraph() )
+		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, entity_for_placing);
 		}
 

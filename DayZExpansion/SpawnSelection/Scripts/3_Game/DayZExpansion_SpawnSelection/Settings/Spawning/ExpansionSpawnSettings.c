@@ -349,17 +349,8 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		CreateDeathMarker = true; //! Create a marker on the spawn selection map on the players last position where the player died.
 		BackgroundImagePath = "DayZExpansion/SpawnSelection/GUI/textures/wood_background.edds";
 		
-		//! Set default markers depending on map name
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
-				
-		switch (world_name)
+		//! Set default spawn positions depending on map name
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "chernarusplus":
 				ExpansionSpawnsChernarus();

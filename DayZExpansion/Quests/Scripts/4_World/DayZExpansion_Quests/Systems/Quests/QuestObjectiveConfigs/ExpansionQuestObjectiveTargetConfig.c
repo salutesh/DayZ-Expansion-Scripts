@@ -10,12 +10,15 @@
  *
 */
 
-class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfig
+class ExpansionQuestObjectiveTargetConfigBase: ExpansionQuestObjectiveConfig
 {
-	private vector Position = vector.Zero;
-	private float MaxDistance = -1;
-	private autoptr ExpansionQuestObjectiveTarget Target;
+	vector Position = vector.Zero;
+	float MaxDistance = -1;
+	autoptr ExpansionQuestObjectiveTarget Target;
+}
 
+class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBase
+{
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -45,10 +48,55 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveConfig
 	{
 		return Target;
 	}
+	
+	static ExpansionQuestObjectiveTargetConfig Load(string fileName)
+	{
+		bool save;
+		CF_Log.Info("[ExpansionQuestObjectiveTargetConfig] Load existing configuration file:" + fileName);
 
+		ExpansionQuestObjectiveTargetConfig config;
+		ExpansionQuestObjectiveTargetConfigBase configBase;
+		JsonFileLoader<ExpansionQuestObjectiveTargetConfigBase>.JsonLoadFile(fileName, configBase);
+
+		if (configBase.ConfigVersion < CONFIGVERSION)
+		{
+			CF_Log.Info("[ExpansionQuestObjectiveTargetConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			config = new ExpansionQuestObjectiveTargetConfig();
+
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
+			
+			config.ConfigVersion = CONFIGVERSION;
+			save = true;
+		}
+		else
+		{
+			JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonLoadFile(fileName, config);
+		}
+
+		if (save)
+		{
+			JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(fileName, config);
+		}
+
+		return config;
+	}
+	
 	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + ".json", this);
+	}
+	
+	void CopyConfig(ExpansionQuestObjectiveTargetConfigBase configBase)
+	{
+		ID = configBase.ID;
+		ObjectiveType = configBase.ObjectiveType;
+		ObjectiveText = configBase.ObjectiveText;
+		TimeLimit = configBase.TimeLimit;
+		
+		Position = configBase.Position;
+		MaxDistance = configBase.MaxDistance;
+		Target = configBase.Target;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

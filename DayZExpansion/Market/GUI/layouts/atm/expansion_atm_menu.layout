@@ -12,7 +12,7 @@ FrameWidgetClass ExpansionATMMenu {
   GridSpacerWidgetClass atm_grid {
    ignorepointer 1
    position 0 0
-   size 800 380
+   size 900 380
    halign center_ref
    valign center_ref
    hexactpos 0
@@ -26,7 +26,7 @@ FrameWidgetClass ExpansionATMMenu {
     GridSpacerWidgetClass atm_root {
      visible 1
      ignorepointer 1
-     size 400 380
+     size 450 380
      halign center_ref
      valign center_ref
      hexactpos 1
@@ -318,16 +318,16 @@ FrameWidgetClass ExpansionATMMenu {
         PanelWidgetClass ButtonsPanel {
          ignorepointer 1
          position 0 0
-         size 48 24
+         size 1 24
          hexactpos 1
          vexactpos 1
-         hexactsize 1
+         hexactsize 0
          vexactsize 1
          {
           PanelWidgetClass ButtonWithdrawBackground {
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
-           size 0.45 1
+           size 0.49 1
            hexactpos 0
            vexactpos 0
            hexactsize 0
@@ -337,7 +337,7 @@ FrameWidgetClass ExpansionATMMenu {
           PanelWidgetClass ButtonDepositBackground {
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
-           size 0.45 1
+           size 0.49 1
            halign right_ref
            hexactpos 0
            vexactpos 0
@@ -348,7 +348,7 @@ FrameWidgetClass ExpansionATMMenu {
           ButtonWidgetClass ButtonWithdraw {
            color 0.9059 0.298 0.2353 0.5529
            position 0 0
-           size 0.45 24
+           size 0.49 24
            hexactpos 0
            vexactpos 0
            hexactsize 0
@@ -379,7 +379,7 @@ FrameWidgetClass ExpansionATMMenu {
           ButtonWidgetClass ButtonDeposit {
            color 0.1804 0.8 0.4431 0.549
            position 0 0
-           size 0.45 24
+           size 0.49 24
            halign right_ref
            hexactpos 0
            vexactpos 0
@@ -417,7 +417,7 @@ FrameWidgetClass ExpansionATMMenu {
     GridSpacerWidgetClass atm_transfer {
      visible 0
      ignorepointer 1
-     size 400 380
+     size 450 380
      halign center_ref
      valign center_ref
      hexactpos 1
@@ -626,16 +626,16 @@ FrameWidgetClass ExpansionATMMenu {
         PanelWidgetClass TransferButtonsPanel {
          ignorepointer 1
          position 0 0
-         size 48 24
+         size 1 24
          hexactpos 1
          vexactpos 1
-         hexactsize 1
+         hexactsize 0
          vexactsize 1
          {
           PanelWidgetClass ButtonTransfereBackground {
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
-           size 0.45 1
+           size 0.49 1
            halign center_ref
            valign center_ref
            hexactpos 0
@@ -647,7 +647,7 @@ FrameWidgetClass ExpansionATMMenu {
           ButtonWidgetClass ButtonTransfere {
            color 0.1804 0.8 0.4431 0.549
            position 0 0
-           size 0.45 24
+           size 0.49 24
            halign center_ref
            hexactpos 0
            vexactpos 0
@@ -684,7 +684,7 @@ FrameWidgetClass ExpansionATMMenu {
     GridSpacerWidgetClass atm_party {
      visible 0
      ignorepointer 1
-     size 400 380
+     size 450 380
      halign center_ref
      valign center_ref
      hexactpos 1
@@ -1002,16 +1002,16 @@ FrameWidgetClass ExpansionATMMenu {
         PanelWidgetClass PartyButtonsPanel {
          ignorepointer 1
          position 0 0
-         size 48 24
+         size 1 24
          hexactpos 1
          vexactpos 1
-         hexactsize 1
+         hexactsize 0
          vexactsize 1
          {
           PanelWidgetClass PartyButtonDepositBackground {
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
-           size 0.45 1
+           size 0.49 1
            halign right_ref
            hexactpos 0
            vexactpos 0
@@ -1023,7 +1023,7 @@ FrameWidgetClass ExpansionATMMenu {
            visible 0
            ignorepointer 1
            color 0.1412 0.1412 0.1412 0.549
-           size 0.45 1
+           size 0.49 1
            hexactpos 0
            vexactpos 0
            hexactsize 0
@@ -1032,7 +1032,7 @@ FrameWidgetClass ExpansionATMMenu {
           }
           ButtonWidgetClass PartyButtonDeposit {
            color 0.1804 0.8 0.4431 0.549
-           size 0.45 24
+           size 0.49 24
            halign right_ref
            hexactpos 1
            vexactpos 1
@@ -1063,7 +1063,7 @@ FrameWidgetClass ExpansionATMMenu {
           ButtonWidgetClass PartyButtonWithdraw {
            visible 0
            color 0.9059 0.298 0.2353 0.5529
-           size 0.45 24
+           size 0.49 24
            hexactpos 1
            vexactpos 1
            hexactsize 0

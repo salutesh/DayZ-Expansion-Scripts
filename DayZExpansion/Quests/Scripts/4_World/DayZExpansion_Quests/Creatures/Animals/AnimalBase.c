@@ -27,9 +27,6 @@ modded class AnimalBase
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 		PlayerBase player;
 
-		if (Class.CastTo(player, killSource.GetHierarchyRootPlayer()) && player.GetIdentity())
-		{
-			questModule.OnEntityKilled(this, killSource, player.GetIdentity().GetId());
-		}
+		questModule.OnEntityKilled(this, killSource, killSource.GetHierarchyRootPlayer());
 	}
 };

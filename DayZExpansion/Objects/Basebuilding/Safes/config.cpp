@@ -59,8 +59,6 @@ class CfgVehicles
 				};
 			};
 		};
-		attachments[] = {};
-		class GUIInventoryAttachmentsProps{};
 	};
 	class ExpansionSafeLarge: ExpansionSafeBase
 	{

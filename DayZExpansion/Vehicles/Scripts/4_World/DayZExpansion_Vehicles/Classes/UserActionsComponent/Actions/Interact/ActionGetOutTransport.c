@@ -20,7 +20,7 @@ modded class ActionGetOutTransport
 		{
 			GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
 
-			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + got_action_data.m_Car.GetDisplayName() + " (pos=" + got_action_data.m_Car.GetPosition() + ", type=" + got_action_data.m_Car.GetType() + ")");
+			GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + got_action_data.m_Car.GetDisplayName() + " (id=" + ExpansionStatic.GetPersistentIDString(got_action_data.m_Car) + " pos=" + got_action_data.m_Car.GetPosition() + ")");
 		}
 	}
 };

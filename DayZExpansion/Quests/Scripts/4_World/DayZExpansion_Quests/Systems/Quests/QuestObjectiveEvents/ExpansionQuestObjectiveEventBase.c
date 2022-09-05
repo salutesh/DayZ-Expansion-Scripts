@@ -156,7 +156,7 @@ class ExpansionQuestObjectiveEventBase
 
 	void OnUpdate(float timeslice)
 	{
-		if (!IsInitialized() || !IsActive() || IsCompleted() || !GetQuest() || !GetQuest().GetPlayer() || !GetObjectiveConfig())
+		if (!IsInitialized() || !IsActive() || !GetQuest() || !GetQuest().GetPlayer() || !GetObjectiveConfig())
 			return;
 		
 		if (m_TimeLimit > -1)

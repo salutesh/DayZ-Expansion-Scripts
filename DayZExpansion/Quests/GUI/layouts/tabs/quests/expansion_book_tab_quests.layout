@@ -434,7 +434,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                    hexactsize 0
                    vexactsize 1
                    style Normal
-                   text "#STR_EXPANSION_QUEST_MENU_HUMANITY_LABEL"
+                   text "#STR_EXPANSION_HARDLINE_HUMANITY_LABEL"
                    font "gui/fonts/etelkatextpro22"
                    "text offset" 5 0
                    "exact text" 0

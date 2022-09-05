@@ -213,14 +213,6 @@ class ExpansionDefaultQuestData
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 		questConfig.SetAutocomplete(true); //! Set if the quest is autocompleted
 
-		//! Quest items on quest start
-		array <ExpansionQuestItemConfig> questItems = new array<ExpansionQuestItemConfig>;
-		ExpansionQuestItemConfig questItem_1 = new ExpansionQuestItemConfig;
-		questItem_1.SetClassName("Shovel");
-		questItem_1.SetAmount(1);
-		questItems.Insert(questItem_1);
-		questConfig.SetQuestItems(questItems);
-
 		//! Quest objectives
 		ExpansionQuestObjectiveTreasureHuntConfig objective_1 = new ExpansionQuestObjectiveTreasureHuntConfig();
 		objective_1.SetID(1);

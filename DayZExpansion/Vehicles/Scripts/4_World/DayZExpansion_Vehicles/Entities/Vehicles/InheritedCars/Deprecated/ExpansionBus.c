@@ -536,7 +536,7 @@ class ExpansionBus extends OffroadHatchback
 			default:
 				break;
 		}
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 	*/
 

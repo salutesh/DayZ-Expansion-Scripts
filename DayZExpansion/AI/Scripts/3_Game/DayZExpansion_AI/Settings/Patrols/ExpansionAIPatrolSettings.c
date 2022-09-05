@@ -30,7 +30,7 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	float DespawnRadius;
 
@@ -256,6 +256,11 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					objectPatrol.AccuracyMax = -1;
 				}
 
+				if (settingsBase.m_Version < 9)
+				{
+					objectPatrol.RespawnTime = -2;
+				}
+
 				if (!objectPatrol.ClassName)
 				{
 					Error("[ExpansionAIPatrolSettings] Ignoring empty object patrol classname!");
@@ -323,12 +328,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		AccuracyMin = -1;
 		AccuracyMax = -1;
     
-        string worldName;
-        GetGame().GetWorldName(worldName);
-        worldName.ToLower();
-
-        if ( worldName.IndexOf("gloom") == worldName.Length() - 5 )
-            worldName = worldName.Substring(0, worldName.Length() - 5);
+        string worldName = ExpansionStatic.GetCanonicalWorldName();
 
         DefaultCrashPatrols(worldName);
         DefaultPatrols(worldName);

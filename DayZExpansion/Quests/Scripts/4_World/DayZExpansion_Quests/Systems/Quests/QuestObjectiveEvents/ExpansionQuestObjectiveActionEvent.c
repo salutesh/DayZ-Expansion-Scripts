@@ -15,28 +15,13 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	private bool m_ActionState;
 	private bool m_CallLater;
 	private EntityAI m_LastEntity;
-
-	override void OnStart()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
-	#endif
-
-		super.OnStart();
-	}
-
-	override void OnContinue()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
-	#endif
-
-		super.OnContinue();
-	}
 	
 	void OnActionUsed(ActionBase actionBase, ActionData actionData)
 	{
-		QuestPrint(ToString() + "::OnActionUsed - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnActionUsed");
+	#endif
+
 		QuestPrint(ToString() + "::OnActionUsed - Action name: " + actionBase.ClassName());
 		QuestPrint(ToString() + "::OnActionUsed - Action base: " + actionBase.ToString());
 		QuestPrint(ToString() + "::OnActionUsed - Action data: " + actionData.ToString());
@@ -132,13 +117,13 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			SetCompleted(true);
 			OnComplete();
 		}
-				
-		QuestPrint(ToString() + "::OnActionUsed - End");
 	}
 	
 	void CheckEntity(EntityAI entity, string actionName)
 	{
-		QuestPrint(ToString() + "::CheckEntity - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CheckEntity");
+	#endif
 		
 		PlayerBase player;
 		if (Class.CastTo(player, entity) && (actionName == "ActionBandageSelf" || actionName == "ActionBandageTarget"))
@@ -187,8 +172,6 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			}
 		}
 	#endif
-		
-		QuestPrint(ToString() + "::CheckVehicle - End");
 	}
 	
 	bool GetActionState()
@@ -201,11 +184,6 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		m_ActionState = state;
 	}
 	
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-	}
-
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.ACTION;

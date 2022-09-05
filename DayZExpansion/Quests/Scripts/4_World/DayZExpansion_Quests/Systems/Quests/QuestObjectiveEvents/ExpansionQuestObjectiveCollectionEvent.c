@@ -25,24 +25,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnStart()
 	{
-		if (!m_PlayerItems)
-			m_PlayerItems = new array<EntityAI>;
-
-	#ifdef EXPANSIONMODGROUPS
-		if (!m_GroupItems)
-			m_GroupItems = new array<EntityAI>;
-	#endif
-
-		if (!GetQuest().IsGroupQuest())
-		{
-			EnumeratePlayerInventory(GetQuest().GetPlayer());
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			EnumerateGroupInventory(GetQuest().GetGroup());
-		}
-	#endif
+		CollectionEventStart();
 		
 		super.OnStart();
 	}
@@ -97,23 +80,20 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		Print(ToString() + "::OnTurnIn - End");
 	}
 	
-	private void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
+	override void OnContinue()
 	{
-		ItemBase itemBase;
-		if (Class.CastTo(itemBase, item) && itemBase.Expansion_IsStackable())
-		{
-			itemBase.Expansion_DecreaseStackAmount(amountToDelete, true);
-		}
-		else
-		{
-			//! Everything else
-			GetGame().ObjectDelete(item);
-			amountToDelete--;
-		}
+		CollectionEventStart();
+		
+		super.OnContinue();
 	}
 
-	override void OnContinue()
-	{		
+	override void OnCleanup()
+	{
+		super.OnCleanup();
+	}
+	
+	private void CollectionEventStart()
+	{
 		if (!m_PlayerItems)
 			m_PlayerItems = new array<EntityAI>;
 
@@ -132,13 +112,21 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			EnumerateGroupInventory(GetQuest().GetGroup());
 		}
 	#endif
-		
-		super.OnContinue();
 	}
-
-	override void OnCleanup()
+	
+	private void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
 	{
-		super.OnCleanup();
+		ItemBase itemBase;
+		if (Class.CastTo(itemBase, item) && itemBase.Expansion_IsStackable())
+		{
+			itemBase.Expansion_DecreaseStackAmount(amountToDelete, true);
+		}
+		else
+		{
+			//! Everything else
+			GetGame().ObjectDelete(item);
+			amountToDelete--;
+		}
 	}
 
 	bool HasAllCollectionItems()
@@ -306,7 +294,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
 				EnumeratePlayerInventory(player);
-
 				if (!HasAllCollectionItems() && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -328,7 +315,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			else
 			{
 				EnumerateGroupInventory(GetQuest().GetGroup());
-
 				if (!HasGroupAllCollectionItems() && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

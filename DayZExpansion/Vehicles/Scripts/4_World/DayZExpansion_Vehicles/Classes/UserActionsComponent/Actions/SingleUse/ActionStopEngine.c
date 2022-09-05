@@ -67,7 +67,7 @@ modded class ActionStopEngine
 					}
 
 					if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
-						GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] stopped vehicle " + m_Car.GetDisplayName() + " (pos=" + m_Car.GetPosition() + ", type=" + m_Car.GetType() + ")");
+						GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] stopped vehicle " + m_Car.GetDisplayName() + " (id=" + m_Car.GetVehiclePersistentIDString() + " pos=" + m_Car.GetPosition() + ")");
 				}
 			}
 		}

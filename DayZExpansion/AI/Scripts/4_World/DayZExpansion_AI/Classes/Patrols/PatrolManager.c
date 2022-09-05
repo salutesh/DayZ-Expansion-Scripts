@@ -10,79 +10,106 @@ class ExpansionAIPatrolManager
         if ( !s_AIPatrolSettings.Enabled )
             return NULL;
 
+        //! Init matching object patrol
         foreach(ExpansionAIObjectPatrol patrol: s_AIPatrolSettings.ObjectPatrols)
         {
-            if (!patrol.ClassName || patrol.ClassName != type)
+            if (!patrol.ClassName || !CF_String.EqualsIgnoreCase(patrol.ClassName, type))
                 continue;
 
-            if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
+            auto dynPatrol = InitPatrol(patrol, position);
+            if (!dynPatrol)
                 continue;
 
-            int aiSum;
-            if ( patrol.NumberOfAI != 0 )
-            {
-                if ( patrol.NumberOfAI < 0 )
-                {
-                    aiSum = Math.RandomInt(1,-patrol.NumberOfAI);
-                } else {
-                    aiSum = patrol.NumberOfAI;
-                }
-            } else {
-                ObjectPatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping the "+patrol.ClassName+" patrol");
-                continue;
-            }
-
-            float despawntime = 0;
-            float mindistradius = 0;
-            float maxdistradius = 0;
-            float despawnradius = 0;
-
-            eAIWaypointBehavior behaviour = patrol.GetBehaviour();
-            TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
-            vector startpos = waypoints[0];
-
-            if ( patrol.DespawnTime < 0 )
-            {
-                despawntime = s_AIPatrolSettings.DespawnTime;
-            } else {
-                despawntime = patrol.DespawnTime;
-            }
-
-            if ( patrol.MinDistRadius <= 0 )
-            {
-                mindistradius = s_AIPatrolSettings.MinDistRadius;
-            } else {
-                mindistradius = patrol.MinDistRadius;
-            }
-
-            if ( patrol.MaxDistRadius <= 0 )
-            {
-                maxdistradius = s_AIPatrolSettings.MaxDistRadius;
-            } else {
-                maxdistradius = patrol.MaxDistRadius;
-            }
-
-            if ( patrol.DespawnRadius <= 0 )
-            {
-                despawnradius = s_AIPatrolSettings.DespawnRadius;
-            } else {
-                despawnradius = patrol.DespawnRadius;
-            }
-            
-            if (mindistradius > maxdistradius)
-            {
-                ObjectPatrolLog("!!! ERROR !!!");
-                ObjectPatrolLog("MinDistRadius has a larger radius than MaxDistRadius (MinDistRadius should be smaller than MaxDistRadius)");
-                ObjectPatrolLog("!!! ERROR !!!");
-            }
-
-            ObjectPatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots near "+patrol.ClassName+" at "+startpos);
-            auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, 0, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
-            dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
+            //! Return dynamic patrol
             return dynPatrol;
         }
 
         return NULL;
+    }
+
+    protected static eAIDynamicPatrol InitPatrol(ExpansionAIDynamicSpawnBase patrol, vector position = vector.Zero)
+    {
+        if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
+            return NULL;
+
+        int aiSum;
+        if ( patrol.NumberOfAI != 0 )
+        {
+            if ( patrol.NumberOfAI < 0 )
+            {
+                aiSum = Math.RandomInt(1,-patrol.NumberOfAI);
+            } else {
+                aiSum = patrol.NumberOfAI;
+            }
+        }
+        else {
+            PatrolLog(patrol, "WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
+            return NULL;
+        }
+
+        eAIWaypointBehavior behaviour = patrol.GetBehaviour();
+        TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
+        vector startpos = waypoints[0];
+
+        if (startpos == vector.Zero)
+        {
+            PatrolLog(patrol, "!!! ERROR !!!");
+            PatrolLog(patrol, "Couldn't find a spawn location. First waypoint is set to 0 0 0 or could not be read by the system (validate your file with a json validator)");
+            PatrolLog(patrol, "!!! ERROR !!!");
+            return NULL;
+        }
+
+        float respawntime = 0;
+        float despawntime = 0;
+        float mindistradius = 0;
+        float maxdistradius = 0;
+        float despawnradius = 0;
+
+        if ( patrol.RespawnTime == -2 )
+        {
+            respawntime = s_AIPatrolSettings.RespawnTime;
+        } else {
+            respawntime = patrol.RespawnTime;
+        }
+
+        if ( patrol.DespawnTime < 0 )
+        {
+            despawntime = s_AIPatrolSettings.DespawnTime;
+        } else {
+            despawntime = patrol.DespawnTime;
+        }
+
+        if ( patrol.MinDistRadius <= 0 )
+        {
+            mindistradius = s_AIPatrolSettings.MinDistRadius;
+        } else {
+            mindistradius = patrol.MinDistRadius;
+        }
+
+        if ( patrol.MaxDistRadius <= 0 )
+        {
+            maxdistradius = s_AIPatrolSettings.MaxDistRadius;
+        } else {
+            maxdistradius = patrol.MaxDistRadius;
+        }
+
+        if ( patrol.DespawnRadius <= 0 )
+        {
+            despawnradius = s_AIPatrolSettings.DespawnRadius;
+        } else {
+            despawnradius = patrol.DespawnRadius;
+        }
+        
+        if (mindistradius > maxdistradius)
+        {
+            PatrolLog(patrol, "!!! ERROR !!!");
+            PatrolLog(patrol, "MinDistRadius has a larger radius than MaxDistRadius (MinDistRadius should be smaller than MaxDistRadius)");
+            PatrolLog(patrol, "!!! ERROR !!!");
+        }
+
+        auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+        dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
+        return dynPatrol;
     }
 
     static void InitPatrols()
@@ -93,113 +120,35 @@ class ExpansionAIPatrolManager
         if ( !s_AIPatrolSettings.Enabled )
             return;
             
-        PatrolLog("=================== Patrol Spawner START ===================");
+        PatrolLog(null, "=================== Patrol Spawner START ===================");
 
-        float respawntime = 0;
-        float despawntime = 0;
-        float mindistradius = 0;
-        float maxdistradius = 0;
-        float despawnradius = 0;
-
+        //! Init all roaming patrols
         foreach(ExpansionAIPatrol patrol: s_AIPatrolSettings.Patrols)
         {
-		    if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
-                continue;
-
-            int aiSum;
-            if ( patrol.NumberOfAI != 0 )
+            if ( !patrol.Waypoints || !patrol.Waypoints.Count() )
             {
-                if ( patrol.NumberOfAI < 0 )
-                {
-                    aiSum = Math.RandomInt(1,-patrol.NumberOfAI);
-                } else {
-                    aiSum = patrol.NumberOfAI;
-                }
-            } else {
-                PatrolLog("WARNING: NumberOfAI shouldn't be set to 0, skipping this patrol...");
+                PatrolLog(patrol, "!!! ERROR !!!");
+                PatrolLog(patrol, "No waypoints (validate your file with a json validator)");
+                PatrolLog(patrol, "!!! ERROR !!!");
                 continue;
             }
 
-            if ( !patrol.Waypoints )
-            {
-                PatrolLog("!!! ERROR !!!");
-                PatrolLog("No waypoints (validate your file with a json validator)");
-                PatrolLog("!!! ERROR !!!");
+            if (!InitPatrol(patrol))
                 continue;
-            }
-
-            vector startpos = patrol.Waypoints[0];
-            if ( !startpos || startpos == "0 0 0" )
-            {
-                PatrolLog("!!! ERROR !!!");
-                PatrolLog("Couldn't find a spawn location. First waypoint is set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
-                PatrolLog("!!! ERROR !!!");
-                continue;
-            }
-
-            // Safety in case the Y is bellow the ground
-            startpos = ExpansionStatic.GetSurfacePosition(startpos);
-            if ( startpos[1] < patrol.Waypoints[0][1] )
-                startpos[1] = patrol.Waypoints[0][1];
-
-            if ( patrol.RespawnTime == -2 )
-            {
-                respawntime = s_AIPatrolSettings.RespawnTime;
-            } else {
-                respawntime = patrol.RespawnTime;
-            }
-
-            if ( patrol.DespawnTime < 0 )
-            {
-                despawntime = s_AIPatrolSettings.DespawnTime;
-            } else {
-                despawntime = patrol.DespawnTime;
-            }
-
-            if ( patrol.MinDistRadius <= 0 )
-            {
-                mindistradius = s_AIPatrolSettings.MinDistRadius;
-            } else {
-                mindistradius = patrol.MinDistRadius;
-            }
-
-            if ( patrol.MaxDistRadius <= 0 )
-            {
-                maxdistradius = s_AIPatrolSettings.MaxDistRadius;
-            } else {
-                maxdistradius = patrol.MaxDistRadius;
-            }
-
-            if ( patrol.DespawnRadius <= 0 )
-            {
-                despawnradius = s_AIPatrolSettings.DespawnRadius;
-            } else {
-                despawnradius = patrol.DespawnRadius;
-            }
-
-            if (mindistradius > maxdistradius)
-            {
-                PatrolLog("!!! ERROR !!!");
-                PatrolLog("MinDistRadius has a larger radius than MaxDistRadius (MinDistRadius should be smaller than MaxDistRadius)");
-                PatrolLog("!!! ERROR !!!");
-            }
-
-            PatrolLog("Creating trigger for "+aiSum+" "+patrol.Faction+" bots at "+startpos);
-            auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, patrol.GetWaypoints(), patrol.GetBehaviour(), patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
-            dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
         }
-        PatrolLog("=================== Patrol Spawner END ===================");
+        PatrolLog(null, "=================== Patrol Spawner END ===================");
     }
 
-    private static void ObjectPatrolLog(string msg)
+    private static void PatrolLog(ExpansionAIDynamicSpawnBase patrol, string msg)
     {
-        if ( GetExpansionSettings().GetLog().AIObjectPatrol )
-            GetExpansionSettings().GetLog().PrintLog("[AI Object Patrol] " +msg);
-    }
-
-    private static void PatrolLog(string msg)
-    {
-        if ( GetExpansionSettings().GetLog().AIPatrol )
+        if ( patrol && patrol.IsInherited(ExpansionAIObjectPatrol) )
+        {
+            if (GetExpansionSettings().GetLog().AIObjectPatrol )
+                GetExpansionSettings().GetLog().PrintLog("[AI Object Patrol] " +msg);
+        }
+        else if ( GetExpansionSettings().GetLog().AIPatrol )
+        {
             GetExpansionSettings().GetLog().PrintLog("[AI Patrol] " +msg);
+        }
     }
 }

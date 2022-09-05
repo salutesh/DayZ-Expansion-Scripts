@@ -89,17 +89,8 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
 
-		//! Set default markers depending on map name
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
-		
-		switch (world_name)
+		//! Set default ivies depending on map name
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "chernarusplus":
 				GetChernarusPlusIviesPositions( iviesPosition );

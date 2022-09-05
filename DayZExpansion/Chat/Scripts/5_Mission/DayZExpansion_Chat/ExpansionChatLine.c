@@ -76,78 +76,64 @@ class ExpansionChatLineBase: ExpansionScriptView
 		case CCSystem:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("SystemChatColor"));
-			m_ChatLineController.SenderName = " " + "Game" + ": ";
+			m_ChatLineController.SenderName = " Game: ";
 			break;
 		case CCAdmin:
 		case CCBattlEye:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));	
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("AdminChatColor"));
-			
-			if ( message.From )
-			{
-				m_ChatLineController.SenderName = " " + message.From + ": ";
-			} else
-			{ 
-				m_ChatLineController.SenderName = " " + "Admin" + ": ";
-			}
+			SetSenderName(message, " Admin: ");
 			break;
 		case CCTransmitter:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));	
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransmitterChatColor"));
-			m_ChatLineController.SenderName = " " + "PAS" + ": ";
+			m_ChatLineController.SenderName = " PAS: ";
 			break;
 		case ExpansionChatChannels.CCTransport:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));	
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("TransportChatColor"));
-			
-			if ( message.From )
-			{
-				m_ChatLineController.SenderName = " " + message.From + ": ";
-			} else
-			{ 
-				m_ChatLineController.SenderName = " ";
-			}
+			SetSenderName(message);
 			break;
 		case ExpansionChatChannels.CCGlobal:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));	
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("GlobalChatColor"));
-			
-			if ( message.From )
-			{
-				m_ChatLineController.SenderName = " " + message.From + ": ";
-			} else
-			{ 
-				m_ChatLineController.SenderName = " ";
-			}
+			SetSenderName(message);
 			break;
 #ifdef EXPANSIONMODGROUPS
 		case ExpansionChatChannels.CCTeam:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));	
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("PartyChatColor"));
-			
-			if (message.From)
-			{
-				m_ChatLineController.SenderName = " " + message.From + ": ";
-			} else
-			{ 
-				m_ChatLineController.SenderName = " ";
-			}
+			SetSenderName(message);
 			break;
 #endif
 		default:
 			SenderSetColour(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));	
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
-
-			if (message.From)
-			{
-				m_ChatLineController.SenderName = " " + message.From + ": ";
-			} else
-			{ 
-				m_ChatLineController.SenderName = " ";
-			}
+			SetSenderName(message);
 			break;
 		}
+		
+		//BreakWords(message);
+		m_ChatLineController.Message = message.Text;
+		m_ChatLineController.NotifyPropertiesChanged({"SenderName", "Message"});
 
+		if (!IsVisible())
+		{
+			FadeInChatLine();
+		}
+
+		//! Adjust message size so it actually fits and doesn't get cut off
+		float root_w, root_h;
+		GetLayoutRoot().GetScreenSize(root_w, root_h);
+		float sender_w, sender_h;
+		SenderName.GetScreenSize(sender_w, sender_h);
+		Message.SetSize(1.0 - sender_w / root_w, 1.0);
+	}
+	
+	//! @note doesn't work as intended since Enforce doesn't support zero-width space (gets rendered as normal space)
+	//! Keeping this here for future reference
+	void BreakWords(ExpansionChatMessage message)
+	{
 		//! maxLineCharacters is the amount of charaters that can fit into one line before a line 
 		//! break need to happend with the current chat font size.
 		//! Note: Hardcoded values below assume 2560x1440 resolution, so need to adjust for other resolutions!
@@ -189,35 +175,22 @@ class ExpansionChatLineBase: ExpansionScriptView
 			message.Text.Split(" ", words);
 			foreach (string word: words)
 			{
-				while (word.Length() > maxWordCharacters)
+				while (!word.Contains("#") && word.Length() > maxWordCharacters)
 				{
-					messageText += word.Substring(0, maxWordCharacters) + " ";
+					messageText += word.Substring(0, maxWordCharacters) + ExpansionString.ZERO_WIDTH_SPACE;
 					word = word.Substring(maxWordCharacters, word.Length() - maxWordCharacters);
 				}
-				messageText += word + " ";
+				messageText += word + ExpansionString.ZERO_WIDTH_SPACE;
 			}
+
+			m_ChatLineController.Message = messageText;
 		}
 		else
 		{
-			messageText = message.Text;
+			m_ChatLineController.Message = message.Text;
 		}
-		
-		m_ChatLineController.Message = messageText;
-		m_ChatLineController.NotifyPropertiesChanged({"SenderName", "Message"});
-
-		if (!IsVisible())
-		{
-			FadeInChatLine();
-		}
-
-		//! Adjust message size so it actually fits and doesn't get cut off
-		float root_w, root_h;
-		GetLayoutRoot().GetScreenSize(root_w, root_h);
-		float sender_w, sender_h;
-		SenderName.GetScreenSize(sender_w, sender_h);
-		Message.SetSize(1.0 - sender_w / root_w, 1.0);
 	}
-	
+
 	private void FadeInChatLine()
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
@@ -244,6 +217,17 @@ class ExpansionChatLineBase: ExpansionScriptView
 		Message.SetColor(colour);
 	}
 	
+	private void SetSenderName(ExpansionChatMessage message, string fallback = " ")
+	{
+		if ( message.From )
+		{
+			m_ChatLineController.SenderName = " " + message.From + ": ";
+		} else
+		{ 
+			m_ChatLineController.SenderName = fallback;
+		}
+	}
+
 	private void SenderSetColour(int colour)
 	{
 		SenderName.SetColor(colour);

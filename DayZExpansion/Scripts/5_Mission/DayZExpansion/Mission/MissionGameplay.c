@@ -18,6 +18,8 @@ modded class MissionGameplay
 	//! PlayerList check
 	protected bool m_Expansion_PlayerListTogglePressed;
 	
+	protected float m_Expansion_NVUpdateTick;
+
 	//! Modules
 	ref ExpansionAutorunModule m_AutoRunModule;
 	
@@ -66,11 +68,8 @@ modded class MissionGameplay
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
 		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(viewMenu);
 		
-		if (playerPB && playerPB.GetHumanInventory()) 
+		if (playerPB) 
 		{
-			//! Expansion reference to item in hands
-			EntityAI itemInHands = playerPB.GetHumanInventory().GetEntityInHands();
-
 			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 			{
 				//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
@@ -125,7 +124,12 @@ modded class MissionGameplay
 			//! Nightvision check
 			if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay)
 			{
-				PlayerCheckNV(playerPB);
+				m_Expansion_NVUpdateTick += timeslice;
+				if (m_Expansion_NVUpdateTick > 0.1)
+				{
+					m_Expansion_NVUpdateTick = 0.0;
+					PlayerCheckNV(playerPB);
+				}
 			}
 		}
 	}
@@ -135,90 +139,76 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	void PlayerCheckNV(PlayerBase player)
 	{		
-		if (!GetGame())
+		if (!m_Hud)
 			return;
 		
-		if (player && player.GetCurrentCamera())
+		DayZPlayerCameraBase camera;
+		if (Class.CastTo(camera, player.GetCurrentCamera()))
 		{
-			private DayZPlayerCameraBase camera = DayZPlayerCameraBase.Cast(GetGame().GetPlayer().GetCurrentCamera());
-			if (camera)
+			if (camera.IsCameraNV()) 
 			{
-				if (camera && camera.IsCameraNV()) 
-				{
-					if (!m_Hud.GetNVState())
-				 		m_Hud.ShowNV(true);
-				}
-				else
-				{
-					if (m_Hud.GetNVState())
-				 		m_Hud.ShowNV(false);
-				}
+				if (!m_Hud.GetNVState())
+					m_Hud.ShowNV(true);
+			}
+			else
+			{
+				if (m_Hud.GetNVState())
+					m_Hud.ShowNV(false);
+				return;
 			}
 		}
-		
-		EntityAI entity;
-		NVGoggles googles;
+
+		NVGoggles goggles;
+		ItemOptics optic;
 		ItemBase headgear;
-		ItemBase eyewear;
-		ItemBase handitem;
-		
-		if (player && player.FindAttachmentBySlotName("Headgear") != null)
+		EntityAI entityInHands;
+		Weapon weapon;
+		ItemBase nvItem;
+
+		//! Eyewear (e.g. NVG headstrap) takes precedence over headgear (e.g. helmet)
+		headgear = ItemBase.Cast(player.FindAttachmentBySlotName("Eyewear"));
+		if (!headgear)
 			headgear = ItemBase.Cast(player.FindAttachmentBySlotName("Headgear"));
-		
-		if (player && player.FindAttachmentBySlotName("Eyewear") != null)
-			eyewear = ItemBase.Cast(player.FindAttachmentBySlotName("Eyewear"));
-		
-		if (player && player.GetHumanInventory().GetEntityInHands() != null)
-			handitem = ItemBase.Cast(player.GetHumanInventory().GetEntityInHands());
-		
-		// Nvg - Headgear check
-		if (headgear)
+
+		if (player.IsInOptics())
 		{
-			entity = headgear.FindAttachmentBySlotName("NVG");
-			if (entity)
+			//! In hands check - priority since when in optics, NV optics take precedence over NVG attached to headgear/eyewear
+			entityInHands = player.GetHumanInventory().GetEntityInHands();
+			if (entityInHands)
 			{
-				Class.CastTo(googles, entity);
-				GetNVBatteryState(googles);
+				if (Class.CastTo(goggles, entityInHands))
+				{
+					nvItem = goggles;
+				}
+				else if (Class.CastTo(optic, entityInHands) || (Class.CastTo(weapon, entityInHands) && Class.CastTo(optic, weapon.GetAttachedOptics())))
+				{
+					if (optic.GetCurrentNVType() != NVTypes.NONE)
+					{
+						nvItem = optic;
+					}
+				}
 			}
 		}
-		// Nvg - Eyewear check
-		if (eyewear)
+
+		//! Headgear/eyewear check
+		if (!nvItem && headgear)
 		{
-			entity = eyewear.FindAttachmentBySlotName("NVG");
-			if (entity)
+			if (Class.CastTo(goggles, headgear.FindAttachmentBySlotName("NVG")))
 			{
-				Class.CastTo(googles, entity);
-				GetNVBatteryState(googles);
+				nvItem = goggles;
 			}
 		}
-		// Nvg - In hands check
-		if (handitem)
-		{
-			entity = handitem;
-			if (entity)
-			{
-				Class.CastTo(googles, entity);
-				GetNVBatteryState(googles);
-			}
-		}
+
+		if (nvItem)
+			m_Hud.SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion PlayerCheckNV
+	// Expansion GetNVBatteryState
 	// ------------------------------------------------------------
 	void GetNVBatteryState(NVGoggles googles)
 	{
-		if (GetGame().IsDedicatedServer())
-		{
-			return;
-		}
-
-		int energy_percent = 0;
-		if (googles && googles.GetCompEM().CanWork())
-		{
-			energy_percent = googles.GetBatteryEnergy();					
-			m_Hud.SetNVBatteryState(energy_percent);
-		}
+		Error("DEPRECATED");
 	}
 	
 	// ------------------------------------------------------------

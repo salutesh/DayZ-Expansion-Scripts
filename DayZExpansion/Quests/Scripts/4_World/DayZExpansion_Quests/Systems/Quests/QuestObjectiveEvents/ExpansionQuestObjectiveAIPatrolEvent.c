@@ -65,7 +65,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnCancel - End");
 	}
 	
-	void OnEntityKilled(EntityAI victim, EntityAI killer)
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");

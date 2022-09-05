@@ -12,6 +12,8 @@
 
 class ExpansionString
 {
+	const string ZERO_WIDTH_SPACE = "​"; //! This may look like an empty string, but it is not. It's a zero-width space as UTF-8;
+
 	static ref map<string, int> s_ToAscii = new map<string, int>;
 
 	protected string m_String;

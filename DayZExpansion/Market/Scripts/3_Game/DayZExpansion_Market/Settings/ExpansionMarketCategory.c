@@ -12,7 +12,7 @@
 
 class ExpansionMarketCategory
 {
-	static const int VERSION = 9;
+	static const int VERSION = 11;
 
 	int m_Version;
 
@@ -28,6 +28,7 @@ class ExpansionMarketCategory
 	string DisplayName;
 	string Icon;
 	string Color;
+	bool IsExchange;
 	float InitStockPercent;
 
 	//! NOTE: Normally we don't want to iterate over this, use GetItems() instead (contains all variants)
@@ -48,7 +49,7 @@ class ExpansionMarketCategory
 	bool m_Finalized;
 
 	[NonSerialized()]
-	bool m_Idx;
+	int m_Idx;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionMarketCategory Load
@@ -59,7 +60,8 @@ class ExpansionMarketCategory
 		categoryDefault.Defaults();
 
 		ExpansionMarketCategory category = new ExpansionMarketCategory;
-		JsonFileLoader<ExpansionMarketCategory>.JsonLoadFile( EXPANSION_MARKET_FOLDER + name + ".json", category );
+		if (!ExpansionJsonFileParser<ExpansionMarketCategory>.Load( EXPANSION_MARKET_FOLDER + name + ".json", category ))
+			return NULL;
 
 		category.m_FileName = name;
 
@@ -92,6 +94,13 @@ class ExpansionMarketCategory
 					if (!itemV8OrLower.QuantityPercent)
 						itemV8OrLower.QuantityPercent = -1;
 				}
+			}
+
+			if (category.m_Version < 11)
+			{
+				string fileNameLower = name;
+				fileNameLower.ToLower();
+				category.IsExchange = fileNameLower.IndexOf("exchange") == 0;
 			}
 
 			category.m_Version = VERSION;
@@ -342,77 +351,13 @@ class ExpansionMarketCategory
 	{
 		return m_Items.GetKeyArray();
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionMarketItem IsMapEnoch
-	// ------------------------------------------------------------
-	bool IsMapEnoch()
-	{
-		string world_name = "default";
-
-		if ( GetGame() )
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-			
-		if ( world_name == "enochgloom" ||  world_name == "enoch" )
-			return true;
-		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionMarketItem IsMapChernarus
-	// ------------------------------------------------------------
-	bool IsMapChernarus()
-	{
-		string world_name = "default";
-
-		if ( GetGame() )
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-			
-		if ( world_name == "chernarusplusgloom" ||  world_name == "chernarusplus" )
-			return true;
-		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionMarketItem IsMapNamalsk
-	// ------------------------------------------------------------
-	bool IsMapNamalsk()
-	{
-		string world_name = "default";
-
-		if ( GetGame() )
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-			
-		if ( world_name == "namalskgloom" ||  world_name == "namalsk" )
-			return true;
-		
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion ExpansionMarketItem IsExchange
-	// ------------------------------------------------------------
-	bool IsExchange()
-	{
-		string fileNameLower = m_FileName;
-		fileNameLower.ToLower();
-		return fileNameLower.IndexOf("exchange") == 0;
-	}
 
 	void Copy(ExpansionMarketNetworkCategory cat)
 	{
-		DisplayName = cat.Name;
+		DisplayName = cat.DisplayName;
 		Icon = cat.Icon;
 		Color = ExpansionColor.ARGBToHex(cat.Color);
 		CategoryID = cat.CategoryID;
-		m_FileName = cat.m_FileName;
+		IsExchange = cat.IsExchange;
 	}
 }

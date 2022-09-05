@@ -174,22 +174,13 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 
-		if (Position)
-			obj.SetPosition(Position);
-
-		if (Orientation)
-			obj.SetOrientation(Orientation);
+		obj.SetOrientation(Orientation);
+		obj.Update();
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNPCBase questNPC = ExpansionQuestNPCBase.Cast(enity);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
-
-		if (Position)
-			questNPC.SetPosition(Position);
-
-		if (Orientation)
-			questNPC.SetOrientation(Orientation);
 
 		return questNPC;
 	}
@@ -199,30 +190,13 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
 
-		if (Position)
-			obj.SetPosition(Position);
-
-		if (Orientation)
-			obj.SetOrientation(Orientation);
+		obj.SetOrientation(Orientation);
+		obj.Update();
 
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(enity);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
-
-		questNPC.SetPosition(Position);
-		questNPC.SetOrientation(Orientation);
-		vector roll = questNPC.GetOrientation();
-		roll [ 2 ] = roll [ 2 ] - 1;
-		questNPC.SetOrientation(roll);
-		roll [ 2 ] = roll [ 2 ] + 1;
-		questNPC.SetOrientation(roll);
-
-		if (questNPC.CanAffectPathgraph())
-		{
-			questNPC.SetAffectPathgraph(true, false);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, questNPC);
-		}
 
 		eAIGroup ownerGrp = questNPC.GetGroup();
 		for (int j = 0; j < Waypoints.Count(); j++)

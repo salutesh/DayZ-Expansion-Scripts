@@ -77,6 +77,8 @@ class ExpansionMenuDialogButton_Text: ExpansionMenuDialogButtonBase
 {
 	ref ExpansionMenuDialogButton_TextController m_TextButtonController;
 	
+	TextWidget dialog_text;
+	
 	string m_Text;
 	
 	void ExpansionMenuDialogButton_Text(ExpansionMenuDialogBase dialog)
@@ -114,6 +116,11 @@ class ExpansionMenuDialogButton_Text: ExpansionMenuDialogButtonBase
 	}
 	
 	void OnButtonClick();
+	
+	void SetTextColor(int color)
+	{
+		dialog_text.SetColor(color);
+	}
 	
 	override void OnShow()
 	{

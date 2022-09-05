@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Quests_Dta_Core
 	{
-		units[] = {"ExpansionQuestNPCDenis","ExpansionQuestNPCBoris","ExpansionQuestNPCCyril","ExpansionQuestNPCElias","ExpansionQuestNPCFrancis","ExpansionQuestNPCGuo","ExpansionQuestNPCHassan","ExpansionQuestNPCIndar","ExpansionQuestNPCJose","ExpansionQuestNPCKaito","ExpansionQuestNPCLewis","ExpansionQuestNPCManua","ExpansionQuestNPCNiki","ExpansionQuestNPCOliver","ExpansionQuestNPCPeter","ExpansionQuestNPCQuinn","ExpansionQuestNPCRolf","ExpansionQuestNPCSeth","ExpansionQuestNPCTaiki","ExpansionQuestNPCLinda","ExpansionQuestNPCMaria","ExpansionQuestNPCFrida","ExpansionQuestNPCGabi","ExpansionQuestNPCHelga","ExpansionQuestNPCIrena","ExpansionQuestNPCJudy","ExpansionQuestNPCKeiko","ExpansionQuestNPCLina","ExpansionQuestNPCNaomi","ExpansionQuestItemBase","ExpansionQuestItemPaper","ExpansionQuestItemPackage"};
+		units[] = {"ExpansionQuestNPCDenis","ExpansionQuestNPCBoris","ExpansionQuestNPCCyril","ExpansionQuestNPCElias","ExpansionQuestNPCFrancis","ExpansionQuestNPCGuo","ExpansionQuestNPCHassan","ExpansionQuestNPCIndar","ExpansionQuestNPCJose","ExpansionQuestNPCKaito","ExpansionQuestNPCLewis","ExpansionQuestNPCManua","ExpansionQuestNPCNiki","ExpansionQuestNPCOliver","ExpansionQuestNPCPeter","ExpansionQuestNPCQuinn","ExpansionQuestNPCRolf","ExpansionQuestNPCSeth","ExpansionQuestNPCTaiki","ExpansionQuestNPCLinda","ExpansionQuestNPCMaria","ExpansionQuestNPCFrida","ExpansionQuestNPCGabi","ExpansionQuestNPCHelga","ExpansionQuestNPCIrena","ExpansionQuestNPCJudy","ExpansionQuestNPCKeiko","ExpansionQuestNPCLina","ExpansionQuestNPCNaomi","ExpansionQuestNPCEva","ExpansionQuestItemBase","ExpansionQuestItemPaper","ExpansionQuestItemPackage"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Characters","DZ_Scripts","DZ_AI","DayZExpansion_Dta_Core"};
@@ -387,6 +387,11 @@ class CfgVehicles
 		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCNaomi: SurvivorF_Naomi
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionQuestNPCEva: SurvivorF_Eva
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";

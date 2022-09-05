@@ -108,4 +108,9 @@ class ExpansionBookMenuTabBase: ExpansionScriptView
 	{			
 		GetBookMenu().SwitchMovementLockState(lockMovement);
 	}
+	
+	bool CanClose()
+	{
+		return true;
+	}
 };

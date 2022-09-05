@@ -45,6 +45,8 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 	{
 		m_MarketItemManagerCategoryController.CategoryIcon = name;
 		m_MarketItemManagerCategoryController.NotifyPropertyChanged("CategoryIcon");
+		
+		category_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 	}
 	
 	void OnCategoryButtonClick()

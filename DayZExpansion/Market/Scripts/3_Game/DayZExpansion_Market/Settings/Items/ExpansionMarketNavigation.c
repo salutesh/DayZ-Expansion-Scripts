@@ -23,7 +23,7 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 		AddItem("Compass", 						10,		20,		1,		100);
 		AddItem("OrienteeringCompass", 			10,		20,		1,		100);
 
-		if ( IsMapNamalsk() )
+		if (ExpansionStatic.GetCanonicalWorldName() == "namalsk")
 		{
 			AddItem("dzn_map_namalsk", 			15,		30,		1,		100);
 		}

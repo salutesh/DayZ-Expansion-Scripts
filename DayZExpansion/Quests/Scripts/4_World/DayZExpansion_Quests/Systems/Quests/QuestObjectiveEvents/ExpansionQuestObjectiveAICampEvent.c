@@ -20,18 +20,20 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest
 	override void OnStart()
 	{
-		ObjectivePrint(ToString() + "::OnStart - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
+	#endif
 
 		CheckQuestAIPatrol();
 		super.OnStart();
-
-		ObjectivePrint(ToString() + "::OnStart - End");
 	}
 
 	//! Event called when the player continues the quest after a server restart/reconnect
 	override void OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
+	#endif
 
 		CheckQuestAIPatrol();
 		super.OnContinue();
@@ -42,31 +44,35 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override void OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
+	#endif
 
 		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
 			CleanupPatrol();
 
 		super.OnCleanup();
-
-		ObjectivePrint(ToString() + "::OnCleanup - End");
 	}
 
 	//! Event called when the quest gets manualy canceled by the player.
 	override void OnCancel()
 	{
-		ObjectivePrint(ToString() + "::OnCancel - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
+	#endif
 
 		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
 			CleanupPatrol();
 
 		super.OnCancel();
-
-		ObjectivePrint(ToString() + "::OnCancel - End");
 	}
 
 	private void CleanupPatrol()
 	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CleanupPatrol");
+	#endif
+
 		array<eAIDynamicPatrol> questPatrols;
 		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))	
 		{
@@ -117,7 +123,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		return false;
 	}
 	
-	void OnEntityKilled(EntityAI victim, EntityAI killer)
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
@@ -165,8 +171,10 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	private void CheckQuestAIPatrol()
 	{
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
-		
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CheckQuestAIPatrol");
+	#endif
+			
 		if (!GetQuest() || !GetQuest().GetQuestModule() || !GetQuest().GetQuestConfig() || !GetObjectiveConfig())
 			return;
 		
@@ -205,13 +213,13 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		{
 			CreateQuestAIPatrol();
 		}
-		
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
 	}
 	
 	void CreateQuestAIPatrol()
 	{
-		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CreateQuestAIPatrol");
+	#endif
 		
 		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
 		if (!aiCamp)
@@ -241,11 +249,9 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CleanupZeds, 30000, true);
 		
 	#ifdef EXPANSIONMODNAVIGATION
-		string markerName = GetQuest().GetQuestConfig().GetObjectives().Get(GetIndex()).GetObjectiveText();
+		string markerName = GetObjectiveConfig().GetObjectiveText();
 		GetQuest().CreateClientMarker(aiCamp.GetPositions()[0], markerName);
 	#endif
-		
-		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}
 	
 	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
@@ -302,7 +308,9 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	private void CleanupZeds()
 	{
-		Print(ToString() + "::CleanupZeds - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CleanupZeds");
+	#endif
 
 		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
 		if (!aiCamp)
@@ -316,8 +324,6 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 			if (obj.IsInherited(ZombieBase))
 				GetGame().ObjectDelete(obj);
 		}
-
-		Print(ToString() + "::CleanupZeds - End");
 	}
 
 	void SetKillCount(int count)

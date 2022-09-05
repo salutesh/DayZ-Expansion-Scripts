@@ -52,6 +52,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	ref map<string, ExpansionMarketTraderBuySell> Items;
 
 	[NonSerialized()]
+	ref map<int, ExpansionMarketTraderBuySell> m_Categories;
+
+	[NonSerialized()]
 	ref array<ref ExpansionMarketTraderItem> m_Items;
 
 	//! Client only!
@@ -67,6 +70,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 		Items = new map<string, ExpansionMarketTraderBuySell>;
 		Categories = new TStringArray;
+		m_Categories = new map<int, ExpansionMarketTraderBuySell>;
 		m_Items = new array<ref ExpansionMarketTraderItem>;
 	}
 
@@ -82,7 +86,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		
 		ExpansionMarketTraderBase settingsBase;
 		
-		JsonFileLoader<ExpansionMarketTraderBase>.JsonLoadFile( EXPANSION_TRADER_FOLDER + name + ".json", settingsBase );
+		if (!ExpansionJsonFileParser<ExpansionMarketTraderBase>.Load( EXPANSION_TRADER_FOLDER + name + ".json", settingsBase ))
+			return NULL;
 		
 		//! Automatically convert outdated trader files to current version
 		if (settingsBase.m_Version < VERSION)
@@ -95,7 +100,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			{
 				ExpansionMarketTraderV3 settings_v3;
 		
-				JsonFileLoader<ExpansionMarketTraderV3>.JsonLoadFile( EXPANSION_TRADER_FOLDER + name + ".json", settings_v3 );
+				if (!ExpansionJsonFileParser<ExpansionMarketTraderV3>.Load( EXPANSION_TRADER_FOLDER + name + ".json", settings_v3 ))
+					return NULL;
 
 				foreach (string item : settings_v3.Items)
 				{
@@ -104,8 +110,9 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 				}
 			}
 			else if (settingsBase.m_Version >= 4)
-			{				
-				JsonFileLoader<ExpansionMarketTrader>.JsonLoadFile( EXPANSION_TRADER_FOLDER + name + ".json", settings );
+			{
+				if (!ExpansionJsonFileParser<ExpansionMarketTrader>.Load( EXPANSION_TRADER_FOLDER + name + ".json", settings ))
+					return NULL;
 			}
 
 			if (settingsBase.m_Version < 5)
@@ -129,7 +136,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		}
 		else
 		{
-			JsonFileLoader<ExpansionMarketTrader>.JsonLoadFile( EXPANSION_TRADER_FOLDER + name + ".json", settings );
+			if (!ExpansionJsonFileParser<ExpansionMarketTrader>.Load( EXPANSION_TRADER_FOLDER + name + ".json", settings ))
+				return NULL;
 			settings.m_FileName = name;
 		}
 		
@@ -257,37 +265,63 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	void Finalize()
 	{
 		//! Add any missing items from categories
-		foreach (string fileName : Categories)
+		ExpansionMarketCategory cat;
+		if (GetGame().IsServer())
 		{
-			ExpansionMarketTraderBuySell catBuySell = ExpansionMarketTraderBuySell.CanBuyAndSell;
-
-			TStringArray parts = new TStringArray;
-			fileName.Split(":", parts);
-			if (parts.Count() == 2)
+			foreach (string fileName : Categories)
 			{
-				fileName = parts[0];
-				catBuySell = parts[1].ToInt();
-			}
+				ExpansionMarketTraderBuySell catBuySell = ExpansionMarketTraderBuySell.CanBuyAndSell;
 
-			ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(fileName);
-
-			if (!cat)
-			{
-				EXPrint("[ExpansionMarketTrader] Error: Category " + fileName + " does not exist!");
-				continue;
-			}
-
-			foreach (ExpansionMarketItem marketItem : cat.Items)
-			{
-				if (!Items.Contains(marketItem.ClassName))
+				TStringArray parts = new TStringArray;
+				fileName.Split(":", parts);
+				if (parts.Count() == 2)
 				{
-					AddItemInternal(marketItem, catBuySell);
+					fileName = parts[0];
+					catBuySell = parts[1].ToInt();
 				}
+
+				cat = GetExpansionSettings().GetMarket().GetCategory(fileName);
+
+				if (!cat)
+				{
+					EXPrint("[ExpansionMarketTrader] Error: Category " + fileName + " does not exist!");
+					continue;
+				}
+
+				m_Categories.Insert(cat.CategoryID, catBuySell);
+
+				AddCategoryItems(cat, catBuySell);
+			}
+		}
+		else
+		{
+			foreach (int id, ExpansionMarketTraderBuySell buySell: m_Categories)
+			{
+				cat = GetExpansionSettings().GetMarket().GetCategory(id);
+
+				if (!cat)
+				{
+					EXPrint("[ExpansionMarketTrader] Error: Category " + id + " does not exist!");
+					continue;
+				}
+
+				AddCategoryItems(cat, buySell);
 			}
 		}
 
 		//! Add any missing variants and attachments
 		AddAttachmentsAndVariants(m_Items);
+	}
+
+	protected void AddCategoryItems(ExpansionMarketCategory cat, ExpansionMarketTraderBuySell buySell)
+	{
+		foreach (ExpansionMarketItem marketItem : cat.Items)
+		{
+			if (!Items.Contains(marketItem.ClassName))
+			{
+				AddItemInternal(marketItem, buySell);
+			}
+		}
 	}
 
 	void AddAttachmentsAndVariants(array<ref ExpansionMarketTraderItem> items)
@@ -351,60 +385,6 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 	{
 		item.ToLower();
 		return Items.Get( item ) == ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion IsMapEnoch
-	// ------------------------------------------------------------
-	bool IsMapEnoch()
-	{
-		string world_name = "default";
-
-		if ( GetGame() )
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-			
-		if ( world_name == "enochgloom" ||  world_name == "enoch" )
-			return true;
-		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsMapChernarus
-	// ------------------------------------------------------------
-	bool IsMapChernarus()
-	{
-		string world_name = "default";
-
-		if ( GetGame() )
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-			
-		if ( world_name == "chernarusplusgloom" ||  world_name == "chernarusplus" )
-			return true;
-		
-		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsMapNamalsk
-	// ------------------------------------------------------------
-	bool IsMapNamalsk()
-	{
-		string world_name = "default";
-
-		if ( GetGame() )
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-			
-		if ( world_name == "namalskgloom" ||  world_name == "namalsk" )
-			return true;
-		
-		return false;
 	}
 }
 

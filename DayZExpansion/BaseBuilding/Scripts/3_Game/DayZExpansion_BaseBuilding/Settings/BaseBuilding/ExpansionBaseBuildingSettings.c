@@ -411,17 +411,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		GetTerritoryFlagKitAfterBuild = false;
 		
 	#ifdef EXPANSIONMODMARKET
-		
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
-		
-		switch ( world_name )
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "chernarusplus":
 			{

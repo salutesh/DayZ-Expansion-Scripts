@@ -259,6 +259,38 @@ modded class ExpansionBaseBuilding
 		return GetCollisionBox( minMax );
 	}
 
+	//! @note unlike vanilla, use max lifetime of the instance, not max lifetime from CE
+	override void MaxLifetimeRefreshCalc()
+	{
+		if ( (!GetGame().IsMultiplayer() || GetGame().IsServer()) && GetEconomyProfile() )
+		{
+			float lifetime = GetLifetimeMax();
+			int frequency = GetCEApi().GetCEGlobalInt("FlagRefreshFrequency");
+			if ( frequency <= 0 )
+			{
+				frequency = GameConstants.REFRESHER_FREQUENCY_DEFAULT;
+			}
+			
+			bool refresherViable = frequency <= lifetime;
+			if ( refresherViable != m_RefresherViable )
+			{
+				m_RefresherViable = refresherViable;
+				SetSynchDirty();
+			}
+		}
+	}
+
+	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
+	{
+		super.OnPartBuiltServer(player, part_name, action_id );
+
+		if (GetEconomyProfile())
+		{
+			//! Set max lifetime according to CE
+			SetLifetimeMax(GetEconomyProfile().GetLifetime());
+			MaxLifetimeRefreshCalc();
+		}
+	}
 
 	//! For some reasons doing this fixed the null pointer. It's 3AM I need to sleep, good luck guys <3
 	//! -LieutenantMaster

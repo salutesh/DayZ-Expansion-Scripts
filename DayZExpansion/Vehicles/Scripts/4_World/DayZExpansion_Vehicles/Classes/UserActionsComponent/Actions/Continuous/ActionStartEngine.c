@@ -88,11 +88,25 @@ modded class ActionStartEngine
 				CarScript car;
 				if (Class.CastTo(car, trans))
 				{
-					int current = car.Expansion_EngineGetCurrent();
-					car.Expansion_EngineStart(current);
-
-					if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
-						GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] started vehicle " + car.GetDisplayName() + " (pos=" + car.GetPosition() + ", type=" + car.GetType() + ")");
+					float engineHealth = car.GetHealth01("Engine", "");
+					//! @note chance when engine is damaged (health level 0.5)
+					float chance = GetExpansionSettings().GetVehicle().DamagedEngineStartupChancePercent / 100.0;
+					//! @note calculated chance follows a power curve (linear if chance == 0.5)
+					float chanceMin = 0.0025;
+					bool clamp = chance == 0;
+					if (chance < chanceMin)
+						chance = chanceMin;
+					chance = Math.Pow(engineHealth, -ExpansionMath.Log2(chance));
+					if (clamp)
+						chance = ExpansionMath.LinearConversion(chanceMin, 1.0, chance, 0.0, 1.0);
+					if (chance >= Math.RandomFloatInclusive(0.0, 1.0))
+					{
+						int current = car.Expansion_EngineGetCurrent();
+						car.Expansion_EngineStart(current);
+						
+						if (action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleEngine)
+							GetExpansionSettings().GetLog().PrintLog("[VehicleEngine] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] started vehicle " + car.GetDisplayName() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
+					}
 				}
 			}
 		}

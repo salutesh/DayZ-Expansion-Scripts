@@ -706,10 +706,12 @@ class ExpansionVehicleBase extends ItemBase
 				m_RearLight.Destroy();
 		}
 		
+#ifdef SERVER
 		if (GetExpansionSettings().GetLog().VehicleDeleted)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] Vehicle " + GetType() + " deleted! (pos=" + GetPosition().ToString() + ")");
+			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition().ToString() + ")");
 		}
+#endif
 	}
 
 	void LoadConstantVariables()
@@ -3193,6 +3195,23 @@ class ExpansionVehicleBase extends ItemBase
 	int GetPersistentIDD()
 	{
 		return m_PersistentIDD;
+	}
+
+	//! ID of the paired master key
+	string GetPersistentIDString()
+	{
+		string id;
+		id += ExpansionStatic.IntToHex(m_PersistentIDA);
+		id += ExpansionStatic.IntToHex(m_PersistentIDB);
+		id += ExpansionStatic.IntToHex(m_PersistentIDC);
+		id += ExpansionStatic.IntToHex(m_PersistentIDD);
+		return id;
+	}
+
+	//! ID of the vehicle itself
+	string GetVehiclePersistentIDString()
+	{
+		return ExpansionStatic.GetPersistentIDString(this);
 	}
 
 	void SetPersistentIDA(int newIDA)

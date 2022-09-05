@@ -819,7 +819,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 			if (!player)
 			{
-				EXPrint("[ExpansionMonitorModule] WARNING: Player with plain ID " + playerID + " was not found");
+				//! Player instance was probably removed (e.g. gravecross deleted body)
+				//EXPrint("[ExpansionMonitorModule] WARNING: Player with plain ID " + playerID + " was not found");
 				return;
 			}
 		}
@@ -830,7 +831,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 
 			if (!player)
 			{
-				EXPrint("[ExpansionMonitorModule] WARNING: Player with ID " + sender.GetId() + " (plain ID " + playerID + ") was not found");
+				//! Player instance was probably removed (e.g. gravecross deleted body)
+				//EXPrint("[ExpansionMonitorModule] WARNING: Player with ID " + sender.GetId() + " (plain ID " + playerID + ") was not found");
 				return;
 			}
 		}

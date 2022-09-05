@@ -118,7 +118,7 @@ modded class MissionGameplay
 			//! Close current opened expansion script view menu when ESC is pressed
 			if (input.LocalPress("UAUIBack", false))
 			{
-				if (viewMenu && viewMenu.IsVisible())
+				if (viewMenu && viewMenu.IsVisible() && viewMenu.CanClose())
 					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 			}
 		}

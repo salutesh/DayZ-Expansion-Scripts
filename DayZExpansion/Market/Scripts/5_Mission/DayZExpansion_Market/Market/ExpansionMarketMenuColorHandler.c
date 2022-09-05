@@ -90,8 +90,8 @@ class ExpansionMarketMenuColorHandler
 		market_filter_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 			
 		//! Toggle categories button lable background
-		market_footer_categories_background = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("market_footer_categories_background"));
-		market_footer_categories_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
+		//market_footer_categories_background = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("market_footer_categories_background"));
+		//market_footer_categories_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
 		
 		//! Player info header lable background
 		player_info_background = ImageWidget.Cast(m_LayooutRoot.FindAnyWidget("player_info_background"));
