@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 {
-	private autoptr array<Object> ObjectivesObjects = new array<Object>;
+	private autoptr array<ItemBase> ObjectiveItems = new array<ItemBase>;
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
 	
@@ -33,7 +33,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnTurnIn");
 	#endif
 		
-		foreach (Object obj: ObjectivesObjects)
+		foreach (ItemBase obj: ObjectiveItems)
 		{
 			GetGame().ObjectDelete(obj);
 		}
@@ -66,11 +66,11 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
 	#endif
 		
-		if (ObjectivesObjects.Count() > 0)
+		if (ObjectiveItems.Count() > 0)
 		{
-			foreach (Object obj: ObjectivesObjects)
+			foreach (ItemBase item: ObjectiveItems)
 			{
-				GetGame().ObjectDelete(obj);
+				GetGame().ObjectDelete(item);
 			}
 		}
 
@@ -83,11 +83,11 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
 	#endif	
 		
-		if (ObjectivesObjects.Count() > 0)
+		if (ObjectiveItems.Count() > 0)
 		{
-			foreach (Object obj: ObjectivesObjects)
+			foreach (ItemBase item: ObjectiveItems)
 			{
-				GetGame().ObjectDelete(obj);
+				GetGame().ObjectDelete(item);
 			}
 		}
 
@@ -117,7 +117,15 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 			if (!object)
 				continue;
 
-			ObjectivesObjects.Insert(object);
+			ItemBase item;
+			if (!Class.CastTo(item, object))
+			{
+				GetGame().ObjectDelete(object);
+				continue;
+			}
+			
+			item.SetIsQuestItem(true);
+			ObjectiveItems.Insert(item);
 		}
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -135,15 +143,11 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 
 	bool HasAllObjectivesItems()
 	{
-		if (!ObjectivesObjects.Count())
+		if (!ObjectiveItems.Count())
 			return false;
 
-		foreach (Object obj: ObjectivesObjects)
+		foreach (ItemBase item: ObjectiveItems)
 		{
-			EntityAI item;
-			if (!Class.CastTo(item, obj))
-				return false;
-
 			PlayerBase parentPlayer;
 			if (!Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()) || parentPlayer != GetQuest().GetPlayer())
 				return false;

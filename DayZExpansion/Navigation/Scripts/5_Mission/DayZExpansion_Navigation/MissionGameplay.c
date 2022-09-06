@@ -17,9 +17,6 @@ modded class MissionGameplay
 {
 	ExpansionMarkerModule m_MarkerModule;
 
-	bool m_Expansion_MarkerToggleState = true;
-	bool m_Expansion_ServerMarkerToggleState = true;
-
 	ref MapMenu m_Expansion_MapMenu;
 	ref ExpansionMapMenu m_Expansion_ExpansionMapMenu;
 
@@ -149,17 +146,40 @@ modded class MissionGameplay
 					{
 						if (input.LocalPress("UAExpansion3DMarkerToggle", false) && !viewMenu)
 						{
+							int visibility;
+							int previousVisibility;
 
-							m_Expansion_MarkerToggleState = !m_Expansion_MarkerToggleState;
-							m_Expansion_ServerMarkerToggleState = m_Expansion_MarkerToggleState;
+							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER);
+							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PARTY);
+							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PLAYER);
+							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PERSONAL);
+							visibility &= EXPANSION_MARKER_VIS_WORLD;
 
-							if (m_Expansion_MarkerToggleState)
+							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.SERVER);
+							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PARTY);
+							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PLAYER);
+							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PERSONAL);
+							previousVisibility &= EXPANSION_MARKER_VIS_WORLD;
+
+							if (!visibility)
 							{
 								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
+							}
+
+							if (!visibility && !previousVisibility)
+							{
+								//! No 3D markers visible currently and previously, toggle all on
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+							}
+							else if (!visibility)
+							{
+								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 							}
 							else
 							{
@@ -169,13 +189,14 @@ modded class MissionGameplay
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
 								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 							}
+
+							if (m_Expansion_ExpansionMapMenu)
+								m_Expansion_ExpansionMapMenu.GetMarkerList().UpdateToggleStates();
 						}
 
 						if (input.LocalPress("UAExpansionServerMarkersToggle", false) && !viewMenu)
 						{
-							m_Expansion_ServerMarkerToggleState = !m_Expansion_ServerMarkerToggleState;
-
-							if (m_Expansion_ServerMarkerToggleState)
+							if ((m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER) & EXPANSION_MARKER_VIS_WORLD) == 0)
 							{
 								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
 								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);

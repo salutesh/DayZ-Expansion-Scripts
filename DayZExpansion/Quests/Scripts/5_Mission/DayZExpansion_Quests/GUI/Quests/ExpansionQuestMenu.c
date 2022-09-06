@@ -442,7 +442,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	
 	override bool CanClose()
 	{
-		return !m_CancelQuestDialog.IsVisible();
+		return !m_CancelQuestDialog || !m_CancelQuestDialog.IsVisible();
 	}
 
 	void QuestDebug(string text)

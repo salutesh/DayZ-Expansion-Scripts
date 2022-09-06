@@ -1012,6 +1012,11 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		return m_MapWidget;
 	}
 
+	ExpansionMapMarkerList GetMarkerList()
+	{
+		return m_MarkerList;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion RemoveMarker
 	// Events when remove marker with delete key
