@@ -13,7 +13,7 @@
 /**@class		ActionTarget
  * @brief		
  **/
- modded class ActionTarget
+modded class ActionTarget
 {
 	// ------------------------------------------------------------
 	// ActionTarget GetParentOrObject

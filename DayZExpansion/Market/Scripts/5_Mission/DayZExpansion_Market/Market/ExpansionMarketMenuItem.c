@@ -236,15 +236,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	{
 		string previewClassName = m_MarketMenu.GetPreviewClassName(GetMarketItem().ClassName);
 
-		if (m_Object)
-		{
-			GetGame().ObjectDelete(m_Object);
-		}
-		
-		if (!GetGame().IsKindOf(previewClassName, "DZ_LightAI"))
-			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(previewClassName, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
-		else
-			m_Object = NULL;
+		ExpansionMarketMenu.CreatePreviewObject(previewClassName, m_Object);
 		
 		if (m_Object)
 		{
@@ -342,19 +334,19 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 				if (GetMarketItem().IsStaticStock())
 					m_ItemController.ItemMarketStock = "∞";
 				else 
-					m_ItemController.ItemMarketStock = m_ItemStock.ToString() + " IN STOCK";
+					m_ItemController.ItemMarketStock = m_ItemStock.ToString() + " #STR_EXPANSION_MARKET_ITEM_INSTOCK";
 			}
 			else
 			{
 				if (GetMarketItem().MaxStockThreshold > 0)
-					m_ItemController.ItemMarketStock = "OUT OF STOCK";
+					m_ItemController.ItemMarketStock = "#STR_EXPANSION_MARKET_ITEM_NOTINSTOCK";
 				else
-					m_ItemController.ItemMarketStock = "N/A";
+					m_ItemController.ItemMarketStock = "";
 			}
 		}
 		else
 		{
-			m_ItemController.ItemMarketStock = "CAN'T BUY";
+			m_ItemController.ItemMarketStock = "#STR_EXPANSION_MARKET_ITEM_CANT_BUY";
 		}
 		
 		m_ItemController.NotifyPropertyChanged("ItemMarketStock");
@@ -362,13 +354,13 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (m_CanSell)
 		{
 			if (m_PlayerStock >= 0)
-				m_ItemController.ItemPlayerStock = m_PlayerStock.ToString() + " ON YOU";
+				m_ItemController.ItemPlayerStock = m_PlayerStock.ToString() + " #STR_EXPANSION_MARKET_ITEM_ONPLAYER";
 			else
-				m_ItemController.ItemPlayerStock = "CAN'T SELL";
+				m_ItemController.ItemPlayerStock = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
 		}
 		else
 		{
-			m_ItemController.ItemPlayerStock = "CAN'T SELL";
+			m_ItemController.ItemPlayerStock = "#STR_EXPANSION_MARKET_ITEM_CANT_SELL";
 		}
 
 		m_ItemController.NotifyPropertyChanged("ItemPlayerStock");

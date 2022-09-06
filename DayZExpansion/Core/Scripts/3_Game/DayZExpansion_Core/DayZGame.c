@@ -149,44 +149,33 @@ modded class DayZGame
 
 	float GetWorldSize()
 	{
-		string world_name = GetGame().GetWorldName();
-		world_name.ToLower();
-
 		float size;
 
-		switch ( world_name )
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "chernarusplus":
-			case "chernarusplusgloom":
 				size = 15360.0;
 				break;
 
 			case "enoch":
-			case "enochgloom":
 			case "namalsk":
-			case "namalskgloom":
 			case "esseker":
-			case "essekergloom":
 				size = 12800.0;
 				break;
 
 			case "chiemsee":
-			case "chiemseegloom":
 				size = 10240.0;
 				break;
 
 			case "deerisle":
-			case "deerislegloom":
 				size = 16384.0;
 				break;
 
 			case "rostow":
-			case "rostowgloom":
 				size = 14336.0;
 				break;
 
 			case "sandbox":
-			case "sandboxgloom":
 				size = 2048.0;
 				break;
 				

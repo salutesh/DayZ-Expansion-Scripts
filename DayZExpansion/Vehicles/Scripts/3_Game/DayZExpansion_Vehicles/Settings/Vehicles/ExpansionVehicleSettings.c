@@ -55,7 +55,9 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
+
+	float VehicleRoadKillDamageMultiplier;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -63,6 +65,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	bool ExplodingVehicleDropsAttachments;
 	//float ForcePilotSyncIntervalSeconds;
 	float DesyncInvulnerabilityTimeoutSeconds;  //! Timeout for temporary vehicle godmode during desync. Set to 0 to disable.
+
+	float DamagedEngineStartupChancePercent;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -119,6 +123,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(RevvingOverMaxRPMRuinsEngineInstantly);
 
 		ctx.Read(DesyncInvulnerabilityTimeoutSeconds);
+		ctx.Read(VehicleRoadKillDamageMultiplier);
 
 		m_IsLoaded = true;
 
@@ -158,7 +163,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(RevvingOverMaxRPMRuinsEngineInstantly);
 
 		ctx.Write(DesyncInvulnerabilityTimeoutSeconds);
-
+		ctx.Write(VehicleRoadKillDamageMultiplier);
 		//! Don't send VehiclesConfig
 	}
 
@@ -211,6 +216,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		{
 			VehiclesConfig.Insert(s.VehiclesConfig[i]);
 		}
+
+		DamagedEngineStartupChancePercent = s.DamagedEngineStartupChancePercent;
+		VehicleRoadKillDamageMultiplier = s.VehicleRoadKillDamageMultiplier;
 
 		ExpansionVehicleSettingsV2 settings_v2 = s;
 		CopyInternal(settings_v2);
@@ -359,6 +367,12 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					DesyncInvulnerabilityTimeoutSeconds = settingsDefault.DesyncInvulnerabilityTimeoutSeconds;
 				}
 
+				if (settingsBase.m_Version < 11)
+				{
+					VehicleRoadKillDamageMultiplier = settingsDefault.VehicleRoadKillDamageMultiplier;
+					DamagedEngineStartupChancePercent = settingsDefault.DamagedEngineStartupChancePercent;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -439,6 +453,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		DisableVehicleDamage = false;
 		VehicleCrewDamageMultiplier = 1.0;
 		VehicleSpeedDamageMultiplier = 1.0;
+		VehicleRoadKillDamageMultiplier = 1.0;
 
 		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
 		RevvingOverMaxRPMRuinsEngineInstantly = false;
@@ -447,6 +462,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		//ForcePilotSyncIntervalSeconds = 1.0;
 		DesyncInvulnerabilityTimeoutSeconds = 3.0;
+
+		DamagedEngineStartupChancePercent = 100.0;
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

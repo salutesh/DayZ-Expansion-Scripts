@@ -20,7 +20,6 @@ class CfgVehicles
 		vehicleClass = "Expansion_Airdrop";
 		displayName = "$STR_EXPANSION_AIRDROP";
 		model = "\DayZExpansion\Objects\airdrop\container.p3d";
-		class GUIInventoryAttachmentsProps{};
 		forceFarBubble = "true";
 		carveNavmesh = 1;
 		itemsCargoSize[] = {10,100};

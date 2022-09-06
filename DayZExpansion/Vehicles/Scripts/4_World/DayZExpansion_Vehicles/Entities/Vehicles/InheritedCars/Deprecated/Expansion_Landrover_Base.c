@@ -350,7 +350,7 @@ class Expansion_Landrover_Base extends CarScript
     {
         string slot_name = InventorySlots.GetSlotName(slotId);
         
-        if (attachment.ClassName() == "expansion_landrover_wheel" && GetCarDoorsState( "expansion_landrover_trunk" ) != CarDoorState.DOORS_CLOSED)
+        if (slot_name == "expansion_landrover_sparewheel" && GetCarDoorsState( "expansion_landrover_trunk" ) != CarDoorState.DOORS_CLOSED)
         {
             return false;
         }
@@ -503,7 +503,7 @@ class Expansion_Landrover_Base extends CarScript
 			break;
 		}
 
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 	
 	override void OnDebugSpawn()

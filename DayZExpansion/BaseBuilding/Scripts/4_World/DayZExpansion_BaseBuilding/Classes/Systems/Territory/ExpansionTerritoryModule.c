@@ -147,7 +147,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
-		if (!IsMissionClient() || !GetExpansionSettings().GetNotification(false).IsLoaded() || !GetExpansionSettings().GetNotification().ShowTerritoryNotifications)
+		if (!IsMissionClient() || !GetExpansionSettings().GetNotification(false).IsLoaded())
 			return;
 
 		auto update = CF_EventUpdateArgs.Cast(args);
@@ -1761,7 +1761,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !ctx.Read( territoryID ) )
 			return;
 
-		if ( !GetExpansionSettings().GetNotification() || !GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
+		if ( !GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
 			return;
 		
 		TerritoryFlag flag = m_TerritoryFlags.Get( territoryID );
@@ -1790,7 +1790,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule Exec_CheckPlayer
 	// Called on client
-	// Check if player is inside territory, if so, send a notification
+	// Check if player is inside territory
 	// ------------------------------------------------------------
 	private void Exec_CheckPlayer()
 	{
@@ -1815,17 +1815,16 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				player.SetTerritoryIDInside( territoryId );
 			}
 		}
-		else
+		else if ( player.GetTerritoryIDInside() != -1 )
 		{
-			if ( player.GetTerritoryIDInside() != -1 )
-				type = 1;
+			type = 1;
 
 			territoryId = player.GetTerritoryIDInside();
 
 			player.SetTerritoryIDInside( -1 );
 		}
 
-		if ( type > -1 )
+		if ( type > -1 && GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
 		{
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Write( type );
@@ -1849,13 +1848,13 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionTerritoryModule GetTerritories
+	// ExpansionTerritoryModule GetTerritory
 	// ------------------------------------------------------------
 	ExpansionTerritory GetTerritory( int territoryID )
 	{
 		return m_Territories.Get( territoryID );
 	}
-	
+
 	bool IsPlayerInsideTerritory( notnull PlayerIdentity identity )
 	{
 		Error("DEPRECATED - use IsPlayerTerritoryMember");

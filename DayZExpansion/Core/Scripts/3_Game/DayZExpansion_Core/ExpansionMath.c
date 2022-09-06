@@ -410,4 +410,64 @@ class ExpansionMath
 
 		return -1;
 	}
+
+	//! Proper RandomFloatInclusive that does include endpoint, other than the one in EnMath
+	static float RandomFloatInclusive(float min, float max)
+	{
+		int max_range = Math.Pow(2, 30);
+		int random_int = Math.RandomIntInclusive(0, max_range);
+		float rand_float = (float)random_int / (float)max_range;
+		float range = max - min;
+
+		return min + (rand_float * range);
+	}
+
+	//! Proper Log2. Vanilla Math.Log2 signature gives the impression it works with floats. It doesn't, it's a purely integer implementation.
+	//! Adapted from https://stackoverflow.com/a/3719696
+	//! @note tolerance sets the accuracy of the result and should not be lower than 1e-15 (no accuracy improvement past that point)
+	static float Log2(float x, float tolerance = 1e-13)
+	{
+		if (!x)
+		{
+			Error("Math domain error");
+			return 0.0;  //! We need to return something, unfortunately EnForce doesn't have a NaN value
+		}
+
+		//! Shortcut for x == 1.0
+		if (x == 1.0)
+			return 0.0;
+
+		//! Shortcut for x == 0.5
+		if (x == 0.5)
+			return -1.0;
+
+		float log2x = 0.0;
+
+		//! Integer part
+		while (x < 1.0)
+		{
+			log2x -= 1.0;
+			x *= 2.0;
+		}
+		while (x >= 2.0)
+		{
+			log2x += 1.0;
+			x /= 2.0;
+		}
+
+		//! Fractional part
+		float frac = 1.0;
+		while (frac >= tolerance)
+		{
+			frac /= 2.0;
+			x *= x;
+			if (x >= 2.0)
+			{
+				x /= 2.0;
+				log2x += frac;
+			}
+		}
+
+		return log2x;
+	}
 }

@@ -343,13 +343,6 @@ modded class IngameHud
 		if (!(GetGame().GetPlayer() && GetGame().GetCurrentCameraPosition()))
 			return;
 
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-
-		if (world_name.IndexOf("gloom") == world_name.Length() - 5)
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-
 		camera_pos = GetGame().GetCurrentCameraPosition();
 		camera_x = camera_pos[0];
 		camera_y = camera_pos[2];
@@ -359,7 +352,7 @@ modded class IngameHud
 
 		//Print("IngameHud::RefreshGPSMap - Map scale: " + scale);
 		
-		switch (world_name)
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			// 25600 / 25600
 			case "banov":

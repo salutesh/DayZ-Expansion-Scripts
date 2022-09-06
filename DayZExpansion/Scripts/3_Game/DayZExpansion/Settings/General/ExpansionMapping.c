@@ -56,18 +56,10 @@ class ExpansionMapping
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
 #endif
 		
-		//! Set default markers depending on map name
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
+		//! Set default mapping depending on map name
 
 		//! Vanilla Maps		
-		switch (world_name)
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "chernarusplus":
 				ExpansionBuildingInterior();

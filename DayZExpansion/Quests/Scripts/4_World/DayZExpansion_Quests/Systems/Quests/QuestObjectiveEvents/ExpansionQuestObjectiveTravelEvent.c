@@ -17,24 +17,22 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override void OnStart()
 	{
-		vector position = GetObjectiveConfig().GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
-
-	#ifdef EXPANSIONMODNAVIGATION
-		GetQuest().CreateClientMarker(position, markerName);
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
 	#endif
+
+		TravelEventStart();
 
 		super.OnStart();
 	}
 
 	override void OnContinue()
 	{
-		vector position = GetObjectiveConfig().GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
-
-	#ifdef EXPANSIONMODNAVIGATION
-		GetQuest().CreateClientMarker(position, markerName);
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
 	#endif
+
+		TravelEventStart();
 
 		super.OnContinue();
 	}
@@ -131,6 +129,20 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 			m_UpdateQueueTimer = 0.0;
 		}
+	}
+	
+	private void TravelEventStart()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TravelEventStart");
+	#endif
+
+		vector position = GetObjectiveConfig().GetPosition();
+		string markerName = GetObjectiveConfig().GetMarkerName();
+
+	#ifdef EXPANSIONMODNAVIGATION
+		GetQuest().CreateClientMarker(position, markerName);
+	#endif
 	}
 
 	vector GetPosition()

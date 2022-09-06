@@ -311,17 +311,8 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	// Expansion MaxDefaultMissions
 	// ------------------------------------------------------------
 	override int MaxDefaultMissions()
-	{		
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
-		
-		switch (world_name)
+	{
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "chernarusplus":
 				return 13; //! amount of locations
@@ -420,16 +411,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		InfectedCount = -1;  //! -1 = use value from container from airdrop settings
 		
 		//! Set default locations depending on map name
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
-				
-		switch (world_name)
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "banov":
 				return ExpansionMissionAirdropRandom( index ); //! TODO

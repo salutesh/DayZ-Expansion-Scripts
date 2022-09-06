@@ -28,11 +28,11 @@ class ExpansionMarketSniperRifles: ExpansionMarketCategory
 		AddItem("B95", 						1700,	3400,	1,		100);
 		AddItem("SVD", 						2000,	4000,	1,		100,	{"Mag_SVD_10Rnd"});
 
-		if (IsMapEnoch())
+		if (ExpansionStatic.GetCanonicalWorldName() == "enoch")
 		{
 			AddItem("Scout_Livonia", 		2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
 		}
-		else if (IsMapChernarus())
+		else if (ExpansionStatic.GetCanonicalWorldName() == "chernarusplus")
 		{
 			AddItem("Scout_Chernarus", 		2100,	4200,	1,		100,	{"Mag_Scout_5Rnd"});
 		}

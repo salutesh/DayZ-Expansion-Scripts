@@ -177,7 +177,7 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 				seat = "passenger";
 			}
 
-			GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] entered vehicle " + transport.GetDisplayName() + " (pos=" + transport.GetPosition() + ", type=" + transport.GetType() + ") as " + seat);
+			GetExpansionSettings().GetLog().PrintLog("[VehicleEnter] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] entered vehicle " + transport.GetDisplayName() + " (id=" + transport.GetVehiclePersistentIDString() + " pos=" + transport.GetPosition() + ") as " + seat);
 		}
 	}
 }

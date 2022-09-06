@@ -44,7 +44,7 @@ modded class ExpansionWorldObjectsModule
 		if (!GetGame().IsServer())
 			return;
 
-		m_WorldName = AdjustWorldName( g_Game.GetWorldName() );
+		m_WorldName = ExpansionStatic.GetCanonicalWorldName();
 
 		if (GetExpansionSettings().GetGeneral().Mapping && GetExpansionSettings().GetGeneral().Mapping.UseCustomMappingModule)
 		{
@@ -68,21 +68,6 @@ modded class ExpansionWorldObjectsModule
 			ScriptRPC rpc = new ScriptRPC();
 			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true );
 		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion AdjustWorldName
-	// ------------------------------------------------------------	
-	private string AdjustWorldName( string name )
-	{
-		string nName = name;
-		nName.ToLower();
-		if ( nName.Contains( "chernarusplus" ) )
-		{
-			return "chernarusplus";
-		}
-
-		return nName;
 	}
 	
 	// ------------------------------------------------------------

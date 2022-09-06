@@ -253,7 +253,7 @@ class ExpansionTraderObjectBase
 			rpc.Write(m_Trader.DisplayName);
 			rpc.Write(m_Trader.TraderIcon);
 			rpc.Write(m_Trader.Currencies);
-			rpc.Write(m_Trader.Categories);
+			rpc.Write(m_Trader.m_Categories);
 
 			rpc.Send(this.GetTraderEntity(), ExpansionMarketRPC.TraderObject, true, sender);
 		}
@@ -281,7 +281,7 @@ class ExpansionTraderObjectBase
 			if (!ctx.Read(m_Trader.Currencies))
 				return;
 
-			if (!ctx.Read(m_Trader.Categories))
+			if (!ctx.Read(m_Trader.m_Categories))
 				return;
 		}
 	}

@@ -53,6 +53,10 @@ class ExpansionAISpawnBase
 		return typename.StringToEnum(eAIWaypointBehavior, Behaviour);
 	}
 
+	TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
+	{
+	}
+
 	void UpdateSettings()
 	{
 		//! v1/v2 to v3
@@ -106,6 +110,7 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 	float Chance;                       // chance for this patrol to spawn
 	string WaypointInterpolation;
 	float DespawnTime;					// if all players outside despawn radius, ticks up time. When despawn time reached, patrol is deleted. If set to -1, will use general setting instead
+	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
 
 	void ExpansionAIDynamicSpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2)
 	{
@@ -114,5 +119,6 @@ class ExpansionAIDynamicSpawnBase: ExpansionAISpawnBase
 		MaxDistRadius = maxdistradius;
 		DespawnRadius = maxdistradius * 1.1;
 		DespawnTime = -1;
+		RespawnTime = -2;
 	}
 };

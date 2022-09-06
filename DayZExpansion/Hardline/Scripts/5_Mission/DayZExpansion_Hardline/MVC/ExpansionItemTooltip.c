@@ -11,43 +11,32 @@
 */
 
 modded class ExpansionItemTooltip
-{
-	void ExpansionItemTooltip(EntityAI item)
+{	
+	override void UpdateItemStats()
 	{
+		super.UpdateItemStats();
 		
-	}
-	
-	void ~ExpansionItemTooltip()
-	{
-		
+		if (GetExpansionSettings().GetHardline().EnableItemRarity)
+			UpdateItemRarity();
 	}
 	
     void UpdateItemRarity()
 	{
 		ItemBase itemBase;
-		if (!Class.CastTo(itemBase, m_Item))
-			return;
-		
-		ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
-			
-		if (rarity == ExpansionHardlineItemRarity.NONE)
-			return;
-
-		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
-		string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
-		int color;
-		typename type = ExpansionHardlineItemRarityColor;
-		ExpansionStatic.GetVariableIntByName(type, rarityName, color);
-
-        ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-        m_ItemTooltipController.ItemStatsElements.Insert(element);
-	}
-		
-    override void Show()
-	{
-		if (GetExpansionSettings().GetHardline().EnableItemRarity)
-			UpdateItemRarity();
-
-		super.Show();
+		if (Class.CastTo(itemBase, m_Item))
+		{	
+			ExpansionHardlineItemRarity rarity = itemBase.Expansion_GetRarity();
+			if (rarity == ExpansionHardlineItemRarity.NONE)
+				return;
+	
+			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
+			string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
+			int color;
+			typename type = ExpansionHardlineItemRarityColor;
+			ExpansionStatic.GetVariableIntByName(type, rarityName, color);
+	
+	        ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+	        m_ItemTooltipController.ItemStatsElements.Insert(element);
+		}
 	}
 };

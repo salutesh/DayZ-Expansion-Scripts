@@ -195,16 +195,7 @@ modded class LoadingScreen
 			m_LoadingMessageAuthor.Show(false);
 		}
 		
-		string world_name = "default";
-
-		m_DayZGame.GetWorldName(world_name);
-
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
+		string world_name = ExpansionStatic.GetCanonicalWorldName(m_DayZGame);
 		
 		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
 

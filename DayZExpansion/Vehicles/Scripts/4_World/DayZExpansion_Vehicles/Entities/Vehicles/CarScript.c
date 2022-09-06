@@ -416,7 +416,7 @@ modded class CarScript
 #ifdef SERVER
 		if (GetExpansionSettings().GetLog().VehicleDeleted)
 		{
-			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] Vehicle " + GetType() + " deleted! (pos=" + GetPosition().ToString() + ")");
+			GetExpansionSettings().GetLog().PrintLog("[VehicleDeleted] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition().ToString() + ")");
 		}
 #endif
 	}
@@ -866,6 +866,23 @@ modded class CarScript
 	int GetPersistentIDD()
 	{
 		return m_PersistentIDD;
+	}
+
+	//! ID of the paired master key
+	string GetPersistentIDString()
+	{
+		string id;
+		id += ExpansionStatic.IntToHex(m_PersistentIDA);
+		id += ExpansionStatic.IntToHex(m_PersistentIDB);
+		id += ExpansionStatic.IntToHex(m_PersistentIDC);
+		id += ExpansionStatic.IntToHex(m_PersistentIDD);
+		return id;
+	}
+
+	//! ID of the vehicle itself
+	string GetVehiclePersistentIDString()
+	{
+		return ExpansionStatic.GetPersistentIDString(this);
 	}
 
 	void SetPersistentIDA(int newIDA)
@@ -2899,34 +2916,6 @@ modded class CarScript
 				return false;
 		}
 
-		#ifndef SERVER
-		//! Vanilla does this for us in OnBeforeEngineStart() if it's a car
-		if (!IsCar())
-		{
-			PlayerBase player;
-			// play different sound based on selected camera
-			if (m_EngineStartOK && Class.CastTo(player, CrewMember(0)))
-			{
-				WaveKind waveKind = WaveKind.WAVEEFFECT;
-				if (!player.IsCameraInsideVehicle())
-				{
-					waveKind = WaveKind.WAVEEFFECTEX;
-				}
-
-				EffectSound sound = SEffectManager.CreateSound(m_EngineStartOK, ModelToWorld(GetEnginePos()));
-				if (sound)
-				{
-					sound.SetSoundWaveKind(waveKind);
-					sound.SoundPlay();
-					sound.SetAutodestroy(true);
-				}
-			}
-			
-			//! postpone the engine sound played from c++ on soundcontroller (via OnSound override)
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SetEngineStarted, 1000, false, true);
-		}
-		#endif
-
 		return true;
 	}
 
@@ -3942,7 +3931,7 @@ modded class CarScript
 		super.EEKilled( killer );
 
 		if (GetExpansionSettings().GetLog().VehicleDestroyed && !m_Expansion_Killed)
-    		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] "+GetType()+" was destroyed at pos=" + GetPosition());
+    		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition() + ")");
 
 		m_Expansion_Killed = true;
 	}

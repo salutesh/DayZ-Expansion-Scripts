@@ -39,6 +39,7 @@ class ExpansionMarketItem
 	float SellPricePercent;
 
 	//! @note integer representation of bfloat16
+	[NonSerialized()]
 	int m_SellPricePercent;
 
 	int MaxStockThreshold;
@@ -65,11 +66,16 @@ class ExpansionMarketItem
 	bool m_ShowInMenu;
 
 	[NonSerialized()]
-	bool m_Idx;
+	int m_Idx;
 
 	[NonSerialized()]
 	bool m_UpdateView;
 	
+#ifdef EXPANSIONMODHARDLINE
+	[NonSerialized()]
+	int m_Rarity;
+#endif
+
 	// ------------------------------------------------------------
 	// ExpansionMarketItem Constructor
 	// ------------------------------------------------------------
@@ -161,6 +167,11 @@ class ExpansionMarketItem
 
 		if (EXTrace.MARKET && SellPricePercent != -1)
 			EXTrace.Print(true, this, ClassName + " SellPricePercent " + SellPricePercent);
+
+#ifdef EXPANSIONMODHARDLINE
+		if (GetGame().IsServer())
+			m_Rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(ClassName);
+#endif
 	}
 
 	void SetAttachmentsFromIDs()

@@ -249,8 +249,7 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactsize 0
              text "#HAB_SUCIDES"
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text valign" center
             }
             TextWidgetClass hab_suicides_value {
@@ -263,11 +262,10 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "..."
              scriptclass "ViewBinding"
+             text "..."
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text halign" right
              "text valign" center
              {
@@ -490,8 +488,7 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactsize 0
              text "#HAB_AFFINITY"
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text valign" center
             }
             TextWidgetClass hab_affinity_value {
@@ -504,11 +501,10 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "..."
              scriptclass "ViewBinding"
+             text "..."
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text halign" right
              "text valign" center
              {
@@ -541,8 +537,7 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactsize 0
              text "#HAB_LEVEL"
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text valign" center
             }
             TextWidgetClass hab_level_value {
@@ -555,11 +550,10 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "..."
              scriptclass "ViewBinding"
+             text "..."
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text halign" right
              "text valign" center
              {
@@ -590,11 +584,16 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
+             scriptclass "ViewBinding"
              text "#HAB_HUMANITY"
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "HaB_HumanityLabel"
+              }
+             }
             }
             TextWidgetClass hab_humanity_value {
              color 0 0 0 1
@@ -606,11 +605,11 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "..."
+             scaled 1
              scriptclass "ViewBinding"
+             text "..."
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text halign" right
              "text valign" center
              {
@@ -643,8 +642,7 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactsize 0
              text "#HAB_MEDIC_ACTIONS"
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text valign" center
             }
             TextWidgetClass hab_medic_value {
@@ -657,11 +655,10 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "..."
              scriptclass "ViewBinding"
+             text "..."
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text halign" right
              "text valign" center
              {
@@ -694,8 +691,7 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactsize 0
              text "#HAB_RAID"
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text valign" center
             }
             TextWidgetClass hab_raid_value {
@@ -708,11 +704,10 @@ FrameWidgetClass ExpansionBookMenuTabPlayerProfile {
              vexactpos 0
              hexactsize 0
              vexactsize 0
-             text "..."
              scriptclass "ViewBinding"
+             text "..."
              font "gui/fonts/etelkatextpro22"
-             "exact text" 1
-             "exact text size" 22
+             "exact text" 0
              "text halign" right
              "text valign" center
              {

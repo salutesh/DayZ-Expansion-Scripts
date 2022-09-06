@@ -27,19 +27,15 @@ class ExpansionVehicleActionPickLock: ExpansionActionPickVehicleLockBase
 		{
 			float pickLockChancePercent = GetExpansionSettings().GetVehicle().PickLockChancePercent;
 
-			#ifdef EXPANSIONMODVEHICLE
 			if ( GetExpansionSettings().GetLog().VehicleLockPicking )
-				GetExpansionSettings().GetLog().PrintLog("[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " is attempting to pick lock on " + vehicleBase.GetType() + " (" + pickLockChancePercent + "% chance) with " + action_data.m_MainItem.GetType() );
-			#endif
+				GetExpansionSettings().GetLog().PrintLog("[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " is attempting to pick lock on " + vehicleBase.GetType() + " (id=" + vehicleBase.GetVehiclePersistentIDString() + " pos=" + vehicleBase.GetPosition() + ") with " + action_data.m_MainItem.GetType() );
 
 			if ( Math.RandomFloat( 0, 100 ) < pickLockChancePercent )
 			{
 				vehicleBase.UnlockCarWithoutKey();
 
-			#ifdef EXPANSIONMODVEHICLE
 				if ( GetExpansionSettings().GetLog().VehicleLockPicking )
-					GetExpansionSettings().GetLog().PrintLog( "[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " picked lock on " + vehicleBase.GetType() + " with " + action_data.m_MainItem.GetType() );
-			#endif
+					GetExpansionSettings().GetLog().PrintLog( "[VehicleLockPick] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " picked lock on " + vehicleBase.GetType() + " (id=" + vehicleBase.GetVehiclePersistentIDString() + " pos=" + vehicleBase.GetPosition() + ") with " + action_data.m_MainItem.GetType() );
 			}
 			super.OnFinishProgressServer( action_data );
 		}

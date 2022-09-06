@@ -596,6 +596,10 @@ modded class ItemBase
 		if (!super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 			return false;
 
+		PlayerBase player;
+		if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.IsInSafeZone())
+			return false;
+
 		m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");
 
 		return true;
@@ -1105,6 +1109,17 @@ modded class ItemBase
 		}
 
 		return 1;
+	}
+
+	//! @brief if item is 9V battery or has one attached, return battery energy in range [0, 100], else 0
+	//! @note this uses quantity so works on client as well since Battery9V has convertEnergyToQuantity=1 (quantity, unlike energy, is netsynced by the game)
+	int Expansion_GetBatteryEnergy()
+	{
+		Battery9V battery;
+		if (Class.CastTo(battery, this) || Class.CastTo(battery, FindAttachmentBySlotName("BatteryD")))
+			return battery.GetQuantity() / battery.GetQuantityMax() * 100;
+
+		return 0;
 	}
 
 	void Expansion_QueueEntityActions(int actions)

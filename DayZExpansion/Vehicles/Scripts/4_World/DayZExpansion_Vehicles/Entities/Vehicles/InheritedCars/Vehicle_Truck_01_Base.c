@@ -198,7 +198,7 @@ class Vehicle_Truck_01_Base extends ExpansionVehicleCarBase
 			break;
 		}
 
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override int GetCarDoorsState(string slotType)

@@ -12,7 +12,6 @@
 
 class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 {
-	float RespawnTime;	                // Time in seconds before the dead group will respawn. If set to -1, they won't respawn, if set to -2, will use the general setting instead
 	autoptr TVectorArray Waypoints;     // a list of positions to create a path to follow
 
 	void ExpansionAIPatrol(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "HumanLoadout", bool canbelooted = true, bool unlimitedreload = false, float chance = 1.0, float mindistradius = -2, float maxdistradius = -2, float respawntime = -2, float wprnd = 0, TVectorArray way = null)
@@ -24,7 +23,7 @@ class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 		Waypoints = way;
 	}
 
-	TVectorArray GetWaypoints()
+	override TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
 	{
 		TVectorArray waypoints();
 

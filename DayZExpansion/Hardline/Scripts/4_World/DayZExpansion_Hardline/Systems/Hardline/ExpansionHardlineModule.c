@@ -30,14 +30,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	private ref ScriptInvoker m_HardlineHUDInvoker; //! Client
 	
 	// ------------------------------------------------------------
-	// ExpansionHardlineModule Constructor
-	// ------------------------------------------------------------
-	void ExpansionHardlineModule()
-	{
-
-	}
-
-	// ------------------------------------------------------------
 	// ExpansionHardlineModule OnInit
 	// ------------------------------------------------------------
 	override void OnInit()
@@ -378,10 +370,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
 					
 					SendPlayerHardlineData(victimPlayerData, victimPlayer.GetIdentity());
-							
-					title = new StringLocaliser("STR_EXPANSION_HARDLINE_KILLED", victimPlayerData.GetRankDisplayName());
-					text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_CHANGE", humanityText, humanityChange.ToString());
-					ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 				}
 			}
 			else if (victimIsInfected)
@@ -393,10 +381,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 													
 					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
 					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-					
-					title = new StringLocaliser("Infected Killed");
-					text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_ADDED", humanityOnKillInfected.ToString());
-					ExpansionNotification(title, text, ExpansionIcons.GetPath("Infected 2"),  ARGB(255, 160, 223, 59), 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 				}
 				
 				killerPlayerData.OnInfectedKilled();
@@ -425,10 +409,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				{
 					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
 					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-							
-					title = new StringLocaliser("STR_EXPANSION_HARDLINE_KILLED", victim.GetDisplayName());
-					text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_CHANGE", humanityText, humanityOnKillAI.ToString());
-					ExpansionNotification(title, text, ExpansionIcons.GetPath("Skull 2"),  COLOR_EXPANSION_NOTIFICATION_EXPANSION, 2, ExpansionNotificationType.ACTIVITY).Create(killerPlayer.GetIdentity());
 				}
 			}
 		#endif
@@ -514,13 +494,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (humanity == 0)
 			return;
 		
-		hardlinePlayerData.AddHumanity(humanity);
-			
-		StringLocaliser title = new StringLocaliser("STR_EXPANSION_HARDLINE_ACTION_POSITIVE");
-		StringLocaliser text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_ADDED", humanity.ToString());
-		
-		ExpansionNotification(title, text, ExpansionIcons.GetPath("Star"),  COLOR_EXPANSION_NOTIFICATION_AMETHYST, 2, ExpansionNotificationType.ACTIVITY).Create(player.GetIdentity());
-		
+		hardlinePlayerData.AddHumanity(humanity);	
 		hardlinePlayerData.Save(player.GetIdentity().GetId());		
 		SendPlayerHardlineData(hardlinePlayerData, player.GetIdentity());
 	}
@@ -544,13 +518,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (humanity == 0)
 			return;
 
-		hardlinePlayerData.RemoveHumanity(humanity);
-			
-		StringLocaliser title = new StringLocaliser("STR_EXPANSION_HARDLINE_ACTION_NEGATIVE");
-		StringLocaliser text = new StringLocaliser("STR_EXPANSION_HARDLINE_HUMANITY_REMOVED", humanity.ToString());
-		
-		ExpansionNotification(title, text, ExpansionIcons.GetPath("Star"),  COLOR_EXPANSION_NOTIFICATION_AMETHYST, 2, ExpansionNotificationType.ACTIVITY).Create(player.GetIdentity());
-		
+		hardlinePlayerData.RemoveHumanity(humanity);	
 		hardlinePlayerData.Save(player.GetIdentity().GetId());		
 		SendPlayerHardlineData(hardlinePlayerData, player.GetIdentity());
 	}
@@ -571,8 +539,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				ExpansionHardlinePlayerData data = GetPlayerHardlineDataByUID(playerID);
 				if (data)
 				{
-					string dogTagType = "Dogtag_" + typename.EnumToString(ExpansionHardlineRank, data.GetRank());
+					if (GetExpansionSettings().GetHardline().UseHumanity)
+						currentTag.SetHardlineHumanity(data.GetHumanity());
 					
+					string dogTagType = "Dogtag_" + typename.EnumToString(ExpansionHardlineRank, data.GetRank());
 					if (dogTagType != "Dogtag_" && currentTag.GetType() != dogTagType)
 					{
 						currentTag.ReplaceDogtag(dogTagType);

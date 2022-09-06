@@ -277,7 +277,7 @@ class ExpansionActionGetOutExpansionVehicle : ActionInteractBase
 		
 			if (action_data.m_Player && action_data.m_Player.GetIdentity() && GetExpansionSettings().GetLog().VehicleLeave)
 			{
-				GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + got_action_data.m_Car.GetDisplayName() + " (pos=" + got_action_data.m_Car.GetPosition() + ", type=" + got_action_data.m_Car.GetType() + ")");
+				GetExpansionSettings().GetLog().PrintLog("[VehicleLeave] Player " + action_data.m_Player.GetIdentity().GetName() + " [uid=" + action_data.m_Player.GetIdentity().GetId() + "] left vehicle " + got_action_data.m_Car.GetDisplayName() + " (id=" + got_action_data.m_Car.GetVehiclePersistentIDString() + " pos=" + got_action_data.m_Car.GetPosition() + ")");
 			}
 		}
 	}

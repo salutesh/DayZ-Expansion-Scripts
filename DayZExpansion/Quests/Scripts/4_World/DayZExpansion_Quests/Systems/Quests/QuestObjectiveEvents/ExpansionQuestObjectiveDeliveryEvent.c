@@ -12,12 +12,94 @@
 
 class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 {
-	private autoptr array<Object> ObjectivesObjects = new array<Object>;
+	private autoptr array<ItemBase> ObjectiveItems = new array<ItemBase>;
 	private float m_UpdateQueueTimer = 0;
 	private const float UPDATE_TICK_TIME = 2.0;
 	
 	override void OnStart()
 	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
+	#endif
+		
+		DeliveryEventStart();
+
+		super.OnStart();
+	}
+
+	override void OnTurnIn()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnTurnIn");
+	#endif
+		
+		foreach (ItemBase obj: ObjectiveItems)
+		{
+			GetGame().ObjectDelete(obj);
+		}
+
+		super.OnTurnIn();
+	}
+
+	override bool CompletionCheck()
+	{
+		if (!HasAllObjectivesItems())
+			return false;
+
+		return true;
+	}
+
+	override void OnContinue()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
+	#endif
+		
+		DeliveryEventStart();
+
+		super.OnContinue();
+	}
+	
+	override void OnCleanup()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
+	#endif
+		
+		if (ObjectiveItems.Count() > 0)
+		{
+			foreach (ItemBase item: ObjectiveItems)
+			{
+				GetGame().ObjectDelete(item);
+			}
+		}
+
+		super.OnCleanup();
+	}
+
+	override void OnCancel()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
+	#endif	
+		
+		if (ObjectiveItems.Count() > 0)
+		{
+			foreach (ItemBase item: ObjectiveItems)
+			{
+				GetGame().ObjectDelete(item);
+			}
+		}
+
+		super.OnCancel();
+	}
+
+	private void DeliveryEventStart()
+	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "DeliveryEventStart");
+	#endif
+		
 		if (!GetObjectiveConfig())
 			return;
 
@@ -35,7 +117,15 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 			if (!object)
 				continue;
 
-			ObjectivesObjects.Insert(object);
+			ItemBase item;
+			if (!Class.CastTo(item, object))
+			{
+				GetGame().ObjectDelete(object);
+				continue;
+			}
+			
+			item.SetIsQuestItem(true);
+			ObjectiveItems.Insert(item);
 		}
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -43,85 +133,8 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 		string markerName = GetObjectiveConfig().GetMarkerName();
 		GetQuest().CreateClientMarker(markerPosition, markerName);
 	#endif
-
-		super.OnStart();
 	}
-
-	override void OnTurnIn()
-	{
-		if (ObjectivesObjects.Count() > 0)
-		{
-			foreach (Object obj: ObjectivesObjects)
-			{
-				GetGame().ObjectDelete(obj);
-			}
-		}
-
-		super.OnTurnIn();
-	}
-
-	override bool CompletionCheck()
-	{
-		if (!HasAllObjectivesItems())
-			return false;
-
-		return true;
-	}
-
-	override void OnContinue()
-	{
-		for (int i = 0; i < GetObjectiveConfig().GetDeliveries().Count(); i++)
-		{
-			ExpansionQuestObjectiveDelivery delivery = GetObjectiveConfig().GetDeliveries()[i];
-			if (!delivery)
-				continue;
-
-			PlayerBase player = GetQuest().GetPlayer();
-			EntityAI playerEntity = player;
-			vector position = player.GetPosition();
-			vector orientation = player.GetOrientation();
-			Object object = Spawn(delivery, player, playerEntity, position, orientation);
-			if (!object)
-				continue;
-
-			ObjectivesObjects.Insert(object);
-		}
-
-	#ifdef EXPANSIONMODNAVIGATION
-		vector markerPosition = GetObjectiveConfig().GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
-		GetQuest().CreateClientMarker(markerPosition, markerName);
-	#endif
-
-		super.OnContinue();
-	}
-
-	override void OnCleanup()
-	{
-		if (ObjectivesObjects.Count() > 0)
-		{
-			foreach (Object obj: ObjectivesObjects)
-			{
-				GetGame().ObjectDelete(obj);
-			}
-		}
-
-		super.OnCleanup();
-	}
-
-	override void OnCancel()
-	{
-		if (ObjectivesObjects.Count() > 0)
-		{
-			foreach (Object obj: ObjectivesObjects)
-			{
-				GetGame().ObjectDelete(obj);
-			}
-		}
-
-		super.OnCancel();
-	}
-
+	
 	Object Spawn(ExpansionQuestObjectiveDelivery delivery, PlayerBase player, inout EntityAI parent, vector position, vector orientation)
 	{
 		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(delivery.GetClassName(), player, parent, delivery.GetAmount());
@@ -130,40 +143,14 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 
 	bool HasAllObjectivesItems()
 	{
-		//! Remove all quest objectives items from player/world
-		for (int i = 0; i < ObjectivesObjects.Count(); i++)
-		{
-			Object obj = ObjectivesObjects[i];
-			if (!obj)
-				continue;
+		if (!ObjectiveItems.Count())
+			return false;
 
-			ItemBase item = ItemBase.Cast(obj);
-			if (item.GetHierarchyParent())
-			{
-				ItemBase parentItem;
-				PlayerBase parentPlayer;
-				if (Class.CastTo(parentItem, item.GetHierarchyParent()))
-				{
-					if (!Class.CastTo(parentPlayer, parentItem.GetHierarchyRootPlayer()))
-					{
-						return false;
-					}
-					else if (Class.CastTo(parentPlayer, parentItem.GetHierarchyRootPlayer()))
-					{
-						if (parentPlayer != GetQuest().GetPlayer())
-							return false;
-					}
-				}
-				else if (Class.CastTo(parentPlayer, item.GetHierarchyParent()) )
-				{
-					if (parentPlayer != GetQuest().GetPlayer())
-						return false;
-				}
-			}
-			else
-			{
+		foreach (ItemBase item: ObjectiveItems)
+		{
+			PlayerBase parentPlayer;
+			if (!Class.CastTo(parentPlayer, item.GetHierarchyRootPlayer()) || parentPlayer != GetQuest().GetPlayer())
 				return false;
-			}
 		}
 
 		return true;
@@ -191,15 +178,18 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
+			m_UpdateQueueTimer = 0.0;
+
 			vector position = GetObjectiveConfig().GetPosition();
-			float maxDistance = GetObjectiveConfig().GetMaxDistance();
-			float currentDistance;
-			array<vector> groupMemberPos = new array<vector>;
+			if (position == vector.Zero)
+				return;
+
+			float currentDistanceSq;
 			
 			if (GetQuest().GetPlayer())
 			{
 				vector playerPos = GetQuest().GetPlayer().GetPosition();
-				currentDistance = vector.Distance(playerPos, position);
+				currentDistanceSq = vector.DistanceSq(playerPos, position);
 			}
 		#ifdef EXPANSIONMODGROUPS
 			else if (GetQuest().IsGroupQuest() && GetQuest().GetGroup())
@@ -210,9 +200,10 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				if (!group)
 					return;
 
-				for (int i = 0; i < group.GetPlayers().Count(); i++)
+				currentDistanceSq = int.MAX;
+				auto groupPlayers = group.GetPlayers();
+				foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 				{
-					ExpansionPartyPlayerData playerGroupData = group.GetPlayers()[i];
 					if (!playerGroupData)
 						continue;
 
@@ -220,39 +211,26 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 					if (!groupPlayer)
 						continue;
 
-					groupMemberPos.Insert(groupPlayer.GetPosition());
-				}
-
-				float smallestDistance;
-				int posIndex;
-				bool firstSet = false;
-				for (int p = 0; p < groupMemberPos.Count(); p++)
-				{
-					vector pos = groupMemberPos[p];
-					float dist = vector.Distance(pos, position);
-					if (!firstSet)
+					vector pos = groupPlayer.GetPosition();
+					float distSq = vector.DistanceSq(pos, position);
+					if (distSq < currentDistanceSq)
 					{
-						smallestDistance = dist;
-						posIndex = p;
-						firstSet = true;
+						currentDistanceSq = distSq;
 					}
-					else if (firstSet && dist < smallestDistance)
-					{
-						smallestDistance = dist;
-						posIndex = p;
-					}
-					
-					currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 				}
 			}
 		#endif
+			else
+			{
+				return;
+			}
 
-			position[1] = GetGame().SurfaceY(position[0], position[2]);
+			float maxDistanceSq = Math.Pow(GetObjectiveConfig().GetMaxDistance(), 2);
+			if (maxDistanceSq < 100.0)
+				maxDistanceSq = 100.0;
 
-			if (maxDistance < 10)
-				maxDistance = 10.0;
-
-			if (position != vector.Zero && currentDistance <= maxDistance && HasAllObjectivesItems() && !IsCompleted())
+			bool objectiveCondition = currentDistanceSq <= maxDistanceSq && HasAllObjectivesItems();
+			if (objectiveCondition && !IsCompleted())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				Print(ToString() + "::OnUpdate - Complete!");
@@ -260,7 +238,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(true);
 				OnComplete();
 			}
-			else if ((position != vector.Zero && currentDistance > maxDistance || !HasAllObjectivesItems()) && IsCompleted())
+			else if (!objectiveCondition && IsCompleted())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				Print(ToString() + "::OnUpdate - Incomplete!");
@@ -268,8 +246,6 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveEventBase
 				SetCompleted(false);
 				OnIncomplete();
 			}
-
-			m_UpdateQueueTimer = 0.0;
 		}
 	}
 

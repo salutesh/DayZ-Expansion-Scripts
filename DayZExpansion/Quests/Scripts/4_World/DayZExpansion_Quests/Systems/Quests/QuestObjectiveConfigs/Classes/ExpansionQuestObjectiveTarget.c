@@ -17,6 +17,7 @@ class ExpansionQuestObjectiveTarget
 	bool CountSelfKill;
 	private bool SpecialWeapon = false;
 	private autoptr array<string> AllowedWeapons = new array<string>;
+	private autoptr array<string> ExcludedClassNames = new array<string>;
 
 	void SetAmount(int amount)
 	{
@@ -57,7 +58,17 @@ class ExpansionQuestObjectiveTarget
 	{
 		return AllowedWeapons;
 	}
-
+	
+	void AddExcludedClassName(string name)
+	{
+		ExcludedClassNames.Insert(name);
+	}
+	
+	array<string> GetExcludedClassNames()
+	{
+		return ExcludedClassNames;
+	}
+	
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

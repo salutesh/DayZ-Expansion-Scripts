@@ -12,20 +12,20 @@
 
 class ExpansionMarketNetworkCategory
 {
-	string Name;
+	string DisplayName;
 	string Icon;
 	int Color;
 
 	int CategoryID;
 
-	string m_FileName;
+	bool IsExchange;
 
 	void ExpansionMarketNetworkCategory( ExpansionMarketCategory category )
 	{
-		Name = category.DisplayName;
+		DisplayName = category.DisplayName;
 		Icon = category.Icon;
 		Color = ExpansionColor.HexToARGB(category.Color);
 		CategoryID = category.CategoryID;
-		m_FileName = category.m_FileName;
+		IsExchange = category.IsExchange;
 	}
 };

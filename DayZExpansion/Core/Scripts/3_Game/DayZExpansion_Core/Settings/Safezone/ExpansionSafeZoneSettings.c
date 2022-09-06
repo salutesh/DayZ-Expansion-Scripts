@@ -255,29 +255,21 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		ForceSZCleanup_ExcludedItems = {"CarCoverBase"};
 	#endif
 
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-
-		//! Vanilla Maps
-		if ( world_name == "chernarusplus" || world_name == "chernarusplusgloom" )
+	#ifdef EXPANSIONMODMARKET
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
-		#ifdef EXPANSIONMODMARKET
-			DefaultChernarusSafeZones();
-		#endif
+			//! Vanilla Maps
+			case "chernarusplus":
+				DefaultChernarusSafeZones();
+				break;
+			case "namalsk":
+				DefaultNamalskSafeZones();
+				break;
+			case "takistanplus":
+				DefaultTakistanSafeZones();
+				break;
 		}
-		else if ( world_name == "namalsk" )
-		{
-		#ifdef EXPANSIONMODMARKET
-			DefaultNamalskSafeZones();
-		#endif
-		}
-		else if ( world_name == "takistanplus" )
-		{
-		#ifdef EXPANSIONMODMARKET
-			DefaultTakistanSafeZones();
-		#endif
-		}
+	#endif
 	}
 
 #ifdef EXPANSIONMODMARKET

@@ -111,20 +111,11 @@ class ExpansionStartingGear: ExpansionStartingGearBase
 		
 		ApplyEnergySources = true;
 		SetRandomHealth = true;
-		
-		string world_name = "empty";
-		GetGame().GetWorldName(world_name);
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
 
 		UpperGear.Insert(new ExpansionStartingGearItem("Rag", 4));
 		UpperGear.Insert(new ExpansionStartingGearItem("Apple"));
 
-		switch ( world_name )
+		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
 			case "barnov":
 			case "chiemsee":

@@ -138,10 +138,8 @@ modded class BuildingBase
 		
 		//Tell engine it will represent static object
 		obj.SetFlags( EntityFlags.STATIC, false );
-		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
-
-		ExpansionObjectSpawnTools.FixObjectCollision( obj );
+		obj.Update();
 		
 		Entity ent;
 		if (Class.CastTo(ent, obj)) {
@@ -210,13 +208,14 @@ modded class BuildingBase
 		
 		//Tell engine it will represent static object
 		obj.SetFlags( EntityFlags.STATIC, false );
-		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
-
-		ExpansionObjectSpawnTools.FixObjectCollision( obj );
+		obj.Update();
 		
-		if ( obj.CanAffectPathgraph() ) {
+		if (GetGame().IsServer())
+		{
 			obj.SetAffectPathgraph( true, false );
+			if ( obj.CanAffectPathgraph() )
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( GetGame().UpdatePathgraphRegionByObject, 100, false, obj );
 		}
 
 		Entity ent = Entity.Cast(obj);

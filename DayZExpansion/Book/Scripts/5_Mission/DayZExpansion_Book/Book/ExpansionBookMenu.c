@@ -346,6 +346,14 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 				break;
 		}
 	}
+	
+	override bool CanClose()
+	{
+		if (GetLastOpenedTab() && !GetLastOpenedTab().CanClose())
+			return false;
+		
+		return true;
+	}
 };
 
 class ExpansionBookMenuController: ExpansionViewController

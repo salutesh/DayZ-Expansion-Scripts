@@ -78,10 +78,8 @@ class ExpansionActionPairKey: ActionInteractBase
 		CarScript car = CarScript.Cast( action_data.m_Target.GetParentOrObject() );
 		car.PairKeyTo( ExpansionCarKey.Cast( action_data.m_Player.GetItemInHands() ) );
 
-#ifdef EXPANSIONMODVEHICLE
 		if ( GetExpansionSettings().GetLog().VehicleCarKey )
-			GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " paired a  "+ action_data.m_Player.GetItemInHands().GetType() +" to " + car.GetType() );
-#endif
+			GetExpansionSettings().GetLog().PrintLog("[VehicleCarKey] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " paired a  "+ action_data.m_Player.GetItemInHands().GetType() +" to " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")");
 	}
 
 	override bool CanBeUsedInRestrain()

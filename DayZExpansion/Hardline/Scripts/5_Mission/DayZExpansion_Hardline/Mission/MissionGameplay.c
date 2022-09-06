@@ -50,7 +50,6 @@ modded class MissionGameplay
 
 		//! Checking for keyboard focus
 		bool inputIsFocused = false;
-
 		//! Reference to focused windget
 		Widget focusedWidget = GetFocus();
 
@@ -76,16 +75,7 @@ modded class MissionGameplay
 		{
 			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 			{
-				if (!m_Hud.GetHudState())
-				{
-					m_ExpansionHardlineHUD.ShowHud(false);
-				}
-				else
-				{
-					m_ExpansionHardlineHUD.ShowHud(true);
-				}
-
-				if (viewMenu || topMenu)
+				if (viewMenu || topMenu || m_Hud.IsHideHudPlayer())
 				{
 					m_ExpansionHardlineHUD.ShowHud(false);
 				}

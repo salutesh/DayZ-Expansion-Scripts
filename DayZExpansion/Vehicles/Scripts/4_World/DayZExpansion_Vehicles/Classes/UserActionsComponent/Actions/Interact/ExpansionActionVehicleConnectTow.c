@@ -199,7 +199,11 @@ class ExpansionActionVehicleConnectTow : ActionInteractBase
 				car.Expansion_CreateTow(action_data_b.m_Car, action_data_b.m_Index);
 
 				if (GetGame().IsMultiplayer() && GetExpansionSettings().GetLog().VehicleTowing)
-					GetExpansionSettings().GetLog().PrintLog("[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " Towed " + action_data_b.m_Car.GetType() + " with " + car.GetType());
+				{
+					string msg = "[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " towed " + action_data_b.m_Car.GetType() + " (id=" + ExpansionStatic.GetPersistentIDString(EntityAI.Cast(action_data_b.m_Car)) + " pos=" + action_data_b.m_Car.GetPosition();
+					msg += " with " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")";
+					GetExpansionSettings().GetLog().PrintLog(msg);
+				}
 			}
 		}
 	}

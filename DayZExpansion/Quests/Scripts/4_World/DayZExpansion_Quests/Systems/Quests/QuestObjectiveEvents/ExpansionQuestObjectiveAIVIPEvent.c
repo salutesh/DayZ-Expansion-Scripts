@@ -22,7 +22,9 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest
 	override void OnStart()
 	{
-		ObjectivePrint(ToString() + "::OnStart - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
+	#endif
 
 		CreateVIP();
 
@@ -33,14 +35,14 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		string markerName = GetObjectiveConfig().GetMarkerName();
 		GetQuest().CreateClientMarker(markerPosition, markerName);
 	#endif
-
-		ObjectivePrint(ToString() + "::OnStart - End");
 	}
 
 	//! Event called when the player continues the quest after a server restart/reconnect
 	override void OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
+	#endif
 
 		CreateVIP();
 
@@ -51,12 +53,14 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		super.OnContinue();
-
-		ObjectivePrint(ToString() + "::OnContinue - End");
 	}
 
 	override void OnComplete()
 	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnComplete");
+	#endif
+		
 		EmoteManager npcEmoteManager = m_VIP.GetEmoteManager();
 		if (!npcEmoteManager.IsEmotePlaying())
 		{
@@ -75,28 +79,28 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override void OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
+	#endif
 
 		GetGame().ObjectDelete(m_VIP);
 
 		super.OnCleanup();
-
-		ObjectivePrint(ToString() + "::OnCleanup - End");
 	}
 
 	//! Event called when the quest gets manualy canceled by the player.
 	override void OnCancel()
 	{
-		ObjectivePrint(ToString() + "::OnCancel - Start");
-
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
+	#endif
+		
 		GetGame().ObjectDelete(m_VIP);
 
 		super.OnCancel();
-
-		ObjectivePrint(ToString() + "::OnCancel - End");
 	}
 
-	void OnEntityKilled(EntityAI victim, EntityAI killer)
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
@@ -111,6 +115,10 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 
 	private void CreateVIP()
 	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CreateVIP");
+	#endif
+		
 		ExpansionQuestObjectiveAIVIP vip = GetObjectiveConfig().GetAIVIP();
 		if (!vip)
 			return;
@@ -175,9 +183,6 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 
 			if (position != vector.Zero && currentDistance <= maxDistance)
 			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::OnUpdate - Complete!");
-			#endif
 				SetCompleted(true);
 				OnComplete();
 			}

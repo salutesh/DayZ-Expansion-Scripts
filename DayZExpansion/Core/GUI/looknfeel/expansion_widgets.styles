@@ -117,7 +117,7 @@
         </Style>
     </Widget>
     <Widget Name="GridSpacerWidget">
-        <Style Name="UIDefaultPanel" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
+        <Style Name="Expansion_01" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
             <State Name="Disabled">
                 <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
                 <Item Name="Center" Image="UIPanelHorizontalCenter" />
@@ -142,8 +142,8 @@
             </State>
         </Style>
     </Widget>
-	<Widget Name="WrapSpacerWidget">
-        <Style Name="UIDefaultPanel" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
+    <Widget Name="WrapSpacerWidget">
+        <Style Name="Expansion_01" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
             <State Name="Disabled">
                 <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
                 <Item Name="Center" Image="UIPanelHorizontalCenter" />

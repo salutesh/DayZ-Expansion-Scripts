@@ -269,7 +269,7 @@ class Vehicle_ExpansionUAZ extends ExpansionVehicleCarBase
 		default:
 			break;
 		}
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)

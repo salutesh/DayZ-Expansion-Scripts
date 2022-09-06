@@ -77,14 +77,7 @@ modded class LoginTimeBase
 
 		//! Game object does not exist yet during parts of the loading process
 		if (GetGame())
-			GetGame().GetWorldName(world_name);
-
-		world_name.ToLower();
-		
-		if ( world_name.IndexOf("gloom") == world_name.Length() - 5 )
-		{
-			world_name = world_name.Substring(0, world_name.Length() - 5);
-		}
+			world_name = ExpansionStatic.GetCanonicalWorldName();
 		
 		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
 

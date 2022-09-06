@@ -64,7 +64,11 @@ class ExpansionActionDisconnectTow : ActionInteractBase
 			if (car.CrewMemberIndex(action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{
 				if (GetGame().IsMultiplayer() && GetExpansionSettings().GetLog().VehicleTowing)
-					GetExpansionSettings().GetLog().PrintLog("[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " Untowed " + car.Expansion_GetTowedEntity().GetType() + " with " + car.GetType());
+				{
+					string msg = "[VehicleTowing] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " untowed " + car.Expansion_GetTowedEntity().GetType() + " (id=" + ExpansionStatic.GetPersistentIDString(car.Expansion_GetTowedEntity()) + " pos=" + car.GetPosition();
+					msg += " with " + car.GetType() + " (id=" + car.GetVehiclePersistentIDString() + " pos=" + car.GetPosition() + ")";
+					GetExpansionSettings().GetLog().PrintLog(msg);
+				}
 
 				car.Expansion_DestroyTow();
 			}

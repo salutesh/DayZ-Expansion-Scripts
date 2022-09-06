@@ -400,7 +400,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		}
 		}
 
-		return oldValue;
+		return super.OnSound(ctrl, oldValue);
 	}
 
 	override void SetActions()

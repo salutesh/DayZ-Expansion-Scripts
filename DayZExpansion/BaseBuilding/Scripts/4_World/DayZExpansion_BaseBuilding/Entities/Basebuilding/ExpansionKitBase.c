@@ -73,6 +73,14 @@ class ExpansionKitBase extends WatchtowerKit
 		Object obj = GetGame().CreateObject( GetDeployType(), GetPosition() );
 		obj.SetPosition( position );
 		obj.SetOrientation( orientation );
+
+		ExpansionBaseBuilding bb;
+		if (Class.CastTo(bb, obj))
+		{
+			//! Hologram. Set max lifetime to that of the kit
+			bb.SetLifetimeMax(GetLifetimeMax());
+			bb.MaxLifetimeRefreshCalc();
+		}
 		
 		//! Make the kit invisible, so it can be destroyed from deploy UA when action ends
 		HideAllSelections();

@@ -51,7 +51,7 @@ class ExpansionAIObjectPatrol: ExpansionAIDynamicSpawnBase
 		}
 	}
 
-	TVectorArray GetWaypoints(vector position, int beh = eAIWaypointBehavior.HALT )
+	override TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
 	{
 		TVectorArray waypoints = new TVectorArray;
 		vector waypoint;

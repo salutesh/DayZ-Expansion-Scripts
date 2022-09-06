@@ -204,4 +204,13 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Market\Structures\TraderSigns\data\traders\sign_trader_spawnzone.paa"};
 		vehicleClass = "Expansion_Sign";
 	};
+	class ExpansionSign_Expansion: ExpansionSignBig_Color
+	{
+		scope = 1;
+		displayName = "";
+		descriptionShort = "";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Market\Structures\TraderSigns\data\traders\sign_expansion.paa"};
+		vehicleClass = "Expansion_Sign";
+	};
 };

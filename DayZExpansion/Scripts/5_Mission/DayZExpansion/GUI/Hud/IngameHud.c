@@ -17,7 +17,6 @@ modded class IngameHud
 	bool m_ExpansionNVSetting;
 
 	Widget m_NVPanel;
-	ImageWidget m_NVOverlayImage;
 	ImageWidget m_NVBatteryIcon;
 	TextWidget m_NVBatteryVal;
 	int m_NVBatteryState;
@@ -59,7 +58,6 @@ modded class IngameHud
 		{
 			m_NVPanel.Show(false);
 
-			m_NVOverlayImage = ImageWidget.Cast(m_NVPanel.FindAnyWidget("NVOverlay"));
 			m_NVBatteryIcon = ImageWidget.Cast(m_NVPanel.FindAnyWidget("NVBatteryIcon"));
 
 			m_NVBatteryIcon.LoadImageFile(0, "DayZExpansion/Core/GUI/icons/hud/battery_empty_64x64.edds");

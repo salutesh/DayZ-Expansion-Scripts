@@ -16,6 +16,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	protected ExpansionMarkerClientData m_CurrentData;
 	protected ref array<ref ExpansionMarkerClientData> m_AllData;
 	protected int m_Visibility[5];
+	protected int m_PreviousVisibility[5];
 	protected float m_TimeAccumulator = 0;
 	private ref array<ref Expansion3DMarker> m_3DMarkers;
 	private string m_DeathMarkerUID;
@@ -814,7 +815,17 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	{
 		type -= 1;
 		
+		m_PreviousVisibility[type] = m_Visibility[type];
 		m_Visibility[type] = m_Visibility[type] & ~vis;
+
+		return m_Visibility[type];
+	}
+
+	int RestoreVisibility( int type, int vis )
+	{
+		type -= 1;
+
+		m_Visibility[type] = m_Visibility[type] | (m_PreviousVisibility[type] & vis);
 
 		return m_Visibility[type];
 	}
@@ -840,6 +851,13 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		return m_Visibility[type];
 	}
 	
+	int GetPreviousVisibility( int type )
+	{
+		type -= 1;
+		
+		return m_PreviousVisibility[type];
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule IsVisible
 	// ------------------------------------------------------------
