@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Quests_Dta_Core
 	{
-		units[] = {"ExpansionQuestNPCDenis","ExpansionQuestNPCBoris","ExpansionQuestNPCCyril","ExpansionQuestNPCElias","ExpansionQuestNPCFrancis","ExpansionQuestNPCGuo","ExpansionQuestNPCHassan","ExpansionQuestNPCIndar","ExpansionQuestNPCJose","ExpansionQuestNPCKaito","ExpansionQuestNPCLewis","ExpansionQuestNPCManua","ExpansionQuestNPCNiki","ExpansionQuestNPCOliver","ExpansionQuestNPCPeter","ExpansionQuestNPCQuinn","ExpansionQuestNPCRolf","ExpansionQuestNPCSeth","ExpansionQuestNPCTaiki","ExpansionQuestNPCLinda","ExpansionQuestNPCMaria","ExpansionQuestNPCFrida","ExpansionQuestNPCGabi","ExpansionQuestNPCHelga","ExpansionQuestNPCIrena","ExpansionQuestNPCJudy","ExpansionQuestNPCKeiko","ExpansionQuestNPCLina","ExpansionQuestNPCNaomi","ExpansionQuestNPCEva","ExpansionQuestItemBase","ExpansionQuestItemPaper","ExpansionQuestItemPackage"};
+		units[] = {"ExpansionQuestNPCDenis","ExpansionQuestNPCBoris","ExpansionQuestNPCCyril","ExpansionQuestNPCElias","ExpansionQuestNPCFrancis","ExpansionQuestNPCGuo","ExpansionQuestNPCHassan","ExpansionQuestNPCIndar","ExpansionQuestNPCJose","ExpansionQuestNPCKaito","ExpansionQuestNPCLewis","ExpansionQuestNPCManua","ExpansionQuestNPCNiki","ExpansionQuestNPCOliver","ExpansionQuestNPCPeter","ExpansionQuestNPCQuinn","ExpansionQuestNPCRolf","ExpansionQuestNPCSeth","ExpansionQuestNPCTaiki","ExpansionQuestNPCLinda","ExpansionQuestNPCMaria","ExpansionQuestNPCFrida","ExpansionQuestNPCGabi","ExpansionQuestNPCHelga","ExpansionQuestNPCIrena","ExpansionQuestNPCJudy","ExpansionQuestNPCKeiko","ExpansionQuestNPCEva","ExpansionQuestNPCNaomi","ExpansionQuestNPCBaty","ExpansionQuestItemBase","ExpansionQuestItemPaper","ExpansionQuestItemPackage"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Characters","DZ_Scripts","DZ_AI","DayZExpansion_Dta_Core"};
@@ -381,7 +381,7 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionQuestNPCLina: SurvivorF_Lina
+	class ExpansionQuestNPCEva: SurvivorF_Eva
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
@@ -391,7 +391,7 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionQuestNPCEva: SurvivorF_Eva
+	class ExpansionQuestNPCBaty: SurvivorF_Baty
 	{
 		scope = 2;
 		vehicleClass = "Expansion_Npc";

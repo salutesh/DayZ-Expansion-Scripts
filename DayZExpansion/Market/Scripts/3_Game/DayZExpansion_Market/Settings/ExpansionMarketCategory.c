@@ -12,7 +12,7 @@
 
 class ExpansionMarketCategory
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 
 	int m_Version;
 
@@ -96,7 +96,7 @@ class ExpansionMarketCategory
 				}
 			}
 
-			if (category.m_Version < 11)
+			if (category.m_Version < 12)
 			{
 				string fileNameLower = name;
 				fileNameLower.ToLower();

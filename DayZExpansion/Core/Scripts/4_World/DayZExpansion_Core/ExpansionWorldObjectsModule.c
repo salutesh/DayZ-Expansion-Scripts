@@ -284,7 +284,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
-		int flags = ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS;
+		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME;
 
 		Object obj = GetGame().CreateObjectEx( className, position, flags );
 		if ( !obj )
@@ -685,6 +685,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
 			obj = GetGame().CreateObject( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
+			if (!obj)
+				continue;
+
 			obj.SetOrientation( rotation );
 			obj.SetAffectPathgraph( true, false );
 			obj.Update();

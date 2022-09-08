@@ -19,6 +19,7 @@ class ExpansionMarketExchange: ExpansionMarketCategory
 		CategoryID = 0;
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_EXCHANGE";
 		m_FileName = "Exchange";
+		IsExchange = true;
 		
 		AddStaticItem("ExpansionGoldBar", 			10000);
 		AddStaticItem("ExpansionGoldNugget", 		100);
