@@ -419,9 +419,23 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Invert so array is now ordered from highest to lowest value currency
 		m_MoneyDenominations.Invert();
 
+		if (!m_MoneyDenominations.Count())
+			Error("No market exchange found - cannot determine currency values! Make sure you have at least one market category containing currencies with IsExchange set to 1");
+
 		MarketModulePrint("LoadMoneyPrice - End");
 	}
 	
+	bool MoneyCheck(PlayerIdentity identity = NULL)
+	{
+		if (!m_MoneyDenominations.Count())
+		{
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "No market exchange found - cannot determine currency values!").Error(identity);
+			return false;
+		}
+
+		return true;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion SetTrader
 	// Client only
@@ -2122,6 +2136,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("SendMoneyDenominations - Start");
 			
+			if (!MoneyCheck(identity))
+				return;
+
 			ScriptRPC rpc = new ScriptRPC();
 
 			//! Order needs to match highest to lowest currency value
@@ -3661,6 +3678,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void OpenTraderMenu()
 	{
+		if (!MoneyCheck())
+			return;
+
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionMarketMenu");
 	}
 	
@@ -3669,6 +3689,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void OpenATMMenu()
 	{
+		if (!MoneyCheck())
+			return;
+
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionATMMenu");
 	}
 	

@@ -685,6 +685,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			CF_Log.Debug( "Attempt to create mission trader " + className + " at " + position + " from file:" + filePath + ".");
 
 			obj = GetGame().CreateObject( className, position, false, GetGame().IsKindOf(className, "DZ_LightAI"), true );
+			if (!obj)
+				continue;
+
 			obj.SetOrientation( rotation );
 			obj.SetAffectPathgraph( true, false );
 			obj.Update();

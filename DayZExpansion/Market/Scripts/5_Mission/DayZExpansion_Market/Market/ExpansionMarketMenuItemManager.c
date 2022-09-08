@@ -246,7 +246,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 					
 					if (saved)
 					{
-						CreateNotification("#STR_EXPANSION_MARKET_PRESETS_SAVED");
+						CreateNotification("STR_EXPANSION_MARKET_PRESETS_SAVED");
 						LoadLocalItemPresets();	
 						m_MarketItemManagerController.PresetName = "";
 						m_MarketItemManagerController.NotifyPropertyChanged("PresetName");
@@ -254,13 +254,13 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 				}
 				else
 				{
-					CreateErrorNotification("#STR_EXPANSION_MARKET_PRESETS_ERROR_NO_ATTACHMENTS");
+					CreateErrorNotification("STR_EXPANSION_MARKET_PRESETS_ERROR_NO_ATTACHMENTS");
 				}
 			}
 		}
 		else
 		{
-			CreateErrorNotification("#STR_EXPANSION_MARKET_PRESETS_ERROR_NAME");
+			CreateErrorNotification("STR_EXPANSION_MARKET_PRESETS_ERROR_NAME");
 		}
 	}
 	
@@ -347,7 +347,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	{
 		if (!IsPresetValidCheck(preset))
 		{
-			CreateErrorNotification("#STR_EXPANSION_MARKET_PRESETS_ERROR_INVALID");
+			CreateErrorNotification("STR_EXPANSION_MARKET_PRESETS_ERROR_INVALID");
 			return;
 		}
 		
