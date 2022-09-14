@@ -93,7 +93,10 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 
 		ExpansionQuestPersistentServerData data;
 		ExpansionQuestPersistentServerDataBase dataBase;
-		JsonFileLoader<ExpansionQuestPersistentServerDataBase>.JsonLoadFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, dataBase);
+		
+		ExpansionJsonFileParser<ExpansionQuestPersistentServerDataBase>.Load(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, dataBase);
+		if (!dataBase)
+			return NULL;
 
 		if (dataBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -106,7 +109,9 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestPersistentServerData>.JsonLoadFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, data);
+			ExpansionJsonFileParser<ExpansionQuestPersistentServerData>.Load(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, data);
+			if (!data)
+				return NULL;
 		}
 
 		if (save)

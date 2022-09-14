@@ -57,7 +57,7 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 		if (ai)
 		{
 			// the further away the zombie, the less likely it will be a threat
-			float distance = GetDistance(ai) + 0.1;
+			float distance = GetDistance(ai, true) + 0.1;
 			levelFactor *= 10 / distance;
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);

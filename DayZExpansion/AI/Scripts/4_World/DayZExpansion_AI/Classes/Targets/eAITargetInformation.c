@@ -6,7 +6,7 @@
 class eAITargetInformation
 {
 	// in most circumstances an entity should only be in 1 group
-	private autoptr map<int, ref eAITarget> m_Groups;
+	autoptr map<int, ref eAITarget> m_Groups;
 
 	void eAITargetInformation()
 	{
@@ -80,7 +80,7 @@ class eAITargetInformation
 	 * @param ai null default, gets the position for the AI if specified, otherwise returns a default value
 	 * @return EntityAI
 	 */
-	vector GetPosition(eAIBase ai = null)
+	vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetPosition").Add(ai);
@@ -134,7 +134,7 @@ class eAITargetInformation
 	 * @param ai gets the position for the AI if specified
 	 * @return float
 	 */
-	float GetDistance(eAIBase ai)
+	float GetDistance(eAIBase ai, bool actual = false)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetDistance").Add(ai);
@@ -143,7 +143,7 @@ class eAITargetInformation
 		return 0;
 	}
 
-	float GetDistanceSq(eAIBase ai)
+	float GetDistanceSq(eAIBase ai, bool actual = false)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "GetDistanceSq").Add(ai);
@@ -170,7 +170,7 @@ class eAITargetInformation
 			return;
 		}
 
-		if (!IsActive() || target.found_at_time + target.max_time <= GetGame().GetTime())
+		if (!IsActive())
 		{
 			Remove(group_id);
 		}
@@ -180,9 +180,9 @@ class eAITargetInformation
 	 * @brief Refreshes the target time for the group
 	 *
 	 * @param group the eAIGroup
-	 * @param max_time the new maximum time it should be targetting for, if int.MIN then not updated
+	 * @param max_time the new maximum time it should be targetting for, if -1 then not updated
 	 */
-	void Update(eAIGroup group, int max_time = -2147483647 /*int.MIN*/)
+	void Update(eAIGroup group, int max_time = -1)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "Update").Add(group).Add(max_time);
@@ -193,7 +193,7 @@ class eAITargetInformation
 			return;
 
 		target.found_at_time = GetGame().GetTime();
-		if (max_time != -2147483647 /*int.MIN*/)
+		if (max_time != -1)
 			target.max_time = max_time;
 	}
 
@@ -202,7 +202,7 @@ class eAITargetInformation
 	 *
 	 * @param group_id group id of an eAIGroup
 	 */
-	eAITarget Insert(notnull eAIGroup group, int max_time = -2147483647 /*-int.MIN*/)
+	eAITarget Insert(notnull eAIGroup group, int max_time = -1)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "Insert").Add(group).Add(max_time);
@@ -224,7 +224,7 @@ class eAITargetInformation
 	 * @param ai eAIBase object
 	 * @param max_time time the eAIBase will be targetting this target for
 	 */
-	eAITarget Insert(eAIBase ai, int max_time = -2147483647 /*int.MIN*/)
+	eAITarget Insert(eAIBase ai, int max_time = -1)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "Insert").Add(ai).Add(max_time);
@@ -243,9 +243,9 @@ class eAITargetInformation
 	 * @brief Tells the target that the AI is targetting it. If the group didn't know about the target, insert the group
 	 *
 	 * @param ai eAIBase object
-	 * @param max_time time the eAIBase will be targetting this target for, if int.MIN then the time of the group isn't updated
+	 * @param max_time time the eAIBase will be targetting this target for, if -1 then the time of the group isn't updated
 	 */
-	eAITarget AddAI(eAIBase ai, int max_time = -2147483647 /*int.MIN*/)
+	eAITarget AddAI(eAIBase ai, int max_time = -1)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "AddAI").Add(ai).Add(max_time);
@@ -256,7 +256,7 @@ class eAITargetInformation
 		if (!m_Groups.Find(group_id, target))
 			return Insert(ai, max_time);
 
-		if (max_time != -2147483647 /*int.MIN*/)
+		if (max_time != -1)
 			target.max_time = max_time;
 
 		if (target.AddAI(ai))
@@ -283,15 +283,6 @@ class eAITargetInformation
 
 		if (!target.RemoveAI(ai))
 			return false;
-
-		ai.OnRemoveTarget(target);
-
-		if (target.CountAI() == 0)
-		{
-			target.group.OnTargetRemoved(this);
-
-			m_Groups.Remove(group_id);
-		}
 
 		return true;
 	}

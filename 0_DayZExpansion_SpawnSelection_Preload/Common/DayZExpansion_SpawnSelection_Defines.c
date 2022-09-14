@@ -12,3 +12,7 @@
 
 //! Used for third party mods, if they want to know if expansion spawn selection mod is loaded
 #define EXPANSIONMODSPAWNSELECTION
+
+#ifndef EXPANSIONMONITORMODULE
+#define EXPANSIONMONITORMODULE
+#endif

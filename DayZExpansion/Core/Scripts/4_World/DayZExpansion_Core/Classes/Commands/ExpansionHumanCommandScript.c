@@ -37,6 +37,8 @@ class ExpansionHumanCommandScript : HumanCommandScript
 
 	void SetLookAnglesRel(float lookLR, float lookUD) { }
 
+	void SetAimAnglesRel(float aimLR, float aimUD) { }
+
 	//! Helper functions
 	void AnglesToQuat(vector angles, out float[] quat)
 	{

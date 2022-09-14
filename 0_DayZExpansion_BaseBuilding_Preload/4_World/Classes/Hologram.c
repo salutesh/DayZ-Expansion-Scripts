@@ -52,7 +52,9 @@ modded class Hologram
 		vector contact_pos;
 		set<Object> hit_object = new set<Object>;
 
-		DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false, ObjIntersectFire );
+		//! @note vanilla changed raycast from ObjIntersectView to ObjIntersectFire in 1.16, which breaks some 3rd party mods including our basebuilding.
+		//! Override it back to ObjIntersectView which works just fine for vanilla and 3rd party mods.
+		DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false, ObjIntersectView );
 
 		static const float raycastOriginOffsetOnFail = 0.25;
 		static const float minDistFromStart = 0.01;
@@ -60,7 +62,9 @@ modded class Hologram
 		if ((hit_object.Count() > 0) && (vector.DistanceSq(from, contact_pos) < minDistFromStart))
 		{
 			from = contact_pos + GetGame().GetCurrentCameraDirection() * raycastOriginOffsetOnFail;
-			DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false, ObjIntersectFire );
+			//! @note vanilla changed raycast from ObjIntersectView to ObjIntersectFire in 1.16, which breaks some 3rd party mods including our basebuilding.
+			//! Override it back to ObjIntersectView which works just fine for vanilla and 3rd party mods.
+			DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false, ObjIntersectView );
 		}
 		
 		if ((hit_object.Count() > 0) && hit_object[0].IsInherited(Watchtower))

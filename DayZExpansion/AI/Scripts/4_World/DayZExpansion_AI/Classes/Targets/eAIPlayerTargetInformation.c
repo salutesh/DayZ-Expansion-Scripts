@@ -9,21 +9,21 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override float GetThreat(eAIBase ai = null)
 	{
-		if (ai == this || m_Player.GetHealth("", "") <= 0.0)
+		if (m_Player.GetHealth("", "") <= 0.0)
 			return 0.0;
 
-		float levelFactor = 0.5;
+		if (m_Player.IsUnconscious())
+			return 0.1;
+
+		float levelFactor = 0.1;
 
 		if (ai)
 		{
-			if (!ai.PlayerIsEnemy(m_Player))
-				return 0.0;
-
-			if (m_Player.IsUnconscious())
+			if (ai == m_Player || !ai.PlayerIsEnemy(m_Player))
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai) + 0.1;
+			float distance = GetDistance(ai, true) + 0.1;
 
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
@@ -31,12 +31,10 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			//! Guards are friendly to everyone until the other player raises their weapon
 			if (ai.GetGroup() && ai.GetGroup().GetFaction().IsGuard() && !m_Player.IsRaised())
 			{
-				if (!enemyHands)
-					levelFactor = 0.15;  //! They eyeball you menacingly
-				else if (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon())
+				if (enemyHands && (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon()))
 					levelFactor = 0.2;  //! They aim at you
 				else
-					return 0.15;
+					levelFactor = 0.15;  //! They eyeball you menacingly
 
 				if (distance > 30)
 					levelFactor *= (30 / distance);

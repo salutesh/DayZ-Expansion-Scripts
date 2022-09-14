@@ -2498,7 +2498,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		ExpansionQuestObjectiveConfig objectiveBaseData = new ExpansionQuestObjectiveConfig();
-		JsonFileLoader<ExpansionQuestObjectiveConfig>.JsonLoadFile(path + fileName, objectiveBaseData);
+		ExpansionJsonFileParser<ExpansionQuestObjectiveConfig>.Load(path + fileName, objectiveBaseData);
 		if (!objectiveBaseData)
 			return;
 
@@ -2519,7 +2519,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				ExpansionQuestObjectiveDeliveryConfig deliveryConfig = new ExpansionQuestObjectiveDeliveryConfig();
-				JsonFileLoader<ExpansionQuestObjectiveDeliveryConfig>.JsonLoadFile(path + fileName, deliveryConfig);
+				ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(path + fileName, deliveryConfig);
 				if (!deliveryConfig)
 					return;
 
@@ -2561,7 +2561,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				ExpansionQuestObjectiveActionConfig actionConfig = new ExpansionQuestObjectiveActionConfig();
-				JsonFileLoader<ExpansionQuestObjectiveActionConfig>.JsonLoadFile(path + fileName, actionConfig);
+				ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfig>.Load(path + fileName, actionConfig);
 				if (!actionConfig)
 					return;
 
@@ -2572,7 +2572,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				ExpansionQuestObjectiveCraftingConfig craftingConfig = new ExpansionQuestObjectiveCraftingConfig();
-				JsonFileLoader<ExpansionQuestObjectiveCraftingConfig>.JsonLoadFile(path + fileName, craftingConfig);
+				ExpansionJsonFileParser<ExpansionQuestObjectiveCraftingConfig>.Load(path + fileName, craftingConfig);
 				if (!craftingConfig)
 					return;
 
@@ -2604,7 +2604,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.AIVIP:
 			{
 				ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = new ExpansionQuestObjectiveAIVIPConfig();
-				JsonFileLoader<ExpansionQuestObjectiveAIVIPConfig>.JsonLoadFile(path + fileName, aiVIPConfig);
+				ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfig>.Load(path + fileName, aiVIPConfig);
 				if (!aiVIPConfig)
 					return;
 
@@ -3293,9 +3293,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		RemoveClientMarkers(quest.GetQuestConfig().GetID(), identity);
 	#endif
 
-	#ifdef EXPANSIONMODAI
 		if (!isAutoComplete)
 		{
+		#ifdef EXPANSIONMODAI
 			ExpansionQuestNPCAIBase npc = GetQuestNPCAIByID(quest.GetQuestConfig().GetQuestTurnInID());
 			if (npc)
 			{
@@ -3306,8 +3306,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 				}
 			}
+		#endif
 		}
-	#endif
+		else
+		{
+			//! Add the following quest regardless when the pre-quest was a auto-complete quest
+			int followUpQuest = quest.GetQuestConfig().FollowUpQuest;
+			if (followUpQuest > -1)
+			{
+				ExpansionQuestConfig followUpQuestConfig = GetQuestConfigByID(followUpQuest);
+				if (followUpQuestConfig)
+				{
+					CreateQuestInstanceServer(followUpQuest, playerUID);
+				}
+			}
+		}
 		
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CompleteQuest - Player with UID " + identity.GetId() + " has completed quest " + quest.GetQuestConfig().GetID());
 		quest.QuestLog();

@@ -1,10 +1,17 @@
 class eAIEntityTargetInformation extends eAITargetInformation
 {
 	private EntityAI m_Target;
+	vector m_LastKnownPosition;
 
 	void eAIEntityTargetInformation(EntityAI target)
 	{
 		m_Target = target;
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredInit, 34);
+	}
+
+	void DeferredInit()
+	{
+		m_LastKnownPosition = m_Target.GetPosition();
 	}
 
 	override string GetDebugName()
@@ -30,19 +37,27 @@ class eAIEntityTargetInformation extends eAITargetInformation
 		return m_Target.GetHealth() > 0.0;
 	}
 
-	override vector GetPosition(eAIBase ai = null)
+	override vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
-		return m_Target.GetPosition();
+		if (actual)
+			return m_Target.GetPosition();
+
+		if (!ai || ai.eAI_HasLOS())
+			m_LastKnownPosition = m_Target.GetPosition();
+
+		return m_LastKnownPosition;
 	}
 
-	override float GetDistance(eAIBase ai)
+	override float GetDistance(eAIBase ai, bool actual = false)
 	{
-		return vector.Distance(ai.GetPosition(), m_Target.GetPosition());
+		vector position = GetPosition(ai, actual);
+		return vector.Distance(ai.GetPosition(), position);
 	}
 
-	override float GetDistanceSq(eAIBase ai)
+	override float GetDistanceSq(eAIBase ai, bool actual = false)
 	{
-		return vector.DistanceSq(ai.GetPosition(), m_Target.GetPosition());
+		vector position = GetPosition(ai, actual);
+		return vector.DistanceSq(ai.GetPosition(), position);
 	}
 };
 

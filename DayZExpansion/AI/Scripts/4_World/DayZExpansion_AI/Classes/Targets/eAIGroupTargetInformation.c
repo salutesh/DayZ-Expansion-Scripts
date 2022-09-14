@@ -12,7 +12,7 @@ class eAIGroupTargetInformation extends eAITargetInformation
 		return m_Target.GetLeader();
 	}
 
-	override vector GetPosition(eAIBase ai = null)
+	override vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
 		if (!GetEntity())
 			return "0 0 0";

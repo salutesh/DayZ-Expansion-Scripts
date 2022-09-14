@@ -196,7 +196,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 			for (int i = 0; i < quest.GetRewards().Count(); i++)
 			{
 				ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
-				ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount());
+				ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount(), reward.GetAttachments());
 				m_QuestTabController.RewardEntries.Insert(rewardEntry);
 			}
 		

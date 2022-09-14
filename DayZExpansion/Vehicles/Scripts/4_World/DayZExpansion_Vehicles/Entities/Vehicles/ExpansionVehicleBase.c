@@ -4569,4 +4569,34 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return m_SafeZone;
 	}
+	
+	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true)
+	{
+		set<Human> players = new set<Human>;
+		Human crew;
+		
+		//! Seated players
+		for (int i = 0; i < CrewSize(); i++)
+		{
+			crew = CrewMember(i);
+			if (!crew)
+				continue;
+
+			if (!playersOnly || crew.GetIdentity())
+				players.Insert(crew);
+		}
+
+		//! Attached players
+		EntityAI child = GetChildren();
+		while (child)
+		{
+			crew = Human.Cast(child);
+			if (!playersOnly || crew.GetIdentity())
+				players.Insert(crew);
+
+			child = child.GetSibling();
+		}
+		
+		return players;
+	}
 };

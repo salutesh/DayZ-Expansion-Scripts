@@ -123,6 +123,9 @@ class ExpansionMarketPlayerInventory
 				if (car.IsLocked())
 					continue;
 				#endif
+				
+				if (car.Expansion_GetVehicleCrew().Count() > 0)
+					continue;
 
 				if (IsVehicleNearby(car))
 					driven.Insert(car);
@@ -143,6 +146,9 @@ class ExpansionMarketPlayerInventory
 				if (vehicle.IsLocked())
 					continue;
 
+				if (vehicle.Expansion_GetVehicleCrew().Count() > 0)
+					continue;
+				
 				if (IsVehicleNearby(vehicle))
 					driven.Insert(vehicle);
 
@@ -3645,8 +3651,22 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (item.GetInventory().IsAttachment())
 				return !item.IsMagazine() && item.GetHierarchyParent().CanReleaseAttachment(item) && item.GetHierarchyParent().GetInventory().CanRemoveAttachment(item);
 		}
+		
+		CarScript car;
+		if (Class.CastTo(car, item))
+		{
+			if (car.Expansion_GetVehicleCrew().Count() > 0)
+				return false;
+		}
 
 		#ifdef EXPANSIONMODVEHICLE
+		ExpansionVehicleBase vehicle;
+		if (Class.CastTo(vehicle, item))
+		{
+			if (vehicle.Expansion_GetVehicleCrew().Count() > 0)
+				return false;
+		}
+		
 		//! If this is a master key of a vehicle, don't allow to sell it
 		ExpansionCarKey key;
 		if (Class.CastTo(key, item) && key.IsMaster())

@@ -240,8 +240,11 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		ExpansionQuestNPCData npcConfig;
 		ExpansionQuestNPCDataBase npcConfigBase;
-		JsonFileLoader<ExpansionQuestNPCDataBase>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
 		
+		ExpansionJsonFileParser<ExpansionQuestNPCDataBase>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
+		if (!npcConfigBase)
+			return NULL;
+
 		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
 		{
 			CF_Log.Info("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
@@ -253,12 +256,14 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestNPCData>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			ExpansionJsonFileParser<ExpansionQuestNPCData>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			if (!npcConfig)
+				return NULL;
 		}
 		
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(fileName, npcConfig);
 		}
 		
 		return npcConfig;

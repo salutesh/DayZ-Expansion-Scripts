@@ -39,7 +39,10 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 		ExpansionQuestObjectiveTreasureHuntConfig config;
 		ExpansionQuestObjectiveTreasureHuntConfigBase configBase;
-		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfigBase>.JsonLoadFile(fileName, configBase);
+
+		ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfigBase>.Load(fileName, configBase);
+		if (!configBase)
+			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -54,7 +57,9 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonLoadFile(fileName, config);
+			ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig>.Load(fileName, config);
+			if (!config)
+				return NULL;
 		}
 
 		if (save)

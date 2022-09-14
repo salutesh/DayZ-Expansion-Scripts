@@ -268,7 +268,7 @@
 					}
 					
 					auto target = unit.GetTarget();
-					if (target &amp;&amp; target.GetDistanceSq(unit) &lt;= 2.25)
+					if (target &amp;&amp; target.GetDistanceSq(unit, true) &lt;= 2.25)
 					{
 						unit.OverrideMovementDirection(true, -180);
 					}
@@ -650,7 +650,7 @@
 				eAITarget target = unit.GetTarget();
 				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase))
 				{
-					if (target.GetDistanceSq(unit) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
+					if (target.GetDistanceSq(unit, true) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
 					{
 						dst.item = ItemBase.Cast(target.GetEntity());
 					}
@@ -729,7 +729,7 @@
 				<position_destination x="411.886600687193" y="193.617136976937" />
 			</editor_data>
 			<guard>
-				if (unit.GetThreatToSelf(true) &lt; 0.4) return FAIL;
+				if (unit.GetThreatToSelf() &lt; 0.4) return FAIL;
 				if (unit.GetActionManager().GetRunningAction()) return FAIL;
 				
 				return SUCCESS;

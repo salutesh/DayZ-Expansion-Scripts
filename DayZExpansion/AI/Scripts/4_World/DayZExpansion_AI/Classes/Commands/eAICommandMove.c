@@ -55,6 +55,8 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	private bool m_Look;
 	private float m_LookLR;
 	private float m_LookUD;
+	private float m_AimLR;
+	private float m_AimUD;
 	
 	private float m_SpeedUpdateTime;
 	private float m_MovementSpeed;
@@ -121,6 +123,14 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 		m_Look = (Math.AbsFloat(m_LookLR) > 0.01) || (Math.AbsFloat(m_LookUD) > 0.01);
 	}
+
+/*
+	override void SetAimAnglesRel(float aimLR, float aimUD)
+	{
+		m_AimLR = aimLR;
+		m_AimUD = aimUD;
+	}
+*/
 
 	void SetTurnTarget(float pTarget, bool force = false)
 	{
@@ -612,8 +622,11 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		m_Table.SetLookDirX(this, m_LookLR);
 		m_Table.SetLookDirY(this, m_LookUD);
 		
-		m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
-		m_TurnPrevious = m_Turn;
+		//m_Table.SetAimX(this, m_AimLR);
+		//m_Table.SetAimY(this, m_AimUD);
+
+		//m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
+		//m_TurnPrevious = m_Turn;
 		
 		if (m_MovementSpeed == 0)
 		{
@@ -633,16 +646,10 @@ class eAICommandMove extends ExpansionHumanCommandScript
 				case TURN_STATE_TURNING:
 					m_TurnTime += pDt;
 				
-					if (m_TurnTime > 2.0)
+					if (m_TurnTime > 2.0 || Math.AbsFloat(m_TurnDifference) < 1)
 					{
 						m_Table.CallStopTurn(this);
 
-						m_TurnState = TURN_STATE_NONE;
-					}			
-					else if (Math.AbsFloat(m_TurnVelocity) < 1 * pDt)
-					{
-						m_Table.CallStopTurn(this);
-						
 						m_TurnState = TURN_STATE_NONE;
 					}
 
@@ -652,6 +659,9 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		}
 		else
 		{
+			if (m_TurnState == TURN_STATE_TURNING)
+				m_Table.CallStopTurn(this);
+
 			m_TurnState = TURN_STATE_NONE;
 
 			float turnTargetActual = m_TurnTarget;

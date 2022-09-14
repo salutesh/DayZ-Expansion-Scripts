@@ -65,7 +65,7 @@ class eAIBase extends PlayerBase
 	private vector m_eAI_LookDirectionTarget_ModelSpace;
 	private bool m_eAI_LookDirection_Recalculate;
 
-	private vector m_eAI_AimDirection_ModelSpace;
+	private vector m_eAI_AimRelAngles;
 	private vector m_eAI_AimDirectionTarget_ModelSpace;
 	private bool m_eAI_AimDirection_Recalculate;
 
@@ -700,16 +700,16 @@ class eAIBase extends PlayerBase
 	void OnAddTarget(eAITarget target)
 	{
 		m_eAI_Targets.Insert(target);
-#ifdef EAI_TRACE
-		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + Debug.GetDebugName(target.GetEntity()) + " - target count " + m_eAI_Targets.Count());
+#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + Debug.GetDebugName(target.GetEntity()) + " - found at time " + target.found_at_time + " - max time " + target.max_time + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
 	void OnRemoveTarget(eAITarget target)
 	{
 		m_eAI_Targets.RemoveItem(target);
-#ifdef EAI_TRACE
-		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + Debug.GetDebugName(target.GetEntity()) + " - target count " + m_eAI_Targets.Count());
+#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + Debug.GetDebugName(target.GetEntity()) + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
@@ -734,7 +734,7 @@ class eAIBase extends PlayerBase
 			if (m_eAI_LOS)
 				m_eAI_CurrentThreatToSelfActive = m_eAI_CurrentThreatToSelf;
 			else
-				m_eAI_CurrentThreatToSelfActive = Math.Lerp(m_eAI_CurrentThreatToSelfActive, 0.200001, pDt * pDt);
+				m_eAI_CurrentThreatToSelfActive = Math.Lerp(m_eAI_CurrentThreatToSelfActive, Math.Min(0.200001, m_eAI_CurrentThreatToSelf), pDt * pDt);
 		}
 		else
 		{
@@ -989,44 +989,54 @@ class eAIBase extends PlayerBase
 		auto trace = CF_Trace_0(this, "PrioritizeTargets");
 #endif
 
+		auto target = m_eAI_Targets[0];
+
 		// sorting the targets so the highest the threat is indexed lowest
 
 		for (int i = m_eAI_Targets.Count() - 1; i >= 0; i--)
 		{
 			if (m_eAI_Targets[i] == null || m_eAI_Targets[i].ShouldRemove(this))
 			{
-#ifdef EAI_TRACE
+#ifdef DIAG
 				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + Debug.GetDebugName(m_eAI_Targets[i].GetEntity()));
 #endif
-				m_eAI_Targets.Remove(i);
+				if (!m_eAI_Targets[i].RemoveAI(this))
+					m_eAI_Targets.RemoveOrdered(i);
 			}
 		}
 
-//#ifdef EAI_TRACE
-		bool swap;
-//#endif
+		float max_threat;
 		for (i = 0; i < m_eAI_Targets.Count() - 1; i++)
 		{
 			int min_idx = i;
 			for (int j = i + 1; j < m_eAI_Targets.Count(); j++)
 			{
-				if (m_eAI_Targets[j] && m_eAI_Targets[min_idx] && m_eAI_Targets[j].GetThreat(this) > m_eAI_Targets[min_idx].GetThreat(this))
+				if (!m_eAI_Targets[j] && !m_eAI_Targets[min_idx])
 				{
-//#ifdef EAI_TRACE
-					swap = true;
-//#endif
+					continue;
+				}
+				float threat = m_eAI_Targets[j].GetThreat(this);
+				if (threat > m_eAI_Targets[min_idx].GetThreat(this))
+				{
 					min_idx = j;
+					max_threat = threat;
 				}
 			}
 
 			if (min_idx != i)
+			{
 				m_eAI_Targets.SwapItems(min_idx, i);
+			}
 		}
 
-//#ifdef EAI_TRACE
-		if (swap)
-			EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + Debug.GetDebugName(m_eAI_Targets[0].GetEntity()));
-//#endif
+		if (m_eAI_Targets[0] != target)
+		{
+#ifdef DIAG
+			if (m_eAI_Targets[0])
+				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + Debug.GetDebugName(m_eAI_Targets[0].GetEntity()));
+#endif
+			m_eAI_CurrentThreatToSelfActive = Math.Min(0.200001, max_threat);
+		}
 	}
 
 	eAICommandMove GetCommand_MoveAI()
@@ -1473,27 +1483,11 @@ class eAIBase extends PlayerBase
 		UpdateTargets(pDt);
 		PrioritizeTargets();
 
-		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelfActive > 0.2)
-		{
-			eAITarget target = m_eAI_Targets[0];
-			if (target.HasInfo())
-			{
-#ifndef EAI_USE_LEGACY_PATHFINDING
-				m_PathFinding.SetTarget(target.GetPosition(this));
-#else
-				m_PathFinding.OverridePosition(target.GetPosition(this));
-#endif
-			}
-		}
-
-		if (pCurrentCommandID != DayZPlayerConstants.COMMANDID_CLIMB)
-			m_PathFinding.OnUpdate(pDt, simulationPrecision);
-
 		GetTransform(m_ExTransformPlayer);
 
 		if (m_eAI_Targets.Count() > 0)
 		{
-			vector aimPosition = m_eAI_Targets[0].GetPosition(this) + m_eAI_Targets[0].GetAimOffset(this);
+			vector aimPosition = m_eAI_Targets[0].GetPosition(this, false) + m_eAI_Targets[0].GetAimOffset(this);
 			//! @note look position also used for LOS
 			LookAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.15);
 			if (!m_eAI_LookDirection_Recalculate)
@@ -1510,6 +1504,22 @@ class eAIBase extends PlayerBase
 		}
 
 		EnforceLOS();
+
+		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelfActive > 0.2)
+		{
+			eAITarget target = m_eAI_Targets[0];
+			if (target.HasInfo())
+			{
+#ifndef EAI_USE_LEGACY_PATHFINDING
+				m_PathFinding.SetTarget(target.GetPosition(this, false));
+#else
+				m_PathFinding.OverridePosition(target.GetPosition(this, false));
+#endif
+			}
+		}
+
+		if (pCurrentCommandID != DayZPlayerConstants.COMMANDID_CLIMB)
+			m_PathFinding.OnUpdate(pDt, simulationPrecision);
 
 		DetermineThreatToSelf(pDt);
 		ReactToThreatChange(pDt);
@@ -1830,10 +1840,22 @@ class eAIBase extends PlayerBase
 		{
 			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
 
+			if (IsRaised())
+			{
+				//! Need to adjust look direction when aiming
+				vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
+
+				lookTargetRelAngles[0] = lookTargetRelAngles[0] - aimTargetRelAngles[0];
+				if (entityInHands && entityInHands.IsWeapon())
+					lookTargetRelAngles[1] = lookTargetRelAngles[1] - aimTargetRelAngles[1];
+			}
+
 			//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
 			//! there will be a sudden jump in the unit's head rotation between 180 and -180 due to the way the head animation is set up
 			lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
 			lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
+
+			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
 
 			//TODO: quaternion slerp instead for better, accurate results
 			m_eAI_LookRelAngles = vector.Lerp(m_eAI_LookRelAngles, lookTargetRelAngles, pDt * 4);
@@ -1872,24 +1894,29 @@ class eAIBase extends PlayerBase
 					speedLimit = Math.Min(speedLimit, 1);
 
 				float turnTarget;
+				bool setTurnTarget;
 
 				if (m_eAI_TurnTargetActive)
 				{
 					turnTarget = m_eAI_TurnTarget;
+					setTurnTarget = true;
 				}
 				else if (m_eAI_Targets.Count() > 0)
 				{
-					if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_LookRelAngles[0]) > 90)
+					if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_AimRelAngles[0]) > 90)
 					{
 						turnTarget = vector.Direction(GetPosition(), m_eAI_AimPosition_WorldSpace).Normalized().VectorToAngles()[0];
+						setTurnTarget = true;
 					}
 				}
-				else
+				else if (IsInherited(eAINPCBase))
 				{
 					turnTarget = GetOrientation()[0];
+					setTurnTarget = true;
 				}
 
-				hcm.SetTurnTarget(turnTarget, m_eAI_TurnTargetActive);
+				if (setTurnTarget)
+					hcm.SetTurnTarget(turnTarget, m_eAI_TurnTargetActive);
 
 				if (m_StaminaHandler && !CanConsumeStamina(EStaminaConsumers.SPRINT) || !CanSprint())
 				{
@@ -1955,7 +1982,7 @@ class eAIBase extends PlayerBase
 		}
 
 		vector begPos = GetBonePositionWS(GetBoneIndexByName("Head"));
-		vector endPos = m_eAI_LookPosition_WorldSpace;
+		vector endPos = targetEntity.GetPosition() + GetTarget().GetAimOffset(this);
 
 		vector contactPos;
 		vector contactDir;
@@ -1963,7 +1990,7 @@ class eAIBase extends PlayerBase
 
 		set< Object > results = new set< Object >;
 		bool hadLos = m_eAI_LOS;
-		m_eAI_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectGeom, 0.3);
+		m_eAI_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectView, 0.05);
 		if (!m_eAI_LOS && hadLos)
 			EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
 		if (!m_eAI_LOS)
@@ -1978,7 +2005,7 @@ class eAIBase extends PlayerBase
 		{
 			if (obj.IsTree())
 			{
-				sideStep = true;
+				sideStep = m_eAI_CurrentThreatToSelfActive > 0.4;
 				break;
 			}
 
@@ -2025,7 +2052,7 @@ class eAIBase extends PlayerBase
 			//! First check if we are roughly facing the target
 			//! @note vector.Direction(GetPosition(), GetTarget().GetPosition(this)).Normalized() returns zero vector,
 			//! have to first assign target position to variable. Why is this language so INCREDIBLY fucked? :-(
-			vector targetPos = GetTarget().GetPosition(this);
+			vector targetPos = GetTarget().GetPosition(this, false);
 			vector targetDirection = vector.Direction(GetPosition(), targetPos).Normalized();
 			float dot = vector.Dot(GetDirection(), targetDirection);
 			if (dot >= 0.75)
@@ -2229,22 +2256,39 @@ class eAIBase extends PlayerBase
 			m_Expansion_DebugShapes.Insert(Shape.CreateLines(COLOR_BLUE, ShapeFlags.VISIBLE, points, 2));
 #endif
 
-			//TODO: quaternion slerp instead for better, accurate results
-			m_eAI_AimDirection_ModelSpace = vector.Lerp(m_eAI_AimDirection_ModelSpace, m_eAI_AimDirectionTarget_ModelSpace, pDt);		
+			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
 
-			vector aimOrientation = m_eAI_AimDirection_ModelSpace.VectorToAngles();
+			//! We want to interpolate rel angles for aiming! Otherwise, if the conversion to rel angles happens later,
+			//! there will be a sudden jump in the unit's rotation between 180 and -180 due to the way the animation is set up
+			aimTargetRelAngles[0] = ExpansionMath.RelAngle(aimTargetRelAngles[0]);
+			aimTargetRelAngles[1] = ExpansionMath.RelAngle(aimTargetRelAngles[1]);
+
+			aimTargetRelAngles[1] = Math.Clamp(aimTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
+
+			//TODO: quaternion slerp instead for better, accurate results
+			m_eAI_AimRelAngles = vector.Lerp(m_eAI_AimRelAngles, aimTargetRelAngles, pDt * 4);
 
 			float dist = vector.Distance(GetPosition() + "0 1.5 0", m_eAI_AimPosition_WorldSpace);
 			dist = Math.Clamp(dist, 1.0, 360.0);
 
-			float aimX = ExpansionMath.RelAngle(aimOrientation[0] + (-30.0 / dist));
-			float aimY = ExpansionMath.RelAngle(aimOrientation[1]);
-
-			aimX = Math.Clamp(aimX, -90.0, 90.0);
-			aimY = Math.Clamp(aimY, -90.0, 90.0);
+			float aimX = ExpansionMath.RelAngle(ExpansionMath.AbsAngle(m_eAI_AimRelAngles[0]) + (-15.0 / dist));
+			float aimY = m_eAI_AimRelAngles[1];
 
 			AnimSetFloat(m_ExpansionST.m_VAR_AimX, aimX);
 			AnimSetFloat(m_ExpansionST.m_VAR_AimY, aimY);
+		}
+		else
+		{
+			//! Interpolate to look direction if not raised so the next time we raise it animates in the direction we are looking
+
+			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
+
+			lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
+			lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
+
+			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
+
+			m_eAI_AimRelAngles = vector.Lerp(m_eAI_AimRelAngles, lookTargetRelAngles, pDt * 4);
 		}
 	}
 
@@ -2332,6 +2376,11 @@ class eAIBase extends PlayerBase
 		m_eAI_AimDirection_Recalculate = false;
 	}
 
+	vector GetLookRelAngles()
+	{
+		return m_eAI_LookRelAngles;
+	}
+
 	vector GetLookDirection()
 	{
 		return m_eAI_LookRelAngles.AnglesToVector();
@@ -2342,9 +2391,14 @@ class eAIBase extends PlayerBase
 		return m_eAI_LookDirection_Recalculate;
 	}
 
+	vector GetAimRelAngles()
+	{
+		return m_eAI_AimRelAngles;
+	}
+
 	vector GetAimDirection()
 	{
-		return m_eAI_AimDirection_ModelSpace;
+		return m_eAI_AimRelAngles.AnglesToVector();
 	}
 
 	override vector GetAimPosition()

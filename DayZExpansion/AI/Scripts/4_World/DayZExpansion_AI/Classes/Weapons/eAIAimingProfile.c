@@ -59,7 +59,7 @@ class eAIAimingProfile
 
 			//! Accuracy influenced by target movement speed and angle
 			//vector aimOrientation = direction.Normalized().InvMultiply3(transform).VectorToAngles();
-			vector aimOrientation = m_Player.GetAimDirection().VectorToAngles();
+			vector aimOrientation = m_Player.GetAimRelAngles();
 			float distClamped = Math.Clamp(Math.Sqrt(distSq), 100, 1000);
 			float targetSpeedMult = targetPlayer.Expansion_GetMovementSpeed() / 3.0;
 			float targetMovementAngle = targetPlayer.Expansion_GetMovementAngle();

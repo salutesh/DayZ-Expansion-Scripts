@@ -10,10 +10,10 @@ class eAITarget
 	{
 		group = _group;
 		found_at_time = _found_at_time;
-		if (_max_time != -2147483647 /*int.MIN*/)
+		if (_max_time != -1)
 			max_time = _max_time;
 		else
-			max_time = 10000;
+			max_time = 60000;
 
 		ai_list = new set<eAIBase>();
 		info = _info;
@@ -35,6 +35,15 @@ class eAITarget
 			return false;
 
 		ai_list.Remove(idx);
+
+		ai.OnRemoveTarget(this);
+
+		if (CountAI() == 0)
+		{
+			group.OnTargetRemoved(info);
+
+			info.m_Groups.Remove(ai.GetGroup().GetID());
+		}
 
 		return true;
 	}
@@ -59,9 +68,9 @@ class eAITarget
 		return info.GetEntity();
 	}
 
-	vector GetPosition(eAIBase ai = null)
+	vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
-		return info.GetPosition(ai);
+		return info.GetPosition(ai, actual);
 	}
 
 	vector GetAimOffset(eAIBase ai = null)
@@ -82,7 +91,7 @@ class eAITarget
 		if (info.IsCrawling())
 			return false;
 
-		float distSq = GetDistanceSq(ai);
+		float distSq = GetDistanceSq(ai, true);
 		if (distSq > 3.24)
 			return false;
 
@@ -111,18 +120,18 @@ class eAITarget
 		return true;
 	}
 
-	float ShouldRemove(eAIBase ai = null)
+	bool ShouldRemove(eAIBase ai = null)
 	{
-		return info.ShouldRemove(ai);
+		return !info.IsActive() || (found_at_time + max_time <= GetGame().GetTime() && info.ShouldRemove(ai));
 	}
 
-	float GetDistance(eAIBase ai)
+	float GetDistance(eAIBase ai, bool actual = false)
 	{
-		return info.GetDistance(ai);
+		return info.GetDistance(ai, actual);
 	}
 
-	float GetDistanceSq(eAIBase ai)
+	float GetDistanceSq(eAIBase ai, bool actual = false)
 	{
-		return info.GetDistanceSq(ai);
+		return info.GetDistanceSq(ai, actual);
 	}
 };

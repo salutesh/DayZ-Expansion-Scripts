@@ -21,9 +21,6 @@ class ExpansionMarketExchange: ExpansionMarketCategory
 		m_FileName = "Exchange";
 		IsExchange = true;
 		
-		AddStaticItem("ExpansionGoldBar", 			10000);
-		AddStaticItem("ExpansionGoldNugget", 		100);
-		AddStaticItem("ExpansionSilverBar", 		10);
-		AddStaticItem("ExpansionSilverNugget", 		1);
+		AddStaticItem("ExpansionBanknoteHryvnia", 1);
 	}
 };

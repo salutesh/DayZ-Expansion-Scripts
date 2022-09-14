@@ -16,6 +16,9 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		if (m_Item.GetHealth("", "") <= 0.0)
 			return 0.0;
 
+		if (m_Item.GetHierarchyRootPlayer())
+			return 0.0;  //! Has been picked up since we last saw it
+
 		if (ai)
 		{
 			if (ai.GetHumanInventory().GetEntityInHands())
@@ -33,7 +36,7 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 						return 0.0;
 				}
 
-				float distance = GetDistanceSq(ai);
+				float distance = GetDistanceSq(ai, true);
 				if (distance < 0.001)
 					distance = 0.001;
 
@@ -56,20 +59,6 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		auto trace = CF_Trace_1(this, "ShouldRemove").Add(ai);
 #endif
 
-		if (!ai && m_Item.GetHealth("", "") <= 0.0)
-		{
-			return true;
-		}
-		else if (m_Item.GetHierarchyRootPlayer())
-		{
-			//! Has been picked up since we last saw it
-			return true;
-		}
-		else if (ai && GetThreat(ai) <= 0.1)
-		{
-			return true;
-		}
-
-		return false;
+		return GetThreat(ai) <= 0.1;
 	}
 };

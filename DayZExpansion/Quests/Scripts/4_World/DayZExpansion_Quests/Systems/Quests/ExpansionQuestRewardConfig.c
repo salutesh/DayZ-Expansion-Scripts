@@ -47,6 +47,9 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 
 	void AddAttachment(string name)
 	{
+		if (!Attachments)
+			Attachments = new TStringArray;
+		
 		Attachments.Insert(name);
 	}
 
@@ -59,6 +62,12 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 	{
 		ctx.Write(ClassName);
 		ctx.Write(Amount);
+		
+		ctx.Write(Attachments.Count());
+		foreach (string attach: Attachments)
+		{
+			ctx.Write(attach);
+		}
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -68,6 +77,22 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 
 		if (!ctx.Read(Amount))
 			return false;
+		
+		int attachmentsCount;
+		if (!ctx.Read(attachmentsCount))
+			return false;
+		
+		for (int i = 0; i < attachmentsCount; i++)
+		{
+			string attach;
+			if (!ctx.Read(attach))
+				return false;
+			
+			if (!Attachments)
+				Attachments = new TStringArray;
+			
+			Attachments.Insert(attach);
+		}
 
 		return true;
 	}

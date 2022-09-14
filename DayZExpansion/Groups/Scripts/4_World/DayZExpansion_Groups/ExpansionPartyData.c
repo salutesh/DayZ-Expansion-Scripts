@@ -929,6 +929,9 @@ class ExpansionPartyData
 	#ifdef EXPANSIONMODNAVIGATION
 		SyncMarkers_RemovePlayer(player);
 	#endif
+		
+		if (GetExpansionSettings().GetLog().Party)
+			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + player.Name + "\" (id=" + player.GetID() + ")" + " joinded the party \"" + PartyName + "\" (id=" + PartyID + " ownerUID=" + OwnerUID + " ownerName=" + OwnerName + ")");
 	}
 
 	void OnLeave(ExpansionPartyPlayerData player)
@@ -937,6 +940,9 @@ class ExpansionPartyData
 	#ifdef EXPANSIONMODNAVIGATION
 		SyncMarkers_RemovePlayer(player);
 	#endif
+		
+		if (GetExpansionSettings().GetLog().Party)
+			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + player.Name + "\" (id=" + player.GetID() + ")" + " left the party \"" + PartyName + "\" (id=" + PartyID + " ownerUID=" + OwnerUID + " ownerName=" + OwnerName + ")");
 	}
 
 #ifdef EXPANSIONMODNAVIGATION

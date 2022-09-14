@@ -52,7 +52,7 @@
 					}
 					
 					auto target = unit.GetTarget();
-					if (target &amp;&amp; target.GetDistanceSq(unit) &lt;= 2.25)
+					if (target &amp;&amp; target.GetDistanceSq(unit, true) &lt;= 2.25)
 					{
 						unit.OverrideMovementDirection(true, -180);
 					}
