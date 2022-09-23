@@ -7,6 +7,13 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		Class.CastTo(m_Item, target);
 	}
 
+	//! @note not using state cache for item targets as they wouldn't be removed from it
+	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	{
+		return m_Item.GetPosition();
+	}
+
+	//! @note not using state cache for item targets as they wouldn't be removed from it
 	override float GetThreat(eAIBase ai = null)
 	{
 #ifdef EAI_TRACE
@@ -15,6 +22,9 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 
 		if (m_Item.GetHealth("", "") <= 0.0)
 			return 0.0;
+
+		if (m_Item.GetHierarchyRootPlayer())
+			return 0.0;  //! Has been picked up since we last saw it
 
 		if (ai)
 		{
@@ -33,7 +43,7 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 						return 0.0;
 				}
 
-				float distance = GetDistanceSq(ai);
+				float distance = GetDistanceSq(ai, true);
 				if (distance < 0.001)
 					distance = 0.001;
 
@@ -50,26 +60,19 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		return 0.0;
 	}
 
+	override float CalculateThreat(eAIBase ai = null)
+	{
+		Error("eAIItemTargetInformation::CalculateThreat should not be called!");
+
+		return 0.0;
+	}
+
 	override bool ShouldRemove(eAIBase ai = null)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "ShouldRemove").Add(ai);
 #endif
 
-		if (!ai && m_Item.GetHealth("", "") <= 0.0)
-		{
-			return true;
-		}
-		else if (m_Item.GetHierarchyRootPlayer())
-		{
-			//! Has been picked up since we last saw it
-			return true;
-		}
-		else if (ai && GetThreat(ai) <= 0.1)
-		{
-			return true;
-		}
-
-		return false;
+		return GetThreat(ai) <= 0.1;
 	}
 };

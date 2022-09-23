@@ -1,10 +1,12 @@
 class eAIEntityTargetInformation extends eAITargetInformation
 {
 	private EntityAI m_Target;
+	private string m_TargetDebugName;
 
 	void eAIEntityTargetInformation(EntityAI target)
 	{
 		m_Target = target;
+		m_TargetDebugName = Object.GetDebugName(m_Target);  //! Useful for logging even after entity has been deleted
 	}
 
 	override string GetDebugName()
@@ -12,7 +14,7 @@ class eAIEntityTargetInformation extends eAITargetInformation
 		string str = super.GetDebugName();
 		
 		str += ", ";
-		str += "target=" + Object.GetDebugName(m_Target);
+		str += "target=" + GetEntityDebugName();
 
 		return str;
 	}
@@ -20,6 +22,16 @@ class eAIEntityTargetInformation extends eAITargetInformation
 	override EntityAI GetEntity()
 	{
 		return m_Target;
+	}
+
+	override string GetEntityDebugName()
+	{
+		string str = m_TargetDebugName;
+
+		if (!m_Target)
+			str += "(deleted)";
+		
+		return str;
 	}
 
 	override bool IsActive()
@@ -30,19 +42,35 @@ class eAIEntityTargetInformation extends eAITargetInformation
 		return m_Target.GetHealth() > 0.0;
 	}
 
-	override vector GetPosition(eAIBase ai = null)
+	override vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
-		return m_Target.GetPosition();
+		if (actual || !ai)
+			return m_Target.GetPosition();
+
+		auto state = ai.eAI_GetTargetInformationState(this);
+		state.UpdatePosition();
+
+		return state.m_SearchPosition;
 	}
 
-	override float GetDistance(eAIBase ai)
+	override float GetThreat(eAIBase ai = null)
 	{
-		return vector.Distance(ai.GetPosition(), m_Target.GetPosition());
+		if (!IsActive())
+			return 0.0;
+
+		return super.GetThreat(ai);
 	}
 
-	override float GetDistanceSq(eAIBase ai)
+	override float GetDistance(eAIBase ai, bool actual = false)
 	{
-		return vector.DistanceSq(ai.GetPosition(), m_Target.GetPosition());
+		vector position = GetPosition(ai, actual);
+		return vector.Distance(ai.GetPosition(), position);
+	}
+
+	override float GetDistanceSq(eAIBase ai, bool actual = false)
+	{
+		vector position = GetPosition(ai, actual);
+		return vector.DistanceSq(ai.GetPosition(), position);
 	}
 };
 

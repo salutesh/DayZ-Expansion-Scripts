@@ -1,5 +1,5 @@
 /**
- * ExpansionMissionEventSoldierAIInformation.c
+ * ExpansionAIMissionMeta.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,19 +10,24 @@
  *
 */
 
+/**@class		ExpansionAIMissionMeta
+ * @brief		This class handle ai missions meta
+ **/
 #ifdef EXPANSIONMODAI
-class ExpansionMissionEventSoldierAIInformation
+class ExpansionAIMissionMeta
 {
-	string AIClassName;
-	vector Position;
-
+	string Name;
+	string StartDescription;
+	string EndDescription;
+	
 	// ------------------------------------------------------------
-	// Constructor
+	// Expansion ExpansionAIMissionMeta
 	// ------------------------------------------------------------
-	void ExpansionMissionEventSoldierAIInformation( string classname, vector position )
+	void ExpansionAIMissionMeta(string name = "", string startdescription = "", string enddescription = "")
 	{
-		AIClassName = classname;
-		Position = position;
+		Name 				= name;
+		StartDescription 	= startdescription;
+		EndDescription 		= enddescription;
 	}
 }
 #endif

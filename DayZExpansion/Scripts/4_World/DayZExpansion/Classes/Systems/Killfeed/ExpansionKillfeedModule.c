@@ -471,7 +471,6 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		array<string> passenger_names;
 		IEntity child;
-		PlayerBase childPB;
 		string formatted_names;
 		ExpansionKillFeedMessageType msgType;
 		string icon;
@@ -495,28 +494,30 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 			for (int i = 0; i < car.CrewSize(); i++)
 			{
 				crew = car.CrewMember(i);
-
-				if (!crew)
+				if (!crew || !crew.GetIdentity())
 					continue;
 
-				childPB = PlayerBase.Cast(crew);
-				if (childPB.GetIdentity() != player.GetIdentity())
-					passenger_names.Insert( GetIdentityName( childPB.GetIdentity() ) );
+				if (crew.GetIdentity().GetId() != player.GetIdentity().GetId())
+					passenger_names.Insert( GetIdentityName( crew.GetIdentity() ) );
 			}
 
 			//! Attached players
 			child = car.GetChildren();
 			while (child)
 			{
-				childPB = PlayerBase.Cast(child);
-				if (childPB.GetIdentity() != player.GetIdentity())
+				crew = Human.Cast(child);
+
+				child = child.GetSibling();
+
+				if (!crew || !crew.GetIdentity())
+					continue;
+
+				if (crew.GetIdentity().GetId() != player.GetIdentity().GetId())
 				{
-					string name = GetIdentityName( childPB.GetIdentity() );
+					string name = GetIdentityName( crew.GetIdentity() );
 					if ( passenger_names.Find( name ) == -1 )
 						passenger_names.Insert( name );
 				}
-
-				child = child.GetSibling();
 			}
 
 			if (passenger_names.Count() > 0)
@@ -624,17 +625,14 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 				m_PlayerSteamWebhook2 = m_SourcePlayer.FormatSteamWebhook();
 			#endif
 
-			if ( player.GetIdentity() != m_SourcePlayer.GetIdentity() )
+			if( source.IsMeleeWeapon() )
 			{
-				if( source.IsMeleeWeapon() )
-				{
-					DoKillfeed(ExpansionKillFeedMessageType.MELEEWEAPON, "Knife", m_PlayerName2, m_SourceType);
-				}
-				else
-				{
-					float distance = vector.Distance( player.GetPosition(), m_SourcePlayer.GetPosition() );
-					DoKillfeed(ExpansionKillFeedMessageType.WEAPON, "Gun", m_PlayerName2, m_SourceType, Math.Round(distance).ToString());
-				}
+				DoKillfeed(ExpansionKillFeedMessageType.MELEEWEAPON, "Knife", m_PlayerName2, m_SourceType);
+			}
+			else
+			{
+				float distance = vector.Distance( player.GetPosition(), m_SourcePlayer.GetPosition() );
+				DoKillfeed(ExpansionKillFeedMessageType.WEAPON, "Gun", m_PlayerName2, m_SourceType, Math.Round(distance).ToString());
 			}
 		}
 		else if (source.IsInherited(ItemBase))
@@ -660,19 +658,16 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if (m_SourcePlayer)
 		{
-			if ( player.GetIdentity() != m_SourcePlayer.GetIdentity() )
+			m_PlayerName2 = GetIdentityName( m_SourcePlayer.GetIdentity() );
+
+			#ifdef JM_COT
+			if ( m_SourcePlayer.GetIdentity() )
+				m_PlayerSteamWebhook2 = m_SourcePlayer.FormatSteamWebhook();
+			#endif
+
+			if (m_PlayerName2 != "" || m_PlayerSteamWebhook2 != "") //! Got player name
 			{
-				m_PlayerName2 = GetIdentityName( m_SourcePlayer.GetIdentity() );
-
-				#ifdef JM_COT
-				if ( m_SourcePlayer.GetIdentity() )
-					m_PlayerSteamWebhook2 = m_SourcePlayer.FormatSteamWebhook();
-				#endif
-
-				if (m_PlayerName2 != "" || m_PlayerSteamWebhook2 != "") //! Got player name
-				{
-					DoKillfeed(ExpansionKillFeedMessageType.BAREHANDS, "Grab", m_PlayerName2);
-				}
+				DoKillfeed(ExpansionKillFeedMessageType.BAREHANDS, "Grab", m_PlayerName2);
 			}
 		}
 	}

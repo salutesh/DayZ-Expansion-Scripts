@@ -32,9 +32,9 @@
 				auto target = unit.GetTarget();
 				if (target)
 				{
-					position = target.GetPosition(unit);
+					position = target.GetPosition(unit, false);
 					auto aimPosition = position + target.GetAimOffset(unit);
-					auto distanceSq = vector.DistanceSq(unit.GetPosition(), position);
+					auto distanceSq = target.GetDistanceSq(unit, true);
 					
 					bool shouldBeMeleeing = false;
 				
@@ -145,7 +145,7 @@
 				if (!target)
 					return EXIT;
 				
-				auto lowPosition = target.GetPosition(unit);
+				auto lowPosition = target.GetPosition(unit, false);
 				auto aimPosition = lowPosition + target.GetAimOffset(unit);
 				
 				time += DeltaTime;
@@ -206,7 +206,7 @@
 				//! FIXME: We can't hit crouching/crawling targets w/ melee
 				if (aimOffset[1] &lt; 1.0) return EXIT;
 				
-				auto lowPosition = target.GetPosition(unit);
+				auto lowPosition = target.GetPosition(unit, false);
 				auto aimPosition = lowPosition + aimOffset;
 				
 				time += DeltaTime;
@@ -214,7 +214,7 @@
 				unit.LookAtPosition(aimPosition);
 				unit.AimAtPosition(aimPosition);
 				
-				float distanceSq = target.GetDistanceSq(unit);
+				float distanceSq = target.GetDistanceSq(unit, true);
 				if (distanceSq &gt; 2.25)
 				{
 					if (time &gt;= 0.5)

@@ -24,6 +24,7 @@ modded class CarScript
 	protected string m_CurrentSkinName;
 	
 	bool m_Expansion_AcceptingAttachment;
+	int m_Expansion_CargoCount;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -31,6 +32,7 @@ modded class CarScript
 	void CarScript()
 	{
 		m_allVehicles.Insert( this );
+		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
 	}
 	
 	// ------------------------------------------------------------
@@ -162,4 +164,38 @@ modded class CarScript
 		return true;
 	}
 	#endif
+	
+	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true)
+	{
+		set<Human> players = new set<Human>;
+		Human crew;
+		
+		//! Seated players
+		for (int i = 0; i < CrewSize(); i++)
+		{
+			crew = CrewMember(i);
+			if (!crew)
+				continue;
+
+			if (!playersOnly || crew.GetIdentity())
+				players.Insert(crew);
+		}
+
+		//! Attached players
+		IEntity child = GetChildren();
+		while (child)
+		{
+			crew = Human.Cast(child);
+
+			child = child.GetSibling();
+
+			if (!crew)
+				continue;
+
+			if (!playersOnly || crew.GetIdentity())
+				players.Insert(crew);
+		}
+		
+		return players;
+	}
 };

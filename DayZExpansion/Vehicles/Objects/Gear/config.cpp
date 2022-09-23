@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Objects_Gear
 	{
-		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","ExpansionUniversalWheel"};
+		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Camping","DZ_Scripts","DayZExpansion_Objects_Gear_Spraycans"};
@@ -301,32 +301,6 @@ class CfgVehicles
 		};
 	};
 	class CarWheel;
-	class ExpansionUniversalWheel: CarWheel
-	{
-		scope = 2;
-		displayName = "Car Wheel";
-		descriptionShort = "$STR_CivSedanWheel1";
-		model = "\DZ\vehicles\wheeled\civiliansedan\proxy\sedanwheel.p3d";
-		inventorySlot[] = {"NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1","Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2","CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2","Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2","BusWheel_1_1","BusWheel_2_1","BusWheel_1_2","BusWheel_2_2","ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
-		rotationFlags = 4;
-		radiusByDamage[] = {0,0.34,0.3,0.3,0.9998,0.25,0.9999,0.2};
-		radius = 0.34;
-		friction = 0.96;
-		width = 0.16;
-		tyreRollResistance = 0.015;
-		tyreTread = 1;
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\civiliansedan\data\gaz_wheel_destruct.rvmat"}}};
-				};
-			};
-		};
-	};
 	class ExpansionSpraycanGreen;
 	class ExpansionSpraycanBlueline;
 	class ExpansionSpraycanDigital;

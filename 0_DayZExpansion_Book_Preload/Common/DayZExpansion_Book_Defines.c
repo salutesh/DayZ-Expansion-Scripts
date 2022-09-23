@@ -15,3 +15,7 @@
 
 //! Used for book mod debugging
 //#define EXPANSION_BOOK_DEBUG
+
+#ifndef EXPANSIONMONITORMODULE
+#define EXPANSIONMONITORMODULE
+#endif

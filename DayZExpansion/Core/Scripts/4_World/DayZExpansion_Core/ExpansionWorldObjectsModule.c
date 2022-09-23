@@ -202,7 +202,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		if ( loadObjects && FileExist( MISSION_OBJECT_FILES_FOLDER ) )
 		{
-			objectFiles = ExpansionStatic.FindFilesInLocation(MISSION_OBJECT_FILES_FOLDER, ".map");
+			objectFiles = ExpansionStatic.FindFilesInLocation(MISSION_OBJECT_FILES_FOLDER, EXPANSION_MAPPING_EXT);
 			if (objectFiles.Count() >= 0)
 			{
 				LoadMissionObjects(objectFiles);
@@ -212,7 +212,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODMARKET
 		if ( loadTraders && FileExist( MISSION_TRADER_FILES_FOLDER ) )
 		{
-			traderFiles = ExpansionStatic.FindFilesInLocation(MISSION_TRADER_FILES_FOLDER, ".map");
+			traderFiles = ExpansionStatic.FindFilesInLocation(MISSION_TRADER_FILES_FOLDER, EXPANSION_MAPPING_EXT);
 			if (traderFiles.Count() >= 0)
 			{
 
@@ -305,7 +305,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		{
 			ItemBase item = ItemBase.Cast( obj );
 			if (item)
-				item.SetTakeable(false);
+				item.Expansion_SetLootable(false);
 		}
 
 		if (special)

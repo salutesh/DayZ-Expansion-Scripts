@@ -51,6 +51,7 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Market\Structures\TraderSigns\data\traders\sign_trader_accessoires.paa"};
 		vehicleClass = "Expansion_Sign";
 	};
+	class ExpansionSign_Trader_Accessories: ExpansionSign_Trader_Accessoires{};
 	class ExpansionSign_Trader_Aircraft: ExpansionSign_Color
 	{
 		scope = 1;

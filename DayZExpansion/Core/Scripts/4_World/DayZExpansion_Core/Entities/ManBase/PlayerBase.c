@@ -101,6 +101,54 @@ modded class PlayerBase
 		}
 	}
 
+	ItemBase Expansion_GetNVItem()
+	{
+		NVGoggles goggles;
+		ItemBase nvItem;
+
+		if (IsInOptics())
+		{
+			//! In hands check - priority since when in optics, NVG in hands or NV optics take precedence over NVG attached to headgear/eyewear
+			EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
+			if (entityInHands)
+			{
+				Weapon weapon;
+				ItemOptics optic;
+
+				if (Class.CastTo(goggles, entityInHands))
+				{
+					nvItem = goggles;
+				}
+				else if (Class.CastTo(optic, entityInHands) || (Class.CastTo(weapon, entityInHands) && Class.CastTo(optic, weapon.GetAttachedOptics())))
+				{
+					if (optic.GetCurrentNVType() != NVTypes.NONE)
+					{
+						nvItem = optic;
+					}
+				}
+			}
+		}
+		else if (!nvItem)
+		{
+			//! Headgear/eyewear check - eyewear (e.g. NVG headstrap) takes precedence over headgear (e.g. helmet)
+			EntityAI headgear = FindAttachmentBySlotName("Eyewear");
+			if (headgear && Class.CastTo(goggles, headgear.FindAttachmentBySlotName("NVG")))
+			{
+				nvItem = goggles;
+			}
+			else
+			{
+				headgear = FindAttachmentBySlotName("Headgear");
+				if (headgear && Class.CastTo(goggles, headgear.FindAttachmentBySlotName("NVG")))
+				{
+					nvItem = goggles;
+				}
+			}
+		}
+
+		return nvItem;
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase GetIdentitySteam
 	// ------------------------------------------------------------
@@ -349,7 +397,7 @@ modded class PlayerBase
 		{
 			if (!m_Expansion_CanBeLooted)
 			{
-				item.SetTakeable(false);
+				item.Expansion_SetLootable(false);
 				item.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
 			}
 

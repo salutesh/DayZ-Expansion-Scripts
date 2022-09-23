@@ -17,6 +17,7 @@ class ExpansionMarketPlayerItem
 	string DisplayName;
 	int Count;
 	ref map<string, int> ContainerItems = new map<string, int>;
+	int ContainerItemsCount;
 	bool IsWeapon = false;
 	bool IsMagazine = false;
 	bool IsAttached = false;
@@ -50,40 +51,58 @@ class ExpansionMarketPlayerItem
 			Item.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 			
 			ContainerItems.Clear();
+			ContainerItemsCount = 0;
 			
-			if (items && items.Count() > 0)
-			{	
-				for ( int i = 0; i < items.Count(); i++ )
+			for ( int i = 0; i < items.Count(); i++ )
+			{
+				if (items[i] == Item)
+					continue;
+
+				//! Skip attachments without cargo on vehicles
+				if (items[i].GetInventory().IsAttachment() && !MiscGameplayFunctions.Expansion_HasAnyCargo(items[i]))
 				{
-					if (items[i] == Item)
+					if (items[i].GetHierarchyParent().IsInherited(CarScript))
 						continue;
+					#ifdef EXPANSIONMODVEHICLE
+					else if (items[i].GetHierarchyParent().IsInherited(ExpansionVehicleBase))
+						continue;
+					#endif
+				}
 
-					//! Skip attachments without cargo on vehicles
-					if (items[i].GetInventory().IsAttachment() && !items[i].HasAnyCargo())
-					{
-						if (items[i].GetHierarchyParent().IsInherited(CarScript))
-							continue;
-						#ifdef EXPANSIONMODVEHICLE
-						else if (items[i].GetHierarchyParent().IsInherited(ExpansionVehicleBase))
-							continue;
-						#endif
-					}
+				string name = items[i].GetType();
+				int count;
+				
+				if (ContainerItems.Find(name, count))
+				{
+					ContainerItems.Set(name, count + 1);
+				}
+				else
+				{
+					ContainerItems.Insert(name, 1);
+				}
 
-					string name = items[i].GetType();
-					int count;
-					
-					if (ContainerItems.Find(name, count))
+				ContainerItemsCount++;
+			}
+
+			if (!ContainerItemsCount)
+			{
+				//! Inventory not yet initialized on client, use netsynched cargo count
+				CarScript car;
+				if (Class.CastTo(car, Item))
+				{
+					ContainerItemsCount = car.m_Expansion_CargoCount;
+				}
+				#ifdef EXPANSIONMODVEHICLE
+				else
+				{
+					ExpansionVehicleBase vehicle;
+					if (Class.CastTo(vehicle, Item))
 					{
-						ContainerItems.Set(name, count + 1);
-					}
-					else
-					{
-						ContainerItems.Insert(name, 1);
+						ContainerItemsCount = vehicle.m_Expansion_CargoCount;
 					}
 				}
+				#endif
 			}
-			
-			items.Clear();
 		}
 	}
 	

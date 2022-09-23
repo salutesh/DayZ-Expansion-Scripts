@@ -40,10 +40,22 @@ class ExpansionObjectSet
 	
 	void SpawnObjects()
 	{
-		string filePath = m_FilePath + m_FileName + ".map";
+		string filePath = GetFilePath();
+
 		if (!FileExist(filePath))
 			return;
 		
 		ExpansionObjectSpawnTools.LoadObjectsFile(filePath, m_Objects);
+	}
+
+	string GetFilePath()
+	{
+		int trimSize = m_FileName.Length() - EXPANSION_MAPPING_EXT.Length();
+		string fileformat = EXPANSION_MAPPING_EXT;
+
+		if( m_FileName.IndexOf(EXPANSION_MAPPING_EXT) == trimSize )
+			fileformat = "";
+		
+		return m_FilePath + m_FileName + fileformat;
 	}
 };

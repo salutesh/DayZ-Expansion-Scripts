@@ -191,7 +191,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 
 	void DefaultCurrencies()
 	{
-		Currencies = {"expansiongoldbar", "expansiongoldnugget", "expansionsilverbar", "expansionsilvernugget"};
+		Currencies = {"expansionbanknotehryvnia"};
 	}
 
 	// ------------------------------------------------------------

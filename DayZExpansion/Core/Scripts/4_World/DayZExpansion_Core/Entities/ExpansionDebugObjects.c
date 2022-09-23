@@ -40,6 +40,14 @@ class ExpansionDebugRod: Building
 #endif
 	}
 
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (dBodyIsSet(this))
+			dBodyDestroy(this);  //! Remove physics
+	}
+
 	void ~ExpansionDebugRod()
 	{
 #ifndef SERVER

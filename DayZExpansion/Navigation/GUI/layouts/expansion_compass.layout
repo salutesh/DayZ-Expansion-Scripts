@@ -59,7 +59,7 @@ PanelWidgetClass ExpansionCompass {
     }
    }
   }
-  FrameWidgetClass CompassBadgesSpacer {
+  FrameWidgetClass CompassBadgesSpacer1 {
    visible 1
    position 0 0.067
    size 12 6
@@ -70,7 +70,7 @@ PanelWidgetClass ExpansionCompass {
    vexactsize 1
    fixaspect fixwidth
    {
-    PanelWidgetClass CompassBadgeNotifierDivider {
+    PanelWidgetClass CompassBadge1 {
      color 0 0 0 0.549
      position 0 0
      size 3 6
@@ -84,7 +84,7 @@ PanelWidgetClass ExpansionCompass {
     }
    }
   }
-  FrameWidgetClass CompassBadgesSpacer0 {
+  FrameWidgetClass CompassBadgesSpacer2 {
    visible 1
    position 0.243 0.065
    size 12 6
@@ -95,7 +95,7 @@ PanelWidgetClass ExpansionCompass {
    vexactsize 1
    fixaspect fixwidth
    {
-    PanelWidgetClass CompassBadgeNotifierDivider0 {
+    PanelWidgetClass CompassBadge2 {
      color 0 0 0 0.549
      position 0 0
      size 3 6
@@ -109,7 +109,7 @@ PanelWidgetClass ExpansionCompass {
     }
    }
   }
-  FrameWidgetClass CompassBadgesSpacer1 {
+  FrameWidgetClass CompassBadgesSpacer3 {
    visible 1
    position 0.243 0.065
    size 12 6
@@ -119,7 +119,7 @@ PanelWidgetClass ExpansionCompass {
    vexactsize 1
    fixaspect fixwidth
    {
-    PanelWidgetClass CompassBadgeNotifierDivider1 {
+    PanelWidgetClass CompassBadge3 {
      color 0 0 0 0.549
      position 0 0
      size 3 6

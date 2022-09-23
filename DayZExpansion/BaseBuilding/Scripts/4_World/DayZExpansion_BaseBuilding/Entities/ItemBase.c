@@ -881,7 +881,7 @@ modded class ItemBase
 				if ( !IsMissionHost() )
 					return;
 				
-				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
+				if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, sender );
@@ -918,7 +918,7 @@ modded class ItemBase
 				if ( !IsMissionHost() )
 					return;
 				
-				if ( !ctx.Read( code ) || code.Length() != GetExpansionSettings().GetBaseBuilding().CodeLockLength )
+				if ( !ctx.Read( code ) || code.Length() == 0 || code.Length() > GetExpansionSettings().GetBaseBuilding().CodeLockLength )
 				{
 					Error("ItemBase::OnRPC ExpansionLockRPC.SET can't read code");
 					SendServerLockReply( false, false, sender );

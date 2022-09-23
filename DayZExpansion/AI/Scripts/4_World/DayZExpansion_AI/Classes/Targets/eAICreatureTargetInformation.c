@@ -15,7 +15,7 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 		return "0 0.4 0";
 	}
 
-	override float GetThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Creature.GetHealth("", "") <= 0.0)
 			return 0.0;
@@ -28,7 +28,7 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 		if (ai)
 		{
 			// the further away the creature, the less likely it will be a threat
-			float distance = GetDistance(ai) + 0.1;
+			float distance = GetDistance(ai, true) + 0.1;
 			levelFactor = 10 / distance;
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);

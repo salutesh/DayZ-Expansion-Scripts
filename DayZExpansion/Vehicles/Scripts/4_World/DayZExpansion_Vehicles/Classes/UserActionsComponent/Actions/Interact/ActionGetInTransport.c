@@ -31,13 +31,34 @@ modded class ActionGetInTransport
 
 		CarScript car = CarScript.Cast(target.GetObject());
 
+		EntityAI towParent = car.Expansion_GetTowParent();
+
+		ExpansionVehicleBase exVeh;
+		if (Class.CastTo(exVeh, towParent))
+		{
+			//! Currently only prevent getting in the vehicle if it is being winched, not towed
+			if (exVeh.Expansion_IsHelicopter())
+			{
+				return false;
+			}
+		}
+
+		CarScript vnVeh;
+		if (Class.CastTo(vnVeh, towParent))
+		{
+			//! Currently only prevent getting in the vehicle if it is being winched, not towed
+			if (vnVeh.Expansion_IsHelicopter())
+			{
+				return false;
+			}
+		}
+
 		// Temp fix for being able to enter Uh1h despite being locked
 		ExpansionUh1h uh1h = ExpansionUh1h.Cast(target.GetObject());
-
 		if (car.DoorCount() <= 0 || uh1h)
 			return !car.IsLocked();
-		else
-			return true;
+
+		return true;
 	}
 
 	/**

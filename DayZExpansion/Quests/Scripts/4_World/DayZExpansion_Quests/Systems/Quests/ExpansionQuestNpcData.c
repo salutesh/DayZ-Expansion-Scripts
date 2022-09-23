@@ -73,6 +73,14 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		QuestIDs.InsertAll(questIDs);
 	}
 
+	void AddQuestID(int questID)
+	{
+		if (QuestIDs.Find(questID) == -1)
+		{
+			QuestIDs.Insert(questID);
+		}
+	}
+	
 	array<int> GetQuestIDs()
 	{
 		return QuestIDs;
@@ -240,8 +248,10 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		ExpansionQuestNPCData npcConfig;
 		ExpansionQuestNPCDataBase npcConfigBase;
-		JsonFileLoader<ExpansionQuestNPCDataBase>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
 		
+		if (!ExpansionJsonFileParser<ExpansionQuestNPCDataBase>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase))
+			return NULL;
+
 		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
 		{
 			CF_Log.Info("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
@@ -253,12 +263,13 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestNPCData>.JsonLoadFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			if (!ExpansionJsonFileParser<ExpansionQuestNPCData>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig))
+				return NULL;
 		}
 		
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
+			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(fileName, npcConfig);
 		}
 		
 		return npcConfig;

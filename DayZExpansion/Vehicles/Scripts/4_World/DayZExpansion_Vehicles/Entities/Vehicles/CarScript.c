@@ -622,6 +622,14 @@ modded class CarScript
 		return NULL;
 	}
 
+	EntityAI Expansion_GetTowParent()
+	{
+		if (m_Expansion_IsBeingTowed)
+			return m_Expansion_ParentTow;
+
+		return null;
+	}
+
 	void Expansion_DestroyTow()
 	{
 		if (!m_Expansion_IsTowing)

@@ -401,14 +401,22 @@ class ExpansionMath
 	static int Cmp(int a, int b)
 	{
 		if (a == b)
+		{
 			return 0;
+		}
+		else if ((a >= 0 && b >= 0) || (a < 0 && b < 0))
+		{
+			if (a > b)
+				return 1;
+			else
+				return -1;
+		}
+		else if (a < 0 && b >= 0)
+		{
+			return -1;
+		}
 
-		float af = a, bf = b;
-
-		if (af > bf)
-			return 1;
-
-		return -1;
+		return 1;
 	}
 
 	//! Proper RandomFloatInclusive that does include endpoint, other than the one in EnMath

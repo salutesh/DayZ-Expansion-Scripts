@@ -36,9 +36,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	}
 
 	override void OnTurnIn()
-	{
-		Print(ToString() + "::OnTurnIn - Start");
-		
+	{		
 		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
 		if (!collection)
 			return;
@@ -46,7 +44,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		int amountToDelete = collection.GetAmount();
 		if (!GetQuest().IsGroupQuest())
 		{
-			Print(ToString() + "::OnTurnIn - NORMAL QUEST");
 			for (int i = 0; i < m_PlayerItems.Count(); i++)
 			{
 				if (amountToDelete > 0)
@@ -61,7 +58,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODGROUPS
 		else if (GetQuest().IsGroupQuest())
 		{
-			Print(ToString() + "::OnTurnIn - GROUP QUEST");
 			for (int g = 0; g < m_GroupItems.Count(); g++)
 			{
 				if (amountToDelete > 0)
@@ -76,8 +72,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		super.OnTurnIn();
-		
-		Print(ToString() + "::OnTurnIn - End");
 	}
 	
 	override void OnContinue()
@@ -191,7 +185,6 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			for (int i = 0; i < items.Count(); i++)
 			{
 				EntityAI item = items[i];
-				Print(ToString() + "::HasGroupAllQuestItems - Item: " + item.Type().ToString());
 				int itemCount = GetItemAmount(item);
 				currentCount += itemCount;
 				if (itemCount > 0)
@@ -224,48 +217,10 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			amount = 1;
 		}
 		
-		if (!CanCountItem(item))
+		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item))
 			amount = -amount;
 		
 		return amount;
-	}
-	
-	private bool CanCountItem(EntityAI item, bool checkIfRuined = false)
-	{
-		Print(ToString() + "::CanCountItem - Start");
-		
-		if (checkIfRuined && item.IsRuined())
-			return false;
-
-		if (item.GetInventory())
-		{
-			//! Check if the item has a container and any items in it
-			if (item.HasAnyCargo())
-				return false;
-
-			//! Check if any of the item's attachments has any cargo
-			for (int i = 0; i < item.GetInventory().AttachmentCount(); i++)
-			{
-				EntityAI attachment = item.GetInventory().GetAttachmentFromIndex(i);
-				if (attachment && attachment.HasAnyCargo())
-					return false;
-			}
-
-			//! Check if item is attachment that can be released
-			if (item.GetInventory().IsAttachment())
-				return !item.IsMagazine() && item.GetHierarchyParent().CanReleaseAttachment(item) && item.GetHierarchyParent().GetInventory().CanRemoveAttachment(item);
-		}
-
-		#ifdef EXPANSIONMODVEHICLE
-		//! If this is a master key of a vehicle, don't allow to count it
-		ExpansionCarKey key;
-		if (Class.CastTo(key, item) && key.IsMaster())
-			return false;
-		#endif
-		
-		Print(ToString() + "::CanCountItem - End and return true!");
-		
-		return true;
 	}
 	
 	void EnumeratePlayerInventory(PlayerBase player)

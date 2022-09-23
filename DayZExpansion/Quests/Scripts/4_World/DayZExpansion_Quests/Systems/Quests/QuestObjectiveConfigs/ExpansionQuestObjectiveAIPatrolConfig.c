@@ -80,7 +80,9 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 
 		ExpansionQuestObjectiveAIPatrolConfig config;
 		ExpansionQuestObjectiveAIPatrolConfigBase configBase;
-		JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfigBase>.JsonLoadFile(fileName, configBase);
+		
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(fileName, configBase))
+			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -99,7 +101,8 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 			}
 			else
 			{
-				JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonLoadFile(fileName, config);
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(fileName, config))
+					return NULL;
 			}
 
 			if (configBase.ConfigVersion < 5)
@@ -127,7 +130,8 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonLoadFile(fileName, config);
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(fileName, config))
+				return NULL;
 		}
 
 		if (!config.DespawnRadius)

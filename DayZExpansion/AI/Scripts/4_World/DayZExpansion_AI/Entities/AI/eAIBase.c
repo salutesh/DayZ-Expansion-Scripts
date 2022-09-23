@@ -25,6 +25,7 @@ class eAIBase extends PlayerBase
 
 	// Targeting data
 	private autoptr array<eAITarget> m_eAI_Targets;
+	private autoptr map<eAITargetInformation, ref eAITargetInformationState> m_eAI_TargetInformationStates;
 	float m_ThreatClearedTimeout;
 	float m_eAI_CurrentThreatToSelf;
 	float m_eAI_PreviousThreatToSelf;
@@ -65,7 +66,7 @@ class eAIBase extends PlayerBase
 	private vector m_eAI_LookDirectionTarget_ModelSpace;
 	private bool m_eAI_LookDirection_Recalculate;
 
-	private vector m_eAI_AimDirection_ModelSpace;
+	private vector m_eAI_AimRelAngles;
 	private vector m_eAI_AimDirectionTarget_ModelSpace;
 	private bool m_eAI_AimDirection_Recalculate;
 
@@ -92,7 +93,6 @@ class eAIBase extends PlayerBase
 	ref map<typename, Magazine> m_eAI_EvaluatedFirearmTypes = new map<typename, Magazine>;
 
 	private float m_eAI_SideStepTimeout;
-	private bool m_eAI_LOS;
 
 	private bool m_eAI_UnlimitedReload;
 
@@ -164,6 +164,7 @@ class eAIBase extends PlayerBase
 		super.Init();
 
 		m_eAI_Targets = new array<eAITarget>();
+		m_eAI_TargetInformationStates = new map<eAITargetInformation, ref eAITargetInformationState>();
 
 		m_AimingProfile = new eAIAimingProfile(this);
 
@@ -231,8 +232,6 @@ class eAIBase extends PlayerBase
 		if (!m_Expansion_DebugObjects[i])
 		{
 			m_Expansion_DebugObjects[i] = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
-			if (dBodyIsSet(m_Expansion_DebugObjects[i]))
-				dBodyDestroy(m_Expansion_DebugObjects[i]);  //! Remove physics
 			EntityAI ent;
 			if (Class.CastTo(ent, m_Expansion_DebugObjects[i]))
 				ent.SetLifetime(300);
@@ -317,17 +316,6 @@ class eAIBase extends PlayerBase
 #endif
 
 		s_AllAI.RemoveItem(this);
-
-		if (IsAI() && GetGroup())
-		{
-			GetGroup().RemoveMember(GetGroup().GetIndex(this));
-		}
-
-		if (GetGame().IsServer())
-		{
-			if (!m_Expansion_EmoteAutoCancel)
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_PlayEmote);
-		}
 	}
 
 	protected override void EOnInit(IEntity other, int extra)
@@ -424,7 +412,7 @@ class eAIBase extends PlayerBase
 		if (!weapon.CanFire(muzzleIndex))
 			return;
 
-		if (!m_eAI_LOS)
+		if (!eAI_HasLOS())
 			return;
 
 		GetWeaponManager().Fire(weapon);
@@ -465,6 +453,22 @@ class eAIBase extends PlayerBase
 			{
 				animal.GetTargetInformation().AddAI(this);
 			}
+		}
+	}
+
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+
+		if (IsAI() && GetGroup())
+		{
+			GetGroup().RemoveMember(GetGroup().GetIndex(this));
+		}
+
+		if (GetGame().IsServer())
+		{
+			if (!m_Expansion_EmoteAutoCancel)
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_PlayEmote);
 		}
 	}
 
@@ -700,22 +704,23 @@ class eAIBase extends PlayerBase
 	void OnAddTarget(eAITarget target)
 	{
 		m_eAI_Targets.Insert(target);
-#ifdef EAI_TRACE
-		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + Debug.GetDebugName(target.GetEntity()) + " - target count " + m_eAI_Targets.Count());
+#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "OnAddTarget " + target.info.GetEntityDebugName() + " - found at time " + target.found_at_time + " - max time " + target.max_time + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
 	void OnRemoveTarget(eAITarget target)
 	{
 		m_eAI_Targets.RemoveItem(target);
-#ifdef EAI_TRACE
-		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + Debug.GetDebugName(target.GetEntity()) + " - target count " + m_eAI_Targets.Count());
+		m_eAI_TargetInformationStates.Remove(target.info);
+#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "OnRemoveTarget " + target.info.GetEntityDebugName() + " - time remaining " + (target.found_at_time + target.max_time - GetGame().GetTime()) + " - target count " + m_eAI_Targets.Count());
 #endif
 	}
 
 	float GetThreatToSelf(bool ignoreLOS = false)
 	{
-		if (!m_eAI_LOS && !ignoreLOS)
+		if (!eAI_HasLOS() && !ignoreLOS)
 			return m_eAI_CurrentThreatToSelfActive;
 
 		return m_eAI_CurrentThreatToSelf;
@@ -728,19 +733,48 @@ class eAIBase extends PlayerBase
 
 		if (m_eAI_Targets.Count() > 0)
 		{
-			m_eAI_CurrentThreatToSelf = m_eAI_Targets[0].GetThreat(this);
+			auto target = GetTarget();
 
-			//! Make active threat level rise/fall instantly if LOS, rise/fall slowly if no LOS
-			if (m_eAI_LOS)
+			m_eAI_CurrentThreatToSelf = target.GetThreat(this);
+
+			EntityAI targetEntity = target.GetEntity();
+
+			if (targetEntity.IsInherited(ItemBase))
+			{
 				m_eAI_CurrentThreatToSelfActive = m_eAI_CurrentThreatToSelf;
+			}
 			else
-				m_eAI_CurrentThreatToSelfActive = Math.Lerp(m_eAI_CurrentThreatToSelfActive, 0.200001, pDt * pDt);
+			{
+				auto state = m_eAI_TargetInformationStates[target.info];
+				m_eAI_CurrentThreatToSelfActive = state.m_ThreatLevelActive;
+			}
 		}
 		else
 		{
 			m_eAI_CurrentThreatToSelf = 0.0;
 			m_eAI_CurrentThreatToSelfActive = 0.0;
 		}
+	}
+
+	/*!
+	 * @brief Get state for given target info.
+	 * New state will be created if none exists.
+	 * @return eAITargetInformationState
+	 * @note should not be used for item targets as they wouldn't be removed from the cache like other targets
+	 */
+	eAITargetInformationState eAI_GetTargetInformationState(eAITargetInformation info)
+	{
+		eAITargetInformationState state;
+		if (!m_eAI_TargetInformationStates.Find(info, state))
+		{
+#ifdef DIAG
+			EXTrace.Print(EXTrace.AI, this, "Added new target info state");
+#endif
+			state = new eAITargetInformationState(this, info);
+			m_eAI_TargetInformationStates[info] = state;
+		}
+
+		return state;
 	}
 
 	void ReactToThreatChange(float pDt)
@@ -989,44 +1023,60 @@ class eAIBase extends PlayerBase
 		auto trace = CF_Trace_0(this, "PrioritizeTargets");
 #endif
 
+		auto target = m_eAI_Targets[0];
+
 		// sorting the targets so the highest the threat is indexed lowest
 
 		for (int i = m_eAI_Targets.Count() - 1; i >= 0; i--)
 		{
 			if (m_eAI_Targets[i] == null || m_eAI_Targets[i].ShouldRemove(this))
 			{
-#ifdef EAI_TRACE
-				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + Debug.GetDebugName(m_eAI_Targets[i].GetEntity()));
+#ifdef DIAG
+				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
 #endif
-				m_eAI_Targets.Remove(i);
+				if (!m_eAI_Targets[i].RemoveAI(this))
+				{
+					m_eAI_Targets.RemoveOrdered(i);
+					for (int k = m_eAI_TargetInformationStates.Count() - 1; k >= 0; k--)
+					{
+						if (!m_eAI_TargetInformationStates.GetElement(k))
+							m_eAI_TargetInformationStates.RemoveElement(k);
+					}
+				}
 			}
 		}
 
-//#ifdef EAI_TRACE
-		bool swap;
-//#endif
+		float max_threat;
 		for (i = 0; i < m_eAI_Targets.Count() - 1; i++)
 		{
 			int min_idx = i;
 			for (int j = i + 1; j < m_eAI_Targets.Count(); j++)
 			{
-				if (m_eAI_Targets[j] && m_eAI_Targets[min_idx] && m_eAI_Targets[j].GetThreat(this) > m_eAI_Targets[min_idx].GetThreat(this))
+				if (!m_eAI_Targets[j] && !m_eAI_Targets[min_idx])
 				{
-//#ifdef EAI_TRACE
-					swap = true;
-//#endif
+					continue;
+				}
+				float threat = m_eAI_Targets[j].GetThreat(this);
+				if (threat > m_eAI_Targets[min_idx].GetThreat(this))
+				{
 					min_idx = j;
+					max_threat = threat;
 				}
 			}
 
 			if (min_idx != i)
+			{
 				m_eAI_Targets.SwapItems(min_idx, i);
+			}
 		}
 
-//#ifdef EAI_TRACE
-		if (swap)
-			EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + Debug.GetDebugName(m_eAI_Targets[0].GetEntity()));
-//#endif
+		if (m_eAI_Targets[0] != target)
+		{
+#ifdef DIAG
+			if (m_eAI_Targets[0])
+				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + m_eAI_Targets[0].info.GetEntityDebugName());
+#endif
+		}
 	}
 
 	eAICommandMove GetCommand_MoveAI()
@@ -1239,7 +1289,7 @@ class eAIBase extends PlayerBase
 		if (!flags)
 			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.ANY_CARGO;
 
-		if (!GetInventory().FindFreeLocationFor(src, flags, location))
+		if (!GetInventory().FindFirstFreeLocationForNewEntity(src.GetType(), flags, location))
 			return null;
 
 		return Expansion_CloneItemToLocation(src, location);
@@ -1257,7 +1307,7 @@ class eAIBase extends PlayerBase
 
 			if (location.GetType() == InventoryLocationType.GROUND && !m_Expansion_CanBeLooted)
 			{
-				dst.SetTakeable(false);
+				ExpansionItemBaseModule.SetLootable(dst, false);
 				dst.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
 			}
 		}
@@ -1473,28 +1523,16 @@ class eAIBase extends PlayerBase
 		UpdateTargets(pDt);
 		PrioritizeTargets();
 
-		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelfActive > 0.2)
-		{
-			eAITarget target = m_eAI_Targets[0];
-			if (target.HasInfo())
-			{
-#ifndef EAI_USE_LEGACY_PATHFINDING
-				m_PathFinding.SetTarget(target.GetPosition(this));
-#else
-				m_PathFinding.OverridePosition(target.GetPosition(this));
-#endif
-			}
-		}
-
-		if (pCurrentCommandID != DayZPlayerConstants.COMMANDID_CLIMB)
-			m_PathFinding.OnUpdate(pDt, simulationPrecision);
-
 		GetTransform(m_ExTransformPlayer);
+
+		EnforceLOS();
+
+		DetermineThreatToSelf(pDt);
+		ReactToThreatChange(pDt);
 
 		if (m_eAI_Targets.Count() > 0)
 		{
-			vector aimPosition = m_eAI_Targets[0].GetPosition(this) + m_eAI_Targets[0].GetAimOffset(this);
-			//! @note look position also used for LOS
+			vector aimPosition = m_eAI_Targets[0].GetPosition(this, false) + m_eAI_Targets[0].GetAimOffset(this);
 			LookAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.15);
 			if (!m_eAI_LookDirection_Recalculate)
 				LookAtDirection("0 0 1");
@@ -1509,10 +1547,21 @@ class eAIBase extends PlayerBase
 				AimAtDirection("0 0 1");
 		}
 
-		EnforceLOS();
+		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelfActive > 0.2)
+		{
+			eAITarget target = m_eAI_Targets[0];
+			if (target.HasInfo())
+			{
+#ifndef EAI_USE_LEGACY_PATHFINDING
+				m_PathFinding.SetTarget(target.GetPosition(this, false));
+#else
+				m_PathFinding.OverridePosition(target.GetPosition(this, false));
+#endif
+			}
+		}
 
-		DetermineThreatToSelf(pDt);
-		ReactToThreatChange(pDt);
+		if (pCurrentCommandID != DayZPlayerConstants.COMMANDID_CLIMB)
+			m_PathFinding.OnUpdate(pDt, simulationPrecision);
 
 		if (m_eAI_SideStepTimeout > 0)
 		{
@@ -1830,10 +1879,22 @@ class eAIBase extends PlayerBase
 		{
 			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
 
+			if (IsRaised())
+			{
+				//! Need to adjust look direction when aiming
+				vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
+
+				lookTargetRelAngles[0] = lookTargetRelAngles[0] - aimTargetRelAngles[0];
+				if (entityInHands && entityInHands.IsWeapon())
+					lookTargetRelAngles[1] = lookTargetRelAngles[1] - aimTargetRelAngles[1];
+			}
+
 			//! We want to interpolate rel angles for looking! Otherwise, if the conversion to rel angles happens later,
 			//! there will be a sudden jump in the unit's head rotation between 180 and -180 due to the way the head animation is set up
 			lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
 			lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
+
+			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
 
 			//TODO: quaternion slerp instead for better, accurate results
 			m_eAI_LookRelAngles = vector.Lerp(m_eAI_LookRelAngles, lookTargetRelAngles, pDt * 4);
@@ -1872,24 +1933,29 @@ class eAIBase extends PlayerBase
 					speedLimit = Math.Min(speedLimit, 1);
 
 				float turnTarget;
+				bool setTurnTarget;
 
 				if (m_eAI_TurnTargetActive)
 				{
 					turnTarget = m_eAI_TurnTarget;
+					setTurnTarget = true;
 				}
 				else if (m_eAI_Targets.Count() > 0)
 				{
-					if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_LookRelAngles[0]) > 90)
+					if (m_eAI_AimDirection_Recalculate || Math.AbsFloat(m_eAI_AimRelAngles[0]) > 90)
 					{
 						turnTarget = vector.Direction(GetPosition(), m_eAI_AimPosition_WorldSpace).Normalized().VectorToAngles()[0];
+						setTurnTarget = true;
 					}
 				}
-				else
+				else if (IsInherited(eAINPCBase))
 				{
 					turnTarget = GetOrientation()[0];
+					setTurnTarget = true;
 				}
 
-				hcm.SetTurnTarget(turnTarget, m_eAI_TurnTargetActive);
+				if (setTurnTarget)
+					hcm.SetTurnTarget(turnTarget, m_eAI_TurnTargetActive);
 
 				if (m_StaminaHandler && !CanConsumeStamina(EStaminaConsumers.SPRINT) || !CanSprint())
 				{
@@ -1937,48 +2003,49 @@ class eAIBase extends PlayerBase
 		if (!GetGame())
 			return;
 
-		if (m_eAI_SideStepTimeout > 0 || m_MovementDirectionActive)
-			return;
-
 		if (!m_eAI_Targets.Count())
 		{
-			m_eAI_LOS = false;
 			return;
 		}
 
-		EntityAI targetEntity = GetTarget().GetEntity();
+		auto target = GetTarget();
+
+		EntityAI targetEntity = target.GetEntity();
 
 		if (targetEntity.IsInherited(ItemBase))
 		{
-			m_eAI_LOS = true;
 			return;
 		}
 
+		auto state = m_eAI_TargetInformationStates[target.info];
+		if (!state)
+			return;
+
 		vector begPos = GetBonePositionWS(GetBoneIndexByName("Head"));
-		vector endPos = m_eAI_LookPosition_WorldSpace;
+		vector endPos = targetEntity.GetPosition() + target.GetAimOffset(this);
 
 		vector contactPos;
 		vector contactDir;
 		int contactComponent;
 
 		set< Object > results = new set< Object >;
-		bool hadLos = m_eAI_LOS;
-		m_eAI_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectGeom, 0.3);
-		if (!m_eAI_LOS && hadLos)
+		bool hadLos = state.m_LOS;
+		state.m_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectView, 0.05);
+		if (!state.m_LOS && hadLos)
 			EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
-		if (!m_eAI_LOS)
+		if (!state.m_LOS)
 			return;
 
 		DayZPlayerImplement player;
 
 		bool sideStep;
 
-		m_eAI_LOS = false;
+		state.m_LOS = false;
 		foreach (Object obj: results)
 		{
 			if (obj.IsTree())
 			{
-				sideStep = true;
+				sideStep = m_eAI_CurrentThreatToSelfActive > 0.4;
 				break;
 			}
 
@@ -1990,7 +2057,7 @@ class eAIBase extends PlayerBase
 				}
 				else
 				{
-					m_eAI_LOS = true;
+					state.m_LOS = true;
 				}
 				//! If player is an enemy, but not the target, we don't care if they get shot when they are in the way
 				break;
@@ -1998,34 +2065,37 @@ class eAIBase extends PlayerBase
 
 			//if (obj.IsBuilding())
 			//{
-			//	m_eAI_LOS = false;
+			//	state.m_LOS = false;
 			//	break;
 			//}
 
 			if (obj != targetEntity)
 			{
 				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))
-					m_eAI_LOS = true;
+					state.m_LOS = true;
 				//! If object is zombie or animal but not the target, we don't care if they get shot when they are in the way
 				break;
 			}
 			else
 			{
 				//! Right on target
-				m_eAI_LOS = true;
+				state.m_LOS = true;
 				break;
 			}
 		}
 
-		if (m_eAI_LOS != hadLos)
-			EXTrace.Print(EXTrace.AI, this, "has line of sight to target (" + targetEntity + ")? " + m_eAI_LOS);
+		if (state.m_LOS != hadLos)
+			EXTrace.Print(EXTrace.AI, this, "has line of sight to target (" + targetEntity + ")? " + state.m_LOS);
 
 		if (sideStep)
 		{
+			if (m_eAI_SideStepTimeout > 0 || m_MovementDirectionActive)
+				return;
+
 			//! First check if we are roughly facing the target
 			//! @note vector.Direction(GetPosition(), GetTarget().GetPosition(this)).Normalized() returns zero vector,
 			//! have to first assign target position to variable. Why is this language so INCREDIBLY fucked? :-(
-			vector targetPos = GetTarget().GetPosition(this);
+			vector targetPos = state.m_SearchPosition;
 			vector targetDirection = vector.Direction(GetPosition(), targetPos).Normalized();
 			float dot = vector.Dot(GetDirection(), targetDirection);
 			if (dot >= 0.75)
@@ -2053,7 +2123,23 @@ class eAIBase extends PlayerBase
 
 	bool eAI_HasLOS()
 	{
-		return m_eAI_LOS;
+		if (!m_eAI_Targets.Count())
+			return false;
+
+		auto target = GetTarget();
+
+		EntityAI targetEntity = target.GetEntity();
+
+		if (targetEntity.IsInherited(ItemBase))
+		{
+			return true;
+		}
+
+		auto state = m_eAI_TargetInformationStates[target.info];
+		if (!state)
+			return false;
+
+		return state.m_LOS;
 	}
 
 	override void OnScheduledTick(float deltaTime)
@@ -2229,22 +2315,39 @@ class eAIBase extends PlayerBase
 			m_Expansion_DebugShapes.Insert(Shape.CreateLines(COLOR_BLUE, ShapeFlags.VISIBLE, points, 2));
 #endif
 
-			//TODO: quaternion slerp instead for better, accurate results
-			m_eAI_AimDirection_ModelSpace = vector.Lerp(m_eAI_AimDirection_ModelSpace, m_eAI_AimDirectionTarget_ModelSpace, pDt);		
+			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
 
-			vector aimOrientation = m_eAI_AimDirection_ModelSpace.VectorToAngles();
+			//! We want to interpolate rel angles for aiming! Otherwise, if the conversion to rel angles happens later,
+			//! there will be a sudden jump in the unit's rotation between 180 and -180 due to the way the animation is set up
+			aimTargetRelAngles[0] = ExpansionMath.RelAngle(aimTargetRelAngles[0]);
+			aimTargetRelAngles[1] = ExpansionMath.RelAngle(aimTargetRelAngles[1]);
+
+			aimTargetRelAngles[1] = Math.Clamp(aimTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
+
+			//TODO: quaternion slerp instead for better, accurate results
+			m_eAI_AimRelAngles = vector.Lerp(m_eAI_AimRelAngles, aimTargetRelAngles, pDt * 4);
 
 			float dist = vector.Distance(GetPosition() + "0 1.5 0", m_eAI_AimPosition_WorldSpace);
 			dist = Math.Clamp(dist, 1.0, 360.0);
 
-			float aimX = ExpansionMath.RelAngle(aimOrientation[0] + (-30.0 / dist));
-			float aimY = ExpansionMath.RelAngle(aimOrientation[1]);
-
-			aimX = Math.Clamp(aimX, -90.0, 90.0);
-			aimY = Math.Clamp(aimY, -90.0, 90.0);
+			float aimX = ExpansionMath.RelAngle(ExpansionMath.AbsAngle(m_eAI_AimRelAngles[0]) + (-15.0 / dist));
+			float aimY = m_eAI_AimRelAngles[1];
 
 			AnimSetFloat(m_ExpansionST.m_VAR_AimX, aimX);
 			AnimSetFloat(m_ExpansionST.m_VAR_AimY, aimY);
+		}
+		else
+		{
+			//! Interpolate to look direction if not raised so the next time we raise it animates in the direction we are looking
+
+			vector lookTargetRelAngles = m_eAI_LookDirectionTarget_ModelSpace.VectorToAngles();
+
+			lookTargetRelAngles[0] = ExpansionMath.RelAngle(lookTargetRelAngles[0]);
+			lookTargetRelAngles[1] = ExpansionMath.RelAngle(lookTargetRelAngles[1]);
+
+			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
+
+			m_eAI_AimRelAngles = vector.Lerp(m_eAI_AimRelAngles, lookTargetRelAngles, pDt * 4);
 		}
 	}
 
@@ -2268,7 +2371,7 @@ class eAIBase extends PlayerBase
 		if (IsClimbing() || IsFalling())
 			return false;
 
-		return m_eAI_LOS && m_eAI_SideStepTimeout <= 0;
+		return eAI_HasLOS() && m_eAI_SideStepTimeout <= 0;
 	}
 
 	// @param true to put weapon up, false to lower
@@ -2332,6 +2435,11 @@ class eAIBase extends PlayerBase
 		m_eAI_AimDirection_Recalculate = false;
 	}
 
+	vector GetLookRelAngles()
+	{
+		return m_eAI_LookRelAngles;
+	}
+
 	vector GetLookDirection()
 	{
 		return m_eAI_LookRelAngles.AnglesToVector();
@@ -2342,9 +2450,14 @@ class eAIBase extends PlayerBase
 		return m_eAI_LookDirection_Recalculate;
 	}
 
+	vector GetAimRelAngles()
+	{
+		return m_eAI_AimRelAngles;
+	}
+
 	vector GetAimDirection()
 	{
-		return m_eAI_AimDirection_ModelSpace;
+		return m_eAI_AimRelAngles.AnglesToVector();
 	}
 
 	override vector GetAimPosition()
@@ -2713,7 +2826,7 @@ class eAIBase extends PlayerBase
 
 		float fallHeight = position[1] - checkPosition[1];
 
-		bool isFallSafe = fallHeight <= 2.5 || (fallHeight <= 3.0 && GetHealth() >= 55.0);
+		bool isFallSafe = fallHeight <= 2.5 || (fallHeight <= 7.0 && GetHealth() >= 64.0);
 
 		//EXPrint("position " + position + " checkDirection " + checkDirection + " " + checkDirection.VectorToAngles() + " checkPosition " + checkPosition + " " + isFallSafe);
 
@@ -2759,18 +2872,29 @@ class eAIBase extends PlayerBase
 				continue;
 
 			bool isStuck = false;
+			bool isWreck = building.GetType().IndexOf("Land_Wreck_") == 0;  //! Vehicle wreck, excluding heli crashes
 
 			if (building.IsDoorOpen(doorIndex))
 			{
-				eAICommandMove move;
-				if (Class.CastTo(move, m_eAI_Command))
-					isStuck = move.IsStuck();
-				if (!isStuck)
-					continue;
+				if (!isWreck)
+				{
+					eAICommandMove move;
+					if (Class.CastTo(move, m_eAI_Command))
+						isStuck = move.IsStuck();
+					if (!isStuck)
+						continue;
+				}
 			}
-
-			if (building.IsDoorLocked(doorIndex))
+			else if (isWreck)
+			{
+				//! Do not open wreck doors (less chance of getting stuck on them when closed)
 				continue;
+			}
+			else if (building.IsDoorLocked(doorIndex))
+			{
+				//! TODO: Break through locked doors
+				continue;
+			}
 
 			/**
 			 * TODO: Use FSM events to notify that the door should be opened. 
@@ -2791,7 +2915,8 @@ class eAIBase extends PlayerBase
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 1500, false, speedLimit, speedLimitThreat);
 			}
 
-			if (isStuck)
+			//! Always close wreck doors (less chance of getting stuck on them when closed)
+			if (isStuck || isWreck)
 			{
 				building.CloseDoor(doorIndex);
 			}

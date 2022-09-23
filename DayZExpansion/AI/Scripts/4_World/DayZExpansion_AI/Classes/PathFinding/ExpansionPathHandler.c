@@ -72,20 +72,25 @@ class ExpansionPathHandler
 		}
 
 		m_PathFilter.SetCost(PGAreaType.LADDER, 1.0);
-		m_PathFilter.SetCost(PGAreaType.CRAWL, 1.0);
-		m_PathFilter.SetCost(PGAreaType.CROUCH, 1.0);
+		m_PathFilter.SetCost(PGAreaType.CRAWL, 10.0);
+		m_PathFilter.SetCost(PGAreaType.CROUCH, 10.0);
 		m_PathFilter.SetCost(PGAreaType.FENCE_WALL, 1.0);
-		m_PathFilter.SetCost(PGAreaType.JUMP, 1.0);
-		m_PathFilter.SetCost(PGAreaType.WATER, 1.0);
+		//! @note jump has higher cost because some objects cannot be jumped over by AI but will be pathed through otherwise.
+		//! This fixes AI getting stuck on (e.g.) the high mesh fences and other obstacles that can only be jumped by Zs.
+		m_PathFilter.SetCost(PGAreaType.JUMP, 10.0);
+		m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
+		m_PathFilter.SetCost(PGAreaType.WATER_DEEP, 100.0);
+		m_PathFilter.SetCost(PGAreaType.WATER_SEA, 5.0);
+		m_PathFilter.SetCost(PGAreaType.WATER_SEA_DEEP, 100.0);
 
-		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
+		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 2.0);
 		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 1.0);
 
 		m_PathFilter.SetCost(PGAreaType.ROADWAY, 1.0);
-		m_PathFilter.SetCost(PGAreaType.TREE, 1.0);
+		m_PathFilter.SetCost(PGAreaType.TREE, 5.0);
 
-		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 1.0);
-		m_PathFilter.SetCost(PGAreaType.OBJECTS, 1.0);
+		m_PathFilter.SetCost(PGAreaType.OBJECTS_NOFFCON, 5.0);
+		m_PathFilter.SetCost(PGAreaType.OBJECTS, 5.0);
 		m_PathFilter.SetCost(PGAreaType.TERRAIN, 1.0);
 		m_PathFilter.SetCost(PGAreaType.BUILDING, 1.0);
 		m_PathFilter.SetCost(PGAreaType.ROADWAY_BUILDING, 1.0);

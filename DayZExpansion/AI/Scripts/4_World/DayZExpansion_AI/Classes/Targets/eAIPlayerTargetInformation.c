@@ -7,23 +7,23 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 		Class.CastTo(m_Player, target);
 	}
 
-	override float GetThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (ai == this || m_Player.GetHealth("", "") <= 0.0)
+		if (m_Player.GetHealth("", "") <= 0.0)
 			return 0.0;
 
-		float levelFactor = 0.5;
+		if (m_Player.IsUnconscious())
+			return 0.1;
+
+		float levelFactor = 0.1;
 
 		if (ai)
 		{
-			if (!ai.PlayerIsEnemy(m_Player))
-				return 0.0;
-
-			if (m_Player.IsUnconscious())
+			if (ai == m_Player || !ai.PlayerIsEnemy(m_Player))
 				return 0.0;
 
 			// the further away the player, the less likely they will be a threat
-			float distance = GetDistance(ai) + 0.1;
+			float distance = GetDistance(ai, true) + 0.1;
 
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
@@ -31,12 +31,10 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			//! Guards are friendly to everyone until the other player raises their weapon
 			if (ai.GetGroup() && ai.GetGroup().GetFaction().IsGuard() && !m_Player.IsRaised())
 			{
-				if (!enemyHands)
-					levelFactor = 0.15;  //! They eyeball you menacingly
-				else if (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon())
+				if (enemyHands && (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon()))
 					levelFactor = 0.2;  //! They aim at you
 				else
-					return 0.15;
+					levelFactor = 0.15;  //! They eyeball you menacingly
 
 				if (distance > 30)
 					levelFactor *= (30 / distance);
@@ -83,6 +81,39 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 					}
 				}
 			}
+
+			//! TODO: Since weather and environment are global, maybe only calculate periodically and use result for all AI?
+			Weather weather = GetGame().GetWeather();
+			//! At 100% fog, visibility is around 50 m
+			//! At 50% fog, visibility is roughly 460 m
+			float fogVisibility = 1.0 - weather.GetFog().GetActual() * 0.95;
+			//! At 100% overcast, visibility is around 250 m
+			float overcastVisibility = 1.0 - weather.GetOvercast().GetActual() * 0.75;
+			//! At 100% rain, visibility is around 500 m
+			float rainVisibility = 1.0 - weather.GetRain().GetActual() * 0.5;
+			//! Daylight
+			float daylightVisibility = g_Game.GetWorld().GetSunOrMoon();  //! 0/1 Night/Day
+			if (!daylightVisibility)
+			{
+				//! Check if AI has NVG or NV optics with battery
+				ItemBase nvItem = ai.Expansion_GetNVItem();
+				if (nvItem && nvItem.Expansion_GetBatteryEnergy())
+				{
+					ItemOptics optic;
+					if (Class.CastTo(optic, nvItem))
+						daylightVisibility = optic.GetZeroingDistanceZoomMax() * 0.001;
+					else
+						daylightVisibility = 0.35;  //! 350 m (realistic value for Starlight optic)
+				}
+				else
+				{
+					daylightVisibility = 0.1;  //! 100 m
+				}
+			}
+			float visibility = Math.Min(Math.Min(fogVisibility, Math.Min(overcastVisibility, rainVisibility)), daylightVisibility);
+			float visibilityDistThreshold = 900 * visibility;
+			if (distance > visibilityDistThreshold)
+				levelFactor *= ExpansionMath.PowerConversion(1100 * visibility, visibilityDistThreshold, distance, 0.0, 1.0, 2.0);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
@@ -104,19 +135,19 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 		//! Multiplicator based on weapon and attachments
 		ItemOptics optics;
-		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, weapon.GetAttachmentByType(ItemOptics)) && optics.GetZeroingDistanceZoomMax() >= distance))
+		if (gun.IsInherited(BoltActionRifle_Base) || gun.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, gun.GetAttachedOptics()) && optics.GetZeroingDistanceZoomMax() >= distance))
 		{
 			levelFactor *= 7.333333;  //! If either AI or target have a 7.62x54 mm bolt rifle, threat level 0.4 at 500 m
 		}
-		else if (weapon.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
+		else if (gun.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm rifle, threat level 0.4 at 250 m
 		}
-		else if (weapon.IsKindOf("Pistol_Base"))
+		else if (gun.IsKindOf("Pistol_Base"))
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 19x9 mm pistol, threat level 0.4 at 50 m
 		}
-		else if (weapon.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
+		else if (gun.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 250 m
 		}

@@ -151,6 +151,9 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (m_Group) return;
 
+		if (GetExpansionSettings().GetLog().AIPatrol)
+            GetExpansionSettings().GetLog().PrintLog("[AI Patrol] Spawning " + m_NumberOfAI + " " + m_Faction.ClassName().Substring(10, m_Faction.ClassName().Length() - 10) + " bots at " + m_Position);
+
 		m_TimeSinceLastSpawn = 0;
 		m_CanSpawn = false;
 		m_WasGroupDestroyed = false;

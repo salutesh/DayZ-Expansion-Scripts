@@ -40,7 +40,9 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionAdminUnpairKey );
 		actions.Insert( ExpansionActionLockVehicle );
 		actions.Insert( ExpansionActionUnlockVehicle );
+		#ifndef DAYZ_1_19
 		actions.Insert( ExpansionActionCarHorn );
+		#endif
 		actions.Insert( ExpansionActionOpenVehicleDoor );
 		actions.Insert( ExpansionActionCloseVehicleDoor );
 		

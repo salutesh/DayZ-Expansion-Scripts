@@ -41,7 +41,9 @@ modded class PlayerBase
 		
 		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
 		
+		#ifndef DAYZ_1_19
 		AddAction( ExpansionActionCarHorn, InputActionMap );
+		#endif
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
 
 		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );

@@ -1,5 +1,5 @@
 /**
- * ExpansionSupply.c
+ * Expansion_Ammo_FlareSupplyBase.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionSupplySignal: M18SmokeGrenade_Purple
+class Expansion_Ammo_FlareSupplyBase: Ammo_Flare
 {
 	override void OnWorkStart()
 	{
@@ -79,3 +79,6 @@ class ExpansionSupplySignal: M18SmokeGrenade_Purple
 		}
 	}
 };
+class Expansion_Ammo_FlareSupplyRed: Expansion_Ammo_FlareSupplyBase {};
+class Expansion_Ammo_FlareSupplyGreen: Expansion_Ammo_FlareSupplyBase {};
+class Expansion_Ammo_FlareSupplyBlue: Expansion_Ammo_FlareSupplyBase {};

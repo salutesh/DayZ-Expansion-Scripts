@@ -119,8 +119,6 @@ class ExpansionAIPatrolManager
 
         if ( !s_AIPatrolSettings.Enabled )
             return;
-            
-        PatrolLog(null, "=================== Patrol Spawner START ===================");
 
         //! Init all roaming patrols
         foreach(ExpansionAIPatrol patrol: s_AIPatrolSettings.Patrols)
@@ -136,7 +134,6 @@ class ExpansionAIPatrolManager
             if (!InitPatrol(patrol))
                 continue;
         }
-        PatrolLog(null, "=================== Patrol Spawner END ===================");
     }
 
     private static void PatrolLog(ExpansionAIDynamicSpawnBase patrol, string msg)

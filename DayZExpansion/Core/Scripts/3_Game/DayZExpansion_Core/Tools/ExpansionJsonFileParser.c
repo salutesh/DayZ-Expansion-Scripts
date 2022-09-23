@@ -34,7 +34,12 @@ class ExpansionJsonFileParser<Class T>
 
 		CloseFile(handle);
 
-		return ReadFromString(file_content, data);
+		string error;
+		bool ret = ReadFromString(file_content, data, error);
+		if (!ret)
+			Error(string.Format("File %1:\n%2", filename, error));
+
+		return ret;
 	}
 
 	static void Save(string filename, T data)
@@ -48,13 +53,10 @@ class ExpansionJsonFileParser<Class T>
 		CloseFile(handle);
 	}
 
-	static bool ReadFromString(string string_data, out T data)
+	static bool ReadFromString(string string_data, out T data, out string error = string.Empty)
 	{
-		string error;
 		if (m_Serializer.ReadFromString(data, string_data, error))
 			return true;
-
-		Error(error);
 
 		return false;
 	}

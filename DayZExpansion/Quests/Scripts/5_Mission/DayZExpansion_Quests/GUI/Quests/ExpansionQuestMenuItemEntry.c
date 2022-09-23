@@ -15,6 +15,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	private ref ExpansionQuestMenuItemEntryController m_QuestMenuItemEntryController;
 	private string m_ClassName;
 	private int m_Amount;
+	private array<string> m_Attachments;
 	private ref ExpansionItemTooltip m_ItemTooltip;
 	private bool m_IsRewardEntry = false;
 	private ExpansionQuestMenu m_QuestMenu;
@@ -23,10 +24,12 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	private ButtonWidget reward_item_button;
 	EntityAI m_Object;
 
-	void ExpansionQuestMenuItemEntry(string className, int amount)
+	void ExpansionQuestMenuItemEntry(string className, int amount, TStringArray attachments = NULL)
 	{
 		m_ClassName = className;
-		m_Amount = amount;
+		m_Amount = amount;		
+		m_Attachments = attachments;
+		
 		Class.CastTo(m_QuestMenuItemEntryController, GetController());
 
 		SetEntry();
@@ -61,9 +64,20 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 
 		if (!m_Object)
 			m_Object = EntityAI.Cast(GetGame().CreateObjectEx(m_ClassName, vector.Zero, ECE_LOCAL|ECE_NOLIFETIME));
+		
+		if (m_Attachments && m_Attachments.Count() > 0)
+			SpawnAttachments(m_Attachments, m_Object);
 
 		m_QuestMenuItemEntryController.Preview = m_Object;
 		m_QuestMenuItemEntryController.NotifyPropertyChanged("Preview");
+	}
+	
+	void SpawnAttachments(array<string> attachments, EntityAI parent)
+	{
+		foreach (string attachmentName: attachments)
+		{
+			ExpansionItemSpawnHelper.SpawnAttachment(attachmentName, parent);
+		}
 	}
 	
 	void OnItemButtonClick()

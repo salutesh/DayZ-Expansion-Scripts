@@ -97,21 +97,7 @@ class ExpansionItemSpawnHelper
 			else
 				mag.ServerSetAmmoCount(0);
 		}
-		else if (item.IsInherited(Edible_Base))
-		{
-			//! Consumables like food, sodacans, bottles, pills, gas canisters...
-
-			remainingAmount--;
-
-			if (item.HasQuantity())
-			{
-				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
-				if (item.ConfigGetBool("canBeSplit"))
-					itemQuantity = Math.Round(itemQuantity);
-				item.SetQuantity(itemQuantity);
-			}
-		}
-		else if (item.ConfigGetBool("canBeSplit"))
+		else if (!item.IsInherited(Edible_Base) && item.ConfigGetBool("canBeSplit"))
 		{
 			//! Stackable items
 			int max = item.GetQuantityMax();
@@ -137,6 +123,14 @@ class ExpansionItemSpawnHelper
 			//! Everything else
 
 			remainingAmount--;
+
+			if (item.HasQuantity())
+			{
+				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
+				if (item.ConfigGetBool("canBeSplit"))
+					itemQuantity = Math.Round(itemQuantity);
+				item.SetQuantity(itemQuantity);
+			}
 		}
 		
 		if (item.CanBeDisinfected())

@@ -28,16 +28,10 @@ class ExpansionMissionConstructor
 		
 		#ifdef BUILD_EXPERIMENTAL
 		//! Zombie Horde
-		missions.Insert( ExpansionMissionEventHorde );
+		//missions.Insert( ExpansionMissionEventHorde );
 		#ifdef EXPANSIONMODAI
 		//! AI General missions (Patrol, Faction War, Protecting Loot)
 		missions.Insert( ExpansionMissionEventAI );
-		
-		//! Airdrop with AI
-		//missions.Insert( ExpansionMissionEventAirdropAI );
-		
-		//! DayZ rewritten Contaminated Areas with AI
-		//missions.Insert( ExpansionMissionEventContaminatedArea );
 		#endif
 		#endif
 	}

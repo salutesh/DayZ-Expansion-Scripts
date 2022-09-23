@@ -135,10 +135,11 @@ modded class DayZGame
 	protected void SetWorldCenterPosition()
 	{
 		string path = "CfgWorlds " + GetGame().GetWorldName();
-		m_WorldCenterPosition = GetGame().ConfigGetVector( path + " centerPosition" );
+		vector temp = GetGame().ConfigGetVector( path + " centerPosition" );
+		m_WorldCenterPosition = Vector(temp[0], temp[2], temp[1]);
 	}
 
-	//! Note: Usually not actual center, depends on what's in a world's config.cpp
+	//! @note usually not actual center, depends on what's in a world's config.cpp
 	vector GetWorldCenterPosition()
 	{
 		if ( !m_WorldCenterPosition )

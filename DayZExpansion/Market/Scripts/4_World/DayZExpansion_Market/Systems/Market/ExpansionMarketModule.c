@@ -123,6 +123,9 @@ class ExpansionMarketPlayerInventory
 				if (car.IsLocked())
 					continue;
 				#endif
+				
+				if (car.Expansion_GetVehicleCrew().Count() > 0)
+					continue;
 
 				if (IsVehicleNearby(car))
 					driven.Insert(car);
@@ -143,6 +146,9 @@ class ExpansionMarketPlayerInventory
 				if (vehicle.IsLocked())
 					continue;
 
+				if (vehicle.Expansion_GetVehicleCrew().Count() > 0)
+					continue;
+				
 				if (IsVehicleNearby(vehicle))
 					driven.Insert(vehicle);
 
@@ -887,18 +893,20 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Selling ruined items shall not increase stock
 		incrementStockModifier = conditionModifier > 0;  //! 0.0 or 1.0
 
-		//! Food and liquid containers
-		Edible_Base edible;
-		if (conditionModifier && Class.CastTo(edible, item))
+		//! Any item with quantity
+		ItemBase consumable;
+		if (conditionModifier && Class.CastTo(consumable, item))
 		{
+			Edible_Base edible = Edible_Base.Cast(item);
+
 			float minFactor;
-			if (!edible.ConfigGetBool("varQuantityDestroyOnMin"))
+			if (edible && !edible.ConfigGetBool("varQuantityDestroyOnMin"))
 				minFactor = 0.25;  //! Quarter price at zero quantity for e.g. liquid containers
 
-			if (edible.HasQuantity() && !edible.IsFullQuantity())  //! Full modifier at full quantity
-				quantityModifier = ExpansionMath.LinearConversion(0.0, 1.0, edible.GetQuantity() / edible.GetQuantityMax(), minFactor, 1, true);
+			if (consumable.HasQuantity() && !consumable.IsFullQuantity())  //! Full modifier at full quantity
+				quantityModifier = ExpansionMath.LinearConversion(0.0, 1.0, consumable.GetQuantity() / consumable.GetQuantityMax(), minFactor, 1, true);
 
-			if (edible.HasFoodStage())
+			if (edible && edible.HasFoodStage())
 			{
 				switch (edible.GetFoodStageType())
 				{
@@ -990,7 +998,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			amount = 1;
 		}
 		
-		if (!CanSellItem(item))
+		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item))
 			amount = -amount;
 		
 		return amount;
@@ -1521,6 +1529,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 			{
 				if (Class.CastTo(money, item) && money.ExpansionIsMoney())
 				{
+					//! Make sure we don't use items as money that should not be included, like attachments (e.g. Dogtags that are attached to the player itself)
+					if (!MiscGameplayFunctions.Expansion_IsLooseEntity(money))
+						continue;
+
 					string type = money.GetType();
 					type.ToLower();
 
@@ -3624,36 +3636,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	bool CanSellItem(EntityAI item, bool checkIfRuined = false)
 	{
-		if (checkIfRuined && item.IsRuined())
-			return false;
+		Error("DEPRECATED, use MiscGameplayFunctions.Expansion_IsLooseEntity");
 
-		if (item.GetInventory())
-		{
-			//! Check if the item has a container and any items in it
-			if (item.HasAnyCargo())
-				return false;
-
-			//! Check if any of the item's attachments has any cargo
-			for (int i = 0; i < item.GetInventory().AttachmentCount(); i++)
-			{
-				EntityAI attachment = item.GetInventory().GetAttachmentFromIndex(i);
-				if (attachment && attachment.HasAnyCargo())
-					return false;
-			}
-
-			//! Check if item is attachment that can be released
-			if (item.GetInventory().IsAttachment())
-				return !item.IsMagazine() && item.GetHierarchyParent().CanReleaseAttachment(item) && item.GetHierarchyParent().GetInventory().CanRemoveAttachment(item);
-		}
-
-		#ifdef EXPANSIONMODVEHICLE
-		//! If this is a master key of a vehicle, don't allow to sell it
-		ExpansionCarKey key;
-		if (Class.CastTo(key, item) && key.IsMaster())
-			return false;
-		#endif
-
-		return true;
+		return MiscGameplayFunctions.Expansion_IsLooseEntity(item, checkIfRuined);
 	}
 
 	// ------------------------------------------------------------

@@ -80,7 +80,9 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 		ExpansionQuestObjectiveAICampConfig config;
 		ExpansionQuestObjectiveAICampConfigBase configBase;
-		JsonFileLoader<ExpansionQuestObjectiveAICampConfigBase>.JsonLoadFile(fileName, configBase);
+
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(fileName, configBase))
+			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -109,7 +111,8 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonLoadFile(fileName, config);
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(fileName, config))
+				return NULL;
 		}
 
 		if (!config.DespawnRadius)

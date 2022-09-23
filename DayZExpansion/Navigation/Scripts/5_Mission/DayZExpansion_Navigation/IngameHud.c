@@ -31,6 +31,9 @@ modded class IngameHud
 
 	Widget m_CompassPanel;
 	ImageWidget m_CompassImage;
+	Widget m_CompassBadge1;
+	Widget m_CompassBadge2;
+	Widget m_CompassBadge3;
 	bool m_AddedCompassSettings;
 
 	bool m_ExpansionGPSState;
@@ -107,6 +110,9 @@ modded class IngameHud
 		{
 			m_CompassPanel.Show(false);
 			m_CompassImage = ImageWidget.Cast(m_CompassPanel.FindAnyWidget("CompassImage"));
+			m_CompassBadge1 = Widget.Cast(m_CompassPanel.FindAnyWidget("CompassBadge1"));
+			m_CompassBadge2 = Widget.Cast(m_CompassPanel.FindAnyWidget("CompassBadge2"));
+			m_CompassBadge3 = Widget.Cast(m_CompassPanel.FindAnyWidget("CompassBadge3"));
 		}
 
 		m_Expansion_LocatorUI = new ExpansionLocatorUI();
@@ -439,7 +445,12 @@ modded class IngameHud
 		if (!m_AddedCompassSettings)
 		{
 			int compass_color = GetExpansionSettings().GetMap().CompassColor;
+			int compass_badges_color = GetExpansionSettings().GetMap().CompassBadgesColor;
+			
 			m_CompassImage.SetColor(compass_color);
+			m_CompassBadge1.SetColor(compass_badges_color);
+			m_CompassBadge2.SetColor(compass_badges_color);
+			m_CompassBadge3.SetColor(compass_badges_color);
 
 			m_AddedCompassSettings = true;
 		}

@@ -120,7 +120,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 
 	protected void Process()
 	{
-		if ( m_Code.Length() != m_CodeLength )
+		if ( m_Code.Length() == 0 || m_Code.Length() > m_CodeLength )
 		{
 			SoundOnError();
 		} else if ( m_Confirm )

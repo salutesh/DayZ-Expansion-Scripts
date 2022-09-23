@@ -18,7 +18,7 @@
 [CF_RegisterModule(ExpansionItemBaseModule)]
 class ExpansionItemBaseModule : CF_ModuleWorld
 {
-	static const int SETUNTAKEABLE = 1;
+	static const int SETUNLOOTABLE = 1;
 	static const int DELETE = 2;
 
 	static ExpansionItemBaseModule s_Instance;
@@ -125,8 +125,8 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "::ProcessQueuedEntityActions " + entity.ToString() + " - do actions (bitmask) " + selectedActions);
 
-		if ((selectedActions & SETUNTAKEABLE) == SETUNTAKEABLE)
-			entity.SetTakeable(false);
+		if ((selectedActions & SETUNLOOTABLE) == SETUNLOOTABLE)
+			SetLootable(entity, false);
 		if ((selectedActions & DELETE) == DELETE)
 			GetGame().ObjectDelete(entity);
 
@@ -321,4 +321,13 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		}
 	}
 */
+
+	static void SetLootable(EntityAI entity, bool state)
+	{
+		ItemBase item;
+		if (Class.CastTo(item, entity))
+			item.Expansion_SetLootable(state);
+		else
+			entity.SetTakeable(state);
+	}
 };

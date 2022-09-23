@@ -517,10 +517,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		MaxPartyDepositMoney = 100000;
 		UseWholeMapForATMPlayerList = false;
 		
-		Currencies.Insert("expansiongoldbar");
-		Currencies.Insert("expansiongoldnugget");
-		Currencies.Insert("expansionsilverbar");
-		Currencies.Insert("expansionsilvernugget");
+		Currencies.Insert("expansionbanknotehryvnia");
 
 		#ifdef EXPANSIONMODVEHICLE
 		VehicleKeys.Insert("ExpansionCarKey");
