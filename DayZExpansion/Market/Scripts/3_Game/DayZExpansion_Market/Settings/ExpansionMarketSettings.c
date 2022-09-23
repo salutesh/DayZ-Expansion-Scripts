@@ -522,14 +522,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		#ifdef EXPANSIONMODVEHICLE
 		VehicleKeys.Insert("ExpansionCarKey");
 		#endif
-
-		#ifdef MuchCarKey
-		VehicleKeys.Insert("MCK_CarKey_Blue");
-		VehicleKeys.Insert("MCK_CarKey_Green");
-		VehicleKeys.Insert("MCK_CarKey_White");
-		VehicleKeys.Insert("MCK_CarKey_Yellow");
-		VehicleKeys.Insert("MCK_CarKey_Red");
-		#endif
 	}
 
 	// ------------------------------------------------------------

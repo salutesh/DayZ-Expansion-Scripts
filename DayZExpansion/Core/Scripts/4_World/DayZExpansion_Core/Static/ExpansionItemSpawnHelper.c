@@ -274,10 +274,6 @@ class ExpansionItemSpawnHelper
 		ExpansionVehicleBase exVeh;
 		ExpansionCarKey expkey;
 		#endif
-		#ifdef MuchCarKey_ExpTest
-		MCK_CarKey_Base MCKkey;
-		int mck_id;
-		#endif
 		if (Class.CastTo(vehicle, obj))
 		{
 			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
@@ -297,18 +293,6 @@ class ExpansionItemSpawnHelper
 				{
 					vehicle.PairKeyTo(expkey);
 					vehicle.LockCar(expkey);
-				}
-				#endif
-				#ifdef MuchCarKey_ExpTest
-				if (Class.CastTo(MCKkey, keyb))
-				{
-					mck_id = MCKkey.GenerateNewID();
-					MCKkey.SetNewMCKId(mck_id);
-					vehicle.m_CarKeyId = mck_id;
-					vehicle.m_HasCKAssigned = true;
-					vehicle.m_IsCKLocked = true;
-					vehicle.SynchronizeValues(); 
-					vehicle.ResetLifetime();
 				}
 				#endif
 			}
@@ -333,18 +317,6 @@ class ExpansionItemSpawnHelper
 					exVeh.PairKeyTo(expkey);
 					exVeh.LockCar(expkey);
 				}
-				#ifdef MuchCarKey_ExpTest
-				if (Class.CastTo(MCKkey, keyb))
-				{
-					mck_id = MCKkey.GenerateNewID();
-					MCKkey.SetNewMCKId(mck_id);
-					exVeh.m_CarKeyId = mck_id;
-					exVeh.m_HasCKAssigned = true;
-					exVeh.m_IsCKLocked = true;
-					exVeh.SynchronizeValues(); 
-					exVeh.ResetLifetime();
-				}
-				#endif
 			}
 		}
 		#endif

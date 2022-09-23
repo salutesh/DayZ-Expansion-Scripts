@@ -894,8 +894,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		incrementStockModifier = conditionModifier > 0;  //! 0.0 or 1.0
 
 		//! Any item with quantity
+		//! @note only non-splittable items, except edibles - needs to match logic in ExpansionItemSpawnHelper::SpawnOnParent
 		ItemBase consumable;
-		if (conditionModifier && Class.CastTo(consumable, item))
+		if (conditionModifier && Class.CastTo(consumable, item) && (item.IsInherited(Edible_Base) || !item.ConfigGetBool("canBeSplit")))
 		{
 			Edible_Base edible = Edible_Base.Cast(item);
 

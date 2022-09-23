@@ -45,10 +45,6 @@ class ExpansionMissionEventAI extends ExpansionMissionEventBase
 		MappingSet.SpawnObjects();
 		#ifdef EXPANSIONMODVEHICLE
 		ExpansionCarKey key;
-		#else
-		#ifdef MuchCarKey
-		MCK_CarKey_Base MCKkey;
-		#endif
 		#endif
 		for ( int ll = 0; ll < LootLocation.Count(); ll++ ) 
 		{
@@ -110,19 +106,6 @@ class ExpansionMissionEventAI extends ExpansionMissionEventBase
 						key = ExpansionCarKey.Cast( SpawnObject("ExpansionCarKey") );
 						car.PairKeyTo(key);
 						car.LockCar(key);
-					#else
-						#ifdef MuchCarKey
-							MCK_CarKey_Base MCKkey;
-							int mck_id;
-							MCK_CarKey_Base MCKkey = MCK_CarKey_Base.Cast( SpawnObject("ExpansionCarKey") );
-							mck_id = MCKkey.GenerateNewID();
-							car.SetNewMCKId(mck_id);
-							car.m_CarKeyId = mck_id;
-							car.m_HasCKAssigned = true;
-							car.m_IsCKLocked = true;
-							car.SynchronizeValues(); 
-							car.ResetLifetime();
-						#endif
 					#endif
 					}
 				}
