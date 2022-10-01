@@ -111,11 +111,11 @@ class ExpansionCarKey extends ItemBase
 
 		GetKeyObject();
 
-		if ( !m_Vehicle && IsPaired() )
-		{
-			EXPrint(ToString() + "::EEOnAfterLoad - Unpairing \"" + GetDisplayName() + "\" " + GetPosition() + " because its vehicle no longer exists");
-			Unpair( true );
-		}
+		//if ( !m_Vehicle && IsPaired() )
+		//{
+			//EXPrint(ToString() + "::EEOnAfterLoad - Unpairing \"" + GetDisplayName() + "\" " + GetPosition() + " because its vehicle no longer exists");
+			//Unpair( true );
+		//}
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::EEOnAfterLoad - End");

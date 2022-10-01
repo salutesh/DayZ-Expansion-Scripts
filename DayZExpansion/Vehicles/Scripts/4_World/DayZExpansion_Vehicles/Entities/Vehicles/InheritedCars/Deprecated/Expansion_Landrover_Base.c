@@ -544,4 +544,46 @@ class Expansion_Landrover_Base extends CarScript
 		Fill(CarFluid.COOLANT, 6.0);
 		Fill(CarFluid.OIL, 4.0);
 	}
-}
+};
+
+modded class SeaChest extends Container_Base
+{
+	override void SetActions()
+	{
+		super.SetActions();
+
+		AddAction(ActionAttachOnSelection);
+		AddAction(ActionDetach);
+	}
+};
+
+modded class CanisterGasoline extends Bottle_Base
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionAttachOnProxy);
+		AddAction(ActionAttachOnSelection);
+		AddAction(ActionDetach);
+	}
+};
+modded class SeaChest extends DeployableContainer_Base
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionAttachOnSelection);
+		AddAction(ActionDetach);
+	}
+};
+modded class WoodenCrate extends DeployableContainer_Base
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		
+		AddAction(ActionDetach);
+	}
+};

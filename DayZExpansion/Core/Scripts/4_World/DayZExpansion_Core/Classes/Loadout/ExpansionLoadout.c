@@ -20,7 +20,7 @@ class ExpansionHumanLoadout
 
 		if (!FileExist(EXPANSION_LOADOUT_FOLDER))
 		{
-			MakeDirectory(EXPANSION_LOADOUT_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_LOADOUT_FOLDER);
 		}
 		else
 		{

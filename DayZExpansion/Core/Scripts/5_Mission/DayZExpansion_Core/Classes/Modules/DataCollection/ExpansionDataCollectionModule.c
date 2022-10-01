@@ -105,10 +105,6 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 
-		if (!cArgs.Identity)
-			return;
-		
-		string playerID = cArgs.Identity.GetId();
 		OnPlayerDisconnect(cArgs.UID);
 	}
 	

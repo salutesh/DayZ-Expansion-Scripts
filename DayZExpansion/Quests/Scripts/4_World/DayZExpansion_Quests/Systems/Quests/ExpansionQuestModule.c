@@ -513,10 +513,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Maybe move this to the OnClientLogout method
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			if (!cArgs.Player || !cArgs.Player.GetIdentity())
-				return;
-			
-			CleanupPlayerQuests(cArgs.Player.GetIdentity().GetId());
+			CleanupPlayerQuests(cArgs.UID);
 		}
 
 		QuestModulePrint(ToString() + "::OnClientDisconnect - End");

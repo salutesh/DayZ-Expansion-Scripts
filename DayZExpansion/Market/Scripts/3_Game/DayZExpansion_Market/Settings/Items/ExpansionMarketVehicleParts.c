@@ -187,6 +187,8 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 
 		AddItem("ExpansionUh1hDoor_1_1", 					500,	1000,	1,		100);
 		AddItem("ExpansionUh1hDoor_1_2",					500,	1000,	1,		100);
+		AddItem("ExpansionUh1hDoor_2_1", 					500,	1000,	1,		100);
+		AddItem("ExpansionUh1hDoor_2_2", 					500,	1000,	1,		100);
 
 		AddItem("Expansion_Mh6_Door_1_1", 			500,	1000,	1,		100, null, {"Expansion_Mh6_Door_1_1_Black"});
 		AddItem("Expansion_Mh6_Door_1_2",					500,	1000,	1,		100, null, {"Expansion_Mh6_Door_1_2_Black"});

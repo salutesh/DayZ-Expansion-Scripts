@@ -18,6 +18,14 @@ class ExpansionUh1hDoor_1_2 extends CarDoor
 {
 };
 
+class ExpansionUh1hDoor_2_1 extends CarDoor
+{
+};
+
+class ExpansionUh1hDoor_2_2 extends CarDoor
+{
+};
+
 class ExpansionUh1hWreck : ExpansionHelicopterWreck
 {
 };
@@ -73,9 +81,9 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		case 3:
 			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
 		case 4:
-			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
-		case 5:
 			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_L;
+		case 5:
+			return DayZPlayerConstants.VEHICLESEAT_PASSENGER_R;
 		}
 
 		return 0;
@@ -169,6 +177,12 @@ class ExpansionUh1h : ExpansionHelicopterScript
 
 			if (GetCarDoorsState("uh1hdoor_1_2") == CarDoorState.DOORS_CLOSED)
 				newValue += 0.5;
+			
+			if (GetCarDoorsState("uh1hdoor_2_1") == CarDoorState.DOORS_CLOSED)
+				newValue += 0.5;
+
+			if (GetCarDoorsState("uh1hdoor_2_2") == CarDoorState.DOORS_CLOSED)
+				newValue += 0.5;
 
 			if (newValue > 1)
 				newValue = 1;
@@ -194,6 +208,12 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		case 1:
 			return "uh1hdoor_1_2";
 			break;
+		case 2:
+			return "uh1hdoor_2_1";
+			break;
+		case 3:
+			return "uh1hdoor_2_2";
+			break;
 		}
 
 		return super.GetDoorSelectionNameFromSeatPos(posIdx);
@@ -212,6 +232,12 @@ class ExpansionUh1h : ExpansionHelicopterScript
 			break;
 		case 1:
 			return "uh1hdoor_1_2";
+			break;
+		case 2:
+			return "uh1hdoor_2_1";
+			break;
+		case 3:
+			return "uh1hdoor_2_2";
 			break;
 		}
 
@@ -257,6 +283,31 @@ class ExpansionUh1h : ExpansionHelicopterScript
 			}
 			break;
 		}
+		case "uh1hdoor_2_1":
+		{
+			if (GetAnimationPhase("uh1hdoor_2_1") > 0.5)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		case "uh1hdoor_2_2":
+		{
+			if (GetAnimationPhase("uh1hdoor_2_2") > 0.5)
+			{
+				return CarDoorState.DOORS_OPEN;
+			}
+			else
+			{
+				return CarDoorState.DOORS_CLOSED;
+			}
+			break;
+		}
+		
 		default:
 		{
 			return CarDoorState.DOORS_MISSING;
@@ -275,25 +326,33 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		switch (pCurrentSeat)
 		{
 		case 0:
-		{
 			if (pDoorsSelection == "uh1hdoor_1_1")
 			{
 				return true;
 			}
 			break;
-		}
 		case 1:
-		{
 			if (pDoorsSelection == "uh1hdoor_1_2")
 			{
 				return true;
 			}
 			break;
-		}
+		case 2:
+			if (pDoorsSelection == "uh1hdoor_2_1")
+			{
+				return true;
+			}
+			break;
+		case 3:
+			if (pDoorsSelection == "uh1hdoor_2_2")
+			{
+				return true;
+			}
+			break;
 		}
 		return false;
 	}
-
+    
 	override bool CrewCanGetThrough(int posIdx)
 	{
 #ifdef EXPANSIONTRACE
@@ -315,6 +374,18 @@ class ExpansionUh1h : ExpansionHelicopterScript
 
 			return true;
 			break;
+		case 2:
+			if (GetCarDoorsState("uh1hdoor_2_1") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
+			break;
+		case 3:
+			if (GetCarDoorsState("uh1hdoor_2_2") == CarDoorState.DOORS_CLOSED)
+				return false;
+
+			return true;
+			break;
 		}
 		return true;
 	}
@@ -331,6 +402,10 @@ class ExpansionUh1h : ExpansionHelicopterScript
 			return "uh1hdoor_1_1";
 		case "uh1hdoor_1_2":
 			return "uh1hdoor_1_2";
+		case "uh1hdoor_2_1":
+			return "uh1hdoor_2_1";
+		case "uh1hdoor_2_2":
+			return "uh1hdoor_2_2";
 		}
 
 		return "";
@@ -383,6 +458,8 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		{
 			entity.GetInventory().CreateInInventory("ExpansionUh1hDoor_1_1");
 			entity.GetInventory().CreateInInventory("ExpansionUh1hDoor_1_2");
+			entity.GetInventory().CreateInInventory("ExpansionUh1hDoor_2_1");
+			entity.GetInventory().CreateInInventory("ExpansionUh1hDoor_2_2");
 
 			entity.GetInventory().CreateInInventory("ExpansionHydraulicHoses");
 			entity.GetInventory().CreateInInventory("ExpansionIgniterPlug");

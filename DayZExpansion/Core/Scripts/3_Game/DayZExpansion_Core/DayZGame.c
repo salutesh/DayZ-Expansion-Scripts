@@ -44,7 +44,7 @@ modded class DayZGame
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
-			MakeDirectory(EXPANSION_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_FOLDER);
 		}
 
 		if (FileExist(EXPANSION_TEMP_INTERIORS))

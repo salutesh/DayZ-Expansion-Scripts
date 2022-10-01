@@ -49,7 +49,11 @@ class ExpansionAIPatrolManager
 
         eAIWaypointBehavior behaviour = patrol.GetBehaviour();
         TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
-        vector startpos = waypoints[0];
+        int startPosIndex;
+        ExpansionAIPatrol patrolWithWaypoints;
+        if (Class.CastTo(patrolWithWaypoints, patrol) && patrolWithWaypoints.UseRandomWaypointAsStartPoint)
+            startPosIndex = Math.RandomInt(0, waypoints.Count());
+        vector startpos = waypoints[startPosIndex];
 
         if (startpos == vector.Zero)
         {

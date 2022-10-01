@@ -65,7 +65,7 @@ class ExpansionSettingBase
 		
 		if ( !FileExist( EXPANSION_SETTINGS_FOLDER ) )
 		{
-			MakeDirectory( EXPANSION_SETTINGS_FOLDER );
+			ExpansionStatic.MakeDirectoryRecursive( EXPANSION_SETTINGS_FOLDER );
 		}
 		
 		if ( !FileExist( EXPANSION_MISSION_SETTINGS_FOLDER ) )

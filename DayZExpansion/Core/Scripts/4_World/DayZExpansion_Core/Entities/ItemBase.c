@@ -666,7 +666,7 @@ modded class ItemBase
 	}
 
 	//! This deals with spawning magazines on weapons correctly and should be used as a replacement for vanilla CreateInInventory
-	EntityAI ExpansionCreateInInventory(string className, bool attachOnly = false)
+	EntityAI ExpansionCreateInInventory(string className, bool attachOnly = false, int slotId = InventorySlots.INVALID)
 	{
 		if (!GetInventory())
 			return NULL;
@@ -678,7 +678,9 @@ modded class ItemBase
 			Weapon_Base weapon = Weapon_Base.Cast(this);
 
 			InventoryLocation il = new InventoryLocation;
-			il.SetAttachment(weapon, NULL, InventorySlots.MAGAZINE);
+			if (slotId == InventorySlots.INVALID)
+				slotId = InventorySlots.MAGAZINE;
+			il.SetAttachment(weapon, NULL, slotId);
 			
 			EntityAI magazine = SpawnEntity(className, il, ECE_IN_INVENTORY, RF_DEFAULT);
 			if (!magazine)
@@ -725,14 +727,19 @@ modded class ItemBase
 
 		//! Any other item
 		if (attachOnly)
-			return GetInventory().CreateAttachment(className);
-		else
-			return GetInventory().CreateInInventory(className);
+		{
+			if (slotId == InventorySlots.INVALID)
+				return GetInventory().CreateAttachment(className);
+			else
+				return GetInventory().CreateAttachmentEx(className, slotId);
+		}
+
+		return GetInventory().CreateInInventory(className);
 	}
 
-	EntityAI ExpansionCreateAttachment(string className)
+	EntityAI ExpansionCreateAttachment(string className, int slotId = InventorySlots.INVALID)
 	{
-		return ExpansionCreateInInventory(className, true);
+		return ExpansionCreateInInventory(className, true, slotId);
 	}
 
 	void OnEnterZone(ExpansionZoneType type)

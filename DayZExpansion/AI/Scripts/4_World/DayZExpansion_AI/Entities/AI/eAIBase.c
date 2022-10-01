@@ -430,7 +430,7 @@ class eAIBase extends PlayerBase
 		ZombieBase zmb;
 		if (Class.CastTo(zmb, source))
 		{
-			if (!zmb.GetTargetInformation().IsTargetted(GetGroup()))
+			if (!zmb.GetTargetInformation().IsTargettedBy(this))
 			{
 				zmb.GetTargetInformation().AddAI(this);
 			}
@@ -439,7 +439,7 @@ class eAIBase extends PlayerBase
 		PlayerBase player;
 		if (Class.CastTo(player, source.GetHierarchyRootPlayer()))
 		{
-			if (!player.GetTargetInformation().IsTargetted(GetGroup()))
+			if (!player.GetTargetInformation().IsTargettedBy(this))
 			{
 				//! target the attacking player for upto 2 minutes
 				player.GetTargetInformation().AddAI(this, 120000);
@@ -449,7 +449,7 @@ class eAIBase extends PlayerBase
 		AnimalBase animal;
 		if (Class.CastTo(animal, source))
 		{
-			if (!animal.GetTargetInformation().IsTargetted(GetGroup()))
+			if (!animal.GetTargetInformation().IsTargettedBy(this))
 			{
 				animal.GetTargetInformation().AddAI(this);
 			}
@@ -462,7 +462,7 @@ class eAIBase extends PlayerBase
 
 		if (IsAI() && GetGroup())
 		{
-			GetGroup().RemoveMember(GetGroup().GetIndex(this));
+			GetGroup().RemoveMember(this);
 		}
 
 		if (GetGame().IsServer())
@@ -995,7 +995,7 @@ class eAIBase extends PlayerBase
 			}
 
 			int num_ai_in_group_targetting = 0;
-			if (target.IsTargetted(GetGroup(), num_ai_in_group_targetting))
+			if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelf >= 0.4 && target.IsTargetted(GetGroup(), num_ai_in_group_targetting))
 			{
 				float num_ai_in_group_not_targeting = group_count - num_ai_in_group_targetting;
 				if (!num_ai_in_group_not_targeting)
@@ -1924,7 +1924,7 @@ class eAIBase extends PlayerBase
 				}
 				
 				float speedLimit;
-				if (m_eAI_CurrentThreatToSelfActive > 0.4)
+				if (m_eAI_CurrentThreatToSelfActive >= 0.4)
 					speedLimit = m_MovementSpeedLimitUnderThreat;
 				else
 					speedLimit = m_MovementSpeedLimit;
@@ -2017,6 +2017,8 @@ class eAIBase extends PlayerBase
 			return;
 		}
 
+		EntityAI parent = EntityAI.Cast(targetEntity.GetParent());
+
 		auto state = m_eAI_TargetInformationStates[target.info];
 		if (!state)
 			return;
@@ -2045,7 +2047,7 @@ class eAIBase extends PlayerBase
 		{
 			if (obj.IsTree())
 			{
-				sideStep = m_eAI_CurrentThreatToSelfActive > 0.4;
+				sideStep = m_eAI_CurrentThreatToSelfActive >= 0.4;
 				break;
 			}
 
@@ -2069,7 +2071,7 @@ class eAIBase extends PlayerBase
 			//	break;
 			//}
 
-			if (obj != targetEntity)
+			if (obj != targetEntity && obj != parent)
 			{
 				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))
 					state.m_LOS = true;

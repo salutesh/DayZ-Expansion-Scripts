@@ -23,6 +23,7 @@ modded class PlayerBase
 	protected string m_PlayerName;
 
 	private static autoptr map< string, PlayerBase > s_Expansion_AllPlayersUID = new map< string, PlayerBase >;
+	private static autoptr map< string, string > s_Expansion_AllPlayersUID2PlainID = new map< string, string >;
 
 	private static ref set<PlayerBase> s_Expansion_AllPlayers = new set<PlayerBase>;
 
@@ -292,6 +293,11 @@ modded class PlayerBase
 		return NULL;
 	}
 
+	static string Expansion_GetPlainIDByUID(string id)
+	{
+		return s_Expansion_AllPlayersUID2PlainID[id];
+	}
+
 	//! GetPlayerByUID should probably be used over this where possible
 	static PlayerBase ExpansionGetPlayerByIdentity( PlayerIdentity identity )
 	{
@@ -360,7 +366,10 @@ modded class PlayerBase
 		}
 
 		if ( player.m_PlayerUID != "" )
+		{
 			s_Expansion_AllPlayersUID.Set( player.m_PlayerUID, player );
+			s_Expansion_AllPlayersUID2PlainID.Set( player.m_PlayerUID, player.m_PlayerSteam );
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -372,6 +381,11 @@ modded class PlayerBase
 		s_Expansion_AllPlayersUID.Remove( id );
 	}	
 		
+	static void Expansion_RemovePlayerPlainID(string id)
+	{
+		s_Expansion_AllPlayersUID2PlainID.Remove( id );
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase DeferredClientInit
 	// ------------------------------------------------------------

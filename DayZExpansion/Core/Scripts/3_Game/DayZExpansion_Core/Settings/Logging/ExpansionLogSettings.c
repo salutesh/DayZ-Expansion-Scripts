@@ -403,7 +403,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	{
 		if ( !FileExist( EXPANSION_LOG_FOLDER ) )
 		{
-			MakeDirectory( EXPANSION_LOG_FOLDER );
+			ExpansionStatic.MakeDirectoryRecursive( EXPANSION_LOG_FOLDER );
 		}
 
 		string output = ExpansionStatic.GetTime() + " " + text;

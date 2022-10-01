@@ -83,7 +83,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 
 		if (!FileExist(EXPANSION_GROUPS_FOLDER))
-			MakeDirectory(EXPANSION_GROUPS_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_GROUPS_FOLDER);
 
 		map<string, ref ExpansionPartyData> partiesByPlayerUID = new map<string, ref ExpansionPartyData>;
 
@@ -1176,15 +1176,12 @@ class ExpansionPartyModule: CF_ModuleWorld
 		super.OnClientDisconnect(sender, args);
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
-		//EXPrint(ToString() + "::OnClientDisconnect " + cArgs.Identity.GetId());
+		//EXPrint(ToString() + "::OnClientDisconnect " + cArgs.UID);
 
 		if (!IsMissionHost())
 			return;
 
-		if (!cArgs.Player || !cArgs.Identity)
-			return;
-
-		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.Identity.GetId());
+		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.UID);
 
 		if (party_player)
 		{

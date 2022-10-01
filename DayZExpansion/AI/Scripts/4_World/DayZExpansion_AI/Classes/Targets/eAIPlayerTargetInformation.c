@@ -185,6 +185,18 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
+		if (m_Player.GetCommand_Vehicle())
+		{
+			return "0 0.5 0";
+		}
+
+#ifdef EXPANSIONMODVEHICLE
+		if (m_Player.GetCommand_ExpansionVehicle())
+		{
+			return "0 0.5 0";
+		}
+#endif
+
 		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
 		{
 			return "0 1.5 0";

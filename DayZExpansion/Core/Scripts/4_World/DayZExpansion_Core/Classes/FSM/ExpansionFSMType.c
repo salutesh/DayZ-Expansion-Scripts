@@ -101,12 +101,12 @@ class ExpansionFSMType
 
 		if (!FileExist(EXPANSION_AI_FOLDER))
 		{
-			MakeDirectory(EXPANSION_AI_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_AI_FOLDER);
 		}
 
 		if (!FileExist(EXPANSION_AI_UTILS_FOLDER))
 		{
-			MakeDirectory(EXPANSION_AI_UTILS_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_AI_UTILS_FOLDER);
 		}
 			
 		string script_path = EXPANSION_AI_UTILS_FOLDER + fileName + ".c";

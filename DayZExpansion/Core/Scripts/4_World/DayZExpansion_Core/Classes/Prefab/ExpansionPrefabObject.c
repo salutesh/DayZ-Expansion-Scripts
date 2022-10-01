@@ -237,18 +237,21 @@ class ExpansionPrefabObject : Managed
 						if (mag)
 							quantity = 1.0;
 						else
-							quantity = item.GetQuantityInit();
+							quantity = item.GetQuantityInit() / quantityMax;
 					}
 
 					if (quantity > 0)
 					{
+						float itemQuantity = quantityMax * quantity;
+						if (item.ConfigGetBool("canBeSplit") || mag)
+							itemQuantity = Math.Round(itemQuantity);
 						if (mag)
 						{
-							mag.ServerSetAmmoCount(quantityMax * quantity);
+							mag.ServerSetAmmoCount(itemQuantity);
 						}
 						else
 						{
-							item.SetQuantity(quantityMax * quantity);
+							item.SetQuantity(itemQuantity);
 						}
 					}
 				}

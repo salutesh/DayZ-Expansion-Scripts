@@ -275,17 +275,17 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			if (!FileExist(EXPANSION_MARKET_PRESETS_FOLDER))
 			{
-				MakeDirectory(EXPANSION_MARKET_PRESETS_FOLDER);
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_PRESETS_FOLDER);
 			}
 			
 			if (!FileExist(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER))
 			{
-				MakeDirectory(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER);
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER);
 			}
 			
 			if (!FileExist(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER))
 			{
-				MakeDirectory(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER);
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER);
 			}
 		}
 		

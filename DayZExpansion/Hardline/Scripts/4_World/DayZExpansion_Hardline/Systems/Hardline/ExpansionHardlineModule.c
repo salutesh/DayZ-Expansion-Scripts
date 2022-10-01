@@ -77,8 +77,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		{
 			if (!FileExist(EXPANSION_HARDLINE_FOLDER))
 			{
-				MakeDirectory(EXPANSION_HARDLINE_FOLDER);
-				MakeDirectory(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_HARDLINE_FOLDER);
+				ExpansionStatic.MakeDirectoryRecursive(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
 			}
 		}
 	}
@@ -144,14 +144,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		//! Maybe move this to the OnClientLogout method
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
-			if (cArgs.Identity)
-			{
-				SavePlayerHardlineData(cArgs.Identity.GetId());
-			}
-			else if (cArgs.Player.GetIdentity())
-			{
-				SavePlayerHardlineData(cArgs.Player.GetIdentity().GetId());
-			}
+			SavePlayerHardlineData(cArgs.UID);
 		}
 	}
 

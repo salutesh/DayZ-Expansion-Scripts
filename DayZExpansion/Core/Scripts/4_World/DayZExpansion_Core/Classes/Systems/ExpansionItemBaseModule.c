@@ -54,7 +54,7 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		if (FileExist(m_QueuedEntityActionsFileName))
 			LoadQueuedEntityActions();
 		else
-			MakeDirectory(folder);
+			ExpansionStatic.MakeDirectoryRecursive(folder);
 #endif
 	}
 

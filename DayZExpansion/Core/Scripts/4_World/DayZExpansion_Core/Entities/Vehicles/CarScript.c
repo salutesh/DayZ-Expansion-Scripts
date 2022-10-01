@@ -139,6 +139,15 @@ modded class CarScript
 		super.DamageCrew(dmg);
 	}
 
+	override void SetActions()
+	{
+		super.SetActions();
+
+#ifdef DIAG
+		AddAction(ExpansionActionDebugStoreEntity);
+#endif
+	}
+
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{

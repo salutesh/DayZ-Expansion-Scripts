@@ -100,8 +100,25 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = CF_Trace_0(this, "SpawnAI");
 		#endif
 
+		//! Make sure position is not under terrain
+		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+		if (pos[1] < surfaceY)
+			pos[1] = surfaceY;
+
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
+
+		//! Make sure AI is not colliding with object
+		vector hitPosition;
+		PhxInteractionLayers layerMask;
+		layerMask |= PhxInteractionLayers.BUILDING;
+		layerMask |= PhxInteractionLayers.VEHICLE;
+		layerMask |= PhxInteractionLayers.ROADWAY;
+		layerMask |= PhxInteractionLayers.TERRAIN;
+		layerMask |= PhxInteractionLayers.ITEM_LARGE;
+		layerMask |= PhxInteractionLayers.FENCE;
+		if (DayZPhysics.RayCastBullet(pos + "0 1.8 0", pos, layerMask, ai, null, hitPosition, null, null))
+			pos = hitPosition;
 
 		ai.SetPosition(pos);
 
@@ -163,7 +180,16 @@ class eAIDynamicPatrol : eAIPatrol
 		m_Group.SetFaction(m_Faction);
 		m_Group.SetFormation(m_Formation);
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
-		foreach (vector v : m_Waypoints) m_Group.AddWaypoint(v);
+		for (int idx = 0; idx < m_Waypoints.Count(); idx++)
+		{
+			m_Group.AddWaypoint(m_Waypoints[idx]);
+			if (m_Waypoints[idx] == m_Position)
+			{
+				m_Group.m_CurrentWaypointIndex = idx;
+				if (Math.RandomIntInclusive(0, 1))
+					m_Group.m_BackTracking = true;
+			}
+		}
 
 		for (int i = 1; i < m_NumberOfAI; i++)
 		{

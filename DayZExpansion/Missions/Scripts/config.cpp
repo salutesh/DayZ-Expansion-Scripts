@@ -8,6 +8,7 @@ class CfgPatches
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Ammunition","DZ_Weapons_Explosives"};
+		magazines[] = {};
 	};
 };
 class CfgMods
@@ -69,42 +70,25 @@ class CfgMods
 };
 class CfgVehicles
 {
-	class Ammo_Flare;
 	class M18SmokeGrenade_Purple;
 	class ExpansionSupplySignal: M18SmokeGrenade_Purple
 	{
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
 	};
+};
+class CfgMagazines
+{
+	class Ammo_Flare;
+	class Ammo_FlareRed;
+	class Ammo_FlareGreen;
+	class Ammo_FlareBlue;
 	class Expansion_Ammo_FlareSupplyBase: Ammo_Flare
 	{
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 100;
-					healthLevels[] = {{1,{"DZ\weapons\pistols\flaregun\data\flaregun.rvmat"}},{0.7,{"DZ\weapons\pistols\flaregun\data\flaregun.rvmat"}},{0.5,{"DZ\weapons\pistols\flaregun\data\flaregun_damage.rvmat"}},{0.3,{"DZ\weapons\pistols\flaregun\data\flaregun_damage.rvmat"}},{0,{"DZ\weapons\pistols\flaregun\data\flaregun_destruct.rvmat"}}};
-				};
-			};
-		};
 	};
-	class Expansion_Ammo_FlareSupplyRed: Expansion_Ammo_FlareSupplyBase
-	{
-		model = "\dz\weapons\ammunition\Flare_SingleRound_Red.p3d";
-		ammo = "Bullet_FlareRed";
-	};
-	class Expansion_Ammo_FlareSupplyGreen: Expansion_Ammo_FlareSupplyBase
-	{
-		model = "\dz\weapons\ammunition\Flare_SingleRound_Green.p3d";
-		ammo = "Bullet_FlareGreen";
-	};
-	class Expansion_Ammo_FlareSupplyBlue: Expansion_Ammo_FlareSupplyBase
-	{
-		model = "\dz\weapons\ammunition\Flare_SingleRound_Blue.p3d";
-		ammo = "Bullet_FlareBlue";
-	};
+	class Expansion_Ammo_FlareSupplyRed: Ammo_FlareRed{};
+	class Expansion_Ammo_FlareSupplyGreen: Ammo_FlareGreen{};
+	class Expansion_Ammo_FlareSupplyBlue: Ammo_FlareBlue{};
 };

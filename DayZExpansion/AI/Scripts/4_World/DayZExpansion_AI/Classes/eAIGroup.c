@@ -25,6 +25,7 @@ class eAIGroup
 	private autoptr array<vector> m_Waypoints;
 	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.ALTERNATE;
 	int m_CurrentWaypointIndex;
+	bool m_BackTracking;
 
 	private eAIGroupFormationState m_FormationState = eAIGroupFormationState.IN;
 

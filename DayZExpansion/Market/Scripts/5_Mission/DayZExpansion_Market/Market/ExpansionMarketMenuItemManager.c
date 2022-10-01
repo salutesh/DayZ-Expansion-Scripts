@@ -226,7 +226,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 					if (m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().IsWeapon())
 					{
 						if (!FileExist(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className))
-							MakeDirectory(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className);
+							ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className);
 						
 						preset.SaveItemPreset(EXPANSION_MARKET_WEAPON_PRESETS_FOLDER + className + "\\");
 						saved = true;
@@ -236,7 +236,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 						if (ExpansionMarketFilters.IsCustomizableClothing(m_MarketMenu.GetSelectedMarketItemElement().GetPreviewObject().GetType()))
 						{
 							if (!FileExist(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className))
-								MakeDirectory(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className);
+								ExpansionStatic.MakeDirectoryRecursive(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className);
 							
 							VestCleanup(preset);
 							preset.SaveItemPreset(EXPANSION_MARKET_CLOTHING_PRESETS_FOLDER + className + "\\");
