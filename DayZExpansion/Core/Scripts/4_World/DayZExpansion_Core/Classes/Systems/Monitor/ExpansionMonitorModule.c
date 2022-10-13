@@ -236,11 +236,8 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		super.OnClientDisconnect(sender, args);
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
-
-		if (!cArgs.Identity)
-			return;
 		
-		string playerID = cArgs.Identity.GetPlainId();
+		string playerID = PlayerBase.Expansion_GetPlainIDByUID(cArgs.UID);
 		RemovePlayerStats(playerID);
 		RemovePlayerStates(playerID);
 		m_PlayerIDs.RemoveItem(playerID);

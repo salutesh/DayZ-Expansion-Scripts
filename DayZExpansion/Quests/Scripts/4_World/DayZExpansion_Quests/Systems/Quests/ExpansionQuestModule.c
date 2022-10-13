@@ -513,10 +513,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Maybe move this to the OnClientLogout method
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			if (!cArgs.Player || !cArgs.Player.GetIdentity())
-				return;
-			
-			CleanupPlayerQuests(cArgs.Player.GetIdentity().GetId());
+			CleanupPlayerQuests(cArgs.UID);
 		}
 
 		QuestModulePrint(ToString() + "::OnClientDisconnect - End");
@@ -2498,8 +2495,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		ExpansionQuestObjectiveConfig objectiveBaseData = new ExpansionQuestObjectiveConfig();
-		ExpansionJsonFileParser<ExpansionQuestObjectiveConfig>.Load(path + fileName, objectiveBaseData);
-		if (!objectiveBaseData)
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveConfig>.Load(path + fileName, objectiveBaseData))
 			return;
 
 		int objectiveID = objectiveBaseData.GetID();
@@ -2519,8 +2515,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				ExpansionQuestObjectiveDeliveryConfig deliveryConfig = new ExpansionQuestObjectiveDeliveryConfig();
-				ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(path + fileName, deliveryConfig);
-				if (!deliveryConfig)
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(path + fileName, deliveryConfig))
 					return;
 
 				m_DeliveryObjectivesConfigs.Insert(objectiveID, deliveryConfig);
@@ -2540,8 +2535,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionConfig = new ExpansionQuestObjectiveCollectionConfig();
-				JsonFileLoader<ExpansionQuestObjectiveCollectionConfig>.JsonLoadFile(path + fileName, collectionConfig);
-				if (!collectionConfig)
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Load(path + fileName, collectionConfig))
 					return;
 
 				m_CollectionObjectivesConfigs.Insert(objectiveID, collectionConfig);
@@ -2561,8 +2555,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				ExpansionQuestObjectiveActionConfig actionConfig = new ExpansionQuestObjectiveActionConfig();
-				ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfig>.Load(path + fileName, actionConfig);
-				if (!actionConfig)
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfig>.Load(path + fileName, actionConfig))
 					return;
 
 				m_ActionObjectivesConfigs.Insert(objectiveID, actionConfig);
@@ -2572,8 +2565,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				ExpansionQuestObjectiveCraftingConfig craftingConfig = new ExpansionQuestObjectiveCraftingConfig();
-				ExpansionJsonFileParser<ExpansionQuestObjectiveCraftingConfig>.Load(path + fileName, craftingConfig);
-				if (!craftingConfig)
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCraftingConfig>.Load(path + fileName, craftingConfig))
 					return;
 
 				m_CraftingObjectivesConfigs.Insert(objectiveID, craftingConfig);
@@ -2604,8 +2596,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			case ExpansionQuestObjectiveType.AIVIP:
 			{
 				ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = new ExpansionQuestObjectiveAIVIPConfig();
-				ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfig>.Load(path + fileName, aiVIPConfig);
-				if (!aiVIPConfig)
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfig>.Load(path + fileName, aiVIPConfig))
 					return;
 
 				m_AIVIPObjectivesConfigs.Insert(objectiveID, aiVIPConfig);

@@ -112,33 +112,71 @@ class ExpansionAirdropPlane extends House
 		#endif
 	}
 
-	static vector GetSpawnPoint( float height )
+	static vector GetSpawnPoint( vector dropPosition, float height )
 	{
 		float size = GetDayZGame().GetWorldSize();
+		vector worldCenter = GetDayZGame().GetWorldCenterPosition();
 
-		EXPrint("ExpansionAirdropPlane::GetSpawnPoint - map is " + GetGame().GetWorldName() + " - size " + size);
+		EXPrint("ExpansionAirdropPlane::GetSpawnPoint - drop position " + dropPosition + " - map is " + GetGame().GetWorldName() + " - size " + size + " - center " + worldCenter);
 
 		vector spawnPoint = Vector( 0, height, 0 );
 
-		switch( Math.RandomInt(0, 4) )
+		TIntArray directions = {0, 1, 2, 3};
+
+		float minX = 0;
+		float maxX = size;
+		float minY = 0;
+		float maxY = size;
+
+		//! Make plane spawn opposite from drop location relative to map center
+
+		if (dropPosition[0] < worldCenter[0])
 		{
-			case 0: {
+			//! Don't spawn from west
+			directions.RemoveItem(0);
+			minX = size - worldCenter[0] * 0.5;
+		}
+		else if (dropPosition[0] > worldCenter[0])
+		{
+			//! Don't spawn from east
+			directions.RemoveItem(2);
+			maxX = worldCenter[0] * 0.5;
+		}
+
+		if (dropPosition[2] < worldCenter[2])
+		{
+			//! Don't spawn from south
+			directions.RemoveItem(1);
+			minY = size - worldCenter[2] * 0.5;
+		}
+		else if (dropPosition[2] > worldCenter[2])
+		{
+			//! Don't spawn from north
+			directions.RemoveItem(3);
+			maxY = worldCenter[2] * 0.5;
+		}
+
+		int selectedDir = directions.GetRandomElement();
+
+		switch( selectedDir )
+		{
+			case 0: {  // West
 				spawnPoint[0] = 0.0;
-				spawnPoint[2] = Math.RandomFloat( 0.0, size );
+				spawnPoint[2] = Math.RandomFloat( minY, maxY );
 				break;
 			}
-			case 1: {
-				spawnPoint[0] = size;
-				spawnPoint[2] = Math.RandomFloat( 0.0, size );
-				break;
-			}
-			case 2: {
-				spawnPoint[0] = Math.RandomFloat( 0.0, size );
+			case 1: {  // South
+				spawnPoint[0] = Math.RandomFloat( minX, maxX );
 				spawnPoint[2] = 0.0;
 				break;
 			}
-			case 3: {
-				spawnPoint[0] = Math.RandomFloat( 0.0, size );
+			case 2: {  // East
+				spawnPoint[0] = size;
+				spawnPoint[2] = Math.RandomFloat( minY, maxY );
+				break;
+			}
+			case 3: {  // North
+				spawnPoint[0] = Math.RandomFloat( minX, maxX );
 				spawnPoint[2] = size;
 				break;
 			}
@@ -463,7 +501,7 @@ class ExpansionAirdropPlane extends House
 
 	static ExpansionAirdropPlane CreatePlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionAirdropLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
 	{
-		vector spawnPoint = GetSpawnPoint( height );
+		vector spawnPoint = GetSpawnPoint( dropPosition, height );
 
 		ExpansionAirdropPlane plane = ExpansionAirdropPlane.Cast( GetGame().CreateObjectEx("ExpansionAirdropPlane", spawnPoint, ECE_AIRBORNE|ECE_CREATEPHYSICS) );
 

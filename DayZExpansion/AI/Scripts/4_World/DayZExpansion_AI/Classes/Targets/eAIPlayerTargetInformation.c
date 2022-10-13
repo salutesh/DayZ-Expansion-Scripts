@@ -7,7 +7,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 		Class.CastTo(m_Player, target);
 	}
 
-	override float GetThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Player.GetHealth("", "") <= 0.0)
 			return 0.0;
@@ -81,6 +81,39 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 					}
 				}
 			}
+
+			//! TODO: Since weather and environment are global, maybe only calculate periodically and use result for all AI?
+			Weather weather = GetGame().GetWeather();
+			//! At 100% fog, visibility is around 50 m
+			//! At 50% fog, visibility is roughly 460 m
+			float fogVisibility = 1.0 - weather.GetFog().GetActual() * 0.95;
+			//! At 100% overcast, visibility is around 250 m
+			float overcastVisibility = 1.0 - weather.GetOvercast().GetActual() * 0.75;
+			//! At 100% rain, visibility is around 500 m
+			float rainVisibility = 1.0 - weather.GetRain().GetActual() * 0.5;
+			//! Daylight
+			float daylightVisibility = g_Game.GetWorld().GetSunOrMoon();  //! 0/1 Night/Day
+			if (!daylightVisibility)
+			{
+				//! Check if AI has NVG or NV optics with battery
+				ItemBase nvItem = ai.Expansion_GetNVItem();
+				if (nvItem && nvItem.Expansion_GetBatteryEnergy())
+				{
+					ItemOptics optic;
+					if (Class.CastTo(optic, nvItem))
+						daylightVisibility = optic.GetZeroingDistanceZoomMax() * 0.001;
+					else
+						daylightVisibility = 0.35;  //! 350 m (realistic value for Starlight optic)
+				}
+				else
+				{
+					daylightVisibility = 0.1;  //! 100 m
+				}
+			}
+			float visibility = Math.Min(Math.Min(fogVisibility, Math.Min(overcastVisibility, rainVisibility)), daylightVisibility);
+			float visibilityDistThreshold = 900 * visibility;
+			if (distance > visibilityDistThreshold)
+				levelFactor *= ExpansionMath.PowerConversion(1100 * visibility, visibilityDistThreshold, distance, 0.0, 1.0, 2.0);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
@@ -102,19 +135,19 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 		//! Multiplicator based on weapon and attachments
 		ItemOptics optics;
-		if (weapon.IsInherited(BoltActionRifle_Base) || weapon.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, weapon.GetAttachmentByType(ItemOptics)) && optics.GetZeroingDistanceZoomMax() >= distance))
+		if (gun.IsInherited(BoltActionRifle_Base) || gun.IsInherited(BoltRifle_Base) || (Class.CastTo(optics, gun.GetAttachedOptics()) && optics.GetZeroingDistanceZoomMax() >= distance))
 		{
 			levelFactor *= 7.333333;  //! If either AI or target have a 7.62x54 mm bolt rifle, threat level 0.4 at 500 m
 		}
-		else if (weapon.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
+		else if (gun.IsInherited(Rifle_Base))  //! Rifle_Base also includes shotguns
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm rifle, threat level 0.4 at 250 m
 		}
-		else if (weapon.IsKindOf("Pistol_Base"))
+		else if (gun.IsKindOf("Pistol_Base"))
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 19x9 mm pistol, threat level 0.4 at 50 m
 		}
-		else if (weapon.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
+		else if (gun.IsInherited(Weapon_Base))  //! In theory this condition should never be reached
 		{
 			levelFactor *= 5.0;  //! If either AI or target have a 5.56x45 mm weapon, threat level 0.4 at 250 m
 		}
@@ -152,6 +185,18 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
+		if (m_Player.GetCommand_Vehicle())
+		{
+			return "0 0.5 0";
+		}
+
+#ifdef EXPANSIONMODVEHICLE
+		if (m_Player.GetCommand_ExpansionVehicle())
+		{
+			return "0 0.5 0";
+		}
+#endif
+
 		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
 		{
 			return "0 1.5 0";

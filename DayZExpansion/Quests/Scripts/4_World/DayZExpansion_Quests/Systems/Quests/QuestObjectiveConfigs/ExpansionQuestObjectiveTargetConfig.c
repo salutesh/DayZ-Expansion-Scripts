@@ -57,8 +57,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		ExpansionQuestObjectiveTargetConfig config;
 		ExpansionQuestObjectiveTargetConfigBase configBase;
 		
-		ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(fileName, configBase);
-		if (!configBase)
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
@@ -74,8 +73,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		}
 		else
 		{
-			ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Load(fileName, config);
-			if (!config)
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Load(fileName, config))
 				return NULL;
 		}
 

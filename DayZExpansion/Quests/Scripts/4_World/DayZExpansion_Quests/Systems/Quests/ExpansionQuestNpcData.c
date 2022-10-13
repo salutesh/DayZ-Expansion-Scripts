@@ -73,6 +73,14 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		QuestIDs.InsertAll(questIDs);
 	}
 
+	void AddQuestID(int questID)
+	{
+		if (QuestIDs.Find(questID) == -1)
+		{
+			QuestIDs.Insert(questID);
+		}
+	}
+	
 	array<int> GetQuestIDs()
 	{
 		return QuestIDs;
@@ -241,8 +249,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		ExpansionQuestNPCData npcConfig;
 		ExpansionQuestNPCDataBase npcConfigBase;
 		
-		ExpansionJsonFileParser<ExpansionQuestNPCDataBase>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase);
-		if (!npcConfigBase)
+		if (!ExpansionJsonFileParser<ExpansionQuestNPCDataBase>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase))
 			return NULL;
 
 		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
@@ -256,8 +263,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		}
 		else
 		{
-			ExpansionJsonFileParser<ExpansionQuestNPCData>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig);
-			if (!npcConfig)
+			if (!ExpansionJsonFileParser<ExpansionQuestNPCData>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig))
 				return NULL;
 		}
 		

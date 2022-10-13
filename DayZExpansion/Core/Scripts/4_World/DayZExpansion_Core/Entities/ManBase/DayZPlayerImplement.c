@@ -158,7 +158,7 @@ modded class DayZPlayerCommandDeathCallback
 
 		if (itemInHands && !m_pPlayer.Expansion_CanBeLooted())
 		{
-			itemInHands.SetTakeable(false);
+			ExpansionItemBaseModule.SetLootable(itemInHands, false);
 			itemInHands.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
 		}
 	}

@@ -23,6 +23,7 @@ modded class PlayerBase
 	protected string m_PlayerName;
 
 	private static autoptr map< string, PlayerBase > s_Expansion_AllPlayersUID = new map< string, PlayerBase >;
+	private static autoptr map< string, string > s_Expansion_AllPlayersUID2PlainID = new map< string, string >;
 
 	private static ref set<PlayerBase> s_Expansion_AllPlayers = new set<PlayerBase>;
 
@@ -99,6 +100,54 @@ modded class PlayerBase
 
 			//player = player.m_Expansion_NextPlayer;
 		}
+	}
+
+	ItemBase Expansion_GetNVItem()
+	{
+		NVGoggles goggles;
+		ItemBase nvItem;
+
+		if (IsInOptics())
+		{
+			//! In hands check - priority since when in optics, NVG in hands or NV optics take precedence over NVG attached to headgear/eyewear
+			EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
+			if (entityInHands)
+			{
+				Weapon weapon;
+				ItemOptics optic;
+
+				if (Class.CastTo(goggles, entityInHands))
+				{
+					nvItem = goggles;
+				}
+				else if (Class.CastTo(optic, entityInHands) || (Class.CastTo(weapon, entityInHands) && Class.CastTo(optic, weapon.GetAttachedOptics())))
+				{
+					if (optic.GetCurrentNVType() != NVTypes.NONE)
+					{
+						nvItem = optic;
+					}
+				}
+			}
+		}
+		else if (!nvItem)
+		{
+			//! Headgear/eyewear check - eyewear (e.g. NVG headstrap) takes precedence over headgear (e.g. helmet)
+			EntityAI headgear = FindAttachmentBySlotName("Eyewear");
+			if (headgear && Class.CastTo(goggles, headgear.FindAttachmentBySlotName("NVG")))
+			{
+				nvItem = goggles;
+			}
+			else
+			{
+				headgear = FindAttachmentBySlotName("Headgear");
+				if (headgear && Class.CastTo(goggles, headgear.FindAttachmentBySlotName("NVG")))
+				{
+					nvItem = goggles;
+				}
+			}
+		}
+
+		return nvItem;
 	}
 
 	// ------------------------------------------------------------
@@ -244,6 +293,11 @@ modded class PlayerBase
 		return NULL;
 	}
 
+	static string Expansion_GetPlainIDByUID(string id)
+	{
+		return s_Expansion_AllPlayersUID2PlainID[id];
+	}
+
 	//! GetPlayerByUID should probably be used over this where possible
 	static PlayerBase ExpansionGetPlayerByIdentity( PlayerIdentity identity )
 	{
@@ -312,7 +366,10 @@ modded class PlayerBase
 		}
 
 		if ( player.m_PlayerUID != "" )
+		{
 			s_Expansion_AllPlayersUID.Set( player.m_PlayerUID, player );
+			s_Expansion_AllPlayersUID2PlainID.Set( player.m_PlayerUID, player.m_PlayerSteam );
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -324,6 +381,11 @@ modded class PlayerBase
 		s_Expansion_AllPlayersUID.Remove( id );
 	}	
 		
+	static void Expansion_RemovePlayerPlainID(string id)
+	{
+		s_Expansion_AllPlayersUID2PlainID.Remove( id );
+	}
+
 	// ------------------------------------------------------------
 	// PlayerBase DeferredClientInit
 	// ------------------------------------------------------------
@@ -349,7 +411,7 @@ modded class PlayerBase
 		{
 			if (!m_Expansion_CanBeLooted)
 			{
-				item.SetTakeable(false);
+				item.Expansion_SetLootable(false);
 				item.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
 			}
 

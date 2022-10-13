@@ -56,6 +56,12 @@ modded class Hologram
 		//! Override it back to ObjIntersectView which works just fine for vanilla and 3rd party mods.
 		DayZPhysics.RaycastRV( from, to, contact_pos, m_ContactDir, m_ContactComponent, hit_object, player, m_Projection, false, false, ObjIntersectView );
 
+		//! will not push hologram up when there is direct hit of an item
+		if (hit_object.Count() > 0 && hit_object[0].IsInherited(InventoryItem))
+		{
+			contact_pos = hit_object[0].GetPosition();
+		}
+
 		static const float raycastOriginOffsetOnFail = 0.25;
 		static const float minDistFromStart = 0.01;
 		// Camera isn't correctly positioned in some cases, leading to raycasts hitting the object directly behind the camera
@@ -126,7 +132,9 @@ modded class Hologram
 		#ifdef DEVELOPER
 		DrawDebugArrow(min_projection_dist, max_projection_dist);
 		if ( DiagMenu.GetBool(DiagMenuIDs.DM_HOLOGRAM) )
+		{
 			Debug.DrawSphere(GetProjectionPosition(), 0.1, 0x99FF0000, ShapeFlags.ONCE|ShapeFlags.TRANSP|ShapeFlags.NOOUTLINE);
+		}
 		#endif
 		
 		return contact_pos;

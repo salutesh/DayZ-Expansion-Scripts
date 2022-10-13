@@ -7,6 +7,13 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		Class.CastTo(m_Item, target);
 	}
 
+	//! @note not using state cache for item targets as they wouldn't be removed from it
+	override vector GetPosition(eAIBase ai = null, bool actual = false)
+	{
+		return m_Item.GetPosition();
+	}
+
+	//! @note not using state cache for item targets as they wouldn't be removed from it
 	override float GetThreat(eAIBase ai = null)
 	{
 #ifdef EAI_TRACE
@@ -49,6 +56,13 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 				return q / distance;
 			}
 		}
+
+		return 0.0;
+	}
+
+	override float CalculateThreat(eAIBase ai = null)
+	{
+		Error("eAIItemTargetInformation::CalculateThreat should not be called!");
 
 		return 0.0;
 	}

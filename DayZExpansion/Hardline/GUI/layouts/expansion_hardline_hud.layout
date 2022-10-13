@@ -1,6 +1,6 @@
 FrameWidgetClass ExpansionHardlineHUD {
  visible 1
- clipchildren 1
+ clipchildren 0
  ignorepointer 1
  position 0 0
  size 1 1
@@ -12,7 +12,7 @@ FrameWidgetClass ExpansionHardlineHUD {
  {
   PanelWidgetClass NotifiersPanel {
    visible 1
-   clipchildren 1
+   clipchildren 0
    inheritalpha 0
    ignorepointer 1
    position 40 31
@@ -28,7 +28,7 @@ FrameWidgetClass ExpansionHardlineHUD {
    {
     PanelWidgetClass Humanity {
      visible 0
-     clipchildren 1
+     clipchildren 0
      inheritalpha 0
      ignorepointer 1
      size 35 80
@@ -74,7 +74,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        ignorepointer 1
        color 0.8627 0.8627 0.8627 1
        position 0 36
-       size 60 20
+       size 80 20
        halign center_ref
        hexactpos 1
        vexactpos 1
@@ -91,6 +91,7 @@ FrameWidgetClass ExpansionHardlineHUD {
       }
       PanelWidgetClass HumanityChange {
        visible 1
+       clipchildren 0
        ignorepointer 1
        position 0 60
        size 60 20
@@ -106,7 +107,7 @@ FrameWidgetClass ExpansionHardlineHUD {
          keepsafezone 1
          color 0.8627 0.8627 0.8627 0
          position 0 0
-         size 60 20
+         size 80 20
          hexactpos 1
          vexactpos 1
          hexactsize 1

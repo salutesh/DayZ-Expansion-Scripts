@@ -43,6 +43,6 @@ class ExpansionATMBase extends BuildingSuper
 }
 
 class ExpansionATMLocker: ExpansionATMBase {}
-class ExpansionTraderATM_1: ExpansionATMBase {}
-class ExpansionTraderATM_2: ExpansionATMBase {}
-class ExpansionTraderATM_3: ExpansionATMBase {}
+class ExpansionATM_1: ExpansionATMBase {}
+class ExpansionATM_2: ExpansionATMBase {}
+class ExpansionATM_3: ExpansionATMBase {}

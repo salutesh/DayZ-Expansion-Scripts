@@ -24,6 +24,7 @@ modded class CarScript
 	protected string m_CurrentSkinName;
 	
 	bool m_Expansion_AcceptingAttachment;
+	int m_Expansion_CargoCount;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -31,6 +32,7 @@ modded class CarScript
 	void CarScript()
 	{
 		m_allVehicles.Insert( this );
+		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
 	}
 	
 	// ------------------------------------------------------------
@@ -137,6 +139,15 @@ modded class CarScript
 		super.DamageCrew(dmg);
 	}
 
+	override void SetActions()
+	{
+		super.SetActions();
+
+#ifdef DIAG
+		AddAction(ExpansionActionDebugStoreEntity);
+#endif
+	}
+
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
@@ -180,14 +191,18 @@ modded class CarScript
 		}
 
 		//! Attached players
-		EntityAI child = GetChildren();
+		IEntity child = GetChildren();
 		while (child)
 		{
 			crew = Human.Cast(child);
-			if (!playersOnly || crew.GetIdentity())
-				players.Insert(crew);
 
 			child = child.GetSibling();
+
+			if (!crew)
+				continue;
+
+			if (!playersOnly || crew.GetIdentity())
+				players.Insert(crew);
 		}
 		
 		return players;

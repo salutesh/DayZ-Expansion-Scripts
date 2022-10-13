@@ -63,8 +63,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		ExpansionQuestObjectiveTravelConfig config;
 		ExpansionQuestObjectiveTravelConfigBase configBase;
 		
-		ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfigBase>.Load(fileName, configBase);
-		if (!configBase)
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfigBase>.Load(fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
@@ -80,8 +79,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		}
 		else
 		{
-			ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Load(fileName, config);
-			if (!config)
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Load(fileName, config))
 				return NULL;
 		}
 

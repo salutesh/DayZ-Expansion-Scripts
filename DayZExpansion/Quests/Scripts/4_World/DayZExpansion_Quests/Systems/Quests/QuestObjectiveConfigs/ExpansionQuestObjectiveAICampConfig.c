@@ -81,8 +81,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		ExpansionQuestObjectiveAICampConfig config;
 		ExpansionQuestObjectiveAICampConfigBase configBase;
 
-		ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(fileName, configBase);
-		if (!configBase)
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
@@ -112,8 +111,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		}
 		else
 		{
-			ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(fileName, config);
-			if (!config)
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(fileName, config))
 				return NULL;
 		}
 

@@ -17,45 +17,45 @@ class CfgVehicles
 	class Attachments;
 	class MediumTent: TentBase
 	{
-		attachments[] = {"CamoNet","Lights","Att_ExpansionCodeLock","Att_CombinationLock"};
+		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Attachments: Attachments
 			{
-				attachmentSlots[] = {"CamoNet","Lights","Att_ExpansionCodeLock"};
+				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
 		};
 	};
 	class LargeTent: TentBase
 	{
-		attachments[] = {"CamoNet","Lights","Att_ExpansionCodeLock","Att_CombinationLock"};
+		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Attachments: Attachments
 			{
-				attachmentSlots[] = {"CamoNet","Lights","Att_ExpansionCodeLock"};
+				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
 		};
 	};
 	class CarTent: TentBase
 	{
-		attachments[] = {"CamoNet","Lights","Att_ExpansionCodeLock","Att_CombinationLock"};
+		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Attachments: Attachments
 			{
-				attachmentSlots[] = {"CamoNet","Lights","Att_ExpansionCodeLock"};
+				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
 		};
 	};
 	class PartyTent: TentBase
 	{
-		attachments[] = {"CamoNet","Lights","Att_ExpansionCodeLock","Att_CombinationLock"};
+		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
 			class Attachments: Attachments
 			{
-				attachmentSlots[] = {"CamoNet","Lights","Att_ExpansionCodeLock"};
+				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
 		};
 	};

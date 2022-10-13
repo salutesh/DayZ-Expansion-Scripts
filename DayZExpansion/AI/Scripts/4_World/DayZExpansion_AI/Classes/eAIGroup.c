@@ -24,8 +24,12 @@ class eAIGroup
 
 	private autoptr array<vector> m_Waypoints;
 	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.ALTERNATE;
+	int m_CurrentWaypointIndex;
+	bool m_BackTracking;
 
 	private eAIGroupFormationState m_FormationState = eAIGroupFormationState.IN;
+
+	bool m_UpdateSearchPosition;
 
 	// return the group owned by leader, otherwise create a new one.
 	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null)

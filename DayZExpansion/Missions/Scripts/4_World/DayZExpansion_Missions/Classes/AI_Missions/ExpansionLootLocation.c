@@ -16,19 +16,17 @@
 #ifdef EXPANSIONMODAI
 class ExpansionLootLocation
 {
-	string Name;
-	vector Position;
-	int Items;
-	ref TStringArray Loot;
+	ref array < ref ExpansionAIMissionContainer > Containers;
+	int ItemCount;
+	ref array < ref ExpansionAirdropLoot > Loot;
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionLootLocation
 	// ------------------------------------------------------------
-	void ExpansionLootLocation(string name, vector position, int items, ref TStringArray loot)
+	void ExpansionLootLocation(array < ref ExpansionAIMissionContainer > containers, int itemcount, array < ref ExpansionAirdropLoot > loot)
 	{
-		Name = name;
-		Position = position;
-		Items = items;
+		Containers = containers;
+		ItemCount = itemcount;
 		Loot = loot;
 	}
 }

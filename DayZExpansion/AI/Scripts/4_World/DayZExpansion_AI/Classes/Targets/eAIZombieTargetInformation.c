@@ -26,7 +26,7 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 	}
 
 	// https://www.desmos.com/calculator/r4mqu91qff
-	override float GetThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null)
 	{
 		float levelFactor = 0;
 

@@ -158,46 +158,7 @@ modded class MissionGameplay
 			}
 		}
 
-		NVGoggles goggles;
-		ItemOptics optic;
-		ItemBase headgear;
-		EntityAI entityInHands;
-		Weapon weapon;
-		ItemBase nvItem;
-
-		//! Eyewear (e.g. NVG headstrap) takes precedence over headgear (e.g. helmet)
-		headgear = ItemBase.Cast(player.FindAttachmentBySlotName("Eyewear"));
-		if (!headgear)
-			headgear = ItemBase.Cast(player.FindAttachmentBySlotName("Headgear"));
-
-		if (player.IsInOptics())
-		{
-			//! In hands check - priority since when in optics, NV optics take precedence over NVG attached to headgear/eyewear
-			entityInHands = player.GetHumanInventory().GetEntityInHands();
-			if (entityInHands)
-			{
-				if (Class.CastTo(goggles, entityInHands))
-				{
-					nvItem = goggles;
-				}
-				else if (Class.CastTo(optic, entityInHands) || (Class.CastTo(weapon, entityInHands) && Class.CastTo(optic, weapon.GetAttachedOptics())))
-				{
-					if (optic.GetCurrentNVType() != NVTypes.NONE)
-					{
-						nvItem = optic;
-					}
-				}
-			}
-		}
-
-		//! Headgear/eyewear check
-		if (!nvItem && headgear)
-		{
-			if (Class.CastTo(goggles, headgear.FindAttachmentBySlotName("NVG")))
-			{
-				nvItem = goggles;
-			}
-		}
+		ItemBase nvItem = player.Expansion_GetNVItem();
 
 		if (nvItem)
 			m_Hud.SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());

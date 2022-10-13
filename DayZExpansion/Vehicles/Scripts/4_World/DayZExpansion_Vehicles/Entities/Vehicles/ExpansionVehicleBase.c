@@ -230,6 +230,8 @@ class ExpansionVehicleBase extends ItemBase
 	autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
 	bool m_SafeZone;
 
+	int m_Expansion_CargoCount;
+
 	void ExpansionVehicleBase()
 	{
 #ifndef DIAG
@@ -266,6 +268,8 @@ class ExpansionVehicleBase extends ItemBase
 
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
 		RegisterNetSyncVariableBool("m_Expansion_CanPlayerAttach");
+
+		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
 
 		RegisterNetSyncVariableInt("m_CurrentEngine");
 
@@ -4587,14 +4591,18 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		//! Attached players
-		EntityAI child = GetChildren();
+		IEntity child = GetChildren();
 		while (child)
 		{
 			crew = Human.Cast(child);
-			if (!playersOnly || crew.GetIdentity())
-				players.Insert(crew);
 
 			child = child.GetSibling();
+
+			if (!crew)
+				continue;
+
+			if (!playersOnly || crew.GetIdentity())
+				players.Insert(crew);
 		}
 		
 		return players;

@@ -7,7 +7,8 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DayZExpansion_Core_Scripts"};
+		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Ammunition","DZ_Weapons_Explosives"};
+		magazines[] = {};
 	};
 };
 class CfgMods
@@ -75,4 +76,19 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
 		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
 	};
+};
+class CfgMagazines
+{
+	class Ammo_Flare;
+	class Ammo_FlareRed;
+	class Ammo_FlareGreen;
+	class Ammo_FlareBlue;
+	class Expansion_Ammo_FlareSupplyBase: Ammo_Flare
+	{
+		displayName = "$STR_EXPANSION_SUPPLY_GRENADE";
+		descriptionShort = "$STR_EXPANSION_SUPPLY_GRENADE_DESC";
+	};
+	class Expansion_Ammo_FlareSupplyRed: Ammo_FlareRed{};
+	class Expansion_Ammo_FlareSupplyGreen: Ammo_FlareGreen{};
+	class Expansion_Ammo_FlareSupplyBlue: Ammo_FlareBlue{};
 };

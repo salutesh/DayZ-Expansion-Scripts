@@ -89,6 +89,7 @@ static const string EXPANSION_AI_PATROLS_FOLDER = EXPANSION_AI_FOLDER + "Patrols
 static const string EXPANSION_AI_UTILS_FOLDER = EXPANSION_AI_FOLDER + "Utils\\";
 static const string EXPANSION_MISSION_SETTINGS_FOLDER = EXPANSION_MISSION_FOLDER + "settings\\";
 static const string EXPANSION_MISSIONS_FOLDER = EXPANSION_MISSION_FOLDER + "missions\\";
+static const string EXPANSION_MISSIONS_OBJECTS_FOLDER = EXPANSION_MISSION_FOLDER + "missionobjects\\";
 
 static const string EXPANSION_MAPPING_FOLDER = "DayZExpansion/Scripts/Data/Mapping/";
 static const string EXPANSION_MAPPING_EXT = ".map";
@@ -182,6 +183,7 @@ static const string EXPANSION_NOTIFICATION_ICON_AIRDROP = "Airdrop";
 static const string EXPANSION_NOTIFICATION_ICON_TRADER = "Trader";
 static const string EXPANSION_NOTIFICATION_ICON_HOME = "Base";
 static const string EXPANSION_NOTIFICATION_ICON_VEHICLE_CRASH = "Vehicle Crash";
+static const string EXPANSION_NOTIFICATION_ICON_AI_MISSION = EXPANSION_NOTIFICATION_ICON_VEHICLE_CRASH;	// PLACEHOLDER
 
 //! New icons
 static const string EXPANSION_NOTIFICATION_ICON_INFO = "Info";

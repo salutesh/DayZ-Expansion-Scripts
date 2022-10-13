@@ -126,7 +126,7 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 		
 		for (int i = 0; i < m_InvitesController.PartyInviteEntrys.Count(); ++i)
 		{
-			ref ExpansionBookMenuTabPartyInviteEntry entry = m_InvitesController.PartyInviteEntrys[i];
+			ExpansionBookMenuTabPartyInviteEntry entry = m_InvitesController.PartyInviteEntrys[i];
 			if (entry)
 			{
 				if (entry.GetInvite() == m_Invite)
@@ -154,7 +154,7 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 		
 		for (int i = 0; i < m_InvitesController.PartyInviteEntrys.Count(); ++i)
 		{
-			ref ExpansionBookMenuTabPartyInviteEntry entry = m_InvitesController.PartyInviteEntrys[i];
+			ExpansionBookMenuTabPartyInviteEntry entry = m_InvitesController.PartyInviteEntrys[i];
 			if (entry)
 			{
 				if (entry.GetInvite() == m_Invite)

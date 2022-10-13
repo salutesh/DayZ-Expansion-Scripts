@@ -78,9 +78,12 @@ class ExpansionPathHandler
 		//! @note jump has higher cost because some objects cannot be jumped over by AI but will be pathed through otherwise.
 		//! This fixes AI getting stuck on (e.g.) the high mesh fences and other obstacles that can only be jumped by Zs.
 		m_PathFilter.SetCost(PGAreaType.JUMP, 10.0);
-		m_PathFilter.SetCost(PGAreaType.WATER, 1.0);
+		m_PathFilter.SetCost(PGAreaType.WATER, 5.0);
+		m_PathFilter.SetCost(PGAreaType.WATER_DEEP, 100.0);
+		m_PathFilter.SetCost(PGAreaType.WATER_SEA, 5.0);
+		m_PathFilter.SetCost(PGAreaType.WATER_SEA_DEEP, 100.0);
 
-		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 1.0);
+		m_PathFilter.SetCost(PGAreaType.DOOR_CLOSED, 2.0);
 		m_PathFilter.SetCost(PGAreaType.DOOR_OPENED, 1.0);
 
 		m_PathFilter.SetCost(PGAreaType.ROADWAY, 1.0);

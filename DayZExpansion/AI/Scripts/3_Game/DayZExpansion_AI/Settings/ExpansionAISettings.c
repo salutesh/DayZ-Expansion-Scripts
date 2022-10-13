@@ -206,15 +206,18 @@ class ExpansionAISettings: ExpansionSettingBase
 		if (AISettingsExist)
 		{
 			EXPrint("[ExpansionAISettings] Load existing setting file:" + EXPANSION_AI_SETTINGS);
-			
-			ExpansionAISettings settingsDefault = new ExpansionAISettings;
-			settingsDefault.Defaults();
 
-			JsonFileLoader<ExpansionAISettings>.JsonLoadFile(EXPANSION_AI_SETTINGS, this);
-
-			if (m_Version < VERSION)
+			if (!ExpansionJsonFileParser<ExpansionAISettings>.Load(EXPANSION_AI_SETTINGS, this))
+			{
+				//! Use defaults, but DON'T save them
+				Defaults();
+			}
+			else if (m_Version < VERSION)
 			{
 				EXPrint("[ExpansionAISettings] Load - Converting v" + m_Version + " \"" + EXPANSION_AI_SETTINGS + "\" to v" + VERSION);
+			
+				ExpansionAISettings settingsDefault = new ExpansionAISettings;
+				settingsDefault.Defaults();
 
 				if (m_Version < 1)
 				{

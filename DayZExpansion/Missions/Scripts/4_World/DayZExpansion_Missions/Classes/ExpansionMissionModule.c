@@ -30,7 +30,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 	private autoptr array< ExpansionMissionEventBase > m_RunningMissions;
 
-	protected bool m_InitialMission;
+	protected bool m_InitialMission;	// Are the first missions after a server restart started yet ?
 
 	// ------------------------------------------------------------
 	// ExpansionMissionModule Constructor
@@ -54,7 +54,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
 			m_lowPlayerCheckRunning = false;
 		}
-		
+
 		SI_OnMissionEnd.Remove( RemoveMission );
 	}
 	
@@ -305,6 +305,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void StartNewMissions()
 	{
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+
 		if ( !m_MissionSettings || !m_MissionSettings.Enabled || m_Missions.Count() == 0 )
 			return;
 
@@ -355,13 +357,25 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 	void StartNewMissionsInternal()
 	{
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+
 		if ( m_Missions.Count() == 0 )
 			return;
 
-		while ( m_RunningMissions.Count() < m_MissionSettings.MaxMissions )
+		if ( m_RunningMissions.Count() < m_MissionSettings.MaxMissions )
 		{
-			if ( !FindNewMission() )
-				break;
+			bool skip;
+			if ( m_RunningMissions.Count() > m_MissionSettings.MinMissions )
+			{
+				float chance = ExpansionMath.LinearConversion(m_MissionSettings.MaxMissions, m_MissionSettings.MinMissions, m_RunningMissions.Count()) + 0.125;
+
+				if ( chance < Math.RandomFloatInclusive(0.0,1.0) )
+					skip = true;
+			}
+			if ( skip || (FindNewMission() && m_RunningMissions.Count() < m_MissionSettings.MaxMissions) )
+			{
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( StartNewMissionsInternal, 10000, false );
+			}
 		}
 	}
 	
@@ -394,7 +408,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	protected bool FindNewMission()
 	{
-		//! Print( "ExpansionMissionModule::FindNewMission" );
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 
 		array< float > weights = new array< float >;
 

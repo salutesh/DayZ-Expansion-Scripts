@@ -202,7 +202,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 		Height = 450;
 		FollowTerrainFraction = 0.5;
-		Speed = 1500;
+		Speed = 35;
 		Radius = 1;
 		InfectedSpawnRadius = 50;
 		InfectedSpawnInterval = 250;

@@ -41,6 +41,7 @@ modded class ItemBase
 	bool m_Expansion_IsWorking;
 
 	protected int m_Expansion_QueuedActions;
+	protected bool m_Expansion_IsLootable = true;
 
 	void ItemBase()
 	{
@@ -86,8 +87,8 @@ modded class ItemBase
 		super.CF_OnStoreSave(storage);
 
 		//! Queue world untakeable items for next server start
-		if (!m_IsTakeable && !m_Expansion_IsStoreSaved && !GetHierarchyParent() && GetLifetime())
-			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+		if (!m_Expansion_IsLootable && !m_Expansion_IsStoreSaved && !GetHierarchyParent() && GetLifetime())
+			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNLOOTABLE);
 
 		m_Expansion_IsStoreSaved = true;
 
@@ -665,7 +666,7 @@ modded class ItemBase
 	}
 
 	//! This deals with spawning magazines on weapons correctly and should be used as a replacement for vanilla CreateInInventory
-	EntityAI ExpansionCreateInInventory(string className, bool attachOnly = false)
+	EntityAI ExpansionCreateInInventory(string className, bool attachOnly = false, int slotId = InventorySlots.INVALID)
 	{
 		if (!GetInventory())
 			return NULL;
@@ -677,7 +678,9 @@ modded class ItemBase
 			Weapon_Base weapon = Weapon_Base.Cast(this);
 
 			InventoryLocation il = new InventoryLocation;
-			il.SetAttachment(weapon, NULL, InventorySlots.MAGAZINE);
+			if (slotId == InventorySlots.INVALID)
+				slotId = InventorySlots.MAGAZINE;
+			il.SetAttachment(weapon, NULL, slotId);
 			
 			EntityAI magazine = SpawnEntity(className, il, ECE_IN_INVENTORY, RF_DEFAULT);
 			if (!magazine)
@@ -724,14 +727,19 @@ modded class ItemBase
 
 		//! Any other item
 		if (attachOnly)
-			return GetInventory().CreateAttachment(className);
-		else
-			return GetInventory().CreateInInventory(className);
+		{
+			if (slotId == InventorySlots.INVALID)
+				return GetInventory().CreateAttachment(className);
+			else
+				return GetInventory().CreateAttachmentEx(className, slotId);
+		}
+
+		return GetInventory().CreateInInventory(className);
 	}
 
-	EntityAI ExpansionCreateAttachment(string className)
+	EntityAI ExpansionCreateAttachment(string className, int slotId = InventorySlots.INVALID)
 	{
-		return ExpansionCreateInInventory(className, true);
+		return ExpansionCreateInInventory(className, true, slotId);
 	}
 
 	void OnEnterZone(ExpansionZoneType type)
@@ -766,6 +774,12 @@ modded class ItemBase
 
 		if (!GetGame().IsServer())
 			return;
+
+		if (oldLoc.GetType() == InventoryLocationType.CARGO)
+			Expansion_UpdateParentCargoCount(oldLoc, -1);
+
+		if (newLoc.GetType() == InventoryLocationType.CARGO)
+			Expansion_UpdateParentCargoCount(newLoc, 1);
 
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
@@ -802,6 +816,32 @@ modded class ItemBase
 				#endif
 			}
 		}
+	}
+
+	//! Workaround for vanilla not initializing vehicle inv on client if not close to player (cargo count is used by e.g. market to show unsellable items)
+	void Expansion_UpdateParentCargoCount(InventoryLocation loc, int delta)
+	{
+		CarScript car;
+		if (Class.CastTo(car, loc.GetParent().GetHierarchyRoot()))
+		{
+			car.m_Expansion_CargoCount += delta;
+			//! @note doesn't need to be explicitly synced, since uninitialized inv is only a thing w/o player interaction (and initial sync will take care of it)
+			//if (GetGame().IsDedicatedServer() && car.IsInitialized())
+				//car.SetSynchDirty();
+		}
+		#ifdef EXPANSIONMODVEHICLE
+		else
+		{
+			ExpansionVehicleBase vehicle;
+			if (Class.CastTo(vehicle, loc.GetParent().GetHierarchyRoot()))
+			{
+				vehicle.m_Expansion_CargoCount += delta;
+				//! @note doesn't need to be explicitly synced, since uninitialized inv is only a thing w/o player interaction (and initial sync will take care of it)
+				//if (GetGame().IsDedicatedServer() && vehicle.IsInitialized())
+					//vehicle.SetSynchDirty();
+			}
+		}
+		#endif
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -888,8 +928,8 @@ modded class ItemBase
 		ExpansionDeferredCreateCleanup();
 
 		int actions = ExpansionItemBaseModule.s_Instance.ProcessQueuedEntityActions(this);
-		if ((actions & ExpansionItemBaseModule.SETUNTAKEABLE) == ExpansionItemBaseModule.SETUNTAKEABLE && GetLifetime())
-			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+		if ((actions & ExpansionItemBaseModule.SETUNLOOTABLE) == ExpansionItemBaseModule.SETUNLOOTABLE && GetLifetime())
+			Expansion_QueueEntityActions(ExpansionItemBaseModule.SETUNLOOTABLE);
     }
 
 	void ExpansionDeferredCreateCleanup()
@@ -903,9 +943,20 @@ modded class ItemBase
 		ExpansionCreateCleanup();
 	}
 
-	override void SetTakeable(bool pState)
+	void Expansion_SetLootable(bool pState)
 	{
-		super.SetTakeable(pState);
+		m_Expansion_IsLootable = pState;
+
+		SetTakeable(pState);
+
+		if (GetInventory())
+		{
+			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
+			if (pState)
+				ExpansionStatic.UnlockInventoryRecursive(this, 10134);
+			else
+				ExpansionStatic.LockInventoryRecursive(this, 10134);
+		}
 
 		if (!m_Expansion_QueuedActions || GetHierarchyParent())
 			return;
@@ -913,7 +964,7 @@ modded class ItemBase
 		if (pState)
 		{
 			//! Deferred removal of setuntakeable entity action from queue
-			Expansion_DequeueEntityActions(ExpansionItemBaseModule.SETUNTAKEABLE);
+			Expansion_DequeueEntityActions(ExpansionItemBaseModule.SETUNLOOTABLE);
 		}
 	}
 

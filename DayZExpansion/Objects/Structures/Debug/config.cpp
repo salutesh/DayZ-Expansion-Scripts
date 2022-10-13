@@ -162,4 +162,14 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
+	class ExpansionDebugGoat: HouseNoDestruct
+	{
+		scope = 1;
+		model = "\dz\animals\capra_hircus\capra_hircus.p3d";
+		displayName = "Expansion Debug Goat";
+		descriptionShort = "Debug goat";
+		hiddenSelections[] = {"Camo","CamoHair"};
+		hiddenSelectionsTextures[] = {"dz\animals\capra_hircus\data\Black_Goat_CO.paa","dz\animals\capra_hircus\data\black_goat_fur_co.paa"};
+		hiddenSelectionsMaterials[] = {"dz\animals\capra_hircus\data\Black_Goat.rvmat","dz\animals\capra_hircus\data\black_goat_fur.rvmat"};
+	};
 };

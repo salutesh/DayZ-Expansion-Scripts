@@ -140,9 +140,9 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ------------------------------------------------------------
 	void SetTerritory()
 	{
-		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-		TerritoryFlag flag = m_TerritoryModule.FindNearestTerritoryFlag(player);
-		m_Flag = flag;
+		PlayerBase player;
+		if (Class.CastTo(player, GetGame().GetPlayer()))
+			m_Flag = m_TerritoryModule.GetFlagAtPosition3D(player.GetPosition());
 		
 		if (!m_Flag)
 		{

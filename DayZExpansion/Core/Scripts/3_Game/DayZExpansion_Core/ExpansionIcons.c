@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -16,10 +16,10 @@ class ExpansionIcons
 
 	private autoptr map<string, ref ExpansionIcon> m_IconMap;
 	private autoptr array<ExpansionIcon> m_Icons;
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons Constructor
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	private void ExpansionIcons()
 	{
 		m_IconMap = new map<string, ref ExpansionIcon>();
@@ -27,17 +27,17 @@ class ExpansionIcons
 
 		Generate();
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons Destructor
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void ~ExpansionIcons()
 	{
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons Generate
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void Generate()
 	{
 		AddIcon("Arrow", "DayZExpansion\\Core\\GUI\\icons\\hud\\arrow_64x64.edds");
@@ -101,6 +101,7 @@ class ExpansionIcons
 		AddIcon("Vehicle Crash", "DayZExpansion\\Core\\GUI\\icons\\marker\\crash.paa");
 
 		//! Newer icons
+		AddIcon("Ambush", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Ambush_256x256.edds");
 		AddIcon("Animal Skull", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Animal_Skull_256x256.edds");
 		AddIcon("Apple", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Apple_256x256.edds");
 		AddIcon("Apple Core", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Apple_Core_256x256.edds");
@@ -108,6 +109,7 @@ class ExpansionIcons
 		AddIcon("Axe", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Axe_256x256.edds");
 		AddIcon("Backpack", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_BagPack_256x256.edds");
 		AddIcon("Bandage", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bandage_256x256.edds");
+		AddIcon("Bandit", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bandit_256x256.edds");
 		AddIcon("Batteries", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Batteries_256x256.edds");
 		AddIcon("Berries", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Berries_256x256.edds");
 		AddIcon("Kitchen Knife Big", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Big_Kitchen_Knife_256x256.edds");
@@ -184,6 +186,7 @@ class ExpansionIcons
 		AddIcon("Shotgun Bullets", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Shotgun_Bullets_256x256.edds");
 		AddIcon("Shovel", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Shovel_256x256.edds");
 		AddIcon("Soda", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Soda_256x256.edds");
+		AddIcon("Soldier", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Soldier_256x256.edds");
 		AddIcon("Tent", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Tent_256x256.edds");
 		AddIcon("Walkie Talkie", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Wakie-Talkie_256x256.edds");
 		AddIcon("Water Jug", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_WaterJug_256x256.edds");
@@ -231,10 +234,10 @@ class ExpansionIcons
 		AddIcon("Expansion B/W", "set:expansion_iconset image:icon_expansion_bw");
 		//AddIcon("Expansion White", "set:expansion_iconset image:icon_expansion_white");  //! Same as B/W
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons AddIcon
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	protected void AddIcon(string name, string localisation, string path)
 	{
 		if (localisation == "")
@@ -258,23 +261,23 @@ class ExpansionIcons
 	{
 		AddIcon(name, name, path);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons Count
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	static int Count()
 	{
 		return s_Icons.m_Icons.Count();
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	static ExpansionIcon Get(int index)
 	{
 		return s_Icons.m_Icons.Get(index);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons Get
 	// ------------------------------------------------------------
@@ -282,7 +285,7 @@ class ExpansionIcons
 	{
 		return s_Icons.m_IconMap.Get(name);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionIcons GetPath
 	// ------------------------------------------------------------
@@ -291,7 +294,7 @@ class ExpansionIcons
 		ExpansionIcon icon = Get(name);
 		if (!icon)
 			return string.Empty;
-	
+
 		return icon.Path;
 	}
 

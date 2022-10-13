@@ -30,7 +30,7 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	float DespawnRadius;
 
@@ -145,24 +145,26 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		if (AIPatrolSettingsExist)
 		{
 			EXPrint("[ExpansionAIPatrolSettings] Load existing setting file:" + EXPANSION_AIPATROL_SETTINGS);
-			
-			ExpansionAIPatrolSettings settingsDefault = new ExpansionAIPatrolSettings;
-			settingsDefault.Defaults();
 
-			ExpansionAIPatrolSettingsBase settingsBase;
+			int version = m_Version;
 
-			JsonFileLoader<ExpansionAIPatrolSettingsBase>.JsonLoadFile(EXPANSION_AIPATROL_SETTINGS, settingsBase);
-
-			JsonFileLoader<ExpansionAIPatrolSettings>.JsonLoadFile(EXPANSION_AIPATROL_SETTINGS, this);
-
-			if (m_Version < VERSION)
+			if (!ExpansionJsonFileParser<ExpansionAIPatrolSettings>.Load(EXPANSION_AIPATROL_SETTINGS, this))
+			{
+				//! Use defaults, but DON'T save them
+				Defaults();
+				version = m_Version;
+			}
+			else if (m_Version < VERSION)
 			{
 				EXPrint("[ExpansionAIPatrolSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_AIPATROL_SETTINGS + "\" to v" + VERSION);
+
+				ExpansionAIPatrolSettings settingsDefault = new ExpansionAIPatrolSettings;
+				settingsDefault.Defaults();
 
 				if (m_Version < 5)
 				{
 					ExpansionAIPatrolSettingsV4 settingsV4 = new ExpansionAIPatrolSettingsV4;
-					JsonFileLoader<ExpansionAIPatrolSettingsV4>.JsonLoadFile(EXPANSION_AIPATROL_SETTINGS, settingsV4);
+					ExpansionJsonFileParser<ExpansionAIPatrolSettingsV4>.Load(EXPANSION_AIPATROL_SETTINGS, settingsV4);
 					foreach (ExpansionAICrashPatrol crashPatrol: settingsV4.EventCrashPatrol)
 					{
 						crashPatrol.ClassName = crashPatrol.EventName;
@@ -219,7 +221,7 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 
 			foreach (ExpansionAIObjectPatrol objectPatrol: ObjectPatrols)
 			{
-				if (settingsBase.m_Version < 2)
+				if (version < 2)
 				{
 					objectPatrol.DefaultSpread();
 
@@ -235,10 +237,10 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 					}
 				}
 
-				if (settingsBase.m_Version < 4)
+				if (version < 4)
 					objectPatrol.UpdateSettings();
 
-				if (settingsBase.m_Version < 6)
+				if (version < 6)
 				{
 					if (objectPatrol.MaxDistRadius <= 0)
 						objectPatrol.DespawnRadius = -2;
@@ -246,17 +248,17 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 						objectPatrol.DespawnRadius = objectPatrol.MaxDistRadius * 1.1;
 				}
 
-				if (settingsBase.m_Version < 7)
+				if (version < 7)
 					objectPatrol.Formation = "RANDOM";
 
-				if (settingsBase.m_Version < 8)
+				if (version < 8)
 				{
 					objectPatrol.DespawnTime = -1;
 					objectPatrol.AccuracyMin = -1;
 					objectPatrol.AccuracyMax = -1;
 				}
 
-				if (settingsBase.m_Version < 9)
+				if (version < 9)
 				{
 					objectPatrol.RespawnTime = -2;
 				}

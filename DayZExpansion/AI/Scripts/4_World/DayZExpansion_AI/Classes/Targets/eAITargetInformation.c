@@ -55,6 +55,11 @@ class eAITargetInformation
 		return null;
 	}
 
+	string GetEntityDebugName()
+	{
+		return "";
+	}
+
 	/**
 	 * @brief Abstract function. If the target is active or not.
 	 *
@@ -107,7 +112,7 @@ class eAITargetInformation
 	/**
 	 * @brief Abstract function. Get the threat level for the AI within the target. Each AI could have their own threat level for the target.
 	 *
-	 * @param ai null default, gets the position for the AI if specified, otherwise returns a default value
+	 * @param ai null default, if given includes the AI in threat calculation
 	 * @return int
 	 */
 	float GetThreat(eAIBase ai = null)
@@ -116,7 +121,18 @@ class eAITargetInformation
 		auto trace = CF_Trace_1(this, "GetThreat").Add(ai);
 #endif
 
-		return 0;
+		if (!ai)
+			return CalculateThreat();
+
+		auto state = ai.eAI_GetTargetInformationState(this);
+		state.UpdateThreat();
+
+		return state.m_ThreatLevel;
+	}
+
+	float CalculateThreat(eAIBase ai = null)
+	{
+		return 0.0;
 	}
 
 	bool ShouldRemove(eAIBase ai = null)
@@ -131,7 +147,7 @@ class eAITargetInformation
 	/**
 	 * @brief Abstract function. Get the distance to the target.
 	 *
-	 * @param ai gets the position for the AI if specified
+	 * @param ai
 	 * @return float
 	 */
 	float GetDistance(eAIBase ai, bool actual = false)

@@ -117,6 +117,8 @@ modded class MissionServer
 		PlayerBase.RemovePlayer( uid );
 		
 		super.PlayerDisconnected( player, identity, uid );
+
+		PlayerBase.Expansion_RemovePlayerPlainID(uid);
 	}
 	
 	// ------------------------------------------------------------

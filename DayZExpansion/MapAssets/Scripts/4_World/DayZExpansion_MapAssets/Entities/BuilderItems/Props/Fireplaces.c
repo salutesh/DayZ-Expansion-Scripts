@@ -432,15 +432,15 @@ class CandleLight extends PointLightBase
 	void CandleLight()
 	{
 		SetVisibleDuringDaylight(false);
-		SetRadiusTo(10);
-		SetBrightnessTo(4.0);
-		SetCastShadow(false);
+		SetRadiusTo(2.5);
+		SetBrightnessTo(2.0);
+		SetCastShadow(true);
 		FadeIn(0.5);
 		SetFadeOutTime(0.1);
-		SetAmbientColor(1.0, 1.0, 0.3);
-		SetDiffuseColor(1.0, 1.0, 0.3);
+		SetAmbientColor(1.0, 0.5, 0.3);
+		SetDiffuseColor(1.0, 0.5, 0.3);
 		SetFlickerAmplitude(0.3);
-		SetFlickerSpeed(0.85);
+		SetFlickerSpeed(0.9);
 		SetDancingShadowsMovementSpeed(0.010);
 		SetDancingShadowsAmplitude(0.008);
 	}
@@ -453,11 +453,17 @@ class bldr_Candle extends Candle
 	void bldr_Candle()
 	{
 		SetAllowDamage(false);
-		CreateLight();
 		
 		SetObjectMaterial( 0, "dz\gear\tools\data\candle_flame.rvmat" );
 	}
 	
+	override void DeferredInit()
+	{
+		super.DeferredInit();
+
+		CreateLight();
+	}
+
 	override void OnEnergyConsumed() {};
 	
 	override bool CanPutInCargo( EntityAI parent )
@@ -574,8 +580,7 @@ class bldr_Candle extends Candle
 	{		
 		if (!GetGame().IsServer()  ||  !GetGame().IsMultiplayer()) // client side
 		{
-			m_Light = CandleLight.Cast(ScriptedLightBase.CreateLight( CandleLight, "0 0 0"));
-			m_Light.AttachOnMemoryPoint(this, "light");
+			m_Light = CandleLight.Cast(ScriptedLightBase.CreateLight( CandleLight, GetPosition() + "0 0.15 0"));
 		}
 	}
 }

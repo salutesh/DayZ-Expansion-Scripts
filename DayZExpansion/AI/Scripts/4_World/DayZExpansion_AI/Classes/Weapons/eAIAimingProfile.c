@@ -37,7 +37,7 @@ class eAIAimingProfile
 
 			Weapon_Base weapon;
 			ItemOptics optics;
-			if (accuracyMin < 1 && Class.CastTo(weapon, m_Player.GetHumanInventory().GetEntityInHands()) && Class.CastTo(optics, weapon.GetAttachmentByType(ItemOptics)))
+			if (accuracyMin < 1 && Class.CastTo(weapon, m_Player.GetHumanInventory().GetEntityInHands()) && Class.CastTo(optics, weapon.GetAttachedOptics()))
 			{
 				float zoomMin = optics.GetZeroingDistanceZoomMin();
 				float zoomMax = optics.GetZeroingDistanceZoomMax();

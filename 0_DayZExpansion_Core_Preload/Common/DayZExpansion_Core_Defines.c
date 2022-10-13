@@ -10,6 +10,13 @@
  *
 */
 
+//! Versioning
+//! Change this main version define every time there is an update
+#define EXPANSION_1_7_17
+//! GEQ = Greater than or equal
+//! Do *not* remove GEQ defines, only add new ones every time there is an update!
+#define EXPANSION_GEQ_1_7_17
+
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT
 //#define EXPANSIONTRACE

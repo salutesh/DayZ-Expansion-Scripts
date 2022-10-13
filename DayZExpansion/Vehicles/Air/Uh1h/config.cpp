@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Uh1h
 	{
-		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hWreck","ExpansionUh1h","Vehicle_ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance"};
+		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2","ExpansionUh1hWreck","ExpansionUh1h","Vehicle_ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionUh1hDoor_2_1_Green","ExpansionUh1hDoor_2_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionUh1hDoor_2_1_Civilian","ExpansionUh1hDoor_2_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionUh1hDoor_2_1_Medical","ExpansionUh1hDoor_2_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionUh1hDoor_2_1_Uber","ExpansionUh1hDoor_2_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance","ExpansionUh1hDoor_2_1_Resistance","ExpansionUh1hDoor_2_2_Resistance"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -26,6 +26,22 @@ class CfgSlots
 		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT_DESC";
 		selection = "uh1hdoor_1_2";
+		ghostIcon = "doorfront";
+	};
+	class Slot_uh1hdoor_2_1
+	{
+		name = "uh1hdoor_2_1";
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFTT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT_DESC";
+		selection = "uh1hdoor_2_1";
+		ghostIcon = "doorfront";
+	};
+	class Slot_uh1hdoor_2_2
+	{
+		name = "uh1hdoor_2_2";
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT_DESC";
+		selection = "uh1hdoor_2_2";
 		ghostIcon = "doorfront";
 	};
 };
@@ -76,6 +92,22 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_1_2.p3d";
 		inventorySlot = "uh1hdoor_1_2";
 	};
+	class ExpansionUh1hDoor_2_1: ExpansionUh1hDoor_1_1
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT_DESC";
+		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_2_1.p3d";
+		inventorySlot = "uh1hdoor_2_1";
+	};
+	class ExpansionUh1hDoor_2_2: ExpansionUh1hDoor_1_1
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT";
+		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_RIGHT_DESC";
+		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_2_2.p3d";
+		inventorySlot = "uh1hdoor_2_2";
+	};
 	class ExpansionUh1hWreck: ExpansionWreck
 	{
 		scope = 2;
@@ -96,9 +128,9 @@ class CfgVehicles
 		wreck = "ExpansionUh1hWreck";
 		fuelCapacity = 119;
 		fuelConsumption = 99;
-		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2"};
-		doors[] = {"uh1hdoor_1_1","uh1hdoor_1_2"};
-		applySkinsTo[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2"};
+		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
+		doors[] = {"uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
+		applySkinsTo[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2"};
 		hiddenSelections[] = {"camo1","camo2"};
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d_co.paa","dayzexpansion\vehicles\air\uh1h\data\uh1d_in_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\air\uh1h\data\uh1d.rvmat","dayzexpansion\vehicles\air\uh1h\data\uh1d_in.rvmat"};
@@ -171,6 +203,18 @@ class CfgVehicles
 				animPeriod = 0.5;
 				initPhase = 0;
 			};
+			class uh1hdoor_2_1
+			{
+				source = "user";
+				animPeriod = 0.7;
+				initPhase = 0;
+			};
+			class uh1hdoor_2_2
+			{
+				source = "user";
+				animPeriod = 0.7;
+				initPhase = 0;
+			};
 		};
 		class Crew: Crew
 		{
@@ -219,13 +263,13 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			maxSpeed = 220;
+			maxSpeed = 200;
 			altitudeFullForce = 1000;
 			altitudeNoForce = 2000;
-			bodyFrictionCoef = 0.8;
-			liftForceCoef = 1.1;
-			bankForceCoef = 0.1;
-			tailForceCoef = 0.5;
+			bodyFrictionCoef = 1.1;
+			liftForceCoef = 1.3;
+			bankForceCoef = 0.02;
+			tailForceCoef = 1.4;
 			linearFrictionCoef[] = {16.0,0.04,0.04};
 			angularFrictionCoef = 1.5;
 			class Rotor
@@ -236,24 +280,24 @@ class CfgVehicles
 			};
 			class AntiTorque
 			{
-				speed = 1.5;
-				max = 5.04;
+				speed = 1.4;
+				max = 0.16;
 			};
 			class Cyclic
 			{
-				forceCoefficient = 1.5;
+				forceCoefficient = 1.3;
 				class Forward
 				{
-					speed = 10.0;
+					speed = 9.0;
 					max = 0.7;
-					coefficient = 1.0;
+					coefficient = 1.3;
 					animation = "cyclicForward";
 				};
 				class Side
 				{
-					speed = 10.0;
+					speed = 9.0;
 					max = 0.7;
-					coefficient = 1.0;
+					coefficient = 0.9;
 					animation = "cyclicAside";
 				};
 			};
@@ -309,7 +353,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2"};
+				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
 			};
 		};
 		class DamageSystem: DamageSystem
@@ -447,6 +491,18 @@ class CfgVehicles
 				initPhase = 0;
 			};
 			class uh1hdoor_1_2
+			{
+				source = "user";
+				animPeriod = 0.5;
+				initPhase = 0;
+			};
+			class uh1hdoor_2_1
+			{
+				source = "user";
+				animPeriod = 0.5;
+				initPhase = 0;
+			};
+			class uh1hdoor_2_2
 			{
 				source = "user";
 				animPeriod = 0.5;
@@ -590,7 +646,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2"};
+				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
 			};
 		};
 		class DamageSystem: DamageSystem
@@ -629,6 +685,16 @@ class CfgVehicles
 		skinBase = "ExpansionUh1hDoor_1_2";
 		skinName = "Green";
 	};
+	class ExpansionUh1hDoor_2_1_Green: ExpansionUh1hDoor_2_1
+	{
+		skinBase = "ExpansionUh1hDoor_2_1";
+		skinName = "Green";
+	};
+	class ExpansionUh1hDoor_2_2_Green: ExpansionUh1hDoor_2_2
+	{
+		skinBase = "ExpansionUh1hDoor_2_2";
+		skinName = "Green";
+	};
 	class ExpansionSpraycanCivilian: ExpansionSpraycanBase
 	{
 		scope = 2;
@@ -650,6 +716,16 @@ class CfgVehicles
 	class ExpansionUh1hDoor_1_2_Civilian: ExpansionUh1hDoor_1_2
 	{
 		skinBase = "ExpansionUh1hDoor_1_2";
+		skinName = "Civilian";
+	};
+	class ExpansionUh1hDoor_2_1_Civilian: ExpansionUh1hDoor_2_1
+	{
+		skinBase = "ExpansionUh1hDoor_2_1";
+		skinName = "Civilian";
+	};
+	class ExpansionUh1hDoor_2_2_Civilian: ExpansionUh1hDoor_2_2
+	{
+		skinBase = "ExpansionUh1hDoor_2_2";
 		skinName = "Civilian";
 	};
 	class ExpansionSpraycanMedical: ExpansionSpraycanBase
@@ -675,6 +751,16 @@ class CfgVehicles
 		skinBase = "ExpansionUh1hDoor_1_2";
 		skinName = "Medical";
 	};
+	class ExpansionUh1hDoor_2_1_Medical: ExpansionUh1hDoor_2_1
+	{
+		skinBase = "ExpansionUh1hDoor_2_1";
+		skinName = "Medical";
+	};
+	class ExpansionUh1hDoor_2_2_Medical: ExpansionUh1hDoor_2_2
+	{
+		skinBase = "ExpansionUh1hDoor_2_2";
+		skinName = "Medical";
+	};
 	class ExpansionSpraycanUber: ExpansionSpraycanBase
 	{
 		scope = 2;
@@ -696,6 +782,16 @@ class CfgVehicles
 	class ExpansionUh1hDoor_1_2_Uber: ExpansionUh1hDoor_1_2
 	{
 		skinBase = "ExpansionUh1hDoor_1_2";
+		skinName = "Uber";
+	};
+	class ExpansionUh1hDoor_2_1_Uber: ExpansionUh1hDoor_2_1
+	{
+		skinBase = "ExpansionUh1hDoor_2_1";
+		skinName = "Uber";
+	};
+	class ExpansionUh1hDoor_2_2_Uber: ExpansionUh1hDoor_2_2
+	{
+		skinBase = "ExpansionUh1hDoor_2_2";
 		skinName = "Uber";
 	};
 	class ExpansionSpraycanResistance: ExpansionSpraycanBase
@@ -721,6 +817,16 @@ class CfgVehicles
 		skinBase = "ExpansionUh1hDoor_1_2";
 		skinName = "Resistance";
 	};
+	class ExpansionUh1hDoor_2_1_Resistance: ExpansionUh1hDoor_2_1
+	{
+		skinBase = "ExpansionUh1hDoor_2_1";
+		skinName = "Resistance";
+	};
+	class ExpansionUh1hDoor_2_2_Resistance: ExpansionUh1hDoor_2_2
+	{
+		skinBase = "ExpansionUh1hDoor_2_2";
+		skinName = "Resistance";
+	};
 };
 class CfgNonAIVehicles
 {
@@ -734,5 +840,15 @@ class CfgNonAIVehicles
 	{
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_1_2.p3d";
 		inventorySlot = "uh1hdoor_1_2";
+	};
+	class Proxyuh1hdoor_2_1: ProxyVehiclePart
+	{
+		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_2_1.p3d";
+		inventorySlot = "uh1hdoor_2_1";
+	};
+	class Proxyuh1hdoor_2_2: ProxyVehiclePart
+	{
+		model = "\DayZExpansion\Vehicles\Air\Uh1h\proxy\uh1hdoor_2_2.p3d";
+		inventorySlot = "uh1hdoor_2_2";
 	};
 };

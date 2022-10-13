@@ -97,21 +97,7 @@ class ExpansionItemSpawnHelper
 			else
 				mag.ServerSetAmmoCount(0);
 		}
-		else if (item.IsInherited(Edible_Base))
-		{
-			//! Consumables like food, sodacans, bottles, pills, gas canisters...
-
-			remainingAmount--;
-
-			if (item.HasQuantity())
-			{
-				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
-				if (item.ConfigGetBool("canBeSplit"))
-					itemQuantity = Math.Round(itemQuantity);
-				item.SetQuantity(itemQuantity);
-			}
-		}
-		else if (item.ConfigGetBool("canBeSplit"))
+		else if (!item.IsInherited(Edible_Base) && item.ConfigGetBool("canBeSplit"))
 		{
 			//! Stackable items
 			int max = item.GetQuantityMax();
@@ -137,6 +123,14 @@ class ExpansionItemSpawnHelper
 			//! Everything else
 
 			remainingAmount--;
+
+			if (item.HasQuantity())
+			{
+				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
+				if (item.ConfigGetBool("canBeSplit"))
+					itemQuantity = Math.Round(itemQuantity);
+				item.SetQuantity(itemQuantity);
+			}
 		}
 		
 		if (item.CanBeDisinfected())
@@ -280,10 +274,6 @@ class ExpansionItemSpawnHelper
 		ExpansionVehicleBase exVeh;
 		ExpansionCarKey expkey;
 		#endif
-		#ifdef MuchCarKey_ExpTest
-		MCK_CarKey_Base MCKkey;
-		int mck_id;
-		#endif
 		if (Class.CastTo(vehicle, obj))
 		{
 			vehicle.Fill(CarFluid.FUEL, vehicle.GetFluidCapacity(CarFluid.FUEL));
@@ -303,18 +293,6 @@ class ExpansionItemSpawnHelper
 				{
 					vehicle.PairKeyTo(expkey);
 					vehicle.LockCar(expkey);
-				}
-				#endif
-				#ifdef MuchCarKey_ExpTest
-				if (Class.CastTo(MCKkey, keyb))
-				{
-					mck_id = MCKkey.GenerateNewID();
-					MCKkey.SetNewMCKId(mck_id);
-					vehicle.m_CarKeyId = mck_id;
-					vehicle.m_HasCKAssigned = true;
-					vehicle.m_IsCKLocked = true;
-					vehicle.SynchronizeValues(); 
-					vehicle.ResetLifetime();
 				}
 				#endif
 			}
@@ -339,18 +317,6 @@ class ExpansionItemSpawnHelper
 					exVeh.PairKeyTo(expkey);
 					exVeh.LockCar(expkey);
 				}
-				#ifdef MuchCarKey_ExpTest
-				if (Class.CastTo(MCKkey, keyb))
-				{
-					mck_id = MCKkey.GenerateNewID();
-					MCKkey.SetNewMCKId(mck_id);
-					exVeh.m_CarKeyId = mck_id;
-					exVeh.m_HasCKAssigned = true;
-					exVeh.m_IsCKLocked = true;
-					exVeh.SynchronizeValues(); 
-					exVeh.ResetLifetime();
-				}
-				#endif
 			}
 		}
 		#endif
@@ -424,6 +390,7 @@ class ExpansionItemSpawnHelper
 	{
 		int idx;
 
+		//! 1) create entity
 		EntityAI dst;
 		switch (location.GetType())
 		{
@@ -451,31 +418,20 @@ class ExpansionItemSpawnHelper
 
 		EXPrint("ExpansionItemSpawnHelper::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
 
-		ScriptReadWriteContext ctx = new ScriptReadWriteContext;
-		src.OnStoreSave(ctx.GetWriteContext());
-		dst.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
+		//! @note order of operations matters! DO NOT CHANGE!
 
-		TStringArray dmgZones();
-		src.GetDamageZones(dmgZones);
-
-		dst.SetHealth(src.GetHealth());
-		foreach (string dmgZone: dmgZones)
-		{
-			dst.SetHealth(dmgZone, "Health", src.GetHealth(dmgZone, "Health"));
-		}
-
-		dst.AfterStoreLoad();
-
+		//! 2) attachments + cargo
 		if (recursively)
 		{
 			EntityAI cSrc;
 			InventoryLocation cLocation();
+			InventoryLocation dLocation();
 			for (idx = 0; idx < src.GetInventory().AttachmentCount(); idx++)
 			{
 				cSrc = src.GetInventory().GetAttachmentFromIndex(idx);
 				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-                cLocation.SetParent(dst);
-				Clone(cSrc, recursively, cLocation);
+                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
+				Clone(cSrc, recursively, dLocation);
 			}
 
 			if (src.GetInventory().GetCargo())
@@ -484,15 +440,62 @@ class ExpansionItemSpawnHelper
 				{
 					cSrc = src.GetInventory().GetCargo().GetItem(idx);
 					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-					cLocation.SetParent(dst);
-					Clone(cSrc, recursively, cLocation);
+					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
+					Clone(cSrc, recursively, dLocation);
 				}
 			}
 		}
 
-		dst.EEOnAfterLoad();
+		//! 3) special treatment for weapons
+		Weapon_Base srcWeapon;
+		Weapon_Base dstWeapon;
+		if (Class.CastTo(srcWeapon, src) && Class.CastTo(dstWeapon, dst))
+		{
+			float ammoDamage;
+			string ammoTypeName;
 
-		dst.SetSynchDirty();
+			for (int mi = 0; mi < srcWeapon.GetMuzzleCount(); ++mi)
+			{
+				if (!srcWeapon.IsChamberEmpty(mi))
+				{
+					if (srcWeapon.GetCartridgeInfo(mi, ammoDamage, ammoTypeName))
+					{
+						dstWeapon.PushCartridgeToChamber(mi, ammoDamage, ammoTypeName);
+					}
+				}
+				
+				for (int ci = 0; ci < srcWeapon.GetInternalMagazineCartridgeCount(mi); ++ci)
+				{
+					if (srcWeapon.GetInternalMagazineCartridgeInfo(mi, ci, ammoDamage, ammoTypeName))
+					{
+						dstWeapon.PushCartridgeToInternalMagazine(mi, ammoDamage, ammoTypeName);
+					}
+				}
+			}
+		}
+
+		//! 4) storesave/storeload
+		ScriptReadWriteContext ctx = new ScriptReadWriteContext;
+		src.OnStoreSave(ctx.GetWriteContext());
+		dst.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
+
+		//! 5) special treatment for mags
+		Magazine srcMag;
+		Magazine dstMag;
+		if (Class.CastTo(srcMag, src) && Class.CastTo(dstMag, dst))
+			dstMag.ServerSetAmmoCount(srcMag.GetAmmoCount());
+
+		//! 6) global health and damage zones
+		TStringArray dmgZones();
+		src.GetDamageZones(dmgZones);
+		dst.SetHealth(src.GetHealth());
+		foreach (string dmgZone: dmgZones)
+		{
+			dst.SetHealth(dmgZone, "Health", src.GetHealth(dmgZone, "Health"));
+		}
+
+		dst.AfterStoreLoad();
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(dst.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
 
 		return dst;
 	}

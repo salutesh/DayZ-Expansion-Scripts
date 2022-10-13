@@ -15,7 +15,7 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 		return "0 0.4 0";
 	}
 
-	override float GetThreat(eAIBase ai = null)
+	override float CalculateThreat(eAIBase ai = null)
 	{
 		if (m_Creature.GetHealth("", "") <= 0.0)
 			return 0.0;

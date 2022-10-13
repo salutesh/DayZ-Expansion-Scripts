@@ -49,13 +49,13 @@ modded class Weapon_Base
 				Class.CastTo(entity, results[0]);
 			if (entity == ai.GetTarget().GetEntity())
 			{
-				ai.Expansion_DebugObject_Deferred(16, hitPosition, "ExpansionDebugBox", ai.GetDirection(), position);
-				ai.Expansion_DebugObject_Deferred(17, "0 0 0", "ExpansionDebugBox_Red");
+				ai.Expansion_DebugObject_Deferred(18, hitPosition, "ExpansionDebugBox", ai.GetDirection(), position);
+				ai.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugBox_Red");
 			}
 			else
 			{
-				ai.Expansion_DebugObject_Deferred(16, "0 0 0", "ExpansionDebugBox");
-				ai.Expansion_DebugObject_Deferred(17, hitPosition, "ExpansionDebugBox_Red", ai.GetDirection(), position);
+				ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
+				ai.Expansion_DebugObject_Deferred(19, hitPosition, "ExpansionDebugBox_Red", ai.GetDirection(), position);
 			}
 			return true;
 		}
@@ -93,8 +93,8 @@ modded class Weapon_Base
 			}
 			EXTrace.Print(true, ai, "didn't hit because it was aiming " + missed + " (actual " + aimPosition + " missed " + missedPosition + ")");
 
-			ai.Expansion_DebugObject_Deferred(16, "0 0 0", "ExpansionDebugBox");
-			ai.Expansion_DebugObject_Deferred(17, missedPosition, "ExpansionDebugBox_Red", ai.GetDirection(), position);
+			ai.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
+			ai.Expansion_DebugObject_Deferred(19, missedPosition, "ExpansionDebugBox_Red", ai.GetDirection(), position);
 		}
 
 		return false;

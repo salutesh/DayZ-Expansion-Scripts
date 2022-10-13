@@ -49,7 +49,11 @@ class ExpansionAIPatrolManager
 
         eAIWaypointBehavior behaviour = patrol.GetBehaviour();
         TVectorArray waypoints = patrol.GetWaypoints(position, behaviour);
-        vector startpos = waypoints[0];
+        int startPosIndex;
+        ExpansionAIPatrol patrolWithWaypoints;
+        if (Class.CastTo(patrolWithWaypoints, patrol) && patrolWithWaypoints.UseRandomWaypointAsStartPoint)
+            startPosIndex = Math.RandomInt(0, waypoints.Count());
+        vector startpos = waypoints[startPosIndex];
 
         if (startpos == vector.Zero)
         {
@@ -119,8 +123,6 @@ class ExpansionAIPatrolManager
 
         if ( !s_AIPatrolSettings.Enabled )
             return;
-            
-        PatrolLog(null, "=================== Patrol Spawner START ===================");
 
         //! Init all roaming patrols
         foreach(ExpansionAIPatrol patrol: s_AIPatrolSettings.Patrols)
@@ -136,7 +138,6 @@ class ExpansionAIPatrolManager
             if (!InitPatrol(patrol))
                 continue;
         }
-        PatrolLog(null, "=================== Patrol Spawner END ===================");
     }
 
     private static void PatrolLog(ExpansionAIDynamicSpawnBase patrol, string msg)

@@ -74,6 +74,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
+		if (!ContentRows)
+			return;
+
 		ExpansionChatLineBase chatLine = new ExpansionChatLineBase(ContentRows, m_Chat);
 		m_ChatLines.Insert(chatLine);
 

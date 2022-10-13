@@ -1,17 +1,12 @@
 class eAIEntityTargetInformation extends eAITargetInformation
 {
 	private EntityAI m_Target;
-	vector m_LastKnownPosition;
+	private string m_TargetDebugName;
 
 	void eAIEntityTargetInformation(EntityAI target)
 	{
 		m_Target = target;
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredInit, 34);
-	}
-
-	void DeferredInit()
-	{
-		m_LastKnownPosition = m_Target.GetPosition();
+		m_TargetDebugName = Object.GetDebugName(m_Target);  //! Useful for logging even after entity has been deleted
 	}
 
 	override string GetDebugName()
@@ -19,7 +14,7 @@ class eAIEntityTargetInformation extends eAITargetInformation
 		string str = super.GetDebugName();
 		
 		str += ", ";
-		str += "target=" + Object.GetDebugName(m_Target);
+		str += "target=" + GetEntityDebugName();
 
 		return str;
 	}
@@ -27,6 +22,16 @@ class eAIEntityTargetInformation extends eAITargetInformation
 	override EntityAI GetEntity()
 	{
 		return m_Target;
+	}
+
+	override string GetEntityDebugName()
+	{
+		string str = m_TargetDebugName;
+
+		if (!m_Target)
+			str += "(deleted)";
+		
+		return str;
 	}
 
 	override bool IsActive()
@@ -39,13 +44,21 @@ class eAIEntityTargetInformation extends eAITargetInformation
 
 	override vector GetPosition(eAIBase ai = null, bool actual = false)
 	{
-		if (actual)
+		if (actual || !ai)
 			return m_Target.GetPosition();
 
-		if (!ai || ai.eAI_HasLOS())
-			m_LastKnownPosition = m_Target.GetPosition();
+		auto state = ai.eAI_GetTargetInformationState(this);
+		state.UpdatePosition();
 
-		return m_LastKnownPosition;
+		return state.m_SearchPosition;
+	}
+
+	override float GetThreat(eAIBase ai = null)
+	{
+		if (!IsActive())
+			return 0.0;
+
+		return super.GetThreat(ai);
 	}
 
 	override float GetDistance(eAIBase ai, bool actual = false)

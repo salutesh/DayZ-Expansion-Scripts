@@ -25,7 +25,7 @@ class bldr_expansion_Gyrocopter_Base extends House
 	// ------------------------------------------------------------
 	// bldr_expansion_Gyrocopter_Base EOnSimulate
 	// ------------------------------------------------------------
-	override void EOnSimulate( IEntity owner, float dt )
+	override void EOnSimulate( IEntity other, float dt )
 	{
 		m_RotorAnimationPosition += 1 * dt * 20.0 / ( Math.PI * 2.0 );
 		if ( m_RotorAnimationPosition >= 1 )

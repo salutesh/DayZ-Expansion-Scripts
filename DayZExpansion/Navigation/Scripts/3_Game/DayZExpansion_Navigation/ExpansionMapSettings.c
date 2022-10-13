@@ -42,13 +42,13 @@ class ExpansionMapSettingsBase: ExpansionSettingBase
  **/
 class ExpansionMapSettings: ExpansionMapSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	//! v2
 	bool EnableHUDCompass;							//! Allow player to use HUD Compass.
 	bool NeedCompassItemForHUDCompass;		//! Requires Compass Item to show the hud compass.
 	bool NeedGPSItemForHUDCompass;			//! Requires GPS Item to show the hud compass.
-	int CompassColor;										//! Color of the HUD Compass.
+	int CompassColor;									//! Color of the HUD Compass.
 
 	//! v3
 	bool CreateDeathMarker;							//! Create a personal marker on the players last death position.
@@ -56,6 +56,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	//! v4 (moved from GeneralSettings)
 	bool PlayerLocationNotifier;
 
+	//! v5
+	int CompassBadgesColor; 							//! Color of the HUD Compass.
+	
 	[NonSerialized()]
 	private ref map< string, ExpansionMarkerData > ServerMarkersMap;
 
@@ -200,7 +203,9 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 			return false;
 		if ( !ctx.Read( PlayerLocationNotifier ) )
 			return false;
-
+		if ( !ctx.Read( CompassBadgesColor ) )
+			return false;
+		
 		int count = 0;
 		int index = 0;
 		int removeIndex = 0;
@@ -274,6 +279,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		ctx.Write( CompassColor );
 		ctx.Write( CreateDeathMarker );
 		ctx.Write( PlayerLocationNotifier );
+		ctx.Write( CompassBadgesColor );
 
 		int count = 0;
 		int index = 0;
@@ -333,7 +339,10 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		//! v4 (moved from GeneralSettings)
 		PlayerLocationNotifier = s.PlayerLocationNotifier;
-
+		
+		//! v5
+		CompassBadgesColor = s.CompassBadgesColor;
+		
 		ExpansionMapSettingsBase sb = s;
 		CopyInternal( sb, copyServerMarkers );
 	}
@@ -438,6 +447,12 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 					//! New with v4 (moved from GeneralSettings)
 					PlayerLocationNotifier = settingsDefault.PlayerLocationNotifier;
 				}
+				
+				if (settingsBase.m_Version < 5)
+				{
+					//! New with v5
+					CompassBadgesColor = settingsDefault.CompassBadgesColor;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -523,6 +538,8 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 		CreateDeathMarker = true;
 
 		PlayerLocationNotifier = true;
+		
+		CompassBadgesColor = ARGB(140, 0, 0, 0);
 
 	#ifdef EXPANSIONMODMARKET
 		switch (ExpansionStatic.GetCanonicalWorldName())

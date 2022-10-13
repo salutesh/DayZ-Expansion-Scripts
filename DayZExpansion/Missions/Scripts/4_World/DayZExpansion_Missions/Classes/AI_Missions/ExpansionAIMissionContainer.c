@@ -1,5 +1,5 @@
 /**
- * ExpansionMissionEventSoldierContainer.c
+ * ExpansionAIMissionContainer.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,21 +10,27 @@
  *
 */
 
+/**@class		ExpansionAIMissionContainer
+ * @brief		This class handle ai missions meta
+ **/
 #ifdef EXPANSIONMODAI
-class ExpansionMissionEventSoldierContainer
+class ExpansionAIMissionContainer
 {
-	string ContainerName;
+	ref TStringArray Classnames;
+	bool CanBeLocked;
+
 	vector Position;
 	vector Orientation;
-
+	
 	// ------------------------------------------------------------
-	// Constructor
+	// Expansion ExpansionAIMissionContainer
 	// ------------------------------------------------------------
-	void ExpansionMissionEventSoldierContainer( string name, vector position, vector orientation )
+	void ExpansionAIMissionContainer(TStringArray classnames, vector position, vector orientation = "0 0 0", bool canbelocked = false)
 	{
-		ContainerName = name;
+		Classnames = classnames;
+		CanBeLocked = canbelocked;
 		Position = position;
 		Orientation = orientation;
 	}
-};
+}
 #endif

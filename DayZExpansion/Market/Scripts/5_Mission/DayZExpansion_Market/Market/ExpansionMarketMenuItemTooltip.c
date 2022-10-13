@@ -88,47 +88,31 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 				ExpansionMarketMenuItemTooltipEntryItemInfo itemInfoEntry;
 				StringLocaliser text;
 				
-				if (!m_PlayerItem.IsWeapon())
+				if (m_PlayerItem.ContainerItemsCount > 0)
 				{
-					if (m_PlayerItem.ContainerItems.Count() > 0)
+					itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
+					string textID;
+					string colorID;
+					if (!m_PlayerItem.IsWeapon())
 					{
-						itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
-						int countItems;
-						
-						foreach (string containerName, int containerItems: m_PlayerItem.ContainerItems)
-						{
-							countItems += containerItems;
-						}
-						
-						text = new StringLocaliser("STR_EXPANSION_MARKET_ITEM_TOOLTIP_OTHERITEMS", countItems.ToString());			
-						itemInfoEntry.SetText(text.Format());
-						itemInfoEntry.SetIcon("Info");
-						itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoHasContainerItems"));
-						m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
+						textID = "STR_EXPANSION_MARKET_ITEM_TOOLTIP_OTHERITEMS";
+						colorID = "ColorItemInfoHasContainerItems";
 						
 						m_HasItems = true;
 					}
-				}
-				else
-				{
-					if (m_PlayerItem.ContainerItems.Count() > 0)
+					else
 					{
-						itemInfoEntry = new ExpansionMarketMenuItemTooltipEntryItemInfo(this);
-						int countAttachments;
-						
-						foreach (string attachmentName, int attachmentItems: m_PlayerItem.ContainerItems)
-						{
-							countAttachments += attachmentItems;
-						}
-						
-						text = new StringLocaliser("STR_EXPANSION_MARKET_ITEM_TOOLTIP_ATTACHMENTS", countAttachments.ToString());
-						itemInfoEntry.SetText(text.Format());
-						itemInfoEntry.SetIcon("Info");
-						itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoHasAttachments"));
-						m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
+						textID = "STR_EXPANSION_MARKET_ITEM_TOOLTIP_ATTACHMENTS";
+						colorID = "ColorItemInfoHasAttachments";
 						
 						m_HasAttachments = true;
 					}
+					text = new StringLocaliser(textID, m_PlayerItem.ContainerItemsCount.ToString());			
+					itemInfoEntry.SetText(text.Format());
+					itemInfoEntry.SetIcon("Info");
+					itemInfoEntry.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get(colorID));
+					m_TooltipController.SpacerEntries.Insert(itemInfoEntry);
+					
 				}
 				
 				if (HasItemOnInventorySlot(m_PlayerItem.Item))
@@ -199,7 +183,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 		array<string> slots = {"Back", "Vest", "Legs", "Body", "Hands", "Shoulder", "Melee", "Bow", "Hips", "Feet", "Armband", "Headgear", "Mask", "Eyewear", "LeftHand", "Gloves"};
 		foreach (string slot: slots)
 		{
-			if (GetGame().GetPlayer().FindAttachmentBySlotName(slot) == item /*&& item.HasAnyCargo()*/)
+			if (GetGame().GetPlayer().FindAttachmentBySlotName(slot) == item /*&& MiscGameplayFunctions.Expansion_HasAnyCargo(item)*/)
 			{
 				return true;
 			}

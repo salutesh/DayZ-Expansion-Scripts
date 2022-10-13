@@ -117,7 +117,7 @@ class CfgSlots
 		selection = "Truck_01_WoodenCrate3";
 		ghostIcon = "woodcrate";
 	};
-	class Slot_Sea_Chest
+	class Slot_sea_chest
 	{
 		name = "sea_chest";
 		displayName = "sea_chest";
@@ -606,7 +606,7 @@ class CfgVehicles
 		defaultSkin = "Green";
 		fuelCapacity = 80;
 		fuelConsumption = 10;
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","Sea_Chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
 		class Crew
 		{
 			class Driver
@@ -787,7 +787,7 @@ class CfgVehicles
 				name = "Trunk Cargo";
 				description = "";
 				icon = "trunk";
-				attachmentSlots[] = {"CanisterGasoline","Sea_Chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","expansion_landrover_sparewheel"};
+				attachmentSlots[] = {"CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","expansion_landrover_sparewheel"};
 			};
 		};
 		class Cargo
@@ -1243,7 +1243,7 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_VEHICLE_LANDROVER";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DESC";
 		Model = "\DayzExpansion\Vehicles\Ground\LandRover\expansion_landrover.p3d";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","Sea_Chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_lights_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\ground\landrover\data\lr_lights_off.rvmat";
 		brakeReflectorMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_brake_lights.rvmat";
