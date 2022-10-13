@@ -749,6 +749,23 @@ modded class PlayerBase
 		
 		return super.CanReceiveItemIntoHands(item_to_hands);
 	}
+	
+	override void OnVehicleSeatDriverEnter()
+	{
+		super.OnVehicleSeatDriverEnter();
+
+		HumanCommandVehicle hcv = GetCommand_Vehicle();
+		if (hcv && hcv.GetTransport())
+		{
+			CarScript car = CarScript.Cast(hcv.GetTransport());
+			if (car)
+			{
+				car.ExpansionSetLastDriverUID(this);
+				if (IsMissionHost())
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(car.ExpansionResetLastDriverUIDSynch, 1000, false);
+			}
+		}
+	}
 
 	void Expansion_OnInventoryUpdate(ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{

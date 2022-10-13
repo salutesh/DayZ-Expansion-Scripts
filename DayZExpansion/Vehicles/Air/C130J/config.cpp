@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_C130J
 	{
-		units[] = {"Vehicle_ExpansionC130JWheel","Vehicle_ExpansionC130J","ExpansionSpraycanGrey","Vehicle_ExpansionC130J_Gray"};
+		units[] = {"ExpansionSpraycanGrey"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -58,7 +58,7 @@ class CfgVehicles
 	class ExpansionWheelBase;
 	class Vehicle_ExpansionC130JWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_C130J_WHEEL";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_C130J_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Air\C130J\proxy\C130JWheelMain.p3d";
@@ -78,15 +78,15 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_ExpansionC130J: ExpansionVehiclePlaneBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  C130J";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_C130J";
 		model = "DayZExpansion\Vehicles\Air\C130J\C130J.p3d";
 		modelZeroPointDistanceFromGround = 5.67;
 		vehicleClass = "Expansion_Plane";

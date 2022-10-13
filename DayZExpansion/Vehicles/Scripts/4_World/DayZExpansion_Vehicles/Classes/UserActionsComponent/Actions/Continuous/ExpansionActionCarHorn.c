@@ -13,7 +13,7 @@
 /**@class		ExpansionActionCarHornCB
  * @brief		
  **/
-#ifndef DAYZ_1_19
+#ifdef DAYZ_1_18
 class ExpansionActionCarHornCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()

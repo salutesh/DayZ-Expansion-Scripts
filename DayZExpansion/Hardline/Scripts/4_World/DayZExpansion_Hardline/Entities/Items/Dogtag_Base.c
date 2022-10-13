@@ -27,7 +27,7 @@ modded class Dogtag_Base
 		if (GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			PlayerBase player;
-			if (Class.CastTo(player, GetHierarchyRootPlayer()))
+			if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.GetDogtag() == this)
 				m_HardlineHumanity = player.GetHumanity();
 			output += string.Format("#STR_EXPANSION_HARDLINE_HUMANITY_LABEL %1\n", m_HardlineHumanity);
 			modified = true;

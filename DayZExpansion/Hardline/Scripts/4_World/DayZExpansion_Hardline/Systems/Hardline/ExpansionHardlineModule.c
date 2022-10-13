@@ -28,10 +28,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	//! Client only
 	private ref ExpansionHardlinePlayerData m_HardlinePlayerData; //! Client
 	private ref ScriptInvoker m_HardlineHUDInvoker; //! Client
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnInit
-	// ------------------------------------------------------------
+
 	override void OnInit()
 	{
 		super.OnInit();
@@ -48,9 +45,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EnableRPC();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnMissionStart
-	// ------------------------------------------------------------
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
@@ -60,9 +54,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		super.OnMissionStart(sender, args);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnMissionLoaded
-	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
@@ -82,10 +73,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			}
 		}
 	}
-	
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule OnInvokeDisconnect
-	// -----------------------------------------------------------
+
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
@@ -108,9 +96,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnClientReady
-	// ------------------------------------------------------------
 	override void OnClientReady(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
@@ -128,9 +113,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		}
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule OnClientDisconnect
-	// -----------------------------------------------------------
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
@@ -148,11 +130,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule SavePlayerHardlineData
-	// Called on Server
-	// ------------------------------------------------------------
-	private void SavePlayerHardlineData(string playerUID)
+	protected void SavePlayerHardlineData(string playerUID)
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
@@ -162,13 +140,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			playerData.Save(playerUID);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule SetupClientData
-	// Called on server
-	// ------------------------------------------------------------
 	//! This method is only called once on player connection
 	// and to send the needed data from the hardline module to the client
-	void SetupClientData(PlayerIdentity identity)
+	protected void SetupClientData(PlayerIdentity identity)
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
@@ -177,7 +151,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			return;
 
 		string playerUID = identity.GetId();
-		ref ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerUID);
+		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerUID);
 		if (!hardlinePlayerData)
 		{
 			//! If we don't have cached player hardline data, check if file exists and load it, else use fresh instance as-is
@@ -199,19 +173,11 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		SendPlayerHardlineData(hardlinePlayerData, identity);
 	}
 	
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule GetPlayerHardlineDataByUID
-	// ! Server
-	// -----------------------------------------------------------
 	ExpansionHardlinePlayerData GetPlayerHardlineDataByUID(string playerUID)
 	{
 		return m_PlayerDatas.Get(playerUID);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnEntityKilled
-	// Server
-	// ------------------------------------------------------------
 	void OnEntityKilled(EntityAI victim, Object killer)
 	{
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Start");
@@ -225,254 +191,443 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Killer type: " + killerEntity.GetType());
-				
+
 		PlayerBase killerPlayer;
 		ZombieBase killerInfected;
+		AnimalBase killerAnimal;
 		PlayerBase victimPlayer;
 		ZombieBase victimInfected;
+		AnimalBase victimAnimal;
+		
 		bool killerIsPlayer = false;
 		bool killerIsAI = false;
 		bool killerIsInfected = false;
+		bool killerIsAnimal = false;
 		bool victimIsPlayer = false;
 		bool victimIsAI = false;
 		bool victimIsInfected = false;
+		bool victimIsAnimal = false;
 		
 		ExpansionHardlinePlayerData killerPlayerData;
 		ExpansionHardlinePlayerData victimPlayerData;
 		
 		//! Set killer entity
-		if (Class.CastTo(killerPlayer, killerEntity))
+		if (Class.CastTo(killerPlayer, killerEntity.GetHierarchyRootPlayer()))
 		{
-			killerIsPlayer = true;
 		#ifdef EXPANSIONMODAI
 			if (killerPlayer.IsAI())
 				killerIsAI = true;
+			else
 		#endif
-		}
-		else if (Class.CastTo(killerPlayer, killerEntity.GetHierarchyRootPlayer()))
-		{
 			killerIsPlayer = true;
-		#ifdef EXPANSIONMODAI
-			if (killerPlayer.IsAI())
-				killerIsAI = true;
-		#endif
 		}
 		else if (Class.CastTo(killerInfected, killerEntity))
 		{
 			killerIsInfected = true;
 		}
+		else if (Class.CastTo(killerAnimal, killerEntity))
+		{
+			killerIsAnimal = true;
+		}
 		
 		//! Set victim entity
-		if (Class.CastTo(victimPlayer, victim))
+		if (Class.CastTo(victimPlayer, victim.GetHierarchyRootPlayer()))
 		{
-			victimIsPlayer = true;
 		#ifdef EXPANSIONMODAI
 			if (victimPlayer.IsAI())
 				victimIsAI = true;
+			else
 		#endif
-		}
-		else if (Class.CastTo(victimPlayer, victim.GetHierarchyRootPlayer()))
-		{
 			victimIsPlayer = true;
-		#ifdef EXPANSIONMODAI
-			if (victimPlayer.IsAI())
-				victimIsAI = true;
-		#endif
 		}
 		else if (Class.CastTo(victimInfected, victim))
 		{
 			victimIsInfected = true;
 		}
+		else if (Class.CastTo(victimAnimal, victim))
+		{
+			victimIsAnimal = true;
+		}
 		
-		if (!victimPlayer && !killerIsPlayer)
+		if (!victimPlayer && !killerPlayer)
 			return;
 		
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Player: " + killerIsPlayer);
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is AI: " + killerIsAI);
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Infected: " + killerIsInfected);
+		HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Animal: " + killerIsAnimal);
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Victim is Player: " + victimIsPlayer);
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Victim is AI: " + victimIsAI);
 		HardlineModulePrint(ToString() + "::OnEntityKilled - Victim is Infected: " + victimIsInfected);
+		HardlineModulePrint(ToString() + "::OnEntityKilled - Victim is Animal: " + victimIsAnimal);
 		
 		StringLocaliser title;
 		StringLocaliser text;
 			
-		if (killerIsPlayer && !killerIsAI)
+		//! Killer was a normal player
+		if (killerIsPlayer)
 		{
-			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Player - START");
-			killerPlayerData = GetPlayerHardlineDataByUID(killerPlayer.GetIdentity().GetId());
-			
-			if (victimIsPlayer && !victimIsAI) 
+			//! Victim was a normal player.
+			if (victimIsPlayer)
 			{
-				HardlineModulePrint(ToString() + "::OnEntityKilled - Player victim type: " + victimPlayer.GetType());
-				HardlineModulePrint(ToString() + "::OnEntityKilled - Player killer type: " + killerPlayer.GetType());
-			#ifdef EXPANSIONMODAI
-				HardlineModulePrint(ToString() + "::OnEntityKilled - Player victim is AI: " + victimPlayer.IsAI());
-				HardlineModulePrint(ToString() + "::OnEntityKilled - Player killer is AI: " + killerPlayer.IsAI());
-			#endif
-				
-				if (killerPlayer == victimPlayer)
-					return;
-								
-				int killerHumanity = killerPlayerData.GetHumanity();
-				string humanityText;
-				int humanityChange;
-												
-				victimPlayerData = GetPlayerHardlineDataByUID(victimPlayer.GetIdentity().GetId());
-				if (!victimPlayerData)
-					return;
-				
-				int victimHumanity = victimPlayerData.GetHumanity();
-				
-				bool killerIsBandit = killerHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac;
-				bool killerIsHero = killerHumanity >= GetExpansionSettings().GetHardline().RankScout;
-
-				bool victimIsBandit = victimHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac;
-				bool victimIsHero = victimHumanity >= GetExpansionSettings().GetHardline().RankScout;
-
-				if (victimIsBandit)
-				{
-					humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBandit * victimPlayerData.GetRank();
-					killerPlayerData.OnKillBandit();
-				}
-				else if (victimIsHero)
-				{
-					humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillHero * victimPlayerData.GetRank();
-					killerPlayerData.OnKillHero();
-				}
-				else
-				{
-					humanityChange = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
-					killerPlayerData.OnKillBambi();
-				}
-
-				if ((killerIsBandit || killerIsHero) && victimIsBandit)
-				{
-					killerPlayerData.AddHumanity(humanityChange);
-					humanityText = "STR_EXPANSION_HARDLINE_ADDED";
-				}
-				else
-				{
-					killerPlayerData.RemoveHumanity(humanityChange);
-					humanityText = "STR_EXPANSION_HARDLINE_REMOVED";
-				}
-					
-				if (humanityChange != 0)
-				{
-					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-					
-					SendPlayerHardlineData(victimPlayerData, victimPlayer.GetIdentity());
-				}
+				HandlePlayerKilledPlayer(killerPlayer, victimPlayer);
 			}
-			else if (victimIsInfected)
+			//! Victim was a infected.
+			else if (victimIsInfected)	
 			{
-				int humanityOnKillInfected = GetExpansionSettings().GetHardline().HumanityOnKillInfected;
-				if (humanityOnKillInfected > 0)
-				{
-					killerPlayerData.AddHumanity(humanityOnKillInfected);
-													
-					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-				}
-				
-				killerPlayerData.OnInfectedKilled();
+				HandlePlayerKilledInfected(killerPlayer, victimInfected);
+			}
+			//! Victim was an animal.
+			else if (victimIsAnimal)	
+			{
+				HandlePlayerKilledAnimal(killerPlayer, victimAnimal);
 			}
 		#ifdef EXPANSIONMODAI
-			else if (victimIsPlayer && victimIsAI)
+			 //! Victim was an AI.
+			else if (victimIsAI)
 			{
-				int humanityOnKillAI = GetExpansionSettings().GetHardline().HumanityOnKillAI;
-				
-				//! If killerPlayer is bandit
-				if (killerHumanity <= GetExpansionSettings().GetHardline().RankKleptomaniac)
-				{
-					killerPlayerData.RemoveHumanity(humanityOnKillAI);
-					humanityText = "STR_EXPANSION_HARDLINE_REMOVED";
-				}
-				//! If killerPlayer is hero or neutral
-				else
-				{
-					killerPlayerData.AddHumanity(humanityOnKillAI);
-					humanityText = "STR_EXPANSION_HARDLINE_ADDED";
-				}
-				
-				killerPlayerData.OnAIKilled();
-				
-				if (humanityOnKillAI != 0)
-				{
-					killerPlayerData.Save(killerPlayer.GetIdentity().GetId());		
-					SendPlayerHardlineData(killerPlayerData, killerPlayer.GetIdentity());
-				}
+				HandlePlayerKilledAI(killerPlayer, victimPlayer);
 			}
 		#endif
 		}
-		else if (killerIsInfected)
-		{
-			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is Infected - START");
-			
-			if (victimPlayer && !victimIsAI)
-				OnPlayerDeath(victimPlayer);
-		}
-		else if (!killerIsPlayer && !killerIsAI && !killerIsInfected)
-		{
-			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is UNKNOWN - START");
-			
-			if (victimIsAI)
-				return;
-			
-			if (victimPlayer)			
-				OnPlayerDeath(victimPlayer);
-		}
 	#ifdef EXPANSIONMODAI
-		else if (killerIsPlayer && killerIsAI)
+		//! Killer was an AI and victim was player
+		else if (victimIsPlayer && killerIsAI) 
 		{
-			HardlineModulePrint(ToString() + "::OnEntityKilled - Killer is AI - START");
-			
-			if (victimPlayer && !victimPlayer.IsAI())
-				OnPlayerDeath(victimPlayer);
+			HandlePlayerKilledByAI(victimPlayer, killerPlayer);
 		}
 	#endif
+		//! Victim was a normal player
+		else if (victimIsPlayer)
+		{
+			HandlePlayerDeath(victimPlayer);
+		}
 		
 		HardlineModulePrint(ToString() + "::OnEntityKilled - End");
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnPlayerDeath
-	// Server
-	// ------------------------------------------------------------
-	void OnPlayerDeath(PlayerBase victimPlayer)
+	protected void HandlePlayerKilledAnimal(PlayerBase killer, AnimalBase animal)
 	{
-		HardlineModulePrint(ToString() + "::OnPlayerDeath - Start");
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledAnimal - Start");
 		
-		ExpansionHardlinePlayerData victimPlayerData = GetPlayerHardlineDataByUID(victimPlayer.GetIdentity().GetId());
+		string killerUID = killer.GetIdentity().GetId();
+        ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
+        
+        if (!killerPlayerData)
+            return;
+		
+		int killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillAnimal;
+		
+		  //! If the animal was friendly to the killer the killer will lose humanity.
+        bool isFriendly = killer.GetGroup().GetFaction().IsFriendly(animal);
+		if (isFriendly)
+        {
+            if (!killer.IsBandit())
+                killerHumanity = -killerHumanity;  //! Hero/Bambi looses humanity when negative
+        }
+        //! If the animal was not friendly towords the killer the killer will gain humanity.
+        else
+        {
+            if (killer.IsBandit())
+                killerHumanity = -killerHumanity;  //! Bandit gains humanity when negative
+        }
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledAnimal - Killer humanity change: " + killerHumanity);
+		
+		killerPlayerData.AddHumanity(killerHumanity);
+        killerPlayerData.Save(killerUID);
+        SendPlayerHardlineData(killerPlayerData, killer.GetIdentity());
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledAnimal - End");
+	}
+	
+	protected void HandlePlayerKilledInfected(PlayerBase killer, ZombieBase infected)
+	{
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledInfected - Start");
+		
+		string killerUID = killer.GetIdentity().GetId();
+        ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
+        
+        if (!killerPlayerData)
+            return;
+		
+		int killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillInfected;
+		
+		  //! If the animal was friendly to the killer the killer will lose humanity.
+        bool isFriendly = killer.GetGroup().GetFaction().IsFriendly(infected);
+		if (isFriendly)
+        {
+            if (!killer.IsBandit())
+                killerHumanity = -killerHumanity;  //! Hero/Bambi looses humanity when negative
+        }
+        //! If the animal was not friendly towords the killer the killer will gain humanity.
+        else
+        {
+            if (killer.IsBandit())
+                killerHumanity = -killerHumanity;  //! Bandit gains humanity when negative
+        }
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledInfected - Killer humanity change: " + killerHumanity);
+		
+		killerPlayerData.AddHumanity(killerHumanity);
+        killerPlayerData.Save(killerUID);
+        SendPlayerHardlineData(killerPlayerData, killer.GetIdentity());
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledInfected - End");
+	}
+	
+#ifdef EXPANSIONMODAI
+	 protected void HandlePlayerKilledAI(PlayerBase killer, PlayerBase victim)
+    {
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledAI - Start");
+		
+        string killerUID = killer.GetIdentity().GetId();
+        ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
+        
+        if (!killerPlayerData)
+            return;
+        
+        eAIBase victimAI = eAIBase.Cast(victim);
+        if (!victimAI)
+            return;
+        
+        int killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillAI;
+        
+        //! If the ai was friendly to the killer the killer will lose humanity.
+        bool isFriendly;
+        if (killer.GetGroup())
+            isFriendly = victimAI.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
+        else
+            isFriendly = victimAI.GetGroup().GetFaction().IsFriendly(killer);
+        
+		if (isFriendly)
+        {
+            if (!killer.IsBandit())
+                killerHumanity = -killerHumanity;  //! Hero/Bambi looses humanity when negative
+        }
+        //! If the ai was not friendly towords the killer the killer will gain humanity.
+        else
+        {
+            if (killer.IsBandit())
+                killerHumanity = -killerHumanity;  //! Bandit gains humanity when negative
+        }
+        
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledAI - Killer humanity change: " + killerHumanity);
+		
+        killerPlayerData.AddHumanity(killerHumanity);
+        killerPlayerData.Save(killerUID);
+        SendPlayerHardlineData(killerPlayerData, killer.GetIdentity());
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledAI - End");
+    }
+#endif
+	
+	protected void HandlePlayerKilledPlayer(PlayerBase killer, PlayerBase victim)
+	{
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - Start");
+					
+		string killerUID = killer.GetIdentity().GetId();
+        ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
+		
+		string victimUID = victim.GetIdentity().GetId();
+        ExpansionHardlinePlayerData victimPlayerData = GetPlayerHardlineDataByUID(victimUID);
+		
+		int rankMultiplier = GetMultiplierByRank(victimPlayerData.GetRank());
+		int killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillHero;
+		int victimHumanity = GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+		victimHumanity = -victimHumanity;
+		
+		if (killer != victim) //! Skip if player killed himself
+		{
+			if (killer.IsBandit())
+			{
+				if (victim.IsBandit())
+				{
+					killerHumanity = rankMultiplier * GetExpansionSettings().GetHardline().HumanityOnKillBandit; //! Bandit killed an other Bandit so he gains humanity.
+				}
+				else if (!victim.IsHero() && !victim.IsBandit())
+				{
+					killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
+					killerHumanity = -killerHumanity;	 //! Bandit looses humanity when killing a Bambi.
+				}
+			}
+			else
+			{
+				 if (!victim.IsBandit())
+				{
+					if (victim.IsHero())
+					{
+						killerHumanity = rankMultiplier * -killerHumanity; //! Hero/Bambi looses humanity when killing a Hero.
+					}
+					else if (!victim.IsHero() && !victim.IsBandit())
+					{
+						killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillBambi;
+						killerHumanity = -killerHumanity;	//! Hero/Bambi looses humanity when killing a Bambi.
+					}
+				}
+				else
+				{
+					killerHumanity = rankMultiplier * GetExpansionSettings().GetHardline().HumanityOnKillBandit; //! Hero/Bambi gains humanity when killing a Bandit.
+				}
+			}
+			
+			HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - Killer humanity change: " + killerHumanity);
+			
+			killerPlayerData.AddHumanity(killerHumanity);
+			killerPlayerData.Save(killerUID);
+			SendPlayerHardlineData(killerPlayerData, killer.GetIdentity());
+		}
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - Victim humanity change: " + victimHumanity);
+
+		victimPlayerData.AddHumanity(victimHumanity);
+		victimPlayerData.Save(victimUID);
+		SendPlayerHardlineData(victimPlayerData, victim.GetIdentity());
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - End");
+	}
+	
+	int GetMultiplierByRank(ExpansionHardlineRank rank)
+	{
+		switch (rank)
+		{
+			//! Hero
+			case ExpansionHardlineRank.Scout:
+			{
+				return 2;
+			}
+			case ExpansionHardlineRank.Pathfinder:
+			{
+				return 3;
+			}
+			case ExpansionHardlineRank.Hero:
+			{
+				return 4;
+			}
+			case ExpansionHardlineRank.Superhero:
+			{
+				return 5;
+			}
+			case ExpansionHardlineRank.Legend:
+			{
+				return 6;
+			}
+			//! Bandit
+			case ExpansionHardlineRank.Kleptomaniac:
+			{
+				return 2;
+			}
+			case ExpansionHardlineRank.Bully:
+			{
+				return 3;
+			}
+			case ExpansionHardlineRank.Bandit:
+			{
+				return 4;
+			}
+			case ExpansionHardlineRank.Killer:
+			{
+				return 5;
+			}
+			case ExpansionHardlineRank.Madman:
+			{
+				return 6;
+			}
+		}
+		
+		return 1;
+	}
+	
+	protected void HandlePlayerDeath(PlayerBase victim)
+	{
+		HardlineModulePrint(ToString() + "::HandlePlayerDeath - Start");
+		
+		string victimUID = victim.GetIdentity().GetId();
+		ExpansionHardlinePlayerData victimPlayerData = GetPlayerHardlineDataByUID(victimUID);
+		
+		if (!victimPlayerData)
+			return;
+
+		int victimHumanity = 0;
+		int currentHumanity = victimPlayerData.GetHumanity();
+		int humanityDifference;
+			
+		if (victim.IsBandit())
+		{
+			humanityDifference = currentHumanity + GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+			if (humanityDifference < 0)
+			{
+				victimHumanity = GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+			}
+		}
+		else
+		{
+			humanityDifference = currentHumanity - GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+			if (humanityDifference > 0)
+			{
+				victimHumanity = GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+			}
+		}
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - Victim humanity change: " + victimHumanity);
+		
+		if (victimHumanity > 0 || victimHumanity < 0)
+		{
+			victimPlayerData.AddHumanity(victimHumanity);
+			victimPlayerData.Save(victimUID);
+			SendPlayerHardlineData(victimPlayerData, victim.GetIdentity());
+		}
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerDeath - End");
+	}
+	
+#ifdef EXPANSIONMODAI
+	protected void HandlePlayerKilledByAI(PlayerBase victim, PlayerBase killer)
+	{
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledByAI - Start");
+		
+		string victimUID = victim.GetIdentity().GetId();
+		ExpansionHardlinePlayerData victimPlayerData = GetPlayerHardlineDataByUID(victimUID);
+		
 		if (!victimPlayerData)
 			return;
 		
-		int humaityLossOnDeath = GetExpansionSettings().GetHardline().HumanityLossOnDeath;
-		if (victimPlayer.IsHero())
+		eAIBase killerAI = eAIBase.Cast(killer);
+		if (!killerAI)
+			return;
+		
+		int victimHumanity = 0;
+		
+		if (victim.IsBandit())
 		{
-			victimPlayerData.RemoveHumanity(humaityLossOnDeath);
+			victimHumanity = GetExpansionSettings().GetHardline().HumanityLossOnDeath;
 		}
-		else if (victimPlayer.IsBandit())
+		else if (victim.IsHero())
 		{
-			victimPlayerData.AddHumanity(humaityLossOnDeath);
+			victimHumanity -= GetExpansionSettings().GetHardline().HumanityLossOnDeath;
 		}
-		else if (!victimPlayer.IsBandit() && !victimPlayer.IsHero())
+		else if (!victim.IsBandit() && !victim.IsHero())
 		{
-			victimPlayerData.ResetHumanity();
+			int currentHumanity = victimPlayerData.GetHumanity();
+			int humanityDifference = currentHumanity - GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+			
+			if (humanityDifference > 0)
+			{
+				victimHumanity -= GetExpansionSettings().GetHardline().HumanityLossOnDeath;
+			}
 		}
 		
-		victimPlayerData.OnPlayerDeath();
-		victimPlayerData.Save(victimPlayer.GetIdentity().GetId());
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - Victim humanity change: " + victimHumanity);
 		
-		HardlineModulePrint(ToString() + "::OnPlayerDeath - End");
+		victimPlayerData.AddHumanity(victimHumanity);
+		victimPlayerData.Save(victimUID);
+		SendPlayerHardlineData(victimPlayerData, victim.GetIdentity());
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKilledByAI - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnPlayerPositiveAction
-	// Server
-	// ------------------------------------------------------------
-	void OnPlayerPositiveAction(PlayerBase player, int humanity)
+#endif
+
+	void OnPlayerAction(PlayerBase player, int humanity)
 	{
 	#ifdef EXPANSIONMODAI
 		if (player.IsAI())
@@ -491,36 +646,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		hardlinePlayerData.Save(player.GetIdentity().GetId());		
 		SendPlayerHardlineData(hardlinePlayerData, player.GetIdentity());
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule OnPlayerNegativeAction
-	// Server
-	// ------------------------------------------------------------
-	void OnPlayerNegativeAction(PlayerBase player, int humanity)
-	{
-	#ifdef EXPANSIONMODAI
-		if (player.IsAI())
-			return;
-	#endif
-		
-		string playerID = player.GetIdentity().GetId();		
-		ExpansionHardlinePlayerData hardlinePlayerData = GetPlayerHardlineDataByUID(playerID);
-		if (!hardlinePlayerData)
-			return;
-		
-		if (humanity == 0)
-			return;
 
-		hardlinePlayerData.RemoveHumanity(humanity);	
-		hardlinePlayerData.Save(player.GetIdentity().GetId());		
-		SendPlayerHardlineData(hardlinePlayerData, player.GetIdentity());
-	}
-	
 #ifdef WRDG_DOGTAGS
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule UpdatePlayerDogTag
-	// Server
-	// ------------------------------------------------------------	
 	void UpdatePlayerDogTag(string playerID)
 	{
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);		
@@ -546,35 +673,75 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 #endif
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule HardlineModulePrint
-	// ------------------------------------------------------------
+#ifdef EXPANSIONMOD
+	void UpdatePlayerArmband(string playerID)
+	{
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);		
+		if (player)
+		{
+			ExpansionHardlinePlayerData data = GetPlayerHardlineDataByUID(playerID);
+			if (!data)
+				return;
+			
+			ExpansionArmbandBandit armbandBandit;
+			ExpansionArmbandHero armbandHero;
+			Armband_ColorBase currentArmband = Armband_ColorBase.Cast(player.FindAttachmentBySlotName("Armband"));
+			if (currentArmband)
+			{
+				if (Class.CastTo(armbandBandit, currentArmband) && player.IsHero())
+				{
+					GetGame().ObjectDelete(currentArmband);
+					player.GetInventory().CreateAttachment("ExpansionArmbandHero");
+				}
+				else if (Class.CastTo(armbandHero, currentArmband) && player.IsBandit())
+				{
+					GetGame().ObjectDelete(currentArmband);
+					player.GetInventory().CreateAttachment("ExpansionArmbandBandit");
+				}
+				else if (!player.IsHero() && !player.IsBandit())
+				{
+					if (Class.CastTo(armbandBandit, currentArmband))
+					{
+						GetGame().ObjectDelete(currentArmband);
+					}
+					else if (Class.CastTo(armbandHero, currentArmband))
+					{
+						GetGame().ObjectDelete(currentArmband);
+					}
+				}
+			}
+			else
+			{
+				if (player.IsHero())
+				{
+					player.GetInventory().CreateAttachment("ExpansionArmbandHero");
+				}
+				else if (player.IsBandit())
+				{
+					player.GetInventory().CreateAttachment("ExpansionArmbandBandit");
+				}
+			}
+		}
+	}
+#endif
+
 	void HardlineModulePrint(string text)
 	{
 	#ifdef EXPANSIONMODHARDLINEDEBUG
 		Print(text);
 	#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule GetRPCMin
-	// ------------------------------------------------------------
+
 	override int GetRPCMin()
 	{
 		return ExpansionHardlineModuleRPC.INVALID;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule GetRPCMax
-	// ------------------------------------------------------------
 	override int GetRPCMax()
 	{
 		return ExpansionHardlineModuleRPC.COUNT;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule GetRPCMax
-	// ------------------------------------------------------------
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
 	#ifdef EXPANSIONTRACE
@@ -594,11 +761,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule SendPlayerHardlineData
-	// Called on server
-	// ------------------------------------------------------------
+
 	void SendPlayerHardlineData(PlayerIdentity identity)
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
@@ -625,16 +788,16 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		UpdatePlayerDogTag(identity.GetId());
 	#endif
 		
+	#ifdef EXPANSIONMOD
+		UpdatePlayerArmband(identity.GetId());
+	#endif
+		
 		ScriptRPC rpc = new ScriptRPC();
 		hardlinePlayerData.OnSend(rpc);
 		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendPlayerHardlineData, false, identity);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule RPC_SendPlayerHardlineData
-	// Called on client
-	// ------------------------------------------------------------
-	private void RPC_SendPlayerHardlineData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	protected void RPC_SendPlayerHardlineData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		if (!GetGame().IsClient())
 			return;
@@ -654,11 +817,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			player.SetHumanity(m_HardlinePlayerData.GetHumanity());
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule GetHardlineClientData
-	// Called on client
-	// ------------------------------------------------------------	
+
 	ExpansionHardlinePlayerData GetHardlineClientData()
 	{
 		return m_HardlinePlayerData;

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_An2
 	{
-		units[] = {"Vehicle_ExpansionAnWheel","Vehicle_ExpansionAnWheelSmall","Vehicle_ExpansionAn2","ExpansionSpraycanGreen","Vehicle_ExpansionAn2_Green","ExpansionSpraycanWhite","Vehicle_ExpansionAn2_White","ExpansionSpraycanOrange","Vehicle_ExpansionAn2_Orange"};
+		units[] = {"ExpansionSpraycanGreen","ExpansionSpraycanWhite","ExpansionSpraycanOrange"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -58,7 +58,7 @@ class CfgVehicles
 	class ExpansionWheelBase;
 	class Vehicle_ExpansionAnWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_FRONT_DESC";
 		model = "\DayZExpansion\Vehicles\Air\An2\proxy\AnWheelMain.p3d";
@@ -78,14 +78,14 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_ExpansionAnWheelSmall: Vehicle_ExpansionAnWheel
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_AN2_WHEEL_BACK_DESC";
 		model = "\DayZExpansion\Vehicles\Air\An2\proxy\AnWheelSmall.p3d";
@@ -105,15 +105,15 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_ExpansionAn2: ExpansionVehiclePlaneBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  AN2";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_AN2";
 		model = "DayZExpansion\Vehicles\Air\An2\an2.p3d";
 		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Plane";

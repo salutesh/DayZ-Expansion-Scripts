@@ -1,5 +1,0 @@
-
-/**
- * Expansion Object Serialization
- * @{
- */

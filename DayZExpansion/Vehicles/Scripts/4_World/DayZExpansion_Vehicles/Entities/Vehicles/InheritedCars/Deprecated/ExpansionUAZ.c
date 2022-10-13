@@ -38,6 +38,10 @@ class ExpansionUAZ extends CarScript
 {
 	bool m_HasRoof;
 
+	protected ref UniversalTemperatureSource m_UTSource;
+	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
+	protected ref UniversalTemperatureSourceLambdaEngine m_UTSLEngine;
+
 	void ExpansionUAZ()
 	{
 		m_dmgContactCoef = 0.040;
@@ -50,6 +54,64 @@ class ExpansionUAZ extends CarScript
 
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
+		
+		#ifndef DAYZ_1_18
+		//! 1.19
+		m_CarHornShortSoundName = "Offroad_Horn_Short_SoundSet";
+		m_CarHornLongSoundName	= "Offroad_Horn_SoundSet";
+		#endif
+		
+		SetEnginePos("0 0.01 1.15");
+	}
+	
+	override void EEInit()
+	{		
+		super.EEInit();
+		
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+ 			m_UTSSettings 					= new UniversalTemperatureSourceSettings();
+			m_UTSSettings.m_ManualUpdate 	= true;
+			m_UTSSettings.m_TemperatureMin	= 0;
+			m_UTSSettings.m_TemperatureMax	= 30;
+			m_UTSSettings.m_RangeFull		= 0.5;
+			m_UTSSettings.m_RangeMax		= 2;
+			m_UTSSettings.m_TemperatureCap	= 25;
+			
+			m_UTSLEngine					= new UniversalTemperatureSourceLambdaEngine();
+			m_UTSource						= new UniversalTemperatureSource(this, m_UTSSettings, m_UTSLEngine);
+		}		
+	}
+	
+	override void OnEngineStart()
+	{
+		super.OnEngineStart();
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_UTSource.SetDefferedActive(true, 20.0);
+		}
+	}
+	
+	override void OnEngineStop()
+	{
+		super.OnEngineStop();
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_UTSource.SetDefferedActive(false, 10.0);
+		}
+	}
+	
+	override void EOnPostSimulate(IEntity other, float timeSlice)
+	{		
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			if (m_UTSource.IsActive())
+			{
+				m_UTSource.Update(m_UTSSettings, m_UTSLEngine);
+			}
+		}
 	}
 
 	override void EEItemAttached(EntityAI item, string slot_name)
@@ -264,10 +326,6 @@ class ExpansionUAZ extends CarScript
 			// }
 			break;
 		}
-		default:
-		{
-			return CarDoorState.DOORS_MISSING;
-		}
 		}
 
 		return CarDoorState.DOORS_MISSING;
@@ -349,8 +407,7 @@ class ExpansionUAZ extends CarScript
 				newValue = 1;
 
 			return newValue;
-		default:
-			break;
+		break;
 		}
 
 		return super.OnSound(ctrl, oldValue);

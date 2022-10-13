@@ -56,5 +56,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionDestroyLock );
 
 		actions.Insert( ExpansionActionDestroyTerritory );
+
+		actions.Insert( ExpansionActionInstallCircuitBoard );
 	}
 }

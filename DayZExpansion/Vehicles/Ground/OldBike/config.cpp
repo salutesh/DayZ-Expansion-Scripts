@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_oldbike
 	{
-		units[] = {"Vehicle_ExpansionOldBikeWheel","Vehicle_ExpansionOldBike"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -50,7 +50,7 @@ class CfgVehicles
 	class Health;
 	class Vehicle_ExpansionOldBikeWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_OLDBIKE_WHEEL";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_OLDBIKE_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\oldbike\proxy\Expansion_old_bike_wheel.p3d";
@@ -64,8 +64,8 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionOldBike: ExpansionVehicleBikeBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  OLD BIKE";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_OLDBIKE";
 		model = "\DayZExpansion\Vehicles\Ground\OldBike\old_bike.p3d";
 		attachments[] = {"expansion_old_bike_wheel_1","expansion_old_bike_wheel_2"};
 		fuelCapacity = 0;

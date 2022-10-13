@@ -9,6 +9,8 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
+		//! TODO: Use collision box
+
 		if (m_Creature.IsInherited(Animal_UrsusArctos))
 			return "0 1.3 0";
 

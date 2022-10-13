@@ -64,6 +64,7 @@ class eAICommandMenu extends UIScriptedMenu
 	protected Widget m_SelectedItem;
 	protected bool m_IsCategorySelected;
 	protected bool m_IsMenuClosing;
+	protected int m_CurrentCategory;
 
 	//instance
 	static ref eAICommandMenu instance;
@@ -183,10 +184,13 @@ class eAICommandMenu extends UIScriptedMenu
 		if (category_id > -1)
 		{
 			GetGestureItems(m_GestureItems, category_id);
+			m_CurrentCategory = category_id;
 		}
 		else
 		{
 			GetGestureItems(m_GestureItems, eAICommandCategories.CATEGORIES);
+			m_CurrentCategory = -1;
+			instance.m_IsCategorySelected = false;
 		}
 
 		CreateGestureContent();
@@ -426,9 +430,28 @@ class eAICommandMenu extends UIScriptedMenu
 		UnmarkSelected(w);
 	}
 
-	void OnMouseExecute(Widget w)
+	// unused, press events used instead with 1.19
+	void OnMouseExecute( Widget w )
 	{
-		ExecuteSelectedCategory(w);
+	}
+	
+	//! LMB
+	void OnMousePressLeft( Widget w )
+	{
+		if (instance.m_IsCategorySelected)
+		{
+			ExecuteSelectedItem();
+		}
+		else
+		{
+			ExecuteSelectedCategory( w );
+		}
+	}
+	
+	//! RMB
+	void OnMousePressRight( Widget w )
+	{
+		BackOneLevel();
 	}
 
 	//Controller
@@ -442,42 +465,31 @@ class eAICommandMenu extends UIScriptedMenu
 		UnmarkSelected(w);
 	}
 
-	void OnControllerExecute(Widget w)
+	// unused, press events used instead with 1.19
+	void OnControllerExecute( Widget w )
 	{
-		ExecuteSelectedCategory(w);
 	}
-
-	void OnControllerPressSelect(Widget w)
+	
+	void OnControllerPressSelect( Widget w )
 	{
-		ExecuteSelectedItem();
-	}
-
-	void OnControllerPressBack(Widget w)
-	{
-		//back to category or close menu?
-		/*
 		if (instance.m_IsCategorySelected)
-		{
-		instance.m_IsCategorySelected = false;	//reset category selection
-		RefreshGestures();	//back to categories
-		}
-		else
-		{
-		//close menu
-		CloseMenu();
-		}
-
-		*/
-	}
-
-	//Gestures Menu
-	void OnMenuRelease()
-	{
-		//execute on release (mouse only)
-		if (RadialMenu.GetInstance().IsUsingMouse())
 		{
 			ExecuteSelectedItem();
 		}
+		else
+		{
+			ExecuteSelectedCategory( w );
+		}
+	}
+	
+	void OnControllerPressBack( Widget w )
+	{
+		BackOneLevel();
+	}
+
+	//!DEPRECATED with 1.19
+	void OnMenuRelease()
+	{
 	}
 
 	//Actions
@@ -528,13 +540,13 @@ class eAICommandMenu extends UIScriptedMenu
 	protected void ExecuteSelectedCategory(Widget w)
 	{
 		//only when category is not picked yet
-		if (w && !instance.m_IsCategorySelected)
+		if (w)
 		{
 			eAICommandMenuItem gesture_item;
 			w.GetUserData(gesture_item);
 
 			//is category
-			if (gesture_item.GetCategory() == eAICommandCategories.CATEGORIES)
+			if (!instance.m_IsCategorySelected && gesture_item.GetCategory() == eAICommandCategories.CATEGORIES)
 			{
 				//set category selected
 				instance.m_IsCategorySelected = true;
@@ -563,6 +575,13 @@ class eAICommandMenu extends UIScriptedMenu
 					g_Game.GetExpansionGame().GetCommandManager().Send(selected.GetID());
 			}
 		}
+	}
+	
+	//only moves to the GestureCategories.CATEGORIES for now
+	protected void BackOneLevel()
+	{
+		RefreshGestures();
+		UpdateCategoryName( "" );
 	}
 
 	bool IsMenuClosing()

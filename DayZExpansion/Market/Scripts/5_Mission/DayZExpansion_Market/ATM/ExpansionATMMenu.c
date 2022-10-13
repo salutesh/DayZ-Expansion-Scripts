@@ -125,11 +125,9 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_ATMMenuController.NotifyPropertyChanged("MoneyDepositValue");
 		
 		array<int> monies = new array<int>;
-		m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 		m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, NULL, true);		
 		m_ATMMenuController.PlayerMoneyValue = m_PlayerMoney.ToString();
 		m_ATMMenuController.NotifyPropertyChanged("PlayerMoneyValue");
-		monies.Clear();
 		
 		SetFocus(AmountValue);
 		
@@ -190,7 +188,6 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		if (updatePlayerMoney)
 		{
 			array<int> monies = new array<int>;
-			m_MarketModule.EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 			m_PlayerMoney = m_MarketModule.GetPlayerWorth(PlayerBase.Cast(GetGame().GetPlayer()), monies, NULL, true);
 		}
 

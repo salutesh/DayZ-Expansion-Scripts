@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_CivilianSedan
 	{
-		units[] = {"Vehicle_CivSedanWheel","Vehicle_CivSedanWheel_Ruined","Vehicle_CivilianSedan","Vehicle_CivilianSedan_White","Vehicle_CivilianSedan_Wine","Vehicle_CivilianSedan_Black","Vehicle_CivilianSedan_Police","Vehicle_CivilianSedan_Lime"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -30,7 +30,7 @@ class CfgVehicles
 	class AnimationSources;
 	class Vehicle_CivSedanWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_CivSedanWheel0";
 		descriptionShort = "$STR_CivSedanWheel1";
 		model = "\DZ\vehicles\wheeled\civiliansedan\proxy\sedanwheel.p3d";
@@ -56,7 +56,7 @@ class CfgVehicles
 	};
 	class Vehicle_CivSedanWheel_Ruined: Vehicle_CivSedanWheel
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_CivSedanWheel0";
 		model = "\DZ\vehicles\wheeled\civiliansedan\proxy\sedanwheel_destroyed.p3d";
 		radius = 0.238;
@@ -68,11 +68,11 @@ class CfgVehicles
 	};
 	class Vehicle_CivilianSedan: ExpansionVehicleCarBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  OLGA";
+		scope = 0;
+		displayname = "$STR_CivilianSedan0";
 		descriptionShort = "$STR_CivilianSedan1";
 		model = "\DZ\vehicles\wheeled\civiliansedan\CivilianSedan.p3d";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanHood","CivSedanTrunk","CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","CivSedanDriverDoors","CivSedanCoDriverDoors","CivSedanCargo1Doors","CivSedanCargo2Doors","CivSedanHood","CivSedanTrunk","CivSedanWheel_1_1","CivSedanWheel_1_2","CivSedanWheel_2_1","CivSedanWheel_2_2","CivSedanWheel_Spare_1"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","",""};
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\civiliansedan_cr.rvmat","dz\vehicles\wheeled\civiliansedan\data\civiliansedan_cr.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat","dz\vehicles\wheeled\civiliansedan\data\white\civiliansedan.rvmat"};
@@ -109,56 +109,68 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			drive = "DRIVE_RWD";
-			airDragFrontTotal = 0.928;
 			class Steering
 			{
-				increaseSpeed[] = {0,50,30,40,60,25,120,5};
-				decreaseSpeed[] = {0,50,60,30,120,10};
-				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+				maxSteeringAngle = 35;
+				increaseSpeed[] = {0,50,10,40,30,30,60,15,100,7,120,4};
+				decreaseSpeed[] = {0,90,60,60,120,40};
+				centeringSpeed[] = {0,0,15,30,60,60,100,80};
 			};
 			class Throttle
 			{
-				reactionTime = 0.25;
-				defaultThrust = 0.8;
-				gentleThrust = 0.6;
-				turboCoef = 5.0;
+				reactionTime = 0.35;
+				defaultThrust = 0.65;
+				gentleThrust = 0.55;
+				turboCoef = 6;
 				gentleCoef = 0.7;
 			};
-			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.43,10,0.38,20,0.35,40,0.25,50,0.27,80,0.29,100,0.31,140,0.38};
+				reactionTime = 0.25;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2.2;
+				dragCoefficient = 0.45;
+				downforceCoefficient = 0.8;
+				downforceOffset[] = {0,0.4,-2.2};
+			};
+			drive = "DRIVE_RWD";
 			class Engine
 			{
+				torqueCurve[] = {400,0,1000,157,1700,183,2500,187,4500,147,6000,0};
 				inertia = 0.45;
-				torqueMax = 187;
-				torqueRpm = 2400;
-				powerMax = 73.5;
-				powerRpm = 4500;
-				rpmIdle = 1000;
-				rpmMin = 1050;
+				frictionTorque = 130;
+				rollingFriction = 1.5;
+				viscousFriction = 0.5;
+				rpmIdle = 900;
+				rpmMin = 1000;
 				rpmClutch = 1250;
 				rpmRedline = 4700;
-				rpmMax = 6800;
+			};
+			class Clutch
+			{
+				maxTorqueTransfer = 400;
+				uncoupleTime = 0.3;
+				coupleTime = 0.3;
 			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.51;
-				ratios[] = {3.5,2.26,1.45,1.0};
-				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.3;
-				maxClutchTorque = 180;
+				ratios[] = {3.5,2.26,1.45,1};
 			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 35;
-					brakeBias = 0.7;
-					brakeForce = 4250;
+					maxBrakeTorque = 2000;
 					wheelHubMass = 10;
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						swayBar = 300;
 						stiffness = 60000;
 						compression = 2100;
 						damping = 5500;
@@ -181,15 +193,17 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					brakeBias = 0.3;
-					brakeForce = 4500;
-					finalRatio = 4.1;
+					maxBrakeTorque = 1600;
+					maxHandbrakeTorque = 2200;
 					wheelHubMass = 10;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 275;
 						stiffness = 34000;
 						compression = 2000;
 						damping = 5100;

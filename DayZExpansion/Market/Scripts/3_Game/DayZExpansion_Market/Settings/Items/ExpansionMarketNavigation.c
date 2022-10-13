@@ -32,9 +32,12 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 			AddItem("ChernarusMap", 			15,		30,		1,		100);
 		}
 
-		AddItem("Binoculars", 					30,		60,		1,		100);	
+		AddItem("Binoculars", 					30,		60,		1,		100);
+#ifndef DAYZ_1_18
+		AddItem("GPSReceiver", 					300,	600,	1,		100,	{"Battery9V"});
+#endif
 	#ifdef EXPANSIONMODNAVIGATION
-		AddItem("ExpansionGPS", 				30,		60,		1,		100,	{"Battery9V"});
+		AddItem("ExpansionGPS", 				300,	600,	1,		100,	{"Battery9V"});
 	#endif
 	}
 };

@@ -113,7 +113,7 @@
 				if (!fsm.weapon || unit.GetItemInHands() != fsm.weapon)
 					return EXIT;  // remove complete
 				
-				if (!unit.Expansion_CloneItemToInventory(fsm.weapon))
+				if (!unit.eAI_TakeItemToInventory(fsm.weapon))
 					unit.eAI_DropItem(fsm.weapon);
 				
 				return CONTINUE;

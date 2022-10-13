@@ -30,9 +30,7 @@ modded class MissionGameplay
 		super.OnUpdate(timeslice);
 
 		if (!m_bLoaded)
-		{
 			return;
-		}
 
 		//! Checking for keyboard focus
 		bool inputIsFocused = false;
@@ -92,7 +90,7 @@ modded class MissionGameplay
 					
 					if (input.LocalHold("UAExpansionGPSToggle"))
 					{
-						if (GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.m_CloseTime > 0.75)
+						if (GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.HUDCloseTime() > 0.75)
 						{
 							//! If it's already open, just close it
 							if (m_Hud.GetGPSState())
@@ -105,7 +103,7 @@ modded class MissionGameplay
 								{			
 									if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
 									{
-										m_Hud.m_HasGPSItem = true;
+										m_Hud.SetHasGPSItem(true);
 										m_Hud.ToggleHUDGPS();
 									}
 								}

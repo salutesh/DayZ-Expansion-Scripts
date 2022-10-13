@@ -13,11 +13,10 @@
 /**@class		ExpansionAIMissionContainer
  * @brief		This class handle ai missions meta
  **/
-#ifdef EXPANSIONMODAI
 class ExpansionAIMissionContainer
 {
 	ref TStringArray Classnames;
-	bool CanBeLocked;
+	bool IsLocked;
 
 	vector Position;
 	vector Orientation;
@@ -25,12 +24,11 @@ class ExpansionAIMissionContainer
 	// ------------------------------------------------------------
 	// Expansion ExpansionAIMissionContainer
 	// ------------------------------------------------------------
-	void ExpansionAIMissionContainer(TStringArray classnames, vector position, vector orientation = "0 0 0", bool canbelocked = false)
+	void ExpansionAIMissionContainer(TStringArray classnames, vector position, vector orientation = "0 0 0", bool islocked = false)
 	{
 		Classnames = classnames;
-		CanBeLocked = canbelocked;
+		IsLocked = islocked;
 		Position = position;
 		Orientation = orientation;
 	}
-}
-#endif
+};

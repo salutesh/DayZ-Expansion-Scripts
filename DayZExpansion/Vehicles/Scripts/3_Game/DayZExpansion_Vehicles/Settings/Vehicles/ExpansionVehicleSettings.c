@@ -55,7 +55,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 
 	float VehicleRoadKillDamageMultiplier;
 
@@ -68,6 +68,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 	float DamagedEngineStartupChancePercent;
 
+	bool EnableVehicleCovers;
+
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
 	[NonSerialized()]
@@ -76,7 +78,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	void ExpansionVehicleSettings()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionVehicleSettings");
 #endif
 
 		PickLockTools = new TStringArray;
@@ -89,7 +91,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRecieve");
 #endif
 
 		ctx.Read(VehicleSync);
@@ -124,6 +126,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Read(DesyncInvulnerabilityTimeoutSeconds);
 		ctx.Read(VehicleRoadKillDamageMultiplier);
+
+		ctx.Read(EnableVehicleCovers);
 
 		m_IsLoaded = true;
 
@@ -164,6 +168,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Write(DesyncInvulnerabilityTimeoutSeconds);
 		ctx.Write(VehicleRoadKillDamageMultiplier);
+
+		ctx.Write(EnableVehicleCovers);
+
 		//! Don't send VehiclesConfig
 	}
 
@@ -373,6 +380,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					DamagedEngineStartupChancePercent = settingsDefault.DamagedEngineStartupChancePercent;
 				}
 
+				if (settingsBase.m_Version < 12)
+					EnableVehicleCovers = settingsDefault.EnableVehicleCovers;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -464,6 +474,10 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		DesyncInvulnerabilityTimeoutSeconds = 3.0;
 
 		DamagedEngineStartupChancePercent = 100.0;
+
+#ifndef CARCOVER
+		EnableVehicleCovers = true;
+#endif
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

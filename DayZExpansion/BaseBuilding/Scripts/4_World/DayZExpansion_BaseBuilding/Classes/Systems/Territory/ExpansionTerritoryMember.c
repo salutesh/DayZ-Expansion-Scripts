@@ -85,4 +85,25 @@ class ExpansionTerritoryMember
 			m_Rank = ExpansionTerritoryRank.MEMBER;
 		}
 	}
+	
+	void OnSend(ParamsWriteContext ctx)
+	{
+		ctx.Write(m_ID);
+		ctx.Write(m_Name);
+		ctx.Write(m_Rank);
+	}
+
+	bool OnRecieve(ParamsReadContext ctx)
+	{
+		if (!ctx.Read(m_ID))
+			return false;
+		
+		if (!ctx.Read(m_Name))
+			return false;
+		
+		if (!ctx.Read(m_Rank))
+			return false;
+
+		return true;
+	}
 };

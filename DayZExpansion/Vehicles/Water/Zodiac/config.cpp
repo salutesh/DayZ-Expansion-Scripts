@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Boat_Zodiac
 	{
-		units[] = {"ExpansionZodiacBoat","Vehicle_ExpansionZodiacBoat","ExpansionSpraycanOrange","ExpansionZodiacBoat_Orange","Vehicle_ExpansionZodiacBoat_Orange","ExpansionSpraycanBlack","ExpansionZodiacBoat_Black","Vehicle_ExpansionZodiacBoat_Black","ExpansionSpraycanGreen","ExpansionZodiacBoat_Green","Vehicle_ExpansionZodiacBoat_Green"};
+		units[] = {"ExpansionZodiacBoat","ExpansionSpraycanOrange","ExpansionZodiacBoat_Orange","ExpansionSpraycanBlack","ExpansionZodiacBoat_Black","ExpansionSpraycanGreen","ExpansionZodiacBoat_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -78,6 +78,7 @@ class CfgVehicles
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -92,7 +93,11 @@ class CfgVehicles
 			};
 			class Engine
 			{
+				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
 				inertia = 0.15;
+				frictionTorque = 100;
+				rollingFriction = 0.5;
+				viscousFriction = 0.5;
 				torqueMax = 114;
 				torqueRpm = 3400;
 				powerMax = 53.7;
@@ -112,9 +117,9 @@ class CfgVehicles
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
 			};
-			class Axles
+			class Axles: Axles
 			{
-				class Front
+				class Front: Front
 				{
 					maxSteeringAngle = 30;
 					finalRatio = 4.1;
@@ -151,7 +156,7 @@ class CfgVehicles
 						};
 					};
 				};
-				class Rear
+				class Rear: Rear
 				{
 					maxSteeringAngle = 0;
 					finalRatio = 4.1;
@@ -296,8 +301,8 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  ZODIAC";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_ZODIAC";
 		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
 		modelZeroPointDistanceFromGround = 0.43;
 		vehicleClass = "Expansion_Boat";

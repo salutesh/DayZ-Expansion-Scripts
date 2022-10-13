@@ -389,9 +389,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 			case "sandbox":
 				ExpansionSpawnsSandbox();
 			break;
-			case "expansiontest":
-				ExpansionSpawnsExpansionTest();
-			break;
 		}
 	}
 
@@ -1232,56 +1229,6 @@ class ExpansionSpawnSettings: ExpansionSpawnSettingsBase
 		location = new ExpansionSpawnLocation("Imarat", positions);
 		location.SetUseCooldown( true );
 		SpawnLocations.Insert(location);
-		positions.Clear();
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion ExpansionSpawnsExpansionTest
-	// ------------------------------------------------------------
-	void ExpansionSpawnsExpansionTest()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionSpawnsExpansionTest");
-#endif
-
-		array<vector> positions = new array<vector>;
-		ExpansionSpawnLocation location;
-
-		EnableSpawnSelection = true;
-
-		//! Airstrip
-		positions.Insert( Vector( 1072.486816, 43.562496 ,1101.662109 ) );
-		location = new ExpansionSpawnLocation( "Airstrip", positions );
-		location.SetUseCooldown( true );
-		SpawnLocations.Insert( location );
-		positions.Clear();
-
-		//! Watchtower
-		positions.Insert( Vector( 932.087341, 80.662506, 1399.989014 ) );
-		location = new ExpansionSpawnLocation( "Watchtower", positions );
-		location.SetUseCooldown( true );
-		SpawnLocations.Insert( location );
-		positions.Clear();
-
-		//! Village
-		positions.Insert( Vector( 794.725647, 43.832951, 1165.473389 ) );
-		location = new ExpansionSpawnLocation( "Village", positions );
-		location.SetUseCooldown( true );
-		SpawnLocations.Insert( location );
-		positions.Clear();
-
-		//! Port
-		positions.Insert( Vector( 928.760437, 6.862098, 792.848206 ) );
-		location = new ExpansionSpawnLocation( "Port", positions );
-		location.SetUseCooldown( true );
-		SpawnLocations.Insert( location );
-		positions.Clear();
-
-		//! Lake
-		positions.Insert( Vector( 885.015503, 44.101490, 1263.654053 ) );
-		location = new ExpansionSpawnLocation( "Lake", positions );
-		location.SetUseCooldown( true );
-		SpawnLocations.Insert( location );
 		positions.Clear();
 	}
 	

@@ -30,6 +30,9 @@ class ExpansionMarketRifles: ExpansionMarketCategory
 		AddItem("CZ527", 					500,	1000,	1,		100,	{"Mag_CZ527_5Rnd"});
 		AddItem("CZ550", 					500,	1000,	1,		100,	{"Mag_CZ550_4Rnd"});
 		AddItem("Winchester70", 			500,	1000,	1,		100);
+#ifndef DAYZ_1_18
+		AddItem("SSG82", 					450,	1000,	1,		100,	{"Mag_SSG82_5rnd"});
+#endif
 
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", 			500,	1000,	1,		100);

@@ -10,6 +10,12 @@
  *
 */
 
+class ExpansionQuestConfig_v4: ExpansionQuestConfigBase
+{
+	int QuestGiverID;
+	int QuestTurnInID;
+};
+
 class ExpansionQuestConfigBase
 {
 	int ConfigVersion;
@@ -21,8 +27,6 @@ class ExpansionQuestConfigBase
 	string ObjectiveText; //! Short objective desctiption.
 	int PreQuest = -1; //! Pre-Quest Quest ID.
 	int FollowUpQuest = -1; //! Follow-up Quest ID.
-	int QuestGiverID = -1; //! Unique quest NPC ID of the NPC that will head out the quest.
-	int QuestTurnInID = -1;	//! Unique quest NPC ID of the NPC to turn in the quest when completed.
 
 	//! Additional quest logic controll parameters
 	bool IsAchivement = false;
@@ -47,6 +51,9 @@ class ExpansionQuestConfigBase
 	//! Added with version 2
 	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.
 	
+	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
+	int HumanityReward = 0; //! Humanity reward when completing the quest.
+	
 	void ExpansionQuestConfigBase()
 	{
 		Descriptions = new array<string>;
@@ -58,14 +65,17 @@ class ExpansionQuestConfigBase
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
-	static const int CONFIGVERSION = 4;
+	static const int CONFIGVERSION = 5;
 	
-	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
-	int HumanityReward = 0; //! Humanity reward when completing the quest.
+	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
+	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
 	
 	void ExpansionQuestConfig()
 	{
 		ConfigVersion = CONFIGVERSION;
+		
+		QuestGiverIDs = new array<int>;
+		QuestTurnInIDs = new array<int>;
 	}
 
 	void SetType(int type)
@@ -252,24 +262,26 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		return FollowUpQuest;
 	}
 
-	void SetQuestGiverID(int questGiverID)
+	void AddQuestGiverID(int questGiverID)
 	{
-		QuestGiverID = questGiverID;
+		if (QuestGiverIDs.Find(questGiverID) == -1)
+			QuestGiverIDs.Insert(questGiverID);
 	}
 
-	int GetQuestGiverID()
+	array<int> GetQuestGiverIDs()
 	{
-		return QuestGiverID;
+		return QuestGiverIDs;
 	}
 
-	void SetQuestTurnInID(int questTurnInID)
+	void AddQuestTurnInID(int questTurnInID)
 	{
-		QuestTurnInID = questTurnInID;
+		if (QuestTurnInIDs.Find(questTurnInID) == -1)
+			QuestTurnInIDs.Insert(questTurnInID);
 	}
 
-	int GetQuestTurnInID()
+	array<int> GetQuestTurnInIDs()
 	{
-		return QuestTurnInID;
+		return QuestTurnInIDs;
 	}
 
 	void SetIsAchivement(bool achivement)
@@ -438,6 +450,17 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 					objective.ConfigVersion = ExpansionQuestObjectiveConfig.CONFIGVERSION;
 				}
 			}
+			
+			if (questConfigBase.ConfigVersion < 5)
+			{
+				ExpansionQuestConfig_v4 configV4;
+				JsonFileLoader<ExpansionQuestConfig_v4>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, configV4);
+				if (configV4)
+				{
+					questConfig.AddQuestGiverID(configV4.QuestGiverID);
+					questConfig.AddQuestTurnInID(configV4.QuestTurnInID);
+				}
+			}
 
 			questConfig.ConfigVersion = CONFIGVERSION;
 			save = true;
@@ -470,8 +493,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ObjectiveText = questConfigBase.ObjectiveText;
 		PreQuest = questConfigBase.PreQuest;
 		FollowUpQuest = questConfigBase.FollowUpQuest;
-		QuestGiverID = questConfigBase.QuestGiverID;
-		QuestTurnInID = questConfigBase.QuestTurnInID;
 		IsAchivement = questConfigBase.IsAchivement;
 		Repeatable = questConfigBase.Repeatable;
 		IsDailyQuest = questConfigBase.IsDailyQuest;
@@ -487,6 +508,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		QuestItems = questConfigBase.QuestItems;
 		Rewards = questConfigBase.Rewards;
 		NeedToSelectReward = questConfigBase.NeedToSelectReward;
+		RewardsForGroupOwnerOnly = questConfigBase.RewardsForGroupOwnerOnly;
+		HumanityReward = questConfigBase.HumanityReward;
 	}
 
 	void OnSend(ParamsWriteContext ctx)
@@ -508,8 +531,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ctx.Write(ObjectiveText);
 		ctx.Write(PreQuest);
 		ctx.Write(FollowUpQuest);
-		ctx.Write(QuestGiverID);
-		ctx.Write(QuestTurnInID);
 		ctx.Write(IsAchivement);
 		ctx.Write(Repeatable);
 		ctx.Write(IsDailyQuest);
@@ -628,6 +649,22 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ctx.Write(NeedToSelectReward);
 		ctx.Write(RewardsForGroupOwnerOnly);
 		ctx.Write(HumanityReward);
+		
+		int giverIDsCount = QuestGiverIDs.Count();
+		ctx.Write(giverIDsCount);
+
+		for (i = 0; i < giverIDsCount; i++)
+		{
+			ctx.Write(QuestGiverIDs[i]);
+		}
+		
+		int turnInIDsCount = QuestTurnInIDs.Count();
+		ctx.Write(turnInIDsCount);
+
+		for (i = 0; i < turnInIDsCount; i++)
+		{
+			ctx.Write(QuestTurnInIDs[i]);
+		}
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
@@ -663,12 +700,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			return false;
 
 		if (!ctx.Read(FollowUpQuest))
-			return false;
-
-		if (!ctx.Read(QuestGiverID))
-			return false;
-
-		if (!ctx.Read(QuestTurnInID))
 			return false;
 
 		if (!ctx.Read(IsAchivement))
@@ -891,6 +922,32 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		
 		if (!ctx.Read(HumanityReward))
 			return false;
+		
+		int giverIDsCount;
+		if (!ctx.Read(giverIDsCount))
+			return false;
+
+		for (i = 0; i < giverIDsCount; i++)
+		{
+			int giverID;
+			if (!ctx.Read(giverID))
+				return false;
+
+			QuestGiverIDs.Insert(giverID);
+		}
+		
+		int turnInIDsCount;
+		if (!ctx.Read(turnInIDsCount))
+			return false;
+
+		for (i = 0; i < turnInIDsCount; i++)
+		{
+			int turnInID;
+			if (!ctx.Read(turnInID))
+				return false;
+
+			QuestTurnInIDs.Insert(turnInID);
+		}
 
 		return true;
 	}
@@ -915,8 +972,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		QuestPrint(ToString() + "::QuestDebug - ObjectiveText: " + ObjectiveText);
 		QuestPrint(ToString() + "::QuestDebug - PreQuest: " + PreQuest);
 		QuestPrint(ToString() + "::QuestDebug - FollowUpQuest: " + FollowUpQuest);
-		QuestPrint(ToString() + "::QuestDebug - QuestGiverID: " + QuestGiverID);
-		QuestPrint(ToString() + "::QuestDebug - QuestTurnInID: " + QuestTurnInID);
 		QuestPrint(ToString() + "::QuestDebug - Repeatable: " + Repeatable);
 
 		int i;

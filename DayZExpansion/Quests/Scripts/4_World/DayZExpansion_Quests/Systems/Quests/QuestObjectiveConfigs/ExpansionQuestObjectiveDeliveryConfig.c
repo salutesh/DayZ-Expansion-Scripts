@@ -9,13 +9,17 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+class ExpansionQuestObjectiveDeliveryConfigBase:ExpansionQuestObjectiveConfig
+{	
+	autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
+	vector Position = vector.Zero;
+	float MaxDistance = 0;
+	string MarkerName = string.Empty;
+};
 
-class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfig
+class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConfigBase
 {
-	private autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
-	private vector Position = vector.Zero;
-	private float MaxDistance = 0;
-	private string MarkerName = string.Empty;
+	bool ShowDistance = true;
 
 	void AddDelivery(int amount, string name)
 	{
@@ -49,6 +53,11 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfig
 	{
 		MarkerName = name;
 	}
+	
+	bool ShowDistance()
+	{
+		return ShowDistance;
+	}
 
 	override string GetMarkerName()
 	{
@@ -60,9 +69,58 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfig
 		return Deliveries;
 	}
 
+	static ExpansionQuestObjectiveDeliveryConfig Load(string fileName)
+	{
+		bool save;
+		CF_Log.Info("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + fileName);
+
+		ExpansionQuestObjectiveDeliveryConfig config;
+		ExpansionQuestObjectiveDeliveryConfigBase configBase;
+
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(fileName, configBase))
+			return NULL;
+
+		if (configBase.ConfigVersion < CONFIGVERSION)
+		{
+			CF_Log.Info("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			config = new ExpansionQuestObjectiveDeliveryConfig();
+
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
+
+			config.ConfigVersion = CONFIGVERSION;
+			save = true;
+		}
+		else
+		{
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(fileName, config))
+				return NULL;
+		}
+
+		if (save)
+		{
+			JsonFileLoader<ExpansionQuestObjectiveDeliveryConfig>.JsonSaveFile(fileName, config);
+		}
+
+		return config;
+	}
+	
 	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveDeliveryConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + ".json", this);
+	}
+	
+	void CopyConfig(ExpansionQuestObjectiveDeliveryConfigBase configBase)
+	{
+		ID = configBase.ID;
+		ObjectiveType = configBase.ObjectiveType;
+		ObjectiveText = configBase.ObjectiveText;
+		TimeLimit = configBase.TimeLimit;
+		
+		Deliveries = configBase.Deliveries;
+		Position = configBase.Position;
+		MaxDistance = configBase.MaxDistance;
+		MarkerName = configBase.MarkerName;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)
@@ -80,6 +138,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfig
 		ctx.Write(Position);
 		ctx.Write(MaxDistance);
 		ctx.Write(MarkerName);
+		ctx.Write(ShowDistance);
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
@@ -112,6 +171,9 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveConfig
 			return false;
 
 		if (!ctx.Read(MarkerName))
+			return false;
+		
+		if (!ctx.Read(ShowDistance))
 			return false;
 
 		return true;

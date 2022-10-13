@@ -56,6 +56,552 @@ FrameWidgetClass ContainerWidget {
        vexactpos 1
        hexactsize 0
        vexactsize 0
+       {
+        ImageWidgetClass GPSMarkerCircle {
+         visible 1
+         clipchildren 0
+         inheritalpha 1
+         ignorepointer 1
+         position 0 0
+         size 300 300
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 100
+         image0 ""
+         imageTexture "{CFB9777C69079462}gui/textures/Marker.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         "flip v" 0
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0
+        }
+        ImageWidgetClass GPSMarkerArrow {
+         visible 1
+         clipchildren 0
+         inheritalpha 1
+         ignorepointer 1
+         position 0 0
+         size 300 300
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 100
+         image0 ""
+         imageTexture "{C1B3283734F04D70}gui/textures/Marker_Arrow.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         "flip v" 0
+         Mask "{48BFB4B086E16C62}gui/textures/cardial_small_mask.edds"
+         "Transition width" 0
+        }
+       }
+      }
+      PanelWidgetClass Map_Tools_Container {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       color 0 0 0 0.8627
+       position 0.02 0.025
+       size 430 220
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       scaled 1
+       priority 101
+       scriptclass "SizeToChild"
+       style DayZDefaultPanel
+       {
+        GridSpacerWidgetClass Map_Legend_Border {
+         visible 1
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0 0
+         size 600 250
+         valign bottom_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         priority 101
+         scriptclass ""
+         style Empty
+         Padding 0
+         Margin 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         content_halign center
+         content_valign center
+         Columns 1
+         Rows 1
+         {
+          GridSpacerWidgetClass Map_Legend {
+           visible 1
+           clipchildren 1
+           inheritalpha 0
+           ignorepointer 1
+           color 0.9804 0.9804 0.9804 0.4706
+           position 0 0
+           size 600 250
+           valign bottom_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           scaled 1
+           scriptclass ""
+           style Empty
+           Margin 6
+           "Size To Content H" 1
+           "Size To Content V" 1
+           content_halign center
+           content_valign center
+           Columns 1
+           Rows 2
+           {
+            GridSpacerWidgetClass Tools_Extra {
+             visible 1
+             ignorepointer 1
+             size 170 192
+             halign center_ref
+             valign bottom_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             scriptclass ""
+             "Ignore invisible" 0
+             Padding 5
+             Margin 4
+             "Size To Content H" 1
+             "Size To Content V" 1
+             content_halign center
+             content_valign center
+             Columns 2
+             Rows 1
+             {
+              PanelWidgetClass Tools_Compass {
+               visible 1
+               ignorepointer 1
+               size 145 142
+               halign center_ref
+               valign bottom_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               {
+                ImageWidgetClass Tools_Compass_Base {
+                 visible 1
+                 ignorepointer 1
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 image0 ""
+                 imageTexture "{E47EDB5A7ABE48BD}DayZExpansion/Navigation/GUI/textures/legend_compass.edds"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+                ImageWidgetClass Tools_Compass_Arrow {
+                 ignorepointer 1
+                 size 1 1
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 0
+                 vexactsize 0
+                 image0 ""
+                 imageTexture "{BC3132558F82CCA7}DayZExpansion/Navigation/GUI/textures/legend_compass_needle.edds"
+                 mode blend
+                 "src alpha" 1
+                 "no wrap" 1
+                 stretch 1
+                }
+                TextWidgetClass Tools_Compass_Azimuth {
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 size 128 64
+                 halign center_ref
+                 valign center_ref
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 text "248 *"
+                 font "gui/fonts/sdf_MetronBook24"
+                 "text color" 0 0 0 1
+                 "shadow offset" 2 2
+                 "italic text" 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 16
+                 "size to text h" 1
+                 "size to text v" 0
+                 "text halign" center
+                 "text valign" center
+                }
+               }
+              }
+              GridSpacerWidgetClass Tools_GPS {
+               ignorepointer 1
+               color 0.8627 0.8627 0.8627 0.7843
+               size 145 142
+               halign center_ref
+               valign bottom_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 1
+               vexactsize 1
+               style outline
+               Margin 4
+               "Size To Content H" 1
+               "Size To Content V" 1
+               Columns 1
+               Rows 6
+               {
+                TextWidgetClass Tools_GPS_Header {
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 size 256 20
+                 halign right_ref
+                 valign center_ref
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 text "#STR_GRID_SECTOR"
+                 font "gui/fonts/sdf_MetronBook24"
+                 "text color" 0 0 0 1
+                 "text offset" 5 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
+                 "text valign" center
+                }
+                PanelWidgetClass Spacer {
+                 ignorepointer 1
+                 size 256 20
+                 halign right_ref
+                 valign center_ref
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                }
+                GridSpacerWidgetClass Tools_GPS_X {
+                 ignorepointer 1
+                 size 256 20
+                 halign right_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 "Size To Content H" 1
+                 Columns 2
+                 Rows 1
+                 {
+                  TextWidgetClass Tools_GPS_X_Header {
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 175 24
+                   hexactpos 1
+                   vexactpos 1
+                   hexactsize 1
+                   vexactsize 1
+                   text "#STR_DIK_X"
+                   font "gui/fonts/sdf_MetronBook24"
+                   "text color" 0 0 0 1
+                   "text offset" 5 0
+                   "bold text" 1
+                   "exact text" 1
+                   "exact text size" 18
+                   "text valign" center
+                  }
+                  TextWidgetClass Tools_GPS_X_Value {
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 75 24
+                   hexactpos 1
+                   vexactpos 1
+                   hexactsize 1
+                   vexactsize 1
+                   text "00.00"
+                   font "gui/fonts/sdf_MetronBook24"
+                   "text color" 0 0 0 1
+                   "bold text" 1
+                   "exact text" 1
+                   "exact text size" 18
+                   "text halign" right
+                   "text valign" center
+                  }
+                 }
+                }
+                GridSpacerWidgetClass Tools_GPS_Y {
+                 ignorepointer 1
+                 size 256 20
+                 halign right_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 "Size To Content H" 1
+                 Columns 2
+                 Rows 1
+                 {
+                  TextWidgetClass Tools_GPS_Y_Header {
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 175 24
+                   hexactpos 1
+                   vexactpos 1
+                   hexactsize 1
+                   vexactsize 1
+                   text "#STR_DIK_Y"
+                   font "gui/fonts/sdf_MetronBook24"
+                   "text color" 0 0 0 1
+                   "text offset" 5 0
+                   "bold text" 1
+                   "exact text" 1
+                   "exact text size" 18
+                   "text valign" center
+                  }
+                  TextWidgetClass Tools_GPS_Y_Value {
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 75 24
+                   hexactpos 1
+                   vexactpos 1
+                   hexactsize 1
+                   vexactsize 1
+                   text "00.00"
+                   font "gui/fonts/sdf_MetronBook24"
+                   "text color" 0 0 0 1
+                   "bold text" 1
+                   "exact text" 1
+                   "exact text size" 18
+                   "text halign" right
+                   "text valign" center
+                  }
+                 }
+                }
+                PanelWidgetClass Spacer0 {
+                 ignorepointer 1
+                 size 256 20
+                 halign right_ref
+                 valign center_ref
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                }
+                GridSpacerWidgetClass Tools_GPS_Elevation {
+                 ignorepointer 1
+                 size 256 20
+                 halign right_ref
+                 valign center_ref
+                 hexactpos 0
+                 vexactpos 0
+                 hexactsize 1
+                 vexactsize 1
+                 "Size To Content H" 1
+                 Columns 2
+                 Rows 1
+                 {
+                  TextWidgetClass Tools_GPS_Elevation_Header {
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 175 24
+                   hexactpos 1
+                   vexactpos 1
+                   hexactsize 1
+                   vexactsize 1
+                   text "#STR_ALTITUDE"
+                   font "gui/fonts/sdf_MetronBook24"
+                   "text color" 0 0 0 1
+                   "text offset" 5 0
+                   "bold text" 1
+                   "exact text" 1
+                   "exact text size" 18
+                   "text valign" center
+                  }
+                  TextWidgetClass Tools_GPS_Elevation_Value {
+                   ignorepointer 1
+                   color 0.8627 0.8627 0.8627 1
+                   position 0 0
+                   size 75 24
+                   hexactpos 1
+                   vexactpos 1
+                   hexactsize 1
+                   vexactsize 1
+                   text "000 m"
+                   font "gui/fonts/sdf_MetronBook24"
+                   "text color" 0 0 0 1
+                   "bold text" 1
+                   "exact text" 1
+                   "exact text size" 18
+                   "text halign" right
+                   "text valign" center
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+            GridSpacerWidgetClass Tools_Scale {
+             visible 1
+             ignorepointer 1
+             color 0.8627 0.8627 0.8627 0.7843
+             position 0 0
+             size 448 50
+             hexactpos 0
+             vexactpos 0
+             hexactsize 1
+             vexactsize 1
+             style outline
+             "Size To Content H" 1
+             Columns 1
+             Rows 2
+             {
+              GridSpacerWidgetClass Tools_Scale_Contour {
+               ignorepointer 1
+               position 10 10
+               size 55 48
+               hexactpos 1
+               vexactpos 1
+               hexactsize 1
+               vexactsize 1
+               "Size To Content H" 1
+               Columns 2
+               Rows 1
+               {
+                TextWidgetClass Tools_Scale_Contour_Header {
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 position 0 0
+                 size 325 24
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 scaled 1
+                 text "#STR_CONTOUR_INTERVAL"
+                 font "gui/fonts/sdf_MetronBook24"
+                 "text color" 0 0 0 1
+                 "text offset" 5 0
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
+                 "size to text h" 0
+                 "size to text v" 0
+                 "text valign" center
+                }
+                TextWidgetClass Tools_Scale_Contour_Value {
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 position 0 0
+                 size 80 24
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 text "50 m"
+                 font "gui/fonts/sdf_MetronBook24"
+                 "text color" 0 0 0 1
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
+                 "size to text h" 0
+                 "size to text v" 0
+                 "text halign" right
+                 "text valign" center
+                }
+               }
+              }
+              GridSpacerWidgetClass Tools_Scale_CellSize {
+               clipchildren 1
+               ignorepointer 1
+               position 10 10
+               size 30 48
+               hexactpos 1
+               vexactpos 1
+               hexactsize 1
+               vexactsize 1
+               "Size To Content H" 1
+               content_valign center
+               Columns 2
+               Rows 1
+               {
+                CanvasWidgetClass Tools_Scale_CellSize_Canvas {
+                 ignorepointer 1
+                 position 10 10
+                 size 326 48
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                }
+                TextWidgetClass Tools_Scale_CellSize_Value {
+                 ignorepointer 1
+                 color 0.8627 0.8627 0.8627 1
+                 position 0 0
+                 size 80 24
+                 hexactpos 1
+                 vexactpos 1
+                 hexactsize 1
+                 vexactsize 1
+                 text "1000 m"
+                 font "gui/fonts/sdf_MetronBook24"
+                 "text color" 0 0 0 1
+                 "bold text" 1
+                 "exact text" 1
+                 "exact text size" 18
+                 "text halign" right
+                 "text valign" center
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+       {
+        ScriptParamsClass {
+         m_ChildName "Map_Legend_Border"
+         m_HorizontalOffset 2
+         m_VerticalOffset 2
+         m_ResizeHorizontal 1
+         m_ResizeVertical 1
+        }
+       }
       }
      }
     }

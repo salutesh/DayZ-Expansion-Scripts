@@ -71,7 +71,7 @@ class ExpansionMarketSettingsV3: ExpansionMarketSettingsBaseV2
  **/
 class ExpansionMarketSettings: ExpansionMarketSettingsBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
 
 	protected static ref map<string, string> s_MarketAmmoBoxes = new map<string, string>;
 
@@ -168,6 +168,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("LoadCategories - Start");
 		
+		if (!MarketSystemEnabled && !ATMSystemEnabled)
+			return;
+
 		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_MARKET_FOLDER, ".json");
 
 		if (!files.Count())
@@ -202,6 +205,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("LoadTraderZones - Start");
 		
+		if (!MarketSystemEnabled)
+			return;
+
 		//! Move existing files over from old location in $profile to new location in $mission
 		string folderNameOld = EXPANSION_FOLDER + "TraderZones\\";
 		if (FileExist(folderNameOld))
@@ -239,6 +245,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		//TraderPrint("LoadTraders - Start");
 		
+		if (!MarketSystemEnabled)
+			return;
+
 		array< string > files = ExpansionStatic.FindFilesInLocation(EXPANSION_TRADER_FOLDER, ".json");
 
 		if (!files.Count())
@@ -505,7 +514,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		DefaultVehicleSpawnPositions();
 		MarketMenuColors.Update();
 		
-		CurrencyIcon = "DayZExpansion/Market/GUI/icons/coinstack2_64x64.edds";
+		CurrencyIcon = "DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds";
 		SellPricePercent = 75;
 		NetworkBatchSize = 100;  //! Sync at most n items per batch
 		
@@ -526,9 +535,14 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 	// ------------------------------------------------------------
 	protected void DefaultCategories()
-	{		
+	{
 		//TraderPrint("DefaultCategories - Start");
-		AddDefaultCategory(new ExpansionMarketExchange);
+		if (MarketSystemEnabled || ATMSystemEnabled)
+			AddDefaultCategory(new ExpansionMarketExchange);
+
+		if (!MarketSystemEnabled)
+			return;
+
 		AddDefaultCategory(new ExpansionMarketAmmo);
 		AddDefaultCategory(new ExpansionMarketAmmoBoxes);
 		AddDefaultCategory(new ExpansionMarketArmbands);
@@ -688,6 +702,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	protected void DefaultVehicleSpawnPositions()
 	{
 		//TraderPrint("DefaultVehicleSpawnAreas - Start");
+
+		if (!MarketSystemEnabled)
+			return;
 
 		switch (ExpansionStatic.GetCanonicalWorldName())
 		{
@@ -908,6 +925,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 			{
 				EXPrint("[ExpansionMarketTrader] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_MARKET_SETTINGS + "\" to v" + VERSION);
 
+				if (settingsBase.m_Version < 4)
+					CopyInternal(settingsBase);
+
 				if (settingsBase.m_Version < 2)
 				{
 					ExpansionMarketSettingsV1 settings_v1;
@@ -972,11 +992,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 					MarketMenuColors.Set("ColorToggleCategoriesText", settings_v2.MarketMenuColors.ColorToggleCategoriesText);
 					MarketMenuColors.Set("ColorCategoryCorners", settings_v2.MarketMenuColors.ColorCategoryCorners);
 					MarketMenuColors.Set("ColorCategoryBackground", settings_v2.MarketMenuColors.ColorCategoryBackground);
-
-					ExpansionMarketSettingsBaseV2 settingsBaseV2;
-					JsonFileLoader<ExpansionMarketSettingsBaseV2>.JsonLoadFile(EXPANSION_MARKET_SETTINGS, settingsBaseV2);
-
-					CopyInternal(settingsBaseV2);
 					
 					UseWholeMapForATMPlayerList = settingsDefault.UseWholeMapForATMPlayerList;  //! UseWholeMapForATMPlayerList was added with version 3
 				}
@@ -1040,8 +1055,12 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 				{
 					VehicleKeys.Copy(settingsDefault.VehicleKeys);
 				}
-
-				CopyInternal(settingsBase);
+				
+				if (settingsBase.m_Version < 11)
+				{
+					if (CurrencyIcon == "DayZExpansion/Market/GUI/icons/coinstack2_64x64.edds")
+						CurrencyIcon = "DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds";
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -1069,6 +1088,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 			Currencies = StringArrayToLower(Currencies);
 		}
+		else
+		{
+			EXPrint("[ExpansionMarketSettings] No existing setting files:" + EXPANSION_MARKET_SETTINGS + ". Creating defaults!");
+			Defaults();
+		}
 
 		LoadCategories();
 		LoadTraders();
@@ -1076,8 +1100,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 		if (!marketSettingsExist)
 		{
-			EXPrint("[ExpansionMarketSettings] No existing setting files:" + EXPANSION_MARKET_SETTINGS + ". Creating defaults!");
-			Defaults();
 			Save();
 		}
 		

@@ -102,6 +102,9 @@ class ExpansionNotificationModule: CF_ModuleWorld
 				case ExpansionNotificationType.MARKET:
 					notificationElement = new ExpansionNotificationViewMarket(data, this, m_NotificationHUD);
 					break;
+				case ExpansionNotificationType.GARAGE:
+					notificationElement = new ExpansionNotificationViewGarage(data, this, m_NotificationHUD);
+					break;
 				default:
 					notificationElement = new ExpansionNotificationViewToast(data, this, m_NotificationHUD);
 					break;
@@ -138,6 +141,9 @@ class ExpansionNotificationModule: CF_ModuleWorld
 				break;
 			case ExpansionNotificationType.MARKET:
 				m_NotificationHUD.AddNotificationMarketElemement(ExpansionNotificationViewMarket.Cast(notificationElement));
+				break;
+			case ExpansionNotificationType.GARAGE:
+				m_NotificationHUD.AddNotificationGarageElemement(ExpansionNotificationViewGarage.Cast(notificationElement));
 				break;
 			default:
 				m_NotificationHUD.AddNotificationToatsElemement(ExpansionNotificationViewToast.Cast(notificationElement));

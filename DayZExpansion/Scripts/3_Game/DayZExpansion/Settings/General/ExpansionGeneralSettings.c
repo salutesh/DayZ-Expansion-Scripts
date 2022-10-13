@@ -15,7 +15,7 @@
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
@@ -34,6 +34,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool UseNewsFeedInGameMenu;
 
 	ref ExpansionHudIndicatorColors HUDColors;
+	
+	bool EnableEarPlugs;
+	string InGameMenuLogoPath;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -90,8 +93,10 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Read(UseNewsFeedInGameMenu);
 
 		HUDColors.OnReceive(ctx);
-
 		HUDColors.Update();
+		
+		ctx.Read(EnableEarPlugs);
+		ctx.Read(InGameMenuLogoPath);
 
 		m_IsLoaded = true;
 
@@ -138,6 +143,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Write(UseNewsFeedInGameMenu);
 
 		HUDColors.OnSend(ctx);
+		
+		ctx.Write(EnableEarPlugs);
+		ctx.Write(InGameMenuLogoPath);
 	}
 
 	// ------------------------------------------------------------
@@ -198,6 +206,8 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		UseDeathScreenStatistics = s.UseDeathScreenStatistics;
 		UseNewsFeedInGameMenu = s.UseNewsFeedInGameMenu;
 		HUDColors = s.HUDColors;
+		EnableEarPlugs = s.EnableEarPlugs;
+		InGameMenuLogoPath = s.InGameMenuLogoPath;
 	}
 	
 	// ------------------------------------------------------------
@@ -268,6 +278,12 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 				if (m_Version < 8)
 				{
 					HUDColors = settingsDefault.HUDColors;
+				}
+				
+				if (m_Version < 9)
+				{
+					EnableEarPlugs = settingsDefault.EnableEarPlugs;
+					InGameMenuLogoPath = settingsDefault.InGameMenuLogoPath;
 				}
 
 				m_Version = VERSION;
@@ -340,6 +356,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		UseNewsFeedInGameMenu = true;
 
 		HUDColors.Update();
+		
+		EnableEarPlugs = true;
+		InGameMenuLogoPath = "set:expansion_iconset image:logo_expansion_white";
 	}
 	
 	// ------------------------------------------------------------

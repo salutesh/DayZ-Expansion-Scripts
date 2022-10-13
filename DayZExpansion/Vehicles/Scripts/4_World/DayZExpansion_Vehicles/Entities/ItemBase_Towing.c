@@ -1,10 +1,3 @@
-class ExpansionTowConnection
-{
-	dJoint m_Joint;
-	EntityAI m_Parent;
-	bool m_Attached;
-};
-
 modded class ItemBase
 {
 	ref map<int, ref ExpansionTowConnection> m_Expansion_Connections = new map<int, ref ExpansionTowConnection>();
@@ -36,14 +29,19 @@ modded class ItemBase
 
 	void Expansion_CreateTow(Object tow, int index)
 	{
+		if (m_Expansion_IsTowing)
+			return;
+
 		CarScript car;
 		ItemBase item;
 
 		if (!Class.CastTo(car, tow) && !Class.CastTo(item, tow))
 			return;
 
+#ifdef DAYZ_1_18
 		if ((car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
 			return;
+#endif
 
 		m_Expansion_ChildTow = EntityAI.Cast(tow);
 		m_Expansion_IsTowing = true;
@@ -72,7 +70,7 @@ modded class ItemBase
 		}
 	}
 
-	bool Expansion_OnTowCreated(Object parent, vector towPos, int index)
+	/*private*/ bool Expansion_OnTowCreated(Object parent, vector towPos, int index)
 	{
 		if (index < 0 || index >= Expansion_NumberTowConnections())
 			return false;
@@ -105,31 +103,31 @@ modded class ItemBase
 
 	void Expansion_DestroyTow()
 	{
-		if (m_Expansion_IsTowing)
+		if (!m_Expansion_IsTowing)
+			return;
+
+		CarScript car;
+		ItemBase item;
+
+		if (Class.CastTo(car, m_Expansion_ChildTow))
 		{
-			CarScript car;
-			ItemBase item;
-
-			if (Class.CastTo(car, m_Expansion_ChildTow))
-			{
-				car.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
-			}
-
-			if (Class.CastTo(item, m_Expansion_ChildTow))
-			{
-				item.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
-			}
-
-			m_Expansion_ChildTow = NULL;
-			m_Expansion_IsTowing = false;
-			m_Expansion_TowConnectionIndex = -1;
-
-			if (GetGame().IsServer())
-				SetSynchDirty();
+			car.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
 		}
+
+		if (Class.CastTo(item, m_Expansion_ChildTow))
+		{
+			item.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
+		}
+
+		m_Expansion_ChildTow = NULL;
+		m_Expansion_IsTowing = false;
+		m_Expansion_TowConnectionIndex = -1;
+
+		if (GetGame().IsServer())
+			SetSynchDirty();
 	}
 
-	void Expansion_OnTowDestroyed(EntityAI parent, int connectionIndex)
+	/*private*/ void Expansion_OnTowDestroyed(EntityAI parent, int connectionIndex)
 	{
 		dJointDestroy(m_Expansion_Connections[connectionIndex].m_Joint);
 		m_Expansion_Connections[connectionIndex].m_Parent = null;
@@ -264,23 +262,23 @@ modded class ItemBase
 	{
 		super.OnVariablesSynchronized();
 
-		if (IsMissionOffline())
-			return;
-
-		m_Expansion_ChildTow = NULL;
-		if (m_Expansion_IsTowing)
+		if (!IsMissionOffline())
 		{
-			m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
-		}
-
-		if (m_Expansion_TowConnectionMask != m_Expansion_TowConnectionSynchMask)
-		{
-			m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
-
-			for (int i = 0; i < Expansion_NumberTowConnections(); i++)
+			m_Expansion_ChildTow = NULL;
+			if (m_Expansion_IsTowing)
 			{
-				int attached = (m_Expansion_TowConnectionMask >> i) & 1;
-				m_Expansion_Connections[i].m_Attached = attached;
+				m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
+			}
+
+			if (m_Expansion_TowConnectionMask != m_Expansion_TowConnectionSynchMask)
+			{
+				m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
+
+				for (int i = 0; i < Expansion_NumberTowConnections(); i++)
+				{
+					int attached = (m_Expansion_TowConnectionMask >> i) & 1;
+					m_Expansion_Connections[i].m_Attached = attached;
+				}
 			}
 		}
 	}

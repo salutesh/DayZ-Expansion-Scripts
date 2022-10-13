@@ -226,7 +226,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		
 		if ( !m_CurrentFlag.HasExpansionTerritoryInformation() )
 		{
-			if ( player.IsInTerritory() )
+			if ( player.IsInTerritory() || !GetExpansionSettings().GetTerritory().EnableTerritories )
 			{
 				m_FlagCreateButton.Show( false );
 			}
@@ -294,20 +294,23 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 	override bool OnClick( Widget w, int x, int y, int button )
 	{
 		//! Flag Window Buttons
-		if( w == m_FlagConfirmButton )
+		if ( w == m_FlagConfirmButton )
 		{
 			ChangeFlag();		
 			return true;
 		}
 		
-		if( w == m_FlagCancelButton )
+		if ( w == m_FlagCancelButton )
 		{
 			Close();			
 			return true;
 		}
 		
-		if( w == m_FlagCreateButton )
+		if ( w == m_FlagCreateButton )
 		{
+			if (GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled || !GetExpansionSettings().GetTerritory().EnableTerritories)
+				return false;
+			
 			m_FlagWindow.Show( false );
 			m_TerritoryWindow.Show( true );
 						
@@ -315,15 +318,18 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		}
 		
 		//! Territory Dialog Buttons
-		if( w == m_TerritoryDialogConfirmButton )
+		if ( w == m_TerritoryDialogConfirmButton )
 		{
+			if (GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled || !GetExpansionSettings().GetTerritory().EnableTerritories)
+				return false;
+			
 			ConfirmTerritoryCreation();
 			Close();
 						
 			return true;
 		}
 		
-		if( w == m_TerritoryDialogCancelButton )
+		if ( w == m_TerritoryDialogCancelButton )
 		{
 			m_TerritoryDialogWindow.Show( false );
 			
@@ -338,7 +344,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 		}
 		
 		//! Territory Window Buttons
-		if( w == m_TerritoryConfirmButton )
+		if ( w == m_TerritoryConfirmButton )
 		{
 			m_TerritoryWindow.Show( false );
 			m_TerritoryDialogWindow.Show( true );
@@ -346,7 +352,7 @@ class ExpansionFlagMenu extends ExpansionUIScriptedMenu
 			return true;
 		}
 		
-		if( w == m_TerritoryCancelButton )
+		if ( w == m_TerritoryCancelButton )
 		{
 			if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.NoFlagChoice )
 			{

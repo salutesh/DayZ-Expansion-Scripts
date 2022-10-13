@@ -14,6 +14,8 @@ class ExpansionGame
 {
 	ref ExpansionUIManager m_ExUIManager;
 
+	bool m_IsLoaded;
+
 	// ------------------------------------------------------------
 	// ExpansionGame Constructor
 	// ------------------------------------------------------------
@@ -88,8 +90,14 @@ class ExpansionGame
 	// ------------------------------------------------------------
 	void OnLoaded()
 	{
+		m_IsLoaded = true;
 	}
 	
+	bool IsLoaded()
+	{
+		return m_IsLoaded;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionGame OnFinish
 	// ------------------------------------------------------------

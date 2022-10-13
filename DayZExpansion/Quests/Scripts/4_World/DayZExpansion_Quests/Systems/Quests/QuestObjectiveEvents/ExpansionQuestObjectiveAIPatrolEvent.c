@@ -65,6 +65,20 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnCancel - End");
 	}
 	
+	override void OnComplete()
+	{
+		ObjectivePrint(ToString() + "::OnComplete - Start");
+		
+		super.OnComplete();
+		
+		if (GetQuest().GetQuestModule().CanDeleteQuestPatrol(GetQuest().GetQuestConfig().GetID()))
+		{
+			CleanupPatrol();
+		}
+		
+		ObjectivePrint(ToString() + "::OnComplete - End");
+	}
+	
 	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 	#ifdef EXPANSIONTRACE
@@ -171,9 +185,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 			
 			//! If all patrols related to this quest have been wiped we can recreate all the patrols.
 			if (killedPatrolCount == 1)
-			{
 				CreateQuestAIPatrol();
-			}
 		}
 		else
 		{

@@ -18,34 +18,39 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	//! Rank requirements
 	int RankBambi;
 	int RankSurvivor;
-	
+
 	//! Hero ranks
 	int RankScout;
 	int RankPathfinder;
 	int RankHero;
 	int RankSuperhero;
 	int RankLegend;
-	
+
 	//! Bandit ranks
 	int RankKleptomaniac;
 	int RankBully;
 	int RankBandit;
 	int RankKiller;
 	int RankMadman;
-	
+
 	//! Actions
 	int HumanityBandageTarget;
-	
+	int HumanityDestroySafe;
+	int HumanityDestroyBarbedWire;
+	int HumanityDestroyBaseBuilding;
+	int HumanityDestroyLock;
+
 	//! Targets
 	int HumanityOnKillInfected;
 	int HumanityOnKillAI;
+	int HumanityOnKillAnimal;
 	int HumanityOnKillBambi;
 	int HumanityOnKillHero;
 	int HumanityOnKillBandit;
-	
+
 	//! Events
 	int HumanityLossOnDeath;
-	
+
 	int PoorItemRequirement;
 	int CommonItemRequirement;
 	int UncommonItemRequirement;
@@ -54,10 +59,10 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	int LegendaryItemRequirement;
 	int MythicItemRequirement;
 	int ExoticItemRequirement;
-	
+
 	bool ShowHardlineHUD;
 	bool UseHumanity;
-	
+
 	// ------------------------------------------------------------
 	void ExpansionHardlineSettingsBase()
 	{
@@ -82,7 +87,7 @@ class ExpansionHardlineSettingsV2: ExpansionHardlineSettingsBase
  **/
 class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 5;
 
 	bool EnableItemRarity;
 	bool UseItemRarityForMarketPurchase;
@@ -106,199 +111,229 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 	#endif
-				
+
 		if (!ctx.Read(RankBambi))
 		{
 			Error(ToString() + "::OnRecieve RankBambi");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankSurvivor))
 		{
 			Error(ToString() + "::OnRecieve RankSurvivor");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankScout))
 		{
 			Error(ToString() + "::OnRecieve RankScout");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankPathfinder))
 		{
 			Error(ToString() + "::OnRecieve RankPathfinder");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankHero))
 		{
 			Error(ToString() + "::OnRecieve RankHero");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankSuperhero))
 		{
 			Error(ToString() + "::OnRecieve RankSuperhero");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankLegend))
 		{
 			Error(ToString() + "::OnRecieve RankLegend");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankKleptomaniac))
 		{
 			Error(ToString() + "::OnRecieve RankKleptomaniac");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankBully))
 		{
 			Error(ToString() + "::OnRecieve RankBully");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankBandit))
 		{
 			Error(ToString() + "::OnRecieve RankBandit");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankKiller))
 		{
 			Error(ToString() + "::OnRecieve RankKiller");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RankMadman))
 		{
 			Error(ToString() + "::OnRecieve RankMadman");
 			return false;
 		}
-		
+
 		if (!ctx.Read(HumanityBandageTarget))
 		{
 			Error(ToString() + "::OnRecieve HumanityBandageTarget");
 			return false;
 		}
-		
+
+		if (!ctx.Read(HumanityDestroySafe))
+		{
+			Error(ToString() + "::OnRecieve HumanityDestroySafe");
+			return false;
+		}
+
+		if (!ctx.Read(HumanityDestroyBarbedWire))
+		{
+			Error(ToString() + "::OnRecieve HumanityDestroyBarbedWire");
+			return false;
+		}
+
+		if (!ctx.Read(HumanityDestroyBaseBuilding))
+		{
+			Error(ToString() + "::OnRecieve HumanityDestroyBaseBuilding");
+			return false;
+		}
+
+		if (!ctx.Read(HumanityDestroyLock))
+		{
+			Error(ToString() + "::OnRecieve HumanityDestroyBaseBuilding");
+			return false;
+		}
+
 		if (!ctx.Read(HumanityOnKillInfected))
 		{
 			Error(ToString() + "::OnRecieve HumanityOnKillInfected");
 			return false;
 		}
-		
+
 		if (!ctx.Read(HumanityOnKillAI))
 		{
 			Error(ToString() + "::OnRecieve HumanityOnKillAI");
 			return false;
 		}
 		
+		if (!ctx.Read(HumanityOnKillAnimal))
+		{
+			Error(ToString() + "::OnRecieve HumanityOnKillAI");
+			return false;
+		}
+
 		if (!ctx.Read(HumanityOnKillBambi))
 		{
 			Error(ToString() + "::OnRecieve HumanityOnKillBambi");
 			return false;
 		}
-		
+
 		if (!ctx.Read(HumanityOnKillHero))
 		{
 			Error(ToString() + "::OnRecieve HumanityOnKillHero");
 			return false;
 		}
-		
+
 		if (!ctx.Read(HumanityOnKillBandit))
 		{
 			Error(ToString() + "::OnRecieve HumanityOnKillBandit");
 			return false;
 		}
-		
+
 		if (!ctx.Read(HumanityLossOnDeath))
 		{
 			Error(ToString() + "::OnRecieve HumanityLossOnDeath");
 			return false;
 		}
-		
+
 		if (!ctx.Read(PoorItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve HumanityLossOnDeath");
 			return false;
 		}
-		
+
 		if (!ctx.Read(CommonItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve CommonItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(UncommonItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve UncommonItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(RareItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve RareItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(EpicItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve EpicItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(LegendaryItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve LegendaryItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(MythicItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve MythicItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(ExoticItemRequirement))
 		{
 			Error(ToString() + "::OnRecieve ExoticItemRequirement");
 			return false;
 		}
-		
+
 		if (!ctx.Read(ShowHardlineHUD))
 		{
 			Error(ToString() + "::OnRecieve ShowHardlineHUD");
 			return false;
 		}
-		
+
 		if (!ctx.Read(UseHumanity))
 		{
 			Error(ToString() + "::OnRecieve UseHumanity");
 			return false;
 		}
-		
+
 		if (!ctx.Read(EnableItemRarity))
 		{
 			Error(ToString() + "::OnRecieve EnableItemRarity");
 			return false;
 		}
-		
+
 		if (!ctx.Read(UseItemRarityForMarketPurchase))
 		{
 			Error(ToString() + "::OnRecieve UseItemRarityForMarketPurchase");
 			return false;
 		}
-		
+
 		if (!ctx.Read(UseItemRarityForMarketSell))
 		{
 			Error(ToString() + "::OnRecieve UseItemRarityForMarketSell");
 			return false;
 		}
-		
+
 		m_IsLoaded = true;
 
 		return true;
@@ -311,34 +346,39 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
 	#endif
 
-		
+
 		//! Rank requirements
 		ctx.Write(RankBambi);
 		ctx.Write(RankSurvivor);
-		
+
 		//! Hero ranks
 		ctx.Write(RankScout);
 		ctx.Write(RankPathfinder);
 		ctx.Write(RankHero);
 		ctx.Write(RankSuperhero);
 		ctx.Write(RankLegend);
-		
+
 		//! Bandit ranks
 		ctx.Write(RankKleptomaniac);
 		ctx.Write(RankBully);
 		ctx.Write(RankBandit);
 		ctx.Write(RankKiller);
 		ctx.Write(RankMadman);
-		
+
 		ctx.Write(HumanityBandageTarget);
-		
+		ctx.Write(HumanityDestroySafe);
+		ctx.Write(HumanityDestroyBarbedWire);
+		ctx.Write(HumanityDestroyBaseBuilding);
+		ctx.Write(HumanityDestroyLock);
+
 		ctx.Write(HumanityOnKillInfected);
 		ctx.Write(HumanityOnKillAI);
+		ctx.Write(HumanityOnKillAnimal);
 		ctx.Write(HumanityOnKillBambi);
 		ctx.Write(HumanityOnKillHero);
 		ctx.Write(HumanityOnKillBandit);
 		ctx.Write(HumanityLossOnDeath);
-		
+
 		ctx.Write(PoorItemRequirement);
 		ctx.Write(CommonItemRequirement);
 		ctx.Write(UncommonItemRequirement);
@@ -384,17 +424,17 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
 
 		ItemRarity = s.ItemRarity;
-		
+
 		ExpansionHardlineSettingsBase sb = s;
 		CopyInternal( sb );
 	}
-	
+
 	private void CopyInternal( ExpansionHardlineSettingsBase s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
-		
+
 		RankBambi = s.RankBambi;
 		RankSurvivor = s.RankSurvivor;
 		RankScout = s.RankScout;
@@ -407,13 +447,22 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		RankBandit = s.RankBandit;
 		RankKiller = s.RankKiller;
 		RankMadman = s.RankMadman;
+
 		HumanityBandageTarget = s.HumanityBandageTarget;
+		HumanityDestroySafe = s.HumanityDestroySafe;
+		HumanityDestroyBarbedWire = s.HumanityDestroyBarbedWire;
+		HumanityDestroyBaseBuilding = s.HumanityDestroyBaseBuilding;
+		HumanityDestroyLock = s.HumanityDestroyLock;
+
 		HumanityOnKillInfected = s.HumanityOnKillInfected;
 		HumanityOnKillAI = s.HumanityOnKillAI;
+		HumanityOnKillAnimal = s.HumanityOnKillAnimal;
 		HumanityOnKillBambi = s.HumanityOnKillBambi;
 		HumanityOnKillHero = s.HumanityOnKillHero;
 		HumanityOnKillBandit = s.HumanityOnKillBandit;
+
 		HumanityLossOnDeath = s.HumanityLossOnDeath;
+
 		PoorItemRequirement = s.PoorItemRequirement;
 		CommonItemRequirement = s.CommonItemRequirement;
 		UncommonItemRequirement = s.UncommonItemRequirement;
@@ -422,6 +471,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		LegendaryItemRequirement = s.LegendaryItemRequirement;
 		MythicItemRequirement = s.MythicItemRequirement;
 		ExoticItemRequirement = s.ExoticItemRequirement;
+
 		ShowHardlineHUD = s.ShowHardlineHUD;
 		UseHumanity = s.UseHumanity;
 	}
@@ -493,7 +543,21 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 					UseItemRarityForMarketPurchase = settingsV2.UseItemRarity;
 					UseItemRarityForMarketSell = settingsV2.UseItemRarity;
 				}
-				
+
+				if (settingsBase.m_Version < 4)
+				{
+					HumanityDestroySafe = settingsDefault.HumanityDestroySafe;
+					HumanityDestroyBarbedWire = settingsDefault.HumanityDestroyBarbedWire;
+					HumanityDestroyBaseBuilding = settingsDefault.HumanityDestroyBaseBuilding;
+					HumanityDestroyLock = settingsDefault.HumanityDestroyLock;
+				}
+
+				if (settingsBase.m_Version < 5)
+				{
+					HumanityOnKillAnimal = settingsDefault.HumanityOnKillAnimal;
+					HumanityLossOnDeath = settingsDefault.HumanityLossOnDeath;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -545,7 +609,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 
 		ExpansionSettings.SI_Hardline.Invoke();
 	}
-	
+
 	// ------------------------------------------------------------
 	override void Defaults()
 	{
@@ -554,34 +618,39 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		//! Rank requirements
 		RankBambi = 0;
 		RankSurvivor = 0;
-		
+
 		//! Hero ranks
 		RankScout = 1000;
 		RankPathfinder = 2000;
 		RankHero = 3000;
 		RankSuperhero = 4000;
 		RankLegend = 5000;
-		
+
 		//! Bandit ranks
 		RankKleptomaniac = -1000;
 		RankBully = -2000;
 		RankBandit = -3000;
 		RankKiller = -4000;
 		RankMadman = -5000;
-		
+
 		//! Actions
 		HumanityBandageTarget = 10;
-		
+		HumanityDestroySafe = -100;
+		HumanityDestroyBarbedWire = -10;
+		HumanityDestroyBaseBuilding = -50;
+		HumanityDestroyLock = -50;
+
 		//! Targets
 		HumanityOnKillInfected = 10;
 		HumanityOnKillAI = 10;
+		HumanityOnKillAnimal = 5;
 		HumanityOnKillBambi = 10;
 		HumanityOnKillHero = 10;
 		HumanityOnKillBandit = 10;
-		
+
 		//! Events
-		HumanityLossOnDeath = 1000;
-		
+		HumanityLossOnDeath = 100;
+
 		//! Item rarity rank requirements
 		PoorItemRequirement = 0;
 		CommonItemRequirement = 0;
@@ -591,13 +660,13 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		LegendaryItemRequirement = 4000;
 		MythicItemRequirement = 5000;
 		ExoticItemRequirement = 10000;
-		
-		ShowHardlineHUD = false;
-		UseHumanity = false;
-		EnableItemRarity = false;
-		UseItemRarityForMarketPurchase = false;
-		UseItemRarityForMarketSell = false;
-		
+
+		ShowHardlineHUD = true;
+		UseHumanity = true;
+		EnableItemRarity = true;
+		UseItemRarityForMarketPurchase = true;
+		UseItemRarityForMarketSell = true;
+
 		DefaultItemRarity();
 	}
 
@@ -608,50 +677,50 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
-		
+
 	#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_module_card", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_module_lantia", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_module_surge", ExpansionHardlineItemRarity.Mythic);
-		
+
 		AddItem("ER7_Gauss_Magazine", ExpansionHardlineItemRarity.Exotic);
 		AddItem("Ammo_ER7RFW", ExpansionHardlineItemRarity.Exotic);
 		AddItem("ER7_Scope", ExpansionHardlineItemRarity.Exotic);
 		AddItem("ER7_Gauss", ExpansionHardlineItemRarity.Exotic);
 		AddItem("ER7_Gauss_Battery", ExpansionHardlineItemRarity.Exotic);
 	#endif
-	
+
 	#ifdef EXPANSIONMODMARKET
 		AddItem("ExpansionGoldBar", ExpansionHardlineItemRarity.Epic);
 		AddItem("ExpansionGoldNugget", ExpansionHardlineItemRarity.Epic);
 	#endif
-		
+
 		//! Ammo
 		AddItem("Ammo_12gaPellets", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_12gaRubberSlug", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_12gaSlug", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_22", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_308Win", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_308WinTracer", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_357", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_380", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_45ACP", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_545x39", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_545x39Tracer", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_556x45", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_556x45Tracer", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_762x39", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_762x39Tracer", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_762x54", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_762x54Tracer", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_9x19", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_9x39", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_9x39AP", ExpansionHardlineItemRarity.Rare);
@@ -663,7 +732,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 
 		AddItem("ExpansionAmmoLAW", ExpansionHardlineItemRarity.Legendary);
 		AddItem("ExpansionAmmoRPG", ExpansionHardlineItemRarity.Legendary);
-		
+
 		AddItem("Ammo_Expansion_M203_Smoke_White", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Ammo_Expansion_M203_Smoke_Red", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Ammo_Expansion_M203_Smoke_Green", ExpansionHardlineItemRarity.Uncommon);
@@ -680,48 +749,48 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Ammo_Expansion_M203_Sticky_Smoke_Teargas", ExpansionHardlineItemRarity.Uncommon);
 
 		AddItem("Ammo_Expansion_M203_HE", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("Ammo_Expansion_46x30", ExpansionHardlineItemRarity.Rare);
 		AddItem("Ammo_Expansion_338", ExpansionHardlineItemRarity.Rare);
 		AddItem("Expansion_Ammo_8mm", ExpansionHardlineItemRarity.Rare);
 	#endif
-		
+
 		//! Ammo boxes
 		AddItem("AmmoBox_00buck_10rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_12gaSlug_10Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_12gaRubberSlug_10Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_22_50Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_308Win_20Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_308WinTracer_20Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_357_20Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_380_35rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_45ACP_25rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_545x39_20Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_545x39Tracer_20Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_556x45_20Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_556x45Tracer_20Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_762x39_20Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_762x39Tracer_20Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_762x54_20Rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_762x54Tracer_20Rnd", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AmmoBox_9x19_25rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_9x39_20rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_9x39AP_20rnd", ExpansionHardlineItemRarity.Rare);
-	
-	#ifdef EXPANSIONMODWEAPONS	
+
+	#ifdef EXPANSIONMODWEAPONS
 		AddItem("AmmoBox_Expansion_46x30_25rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox_Expansion_338_15rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("Expansion_AmmoBox_8mm_15rnd", ExpansionHardlineItemRarity.Rare);
 	#endif
-	
+
 		//! Assault Rifles
 		AddItem("FAL", ExpansionHardlineItemRarity.Epic);
 		AddItem("AKM", ExpansionHardlineItemRarity.Epic);
@@ -730,77 +799,77 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("M4A1", ExpansionHardlineItemRarity.Epic);
 		AddItem("M16A2", ExpansionHardlineItemRarity.Epic);
 		AddItem("FAMAS", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("Aug", ExpansionHardlineItemRarity.Epic);
 		AddItem("AugShort", ExpansionHardlineItemRarity.Epic);
-	
-	#ifdef EXPANSIONMODWEAPONS	
+
+	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_M16", ExpansionHardlineItemRarity.Epic);
 		AddItem("Expansion_G36", ExpansionHardlineItemRarity.Epic);
 	#endif
-		
+
 		//! Backbacks
 		AddItem("ChildBag_Red", ExpansionHardlineItemRarity.Common);
 		AddItem("ChildBag_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("ChildBag_Green", ExpansionHardlineItemRarity.Common);
-		
+
 		AddItem("DryBag_Orange", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("DryBag_Yellow", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("DryBag_Blue", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("DryBag_Black", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("DryBag_Red", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("DryBag_Green", ExpansionHardlineItemRarity.Uncommon);
-		
+
 		AddItem("TaloonBag_Blue", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("TaloonBag_Orange", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("TaloonBag_Violet", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("TaloonBag_Green", ExpansionHardlineItemRarity.Uncommon);
-	
+
 		AddItem("SmershBag", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("AssaultBag_Black", ExpansionHardlineItemRarity.Rare);
 		AddItem("AssaultBag_Green", ExpansionHardlineItemRarity.Rare);
 		AddItem("AssaultBag_Ttsko", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("HuntingBag", ExpansionHardlineItemRarity.Rare);
-	
-	#ifdef EXPANSIONMOD	
+
+	#ifdef EXPANSIONMOD
 		AddItem("TortillaBag", ExpansionHardlineItemRarity.Rare);
 	#else
 		AddItem("TortillaBag", ExpansionHardlineItemRarity.Rare);
-	#endif	
-	
+	#endif
+
 	#ifdef EXPANSIONMOD
 		AddItem("CoyoteBag_Brown", ExpansionHardlineItemRarity.Rare);
 		AddItem("CoyoteBag_Green", ExpansionHardlineItemRarity.Rare);
 		AddItem("ExpansionCoyoteBlack", ExpansionHardlineItemRarity.Rare);
 	#else
 		AddItem("CoyoteBag_Brown", ExpansionHardlineItemRarity.Rare);
-	#endif	
+	#endif
 
 		AddItem("MountainBag_Red", ExpansionHardlineItemRarity.Epic);
 		AddItem("MountainBag_Blue", ExpansionHardlineItemRarity.Epic);
 		AddItem("MountainBag_Orange", ExpansionHardlineItemRarity.Epic);
 		AddItem("MountainBag_Green", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("AliceBag_Green", ExpansionHardlineItemRarity.Epic);
 		AddItem("AliceBag_Black", ExpansionHardlineItemRarity.Epic);
 		AddItem("AliceBag_Camo", ExpansionHardlineItemRarity.Epic);
-		
+
 	#ifdef EXPANSIONMODVEHICLE
 		//! Boats
 		AddItem("ExpansionUtilityBoat", ExpansionHardlineItemRarity.Rare);
 		AddItem("ExpansionZodiacBoat", ExpansionHardlineItemRarity.Epic);
 		AddItem("ExpansionLHD", ExpansionHardlineItemRarity.Exotic);
 	#endif
-		
+
 		//! Boots and Shoes
 		AddItem("AthleticShoes_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("AthleticShoes_Brown", ExpansionHardlineItemRarity.Common);
 		AddItem("AthleticShoes_Grey", ExpansionHardlineItemRarity.Common);
 		AddItem("AthleticShoes_Black", ExpansionHardlineItemRarity.Common);
 		AddItem("AthleticShoes_Green", ExpansionHardlineItemRarity.Common);
-		
+
 		AddItem("JoggingShoes_Black", ExpansionHardlineItemRarity.Common);
 		AddItem("JoggingShoes_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("JoggingShoes_Red", ExpansionHardlineItemRarity.Common);
@@ -812,11 +881,11 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Sneakers_White", ExpansionHardlineItemRarity.Common);
 		AddItem("Sneakers_Black", ExpansionHardlineItemRarity.Common);
 		AddItem("Sneakers_Gray", ExpansionHardlineItemRarity.Common);
-		
+
 		AddItem("Ballerinas_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("Ballerinas_Red", ExpansionHardlineItemRarity.Common);
 		AddItem("Ballerinas_White", ExpansionHardlineItemRarity.Common);
-		AddItem("Ballerinas_Yellow", ExpansionHardlineItemRarity.Common);	
+		AddItem("Ballerinas_Yellow", ExpansionHardlineItemRarity.Common);
 
 		AddItem("DressShoes_White", ExpansionHardlineItemRarity.Common);
 		AddItem("DressShoes_Beige", ExpansionHardlineItemRarity.Common);
@@ -828,7 +897,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("HikingBootsLow_Grey", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("HikingBootsLow_Beige", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("HikingBootsLow_Black", ExpansionHardlineItemRarity.Uncommon);
-		
+
 		AddItem("WorkingBoots_Yellow", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("WorkingBoots_Grey", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("WorkingBoots_Brown", ExpansionHardlineItemRarity.Uncommon);
@@ -837,7 +906,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 
 		AddItem("HikingBoots_Brown", ExpansionHardlineItemRarity.Rare);
 		AddItem("HikingBoots_Black", ExpansionHardlineItemRarity.Rare);
-	
+
 		AddItem("CombatBoots_Beige", ExpansionHardlineItemRarity.Rare);
 		AddItem("CombatBoots_Black", ExpansionHardlineItemRarity.Rare);
 		AddItem("CombatBoots_Brown", ExpansionHardlineItemRarity.Rare);
@@ -862,10 +931,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("MilitaryBoots_Beige", ExpansionHardlineItemRarity.Epic);
 		AddItem("MilitaryBoots_Black", ExpansionHardlineItemRarity.Epic);
 		AddItem("MilitaryBoots_Brown", ExpansionHardlineItemRarity.Epic);
-			
+
 		AddItem("NBCBootsGray", ExpansionHardlineItemRarity.Legendary);
 		AddItem("NBCBootsYellow", ExpansionHardlineItemRarity.Legendary);
-		
+
 		//! Buttstocks
 		AddItem("MP5k_StockBttstck", ExpansionHardlineItemRarity.Uncommon);
 
@@ -887,16 +956,16 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("M4_CQBBttstck", ExpansionHardlineItemRarity.Epic);
 
 		AddItem("PP19_Bttstck", ExpansionHardlineItemRarity.Epic);
-			
+
 		AddItem("GhillieAtt_Tan", ExpansionHardlineItemRarity.Epic);
 		AddItem("GhillieAtt_Woodland", ExpansionHardlineItemRarity.Epic);
 		AddItem("GhillieAtt_Mossy", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("OffroadHatchback", ExpansionHardlineItemRarity.Epic);
 		AddItem("Hatchback_02", ExpansionHardlineItemRarity.Epic);
 		AddItem("Sedan_02", ExpansionHardlineItemRarity.Epic);
 		AddItem("CivilianSedan", ExpansionHardlineItemRarity.Epic);
-		AddItem("Truck_01_Covered", ExpansionHardlineItemRarity.Epic);	
+		AddItem("Truck_01_Covered", ExpansionHardlineItemRarity.Epic);
 		//! Vanilla - Not released yet
 		//AddItem("Truck_02", ExpansionHardlineItemRarity.Epic);
 		//AddItem("Van_01", ExpansionHardlineItemRarity.Epic);
@@ -910,7 +979,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("ExpansionVodnik", ExpansionHardlineItemRarity.Legendary);
 		AddItem("Expansion_Landrover", ExpansionHardlineItemRarity.Legendary);
 	#endif
-		
+
 		//! Coats and Jackets
 		AddItem("LabCoat", ExpansionHardlineItemRarity.Common);
 
@@ -932,7 +1001,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("WoolCoat_Black", ExpansionHardlineItemRarity.Common);
 		AddItem("WoolCoat_BlackCheck", ExpansionHardlineItemRarity.Common);
 		AddItem("WoolCoat_Green", ExpansionHardlineItemRarity.Common);
-	
+
 	#ifdef EXPANSIONMOD
 		AddItem("RidersJacket_Black", ExpansionHardlineItemRarity.Common);
 		AddItem("ExpansionRidersJacketBrown", ExpansionHardlineItemRarity.Common);
@@ -940,10 +1009,10 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	#else
 		AddItem("RidersJacket_Black", ExpansionHardlineItemRarity.Common);
 	#endif
-	
+
 		AddItem("FirefighterJacket_Beige", ExpansionHardlineItemRarity.Common);
 		AddItem("FirefighterJacket_Black", ExpansionHardlineItemRarity.Common);
-		
+
 		AddItem("JumpsuitJacket_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("JumpsuitJacket_Gray", ExpansionHardlineItemRarity.Common);
 		AddItem("JumpsuitJacket_Green", ExpansionHardlineItemRarity.Common);
@@ -979,7 +1048,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("HikingJacket_Red", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("HikingJacket_Blue", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("HikingJacket_Green", ExpansionHardlineItemRarity.Uncommon);
-	
+
 		AddItem("Raincoat_Pink", ExpansionHardlineItemRarity.Rare);
 		AddItem("Raincoat_Orange", ExpansionHardlineItemRarity.Rare);
 		AddItem("Raincoat_Yellow", ExpansionHardlineItemRarity.Rare);
@@ -988,7 +1057,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Raincoat_Black", ExpansionHardlineItemRarity.Rare);
 		AddItem("Raincoat_Green", ExpansionHardlineItemRarity.Rare);
 
-		AddItem("TTsKOJacket_Camo", ExpansionHardlineItemRarity.Epic);		
+		AddItem("TTsKOJacket_Camo", ExpansionHardlineItemRarity.Epic);
 
 		AddItem("BDUJacket", ExpansionHardlineItemRarity.Epic);
 
@@ -1002,18 +1071,18 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("M65Jacket_Khaki", ExpansionHardlineItemRarity.Epic);
 		AddItem("M65Jacket_Tan", ExpansionHardlineItemRarity.Epic);
 		AddItem("M65Jacket_Olive", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("GorkaEJacket_Summer", ExpansionHardlineItemRarity.Epic);
 		AddItem("GorkaEJacket_Flat", ExpansionHardlineItemRarity.Epic);
 		AddItem("GorkaEJacket_Autumn", ExpansionHardlineItemRarity.Epic);
 		AddItem("GorkaEJacket_PautRev", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("USMCJacket_Desert", ExpansionHardlineItemRarity.Epic);
 		AddItem("USMCJacket_Woodland", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("NBCJacketGray", ExpansionHardlineItemRarity.Legendary);
 		AddItem("NBCJacketYellow", ExpansionHardlineItemRarity.Legendary);
-		
+
 		//! Containers
 		AddItem("SmallProtectorCase", ExpansionHardlineItemRarity.Rare);
 		AddItem("AmmoBox", ExpansionHardlineItemRarity.Epic);
@@ -1027,19 +1096,19 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Barrel_Yellow", ExpansionHardlineItemRarity.Epic);
 		AddItem("SeaChest", ExpansionHardlineItemRarity.Legendary);
 		AddItem("WoodenCrate", ExpansionHardlineItemRarity.Legendary);
-	
+
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionToolBox", ExpansionHardlineItemRarity.Rare);
 		AddItem("ExpansionSafeMini", ExpansionHardlineItemRarity.Rare);
 		AddItem("ExpansionSafeMedium", ExpansionHardlineItemRarity.Epic);
 		AddItem("ExpansionSafeLarge", ExpansionHardlineItemRarity.Legendary);
 	#endif
-		
+
 		//! Crossbows
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Crossbow", ExpansionHardlineItemRarity.Rare);
 	#endif
-		
+
 		//! Electronics
 		AddItem("PersonalRadio", ExpansionHardlineItemRarity.Rare);
 		AddItem("Megaphone", ExpansionHardlineItemRarity.Rare);
@@ -1049,7 +1118,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("BaseRadio", ExpansionHardlineItemRarity.Epic);
 		AddItem("Rangefinder", ExpansionHardlineItemRarity.Epic);
 		AddItem("NVGoggles", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("AlarmClock_Blue", ExpansionHardlineItemRarity.Uncommon);
 	#ifdef DAYZ_1_17
 		AddItem("KitchenTimer", ExpansionHardlineItemRarity.Uncommon);
@@ -1060,7 +1129,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		//! EXPLOSIVE GRANADES
 		AddItem("RGD5Grenade", ExpansionHardlineItemRarity.Epic);
 		AddItem("M67Grenade", ExpansionHardlineItemRarity.Epic);
-		
+
 		//! FLASHBANGS
 		AddItem("FlashGrenade", ExpansionHardlineItemRarity.Rare);
 
@@ -1077,7 +1146,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("M18SmokeGrenade_White", ExpansionHardlineItemRarity.Rare);
 		AddItem("RDG2SmokeGrenade_Black", ExpansionHardlineItemRarity.Rare);
 		AddItem("RDG2SmokeGrenade_White", ExpansionHardlineItemRarity.Rare);
-		
+
 	#ifdef EXPANSIONMODMISSIONS
 		//! Airdrop smoke
 		AddItem("ExpansionSupplySignal", ExpansionHardlineItemRarity.Exotic);
@@ -1087,35 +1156,35 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		//! EXPLOSIVE CHARGES
 		AddItem("ExpansionSatchel", ExpansionHardlineItemRarity.Legendary);
 	#endif
-		
+
 		//! Ghillies
 		AddItem("GhillieHood_Tan", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieHood_Woodland", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieHood_Mossy", ExpansionHardlineItemRarity.Legendary);
-		
+
 		AddItem("GhillieBushrag_Tan", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieBushrag_Woodland", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieBushrag_Mossy", ExpansionHardlineItemRarity.Legendary);
-		
+
 		AddItem("GhillieTop_Tan", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieTop_Woodland", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieTop_Mossy", ExpansionHardlineItemRarity.Legendary);
-		
+
 		AddItem("GhillieSuit_Tan", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieSuit_Woodland", ExpansionHardlineItemRarity.Legendary);
 		AddItem("GhillieSuit_Mossy", ExpansionHardlineItemRarity.Legendary);
-		
+
 		//! Gloves
 		AddItem("SurgicalGloves_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("SurgicalGloves_LightBlue", ExpansionHardlineItemRarity.Common);
 		AddItem("SurgicalGloves_Green", ExpansionHardlineItemRarity.Common);
 		AddItem("SurgicalGloves_White", ExpansionHardlineItemRarity.Common);
-		
+
 		AddItem("WorkingGloves_Yellow", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("WorkingGloves_Black", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("WorkingGloves_Beige", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("WorkingGloves_Brown", ExpansionHardlineItemRarity.Uncommon);
-	
+
 	#ifdef EXPANSIONMOD
 		AddItem("TacticalGloves_Black", ExpansionHardlineItemRarity.Rare);
 		AddItem("ExpansionTacticalGlovesDesert", ExpansionHardlineItemRarity.Rare);
@@ -1124,13 +1193,13 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	#endif
 		AddItem("TacticalGloves_Beige", ExpansionHardlineItemRarity.Rare);
 		AddItem("TacticalGloves_Green", ExpansionHardlineItemRarity.Rare);
-	
+
 		AddItem("OMNOGloves_Gray", ExpansionHardlineItemRarity.Epic);
 		AddItem("OMNOGloves_Brown", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("NBCGlovesGray", ExpansionHardlineItemRarity.Legendary);
 		AddItem("NBCGlovesYellow", ExpansionHardlineItemRarity.Legendary);
-		
+
 		//! Handguards
 		AddItem("MP5_PlasticHndgrd", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("MP5_RailHndgrd", ExpansionHardlineItemRarity.Uncommon);
@@ -1139,11 +1208,11 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("AK_WoodHndgrd", ExpansionHardlineItemRarity.Epic);
 		AddItem("AK_RailHndgrd", ExpansionHardlineItemRarity.Epic);
 		AddItem("AK_PlasticHndgrd", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("M4_PlasticHndgrd", ExpansionHardlineItemRarity.Rare);
 		AddItem("M4_RISHndgrd", ExpansionHardlineItemRarity.Epic);
 		AddItem("M4_MPHndgrd", ExpansionHardlineItemRarity.Epic);
-		
+
 		//! Hats
 		AddItem("MedicalScrubsHat_Blue", ExpansionHardlineItemRarity.Common);
 		AddItem("MedicalScrubsHat_White", ExpansionHardlineItemRarity.Common);
@@ -1167,7 +1236,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("MilitaryBeret_CDF", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("MilitaryBeret_NZ", ExpansionHardlineItemRarity.Uncommon);
 
-		AddItem("BeanieHat_Pink", ExpansionHardlineItemRarity.Uncommon);		
+		AddItem("BeanieHat_Pink", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("BeanieHat_Beige", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("BeanieHat_Blue", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("BeanieHat_Brown", ExpansionHardlineItemRarity.Uncommon);
@@ -1175,11 +1244,11 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("BeanieHat_Red", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("BeanieHat_Black", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("BeanieHat_Green", ExpansionHardlineItemRarity.Uncommon);
-		
+
 		AddItem("Ushanka_Black", ExpansionHardlineItemRarity.Epic);
 		AddItem("Ushanka_Blue", ExpansionHardlineItemRarity.Epic);
 		AddItem("Ushanka_Green", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("BoonieHat_Blue", ExpansionHardlineItemRarity.Rare);
 		AddItem("BoonieHat_NavyBlue", ExpansionHardlineItemRarity.Rare);
 		AddItem("BoonieHat_Orange", ExpansionHardlineItemRarity.Rare);
@@ -1192,17 +1261,17 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("BoonieHat_Flecktran", ExpansionHardlineItemRarity.Rare);
 
 		AddItem("OfficerHat", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("NBCHoodGray", ExpansionHardlineItemRarity.Legendary);
 		AddItem("NBCHoodYellow", ExpansionHardlineItemRarity.Legendary);
-		
+
 		//! Helis
 	#ifdef EXPANSIONMODVEHICLE
 		AddItem("ExpansionGyrocopter", ExpansionHardlineItemRarity.Legendary);
 		AddItem("ExpansionUh1h", ExpansionHardlineItemRarity.Legendary);
 		AddItem("ExpansionMerlin", ExpansionHardlineItemRarity.Legendary);
 	#endif
-		
+
 		//! Helmets
 		AddItem("ConstructionHelmet_Blue", ExpansionHardlineItemRarity.Rare);
 		AddItem("ConstructionHelmet_Orange", ExpansionHardlineItemRarity.Rare);
@@ -1210,7 +1279,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("ConstructionHelmet_White", ExpansionHardlineItemRarity.Rare);
 		AddItem("ConstructionHelmet_Yellow", ExpansionHardlineItemRarity.Rare);
 		AddItem("ConstructionHelmet_Lime", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("SkateHelmet_Blue", ExpansionHardlineItemRarity.Rare);
 		AddItem("SkateHelmet_Gray", ExpansionHardlineItemRarity.Rare);
 		AddItem("SkateHelmet_Red", ExpansionHardlineItemRarity.Rare);
@@ -1224,7 +1293,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 
 		AddItem("DirtBikeHelmet_Mouthguard", ExpansionHardlineItemRarity.Rare);
 		AddItem("DirtBikeHelmet_Visor", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("DirtBikeHelmet_Chernarus", ExpansionHardlineItemRarity.Rare);
 		AddItem("DirtBikeHelmet_Police", ExpansionHardlineItemRarity.Rare);
 		AddItem("DirtBikeHelmet_Red", ExpansionHardlineItemRarity.Rare);
@@ -1250,24 +1319,24 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("DarkMotoHelmet_Green", ExpansionHardlineItemRarity.Epic);
 
 		AddItem("TankerHelmet", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("GreatHelm", ExpansionHardlineItemRarity.Epic);
-	
+
 		AddItem("ZSh3PilotHelmet", ExpansionHardlineItemRarity.Epic);
 		AddItem("ZSh3PilotHelmet_Green", ExpansionHardlineItemRarity.Epic);
 		AddItem("ZSh3PilotHelmet_Black", ExpansionHardlineItemRarity.Epic);
-			
+
 		AddItem("FirefightersHelmet_Red", ExpansionHardlineItemRarity.Epic);
 		AddItem("FirefightersHelmet_White", ExpansionHardlineItemRarity.Epic);
 		AddItem("FirefightersHelmet_Yellow", ExpansionHardlineItemRarity.Epic);
-				
+
 	#ifdef EXPANSIONMOD
 		AddItem("Mich2001Helmet", ExpansionHardlineItemRarity.Epic);
 		AddItem("ExpansionMich2001Desert", ExpansionHardlineItemRarity.Epic);
 	#else
 		AddItem("Mich2001Helmet", ExpansionHardlineItemRarity.Epic);
 	#endif
-		
+
 		AddItem("GorkaHelmetVisor", ExpansionHardlineItemRarity.Epic);
 		AddItem("GorkaHelmet", ExpansionHardlineItemRarity.Epic);
 		AddItem("GorkaHelmet_Black", ExpansionHardlineItemRarity.Epic);
@@ -1277,18 +1346,18 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("BallisticHelmet_UN", ExpansionHardlineItemRarity.Epic);
 		AddItem("BallisticHelmet_Black", ExpansionHardlineItemRarity.Epic);
 		AddItem("BallisticHelmet_Green", ExpansionHardlineItemRarity.Epic);
-		
+
 		// Holsters/Pouches
-		AddItem("ChestHolster", ExpansionHardlineItemRarity.Rare);	
+		AddItem("ChestHolster", ExpansionHardlineItemRarity.Rare);
 		AddItem("PlateCarrierHolster", ExpansionHardlineItemRarity.Rare);
 		AddItem("PlateCarrierPouches", ExpansionHardlineItemRarity.Rare);
 		AddItem("NylonKnifeSheath", ExpansionHardlineItemRarity.Rare);
-		
+
 		//! Kits
 		AddItem("SewingKit", ExpansionHardlineItemRarity.Rare);
 		AddItem("LeatherSewingKit", ExpansionHardlineItemRarity.Rare);
 		AddItem("WeaponCleaningKit", ExpansionHardlineItemRarity.Rare);
-		
+
 		//! Knifes
 		AddItem("KitchenKnife", ExpansionHardlineItemRarity.Rare);
 		AddItem("SteakKnife", ExpansionHardlineItemRarity.Common);
@@ -1300,7 +1369,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("CrudeMachete", ExpansionHardlineItemRarity.Rare);
 		AddItem("OrientalMachete", ExpansionHardlineItemRarity.Rare);
 		AddItem("Cleaver", ExpansionHardlineItemRarity.Rare);
-		
+
 		//! Launchers
 		AddItem("Flaregun", ExpansionHardlineItemRarity.Rare);
 		AddItem("M79", ExpansionHardlineItemRarity.Legendary);
@@ -1308,7 +1377,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("ExpansionLAW", ExpansionHardlineItemRarity.Legendary);
 		AddItem("ExpansionRPG7", ExpansionHardlineItemRarity.Legendary);
 	#endif
-		
+
 		//! Lights
 		AddItem("Chemlight_Blue", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Chemlight_Green", ExpansionHardlineItemRarity.Uncommon);
@@ -1326,21 +1395,21 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Headtorch_Black", ExpansionHardlineItemRarity.Rare);
 		AddItem("Headtorch_Grey", ExpansionHardlineItemRarity.Rare);
 		AddItem("Spotlight", ExpansionHardlineItemRarity.Rare);
-		
+
 		AddItem("UniversalLight", ExpansionHardlineItemRarity.Rare);
 		AddItem("TLRLight", ExpansionHardlineItemRarity.Rare);
-		
+
 		//! Liquids
-		AddItem("EngineOil", ExpansionHardlineItemRarity.Epic);	
+		AddItem("EngineOil", ExpansionHardlineItemRarity.Epic);
 		AddItem("CanisterGasoline", ExpansionHardlineItemRarity.Epic);
-		
+
 		//! Locks
 		AddItem("CombinationLock", ExpansionHardlineItemRarity.Rare);
 		AddItem("CombinationLock4", ExpansionHardlineItemRarity.Epic);
-	#ifdef EXPANSIONMODBASEBUILDING		
+	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionCodeLock", ExpansionHardlineItemRarity.Epic);
 	#endif
-		
+
 		AddItem("Mag_IJ70_8Rnd", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Mag_CZ75_15Rnd", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Mag_Glock_15Rnd", ExpansionHardlineItemRarity.Uncommon);
@@ -1371,7 +1440,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Mag_CMAG_20Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_CMAG_30Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_CMAG_40Rnd", ExpansionHardlineItemRarity.Epic);
-		AddItem("Mag_VSS_10Rnd", ExpansionHardlineItemRarity.Epic);	
+		AddItem("Mag_VSS_10Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_VAL_20Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Ruger1022_15Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Ruger1022_30Rnd", ExpansionHardlineItemRarity.Epic);
@@ -1383,19 +1452,19 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("Mag_CZ550_4rnd", ExpansionHardlineItemRarity.Rare);
 		AddItem("Mag_CZ550_10rnd", ExpansionHardlineItemRarity.Epic);
 
-	#ifdef EXPANSIONMODWEAPONS	
+	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Mag_Expansion_Taser", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Mag_Expansion_M9_15Rnd", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("Mag_Expansion_Kedr_20Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Expansion_MP7_40Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Expansion_Vityaz_30Rnd", ExpansionHardlineItemRarity.Epic);
-		AddItem("Mag_Expansion_MPX_50Rnd", ExpansionHardlineItemRarity.Epic);			
+		AddItem("Mag_Expansion_MPX_50Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Expansion_M14_10Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Expansion_M14_20Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Expansion_G36_30Rnd", ExpansionHardlineItemRarity.Epic);
 		AddItem("Mag_Expansion_AWM_5Rnd", ExpansionHardlineItemRarity.Legendary);
 	#endif
-		
+
 		//! Masks
 		AddItem("SurgicalMask", ExpansionHardlineItemRarity.Common);
 		AddItem("NioshFaceMask", ExpansionHardlineItemRarity.Uncommon);
@@ -1462,7 +1531,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("BaseballBat", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("NailedBaseballBat", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("BarbedBaseballBat", ExpansionHardlineItemRarity.Uncommon);
-		
+
 		//! Compensators
 		AddItem("Mosin_Compensator", ExpansionHardlineItemRarity.Rare);
 		AddItem("MP5_Compensator", ExpansionHardlineItemRarity.Rare);
@@ -1472,18 +1541,18 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		AddItem("AK_Suppressor", ExpansionHardlineItemRarity.Epic);
 		AddItem("PistolSuppressor", ExpansionHardlineItemRarity.Rare);
 	}
-	
+
 	void AddItem(string type, ExpansionHardlineItemRarity rarity)
 	{
 		type.ToLower();
 		ItemRarity.Insert(type, rarity);
 	}
-	
+
 	override string SettingName()
 	{
 		return "Hardline Settings";
 	}
-	
+
 	ExpansionHardlineItemRarity GetItemRarityByType(string type)
 	{
 		type.ToLower();

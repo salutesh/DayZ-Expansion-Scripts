@@ -29,7 +29,7 @@ class ExpansionMissionConstructor
 		#ifdef BUILD_EXPERIMENTAL
 		//! Zombie Horde
 		//missions.Insert( ExpansionMissionEventHorde );
-		#ifdef EXPANSIONMODAI
+		#ifdef EXPANSION_MISSION_AI_ENABLE
 		//! AI General missions (Patrol, Faction War, Protecting Loot)
 		missions.Insert( ExpansionMissionEventAI );
 		#endif

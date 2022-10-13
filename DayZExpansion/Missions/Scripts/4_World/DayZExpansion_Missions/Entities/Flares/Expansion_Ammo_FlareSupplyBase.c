@@ -22,8 +22,8 @@ class Expansion_Ammo_FlareSupplyBase: Ammo_Flare
 
 		if ( IsMissionHost() )
 		{
-			array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
-			ExpansionAirdropLootContainer container;
+			array< ref ExpansionLootContainer > containers = new array< ref ExpansionLootContainer >;
+			ExpansionLootContainer container;
 
 			//! Get all containers enabled for player-called supply drop use
 			for ( int i = 0; i < GetExpansionSettings().GetAirdrop().Containers.Count(); i++ )
@@ -46,7 +46,7 @@ class Expansion_Ammo_FlareSupplyBase: Ammo_Flare
 			}
 
 			//! Pick a container (weighted random)
-			container = ExpansionAirdropLootContainer.GetWeightedRandomContainer( containers );
+			container = ExpansionLootContainer.GetWeightedRandomContainer( containers );
 
 			CF_Log.Debug("[ExpansionSupplySignal] Selected container: " + container.Container);
 					
@@ -62,7 +62,7 @@ class Expansion_Ammo_FlareSupplyBase: Ammo_Flare
 				infectedCount = container.InfectedCount;
 			}
 
-			container = new ExpansionAirdropLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount );
+			container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount );
 			
 			vector spawnPos = Vector( GetPosition()[0] + Math.RandomFloat( -150, 150 ), 0, GetPosition()[2] + Math.RandomFloat( -150, 150 ) );
 

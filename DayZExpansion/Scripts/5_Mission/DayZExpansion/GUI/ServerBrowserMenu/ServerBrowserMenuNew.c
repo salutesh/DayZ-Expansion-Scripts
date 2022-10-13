@@ -33,12 +33,7 @@ modded class ServerBrowserMenuNew
 		EXPANSION_DIRECT_TAB_INDEX = m_Tabber.AddTab("DIRECT");
 		m_DirectTab = new ExpansionDirectConnectTab(layoutRoot.FindAnyWidget("Tab_" + EXPANSION_DIRECT_TAB_INDEX), this, ExpansionTabType.DIRECT);
 		
-		string version;
-		GetGame().GetVersion( version );
-
-		string expansion_version;
-		expansion_version = GetDayZGame().GetExpansionClientVersion();
-		m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 
 		return layoutRoot;
 	}
@@ -71,19 +66,7 @@ modded class ServerBrowserMenuNew
 	{
 		super.Refresh();
 		
-		string version;
-		GetGame().GetVersion( version );
-		string expansion_version;	
-		
-		if ( GetDayZGame() )
-		{
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
-		}
-		else
-		{
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
-		}
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 	}
 	
 	// ------------------------------------------------------------

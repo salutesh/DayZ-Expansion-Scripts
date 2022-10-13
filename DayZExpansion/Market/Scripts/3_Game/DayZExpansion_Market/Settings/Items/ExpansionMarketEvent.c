@@ -25,7 +25,5 @@ class ExpansionMarketEvent: ExpansionMarketCategory
 		AddItem("Cauldron", 								1,		15,		1,		250);
 		AddItem("WitchHat", 								1,		15,		1,		250);
 		AddItem("WitchHood_Black", 							1,		15,		1,		250, null, {"WitchHood_Brown", "WitchHood_Red"});
-		//AddItem("WitchHood_Brown", 							1,		15,		1,		250);
-		//AddItem("WitchHood_Red", 							1,		15,		1,		250);
 	}
 };

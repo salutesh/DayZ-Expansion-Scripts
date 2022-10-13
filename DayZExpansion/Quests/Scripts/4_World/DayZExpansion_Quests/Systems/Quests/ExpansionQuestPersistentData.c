@@ -15,47 +15,14 @@ class ExpansionQuestPersistentDataBase
 	int ConfigVersion = 0;
 }
 
-class ExpansionQuestPersistentDatasBaseV0
-{
-	ref array<ref ExpansionQuestTimestampData> QuestTimestamps = new array<ref ExpansionQuestTimestampData>;
-	ref array<ref ExpansionQuestObjectiveDataV0> QuestObjectives = new array<ref ExpansionQuestObjectiveDataV0>; //! Contains quest id with its current persistent quest KeyState
-	ref map<int, int> QuestStates = new map<int, int>; //! Contains quest id with its current persistent quest KeyState
-
-	array<ref ExpansionQuestObjectiveDataV0> GetQuestObjectivesByQuestID(int questID)
-	{
-		array<ref ExpansionQuestObjectiveDataV0> validObjectives = new array<ref ExpansionQuestObjectiveDataV0>;
-		for (int i = 0; i < QuestObjectives.Count(); i++)
-		{
-			ExpansionQuestObjectiveDataV0 currentObjective = QuestObjectives[i];
-			if (currentObjective.QuestID == questID)
-				validObjectives.Insert(currentObjective);
-		}
-
-		return validObjectives;
-	}
-
-	int GetQuestTimeStampByQuestID(int questID)
-	{
-		for (int i = 0; i < QuestTimestamps.Count(); i++)
-		{
-			ExpansionQuestTimestampData timeStamp = QuestTimestamps[i];
-			if (timeStamp && timeStamp.QuestID == questID)
-				return timeStamp.Timestamp;
-		}
-
-		return -1;
-	}
-};
-
 //! Pesistent player quest data handled in the quest module
 class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 {
 	static const int CONFIGVERSION = 1;
+	ref array<ref ExpansionQuestPersistentQuestData> QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
 
 	[NonSerialized()]
-	private ExpansionQuestModule m_QuestModule;
-
-	ref array<ref ExpansionQuestPersistentQuestData> QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
+	protected ExpansionQuestModule m_QuestModule;
 	
 	void ExpansionQuestPersistentData()
 	{
@@ -168,7 +135,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 				QuestPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - ExpansionQuestPersistentQuestData: " + data.ToString());
 				for (int j = 0; j < data.QuestObjectives.Count(); j++)
 				{
-					ref ExpansionQuestObjectiveData currentObjective = data.QuestObjectives[j];
+					ExpansionQuestObjectiveData currentObjective = data.QuestObjectives[j];
 					if (!currentObjective)
 					{
 						QuestPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - F1");
@@ -251,41 +218,20 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	{
 		CF_Log.Info("[ExpansionQuestPersistentData] Load existing configuration file:" + fileName);
 
-		string legacyPath = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON";
 		string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin";
 		if (FileExist(path))
 		{
 			FileSerializer file = new FileSerializer();
+			
 			if (file.Open(path, FileMode.READ))
 			{
 				file.Read(ConfigVersion);
-
 				OnRecieve(file);
-
 				file.Close();
 			}
-			return true;
-		}
-		else if (FileExist(legacyPath))
-		{
-			ExpansionQuestPersistentDataBase playerDataBase;
-			JsonFileLoader<ExpansionQuestPersistentDataBase>.JsonLoadFile(legacyPath, playerDataBase);
-			if (playerDataBase.ConfigVersion < CONFIGVERSION)
-			{
-				//! Copy over old configuration that hasn't changed
-				CopyConfig(playerDataBase);
-			}
-			else
-			{
-				ExpansionQuestPersistentData playerData;
-				JsonFileLoader<ExpansionQuestPersistentData>.JsonLoadFile(legacyPath, playerData);
-				CopyConfig(playerData);
-			}
-			ConfigVersion = CONFIGVERSION;
-			DeleteFile(legacyPath);
-			if (QuestDatas.Count())
-				Save(fileName);
-			return true;
+			
+			if (CleanupQuestData())
+				return true;
 		}
 
 		return false;
@@ -299,9 +245,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 			if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
 			{
 				file.Write(ConfigVersion);
-
 				OnSend(file);
-
 				file.Close();
 			}
 		}
@@ -321,7 +265,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		QuestDatas = data.QuestDatas;
 	}
 
-	private bool CleanupQuestData()
+	protected bool CleanupQuestData()
 	{
 		if (!m_QuestModule)
 			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
@@ -345,8 +289,31 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 				QuestPrint(ToString() + "::CleanupQuestData - Cleanup quest state data for quest with ID:" + data.QuestID + " | State: " + data.State);
 				QuestDatas.Remove(i);
 			}
+			
+			//! Cleanup old persistent quest data if quest configuration has changes
+			if (!QuestChangesCheck(questConfig, data))
+				QuestDatas.Remove(i);
 		}
 
+		return true;
+	}
+	
+	protected bool QuestChangesCheck(ExpansionQuestConfig questConfig, ExpansionQuestPersistentQuestData data)
+	{		
+		for (int i = 0; i < data.QuestObjectives.Count(); i++)
+		{
+			ExpansionQuestObjectiveData playerQuestObjectiveData = data.QuestObjectives[i];
+			if (!playerQuestObjectiveData)
+				continue;
+			
+			ExpansionQuestObjectiveConfig questObjectiveConfig = questConfig.GetObjectives()[i];
+			if (!questObjectiveConfig)
+				continue;
+			
+			if (playerQuestObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
+				return false;
+		}
+		
 		return true;
 	}
 

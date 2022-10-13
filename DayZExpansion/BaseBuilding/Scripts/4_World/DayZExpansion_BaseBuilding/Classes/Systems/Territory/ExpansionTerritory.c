@@ -24,23 +24,23 @@ class ExpansionOldTerritory
 
 class ExpansionTerritory
 {
-	private int TerritoryID;
-	private string TerritoryName;
-	private vector TerritoryPosition;
-	private int TerritoryLevel;
-	private string TerritoryOwnerID;
-	private string TerritoryFlagTexturePath;
-	private autoptr array< ref ExpansionTerritoryMember > TerritoryMembers;
-	private autoptr array< ref ExpansionTerritoryInvite > Invites;
+	protected int TerritoryID;
+	protected string TerritoryName;
+	protected vector TerritoryPosition;
+	protected int TerritoryLevel;
+	protected string TerritoryOwnerID;
+	protected string TerritoryFlagTexturePath;
+	protected autoptr array<ref ExpansionTerritoryMember> TerritoryMembers;
+	protected autoptr array<ref ExpansionTerritoryInvite> Invites;
 	
 	// ------------------------------------------------------------
 	// ExpansionTerritory Constructor
 	// ------------------------------------------------------------
 	void ExpansionTerritory(int id, string name, int level, string ownerID, vector position, string texturePath)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "ExpansionTerritory");
-#endif
+	#endif
 
 		TerritoryID = id;
 		TerritoryName = name;
@@ -81,9 +81,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	void AddMember(string id, string name, bool owner = false)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "AddMember");
-#endif
+	#endif
 
 		ExpansionTerritoryMember newMember = new ExpansionTerritoryMember(id, name, owner);
 		
@@ -97,9 +97,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool IsMember(string uid)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "IsMember");
-#endif
+	#endif
 
 		for (int i = 0; i < TerritoryMembers.Count(); ++i)
 		{
@@ -117,9 +117,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	void RemoveMember(ExpansionTerritoryMember member)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "RemoveMember");
-#endif
+	#endif
 
 		int memberIndex = TerritoryMembers.Find(member);
 		
@@ -134,9 +134,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------	
 	ExpansionTerritoryMember GetMember(string uid)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "GetMember");
-#endif
+	#endif
 
 		for(int i = 0; i < TerritoryMembers.Count(); ++i)
 		{
@@ -162,9 +162,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------	
 	bool AddTerritoryInvite(ExpansionTerritoryInvite invite)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "AddTerritoryInvite");
-#endif
+	#endif
 
 		if (!invite) return false;
 		
@@ -182,9 +182,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------		
 	bool RemoveTerritoryInvite(string uid)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "RemoveTerritoryInvite");
-#endif
+	#endif
 
 		int idx = -1;
 		for (int i = 0; i < Invites.Count(); ++i)
@@ -210,9 +210,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	bool HasInvite(string uid)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "HasInvite");
-#endif
+	#endif
 
 		for (int i = 0; i < Invites.Count(); ++i)
 		{
@@ -230,9 +230,9 @@ class ExpansionTerritory
 	// ------------------------------------------------------------
 	ExpansionTerritoryInvite GetInvite(string uid)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.TERRITORY, this, "GetInvite");
-#endif
+	#endif
 
 		for (int i = 0; i < Invites.Count(); ++i)
 		{
@@ -408,4 +408,85 @@ class ExpansionTerritory
 		return true;
 	}
 	#endif
-}
+	
+	// ------------------------------------------------------------
+	// Expansion OnSend
+	// ------------------------------------------------------------
+	void OnSend(ParamsWriteContext ctx)
+	{
+		ctx.Write(TerritoryID);
+		ctx.Write(TerritoryName);
+		ctx.Write(TerritoryPosition);
+		ctx.Write(TerritoryOwnerID);
+
+		int count;
+		int index;
+
+		index = 0;
+		count = TerritoryMembers.Count();
+		ctx.Write(count);
+		while (index < count)
+		{
+			TerritoryMembers[index].OnSend(ctx);
+			index++;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnRecieve
+	// ------------------------------------------------------------
+	bool OnRecieve(ParamsReadContext ctx)
+	{
+		if (!ctx.Read(TerritoryID))
+		{
+			Error(ToString() + "::OnRecieve - TerritoryID");
+			return false;
+		}
+			
+		if (!ctx.Read(TerritoryName))
+		{
+			Error(ToString() + "::OnRecieve - TerritoryName");
+			return false;
+		}
+
+		if (!ctx.Read(TerritoryPosition))
+		{
+			Error(ToString() + "::OnRecieve - TerritoryPosition");
+			return false;
+		}
+
+		if (!ctx.Read(TerritoryOwnerID))
+		{
+			Error(ToString() + "::OnRecieve - TerritoryOwnerID");
+			return false;
+		}
+
+		int count;
+		int index;
+
+		index = 0;
+		if (!ctx.Read(count))
+		{
+			Error(ToString() + "::OnRecieve - Member count");
+			return false;
+		}
+
+		if (!TerritoryMembers)
+			TerritoryMembers = new array<ref ExpansionTerritoryMember>;
+		
+		while ( index < count )
+		{
+			ExpansionTerritoryMember member = new ExpansionTerritoryMember();
+			if (!member.OnRecieve(ctx))
+			{
+				Error(ToString() + "::OnRecieve - Member");
+				return false;
+			}
+			
+			TerritoryMembers.Insert(member); 
+			index++;
+		}
+		
+		return true;
+	}
+};

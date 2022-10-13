@@ -36,4 +36,23 @@ class ExpansionTerritoryInvite
 		return true;
 	}
 	#endif
+	
+	void OnSend(ParamsWriteContext ctx)
+	{
+		ctx.Write(TerritoryID);
+		ctx.Write(TerritoryName);
+		ctx.Write(UID);
+	}
+
+	bool OnRecieve(ParamsReadContext ctx)
+	{
+		if (!ctx.Read(TerritoryID))
+			return false;
+		if (!ctx.Read(TerritoryName))
+			return false;
+		if (!ctx.Read(UID))
+			return false;
+
+		return true;
+	}
 };

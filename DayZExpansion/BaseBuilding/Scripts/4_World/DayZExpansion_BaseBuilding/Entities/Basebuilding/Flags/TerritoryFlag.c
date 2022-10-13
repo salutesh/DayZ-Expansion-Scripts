@@ -535,4 +535,19 @@ modded class TerritoryFlag
 
 		return true;
 	}
+	
+#ifdef EXPANSIONMODGARAGE
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+
+		if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+		{
+			int territoryID = GetTerritoryID();
+			ExpansionGarageModule garageModule;
+			if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))
+				garageModule.DropTerritoryVehicles(GetTerritoryID(), true);
+		}
+	}
+#endif
 };

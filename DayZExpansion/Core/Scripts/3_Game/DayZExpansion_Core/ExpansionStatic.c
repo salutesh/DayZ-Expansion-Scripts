@@ -267,12 +267,18 @@ class ExpansionStatic
 
 		if (obj)
 		{
-			hasCollisionBox = obj.GetCollisionBox(minMax);
-			if (!hasCollisionBox)
-				obj.ClippingInfo(minMax);
+			hasCollisionBox = GetCollisionBox(obj, minMax);
 			GetGame().ObjectDelete(obj);
 		}
 
+		return hasCollisionBox;
+	}
+
+	static bool GetCollisionBox(Object obj, out vector minMax[2])
+	{
+		bool hasCollisionBox = obj.GetCollisionBox(minMax);
+		if (!hasCollisionBox)
+			obj.ClippingInfo(minMax);
 		return hasCollisionBox;
 	}
 

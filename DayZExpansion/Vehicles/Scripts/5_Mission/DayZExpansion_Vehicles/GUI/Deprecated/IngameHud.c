@@ -636,7 +636,12 @@ modded class IngameHud
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
 
+#ifdef DAYZ_1_18
 		int engaged_gear = boat.GetController().GetGear();	
+#else
+		//! 1.19
+		int engaged_gear = boat.GetGear();
+#endif
 			
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;

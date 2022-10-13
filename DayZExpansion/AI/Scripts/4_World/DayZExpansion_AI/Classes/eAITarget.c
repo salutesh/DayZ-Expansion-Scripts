@@ -88,7 +88,10 @@ class eAITarget
 		if (GetEntity().IsInherited(ItemBase))
 			return false;
 
-		if (info.IsCrawling())
+		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
+
+		//! Can't hit low targets if no weapon
+		if (!entityInHands && info.GetAimOffset(ai)[1] < 1.0)
 			return false;
 
 		float distSq = GetDistanceSq(ai, true);
@@ -99,8 +102,8 @@ class eAITarget
 		if (distSq > 2.25 && !ai.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			return false;
 
-		auto weapon = Weapon_Base.Cast(ai.GetItemInHands());
-		bool hasAmmo = weapon && weapon.Expansion_HasAmmo();
+		Weapon_Base weapon;
+		bool hasAmmo = Class.CastTo(weapon, entityInHands) && weapon.Expansion_HasAmmo();
 		if (distSq > 1.0 && hasAmmo)
 			return false;
 
@@ -112,8 +115,8 @@ class eAITarget
 		}
 		else
 		{
-			auto player = PlayerBase.Cast(GetEntity());
-			if (player && player.IsUnconscious())
+			PlayerBase player;
+			if (Class.CastTo(player, GetEntity()) && player.IsUnconscious())
 				return false;
 		}
 

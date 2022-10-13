@@ -230,7 +230,13 @@ class ExpansionVehicleBase extends ItemBase
 	autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
 	bool m_SafeZone;
 
+	protected string m_Expansion_LastDriverUID;
+	protected bool m_Expansion_SynchLastDriverUID;
+	protected bool m_Expansion_LastDriverUIDSynched;
+
 	int m_Expansion_CargoCount;
+	
+	ref ExpansionGlobalID m_Expansion_GlobalID = new ExpansionGlobalID();
 
 	void ExpansionVehicleBase()
 	{
@@ -371,6 +377,8 @@ class ExpansionVehicleBase extends ItemBase
 		RegisterNetSyncVariableFloat("m_BrakeAmmount", 0, 0, 4);
 
 		RegisterNetSyncVariableInt("m_NetworkMode");
+
+		RegisterNetSyncVariableBool("m_Expansion_SynchLastDriverUID");
 
 		m_DebugShapes = new array<Shape>();
 
@@ -1258,7 +1266,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 #endif
 
-	override void EOnSimulate(IEntity owner, float dt)
+	override void EOnSimulate(IEntity other, float dt)
 	{
 		int i;
 
@@ -1268,7 +1276,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		m_DebugShapes.Clear();
 
-		DBGTowing();
+		//Expansion_DBGTowing();
 
 		/*
 		GetTransform(m_DbgTransform);
@@ -1691,6 +1699,46 @@ class ExpansionVehicleBase extends ItemBase
 		UpdateLights();
 
 		m_State.OnVariablesSynchronized(m_IsPhysicsHost);
+
+		if (m_Expansion_SynchLastDriverUID != m_Expansion_LastDriverUIDSynched)
+		{
+			m_Expansion_LastDriverUIDSynched = m_Expansion_SynchLastDriverUID;
+
+			if (!m_Expansion_SynchLastDriverUID)
+				return;
+
+			//! Reset m_Expansion_LastDriverUID client-side if vehicle has driver and it is not the player
+			Human driver = CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+			Man player = GetGame().GetPlayer();
+			if (driver && player && driver != player)
+			{
+				m_Expansion_LastDriverUID = "";
+			}
+		}
+	}
+
+	void ExpansionSetLastDriverUID(PlayerBase player)
+	{
+		m_Expansion_LastDriverUID = player.GetIdentityUID();
+
+		if (!IsMissionHost())
+			return;
+
+		m_Expansion_SynchLastDriverUID = true;
+
+		SetSynchDirty();
+	}
+
+	void ExpansionResetLastDriverUIDSynch()
+	{
+		m_Expansion_SynchLastDriverUID = false;
+
+		SetSynchDirty();
+	}
+
+	string ExpansionGetLastDriverUID()
+	{
+		return m_Expansion_LastDriverUID;
 	}
 
 	ExpansionVehicleAxle GetAxle(int axle)
@@ -3071,7 +3119,7 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	void DBGTowing()
+	void Expansion_DBGTowing()
 	{
 		vector transform[4];
 		GetTransform(transform);
@@ -3631,6 +3679,11 @@ class ExpansionVehicleBase extends ItemBase
 		ctx.Write(lockState);
 
 		ctx.Write(m_Exploded);
+
+		if (!m_Expansion_GlobalID.m_IsSet)
+			m_Expansion_GlobalID.Acquire();
+
+		m_Expansion_GlobalID.OnStoreSave(ctx);
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -3660,6 +3713,12 @@ class ExpansionVehicleBase extends ItemBase
 		m_VehicleLockedState = lockState;
 
 		if (!ctx.Read(m_Exploded))
+			return false;
+
+		if (ctx.GetVersion() < 41)
+			return true;
+
+		if (!m_Expansion_GlobalID.OnStoreLoad(ctx))
 			return false;
 		
 		return true;

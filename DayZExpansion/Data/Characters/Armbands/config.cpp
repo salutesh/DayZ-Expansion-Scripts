@@ -13,16 +13,22 @@ class CfgPatches
 class CfgVehicles
 {
 	class Armband_ColorBase;
-	class ExpansionArmbandBandit: Armband_ColorBase
+	class ExpansionHardlineArmband: Armband_ColorBase
 	{
-		scope = 2;
-		color = "Black";
-		hiddenSelectionsTextures[] = {"\dz\characters\tops\data\armbend_blue_g_co.paa","\dz\characters\tops\data\armbend_small_blue_co.paa","\dz\characters\tops\data\armbend_small_blue_co.paa","\DayZExpansion\Data\Characters\Armbands\Data\armband_Bandit_co.paa","\DayZExpansion\Data\Characters\Armbands\Data\armband_Bandit_co.paa"};
+		scope = 1;
 	};
-	class ExpansionArmbandHero: Armband_ColorBase
+	class ExpansionArmbandBandit: ExpansionHardlineArmband
 	{
 		scope = 2;
-		color = "White";
-		hiddenSelectionsTextures[] = {"\dz\characters\tops\data\armbend_white_g_co.paa","\dz\characters\tops\data\armbend_small_white_co.paa","\dz\characters\tops\data\armbend_small_white_co.paa","\DayZExpansion\Data\Characters\Armbands\Data\armband_Hero_co.paa","\DayZExpansion\Data\Characters\Armbands\Data\armband_Hero_co.paa"};
+		visibilityModifier = 0.95;
+		color = "Pirates";
+		hiddenSelectionsTextures[] = {"\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa","\dz\gear\camping\data\Flag_jolly_armband_co.paa"};
+	};
+	class ExpansionArmbandHero: ExpansionHardlineArmband
+	{
+		scope = 2;
+		visibilityModifier = 0.95;
+		color = "Wolf";
+		hiddenSelectionsTextures[] = {"\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa","\dz\gear\camping\data\Flag_wolf_co.paa"};
 	};
 };

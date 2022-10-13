@@ -193,6 +193,18 @@ PanelWidgetClass ExpansionMenuDialogBase {
          scaled 1
          style rover_sim_colorable
         }
+        PanelWidgetClass dialog_spacer0 {
+         visible 1
+         position 0 0
+         size 0.95 16
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         style blank
+        }
         WrapSpacerWidgetClass dialog_body_content {
          visible 1
          ignorepointer 1
@@ -216,6 +228,18 @@ PanelWidgetClass ExpansionMenuDialogBase {
           }
          }
         }
+        PanelWidgetClass dialog_spacer2 {
+         visible 1
+         position 0 0
+         size 0.95 16
+         halign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scaled 1
+         style blank
+        }
         PanelWidgetClass dialog_seperator2 {
          visible 1
          color 0.8627 0.8627 0.8627 1
@@ -234,14 +258,15 @@ PanelWidgetClass ExpansionMenuDialogBase {
       GridSpacerWidgetClass dialog_buttons_grid {
        visible 1
        ignorepointer 1
-       position 0 0
        size 500 48
+       halign center_ref
+       valign bottom_ref
        hexactpos 1
        vexactpos 1
        hexactsize 1
        vexactsize 1
        scriptclass "ViewBinding"
-       Padding 50
+       Padding 0
        Margin 10
        "Size To Content H" 1
        "Size To Content V" 1
@@ -269,10 +294,6 @@ PanelWidgetClass ExpansionMenuDialogBase {
      }
     }
    }
-  }
- }
- {
-  ScriptParamsClass {
   }
  }
 }

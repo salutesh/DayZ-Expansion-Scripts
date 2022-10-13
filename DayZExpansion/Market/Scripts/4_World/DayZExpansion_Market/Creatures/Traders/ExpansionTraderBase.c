@@ -97,7 +97,6 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 class ExpansionTraderObjectBase
 {
 	private static ref set<ExpansionTraderObjectBase> m_allTraderObjects = new set<ExpansionTraderObjectBase>;
-	static ref map<string, vector> s_VehicleSizes = new map<string, vector>;
 
 	protected ref ExpansionMarketTraderZone m_TraderZone;
 	protected ref ExpansionMarketTrader m_Trader;
@@ -421,7 +420,7 @@ class ExpansionTraderObjectBase
 			
 			lastCheckedPos = position;
 
-			if (!VehicleSpawnPositionFree(position, className, tempBlockingObject))
+			if (!ExpansionItemSpawnHelper.IsSpawnPositionFree(position.Position, position.Orientation, className, tempBlockingObject))
 			{
 				blockingObject = tempBlockingObject;
 				continue;
@@ -462,89 +461,6 @@ class ExpansionTraderObjectBase
 			result = ExpansionMarketResult.FailedVehicleSpawnOccupied;
 
 		return false;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase VehicleSpawnPositionFree
-	// ------------------------------------------------------------	
-	private bool VehicleSpawnPositionFree(ExpansionMarketSpawnPosition position, string className, out Object blockingObject = NULL)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "VehicleSpawnPositionFree");
-#endif
-
-		vector size;
-		if (!s_VehicleSizes.Find(className, size))
-		{
-			vector minMax[2];
-			if (ExpansionStatic.GetCollisionBox(className, minMax))
-			{
-				size = Vector(minMax[1][0] - minMax[0][0], minMax[1][1] - minMax[0][1], minMax[1][2] - minMax[0][2]);
-
-				#ifdef EXPANSION_MARKET_VEHICLE_SPAWN_DEBUG
-				Object debugBox;
-
-				//! Bottom left
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Blue", position.Position, ECE_NOLIFETIME);
-				debugBox.SetOrientation(position.Orientation);
-				debugBox.SetPosition(debugBox.ModelToWorld(Vector(-size[0] / 2, 0, -size[2] / 2)));
-
-				//! Bottom right
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Orange", position.Position, ECE_NOLIFETIME);
-				debugBox.SetOrientation(position.Orientation);
-				debugBox.SetPosition(debugBox.ModelToWorld(Vector(size[0] / 2, 0, -size[2] / 2)));
-
-				//! Top right
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Red", position.Position, ECE_NOLIFETIME);
-				debugBox.SetOrientation(position.Orientation);
-				debugBox.SetPosition(debugBox.ModelToWorld(Vector(size[0] / 2, size[1], size[2] / 2)));
-
-				//! Top left
-				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Purple", position.Position, ECE_NOLIFETIME);
-				debugBox.SetOrientation(position.Orientation);
-				debugBox.SetPosition(debugBox.ModelToWorld(Vector(-size[0] / 2, size[1], size[2] / 2)));
-				#endif
-			}
-			else
-			{
-				//! Fallback just in case
-				size = "5 5 10";
-			}
-			s_VehicleSizes.Insert(className, size);
-		}
-
-		blockingObject = ExpansionGetObjectBlockingPosition(position, size);
-
-		CF_Log.Debug("VehicleSpawnPositionFree " + className + " size " + size + " pos " + position.Position + " ori " + position.Orientation + " blocking " + blockingObject);
-		
-		return blockingObject == NULL;
-	}
-	
-	Object ExpansionGetObjectBlockingPosition(ExpansionMarketSpawnPosition position, vector size)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "ExpansionGetObjectBlockingPosition");
-#endif
-
-		array<Object> excluded_objects = new array<Object>;
-		array<Object> objects = new array<Object>;
-		
-		if (!GetGame().IsBoxColliding( position.Position + Vector(0, size[1] / 2, 0), position.Orientation, size, excluded_objects, objects))
-			return NULL;
-
-		foreach (Object obj: objects)
-		{
-			bool match = obj.IsInherited(Man) || (obj.IsInherited(ItemBase) && obj.ConfigGetString("physLayer") == "item_large") || obj.IsInherited(CarScript);
-
-			#ifdef EXPANSIONMODVEHICLE
-			match |= obj.IsInherited(ExpansionVehicleBase);
-			#endif
-
-			if (match)
-				return obj;
-		}
-
-		return NULL;
 	}
 
 	string GetDisplayName()

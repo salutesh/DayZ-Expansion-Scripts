@@ -53,6 +53,10 @@ modded class ItemBase
 
 		RegisterNetSyncVariableInt( "m_CurrentSkinSynchRemote", 0, m_Skins.Count() );
 
+		//! TODO: Once vanilla makes up its mind that untakeable items should not show in vicinity (they have code for it in VicinityItemManager,
+		//! it just doesn't seem to work), could get rid of the netsync (but not the variable itself)
+		RegisterNetSyncVariableBool("m_Expansion_IsLootable");
+
 		if (IsMissionHost())
 		{
 			m_Expansion_HealthBeforeHit = new map<string, float>;
@@ -775,11 +779,14 @@ modded class ItemBase
 		if (!GetGame().IsServer())
 			return;
 
-		if (oldLoc.GetType() == InventoryLocationType.CARGO)
-			Expansion_UpdateParentCargoCount(oldLoc, -1);
+		if (newLoc.GetParent() != oldLoc.GetParent())
+		{
+			if (oldLoc.GetType() == InventoryLocationType.CARGO)
+				Expansion_UpdateParentCargoCount(oldLoc, -1);
 
-		if (newLoc.GetType() == InventoryLocationType.CARGO)
-			Expansion_UpdateParentCargoCount(newLoc, 1);
+			if (newLoc.GetType() == InventoryLocationType.CARGO)
+				Expansion_UpdateParentCargoCount(newLoc, 1);
+		}
 
 		if (!GetExpansionSettings().GetSafeZone().Enabled)
 			return;
@@ -822,23 +829,26 @@ modded class ItemBase
 	void Expansion_UpdateParentCargoCount(InventoryLocation loc, int delta)
 	{
 		CarScript car;
-		if (Class.CastTo(car, loc.GetParent().GetHierarchyRoot()))
+		if (Class.CastTo(car, loc.GetParent()))
 		{
+			delta *= GetInventory().CountInventory();
 			car.m_Expansion_CargoCount += delta;
-			//! @note doesn't need to be explicitly synced, since uninitialized inv is only a thing w/o player interaction (and initial sync will take care of it)
-			//if (GetGame().IsDedicatedServer() && car.IsInitialized())
-				//car.SetSynchDirty();
+			#ifdef DIAG
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, car.ToString() + " cargo count " + delta + " " + car.m_Expansion_CargoCount);
+			#endif
+			if (GetGame().IsDedicatedServer() && car.IsInitialized())
+				car.SetSynchDirty();
 		}
 		#ifdef EXPANSIONMODVEHICLE
 		else
 		{
 			ExpansionVehicleBase vehicle;
-			if (Class.CastTo(vehicle, loc.GetParent().GetHierarchyRoot()))
+			if (Class.CastTo(vehicle, loc.GetParent()))
 			{
+				delta *= GetInventory().CountInventory();
 				vehicle.m_Expansion_CargoCount += delta;
-				//! @note doesn't need to be explicitly synced, since uninitialized inv is only a thing w/o player interaction (and initial sync will take care of it)
-				//if (GetGame().IsDedicatedServer() && vehicle.IsInitialized())
-					//vehicle.SetSynchDirty();
+				if (GetGame().IsDedicatedServer() && vehicle.IsInitialized())
+					vehicle.SetSynchDirty();
 			}
 		}
 		#endif
@@ -966,6 +976,46 @@ modded class ItemBase
 			//! Deferred removal of setuntakeable entity action from queue
 			Expansion_DequeueEntityActions(ExpansionItemBaseModule.SETUNLOOTABLE);
 		}
+	}
+
+	bool Expansion_IsLootable()
+	{
+		return m_Expansion_IsLootable;
+	}
+
+	override bool IsInventoryVisible()
+	{
+		if (!super.IsInventoryVisible())
+			return false;
+
+		return m_Expansion_IsLootable;
+	}
+
+	//! Prevent pickup if it's set to unlootable
+	override bool CanPutAsAttachment( EntityAI parent )
+	{
+		if (!super.CanPutAsAttachment(parent))
+			return false;
+
+		return m_Expansion_IsLootable;
+	}
+
+	//! Prevent pickup if it's set to unlootable
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		if (!super.CanPutInCargo(parent))
+			return false;
+
+		return m_Expansion_IsLootable;
+	}
+
+	//! Prevent pickup if it's set to unlootable
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		if (!super.CanPutIntoHands(parent))
+			return false;
+
+		return m_Expansion_IsLootable;
 	}
 
 	override void EEDelete(EntityAI parent)

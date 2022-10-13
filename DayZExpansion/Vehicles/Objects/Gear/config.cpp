@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Objects_Gear
 	{
-		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
+		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","Expansion_Generic_Vehicle_Cover"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Camping","DZ_Scripts","DayZExpansion_Objects_Gear_Spraycans"};
@@ -12,6 +12,7 @@ class CfgPatches
 };
 class CfgVehicles
 {
+	class CamoNet;
 	class Inventory_Base;
 	class BatteryCharger: Inventory_Base
 	{
@@ -352,6 +353,43 @@ class CfgVehicles
 	class ExpansionSpraycanMerlinWave: ExpansionSpraycanWave{};
 	class ExpansionSpraycanBusDefault: ExpansionSpraycanBlue{};
 	class ExpansionSpraycanBusWeeb: ExpansionSpraycanWeeb{};
+	class CamoNetCivil: CamoNet{};
+	class CamoNetDesert: CamoNet{};
+	class CamoNetWinter: CamoNet{};
+	class ExpansionVehicleCover: Inventory_Base
+	{
+		scope = 0;
+		displayName = "$STR_EXPANSION_VEHICLE_COVER";
+		itemBehaviour = 0;
+		itemSize[] = {10,100};
+		carveNavmesh = 1;
+		weight = 1000000;
+		physLayer = "item_large";
+		allowOwnedCargoManipulation = 1;
+		forceFarBubble = "true";
+		rotationFlags = 2;
+		itemsCargoSize[] = {10,100};
+		attachments[] = {"CamoNet"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000000;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
+				};
+			};
+		};
+	};
+	class Expansion_Generic_Vehicle_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "\dz\animals\capra_hircus\capra_hircus.p3d";
+		hiddenSelections[] = {"Camo","CamoHair"};
+		hiddenSelectionsTextures[] = {"dz\animals\capra_hircus\data\Black_Goat_CO.paa","dz\animals\capra_hircus\data\black_goat_fur_co.paa"};
+		hiddenSelectionsMaterials[] = {"dz\animals\capra_hircus\data\Black_Goat.rvmat","dz\animals\capra_hircus\data\black_goat_fur.rvmat"};
+	};
 };
 class CfgSlots
 {

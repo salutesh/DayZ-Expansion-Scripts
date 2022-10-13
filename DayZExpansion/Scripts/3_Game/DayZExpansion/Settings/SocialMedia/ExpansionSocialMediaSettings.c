@@ -10,45 +10,97 @@
  *
 */
 
+class ExpansionNewsFeedLinkSetting
+{
+	protected string m_Label;
+	protected string m_Icon;
+	protected string m_URL;
+	
+ 	void ExpansionNewsFeedLinkSetting(string label, string icon, string url)
+	{
+		m_Label = label;
+		m_Icon = icon;
+		m_URL = url;
+	}
+	
+	string GetLabel()
+	{
+		return m_Label;
+	}
+	
+	string GetIcon()
+	{
+		return m_Icon;
+	}
+	
+	string GetURL()
+	{
+		return m_URL;
+	}
+};
+
+class ExpansionNewsFeedTextSetting
+{
+	protected string m_Title;
+	protected string m_Text;
+	
+ 	void ExpansionNewsFeedTextSetting(string title, string text)
+	{
+		m_Title = title;
+		m_Text = text;
+	}
+	
+	string GetTitle()
+	{
+		return m_Title;
+	}
+	
+	string GetText()
+	{
+		return m_Text;
+	}
+};
+
 /**@class		ExpansionSocialMediaSettingsBase
  * @brief		Social Media settings base class
  **/
 class ExpansionSocialMediaSettingsBase: ExpansionSettingBase
 {
-	string Discord;
-	string Homepage;
-	string Forums;
-	string YouTube;
-	string Steam;
-	string Twitter;
-	string Guilded;
-}
+	ref array<ref ExpansionNewsFeedTextSetting> NewsFeedTexts;
+	ref array<ref ExpansionNewsFeedLinkSetting> NewsFeedLinks;
+	
+	void ExpansionSocialMediaSettingsBase()
+	{
+		NewsFeedTexts = new array<ref ExpansionNewsFeedTextSetting>;
+		NewsFeedLinks = new array<ref ExpansionNewsFeedLinkSetting>;
+	}
+};
 
 /**@class		ExpansionSocialMediaSettings
  * @brief		Social Media settings class
  **/
 class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 {
-	static const int VERSION = 0;
-	
+	static const int VERSION = 2;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
 	// ------------------------------------------------------------
-	override bool OnRecieve( ParamsReadContext ctx )
+	override bool OnRecieve(ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
 
 		ExpansionSocialMediaSettings setting;
-		if ( !ctx.Read( setting ) )
+		if (!ctx.Read(setting))
 		{
 			Error("ExpansionSocialMediaSettings::OnRecieve setting");
 			return false;
 		}
 
-		CopyInternal( setting );
+		CopyInternal(setting);
 
 		m_IsLoaded = true;
 
@@ -57,11 +109,11 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		return true;
 	}
 	
-	override void OnSend( ParamsWriteContext ctx )
+	override void OnSend(ParamsWriteContext ctx)
 	{
 		ExpansionSocialMediaSettings thisSetting = this;
 
-		ctx.Write( thisSetting );
+		ctx.Write(thisSetting);
 	}
 
 	// ------------------------------------------------------------
@@ -71,61 +123,54 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
 #endif
 
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 		{
 			return 0;
 		}
 		
 		ScriptRPC rpc = new ScriptRPC;
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.SocialMedia, true, identity );
+		OnSend(rpc);
+		rpc.Send(null, ExpansionSettingsRPC.SocialMedia, true, identity);
 		
 		return 0;
 	}
 
 	// ------------------------------------------------------------
-	override bool Copy( ExpansionSettingBase setting )
+	override bool Copy(ExpansionSettingBase setting)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
 #endif
 
-		ExpansionSocialMediaSettings settings = ExpansionSocialMediaSettings.Cast( setting );
-		if ( !settings )
+		ExpansionSocialMediaSettings settings = ExpansionSocialMediaSettings.Cast(setting);
+		if (!settings)
 			return false;
 
-		CopyInternal( settings );
+		CopyInternal(settings);
 		
 		return true;
 	}
 
 	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionSocialMediaSettings s )
+	private void CopyInternal(ExpansionSocialMediaSettings s)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
-		//! Nothing to do here yet
-		
 		ExpansionSocialMediaSettingsBase sb = s;
-		CopyInternal( sb );
+		CopyInternal(sb);
 	}
 	
 	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionSocialMediaSettingsBase s )
+	private void CopyInternal(ExpansionSocialMediaSettingsBase s)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
-		Discord = s.Discord;
-		Homepage = s.Homepage;
-		Forums = s.Forums;
-		YouTube = s.YouTube;
-		Steam = s.Steam;
-		Twitter = s.Twitter;
-		Guilded = s.Guilded;
+		NewsFeedTexts = s.NewsFeedTexts;
+		NewsFeedLinks = s.NewsFeedLinks;
 	}
 	
 	// ------------------------------------------------------------
@@ -166,13 +211,15 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
-				if (settingsBase.m_Version < 2)
-				{
-					EXPrint("[ExpansionSocialMediaSettings] Load - Converting v1 \"" + EXPANSION_SOCIALMEDIA_SETTINGS + "\" to v" + VERSION);
-					//! Nothing to do here yet
-				}
+				EXPrint("[ExpansionSocialMediaSettings] Load - Converting v0 \"" + EXPANSION_SOCIALMEDIA_SETTINGS + "\" to v" + VERSION);
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
+				
+				if (settingsBase.m_Version < 1)
+				{
+					DefaultNewsFeedTexts();
+					DefaultNewsFeedLinks();
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -200,15 +247,15 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	{
 		Print("[ExpansionSocialMediaSettings] Saving settings");
 
-		JsonFileLoader<ExpansionSocialMediaSettings>.JsonSaveFile( EXPANSION_SOCIALMEDIA_SETTINGS, this );
+		JsonFileLoader<ExpansionSocialMediaSettings>.JsonSaveFile(EXPANSION_SOCIALMEDIA_SETTINGS, this);
 
 		return true;
 	}
 	
 	// ------------------------------------------------------------
-	override void Update( ExpansionSettingBase setting )
+	override void Update(ExpansionSettingBase setting)
 	{
-		super.Update( setting );
+		super.Update(setting);
 
 		ExpansionSettings.SI_SocialMedia.Invoke();
 	}
@@ -218,13 +265,19 @@ class ExpansionSocialMediaSettings: ExpansionSocialMediaSettingsBase
 	{
 		m_Version = VERSION;
 		
-		Discord = "";
-		Guilded = "";
-		Homepage = "";
-		Forums = "";
-		YouTube = "";
-		Steam = "";
-		Twitter = "";
+		DefaultNewsFeedTexts();
+		DefaultNewsFeedLinks();
+	}
+	
+	protected void DefaultNewsFeedTexts()
+	{
+		NewsFeedTexts.Insert(new ExpansionNewsFeedTextSetting("CHANGE ME", "THIS IS A PLACEHOLDER TEXT"));
+	}
+	
+	protected void DefaultNewsFeedLinks()
+	{
+		NewsFeedLinks.Insert(new ExpansionNewsFeedLinkSetting("Discord", ExpansionIcons.GetPath("Discord"), "https://www.google.com/"));
+		NewsFeedLinks.Insert(new ExpansionNewsFeedLinkSetting("Twitter", ExpansionIcons.GetPath("Twitter"), "https://www.google.com/"));
 	}
 	
 	override string SettingName()

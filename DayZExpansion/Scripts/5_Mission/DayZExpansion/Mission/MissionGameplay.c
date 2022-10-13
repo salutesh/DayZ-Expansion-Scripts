@@ -11,18 +11,16 @@
 */
 
 /**@class		MissionGameplay
- * @brief		
+ * @brief
  **/
 modded class MissionGameplay
 {
 	//! PlayerList check
 	protected bool m_Expansion_PlayerListTogglePressed;
-	
 	protected float m_Expansion_NVUpdateTick;
-
 	//! Modules
-	ref ExpansionAutorunModule m_AutoRunModule;
-	
+	protected ref ExpansionAutorunModule m_AutoRunModule;
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -34,18 +32,15 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	// OnUpdate
 	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
+	override void OnUpdate(float timeslice)
 	{
-		super.OnUpdate( timeslice );
+		super.OnUpdate(timeslice);
 
 		if (!m_bLoaded)
-		{
 			return;
-		}
 
 		//! Checking for keyboard focus
 		bool inputIsFocused = false;
-		
 		//! Reference to focused windget
 		Widget focusedWidget = GetFocus();
 
@@ -54,21 +49,21 @@ modded class MissionGameplay
 			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
 			{
 				inputIsFocused = true;
-			} 
+			}
 			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
 			{
 				inputIsFocused = true;
 			}
 		}
 
-		Man man = GetGame().GetPlayer(); 	//! Refernce to man
-		Input input = GetGame().GetInput(); 	//! Reference to input
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); 	//! Expansion reference to menu
+		Man man = GetGame().GetPlayer(); //! Refernce to man
+		Input input = GetGame().GetInput(); //! Reference to input
+		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
 		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(viewMenu);
-		
-		if (playerPB) 
+
+		if (playerPB)
 		{
 			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 			{
@@ -79,17 +74,16 @@ modded class MissionGameplay
 					if (input.LocalPress("UAExpansionAutoRunToggle", false))
 					{
 						if (!man.GetParent() && GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableAutoRun)
-						{
 							m_AutoRunModule.AutoRun();
-						}
 					}
-																				
+
 					//! Toggle Earplugs
 					if (input.LocalPress( "UAExpansionEarplugsToggle", false )  && !viewMenu)
 					{
-						m_Hud.ToggleEarplugs();
+						if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableEarPlugs)
+							m_Hud.ToggleEarplugs();
 					}
-					
+
 					//! Toggle Player list menu
 					if (input.LocalPress("UAExpansionPlayerListToggle", false) && !m_Expansion_PlayerListTogglePressed)
 					{
@@ -106,21 +100,17 @@ modded class MissionGameplay
 				{
 					//! Autowalk
 					if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableAutoRun)
-					{
 						m_AutoRunModule.UpdateAutoWalk();
-					}
-					
+
 					//! Stop autorun when different inputs are pressed
 					if (!m_AutoRunModule.IsDisabled())
 					{
 						if (ExpansionStatic.INPUT_FORWARD() || ExpansionStatic.INPUT_BACK() || ExpansionStatic.INPUT_LEFT() || ExpansionStatic.INPUT_RIGHT() || ExpansionStatic.INPUT_STANCE())
-						{
 							m_AutoRunModule.AutoRun();
-						}
 					}
 				}
 			}
-			
+
 			//! Nightvision check
 			if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay)
 			{
@@ -133,19 +123,19 @@ modded class MissionGameplay
 			}
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion PlayerCheckNV
 	// ------------------------------------------------------------
 	void PlayerCheckNV(PlayerBase player)
-	{		
+	{
 		if (!m_Hud)
 			return;
-		
+
 		DayZPlayerCameraBase camera;
 		if (Class.CastTo(camera, player.GetCurrentCamera()))
 		{
-			if (camera.IsCameraNV()) 
+			if (camera.IsCameraNV())
 			{
 				if (!m_Hud.GetNVState())
 					m_Hud.ShowNV(true);
@@ -154,16 +144,16 @@ modded class MissionGameplay
 			{
 				if (m_Hud.GetNVState())
 					m_Hud.ShowNV(false);
+
 				return;
 			}
 		}
 
 		ItemBase nvItem = player.Expansion_GetNVItem();
-
 		if (nvItem)
 			m_Hud.SetNVBatteryState(nvItem.Expansion_GetBatteryEnergy());
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion GetNVBatteryState
 	// ------------------------------------------------------------
@@ -171,28 +161,28 @@ modded class MissionGameplay
 	{
 		Error("DEPRECATED");
 	}
-	
+
 	// ------------------------------------------------------------
 	// Override OnPlayerListTogglePressed
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
 	void OnPlayerListTogglePressed()
 	{
 		if (GetExpansionSettings().GetPlayerList().EnablePlayerList)
 		{
-			ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();	//! Reference to expansion ui manager
-			ScriptView menu	= uiManager.GetMenu();																					//! Reference to current opened script view menu
+			ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager(); //! Reference to expansion ui manager
+			ScriptView menu	= uiManager.GetMenu(); //! Reference to current opened script view menu
 			ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(menu);
 			if (!playerListMenu)
 			{
 				uiManager.CreateSVMenu("ExpansionPlayerListMenu");
-			} 
+			}
 			else if (playerListMenu && playerListMenu.IsVisible())
 			{
 				uiManager.CloseMenu();
 			}
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// Expansion OnKeyPress
 	//! Includes key-press commands for some inputs in menus
@@ -200,7 +190,7 @@ modded class MissionGameplay
 	override void OnKeyPress(int key)
 	{
 		super.OnKeyPress(key);
-		
+
 		//TODO: use Input system instead
 		switch (key)
 		{
@@ -214,7 +204,7 @@ modded class MissionGameplay
 				}
 				break;
 			}
-			
+
 			case KeyCode.KC_NEXT:
 			{
 				if (m_Hud.GetEarplugsState())
@@ -227,4 +217,4 @@ modded class MissionGameplay
 			}
 		}
 	}
-}
+};

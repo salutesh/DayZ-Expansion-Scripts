@@ -41,7 +41,7 @@ modded class PlayerBase
 		
 		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
 		
-		#ifndef DAYZ_1_19
+		#ifdef DAYZ_1_18
 		AddAction( ExpansionActionCarHorn, InputActionMap );
 		#endif
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
@@ -503,6 +503,23 @@ modded class PlayerBase
 
 			//! Enable fall damage again - after a delay or player may still die from it
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamage, 1500, false, "FallDamage", true);
+		}
+	}
+	
+	override void OnVehicleSeatDriverEnter()
+	{
+		super.OnVehicleSeatDriverEnter();
+
+		ExpansionHumanCommandVehicle exhcv = GetCommand_ExpansionVehicle();
+		if (exhcv && exhcv.GetObject())
+		{
+			ExpansionVehicleBase vehicle = ExpansionVehicleBase.Cast(exhcv.GetObject());
+			if (vehicle)
+			{
+				vehicle.ExpansionSetLastDriverUID(this);
+				if (IsMissionHost())
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(vehicle.ExpansionResetLastDriverUIDSynch, 1000, false);
+			}
 		}
 	}
 };

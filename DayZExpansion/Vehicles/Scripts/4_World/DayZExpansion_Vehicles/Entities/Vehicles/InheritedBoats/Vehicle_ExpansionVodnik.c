@@ -33,8 +33,7 @@ class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		// TODO: fix EXPANSION_VODNIK anims
-		return ExpansionVehicleAnimInstances.EX_CIVVAN;
+		return ExpansionVehicleAnimInstances.EXPANSION_VODNIK;
 	}
 
 	override CarRearLightBase CreateRearLight()

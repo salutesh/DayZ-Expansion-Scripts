@@ -49,9 +49,9 @@ class ExpansionActionSwitchLights: ActionInteractBase
 						if ( car.IsVitalAircraftBattery() ) neededItem = car.FindAttachmentBySlotName("ExpansionAircraftBattery");
 
 						if ( !neededItem || (neededItem && neededItem.IsRuined()) )
-							return false;
-						
-						return true;
+						{
+							return neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() > 0;
+						}
 					}
 					else
 					{

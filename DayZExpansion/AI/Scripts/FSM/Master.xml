@@ -315,21 +315,12 @@
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				time = 0;
 				
-				if (!GetGame().IsMultiplayer())
-				{
-					//! It's that simple in offline. Why can't it be that simple in MP? :-(
-					unit.LocalTakeEntityToHands(item);
-				}
-				else
-				{
-					unit.Expansion_CloneItemToHands(item);
-				}
+				unit.eAI_TakeItemToHands(item);
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (time &lt; 1.0)
+				if (time &lt; 0.5)
 				{
-					//! Wait briefly before doing anything to prevent cloning to hands failing or scuffed weapon holding
 					time += DeltaTime;
 					return CONTINUE;
 				}
@@ -361,7 +352,7 @@
 				unit.Expansion_GetUp(true);
 				if (bandage)
 				{
-					if (bandage.GetHealth() &lt;= 0.0 || !unit.Expansion_CloneItemToInventory(bandage))
+					if (bandage.GetHealth() &lt;= 0.0 || !unit.eAI_TakeItemToInventory(bandage))
 					{
 						unit.eAI_DropItem(bandage);
 					}
@@ -640,7 +631,7 @@
 						if (dst.item)
 						{
 							//! If ruined, drop, else put in inventory (shoulder slot or cargo)
-							if (hands &amp;&amp; (hands.GetHealth() &lt;= 0.0 || !unit.Expansion_CloneItemToInventory(hands)))
+							if (hands &amp;&amp; (hands.GetHealth() &lt;= 0.0 || !unit.eAI_TakeItemToInventory(hands)))
 								unit.eAI_DropItem(hands);
 							
 							return SUCCESS;
@@ -656,7 +647,7 @@
 					return SUCCESS;
 				
 				eAITarget target = unit.GetTarget();
-				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase))
+				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase) &amp;&amp; !target.GetEntity().GetHierarchyRootPlayer() &amp;&amp; !target.GetEntity().IsSetForDeletion())
 				{
 					if (target.GetDistanceSq(unit, true) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
 					{
@@ -787,8 +778,54 @@
 				{
 					if (transport.CrewMember(i) == null)
 					{
-				  			return SUCCESS;
+						dst.sub_fsm.transport = transport;
+				  		return SUCCESS;
 					}
+				}
+				
+				return FAIL;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="Vehicles" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="963.83813732635" y="345.935333753678" />
+				<position_destination x="963.7091945465" y="371.938198458873" />
+			</editor_data>
+			<guard>
+				auto group = unit.GetGroup();
+				if (!group) return FAIL;
+				
+				//! Check if we are the leader
+
+				auto leader = group.GetLeader();
+				if (!(leader &amp;&amp; leader == unit)) return FAIL;
+
+				auto targetPosition = unit.m_PathFinding.m_TargetReference.Position;
+				targetPosition[1] = GetPosition()[1];
+				float distance = vector.Distance(targetPosition, unit.GetPosition());
+
+				float minDist = 30;
+
+				if (distance &lt; (minDist * 0.5)) return FAIL;
+
+
+				auto cars = CarScript.GetAll();
+				foreach (CarScript car : cars)
+				{
+					float dist = vector.Distance(unit.GetPosition(), car.GetPosition());
+					if (dist &lt; minDist)
+					{
+						dst.sub_fsm.transport = car;
+						minDist = dist;
+					}
+				}
+
+				if (dst.sub_fsm.transport)
+				{
+					return SUCCESS;
 				}
 				
 				return FAIL;

@@ -20,8 +20,6 @@ modded class DayZPlayerCamera1stPerson
 #endif
 
 		super.OnUpdate( pDt, pOutResult );
-		
-		pOutResult.m_fInsideCamera = 1.0;
 
 		ExpansionVehicleBase vehicle;
 		CarScript car;
@@ -81,7 +79,7 @@ modded class DayZPlayerCamera1stPerson
 			
 		Math3D.MatrixInvMultiply4(playerTransform, cameraTransform, pOutResult.m_CameraTM);
 		
-		pOutResult.m_CameraTM[3] = pOutResult.m_CameraTM[3] + m_OffsetLS;	
+		pOutResult.m_CameraTM[3] = pOutResult.m_CameraTM[3] + m_OffsetLS;
 	}
 };
 #endif

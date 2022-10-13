@@ -98,9 +98,9 @@ class eAIBase extends PlayerBase
 
 	// Path Finding
 #ifndef EAI_USE_LEGACY_PATHFINDING
-	private ref ExpansionPathHandler m_PathFinding;
+	/*private*/ ref ExpansionPathHandler m_PathFinding;
 #else
-	private ref eAIPathFinding m_PathFinding;
+	/*private*/ ref eAIPathFinding m_PathFinding;
 #endif
 	bool m_eAI_TargetPositionIsFinal;
 
@@ -1254,7 +1254,6 @@ class eAIBase extends PlayerBase
 			m_DebugTargetApple.Delete();
 	}
 
-	//! XXX: This is a GIANT hack because I cannot figure out how to sync taking item to hands in multiplayer context :-(
 	EntityAI Expansion_CloneItemToHands(EntityAI src)
 	{
 		return Expansion_CloneItemToInventory(src, FindInventoryLocationType.HANDS);
@@ -1486,8 +1485,6 @@ class eAIBase extends PlayerBase
 		//! Used for animated/continuous action progress
 		m_dT = pDt;
 
-		m_eAI_CommandTime += pDt;
-
 		// CarScript car;
 		// if (Class.CastTo(car, GetParent()))
 		//{
@@ -1500,14 +1497,19 @@ class eAIBase extends PlayerBase
 		m_Expansion_DebugShapes.Clear();
 #endif
 
-		if (EXTrace.AI && (pCurrentCommandID != m_eAI_CurrentCommandID || pCurrentCommandFinished))
+		if (pCurrentCommandID != m_eAI_CurrentCommandID)
 		{
-			if (pCurrentCommandID != m_eAI_CurrentCommandID)
+			if (EXTrace.AI)
 				EXTrace.Print(true, this, "CommandHandler " + Expansion_CommandIDToString(m_eAI_CurrentCommandID) + " -> " + Expansion_CommandIDToString(pCurrentCommandID) + " finished " + pCurrentCommandFinished);
-			else
-				EXTrace.Print(true, this, "CommandHandler " + Expansion_CommandIDToString(pCurrentCommandID) + " finished " + pCurrentCommandFinished);
 			m_eAI_CurrentCommandID = pCurrentCommandID;
+			m_eAI_CommandTime = 0.0;
 		}
+		else if (pCurrentCommandFinished && EXTrace.AI)
+		{
+			EXTrace.Print(true, this, "CommandHandler " + Expansion_CommandIDToString(pCurrentCommandID) + " finished " + pCurrentCommandFinished);
+		}
+
+		m_eAI_CommandTime += pDt;
 
 		//! handle death with high priority
 		if (HandleDeath(pCurrentCommandID))
@@ -1525,7 +1527,7 @@ class eAIBase extends PlayerBase
 
 		GetTransform(m_ExTransformPlayer);
 
-		EnforceLOS();
+		bool hasLOS = EnforceLOS();
 
 		DetermineThreatToSelf(pDt);
 		ReactToThreatChange(pDt);
@@ -1533,7 +1535,7 @@ class eAIBase extends PlayerBase
 		if (m_eAI_Targets.Count() > 0)
 		{
 			vector aimPosition = m_eAI_Targets[0].GetPosition(this, false) + m_eAI_Targets[0].GetAimOffset(this);
-			LookAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.15);
+			LookAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.15 && hasLOS);
 			if (!m_eAI_LookDirection_Recalculate)
 				LookAtDirection("0 0 1");
 			AimAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.2);
@@ -1629,7 +1631,7 @@ class eAIBase extends PlayerBase
 
 		if (m_ActionManager)
 		{
-			m_ActionManager.Update(DayZPlayerConstants.COMMANDID_MOVE);
+			m_ActionManager.Update(pCurrentCommandID);
 
 			if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_UNCONSCIOUS)
 			{
@@ -1758,7 +1760,10 @@ class eAIBase extends PlayerBase
 				}
 				else if (m_FallYDiff < 1.0)
 				{
-					landType = HumanCommandFall.LANDTYPE_LIGHT;
+					if (m_MovementState.IsInProne() || m_MovementState.IsInRaisedProne())
+						landType = HumanCommandFall.LANDTYPE_NONE;
+					else
+						landType = HumanCommandFall.LANDTYPE_LIGHT;
 					fall.Land(landType);
 					npar = type.GetNoiseParamsLandLight();
 					AddNoise(npar);
@@ -1997,15 +2002,15 @@ class eAIBase extends PlayerBase
 #endif
 	}
 
-	void EnforceLOS()
+	bool EnforceLOS()
 	{
 		//! Prevent core dump on server shutdown
 		if (!GetGame())
-			return;
+			return false;
 
 		if (!m_eAI_Targets.Count())
 		{
-			return;
+			return false;
 		}
 
 		auto target = GetTarget();
@@ -2014,14 +2019,14 @@ class eAIBase extends PlayerBase
 
 		if (targetEntity.IsInherited(ItemBase))
 		{
-			return;
+			return false;
 		}
 
 		EntityAI parent = EntityAI.Cast(targetEntity.GetParent());
 
 		auto state = m_eAI_TargetInformationStates[target.info];
 		if (!state)
-			return;
+			return false;
 
 		vector begPos = GetBonePositionWS(GetBoneIndexByName("Head"));
 		vector endPos = targetEntity.GetPosition() + target.GetAimOffset(this);
@@ -2036,7 +2041,7 @@ class eAIBase extends PlayerBase
 		if (!state.m_LOS && hadLos)
 			EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
 		if (!state.m_LOS)
-			return;
+			return false;
 
 		DayZPlayerImplement player;
 
@@ -2092,7 +2097,7 @@ class eAIBase extends PlayerBase
 		if (sideStep)
 		{
 			if (m_eAI_SideStepTimeout > 0 || m_MovementDirectionActive)
-				return;
+				return state.m_LOS;
 
 			//! First check if we are roughly facing the target
 			//! @note vector.Direction(GetPosition(), GetTarget().GetPosition(this)).Normalized() returns zero vector,
@@ -2121,6 +2126,8 @@ class eAIBase extends PlayerBase
 				OverrideMovementDirection(true, m_SideStepAngle);
 			}
 		}
+
+		return state.m_LOS;
 	}
 
 	bool eAI_HasLOS()
@@ -2541,24 +2548,102 @@ class eAIBase extends PlayerBase
 
 	void eAI_DropItemInHands()
 	{
-		ItemBase itemInHands = GetItemInHands();
+		EntityAI itemInHands = GetHumanInventory().GetEntityInHands();
 		if (itemInHands)
 			eAI_DropItem(itemInHands);
 	}
 
-	void eAI_DropItem(ItemBase item)
+	void eAI_DropItem(EntityAI item)
 	{
-		//! XXX: DayZ 1.18 made dropping weapon unreliable. Clone to ground instead.
-		//InventoryLocation il_src = new InventoryLocation();
-		//InventoryLocation il_dst = new InventoryLocation();
+		InventoryLocation il_dst = new InventoryLocation();
 
-		//item.GetInventory().GetCurrentInventoryLocation(il_src);
+		GameInventory.SetGroundPosByOwner(this, item, il_dst);
 
-		//GameInventory.SetGroundPosByOwner(this, item, il_dst);
+		eAI_TakeItemToLocation(item, il_dst);
+	}
 
-		//ServerTakeToDst(il_src, il_dst);
+	bool eAI_TakeItemToHands(EntityAI item)
+	{
+		InventoryLocation il_dst = new InventoryLocation();
 
-		Expansion_CloneItemToGround(item, GetPosition());
+		il_dst.SetHands(this, item);
+
+		return eAI_TakeItemToLocation(item, il_dst);
+	}
+
+	bool eAI_TakeItemToInventory(EntityAI item, FindInventoryLocationType flags = 0)
+	{
+		/*!
+		 * ATTACHMENT          = 4
+		 * CARGO               = 8
+		 * HANDS               = 16
+		 * PROXYCARGO          = 32
+		 * ANY_CARGO           = 40 (CARGO | PROXYCARGO)
+		 * ANY                 = 60 (ATTACHMENT | ANY_CARGO | HANDS)
+		 * NO_SLOT_AUTO_ASSIGN = 64
+		 */
+		if (!flags)
+			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.ANY_CARGO;
+
+		InventoryLocation il_dst = new InventoryLocation();
+
+		if (!GetInventory().FindFreeLocationFor(item, flags, il_dst))
+			return false;
+
+		return eAI_TakeItemToLocation(item, il_dst);
+	}
+
+	bool eAI_TakeItemToLocation(EntityAI item, InventoryLocation il_dst)
+	{
+		InventoryLocation il_src = new InventoryLocation();
+
+		item.GetInventory().GetCurrentInventoryLocation(il_src);
+
+		if (il_src.CompareLocationOnly(il_dst) && il_src.GetFlip() == il_dst.GetFlip())
+			return false;
+
+		if (il_dst.GetType() == InventoryLocationType.HANDS)
+		{
+			//! Forcing switch to HumanCommandMove before taking to hands,
+			//! and hiding/showing item in hands after, unbreaks hand anim state
+			if (!GetCommand_Move())
+				StartCommand_Move();
+			else
+				m_eAI_CommandTime = 0.0;
+		}
+
+		if (GetGame().IsMultiplayer())
+			GetGame().RemoteObjectTreeDelete(item);
+
+		bool result = LocalTakeToDst(il_src, il_dst);
+
+		if (result)
+		{
+			if (il_dst.GetType() == InventoryLocationType.HANDS)
+			{
+				//! Forcing switch to HumanCommandMove before taking to hands,
+				//! and hiding/showing item in hands after, unbreaks hand anim state
+				GetItemAccessor().HideItemInHands(true);
+				GetItemAccessor().HideItemInHands(false);
+			}
+			else if (il_src.GetType() != InventoryLocationType.GROUND && il_dst.GetType() == InventoryLocationType.GROUND)
+			{
+				ItemBase itemBs;
+				if (Class.CastTo(itemBs, item))
+					eAI_RemoveItem(itemBs);
+
+				if (!m_Expansion_CanBeLooted)
+				{
+					ExpansionItemBaseModule.SetLootable(item, false);
+					item.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+				}
+			}
+		}
+
+		if (GetGame().IsMultiplayer())
+			GetGame().RemoteObjectTreeCreate(item);
+
+		return result;
 	}
 
 	void Expansion_GetUp(bool force = false)
@@ -2578,7 +2663,11 @@ class eAIBase extends PlayerBase
 		//eAICommandMove move = StartCommand_MoveAI();
 		//move.GetUp();
 
-		HumanCommandMove cm = StartCommand_Move();
+		HumanCommandMove cm = GetCommand_Move();
+		if (!cm)
+			cm = StartCommand_Move();
+		else
+			m_eAI_CommandTime = 0.0;
 		if (cm)
 		{
 			cm.ForceStanceUp(DayZPlayerConstants.STANCEIDX_ERECT);
@@ -2722,7 +2811,7 @@ class eAIBase extends PlayerBase
 		if (IsFBSymptomPlaying() || IsRestrained() || IsUnconscious() || IsInFBEmoteState())
 			return false;
 		
-		if (m_MovementState.m_iStanceIdx == DayZPlayerConstants.STANCEIDX_PRONE || m_MovementState.m_iStanceIdx == DayZPlayerConstants.STANCEIDX_RAISEDPRONE)
+		if (m_MovementState.IsInProne() || m_MovementState.IsInRaisedProne())
 			return false;
 
 		HumanItemBehaviorCfg hibcfg = GetItemAccessor().GetItemInHandsBehaviourCfg();

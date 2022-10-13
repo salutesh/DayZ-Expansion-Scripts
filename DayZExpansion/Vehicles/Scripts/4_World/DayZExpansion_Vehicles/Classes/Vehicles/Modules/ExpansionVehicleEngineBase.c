@@ -271,13 +271,31 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			m_Controller.m_State[m_EngineIndex] = false;
 		}
 
+#ifndef DAYZ_1_18
+		//! 1.19
+		auto car = CarScript.Cast(m_Vehicle);
+#endif
+
 		if (m_RPM >= m_RPMRedline)
 		{
 			if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
-				m_Vehicle.AddHealth(m_DamageZone, "Health", -m_Vehicle.GetMaxHealth(m_DamageZone, "") * pDt);
+				m_Vehicle.AddHealth(m_DamageZone, "Health", -m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05);
 
 			dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
+
+#ifndef DAYZ_1_18
+			//! 1.19
+			if (car)
+				car.SetEngineZoneReceivedHit(true);
+#endif
 		}
+#ifndef DAYZ_1_18
+		//! 1.19
+		else if (car)
+		{
+			car.SetEngineZoneReceivedHit(false);
+		}
+#endif
 
 		if (pCoolant >= 0 && pCoolant < 0.5)
 		{

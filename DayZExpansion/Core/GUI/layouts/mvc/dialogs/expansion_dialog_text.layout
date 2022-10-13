@@ -1,5 +1,5 @@
 WrapSpacerWidgetClass ExpansionDialogText {
- size 0.95 32
+ size 1 32
  hexactpos 1
  vexactpos 1
  hexactsize 0
@@ -7,6 +7,7 @@ WrapSpacerWidgetClass ExpansionDialogText {
  scriptclass "ExpansionDialogContent_TextController"
  Padding 0
  Margin 0
+ "Size To Content H" 1
  "Size To Content V" 1
  content_halign center
  content_valign center
@@ -24,6 +25,8 @@ WrapSpacerWidgetClass ExpansionDialogText {
    "exact text" 1
    "size to text h" 1
    "size to text v" 1
+   "text halign" center
+   "text valign" center
    wrap 1
    "condense whitespace" 1
    "strip newlines" 1

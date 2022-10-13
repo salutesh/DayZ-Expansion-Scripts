@@ -28,22 +28,9 @@ class ExpansionUAZWheel extends CarWheel
 			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
 		}
 	}
-
-	override int GetMeleeTargetType()
-	{
-		return EMeleeTargetType.NONALIGNABLE;
-	}
-	
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionDetach);
-		AddAction(ActionAttachOnSelection);
-	}
 };
 
-class ExpansionUAZWheel_Ruined extends CarWheel{};
+class ExpansionUAZWheel_Ruined extends CarWheel_Ruined{};
 
 class ExpansionBusWheel extends CarWheel
 {
@@ -62,19 +49,6 @@ class ExpansionBusWheel extends CarWheel
 			lambda.SetTransferParams(true, true, true);
 			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
 		}
-	}
-
-	override int GetMeleeTargetType()
-	{
-		return EMeleeTargetType.NONALIGNABLE;
-	}
-	
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionDetach);
-		AddAction(ActionAttachOnSelection);
 	}
 };
 
@@ -96,23 +70,10 @@ class ExpansionBusWheelDouble extends CarWheel
 			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
 		}
 	}
-
-	override int GetMeleeTargetType()
-	{
-		return EMeleeTargetType.NONALIGNABLE;
-	}
-	
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionDetach);
-		AddAction(ActionAttachOnSelection);
-	}
 };
 
-class ExpansionBusWheel_Ruined extends CarWheel{};
-class ExpansionBusWheelDouble_Ruined extends CarWheel{};
+class ExpansionBusWheel_Ruined extends CarWheel_Ruined{};
+class ExpansionBusWheelDouble_Ruined extends CarWheel_Ruined{};
 
 class ExpansionTractorFrontWheel extends CarWheel
 {
@@ -131,19 +92,6 @@ class ExpansionTractorFrontWheel extends CarWheel
 			lambda.SetTransferParams(true, true, true);
 			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
 		}
-	}
-
-	override int GetMeleeTargetType()
-	{
-		return EMeleeTargetType.NONALIGNABLE;
-	}
-	
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionDetach);
-		AddAction(ActionAttachOnSelection);
 	}
 };
 
@@ -165,23 +113,10 @@ class ExpansionTractorBackWheel extends CarWheel
 			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
 		}
 	}
-
-	override int GetMeleeTargetType()
-	{
-		return EMeleeTargetType.NONALIGNABLE;
-	}
-	
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionDetach);
-		AddAction(ActionAttachOnSelection);
-	}
 };
 
-class ExpansionTractorFrontWheel_Ruined extends CarWheel{};
-class ExpansionTractorBackWheel_Ruined extends CarWheel{};
+class ExpansionTractorFrontWheel_Ruined extends CarWheel_Ruined{};
+class ExpansionTractorBackWheel_Ruined extends CarWheel_Ruined{};
 
 /*class Expansion_Landrover_Wheel extends CarWheel
 {
@@ -201,19 +136,6 @@ class ExpansionTractorBackWheel_Ruined extends CarWheel{};
 			GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda);
 		}
 	}
-
-	override int GetMeleeTargetType()
-	{
-		return EMeleeTargetType.NONALIGNABLE;
-	}
-	
-	override void SetActions()
-	{
-		super.SetActions();
-		
-		AddAction(ActionDetach);
-		AddAction(ActionAttachOnSelection);
-	}
 };
 
-class Expansion_Landrover_Wheel_Ruined extends Expansion_Landrover_Wheel{};*/
+class Expansion_Landrover_Wheel_Ruined extends CarWheel_Ruined{};*/

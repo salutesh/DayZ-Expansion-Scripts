@@ -181,7 +181,12 @@ class ExpansionBoatScript extends CarScript
 			thrust = forward;
 		}
 
+#ifdef DAYZ_1_18
 		int gear = GetController().GetGear();
+#else
+		//! 1.19
+		int gear = GetGear();
+#endif
 
 		if (brake > 0)
 		{
@@ -532,7 +537,7 @@ class ExpansionBoatScript extends CarScript
 
 		//! Activate boat so it doesn't sink to the sea floor if spawned by (e.g.) admin tool
 		//! and not loaded from storage/spawned by CE
-		if (!m_IsStoreLoaded && !m_IsCECreated)
+		if (!m_Expansion_IsStoreLoaded && !m_IsCECreated)
 		{
 			m_IsInitialized = true;
 			dBodyActive(this, ActiveState.ACTIVE);

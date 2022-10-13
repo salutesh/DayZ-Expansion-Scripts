@@ -271,7 +271,8 @@ enum ExpansionSettingsRPC
 	AI,
 	NotificationScheduler,  //! Not used, settings don't need to be available on client
 	Hardline,
-	COUNT  //! 28
+	Garage,
+	COUNT  //! 29
 };
 
 enum ExpansionCOTBookModuleRPC
@@ -411,6 +412,37 @@ enum ExpansionRPC
 	INVALID = 40010,
 	SyncOwnedContainerUID,
 	CreateNotification,
+	COUNT
+};
+
+enum ExpansionQuestModuleRPC
+{
+	INVALID = 40020,
+	SendQuestNPCData,
+	RequestPlayerQuests,
+	SendPlayerQuests,
+	SendPlayerQuestData,
+	RequestOpenQuestMenu,
+	SetupClientData,
+	UpdatePlayerQuestData,
+	CreateQuestInstance,
+	RequestCompleteQuest,
+	CompleteQuest,
+	CreateClientMarker,
+	RemoveClientMarkers,
+	CancelQuest,
+	CallbackClient,
+	COUNT
+};
+
+enum ExpansionGarageModuleRPC
+{
+	INVALID = 40040,
+	RequestPlayerVehicles,
+	SendPlayerVehicles,
+	DepositVehicleRequest,
+	RetrieveVehicleRequest,
+	Callback,
 	COUNT
 };
 

@@ -679,6 +679,7 @@ class CfgVehicles
 			};
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -692,9 +693,24 @@ class CfgVehicles
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.85,10,0.7,20,0.5,40,0.4,60,0.43,80,0.46,100,0.52,120,0.7};
+				reactionTime = 0.3;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2.18;
+				dragCoefficient = 0.56;
+			};
 			class Engine
 			{
+				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
 				inertia = 0.15;
+				frictionTorque = 100;
+				rollingFriction = 0.5;
+				viscousFriction = 0.5;
 				torqueMax = 114;
 				torqueRpm = 3400;
 				powerMax = 53.7;
@@ -705,13 +721,25 @@ class CfgVehicles
 				rpmRedline = 6000;
 				rpmMax = 8000;
 			};
+			class Clutch
+			{
+				maxTorqueTransfer = 260;
+				uncoupleTime = 0.3;
+				coupleTime = 0.45;
+			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.526;
 				ratios[] = {3.667,2.1,1.361,1.0};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
+			};
+			class CentralDifferential
+			{
+				ratio = 1.5;
+				type = "DIFFERENTIAL_LOCKED";
 			};
 			class Axles: Axles
 			{
@@ -721,16 +749,23 @@ class CfgVehicles
 					finalRatio = 4.1;
 					brakeBias = 0.6;
 					brakeForce = 4000;
-					wheelHubMass = 0;
-					wheelHubRadius = 0.0;
+					wheelHubMass = 1;
+					wheelHubRadius = 0.01;
+					maxBrakeTorque = 2000;
+					maxHandbrakeTorque = 2500;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 1700;
-						stiffness = 40000;
-						compression = 2100;
-						damping = 7500;
-						travelMaxUp = 0.0882;
-						travelMaxDown = 0.0833;
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
 					};
 					class Wheels: Wheels
 					{
@@ -752,16 +787,23 @@ class CfgVehicles
 					finalRatio = 4.1;
 					brakeBias = 0.4;
 					brakeForce = 3800;
-					wheelHubMass = 0;
-					wheelHubRadius = 0.0;
+					wheelHubMass = 1;
+					wheelHubRadius = 0.01;
+					maxBrakeTorque = 1000;
+					maxHandbrakeTorque = 2500;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 1800;
-						stiffness = 40000;
-						compression = 2200;
-						damping = 7600;
-						travelMaxUp = 0.1587;
-						travelMaxDown = 0.1059;
+						swayBar = 1;
+						stiffness = 1;
+						compression = 1;
+						damping = 1;
+						travelMaxUp = 0;
+						travelMaxDown = 0;
 					};
 					class Wheels: Wheels
 					{
@@ -972,6 +1014,38 @@ class CfgVehicles
 			drive = "DRIVE_AWD";
 			airDragFrontTotal = 0.995;
 			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
+			class Steering
+			{
+				maxSteeringAngle = 30;
+				increaseSpeed[] = {0,40,30,20,100,5};
+				decreaseSpeed[] = {0,80,60,40,90,20};
+				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+			};
+			class Throttle
+			{
+				reactionTime = 0.9;
+				defaultThrust = 0.85;
+				gentleThrust = 0.7;
+				turboCoef = 4;
+				gentleCoef = 0.75;
+			};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.85,10,0.7,20,0.5,40,0.4,60,0.43,80,0.46,100,0.52,120,0.7};
+				reactionTime = 0.3;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2.18;
+				dragCoefficient = 0.56;
+			};
+			class Clutch
+			{
+				maxTorqueTransfer = 260;
+				uncoupleTime = 0.3;
+				coupleTime = 0.45;
+			};
 			class Gearbox
 			{
 				reverse = 2.526;
@@ -997,10 +1071,22 @@ class CfgVehicles
 					gear = -1;
 				};
 			};
+			class CentralDifferential
+			{
+				ratio = 1.5;
+				type = "DIFFERENTIAL_LOCKED";
+			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
+					maxBrakeTorque = 2000;
+					maxHandbrakeTorque = 2500;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Wheels: Wheels
 					{
 						class Left: Left
@@ -1017,6 +1103,13 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
+					maxBrakeTorque = 1000;
+					maxHandbrakeTorque = 2500;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Wheels: Wheels
 					{
 						class Left: Left

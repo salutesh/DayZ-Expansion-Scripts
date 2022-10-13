@@ -533,7 +533,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	bool RemovePersonalMarkerByUID(string uid)
 	{
 		int index;
-		ref ExpansionMarkerData currentData;
+		ExpansionMarkerData currentData;
 		for (index = 0; index < m_CurrentData.PersonalGet().Count(); ++index)
 		{
 			currentData = m_CurrentData.PersonalGet()[index];

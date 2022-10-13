@@ -1,11 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <fsm name="Vehicles" type="eAI">
 	<files />
-	<variables />
+	<variables>
+		<variable name="transport" type="CarScript" />
+	</variables>
 	<states default="GoTo">
 		<state name="GoTo">
 			<variables>
-				<variable name="transport" type="Transport" />
 				<variable name="seat" type="int" />
 				<variable name="position" type="vector" />
 			</variables>
@@ -14,14 +15,11 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				auto group = unit.GetGroup();
-				auto leader = group.GetLeader();
-				Class.CastTo(transport, leader.GetParent());
 			</event_entry>
 			<event_exit />
 			<event_update>
 				vector direction;
-				transport.CrewEntryWS(seat, position, direction);
+				fsm.transport.CrewEntryWS(seat, position, direction);
 				
 				unit.OverrideTargetPosition(position);
 				
@@ -30,7 +28,6 @@
 		</state>
 		<state name="GetIn_OpenDoor">
 			<variables>
-				<variable name="transport" type="CarScript" />
 				<variable name="seat" type="int" />
 				<variable name="hasDoor" type="bool" />
 				<variable name="source" type="string" />
@@ -41,10 +38,10 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				ExpansionFSMHelper.DoorAnimationSource(transport, seat, hasDoor, source);
+				ExpansionFSMHelper.DoorAnimationSource(fsm.transport, seat, hasDoor, source);
 				if (hasDoor)
 				{
-					transport.SetAnimationPhase(source, 1.0);
+					fsm.transport.SetAnimationPhase(source, 1.0);
 				}
 			</event_entry>
 			<event_exit />
@@ -52,18 +49,17 @@
 				if (!hasDoor) return EXIT;
 				
 				vector direction;
-				transport.CrewEntryWS(seat, position, direction);
+				fsm.transport.CrewEntryWS(seat, position, direction);
 				
 				unit.OverrideTargetPosition(position);
 				
-				if (transport &amp;&amp; transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
+				if (fsm.transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
 				
 				return EXIT;
 			</event_update>
 		</state>
 		<state name="GetIn_CloseDoor">
 			<variables>
-				<variable name="transport" type="CarScript" />
 				<variable name="seat" type="int" />
 				<variable name="hasDoor" type="bool" />
 				<variable name="source" type="string" />
@@ -74,26 +70,25 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				ExpansionFSMHelper.DoorAnimationSource(transport, seat, hasDoor, source);
-				if (hasDoor) transport.SetAnimationPhase(source, 0.0);
+				ExpansionFSMHelper.DoorAnimationSource(fsm.transport, seat, hasDoor, source);
+				if (hasDoor) fsm.transport.SetAnimationPhase(source, 0.0);
 			</event_entry>
 			<event_exit />
 			<event_update>
 				if (!hasDoor) return EXIT;
 				
 				vector direction;
-				transport.CrewEntryWS(seat, position, direction);
+				fsm.transport.CrewEntryWS(seat, position, direction);
 				
 				unit.OverrideTargetPosition(position);
 				
-				if (transport &amp;&amp; transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
+				if (fsm.transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
 				
 				return EXIT;
 			</event_update>
 		</state>
 		<state name="GetIn">
 			<variables>
-				<variable name="transport" type="Transport" />
 				<variable name="seat" type="int" />
 				<variable name="position" type="vector" />
 			</variables>
@@ -101,17 +96,13 @@
 				<position x="1239.04868248962" y="629.019715945429" />
 				<size width="150" height="40" />
 			</editor_data>
-			<event_entry>
-				auto group = unit.GetGroup();
-				auto leader = group.GetLeader();
-				Class.CastTo(transport, leader.GetParent());
-				
-				unit.Notify_Transport(transport, seat);
+			<event_entry>				
+				unit.Notify_Transport(fsm.transport, seat);
 			</event_entry>
 			<event_exit />
 			<event_update>
 				vector direction;
-				transport.CrewEntryWS(seat, position, direction);
+				fsm.transport.CrewEntryWS(seat, position, direction);
 				
 				unit.OverrideTargetPosition(position);
 				
@@ -136,7 +127,6 @@
 		<state name="GetOut_OpenDoor">
 			<variables>
 				<variable name="object" type="Object" />
-				<variable name="transport" type="CarScript" />
 				<variable name="seat" type="int" />
 				<variable name="hasDoor" type="bool" />
 				<variable name="source" type="string" />
@@ -147,12 +137,9 @@
 			</editor_data>
 			<event_entry>
 				seat = unit.GetCommand_VehicleAI().GetVehicleSeat();
-				object = unit.GetCommand_VehicleAI().GetObject();
-				if (Class.CastTo(transport, object))
-				{
-					ExpansionFSMHelper.DoorAnimationSource(transport, seat, hasDoor, source);
-					if (hasDoor) transport.SetAnimationPhase(source, 1.0);
-				}
+
+				ExpansionFSMHelper.DoorAnimationSource(fsm.transport, seat, hasDoor, source);
+				if (hasDoor) fsm.transport.SetAnimationPhase(source, 1.0);
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -160,7 +147,7 @@
 				
 				unit.OverrideTargetPosition(unit.GetPosition());
 				
-				if (transport &amp;&amp; transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
+				if (fsm.transport.GetAnimationPhase(source) &lt;= 0.5) return CONTINUE;
 				
 				return EXIT;
 			</event_update>
@@ -168,7 +155,6 @@
 		<state name="GetOut_CloseDoor">
 			<variables>
 				<variable name="object" type="Object" />
-				<variable name="transport" type="CarScript" />
 				<variable name="seat" type="int" />
 				<variable name="hasDoor" type="bool" />
 				<variable name="source" type="string" />
@@ -179,12 +165,9 @@
 			</editor_data>
 			<event_entry>
 				seat = unit.GetCommand_VehicleAI().GetVehicleSeat();
-				object = unit.GetCommand_VehicleAI().GetObject();
-				if (Class.CastTo(transport, object))
-				{
-					ExpansionFSMHelper.DoorAnimationSource(transport, seat, hasDoor, source);
-					if (hasDoor) transport.SetAnimationPhase(source, 0.0);
-				}
+
+				ExpansionFSMHelper.DoorAnimationSource(fsm.transport, seat, hasDoor, source);
+				if (hasDoor) fsm.transport.SetAnimationPhase(source, 0.0);
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -192,7 +175,7 @@
 				
 				unit.OverrideTargetPosition(unit.GetPosition());
 				
-				if (transport &amp;&amp; transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
+				if (fsm.transport.GetAnimationPhase(source) &gt;= 0.5) return CONTINUE;
 				
 				return EXIT;
 			</event_update>
@@ -228,7 +211,9 @@
 				if (!group) return SUCCESS;
 				
 				auto leader = group.GetLeader();
-				if (!leader || leader == unit) return SUCCESS;
+				if (!leader) return SUCCESS;
+
+				if (leader == unit) return FAIL;
 				
 				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) 
 				{
@@ -259,7 +244,6 @@
 				<position_destination x="1313" y="550.644739300538" />
 			</editor_data>
 			<guard>
-				dst.transport = src.transport;
 				dst.seat = src.seat;
 				dst.position = src.position;
 				
@@ -277,7 +261,6 @@
 				<position_destination x="1312.25419083697" y="629.019715945429" />
 			</editor_data>
 			<guard>
-				dst.transport = src.transport;
 				dst.seat = src.seat;
 				dst.position = src.position;
 				
@@ -295,7 +278,6 @@
 				<position_destination x="1314.38313869708" y="710.749953289782" />
 			</editor_data>
 			<guard>
-				dst.transport = src.transport;
 				dst.seat = src.seat;
 				
 				return SUCCESS;

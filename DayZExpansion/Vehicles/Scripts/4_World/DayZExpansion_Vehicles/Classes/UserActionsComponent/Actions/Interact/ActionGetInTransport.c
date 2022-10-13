@@ -31,6 +31,7 @@ modded class ActionGetInTransport
 
 		CarScript car = CarScript.Cast(target.GetObject());
 
+#ifdef DAYZ_1_18
 		EntityAI towParent = car.Expansion_GetTowParent();
 
 		ExpansionVehicleBase exVeh;
@@ -52,6 +53,7 @@ modded class ActionGetInTransport
 				return false;
 			}
 		}
+#endif
 
 		// Temp fix for being able to enter Uh1h despite being locked
 		ExpansionUh1h uh1h = ExpansionUh1h.Cast(target.GetObject());

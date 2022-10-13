@@ -817,9 +817,6 @@ class ExpansionDefaultObjectiveData
 		}
 
 		ExpansionQuestObjectiveAIVIP aiVIP = new ExpansionQuestObjectiveAIVIP();
-		aiVIP.SetNPCSpeed("RUN");
-		aiVIP.SetNPCMode("HALT");
-		aiVIP.SetNPCFaction("Passive");
 		aiVIP.SetNPCLoadoutFile("BanditLoadout.json");
 
 		objective.SetAIVIP(aiVIP);

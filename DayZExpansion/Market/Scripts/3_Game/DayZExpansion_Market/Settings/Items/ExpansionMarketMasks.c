@@ -27,15 +27,11 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 		AddItem("HockeyMask", 						40,		80,		1,		100);		
 
 		AddItem("BalaclavaMask_Beige", 				50,		100,	1,		100, null, {"BalaclavaMask_Blue", "BalaclavaMask_Pink", "BalaclavaMask_White", "BalaclavaMask_Blackskull", "BalaclavaMask_Black", "BalaclavaMask_Green"});
-		/*AddItem("BalaclavaMask_Blue", 			50,		100,	1,		100);
-		AddItem("BalaclavaMask_Pink", 				50,		100,	1,		100);
-		AddItem("BalaclavaMask_White", 				50,		100,	1,		100);*/
 		AddItem("BalaclavaMask_Blackskull",			55,		110,	1,		100);
 		AddItem("BalaclavaMask_Black", 				55,		110,	1,		100);
 		AddItem("BalaclavaMask_Green", 				60,		120,	1,		100);
 				
 		AddItem("Balaclava3Holes_Beige", 			50,		100,	1,		100, null, {"Balaclava3Holes_Blue", "Balaclava3Holes_Black", "Balaclava3Holes_Green"});
-		//AddItem("Balaclava3Holes_Blue", 			50,		100,	1,		100);
 		AddItem("Balaclava3Holes_Black", 			55,		110,	1,		100);
 		AddItem("Balaclava3Holes_Green", 			60,		120,	1,		100);
 		

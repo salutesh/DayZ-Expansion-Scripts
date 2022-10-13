@@ -187,7 +187,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		
 		reward_panel.Show(false);
 	#ifdef EXPANSIONMODHARDLINE
-		if (rewardsCount > 0 || quest.GetHumanityReward() > 0 && GetExpansionSettings().GetHardline().UseHumanity)
+		if (rewardsCount > 0 || (quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
 	#else
 		if (rewardsCount > 0)
 	#endif
@@ -202,7 +202,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		
 			humanity.Show(false);
 		#ifdef EXPANSIONMODHARDLINE
-			if (quest.GetHumanityReward() > 0 && GetExpansionSettings().GetHardline().UseHumanity)
+			if ((quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				humanity.Show(true);
 				m_QuestTabController.HumanityVal = quest.GetHumanityReward().ToString();
@@ -248,6 +248,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 						m_QuestTabController.ObjectiveItems.Insert(deliverObjectiveEntry);
 						QuestPrint(ToString() + "::SetQuest - Add objective item entry for item: " + className);
 					}
+					break;
 				}
 			}
 		}

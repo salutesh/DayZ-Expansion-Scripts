@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Vodnik
 	{
-		units[] = {"ExpansionVodnikWheel","Vehicle_ExpansionVodnikWheel","ExpansionVodnikDoorDriver","ExpansionVodnikDoorCoDriver","ExpansionVodnik","ExpansionSpraycanCamo","ExpansionVodnik_Camo","ExpansionVodnikDoorDriver_Camo","ExpansionVodnikDoorCoDriver_Camo","ExpansionSpraycanCamoMedical","ExpansionVodnik_CamoMedical","ExpansionVodnikDoorDriver_CamoMedical","ExpansionVodnikDoorCoDriver_CamoMedical"};
+		units[] = {"ExpansionVodnikWheel","ExpansionVodnikDoorDriver","ExpansionVodnikDoorCoDriver","ExpansionVodnik","ExpansionSpraycanCamo","ExpansionVodnik_Camo","ExpansionVodnikDoorDriver_Camo","ExpansionVodnikDoorCoDriver_Camo","ExpansionSpraycanCamoMedical","ExpansionVodnik_CamoMedical","ExpansionVodnikDoorDriver_CamoMedical","ExpansionVodnikDoorCoDriver_CamoMedical"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -114,14 +114,14 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 750;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_ExpansionVodnikWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_VODNIK_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\proxy\VodnikWheel.p3d";
@@ -141,7 +141,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 750;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
@@ -266,6 +266,7 @@ class CfgVehicles
 			airDragFrontTotal = 0.8;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,75,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,30,15,25,60,40,100,60};
@@ -279,9 +280,24 @@ class CfgVehicles
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.9,10,0.85,20,0.8,50,0.7,80,0.8,100,1};
+				reactionTime = 0.15;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 3.05;
+				dragCoefficient = 0.52;
+			};
 			class Engine
 			{
+				torqueCurve[] = {525,0,1000,200,1300,313,2500,384,3600,316,5120,0};
 				inertia = 0.15;
+				frictionTorque = 90;
+				rollingFriction = 0.7;
+				viscousFriction = 1;
 				torqueMax = 420;
 				torqueRpm = 1800;
 				powerMax = 130.0;
@@ -292,13 +308,25 @@ class CfgVehicles
 				rpmRedline = 3600;
 				rpmMax = 4200;
 			};
+			class Clutch
+			{
+				maxTorqueTransfer = 420;
+				uncoupleTime = 0.2;
+				coupleTime = 0.35;
+			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.426;
 				ratios[] = {3.0670002,1.9999999,1.2609999,0.9};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
 				maxClutchTorque = 420;
+			};
+			class CentralDifferential
+			{
+				ratio = 2.121;
+				type = "DIFFERENTIAL_LOCKED";
 			};
 			class Axles: Axles
 			{
@@ -310,6 +338,13 @@ class CfgVehicles
 					brakeForce = 4500;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.14;
+					maxBrakeTorque = 3800;
+					maxHandbrakeTorque = 5000;
+					class Differential
+					{
+						ratio = 2.73;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 300;
@@ -341,6 +376,13 @@ class CfgVehicles
 					brakeForce = 4200;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.14;
+					maxBrakeTorque = 3050;
+					maxHandbrakeTorque = 5000;
+					class Differential
+					{
+						ratio = 2.73;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 300;

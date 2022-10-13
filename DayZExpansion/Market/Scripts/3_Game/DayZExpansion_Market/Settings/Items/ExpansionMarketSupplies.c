@@ -25,9 +25,6 @@ class ExpansionMarketSupplies: ExpansionMarketCategory
 		
 		AddItem("Paper", 						2,		4,		1,		100);
 		AddItem("Pen_Black", 					2,		4,		1,		100, null, {"Pen_Blue", "Pen_Green", "Pen_Red"});
-		/*AddItem("Pen_Blue", 					2,		4,		1,		100);
-		AddItem("Pen_Green", 					2,		4,		1,		100);
-		AddItem("Pen_Red",	 					2,		4,		1,		100);*/
 		AddItem("Rope", 						4,		8,		1,		100);
 		AddItem("TannedLeather", 				4,		8,		1,		100);
 		AddItem("AntiPestsSpray", 				8,		16,		1,		100);

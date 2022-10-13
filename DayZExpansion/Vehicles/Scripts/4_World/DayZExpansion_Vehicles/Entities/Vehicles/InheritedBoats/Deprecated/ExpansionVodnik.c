@@ -28,6 +28,10 @@ class ExpansionVodnikDoorCargo2 extends CarDoor
 
 class ExpansionVodnik extends ExpansionBoatScript
 {
+	protected ref UniversalTemperatureSource m_UTSource;
+	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
+	protected ref UniversalTemperatureSourceLambdaEngine m_UTSLEngine;
+
 	// ------------------------------------------------------------
 	void ExpansionVodnik()
 	{
@@ -39,6 +43,20 @@ class ExpansionVodnik extends ExpansionBoatScript
 	
 		m_Offset					= -0.4;
 
+		#ifndef DAYZ_1_18
+		//! 1.19
+		m_EngineStartOK			= "Offroad_02_engine_start_SoundSet";
+		m_EngineStartBattery	= "Offroad_02_engine_failed_start_battery_SoundSet";
+		m_EngineStartPlug		= "Offroad_02_engine_failed_start_sparkplugs_SoundSet";
+		m_EngineStartFuel		= "Offroad_02_engine_failed_start_fuel_SoundSet";
+		m_EngineStopFuel		= "offroad_engine_stop_fuel_SoundSet";
+
+		m_CarDoorOpenSound		= "offroad_02_door_open_SoundSet";
+		m_CarDoorCloseSound		= "offroad_02_door_close_SoundSet";
+
+		m_CarHornShortSoundName = "Offroad_02_Horn_Short_SoundSet";
+		m_CarHornLongSoundName	= "Offroad_02_Horn_SoundSet";
+		#else
 		m_EngineStartOK = "Truck_01_engine_start_SoundSet";
 		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
 		m_EngineStartPlug = "Truck_01_engine_failed_start_sparkplugs_SoundSet";
@@ -47,6 +65,59 @@ class ExpansionVodnik extends ExpansionBoatScript
 
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
+		#endif
+		
+		SetEnginePos("0 1.36 -0.4");
+	}
+	
+	override void EEInit()
+	{		
+		super.EEInit();
+		
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+ 			m_UTSSettings 					= new UniversalTemperatureSourceSettings();
+			m_UTSSettings.m_ManualUpdate 	= true;
+			m_UTSSettings.m_TemperatureMin	= 0;
+			m_UTSSettings.m_TemperatureMax	= 30;
+			m_UTSSettings.m_RangeFull		= 0.5;
+			m_UTSSettings.m_RangeMax		= 2;
+			m_UTSSettings.m_TemperatureCap	= 25;
+			
+			m_UTSLEngine					= new UniversalTemperatureSourceLambdaEngine();
+			m_UTSource						= new UniversalTemperatureSource(this, m_UTSSettings, m_UTSLEngine);
+		}		
+	}
+	
+	override void OnEngineStart()
+	{
+		super.OnEngineStart();
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_UTSource.SetDefferedActive(true, 20.0);
+		}
+	}
+	
+	override void OnEngineStop()
+	{
+		super.OnEngineStop();
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_UTSource.SetDefferedActive(false, 10.0);
+		}
+	}
+	
+	override void EOnPostSimulate(IEntity other, float timeSlice)
+	{
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			if (m_UTSource.IsActive())
+			{
+				m_UTSource.Update(m_UTSSettings, m_UTSLEngine);
+			}
+		}
 	}
 
 	override string ExpansionGetWheelType(int slot_id)

@@ -12,6 +12,8 @@
 
 class ExpansionItemSpawnHelper
 {
+	static ref map<string, vector> s_VehicleSizes = new map<string, vector>;
+
 	// ------------------------------------------------------------
 	// Expansion Object SpawnOnParent
 	// ------------------------------------------------------------
@@ -250,6 +252,87 @@ class ExpansionItemSpawnHelper
 		return SpawnInInventory(name, parent, skinIndex, true);
 	}
 
+	static bool IsSpawnPositionFree(vector position, vector orientation, string className, out Object blockingObject = NULL)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, this);
+#endif
+
+		//className.ToLower();
+
+		vector size;
+		if (!s_VehicleSizes.Find(className, size))
+		{
+			vector minMax[2];
+			if (ExpansionStatic.GetCollisionBox(className, minMax))
+			{
+				size = Vector(minMax[1][0] - minMax[0][0], minMax[1][1] - minMax[0][1], minMax[1][2] - minMax[0][2]);
+
+				#ifdef DIAG
+				Object debugBox;
+
+				//! Bottom left
+				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Blue", position, ECE_NOLIFETIME);
+				debugBox.SetOrientation(orientation);
+				debugBox.SetPosition(debugBox.ModelToWorld(Vector(-size[0] / 2, 0, -size[2] / 2)));
+
+				//! Bottom right
+				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Orange", position, ECE_NOLIFETIME);
+				debugBox.SetOrientation(orientation);
+				debugBox.SetPosition(debugBox.ModelToWorld(Vector(size[0] / 2, 0, -size[2] / 2)));
+
+				//! Top right
+				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Red", position, ECE_NOLIFETIME);
+				debugBox.SetOrientation(orientation);
+				debugBox.SetPosition(debugBox.ModelToWorld(Vector(size[0] / 2, size[1], size[2] / 2)));
+
+				//! Top left
+				debugBox = GetGame().CreateObjectEx("ExpansionDebugBox_Purple", position, ECE_NOLIFETIME);
+				debugBox.SetOrientation(orientation);
+				debugBox.SetPosition(debugBox.ModelToWorld(Vector(-size[0] / 2, size[1], size[2] / 2)));
+				#endif
+			}
+			else
+			{
+				//! Fallback just in case
+				size = "5 5 10";
+			}
+			s_VehicleSizes.Insert(className, size);
+		}
+
+		blockingObject = GetObjectBlockingPosition(position, orientation, size);
+
+		CF_Log.Debug("IsVehicleSpawnPositionFree " + className + " size " + size + " pos " + position + " ori " + orientation + " blocking " + blockingObject);
+		
+		return blockingObject == NULL;
+	}
+	
+	static Object GetObjectBlockingPosition(vector position, vector orientation, vector size, array<Object> excluded_objects = null)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, this);
+#endif
+
+		array<Object> objects = new array<Object>;
+		
+		if (!GetGame().IsBoxColliding( position + Vector(0, size[1] / 2, 0), orientation, size, excluded_objects, objects))
+			return NULL;
+
+		foreach (Object obj: objects)
+		{
+			bool match = obj.IsInherited(Man) || (obj.IsInherited(ItemBase) && obj.ConfigGetString("physLayer") == "item_large") || obj.IsInherited(CarScript);
+
+			#ifdef EXPANSIONMODVEHICLE
+			match |= obj.IsInherited(ExpansionVehicleBase);
+			#endif
+
+			if (match)
+				return obj;
+		}
+
+		return NULL;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion Object SpawnVehicle
 	// ------------------------------------------------------------
@@ -485,7 +568,20 @@ class ExpansionItemSpawnHelper
 		if (Class.CastTo(srcMag, src) && Class.CastTo(dstMag, dst))
 			dstMag.ServerSetAmmoCount(srcMag.GetAmmoCount());
 
-		//! 6) global health and damage zones
+		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
+		Car srcCar;
+		Car dstCar;
+		if (Class.CastTo(srcCar, src) && Class.CastTo(dstCar, dst))
+		{
+			CarFluid fluid;
+			for (int i = 0; i < EnumTools.GetEnumSize(CarFluid); i++)
+			{
+				fluid = EnumTools.GetEnumValue(CarFluid, i);
+				dstCar.Fill(fluid, srcCar.GetFluidFraction(fluid) * dstCar.GetFluidCapacity(fluid));
+			}
+		}
+
+		//! 7) global health and damage zones
 		TStringArray dmgZones();
 		src.GetDamageZones(dmgZones);
 		dst.SetHealth(src.GetHealth());

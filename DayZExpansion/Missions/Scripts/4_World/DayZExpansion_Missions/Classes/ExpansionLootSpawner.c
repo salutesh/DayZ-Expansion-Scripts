@@ -1,9 +1,21 @@
+/**
+ * ExpansionLootSpawner.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
 class ExpansionLootSpawner
 {
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	static void AddItem(EntityAI container, ExpansionAirdropLoot loot )
+	static void AddItem(EntityAI container, ExpansionLoot loot )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionLootSpawner::AddItem - Start");
@@ -157,7 +169,7 @@ class ExpansionLootSpawner
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------
-	static void SpawnLoot(EntityAI container, array < ref ExpansionAirdropLoot > Loot, int ItemCount )
+	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > Loot, int ItemCount )
 	{
 		array< float > chances = new array< float >;
 		array< int > max = new array< int >;

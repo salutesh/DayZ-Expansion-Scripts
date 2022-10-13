@@ -35,7 +35,7 @@ modded class ActionSwitchLights
 							if ( car.IsVitalHelicopterBattery() ) neededItem = car.FindAttachmentBySlotName("ExpansionHelicopterBattery");
 							if ( car.IsVitalAircraftBattery() ) neededItem = car.FindAttachmentBySlotName("ExpansionAircraftBattery");
 
-							if ( !neededItem || (neededItem && neededItem.IsRuined()) )
+							if ( !neededItem || neededItem.IsRuined() || (neededItem.GetCompEM() && neededItem.GetCompEM().GetEnergy() <= 0) )
 								return false;
 							
 							EntityAI item1 = car.FindAttachmentBySlotName("Reflector_1_1");

@@ -348,6 +348,9 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		{
 			foreach (EntityAI playerItem: m_PlayerItems)
 			{
+				if (!playerItem)
+					continue;
+				
 				itemCount = GetItemAmount(playerItem);
 				count += itemCount;
 			}

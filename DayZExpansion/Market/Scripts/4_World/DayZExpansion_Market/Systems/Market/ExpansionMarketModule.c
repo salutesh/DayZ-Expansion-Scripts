@@ -388,7 +388,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				continue;
 
 			//! Loop through all the items in this category to get the different price denominations
-			//! It's OK to not use GetItems() here since we don't need variants
+			//! It's OK to not use m_Items here since we don't need variants
 			foreach (ExpansionMarketItem marketItem: category.Items)
 			{
 				int worth = marketItem.MinPriceThreshold;
@@ -425,7 +425,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Invert so array is now ordered from highest to lowest value currency
 		m_MoneyDenominations.Invert();
 
-		if (!m_MoneyDenominations.Count())
+		if (!m_MoneyDenominations.Count() && ExpansionGame.IsMultiplayerServer())
 			Error("No market exchange found - cannot determine currency values! Make sure you have at least one market category containing currencies with IsExchange set to 1");
 
 		MarketModulePrint("LoadMoneyPrice - End");
@@ -2237,6 +2237,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestPurchase(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestPurchase - Start");
+
+		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+			return;
 				
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -2486,6 +2489,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmPurchase(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmPurchase - Start");
+
+		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+			return;
 		
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -2732,6 +2738,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestSell(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestSell - Sart");
+
+		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+			return;
 		
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -2962,6 +2971,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmSell(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmSell - Sart");
+
+		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+			return;
 		
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
@@ -3874,6 +3886,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_SendPlayerATMData - Start");
 
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
+
 		ExpansionMarketATM_Data data;
 		if (!ctx.Read(data))
 		{
@@ -3933,6 +3948,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestDepositMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestDepositMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4038,6 +4056,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmDepositMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmDepositMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4093,6 +4114,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestWithdrawMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestWithdrawMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4193,6 +4217,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmWithdrawMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmWithdrawMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4251,6 +4278,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestTransferMoneyToPlayer(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestTransferMoneyToPlayer - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		if (!senderRPC)
 		{
@@ -4399,6 +4429,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmTransferMoneyToPlayer(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmTransferMoneyToPlayer - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 	
 		ExpansionMarketATM_Data data;
 		if (!ctx.Read(data))
@@ -4449,6 +4482,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestPartyTransferMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestPartyTransferMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4561,6 +4597,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmPartyTransferMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmPartyTransferMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4631,6 +4670,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestPartyWithdrawMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestPartyWithdrawMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))
@@ -4746,6 +4788,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_ConfirmPartyWithdrawMoney(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_ConfirmPartyWithdrawMoney - Start");
+
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
 		
 		int amount;
 		if (!ctx.Read(amount))

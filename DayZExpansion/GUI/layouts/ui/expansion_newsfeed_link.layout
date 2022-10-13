@@ -1,0 +1,73 @@
+ButtonWidgetClass ExpansionNewsFeedLink {
+ ignorepointer 0
+ size 444 36
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionNewsFeedLinkController"
+ style Expansion_01
+ {
+  ButtonWidgetClass button {
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Expansion_01
+   {
+    ScriptParamsClass {
+     Relay_Command "OnButtonClick"
+    }
+   }
+  }
+  PanelWidgetClass background {
+   ignorepointer 1
+   color 0 0 0 0.549
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass ""
+   style UIDefaultPanel
+  }
+  ImageWidgetClass entry_icon {
+   ignorepointer 1
+   size 36 36
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   imageTexture "{EE64F7740EB83376}DayZExpansion/Core/GUI/icons/hud/book_1_64x64.edds"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "EntryIcon"
+    }
+   }
+  }
+  TextWidgetClass label {
+   ignorepointer 1
+   size 400 36
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   text "Discord"
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "Label"
+    }
+   }
+  }
+ }
+}

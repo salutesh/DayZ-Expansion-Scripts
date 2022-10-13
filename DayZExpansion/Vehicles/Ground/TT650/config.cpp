@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_TT650
 	{
-		units[] = {"Vehicle_ExpansionTT650Wheel","Vehicle_ExpansionTT650"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -32,7 +32,7 @@ class CfgVehicles
 	class ExpansionWheelBase;
 	class Vehicle_ExpansionTT650Wheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_TT650_WHEEL";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_TT650_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\TT650\proxy\expansion_tt650_wheel.p3d";
@@ -47,8 +47,8 @@ class CfgVehicles
 	class ExpansionVehicleBikeBase;
 	class Vehicle_ExpansionTT650: ExpansionVehicleBikeBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  TT650";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_TT650";
 		model = "\DayZExpansion\Vehicles\Ground\TT650\tt650.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","expansion_tt650_wheel_1","expansion_tt650_wheel_2"};
 		soundController = "";

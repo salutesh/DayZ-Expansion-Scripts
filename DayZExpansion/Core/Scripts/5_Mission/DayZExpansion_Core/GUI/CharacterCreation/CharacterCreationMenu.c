@@ -12,23 +12,10 @@
 
 modded class CharacterCreationMenu
 {
-	override Widget Init()
+	override void Refresh()
 	{
-		super.Init();
+		super.Refresh();
 
-		// Set Version
-		string version;
-		GetGame().GetVersion(version);
-		string expansion_version;
-
-		if (GetDayZGame())
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
-
-		if (expansion_version)
-			m_Version.SetText("DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version);
-		else
-			m_Version.SetText("DayZ SA #main_menu_version" + " " + version);
-
-		return layoutRoot;
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 	}
 };

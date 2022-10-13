@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_250N
 	{
-		units[] = {"Vehicle_Expansion250NWheel","Vehicle_Expansion250N"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -50,7 +50,7 @@ class CfgVehicles
 	class Health;
 	class Vehicle_Expansion250NWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_250N_WHEEL";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_250N_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\250N\proxy\Expansion_250N_wheel_front.p3d";
@@ -64,8 +64,8 @@ class CfgVehicles
 	};
 	class Vehicle_Expansion250N: ExpansionVehicleBikeBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  250N";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_250N";
 		model = "\DayZExpansion\Vehicles\Ground\250N\250N.p3d";
 		attachments[] = {"Expansion_250N_wheel_1","Expansion_250N_wheel_2","Reflector_1_1","CarBattery","SparkPlug"};
 		fuelCapacity = 20;

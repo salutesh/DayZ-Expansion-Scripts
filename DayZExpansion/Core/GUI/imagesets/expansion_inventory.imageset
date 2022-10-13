@@ -1,40 +1,46 @@
 ImageSetClass {
  Name "expansion_inventory"
- RefSize 2048 2048
+ RefSize 1024 1024
  Textures {
   ImageSetTextureClass {
    mpix 1
-   path "{083813280F8D3C46}DayZExpansion/Core/GUI/imagesets/expansion_inventory.edds"
+   path "{2BC6CC987430C5AA}DayZExpansion/Core/GUI/imagesets/expansion_inventory.edds"
   }
  }
  Images {
+  ImageSetDefClass codelock {
+   Name "codelock"
+   Pos 0 0
+   Size 170 170
+   Flags 0
+  }
   ImageSetDefClass lumber_05 {
    Name "lumber_05"
-   Pos 0 0
+   Pos 170 0
    Size 170 170
    Flags 0
   }
   ImageSetDefClass lumber_1 {
    Name "lumber_1"
-   Pos 180 0
+   Pos 340 0
    Size 170 170
    Flags 0
   }
   ImageSetDefClass lumber_15 {
    Name "lumber_15"
-   Pos 360 0
+   Pos 510 0
    Size 170 170
    Flags 0
   }
   ImageSetDefClass lumber_3 {
    Name "lumber_3"
-   Pos 545 0
+   Pos 680 0
    Size 170 170
    Flags 0
   }
-  ImageSetDefClass codelock {
-   Name "codelock"
-   Pos 715 0
+  ImageSetDefClass circuit_board {
+   Name "circuit_board"
+   Pos 0 170
    Size 170 170
    Flags 0
   }

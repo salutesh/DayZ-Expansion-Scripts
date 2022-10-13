@@ -141,7 +141,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal(ref ExpansionQuestSettingsBase s)
+	private void CopyInternal( ExpansionQuestSettingsBase s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
@@ -186,7 +186,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal(ref ExpansionQuestSettings s)
+	private void CopyInternal( ExpansionQuestSettings s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);

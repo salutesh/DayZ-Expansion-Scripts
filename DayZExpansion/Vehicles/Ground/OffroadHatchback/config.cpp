@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Hatchback
 	{
-		units[] = {"Vehicle_HatchbackWheel","Vehicle_HatchbackWheel_Ruined","Vehicle_OffroadHatchback","Vehicle_OffroadHatchback_Green","Vehicle_OffroadHatchback_Blue","Vehicle_OffroadHatchback_White","Vehicle_OffroadHatchback_Police","Vehicle_OffroadHatchback_GreenRust","Vehicle_OffroadHatchback_BlueRust","Vehicle_OffroadHatchback_WhiteRust"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -31,7 +31,7 @@ class CfgVehicles
 	class AnimationSources;
 	class Vehicle_HatchbackWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_HatchbackWheel0";
 		descriptionShort = "$STR_hatchbackwheel1";
 		model = "\DZ\vehicles\wheeled\OffroadHatchback\proxy\nivaWheel.p3d";
@@ -52,14 +52,14 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_HatchbackWheel_Ruined: Vehicle_HatchbackWheel
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_HatchbackWheel0";
 		descriptionShort = "$STR_hatchbackwheel1";
 		model = "\DZ\vehicles\wheeled\OffroadHatchback\proxy\nivaWheel_destroyed.p3d";
@@ -75,8 +75,8 @@ class CfgVehicles
 	};
 	class Vehicle_OffroadHatchback: ExpansionVehicleCarBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  ADA";
+		scope = 0;
+		displayname = "$STR_OffroadHatchback0";
 		descriptionShort = "$STR_OffroadHatchback1";
 		model = "\dz\vehicles\wheeled\OffroadHatchback\OffroadHatchback.p3d";
 		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","NivaDriverDoors","NivaCoDriverDoors","NivaHood","NivaTrunk","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","NivaWheel_Spare_1"};
@@ -118,59 +118,77 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			drive = "DRIVE_AWD";
-			centralDiffRatio = 1.45;
-			airDragFrontTotal = 0.995;
 			class Steering
 			{
-				increaseSpeed[] = {0,45,60,23,100,12};
+				maxSteeringAngle = 30;
+				increaseSpeed[] = {0,40,30,20,100,5};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
 			};
 			class Throttle
 			{
-				reactionTime = 1;
+				reactionTime = 0.9;
 				defaultThrust = 0.85;
 				gentleThrust = 0.7;
 				turboCoef = 4;
 				gentleCoef = 0.75;
 			};
-			braking[] = {0,0.1,1,0.8,2.5,0.9,3,1};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.85,10,0.7,20,0.5,40,0.4,60,0.43,80,0.46,100,0.52,120,0.7};
+				reactionTime = 0.3;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2.18;
+				dragCoefficient = 0.56;
+			};
+			drive = "DRIVE_AWD";
 			class Engine
 			{
-				inertia = 0.15;
-				steepness = 1.5;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
-				rpmIdle = 850;
+				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
+				inertia = 0.11;
+				frictionTorque = 100;
+				rollingFriction = 0.5;
+				viscousFriction = 0.5;
+				rpmIdle = 800;
 				rpmMin = 900;
-				rpmClutch = 1350;
+				rpmClutch = 1400;
 				rpmRedline = 6000;
-				rpmMax = 8000;
+			};
+			class Clutch
+			{
+				maxTorqueTransfer = 240;
+				uncoupleTime = 0.3;
+				coupleTime = 0.45;
 			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.526;
 				ratios[] = {3.667,2.1,1.361,1};
-				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 260;
+			};
+			class CentralDifferential
+			{
+				ratio = 1.5;
+				type = "DIFFERENTIAL_LOCKED";
 			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
+					maxBrakeTorque = 2000;
+					maxHandbrakeTorque = 2500;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 1700;
 						stiffness = 40000;
 						compression = 2100;
 						damping = 7500;
@@ -193,15 +211,17 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 3800;
+					maxBrakeTorque = 1000;
+					maxHandbrakeTorque = 2500;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 1800;
 						stiffness = 40000;
 						compression = 2200;
 						damping = 7600;
