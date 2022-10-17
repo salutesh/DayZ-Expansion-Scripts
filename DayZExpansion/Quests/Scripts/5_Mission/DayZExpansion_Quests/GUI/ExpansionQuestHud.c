@@ -45,9 +45,9 @@ class ExpansionQuestHUD: ExpansionScriptView
 			m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
 		}
 
-		for (int i = 0; i < playerData.GetQuestDatas().Count(); i++)
+		array<ref ExpansionQuestPersistentQuestData> questDatas = playerData.GetQuestDatas();
+		foreach (ExpansionQuestPersistentQuestData data: questDatas)
 		{
-			ExpansionQuestPersistentQuestData data = playerData.GetQuestDatas().Get(i);
 			int questID = data.QuestID;
 			int state = data.State;
 
@@ -145,15 +145,16 @@ class ExpansionQuestHUD: ExpansionScriptView
 	bool IsEntryHidden(int questID, out ExpansionQuestHUDEntry entry, out int findIndex)
 	{
 		findIndex = m_HiddenIDs.Find(questID);
-		for (int i = 0; i < m_QuestEntries.Count(); i++)
+		foreach (ExpansionQuestHUDEntry hudEntry: m_QuestEntries)
 		{
-			entry = m_QuestEntries[i];
-			if (entry.GetEntryQuestID() == questID)
+			if (hudEntry.GetEntryQuestID() == questID)
 			{
 				if (findIndex == -1)
 				{
 					return false;
 				}
+
+				entry = hudEntry;
 			}
 		}
 

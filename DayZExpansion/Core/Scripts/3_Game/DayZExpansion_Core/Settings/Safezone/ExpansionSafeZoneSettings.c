@@ -34,7 +34,7 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	int ActorsPerTick;
 	bool DisableVehicleDamageInSafeZone;
@@ -204,6 +204,9 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 					ActorsPerTick = settingsDefault.ActorsPerTick;
 				}
 
+				if (settingsBase.m_Version < 8)
+					ForceSZCleanup_ExcludedItems.Insert("ExpansionVehicleCover");
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -252,7 +255,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		ItemLifetimeInSafeZone = 15 * 60;  //! 15 Minutes
 
 	#ifdef CARCOVER
-		ForceSZCleanup_ExcludedItems = {"CarCoverBase"};
+		ForceSZCleanup_ExcludedItems = {"CarCoverBase", "ExpansionVehicleCover"};
 	#endif
 
 	#ifdef EXPANSIONMODMARKET

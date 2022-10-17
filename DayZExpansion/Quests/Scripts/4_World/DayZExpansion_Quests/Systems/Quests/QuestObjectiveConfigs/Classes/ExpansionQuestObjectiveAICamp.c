@@ -13,16 +13,16 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICamp
 {
-	private ref array<vector> Positions = new array<vector>;
-	private string NPCSpeed;
-	private string NPCMode;
-	private string NPCFaction;
-	private string NPCLoadoutFile;
+	protected ref array<vector> Positions = new array<vector>;
+	protected string NPCSpeed;
+	protected string NPCMode;
+	protected string NPCFaction;
+	protected string NPCLoadoutFile;
 	float NPCAccuracyMin;
 	float NPCAccuracyMax;
-	private autoptr array<string> ClassNames = new array<string>;
-	private bool SpecialWeapon = false;
-	private autoptr array<string> AllowedWeapons = new array<string>;
+	protected autoptr array<string> ClassNames = new array<string>;
+	protected bool SpecialWeapon = false;
+	protected autoptr array<string> AllowedWeapons = new array<string>;
 
 	void SetNPCSpeed(string npcSpeed)
 	{
@@ -103,7 +103,7 @@ class ExpansionQuestObjectiveAICamp
 	{
 		return AllowedWeapons;
 	}
-	
+
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG

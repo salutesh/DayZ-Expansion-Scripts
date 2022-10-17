@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Objects_Gear
 	{
-		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","Expansion_Generic_Vehicle_Cover"};
+		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","Expansion_Generic_Vehicle_Cover","ExpansionBus_Cover","Expansion_Landrover_Cover","ExpansionUAZ_Cover","ExpansionUAZCargo_Cover","ExpansionUAZRoofless_Cover","ExpansionUAZCargoRoofless_Cover","ExpansionMh6_Cover","ExpansionUh1h_Cover","ExpansionMerlin_Cover","ExpansionGyrocopter_Cover","ExpansionLHD_Cover","ExpansionUtilityBoat_Cover","ExpansionZodiacBoat_Cover","ExpansionTractor_Cover","ExpansionVodnik_Cover","OffroadHatchback_Cover","CivilianSedan_Cover","Hatchback_02_Cover","Sedan_02_Cover","Truck_01_Covered_Cover","Offroad_02_Cover"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Camping","DZ_Scripts","DayZExpansion_Objects_Gear_Spraycans"};
@@ -14,6 +14,7 @@ class CfgVehicles
 {
 	class CamoNet;
 	class Inventory_Base;
+	class Container_Base;
 	class BatteryCharger: Inventory_Base
 	{
 		attachments[] = {"CarBattery","TruckBattery","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
@@ -356,6 +357,31 @@ class CfgVehicles
 	class CamoNetCivil: CamoNet{};
 	class CamoNetDesert: CamoNet{};
 	class CamoNetWinter: CamoNet{};
+	class CarCoverBase: Container_Base
+	{
+		scope = 0;
+		itemBehaviour = 0;
+		itemSize[] = {10,100};
+		carveNavmesh = 1;
+		weight = 1000000;
+		physLayer = "item_large";
+		allowOwnedCargoManipulation = 1;
+		forceFarBubble = "true";
+		rotationFlags = 2;
+		itemsCargoSize[] = {10,100};
+		attachments[] = {"CamoNet"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000000;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
+				};
+			};
+		};
+	};
 	class ExpansionVehicleCover: Inventory_Base
 	{
 		scope = 0;
@@ -385,10 +411,154 @@ class CfgVehicles
 	class Expansion_Generic_Vehicle_Cover: ExpansionVehicleCover
 	{
 		scope = 2;
-		model = "\dz\animals\capra_hircus\capra_hircus.p3d";
-		hiddenSelections[] = {"Camo","CamoHair"};
-		hiddenSelectionsTextures[] = {"dz\animals\capra_hircus\data\Black_Goat_CO.paa","dz\animals\capra_hircus\data\black_goat_fur_co.paa"};
-		hiddenSelectionsMaterials[] = {"dz\animals\capra_hircus\data\Black_Goat.rvmat","dz\animals\capra_hircus\data\black_goat_fur.rvmat"};
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\Sedan_02_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionBus_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\bus_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class Expansion_Landrover_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\landrover_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionUAZ_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\uaz_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionUAZCargo_Cover: ExpansionUAZ_Cover{};
+	class ExpansionUAZRoofless_Cover: ExpansionUAZ_Cover{};
+	class ExpansionUAZCargoRoofless_Cover: ExpansionUAZ_Cover{};
+	class ExpansionMh6_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\mh6_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionUh1h_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\uh1h_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionMerlin_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\merlin_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionGyrocopter_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\gyrocopter_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionLHD_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\LHD_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionUtilityBoat_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "\DayZExpansion\Vehicles\Water\Utility\RHIB.p3d";
+	};
+	class ExpansionZodiacBoat_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
+		hiddenSelections[] = {"camo","antiwater"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa",""};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat",""};
+	};
+	class ExpansionTractor_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\tractor_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class ExpansionVodnik_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\vodnik_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class OffroadHatchback_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\OffroadHatchback_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class CivilianSedan_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\CivilianSedan_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class Hatchback_02_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\Hatchback_02_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class Sedan_02_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\Sedan_02_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class Truck_01_Covered_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\Truck_01_Covered_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
+	class Offroad_02_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\Offroad_02_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
 	};
 };
 class CfgSlots

@@ -12,15 +12,15 @@
 
 class ExpansionQuestMenuListEntry: ExpansionScriptView
 {
-	private ref ExpansionQuestMenuListEntryController m_QuestMenuListEntryController;
-	private ExpansionQuestConfig m_Quest;
-	private ExpansionQuestMenu m_QuestMenu;
-	private ExpansionQuestModule m_QuestModule;
+	protected ref ExpansionQuestMenuListEntryController m_QuestMenuListEntryController;
+	protected ExpansionQuestConfig m_Quest;
+	protected ExpansionQuestMenu m_QuestMenu;
+	protected ExpansionQuestModule m_QuestModule;
 
-	private Widget Background;
-	private ButtonWidget Button;
-	private TextWidget Text;
-	private ImageWidget QuestIcon;
+	protected Widget Background;
+	protected ButtonWidget Button;
+	protected TextWidget Text;
+	protected ImageWidget QuestIcon;
 
 	void ExpansionQuestMenuListEntry(ExpansionQuestConfig quest, ExpansionQuestMenu menu)
 	{
@@ -50,11 +50,11 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 		QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Exclamationmark"));
 		QuestIcon.LoadImageFile(1, ExpansionIcons.GetPath("Questionmark 2"));
-		
+
 		m_QuestMenuListEntryController.QuestTitle = m_Quest.GetTitle();
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestTitle");
-		
-		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());				
+
+		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
 		if (questState == ExpansionQuestState.NONE)
 		{
 			QuestIcon.SetImage(1);

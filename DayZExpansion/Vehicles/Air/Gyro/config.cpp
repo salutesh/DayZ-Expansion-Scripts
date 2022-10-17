@@ -56,7 +56,7 @@ class CfgVehicles
 		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","CamoNet"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -71,7 +71,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1"};
+				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
 			};
 		};
 		class AnimationSources

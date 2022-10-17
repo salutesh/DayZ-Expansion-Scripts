@@ -280,6 +280,7 @@ static const string EXPANSION_FLAG_LOGO_BIOHAZARD = "DayZExpansion\\Objects\\Str
 static const string EXPANSION_FLAG_LOGO_ANYONEINCHERNO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_anyoneincherno_co.paa";
 
 static const string EXPANSION_FLAG_COUNTRIES_IRELAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_ireland_co.paa";
+static const string EXPANSION_FLAG_COUNTRIES_ITALY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_italy_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_WALES = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_wales_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_SWITZERLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_switzerland_co.paa";
 static const string EXPANSION_FLAG_COUNTRIES_SKILAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_skilanka_co.paa";
@@ -304,7 +305,7 @@ static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Struc
 static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
 
 //! Storage save version
-static const int EXPANSION_VERSION_CURRENT_SAVE = 41;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 44;
 
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 42;

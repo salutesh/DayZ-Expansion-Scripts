@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIP
 {
-	private string NPCLoadoutFile;
+	protected string NPCLoadoutFile;
 
 	void SetNPCLoadoutFile(string loadoutFile)
 	{

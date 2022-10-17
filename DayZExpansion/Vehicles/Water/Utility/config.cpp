@@ -50,7 +50,7 @@ class CfgVehicles
 		hiddenSelectionsMaterials[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat",""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\bus\data\bus_exterior_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\water\utility\data\rhib.rvmat";
-		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery"};
+		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery","CamoNet"};
 		class Cargo
 		{
 			itemsCargoSize[] = {10,50};
@@ -241,6 +241,13 @@ class CfgVehicles
 				description = "";
 				icon = "cat_vehicle_engine";
 				attachmentSlots[] = {"GlowPlug","TruckBattery"};
+			};
+			class Body
+			{
+				name = "$STR_attachment_Body0";
+				description = "";
+				icon = "cat_vehicle_body";
+				attachmentSlots[] = {"CamoNet"};
 			};
 		};
 		class Sounds

@@ -13,59 +13,43 @@
 class ExpansionScriptedtQuestTemplate extends ExpansionQuest
 {
 	//! Event called when a quest is stated
-	override void OnQuestStart()
+	override bool OnQuestStart()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestStart").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		QuestPrint(ToString() + "::OnQuestStart - Start");
-
-		super.OnQuestStart();
-		
-		QuestPrint(ToString() + "::OnQuestStart - End");
+		return super.OnQuestStart();
 	}
 
 	//! Event called when ever a quest is completed and turned-in
-	override void OnQuestTurnIn(ExpansionQuestRewardConfig reward = null)
+	override bool OnQuestTurnIn(ExpansionQuestRewardConfig reward = null)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestTurnIn").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		QuestPrint(ToString() + "::OnQuestTurnIn - Start");
-
-		super.OnQuestTurnIn(reward);
-
-		QuestPrint(ToString() + "::OnQuestTurnIn - End");
+		return super.OnQuestTurnIn(reward);
 	}
 
 	//! Event called when a quest is manualy canceled by the player
-	override void OnQuestCancel()
+	override bool OnQuestCancel()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestCancel").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		QuestPrint(ToString() + "::OnQuestCancel - Start");
-
-		super.OnQuestCancel();
-
-		QuestPrint(ToString() + "::OnQuestCancel - End");
+		return super.OnQuestCancel();
 	}
 
 	//! Event called when a quest gets recreated (reloaded because the player reloged/disconnected)
-	override void OnQuestContinue()
+	override bool OnQuestContinue()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestContinue").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		QuestPrint(ToString() + "::OnQuestContinue - Start");
-
-		super.OnQuestContinue();
-
-		QuestPrint(ToString() + "::OnQuestContinue - End");
+		return super.OnQuestContinue();
 	}
 
 	override void OnUpdate(float timeslice)

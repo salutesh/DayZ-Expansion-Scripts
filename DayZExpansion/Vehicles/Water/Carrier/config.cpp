@@ -36,7 +36,7 @@ class CfgVehicles
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
-		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery"};
+		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery","CamoNet"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -51,7 +51,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","CamoNet"};
 			};
 		};
 		class Crew

@@ -181,6 +181,8 @@ modded class CarScript
 
 	bool m_Expansion_EOnPostSimulate;
 
+	float m_Expansion_VehicleAutoCoverTimestamp;
+
 	void CarScript()
 	{
 		g_Expansion_Car = this;
@@ -512,6 +514,8 @@ modded class CarScript
 
 			SetSynchDirty();
 		}
+
+		m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTickTime();
 	}
 
 	void OnSettingsUpdated()
@@ -2600,6 +2604,10 @@ modded class CarScript
 #endif
 		}
 
+		//! If driver managed to get in vehicle before forcing initial storeloaded position, skip it
+		if (driver && m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation)
+			m_Expansion_ForcedStoreLoadedPositionAndOrientation = true;
+
 		bool isActive = dBodyIsActive(this);
 
 		if (!isActive)
@@ -3793,6 +3801,103 @@ modded class CarScript
 		}
 	}
 
+	override void OnCEUpdate()
+	{
+		super.OnCEUpdate();
+
+		//! Prevent autocover before forcing initial storeloaded position
+		if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
+			return;
+
+		if (Expansion_EngineIsOn() || Expansion_GetVehicleCrew().Count())
+		{
+			m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTickTime();
+			return;
+		}
+
+		auto settings = GetExpansionSettings().GetVehicle();
+		if (settings.EnableVehicleCovers && settings.VehicleAutoCoverTimeSeconds > 0)
+		{
+			if (GetGame().GetTickTime() - m_Expansion_VehicleAutoCoverTimestamp > settings.VehicleAutoCoverTimeSeconds)
+			{
+#ifdef EXPANSIONMODGARAGE
+				//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
+				if (!GetExpansionSettings().GetGarage().CanStoreWithCargo && MiscGameplayFunctions.Expansion_HasAnyCargo(this))
+				{
+					m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTime();
+					return;
+				}
+#endif
+
+				EntityAI cover = FindAttachmentBySlotName("CamoNet");
+				if (settings.VehicleAutoCoverRequireCamonet && !cover)
+				{
+					m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTime();
+					return;
+				}
+
+				Expansion_CoverVehicle();
+			}
+		}
+	}
+
+	bool Expansion_CoverVehicle(EntityAI cover = null)
+	{
+		string coverType;
+
+		if (cover)
+			coverType = cover.GetType();
+		else
+			coverType = "CamoNet";
+
+		string placeholderType = Expansion_GetPlaceholderType(coverType);
+
+		bool storeCargo = GetExpansionSettings().GetVehicle().UseVirtualStorageForCoverCargo;
+		ExpansionEntityStoragePlaceholder placeholder;
+		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(this, placeholderType, GetPosition(), ECE_OBJECT_SWAP, placeholder, storeCargo))
+		{
+			EXTrace.Print(EXTrace.VEHICLES, this, "Covered vehicle " + GetType() + " " + GetPosition() + " with " + coverType);
+
+			//! If the cover was on the vehicle itself, it will be pending deletion and must not be moved to placeholder
+			if (cover && !cover.IsSetForDeletion())
+			{
+				Man player = cover.GetHierarchyRootPlayer();
+				if (player)
+				{
+					bool result = player.ServerTakeEntityToTargetAttachmentEx(placeholder, cover, InventorySlots.GetSlotIdFromString("CamoNet"));
+					EXTrace.Print(EXTrace.VEHICLES, this, "Moved " + cover + " to " + placeholder + "? " + result);
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	string Expansion_GetPlaceholderType(string coverType)
+	{
+		string type = GetType();
+
+		string skinBase = ConfigGetString("skinBase");
+		if (skinBase)
+			type = skinBase;
+
+		string placeholderType = type + "_Cover";
+	
+		if (coverType.Contains("Civil"))
+			placeholderType += "_Civil";
+		else if (coverType.Contains("Desert"))
+			placeholderType += "_Desert";
+		else if (coverType.Contains("Winter"))
+			placeholderType += "_Winter";
+
+		if (!GetGame().ConfigIsExisting("CfgVehicles " + placeholderType))
+			placeholderType = "Expansion_Generic_Vehicle_Cover";
+
+		return placeholderType;
+	}
+
 	float GetCameraHeight()
 	{
 #ifdef EXPANSIONTRACE
@@ -3815,13 +3920,13 @@ modded class CarScript
 	{
 		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
-			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
-			if (GetGame().ConfigIsExisting(path))
-			{
-				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
-			}
-			else
-			{
+			//string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
+			//if (GetGame().ConfigIsExisting(path))
+			//{
+				//m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
+			//}
+			//else
+			//{
 				vector minMax[2];
 				GetCollisionBox(minMax);
 				float diff = -minMax[0][1];
@@ -3829,9 +3934,9 @@ modded class CarScript
 					m_ModelZeroPointDistanceFromGround = diff;
 				else
 					m_ModelZeroPointDistanceFromGround = 0;
-			}
+			//}
 
-			CF_Log.Debug(GetType() + " modelZeroPointDistanceFromGround " + m_ModelZeroPointDistanceFromGround);
+			EXTrace.Print(EXTrace.VEHICLES, this, GetType() + " modelZeroPointDistanceFromGround " + m_ModelZeroPointDistanceFromGround);
 		}
 
 		return m_ModelZeroPointDistanceFromGround;

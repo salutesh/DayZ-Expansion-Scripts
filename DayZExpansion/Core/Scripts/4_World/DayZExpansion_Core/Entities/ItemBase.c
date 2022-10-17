@@ -1068,11 +1068,8 @@ modded class ItemBase
 		if (!ExpansionZoneModule.IsInsideSafeZone(GetPosition()))
 			return;
 
-		foreach (string name: GetExpansionSettings().GetSafeZone().ForceSZCleanup_ExcludedItems)
-		{
-			if (IsKindOf(name))
-				return;
-		}
+		if (ExpansionStatic.IsAnyOf(this, GetExpansionSettings().GetSafeZone().ForceSZCleanup_ExcludedItems, true))
+			return;
 
 		m_Expansion_SZCleanup = true;
 
@@ -1241,5 +1238,36 @@ modded class ItemBase
 		ExpansionItemBaseModule.s_Instance.QueueEntityActions(this, -actions);
 
 		m_Expansion_QueuedActions &= ~actions;
+	}
+
+	//! Process wetness/temperature/decay like vanilla does
+	void Expansion_ProcessWTD(float elapsed)
+	{
+		bool hasParent = false, hasRootAsPlayer = false;
+		ItemBase refParentIB;
+		
+		bool wwtu = g_Game.IsWorldWetTempUpdateEnabled();
+		bool foodDecay = g_Game.IsFoodDecayEnabled();
+		
+		if ( wwtu || foodDecay )
+		{
+			bool processWetness = wwtu && CanHaveWetness();
+			bool processTemperature = wwtu && CanHaveTemperature();
+			bool processDecay  = foodDecay && CanDecay() && CanProcessDecay();
+			
+			if ( processWetness || processTemperature || processDecay)
+			{
+				HierarchyCheck( hasParent, hasRootAsPlayer, refParentIB );
+			
+				if ( processWetness )
+					ProcessItemWetness( elapsed, hasParent, hasRootAsPlayer, refParentIB );
+				
+				if ( processTemperature )
+					ProcessItemTemperature( elapsed, hasParent, hasRootAsPlayer, refParentIB );
+			
+				if ( processDecay )
+					ProcessDecay( elapsed, hasRootAsPlayer );	
+			}
+		}
 	}
 };

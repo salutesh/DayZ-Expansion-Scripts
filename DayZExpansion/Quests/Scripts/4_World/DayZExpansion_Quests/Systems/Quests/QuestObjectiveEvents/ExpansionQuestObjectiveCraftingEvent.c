@@ -12,15 +12,15 @@
 
 class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 {
-	private bool m_CraftingState;
-	private bool m_CallLater;
+	protected bool m_CraftingState;
+	protected bool m_CallLater;
 
 	void OnItemsCrafted(PlayerBase player, array<ItemBase> spawned_objects)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnItemsCrafted");
 	#endif
-		
+
 		bool hasItem;
 		foreach (ItemBase item: spawned_objects)
 		{
@@ -30,7 +30,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 				break;
 			}
 		}
-		
+
 		if (hasItem)
 		{
 			m_CraftingState = true;

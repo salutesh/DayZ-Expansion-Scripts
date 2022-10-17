@@ -203,14 +203,51 @@
 			</event_update>
 		</state>
 		<state name="Vehicles" fsm="Vehicles">
-			<variables />
+			<variables>
+				<variable name="entity" type="EntityAI" />
+				<variable name="seat" type="int" />
+			</variables>
 			<editor_data>
 				<position x="895.709194546504" y="371.938198458873" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry />
 			<event_exit />
-			<event_update />
+			<event_update>
+				auto group = unit.GetGroup();
+				if (!group) return EXIT;
+				
+				auto leader = group.GetLeader();
+				if (!leader) return EXIT;
+
+				if (leader == unit)
+				{
+					if (!entity) return EXIT;
+
+					//! TODO: Allow for exit vehicle since this AI is the leader
+					return CONTINUE;
+				}
+				
+				//! MAYBE BUG? Might deadlock the ai if there are no free seats for the vehicle in the group
+				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) 
+				{
+					Transport transport;
+					if (!Class.CastTo(transport, leader.GetParent())) return EXIT;
+
+					for (int i = 0; i &lt; transport.CrewSize(); i++)
+					{
+						if (transport.CrewMember(i) == null)
+						{
+							seat = i;
+							entity = transport;
+
+							return CONTINUE;
+						}
+					}
+				}
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Fighting" fsm="Fighting">
 			<variables />
@@ -778,7 +815,9 @@
 				{
 					if (transport.CrewMember(i) == null)
 					{
-						dst.sub_fsm.transport = transport;
+						dst.seat = i;
+						dst.entity = transport;
+						
 				  		return SUCCESS;
 					}
 				}
@@ -796,34 +835,43 @@
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
-				if (!group) return FAIL;
+				if (!group) return;
 				
-				//! Check if we are the leader
-
 				auto leader = group.GetLeader();
-				if (!(leader &amp;&amp; leader == unit)) return FAIL;
+				if (!leader || leader != unit) return;
 
 				auto targetPosition = unit.m_PathFinding.m_TargetReference.Position;
 				targetPosition[1] = GetPosition()[1];
 				float distance = vector.Distance(targetPosition, unit.GetPosition());
 
-				float minDist = 30;
+				float minDistance = float.MAX;
+				float distance;
 
-				if (distance &lt; (minDist * 0.5)) return FAIL;
-
-
+				if (distance &lt; 5.0) return FAIL;
+		
 				auto cars = CarScript.GetAll();
 				foreach (CarScript car : cars)
 				{
-					float dist = vector.Distance(unit.GetPosition(), car.GetPosition());
-					if (dist &lt; minDist)
+					distance = vector.Distance(unit.GetPosition(), car.GetPosition());
+					if (distance &lt; minDistance)
 					{
-						dst.sub_fsm.transport = car;
-						minDist = dist;
+						int i = 0;
+						//for (int i = 0; i &lt; car.CrewSize(); i++)
+						{
+							if (car.CrewMember(i) == null)
+							{
+								dst.seat = i;
+								dst.entity = car;
+
+								minDistance = distance;
+
+								break;
+							}
+						}
 					}
 				}
 
-				if (dst.sub_fsm.transport)
+				if (dst.entity)
 				{
 					return SUCCESS;
 				}

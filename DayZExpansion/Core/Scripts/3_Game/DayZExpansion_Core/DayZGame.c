@@ -17,6 +17,7 @@ modded class DayZGame
 	protected ref ExpansionGame m_ExpansionGame;
 
 	protected int m_Expansion_StartTime;
+	protected int m_Expansion_StartTimestampUTC;
 
 	protected vector m_WorldCenterPosition;
 	protected bool m_Expansion_IsMissionMainMenu;
@@ -30,17 +31,14 @@ modded class DayZGame
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZGame");
 #endif
 
-		int year;
-		int month;
-		int day;
 		int hour;
 		int minute;
 		int second;
 
-		GetYearMonthDay(year, month, day);
 		GetHourMinuteSecond( hour, minute, second );
 
 		m_Expansion_StartTime = hour * 3600 + minute * 60 + second - GetTickTime();
+		m_Expansion_StartTimestampUTC = CF_Date.Now(true).DateToEpoch();
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
@@ -160,6 +158,11 @@ modded class DayZGame
 	int ExpansionGetStartTime()
 	{
 		return m_Expansion_StartTime;
+	}
+
+	int ExpansionGetStartTimestampUTC()
+	{
+		return m_Expansion_StartTimestampUTC;
 	}
 
 	protected void SetWorldCenterPosition()

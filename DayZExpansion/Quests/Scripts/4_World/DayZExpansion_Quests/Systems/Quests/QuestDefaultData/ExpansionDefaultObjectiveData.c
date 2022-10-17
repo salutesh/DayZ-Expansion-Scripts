@@ -13,7 +13,7 @@
 
 class ExpansionDefaultObjectiveData
 {
-	private string m_WorldName;
+	protected string m_WorldName;
 
 	void ExpansionDefaultObjectiveData(string worldName)
 	{
@@ -62,7 +62,7 @@ class ExpansionDefaultObjectiveData
 
 		return objective;
 	}
-	
+
 	ExpansionQuestObjectiveTravelConfig ExpansionQuestObjective_Travel_003()
 	{
 		ExpansionQuestObjectiveTravelConfig objective = new ExpansionQuestObjectiveTravelConfig();
@@ -587,7 +587,7 @@ class ExpansionDefaultObjectiveData
 	}
 #endif
 #endif
-	
+
 	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_013()
 	{
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
@@ -602,7 +602,7 @@ class ExpansionDefaultObjectiveData
 
 		return objective;
 	}
-	
+
 	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_014()
 	{
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
@@ -655,7 +655,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIPATROL);
 		objective.SetObjectiveText("Kill all 4 units of the bandit patrol at the marked location");
 		objective.SetCanLootAI(true);
-		
+
 		ExpansionQuestObjectiveAIPatrol aiPatrol = new ExpansionQuestObjectiveAIPatrol();
 		aiPatrol.SetNPCUnits(4);
 		aiPatrol.SetNPCSpeed("WALK");
@@ -663,7 +663,7 @@ class ExpansionDefaultObjectiveData
 		aiPatrol.SetNPCFaction("West");
 		aiPatrol.NPCFormation = "RANDOM";
 		aiPatrol.SetNPCLoadoutFile("BanditLoadout.json");
-		
+
 		if (m_WorldName == "namalsk")
 		{
 			aiPatrol.AddWaypoint(Vector(6307.7, 14.4, 11810.6));
@@ -726,7 +726,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.AICAMP);
 		objective.SetObjectiveText("Kill all 10 bandits at the marked location");
 		objective.SetCanLootAI(true);
-		
+
 		ExpansionQuestObjectiveAICamp aiCamp = new ExpansionQuestObjectiveAICamp();
 		aiCamp.SetNPCSpeed("RUN");
 		aiCamp.SetNPCMode("HALT");
@@ -824,7 +824,7 @@ class ExpansionDefaultObjectiveData
 		return objective;
 	}
 #endif
-	
+
 	//! ACTION OBJECTIVES
 	ExpansionQuestObjectiveActionConfig ExpansionQuestObjective_Action_001()
 	{
@@ -834,20 +834,20 @@ class ExpansionDefaultObjectiveData
 		objective.AddActionName("ExpansionVehicleActionPickLock");
 		objective.AddActionName("ExpansionActionPickVehicleLockBase");
 		objective.AddActionName("ExpansionActionPickVehicleLock");
-		
+
 		return objective;
 	}
-	
+
 	ExpansionQuestObjectiveActionConfig ExpansionQuestObjective_Action_002()
 	{
 		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
 		objective.AddActionName("ExpansionVehicleActionPickLock");
-		
+
 		return objective;
 	}
-	
+
 	//! CRAFTING OBJECTIVES
 	ExpansionQuestObjectiveCraftingConfig ExpansionQuestObjective_Crafting_001()
 	{
@@ -855,7 +855,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.CRAFTING);
 		objective.AddItemName("ImprovisedFishingRod");
-		
+
 		return objective;
 	}
 };

@@ -129,7 +129,7 @@ class CfgVehicles
 		wreck = "ExpansionMh6Wreck";
 		fuelCapacity = 192;
 		fuelConsumption = 91;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2","CamoNet"};
 		doors[] = {"mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
 		applySkinsTo[] = {"Expansion_Mh6_Door_1_1","Expansion_Mh6_Door_1_2","Expansion_Mh6_Door_2_1","Expansion_Mh6_Door_2_2"};
 		hiddenSelections[] = {"light_1_1","light_2_1","camo"};
@@ -151,7 +151,7 @@ class CfgVehicles
 				name = "$STR_attachment_Engine0";
 				description = "";
 				icon = "cat_vehicle_engine";
-				attachmentSlots[] = {"ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses"};
+				attachmentSlots[] = {"ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","CamoNet"};
 			};
 			class Body
 			{

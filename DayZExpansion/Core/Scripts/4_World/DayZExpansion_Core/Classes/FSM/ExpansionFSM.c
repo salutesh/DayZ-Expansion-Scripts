@@ -4,6 +4,7 @@ class ExpansionFSM
 {
 	static const int EXIT = 0;
 	static const int CONTINUE = 1;
+	static const int RESTART = 2;
 
 	private autoptr array<ref ExpansionState> m_States;
 	private autoptr array<ref ExpansionTransition> m_Transitions;
@@ -215,7 +216,21 @@ class ExpansionFSM
 
 		//CF_Log.Debug("m_CurrentState: %1", "" + m_CurrentState);
 
-		if (m_CurrentState && m_CurrentState.OnUpdate(pDt, pSimulationPrecision) == CONTINUE)
+		int update = EXIT;
+
+		if (m_CurrentState)
+		{
+			update = m_CurrentState.OnUpdate(pDt, pSimulationPrecision);
+		}
+
+		if (update == RESTART)
+		{
+			m_CurrentState.OnEntry("", m_CurrentState);
+
+			update = CONTINUE;
+		}
+
+		if (update == CONTINUE)
 		{
 			return CONTINUE;
 		}

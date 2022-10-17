@@ -13,7 +13,7 @@
 #ifdef EXPANSIONMODGROUPS
 modded class ExpansionPartyData
 {
-	private bool m_ManualLeave;
+	protected bool m_ManualLeave;
 
 	// ------------------------------------------------------------
 	// Expansion RemoveMember
@@ -50,12 +50,12 @@ modded class ExpansionPartyData
 			EXPrint(ToString() + "::OnJoin - No player quest data!");
 			return;
 		}
-		
+
 		questModule.AddPlayerGroupID(playerUID, player.GetParty().GetPartyID());
 
-		for (int a = 0; a < questModule.GetActiveQuests().Count(); a++)
+		array<ref ExpansionQuest> activeQuests = questModule.GetActiveQuests();
+		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
-			ExpansionQuest activeQuestInstance = questModule.GetActiveQuests()[a];
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 			Print(ToString() + "::OnJoin - Quest: " + activeQuestInstance);
 		#endif
@@ -67,7 +67,7 @@ modded class ExpansionPartyData
 				//! Make sure player has the correct quest state for this quest in his quest data.
 				if (playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
 					return;
-				
+
 				playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig());
 				playerQuestData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
 				questModule.UpdatePlayerQuestObjectiveData(activeQuestInstance, playerUID);
@@ -113,9 +113,9 @@ modded class ExpansionPartyData
 			return;
 		}
 
-		for (int a = 0; a < questModule.GetActiveQuests().Count(); a++)
+		array<ref ExpansionQuest> activeQuests = questModule.GetActiveQuests();
+		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
-			ExpansionQuest activeQuestInstance = questModule.GetActiveQuests()[a];
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 			Print(ToString() + "::OnLeave - Quest: " + activeQuestInstance);
 		#endif

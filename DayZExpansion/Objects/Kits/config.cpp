@@ -95,7 +95,7 @@ class CfgVehicles
 		displayName = "Construction-Kit Large";
 		model = "DayZExpansion\Objects\Kits\box_large.p3d";
 		hiddenSelections[] = {"camo"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Kits\data\box_co.paa"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Kits\data\box_red_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Kits\data\box.rvmat"};
 	};
 	class ExpansionConstructionKitSmall: ExpansionConstructionKitBase

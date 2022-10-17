@@ -22,7 +22,7 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 {
 	void ExpansionActionRestoreEntity()
 	{
-		m_CallbackClass = ExpansionActionCoverVehicleCB;
+		m_CallbackClass = ExpansionActionRestoreEntityCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_INTERACT;
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
@@ -52,11 +52,11 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (item)
-			return false;
-
 		auto placeholder = ExpansionEntityStoragePlaceholder.Cast(target.GetParentOrObject());
 		if (!placeholder)
+			return false;
+
+		if (!placeholder.Expansion_HasStoredEntity())
 			return false;
 
 		return true;
@@ -70,7 +70,7 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		vector position = placeholder.GetPosition();
 		placeholder.SetPosition("0 0 0");
 		EntityAI entity;
-		if (ExpansionEntityStorageModule.RestoreFromFile(placeholder.m_Expansion_EntityStorageID, entity, placeholder))
+		if (ExpansionEntityStorageModule.RestoreFromFile(placeholder.Expansion_GetEntityStorageFileName(), entity, placeholder, action_data.m_Player))
 		{
 			if (deletePlaceholder)
 				GetGame().ObjectDelete(placeholder);

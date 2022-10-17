@@ -13,15 +13,15 @@
 #ifdef EXPANSIONMODBOOK
 class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 {
-	private ref ExpansionBookMenuTabQuestsListEntryController m_QuestMenuListEntryController;
-	private ref ExpansionQuestConfig m_Quest;
-	private ExpansionBookMenuTabQuests m_QuestMenu;
+	protected ref ExpansionBookMenuTabQuestsListEntryController m_QuestMenuListEntryController;
+	protected ref ExpansionQuestConfig m_Quest;
+	protected ExpansionBookMenuTabQuests m_QuestMenu;
 
-	private ButtonWidget Button;
-	private TextWidget Text;
-	private ImageWidget QuestIcon;
-	private ButtonWidget HideButton;
-	private ImageWidget HideIcon;
+	protected ButtonWidget Button;
+	protected TextWidget Text;
+	protected ImageWidget QuestIcon;
+	protected ButtonWidget HideButton;
+	protected ImageWidget HideIcon;
 
 	void ExpansionBookMenuTabQuestsListEntry(ExpansionQuestConfig quest, ExpansionBookMenuTabQuests menu)
 	{
@@ -61,7 +61,7 @@ class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 			m_QuestMenuListEntryController.QuestIcon = ExpansionIcons.GetPath("Questionmark 2");
 			QuestIcon.SetColor(ARGB(255, 39, 174, 96));
 		}
-		
+
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestIcon");
 
 	#ifdef EXPANSIONMODQUESTS_HUD_ENABLE

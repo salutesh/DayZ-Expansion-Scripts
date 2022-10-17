@@ -40,7 +40,7 @@ class ExpansionParkingMeter extends ItemBase
 		if (!GetGame())
 			return;
 
-		if (ExpansionGarageModule.s_Instance && m_TerritoryID > -1)
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && ExpansionGarageModule.s_Instance && m_TerritoryID > -1)
 		{
 			ExpansionGarageModule.s_Instance.RemoveParkingMeter(m_TerritoryID);
 		}

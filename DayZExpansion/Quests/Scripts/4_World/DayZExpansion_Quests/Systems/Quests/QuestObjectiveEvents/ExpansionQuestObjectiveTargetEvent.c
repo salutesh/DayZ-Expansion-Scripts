@@ -12,8 +12,8 @@
 
 class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 {
-	private int Count = 0;
-	private int Amount = 0;
+	protected int Count = 0;
+	protected int Amount = 0;
 
 	void SetCount(int count)
 	{
@@ -30,29 +30,35 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return Amount;
 	}
 
-	override void OnStart()
+	override bool OnStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
 	#endif
+		
+		if (!super.OnStart())
+			return false;
 
 		TargetEventStart();
 
-		super.OnStart();
+		return true;
 	}
 
-	override void OnContinue()
+	override bool OnContinue()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
 	#endif
+		
+		if (!super.OnContinue())
+			return false;
 
 		TargetEventStart();
 
-		super.OnContinue();
+		return true;
 	}
-	
-	private void TargetEventStart()
+
+	protected void TargetEventStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TargetEventStart");
@@ -70,7 +76,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
 	#endif
-		
+
 	#ifdef EXPANSIONMODAI
 		//! XXX: This cannot happen, because killerPlayer identity is checked in Quest module and AI have no identity
 		PlayerBase player;
@@ -81,12 +87,12 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
 		if (!target)
 			return;
-		
+
 		if (ExpansionStatic.IsAnyOf(victim.GetType(), target.GetExcludedClassNames(), victim.ClassName()))
 			return;
 
 		bool maxRangeCheck = false;
-		
+
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
 		Print(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
@@ -95,7 +101,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		Print(ToString() + "::OnEntityKilled - Killer type: " + killer.GetType());
 		Print(ToString() + "::OnEntityKilled - Killer type: " + killer.Type().ToString());
 	#endif
-		
+
 		PlayerBase victimPlayer;
 		if (Class.CastTo(victimPlayer, victim))
 		{
@@ -114,14 +120,14 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				ExpansionPartyModule partymodule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
 				if (!partymodule)
 					return;
-				
+
 				ExpansionPartyPlayerData victimPartyData = partymodule.GetPartyPlayerData(victimPlayerUID);
 				if (victimPartyData && victimPartyData.GetParty().GetPartyID() == groupID || GetQuest().GetQuestModule().WasPlayerInGroup(victimPlayerUID, groupID))
 					return;
 			}
 		#endif
 		}
-		
+
 		//! Use max range check if used in config
 		if (GetObjectiveConfig().GetMaxDistance() > -1)
 			maxRangeCheck = true;
@@ -140,7 +146,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		{
 			if (!ExpansionStatic.IsAnyOf(killer.GetType(), target.GetAllowedWeapons(), killer.ClassName()))
 				return;
-			
+
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
 		#endif
@@ -149,7 +155,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		int amount = target.GetAmount();
 		Amount = amount;
 		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), target.GetClassNames(), victim.ClassName());
-		
+
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::OnEntityKilled - Target found: " + found);
 	#endif
@@ -159,12 +165,12 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			if (Count < amount)
 			{
 				Count++;
-				
+
 				if (GetQuest())
 					GetQuest().UpdateQuestPlayersObjectiveData();
 			}
 		}
-		
+
 		if (Count >= amount)
 		{
 			SetCompleted(true);
@@ -172,7 +178,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	private bool IsInMaxRange(vector playerPos)
+	protected bool IsInMaxRange(vector playerPos)
 	{
 		vector position = GetObjectiveConfig().GetPosition();
 		float maxDistance = GetObjectiveConfig().GetMaxDistance();

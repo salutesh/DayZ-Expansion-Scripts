@@ -12,17 +12,17 @@
 
 class ExpansionQuestObjectiveEventBase
 {
-	private int m_Index = -1;
-	private ExpansionQuest m_Quest;
-	private bool m_Completed = false;
-	private bool m_Initialized = false;
-	private bool m_Active = false;
-	private ref ExpansionQuestObjectiveConfig m_ObjectiveConfig;
-	private int m_TimeLimit = -1;	
-	private float m_TimeLimitTimer = 0;
-	private const float UPDATE_TIME_LIMIT_TICK_TIME = 1.0;
-	private float m_TimeLimitSyncTimer = 0;
-	private const float UPDATE_TIME_SYNC_TIME = 10.0;
+	protected int m_Index = -1;
+	protected ExpansionQuest m_Quest;
+	protected bool m_Completed = false;
+	protected bool m_Initialized = false;
+	protected bool m_Active = false;
+	protected ref ExpansionQuestObjectiveConfig m_ObjectiveConfig;
+	protected int m_TimeLimit = -1;
+	protected float m_TimeLimitTimer = 0;
+	protected const float UPDATE_TIME_LIMIT_TICK_TIME = 1.0;
+	protected float m_TimeLimitSyncTimer = 0;
+	protected const float UPDATE_TIME_SYNC_TIME = 10.0;
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
@@ -78,75 +78,82 @@ class ExpansionQuestObjectiveEventBase
 	{
 		m_ObjectiveConfig = config;
 	}
-	
+
 	void SetTimeLimit(int time)
 	{
 		m_TimeLimit = time;
 	}
-	
+
 	int GetTimeLimit()
-	{		
+	{
 		return m_TimeLimit;
 	}
-	
+
 	void OnTimeLimitReached()
 	{
 		if (!GetQuest().GetPlayer().GetIdentity())
 			return;
-		
+
 		GetQuest().GetQuestModule().CancelQuestServer(GetQuest().GetQuestConfig().GetID(), GetQuest().GetPlayer().GetIdentity());
 	}
-	
+
 	//! Event called when the player starts the quest
-	void OnStart()
+	bool OnStart()
 	{
 		SetInitialized(true);
 		SetIsActive(true);
+
+		return true;
 	}
 
 	//! Event called when objective is completed
-	void OnComplete()
+	bool OnComplete()
 	{
-		if (!GetQuest())
-			return;
-		
 		GetQuest().CompletionCheck();
+
+		return true;
 	}
 
-	void OnIncomplete()
+	bool OnIncomplete()
 	{
-		if (!GetQuest())
-			return;
-
-		SetIsActive(true);
-		
+		//SetIsActive(true);
 		GetQuest().CompletionCheck();
+
+		return true;
 	}
 
 	//! Event called when quest is completed and turned-in
-	void OnTurnIn()
+	bool OnTurnIn()
 	{
 		SetInitialized(false);
 		SetIsActive(false);
+
+		return true;
 	}
 
-	void OnCancel()
+	bool OnCancel()
 	{
 		SetInitialized(false);
 		SetIsActive(false);
+
+		return true;
 	}
 
 	//! Event called when the player continues the quest after a server restart/reconnect
-	void OnContinue()
+	bool OnContinue()
 	{
 		SetInitialized(true);
 		SetIsActive(true);
+
+		return true;
 	}
 
 	//! Event called when the quest gets cleaned up
-	void OnCleanup()
+	bool OnCleanup()
 	{
 		SetInitialized(false);
+
+		return true;
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -158,7 +165,7 @@ class ExpansionQuestObjectiveEventBase
 	{
 		if (!IsInitialized() || !IsActive() || !GetQuest() || !GetQuest().GetPlayer() || !GetObjectiveConfig())
 			return;
-		
+
 		if (m_TimeLimit > -1)
 		{
 			m_TimeLimitTimer += timeslice;
@@ -170,10 +177,10 @@ class ExpansionQuestObjectiveEventBase
 					OnTimeLimitReached();
 					m_TimeLimit = -1;
 				}
-				
+
 				m_TimeLimitTimer = 0;
 			}
-			
+
 			m_TimeLimitSyncTimer +=timeslice;
 			if (m_TimeLimit > 0 && m_TimeLimitSyncTimer >= UPDATE_TIME_SYNC_TIME)
 			{
@@ -193,7 +200,7 @@ class ExpansionQuestObjectiveEventBase
 	{
 		return true;
 	}
-	
+
 	void QuestDebug()
 	{
 		ObjectivePrint("------------------------------------------------------------");

@@ -77,6 +77,23 @@ modded class MissionServer
 		CF_ModuleCoreManager.OnSettingsChanged(this, CF_EventArgs.Empty);
 	}
 	
+	override void OnClientReadyEvent( PlayerIdentity identity, PlayerBase player )
+	{
+		super.OnClientReadyEvent( identity, player );
+
+//! DON'T remove! Update this for the next version of DayZ when necessary.
+#ifdef DAYZ_1_18
+		string preferredVersion = "1.19";
+		string version;
+		GetDayZGame().GetVersion(version);
+		string warningText = "This server is running an unsupported version of the game (" + version + ").";
+		if (GetGame().ConfigIsExisting("CfgMods DZ_Expansion_Animations_Preload"))
+			warningText += " Some player animations MAY not work correctly.";
+		warningText += " Preferably, please use DayZ " + preferredVersion + " (Experimental or stable when available).";
+		ExpansionNotification("WARNING", warningText, "Error", COLOR_EXPANSION_NOTIFICATION_ORANGE, 20).Create(identity);
+#endif
+	}
+
 	// ------------------------------------------------------------
 	// OnClientReconnectEvent
 	// ------------------------------------------------------------

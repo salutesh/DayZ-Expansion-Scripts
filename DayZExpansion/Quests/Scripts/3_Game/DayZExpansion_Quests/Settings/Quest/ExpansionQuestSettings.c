@@ -54,7 +54,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	string QuestNotGroupOwnerText;
 
 	[NonSerialized()]
-	private bool m_IsLoaded;
+	protected bool m_IsLoaded;
 
 	void ExpansionQuestSettings()
 	{
@@ -141,7 +141,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal( ExpansionQuestSettingsBase s )
+	protected void CopyInternal( ExpansionQuestSettingsBase s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
@@ -186,7 +186,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings CopyInternal
 	// ------------------------------------------------------------
-	private void CopyInternal( ExpansionQuestSettings s )
+	protected void CopyInternal( ExpansionQuestSettings s )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);

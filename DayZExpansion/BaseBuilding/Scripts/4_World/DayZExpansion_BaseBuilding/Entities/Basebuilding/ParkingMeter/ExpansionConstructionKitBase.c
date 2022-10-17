@@ -102,27 +102,6 @@ class ExpansionConstructionKitBase extends ItemBase
 		return EMeleeTargetType.NONALIGNABLE;
 	}
 	
-#ifdef EXPANSION_MODSTORAGE
-	override void CF_OnStoreSave(CF_ModStorageMap storage)
-	{
-		super.CF_OnStoreSave(storage);
-
-		auto ctx = storage[DZ_Expansion_Vehicles];
-		if (!ctx) return;
-	}
-
-	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
-	{
-		if (!super.CF_OnStoreLoad(storage))
-			return false;
-
-		auto ctx = storage[DZ_Expansion_Vehicles];
-		if (!ctx) return true;
-
-		return true;
-	}
-#endif
-	
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();

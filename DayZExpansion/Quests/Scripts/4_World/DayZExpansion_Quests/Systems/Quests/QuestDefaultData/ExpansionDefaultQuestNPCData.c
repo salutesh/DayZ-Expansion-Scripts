@@ -12,7 +12,7 @@
 
 class ExpansionDefaultQuestNPCData
 {
-	private string m_WorldName;
+	protected string m_WorldName;
 
 	void ExpansionDefaultQuestNPCData(string worldName)
 	{
@@ -182,7 +182,7 @@ class ExpansionDefaultQuestNPCData
 		return questNPC;
 	}
 #endif
-	
+
 	//! Static Quest Object
 	ExpansionQuestNPCData QuestNPCData_5()
 	{

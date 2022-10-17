@@ -3747,6 +3747,18 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
+	bool Expansion_CoverVehicle(EntityAI cover = null)
+	{
+		//! TODO
+		return false;
+	}
+
+	string Expansion_GetPlaceholderType(string coverType)
+	{
+		//! TODO
+		return "Expansion_Generic_Vehicle_Cover";
+	}
+
 	override bool CanPutAsAttachment(EntityAI parent)
 	{
 		return false;
@@ -4556,11 +4568,21 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
-			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
-			if (GetGame().ConfigIsExisting(path))
-				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
-			else
-				m_ModelZeroPointDistanceFromGround = 0.0;
+			//string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
+			//if (GetGame().ConfigIsExisting(path))
+			//{
+				//m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
+			//}
+			//else
+			//{
+				vector minMax[2];
+				GetCollisionBox(minMax);
+				float diff = -minMax[0][1];
+				if (diff > 0)
+					m_ModelZeroPointDistanceFromGround = diff;
+				else
+					m_ModelZeroPointDistanceFromGround = 0;
+			//}
 		}
 
 		return m_ModelZeroPointDistanceFromGround;

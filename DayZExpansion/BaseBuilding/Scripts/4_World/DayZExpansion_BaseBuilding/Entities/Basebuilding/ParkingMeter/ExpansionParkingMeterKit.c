@@ -29,7 +29,7 @@ class ExpansionParkingMeterKit extends ExpansionConstructionKitLarge
 			//! Can only place one parking meter per territory
 			ExpansionGarageModule garageModule = ExpansionGarageModule.Cast(CF_ModuleCoreManager.Get(ExpansionGarageModule));
 			if (garageModule.HasTerritoryParkingMeter(flag.GetTerritoryID()))	
-				return false;		
+				return false;
 		}
 		
 		return true;

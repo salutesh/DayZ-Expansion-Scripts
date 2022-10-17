@@ -14,7 +14,7 @@
 //! We will need to handle all this data thrue a loaded config file for each quest template later
 class ExpansionDefaultQuestData
 {
-	private string m_WorldName;
+	protected string m_WorldName;
 
 	void ExpansionDefaultQuestData(string worldName)
 	{
@@ -132,17 +132,17 @@ class ExpansionDefaultQuestData
 		reward_1.SetClassName("TaloonBag_Blue");
 		reward_1.SetAmount(1);
 		rewards.Insert(reward_1);
-		
+
 		ExpansionQuestRewardConfig reward_2 = new ExpansionQuestRewardConfig;
 		reward_2.SetClassName("TaloonBag_Green");
 		reward_2.SetAmount(1);
 		rewards.Insert(reward_2);
-		
+
 		ExpansionQuestRewardConfig reward_3 = new ExpansionQuestRewardConfig;
 		reward_3.SetClassName("TaloonBag_Orange");
 		reward_3.SetAmount(1);
 		rewards.Insert(reward_3);
-		
+
 		ExpansionQuestRewardConfig reward_4 = new ExpansionQuestRewardConfig;
 		reward_4.SetClassName("TaloonBag_Violet");
 		reward_4.SetAmount(1);
@@ -150,7 +150,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetRewards(rewards);
 		questConfig.SetNeedToSelectReward(true);
-		
+
 		return questConfig;
 	}
 
@@ -832,7 +832,7 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 #endif
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig023()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -861,7 +861,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig024()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -897,7 +897,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig025()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -919,7 +919,7 @@ class ExpansionDefaultQuestData
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.CRAFTING);
 		questConfig.AddObjectiveConfig(objective_1);
-		
+
 		ExpansionQuestObjectiveCollectionConfig objective_2 = new ExpansionQuestObjectiveCollectionConfig();
 		objective_2.SetID(14);
 		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
@@ -931,7 +931,7 @@ class ExpansionDefaultQuestData
 		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(10);
 		rewards.Insert(reward_1);
-		
+
 		ExpansionQuestRewardConfig reward_2 = new ExpansionQuestRewardConfig;
 		reward_2.SetClassName("ImprovisedFishingRod");
 		reward_2.SetAmount(1);
@@ -941,7 +941,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig026()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();

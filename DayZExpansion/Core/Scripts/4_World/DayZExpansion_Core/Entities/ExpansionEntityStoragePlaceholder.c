@@ -14,7 +14,6 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 {
 	static ref array<ExpansionEntityStoragePlaceholder> s_Expansion_AllPlaceholders = new array<ExpansionEntityStoragePlaceholder>;
 
-	int m_Expansion_EntityStorageID = -1;
 	ref ExpansionGlobalID m_Expansion_StoredEntityGlobalID = new ExpansionGlobalID();
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
@@ -31,10 +30,22 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 	override void EEDelete(EntityAI parent)
 	{
-		if (GetGame().IsServer() && HasAnyCargo())
-			EXPrint("WARNING: " + GetType() + " " + GetPosition() + " with cargo is about to be deleted!");
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		{
+			if (HasAnyCargo())
+				EXPrint("WARNING: " + GetType() + " " + GetPosition() + " with cargo is about to be deleted!");
+
+			string fileName = Expansion_GetEntityStorageFileName();
+			if (FileExist(fileName))
+				DeleteFile(fileName);
+		}
 
 		super.EEDelete(parent);
+	}
+
+	string Expansion_GetEntityStorageFileName()
+	{
+		return ExpansionEntityStorageModule.GetFileName(m_Expansion_StoredEntityGlobalID.IDToHex());
 	}
 
 	static ExpansionEntityStoragePlaceholder GetByStoredEntityGlobalID(TIntArray id)
@@ -100,6 +111,20 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		return false;
 	}
 
+	bool Expansion_HasStoredEntity()
+	{
+		if (GetGame().IsClient())
+		{
+			string type;
+			return m_Expansion_NetsyncData.Get(0, type);
+		}
+
+		if (m_Expansion_StoredEntityGlobalID.IsZero())
+			return false;
+
+		return FileExist(Expansion_GetEntityStorageFileName());
+	}
+
 	override bool CanDisplayAttachmentSlot(int slot_id)
 	{
 		return false;
@@ -138,8 +163,6 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
 
-		ctx.Write(m_Expansion_EntityStorageID);
-
 		string type;
 		m_Expansion_NetsyncData.Get(0, type);
 		ctx.Write(type);
@@ -155,8 +178,14 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_Expansion_EntityStorageID))
-			return false;
+		int version = ctx.GetVersion();
+
+		int storedEntityStorageID;
+		if (version < 43)
+		{
+			if (!ctx.Read(storedEntityStorageID))
+				return false;
+		}
 
 		string type;
 		if (!ctx.Read(type))
@@ -166,6 +195,13 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 		if (!m_Expansion_StoredEntityGlobalID.OnStoreLoad(ctx))
 			return false;
+
+		if (version < 43)
+		{
+			string oldFileName = ExpansionEntityStorageModule.GetFileName(storedEntityStorageID);
+			if (FileExist(oldFileName) && CopyFile(oldFileName, Expansion_GetEntityStorageFileName()))
+				DeleteFile(oldFileName);
+		}
 
 		return true;
 	}
@@ -178,42 +214,40 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		return ExpansionStatic.GetItemDisplayNameWithType(type);
 	}
 
-	void Expansion_SetStoredEntityData(int entityStorageID, string type, int entityGlobalID[4])
+	void Expansion_SetStoredEntityData(string type, TIntArray entityGlobalID)
 	{
-		m_Expansion_EntityStorageID = entityStorageID;
 		m_Expansion_NetsyncData.Set(0, type);
 		for (int i = 0; i < 4; i++)
 			m_Expansion_StoredEntityGlobalID.m_ID[i] = entityGlobalID[i];
 	}
 
-	static bool Expansion_StoreEntityAndReplace(EntityAI entity, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out ExpansionEntityStoragePlaceholder placeholder = null)
+	static bool Expansion_StoreEntityAndReplace(EntityAI entity, string placeholderType, vector position, int iFlags = ECE_OBJECT_SWAP, out ExpansionEntityStoragePlaceholder placeholder = null, bool storeCargo = false)
 	{
 		string type = entity.GetType();
 
 		float lifetime = entity.GetLifetimeMax();
 
-		int entityGlobalID[4];
+		TIntArray entityGlobalID = new TIntArray;
 		int i;
 
 		CarScript vehicle;
 		if (Class.CastTo(vehicle, entity))
 			for (i = 0; i < 4; i++)
-				entityGlobalID[i] = vehicle.m_Expansion_GlobalID.m_ID[i];
+				entityGlobalID.Insert(vehicle.m_Expansion_GlobalID.m_ID[i]);
 
 #ifdef EXPANSIONMODVEHICLE
 		ExpansionVehicleBase exVehicle;
 		if (Class.CastTo(exVehicle, entity))
 			for (i = 0; i < 4; i++)
-				entityGlobalID[i] = exVehicle.m_Expansion_GlobalID.m_ID[i];
+				entityGlobalID.Insert(exVehicle.m_Expansion_GlobalID.m_ID[i]);
 #endif
 
-		int entityStorageID = -1;
 		EntityAI placeholderEntity;
-		if (!ExpansionEntityStorageModule.SaveToFileAndReplace(entity, placeholderType, position, iFlags, entityStorageID, placeholderEntity))
+		if (!ExpansionEntityStorageModule.SaveToFileAndReplace(entity, ExpansionEntityStorageModule.GetFileName(ExpansionStatic.IntToHex(entityGlobalID)), placeholderType, position, iFlags, placeholderEntity, storeCargo))
 			return false;
 
 		if (Class.CastTo(placeholder, placeholderEntity))
-			placeholder.Expansion_SetStoredEntityData(entityStorageID, type, entityGlobalID);
+			placeholder.Expansion_SetStoredEntityData(type, entityGlobalID);
 		else
 			EXPrint("Expansion_StoreEntityAndReplace - WARNING: Couldn't cast to ExpansionEntityStoragePlaceholder " + placeholderEntity);
 

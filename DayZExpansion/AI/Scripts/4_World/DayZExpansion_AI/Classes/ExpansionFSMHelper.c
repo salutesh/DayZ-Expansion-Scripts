@@ -1,8 +1,13 @@
 class ExpansionFSMHelper
 {
-	static void DoorAnimationSource(Transport transport, int seatPos, out bool exists, out string selectionName)
+	static void DoorAnimationSource(EntityAI transport, int seatPos, out bool exists, out string selectionName)
 	{
-		auto car = CarScript.Cast(transport);
+		CarScript car;
+		if (!Class.CastTo(car, transport))
+		{
+			return;
+		}
+		
 		exists = car.FindAttachmentBySlotName(car.GetDoorInvSlotNameFromSeatPos(seatPos)) != null;
 		
 		if (exists)

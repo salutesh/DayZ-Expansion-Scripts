@@ -55,7 +55,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 12;
+	static const int VERSION = 13;
 
 	float VehicleRoadKillDamageMultiplier;
 
@@ -69,6 +69,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	float DamagedEngineStartupChancePercent;
 
 	bool EnableVehicleCovers;
+	bool UseVirtualStorageForCoverCargo;
+	float VehicleAutoCoverTimeSeconds;
+	bool VehicleAutoCoverRequireCamonet;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -383,6 +386,12 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 				if (settingsBase.m_Version < 12)
 					EnableVehicleCovers = settingsDefault.EnableVehicleCovers;
 
+				if (settingsBase.m_Version < 13)
+				{
+					VehicleAutoCoverTimeSeconds = settingsDefault.VehicleAutoCoverTimeSeconds;
+					VehicleAutoCoverRequireCamonet = settingsDefault.VehicleAutoCoverRequireCamonet;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -478,6 +487,8 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 #ifndef CARCOVER
 		EnableVehicleCovers = true;
 #endif
+		VehicleAutoCoverTimeSeconds = 0;  //! Lower than or equal to zero = disabled
+		VehicleAutoCoverRequireCamonet = false;  //! Require camonet attachment on vehicle
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

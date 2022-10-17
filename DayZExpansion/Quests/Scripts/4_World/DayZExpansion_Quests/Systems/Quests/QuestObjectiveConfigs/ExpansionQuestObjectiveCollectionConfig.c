@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveConfig
 {
-	private ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
+	protected ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
 
 	void AddCollection(ExpansionQuestObjectiveCollection collection)
 	{

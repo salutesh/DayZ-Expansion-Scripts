@@ -12,43 +12,43 @@
 
 class ExpansionQuestMenu: ExpansionScriptViewMenu
 {
-	private autoptr ExpansionQuestMenuController m_QuestMenuController;
-	private ExpansionQuestModule m_QuestModule;
-	private autoptr array<ref ExpansionQuestConfig> m_Quests = new array<ref ExpansionQuestConfig>;
-	private autoptr ExpansionQuestConfig m_SelectedQuest;
-	private autoptr ExpansionQuestRewardConfig m_SelectedReward;
-	private bool m_InDetailView;
-	private autoptr ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
-	
-	private Widget QuestListPanel;
-	private Widget QuestDetailsPanel;
-	private ButtonWidget Accept;
-	private TextWidget AcceptLable;
-	private Widget AcceptBackground;
-	private ButtonWidget Complete;
-	private TextWidget CompleteLable;
-	private Widget CompleteBackground;
-	private ButtonWidget Cancel;
-	private TextWidget CancelLable;
-	private Widget CancelBackground;
-	private ButtonWidget Close;
-	private TextWidget CloseLable;
-	private ButtonWidget CloseMenu;
-	private TextWidget CloseMenuCharacter;
-	private ImageWidget CloseMenuImage;
-	private ButtonWidget Back;
-	private Widget BackBackground;
-	private ImageWidget BackImage;
-	private Widget CloseBackground;
-	private WrapSpacerWidget ButtonsPanel;
-	
-	private TextWidget Reward;
-	private Widget RewardPanel;
-	private ScrollWidget ObjectiveSectionScroller;
-	private RichTextWidget Objective;
-	private WrapSpacerWidget QuestListContent;
-	private Widget DefaultPanel;
-	private Widget Humanity;
+	protected autoptr ExpansionQuestMenuController m_QuestMenuController;
+	protected ExpansionQuestModule m_QuestModule;
+	protected autoptr array<ref ExpansionQuestConfig> m_Quests = new array<ref ExpansionQuestConfig>;
+	protected autoptr ExpansionQuestConfig m_SelectedQuest;
+	protected autoptr ExpansionQuestRewardConfig m_SelectedReward;
+	protected bool m_InDetailView;
+	protected autoptr ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
+
+	protected Widget QuestListPanel;
+	protected Widget QuestDetailsPanel;
+	protected ButtonWidget Accept;
+	protected TextWidget AcceptLable;
+	protected Widget AcceptBackground;
+	protected ButtonWidget Complete;
+	protected TextWidget CompleteLable;
+	protected Widget CompleteBackground;
+	protected ButtonWidget Cancel;
+	protected TextWidget CancelLable;
+	protected Widget CancelBackground;
+	protected ButtonWidget Close;
+	protected TextWidget CloseLable;
+	protected ButtonWidget CloseMenu;
+	protected TextWidget CloseMenuCharacter;
+	protected ImageWidget CloseMenuImage;
+	protected ButtonWidget Back;
+	protected Widget BackBackground;
+	protected ImageWidget BackImage;
+	protected Widget CloseBackground;
+	protected WrapSpacerWidget ButtonsPanel;
+
+	protected TextWidget Reward;
+	protected Widget RewardPanel;
+	protected ScrollWidget ObjectiveSectionScroller;
+	protected RichTextWidget Objective;
+	protected WrapSpacerWidget QuestListContent;
+	protected Widget DefaultPanel;
+	protected Widget Humanity;
 
 	void ExpansionQuestMenu()
 	{
@@ -65,7 +65,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		m_QuestModule.GetQuestMenuSI().Remove(SetQuests);
 		m_QuestMenuController.Quests.Clear();
 		m_Quests.Clear();
-		
+
 		m_SelectedQuest = NULL;
 		m_SelectedReward = NULL;
 	}
@@ -92,7 +92,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		m_SelectedReward = NULL;
 		ButtonsPanel.Show(false);
-		
+
 		m_QuestMenuController.QuestNPCName = npcName;
 		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
 
@@ -101,12 +101,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			QuestListContent.Show(true);
 			DefaultPanel.Show(false);
 
-			for (int i = 0; i < quests.Count(); i++)
+			foreach (ExpansionQuestConfig quest: quests)
 			{
-				ExpansionQuestConfig quest = quests[i];
-				if (!quest || quest.IsAchivement())
+				if (quest.IsAchivement())
 					continue;
-				
+
 			#ifdef EXPANSIONMODHARDLINE
 				if (quest.IsBanditQuest() || quest.IsHeroQuest() && !GetExpansionSettings().GetHardline().UseHumanity)
 					continue;
@@ -142,7 +141,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = new ExpansionDialog_QuestMenu_CancelQuest(this);
-		
+
 		m_CancelQuestDialog.Show();
 	}
 
@@ -150,7 +149,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		if (!m_SelectedQuest)
 			return;
-		
+
 		if (m_SelectedQuest.NeedToSelectReward())
 		{
 			if (m_SelectedReward)
@@ -179,7 +178,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		if (!m_QuestModule)
 			return;
-		
+
 		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
 
 		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
@@ -189,7 +188,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		m_SelectedQuest = quest;
 		m_QuestMenuController.QuestTitle = quest.GetTitle();
-		
+
 		m_SelectedQuest.QuestDebug();
 
 		string description;
@@ -241,7 +240,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			{
 				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
 			}
-			
+
 			for (i = 0; i < quest.GetRewards().Count(); i++)
 			{
 				ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
@@ -251,7 +250,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				rewardEntry.SetIsRewardEntry(true);
 				m_QuestMenuController.RewardEntries.Insert(rewardEntry);
 			}
-			
+
 			Humanity.Show(false);
 		#ifdef EXPANSIONMODHARDLINE
 			if ((quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
@@ -270,16 +269,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			ExpansionQuestObjectiveConfig objective = quest.GetObjectives()[i];
 			int objectiveType = objective.GetObjectiveType();
 			QuestDebug(ToString() + "::SetQuest - Objective type: " + objectiveType);
-			ExpansionQuestObjectiveTargetConfig objectiveTarget;
-			ExpansionQuestObjectiveTravelConfig objectiveTravel;
-			ExpansionQuestObjectiveDeliveryConfig objectiveDelivery;
-			ExpansionQuestObjectiveCollectionConfig objectiveCollection;
-
 			switch (objectiveType)
 			{
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
-					objectiveCollection = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
+					ExpansionQuestObjectiveCollectionConfig objectiveCollection = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
 					string className = objectiveCollection.GetCollection().GetClassName();
 					int amount = objectiveCollection.GetCollection().GetAmount();
 					ExpansionQuestMenuItemEntry collectObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
@@ -289,7 +283,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				}
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
-					objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
+					ExpansionQuestObjectiveDeliveryConfig objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
 					for (int j = 0; j < objectiveDelivery.GetDeliveries().Count(); j++)
 					{
 						ExpansionQuestObjectiveDelivery delivery = objectiveDelivery.GetDeliveries()[j];
@@ -303,7 +297,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				}
 			}
 		}
-		
+
 		m_InDetailView = true;
 
 		QuestDebug(ToString() + "::SetQuest - End");
@@ -313,7 +307,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		m_SelectedReward = reward;
 	}
-	
+
 	void ResetRewardElements()
 	{
 		for (int i = 0; i < m_QuestMenuController.RewardEntries.Count(); i++)
@@ -322,7 +316,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			entry.Reset();
 		}
 	}
-	
+
 	void CloseMenu()
 	{
 		Hide();
@@ -343,7 +337,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			m_InDetailView = false;
 		}
 	}
-	
+
 	void OnConfirmCancelQuest()
 	{
 		if (!m_SelectedQuest)
@@ -360,7 +354,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		return m_SelectedQuest;
 	}
-	
+
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		if (w == Accept)
@@ -434,13 +428,13 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	}
 
 	override void OnShow()
-	{		
+	{
 		if (!m_QuestModule)
 			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 
 		SetFocus(GetLayoutRoot());
 	}
-	
+
 	override bool CanClose()
 	{
 		return !m_CancelQuestDialog || !m_CancelQuestDialog.IsVisible();
@@ -471,16 +465,16 @@ class ExpansionDialog_QuestMenu_CancelQuest: ExpansionMenuDialogBase
 {
 	ref ExpansionMenuDialogContent_Text m_Text;
 	ref ExpansionDialogButton_QuestMenu_CancelQuest_Accept m_AcceptButton;
-	ref ExpansionDialogButton_QuestMenu_CancelQuest_Cancel m_CancelButton;	
+	ref ExpansionDialogButton_QuestMenu_CancelQuest_Cancel m_CancelButton;
 	ExpansionQuestMenu m_QuestMenu;
-		
+
 	void ExpansionDialog_QuestMenu_CancelQuest(ExpansionScriptViewMenu parentMenu)
 	{
 		m_ParentMenu = parentMenu;
-		
+
 		if (!m_QuestMenu)
 			m_QuestMenu = ExpansionQuestMenu.Cast(m_ParentMenu);
-		
+
 		if (!m_Text)
 		{
 			m_Text = new ExpansionMenuDialogContent_Text(this);
@@ -489,14 +483,14 @@ class ExpansionDialog_QuestMenu_CancelQuest: ExpansionMenuDialogBase
 			m_Text.SetTextColor(ARGB(255, 220, 220, 220));
 			m_Text.Show();
 		}
-		
+
 		if (!m_AcceptButton)
 		{
 			m_AcceptButton = new ExpansionDialogButton_QuestMenu_CancelQuest_Accept(this);
 			AddButton(m_AcceptButton);
 			m_AcceptButton.Show();
 		}
-		
+
 		if (!m_CancelButton)
 		{
 			m_CancelButton = new ExpansionDialogButton_QuestMenu_CancelQuest_Cancel(this);
@@ -504,9 +498,9 @@ class ExpansionDialog_QuestMenu_CancelQuest: ExpansionMenuDialogBase
 			m_CancelButton.Show();
 		}
 	}
-	
+
 	override string GetDialogTitle()
-	{		
+	{
 		return "#STR_EXPANSION_QUEST_MENU_CANCEL_QUEST";
 	}
 };
@@ -516,29 +510,29 @@ class ExpansionDialogButton_QuestMenu_CancelQuest_Accept: ExpansionMenuDialogBut
 	ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
 	ExpansionQuestMenu m_QuestMenu;
 	ExpansionQuestModule m_QuestModule;
-	
+
 	void ExpansionDialogButton_QuestMenu_CancelQuest_Accept(ExpansionMenuDialogBase dialog)
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = ExpansionDialog_QuestMenu_CancelQuest.Cast(GetDialog());
-		
+
 		if (!m_QuestMenu)
 			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentMenu());
-		
+
 		if (!m_QuestModule)
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		
+
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255, 220, 220, 220));
 	}
-	
+
 	override void OnButtonClick()
 	{
 		if (m_QuestMenu)
 		{
 			m_QuestMenu.OnConfirmCancelQuest();
 		}
-		
+
 		m_CancelQuestDialog.Hide();
 	}
 };
@@ -547,19 +541,19 @@ class ExpansionDialogButton_QuestMenu_CancelQuest_Cancel: ExpansionMenuDialogBut
 {
 	ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
 	ExpansionQuestMenu m_QuestMenu;
-	
+
 	void ExpansionDialogButton_QuestMenu_CancelQuest_Cancel(ExpansionMenuDialogBase dialog)
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = ExpansionDialog_QuestMenu_CancelQuest.Cast(GetDialog());
-		
+
 		if (!m_QuestMenu)
 			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentMenu());
-		
+
 		SetButtonText("#STR_EXPANSION_CANCEL");
 		SetTextColor(ARGB(255, 220, 220, 220));
 	}
-	
+
 	override void OnButtonClick()
 	{
 		m_CancelQuestDialog.Hide();

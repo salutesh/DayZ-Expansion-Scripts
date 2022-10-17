@@ -12,18 +12,23 @@
 
 class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 {
-	void ExpansionActionUncoverVehicle()
-	{
-		m_Text = "#STR_EXPANSION_ACTION_UNCOVER";
-	}
-
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		if (item)
-			return false;
+		if (!GetGame().IsDedicatedServer())
+		{
+			Object targetObject = target.GetParentOrObject();
+			string placeholderType = targetObject.GetType();
+			string placeholderModel = targetObject.ConfigGetString("model");
+			string vehicleType = placeholderType.Substring(0, placeholderType.Length() - 6);
+			string vehicleModel = GetGame().ConfigGetTextOut("CfgVehicles " + vehicleType + " model");
+			if (placeholderModel == vehicleModel)
+				m_Text = "#STR_EXPANSION_ACTION_RESTORE";
+			else
+				m_Text = "#STR_EXPANSION_ACTION_UNCOVER";
+		}
 
 		return true;
 	}
@@ -44,14 +49,16 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		else if (placeholderType.Contains("_Winter"))
 			coverType += "Winter";
 
-		if (!action_data.m_Player.GetHumanInventory().CreateInHands(coverType))
-			GetGame().CreateObject(coverType, action_data.m_Player.GetPosition());
-
-		auto camoNetAttachment = placeholder.GetInventory().FindAttachment(InventorySlots.GetSlotIdFromString("CamoNet"));
-		//! TODO: Find a way to take existing attachment to hand instead of recreating. ServerTakeEntityToHands doesn't work :-(
-		auto camoNet = action_data.m_Player.GetHumanInventory().CreateInHands(coverType);
-		if (camoNet && camoNetAttachment)
-			camoNet.SetHealth(camoNetAttachment.GetHealth());
+		auto camoNetAttachment = placeholder.FindAttachmentBySlotName("CamoNet");
+		if (camoNetAttachment)
+		{
+			//! TODO: Find a way to take existing attachment to hand instead of recreating. ServerTakeEntityToHands doesn't work :-(
+			EntityAI camoNet = action_data.m_Player.GetHumanInventory().CreateInHands(coverType);
+			if (!camoNet)
+				camoNet = EntityAI.Cast(GetGame().CreateObject(coverType, action_data.m_Player.GetPosition()));
+			if (camoNet)
+				camoNet.SetHealth(camoNetAttachment.GetHealth());
+		}
 
 		GetGame().ObjectDelete(placeholder);
 	}

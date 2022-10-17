@@ -76,14 +76,18 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnInvokeConnect");
+	#ifdef DIAG
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 	#endif
 
 		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		
+	#ifdef DIAG
+		EXTrace.Add(trace, cArgs.Identity);
+	#endif
+
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetupClientData, 1000, false, cArgs.Identity);
@@ -144,6 +148,11 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	// and to send the needed data from the hardline module to the client
 	protected void SetupClientData(PlayerIdentity identity)
 	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		EXTrace.Add(trace, identity);
+	#endif
+
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
@@ -318,8 +327,11 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 		int killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillAnimal;
 		
+		bool isFriendly;
+#ifdef EXPANSIONMODAI
 		  //! If the animal was friendly to the killer the killer will lose humanity.
-        bool isFriendly = killer.GetGroup().GetFaction().IsFriendly(animal);
+        isFriendly = killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(animal);
+#endif
 		if (isFriendly)
         {
             if (!killer.IsBandit())
@@ -353,8 +365,11 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 		int killerHumanity = GetExpansionSettings().GetHardline().HumanityOnKillInfected;
 		
+		bool isFriendly;
+#ifdef EXPANSIONMODAI
 		  //! If the animal was friendly to the killer the killer will lose humanity.
-        bool isFriendly = killer.GetGroup().GetFaction().IsFriendly(infected);
+        isFriendly = killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(infected);
+#endif
 		if (isFriendly)
         {
             if (!killer.IsBandit())
@@ -727,8 +742,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 	void HardlineModulePrint(string text)
 	{
-	#ifdef EXPANSIONMODHARDLINEDEBUG
-		Print(text);
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.HARDLINE, this, text);
 	#endif
 	}
 

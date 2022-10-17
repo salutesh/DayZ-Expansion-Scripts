@@ -26,7 +26,6 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONFB_CRAFTING;
 		m_FullBody = true;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
-		m_Text = "#STR_EXPANSION_ACTION_COVER";
 	}
 
 	override void CreateConditionComponents()  
@@ -57,16 +56,46 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		if (!GetExpansionSettings().GetVehicle().EnableVehicleCovers)
 			return false;
 
+		string placeholderType;
+		string vehicleModel;
+
 		CarScript vehicle;
-		if (Class.CastTo(vehicle, targetObject) && vehicle.Expansion_GetVehicleCrew().Count())
-			return false;
-
 		ExpansionVehicleBase exVehicle;
-		if (Class.CastTo(exVehicle, targetObject) && exVehicle.Expansion_GetVehicleCrew().Count())
-			return false;
+		if (Class.CastTo(vehicle, targetObject))
+		{
+			if (vehicle.Expansion_GetVehicleCrew().Count())
+				return false;
 
-		if (!vehicle && !exVehicle)
+			if (!GetGame().IsDedicatedServer())
+			{
+				placeholderType = vehicle.Expansion_GetPlaceholderType(item.GetType());
+				vehicleModel = vehicle.ConfigGetString("model");
+			}
+		}
+		else if (Class.CastTo(exVehicle, targetObject))
+		{
+			if (exVehicle.Expansion_GetVehicleCrew().Count())
+				return false;
+
+			if (!GetGame().IsDedicatedServer())
+			{
+				placeholderType = exVehicle.Expansion_GetPlaceholderType(item.GetType());
+				vehicleModel = exVehicle.ConfigGetString("model");
+			}
+		}
+		else
+		{
 			return false;
+		}
+
+		if (!GetGame().IsDedicatedServer())
+		{
+			string placeHolderModel = GetGame().ConfigGetTextOut("CfgVehicles " + placeholderType + " model");
+			if (placeHolderModel == vehicleModel)
+				m_Text = "#STR_EXPANSION_ACTION_STORE";
+			else
+				m_Text = "#STR_EXPANSION_ACTION_COVER";
+		}
 
 #ifdef EXPANSIONMODGARAGE
 		//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
@@ -90,30 +119,11 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		if (!Class.CastTo(entity, action_data.m_Target.GetParentOrObject()))
 			return;
 
-		string type = entity.GetType();
-		string coverType = action_data.m_MainItem.GetType();
-
-		string skinBase = entity.ConfigGetString("skinBase");
-		if (skinBase)
-			type = skinBase;
-
-		string placeholderType = type + "_Cover";
-	
-		if (coverType.Contains("Civil"))
-			placeholderType += "_Civil";
-		else if (coverType.Contains("Desert"))
-			placeholderType += "_Desert";
-		else if (coverType.Contains("Winter"))
-			placeholderType += "_Winter";
-
-		if (!GetGame().ConfigIsExisting("CfgVehicles " + placeholderType))
-			placeholderType = "Expansion_Generic_Vehicle_Cover";
-
-		ExpansionEntityStoragePlaceholder placeholder;
-		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(entity, placeholderType, entity.GetPosition(), ECE_OBJECT_SWAP, placeholder))
-		{
-			bool result = action_data.m_Player.ServerTakeEntityToTargetAttachmentEx(placeholder, action_data.m_MainItem, InventorySlots.GetSlotIdFromString("CamoNet"));
-			EXTrace.Print(EXTrace.GENERAL_ITEMS, this, "Moved " + action_data.m_MainItem + " to " + placeholder + "? " + result);
-		}
+		CarScript vehicle;
+		ExpansionVehicleBase exVehicle;
+		if (Class.CastTo(vehicle, entity))
+			vehicle.Expansion_CoverVehicle(action_data.m_MainItem);
+		else if (Class.CastTo(exVehicle, entity))
+			exVehicle.Expansion_CoverVehicle(action_data.m_MainItem);
 	}
 }

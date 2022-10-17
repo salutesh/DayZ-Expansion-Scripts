@@ -43,17 +43,17 @@ class ExpansionQuestConfigBase
 
 	//! Crazy ideas
 	string QuestClassName = string.Empty; //! Class name of the quest class used to create the quest instance if you want to use a cutomized quest class.
-	
+
 	ref array<ref ExpansionQuestObjectiveConfig> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
 	ref array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
 	ref array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
 
 	//! Added with version 2
 	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.
-	
+
 	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
 	int HumanityReward = 0; //! Humanity reward when completing the quest.
-	
+
 	void ExpansionQuestConfigBase()
 	{
 		Descriptions = new array<string>;
@@ -66,14 +66,14 @@ class ExpansionQuestConfigBase
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
 	static const int CONFIGVERSION = 5;
-	
+
 	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
 	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
-	
+
 	void ExpansionQuestConfig()
 	{
 		ConfigVersion = CONFIGVERSION;
-		
+
 		QuestGiverIDs = new array<int>;
 		QuestTurnInIDs = new array<int>;
 	}
@@ -180,7 +180,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 					Objectives.Insert(actionConfig);
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				ExpansionQuestObjectiveCraftingConfig craftingConfig;
@@ -403,7 +403,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		return NeedToSelectReward;
 	}
-	
+
 	void SetRewardForGroupOwnerOnly(bool sate)
 	{
 		RewardsForGroupOwnerOnly = sate;
@@ -413,12 +413,12 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		return RewardsForGroupOwnerOnly;
 	}
-	
+
 	void SetHumanityReward(int humanity)
 	{
 		HumanityReward = humanity;
 	}
-	
+
 	int GetHumanityReward()
 	{
 		return HumanityReward;
@@ -443,14 +443,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 			if (questConfigBase.ConfigVersion < 2)
 			{
-				for (int i = 0; i < questConfigBase.Objectives.Count(); i++)
+				foreach (ExpansionQuestObjectiveConfig objective: questConfigBase.Objectives)
 				{
-					ExpansionQuestObjectiveConfig objective =  questConfigBase.Objectives[i];
 					objective.TimeLimit = -1;
 					objective.ConfigVersion = ExpansionQuestObjectiveConfig.CONFIGVERSION;
 				}
 			}
-			
+
 			if (questConfigBase.ConfigVersion < 5)
 			{
 				ExpansionQuestConfig_v4 configV4;
@@ -649,7 +648,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ctx.Write(NeedToSelectReward);
 		ctx.Write(RewardsForGroupOwnerOnly);
 		ctx.Write(HumanityReward);
-		
+
 		int giverIDsCount = QuestGiverIDs.Count();
 		ctx.Write(giverIDsCount);
 
@@ -657,7 +656,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		{
 			ctx.Write(QuestGiverIDs[i]);
 		}
-		
+
 		int turnInIDsCount = QuestTurnInIDs.Count();
 		ctx.Write(turnInIDsCount);
 
@@ -916,13 +915,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 		if (!ctx.Read(NeedToSelectReward))
 			return false;
-		
+
 		if (!ctx.Read(RewardsForGroupOwnerOnly))
 			return false;
-		
+
 		if (!ctx.Read(HumanityReward))
 			return false;
-		
+
 		int giverIDsCount;
 		if (!ctx.Read(giverIDsCount))
 			return false;
@@ -935,7 +934,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 			QuestGiverIDs.Insert(giverID);
 		}
-		
+
 		int turnInIDsCount;
 		if (!ctx.Read(turnInIDsCount))
 			return false;

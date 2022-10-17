@@ -410,6 +410,9 @@ class Expansion_Landrover_Base extends CarScript
 	
 	override bool CanReceiveAttachment (EntityAI attachment, int slotId)
     {
+		if (!super.CanReceiveAttachment(attachment, slotId))
+			return false;
+
         string slot_name = InventorySlots.GetSlotName(slotId);
         
         if (slot_name == "expansion_landrover_sparewheel" && GetCarDoorsState( "expansion_landrover_trunk" ) != CarDoorState.DOORS_CLOSED)

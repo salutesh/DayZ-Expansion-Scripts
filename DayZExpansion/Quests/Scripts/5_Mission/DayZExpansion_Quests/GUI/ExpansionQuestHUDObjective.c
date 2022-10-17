@@ -13,13 +13,13 @@
 #ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 class ExpansionQuestHUDObjective: ExpansionScriptView
 {
-	private ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
-	private ExpansionQuestObjectiveData m_Objective;
-	private ExpansionQuestConfig m_Quest;
-	private Widget Spacer;
-	private RichTextWidget ObjectiveName;
-	private RichTextWidget ObjectiveTime;
-	private WrapSpacerWidget ObjectiveWrapper;
+	protected ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
+	protected ExpansionQuestObjectiveData m_Objective;
+	protected ExpansionQuestConfig m_Quest;
+	protected Widget Spacer;
+	protected RichTextWidget ObjectiveName;
+	protected RichTextWidget ObjectiveTime;
+	protected WrapSpacerWidget ObjectiveWrapper;
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
 	{
@@ -216,14 +216,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						ObjectiveWrapper.Show(false);
 					}
 
-					for (int i = 0; i < deliveryObjective.GetDeliveries().Count(); i++)
+					array<ref ExpansionQuestObjectiveDelivery> deliveries = deliveryObjective.GetDeliveries();
+					foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
 					{
-						ExpansionQuestObjectiveDelivery delivery = deliveryObjective.GetDeliveries()[i];
-						if (delivery)
-						{
-							ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery);
-							m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
-						}
+						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery);
+						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
 					}
 					QuestPrint(ToString() + "::SetEntryObjective - DELIVERY - ADDED");
 				}
@@ -321,7 +318,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		QuestPrint(ToString() + "::SetEntryObjective - End");
 	}
 
-	private int GetQuestColor(ExpansionQuestConfig quest)
+	protected int GetQuestColor(ExpansionQuestConfig quest)
 	{
 		int color;
 	#ifdef EXPANSIONMODHARDLINE

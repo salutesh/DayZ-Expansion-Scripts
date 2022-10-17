@@ -181,7 +181,7 @@ class CfgVehicles
 		frontReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass.rvmat";
 		TailReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01_on.rvmat";
 		TailReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01.rvmat";
-		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","vodnikwheel_1_1","vodnikwheel_1_2","vodnikwheel_2_1","vodnikwheel_2_2","vodnikdriverdoor","vodnikcodriverdoor"};
+		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","vodnikwheel_1_1","vodnikwheel_1_2","vodnikwheel_2_1","vodnikwheel_2_2","vodnikdriverdoor","vodnikcodriverdoor","CamoNet"};
 		doors[] = {"vodnikdriverdoor","vodnikcodriverdoor"};
 		defaultSkin = "Camo";
 		applySkinsTo[] = {"vodnikdriverdoor","vodnikcodriverdoor"};
@@ -492,7 +492,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","CamoNet"};
 			};
 			class Chassis
 			{

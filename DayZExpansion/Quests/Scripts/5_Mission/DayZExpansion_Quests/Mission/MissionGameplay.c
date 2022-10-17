@@ -14,8 +14,8 @@
 modded class MissionGameplay
 {
 	protected bool m_Expansion_QuestHUDTogglePressed;
-	private ref ExpansionQuestHUD m_ExpansionQuestHUD;
-	private bool m_HideHUD = false;
+	protected ref ExpansionQuestHUD m_ExpansionQuestHUD;
+	protected bool m_HideHUD = false;
 
 	// ------------------------------------------------------------
 	// OnInit
@@ -64,13 +64,13 @@ modded class MissionGameplay
 					inputIsFocused = true;
 				}
 			}
-	
+
 			Man man = GetGame().GetPlayer(); //! Refernce to man
 			Input input = GetGame().GetInput(); //! Reference to input
 			UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 			PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
 			ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-	
+
 			if (playerPB && playerPB.GetHumanInventory())
 			{
 				if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
@@ -83,7 +83,7 @@ modded class MissionGameplay
 					{
 						m_ExpansionQuestHUD.ShowHud(true);
 					}
-					
+
 					if ((m_ExpansionQuestHUD || !topMenu) && !inputIsFocused)
 					{
 						//! Toggle Quest HUD
@@ -105,7 +105,7 @@ modded class MissionGameplay
 			}
 		}
 	}
-	
+
 	void ToggleQuestHUD()
 	{
 		m_HideHUD = !m_HideHUD;

@@ -36,15 +36,10 @@ class ExpansionQuestsPlayerInventory
 		AddPlayerItems(items, m_Player);
 	}
 
-	private void AddPlayerItems(array<EntityAI> items, PlayerBase player)
+	protected void AddPlayerItems(array<EntityAI> items, PlayerBase player)
 	{
-		for (int i = 0; i < items.Count(); i++)
+		foreach (EntityAI item: items)
 		{
-			EntityAI item = items[i];
-
-			if (!item)
-				continue;
-
 		#ifdef WRDG_DOGTAGS
 			Dogtag_Base dogTag;
 			if (Class.CastTo(dogTag, item))

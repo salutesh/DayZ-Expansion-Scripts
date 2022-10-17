@@ -606,7 +606,7 @@ class CfgVehicles
 		defaultSkin = "Green";
 		fuelCapacity = 80;
 		fuelConsumption = 10;
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","CamoNet"};
 		class Crew
 		{
 			class Driver
@@ -815,7 +815,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"expansion_landrover_hood","expansion_landrover_driverdoor","expansion_landrover_codriverdoor","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk"};
+				attachmentSlots[] = {"expansion_landrover_hood","expansion_landrover_driverdoor","expansion_landrover_codriverdoor","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","CamoNet"};
 			};
 			class Chassis
 			{

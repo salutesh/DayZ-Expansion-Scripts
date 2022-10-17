@@ -847,16 +847,16 @@ modded class ItemBase
 							FailedUnlock();
 
 							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-								GetExpansionSettings().GetLog().PrintLog( "[CodeLockRaiding] ExpansionCodelock (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
+								GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") Damaged " + playerDesc + " by " + GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock + " health points. Reason: Failed to enter the correct code." );
 
 							//! Vanilla EnviroDmg is 1 0 1 (health blood shock)
 							player.ProcessDirectDamage( DT_CUSTOM, player, "", "EnviroDmg", "0.5 0.5 0.5", GetExpansionSettings().GetBaseBuilding().DamageWhenEnterWrongCodeLock );
 						} else {
 							if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-								GetExpansionSettings().GetLog().PrintLog( "[CodeLockRaiding] ExpansionCodelock (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
+								GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") " + playerDesc + " failed to enter the correct code." );
 						}
 						if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-							GetExpansionSettings().GetLog().PrintLog( "[CodeLockRaiding] ExpansionCodelock (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
+							GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " (" + GetPosition() + ") The correct code was " + GetCode() + " and the player tried " + code );
 					}
 
 					return;
@@ -907,7 +907,7 @@ modded class ItemBase
 				SetCode( code, player );
 
 				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-					GetExpansionSettings().GetLog().PrintLog( "[CodeLockRaiding] ExpansionCodelock ("+ GetPosition() + ") Code set by " + playerDesc + " and the code is "+ code );
+					GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " ("+ GetPosition() + ") Code set by " + playerDesc + " and the code is "+ code );
 
 				SendServerLockReply( true, false, sender );
 				return;
@@ -937,7 +937,7 @@ modded class ItemBase
 				SetCode( code, player );
 
 				if ( GetExpansionSettings().GetLog().CodeLockRaiding )
-					GetExpansionSettings().GetLog().PrintLog( "[CodeLockRaiding] ExpansionCodelock ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
+					GetExpansionSettings().GetLog().PrintLog( "[BaseRaiding] " + GetType() + " ("+ GetPosition() + ") Code changed by " + playerDesc + " and the new code is "+ code );
 
 				SendServerLockReply( true, false, sender );
 				return;
@@ -1150,5 +1150,15 @@ modded class ItemBase
 
 		SetTakeable( true );
 		SetSynchDirty();
+	}
+
+	bool Expansion_HasEntityStorage()
+	{
+		return false;
+	}
+
+	bool IsNonExpansionOpenable()
+	{
+		return false;
 	}
 };
