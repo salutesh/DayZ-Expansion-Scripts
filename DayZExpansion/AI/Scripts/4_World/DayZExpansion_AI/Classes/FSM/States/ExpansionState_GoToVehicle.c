@@ -6,7 +6,9 @@ class ExpansionState_GoToVehicle : eAIState
 	vector position;
 
 	Transport transport;
+#ifdef EXPANSIONMODVEHICLE
 	ExpansionVehicleBase vehicle;
+#endif
 
 	override void OnEntry(string Event, ExpansionState From)
 	{
@@ -23,7 +25,9 @@ class ExpansionState_GoToVehicle : eAIState
 		}
 
 		Class.CastTo(transport, entity);
+#ifdef EXPANSIONMODVEHICLE
 		Class.CastTo(vehicle, entity);
+#endif
 	}
 
 	override void OnExit(string Event, bool Aborted, ExpansionState To)
