@@ -12,23 +12,48 @@
 
 modded class InGameMenu
 {
+	void InGameMenu()
+	{
+		if (GetExpansionClientSettings())
+			GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
+	}
+
+	void ~InGameMenu()
+	{
+		if (GetExpansionClientSettings())
+			GetExpansionClientSettings().SI_UpdateSetting.Remove(OnSettingChanged);
+	}
+
+	override Widget Init()
+	{
+		layoutRoot = super.Init();
+
+		if (GetExpansionClientSettings().StreamerMode)
+		{
+			Widget serverInfo = layoutRoot.FindAnyWidget("server_info");
+			serverInfo.Show(false);
+		}
+
+		return layoutRoot;
+	}
+
+	void OnSettingChanged()
+	{
+		if (GetExpansionClientSettings())
+		{
+			Widget serverInfo = layoutRoot.FindAnyWidget("server_info");
+			serverInfo.Show(!GetExpansionClientSettings().StreamerMode);
+		}
+	}
+
 	override protected void SetGameVersion()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "SetGameVersion");
-#endif
+	#endif
 
-		TextWidget version_widget = TextWidget.Cast( layoutRoot.FindAnyWidget("version") );
-		string version;
-		GetGame().GetVersion( version );
-		string expansion_version;	
-		
-		if ( GetDayZGame() )
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
+		TextWidget version_widget = TextWidget.Cast(layoutRoot.FindAnyWidget("version"));
 
-		if (expansion_version)
-			version_widget.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
-		else
-			version_widget.SetText( "DayZ SA #main_menu_version" + " " + version );
+		GetDayZGame().Expansion_SetGameVersionText(version_widget);
 	}
-}
+};

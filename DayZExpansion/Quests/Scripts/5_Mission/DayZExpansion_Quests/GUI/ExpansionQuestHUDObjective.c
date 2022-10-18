@@ -13,13 +13,13 @@
 #ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 class ExpansionQuestHUDObjective: ExpansionScriptView
 {
-	private ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
-	private ExpansionQuestObjectiveData m_Objective;
-	private ExpansionQuestConfig m_Quest;
-	private Widget Spacer;
-	private RichTextWidget ObjectiveName;
-	private RichTextWidget ObjectiveTime;
-	private WrapSpacerWidget ObjectiveWrapper;
+	protected ref ExpansionQuestHUDObjectiveController m_QuestHUDObjectiveController;
+	protected ExpansionQuestObjectiveData m_Objective;
+	protected ExpansionQuestConfig m_Quest;
+	protected Widget Spacer;
+	protected RichTextWidget ObjectiveName;
+	protected RichTextWidget ObjectiveTime;
+	protected WrapSpacerWidget ObjectiveWrapper;
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
 	{
@@ -74,20 +74,20 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				string incompleteKey = "#STR_EXPANSION_QUEST_HUD_INCOMPLETE";
 				objectiveState = "[" + incompleteKey + "] ";
 			}
-			
+
 			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + objectiveConfigBase.GetObjectiveText();
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
 		}
-		else 
+		else
 		{
 			ObjectiveName.Show(false);
 		}
-		
+
 		if (m_Objective.GetTimeLimit() > -1)
 		{
 			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
-			
+
 			if (m_Objective.GetTimeLimit() > 60)
 			{
 				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_INFO);
@@ -198,25 +198,29 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - DELIVERY");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_DELIVER";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-
-				objectivePos = m_Objective.GetObjectivePosition();
-				playerPos = GetGame().GetPlayer().GetPosition();
-				currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
-				m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
 				if (Class.CastTo(deliveryObjective, objectiveConfigBase))
 				{
-					for (int i = 0; i < deliveryObjective.GetDeliveries().Count(); i++)
+					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_DELIVER";
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+					if (deliveryObjective.ShowDistance())
 					{
-						ExpansionQuestObjectiveDelivery delivery = deliveryObjective.GetDeliveries()[i];
-						if (delivery)
-						{
-							ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery);
-							m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
-						}
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+					else
+					{
+						ObjectiveWrapper.Show(false);
+					}
+
+					array<ref ExpansionQuestObjectiveDelivery> deliveries = deliveryObjective.GetDeliveries();
+					foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
+					{
+						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery);
+						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
 					}
 					QuestPrint(ToString() + "::SetEntryObjective - DELIVERY - ADDED");
 				}
@@ -265,18 +269,29 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.AIVIP:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - AIVIP");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-				objectivePos = m_Objective.GetObjectivePosition();
-				playerPos = GetGame().GetPlayer().GetPosition();
-				currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
-				m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				QuestPrint(ToString() + "::SetEntryObjective - AIVIP - ADDED");
+				ExpansionQuestObjectiveAIVIPConfig vipConfig;
+				if (Class.CastTo(vipConfig, objectiveConfigBase))
+				{
+					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+					if (vipConfig.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+					else
+					{
+						ObjectiveWrapper.Show(false);
+					}
+					QuestPrint(ToString() + "::SetEntryObjective - AIVIP - ADDED");
+				}
 			}
 			break;
 		#endif
-			
+
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - ACTION");
@@ -287,7 +302,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
 			}
 			break;
-			
+
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				QuestPrint(ToString() + "::SetEntryObjective - CRAFTING");
@@ -303,7 +318,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		QuestPrint(ToString() + "::SetEntryObjective - End");
 	}
 
-	private int GetQuestColor(ExpansionQuestConfig quest)
+	protected int GetQuestColor(ExpansionQuestConfig quest)
 	{
 		int color;
 	#ifdef EXPANSIONMODHARDLINE

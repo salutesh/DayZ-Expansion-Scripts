@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Sedan_02
 	{
-		units[] = {"Vehicle_Sedan_02_Wheel","Vehicle_Sedan_02_Wheel_Ruined","Vehicle_Sedan_02","Vehicle_Sedan_02_Red","Vehicle_Sedan_02_Yellow","Vehicle_Sedan_02_Grey","Vehicle_Sedan_02_YellowBright","Vehicle_Sedan_02_Blue","Vehicle_Sedan_02_RedRust","Vehicle_Sedan_02_YellowRust","Vehicle_Sedan_02_GreyRust","Vehicle_Sedan_02_YellowBrightRust","Vehicle_Sedan_02_BlueRust"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -30,7 +30,7 @@ class CfgVehicles
 	class AnimationSources;
 	class Vehicle_Sedan_02_Wheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_Sedan_02_Wheel0";
 		descriptionShort = "$STR_Sedan_02_Wheel1";
 		model = "\DZ\vehicles\wheeled\Sedan_02\proxy\Sedan_02_Wheel.p3d";
@@ -49,7 +49,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel_damaged.rvmat"}},{0.3,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel_damaged.rvmat"}},{0.0,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel_damaged.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\Sedan_02\data\Sedan_02_wheel_damage.rvmat"}}};
 				};
 			};
 		};
@@ -67,10 +67,10 @@ class CfgVehicles
 	};
 	class Vehicle_Sedan_02: ExpansionVehicleCarBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  SARKA";
+		scope = 0;
+		displayname = "$STR_Sedan_020";
 		model = "\DZ\vehicles\wheeled\Sedan_02\Sedan_02.p3d";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","EngineBelt","SparkPlug","Sedan_02_Hood","Sedan_02_Trunk","Sedan_02_Door_1_1","Sedan_02_Door_2_1","Sedan_02_Door_1_2","Sedan_02_Door_2_2","Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","EngineBelt","SparkPlug","Sedan_02_Hood","Sedan_02_Trunk","Sedan_02_Door_1_1","Sedan_02_Door_2_1","Sedan_02_Door_1_2","Sedan_02_Door_2_2","Sedan_02_Wheel_1_1","Sedan_02_Wheel_1_2","Sedan_02_Wheel_2_1","Sedan_02_Wheel_2_2","Sedan_02_Wheel_Spare_1"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","dmgZone_chassis","dmgZone_front","dmgZone_back","dmgZone_roof","dmgZone_fender_1_1","dmgZone_fender_1_2","dmgZone_fender_2_1","dmgZone_fender_2_2"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","",""};
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat"};
@@ -107,57 +107,66 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			drive = "DRIVE_RWD";
-			airDragFrontTotal = 0.73;
 			class Steering
 			{
-				increaseSpeed[] = {0,45,60,25,100,10};
-				decreaseSpeed[] = {0,80,60,40,100,15};
-				centeringSpeed[] = {0,0,15,25,60,40,100,60};
+				maxSteeringAngle = 30;
+				increaseSpeed[] = {0,40,30,20,60,10,100,5};
+				decreaseSpeed[] = {0,90,60,70,100,50};
+				centeringSpeed[] = {0,0,15,35,60,65,100,90};
 			};
 			class Throttle
 			{
 				reactionTime = 0.8;
-				defaultThrust = 0.9;
-				gentleThrust = 0.8;
-				turboCoef = 2.8;
+				defaultThrust = 0.75;
+				gentleThrust = 0.5;
+				turboCoef = 3.8;
 				gentleCoef = 0.5;
 			};
-			braking[] = {0.0,0.2,0.5,0.4,2.5,0.6,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,1,10,0.95,20,0.5,40,0.4,80,0.55,100,0.6,120,0.8};
+				reactionTime = 0.35;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2;
+				dragCoefficient = 0.35;
+			};
+			drive = "DRIVE_RWD";
 			class Engine
 			{
-				inertia = 0.23;
-				torqueMax = 82;
-				torqueRpm = 3000;
-				powerMax = 37.0;
-				powerRpm = 5000;
+				torqueCurve[] = {600,0,990,50,1800,75,3000,82,5000,71,7000,0};
+				inertia = 0.2;
+				frictionTorque = 80;
+				rollingFriction = 0.5;
+				viscousFriction = 0;
 				rpmIdle = 900;
 				rpmMin = 1000;
-				rpmRedline = 5750;
-				rpmMax = 7000;
 				rpmClutch = 1500;
+				rpmRedline = 5750;
+			};
+			class Clutch
+			{
+				maxTorqueTransfer = 165;
+				uncoupleTime = 0.1;
+				coupleTime = 0.3;
 			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.27;
 				ratios[] = {3.8,2.12,1.41,0.96};
-				timeToUncoupleClutch = 0.1;
-				timeToCoupleClutch = 0.3;
-				maxClutchTorque = 165;
 			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 3800;
+					maxBrakeTorque = 800;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.17;
 					class Suspension
 					{
-						swayBar = 800;
 						stiffness = 25000;
 						compression = 1600;
 						damping = 5200;
@@ -180,15 +189,17 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.22;
-					brakeBias = 0.4;
-					brakeForce = 3600;
+					maxBrakeTorque = 600;
+					maxHandbrakeTorque = 1200;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.17;
+					class Differential
+					{
+						ratio = 4.22;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 600;
 						stiffness = 21500;
 						compression = 1800;
 						damping = 5600;
@@ -470,6 +481,14 @@ class CfgVehicles
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat","dz\vehicles\wheeled\sedan_02\data\yellow\sedan_02_body.rvmat"};
 		doors[] = {"Sedan_02_Door_1_1","Sedan_02_Door_1_2","Sedan_02_Door_2_1","Sedan_02_Door_2_2","Sedan_02_Trunk","Sedan_02_Hood"};
 		defaultSkin = "Yellow";
+		attachments[] += {"CamoNet"};
+		class GUIInventoryAttachmentsProps
+		{
+			class Body
+			{
+				attachmentSlots[] += {"CamoNet"};
+			};
+		};
 		class DamageSystem
 		{
 			class GlobalHealth

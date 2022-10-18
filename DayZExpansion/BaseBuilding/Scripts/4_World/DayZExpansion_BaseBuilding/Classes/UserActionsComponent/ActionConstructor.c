@@ -56,5 +56,8 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionDestroyLock );
 
 		actions.Insert( ExpansionActionDestroyTerritory );
+
+		//! Virtual garage
+		actions.Insert( ExpansionActionInstallCircuitBoard );
 	}
 }

@@ -13,40 +13,39 @@
 //! Quest instance that handles all the quest events
 class ExpansionQuest
 {
-	private ExpansionQuestModule m_QuestModule;
+	protected ExpansionQuestModule m_QuestModule;
 
-	private ExpansionQuestConfig Config;
-	private int State = ExpansionQuestState.NONE;
-	private ref array<Object> QuestItems = new array<Object>;	//! Normal items the player will recieve on quest start.
-	private ref array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
-	private PlayerBase m_Player;
-	private string m_PlayerUID;
-	private bool IsCompeleted = false;
-	private bool m_Initialized = false;
+	protected ExpansionQuestConfig Config;
+	protected int State = ExpansionQuestState.NONE;
+	protected ref array<ItemBase> QuestItems = new array<ItemBase>;	//! Normal items the player will recieve on quest start.
+	protected ref array<ref ExpansionQuestObjectiveEventBase> QuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;	//! Quest objectives
+	protected PlayerBase m_Player;
+	protected string m_PlayerUID;
+	protected bool IsCompeleted = false;
+	protected bool m_Initialized = false;
 
-	private float m_UpdateQueueTimer; //! Server update que timer
-	private int m_CurrentObjectiveTick;
-	private const float UPDATE_TICK_TIME = 1.0; // refreshes 50 quests objectives every ten seconds (1 every sec.)
-	private const int UPDATE_OBJECTIVES_PER_TICK = 5;
+	protected float m_UpdateQueueTimer; //! Server update que timer
+	protected int m_CurrentObjectiveTick;
+	protected const float UPDATE_TICK_TIME = 1.0; // refreshes 50 quests objectives every ten seconds (1 every sec.)
+	protected const int UPDATE_OBJECTIVES_PER_TICK = 5;
 
-	private bool m_IsGroupQuest = false;
+	protected bool m_IsGroupQuest = false;
 #ifdef EXPANSIONMODGROUPS
-	//private ExpansionPartyData m_Group;
-	private int m_GroupID = -1;
+	protected int m_GroupID = -1;
 #endif
 
-	private int m_ObjectiveIndex = 0;
-	private bool m_ObjectivesCreated = false;
+	protected int m_ObjectiveIndex = 0;
+	protected bool m_ObjectivesCreated = false;
 
-	private int m_CurrentObjectiveIndex = -1;
-	
+	protected int m_CurrentObjectiveIndex = -1;
+
 	// -----------------------------------------------------------
 	// ExpansionQuest Constructor
 	// -----------------------------------------------------------
 	void ExpansionQuest(ExpansionQuestModule module)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "ExpansionQuest").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::ExpansionQuest - Start");
@@ -55,33 +54,30 @@ class ExpansionQuest
 
 		QuestPrint(ToString() + "::ExpansionQuest - End");
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest Desctructor
 	// -----------------------------------------------------------
 	void ~ExpansionQuest()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "~ExpansionQuest").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::~ExpansionQuest - Start");
 
 		m_Player = NULL;
-		CleanupQuestItems();
-		QuestItems.Clear();
-		QuestObjectives.Clear();
 
 		QuestPrint(ToString() + "::~ExpansionQuest - End");
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest SetQuestConfig
 	// -----------------------------------------------------------
 	void SetQuestConfig(ExpansionQuestConfig config)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "SetQuestConfig").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::SetQuestConfig - Start");
@@ -93,7 +89,7 @@ class ExpansionQuest
 
 		QuestPrint(ToString() + "::SetQuestConfig - End");
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest SetConfig
 	// -----------------------------------------------------------
@@ -101,14 +97,14 @@ class ExpansionQuest
 	{
 		Config = config;
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest CreateObjectivesFromConfig
 	// -----------------------------------------------------------
-	private void CreateObjectivesFromConfig()
+	protected void CreateObjectivesFromConfig()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "CreateObjectivesFromConfig").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::CreateObjectivesFromConfig - Start");
@@ -117,9 +113,9 @@ class ExpansionQuest
 			return;
 
 		//! Create quest objectives based on quest config.
-		for (int i = 0; i < Config.GetObjectives().Count(); i++)
+		array<ref ExpansionQuestObjectiveConfig>  questObjectives = Config.GetObjectives();
+		foreach (ExpansionQuestObjectiveConfig objectiveConfig: questObjectives)
 		{
-			ref ExpansionQuestObjectiveConfig objectiveConfig = Config.GetObjectives()[i];
 			int objectiveID = objectiveConfig.GetID();
 			int objectiveType = objectiveConfig.GetObjectiveType();
 			int time = objectiveConfig.GetTimeLimit();
@@ -141,14 +137,14 @@ class ExpansionQuest
 
 		QuestPrint(ToString() + "::CreateObjectivesFromConfig - End");
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest CreateObjective
 	// -----------------------------------------------------------
-	private bool CreateObjective(int index, int objectiveType, int objectiveID, int time)
+	protected bool CreateObjective(int index, int objectiveType, int objectiveID, int time)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "CreateObjective").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		switch (objectiveType)
@@ -356,7 +352,7 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	// ExpansionQuest GetQuestItems
 	// -----------------------------------------------------------
-	array<Object> GetQuestItems()
+	array<ItemBase> GetQuestItems()
 	{
 		return QuestItems;
 	}
@@ -381,10 +377,10 @@ class ExpansionQuest
 	// ExpansionQuest OnQuestStart
 	// -----------------------------------------------------------
 	//! Event called when a quest is started
-	void OnQuestStart()
+	bool OnQuestStart()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestStart").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestStart - Start");
@@ -392,7 +388,7 @@ class ExpansionQuest
 		if (!m_ObjectivesCreated)
 		{
 			Error(ToString() + "::OnQuestStart - Quest objectives not created!");
-			return;
+			return false;
 		}
 
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
@@ -401,23 +397,28 @@ class ExpansionQuest
 			if (!Config)
 			{
 				Error(ToString() + "::OnQuestStart - Could not get quest config!");
-				return;
+				return false;
 			}
 
 			//! Start quest objectives
-			ExpansionQuestObjectiveEventBase objective = GetObjectives()[0];				
+			ExpansionQuestObjectiveEventBase objective = GetObjectives()[0];
 			//! We only start the first objective as we will progress thrue all objective events in a sequential order.
 			//! Only exception for now is when the quest has a COLLECT and TREASUREHUNT objective, then we want to activate them all.
 			if (objective && objective.GetIndex() == 0)
 			{
 				m_CurrentObjectiveIndex = 0;
-				objective.OnStart();
-				
+				if (!objective.OnStart())
+					return false;
+
 				ExpansionQuestObjectiveEventBase nextObjective = GetObjectives()[1];
 				if ((objective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT) && nextObjective && (nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT))
 				{
 					m_CurrentObjectiveIndex = 1;
-					nextObjective.OnStart();
+					if (!nextObjective.OnStart())
+					{
+						m_CurrentObjectiveIndex = 0;
+						return false;
+					}
 				}
 			}
 
@@ -431,14 +432,16 @@ class ExpansionQuest
 			if (!Config.IsAchivement())
 				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestAcceptedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestAcceptedText, Config.GetTitle()), ExpansionIcons.GetPath("Questionmark 2"), COLOR_EXPANSION_NOTIFICATION_INFO);
 		}
-		
+
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 		m_QuestModule.UpdatePlayerQuests(this);
 
-		QuestDebug();
+		//QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestStart - End");
+
+		return true;
 	}
 
 	// -----------------------------------------------------------
@@ -448,7 +451,7 @@ class ExpansionQuest
 	void OnQuestObjectivesComplete()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestObjectivesComplete").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestObjectivesComplete - Start");
@@ -489,23 +492,19 @@ class ExpansionQuest
 				RemoveMarkers();
 			}
 
-			//! Create a marker on quest npc location for the player
-			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(Config.GetQuestTurnInID());
-			if (questNPC)
-			{
-				vector npcPos = questNPC.GetPosition();
-				CreateClientMarker(npcPos, "Turn In Quest");
-			}
+			//! Create a marker on the closest quest npc location for the player
+			vector npcPos = GetClosestQuestNPCPosition(Config.GetQuestTurnInIDs(), m_Player.GetPosition());
+			CreateClientMarker(npcPos, "Turn In Quest");
 		#endif
 
 			if (Config.IsAutocomplete())
 				m_QuestModule.RequestCompleteQuestServer(Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
 		}
-		
+
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 
-		QuestDebug();
+		//QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestObjectivesComplete - End");
 	}
@@ -517,7 +516,7 @@ class ExpansionQuest
 	void OnQuestObjectivesIncomplete()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestObjectivesIncomplete").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestObjectivesIncomplete - Start");
@@ -529,15 +528,15 @@ class ExpansionQuest
 		}
 
 		SetQuestState(ExpansionQuestState.STARTED);
-		
+
 		#ifdef EXPANSIONMODNAVIGATION
 			RemoveMarkers();
 		#endif
-		
+
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
-		
-		QuestDebug();
+
+		//QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestObjectivesIncomplete - End");
 	}
@@ -546,10 +545,10 @@ class ExpansionQuest
 	// ExpansionQuest OnQuestTurnIn
 	// -----------------------------------------------------------
 	//! Event called when ever a quest is completed and turned-in
-	void OnQuestTurnIn(ExpansionQuestRewardConfig reward = null)
+	bool OnQuestTurnIn(ExpansionQuestRewardConfig reward = null)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestTurnIn").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestTurnIn - Start");
@@ -557,13 +556,13 @@ class ExpansionQuest
 		if (GetQuestState() > ExpansionQuestState.CAN_TURNIN)
 		{
 			QuestPrint(ToString() + "::OnQuestTurnIn - QUEST STATE INVALID FOR TURN-IN!");
-			return;
+			return false;
 		}
 
 		if (!m_QuestModule)
 		{
 			Error(ToString() + "::OnQuestTurnIn - Can't get quest module!");
-			return;
+			return false;
 		}
 
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
@@ -572,7 +571,7 @@ class ExpansionQuest
 			if (!Config && Config.GetID() == -1)
 			{
 				Error(ToString() + "::OnQuestTurnIn - Could not get quest config!");
-				return;
+				return false;
 			}
 
 			//! Add all quest rewards to the players inventory
@@ -585,9 +584,14 @@ class ExpansionQuest
 			for (int i = QuestObjectives.Count() - 1; i >= 0; i--)
 			{
 				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
-				objective.OnTurnIn();
+				if (!objective.OnTurnIn())
+					return false;
+
 				QuestObjectives.RemoveOrdered(i);
 			}
+
+			//! Remove all quest items from player/world
+			CleanupQuestItems();
 
 			if (!Config.IsAchivement())
 			{
@@ -602,66 +606,70 @@ class ExpansionQuest
 
 			if (Config.GetFollowUpQuestID() > -1)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenu, 1000, false, Config.GetQuestTurnInID(), GetPlayer().GetIdentity());
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenu, 1000, false, Config.GetQuestTurnInIDs(), GetPlayer().GetIdentity());
 			}
 		}
 
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
+		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
+		m_QuestModule.UpdatePlayerQuests(this);
 
-		QuestDebug();
+		//QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestTurnIn - End");
+
+		return true;
 	}
 
 	// -----------------------------------------------------------
 	// ExpansionQuest OnQuestCancel
 	// -----------------------------------------------------------
 	//! Event called when a quest is manualy canceled by the player
-	void OnQuestCancel()
+	bool OnQuestCancel()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestCancel").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestCancel - Start");
 
-		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-		if (m_Player)
+		SetQuestState(ExpansionQuestState.NONE);
+
+		//! Cancel all active quest objectives
+		for (int i = QuestObjectives.Count() - 1; i >= 0; i--)
 		{
-			SetQuestState(ExpansionQuestState.NONE);
+			ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
+			if (!objective.OnCancel())
+				return false;
 
-			//! Cancel all active quest objectives
-			for (int i = QuestObjectives.Count() - 1; i >= 0; i--)
-			{
-				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
-				objective.OnCancel();
-				QuestObjectives.RemoveOrdered(i);
-			}
-
-			//! Remove all quest items from player/world
-			CleanupQuestItems();
-
-			if (!Config.IsAchivement())
-				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledText, Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
+			QuestObjectives.RemoveOrdered(i);
 		}
+
+		//! Remove all quest items from player/world
+		CleanupQuestItems();
+
+		if (!Config.IsAchivement())
+			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledText, Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
 
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State); //! Update the quest players persistent data
 
 		SetInitialized(false);
-		QuestDebug();
+		//QuestDebug();
 		QuestPrint(ToString() + "::OnQuestCancel - End");
+
+		return true;
 	}
 
 	// -----------------------------------------------------------
 	// ExpansionQuest OnQuestContinue
 	// -----------------------------------------------------------
 	//! Event called when a quest gets recreated (reloaded because the player reloged/disconnected)
-	void OnQuestContinue()
+	bool OnQuestContinue()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestContinue").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestContinue - Start");
@@ -669,7 +677,7 @@ class ExpansionQuest
 		if (!m_ObjectivesCreated)
 		{
 			Error(ToString() + "::OnQuestContinue - Quest objectives not created!");
-			return;
+			return false;
 		}
 
 		m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
@@ -678,43 +686,62 @@ class ExpansionQuest
 			if (!Config)
 			{
 				Error(ToString() + "::OnQuestContinue - Could not get quest config!");
-				return;
+				return false;
 			}
 
 			//! Continue active quest objectives
-			for (int i = 0; i < GetObjectives().Count(); i++)
+			for (int i = 0; i < QuestObjectives.Count(); i++)
 			{
-				ExpansionQuestObjectiveEventBase objective = GetObjectives()[i];	
+				ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
 				//! We only start the last active objective as we will progress thrue all objective events in a sequential order.
 				//! Only exception for now is when the quest has a COLLECT and TREASUREHUNT objective, then we want to activate them all.
 				if (objective && objective.GetIndex() == m_CurrentObjectiveIndex)
 				{
 					if (!objective.IsInitialized()) //! Only start objectives that are not initialized yet
 					{
-						objective.OnContinue();
-						
+						if (!objective.OnContinue())
+						{
+							Error(ToString() + "::OnQuestContinue - Quest objective continue event failed for quest with quest id: " + Config.GetID());
+							return false;
+						}
+
 						int prev = i - 1;
-						ExpansionQuestObjectiveEventBase prevObjective = GetObjectives()[prev];	
+						ExpansionQuestObjectiveEventBase prevObjective = GetObjectives()[prev];
 						if ((objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || objective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT) && prevObjective && (prevObjective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || prevObjective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT))
 						{
-							prevObjective.OnContinue();
+							if (!prevObjective.OnContinue())
+							{
+								Error(ToString() + "::OnQuestContinue - Quest objective continue event failed for quest with quest id: " + Config.GetID());
+								return false;
+							}
 						}
 					}
 				}
 			}
 
-			//! Recreate quest items
-			CreateQuestItems();
+			if (Config.GetQuestItems().Count() > 0)
+			{
+				array<ItemBase> playerQuestItems = GetPlayerQuestItems(m_Player, Config.GetID());
+				if (playerQuestItems && playerQuestItems.Count() == Config.GetQuestItems().Count())
+				{
+					QuestPrint(ToString() + "::OnQuestContinue - Player has quest items. Add them to QuestItems array.. ");
+					foreach (ItemBase item: playerQuestItems)
+					{
+						QuestItems.Insert(item);
+					}
+				}
+			}
 
 			SetInitialized(true);
 		}
 
 		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
-		
-		QuestDebug();
+		//QuestDebug();
 
 		QuestPrint(ToString() + "::OnQuestContinue - End");
+
+		return true;
 	}
 
 	// -----------------------------------------------------------
@@ -722,18 +749,16 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	void CleanupQuestItems()
 	{
-		if (!GetGame())
-			return;
+		QuestPrint(ToString() + "::CleanupQuestItems - Start");
 
-		if (!QuestItems || QuestItems.Count() == 0)
-			return;
-
-		//! Remove all quest items from player/world
-		foreach (Object obj: QuestItems)
+		for (int i = QuestItems.Count() - 1; i >= 0; i--)
 		{
-			if (obj)
-				GetGame().ObjectDelete(obj);
+			ItemBase item = QuestItems[i];
+			GetGame().ObjectDelete(item);
+			QuestItems.RemoveOrdered(i);
 		}
+
+		QuestPrint(ToString() + "::CleanupQuestItems - End");
 	}
 
 	// -----------------------------------------------------------
@@ -744,52 +769,41 @@ class ExpansionQuest
 		if (!m_IsGroupQuest && m_Player)
 		{
 			EntityAI playerEntity = m_Player;
-			ExpansionQuestItemConfig questItem;
 			Object obj;
 			ItemBase questItemBase;
-			
-			//! Add all quest items again to the players inventory
-			for (int i = 0; i < Config.GetQuestItems().Count(); i++)
+
+			//! Add all quest items to the players inventory
+			array<ref ExpansionQuestItemConfig> questItemConfigs = Config.GetQuestItems();
+			foreach (ExpansionQuestItemConfig questItem: questItemConfigs)
 			{
-				questItem = Config.GetQuestItems()[i];
 				obj = Spawn(questItem, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation(), questItem.GetAmount());
-				
 				if (Class.CastTo(questItemBase, obj))
 				{
-					questItemBase.SetIsQuestItem(true);
+					questItemBase.SetQuestID(Config.GetID());
+					QuestItems.Insert(questItemBase);
 				}
-				
-				QuestItems.Insert(obj);
 			}
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && GetGroup())
 		{
-			for (int j = 0; j < GetGroup().GetPlayers().Count(); j++)
+			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[j];
-				if (!playerGroupData)
-				{
-					Error(ToString() + "::CreateQuestItems - Could not get group members party data!");
-					continue;
-				}
-				
 				QuestPrint(ToString() + "::CreateQuestItems - Spawn quest items for player with UID: " + playerGroupData.GetID());
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				EntityAI groupPlayerEntity = groupPlayer;
 				if (groupPlayer)
 				{
-					for (int g = 0; g < Config.GetQuestItems().Count(); g++)
+					array<ref ExpansionQuestItemConfig> questItems = Config.GetQuestItems();
+					foreach (ExpansionQuestItemConfig questConfigItem: questItems)
 					{
-						questItem = Config.GetQuestItems()[g];
-						obj = Spawn(questItem, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation(), questItem.GetAmount());
-						
+						obj = Spawn(questConfigItem, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation(), questConfigItem.GetAmount());
 						if (Class.CastTo(questItemBase, obj))
 						{
-							questItemBase.SetIsQuestItem(true);
+							questItemBase.SetQuestID(Config.GetID());
+							QuestItems.Insert(questItemBase);
 						}
-						
-						QuestItems.Insert(obj);
 					}
 				}
 			}
@@ -804,7 +818,7 @@ class ExpansionQuest
 	void OnGroupMemberJoined(string playerUID)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnGroupMemberJoined").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 	}
 
@@ -815,7 +829,7 @@ class ExpansionQuest
 	void OnGroupMemberLeave(string playerUID)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnGroupMemberLeave").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 	}
 
@@ -823,46 +837,32 @@ class ExpansionQuest
 	// ExpansionQuest OnQuestCleanup
 	// -----------------------------------------------------------
 	//! Event called when quest instance is destroyed/cleaned-up
-	void OnQuestCleanup()
+	bool OnQuestCleanup()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "OnQuestCleanup").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
 		QuestPrint(ToString() + "::OnQuestCleanup - Start");
-
 		//! Call cleanup event on all active quest objectives
-		for (int i = 0; i < QuestObjectives.Count(); i++)
+		for (int i = QuestObjectives.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuestObjectiveEventBase objective = QuestObjectives[i];
-			if (objective)
+			if (!objective.OnCleanup())
 			{
-				objective.OnCleanup();
+				QuestPrint(ToString() + "::OnQuestCleanup - Something went wrong on objective event cleanup for quest with id: " + Config.GetID());
 			}
-		}
 
-		//! Cleanup all spawned quest item objects if quest gets cleaned up while not completed
-		//! The items get readded to the player if he continues the quest in his next session.
-		if (IsCompeleted() && GetQuestConfig().GetType() != ExpansionQuestType.TREASUREHUNT)
-		{
-			CleanupQuestItems();
-		}
-		else if (!IsCompeleted())
-		{
-			CleanupQuestItems();
+			QuestObjectives.RemoveOrdered(i);
 		}
 
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(Config.GetID());
-
 		SetInitialized(false);
-
-		m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
-		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
-		
-		QuestDebug();
-
+		//QuestDebug();
 		QuestPrint(ToString() + "::OnQuestCleanup - End");
+
+		return true;
 	}
 
 	// -----------------------------------------------------------
@@ -871,22 +871,22 @@ class ExpansionQuest
 	void CompletionCheck()
 	{
 		QuestPrint(ToString() + "::CompletionCheck - Start");
-
 		int complededObjectives = 0;
-		for (int i = 0; i < QuestObjectives.Count(); ++i)
+		foreach (ExpansionQuestObjectiveEventBase currentObjective: QuestObjectives)
 		{
-			ExpansionQuestObjectiveEventBase currentObjective = QuestObjectives.Get(i);
-			if (!currentObjective || !currentObjective.IsActive())
+			if (!currentObjective.IsActive())
 				continue;
-			
-			if (currentObjective && currentObjective.IsCompleted() && currentObjective.CompletionCheck())
-			{
+
+			if (currentObjective.IsCompleted() && currentObjective.CompletionCheck())
 				complededObjectives++;
-			}
 		}
 
 		QuestPrint(ToString() + "::CompletionCheck - Completed objectives: " + complededObjectives);
 		QuestPrint(ToString() + "::CompletionCheck - Objectives count: " + QuestObjectives.Count());
+
+		//! This should never happend but check and return just in case...
+		if (complededObjectives == 0 || QuestObjectives.Count() == 0)
+			return;
 
 		if (complededObjectives == QuestObjectives.Count())
 		{
@@ -903,11 +903,14 @@ class ExpansionQuest
 			if (!currentActiveObjective)
 				return;
 
-			if (currentActiveObjective.IsActive() && currentActiveObjective.IsInitialized() && currentActiveObjective.IsCompleted()) //! Check if our currect active objective is completed and if so try to get the next objective in the list and start it
+			//! Check if our currect active objective is completed and if so try to get the next objective in the list and start it
+			if (currentActiveObjective.IsActive() && currentActiveObjective.IsInitialized() && currentActiveObjective.IsCompleted())
 			{
 				m_CurrentObjectiveIndex++;
 				QuestPrint(ToString() + "::CompletionCheck - Current active objective is complered! Try to start next objective with index: " + m_CurrentObjectiveIndex);
-				ExpansionQuestObjectiveEventBase nextObjective = QuestObjectives[m_CurrentObjectiveIndex]; //! Get the next objective from our objective list and start it
+
+				//! Get the next objective from our objective list and start it
+				ExpansionQuestObjectiveEventBase nextObjective = QuestObjectives[m_CurrentObjectiveIndex];
 				if (!nextObjective || nextObjective.IsInitialized() || nextObjective.IsActive())
 					return;
 
@@ -917,11 +920,12 @@ class ExpansionQuest
 
 				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedText, currentActiveObjective.GetObjectiveConfig().GetObjectiveText(), Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
 
-				nextObjective.OnStart();	//! Start the next objective
-				
+				//! Start the next objective
+				nextObjective.OnStart();
+
 				m_QuestModule.UpdateQuestStatesForQuestPlayers(this, State);
 				m_QuestModule.UpdateQuestPlayersObjectiveData(this);
-				
+
 				QuestPrint(ToString() + "::CompletionCheck - Started next quest objective event with index: " + m_CurrentObjectiveIndex);
 			}
 		}
@@ -929,12 +933,12 @@ class ExpansionQuest
 		QuestPrint(ToString() + "::CompletionCheck - End");
 	}
 
-	private void SpawnReward(ExpansionQuestRewardConfig reward, PlayerBase player, EntityAI parent, vector pos, vector ori)
+	protected void SpawnReward(ExpansionQuestRewardConfig reward, PlayerBase player, EntityAI parent, vector pos, vector ori)
 	{
 		int remainingAmount = reward.GetAmount();
 		while (remainingAmount > 0)
 		{
-			int remainingAmountBefore = remainingAmount;		
+			int remainingAmountBefore = remainingAmount;
 			Object obj = Spawn(reward, player, parent, pos, ori, remainingAmount);
 			if (!obj)
 			{
@@ -950,19 +954,19 @@ class ExpansionQuest
 			}
 		}
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest Spawn
 	// -----------------------------------------------------------
 	//! Spawn object method
-	private Object Spawn(ExpansionQuestItemConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount)
+	protected Object Spawn(ExpansionQuestItemConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount)
 	{
 		Object obj;
 		if (!item.IsVehicle())
 		{
 			obj = ExpansionItemSpawnHelper.SpawnOnParent(item.GetClassName(), player, parent, remainingAmount);
 		}
-		else 
+		else
 		{
 			obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, remainingAmount);
 		}
@@ -973,11 +977,11 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	// ExpansionQuest Spawn
 	// -----------------------------------------------------------
-	private Object Spawn(ExpansionQuestRewardConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount)
+	protected Object Spawn(ExpansionQuestRewardConfig item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount)
 	{
 		Object obj;
 		if (!item.IsVehicle())
-		{ 
+		{
 			obj = ExpansionItemSpawnHelper.SpawnOnParent(item.GetClassName(), player, parent, remainingAmount, -1, item.GetAttachments());
 		}
 		else
@@ -1026,14 +1030,13 @@ class ExpansionQuest
 	bool CanCompeteQuest()
 	{
 		int complededObjectives = 0;
-		for (int i = 0; i < GetObjectives().Count(); ++i)
+		foreach (ExpansionQuestObjectiveEventBase objective: QuestObjectives)
 		{
-			ExpansionQuestObjectiveEventBase objective = GetObjectives().Get(i);
-			if (objective && objective.CompletionCheck())
+			if (objective.CompletionCheck())
 				complededObjectives++;
 		}
 
-		if (complededObjectives == GetObjectives().Count())
+		if (complededObjectives == QuestObjectives.Count())
 			return true;
 
 		return false;
@@ -1063,11 +1066,9 @@ class ExpansionQuest
 	{
 		QuestPrint(ToString() + "::SetGroup - Start");
 
-		//m_Group = group;
 		m_GroupID = groupID;
 		m_IsGroupQuest = true;
 
-		//QuestPrint(ToString() + "::SetGroup - Group: " + m_Group);
 		QuestPrint(ToString() + "::SetGroup - Group ID: " + m_GroupID);
 		QuestPrint(ToString() + "::SetGroup - Quest is group quest: " + m_IsGroupQuest);
 
@@ -1084,7 +1085,7 @@ class ExpansionQuest
 		{
 			return partyModule.GetPartyByID(m_GroupID);
 		}
-		
+
 		return NULL;
 	}
 
@@ -1104,10 +1105,10 @@ class ExpansionQuest
 		if (!GetGroup())
 			return false;
 
-		for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
+		array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+		foreach(ExpansionPartyPlayerData playerGroupData: groupPlayers)
 		{
-			ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
-			if (playerGroupData && playerGroupData.GetID() == playerUID)
+			if (playerGroupData.GetID() == playerUID)
 				return true;
 		}
 
@@ -1122,10 +1123,10 @@ class ExpansionQuest
 		if (!GetGroup())
 			return false;
 
-		for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
+		array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+		foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 		{
-			ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
-			if (playerGroupData && playerGroupData.GetID() != excludeUID)
+			if (playerGroupData.GetID() != excludeUID)
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (player)
@@ -1143,10 +1144,9 @@ class ExpansionQuest
 	void SpawnQuestRewards(ExpansionQuestRewardConfig reward = null)
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.QUESTS, this, "SpawnQuestRewards").Add(sender).Add(ctx);
+		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		ExpansionQuestRewardConfig questReward;
 	#ifdef EXPANSIONMODHARDLINE
 		int humanity;
 		ExpansionHardlineModule hardlineModule;
@@ -1161,7 +1161,7 @@ class ExpansionQuest
 			int remainingAmount;
 			int remainingAmountBefore;
 			Object obj;
-			
+
 			if (Config.NeedToSelectReward())
 			{
 				if (reward)
@@ -1172,9 +1172,9 @@ class ExpansionQuest
 			}
 			else
 			{
-				for (int i = 0; i < Config.GetRewards().Count(); i++)
+				array<ref ExpansionQuestRewardConfig> questRewards = Config.GetRewards();
+				foreach (ExpansionQuestRewardConfig questReward: questRewards)
 				{
-					questReward = Config.GetRewards()[i];
 					SpawnReward(questReward, m_Player, playerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 				}
 			}
@@ -1187,19 +1187,10 @@ class ExpansionQuest
 				{
 					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(m_Player.GetIdentity().GetId());
 					if (hardlinePlayerData)
-					{					
-						if (Config.GetHumanityReward() > 0)
-						{
-							hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
-							hardlinePlayerData.Save(m_Player.GetIdentity().GetId());
-							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, m_Player.GetIdentity());
-						}
-						else if (Config.GetHumanityReward() < 0)
-						{
-							hardlinePlayerData.RemoveHumanity(Config.GetHumanityReward());
-							hardlinePlayerData.Save(m_Player.GetIdentity().GetId());
-							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, m_Player.GetIdentity());
-						}
+					{
+						hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
+						hardlinePlayerData.Save(m_Player.GetIdentity().GetId());
+						hardlineModule.SendPlayerHardlineData(hardlinePlayerData, m_Player.GetIdentity());
 					}
 				}
 			}
@@ -1211,66 +1202,53 @@ class ExpansionQuest
 			QuestPrint(ToString() + "::SpawnQuestRewards - Group: " + GetGroup());
 			QuestPrint(ToString() + "::SpawnQuestRewards - Group players: " + GetGroup().GetPlayers());
 			QuestPrint(ToString() + "::SpawnQuestRewards - Group players count: " + GetGroup().GetPlayers().Count());
-			
-			for (int j = 0; j < GetGroup().GetPlayers().Count(); j++)
+
+			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[j];
-				if (playerGroupData)
+				if (Config.RewardsForGroupOwnerOnly() && playerGroupData.GetID() != m_PlayerUID)
+					continue;
+
+				QuestPrint(ToString() + "::SpawnQuestRewards - Spawn quest reward for player with UID: " + playerGroupData.GetID());
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
+				EntityAI groupPlayerEntity = groupPlayer;
+				if (groupPlayer)
 				{
-					if (Config.RewardsForGroupOwnerOnly() && playerGroupData.GetID() != m_PlayerUID)
-						continue;
-					
-					QuestPrint(ToString() + "::SpawnQuestRewards - Spawn quest reward for player with UID: " + playerGroupData.GetID());
-					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-					EntityAI groupPlayerEntity = groupPlayer;
-					if (groupPlayer)
+					if (Config.NeedToSelectReward)
 					{
-						if (Config.NeedToSelectReward)
+						if (reward)
 						{
-							if (reward)
-							{						
-								QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
-								SpawnReward(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
-							}
-						}
-						else
-						{
-							//! Add all quest rewards to the players inventory
-							for (int k = 0; k < Config.GetRewards().Count(); k++)
-							{
-								questReward = Config.GetRewards()[k];
-								QuestPrint(ToString() + "::SpawnQuestRewards - Spawn reward: [" + k + "] " + questReward.ToString());
-								SpawnReward(questReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
-							}
+							QuestPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
+							SpawnReward(reward, groupPlayer, groupPlayerEntity, m_Player.GetPosition(), m_Player.GetOrientation());
 						}
 					}
-	
-				#ifdef EXPANSIONMODHARDLINE
-					if (GetExpansionSettings().GetHardline().UseHumanity && Config.GetHumanityReward() != 0)
+					else
 					{
-						hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-						if (hardlineModule)
+						//! Add all quest rewards to the players inventory
+						array<ref ExpansionQuestRewardConfig> groupQuestRewards = Config.GetRewards();
+						foreach (ExpansionQuestRewardConfig groupQuestReward: groupQuestRewards)
 						{
-							hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
-							if (hardlinePlayerData)
-							{							
-								if (Config.GetHumanityReward() > 0)
-								{
-									hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
-									hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
-									hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
-								}
-								else if (Config.GetHumanityReward() < 0)
-								{
-									hardlinePlayerData.RemoveHumanity(Config.GetHumanityReward());
-									hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
-									hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
-								}
-							}
+							SpawnReward(groupQuestReward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
 						}
 					}
-				#endif
 				}
+
+			#ifdef EXPANSIONMODHARDLINE
+				if (GetExpansionSettings().GetHardline().UseHumanity && Config.GetHumanityReward() != 0)
+				{
+					hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
+					if (hardlineModule)
+					{
+						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
+						if (hardlinePlayerData)
+						{
+							hardlinePlayerData.AddHumanity(Config.GetHumanityReward());
+							hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
+							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
+						}
+					}
+				}
+			#endif
 			}
 		}
 	#endif
@@ -1302,25 +1280,19 @@ class ExpansionQuest
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 			if (!m_Player)
 				return;
-			
+
 			ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(m_Player.GetIdentity());
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && GetGroup())
 		{
-			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
+			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
-				if (!playerGroupData)
-				{
-					Error(ToString() + "::SendNotification - Can't get party data from quest group data for index: " + i);
-					continue;
-				}
-
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (!groupPlayer)
 					continue;
-				
+
 				ExpansionNotification(title, text, icon, color, 7, ExpansionNotificationType.TOAST).Create(groupPlayer.GetIdentity());
 			}
 		}
@@ -1336,24 +1308,17 @@ class ExpansionQuest
 		{
 			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
 			if (m_Player && !m_Player.IsAlive())
-			{
 				return false;
-			}
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else if (m_IsGroupQuest && GetGroup())
 		{
-			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
+			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
-				if (!playerGroupData)
-					continue;
-
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (groupPlayer && !groupPlayer.IsAlive())
-				{
 					return false;
-				}
 			}
 		}
 	#endif
@@ -1376,17 +1341,12 @@ class ExpansionQuest
 	#ifdef EXPANSIONMODGROUPS
 		else if (GetGroup())
 		{
-			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
+			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
-				if (!playerGroupData)
-					continue;
-
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (groupPlayer)
-				{
 					m_QuestModule.CreateClientMarker(pos, name, Config.GetID(), groupPlayer.GetIdentity());
-				}
 			}
 		}
 	#endif
@@ -1406,17 +1366,12 @@ class ExpansionQuest
 	#ifdef EXPANSIONMODGROUPS
 		else if (GetGroup())
 		{
-			for (int i = 0; i < GetGroup().GetPlayers().Count(); i++)
+			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = GetGroup().GetPlayers()[i];
-				if (!playerGroupData)
-					continue;
-
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (groupPlayer)
-				{
 					m_QuestModule.RemoveClientMarkers(Config.GetID(), groupPlayer.GetIdentity());
-				}
 			}
 		}
 	#endif
@@ -1427,12 +1382,8 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	void OnRecreateClientMarkers()
 	{
-		for (int i = 0; i < QuestObjectives.Count(); i++)
+		foreach (ExpansionQuestObjectiveEventBase objective: QuestObjectives)
 		{
-			ExpansionQuestObjectiveEventBase objective = QuestObjectives.Get(i);
-			if (!objective)
-				continue;
-
 			objective.OnRecreateClientMarkers();
 		}
 	}
@@ -1479,7 +1430,7 @@ class ExpansionQuest
 				m_QuestModule.CancelQuestServer(Config.GetID(), m_Player.GetIdentity());
 				return;
 			}
-			
+
 			if (QuestObjectives.Count() > 0)
 			{
 				for (int i = 0; i < UPDATE_OBJECTIVES_PER_TICK; ++i)
@@ -1510,7 +1461,7 @@ class ExpansionQuest
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionQuest UpdateQuestPlayersObjectiveData
 	// -----------------------------------------------------------
@@ -1518,7 +1469,7 @@ class ExpansionQuest
 	{
 		if (!m_QuestModule)
 			return;
-		
+
 		m_QuestModule.UpdateQuestPlayersObjectiveData(this);
 	}
 
@@ -1546,7 +1497,7 @@ class ExpansionQuest
 	// -----------------------------------------------------------
 	// ExpansionQuest QuestDebug
 	// -----------------------------------------------------------
-	void QuestDebug()
+	/*void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
 		QuestPrint("------------------------------------------------------------");
@@ -1620,7 +1571,7 @@ class ExpansionQuest
 						actionEvent.QuestDebug();
 				}
 				break;
-				
+
 				case ExpansionQuestObjectiveType.CRAFTING:
 				{
 					ExpansionQuestObjectiveCraftingEvent craftingEvent;
@@ -1657,5 +1608,65 @@ class ExpansionQuest
 		}
 		QuestPrint("------------------------------------------------------------");
 	#endif
+	}*/
+
+	// -----------------------------------------------------------
+	// ExpansionQuest GetClosestQuestNPCPosition
+	// -----------------------------------------------------------
+	vector GetClosestQuestNPCPosition(array<int> ids, vector playerPos)
+	{
+		float shortestDistance;
+		float distance;
+		vector npcPos;
+		vector closestPos;
+
+		foreach (int npcID: ids)
+		{
+			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(npcID);
+			if (!questNPC)
+				continue;
+
+			npcPos = questNPC.GetPosition();
+			distance = Math.Round(vector.Distance(playerPos, npcPos));
+			if (shortestDistance == 0 || shortestDistance > distance)
+			{
+				shortestDistance = distance;
+				closestPos = npcPos;
+			}
+		}
+
+		return closestPos;
+	}
+
+	array<ItemBase> GetPlayerQuestItems(PlayerBase player, int questID)
+	{
+		array<ItemBase> questItems = new array<ItemBase>;
+		array<string> questItemNames = new array<string>;
+		array<ref ExpansionQuestItemConfig> configQuestItems = Config.GetQuestItems();
+		foreach (ExpansionQuestItemConfig questItem: configQuestItems)
+		{
+			questItemNames.Insert(questItem.GetClassName());
+		}
+
+		array<EntityAI> items = new array<EntityAI>;
+	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+
+		foreach (EntityAI item : items)
+		{
+			if (questItemNames.Find(item.GetType()) > -1)
+			{
+				ItemBase itemIB;
+				if (Class.CastTo(itemIB, item))
+				{
+					if (itemIB.GetQuestID() == questID)
+					{
+						QuestPrint(ToString() + " ::GetPlayerQuestItems - Add quest item: " + itemIB.GetType() + " | Quest ID: " + itemIB.GetQuestID());
+						questItems.Insert(itemIB);
+					}
+				}
+			}
+		}
+
+		return questItems;
 	}
 };

@@ -31,7 +31,7 @@ class Land_Barn_Brick2 extends BuildingSuper
 			
 		SpawnInteriorObject( "bldr_tent_boxwooden", "2.08201 0.93 2.176", "14 -0.018598 0" );		
 		SpawnInteriorObject( "bldr_foldingbed_open", "2.08082 0.4786 4.03713", "-9 0 0" );		
-		SpawnInteriorObject( "bldr_candle", "1.49839 0.521004 3.35474", "0 0 0" );		
+		SpawnInteriorObject( "bldr_candle", "1.49839 0.463004 3.35474", "0 0 0" );		
 		SpawnInteriorObject( "bldr_bucket", "1.1684 0.467003 4.41587", "0 0.981402 -1" );
 
 		if ( Math.RandomFloatInclusive(0, 1) < 0.65 )

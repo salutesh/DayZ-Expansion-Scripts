@@ -13,21 +13,22 @@
 /**@class		ExpansionAIMissionMeta
  * @brief		This class handle ai missions meta
  **/
-#ifdef EXPANSIONMODAI
 class ExpansionAIMissionMeta
 {
-	string Name;
-	string StartDescription;
-	string EndDescription;
+	ref ExpansionSettingNotificationData NotificationStart;
+	ref ExpansionSettingNotificationData NotificationAction;
+	ref ExpansionSettingNotificationData NotificationEnd;
+
+	ref ExpansionSettingMarkerData Marker;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionAIMissionMeta
 	// ------------------------------------------------------------
-	void ExpansionAIMissionMeta(string name = "", string startdescription = "", string enddescription = "")
+	void ExpansionAIMissionMeta(ref ExpansionSettingNotificationData notifstart, ref ExpansionSettingNotificationData notifaction, ref ExpansionSettingNotificationData notifend, ref ExpansionSettingMarkerData marker)
 	{
-		Name 				= name;
-		StartDescription 	= startdescription;
-		EndDescription 		= enddescription;
+		NotificationStart 	= notifstart;
+		NotificationAction 	= notifaction;
+		NotificationEnd 	= notifend;
+		Marker 				= marker;
 	}
-}
-#endif
+};

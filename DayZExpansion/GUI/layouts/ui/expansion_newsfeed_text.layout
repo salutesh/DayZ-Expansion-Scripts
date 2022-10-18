@@ -1,0 +1,61 @@
+WrapSpacerWidgetClass ExpansionNewsFeedText {
+ ignorepointer 0
+ size 444 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 0
+ scriptclass "ExpansionNewsFeedTextController"
+ style Expansion_01
+ Padding 0
+ Margin 0
+ "Size To Content V" 1
+ {
+  RichTextWidgetClass title {
+   ignorepointer 1
+   position 10 10
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   text "Title"
+   font "gui/fonts/MetronBook-Bold22"
+   "exact text" 1
+   "size to text h" 0
+   "size to text v" 1
+   wrap 1
+   "condense whitespace" 1
+   "strip newlines" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "EntryTitle"
+    }
+   }
+  }
+  RichTextWidgetClass text {
+   ignorepointer 1
+   position 10 10
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   text "Title"
+   font "gui/fonts/MetronBook22"
+   "exact text" 1
+   "size to text h" 0
+   "size to text v" 1
+   wrap 1
+   "condense whitespace" 1
+   "strip newlines" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "EntryText"
+    }
+   }
+  }
+ }
+}

@@ -67,5 +67,6 @@ class CfgVehicles
 			attachmentAction = 1;
 			updateInterval = 5;
 		};
+		soundImpactType = "plastic";
 	};
 };

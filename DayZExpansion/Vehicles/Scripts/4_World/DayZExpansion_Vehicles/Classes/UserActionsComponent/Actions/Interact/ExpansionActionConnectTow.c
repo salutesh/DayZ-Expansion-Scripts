@@ -126,12 +126,15 @@ class ExpansionActionConnectTow : ActionInteractBase
 				float towRadius = car.Expansion_GetTowLength();
 
 				GetGame().IsBoxColliding(towPosition, car.Expansion_GetTowDirection(), "5 5 5", excluded, collided);
+				
+				//Shape.CreateSphere(0xFF00FF00, ShapeFlags.NOZBUFFER | ShapeFlags.TRANSP | ShapeFlags.ONCE, towPosition, towRadius);
 
 				foreach (Object o : collided)
 				{
 					CarScript other_car;
 					if (Class.CastTo(other_car, o))
 					{
+#ifdef DAYZ_1_18
 						if (!other_car.Expansion_IsBeingTowed() && !other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
 						{
 							m_IsWinch = car.Expansion_IsHelicopter();
@@ -161,6 +164,18 @@ class ExpansionActionConnectTow : ActionInteractBase
 								}
 							}
 						}
+#else
+						if (!other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
+						{
+							m_IsWinch = car.Expansion_IsHelicopter();
+
+							if (other_car.Expansion_GetOverlappingTowConnection(towPosition, towRadius, out_index))
+							{
+								out_car = other_car;
+								return true;
+							}
+						}
+#endif
 					}
 
 					ItemBase other_vehicle;

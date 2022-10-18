@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Merlin
 	{
-		units[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","Vehicle_ExpansionMerlinFrontWheel","Vehicle_ExpansionMerlinBackWheel","ExpansionMerlinCargoRamp","ExpansionMerlinWreck","ExpansionMerlin","Vehicle_ExpansionMerlin","ExpansionSpraycanGreen","ExpansionMerlin_Green","ExpansionSpraycanDahoman","ExpansionMerlin_Dahoman","ExpansionSpraycanIon","ExpansionMerlin_Ion","ExpansionSpraycanPresident","ExpansionMerlin_President","ExpansionSpraycanVrana","ExpansionMerlin_Vrana","ExpansionSpraycanWave","ExpansionMerlin_Wave"};
+		units[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","ExpansionMerlinCargoRamp","ExpansionMerlinWreck","ExpansionMerlin","ExpansionSpraycanGreen","ExpansionMerlin_Green","ExpansionSpraycanDahoman","ExpansionMerlin_Dahoman","ExpansionSpraycanIon","ExpansionMerlin_Ion","ExpansionSpraycanPresident","ExpansionMerlin_President","ExpansionSpraycanVrana","ExpansionMerlin_Vrana","ExpansionSpraycanWave","ExpansionMerlin_Wave"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -132,7 +132,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 300;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
@@ -159,14 +159,14 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 300;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_ExpansionMerlinFrontWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_FRONT_DESC";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\proxy\merlinfrontwheel.p3d";
@@ -186,14 +186,14 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 300;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
 	};
 	class Vehicle_ExpansionMerlinBackWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_MERLIN_WHEEL_BACK_DESC";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\proxy\merlinbackwheel.p3d";
@@ -213,7 +213,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 300;
-					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_dmg.rvmat"}}};
+					healthLevels[] = {{1.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.7,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel.rvmat"}},{0.5,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.3,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}},{0.0,{"DZ\vehicles\wheeled\OffroadHatchback\data\niva_wheel_damage.rvmat"}}};
 				};
 			};
 		};
@@ -243,7 +243,7 @@ class CfgVehicles
 		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;
 		fuelConsumption = 95;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2","CamoNet"};
 		doors[] = {};
 		applySkinsTo[] = {};
 		hiddenSelections[] = {"camo1","camo2","camo3"};
@@ -447,7 +447,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1"};
+				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
 			};
 			class Chassis
 			{
@@ -543,47 +543,48 @@ class CfgVehicles
 		{
 			drive = "DRIVE_RWD";
 			airDragFrontTotal = 1.0;
-			maxSpeed = 200;
+			maxSpeed = 220;
 			altitudeFullForce = 1000;
 			altitudeNoForce = 2000;
-			bodyFrictionCoef = 1.6;
-			liftForceCoef = 1.0;
-			bankForceCoef = 0.2;
-			tailForceCoef = 6.0;
+			bodyFrictionCoef = 1.2;
+			liftForceCoef = 1.1;
+			bankForceCoef = 0.01;
+			tailForceCoef = 0.1;
 			linearFrictionCoef[] = {16.0,0.04,0.04};
 			angularFrictionCoef = 1.5;
 			class Rotor
 			{
 				minAutoRotateSpeed = 2.0;
 				maxAutoRotateSpeed = 10.0;
-				startUpTime = 20.0;
+				startUpTime = 15;
 			};
 			class AntiTorque
 			{
-				speed = 1.8;
-				max = 0.04;
+				speed = 2.5;
+				max = 5.04;
 			};
 			class Cyclic
 			{
-				forceCoefficient = 1.5;
+				forceCoefficient = 1.2;
 				class Forward
 				{
 					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.4;
+					max = 0.7;
+					coefficient = 1.0;
 					animation = "cyclicForward";
 				};
 				class Side
 				{
 					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.4;
+					max = 0.7;
+					coefficient = 1.0;
 					animation = "cyclicAside";
 				};
 			};
 			braking[] = {2.5,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,50,30,40,60,25,120,5};
 				decreaseSpeed[] = {0,50,60,30,120,10};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -598,7 +599,11 @@ class CfgVehicles
 			};
 			class Engine
 			{
+				torqueCurve[] = {525,0,1000,200,1300,313,2500,384,3600,316,5120,0};
 				inertia = 0.45;
+				frictionTorque = 90;
+				rollingFriction = 0.7;
+				viscousFriction = 1;
 				torqueMax = 187;
 				torqueRpm = 2400;
 				powerMax = 73.5;
@@ -742,8 +747,8 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionMerlin: ExpansionVehicleHelicopterBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  MERLIN";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_MERLIN";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
 		modelZeroPointDistanceFromGround = 3.81;
 		vehicleClass = "Expansion_Helicopter";

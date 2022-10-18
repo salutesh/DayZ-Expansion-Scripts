@@ -12,45 +12,43 @@
 
 class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 {
-	private float m_UpdateQueueTimer;
-	private const float UPDATE_TICK_TIME = 2.0;
-	private ref ExpansionQuestsPlayerInventory m_PlayerEntityInventory;
-	private ref array<EntityAI> m_PlayerItems;
+	protected float m_UpdateQueueTimer;
+	protected const float UPDATE_TICK_TIME = 2.0;
+	protected ref ExpansionQuestsPlayerInventory m_PlayerEntityInventory;
+	protected ref array<EntityAI> m_PlayerItems;
 #ifdef EXPANSIONMODGROUPS
-	private ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
-	private ref array<EntityAI> m_GroupItems;
+	protected ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
+	protected ref array<EntityAI> m_GroupItems;
 #endif
-	
-	private int m_UpdateCount;
 
-	override void OnStart()
+	protected int m_UpdateCount;
+
+	override bool OnStart()
 	{
+		if (!super.OnStart())
+			return false;
+
 		CollectionEventStart();
-		
-		super.OnStart();
+
+		return true;
 	}
 
-	override void OnComplete()
+	override bool OnTurnIn()
 	{
-		super.OnComplete();
-	}
-
-	override void OnTurnIn()
-	{		
 		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
 		if (!collection)
-			return;
-		
+			return false;
+
 		int amountToDelete = collection.GetAmount();
 		if (!GetQuest().IsGroupQuest())
 		{
-			for (int i = 0; i < m_PlayerItems.Count(); i++)
+			foreach (EntityAI item: m_PlayerItems)
 			{
 				if (amountToDelete > 0)
 				{
-					DeleteCollectionItem(m_PlayerItems[i], amountToDelete);
+					DeleteCollectionItem(item, amountToDelete);
 				}
-				
+
 				if (amountToDelete == 0)
 					break;
 			}
@@ -58,35 +56,36 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODGROUPS
 		else if (GetQuest().IsGroupQuest())
 		{
-			for (int g = 0; g < m_GroupItems.Count(); g++)
+			foreach (EntityAI groupItem: m_GroupItems)
 			{
 				if (amountToDelete > 0)
 				{
-					DeleteCollectionItem(m_GroupItems[g], amountToDelete);
+					DeleteCollectionItem(groupItem, amountToDelete);
 				}
-				
+
 				if (amountToDelete == 0)
 					break;
 			}
 		}
 	#endif
 
-		super.OnTurnIn();
-	}
-	
-	override void OnContinue()
-	{
-		CollectionEventStart();
-		
-		super.OnContinue();
+		if (!super.OnTurnIn())
+			return false;
+
+		return true;
 	}
 
-	override void OnCleanup()
+	override bool OnContinue()
 	{
-		super.OnCleanup();
+		if (!super.OnContinue())
+			return false;
+
+		CollectionEventStart();
+
+		return true;
 	}
-	
-	private void CollectionEventStart()
+
+	protected void CollectionEventStart()
 	{
 		if (!m_PlayerItems)
 			m_PlayerItems = new array<EntityAI>;
@@ -107,8 +106,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		}
 	#endif
 	}
-	
-	private void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
+
+	protected void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
 	{
 		ItemBase itemBase;
 		if (Class.CastTo(itemBase, item) && itemBase.Expansion_IsStackable())
@@ -142,9 +141,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				return false;
 
 			int currentCount;
-			for (int i = 0; i < items.Count(); i++)
+			foreach (EntityAI item: items)
 			{
-				EntityAI item = items[i];
 				int itemCount = GetItemAmount(item);
 				currentCount += itemCount;
 				if (itemCount > 0)
@@ -182,9 +180,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				return false;
 
 			int currentCount;
-			for (int i = 0; i < items.Count(); i++)
+			foreach (EntityAI item: items)
 			{
-				EntityAI item = items[i];
 				int itemCount = GetItemAmount(item);
 				currentCount += itemCount;
 				if (itemCount > 0)
@@ -203,7 +200,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	}
 #endif
 
-	private int GetItemAmount(EntityAI item)
+	protected int GetItemAmount(EntityAI item)
 	{
 		int amount;
 		ItemBase itemBase;
@@ -216,13 +213,13 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		{
 			amount = 1;
 		}
-		
+
 		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item))
 			amount = -amount;
-		
+
 		return amount;
 	}
-	
+
 	void EnumeratePlayerInventory(PlayerBase player)
 	{
 		if (!player || !player.IsAlive() || !player.GetInventory())
@@ -307,7 +304,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				}
 			}
 		#endif
-			
+
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
@@ -348,10 +345,13 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		{
 			foreach (EntityAI playerItem: m_PlayerItems)
 			{
+				if (!playerItem)
+					continue;
+
 				itemCount = GetItemAmount(playerItem);
 				count += itemCount;
 			}
-			
+
 			return count;
 		}
 	#ifdef EXPANSIONMODGROUPS
@@ -361,12 +361,12 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			{
 				itemCount = GetItemAmount(groupItem);
 				count += itemCount;
-			}			
-			
+			}
+
 			return count;
 		}
 	#endif
-		
+
 		return 0;
 	}
 

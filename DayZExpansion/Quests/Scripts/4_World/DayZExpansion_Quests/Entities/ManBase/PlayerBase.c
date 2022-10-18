@@ -15,7 +15,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase SetActions
 	// ------------------------------------------------------------
-	override void SetActions( out TInputActionMap InputActionMap )
+	override void SetActions(out TInputActionMap InputActionMap)
 	{
 		super.SetActions(InputActionMap);
 
@@ -30,8 +30,7 @@ modded class PlayerBase
 		super.EEKilled(killer);
 
 		EntityAI killSource = EntityAI.Cast(killer);
-
-		if (!killSource)
+		if (!killSource || killSource == this)
 			return;
 
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));

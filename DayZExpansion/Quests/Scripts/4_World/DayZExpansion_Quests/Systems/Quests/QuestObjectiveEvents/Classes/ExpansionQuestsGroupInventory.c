@@ -20,10 +20,10 @@ class ExpansionQuestsGroupInventory
 	{
 		if (m_GroupPlayers.Count() > 0)
 			m_GroupPlayers.Clear();
-		
-		for (int i = 0; i < group.GetPlayers().Count(); i++)
+
+		array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
+		foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 		{
-			ExpansionPartyPlayerData playerGroupData = group.GetPlayers()[i];
 			m_GroupPlayers.Insert(playerGroupData.GetID());
 		}
 
@@ -33,15 +33,14 @@ class ExpansionQuestsGroupInventory
 	void EnumerateGroupInventory()
 	{
 		EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		m_GroupInventory.Clear();
 		array<EntityAI> items = new array<EntityAI>;
-		for (int i = 0; i < m_GroupPlayers.Count(); i++)
+		foreach (string groupPlayerUID: m_GroupPlayers)
 		{
-			string groupPlayerUID = m_GroupPlayers[i];
 			PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(groupPlayerUID);
-			if (groupPlayer)	
-			{		
+			if (groupPlayer)
+			{
 				groupPlayer.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 				AddGroupPlayerItems(items, groupPlayer);
 				items.Clear();
@@ -49,16 +48,12 @@ class ExpansionQuestsGroupInventory
 		}
 	}
 
-	private void AddGroupPlayerItems(array<EntityAI> items, PlayerBase player)
+	protected void AddGroupPlayerItems(array<EntityAI> items, PlayerBase player)
 	{
 		EXTrace.Start(EXTrace.QUESTS, this);
 
-		for (int i = 0; i < items.Count(); i++)
+		foreach (EntityAI item: items)
 		{
-			EntityAI item = items[i];
-			if (!item)
-				continue;
-
 		#ifdef WRDG_DOGTAGS
 			Dogtag_Base dogTag;
 			if (Class.CastTo(dogTag, item))
@@ -78,7 +73,7 @@ class ExpansionQuestsGroupInventory
 			m_GroupInventory.Insert(item);
 		}
 	}
-	
+
 	bool HasItem(string typeName, out array<EntityAI> items)
 	{
 		items = new array<EntityAI>;
@@ -86,7 +81,7 @@ class ExpansionQuestsGroupInventory
 		{
 			if (!item)
 				continue;
-		
+
 			if (item.IsKindOf(typeName) || item.ClassName() == typeName)
 			{
 				items.Insert(item);

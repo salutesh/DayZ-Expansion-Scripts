@@ -71,20 +71,20 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 				QuestPrint(ToString() + "::SetEntry - F1");
 				continue;
 			}
-			
+
 			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfig: " + objectiveConfig.ToString());
-			
+
 			ExpansionQuestObjectiveData objective = m_QuestData.QuestObjectives.Get(i);
 			if (objective)
 			{
 				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveData: " + objective.ToString());
-				
+
 				if (!objective.IsActive())
 				{
 					QuestPrint(ToString() + "::SetEntry - F2");
 					continue;
 				}
-				
+
 				objectiveCount++;
 				QuestPrint(ToString() + "::SetEntry - Add objective entry for objective: " + objective.ToString() + " | Index: " + objectiveCount);
 				ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);

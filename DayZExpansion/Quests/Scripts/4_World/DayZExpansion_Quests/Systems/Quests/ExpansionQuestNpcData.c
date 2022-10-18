@@ -31,18 +31,18 @@ class ExpansionQuestNPCDataBase
 class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 {
 	static const int CONFIGVERSION = 1;
-	
+
 #ifdef EXPANSIONMODAI
 	bool NPCEmoteIsStatic;
 #endif
 	string NPCLoadoutFile;
 	bool IsStatic;
-	
+
 	void ExpansionQuestNPCData()
 	{
 		ConfigVersion = CONFIGVERSION;
 	}
-	
+
 	void SetID(int id)
 	{
 		ID = id;
@@ -80,7 +80,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 			QuestIDs.Insert(questID);
 		}
 	}
-	
+
 	array<int> GetQuestIDs()
 	{
 		return QuestIDs;
@@ -110,7 +110,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		NPCLoadoutFile = fileName;
 	}
-	
+
 	string GetLoadoutFile()
 	{
 		return NPCLoadoutFile;
@@ -141,12 +141,12 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		NPCEmoteIsStatic = state;
 	}
-	
+
 	bool IsEmoteStatic()
 	{
 		return NPCEmoteIsStatic;
 	}
-	
+
 	void AddWaypoint(vector waypoint)
 	{
 		Waypoints.Insert(waypoint);
@@ -167,12 +167,12 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		return NPCEmoteID;
 	}
 #endif
-	
+
 	void SetIsStatic(bool state)
 	{
 		IsStatic = state;
 	}
-	
+
 	bool IsStatic()
 	{
 		return IsStatic;
@@ -207,10 +207,10 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
 		eAIGroup ownerGrp = questNPC.GetGroup();
-		for (int j = 0; j < Waypoints.Count(); j++)
+		foreach (vector point: Waypoints)
 		{
-			EXPrint("Adding waypoint " + Waypoints[j]);
-			ownerGrp.AddWaypoint(Waypoints[j]);
+			EXPrint("Adding waypoint " + point);
+			ownerGrp.AddWaypoint(point);
 		}
 
 		if (Waypoints.Count() > 1)
@@ -225,22 +225,22 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	ExpansionQuestStaticObject SpawnObject()
 	{
 		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
-		
+
 		if (Position)
 			obj.SetPosition(Position);
 
 		if (Orientation)
 			obj.SetOrientation(Orientation);
-		
+
 		EntityAI enity = EntityAI.Cast(obj);
 		ExpansionQuestStaticObject questObject = ExpansionQuestStaticObject.Cast(enity);
 		questObject.SetPosition(Position);
 		questObject.SetOrientation(Orientation);
 		questObject.m_Expansion_NetsyncData.Set(0, NPCName);
-		
+
 		return questObject;
 	}
-	
+
 	static ExpansionQuestNPCData Load(string fileName)
 	{
 		bool save;
@@ -248,14 +248,14 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		ExpansionQuestNPCData npcConfig;
 		ExpansionQuestNPCDataBase npcConfigBase;
-		
+
 		if (!ExpansionJsonFileParser<ExpansionQuestNPCDataBase>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfigBase))
 			return NULL;
 
 		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
 		{
 			CF_Log.Info("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
-			npcConfig = new ExpansionQuestNPCData();			
+			npcConfig = new ExpansionQuestNPCData();
 			//! Copy over old configuration that haven't changed
 			npcConfig.CopyConfig(npcConfigBase);
 			npcConfig.ConfigVersion = CONFIGVERSION;
@@ -266,12 +266,12 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 			if (!ExpansionJsonFileParser<ExpansionQuestNPCData>.Load(EXPANSION_QUESTS_NPCS_FOLDER + fileName, npcConfig))
 				return NULL;
 		}
-		
+
 		if (save)
 		{
 			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(fileName, npcConfig);
 		}
-		
+
 		return npcConfig;
 	}
 
@@ -279,7 +279,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".json", this);
 	}
-	
+
 	void CopyConfig(ExpansionQuestNPCDataBase npcDataBase)
 	{
 		ID = npcDataBase.ID;
@@ -289,8 +289,8 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		Orientation = npcDataBase.Orientation;
 		QuestIDs = npcDataBase.QuestIDs;
 		NPCName = npcDataBase.NPCName;
-		DefaultNPCText = npcDataBase.DefaultNPCText; 
-	
+		DefaultNPCText = npcDataBase.DefaultNPCText;
+
 	#ifdef EXPANSIONMODAI
 		Waypoints = npcDataBase.Waypoints;
 		NPCEmoteID = npcDataBase.NPCEmoteID;

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Structures_Debug
 	{
-		units[] = {"ExpansionAdminHammer","ExpansionDebugRod","ExpansionDebugRod_Red","ExpansionDebugRod_Orange","ExpansionDebugRod_Blue","ExpansionDebugRod_Purple","ExpansionDebugRodBig","ExpansionDebugRodBig_Red","ExpansionDebugRodBig_Orange","ExpansionDebugRodBig_Blue","ExpansionDebugRodBig_Purple","ExpansionDebugBox","ExpansionDebugBox_Red","ExpansionDebugBox_Orange","ExpansionDebugBox_Blue","ExpansionDebugBox_Purple","ExpansionNetSyncDebugObject","ExpansionDebugLine","ExpansionDebugLine_Red","ExpansionDebugLine_Orange","ExpansionDebugLine_Blue","ExpansionDebugLine_Purple","ExpansionDebugNoticeMe","ExpansionDebugNoticeMe_Red","ExpansionDebugNoticeMe_Orange","ExpansionDebugNoticeMe_Blue","ExpansionDebugNoticeMe_Purple","ExpansionDebugArrow","ExpansionDebugArrow_Red","ExpansionDebugArrow_Orange","ExpansionDebugArrow_Blue","ExpansionDebugArrow_Purple"};
+		units[] = {"ExpansionAdminHammer","ExpansionDebugRod","ExpansionDebugRod_Red","ExpansionDebugRod_Orange","ExpansionDebugRod_Blue","ExpansionDebugRod_Purple","ExpansionDebugRodBig","ExpansionDebugRodBig_Red","ExpansionDebugRodBig_Orange","ExpansionDebugRodBig_Blue","ExpansionDebugRodBig_Purple","ExpansionDebugBox","ExpansionDebugBox_Red","ExpansionDebugBox_Orange","ExpansionDebugBox_Blue","ExpansionDebugBox_Purple","ExpansionNetSyncDebugObject","ExpansionDebugLine","ExpansionDebugLine_Red","ExpansionDebugLine_Orange","ExpansionDebugLine_Blue","ExpansionDebugLine_Purple","ExpansionDebugNoticeMe","ExpansionDebugNoticeMe_Red","ExpansionDebugNoticeMe_Orange","ExpansionDebugNoticeMe_Blue","ExpansionDebugNoticeMe_Purple","ExpansionDebugArrow","ExpansionDebugArrow_Red","ExpansionDebugArrow_Orange","ExpansionDebugArrow_Blue","ExpansionDebugArrow_Purple","ExpansionDebugGoat"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data","DZ_Gear_Tools"};
@@ -14,6 +14,7 @@ class CfgVehicles
 {
 	class Hammer;
 	class HouseNoDestruct;
+	class Inventory_Base;
 	class ExpansionDebugCylinder: HouseNoDestruct
 	{
 		scope = 1;
@@ -162,14 +163,33 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
-	class ExpansionDebugGoat: HouseNoDestruct
+	class ExpansionDebugGoat: Inventory_Base
 	{
-		scope = 1;
+		scope = 2;
 		model = "\dz\animals\capra_hircus\capra_hircus.p3d";
 		displayName = "Expansion Debug Goat";
 		descriptionShort = "Debug goat";
 		hiddenSelections[] = {"Camo","CamoHair"};
 		hiddenSelectionsTextures[] = {"dz\animals\capra_hircus\data\Black_Goat_CO.paa","dz\animals\capra_hircus\data\black_goat_fur_co.paa"};
 		hiddenSelectionsMaterials[] = {"dz\animals\capra_hircus\data\Black_Goat.rvmat","dz\animals\capra_hircus\data\black_goat_fur.rvmat"};
+		itemBehaviour = 0;
+		itemSize[] = {10,100};
+		carveNavmesh = 1;
+		weight = 1000000;
+		physLayer = "item_large";
+		allowOwnedCargoManipulation = 1;
+		forceFarBubble = "true";
+		rotationFlags = 2;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 1000000;
+					healthLevels[] = {{1.0,{""}},{0.7,{""}},{0.5,{""}},{0.3,{""}},{0.0,{""}}};
+				};
+			};
+		};
 	};
 };

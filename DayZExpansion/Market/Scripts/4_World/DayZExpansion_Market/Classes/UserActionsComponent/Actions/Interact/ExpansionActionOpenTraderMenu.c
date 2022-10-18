@@ -39,6 +39,9 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 
 		if (!m_MarketModule.CanOpenMenu())
 			return false;
+
+		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+			return false;
 		
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{

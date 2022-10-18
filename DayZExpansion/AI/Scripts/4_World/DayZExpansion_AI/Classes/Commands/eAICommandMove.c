@@ -218,13 +218,40 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		}
 #endif
 
-		vector leftPos;
-		vector rightPos;
-		vector forwardPos;
-		vector backwardPos;
-		vector outNormal;
+		vector pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
+		vector fb = pathDir2D.Normalized();
 
-		float hitFraction;
+		bool halt;
+
+		//! Hack fix so AI doesn't fall from a large height (e.g. building top) and die
+		if (position[1] - wayPoint[1] > 2.5)
+		{
+			vector checkDirection = fb * 2;
+			if (!m_Unit.eAI_IsFallSafe(checkDirection))
+				halt = true;
+		}
+
+		//! Hack fix so AI doesn't go into deep water
+		vector begPos = Vector(position[0], Math.Max(position[1], wayPoint[1]), position[2]) + fb;
+		vector contactPos;
+		vector contactDir;
+		int contactComponent;
+		set<Object> results();
+		if (DayZPhysics.RaycastRV(begPos, position + fb - "0 10 0", contactPos, contactDir, contactComponent, results, NULL, m_Unit, false, false, ObjIntersectView, 0.25))
+		{
+			float waterDepth = GetGame().GetWaterDepth(contactPos);
+			if (waterDepth > 0.5)
+				halt = true;
+		}
+
+		if (halt)
+		{
+			wayPoint = position;
+			isFinal = true;
+			m_MovementSpeed = 0;
+			m_OverrideMovementTimeout = 0.0;
+		}
+
 		bool blockedForward;
 		bool blockedLeft;
 		bool blockedRight;
@@ -245,13 +272,19 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		//! Try and avoid obstacles if we are moving and not climbing
 		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.eAI_IsClimb())
 		{
+			vector leftPos;
+			vector rightPos;
+			vector forwardPos;
+			vector backwardPos;
+			vector outNormal;
+			float hitFraction;
+
 			bool chg;
 #ifdef DIAG
 			string msg;
 #endif
 
 			//! Always check fwd
-			vector fb = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2])).Normalized();
 			vector checkFwd = position + 0.5 * fb;
 			vector checkBwd = position - 0.5 * fb;
 			blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkFwd + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true);
@@ -592,7 +625,6 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 		if (m_MovementSpeed != 0)
 		{
-			vector pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
 			m_WayPointDistance2D = pathDir2D.LengthSq();
 			if (m_WayPointDistance2D >= 0.04)  //! 0.2 m
 			{
@@ -602,20 +634,20 @@ class eAICommandMove extends ExpansionHumanCommandScript
 			}
 		}
 
-		//if (isFinal && m_WayPointDistance >= minFinal)
-		//{
-			////! If distance squared to waypoint is more than minFinal, make sure unit can actually reach waypoint.
-			////! Prevents unit rotating in spot in case it cannot reach a waypoint due to height difference.
-
+		if (wayPoint != position)
+		{
 			float y = GetGame().SurfaceY(wayPoint[0], wayPoint[2]);
 			if (y > wayPoint[1]) wayPoint[1] = y;
-				
-			vector orig_WayPoint = wayPoint;
+
 			if (DayZPhysics.RayCastBullet(wayPoint + Vector(0.0, 1.5, 0.0), wayPoint - Vector(0.0, 10.0, 0.0), m_CollisionLayerMask|PhxInteractionLayers.TERRAIN, m_Player, m_HitObject, m_HitPosition, m_HitNormal, m_HitFraction))
 				wayPoint = m_HitPosition;
 
 			m_WayPointDistance = vector.DistanceSq(position, wayPoint);
-		//}
+		}
+		else
+		{
+			m_WayPointDistance = 0.0;
+		}
 
 		if (m_OverrideMovementTimeout > 0)
 		{

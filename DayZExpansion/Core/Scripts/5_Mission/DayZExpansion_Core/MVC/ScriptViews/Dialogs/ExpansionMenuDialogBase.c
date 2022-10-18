@@ -20,6 +20,7 @@ class ExpansionMenuDialogBase: ExpansionScriptView
 	ButtonWidget dialog_close_button;
 	Widget dialog_info_content;
 	ButtonWidget dialog_info_button;
+	GridSpacerWidget dialog_buttons_grid;
 	
 	ref ExpansionScriptViewMenu m_ParentMenu;
 	ref ExpansionMenuDialogBaseController m_DialogBaseController;

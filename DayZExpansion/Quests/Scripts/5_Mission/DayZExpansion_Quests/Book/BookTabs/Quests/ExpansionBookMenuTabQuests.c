@@ -13,19 +13,19 @@
 #ifdef EXPANSIONMODBOOK
 class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 {
-	private ref ExpansionBookMenuTabQuestsController m_QuestTabController;
-	private ScrollWidget rules_list_scroller;
-	private ExpansionQuestModule m_QuestModule;
-	private ExpansionQuestConfig m_Quest;
-	private ref ExpansionDialog_CancelQuest m_CancelQuestDialog;
+	protected ref ExpansionBookMenuTabQuestsController m_QuestTabController;
+	protected ScrollWidget rules_list_scroller;
+	protected ExpansionQuestModule m_QuestModule;
+	protected ExpansionQuestConfig m_Quest;
+	protected ref ExpansionDialog_CancelQuest m_CancelQuestDialog;
 
-	private Widget quest_info_panel;
-	private Widget reward_panel;
-	private ButtonWidget cancel_quest;
-	private TextWidget cancel_quest_label;
-	private ButtonWidget hide_questhud_button;
-	private TextWidget hide_questhud_button_label;
-	private Widget humanity;
+	protected Widget quest_info_panel;
+	protected Widget reward_panel;
+	protected ButtonWidget cancel_quest;
+	protected TextWidget cancel_quest_label;
+	protected ButtonWidget hide_questhud_button;
+	protected TextWidget hide_questhud_button_label;
+	protected Widget humanity;
 
 	void ExpansionBookMenuTabQuests(ExpansionBookMenu book_menu)
 	{
@@ -184,25 +184,25 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 		m_QuestTabController.RewardEntries.Clear();
 		int rewardsCount = quest.GetRewards().Count();
-		
+
 		reward_panel.Show(false);
 	#ifdef EXPANSIONMODHARDLINE
-		if (rewardsCount > 0 || quest.GetHumanityReward() > 0 && GetExpansionSettings().GetHardline().UseHumanity)
+		if (rewardsCount > 0 || (quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
 	#else
 		if (rewardsCount > 0)
 	#endif
 		{
 			reward_panel.Show(true);
-			for (int i = 0; i < quest.GetRewards().Count(); i++)
+			array<ref ExpansionQuestRewardConfig> questRewards = quest.GetRewards();
+			foreach (ExpansionQuestRewardConfig reward: questRewards)
 			{
-				ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
 				ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount(), reward.GetAttachments());
 				m_QuestTabController.RewardEntries.Insert(rewardEntry);
 			}
-		
+
 			humanity.Show(false);
 		#ifdef EXPANSIONMODHARDLINE
-			if (quest.GetHumanityReward() > 0 && GetExpansionSettings().GetHardline().UseHumanity)
+			if ((quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
 			{
 				humanity.Show(true);
 				m_QuestTabController.HumanityVal = quest.GetHumanityReward().ToString();
@@ -212,23 +212,18 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		}
 
 		m_QuestTabController.ObjectiveItems.Clear();
-		for (i = 0; i < quest.GetObjectives().Count(); i++)
+		array<ref ExpansionQuestObjectiveConfig> questObjectives = quest.GetObjectives();
+		foreach (ExpansionQuestObjectiveConfig objective: questObjectives)
 		{
-			ExpansionQuestObjectiveConfig objective = quest.GetObjectives()[i];
 			int objectiveType = objective.GetObjectiveType();
-			QuestPrint(ToString() + "::SetQuest - Objective type: " + objectiveType);
-			ExpansionQuestObjectiveTargetConfig objectiveTarget;
-			ExpansionQuestObjectiveTravelConfig objectiveTravel;
-			ExpansionQuestObjectiveDeliveryConfig objectiveDelivery;
-			ExpansionQuestObjectiveCollectionConfig objectiveCollection;
 			string className;
 			int amount;
-
+			QuestPrint(ToString() + "::SetQuest - Objective type: " + objectiveType);
 			switch (objectiveType)
 			{
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
-					objectiveCollection = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
+					ExpansionQuestObjectiveCollectionConfig objectiveCollection = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
 					className = objectiveCollection.GetCollection().GetClassName();
 					amount = objectiveCollection.GetCollection().GetAmount();
 					ExpansionQuestMenuItemEntry collectObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
@@ -238,16 +233,17 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 				}
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
-					objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
-					for (int j = 0; j < objectiveDelivery.GetDeliveries().Count(); j++)
+					ExpansionQuestObjectiveDeliveryConfig objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
+					array<ref ExpansionQuestObjectiveDelivery> deliveries = objectiveDelivery.GetDeliveries();
+					foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
 					{
-						ExpansionQuestObjectiveDelivery delivery = objectiveDelivery.GetDeliveries()[j];
 						className = delivery.GetClassName();
 						amount = delivery.GetAmount();
 						ExpansionQuestMenuItemEntry deliverObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
 						m_QuestTabController.ObjectiveItems.Insert(deliverObjectiveEntry);
 						QuestPrint(ToString() + "::SetQuest - Add objective item entry for item: " + className);
 					}
+					break;
 				}
 			}
 		}
@@ -257,10 +253,10 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = new ExpansionDialog_CancelQuest(this);
-		
+
 		m_CancelQuestDialog.Show();
 	}
-	
+
 	void OnConfirmCancelQuest()
 	{
 		if (!m_Quest)
@@ -306,7 +302,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	{
 		return m_QuestModule;
 	}
-	
+
 	ExpansionQuestConfig GetQuest()
 	{
 		return m_Quest;
@@ -343,10 +339,13 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 		return super.OnMouseLeave(w, enterW, x, y);
 	}
-	
+
 	override bool CanClose()
 	{
-		return !m_CancelQuestDialog.IsVisible();
+		if (m_CancelQuestDialog)
+			return !m_CancelQuestDialog.IsVisible();
+
+		return true;
 	}
 
 	void QuestPrint(string text)
@@ -373,16 +372,16 @@ class ExpansionDialog_CancelQuest: ExpansionDialogBookBase
 {
 	ref ExpansionDialogContent_Text m_Text;
 	ref ExpansionDialogButton_Text_CancelQuest_Accept m_AcceptButton;
-	ref ExpansionDialogButton_Text_CancelQuest_Cancel m_CancelButton;	
+	ref ExpansionDialogButton_Text_CancelQuest_Cancel m_CancelButton;
 	ExpansionBookMenuTabQuests m_QuestsTab;
-		
+
 	void ExpansionDialog_CancelQuest(ExpansionScriptView parentView)
 	{
 		m_ParentView = parentView;
-		
+
 		if (!m_QuestsTab)
 			m_QuestsTab = ExpansionBookMenuTabQuests.Cast(GetParentView());
-		
+
 		if (!m_Text)
 		{
 			m_Text = new ExpansionDialogContent_Text(this);
@@ -391,14 +390,14 @@ class ExpansionDialog_CancelQuest: ExpansionDialogBookBase
 			m_Text.SetTextColor(ARGB(255,0,0,0));
 			m_Text.Show();
 		}
-		
+
 		if (!m_AcceptButton)
 		{
 			m_AcceptButton = new ExpansionDialogButton_Text_CancelQuest_Accept(this);
 			AddButton(m_AcceptButton);
 			m_AcceptButton.Show();
 		}
-		
+
 		if (!m_CancelButton)
 		{
 			m_CancelButton = new ExpansionDialogButton_Text_CancelQuest_Cancel(this);
@@ -406,9 +405,9 @@ class ExpansionDialog_CancelQuest: ExpansionDialogBookBase
 			m_CancelButton.Show();
 		}
 	}
-	
+
 	override string GetDialogTitle()
-	{		
+	{
 		return "#STR_EXPANSION_QUEST_MENU_CANCEL_QUEST";
 	}
 };
@@ -418,31 +417,31 @@ class ExpansionDialogButton_Text_CancelQuest_Accept: ExpansionDialogBookButton_T
 	ExpansionDialog_CancelQuest m_CancelQuestDialog;
 	ExpansionBookMenuTabQuests m_QuestTab;
 	ExpansionQuestModule m_QuestModule;
-	
+
 	void ExpansionDialogButton_Text_CancelQuest_Accept(ExpansionDialogBase dialog)
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = ExpansionDialog_CancelQuest.Cast(GetDialog());
-		
+
 		if (!m_QuestTab)
 			m_QuestTab = ExpansionBookMenuTabQuests.Cast(m_CancelQuestDialog.GetParentView());
-		
+
 		if (!m_QuestModule)
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		
+
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));
 	}
-	
+
 	override void OnButtonClick()
 	{
 		if (m_QuestTab)
 		{
 			m_QuestTab.OnConfirmCancelQuest();
 		}
-		
+
 		m_CancelQuestDialog.Hide();
-		
+
 		ExpansionUIManager uiManager = GetDayZExpansion().GetExpansionUIManager();
 		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(uiManager.GetMenu());
 		if (bookMenu)
@@ -454,19 +453,19 @@ class ExpansionDialogButton_Text_CancelQuest_Cancel: ExpansionDialogBookButton_T
 {
 	ExpansionDialog_CancelQuest m_CancelQuestDialog;
 	ExpansionBookMenuTabQuests m_QuestTab;
-	
+
 	void ExpansionDialogButton_Text_CancelQuest_Cancel(ExpansionDialogBase dialog)
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = ExpansionDialog_CancelQuest.Cast(GetDialog());
-		
+
 		if (!m_QuestTab)
 			m_QuestTab = ExpansionBookMenuTabQuests.Cast(m_CancelQuestDialog.GetParentView());
-		
+
 		SetButtonText("#STR_EXPANSION_CANCEL");
 		SetTextColor(ARGB(255,0,0,0));
 	}
-	
+
 	override void OnButtonClick()
 	{
 		m_CancelQuestDialog.Hide();

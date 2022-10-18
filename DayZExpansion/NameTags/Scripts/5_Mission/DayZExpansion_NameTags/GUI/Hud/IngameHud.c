@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -18,16 +18,15 @@ modded class IngameHud
 	protected string m_PlayerTagIconPath;
 	protected int m_PlayerTagIconColor;
 	protected int m_PlayerNameIconColor;
-	
-	override void Update( float timeslice )
+
+	override void Update(float timeslice)
 	{
 		super.Update(timeslice);
-	
-		//! Player Tags		
+
+		//! Player Tags
 		if (GetExpansionSettings().GetNameTags(false).IsLoaded() && GetExpansionSettings().GetNameTags().EnablePlayerTags)
 		{
 			RefreshPlayerTagsEx();
-
 			//! Always make sure to fade the fucker out :-)
 			ShowPlayerTagEx(timeslice);
 		}
@@ -45,12 +44,10 @@ modded class IngameHud
 		float distance;
 
 		m_CurrentTaggedPlayer = null;
-
 		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
 		PlayerBase playerB;
 
 		bool isInSafeZone = safeZone && playerA && playerA.IsInSafeZone();
-
 	#ifdef EXPANSIONMODBASEBUILDING
 		bool isInTerritory = territory && playerA && playerA.IsInTerritory();
 	#endif
@@ -62,12 +59,11 @@ modded class IngameHud
 
 			vector target_player_pos = player.GetPosition();
 			distance = vector.Distance(head_pos, target_player_pos);
-			
+
 			if (distance > viewrange)
 				continue;
 
 			Class.CastTo(playerB, player);
-
 			bool check = !safeZone && !territory;
 
 			if (safeZone && isInSafeZone && playerB && playerB.IsInSafeZone())
@@ -84,7 +80,7 @@ modded class IngameHud
 			vector end_pos = head_pos + GetGame().GetCurrentCameraDirection() * viewrange;
 			RaycastRVParams params = new RaycastRVParams(head_pos, end_pos, GetGame().GetPlayer(), 0);
 			params.sorted = true;
-			
+
 			array<ref RaycastRVResult> results = new array<ref RaycastRVResult>;
 			DayZPhysics.RaycastRVProxy(params, results);
 			if (results.Count() > 0 && results.Get(0).obj == player)
@@ -94,8 +90,8 @@ modded class IngameHud
 			}
 		}
 	}
-	
-	void ShowPlayerTagEx( float timeslice )
+
+	void ShowPlayerTagEx(float timeslice)
 	{
 		if (m_CurrentTaggedPlayer && m_CurrentTaggedPlayer.GetIdentity() && m_CurrentTaggedPlayer.IsAlive())
 		{
@@ -111,11 +107,11 @@ modded class IngameHud
 				m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
 				m_PlayerTagIcon.SetImage(0);
 			}
-			
+
 			m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex("Spine2");
 			vector player_pos = m_CurrentTaggedPlayer.GetBonePositionWS(m_PlayerSpineIndex);
 			vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
-			
+
 			if (screen_pos[2] > 0)
 			{
 				if (screen_pos[0] > 0 && screen_pos[0] < 1)
@@ -132,7 +128,7 @@ modded class IngameHud
 				}
 			}
 		}
-		
+
 		if (m_PlayerTag)
 		{
 			float new_alpha = Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1);
@@ -166,9 +162,9 @@ modded class IngameHud
 		{
 			m_PlayerTagIconPath = "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds";
 		}
-		
+
 		m_PlayerTagIconColor = GetExpansionSettings().GetNameTags().PlayerTagsColor;
 		m_PlayerNameIconColor = GetExpansionSettings().GetNameTags().PlayerNameColor;
-		
+
 	}
 };

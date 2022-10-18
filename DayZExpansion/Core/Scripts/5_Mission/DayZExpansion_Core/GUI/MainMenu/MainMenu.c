@@ -14,24 +14,14 @@ modded class MainMenu
 {
 	override Widget Init()
 	{
-		super.Init();
-
-		string version;
-		GetGame().GetVersion( version );
-		string expansion_version;
-
-		if ( GetDayZGame() )
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
-
-		if (expansion_version)
-#ifdef EDITOR
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version + " #STR_EDITOR_MAIN_MENU_VERSION" + " " + GetEditor().Version);
-#else
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
-#endif
-		else
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
-
+		layoutRoot = super.Init();
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 		return layoutRoot;
 	}
-}
+	
+	override void Refresh()
+	{
+		super.Refresh();
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
+	}
+};

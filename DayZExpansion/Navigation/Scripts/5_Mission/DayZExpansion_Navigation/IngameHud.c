@@ -5,58 +5,58 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
 modded class IngameHud
 {
-	Widget m_GPSPanel;
-	Widget m_MapStatsPanel;
-	Widget m_MapPosPanel;
-	TextWidget m_PlayerPosVal;
-	Widget m_PlayerPosPanel;
-	TextWidget m_PlayerALTVal;
-	Widget m_PlayerALTPanel;
-	TextWidget m_PlayerDirVal;
-	Widget m_PlayerDirPanel;
+	protected Widget m_GPSPanel;
+	protected Widget m_MapStatsPanel;
+	protected Widget m_MapPosPanel;
+	protected TextWidget m_PlayerPosVal;
+	protected Widget m_PlayerPosPanel;
+	protected TextWidget m_PlayerALTVal;
+	protected Widget m_PlayerALTPanel;
+	protected TextWidget m_PlayerDirVal;
+	protected Widget m_PlayerDirPanel;
 
-	Widget m_GPSMapPanel;
-	Widget m_MapMarkerPanel;
-	MapWidget m_MapWidget;
-	ref ExpansionMapMarkerPlayerArrow m_PlayerArrowMarker;
+	protected Widget m_GPSMapPanel;
+	protected Widget m_MapMarkerPanel;
+	protected MapWidget m_MapWidget;
+	protected ref ExpansionMapMarkerPlayerArrow m_PlayerArrowMarker;
 
-	float m_GPSMapScale = 0.1;
+	protected float m_GPSMapScale = 0.1;
 
-	Widget m_CompassPanel;
-	ImageWidget m_CompassImage;
-	Widget m_CompassBadge1;
-	Widget m_CompassBadge2;
-	Widget m_CompassBadge3;
-	bool m_AddedCompassSettings;
+	protected Widget m_CompassPanel;
+	protected ImageWidget m_CompassImage;
+	protected Widget m_CompassBadge1;
+	protected Widget m_CompassBadge2;
+	protected Widget m_CompassBadge3;
+	protected bool m_AddedCompassSettings;
 
-	bool m_ExpansionGPSState;
-	bool m_ExpansionGPSMapState;
-	bool m_ExpansionGPSMapStatsState;
-	int m_ExpansionGPSPosSetting;
-	bool m_ExpansionGPSSetting;
+	protected bool m_ExpansionGPSState;
+	protected bool m_ExpansionGPSMapState;
+	protected bool m_ExpansionGPSMapStatsState;
+	protected int m_ExpansionGPSPosSetting;
+	protected bool m_ExpansionGPSSetting;
 
-	bool m_ExpansionCompassSetting;
-	bool m_ExpansionCompassState;
-	bool m_ExpansionCompassDesiredState;
+	protected bool m_ExpansionCompassSetting;
+	protected bool m_ExpansionCompassState;
+	protected bool m_ExpansionCompassDesiredState;
 
-	bool m_HasGPSItem;
-	float m_CloseTime = 0;
-	bool m_GPSWasOpened = false;
+	protected bool m_HasGPSItem;
+	protected float m_CloseTime = 0;
+	protected bool m_GPSWasOpened = false;
 
-	bool m_HasGPSForCompassItem;
-	bool m_HasCompassItem;
-	bool m_CompassWasOpened;
-	PlayerBase m_Player;
-	bool m_ExpansionCompassToggle;
+	protected bool m_HasGPSForCompassItem;
+	protected bool m_HasCompassItem;
+	protected bool m_CompassWasOpened;
+	protected PlayerBase m_Player;
+	protected bool m_ExpansionCompassToggle;
 
-	autoptr ExpansionLocatorUI m_Expansion_LocatorUI;
+	protected autoptr ExpansionLocatorUI m_Expansion_LocatorUI;
 
 	void IngameHud()
 	{
@@ -101,7 +101,7 @@ modded class IngameHud
 
 			//! Player arrow needs to be always created, as we don't have access to server settings on client side
 			//! when the HUD is created for the first time to check if it's needed or not
-			m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow(NULL, m_MapWidget);
+			m_PlayerArrowMarker = new ExpansionMapMarkerPlayerArrow(m_MapMarkerPanel, m_MapWidget);
 			m_PlayerArrowMarker.SetName("");
 		}
 
@@ -121,7 +121,7 @@ modded class IngameHud
 	override void Update(float timeslice)
 	{
 		super.Update(timeslice);
-		
+
 		UIScriptedMenu topMenu = GetGame().GetUIManager().GetMenu();
 		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 
@@ -135,40 +135,30 @@ modded class IngameHud
 			if (GetGPSMapState() && !m_PlayerArrowMarker.GetLayoutRoot().IsVisible())
 				m_PlayerArrowMarker.Hide();
 		}
-		
+
 		if (!GetExpansionSettings().GetMap(false).IsLoaded())
 			return;
 
 		if (GetExpansionSettings().GetMap().ShowPlayerPosition == 1 || GetExpansionSettings().GetMap().ShowPlayerPosition == 2)
 		{
 			if (m_PlayerArrowMarker)
-			{
 				m_PlayerArrowMarker.Update(timeslice);
-			}
 		}
 
 		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 		{
 			if (WasGPSOpened())
-			{
 				SetWasGPSOpened(false);
-			}
 
 			if (WasCompassOpened())
-			{
 				SetWasCompassOpened(false);
-			}
 		}
 
 		if (m_GPSPanel && m_GPSPanel.IsVisible())
-		{
 			RefreshGPS();
-		}
 
 		if (m_CompassPanel && m_CompassPanel.IsVisible())
-		{
 			RefreshCompass();
-		}
 
 		m_Player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (m_Player && m_Player.IsAlive())
@@ -178,14 +168,10 @@ modded class IngameHud
 			if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			{
 				if (GetGPSState())
-				{
 					SetWasGPSOpened(true);
-				}
 
 				if (GetCompassState())
-				{
 					SetWasCompassOpened(true);
-				}
 
 				return;
 			}
@@ -230,9 +216,7 @@ modded class IngameHud
 	void UpdateCompass()
 	{
 		if (!m_Player)
-		{
 			return;
-		}
 
 		if (GetCompassState())
 		{
@@ -276,168 +260,58 @@ modded class IngameHud
 		super.RefreshHudVisibility();
 
 		if (m_GPSPanel)
-		{
 			m_GPSPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSSetting);
-		}
 
 		if (m_GPSMapPanel)
-		{
 			m_GPSMapPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting);
-		}
 
 		if (m_PlayerArrowMarker)
-		{
 			m_PlayerArrowMarker.ShowRoot(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2));
-		}
 
 		if (m_MapStatsPanel)
-		{
 			m_MapStatsPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapStatsState && m_ExpansionGPSSetting);
-		}
 
 		if (m_CompassPanel)
-		{
 			m_CompassPanel.Show(m_HudState && m_ExpansionCompassSetting && m_ExpansionCompassState && m_ExpansionCompassToggle);
-		}
 	}
 
 	void RefreshGPS()
 	{
 		if (m_MapStatsPanel.IsVisible())
-		{
 			RefreshGPSMapStats();
-		}
 
 		if (m_GPSMapPanel.IsVisible())
-		{
 			RefreshGPSMap();
-		}
 	}
 
 	void RefreshGPSMapStats()
 	{
-		vector m_cameraPosition, m_cameraDirection;
-		float yaw, normalizedAngle;
-		int dir, alt;
-		PlayerBase player;
+		if (!(GetGame().GetPlayer() && GetGame().GetCurrentCameraPosition()))
+			return;
 
-		if (Class.CastTo(player, GetGame().GetPlayer()))
-		{
-			m_cameraPosition = GetGame().GetCurrentCameraPosition();
-			m_cameraDirection = GetGame().GetCurrentCameraDirection().VectorToAngles();
-			yaw = m_cameraDirection[0];
-			normalizedAngle = Math.NormalizeAngle(yaw);
-			dir = Math.Round(normalizedAngle);
-			alt = Math.Round(m_cameraPosition[1]);
+		vector cameraPosition = GetGame().GetCurrentCameraPosition();
+		vector cameraDirection = GetGame().GetCurrentCameraDirection().VectorToAngles();
+		float yaw = cameraDirection[0];
+		float normalizedAngle = Math.NormalizeAngle(yaw);
+		int dir = Math.Round(normalizedAngle);
+		int alt = Math.Round(cameraPosition[1]);
 
-			m_PlayerPosVal.SetText(Math.Round(m_cameraPosition[0]).ToString() + " : " + Math.Round(m_cameraPosition[2]).ToString());
-			m_PlayerDirVal.SetText(dir.ToString());
-			m_PlayerALTVal.SetText(alt.ToString());
-		}
+		m_PlayerPosVal.SetText(Math.Round(cameraPosition[0]).ToString() + " : " + Math.Round(cameraPosition[2]).ToString());
+		m_PlayerDirVal.SetText(dir.ToString());
+		m_PlayerALTVal.SetText(alt.ToString());
 	}
 
 	void RefreshGPSMap()
 	{
-		float scale;
-		vector map_pos, camera_pos;
-		float camera_x, camera_y;
-		int deviation_x, deviation_y;
-		int multiplier;
-		float shift_x, shift_y;
-		string worldName;
-
 		if (!(GetGame().GetPlayer() && GetGame().GetCurrentCameraPosition()))
 			return;
 
-		camera_pos = GetGame().GetCurrentCameraPosition();
-		camera_x = camera_pos[0];
-		camera_y = camera_pos[2];
-		scale = GetCurrentGPSMapScale();
-
-		multiplier = Math.Round(scale * 10);
-
-		//Print("IngameHud::RefreshGPSMap - Map scale: " + scale);
-		
-		switch (ExpansionStatic.GetCanonicalWorldName())
-		{
-			// 25600 / 25600
-			case "banov":
-			{
-				if (scale >= 0.1)
-				{
-					shift_x = 642.5;
-					shift_y = 485.5;
-				}
-				break;
-			}
-			case "chernarusplus":
-			{
-				if (scale >= 0.1)
-				{
-					shift_x = 642.5;
-					shift_y = 485.5;
-				}
-				break;
-			}
-			case "deerisle":
-			{
-				// 16374 / 16400
-				if (scale >= 0.1)
-				{
-					shift_x = 682.5;
-					shift_y = 525.5;
-				}
-				break;
-			}
-			case "chiemsee":
-			{
-				// 10240 / 10240
-				if (scale >= 0.1)
-				{
-					shift_x = 430;
-					shift_y = 327.5;
-				}
-				break;
-			}
-			case "enoch":
-			case "namalsk":
-			case "esseker":
-			case "takistan":
-			case "takistanplus":
-			{
-				// 12800 / 12800
-				if (scale >= 0.1)
-				{
-					shift_x = 545.0;
-					shift_y = 412.5;
-				}
-				break;
-			}
-		}
-
-		camera_x = camera_x + (shift_x * multiplier);
-		camera_y = camera_y - (shift_y * multiplier);
-		map_pos = Vector(camera_x, 0, camera_y);
+		vector tempPosition = GetGame().GetCurrentCameraPosition();
+		vector mapPosition = Vector(tempPosition[0], tempPosition[1], tempPosition[2]);
+		float scale = GetCurrentGPSMapScale();
 
 		m_MapWidget.SetScale(scale);
-		m_MapWidget.SetMapPos(map_pos);
-		
-		/*vector worldPos = GetGame().GetCurrentCameraPosition();
-		float pos_x = worldPos[0];
-		float pos_y = worldPos[2];
-		
-		float mapScale = GetCurrentGPSMapScale();
-		
-		float map_width, map_height;
-		m_MapWidget.GetScreenSize(map_width, map_height);
-	
-		float shift_x = map_width;
-		float shift_y = map_height;
-		
-		vector map_pos = Vector(pos_x + shift_x, 0, pos_y + shift_y);
-		
-		m_MapWidget.SetScale(mapScale);
-		m_MapWidget.SetMapPos(map_pos);*/
+		m_MapWidget.SetMapPos(mapPosition);
 	}
 
 	void RefreshCompass()
@@ -446,12 +320,11 @@ modded class IngameHud
 		{
 			int compass_color = GetExpansionSettings().GetMap().CompassColor;
 			int compass_badges_color = GetExpansionSettings().GetMap().CompassBadgesColor;
-			
+
 			m_CompassImage.SetColor(compass_color);
 			m_CompassBadge1.SetColor(compass_badges_color);
 			m_CompassBadge2.SetColor(compass_badges_color);
 			m_CompassBadge3.SetColor(compass_badges_color);
-
 			m_AddedCompassSettings = true;
 		}
 
@@ -470,7 +343,6 @@ modded class IngameHud
 
 		//! Fix slight inaccuracy in compass HUD and sudden "jump" when looking north past 360 degrees
 		image_pos *= 0.995;
-
 		m_CompassImage.SetPos(image_pos, 0, true);
 	}
 
@@ -480,14 +352,12 @@ modded class IngameHud
 			return;
 
 		m_ExpansionCompassState = show;
-
 		RefreshHudVisibility();
 	}
 
-	void SetShowCompass( bool show )
+	void SetShowCompass(bool show)
 	{
-		ShowCompass( show );
-
+		ShowCompass(show);
 		m_ExpansionCompassDesiredState = show;
 	}
 
@@ -499,7 +369,6 @@ modded class IngameHud
 	void ShowGPS(bool show)
 	{
 		m_ExpansionGPSState = show;
-
 		RefreshHudVisibility();
 	}
 
@@ -545,7 +414,6 @@ modded class IngameHud
 	void GPSShow()
 	{
 		m_CloseTime = 0;
-
 		ShowGPS(true);
 
 		if (GetGPSMapStatsState())
@@ -558,7 +426,6 @@ modded class IngameHud
 	void GPSHide()
 	{
 		m_CloseTime = 0;
-		
 		ShowGPS(false);
 	}
 
@@ -598,7 +465,7 @@ modded class IngameHud
 		m_CompassWasOpened = state;
 		ToggleHUDCompass();
 	}
-		
+
 	void SetCompassToggleState()
 	{
 		m_ExpansionCompassToggle = !m_ExpansionCompassToggle;
@@ -609,10 +476,25 @@ modded class IngameHud
 	{
 		return m_GPSMapScale;
 	}
-	
+
 	void SetGPSMapScale(float scale)
 	{
 		m_GPSMapScale = scale;
 		RefreshGPSMap();
+	}
+
+	ExpansionLocatorUI GetExpanisonLocatorUI()
+	{
+		return m_Expansion_LocatorUI;
+	}
+
+	float HUDCloseTime()
+	{
+		return m_CloseTime;
+	}
+
+	void SetHasGPSItem(bool state)
+	{
+		m_HasGPSItem = state;
 	}
 };

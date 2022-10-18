@@ -31,7 +31,7 @@ class ExpansionMarketCategory
 	bool IsExchange;
 	float InitStockPercent;
 
-	//! NOTE: Normally we don't want to iterate over this, use GetItems() instead (contains all variants)
+	//! NOTE: Normally we don't want to iterate over this, use m_Items instead (contains all variants)
 	autoptr array< ref ExpansionMarketItem > Items = new array< ref ExpansionMarketItem >;
 
 	//! ClassName -> Item
@@ -339,6 +339,7 @@ class ExpansionMarketCategory
 
 	array<ref ExpansionMarketItem> GetItems()
 	{
+		EXPrint("WARNING: ExpansionMarketCategory::GetItems is inefficient, use m_Items instead");
 		array<ref ExpansionMarketItem> items = new array< ref ExpansionMarketItem >;
 		foreach (ExpansionMarketItem item : m_Items)
 		{
@@ -349,6 +350,7 @@ class ExpansionMarketCategory
 
 	array<string> GetClassNames()
 	{
+		EXPrint("WARNING: ExpansionMarketCategory::GetClassNames is inefficient, use m_Items instead");
 		return m_Items.GetKeyArray();
 	}
 

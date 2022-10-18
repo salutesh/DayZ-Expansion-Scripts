@@ -64,6 +64,8 @@ class EXTrace
 	static bool GLOBAL;
 
 	static bool GROUPS = ENABLE;
+	
+	static bool GARAGE = ENABLE;
 
 	static bool HARDLINE = ENABLE;
 

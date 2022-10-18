@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Tractor
 	{
-		units[] = {"ExpansionTractorFrontWheel","ExpansionTractorFrontWheel_Ruined","ExpansionTractorBackWheel","ExpansionTractorBackWheel_Ruined","Vehicle_ExpansionTractorFrontWheel","Vehicle_ExpansionTractorBackWheel","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","ExpansionTractor","ExpansionSpraycanRed","ExpansionTractor_Red","ExpansionSpraycanBlue","ExpansionTractor_Blue","ExpansionSpraycanGreen","ExpansionTractor_Green"};
+		units[] = {"ExpansionTractorFrontWheel","ExpansionTractorFrontWheel_Ruined","ExpansionTractorBackWheel","ExpansionTractorBackWheel_Ruined","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","ExpansionTractor","ExpansionSpraycanRed","ExpansionTractor_Red","ExpansionSpraycanBlue","ExpansionTractor_Blue","ExpansionSpraycanGreen","ExpansionTractor_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -110,18 +110,9 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionTractorFrontWheel_Ruined: CarWheel
+	class ExpansionTractorFrontWheel_Ruined: ExpansionTractorFrontWheel
 	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\tractor2_front_wheel_destroyed.p3d";
-		inventorySlot[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1"};
-		rotationFlags = 4;
-		physLayer = "item_large";
-		itemSize[] = {6,6};
-		weight = 35000;
-		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.62;
 		width = 0.45;
 		tyreRollResistance = 0.015;
@@ -180,18 +171,9 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionTractorBackWheel_Ruined: CarWheel
+	class ExpansionTractorBackWheel_Ruined: ExpansionTractorBackWheel
 	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\tractor2_back_wheel_destroyed.p3d";
-		inventorySlot[] = {"ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2"};
-		rotationFlags = 4;
-		physLayer = "item_large";
-		itemSize[] = {8,8};
-		weight = 50000;
-		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.793;
 		width = 0.55;
 		tyreRollResistance = 0.015;
@@ -208,21 +190,10 @@ class CfgVehicles
 				};
 			};
 		};
-		class AnimEvents
-		{
-			class SoundWeapon
-			{
-				class drop
-				{
-					soundset = "hatchbackwheel_drop_SoundSet";
-					id = 898;
-				};
-			};
-		};
 	};
 	class Vehicle_ExpansionTractorFrontWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_FRONT_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\ExpansionTractorFrontWheel.p3d";
@@ -250,7 +221,7 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionTractorBackWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_TRACTOR_WHEEL_BACK_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\proxy\ExpansionTractorBackWheel.p3d";
@@ -341,7 +312,7 @@ class CfgVehicles
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\Tractor2.p3d";
 		modelZeroPointDistanceFromGround = 0.06;
-		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1"};
+		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1","CamoNet"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo","dmgZone_front","dmgZone_back","dmgZone_roof"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\tractor_2_co.paa","","",""};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat","DayZExpansion\Vehicles\Ground\Tractor\Data\traktor_2.rvmat"};
@@ -368,6 +339,7 @@ class CfgVehicles
 			airDragFrontTotal = 0.905;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,25,30,11,50,6};
 				decreaseSpeed[] = {0,40,30,20,55,10};
 				centeringSpeed[] = {0,0,7,12,30,20,50,30};
@@ -381,9 +353,24 @@ class CfgVehicles
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.5,10,0.46,30,0.43,40,0.4,60,0.5,80,0.6};
+				reactionTime = 0.3;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 5.75;
+				dragCoefficient = 0.53;
+			};
 			class Engine
 			{
+				torqueCurve[] = {525,0,1000,330,1400,360,1900,340,3000,0};
 				inertia = 0.15;
+				frictionTorque = 100;
+				rollingFriction = 4;
+				viscousFriction = 2.5;
 				steepness = 1.5;
 				torqueMax = 150;
 				torqueRpm = 1500;
@@ -395,13 +382,25 @@ class CfgVehicles
 				rpmRedline = 3000;
 				rpmMax = 3500;
 			};
+			class Clutch
+			{
+				maxTorqueTransfer = 560;
+				uncoupleTime = 0.15;
+				coupleTime = 0.15;
+			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 6.526;
 				ratios[] = {6.6670003,3.25};
 				timeToUncoupleClutch = 0.15;
 				timeToCoupleClutch = 0.14999999;
 				maxClutchTorque = 560;
+			};
+			class CentralDifferential
+			{
+				ratio = 1.45;
+				type = "DIFFERENTIAL_LOCKED";
 			};
 			class Axles: Axles
 			{
@@ -413,6 +412,13 @@ class CfgVehicles
 					brakeForce = 4000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					maxBrakeTorque = 5000;
+					maxHandbrakeTorque = 6000;
+					class Differential
+					{
+						ratio = 8.35;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 1700;
@@ -450,6 +456,13 @@ class CfgVehicles
 					brakeForce = 3800;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					maxBrakeTorque = 5000;
+					maxHandbrakeTorque = 6000;
+					class Differential
+					{
+						ratio = 8.35;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 1800;
@@ -756,7 +769,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","Reflector_1_1","Reflector_2_1"};
+				attachmentSlots[] = {"ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","Reflector_1_1","Reflector_2_1","CamoNet"};
 			};
 			class Chassis
 			{

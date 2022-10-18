@@ -17,6 +17,7 @@ modded class DayZGame
 	protected ref ExpansionGame m_ExpansionGame;
 
 	protected int m_Expansion_StartTime;
+	protected int m_Expansion_StartTimestampUTC;
 
 	protected vector m_WorldCenterPosition;
 	protected bool m_Expansion_IsMissionMainMenu;
@@ -30,17 +31,14 @@ modded class DayZGame
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZGame");
 #endif
 
-		int year;
-		int month;
-		int day;
 		int hour;
 		int minute;
 		int second;
 
-		GetYearMonthDay(year, month, day);
 		GetHourMinuteSecond( hour, minute, second );
 
 		m_Expansion_StartTime = hour * 3600 + minute * 60 + second - GetTickTime();
+		m_Expansion_StartTimestampUTC = CF_Date.Now(true).DateToEpoch();
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
@@ -99,37 +97,72 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	// Expansion GetExpansionClientVersion
 	// ------------------------------------------------------------
-   	static string GetExpansionClientVersion()
+   	string GetExpansionClientVersion()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "DayZGame", "GetExpansionClientVersion");
 #endif
 
+		if (m_ExpansionClientVersion)
+			return m_ExpansionClientVersion;
+
 		array<ref ModInfo> mods = new array<ref ModInfo>;
 		string version;
 		
-		GetDayZGame().GetModInfos( mods );
-		for ( int i = 0; i < mods.Count(); ++i )
+		GetModInfos( mods );
+		foreach (ModInfo mod: mods)
 		{
-			string modName = mods[i].GetName();
+			string modName = mod.GetName();
 			if (modName[0] == "@")
 				modName = modName.Substring(1, modName.Length() - 1);
 			if ( modName.IndexOf( "DayZ-Expansion" ) == 0 && modName.IndexOf("DayZ-Expansion-Core") != 0 )
 			{
-				string modVersion = mods[i].GetVersion();
-				if (!modVersion)
-					modVersion = "0.0.0";
+				string modVersion = mod.GetVersion();
 				if (modVersion > version)
 					version = modVersion;
 			}
 		}
 
+		if (!version)
+			version = "[LOCAL BUILD]";
+
+		m_ExpansionClientVersion = version;
+
 		return version;
+	}
+
+	void Expansion_SetGameVersionText(TextWidget version_widget)
+	{
+		string version_info = "DayZ";
+
+		#ifdef DIAG
+			version_info += "_Diag";
+		#endif
+
+		string version;
+		GetVersion(version);
+
+		version_info += " #main_menu_version " + version;
+
+		#ifdef BUILD_EXPERIMENTAL
+			version_info += " Experimental";
+		#endif
+
+		string expansion_version = GetExpansionClientVersion();
+		if (expansion_version)
+			version_info += " | DayZ Expansion #main_menu_version " + expansion_version;
+
+		version_widget.SetText(version_info);
 	}
 
 	int ExpansionGetStartTime()
 	{
 		return m_Expansion_StartTime;
+	}
+
+	int ExpansionGetStartTimestampUTC()
+	{
+		return m_Expansion_StartTimestampUTC;
 	}
 
 	protected void SetWorldCenterPosition()
@@ -150,6 +183,10 @@ modded class DayZGame
 
 	float GetWorldSize()
 	{
+		#ifndef DAYZ_1_18
+		return GetGame().GetWorld().GetWorldSize();
+		#endif
+		
 		float size;
 
 		switch (ExpansionStatic.GetCanonicalWorldName())

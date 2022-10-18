@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Hatchback_02
 	{
-		units[] = {"Vehicle_Hatchback_02_Wheel","Vehicle_Hatchback_02_Wheel_Ruined","Vehicle_Hatchback_02","Hatchback_02_Hood","Hatchback_02_Trunk","Vehicle_Hatchback_02_Red","Hatchback_02_Hood_Red","Hatchback_02_Trunk_Red","Vehicle_Hatchback_02_Black","Hatchback_02_Hood_Black","Hatchback_02_Trunk_Black","Vehicle_Hatchback_02_Blue","Hatchback_02_Hood_Blue","Hatchback_02_Trunk_Blue","Vehicle_Hatchback_02_RedRust","Hatchback_02_Hood_RedRust","Hatchback_02_Trunk_RedRust","Vehicle_Hatchback_02_BlackRust","Hatchback_02_Hood_BlackRust","Hatchback_02_Trunk_BlackRust","Vehicle_Hatchback_02_BlueRust","Hatchback_02_Hood_BlueRust","Hatchback_02_Trunk_BlueRust","Vehicle_Hatchback_02_BanditKitty","Hatchback_02_Hood_BanditKitty","Hatchback_02_Trunk_BanditKitty"};
+		units[] = {"Hatchback_02_Hood","Hatchback_02_Trunk","Hatchback_02_Hood_Red","Hatchback_02_Trunk_Red","Hatchback_02_Hood_Black","Hatchback_02_Trunk_Black","Hatchback_02_Hood_Blue","Hatchback_02_Trunk_Blue","Hatchback_02_Hood_RedRust","Hatchback_02_Trunk_RedRust","Hatchback_02_Hood_BlackRust","Hatchback_02_Trunk_BlackRust","Hatchback_02_Hood_BlueRust","Hatchback_02_Trunk_BlueRust","Hatchback_02_Hood_BanditKitty","Hatchback_02_Trunk_BanditKitty"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -30,7 +30,7 @@ class CfgVehicles
 	class AnimationSources;
 	class Vehicle_Hatchback_02_Wheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		displayName = "$STR_Hatchback_02_Wheel0";
 		descriptionShort = "$STR_Hatchback_02_Wheel1";
 		model = "\DZ\vehicles\wheeled\Hatchback_02\proxy\Hatchback_02_Wheel.p3d";
@@ -67,15 +67,15 @@ class CfgVehicles
 	};
 	class Vehicle_Hatchback_02: ExpansionVehicleCarBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  Gunter";
+		scope = 0;
+		displayname = "$STR_CivHatchback0";
 		descriptionShort = "$STR_CivHatchback1";
 		model = "\dz\vehicles\wheeled\Hatchback_02\Hatchback_02.p3d";
 		frontReflectorMatDamaged = "";
 		frontReflectorMatRuined = "";
 		fuelCapacity = 55;
 		fuelConsumption = 6.5;
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood","Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood","Hatchback_02_Wheel_1_1","Hatchback_02_Wheel_1_2","Hatchback_02_Wheel_2_1","Hatchback_02_Wheel_2_2","Hatchback_02_Wheel_Spare_1"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo_chassi"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","",""};
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"};
@@ -112,60 +112,76 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			drive = "DRIVE_FWD";
-			airDragFrontTotal = 0.79;
 			class Steering
 			{
+				maxSteeringAngle = 35;
 				increaseSpeed[] = {0,50,60,30,100,15};
 				decreaseSpeed[] = {0,90,60,45,100,20};
 				centeringSpeed[] = {0,0,15,27,60,45,100,63};
 			};
 			class Throttle
 			{
-				reactionTime = 0.7;
-				defaultThrust = 0.75;
-				gentleThrust = 0.5;
+				reactionTime = 0.85;
+				defaultThrust = 0.7;
+				gentleThrust = 0.4;
 				turboCoef = 2.2;
 				gentleCoef = 0.5;
 			};
-			braking[] = {0.0,0.1,0.5,0.3,2.5,0.4,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.5,10,0.4,20,0.3,40,0.28,60,0.3,80,0.38,100,0.42,120,0.48,150,0.6};
+				reactionTime = 0.2;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2.15;
+				dragCoefficient = 0.52;
+				downforceCoefficient = 0.01;
+				downforceOffset[] = {0,0.8,-0.7};
+			};
+			drive = "DRIVE_FWD";
 			class Engine
 			{
-				inertia = 0.27;
-				torqueMax = 186;
-				torqueRpm = 4400;
-				powerMax = 100;
-				powerRpm = 5800;
+				torqueCurve[] = {850,0,1150,90,2000,130,4400,186,5800,165,7500,0};
+				inertia = 0.21;
+				frictionTorque = 150;
+				rollingFriction = 0.2;
+				viscousFriction = 0.5;
 				rpmIdle = 1250;
-				rpmMin = 1350;
-				rpmClutch = 1500;
+				rpmMin = 1500;
+				rpmClutch = 2000;
 				rpmRedline = 6250;
-				rpmMax = 7000;
+			};
+			class Clutch
+			{
+				maxTorqueTransfer = 360;
+				uncoupleTime = 0.25;
+				coupleTime = 0.35;
 			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.167;
 				ratios[] = {3.455,2.118,1.444,1.129,0.912};
-				timeToUncoupleClutch = 0.25;
-				timeToCoupleClutch = 0.35;
-				maxClutchTorque = 225;
 			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 35;
-					finalRatio = 3.667;
-					brakeBias = 0.75;
-					brakeForce = 4000;
+					maxBrakeTorque = 1800;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.125;
+					class Differential
+					{
+						ratio = 3.667;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
-						swayBar = 1850;
-						stiffness = 30000;
-						compression = 1650;
-						damping = 6000;
+						stiffness = 27000;
+						compression = 2000;
+						damping = 7500;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -185,17 +201,15 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					brakeBias = 0.45;
-					brakeForce = 3500;
+					maxBrakeTorque = 800;
+					maxHandbrakeTorque = 2000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.125;
 					class Suspension
 					{
-						swayBar = 1850;
-						stiffness = 27000;
-						compression = 1700;
-						damping = 7000;
+						stiffness = 27500;
+						compression = 2100;
+						damping = 8000;
 						travelMaxUp = 0.16;
 						travelMaxDown = 0.16;
 					};
@@ -477,6 +491,14 @@ class CfgVehicles
 		hiddenSelectionsMaterials[] = {"dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\offroadhatchback\data\offroadhatchback_lights.rvmat","dz\vehicles\wheeled\hatchback_02\data\red\hatchback_02_body.rvmat"};
 		doors[] = {"Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood"};
 		defaultSkin = "Red";
+		attachments[] += {"CamoNet"};
+		class GUIInventoryAttachmentsProps
+		{
+			class Body
+			{
+				attachmentSlots[] += {"CamoNet"};
+			};
+		};
 		class DamageSystem
 		{
 			class GlobalHealth

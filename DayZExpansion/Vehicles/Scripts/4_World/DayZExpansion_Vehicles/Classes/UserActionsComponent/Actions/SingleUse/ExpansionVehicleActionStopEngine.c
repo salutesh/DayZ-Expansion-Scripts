@@ -29,7 +29,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 			{
 				m_CommandUID = m_Vehicle.EngineStopAnimation();
 
-				if (m_Vehicle.GetSpeedometer() <= 8 && m_Vehicle.EngineIsOn())
+				if (Math.AbsFloat(m_Vehicle.GetSpeedometer()) <= 8 && m_Vehicle.EngineIsOn())
 					return true;
 			}
 		}

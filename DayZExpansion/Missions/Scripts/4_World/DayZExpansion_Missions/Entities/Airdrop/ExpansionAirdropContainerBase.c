@@ -112,7 +112,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// ------------------------------------------------------------
 	// InitAirdrop
 	// ------------------------------------------------------------
-	void InitAirdrop(  array < ref ExpansionAirdropLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
+	void InitAirdrop(  array < ref ExpansionLoot > Loot, TStringArray infected, int ItemCount, int infectedCount )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionAirdropContainerBase::InitAirdrop - Start");

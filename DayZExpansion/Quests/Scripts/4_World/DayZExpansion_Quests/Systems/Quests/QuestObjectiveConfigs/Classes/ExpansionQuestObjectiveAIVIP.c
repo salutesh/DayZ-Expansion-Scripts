@@ -13,41 +13,7 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIP
 {
-	private string NPCClassName;
-	private string NPCSpeed;
-	private string NPCMode;
-	private string NPCFaction;
-	private string NPCLoadoutFile;
-
-	void SetNPCSpeed(string npcSpeed)
-	{
-		NPCSpeed = npcSpeed;
-	}
-
-	string GetNPCSpeed()
-	{
-		return NPCSpeed;
-	}
-
-	void SetNPCMode(string npcMode)
-	{
-		NPCMode = npcMode;
-	}
-
-	string GetNPCMode()
-	{
-		return NPCMode;
-	}
-
-	void SetNPCFaction(string npcFaction)
-	{
-		NPCFaction = npcFaction;
-	}
-
-	string GetNPCFaction()
-	{
-		return NPCFaction;
-	}
+	protected string NPCLoadoutFile;
 
 	void SetNPCLoadoutFile(string loadoutFile)
 	{
@@ -59,23 +25,10 @@ class ExpansionQuestObjectiveAIVIP
 		return NPCLoadoutFile;
 	}
 
-	void SetClassName(string name)
-	{
-		NPCClassName = name;
-	}
-
-	string GetClassName()
-	{
-		return NPCClassName;
-	}
-
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCSpeed);
-		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCMode);
-		Print(ToString() + "::QuestDebug - NPCFaction: " + NPCFaction);
 		Print(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
 		Print("------------------------------------------------------------");
 	#endif

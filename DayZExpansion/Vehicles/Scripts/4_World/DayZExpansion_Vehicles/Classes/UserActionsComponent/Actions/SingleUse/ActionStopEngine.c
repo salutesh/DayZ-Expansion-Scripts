@@ -39,7 +39,7 @@ modded class ActionStopEngine
 					m_CommandUID = m_Car.Expansion_EngineStopAnimation();
 
 					//if ( m_Car.CrewMemberIndex( player ) == DayZPlayerConstants.VEHICLESEAT_DRIVER )
-					if (m_Car.GetSpeedometer() <= 8)
+					if (Math.AbsFloat(m_Car.GetSpeedometer()) <= 8)
 						return true;
 				}
 			}

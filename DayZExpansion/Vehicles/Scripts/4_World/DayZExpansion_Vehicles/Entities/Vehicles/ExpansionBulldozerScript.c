@@ -54,7 +54,7 @@ class ExpansionBulldozerScript extends CarScript
 		}
 
 		GetGame().GetObjectsAtPosition(m_RayStart, 1, objects, proxy);
-		if ( objects && GetSpeedometer() > 5 ) 
+		if ( objects && Math.AbsFloat(GetSpeedometer()) > 5 ) 
 		{
 			for ( int i = 0; i < objects.Count(); i++ ) 
 			{
@@ -111,7 +111,7 @@ class ExpansionBulldozerScript extends CarScript
 		}	
 	}
 
-	override void EOnSimulate(IEntity owner, float dt)
+	override void EOnSimulate(IEntity other, float dt)
 	{
 		//SyncVariables( );
 	}

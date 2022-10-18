@@ -55,7 +55,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 11;
+	static const int VERSION = 14;
 
 	float VehicleRoadKillDamageMultiplier;
 
@@ -68,6 +68,12 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 	float DamagedEngineStartupChancePercent;
 
+	bool EnableVehicleCovers;
+	bool AllowCoveringDEVehicles;  //! Allow covering of vehicles spawned via dynamic events (events.xml)
+	bool UseVirtualStorageForCoverCargo;
+	float VehicleAutoCoverTimeSeconds;
+	bool VehicleAutoCoverRequireCamonet;
+
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
 	[NonSerialized()]
@@ -76,7 +82,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	void ExpansionVehicleSettings()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionVehicleSettings");
 #endif
 
 		PickLockTools = new TStringArray;
@@ -89,7 +95,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnServerInit");
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnRecieve");
 #endif
 
 		ctx.Read(VehicleSync);
@@ -124,6 +130,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Read(DesyncInvulnerabilityTimeoutSeconds);
 		ctx.Read(VehicleRoadKillDamageMultiplier);
+
+		ctx.Read(EnableVehicleCovers);
+		ctx.Read(AllowCoveringDEVehicles);
 
 		m_IsLoaded = true;
 
@@ -164,6 +173,10 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 		ctx.Write(DesyncInvulnerabilityTimeoutSeconds);
 		ctx.Write(VehicleRoadKillDamageMultiplier);
+
+		ctx.Write(EnableVehicleCovers);
+		ctx.Write(AllowCoveringDEVehicles);
+
 		//! Don't send VehiclesConfig
 	}
 
@@ -373,6 +386,15 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					DamagedEngineStartupChancePercent = settingsDefault.DamagedEngineStartupChancePercent;
 				}
 
+				if (settingsBase.m_Version < 12)
+					EnableVehicleCovers = settingsDefault.EnableVehicleCovers;
+
+				if (settingsBase.m_Version < 13)
+				{
+					VehicleAutoCoverTimeSeconds = settingsDefault.VehicleAutoCoverTimeSeconds;
+					VehicleAutoCoverRequireCamonet = settingsDefault.VehicleAutoCoverRequireCamonet;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -464,6 +486,13 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		DesyncInvulnerabilityTimeoutSeconds = 3.0;
 
 		DamagedEngineStartupChancePercent = 100.0;
+
+#ifndef CARCOVER
+		EnableVehicleCovers = true;
+#endif
+		AllowCoveringDEVehicles = false;
+		VehicleAutoCoverTimeSeconds = 0;  //! Lower than or equal to zero = disabled
+		VehicleAutoCoverRequireCamonet = false;  //! Require camonet attachment on vehicle
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

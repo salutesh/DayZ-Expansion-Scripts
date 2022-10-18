@@ -12,29 +12,35 @@
 
 class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 {
-	private float m_UpdateQueueTimer = 0;
-	private const float UPDATE_TICK_TIME = 2.0;
+	protected float m_UpdateQueueTimer = 0;
+	protected const float UPDATE_TICK_TIME = 2.0;
 
-	override void OnStart()
+	override bool OnStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
 	#endif
 
+		if (!super.OnStart())
+			return false;
+
 		TravelEventStart();
 
-		super.OnStart();
+		return true;
 	}
 
-	override void OnContinue()
+	override bool OnContinue()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
 	#endif
 
+		if (!super.OnContinue())
+			return false;
+
 		TravelEventStart();
 
-		super.OnContinue();
+		return true;
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -47,7 +53,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			vector position = GetObjectiveConfig().GetPosition();
 			string markerName = GetObjectiveConfig().GetMarkerName();
 
-			GetQuest().CreateClientMarker(position, markerName);
+			if (markerName != string.Empty || position != vector.Zero)
+				GetQuest().CreateClientMarker(position, markerName);
 		}
 	}
 #endif
@@ -63,7 +70,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			float maxDistance = GetObjectiveConfig().GetMaxDistance();
 			float currentDistance;
 			array<vector> groupMemberPos = new array<vector>;
-			
+
 			if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
 			{
 				vector playerPos = GetQuest().GetPlayer().GetPosition();
@@ -74,17 +81,14 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			{
 				//! Set the position of the group member that has the shortest distance to the target location
 				//! as our current position if the quest is a group quest.
-				
+
 				ExpansionPartyData group = GetQuest().GetGroup();
 				if (!group)
 					return;
 
-				for (int i = 0; i < group.GetPlayers().Count(); i++)
+				array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
+				foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 				{
-					ExpansionPartyPlayerData playerGroupData = group.GetPlayers()[i];
-					if (!playerGroupData)
-						continue;
-
 					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 					if (!groupPlayer)
 						continue;
@@ -130,8 +134,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			m_UpdateQueueTimer = 0.0;
 		}
 	}
-	
-	private void TravelEventStart()
+
+	protected void TravelEventStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TravelEventStart");
@@ -141,7 +145,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		string markerName = GetObjectiveConfig().GetMarkerName();
 
 	#ifdef EXPANSIONMODNAVIGATION
-		GetQuest().CreateClientMarker(position, markerName);
+		if (markerName != string.Empty || position != vector.Zero)
+			GetQuest().CreateClientMarker(position, markerName);
 	#endif
 	}
 

@@ -30,6 +30,9 @@ class ExpansionVehicleEngine_CarScript : ExpansionVehicleEngineBase
 
 		if (!m_Car.IsHelicopter())
 			m_FuelConsumption = 0.0;
+
+		m_RPMRedline = m_Car.EngineGetRPMRedline();
+		m_RPMMax = m_Car.EngineGetRPMMax();
 	}
 
 	override void ProcessHealth(float pDt, float pFuel, float pCoolant, float pOil, float pBrake, out float pOutHealth, out float pOutFuel)
@@ -38,9 +41,6 @@ class ExpansionVehicleEngine_CarScript : ExpansionVehicleEngineBase
 			m_RPM = m_Car.EngineGetRPM();
 		else
 			m_RPM = m_RPMIdle;  //! Make fuel consumption for helis work
-
-		m_RPMRedline = m_Car.EngineGetRPMRedline();
-		m_RPMMax = m_Car.EngineGetRPMMax();
 
 		super.ProcessHealth(pDt, pFuel, pCoolant, pOil, pBrake, pOutHealth, pOutFuel);
 	}

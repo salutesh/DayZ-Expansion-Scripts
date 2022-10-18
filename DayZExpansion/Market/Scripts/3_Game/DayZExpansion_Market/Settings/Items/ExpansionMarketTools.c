@@ -43,10 +43,12 @@ class ExpansionMarketTools: ExpansionMarketCategory
 		AddItem("WoodAxe", 						20,	 	40,		1,		100);
 		AddItem("FirefighterAxe", 				30,	 	60,		1,		100);
 		AddItem("Pitchfork", 					30,	 	60,		1,		100);
-
+#ifndef DAYZ_1_18
+		AddItem("Blowtorch", 					250,	500,	1,		100, {"SmallGasCanister"});
+#endif
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("ExpansionPropaneTorch", 		250,	500,	1,		100);
-		AddItem("ExpansionBoltCutters", 			200,	450,	1,		100);
+		AddItem("ExpansionBoltCutters", 		200,	450,	1,		100);
 	#endif
 	}
 };

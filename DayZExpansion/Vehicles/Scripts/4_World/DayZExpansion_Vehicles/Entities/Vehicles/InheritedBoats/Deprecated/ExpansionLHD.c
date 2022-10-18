@@ -16,29 +16,42 @@ class ExpansionLHD : ExpansionZodiacBoat
 		m_TurnCoef = 0.2;
 
 		m_Offset = 4.0;
+		
+		#ifndef DAYZ_1_18
+		//! 1.19
+		//! Sound set unsuitable for short horn sound (breaks player interaction and infinite bugged playback)
+		m_CarHornLongSoundName	= "Expansion_LHD_Horn_Ext_SoundSet";
+		#endif
 
-		SetAllowDamage(false);
+		if (IsMissionHost())
+			SetAllowDamage(false);
+	}
 
-		if (!IsMissionHost()) return;
+	override void DeferredInit()
+	{
+		super.DeferredInit();
 
-		Create("ExpansionLHD1", "LHD_1");
-		Create("ExpansionLHD2", "LHD_2");
-		Create("ExpansionLHD3", "LHD_3");
-		Create("ExpansionLHD4", "LHD_4");
-		Create("ExpansionLHD5", "LHD_5");
-		Create("ExpansionLHD6", "LHD_6");
+		if (!IsMissionHost())
+			return;
 
-		Create("ExpansionLHDHouse1", "LHD_House_1");
-		Create("ExpansionLHDHouse2", "LHD_House_2");
+		ExpansionLHD_CreatePart("ExpansionLHD1", "LHD_1");
+		ExpansionLHD_CreatePart("ExpansionLHD2", "LHD_2");
+		ExpansionLHD_CreatePart("ExpansionLHD3", "LHD_3");
+		ExpansionLHD_CreatePart("ExpansionLHD4", "LHD_4");
+		ExpansionLHD_CreatePart("ExpansionLHD5", "LHD_5");
+		ExpansionLHD_CreatePart("ExpansionLHD6", "LHD_6");
 
-		Create("ExpansionLHDInterior1", "LHD_Interior_1");
-		Create("ExpansionLHDInterior2", "LHD_Interior_2");
-		Create("ExpansionLHDInterior3", "LHD_Interior_3");
+		ExpansionLHD_CreatePart("ExpansionLHDHouse1", "LHD_House_1");
+		ExpansionLHD_CreatePart("ExpansionLHDHouse2", "LHD_House_2");
 
-		//Create("ExpansionLHDElevatorL", "LHD_Elevator_L");
-		//Create("ExpansionLHDElevatorR", "LHD_Elevator_R");
+		ExpansionLHD_CreatePart("ExpansionLHDInterior1", "LHD_Interior_1");
+		ExpansionLHD_CreatePart("ExpansionLHDInterior2", "LHD_Interior_2");
+		ExpansionLHD_CreatePart("ExpansionLHDInterior3", "LHD_Interior_3");
 
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateModels, 5000, true);
+		//ExpansionLHD_CreatePart("ExpansionLHDElevatorL", "LHD_Elevator_L");
+		//ExpansionLHD_CreatePart("ExpansionLHDElevatorR", "LHD_Elevator_R");
+
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Update, 5000, true);
 
 		float lengthF = 128.0;
 		float lengthB = 128.0;
@@ -53,8 +66,10 @@ class ExpansionLHD : ExpansionZodiacBoat
 	}
 
 	// ------------------------------------------------------------
-	void ~ExpansionLHD()
+	override void EEDelete(EntityAI parent)
 	{
+		super.EEDelete(parent);
+
 		if (!IsMissionHost()) return;
 
 		foreach (auto part : m_Parts)
@@ -73,7 +88,7 @@ class ExpansionLHD : ExpansionZodiacBoat
 		return ExpansionVehicleAnimInstances.EXPANSION_LHD;
 	}
 	
-	override void EOnSimulate(IEntity owner, float dt)
+	override void EOnSimulate(IEntity other, float dt)
 	{
 		if (GetGame().IsServer())
 		{
@@ -84,17 +99,7 @@ class ExpansionLHD : ExpansionZodiacBoat
 		}
 	}
 
-	private void DeletePart(out Object obj)
-	{
-		if (obj)
-		{
-			GetGame().ObjectDelete(obj);
-		}
-
-		obj = NULL;
-	}
-
-	private Object Create(string part, string memoryPoint)
+	private void ExpansionLHD_CreatePart(string part, string memoryPoint)
 	{
 		vector position = GetMemoryPointPos(memoryPoint);
 
@@ -113,8 +118,6 @@ class ExpansionLHD : ExpansionZodiacBoat
 		obj.Update();
 
 		m_Parts.Insert(obj);
-
-		return obj;
 	}
 
 	override bool LeavingSeatDoesAttachment(int posIdx)
@@ -156,10 +159,5 @@ class ExpansionLHD : ExpansionZodiacBoat
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "EOnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
 #endif
-	}
-
-	void UpdateModels()
-	{
-		this.Update();
 	}
 };

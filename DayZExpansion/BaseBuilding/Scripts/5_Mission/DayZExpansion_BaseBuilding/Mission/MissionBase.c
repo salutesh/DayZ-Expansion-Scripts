@@ -13,17 +13,6 @@
 modded class MissionBase
 {
 	// ------------------------------------------------------------
-	// MissionBase
-	// ------------------------------------------------------------
-	void MissionBase()
-	{
-		if ( !GetGame().IsMultiplayer() )
-		{
-			m_WorldLighting	= new WorldLighting;
-		}
-	}
-
-	// ------------------------------------------------------------
 	// Override UIScriptedMenu
 	// Menu handling
 	// ------------------------------------------------------------

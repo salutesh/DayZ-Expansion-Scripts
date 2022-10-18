@@ -128,6 +128,11 @@ class ExpansionFSMType
 			return null;
 		}
 
+#ifdef DIAG
+		//! Create a backup to ease debugging
+		CopyFile(script_path, script_path + ".bak");
+#endif
+
 		AddSpawnable(fileName, new_type);
 
 		return new_type;

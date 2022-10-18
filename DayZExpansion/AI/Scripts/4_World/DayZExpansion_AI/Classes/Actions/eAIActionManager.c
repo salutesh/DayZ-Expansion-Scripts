@@ -82,7 +82,8 @@ class eAIActionManager: ActionManagerBase
 	
 	override bool ActionPossibilityCheck(int pCurrentCommandID)
 	{
-		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT) return true;
+		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_SCRIPT)
+			return super.ActionPossibilityCheck(DayZPlayerConstants.COMMANDID_MOVE);
 
 		return super.ActionPossibilityCheck(pCurrentCommandID);
 	}

@@ -14,7 +14,7 @@
 //! We will need to handle all this data thrue a loaded config file for each quest template later
 class ExpansionDefaultQuestData
 {
-	private string m_WorldName;
+	protected string m_WorldName;
 
 	void ExpansionDefaultQuestData(string worldName)
 	{
@@ -36,8 +36,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Look at that... Another little bambi in the forests of death..."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 		questConfig.SetFollowUpQuestID(2); //! Follow-up quest ID
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
 		ExpansionQuestObjectiveDeliveryConfig objective_1 = new ExpansionQuestObjectiveDeliveryConfig();
@@ -64,8 +64,8 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetPreQuestID(1);
 		questConfig.SetFollowUpQuestID(3);
-		questConfig.SetQuestGiverID(2);
-		questConfig.SetQuestTurnInID(2);
+		questConfig.AddQuestGiverID(2);
+		questConfig.AddQuestTurnInID(2);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
@@ -117,8 +117,8 @@ class ExpansionDefaultQuestData
 		questConfig.SetDescriptions(desc);
 
 		questConfig.SetPreQuestID(2); //! Pre-quest ID
-		questConfig.SetQuestGiverID(2); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(2); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
 		ExpansionQuestObjectiveDeliveryConfig objective_1 = new ExpansionQuestObjectiveDeliveryConfig();
@@ -132,17 +132,17 @@ class ExpansionDefaultQuestData
 		reward_1.SetClassName("TaloonBag_Blue");
 		reward_1.SetAmount(1);
 		rewards.Insert(reward_1);
-		
+
 		ExpansionQuestRewardConfig reward_2 = new ExpansionQuestRewardConfig;
 		reward_2.SetClassName("TaloonBag_Green");
 		reward_2.SetAmount(1);
 		rewards.Insert(reward_2);
-		
+
 		ExpansionQuestRewardConfig reward_3 = new ExpansionQuestRewardConfig;
 		reward_3.SetClassName("TaloonBag_Orange");
 		reward_3.SetAmount(1);
 		rewards.Insert(reward_3);
-		
+
 		ExpansionQuestRewardConfig reward_4 = new ExpansionQuestRewardConfig;
 		reward_4.SetClassName("TaloonBag_Violet");
 		reward_4.SetAmount(1);
@@ -150,7 +150,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetRewards(rewards);
 		questConfig.SetNeedToSelectReward(true);
-		
+
 		return questConfig;
 	}
 
@@ -169,8 +169,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Survivor.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 
@@ -207,8 +207,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 		questConfig.SetAutocomplete(true); //! Set if the quest is autocompleted
@@ -237,8 +237,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 
 		//! Quest objectives
@@ -273,8 +273,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 
 		//! Quest objectives
@@ -316,8 +316,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsGroupQuest(true); //! Set if the quest is a group quest and can only accepted in a group by the group owner.
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
@@ -356,8 +356,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Scout.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsBanditQuest(true);
@@ -393,8 +393,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Pathfinder.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsBanditQuest(true);
@@ -430,8 +430,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Superhero.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsBanditQuest(true);
@@ -467,8 +467,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Legendary.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsBanditQuest(true);
@@ -505,8 +505,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Kleptomaniac.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsHeroQuest(true);
@@ -542,8 +542,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Bully.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsHeroQuest(true);
@@ -579,8 +579,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Killer.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsHeroQuest(true);
@@ -616,8 +616,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Madman.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsHeroQuest(true);
@@ -653,8 +653,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Hero.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsBanditQuest(true);
@@ -690,8 +690,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain a dog tag from a player with the rank: Bandit.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
 		questConfig.SetIsHeroQuest(true);
@@ -789,8 +789,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 		questConfig.SetFollowUpQuestID(22); //! Follow-up quest ID
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetQuestClassName("ExpansionQuestNamalsk001");
 
 		return questConfig;
@@ -810,8 +810,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
 		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
 		ExpansionQuestObjectiveAIVIPConfig objective_1 = new ExpansionQuestObjectiveAIVIPConfig();
@@ -832,7 +832,7 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 #endif
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig023()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -861,7 +861,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig024()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -875,8 +875,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain 5 apples.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 
@@ -897,7 +897,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig025()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -911,15 +911,15 @@ class ExpansionDefaultQuestData
 		desc.Insert("Craft an improvidsed fishing rod and catch a mackerel.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCraftingConfig objective_1 = new ExpansionQuestObjectiveCraftingConfig();
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.CRAFTING);
 		questConfig.AddObjectiveConfig(objective_1);
-		
+
 		ExpansionQuestObjectiveCollectionConfig objective_2 = new ExpansionQuestObjectiveCollectionConfig();
 		objective_2.SetID(14);
 		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
@@ -931,7 +931,7 @@ class ExpansionDefaultQuestData
 		reward_1.SetClassName("ExpansionSilverNugget");
 		reward_1.SetAmount(10);
 		rewards.Insert(reward_1);
-		
+
 		ExpansionQuestRewardConfig reward_2 = new ExpansionQuestRewardConfig;
 		reward_2.SetClassName("ImprovisedFishingRod");
 		reward_2.SetAmount(1);
@@ -941,7 +941,7 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-	
+
 	ExpansionQuestConfig ExpansionQuestConfig026()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -955,7 +955,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
 		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
-		questConfig.SetQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetAutocomplete(true); //! Quest completes automaticaly
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();

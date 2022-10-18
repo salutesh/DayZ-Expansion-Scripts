@@ -1,5 +1,5 @@
 /**
- * DayZPlayerCamera1stPerson.c
+ * DayZPlayerCamera1stPersonVehicle.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

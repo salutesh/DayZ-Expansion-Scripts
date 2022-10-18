@@ -13,7 +13,7 @@
 modded class LoginQueueBase
 {
 	protected ImageWidget m_ImageBackground;
-	protected autoptr array< ref ExpansionLoadingScreenBackground > m_Backgrounds;
+	protected autoptr array<ref ExpansionLoadingScreenBackground> m_Backgrounds;
 
 	static float s_Expansion_LoadingTime = -1;
 	static float s_Expansion_LoadingTimeStamp = -1;
@@ -37,7 +37,7 @@ modded class LoginQueueBase
 		EXPrint(ToString() + "::Init");
 		super.Init();
 			
-		m_ImageBackground = ImageWidget.Cast( layoutRoot.FindAnyWidget("Background") );
+		m_ImageBackground = ImageWidget.Cast(layoutRoot.FindAnyWidget("Background"));
 
 		if (!m_Expansion_Init)
 		{
@@ -60,9 +60,13 @@ modded class LoginQueueBase
 		float tickTime = GetGame().GetTickTime();
 
 		if (s_Expansion_LoadingTimeStamp < 0)
+		{
 			s_Expansion_LoadingTime = 0;
+		}
 		else
+		{
 			s_Expansion_LoadingTime += tickTime - s_Expansion_LoadingTimeStamp;
+		}
 
 		s_Expansion_LoadingTimeStamp = tickTime;
 
@@ -81,9 +85,9 @@ modded class LoginQueueBase
 		
 		ExpansionLoadingScreenBackground backgrounds = m_Backgrounds[0];
 
-		for ( int i = 0; i < m_Backgrounds.Count(); ++i )
+		for (int i = 0; i < m_Backgrounds.Count(); ++i)
 		{
-			if ( world_name == m_Backgrounds[i].MapName )
+			if (world_name == m_Backgrounds[i].MapName)
 			{
 				backgrounds = m_Backgrounds[i];
 				break;
@@ -97,7 +101,7 @@ modded class LoginQueueBase
 		}
 	}
 
-	override void Update( float timeslice )
+	override void Update(float timeslice)
 	{
 		super.Update(timeslice);
 

@@ -15,48 +15,15 @@ class ExpansionQuestPersistentDataBase
 	int ConfigVersion = 0;
 }
 
-class ExpansionQuestPersistentDatasBaseV0
-{
-	ref array<ref ExpansionQuestTimestampData> QuestTimestamps = new array<ref ExpansionQuestTimestampData>;
-	ref array<ref ExpansionQuestObjectiveDataV0> QuestObjectives = new array<ref ExpansionQuestObjectiveDataV0>; //! Contains quest id with its current persistent quest KeyState
-	ref map<int, int> QuestStates = new map<int, int>; //! Contains quest id with its current persistent quest KeyState
-
-	array<ref ExpansionQuestObjectiveDataV0> GetQuestObjectivesByQuestID(int questID)
-	{
-		array<ref ExpansionQuestObjectiveDataV0> validObjectives = new array<ref ExpansionQuestObjectiveDataV0>;
-		for (int i = 0; i < QuestObjectives.Count(); i++)
-		{
-			ExpansionQuestObjectiveDataV0 currentObjective = QuestObjectives[i];
-			if (currentObjective.QuestID == questID)
-				validObjectives.Insert(currentObjective);
-		}
-
-		return validObjectives;
-	}
-
-	int GetQuestTimeStampByQuestID(int questID)
-	{
-		for (int i = 0; i < QuestTimestamps.Count(); i++)
-		{
-			ExpansionQuestTimestampData timeStamp = QuestTimestamps[i];
-			if (timeStamp && timeStamp.QuestID == questID)
-				return timeStamp.Timestamp;
-		}
-
-		return -1;
-	}
-};
-
 //! Pesistent player quest data handled in the quest module
 class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 {
 	static const int CONFIGVERSION = 1;
+	ref array<ref ExpansionQuestPersistentQuestData> QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
 
 	[NonSerialized()]
-	private ExpansionQuestModule m_QuestModule;
+	protected ExpansionQuestModule m_QuestModule;
 
-	ref array<ref ExpansionQuestPersistentQuestData> QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
-	
 	void ExpansionQuestPersistentData()
 	{
 		ConfigVersion = CONFIGVERSION;
@@ -76,9 +43,8 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 	bool HasDataForQuest(int questID)
 	{
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				return true;
@@ -90,9 +56,8 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 	int GetQuestStateByQuestID(int questID)
 	{
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				return data.State;
@@ -101,12 +66,11 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 		return ExpansionQuestState.NONE;
 	}
-	
+
 	ExpansionQuestPersistentQuestData GetQuestDataByQuestID(int questID)
 	{
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				return data;
@@ -123,9 +87,8 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 	int GetQuestTimestampByQuestID(int questID)
 	{
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				return data.Timestamp;
@@ -138,18 +101,14 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	array<ref ExpansionQuestObjectiveData> GetQuestObjectivesByQuestID(int questID)
 	{
 		array<ref ExpansionQuestObjectiveData> validObjectives = new array<ref ExpansionQuestObjectiveData>;
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID != questID)
 				continue;
-
-			for (int j = 0; j < data.QuestObjectives.Count(); j++)
+			
+			array<ref ExpansionQuestObjectiveData> dataObjectives = data.QuestObjectives;
+			foreach (ExpansionQuestObjectiveData currentObjective: dataObjectives)
 			{
-				ExpansionQuestObjectiveData currentObjective = data.QuestObjectives[j];
-				if (!currentObjective)
-					continue;
-
 				validObjectives.Insert(currentObjective);
 			}
 		}
@@ -160,21 +119,13 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	ref ExpansionQuestObjectiveData GetQuestObjectiveByQuestIDAndIndex(int questID, int index)
 	{
 		QuestPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - Start");
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				QuestPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - ExpansionQuestPersistentQuestData: " + data.ToString());
-				for (int j = 0; j < data.QuestObjectives.Count(); j++)
+				foreach (ExpansionQuestObjectiveData currentObjective: data.QuestObjectives)
 				{
-					ref ExpansionQuestObjectiveData currentObjective = data.QuestObjectives[j];
-					if (!currentObjective)
-					{
-						QuestPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - F1");
-						continue;
-					}
-
 					if (currentObjective.GetObjectiveIndex() == index)
 					{
 						QuestPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - Return ExpansionQuestObjectiveData: " + currentObjective.ToString());
@@ -190,9 +141,8 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 	void UpdateQuestState(int questID, int state)
 	{
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				data.State = state;
@@ -203,9 +153,8 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 	void UpdateQuestTimestamp(int questID, int time)
 	{
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
 				data.Timestamp = time;
@@ -217,29 +166,23 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	void UpdateObjective(int questID, int objectiveIndex, ExpansionQuestObjectiveData newData)
 	{
 		QuestPrint(ToString() + "::UpdateObjective - Start");
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID == questID)
 			{
-				for (int j = 0; j < data.QuestObjectives.Count(); j++)
+				//! No need for that check when we can just remove the objective based on the objectiveIndex?!
+				for (int i = data.QuestObjectives.Count() - 1; i >= 0; i--)
 				{
-					ExpansionQuestObjectiveData currentObjective = data.QuestObjectives[j];
-					if (!currentObjective)
-					{
-						QuestPrint(ToString() + "::UpdateObjective - F1");
-						continue;
-					}
-
-					if (currentObjective.GetObjectiveIndex() != objectiveIndex)
+					ExpansionQuestObjectiveData currentObjective = data.QuestObjectives[i];
+					if (currentObjective && currentObjective.GetObjectiveIndex() != objectiveIndex)
 					{
 						QuestPrint(ToString() + "::UpdateObjective - F2");
 						continue;
 					}
 
-					data.QuestObjectives.RemoveItem(currentObjective);
+					data.QuestObjectives.RemoveOrdered(i);
 				}
-
+				
 				data.LastUpdateTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
 				data.QuestObjectives.Insert(newData);
 			}
@@ -251,41 +194,20 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	{
 		CF_Log.Info("[ExpansionQuestPersistentData] Load existing configuration file:" + fileName);
 
-		string legacyPath = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".JSON";
 		string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin";
 		if (FileExist(path))
 		{
 			FileSerializer file = new FileSerializer();
+
 			if (file.Open(path, FileMode.READ))
 			{
 				file.Read(ConfigVersion);
-
 				OnRecieve(file);
-
 				file.Close();
 			}
-			return true;
-		}
-		else if (FileExist(legacyPath))
-		{
-			ExpansionQuestPersistentDataBase playerDataBase;
-			JsonFileLoader<ExpansionQuestPersistentDataBase>.JsonLoadFile(legacyPath, playerDataBase);
-			if (playerDataBase.ConfigVersion < CONFIGVERSION)
-			{
-				//! Copy over old configuration that hasn't changed
-				CopyConfig(playerDataBase);
-			}
-			else
-			{
-				ExpansionQuestPersistentData playerData;
-				JsonFileLoader<ExpansionQuestPersistentData>.JsonLoadFile(legacyPath, playerData);
-				CopyConfig(playerData);
-			}
-			ConfigVersion = CONFIGVERSION;
-			DeleteFile(legacyPath);
-			if (QuestDatas.Count())
-				Save(fileName);
-			return true;
+
+			if (CleanupQuestData())
+				return true;
 		}
 
 		return false;
@@ -299,9 +221,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 			if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
 			{
 				file.Write(ConfigVersion);
-
 				OnSend(file);
-
 				file.Close();
 			}
 		}
@@ -321,12 +241,12 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		QuestDatas = data.QuestDatas;
 	}
 
-	private bool CleanupQuestData()
+	protected bool CleanupQuestData()
 	{
 		if (!m_QuestModule)
 			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		
+		for (int i = QuestDatas.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			ExpansionQuestConfig questConfig = m_QuestModule.GetQuestConfigByID(data.QuestID);
@@ -336,15 +256,55 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 				return false;
 			}
 
-			int timestamp;
-			if (data.State == ExpansionQuestState.NONE && !questConfig.IsAchivement() && !HasCooldownOnQuest(data.QuestID, timestamp))
+			//! Cleanup old persistent quest data if quest configuration has changed
+			//! TODO: This is FFS not a good solution
+			/*if (!QuestChangesCheck(questConfig, data))
+				QuestDatas.RemoveOrdered(i);*/
+
+			if (data.State == ExpansionQuestState.NONE || data.State == ExpansionQuestState.COMPLETED)
 			{
-				if (questConfig.GetFollowUpQuestID() > 0 || questConfig.GetPreQuestID() > 0)
+				//! Never cleanup quest data if the quest is a achivement quest.
+				if (questConfig.IsAchivement())
 					continue;
-				
+
+				//! Never cleanup daylie/weekly quest data for quests that have a cooldown.
+				if (questConfig.IsWeeklyQuest() || questConfig.IsDailyQuest())
+				{
+					int timestamp;
+					if (HasCooldownOnQuest(data.QuestID, timestamp))
+						continue;
+				}
+
+				//! Never cleanup quest data for quests that have a pre/followup quest.
+				if (questConfig.GetFollowUpQuestID() > -1 || questConfig.GetPreQuestID() > -1)
+					continue;
+
+				//! Never cleanup quest data if the quest is not repeatable
+				if (!questConfig.IsRepeatable())
+					continue;
+
 				QuestPrint(ToString() + "::CleanupQuestData - Cleanup quest state data for quest with ID:" + data.QuestID + " | State: " + data.State);
-				QuestDatas.Remove(i);
+				QuestDatas.RemoveOrdered(i);
 			}
+		}
+
+		return true;
+	}
+
+	protected bool QuestChangesCheck(ExpansionQuestConfig questConfig, ExpansionQuestPersistentQuestData data)
+	{
+		for (int i = 0; i < data.QuestObjectives.Count(); i++)
+		{
+			ExpansionQuestObjectiveData playerQuestObjectiveData = data.QuestObjectives[i];
+			if (!playerQuestObjectiveData)
+				continue;
+
+			ExpansionQuestObjectiveConfig questObjectiveConfig = questConfig.GetObjectives()[i];
+			if (!questObjectiveConfig)
+				continue;
+
+			if (playerQuestObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
+				return false;
 		}
 
 		return true;
@@ -355,9 +315,8 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		if (!m_QuestModule)
 			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			if (data.QuestID != questID)
 				continue;
 

@@ -246,6 +246,8 @@ class CfgVehicles
 		width = 0.214;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
+		tyreOffroadResistance = 0.25;
+		tyreGrip = 1.0;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -258,16 +260,9 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionUAZWheel_Ruined: CarWheel
+	class ExpansionUAZWheel_Ruined: ExpansionUAZWheel
 	{
-		scope = 2;
-		displayName = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_UAZ_WHEEL_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\proxy\UAZWheel_Destroyed.p3d";
-		weight = 15000;
-		inventorySlot[] = {"uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2"};
-		rotationFlags = 8;
-		physLayer = "item_large";
 		radiusByDamage[] = {0.2};
 		radius = 0.2;
 		width = 0.316;
@@ -556,7 +551,7 @@ class CfgVehicles
 		displayName = "";
 		model = "";
 		vehicleClass = "Expansion_Car";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door""uazhooddoor"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door""uazhooddoor","CamoNet"};
 		doors[] = {"uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
 		defaultSkin = "Green";
 		fuelCapacity = 40;
@@ -569,6 +564,7 @@ class CfgVehicles
 				proxyPos = "crewDriver";
 				getInPos = "pos_driver";
 				getInDir = "pos_driver_dir";
+				isDriver = 1;
 			};
 			class CoDriver: CoDriver
 			{
@@ -594,11 +590,11 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			drive = "DRIVE_AWD";
 			centralDiffRatio = 1.45;
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -612,27 +608,55 @@ class CfgVehicles
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.85,10,0.7,20,0.5,40,0.4,60,0.43,80,0.46,100,0.52,120,0.7};
+				reactionTime = 0.3;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 2.18;
+				dragCoefficient = 0.56;
+			};
+			drive = "DRIVE_AWD";
 			class Engine
 			{
-				inertia = 0.15;
+				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
+				inertia = 0.11;
+				frictionTorque = 100;
+				rollingFriction = 0.5;
+				viscousFriction = 0.5;
 				steepness = 1.5;
 				torqueMax = 136;
 				torqueRpm = 3400;
 				powerMax = 58.7;
 				powerRpm = 5400;
-				rpmIdle = 850;
+				rpmIdle = 800;
 				rpmMin = 900;
-				rpmClutch = 1350;
+				rpmClutch = 1400;
 				rpmRedline = 6000;
 				rpmMax = 8000;
 			};
+			class Clutch
+			{
+				maxTorqueTransfer = 330;
+				uncoupleTime = 0.2;
+				coupleTime = 0.35;
+			};
 			class Gearbox
 			{
-				reverse = 3.726;
-				ratios[] = {3.967,2.3999999,1.5609999,1};
+				type = "GEARBOX_MANUAL";
+				reverse = 3.526;
+				ratios[] = {3.667,2.1,1.361,1.0};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
 				maxClutchTorque = 330;
+			};
+			class CentralDifferential
+			{
+				ratio = 1.45;
+				type = "DIFFERENTIAL_OPEN";
 			};
 			class Axles: Axles
 			{
@@ -642,8 +666,15 @@ class CfgVehicles
 					finalRatio = 4.1;
 					brakeBias = 0.6;
 					brakeForce = 4500;
+					maxBrakeTorque = 4500;
+					maxHandbrakeTorque = 5000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
 						swayBar = 1700;
@@ -679,12 +710,19 @@ class CfgVehicles
 					finalRatio = 4.1;
 					brakeBias = 0.4;
 					brakeForce = 4200;
+					maxBrakeTorque = 4200;
+					maxHandbrakeTorque = 4700;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 4.1;
+						type = "DIFFERENTIAL_OPEN";
+					};
 					class Suspension
 					{
 						swayBar = 1700;
-						stiffness = 21000;
+						stiffness = 40000;
 						compression = 2200;
 						damping = 7600;
 						travelMaxUp = 0.1587;
@@ -794,7 +832,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
 			};
 			class Chassis
 			{
@@ -826,7 +864,7 @@ class CfgVehicles
 		ReverseReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
 		TailReflectorMatOn = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights_e.rvmat";
 		TailReflectorMatOff = "dz\vehicles\wheeled\civiliansedan\data\Sedan_TailLights.rvmat";
-		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Material_Shelter_Fabric","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
+		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Material_Shelter_Fabric","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
 		class AnimationSources: AnimationSources
 		{
 			class roof
@@ -862,7 +900,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","Material_Shelter_Fabric"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","Material_Shelter_Fabric","CamoNet"};
 			};
 			class Chassis
 			{
@@ -1070,7 +1108,7 @@ class CfgVehicles
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
 		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","","","",""};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
-		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
+		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
 		class AnimationSources: AnimationSources
 		{
 			class roof
@@ -1106,7 +1144,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
 			};
 			class Chassis
 			{
@@ -1126,7 +1164,7 @@ class CfgVehicles
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};
 		hiddenSelectionsTextures[] = {"dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","dz\vehicles\wheeled\civiliansedan\data\sedan_glass_ca.paa","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_out_01_co.paa","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_int_01_co.paa","","","","","",""};
 		hiddenSelectionsMaterials[] = {"","","","","","","","","","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_interior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat","DayZExpansion\Vehicles\Ground\UAZ\new_data\uaz_exterior_01.rvmat"};
-		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
+		attachments[] = {"CarBattery","CarRadiator","SparkPlug","Reflector_1_1","Reflector_2_1","uazwheel_1_1","uazwheel_1_2","uazwheel_2_1","uazwheel_2_2","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
 		class AnimationSources: AnimationSources
 		{
 			class roof
@@ -1179,7 +1217,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","uazdriverdoor","uazcodriverdoor","uazcargo1door","uazcargo2door","uazhooddoor","CamoNet"};
 			};
 			class Chassis
 			{

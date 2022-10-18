@@ -21,7 +21,7 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 8;
+	static const int CONFIGVERSION = 9;
 	
 	void ExpansionQuestObjectiveConfig()
 	{

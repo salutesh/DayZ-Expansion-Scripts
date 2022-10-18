@@ -1,3 +1,4 @@
+#ifdef DAYZ_1_18
 class ExpansionInputCarHorn : ContinuousDefaultActionInput
 {	
 	void ExpansionInputCarHorn( PlayerBase player )
@@ -8,3 +9,4 @@ class ExpansionInputCarHorn : ContinuousDefaultActionInput
 		m_DetectFromTarget = true;
 	}
 };
+#endif

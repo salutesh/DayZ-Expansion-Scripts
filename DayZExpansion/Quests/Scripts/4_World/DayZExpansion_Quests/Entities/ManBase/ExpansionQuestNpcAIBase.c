@@ -20,8 +20,8 @@ class ExpansionQuestNPCAIBase extends eAINPCBase
 class ExpansionQuestNPCAIBase extends eAIBase
 #endif
 {
-	private int m_QuestNPCID = -1;
-	private ref ExpansionQuestNPCData m_QuestNPCData;
+	protected int m_QuestNPCID = -1;
+	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCAIBase Constructor
@@ -40,7 +40,7 @@ class ExpansionQuestNPCAIBase extends eAIBase
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCAIBase Deconstructor
 	// ------------------------------------------------------------
@@ -51,7 +51,7 @@ class ExpansionQuestNPCAIBase extends eAIBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionFixPositionAndOrientation);
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCAIBase DeferredInit
 	// ------------------------------------------------------------

@@ -92,6 +92,10 @@ class ExpansionMarketMagazines: ExpansionMarketCategory
 		AddItem("Mag_CZ550_4rnd", 				150,	250,	1,		100);
 		AddItem("Mag_CZ550_10rnd", 				210,	320,	1,		100);
 
+#ifndef DAYZ_1_18
+		AddItem("Mag_SSG82_5rnd", 				180,	280,	1,		100);
+#endif
+
 	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Mag_Expansion_Taser", 			20,		40,		1,		100);
 

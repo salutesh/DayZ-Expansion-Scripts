@@ -127,12 +127,26 @@ class CfgSlots
 };
 class CfgVehicles
 {
+	class CarWheel;
+	class CarDoor;
+	class CarScript;
+	class Crew;
+	class Driver;
+	class CoDriver;
+	class SimulationModule;
+	class Axles;
+	class Front;
+	class Rear;
+	class Wheels;
+	class Left;
+	class Right;
+	class AnimationSources;
 	class Bottle_Base;
+	class Container_Base;
 	class CanisterGasoline: Bottle_Base
 	{
 		inventorySlot[] = {"CanisterGasoline","CanisterGasoline2","CanisterGasoline_1","CanisterGasoline_2"};
 	};
-	class Container_Base;
 	class SeaChest: Container_Base
 	{
 		inventorySlot[] = {"sea_chest","sea_chest_1","sea_chest_2","sea_chest_3","sea_chest_4"};
@@ -141,7 +155,6 @@ class CfgVehicles
 	{
 		inventorySlot[] = {"WoodenCrate","woodencrate_1","woodencrate_2","woodencrate_3","woodencrate_4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4","Truck_01_WoodenCrate5","Truck_01_WoodenCrate6"};
 	};
-	class CarDoor;
 	class Expansion_Landrover_Driverdoor: CarDoor
 	{
 		scope = 2;
@@ -494,7 +507,6 @@ class CfgVehicles
 			};
 		};
 	};
-	class CarWheel;
 	class Expansion_Landrover_Wheel: CarWheel
 	{
 		scope = 2;
@@ -558,29 +570,17 @@ class CfgVehicles
 			};
 		};
 	};
-	class Expansion_Landrover_Wheel_Ruined: CarWheel
+	class Expansion_Landrover_Wheel_Ruined: Expansion_Landrover_Wheel
 	{
-		scope = 2;
-		displayName = "Landrover Defender Wheel";
-		descriptionShort = "Landrover Defender 110 Wheel";
 		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\landrover_wheel_destroyed.p3d";
 		weight = 15000;
-		itemSize[] = {6,6};
-		defaultSkin = "Green";
-		inventorySlot[] = {"expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel"};
-		rotationFlags = 8;
-		physLayer = "item_large";
 		radius = 0.238;
 		width = 0.14;
 		tyreRollResistance = 1;
 		tyreRollDrag = 75;
 		tyreRoughness = 1.2;
 		tyreTread = 0.5;
-		hiddenSelections[] = {"bottom","dmgzone_rim","dmgzone_tire"};
-		hiddenSelectionsTextures[] = {"","",""};
-		hiddenSelectionsMaterials[] = {"","dayzexpansion\vehicles\ground\landrover\data\lr_bottom_metal.rvmat","dayzexpansion\vehicles\ground\landrover\data\lr_bottom.rvmat"};
 	};
-	class Carscript;
 	class Expansion_Landrover_Base: Carscript
 	{
 		scope = 0;
@@ -606,7 +606,7 @@ class CfgVehicles
 		defaultSkin = "Green";
 		fuelCapacity = 80;
 		fuelConsumption = 10;
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
+		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","CamoNet"};
 		class Crew
 		{
 			class Driver
@@ -641,11 +641,11 @@ class CfgVehicles
 		};
 		class SimulationModule
 		{
-			drive = "DRIVE_AWD";
 			centralDiffRatio = 1.45;
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -659,9 +659,25 @@ class CfgVehicles
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.9,10,0.85,20,0.8,50,0.7,80,0.8,100,1};
+				reactionTime = 0.15;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 3.05;
+				dragCoefficient = 0.52;
+			};
+			drive = "DRIVE_AWD";
 			class Engine
 			{
+				torqueCurve[] = {525,0,1000,200,1300,313,2500,384,3600,316,5120,0};
 				inertia = 0.27;
+				frictionTorque = 90;
+				rollingFriction = 0.7;
+				viscousFriction = 1;
 				steepness = 1.5;
 				torqueMax = 250;
 				torqueRpm = 3000;
@@ -673,24 +689,43 @@ class CfgVehicles
 				rpmRedline = 6000;
 				rpmMax = 7000;
 			};
+			class Clutch
+			{
+				maxTorqueTransfer = 300;
+				uncoupleTime = 0.2;
+				coupleTime = 0.35;
+			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 3.726;
 				ratios[] = {4.4,3.0,2.0,1.6,1};
 				timeToUncoupleClutch = 0.2;
 				timeToCoupleClutch = 0.35;
 				maxClutchTorque = 300;
 			};
-			class Axles
+			class CentralDifferential
 			{
-				class Front
+				ratio = 1.45;
+				type = "DIFFERENTIAL_LOCKED";
+			};
+			class Axles: Axles
+			{
+				class Front: Front
 				{
 					maxSteeringAngle = 30;
 					finalRatio = 4.1;
 					brakeBias = 0.6;
 					brakeForce = 4000;
+					maxBrakeTorque = 4000;
+					maxHandbrakeTorque = 5000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 2.73;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 1700;
@@ -700,9 +735,9 @@ class CfgVehicles
 						travelMaxUp = 0.06;
 						travelMaxDown = 0.07;
 					};
-					class Wheels
+					class Wheels: Wheels
 					{
-						class Left
+						class Left: Left
 						{
 							animTurn = "turnfrontleft";
 							animRotation = "wheelfrontleft";
@@ -710,7 +745,7 @@ class CfgVehicles
 							animDamper = "damper_1_1";
 							inventorySlot = "expansion_landrover_wheel_1_1";
 						};
-						class Right
+						class Right: Right
 						{
 							animTurn = "turnfrontright";
 							animRotation = "wheelfrontright";
@@ -720,14 +755,21 @@ class CfgVehicles
 						};
 					};
 				};
-				class Rear
+				class Rear: Rear
 				{
 					maxSteeringAngle = 0;
 					finalRatio = 4.1;
 					brakeBias = 0.4;
 					brakeForce = 3800;
+					maxBrakeTorque = 3800;
+					maxHandbrakeTorque = 5000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					class Differential
+					{
+						ratio = 2.73;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 1800;
@@ -737,9 +779,9 @@ class CfgVehicles
 						travelMaxUp = 0.06;
 						travelMaxDown = 0.07;
 					};
-					class Wheels
+					class Wheels: Wheels
 					{
-						class Left
+						class Left: Left
 						{
 							animTurn = "turnbackleft";
 							animRotation = "wheelbackleft";
@@ -747,7 +789,7 @@ class CfgVehicles
 							animDamper = "damper_1_2";
 							inventorySlot = "expansion_landrover_wheel_1_2";
 						};
-						class Right
+						class Right: Right
 						{
 							animTurn = "turnbacktright";
 							animRotation = "wheelbackright";
@@ -773,7 +815,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"expansion_landrover_hood","expansion_landrover_driverdoor","expansion_landrover_codriverdoor","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk"};
+				attachmentSlots[] = {"expansion_landrover_hood","expansion_landrover_driverdoor","expansion_landrover_codriverdoor","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","CamoNet"};
 			};
 			class Chassis
 			{

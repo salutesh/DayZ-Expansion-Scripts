@@ -106,4 +106,31 @@ modded class MiscGameplayFunctions
 
 		return false;
 	}
+
+	static bool Expansion_MoveCargo(EntityAI src, EntityAI dst, InventoryMode mode = InventoryMode.SERVER)
+	{
+		CargoBase cargo = src.GetInventory().GetCargo();
+		if (!cargo)
+			return false;
+
+		int cargoCount = cargo.GetItemCount();
+		if (!cargoCount)
+			return false;
+
+		auto srcLoc = new InventoryLocation;
+		auto dstLoc = new InventoryLocation;
+
+		for (int i = cargoCount - 1; i >= 0; i--)
+		{
+			EntityAI item = cargo.GetItem(i);
+			item.GetInventory().GetCurrentInventoryLocation(srcLoc);
+			dstLoc.SetCargo(dst, item, srcLoc.GetIdx(), srcLoc.GetRow(), srcLoc.GetCol(), srcLoc.GetFlip());
+			if (!item.GetInventory().TakeToDst(mode, srcLoc, dstLoc))
+				return false;
+		}
+
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "Moved " + cargoCount + " cargo items to " + dst);
+
+		return true;
+	}
 }

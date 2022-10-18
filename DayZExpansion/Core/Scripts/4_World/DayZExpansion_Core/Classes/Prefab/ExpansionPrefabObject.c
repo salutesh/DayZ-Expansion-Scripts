@@ -271,7 +271,8 @@ class ExpansionPrefabObject : Managed
 				{
 					foreach (ExpansionPrefabObject thisCargo: InventoryCargo)
 					{
-						inventoryCargo.Insert(thisCargo);
+						if (thisCargo.CanSpawn())
+							inventoryCargo.Insert(thisCargo);
 					}
 				}
 				
@@ -297,7 +298,8 @@ class ExpansionPrefabObject : Managed
 						selectedSet.Spawn(self, true);
 						foreach (ExpansionPrefabObject setCargo: selectedSet.InventoryCargo)
 						{
-							inventoryCargo.Insert(setCargo);
+							if (setCargo.CanSpawn())
+								inventoryCargo.Insert(setCargo);
 						}
 						if (selectedSet.ClassName)
 						{
@@ -312,6 +314,7 @@ class ExpansionPrefabObject : Managed
 					array<ref ExpansionPrefabObject> attachments = slot.Items;
 
 					int slotId = InventorySlots.GetSlotIdFromString(slotName);
+					int currentSlotId;
 
 					bool slotTaken = false;
 					Object child = null;
@@ -332,7 +335,14 @@ class ExpansionPrefabObject : Managed
 						attachment = candidates[index];
 						candidates.Remove(index);
 
-						switch (slotId)
+						currentSlotId = slotId;
+						if (slotId == InventorySlots.INVALID && entity.IsInherited(Weapon_Base))
+						{
+							if (GetGame().IsKindOf(attachment.ClassName, "Magazine_Base") && !GetGame().IsKindOf(attachment.ClassName, "Ammunition_Base"))
+								currentSlotId = InventorySlots.MAGAZINE;
+						}
+
+						switch (currentSlotId)
 						{
 						case InventorySlots.INVALID:
 							child = attachment.Spawn(inventory.CreateAttachment(attachment.ClassName));
@@ -354,7 +364,7 @@ class ExpansionPrefabObject : Managed
 							slotTaken = weapon.CF_SpawnMagazine(attachment.ClassName, quantMag);
 							break;
 						default:
-							child = attachment.Spawn(inventory.CreateAttachmentEx(attachment.ClassName, slotId));
+							child = attachment.Spawn(inventory.CreateAttachmentEx(attachment.ClassName, currentSlotId));
 							slotTaken = child != null;
 							break;
 						}
@@ -366,24 +376,16 @@ class ExpansionPrefabObject : Managed
 					}
 				}
 
-				candidates.Clear();
-
 				if (ignoreCargo)
 					return self;
 
-				//! Select cargo by chance
-				foreach (ExpansionPrefabObject cargo : inventoryCargo)
-				{
-					if (cargo.CanSpawn())
-						candidates.Insert(cargo);
-				}
-
 				//! Spawn candidate cargo in random order
-				while (candidates.Count())
+				ExpansionPrefabObject cargo;
+				while (inventoryCargo.Count())
 				{
-					index = candidates.GetRandomIndex();
-					cargo = candidates[index];
-					candidates.Remove(index);
+					index = inventoryCargo.GetRandomIndex();
+					cargo = inventoryCargo[index];
+					inventoryCargo.Remove(index);
 
 					cargo.Spawn(inventory.CreateInInventory(cargo.ClassName));
 				}

@@ -30,7 +30,7 @@ class ExpansionAirdropPlane extends House
 	protected bool m_AirdropCreated = false;
 	protected ref StringLocaliser m_AirdropCreatedMsg;
 	
-	ref ExpansionAirdropLootContainer m_LootContainer;
+	ref ExpansionLootContainer m_LootContainer;
 	ExpansionAirdropContainerBase m_Container;
 
 	protected vector m_AirdropPosition;
@@ -212,7 +212,7 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane SetupPlane
 	// ------------------------------------------------------------
-	void SetupPlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionAirdropLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
+	void SetupPlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("[ExpansionAirdropPlane] SetupPlane start");
@@ -251,7 +251,7 @@ class ExpansionAirdropPlane extends House
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane EOnSimulate
 	// ------------------------------------------------------------
-	override void EOnSimulate( IEntity owner, float dt )
+	override void EOnSimulate( IEntity other, float dt )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("[ExpansionAirdropPlane] EOnSimulate start");
@@ -499,7 +499,7 @@ class ExpansionAirdropPlane extends House
 		return false;
 	}
 
-	static ExpansionAirdropPlane CreatePlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionAirdropLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
+	static ExpansionAirdropPlane CreatePlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
 	{
 		vector spawnPoint = GetSpawnPoint( dropPosition, height );
 

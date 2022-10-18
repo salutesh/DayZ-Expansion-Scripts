@@ -108,35 +108,4 @@ modded class PlayerBase
 		m_MarketSell.Valid = false;
 		m_MarketSell.Sell.Clear();
 	}
-	
-	override void OnVehicleSeatDriverEnter()
-	{
-		super.OnVehicleSeatDriverEnter();
-
-		HumanCommandVehicle hcv = GetCommand_Vehicle();
-		if (hcv && hcv.GetTransport())
-		{
-			CarScript car = CarScript.Cast(hcv.GetTransport());
-			if (car)
-			{
-				car.ExpansionSetLastDriverUID(this);
-				if (IsMissionHost())
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(car.ExpansionResetLastDriverUIDSynch, 1000, false);
-			}
-		}
-
-		#ifdef EXPANSIONMODVEHICLE;
-		ExpansionHumanCommandVehicle exhcv = GetCommand_ExpansionVehicle();
-		if (exhcv && exhcv.GetObject())
-		{
-			ExpansionVehicleBase vehicle = ExpansionVehicleBase.Cast(exhcv.GetObject());
-			if (vehicle)
-			{
-				vehicle.ExpansionSetLastDriverUID(this);
-				if (IsMissionHost())
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(vehicle.ExpansionResetLastDriverUIDSynch, 1000, false);
-			}
-		}
-		#endif
-	}
 }

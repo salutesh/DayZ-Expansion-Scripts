@@ -12,9 +12,9 @@
 
 class ExpansionQuestObjectSet
 {
-	private int m_QuestID;
-	private bool m_Spawned;
-	private ref ExpansionObjectSet m_ObjectsSet;
+	protected int m_QuestID;
+	protected bool m_Spawned;
+	protected ref ExpansionObjectSet m_ObjectsSet;
 
 	void ~ExpansionQuestObjectSet()
 	{

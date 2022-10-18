@@ -61,12 +61,14 @@ class ExpansionBaseBuildingSettingsV2: ExpansionBaseBuildingSettingsBaseV2
  **/
 class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 
 	ExpansionCodelockAttachMode CodelockAttachMode;						//! 0 = only on Exp doors/gates | 1 = Exp doors/gates + vanilla fences (also works for BBP) | 2 = Exp doors/gates + vanilla fence (also works for BBP) & tents | 3 = Exp doors/gates + vanilla tents
 	ExpansionDismantleFlagMode DismantleFlagMode;					//! -1 = only territory members, no tools needed  | 0 = anyone, no tools needed | 1 = anyone, only with tools
 	ExpansionFlagMenuMode FlagMenuMode;											//! 0 = no flag menu | 1 = disabled | 2 = no flag choice
-	
+	bool EnableVirtualStorage;
+	autoptr TStringArray VirtualStorageExcludedContainers;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -81,6 +83,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		DeployableInsideAEnemyTerritory = new TStringArray;
 
 		Zones =  new array< ref ExpansionBuildNoBuildZone >;
+
+		VirtualStorageExcludedContainers = new TStringArray;
 	}
 	
 	// ------------------------------------------------------------
@@ -111,6 +115,9 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Read(CodelockAttachMode);
 		ctx.Read(DismantleFlagMode);
 		ctx.Read(FlagMenuMode);
+
+		ctx.Read(EnableVirtualStorage);
+		ctx.Read(VirtualStorageExcludedContainers);
 		
 		m_IsLoaded = true;
 		
@@ -147,6 +154,9 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Write(CodelockAttachMode);
 		ctx.Write(DismantleFlagMode);
 		ctx.Write(FlagMenuMode);
+
+		ctx.Write(EnableVirtualStorage);
+		ctx.Write(VirtualStorageExcludedContainers);
 	}
 
 	// ------------------------------------------------------------
@@ -410,6 +420,8 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		FlagMenuMode = ExpansionFlagMenuMode.Enabled;
 		GetTerritoryFlagKitAfterBuild = false;
 		
+		VirtualStorageExcludedContainers.Insert("ExpansionAirdropContainerBase");
+
 	#ifdef EXPANSIONMODMARKET
 		switch (ExpansionStatic.GetCanonicalWorldName())
 		{

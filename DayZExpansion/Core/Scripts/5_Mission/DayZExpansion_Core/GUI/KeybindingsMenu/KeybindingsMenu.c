@@ -16,32 +16,13 @@ modded class KeybindingsMenu
 	{
 		layoutRoot = super.Init();
 		
-		SetGameVersion();
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 		
 		return layoutRoot;
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion SetGameVersion
-	// ------------------------------------------------------------
-	protected void SetGameVersion()
-	{
-		TextWidget version_widget = TextWidget.Cast( layoutRoot.FindAnyWidget("version") );
-		string version;
-		GetGame().GetVersion( version );
-		string expansion_version;	
-		
-		if ( GetDayZGame() )
-			expansion_version = GetDayZGame().GetExpansionClientVersion();
-
-		if (expansion_version)
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version + "   DayZ Expansion #main_menu_version" + " " + expansion_version );
-		else
-			m_Version.SetText( "DayZ SA #main_menu_version" + " " + version );
-	}
-	
 	override void Refresh()
 	{
-		SetGameVersion();
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 	}
 };

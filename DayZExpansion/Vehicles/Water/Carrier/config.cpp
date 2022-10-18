@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Carrier
 	{
-		units[] = {"ExpansionLHD","Vehicle_ExpansionLHD","ExpansionLHD1","ExpansionLHD2","ExpansionLHD3","ExpansionLHD4","ExpansionLHD5","ExpansionLHD6","ExpansionLHDHouse1","ExpansionLHDHouse2","ExpansionLHDElevatorL","ExpansionLHDElevatorR","ExpansionLHDInterior1","ExpansionLHDInterior2","ExpansionLHDInterior3","bldr_expansion_lhd1","bldr_expansion_lhd2","bldr_expansion_lhd3","bldr_expansion_lhd4","bldr_expansion_lhd5","bldr_expansion_lhd6","bldr_expansion_evelv_r","bldr_expansion_house1","bldr_expansion_house2","bldr_expansion_shadow","bldr_expansion_wall_lamp","bldr_expansion_lhd_evelv_r","bldr_expansion_lhd_house1","bldr_expansion_lhd_house2","bldr_expansion_lhd_shadow","bldr_expansion_lhd_wall_lamp"};
+		units[] = {"ExpansionLHD","ExpansionLHD1","ExpansionLHD2","ExpansionLHD3","ExpansionLHD4","ExpansionLHD5","ExpansionLHD6","ExpansionLHDHouse1","ExpansionLHDHouse2","ExpansionLHDElevatorL","ExpansionLHDElevatorR","ExpansionLHDInterior1","ExpansionLHDInterior2","ExpansionLHDInterior3","bldr_expansion_lhd1","bldr_expansion_lhd2","bldr_expansion_lhd3","bldr_expansion_lhd4","bldr_expansion_lhd5","bldr_expansion_lhd6","bldr_expansion_evelv_r","bldr_expansion_house1","bldr_expansion_house2","bldr_expansion_shadow","bldr_expansion_wall_lamp","bldr_expansion_lhd_evelv_r","bldr_expansion_lhd_house1","bldr_expansion_lhd_house2","bldr_expansion_lhd_shadow","bldr_expansion_lhd_wall_lamp"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -12,6 +12,13 @@ class CfgPatches
 };
 class CfgVehicles
 {
+	class SimulationModule;
+	class Axles;
+	class Front;
+	class Wheels;
+	class Rear;
+	class Left;
+	class Right;
 	class DamageSystem;
 	class DamageZones;
 	class GlobalHealth;
@@ -29,7 +36,7 @@ class CfgVehicles
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
-		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery"};
+		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery","CamoNet"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -44,7 +51,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","CamoNet"};
 			};
 		};
 		class Crew
@@ -57,12 +64,13 @@ class CfgVehicles
 				getInDir = "pos_driver_dir";
 			};
 		};
-		class SimulationModule
+		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -77,7 +85,11 @@ class CfgVehicles
 			};
 			class Engine
 			{
+				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
 				inertia = 0.15;
+				frictionTorque = 100;
+				rollingFriction = 0.5;
+				viscousFriction = 0.5;
 				torqueMax = 114;
 				torqueRpm = 3400;
 				powerMax = 53.7;
@@ -97,9 +109,9 @@ class CfgVehicles
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
 			};
-			class Axles
+			class Axles: Axles
 			{
-				class Front
+				class Front: Front
 				{
 					maxSteeringAngle = 30;
 					finalRatio = 4.1;
@@ -136,7 +148,7 @@ class CfgVehicles
 						};
 					};
 				};
-				class Rear
+				class Rear: Rear
 				{
 					maxSteeringAngle = 0;
 					finalRatio = 4.1;
@@ -229,12 +241,12 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionLHD: ExpansionVehicleBoatBase
 	{
-		scope = 2;
-		hornSoundSetEXT = "Expansion_LHD_Horn_Ext_SoundSet";
-		hornSoundSetINT = "Expansion_LHD_Horn_Int_SoundSet";
-		displayname = "[NOT READY]  LHD";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_LHD";
 		model = "\DayZExpansion\Vehicles\Water\Carrier\LHD.p3d";
 		modelZeroPointDistanceFromGround = 12.1;
+		hornSoundSetEXT = "Expansion_LHD_Horn_Ext_SoundSet";
+		hornSoundSetINT = "Expansion_LHD_Horn_Int_SoundSet";
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

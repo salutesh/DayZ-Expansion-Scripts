@@ -12,44 +12,53 @@
 
 class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 {
-	private ref array<Object> LootItems = new array<Object>;
-	private UndergroundStash Stash;
-	private ExpansionQuestSeaChest Chest;
-	private vector StashPos;
-	
-	override void OnStart()
+	protected ref array<Object> LootItems = new array<Object>;
+	protected UndergroundStash Stash;
+	protected ExpansionQuestSeaChest Chest;
+	protected vector StashPos;
+
+	override bool OnStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
 	#endif
 
+		if (!super.OnStart())
+			return false;
+
 		TreasureHuntEventStart();
 
-		super.OnStart();
+		return true;
 	}
 
-	override void OnContinue()
+	override bool OnContinue()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
 	#endif
-	
+
+		if (!super.OnContinue())
+			return false;
+
 		TreasureHuntEventStart();
 
-		super.OnContinue();
+		return true;
 	}
 
-	override void OnCleanup()
+	override bool OnCleanup()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
 	#endif
-		
+
+		if (!super.OnCleanup())
+			return false;
+
 		int state = ExpansionQuestState.NONE;
 		ExpansionQuestPersistentData questPlayerData = GetQuest().GetQuestModule().GetPlayerQuestDataByUID(GetQuest().GetPlayerUID());
 		if (questPlayerData)
 			state = questPlayerData.GetQuestStateByQuestID(GetQuest().GetQuestConfig().GetID());
-		
+
 		//! Only cleanup the treasure if quest is not completed
 		if (state == ExpansionQuestState.STARTED)
 		{
@@ -58,18 +67,21 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 				GetGame().ObjectDelete(obj);
 			}
 		}
-		
+
 		GetGame().ObjectDelete(Chest);
 		GetGame().ObjectDelete(Stash);
-		
-		super.OnCleanup();
+
+		return true;
 	}
 
-	override void OnCancel()
+	override bool OnCancel()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
 	#endif
+
+		if (!super.OnCancel())
+			return false;
 
 		foreach (Object obj: LootItems)
 		{
@@ -79,10 +91,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		GetGame().ObjectDelete(Chest);
 		GetGame().ObjectDelete(Stash);
 
-		super.OnCancel();
+		return true;
 	}
-	
-	private void TreasureHuntEventStart()
+
+	protected bool TreasureHuntEventStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TreasureHuntEventStart");
@@ -92,17 +104,17 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		{
 			GetQuest().SetPlayer();
 			if (!GetQuest().GetPlayer())
-				return;
+				return false;
 		}
-		
+
 		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
 		if (!treasureHunt)
-			return;
+			return false;
 
-		CreateTreasure(treasureHunt);
+		return CreateTreasure(treasureHunt);
 	}
 
-	void CreateTreasure(ExpansionQuestObjectiveTreasureHunt treasureHunt)
+	protected bool CreateTreasure(ExpansionQuestObjectiveTreasureHunt treasureHunt)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CreateTreasure");
@@ -111,35 +123,48 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		vector pos = treasureHunt.GetPositions().GetRandomElement();
 		StashPos = pos;
 
+		//! Check if there is already a stash on this position for this quest ID.
+		array<Object> objects = new array<Object>;
+		GetGame().GetObjectsAtPosition3D(pos, 3.0, objects, NULL);
+		foreach (Object obj: objects)
+		{
+			UndergroundStash existingStash;
+			if (Class.CastTo(existingStash, obj))
+			{
+				if (existingStash && existingStash.GetQuestID() == GetQuest().GetQuestConfig().GetID())
+					return false;
+			}
+		}
+
 		//! Create the underground stash and hide it
 		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", StashPos, ECE_PLACE_ON_SURFACE)))
-			return;
+			return false;
 
 		if (Stash)
 		{
-			Stash.SetIsQuestItem(true);
+			Stash.SetQuestID(GetQuest().GetQuestConfig().GetID());
 			Stash.PlaceOnGround();
 		}
 
 		EntityAI stashEntity;
 		if (!Class.CastTo(stashEntity, Stash))
-			return;
+			return false;
 
 		//! Spawn the chest in the underground stash
 		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
 		if (!questPlayer)
-			return;
+			return false;
 
 		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, StashPos, Vector(0, 0, 0));
 		if (!Class.CastTo(Chest, chestObj))
-			return;
+			return false;
 
 		Chest.ExpansionSetContainerOwner(questPlayer);
 
 		//! Spawn the loot in the chest
 		EntityAI chestEntity;
 		if (!Class.CastTo(chestEntity, Chest))
-			return;
+			return false;
 
 		map<string, int> items = treasureHunt.GetItems();
 		foreach (string name, int amount: items)
@@ -147,6 +172,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			Object item = Spawn(name, amount, questPlayer, chestEntity, StashPos, Vector(0, 0, 0));
 			LootItems.Insert(item);
 		}
+
+		return true;
 	}
 
 	Object Spawn(string name, int amount, PlayerBase player, inout EntityAI parent, vector position, vector orientation)
@@ -163,7 +190,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		float maxDistance = 5.0;
 		float currentDistance;
 		array<vector> groupMemberPos = new array<vector>;
-		
+
 		if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
 		{
 			vector playerPos = GetQuest().GetPlayer().GetPosition();
@@ -178,12 +205,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			if (!group)
 				return;
 
-			for (int i = 0; i < group.GetPlayers().Count(); i++)
+			array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
-				ExpansionPartyPlayerData playerGroupData = group.GetPlayers()[i];
-				if (!playerGroupData)
-					continue;
-
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (!groupPlayer)
 					continue;
@@ -209,7 +233,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 					posIndex = p;
 				}
 			}
-			
+
 			currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 			groupMemberPos.Clear();
 		}

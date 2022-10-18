@@ -15,8 +15,8 @@
  **/
 class ExpansionQuestStaticObject extends BuildingSuper
 {
-	private int m_QuestNPCID = -1;
-	private ref ExpansionQuestNPCData m_QuestNPCData;
+	protected int m_QuestNPCID = -1;
+	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestStaticObject Constructor

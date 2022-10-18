@@ -85,7 +85,7 @@ class ExpansionLocatorModule: CF_ModuleGame
 			return;
 
 		IngameHud hud = IngameHud.Cast( mission.GetHud() );
-		if ( !hud || !hud.m_Expansion_LocatorUI )
+		if ( !hud || !hud.GetExpanisonLocatorUI() )
 			return;
 
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -116,7 +116,7 @@ class ExpansionLocatorModule: CF_ModuleGame
 				if ( m_CurrentAreaName != shortestLocation.name )
 				{
 					m_CurrentAreaName = shortestLocation.name;					
-					hud.m_Expansion_LocatorUI.OnShowCityClient( m_CurrentAreaName );
+					hud.GetExpanisonLocatorUI().OnShowCityClient( m_CurrentAreaName );
 				}
 
 				return;

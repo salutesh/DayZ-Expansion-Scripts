@@ -1,7 +1,7 @@
 LANGUAGE,ORIGINAL,ENGLISH,CZECH,GERMAN,RUSSIAN,POLISH,HUNGARIAN,ITALIAN,SPANISH,FRENCH,CHINESE,PORTUGUESE,JAPANESE,CHINESESIMP,
 STR_EXPANSION_DELETE_MARKER,Delete Map Marker,Delete Map Marker,Vymazat značku,Kartenmarkierung löschen,Удалить метку,Usuń Znacznik Z Mapy,Térkép Marker Törlése,Rimuovi marcatore Mappa,Borrar marcador del mapa,Supprimer un marqueur de carte,刪除地圖標記,Apagar Marcação no Mapa,マップマーカー削除,删除地图标记,
 STR_EXPANSION_TOGGLE_MAP,Toggle Map,Toggle Map,Přepnout mapu,Karte umschalten,Карта,Pokaż/Schowaj Mapę,Térkép mutatása,Apri / Chiudi Mappa,Abrir mapa,Basculer la carte,切換地圖,Mapa,マップのトグル,切换地图,
-STR_EXPANSION_TOGGLE_COMPASS,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,切換指南針,Toggle Compass,Toggle Compass,切换指南针,
+STR_EXPANSION_TOGGLE_COMPASS,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Toggle Compass,Attiva / Disattiva Bussola ,Toggle Compass,Toggle Compass,切換指南針,Toggle Compass,Toggle Compass,切换指南针,
 STR_EXPANSION_TOGGLE_GPS,Toggle GPS,Toggle GPS,Přepnout GPS,GPS umschalten,GPS,Pokaż/Schowaj GPS,GPS mutatása,Apri GPS,Abrir GPS,Basculer le GPS,切換GPS,GPS,GPSのトグル,切换GPS,
 STR_EXPANSION_GPS_MAP_SCALE_DOWN,GPS Zoom In,GPS Zoom In,GPS přiblížit,GPS hereinzoomen,GPS Увеличить,GPS Zoom In,GPS Zoom In,GPS Zoom Avanti,Ampliar Zoom en el GPS,Zoom avant GPS,放大GPS,GPS Zoom In,GPS Zoom In,放大GPS,
 STR_EXPANSION_GPS_MAP_SCALE_UP,GPS Zoom Out,GPS Zoom Out,GPS oddálit,GPS herauszoomen,GPS Уменьшить,GPS Zoom Out,GPS Zoom Out,GPS Zoom Indietro,Reducir Zoom en el GPS,Zoom arrière GPS,縮小GPS,GPS Zoom Out,GPS Zoom Out,缩小GPS,

@@ -437,8 +437,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			
 			int itemCount;
 			int hiddenItemCount;
-			array<ref ExpansionMarketItem> items = currentCategory.GetItems();
-			foreach (ExpansionMarketItem currentItem : items)
+			foreach (ExpansionMarketItem currentItem : currentCategory.m_Items)
 			{
 				MarketPrint("ExpansionMarketMenu::CreateMarketCategorys - Check item: " + currentItem.ClassName);
 				if (!m_TraderMarket.ItemExists(currentItem.ClassName) || m_TraderMarket.IsAttachmentBuySell(currentItem.ClassName))
@@ -639,9 +638,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		{
 			int filteredItemCount = 0;
 			ExpansionMarketMenuCategory menuCategory = m_MarketMenuController.MarketCategories[i];
+			ObservableCollection<ref ExpansionMarketMenuItem> menuItems = menuCategory.GetItems();
 			
 			MarketPrint("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-			MarketPrint("UpdateMarketCategories - Update category: " + menuCategory.m_Category.m_FileName + " | " +menuCategory.GetItems().Count());
+			MarketPrint("UpdateMarketCategories - Update category: " + menuCategory.m_Category.m_FileName + " | " +menuItems.Count());
 			
 			if (isFiltered)
 			{
@@ -652,10 +652,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 
-			int itemCount = menuCategory.GetItems().Count();
+			int itemCount = menuItems.Count();
 			for (int j = 0; j < itemCount; j++)
 			{
-				ExpansionMarketMenuItem menuItem =  menuCategory.GetItems()[j];
+				ExpansionMarketMenuItem menuItem =  menuItems[j];
 				ExpansionMarketItem currentBaseItem = menuItem.GetBaseItem();
 				ExpansionMarketItem currentItem = menuItem.GetMarketItem();
 
@@ -1253,8 +1253,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				descriptions.Insert(ExpansionStatic.IntToCurrencyString(monies[i], ",") + " × " + GetDisplayName(type) + " (" + currencyString + ")");
 			}
 		}
-		
-		monies.Clear();
 		
 		string currencyPlayerTotalMoneyString = ExpansionStatic.IntToCurrencyString(worth, ",");
 		m_MarketMenuController.PlayerTotalMoney = currencyPlayerTotalMoneyString + " #STR_EXPANSION_MARKET_CURRENCY_TOTAL";

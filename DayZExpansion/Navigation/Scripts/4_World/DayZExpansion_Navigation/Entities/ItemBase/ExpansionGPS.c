@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionGPS extends ToolBase
+class ExpansionGPS: ToolBase
 {
 	override void SetActions()
 	{
@@ -18,5 +18,13 @@ class ExpansionGPS extends ToolBase
 		
 		AddAction(ActionTurnOnWhileInHands);
 		AddAction(ActionTurnOffWhileInHands);
+	}
+	
+	//================================================================
+	// DEBUG
+	//================================================================
+	override void OnDebugSpawn()
+	{
+		GetInventory().CreateInInventory("Battery9V");
 	}
 };

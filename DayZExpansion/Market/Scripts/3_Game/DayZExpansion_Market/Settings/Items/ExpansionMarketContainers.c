@@ -23,13 +23,7 @@ class ExpansionMarketContainers: ExpansionMarketCategory
 		AddItem("SmallProtectorCase", 			70,			140,		1,		100);
 		AddItem("AmmoBox", 						80,			160,		1,		100);
 		AddItem("BarrelHoles_Blue", 			800,		1600,		1,		100, null, {"BarrelHoles_Green", "BarrelHoles_Red", "BarrelHoles_Yellow"});
-		/*AddItem("BarrelHoles_Green", 			800,		1600,		1,		100);
-		AddItem("BarrelHoles_Red", 				800,		1600,		1,		100);
-		AddItem("BarrelHoles_Yellow", 			800,		1600,		1,		100);*/
 		AddItem("Barrel_Blue", 					1500,		3000,		1,		100, null, {"Barrel_Green", "Barrel_Red", "Barrel_Yellow"});
-		/*AddItem("Barrel_Green", 				1500,		3000,		1,		100);
-		AddItem("Barrel_Red", 					1500,		3000,		1,		100);
-		AddItem("Barrel_Yellow", 				1500,		3000,		1,		100);*/
 		AddItem("SeaChest", 					2000,		4000,		1,		100);
 		AddItem("WoodenCrate", 					2000,		4000,		1,		100);
 	

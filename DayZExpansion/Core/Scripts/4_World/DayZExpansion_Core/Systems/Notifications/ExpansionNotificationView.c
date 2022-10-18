@@ -232,6 +232,9 @@ class ExpansionNotificationView: ScriptView
 			case ExpansionNotificationType.MARKET:
 				m_NotificationHUD.RemoveNotificationMarketElemement(ExpansionNotificationViewMarket.Cast(this));
 				break;
+			case ExpansionNotificationType.GARAGE:
+				m_NotificationHUD.RemoveNotificationGarageElemement(ExpansionNotificationViewGarage.Cast(this));
+				break;
 		}
 	}
 		
@@ -324,9 +327,13 @@ class ExpansionNotificationViewMarket extends ExpansionNotificationView
 		return ExpansionNotificationViewMarketController;
 	}
 	
-	override string GetLayoutFile() 
+	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Core/GUI/layouts/expansion_notification_market.layout";
 	}
 };
 class ExpansionNotificationViewMarketController: ExpansionNotificationViewController {};
+
+class ExpansionNotificationViewGarage extends ExpansionNotificationViewMarket
+{
+};

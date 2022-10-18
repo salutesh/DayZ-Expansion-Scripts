@@ -195,8 +195,10 @@ class ExpansionHelicopterScript extends CarScript
 		if (!m_IsInitialized)
 			return;
 
+#ifdef DAYZ_1_18
 		if (m_Expansion_IsBeingTowed)
 			return;
+#endif
 
 		bool resetImpulse = GetGame().IsServer() && !IsDamageDestroyed();
 

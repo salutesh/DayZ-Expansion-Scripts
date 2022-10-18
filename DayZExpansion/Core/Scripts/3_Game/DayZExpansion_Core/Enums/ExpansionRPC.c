@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -44,7 +44,7 @@ enum ExpansionWorldObjectsModuleRPC
 enum ExpansionMarketModuleRPC
 {
 	INVALID = 20060,
-	
+
 	//! Market
 	Callback,
 	MoneyDenominations,
@@ -59,7 +59,7 @@ enum ExpansionMarketModuleRPC
 	RequestTraderItems,
 	LoadTraderItems,
 	ExitTrader,
-	
+
 	//! ATM
 	RequestPlayerATMData,
 	SendPlayerATMData,
@@ -73,7 +73,7 @@ enum ExpansionMarketModuleRPC
 	ConfirmPartyTransferMoney,
 	RequestPartyWithdrawMoney,
 	ConfirmPartyWithdrawMoney,
-	
+
 	// Admin
 	GiveMoney,
 	ReserveMoney,
@@ -241,7 +241,6 @@ enum ExpansionESPModificationModuleRPC
 	COUNT
 };
 
-//! @note We are getting close to 30 enums in settingsrpc, need to increment following rpcs when we get there
 enum ExpansionSettingsRPC
 {
 	INVALID = 30000,
@@ -271,47 +270,48 @@ enum ExpansionSettingsRPC
 	AI,
 	NotificationScheduler,  //! Not used, settings don't need to be available on client
 	Hardline,
-	COUNT  //! 28
+	Garage,
+	COUNT  //! 29 INCREMENT FOLLOWING RPCs WHEN NEEDED FFS
 };
 
 enum ExpansionCOTBookModuleRPC
-{
-	INVALID = 30030,
-	Update,
-	COUNT
-};
-
-enum ExpansionCOTBaseBuildingModuleRPC
 {
 	INVALID = 30035,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTMapModuleRPC
+enum ExpansionCOTBaseBuildingModuleRPC
 {
 	INVALID = 30040,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTMarketModuleRPC
+enum ExpansionCOTMapModuleRPC
 {
 	INVALID = 30045,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTNotificationModuleRPC
+enum ExpansionCOTMarketModuleRPC
 {
 	INVALID = 30050,
 	Update,
 	COUNT
 };
 
-enum ExpansionCOTGroupModuleRPC
+enum ExpansionCOTNotificationModuleRPC
 {
 	INVALID = 30055,
+	Update,
+	COUNT
+};
+
+enum ExpansionCOTGroupModuleRPC
+{
+	INVALID = 30060,
 	EditGroupName,
 	EditGroupMemberPerm,
 	DeleteGroup,
@@ -414,9 +414,40 @@ enum ExpansionRPC
 	COUNT
 };
 
+enum ExpansionQuestModuleRPC
+{
+	INVALID = 40020,
+	SendQuestNPCData,
+	RequestPlayerQuests,
+	SendPlayerQuests,
+	SendPlayerQuestData,
+	RequestOpenQuestMenu,
+	SetupClientData,
+	UpdatePlayerQuestData,
+	CreateQuestInstance,
+	RequestCompleteQuest,
+	CompleteQuest,
+	CreateClientMarker,
+	RemoveClientMarkers,
+	CancelQuest,
+	CallbackClient,
+	COUNT
+};
+
+enum ExpansionGarageModuleRPC
+{
+	INVALID = 40040,
+	RequestPlayerVehicles,
+	SendPlayerVehicles,
+	DepositVehicleRequest,
+	RetrieveVehicleRequest,
+	Callback,
+	COUNT
+};
+
 enum ExpansionLockRPC
 {
-	LOCK = 5464150, 
+	LOCK = 5464150,
 	UNLOCK,
 	SET,
 	SERVERREPLY,

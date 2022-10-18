@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Ikarus
 	{
-		units[] = {"ExpansionBusWheel","ExpansionBusWheel_Ruined","ExpansionBusWheelDouble","ExpansionBusWheelDouble_Ruined","ExpansionBus","Vehicle_ExpansionBusWheel","Vehicle_ExpansionBusWheel_Ruined","Vehicle_ExpansionBusWheelDouble","Vehicle_ExpansionBusWheelDouble_Ruined","Vehicle_ExpansionBus","ExpansionSpraycanBlue","ExpansionBus_Blue","Vehicle_ExpansionBus_Blue","ExpansionSpraycanWeeb","ExpansionBus_Weeb","Vehicle_ExpansionBus_Weeb","ExpansionSpraycanRed","ExpansionBus_Red","Vehicle_ExpansionBus_Red"};
+		units[] = {"ExpansionBusWheel","ExpansionBusWheel_Ruined","ExpansionBusWheelDouble","ExpansionBusWheelDouble_Ruined","ExpansionBus","ExpansionSpraycanBlue","ExpansionBus_Blue","ExpansionSpraycanWeeb","ExpansionBus_Weeb","ExpansionSpraycanRed","ExpansionBus_Red"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -66,16 +66,10 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionBusWheel_Ruined: CarWheel
+	class ExpansionBusWheel_Ruined: ExpansionBusWheel
 	{
-		scope = 2;
 		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_destroyed.p3d";
 		displayName = "$STR_TransitBusWheel_Ruined0";
-		itemSize[] = {6,6};
-		weight = 25000;
-		physLayer = "item_large";
-		rotationFlags = 12;
-		inventorySlot[] = {"BusWheel_1_1","BusWheel_2_1"};
 		radius = 0.3;
 		friction = -1.0;
 		width = 0.213;
@@ -110,15 +104,10 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionBusWheelDouble_Ruined: CarWheel
+	class ExpansionBusWheelDouble_Ruined: ExpansionBusWheelDouble
 	{
-		scope = 2;
 		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_rear_destroyed.p3d";
 		displayName = "$STR_TransitBusWheelDouble_Ruined0";
-		itemSize[] = {6,6};
-		weight = 25000;
-		physLayer = "item_large";
-		rotationFlags = 12;
 		width = 0.426;
 		radius = 0.3;
 		friction = -1.0;
@@ -133,7 +122,7 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\Bus\Ikarus.p3d";
 		modelZeroPointDistanceFromGround = 0.11;
 		vehicleClass = "Expansion_Car";
-		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2"};
+		attachments[] = {"TruckBattery","Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","BusWheel_1_1","BusWheel_1_2","BusWheel_2_1","BusWheel_2_2","CamoNet"};
 		doors[] = {};
 		fuelCapacity = 62;
 		fuelConsumption = 11;
@@ -314,6 +303,7 @@ class CfgVehicles
 			airDragFrontTotal = 0.828;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -327,9 +317,24 @@ class CfgVehicles
 				gentleCoef = 0.75;
 			};
 			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
+			class Brake
+			{
+				pressureBySpeed[] = {0,0.5,10,0.46,30,0.43,40,0.4,60,0.5,80,0.6};
+				reactionTime = 0.3;
+				driverless = 0.1;
+			};
+			class Aerodynamics
+			{
+				frontalArea = 5.75;
+				dragCoefficient = 0.53;
+			};
 			class Engine
 			{
+				torqueCurve[] = {525,0,1000,330,1400,360,1900,340,3000,0};
 				inertia = 0.15;
+				frictionTorque = 100;
+				rollingFriction = 4;
+				viscousFriction = 2.5;
 				torqueMax = 150;
 				steepness = 10;
 				torqueRpm = 3400;
@@ -341,13 +346,25 @@ class CfgVehicles
 				rpmRedline = 6500;
 				rpmMax = 8000;
 			};
+			class Clutch
+			{
+				maxTorqueTransfer = 660;
+				uncoupleTime = 0.3;
+				coupleTime = 0.45;
+			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 5.526;
 				ratios[] = {5.667,3.5,2.861,1.3};
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 660;
+			};
+			class CentralDifferential
+			{
+				ratio = 0.75;
+				type = "DIFFERENTIAL_LOCKED";
 			};
 			class Axles: Axles
 			{
@@ -359,6 +376,13 @@ class CfgVehicles
 					brakeForce = 4000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					maxBrakeTorque = 5000;
+					maxHandbrakeTorque = 6000;
+					class Differential
+					{
+						ratio = 8.35;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 1700;
@@ -396,6 +420,13 @@ class CfgVehicles
 					brakeForce = 3800;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
+					maxBrakeTorque = 5000;
+					maxHandbrakeTorque = 6000;
+					class Differential
+					{
+						ratio = 8.35;
+						type = "DIFFERENTIAL_LOCKED";
+					};
 					class Suspension
 					{
 						swayBar = 1800;
@@ -745,7 +776,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1"};
+				attachmentSlots[] = {"Reflector_1_1","Reflector_2_1","CamoNet"};
 			};
 			class Chassis
 			{
@@ -760,7 +791,7 @@ class CfgVehicles
 	class ExpansionWheelBase;
 	class Vehicle_ExpansionBusWheel: ExpansionWheelBase
 	{
-		scope = 2;
+		scope = 0;
 		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel.p3d";
 		displayName = "$STR_TransitBusWheel0";
 		itemSize[] = {6,6};
@@ -777,7 +808,7 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionBusWheel_Ruined: Vehicle_ExpansionBusWheel
 	{
-		scope = 2;
+		scope = 0;
 		model = "\DZ\vehicles\wheeled\TransitBus\proxy\ikarusWheel_destroyed.p3d";
 		displayName = "$STR_TransitBusWheel_Ruined0";
 		itemSize[] = {6,6};
@@ -807,8 +838,8 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionBus: ExpansionVehicleCarBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  Bus";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_BUS";
 		model = "\DayZExpansion\Vehicles\Ground\Bus\Ikarus.p3d";
 		modelZeroPointDistanceFromGround = 0.1;
 		vehicleClass = "Expansion_Car";

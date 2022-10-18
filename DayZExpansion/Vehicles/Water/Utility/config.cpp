@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Boat_Utility
 	{
-		units[] = {"ExpansionUtilityBoat","Vehicle_ExpansionUtilityBoat","ExpansionSpraycanBlack","Vehicle_ExpansionUtilityBoat_Black","ExpansionUtilityBoat_Black","ExpansionSpraycanGreen","ExpansionUtilityBoat_Green"};
+		units[] = {"ExpansionUtilityBoat","ExpansionSpraycanBlack","ExpansionUtilityBoat_Black","ExpansionSpraycanGreen","ExpansionUtilityBoat_Green"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -50,7 +50,7 @@ class CfgVehicles
 		hiddenSelectionsMaterials[] = {"","","DayZExpansion\Vehicles\Water\Utility\data\rhib.rvmat",""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\bus\data\bus_exterior_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\water\utility\data\rhib.rvmat";
-		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery"};
+		attachments[] = {"Reflector_1_1","Reflector_2_1","CarRadiator","GlowPlug","TruckBattery","CamoNet"};
 		class Cargo
 		{
 			itemsCargoSize[] = {10,50};
@@ -116,6 +116,7 @@ class CfgVehicles
 			airDragFrontTotal = 0.995;
 			class Steering
 			{
+				maxSteeringAngle = 30;
 				increaseSpeed[] = {0,45,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,0,15,25,60,40,100,60};
@@ -130,7 +131,11 @@ class CfgVehicles
 			};
 			class Engine
 			{
+				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
 				inertia = 0.15;
+				frictionTorque = 100;
+				rollingFriction = 0.5;
+				viscousFriction = 0.5;
 				torqueMax = 114;
 				torqueRpm = 3400;
 				powerMax = 53.7;
@@ -150,9 +155,9 @@ class CfgVehicles
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
 			};
-			class Axles
+			class Axles: Axles
 			{
-				class Front
+				class Front: Front
 				{
 					maxSteeringAngle = 30;
 					finalRatio = 4.1;
@@ -189,7 +194,7 @@ class CfgVehicles
 						};
 					};
 				};
-				class Rear
+				class Rear: Rear
 				{
 					maxSteeringAngle = 0;
 					finalRatio = 4.1;
@@ -236,6 +241,13 @@ class CfgVehicles
 				description = "";
 				icon = "cat_vehicle_engine";
 				attachmentSlots[] = {"GlowPlug","TruckBattery"};
+			};
+			class Body
+			{
+				name = "$STR_attachment_Body0";
+				description = "";
+				icon = "cat_vehicle_body";
+				attachmentSlots[] = {"CamoNet"};
 			};
 		};
 		class Sounds
@@ -372,12 +384,12 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionUtilityBoat: ExpansionVehicleBoatBase
 	{
-		scope = 2;
-		hornSoundSetEXT = "Expansion_Utility_Horn_Ext_SoundSet";
-		hornSoundSetINT = "Expansion_Utility_Horn_Ext_SoundSet";
-		displayname = "[NOT READY]  UTILITY";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_UTILITY";
 		model = "\DayZExpansion\Vehicles\Water\Utility\RHIB.p3d";
 		modelZeroPointDistanceFromGround = 0.63;
+		hornSoundSetEXT = "Expansion_Utility_Horn_Ext_SoundSet";
+		hornSoundSetINT = "Expansion_Utility_Horn_Ext_SoundSet";
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;

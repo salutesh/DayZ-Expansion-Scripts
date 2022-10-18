@@ -29,7 +29,7 @@ modded class AnimatedActionBase
 	protected override void OnExecuteServer(ActionData action_data)
 	{
 		 super.OnExecuteServer(action_data);
-		
+
 		ExpansionQuestModule questModule;
 		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
 			return;
@@ -38,12 +38,12 @@ modded class AnimatedActionBase
 	}
 };
 
-modded class ActionSplintSelf	
+modded class ActionSplintSelf
 {
 	override void OnFinishProgressServer(ActionData action_data)
 	{
 		super.OnFinishProgressServer(action_data);
-		
+
 		ExpansionQuestModule questModule;
 		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
 			return;
@@ -52,12 +52,26 @@ modded class ActionSplintSelf
 	}
 };
 
-modded class ActionSplintTarget	
+modded class ActionSplintTarget
 {
 	override void OnFinishProgressServer(ActionData action_data)
 	{
 		super.OnFinishProgressServer(action_data);
-		
+
+		ExpansionQuestModule questModule;
+		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
+			return;
+
+		questModule.OnActionUsed(this, action_data);
+	}
+};
+
+modded class ActionPlantSeed
+{
+	override void OnExecuteServer(ActionData action_data)
+	{
+		super.OnExecuteServer(action_data);
+
 		ExpansionQuestModule questModule;
 		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))
 			return;

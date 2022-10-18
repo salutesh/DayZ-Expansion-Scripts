@@ -56,10 +56,8 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		{
 			return "#STR_EXPANSION_BB_FLAG_CREATE_TERRITORY";
 		}
-		else
-		{
-			return "#STR_EXPANSION_BB_FLAG_CHANGE";
-		}
+		
+		return "#STR_EXPANSION_BB_FLAG_CHANGE";
 	}
 	
 	// -----------------------------------------------------------

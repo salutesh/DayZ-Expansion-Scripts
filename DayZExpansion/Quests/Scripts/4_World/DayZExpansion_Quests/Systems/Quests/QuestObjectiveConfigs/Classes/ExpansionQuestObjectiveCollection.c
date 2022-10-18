@@ -12,8 +12,8 @@
 
 class ExpansionQuestObjectiveCollection
 {
-	private int Amount = 0;
-	private string ClassName = string.Empty;
+	protected int Amount = 0;
+	protected string ClassName = string.Empty;
 
 	void SetAmount(int amount)
 	{

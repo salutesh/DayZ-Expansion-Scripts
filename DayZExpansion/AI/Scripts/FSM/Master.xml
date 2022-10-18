@@ -203,14 +203,51 @@
 			</event_update>
 		</state>
 		<state name="Vehicles" fsm="Vehicles">
-			<variables />
+			<variables>
+				<variable name="entity" type="EntityAI" />
+				<variable name="seat" type="int" />
+			</variables>
 			<editor_data>
 				<position x="895.709194546504" y="371.938198458873" />
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry />
 			<event_exit />
-			<event_update />
+			<event_update>
+				auto group = unit.GetGroup();
+				if (!group) return EXIT;
+				
+				auto leader = group.GetLeader();
+				if (!leader) return EXIT;
+
+				if (leader == unit)
+				{
+					if (!entity) return EXIT;
+
+					//! TODO: Allow for exit vehicle since this AI is the leader
+					return CONTINUE;
+				}
+				
+				//! MAYBE BUG? Might deadlock the ai if there are no free seats for the vehicle in the group
+				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) 
+				{
+					Transport transport;
+					if (!Class.CastTo(transport, leader.GetParent())) return EXIT;
+
+					for (int i = 0; i &lt; transport.CrewSize(); i++)
+					{
+						if (transport.CrewMember(i) == null)
+						{
+							seat = i;
+							entity = transport;
+
+							return CONTINUE;
+						}
+					}
+				}
+				
+				return EXIT;
+			</event_update>
 		</state>
 		<state name="Fighting" fsm="Fighting">
 			<variables />
@@ -315,21 +352,12 @@
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				time = 0;
 				
-				if (!GetGame().IsMultiplayer())
-				{
-					//! It's that simple in offline. Why can't it be that simple in MP? :-(
-					unit.LocalTakeEntityToHands(item);
-				}
-				else
-				{
-					unit.Expansion_CloneItemToHands(item);
-				}
+				unit.eAI_TakeItemToHands(item);
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (time &lt; 1.0)
+				if (time &lt; 0.5)
 				{
-					//! Wait briefly before doing anything to prevent cloning to hands failing or scuffed weapon holding
 					time += DeltaTime;
 					return CONTINUE;
 				}
@@ -361,7 +389,7 @@
 				unit.Expansion_GetUp(true);
 				if (bandage)
 				{
-					if (bandage.GetHealth() &lt;= 0.0 || !unit.Expansion_CloneItemToInventory(bandage))
+					if (bandage.GetHealth() &lt;= 0.0 || !unit.eAI_TakeItemToInventory(bandage))
 					{
 						unit.eAI_DropItem(bandage);
 					}
@@ -640,7 +668,7 @@
 						if (dst.item)
 						{
 							//! If ruined, drop, else put in inventory (shoulder slot or cargo)
-							if (hands &amp;&amp; (hands.GetHealth() &lt;= 0.0 || !unit.Expansion_CloneItemToInventory(hands)))
+							if (hands &amp;&amp; (hands.GetHealth() &lt;= 0.0 || !unit.eAI_TakeItemToInventory(hands)))
 								unit.eAI_DropItem(hands);
 							
 							return SUCCESS;
@@ -656,7 +684,7 @@
 					return SUCCESS;
 				
 				eAITarget target = unit.GetTarget();
-				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase))
+				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase) &amp;&amp; !target.GetEntity().GetHierarchyRootPlayer() &amp;&amp; !target.GetEntity().IsSetForDeletion())
 				{
 					if (target.GetDistanceSq(unit, true) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
 					{
@@ -787,8 +815,65 @@
 				{
 					if (transport.CrewMember(i) == null)
 					{
-				  			return SUCCESS;
+						dst.seat = i;
+						dst.entity = transport;
+						
+				  		return SUCCESS;
 					}
+				}
+				
+				return FAIL;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="Vehicles" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="963.83813732635" y="345.935333753678" />
+				<position_destination x="963.7091945465" y="371.938198458873" />
+			</editor_data>
+			<guard>
+				auto group = unit.GetGroup();
+				if (!group) return;
+				
+				auto leader = group.GetLeader();
+				if (!leader || leader != unit) return;
+
+				auto targetPosition = unit.m_PathFinding.m_TargetReference.Position;
+				targetPosition[1] = GetPosition()[1];
+				float distance = vector.Distance(targetPosition, unit.GetPosition());
+
+				float minDistance = float.MAX;
+				float distance;
+
+				if (distance &lt; 5.0) return FAIL;
+		
+				auto cars = CarScript.GetAll();
+				foreach (CarScript car : cars)
+				{
+					distance = vector.Distance(unit.GetPosition(), car.GetPosition());
+					if (distance &lt; minDistance)
+					{
+						int i = 0;
+						//for (int i = 0; i &lt; car.CrewSize(); i++)
+						{
+							if (car.CrewMember(i) == null)
+							{
+								dst.seat = i;
+								dst.entity = car;
+
+								minDistance = distance;
+
+								break;
+							}
+						}
+					}
+				}
+
+				if (dst.entity)
+				{
+					return SUCCESS;
 				}
 				
 				return FAIL;

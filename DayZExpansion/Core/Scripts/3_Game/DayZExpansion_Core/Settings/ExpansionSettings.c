@@ -191,7 +191,15 @@ class ExpansionSettings
 	{
 		auto setting = m_Settings[type];
 		if (checkLoaded && setting && !setting.IsLoaded() && (!GetGame().GetMission() || GetGame().GetMission().IsMissionGameplay() || GetGame().GetMission().IsServer() || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())))
-			WarnNotLoaded(type);
+		{
+			
+#ifdef DEVELOPER_DIAG
+			if (!IsMissionOffline())
+			{
+				WarnNotLoaded(type);
+			}
+#endif
+		}
 
 		return setting;
 	}

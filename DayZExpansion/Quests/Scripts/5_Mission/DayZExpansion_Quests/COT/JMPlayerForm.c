@@ -13,9 +13,9 @@
 #ifdef JM_COT
 modded class JMPlayerForm
 {
-    private UIActionButton m_PositionPlayer;
+    protected UIActionButton m_PositionPlayer;
 
-    override private Widget InitActionWidgetsPosition( Widget actionsParent )
+    override protected Widget InitActionWidgetsPosition( Widget actionsParent )
 	{
         Widget parent = super.InitActionWidgetsPosition(actionsParent);
         Widget expansionActions = UIActionManager.CreateGridSpacer(parent, 1, 1);

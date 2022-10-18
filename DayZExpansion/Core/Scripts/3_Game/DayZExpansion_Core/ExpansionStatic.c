@@ -267,12 +267,18 @@ class ExpansionStatic
 
 		if (obj)
 		{
-			hasCollisionBox = obj.GetCollisionBox(minMax);
-			if (!hasCollisionBox)
-				obj.ClippingInfo(minMax);
+			hasCollisionBox = GetCollisionBox(obj, minMax);
 			GetGame().ObjectDelete(obj);
 		}
 
+		return hasCollisionBox;
+	}
+
+	static bool GetCollisionBox(Object obj, out vector minMax[2])
+	{
+		bool hasCollisionBox = obj.GetCollisionBox(minMax);
+		if (!hasCollisionBox)
+			obj.ClippingInfo(minMax);
 		return hasCollisionBox;
 	}
 
@@ -320,7 +326,14 @@ class ExpansionStatic
 		string script_class_name;
 		if (check_script_class_name)
 			script_class_name = obj.ClassName();
-		return IsAnyOf(obj.GetType(), cfg_parent_names, script_class_name);
+		foreach (string cfg_parent_name: cfg_parent_names)
+		{
+			if (check_script_class_name && cfg_parent_name == script_class_name)
+				return true;
+			if (GetGame().ObjectIsKindOf(obj, cfg_parent_name))
+				return true;
+		}
+		return false;
 	}
 
 	//! Equality check based on typename
@@ -386,6 +399,16 @@ class ExpansionStatic
 	static string IntToHex(int n)
 	{
 		return ByteArrayToHex(IntToByteArray(n));
+	}
+
+	static string IntToHex(TIntArray ints)
+	{
+		string hex;
+		foreach (int n: ints)
+		{
+			hex += IntToHex(n);
+		}
+		return hex;
 	}
 
 	static int HexToInt(string hex)

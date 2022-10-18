@@ -10,11 +10,15 @@
  *
  */
 
-class ExpansionBus extends OffroadHatchback
+class ExpansionBus extends CarScript
 {
 	CarLightBase m_BusLight1;
 	CarLightBase m_BusLight2;
 	CarLightBase m_BusLight3;
+
+	protected ref UniversalTemperatureSource m_UTSource;
+	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
+	protected ref UniversalTemperatureSourceLambdaEngine m_UTSLEngine;
 
 	void ExpansionBus()
 	{
@@ -28,8 +32,64 @@ class ExpansionBus extends OffroadHatchback
 
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
+		
+		#ifndef DAYZ_1_18
+		//! 1.19
+		m_CarHornShortSoundName = "Truck_01_Horn_Short_SoundSet";
+		m_CarHornLongSoundName	= "Truck_01_Horn_SoundSet";
+		#endif
 
-		// SetEventMask(EntityEvent.SIMULATE);
+		SetEnginePos("0.42 0.58 4.0");
+	}
+	
+	override void EEInit()
+	{		
+		super.EEInit();
+		
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+ 			m_UTSSettings 					= new UniversalTemperatureSourceSettings();
+			m_UTSSettings.m_ManualUpdate 	= true;
+			m_UTSSettings.m_TemperatureMin	= 0;
+			m_UTSSettings.m_TemperatureMax	= 30;
+			m_UTSSettings.m_RangeFull		= 0.5;
+			m_UTSSettings.m_RangeMax		= 2;
+			m_UTSSettings.m_TemperatureCap	= 25;
+			
+			m_UTSLEngine					= new UniversalTemperatureSourceLambdaEngine();
+			m_UTSource						= new UniversalTemperatureSource(this, m_UTSSettings, m_UTSLEngine);
+		}		
+	}
+	
+	override void OnEngineStart()
+	{
+		super.OnEngineStart();
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_UTSource.SetDefferedActive(true, 20.0);
+		}
+	}
+	
+	override void OnEngineStop()
+	{
+		super.OnEngineStop();
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			m_UTSource.SetDefferedActive(false, 10.0);
+		}
+	}
+	
+	override void EOnPostSimulate(IEntity other, float timeSlice)
+	{
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			if (m_UTSource.IsActive())
+			{
+				m_UTSource.Update(m_UTSSettings, m_UTSLEngine);
+			}
+		}
 	}
 
 	override float GetTransportCameraDistance()
@@ -491,54 +551,8 @@ class ExpansionBus extends OffroadHatchback
 		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetCarDoorsState").Add(slotType);
 #endif
 
-		/*
-		CarDoor carDoor;
-		Class.CastTo( carDoor, FindAttachmentBySlotName( slotType ) );
-		if ( !carDoor ) {
-			return CarDoorState.DOORS_MISSING;
-		}
-		*/
-
 		return CarDoorState.DOORS_MISSING;
 	}
-
-	/*
-	// ------------------------------------------------------------
-	override float OnSound(CarSoundCtrl ctrl, float oldValue)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "OnSound").Add(ctrl).Add(oldValue);
-#endif
-
-		switch ( ctrl )
-		{
-			case CarSoundCtrl.DOORS:
-				float newValue = 0;
-				if ( GetCarDoorsState( "uazdriverdoor" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
-				if ( GetCarDoorsState( "uazcodriverdoor" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
-				if ( GetCarDoorsState( "uazcargo1door" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
-				if ( GetCarDoorsState( "uazcargo2door" ) == CarDoorState.DOORS_CLOSED )
-				{
-					newValue += 0.4;
-				}
-				if ( newValue > 1 )
-					newValue = 1;
-				return newValue;
-			default:
-				break;
-		}
-		return super.OnSound(ctrl, oldValue);
-	}
-	*/
 
 	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)
 	{

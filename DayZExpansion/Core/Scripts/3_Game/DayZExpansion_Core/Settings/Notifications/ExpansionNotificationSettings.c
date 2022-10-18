@@ -31,10 +31,9 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool ShowPlayerAirdropClosingOn;
 	bool ShowPlayerAirdropDropped;
 	
-#ifdef EXPANSIONMODAI
+#ifdef EXPANSION_MISSION_AI_ENABLE
 	bool ShowAIMissionStarted;
-	bool ShowAIMissionClosingOn;
-	bool ShowAIMissionDropped;
+	bool ShowAIMissionAction;
 	bool ShowAIMissionEnded;
 #endif
 #endif

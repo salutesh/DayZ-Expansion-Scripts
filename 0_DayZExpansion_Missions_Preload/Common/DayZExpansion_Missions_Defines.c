@@ -20,3 +20,6 @@
 
 // Enable it if you want mission event debug logs enabled
 //#define EXPANSION_MISSION_EVENT_DEBUG
+
+// Enable it if you want AI missions
+//#define EXPANSION_MISSION_AI_ENABLE

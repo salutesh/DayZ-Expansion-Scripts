@@ -125,7 +125,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 				#endif
 
 				UpdateClient( territory.GetTerritoryID() );
-				UpdateClient( territory.GetTerritoryID(), cArgs.Player );
+				//UpdateClient( territory.GetTerritoryID(), cArgs.Player ); //! Why we call a single update for the connecting player when we update all members anyways?
 			}
 		}
 		
@@ -198,6 +198,8 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 			EXLogPrint("ExpansionTerritoryModule::OnRPC - RPC_OpenFlagMenu");
 			#endif
+			if (GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled)
+				return;
 			TerritoryFlag flag;
 			if ( Class.CastTo( flag, rpc.Target ) )
 			{
@@ -751,6 +753,15 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			
 			m_TerritoryFlags.Remove( territoryID );
 			
+		#ifdef EXPANSIONMODGARAGE
+			if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+			{
+				ExpansionGarageModule garageModule;
+				if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))
+					garageModule.DropTerritoryVehicles(territoryID);
+			}
+		#endif
+			
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
 		} 
 		else
@@ -872,6 +883,15 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			flag.Delete();
 		
 		m_TerritoryFlags.Remove( territoryID );
+		
+	#ifdef EXPANSIONMODGARAGE
+		if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+		{
+			ExpansionGarageModule garageModule;
+			if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))
+				garageModule.DropTerritoryVehicles(territoryID);
+		}
+	#endif
 		
 		if (sender)
 			ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", new StringLocaliser("STR_EXPANSION_TERRITORY_DELETED", currentTerritory.GetTerritoryName()), EXPANSION_NOTIFICATION_ICON_TERRITORY, COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE).Create(sender);
@@ -1802,7 +1822,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		EXLogPrint("ExpansionTerritoryModule::Exec_CheckPlayer - Start");
 		#endif
 		
-		TerritoryFlag flag = FindNearestTerritoryFlag( player );
+		TerritoryFlag flag = GetFlagAtPosition3D( player.GetPosition() );
 
 		int type = -1;
 		int territoryId;
@@ -1850,9 +1870,16 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// ExpansionTerritoryModule GetTerritory
 	// ------------------------------------------------------------
+	//! Client only
 	ExpansionTerritory GetTerritory( int territoryID )
 	{
 		return m_Territories.Get( territoryID );
+	}
+
+	//! Server only
+	TerritoryFlag GetTerritoryFlag( int territoryID )
+	{
+		return m_TerritoryFlags.Get( territoryID );
 	}
 
 	bool IsPlayerInsideTerritory( notnull PlayerIdentity identity )
@@ -1937,25 +1964,12 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	//! Method not renamed to not break other mods.
 	TerritoryFlag FindNearestTerritoryFlag( PlayerBase player )
 	{
-		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - Start");
-		#endif
-		
+		Error("DEPRECATED, use GetFlagAtPosition3D(player.GetPosition())");
+
 		if (!player)
-		{
-			#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-			EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - [ERROR] Player is NULL!");
-			#endif
 			return null;
-		}
 		
-		TerritoryFlag flag = GetFlagAtPosition3D(player.GetPosition());
-		
-		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
-		EXLogPrint("ExpansionTerritoryModule::FindNearestTerritoryFlag - End and return NULL");
-		#endif
-		
-		return flag;
+		return GetFlagAtPosition3D(player.GetPosition());
 	}
 	
 	// ------------------------------------------------------------
@@ -2245,6 +2259,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			#endif
 			return false;
 		}
+
+		if ( territorySize <= 0 )
+			territorySize = GetExpansionSettings().GetTerritory().TerritorySize;
 
 		float territorySizeSq = territorySize * territorySize;
 

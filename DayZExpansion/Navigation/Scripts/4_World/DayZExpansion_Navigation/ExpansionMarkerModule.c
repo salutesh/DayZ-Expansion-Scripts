@@ -101,14 +101,18 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		//! Party Member marker
 		if ( GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
 		{
-			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+			if ( GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers )
 			{
 				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP ); // 2D and 3D
-			} else {
+			} 
+			else 
+			{
 				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD ); // 3D only
 			}
-		} else {
-			if ( GetExpansionSettings().GetMap().ShowPlayerPosition )
+		}
+		else 
+		{
+			if ( GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers )
 			{
 				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP ); // 2D only
 			}
@@ -533,7 +537,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	bool RemovePersonalMarkerByUID(string uid)
 	{
 		int index;
-		ref ExpansionMarkerData currentData;
+		ExpansionMarkerData currentData;
 		for (index = 0; index < m_CurrentData.PersonalGet().Count(); ++index)
 		{
 			currentData = m_CurrentData.PersonalGet()[index];

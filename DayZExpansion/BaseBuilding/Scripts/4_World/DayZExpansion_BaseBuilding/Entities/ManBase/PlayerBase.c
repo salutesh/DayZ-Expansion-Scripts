@@ -41,6 +41,8 @@ modded class PlayerBase
 		AddAction( ExpansionActionCrackSafe, InputActionMap );
 		AddAction( ExpansionActionDestroyBarbedWire, InputActionMap );
 		AddAction( ExpansionActionDestroyLock, InputActionMap );
+
+		AddAction( ExpansionActionInstallCircuitBoard, InputActionMap );
 	}
 	
 	// ------------------------------------------------------------

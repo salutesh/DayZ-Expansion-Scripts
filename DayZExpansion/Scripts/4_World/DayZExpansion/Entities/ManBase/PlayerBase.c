@@ -210,4 +210,15 @@ modded class PlayerBase
 		m_PlayerHeadingDir.SetPosition( pos );
 		m_PlayerHeadingDir.SetDirection( direction );
 	}
+
+	// ------------------------------------------------------------
+	// PlayerBase CanReleaseAttachment
+	// ------------------------------------------------------------
+	override bool CanReleaseAttachment(EntityAI attachment)
+	{
+		if (attachment.IsKindOf("ExpansionHardlineArmband"))
+			return false;
+
+		return super.CanReleaseAttachment(attachment);
+	}
 };

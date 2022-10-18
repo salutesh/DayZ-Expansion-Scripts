@@ -12,8 +12,8 @@
 
 class ExpansionQuestItemConfig
 {
-	private string ClassName = string.Empty;
-	private int Amount = -1;
+	protected string ClassName = string.Empty;
+	protected int Amount = -1;
 
 	bool IsVehicle()
 	{

@@ -16,7 +16,8 @@ enum ExpansionNotificationType
 	BAGUETTE = 2,
 	ACTIVITY = 4,
 	KILLFEED = 8,
-	MARKET = 16
+	MARKET = 16,
+	GARAGE = 32
 }
 
 modded class NotificationRuntimeData

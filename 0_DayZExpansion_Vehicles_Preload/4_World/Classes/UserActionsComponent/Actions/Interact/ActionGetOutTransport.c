@@ -104,7 +104,7 @@ modded class ActionGetOutTransport
 			CarScript car;
 			if (Class.CastTo(car, vehCommand.GetTransport()))
 			{
-				float speed = car.GetSpeedometer();
+				float speed = Math.AbsFloat(car.GetSpeedometer());
 				bool keepInVehicleSpaceAfterLeave = car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
 
 				auto got_action_data = GetOutTransportActionData.Cast(action_data);

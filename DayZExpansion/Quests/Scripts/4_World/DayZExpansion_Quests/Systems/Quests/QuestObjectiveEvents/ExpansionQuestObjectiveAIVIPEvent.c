@@ -13,54 +13,67 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 {
-	private float m_UpdateQueueTimer = 0;
-	private const float UPDATE_TICK_TIME = 2.0;
+	protected float m_UpdateQueueTimer = 0;
+	protected const float UPDATE_TICK_TIME = 2.0;
 
-	private eAIBase m_VIP;
-	private eAIGroup m_Group;
+	protected eAIBase m_VIP;
+	protected eAIGroup m_Group;
 
 	//! Event called when the player starts the quest
-	override void OnStart()
+	override bool OnStart()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
 	#endif
+		
+		if (!super.OnStart())
+			return false;	
 
 		CreateVIP();
-
-		super.OnStart();
 
 	#ifdef EXPANSIONMODNAVIGATION
 		vector markerPosition = GetObjectiveConfig().GetPosition();
 		string markerName = GetObjectiveConfig().GetMarkerName();
-		GetQuest().CreateClientMarker(markerPosition, markerName);
+
+		if (markerName != string.Empty || markerPosition != vector.Zero)
+			GetQuest().CreateClientMarker(markerPosition, markerName);
 	#endif
+
+		return true;
 	}
 
 	//! Event called when the player continues the quest after a server restart/reconnect
-	override void OnContinue()
+	override bool OnContinue()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
 	#endif
+		
+		if (!super.OnContinue())
+			return false;	
 
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
 		vector markerPosition = GetObjectiveConfig().GetPosition();
 		string markerName = GetObjectiveConfig().GetMarkerName();
-		GetQuest().CreateClientMarker(markerPosition, markerName);
+
+		if (markerName != string.Empty || markerPosition != vector.Zero)
+			GetQuest().CreateClientMarker(markerPosition, markerName);
 	#endif
 
-		super.OnContinue();
+		return true;
 	}
 
-	override void OnComplete()
+	override bool OnComplete()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnComplete");
 	#endif
 		
+		if (!super.OnComplete())
+			return false;	
+
 		EmoteManager npcEmoteManager = m_VIP.GetEmoteManager();
 		if (!npcEmoteManager.IsEmotePlaying())
 		{
@@ -73,31 +86,37 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 10000, false, m_VIP);
 
-		super.OnComplete();
+		return true;
 	}
 
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
-	override void OnCleanup()
+	override bool OnCleanup()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
 	#endif
+		
+		if (!super.OnCleanup())
+			return false;	
 
 		GetGame().ObjectDelete(m_VIP);
 
-		super.OnCleanup();
+		return true;
 	}
 
 	//! Event called when the quest gets manualy canceled by the player.
-	override void OnCancel()
+	override bool OnCancel()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
 	#endif
 		
+		if (!super.OnCancel())
+			return false;	
+
 		GetGame().ObjectDelete(m_VIP);
 
-		super.OnCancel();
+		return true;
 	}
 
 	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
@@ -113,12 +132,12 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	private void CreateVIP()
+	protected void CreateVIP()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CreateVIP");
 	#endif
-		
+
 		ExpansionQuestObjectiveAIVIP vip = GetObjectiveConfig().GetAIVIP();
 		if (!vip)
 			return;

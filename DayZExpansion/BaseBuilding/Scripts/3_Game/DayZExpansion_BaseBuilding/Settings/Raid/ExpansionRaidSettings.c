@@ -84,25 +84,6 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	}
 	
 	// ------------------------------------------------------------
-	void ~ExpansionRaidSettings()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "~ExpansionRaidSettings");
-#endif
-
-		ExplosiveDamageWhitelist.Clear();
-		delete ExplosiveDamageWhitelist;
-		LockOnContainerRaidTools.Clear();
-		delete LockOnContainerRaidTools;
-		SafeRaidTools.Clear();
-		delete SafeRaidTools;
-		BarbedWireRaidTools.Clear();
-		delete BarbedWireRaidTools;
-		LockRaidTools.Clear();
-		delete LockRaidTools;
-	}
-	
-	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
 #ifdef EXPANSIONTRACE

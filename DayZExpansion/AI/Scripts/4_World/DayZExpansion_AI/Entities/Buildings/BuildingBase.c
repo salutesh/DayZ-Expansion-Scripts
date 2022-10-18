@@ -19,7 +19,9 @@ modded class BuildingBase
 
 		//! Do not init patrols on CrashBase unless created by CE (EEOnCECreate/AfterStoreLoad will take care of init in that case)
 		if (!IsInherited(CrashBase))
+		{
 			m_eAI_DynamicPatrolSpawner.Init();
+		}
 	}
 
 	override void EEOnCECreate()

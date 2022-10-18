@@ -21,7 +21,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 	
 	ref ExpansionAirdropLocation DropLocation;
 
-	ref array < ref ExpansionAirdropLoot > Loot;
+	ref array < ref ExpansionLoot > Loot;
 	ref TStringArray Infected;
 	int ItemCount;
 	int InfectedCount;
@@ -69,13 +69,13 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 		
 		if ( IsMissionHost() )
 		{
-			ExpansionAirdropLootContainer container;
+			ExpansionLootContainer container;
 
 			if ( Loot.Count() == 0 || Infected.Count() == 0 )
 			{
 				//! No mission-specific loot and/or infected defined, fall back to airdrop settings
 
-				array< ref ExpansionAirdropLootContainer > containers = new array< ref ExpansionAirdropLootContainer >;
+				array< ref ExpansionLootContainer > containers = new array< ref ExpansionLootContainer >;
 
 				//! Get all containers enabled for mission use that match our container name (or any if random)
 				string containerName = Container;
@@ -131,7 +131,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				}
 
 				//! Pick a container (weighted random)
-				container = ExpansionAirdropLootContainer.GetWeightedRandomContainer( containers, weights );
+				container = ExpansionLootContainer.GetWeightedRandomContainer( containers, weights );
 
 				Container = container.Container;
 
@@ -155,7 +155,7 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			if ( ItemCount <= 0 )
 				ItemCount = GetExpansionSettings().GetAirdrop().ItemCount;
 
-			container = new ExpansionAirdropLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount );
+			container = new ExpansionLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount );
 
 			StringLocaliser warningProximityMsg;
 			StringLocaliser airdropCreatedMsg;
@@ -348,9 +348,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 			case "takistanplus":
 				return 9; //! TODO
 			break;
-			case "expansiontest":
-				return 9; //! TODO
-			break;
 			*/
 		}
 
@@ -429,9 +426,6 @@ class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
 				return ExpansionMissionAirdropLivonia( index );
 			break;
 			case "esseker":
-				return ExpansionMissionAirdropRandom( index ); //! TODO
-			break;
-			case "expansiontest":
 				return ExpansionMissionAirdropRandom( index ); //! TODO
 			break;
 			case "iztek":

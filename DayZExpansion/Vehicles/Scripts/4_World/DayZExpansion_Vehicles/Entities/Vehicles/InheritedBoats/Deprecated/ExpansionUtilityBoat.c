@@ -23,6 +23,12 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 		m_TurnCoef = 0.075;
 
 		m_Offset = 0.66;
+		
+		#ifndef DAYZ_1_18
+		//! 1.19
+		//! Sound set unsuitable for short horn sound (breaks player interaction and infinite bugged playback)
+		m_CarHornLongSoundName	= "Expansion_Utility_Horn_Ext_SoundSet";
+		#endif
 	}
 
 	override int GetAnimInstance()

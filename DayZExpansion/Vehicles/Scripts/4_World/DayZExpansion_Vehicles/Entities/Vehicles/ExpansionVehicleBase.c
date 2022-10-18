@@ -230,7 +230,17 @@ class ExpansionVehicleBase extends ItemBase
 	autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
 	bool m_SafeZone;
 
+	protected string m_Expansion_LastDriverUID;
+	protected bool m_Expansion_SynchLastDriverUID;
+	protected bool m_Expansion_LastDriverUIDSynched;
+
 	int m_Expansion_CargoCount;
+
+#ifndef EXPANSIONMODBASEBUILDING
+	ref ExpansionGlobalID m_Expansion_GlobalID;
+#endif
+
+	bool m_Expansion_HasLifetime;
 
 	void ExpansionVehicleBase()
 	{
@@ -243,6 +253,8 @@ class ExpansionVehicleBase extends ItemBase
 	
 		Print(GetType() + " IS NOT READY FOR PRODUCTION! Use " + GetType().Substring(8, GetType().Length() - 8) + " instead");
 #endif
+
+		m_Expansion_GlobalID = new ExpansionGlobalID();
 
 		SetFlags(EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false);
 		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE);
@@ -371,6 +383,8 @@ class ExpansionVehicleBase extends ItemBase
 		RegisterNetSyncVariableFloat("m_BrakeAmmount", 0, 0, 4);
 
 		RegisterNetSyncVariableInt("m_NetworkMode");
+
+		RegisterNetSyncVariableBool("m_Expansion_SynchLastDriverUID");
 
 		m_DebugShapes = new array<Shape>();
 
@@ -1182,7 +1196,7 @@ class ExpansionVehicleBase extends ItemBase
 		m_SoundVariables[3] = OnSound(CarSoundCtrl.DOORS, 0);
 
 		//speed
-		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, GetSpeedometer());
+		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, Math.AbsFloat(GetSpeedometer()));
 
 		//thrust
 		m_SoundVariables[5] = m_Controller.m_Throttle[0];
@@ -1258,7 +1272,7 @@ class ExpansionVehicleBase extends ItemBase
 	}
 #endif
 
-	override void EOnSimulate(IEntity owner, float dt)
+	override void EOnSimulate(IEntity other, float dt)
 	{
 		int i;
 
@@ -1268,7 +1282,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		m_DebugShapes.Clear();
 
-		DBGTowing();
+		//Expansion_DBGTowing();
 
 		/*
 		GetTransform(m_DbgTransform);
@@ -1691,6 +1705,46 @@ class ExpansionVehicleBase extends ItemBase
 		UpdateLights();
 
 		m_State.OnVariablesSynchronized(m_IsPhysicsHost);
+
+		if (m_Expansion_SynchLastDriverUID != m_Expansion_LastDriverUIDSynched)
+		{
+			m_Expansion_LastDriverUIDSynched = m_Expansion_SynchLastDriverUID;
+
+			if (!m_Expansion_SynchLastDriverUID)
+				return;
+
+			//! Reset m_Expansion_LastDriverUID client-side if vehicle has driver and it is not the player
+			Human driver = CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+			Man player = GetGame().GetPlayer();
+			if (driver && player && driver != player)
+			{
+				m_Expansion_LastDriverUID = "";
+			}
+		}
+	}
+
+	void ExpansionSetLastDriverUID(PlayerBase player)
+	{
+		m_Expansion_LastDriverUID = player.GetIdentityUID();
+
+		if (!IsMissionHost())
+			return;
+
+		m_Expansion_SynchLastDriverUID = true;
+
+		SetSynchDirty();
+	}
+
+	void ExpansionResetLastDriverUIDSynch()
+	{
+		m_Expansion_SynchLastDriverUID = false;
+
+		SetSynchDirty();
+	}
+
+	string ExpansionGetLastDriverUID()
+	{
+		return m_Expansion_LastDriverUID;
 	}
 
 	ExpansionVehicleAxle GetAxle(int axle)
@@ -2686,7 +2740,7 @@ class ExpansionVehicleBase extends ItemBase
 	//!
 	bool IsMoving()
 	{
-		if (GetSpeedometer() > 3.5)
+		if (Math.AbsFloat(GetSpeedometer()) > 3.5)
 			return true;
 
 		return false;
@@ -3071,7 +3125,7 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	void DBGTowing()
+	void Expansion_DBGTowing()
 	{
 		vector transform[4];
 		GetTransform(transform);
@@ -3631,6 +3685,11 @@ class ExpansionVehicleBase extends ItemBase
 		ctx.Write(lockState);
 
 		ctx.Write(m_Exploded);
+
+		if (!m_Expansion_GlobalID.m_IsSet)
+			m_Expansion_GlobalID.Acquire();
+
+		m_Expansion_GlobalID.OnStoreSave(ctx);
 	}
 
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -3661,6 +3720,12 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (!ctx.Read(m_Exploded))
 			return false;
+
+		if (ctx.GetVersion() < 41)
+			return true;
+
+		if (!m_Expansion_GlobalID.OnStoreLoad(ctx))
+			return false;
 		
 		return true;
 	}
@@ -3686,6 +3751,18 @@ class ExpansionVehicleBase extends ItemBase
 				PairKeyTo(key);
 			}
 		}
+	}
+
+	bool Expansion_CoverVehicle(EntityAI cover = null)
+	{
+		//! TODO
+		return false;
+	}
+
+	string Expansion_GetPlaceholderType(string coverType)
+	{
+		//! TODO
+		return "Expansion_Generic_Vehicle_Cover";
 	}
 
 	override bool CanPutAsAttachment(EntityAI parent)
@@ -4497,11 +4574,21 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
-			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
-			if (GetGame().ConfigIsExisting(path))
-				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
-			else
-				m_ModelZeroPointDistanceFromGround = 0.0;
+			//string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
+			//if (GetGame().ConfigIsExisting(path))
+			//{
+				//m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
+			//}
+			//else
+			//{
+				vector minMax[2];
+				GetCollisionBox(minMax);
+				float diff = -minMax[0][1];
+				if (diff > 0)
+					m_ModelZeroPointDistanceFromGround = diff;
+				else
+					m_ModelZeroPointDistanceFromGround = 0;
+			//}
 		}
 
 		return m_ModelZeroPointDistanceFromGround;

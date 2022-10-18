@@ -120,6 +120,7 @@ class ExpansionActionVehicleConnectTow : ActionInteractBase
 					CarScript other_car;
 					if (Class.CastTo(other_car, o))
 					{
+#ifdef DAYZ_1_18
 						if (!other_car.Expansion_IsBeingTowed() && !other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
 						{
 							m_IsWinch = car.IsHelicopter();
@@ -146,6 +147,18 @@ class ExpansionActionVehicleConnectTow : ActionInteractBase
 								return true;
 							}
 						}
+#else
+						if (!other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
+						{
+							m_IsWinch = car.Expansion_IsHelicopter();
+
+							if (other_car.Expansion_GetOverlappingTowConnection(towPosition, towRadius, out_index))
+							{
+								out_car = other_car;
+								return true;
+							}
+						}
+#endif
 					}
 
 					ItemBase other_vehicle;

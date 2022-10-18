@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Uh1h
 	{
-		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2","ExpansionUh1hWreck","ExpansionUh1h","Vehicle_ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionUh1hDoor_2_1_Green","ExpansionUh1hDoor_2_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionUh1hDoor_2_1_Civilian","ExpansionUh1hDoor_2_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionUh1hDoor_2_1_Medical","ExpansionUh1hDoor_2_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionUh1hDoor_2_1_Uber","ExpansionUh1hDoor_2_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance","ExpansionUh1hDoor_2_1_Resistance","ExpansionUh1hDoor_2_2_Resistance"};
+		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2","ExpansionUh1hWreck","ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionUh1hDoor_2_1_Green","ExpansionUh1hDoor_2_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionUh1hDoor_2_1_Civilian","ExpansionUh1hDoor_2_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionUh1hDoor_2_1_Medical","ExpansionUh1hDoor_2_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionUh1hDoor_2_1_Uber","ExpansionUh1hDoor_2_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance","ExpansionUh1hDoor_2_1_Resistance","ExpansionUh1hDoor_2_2_Resistance"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -128,7 +128,7 @@ class CfgVehicles
 		wreck = "ExpansionUh1hWreck";
 		fuelCapacity = 119;
 		fuelConsumption = 99;
-		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
+		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2","CamoNet"};
 		doors[] = {"uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
 		applySkinsTo[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2"};
 		hiddenSelections[] = {"camo1","camo2"};
@@ -301,33 +301,6 @@ class CfgVehicles
 					animation = "cyclicAside";
 				};
 			};
-			class Axles: Axles
-			{
-				class Front: Front
-				{
-					class Suspension: Suspension
-					{
-						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
-					};
-				};
-				class Rear: Rear
-				{
-					class Suspension: Suspension
-					{
-						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
-					};
-				};
-			};
 		};
 		class Sounds
 		{
@@ -353,7 +326,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
+				attachmentSlots[] = {"Reflector_1_1","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2","CamoNet"};
 			};
 		};
 		class DamageSystem: DamageSystem
@@ -413,8 +386,8 @@ class CfgVehicles
 	};
 	class Vehicle_ExpansionUh1h: ExpansionVehicleHelicopterBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  UH1H";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_UH1H";
 		model = "\DayZExpansion\Vehicles\Air\Uh1h\uh1h.p3d";
 		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Helicopter";

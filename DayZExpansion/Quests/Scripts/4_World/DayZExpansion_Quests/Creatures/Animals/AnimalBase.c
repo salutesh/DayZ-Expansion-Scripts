@@ -20,8 +20,7 @@ modded class AnimalBase
 		super.EEKilled(killer);
 
 		EntityAI killSource = EntityAI.Cast(killer);
-
-		if (!killSource)
+		if (!killSource || killSource == this)
 			return;
 
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));

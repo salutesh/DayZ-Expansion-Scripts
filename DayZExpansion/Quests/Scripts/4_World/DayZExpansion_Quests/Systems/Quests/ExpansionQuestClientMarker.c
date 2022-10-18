@@ -13,8 +13,8 @@
 #ifdef EXPANSIONMODNAVIGATION
 class ExpansionQuestClientMarker
 {
-	private int QuestID = -1;
-	private string MarkerUID = string.Empty;
+	protected int QuestID = -1;
+	protected string MarkerUID = string.Empty;
 
 	void ExpansionQuestClientMarker(int questID, string markerUID)
 	{

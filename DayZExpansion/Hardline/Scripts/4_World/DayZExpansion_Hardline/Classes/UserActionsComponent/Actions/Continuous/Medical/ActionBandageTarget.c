@@ -22,7 +22,7 @@ modded class ActionBandageTarget
 			Class.CastTo(ntarget, action_data.m_Target.GetObject());
 			if (action_data.m_Player != ntarget)
 			{
-				m_HardlineModule.OnPlayerPositiveAction(action_data.m_Player, GetExpansionSettings().GetHardline().HumanityBandageTarget);
+				m_HardlineModule.OnPlayerAction(action_data.m_Player, GetExpansionSettings().GetHardline().HumanityBandageTarget);
 			}
 		}
 	}

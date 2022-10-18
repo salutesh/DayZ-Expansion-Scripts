@@ -520,7 +520,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		Edible_Base food_item = Edible_Base.Cast(m_Item);
 		if (food_item && food_item.HasFoodStage())
 		{
-			ref FoodStage food_stage = food_item.GetFoodStage();
+			FoodStage food_stage = food_item.GetFoodStage();
 			FoodStageType food_stage_type = food_stage.GetFoodStageType();
 					
 			switch(food_stage_type)

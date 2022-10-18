@@ -193,7 +193,7 @@
 				auto hands = unit.GetItemInHands();
 				if (hands &amp;&amp; hands.IsKindOf("Pistol_Base"))
 				{
-					unit.Expansion_CloneItemToInventory(hands);
+					unit.eAI_TakeItemToInventory(hands);
 				}
 			</event_entry>
 			<event_exit />
@@ -202,9 +202,6 @@
 					return EXIT;
 				
 				auto aimOffset = target.GetAimOffset(unit);
-				
-				//! FIXME: We can't hit crouching/crawling targets w/ melee
-				if (aimOffset[1] &lt; 1.0) return EXIT;
 				
 				auto lowPosition = target.GetPosition(unit, false);
 				auto aimPosition = lowPosition + aimOffset;
@@ -276,9 +273,6 @@
 				// we are targetting an entity?
 				dst.target = unit.GetTarget();
 				if (!dst.target || !dst.target.IsMeleeViable(unit)) return FAIL;
-				
-				//! FIXME: We can't hit crouching/crawling targets w/ melee
-				if (dst.target.GetAimOffset(unit)[1] &lt; 1.0) return FAIL;
 				
 				return SUCCESS;
 			</guard>

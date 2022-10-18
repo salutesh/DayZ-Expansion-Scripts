@@ -9,13 +9,18 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class ExpansionPartySettingsBase: ExpansionSettingBase
+
+/**@class		ExpansionPartySettings
+ * @brief		Party settings class
+ **/
+class ExpansionPartySettings: ExpansionSettingBase
 {
-	//! Added with version 1
+	static const int VERSION = 4;
+
 	bool EnableParties;												// enable party module, allow players to create parties
 	int MaxMembersInParty; 										// If <= 0, unlimited party size
 	bool UseWholeMapForInviteList; 								// Use it if you want whole map available in invite list, instead only nearby players
-	bool ShowPartyMember3DMarkers;							// If enabled, allow to see 3D marker above teammates location
+	bool ShowPartyMember3DMarkers;					// If enabled, allow to see 3D marker above teammates location
 	bool ShowDistanceUnderPartyMembersMarkers;		// Show the distance of the party member marker
 	bool ShowNameOnPartyMembersMarkers;				// Show the name of the party member marker
 	bool EnableQuickMarker;										// Enable/Diable quick marker option
@@ -25,19 +30,14 @@ class ExpansionPartySettingsBase: ExpansionSettingBase
 	
 	//! Added with version 2
 	bool ShowPartyMemberHUD;									// Show the party hud interface that displays eacht party members name and health
-}
-
-
-/**@class		ExpansionPartySettings
- * @brief		Party settings class
- **/
-class ExpansionPartySettings: ExpansionPartySettingsBase
-{
-	static const int VERSION = 3;
 	
+	//! Added with version 3
 	bool ShowHUDMemberBlood;
 	bool ShowHUDMemberStates;
 	bool ShowHUDMemberStance;
+	
+	//! Added with version 4
+	bool ShowPartyMemberMapMarkers;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -109,22 +109,6 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
-		
-		ShowHUDMemberBlood = s.ShowHUDMemberBlood;
-		ShowHUDMemberStates = s.ShowHUDMemberStates;
-		ShowHUDMemberStance = s.ShowHUDMemberStance;
-		
-		ExpansionPartySettingsBase sb = s;
-		CopyInternal( sb );
-	}
-	
-	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionPartySettingsBase s )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-		
 		EnableParties = s.EnableParties;
 		MaxMembersInParty = s.MaxMembersInParty;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
@@ -136,6 +120,10 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 		ShowNameOnQuickMarkers = s.ShowNameOnQuickMarkers;
 		CanCreatePartyMarkers = s.CanCreatePartyMarkers;
 		ShowPartyMemberHUD = s.ShowPartyMemberHUD;
+		
+		ShowHUDMemberBlood = s.ShowHUDMemberBlood;
+		ShowHUDMemberStates = s.ShowHUDMemberStates;
+		ShowHUDMemberStance = s.ShowHUDMemberStance;
 	}
 	
 	// ------------------------------------------------------------
@@ -170,29 +158,31 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 			ExpansionPartySettings settingsDefault = new ExpansionPartySettings;
 			settingsDefault.Defaults();
 
-			ExpansionPartySettingsBase settingsBase;
+			JsonFileLoader<ExpansionPartySettings>.JsonLoadFile(EXPANSION_PARTY_SETTINGS, this);
 
-			JsonFileLoader<ExpansionPartySettingsBase>.JsonLoadFile(EXPANSION_PARTY_SETTINGS, settingsBase);
-
-			if (settingsBase.m_Version < VERSION)
+			if (m_Version < VERSION)
 			{
-				EXPrint("[ExpansionPartySettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_PARTY_SETTINGS + "\" to v" + VERSION);
+				EXPrint("[ExpansionPartySettings] Load - Converting v" + m_Version + " \"" + EXPANSION_PARTY_SETTINGS + "\" to v" + VERSION);
 				
-				if (settingsBase.m_Version < 3)
+				if (m_Version < 2)
 				{
-					//! New with v3
-					CopyInternal(settingsDefault);
+					ShowPartyMemberHUD = settingsDefault.ShowPartyMemberHUD;
 				}
 				
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (m_Version < 3)
+				{
+					ShowHUDMemberBlood = settingsDefault.ShowHUDMemberBlood;
+					ShowHUDMemberStates = settingsDefault.ShowHUDMemberStates;
+					ShowHUDMemberStance = settingsDefault.ShowHUDMemberStance;
+				}
+				
+				if (m_Version < 4)
+				{
+					ShowPartyMemberMapMarkers = settingsDefault.ShowPartyMemberMapMarkers;
+				}
 
 				m_Version = VERSION;
 				save = true;
-			}
-			else
-			{
-				JsonFileLoader<ExpansionPartySettings>.JsonLoadFile(EXPANSION_PARTY_SETTINGS, this);
 			}
 		}
 		else
@@ -232,6 +222,7 @@ class ExpansionPartySettings: ExpansionPartySettingsBase
 		MaxMembersInParty = 10;
 		UseWholeMapForInviteList = false;
 		ShowPartyMember3DMarkers = true;
+		ShowPartyMemberMapMarkers = true;
 		ShowDistanceUnderPartyMembersMarkers = true;
 		ShowNameOnPartyMembersMarkers = true;
 		EnableQuickMarker = true;

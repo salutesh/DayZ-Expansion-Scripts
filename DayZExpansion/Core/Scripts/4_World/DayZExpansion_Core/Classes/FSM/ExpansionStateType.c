@@ -57,6 +57,21 @@ class ExpansionStateType
 			child_fsm = xml_root_tag.GetAttribute("fsm").ValueAsString();
 		}
 
+		bool inheritsFromCustom = false;
+
+		string inherited = fsmType.m_Type + "State";
+		if (xml_root_tag.GetAttribute("class"))
+		{
+			typename inherited_type = xml_root_tag.GetAttribute("class").ValueAsString().ToType();
+			if (!inherited_type.IsInherited(inherited.ToType()))
+			{
+				Error("class doesn't inherit from fsm base type");
+			}
+
+			inherited = inherited_type.ToString();
+			inheritsFromCustom = true;
+		}
+
 		string class_name = "Expansion_" + fsmName + "_" + name + "_State_" + ExpansionFSMType.s_ReloadNumber;
 		
 		//if (child_fsm != "") class_name = "Expansion_FSM_" + child_fsm + "_State";
@@ -69,7 +84,7 @@ class ExpansionStateType
 		ExpansionStateType new_type = new ExpansionStateType();
 		new_type.m_ClassName = class_name;
 
-		FPrintln(file, "class " + class_name + " extends " + fsmType.m_Type + "State {");
+		FPrintln(file, "class " + class_name + " extends " + inherited + " {");
 
 		string child_fsm_name = "Expansion_" + child_fsm + "_FSM_" + ExpansionFSMType.s_ReloadNumber;
 
@@ -135,6 +150,7 @@ class ExpansionStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnEntry\").Add(Event).Add(From);");
 #endif
+			if (inheritsFromCustom) FPrintln(file, "super.OnEntry(Event, From);");
 			FPrintln(file, "if (Event != \""+"\") m_SubFSM.Start(Event);");
 			FPrintln(file, "else m_SubFSM.StartDefault();");
 			FPrintTag0(file, event_entry);
@@ -144,6 +160,7 @@ class ExpansionStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_3(this, \"OnExit\").Add(Event).Add(Aborted).Add(To);");
 #endif
+			if (inheritsFromCustom) FPrintln(file, "super.OnExit(Event, Aborted, To);");
 			FPrintln(file, "if (Aborted) m_SubFSM.Abort(Event);");
 			FPrintTag0(file, event_exit);
 			FPrintln(file, "}");
@@ -152,6 +169,7 @@ class ExpansionStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnUpdate\").Add(DeltaTime).Add(SimulationPrecision);");
 #endif
+			if (inheritsFromCustom) FPrintln(file, "if (super.OnUpdate(DeltaTime, SimulationPrecision) == EXIT) return EXIT;");
 			FPrintln(file, "if (m_SubFSM.Update(DeltaTime, SimulationPrecision) == EXIT) return EXIT;");
 			if (!FPrintTag0(file, event_update))
 			{
@@ -165,6 +183,7 @@ class ExpansionStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnEntry\").Add(Event).Add(From);");
 #endif
+			if (inheritsFromCustom) FPrintln(file, "super.OnEntry(Event, From);");
 			FPrintTag0(file, event_entry);
 			FPrintln(file, "}");
 
@@ -172,6 +191,7 @@ class ExpansionStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_3(this, \"OnExit\").Add(Event).Add(Aborted).Add(To);");
 #endif
+			if (inheritsFromCustom) FPrintln(file, "super.OnExit(Event, Aborted, To);");
 			FPrintTag0(file, event_exit);
 			FPrintln(file, "}");
 
@@ -179,6 +199,7 @@ class ExpansionStateType
 #ifdef EAI_TRACE
 			FPrintln(file, "auto trace = CF_Trace_2(this, \"OnUpdate\").Add(DeltaTime).Add(SimulationPrecision);");
 #endif
+			if (inheritsFromCustom) FPrintln(file, "if (super.OnUpdate(DeltaTime, SimulationPrecision) == EXIT) return EXIT;");
 			if (!FPrintTag0(file, event_update))
 			{
 				FPrintln(file, "return CONTINUE;");

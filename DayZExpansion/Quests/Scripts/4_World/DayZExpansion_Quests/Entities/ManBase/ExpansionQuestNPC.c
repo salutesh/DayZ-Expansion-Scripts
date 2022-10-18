@@ -12,8 +12,8 @@
 
 class ExpansionQuestNPCBase: ExpansionNPCBase
 {
-	private int m_QuestNPCID = -1;
-	private ref ExpansionQuestNPCData m_QuestNPCData;
+	protected int m_QuestNPCID = -1;
+	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCBase Constructor
@@ -25,7 +25,7 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
-	
+
 	// ------------------------------------------------------------
 	// ExpansionQuestNPCBase DeferredInit
 	// ------------------------------------------------------------

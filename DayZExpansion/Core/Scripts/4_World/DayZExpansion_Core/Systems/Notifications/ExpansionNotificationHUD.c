@@ -14,6 +14,9 @@ class ExpansionNotificationHUD: ScriptView
 {
 	protected ExpansionNotificationHUDController m_NotificationHUDController;
 	
+	protected Widget MarketContent;
+	protected bool m_ElementPosAdjustment = false;
+	
 	void ExpansionNotificationHUD()
 	{
 		if (!m_NotificationHUDController)
@@ -123,7 +126,7 @@ class ExpansionNotificationHUD: ScriptView
 	}
 	
 	void AddNotificationKillfeedElemement(ExpansionNotificationViewKillfeed element)
-	{		
+	{
 		if (!m_NotificationHUDController)
 			return;
 				
@@ -158,6 +161,49 @@ class ExpansionNotificationHUD: ScriptView
 		index = m_NotificationHUDController.NotificationMarketElements.Find(element);
 		if (index > -1)
 			m_NotificationHUDController.NotificationMarketElements.Remove(index);
+	}
+	
+	void AddNotificationGarageElemement(ExpansionNotificationViewGarage element)
+	{	
+		if (!m_NotificationHUDController)
+			return;
+
+		if (!m_ElementPosAdjustment)
+		{
+			Print(ToString() + "::AddNotificationGarageElemement - Adjust element position!");
+			
+			float x1, y1;
+			Widget content = Widget.Cast(GetLayoutRoot().FindAnyWidget("MarketContent"));
+			content.GetPos(x1, y1);
+			float yNew1 = y1 + 80.0;
+			content.SetPos(x1, yNew1);
+			m_ElementPosAdjustment = true;
+		}
+		
+		m_NotificationHUDController.NotificationMarketElements.Insert(element);
+	}
+	
+	void RemoveNotificationGarageElemement(ExpansionNotificationViewGarage element)
+	{
+		if (!m_NotificationHUDController)
+			return;
+		
+		int index = -1;
+		index = m_NotificationHUDController.NotificationMarketElements.Find(element);
+		if (index > -1)
+			m_NotificationHUDController.NotificationMarketElements.Remove(index);
+		
+		if (m_ElementPosAdjustment)
+		{
+			Print(ToString() + "::RemoveNotificationGarageElemement - Adjust element position!");
+			
+			float x1, y1;
+			Widget content = Widget.Cast(GetLayoutRoot().FindAnyWidget("MarketContent"));
+			content.GetPos(x1, y1);
+			float yNew1 = y1 - 80.0;
+			content.SetPos(x1, yNew1);
+			m_ElementPosAdjustment = false;
+		}
 	}
 }
 

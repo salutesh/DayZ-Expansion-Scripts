@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Gyro
 	{
-		units[] = {"ExpansionGyrocopterWreck","ExpansionGyrocopter","Vehicle_ExpansionGyrocopter"};
+		units[] = {"ExpansionGyrocopterWreck","ExpansionGyrocopter"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -56,7 +56,7 @@ class CfgVehicles
 		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","CamoNet"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine
@@ -71,7 +71,7 @@ class CfgVehicles
 				name = "$STR_attachment_Body0";
 				description = "";
 				icon = "cat_vehicle_body";
-				attachmentSlots[] = {"Reflector_1_1"};
+				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
 			};
 		};
 		class AnimationSources
@@ -233,39 +233,12 @@ class CfgVehicles
 					animation = "cyclicAside";
 				};
 			};
-			class Axles: Axles
-			{
-				class Front: Front
-				{
-					class Suspension: Suspension
-					{
-						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
-					};
-				};
-				class Rear: Rear
-				{
-					class Suspension: Suspension
-					{
-						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
-					};
-				};
-			};
 		};
 	};
 	class Vehicle_ExpansionGyrocopter: ExpansionVehicleHelicopterBase
 	{
-		scope = 2;
-		displayname = "[NOT READY]  GYROCOPTER";
+		scope = 0;
+		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
 		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter.p3d";
 		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Helicopter";

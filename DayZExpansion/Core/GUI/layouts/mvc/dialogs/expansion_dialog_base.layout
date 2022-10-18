@@ -70,7 +70,6 @@ WrapSpacerWidgetClass ExpansionDialogBase {
      visible 1
      clipchildren 0
      color 0.8627 0.8627 0.8627 1
-     position 0 0
      size 1 30
      halign center_ref
      hexactpos 0
@@ -81,7 +80,9 @@ WrapSpacerWidgetClass ExpansionDialogBase {
      text "TITLE"
      font "gui/fonts/etelkatextpro22"
      "text color" 1 1 1 1
-     "exact text" 0
+     "exact text" 1
+     "size to text h" 1
+     "size to text v" 1
      "text halign" center
      "text valign" center
      {
@@ -119,11 +120,23 @@ WrapSpacerWidgetClass ExpansionDialogBase {
        scaled 1
        style rover_sim_colorable
       }
+      PanelWidgetClass dialog_spacer1 {
+       visible 1
+       position 0 0
+       size 0.95 16
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       scaled 1
+       style blank
+      }
       WrapSpacerWidgetClass dialog_body_content {
        visible 1
        ignorepointer 1
        position 0 0
-       size 1 150
+       size 0.95 150
        hexactpos 1
        vexactpos 1
        hexactsize 0
@@ -140,6 +153,18 @@ WrapSpacerWidgetClass ExpansionDialogBase {
          Binding_Name "DialogContents"
         }
        }
+      }
+      PanelWidgetClass dialog_spacer2 {
+       visible 1
+       position 0 0
+       size 0.95 16
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       scaled 1
+       style blank
       }
       PanelWidgetClass dialog_seperator2 {
        visible 1

@@ -27,7 +27,7 @@ class ExpansionAIPatrolManager
         return NULL;
     }
 
-    protected static eAIDynamicPatrol InitPatrol(ExpansionAIDynamicSpawnBase patrol, vector position = vector.Zero)
+    static eAIDynamicPatrol InitPatrol(ExpansionAIDynamicSpawnBase patrol, vector position = vector.Zero)
     {
         if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
             return NULL;
