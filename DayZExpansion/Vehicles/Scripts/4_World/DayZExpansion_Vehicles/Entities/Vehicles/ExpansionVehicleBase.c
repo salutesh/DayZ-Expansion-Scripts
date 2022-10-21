@@ -235,8 +235,12 @@ class ExpansionVehicleBase extends ItemBase
 	protected bool m_Expansion_LastDriverUIDSynched;
 
 	int m_Expansion_CargoCount;
-	
-	ref ExpansionGlobalID m_Expansion_GlobalID = new ExpansionGlobalID();
+
+#ifndef EXPANSIONMODBASEBUILDING
+	ref ExpansionGlobalID m_Expansion_GlobalID;
+#endif
+
+	bool m_Expansion_HasLifetime;
 
 	void ExpansionVehicleBase()
 	{
@@ -249,6 +253,8 @@ class ExpansionVehicleBase extends ItemBase
 	
 		Print(GetType() + " IS NOT READY FOR PRODUCTION! Use " + GetType().Substring(8, GetType().Length() - 8) + " instead");
 #endif
+
+		m_Expansion_GlobalID = new ExpansionGlobalID();
 
 		SetFlags(EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false);
 		SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE | EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.FRAME | EntityEvent.POSTFRAME | EntityEvent.PHYSICSMOVE);
@@ -1190,7 +1196,7 @@ class ExpansionVehicleBase extends ItemBase
 		m_SoundVariables[3] = OnSound(CarSoundCtrl.DOORS, 0);
 
 		//speed
-		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, GetSpeedometer());
+		m_SoundVariables[4] = OnSound(CarSoundCtrl.SPEED, Math.AbsFloat(GetSpeedometer()));
 
 		//thrust
 		m_SoundVariables[5] = m_Controller.m_Throttle[0];
@@ -2734,7 +2740,7 @@ class ExpansionVehicleBase extends ItemBase
 	//!
 	bool IsMoving()
 	{
-		if (GetSpeedometer() > 3.5)
+		if (Math.AbsFloat(GetSpeedometer()) > 3.5)
 			return true;
 
 		return false;

@@ -41,6 +41,8 @@ class cfgWeapons
 		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\svd\svd_reload",1,1,30};
 		reloadAction = "ReloadSVD";
 		modes[] = {"FullAuto","SemiAuto"};
+		s_recoilControlMisalignmentX = 0.3;
+		s_recoilControlMisalignmentY = 0.3;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"SVD_Shot_SoundSet","SVD_Tail_SoundSet","SVD_InteriorTail_SoundSet"};

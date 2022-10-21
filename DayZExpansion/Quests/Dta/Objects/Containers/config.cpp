@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Quests_Objects_Containers
 	{
-		units[] = {"ExpansionTemporaryOwnedQuestContainer","ExpansionQuestSeaChest"};
+		units[] = {"ExpansionQuestContainerBase","ExpansionQuestSeaChest"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
@@ -24,7 +24,7 @@ class CfgVehicles
 		descriptionShort = "Quest Board";
 		model = "DZ\structures\Furniture\School_equipment\blackboard.p3d";
 	};
-	class ExpansionTemporaryOwnedQuestContainer: Container_Base
+	class ExpansionQuestContainerBase: Container_Base
 	{
 		scope = 2;
 		displayName = "#STR_EXPANSION_TEMPORARY_STORAGE";
@@ -32,19 +32,13 @@ class CfgVehicles
 		model = "\DZ\gear\camping\wooden_case.p3d";
 		itemSize[] = {10,5};
 		attachments[] = {"Shoulder","Melee","Vest","Body","Hips","Legs","Back","Headgear","Mask","Eyewear","Gloves","Feet","Armband"};
-		class Cargo
-		{
-			itemsCargoSize[] = {10,100};
-		};
 	};
-	class ExpansionQuestSeaChest: Container_Base
+	class ExpansionQuestSeaChest: ExpansionQuestContainerBase
 	{
 		scope = 2;
-		displayName = "#STR_EXPANSION_TEMPORARY_STORAGE";
-		descriptionShort = "#STR_EXPANSION_TEMPORARY_STORAGE_DESC";
+		displayName = "$STR_CfgVehicles_SeaChest0";
+		descriptionShort = "$STR_CfgVehicles_SeaChest1";
 		model = "\DZ\gear\camping\sea_chest.p3d";
-		itemSize[] = {10,5};
-		attachments[] = {"Shoulder","Melee","Vest","Body","Hips","Legs","Back","Headgear","Mask","Eyewear","Gloves","Feet","Armband"};
 		class Cargo
 		{
 			itemsCargoSize[] = {10,100};

@@ -1075,6 +1075,8 @@ class eAIBase extends PlayerBase
 #ifdef DIAG
 			if (m_eAI_Targets[0])
 				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + m_eAI_Targets[0].info.GetEntityDebugName());
+			else
+				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - no more trargets");
 #endif
 		}
 	}
@@ -1256,7 +1258,11 @@ class eAIBase extends PlayerBase
 
 	EntityAI Expansion_CloneItemToHands(EntityAI src)
 	{
-		return Expansion_CloneItemToInventory(src, FindInventoryLocationType.HANDS);
+		InventoryLocation il_dst = new InventoryLocation();
+
+		il_dst.SetHands(this, src);
+
+		return Expansion_CloneItemToLocation(src, il_dst);
 	}
 
 	EntityAI Expansion_CloneItemToGround(EntityAI src, vector position = "0 0 0")
@@ -1296,6 +1302,16 @@ class eAIBase extends PlayerBase
 
 	EntityAI Expansion_CloneItemToLocation(EntityAI src, InventoryLocation location)
 	{
+		if (location.GetType() == InventoryLocationType.HANDS)
+		{
+			//! Forcing switch to HumanCommandMove before taking to hands,
+			//! and hiding/showing item in hands after, unbreaks hand anim state
+			if (!GetCommand_Move())
+				StartCommand_Move();
+			else
+				m_eAI_CommandTime = 0.0;
+		}
+
 		EntityAI dst = ExpansionItemSpawnHelper.Clone(src, true, location);
 		if (dst)
 		{
@@ -1304,10 +1320,21 @@ class eAIBase extends PlayerBase
 				eAI_RemoveItem(item);
 			GetGame().ObjectDelete(src);
 
-			if (location.GetType() == InventoryLocationType.GROUND && !m_Expansion_CanBeLooted)
+			if (location.GetType() == InventoryLocationType.HANDS)
 			{
-				ExpansionItemBaseModule.SetLootable(dst, false);
-				dst.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+				//! Forcing switch to HumanCommandMove before taking to hands,
+				//! and hiding/showing item in hands after, unbreaks hand anim state
+				GetItemAccessor().HideItemInHands(true);
+				GetItemAccessor().HideItemInHands(false);
+			}
+			else if (location.GetType() == InventoryLocationType.GROUND && !m_Expansion_CanBeLooted)
+			{
+				ItemBase dstItem;
+				if (Class.CastTo(dstItem, dst) && !dstItem.m_Expansion_IsOwnerPlayer)
+				{
+					ExpansionItemBaseModule.SetLootable(dst, false);
+					dst.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+				}
 			}
 		}
 
@@ -1340,6 +1367,7 @@ class eAIBase extends PlayerBase
 		//! Ammo/magazines
 		if (item.IsInherited(Magazine))
 		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - mag " + item);
 			//! Force re-evaluation of any gun (loot) targets/guns in inventory
 			eAI_EvaluateFirearmTypes();
 		}
@@ -1372,6 +1400,7 @@ class eAIBase extends PlayerBase
 		//! Ammo/magazines
 		if (item.IsInherited(Magazine))
 		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - mag " + item);
 			//! Force re-evaluation of any gun (loot) targets/guns in inventory
 			eAI_EvaluateFirearmTypes();
 		}
@@ -2562,6 +2591,7 @@ class eAIBase extends PlayerBase
 		eAI_TakeItemToLocation(item, il_dst);
 	}
 
+	//! @note possible cause of weird animation glitches (stretched/deformed limbs), use Expansion_CloneItemToHands instead
 	bool eAI_TakeItemToHands(EntityAI item)
 	{
 		InventoryLocation il_dst = new InventoryLocation();
@@ -2630,12 +2660,14 @@ class eAIBase extends PlayerBase
 			{
 				ItemBase itemBs;
 				if (Class.CastTo(itemBs, item))
+				{
 					eAI_RemoveItem(itemBs);
 
-				if (!m_Expansion_CanBeLooted)
-				{
-					ExpansionItemBaseModule.SetLootable(item, false);
-					item.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+					if (!m_Expansion_CanBeLooted && !itemBs.m_Expansion_IsOwnerPlayer)
+					{
+						ExpansionItemBaseModule.SetLootable(item, false);
+						item.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
+					}
 				}
 			}
 		}

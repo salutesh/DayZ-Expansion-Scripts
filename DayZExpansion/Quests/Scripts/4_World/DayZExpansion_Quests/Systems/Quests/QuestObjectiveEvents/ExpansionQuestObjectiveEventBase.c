@@ -116,8 +116,8 @@ class ExpansionQuestObjectiveEventBase
 
 	bool OnIncomplete()
 	{
-		//SetIsActive(true);
 		GetQuest().CompletionCheck();
+		OnRecreateClientMarkers();
 
 		return true;
 	}
@@ -161,6 +161,79 @@ class ExpansionQuestObjectiveEventBase
 	void OnRecreateClientMarkers();
 #endif
 
+#ifdef EXPANSIONMODGROUPS
+	//! Event called for group quests only when a group member joins/rejoins the quest group
+	void OnGroupMemberJoined(string playerUID)
+	{
+		OnRecreateClientMarkers();
+	}
+
+	//! Event called for group quests only when a group member leaves the quest group
+	void OnGroupMemberLeave(string playerUID);
+#endif
+
+	protected bool DestinationCheck()
+	{
+		vector position = GetObjectiveConfig().GetPosition();
+		float maxDistance = GetObjectiveConfig().GetMaxDistance();
+		float currentDistance;
+		array<vector> groupMemberPos = new array<vector>;
+
+		if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
+		{
+			vector playerPos = GetQuest().GetPlayer().GetPosition();
+			currentDistance = vector.Distance(playerPos, position);
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
+		{
+			//! Set the position of the group member that has the shortest distance to the target location
+			//! as our current position if the quest is a group quest.
+			ExpansionPartyData group = GetQuest().GetGroup();
+			if (!group)
+				return false;
+
+			array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
+			{
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
+				if (!groupPlayer)
+					continue;
+
+				groupMemberPos.Insert(groupPlayer.GetPosition());
+			}
+
+			float smallestDistance;
+			int posIndex;
+			bool firstSet = false;
+			for (int p = 0; p < groupMemberPos.Count(); p++)
+			{
+				vector pos = groupMemberPos[p];
+				float dist = vector.Distance(pos, position);
+				if (!firstSet)
+				{
+					smallestDistance = dist;
+					posIndex = p;
+					firstSet = true;
+				}
+				else if (firstSet && dist < smallestDistance)
+				{
+					smallestDistance = dist;
+					posIndex = p;
+				}
+			}
+
+			currentDistance = vector.Distance(groupMemberPos[posIndex], position);
+		}
+	#endif
+
+		position[1] = GetGame().SurfaceY(position[0], position[2]);
+		if (position != vector.Zero && currentDistance <= maxDistance)
+			return true;
+
+		return false;
+	}
+
 	void OnUpdate(float timeslice)
 	{
 		if (!IsInitialized() || !IsActive() || !GetQuest() || !GetQuest().GetPlayer() || !GetObjectiveConfig())
@@ -184,7 +257,7 @@ class ExpansionQuestObjectiveEventBase
 			m_TimeLimitSyncTimer +=timeslice;
 			if (m_TimeLimit > 0 && m_TimeLimitSyncTimer >= UPDATE_TIME_SYNC_TIME)
 			{
-				GetQuest().UpdateQuestPlayersObjectiveData();
+				GetQuest().UpdateQuest();
 				m_TimeLimitSyncTimer = 0;
 			}
 		}
@@ -193,12 +266,6 @@ class ExpansionQuestObjectiveEventBase
 	ExpansionQuestObjectiveConfig GetObjectiveConfig()
 	{
 		return m_ObjectiveConfig;
-	}
-
-	//! Event method for condition checks when ever a quest completion is requested
-	bool CompletionCheck()
-	{
-		return true;
 	}
 
 	void QuestDebug()
@@ -218,7 +285,7 @@ class ExpansionQuestObjectiveEventBase
 	void ObjectivePrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 

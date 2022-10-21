@@ -17,7 +17,7 @@ class CfgVehicles
 	class Container_Base;
 	class BatteryCharger: Inventory_Base
 	{
-		attachments[] = {"CarBattery","TruckBattery","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
+		attachments[] += {"ExpansionHelicopterBattery","ExpansionAircraftBattery"};
 	};
 	class ExpansionStaticKeyGrinder: Inventory_Base
 	{
@@ -162,7 +162,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_IGNITERPLUG";
 		descriptionShort = "$STR_EXPANSION_IGNITERPLUG_DESC";
-		model = "\dz\vehicles\parts\GlowPlug.p3d";
+		model = "\DZ\vehicles\parts\igniter_plug.p3d";
 		weight = 200;
 		itemSize[] = {1,1};
 		absorbency = 0;
@@ -486,15 +486,18 @@ class CfgVehicles
 	class ExpansionUtilityBoat_Cover: ExpansionVehicleCover
 	{
 		scope = 2;
-		model = "\DayZExpansion\Vehicles\Water\Utility\RHIB.p3d";
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\RHIB_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
 	};
 	class ExpansionZodiacBoat_Cover: ExpansionVehicleCover
 	{
 		scope = 2;
-		model = "\DayZExpansion\Vehicles\Water\Zodiac\zodiac.p3d";
-		hiddenSelections[] = {"camo","antiwater"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa",""};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat",""};
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\zodiac_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
 	};
 	class ExpansionTractor_Cover: ExpansionVehicleCover
 	{

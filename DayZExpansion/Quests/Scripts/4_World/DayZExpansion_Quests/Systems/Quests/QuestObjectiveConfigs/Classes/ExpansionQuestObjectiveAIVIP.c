@@ -28,9 +28,9 @@ class ExpansionQuestObjectiveAIVIP
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

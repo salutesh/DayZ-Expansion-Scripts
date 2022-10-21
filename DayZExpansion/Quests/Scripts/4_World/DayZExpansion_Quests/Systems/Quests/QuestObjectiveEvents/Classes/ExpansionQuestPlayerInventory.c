@@ -45,7 +45,7 @@ class ExpansionQuestsPlayerInventory
 			if (Class.CastTo(dogTag, item))
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::AddPlayerItems - Item is Dogtag");
+				CF_Log.Debug(ToString() + "::AddPlayerItems - Item is Dogtag");
 			#endif
 				int slotId = InventorySlots.GetSlotIdFromString("Dogtag");
 				Dogtag_Base playerDogTag;
@@ -55,7 +55,7 @@ class ExpansionQuestsPlayerInventory
 					if (dogTag == playerDogTag)
 					{
 					#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-						Print(ToString() + "::AddPlayerItems - Dogtag is players dogtag! Don't add!");
+						CF_Log.Debug(ToString() + "::AddPlayerItems - Dogtag is players dogtag! Don't add!");
 					#endif
 						continue;
 					}

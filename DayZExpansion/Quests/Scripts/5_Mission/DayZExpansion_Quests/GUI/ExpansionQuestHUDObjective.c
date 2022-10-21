@@ -160,10 +160,24 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						string displayName = ExpansionStatic.GetItemDisplayNameWithType(collection.GetClassName());
 						m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT " + displayName;
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+						
 						count = m_Objective.GetObjectiveCount();
 						amount = collection.GetAmount();
-						m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
-						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+						
+						if (collectionObjective.ShowDistance())
+						{
+							objectivePos = m_Objective.GetObjectivePosition();
+							playerPos = GetGame().GetPlayer().GetPosition();
+							currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+							m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString() + " | " + currentDistance.ToString() + " m";
+							m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+						}
+						else
+						{
+							m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
+							m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+						}
+
 						QuestPrint(ToString() + "::SetEntryObjective - COLLECT - ADDED");
 					}
 				}
@@ -217,10 +231,14 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					}
 
 					array<ref ExpansionQuestObjectiveDelivery> deliveries = deliveryObjective.GetDeliveries();
+					
+					int index;
 					foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
 					{
-						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery);
+						int currentCount = m_Objective.GetDeliveryCountByIndex(index);
+						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery, currentCount);
 						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
+						index++;
 					}
 					QuestPrint(ToString() + "::SetEntryObjective - DELIVERY - ADDED");
 				}
@@ -364,7 +382,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 };

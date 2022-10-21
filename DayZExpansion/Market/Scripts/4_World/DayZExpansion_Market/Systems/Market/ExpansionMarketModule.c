@@ -369,11 +369,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("LoadMoneyPrice - Start");
 
-		if (!GetExpansionSettings())
-			return;
-
 		ExpansionMarketSettings market = GetExpansionSettings().GetMarket();
-		if (!market)
+		if (!market.MarketSystemEnabled && !market.ATMSystemEnabled)
 			return;
 
 		int i;
@@ -2119,6 +2116,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("RPC_Callback - End");
 	}
 
+#ifdef SERVER
 	// -----------------------------------------------------------
 	// Expansion OnInvokeConnect
 	// -----------------------------------------------------------
@@ -2129,6 +2127,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
+
+		auto settings = GetExpansionSettings().GetMarket();
+		if (!settings.MarketSystemEnabled && !settings.ATMSystemEnabled)
+			return;
 		
 		SendMoneyDenominations(cArgs.Identity);
 		
@@ -2139,6 +2141,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		
 		MarketModulePrint("OnInvokeConnect - End");
 	}
+#endif
 	
 	// -----------------------------------------------------------
 	// Expansion SendMoneyDenominations
@@ -3765,6 +3768,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void LoadATMData()
 	{
+		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
+
 		array<string> files = ExpansionStatic.FindFilesInLocation(EXPANSION_ATM_FOLDER, ".json");
 		
 		foreach (string fileName : files)

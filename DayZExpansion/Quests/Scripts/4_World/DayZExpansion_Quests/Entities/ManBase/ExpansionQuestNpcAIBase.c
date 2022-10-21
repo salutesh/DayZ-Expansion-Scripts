@@ -60,10 +60,10 @@ class ExpansionQuestNPCAIBase extends eAIBase
 		super.DeferredInit();
 
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		Print("-----------------------------------------------------------------------------------------");
-		Print(ToString() + "::DeferredInit - NPC ID: " + m_QuestNPCID);
-		Print(ToString() + "::DeferredInit - NPC type: " + GetType());
-		Print("-----------------------------------------------------------------------------------------");
+		CF_Log.Debug("-----------------------------------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::DeferredInit - NPC ID: " + m_QuestNPCID);
+		CF_Log.Debug(ToString() + "::DeferredInit - NPC type: " + GetType());
+		CF_Log.Debug("-----------------------------------------------------------------------------------------");
 	#endif
     }
 

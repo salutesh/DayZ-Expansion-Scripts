@@ -40,10 +40,6 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		s_StorageFolderPath = "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
 		if (!FileExist(s_StorageFolderPath))
 			ExpansionStatic.MakeDirectoryRecursive(s_StorageFolderPath);
-	
-		string oldpath = "$mission:expansion\\entitystorage\\";
-		if (FileExist(oldpath))
-			ExpansionStatic.CopyDirectoryTree(oldpath, s_StorageFolderPath, ".bin", true);
 	}
 #endif
 
@@ -268,13 +264,19 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				dBodyActive(entity, ActiveState.INACTIVE);
 		}
 
-		if (!Restore_Phase2(ctx, entity, placeholder, player, level, elapsed))
-			return false;
+		bool restored = Restore_Phase2(ctx, entity, placeholder, player, level, elapsed);
+		
+		if (restored && entity != parent)
+			restored = Restore_Phase3(ctx, entity, elapsed);
 
-		if (entity != parent)
-			return Restore_Phase3(ctx, entity, elapsed);
+		if (!restored)
+		{
+			if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
+				Error(entity.ToString() + ": Couldn't move cargo back to placeholder");
+			entity.Delete();
+		}
 
-		return true;
+		return restored;
 	}
 
 	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null)
@@ -301,7 +303,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				vector orientation;
 				if (!ctx.Read(orientation))
 					return ErrorFalse("Couldn't read orientation");
-				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, ECE_OBJECT_SWAP, RF_DEFAULT)))
 				{
 					entity.SetPosition(position);
 					entity.SetOrientation(orientation);

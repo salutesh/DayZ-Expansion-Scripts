@@ -36,6 +36,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		m_HumanityChangeFadeTimer = new WidgetFadeTimer;
 		m_HumanityChangeTimer = new Timer(CALL_CATEGORY_GUI);
 		m_HumanityChangeFadeOut = new Timer(CALL_CATEGORY_GUI);
+		Hide();  //! Initial hidden so it doesn't show on loading screen
 	}
 
 	void SetView(ExpansionHardlinePlayerData data)

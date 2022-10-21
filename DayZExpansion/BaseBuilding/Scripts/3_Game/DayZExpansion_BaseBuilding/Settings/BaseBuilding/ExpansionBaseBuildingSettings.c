@@ -66,6 +66,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	ExpansionCodelockAttachMode CodelockAttachMode;						//! 0 = only on Exp doors/gates | 1 = Exp doors/gates + vanilla fences (also works for BBP) | 2 = Exp doors/gates + vanilla fence (also works for BBP) & tents | 3 = Exp doors/gates + vanilla tents
 	ExpansionDismantleFlagMode DismantleFlagMode;					//! -1 = only territory members, no tools needed  | 0 = anyone, no tools needed | 1 = anyone, only with tools
 	ExpansionFlagMenuMode FlagMenuMode;											//! 0 = no flag menu | 1 = disabled | 2 = no flag choice
+	bool OverrideVanillaEntityPlacement;  //! Use legacy (Expansion 1.7.17 or earlier) placement code. This should NEVER be used and only exists in case removal of cruft causes problems. TODO: Remove this again if no problems arise.
 	bool EnableVirtualStorage;
 	autoptr TStringArray VirtualStorageExcludedContainers;
 
@@ -115,6 +116,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Read(CodelockAttachMode);
 		ctx.Read(DismantleFlagMode);
 		ctx.Read(FlagMenuMode);
+		ctx.Read(OverrideVanillaEntityPlacement);
 
 		ctx.Read(EnableVirtualStorage);
 		ctx.Read(VirtualStorageExcludedContainers);
@@ -154,6 +156,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 		ctx.Write(CodelockAttachMode);
 		ctx.Write(DismantleFlagMode);
 		ctx.Write(FlagMenuMode);
+		ctx.Write(OverrideVanillaEntityPlacement);
 
 		ctx.Write(EnableVirtualStorage);
 		ctx.Write(VirtualStorageExcludedContainers);

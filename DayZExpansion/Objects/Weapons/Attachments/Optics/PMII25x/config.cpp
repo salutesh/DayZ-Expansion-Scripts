@@ -32,6 +32,12 @@ class cfgVehicles
 		recoilModifier[] = {1,1,1};
 		memoryPointCamera = "eyeScope";
 		cameraDir = "cameraDir";
+		s_showEnterMisalignment = 1;
+		s_isFullscreen = 1;
+		s_pipRadius = 1.0;
+		s_pipMagnification = -0.2;
+		s_pipBlur = 0.01;
+		s_pipChromAber = 0.5;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -55,7 +61,7 @@ class cfgVehicles
 			opticsZoomMin = "0.3926/12";
 			opticsZoomMax = "0.3926/25";
 			opticsZoomInit = "0.3926/12";
-			discretefov[] = {"0.3926/12","0.3926/12","0.3926/25"};
+			discretefov[] = {"0.3926/12","0.3926/25"};
 			discreteInitIndex = 0;
 			distanceZoomMin = 100;
 			distanceZoomMax = 1000;

@@ -41,6 +41,8 @@ class cfgWeapons
 		simpleHiddenSelections[] = {"hide_barrel"};
 		reloadAction = "ReloadSVD";
 		modes[] = {"SemiAuto"};
+		s_recoilControlMisalignmentX = 0.3;
+		s_recoilControlMisalignmentY = 0.3;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"SVD_Shot_SoundSet","SVD_Tail_SoundSet","SVD_InteriorTail_SoundSet"};

@@ -1178,7 +1178,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 		//EXPrint(ToString() + "::OnClientDisconnect " + cArgs.UID);
 
-		if (!IsMissionHost())
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
 		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.UID);
@@ -1199,10 +1199,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (!IsMissionHost())
-			return;
-
-		if (!cArgs.Player || !cArgs.Identity)
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
 		#ifdef EXPANSIONEXPRINT

@@ -105,7 +105,39 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			EnumerateGroupInventory(GetQuest().GetGroup());
 		}
 	#endif
+	
+	#ifdef EXPANSIONMODNAVIGATION
+		vector playerPos = GetQuest().GetPlayer().GetPosition();
+		Object target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), playerPos);
+		if (!target)
+			return;
+		
+		vector markerPosition = target.GetPosition();
+		string markerName = GetObjectiveConfig().GetMarkerName();
+		if (markerName != string.Empty || markerPosition != vector.Zero)
+			GetQuest().CreateClientMarker(markerPosition, markerName);
+	#endif
 	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	override void OnRecreateClientMarkers()
+	{
+		super.OnRecreateClientMarkers();
+
+		if (GetQuest().GetQuestState() == ExpansionQuestState.STARTED)
+		{
+			vector playerPos = GetQuest().GetPlayer().GetPosition();
+			Object target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), playerPos);
+			if (!target)
+				return;
+			
+			vector markerPosition = target.GetPosition();
+			string markerName = GetObjectiveConfig().GetMarkerName();
+			if (markerName != string.Empty || markerPosition != vector.Zero)
+				GetQuest().CreateClientMarker(markerPosition, markerName);
+		}
+	}
+#endif
 
 	protected void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
 	{
@@ -199,6 +231,102 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		return false;
 	}
 #endif
+		
+	override protected bool DestinationCheck()
+	{
+		vector position;
+		float maxDistance = GetObjectiveConfig().GetMaxDistance();
+		float currentDistance;
+		array<vector> groupMemberPos = new array<vector>;
+		Object target;
+		
+		if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
+		{
+			vector playerPos = GetQuest().GetPlayer().GetPosition();
+			target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), playerPos);
+			if (!target)
+				return false;
+			
+			position = target.GetPosition();
+			currentDistance = vector.Distance(playerPos, position);
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
+		{
+			//! Set the position of the group member that has the shortest distance to the target location
+			//! as our current position if the quest is a group quest.
+			ExpansionPartyData group = GetQuest().GetGroup();
+			if (!group)
+				return false;
+
+			array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
+			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
+			{
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
+				if (!groupPlayer)
+					continue;
+				
+				if (!HasAnyCollectionGroupItem(playerGroupData.GetID()))
+					continue;
+
+				groupMemberPos.Insert(groupPlayer.GetPosition());
+			}
+
+			float smallestDistance;
+			int posIndex;
+			bool firstSet = false;
+			for (int p = 0; p < groupMemberPos.Count(); p++)
+			{
+				vector pos = groupMemberPos[p];
+				target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), pos);
+				if (!target)
+					continue;
+
+				position = target.GetPosition();
+				float dist = vector.Distance(pos, position);
+				if (!firstSet)
+				{
+					smallestDistance = dist;
+					posIndex = p;
+					firstSet = true;
+				}
+				else if (firstSet && dist < smallestDistance)
+				{
+					smallestDistance = dist;
+					posIndex = p;
+				}
+			}
+
+			currentDistance = vector.Distance(groupMemberPos[posIndex], position);
+		}
+	#endif
+
+		position[1] = GetGame().SurfaceY(position[0], position[2]);
+		if (position != vector.Zero && currentDistance <= maxDistance)
+			return true;
+
+		return false;
+	}
+	
+	#ifdef EXPANSIONMODGROUPS
+	bool HasAnyCollectionGroupItem(string playerUID)
+	{
+		foreach (EntityAI item: m_GroupItems)
+		{
+			ItemBase itemIB;
+			if (item && Class.CastTo(itemIB, item))
+			{
+				if (itemIB.GetHierarchyRootPlayer() && itemIB.GetHierarchyRootPlayer().GetIdentity())
+				{
+					if (itemIB.GetHierarchyRootPlayer().GetIdentity().GetId() == playerUID)
+						return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+#endif
 
 	protected int GetItemAmount(EntityAI item)
 	{
@@ -220,7 +348,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		return amount;
 	}
 
-	void EnumeratePlayerInventory(PlayerBase player)
+	protected void EnumeratePlayerInventory(PlayerBase player)
 	{
 		if (!player || !player.IsAlive() || !player.GetInventory())
 			return;
@@ -229,7 +357,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 	}
 
 #ifdef EXPANSIONMODGROUPS
-	void EnumerateGroupInventory(ExpansionPartyData group)
+	protected void EnumerateGroupInventory(ExpansionPartyData group)
 	{
 		m_GroupEntityInventory = new ExpansionQuestsGroupInventory(group);
 	}
@@ -246,18 +374,20 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
 				EnumeratePlayerInventory(player);
-				if (!HasAllCollectionItems() && IsCompleted())
+				
+				bool conditionCheck = HasAllCollectionItems() && DestinationCheck();
+				if (!conditionCheck && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
+					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
 				#endif
 					SetCompleted(false);
 					OnIncomplete();
 				}
-				else if (HasAllCollectionItems() && !IsCompleted())
+				else if (conditionCheck && !IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
+					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
 				#endif
 					SetCompleted(true);
 					OnComplete();
@@ -267,18 +397,20 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			else
 			{
 				EnumerateGroupInventory(GetQuest().GetGroup());
-				if (!HasGroupAllCollectionItems() && IsCompleted())
+				
+				bool conditionCheckGroup = HasGroupAllCollectionItems() && DestinationCheck();
+				if (!conditionCheckGroup && IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
+					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
 				#endif
 					SetCompleted(false);
 					OnIncomplete();
 				}
-				else if (HasGroupAllCollectionItems() && !IsCompleted())
+				else if (conditionCheckGroup && !IsCompleted())
 				{
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
+					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
 				#endif
 					SetCompleted(true);
 					OnComplete();
@@ -291,7 +423,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				if (m_UpdateCount != m_PlayerItems.Count())
 				{
 					m_UpdateCount = m_PlayerItems.Count();
-					GetQuest().UpdateQuestPlayersObjectiveData();
+					GetQuest().UpdateQuest();
 				}
 			}
 		#ifdef EXPANSIONMODGROUPS
@@ -300,36 +432,13 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 				if (m_UpdateCount != m_GroupItems.Count())
 				{
 					m_UpdateCount = m_GroupItems.Count();
-					GetQuest().UpdateQuestPlayersObjectiveData();
+					GetQuest().UpdateQuest();
 				}
 			}
 		#endif
 
 			m_UpdateQueueTimer = 0.0;
 		}
-	}
-
-	override bool CompletionCheck()
-	{
-		if (!GetQuest().IsGroupQuest())
-		{
-			PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
-			EnumeratePlayerInventory(player);
-
-			if (!HasAllCollectionItems())
-				return false;
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			EnumerateGroupInventory(GetQuest().GetGroup());
-
-			if (!HasGroupAllCollectionItems())
-				return false;
-		}
-	#endif
-
-		return true;
 	}
 
 	int GetAmount()

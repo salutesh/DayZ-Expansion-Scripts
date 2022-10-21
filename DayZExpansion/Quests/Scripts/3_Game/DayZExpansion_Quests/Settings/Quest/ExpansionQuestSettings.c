@@ -73,7 +73,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		ExpansionQuestSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			Error("ExpansionQuestSettings::OnRecieve setting");
+			CF_Log.Error("ExpansionQuestSettings::OnRecieve setting");
 			return false;
 		}
 

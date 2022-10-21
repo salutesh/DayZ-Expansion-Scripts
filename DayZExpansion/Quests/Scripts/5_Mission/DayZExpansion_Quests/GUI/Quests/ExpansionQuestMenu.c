@@ -442,9 +442,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	void QuestDebug(string text)
 	{
-	//#ifdef EXPANSIONMODQUESTSUIDEBUG
-		EXTrace.Print(EXTrace.QUESTS, null, text);
-	//#endif
+	#ifdef EXPANSIONMODQUESTSUIDEBUG
+		CF_Log.Debug(text);
+	#endif
 	}
 };
 

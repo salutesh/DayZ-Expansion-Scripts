@@ -312,7 +312,7 @@ modded class ItemBase
 		if (!super.IsOpen())
 			return false;
 
-		if (ExpansionIsOpenable())
+		if (ExpansionIsOpenable() || IsNonExpansionOpenable())
 			return IsOpened();
 
 		//! @note vanilla by default returns true, we need to keep this compatible
@@ -1150,11 +1150,6 @@ modded class ItemBase
 
 		SetTakeable( true );
 		SetSynchDirty();
-	}
-
-	bool Expansion_HasEntityStorage()
-	{
-		return false;
 	}
 
 	bool IsNonExpansionOpenable()

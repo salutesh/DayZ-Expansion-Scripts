@@ -7,6 +7,14 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		Class.CastTo(m_Item, target);
 	}
 
+	override bool IsActive()
+	{
+		if (!super.IsActive())
+			return false;
+
+		return m_Item.GetHierarchyRootPlayer() == null;
+	}
+
 	//! @note not using state cache for item targets as they wouldn't be removed from it
 	override vector GetPosition(eAIBase ai = null, bool actual = false)
 	{

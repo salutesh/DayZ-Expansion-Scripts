@@ -1270,4 +1270,9 @@ modded class ItemBase
 			}
 		}
 	}
+
+	string Expansion_GetEntityStorageFileName()
+	{
+		return string.Empty;
+	}
 };

@@ -122,7 +122,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 

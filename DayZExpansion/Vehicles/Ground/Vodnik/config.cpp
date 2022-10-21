@@ -103,9 +103,9 @@ class CfgVehicles
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.656;
+		radius = 0.55;
 		width = 0.316;
-		tyreRollResistance = 0.07;
+		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
 		class DamageSystem
 		{
@@ -129,11 +129,12 @@ class CfgVehicles
 		inventorySlot[] = {"vodnikwheel_1_1","vodnikwheel_1_2","vodnikwheel_2_1","vodnikwheel_2_2"};
 		rotationFlags = 4;
 		physLayer = "item_large";
-		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.656;
-		width = 0.316;
-		tyreRollResistance = 0.07;
-		tyreTread = 0.7;
+		radiusByDamage[] = {0,0.465,0.3,0.38,0.9998,0.35,0.9999,0.28};
+		radius = 0.55;
+		width = 0.3;
+		tyreOffroadResistance = 0.85;
+		tyreGrip = 0.8;
+		tyreRollResistance = 0.02;
 		class DamageSystem
 		{
 			class GlobalHealth

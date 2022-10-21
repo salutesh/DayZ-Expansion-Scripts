@@ -754,7 +754,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			m_TerritoryFlags.Remove( territoryID );
 			
 		#ifdef EXPANSIONMODGARAGE
-			if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+			if (GetExpansionSettings().GetGarage().Enabled && GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
 			{
 				ExpansionGarageModule garageModule;
 				if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))
@@ -885,7 +885,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		m_TerritoryFlags.Remove( territoryID );
 		
 	#ifdef EXPANSIONMODGARAGE
-		if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+		if (GetExpansionSettings().GetGarage().Enabled && GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
 		{
 			ExpansionGarageModule garageModule;
 			if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))

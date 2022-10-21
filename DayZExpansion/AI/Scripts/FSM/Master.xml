@@ -352,7 +352,7 @@
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				time = 0;
 				
-				unit.eAI_TakeItemToHands(item);
+				unit.Expansion_CloneItemToHands(item);
 			</event_entry>
 			<event_exit />
 			<event_update>

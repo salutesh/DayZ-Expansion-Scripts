@@ -2,6 +2,8 @@ modded class ItemBase
 {
 	private autoptr eAITargetInformation m_TargetInformation;
 
+	bool m_Expansion_IsOwnerPlayer;
+
 	void ItemBase()
 	{
 #ifdef EAI_TRACE
@@ -59,7 +61,10 @@ modded class ItemBase
 
 		eAIBase ai;
 		if (!Class.CastTo(ai, newParentMan))
+		{
+			m_Expansion_IsOwnerPlayer = true;
 			return;
+		}
 
 		EXTrace.Print(EXTrace.AI, this, "::EEInventoryIn - " + newParentMan);
 

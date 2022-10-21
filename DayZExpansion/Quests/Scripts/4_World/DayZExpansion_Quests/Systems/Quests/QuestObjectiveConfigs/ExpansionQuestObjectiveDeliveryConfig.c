@@ -12,7 +12,6 @@
 class ExpansionQuestObjectiveDeliveryConfigBase:ExpansionQuestObjectiveConfig
 {	
 	autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
-	vector Position = vector.Zero;
 	float MaxDistance = 0;
 	string MarkerName = string.Empty;
 };
@@ -29,16 +28,6 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		Deliveries.Insert(delivery);
 	}
 
-	void SetPosition(vector pos)
-	{
-		Position = pos;
-	}
-
-	override vector GetPosition()
-	{
-		return Position;
-	}
-
 	void SetMaxDistance(float max)
 	{
 		MaxDistance = max;
@@ -48,17 +37,17 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 	{
 		return MaxDistance;
 	}
-
-	void SetMarkerName(string name)
-	{
-		MarkerName = name;
-	}
 	
 	bool ShowDistance()
 	{
 		return ShowDistance;
 	}
 
+	void SetMarkerName(string name)
+	{
+		MarkerName = name;
+	}
+	
 	override string GetMarkerName()
 	{
 		return MarkerName;
@@ -118,7 +107,6 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		TimeLimit = configBase.TimeLimit;
 		
 		Deliveries = configBase.Deliveries;
-		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 	}
@@ -135,7 +123,6 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 			delivery.OnSend(ctx);
 		}
 
-		ctx.Write(Position);
 		ctx.Write(MaxDistance);
 		ctx.Write(MarkerName);
 		ctx.Write(ShowDistance);
@@ -163,9 +150,6 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 
 			Deliveries.Insert(delivery);
 		}
-
-		if (!ctx.Read(Position))
-			return false;
 
 		if (!ctx.Read(MaxDistance))
 			return false;

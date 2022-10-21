@@ -109,7 +109,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), aiPatrol.GetClassNames(), victim.ClassName());
 
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnEntityKilled - Target found: " + found);
+		CF_Log.Debug(ToString() + "::OnEntityKilled - Target found: " + found);
 	#endif
 
 		if (!found)
@@ -123,7 +123,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 				m_TotalKillCount++;
 
 				if (GetQuest())
-					GetQuest().UpdateQuestPlayersObjectiveData();
+					GetQuest().UpdateQuest();
 			}
 		}
 

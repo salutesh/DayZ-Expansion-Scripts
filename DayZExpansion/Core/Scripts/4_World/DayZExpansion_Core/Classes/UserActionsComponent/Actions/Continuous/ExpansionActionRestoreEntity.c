@@ -78,6 +78,10 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		else
 		{
 			placeholder.SetPosition(position);
+			string type;
+			placeholder.m_Expansion_NetsyncData.Get(0, type);
+			Error(ToString() + "::Expansion_OnFinishProgressServer - Could not restore vehicle " + type + " from file " + placeholder.Expansion_GetEntityStorageFileName());
+			ExpansionNotification("Entity Storage", "Could not restore " + placeholder.Expansion_GetStoredEntityDisplayName()).Error(action_data.m_Player.GetIdentity());
 			return false;
 		}
 

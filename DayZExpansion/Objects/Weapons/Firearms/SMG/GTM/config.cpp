@@ -41,6 +41,10 @@ class cfgWeapons
 		reloadAction = "ReloadM4";
 		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\m4a1\m4_reload_0",0.8,1,20};
 		modes[] = {"FullAuto","SemiAuto"};
+		s_recoilControlStabilityX = 0.65;
+		s_recoilControlStabilityY = 0.65;
+		s_recoilControlMisalignmentX = 0.7;
+		s_recoilControlMisalignmentY = 0.7;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"CZ75_Shot_SoundSet","CZ75_Tail_SoundSet","CZ75_InteriorTail_SoundSet"};

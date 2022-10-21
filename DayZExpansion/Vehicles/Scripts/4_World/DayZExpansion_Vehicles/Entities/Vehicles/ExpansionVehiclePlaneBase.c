@@ -187,7 +187,7 @@ class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
 		{
 		case CarSoundCtrl.SPEED:
 		{
-			return GetSpeedometer();
+			return Math.AbsFloat(GetSpeedometer());
 		}
 		case CarSoundCtrl.RPM:
 		{

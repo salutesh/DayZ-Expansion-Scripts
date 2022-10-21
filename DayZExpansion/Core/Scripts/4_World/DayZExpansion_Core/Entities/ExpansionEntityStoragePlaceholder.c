@@ -43,7 +43,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		super.EEDelete(parent);
 	}
 
-	string Expansion_GetEntityStorageFileName()
+	override string Expansion_GetEntityStorageFileName()
 	{
 		return ExpansionEntityStorageModule.GetFileName(m_Expansion_StoredEntityGlobalID.IDToHex());
 	}

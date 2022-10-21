@@ -21,13 +21,13 @@ class ExpansionQuestObjectiveConfigBase
 
 class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 9;
-	
+	static const int CONFIGVERSION = 10;
+
 	void ExpansionQuestObjectiveConfig()
 	{
 		ConfigVersion = CONFIGVERSION;
 	}
-	
+
 	void SetID(int id)
 	{
 		ID = id;
@@ -62,12 +62,12 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	{
 		TimeLimit = time;
 	}
-	
+
 	int GetTimeLimit()
 	{
 		return TimeLimit;
 	}
-	
+
 	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
 	{
 		return NULL;
@@ -102,32 +102,32 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	{
 		return string.Empty;
 	}
-	
+
 	array<string> GetActionNames()
 	{
 		return NULL;
 	}
-	
+
 	array<string> GetItemNames()
 	{
 		return NULL;
 	}
-	
+
 	float GetMaxDistRadius()
 	{
 		return 50;
 	}
-	
+
 	float GetMinDistRadius()
 	{
 		return 150;
 	}
-	
+
 	float GetDespawnRadius()
 	{
 		return 880;
 	}
-	
+
 	bool CanLootAI()
 	{
 		return false;
@@ -159,9 +159,9 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 		return NULL;
 	}
 #endif
-	
+
 	void Save(string fileName);
-	
+
 	void CopyConfig(ExpansionQuestObjectiveConfigBase configBase)
 	{
 		ID = configBase.ID;
@@ -179,7 +179,7 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	}
 
 	bool OnRecieve(ParamsReadContext ctx)
-	{		
+	{
 		if (!ctx.Read(ID))
 			return false;
 
@@ -188,7 +188,7 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 
 		if (!ctx.Read(ObjectiveText))
 			return false;
-		
+
 		if (!ctx.Read(TimeLimit))
 			return false;
 
@@ -198,12 +198,12 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - Objective ID: " + ID);
-		Print(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
-		Print(ToString() + "::QuestDebug - ObjectiveText: " + ObjectiveText);
-		Print(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - Objective ID: " + ID);
+		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
+		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveText: " + ObjectiveText);
+		CF_Log.Debug(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

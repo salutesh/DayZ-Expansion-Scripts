@@ -456,7 +456,7 @@ modded class IngameHud
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshHelicopterHud_Deprecated").Add(helicopter).Add(timeslice);
 #endif
 
-		float h_speed_value = ( helicopter.GetSpeedometer() / 400 );	
+		float h_speed_value = Math.AbsFloat( helicopter.GetSpeedometer() / 400 );	
 		float h_vert_speed_value = ( GetVelocity(helicopter)[1] / 400 );	
 		float h_alt_value = ( helicopter.GetPosition()[1] );
 		
@@ -470,7 +470,7 @@ modded class IngameHud
 		}
 		else
 		{
-			m_HelicopterSpeedValue.SetText( Math.Floor( helicopter.GetSpeedometer() ).ToString() );
+			m_HelicopterSpeedValue.SetText( Math.AbsInt( helicopter.GetSpeedometer() ).ToString() );
 			m_HelicopterSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
 		}
 
@@ -522,14 +522,14 @@ modded class IngameHud
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshHelicopterHud").Add(helicopter).Add(timeslice);
 #endif
 
-		float h_speed_value = ( helicopter.GetSpeedometer() / 400 );	
+		float h_speed_value = Math.AbsFloat( helicopter.GetSpeedometer() / 400 );	
 		float h_vert_speed_value = ( GetVelocity(helicopter)[1] / 400 );	
 		float h_alt_value = ( helicopter.GetPosition()[1] );
 		
 		m_HelicopterSpeedPointer.SetRotation( 0, 0, h_speed_value * 360 - 130, true );
 		m_HelicopterAltitudePointer.SetRotation( 0, 0, ( h_alt_value / 1600) * 360 - 130, true );
 		
-		m_HelicopterSpeedValue.SetText( Math.Floor( helicopter.GetSpeedometer() ).ToString() );
+		m_HelicopterSpeedValue.SetText( Math.AbsInt( helicopter.GetSpeedometer() ).ToString() );
 		m_HelicopterAltitudeValue.SetText( Math.Floor( helicopter.GetPosition()[1] ).ToString() );
 
 		m_HelicopterFuelPointer.SetRotation( 0, 0, helicopter.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
@@ -571,14 +571,14 @@ modded class IngameHud
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "RefreshPlaneHud").Add(plane).Add(timeslice);
 #endif
 		
-		float p_speed_value = ( plane.GetSpeedometer() / 400 );	
+		float p_speed_value = Math.AbsFloat( plane.GetSpeedometer() / 400 );	
 		float p_vert_speed_value = ( GetVelocity(plane)[1] / 400 );	
 		float p_alt_value = ( plane.GetPosition()[1] );
 		
 		m_PlaneSpeedPointer.SetRotation( 0, 0, p_speed_value * 360 - 130, true );
 		m_PlaneAltitudePointer.SetRotation( 0, 0, ( p_alt_value / 1600) * 360 - 130, true );
 		
-		m_PlaneSpeedValue.SetText( Math.Floor( plane.GetSpeedometer() ).ToString() );
+		m_PlaneSpeedValue.SetText( Math.AbsInt( plane.GetSpeedometer() ).ToString() );
 		m_PlaneAltitudeValue.SetText( Math.Floor( plane.GetPosition()[1] ).ToString() );
 
 		m_PlaneThrottle.SetCurrent( 50 );
@@ -615,7 +615,7 @@ modded class IngameHud
 		float rpm_value = ( boat.EngineGetRPM() / boat.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( boat.EngineGetRPMRedline() / boat.EngineGetRPMMax() ) ;
 			
-		float speed_value = ( boat.GetSpeedometer() / 400 );	
+		float speed_value = Math.AbsFloat( boat.GetSpeedometer() / 400 );	
 
 		m_BoatRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_BoatSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
@@ -627,7 +627,7 @@ modded class IngameHud
 		}
 		else
 		{
-			m_BoatSpeedValue.SetText( Math.Floor( boat.GetSpeedometer() ).ToString() );
+			m_BoatSpeedValue.SetText( Math.AbsInt( boat.GetSpeedometer() ).ToString() );
 			m_BoatSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
 		}
 
@@ -682,11 +682,11 @@ modded class IngameHud
 		float rpm_value = ( boat.EngineGetRPM() / boat.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( boat.EngineGetRPMRedline() / boat.EngineGetRPMMax() ) ;
 			
-		float speed_value = ( boat.GetSpeedometer() / 400 );	
+		float speed_value = Math.AbsFloat( boat.GetSpeedometer() / 400 );	
 
 		m_BoatRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_BoatSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
-		m_BoatSpeedValue.SetText( Math.Floor( boat.GetSpeedometer() ).ToString() );
+		m_BoatSpeedValue.SetText( Math.AbsInt( boat.GetSpeedometer() ).ToString() );
 
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
@@ -731,11 +731,11 @@ modded class IngameHud
 
 		float rpm_value = ( bike.EngineGetRPM() / bike.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( bike.EngineGetRPMRedline() / bike.EngineGetRPMMax() ) ;
-		float speed_value = ( bike.GetSpeedometer() / 200 );
+		float speed_value = Math.AbsFloat( bike.GetSpeedometer() / 200 );
 		
 		m_VehicleRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
-		m_VehicleSpeedValue.SetText( Math.Floor( bike.GetSpeedometer() ).ToString() );
+		m_VehicleSpeedValue.SetText( Math.AbsInt( bike.GetSpeedometer() ).ToString() );
 
 		int engaged_gear = bike.GetController().GetGear();
 		
@@ -808,11 +808,11 @@ modded class IngameHud
 
 		float rpm_value = ( car.EngineGetRPM() / car.EngineGetRPMMax() ) ;
 		float rpm_value_red = ( car.EngineGetRPMRedline() / car.EngineGetRPMMax() ) ;
-		float speed_value = ( car.GetSpeedometer() / 200 );
+		float speed_value = Math.AbsFloat( car.GetSpeedometer() / 200 );
 		
 		m_VehicleRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_VehicleSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
-		m_VehicleSpeedValue.SetText( Math.Floor( car.GetSpeedometer() ).ToString() );
+		m_VehicleSpeedValue.SetText( Math.AbsInt( car.GetSpeedometer() ).ToString() );
 
 		int engaged_gear = car.GetController().GetGear();
 		

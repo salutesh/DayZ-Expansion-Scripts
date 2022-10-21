@@ -12,7 +12,7 @@ class ExpansionState_CloseVehicleDoor : ExpansionState_GoToVehicle
 		ExpansionFSMHelper.DoorAnimationSource(entity, seat, hasDoor, source);
 		if (hasDoor)
 		{
-			vehicle.SetAnimationPhase(source, 0.0);
+			entity.SetAnimationPhase(source, 0.0);
 		}
 
 		time = 0;

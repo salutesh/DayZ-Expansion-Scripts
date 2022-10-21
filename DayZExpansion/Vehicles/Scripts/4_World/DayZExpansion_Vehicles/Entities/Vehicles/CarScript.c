@@ -182,6 +182,7 @@ modded class CarScript
 	bool m_Expansion_EOnPostSimulate;
 
 	float m_Expansion_VehicleAutoCoverTimestamp;
+	bool m_Expansion_HasLifetime;
 
 	void CarScript()
 	{
@@ -214,6 +215,8 @@ modded class CarScript
 		RegisterNetSyncVariableBool("m_HornSynchRemote");
 
 		RegisterNetSyncVariableBool("m_Expansion_EngineIsOn");
+
+		RegisterNetSyncVariableBool("m_Expansion_HasLifetime");
 
 		m_State.RegisterSync_CarScript("m_State");
 
@@ -503,14 +506,14 @@ modded class CarScript
 
 		if (GetGame().IsServer())
 		{
-#ifdef DAYZ_1_18
 			if (m_Expansion_IsStoreLoaded)
 			{
 				//! Setting state to inactive fixes issues with vehicles being simulated at server start (jumpy helis, boats being always active when in water, not needed for cars)
 				if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
 					dBodyActive(this, ActiveState.INACTIVE);
 			}
-#endif
+
+			m_Expansion_HasLifetime = GetLifetime() > 0;
 
 			SetSynchDirty();
 		}
@@ -3804,6 +3807,10 @@ modded class CarScript
 	override void OnCEUpdate()
 	{
 		super.OnCEUpdate();
+
+		//! Prevent autocover if this is a CE spawned vehicle (lifetime will be 0 in that case)
+		if (GetLifetime() <= 0)
+			return;
 
 		//! Prevent autocover before forcing initial storeloaded position
 		if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)

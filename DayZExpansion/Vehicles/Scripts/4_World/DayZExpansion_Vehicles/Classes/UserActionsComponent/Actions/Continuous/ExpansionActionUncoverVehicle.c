@@ -14,6 +14,9 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		if (item)
+			return false;
+
 		if (!super.ActionCondition(player, target, item))
 			return false;
 

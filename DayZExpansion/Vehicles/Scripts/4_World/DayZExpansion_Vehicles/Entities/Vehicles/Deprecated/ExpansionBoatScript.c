@@ -229,7 +229,7 @@ class ExpansionBoatScript extends CarScript
 	{
 		vector enginePosition = ModelToWorld(GetMemoryPointPos("engine"));
 		//! TODO: Make particles for reverse gear too
-		if (enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && GetSpeedometer() > 5)
+		if (enginePosition[1] <= GetGame().SurfaceGetSeaLevel() && Math.AbsFloat(GetSpeedometer()) > 5)
 		{
 			if (!m_ParticleEngine && MemoryPointExists("engine"))
 			{
@@ -720,7 +720,7 @@ class ExpansionBoatScript extends CarScript
 			{
 			case CarSoundCtrl.RPM:
 			{
-				float speed = GetSpeedometer();
+				float speed = Math.AbsFloat(GetSpeedometer());
 				if (speed > 100)
 				{
 					return 50;

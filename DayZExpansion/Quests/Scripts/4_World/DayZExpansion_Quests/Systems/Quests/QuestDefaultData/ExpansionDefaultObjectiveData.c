@@ -95,15 +95,6 @@ class ExpansionDefaultObjectiveData
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Talk to Steve");
 
-		if (m_WorldName == "namalsk")
-		{
-			objective.SetPosition(Vector(8348.39, 0, 10724.7));
-		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
-		{
-			objective.SetPosition(Vector(3193.59, 296.707, 6090.57));
-		}
-
 		return objective;
 	}
 
@@ -116,15 +107,6 @@ class ExpansionDefaultObjectiveData
 		objective.AddDelivery(1, "ExpansionQuestItemPackage");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Talk to Peter");
-
-		if (m_WorldName == "namalsk")
-		{
-			objective.SetPosition(Vector(8584.27, 0, 10511.6));
-		}
-		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
-		{
-			objective.SetPosition(Vector(3706.27, 402.012, 5987.08));
-		}
 
 		return objective;
 	}
@@ -414,6 +396,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Survivor");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -430,6 +414,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Apple");
 		collection.SetAmount(5);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -447,6 +433,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Scout");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -462,7 +450,9 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Pathfinder");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
-
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
+		
 		return objective;
 	}
 
@@ -477,6 +467,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Superhero");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -492,6 +484,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Legend");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -507,6 +501,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Kleptomaniac");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -522,6 +518,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Bully");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -537,6 +535,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Killer");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -552,6 +552,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Madman");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -567,6 +569,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Hero");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -582,6 +586,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Dogtag_Bandit");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -599,6 +605,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("ImprovisedFishingRod");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
@@ -614,6 +622,8 @@ class ExpansionDefaultObjectiveData
 		collection.SetClassName("Mackerel");
 		collection.SetAmount(1);
 		objective.AddCollection(collection);
+		objective.SetMaxDistance(10.0);
+		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}

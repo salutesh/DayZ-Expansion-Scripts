@@ -32,6 +32,10 @@ class cfgVehicles
 		swayModifier[] = {1,1,1};
 		memoryPointCamera = "eyeScope";
 		cameraDir = "cameraDir";
+		s_pipRadius = 0.3;
+		s_pipMagnification = 0.4;
+		s_pipBlur = 0.01;
+		s_pipChromAber = 0.03;
 		class DamageSystem
 		{
 			class GlobalHealth

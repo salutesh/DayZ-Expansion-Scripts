@@ -55,7 +55,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 13;
+	static const int VERSION = 15;
 
 	float VehicleRoadKillDamageMultiplier;
 
@@ -69,9 +69,14 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 	float DamagedEngineStartupChancePercent;
 
 	bool EnableVehicleCovers;
+	bool AllowCoveringDEVehicles;  //! Allow covering of vehicles spawned via dynamic events (events.xml)
 	bool UseVirtualStorageForCoverCargo;
 	float VehicleAutoCoverTimeSeconds;
 	bool VehicleAutoCoverRequireCamonet;
+
+	string CFToolsHeliCoverIconName;
+	string CFToolsBoatCoverIconName;
+	string CFToolsCarCoverIconName;
 
 	ref array<ref ExpansionVehiclesConfig> VehiclesConfig;
 
@@ -131,6 +136,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(VehicleRoadKillDamageMultiplier);
 
 		ctx.Read(EnableVehicleCovers);
+		ctx.Read(AllowCoveringDEVehicles);
 
 		m_IsLoaded = true;
 
@@ -173,6 +179,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(VehicleRoadKillDamageMultiplier);
 
 		ctx.Write(EnableVehicleCovers);
+		ctx.Write(AllowCoveringDEVehicles);
 
 		//! Don't send VehiclesConfig
 	}
@@ -392,6 +399,13 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					VehicleAutoCoverRequireCamonet = settingsDefault.VehicleAutoCoverRequireCamonet;
 				}
 
+				if (settingsBase.m_Version < 15)
+				{
+					CFToolsHeliCoverIconName = settingsDefault.CFToolsHeliCoverIconName;
+					CFToolsBoatCoverIconName = settingsDefault.CFToolsBoatCoverIconName;
+					CFToolsCarCoverIconName = settingsDefault.CFToolsCarCoverIconName;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -487,8 +501,14 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 #ifndef CARCOVER
 		EnableVehicleCovers = true;
 #endif
+		AllowCoveringDEVehicles = false;
 		VehicleAutoCoverTimeSeconds = 0;  //! Lower than or equal to zero = disabled
 		VehicleAutoCoverRequireCamonet = false;  //! Require camonet attachment on vehicle
+
+		//! CFTools icons. Any FontAwesome icon name should work.
+		CFToolsHeliCoverIconName = "helicopter";
+		CFToolsBoatCoverIconName = "ship";
+		CFToolsCarCoverIconName = "car";
 
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZCargoRoofless", true, 1.0));
 		VehiclesConfig.Insert(new ExpansionVehiclesConfig("ExpansionUAZ", false, 1.0));

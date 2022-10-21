@@ -59,9 +59,5 @@ modded class ActionConstructor
 
 		//! Virtual garage
 		actions.Insert( ExpansionActionInstallCircuitBoard );
-
-		//! Virtual storage
-		actions.Insert( ExpansionActionStoreContents );
-		actions.Insert( ExpansionActionRestoreContents );
 	}
 }

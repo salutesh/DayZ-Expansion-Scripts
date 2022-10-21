@@ -66,66 +66,10 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
-			vector position = GetObjectiveConfig().GetPosition();
-			float maxDistance = GetObjectiveConfig().GetMaxDistance();
-			float currentDistance;
-			array<vector> groupMemberPos = new array<vector>;
-
-			if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
-			{
-				vector playerPos = GetQuest().GetPlayer().GetPosition();
-				currentDistance = vector.Distance(playerPos, position);
-			}
-		#ifdef EXPANSIONMODGROUPS
-			else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
-			{
-				//! Set the position of the group member that has the shortest distance to the target location
-				//! as our current position if the quest is a group quest.
-
-				ExpansionPartyData group = GetQuest().GetGroup();
-				if (!group)
-					return;
-
-				array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
-				foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
-				{
-					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-					if (!groupPlayer)
-						continue;
-
-					groupMemberPos.Insert(groupPlayer.GetPosition());
-				}
-
-				float smallestDistance;
-				int posIndex;
-				bool firstSet = false;
-				for (int p = 0; p < groupMemberPos.Count(); p++)
-				{
-					vector pos = groupMemberPos[p];
-					float dist = vector.Distance(pos, position);
-					if (!firstSet)
-					{
-						smallestDistance = dist;
-						posIndex = p;
-						firstSet = true;
-					}
-					else if (firstSet && dist < smallestDistance)
-					{
-						smallestDistance = dist;
-						posIndex = p;
-					}
-				}
-
-				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
-			}
-		#endif
-
-			position[1] = GetGame().SurfaceY(position[0], position[2]);
-
-			if (position != vector.Zero && currentDistance <= maxDistance && !IsCompleted())
+			if (DestinationCheck() && !IsCompleted())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::OnUpdate - Complete!");
+				CF_Log.Debug(ToString() + "::OnUpdate - Complete!");
 			#endif
 				SetCompleted(true);
 				OnComplete();

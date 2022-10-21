@@ -56,10 +56,10 @@ class ExpansionQuestObjectiveCollection
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - Amount: " + Amount);
-		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - Amount: " + Amount);
+		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

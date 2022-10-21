@@ -97,9 +97,9 @@ modded class IngameHud
 		{
 			m_Expansion_VehiclePanel.Show(true);
 
-			float speed_value = (m_Expansion_CurrentVehicle.GetSpeedometer() / 200);
+			float speed_value = Math.AbsFloat(m_Expansion_CurrentVehicle.GetSpeedometer() / 200);
 			m_Expansion_VehicleSpeedPointer.SetRotation(0, 0, speed_value * 260 - 130, true);
-			m_Expansion_VehicleSpeedValue.SetText(Math.Floor(m_Expansion_CurrentVehicle.GetSpeedometer()).ToString());
+			m_Expansion_VehicleSpeedValue.SetText(Math.AbsInt(m_Expansion_CurrentVehicle.GetSpeedometer()).ToString());
 
 			m_Expansion_VehicleFuelPointer.SetRotation(0, 0, m_Expansion_CurrentVehicle.GetFluidFraction(CarFluid.FUEL) * 260 - 130, true);
 			m_Expansion_VehicleTemperaturePointer.SetRotation(0, 0, -1 * m_Expansion_CurrentVehicle.GetFluidFraction(CarFluid.COOLANT) * 260 + 130, true);

@@ -543,41 +543,41 @@ class CfgVehicles
 		{
 			drive = "DRIVE_RWD";
 			airDragFrontTotal = 1.0;
-			maxSpeed = 200;
+			maxSpeed = 220;
 			altitudeFullForce = 1000;
 			altitudeNoForce = 2000;
-			bodyFrictionCoef = 1.6;
-			liftForceCoef = 1.0;
-			bankForceCoef = 0.2;
-			tailForceCoef = 6.0;
+			bodyFrictionCoef = 1.2;
+			liftForceCoef = 1.1;
+			bankForceCoef = 0.01;
+			tailForceCoef = 0.1;
 			linearFrictionCoef[] = {16.0,0.04,0.04};
 			angularFrictionCoef = 1.5;
 			class Rotor
 			{
 				minAutoRotateSpeed = 2.0;
 				maxAutoRotateSpeed = 10.0;
-				startUpTime = 20.0;
+				startUpTime = 15;
 			};
 			class AntiTorque
 			{
-				speed = 1.8;
-				max = 0.04;
+				speed = 2.5;
+				max = 5.04;
 			};
 			class Cyclic
 			{
-				forceCoefficient = 1.5;
+				forceCoefficient = 1.2;
 				class Forward
 				{
 					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.4;
+					max = 0.7;
+					coefficient = 1.0;
 					animation = "cyclicForward";
 				};
 				class Side
 				{
 					speed = 10.0;
-					max = 1.0;
-					coefficient = 0.4;
+					max = 0.7;
+					coefficient = 1.0;
 					animation = "cyclicAside";
 				};
 			};

@@ -956,6 +956,7 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.SetAutocomplete(true); //! Quest completes automaticaly
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();

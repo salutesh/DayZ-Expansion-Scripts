@@ -1,5 +1,5 @@
 /**
- * ExpansionTemporaryOwnedQuestContainer.c
+ * ExpansionQuestContainerBase.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,12 +10,12 @@
  *
 */
 
-class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
+class ExpansionQuestContainerBase: Container_Base
 {
 	protected bool m_ExpansionCanReceiveItems;
 	protected bool m_ExpansionStashDelete;
 
-	void ExpansionTemporaryOwnedQuestContainer()
+	void ExpansionQuestContainerBase()
 	{
 		if (IsMissionHost())  //! Server or COM
 		{
@@ -26,16 +26,15 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 		}
 	}
 
-	void ~ExpansionTemporaryOwnedQuestContainer()
+	void ~ExpansionQuestContainerBase()
 	{
 		if (IsMissionHost())  //! Server or COM
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionCheckStorage);
-	
+
 			if (m_ExpansionStashDelete)
 			{
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionStorageNotification);
 			}
 		}
 	}
@@ -45,7 +44,7 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 		if (parent.IsInherited(UndergroundStash))
 			return true;
 
-		return super.CanPutInCargo(parent);
+		return false;
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
@@ -90,10 +89,6 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 			//! Delete after 20 minutes
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
 		}
-
-		//! Warn about pending deletion after 15 minutes
-		if (IsMissionClient())  //! Client or COM
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
 	}
 
 	bool IsInStash()
@@ -105,27 +100,10 @@ class ExpansionTemporaryOwnedQuestContainer: ExpansionOwnedContainer
 		return false;
 	}
 
-	void ExpansionStorageNotification(string msg)
-	{
-		if (IsEmpty())
-			return;
-
-		PlayerBase player = PlayerBase.GetPlayerByUID(m_ExpansionContainerUID);
-		if (!player || !player.GetIdentity())
-			return;
-
-		StringLocaliser title = new StringLocaliser("STR_EXPANSION_TEMPORARY_STORAGE");
-		StringLocaliser text = new StringLocaliser(msg);
-
-		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(player.GetIdentity());
-	}
-
 	void ExpansionDeleteStorage()
 	{
-		ExpansionStorageNotification("STR_EXPANSION_TEMPORARY_STORAGE_EXPIRED");
-
 		GetGame().ObjectDelete(this);
 	}
 };
 
-class ExpansionQuestSeaChest: ExpansionTemporaryOwnedQuestContainer {};
+class ExpansionQuestSeaChest: ExpansionQuestContainerBase {};
