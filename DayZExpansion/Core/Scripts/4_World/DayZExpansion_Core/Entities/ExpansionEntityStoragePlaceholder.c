@@ -25,7 +25,8 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 	void ~ExpansionEntityStoragePlaceholder()
 	{
-		s_Expansion_AllPlaceholders.RemoveItemUnOrdered(this);
+		if (s_Expansion_AllPlaceholders)
+			s_Expansion_AllPlaceholders.RemoveItemUnOrdered(this);
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -37,7 +38,21 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 			string fileName = Expansion_GetEntityStorageFileName();
 			if (FileExist(fileName))
+			{
 				DeleteFile(fileName);
+
+				string folderName = ExpansionEntityStorageModule.s_StorageFolderPath + m_Expansion_StoredEntityGlobalID.IDToHex();
+				if (FileExist(fileName))
+				{
+					TStringArray files = ExpansionStatic.FindFilesInLocation(folderName, ExpansionEntityStorageModule.EXT);
+					foreach (string baseName: files)
+					{
+						DeleteFile(folderName + "\\" + baseName);
+					}
+
+					DeleteFile(folderName);
+				}
+			}
 		}
 
 		super.EEDelete(parent);
@@ -81,7 +96,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-
+		
 		m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 

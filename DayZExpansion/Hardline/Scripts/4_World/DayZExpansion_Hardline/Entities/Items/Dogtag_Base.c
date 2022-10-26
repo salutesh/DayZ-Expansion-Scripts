@@ -62,10 +62,10 @@ modded class Dogtag_Base
 	}
 	#endif
 	
+	//! Bad ref here!! Need to be fixed in the DogTags mod!
 	override void OnRPCRead(PlayerIdentity sender, ref ParamsReadContext ctx)
 	{
 		super.OnRPCRead(sender, ctx);
-		
 		if (GetExpansionSettings().GetHardline().UseHumanity)
 		{
 			ctx.Read(m_HardlineHumanity);

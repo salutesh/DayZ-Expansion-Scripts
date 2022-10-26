@@ -660,7 +660,7 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		ExpansionItemBaseModule.s_Instance.PlayDestroySound(GetPosition(), GetDestroySound());
+		ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), GetDestroySound());
 
 		ExpansionOnDestroyed( killer );
 	}

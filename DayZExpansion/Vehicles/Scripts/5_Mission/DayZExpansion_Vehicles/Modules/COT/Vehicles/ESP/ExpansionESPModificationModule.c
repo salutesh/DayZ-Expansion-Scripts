@@ -59,13 +59,16 @@ modded class ExpansionESPModificationModule
 
 		} else if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnPair, false, NULL );
 		}
 	}
 
 	private void RPC_CarUnPair( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		CarScript car = CarScript.Cast( target );
 		if ( !car )
 			return;
@@ -96,13 +99,16 @@ modded class ExpansionESPModificationModule
 			car.UnlockCar(adminkey);
 		} else if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnLock, false, NULL );
 		}
 	}
 
 	private void RPC_CarUnLock( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		CarScript car = CarScript.Cast( target );
 		if ( !car )
 			return;

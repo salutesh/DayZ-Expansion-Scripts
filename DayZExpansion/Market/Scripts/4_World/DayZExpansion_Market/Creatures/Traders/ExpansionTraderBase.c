@@ -214,7 +214,7 @@ class ExpansionTraderObjectBase
 		if ( IsMissionOffline() )
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(this.GetTraderEntity(), ExpansionMarketRPC.TraderObject, true, NULL);
 	}
 	
@@ -240,13 +240,16 @@ class ExpansionTraderObjectBase
 	// ExpansionTraderObjectBase RPC_TraderObject
 	// ------------------------------------------------------------
 	private void RPC_TraderObject(ParamsReadContext ctx, PlayerIdentity sender)
-	{		
+	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (GetGame().IsServer())
 		{
 			if (!m_Trader)
 				return;
 
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 
 			rpc.Write(m_Trader.m_FileName);
 			rpc.Write(m_Trader.DisplayName);

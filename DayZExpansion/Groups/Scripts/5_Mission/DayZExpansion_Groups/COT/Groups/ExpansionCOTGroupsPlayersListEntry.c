@@ -38,14 +38,6 @@ class ExpansionCOTGroupsPlayersListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTGroupsPlayersListEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTGroupsPlayersListEntry()
-	{
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionCOTGroupsPlayersListEntry SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

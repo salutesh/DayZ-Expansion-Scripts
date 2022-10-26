@@ -39,6 +39,9 @@ modded class ExpansionSettings
 			return true;
 
 		case ExpansionSettingsRPC.AddServerMarker:
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return false;
+			
 			string uid_add;
 			if (!Expansion_Assert_False(ctx.Read(uid_add), "ExpansionSettingsRPC.AddServerMarker - Failed reading marker UID"))
 			{
@@ -50,6 +53,9 @@ modded class ExpansionSettings
 			return true;
 
 		case ExpansionSettingsRPC.RemoveServerMarker:
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return false;
+			
 			string uid_remove;
 			if (!Expansion_Assert_False(ctx.Read(uid_remove), "ExpansionSettingsRPC.RemoveServerMarker - Failed reading marker UID"))
 			{

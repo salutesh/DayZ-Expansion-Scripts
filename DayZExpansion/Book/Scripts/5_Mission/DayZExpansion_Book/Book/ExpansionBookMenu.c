@@ -50,7 +50,7 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 		if (m_BookManager)
 		{	
 			m_BookManager.DestroyBookMenuTabs();
-			delete m_BookManager;
+			m_BookManager = null;
 		}
 	}
 	

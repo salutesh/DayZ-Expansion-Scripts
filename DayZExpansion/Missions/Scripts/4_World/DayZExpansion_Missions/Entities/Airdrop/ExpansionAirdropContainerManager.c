@@ -107,7 +107,7 @@ class ExpansionAirdropContainerManager
 	{
 		vector spawnPos = spawnPosStr.ToVector();
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( spawnPos );
 		rpc.Send( m_Container, ExpansionAirdropContainerBase.EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE, true );
 	}

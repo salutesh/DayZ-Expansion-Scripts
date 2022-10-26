@@ -68,17 +68,6 @@ class ExpansionCOTVehiclesMenu: JMFormBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTVehiclesMenu Constructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTVehiclesMenu()
-	{
-		delete layoutRoot;
-		
-		m_MapMarkers.Clear();
-		m_VehicleEntries.Clear();
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion SetModule
 	// ------------------------------------------------------------
 	#ifdef COT_BUGFIX_REF

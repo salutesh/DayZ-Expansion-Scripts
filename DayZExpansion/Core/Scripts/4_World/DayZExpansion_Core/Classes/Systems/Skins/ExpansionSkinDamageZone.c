@@ -22,10 +22,4 @@ class ExpansionSkinDamageZone : Managed
 		HiddenSelections = new array< string >;
 		HealthLevels = new array< ref ExpansionSkinHealthLevel >;
 	}
-
-	void ~ExpansionSkinDamageZone()
-	{
-		delete HiddenSelections;
-		delete HealthLevels;
-	}
 };

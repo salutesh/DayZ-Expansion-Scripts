@@ -801,7 +801,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (GetGame().IsClient())
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(this, ExpansionVehicleRPC.RequestCrewSync, true, NULL);
 		}
 
@@ -1518,6 +1518,9 @@ class ExpansionVehicleBase extends ItemBase
 		{
 		case ExpansionVehicleRPC.ControllerSync:
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;	
+				
 			if (IsCrew(DayZPlayerConstants.VEHICLESEAT_DRIVER, sender))
 			{
 				m_Event_NetworkRecieve.NetworkRecieve(ctx);
@@ -1527,6 +1530,9 @@ class ExpansionVehicleBase extends ItemBase
 		}
 		case ERPCs.RPC_EXPLODE_EVENT:
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;	
+				
 			if (GetGame().IsClient())
 			{
 				Param2<int, string> params;
@@ -1541,6 +1547,9 @@ class ExpansionVehicleBase extends ItemBase
 		}
 		case ExpansionVehicleRPC.ClientSync:
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;	
+
 			if (GetGame().IsClient() || m_NetworkMode != ExpansionVehicleNetworkMode.CLIENT)
 				return;
 
@@ -1554,6 +1563,9 @@ class ExpansionVehicleBase extends ItemBase
 		}
 		case ExpansionVehicleRPC.CrewSync:
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;	
+				
 			ctx.Read(crewIdx);
 
 			m_Crew[crewIdx].OnRead(ctx);
@@ -1562,6 +1574,9 @@ class ExpansionVehicleBase extends ItemBase
 		}
 		case ExpansionVehicleRPC.CrewSyncInit:
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;	
+
 			for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
 				m_Crew[crewIdx].OnRead(ctx);
 
@@ -1569,7 +1584,10 @@ class ExpansionVehicleBase extends ItemBase
 		}
 		case ExpansionVehicleRPC.RequestCrewSync:
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;	
+
+			auto rpc = ExpansionScriptRPC.Create();
 			for (crewIdx = 0; crewIdx < m_Crew.Count(); crewIdx++)
 				m_Crew[crewIdx].OnSend(rpc);
 
@@ -1585,7 +1603,7 @@ class ExpansionVehicleBase extends ItemBase
 		if (IsMissionOffline())
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 
 		m_Event_NetworkSend.NetworkSend(rpc);
 
@@ -2160,7 +2178,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (GetGame().IsMultiplayer() && GetGame().IsServer())
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
 		}
@@ -2178,7 +2196,7 @@ class ExpansionVehicleBase extends ItemBase
 
 		if (GetGame().IsMultiplayer() && GetGame().IsServer())
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			m_Crew[posIdx].OnSend(rpc);
 			rpc.Send(this, ExpansionVehicleRPC.CrewSync, true, null);
 		}

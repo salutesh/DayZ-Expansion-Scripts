@@ -14,12 +14,6 @@ modded class ItemManager
 {
 	void ItemManager(Widget root)
 	{
-		if (m_TooltipWidget)
-		{
-			m_TooltipWidget = null;
-			delete m_TooltipWidget;
-		}
-
 		m_TooltipWidget = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_tooltip.layout", root );
 		m_TooltipWidget.Show(false);
 	}

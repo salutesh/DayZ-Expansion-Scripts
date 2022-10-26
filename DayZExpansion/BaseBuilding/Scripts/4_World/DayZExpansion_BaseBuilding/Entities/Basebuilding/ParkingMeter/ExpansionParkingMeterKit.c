@@ -23,13 +23,23 @@ class ExpansionParkingMeterKit extends ExpansionConstructionKitLarge
 			//! Make sure player places this in his own territory only.
 			ExpansionTerritoryModule territoyModule = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 			TerritoryFlag flag = territoyModule.GetFlagAtPosition3D(GetPosition());
-			if (!flag || flag.GetTerritoryID() == -1)
-				return false;
-			
-			//! Can only place one parking meter per territory
-			ExpansionGarageModule garageModule = ExpansionGarageModule.Cast(CF_ModuleCoreManager.Get(ExpansionGarageModule));
-			if (garageModule.HasTerritoryParkingMeter(flag.GetTerritoryID()))	
-				return false;
+			auto setting = GetExpansionSettings().GetGarage();
+			if (setting.GarageMode == ExpansionGarageMode.Territory)
+			{
+				if (!flag || flag.GetTerritoryID() == -1)
+				{
+					ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_TERRITORY_REQUIRED").Error(player.GetIdentity());
+					return false;
+				}
+				
+				//! Can only place one parking meter per territory
+				ExpansionGarageModule garageModule = ExpansionGarageModule.Cast(CF_ModuleCoreManager.Get(ExpansionGarageModule));
+				if (garageModule.HasTerritoryParkingMeter(flag.GetTerritoryID()))
+				{
+					ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "Only one parking meter per territory!").Error(player.GetIdentity());
+					return false;
+				}
+			}
 		}
 		
 		return true;
@@ -43,18 +53,25 @@ class ExpansionParkingMeterKit extends ExpansionConstructionKitLarge
 		{
 			ExpansionTerritoryModule module = ExpansionTerritoryModule.Cast(CF_ModuleCoreManager.Get(ExpansionTerritoryModule));
 			TerritoryFlag flag = module.GetFlagAtPosition3D(GetPosition());
-			if (flag && flag.GetTerritoryID() > -1)
+			PlayerBase playerPB = PlayerBase.Cast(player);
+			auto setting = GetExpansionSettings().GetGarage();
+			
+			ExpansionParkingMeter parkingMeter = ExpansionParkingMeter.Cast(GetGame().CreateObjectEx("ExpansionParkingMeter", GetPosition(), ECE_PLACE_ON_SURFACE));
+			parkingMeter.SetPosition(position);
+			parkingMeter.SetOrientation(orientation);
+			parkingMeter.m_ConstructionKitHealth = GetHealth("", "");
+			
+			if (setting.GarageMode == ExpansionGarageMode.Territory && flag && flag.GetTerritoryID() > -1 && playerPB.IsInTerritoryOrPerimeter())
 			{
-				ExpansionParkingMeter parkingMeter = ExpansionParkingMeter.Cast(GetGame().CreateObjectEx("ExpansionParkingMeter", GetPosition(), ECE_PLACE_ON_SURFACE));
-				parkingMeter.SetPosition(position);
-				parkingMeter.SetOrientation(orientation);
 				parkingMeter.SetTerritoryID(flag.GetTerritoryID());
-	
-				//make the kit invisible, so it can be destroyed from deploy UA when action ends
-				HideAllSelections();
-	
-				SetIsDeploySound(true);
 			}
+			else if (setting.GarageMode == ExpansionGarageMode.Personal)
+			{
+				parkingMeter.OnDeployOutsideTerritory();
+			}
+			
+			HideAllSelections(); //! Make the kit invisible, so it can be destroyed from deploy UA when action ends
+			SetIsDeploySound(true);
 		}
 	}
 };

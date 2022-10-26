@@ -81,13 +81,6 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 	}
 
 	// ------------------------------------------------------------
-	void ~ExpansionMapSettings()
-	{
-		delete ServerMarkers;
-		delete ServerMarkersMap;
-	}
-
-	// ------------------------------------------------------------
 	bool AddServerMarker(  ExpansionMarkerData marker )
 	{
 		if ( marker.GetUID() == "" )
@@ -105,7 +98,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 		if (EnableServerMarkers && GetGame().IsDedicatedServer())
 		{
-			ScriptRPC rpc = new ScriptRPC;
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(marker.GetUID());
 			marker.OnSend(rpc);
 			rpc.Send(null, ExpansionSettingsRPC.AddServerMarker, true);
@@ -139,7 +132,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 
 			if (EnableServerMarkers && GetGame().IsDedicatedServer())
 			{
-				ScriptRPC rpc = new ScriptRPC;
+				auto rpc = ExpansionScriptRPC.Create();
 				rpc.Write(uid);
 				rpc.Send(null, ExpansionSettingsRPC.RemoveServerMarker, true);
 			}
@@ -307,7 +300,7 @@ class ExpansionMapSettings: ExpansionMapSettingsBase
 			return 0;
 		}
 
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Map, true, identity );
 

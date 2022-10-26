@@ -32,19 +32,6 @@ class ExpansionSkins : Managed
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionSkins Destructor
-	// ------------------------------------------------------------	
-	void ~ExpansionSkins()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SKIN, this, "~ExpansionSkins");
-#endif
-
-		delete m_Skins;
-		delete m_Order;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionSkins AddSkin
 	// ------------------------------------------------------------	
 	void AddSkin( string name, string path )

@@ -223,18 +223,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		m_ATMData = new array<ref ExpansionMarketATM_Data>;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketModule Deconstructor
-	// ------------------------------------------------------------
-	void ~ExpansionMarketModule()
-	{
-		delete m_LocalEntityInventory;
-		delete m_MoneyTypes;
-		delete m_MoneyDenominations;
-		delete m_ClientMarketZone;
-		delete m_ATMData;
-	}
 	
 	// ------------------------------------------------------------
 	// ExpansionMarketModule OnInit
@@ -890,10 +878,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Selling ruined items shall not increase stock
 		incrementStockModifier = conditionModifier > 0;  //! 0.0 or 1.0
 
-		//! Any item with quantity
-		//! @note only non-splittable items, except edibles - needs to match logic in ExpansionItemSpawnHelper::SpawnOnParent
+		//! Any item with quantity except storage containers
+		//! @note only non-splittable items, except edibles - needs to have compatible logic to ExpansionItemSpawnHelper::SpawnOnParent
 		ItemBase consumable;
-		if (conditionModifier && Class.CastTo(consumable, item) && (item.IsInherited(Edible_Base) || !item.ConfigGetBool("canBeSplit")))
+		if (conditionModifier && Class.CastTo(consumable, item) && (item.IsInherited(Edible_Base) || (!item.IsKindOf("Container_Base") && !item.ConfigGetBool("canBeSplit"))))
 		{
 			Edible_Base edible = Edible_Base.Cast(item);
 
@@ -2058,7 +2046,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void Callback(string itemClassName, ExpansionMarketResult result, PlayerIdentity playerIdent, int option1 = -1, int option2 = -1, Object object = NULL)
 	{
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(itemClassName);
 		rpc.Write(result);
 		rpc.Write(option1);
@@ -2074,6 +2062,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_Callback - Start");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
 		{
@@ -2155,7 +2146,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (!MoneyCheck(identity))
 				return;
 
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 
 			//! Order needs to match highest to lowest currency value
 			rpc.Write(m_MoneyDenominations);
@@ -2179,6 +2170,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_MoneyDenominations - Start");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		array<string> keys = new array<string>;
 		array<int> values = new array<int>;
 
@@ -2220,7 +2214,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (!trader)
 				return;
 
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(itemClassName);
 			rpc.Write(count);
 			rpc.Write(currentPrice);
@@ -2244,6 +2238,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
 				
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
 			return;
@@ -2476,7 +2473,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("ConfirmPurchase - Start");
 			
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(itemClassName);
 			rpc.Write(includeAttachments);
 			rpc.Write(skinIndex);
@@ -2496,6 +2493,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
 			return;
@@ -2664,7 +2664,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("CancelPurchase - Sart");
 			
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(itemClassName);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.CancelPurchase, true, NULL);
 			
@@ -2679,6 +2679,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_CancelPurchase - Sart");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
 			return;
@@ -2721,7 +2724,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				return;
 			}
 				
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(itemClassName);
 			rpc.Write(count);
 			rpc.Write(currentPrice);
@@ -2745,6 +2748,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
 			return;
@@ -2960,7 +2966,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("ConfirmSell - Sart");
 			
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(itemClassName);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.ConfirmSell, true, NULL);
 					
@@ -2976,6 +2982,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("RPC_ConfirmSell - Sart");
 
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
+			return;
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 		
 		string itemClassName;
@@ -3068,7 +3077,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("CancelSell - Sart");
 			
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(itemClassName);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.CancelSell, true, NULL);
 			
@@ -3083,6 +3092,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_CancelSell - Sart");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		string itemClassName;
 		if (!ctx.Read(itemClassName))
 			return;
@@ -3123,7 +3135,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				return;
 			}
 			
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.RequestTraderData, true, NULL);
 				
 			MarketModulePrint("RequestTraderData - End");
@@ -3137,6 +3149,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_RequestTraderData - Sart");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
 		{
@@ -3152,11 +3167,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		trader.m_TradingPlayers.Insert(senderRPC.GetId(), true);
 
-		float startTime = GetGame().GetTickTime();
+		auto hitch = EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
 
 		LoadTraderData(trader, senderRPC);
-
-		EXPrintHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData", startTime);
 
 		MarketModulePrint("RPC_RequestTraderData - End");
 	}
@@ -3175,7 +3188,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(trader.GetTraderZone().BuyPricePercent);
 		rpc.Write(trader.GetTraderZone().SellPricePercent);
 
@@ -3203,7 +3216,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		array<ref ExpansionMarketNetworkItem> networkItemsTmp = new array<ref ExpansionMarketNetworkItem>;
 
-		float startTime = GetGame().GetTickTime();
+		auto hitch = EXHitch(ToString() + "::LoadTraderItems - GetNetworkSerialization ");
 		
 		TIntArray itemIDsTmp;
 		if (itemIDs && itemIDs.Count())
@@ -3220,7 +3233,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		int next = trader.GetNetworkSerialization(networkItemsTmp, start, stockOnly, itemIDsTmp);
 
-		EXPrintHitch(ToString() + "::LoadTraderItems - GetNetworkSerialization ", startTime);
+		delete hitch;
 
 		if (next < 0)
 		{
@@ -3239,7 +3252,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				networkItems.Insert(item);
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(start);
 		rpc.Write(next);
 		if (itemIDsTmp && itemIDsTmp.Count())
@@ -3261,6 +3274,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_LoadTraderData - Start");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
 		{
@@ -3299,7 +3315,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(start);
 		rpc.Write(stockOnly);
 		rpc.Write(itemIDs);
@@ -3314,6 +3330,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	private void RPC_RequestTraderItems(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		MarketModulePrint("RPC_RequestTraderItems - Start");
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
@@ -3355,6 +3374,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_LoadTraderItems - Start");
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
 		{
@@ -3392,7 +3414,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		EXPrint("RPC_LoadTraderItems - received batch total: " + next + " remaining: " + (count - next));
 
-		float startTime = GetGame().GetTickTime();
+		auto hitch = EXHitch(ToString() + "::RPC_LoadTraderItems - update market items ");
 	
 		array<ref ExpansionMarketNetworkBaseItem> networkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
 		if (!ctx.Read(networkBaseItems))
@@ -3460,7 +3482,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			m_TmpNetworkBaseItems.Insert(networkBaseItems[i]);
 		}
 		
-		EXPrintHitch(ToString() + "::RPC_LoadTraderItems - update market items ", startTime);
+		delete hitch;
 
 		if (count - next == 0)
 		{
@@ -3523,13 +3545,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 	//! Exit trader - client
 	void ExitTrader(ExpansionTraderObjectBase trader, PlayerIdentity ident)
 	{
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.ExitTrader, true, NULL);
 	}
 	
 	//! Exit trader - server
 	void RPC_ExitTrader(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		ExpansionTraderObjectBase trader = GetTraderFromObject(target);
 		if (!trader)
 		{
@@ -3819,7 +3844,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("RequestPlayerATMData - Start");
 						
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(NULL, ExpansionMarketModuleRPC.RequestPlayerATMData, true, NULL);
 				
 			MarketModulePrint("RequestPlayerATMData - End");
@@ -3833,6 +3858,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_RequestPlayerATMData - Start");
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		if (!senderRPC)
 		{
 			Error("ExpansionMarketModule::RPC_RequestPlayerATMData - Could not get sender indentity!");
@@ -3880,7 +3908,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 			
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(data);
 		rpc.Send(NULL, ExpansionMarketModuleRPC.SendPlayerATMData, true, ident);
 	}
@@ -3893,6 +3921,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("RPC_SendPlayerATMData - Start");
 
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
+			return;
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
 		ExpansionMarketATM_Data data;
@@ -3940,7 +3971,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("RequestDepositMoney - Start");
 						
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(amount);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.RequestDepositMoney, true, NULL);
 				
@@ -3958,6 +3989,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4048,7 +4082,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RequestDepositMoney - Start");
 					
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(amount);
 		rpc.Write(data);
 		rpc.Send(NULL, ExpansionMarketModuleRPC.ConfirmDepositMoney, true, ident);
@@ -4066,6 +4100,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4106,7 +4143,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("RequestWithdraw - Start");
 						
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(amount);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.RequestWithdrawMoney, true, NULL);
 				
@@ -4124,6 +4161,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4209,7 +4249,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RequestDepositMoney - Start");
 					
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(amount);
 		rpc.Write(data);
 		rpc.Send(NULL, ExpansionMarketModuleRPC.ConfirmWithdrawMoney, true, ident);
@@ -4227,6 +4267,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4268,7 +4311,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("RequestTransferMoneyToPlayer - Start");
 			
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(amount);
 			rpc.Write(playerID);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.RequestTransferMoneyToPlayer, true, NULL);
@@ -4288,6 +4331,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		if (!senderRPC)
 		{
 			Error("ExpansionMarketModule::RPC_RequestTransferMoneyToPlayer - Could not get sender identity!");
@@ -4422,7 +4468,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("ConfirmTransferMoneyToPlayer - Start");
 					
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(data);
 		rpc.Send(NULL, ExpansionMarketModuleRPC.ConfirmTransferMoneyToPlayer, true, ident);
 
@@ -4439,6 +4485,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 	
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		ExpansionMarketATM_Data data;
 		if (!ctx.Read(data))
 		{
@@ -4473,7 +4522,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("RequestPartyTransferMoney - Start");
 						
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(amount);
 			rpc.Write(partyID);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.RequestPartyTransferMoney, true, NULL);
@@ -4492,6 +4541,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4588,7 +4640,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("ConfirmPartyTransferMoney - Start");
 							
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(amount);
 		party.OnSend(rpc, false);
 		rpc.Write(data);
@@ -4607,6 +4659,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4661,7 +4716,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		{
 			MarketModulePrint("RequestPartyWithdrawMoney - Start");
 						
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(amount);
 			rpc.Write(partyID);
 			rpc.Send(NULL, ExpansionMarketModuleRPC.RequestPartyWithdrawMoney, true, NULL);
@@ -4680,6 +4735,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{
@@ -4779,7 +4837,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("ConfirmPartyWithdrawMoney - Start");
 							
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(amount);
 		party.OnSend(rpc, false);
 		rpc.Write(data);
@@ -4798,6 +4856,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int amount;
 		if (!ctx.Read(amount))
 		{

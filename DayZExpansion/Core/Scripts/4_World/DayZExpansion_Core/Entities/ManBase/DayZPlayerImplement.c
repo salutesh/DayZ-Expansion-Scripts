@@ -117,7 +117,7 @@ modded class DayZPlayerImplement
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-
+		
 		if (m_Expansion_NetsyncData)
 			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}

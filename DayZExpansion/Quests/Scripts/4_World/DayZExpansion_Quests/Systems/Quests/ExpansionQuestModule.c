@@ -741,7 +741,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestPlayerQuests, false);
 
 		QuestModulePrint(ToString() + "::RequestPlayerQuests - End");
@@ -823,7 +823,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		int questCount = validQuests.Count();
 		rpc.Write(questCount);
 
@@ -853,6 +853,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 
 		QuestModulePrint(ToString() + "::RPC_RequestPlayerQuests - Start");
 
@@ -878,7 +881,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		int questCount = validQuests.Count();
 		rpc.Write(questCount);
 
@@ -908,6 +911,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 
 		QuestModulePrint(ToString() + "::RPC_SendPlayerQuests - Start");
 
@@ -975,7 +981,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (questPlayerData)
 			{
 				QuestModulePrint(ToString() + "::SendPlayerQuestData - Send player quest data to client for UID: " + playerUID);
-				ScriptRPC rpc = new ScriptRPC();
+				auto rpc = ExpansionScriptRPC.Create();
 				questPlayerData.OnSend(rpc);
 				rpc.Send(NULL, ExpansionQuestModuleRPC.SendPlayerQuestData, true, identity);
 			}
@@ -993,6 +999,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		QuestModulePrint(ToString() + "::RPC_SendPlayerQuestData - Start");
 
@@ -1162,7 +1171,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questNPCData.GetDefaultNPCText());
 
 		int questCount = validQuests.Count();
@@ -1211,6 +1220,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		QuestModulePrint(ToString() + "::RPC_RequestOpenQuestMenu - Start");
 
 		if (!GetGame().IsClient())
@@ -1288,7 +1300,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.CreateQuestInstance, false);
 
@@ -1331,6 +1343,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		QuestModulePrint(ToString() + "::RPC_CreateQuestInstance - Start");
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
@@ -1529,7 +1544,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Write(playerUID);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.CompleteQuest, false);
@@ -1583,7 +1598,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
-
+		
 		QuestModulePrint(ToString() + "::CreateClientMarker - Start");
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
@@ -1592,7 +1607,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(pos);
 		rpc.Write(text);
 		rpc.Write(questID);
@@ -1611,6 +1626,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 
 		QuestModulePrint(ToString() + "::RPC_CreateClientMarker - Start");
 
@@ -1699,7 +1717,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Send(null, ExpansionQuestModuleRPC.RemoveClientMarkers, true, identity);
 
@@ -1715,6 +1733,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 
 		QuestModulePrint(ToString() + "::RPC_RemoveClientMarkers - Start");
 
@@ -1791,7 +1812,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.CancelQuest, false);
 
@@ -1807,6 +1828,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 
 		QuestModulePrint(ToString() + "::RPC_CancelQuest - Start");
 
@@ -1896,7 +1920,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 						RemoveClientMarkers(questID, groupPlayer.GetIdentity());
 					#endif
 
-						ScriptRPC rpc = new ScriptRPC();
+						auto rpc = ExpansionScriptRPC.Create();
 						rpc.Write(ExpansionQuestModuleCallback.CANCELED_QUEST);
 						rpc.Send(NULL, ExpansionQuestModuleRPC.CallbackClient, false, groupPlayer.GetIdentity());
 					}
@@ -1930,6 +1954,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// -----------------------------------------------------------
 	protected void RPC_CallbackClient(ParamsReadContext ctx, PlayerIdentity identity, Object target)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
+		
 		QuestModulePrint(ToString() + "::RPC_CallbackClient - Start");
 
 		if (!GetGame().IsClient())
@@ -2722,6 +2749,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			if ((questData.IsBanditQuest() || questData.IsHeroQuest()) && !isHardlineModLoaded)
 				return;
+			
+			//! Make sure quest has repeatable parameter if it is a weekly/daily quest.
+			if ((questData.IsWeeklyQuest() || questData.IsDailyQuest()) && !questData.IsRepeatable())
+			{
+				questData.SetIsRepeatable(true);
+				questData.Save(fileName);
+			}
 
 			m_QuestConfigs.Insert(questData.GetID(), questData);
 		}
@@ -3041,7 +3075,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (playerUID == string.Empty)
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Write(playerUID);
 		rpc.Write(selectReward);
@@ -3062,6 +3096,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		QuestModulePrint(ToString() + "::RPC_RequestCompleteQuest - Start");
 

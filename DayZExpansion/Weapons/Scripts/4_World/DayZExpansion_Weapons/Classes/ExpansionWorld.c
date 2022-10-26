@@ -27,8 +27,6 @@ modded class ExpansionWorld
 				if ( !bullet.OnUpdate( timeslice ) )
 				{
 					m_bullets.Remove( i );
-	
-					delete bullet;
 				}
 			}
 		}

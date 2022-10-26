@@ -41,6 +41,18 @@ modded class CarDoor
 			Expansion_PhysicsDrop();
 	}
 
+	override bool NameOverride(out string output)
+	{
+		CarScript vehicle;
+		if (Class.CastTo(vehicle, GetHierarchyParent()) && vehicle.IsLocked())
+		{
+			output = string.Format("%1 (%2)", ConfigGetString("displayName"), "#locked");
+			return true;
+		}
+
+		return false;
+	}
+
 	override bool Expansion_CarContactActivates()
 	{
 		return true;

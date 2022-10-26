@@ -270,11 +270,14 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 				//! Never cleanup daylie/weekly quest data for quests that have a cooldown.
 				if (questConfig.IsWeeklyQuest() || questConfig.IsDailyQuest())
 				{
+					if (data.State == ExpansionQuestState.COMPLETED)
+						data.State = ExpansionQuestState.NONE;
+					
 					int timestamp;
 					if (HasCooldownOnQuest(data.QuestID, timestamp))
 						continue;
 				}
-
+				
 				//! Never cleanup quest data for quests that have a pre/followup quest.
 				if (questConfig.GetFollowUpQuestID() > -1 || questConfig.GetPreQuestID() > -1)
 					continue;

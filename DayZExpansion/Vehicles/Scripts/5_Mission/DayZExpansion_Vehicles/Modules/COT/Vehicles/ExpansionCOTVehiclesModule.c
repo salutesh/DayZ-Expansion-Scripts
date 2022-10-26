@@ -185,11 +185,6 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		m_Vehicles = new array<ref ExpansionVehicleMetaData>;
 	}
 	
-	void ~ExpansionCOTVehiclesModule()
-	{
-		delete m_Vehicles;
-	}
-	
 	// ------------------------------------------------------------
 	// ExpansionCOTVehiclesModule HasAccess
 	// ------------------------------------------------------------	
@@ -331,7 +326,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
  			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.RequestServerVehicles, true );
 		}
 	}
@@ -342,6 +337,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void RPC_RequestServerVehicles( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionHost() )
 			return;
 
@@ -350,7 +348,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 		
 		UpdateVehiclesMetaData();
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( m_Vehicles );
 		rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.SendServerVehicles, true, senderRPC );
 	}
@@ -361,6 +359,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_SendServerVehicles( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionClient() )
 			return;
 		
@@ -374,7 +375,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			
 			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.DeleteVehicleUnclaimed, true );
 		}
@@ -387,7 +388,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			
 			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.DeleteVehicleDestroyed, true );
 		}
@@ -400,7 +401,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			
 			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.DeleteVehicleAll, true );
 		}
@@ -413,7 +414,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
 			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.DeleteVehicle, true );
@@ -426,6 +427,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_DeleteVehicle( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionHost() )
 			return;
 
@@ -454,6 +458,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_DeleteVehicleUnclaimed( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionHost() )
 			return;
 
@@ -493,6 +500,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_DeleteVehicleDestroyed( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionHost() )
 			return;
 
@@ -532,6 +542,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_DeleteVehicleAll( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionHost() )
 			return;
 
@@ -567,7 +580,7 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	{
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
  			rpc.Send( NULL, ExpansionCOTVehiclesModuleRPC.TeleportToVehicle, true );
@@ -580,6 +593,9 @@ class ExpansionCOTVehiclesModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_TeleportToVehicle( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionHost() )
 			return;
 

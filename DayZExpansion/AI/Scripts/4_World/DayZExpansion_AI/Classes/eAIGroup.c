@@ -224,6 +224,12 @@ class eAIGroup
 		auto trace = CF_Trace_0(this, "SetFaction");
 #endif
 
+		if (!f)
+		{
+			Error("Cannot set NULL faction");
+			return;
+		}
+
 		m_Faction = f;
 	}
 

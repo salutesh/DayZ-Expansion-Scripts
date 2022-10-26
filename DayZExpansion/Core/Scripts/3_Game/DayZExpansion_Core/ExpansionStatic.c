@@ -63,12 +63,33 @@ static void EXLogPrint( int s )
 	EXLogPrint( s.ToString() );
 }
 
-//! Prints a hitch warning if elapsed time since startTime is above threshold
+//! Prints a hitch warning if elapsed time since startTime is above threshold (DEPRECATED, use EXHitch)
 static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0.0125 )
 {
 	float elapsedTime = GetGame().GetTickTime() - startTime;
 	if (elapsedTime > threshold)
 		EXPrint(msgPrefix + "HITCH: " + (elapsedTime * 1000) + "ms");
+}
+
+class EXHitch
+{
+	protected int m_Ticks;
+	protected int m_Threshold;
+	protected string m_MsgPrefix;
+
+	void EXHitch(string msgPrefix, int threshold = 125000)
+	{
+		m_Ticks = TickCount(0);
+		m_Threshold = threshold;
+		m_MsgPrefix = msgPrefix;
+	}
+
+	void ~EXHitch()
+	{
+		int elapsed = TickCount(m_Ticks);
+		if (elapsed > m_Threshold)
+			PrintFormat("%1 %2HITCH: %3ms %4ms", ExpansionStatic.GetTimestamp(), m_MsgPrefix, (elapsed / 10000.0).ToString());
+	}
 }
 
 class ExpansionStatic

@@ -48,14 +48,6 @@ class ExpansionMissionSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMissionModule Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionMissionSettings()
-	{		
-		delete Missions;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionMissionModule OnRecieve
 	// ------------------------------------------------------------
 	//TODO: COT module sending optimization

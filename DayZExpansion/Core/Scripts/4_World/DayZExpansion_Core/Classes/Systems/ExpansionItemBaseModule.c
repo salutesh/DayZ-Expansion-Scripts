@@ -58,25 +58,25 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 #endif
 	}
 
-	void PlayDestroySound(vector position, string sound)
+	void PlaySound(vector position, string sound)
 	{
 		if (sound == string.Empty)
 			return;
 
 		if (!GetGame().IsMultiplayer())
 		{
-			PlayDestroySoundImpl(position, sound);
+			PlaySoundImpl(position, sound);
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(position);
 		rpc.Write(sound);
 
-		PlayerBase.Expansion_SendNear(rpc, ExpansionItemBaseModuleRPC.PlayDestroySound, position, 100);
+		PlayerBase.Expansion_SendNear(rpc, ExpansionItemBaseModuleRPC.PlaySound, position, 100);
 	}
 
-	void PlayDestroySoundImpl(vector position, string sound)
+	void PlaySoundImpl(vector position, string sound)
 	{
 		SEffectManager.PlaySound(sound, position);
 	}
@@ -99,7 +99,10 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 
 		switch (rpc.ID)
 		{
-		case ExpansionItemBaseModuleRPC.PlayDestroySound:
+		case ExpansionItemBaseModuleRPC.PlaySound:
+			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
+				return;
+
 			if (GetGame().IsServer())
 				return;
 
@@ -109,7 +112,7 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 			rpc.Context.Read(position);
 			rpc.Context.Read(sound);
 
-			PlayDestroySoundImpl(position, sound);
+			PlaySoundImpl(position, sound);
 			break;
 		}
 	}

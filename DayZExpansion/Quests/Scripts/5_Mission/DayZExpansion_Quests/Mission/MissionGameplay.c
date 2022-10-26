@@ -70,12 +70,19 @@ modded class MissionGameplay
 			UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 			PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
 			ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-
+		#ifdef JM_COT
+			bool isCOTWindowOpen = GetCommunityOnlineTools().IsOpen();
+		#endif
+							
 			if (playerPB && playerPB.GetHumanInventory())
 			{
 				if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 				{
+				#ifdef JM_COT
+					if (viewMenu || topMenu || m_HideHUD || isCOTWindowOpen)
+				#else	
 					if (viewMenu || topMenu || m_HideHUD)
+				#endif
 					{
 						m_ExpansionQuestHUD.ShowHud(false);
 					}

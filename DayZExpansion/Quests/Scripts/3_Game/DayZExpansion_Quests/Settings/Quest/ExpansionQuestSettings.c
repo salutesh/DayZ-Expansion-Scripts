@@ -114,7 +114,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 			return 0;
 		}
 
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Quest, true, identity );
 

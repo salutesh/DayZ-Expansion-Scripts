@@ -34,13 +34,8 @@ class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 		{
 			if (MaxSpreadRadius > 0)
 				waypoint = ExpansionMath.GetRandomPointInRing(waypoint, MinSpreadRadius, MaxSpreadRadius);
-			surfacePosition = ExpansionStatic.GetSurfacePosition(waypoint);
-			if (surfacePosition[1] > waypoint[1])
-			{
-				waypoint[1] = surfacePosition[1];
-			}
 
-			waypoints.Insert(waypoint);
+			waypoints.Insert(GetPlacementPosition(waypoint));
 		}
 
 		if (WaypointInterpolation)

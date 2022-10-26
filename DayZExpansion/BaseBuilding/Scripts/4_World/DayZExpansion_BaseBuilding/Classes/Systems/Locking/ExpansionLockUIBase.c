@@ -148,7 +148,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 	
 	protected void SendRPC()
 	{		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 
 		int rpcType = ExpansionLockRPC.UNLOCK;
 		if ( !m_HasPin )

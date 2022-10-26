@@ -53,6 +53,31 @@ class ExpansionAISpawnBase
 		return typename.StringToEnum(eAIWaypointBehavior, Behaviour);
 	}
 
+	static vector GetPlacementPosition(vector pos)
+	{
+		vector hitPosition;
+		PhxInteractionLayers layerMask;
+		layerMask |= PhxInteractionLayers.BUILDING;
+		layerMask |= PhxInteractionLayers.VEHICLE;
+		layerMask |= PhxInteractionLayers.ROADWAY;
+		layerMask |= PhxInteractionLayers.TERRAIN;
+		layerMask |= PhxInteractionLayers.ITEM_LARGE;
+		layerMask |= PhxInteractionLayers.FENCE;
+		if (DayZPhysics.RayCastBullet(pos + "0 1.8 0", pos - "0 10 0", layerMask, null, null, hitPosition, null, null))
+		{
+			pos = hitPosition;
+		}
+		else
+		{
+			//! Make sure position is not under terrain
+			float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+			if (pos[1] < surfaceY)
+				pos[1] = surfaceY;
+		}
+
+		return pos;
+	}
+
 	TVectorArray GetWaypoints(vector position = vector.Zero, int beh = eAIWaypointBehavior.HALT)
 	{
 	}

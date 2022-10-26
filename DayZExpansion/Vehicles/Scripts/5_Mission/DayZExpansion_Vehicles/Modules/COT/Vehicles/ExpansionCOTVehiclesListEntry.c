@@ -42,14 +42,6 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionCOTVehiclesListEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTVehiclesListEntry()
-	{
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

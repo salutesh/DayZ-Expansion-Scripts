@@ -57,14 +57,6 @@ class ExpansionMarketFilters
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarketFilters Destructor
-	// ------------------------------------------------------------	
-	void ~ExpansionMarketFilters()
-	{
-		delete m_MarketOutputs;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionMarketFilters GetPrimaryWeaponMagazines
 	// ------------------------------------------------------------
 	TStringArray GetPrimaryWeaponMagazines()

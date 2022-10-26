@@ -106,6 +106,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 
 		TStringArray skip = new TStringArray;
 		skip.Insert("UAUIBack");
+		skip.Insert("UALeanLeft");
+		skip.Insert("UALeanRight");
 
 		if (!lockMovement)
 		{
@@ -192,7 +194,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		if (m_UpdateTimer)
 		{
 			m_UpdateTimer.Stop();
-			delete m_UpdateTimer;
+			m_UpdateTimer = null;
 		}
 	}
 	

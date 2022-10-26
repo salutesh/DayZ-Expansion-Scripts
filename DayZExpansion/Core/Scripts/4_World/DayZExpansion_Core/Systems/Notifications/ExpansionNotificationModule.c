@@ -262,7 +262,7 @@ class ExpansionNotificationModule: CF_ModuleWorld
 		super.OnMissionLoaded(sender, args);
 
 		if (m_NotificationHUD)
-			delete m_NotificationHUD;
+			m_NotificationHUD = null;
 		
 		m_NotificationHUD = new ExpansionNotificationHUD;
 	}

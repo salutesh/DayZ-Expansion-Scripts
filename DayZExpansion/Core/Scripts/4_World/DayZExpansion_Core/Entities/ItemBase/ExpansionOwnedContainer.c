@@ -171,13 +171,13 @@ class ExpansionOwnedContainer: Container_Base
 
 	void ExpansionRequestContainerUID()
 	{
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, NULL);
 	}
 
 	void ExpansionSendContainerUID(PlayerIdentity target = null)
 	{
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(m_ExpansionContainerUID);
 		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, target);
 	}
@@ -185,9 +185,12 @@ class ExpansionOwnedContainer: Container_Base
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-
+		
 		if (rpc_type == ExpansionRPC.SyncOwnedContainerUID)
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;
+			
 			if (IsMissionHost())
 			{
 				ExpansionSendContainerUID(sender);

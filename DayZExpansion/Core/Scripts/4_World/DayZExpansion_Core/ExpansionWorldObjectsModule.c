@@ -119,7 +119,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		EXTrace.Add(trace, cArgs.Identity.GetId());
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		WriteRemovedObjects(rpc);
 		rpc.Send(NULL, ExpansionWorldObjectsModuleRPC.RemoveObjects, true, cArgs.Identity);
 #endif
@@ -150,6 +150,11 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		switch (rpc.ID)
 		{
 			case ExpansionWorldObjectsModuleRPC.RemoveObjects:
+				//! @note IMPORTANT don't move magic number check inside RPC_RemoveObjects since it can be called in response to receiving 
+				//! ExpansionWorldObjectsModuleRPC.RemoveObjects (see OnInvokeConnect above) OR ExpansionSettingsRPC.General (if Expansion-Main is loaded)
+				//! which checks magic number on its own!
+				if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
+					return;
 				RPC_RemoveObjects(rpc.Context);
 				break;
 		}
@@ -158,7 +163,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	static void RPC_RemoveObjects(ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
-
+		
 		//! Client only!
 		if (GetGame().IsDedicatedServer())
 			return;

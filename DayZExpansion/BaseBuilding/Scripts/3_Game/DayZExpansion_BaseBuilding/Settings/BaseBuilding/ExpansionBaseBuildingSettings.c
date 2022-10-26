@@ -174,7 +174,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 			return 0;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.BaseBuilding, true, identity );
 		

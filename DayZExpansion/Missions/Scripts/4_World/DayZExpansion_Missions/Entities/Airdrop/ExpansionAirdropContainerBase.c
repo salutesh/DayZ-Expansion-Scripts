@@ -469,12 +469,19 @@ class ExpansionAirdropContainerBase extends Container_Base
 	}
 
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
-	{
+	{		
 		vector spawnPos;
-		if ( rpc_type == EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE && ctx.Read( spawnPos ) )
+		if ( rpc_type == EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE)
 		{
+			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+				return;
+			
+			if (!ctx.Read( spawnPos ))
+				return;
+			
 			SpawnParticle( spawnPos );
-		} else
+		} 
+		else
 		{
 			super.OnRPC( sender, rpc_type, ctx );
 		}

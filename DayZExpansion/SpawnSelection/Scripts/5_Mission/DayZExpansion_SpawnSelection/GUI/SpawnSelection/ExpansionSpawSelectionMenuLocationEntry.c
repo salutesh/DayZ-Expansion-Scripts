@@ -12,22 +12,23 @@
 
 class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 {
-	private int m_Index;
-	private ref ExpansionSpawnLocation m_Location;
-	private ref ExpansionSpawSelectionMenuLocationEntryController m_SpawnSelectionEntryController;
-	private ExpansionRespawnHandlerModule m_RespawnModule;
-	private bool m_HasCooldown = false;
-	private bool m_IsLocked = false;
-	private bool m_IsTerritory = false;
-	private bool m_IsHighlighted = false;
+	protected int m_Index;
+	protected ref ExpansionSpawnLocation m_Location;
+	protected ref ExpansionSpawSelectionMenuLocationEntryController m_SpawnSelectionEntryController;
+	protected ExpansionRespawnHandlerModule m_RespawnModule;
+	protected bool m_HasCooldown = false;
+	protected bool m_IsLocked = false;
+	protected bool m_IsTerritory = false;
+	protected bool m_IsHighlighted = false;
+	protected bool m_IsSelected = false;
 	
-	private ButtonWidget spawn_entry;
-	private Widget background;
-	private TextWidget name;
-	private ImageWidget icon;
-	private ImageWidget icon_locked;
-	private ImageWidget cooldown_icon;
-	private TextWidget cooldown;
+	protected ButtonWidget spawn_entry;
+	protected Widget background;
+	protected TextWidget name;
+	protected ImageWidget icon;
+	protected ImageWidget icon_locked;
+	protected ImageWidget cooldown_icon;
+	protected TextWidget cooldown;
 	
 	void ExpansionSpawSelectionMenuLocationEntry(int index, ExpansionSpawnLocation location, bool isTerritory)
 	{
@@ -139,6 +140,9 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	
 	void OnEntryButtonClick()
 	{
+		if (m_IsSelected)
+			return;
+		
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		if (!spawnSelectionMenu)
 			return;
@@ -163,7 +167,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		switch (w)
 		{
 			case spawn_entry:
-			{
+			{				
 				ExpansionSpawnSelectionMenu menu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 				if (menu && !m_HasCooldown)
 				{
@@ -252,6 +256,21 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 	{
 		if (GetExpansionSettings().GetSpawn().EnableRespawnCooldowns)
 			UpdateCooldown();
+	}
+	
+	void Lock()
+	{
+		m_IsSelected = true;
+	}
+	
+	void Unlock()
+	{
+		m_IsSelected = false;
+	}
+	
+	int GetIndex()
+	{
+		return m_Index;
 	}
 };
 

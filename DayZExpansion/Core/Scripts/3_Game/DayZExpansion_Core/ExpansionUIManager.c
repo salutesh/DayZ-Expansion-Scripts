@@ -24,7 +24,7 @@ class ExpansionUIManager
 	void SetMenu(ExpansionScriptViewMenuBase view)
 	{
 		if (m_CurrentMenu)
-			delete m_CurrentMenu;
+			m_CurrentMenu = null;
 		
 		m_CurrentMenu = view;
 	}
@@ -49,20 +49,14 @@ class ExpansionUIManager
 	
 	void CloseAll()
 	{
-		foreach (ExpansionScriptViewMenuBase menu: m_ActiveMenus)
-		{
-			if (menu.IsVisible())
-				menu.Hide();
-			
-			delete menu;
-		}
+		m_ActiveMenus.Clear();
 	}
 	
 	ExpansionScriptViewMenuBase CreateSVMenu(string viewName)
 	{
 		ExpansionScriptViewMenuBase viewMenu;
 		if (m_ActiveMenus.Find(viewName, viewMenu))
-			delete viewMenu;
+			m_ActiveMenus.Remove(viewName);
 
 		viewMenu = CreateMenuInstance(viewName);
 
@@ -83,8 +77,6 @@ class ExpansionUIManager
 		if (m_ActiveMenus.Find(menu.ClassName(), viewMenu))
 		{
 			m_ActiveMenus.Remove(menu.ClassName());
-			if (doDelete)
-				delete viewMenu;
 		}
 	}
 	

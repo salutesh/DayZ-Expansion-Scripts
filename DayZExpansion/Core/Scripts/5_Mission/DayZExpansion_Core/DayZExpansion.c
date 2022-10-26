@@ -128,5 +128,5 @@ static void DestroyDayZExpansion()
 	auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "DestroyDayZExpansion");
 #endif
 
-	delete g_exDayZ;
+	g_exDayZ = null;
 }

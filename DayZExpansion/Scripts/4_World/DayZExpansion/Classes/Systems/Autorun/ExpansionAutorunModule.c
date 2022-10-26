@@ -48,6 +48,9 @@ class ExpansionAutorunModule: CF_ModuleWorld
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunSync");
 #endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		if ( !IsMissionHost() )
 			return;
@@ -90,6 +93,9 @@ class ExpansionAutorunModule: CF_ModuleWorld
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunDisable");
 #endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		if ( !IsMissionHost() )
 			return;
@@ -173,7 +179,7 @@ class ExpansionAutorunModule: CF_ModuleWorld
 				
 				if (m_OldAutoWalkMode != m_AutoWalkMode)
 				{
-					ScriptRPC rpc = new ScriptRPC;
+					auto rpc = ExpansionScriptRPC.Create();
 					rpc.Write( m_AutoWalkMode );
 					rpc.Send( player, ExpansionAutoRunRPC.AUTORUNSYNC, true );	
 					
@@ -184,7 +190,7 @@ class ExpansionAutorunModule: CF_ModuleWorld
 			{
 				if (m_OldAutoWalkMode != m_AutoWalkMode)
 				{
-					ScriptRPC rpc2 = new ScriptRPC;
+					auto rpc2 = ExpansionScriptRPC.Create();
 					rpc2.Send( player, ExpansionAutoRunRPC.AUTORUNDISABLE, true );
 					
 					m_OldAutoWalkMode = m_AutoWalkMode;

@@ -53,7 +53,7 @@ class ExpansionNetsyncData
 	void Request()
 	{
 		EXTrace.Print(EXTrace.ENABLE, m_Object, "Requesting netsync data");
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(m_Object, ExpansionEntityRPC.NetsyncData, true, null);
 	}
 
@@ -65,7 +65,7 @@ class ExpansionNetsyncData
 
 		EXTrace.Print(EXTrace.ENABLE, m_Object, "Sending " + m_Data.Count() + " netsync data entries to " + recipient.GetId());
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(m_Data.Count());
 		foreach (string value: m_Data)
 		{
@@ -96,6 +96,8 @@ class ExpansionNetsyncData
 		switch (rpc_type)
 		{
 			case ExpansionEntityRPC.NetsyncData:
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
 				if (GetGame().IsClient())
 					Receive(ctx);
 				else if (sender)

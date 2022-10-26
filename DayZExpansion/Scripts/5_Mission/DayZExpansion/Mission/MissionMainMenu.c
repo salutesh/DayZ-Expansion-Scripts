@@ -64,7 +64,7 @@ modded class MissionMainMenu
 	void DestroyExpansionIntroScene()
 	{
 		if (m_IntroSceneExpansion)
-			delete m_IntroSceneExpansion;
+			m_IntroSceneExpansion = null;
 	}
 
 	DayZIntroSceneExpansion GetIntroSceneExpansion()

@@ -548,8 +548,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		if (m_Tooltip)
 		{
 			ShowInfoButton(false);
-			m_Tooltip.Hide();
-			delete m_Tooltip;
+			m_Tooltip = null;
 		}
 	}
 	
@@ -560,8 +559,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 	{
 		if (m_ItemTooltip)
 		{
-			m_ItemTooltip.Hide();
-			delete m_ItemTooltip;
+			m_ItemTooltip = null;
 		}
 	}
 	
@@ -618,7 +616,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		{
 		case market_item_button:
 			market_item_button.SetColor(ARGB(220, 0, 0, 0));
-			if (m_ItemTooltip) delete m_ItemTooltip;
+			if (m_ItemTooltip) m_ItemTooltip = null;
 			break;
 		case market_item_info_button:
 			if (m_Tooltip) m_Tooltip.Hide();

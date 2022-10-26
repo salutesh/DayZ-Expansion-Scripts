@@ -329,8 +329,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			
 			if ( obj.m_ID == object.m_ID )
 			{
-				delete obj;
-				m_TerritoryObjects.Insert( object );
+				m_TerritoryObjects[i] = object;
+				break;
 			}
 		}
 		

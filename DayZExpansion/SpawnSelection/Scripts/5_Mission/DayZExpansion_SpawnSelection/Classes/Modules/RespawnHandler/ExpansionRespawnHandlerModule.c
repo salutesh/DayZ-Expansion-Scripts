@@ -101,11 +101,6 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 				RPC_CloseSpawnMenu(rpc.Sender, rpc.Context);
 				break;
 			}
-			case ExpansionRespawnHandlerModuleRPC.RequestPlacePlayerAtTempSafePosition:
-			{
-				RPC_RequestPlacePlayerAtTempSafePosition(rpc.Sender, rpc.Context);
-				break;
-			}
 			case ExpansionRespawnHandlerModuleRPC.CheckPlayerCooldowns:
 			{
 				RPC_CheckPlayerCooldowns(rpc.Sender, rpc.Context);
@@ -158,7 +153,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 			Save();
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(GetExpansionSettings().GetSpawn().SpawnLocations);
 		rpc.Write(territoryspawnlist);
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.ShowSpawnMenu, true, identity);
@@ -199,6 +194,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!IsMissionClient())
 			return;
 
@@ -338,45 +336,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		//! FIXME (or not): Moving the player causes desync. Just skip it for now.
 		return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.RequestPlacePlayerAtTempSafePosition, true);
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionRespawnHandlerModule RequestPlacePlayerAtTempSafePosition
-	// Called on Server
-	// ------------------------------------------------------------	
-	void RPC_RequestPlacePlayerAtTempSafePosition(PlayerIdentity sender, ParamsReadContext ctx)
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
-
-		//! FIXME (or not): Moving the player causes desync. Just skip it for now.
-		return;
-
-		if (!IsMissionHost())
-			return;
-		
-		if (!sender)
-			return;
-
-		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
-		if (!player)
-		{
-			Error(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - could not get player with ID '" + sender.GetId() + "'!");
-			return;
-		}
-
-		//! Make it less likely to freeze or starve to death while in the cold deep (stats are returned to saved values once spawn select ends)
-		player.SetHealth(100);
-		player.GetStatEnergy().Set(player.GetStatEnergy().GetMax());
-		player.GetStatWater().Set(player.GetStatWater().GetMax());
-		player.GetStatHeatComfort().Set(1);
-
-		//! Move player out of harm's way
-		vector pos = player.GetPosition();
-		pos[1] = -500;
-		EXPrint(ToString() + "::RPC_RequestPlacePlayerAtTempSafePosition - player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ") spawned at " + player.GetPosition() + ", moving to " + pos);
-		player.SetPosition(pos);
 	}
 	
 	// ------------------------------------------------------------
@@ -394,7 +355,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Exec_ShowSpawnMenu);
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(index);
 		rpc.Write(spawnPointIndex);
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.SelectSpawn, true);
@@ -453,6 +414,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!IsMissionHost())
 			return;
 		
@@ -579,7 +543,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		player.StatRegister(AnalyticsManagerServer.STAT_PLAYTIME);
 		//player.StatSyncToClient();
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(null, ExpansionRespawnHandlerModuleRPC.CloseSpawnMenu, true, identity);
 	}
 	
@@ -604,6 +568,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		if ( !IsMissionClient() )
 			return;
@@ -1098,7 +1065,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (!player)
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 
 		rpc.Write(playerCooldowns.Count());
 		foreach (int index, ExpansionRespawnDelayTimer timer: playerCooldowns)
@@ -1120,6 +1087,9 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
+		
 		if (!IsMissionClient())
 			return;
 

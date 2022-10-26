@@ -754,13 +754,16 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		UpdatePlayerDogTag(identity.GetId());
 	#endif
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		hardlinePlayerData.OnSend(rpc);
 		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendPlayerHardlineData, false, identity);
 	}
 
 	protected void RPC_SendPlayerHardlineData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!GetGame().IsClient())
 			return;
 

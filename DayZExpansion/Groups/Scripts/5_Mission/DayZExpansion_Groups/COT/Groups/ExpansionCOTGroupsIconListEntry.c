@@ -42,14 +42,6 @@ class ExpansionCOTGroupsIconListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTGroupsIconListEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTGroupsIconListEntry()
-	{
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionCOTGroupsIconListEntry SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()
