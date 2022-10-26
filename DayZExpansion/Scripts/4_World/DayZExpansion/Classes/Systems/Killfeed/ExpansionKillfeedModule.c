@@ -729,7 +729,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		{
 			ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData(type, icon, param1, param2, param3, param4);
 
-			ScriptRPC message_rpc = new ScriptRPC();
+			auto message_rpc = ExpansionScriptRPC.Create();
 			message_rpc.Write( kill_data );
 			message_rpc.Send( null, ExpansionKillFeedModuleRPC.SendMessage, true );
 
@@ -987,6 +987,9 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	//! @note Called on all Clients
 	private void RPC_SendMessage(PlayerIdentity sender, ParamsReadContext ctx )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		ExpansionKillFeedMessageMetaData kill_data = new ExpansionKillFeedMessageMetaData( ExpansionKillFeedMessageType.UNKNOWN, "" );
 		ctx.Read(kill_data);
 

@@ -34,11 +34,6 @@ class ExpansionSpawnLocation
 		IsTerritory = isTerritory;
 	}
 
-	void ~ExpansionSpawnLocation()
-	{
-		delete Positions;
-	}
-
 	static ExpansionSpawnLocation Copy(  ExpansionSpawnLocation src )
 	{
 		ExpansionSpawnLocation dst = new ExpansionSpawnLocation( src.Name, new array< vector >() );

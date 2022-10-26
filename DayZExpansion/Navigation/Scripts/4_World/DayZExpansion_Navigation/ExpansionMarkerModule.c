@@ -913,7 +913,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		if (!IsMissionHost())
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(pos);
 		rpc.Send(null, ExpansionMarkerRPC.CreateDeathMarker, true, identity);
 	}
@@ -927,6 +927,9 @@ class ExpansionMarkerModule: CF_ModuleWorld
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.MARKER, this, "RPC_CreateDeathMarker").Add(sender).Add(ctx);
 #endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		if (!IsMissionClient())
 			return;

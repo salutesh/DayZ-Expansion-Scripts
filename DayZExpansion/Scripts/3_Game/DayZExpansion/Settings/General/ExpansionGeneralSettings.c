@@ -47,12 +47,6 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		HUDColors = new ExpansionHudIndicatorColors;
 		Mapping = new ExpansionMapping;
 	}
-
-	// ------------------------------------------------------------
-	void ~ExpansionGeneralSettings()
-	{
-		delete Mapping;
-	}
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -160,7 +154,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.General, true, identity );
 		

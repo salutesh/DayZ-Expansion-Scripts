@@ -241,13 +241,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 				invites.Insert(invite);
 		}
 
-		ScriptRPC rpcServer = new ScriptRPC();
+		auto rpcServer = ExpansionScriptRPC.Create();
 		rpcServer.Write(invites);
 		rpcServer.Send(NULL, ExpansionPartyModuleRPC.SyncPlayerInvites, true, sender.GetIdentity());
 	}
 
 	private void RPC_SyncPlayerInvitesClient(ParamsReadContext ctx, PlayerIdentity senderRPC)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (Expansion_Assert_False(ctx.Read(m_PartyInvites), "[" + this + "] Failed reading invites"))
 			return;
 
@@ -259,13 +262,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateParty shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyName);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.CreateParty, true, NULL);
 	}
 
 	private void RPC_CreatePartyServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		string partyName;
 		if (!ctx.Read(partyName))
 			return;
@@ -302,12 +308,15 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DissolveParty shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(NULL, ExpansionPartyModuleRPC.DissolveParty, true);
 	}
 	
 	private void RPC_DissolvePartyServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!sender)
 			return;
 
@@ -413,13 +422,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] InvitePlayer shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(sendID);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.InvitePlayer, true, NULL);
 	}
 
 	private void RPC_InvitePlayerServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		string targetID;
 		if ( !ctx.Read( targetID ) )
 			return;
@@ -500,13 +512,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DeclineInvite shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyID);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.DeclineInvite, true, NULL);
 	}
 
 	private void RPC_DeclineInviteServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		int partyID;
 		if (!ctx.Read(partyID))
 			return;
@@ -545,13 +560,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] AcceptInvite shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyID);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.AcceptInvite, true, NULL);
 	}
 
 	private void RPC_AcceptInviteServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!IsMissionHost())
 			return;
 
@@ -615,7 +633,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] RemovePartyMember shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(uid);
 		rpc.Write(requestedByMember);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.RemovePartyMember, true, NULL);
@@ -623,6 +641,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	private void RPC_RemovePartyMemberServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -758,7 +779,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 
 		string playerID = identity.GetId();
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		if (party && party.IsMember(playerID))
 		{
 			rpc.Write(true);
@@ -782,6 +803,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	private void RPC_UpdatePlayerClient(ParamsReadContext ctx, PlayerIdentity senderRPC)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		bool hasParty = false;
 		if (!ctx.Read(hasParty))
 		{
@@ -825,13 +849,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateMarker shall only be called on client!"))
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		marker.OnSend(rpc);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.CreateMarker, true, NULL);
 	}
 
 	private void RPC_CreateMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		ExpansionMarkerData marker = ExpansionMarkerData.Create(ExpansionMapMarkerType.PARTY);
 		if (!marker.OnRecieve(ctx))
 			return;
@@ -870,7 +897,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdateMarker shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(marker.GetUID());
 		marker.OnSend(rpc);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdateMarker, true, NULL);
@@ -878,6 +905,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	private void RPC_UpdateMarkerServer(ParamsReadContext ctx, PlayerIdentity senderRPC)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -920,13 +950,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DeleteMarker shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(uid);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.DeleteMarker, true, NULL);
 	}
 
 	private void RPC_DeleteMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -970,7 +1003,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdatePositionMarker shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(uid);
 		rpc.Write(position);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdatePositionMarker, true, NULL);
@@ -978,6 +1011,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	private void RPC_UpdatePositionMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		string uid;
 		if (!ctx.Read(uid))
 			return;
@@ -1028,13 +1064,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdateQuickMarker shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(pos);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdateQuickMarker, true);
 	}
 
 	private void RPC_UpdateQuickMarkerServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		vector position;
 		if (!ctx.Read(position))
 			return;
@@ -1071,7 +1110,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdatePermissions shall only be called on client!"))
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(memberID);
 		rpc.Write(perm);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.UpdatePermissions, true);
@@ -1079,6 +1118,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	private void RPC_UpdatePermissionsServer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		Print("ExpansionPartyModule::RPC_UpdatePermissionsServer - Start");
 		if (!sender)
 		{
@@ -1178,7 +1220,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 		//EXPrint(ToString() + "::OnClientDisconnect " + cArgs.UID);
 
-		if (!IsMissionHost())
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
 		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.UID);
@@ -1199,10 +1241,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (!IsMissionHost())
-			return;
-
-		if (!cArgs.Player || !cArgs.Identity)
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
 		#ifdef EXPANSIONEXPRINT

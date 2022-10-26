@@ -214,11 +214,11 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// PlayerBase CanReleaseAttachment
 	// ------------------------------------------------------------
-	override bool CanReleaseAttachment(EntityAI attachment)
-	{
-		if (attachment.IsKindOf("ExpansionHardlineArmband"))
-			return false;
+	//override bool CanReleaseAttachment(EntityAI attachment)
+	//{
+		//if (attachment.IsKindOf("ExpansionHardlineArmband"))
+			//return false;
 
-		return super.CanReleaseAttachment(attachment);
-	}
+		//return super.CanReleaseAttachment(attachment);
+	//}
 };

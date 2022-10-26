@@ -65,7 +65,7 @@ modded class ExpansionWorldObjectsModule
 
 		if ( !IsMissionOffline() && IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true );
 		}
 	}
@@ -98,6 +98,9 @@ modded class ExpansionWorldObjectsModule
 	// ------------------------------------------------------------	
 	private void RPC_TurnOn( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( IsMissionHost() )
 			return;
 
@@ -114,6 +117,9 @@ modded class ExpansionWorldObjectsModule
 	// ------------------------------------------------------------	
 	private void RPC_TurnOff( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( IsMissionHost() )
 			return;
 
@@ -130,9 +136,12 @@ modded class ExpansionWorldObjectsModule
 	// ------------------------------------------------------------	
 	private void RPC_Load( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( IsMissionHost() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( m_LightGenerators );
 			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.Load, true, senderRPC );
 		} else
@@ -162,7 +171,7 @@ modded class ExpansionWorldObjectsModule
 			SI_LampEnable.Invoke( position );
 		} else
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( position );
 			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.TurnOn, true, NULL );
 		}
@@ -189,7 +198,7 @@ modded class ExpansionWorldObjectsModule
 		} 
 		else
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( position );
 			rpc.Send( NULL, ExpansionWorldObjectsModuleRPC.TurnOff, true, NULL );
 		}

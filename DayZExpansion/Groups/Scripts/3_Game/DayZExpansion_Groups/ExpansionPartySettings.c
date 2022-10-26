@@ -83,7 +83,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Party, true, identity );
 		
@@ -124,6 +124,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowHUDMemberBlood = s.ShowHUDMemberBlood;
 		ShowHUDMemberStates = s.ShowHUDMemberStates;
 		ShowHUDMemberStance = s.ShowHUDMemberStance;
+		
+		ShowPartyMemberMapMarkers = s.ShowPartyMemberMapMarkers;
 	}
 	
 	// ------------------------------------------------------------

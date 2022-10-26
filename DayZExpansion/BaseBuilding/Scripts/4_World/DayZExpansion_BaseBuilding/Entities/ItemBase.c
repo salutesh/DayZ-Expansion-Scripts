@@ -720,7 +720,7 @@ modded class ItemBase
 	void RequestKnownUIDs()
 	{
 		EXPrint("ItemBase::RequestKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send( this, ExpansionLockRPC.KNOWNUSERS_REQUEST, true, NULL );
 		m_KnownUIDsRequested = true;
 	}
@@ -729,7 +729,7 @@ modded class ItemBase
 	void SendKnownUIDs()
 	{
 		EXPrint("ItemBase::SendKnownUIDs " + this + " (parent=" + GetHierarchyParent() + ")");
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( m_KnownUIDs );
 		rpc.Send( this, ExpansionLockRPC.KNOWNUSERS_REPLY, true, NULL );
 	}
@@ -739,7 +739,7 @@ modded class ItemBase
 	//============================================	
 	private void SendServerLockReply(bool reply, bool injuring, PlayerIdentity sender)
 	{
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( reply );
 		rpc.Write( injuring );
 		rpc.Send( this, ExpansionLockRPC.SERVERREPLY, true, sender );
@@ -751,7 +751,7 @@ modded class ItemBase
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-		
+				
 		//! Due to some weird dayz bug sender may sometimes not be null even when it could be so this check isn't really needed
 		if ( GetGame().IsServer() && GetGame().IsMultiplayer() && !sender )
 			return;
@@ -779,6 +779,9 @@ modded class ItemBase
 		{	
 			case ExpansionLockRPC.LOCK:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+				
 				if ( !IsMissionHost() )
 					return;
 				
@@ -805,6 +808,9 @@ modded class ItemBase
 			
 			case ExpansionLockRPC.UNLOCK:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+				
 				if ( !IsMissionHost() || !GetExpansionSettings().GetBaseBuilding() )
 					return;
 				
@@ -878,6 +884,9 @@ modded class ItemBase
 			
 			case ExpansionLockRPC.SET:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+
 				if ( !IsMissionHost() )
 					return;
 				
@@ -915,6 +924,9 @@ modded class ItemBase
 
 			case ExpansionLockRPC.CHANGE:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+
 				if ( !IsMissionHost() )
 					return;
 				
@@ -945,6 +957,9 @@ modded class ItemBase
 			
 			case ExpansionLockRPC.SERVERREPLY:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+
 				if ( !IsMissionClient() )
 					return;
 				
@@ -975,12 +990,18 @@ modded class ItemBase
 			
 			case ExpansionLockRPC.KNOWNUSERS_REQUEST:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+
 				SendKnownUIDs();
 				return;
 			}
 			
 			case ExpansionLockRPC.KNOWNUSERS_REPLY:
 			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;
+
 				if ( !ctx.Read( m_KnownUIDs ) )
 				{
 					Error("ItemBase::OnRPC " + this + " ExpansionLockRPC.KNOWNUSERS_REPLY can't read reply");

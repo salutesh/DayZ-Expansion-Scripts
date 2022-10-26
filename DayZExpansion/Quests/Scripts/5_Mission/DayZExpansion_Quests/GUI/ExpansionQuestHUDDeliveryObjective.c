@@ -15,10 +15,12 @@ class ExpansionQuestHUDDeliveryObjective: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDDeliveryObjectiveController m_QuestHUDDeliveryObjectiveController;
 	protected ExpansionQuestObjectiveDelivery m_Delivery;
+	protected int m_Count;
 
-	void ExpansionQuestHUDDeliveryObjective(ExpansionQuestObjectiveDelivery delivery)
+	void ExpansionQuestHUDDeliveryObjective(ExpansionQuestObjectiveDelivery delivery, int count)
 	{
 		m_Delivery = delivery;
+		m_Count = count;
 		Class.CastTo(m_QuestHUDDeliveryObjectiveController, GetController());
 
 		SetView();
@@ -32,7 +34,7 @@ class ExpansionQuestHUDDeliveryObjective: ExpansionScriptView
 		m_QuestHUDDeliveryObjectiveController.DeliveryName = ExpansionStatic.GetItemDisplayNameWithType(m_Delivery.GetClassName());
 		m_QuestHUDDeliveryObjectiveController.NotifyPropertyChanged("DeliveryName");
 
-		m_QuestHUDDeliveryObjectiveController.DeliveryValue = "x" + m_Delivery.GetAmount().ToString();
+		m_QuestHUDDeliveryObjectiveController.DeliveryValue = m_Count.ToString() + "/" + m_Delivery.GetAmount().ToString();
 		m_QuestHUDDeliveryObjectiveController.NotifyPropertyChanged("DeliveryValue");
 	}
 

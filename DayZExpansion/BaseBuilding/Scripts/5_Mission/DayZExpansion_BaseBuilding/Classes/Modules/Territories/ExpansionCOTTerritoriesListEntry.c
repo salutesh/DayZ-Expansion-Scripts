@@ -40,14 +40,6 @@ class ExpansionCOTTerritoriesListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionCOTTerritoriesListEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTTerritoriesListEntry()
-	{
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

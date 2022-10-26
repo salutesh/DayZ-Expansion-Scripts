@@ -94,7 +94,7 @@ class ExpansionActionChangeSafeLock: ActionInteractBase
 		} 
 		else
 		{
-			ScriptRPC rpc = new ScriptRPC;
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(selection);
 			rpc.Send(m_Target, ExpansionLockRPC.SET, true);
 		}

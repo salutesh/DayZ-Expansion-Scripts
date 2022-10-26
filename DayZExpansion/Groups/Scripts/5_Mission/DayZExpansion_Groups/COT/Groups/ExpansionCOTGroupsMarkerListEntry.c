@@ -41,14 +41,6 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMarkerListEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTGroupsMarkerListEntry()
-	{
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMarkerListEntry SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

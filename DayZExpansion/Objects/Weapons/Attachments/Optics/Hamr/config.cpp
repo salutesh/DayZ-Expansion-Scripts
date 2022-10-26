@@ -35,6 +35,10 @@ class cfgVehicles
 		cameraDir = "cameraDir";
 		hiddenSelections[] = {"reddot"};
 		hiddenSelectionsTextures[] = {""};
+		s_pipRadius = 0.33;
+		s_pipMagnification = 0.3;
+		s_pipBlur = 0.01;
+		s_pipChromAber = 0.03;
 		class DamageSystem
 		{
 			class GlobalHealth

@@ -218,6 +218,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		Confirm.Enable(false);
 		Random.Show(false);
 		Random.Enable(false);
+		UpdateSelection();
 	}
 	
 	void SpawnRandom()
@@ -359,6 +360,34 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		marker.Show();
 		
 		m_MapMarkers.Insert(marker);
+	}
+	
+	void UpdateSelection()
+	{
+		for (int i = 0; i < m_SpawnSelectionMenuController.SpawnLocationEntries.Count(); i++)
+		{
+			ExpansionSpawSelectionMenuLocationEntry entry = m_SpawnSelectionMenuController.SpawnLocationEntries[i];
+			if (entry.GetIndex() == m_SelectedSpawnIndex)
+			{
+				entry.Lock();
+			}
+			else
+			{
+				entry.Unlock();
+			}			
+		}
+		
+		foreach (ExpansionSpawSelectionMenuMapMarker marker: m_MapMarkers)
+		{
+			if (marker.GetIndex() == m_SelectedSpawnIndex)
+			{
+				marker.Lock();
+			}
+			else
+			{
+				marker.Unlock();
+			}	
+		}
 	}
 };
 

@@ -210,7 +210,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		TerritoryFlag flag;
 		if ( Class.CastTo( flag, action_data.m_Target.GetObject() ) )
 		{
-			ScriptRPC rpc = new ScriptRPC;
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( flag, ExpansionTerritoryModuleRPC.OpenFlagMenu, true, action_data.m_Player.GetIdentity() );
 			return;
 		}

@@ -96,6 +96,16 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 			return false;
 		}
 
+#ifdef EXPANSIONMODGARAGE
+		//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
+		if (!GetExpansionSettings().GetGarage().CanStoreWithCargo)
+		{
+			EntityAI entity;
+			if (Class.CastTo(entity, targetObject) && MiscGameplayFunctions.Expansion_HasAnyCargo(entity))
+				return false;
+		}
+#endif
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			string placeHolderModel = GetGame().ConfigGetTextOut("CfgVehicles " + placeholderType + " model");
@@ -104,19 +114,6 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 			else
 				m_Text = "#STR_EXPANSION_ACTION_COVER";
 		}
-
-#ifdef EXPANSIONMODGARAGE
-		//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
-		if (!GetExpansionSettings().GetGarage().CanStoreWithCargo)
-		{
-			EntityAI entity;
-			if (Class.CastTo(entity, targetObject) && MiscGameplayFunctions.Expansion_HasAnyCargo(entity))
-			{
-				ExpansionNotification(new StringLocaliser("STR_EXPANSION_GARAGE_ERROR"), new StringLocaliser("STR_EXPANSION_GARAGE_ERROR_CARGO", vehicle.GetDisplayName()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.GARAGE).Create();
-				return false;
-			}
-		}
-#endif
 
 		return true;
 	}

@@ -26,7 +26,7 @@ class ExpansionMarketCars: ExpansionMarketCategory
 		AddItem("CivilianSedan", 				20000,		40000,		1,		4,		{"CivSedanWheel", "CivSedanWheel", "CivSedanWheel", "CivSedanWheel", "CarBattery", "CarRadiator", "SparkPlug", "CivSedanHood", "CivSedanTrunk", "CivSedanDoors_Driver", "CivSedanDoors_CoDriver", "CivSedanDoors_BackLeft", "CivSedanDoors_BackRight", "HeadlightH7", "HeadlightH7"});
 		AddItem("Truck_01_Covered", 		50000,		100000,		1,		7,		{"Truck_01_Wheel", "Truck_01_Wheel", "Truck_01_Wheel", "Truck_01_Wheel", "Truck_01_WheelDouble", "Truck_01_WheelDouble", "Truck_01_WheelDouble", "Truck_01_WheelDouble", "TruckBattery", "Truck_01_Hood", "Truck_01_Door_1_1", "Truck_01_Door_2_1", "HeadlightH7", "HeadlightH7"});	
 #ifndef DAYZ_1_18
-		AddItem("Offroad_02", 					50000,		100000,		1,		4,		{"Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Door_1_1", "Offroad_02_Door_2_1", "Offroad_02_Door_1_2", "Offroad_02_Door_2_2", "Offroad_02_Hood", "Offroad_02_Trunk", "CarBattery", "GlowPlug", "HeadlightH7", "HeadlightH7"});
+		AddItem("Offroad_02", 					50000,		100000,		1,		4,		{"Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Wheel", "Offroad_02_Door_1_1", "Offroad_02_Door_2_1", "Offroad_02_Door_1_2", "Offroad_02_Door_2_2", "Offroad_02_Hood", "Offroad_02_Trunk", "CarBattery", "GlowPlug", "HeadlightH7", "HeadlightH7"});
 #endif
 		//! Vanilla - Not released yet
 		//AddItem("Truck_02", 					16000,		21000,		1,		7,		{"Truck_01_Wheel", "Truck_01_Wheel", "Truck_01_Wheel", "Truck_01_Wheel", "TruckBattery", "Truck_02_Hood", "Truck_02_Door_1_1", "Truck_02_Door_2_1", "HeadlightH7", "HeadlightH7"});

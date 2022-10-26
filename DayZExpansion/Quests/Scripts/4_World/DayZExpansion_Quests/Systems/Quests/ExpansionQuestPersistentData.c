@@ -105,7 +105,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		{
 			if (data.QuestID != questID)
 				continue;
-			
+
 			array<ref ExpansionQuestObjectiveData> dataObjectives = data.QuestObjectives;
 			foreach (ExpansionQuestObjectiveData currentObjective: dataObjectives)
 			{
@@ -182,7 +182,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 
 					data.QuestObjectives.RemoveOrdered(i);
 				}
-				
+
 				data.LastUpdateTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
 				data.QuestObjectives.Insert(newData);
 			}
@@ -227,7 +227,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 		}
 		else
 		{
-			Error(ToString() + "::Save - Could not save player state data. Something went rly wrong!");
+			CF_Log.Error(ToString() + "::Save - Could not save player state data. Something went rly wrong!");
 		}
 	}
 
@@ -245,14 +245,14 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	{
 		if (!m_QuestModule)
 			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		
+
 		for (int i = QuestDatas.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuestPersistentQuestData data = QuestDatas[i];
 			ExpansionQuestConfig questConfig = m_QuestModule.GetQuestConfigByID(data.QuestID);
 			if (!questConfig)
 			{
-				Error(ToString() + "::CleanupQuestData - Could not get quest config for quest ID: " + data.QuestID);
+				CF_Log.Error(ToString() + "::CleanupQuestData - Could not get quest config for quest ID: " + data.QuestID);
 				return false;
 			}
 
@@ -270,11 +270,14 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 				//! Never cleanup daylie/weekly quest data for quests that have a cooldown.
 				if (questConfig.IsWeeklyQuest() || questConfig.IsDailyQuest())
 				{
+					if (data.State == ExpansionQuestState.COMPLETED)
+						data.State = ExpansionQuestState.NONE;
+					
 					int timestamp;
 					if (HasCooldownOnQuest(data.QuestID, timestamp))
 						continue;
 				}
-
+				
 				//! Never cleanup quest data for quests that have a pre/followup quest.
 				if (questConfig.GetFollowUpQuestID() > -1 || questConfig.GetPreQuestID() > -1)
 					continue;
@@ -323,7 +326,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 			ExpansionQuestConfig questConfig = m_QuestModule.GetQuestConfigByID(data.QuestID);
 			if (!questConfig)
 			{
-				Error(ToString() + "::CleanupQuestStates - Could not get quest config for quest ID: " + questID);
+				CF_Log.Error(ToString() + "::CleanupQuestStates - Could not get quest config for quest ID: " + questID);
 				return false;
 			}
 
@@ -379,7 +382,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 			ExpansionQuestPersistentQuestData data = new ExpansionQuestPersistentQuestData();
 			if (!data.OnRecieve(ctx))
 			{
-				Error(ToString() + "::OnRecieve - ExpansionQuestPersistentQuestData");
+				CF_Log.Error(ToString() + "::OnRecieve - ExpansionQuestPersistentQuestData");
 				return false;
 			}
 
@@ -422,7 +425,7 @@ class ExpansionQuestPersistentData: ExpansionQuestPersistentDataBase
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 

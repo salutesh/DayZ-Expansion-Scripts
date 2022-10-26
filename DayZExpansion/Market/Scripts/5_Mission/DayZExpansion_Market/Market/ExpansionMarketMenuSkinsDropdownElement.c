@@ -90,8 +90,7 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 				dropdown_element_button.SetColor(ARGB(0, 0, 0, 0));
 				if (m_ItemTooltip)
 				{
-					m_ItemTooltip.Hide();
-					delete m_ItemTooltip;
+					m_ItemTooltip = null;
 				}
 				break;
 			}

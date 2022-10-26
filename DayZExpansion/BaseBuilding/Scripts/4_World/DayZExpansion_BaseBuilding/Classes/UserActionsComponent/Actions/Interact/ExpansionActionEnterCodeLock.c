@@ -145,7 +145,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		{
 			if ( m_Target.HasCode() && m_IsKnownUser )
 			{
-				ScriptRPC rpc2 = new ScriptRPC;
+				auto rpc2 = ExpansionScriptRPC.Create();
 				rpc2.Write( "" );
 				rpc2.Write( selection );
 				rpc2.Send( m_Target, ExpansionLockRPC.UNLOCK, true );
@@ -163,7 +163,7 @@ class ExpansionActionEnterCodeLock: ActionInteractBase
 		} 
 		else
 		{
-			ScriptRPC rpc = new ScriptRPC;
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(selection);
 			rpc.Send(m_Target, ExpansionLockRPC.LOCK, true);
 		}

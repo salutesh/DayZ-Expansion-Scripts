@@ -49,7 +49,7 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 	{
 		if (!Attachments)
 			Attachments = new TStringArray;
-		
+
 		Attachments.Insert(name);
 	}
 
@@ -62,7 +62,7 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 	{
 		ctx.Write(ClassName);
 		ctx.Write(Amount);
-		
+
 		ctx.Write(Attachments.Count());
 		foreach (string attach: Attachments)
 		{
@@ -77,20 +77,20 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 
 		if (!ctx.Read(Amount))
 			return false;
-		
+
 		int attachmentsCount;
 		if (!ctx.Read(attachmentsCount))
 			return false;
-		
+
 		for (int i = 0; i < attachmentsCount; i++)
 		{
 			string attach;
 			if (!ctx.Read(attach))
 				return false;
-			
+
 			if (!Attachments)
 				Attachments = new TStringArray;
-			
+
 			Attachments.Insert(attach);
 		}
 
@@ -100,10 +100,10 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		Print(ToString() + "::QuestDebug - Amount: " + Amount);
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		CF_Log.Debug(ToString() + "::QuestDebug - Amount: " + Amount);
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

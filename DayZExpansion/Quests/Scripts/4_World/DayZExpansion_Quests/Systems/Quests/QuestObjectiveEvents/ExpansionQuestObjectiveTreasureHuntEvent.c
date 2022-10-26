@@ -140,11 +140,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", StashPos, ECE_PLACE_ON_SURFACE)))
 			return false;
 
-		if (Stash)
-		{
-			Stash.SetQuestID(GetQuest().GetQuestConfig().GetID());
-			Stash.PlaceOnGround();
-		}
+		//Stash.SetQuestID(GetQuest().GetQuestConfig().GetID());
+		Stash.PlaceOnGround();
 
 		EntityAI stashEntity;
 		if (!Class.CastTo(stashEntity, Stash))
@@ -158,8 +155,12 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, StashPos, Vector(0, 0, 0));
 		if (!Class.CastTo(Chest, chestObj))
 			return false;
-
-		Chest.ExpansionSetContainerOwner(questPlayer);
+		
+		ExpansionQuestSeaChest chestIB;
+		if (!Class.CastTo(chestIB, chestObj))
+			return false;
+		
+		//chestIB.SetQuestID(GetQuest().GetQuestConfig().GetID());
 
 		//! Spawn the loot in the chest
 		EntityAI chestEntity;

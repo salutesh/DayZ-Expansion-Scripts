@@ -40,6 +40,8 @@ class CfgWeapons
 		reloadAction = "ReloadCZ61";
 		reloadMagazineSound[] = {"dz\sounds\weapons\firearms\pm63rak\pm63rak_reload_0mod",0.8,1,20};
 		modes[] = {"FullAuto","SemiAuto"};
+		s_recoilControlMisalignmentY = 0.5;
+		s_recoilControlKick = 0.75;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"CZ61_Shot_SoundSet","CZ61_Tail_SoundSet","CZ61_InteriorTail_SoundSet"};

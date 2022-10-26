@@ -152,7 +152,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 		{
 			case reward_item_button:
 			{
-				if (m_ItemTooltip) delete m_ItemTooltip;
+				if (m_ItemTooltip) m_ItemTooltip = null;
 				break;
 			}
 		}

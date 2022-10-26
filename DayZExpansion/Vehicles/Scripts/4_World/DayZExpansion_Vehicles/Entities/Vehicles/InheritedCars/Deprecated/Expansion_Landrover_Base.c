@@ -392,16 +392,11 @@ class Expansion_Landrover_Base extends CarScript
 				if ( GetCarDoorsState("expansion_landrover_hood") == CarDoorState.DOORS_CLOSED || EngineIsOn() )
 					return false;
 			break;			
-			case "Expansion_Landrover_Wheel":
-                if ( GetCarDoorsState("expansion_landrover_trunk") == CarDoorState.DOORS_CLOSED )
-                    return true;
-            break;
             case "Expansion_Landrover_Trunk":
                 ItemBase sparewheel;
                 sparewheel = ItemBase.Cast(FindAttachmentBySlotName("expansion_landrover_sparewheel"));
                 if ( sparewheel )
                     return false;
-                return true;
             break;
 		}
 
@@ -415,7 +410,7 @@ class Expansion_Landrover_Base extends CarScript
 
         string slot_name = InventorySlots.GetSlotName(slotId);
         
-        if (slot_name == "expansion_landrover_sparewheel" && GetCarDoorsState( "expansion_landrover_trunk" ) != CarDoorState.DOORS_CLOSED)
+        if (slot_name == "expansion_landrover_sparewheel" && GetCarDoorsState( "expansion_landrover_trunk" ) == CarDoorState.DOORS_MISSING)
         {
             return false;
         }

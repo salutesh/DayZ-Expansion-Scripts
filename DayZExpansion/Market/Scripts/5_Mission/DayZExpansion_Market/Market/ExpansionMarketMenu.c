@@ -27,8 +27,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected ref TStringArray m_OutOfStockList;
 	protected ref ExpansionMarketItem m_SelectedMarketItem;
 	protected ref ExpansionMarketMenuItem m_SelectedMarketItemElement;
-	protected ref ExpansionMenuDialog_MarketSetQuantity m_QuantityDialog;
 	protected ref ExpansionMarketMenuTooltip m_AttachmentsTooltip; 
+	protected ref ExpansionMenuDialog_MarketSetQuantity m_QuantityDialog;
 	protected ref ExpansionMenuDialog_MarketConfirmPurchase m_PurchaseDialog;
 	protected ref ExpansionMenuDialog_MarketConfirmSell m_SellDialog;
 	protected ref ExpansionMarketMenuTooltip m_CurrenciesTooltip;
@@ -931,13 +931,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		MarketPrint("ClearCategories - Start");
 		
-		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
-		{
-			ExpansionMarketMenuCategory categoryElement = m_MarketMenuController.MarketCategories[i];
-			categoryElement.Hide();
-			delete categoryElement;
-		}
-		
 		m_MarketMenuController.MarketCategories.Clear();
 		CategoriesExpanded = 0;
 		ExpansionMarketMenuCategory.UpdateCategoryID = -1;
@@ -1114,8 +1107,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		for (int i = 0; i < m_MarketMenuController.DropdownElements.Count(); i++)
 		{
 			ExpansionMarketMenuDropdownElement element = m_MarketMenuController.DropdownElements[i];
-			element.Hide();
-			delete element;
 		}
 		
 		m_MarketMenuController.DropdownElements.Clear();
@@ -1697,7 +1688,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			if (market_item_info_attachments.IsVisible()) 
 				market_item_info_attachments.Show(false);
 			
-			delete m_AttachmentsTooltip;
+			m_AttachmentsTooltip = null;
 		}
 		
 		if (itemElement)
@@ -2665,8 +2656,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		if (m_QuantityDialog)
 		{
-			m_QuantityDialog.Hide();
-			delete m_QuantityDialog;
+			m_QuantityDialog = null;
 		}
 		
 		UpdateQuantity();
@@ -2722,72 +2712,62 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (m_FilterOptionStrings)
 		{
 			m_FilterOptionStrings.Clear();
-			delete m_FilterOptionStrings;
 		}
 		
 		if (m_MarketFilters)
 		{
-			delete m_MarketFilters;
+			m_MarketFilters = NULL;
 		}
 		
 		if (m_PlayerItems)
 		{
 			m_PlayerItems.Clear();
-			delete m_PlayerItems;
 		}
 		
 		if (m_QuantityDialog)
 		{
-			m_QuantityDialog.Hide();
-			delete m_QuantityDialog;
+			m_QuantityDialog = NULL;
 		}
 		
 		if (m_AttachmentsTooltip)
 		{
-			m_AttachmentsTooltip.Hide();
-			delete m_AttachmentsTooltip;
+			m_AttachmentsTooltip = NULL;
 		}
 
 		if (m_PurchaseDialog)
 		{
-			m_PurchaseDialog.Hide();
-			delete m_PurchaseDialog;
+			m_PurchaseDialog = NULL;
 		}
 		
 		if (m_SellDialog)
 		{
-			m_SellDialog.Hide();
-			delete m_SellDialog;
+			m_SellDialog = NULL;
 		}
 		
 		if (m_CurrenciesTooltip)
 		{
-			m_CurrenciesTooltip.Hide();
-			delete m_CurrenciesTooltip;
+			m_CurrenciesTooltip = NULL;
 		}
 		
 		if (m_BuyDenomsTooltip)
 		{
-			m_BuyDenomsTooltip.Hide();
-			delete m_BuyDenomsTooltip;
+			m_BuyDenomsTooltip = NULL;
 		}
 		
 		if (m_SellDenomsTooltip)
 		{
-			m_SellDenomsTooltip.Hide();
-			delete m_SellDenomsTooltip;
+			m_SellDenomsTooltip = NULL;
 		}
 		
 		if (m_QuatityTooltip)
 		{
-			m_QuatityTooltip.Hide();
-			delete m_QuatityTooltip;
+			m_QuatityTooltip = NULL;
 		}
 		
 		if (m_MarketMenuItemManager)
 		{
 			m_MarketMenuItemManager.Hide();
-			delete m_MarketMenuItemManager;
+			m_MarketMenuItemManager = NULL;
 		}
 		
 		m_FirstCall = false;
@@ -3832,6 +3812,16 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				attachmentIDs.InsertAll(GetCurrentSelectedAttachmentIDs(recursive, attachmentItem));
 		}
 		return attachmentIDs;
+	}
+	
+	bool IsAnyDialogVisible()
+	{
+		return (m_MarketMenuItemManager && m_MarketMenuItemManager.IsVisible()) || (m_QuantityDialog && m_QuantityDialog.IsVisible()) || (m_PurchaseDialog && m_PurchaseDialog.IsVisible()) || (m_SellDialog && m_SellDialog.IsVisible());
+	}
+	
+	override bool CanClose()
+	{
+		return !IsAnyDialogVisible();
 	}
 };
 

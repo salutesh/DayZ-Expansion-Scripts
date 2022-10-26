@@ -62,7 +62,7 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 	{
 		if (w == GetLayoutRoot())
 		{
-			delete m_Tooltip;
+			m_Tooltip = null;
 		}
 		
 		return super.OnMouseLeave(w, enterW, x, y);

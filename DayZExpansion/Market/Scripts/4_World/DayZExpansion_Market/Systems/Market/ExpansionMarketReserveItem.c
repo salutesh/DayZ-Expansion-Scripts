@@ -30,11 +30,6 @@ class ExpansionMarketReserve
 		Reserved = new array< ref ExpansionMarketReserveItem >;
 	}
 
-	void ~ExpansionMarketReserve()
-	{
-		delete Reserved;
-	}
-
 	void Debug()
 	{
 		Print("ExpansionMarketReserve - Valid: " + Valid);

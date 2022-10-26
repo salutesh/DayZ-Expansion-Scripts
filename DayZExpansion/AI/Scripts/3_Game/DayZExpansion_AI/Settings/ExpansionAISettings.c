@@ -128,7 +128,7 @@ class ExpansionAISettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Write( IsAdmin( identity ) );
 		rpc.Send( null, ExpansionSettingsRPC.AI, true, identity );

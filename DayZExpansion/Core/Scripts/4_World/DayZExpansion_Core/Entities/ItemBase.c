@@ -660,7 +660,7 @@ modded class ItemBase
 	{
 		super.EEKilled( killer );
 
-		ExpansionItemBaseModule.s_Instance.PlayDestroySound(GetPosition(), GetDestroySound());
+		ExpansionItemBaseModule.s_Instance.PlaySound(GetPosition(), GetDestroySound());
 
 		ExpansionOnDestroyed( killer );
 	}
@@ -1269,5 +1269,10 @@ modded class ItemBase
 					ProcessDecay( elapsed, hasRootAsPlayer );	
 			}
 		}
+	}
+
+	string Expansion_GetEntityStorageFileName()
+	{
+		return string.Empty;
 	}
 };

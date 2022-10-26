@@ -39,6 +39,11 @@ class CfgSoundShaders
 	{
 		samples[] = {{"\DayZExpansion\Sounds\BaseBuilding\Expansion_Codelock_Unlock_01",1}};
 	};
+	class Expansion_ParkingMeter_Activated_SoundShader: Expansion_BaseBuilding_SoundShader
+	{
+		volume = 1;
+		samples[] = {{"\DayZExpansion\Sounds\BaseBuilding\Parking_Meter_Activated_01",1}};
+	};
 };
 class CfgSoundSets
 {
@@ -69,5 +74,9 @@ class CfgSoundSets
 	class Expansion_CodeLock_Unlock1_SoundSet: Expansion_BaseBuilding_SoundSet
 	{
 		soundShaders[] = {"Expansion_CodeLock_Unlock1_SoundShader"};
+	};
+	class Expansion_ParkingMeter_Activated_SoundSet: Expansion_BaseBuilding_SoundSet
+	{
+		soundShaders[] = {"Expansion_ParkingMeter_Activated_SoundShader"};
 	};
 };

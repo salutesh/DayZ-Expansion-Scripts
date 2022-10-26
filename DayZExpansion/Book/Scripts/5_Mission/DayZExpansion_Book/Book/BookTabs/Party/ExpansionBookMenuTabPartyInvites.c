@@ -124,13 +124,16 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 		
 		m_PartyModule.AcceptInvite(m_Invite.partyID);
 		
-		for (int i = 0; i < m_InvitesController.PartyInviteEntrys.Count(); ++i)
+		for (int i = m_InvitesController.PartyInviteEntrys.Count() - 1; i >= 0; i--)
 		{
 			ExpansionBookMenuTabPartyInviteEntry entry = m_InvitesController.PartyInviteEntrys[i];
 			if (entry)
 			{
 				if (entry.GetInvite() == m_Invite)
-					delete entry;
+				{
+					m_InvitesController.PartyInviteEntrys.RemoveOrdered(i);
+					break;
+				}
 			}
 		}
 		
@@ -152,13 +155,16 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 		
 		m_PartyModule.DeclineInvite(m_Invite.partyID);
 		
-		for (int i = 0; i < m_InvitesController.PartyInviteEntrys.Count(); ++i)
+		for (int i = m_InvitesController.PartyInviteEntrys.Count() - 1; i >= 0; i--)
 		{
 			ExpansionBookMenuTabPartyInviteEntry entry = m_InvitesController.PartyInviteEntrys[i];
 			if (entry)
 			{
 				if (entry.GetInvite() == m_Invite)
-					delete entry;
+				{
+					m_InvitesController.PartyInviteEntrys.RemoveOrdered(i);
+					break;
+				}
 			}
 		}
 		

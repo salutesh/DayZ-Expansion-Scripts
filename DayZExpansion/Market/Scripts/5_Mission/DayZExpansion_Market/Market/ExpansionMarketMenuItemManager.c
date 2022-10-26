@@ -466,11 +466,13 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	
 	override void OnHide()
 	{
-		super.OnHide();
 		m_MarketItem = NULL;
 		m_MarketItemManagerController.CategoryItems.Clear();
 		m_MarketItemManagerController.ItemCategories.Clear();
+		m_ItemManagerPresets.Clear();
 		m_MarketMenu.HideItemManager();
+		
+		super.OnHide();
 	}
 	
 	override bool OnMouseButtonDown(Widget w, int x, int y, int button)

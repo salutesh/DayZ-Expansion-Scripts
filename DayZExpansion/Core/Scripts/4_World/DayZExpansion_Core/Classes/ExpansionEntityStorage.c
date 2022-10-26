@@ -10,10 +10,33 @@
  *
 */
 
+class ExpansionEntityStorageContext
+{
+	ref FileSerializer m_Context;
+	string m_FileName;
+	int m_FailedCount;
+
+	void ExpansionEntityStorageContext()
+	{
+		m_Context = new FileSerializer();
+	}
+
+	bool Open(string fileName, int mode)
+	{
+		m_FileName = fileName;
+		return m_Context.Open(fileName, mode);
+	}
+
+	void Close()
+	{
+		m_Context.Close();
+	}
+}
+
 [CF_RegisterModule(ExpansionEntityStorageModule)]
 class ExpansionEntityStorageModule: CF_ModuleWorld
 {
-	static const int VERSION = 5;
+	static const int VERSION = 7;
 	static const string EXT = ".bin";
 
 	static const int FAILURE = 0;
@@ -21,6 +44,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static const int SKIP = 2;
 
 	static string s_StorageFolderPath;
+
+	static ref map<string, ref ExpansionEntityStorageContext> s_SubContexts = new map<string, ref ExpansionEntityStorageContext>;
+
+	static int Now;
 
 #ifdef SERVER
 	override void OnInit()
@@ -44,12 +71,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 #endif
 
 	//! @brief save entity and all its children (attachments/cargo) to ctx. Will not delete the entity!
-	static bool Save(EntityAI entity, ParamsWriteContext ctx, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
+	static bool Save(EntityAI entity, ParamsWriteContext ctx, string basePath, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
 	{
 		if (!level)
 		{
+			Reset();
+
 			ctx.Write(VERSION);
-			ctx.Write(CF_Date.Now(true).DateToEpoch());
+			ctx.Write(Now);
 		}
 
 		//! @note order of operations matters! DO NOT CHANGE!
@@ -63,11 +92,34 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				return true;
 		}
 
-		if (!Save_Phase2(ctx, entity, inventoryOnly, placeholder, level))
+		ExpansionEntityStorageContext context;
+		FileSerializer file;
+
+		if (level > 0)
+		{
+			string type = entity.GetType();
+
+			if (!s_SubContexts.Find(type, context))
+			{
+				string childFileName = string.Format("%1\\%2.bin", basePath, type);
+				context = new ExpansionEntityStorageContext();
+				if (!context.Open(childFileName, FileMode.WRITE))
+					return ErrorFalse("Couldn't open file for writing " + childFileName);
+				s_SubContexts[type] = context;
+			}
+
+			file = context.m_Context;
+		}
+		else
+		{
+			file = FileSerializer.Cast(ctx);
+		}
+
+		if (!Save_Phase2(file, basePath, entity, inventoryOnly, placeholder, level))
 			return false;
 
 		if (!inventoryOnly || level > 0)
-			return Save_Phase3(ctx, entity);
+			return Save_Phase3(file, entity);
 
 		return true;
 	}
@@ -89,7 +141,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			if (parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock"))
 			{
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1 - skippping " + entity.GetType() + " in locked slot");
-				ctx.Write("");
+				ctx.Write("");  //! Have to write empty entry because we already have written inventory count and no way to retroactively overwrite it
 				return SKIP;
 			}
 		}
@@ -126,26 +178,45 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return SUCCESS;
 	}
 	
-	static bool Save_Phase2(ParamsWriteContext ctx, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
+	static bool Save_Phase2(ParamsWriteContext ctx, string basePath, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
 	{
 		//! 2) attachments + cargo
 		if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
-			EXPrint(entity.ToString() + ": Couldn't move cargo to placeholder");
+			EXPrint("[EntityStorage] " + entity.GetType() + ": Couldn't move cargo to placeholder " + placeholder.GetType());
 		int attCount = entity.GetInventory().AttachmentCount();
 		int cargoItemCount;
 		if (entity.GetInventory().GetCargo())
 			cargoItemCount = entity.GetInventory().GetCargo().GetItemCount();
-		ctx.Write(attCount + cargoItemCount);
-		for (int i = 0; i < attCount + cargoItemCount; i++)
+		int inventoryCount = attCount + cargoItemCount;
+		ctx.Write(inventoryCount);
+
+		if (!inventoryCount)
+			return true;
+
+		if (!level && !FileExist(basePath))
+			MakeDirectory(basePath);
+
+		bool success;
+
+		for (int i = 0; i < inventoryCount; i++)
 		{
 			EntityAI item;
 			if (i < attCount)
 				item = entity.GetInventory().GetAttachmentFromIndex(i);
 			else
 				item = entity.GetInventory().GetCargo().GetItem(i - attCount);
-			if (!Save(item, ctx, inventoryOnly, null, level + 1))
-				return false;
+
+			success = Save(item, ctx, basePath, inventoryOnly, null, level + 1);
+
+			if (!success)
+				break;
 		}
+
+		if (!level)
+			Reset();
+
+		if (!success)
+			return false;
 
 		return true;
 	}
@@ -200,7 +271,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		Car car;
 		if (Class.CastTo(car, entity))
 		{
-			for (i = 0; i < EnumTools.GetEnumSize(CarFluid); i++)
+			int fluidCount = EnumTools.GetEnumSize(CarFluid);
+			ctx.Write(fluidCount);
+			for (i = 0; i < fluidCount; i++)
 			{
 				ctx.Write(car.GetFluidFraction(EnumTools.GetEnumValue(CarFluid, i)));
 			}
@@ -228,11 +301,12 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	}
 
 	//! @brief restore entity and all its children from ctx (creates entities)
-	static bool Restore(ParamsReadContext ctx, inout EntityAI entity = null, EntityAI parent = null, EntityAI placeholder = null, PlayerBase player = null, int level = 0, int elapsed = 0)
+	static bool Restore(ParamsReadContext ctx, FileSerializer file, string basePath = string.Empty, inout EntityAI entity = null, EntityAI parent = null, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0)
 	{
-		int entityStorageVersion;
 		if (!level)
 		{
+			Reset();
+
 			if (!ctx.Read(entityStorageVersion))
 				return ErrorFalse("Couldn't read entity storage version");
 
@@ -242,7 +316,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				if (!ctx.Read(timestamp))
 					return ErrorFalse("Couldn't read timestamp");
 
-				elapsed = CF_Date.Now(true).DateToEpoch() - timestamp;
+				elapsed = Now - timestamp;
 			}
 			else if (entityStorageVersion < 4)
 			{
@@ -252,9 +326,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		//! @note order of operations matters! DO NOT CHANGE!
 
-		if (level || !entity)
+		bool createEntity = level || !entity;
+		if (createEntity)
 		{
-			int result = Restore_Phase1(ctx, entity, parent, player);
+			int result = Restore_Phase1(ctx, entity, parent, player, type, level);
 			if (result == FAILURE)
 				return false;
 			else if (result == SKIP)
@@ -264,40 +339,51 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				dBodyActive(entity, ActiveState.INACTIVE);
 		}
 
-		if (!Restore_Phase2(ctx, entity, placeholder, player, level, elapsed))
-			return false;
+		if (!file)
+			file = FileSerializer.Cast(ctx);
 
-		if (entity != parent)
-			return Restore_Phase3(ctx, entity, elapsed);
+		bool restored = Restore_Phase2(file, basePath, entity, placeholder, player, entityStorageVersion, type, level, elapsed);
+		
+		if (restored && createEntity)
+			restored = Restore_Phase3(file, entity, entityStorageVersion, elapsed);
 
-		return true;
+		if (!restored && createEntity)
+		{
+			if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
+				Error(entity.ToString() + ": Couldn't move cargo back to placeholder");
+			entity.Delete();
+		}
+
+		return restored;
 	}
 
-	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null)
+	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, string type = string.Empty, int level = 0)
 	{
 		//! 1a) entity type
-		string type;
-		if (!ctx.Read(type))
-			return ErrorFalse("Couldn't read type");
+		if (!level || !type)
+		{
+			if (!ctx.Read(type))
+				return ErrorFalse("Couldn't read type");
 
-		if (type == string.Empty)
-			return SKIP;
+			if (type == string.Empty)
+				return SKIP;
+		}
 
 		//! 1b) location (creates entity)
 		InventoryLocationType ilt;
 		if (!ctx.Read(ilt))
-			return ErrorFalse("Couldn't read inventory location type");
+			return ErrorFalse(type + ": Couldn't read inventory location type");
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 " + type + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
 		switch (ilt)
 		{
 			case InventoryLocationType.GROUND:
 				vector position;
 				if (!ctx.Read(position))
-					return ErrorFalse("Couldn't read position");
+					return ErrorFalse(type + ": Couldn't read position");
 				vector orientation;
 				if (!ctx.Read(orientation))
-					return ErrorFalse("Couldn't read orientation");
-				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+					return ErrorFalse(type + ": Couldn't read orientation");
+				if (Class.CastTo(entity, GetGame().CreateObjectEx(type, position, ECE_OBJECT_SWAP, RF_DEFAULT)))
 				{
 					entity.SetPosition(position);
 					entity.SetOrientation(orientation);
@@ -307,7 +393,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			case InventoryLocationType.HANDS:
 				int slotId;
 				if (!ctx.Read(slotId))
-					return ErrorFalse("Couldn't read slot ID");
+					return ErrorFalse(type + ": Couldn't read slot ID");
 				InventoryLocation il = new InventoryLocation();
 				il.SetAttachment(parent, null, slotId);
 				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
@@ -317,17 +403,17 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				int idx, row, col;
 				bool flip;
 				if (!ctx.Read(idx))
-					return ErrorFalse("Couldn't read index");
+					return ErrorFalse(type + ": Couldn't read cargo index");
 				if (!ctx.Read(row))
-					return ErrorFalse("Couldn't read row");
+					return ErrorFalse(type + ": Couldn't read cargo row");
 				if (!ctx.Read(col))
-					return ErrorFalse("Couldn't read col");
+					return ErrorFalse(type + ": Couldn't read cargo col");
 				if (!ctx.Read(flip))
-					return ErrorFalse("Couldn't read flip");
+					return ErrorFalse(type + ": Couldn't read cargo flip");
 				entity = parent.GetInventory().CreateEntityInCargoEx(type, idx, row, col, flip);  //! Only way to get flip correct
 				break;
 			default:
-				return ErrorFalse("Unknown inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
+				return ErrorFalse(type + ": Unknown inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
 				break;
 		}
 
@@ -344,25 +430,70 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return SUCCESS;
 	}
 
-	static bool Restore_Phase2(ParamsReadContext ctx, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int level = 0, int elapsed = 0)
+	static bool Restore_Phase2(ParamsReadContext ctx, string basePath, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0)
 	{
 		//! 2) attachments + cargo
 		if (!level && placeholder && placeholder.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(placeholder, entity))
 			Error("Couldn't move cargo from placeholder");
 		int inventoryCount;
 		if (!ctx.Read(inventoryCount))
-			return ErrorFalse("Couldn't read inventory count");
+			return ErrorFalse(entity.GetType() + ": Couldn't read inventory count");
+
+		if (!inventoryCount)
+			return true;
+
+		string childFileName;
+		ExpansionEntityStorageContext context;
+		FileSerializer file;
+
+		int restored;
+
 		EntityAI child;
 		for (int i = 0; i < inventoryCount; i++)
 		{
-			if (!Restore(ctx, child, entity, null, player, level + 1, elapsed))
-				return false;
+			if (entityStorageVersion >= 7)
+			{
+				if (!ctx.Read(type))
+					return ErrorFalse("Couldn't read type");
+
+				if (type == string.Empty)
+					continue;
+
+				if (!s_SubContexts.Find(type, context))
+				{
+					childFileName = string.Format("%1\\%2.bin", basePath, type);
+					context = new ExpansionEntityStorageContext();
+					if (!context.Open(childFileName, FileMode.READ))
+						return ErrorFalse("Couldn't open file for reading " + childFileName);
+					s_SubContexts[type] = context;
+				}
+
+				file = context.m_Context;
+			}
+
+			if (!Restore(ctx, file, basePath, child, entity, null, player, entityStorageVersion, type, level + 1, elapsed))
+			{
+				if (entityStorageVersion < 7)
+					return false;
+				else
+					context.m_FailedCount++;
+			}
+			else
+			{
+				restored++;
+			}
 		}
 
-		return true;
+		if (entityStorageVersion >= 7 && !level)
+		{
+			if (Reset(true))
+				DeleteFile(basePath);
+		}
+
+		return restored > 0;
 	}
 
-	static bool Restore_Phase3(ParamsReadContext ctx, EntityAI entity, int elapsed = 0)
+	static bool Restore_Phase3(ParamsReadContext ctx, EntityAI entity, int entityStorageVersion, int elapsed = 0)
 	{
 		int i;
 
@@ -372,7 +503,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		{
 			int muzzleCount;
 			if (!ctx.Read(muzzleCount))
-				return ErrorFalse("Couldn't read muzzle count");
+				return ErrorFalse(entity.GetType() + ": Couldn't read muzzle count");
 
 			float ammoDamage;
 			string ammoTypeName;
@@ -381,25 +512,25 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			{
 				bool isChamberEmpty;
 				if (!ctx.Read(isChamberEmpty))
-					return ErrorFalse("Couldn't read chamber empty");
+					return ErrorFalse(entity.GetType() + ": Couldn't read chamber empty");
 				if (!isChamberEmpty)
 				{
 					if (!ctx.Read(ammoDamage))
-						return ErrorFalse("Couldn't read ammo damage");
+						return ErrorFalse(entity.GetType() + ": Couldn't read ammo damage");
 					if (!ctx.Read(ammoTypeName))
-						return ErrorFalse("Couldn't read ammo type");
+						return ErrorFalse(entity.GetType() + ": Couldn't read ammo type");
 					weapon.PushCartridgeToChamber(mi, ammoDamage, ammoTypeName);
 				}
 
 				int internalMagCartridgeCount;
 				if (!ctx.Read(internalMagCartridgeCount))
-					return ErrorFalse("Couldn't read internal mag cartridge count");
+					return ErrorFalse(entity.GetType() + ": Couldn't read internal mag cartridge count");
 				for (int ci = 0; ci < internalMagCartridgeCount; ++ci)
 				{
 					if (!ctx.Read(ammoDamage))
-						return ErrorFalse("Couldn't read ammo damage");
+						return ErrorFalse(entity.GetType() + ": Couldn't read ammo damage");
 					if (!ctx.Read(ammoTypeName))
-						return ErrorFalse("Couldn't read ammo type");
+						return ErrorFalse(entity.GetType() + ": Couldn't read ammo type");
 					weapon.PushCartridgeToInternalMagazine(mi, ammoDamage, ammoTypeName);
 				}
 			}
@@ -408,9 +539,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		//! 4) storeload
 		int version;
 		if (!ctx.Read(version))
-			return ErrorFalse("Couldn't read game version");
+			return ErrorFalse(entity.GetType() + ": Couldn't read game version");
 		if (!entity.OnStoreLoad(ctx, version))
-			return ErrorFalse("Couldn't OnStoreLoad");
+			return ErrorFalse(entity.GetType() + ": Couldn't OnStoreLoad");
 
 		//! 5) special treatment for mags
 		Magazine mag;
@@ -418,7 +549,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (Class.CastTo(mag, entity))
 		{
 			if (!ctx.Read(ammoCount))
-				return ErrorFalse("Couldn't read ammo count");
+				return ErrorFalse(entity.GetType() + ": Couldn't read ammo count");
 			mag.ServerSetAmmoCount(ammoCount);
 		}
 
@@ -428,33 +559,45 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		{
 			CarFluid fluid;
 			float fluidFraction;
-			for (i = 0; i < EnumTools.GetEnumSize(CarFluid); i++)
+			int fluidEnumSize = EnumTools.GetEnumSize(CarFluid);
+			int fluidCount;
+			if (entityStorageVersion >= 6)
+				ctx.Read(fluidCount);
+			else
+				fluidCount = fluidEnumSize;
+			for (i = 0; i < fluidCount; i++)
 			{
-				fluid = EnumTools.GetEnumValue(CarFluid, i);
+				if (i < fluidEnumSize)
+					fluid = EnumTools.GetEnumValue(CarFluid, i);
 				if (!ctx.Read(fluidFraction))
-					return ErrorFalse("Couldn't read fluid fraction for " + typename.EnumToString(CarFluid, fluid));
-				car.Fill(fluid, fluidFraction * car.GetFluidCapacity(fluid));
+					return ErrorFalse(entity.GetType() + ": Couldn't read fluid fraction for " + typename.EnumToString(CarFluid, fluid));
+				if (i < fluidEnumSize)
+					car.Fill(fluid, fluidFraction * car.GetFluidCapacity(fluid));
 			}
 		}
 
 		//! 7) global health and damage zones
 		float globalHealth;
 		if (!ctx.Read(globalHealth))
-			return ErrorFalse("Couldn't read global health");
+			return ErrorFalse(entity.GetType() + ": Couldn't read global health");
 		entity.SetHealth(globalHealth);
-		TStringArray dmgZones = new TStringArray();
+		//TStringArray dmgZones = new TStringArray();
+		//entity.GetDamageZones(dmgZones);
 		int dmgZoneCount;
 		if (!ctx.Read(dmgZoneCount))
-			return ErrorFalse("Couldn't read damage zone count");
+			return ErrorFalse(entity.GetType() + ": Couldn't read damage zone count");
 		for (i = 0; i < dmgZoneCount; i++)
 		{
 			string dmgZone;
 			if (!ctx.Read(dmgZone))
-				return ErrorFalse("Couldn't read damage zone");
+				return ErrorFalse(entity.GetType() + ": Couldn't read damage zone");
 			float dmgZoneHealth;
 			if (!ctx.Read(dmgZoneHealth))
-				return ErrorFalse("Couldn't read damage zone health");
+				return ErrorFalse(entity.GetType() + ": Couldn't read damage zone health");
+			//if (dmgZones.Find(dmgZone) > -1)
 			entity.SetHealth(dmgZone, "Health", dmgZoneHealth);
+			//else
+				//EXPrint("[EntityStorage] " + entity.GetType() + ": Couldn't find damage zone \"" + dmgZone + "\"");
 		}
 
 		//! 8) Process wetness/temperature/decay
@@ -487,7 +630,16 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!file.Open(fileName, FileMode.WRITE))
 			return ErrorFalse("Couldn't open file for writing " + fileName);
 
-		return Save(entity, file, inventoryOnly, placeholder);
+		Now = CF_Date.Now(true).DateToEpoch();
+
+		auto hitch = EXHitch("[ExpansionEntityStorage] ");
+
+		string basePath;
+		auto exFileName = new ExpansionString(fileName);
+		if (exFileName.EndsWith(EXT))
+			basePath = fileName.Substring(0, fileName.Length() - EXT.Length());
+
+		return Save(entity, file, basePath, inventoryOnly, placeholder);
 	}
 
 	//! @brief restores entity and all its children from file (creates entities). Deletes file on success.
@@ -507,7 +659,16 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				entity.GetInventory().UnlockInventory(HIDE_INV_FROM_SCRIPT);
 		}
 
-		bool success = Restore(file, entity, entity, placeholder, player);
+		Now = CF_Date.Now(true).DateToEpoch();
+
+		auto hitch = EXHitch("[ExpansionEntityStorage] ");
+
+		string basePath;
+		auto exFileName = new ExpansionString(fileName);
+		if (exFileName.EndsWith(EXT))
+			basePath = fileName.Substring(0, fileName.Length() - EXT.Length());
+
+		bool success = Restore(file, null, basePath, entity, entity, placeholder, player);
 
 		if (isInventoryLocked)
 			entity.GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
@@ -615,5 +776,22 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 
 		return true;
+	}
+
+	static bool Reset(bool deleteRestored = false)
+	{
+		int failedCount;
+
+		foreach (ExpansionEntityStorageContext context: s_SubContexts)
+		{
+			context.Close();
+			failedCount += context.m_FailedCount;
+			if (deleteRestored && !context.m_FailedCount)
+				DeleteFile(context.m_FileName);
+		}
+
+		s_SubContexts.Clear();
+
+		return !deleteRestored || failedCount == 0;
 	}
 }

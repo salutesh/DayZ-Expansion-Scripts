@@ -86,7 +86,7 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 			{
 				category_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorHeaders"));
 				if (m_CategoryTooltip) 
-					delete m_CategoryTooltip;
+					m_CategoryTooltip = null;
 				break;
 			}
 		}

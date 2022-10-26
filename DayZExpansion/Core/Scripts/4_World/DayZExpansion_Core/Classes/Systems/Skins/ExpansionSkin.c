@@ -23,10 +23,4 @@ class ExpansionSkin : Managed
 		HiddenSelections = new array< ref ExpansionSkinHiddenSelection >;
 		DamageZones = new array< ref ExpansionSkinDamageZone >;
 	}
-
-	void ~ExpansionSkin()
-	{
-		delete HiddenSelections;
-		delete DamageZones;
-	}
 };

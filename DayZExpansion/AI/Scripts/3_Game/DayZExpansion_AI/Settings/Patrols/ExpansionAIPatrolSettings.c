@@ -48,12 +48,6 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
         ObjectPatrols = new array< ref ExpansionAIObjectPatrol >;
         Patrols = new array< ref ExpansionAIPatrol >;
     }
-
-    void ~ExpansionAIPatrolSettings()
-    {
-        delete ObjectPatrols;
-        delete Patrols;
-    }
 	
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )

@@ -10,29 +10,6 @@
  *
 */
 
-class ExpansionHardlineArmband extends Armband_ColorBase
-{
-	override void OnWasAttached(EntityAI parent, int slot_id)
-	{
-		if (!parent.IsInherited(SurvivorBase))
-			return;
-
-		if (slot_id != InventorySlots.GetSlotIdFromString("Armband"))
-			return;
-
-		super.OnWasAttached(parent, slot_id);
-	}
-	
-	override bool CanPutInCargo(EntityAI parent)
-	{
-		return false;
-	}
-	
-	override bool CanPutIntoHands(EntityAI parent)
-	{
-		return false;
-	}
-};
-
+class ExpansionHardlineArmband extends Armband_ColorBase {};
 class ExpansionArmbandBandit extends ExpansionHardlineArmband {};
 class ExpansionArmbandHero extends ExpansionHardlineArmband {};

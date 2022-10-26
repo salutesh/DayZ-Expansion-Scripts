@@ -151,7 +151,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), aiCamp.GetClassNames(), victim.ClassName());
 
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnEntityKilled - Target found: " + found);
+		CF_Log.Debug(ToString() + "::OnEntityKilled - Target found: " + found);
 	#endif
 
 		if (!found)
@@ -165,7 +165,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 				m_TotalKillCount++;
 
 				if (GetQuest())
-					GetQuest().UpdateQuestPlayersObjectiveData();
+					GetQuest().UpdateQuest();
 			}
 		}
 
@@ -261,7 +261,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 
 	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
 	{
-		Print("=================== Expansion Quest AI Patrol ===================");
+		CF_Log.Info("=================== Expansion Quest AI Patrol ===================");
 		int aiSum;
 		if ( group.NumberOfAI != 0 )
 		{
@@ -276,24 +276,20 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		}
 		else
 		{
-            Print("[QUESTS] WARNING: NumberOfAI shouldn't be set to 0, skipping this group...");
+            CF_Log.Error("[QUESTS] WARNING: NumberOfAI shouldn't be set to 0, skipping this group...");
 			return NULL;
 		}
 
         if ( !group.Waypoints )
         {
-            Print("!!! ERROR !!!");
-            Print("[QUESTS] No waypoints (validate your file with a json validator)");
-            Print("!!! ERROR !!!");
+        CF_Log.Error("[QUESTS] No waypoints (validate your file with a json validator)");
            return NULL;
         }
 
 		vector startpos = group.Waypoints[0];
 		if ( !startpos || startpos == "0 0 0" )
 		{
-			Print("!!! ERROR !!!");
-			Print("[QUESTS] Couldn't find a spawn location. First waypoint is set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
-			Print("!!! ERROR !!!");
+			CF_Log.Error("[QUESTS] Couldn't find a spawn location. First waypoint is set to 0 0 0 or cannot be read by the system (validate your file with a json validator)");
 			return NULL;
 		}
 
@@ -302,12 +298,12 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveEventBase
 		if ( startpos[1] < group.Waypoints[0][1] )
 			startpos[1] = group.Waypoints[0][1];
 
-		Print("[QUESTS] Created trigger for "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]);
+		CF_Log.Info("[QUESTS] Created trigger for "+aiSum+" "+group.Faction+" bots at "+group.Waypoints[0]);
 
 		eAIDynamicPatrol patrol = eAIDynamicPatrol.CreateEx(startpos, group.Waypoints, group.GetBehaviour(), group.LoadoutFile, aiSum, respawnTime, despawnTime, eAIFaction.Create(group.Faction), eAIFormation.Create(group.Formation), true, minDistRadius, maxDistRadius, despawnRadius, group.GetSpeed(), group.GetThreatSpeed(), group.CanBeLooted, group.UnlimitedReload);
         patrol.SetAccuracy(group.AccuracyMin, group.AccuracyMax);
 
-		Print("=================== Expansion Quest AI Patrol ===================");
+		CF_Log.Info("=================== Expansion Quest AI Patrol ===================");
 		return patrol;
 	}
 

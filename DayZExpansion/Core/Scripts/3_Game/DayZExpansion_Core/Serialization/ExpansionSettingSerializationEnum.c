@@ -19,11 +19,6 @@ class ExpansionSettingSerializationEnum: ExpansionSettingSerializationInt
 		m_Values = new array< string >();
 	}
 
-	void ~ExpansionSettingSerializationEnum()
-	{
-		delete m_Values;
-	}
-
 	void SetTempValue( string value )
 	{
 		int idx = m_Values.Find( value );

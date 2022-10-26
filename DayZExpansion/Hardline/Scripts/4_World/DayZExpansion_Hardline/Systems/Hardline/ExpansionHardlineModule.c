@@ -277,7 +277,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (killerIsPlayer)
 		{
 			//! Victim was a normal player.
-			if (victimIsPlayer)
+			if (victimIsPlayer && !victimIsAI)
 			{
 				HandlePlayerKilledPlayer(killerPlayer, victimPlayer);
 			}
@@ -440,6 +440,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	protected void HandlePlayerKilledPlayer(PlayerBase killer, PlayerBase victim)
 	{
 		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - Start");
+		
+		if (!killer.GetIdentity() || !victim.GetIdentity())
+			return;
 					
 		string killerUID = killer.GetIdentity().GetId();
         ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
@@ -688,58 +691,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 #endif
 
-#ifdef EXPANSIONMOD
-	void UpdatePlayerArmband(string playerID)
-	{
-		PlayerBase player = PlayerBase.GetPlayerByUID(playerID);		
-		if (player)
-		{
-			ExpansionHardlinePlayerData data = GetPlayerHardlineDataByUID(playerID);
-			if (!data)
-				return;
-			
-			ExpansionArmbandBandit armbandBandit;
-			ExpansionArmbandHero armbandHero;
-			Armband_ColorBase currentArmband = Armband_ColorBase.Cast(player.FindAttachmentBySlotName("Armband"));
-			if (currentArmband)
-			{
-				if (Class.CastTo(armbandBandit, currentArmband) && player.IsHero())
-				{
-					GetGame().ObjectDelete(currentArmband);
-					player.GetInventory().CreateAttachment("ExpansionArmbandHero");
-				}
-				else if (Class.CastTo(armbandHero, currentArmband) && player.IsBandit())
-				{
-					GetGame().ObjectDelete(currentArmband);
-					player.GetInventory().CreateAttachment("ExpansionArmbandBandit");
-				}
-				else if (!player.IsHero() && !player.IsBandit())
-				{
-					if (Class.CastTo(armbandBandit, currentArmband))
-					{
-						GetGame().ObjectDelete(currentArmband);
-					}
-					else if (Class.CastTo(armbandHero, currentArmband))
-					{
-						GetGame().ObjectDelete(currentArmband);
-					}
-				}
-			}
-			else
-			{
-				if (player.IsHero())
-				{
-					player.GetInventory().CreateAttachment("ExpansionArmbandHero");
-				}
-				else if (player.IsBandit())
-				{
-					player.GetInventory().CreateAttachment("ExpansionArmbandBandit");
-				}
-			}
-		}
-	}
-#endif
-
 	void HardlineModulePrint(string text)
 	{
 	#ifdef DIAG
@@ -803,17 +754,16 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		UpdatePlayerDogTag(identity.GetId());
 	#endif
 		
-	#ifdef EXPANSIONMOD
-		UpdatePlayerArmband(identity.GetId());
-	#endif
-		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		hardlinePlayerData.OnSend(rpc);
 		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendPlayerHardlineData, false, identity);
 	}
 
 	protected void RPC_SendPlayerHardlineData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!GetGame().IsClient())
 			return;
 

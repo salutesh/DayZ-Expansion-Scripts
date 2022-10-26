@@ -38,7 +38,7 @@ class ExpansionPartyPlayerData
 		m_Party = party;
 		m_TempMarkerData = new ExpansionPlayerMarkerData();
 	}
-	
+
 	void ~ExpansionPartyPlayerData()
 	{
 		if ( m_TempMarkerData )

@@ -431,7 +431,7 @@ class ExpansionPhysicsState
 
 	void SendPing(bool desync)
 	{
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(desync);
 		rpc.Send(m_Entity, ExpansionVehicleRPC.ClientPing, true, NULL);
 	}
@@ -444,7 +444,7 @@ class ExpansionPhysicsState
 		// The client will transmit all contact events to the server
 		if (!isServer && mode == ExpansionVehicleNetworkMode.CLIENT)
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write(m_Entity.GetSimulationTimeStamp());
 			rpc.Write(m_Transform[3]);
 			rpc.Write(Math3D.MatrixToAngles(m_Transform));
@@ -476,6 +476,9 @@ class ExpansionPhysicsState
 
 	void OnPing(ParamsReadContext ctx)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		m_TimeSincePing = 0;
 		ctx.Read(m_ClientDesync);
 		auto trace = EXTrace.Start(EXTrace.VEHICLES, m_Entity, "Received client ping - desynced " + m_ClientDesync);
@@ -483,6 +486,9 @@ class ExpansionPhysicsState
 
 	void OnRPC(ParamsReadContext ctx)
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
 		int time;
 		ctx.Read(time);
 

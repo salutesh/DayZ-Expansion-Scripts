@@ -83,7 +83,7 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 		if (m_TerritoryTabMemberEdit)
 		{
 			m_BookMenu.UnregisterTab(m_TerritoryTabMemberEdit);
-			delete m_TerritoryTabMemberEdit;
+			m_TerritoryTabMemberEdit = null;
 		}
 	}
 	

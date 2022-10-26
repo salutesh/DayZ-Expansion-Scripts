@@ -12,13 +12,14 @@
 
 class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 {
-	private int m_Index;
-	private ref ExpansionSpawnLocation m_Location;
-	private ExpansionRespawnHandlerModule m_RespawnModule;
-	private bool m_HasCooldown = false;
-	private bool m_IsTerritory = false;
-	private bool m_IsLocked = false;
-	private bool m_IsDeathMarker = false;
+	protected int m_Index;
+	protected ref ExpansionSpawnLocation m_Location;
+	protected ExpansionRespawnHandlerModule m_RespawnModule;
+	protected bool m_HasCooldown = false;
+	protected bool m_IsTerritory = false;
+	protected bool m_IsLocked = false;
+	protected bool m_IsDeathMarker = false;
+	protected bool m_IsSelected = false;
 		
 	void ExpansionSpawSelectionMenuMapMarker(Widget parent, MapWidget mapWidget, bool autoInit = true)
 	{
@@ -139,7 +140,7 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 	
 	override void OnMarkerClick()
 	{
-		if (m_IsDeathMarker)
+		if (m_IsDeathMarker || m_IsSelected)
 			return;
 		
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
@@ -176,5 +177,15 @@ class ExpansionSpawSelectionMenuMapMarker : ExpansionMapWidgetBase
 	bool IsDeathMarker()
 	{
 		return m_IsDeathMarker;
+	}
+	
+	void Lock()
+	{
+		m_IsSelected = true;
+	}
+	
+	void Unlock()
+	{
+		m_IsSelected = false;
 	}
 };

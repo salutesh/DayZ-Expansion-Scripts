@@ -206,7 +206,7 @@ class ExpansionWreck : Container_Base
 	}
 
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
-	{
+	{		
 		if (rpc_type != PlantType.TREE_HARD && rpc_type != PlantType.TREE_SOFT && rpc_type != PlantType.BUSH_HARD && rpc_type != PlantType.BUSH_SOFT)
 		{
 			super.OnRPC(sender, rpc_type, ctx);

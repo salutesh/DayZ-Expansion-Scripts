@@ -24,7 +24,14 @@ class ExpansionVehicleCover: ExpansionEntityStoragePlaceholder
 		{
 			string type;
 			m_Expansion_NetsyncData.Get(0, type);
-			m_GameLabs_RegisteredInstance = new _Event(type, "vehicle-cover", this);
+			string icon;
+			if (GetGame().IsKindOf(type, "ExpansionHelicopterScript"))
+				icon = GetExpansionSettings().GetVehicle().CFToolsHeliCoverIconName;
+			else if (GetGame().IsKindOf(type, "ExpansionBoatScript"))
+				icon = GetExpansionSettings().GetVehicle().CFToolsBoatCoverIconName;
+			else
+				icon = GetExpansionSettings().GetVehicle().CFToolsCarCoverIconName;
+			m_GameLabs_RegisteredInstance = new _Event(type, icon, this);
 			GetGameLabs().RegisterEvent(m_GameLabs_RegisteredInstance);
 		}
 	}

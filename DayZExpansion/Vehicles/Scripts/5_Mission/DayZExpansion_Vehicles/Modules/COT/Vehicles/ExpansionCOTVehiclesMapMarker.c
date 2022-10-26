@@ -67,16 +67,6 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionCOTVehiclesMapMarker Deconstructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTVehiclesMapMarker()
-	{
-		StopUpdateTimer();
-		
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion ChangeColor
 	// ------------------------------------------------------------
 	void ChangeColor(int color)
@@ -218,8 +208,6 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 		{
 			m_MarkerUpdateTimer.Stop();
 			m_MarkerUpdateTimer = NULL;
-			
-			delete m_MarkerUpdateTimer;
 		}
 	}
 	

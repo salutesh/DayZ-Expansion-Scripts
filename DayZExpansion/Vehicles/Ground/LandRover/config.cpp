@@ -145,22 +145,18 @@ class CfgVehicles
 	class Container_Base;
 	class CanisterGasoline: Bottle_Base
 	{
-		inventorySlot[] = {"CanisterGasoline","CanisterGasoline2","CanisterGasoline_1","CanisterGasoline_2"};
+		inventorySlot[] += {"CanisterGasoline"};
 	};
 	class SeaChest: Container_Base
 	{
-		inventorySlot[] = {"sea_chest","sea_chest_1","sea_chest_2","sea_chest_3","sea_chest_4"};
-	};
-	class WoodenCrate: Container_Base
-	{
-		inventorySlot[] = {"WoodenCrate","woodencrate_1","woodencrate_2","woodencrate_3","woodencrate_4","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3","Truck_01_WoodenCrate4","Truck_01_WoodenCrate5","Truck_01_WoodenCrate6"};
+		inventorySlot[] += {"sea_chest"};
 	};
 	class Expansion_Landrover_Driverdoor: CarDoor
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_FRONT_LEFT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_FRONT_LEFT_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_driverdoor.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_driverdoor.p3d";
 		weight = 15000;
 		defaultSkin = "Green";
 		itemSize[] = {8,8};
@@ -221,7 +217,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_FRONT_RIGHT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_FRONT_RIGHT_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_codriverdoor.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_codriverdoor.p3d";
 		weight = 15000;
 		defaultSkin = "Green";
 		itemSize[] = {8,8};
@@ -282,7 +278,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_BACK_LEFT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_BACK_LEFT_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_left.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_left.p3d";
 		weight = 15000;
 		defaultSkin = "Green";
 		itemSize[] = {8,8};
@@ -343,7 +339,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_BACK_RIGHT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_BACK_RIGHT_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_right.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_right.p3d";
 		weight = 15000;
 		defaultSkin = "Green";
 		itemSize[] = {8,8};
@@ -404,7 +400,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_TRUNK";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_TRUNK_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_trunk.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_trunk.p3d";
 		weight = 15000;
 		defaultSkin = "Green";
 		itemSize[] = {8,8};
@@ -468,7 +464,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_HOOD";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DOOR_HOOD_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_hood.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_hood.p3d";
 		weight = 15000;
 		defaultSkin = "Green";
 		itemSize[] = {8,8};
@@ -586,7 +582,7 @@ class CfgVehicles
 		scope = 0;
 		displayname = "$STR_EXPANSION_VEHICLE_LANDROVER";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DESC";
-		Model = "\DayZExpansion\Vehicles\Ground\LandRover\expansion_landrover.p3d";
+		model = "\DayZExpansion\Vehicles\Ground\LandRover\expansion_landrover.p3d";
 		modelZeroPointDistanceFromGround = 0.52;
 		vehicleClass = "Expansion_Car";
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body_inside","body_outdoor","bottom","dmgzone_front","dmgzone_back","dmgzone_roof","dmgzone_doors","dmgzone_chassis","dmgzone_w_frameL","dmgzone_w_frameR","dmgzone_fender_1_1","dmgzone_fender_1_2","dmgzone_fender_2_1","dmgzone_fender_2_2","dmgzone_interior"};
@@ -1282,134 +1278,7 @@ class CfgVehicles
 	class Expansion_Landrover: Expansion_Landrover_Base
 	{
 		scope = 2;
-		displayname = "$STR_EXPANSION_VEHICLE_LANDROVER";
-		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DESC";
-		Model = "\DayzExpansion\Vehicles\Ground\LandRover\expansion_landrover.p3d";
-		attachments[] = {"CarBattery","Reflector_1_1","Reflector_2_1","CarRadiator","SparkPlug","expansion_landrover_left","expansion_landrover_right","expansion_landrover_trunk","expansion_landrover_hood","expansion_landrover_codriverdoor","expansion_landrover_driverdoor","expansion_landrover_wheel_1_1","expansion_landrover_wheel_1_2","expansion_landrover_wheel_2_1","expansion_landrover_wheel_2_2","expansion_landrover_sparewheel","CanisterGasoline","sea_chest","Truck_01_WoodenCrate1","Truck_01_WoodenCrate2","Truck_01_WoodenCrate3"};
-		frontReflectorMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_lights_on.rvmat";
-		frontReflectorMatOff = "dayzexpansion\vehicles\ground\landrover\data\lr_lights_off.rvmat";
-		brakeReflectorMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_brake_lights.rvmat";
-		brakeReflectorMatOff = "dayzexpansion\vehicles\ground\landrover\data\lr_body_outdoor.rvmat";
-		ReverseReflectorMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_reverse_lights.rvmat";
-		ReverseReflectorMatOff = "dayzexpansion\vehicles\ground\landrover\data\lr_body_outdoor.rvmat";
 		TailReflectorMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_brake_lights.rvmat";
-		TailReflectorMatOff = "dayzexpansion\vehicles\ground\landrover\data\lr_body_outdoor.rvmat";
-		dashboardMatOn = "dayzexpansion\vehicles\ground\landrover\data\lr_dashboard_lights.rvmat";
-		dashboardMatOff = "dayzexpansion\vehicles\ground\landrover\data\lr_body_inside.rvmat";
-		class AnimationSources
-		{
-			class DoorsDriver
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.5;
-			};
-			class DoorsCoDriver: DoorsDriver{};
-			class DoorsCargo1: DoorsDriver{};
-			class DoorsCargo2: DoorsDriver{};
-			class DoorsHood: DoorsDriver{};
-			class DoorsTrunk: DoorsDriver{};
-			class EngineShake
-			{
-				source = "enginerun";
-				initPhase = 0;
-				animPeriod = 0.2;
-			};
-			class EngineShake1: EngineShake{};
-			class EngineFan
-			{
-				source = "enginerun";
-				initPhase = 0;
-			};
-			class HideDestroyed_1_1
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.001;
-			};
-			class HideDestroyed_1_2
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.001;
-			};
-			class HideDestroyed_2_1
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.001;
-			};
-			class HideDestroyed_2_2
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.001;
-			};
-			class AnimHitWheel_1_1
-			{
-				source = "Hit";
-				hitpoint = "HitWheel_1_1";
-				raw = 1;
-			};
-			class AnimHitWheel_1_2: AnimHitWheel_1_1
-			{
-				hitpoint = "HitWheel_1_2";
-			};
-			class AnimHitWheel_2_1: AnimHitWheel_1_1
-			{
-				hitpoint = "HitWheel_2_1";
-			};
-			class AnimHitWheel_2_2: AnimHitWheel_1_1
-			{
-				hitpoint = "HitWheel_2_2";
-			};
-			class HitDoorsHood: AnimHitWheel_1_1
-			{
-				hitpoint = "HitDoorsHood";
-			};
-			class HitDoorsTrunk: AnimHitWheel_1_1
-			{
-				hitpoint = "HitDoorsTrunk";
-			};
-			class HitDoorsDrivers: AnimHitWheel_1_1
-			{
-				hitpoint = "HitDoorsDriver";
-			};
-			class HitDoorsCoDrivers: AnimHitWheel_1_1
-			{
-				hitpoint = "HitDoorsCoDriver";
-			};
-			class HitDoorsCargo: AnimHitWheel_1_1
-			{
-				hitpoint = "HitDoorsCargo";
-			};
-			class SeatDriver
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.8;
-			};
-			class SeatCoDriver
-			{
-				source = "user";
-				initPhase = 0;
-				animPeriod = 0.8;
-			};
-			class damper_1_1
-			{
-				source = "user";
-				initPhase = 0.4857;
-				animPeriod = 1;
-			};
-			class damper_2_1: damper_1_1{};
-			class damper_1_2
-			{
-				source = "user";
-				initPhase = 0.4002;
-				animPeriod = 1;
-			};
-			class damper_2_2: damper_1_2{};
-		};
 	};
 	class ExpansionSpraycanBase;
 	class ExpansionSpraycanYellow: ExpansionSpraycanBase
@@ -1706,32 +1575,32 @@ class CfgNonAIVehicles
 	class ProxyVehiclePart;
 	class Proxyexpansion_landrover_driverdoor: ProxyVehiclePart
 	{
-		Model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_driverdoor.p3d";
+		model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_driverdoor.p3d";
 		inventorySlot = "expansion_landrover_driverdoor";
 	};
 	class Proxyexpansion_landrover_codriverdoor: ProxyVehiclePart
 	{
-		Model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_codriverdoor.p3d";
+		model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_codriverdoor.p3d";
 		inventorySlot = "expansion_landrover_codriverdoor";
 	};
 	class Proxyexpansion_landrover_left: ProxyVehiclePart
 	{
-		Model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_left.p3d";
+		model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_left.p3d";
 		inventorySlot = "expansion_landrover_left";
 	};
 	class Proxyexpansion_landrover_right: ProxyVehiclePart
 	{
-		Model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_right.p3d";
+		model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_right.p3d";
 		inventorySlot = "expansion_landrover_right";
 	};
 	class Proxyexpansion_landrover_trunk: ProxyVehiclePart
 	{
-		Model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_trunk.p3d";
+		model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_trunk.p3d";
 		inventorySlot = "expansion_landrover_trunk";
 	};
 	class Proxyexpansion_landrover_hood: ProxyVehiclePart
 	{
-		Model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_hood.p3d";
+		model = "DayzExpansion\Vehicles\Ground\LandRover\proxy\expansion_landrover_hood.p3d";
 		inventorySlot = "expansion_landrover_hood";
 	};
 	class Proxylandrover_wheel: ProxyVehiclePart

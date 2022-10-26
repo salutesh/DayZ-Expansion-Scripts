@@ -41,6 +41,9 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		ChatMessageEventParams data;
 
 		Object parent;
@@ -97,7 +100,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 
 				if ( GetGame().IsMultiplayer() )
 				{
-					ScriptRPC rpc = new ScriptRPC();
+					auto rpc = ExpansionScriptRPC.Create();
 					rpc.Write(data);
 
 					if (parent)

@@ -185,8 +185,108 @@ class ExpansionConstructionKitBase extends ItemBase
 	{
 		return "cartent_deploy_SoundSet";
 	}
+	
+	override bool IsHeavyBehaviour()
+	{
+		return true;
+	}
 };
 
 class ExpansionConstructionKitLarge extends ExpansionConstructionKitBase {};
 class ExpansionConstructionKitSmall extends ExpansionConstructionKitBase {};
 
+class ExpansionDeployableConstruction extends ItemBase
+{
+	float m_ConstructionKitHealth;
+	
+	void ExpansionDeployableConstruction()
+	{
+		if (GetGame().IsServer())
+			SetAllowDamage(CanBeDamaged());
+	}
+	
+	ItemBase CreateConstructionKit()
+	{
+		ItemBase construction_kit = ItemBase.Cast(GetGame().CreateObjectEx(GetConstructionKitType(), GetPosition(), ECE_PLACE_ON_SURFACE ));
+		if (m_ConstructionKitHealth > 0)
+		{
+			construction_kit.SetHealth(m_ConstructionKitHealth);
+		}
+		
+		return construction_kit;
+	}
+	
+	void CreateConstructionKitInHands(notnull PlayerBase player)
+	{
+		ItemBase construction_kit = ItemBase.Cast(player.GetHumanInventory().CreateInHands(GetConstructionKitType()));
+		if (m_ConstructionKitHealth > 0)
+		{
+			construction_kit.SetHealth(m_ConstructionKitHealth);
+		}
+	}
+	
+	override bool CanBeDamaged()
+	{
+		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 0)
+		{
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	override void SetActions()
+	{
+		super.SetActions();
+
+		AddAction( ActionFoldBaseBuildingObject );
+		AddAction( ExpansionActionDamageBaseBuilding );
+	}
+	
+	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
+	{
+		super.EEHealthLevelChanged(oldLevel,newLevel,zone);
+		
+		if (m_FixDamageSystemInit)
+			return;
+		
+		if (zone == "" && newLevel == GameConstants.STATE_RUINED && GetGame().IsServer())
+			MiscGameplayFunctions.DropAllItemsInInventoryInBounds(this, Vector(0.8, 0.15, 1.3));
+	}
+	
+	string GetConstructionKitType();
+	
+	void DestroyConstruction()
+	{
+		GetGame().ObjectDelete(this);
+	}	
+	
+	#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
+
+		auto ctx = storage[DZ_Expansion_BaseBuilding];
+		if (!ctx) return;
+
+		ctx.Write(m_ConstructionKitHealth);
+	}
+
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_BaseBuilding];
+		if (!ctx) return true;
+
+		if (ctx.GetVersion() < 46)
+			return true;
+		
+		if (!ctx.Read(m_ConstructionKitHealth))
+			return false;
+
+		return true;
+	}
+	#endif
+}

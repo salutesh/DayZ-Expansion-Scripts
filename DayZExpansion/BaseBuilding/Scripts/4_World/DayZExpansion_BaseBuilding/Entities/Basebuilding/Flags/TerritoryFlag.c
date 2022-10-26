@@ -541,7 +541,7 @@ modded class TerritoryFlag
 	{
 		super.EEKilled(killer);
 
-		if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+		if (GetExpansionSettings().GetGarage().Enabled && GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
 		{
 			int territoryID = GetTerritoryID();
 			ExpansionGarageModule garageModule;

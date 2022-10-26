@@ -180,13 +180,22 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	ExpansionQuestNPCBase SpawnNPC()
 	{
-		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+ 		ExpansionQuestNPCBase questNPC;
+		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
+	    {
+			CF_Log.Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as quest NPC in config. Only objects based on ExpansionQuestNPCBase class are allowed!");
+			GetGame().ObjectDelete(obj);
+	        return null;
+	    }
 
-		obj.SetOrientation(Orientation);
-		obj.Update();
+		if (Position)
+	        questNPC.SetPosition(Position);
 
-		EntityAI enity = EntityAI.Cast(obj);
-		ExpansionQuestNPCBase questNPC = ExpansionQuestNPCBase.Cast(enity);
+	    if (Orientation)
+	        questNPC.SetOrientation(Orientation);
+
+		questNPC.Update();
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
@@ -196,13 +205,22 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 #ifdef EXPANSIONMODAI
 	ExpansionQuestNPCAIBase SpawnNPCAI()
 	{
-		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		ExpansionQuestNPCAIBase questNPC;
+	    if (!ExpansionQuestNPCAIBase.CastTo(questNPC, obj))
+	    {
+			CF_Log.Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestNPCAIBase class are allowed!");
+			GetGame().ObjectDelete(obj);
+	        return null;
+	    }
 
-		obj.SetOrientation(Orientation);
-		obj.Update();
+		if (Position)
+	        questNPC.SetPosition(Position);
 
-		EntityAI enity = EntityAI.Cast(obj);
-		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(enity);
+	    if (Orientation)
+	        questNPC.SetOrientation(Orientation);
+
+		questNPC.Update();
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
 
@@ -224,21 +242,24 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	ExpansionQuestStaticObject SpawnObject()
 	{
-		Object obj = GetGame().CreateObjectEx(ClassName, GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+	    Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+	    ExpansionQuestStaticObject questObject;
+	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
+	    {
+			CF_Log.Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestStaticObject class are allowed!");
+			GetGame().ObjectDelete(obj);
+	        return null;
+	    }
 
-		if (Position)
-			obj.SetPosition(Position);
+	    if (Position)
+	        questObject.SetPosition(Position);
 
-		if (Orientation)
-			obj.SetOrientation(Orientation);
+	    if (Orientation)
+	        questObject.SetOrientation(Orientation);
 
-		EntityAI enity = EntityAI.Cast(obj);
-		ExpansionQuestStaticObject questObject = ExpansionQuestStaticObject.Cast(enity);
-		questObject.SetPosition(Position);
-		questObject.SetOrientation(Orientation);
-		questObject.m_Expansion_NetsyncData.Set(0, NPCName);
+	    questObject.m_Expansion_NetsyncData.Set(0, NPCName);
 
-		return questObject;
+	    return questObject;
 	}
 
 	static ExpansionQuestNPCData Load(string fileName)
@@ -300,12 +321,12 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - ID: " + ID);
-		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		Print(ToString() + "::QuestDebug - NPCName: " + NPCName);
-		Print(ToString() + "::QuestDebug - DefaultNPCText: " + DefaultNPCText);
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - ID: " + ID);
+		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		CF_Log.Debug(ToString() + "::QuestDebug - NPCName: " + NPCName);
+		CF_Log.Debug(ToString() + "::QuestDebug - DefaultNPCText: " + DefaultNPCText);
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

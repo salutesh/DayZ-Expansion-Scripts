@@ -748,7 +748,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveDeliveryConfig deliveryConfig = new ExpansionQuestObjectiveDeliveryConfig();
 				if (!deliveryConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - DELIVER");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - DELIVER");
 					return false;
 				}
 
@@ -760,7 +760,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveTravelConfig travelConfig = new ExpansionQuestObjectiveTravelConfig();
 				if (!travelConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - TRAVEL");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - TRAVEL");
 					return false;
 				}
 
@@ -772,7 +772,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveTargetConfig targetConfig = new ExpansionQuestObjectiveTargetConfig();
 				if (!targetConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - TARGET");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - TARGET");
 					return false;
 				}
 
@@ -784,7 +784,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveCollectionConfig collectionConfig = new ExpansionQuestObjectiveCollectionConfig();
 				if (!collectionConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - COLLECT");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - COLLECT");
 					return false;
 				}
 
@@ -796,7 +796,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig = new ExpansionQuestObjectiveTreasureHuntConfig();
 				if (!treasureHuntConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - TREASUREHUNT");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - TREASUREHUNT");
 					return false;
 				}
 
@@ -808,7 +808,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveActionConfig actionConfig = new ExpansionQuestObjectiveActionConfig();
 				if (!actionConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - ACTION");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - ACTION");
 					return false;
 				}
 
@@ -820,7 +820,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveCraftingConfig craftingConfig = new ExpansionQuestObjectiveCraftingConfig();
 				if (!craftingConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - CRAFTING");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - CRAFTING");
 					return false;
 				}
 
@@ -833,7 +833,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = new ExpansionQuestObjectiveAIPatrolConfig();
 				if (!aiPatrolConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - AIPATROL");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - AIPATROL");
 					return false;
 				}
 
@@ -845,7 +845,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveAICampConfig aiCampConfig = new ExpansionQuestObjectiveAICampConfig();
 				if (!aiCampConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - AICAMP");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - AICAMP");
 					return false;
 				}
 
@@ -857,7 +857,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = new ExpansionQuestObjectiveAIVIPConfig();
 				if (!aiVIPConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - AIVIP");
+					CF_Log.Error("ExpansionQuestConfig::OnRecieve - AIVIP");
 					return false;
 				}
 
@@ -870,7 +870,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		int itemsCount;
 		if (!ctx.Read(itemsCount))
 		{
-			Error("ExpansionQuestConfig::OnRecieve - itemsCount");
+			CF_Log.Error("ExpansionQuestConfig::OnRecieve - itemsCount");
 			return false;
 		}
 
@@ -883,7 +883,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			ExpansionQuestItemConfig item = new ExpansionQuestItemConfig();
 			if (!item.OnRecieve(ctx))
 			{
-				Error("ExpansionQuestConfig::OnRecieve - item");
+				CF_Log.Error("ExpansionQuestConfig::OnRecieve - item");
 				return false;
 			}
 
@@ -894,7 +894,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		int rewardsCount;
 		if (!ctx.Read(rewardsCount))
 		{
-			Error("ExpansionQuestConfig::OnRecieve - rewardsCount");
+			CF_Log.Error("ExpansionQuestConfig::OnRecieve - rewardsCount");
 			return false;
 		}
 
@@ -906,7 +906,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			ExpansionQuestRewardConfig reward = new ExpansionQuestRewardConfig();
 			if (!reward.OnRecieve(ctx))
 			{
-				Error("ExpansionQuestConfig::OnRecieve - reward");
+				CF_Log.Error("ExpansionQuestConfig::OnRecieve - reward");
 				return false;
 			}
 
@@ -954,7 +954,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 

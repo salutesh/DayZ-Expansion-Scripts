@@ -31,7 +31,7 @@ modded class NotificationSystem
 
 		if ( IsMissionHost() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( title );
 			rpc.Write( text );
 			rpc.Write( icon );
@@ -59,7 +59,7 @@ modded class NotificationSystem
 	{	
 		if ( IsMissionHost() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( title );
 			rpc.Write( text );
 			rpc.Write( icon );
@@ -112,10 +112,12 @@ modded class NotificationSystem
 	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
 	{
 		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
-
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
 #endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
@@ -159,10 +161,12 @@ modded class NotificationSystem
 	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
 	{
 		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
-
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
 #endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
@@ -185,7 +189,6 @@ modded class NotificationSystem
 			return;
 
 		Exec_ExpansionCreateNotification( title, text, icon, color, time );
-
 	}
 
 	override void AddNotif( ref NotificationRuntimeData data )
@@ -206,6 +209,9 @@ modded class NotificationSystem
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_ExpansionCreateNotification");
 #endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		StringLocaliser title = new StringLocaliser( "" );
 		if ( !ctx.Read( title ) )
@@ -244,7 +250,6 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Update");
 #endif
 
-		
 		if ( m_Instance && IsMissionClient() )
 		{
 			array< NotificationRuntimeData > to_remove = new array< NotificationRuntimeData >;

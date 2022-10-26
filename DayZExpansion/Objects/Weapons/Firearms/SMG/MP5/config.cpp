@@ -42,6 +42,11 @@ class cfgWeapons
 		drySound[] = {"dz\sounds\weapons\firearms\m4a1\m4_dry",0.5,1,20};
 		reloadAction = "ReloadMP5";
 		modes[] = {"FullAuto","SemiAuto","Burst"};
+		s_recoilControlStabilityX = 0.7;
+		s_recoilControlStabilityY = 0.7;
+		s_recoilControlMisalignmentX = 0.5;
+		s_recoilControlMisalignmentY = 0.75;
+		s_recoilControlKick = 0.75;
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"MP5K_Shot_SoundSet","MP5K_Tail_SoundSet","MP5K_InteriorTail_SoundSet"};

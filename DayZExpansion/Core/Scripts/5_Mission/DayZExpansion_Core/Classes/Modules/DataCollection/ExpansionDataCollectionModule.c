@@ -129,7 +129,7 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 		if (!IsMissionClient())
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
  		rpc.Send(NULL, ExpansionDataCollectionRPC.RequestPlayerData, false);
 	}
 	
@@ -138,10 +138,13 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	{		
 		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!IsMissionHost())
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();		
+		auto rpc = ExpansionScriptRPC.Create();		
 		int playersClount = m_PlayerData.Count();
 		rpc.Write(playersClount);
 	
@@ -161,6 +164,9 @@ class ExpansionDataCollectionModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.DATACOLLECTION);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!IsMissionClient())
 			return;
 		

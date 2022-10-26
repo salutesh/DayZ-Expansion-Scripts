@@ -224,7 +224,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		EXLogPrint("ExpansionCOTTerritoriesModule::RequestTerritoryObjects - Start");
 		#endif
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( pos );
 		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.RequestTerritoryObjects, true, null );
 		
@@ -242,6 +242,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestTerritoryObjects - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		if ( !IsMissionHost() )
 			return;
@@ -288,7 +291,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 			}
 		}
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( objects_datas );
 		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.SendTerritoryObjects, true, ident );
 		
@@ -306,6 +309,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendTerritoryObjects - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		if ( IsMissionHost() )
 			return;
@@ -396,7 +402,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
 			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.DeleteObject, true );
@@ -416,6 +422,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_DeleteObject - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		if ( !IsMissionHost() )
 			return;
@@ -455,7 +464,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		
 		if ( !IsMissionHost() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
  			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.RequestServerTerritories, true );
 		}
 		
@@ -473,6 +482,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestServerTerritories - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 			
 		if (!IsMissionHost())
 			return;
@@ -501,7 +513,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 			territories.Insert( currentFlag.GetTerritory() );
 		}
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territories );
 		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.SendServerTerritories, true, senderRPC );
 		
@@ -520,6 +532,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendServerTerritories - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		if ( !IsMissionClient() )
 			return;
@@ -550,10 +565,10 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RequestTeleportToTerritory - Start");
 		#endif
-		
+				
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
  			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.TeleportToTerritory, true );
@@ -573,6 +588,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_TeleportToTerritory - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		if ( !IsMissionHost() )
 			return;
@@ -622,7 +640,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( netLow );
 			rpc.Write( netHigh );
  			rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.RequestUpdateObjectData, true );
@@ -642,6 +660,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_RequestUpdateObjectData - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		if ( !IsMissionHost() )
 			return;
@@ -680,7 +701,7 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 			return;
 		}
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( object_data );
  		rpc.Send( NULL, ExpansionCOTTerritoriesModuleRPC.SendObjectData, true );
 		
@@ -698,6 +719,9 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionCOTTerritoriesModule::RPC_SendObjectData - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
 		
 		ExpansionEntityMetaData object_data;
 		if ( !ctx.Read( object_data ) )

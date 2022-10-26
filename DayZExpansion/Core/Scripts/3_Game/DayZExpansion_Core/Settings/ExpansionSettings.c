@@ -145,12 +145,6 @@ class ExpansionSettings
 				return true;
 			}
 			
-			case ExpansionSettingsRPC.Log:
-			{
-				Receive(ExpansionLogSettings, ctx);
-				return true;
-			}
-			
 			case ExpansionSettingsRPC.Notification:
 			{
 				Receive(ExpansionNotificationSettings, ctx);
@@ -166,6 +160,9 @@ class ExpansionSettings
 		auto trace = EXTrace.Start(EXTrace.ENABLE, this, type.ToString());
 
 		if (GetGame().IsDedicatedServer())
+			return;
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
 		Init(type);

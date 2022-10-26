@@ -24,15 +24,6 @@ modded class PlayerBase
 		m_MarketSell = new ExpansionMarketSell;
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase Destructor
-	// ------------------------------------------------------------
-	void ~PlayerBase()
-	{
-		delete m_MarketReserve; 
-		delete m_MarketSell;
-	}
-
 	override void SetActions( out TInputActionMap InputActionMap )
 	{
 		super.SetActions(InputActionMap);

@@ -74,7 +74,7 @@ class ExpansionDebugSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Debug, true, identity );
 		

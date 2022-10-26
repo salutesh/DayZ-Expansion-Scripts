@@ -386,7 +386,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		if (m_UpdateTimer)
 		{
 			m_UpdateTimer.Stop();
-			delete m_UpdateTimer;
+			m_UpdateTimer = null;
 		}
 	}
 };

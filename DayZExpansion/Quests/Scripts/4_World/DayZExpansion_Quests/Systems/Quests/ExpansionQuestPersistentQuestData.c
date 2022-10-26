@@ -50,26 +50,26 @@ class ExpansionQuestPersistentQuestData
 	{
 		if (!ctx.Read(QuestID))
 		{
-			Error(ToString() + "::OnRecieve - QuestID");
+			CF_Log.Error(ToString() + "::OnRecieve - QuestID");
 			return false;
 		}
 
 		if (!ctx.Read(State))
 		{
-			Error(ToString() + "::OnRecieve - State");
+			CF_Log.Error(ToString() + "::OnRecieve - State");
 			return false;
 		}
 
 		if (!ctx.Read(Timestamp))
 		{
-			Error(ToString() + "::OnRecieve - Timestamp");
+			CF_Log.Error(ToString() + "::OnRecieve - Timestamp");
 			return false;
 		}
 
 		int objectivesCount;
 		if (!ctx.Read(objectivesCount))
 		{
-			Error(ToString() + "::OnRecieve - objectivesCount");
+			CF_Log.Error(ToString() + "::OnRecieve - objectivesCount");
 			return false;
 		}
 
@@ -87,7 +87,7 @@ class ExpansionQuestPersistentQuestData
 			ExpansionQuestObjectiveData objective = new ExpansionQuestObjectiveData();
 			if (!objective.OnRecieve(ctx))
 			{
-				Error(ToString() + "::OnRecieve - objective");
+				CF_Log.Error(ToString() + "::OnRecieve - objective");
 				return false;
 			}
 
@@ -101,15 +101,15 @@ class ExpansionQuestPersistentQuestData
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		Print("------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - Quest ID: " + QuestID);
-		Print(ToString() + "::QuestDebug - Quest State: " + State);
-		Print(ToString() + "::QuestDebug - Quest Timestamp: " + Timestamp);
+		CF_Log.Debug("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - Quest ID: " + QuestID);
+		CF_Log.Debug(ToString() + "::QuestDebug - Quest State: " + State);
+		CF_Log.Debug(ToString() + "::QuestDebug - Quest Timestamp: " + Timestamp);
 		for (int i = 0; i < QuestObjectives.Count(); i++)
 		{
 			QuestObjectives[i].QuestDebug();
 		}
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

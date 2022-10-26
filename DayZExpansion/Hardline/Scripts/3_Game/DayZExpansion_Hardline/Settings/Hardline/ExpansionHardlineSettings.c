@@ -406,7 +406,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			return 0;
 		}
 
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.Hardline, true, identity );
 

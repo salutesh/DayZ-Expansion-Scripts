@@ -41,14 +41,6 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
-	// Expansion ExpansionFlagMenuTextureEntry Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionFlagMenuTextureEntry()
-	{
-		delete m_Root;
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

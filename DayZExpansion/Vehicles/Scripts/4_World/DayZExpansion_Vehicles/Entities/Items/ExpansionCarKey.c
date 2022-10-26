@@ -49,9 +49,6 @@ class ExpansionCarKey extends ItemBase
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
 		m_AllKeys.Insert(this);
-
-		if ( GetGame().IsClient() )
-			RequestItemData();
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::ExpansionCarKey - End");
@@ -81,10 +78,8 @@ class ExpansionCarKey extends ItemBase
 	// Expansion EEInit
 	// ------------------------------------------------------------
 	override void EEInit()
-	{		
-		#ifdef EXPANSION_CARKEY_LOGGING
-		EXLogPrint("ExpansionCarKey::ExpansionCarKey - Start");
-		#endif
+	{
+		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
 		
 		super.EEInit();
 		
@@ -92,10 +87,6 @@ class ExpansionCarKey extends ItemBase
 		{
 			RequestItemData();
 		}
-		
-		#ifdef EXPANSION_CARKEY_LOGGING
-		EXLogPrint("ExpansionCarKey::ExpansionCarKey - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -424,7 +415,7 @@ class ExpansionCarKey extends ItemBase
 		m_VehicleDisplayName = vehicle.ConfigGetString( "displayName" );
 		m_Vehicle = vehicle;
 
-		RPC_RequestItemData( NULL );
+		RPC_RequestItemData( NULL, NULL );
 		SetSynchDirty();
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
@@ -467,7 +458,7 @@ class ExpansionCarKey extends ItemBase
 		m_VehicleDisplayName = key.GetKeyDisplayName();
 		m_Vehicle = key.GetKeyObject();
 
-		RPC_RequestItemData( NULL );
+		RPC_RequestItemData( NULL, NULL );
 		SetSynchDirty();
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
@@ -532,7 +523,7 @@ class ExpansionCarKey extends ItemBase
 		m_Vehicle = NULL;
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
-		RPC_RequestItemData( NULL );
+		RPC_RequestItemData( NULL, NULL );
 		SetSynchDirty();
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
@@ -704,7 +695,7 @@ class ExpansionCarKey extends ItemBase
 		{
 			case ExpansionCarKeyRPC.RequestItemData:
 			{
-				RPC_RequestItemData( sender );
+				RPC_RequestItemData( ctx, sender );
 				break;
 			}
 			case ExpansionCarKeyRPC.SendItemData:
@@ -729,6 +720,9 @@ class ExpansionCarKey extends ItemBase
 		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");
 		#endif
 		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !ctx.Read( m_VehicleDisplayName ) )
 			return;
 		
@@ -741,13 +735,16 @@ class ExpansionCarKey extends ItemBase
 	// ExpansionCarKey RPC_RequestItemData
 	// Called on server
 	// ------------------------------------------------------------
-	private void RPC_RequestItemData( PlayerIdentity senderRPC )
+	private void RPC_RequestItemData( ParamsReadContext ctx, PlayerIdentity senderRPC )
 	{
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::RPC_SendItemData - Start");
 		#endif
 		
-		ScriptRPC rpc = new ScriptRPC();
+		if (ctx && !ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+				
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( m_VehicleDisplayName );
 		rpc.Send( this, ExpansionCarKeyRPC.SendItemData, true, senderRPC );
 		
@@ -768,7 +765,7 @@ class ExpansionCarKey extends ItemBase
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( this, ExpansionCarKeyRPC.RequestItemData, true, NULL );
 		}
 		

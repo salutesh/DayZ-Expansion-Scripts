@@ -14,17 +14,45 @@ modded class ActionFoldBaseBuildingObject
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( !super.ActionCondition( player, target, item ) )
-			return false;
+		bool isDeployableConstruction;
+		bool isParkingMeter;
 
 		//! Don't allow to fold (e.g.) camo box and camo tent if not empty
 		ItemBase item_base = ItemBase.Cast( target.GetObject() );
-		if ( item_base && item_base.GetNumberOfItems() > 0 )
-			return false;
+		if (item_base)
+		{
+			isDeployableConstruction = item_base.IsInherited(ExpansionDeployableConstruction);
+		#ifdef EXPANSIONMODGARAGE
+			isParkingMeter = item_base.IsInherited(ExpansionParkingMeter);
+		#endif
 
-		if ( player.IsInTerritory() )
-			return player.IsInsideOwnTerritory();
+			if (!isParkingMeter && item_base.GetNumberOfItems() > 0)
+				return false;
+		}
 
-		return true;
+		//! Can fold if inside own territory, but not if in enemy territory
+		if (player.IsInTerritory())
+			return (isDeployableConstruction || super.ActionCondition(player, target, item)) && player.IsInsideOwnTerritory();
+
+		//! Can fold if outside territory
+		if (isDeployableConstruction)
+			return true;
+
+		return super.ActionCondition(player, target, item);
+	}
+	
+	override void OnFinishProgressServer(ActionData action_data)
+	{
+		Object targetObject = action_data.m_Target.GetObject();
+		if (targetObject && targetObject.IsInherited(ExpansionDeployableConstruction))
+		{
+			ExpansionDeployableConstruction deployable_construction = ExpansionDeployableConstruction.Cast(action_data.m_Target.GetObject());
+			deployable_construction.CreateConstructionKit();
+			deployable_construction.DestroyConstruction();
+		}
+		else
+		{
+			super.OnFinishProgressServer(action_data);
+		}
 	}
 }

@@ -108,8 +108,6 @@ modded class MissionGameplay
 
 		Man man = GetGame().GetPlayer(); 	//! Refernce to man
 		Input input = GetGame().GetInput(); 	//! Reference to input
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); 	//! Expansion reference to menu
-		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player		
 		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		
 		//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
@@ -162,7 +160,7 @@ modded class MissionGameplay
 	void DestroyExpansionUIMenuManager()
 	{
 		if (m_EXUIMenuManager)
-			delete m_EXUIMenuManager;
+			m_EXUIMenuManager = null;
 	}
 	
 	// ------------------------------------------------------------

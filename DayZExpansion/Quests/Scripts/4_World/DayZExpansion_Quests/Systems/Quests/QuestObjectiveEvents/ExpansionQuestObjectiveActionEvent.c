@@ -192,7 +192,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 };

@@ -200,6 +200,10 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			#endif
 			if (GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Disabled)
 				return;
+			
+			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
+				return;
+			
 			TerritoryFlag flag;
 			if ( Class.CastTo( flag, rpc.Target ) )
 			{
@@ -368,7 +372,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		EXLogPrint("ExpansionTerritoryModule::Send_UpdateClient 1 territory : " + territory);
 		#endif
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territoryID );
 		rpc.Write( territory );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.UpdateClient, true, sendTo );
@@ -380,6 +384,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_UpdateClient( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if ( !IsMissionClient() )
 			return;
 		
@@ -411,7 +418,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			if ( oldTerritory )
 			{
 				m_Territories.Remove( territoryID );
-				delete oldTerritory;
 			}
 			
 			if ( territory )
@@ -451,7 +457,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !IsMissionClient() )
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territoryName );
 		rpc.Write( flag );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.CreateTerritory, true, NULL );
@@ -470,6 +476,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_CreateTerritory - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		string territoryName;
 		if ( !ctx.Read( territoryName ) )	//! Get Territory name
@@ -581,7 +590,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( texturePath );
 			rpc.Write( flag );
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.ChangeTexture, true, NULL );
@@ -601,6 +610,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_ChangeFlagTexture - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		string texturePath;
 		if ( !ctx.Read( texturePath ) )
@@ -655,7 +667,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( flag );
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.DeleteTerritoryPlayer, true, NULL );
 		}
@@ -674,6 +686,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		TerritoryFlag flag;
 	
@@ -754,7 +769,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			m_TerritoryFlags.Remove( territoryID );
 			
 		#ifdef EXPANSIONMODGARAGE
-			if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+			if (GetExpansionSettings().GetGarage().Enabled && GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
 			{
 				ExpansionGarageModule garageModule;
 				if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))
@@ -786,7 +801,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( territoryID );
 			rpc.Send( null, ExpansionTerritoryModuleRPC.DeleteTerritoryAdmin, true );
 		}
@@ -805,6 +820,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::DeleteTerritoryPlayer - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int territoryID;
 		if ( !ctx.Read( territoryID ) )
@@ -885,7 +903,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		m_TerritoryFlags.Remove( territoryID );
 		
 	#ifdef EXPANSIONMODGARAGE
-		if (GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
+		if (GetExpansionSettings().GetGarage().Enabled && GetExpansionSettings().GetGarage().GarageMode == ExpansionGarageMode.Territory)
 		{
 			ExpansionGarageModule garageModule;
 			if (Class.CastTo(garageModule, CF_ModuleCoreManager.Get(ExpansionGarageModule)))
@@ -929,7 +947,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			invites.Insert(invite);
 		}
 		
-		ScriptRPC rpcServer = new ScriptRPC();
+		auto rpcServer = ExpansionScriptRPC.Create();
 		rpcServer.Write( invites );
 		rpcServer.Send( NULL, ExpansionTerritoryModuleRPC.SyncPlayerInvites, true, sender.GetIdentity() );
 	}
@@ -940,6 +958,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SyncPlayerInvitesClient( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		PlayerBase player = PlayerBase.Cast( GetGame().GetPlayer() );
 		if ( !player )
 			return;
@@ -964,7 +985,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !IsMissionClient() )
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( targetID );
 		rpc.Write( flag );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.RequestInvitePlayer, true, NULL );
@@ -983,6 +1004,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_RequestInvitePlayer - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		if ( !IsMissionHost() )
 			return;
@@ -1113,7 +1137,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( territoryID );
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.AcceptInvite, true, NULL );
 		}
@@ -1132,6 +1156,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_AcceptInvite - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int territoryID;
 		if ( !ctx.Read( territoryID ) )
@@ -1225,7 +1252,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		
 		if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( territoryID );
 			rpc.Send( NULL, ExpansionTerritoryModuleRPC.DeclineInvite, true, NULL );
 		}
@@ -1245,6 +1272,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DeclineInvite - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int territoryID;
 		if ( !ctx.Read( territoryID ) )
@@ -1320,7 +1350,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !IsMissionClient() )
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territoryID );
 		rpc.Write( member );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.PromoteMember, true, NULL );
@@ -1335,6 +1365,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PromoteMember - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 
 		if ( !IsMissionHost() )
 			return;
@@ -1462,7 +1495,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !IsMissionClient() )
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territoryID );
 		rpc.Write( member );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.DemoteMember, true, NULL );
@@ -1477,6 +1510,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_DemoteMember - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int territoryID
 		if ( !ctx.Read( territoryID ) )
@@ -1568,7 +1604,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !IsMissionClient() )
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territoryID );
 		rpc.Write( member );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.KickMember, true, NULL );
@@ -1583,6 +1619,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_KickMember - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int territoryID
 		if ( !ctx.Read( territoryID ) )
@@ -1686,7 +1725,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		if ( !IsMissionClient() )
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( territoryID );
 		rpc.Send( NULL, ExpansionTerritoryModuleRPC.Leave, true, NULL );
 	}
@@ -1700,6 +1739,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_Leave - Start");
 		#endif
+	
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int territoryID
 		if ( !ctx.Read( territoryID ) )
@@ -1772,6 +1814,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
 		EXLogPrint("ExpansionTerritoryModule::RPC_PlayerEnteredTerritory - Start");
 		#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		int type;
 		if ( !ctx.Read( type ) )
@@ -1846,7 +1891,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 
 		if ( type > -1 && GetExpansionSettings().GetNotification().ShowTerritoryNotifications )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( type );
 			rpc.Write( territoryId );
  			rpc.Send( null, ExpansionTerritoryModuleRPC.PlayerEnteredTerritory, true );

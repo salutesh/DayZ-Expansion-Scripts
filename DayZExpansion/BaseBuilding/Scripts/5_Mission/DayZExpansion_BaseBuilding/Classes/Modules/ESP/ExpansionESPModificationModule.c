@@ -54,7 +54,7 @@ modded class ExpansionESPModificationModule
 				Exec_RequestCode( item, item.GetCode() );
 		} else if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
 		}
 	}
@@ -85,6 +85,9 @@ modded class ExpansionESPModificationModule
 
 	private void RPC_RequestCode( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
+		
 		ItemBase item = ItemBase.Cast( target );
 		if ( !item )
 			return;
@@ -95,7 +98,7 @@ modded class ExpansionESPModificationModule
 			if ( !GetPermissionsManager().HasPermission( "ESP.Object.BaseBuilding.Codelock", senderRPC, instance ) )
 				return;
 
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( item.GetCode() );
 			rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
 		} else
@@ -119,13 +122,16 @@ modded class ExpansionESPModificationModule
 			item.SetCode( "" );
 		} else if ( IsMissionClient() )
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send( target, ExpansionESPModificationModuleRPC.RemoveCode, false, NULL );
 		}
 	}
 
 	private void RPC_RemoveCode( ParamsReadContext ctx, PlayerIdentity senderRPC, Object target )
 	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		ItemBase item = ItemBase.Cast( target );
 		if ( !item )
 			return;
@@ -136,7 +142,7 @@ modded class ExpansionESPModificationModule
 
 		item.SetCode( "" );
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( "" );
 		rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
 	}

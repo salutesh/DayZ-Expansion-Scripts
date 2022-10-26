@@ -162,24 +162,12 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	// ------------------------------------------------------------
 	void ~ExpansionCOTGroupsMenu()
 	{
-		m_GroupEntries.Clear();
-		m_MemberEntries.Clear();
-		m_ServerPlayers.Clear();
-
-	#ifdef EXPANSIONMODNAVIGATION
-		m_GroupMarkerEntries.Clear();
-		m_GroupMarkers.Clear();
-		m_MarkerIcons.Clear();
-	#endif
-
 		if (m_Module)
 			m_Module.m_COTGroupModuleSI.Remove(MenuCallback);
 
 		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
 		if (dataModule)
 			dataModule.m_ModuleSI.Remove(OnPlayerDataRecived);
-
-		delete layoutRoot;
 	}
 
 	// ------------------------------------------------------------

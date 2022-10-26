@@ -57,7 +57,7 @@ class ExpansionGame
 	void DestroyExpansionUIManager()
 	{
 		if (m_ExUIManager)
-			delete m_ExUIManager;
+			m_ExUIManager = null;
 	}
 	
 	// ------------------------------------------------------------
@@ -138,7 +138,7 @@ class ExpansionGame
 	static bool IsMultiplayerClient()
 	{
 		//! Check for `&& IsMultiplayer` is redundant here, comment for clarity
-		return GetGame().IsClient() /* && GetGame().IsMultiplayer() */;
+		return GetGame().IsClient();
 	}
 
 	static bool IsMultiplayerServer()
@@ -159,6 +159,6 @@ class ExpansionGame
 	static bool IsServerOrOffline()
 	{
 		//! Check for `|| !IsMultiplayer` is redundant here, comment for clarity
-		return GetGame().IsServer() /* || !GetGame().IsMultiplayer() */;
+		return GetGame().IsServer();
 	}
 };

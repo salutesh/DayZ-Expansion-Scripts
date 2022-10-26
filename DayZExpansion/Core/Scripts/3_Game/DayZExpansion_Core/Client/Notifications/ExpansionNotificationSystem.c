@@ -69,7 +69,7 @@ static void DestroyNotificationSystem()
 	auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "DestroyNotificationSystem");
 #endif
 	if (g_exNotificationBase)
-		delete g_exNotificationBase;
+		g_exNotificationBase = null;
 }
 
 class ExpansionNotificationTemplate<Class T>

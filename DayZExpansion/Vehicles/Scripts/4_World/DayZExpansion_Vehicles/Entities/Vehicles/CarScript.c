@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -14,7 +14,7 @@ CarScript g_Expansion_Car;
 
 /**
  * @class		CarScript
- * @brief		
+ * @brief
  */
 modded class CarScript
 {
@@ -246,14 +246,14 @@ modded class CarScript
 				m_Doors.Insert(new ExpansionDoor(this, attachmentName, attachmentPath));
 
 				m_CanHaveLock |= m_Doors[i].m_IsDoor;
-				
+
 				string slotName = m_Doors[i].m_InventorySlot;
 				slotName.ToLower();
 
 				m_DoorMap.Insert(slotName, m_Doors[i]);
 			}
 		}
-		
+
 		if (ConfigIsExisting("doors"))
 		{
 			TStringArray doors();
@@ -264,10 +264,10 @@ modded class CarScript
 				if (!m_DoorMap.Contains(door))
 				{
 					m_Doors.Insert(new ExpansionDoor(this, door, string.Empty));
-					
+
 					door.ToLower();
 					m_DoorMap.Insert(door, m_Doors[i]);
-					
+
 					m_CanHaveLock |= true;
 				}
 			}
@@ -370,7 +370,7 @@ modded class CarScript
 				if (IsKindOf(vehcfg.ClassName))
 				{
 					m_Expansion_CanPlayerAttach = vehcfg.CanPlayerAttach;
-					m_Expansion_LockComplexity = vehcfg.LockComplexity;					
+					m_Expansion_LockComplexity = vehcfg.LockComplexity;
 					break;
 				}
 			}
@@ -432,6 +432,17 @@ modded class CarScript
 		}
 #endif
 	}
+
+	override bool NameOverride(out string output)
+    {
+        if (IsLocked())
+        {
+            output = string.Format("%1 (%2)", ConfigGetString("displayName"), "#locked");
+            return true;
+        }
+
+        return false;
+    }
 
 	void LoadConstantVariables()
 	{
@@ -949,7 +960,7 @@ modded class CarScript
 		}
 
 		KeyMessage("PairKeyTo (" + this + ", " + key + ")");
-		
+
 #ifdef EXPANSION_CARSCRIPT_LOGGING
 		EXLogPrint("CarScript::PairKeyTo - End");
 #endif
@@ -1054,7 +1065,7 @@ modded class CarScript
 
 		if (GetGame().IsServer())
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(this, ExpansionVehicleRPC.PlayLockSound, true, NULL);
 		}
 	}
@@ -1065,7 +1076,7 @@ modded class CarScript
 
 		if (GetGame().IsServer())
 		{
-			ScriptRPC rpc = new ScriptRPC();
+			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(this, ExpansionVehicleRPC.PlayLockSound, true, NULL);
 		}
 	}
@@ -1300,61 +1311,76 @@ modded class CarScript
 	{
 		switch (rpc_type)
 		{
-		case ExpansionVehicleRPC.ControllerSync:
-		{
-			if (m_Controller)
+			case ExpansionVehicleRPC.ControllerSync:
 			{
-				PlayerBase driverBase;
-				//! @note sender and driverBase.GetIdentity() will NOT be the same object even if they point to the same player identity (same ID)!
-				if (Class.CastTo(driverBase, CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER)) && driverBase.GetIdentityUID() == sender.GetId())
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;	
+					
+				if (m_Controller)
 				{
-					m_Event_NetworkRecieve.NetworkRecieve(ctx);
+					PlayerBase driverBase;
+					//! @note sender and driverBase.GetIdentity() will NOT be the same object even if they point to the same player identity (same ID)!
+					if (Class.CastTo(driverBase, CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER)) && driverBase.GetIdentityUID() == sender.GetId())
+					{
+						m_Event_NetworkRecieve.NetworkRecieve(ctx);
+					}
+	
+					//! Leave this here for pilot desync debug. TODO: Needs to be adapted when we ever have AI drivers.
+					if (driverBase && !driverBase.GetIdentityUID())
+						EXPrint("WARNING: Received controller sync, but driver has no identity! " + driverBase.GetIdentity());
 				}
-
-				//! Leave this here for pilot desync debug. TODO: Needs to be adapted when we ever have AI drivers.
-				if (driverBase && !driverBase.GetIdentityUID())
-					EXPrint("WARNING: Received controller sync, but driver has no identity! " + driverBase.GetIdentity());
-			}
-			else
-			{
-				//! Leave this here for pilot desync debug
-				EXPrint("WARNING: Received controller sync, but m_Controller is NULL!");
-			}
-
-			return;
-		}
-		case ERPCs.RPC_EXPLODE_EVENT:
-		{
-			if (GetGame().IsClient())
-			{
-				Param2<int, string> params;
-
-				if (ctx.Read(params))
+				else
 				{
-					ExpansionOnExplodeClient(params.param1, params.param2);
+					//! Leave this here for pilot desync debug
+					EXPrint("WARNING: Received controller sync, but m_Controller is NULL!");
 				}
+	
+				return;
 			}
-
-			return;
-		}
-		case ExpansionVehicleRPC.PlayLockSound:
-		{
-			if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+			
+			case ERPCs.RPC_EXPLODE_EVENT:
 			{
-				if (m_SoundLock)
-					delete m_SoundLock;
-
-				m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", GetPosition());
-				m_SoundLock.SetSoundAutodestroy(true);
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;	
+					
+				if (GetGame().IsClient())
+				{
+					Param2<int, string> params;
+	
+					if (ctx.Read(params))
+					{
+						ExpansionOnExplodeClient(params.param1, params.param2);
+					}
+				}
+	
+				return;
 			}
-
-			return;
-		}
-		case ExpansionVehicleRPC.ClientPing:
-		{
-			m_State.OnPing(ctx);
-			return;
-		}
+			
+			case ExpansionVehicleRPC.PlayLockSound:
+			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;	
+				
+				if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+				{
+					if (m_SoundLock)
+						delete m_SoundLock;
+	
+					m_SoundLock = SEffectManager.PlaySound("Expansion_Car_Lock_SoundSet", GetPosition());
+					m_SoundLock.SetSoundAutodestroy(true);
+				}
+	
+				return;
+			}
+			
+			case ExpansionVehicleRPC.ClientPing:
+			{
+				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+					return;	
+				
+				m_State.OnPing(ctx);
+				return;
+			}
 		}
 
 		super.OnRPC(sender, rpc_type, ctx);
@@ -1365,7 +1391,7 @@ modded class CarScript
 		if (IsMissionOffline())
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 
 		m_Event_NetworkSend.NetworkSend(rpc);
 
@@ -1819,7 +1845,7 @@ modded class CarScript
 					coolant = 1.0;
 
 				oil = 1.0;
-				
+
 				float fuelConsumption;
 				m_EngineHealth = 0;
 				for (int i = 0; i < m_Engines.Count(); i++)
@@ -2045,20 +2071,20 @@ modded class CarScript
 
 		SetCarBatteryStateForVanilla(false);
 	}
-	
+
 	void Expansion_UpdateLightsClient(int newGear = -1)
 	{
 		ItemBase battery;
-			
-		if ( IsVitalCarBattery() ) 
+
+		if ( IsVitalCarBattery() )
 			battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
-		else if ( IsVitalTruckBattery() ) 
+		else if ( IsVitalTruckBattery() )
 			battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
 
 		if ( battery && battery.IsAlive() && battery.GetCompEM().GetEnergy() > 0 )
 		{
 			int gear;
-			
+
 			if (newGear == -1)
 			{
 #ifdef DAYZ_1_18
@@ -2072,14 +2098,14 @@ modded class CarScript
 			{
 				gear = newGear;
 			}
-			
+
 			if (m_HeadlightsOn)
 			{
 				if (!m_Headlight && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 				{
 					m_Headlight = CreateFrontLight();
 				}
-				
+
 				if (m_Headlight)
 				{
 					switch (m_HeadlightsState)
@@ -2095,7 +2121,7 @@ modded class CarScript
 					case CarHeadlightBulbsState.BOTH:
 						vector local_pos_left = GetMemoryPointPos(m_LeftHeadlightPoint);
 						vector local_pos_right = GetMemoryPointPos(m_RightHeadlightPoint);
-						
+
 						vector local_pos_middle = (local_pos_left + local_pos_right) * 0.5;
 						m_Headlight.AttachOnObject(this, local_pos_middle);
 						m_Headlight.AggregateLight();
@@ -2114,7 +2140,7 @@ modded class CarScript
 					m_Headlight = null;
 				}
 			}
-				
+
 			// brakes
 			if (m_BrakesArePressed)
 			{
@@ -2192,7 +2218,7 @@ modded class CarScript
 				m_RearLight.FadeOut();
 				m_RearLight = null;
 			}
-			
+
 			if (m_Headlight)
 			{
 				m_Headlight.FadeOut();
@@ -2200,20 +2226,20 @@ modded class CarScript
 			}
 		}
 	}
-	
+
 	void Expansion_UpdateLightsServer(int newGear = -1)
 	{
 		ItemBase battery;
-			
-		if ( IsVitalCarBattery() ) 
+
+		if ( IsVitalCarBattery() )
 			battery = ItemBase.Cast( FindAttachmentBySlotName("CarBattery") );
-		else if ( IsVitalTruckBattery() ) 
+		else if ( IsVitalTruckBattery() )
 			battery = ItemBase.Cast( FindAttachmentBySlotName("TruckBattery") );
 
 		if ( battery && battery.IsAlive() && battery.GetCompEM().GetEnergy() > 0 )
 		{
 			int gear;
-			
+
 			if (newGear == -1)
 			{
 #ifdef DAYZ_1_18
@@ -2231,12 +2257,12 @@ modded class CarScript
 			{
 				gear = newGear;
 			}
-			
+
 			if (m_HeadlightsOn)
 			{
 				DashboardShineOn();
 				TailLightsShineOn();
-				
+
 				switch (m_HeadlightsState)
 				{
 				case CarHeadlightBulbsState.LEFT:
@@ -2255,7 +2281,7 @@ modded class CarScript
 					LeftFrontLightShineOff();
 					RightFrontLightShineOff();
 				}
-				
+
 				//Debug.Log(string.Format("m_HeadlightsOn=%1, m_HeadlightsState=%2", m_HeadlightsOn.ToString(), EnumTools.EnumToString(CarHeadlightBulbsState, m_HeadlightsState)));
 			}
 			else
@@ -2265,7 +2291,7 @@ modded class CarScript
 				LeftFrontLightShineOff();
 				RightFrontLightShineOff();
 			}
-				
+
 			// brakes
 			if (m_BrakesArePressed)
 			{
@@ -2301,8 +2327,8 @@ modded class CarScript
 
 				//Debug.Log(string.Format("m_BrakesArePressed=%1, m_RearLightType=%2", m_BrakesArePressed.ToString(), EnumTools.EnumToString(CarRearLightType, m_RearLightType)));
 			}
-				
-			
+
+
 			// rear lights
 			if (m_RearLightType != CarRearLightType.NONE && m_HeadlightsState != CarHeadlightBulbsState.NONE)
 			{
@@ -2717,7 +2743,7 @@ modded class CarScript
 		if (m_IsPhysicsHost)
 		{
 			m_State.SetupSimulation(dt);
-			
+
 			m_State.CalculateAltitudeLimiter();
 
 			m_Event_PreSimulate.PreSimulate(m_State);
@@ -3222,7 +3248,7 @@ modded class CarScript
 
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return;
-		
+
 		ctx.Write(m_PersistentIDA);
 		ctx.Write(m_PersistentIDB);
 		ctx.Write(m_PersistentIDC);
@@ -3254,7 +3280,7 @@ modded class CarScript
 
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return true;
-	
+
 		if (!ctx.Read(m_PersistentIDA))
 			return false;
 
@@ -3567,7 +3593,7 @@ modded class CarScript
 			{
 				if (!SEffectManager.IsEffectExist(m_enginePtcFx))
 				{
-					if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript)) 
+					if (IsInherited(ExpansionHelicopterScript) || IsInherited(ExpansionBoatScript))
 					{
 						m_engineFx = new EffEngineSmoke();
 						m_enginePtcFx = SEffectManager.PlayOnObject(m_engineFx, this, fxPos, "0 0 0", true);
@@ -3603,7 +3629,7 @@ modded class CarScript
 				}
 			}
 		}
-		
+
 		if (IsMissionHost() && isGlobalOrEngineRuined && Expansion_EngineIsOn())
 			Expansion_EngineStop();
 	}
@@ -3890,17 +3916,23 @@ modded class CarScript
 		if (skinBase)
 			type = skinBase;
 
-		string placeholderType = type + "_Cover";
-	
-		if (coverType.Contains("Civil"))
-			placeholderType += "_Civil";
-		else if (coverType.Contains("Desert"))
-			placeholderType += "_Desert";
-		else if (coverType.Contains("Winter"))
-			placeholderType += "_Winter";
+		string placeholderType;
 
-		if (!GetGame().ConfigIsExisting("CfgVehicles " + placeholderType))
-			placeholderType = "Expansion_Generic_Vehicle_Cover";
+		TStringArray coverVariants = {"Civil", "Desert", "Winter", ""};
+		foreach (string coverVariant: coverVariants)
+		{
+			if (coverVariant == string.Empty)
+				placeholderType = type + "_Cover";
+			else if (coverType.Contains(coverVariant))
+				placeholderType = type + "_Cover_" + coverVariant;
+			else
+				continue;
+
+			if (GetGame().ConfigIsExisting("CfgVehicles " + placeholderType))
+				break;
+			else
+				placeholderType = "Expansion_Generic_Vehicle_Cover";
+		}
 
 		return placeholderType;
 	}
@@ -4118,7 +4150,7 @@ modded class CarScript
 				SynchCrashHeavySound(true);
 				pddfFlags = 0;
 			}
-			
+
 #ifndef DAYZ_1_18
 			//! 1.19
 			#ifdef DEVELOPER
@@ -4149,7 +4181,7 @@ modded class CarScript
 
 		return m_BatteryConsume;
 	}
-	
+
 	override void EEKilled( Object killer )
 	{
 		super.EEKilled( killer );
@@ -4159,7 +4191,7 @@ modded class CarScript
 
 		m_Expansion_Killed = true;
 	}
-	
+
 	float GetFuelAmmount()
 	{
 		return m_FuelAmmount;

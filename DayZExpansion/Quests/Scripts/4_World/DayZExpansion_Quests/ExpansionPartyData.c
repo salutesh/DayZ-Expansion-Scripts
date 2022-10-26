@@ -36,10 +36,15 @@ modded class ExpansionPartyData
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
 			return;
 
-		ExpansionQuestModule questModule;
-		if (!Class.CastTo(questModule,CF_ModuleCoreManager.Get(ExpansionQuestModule)))
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnGroupMemberJoined, 3000, false, player);
+	}
+	
+	protected void OnGroupMemberJoined(ExpansionPartyPlayerData player)
+	{
+		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+		if (!questModule)
 		{
-			Error(ToString() + "::OnJoin - Could not get quest module!");
+			Print(ToString() + "::OnGroupMemberJoined - Could not get quest module!");
 			return;
 		}
 
@@ -47,7 +52,7 @@ modded class ExpansionPartyData
 		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
-			EXPrint(ToString() + "::OnJoin - No player quest data!");
+			Print(ToString() + "::OnGroupMemberJoined - No player quest data!");
 			return;
 		}
 
@@ -57,20 +62,18 @@ modded class ExpansionPartyData
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			Print(ToString() + "::OnJoin - Quest: " + activeQuestInstance);
+			Print(ToString() + "::OnGroupMemberJoined - Quest: " + activeQuestInstance);
 		#endif
 			if (activeQuestInstance.IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-				Print(ToString() + "::OnJoin - There is a active group quest instance for this player! Add quest.");
+				Print(ToString() + "::OnGroupMemberJoined - There is a active group quest instance for this player! Add quest.");
 			#endif
 				//! Make sure player has the correct quest state for this quest in his quest data.
-				if (playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
-					return;
+				if (!playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
+					playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig());
 
-				playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig());
-				playerQuestData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
-				questModule.UpdatePlayerQuestObjectiveData(activeQuestInstance, playerUID);
+				activeQuestInstance.UpdateQuest();
 				activeQuestInstance.OnGroupMemberJoined(playerUID);
 			}
 		}
@@ -79,7 +82,7 @@ modded class ExpansionPartyData
 		if (!playerBase)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			Print(ToString() + "::OnJoin - Could not get player base. Player is offline!");
+			Print(ToString() + "::OnGroupMemberJoined - Could not get player base. Player is offline!");
 		#endif
 			return;
 		}
@@ -98,10 +101,10 @@ modded class ExpansionPartyData
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
 			return;
 
-		ExpansionQuestModule questModule;
-		if (!Class.CastTo(questModule,CF_ModuleCoreManager.Get(ExpansionQuestModule)))
+		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+		if (!questModule)
 		{
-			Error(ToString() + "::OnLeave - Could not get quest module!");
+			Print(ToString() + "::OnLeave - Could not get quest module!");
 			return;
 		}
 
@@ -109,7 +112,7 @@ modded class ExpansionPartyData
 		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
-			EXPrint(ToString() + "::OnLeave - No player quest data!");
+			Print(ToString() + "::OnLeave - No player quest data!");
 			return;
 		}
 

@@ -160,7 +160,7 @@ class CfgVehicles
 		forceFarBubble = "true";
 		slopeTolerance = 0.2;
 		yawPitchRollLimit[] = {12,12,12};
-		hiddenSelections[] = {"camo","light_green","light_red"};
+		hiddenSelections[] = {"camo","light"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Misc\data\parking_meter_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"};
 		openable = 1;
@@ -178,11 +178,12 @@ class CfgVehicles
 		rotationFlags = 2;
 		soundImpactType = "metal";
 		oldpower = 0;
+		ChargeEnergyPerSecond = 1;
 		class EnergyManager
 		{
 			hasIcon = 1;
 			autoSwitchOff = 1;
-			energyUsagePerSecond = 0.05;
+			energyUsagePerSecond = 0.01;
 			plugType = 5;
 			attachmentAction = 1;
 		};
@@ -192,8 +193,8 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 200;
-					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}},{0.7,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}},{0.5,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}},{0.3,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}},{0.0,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}}};
+					hitpoints = 10000;
+					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}},{0.7,{"DayZExpansion\Objects\Misc\data\parking_meter.rvmat"}},{0.5,{"DayZExpansion\Objects\Misc\data\parking_meter_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Misc\data\parking_meter_damage.rvmat"}},{0.0,{"DayZExpansion\Objects\Misc\data\parking_meter_destruct.rvmat"}}};
 				};
 			};
 		};
@@ -255,7 +256,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 20;
-					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}},{0.7,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}},{0.5,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}},{0.3,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}},{0.0,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}},{0.7,{"DayZExpansion\Objects\Misc\data\circuit_board.rvmat"}},{0.5,{"DayZExpansion\Objects\Misc\data\circuit_board_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Misc\data\circuit_board_damage.rvmat"}},{0.0,{"DayZExpansion\Objects\Misc\data\circuit_board_destruct.rvmat"}}};
 				};
 			};
 		};

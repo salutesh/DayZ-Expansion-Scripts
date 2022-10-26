@@ -17,7 +17,7 @@ class CfgVehicles
 	class Container_Base;
 	class BatteryCharger: Inventory_Base
 	{
-		attachments[] = {"CarBattery","TruckBattery","ExpansionHelicopterBattery","ExpansionAircraftBattery"};
+		attachments[] += {"ExpansionHelicopterBattery","ExpansionAircraftBattery"};
 	};
 	class ExpansionStaticKeyGrinder: Inventory_Base
 	{
@@ -162,7 +162,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_IGNITERPLUG";
 		descriptionShort = "$STR_EXPANSION_IGNITERPLUG_DESC";
-		model = "\dz\vehicles\parts\GlowPlug.p3d";
+		model = "\DZ\vehicles\parts\igniter_plug.p3d";
 		weight = 200;
 		itemSize[] = {1,1};
 		absorbency = 0;

@@ -106,6 +106,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		switch ( rpc.ID )
 		{
 		case ExpansionMonitorRPC.SyncStats:
+			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
+				return;
+
 			m_ClientStats.OnRecieve(rpc.Context, true, false);
 /*
 			m_ClientStats.m_Distance = GetGame().GetPlayer().StatGet(AnalyticsManagerServer.STAT_DISTANCE);
@@ -118,6 +121,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			m_StatsInvoker.Invoke(m_ClientStats);
 			break;
 		case ExpansionMonitorRPC.SyncStates:
+			if (!ExpansionScriptRPC.CheckMagicNumber(rpc.Context))
+				return;
+			
 			m_ClientStates.OnRecieve(rpc.Context);
 			m_StatesInvoker.Invoke(m_ClientStates);
 			break;
@@ -347,7 +353,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!send)
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		stats.OnSend(rpc, includeRegisteredStats, includeBaseStats);
 		//! @note guaranteed = false is intentional here (performance)
 		rpc.Send(NULL, ExpansionMonitorRPC.SyncStats, false, player.GetIdentity());
@@ -393,7 +399,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (!send)
 			return;
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		states.OnSend(rpc);
 		//! @note guaranteed = false is intentional here (performance)
 		rpc.Send(NULL, ExpansionMonitorRPC.SyncStates, false, player.GetIdentity());
@@ -483,7 +489,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "ServerChatMessage");
 #endif
 
-		ScriptRPC message_rpc = new ScriptRPC();
+		auto message_rpc = ExpansionScriptRPC.Create();
 		message_rpc.Write(tag);
 		message_rpc.Write(message);
 		message_rpc.Send(null, ExpansionMonitorRPC.SendMessage, true);
@@ -498,7 +504,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "RPC_SendMessage");
 #endif
-
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!GetGame().IsClient())
 			return;
 
@@ -771,7 +779,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
 		rpc.Write(includeBaseStats);
@@ -787,6 +795,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
@@ -884,7 +895,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + playerStats, "" + playerStates, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 
 		rpc.Write(playerID);
 
@@ -918,6 +929,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, "" + includeStats, "" + includeStates);
 
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		if (!GetGame().IsClient())
 			return;
 		
@@ -968,7 +982,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID);
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(playerID);
 		//! @note guaranteed = false is intentional here (performance)
 		rpc.Send(null, ExpansionMonitorRPC.RequestPlayerStates, false);
@@ -993,7 +1007,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.PLAYER_MONITOR, this, playerID, "" + includeRegisteredStats, "" + includeBaseStats);
 
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(playerID);
 		rpc.Write(includeRegisteredStats);
 		rpc.Write(includeBaseStats);
@@ -1028,9 +1042,9 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SyncLastDeathPos(PlayerBase player)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.PLAYER_MONITOR, this, "SyncLastDeathPos");
-#endif
+	#endif
 			
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
@@ -1039,7 +1053,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		if (pos == vector.Zero)
 			return;
 		
-		ScriptRPC rpc = new ScriptRPC();
+		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(pos);
 		rpc.Send(null, ExpansionMonitorRPC.SyncLastDeathPos, true, player.GetIdentity());
 	}
@@ -1061,9 +1075,12 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SyncLastDeathPos(ParamsReadContext ctx, PlayerIdentity ident)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.PLAYER_MONITOR, this, "RPC_SyncLastDeathPos").Add(ident).Add(ctx);
-#endif
+	#endif
+		
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
 		
 		if (!GetGame().IsClient())
 			return;

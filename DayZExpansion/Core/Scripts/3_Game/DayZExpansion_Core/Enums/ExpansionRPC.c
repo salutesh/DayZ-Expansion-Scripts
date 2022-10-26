@@ -401,7 +401,7 @@ enum ExpansionCraftingModuleRPC
 enum ExpansionItemBaseModuleRPC
 {
 	INVALID = 40005,
-	PlayDestroySound,
+	PlaySound,
 	COUNT
 };
 

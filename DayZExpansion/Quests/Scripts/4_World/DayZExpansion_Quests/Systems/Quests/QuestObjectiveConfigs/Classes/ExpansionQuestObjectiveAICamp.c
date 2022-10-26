@@ -107,16 +107,16 @@ class ExpansionQuestObjectiveAICamp
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print("------------------------------------------------------------");
+		CF_Log.Debug("------------------------------------------------------------");
 		for (int i = 0; i < Positions.Count(); ++i)
 		{
-			Print(ToString() + "::QuestDebug - Position" + i + " :" + Positions[i]);
+			CF_Log.Debug(ToString() + "::QuestDebug - Position" + i + " :" + Positions[i]);
 		}
-		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCSpeed);
-		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCMode);
-		Print(ToString() + "::QuestDebug - NPCFaction: " + NPCFaction);
-		Print(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
-		Print("------------------------------------------------------------");
+		CF_Log.Debug(ToString() + "::QuestDebug - NPCSpeed: " + NPCSpeed);
+		CF_Log.Debug(ToString() + "::QuestDebug - NPCSpeed: " + NPCMode);
+		CF_Log.Debug(ToString() + "::QuestDebug - NPCFaction: " + NPCFaction);
+		CF_Log.Debug(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
+		CF_Log.Debug("------------------------------------------------------------");
 	#endif
 	}
 };

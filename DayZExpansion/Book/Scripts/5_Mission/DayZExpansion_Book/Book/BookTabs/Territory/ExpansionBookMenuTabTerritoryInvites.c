@@ -148,13 +148,16 @@ class ExpansionBookMenuTabTerritoryInvites: ExpansionBookMenuTabBase
 		
 		m_TerritoryModule.DeclineInvite(m_Invite.TerritoryID);
 		
-		for (int i = 0; i < m_InvitesController.TerritoryInviteEntrys.Count(); ++i)
+		for (int i = m_InvitesController.TerritoryInviteEntrys.Count() - 1; i >= 0; i--)
 		{
 			ExpansionBookMenuTabTerritoryInviteEntry entry = m_InvitesController.TerritoryInviteEntrys[i];
 			if (entry)
 			{
 				if (entry.GetInvite() == m_Invite)
-					delete entry;
+				{
+					m_InvitesController.TerritoryInviteEntrys.RemoveOrdered(i);
+					break;
+				}
 			}
 		}
 		

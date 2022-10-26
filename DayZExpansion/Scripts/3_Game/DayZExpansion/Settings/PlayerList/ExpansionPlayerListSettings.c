@@ -71,7 +71,7 @@ class ExpansionPlayerListSettings: ExpansionSettingBase
 			return 0;
 		}
 		
-		ScriptRPC rpc = new ScriptRPC;
+		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Send( null, ExpansionSettingsRPC.PlayerList, true, identity );
 		

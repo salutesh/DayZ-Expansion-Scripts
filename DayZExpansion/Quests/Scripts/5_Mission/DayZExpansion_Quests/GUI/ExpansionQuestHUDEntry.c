@@ -54,7 +54,6 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		foreach (ExpansionQuestHUDObjective currentEntry: m_ObjectiveEntries)
 		{
 			ObjectiveEntries.RemoveChild(currentEntry.GetLayoutRoot());
-			delete currentEntry;
 		}
 
 		m_ObjectiveEntries.Clear();
@@ -163,7 +162,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
+		CF_Log.Debug(text);
 	#endif
 	}
 };

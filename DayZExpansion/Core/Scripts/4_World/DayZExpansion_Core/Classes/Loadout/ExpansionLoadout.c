@@ -853,13 +853,13 @@ class ExpansionHumanLoadout
 			
 		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Mosin9130", "Shoulder");
-				loadout = loadout.BeginAttachment("Ammo_762x54");
-				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PUScopeOptic");
 				loadout.Chance = 0.4;
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_762x54");
+			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_762x54");
 			loadout.Chance = 1.0;
 			loadout = loadout.End();
@@ -870,13 +870,13 @@ class ExpansionHumanLoadout
 			
 		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("SKS", "Shoulder");
-				loadout = loadout.BeginAttachment("Ammo_762x39");
-				loadout = loadout.End();
 				loadout = loadout.BeginAttachment("PUScopeOptic");
 				loadout.Chance = 0.3;
 				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_762x39");
+			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_762x39");
 			loadout.Chance = 1.0;
 			loadout = loadout.End();
@@ -926,7 +926,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("P1", "Shoulder");
+			loadout = loadout.BeginAttachment("P1", "Hands");
 				loadout = loadout.BeginAttachment("Mag_P1_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -941,12 +941,12 @@ class ExpansionHumanLoadout
 			
 		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Mp133Shotgun", "Shoulder");
-				loadout = loadout.BeginAttachment("Ammo_12gaSlug");
-				loadout = loadout.End();
-				loadout = loadout.BeginAttachment("Ammo_12gaPellets");
-				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginCargo("Ammo_12gaSlug");
+			loadout = loadout.End();
+			loadout = loadout.BeginCargo("Ammo_12gaPellets");
+			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_12gaSlug");
 			loadout.Chance = 0.5;
 			loadout = loadout.End();
@@ -1006,7 +1006,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("FNX45", "Shoulder");
+			loadout = loadout.BeginAttachment("FNX45", "Hands");
 				loadout = loadout.BeginAttachment("Mag_FNX45_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1020,7 +1020,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MKII", "Shoulder");
+			loadout = loadout.BeginAttachment("MKII", "Hands");
 				loadout = loadout.BeginAttachment("Mag_MKII_10Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1034,7 +1034,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("CZ75", "Shoulder");
+			loadout = loadout.BeginAttachment("CZ75", "Hands");
 				loadout = loadout.BeginAttachment("Mag_CZ75_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1048,7 +1048,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MakarovIJ70", "Shoulder");
+			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
 				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -1062,7 +1062,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Glock19", "Shoulder");
+			loadout = loadout.BeginAttachment("Glock19", "Hands");
 				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -2688,10 +2688,10 @@ class ExpansionHumanLoadout
 		
 		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("SKS", "Shoulder");
-				loadout = loadout.BeginAttachment("Ammo_762x39");
-				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginAttachment("Ammo_762x39");
+			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_762x39");
 			loadout.Chance = 1.0;
 			loadout = loadout.End();
@@ -2964,10 +2964,10 @@ class ExpansionHumanLoadout
 			
 		loadout = loadout.BeginSet("WEAPON");
 			loadout = loadout.BeginAttachment("Mp133Shotgun", "Shoulder");
-				loadout = loadout.BeginAttachment("Ammo_12gaRubberSlug");
-				loadout = loadout.End();
 			loadout = loadout.End();
 			
+			loadout = loadout.BeginAttachment("Ammo_12gaRubberSlug");
+			loadout = loadout.End();
 			loadout = loadout.BeginCargo("Ammo_12gaRubberSlug");
 			loadout.Chance = 1.0;
 			loadout = loadout.End();
@@ -2991,7 +2991,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("MakarovIJ70", "Shoulder");
+			loadout = loadout.BeginAttachment("MakarovIJ70", "Hands");
 				loadout = loadout.BeginAttachment("Mag_IJ70_8Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();
@@ -3005,7 +3005,7 @@ class ExpansionHumanLoadout
 		loadout = loadout.End();
 			
 		loadout = loadout.BeginSet("WEAPON");
-			loadout = loadout.BeginAttachment("Glock19", "Shoulder");
+			loadout = loadout.BeginAttachment("Glock19", "Hands");
 				loadout = loadout.BeginAttachment("Mag_Glock_15Rnd");
 				loadout = loadout.End();
 			loadout = loadout.End();

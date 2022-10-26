@@ -100,25 +100,10 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = CF_Trace_0(this, "SpawnAI");
 		#endif
 
-		//! Make sure position is not under terrain
-		float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
-		if (pos[1] < surfaceY)
-			pos[1] = surfaceY;
+		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
 
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
-
-		//! Make sure AI is not colliding with object
-		vector hitPosition;
-		PhxInteractionLayers layerMask;
-		layerMask |= PhxInteractionLayers.BUILDING;
-		layerMask |= PhxInteractionLayers.VEHICLE;
-		layerMask |= PhxInteractionLayers.ROADWAY;
-		layerMask |= PhxInteractionLayers.TERRAIN;
-		layerMask |= PhxInteractionLayers.ITEM_LARGE;
-		layerMask |= PhxInteractionLayers.FENCE;
-		if (DayZPhysics.RayCastBullet(pos + "0 1.8 0", pos, layerMask, ai, null, hitPosition, null, null))
-			pos = hitPosition;
 
 		ai.SetPosition(pos);
 

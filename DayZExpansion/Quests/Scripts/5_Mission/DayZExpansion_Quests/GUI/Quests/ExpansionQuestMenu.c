@@ -103,6 +103,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 			foreach (ExpansionQuestConfig quest: quests)
 			{
+				int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
+				if (questState == ExpansionQuestState.COMPLETED)
+					continue;
+				
 				if (quest.IsAchivement())
 					continue;
 
@@ -442,9 +446,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	void QuestDebug(string text)
 	{
-	//#ifdef EXPANSIONMODQUESTSUIDEBUG
-		EXTrace.Print(EXTrace.QUESTS, null, text);
-	//#endif
+	#ifdef EXPANSIONMODQUESTSUIDEBUG
+		CF_Log.Debug(text);
+	#endif
 	}
 };
 

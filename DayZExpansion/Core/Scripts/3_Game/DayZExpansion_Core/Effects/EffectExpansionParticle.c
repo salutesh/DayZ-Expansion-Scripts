@@ -146,7 +146,7 @@ class EffectExpansionParticle : Effect
 	{
 		if ( !m_ParticleObj )
 		{
-			delete this;
+			return;
 		}
 		
 		OnCheckUpdate();
