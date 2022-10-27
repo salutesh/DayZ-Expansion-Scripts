@@ -218,13 +218,10 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	// ------------------------------------------------------------		
 	void ClearCategoryItems()
 	{
-		//! Need to delete market menu item elements so preview objects get cleared up
-		//! TODO: Find out why this is necessary and clearing items is not enough (some other refs anywhere?)
 		for (int i = 0; i < m_CategoryController.MarketItems.Count(); i++)
 		{
 			ExpansionMarketMenuItem itemElement = m_CategoryController.MarketItems[i];
-			itemElement.Hide();
-			delete itemElement;
+			itemElement.Destroy();
 		}
 
 		m_CategoryController.MarketItems.Clear();

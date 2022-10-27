@@ -931,6 +931,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		MarketPrint("ClearCategories - Start");
 		
+		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
+		{
+			ExpansionMarketMenuCategory categoryElement = m_MarketMenuController.MarketCategories[i];
+			categoryElement.Destroy();
+		}
+		
 		m_MarketMenuController.MarketCategories.Clear();
 		CategoriesExpanded = 0;
 		ExpansionMarketMenuCategory.UpdateCategoryID = -1;
@@ -1107,6 +1113,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		for (int i = 0; i < m_MarketMenuController.DropdownElements.Count(); i++)
 		{
 			ExpansionMarketMenuDropdownElement element = m_MarketMenuController.DropdownElements[i];
+			element.Destroy();
 		}
 		
 		m_MarketMenuController.DropdownElements.Clear();
@@ -1688,7 +1695,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			if (market_item_info_attachments.IsVisible()) 
 				market_item_info_attachments.Show(false);
 			
-			m_AttachmentsTooltip = null;
+			m_AttachmentsTooltip.Destroy();
 		}
 		
 		if (itemElement)
@@ -2656,7 +2663,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		if (m_QuantityDialog)
 		{
-			m_QuantityDialog = null;
+			m_QuantityDialog.Destroy();
 		}
 		
 		UpdateQuantity();
@@ -2716,7 +2723,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		if (m_MarketFilters)
 		{
-			m_MarketFilters = NULL;
+			m_MarketFilters = null;
 		}
 		
 		if (m_PlayerItems)
@@ -2726,48 +2733,47 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		if (m_QuantityDialog)
 		{
-			m_QuantityDialog = NULL;
+			m_QuantityDialog.Destroy();
 		}
 		
 		if (m_AttachmentsTooltip)
 		{
-			m_AttachmentsTooltip = NULL;
+			m_AttachmentsTooltip.Destroy();
 		}
 
 		if (m_PurchaseDialog)
 		{
-			m_PurchaseDialog = NULL;
+			m_PurchaseDialog.Destroy();
 		}
 		
 		if (m_SellDialog)
 		{
-			m_SellDialog = NULL;
+			m_SellDialog.Destroy();
 		}
 		
 		if (m_CurrenciesTooltip)
 		{
-			m_CurrenciesTooltip = NULL;
+			m_CurrenciesTooltip.Destroy();
 		}
 		
 		if (m_BuyDenomsTooltip)
 		{
-			m_BuyDenomsTooltip = NULL;
+			m_BuyDenomsTooltip.Destroy();
 		}
 		
 		if (m_SellDenomsTooltip)
 		{
-			m_SellDenomsTooltip = NULL;
+			m_SellDenomsTooltip.Destroy();
 		}
 		
 		if (m_QuatityTooltip)
 		{
-			m_QuatityTooltip = NULL;
+			m_QuatityTooltip.Destroy();
 		}
 		
 		if (m_MarketMenuItemManager)
 		{
-			m_MarketMenuItemManager.Hide();
-			m_MarketMenuItemManager = NULL;
+			m_MarketMenuItemManager.Destroy();
 		}
 		
 		m_FirstCall = false;
@@ -3819,10 +3825,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		return (m_MarketMenuItemManager && m_MarketMenuItemManager.IsVisible()) || (m_QuantityDialog && m_QuantityDialog.IsVisible()) || (m_PurchaseDialog && m_PurchaseDialog.IsVisible()) || (m_SellDialog && m_SellDialog.IsVisible());
 	}
 	
+	/*
 	override bool CanClose()
 	{
 		return !IsAnyDialogVisible();
 	}
+	*/
 };
 
 class ExpansionMarketMenuController: ExpansionViewController

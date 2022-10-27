@@ -15,11 +15,16 @@ class ExpansionDialog_DeleteParty: ExpansionDialogBookBase
 {
 	ref ExpansionDialogContent_Text m_Text;
 	ref ExpansionDialogButton_Text_PartyDelete_Accept m_AcceptButton;
-	ref ExpansionDialogButton_Text_PartyDelete_Cancel m_CancelButton;
+	ref ExpansionDialogButton_Text_PartyDelete_Cancel m_CancelButton;	
+	ref ExpansionBookMenuTabParty m_PartyTab;
 		
 	void ExpansionDialog_DeleteParty(ExpansionScriptView parentView)
 	{
-		m_ParentView = parentView;		
+		m_ParentView = parentView;
+		
+		if (!m_PartyTab)
+			m_PartyTab = ExpansionBookMenuTabParty.Cast(GetParentView());
+		
 		if (!m_Text)
 		{
 			m_Text = new ExpansionDialogContent_Text(this);
@@ -48,18 +53,6 @@ class ExpansionDialog_DeleteParty: ExpansionDialogBookBase
 	{
 		return "#STR_EXPANSION_BOOK_GROUP_DISSOLVE";
 	}
-	
-	override void OnHide()
-	{
-		m_Text.Hide();
-		m_Text = NULL;
-		m_AcceptButton.Hide();
-		m_AcceptButton = NULL;
-		m_CancelButton.Hide();
-		m_CancelButton = NULL;
-		
-		super.OnHide();
-	}
 };
 
 class ExpansionDialogButton_Text_PartyDelete_Accept: ExpansionDialogBookButton_Text
@@ -86,9 +79,16 @@ class ExpansionDialogButton_Text_PartyDelete_Accept: ExpansionDialogBookButton_T
 	override void OnButtonClick()
 	{
 		if (m_PartyTab && m_PartyModule)
+		{
 			m_PartyModule.DissolveParty();
+		}
 		
-		m_PartyTab.OnConfirmDissolve();
+		m_DeletePartyDialog.Hide();
+		
+		ExpansionUIManager uiManager = GetDayZExpansion().GetExpansionUIManager();
+		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(uiManager.GetMenu());
+		if (bookMenu)
+			GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 	}
 };
 

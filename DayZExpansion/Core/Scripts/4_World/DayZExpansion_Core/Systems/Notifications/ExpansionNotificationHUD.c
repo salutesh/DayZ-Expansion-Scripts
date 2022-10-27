@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionNotificationHUD: ScriptView
+class ExpansionNotificationHUD: ExpansionScriptViewBase
 {
 	protected ExpansionNotificationHUDController m_NotificationHUDController;
 	
