@@ -1,5 +1,4 @@
 WrapSpacerWidgetClass ExpansionDialogBase {
- visible 0
  color 0.1176 0.1176 0.1176 1
  position 0 0.2
  size 0.3 0.1

@@ -117,7 +117,9 @@ class ExpansionQuestObjectiveEventBase
 	bool OnIncomplete()
 	{
 		GetQuest().CompletionCheck();
+	#ifdef EXPANSIONMODNAVIGATION
 		OnRecreateClientMarkers();
+	#endif
 
 		return true;
 	}

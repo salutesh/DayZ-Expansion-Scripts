@@ -275,7 +275,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 				
 				if (m_ItemTooltip)
 				{
-					m_ItemTooltip = null;
+					m_ItemTooltip.Destroy();
 				}
 				break;
 			}
@@ -284,7 +284,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 				item_element_tooltip_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 				if (m_Tooltip) 
 				{
-					m_Tooltip = null;
+					m_Tooltip.Destroy();
 				}
 				break;
 			}

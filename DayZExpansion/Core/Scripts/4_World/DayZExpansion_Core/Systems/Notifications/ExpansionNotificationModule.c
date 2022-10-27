@@ -261,8 +261,9 @@ class ExpansionNotificationModule: CF_ModuleWorld
 	{
 		super.OnMissionLoaded(sender, args);
 
+		//! TODO: Why not use existing one?
 		if (m_NotificationHUD)
-			m_NotificationHUD = null;
+			m_NotificationHUD.Destroy();
 		
 		m_NotificationHUD = new ExpansionNotificationHUD;
 	}

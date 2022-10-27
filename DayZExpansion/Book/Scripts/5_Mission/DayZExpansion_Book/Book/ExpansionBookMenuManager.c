@@ -100,6 +100,11 @@ class ExpansionBookMenuManager
 	{
 		if (m_Tabs && m_Tabs.Count() > 0)
 		{
+			foreach (ExpansionBookMenuTabBase tab: m_Tabs)
+			{
+				tab.Destroy();
+			}
+			
 			m_Tabs.Clear();
 		}
 	}

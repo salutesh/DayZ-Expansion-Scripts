@@ -156,6 +156,7 @@ class ExpansionBookMenuTabTerritoryInvites: ExpansionBookMenuTabBase
 				if (entry.GetInvite() == m_Invite)
 				{
 					m_InvitesController.TerritoryInviteEntrys.RemoveOrdered(i);
+					entry.Destroy();
 					break;
 				}
 			}

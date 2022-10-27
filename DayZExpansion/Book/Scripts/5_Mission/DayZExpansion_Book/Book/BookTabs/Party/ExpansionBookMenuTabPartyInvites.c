@@ -132,6 +132,7 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 				if (entry.GetInvite() == m_Invite)
 				{
 					m_InvitesController.PartyInviteEntrys.RemoveOrdered(i);
+					entry.Destroy();
 					break;
 				}
 			}
@@ -163,6 +164,7 @@ class ExpansionBookMenuTabPartyInvites: ExpansionBookMenuTabBase
 				if (entry.GetInvite() == m_Invite)
 				{
 					m_InvitesController.PartyInviteEntrys.RemoveOrdered(i);
+					entry.Destroy();
 					break;
 				}
 			}

@@ -20,13 +20,22 @@ class ExpansionViewController: ViewController
 
 class ExpansionScriptViewBase: ScriptView
 {
-	private bool m_IsVisible = true;
+	private bool m_IsVisible;
 	
 	void ExpansionScriptViewBase()
 	{
 		Debug_Logging = false;
+		m_IsVisible = !IsInherited(ExpansionScriptViewMenuBase);
 	}
 	
+	void Destroy()
+	{
+		if (!g_Game)
+			return;
+
+		delete this;
+	}
+
 	void SetIsVisible(bool state)
 	{
 		m_IsVisible = state;

@@ -10,31 +10,8 @@
  *
 */
 
-class ExpansionScriptViewMenuBase: ScriptView
+class ExpansionScriptViewMenuBase: ExpansionScriptViewBase
 {
-	private bool m_IsVisible = false;
-	
-	void ExpansionScriptViewMenuBase()
-	{
-		Debug_Logging = false;
-	}
-	
-	void SetIsVisible(bool state)
-	{
-		m_IsVisible = state;
-	}
-	
-	bool IsVisible()
-	{
-		return m_IsVisible;
-	}
-	
-	void Show();
-	void OnShow();
-	
-	void Hide();
-	
-	void OnHide();
 	void LockControls(bool lockMovement = true);
 	void UnlockControls();
 	void LockInputs(bool state, bool lockMovement = true);
@@ -42,12 +19,10 @@ class ExpansionScriptViewMenuBase: ScriptView
 	void ShowHud(bool state);
 	void ShowUICursor(bool state);
 	
-	bool CanShow()
+	override bool CanShow()
 	{
 		return true;
 	}
-	
-	void Refresh();
 
 	bool UseMouse()
 	{
