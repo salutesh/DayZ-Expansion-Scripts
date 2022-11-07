@@ -56,7 +56,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		
 	#ifdef EXPANSIONMODHARDLINE
 		m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseHumanity);
+		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation);
 	#endif
 
 		UpdateHaBUIElements();
@@ -146,9 +146,9 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#ifdef EXPANSIONMODHARDLINE
 		if (m_ShowHardlineStats && m_HardlineModule)
 		{
-			int humanity = m_HardlineModule.GetHardlineClientData().GetHumanity();
-			m_PlayerProfileController.HaB_HumanityLabel = "#STR_EXPANSION_BOOK_STATUS_CONDITION_HUMANITY";
-			m_PlayerProfileController.HaB_Humanity = humanity.ToString();
+			int reputation = m_HardlineModule.GetHardlineClientData().GetReputation();
+			m_PlayerProfileController.HaB_HumanityLabel = "#STR_EXPANSION_HARDLINE_REPUTATION_UPPERCASE";
+			m_PlayerProfileController.HaB_Humanity = reputation.ToString();
 			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_HumanityLabel", "HaB_Humanity"});
 		}
 	#endif

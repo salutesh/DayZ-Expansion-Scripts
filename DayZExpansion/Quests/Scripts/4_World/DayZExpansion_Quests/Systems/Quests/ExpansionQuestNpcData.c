@@ -184,7 +184,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
  		ExpansionQuestNPCBase questNPC;
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {
-			CF_Log.Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as quest NPC in config. Only objects based on ExpansionQuestNPCBase class are allowed!");
+			Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as quest NPC in config. Only objects based on ExpansionQuestNPCBase class are allowed!");
 			GetGame().ObjectDelete(obj);
 	        return null;
 	    }
@@ -209,7 +209,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		ExpansionQuestNPCAIBase questNPC;
 	    if (!ExpansionQuestNPCAIBase.CastTo(questNPC, obj))
 	    {
-			CF_Log.Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestNPCAIBase class are allowed!");
+			Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestNPCAIBase class are allowed!");
 			GetGame().ObjectDelete(obj);
 	        return null;
 	    }
@@ -246,7 +246,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
-			CF_Log.Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestStaticObject class are allowed!");
+			Error("ExpansionQuestNPCDataBase::SpawnNPC - Used unsupported object " + ClassName + " as AI quest NPC in config. Only objects based on ExpansionQuestStaticObject class are allowed!");
 			GetGame().ObjectDelete(obj);
 	        return null;
 	    }
@@ -265,7 +265,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	static ExpansionQuestNPCData Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestNPCData] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestNPCData] Load existing configuration file:" + fileName);
 
 		ExpansionQuestNPCData npcConfig;
 		ExpansionQuestNPCDataBase npcConfigBase;
@@ -275,7 +275,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		if (npcConfigBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			npcConfig = new ExpansionQuestNPCData();
 			//! Copy over old configuration that haven't changed
 			npcConfig.CopyConfig(npcConfigBase);
@@ -321,12 +321,12 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - ID: " + ID);
-		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCName: " + NPCName);
-		CF_Log.Debug(ToString() + "::QuestDebug - DefaultNPCText: " + DefaultNPCText);
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - ID: " + ID);
+		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		Print(ToString() + "::QuestDebug - NPCName: " + NPCName);
+		Print(ToString() + "::QuestDebug - DefaultNPCText: " + DefaultNPCText);
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

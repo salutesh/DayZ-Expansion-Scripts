@@ -1,5 +1,5 @@
 /**
- * BaseBuildingRaidEnum.c
+ * ExpansionBaseBuildingRaidMode.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,9 +10,9 @@
  *
 */
 
-enum BaseBuildingRaidEnum
+enum ExpansionBaseBuildingRaidMode
 {
-	Default = 0,
+	All = 0,
 	DoorsGates,
 	DoorsGatesWindows,
 	DoorsGatesWindowsWalls,

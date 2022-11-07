@@ -139,14 +139,6 @@ enum ExpansionMonitorRPC
 	COUNT
 };
 
-enum ExpansionDataCollectionRPC
-{
-	INVALID = 20350,
-	RequestPlayerData,
-	SendPlayerData,
-	COUNT
-}
-
 enum ExpansionTerritoryModuleRPC
 {
 	INVALID = 20400,

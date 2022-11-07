@@ -19,51 +19,27 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 	protected eAIBase m_VIP;
 	protected eAIGroup m_Group;
 
-	//! Event called when the player starts the quest
-	override bool OnStart()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
-	#endif
-		
-		if (!super.OnStart())
-			return false;	
-
+	//! Event called when the player starts and continues the quest
+	override bool OnEventStart(bool continues = false)
+	{		
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
-		vector markerPosition = GetObjectiveConfig().GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
-
-		if (markerName != string.Empty || markerPosition != vector.Zero)
-			GetQuest().CreateClientMarker(markerPosition, markerName);
-	#endif
-
-		return true;
-	}
-
-	//! Event called when the player continues the quest after a server restart/reconnect
-	override bool OnContinue()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
+		OnRecreateClientMarkers();
 	#endif
 		
-		if (!super.OnContinue())
-			return false;	
-
-		CreateVIP();
-
-	#ifdef EXPANSIONMODNAVIGATION
-		vector markerPosition = GetObjectiveConfig().GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
-
-		if (markerName != string.Empty || markerPosition != vector.Zero)
-			GetQuest().CreateClientMarker(markerPosition, markerName);
-	#endif
-
 		return true;
 	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	override void OnRecreateClientMarkers()
+	{
+		vector markerPosition = GetObjectiveConfig().GetPosition();
+		string markerName = GetObjectiveConfig().GetMarkerName();
+		if (markerName != string.Empty || markerPosition != vector.Zero)
+			GetQuest().CreateClientMarker(markerPosition, markerName);
+	}
+#endif
 
 	override bool OnComplete()
 	{
@@ -99,6 +75,7 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnCleanup())
 			return false;	
 
+		m_VIP.SetPosition("0 0 0");  //! Make sure to move AI out of the way, otherwise invisible collision box will be left behind when deleting
 		GetGame().ObjectDelete(m_VIP);
 
 		return true;
@@ -142,7 +119,6 @@ class ExpansionQuestObjectiveAIVIPEvent: ExpansionQuestObjectiveEventBase
 		if (!vip)
 			return;
 
-		//vector pos = GetQuest().GetPlayer().GetPosition();
 		m_Group = eAIGroup.GetGroupByLeader(GetQuest().GetPlayer());
 		if (!m_Group)
 			return;

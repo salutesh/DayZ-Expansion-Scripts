@@ -40,6 +40,15 @@ class ExpansionCOTTerritoriesListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion ExpansionCOTTerritoriesListEntry Destructor
+	// ------------------------------------------------------------
+	void ~ExpansionCOTTerritoriesListEntry()
+	{
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

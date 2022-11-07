@@ -48,7 +48,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected RichTextWidget Objective;
 	protected WrapSpacerWidget QuestListContent;
 	protected Widget DefaultPanel;
-	protected Widget Humanity;
+	protected Widget Reputation;
 
 	void ExpansionQuestMenu()
 	{
@@ -104,14 +104,14 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			foreach (ExpansionQuestConfig quest: quests)
 			{
 				int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
-				if (questState == ExpansionQuestState.COMPLETED)
+				if (questState == ExpansionQuestState.COMPLETED && !quest.IsRepeatable())
 					continue;
-				
+
 				if (quest.IsAchivement())
 					continue;
 
 			#ifdef EXPANSIONMODHARDLINE
-				if (quest.IsBanditQuest() || quest.IsHeroQuest() && !GetExpansionSettings().GetHardline().UseHumanity)
+				if (quest.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
 					continue;
 			#endif
 
@@ -230,7 +230,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 		RewardPanel.Show(false);
 	#ifdef EXPANSIONMODHARDLINE
-		if (rewardsCount > 0 || (quest.GetHumanityReward() > 0 || quest.GetHumanityReward() > 0) && GetExpansionSettings().GetHardline().UseHumanity)
+		if (rewardsCount > 0 || quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
 	#else
 		if (rewardsCount > 0)
 	#endif
@@ -255,13 +255,13 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 				m_QuestMenuController.RewardEntries.Insert(rewardEntry);
 			}
 
-			Humanity.Show(false);
+			Reputation.Show(false);
 		#ifdef EXPANSIONMODHARDLINE
-			if ((quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
+			if (quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
 			{
-				Humanity.Show(true);
-				m_QuestMenuController.HumanityVal = quest.GetHumanityReward().ToString();
-				m_QuestMenuController.NotifyPropertyChanged("HumanityVal");
+				Reputation.Show(true);
+				m_QuestMenuController.ReputationVal = quest.GetReputationReward().ToString();
+				m_QuestMenuController.NotifyPropertyChanged("ReputationVal");
 			}
 		#endif
 		}
@@ -277,28 +277,32 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			{
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
-					ExpansionQuestObjectiveCollectionConfig objectiveCollection = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
-					string className = objectiveCollection.GetCollection().GetClassName();
-					int amount = objectiveCollection.GetCollection().GetAmount();
-					ExpansionQuestMenuItemEntry collectObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
-					m_QuestMenuController.ObjectiveItems.Insert(collectObjectiveEntry);
-					QuestDebug(ToString() + "::SetQuest - Add objective item entry for item: " + className);
-					break;
+					ExpansionQuestObjectiveCollectionConfig collectionDelivery = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
+					for (int j = 0; j < collectionDelivery.GetDeliveries().Count(); j++)
+					{
+						ExpansionQuestObjectiveDelivery collection = collectionDelivery.GetDeliveries()[j];
+						string collectionClassName = collection.GetClassName();
+						int collectionAmount = collection.GetAmount();
+						ExpansionQuestMenuItemEntry collectionObjectiveEntry = new ExpansionQuestMenuItemEntry(collectionClassName, collectionAmount);
+						m_QuestMenuController.ObjectiveItems.Insert(collectionObjectiveEntry);
+						QuestDebug(ToString() + "::SetQuest - Add objective item entry for item: " + collectionClassName);
+					}
 				}
+				break;
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
 					ExpansionQuestObjectiveDeliveryConfig objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
-					for (int j = 0; j < objectiveDelivery.GetDeliveries().Count(); j++)
+					for (int k = 0; k < objectiveDelivery.GetDeliveries().Count(); k++)
 					{
-						ExpansionQuestObjectiveDelivery delivery = objectiveDelivery.GetDeliveries()[j];
-						className = delivery.GetClassName();
-						amount = delivery.GetAmount();
-						ExpansionQuestMenuItemEntry deliverObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
+						ExpansionQuestObjectiveDelivery delivery = objectiveDelivery.GetDeliveries()[k];
+						string deliveryClassName = delivery.GetClassName();
+						int deliveryAmount = delivery.GetAmount();
+						ExpansionQuestMenuItemEntry deliverObjectiveEntry = new ExpansionQuestMenuItemEntry(deliveryClassName, deliveryAmount);
 						m_QuestMenuController.ObjectiveItems.Insert(deliverObjectiveEntry);
-						QuestDebug(ToString() + "::SetQuest - Add objective item entry for item: " + className);
+						QuestDebug(ToString() + "::SetQuest - Add objective item entry for item: " + deliveryClassName);
 					}
-					break;
 				}
+				break;
 			}
 		}
 
@@ -447,7 +451,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	void QuestDebug(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		CF_Log.Debug(text);
+		Print(text);
 	#endif
 	}
 };
@@ -458,7 +462,7 @@ class ExpansionQuestMenuController: ExpansionViewController
 	string QuestDescription;
 	string QuestObjective;
 	string DefaultText;
-	string HumanityVal;
+	string ReputationVal;
 	string QuestNPCName;
 	ref ObservableCollection<ref ExpansionQuestMenuListEntry> Quests = new ObservableCollection<ref ExpansionQuestMenuListEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);

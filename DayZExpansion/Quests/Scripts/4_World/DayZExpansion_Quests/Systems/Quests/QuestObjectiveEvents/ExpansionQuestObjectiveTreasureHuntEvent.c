@@ -17,34 +17,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	protected ExpansionQuestSeaChest Chest;
 	protected vector StashPos;
 
-	override bool OnStart()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
-	#endif
-
-		if (!super.OnStart())
-			return false;
-
-		TreasureHuntEventStart();
-
-		return true;
-	}
-
-	override bool OnContinue()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
-	#endif
-
-		if (!super.OnContinue())
-			return false;
-
-		TreasureHuntEventStart();
-
-		return true;
-	}
-
 	override bool OnCleanup()
 	{
 	#ifdef EXPANSIONTRACE
@@ -94,19 +66,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	protected bool TreasureHuntEventStart()
+	override bool OnEventStart(bool continues = false)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TreasureHuntEventStart");
-	#endif
-
-		if (!GetQuest().GetPlayer())
-		{
-			GetQuest().SetPlayer();
-			if (!GetQuest().GetPlayer())
-				return false;
-		}
-
 		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
 		if (!treasureHunt)
 			return false;
@@ -155,11 +116,11 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, StashPos, Vector(0, 0, 0));
 		if (!Class.CastTo(Chest, chestObj))
 			return false;
-		
+
 		ExpansionQuestSeaChest chestIB;
 		if (!Class.CastTo(chestIB, chestObj))
 			return false;
-		
+
 		//chestIB.SetQuestID(GetQuest().GetQuestConfig().GetID());
 
 		//! Spawn the loot in the chest

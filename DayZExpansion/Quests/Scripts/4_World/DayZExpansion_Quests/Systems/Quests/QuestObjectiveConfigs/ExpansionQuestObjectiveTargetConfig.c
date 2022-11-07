@@ -48,26 +48,26 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 	{
 		return Target;
 	}
-	
+
 	static ExpansionQuestObjectiveTargetConfig Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestObjectiveTargetConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveTargetConfig] Load existing configuration file:" + fileName);
 
 		ExpansionQuestObjectiveTargetConfig config;
 		ExpansionQuestObjectiveTargetConfigBase configBase;
-		
+
 		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestObjectiveTargetConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveTargetConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveTargetConfig();
 
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
-			
+
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
@@ -84,19 +84,19 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 
 		return config;
 	}
-	
+
 	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + ".json", this);
 	}
-	
+
 	void CopyConfig(ExpansionQuestObjectiveTargetConfigBase configBase)
 	{
 		ID = configBase.ID;
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-		
+
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		Target = configBase.Target;
@@ -114,10 +114,22 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 
 		return true;
 	}
-	
+
+	override bool Validate()
+	{
+		if (!super.Validate())
+			return false;
+
+		if (!Target)
+			return false;
+
+		return true;
+	}
+
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		super.QuestDebug();
 		if (Target)
 			Target.QuestDebug();
 	#endif

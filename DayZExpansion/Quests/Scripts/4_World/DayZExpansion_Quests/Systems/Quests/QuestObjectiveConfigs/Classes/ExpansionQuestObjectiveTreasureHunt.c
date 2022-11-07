@@ -38,18 +38,18 @@ class ExpansionQuestObjectiveTreasureHunt
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
 		foreach (vector pos: Positions)
 		{
-			CF_Log.Debug(ToString() + "::QuestDebug - Position: " + pos);
+			Print(ToString() + "::QuestDebug - Position: " + pos);
 		}
 
 		foreach (string item, int amount: Items)
 		{
-			CF_Log.Debug(ToString() + "::QuestDebug - Item: " + item);
-			CF_Log.Debug(ToString() + "::QuestDebug - Item amount:" + amount);
+			Print(ToString() + "::QuestDebug - Item: " + item);
+			Print(ToString() + "::QuestDebug - Item amount:" + amount);
 		}
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

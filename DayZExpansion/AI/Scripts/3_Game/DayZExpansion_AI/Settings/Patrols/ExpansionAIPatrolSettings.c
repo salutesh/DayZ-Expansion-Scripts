@@ -30,12 +30,15 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
 
 	float DespawnRadius;
 
 	float AccuracyMin;
 	float AccuracyMax;
+
+	float ThreatDistanceLimit;
+	float DamageMultiplier;
 
 	ref array< ref ExpansionAIObjectPatrol > ObjectPatrols;
 	ref array< ref ExpansionAIPatrol > Patrols;
@@ -148,6 +151,8 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 			{
 				//! Use defaults, but DON'T save them
 				Defaults();
+
+				version = VERSION;
 			}
 			else if (m_Version < VERSION)
 			{
@@ -206,6 +211,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 						patrol.AccuracyMin = -1;
 						patrol.AccuracyMax = -1;
 					}
+
+					if (m_Version < 11)
+					{
+						patrol.ThreatDistanceLimit = -1.0;
+						patrol.DamageMultiplier = -1.0;
+					}
 				}
 
 				m_Version = VERSION;
@@ -256,6 +267,12 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				if (version < 9)
 				{
 					objectPatrol.RespawnTime = -2;
+				}
+
+				if (version < 11)
+				{
+					objectPatrol.ThreatDistanceLimit = -1.0;
+					objectPatrol.DamageMultiplier = -1.0;
 				}
 
 				if (!objectPatrol.ClassName)
@@ -324,6 +341,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
         DespawnRadius = 1100;
 		AccuracyMin = -1;
 		AccuracyMax = -1;
+
+		ThreatDistanceLimit = -1;
+		DamageMultiplier = -1;
     
         string worldName = ExpansionStatic.GetCanonicalWorldName();
 

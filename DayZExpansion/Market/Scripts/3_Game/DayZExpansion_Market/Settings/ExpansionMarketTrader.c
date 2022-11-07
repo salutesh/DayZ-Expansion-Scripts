@@ -34,13 +34,21 @@ class ExpansionMarketTraderV3 : ExpansionMarketTraderBase
 	autoptr array< string > Items;
 }
 
+#ifdef EXPANSIONMODHARDLINE
+class ExpansionMarketTraderV9: ExpansionMarketTraderBase
+{
+	int MinRequiredHumanity;
+	int MaxRequiredHumanity
+}
+#endif
+
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	#ifdef EXPANSIONMODHARDLINE
-	int MinRequiredHumanity
-	int MaxRequiredHumanity
+	int MinRequiredReputation;
+	int MaxRequiredReputation;
 	#endif
 
 	string TraderIcon;
@@ -121,11 +129,15 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			if (settingsBase.m_Version < 6)
 				settings.TraderIcon = settingsDefault.TraderIcon;
 
-			if (settingsBase.m_Version < 9)
+			if (settingsBase.m_Version < 10)
 			{
+				ExpansionMarketTraderV9 settings_v9;
+				if (!ExpansionJsonFileParser<ExpansionMarketTraderV9>.Load( EXPANSION_TRADER_FOLDER + name + ".json", settings_v9 ))
+					return NULL;
+				
 				#ifdef EXPANSIONMODHARDLINE
-				settings.MinRequiredHumanity = settingsDefault.MinRequiredHumanity;
-				settings.MaxRequiredHumanity = settingsDefault.MaxRequiredHumanity;
+				settings.MinRequiredReputation = settings_v9.MinRequiredHumanity;
+				settings.MaxRequiredReputation = settings_v9.MaxRequiredHumanity;
 				#endif
 			}
 			
@@ -182,8 +194,8 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		TraderIcon = "Trader";
 		
 		#ifdef EXPANSIONMODHARDLINE
-		MinRequiredHumanity = int.MIN;
-		MaxRequiredHumanity = int.MAX;
+		MinRequiredReputation = 0;
+		MaxRequiredReputation = int.MAX;
 		#endif
 
 		DefaultCurrencies();

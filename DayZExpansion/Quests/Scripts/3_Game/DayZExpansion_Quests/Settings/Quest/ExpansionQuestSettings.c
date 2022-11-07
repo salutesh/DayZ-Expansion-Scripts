@@ -35,6 +35,17 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	int DailyQuestResetHour;
 	int DailyQuestResetMinute;
 	bool UseUTCTime;
+
+	string QuestCooldownTitle;
+	string QuestCooldownText;
+
+#ifdef EXPANSIONMODGROUPS
+	string QuestNotInGroupTitle;
+	string QuestNotInGroupText;
+
+	string QuestNotGroupOwnerTitle;
+	string QuestNotGroupOwnerText;
+#endif
 }
 
 /**@class		ExpansionQuestSettings
@@ -42,24 +53,14 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 3;
-
-	string QuestCooldownTitle;
-	string QuestCooldownText;
-
-	string QuestNotInGroupTitle;
-	string QuestNotInGroupText;
-
-	string QuestNotGroupOwnerTitle;
-	string QuestNotGroupOwnerText;
+	static const int VERSION = 4;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
 
-	void ExpansionQuestSettings()
-	{
-
-	}
+#ifdef EXPANSIONMODGROUPS
+	int GroupQuestMode = 0; //! 0 - Only group owners can accept and turn-in quests. | 1 - Only group owner can turn-in quest but all group members can accept them. | 2 - All group members can accept and turn-in quests.
+#endif
 
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings OnRecieve
@@ -73,7 +74,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		ExpansionQuestSettings setting;
 		if ( !ctx.Read( setting ) )
 		{
-			CF_Log.Error("ExpansionQuestSettings::OnRecieve setting");
+			Error("ExpansionQuestSettings::OnRecieve setting");
 			return false;
 		}
 
@@ -181,6 +182,18 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 		//! Version 2
 		UseUTCTime = s.UseUTCTime;
+
+		//! Version 3
+		QuestCooldownTitle = s.QuestCooldownTitle;
+		QuestCooldownText = s.QuestCooldownText;
+
+	#ifdef EXPANSIONMODGROUPS
+		QuestNotInGroupTitle = s.QuestNotInGroupTitle;
+		QuestNotInGroupText = s.QuestNotInGroupText;
+
+		QuestNotGroupOwnerTitle = s.QuestNotGroupOwnerTitle;
+		QuestNotGroupOwnerText = s.QuestNotGroupOwnerText;
+	#endif
 	}
 
 	// ------------------------------------------------------------
@@ -192,14 +205,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
-		QuestCooldownTitle = s.QuestCooldownTitle;
-		QuestCooldownText = s.QuestCooldownText;
-
-		QuestNotInGroupTitle = s.QuestNotInGroupTitle;
-		QuestNotInGroupText = s.QuestNotInGroupText;
-
-		QuestNotGroupOwnerTitle = s.QuestNotGroupOwnerTitle;
-		QuestNotGroupOwnerText = s.QuestNotGroupOwnerText;
+		GroupQuestMode = s.GroupQuestMode;
 
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
@@ -243,6 +249,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 			JsonFileLoader<ExpansionQuestSettingsBase>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, settingsBase);
 			if (settingsBase.m_Version < VERSION)
 			{
+				Print(ToString() + "::Load - Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
 				if (settingsBase.m_Version < 1)
 				{
 					WeeklyQuestResetDay = settingsDefault.WeeklyQuestResetDay;
@@ -257,11 +264,20 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					QuestCooldownTitle = settingsDefault.QuestCooldownTitle;
 					QuestCooldownText = settingsDefault.QuestCooldownText;
 
+				#ifdef EXPANSIONMODGROUPS
 					QuestNotInGroupTitle = settingsDefault.QuestNotInGroupTitle;
 					QuestNotInGroupText = settingsDefault.QuestNotInGroupText;
 
 					QuestNotGroupOwnerTitle = settingsDefault.QuestNotGroupOwnerTitle;
 					QuestNotGroupOwnerText = settingsDefault.QuestNotGroupOwnerText;
+				#endif
+				}
+
+				if (settingsBase.m_Version < 4)
+				{
+				#ifdef EXPANSIONMODGROUPS
+					GroupQuestMode = settingsDefault.GroupQuestMode;
+				#endif
 				}
 				else
 				{
@@ -281,7 +297,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		}
 		else
 		{
-			CF_Log.Info("[ExpansionQuestSettings] No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
+			Print(ToString() + "::Load - No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
 
 			Defaults();
 			save = true;
@@ -358,11 +374,13 @@ override void Update( ExpansionSettingBase setting )
 		QuestCooldownTitle = "Quest Cooldown";
 		QuestCooldownText = "This quest is still on cooldown! Come back in %1";
 
+	#ifdef EXPANSIONMODGROUPS
 		QuestNotInGroupTitle = "Group Quest";
 		QuestNotInGroupText = "Group quests can only accepted while in a group!";
 
 		QuestNotGroupOwnerTitle = "Group Quest";
 		QuestNotGroupOwnerText = "Only a group owner can accept and turn-in group quest!";
+	#endif
 
 		WeeklyQuestResetDay = "Wednesday";
 		WeeklyQuestResetHour = 8;
@@ -371,6 +389,8 @@ override void Update( ExpansionSettingBase setting )
 		DailyQuestResetMinute = 0;
 
 		UseUTCTime = false;
+
+		GroupQuestMode = 0;
 	}
 
 	// ------------------------------------------------------------

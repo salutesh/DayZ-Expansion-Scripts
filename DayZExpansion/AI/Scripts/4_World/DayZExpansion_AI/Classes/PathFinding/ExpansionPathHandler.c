@@ -340,6 +340,10 @@ class ExpansionPathHandler
 		auto trace = CF_Trace_2(this, "OnUpdate").Add(pDt).Add(pSimulationPrecision);
 #endif
 
+#ifdef DIAG
+		auto hitch = EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
+#endif
+
 		m_Time += pDt;
 		
 		//SetPathFilter();

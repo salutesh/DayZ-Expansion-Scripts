@@ -25,7 +25,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	protected TextWidget cancel_quest_label;
 	protected ButtonWidget hide_questhud_button;
 	protected TextWidget hide_questhud_button_label;
-	protected Widget humanity;
+	protected Widget reputation;
 
 	void ExpansionBookMenuTabQuests(ExpansionBookMenu book_menu)
 	{
@@ -98,14 +98,14 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 	void MenuCallback()
 	{
-		QuestPrint("ExpansionBookMenuTabQuests::MenuCallback - Start");
+		QuestDebugPrint("ExpansionBookMenuTabQuests::MenuCallback - Start");
 
 		ExpansionUIManager uiManager = GetDayZExpansion().GetExpansionUIManager();
 		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(uiManager.GetMenu());
 		if (bookMenu)
 			GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 
-		QuestPrint("ExpansionBookMenuTabQuests::SetQuest - End");
+		QuestDebugPrint("ExpansionBookMenuTabQuests::SetQuest - End");
 	}
 
 	void SetView(map<int, ref ExpansionQuestConfig> quests)
@@ -163,7 +163,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 		string description;
 
-		QuestPrint("ExpansionBookMenuTabQuests::SetQuest - questState: " + questState);
+		QuestDebugPrint("ExpansionBookMenuTabQuests::SetQuest - questState: " + questState);
 
 		if (questState == ExpansionQuestState.STARTED)
 		{
@@ -174,7 +174,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 			description = quest.GetDescriptions().Get(2);
 		}
 
-		QuestPrint("ExpansionBookMenuTabQuests::SetQuest - description: " + description);
+		QuestDebugPrint("ExpansionBookMenuTabQuests::SetQuest - description: " + description);
 
 		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
 		m_QuestTabController.QuestDescription = descriptiontext.Format();
@@ -187,7 +187,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 		reward_panel.Show(false);
 	#ifdef EXPANSIONMODHARDLINE
-		if (rewardsCount > 0 || (quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
+		if (rewardsCount > 0 || quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
 	#else
 		if (rewardsCount > 0)
 	#endif
@@ -200,13 +200,13 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 				m_QuestTabController.RewardEntries.Insert(rewardEntry);
 			}
 
-			humanity.Show(false);
+			reputation.Show(false);
 		#ifdef EXPANSIONMODHARDLINE
-			if ((quest.GetHumanityReward() > 0 || quest.GetHumanityReward() < 0) && GetExpansionSettings().GetHardline().UseHumanity)
+			if (quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
 			{
-				humanity.Show(true);
-				m_QuestTabController.HumanityVal = quest.GetHumanityReward().ToString();
-				m_QuestTabController.NotifyPropertyChanged("HumanityVal");
+				reputation.Show(true);
+				m_QuestTabController.ReputationVal = quest.GetReputationReward().ToString();
+				m_QuestTabController.NotifyPropertyChanged("ReputationVal");
 			}
 		#endif
 		}
@@ -218,19 +218,23 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 			int objectiveType = objective.GetObjectiveType();
 			string className;
 			int amount;
-			QuestPrint(ToString() + "::SetQuest - Objective type: " + objectiveType);
+			QuestDebugPrint(ToString() + "::SetQuest - Objective type: " + objectiveType);
 			switch (objectiveType)
 			{
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
 					ExpansionQuestObjectiveCollectionConfig objectiveCollection = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
-					className = objectiveCollection.GetCollection().GetClassName();
-					amount = objectiveCollection.GetCollection().GetAmount();
-					ExpansionQuestMenuItemEntry collectObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
-					m_QuestTabController.ObjectiveItems.Insert(collectObjectiveEntry);
-					QuestPrint(ToString() + "::SetQuest - Add objective item entry for item: " + className);
-					break;
+					array<ref ExpansionQuestObjectiveDelivery> collections = objectiveCollection.GetDeliveries();
+					foreach (ExpansionQuestObjectiveDelivery collection: collections)
+					{
+						className = collection.GetClassName();
+						amount = collection.GetAmount();
+						ExpansionQuestMenuItemEntry collectionObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
+						m_QuestTabController.ObjectiveItems.Insert(collectionObjectiveEntry);
+						QuestDebugPrint(ToString() + "::SetQuest - Add objective item entry for item: " + className);
+					}
 				}
+				break;
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
 					ExpansionQuestObjectiveDeliveryConfig objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
@@ -241,10 +245,10 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 						amount = delivery.GetAmount();
 						ExpansionQuestMenuItemEntry deliverObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
 						m_QuestTabController.ObjectiveItems.Insert(deliverObjectiveEntry);
-						QuestPrint(ToString() + "::SetQuest - Add objective item entry for item: " + className);
+						QuestDebugPrint(ToString() + "::SetQuest - Add objective item entry for item: " + className);
 					}
-					break;
 				}
+				break;
 			}
 		}
 	}
@@ -276,7 +280,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 #ifdef EXPANSIONMODQUESTS_HUD_ENABLE
 	void OnHideHUDButtonClick()
 	{
-		QuestPrint("ExpansionBookMenuTabQuests::OnHideHUDButtonClick - Start");
+		QuestDebugPrint("ExpansionBookMenuTabQuests::OnHideHUDButtonClick - Start");
 
 		MissionGameplay mission = MissionGameplay.Cast(GetDayZGame().GetMission());
 		if (mission)
@@ -294,7 +298,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 			m_QuestTabController.NotifyPropertyChanged("HideButtonText");
 		}
 
-		QuestPrint("ExpansionBookMenuTabQuests::OnHideHUDButtonClick - End");
+		QuestDebugPrint("ExpansionBookMenuTabQuests::OnHideHUDButtonClick - End");
 	}
 #endif
 
@@ -348,10 +352,10 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		return true;
 	}
 
-	void QuestPrint(string text)
+	void QuestDebugPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		CF_Log.Debug(text);
+		Print(text);
 	#endif
 	}
 };
@@ -362,7 +366,7 @@ class ExpansionBookMenuTabQuestsController: ExpansionViewController
 	string QuestDescription;
 	string QuestObjective;
 	string HideButtonText;
-	string HumanityVal;
+	string ReputationVal;
 	ref ObservableCollection<ref ExpansionBookMenuTabQuestsListEntry> Quests = new ObservableCollection<ref ExpansionBookMenuTabQuestsListEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);

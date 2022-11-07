@@ -20,14 +20,14 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarityForMarketPurchase)
+		if (GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().UseItemRarityForMarketPurchase)
 		{
 			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
 			int required;
-			if (rarity && !HasHumanityForRarity(player, rarity, required))
+			if (rarity && !HasRepForRarity(player, rarity, required))
 			{
-				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
-				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW_BUY_DESC", required.ToString());
+				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
+				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW_BUY_DESC", required.ToString());
 				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 				return;
 			}
@@ -43,14 +43,14 @@ modded class ExpansionMarketModule
 			return;
 		}
 		
-		if (GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().UseItemRarityForMarketSell)
+		if (GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().UseItemRarityForMarketSell)
 		{
 			ExpansionHardlineItemRarity rarity = GetExpansionSettings().GetHardline().GetItemRarityByType(itemClassName);
 			int required;
-			if (rarity && !HasHumanityForRarity(player, rarity, required))
+			if (rarity && !HasRepForRarity(player, rarity, required))
 			{
-				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW");
-				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_RANKLOW_SELL_DESC", required.ToString());
+				StringLocaliser rankTitle = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW");
+				StringLocaliser rankText = new StringLocaliser("STR_EXPANSION_HARDLINE_MARKET_REPLOW_SELL_DESC", required.ToString());
 				ExpansionNotification(rankTitle, rankText, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_EXPANSION, 3, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 				return;
 			}
@@ -59,19 +59,15 @@ modded class ExpansionMarketModule
 		super.Exec_RequestSell(player, itemClassName, count, playerSentPrice, trader, playerSentSellDebug);
 	}
 	
-	bool HasHumanityForRarity(PlayerBase player, ExpansionHardlineItemRarity rarity, out int required)
+	bool HasRepForRarity(PlayerBase player, ExpansionHardlineItemRarity rarity, out int required)
 	{
 		if (rarity == ExpansionHardlineItemRarity.NONE)
 		{
 			return true;
 		}
 
-		required = GetExpansionSettings().GetHardline().GetHumanityForRarity(rarity);
-
-		if (player.IsBandit())
-			required = -required;
-
-		return Math.AbsFloat(player.GetHumanity()) >= Math.AbsFloat(required);
+		required = GetExpansionSettings().GetHardline().GetReputationForRarity(rarity);
+		return Math.AbsFloat(player.GetReputation()) >= Math.AbsFloat(required);
 	}
 };
 #endif

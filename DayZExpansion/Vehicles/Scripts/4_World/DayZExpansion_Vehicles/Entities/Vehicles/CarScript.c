@@ -3874,7 +3874,7 @@ modded class CarScript
 		}
 	}
 
-	bool Expansion_CoverVehicle(EntityAI cover = null)
+	bool Expansion_CoverVehicle(EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
 	{
 		string coverType;
 
@@ -3886,7 +3886,6 @@ modded class CarScript
 		string placeholderType = Expansion_GetPlaceholderType(coverType);
 
 		bool storeCargo = GetExpansionSettings().GetVehicle().UseVirtualStorageForCoverCargo;
-		ExpansionEntityStoragePlaceholder placeholder;
 		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(this, placeholderType, GetPosition(), ECE_OBJECT_SWAP, placeholder, storeCargo))
 		{
 			EXTrace.Print(EXTrace.VEHICLES, this, "Covered vehicle " + GetType() + " " + GetPosition() + " with " + coverType);

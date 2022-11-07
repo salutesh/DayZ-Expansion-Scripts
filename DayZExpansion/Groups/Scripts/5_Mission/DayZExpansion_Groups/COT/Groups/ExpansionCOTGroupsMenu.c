@@ -45,7 +45,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 
 	private ExpansionPartyData m_CurrentSelectedGroup;
 	private ExpansionPartyPlayerData m_CurrentSelectedGroupMember;
-	private ExpansionPlayerDataCollection m_CurrentSelectedServerPlayer;
+	private string m_CurrentSelectedServerPlayerUID;
 
 	private Widget m_GroupsListPanel;
 	private GridSpacerWidget m_GroupsListContent;
@@ -149,12 +149,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 	#endif
 
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (!dataModule)
-			return;
-
 		m_Module.m_COTGroupModuleSI.Insert(MenuCallback);
-		dataModule.m_ModuleSI.Insert(OnPlayerDataRecived);
 	}
 
 	// ------------------------------------------------------------
@@ -164,10 +159,6 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	{
 		if (m_Module)
 			m_Module.m_COTGroupModuleSI.Remove(MenuCallback);
-
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (dataModule)
-			dataModule.m_ModuleSI.Remove(OnPlayerDataRecived);
 	}
 
 	// ------------------------------------------------------------
@@ -385,14 +376,9 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	// ------------------------------------------------------------
 	private void FillPlayerList()
 	{
-		ExpansionDataCollectionModule dataCollection;
-		if (!CF_Modules<ExpansionDataCollectionModule>.Get(dataCollection))
-			return;
-
 		m_ServerPlayers.Clear();
 
-		map <string, ref ExpansionPlayerDataCollection> players = dataCollection.GetAllPlayers();
-		foreach (string playerUID, ExpansionPlayerDataCollection player: players)
+		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
 		{
 			if (!player)
 				continue;
@@ -405,23 +391,23 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMenu SetPlayerInfo
 	// ------------------------------------------------------------
-	void SetPlayerInfo(ExpansionPlayerDataCollection player)
+	void SetPlayerInfo(SyncPlayer player)
 	{
-		m_CurrentSelectedServerPlayer = player;
+		m_CurrentSelectedServerPlayerUID = player.m_RUID;
 
 		SetViewPlayerEdit();
 
-		m_PlayerInfoNameValue.SetText(player.Name);
-		m_PlayerInfoIDValue.SetText(player.PlayerUID);
+		m_PlayerInfoNameValue.SetText(player.m_PlayerName);
+		m_PlayerInfoIDValue.SetText(player.m_RUID);
 
-		ExpansionPartyPlayerData playerPartyData = m_Module.GetGroupPlayerData(player.PlayerUID);
+		ExpansionPartyPlayerData playerPartyData = m_Module.GetGroupPlayerData(player.m_RUID);
 		if (playerPartyData)
 		{
 			ExpansionPartyData partyData = playerPartyData.GetParty();
 			if (!partyData)
 				return;
 
-			if (partyData.GetOwnerUID() == player.PlayerUID)
+			if (partyData.GetOwnerUID() == player.m_RUID)
 			{
 				m_PlayerInfoGroupValue.SetText("IS OWNER OF GROUP: " + partyData.GetPartyID());
 				m_PlayerSetOwnerButton.Show(false);
@@ -449,7 +435,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	{
 		m_CurrentSelectedGroup = group;
 		m_CurrentSelectedGroupMember = NULL;
-		m_CurrentSelectedServerPlayer = NULL;
+		m_CurrentSelectedServerPlayerUID = "";
 
 		SetViewGroupEdit();
 
@@ -560,11 +546,6 @@ class ExpansionCOTGroupsMenu: JMFormBase
 
 		SetViewEdit();
 
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (!dataModule)
-			return;
-
-		dataModule.RequestPlayerData();
 		FillMemberList(false);
 	}
 
@@ -686,12 +667,11 @@ class ExpansionCOTGroupsMenu: JMFormBase
 	// ------------------------------------------------------------
 	void ChangePlayerToGroupOwner()
 	{
-		if (!m_CurrentSelectedServerPlayer || !m_CurrentSelectedGroup)
+		if (!m_CurrentSelectedServerPlayerUID || !m_CurrentSelectedGroup)
 			return;
 
-		string playerUID = m_CurrentSelectedServerPlayer.PlayerUID;
 		int partyID = m_CurrentSelectedGroup.GetPartyID();
-		m_Module.ChangeOwner(playerUID, partyID, false);
+		m_Module.ChangeOwner(m_CurrentSelectedServerPlayerUID, partyID, false);
 	}
 
 	// ------------------------------------------------------------
@@ -1110,12 +1090,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		}
 		else if (w == m_PlayersListRefreshButton)
 		{
-			ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-			if (dataModule)
-			{
-				dataModule.RequestPlayerData();
-				return true;
-			}
+			FillPlayerList();
 		}
 		else if (w == m_MembersListRefreshButton)
 		{
@@ -1153,9 +1128,9 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		}
 		else if (w == m_PlayerInviteButton)
 		{
-			if (m_CurrentSelectedServerPlayer)
+			if (m_CurrentSelectedServerPlayerUID)
 			{
-				InvitePlayer(m_CurrentSelectedServerPlayer.PlayerUID);
+				InvitePlayer(m_CurrentSelectedServerPlayerUID);
 				return true;
 			}
 		}
@@ -1245,12 +1220,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		if (!m_Module)
 			return;
 
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (!dataModule)
-			return;
-
 		m_Module.m_COTGroupModuleSI.Insert(MenuCallback);
-		dataModule.m_ModuleSI.Insert(OnPlayerDataRecived);
 		m_Module.RequestGroups(ExpansionCOTGroupsMenuCallback.GroupsInit);
 	}
 
@@ -1264,12 +1234,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		if (!m_Module)
 			return;
 
-		ExpansionDataCollectionModule dataModule = ExpansionDataCollectionModule.Cast(CF_ModuleCoreManager.Get(ExpansionDataCollectionModule));
-		if (!dataModule)
-			return;
-
 		m_Module.m_COTGroupModuleSI.Remove(MenuCallback);
-		dataModule.m_ModuleSI.Remove(OnPlayerDataRecived);
 	}
 
 	// ------------------------------------------------------------
@@ -1365,14 +1330,6 @@ class ExpansionCOTGroupsMenu: JMFormBase
 			if (checkbox)
 				checkbox.SetColor(ARGB(255, 255, 255, 255));
 		}
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu OnPartyDataRecived
-	// ------------------------------------------------------------
-	void OnPlayerDataRecived()
-	{
-		FillPlayerList();
 	}
 
 	// ------------------------------------------------------------

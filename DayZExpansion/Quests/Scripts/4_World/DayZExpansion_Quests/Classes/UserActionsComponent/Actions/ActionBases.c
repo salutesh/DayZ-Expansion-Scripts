@@ -28,7 +28,7 @@ modded class AnimatedActionBase
 {
 	protected override void OnExecuteServer(ActionData action_data)
 	{
-		 super.OnExecuteServer(action_data);
+		super.OnExecuteServer(action_data);
 
 		ExpansionQuestModule questModule;
 		if (!Class.CastTo(questModule, CF_ModuleCoreManager.Get(ExpansionQuestModule)))

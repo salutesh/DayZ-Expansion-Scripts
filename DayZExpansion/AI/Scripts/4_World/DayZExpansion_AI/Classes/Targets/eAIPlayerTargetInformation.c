@@ -22,6 +22,10 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			if (ai == m_Player || !ai.PlayerIsEnemy(m_Player))
 				return 0.0;
 
+#ifdef DIAG
+			auto hitch = EXHitch(ai.ToString() + " eAIPlayerTargetInformation::CalculateThreat ", 20000);
+#endif
+
 			// the further away the player, the less likely they will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 
@@ -110,6 +114,13 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 					daylightVisibility = 0.1;  //! 100 m
 				}
 			}
+			float visibilityLimit = ai.m_eAI_ThreatDistanceLimit * 0.001;
+			if (daylightVisibility > visibilityLimit)
+				daylightVisibility = visibilityLimit;
+			//! Limit visibility in contaminated areas due to gas clouds
+			if (daylightVisibility > 0.2 && ai.GetModifiersManager().IsModifierActive(eModifiers.MDF_AREAEXPOSURE))
+				daylightVisibility = 0.2;  //! 200 m
+			//! Final visibility
 			float visibility = Math.Min(Math.Min(fogVisibility, Math.Min(overcastVisibility, rainVisibility)), daylightVisibility);
 			float visibilityDistThreshold = 900 * visibility;
 			if (distance > visibilityDistThreshold)

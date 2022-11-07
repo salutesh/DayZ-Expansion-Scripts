@@ -34,13 +34,13 @@ class ExpansionQuestDeliveryObjectiveData
 {
 	int Index;
 	int Count;
-	
+
 	void SetFromDelivery(int index, int count)
 	{
 		Index = index;
 		Count = count;
 	}
-	
+
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(Index);
@@ -71,7 +71,7 @@ class ExpansionQuestObjectiveData
 
 	bool ActionState = false;
 	int TimeLimit = -1;
-	
+
 	ref array<ref ExpansionQuestDeliveryObjectiveData> DeliveryData;
 
 	void SetObjectiveIndex(int index)
@@ -163,33 +163,35 @@ class ExpansionQuestObjectiveData
 	{
 		return TimeLimit;
 	}
-	
+
 	void SetDeliveries(array<ref ExpansionQuestDeliveryObjectiveData> deliveryData)
 	{
 		if (!DeliveryData)
 			DeliveryData = new array<ref ExpansionQuestDeliveryObjectiveData>;
 		else
 			DeliveryData.Clear();
-		
+
 		foreach (ExpansionQuestDeliveryObjectiveData data: deliveryData)
 		{
 			DeliveryData.Insert(data);
 		}
-		
+
+	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 		Print(ToString() + "::SetDeliveries - Set delivery data: " + DeliveryData.ToString() + " | Count: " + DeliveryData.Count());
+	#endif
 	}
-	
+
 	int GetDeliveryCountByIndex(int index)
 	{
 		if (!DeliveryData)
 			return 0;
-		
+
 		foreach (ExpansionQuestDeliveryObjectiveData data: DeliveryData)
 		{
 			if (data.Index == index)
 				return data.Count;
 		}
-		
+
 		return 0;
 	}
 
@@ -204,12 +206,12 @@ class ExpansionQuestObjectiveData
 		ctx.Write(ObjectivePosition);
 		ctx.Write(ActionState);
 		ctx.Write(TimeLimit);
-		
-		if (DeliveryData && ObjectiveType == ExpansionQuestObjectiveType.DELIVERY)
+
+		if (DeliveryData && (ObjectiveType == ExpansionQuestObjectiveType.DELIVERY || ObjectiveType == ExpansionQuestObjectiveType.COLLECT))
 		{
 			int deliveryCount = DeliveryData.Count();
 			ctx.Write(deliveryCount);
-			
+
 			for (int i = 0; i < deliveryCount; ++i)
 			{
 				ExpansionQuestDeliveryObjectiveData data = DeliveryData[i];
@@ -246,23 +248,23 @@ class ExpansionQuestObjectiveData
 
 		if (!ctx.Read(TimeLimit))
 			return false;
-		
-		if (ObjectiveType == ExpansionQuestObjectiveType.DELIVERY)
+
+		if (ObjectiveType == ExpansionQuestObjectiveType.DELIVERY || ObjectiveType == ExpansionQuestObjectiveType.COLLECT)
 		{
 			if (!DeliveryData)
 				DeliveryData = new array<ref ExpansionQuestDeliveryObjectiveData>;
-			
-			DeliveryData.Clear();
-			
+			else
+				DeliveryData.Clear();
+
 			int deliveryCount;
 			ctx.Read(deliveryCount);
-			
+
 			for (int i = 0; i < deliveryCount; ++i)
 			{
 				ExpansionQuestDeliveryObjectiveData data = new ExpansionQuestDeliveryObjectiveData();
 				if (!data.OnRecieve(ctx))
 					return false;
-				
+
 				DeliveryData.Insert(data);
 			}
 		}
@@ -273,17 +275,17 @@ class ExpansionQuestObjectiveData
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveIndex: " + ObjectiveIndex);
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
-		CF_Log.Debug(ToString() + "::QuestDebug - IsCompleted: " + IsCompleted);
-		CF_Log.Debug(ToString() + "::QuestDebug - IsActive: " + IsActive);
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveAmount: " + ObjectiveAmount);
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveCount: " + ObjectiveCount);
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectivePosition: " + ObjectivePosition);
-		CF_Log.Debug(ToString() + "::QuestDebug - ActionState: " + ActionState);
-		CF_Log.Debug(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - ObjectiveIndex: " + ObjectiveIndex);
+		Print(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
+		Print(ToString() + "::QuestDebug - IsCompleted: " + IsCompleted);
+		Print(ToString() + "::QuestDebug - IsActive: " + IsActive);
+		Print(ToString() + "::QuestDebug - ObjectiveAmount: " + ObjectiveAmount);
+		Print(ToString() + "::QuestDebug - ObjectiveCount: " + ObjectiveCount);
+		Print(ToString() + "::QuestDebug - ObjectivePosition: " + ObjectivePosition);
+		Print(ToString() + "::QuestDebug - ActionState: " + ActionState);
+		Print(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

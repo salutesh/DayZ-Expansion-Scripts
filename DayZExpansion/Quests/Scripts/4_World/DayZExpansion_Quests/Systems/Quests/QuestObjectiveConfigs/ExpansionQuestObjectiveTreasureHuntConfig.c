@@ -26,16 +26,16 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 	{
 		return TreasureHunt;
 	}
-	
+
 	bool ShowDistance()
 	{
 		return ShowDistance;
 	}
-	
+
 	static ExpansionQuestObjectiveTreasureHuntConfig Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestObjectiveTreasureHuntConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveTreasureHuntConfig] Load existing configuration file:" + fileName);
 
 		ExpansionQuestObjectiveTreasureHuntConfig config;
 		ExpansionQuestObjectiveTreasureHuntConfigBase configBase;
@@ -45,7 +45,7 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveTreasureHuntConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -79,14 +79,14 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-		
+
 		TreasureHunt = configBase.TreasureHunt;
 	}
-	
+
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		super.OnSend(ctx);
-		
+
 		ctx.Write(ShowDistance);
 	}
 
@@ -97,13 +97,25 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 		if (!ctx.Read(ShowDistance))
 			return false;
-		
+
+		return true;
+	}
+
+	override bool Validate()
+	{
+		if (!super.Validate())
+			return false;
+
+		if (!TreasureHunt)
+			return false;
+
 		return true;
 	}
 
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		super.QuestDebug();
 		if (TreasureHunt)
 			TreasureHunt.QuestDebug();
 	#endif

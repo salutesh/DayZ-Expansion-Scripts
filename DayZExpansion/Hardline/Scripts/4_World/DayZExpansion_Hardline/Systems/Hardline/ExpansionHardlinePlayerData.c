@@ -12,16 +12,12 @@
 
 class ExpansionHardlinePlayerData
 {
-	static const int CONFIGVERSION = 3;
+	static const int CONFIGVERSION = 4;
 
 	int ConfigVersion;
 	
-	private int Humanity = 100;
-	private int Sanity = 100;
-	
-	private int HeroKills = 0;
-	private int BanditKills = 0;
-	private int BambiKills = 0;
+	private int Reputation = 0;	
+	private int PlayerKills = 0;
 	private int AIKills = 0;
 	private int InfectedKills = 0;
 	private int PlayerDeaths = 0;
@@ -33,87 +29,37 @@ class ExpansionHardlinePlayerData
 	{
 		ConfigVersion = CONFIGVERSION;
 	}
-	
-	int GetRank()
+		
+	int GetReputation()
 	{
-		return GetExpansionSettings().GetHardline().GetRank(Humanity);
+		return Reputation;
 	}
 	
-	int GetHumanity()
+	void AddReputation(int rep)
 	{
-		return Humanity;
+		Reputation += rep;
 	}
 	
-	void AddHumanity(int humanity)
+	void RemoveReputation(int rep)
 	{
-		Humanity += humanity;
+		Reputation -= rep;
 	}
 	
-	void RemoveHumanity(int humanity)
+	void ResetReputation()
 	{
-		Humanity -= humanity;
+		Reputation = 0;
 	}
 	
-	void ResetHumanity()
+	void OnKillPlayer()
 	{
-		Humanity = 100;
+		PlayerKills++;
 	}
 	
-	int GetSanity()
+	int GetPlayerKills()
 	{
-		return Sanity;
+		return PlayerKills;
 	}
-	
-	void AddSanity(int sanity)
-	{
-		Sanity += sanity;
-	}
-	
-	void RemoveSanity(int sanity)
-	{
-		Sanity -= sanity;
-	}
-	
-	string GetRankDisplayName()
-	{
-		return "STR_EXPANSION_HARDLINE_RANK_" + typename.EnumToString(ExpansionHardlineRank, GetRank());
-	}
-	
-	void OnKillBandit()
-	{
-		BanditKills++;
-	}
-	
-	int GetBanditKills()
-	{
-		return BanditKills;
-	}
-	
-	void OnKillHero()
-	{
-		HeroKills++;
-	}
-	
-	int GetHeroKills()
-	{
-		return HeroKills;
-	}
-	
-	void OnKillBambi()
-	{
-		BambiKills++;
-	}
-	
-	int GetBambiKills()
-	{
-		return BambiKills;
-	}
-	
-	int GetTotalPlayerKills()
-	{
-		return BanditKills + HeroKills + BambiKills;
-	}
-	
+
 	void OnAIKilled()
 	{
 		AIKills++;
@@ -189,12 +135,8 @@ class ExpansionHardlinePlayerData
 	
 	void OnSend(ParamsWriteContext ctx)
 	{
-		ctx.Write(Humanity);
-		ctx.Write(Sanity);
-		
-		ctx.Write(HeroKills);
-		ctx.Write(BanditKills);
-		ctx.Write(BambiKills);
+		ctx.Write(Reputation);		
+		ctx.Write(PlayerKills);
 		ctx.Write(AIKills);
 		ctx.Write(InfectedKills);
 		ctx.Write(PlayerDeaths);
@@ -209,41 +151,58 @@ class ExpansionHardlinePlayerData
 			return false;
 		}
 		
-		if (!ctx.Read(Humanity))
+		if (!ctx.Read(Reputation))
 		{
-			Error(ToString() + "::OnRecieve Humanity");
-			return false;
-		}
-				
-		if (!ctx.Read(Sanity))
-		{
-			Error(ToString() + "::OnRecieve Sanity");
+			Error(ToString() + "::OnRecieve Reputation");
 			return false;
 		}
 		
-		if (!ctx.Read(HeroKills))
+		if (ConfigVersion < 4)
 		{
-			Error(ToString() + "::OnRecieve HeroKills");
-			return false;
+			int sanity;
+			if (!ctx.Read(sanity))
+			{
+				Error(ToString() + "::OnRecieve Sanity");
+				return false;
+			}
+			
+			int heroKills;
+			if (!ctx.Read(heroKills))
+			{
+				Error(ToString() + "::OnRecieve HeroKills");
+				return false;
+			}
+			
+			int banditKills;
+			if (!ctx.Read(banditKills))
+			{
+				Error(ToString() + "::OnRecieve BanditKills");
+				return false;
+			}
+			
+			int bambiKills;
+			if (!ctx.Read(bambiKills))
+			{
+				Error(ToString() + "::OnRecieve BambiKills");
+				return false;
+			}
+			
+			int totalPlayerKills;
+			if (ConfigVersion < 3 && !ctx.Read(totalPlayerKills))
+			{
+				Error(ToString() + "::OnRecieve TotalPlayerKills");
+				return false;
+			}
+
+			PlayerKills = heroKills + banditKills + bambiKills;
 		}
-		
-		if (!ctx.Read(BanditKills))
+		else
 		{
-			Error(ToString() + "::OnRecieve BanditKills");
-			return false;
-		}
-		
-		if (!ctx.Read(BambiKills))
-		{
-			Error(ToString() + "::OnRecieve BambiKills");
-			return false;
-		}
-		
-		int totalPlayerKills;
-		if (ConfigVersion < 3 && !ctx.Read(totalPlayerKills))
-		{
-			Error(ToString() + "::OnRecieve TotalPlayerKills");
-			return false;
+			if (!ctx.Read(PlayerKills))
+			{
+				Error(ToString() + "::OnRecieve PlayerKills");
+				return false;
+			}
 		}
 		
 		if (!ctx.Read(AIKills))

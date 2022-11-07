@@ -86,6 +86,12 @@ class ExpansionGlobalID
 			m_ID[i] = id;
 		}
 
+		if (IsZero())
+		{
+			EXPrint(ToString() + "::OnStoreLoad - WARNING: ID is zero!");
+			return true;
+		}
+
 		m_IsSet = true;
 
 		UpdateNext();

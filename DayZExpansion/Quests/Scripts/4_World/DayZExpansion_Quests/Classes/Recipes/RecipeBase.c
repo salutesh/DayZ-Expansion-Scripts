@@ -19,14 +19,14 @@ modded class RecipeBase
 		if (!m_QuestModule)
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 	}
-	
+
 	override void SpawnItems(ItemBase ingredients[], PlayerBase player, array<ItemBase> spawned_objects)
 	{
 		super.SpawnItems(ingredients, player, spawned_objects);
-		
+
 		if (!m_QuestModule)
 			return;
-		
+
 		m_QuestModule.OnItemsCrafted(player, spawned_objects);
 	}
 }

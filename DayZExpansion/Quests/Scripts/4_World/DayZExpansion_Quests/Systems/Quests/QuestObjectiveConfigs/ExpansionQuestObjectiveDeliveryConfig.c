@@ -9,8 +9,9 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+
 class ExpansionQuestObjectiveDeliveryConfigBase:ExpansionQuestObjectiveConfig
-{	
+{
 	autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
 	float MaxDistance = 0;
 	string MarkerName = string.Empty;
@@ -37,7 +38,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 	{
 		return MaxDistance;
 	}
-	
+
 	bool ShowDistance()
 	{
 		return ShowDistance;
@@ -47,7 +48,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 	{
 		MarkerName = name;
 	}
-	
+
 	override string GetMarkerName()
 	{
 		return MarkerName;
@@ -61,7 +62,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 	static ExpansionQuestObjectiveDeliveryConfig Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + fileName);
 
 		ExpansionQuestObjectiveDeliveryConfig config;
 		ExpansionQuestObjectiveDeliveryConfigBase configBase;
@@ -71,7 +72,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveDeliveryConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -93,19 +94,18 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 
 		return config;
 	}
-	
+
 	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveDeliveryConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + ".json", this);
 	}
-	
+
 	void CopyConfig(ExpansionQuestObjectiveDeliveryConfigBase configBase)
 	{
 		ID = configBase.ID;
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-		
 		Deliveries = configBase.Deliveries;
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
@@ -156,8 +156,19 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 
 		if (!ctx.Read(MarkerName))
 			return false;
-		
+
 		if (!ctx.Read(ShowDistance))
+			return false;
+
+		return true;
+	}
+
+	override bool Validate()
+	{
+		if (!super.Validate())
+			return false;
+
+		if (!Deliveries || Deliveries && Deliveries.Count() == 0)
 			return false;
 
 		return true;
@@ -166,6 +177,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		super.QuestDebug();
 		for (int i = 0; i < Deliveries.Count(); i++)
 		{
 			ExpansionQuestObjectiveDelivery delivery = Deliveries[i];

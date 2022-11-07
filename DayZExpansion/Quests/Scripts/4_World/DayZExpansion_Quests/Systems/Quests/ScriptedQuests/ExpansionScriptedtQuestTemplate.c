@@ -23,13 +23,13 @@ class ExpansionScriptedtQuestTemplate extends ExpansionQuest
 	}
 
 	//! Event called when ever a quest is completed and turned-in
-	override bool OnQuestTurnIn(ExpansionQuestRewardConfig reward = null)
+	override bool OnQuestTurnIn(string playerUID, ExpansionQuestRewardConfig reward = null)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-		return super.OnQuestTurnIn(reward);
+		return super.OnQuestTurnIn(playerUID, reward);
 	}
 
 	//! Event called when a quest is manualy canceled by the player

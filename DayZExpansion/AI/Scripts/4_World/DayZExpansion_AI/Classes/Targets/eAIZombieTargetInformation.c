@@ -56,6 +56,10 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 
 		if (ai)
 		{
+#ifdef DIAG
+			auto hitch = EXHitch(ai.ToString() + " eAIZombieTargetInformation::CalculateThreat ", 20000);
+#endif
+
 			// the further away the zombie, the less likely it will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 			levelFactor *= 10 / distance;

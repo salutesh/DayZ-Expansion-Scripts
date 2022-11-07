@@ -15,7 +15,7 @@
  **/
 class ExpansionLogSettings: ExpansionSettingBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
 	bool Safezone;				//! If enabled, generate logs when the player leave or enter a safezone
 	bool AdminTools;			//! If enabled, generate logs of the adminhammer and expansionadmincarkey when used
@@ -76,6 +76,12 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 	#ifdef EXPANSIONMODHARDLINE
 	bool Hardline;			//! If enabled, generate logs for market system actions by all players
+	#endif
+	
+	#ifdef EXPANSIONMODVEHICLE
+	bool Garage;				//! If enabled, generate logs for garage module events.
+	bool VehicleCover;				//! If enabled, generate logs for vehicle-cover actions.
+	bool EntityStorage;			//! If enabled, generate logs for entity-storage actions.
 	#endif
 
 	[NonSerialized()]
@@ -205,11 +211,17 @@ class ExpansionLogSettings: ExpansionSettingBase
 		AIPatrol = s.AIPatrol;
 		AIObjectPatrol = s.AIObjectPatrol;
 		#endif
-
+		
 		AdminTools = s.AdminTools;
 
 		LogToScripts = s.LogToScripts;
 		LogToADM = s.LogToADM;
+		
+		#ifdef EXPANSIONMODVEHICLE
+		Garage = s.Garage;
+		VehicleCover = s.VehicleCover;
+		EntityStorage = s.EntityStorage;
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -289,6 +301,13 @@ class ExpansionLogSettings: ExpansionSettingBase
 					VehicleLeave = settingsDefault.VehicleLeave;
 					VehicleDeleted = settingsDefault.VehicleDeleted;
 					VehicleEngine = settingsDefault.VehicleEngine;
+				}
+				
+				if (m_Version < 7)
+				{
+					Garage = settingsDefault.Garage;
+					VehicleCover = settingsDefault.VehicleCover;
+					EntityStorage = settingsDefault.EntityStorage;
 				}
 				#endif
 
@@ -392,34 +411,40 @@ class ExpansionLogSettings: ExpansionSettingBase
 		#ifdef EXPANSIONMODHARDLINE
 		Hardline = true;
 		#endif
+		
+		#ifdef EXPANSIONMODVEHICLE
+		Garage = true;
+		VehicleCover = true;
+		EntityStorage = true;
+		#endif
 	}
 
 	override string SettingName()
 	{
 		return "Log Settings";
 	}
-
-	void PrintLog(string text)
+	
+	void PrintLog(string text, string param1 = string.Empty, string param2 = string.Empty, string param3 = string.Empty, string param4 = string.Empty, string param5 = string.Empty, string param6 = string.Empty, string param7 = string.Empty, string param8 = string.Empty, string param9 = string.Empty)
 	{
 		if ( !FileExist( EXPANSION_LOG_FOLDER ) )
 		{
 			ExpansionStatic.MakeDirectoryRecursive( EXPANSION_LOG_FOLDER );
 		}
 
-		string output = ExpansionStatic.GetTime() + " " + text;
+		string output = ExpansionStatic.GetTime() + " " + string.Format(text, param1, param2, param3, param4, param5, param6, param7, param8, param9);
 
-		if ( LogToScripts || LogToADM )
+		if (LogToScripts || LogToADM)
 		{
-			if ( LogToScripts )
+			if (LogToScripts)
 			{
 				Print(output);
 			}
-			if ( LogToADM )
+			if (LogToADM)
 			{
 				GetGame().AdminLog(output);
 			}
 		} else {
-			if ( !FileExist( m_FileTimestamp ) )
+			if (!FileExist( m_FileTimestamp ))
 				m_FileLog = OpenFile(m_FileTimestamp, FileMode.WRITE);
 			else
 				m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);

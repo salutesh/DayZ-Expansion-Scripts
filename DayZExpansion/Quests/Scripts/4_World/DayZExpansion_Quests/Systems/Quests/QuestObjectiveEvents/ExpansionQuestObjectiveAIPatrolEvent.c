@@ -11,82 +11,9 @@
 */
 
 #ifdef EXPANSIONMODAI
-class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
+class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 {
-	protected int m_TotalUnitsAmount = 0;
-	protected int m_TotalKillCount = 0;
-	protected int m_UnitsToSpawn = 0;
-
-	//! Event called when the player starts the quest
-	override bool OnStart()
-	{
-		ObjectivePrint(ToString() + "::OnStart - Start");
-
-		if (!super.OnStart())
-			return false;
-
-		CheckQuestAIPatrol();
-
-		return true;
-	}
-
-	//! Event called when the player continues the quest after a server restart/reconnect
-	override bool OnContinue()
-	{
-		ObjectivePrint(ToString() + "::OnStart - Start");
-
-		if (!super.OnContinue())
-			return false;
-
-		CheckQuestAIPatrol();
-
-		return true;
-	}
-
-	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
-	override bool OnCleanup()
-	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
-
-		if (!super.OnCleanup())
-			return false;
-
-		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
-			CleanupPatrol();
-
-		return true;
-	}
-
-	//! Event called when the quest gets manualy canceled by the player.
-	override bool OnCancel()
-	{
-		ObjectivePrint(ToString() + "::OnCancel - Start");
-
-		if (!super.OnCancel())
-			return false;
-
-		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
-			CleanupPatrol();
-
-		return true;
-	}
-
-	override bool OnComplete()
-	{
-		ObjectivePrint(ToString() + "::OnComplete - Start");
-
-		if (!super.OnComplete())
-			return false;
-
-		if (GetQuest().GetQuestModule().CanDeleteQuestPatrol(GetQuest().GetQuestConfig().GetID()))
-		{
-			CleanupPatrol();
-		}
-
-		return true;
-	}
-
-	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
@@ -104,57 +31,18 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		//! Check if killed entities class name is a valid one from our objective config
-		int amount = aiPatrol.GetNPCUnits();
-		m_TotalUnitsAmount = amount;
 		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), aiPatrol.GetClassNames(), victim.ClassName());
 
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Target found: " + found);
-	#endif
+		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
 
 		if (!found)
 			return;
 
-		//! Check if killed ai entity was part of this objective event group
-		if (KilledAIPatrolMember(victim))
-		{
-			if (m_TotalKillCount < m_TotalUnitsAmount)
-			{
-				m_TotalKillCount++;
-
-				if (GetQuest())
-					GetQuest().UpdateQuest();
-			}
-		}
-
-		if (m_TotalKillCount >= m_TotalUnitsAmount)
-		{
-			SetCompleted(true);
-			OnComplete();
-		}
+		m_TotalUnitsAmount = aiPatrol.GetNPCUnits();
+		super.OnEntityKilled(victim, killer, killerPlayer);
 	}
 
-	protected bool KilledAIPatrolMember(EntityAI victim)
-	{
-		DayZPlayerImplement victimPlayer;
-		if (!Class.CastTo(victimPlayer, victim))
-			return false;
-
-		array<eAIDynamicPatrol> questPatrols;
-		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
-			return false;
-
-		foreach (eAIDynamicPatrol patrol: questPatrols)
-		{
-			eAIGroup group = patrol.m_Group;
-			if (group && group.IsMember(victimPlayer))
-				return true;
-		}
-
-		return false;
-	}
-
-	protected void CheckQuestAIPatrol()
+	override protected void CheckQuestAIPatrol()
 	{
 		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
 
@@ -167,34 +55,10 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 
 		m_TotalUnitsAmount = aiPatrol.GetNPCUnits();
 
-		//! If all the targets are already killed dont create patrols
-		if (m_TotalKillCount >= m_TotalUnitsAmount)
-			return;
-
-		array<eAIDynamicPatrol> questPatrols;
-		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
-		{
-			//! Check if the previous patrol groups related to this quest have been killed
-			int killedPatrolCount;
-			foreach (eAIDynamicPatrol questPatrol: questPatrols)
-			{
-				if (questPatrol.WasGroupDestroyed())
-					killedPatrolCount++;
-			}
-
-			//! If all patrols related to this quest have been wiped we can recreate all the patrols.
-			if (killedPatrolCount == 1)
-				CreateQuestAIPatrol();
-		}
-		else
-		{
-			CreateQuestAIPatrol();
-		}
-
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
+		CheckQuestAIPatrol(1);
 	}
 
-	void CreateQuestAIPatrol()
+	override void CreateQuestAIPatrol()
 	{
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - Start");
 
@@ -209,7 +73,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 		group.Formation = aiPatrol.NPCFormation;
 		group.AccuracyMin = aiPatrol.NPCAccuracyMin;
 		group.AccuracyMax = aiPatrol.NPCAccuracyMax;
-		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAICampEvent.CreateQuestPatrol(group, 0, 600, 300, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
+		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAIEventBase.CreateQuestPatrol(group, 0, 600, 300, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
 		if (!patrol)
 			return;
 
@@ -223,47 +87,6 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
-	}
-
-	protected void CleanupPatrol()
-	{
-		array<eAIDynamicPatrol> questPatrols;
-		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
-		{
-			foreach (eAIDynamicPatrol patrol: questPatrols)
-			{
-				if (patrol.m_CanSpawn)
-					continue;
-
-				eAIGroup group = patrol.m_Group;
-				if (group)
-				{
-					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol: " + patrol.ToString());
-					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group: " + group.ToString());
-					ObjectivePrint(ToString() + "::CleanupPatrol - Patrol group members: " + group.Count());
-				}
-
-				patrol.Despawn();
-				patrol.Delete();
-			}
-		}
-
-		GetQuest().GetQuestModule().RemoveQuestPatrol(GetQuest().GetQuestConfig().GetID());
-	}
-
-	void SetKillCount(int count)
-	{
-		m_TotalKillCount = count;
-	}
-
-	int GetCount()
-	{
-		return m_TotalKillCount;
-	}
-
-	int GetAmount()
-	{
-		return m_TotalUnitsAmount;
 	}
 
 	override int GetObjectiveType()

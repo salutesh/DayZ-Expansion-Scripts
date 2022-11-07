@@ -69,6 +69,9 @@ modded class Chat
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Add");
 #endif
+		
+		if (IsPlayerMuted(params.param2))
+			return;
 
 		if (m_ExChatUI)
 			m_ExChatUI.Add(params);
@@ -79,6 +82,9 @@ modded class Chat
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "AddInternal");
 #endif
+		
+		if (IsPlayerMuted(params.param2))
+			return;
 		
 		if (m_ExChatUI)
 			m_ExChatUI.AddInternal(params);
@@ -92,7 +98,26 @@ modded class Chat
 
 		//! DON'T clear chat lines
 	}
+	
+	bool IsPlayerMuted(string playerName)
+	{
+		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
 		
+		if (clientSettings.MutedPlayers.Count() == 0)
+			return false;
+		
+		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
+		{	
+			if (player.m_PlayerName == playerName)
+			{
+				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	ExpansionChatUIWindow GetChatWindow()
 	{
 		return m_ExChatUI;

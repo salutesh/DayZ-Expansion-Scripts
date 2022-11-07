@@ -1094,12 +1094,22 @@ modded class ItemBase
 #endif
 
 		if (!super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+		{
+#ifdef DIAG
+			EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - !super");
+#endif
 			return false;
+		}
 
 		if (!CanBeDamaged())
+		{
+#ifdef DIAG
+			EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - cannot be damaged");
+#endif
 			return false;
+		}
 
-		if (IsInherited(ExpansionBaseBuilding) || IsInherited(ExpansionSafeBase))
+		if (IsInherited(BaseBuildingBase) || IsInherited(ExpansionSafeBase))
 		{
 			if (damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM)
 			{
@@ -1119,20 +1129,41 @@ modded class ItemBase
 				}
 
 				if (!m_Expansion_DamageMultiplier)
+				{
+#ifdef DIAG
+					EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - damage multiplier is zero");
+#endif
 					return false;
+				}
 
 				if (damageType == DT_EXPLOSION)
 				{
 					if (GetExpansionSettings().GetRaid().EnableExplosiveWhitelist)
 					{
 						if (!source)
+						{
+#ifdef DIAG
+							EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - no explosion source");
+#endif
 							return false;
+						}
 
 						if (!ExpansionStatic.IsAnyOf(source, GetExpansionSettings().GetRaid().ExplosiveDamageWhitelist, true))
+						{
+#ifdef DIAG
+							EXTrace.Print(EXTrace.BASEBUILDING, this, "EEOnDamageCalculated - explosive is not whitelisted");
+#endif
 							return false;
+						}
 
 						if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
 							GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + ToString() + " at " + GetPosition() + " has been hit by whitelisted explosive " + source);
+					}
+					else
+					{
+
+						if (GetExpansionSettings().GetLog().BaseBuildingRaiding)
+							GetExpansionSettings().GetLog().PrintLog("[BaseBuildingRaiding] BaseRaiding: " + ToString() + " at " + GetPosition() + " has been hit by explosive " + source);
 					}
 				}
 			}

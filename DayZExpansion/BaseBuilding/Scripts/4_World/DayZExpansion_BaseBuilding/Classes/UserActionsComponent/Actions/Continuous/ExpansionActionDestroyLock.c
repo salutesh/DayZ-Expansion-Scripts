@@ -99,7 +99,7 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 		else
 			raidTools = GetExpansionSettings().GetRaid().LockOnContainerRaidTools;
 
-		if ( raidTools.Find( item.GetType() ) == -1 )
+		if ( !ExpansionStatic.IsAnyOf(item, raidTools) )
 			return false;
 
 		if ( targetItem.IsInherited( TentBase ) && IsMissionClient() )
@@ -143,23 +143,27 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 	override bool CanBeDestroyed( Object targetObject )
 	{
+		auto settings = GetExpansionSettings().GetRaid();
+		if (!settings.IsRaidableNow())
+			return false;
+
 		if ( targetObject.IsInherited( TentBase ) )
-			return GetExpansionSettings().GetRaid().CanRaidLocksOnTents;
+			return settings.CanRaidLocksOnTents;
 
 		if ( targetObject.IsInherited( Fence ) )
-			return GetExpansionSettings().GetRaid().CanRaidLocksOnFences;
+			return settings.CanRaidLocksOnFences;
 
 		if ( targetObject.IsInherited( Container_Base ) )
-			return GetExpansionSettings().GetRaid().CanRaidLocksOnContainers;
+			return settings.CanRaidLocksOnContainers;
 
 		ExpansionWallBase wall;
 		if (Class.CastTo(wall, targetObject) && (wall.HasDoor() || wall.HasGate()))
 		{
-			if ( wall.HasDoor() && GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyDoor )
+			if ( wall.HasDoor() && settings.CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyDoor )
 				return true;
-			else if ( wall.HasGate() && GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyGate )
+			else if ( wall.HasGate() && settings.CanRaidLocksOnWalls == RaidLocksOnWallsEnum.OnlyGate )
 				return true;
-			return GetExpansionSettings().GetRaid().CanRaidLocksOnWalls == RaidLocksOnWallsEnum.Enabled;
+			return settings.CanRaidLocksOnWalls == RaidLocksOnWallsEnum.Enabled;
 		}
 
 		return super.CanBeDestroyed( targetObject );

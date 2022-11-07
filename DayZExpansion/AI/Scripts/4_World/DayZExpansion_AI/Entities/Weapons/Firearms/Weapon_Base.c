@@ -170,6 +170,7 @@ modded class Weapon_Base
 			}
 
 			float dmgCoef = speed / initSpeed;
+			dmgCoef *= ai.m_eAI_DamageMultiplier;
 			//EXPrint(ToString() + "::EEFired " + ammoType + " coef " + dmgCoef + " damageZone " + damageZone);
 			entity.ProcessDirectDamage(DT_FIRE_ARM, this, damageZone, ammoType, entity.WorldToModel(hitPosition), dmgCoef);
 		}

@@ -1093,7 +1093,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (!IsMissionClient())
 			return;
 
-		array<ref ExpansionRespawnDelayTimer> playerCooldowns();
+		array<ref ExpansionRespawnDelayTimer> playerCooldowns = new array<ref ExpansionRespawnDelayTimer>;
 		if (!ctx.Read(playerCooldowns))
 		{
 			Error(ToString() + "::RPC_CheckPlayerCooldowns - Could not read player cooldowns list");

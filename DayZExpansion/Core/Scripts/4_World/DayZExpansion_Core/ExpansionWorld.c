@@ -20,7 +20,8 @@ class ExpansionWorld: ExpansionGame
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
 	{
 #ifdef DIAG
-		string msg;
+		string msg = "::FirearmEffects ";
+		msg += "" + source + " ";
 		msg += "" + directHit + " ";
 		msg += "" + componentIndex + " ";
 		msg += "" + surface + " ";
@@ -32,7 +33,7 @@ class ExpansionWorld: ExpansionGame
 		msg += "" + isWater + " ";
 		msg += "" + deflected + " ";
 		msg += "" + ammoType;
-		EXTrace.Print(EXTrace.WEAPONS, source, msg);
+		EXTrace.Print(EXTrace.WEAPONS, this, msg);
 #endif
 
 		if (GetGame().IsServer())

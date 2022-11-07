@@ -13,7 +13,7 @@
 //! Used for third party mods, if they want to know if expansion quest mod is loaded
 #define EXPANSIONMODQUESTS
 
-//! Used for enabling the quest HUD (Its broken and does not work correctly).
+//! Used for enabling the quest HUD
 #define EXPANSIONMODQUESTS_HUD_ENABLE
 
 //! Uncomment to enable expansion quest system debug logs

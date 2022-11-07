@@ -39,8 +39,24 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 	override void OnFinishProgressServer(ActionData action_data)
 	{
 		ExpansionEntityStoragePlaceholder placeholder;
-		if (!Expansion_OnFinishProgressServer(action_data, false, placeholder))
+		EntityAI entity;
+		bool result = Expansion_OnFinishProgressServer(action_data, false, placeholder, entity, false);
+
+		string id;
+		string type;
+
+		if (placeholder)
+		{
+			id = placeholder.m_Expansion_StoredEntityGlobalID.IDToHex();
+			type = placeholder.Expansion_GetStoredEntityType();
+		}
+
+		if (!result)
+		{
+			if (GetExpansionSettings().GetLog().VehicleCover)
+				GetExpansionSettings().GetLog().PrintLog("[VehicleCover]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to uncover vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, placeholder.GetPosition().ToString());
 			return;
+		}
 
 		string placeholderType = placeholder.GetType();
 		string coverType = "CamoNet";
@@ -64,5 +80,8 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		}
 
 		GetGame().ObjectDelete(placeholder);
+		
+		if (GetExpansionSettings().GetLog().VehicleCover)
+			GetExpansionSettings().GetLog().PrintLog("[VehicleCover] Player \"%1\" (id=%2 pos=%3) uncovered vehicle \"%4\" (GlobalID=%5 pos=%6)!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), entity.GetType(), id, entity.GetPosition().ToString());
 	}
 }

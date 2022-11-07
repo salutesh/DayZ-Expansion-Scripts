@@ -18,8 +18,10 @@ class eAIDynamicPatrol : eAIPatrol
 	ref eAIFormation m_Formation;
 	bool m_CanBeLooted;
 	bool m_UnlimitedReload;
-	float m_AccuracyMin; // negative = use general setting
-	float m_AccuracyMax; // negative = use general setting
+	float m_AccuracyMin; // zero or negative = use general setting
+	float m_AccuracyMax; // zero or negative = use general setting
+	float m_ThreatDistanceLimit; // zero or negative = use general setting
+	float m_DamageMultiplier; // zero or negative = use general setting
 
 	eAIGroup m_Group;
 	float m_TimeSinceLastSpawn;
@@ -94,6 +96,16 @@ class eAIDynamicPatrol : eAIPatrol
 		m_AccuracyMax = accuracyMax;
 	}
 
+	void SetThreatDistanceLimit(float distance)
+	{
+		m_ThreatDistanceLimit = distance;
+	}
+
+	void SetDamageMultiplier(float multiplier)
+	{
+		m_DamageMultiplier = multiplier;
+	}
+
 	private eAIBase SpawnAI(vector pos)
 	{
 		#ifdef EAI_TRACE
@@ -116,6 +128,8 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.Expansion_SetCanBeLooted(m_CanBeLooted);
 		ai.eAI_SetUnlimitedReload(m_UnlimitedReload);
 		ai.eAI_SetAccuracy(m_AccuracyMin, m_AccuracyMax);
+		ai.eAI_SetThreatDistanceLimit(m_ThreatDistanceLimit);
+		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
 
 		return ai;
 	}

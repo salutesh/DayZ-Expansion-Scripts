@@ -82,7 +82,7 @@ class ExpansionQuestsGroupInventory
 			if (!item)
 				continue;
 
-			if (item.IsKindOf(typeName) || item.ClassName() == typeName)
+			if (item.GetType() == typeName || item.ClassName() == typeName || item.IsKindOf(typeName))
 			{
 				items.Insert(item);
 			}

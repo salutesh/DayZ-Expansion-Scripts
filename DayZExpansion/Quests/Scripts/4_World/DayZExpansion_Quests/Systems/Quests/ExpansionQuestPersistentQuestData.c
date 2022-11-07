@@ -17,6 +17,7 @@ class ExpansionQuestPersistentQuestData
 	int Timestamp = -1;
 	ref array<ref ExpansionQuestObjectiveData> QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
 	int LastUpdateTime;
+	int CompletionCount;
 
 	ExpansionQuestObjectiveData GetObjectiveByIndex(int index)
 	{
@@ -29,7 +30,7 @@ class ExpansionQuestPersistentQuestData
 		return NULL;
 	}
 
-	void OnSend(ParamsWriteContext ctx)
+	void OnWrite(ParamsWriteContext ctx)
 	{
 		ctx.Write(QuestID);
 		ctx.Write(State);
@@ -44,32 +45,35 @@ class ExpansionQuestPersistentQuestData
 			if (objective)
 				objective.OnSend(ctx);
 		}
+
+		ctx.Write(LastUpdateTime);
+		ctx.Write(CompletionCount);
 	}
 
-	bool OnRecieve(ParamsReadContext ctx)
+	bool OnRead_V1(ParamsReadContext ctx)
 	{
 		if (!ctx.Read(QuestID))
 		{
-			CF_Log.Error(ToString() + "::OnRecieve - QuestID");
+			Error(ToString() + "::OnRead - QuestID");
 			return false;
 		}
 
 		if (!ctx.Read(State))
 		{
-			CF_Log.Error(ToString() + "::OnRecieve - State");
+			Error(ToString() + "::OnRead - State");
 			return false;
 		}
 
 		if (!ctx.Read(Timestamp))
 		{
-			CF_Log.Error(ToString() + "::OnRecieve - Timestamp");
+			Error(ToString() + "::OnRead - Timestamp");
 			return false;
 		}
 
 		int objectivesCount;
 		if (!ctx.Read(objectivesCount))
 		{
-			CF_Log.Error(ToString() + "::OnRecieve - objectivesCount");
+			Error(ToString() + "::OnRead - objectivesCount");
 			return false;
 		}
 
@@ -87,13 +91,32 @@ class ExpansionQuestPersistentQuestData
 			ExpansionQuestObjectiveData objective = new ExpansionQuestObjectiveData();
 			if (!objective.OnRecieve(ctx))
 			{
-				CF_Log.Error(ToString() + "::OnRecieve - objective");
+				Error(ToString() + "::OnRead - objective");
 				return false;
 			}
 
-			QuestObjectives.Insert(objective);
+			QuestObjectives.InsertAt(objective, i);
 		}
 
+		return true;
+	}
+
+	bool OnRead(ParamsReadContext ctx)
+	{
+		if (!OnRead_V1(ctx))
+			return false;
+
+		if (!ctx.Read(LastUpdateTime))
+		{
+			Error(ToString() + "::OnRead - LastUpdateTime");
+			return false;
+		}
+
+		if (!ctx.Read(CompletionCount))
+		{
+			Error(ToString() + "::OnRead - CompletionCount");
+			return false;
+		}
 
 		return true;
 	}
@@ -101,15 +124,22 @@ class ExpansionQuestPersistentQuestData
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - Quest ID: " + QuestID);
-		CF_Log.Debug(ToString() + "::QuestDebug - Quest State: " + State);
-		CF_Log.Debug(ToString() + "::QuestDebug - Quest Timestamp: " + Timestamp);
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - Quest ID: " + QuestID);
+		Print(ToString() + "::QuestDebug - Quest State: " + State);
+		Print(ToString() + "::QuestDebug - Quest Timestamp: " + Timestamp);
 		for (int i = 0; i < QuestObjectives.Count(); i++)
 		{
 			QuestObjectives[i].QuestDebug();
 		}
-		CF_Log.Debug("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - Quest LastUpdateTime: " + LastUpdateTime);
+		Print(ToString() + "::QuestDebug - Quest CompletionCount: " + CompletionCount);
+		Print("------------------------------------------------------------");
 	#endif
+	}
+
+	void UpdateLastUpdateTime()
+	{
+		LastUpdateTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
 	}
 };

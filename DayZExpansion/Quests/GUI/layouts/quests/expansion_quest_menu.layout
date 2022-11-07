@@ -737,7 +737,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                vexactsize 1
                style rover_sim_colorable
               }
-              PanelWidgetClass Humanity {
+              PanelWidgetClass Reputation {
                visible 0
                ignorepointer 1
                size 1 0.04
@@ -772,7 +772,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 1
                  style rover_sim_colorable
                 }
-                TextWidgetClass HumanityLabel {
+                TextWidgetClass ReputationLabel {
                  ignorepointer 1
                  color 0.8627 0.8627 0.8627 1
                  position 0 0
@@ -782,7 +782,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  hexactsize 0
                  vexactsize 0
                  style Normal
-                 text "Humanity:"
+                 text "#STR_EXPANSION_HARDLINE_REPUTATION"
                  font "gui/fonts/etelkatextpro22"
                  "text offset" 5 0
                  "exact text" 0
@@ -790,7 +790,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  "size to text v" 0
                  "text valign" center
                 }
-                TextWidgetClass HumanityVal {
+                TextWidgetClass ReputationVal {
                  ignorepointer 1
                  color 0.8627 0.8627 0.8627 1
                  size 0.7 1
@@ -801,7 +801,6 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  vexactsize 0
                  scriptclass "ViewBinding"
                  style Normal
-                 text "-1000"
                  font "gui/fonts/etelkatextpro22"
                  "text offset" -5 0
                  "exact text" 0
@@ -811,7 +810,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
                  "text valign" center
                  {
                   ScriptParamsClass {
-                   Binding_Name "HumanityVal"
+                   Binding_Name "ReputationVal"
                   }
                  }
                 }

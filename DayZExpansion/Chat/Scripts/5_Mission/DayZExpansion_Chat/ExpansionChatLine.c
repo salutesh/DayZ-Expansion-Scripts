@@ -27,6 +27,10 @@ class ExpansionChatLineBase: ExpansionScriptView
 	private ref WidgetFadeTimer m_FadeInTimer;
 	private Widget m_Parent;
 	private string m_LayoutPath;
+	private ButtonWidget ChatItemButton;
+	private ImageWidget ChatItemButtonIcon;
+	private bool m_CanMute;
+	private GridSpacerWidget ChatItemWidget;
 	
 	void ExpansionChatLineBase(Widget parent, Chat chat)
 	{
@@ -270,6 +274,84 @@ class ExpansionChatLineBase: ExpansionScriptView
 	Widget GetParentWidget()
 	{
 		return m_Parent;
+	}
+	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		EXTrace.Print(EXTrace.CHAT, this, "::OnMouseEnter - Widget: " + w.GetName());
+		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute() && m_Chat.GetChatWindow().IsMuteListVisible())
+		{
+			if (w == ChatItemButton)
+				ChatItemButtonIcon.SetColor(ARGB(200, 0, 0, 0));
+				
+			ChatItemButton.Show(true);
+			return true;
+		}
+		
+		return false;
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if (enterW)
+			EXTrace.Print(EXTrace.CHAT, this, "::OnMouseLeave - Widget: " + w.GetName() + " | Enter Widget: " + enterW.GetName());
+
+		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute())
+		{
+			if (w == ChatItemButton)
+				ChatItemButtonIcon.SetColor(ARGB(200, 255, 255, 255));
+			
+			ChatItemButton.Show(false);
+			return true;
+		}
+
+		return false;
+	}
+	
+	void SetCanMute(bool state)
+	{
+		m_CanMute = state;
+		
+		if (!m_CanMute)
+			ChatItemButtonIcon.SetColor(ARGB(200, 255, 255, 255));
+	}
+	
+	bool CanMute()
+	{
+		return m_CanMute;
+	}
+	
+	void OnEntryButtonClick()
+	{
+		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
+		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
+		{
+			string name = m_ChatLineController.SenderName.Trim();
+			name = name.Substring(0, name.Length() - 1);  //! Remove trailing ":"
+			
+			if (player.m_PlayerName == name)
+			{
+				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
+				{
+					clientSettings.MutedPlayers.Insert(player.m_RUID);
+					clientSettings.Save();
+					m_Chat.GetChatWindow().RefreshChatMessages();
+					m_Chat.GetChatWindow().UpdateMuteList();
+				}
+			}
+		}
+	}
+	
+	ExpansionChatLineController GetChatLineController()
+	{
+		return m_ChatLineController;
+	}
+	
+	override void OnHide()
+	{
+		super.OnHide();
+		
+		ChatItemButton.Show(false);
 	}
 };
 

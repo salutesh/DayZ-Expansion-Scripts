@@ -12,29 +12,36 @@
 
 class ExpansionChatUIWindow: ExpansionScriptView
 {
-	private ref ExpansionChatUIWindowController m_ChatWindowController;
-	private ref Chat m_Chat;
-	private ref array<ref ExpansionChatMessage> m_ChatParams;
-	private ref array<ref ExpansionChatLineBase> m_ChatLines;
-	private float m_RootHeight;
-	private float m_ContentHeight;
+	protected ref ExpansionChatUIWindowController m_ChatWindowController;
+	protected ref Chat m_Chat;
+	protected ref array<ref ExpansionChatMessage> m_ChatParams;
+	protected ref array<ref ExpansionChatLineBase> m_ChatLines;
+	protected float m_RootHeight;
+	protected float m_ContentHeight;
 
 	//! Chat Handling
-	private float m_ChatFadeoutTime = 10;
-	const int m_MaxChatMessages = 100;
+	protected float m_ChatFadeoutTime = 10;
+	protected const int m_MaxChatMessages = 100;
 
-	private Widget m_Parent;
-	private GridSpacerWidget ChatContent;
-	private GridSpacerWidget ContentRows;
-	private Widget ScrollerContainer;
-	private Widget Scroller;
+	protected Widget m_Parent;
+	protected GridSpacerWidget ChatContent;
+	protected GridSpacerWidget ContentRows;
+	protected Widget ScrollerContainer;
+	protected Widget Scroller;
+	protected Widget MutePanel;
+	protected ScrollWidget MuteScroller;
+	protected ButtonWidget MuteListButton;
+	protected ImageWidget MuteListButtonIcon;
+
+	protected ScrollWidget ChatScroller;
+	protected Widget ChatPanel;
+	protected Widget ChatBackground;
+	protected ref WidgetFadeTimer m_FadeOutTimerChat;
+
+	protected ExpansionClientUIChatSize m_ChatSize;
 	
-	private ScrollWidget ChatScroller;
-	private Widget ChatPanel;
-	private Widget ChatBackground;
-	ref WidgetFadeTimer m_FadeOutTimerChat;
-
-	ExpansionClientUIChatSize m_ChatSize;
+	protected int m_MutedPlayersCount;
+	protected bool m_MuteListVisible;
 
 	bool m_ChatHover;
 
@@ -60,6 +67,10 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		GetLayoutRoot().Show(false);
 		CreateChatLines();
+		
+		m_MutedPlayersCount = GetExpansionClientSettings().MutedPlayers.Count();
+		if (m_MutedPlayersCount > 0)
+			UpdateMuteList();
 	}
 
 	void ~ExpansionChatUIWindow()
@@ -194,18 +205,23 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		int count = m_ChatLines.Count();
 		if (count != m_MaxChatMessages)  //! Still creating chat lines
 			return;
+
 		for (int i = 0; i < count; i++)
 		{
 			int idx = count - (i + 1);
+			bool isMuted = m_Chat.IsPlayerMuted(m_ChatLines[idx].GetChatLineController().SenderName);
 
-			if (i < m_ChatParams.Count())
+			if (i < m_ChatParams.Count() && !isMuted)
 			{
 				m_ChatLines[idx].Set(m_ChatParams[i]);
 				m_ChatLines[idx].Show();
+				m_ChatLines[idx].SetCanMute(true);
 			}
 			else
 			{
 				m_ChatLines[idx].Set(NULL);
+				m_ChatLines[idx].SetCanMute(false);
+				m_ChatLines[idx].Hide();
 
 				//! Make sure the first 12 lines are always shown even if empty so new messages appear at the bottom
 				if (i < 12)
@@ -220,7 +236,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		m_FadeOutTimerChat.FadeOut(GetLayoutRoot(), m_ChatFadeoutTime);
 	}
-	
+
 	float GetContentHeight()
 	{
 		return m_ContentHeight;
@@ -230,7 +246,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	{
 		return m_RootHeight;
 	}
-	
+
 	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Chat/GUI/layouts/expansion_chat.layout";
@@ -244,14 +260,17 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	override void OnShow()
 	{
 		super.OnShow();
-		
+
+		UpdateMuteList();
+
 		if (m_FadeOutTimerChat.IsRunning())
 			m_FadeOutTimerChat.Stop();
-		
+
 		ChatBackground.Show(true);
 		ChatScroller.SetAlpha(0.1);
+		MuteListButton.Show(true);
 	}
-	
+
 	override void Hide()
 	{
 		SetIsVisible(false);
@@ -264,6 +283,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		ChatBackground.Show(false);
 		ChatScroller.SetAlpha(0);
+		MutePanel.Show(false);
+		MuteListButton.Show(false);
 		HideChat();
 	}
 
@@ -289,24 +310,38 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		if (w != NULL && w == ChatScroller)
+		EXTrace.Print(EXTrace.CHAT, this, "::OnMouseEnter - Widget: " + w.GetName());
+		if ((w == ChatScroller || w == ContentRows || w.GetName() == "ChatItemWidget" || w.GetName() == "ChatItemButton"))
 		{
 			m_ChatHover = true;
 			return true;
 		}
+		else if (w == MuteListButton)
+		{
+			MuteListButtonIcon.SetColor(ARGB(200, 0, 0, 0));
+			return true;
+		}
 
-		return super.OnMouseEnter(w, x, y);
+		return false;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if (w != NULL && w == ChatScroller && enterW != ChatScroller)
+		if (enterW)
+			EXTrace.Print(EXTrace.CHAT, this, "::OnMouseLeave - Widget: " + w.GetName() + " | Enter Widget: " + enterW.GetName());
+
+		if ((w == ChatScroller || w == ContentRows || w.GetName() == "ChatItemWidget" || w.GetName() == "ChatItemButton") && (!enterW || (enterW != ChatScroller && enterW != ContentRows && enterW.GetName() != "ChatItemWidget" && enterW.GetName() != "ChatItemButton")))
 		{
 			m_ChatHover = false;
 			return true;
 		}
+		else if (w == MuteListButton)
+		{
+			MuteListButtonIcon.SetColor(ARGB(200, 255, 255, 255));
+			return true;
+		}
 
-		return super.OnMouseLeave(w, enterW, x, y);
+		return false;
 	}
 
 	override void Update()
@@ -314,8 +349,52 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		//! Scroll new messages into view, but only if chat input is not open
 		//! OR if mouse is not hovering chat area
 		if (ChatScroller && (!IsVisible() || !m_ChatHover))
-			ChatScroller.VScrollToPos01(1);  //! STAY DOWN YOU FUCKER
+			ChatScroller.VScrollToPos01(1.0);  //! STAY DOWN YOU FUCKER
+	}
+	
+	void UpdateMuteList()
+	{
+		m_ChatWindowController.MuteEntries.Clear();
+		
+		if (ClientData && ClientData.m_PlayerList && ClientData.m_PlayerList.m_PlayerList)
+		{
+			foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
+			{
+				if (GetExpansionClientSettings().MutedPlayers.Find(player.m_RUID) == -1)
+					continue;
+	
+				ExpansionChatMuteEntry entry = new ExpansionChatMuteEntry(this, player);
+				m_ChatWindowController.MuteEntries.Insert(entry);
+			}
+		}
+	}
+
+	void OnMuteListButtonClick()
+	{
+		bool state = MutePanel.IsVisible();
+		MutePanel.Show(!state);
+		m_MuteListVisible = !state;
+		
+		if (state)
+		{
+			MuteScroller.SetAlpha(1.0);
+			ChatInputMenu inputMenu = ChatInputMenu.Cast(GetGame().GetUIManager().GetMenu());
+			if (inputMenu)
+				SetFocus(inputMenu.GetEditboxWidget());
+		}
+		else
+		{
+			MuteScroller.SetAlpha(0);
+		}
+	}
+	
+	bool IsMuteListVisible()
+	{
+		return m_MuteListVisible;
 	}
 };
 
-class ExpansionChatUIWindowController: ExpansionViewController {};
+class ExpansionChatUIWindowController: ExpansionViewController
+{
+	ref ObservableCollection<ref ExpansionChatMuteEntry> MuteEntries = new ObservableCollection<ref ExpansionChatMuteEntry>(this);
+};

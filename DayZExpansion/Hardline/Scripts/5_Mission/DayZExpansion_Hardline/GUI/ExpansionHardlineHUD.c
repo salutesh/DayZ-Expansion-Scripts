@@ -51,69 +51,30 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			m_ViewInit = true;
 		}
 		
-		int humanity = data.GetHumanity();		
+		int humanity = data.GetReputation();		
 		int difference;
 		
-		if (m_CurrentHumanity == 0)
-			m_CurrentHumanity = humanity;
-		
-		if (humanity > m_CurrentHumanity || humanity < m_CurrentHumanity )
+		if (humanity != m_CurrentHumanity )
 		{
 			difference = humanity - m_CurrentHumanity;
 			m_CurrentHumanity = humanity;
-		}
 		
-		if (difference < 0 || difference > 0)
-		{
 			OnHumanityChangeReset();
 			OnHumanityChange(difference);
 			
 			m_HardlineHUDController.HumanityVal = Math.RandomInt(0, humanity).ToString();
 			m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
 		}
-		else if (difference == 0)
+		else
 		{
 			m_HardlineHUDController.HumanityVal = humanity.ToString();
 			m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
 			
-			m_HardlineHUDController.HumanityIcon = GetHumanityIcon(humanity);
+			m_HardlineHUDController.HumanityIcon = ExpansionIcons.GetPath("Persona");
 			m_HardlineHUDController.NotifyPropertyChanged("HumanityIcon");
 		}
 	}
 
-	string GetHumanityIcon(int humanity)
-	{
-		ExpansionHardlineRank rank = GetExpansionSettings().GetHardline().GetRank(humanity);
-		switch (rank)
-		{
-			//! If player is hero
-			case ExpansionHardlineRank.Scout:
-				return "set:expansion_notification_iconset image:icon_hero_1";
-			case ExpansionHardlineRank.Pathfinder:
-				return "set:expansion_notification_iconset image:icon_hero_2";
-			case ExpansionHardlineRank.Hero:
-				return "set:expansion_notification_iconset image:icon_hero_3";
-			case ExpansionHardlineRank.Superhero:
-				return "set:expansion_notification_iconset image:icon_hero_4";
-			case ExpansionHardlineRank.Legend:
-				return "set:expansion_notification_iconset image:icon_hero_5";
-
-			//! If player is bandit
-			case ExpansionHardlineRank.Kleptomaniac:
-				return "set:expansion_notification_iconset image:icon_bandit_1";
-			case ExpansionHardlineRank.Bully:
-				return "set:expansion_notification_iconset image:icon_bandit_2";
-			case ExpansionHardlineRank.Bandit:
-				return "set:expansion_notification_iconset image:icon_bandit_3";
-			case ExpansionHardlineRank.Killer:
-				return "set:expansion_notification_iconset image:icon_bandit_4";
-			case ExpansionHardlineRank.Madman:
-				return "set:expansion_notification_iconset image:icon_bandit_5";
-		}
-		
-		return ExpansionIcons.GetPath("Persona");
-	}
-	
 	void OnHumanityChange(int difference)
 	{	
 		string text;
@@ -122,7 +83,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			text = "+" + difference.ToString();
 			HumanityChangeVal.SetColor(ARGB(200, 46, 204, 113));
 		}
-		else if (difference < 0)
+		else
 		{
 			text = difference.ToString();
 			HumanityChangeVal.SetColor(ARGB(200, 231, 76, 60));
@@ -177,9 +138,6 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		
 		m_HardlineHUDController.HumanityVal = m_CurrentHumanity.ToString();
 		m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
-
-		m_HardlineHUDController.HumanityIcon = GetHumanityIcon(m_CurrentHumanity);
-		m_HardlineHUDController.NotifyPropertyChanged("HumanityIcon");
 	}
 	
 	override typename GetControllerType()
@@ -211,7 +169,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	
 	override void Update()
 	{
-		if (m_HardlineModule && GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseHumanity && GetExpansionSettings().GetHardline().ShowHardlineHUD)
+		if (m_HardlineModule && GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().ShowHardlineHUD)
 		{
 			if (!m_HardlineModule.GetHardlineClientData())
 				return;

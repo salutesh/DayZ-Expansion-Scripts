@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -41,7 +41,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 			{
 				DeleteFile(fileName);
 
-				string folderName = ExpansionEntityStorageModule.s_StorageFolderPath + m_Expansion_StoredEntityGlobalID.IDToHex();
+				string folderName = ExpansionEntityStorageModule.GetStorageDirectory() + m_Expansion_StoredEntityGlobalID.IDToHex();
 				if (FileExist(fileName))
 				{
 					TStringArray files = ExpansionStatic.FindFilesInLocation(folderName, ExpansionEntityStorageModule.EXT);
@@ -96,7 +96,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-		
+
 		m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 
@@ -184,7 +184,7 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 		m_Expansion_StoredEntityGlobalID.OnStoreSave(ctx);
 	}
-	
+
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
@@ -229,6 +229,13 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 		return ExpansionStatic.GetItemDisplayNameWithType(type);
 	}
 
+	string Expansion_GetStoredEntityType()
+	{
+		string type;
+		m_Expansion_NetsyncData.Get(0, type);
+		return type;
+	}
+
 	void Expansion_SetStoredEntityData(string type, TIntArray entityGlobalID)
 	{
 		m_Expansion_NetsyncData.Set(0, type);
@@ -247,14 +254,22 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 		CarScript vehicle;
 		if (Class.CastTo(vehicle, entity))
+		{
+			if (!vehicle.m_Expansion_GlobalID.m_IsSet)
+				vehicle.m_Expansion_GlobalID.Acquire();
 			for (i = 0; i < 4; i++)
 				entityGlobalID.Insert(vehicle.m_Expansion_GlobalID.m_ID[i]);
+		}
 
 #ifdef EXPANSIONMODVEHICLE
 		ExpansionVehicleBase exVehicle;
 		if (Class.CastTo(exVehicle, entity))
+		{
+			if (!exVehicle.m_Expansion_GlobalID.m_IsSet)
+				exVehicle.m_Expansion_GlobalID.Acquire();
 			for (i = 0; i < 4; i++)
 				entityGlobalID.Insert(exVehicle.m_Expansion_GlobalID.m_ID[i]);
+		}
 #endif
 
 		EntityAI placeholderEntity;

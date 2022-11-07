@@ -62,13 +62,13 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 		if (!GetGame().IsDedicatedServer())
 		{
 			//! Client
-		
+
 			//! Dont show action if menu is already opened
 			if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 				return false;
 
 			string actionText;
-		#ifdef ENFUSION_AI_PROJECT 
+		#ifdef ENFUSION_AI_PROJECT
 			if (npc || npcAI)
 		#else
 			if (npc)

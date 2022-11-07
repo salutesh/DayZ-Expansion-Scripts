@@ -12,7 +12,7 @@
 
 #ifdef EXPANSIONMODMARKET
 modded class ExpansionMarketModule
-{	
+{
 	// ------------------------------------------------------------
 	// Expansion Bool CanSellItem
 	// ------------------------------------------------------------

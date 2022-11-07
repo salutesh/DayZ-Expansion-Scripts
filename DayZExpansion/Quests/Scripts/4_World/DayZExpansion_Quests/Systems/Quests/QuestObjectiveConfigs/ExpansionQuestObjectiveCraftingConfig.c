@@ -41,4 +41,15 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveConfig
 
 		return true;
 	}
+
+	override bool Validate()
+	{
+		if (!super.Validate())
+			return false;
+
+		if (!ItemNames || ItemNames && ItemNames.Count() == 0)
+			return false;
+
+		return true;
+	}
 };

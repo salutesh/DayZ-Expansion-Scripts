@@ -14,7 +14,6 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 {
 	protected bool m_ActionState;
 	protected bool m_CallLater;
-	protected EntityAI m_LastEntity;
 
 	void OnActionUsed(ActionBase actionBase, ActionData actionData)
 	{
@@ -22,9 +21,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnActionUsed");
 	#endif
 
-		QuestPrint(ToString() + "::OnActionUsed - Action name: " + actionBase.ClassName());
-		QuestPrint(ToString() + "::OnActionUsed - Action base: " + actionBase.ToString());
-		QuestPrint(ToString() + "::OnActionUsed - Action data: " + actionData.ToString());
+		ObjectivePrint(ToString() + "::OnActionUsed - Action name: " + actionBase.ClassName());
+		ObjectivePrint(ToString() + "::OnActionUsed - Action base: " + actionBase.ToString());
+		ObjectivePrint(ToString() + "::OnActionUsed - Action data: " + actionData.ToString());
 
 		if (GetObjectiveConfig().GetActionNames().Find(actionBase.ClassName()) == -1)
 			return;
@@ -38,7 +37,6 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			isContolledAction = true;
 			player = PlayerBase.Cast(actionData.m_Player);
 
-			m_LastEntity = player;
 			if (m_CallLater)
 			{
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
@@ -56,7 +54,6 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			isContolledAction = true;
 			target_player = PlayerBase.Cast(actionData.m_Target.GetParentOrObject());
 
-			m_LastEntity = target_player;
 			if (m_CallLater)
 			{
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
@@ -76,18 +73,20 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			isContolledAction = true;
 			CarScript carScript = CarScript.Cast(actionData.m_Target.GetParentOrObject());
 
-			m_LastEntity = carScript;
-			if (m_CallLater)
+			if (GetObjectiveConfig().GetAllowedClassNames().Count() > 0 && GetObjectiveConfig().GetAllowedClassNames().Find(carScript.GetType()) > -1 || GetObjectiveConfig().GetExcludedClassNames().Count() > 0 && GetObjectiveConfig().GetExcludedClassNames().Find(carScript.GetType()) == -1)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
-				m_CallLater = false;
-			}
+				if (m_CallLater)
+				{
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
+					m_CallLater = false;
+				}
 
-			QuestPrint(ToString() + "::OnActionUsed - Action was: ExpansionActionPickVehicleLock");
-			if (carScript && GetExpansionSettings().GetVehicle().CanPickLock && !m_CallLater)
-			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntity, 1000, true, carScript, actionBase.ClassName());
-				m_CallLater = true;
+				ObjectivePrint(ToString() + "::OnActionUsed - Action was: ExpansionActionPickVehicleLock");
+				if (carScript && GetExpansionSettings().GetVehicle().CanPickLock && !m_CallLater)
+				{
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntity, 1000, true, carScript, actionBase.ClassName());
+					m_CallLater = true;
+				}
 			}
 		}
 		else if (actionBase.ClassName() == "ExpansionVehicleActionPickLock")
@@ -95,21 +94,34 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			isContolledAction = true;
 			ExpansionVehicleBase vehicleBase = ExpansionVehicleBase.Cast(actionData.m_Target.GetParentOrObject());
 
-			m_LastEntity = vehicleBase;
-			if (m_CallLater)
+			if (GetObjectiveConfig().GetAllowedClassNames().Count() > 0 && GetObjectiveConfig().GetAllowedClassNames().Find(vehicleBase.GetType()) > -1 || GetObjectiveConfig().GetExcludedClassNames().Count() > 0 && GetObjectiveConfig().GetExcludedClassNames().Find(vehicleBase.GetType()) == -1)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
-				m_CallLater = false;
-			}
+				if (m_CallLater)
+				{
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
+					m_CallLater = false;
+				}
 
-			QuestPrint(ToString() + "::OnActionUsed - Action was: ExpansionVehicleActionPickLock");
-			if (vehicleBase && GetExpansionSettings().GetVehicle().CanPickLock && !m_CallLater)
-			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntity, 1000, true, vehicleBase, actionBase.ClassName());
-				m_CallLater = true;
+				ObjectivePrint(ToString() + "::OnActionUsed - Action was: ExpansionVehicleActionPickLock");
+				if (vehicleBase && GetExpansionSettings().GetVehicle().CanPickLock && !m_CallLater)
+				{
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntity, 1000, true, vehicleBase, actionBase.ClassName());
+					m_CallLater = true;
+				}
 			}
 		}
 	#endif
+		else if (actionBase.ClassName() == "ActionPlantSeed")
+		{
+			isContolledAction = true;
+			ItemBase seed_IB = ItemBase.Cast(actionData.m_MainItem);
+			if (GetObjectiveConfig().GetAllowedClassNames().Count() > 0 && GetObjectiveConfig().GetAllowedClassNames().Find(seed_IB.GetType()) > -1 || GetObjectiveConfig().GetExcludedClassNames().Count() > 0 && GetObjectiveConfig().GetExcludedClassNames().Find(seed_IB.GetType()) == -1)
+			{
+				m_ActionState = true;
+				SetCompleted(true);
+				OnComplete();
+			}
+		}
 
 		if (!isContolledAction)
 		{
@@ -128,7 +140,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		PlayerBase player;
 		if (Class.CastTo(player, entity) && (actionName == "ActionBandageSelf" || actionName == "ActionBandageTarget"))
 		{
-			QuestPrint(ToString() + "::CheckEntity - Player bleeding state: " + player.IsBleeding());
+			ObjectivePrint(ToString() + "::CheckEntity - Player bleeding state: " + player.IsBleeding());
 
 			if (player && !player.IsBleeding())
 			{
@@ -145,8 +157,8 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		ExpansionVehicleBase vehicleBase;
 		if (Class.CastTo(carScript, entity) && actionName == "ExpansionActionPickVehicleLock")
 		{
-			QuestPrint(ToString() + "::CheckEntity - Car lock state: " + carScript.GetLockedState());
-			QuestPrint(ToString() + "::CheckEntity - Car locked: " + carScript.IsLocked());
+			ObjectivePrint(ToString() + "::CheckEntity - Car lock state: " + carScript.GetLockedState());
+			ObjectivePrint(ToString() + "::CheckEntity - Car locked: " + carScript.IsLocked());
 
 			if (carScript && (carScript.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED || !carScript.IsLocked()))
 			{
@@ -159,8 +171,8 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		}
 		else if (Class.CastTo(vehicleBase, entity) && actionName == "ExpansionVehicleActionPickLock")
 		{
-			QuestPrint(ToString() + "::CheckEntity - Vehicle lock state: " + vehicleBase.GetLockedState());
-			QuestPrint(ToString() + "::CheckEntity - Vehicle locked: " + vehicleBase.IsLocked());
+			ObjectivePrint(ToString() + "::CheckEntity - Vehicle lock state: " + vehicleBase.GetLockedState());
+			ObjectivePrint(ToString() + "::CheckEntity - Vehicle locked: " + vehicleBase.IsLocked());
 
 			if (vehicleBase && (vehicleBase.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED || !vehicleBase.IsLocked()))
 			{
@@ -187,12 +199,5 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.ACTION;
-	}
-
-	void QuestPrint(string text)
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug(text);
-	#endif
 	}
 };

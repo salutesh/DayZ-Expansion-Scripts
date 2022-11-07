@@ -308,7 +308,7 @@ static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Stru
 static const int EXPANSION_VERSION_CURRENT_SAVE = 46;
 
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
-static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 42;
+static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 43;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 39;  //! Also used for groups
 
 //! Expansion social media URLs

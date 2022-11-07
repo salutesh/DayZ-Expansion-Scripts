@@ -24,6 +24,13 @@ class ExpansionQuestObjectiveEventBase
 	protected float m_TimeLimitSyncTimer = 0;
 	protected const float UPDATE_TIME_SYNC_TIME = 10.0;
 
+	protected ref ExpansionQuestsPlayerInventory m_PlayerEntityInventory;
+	protected ref array<EntityAI> m_PlayerItems;
+#ifdef EXPANSIONMODGROUPS
+	protected ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
+	protected ref array<EntityAI> m_GroupItems;
+#endif
+
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
 		m_Quest = quest;
@@ -91,6 +98,11 @@ class ExpansionQuestObjectiveEventBase
 
 	void OnTimeLimitReached()
 	{
+		CancelQuest();
+	}
+
+	void CancelQuest()
+	{
 		if (!GetQuest().GetPlayer().GetIdentity())
 			return;
 
@@ -103,6 +115,14 @@ class ExpansionQuestObjectiveEventBase
 		SetInitialized(true);
 		SetIsActive(true);
 
+		if (!OnEventStart())
+			return false;
+
+		return true;
+	}
+
+	bool OnEventStart(bool continues = false)
+	{
 		return true;
 	}
 
@@ -147,6 +167,9 @@ class ExpansionQuestObjectiveEventBase
 		SetInitialized(true);
 		SetIsActive(true);
 
+		if (!OnEventStart(true))
+			return false;
+
 		return true;
 	}
 
@@ -158,16 +181,18 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-#ifdef EXPANSIONMODNAVIGATION
 	//! Event called when the quest markers should get recreated
+#ifdef EXPANSIONMODNAVIGATION
 	void OnRecreateClientMarkers();
 #endif
 
-#ifdef EXPANSIONMODGROUPS
 	//! Event called for group quests only when a group member joins/rejoins the quest group
+#ifdef EXPANSIONMODGROUPS
 	void OnGroupMemberJoined(string playerUID)
 	{
+	#ifdef EXPANSIONMODNAVIGATION
 		OnRecreateClientMarkers();
+	#endif
 	}
 
 	//! Event called for group quests only when a group member leaves the quest group
@@ -270,6 +295,30 @@ class ExpansionQuestObjectiveEventBase
 		return m_ObjectiveConfig;
 	}
 
+	bool HasDynamicState()
+	{
+		return false;
+	}
+	
+	protected void EnumeratePlayerInventory(PlayerBase player)
+	{
+		if (!player || !player.IsAlive() || !player.GetInventory())
+			return;
+
+		m_PlayerEntityInventory = new ExpansionQuestsPlayerInventory(player);
+	}
+
+#ifdef EXPANSIONMODGROUPS
+	protected void EnumerateGroupInventory(ExpansionPartyData group)
+	{
+		if (!group)
+			return;
+
+		m_GroupEntityInventory = new ExpansionQuestsGroupInventory(group);
+	}
+#endif
+
+
 	void QuestDebug()
 	{
 		ObjectivePrint("------------------------------------------------------------");
@@ -287,7 +336,7 @@ class ExpansionQuestObjectiveEventBase
 	void ObjectivePrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug(text);
+		Print(text);
 	#endif
 	}
 

@@ -23,7 +23,7 @@ modded class ItemBase
 	{
 		return (m_Expansion_QuestID > -1);
 	}
-	
+
 	int GetQuestID()
 	{
 		return m_Expansion_QuestID;
@@ -33,18 +33,18 @@ modded class ItemBase
 	{
 		m_Expansion_QuestID = id;
 	}
-	
+
 	override void DeferredInit()
 	{
 		super.DeferredInit();
 
 		if (m_Expansion_IsStoreLoaded && m_Expansion_QuestID > -1)
 		{
-			if (!GetHierarchyRootPlayer())	
+			if (!GetHierarchyRootPlayer())
 				GetGame().ObjectDelete(this);
 		}
 	}
-	
+
 	#ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
@@ -55,7 +55,7 @@ modded class ItemBase
 
 		ctx.Write(m_Expansion_QuestID);
 	}
-	
+
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
@@ -69,7 +69,7 @@ modded class ItemBase
 
 		if (!ctx.Read(m_Expansion_QuestID))
 			return false;
-		
+
 		return true;
 	}
 	#endif

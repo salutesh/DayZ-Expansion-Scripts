@@ -84,6 +84,27 @@ class ExpansionDefaultObjectiveData
 		return objective;
 	}
 
+	ExpansionQuestObjectiveTravelConfig ExpansionQuestObjective_Travel_004()
+	{
+		ExpansionQuestObjectiveTravelConfig objective = new ExpansionQuestObjectiveTravelConfig();
+		objective.SetID(4);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
+		objective.SetObjectiveText("Find the patrol");
+		objective.SetMaxDistance(20.0);
+		objective.SetMarkerName("Find the patrol");
+
+		if (m_WorldName.Contains("namalsk"))
+		{
+			objective.SetPosition(Vector(6573.94, 20.2864, 11832.3));
+		}
+		else if (m_WorldName.Contains("chernarusplus") || m_WorldName == "chernarusplusgloom")
+		{
+			objective.SetPosition(Vector(6990.52, 383.992, 11390.1));
+		}
+
+		return objective;
+	}
+
 	//! DELIVERY OBJECTIVES
 	ExpansionQuestObjectiveDeliveryConfig ExpansionQuestObjective_Delivery_001()
 	{
@@ -383,247 +404,69 @@ class ExpansionDefaultObjectiveData
 		return objective;
 	}
 
+	ExpansionQuestObjectiveTargetConfig ExpansionQuestObjective_Target_004()
+	{
+		ExpansionQuestObjectiveTargetConfig objective = new ExpansionQuestObjectiveTargetConfig();
+		objective.SetID(4);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		objective.SetObjectiveText("Kill 10 Military/NPC Infected");
+
+		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
+		//! Military Infected
+		target.AddClassName("ZmbM_PatrolNormal_Base");
+		target.AddClassName("ZmbM_Soldier_Base");
+		target.AddClassName("ZmbM_SoldierNormal_Base");
+		target.AddClassName("ZmbM_usSoldier_normal_Base");
+
+		//! Imune Infected
+		target.AddClassName("ZmbM_NBC_Yellow");
+
+		//! Imune Military Infected
+		target.AddClassName("ZmbM_NBC_Grey");
+
+		target.SetAmount(10);
+
+		objective.SetTarget(target);
+
+		return objective;
+	}
+
 	//! COLLECTION OBJECTIVES
-#ifdef WRDG_DOGTAGS
 	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_001()
 	{
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Survivor Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Survivor");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
+		objective.SetObjectiveText("Collect 5 apples");
+		objective.AddCollection(5, "Apple");
 		objective.SetMaxDistance(10.0);
 		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
-#endif
 
 	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_002()
 	{
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect 5 apples");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Apple");
-		collection.SetAmount(5);
-		objective.AddCollection(collection);
+		objective.SetObjectiveText("Catch a mackerel");
+		objective.AddCollection(1, "Mackerel");
 		objective.SetMaxDistance(10.0);
 		objective.SetMarkerName("Deliver Items");
 
 		return objective;
 	}
 
-#ifdef WRDG_DOGTAGS
-#ifdef EXPANSIONMODHARDLINE
 	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_003()
 	{
 		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
 		objective.SetID(3);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Scout Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Scout");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
+		objective.SetObjectiveText("Get the yellow king's helmet");
+		objective.AddCollection(1, "DarkMotoHelmet_YellowScarred");
 		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_004()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(4);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Pathfinder Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Pathfinder");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-		
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_005()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(5);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Superhero Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Superhero");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_006()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(6);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Legend Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Legend");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_007()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(7);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Kleptomaniac Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Kleptomaniac");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_008()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(8);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Bully Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Bully");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_009()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(9);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Killer Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Killer");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_010()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(10);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Madman Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Madman");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_011()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(11);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Hero Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Hero");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_012()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(12);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Collect a Bandit Dogtag");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Dogtag_Bandit");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-#endif
-#endif
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_013()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(13);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Craft an improvised fishing rod!");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("ImprovisedFishingRod");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
-
-		return objective;
-	}
-
-	ExpansionQuestObjectiveCollectionConfig ExpansionQuestObjective_Collection_014()
-	{
-		ExpansionQuestObjectiveCollectionConfig objective = new ExpansionQuestObjectiveCollectionConfig();
-		objective.SetID(14);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		objective.SetObjectiveText("Catch a mackerel");
-
-		ExpansionQuestObjectiveCollection collection = new ExpansionQuestObjectiveCollection();
-		collection.SetClassName("Mackerel");
-		collection.SetAmount(1);
-		objective.AddCollection(collection);
-		objective.SetMaxDistance(10.0);
-		objective.SetMarkerName("Deliver Items");
+		objective.SetMarkerName("Deliver Item");
 
 		return objective;
 	}
@@ -853,7 +696,8 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
-		objective.AddActionName("ExpansionVehicleActionPickLock");
+		objective.AddActionName("ActionPlantSeed");
+		objective.AddAllowedClassName("PumpkinSeeds");
 
 		return objective;
 	}

@@ -39,10 +39,10 @@ class ExpansionQuestStaticObject extends BuildingSuper
 		super.DeferredInit();
 
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		CF_Log.Debug("-----------------------------------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::DeferredInit - NPC ID: " + m_QuestNPCID);
-		CF_Log.Debug(ToString() + "::DeferredInit - NPC type: " + GetType());
-		CF_Log.Debug("-----------------------------------------------------------------------------------------");
+		Print("-----------------------------------------------------------------------------------------");
+		Print(ToString() + "::DeferredInit - NPC ID: " + m_QuestNPCID);
+		Print(ToString() + "::DeferredInit - NPC type: " + GetType());
+		Print("-----------------------------------------------------------------------------------------");
 	#endif
     }
 
