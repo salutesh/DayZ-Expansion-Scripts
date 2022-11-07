@@ -129,17 +129,17 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 			if (settingsBase.m_Version < 6)
 				settings.TraderIcon = settingsDefault.TraderIcon;
 
+		#ifdef EXPANSIONMODHARDLINE
 			if (settingsBase.m_Version < 10)
 			{
 				ExpansionMarketTraderV9 settings_v9;
 				if (!ExpansionJsonFileParser<ExpansionMarketTraderV9>.Load( EXPANSION_TRADER_FOLDER + name + ".json", settings_v9 ))
 					return NULL;
 				
-				#ifdef EXPANSIONMODHARDLINE
 				settings.MinRequiredReputation = settings_v9.MinRequiredHumanity;
 				settings.MaxRequiredReputation = settings_v9.MaxRequiredHumanity;
-				#endif
 			}
+		#endif
 			
 			settings.m_Version = VERSION;
 			settings.m_FileName = name;

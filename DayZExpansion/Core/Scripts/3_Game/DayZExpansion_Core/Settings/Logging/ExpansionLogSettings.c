@@ -81,8 +81,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 	#ifdef EXPANSIONMODVEHICLE
 	bool Garage;				//! If enabled, generate logs for garage module events.
 	bool VehicleCover;				//! If enabled, generate logs for vehicle-cover actions.
-	bool EntityStorage;			//! If enabled, generate logs for entity-storage actions.
 	#endif
+
+	bool EntityStorage;			//! If enabled, generate logs for entity-storage actions.
 
 	[NonSerialized()]
 	private string m_FileTimestamp;
@@ -220,8 +221,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 		#ifdef EXPANSIONMODVEHICLE
 		Garage = s.Garage;
 		VehicleCover = s.VehicleCover;
-		EntityStorage = s.EntityStorage;
 		#endif
+
+		EntityStorage = s.EntityStorage;
 	}
 
 	// ------------------------------------------------------------
@@ -307,9 +309,13 @@ class ExpansionLogSettings: ExpansionSettingBase
 				{
 					Garage = settingsDefault.Garage;
 					VehicleCover = settingsDefault.VehicleCover;
-					EntityStorage = settingsDefault.EntityStorage;
 				}
 				#endif
+				
+				if (m_Version < 7)
+				{
+					EntityStorage = settingsDefault.EntityStorage;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -415,8 +421,9 @@ class ExpansionLogSettings: ExpansionSettingBase
 		#ifdef EXPANSIONMODVEHICLE
 		Garage = true;
 		VehicleCover = true;
-		EntityStorage = true;
 		#endif
+
+		EntityStorage = true;
 	}
 
 	override string SettingName()

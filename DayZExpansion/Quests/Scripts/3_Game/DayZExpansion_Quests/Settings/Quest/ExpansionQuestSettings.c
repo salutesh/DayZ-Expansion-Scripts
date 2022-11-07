@@ -205,7 +205,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
 
+#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = s.GroupQuestMode;
+#endif
 
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
@@ -272,17 +274,17 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					QuestNotGroupOwnerText = settingsDefault.QuestNotGroupOwnerText;
 				#endif
 				}
-
-				if (settingsBase.m_Version < 4)
-				{
-				#ifdef EXPANSIONMODGROUPS
-					GroupQuestMode = settingsDefault.GroupQuestMode;
-				#endif
-				}
 				else
 				{
 					JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
 				}
+
+			#ifdef EXPANSIONMODGROUPS
+				if (settingsBase.m_Version < 4)
+				{
+					GroupQuestMode = settingsDefault.GroupQuestMode;
+				}
+			#endif
 
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
@@ -390,7 +392,9 @@ override void Update( ExpansionSettingBase setting )
 
 		UseUTCTime = false;
 
+#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;
+#endif
 	}
 
 	// ------------------------------------------------------------
