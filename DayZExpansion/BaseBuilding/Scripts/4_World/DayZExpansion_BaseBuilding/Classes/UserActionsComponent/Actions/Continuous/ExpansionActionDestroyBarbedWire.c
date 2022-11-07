@@ -27,7 +27,7 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 		if ( !super.DestroyCondition( player, target, item, camera_check ) )
 			return false;
 
-		if ( GetExpansionSettings().GetRaid().BarbedWireRaidTools.Find( item.GetType() ) == -1 )
+		if ( !ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetRaid().BarbedWireRaidTools) )
 			return false;
 
 		Object targetObject = target.GetObject();
@@ -65,7 +65,8 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 
 	override bool CanBeDestroyed( Object targetObject )
 	{
-		return GetExpansionSettings().GetRaid().CanRaidBarbedWire;
+		auto settings = GetExpansionSettings().GetRaid();
+		return settings.CanRaidBarbedWire && settings.IsRaidableNow();
 	}
 
 	override Object GetActualTargetObject( Object targetObject )

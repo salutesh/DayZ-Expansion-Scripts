@@ -18,25 +18,32 @@ class ExpansionCOTGroupsPlayersListEntry extends ScriptedWidgetEventHandler
 	private ButtonWidget m_EditButton;
 	
 	private ref ExpansionCOTGroupsMenu m_COTGroupsMenu;
-	private ref ExpansionPlayerDataCollection m_Player;
+	private ref SyncPlayer m_Player;
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionCOTGroupsPlayersListEntry Constructor
 	// ------------------------------------------------------------
-	void ExpansionCOTGroupsPlayersListEntry(Widget parent, ExpansionCOTGroupsMenu menu, ExpansionPlayerDataCollection player)
+	void ExpansionCOTGroupsPlayersListEntry(Widget parent, ExpansionCOTGroupsMenu menu, SyncPlayer player)
 	{
 		m_Root	= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Groups/GUI/layouts/COT/groups/Players_List_Entry.layout", parent);
 		m_PlayerName = TextWidget.Cast(m_Root.FindAnyWidget("player_name"));
 		m_EditButton	= ButtonWidget.Cast(m_Root.FindAnyWidget("edit_button"));
 		
 		m_COTGroupsMenu	= menu;
-		m_Player = player;
+		m_Player = new SyncPlayer;
+		m_Player.Expansion_CopyFrom(player);
 		
 		m_Root.SetHandler( this );
 		
 		SetEntry();
 	}
 	
+	void ~ExpansionCOTGroupsPlayersListEntry()
+	{
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsPlayersListEntry SetEntry
 	// ------------------------------------------------------------
@@ -45,7 +52,7 @@ class ExpansionCOTGroupsPlayersListEntry extends ScriptedWidgetEventHandler
 		if (!m_Player)
 			return;
 		
-		m_PlayerName.SetText(m_Player.Name);
+		m_PlayerName.SetText(m_Player.m_PlayerName);
 	}
 	
 	// ------------------------------------------------------------

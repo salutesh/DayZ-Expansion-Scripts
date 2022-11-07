@@ -15,10 +15,13 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 
 	float AccuracyMin;
 	float AccuracyMax;
+
+	float ThreatDistanceLimit;
+	float DamageMultiplier;
 
 	autoptr TStringArray Admins
 
@@ -238,6 +241,12 @@ class ExpansionAISettings: ExpansionSettingBase
 #endif
 				}
 
+				if (m_Version < 4)
+				{
+					ThreatDistanceLimit = settingsDefault.ThreatDistanceLimit;
+					DamageMultiplier = settingsDefault.DamageMultiplier;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -288,6 +297,10 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		AccuracyMin = 0.15;
 		AccuracyMax = 0.75;
+
+		ThreatDistanceLimit = 1000.0;
+		DamageMultiplier = 1.0;
+
 		MaximumDynamicPatrols = -1;
 		Vaulting = true;
 		Manners = false;

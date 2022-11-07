@@ -220,7 +220,7 @@ class ExpansionIcons
 		AddIcon("Patreon", "set:expansion_iconset image:icon_patreon");
 		AddIcon("Guilded", "set:expansion_iconset image:icon_guilded");
 		AddIcon("PayPal", "set:expansion_iconset image:icon_paypal");
-
+		
 		//! Misc
 		AddIcon("Cross", "DayZExpansion\\Core\\GUI\\icons\\hud\\cross_64x64.edds");
 
@@ -228,7 +228,8 @@ class ExpansionIcons
 		AddIcon("Battery Med", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_med_64x64.edds");
 		AddIcon("Battery Low", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_low_64x64.edds");
 		AddIcon("Battery Empty", "DayZExpansion\\Core\\GUI\\icons\\hud\\battery_empty_64x64.edds");
-
+		AddIcon("Clock Blank", "set:expansion_iconset image:clock_blank");
+		
 		//! Expansion logos
 		AddIcon("Expansion", "set:expansion_iconset image:icon_expansion_col");
 		AddIcon("Expansion B/W", "set:expansion_iconset image:icon_expansion_bw");

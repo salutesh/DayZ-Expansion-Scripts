@@ -67,15 +67,18 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override bool CanBeDamaged()
 	{
-		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 1)
+		auto settings = GetExpansionSettings().GetRaid();
+		if (settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.DoorsGates)
 		{
-			return m_HasDoor || m_HasGate;
-		} else if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 2)
+			return (m_HasDoor || m_HasGate) && settings.IsRaidableNow();
+		}
+		else if (settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.DoorsGatesWindows)
 		{
-			return m_HasDoor || m_HasGate || m_HasWindow;
-		} else if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 3)
+			return (m_HasDoor || m_HasGate || m_HasWindow) && settings.IsRaidableNow();
+		}
+		else if (settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.DoorsGatesWindowsWalls)
 		{
-			return true;
+			return settings.IsRaidableNow();
 		}
 		
 		return super.CanBeDamaged();
@@ -199,8 +202,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		if ( m_ExpansionSaveVersion < 18 )
 			m_HasWall = IsLastStageBuilt();
-		
-		SetAllowDamage(CanBeDamaged());
 		
 		UpdateVisuals();
 
@@ -341,7 +342,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
 
-		SetAllowDamage(CanBeDamaged());
 		super.OnPartBuiltServer(player, part_name, action_id );
 
 		UpdateVisuals();
@@ -381,7 +381,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		m_HasGate = false;
 		m_HasWall = false;
 
-		SetAllowDamage(CanBeDamaged());
 		super.OnPartDismantledServer( player, part_name, action_id );
 
 		UpdateVisuals();
@@ -394,7 +393,6 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		m_HasGate = false;
 		m_HasWall = false;
 
-		SetAllowDamage(CanBeDamaged());
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 
 		UpdateVisuals();

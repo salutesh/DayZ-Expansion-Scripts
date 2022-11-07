@@ -23,35 +23,32 @@ class ExpansionNewsFeed: ExpansionScriptView
 
 	void SetView()
 	{
-		if (GetExpansionSettings().GetSocialMedia().NewsFeedLinks.Count() > 0)
+		int i;
+		
+		//! Add text entries from social media settings
+		m_NewsFeedController.TextEntries.Clear();
+		for (i = 0; i < GetExpansionSettings().GetSocialMedia().NewsFeedTexts.Count(); i++)
 		{
-			int i;
-			
-			//! Add text entries from social media settings
-			m_NewsFeedController.TextEntries.Clear();
-			for (i = 0; i < GetExpansionSettings().GetSocialMedia().NewsFeedTexts.Count(); i++)
-			{
-				ExpansionNewsFeedTextSetting textSetting = GetExpansionSettings().GetSocialMedia().NewsFeedTexts[i];
-				if (!textSetting)
-					continue;
+			ExpansionNewsFeedTextSetting textSetting = GetExpansionSettings().GetSocialMedia().NewsFeedTexts[i];
+			if (!textSetting)
+				continue;
 
-				ExpansionNewsFeedText textEntry = new ExpansionNewsFeedText(textSetting.GetTitle(), textSetting.GetText());
-				if (textEntry)
-					m_NewsFeedController.TextEntries.Insert(textEntry);
-			}
-			
-			//! Add link entries from social media settings
-			m_NewsFeedController.LinkEntries.Clear();
-			for (i = 0; i < GetExpansionSettings().GetSocialMedia().NewsFeedLinks.Count(); i++)
-			{
-				ExpansionNewsFeedLinkSetting linkSetting = GetExpansionSettings().GetSocialMedia().NewsFeedLinks[i];
-				if (!linkSetting)
-					continue;
+			ExpansionNewsFeedText textEntry = new ExpansionNewsFeedText(textSetting.GetTitle(), textSetting.GetText());
+			if (textEntry)
+				m_NewsFeedController.TextEntries.Insert(textEntry);
+		}
+		
+		//! Add link entries from social media settings
+		m_NewsFeedController.LinkEntries.Clear();
+		for (i = 0; i < GetExpansionSettings().GetSocialMedia().NewsFeedLinks.Count(); i++)
+		{
+			ExpansionNewsFeedLinkSetting linkSetting = GetExpansionSettings().GetSocialMedia().NewsFeedLinks[i];
+			if (!linkSetting)
+				continue;
 
-				ExpansionNewsFeedLink linkEntry = new ExpansionNewsFeedLink(linkSetting.GetLabel(), linkSetting.GetIcon(), linkSetting.GetURL());
-				if (linkEntry)
-					m_NewsFeedController.LinkEntries.Insert(linkEntry);
-			}
+			ExpansionNewsFeedLink linkEntry = new ExpansionNewsFeedLink(linkSetting.GetLabel(), linkSetting.GetIcon(), linkSetting.GetURL());
+			if (linkEntry)
+				m_NewsFeedController.LinkEntries.Insert(linkEntry);
 		}
 	}
 

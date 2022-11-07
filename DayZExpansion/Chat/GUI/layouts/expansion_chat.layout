@@ -1,26 +1,29 @@
 PanelWidgetClass ExpansionChatUIWindow {
  clipchildren 1
- ignorepointer 1
+ ignorepointer 0
  keepsafezone 0
- position 0 0
- size 450 218
+ position -39 0
+ size 490 380
  valign bottom_ref
  hexactpos 1
  vexactpos 1
  hexactsize 1
  vexactsize 1
  scaled 1
- priority 3
+ priority 100
  scriptclass "ExpansionChatUIWindowController"
  {
   PanelWidgetClass ChatPanel {
    clipchildren 1
+   ignorepointer 0
    keepsafezone 0
-   size 1 1
+   size 450 218
+   halign right_ref
+   valign bottom_ref
    hexactpos 1
    vexactpos 1
-   hexactsize 0
-   vexactsize 0
+   hexactsize 1
+   vexactsize 1
    scaled 1
    scriptclass ""
    {
@@ -49,7 +52,7 @@ PanelWidgetClass ExpansionChatUIWindow {
      "Scrollbar V Left" 1
      {
       GridSpacerWidgetClass ChatContent {
-       ignorepointer 1
+       ignorepointer 0
        size 1 1
        hexactpos 1
        vexactpos 1
@@ -62,7 +65,8 @@ PanelWidgetClass ExpansionChatUIWindow {
        Rows 1
        {
         GridSpacerWidgetClass ContentRows {
-         ignorepointer 1
+         clipchildren 1
+         ignorepointer 0
          position 0 0
          size 1 1
          hexactpos 1
@@ -72,6 +76,106 @@ PanelWidgetClass ExpansionChatUIWindow {
          "Size To Content V" 1
          Columns 1
          Rows 100
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ButtonWidgetClass MuteListButton {
+   visible 0
+   clipchildren 0
+   keepsafezone 0
+   position 0 185
+   size 32 32
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    ImageWidgetClass MuteListButtonIcon {
+     ignorepointer 1
+     size 32 32
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     imageTexture "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds"
+     mode blend
+     "src alpha" 1
+     stretch 1
+    }
+   }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnMuteListButtonClick"
+    }
+   }
+  }
+  PanelWidgetClass MutePanel {
+   visible 0
+   clipchildren 1
+   ignorepointer 1
+   keepsafezone 0
+   position 0 225
+   size 450 150
+   halign right_ref
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scaled 1
+   scriptclass ""
+   {
+    PanelWidgetClass MuteBackground {
+     visible 1
+     ignorepointer 1
+     color 0.1569 0.1569 0.1569 0.7843
+     size 450 1
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 0
+     style DayZDefaultPanel
+    }
+    ScrollWidgetClass MuteScroller {
+     visible 1
+     clipchildren 1
+     ignorepointer 0
+     color 1 1 1 0.9804
+     position 0 0
+     size 1.01 1
+     halign right_ref
+     valign bottom_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 0
+     "Scrollbar V" 1
+     "Scrollbar V Left" 1
+     {
+      GridSpacerWidgetClass MuteContent {
+       ignorepointer 1
+       size 445 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 0
+       priority 1
+       scriptclass "ViewBinding"
+       Padding 0
+       Margin 0
+       "Size To Content V" 1
+       Columns 1
+       Rows 1
+       {
+        ScriptParamsClass {
+         Binding_Name "MuteEntries"
         }
        }
       }

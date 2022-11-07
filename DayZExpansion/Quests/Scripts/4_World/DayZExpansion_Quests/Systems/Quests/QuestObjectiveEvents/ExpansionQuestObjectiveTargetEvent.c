@@ -30,45 +30,15 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return Amount;
 	}
 
-	override bool OnStart()
+	override bool OnEventStart(bool continues = false)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
-	#endif
-
-		if (!super.OnStart())
-			return false;
-
-		TargetEventStart();
-
-		return true;
-	}
-
-	override bool OnContinue()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
-	#endif
-
-		if (!super.OnContinue())
-			return false;
-
-		TargetEventStart();
-
-		return true;
-	}
-
-	protected void TargetEventStart()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TargetEventStart");
-	#endif
-
 		ExpansionQuestObjectiveTarget target = GetObjectiveConfig().GetTarget();
 		if (!target)
-			return;
+			return false;
 
 		Amount = target.GetAmount();
+
+		return true;
 	}
 
 	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
@@ -93,14 +63,12 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		bool maxRangeCheck = false;
 
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Victim type: " + victim.Type().ToString());
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Killer class name: " + killer.ClassName());
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Killer type: " + killer.GetType());
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Killer type: " + killer.Type().ToString());
-	#endif
+		ObjectivePrint(ToString() + "::OnEntityKilled - Victim class name: " + victim.ClassName());
+		ObjectivePrint(ToString() + "::OnEntityKilled - Victim type: " + victim.GetType());
+		ObjectivePrint(ToString() + "::OnEntityKilled - Victim type: " + victim.Type().ToString());
+		ObjectivePrint(ToString() + "::OnEntityKilled - Killer class name: " + killer.ClassName());
+		ObjectivePrint(ToString() + "::OnEntityKilled - Killer type: " + killer.GetType());
+		ObjectivePrint(ToString() + "::OnEntityKilled - Killer type: " + killer.Type().ToString());
 
 		PlayerBase victimPlayer;
 		if (Class.CastTo(victimPlayer, victim))
@@ -136,9 +104,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		{
 			if (maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
 			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				CF_Log.Debug(ToString() + "::OnEntityKilled - Killer is out of legit kill range!");
-			#endif
+				ObjectivePrint(ToString() + "::OnEntityKilled - Killer is out of legit kill range!");
 				return;
 			}
 		}
@@ -150,7 +116,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				return;
 
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			CF_Log.Debug(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
+			Print(ToString() + "::OnEntityKilled - Player has killed with special weapon!");
 		#endif
 		}
 
@@ -158,9 +124,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		Amount = amount;
 		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), target.GetClassNames(), victim.ClassName());
 
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug(ToString() + "::OnEntityKilled - Target found: " + found);
-	#endif
+		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
 
 		if (found)
 		{

@@ -30,7 +30,7 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 
 	void SetEntry()
 	{
-		QuestPrint(ToString() + "::SetEntry - Start");
+		QuestDebugPrint(ToString() + "::SetEntry - Start");
 
 		m_QuestHUDEntryController.QuestName = m_QuestConfig.GetTitle();
 		m_QuestHUDEntryController.NotifyPropertyChanged("QuestName");
@@ -39,14 +39,14 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		if (state == ExpansionQuestState.STARTED)
 		{
 			m_QuestHUDEntryController.ObjectiveText = m_QuestConfig.GetObjectiveText();
-			Spacer.SetColor(GetQuestColor(m_QuestConfig));
-			QuestIcon.SetColor(GetQuestColor(m_QuestConfig));
+			Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
+			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_QuestConfig));
 		}
 		else if (state == ExpansionQuestState.CAN_TURNIN)
 		{
 			m_QuestHUDEntryController.ObjectiveText = "#STR_EXPANSION_QUEST_HUD_TURN_IN";
-			Spacer.SetColor(ARGB(255, 39, 174, 96));
-			QuestIcon.SetColor(ARGB(255, 39, 174, 96));
+			Spacer.SetColor(ARGB(200, 160, 223, 59));
+			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
 		}
 
 		m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
@@ -59,90 +59,47 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 
 		m_ObjectiveEntries.Clear();
 
-		QuestPrint(ToString() + "---------------------------------------------------------------------------");
-		QuestPrint(ToString() + "::SetEntry - Add objectives for quest: " + m_QuestConfig.GetTitle());
+		QuestDebugPrint(ToString() + "---------------------------------------------------------------------------");
+		QuestDebugPrint(ToString() + "::SetEntry - Add objectives for quest: " + m_QuestConfig.GetTitle());
 		int objectiveCount = 0;
 		for (int i = 0; i < m_QuestConfig.GetObjectives().Count(); i++)
 		{
-			QuestPrint(ToString() + "::SetEntry - Adding objectives!");
+			QuestDebugPrint(ToString() + "::SetEntry - Adding objectives!");
 			ExpansionQuestObjectiveConfig objectiveConfig = m_QuestConfig.GetObjectives().Get(i);
 			if (!objectiveConfig)
 			{
-				QuestPrint(ToString() + "::SetEntry - F1");
+				QuestDebugPrint(ToString() + "::SetEntry - F1");
 				continue;
 			}
 
-			QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfig: " + objectiveConfig.ToString());
+			QuestDebugPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveConfig: " + objectiveConfig.ToString());
 
 			ExpansionQuestObjectiveData objective = m_QuestData.QuestObjectives.Get(i);
 			if (objective)
 			{
-				QuestPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveData: " + objective.ToString());
+				QuestDebugPrint(ToString() + "::SetEntry - ExpansionQuestObjectiveData: " + objective.ToString());
 
 				if (!objective.IsActive())
 				{
-					QuestPrint(ToString() + "::SetEntry - F2");
+					QuestDebugPrint(ToString() + "::SetEntry - F2");
 					continue;
 				}
 
 				objectiveCount++;
-				QuestPrint(ToString() + "::SetEntry - Add objective entry for objective: " + objective.ToString() + " | Index: " + objectiveCount);
+				QuestDebugPrint(ToString() + "::SetEntry - Add objective entry for objective: " + objective.ToString() + " | Index: " + objectiveCount);
 				ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
 				ObjectiveEntries.AddChild(objectiveEntry.GetLayoutRoot());
 				m_ObjectiveEntries.Insert(objectiveEntry);
 				objectiveEntry.SetEntryObjective();
 			}
 		}
-		QuestPrint(ToString() + "---------------------------------------------------------------------------");
-		QuestPrint(ToString() + "::SetEntry - Added " + objectiveCount +  " objectives!");
+		QuestDebugPrint(ToString() + "---------------------------------------------------------------------------");
+		QuestDebugPrint(ToString() + "::SetEntry - Added " + objectiveCount +  " objectives!");
 
 		ObjectiveEntries.Update();
 		GetLayoutRoot().Update();
 
-		QuestPrint(ToString() + "::SetEntry - End");
-	}
-
-	int GetQuestColor(ExpansionQuestConfig quest)
-	{
-		int color;
-	#ifdef EXPANSIONMODHARDLINE
-	#ifdef EXPANSIONMODAI
-		if (quest.IsRepeatable() && !quest.IsGroupQuest() && !quest.IsBanditQuest() && !quest.IsHeroQuest() && quest.GetType() != ExpansionQuestType.AIPATROL && quest.GetType() != ExpansionQuestType.AICAMP)
-	#else
-		if (quest.IsRepeatable() && !quest.IsGroupQuest() && !quest.IsBanditQuest() && !quest.IsHeroQuest())
-	#endif
-	#else
-		if (quest.IsRepeatable() && !quest.IsGroupQuest())
-	#endif
-		{
-			color = ARGB(255, 52, 152, 219);
-		}
-		else if (quest.IsGroupQuest())
-		{
-			color = ARGB(255, 192, 57, 43);
-		}
-		else if (!quest.IsGroupQuest() && !quest.IsRepeatable())
-		{
-			color = ARGB(255, 241, 196, 15);
-		}
-	#ifdef EXPANSIONMODHARDLINE
-		else if (quest.IsBanditQuest())
-		{
-			color = COLOR_EXPANSION_NOTIFICATION_ORANGEVILLE;
-		}
-		else if (quest.IsHeroQuest())
-		{
-			color = COLOR_EXPANSION_NOTIFICATION_TURQUOISE;
-		}
-	#endif
-	#ifdef EXPANSIONMODAI
-		else if (quest.GetType() == ExpansionQuestType.AIPATROL || quest.GetType() == ExpansionQuestType.AICAMP)
-		{
-			color = ARGB(255, 142, 68, 173);
-		}
-	#endif
-
-		return color;
+		QuestDebugPrint(ToString() + "::SetEntry - End");
 	}
 
 	int GetEntryQuestID()
@@ -160,10 +117,10 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		return ExpansionQuestHUDEntryController;
 	}
 
-	void QuestPrint(string text)
+	void QuestDebugPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		CF_Log.Debug(text);
+		Print(text);
 	#endif
 	}
 };

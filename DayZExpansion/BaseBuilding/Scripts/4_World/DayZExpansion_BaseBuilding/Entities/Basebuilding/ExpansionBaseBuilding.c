@@ -34,15 +34,6 @@ modded class ExpansionBaseBuilding
 	protected string m_CurrentBuild;
 
 	// ------------------------------------------------------------
-	//! Constructor
-	// ------------------------------------------------------------
-	void ExpansionBaseBuilding()
-	{
-		if (GetGame().IsServer())
-			SetAllowDamage(CanBeDamaged());
-	}
-
-	// ------------------------------------------------------------
 	//! Destructor
 	// ------------------------------------------------------------
 	void ~ExpansionBaseBuilding()
@@ -373,12 +364,11 @@ modded class ExpansionBaseBuilding
 
 	override bool CanBeDamaged()
 	{
-		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 0)
-		{
-			return true;
-		} else {
-			return false;
-		}
+		auto settings = GetExpansionSettings().GetRaid();
+		if (settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.All)
+			return settings.IsRaidableNow();
+
+		return false;
 	}
 
 	bool IsLastStage()

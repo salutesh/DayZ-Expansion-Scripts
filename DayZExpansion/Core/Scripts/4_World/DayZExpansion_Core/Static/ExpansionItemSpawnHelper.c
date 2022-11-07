@@ -471,7 +471,7 @@ class ExpansionItemSpawnHelper
 	//! https://pastebin.com/FFuaPFiT, except without bugs :P
 	static EntityAI Clone(EntityAI src, bool recursively = true, InventoryLocation location = null)
 	{
-		int idx;
+		int i;
 
 		//! 1) create entity
 		EntityAI dst;
@@ -509,9 +509,9 @@ class ExpansionItemSpawnHelper
 			EntityAI cSrc;
 			InventoryLocation cLocation();
 			InventoryLocation dLocation();
-			for (idx = 0; idx < src.GetInventory().AttachmentCount(); idx++)
+			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
 			{
-				cSrc = src.GetInventory().GetAttachmentFromIndex(idx);
+				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
 				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
                 dLocation.SetAttachment(dst, null, cLocation.GetSlot());
 				Clone(cSrc, recursively, dLocation);
@@ -519,9 +519,9 @@ class ExpansionItemSpawnHelper
 
 			if (src.GetInventory().GetCargo())
 			{
-				for (idx = 0; idx < src.GetInventory().GetCargo().GetItemCount(); idx++)
+				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
 				{
-					cSrc = src.GetInventory().GetCargo().GetItem(idx);
+					cSrc = src.GetInventory().GetCargo().GetItem(i);
 					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
 					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
 					Clone(cSrc, recursively, dLocation);
@@ -566,7 +566,16 @@ class ExpansionItemSpawnHelper
 		Magazine srcMag;
 		Magazine dstMag;
 		if (Class.CastTo(srcMag, src) && Class.CastTo(dstMag, dst))
-			dstMag.ServerSetAmmoCount(srcMag.GetAmmoCount());
+		{
+			dstMag.ServerSetAmmoCount(0);
+			for (i = 0; i < srcMag.GetAmmoCount(); i++)
+			{
+				float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
+				string cartTypeName;
+				srcMag.GetCartridgeAtIndex(i, damage, cartTypeName);
+				dstMag.ServerStoreCartridge(damage, cartTypeName);
+			}
+		}
 
 		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
 		Car srcCar;
@@ -574,7 +583,7 @@ class ExpansionItemSpawnHelper
 		if (Class.CastTo(srcCar, src) && Class.CastTo(dstCar, dst))
 		{
 			CarFluid fluid;
-			for (int i = 0; i < EnumTools.GetEnumSize(CarFluid); i++)
+			for (i = 0; i < EnumTools.GetEnumSize(CarFluid); i++)
 			{
 				fluid = EnumTools.GetEnumValue(CarFluid, i);
 				dstCar.Fill(fluid, srcCar.GetFluidFraction(fluid) * dstCar.GetFluidCapacity(fluid));

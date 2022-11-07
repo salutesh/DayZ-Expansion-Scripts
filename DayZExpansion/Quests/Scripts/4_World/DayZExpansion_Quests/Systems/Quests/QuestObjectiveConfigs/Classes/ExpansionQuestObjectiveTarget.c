@@ -72,19 +72,19 @@ class ExpansionQuestObjectiveTarget
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - Amount: " + Amount);
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - Amount: " + Amount);
 		int i;
 		for (i = 0; i < ClassNames.Count(); i++)
 		{
-			CF_Log.Debug(ToString() + "::QuestDebug - ClassName" + i + ": " +ClassNames[i]);
+			Print(ToString() + "::QuestDebug - ClassName" + i + ": " +ClassNames[i]);
 		}
-		CF_Log.Debug(ToString() + "::QuestDebug - SpecialWeapon: " + SpecialWeapon);
+		Print(ToString() + "::QuestDebug - SpecialWeapon: " + SpecialWeapon);
 		for (i = 0; i < AllowedWeapons.Count(); i++)
 		{
-			CF_Log.Debug(ToString() + "::QuestDebug - ClassName" + i + ": " + AllowedWeapons[i]);
+			Print(ToString() + "::QuestDebug - ClassName" + i + ": " + AllowedWeapons[i]);
 		}
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

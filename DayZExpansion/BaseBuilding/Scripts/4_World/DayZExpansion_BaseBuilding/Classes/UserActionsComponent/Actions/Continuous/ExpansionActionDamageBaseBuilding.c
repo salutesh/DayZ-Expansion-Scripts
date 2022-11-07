@@ -43,7 +43,7 @@ class ExpansionActionDamageBaseBuilding: ActionContinuousBase
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{	
 		Object target_obj = target.GetObject();
-		if ( target_obj.IsKindOf("ExpansionBaseBuilding") && item.IsMeleeWeapon())
+		if ( target_obj.IsKindOf("ExpansionBaseBuilding") && item.IsMeleeWeapon() && GetExpansionSettings().GetRaid().IsRaidableNow())
 		{
 			return true;
 		}

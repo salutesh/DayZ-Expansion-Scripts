@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveDelivery
 {
-	protected int Amount = -1;
+	protected int Amount = 0;
 	protected string ClassName = string.Empty;
 
 	void SetAmount(int amount)
@@ -55,10 +55,10 @@ class ExpansionQuestObjectiveDelivery
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - Amount: " + Amount);
-		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - Amount: " + Amount);
+		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

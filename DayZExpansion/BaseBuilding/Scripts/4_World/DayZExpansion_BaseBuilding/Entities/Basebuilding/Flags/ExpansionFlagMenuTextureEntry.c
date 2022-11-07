@@ -41,6 +41,15 @@ class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion ExpansionFlagMenuTextureEntry Destructor
+	// ------------------------------------------------------------
+	void ~ExpansionFlagMenuTextureEntry()
+	{
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

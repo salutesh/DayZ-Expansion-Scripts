@@ -65,17 +65,17 @@ modded class MissionGameplay
 			}
 		}
 
-		Man man 				= GetGame().GetPlayer(); 	//! Refernce to man
-		Input input 			= GetGame().GetInput(); 	//! Reference to input
-		UIScriptedMenu topMenu 	= m_UIManager.GetMenu(); 	//! Expansion reference to menu
-		PlayerBase playerPB 	= PlayerBase.Cast( man );	//! Expansion reference to player
-		ExpansionScriptViewMenu viewMenu 	= ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		Man man = GetGame().GetPlayer(); //! Refernce to man
+		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
+		InventoryMenu inventoryMenu; //! Inventory menu reference
+		PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
+		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 
 		if (playerPB && playerPB.GetHumanInventory())
 		{
 			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 			{
-				if (viewMenu || topMenu || m_Hud.IsHideHudPlayer())
+				if (viewMenu || topMenu && !Class.CastTo(inventoryMenu, topMenu) || m_Hud.IsHideHudPlayer())
 				{
 					m_ExpansionHardlineHUD.ShowHud(false);
 				}

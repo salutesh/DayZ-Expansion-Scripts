@@ -45,7 +45,7 @@ modded class ChatInputMenu
 	}
 
 	override bool OnChange(Widget w, int x, int y, bool finished)
-	{				
+	{
 		if (!finished)
 			return false;
 
@@ -106,7 +106,7 @@ modded class ChatInputMenu
 			m_Chat.OnChatInputShow();
 	}
 
-	override bool OnMouseWheel(Widget w, int x, int y, int wheel)
+	/*override bool OnMouseWheel(Widget w, int x, int y, int wheel)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 		
@@ -118,7 +118,7 @@ modded class ChatInputMenu
 		//m_Chat.GetChatWindow().UpdateScroller();
 		
 		return true;
-	}
+	}*/
 	
 	override void OnHide()
 	{
@@ -129,5 +129,10 @@ modded class ChatInputMenu
 			
 		if (m_Chat)
 			m_Chat.OnChatInputHide();
+	}
+	
+	EditBoxWidget GetEditboxWidget()
+	{
+		return m_edit_box;
 	}
 };

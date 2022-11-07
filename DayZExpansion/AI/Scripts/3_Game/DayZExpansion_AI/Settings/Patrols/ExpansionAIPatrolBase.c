@@ -23,6 +23,8 @@ class ExpansionAISpawnBase
 	bool UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
 	float AccuracyMin;
 	float AccuracyMax;
+	float ThreatDistanceLimit;
+	float DamageMultiplier;
 
 	void ExpansionAISpawnBase(int bod = 1, string spd = "JOG", string threatspd = "SPRINT", string beh = "ALTERNATE", string fac = "WEST", string loa = "", bool canbelooted = true, bool unlimitedreload = false)
 	{
@@ -36,6 +38,8 @@ class ExpansionAISpawnBase
 		UnlimitedReload = unlimitedreload;
 		AccuracyMin = -1;
 		AccuracyMax = -1;
+		ThreatDistanceLimit = -1;
+		DamageMultiplier = -1;
 	}
 
 	float GetSpeed()

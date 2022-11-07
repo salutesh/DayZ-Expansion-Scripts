@@ -199,12 +199,6 @@ class ExpansionDeployableConstruction extends ItemBase
 {
 	float m_ConstructionKitHealth;
 	
-	void ExpansionDeployableConstruction()
-	{
-		if (GetGame().IsServer())
-			SetAllowDamage(CanBeDamaged());
-	}
-	
 	ItemBase CreateConstructionKit()
 	{
 		ItemBase construction_kit = ItemBase.Cast(GetGame().CreateObjectEx(GetConstructionKitType(), GetPosition(), ECE_PLACE_ON_SURFACE ));
@@ -222,16 +216,6 @@ class ExpansionDeployableConstruction extends ItemBase
 		if (m_ConstructionKitHealth > 0)
 		{
 			construction_kit.SetHealth(m_ConstructionKitHealth);
-		}
-	}
-	
-	override bool CanBeDamaged()
-	{
-		if (GetExpansionSettings().GetRaid().BaseBuildingRaidMode == 0)
-		{
-			return true;
-		} else {
-			return false;
 		}
 	}
 	

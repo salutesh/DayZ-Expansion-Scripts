@@ -113,6 +113,8 @@ class ExpansionAIPatrolManager
 
         auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
         dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
+        dynPatrol.SetThreatDistanceLimit(patrol.ThreatDistanceLimit);
+        dynPatrol.SetDamageMultiplier(patrol.DamageMultiplier);
         return dynPatrol;
     }
 

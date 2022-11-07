@@ -89,17 +89,17 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 	static ExpansionQuestPersistentServerData Load()
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestPersistentServerData] Load existing configuration file:" + EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE);
+		Print("[ExpansionQuestPersistentServerData] Load existing configuration file:" + EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE);
 
 		ExpansionQuestPersistentServerData data;
 		ExpansionQuestPersistentServerDataBase dataBase;
-		
+
 		if (!ExpansionJsonFileParser<ExpansionQuestPersistentServerDataBase>.Load(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, dataBase))
 			return NULL;
 
 		if (dataBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestPersistentServerData] Convert existing configuration file:" + EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestPersistentServerData] Convert existing configuration file:" + EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE + " to version " + CONFIGVERSION);
 			data = new ExpansionQuestPersistentServerData();
 			//! Copy over old configuration that haven't changed
 			data.CopyConfig(dataBase);

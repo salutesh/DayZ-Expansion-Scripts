@@ -119,18 +119,18 @@ class ExpansionQuestObjectiveAIPatrol
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCUnits: " + NPCUnits);
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - NPCUnits: " + NPCUnits);
 		for (int i = 0; i < Waypoints.Count(); ++i)
 		{
-			CF_Log.Debug(ToString() + "::QuestDebug - Waypoint" + i + " :" + Waypoints[i]);
+			Print(ToString() + "::QuestDebug - Waypoint" + i + " :" + Waypoints[i]);
 		}
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCSpeed: " + NPCSpeed);
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCSpeed: " + NPCMode);
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCFaction: " + NPCFaction);
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCFormation: " + NPCFormation);
-		CF_Log.Debug(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
-		CF_Log.Debug("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCSpeed);
+		Print(ToString() + "::QuestDebug - NPCSpeed: " + NPCMode);
+		Print(ToString() + "::QuestDebug - NPCFaction: " + NPCFaction);
+		Print(ToString() + "::QuestDebug - NPCFormation: " + NPCFormation);
+		Print(ToString() + "::QuestDebug - NPCLoadoutFile: " + NPCLoadoutFile);
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

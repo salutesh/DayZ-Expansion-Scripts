@@ -10,10 +10,12 @@
  *
 */
 
+
+
 /**@class		ExpansionHardlineSettingsBase
  * @brief		Hardline settings base class
  **/
-class ExpansionHardlineSettingsBase: ExpansionSettingBase
+class ExpansionHardlineSettingsV5: ExpansionSettingBase
 {
 	//! Rank requirements
 	int RankBambi;
@@ -51,6 +53,23 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	//! Events
 	int HumanityLossOnDeath;
 
+	bool UseHumanity;
+}
+
+/**@class		ExpansionHardlineSettings
+ * @brief		Hardline settings class
+ **/
+class ExpansionHardlineSettings: ExpansionSettingBase
+{
+	static const int VERSION = 6;
+	
+	int ReputationOnKillInfected;
+	int ReputationOnKillPlayer;
+	int ReputationOnKillAnimal;
+	int ReputationOnKillAI;
+	
+	int ReputationLossOnDeath;
+	
 	int PoorItemRequirement;
 	int CommonItemRequirement;
 	int UncommonItemRequirement;
@@ -59,49 +78,27 @@ class ExpansionHardlineSettingsBase: ExpansionSettingBase
 	int LegendaryItemRequirement;
 	int MythicItemRequirement;
 	int ExoticItemRequirement;
-
+	
 	bool ShowHardlineHUD;
-	bool UseHumanity;
-
-	// ------------------------------------------------------------
-	void ExpansionHardlineSettingsBase()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionHardlineSettingsBase");
-	#endif
-	}
-}
-
-class ExpansionHardlineSettingsV1: ExpansionHardlineSettingsBase
-{
-	autoptr array<ref ExpansionHardlineItemData> HardlineItemDatas;
-}
-
-class ExpansionHardlineSettingsV2: ExpansionHardlineSettingsBase
-{
-	bool UseItemRarity;
-}
-
-/**@class		ExpansionHardlineSettings
- * @brief		Hardline settings class
- **/
-class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
-{
-	static const int VERSION = 5;
-
+	bool UseReputation;
+	
 	bool EnableItemRarity;
 	bool UseItemRarityForMarketPurchase;
 	bool UseItemRarityForMarketSell;
 
 	//! Needs to be always last
 	ref map<string, ExpansionHardlineItemRarity> ItemRarity;
-
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
 	// ------------------------------------------------------------
 	void ExpansionHardlineSettings()
 	{
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionHardlineSettings");
+	#endif
+		
 		ItemRarity = new map<string, ExpansionHardlineItemRarity>;
 	}
 
@@ -111,154 +108,40 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 	#endif
-
-		if (!ctx.Read(RankBambi))
+		
+		if (!ctx.Read(ReputationOnKillInfected))
 		{
-			Error(ToString() + "::OnRecieve RankBambi");
-			return false;
-		}
-
-		if (!ctx.Read(RankSurvivor))
-		{
-			Error(ToString() + "::OnRecieve RankSurvivor");
-			return false;
-		}
-
-		if (!ctx.Read(RankScout))
-		{
-			Error(ToString() + "::OnRecieve RankScout");
-			return false;
-		}
-
-		if (!ctx.Read(RankPathfinder))
-		{
-			Error(ToString() + "::OnRecieve RankPathfinder");
-			return false;
-		}
-
-		if (!ctx.Read(RankHero))
-		{
-			Error(ToString() + "::OnRecieve RankHero");
-			return false;
-		}
-
-		if (!ctx.Read(RankSuperhero))
-		{
-			Error(ToString() + "::OnRecieve RankSuperhero");
-			return false;
-		}
-
-		if (!ctx.Read(RankLegend))
-		{
-			Error(ToString() + "::OnRecieve RankLegend");
-			return false;
-		}
-
-		if (!ctx.Read(RankKleptomaniac))
-		{
-			Error(ToString() + "::OnRecieve RankKleptomaniac");
-			return false;
-		}
-
-		if (!ctx.Read(RankBully))
-		{
-			Error(ToString() + "::OnRecieve RankBully");
-			return false;
-		}
-
-		if (!ctx.Read(RankBandit))
-		{
-			Error(ToString() + "::OnRecieve RankBandit");
-			return false;
-		}
-
-		if (!ctx.Read(RankKiller))
-		{
-			Error(ToString() + "::OnRecieve RankKiller");
-			return false;
-		}
-
-		if (!ctx.Read(RankMadman))
-		{
-			Error(ToString() + "::OnRecieve RankMadman");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityBandageTarget))
-		{
-			Error(ToString() + "::OnRecieve HumanityBandageTarget");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityDestroySafe))
-		{
-			Error(ToString() + "::OnRecieve HumanityDestroySafe");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityDestroyBarbedWire))
-		{
-			Error(ToString() + "::OnRecieve HumanityDestroyBarbedWire");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityDestroyBaseBuilding))
-		{
-			Error(ToString() + "::OnRecieve HumanityDestroyBaseBuilding");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityDestroyLock))
-		{
-			Error(ToString() + "::OnRecieve HumanityDestroyBaseBuilding");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityOnKillInfected))
-		{
-			Error(ToString() + "::OnRecieve HumanityOnKillInfected");
-			return false;
-		}
-
-		if (!ctx.Read(HumanityOnKillAI))
-		{
-			Error(ToString() + "::OnRecieve HumanityOnKillAI");
+			Error(ToString() + "::OnRecieve ReputationOnKillInfected");
 			return false;
 		}
 		
-		if (!ctx.Read(HumanityOnKillAnimal))
+		if (!ctx.Read(ReputationOnKillPlayer))
 		{
-			Error(ToString() + "::OnRecieve HumanityOnKillAI");
+			Error(ToString() + "::OnRecieve ReputationOnKillPlayer");
 			return false;
 		}
-
-		if (!ctx.Read(HumanityOnKillBambi))
+		
+		if (!ctx.Read(ReputationOnKillAnimal))
 		{
-			Error(ToString() + "::OnRecieve HumanityOnKillBambi");
+			Error(ToString() + "::OnRecieve ReputationOnKillAnimal");
 			return false;
 		}
-
-		if (!ctx.Read(HumanityOnKillHero))
+		
+		if (!ctx.Read(ReputationOnKillAI))
 		{
-			Error(ToString() + "::OnRecieve HumanityOnKillHero");
+			Error(ToString() + "::OnRecieve ReputationOnKillAI");
 			return false;
 		}
-
-		if (!ctx.Read(HumanityOnKillBandit))
+		
+		if (!ctx.Read(ReputationLossOnDeath))
 		{
-			Error(ToString() + "::OnRecieve HumanityOnKillBandit");
+			Error(ToString() + "::OnRecieve ReputationLossOnDeath");
 			return false;
 		}
-
-		if (!ctx.Read(HumanityLossOnDeath))
-		{
-			Error(ToString() + "::OnRecieve HumanityLossOnDeath");
-			return false;
-		}
-
+		
 		if (!ctx.Read(PoorItemRequirement))
 		{
-			Error(ToString() + "::OnRecieve HumanityLossOnDeath");
+			Error(ToString() + "::OnRecieve PoorItemRequirement");
 			return false;
 		}
 
@@ -310,7 +193,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			return false;
 		}
 
-		if (!ctx.Read(UseHumanity))
+		if (!ctx.Read(UseReputation))
 		{
 			Error(ToString() + "::OnRecieve UseHumanity");
 			return false;
@@ -346,39 +229,13 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
 	#endif
 
-
-		//! Rank requirements
-		ctx.Write(RankBambi);
-		ctx.Write(RankSurvivor);
-
-		//! Hero ranks
-		ctx.Write(RankScout);
-		ctx.Write(RankPathfinder);
-		ctx.Write(RankHero);
-		ctx.Write(RankSuperhero);
-		ctx.Write(RankLegend);
-
-		//! Bandit ranks
-		ctx.Write(RankKleptomaniac);
-		ctx.Write(RankBully);
-		ctx.Write(RankBandit);
-		ctx.Write(RankKiller);
-		ctx.Write(RankMadman);
-
-		ctx.Write(HumanityBandageTarget);
-		ctx.Write(HumanityDestroySafe);
-		ctx.Write(HumanityDestroyBarbedWire);
-		ctx.Write(HumanityDestroyBaseBuilding);
-		ctx.Write(HumanityDestroyLock);
-
-		ctx.Write(HumanityOnKillInfected);
-		ctx.Write(HumanityOnKillAI);
-		ctx.Write(HumanityOnKillAnimal);
-		ctx.Write(HumanityOnKillBambi);
-		ctx.Write(HumanityOnKillHero);
-		ctx.Write(HumanityOnKillBandit);
-		ctx.Write(HumanityLossOnDeath);
-
+		ctx.Write(ReputationOnKillInfected);
+		ctx.Write(ReputationOnKillPlayer);
+		ctx.Write(ReputationOnKillAnimal);
+		ctx.Write(ReputationOnKillAI);
+		
+		ctx.Write(ReputationLossOnDeath);
+		
 		ctx.Write(PoorItemRequirement);
 		ctx.Write(CommonItemRequirement);
 		ctx.Write(UncommonItemRequirement);
@@ -389,7 +246,8 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		ctx.Write(ExoticItemRequirement);
 
 		ctx.Write(ShowHardlineHUD);
-		ctx.Write(UseHumanity);
+		ctx.Write(UseReputation);
+		
 		ctx.Write(EnableItemRarity);
 		ctx.Write(UseItemRarityForMarketPurchase);
 		ctx.Write(UseItemRarityForMarketSell);
@@ -418,51 +276,14 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
+		
+		ReputationOnKillInfected = s.ReputationOnKillInfected;
+		ReputationOnKillPlayer = s.ReputationOnKillPlayer;
+		ReputationOnKillAnimal = s.ReputationOnKillAnimal;
+		ReputationOnKillAI = s.ReputationOnKillAI;
 
-		EnableItemRarity = s.EnableItemRarity;
-		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
-		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
-
-		ItemRarity = s.ItemRarity;
-
-		ExpansionHardlineSettingsBase sb = s;
-		CopyInternal( sb );
-	}
-
-	private void CopyInternal( ExpansionHardlineSettingsBase s )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
-
-		RankBambi = s.RankBambi;
-		RankSurvivor = s.RankSurvivor;
-		RankScout = s.RankScout;
-		RankPathfinder = s.RankPathfinder;
-		RankHero = s.RankHero;
-		RankSuperhero = s.RankSuperhero;
-		RankLegend = s.RankLegend;
-		RankKleptomaniac = s.RankKleptomaniac;
-		RankBully = s.RankBully;
-		RankBandit = s.RankBandit;
-		RankKiller = s.RankKiller;
-		RankMadman = s.RankMadman;
-
-		HumanityBandageTarget = s.HumanityBandageTarget;
-		HumanityDestroySafe = s.HumanityDestroySafe;
-		HumanityDestroyBarbedWire = s.HumanityDestroyBarbedWire;
-		HumanityDestroyBaseBuilding = s.HumanityDestroyBaseBuilding;
-		HumanityDestroyLock = s.HumanityDestroyLock;
-
-		HumanityOnKillInfected = s.HumanityOnKillInfected;
-		HumanityOnKillAI = s.HumanityOnKillAI;
-		HumanityOnKillAnimal = s.HumanityOnKillAnimal;
-		HumanityOnKillBambi = s.HumanityOnKillBambi;
-		HumanityOnKillHero = s.HumanityOnKillHero;
-		HumanityOnKillBandit = s.HumanityOnKillBandit;
-
-		HumanityLossOnDeath = s.HumanityLossOnDeath;
-
+		ReputationLossOnDeath = s.ReputationLossOnDeath;
+		
 		PoorItemRequirement = s.PoorItemRequirement;
 		CommonItemRequirement = s.CommonItemRequirement;
 		UncommonItemRequirement = s.UncommonItemRequirement;
@@ -473,7 +294,13 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		ExoticItemRequirement = s.ExoticItemRequirement;
 
 		ShowHardlineHUD = s.ShowHardlineHUD;
-		UseHumanity = s.UseHumanity;
+		UseReputation = s.UseReputation;
+		
+		EnableItemRarity = s.EnableItemRarity;
+		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
+		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
+
+		ItemRarity = s.ItemRarity;
 	}
 
 	// ------------------------------------------------------------
@@ -507,63 +334,26 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 			ExpansionHardlineSettings settingsDefault = new ExpansionHardlineSettings;
 			settingsDefault.Defaults();
 
-			ExpansionHardlineSettingsBase settingsBase;
-			JsonFileLoader<ExpansionHardlineSettingsBase>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settingsBase);
-			if (settingsBase.m_Version < VERSION)
+			ExpansionJsonFileParser<ExpansionHardlineSettings>.Load(EXPANSION_HARDLINE_SETTINGS, this);
+			if (m_Version < VERSION)
 			{
-				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
+				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 2)
+				if (m_Version < 6)
 				{
-					//! Copy over old settings that haven't changed
-					CopyInternal(settingsBase);
-
-					ExpansionHardlineSettingsV1 settingsV1;
-					JsonFileLoader<ExpansionHardlineSettingsV1>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settingsV1);
-
-					foreach (ExpansionHardlineItemData itemData: settingsV1.HardlineItemDatas)
+					ExpansionHardlineSettingsV5 settingsV5;
+					if (ExpansionJsonFileParser<ExpansionHardlineSettingsV5>.Load(EXPANSION_HARDLINE_SETTINGS, settingsV5))
 					{
-						if (!itemData.ClassName)
-							continue;
-
-						AddItem(itemData.ClassName, itemData.Rarity);
+						ReputationOnKillInfected = settingsV5.HumanityOnKillInfected;
+						ReputationOnKillPlayer = (settingsV5.HumanityOnKillBambi + settingsV5.HumanityOnKillBandit + settingsV5.HumanityOnKillHero) / 3;
+						ReputationOnKillAnimal = settingsV5.HumanityOnKillAnimal;
+						ReputationOnKillAI = settingsV5.HumanityOnKillAI;
+						UseReputation = settingsV5.UseHumanity;
 					}
-				}
-				else
-				{
-					JsonFileLoader<ExpansionHardlineSettings>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, this);
-				}
-
-				if (settingsBase.m_Version < 3)
-				{
-					ExpansionHardlineSettingsV2 settingsV2;
-					JsonFileLoader<ExpansionHardlineSettingsV2>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, settingsV2);
-
-					EnableItemRarity = settingsV2.UseItemRarity;
-					UseItemRarityForMarketPurchase = settingsV2.UseItemRarity;
-					UseItemRarityForMarketSell = settingsV2.UseItemRarity;
-				}
-
-				if (settingsBase.m_Version < 4)
-				{
-					HumanityDestroySafe = settingsDefault.HumanityDestroySafe;
-					HumanityDestroyBarbedWire = settingsDefault.HumanityDestroyBarbedWire;
-					HumanityDestroyBaseBuilding = settingsDefault.HumanityDestroyBaseBuilding;
-					HumanityDestroyLock = settingsDefault.HumanityDestroyLock;
-				}
-
-				if (settingsBase.m_Version < 5)
-				{
-					HumanityOnKillAnimal = settingsDefault.HumanityOnKillAnimal;
-					HumanityLossOnDeath = settingsDefault.HumanityLossOnDeath;
 				}
 
 				m_Version = VERSION;
 				save = true;
-			}
-			else
-			{
-				JsonFileLoader<ExpansionHardlineSettings>.JsonLoadFile(EXPANSION_HARDLINE_SETTINGS, this);
 			}
 		}
 		else
@@ -615,42 +405,13 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 	{
 		m_Version = VERSION;
 
-		//! Rank requirements
-		RankBambi = 0;
-		RankSurvivor = 0;
-
-		//! Hero ranks
-		RankScout = 1000;
-		RankPathfinder = 2000;
-		RankHero = 3000;
-		RankSuperhero = 4000;
-		RankLegend = 5000;
-
-		//! Bandit ranks
-		RankKleptomaniac = -1000;
-		RankBully = -2000;
-		RankBandit = -3000;
-		RankKiller = -4000;
-		RankMadman = -5000;
-
-		//! Actions
-		HumanityBandageTarget = 10;
-		HumanityDestroySafe = -100;
-		HumanityDestroyBarbedWire = -10;
-		HumanityDestroyBaseBuilding = -50;
-		HumanityDestroyLock = -50;
-
-		//! Targets
-		HumanityOnKillInfected = 10;
-		HumanityOnKillAI = 10;
-		HumanityOnKillAnimal = 5;
-		HumanityOnKillBambi = 10;
-		HumanityOnKillHero = 10;
-		HumanityOnKillBandit = 10;
-
-		//! Events
-		HumanityLossOnDeath = 100;
-
+		ReputationOnKillInfected = 5;
+		ReputationOnKillPlayer = 10;
+		ReputationOnKillAnimal = 5;
+		ReputationOnKillAI = 10;
+		
+		ReputationLossOnDeath = 100;
+		
 		//! Item rarity rank requirements
 		PoorItemRequirement = 0;
 		CommonItemRequirement = 0;
@@ -662,7 +423,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		ExoticItemRequirement = 10000;
 
 		ShowHardlineHUD = true;
-		UseHumanity = true;
+		UseReputation = true;
 		EnableItemRarity = true;
 		UseItemRarityForMarketPurchase = true;
 		UseItemRarityForMarketSell = true;
@@ -1564,70 +1325,7 @@ class ExpansionHardlineSettings: ExpansionHardlineSettingsBase
 		return ExpansionHardlineItemRarity.NONE;
 	}
 
-	ExpansionHardlineRank GetRank(int humanity)
-	{
-		ExpansionHardlineRank rank;
-		ExpansionHardlineRank maxRank;
-		int rankReq;
-		int maxRankReq;
-
-		GetRankRange(humanity, humanity, rank, maxRank, rankReq, maxRankReq);
-
-		return rank;
-	}
-
-	void GetRankRange(int minHumanity, int maxHumanity, out ExpansionHardlineRank minRank, out ExpansionHardlineRank maxRank, out int minRankReq, out int maxRankReq)
-	{
-		typename type = ExpansionHardlineRank;
-		int rankCount = type.GetVariableCount();
-
-		minRank = ExpansionHardlineRank.INVALID;
-		maxRank = ExpansionHardlineRank.INVALID;
-
-		for (int i = 0; i < rankCount; i++)
-		{
-			int rank = EnumTools.GetEnumValue(ExpansionHardlineRank, i);
-			if (rank == ExpansionHardlineRank.INVALID)
-				continue;
-
-			int rankReq = GetHumanityForRank(rank);
-
-			RankCheck(minHumanity, rank, rankReq, minRank, minRankReq);
-			if (minHumanity != maxHumanity)
-				RankCheck(maxHumanity, rank, rankReq, maxRank, maxRankReq);
-		}
-
-		if (minHumanity == maxHumanity)
-		{
-			maxRank = minRank;
-			maxRankReq = minRankReq;
-		}
-	}
-
-	void RankCheck(int humanity, ExpansionHardlineRank rank, int rankReq, inout ExpansionHardlineRank rankOut, inout int rankReqOut)
-	{
-		int sign;
-		if (humanity < 0)
-			sign = -1;
-		else
-			sign = 1;
-
-		if (humanity * sign >= rankReq * sign && (rankOut == ExpansionHardlineRank.INVALID || rankReq * sign > rankReqOut * sign))
-		{
-			rankOut = rank;
-			rankReqOut = rankReq;
-		}
-	}
-
-	int GetHumanityForRank(ExpansionHardlineRank rank)
-	{
-		string rankName = typename.EnumToString(ExpansionHardlineRank, rank);
-		int rankReq;
-		EnScript.GetClassVar(this, "Rank" + rankName, 0, rankReq);
-		return rankReq;
-	}
-
-	int GetHumanityForRarity(ExpansionHardlineItemRarity rarity)
+	int GetReputationForRarity(ExpansionHardlineItemRarity rarity)
 	{
 		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
 		int rarityReq;

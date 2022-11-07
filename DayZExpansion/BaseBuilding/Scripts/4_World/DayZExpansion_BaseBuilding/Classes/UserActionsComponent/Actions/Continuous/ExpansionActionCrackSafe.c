@@ -35,7 +35,7 @@ class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 		if ( !safe || !safe.ExpansionIsLocked() )
 			return false;
 
-		if ( GetExpansionSettings().GetRaid().SafeRaidTools.Find( item.GetType() ) == -1 )
+		if ( !ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetRaid().SafeRaidTools) )
 			return false;
 
 		return true;
@@ -43,6 +43,7 @@ class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 
 	override bool CanBeDestroyed( Object targetObject )
 	{
-		return GetExpansionSettings().GetRaid().CanRaidSafes;
+		auto settings = GetExpansionSettings().GetRaid();
+		return settings.CanRaidSafes && settings.IsRaidableNow();
 	}
 }

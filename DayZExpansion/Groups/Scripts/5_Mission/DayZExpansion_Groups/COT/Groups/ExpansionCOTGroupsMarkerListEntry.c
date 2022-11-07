@@ -40,6 +40,12 @@ class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
 		SetEntry();
 	}
 	
+	void ~ExpansionCOTGroupsMarkerListEntry()
+	{
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsMarkerListEntry SetEntry
 	// ------------------------------------------------------------

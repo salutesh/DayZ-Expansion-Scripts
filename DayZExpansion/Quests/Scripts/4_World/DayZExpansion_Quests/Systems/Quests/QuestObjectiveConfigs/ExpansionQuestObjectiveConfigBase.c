@@ -10,18 +10,14 @@
  *
 */
 
-class ExpansionQuestObjectiveConfigBase
+class ExpansionQuestObjectiveConfig
 {
+	static const int CONFIGVERSION = 11;
 	int ConfigVersion;
 	int ID = -1; //! Unique objective ID
 	int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
 	string ObjectiveText = string.Empty;
 	int TimeLimit = - 1;
-};
-
-class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
-{
-	static const int CONFIGVERSION = 10;
 
 	void ExpansionQuestObjectiveConfig()
 	{
@@ -66,11 +62,6 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	int GetTimeLimit()
 	{
 		return TimeLimit;
-	}
-
-	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
-	{
-		return NULL;
 	}
 
 	int GetAmount()
@@ -133,7 +124,7 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 		return false;
 	}
 
-	ExpansionQuestObjectiveCollection GetCollection()
+	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
 	{
 		return NULL;
 	}
@@ -160,15 +151,17 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 	}
 #endif
 
-	void Save(string fileName);
-
-	void CopyConfig(ExpansionQuestObjectiveConfigBase configBase)
+	array<string> GetAllowedClassNames()
 	{
-		ID = configBase.ID;
-		ObjectiveType = configBase.ObjectiveType;
-		ObjectiveText = configBase.ObjectiveText;
-		TimeLimit = configBase.TimeLimit;
+		return NULL;
 	}
+
+	array<string> GetExcludedClassNames()
+	{
+		return NULL;
+	}
+	
+	void Save(string fileName);
 
 	void OnSend(ParamsWriteContext ctx)
 	{
@@ -195,15 +188,30 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 		return true;
 	}
 
+	bool Validate()
+	{
+		if (ConfigVersion != CONFIGVERSION)
+			return false;
+
+		if (ID <= -1)
+			return false;
+
+		if (ObjectiveType == ExpansionQuestObjectiveType.NONE)
+			return false;
+
+		return true;
+	}
+
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - Objective ID: " + ID);
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
-		CF_Log.Debug(ToString() + "::QuestDebug - ObjectiveText: " + ObjectiveText);
-		CF_Log.Debug(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - Objective config version: " + ConfigVersion);
+		Print(ToString() + "::QuestDebug - Objective ID: " + ID);
+		Print(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
+		Print(ToString() + "::QuestDebug - ObjectiveText: " + ObjectiveText);
+		Print(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

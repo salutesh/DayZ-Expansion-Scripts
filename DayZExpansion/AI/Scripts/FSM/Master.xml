@@ -134,6 +134,9 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
+				if (behaviour == eAIWaypointBehavior.HALT)
+					return EXIT;
+				
 				index = unit.GetGroup().m_CurrentWaypointIndex;
 				backtracking = unit.GetGroup().m_BackTracking;
 				float distance = vector.DistanceSq(unit.GetPosition(), path[index]);
@@ -352,7 +355,7 @@
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				time = 0;
 				
-				unit.Expansion_CloneItemToHands(item);
+				unit.eAI_TakeItemToHands(item);
 			</event_entry>
 			<event_exit />
 			<event_update>

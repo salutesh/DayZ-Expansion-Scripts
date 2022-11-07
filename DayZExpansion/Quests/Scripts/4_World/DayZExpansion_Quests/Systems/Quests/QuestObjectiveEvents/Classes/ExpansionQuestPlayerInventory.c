@@ -45,7 +45,7 @@ class ExpansionQuestsPlayerInventory
 			if (Class.CastTo(dogTag, item))
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				CF_Log.Debug(ToString() + "::AddPlayerItems - Item is Dogtag");
+				Print(ToString() + "::AddPlayerItems - Item is Dogtag");
 			#endif
 				int slotId = InventorySlots.GetSlotIdFromString("Dogtag");
 				Dogtag_Base playerDogTag;
@@ -55,12 +55,15 @@ class ExpansionQuestsPlayerInventory
 					if (dogTag == playerDogTag)
 					{
 					#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-						CF_Log.Debug(ToString() + "::AddPlayerItems - Dogtag is players dogtag! Don't add!");
+						Print(ToString() + "::AddPlayerItems - Dogtag is players dogtag! Don't add!");
 					#endif
 						continue;
 					}
 				}
 			}
+		#endif
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AddPlayerItems - Add item: " + item.GetType());
 		#endif
 
 			m_Inventory.Insert(item);
@@ -74,11 +77,16 @@ class ExpansionQuestsPlayerInventory
 
 		foreach (EntityAI item: m_Inventory)
 		{
-			if (!item)
-				continue;
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::HasItem - Check item: " + item.GetType() + " | Comparte with: " + typeName);
+		#endif
 
-			if (item.IsKindOf(typeName) || item.ClassName() == typeName)
+			if (item.GetType() == typeName || item.ClassName() == typeName || item.IsKindOf(typeName))
 			{
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+				Print(ToString() + "::HasItem - Add item: " + item.GetType());
+			#endif
+
 				items.Insert(item);
 			}
 		}

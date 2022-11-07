@@ -33,6 +33,8 @@ class eAIBase extends PlayerBase
 	float m_eAI_PreviousThreatToSelfActive;
 	float m_eAI_AccuracyMin;
 	float m_eAI_AccuracyMax;
+	float m_eAI_ThreatDistanceLimit;
+	float m_eAI_DamageMultiplier;
 
 	// Command handling
 	private ExpansionHumanCommandScript m_eAI_Command;
@@ -139,6 +141,8 @@ class eAIBase extends PlayerBase
 			AI_HANDLEVAULTING = GetExpansionSettings().GetAI().Vaulting;
 
 		SetEventMask(EntityEvent.INIT);
+
+		RegisterNetSyncVariableBool("m_Expansion_CanBeLooted");
 	}
 
 	static eAIBase Get(int index)
@@ -179,6 +183,8 @@ class eAIBase extends PlayerBase
 		if (GetGame().IsServer())
 		{
 			eAI_SetAccuracy(-1, -1);
+			eAI_SetThreatDistanceLimit(-1);
+			eAI_SetDamageMultiplier(-1);
 
 #ifndef EAI_USE_LEGACY_PATHFINDING
 			m_PathFinding = new ExpansionPathHandler(this);
@@ -676,6 +682,32 @@ class eAIBase extends PlayerBase
 		EXTrace.Add(trace, m_eAI_AccuracyMax);
 	}
 
+	void eAI_SetThreatDistanceLimit(float distance)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+		EXTrace.Add(trace, distance);
+
+		if (distance <= 0)
+			distance = GetExpansionSettings().GetAI().ThreatDistanceLimit;
+
+		m_eAI_ThreatDistanceLimit = distance;
+
+		EXTrace.Add(trace, distance);
+	}
+
+	void eAI_SetDamageMultiplier(float multiplier)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+		EXTrace.Add(trace, multiplier);
+
+		if (multiplier <= 0)
+			multiplier = GetExpansionSettings().GetAI().DamageMultiplier;
+
+		m_eAI_DamageMultiplier = multiplier;
+
+		EXTrace.Add(trace, multiplier);
+	}
+
 	bool IsInMelee()
 	{
 		return m_eAI_MeleeTimeout > 0;
@@ -870,6 +902,10 @@ class eAIBase extends PlayerBase
 		if (eAI_IsPassive())
 			return;
 
+#ifdef DIAG
+		auto hitch = EXHitch(ToString() + "::UpdateTargets ", 20000);
+#endif
+
 		vector center = GetPosition();
 
 		m_eAI_UpdateTargetsTick += pDt;
@@ -1021,6 +1057,10 @@ class eAIBase extends PlayerBase
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "PrioritizeTargets");
+#endif
+
+#ifdef DIAG
+		auto hitch = EXHitch(ToString() + "::PrioritizeTargets ", 20000);
 #endif
 
 		auto target = m_eAI_Targets[0];
@@ -1652,7 +1692,7 @@ class eAIBase extends PlayerBase
 
 		OnScheduledTick(pDt);
 
-		//! Do FSM update only after delay, else initial gun holding will look scuffed
+		//! Do FSM update only after current command has been running for at least one command handler tick, else initial gun holding will look scuffed
 		if (m_FSM && m_eAI_CommandTime > pDt)
 			m_FSM.Update(pDt, simulationPrecision);
 
@@ -2072,6 +2112,9 @@ class eAIBase extends PlayerBase
 		if (!state.m_LOS)
 			return false;
 
+		//float targetDistSq = vector.DistanceSq(begPos, endPos);
+		float contactToTargetDistSq = vector.DistanceSq(contactPos, endPos);
+
 		DayZPlayerImplement player;
 
 		bool sideStep;
@@ -2079,9 +2122,10 @@ class eAIBase extends PlayerBase
 		state.m_LOS = false;
 		foreach (Object obj: results)
 		{
-			if (obj.IsTree())
+			//! Tree with player more than 2 m away from contact pos
+			if (obj.IsTree() && contactToTargetDistSq > 4 && !state.m_SearchPositionUpdateCount)
 			{
-				sideStep = m_eAI_CurrentThreatToSelfActive >= 0.4;
+				sideStep = state.m_ThreatLevelActive >= 0.4;
 				break;
 			}
 
@@ -2107,9 +2151,9 @@ class eAIBase extends PlayerBase
 
 			if (obj != targetEntity && obj != parent)
 			{
-				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase))
+				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4))
 					state.m_LOS = true;
-				//! If object is zombie or animal but not the target, we don't care if they get shot when they are in the way
+				//! If object is zombie, animal or tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
 				break;
 			}
 			else
@@ -2591,7 +2635,6 @@ class eAIBase extends PlayerBase
 		eAI_TakeItemToLocation(item, il_dst);
 	}
 
-	//! @note possible cause of weird animation glitches (stretched/deformed limbs), use Expansion_CloneItemToHands instead
 	bool eAI_TakeItemToHands(EntityAI item)
 	{
 		InventoryLocation il_dst = new InventoryLocation();

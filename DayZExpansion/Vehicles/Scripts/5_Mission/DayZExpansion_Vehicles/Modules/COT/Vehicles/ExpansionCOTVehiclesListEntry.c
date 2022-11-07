@@ -42,6 +42,15 @@ class ExpansionCOTVehiclesListEntry extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion ExpansionCOTVehiclesListEntry Destructor
+	// ------------------------------------------------------------
+	void ~ExpansionCOTVehiclesListEntry()
+	{
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion SetEntry
 	// ------------------------------------------------------------
 	void SetEntry()

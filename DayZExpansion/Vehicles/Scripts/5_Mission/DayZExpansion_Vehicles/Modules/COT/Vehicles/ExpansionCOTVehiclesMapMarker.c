@@ -67,6 +67,17 @@ class ExpansionCOTVehiclesMapMarker extends ScriptedWidgetEventHandler
 	}
 	
 	// ------------------------------------------------------------
+	// Expansion ExpansionCOTVehiclesMapMarker Deconstructor
+	// ------------------------------------------------------------
+	void ~ExpansionCOTVehiclesMapMarker()
+	{
+		StopUpdateTimer();
+		
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion ChangeColor
 	// ------------------------------------------------------------
 	void ChangeColor(int color)

@@ -10,64 +10,15 @@
  *
 */
 
-class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
+class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEventBase
 {
-	protected float m_UpdateQueueTimer;
-	protected const float UPDATE_TICK_TIME = 2.0;
-	protected ref ExpansionQuestsPlayerInventory m_PlayerEntityInventory;
-	protected ref array<EntityAI> m_PlayerItems;
-#ifdef EXPANSIONMODGROUPS
-	protected ref ExpansionQuestsGroupInventory m_GroupEntityInventory;
-	protected ref array<EntityAI> m_GroupItems;
-#endif
-
-	protected int m_UpdateCount;
-
-	override bool OnStart()
-	{
-		if (!super.OnStart())
-			return false;
-
-		CollectionEventStart();
-
-		return true;
-	}
-
 	override bool OnTurnIn()
 	{
-		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
-		if (!collection)
-			return false;
-
-		int amountToDelete = collection.GetAmount();
-		if (!GetQuest().IsGroupQuest())
-		{
-			foreach (EntityAI item: m_PlayerItems)
-			{
-				if (amountToDelete > 0)
-				{
-					DeleteCollectionItem(item, amountToDelete);
-				}
-
-				if (amountToDelete == 0)
-					break;
-			}
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else if (GetQuest().IsGroupQuest())
-		{
-			foreach (EntityAI groupItem: m_GroupItems)
-			{
-				if (amountToDelete > 0)
-				{
-					DeleteCollectionItem(groupItem, amountToDelete);
-				}
-
-				if (amountToDelete == 0)
-					break;
-			}
-		}
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnTurnIn");
 	#endif
+
+		CleanupCollectionItems();
 
 		if (!super.OnTurnIn())
 			return false;
@@ -75,69 +26,27 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	override bool OnContinue()
+	override bool OnEventStart(bool continues = false)
 	{
-		if (!super.OnContinue())
-			return false;
-
-		CollectionEventStart();
-
-		return true;
-	}
-
-	protected void CollectionEventStart()
-	{
-		if (!m_PlayerItems)
-			m_PlayerItems = new array<EntityAI>;
-
-	#ifdef EXPANSIONMODGROUPS
-		if (!m_GroupItems)
-			m_GroupItems = new array<EntityAI>;
-	#endif
-
 		if (!GetQuest().IsGroupQuest())
 		{
+			if (!m_PlayerItems)
+				m_PlayerItems = new array<EntityAI>;
+
 			EnumeratePlayerInventory(GetQuest().GetPlayer());
 		}
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
+			if (!m_GroupItems)
+				m_GroupItems = new array<EntityAI>;
+
 			EnumerateGroupInventory(GetQuest().GetGroup());
 		}
 	#endif
-	
-	#ifdef EXPANSIONMODNAVIGATION
-		vector playerPos = GetQuest().GetPlayer().GetPosition();
-		Object target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), playerPos);
-		if (!target)
-			return;
-		
-		vector markerPosition = target.GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
-		if (markerName != string.Empty || markerPosition != vector.Zero)
-			GetQuest().CreateClientMarker(markerPosition, markerName);
-	#endif
-	}
-	
-#ifdef EXPANSIONMODNAVIGATION
-	override void OnRecreateClientMarkers()
-	{
-		super.OnRecreateClientMarkers();
 
-		if (GetQuest().GetQuestState() == ExpansionQuestState.STARTED)
-		{
-			vector playerPos = GetQuest().GetPlayer().GetPosition();
-			Object target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), playerPos);
-			if (!target)
-				return;
-			
-			vector markerPosition = target.GetPosition();
-			string markerName = GetObjectiveConfig().GetMarkerName();
-			if (markerName != string.Empty || markerPosition != vector.Zero)
-				GetQuest().CreateClientMarker(markerPosition, markerName);
-		}
+		return true;
 	}
-#endif
 
 	protected void DeleteCollectionItem(EntityAI item, inout int amountToDelete)
 	{
@@ -154,214 +63,64 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	bool HasAllCollectionItems()
+	protected void CleanupCollectionItems()
 	{
-		if (m_PlayerItems)
-			m_PlayerItems.Clear();
+		ObjectivePrint(ToString() + "::CleanupCollectionItems - Start");
 
-		if (!m_PlayerItems)
-			m_PlayerItems = new array<EntityAI>;
-
-		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
-		if (!collection)
-			return false;
-
-		array<EntityAI> items = new array<EntityAI>;
-		if (m_PlayerEntityInventory && m_PlayerEntityInventory.HasItem(collection.GetClassName(), items))
+		array<ref ExpansionQuestObjectiveDelivery> collections = GetObjectiveConfig().GetDeliveries();
+		int amountToDelete;
+		string name;
+		if (!GetQuest().IsGroupQuest())
 		{
-			if (!items)
-				return false;
-
-			int currentCount;
-			foreach (EntityAI item: items)
+			foreach (ExpansionQuestObjectiveDelivery collection: collections)
 			{
-				int itemCount = GetItemAmount(item);
-				currentCount += itemCount;
-				if (itemCount > 0)
+				amountToDelete = collection.GetAmount();
+				name = collection.GetClassName();
+
+				ObjectivePrint(ToString() + "::CleanupCollectionItems - Search for collection Item: " + name + " | Amount to delete: " + amountToDelete);
+
+				foreach (EntityAI item: m_PlayerItems)
 				{
-					m_PlayerItems.Insert(item);
+					ObjectivePrint(ToString() + "::CleanupCollectionItems - Check item: " + item.GetType());
+					if ((name == item.GetType() || name == item.ClassName() || item.IsKindOf(name)) && amountToDelete > 0)
+					{
+						ObjectivePrint(ToString() + "::CleanupCollectionItems - Clean up collection item: " + item.GetType() + " | Amount: " + amountToDelete);
+						DeleteCollectionItem(item, amountToDelete);
+						ObjectivePrint(ToString() + "::CleanupCollectionItems - Cleaned up collection item: " + item.GetType() + " | Amount left: " + amountToDelete);
+					}
 				}
 			}
-
-			if (currentCount >= collection.GetAmount())
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-#ifdef EXPANSIONMODGROUPS
-	bool HasGroupAllCollectionItems()
-	{
-		if (m_GroupItems)
-			m_GroupItems.Clear();
-
-		if (!m_GroupItems)
-			m_GroupItems = new array<EntityAI>;
-
-		ExpansionQuestObjectiveCollection collection = GetObjectiveConfig().GetCollection();
-		if (!collection)
-			return false;
-
-		array<EntityAI> items = new array<EntityAI>;
-		if (m_GroupEntityInventory && m_GroupEntityInventory.HasItem(collection.GetClassName(), items))
-		{
-			if (!items)
-				return false;
-
-			int currentCount;
-			foreach (EntityAI item: items)
-			{
-				int itemCount = GetItemAmount(item);
-				currentCount += itemCount;
-				if (itemCount > 0)
-				{
-					m_GroupItems.Insert(item);
-				}
-			}
-
-			if (currentCount >= collection.GetAmount())
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-#endif
-		
-	override protected bool DestinationCheck()
-	{
-		vector position;
-		float maxDistance = GetObjectiveConfig().GetMaxDistance();
-		float currentDistance;
-		array<vector> groupMemberPos = new array<vector>;
-		Object target;
-		
-		if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
-		{
-			vector playerPos = GetQuest().GetPlayer().GetPosition();
-			target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), playerPos);
-			if (!target)
-				return false;
-			
-			position = target.GetPosition();
-			currentDistance = vector.Distance(playerPos, position);
 		}
 	#ifdef EXPANSIONMODGROUPS
-		else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
+		else if (GetQuest().IsGroupQuest())
 		{
-			//! Set the position of the group member that has the shortest distance to the target location
-			//! as our current position if the quest is a group quest.
-			ExpansionPartyData group = GetQuest().GetGroup();
-			if (!group)
-				return false;
-
-			array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
-			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
+			foreach (ExpansionQuestObjectiveDelivery groupCollection: collections)
 			{
-				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				if (!groupPlayer)
-					continue;
-				
-				if (!HasAnyCollectionGroupItem(playerGroupData.GetID()))
-					continue;
+				amountToDelete = groupCollection.GetAmount();
+				name = groupCollection.GetClassName();
 
-				groupMemberPos.Insert(groupPlayer.GetPosition());
-			}
+				ObjectivePrint(ToString() + "::CleanupCollectionItems - Search for delivery Item: " + name + " | Amount to delete: " + amountToDelete);
 
-			float smallestDistance;
-			int posIndex;
-			bool firstSet = false;
-			for (int p = 0; p < groupMemberPos.Count(); p++)
-			{
-				vector pos = groupMemberPos[p];
-				target = GetQuest().GetQuestModule().GetClosestQuestNPCForQuest(GetQuest().GetQuestConfig().GetID(), pos);
-				if (!target)
-					continue;
-
-				position = target.GetPosition();
-				float dist = vector.Distance(pos, position);
-				if (!firstSet)
+				foreach (EntityAI groupItem: m_GroupItems)
 				{
-					smallestDistance = dist;
-					posIndex = p;
-					firstSet = true;
-				}
-				else if (firstSet && dist < smallestDistance)
-				{
-					smallestDistance = dist;
-					posIndex = p;
+					if (name == groupItem.GetType() && amountToDelete > 0)
+					{
+						ObjectivePrint(ToString() + "::CleanupCollectionItems - Clean up delivery item: " + groupItem.GetType() + " | Amount: " + amountToDelete);
+						DeleteCollectionItem(groupItem, amountToDelete);
+						ObjectivePrint(ToString() + "::CleanupCollectionItems - Cleaned up delivery item: " + groupItem.GetType() + " | Amount left: " + amountToDelete);
+					}
 				}
 			}
-
-			currentDistance = vector.Distance(groupMemberPos[posIndex], position);
 		}
 	#endif
 
-		position[1] = GetGame().SurfaceY(position[0], position[2]);
-		if (position != vector.Zero && currentDistance <= maxDistance)
-			return true;
-
-		return false;
+		ObjectivePrint(ToString() + "::CleanupCollectionItems - End");
 	}
-	
-	#ifdef EXPANSIONMODGROUPS
-	bool HasAnyCollectionGroupItem(string playerUID)
+
+	array<ref ExpansionQuestDeliveryObjectiveData> GetCollectionData()
 	{
-		foreach (EntityAI item: m_GroupItems)
-		{
-			ItemBase itemIB;
-			if (item && Class.CastTo(itemIB, item))
-			{
-				if (itemIB.GetHierarchyRootPlayer() && itemIB.GetHierarchyRootPlayer().GetIdentity())
-				{
-					if (itemIB.GetHierarchyRootPlayer().GetIdentity().GetId() == playerUID)
-						return true;
-				}
-			}
-		}
-		
-		return false;
+		return m_DeliveryData;
 	}
-#endif
-
-	protected int GetItemAmount(EntityAI item)
-	{
-		int amount;
-		ItemBase itemBase;
-
-		if (Class.CastTo(itemBase, item))
-		{
-			amount = itemBase.Expansion_GetStackAmount();
-		}
-		else
-		{
-			amount = 1;
-		}
-
-		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item))
-			amount = -amount;
-
-		return amount;
-	}
-
-	protected void EnumeratePlayerInventory(PlayerBase player)
-	{
-		if (!player || !player.IsAlive() || !player.GetInventory())
-			return;
-
-		m_PlayerEntityInventory = new ExpansionQuestsPlayerInventory(player);
-	}
-
-#ifdef EXPANSIONMODGROUPS
-	protected void EnumerateGroupInventory(ExpansionPartyData group)
-	{
-		m_GroupEntityInventory = new ExpansionQuestsGroupInventory(group);
-	}
-#endif
 
 	override void OnUpdate(float timeslice)
 	{
@@ -370,25 +129,37 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
+			ObjectivePrint(ToString() + "::OnUpdate - Start");
+			
+			bool hasItems;
+			bool conditionCheck;
 			if (!GetQuest().IsGroupQuest())
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
 				EnumeratePlayerInventory(player);
 				
-				bool conditionCheck = HasAllCollectionItems() && DestinationCheck();
+				hasItems = HasAllObjectiveItems();
+				if (hasItems && !m_MarkerCreated)
+				{
+					m_MarkerCreated = true;
+					OnRecreateClientMarkers();
+				}
+				else if (!hasItems && m_MarkerCreated)
+				{
+					m_MarkerCreated = false;
+					GetQuest().RemoveMarkers();
+				}
+				
+				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())
 				{
-				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
-				#endif
+					ObjectivePrint(ToString() + "::OnUpdate - INCOMPLETE");
 					SetCompleted(false);
 					OnIncomplete();
 				}
 				else if (conditionCheck && !IsCompleted())
 				{
-				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
-				#endif
+					ObjectivePrint(ToString() + "::OnUpdate - COMPLETE");
 					SetCompleted(true);
 					OnComplete();
 				}
@@ -397,86 +168,38 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveEventBase
 			else
 			{
 				EnumerateGroupInventory(GetQuest().GetGroup());
-				
-				bool conditionCheckGroup = HasGroupAllCollectionItems() && DestinationCheck();
-				if (!conditionCheckGroup && IsCompleted())
+
+				hasItems = HasGroupAllObjectiveItems();
+				if (hasItems && !m_MarkerCreated)
 				{
-				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - INCOMPLETE");
-				#endif
+					m_MarkerCreated = true;
+					OnRecreateClientMarkers();
+				}
+				else if (!hasItems && m_MarkerCreated)
+				{
+					m_MarkerCreated = false;
+					GetQuest().RemoveMarkers();
+				}
+				
+				conditionCheck = hasItems && DestinationCheck();
+				if (!conditionCheck && IsCompleted())
+				{
+					ObjectivePrint(ToString() + "::OnUpdate - INCOMPLETE");
 					SetCompleted(false);
 					OnIncomplete();
 				}
-				else if (conditionCheckGroup && !IsCompleted())
+				else if (conditionCheck && !IsCompleted())
 				{
-				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					CF_Log.Debug("ExpansionQuestObjectiveCollectionEvent::OnUpdate - COMPLETE");
-				#endif
+					ObjectivePrint(ToString() + "::OnUpdate - COMPLETE");
 					SetCompleted(true);
 					OnComplete();
 				}
 			}
 		#endif
 
-			if (!GetQuest().IsGroupQuest() && m_PlayerItems)
-			{
-				if (m_UpdateCount != m_PlayerItems.Count())
-				{
-					m_UpdateCount = m_PlayerItems.Count();
-					GetQuest().UpdateQuest();
-				}
-			}
-		#ifdef EXPANSIONMODGROUPS
-			else if (GetQuest().IsGroupQuest() && m_GroupItems)
-			{
-				if (m_UpdateCount != m_GroupItems.Count())
-				{
-					m_UpdateCount = m_GroupItems.Count();
-					GetQuest().UpdateQuest();
-				}
-			}
-		#endif
-
+			ObjectivePrint(ToString() + "::OnUpdate - End");
 			m_UpdateQueueTimer = 0.0;
 		}
-	}
-
-	int GetAmount()
-	{
-		return GetObjectiveConfig().GetCollection().GetAmount();
-	}
-
-	int GetCount()
-	{
-		int count;
-		int itemCount;
-		if (!GetQuest().IsGroupQuest() && m_PlayerItems)
-		{
-			foreach (EntityAI playerItem: m_PlayerItems)
-			{
-				if (!playerItem)
-					continue;
-
-				itemCount = GetItemAmount(playerItem);
-				count += itemCount;
-			}
-
-			return count;
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else if (GetQuest().IsGroupQuest() && m_GroupItems)
-		{
-			foreach (EntityAI groupItem: m_GroupItems)
-			{
-				itemCount = GetItemAmount(groupItem);
-				count += itemCount;
-			}
-
-			return count;
-		}
-	#endif
-
-		return 0;
 	}
 
 	override int GetObjectiveType()

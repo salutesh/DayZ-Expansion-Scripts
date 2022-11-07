@@ -29,6 +29,10 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 
 		if (ai)
 		{
+#ifdef DIAG
+			auto hitch = EXHitch(ai.ToString() + " eAICreatureTargetInformation::CalculateThreat ", 20000);
+#endif
+
 			// the further away the creature, the less likely it will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 			levelFactor = 10 / distance;

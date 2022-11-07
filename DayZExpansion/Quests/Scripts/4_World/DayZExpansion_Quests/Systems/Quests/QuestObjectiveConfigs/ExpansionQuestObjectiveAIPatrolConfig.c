@@ -22,7 +22,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 	float MaxDistRadius = 150;
 	float DespawnRadius = 880;
 	bool CanLootAI = true;
-	
+
 	void SetAIPatrol(ExpansionQuestObjectiveAIPatrol patrol)
 	{
 		AIPatrol = patrol;
@@ -32,61 +32,61 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 	{
 		return AIPatrol;
 	}
-	
+
 	void SetMinDistRadius(float dist)
 	{
 		MinDistRadius = dist;
 	}
-	
+
 	override float GetMinDistRadius()
 	{
 		return MinDistRadius;
 	}
-	
+
 	void SetMaxDistRadius(float dist)
 	{
 		MaxDistRadius = dist;
 	}
-	
+
 	override float GetMaxDistRadius()
 	{
 		return MaxDistRadius;
 	}
-	
+
 	void SetDespawnRadius(float dist)
 	{
 		DespawnRadius = dist;
 	}
-	
+
 	override float GetDespawnRadius()
 	{
 		return DespawnRadius;
 	}
-	
+
 	void SetCanLootAI(bool state)
 	{
 		CanLootAI = state;
 	}
-	
+
 	override bool CanLootAI()
 	{
 		return CanLootAI;
 	}
-	
+
 	static ExpansionQuestObjectiveAIPatrolConfig Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestObjectiveAIPatrolConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveAIPatrolConfig] Load existing configuration file:" + fileName);
 
 		ExpansionQuestObjectiveAIPatrolConfig config;
 		ExpansionQuestObjectiveAIPatrolConfigBase configBase;
-		
+
 		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 
 			if (configBase.ConfigVersion < 4)
 			{
@@ -110,7 +110,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 				if (config.AIPatrol)
 					config.AIPatrol.NPCFormation = "RANDOM";
 			}
-			
+
 			if (configBase.ConfigVersion < 6)
 			{
 				config.CanLootAI = true;
@@ -156,10 +156,10 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-		
+
 		AIPatrol = configBase.AIPatrol;
 	}
-		
+
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		super.OnSend(ctx);
@@ -173,9 +173,21 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		return true;
 	}
 
+	override bool Validate()
+	{
+		if (!super.Validate())
+			return false;
+
+		if (!AIPatrol)
+			return false;
+
+		return true;
+	}
+
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		super.QuestDebug();
 		if (AIPatrol)
 			AIPatrol.QuestDebug();
 	#endif

@@ -5,10 +5,36 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
+
+class ExpansionCartridgeInfo
+{
+	int Count;
+	float Damage;
+	string Type;
+
+	void OnSave(ParamsWriteContext ctx)
+	{
+		ctx.Write(Count);
+		ctx.Write(Damage);
+		ctx.Write(Type);
+	}
+
+	bool OnLoad(ParamsReadContext ctx)
+	{
+		if (!ctx.Read(Count))
+			return false;
+		if (!ctx.Read(Damage))
+			return false;
+		if (!ctx.Read(Type))
+			return false;
+
+		return true;
+	}
+}
 
 class ExpansionEntityStorageContext
 {
@@ -36,14 +62,12 @@ class ExpansionEntityStorageContext
 [CF_RegisterModule(ExpansionEntityStorageModule)]
 class ExpansionEntityStorageModule: CF_ModuleWorld
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 	static const string EXT = ".bin";
 
 	static const int FAILURE = 0;
 	static const int SUCCESS = 1;
 	static const int SKIP = 2;
-
-	static string s_StorageFolderPath;
 
 	static ref map<string, ref ExpansionEntityStorageContext> s_SubContexts = new map<string, ref ExpansionEntityStorageContext>;
 
@@ -63,10 +87,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		super.OnMissionStart(sender, args);
 
-		int instance_id = GetGame().ServerConfigGetInt("instanceId");
-		s_StorageFolderPath = "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
-		if (!FileExist(s_StorageFolderPath))
-			ExpansionStatic.MakeDirectoryRecursive(s_StorageFolderPath);
+		if (!FileExist(GetStorageDirectory()))
+			ExpansionStatic.MakeDirectoryRecursive(GetStorageDirectory());
 	}
 #endif
 
@@ -85,7 +107,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (!inventoryOnly || level > 0)
 		{
-			int result = Save_Phase1(ctx, entity, inventoryOnly);
+			int result = Save_Phase1(ctx, entity, inventoryOnly, level);
 			if (result == FAILURE)
 				return false;
 			else if (result == SKIP)
@@ -124,7 +146,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return true;
 	}
 
-	static int Save_Phase1(ParamsWriteContext ctx, EntityAI entity, bool inventoryOnly = false)
+	static int Save_Phase1(ParamsWriteContext ctx, EntityAI entity, bool inventoryOnly = false, int level = 0)
 	{
 		InventoryLocation il = new InventoryLocation();
 		entity.GetInventory().GetCurrentInventoryLocation(il);
@@ -135,10 +157,16 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 		InventoryLocationType ilt = il.GetType();
 		EntityAI parent = entity.GetHierarchyParent();
-		if (inventoryOnly && ilt == InventoryLocationType.ATTACHMENT)
+		if (inventoryOnly && ilt == InventoryLocationType.ATTACHMENT && level == 1)
 		{
-			//! Don't save entities in locked slots if only saving inventory
-			if (parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock"))
+			//! If only saving inventory, don't save attachments on hierarchy root if it is openable or attachment slot is locked
+			bool isOpenable;
+#ifdef EXPANSIONMODBASEBUILDING
+			ItemBase itemParent;
+			if (Class.CastTo(itemParent, parent))
+				isOpenable = itemParent.ExpansionIsOpenable() || itemParent.IsNonExpansionOpenable();
+#endif
+			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock"))
 			{
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Save_Phase1 - skippping " + entity.GetType() + " in locked slot");
 				ctx.Write("");  //! Have to write empty entry because we already have written inventory count and no way to retroactively overwrite it
@@ -177,7 +205,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		return SUCCESS;
 	}
-	
+
 	static bool Save_Phase2(ParamsWriteContext ctx, string basePath, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
 	{
 		//! 2) attachments + cargo
@@ -262,10 +290,41 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		ctx.Write(version);
 		entity.OnStoreSave(ctx);
 
-		//! 5) special treatment for mags
+		//! 5) special treatment for mags/ammo
 		Magazine mag;
 		if (Class.CastTo(mag, entity))
-			ctx.Write(mag.GetAmmoCount());
+		{
+			if (mag.IsAmmoPile())
+			{
+				ctx.Write(mag.GetAmmoCount());
+			}
+			else
+			{
+				//! Need to store actual cartridges
+				//! Try to optimize amount of data written
+				auto cartridges = new array<ref ExpansionCartridgeInfo>;
+				ExpansionCartridgeInfo info;
+				for (i = 0; i < mag.GetAmmoCount(); i++)
+				{
+					float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
+					string cartTypeName;
+					mag.GetCartridgeAtIndex(i, damage, cartTypeName);
+					if (!info || damage != info.Damage || cartTypeName != info.Type)
+					{
+						info = new ExpansionCartridgeInfo;
+						info.Damage = damage;
+						info.Type = cartTypeName;
+						cartridges.Insert(info);
+					}
+					info.Count++;
+				}
+				ctx.Write(cartridges.Count());
+				foreach (auto cartridge: cartridges)
+				{
+					cartridge.OnSave(ctx);
+				}
+			}
+		}
 
 		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
 		Car car;
@@ -343,7 +402,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			file = FileSerializer.Cast(ctx);
 
 		bool restored = Restore_Phase2(file, basePath, entity, placeholder, player, entityStorageVersion, type, level, elapsed);
-		
+
 		if (restored && createEntity)
 			restored = Restore_Phase3(file, entity, entityStorageVersion, elapsed);
 
@@ -417,12 +476,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				break;
 		}
 
+/* disabled, since it allows duping
 		if (!entity && player)
 		{
 			//! Create on ground at player pos
 			if (Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
 		}
+*/
 
 		if (!entity)
 			return ErrorFalse("No entity created: " + type);
@@ -543,14 +604,39 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!entity.OnStoreLoad(ctx, version))
 			return ErrorFalse(entity.GetType() + ": Couldn't OnStoreLoad");
 
-		//! 5) special treatment for mags
+		//! 5) special treatment for mags/ammo
 		Magazine mag;
 		int ammoCount;
 		if (Class.CastTo(mag, entity))
 		{
-			if (!ctx.Read(ammoCount))
-				return ErrorFalse(entity.GetType() + ": Couldn't read ammo count");
-			mag.ServerSetAmmoCount(ammoCount);
+			if (mag.IsAmmoPile() || entityStorageVersion < 8)
+			{
+				if (!ctx.Read(ammoCount))
+					return ErrorFalse(entity.GetType() + ": Couldn't read ammo count");
+				mag.ServerSetAmmoCount(ammoCount);
+			}
+			else
+			{
+				int count;
+				if (!ctx.Read(count))
+					return ErrorFalse(entity.GetType() + ": Couldn't read cartridge count");
+				mag.ServerSetAmmoCount(0);
+				auto cartridges = new array<ref ExpansionCartridgeInfo>;
+				for (i = 0; i < count; i++)
+				{
+					auto info = new ExpansionCartridgeInfo;
+					if (!info.OnLoad(ctx))
+						return ErrorFalse(entity.GetType() + ": Couldn't read cartridge info");
+					cartridges.Insert(info);
+				}
+				foreach (auto cartridge: cartridges)
+				{
+					for (i = 0; i < cartridge.Count; i++)
+					{
+						mag.ServerStoreCartridge(cartridge.Damage, cartridge.Type);
+					}
+				}
+			}
 		}
 
 		//! 6) Special treatment for Car (no special treatment needed for ExpansionVehicleBase since it inherits from ItemBase)
@@ -614,19 +700,25 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	//! Legacy
 	static string GetFileName(int id)
 	{
-		return s_StorageFolderPath + id.ToString() + EXT;
+		return GetStorageDirectory() + id.ToString() + EXT;
 	}
 
 	static string GetFileName(string name)
 	{
-		return s_StorageFolderPath + name + EXT;
+		return GetStorageDirectory() + name + EXT;
+	}
+
+	static string GetStorageDirectory()
+	{
+		int instance_id = GetGame().ServerConfigGetInt("instanceId");
+		return "$mission:storage_" + instance_id + "\\expansion\\entitystorage\\";
 	}
 
 	//! @brief saves entity and all its children (attachments/cargo) to file.
 	static bool SaveToFile(EntityAI entity, string fileName, bool inventoryOnly = false, EntityAI placeholder = null)
 	{
 		FileSerializer file = new FileSerializer();
-		
+
 		if (!file.Open(fileName, FileMode.WRITE))
 			return ErrorFalse("Couldn't open file for writing " + fileName);
 
@@ -647,7 +739,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	static bool RestoreFromFile(string fileName, inout EntityAI entity = null, EntityAI placeholder = null, PlayerBase player = null)
 	{
 		FileSerializer file = new FileSerializer();
-		
+
 		if (!file.Open(fileName, FileMode.READ))
 			return ErrorFalse("Couldn't open file for reading " + fileName);
 

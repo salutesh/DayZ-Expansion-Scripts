@@ -389,7 +389,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                  vexactsize 1
                  style rover_sim_colorable
                 }
-                PanelWidgetClass humanity {
+                PanelWidgetClass reputation {
                  visible 0
                  ignorepointer 1
                  size 1 32
@@ -424,7 +424,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                    vexactsize 1
                    style rover_sim_colorable
                   }
-                  TextWidgetClass humanity_label {
+                  TextWidgetClass reputation_label {
                    ignorepointer 1
                    color 0 0 0 1
                    position 0 0
@@ -434,7 +434,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                    hexactsize 0
                    vexactsize 1
                    style Normal
-                   text "#STR_EXPANSION_HARDLINE_HUMANITY_LABEL"
+                   text "#STR_EXPANSION_HARDLINE_REPUTATION"
                    font "gui/fonts/etelkatextpro22"
                    "text offset" 5 0
                    "exact text" 0
@@ -442,7 +442,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                    "size to text v" 0
                    "text valign" center
                   }
-                  TextWidgetClass humanity_val {
+                  TextWidgetClass reputation_val {
                    ignorepointer 1
                    color 0 0 0 1
                    size 0.7 32
@@ -463,7 +463,7 @@ FrameWidgetClass ExpansionBookMenuTabQuests {
                    "text valign" center
                    {
                     ScriptParamsClass {
-                     Binding_Name "HumanityVal"
+                     Binding_Name "ReputationVal"
                     }
                    }
                   }

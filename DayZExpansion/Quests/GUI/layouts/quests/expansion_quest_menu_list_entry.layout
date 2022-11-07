@@ -75,5 +75,28 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
     }
    }
   }
+  ImageWidgetClass CooldownIcon {
+   visible 0
+   ignorepointer 1
+   color 0.8863 0.2549 0.2588 1
+   position 0.013 0
+   size 26 26
+   halign right_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   image0 "set:expansion_iconset image:clock_blank"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "QuestIcon"
+    }
+   }
+  }
  }
 }

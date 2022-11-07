@@ -22,8 +22,8 @@ modded class IngameHud
 	protected int m_NVBatteryState;
 
 	protected int BATTERY_EMPTY_COLOR = ARGB(255, 231, 76, 60);
-	protected int BATTERY_LOW_COLOR = ARGB(255, 230, 126, 34);
-	protected int BATTERY_MED_COLOR = ARGB(255, 243, 156, 18);
+	protected int BATTERY_LOW_COLOR = ARGB(255, 243, 156, 18);
+	protected int BATTERY_MED_COLOR = ARGB(255, 113, 204, 46);
 	protected int BATTERY_FULL_COLOR = ARGB(255, 46, 204, 113);
 
 	protected int m_StaminaBarColor = ARGB(255, 255, 255, 255);
@@ -219,27 +219,27 @@ modded class IngameHud
 
 	protected void RefreshNVBatteryState(int percent)
 	{
-		if (percent < 25)
+		 if (percent <= 10)
 		{
-			//! 0 - 25% Energy
+			//! 0 - 10% Energy
 			m_NVBatteryIcon.SetImage(0);
 			m_NVBatteryIcon.SetColor(BATTERY_EMPTY_COLOR);
 		}
-		else if (percent >= 25 && percent < 30)
+		else if (percent <= 33)
 		{
-			//! 25 - 30% Energy
+			//! 10 - 33% Energy
 			m_NVBatteryIcon.SetImage(1);
 			m_NVBatteryIcon.SetColor(BATTERY_LOW_COLOR);
 		}
-		else if (percent >= 30 && percent < 75)
+		else if (percent <= 66)
 		{
-			//! 30 - 75% Energy
+			//! 33 - 66% Energy
 			m_NVBatteryIcon.SetImage(2);
 			m_NVBatteryIcon.SetColor(BATTERY_MED_COLOR);
 		}
-		else if (percent >= 75)
+		else
 		{
-			//! 75 - 100% Energy
+			//! 66 - 100% Energy
 			m_NVBatteryIcon.SetImage(3);
 			m_NVBatteryIcon.SetColor(BATTERY_FULL_COLOR);
 		}

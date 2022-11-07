@@ -12,14 +12,14 @@
 class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
-	float MaxDistance = 0;
+	float MaxDistance = 10.0;
 	string MarkerName = string.Empty;
 };
 
 class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBase
 {
 	bool ShowDistance = true;
-	
+
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -49,26 +49,26 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 	{
 		return MarkerName;
 	}
-	
+
 	bool ShowDistance()
 	{
 		return ShowDistance;
 	}
-	
+
 	static ExpansionQuestObjectiveTravelConfig Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestObjectiveTravelConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveTravelConfig] Load existing configuration file:" + fileName);
 
 		ExpansionQuestObjectiveTravelConfig config;
 		ExpansionQuestObjectiveTravelConfigBase configBase;
-		
+
 		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfigBase>.Load(fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestObjectiveTravelConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveTravelConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveTravelConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -102,7 +102,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-		
+
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
@@ -131,7 +131,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 
 		if (!ctx.Read(MarkerName))
 			return false;
-		
+
 		if (!ctx.Read(ShowDistance))
 			return false;
 

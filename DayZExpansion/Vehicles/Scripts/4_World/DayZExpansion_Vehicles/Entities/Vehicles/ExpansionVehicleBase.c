@@ -3771,7 +3771,7 @@ class ExpansionVehicleBase extends ItemBase
 		}
 	}
 
-	bool Expansion_CoverVehicle(EntityAI cover = null)
+	bool Expansion_CoverVehicle(EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
 	{
 		//! TODO
 		return false;

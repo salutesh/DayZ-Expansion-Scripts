@@ -60,10 +60,10 @@ class ExpansionQuestItemConfig
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		CF_Log.Debug(ToString() + "::QuestDebug - Amount: " + Amount);
-		CF_Log.Debug("------------------------------------------------------------");
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - ClassName: " + ClassName);
+		Print(ToString() + "::QuestDebug - Amount: " + Amount);
+		Print("------------------------------------------------------------");
 	#endif
 	}
 };

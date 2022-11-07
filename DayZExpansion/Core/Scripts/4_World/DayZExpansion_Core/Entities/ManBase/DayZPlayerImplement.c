@@ -29,6 +29,14 @@ modded class DayZPlayerImplement
 		Expansion_Init();
 	}
 
+	override bool IsInventoryVisible()
+	{
+		if (!super.IsInventoryVisible())
+			return false;
+
+		return m_Expansion_CanBeLooted;
+	}
+
 	void Expansion_Init()
 	{
 	}

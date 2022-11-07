@@ -39,6 +39,12 @@ class ExpansionCOTGroupsListEntry extends ScriptedWidgetEventHandler
 		SetEntry();
 	}
 	
+	void ~ExpansionCOTGroupsListEntry()
+	{
+		if (g_Game && m_Root)
+			m_Root.Unlink();
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupsListEntry SetEntry
 	// ------------------------------------------------------------

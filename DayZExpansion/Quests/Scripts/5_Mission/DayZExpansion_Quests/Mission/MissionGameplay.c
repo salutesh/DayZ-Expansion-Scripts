@@ -73,14 +73,14 @@ modded class MissionGameplay
 		#ifdef JM_COT
 			bool isCOTWindowOpen = GetCommunityOnlineTools().IsOpen();
 		#endif
-							
+
 			if (playerPB && playerPB.GetHumanInventory())
 			{
 				if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
 				{
 				#ifdef JM_COT
 					if (viewMenu || topMenu || m_HideHUD || isCOTWindowOpen)
-				#else	
+				#else
 					if (viewMenu || topMenu || m_HideHUD)
 				#endif
 					{

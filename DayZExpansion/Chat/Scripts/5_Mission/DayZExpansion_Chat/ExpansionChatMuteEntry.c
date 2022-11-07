@@ -1,0 +1,96 @@
+/**
+ * ExpansionChatMuteEntry.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
+class ExpansionChatMuteEntry: ExpansionScriptView
+{
+	private ref ExpansionChatMuteEntryController m_ChatMuteController;
+	private ref ExpansionChatUIWindow m_Chat;
+	private string m_PlayerUID;
+	private ButtonWidget ChatMuteButton;
+	private ImageWidget ChatMuteButtonIcon;
+
+	void ExpansionChatMuteEntry(ExpansionChatUIWindow chat, SyncPlayer data)
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
+		m_ChatMuteController = ExpansionChatMuteEntryController.Cast(GetController());
+		m_Chat = chat;
+		m_PlayerUID = data.m_RUID;
+
+		SetPlayerName(data.m_PlayerName);
+	}
+
+	void SetPlayerName(string name)
+	{
+		if (!name)
+			return;
+
+		m_ChatMuteController.Name = name;
+		m_ChatMuteController.NotifyPropertyChanged("Name");
+	}
+
+	void OnEntryClick()
+	{
+		if (!m_PlayerUID)
+			return;
+
+		int index = GetExpansionClientSettings().MutedPlayers.Find(m_PlayerUID);
+		if (index > -1)
+		{
+			GetExpansionClientSettings().MutedPlayers.RemoveOrdered(index);
+			GetExpansionClientSettings().Save();
+			m_Chat.RefreshChatMessages();
+			m_Chat.UpdateMuteList();
+		}
+	}
+
+	override string GetLayoutFile()
+	{
+		return "DayZExpansion/Chat/GUI/layouts/expansion_chat_mute_entry.layout";
+	}
+
+	override typename GetControllerType()
+	{
+		return ExpansionChatMuteEntryController;
+	}
+
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		super.OnMouseEnter(w, x, y);
+
+		if (w == ChatMuteButton)
+		{
+			ChatMuteButtonIcon.SetColor(ARGB(200, 0 , 0, 0));
+			return true;
+		}
+		
+		return false;
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		super.OnMouseLeave(w, enterW, x, y);
+		
+		if (w == ChatMuteButton)
+		{
+			ChatMuteButtonIcon.SetColor(ARGB(200, 255 , 255, 255));
+			return true;
+		}
+
+		return false;
+	}
+};
+
+class ExpansionChatMuteEntryController: ExpansionViewController
+{
+	string Name;
+};

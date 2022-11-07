@@ -10,65 +10,120 @@
  *
 */
 
-/**@class		ExpansionRaidSettingsBase
+class ExpansionRaidSchedule
+{
+	static autoptr TStringArray WEEKDAYS = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
+	string Weekday;
+	int StartHour;
+	int StartMinute;
+	int DurationMinutes;
+
+	[NonSerialized()]
+	int m_WeekdayIndex;
+
+	void ExpansionRaidSchedule(string weekday = string.Empty, int startHour = 0, int startMinute = 0, int duration = 0)
+	{
+		Weekday = weekday;
+		StartHour = startHour;
+		StartMinute = startMinute;
+		DurationMinutes = duration;
+
+		if (weekday)
+			Validate();
+	}
+
+	void Validate()
+	{
+		string weekday = Weekday;
+		weekday.ToUpper();
+		m_WeekdayIndex = WEEKDAYS.Find(weekday);
+		if (m_WeekdayIndex == -1)
+			Error(ToString() + " Invalid weekday " + Weekday);
+
+		if (StartHour > 23)
+			Error(ToString() + " Invalid start hour " + StartHour);
+
+		if (StartMinute > 59)
+			Error(ToString() + " Invalid start minute " + StartMinute);
+
+		if (StartHour * 60 + StartMinute + DurationMinutes > 1440)
+			Error(ToString() + " Invalid duration " + DurationMinutes);
+	}
+
+	void OnSend(ParamsWriteContext ctx)
+	{
+		ctx.Write(m_WeekdayIndex);
+		ctx.Write(StartHour);
+		ctx.Write(StartMinute);
+		ctx.Write(DurationMinutes);
+	}
+
+	bool OnReceive(ParamsReadContext ctx)
+	{
+		ctx.Read(m_WeekdayIndex);
+		ctx.Read(StartHour);
+		ctx.Read(StartMinute);
+		ctx.Read(DurationMinutes);
+
+		EXTrace.Print(EXTrace.BASEBUILDING, this, string.Format("Received weekday = %1 start = %2:%3 duration = %4", ExpansionRaidSchedule.WEEKDAYS[m_WeekdayIndex], StartHour, StartMinute, DurationMinutes));
+
+		return true;
+	}
+}
+
+/**@class		ExpansionRaidSettings
  * @brief		Spawn settings class
  **/
-class ExpansionRaidSettingsBase: ExpansionSettingBase
+class ExpansionRaidSettings: ExpansionSettingBase
 {
+	static const int VERSION = 4;
+
+	ExpansionBaseBuildingRaidMode BaseBuildingRaidMode;			//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows | 3 = any wall/fence
 	float ExplosionTime;								//! Ammount of time it takes for explosive to explode.
 	autoptr TStringArray ExplosiveDamageWhitelist;		//! List of damage sources allowed to damage bases when whitelist is enabled. 
 	bool EnableExplosiveWhitelist;   					//! If enabled, only damage sources listed in ExplosiveDamageWhitelist will be able to damage walls. 
 	float ExplosionDamageMultiplier;					//! Damage multiplier from explosion.
 	float ProjectileDamageMultiplier;					//! Damage multiplier from projectiles.
+
 	bool CanRaidSafes;									//! If enabled, make safes raidable
+
 	float SafeExplosionDamageMultiplier;				//! Damage multiplier from explosion on safes.
 	float SafeProjectileDamageMultiplier;				//! Damage multiplier from explosion on safes.
+
 	autoptr TStringArray SafeRaidTools;					//! List of tools allowed for raiding safes
 	int SafeRaidToolTimeSeconds;						//! Time needed to raid safe with tool
 	int SafeRaidToolCycles;								//! Number of cycles needed to raid safe
 	float SafeRaidToolDamagePercent;					//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+
 	bool CanRaidBarbedWire;								//! If enabled, make barbed wire raidable
+
 	autoptr TStringArray BarbedWireRaidTools;			//! List of tools allowed for raiding barbed wire
 	int BarbedWireRaidToolTimeSeconds;					//! Time needed to raid barbed wire with tool
 	int BarbedWireRaidToolCycles;						//! Number of cycles needed to raid barbed wire
 	float BarbedWireRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+
 	RaidLocksOnWallsEnum CanRaidLocksOnWalls;			//! If set to 1 make locks (both vanilla and Expansion) raidable on walls | 2 = only doors | 3 = only gates
 	bool CanRaidLocksOnFences;							//! If enabled, make locks (both vanilla and Expansion) raidable on fences
 	bool CanRaidLocksOnTents;							//! If enabled, make locks (both vanilla and Expansion) raidable on tents
+
 	autoptr TStringArray LockRaidTools;					//! List of tools allowed for raiding locks
 	int LockOnWallRaidToolTimeSeconds;					//! Time needed to raid lock on wall with tool. Disabled <= 0
 	int LockOnFenceRaidToolTimeSeconds;					//! Time needed to raid lock on fence with tool. Disabled <= 0
 	int LockOnTentRaidToolTimeSeconds;					//! Time needed to raid lock on tent with tool. Disabled <= 0
 	int LockRaidToolCycles;								//! Number of cycles needed to raid lock
 	float LockRaidToolDamagePercent;					//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
-	BaseBuildingRaidEnum BaseBuildingRaidMode;			//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows
-	
-	// ------------------------------------------------------------
-	void ExpansionRaidSettingsBase()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionRaidSettingsBase");
-#endif
-
-		ExplosiveDamageWhitelist = new TStringArray;
-		SafeRaidTools = new TStringArray;
-		BarbedWireRaidTools = new TStringArray;
-		LockRaidTools = new TStringArray;
-	}
-};
-
-/**@class		ExpansionRaidSettings
- * @brief		Spawn settings class
- **/
-class ExpansionRaidSettings: ExpansionRaidSettingsBase
-{
-	static const int VERSION = 3;
 
 	bool CanRaidLocksOnContainers;							//! If enabled, makes code locked containers raidable
+
 	autoptr TStringArray LockOnContainerRaidTools;			//! List of tools allowed for raiding locks on containers
 	int LockOnContainerRaidToolTimeSeconds;					//! Time needed to raid lock on container with tool
 	int LockOnContainerRaidToolCycles;						//! Number of cycles needed to raid lock on container
 	float LockOnContainerRaidToolDamagePercent;				//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
+
+	autoptr array<ref ExpansionRaidSchedule> Schedule;
+
+	[NonSerialized()]
+	int m_TimeDiff;  //! Time difference server time to client (local time), client only. TODO: Make this part of some core settings as it can be used elsewhere as well
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -80,7 +135,12 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionRaidSettings");
 #endif
 
+		ExplosiveDamageWhitelist = new TStringArray;
+		SafeRaidTools = new TStringArray;
+		BarbedWireRaidTools = new TStringArray;
+		LockRaidTools = new TStringArray;
 		LockOnContainerRaidTools = new TStringArray;
+		Schedule = new array<ref ExpansionRaidSchedule>;
 	}
 	
 	// ------------------------------------------------------------
@@ -89,15 +149,68 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
-		
-		ExpansionRaidSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionRaidSettings::OnRecieve setting");
-			return false;
-		}
 
-		CopyInternal( setting );
+		ctx.Read(BaseBuildingRaidMode);
+
+		ctx.Read(ExplosionTime);
+
+		ctx.Read(EnableExplosiveWhitelist);
+		ctx.Read(ExplosionDamageMultiplier);
+		ctx.Read(ProjectileDamageMultiplier);
+
+		ctx.Read(CanRaidSafes);
+
+		ctx.Read(SafeExplosionDamageMultiplier);
+		ctx.Read(SafeProjectileDamageMultiplier);
+
+		ctx.Read(SafeRaidTools);
+		ctx.Read(SafeRaidToolTimeSeconds);
+		ctx.Read(SafeRaidToolCycles);
+		ctx.Read(SafeRaidToolDamagePercent);
+
+		ctx.Read(CanRaidBarbedWire);
+
+		ctx.Read(BarbedWireRaidTools);
+		ctx.Read(BarbedWireRaidToolTimeSeconds);
+		ctx.Read(BarbedWireRaidToolCycles);
+		ctx.Read(BarbedWireRaidToolDamagePercent);
+
+		ctx.Read(CanRaidLocksOnWalls);
+		ctx.Read(CanRaidLocksOnFences);
+		ctx.Read(CanRaidLocksOnTents);
+
+		ctx.Read(LockRaidTools);
+		ctx.Read(LockOnWallRaidToolTimeSeconds);
+		ctx.Read(LockOnFenceRaidToolTimeSeconds);
+		ctx.Read(LockOnTentRaidToolTimeSeconds);
+		ctx.Read(LockRaidToolCycles);
+		ctx.Read(LockRaidToolDamagePercent);
+
+		ctx.Read(CanRaidLocksOnContainers);
+
+		ctx.Read(LockOnContainerRaidTools);
+		ctx.Read(LockOnContainerRaidToolTimeSeconds);
+		ctx.Read(LockOnContainerRaidToolCycles);
+		ctx.Read(LockOnContainerRaidToolDamagePercent);
+
+		int count;
+		ctx.Read(count);
+		if (count)
+		{
+			int timestamp;
+			ctx.Read(timestamp);
+
+			auto now = CF_Date.Now();
+			m_TimeDiff = timestamp - now.GetTimestamp();
+
+			Schedule.Clear();
+			for (int i = 0; i < count; i++)
+			{
+				auto schedule = new ExpansionRaidSchedule;
+				schedule.OnReceive(ctx);
+				Schedule.Insert(schedule);
+			}
+		}
 		
 		m_IsLoaded = true;
 
@@ -108,9 +221,63 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ExpansionRaidSettings thisSetting = this;
+		ctx.Write(BaseBuildingRaidMode);
 
-		ctx.Write( thisSetting );
+		ctx.Write(ExplosionTime);
+
+		//! Don't send ExplosiveDamageWhitelist (used server-side only)
+
+		ctx.Write(EnableExplosiveWhitelist);
+		ctx.Write(ExplosionDamageMultiplier);
+		ctx.Write(ProjectileDamageMultiplier);
+
+		ctx.Write(CanRaidSafes);
+
+		ctx.Write(SafeExplosionDamageMultiplier);
+		ctx.Write(SafeProjectileDamageMultiplier);
+
+		ctx.Write(SafeRaidTools);
+		ctx.Write(SafeRaidToolTimeSeconds);
+		ctx.Write(SafeRaidToolCycles);
+		ctx.Write(SafeRaidToolDamagePercent);
+
+		ctx.Write(CanRaidBarbedWire);
+
+		ctx.Write(BarbedWireRaidTools);
+		ctx.Write(BarbedWireRaidToolTimeSeconds);
+		ctx.Write(BarbedWireRaidToolCycles);
+		ctx.Write(BarbedWireRaidToolDamagePercent);
+
+		ctx.Write(CanRaidLocksOnWalls);
+		ctx.Write(CanRaidLocksOnFences);
+		ctx.Write(CanRaidLocksOnTents);
+
+		ctx.Write(LockRaidTools);
+		ctx.Write(LockOnWallRaidToolTimeSeconds);
+		ctx.Write(LockOnFenceRaidToolTimeSeconds);
+		ctx.Write(LockOnTentRaidToolTimeSeconds);
+		ctx.Write(LockRaidToolCycles);
+		ctx.Write(LockRaidToolDamagePercent);
+
+		ctx.Write(CanRaidLocksOnContainers);
+
+		ctx.Write(LockOnContainerRaidTools);
+		ctx.Write(LockOnContainerRaidToolTimeSeconds);
+		ctx.Write(LockOnContainerRaidToolCycles);
+		ctx.Write(LockOnContainerRaidToolDamagePercent);
+
+		int count = Schedule.Count();
+		ctx.Write(count);
+		if (count)
+		{
+			auto now = CF_Date.Now();
+			ctx.Write(now.GetTimestamp());
+
+			foreach (auto schedule: Schedule)
+			{
+				schedule.OnSend(ctx);
+			}
+		}
 	}
 
 	// ------------------------------------------------------------
@@ -146,34 +313,9 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionRaidSettings s )
 	{
-		CanRaidLocksOnContainers = s.CanRaidLocksOnContainers;
+		BaseBuildingRaidMode = s.BaseBuildingRaidMode;
 
-		LockOnContainerRaidTools.Copy( s.LockOnContainerRaidTools );
-		LockOnContainerRaidToolTimeSeconds = s.LockOnContainerRaidToolTimeSeconds;
-		LockOnContainerRaidToolCycles = s.LockOnContainerRaidToolCycles;
-		LockOnContainerRaidToolDamagePercent = s.LockOnContainerRaidToolDamagePercent;
-		
-		ExpansionRaidSettingsBase sb = s;
-		CopyInternal( sb );
-	}
-
-	// ------------------------------------------------------------
-	private void CopyInternal(  ExpansionRaidSettingsBase s )
-	{
-		/*
-		RaidValues.Clear();
-
-		for (int i = 0; i < s.RaidValues.Count(); i++)
-		{
-			RaidValues.Insert( s.RaidValues[i] );
-		}
-		*/	
-
-		ExplosiveDamageWhitelist.Clear();
-		for (int i = 0; i < s.ExplosiveDamageWhitelist.Count(); i++)
-		{
-			ExplosiveDamageWhitelist.Insert( s.ExplosiveDamageWhitelist[i] );
-		}
+		ExplosiveDamageWhitelist.Copy( s.ExplosiveDamageWhitelist );
 
 		ExplosionTime = s.ExplosionTime;
 
@@ -208,7 +350,18 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		LockRaidToolCycles = s.LockRaidToolCycles;
 		LockRaidToolDamagePercent = s.LockRaidToolDamagePercent;
 
-		BaseBuildingRaidMode = s.BaseBuildingRaidMode;
+		CanRaidLocksOnContainers = s.CanRaidLocksOnContainers;
+
+		LockOnContainerRaidTools.Copy( s.LockOnContainerRaidTools );
+		LockOnContainerRaidToolTimeSeconds = s.LockOnContainerRaidToolTimeSeconds;
+		LockOnContainerRaidToolCycles = s.LockOnContainerRaidToolCycles;
+		LockOnContainerRaidToolDamagePercent = s.LockOnContainerRaidToolDamagePercent;
+
+		Schedule.Clear();
+		foreach (auto schedule: s.Schedule)
+		{
+			Schedule.Insert(schedule);
+		}
 	}
 	
 	// ------------------------------------------------------------
@@ -243,15 +396,13 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 			ExpansionRaidSettings settingsDefault = new ExpansionRaidSettings;
 			settingsDefault.Defaults();
 
-			ExpansionRaidSettingsBase settingsBase;
+			JsonFileLoader<ExpansionRaidSettings>.JsonLoadFile(EXPANSION_RAID_SETTINGS, this);
 
-			JsonFileLoader<ExpansionRaidSettingsBase>.JsonLoadFile(EXPANSION_RAID_SETTINGS, settingsBase);
-
-			if (settingsBase.m_Version < VERSION)
+			if (m_Version < VERSION)
 			{
-				EXPrint("[ExpansionRaidSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_RAID_SETTINGS + "\" to v" + VERSION);
+				EXPrint("[ExpansionRaidSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_RAID_SETTINGS + "\" to v" + VERSION);
 
-				if (settingsBase.m_Version < 3)
+				if (m_Version < 3)
 				{
 					CanRaidLocksOnContainers = settingsDefault.CanRaidLocksOnContainers;
 
@@ -260,16 +411,17 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 					LockOnContainerRaidToolCycles = settingsDefault.LockOnContainerRaidToolCycles;
 					LockOnContainerRaidToolDamagePercent = settingsDefault.LockOnContainerRaidToolDamagePercent;
 				}
-				
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+
+				if (m_Version < 4)
+				{
+					foreach (auto defaultSchedule: settingsDefault.Schedule)
+					{
+						Schedule.Insert(defaultSchedule);
+					}
+				}
 
 				m_Version = VERSION;
 				save = true;
-			}
-			else
-			{
-				JsonFileLoader<ExpansionRaidSettings>.JsonLoadFile(EXPANSION_RAID_SETTINGS, this);
 			}
 		}
 		else
@@ -282,6 +434,11 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		if (save)
 			Save();
 		
+		foreach (auto schedule: Schedule)
+		{
+			schedule.Validate();
+		}
+
 		return raidSettingsExist;
 	}
 	
@@ -359,12 +516,49 @@ class ExpansionRaidSettings: ExpansionRaidSettingsBase
 		LockRaidToolCycles = 5;
 		LockRaidToolDamagePercent = 100;
 
-		BaseBuildingRaidMode = BaseBuildingRaidEnum.Default;
+		BaseBuildingRaidMode = ExpansionBaseBuildingRaidMode.All;
+
+		Schedule.Insert(new ExpansionRaidSchedule("Sunday", 0, 0, 1440));
+		Schedule.Insert(new ExpansionRaidSchedule("Monday", 0, 0, 1440));
+		Schedule.Insert(new ExpansionRaidSchedule("Tuesday", 0, 0, 1440));
+		Schedule.Insert(new ExpansionRaidSchedule("Wednesday", 0, 0, 1440));
+		Schedule.Insert(new ExpansionRaidSchedule("Thursday", 0, 0, 1440));
+		Schedule.Insert(new ExpansionRaidSchedule("Friday", 0, 0, 1440));
+		Schedule.Insert(new ExpansionRaidSchedule("Saturday", 0, 0, 1440));
 	}
 	
 	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Raid Settings";
+	}
+
+	bool IsRaidableNow()
+	{
+		if (!Schedule.Count())
+			return true;
+
+		auto now = CF_Date.Now();
+		int timestamp = now.GetTimestamp();
+
+		//! Convert local time to server time
+		now.EpochToDate(timestamp + m_TimeDiff);
+
+		int weekdayIndex = now.GetDayOfWeek();
+
+		foreach (auto schedule: Schedule)
+		{
+			if (weekdayIndex != schedule.m_WeekdayIndex)
+				continue;
+
+			int current = now.GetHours() * 60 + now.GetMinutes();
+			int start = schedule.StartHour * 60 + schedule.StartMinute;
+			int end = start + schedule.DurationMinutes;
+
+			if (current >= start && current <= end)
+				return true;
+		}
+
+		return false;
 	}
 };

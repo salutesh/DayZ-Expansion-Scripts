@@ -27,7 +27,6 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(1); //! Unique quest ID - Need to be the same as when registered in the quest module
-		questConfig.SetType(ExpansionQuestType.DELIVERY);
 		questConfig.SetTitle("A dirty rats job"); //! Quest title
 		questConfig.SetObjectiveText("Deliver the note and talk to Steve."); //! Quest objectives text
 		array<string> desc = new array<string>;
@@ -53,7 +52,6 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(2);
-		questConfig.SetType(ExpansionQuestType.TARGET);
 		questConfig.SetTitle("A favor for Steve...");
 		questConfig.SetObjectiveText("Kill 10 civilian Infected with Steve's sledgehammer.");
 		array<string> desc = new array<string>;
@@ -62,7 +60,7 @@ class ExpansionDefaultQuestData
 		desc.Insert("Oh there you are! I thought the Infected got your ass and killed you... Well, here is your reward."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 
-		questConfig.SetPreQuestID(1);
+		questConfig.AddPreQuestID(1);
 		questConfig.SetFollowUpQuestID(3);
 		questConfig.AddQuestGiverID(2);
 		questConfig.AddQuestTurnInID(2);
@@ -107,7 +105,6 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(3);
-		questConfig.SetType(ExpansionQuestType.DELIVERY);
 		questConfig.SetTitle("Peter's package");
 		questConfig.SetObjectiveText("Go back to peter and give him the package from Steve.");
 		array<string> desc = new array<string>;
@@ -116,7 +113,7 @@ class ExpansionDefaultQuestData
 		desc.Insert("Why did this take so long?... You got what I wanted? ** (He looks at the package with wide eyes and rips it out of your hands) ** Good!... What? Your way out? Well what should I say, but I lied to you. There is no fucking way out of this hell, and you will die here as we all. You can have this backpack and try your luck out there. I am sorry I lied to you, but we all have to see how we somehow survive here. I wish you good luck out there... You will need it.");
 		questConfig.SetDescriptions(desc);
 
-		questConfig.SetPreQuestID(2); //! Pre-quest ID
+		questConfig.AddPreQuestID(2); //! Pre-quest ID
 		questConfig.AddQuestGiverID(2); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 
@@ -154,52 +151,12 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-	//! Quest example template for a repeatable token quest
-#ifdef WRDG_DOGTAGS
+	//! Quest example template for a treasure hunt quest
 	ExpansionQuestConfig ExpansionQuestConfig004()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(4);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("Survivor - Dog Tag");
-		questConfig.SetObjectiveText("Exchange a survivor dog tag");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a bambi player for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Survivor.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(1);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(10);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-#endif
-
-	//! Quest example template for a treasure hunt quest
-	ExpansionQuestConfig ExpansionQuestConfig005()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(5);
-		questConfig.SetType(ExpansionQuestType.TREASUREHUNT);
 		questConfig.SetTitle("Treasure Hunt - Currency");
 		questConfig.SetObjectiveText("Find the treasure.");
 		array<string> desc = new array<string>;
@@ -207,65 +164,82 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 		questConfig.SetAutocomplete(true); //! Set if the quest is autocompleted
+		
+		//! Quest items on quest start
+		array <ExpansionQuestItemConfig> questItems = new array<ExpansionQuestItemConfig>;
+		ExpansionQuestItemConfig questItem_1 = new ExpansionQuestItemConfig;
+		questItem_1.SetClassName("Shovel");
+		questItem_1.SetAmount(1);
+		questItems.Insert(questItem_1);
+		questConfig.SetQuestItems(questItems);
 
-		//! Quest objectives
+		//! Quest objectives		
 		ExpansionQuestObjectiveTreasureHuntConfig objective_1 = new ExpansionQuestObjectiveTreasureHuntConfig();
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TREASUREHUNT);
 		questConfig.AddObjectiveConfig(objective_1);
+		
+		ExpansionQuestObjectiveActionConfig objective_2 = new ExpansionQuestObjectiveActionConfig();
+		objective_2.SetID(3);
+		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		questConfig.AddObjectiveConfig(objective_2);
 
 		return questConfig;
 	}
 
 #ifdef EXPANSIONMODAI
 	//! Quest example template for a ai patrol target quest
-	ExpansionQuestConfig ExpansionQuestConfig006()
+	ExpansionQuestConfig ExpansionQuestConfig005()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(6);
-		questConfig.SetType(ExpansionQuestType.AIPATROL);
+		questConfig.SetID(5);
 		questConfig.SetTitle("Clear Patrol - Bandits");
-		questConfig.SetObjectiveText("Kill all units of the bandit patrol group at the marked location.");
+		questConfig.SetObjectiveText("Kill all units of the bandit patrol at the marked location.");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 
 		//! Quest objectives
-		ExpansionQuestObjectiveAIPatrolConfig objective_1 = new ExpansionQuestObjectiveAIPatrolConfig();
-		objective_1.SetID(1);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIPATROL);
+		ExpansionQuestObjectiveTravelConfig objective_1 = new ExpansionQuestObjectiveTravelConfig();
+		objective_1.SetID(4);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TRAVEL);
 		questConfig.AddObjectiveConfig(objective_1);
+
+		ExpansionQuestObjectiveAIPatrolConfig objective_2 = new ExpansionQuestObjectiveAIPatrolConfig();
+		objective_2.SetID(1);
+		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.AIPATROL);
+		questConfig.AddObjectiveConfig(objective_2);
 
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
 		questConfig.SetRewards(rewards);
+		questConfig.SetQuestColor(ARGB(200, 142, 68, 173));
 
 		return questConfig;
 	}
 
 	//! Quest example template for a ai camp target quest
-	ExpansionQuestConfig ExpansionQuestConfig007()
+	ExpansionQuestConfig ExpansionQuestConfig006()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(7);
-		questConfig.SetType(ExpansionQuestType.AICAMP);
+		questConfig.SetID(6);
 		questConfig.SetTitle("Clear Village - Bandits");
 		questConfig.SetObjectiveText("Kill all bandits at the marked location.");
 		array<string> desc = new array<string>;
@@ -273,8 +247,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 
 		//! Quest objectives
@@ -291,11 +265,12 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
 		questConfig.SetRewards(rewards);
+		questConfig.SetQuestColor(ARGB(200, 142, 68, 173));
 
 		return questConfig;
 	}
@@ -303,12 +278,11 @@ class ExpansionDefaultQuestData
 
 #ifdef EXPANSIONMODGROUPS
 	//! Quest example template for a simple group quest
-	ExpansionQuestConfig ExpansionQuestConfig008()
+	ExpansionQuestConfig ExpansionQuestConfig007()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(8);
-		questConfig.SetType(ExpansionQuestType.TARGET);
+		questConfig.SetID(7);
 		questConfig.SetTitle("Kill - Civilian Infected");
 		questConfig.SetObjectiveText("Kill 100 civilian Infected.");
 		array<string> desc = new array<string>;
@@ -316,8 +290,8 @@ class ExpansionDefaultQuestData
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
 		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(5); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(5); //! Quest NPC ID of the NPC that will take-in the quest
+		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsGroupQuest(true); //! Set if the quest is a group quest and can only accepted in a group by the group owner.
 		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
@@ -330,7 +304,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(1000);
 		rewards.Insert(reward_1);
 
@@ -338,393 +312,16 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
-#endif
-
-#ifdef WRDG_DOGTAGS
-#ifdef EXPANSIONMODHARDLINE
-	//! Bandit Token Quests
-	ExpansionQuestConfig ExpansionQuestConfig009()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(9);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Scout");
-		questConfig.SetObjectiveText("Obtain a Scout dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Scout rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Scout.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsBanditQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(3);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(100);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig010()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(10);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Pathfinder");
-		questConfig.SetObjectiveText("Obtain a Pathfinder dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Pathfinder rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Pathfinder.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsBanditQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(4);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(200);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig011()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(11);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Superhero");
-		questConfig.SetObjectiveText("Obtain a Superhero dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Superhero rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Superhero.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsBanditQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(5);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(1000);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig012()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(12);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Legendary");
-		questConfig.SetObjectiveText("Obtain a Legendary dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Legendary rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Legendary.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(3); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(3); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsBanditQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(6);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(2000);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	//! Hero Token Quests
-	ExpansionQuestConfig ExpansionQuestConfig013()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(13);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Kleptomaniac");
-		questConfig.SetObjectiveText("Obtain a Kleptomaniac dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Kleptomaniac rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Kleptomaniac.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsHeroQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(7);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(100);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig014()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(14);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Bully");
-		questConfig.SetObjectiveText("Obtain a Bully dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Bully rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Bully.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsHeroQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(8);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(200);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig015()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(15);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Killer");
-		questConfig.SetObjectiveText("Obtain a Killer dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Killer rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Killer.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsHeroQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(9);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(1000);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig016()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(16);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Madman");
-		questConfig.SetObjectiveText("Obtain a Madman dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a Player with the Madman rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Madman.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsHeroQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(10);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(2000);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig017()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(17);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Hero");
-		questConfig.SetObjectiveText("Obtain a Hero dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Hero rank for me, I will give you something when you come back to me and give me the dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Hero.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsBanditQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(11);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("MoneyRuble");
-		reward_1.SetAmount(400);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-
-	ExpansionQuestConfig ExpansionQuestConfig018()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(18);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
-		questConfig.SetTitle("[Dog Tag] Bandit");
-		questConfig.SetObjectiveText("Obtain a Bandit dog tag.");
-		array<string> desc = new array<string>;
-		desc.Insert("If you kill a player with the Bandit rank for me, I will give you something when you come back to me and give me their dog tag.");
-		desc.Insert("Obtain a dog tag from a player with the rank: Bandit.");
-		desc.Insert("Turn in quest to get reward.");
-		questConfig.SetDescriptions(desc);
-		questConfig.AddQuestGiverID(4); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(4); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
-		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a weekly quest and has as 7 day cooldown if the quest is also repeatable.
-		questConfig.SetIsHeroQuest(true);
-
-		//! Quest objectives
-		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(12);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
-		questConfig.AddObjectiveConfig(objective_1);
-
-		//! Quest rewards on quest completion
-		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
-		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
-		reward_1.SetAmount(400);
-		rewards.Insert(reward_1);
-
-		questConfig.SetRewards(rewards);
-
-		return questConfig;
-	}
-#endif
 #endif
 
 	//! Achievement example quests
-	ExpansionQuestConfig ExpansionQuestConfig019()
+	ExpansionQuestConfig ExpansionQuestConfig008()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(19);
-		questConfig.SetType(ExpansionQuestType.TARGET);
+		questConfig.SetID(8);
 		questConfig.SetTitle("Killed 10 Infected");
-		questConfig.SetObjectiveText("You have killed 10 Infected and completed a server achievement! Reward: 100 Ruble");
+		questConfig.SetObjectiveText("You have killed 10 Infected and completed a server achievement! Reward: 100 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -737,7 +334,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
 
@@ -746,14 +343,13 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-	ExpansionQuestConfig ExpansionQuestConfig020()
+	ExpansionQuestConfig ExpansionQuestConfig009()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(20);
-		questConfig.SetType(ExpansionQuestType.TARGET);
+		questConfig.SetID(9);
 		questConfig.SetTitle("Killed 100 civilian Infected");
-		questConfig.SetObjectiveText("You have killed 100 civilian Infected and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetObjectiveText("You have killed 100 civilian Infected and completed a server achievement! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -766,7 +362,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
@@ -775,34 +371,13 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-	ExpansionQuestConfig ExpansionQuestConfig021()
-	{
-		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
-
-		questConfig.SetID(21); //! Unique quest ID - Need to be the same as when registered in the quest module
-		questConfig.SetType(ExpansionQuestType.CLASS);
-		questConfig.SetTitle("PLACEHOLDER"); //! Quest title
-		questConfig.SetObjectiveText("PLACEHOLDER"); //! Quest objectives text
-		array<string> desc = new array<string>;
-		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
-		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
-		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
-		questConfig.SetDescriptions(desc);
-		questConfig.SetFollowUpQuestID(22); //! Follow-up quest ID
-		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
-		questConfig.AddQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
-		questConfig.SetQuestClassName("ExpansionQuestNamalsk001");
-
-		return questConfig;
-	}
-
 #ifdef EXPANSIONMODAI
-	ExpansionQuestConfig ExpansionQuestConfig022()
+	//! AI Escort quest template
+	ExpansionQuestConfig ExpansionQuestConfig010()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(22); //! Unique quest ID - Need to be the same as when registered in the quest module
-		questConfig.SetType(ExpansionQuestType.AIVIP);
+		questConfig.SetID(10); //! Unique quest ID - Need to be the same as when registered in the quest module
 		questConfig.SetTitle("[VIP] Test quest"); //! Quest title
 		questConfig.SetObjectiveText("PLACEHOLDER"); //! Quest objectives text
 		array<string> desc = new array<string>;
@@ -823,24 +398,25 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(100);
 		rewards.Insert(reward_1);
 
 		questConfig.SetRewards(rewards);
+		questConfig.SetQuestColor(ARGB(200, 142, 68, 173));
 
 		return questConfig;
 	}
 #endif
 
-	ExpansionQuestConfig ExpansionQuestConfig023()
+	//! Achivement action quest to lockpick a vehicle
+	ExpansionQuestConfig ExpansionQuestConfig011()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(23);
-		questConfig.SetType(ExpansionQuestType.ACTION);
+		questConfig.SetID(11);
 		questConfig.SetTitle("Lockpick your first vehicle");
-		questConfig.SetObjectiveText("You have lockpicked your first vehicle and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetObjectiveText("You have lockpicked your first vehicle and completed a server achievement! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -853,7 +429,7 @@ class ExpansionDefaultQuestData
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(500);
 		rewards.Insert(reward_1);
 
@@ -862,12 +438,12 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-	ExpansionQuestConfig ExpansionQuestConfig024()
+	//! Daily quest template
+	ExpansionQuestConfig ExpansionQuestConfig012()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(24);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
+		questConfig.SetID(12);
 		questConfig.SetTitle("Apple Juice");
 		questConfig.SetObjectiveText("Get 5 Apples");
 		array<string> desc = new array<string>;
@@ -875,21 +451,23 @@ class ExpansionDefaultQuestData
 		desc.Insert("Obtain 5 apples.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
+
 		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 
 		//! Quest objectives
 		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_1.SetID(2);
+		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
 		questConfig.AddObjectiveConfig(objective_1);
 
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(10);
 		rewards.Insert(reward_1);
 
@@ -898,12 +476,12 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-	ExpansionQuestConfig ExpansionQuestConfig025()
+	//! Crafting quest template.
+	ExpansionQuestConfig ExpansionQuestConfig013()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(25);
-		questConfig.SetType(ExpansionQuestType.COLLECT);
+		questConfig.SetID(13);
 		questConfig.SetTitle("Catch a Fish");
 		questConfig.SetObjectiveText("Craft an improvised fishing rod and catch a mackerel!");
 		array<string> desc = new array<string>;
@@ -911,6 +489,7 @@ class ExpansionDefaultQuestData
 		desc.Insert("Craft an improvidsed fishing rod and catch a mackerel.");
 		desc.Insert("Turn in quest to get reward.");
 		questConfig.SetDescriptions(desc);
+
 		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
 		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
 
@@ -921,14 +500,14 @@ class ExpansionDefaultQuestData
 		questConfig.AddObjectiveConfig(objective_1);
 
 		ExpansionQuestObjectiveCollectionConfig objective_2 = new ExpansionQuestObjectiveCollectionConfig();
-		objective_2.SetID(14);
+		objective_2.SetID(2);
 		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
 		questConfig.AddObjectiveConfig(objective_2);
 
 		//! Quest rewards on quest completion
 		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
 		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
-		reward_1.SetClassName("ExpansionSilverNugget");
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
 		reward_1.SetAmount(10);
 		rewards.Insert(reward_1);
 
@@ -942,12 +521,12 @@ class ExpansionDefaultQuestData
 		return questConfig;
 	}
 
-	ExpansionQuestConfig ExpansionQuestConfig026()
+	//! Template for a normal auto-start quest that get added to players on first connection
+	ExpansionQuestConfig ExpansionQuestConfig014()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
-		questConfig.SetID(26); //! Unique quest ID - Need to be the same as when registered in the quest module
-		questConfig.SetType(ExpansionQuestType.TRAVEL);
+		questConfig.SetID(14); //! Unique quest ID - Need to be the same as when registered in the quest module
 		questConfig.SetTitle("Welcome to Hell"); //! Quest title
 		questConfig.SetObjectiveText("Visit the camp at the marker location."); //! Quest objectives text
 		array<string> desc = new array<string>;
@@ -966,4 +545,261 @@ class ExpansionDefaultQuestData
 
 		return questConfig;
 	}
+
+	//! Template for a action quests to plant a special seed
+	ExpansionQuestConfig ExpansionQuestConfig015()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(15);
+		questConfig.SetTitle("Plant a Pumpkin");
+		questConfig.SetObjectiveText("Plant a pumpkin seed.");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveActionConfig objective_1 = new ExpansionQuestObjectiveActionConfig();
+		objective_1.SetID(2);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
+		reward_1.SetAmount(500);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+
+	//! Template for a quest that unlocks other quests
+	ExpansionQuestConfig ExpansionQuestConfig016()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(16);
+		questConfig.SetTitle("For the Lich.. i mean Yellow King!");
+		questConfig.SetObjectiveText("Find the yellow kings helmet.");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveCollectionConfig objective_1 = new ExpansionQuestObjectiveCollectionConfig();
+		objective_1.SetID(3);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.COLLECT);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
+		reward_1.SetAmount(500);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+
+	//! Template for a unlocked weekly quest.
+	ExpansionQuestConfig ExpansionQuestConfig017()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(17);
+		questConfig.SetTitle("In Service of the Yellow King");
+		questConfig.SetObjectiveText("PLACEHOLDER");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddPreQuestID(16);
+
+		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
+		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
+		objective_1.SetID(4);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
+		reward_1.SetAmount(500);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+
+	//! Template for a unlocked weekly quest.
+	ExpansionQuestConfig ExpansionQuestConfig018()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(18);
+		questConfig.SetTitle("The Endless Hunger");
+		questConfig.SetObjectiveText("PLACEHOLDER");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddPreQuestID(16);
+
+		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
+		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
+		objective_1.SetID(3);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
+		reward_1.SetAmount(100);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+
+	//! Template for a unlocked weekly quest that gets unlocked when all the pre-quests are completed.
+	ExpansionQuestConfig ExpansionQuestConfig019()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(19);
+		questConfig.SetTitle("Where Kings Walk");
+		questConfig.SetObjectiveText("PLACEHOLDER");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddPreQuestID(17);
+		questConfig.AddPreQuestID(18);
+
+		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
+		questConfig.SetIsWeeklyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
+		objective_1.SetID(4);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		array<ExpansionQuestRewardConfig> rewards = new array<ExpansionQuestRewardConfig>;
+		ExpansionQuestRewardConfig reward_1 = new ExpansionQuestRewardConfig;
+		reward_1.SetClassName("ExpansionBanknoteHryvnia");
+		reward_1.SetAmount(500);
+		rewards.Insert(reward_1);
+
+		questConfig.SetRewards(rewards);
+
+		return questConfig;
+	}
+
+#ifdef EXPANSIONMODHARDLINE
+	//! Template for a repeatable quest that has a reputation reward
+	ExpansionQuestConfig ExpansionQuestConfig020()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(20);
+		questConfig.SetTitle("For the Honor");
+		questConfig.SetObjectiveText("PLACEHOLDER");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
+		objective_1.SetID(3);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		questConfig.SetReputationReward(100);
+
+		return questConfig;
+	}
+
+	//! Template for a repeatable quest that has a reputation requirement
+	ExpansionQuestConfig ExpansionQuestConfig021()
+	{
+		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
+
+		questConfig.SetID(21);
+		questConfig.SetTitle("You need the Honor");
+		questConfig.SetObjectiveText("PLACEHOLDER");
+		array<string> desc = new array<string>;
+		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
+		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
+		desc.Insert("PLACEHOLDER"); //! 2 - Quest description when take in quest
+		questConfig.SetDescriptions(desc);
+
+		questConfig.AddQuestGiverID(1); //! Quest NPC ID of the NPC that will head out the quest
+		questConfig.AddQuestTurnInID(1); //! Quest NPC ID of the NPC that will take-in the quest
+
+		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
+
+		questConfig.SetReputationRequirement(100);
+
+		//! Quest objectives
+		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
+		objective_1.SetID(3);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
+		questConfig.AddObjectiveConfig(objective_1);
+
+		//! Quest rewards on quest completion
+		questConfig.SetReputationReward(100);
+
+		return questConfig;
+	}
+#endif
 };

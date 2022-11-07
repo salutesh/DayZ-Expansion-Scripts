@@ -184,6 +184,9 @@ modded class CarScript
 	float m_Expansion_VehicleAutoCoverTimestamp;
 	bool m_Expansion_HasLifetime;
 
+	bool m_Expansion_CollisionDamageIfEngineOff;
+	float m_Expansion_CollisionDamageMinSpeed; 
+
 	void CarScript()
 	{
 		g_Expansion_Car = this;
@@ -365,7 +368,9 @@ modded class CarScript
 
 		if (GetGame().IsServer())
 		{
-			foreach (ExpansionVehiclesConfig vehcfg : GetExpansionSettings().GetVehicle().VehiclesConfig)
+			auto settings = GetExpansionSettings().GetVehicle();
+
+			foreach (ExpansionVehiclesConfig vehcfg: settings.VehiclesConfig)
 			{
 				if (IsKindOf(vehcfg.ClassName))
 				{
@@ -374,6 +379,9 @@ modded class CarScript
 					break;
 				}
 			}
+
+			m_Expansion_CollisionDamageIfEngineOff = settings.CollisionDamageIfEngineOff;
+			m_Expansion_CollisionDamageMinSpeed = settings.CollisionDamageMinSpeedKmh / 3.6;  //! Converted to m/s
 		}
 	}
 
@@ -3874,7 +3882,7 @@ modded class CarScript
 		}
 	}
 
-	bool Expansion_CoverVehicle(EntityAI cover = null)
+	bool Expansion_CoverVehicle(EntityAI cover = null, out ExpansionEntityStoragePlaceholder placeholder = null)
 	{
 		string coverType;
 
@@ -3886,7 +3894,6 @@ modded class CarScript
 		string placeholderType = Expansion_GetPlaceholderType(coverType);
 
 		bool storeCargo = GetExpansionSettings().GetVehicle().UseVirtualStorageForCoverCargo;
-		ExpansionEntityStoragePlaceholder placeholder;
 		if (ExpansionEntityStoragePlaceholder.Expansion_StoreEntityAndReplace(this, placeholderType, GetPosition(), ECE_OBJECT_SWAP, placeholder, storeCargo))
 		{
 			EXTrace.Print(EXTrace.VEHICLES, this, "Covered vehicle " + GetType() + " " + GetPosition() + " with " + coverType);
@@ -4074,6 +4081,30 @@ modded class CarScript
 
 		ExpansionCheckTreeContact(other, data.Impulse);
 
+		if (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed)
+		{
+			CarScript otherVehicle;
+			bool otherVehicleEngineOn = Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsOn();
+
+			if (!m_Expansion_CollisionDamageIfEngineOff)
+			{
+				if (!Expansion_EngineIsOn() && !otherVehicleEngineOn)
+					return;
+			}
+
+			if (m_Expansion_CollisionDamageMinSpeed)
+			{
+				float minSpeedSq = m_Expansion_CollisionDamageMinSpeed * m_Expansion_CollisionDamageMinSpeed;
+				if (data.RelativeVelocityBefore.LengthSq() < minSpeedSq && !otherVehicleEngineOn)
+					return;
+
+				float dmg = data.Impulse * m_dmgContactCoef;
+
+				if (dmg <= m_Expansion_CollisionDamageMinSpeed * 97.2)
+					return;
+			}
+		}
+
 		super.OnContact(zoneName, localPos, other, data);
 	}
 
@@ -4160,7 +4191,11 @@ modded class CarScript
 
 			//! This in turn invokes EEHitBy which deals with exploding the heli if its health reaches 0
 			if (CanBeDamaged())
-				ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier, pddfFlags);
+			{
+				float collisionDamage = dmg * GetExpansionSettings().GetVehicle().VehicleSpeedDamageMultiplier;
+				if (collisionDamage > 0)
+					ProcessDirectDamage(DT_CUSTOM, null, zoneName, "EnviroDmg", "0 0 0", collisionDamage, pddfFlags);
+			}
 		}
 
 		UpdateHeadlightState();

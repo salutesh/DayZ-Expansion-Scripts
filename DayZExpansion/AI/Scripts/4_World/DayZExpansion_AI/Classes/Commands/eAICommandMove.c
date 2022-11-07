@@ -102,8 +102,6 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 	override void OnActivate()
 	{
-		SetSpeedLimit(-1);
-		
 		//! XXX: This doesn't seem to be needed
 		//dBodySetInteractionLayer(m_Player, PhxInteractionLayers.CHARACTER | PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE | PhxInteractionLayers.AI);
 	}
@@ -191,6 +189,10 @@ class eAICommandMove extends ExpansionHumanCommandScript
 	{
 		super.PreAnimUpdate(pDt);
 
+#ifdef DIAG
+		auto hitch = EXHitch(m_Unit.ToString() + " eAICommandMove::PreAnimUpdate ", 20000);
+#endif
+
 		m_SpeedUpdateTime += pDt;
 
 		vector debug_points[2];
@@ -199,57 +201,62 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		vector position = m_Transform[3];
 
 		vector wayPoint = position;
-#ifndef EAI_USE_LEGACY_PATHFINDING
-		bool isFinal = m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal;
-		//m_WayPointDistance = vector.DistanceSq(position, wayPoint);
-		DBGDrawSphere(wayPoint, 0.05, 0xFFFF0000);
-		//DBGDrawLine(position, wayPoint, 0xFFFF0000);
-		m_Unit.Expansion_DebugObject_Deferred(ORIGINAL_WAYPOINT, wayPoint, "ExpansionDebugBox_Red");
-#else
-		int wayPointIndex;
-
 		bool isFinal = true;
-		if (m_PathFinding.Count() >= 2)
+		vector pathDir2D;
+		vector fb;
+		if (m_SpeedLimit)
 		{
-			wayPointIndex = m_PathFinding.Next(position);
-			wayPoint = m_PathFinding[wayPointIndex];
+#ifndef EAI_USE_LEGACY_PATHFINDING
+			isFinal = m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal;
+			//m_WayPointDistance = vector.DistanceSq(position, wayPoint);
+			DBGDrawSphere(wayPoint, 0.05, 0xFFFF0000);
+			//DBGDrawLine(position, wayPoint, 0xFFFF0000);
+			m_Unit.Expansion_DebugObject_Deferred(ORIGINAL_WAYPOINT, wayPoint, "ExpansionDebugBox_Red");
+#else
+			int wayPointIndex;
 
-			isFinal = wayPointIndex == m_PathFinding.Count() - 1;
-		}
+			if (m_PathFinding.Count() >= 2)
+			{
+				wayPointIndex = m_PathFinding.Next(position);
+				wayPoint = m_PathFinding[wayPointIndex];
+
+				isFinal = wayPointIndex == m_PathFinding.Count() - 1;
+			}
 #endif
 
-		vector pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
-		vector fb = pathDir2D.Normalized();
+			pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
+			fb = pathDir2D.Normalized();
 
-		bool halt;
+			bool halt;
 
-		//! Hack fix so AI doesn't fall from a large height (e.g. building top) and die
-		if (position[1] - wayPoint[1] > 2.5)
-		{
-			vector checkDirection = fb * 2;
-			if (!m_Unit.eAI_IsFallSafe(checkDirection))
-				halt = true;
-		}
+			//! Hack fix so AI doesn't fall from a large height (e.g. building top) and die
+			if (position[1] - wayPoint[1] > 2.5)
+			{
+				vector checkDirection = fb * 2;
+				if (!m_Unit.eAI_IsFallSafe(checkDirection))
+					halt = true;
+			}
 
-		//! Hack fix so AI doesn't go into deep water
-		vector begPos = Vector(position[0], Math.Max(position[1], wayPoint[1]), position[2]) + fb;
-		vector contactPos;
-		vector contactDir;
-		int contactComponent;
-		set<Object> results();
-		if (DayZPhysics.RaycastRV(begPos, position + fb - "0 10 0", contactPos, contactDir, contactComponent, results, NULL, m_Unit, false, false, ObjIntersectView, 0.25))
-		{
-			float waterDepth = GetGame().GetWaterDepth(contactPos);
-			if (waterDepth > 0.5)
-				halt = true;
-		}
+			//! Hack fix so AI doesn't go into deep water
+			vector begPos = Vector(position[0], Math.Max(position[1], wayPoint[1]), position[2]) + fb;
+			vector contactPos;
+			vector contactDir;
+			int contactComponent;
+			set<Object> results();
+			if (DayZPhysics.RaycastRV(begPos, position + fb - "0 10 0", contactPos, contactDir, contactComponent, results, NULL, m_Unit, false, false, ObjIntersectView, 0.25))
+			{
+				float waterDepth = GetGame().GetWaterDepth(contactPos);
+				if (waterDepth > 0.5)
+					halt = true;
+			}
 
-		if (halt)
-		{
-			wayPoint = position;
-			isFinal = true;
-			m_MovementSpeed = 0;
-			m_OverrideMovementTimeout = 0.0;
+			if (halt)
+			{
+				wayPoint = position;
+				isFinal = true;
+				m_MovementSpeed = 0;
+				m_OverrideMovementTimeout = 0.0;
+			}
 		}
 
 		bool blockedForward;

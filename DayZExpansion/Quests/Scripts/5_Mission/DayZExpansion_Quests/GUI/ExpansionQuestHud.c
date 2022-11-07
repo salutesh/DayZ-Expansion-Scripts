@@ -30,7 +30,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void SetView(ExpansionQuestPersistentData playerData)
 	{
-		QuestPrint(ToString() + "::SetView - Start");
+		QuestDebugPrint(ToString() + "::SetView - Start");
 
 		m_QuestEntries.Clear();
 
@@ -51,8 +51,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 			int questID = data.QuestID;
 			int state = data.State;
 
-			QuestPrint(ToString() + "::SetView - Quest ID: " + questID);
-			QuestPrint(ToString() + "::SetView - Quest state: " + state);
+			QuestDebugPrint(ToString() + "::SetView - Quest ID: " + questID);
+			QuestDebugPrint(ToString() + "::SetView - Quest state: " + state);
 
 			if (state > ExpansionQuestState.NONE && state < ExpansionQuestState.COMPLETED)
 			{
@@ -60,8 +60,8 @@ class ExpansionQuestHUD: ExpansionScriptView
 				if (!questConfig || questConfig.IsAchivement())
 					continue;
 
-				QuestPrint(ToString() + "::SetView - Quest config: " + questConfig);
-				QuestPrint(ToString() + "::SetView - Add new entry for quest: " + questID);
+				QuestDebugPrint(ToString() + "::SetView - Quest config: " + questConfig);
+				QuestDebugPrint(ToString() + "::SetView - Add new entry for quest: " + questID);
 
 				ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, data);
 				QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
@@ -81,7 +81,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 			}
 		}
 
-		QuestPrint(ToString() + "::SetView - End");
+		QuestDebugPrint(ToString() + "::SetView - End");
 	}
 
 	void ShowHud(bool state)
@@ -119,10 +119,10 @@ class ExpansionQuestHUD: ExpansionScriptView
 		}
 	}
 
-	void QuestPrint(string text)
+	void QuestDebugPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		CF_Log.Debug(text);
+		Print(text);
 	#endif
 	}
 

@@ -10,6 +10,7 @@
  *
 */
 
+//! DEPRECATED BUT HERE FOR CONVERSION
 class ExpansionQuestObjectiveCollection
 {
 	protected int Amount = 0;
@@ -33,33 +34,5 @@ class ExpansionQuestObjectiveCollection
 	string GetClassName()
 	{
 		return ClassName;
-	}
-
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(Amount);
-		ctx.Write(ClassName);
-	}
-
-	bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!ctx.Read(Amount))
-			return false;
-
-		string name;
-		if (!ctx.Read(ClassName))
-			return false;
-
-		return true;
-	}
-
-	void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		CF_Log.Debug("------------------------------------------------------------");
-		CF_Log.Debug(ToString() + "::QuestDebug - Amount: " + Amount);
-		CF_Log.Debug(ToString() + "::QuestDebug - ClassName: " + ClassName);
-		CF_Log.Debug("------------------------------------------------------------");
-	#endif
 	}
 };

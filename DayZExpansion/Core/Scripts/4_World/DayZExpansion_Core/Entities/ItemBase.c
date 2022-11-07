@@ -591,7 +591,7 @@ modded class ItemBase
 		}
 
 #ifdef EXPANSIONMODBASEBUILDING
-		if (IsInherited(ExpansionBaseBuilding) || IsInherited(ExpansionSafeBase))
+		if (IsInherited(BaseBuildingBase) || IsInherited(ExpansionSafeBase))
 			RaidLog(source, damageZone, ammo, health, dmg, m_Expansion_DamageMultiplier);
 #endif
 	}
@@ -1215,7 +1215,7 @@ modded class ItemBase
 	{
 		Battery9V battery;
 		if (Class.CastTo(battery, this) || Class.CastTo(battery, FindAttachmentBySlotName("BatteryD")))
-			return battery.GetQuantity() / battery.GetQuantityMax() * 100;
+			return Math.Ceil(battery.GetQuantity() / battery.GetQuantityMax() * 100);
 
 		return 0;
 	}

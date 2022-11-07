@@ -17,13 +17,13 @@ class ExpansionClientSettings
 {
 	[NonSerialized()]
 	autoptr ScriptInvoker SI_UpdateSetting = new ScriptInvoker();
-	
+
 	[NonSerialized()]
 	autoptr array< ref ExpansionClientSettingCategory > m_Categories;
 
 	[NonSerialized()]
 	private ExpansionClientSettingCategory m_CurrentCategory;
-	
+
 	[NonSerialized()]
 	bool m_ShouldShowHUDCategory = false;
 
@@ -45,7 +45,7 @@ class ExpansionClientSettings
 	bool Show3DPlayerMarkers;
 	bool Show3DPartyMarkers;
 	bool Show3DGlobalMarkers;
-	
+
 	bool Show3DPartyMemberIcon;
 
 	bool Show2DClientMarkers;
@@ -80,30 +80,32 @@ class ExpansionClientSettings
 	float BlueColorHUDOnTopOfHeadOfPlayers;
 	float AlphaColorLookAtMinimum;
 	bool DefaultMarkerLockState;
-	
+
 	// Chat Settings
 	ExpansionClientUIChatSize HUDChatSize;
 	float HUDChatFadeOut;
 	ExpansionClientUIChatChannel DefaultChatChannel;
-	
+
 	bool ShowNameQuickMarkers;
 	bool ShowDistanceQuickMarkers;
 
 	bool ShowMapMarkerList;
-	
+
 	float VehicleCameraHeight;
 	float VehicleCameraDistance;
 	float VehicleCameraOffsetY;
-	
+
 	float VehicleResyncTimeout;
 	bool ShowDesyncInvulnerabilityNotifications;
-	
+
 	bool MarketMenuCategoriesState;
 	bool MarketMenuSkipConfirmations;
 	bool MarketMenuFilterPurchasableState;
 	bool MarketMenuFilterSellableState;
 	bool MarketMenuDisableSuccessNotifications;
-	
+
+	ref array<string> MutedPlayers;
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
 	// -----------------------------------------------------------
@@ -120,9 +122,10 @@ class ExpansionClientSettings
 		#ifdef EXPANSIONMODCHAT
 		m_ShouldShowHUDCategory = true;
 		#endif
-		
+
 		m_Categories = new array< ref ExpansionClientSettingCategory >;
-		
+		MutedPlayers = new array<string>;
+
 		Init();
 		Defaults();
 
@@ -132,7 +135,7 @@ class ExpansionClientSettings
 			Save();
 		}
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings OnRead
 	// -----------------------------------------------------------
@@ -141,7 +144,7 @@ class ExpansionClientSettings
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.SETTINGS, this, "OnRead").Add(ctx).Add(version);
 #endif
-		
+
 		// Vehicles
 		if ( !ctx.Read( UseCameraLock ) )
 		{
@@ -163,7 +166,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read UsePlaneMouseControl!");
 			return false;
 		}
-		
+
 		// Video
 		if (version < 36)
 		{
@@ -187,12 +190,13 @@ class ExpansionClientSettings
 				return false;
 			}
 		}
+
 		if ( !ctx.Read( CastLightShadows ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read CastLightShadows!");
 			return false;
 		}
-		
+
 		// 3D Markers
 		if ( !ctx.Read( Show3DClientMarkers ) )
 		{
@@ -214,7 +218,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DGlobalMarkers!");
 			return false;
 		}
-		
+
 		// 2D Markers
 		if ( !ctx.Read( Show2DClientMarkers ) )
 		{
@@ -236,7 +240,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show2DGlobalMarkers!");
 			return false;
 		}
-		
+
 		// Notifications
 		if ( !ctx.Read( ShowNotifications ) )
 		{
@@ -263,7 +267,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read NotificationLeave!");
 			return false;
 		}
-		
+
 		// Streamer mode
 		if ( !ctx.Read( StreamerMode ) )
 		{
@@ -275,7 +279,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowPINCode!");
 			return false;
 		}
-		
+
 		// HUD Settings
 		if ( !ctx.Read( EarplugLevel ) )
 		{
@@ -307,7 +311,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read AlphaColorLookAtMinimum!");
 			return false;
 		}
-		
+
 		if ( version < 7 )
 			return true;
 
@@ -322,7 +326,7 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatFadeOut!");
 			return false;
 		}
-		
+
 		if ( version < 8 )
 			return true;
 
@@ -352,154 +356,176 @@ class ExpansionClientSettings
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ForceColorMemberMarker!");
 			return false;
 		}
-		
+
 		if ( version < 9 )
 			return true;
-		
+
 		if ( !ctx.Read( ShowNameQuickMarkers ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowNameQuickMarkers!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( ShowDistanceQuickMarkers ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowDistanceQuickMarkers!");
 			return false;
 		}
-		
+
 		if ( version < 13 )
 			return true;
-		
+
 		if ( !ctx.Read( HelicopterMouseVerticalSensitivity ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterMouseVerticalSensitivity!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( HelicopterMouseHorizontalSensitivity ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HelicopterMouseHorizontalSensitivity!");
 			return false;
 		}
-		
+
 		if ( version < 18 )
 			return true;
-		
+
 		if ( !ctx.Read( ShowMapMarkerList ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowMapMarkerList!");
 			return false;
 		}
-		
+
 		if ( version < 26 )
 			return true;
-		
+
 		if ( !ctx.Read( VehicleCameraHeight ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraHeight!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( VehicleCameraDistance ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraDistance!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( VehicleCameraOffsetY ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleCameraOffsetY!");
 			return false;
 		}
-		
+
 		if ( version < 29 )
 			return true;
-		
+
 		if ( !ctx.Read( MarketMenuCategoriesState ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuCategoriesState!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( MarketMenuSkipConfirmations ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuSkipConfirmations!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( MarketMenuFilterPurchasableState ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuFilterPurchasableState!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( MarketMenuFilterSellableState ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuFilterSellableState!");
 			return false;
 		}
-		
+
 		if ( version < 38 )
 			return true;
-		
+
 		if ( !ctx.Read( MarketMenuDisableSuccessNotifications ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MarketMenuDisableSuccessNotifications!");
 			return false;
 		}
-		
+
 		if ( version < 39 )
 			return true;
-		
+
 		if ( !ctx.Read( DefaultMarkerLockState ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DefaultMarkerLockState!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( TurnOffAutoHoverDuringFlight ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read TurnOffAutoHoverDuringFlight!");
 			return false;
 		}
-		
+
 		if ( version < 40 )
 			return true;
-		
+
 		if ( !ctx.Read( Show3DPartyMemberIcon ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read Show3DPartyMemberIcon!");
 			return false;
 		}
-		
+
 		if ( version < 41 )
 			return true;
-		
+
 		if ( !ctx.Read( DefaultChatChannel ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read DefaultChatChannel!");
 			return false;
 		}
-		
+
 		if ( version < 42 )
 			return true;
-		
+
+		if ( version >= 43 )
+		{
+			int mutedPlayersCount;
+			if ( !ctx.Read( mutedPlayersCount ) )
+			{
+				EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MutedPlayers count!");
+				return false;
+			}
+
+			for (int i = 0; i < mutedPlayersCount; i++)
+			{
+				string muted;
+				if ( !ctx.Read( muted ) )
+				{
+					EXPrint(ToString() + "::OnRead - ERROR: Couldn't read MutedPlayer string!");
+					return false;
+				}
+
+				MutedPlayers.Insert( muted );
+			}
+		}
+
 		if ( !ctx.Read( VehicleResyncTimeout ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read VehicleResyncTimeout!");
 			return false;
 		}
-		
+
 		if ( !ctx.Read( ShowDesyncInvulnerabilityNotifications ) )
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowDesyncInvulnerabilityNotifications!");
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings OnSave
 	// -----------------------------------------------------------
@@ -508,7 +534,7 @@ class ExpansionClientSettings
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSave").Add(ctx);
 #endif
-		
+
 		// Vehicles
 		ctx.Write( UseCameraLock );
 		ctx.Write( UseInvertedMouseControl );
@@ -549,7 +575,7 @@ class ExpansionClientSettings
 		ctx.Write( GreenColorHUDOnTopOfHeadOfPlayers );
 		ctx.Write( BlueColorHUDOnTopOfHeadOfPlayers );
 		ctx.Write( AlphaColorLookAtMinimum );
-		
+
 		// Chat settings
 		ctx.Write( HUDChatSize );
 		ctx.Write( HUDChatFadeOut );
@@ -560,7 +586,7 @@ class ExpansionClientSettings
 		ctx.Write( ShowMemberNameMarker );
 		ctx.Write( ShowMemberDistanceMarker );
 		ctx.Write( ForceColorMemberMarker );
-		
+
 		ctx.Write( ShowNameQuickMarkers );
 		ctx.Write( ShowDistanceQuickMarkers );
 
@@ -568,30 +594,37 @@ class ExpansionClientSettings
 		ctx.Write( HelicopterMouseHorizontalSensitivity );
 
 		ctx.Write( ShowMapMarkerList );
-		
+
 		ctx.Write( VehicleCameraHeight );
 		ctx.Write( VehicleCameraDistance );
 		ctx.Write( VehicleCameraOffsetY );
-			
+
 		ctx.Write( MarketMenuCategoriesState );
 		ctx.Write( MarketMenuSkipConfirmations );
 		ctx.Write( MarketMenuFilterPurchasableState );
 		ctx.Write( MarketMenuFilterSellableState );
-			
+
 		ctx.Write( MarketMenuDisableSuccessNotifications );
-		
+
 		ctx.Write( DefaultMarkerLockState );
-			
+
 		ctx.Write( TurnOffAutoHoverDuringFlight );
-		
+
 		ctx.Write( Show3DPartyMemberIcon );
-		
+
 		ctx.Write( DefaultChatChannel );
-		
+
+		int mutedPlayersCount = MutedPlayers.Count();
+		ctx.Write( mutedPlayersCount );
+		foreach (string muted: MutedPlayers)
+		{
+			ctx.Write( muted );
+		}
+
 		ctx.Write( VehicleResyncTimeout );
 		ctx.Write( ShowDesyncInvulnerabilityNotifications );
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Load
 	// -----------------------------------------------------------
@@ -602,7 +635,7 @@ class ExpansionClientSettings
 #endif
 
 		FileSerializer file = new FileSerializer;
-		
+
 		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.READ ) )
 		{
 			int version;
@@ -621,17 +654,17 @@ class ExpansionClientSettings
 				file.Close();
 				return false;
 			}
-			
+
 			file.Close();
 		} else
 		{
 			EXPrint(ToString() + "::Load - ERROR: Could not open client settings file \"" + EXPANSION_CLIENT_SETTINGS + "\"!");
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Save
 	// -----------------------------------------------------------
@@ -640,19 +673,19 @@ class ExpansionClientSettings
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
 #endif
-			
+
 		FileSerializer file = new FileSerializer;
 		if ( file.Open( EXPANSION_CLIENT_SETTINGS, FileMode.WRITE ) )
 		{
 			EXPrint("Saving Expansion client settings version " + EXPANSION_VERSION_CLIENT_SETTING_SAVE);
 			file.Write( EXPANSION_VERSION_CLIENT_SETTING_SAVE );
-			
+
 			OnSave( file );
-			
+
 			file.Close();
 		}
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Defaults
 	// -----------------------------------------------------------
@@ -673,7 +706,7 @@ class ExpansionClientSettings
 		Show2DPlayerMarkers = true;
 		Show2DPartyMarkers = true;
 		Show2DGlobalMarkers = true;
-		
+
 		ShowNotifications = true;
 		NotificationSound = true;
 		NotificationJoin = true;
@@ -691,7 +724,7 @@ class ExpansionClientSettings
 
 		UseCameraLock = false;
 		UseInvertedMouseControl = false;
-		
+
 		UseHelicopterMouseControl = false;
 		HelicopterMouseVerticalSensitivity = 1.0;
 		HelicopterMouseHorizontalSensitivity = 1.0;
@@ -707,31 +740,31 @@ class ExpansionClientSettings
 
 		// UsePlaneMouseControlInverted = true;
 		// UsePlaneMouseControl = false;
-		
+
 		ShowNameQuickMarkers = true;
 		ShowDistanceQuickMarkers = true;
-		
+
 		ShowMapMarkerList = true;
-		
+
 		VehicleCameraHeight = 1.0;
 		VehicleCameraDistance = 1.0;
-		
+
 		MarketMenuCategoriesState = false;
 		MarketMenuSkipConfirmations = false;
 		MarketMenuFilterPurchasableState = false;
 		MarketMenuFilterSellableState = false;
 		MarketMenuDisableSuccessNotifications = false;
-		
+
 		DefaultMarkerLockState = false;
 		TurnOffAutoHoverDuringFlight = true;
 		Show3DPartyMemberIcon = true;
-		
+
 		DefaultChatChannel = ExpansionClientUIChatChannel.DIRECT;
 
 		VehicleResyncTimeout = 5.0;
 		ShowDesyncInvulnerabilityNotifications = false;
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Init
 	// -----------------------------------------------------------
@@ -742,16 +775,16 @@ class ExpansionClientSettings
 #endif
 
 		CreateCategory( "VideoSettings", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO" );
-		
+
 		//! Option to toggle light shadows
 		CreateToggle( "CastLightShadows", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO_LIGHTSHADOWS_DESC" );
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "3DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D" );
 
 		//! Option to toggle view of all personal 3D Map-Markers
 		CreateToggle( "Show3DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DCLIENTMARKERS_DESC" );
-		//! Option to toggle view of all 3D Party Player-Markers 
+		//! Option to toggle view of all 3D Party Player-Markers
 		CreateToggle( "Show3DPlayerMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPLAYERMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPLAYERMARKERS_DESC" );
 		//! Option to toggle view of all 3D Party Map-Markers
 		CreateToggle( "Show3DPartyMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMARKERS_DESC" );
@@ -762,10 +795,10 @@ class ExpansionClientSettings
 		CreateToggle( "Show3DPartyMemberIcon", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_3D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW3DPARTYMEMBERICON_DESC" );
 	#endif
 	#endif
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateCategory( "2DMapMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D" );
-		
+
 		//! Option to toggle view of all personal 2D Map-Markers
 		CreateToggle( "Show2DClientMarkers", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_SHOW2DCLIENTMARKERS_DESC" );
 		//! Option to toggle view of all 2D party Player-Markers
@@ -777,7 +810,7 @@ class ExpansionClientSettings
 		//! Option to set default marker lock state for new created map markers.
 		CreateToggle( "DefaultMarkerLockState", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_MARKERS_2D", "#STR_EXPANSION_SETTINGS_CLIENT_MAP_DEFAULTMARKERLOCK_DESC" );
 	#endif
-		
+
 		CreateCategory( "Notifications", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS" );
 
 		//! Option to toggle notification sounds
@@ -790,9 +823,9 @@ class ExpansionClientSettings
 		CreateToggle( "NotificationJoin", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_JOIN_DESC" );
 		//! Option to toggle display of player left notifications
 		CreateToggle( "NotificationLeave", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_LEAVE", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS", "#STR_EXPANSION_SETTINGS_NOTIFICATIONS_LEAVE_DESC" );
-		
+
 		CreateCategory( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE" );
-		
+
 		//! Option to toggle streamer mode
 		CreateToggle( "StreamerMode", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION", "#STR_EXPANSION_SETTINGS_STREAMER_MODE", "#STR_EXPANSION_SETTINGS_STREAMER_MODE_OPTION_DESC" );
 		//! Option to toggle display of pins and passwords
@@ -822,7 +855,7 @@ class ExpansionClientSettings
 		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
 
 		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
-		
+
 		//Color slider for party member on top of player head
 		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
 		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
@@ -831,16 +864,16 @@ class ExpansionClientSettings
 	
 		CreateSlider( "AlphaColorLookAtMinimum", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_3D_MARKER_POINTING_DESC", 0.0, 255.0, 5.0 );
 	#endif
-		
+
 	#ifdef EXPANSIONMODCHAT
 		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
 		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 60.0, 1.0 );
 		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );
 	#endif
-		
+
 	#ifdef EXPANSIONMODVEHICLE
 		CreateCategory( "Vehicles", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES" );
-		
+
 		//! Option to toggle the vehicle camera
 		//CreateToggle( "UseCameraLock", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_FREELOOK_DESC" );
 		CreateToggle( "UseInvertedMouseControl", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_INVERTED", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_MOUSE_CONTROL_DESC_INVERTED" );
@@ -848,7 +881,7 @@ class ExpansionClientSettings
 		CreateSlider( "HelicopterMouseVerticalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_VERTICAL_DESC", 0.1, 3.0, 0.1 );
 		CreateSlider( "HelicopterMouseHorizontalSensitivity", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_MOUSE_HORIZONTAL_DESC", 0.1, 3.0, 0.1 );
 		CreateToggle( "TurnOffAutoHoverDuringFlight", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES", "#STR_EXPANSION_SETTINGS_CLIENT_VEHICLES_HELICOPTER_TURN_OFF_AUTOHOVER_DURING_FLIGHT_DESC" );
-		
+
 		//! Option to change vehicle camera height
 		CreateSlider( "VehicleCameraHeight", "VEHICLE CAMERA HEIGHT", "VEHICLE CAMERA HEIGHT", "", 0.5, 10.0, 0.5 );
 		CreateSlider( "VehicleCameraDistance", "VEHICLE CAMERA DISTANCE", "VEHICLE CAMERA DISTANCE", "", 0.5, 5.0, 0.5 );
@@ -862,7 +895,7 @@ class ExpansionClientSettings
 		CreateSlider( "VehicleResyncTimeout", "VEHICLE RESYNC TIMEOUT", "VEHICLE RESYNC TIMEOUT", "How long after desync and no resync has occurred vehicle physics updates are halted and position is restored to last known from server.", 1.0, 10.0, 0.5 );
 		CreateToggle( "ShowDesyncInvulnerabilityNotifications", "INVULNERABILITY NOTIFICATIONS", "SHOW DESYNC INVULNERABILITY NOTIFICATIONS", "Show desync invulnerability notifications (after the fact)." );
 	#endif
-	
+
 	#ifdef EXPANSIONMODMARKET
 		CreateCategory( "MarketMenu", "MARKET MENU" );
 		CreateToggle( "MarketMenuCategoriesState", "MARKET CATEGORIES TOGGLE STATE", "MarketMenu", "Automatically expand all categories when opening trader menu (WARNING: Performance hit!)" );
@@ -872,7 +905,7 @@ class ExpansionClientSettings
 		CreateToggle( "MarketMenuDisableSuccessNotifications", "DISABLE SUCCESS NOTIFICATIONS", "MarketMenu", "Disable notifications for successful purchases and sales." );
 	#endif
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings OnSettingsUpdated
 	// -----------------------------------------------------------
@@ -890,7 +923,7 @@ class ExpansionClientSettings
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateCategory");
 #endif
-		
+
 		ExpansionClientSettingCategory category = new ExpansionClientSettingCategory;
 
 		category.m_Name = name;
@@ -899,7 +932,7 @@ class ExpansionClientSettings
 		m_Categories.Insert( category );
 		m_CurrentCategory = category;
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateToggle
 	// -----------------------------------------------------------
@@ -919,7 +952,7 @@ class ExpansionClientSettings
 
 		m_CurrentCategory.m_Settings.Insert( setting );
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateSlider
 	// -----------------------------------------------------------
@@ -942,7 +975,7 @@ class ExpansionClientSettings
 
 		m_CurrentCategory.m_Settings.Insert( setting );
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateInt
 	// -----------------------------------------------------------
@@ -963,7 +996,7 @@ class ExpansionClientSettings
 
 		m_CurrentCategory.m_Settings.Insert( setting );
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateEnum
 	// ----------------------------------------------------------
@@ -991,7 +1024,7 @@ class ExpansionClientSettings
 
 		m_CurrentCategory.m_Settings.Insert( setting );
 	}
-	
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings CreateEnum
 	// ----------------------------------------------------------

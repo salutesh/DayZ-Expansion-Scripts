@@ -12,26 +12,16 @@
 
 modded class PlayerBase
 {
-	private int m_Humanity;
+	private int m_Reputation;
 	
-	bool IsHero()
+	void SetReputation(int reputation)
 	{
-		return m_Humanity >= GetExpansionSettings().GetHardline().RankScout;
+		m_Reputation = reputation;
 	}
 	
-	bool IsBandit()
+	int GetReputation()
 	{
-		return m_Humanity <= GetExpansionSettings().GetHardline().RankKleptomaniac;
-	}
-	
-	void SetHumanity(int humanity)
-	{
-		m_Humanity = humanity;
-	}
-	
-	int GetHumanity()
-	{
-		return m_Humanity;
+		return m_Reputation;
 	}
 	
    // ------------------------------------------------------------
@@ -39,7 +29,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	override void EEKilled(Object killer)
 	{
-		if  (GetExpansionSettings().GetHardline().UseHumanity)
+		if  (GetExpansionSettings().GetHardline().UseReputation)
 		{	
 			ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 			if (hardlineModule)

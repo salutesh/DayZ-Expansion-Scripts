@@ -62,7 +62,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 	{
 		return MarkerName;
 	}
-	
+
 	bool ShowDistance()
 	{
 		return ShowDistance;
@@ -71,7 +71,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 	static ExpansionQuestObjectiveAIVIPConfig Load(string fileName)
 	{
 		bool save;
-		CF_Log.Info("[ExpansionQuestObjectiveAIVIPConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveAIVIPConfig] Load existing configuration file:" + fileName);
 
 		ExpansionQuestObjectiveAIVIPConfig config;
 		ExpansionQuestObjectiveAIVIPConfigBase configBase;
@@ -81,7 +81,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			CF_Log.Info("[ExpansionQuestObjectiveAIVIPConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveAIVIPConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveAIVIPConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -103,19 +103,19 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 
 		return config;
 	}
-	
+
 	override void Save(string fileName)
 	{
 		JsonFileLoader<ExpansionQuestObjectiveAIVIPConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName + ".json", this);
 	}
-	
+
 	void CopyConfig(ExpansionQuestObjectiveAIVIPConfigBase configBase)
 	{
 		ID = configBase.ID;
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-		
+
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		AIVIP = configBase.AIVIP;
@@ -145,8 +145,19 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 
 		if (!ctx.Read(MarkerName))
 			return false;
-		
+
 		if (!ctx.Read(ShowDistance))
+			return false;
+
+		return true;
+	}
+
+	override bool Validate()
+	{
+		if (!super.Validate())
+			return false;
+
+		if (!AIVIP)
 			return false;
 
 		return true;
@@ -155,6 +166,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 	override void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		super.QuestDebug();
 		if (AIVIP)
 			AIVIP.QuestDebug();
 	#endif

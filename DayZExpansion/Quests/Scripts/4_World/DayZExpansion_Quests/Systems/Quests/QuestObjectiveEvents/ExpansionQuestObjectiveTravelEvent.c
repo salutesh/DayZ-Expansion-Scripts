@@ -15,47 +15,14 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	protected float m_UpdateQueueTimer = 0;
 	protected const float UPDATE_TICK_TIME = 2.0;
 
-	override bool OnStart()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnStart");
-	#endif
-
-		if (!super.OnStart())
-			return false;
-
-		TravelEventStart();
-
-		return true;
-	}
-
-	override bool OnContinue()
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
-	#endif
-
-		if (!super.OnContinue())
-			return false;
-
-		TravelEventStart();
-
-		return true;
-	}
-
 #ifdef EXPANSIONMODNAVIGATION
 	override void OnRecreateClientMarkers()
 	{
-		super.OnRecreateClientMarkers();
+		vector position = GetObjectiveConfig().GetPosition();
+		string markerName = GetObjectiveConfig().GetMarkerName();
 
-		if (GetQuest().GetQuestState() == ExpansionQuestState.STARTED)
-		{
-			vector position = GetObjectiveConfig().GetPosition();
-			string markerName = GetObjectiveConfig().GetMarkerName();
-
-			if (markerName != string.Empty || position != vector.Zero)
-				GetQuest().CreateClientMarker(position, markerName);
-		}
+		if (markerName != string.Empty || position != vector.Zero)
+			GetQuest().CreateClientMarker(position, markerName);
 	}
 #endif
 
@@ -68,9 +35,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		{
 			if (DestinationCheck() && !IsCompleted())
 			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				CF_Log.Debug(ToString() + "::OnUpdate - Complete!");
-			#endif
+				ObjectivePrint(ToString() + "::OnUpdate - Complete!");
 				SetCompleted(true);
 				OnComplete();
 			}
@@ -79,19 +44,17 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	protected void TravelEventStart()
+	override bool OnEventStart(bool continues = false)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "TravelEventStart");
-	#endif
-
-		vector position = GetObjectiveConfig().GetPosition();
-		string markerName = GetObjectiveConfig().GetMarkerName();
+		ObjectivePrint(ToString() + "::OnEventStart - Start");
 
 	#ifdef EXPANSIONMODNAVIGATION
-		if (markerName != string.Empty || position != vector.Zero)
-			GetQuest().CreateClientMarker(position, markerName);
+		OnRecreateClientMarkers();
 	#endif
+
+		ObjectivePrint(ToString() + "::OnEventStart - End");
+
+		return true;
 	}
 
 	vector GetPosition()
