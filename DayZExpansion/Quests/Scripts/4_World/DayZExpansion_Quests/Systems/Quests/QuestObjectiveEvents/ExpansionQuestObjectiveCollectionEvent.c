@@ -139,6 +139,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 				EnumeratePlayerInventory(player);
 				
 				hasItems = HasAllObjectiveItems();
+			#ifdef EXPANSIONMODNAVIGATION
 				if (hasItems && !m_MarkerCreated)
 				{
 					m_MarkerCreated = true;
@@ -149,6 +150,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 					m_MarkerCreated = false;
 					GetQuest().RemoveMarkers();
 				}
+			#endif
 				
 				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())
@@ -170,6 +172,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 				EnumerateGroupInventory(GetQuest().GetGroup());
 
 				hasItems = HasGroupAllObjectiveItems();
+			#ifdef EXPANSIONMODNAVIGATION
 				if (hasItems && !m_MarkerCreated)
 				{
 					m_MarkerCreated = true;
@@ -180,6 +183,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 					m_MarkerCreated = false;
 					GetQuest().RemoveMarkers();
 				}
+			#endif
 				
 				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())
