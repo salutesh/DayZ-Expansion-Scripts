@@ -36,6 +36,9 @@ class ExpansionVehicleSettingsBase : ExpansionSettingBase
 	bool DisableVehicleDamage;			//! If disabled, vehicles (cars, trucks) won't take any damages
 	float VehicleCrewDamageMultiplier;	//! Damage multiplier for the crew. How fast they will blackout or die.
 	float VehicleSpeedDamageMultiplier; //! Damage multiplier for the speed of the car. Above 0 is weaker and below 0 is stronger.
+	float VehicleRoadKillDamageMultiplier;
+	bool CollisionDamageIfEngineOff;	//! Should the vehicle be able to receive damage if the engine is off?
+	float CollisionDamageMinSpeedKmh;	//! Minimum speed in km/h for vehicle to take collision damage
 }
 
 /**@class		ExpansionVehicleSettingsV2
@@ -55,9 +58,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 15;
-
-	float VehicleRoadKillDamageMultiplier;
+	static const int VERSION = 16;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -406,6 +407,12 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					CFToolsCarCoverIconName = settingsDefault.CFToolsCarCoverIconName;
 				}
 
+				if (settingsBase.m_Version < 16)
+				{
+					CollisionDamageIfEngineOff = settingsDefault.CollisionDamageIfEngineOff;
+					CollisionDamageMinSpeedKmh = settingsDefault.CollisionDamageMinSpeedKmh;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -487,6 +494,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		VehicleCrewDamageMultiplier = 1.0;
 		VehicleSpeedDamageMultiplier = 1.0;
 		VehicleRoadKillDamageMultiplier = 1.0;
+
+		CollisionDamageIfEngineOff = false;
+		CollisionDamageMinSpeedKmh = 30;
 
 		PlacePlayerOnGroundOnReconnectInVehicle = ExpansionPPOGORIVMode.OnlyOnServerRestart;
 		RevvingOverMaxRPMRuinsEngineInstantly = false;

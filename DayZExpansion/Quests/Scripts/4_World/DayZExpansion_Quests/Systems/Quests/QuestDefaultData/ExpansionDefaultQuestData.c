@@ -169,12 +169,25 @@ class ExpansionDefaultQuestData
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 		questConfig.SetAutocomplete(true); //! Set if the quest is autocompleted
+		
+		//! Quest items on quest start
+		array <ExpansionQuestItemConfig> questItems = new array<ExpansionQuestItemConfig>;
+		ExpansionQuestItemConfig questItem_1 = new ExpansionQuestItemConfig;
+		questItem_1.SetClassName("Shovel");
+		questItem_1.SetAmount(1);
+		questItems.Insert(questItem_1);
+		questConfig.SetQuestItems(questItems);
 
-		//! Quest objectives
+		//! Quest objectives		
 		ExpansionQuestObjectiveTreasureHuntConfig objective_1 = new ExpansionQuestObjectiveTreasureHuntConfig();
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TREASUREHUNT);
 		questConfig.AddObjectiveConfig(objective_1);
+		
+		ExpansionQuestObjectiveActionConfig objective_2 = new ExpansionQuestObjectiveActionConfig();
+		objective_2.SetID(3);
+		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		questConfig.AddObjectiveConfig(objective_2);
 
 		return questConfig;
 	}
@@ -308,7 +321,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(8);
 		questConfig.SetTitle("Killed 10 Infected");
-		questConfig.SetObjectiveText("You have killed 10 Infected and completed a server achievement! Reward: 100 Ruble");
+		questConfig.SetObjectiveText("You have killed 10 Infected and completed a server achievement! Reward: 100 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -336,7 +349,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(9);
 		questConfig.SetTitle("Killed 100 civilian Infected");
-		questConfig.SetObjectiveText("You have killed 100 civilian Infected and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetObjectiveText("You have killed 100 civilian Infected and completed a server achievement! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 
@@ -403,7 +416,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(11);
 		questConfig.SetTitle("Lockpick your first vehicle");
-		questConfig.SetObjectiveText("You have lockpicked your first vehicle and completed a server achievement! Reward: 500 Ruble");
+		questConfig.SetObjectiveText("You have lockpicked your first vehicle and completed a server achievement! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
 		questConfig.SetIsAchivement(true);
 

@@ -480,7 +480,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Find the location of the treasure");
 
 		ExpansionQuestObjectiveTreasureHunt hunt = new ExpansionQuestObjectiveTreasureHunt();
-		hunt.AddItem("MoneyRuble", 100);
+		hunt.AddItem("ExpansionBanknoteHryvnia", 100);
 		hunt.AddItem("Zucchini", 1); //! For the luls
 
 		if (m_WorldName == "namalsk")
@@ -699,6 +699,16 @@ class ExpansionDefaultObjectiveData
 		objective.AddActionName("ActionPlantSeed");
 		objective.AddAllowedClassName("PumpkinSeeds");
 
+		return objective;
+	}
+	
+	ExpansionQuestObjectiveActionConfig ExpansionQuestObjective_Action_003()
+	{
+		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
+		objective.SetID(3);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
+		objective.AddActionName("ActionDigOutStash");
+		objective.SetObjectiveText("Digged out stach:");
 		return objective;
 	}
 

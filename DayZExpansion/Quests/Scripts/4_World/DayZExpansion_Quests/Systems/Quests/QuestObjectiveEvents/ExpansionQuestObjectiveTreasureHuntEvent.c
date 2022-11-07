@@ -12,6 +12,9 @@
 
 class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 {
+	protected float m_UpdateQueueTimer;
+	protected const float UPDATE_TICK_TIME = 2.0;
+	
 	protected ref array<Object> LootItems = new array<Object>;
 	protected UndergroundStash Stash;
 	protected ExpansionQuestSeaChest Chest;
@@ -101,7 +104,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", StashPos, ECE_PLACE_ON_SURFACE)))
 			return false;
 
-		//Stash.SetQuestID(GetQuest().GetQuestConfig().GetID());
+		Stash.SetQuestID(GetQuest().GetQuestConfig().GetID());
 		Stash.PlaceOnGround();
 
 		EntityAI stashEntity;
@@ -121,7 +124,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(chestIB, chestObj))
 			return false;
 
-		//chestIB.SetQuestID(GetQuest().GetQuestConfig().GetID());
+		chestIB.SetQuestID(GetQuest().GetQuestConfig().GetID());
 
 		//! Spawn the loot in the chest
 		EntityAI chestEntity;
@@ -147,66 +150,82 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	override void OnUpdate(float timeslice)
 	{
 		super.OnUpdate(timeslice);
+		
+		if (!Chest)
+			return;
+		
+		m_UpdateQueueTimer += timeslice;
+		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
+		{						
+			vector position = StashPos;
+			float maxDistance = 5.0;
+			float currentDistance;
+			array<vector> groupMemberPos = new array<vector>;
+			bool isChestStashed = true;
 
-		vector position = StashPos;
-		float maxDistance = 5.0;
-		float currentDistance;
-		array<vector> groupMemberPos = new array<vector>;
-
-		if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
-		{
-			vector playerPos = GetQuest().GetPlayer().GetPosition();
-			currentDistance = vector.Distance(playerPos, position);
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
-		{
-			//! Set the position of the group member that has the shortest distance to the target location
-			//! as our current position if the quest is a group quest.
-			ExpansionPartyData group = GetQuest().GetGroup();
-			if (!group)
-				return;
-
-			array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
-			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
+			if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
 			{
-				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-				if (!groupPlayer)
-					continue;
-
-				groupMemberPos.Insert(groupPlayer.GetPosition());
+				vector playerPos = GetQuest().GetPlayer().GetPosition();
+				currentDistance = vector.Distance(playerPos, position);
 			}
-
-			float smallestDistance;
-			int posIndex;
-			bool firstSet = false;
-			for (int p = 0; p < groupMemberPos.Count(); p++)
+		#ifdef EXPANSIONMODGROUPS
+			else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
 			{
-				float dist = vector.Distance(groupMemberPos[p], position);
-				if (!firstSet)
+				//! Set the position of the group member that has the shortest distance to the target location
+				//! as our current position if the quest is a group quest.
+				ExpansionPartyData group = GetQuest().GetGroup();
+				if (!group)
+					return;
+	
+				array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
+				foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 				{
-					smallestDistance = dist;
-					posIndex = p;
-					firstSet = true;
+					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
+					if (!groupPlayer)
+						continue;
+	
+					groupMemberPos.Insert(groupPlayer.GetPosition());
 				}
-				else if (firstSet && dist < smallestDistance)
+	
+				float smallestDistance;
+				int posIndex;
+				bool firstSet = false;
+				for (int p = 0; p < groupMemberPos.Count(); p++)
 				{
-					smallestDistance = dist;
-					posIndex = p;
+					float dist = vector.Distance(groupMemberPos[p], position);
+					if (!firstSet)
+					{
+						smallestDistance = dist;
+						posIndex = p;
+						firstSet = true;
+					}
+					else if (firstSet && dist < smallestDistance)
+					{
+						smallestDistance = dist;
+						posIndex = p;
+					}
 				}
+	
+				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
+				groupMemberPos.Clear();
 			}
-
-			currentDistance = vector.Distance(groupMemberPos[posIndex], position);
-			groupMemberPos.Clear();
-		}
-	#endif
-
-		position[1] = GetGame().SurfaceY(position[0], position[2]);
-
-		if (currentDistance <= maxDistance && !IsCompleted())
-		{
-			SetCompleted(true);
-			OnComplete();
+		#endif
+	
+			position[1] = GetGame().SurfaceY(position[0], position[2]);
+	
+			bool conditionsCheck = currentDistance <= maxDistance;
+			if (conditionsCheck && !IsCompleted())
+			{
+				SetCompleted(true);
+				OnComplete();
+			}
+			else if (!conditionsCheck && IsCompleted())
+			{
+				SetCompleted(false);
+				OnIncomplete();
+			}
+			
+			m_UpdateQueueTimer = 0.0;
 		}
 	}
 
@@ -218,5 +237,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TREASUREHUNT;
+	}
+	
+	override bool HasDynamicState()
+	{
+		return true;
 	}
 };

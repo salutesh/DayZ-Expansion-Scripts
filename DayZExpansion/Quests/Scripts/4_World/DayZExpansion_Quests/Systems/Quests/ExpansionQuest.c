@@ -411,7 +411,7 @@ class ExpansionQuest
 					return false;
 
 				ExpansionQuestObjectiveEventBase nextObjective = GetObjectives()[1];
-				if ((objective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT) && nextObjective && (nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT))
+				if ((objective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || objective.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY || objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT) && nextObjective && (nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT || nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT || nextObjective.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY))
 				{
 					m_CurrentObjectiveIndex = 1;
 					if (!nextObjective.OnStart())
@@ -434,8 +434,6 @@ class ExpansionQuest
 		}
 
 		UpdateQuest();
-
-		//QuestDebug();
 
 		QuestDebugPrint(ToString() + "::OnQuestStart - End");
 
@@ -521,15 +519,7 @@ class ExpansionQuest
 		}
 
 		SetQuestState(ExpansionQuestState.STARTED);
-
-		#ifdef EXPANSIONMODNAVIGATION
-			RemoveMarkers();
-		#endif
-
 		UpdateQuest();
-
-		//QuestDebug();
-
 		QuestDebugPrint(ToString() + "::OnQuestObjectivesIncomplete - End");
 	}
 
@@ -607,7 +597,6 @@ class ExpansionQuest
 		SetQuestState(ExpansionQuestState.COMPLETED);
 
 		UpdateQuest();
-		//QuestDebug();
 
 	#ifdef EXPANSIONMODNAVIGATION
 		RemoveMarkers();
@@ -654,7 +643,6 @@ class ExpansionQuest
 		UpdateQuest();
 
 		SetInitialized(false);
-		//QuestDebug();
 		QuestDebugPrint(ToString() + "::OnQuestCancel - End");
 
 		return true;
@@ -991,24 +979,24 @@ class ExpansionQuest
 			//! Check if our currect active objective is completed and if so try to get the next objective in the list and start it
 			if (currentActiveObjective.IsActive() && currentActiveObjective.IsInitialized() && currentActiveObjective.IsCompleted())
 			{
+				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedText, currentActiveObjective.GetObjectiveConfig().GetObjectiveText(), Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
+	
 				m_CurrentObjectiveIndex++;
-				QuestDebugPrint(ToString() + "::CompletionCheck - Current active objective is complered! Try to start next objective with index: " + m_CurrentObjectiveIndex);
+				QuestDebugPrint(ToString() + "::CompletionCheck - Current active objective is completed! Try to start next objective with index: " + m_CurrentObjectiveIndex);
 
 				//! Get the next objective from our objective list and start it
 				ExpansionQuestObjectiveEventBase nextObjective = QuestObjectives[m_CurrentObjectiveIndex];
-				if (!nextObjective || nextObjective.IsInitialized() || nextObjective.IsActive())
-					return;
-
-			#ifdef EXPANSIONMODNAVIGATION
-				RemoveMarkers();
-			#endif
-
-				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestObjectiveCompletedText, currentActiveObjective.GetObjectiveConfig().GetObjectiveText(), Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
-
-				//! Start the next objective
-				nextObjective.OnStart();
-
-				QuestDebugPrint(ToString() + "::CompletionCheck - Started next quest objective event with index: " + m_CurrentObjectiveIndex);
+				if (nextObjective || !nextObjective.IsInitialized() || !nextObjective.IsActive())
+				{
+				#ifdef EXPANSIONMODNAVIGATION
+					RemoveMarkers();
+				#endif
+	
+					//! Start the next objective
+					nextObjective.OnStart();
+	
+					QuestDebugPrint(ToString() + "::CompletionCheck - Started next quest objective event with index: " + m_CurrentObjectiveIndex);
+				}
 			}
 		}
 
@@ -1531,6 +1519,69 @@ class ExpansionQuest
 	}
 
 	// -----------------------------------------------------------
+	// ExpansionQuest GetClosestQuestNPCPosition
+	// -----------------------------------------------------------
+	vector GetClosestQuestNPCPosition(array<int> ids, vector playerPos)
+	{
+		float shortestDistance;
+		float distance;
+		vector npcPos;
+		vector closestPos;
+
+		foreach (int npcID: ids)
+		{
+			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(npcID);
+			if (!questNPC)
+				continue;
+
+			npcPos = questNPC.GetPosition();
+			distance = Math.Round(vector.Distance(playerPos, npcPos));
+			if (shortestDistance == 0 || shortestDistance > distance)
+			{
+				shortestDistance = distance;
+				closestPos = npcPos;
+			}
+		}
+
+		return closestPos;
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionQuest GetPlayerQuestItems
+	// -----------------------------------------------------------
+	array<ItemBase> GetPlayerQuestItems(PlayerBase player, int questID)
+	{
+		array<ItemBase> questItems = new array<ItemBase>;
+		array<string> questItemNames = new array<string>;
+		array<ref ExpansionQuestItemConfig> configQuestItems = Config.GetQuestItems();
+		foreach (ExpansionQuestItemConfig questItem: configQuestItems)
+		{
+			questItemNames.Insert(questItem.GetClassName());
+		}
+
+		array<EntityAI> items = new array<EntityAI>;
+	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+
+		foreach (EntityAI item : items)
+		{
+			if (questItemNames.Find(item.GetType()) > -1)
+			{
+				ItemBase itemIB;
+				if (Class.CastTo(itemIB, item))
+				{
+					if (itemIB.GetQuestID() == questID)
+					{
+						QuestDebugPrint(ToString() + " ::GetPlayerQuestItems - Add quest item: " + itemIB.GetType() + " | Quest ID: " + itemIB.GetQuestID());
+						questItems.Insert(itemIB);
+					}
+				}
+			}
+		}
+
+		return questItems;
+	}
+	
+	// -----------------------------------------------------------
 	// ExpansionQuest OnUpdate
 	// -----------------------------------------------------------
 	void OnUpdate(float timeslice)
@@ -1600,65 +1651,5 @@ class ExpansionQuest
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
 		Print(text);
 	#endif
-	}
-
-	// -----------------------------------------------------------
-	// ExpansionQuest GetClosestQuestNPCPosition
-	// -----------------------------------------------------------
-	vector GetClosestQuestNPCPosition(array<int> ids, vector playerPos)
-	{
-		float shortestDistance;
-		float distance;
-		vector npcPos;
-		vector closestPos;
-
-		foreach (int npcID: ids)
-		{
-			ExpansionQuestNPCData questNPC = GetQuestModule().GetQuestNPCDataByID(npcID);
-			if (!questNPC)
-				continue;
-
-			npcPos = questNPC.GetPosition();
-			distance = Math.Round(vector.Distance(playerPos, npcPos));
-			if (shortestDistance == 0 || shortestDistance > distance)
-			{
-				shortestDistance = distance;
-				closestPos = npcPos;
-			}
-		}
-
-		return closestPos;
-	}
-
-	array<ItemBase> GetPlayerQuestItems(PlayerBase player, int questID)
-	{
-		array<ItemBase> questItems = new array<ItemBase>;
-		array<string> questItemNames = new array<string>;
-		array<ref ExpansionQuestItemConfig> configQuestItems = Config.GetQuestItems();
-		foreach (ExpansionQuestItemConfig questItem: configQuestItems)
-		{
-			questItemNames.Insert(questItem.GetClassName());
-		}
-
-		array<EntityAI> items = new array<EntityAI>;
-	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-
-		foreach (EntityAI item : items)
-		{
-			if (questItemNames.Find(item.GetType()) > -1)
-			{
-				ItemBase itemIB;
-				if (Class.CastTo(itemIB, item))
-				{
-					if (itemIB.GetQuestID() == questID)
-					{
-						QuestDebugPrint(ToString() + " ::GetPlayerQuestItems - Add quest item: " + itemIB.GetType() + " | Quest ID: " + itemIB.GetQuestID());
-						questItems.Insert(itemIB);
-					}
-				}
-			}
-		}
-
-		return questItems;
 	}
 };

@@ -160,7 +160,7 @@ class ExpansionQuestObjectiveConfig
 	{
 		return NULL;
 	}
-
+	
 	void Save(string fileName);
 
 	void OnSend(ParamsWriteContext ctx)

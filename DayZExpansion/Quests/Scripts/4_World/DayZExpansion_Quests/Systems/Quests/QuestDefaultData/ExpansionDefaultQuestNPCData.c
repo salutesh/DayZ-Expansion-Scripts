@@ -133,6 +133,7 @@ class ExpansionDefaultQuestNPCData
 		questNPC.SetIsStatic(true);
 
 		array<int> questIDs = new array<int>;
+		questIDs.Insert(4);
 		questIDs.Insert(5);
 	#ifdef EXPANSIONMODAI
 		questIDs.Insert(6); //! AI patrol test quest [WIP]

@@ -12,7 +12,7 @@
 class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
-	float MaxDistance = 0;
+	float MaxDistance = 10.0;
 	string MarkerName = string.Empty;
 };
 

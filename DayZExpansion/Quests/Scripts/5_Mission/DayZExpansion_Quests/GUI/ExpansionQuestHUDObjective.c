@@ -317,10 +317,14 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Action used: ";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-				m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetActionState().ToString();
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				ExpansionQuestObjectiveActionConfig actionConfig;
+				if (Class.CastTo(actionConfig, objectiveConfigBase))
+				{
+					m_QuestHUDObjectiveController.ObjectiveTarget = actionConfig.ObjectiveText;
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+					m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetActionState().ToString();
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				}
 				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
 			}
 			break;

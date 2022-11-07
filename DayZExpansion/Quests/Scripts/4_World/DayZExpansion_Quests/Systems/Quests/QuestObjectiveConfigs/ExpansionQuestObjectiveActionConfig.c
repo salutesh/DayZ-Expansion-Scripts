@@ -70,6 +70,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 			{
 				//! Copy over old configuration that haven't HandAnimEventChanged
 				config.CopyConfig(configBase);
+				config.ObjectiveText == "";
 			}
 
 			config.ConfigVersion = CONFIGVERSION;

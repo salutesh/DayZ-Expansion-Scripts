@@ -2103,6 +2103,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestObjectiveActionConfig objective_a_2 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Action_002();
 		objective_a_2.Save("Objective_A_2");
 		m_ActionObjectivesConfigs.Insert(2, objective_a_2);
+		
+		ExpansionQuestObjectiveActionConfig objective_a_3 = m_DefaultObjectiveConfigData.ExpansionQuestObjective_Action_003();
+		objective_a_3.Save("Objective_A_3");
+		m_ActionObjectivesConfigs.Insert(3, objective_a_3);
 	}
 
 	// -----------------------------------------------------------

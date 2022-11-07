@@ -122,6 +122,34 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 				OnComplete();
 			}
 		}
+		else if (actionBase.ClassName() == "ActionDigOutStash")
+		{
+			isContolledAction = true;						
+			UndergroundStash stash;
+			array<Object> objects = new array<Object>;
+			
+			GetGame().GetObjectsAtPosition3D(actionData.m_Player.GetPosition(), 10.0, objects, NULL);
+			
+			foreach (Object obj: objects)
+			{
+				if (Class.CastTo(stash, obj) && stash.GetQuestID() == GetQuest().GetQuestConfig().GetID())
+				{
+					if (m_CallLater)
+					{
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
+						m_CallLater = false;
+					}
+					
+					ObjectivePrint(ToString() + "::OnActionUsed - Action was: ActionDigOutStash | Stash: " + stash.GetType());
+					ObjectivePrint(ToString() + "::OnActionUsed - Action was: ActionDigOutStash | Stashed Item: " + stash.GetStashedItem());
+					if (stash.GetStashedItem() && stash.GetStashedItem().GetQuestID() == GetQuest().GetQuestConfig().GetID() && !m_CallLater)
+					{
+						GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntity, 1000, true, stash.GetStashedItem(), actionBase.ClassName());
+						m_CallLater = true;
+					}
+				}
+			}
+		}
 
 		if (!isContolledAction)
 		{
@@ -184,6 +212,23 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			}
 		}
 	#endif
+		
+		ItemBase item;
+		if (Class.CastTo(item, entity) && actionName == "ActionDigOutStash")
+		{
+			ObjectivePrint(ToString() + "::CheckEntity - Stashed item: " + item.GetType());
+			ObjectivePrint(ToString() + "::CheckEntity - Stashed item quest ID: " + item.GetQuestID());
+
+			if (item.GetHierarchyRoot() == item && item.GetQuestID() == GetQuest().GetQuestConfig().GetID())
+			{
+				ObjectivePrint(ToString() + "::CheckEntity - Digged out stashed item " + item.GetType());
+				m_ActionState = true;
+				SetCompleted(true);
+				OnComplete();
+		
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CheckEntity);
+			}
+		}
 	}
 
 	bool GetActionState()

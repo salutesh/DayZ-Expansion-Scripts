@@ -48,10 +48,13 @@ class ExpansionHumanLoadout
 		DefaultSurvivorLoadout();
 		DefaultBanditLoadout();
 
-		// unnarmed Loadouts
+		// Unnarmed Loadouts
 		DefaultPlayerSurviorLoadout();
 		DefaultPlayerMaleSuitLoadout();
 		DefaultPlayerFemaleSuitLoadout();
+		
+		//! Misc Loadouts
+		DefaultYellowKingLoadout();
 
 		//DefaultPlayerFemaleSurviorLoadout();
 
@@ -3125,6 +3128,54 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginCargo("BandageDressing");
 			loadout.Chance = 0.15;
 			loadout = loadout.End();
+		loadout.Save();
+	}
+	
+	static void DefaultYellowKingLoadout()
+	{
+		if (FileExist(ExpansionLoadout.GetPath("YellowKingLoadout")))
+			return;
+
+		// Generate the default YellowKingLoadout.json file
+		auto loadout = ExpansionLoadout.Create("YellowKingLoadout");
+
+		if (!loadout)
+			return;
+			
+			loadout = loadout.BeginAttachment("DarkMotoHelmet_YellowScarred", "Headgear");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+		
+			loadout = loadout.BeginAttachment("BalaclavaMask_Black", "Mask");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+		
+			loadout = loadout.BeginAttachment("TacticalShirt_Black", "Body");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+		
+			loadout = loadout.BeginAttachment("PlateCarrierVest_Black", "Vest");
+			loadout.SetHealth(0.7, 1.0);
+				loadout = loadout.BeginAttachment("PlateCarrierHolster_Black");
+				loadout.Chance = 1.0;
+				loadout = loadout.End();
+				loadout = loadout.BeginAttachment("PlateCarrierPouches_Black");
+				loadout.Chance = 1.0;
+				loadout = loadout.End();
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("WorkingGloves_Black", "Gloves");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+		
+			loadout = loadout.BeginAttachment("CargoPants_Black", "Legs");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+			
+			loadout = loadout.BeginAttachment("JungleBoots_Brown", "Feet");
+			loadout.SetHealth(0.7, 1.0);
+			loadout = loadout.End();
+
 		loadout.Save();
 	}
 
