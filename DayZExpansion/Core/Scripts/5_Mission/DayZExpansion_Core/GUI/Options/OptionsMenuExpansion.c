@@ -30,8 +30,6 @@ class OptionsMenuExpansion extends ScriptedWidgetEventHandler
 	// -----------------------------------------------------------
 	void OptionsMenuExpansion( Widget parent, Widget details_root, GameOptions options, OptionsMenu menu )
 	{
-		GetExpansionClientSettings().Load();
-		
 		m_Root = GetGame().GetWorkspace().CreateWidgets( "DayZExpansion/Core/GUI/layouts/ui/options/expansion_tab.layout", parent );
 		m_Root.SetHandler( this );
 		

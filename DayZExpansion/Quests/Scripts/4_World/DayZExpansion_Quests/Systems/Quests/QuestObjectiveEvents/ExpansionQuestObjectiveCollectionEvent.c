@@ -82,7 +82,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 				foreach (EntityAI item: m_PlayerItems)
 				{
 					ObjectivePrint(ToString() + "::CleanupCollectionItems - Check item: " + item.GetType());
-					if ((name == item.GetType() || name == item.ClassName() || item.IsKindOf(name)) && amountToDelete > 0)
+					if ((name == item.ClassName() || item.IsKindOf(name)) && amountToDelete > 0)
 					{
 						ObjectivePrint(ToString() + "::CleanupCollectionItems - Clean up collection item: " + item.GetType() + " | Amount: " + amountToDelete);
 						DeleteCollectionItem(item, amountToDelete);
@@ -103,7 +103,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 
 				foreach (EntityAI groupItem: m_GroupItems)
 				{
-					if (name == groupItem.GetType() && amountToDelete > 0)
+					if ((name == groupItem.ClassName() || groupItem.IsKindOf(name)) && amountToDelete > 0)
 					{
 						ObjectivePrint(ToString() + "::CleanupCollectionItems - Clean up delivery item: " + groupItem.GetType() + " | Amount: " + amountToDelete);
 						DeleteCollectionItem(groupItem, amountToDelete);
@@ -139,6 +139,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 				EnumeratePlayerInventory(player);
 				
 				hasItems = HasAllObjectiveItems();
+			#ifdef EXPANSIONMODNAVIGATION
 				if (hasItems && !m_MarkerCreated)
 				{
 					m_MarkerCreated = true;
@@ -149,6 +150,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 					m_MarkerCreated = false;
 					GetQuest().RemoveMarkers();
 				}
+			#endif
 				
 				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())
@@ -170,6 +172,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 				EnumerateGroupInventory(GetQuest().GetGroup());
 
 				hasItems = HasGroupAllObjectiveItems();
+			#ifdef EXPANSIONMODNAVIGATION
 				if (hasItems && !m_MarkerCreated)
 				{
 					m_MarkerCreated = true;
@@ -180,6 +183,7 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveDeliveryEve
 					m_MarkerCreated = false;
 					GetQuest().RemoveMarkers();
 				}
+			#endif
 				
 				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())

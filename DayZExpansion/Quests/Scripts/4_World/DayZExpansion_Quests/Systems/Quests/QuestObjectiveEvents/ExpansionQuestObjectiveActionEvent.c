@@ -73,7 +73,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			isContolledAction = true;
 			CarScript carScript = CarScript.Cast(actionData.m_Target.GetParentOrObject());
 
-			if (GetObjectiveConfig().GetAllowedClassNames().Count() > 0 && GetObjectiveConfig().GetAllowedClassNames().Find(carScript.GetType()) > -1 || GetObjectiveConfig().GetExcludedClassNames().Count() > 0 && GetObjectiveConfig().GetExcludedClassNames().Find(carScript.GetType()) == -1)
+			if (ExpansionStatic.IsAnyOf(carScript, GetObjectiveConfig().GetAllowedClassNames(), true) && !ExpansionStatic.IsAnyOf(carScript, GetObjectiveConfig().GetExcludedClassNames(), true))
 			{
 				if (m_CallLater)
 				{
@@ -94,7 +94,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			isContolledAction = true;
 			ExpansionVehicleBase vehicleBase = ExpansionVehicleBase.Cast(actionData.m_Target.GetParentOrObject());
 
-			if (GetObjectiveConfig().GetAllowedClassNames().Count() > 0 && GetObjectiveConfig().GetAllowedClassNames().Find(vehicleBase.GetType()) > -1 || GetObjectiveConfig().GetExcludedClassNames().Count() > 0 && GetObjectiveConfig().GetExcludedClassNames().Find(vehicleBase.GetType()) == -1)
+			if (ExpansionStatic.IsAnyOf(vehicleBase, GetObjectiveConfig().GetAllowedClassNames(), true) && !ExpansionStatic.IsAnyOf(vehicleBase, GetObjectiveConfig().GetExcludedClassNames(), true))
 			{
 				if (m_CallLater)
 				{
@@ -114,8 +114,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		else if (actionBase.ClassName() == "ActionPlantSeed")
 		{
 			isContolledAction = true;
-			ItemBase seed_IB = ItemBase.Cast(actionData.m_MainItem);
-			if (GetObjectiveConfig().GetAllowedClassNames().Count() > 0 && GetObjectiveConfig().GetAllowedClassNames().Find(seed_IB.GetType()) > -1 || GetObjectiveConfig().GetExcludedClassNames().Count() > 0 && GetObjectiveConfig().GetExcludedClassNames().Find(seed_IB.GetType()) == -1)
+			if (ExpansionStatic.IsAnyOf(actionData.m_MainItem, GetObjectiveConfig().GetAllowedClassNames(), true) && !ExpansionStatic.IsAnyOf(actionData.m_MainItem, GetObjectiveConfig().GetExcludedClassNames(), true))
 			{
 				m_ActionState = true;
 				SetCompleted(true);

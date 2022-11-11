@@ -13,17 +13,17 @@
 class ExpansionChatMuteEntry: ExpansionScriptView
 {
 	private ref ExpansionChatMuteEntryController m_ChatMuteController;
-	private ref ExpansionChatUIWindow m_Chat;
+	private ref ExpansionChatUIWindow m_ChatWindow;
 	private string m_PlayerUID;
 	private ButtonWidget ChatMuteButton;
 	private ImageWidget ChatMuteButtonIcon;
 
-	void ExpansionChatMuteEntry(ExpansionChatUIWindow chat, SyncPlayer data)
+	void ExpansionChatMuteEntry(ExpansionChatUIWindow chatWindow, SyncPlayer data)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
 		m_ChatMuteController = ExpansionChatMuteEntryController.Cast(GetController());
-		m_Chat = chat;
+		m_ChatWindow = chatWindow;
 		m_PlayerUID = data.m_RUID;
 
 		SetPlayerName(data.m_PlayerName);
@@ -40,17 +40,9 @@ class ExpansionChatMuteEntry: ExpansionScriptView
 
 	void OnEntryClick()
 	{
-		if (!m_PlayerUID)
-			return;
-
-		int index = GetExpansionClientSettings().MutedPlayers.Find(m_PlayerUID);
-		if (index > -1)
-		{
-			GetExpansionClientSettings().MutedPlayers.RemoveOrdered(index);
-			GetExpansionClientSettings().Save();
-			m_Chat.RefreshChatMessages();
-			m_Chat.UpdateMuteList();
-		}
+		string name = m_ChatMuteController.Name;
+		m_ChatWindow.Unmute(m_PlayerUID, name);
+		Destroy();
 	}
 
 	override string GetLayoutFile()

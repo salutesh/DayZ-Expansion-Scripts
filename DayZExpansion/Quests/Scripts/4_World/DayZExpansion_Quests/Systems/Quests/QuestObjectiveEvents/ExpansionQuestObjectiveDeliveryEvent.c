@@ -126,7 +126,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 
 				foreach (EntityAI item: m_PlayerItems)
 				{
-					if (name == item.GetType() && amountToDelete > 0)
+					if ((name == item.ClassName() || item.IsKindOf(name)) && amountToDelete > 0)
 					{
 						ItemBase itemIB;
 						if (Class.CastTo(itemIB, item))
@@ -154,7 +154,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 
 				foreach (EntityAI groupItem: m_GroupItems)
 				{
-					if (name == groupItem.GetType() && amountToDelete > 0)
+					if ((name == groupItem.ClassName() || groupItem.IsKindOf(name)) && amountToDelete > 0)
 					{
 						ItemBase groupItemIB;
 						if (Class.CastTo(groupItemIB, groupItem))
@@ -221,6 +221,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 				EnumeratePlayerInventory(player);
 				
 				hasItems = HasAllObjectiveItems();
+			#ifdef EXPANSIONMODNAVIGATION
 				if (hasItems && !m_MarkerCreated)
 				{
 					m_MarkerCreated = true;
@@ -231,6 +232,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 					m_MarkerCreated = false;
 					GetQuest().RemoveMarkers();
 				}
+			#endif
 				
 				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())
@@ -252,6 +254,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 				EnumerateGroupInventory(GetQuest().GetGroup());
 				
 				hasItems = HasGroupAllObjectiveItems();
+			#ifdef EXPANSIONMODNAVIGATION
 				if (hasItems && !m_MarkerCreated)
 				{
 					m_MarkerCreated = true;
@@ -262,6 +265,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 					m_MarkerCreated = false;
 					GetQuest().RemoveMarkers();
 				}
+			#endif
 				
 				conditionCheck = hasItems && DestinationCheck();
 				if (!conditionCheck && IsCompleted())

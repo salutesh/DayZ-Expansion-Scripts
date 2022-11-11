@@ -76,13 +76,37 @@ class ExpansionQuestsGroupInventory
 
 	bool HasItem(string typeName, out array<EntityAI> items)
 	{
-		items = new array<EntityAI>;
+		if (!items)
+			items = new array<EntityAI>;
+
 		foreach (EntityAI item: m_GroupInventory)
 		{
 			if (!item)
 				continue;
 
-			if (item.GetType() == typeName || item.ClassName() == typeName || item.IsKindOf(typeName))
+			if (item.ClassName() == typeName || item.IsKindOf(typeName))
+			{
+				items.Insert(item);
+			}
+		}
+
+		if (items.Count() > 0)
+			return true;
+
+		return false;
+	}
+	
+	bool HasAnyOf(array<string> typeNames, out array<EntityAI> items)
+	{
+		if (!items)
+			items = new array<EntityAI>;
+
+		foreach (EntityAI item: m_GroupInventory)
+		{
+			if (!item)
+				continue;
+
+			if (ExpansionStatic.IsAnyOf(item, typeNames, true))
 			{
 				items.Insert(item);
 			}

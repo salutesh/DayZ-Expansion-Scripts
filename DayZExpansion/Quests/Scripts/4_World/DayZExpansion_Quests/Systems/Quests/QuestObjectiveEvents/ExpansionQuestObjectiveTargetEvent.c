@@ -58,7 +58,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (!target)
 			return;
 
-		if (ExpansionStatic.IsAnyOf(victim.GetType(), target.GetExcludedClassNames(), victim.ClassName()))
+		if (ExpansionStatic.IsAnyOf(victim, target.GetExcludedClassNames(), true))
 			return;
 
 		bool maxRangeCheck = false;
@@ -112,7 +112,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		//! If the target need to be killed with a special weapon check incoming killer class type
 		if (target.NeedSpecialWeapon())
 		{
-			if (!ExpansionStatic.IsAnyOf(killer.GetType(), target.GetAllowedWeapons(), killer.ClassName()))
+			if (!ExpansionStatic.IsAnyOf(killer, target.GetAllowedWeapons(), true))
 				return;
 
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -122,7 +122,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		int amount = target.GetAmount();
 		Amount = amount;
-		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), target.GetClassNames(), victim.ClassName());
+		bool found = ExpansionStatic.IsAnyOf(victim, target.GetClassNames(), true);
 
 		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
 

@@ -40,23 +40,6 @@ class ExpansionClientSettingsModule : CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 
-		if (cArgs.Player)
-		{
-			GetExpansionClientSettings().Load();
-		}
-
 		OnSettingsChanged(this, CF_EventArgs.Empty);
-	}
-
-	override void OnClientLogout(Class sender, CF_EventArgs args)
-	{
-		super.OnClientLogout(sender, args);
-
-		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
-
-		if (cArgs.Player)
-		{
-			GetExpansionClientSettings().Save();
-		}
 	}
 };

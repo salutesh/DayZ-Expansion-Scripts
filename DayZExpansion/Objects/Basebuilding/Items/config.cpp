@@ -112,7 +112,7 @@ class CfgVehicles
 		rotationFlags = 2;
 		inventorySlot[] = {"Att_ExpansionLumber","Att_ExpansionLumber1","Att_ExpansionLumber_2"};
 		canBeSplit = 1;
-		varQuantityInit = 1.0;
+		varQuantityInit = 1;
 		varQuantityMin = 0.0;
 		varQuantityMax = 10.0;
 		varQuantityDestroyOnMin = 1;

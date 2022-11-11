@@ -70,7 +70,7 @@ modded class Chat
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Add");
 #endif
 		
-		if (IsPlayerMuted(params.param2))
+		if (CanMute(params.param1) && IsPlayerMuted(params.param2))
 			return;
 
 		if (m_ExChatUI)
@@ -83,7 +83,7 @@ modded class Chat
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "AddInternal");
 #endif
 		
-		if (IsPlayerMuted(params.param2))
+		if (CanMute(params.param1) && IsPlayerMuted(params.param2))
 			return;
 		
 		if (m_ExChatUI)
@@ -110,11 +110,23 @@ modded class Chat
 		{	
 			if (player.m_PlayerName == playerName)
 			{
-				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
-					return false;
+				return clientSettings.MutedPlayers.Find(player.m_RUID) > -1;
 			}
 		}
 		
+		return false;
+	}
+	
+	bool CanMute(int channel)
+	{
+		switch (channel)
+		{
+			case ExpansionChatChannels.CCSystem:
+			case ExpansionChatChannels.CCAdmin:
+			case ExpansionChatChannels.CCBattlEye:
+				return false;
+		}
+
 		return true;
 	}
 	

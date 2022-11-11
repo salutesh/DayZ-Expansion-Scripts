@@ -71,7 +71,7 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 
 		vector position = placeholder.GetPosition();
 		placeholder.SetPosition("0 0 0");
-		if (ExpansionEntityStorageModule.RestoreFromFile(placeholder.Expansion_GetEntityStorageFileName(), entity, placeholder, action_data.m_Player))
+		if (ExpansionEntityStorageModule.RestoreFromFile(placeholder.Expansion_GetEntityStorageFileName(), entity, placeholder))
 		{
 			if (deletePlaceholder)
 				GetGame().ObjectDelete(placeholder);

@@ -182,9 +182,7 @@ class ExpansionQuestObjectiveEventBase
 	}
 
 	//! Event called when the quest markers should get recreated
-#ifdef EXPANSIONMODNAVIGATION
 	void OnRecreateClientMarkers();
-#endif
 
 	//! Event called for group quests only when a group member joins/rejoins the quest group
 #ifdef EXPANSIONMODGROUPS

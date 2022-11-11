@@ -30,7 +30,6 @@ class ExpansionVehicleSettingsBase : ExpansionSettingBase
 	float PickLockToolDamagePercent;
 	bool EnableWindAerodynamics;		//! If enabled, wind simulation will be enabled
 	bool EnableTailRotorDamage;			//! If enabled, the rotor will be damageable
-	bool PlayerAttachment;				//! If enabled, allow players to be attached to vehicles while in movement
 	bool Towing;						//! If enabled, allow vehicle to tow other vehicles
 	bool EnableHelicopterExplosions;	//! If enabled, allow Helicopters to explode
 	bool DisableVehicleDamage;			//! If disabled, vehicles (cars, trucks) won't take any damages
@@ -58,7 +57,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 16;
+	static const int VERSION = 17;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -118,7 +117,6 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(PickLockToolDamagePercent);
 		ctx.Read(EnableWindAerodynamics);
 		ctx.Read(EnableTailRotorDamage);
-		ctx.Read(PlayerAttachment);
 		ctx.Read(Towing);
 		ctx.Read(EnableHelicopterExplosions);
 		ctx.Read(DisableVehicleDamage);
@@ -162,7 +160,6 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(PickLockToolDamagePercent);
 		ctx.Write(EnableWindAerodynamics);
 		ctx.Write(EnableTailRotorDamage);
-		ctx.Write(PlayerAttachment);
 		ctx.Write(Towing);
 		ctx.Write(EnableHelicopterExplosions);
 		ctx.Write(DisableVehicleDamage);
@@ -262,7 +259,6 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		CanPickLock = s.CanPickLock;
 		EnableWindAerodynamics = s.EnableWindAerodynamics;
 		EnableTailRotorDamage = s.EnableTailRotorDamage;
-		PlayerAttachment = s.PlayerAttachment;
 		Towing = s.Towing;
 		EnableHelicopterExplosions = s.EnableHelicopterExplosions;
 		DisableVehicleDamage = s.DisableVehicleDamage;
@@ -481,12 +477,6 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		EnableTailRotorDamage = true;
 
 		EnableHelicopterExplosions = true;
-
-#ifdef EXPANSION_PLAYER_ATTACHMENT
-		PlayerAttachment = true;
-#else
-		PlayerAttachment = false;
-#endif
 
 		Towing = true;
 

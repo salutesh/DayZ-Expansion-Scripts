@@ -567,11 +567,11 @@ class ExpansionItemSpawnHelper
 		Magazine dstMag;
 		if (Class.CastTo(srcMag, src) && Class.CastTo(dstMag, dst))
 		{
+			float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
+			string cartTypeName;
 			dstMag.ServerSetAmmoCount(0);
 			for (i = 0; i < srcMag.GetAmmoCount(); i++)
 			{
-				float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
-				string cartTypeName;
 				srcMag.GetCartridgeAtIndex(i, damage, cartTypeName);
 				dstMag.ServerStoreCartridge(damage, cartTypeName);
 			}

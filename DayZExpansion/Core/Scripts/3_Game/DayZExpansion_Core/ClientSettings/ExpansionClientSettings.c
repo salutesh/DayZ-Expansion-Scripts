@@ -139,7 +139,7 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	// ExpansionClientSettings OnRead
 	// -----------------------------------------------------------
-	private bool OnRead( ParamsReadContext ctx, int version )
+	private bool OnRead( ParamsReadContext ctx, int version, out bool settingsRepaired = false )
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.SETTINGS, this, "OnRead").Add(ctx).Add(version);
@@ -498,6 +498,7 @@ class ExpansionClientSettings
 				return false;
 			}
 
+			MutedPlayers.Clear();
 			for (int i = 0; i < mutedPlayersCount; i++)
 			{
 				string muted;
@@ -507,7 +508,10 @@ class ExpansionClientSettings
 					return false;
 				}
 
-				MutedPlayers.Insert( muted );
+				if (MutedPlayers.Find(muted) == -1)
+					MutedPlayers.Insert( muted );
+				else
+					settingsRepaired = true;
 			}
 		}
 
@@ -648,7 +652,8 @@ class ExpansionClientSettings
 
 			EXPrint("Loading Expansion client settings version " + version);
 
-			if ( !OnRead( file, version ) )
+			bool settingsRepaired;
+			if ( !OnRead( file, version, settingsRepaired ) )
 			{
 				EXPrint(ToString() + "::Load - ERROR: Loading client settings failed!");
 				file.Close();
@@ -656,6 +661,9 @@ class ExpansionClientSettings
 			}
 
 			file.Close();
+
+			if (settingsRepaired)
+				Save();
 		} else
 		{
 			EXPrint(ToString() + "::Load - ERROR: Could not open client settings file \"" + EXPANSION_CLIENT_SETTINGS + "\"!");

@@ -19,7 +19,8 @@ GridSpacerWidgetClass ChatMuteEntry {
   ButtonWidgetClass ChatMuteButton {
    visible 1
    position 10 10
-   size 22 22
+   size 16 16
+   valign center_ref
    hexactpos 1
    vexactpos 1
    hexactsize 1
@@ -28,7 +29,7 @@ GridSpacerWidgetClass ChatMuteEntry {
    {
     ImageWidgetClass ChatMuteButtonIcon {
      ignorepointer 1
-     size 22 22
+     size 16 16
      hexactpos 1
      vexactpos 1
      hexactsize 1

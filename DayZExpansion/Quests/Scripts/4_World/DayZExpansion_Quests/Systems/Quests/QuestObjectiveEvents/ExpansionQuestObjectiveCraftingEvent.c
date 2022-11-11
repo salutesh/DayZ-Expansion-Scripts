@@ -36,28 +36,30 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::OnEventStart - Start");
 
-		if (continues)
+		bool conditionCheck;
+		if (!GetQuest().IsGroupQuest())
 		{
-			array<EntityAI> items = new array<EntityAI>;
-			array<ItemBase> itemsIB = new array<ItemBase>;
-			GetQuest().GetPlayer().GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-
-			foreach (EntityAI item: items)
-			{
-				ItemBase itemIB = ItemBase.Cast(item);
-				itemsIB.Insert(itemIB);
-			}
-
-			if (!CraftedItemsCheck(itemsIB, continues))
-				CancelQuest();
+			PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
+			EnumeratePlayerInventory(player);
+			conditionCheck = HasPlayerCraftedItem();
 		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			EnumerateGroupInventory(GetQuest().GetGroup());
+			conditionCheck = HasGroupCraftedItem();
+		}
+	#endif
+		
+		if (m_CraftingState && continues && !conditionCheck)
+			CancelQuest();
 
 		ObjectivePrint(ToString() + "::OnEventStart - End");
 
 		return true;
 	}
 
-	protected bool CraftedItemsCheck(array<ItemBase> items, bool continued = false)
+	protected bool CraftedItemsCheck(array<ItemBase> items)
 	{
 		ObjectivePrint(ToString() + "::CraftedItemsCheck - Start");
 
@@ -72,31 +74,11 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			ObjectivePrint(ToString() + "::CraftedItemsCheck - Checking item: " + item.GetType());
 			if (ExpansionStatic.IsAnyOf(item, GetObjectiveConfig().GetItemNames(), true))
 			{
-				if (!continued)
-				{
-					m_CraftedItem = item;
-					m_CraftedItem.SetQuestID(GetQuest().GetQuestConfig().GetID());
-
-					ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
-					ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-
-					return true;
-				}
-				else
-				{
-					if (item.GetQuestID() == GetQuest().GetQuestConfig().GetID())
-					{
-						m_CraftedItem = item;
-						ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
-						ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-
-						return true;
-					}
-				}
-
+				m_CraftedItem = item;
+				m_CraftedItem.SetQuestID(GetQuest().GetQuestConfig().GetID());
 				ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
 				ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-
+				return true;
 			}
 		}
 
@@ -104,7 +86,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		return false;
 	}
 	
-	protected bool CraftedItemsCheck(array<EntityAI> items, bool continued = false)
+	protected bool CraftedItemsCheck(array<EntityAI> items)
 	{
 		ObjectivePrint(ToString() + "::CraftedItemsCheck - Start");
 
@@ -128,13 +110,8 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 					m_CraftedItem = itemIB;
 					ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
 					ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-
 					return true;
 				}
-
-				ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
-				ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-
 			}
 		}
 
@@ -171,9 +148,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	}
 	
 	bool HasPlayerCraftedItem()
-	{
+	{		
 		array<EntityAI> items = new array<EntityAI>;
-		if (m_PlayerEntityInventory && m_PlayerEntityInventory.HasItem(m_CraftedItem.GetType(), items))
+		if (m_PlayerEntityInventory && m_PlayerEntityInventory.HasAnyOf(GetObjectiveConfig().GetItemNames(), items))
 		{
 			return CraftedItemsCheck(items);
 		}
@@ -185,7 +162,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	bool HasGroupCraftedItem()
 	{
 		array<EntityAI> items = new array<EntityAI>;
-		if (m_GroupEntityInventory && m_GroupEntityInventory.HasItem(m_CraftedItem.GetType(), items))
+		if (m_GroupEntityInventory && m_GroupEntityInventory.HasAnyOf(GetObjectiveConfig().GetItemNames(), items))
 		{			
 			return CraftedItemsCheck(items);
 		}
@@ -208,47 +185,36 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	override void OnUpdate(float timeslice)
 	{
 		super.OnUpdate(timeslice);
-
+		
 		m_UpdateQueueTimer += timeslice;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
-		{			
+		{
+			bool conditionCheck;
 			if (!GetQuest().IsGroupQuest())
 			{
 				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
 				EnumeratePlayerInventory(player);
-				
-				bool conditionCheck = HasPlayerCraftedItem();
-				if (!conditionCheck && IsCompleted())
-				{
-					SetCompleted(false);
-					OnIncomplete();
-				}
-				else if (conditionCheck && !IsCompleted())
-				{
-					m_CraftingState = true;
-					SetCompleted(true);
-					OnComplete();
-				}
+				conditionCheck = HasPlayerCraftedItem();
 			}
 		#ifdef EXPANSIONMODGROUPS
 			else
 			{
 				EnumerateGroupInventory(GetQuest().GetGroup());
-				
-				bool conditionCheckGroup = HasGroupCraftedItem();
-				if (!conditionCheckGroup && IsCompleted())
-				{
-					SetCompleted(false);
-					OnIncomplete();
-				}
-				else if (conditionCheckGroup && !IsCompleted())
-				{
-					m_CraftingState = true;
-					SetCompleted(true);
-					OnComplete();
-				}
+				conditionCheck = HasGroupCraftedItem();
 			}
 		#endif
+			
+			if (!conditionCheck && IsCompleted())
+			{
+				SetCompleted(false);
+				OnIncomplete();
+			}
+			else if (conditionCheck && !IsCompleted())
+			{
+				m_CraftingState = true;
+				SetCompleted(true);
+				OnComplete();
+			}
 
 			m_UpdateQueueTimer = 0.0;
 		}

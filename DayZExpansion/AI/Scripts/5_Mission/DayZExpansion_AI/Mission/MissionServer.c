@@ -44,4 +44,15 @@ modded class MissionServer
 			}
 		}
 	}
+
+	override void SyncRespawnModeInfo(PlayerIdentity identity)
+	{
+		if (!identity)
+		{
+			EXTrace.Print(EXTrace.AI, this, "SyncRespawnModeInfo - NULL identity - return");
+			return;
+		}
+
+		super.SyncRespawnModeInfo(identity);
+	}
 };
