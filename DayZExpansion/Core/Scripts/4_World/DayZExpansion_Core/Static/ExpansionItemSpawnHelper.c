@@ -381,9 +381,11 @@ class ExpansionItemSpawnHelper
 				#endif
 			}
 
+			#ifdef EXPANSIONMODVEHICLE
 			float dist = vehicle.GetModelZeroPointDistanceFromGround();
 			if (placeOnSurface && position[1] + dist > vehicle.GetPosition()[1])
 				vehicle.SetPosition(position + Vector(0, dist, 0));
+			#endif
 		}
 		#ifdef EXPANSIONMODVEHICLE
 		else if (Class.CastTo(exVeh, obj))
