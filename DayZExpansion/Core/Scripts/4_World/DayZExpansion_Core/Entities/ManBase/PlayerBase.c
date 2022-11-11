@@ -469,9 +469,6 @@ modded class PlayerBase
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion Init
-	// ------------------------------------------------------------
 	override void Init()
 	{
 #ifdef EXPANSIONTRACE
@@ -481,6 +478,15 @@ modded class PlayerBase
 		super.Init();
 
 		RegisterNetSyncVariableBool("m_Expansion_IsInSafeZoneSynchRemote");
+	}
+
+	//! Need to override vanilla PlayerBase::IsInventoryVisible
+	override bool IsInventoryVisible()
+	{
+		if (!super.IsInventoryVisible())
+			return false;
+
+		return m_Expansion_CanBeLooted;
 	}
 
 	override void OnConnect()

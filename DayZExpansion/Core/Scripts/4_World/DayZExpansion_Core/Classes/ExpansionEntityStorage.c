@@ -187,8 +187,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				ctx.Write(entity.GetOrientation());
 				break;
 			case InventoryLocationType.ATTACHMENT:
-			case InventoryLocationType.HANDS:
 				ctx.Write(il.GetSlot());
+				break;
+			case InventoryLocationType.HANDS:
+				//! Nothing to do
 				break;
 			case InventoryLocationType.CARGO:
 			case InventoryLocationType.PROXYCARGO:
@@ -304,10 +306,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				//! Try to optimize amount of data written
 				auto cartridges = new array<ref ExpansionCartridgeInfo>;
 				ExpansionCartridgeInfo info;
+				float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
+				string cartTypeName;
 				for (i = 0; i < mag.GetAmmoCount(); i++)
 				{
-					float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
-					string cartTypeName;
 					mag.GetCartridgeAtIndex(i, damage, cartTypeName);
 					if (!info || damage != info.Damage || cartTypeName != info.Type)
 					{
@@ -432,7 +434,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		InventoryLocationType ilt;
 		if (!ctx.Read(ilt))
 			return ErrorFalse(type + ": Couldn't read inventory location type");
+		if (!level && !parent && player)
+			parent = player;
 		EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 " + type + " inventory location type " + typename.EnumToString(InventoryLocationType, ilt));
+		InventoryLocation il;
 		switch (ilt)
 		{
 			case InventoryLocationType.GROUND:
@@ -449,12 +454,16 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				}
 				break;
 			case InventoryLocationType.ATTACHMENT:
-			case InventoryLocationType.HANDS:
 				int slotId;
 				if (!ctx.Read(slotId))
 					return ErrorFalse(type + ": Couldn't read slot ID");
-				InventoryLocation il = new InventoryLocation();
+				il = new InventoryLocation();
 				il.SetAttachment(parent, null, slotId);
+				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
+				break;
+			case InventoryLocationType.HANDS:
+				il = new InventoryLocation();
+				il.SetHands(parent, null);
 				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
 				break;
 			case InventoryLocationType.CARGO:
@@ -476,14 +485,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				break;
 		}
 
-/* disabled, since it allows duping
-		if (!entity && player)
+		if (!level && !entity && player)
 		{
-			//! Create on ground at player pos
-			if (Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
+			//! Try to create in player inventory
+			entity = player.GetInventory().CreateInInventory(type);
+			//! Try to create on ground at player pos
+			if (!entity && Class.CastTo(entity, GetGame().CreateObjectEx(type, player.GetPosition(), ECE_PLACE_ON_SURFACE, RF_DEFAULT)))
 				EXTrace.Print(EXTrace.GENERAL_ITEMS, parent, "ExpansionEntityStorage::Restore_Phase1 - WARNING: Couldn't create " + type + " on " + parent + ", created at player position " + player.GetPosition() + " instead");
 		}
-*/
 
 		if (!entity)
 			return ErrorFalse("No entity created: " + type);

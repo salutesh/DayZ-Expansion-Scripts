@@ -986,7 +986,7 @@ class ExpansionQuest
 
 				//! Get the next objective from our objective list and start it
 				ExpansionQuestObjectiveEventBase nextObjective = QuestObjectives[m_CurrentObjectiveIndex];
-				if (nextObjective || !nextObjective.IsInitialized() || !nextObjective.IsActive())
+				if (nextObjective && !nextObjective.IsInitialized() && !nextObjective.IsActive())
 				{
 				#ifdef EXPANSIONMODNAVIGATION
 					RemoveMarkers();
@@ -994,7 +994,6 @@ class ExpansionQuest
 	
 					//! Start the next objective
 					nextObjective.OnStart();
-	
 					QuestDebugPrint(ToString() + "::CompletionCheck - Started next quest objective event with index: " + m_CurrentObjectiveIndex);
 				}
 			}
@@ -1564,7 +1563,7 @@ class ExpansionQuest
 
 		foreach (EntityAI item : items)
 		{
-			if (questItemNames.Find(item.GetType()) > -1)
+			if (ExpansionStatic.IsAnyOf(item, questItemNames, true))
 			{
 				ItemBase itemIB;
 				if (Class.CastTo(itemIB, item))

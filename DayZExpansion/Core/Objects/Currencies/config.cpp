@@ -26,7 +26,7 @@ class CfgVehicles
 		simpleHeap = 1;
 		itemSize[] = {1,1};
 		isMeleeWeapon = 1;
-		varQuantityInit = 1.0;
+		varQuantityInit = 1;
 		varQuantityMin = 0;
 		varQuantityMax = 100.0;
 		varQuantityDestroyOnMin = 1;

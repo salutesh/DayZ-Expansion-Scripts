@@ -26,12 +26,12 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		//! If the ai camp need to be killed with a special weapon check incoming killer class type
 		if (aiPatrol.NeedSpecialWeapon())
 		{
-			if (!ExpansionStatic.IsAnyOf(killer.GetType(), aiPatrol.GetAllowedWeapons(), killer.ClassName()))
+			if (!ExpansionStatic.IsAnyOf(killer, aiPatrol.GetAllowedWeapons(), true))
 				return;
 		}
 
 		//! Check if killed entities class name is a valid one from our objective config
-		bool found = ExpansionStatic.IsAnyOf(victim.GetType(), aiPatrol.GetClassNames(), victim.ClassName());
+		bool found = ExpansionStatic.IsAnyOf(victim, aiPatrol.GetClassNames(), true);
 
 		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
 

@@ -126,7 +126,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 
 				foreach (EntityAI item: m_PlayerItems)
 				{
-					if (name == item.GetType() && amountToDelete > 0)
+					if ((name == item.ClassName() || item.IsKindOf(name)) && amountToDelete > 0)
 					{
 						ItemBase itemIB;
 						if (Class.CastTo(itemIB, item))
@@ -154,7 +154,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEvent
 
 				foreach (EntityAI groupItem: m_GroupItems)
 				{
-					if (name == groupItem.GetType() && amountToDelete > 0)
+					if ((name == groupItem.ClassName() || groupItem.IsKindOf(name)) && amountToDelete > 0)
 					{
 						ItemBase groupItemIB;
 						if (Class.CastTo(groupItemIB, groupItem))

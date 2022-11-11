@@ -3966,13 +3966,13 @@ modded class CarScript
 	{
 		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
-			//string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
-			//if (GetGame().ConfigIsExisting(path))
-			//{
-				//m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
-			//}
-			//else
-			//{
+			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
+			if (GetGame().ConfigIsExisting(path))
+			{
+				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
+			}
+			else
+			{
 				vector minMax[2];
 				GetCollisionBox(minMax);
 				float diff = -minMax[0][1];
@@ -3980,7 +3980,7 @@ modded class CarScript
 					m_ModelZeroPointDistanceFromGround = diff;
 				else
 					m_ModelZeroPointDistanceFromGround = 0;
-			//}
+			}
 
 			EXTrace.Print(EXTrace.VEHICLES, this, GetType() + " modelZeroPointDistanceFromGround " + m_ModelZeroPointDistanceFromGround);
 		}

@@ -29,6 +29,7 @@ modded class DayZPlayerImplement
 		Expansion_Init();
 	}
 
+	//! For NPCs that don't inherit from PlayerBase
 	override bool IsInventoryVisible()
 	{
 		if (!super.IsInventoryVisible())

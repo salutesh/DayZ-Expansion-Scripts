@@ -4592,13 +4592,13 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		if (m_ModelZeroPointDistanceFromGround < 0)
 		{
-			//string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
-			//if (GetGame().ConfigIsExisting(path))
-			//{
-				//m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
-			//}
-			//else
-			//{
+			string path = "CfgVehicles " + GetType() + " modelZeroPointDistanceFromGround";
+			if (GetGame().ConfigIsExisting(path))
+			{
+				m_ModelZeroPointDistanceFromGround = GetGame().ConfigGetFloat(path);
+			}
+			else
+			{
 				vector minMax[2];
 				GetCollisionBox(minMax);
 				float diff = -minMax[0][1];
@@ -4606,7 +4606,7 @@ class ExpansionVehicleBase extends ItemBase
 					m_ModelZeroPointDistanceFromGround = diff;
 				else
 					m_ModelZeroPointDistanceFromGround = 0;
-			//}
+			}
 		}
 
 		return m_ModelZeroPointDistanceFromGround;

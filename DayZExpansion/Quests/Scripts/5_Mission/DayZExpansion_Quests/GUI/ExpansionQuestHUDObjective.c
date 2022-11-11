@@ -317,14 +317,13 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION");
-				ExpansionQuestObjectiveActionConfig actionConfig;
-				if (Class.CastTo(actionConfig, objectiveConfigBase))
-				{
-					m_QuestHUDObjectiveController.ObjectiveTarget = actionConfig.ObjectiveText;
-					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetActionState().ToString();
-					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				}
+				m_QuestHUDObjectiveController.ObjectiveTarget = objectiveConfigBase.ObjectiveText;
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+				if (m_Objective.GetActionState())
+					m_QuestHUDObjectiveController.ObjectiveValue = "1/1";
+				else
+					m_QuestHUDObjectiveController.ObjectiveValue = "0/1";
+				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
 			}
 			break;
@@ -332,9 +331,12 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				QuestDebugPrint(ToString() + "::SetEntryObjective - CRAFTING");
-				m_QuestHUDObjectiveController.ObjectiveTarget = "Item crafted: ";
+				m_QuestHUDObjectiveController.ObjectiveTarget = objectiveConfigBase.ObjectiveText;
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-				m_QuestHUDObjectiveController.ObjectiveValue = m_Objective.GetActionState().ToString();
+				if (m_Objective.GetActionState())
+					m_QuestHUDObjectiveController.ObjectiveValue = "1/1";
+				else
+					m_QuestHUDObjectiveController.ObjectiveValue = "0/1";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				QuestDebugPrint(ToString() + "::SetEntryObjective - CRAFTING - ADDED");
 			}

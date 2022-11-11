@@ -17,11 +17,16 @@ modded class Fence
 	override bool CanBeDamaged()
 	{
 		auto settings = GetExpansionSettings().GetRaid();
-		if (settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.DoorsGates || settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.DoorsGatesWindowsWalls)
-			return HasHinges() && settings.IsRaidableNow();
-		else if (settings.BaseBuildingRaidMode == ExpansionBaseBuildingRaidMode.All)
-			return settings.IsRaidableNow();
-		
+		switch (settings.BaseBuildingRaidMode)
+		{
+			case ExpansionBaseBuildingRaidMode.DoorsGates:
+			case ExpansionBaseBuildingRaidMode.DoorsGatesWindows:
+				return HasHinges() && settings.IsRaidableNow();
+			case ExpansionBaseBuildingRaidMode.All:
+			case ExpansionBaseBuildingRaidMode.DoorsGatesWindowsWalls:
+				return settings.IsRaidableNow();
+		}
+
 		return false;
 	}
 

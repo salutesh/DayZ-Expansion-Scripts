@@ -344,7 +344,8 @@ class ExpansionItemSpawnHelper
 
 		int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 
-		if (!GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+		bool placeOnSurface = !GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase");
+		if (placeOnSurface)
 			flags |= ECE_TRACE;
 
 		Object obj = GetGame().CreateObjectEx(className, position, flags);
@@ -379,6 +380,10 @@ class ExpansionItemSpawnHelper
 				}
 				#endif
 			}
+
+			float dist = vehicle.GetModelZeroPointDistanceFromGround();
+			if (placeOnSurface && position[1] + dist > vehicle.GetPosition()[1])
+				vehicle.SetPosition(position + Vector(0, dist, 0));
 		}
 		#ifdef EXPANSIONMODVEHICLE
 		else if (Class.CastTo(exVeh, obj))
@@ -567,11 +572,11 @@ class ExpansionItemSpawnHelper
 		Magazine dstMag;
 		if (Class.CastTo(srcMag, src) && Class.CastTo(dstMag, dst))
 		{
+			float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
+			string cartTypeName;
 			dstMag.ServerSetAmmoCount(0);
 			for (i = 0; i < srcMag.GetAmmoCount(); i++)
 			{
-				float damage;  //! @note damage is the damage of the cartridge itself (0..1), NOT the damage it inflicts!
-				string cartTypeName;
 				srcMag.GetCartridgeAtIndex(i, damage, cartTypeName);
 				dstMag.ServerStoreCartridge(damage, cartTypeName);
 			}

@@ -15,6 +15,7 @@ class ExpansionChatMessage
 	int Channel;
 	string From;
 	string Text;
+	bool IsMuted;
 }
 
 class ExpansionChatLineBase: ExpansionScriptView
@@ -29,8 +30,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 	private string m_LayoutPath;
 	private ButtonWidget ChatItemButton;
 	private ImageWidget ChatItemButtonIcon;
-	private bool m_CanMute;
 	private GridSpacerWidget ChatItemWidget;
+	ExpansionChatMessage m_Message;
 	
 	void ExpansionChatLineBase(Widget parent, Chat chat)
 	{
@@ -63,6 +64,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 		if (!Class.CastTo(mission, GetGame().GetMission()))
 			return;
 		
+		m_Message = message;
+
 		if (!message)
 		{
 			GetLayoutRoot().Show(false);
@@ -279,7 +282,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		EXTrace.Print(EXTrace.CHAT, this, "::OnMouseEnter - Widget: " + w.GetName());
-		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute() && m_Chat.GetChatWindow().IsMuteListVisible())
+		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute())
 		{
 			if (w == ChatItemButton)
 				ChatItemButtonIcon.SetColor(ARGB(200, 0, 0, 0));
@@ -298,8 +301,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute())
 		{
-			if (w == ChatItemButton)
-				ChatItemButtonIcon.SetColor(ARGB(200, 255, 255, 255));
+			ChatItemButtonIcon.SetColor(ARGB(200, 255, 255, 255));
 			
 			ChatItemButton.Show(false);
 			return true;
@@ -308,38 +310,24 @@ class ExpansionChatLineBase: ExpansionScriptView
 		return false;
 	}
 	
-	void SetCanMute(bool state)
-	{
-		m_CanMute = state;
-		
-		if (!m_CanMute)
-			ChatItemButtonIcon.SetColor(ARGB(200, 255, 255, 255));
-	}
-	
 	bool CanMute()
 	{
-		return m_CanMute;
+		if (!m_Message)
+			return false;
+
+		if (m_Message.From == GetGame().GetPlayer().GetIdentity().GetName())
+			return false;
+
+		return m_Chat.CanMute(m_Message.Channel);
 	}
 	
 	void OnEntryButtonClick()
 	{
-		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
-		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
-		{
-			string name = m_ChatLineController.SenderName.Trim();
-			name = name.Substring(0, name.Length() - 1);  //! Remove trailing ":"
-			
-			if (player.m_PlayerName == name)
-			{
-				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
-				{
-					clientSettings.MutedPlayers.Insert(player.m_RUID);
-					clientSettings.Save();
-					m_Chat.GetChatWindow().RefreshChatMessages();
-					m_Chat.GetChatWindow().UpdateMuteList();
-				}
-			}
-		}
+		if (!CanMute())
+			return;
+
+		m_Chat.GetChatWindow().Mute(m_Message.From);
+		ChatItemButton.Show(false);
 	}
 	
 	ExpansionChatLineController GetChatLineController()

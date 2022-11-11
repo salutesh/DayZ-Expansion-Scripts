@@ -39,9 +39,6 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	protected ref WidgetFadeTimer m_FadeOutTimerChat;
 
 	protected ExpansionClientUIChatSize m_ChatSize;
-	
-	protected int m_MutedPlayersCount;
-	protected bool m_MuteListVisible;
 
 	bool m_ChatHover;
 
@@ -67,10 +64,6 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		GetLayoutRoot().Show(false);
 		CreateChatLines();
-		
-		m_MutedPlayersCount = GetExpansionClientSettings().MutedPlayers.Count();
-		if (m_MutedPlayersCount > 0)
-			UpdateMuteList();
 	}
 
 	void ~ExpansionChatUIWindow()
@@ -206,27 +199,28 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		if (count != m_MaxChatMessages)  //! Still creating chat lines
 			return;
 
-		for (int i = 0; i < count; i++)
+		int i;
+		int idx = count - 1;
+		while (idx >= 0)
 		{
-			int idx = count - (i + 1);
-			bool isMuted = m_Chat.IsPlayerMuted(m_ChatLines[idx].GetChatLineController().SenderName);
-
-			if (i < m_ChatParams.Count() && !isMuted)
+			if (i < m_ChatParams.Count())
 			{
-				m_ChatLines[idx].Set(m_ChatParams[i]);
+				ExpansionChatMessage message = m_ChatParams[i++];
+				if (message.IsMuted)
+					continue;
+				m_ChatLines[idx].Set(message);
 				m_ChatLines[idx].Show();
-				m_ChatLines[idx].SetCanMute(true);
 			}
 			else
 			{
 				m_ChatLines[idx].Set(NULL);
-				m_ChatLines[idx].SetCanMute(false);
-				m_ChatLines[idx].Hide();
 
 				//! Make sure the first 12 lines are always shown even if empty so new messages appear at the bottom
-				if (i < 12)
+				if (idx > count - 13)
 					m_ChatLines[idx].Show();
 			}
+
+			idx--;
 		}
 	}
 
@@ -356,11 +350,16 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	{
 		m_ChatWindowController.MuteEntries.Clear();
 		
+		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
+
+		if (clientSettings.MutedPlayers.Count() == 0)
+			return;
+
 		if (ClientData && ClientData.m_PlayerList && ClientData.m_PlayerList.m_PlayerList)
 		{
 			foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
 			{
-				if (GetExpansionClientSettings().MutedPlayers.Find(player.m_RUID) == -1)
+				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
 					continue;
 	
 				ExpansionChatMuteEntry entry = new ExpansionChatMuteEntry(this, player);
@@ -369,11 +368,56 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		}
 	}
 
+	void Mute(string playerName)
+	{
+		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
+		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
+		{
+			if (player.m_PlayerName == playerName)
+			{
+				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
+				{
+					EXTrace.StartStack(EXTrace.CHAT, this, "Mute " + player.m_RUID + " " + playerName + " " + clientSettings.MutedPlayers.Count());
+					clientSettings.MutedPlayers.Insert(player.m_RUID);
+					if (clientSettings.MutedPlayers.Count() > 100)
+						clientSettings.MutedPlayers.RemoveOrdered(0);
+					clientSettings.Save();
+					UpdateMuteList();
+					UpdateMute(playerName, true);
+				}
+				break;
+			}
+		}
+	}
+
+	void Unmute(string playerUID, string playerName)
+	{
+		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
+		int index = clientSettings.MutedPlayers.Find(playerUID);
+		EXTrace.Print(EXTrace.CHAT, this, "Unmute " + playerUID + " " + playerName + " " + index);
+		if (index > -1)
+		{
+			clientSettings.MutedPlayers.RemoveOrdered(index);
+			clientSettings.Save();
+			UpdateMute(playerName, false);
+		}
+	}
+
+	void UpdateMute(string playerName, bool mute)
+	{
+		foreach (ExpansionChatMessage message: m_ChatParams)
+		{
+			if (message.From == playerName)
+				message.IsMuted = mute && m_Chat.CanMute(message.Channel);
+		}
+
+		RefreshChatMessages();
+	}
+
 	void OnMuteListButtonClick()
 	{
 		bool state = MutePanel.IsVisible();
 		MutePanel.Show(!state);
-		m_MuteListVisible = !state;
 		
 		if (state)
 		{
@@ -390,7 +434,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	
 	bool IsMuteListVisible()
 	{
-		return m_MuteListVisible;
+		return MutePanel.IsVisible();
 	}
 };
 

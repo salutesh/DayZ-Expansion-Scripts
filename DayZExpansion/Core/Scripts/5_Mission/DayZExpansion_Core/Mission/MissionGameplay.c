@@ -26,9 +26,6 @@ modded class MissionGameplay
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionGameplay");
 #endif
 		
-		if (IsMissionClient())
-			GetExpansionClientSettings().Load();
-		
 		CreateExpansionUIMenuManager();
 	}
 
