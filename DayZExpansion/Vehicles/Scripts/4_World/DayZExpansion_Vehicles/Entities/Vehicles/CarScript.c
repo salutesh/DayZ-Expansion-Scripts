@@ -3842,43 +3842,48 @@ modded class CarScript
 	{
 		super.OnCEUpdate();
 
-		//! Prevent autocover if this is a CE spawned vehicle (lifetime will be 0 in that case)
-		if (GetLifetime() <= 0)
-			return;
-
 		//! Prevent autocover before forcing initial storeloaded position
 		if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
 			return;
 
-		if (Expansion_EngineIsOn() || Expansion_GetVehicleCrew().Count())
+		auto settings = GetExpansionSettings().GetVehicle(false);
+
+		if (!settings.EnableVehicleCovers || settings.VehicleAutoCoverTimeSeconds <= 0)
+			return;
+
+		//! Prevent autocover if this is a CE spawned vehicle (lifetime will be 0 in that case) and autocovering spawned vehicles is disabled
+		if (GetLifetime() <= 0 && !settings.EnableAutoCoveringDEVehicles)
+			return;
+
+		//! Defer autocover if engine is on or player is within vehicle bounding radius
+		float playerAvoidanceRadius = m_BoundingRadius * 1.5;
+		if (playerAvoidanceRadius <= 0)
+			playerAvoidanceRadius = 150;
+		if (Expansion_EngineIsOn() || !GetCEApi().AvoidPlayer(GetPosition(), playerAvoidanceRadius))
 		{
 			m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTickTime();
 			return;
 		}
 
-		auto settings = GetExpansionSettings().GetVehicle();
-		if (settings.EnableVehicleCovers && settings.VehicleAutoCoverTimeSeconds > 0)
+		if (GetGame().GetTickTime() - m_Expansion_VehicleAutoCoverTimestamp > settings.VehicleAutoCoverTimeSeconds)
 		{
-			if (GetGame().GetTickTime() - m_Expansion_VehicleAutoCoverTimestamp > settings.VehicleAutoCoverTimeSeconds)
-			{
 #ifdef EXPANSIONMODGARAGE
-				//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
-				if (!GetExpansionSettings().GetGarage().CanStoreWithCargo && MiscGameplayFunctions.Expansion_HasAnyCargo(this))
-				{
-					m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTime();
-					return;
-				}
+			//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
+			if (!GetExpansionSettings().GetGarage().CanStoreWithCargo && MiscGameplayFunctions.Expansion_HasAnyCargo(this))
+			{
+				m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTime();
+				return;
+			}
 #endif
 
-				EntityAI cover = FindAttachmentBySlotName("CamoNet");
-				if (settings.VehicleAutoCoverRequireCamonet && !cover)
-				{
-					m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTime();
-					return;
-				}
-
-				Expansion_CoverVehicle();
+			EntityAI cover = FindAttachmentBySlotName("CamoNet");
+			if (settings.VehicleAutoCoverRequireCamonet && !cover)
+			{
+				m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTime();
+				return;
 			}
+
+			Expansion_CoverVehicle();
 		}
 	}
 
@@ -4081,7 +4086,7 @@ modded class CarScript
 
 		ExpansionCheckTreeContact(other, data.Impulse);
 
-		if (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed)
+		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
 			CarScript otherVehicle;
 			bool otherVehicleEngineOn = Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsOn();

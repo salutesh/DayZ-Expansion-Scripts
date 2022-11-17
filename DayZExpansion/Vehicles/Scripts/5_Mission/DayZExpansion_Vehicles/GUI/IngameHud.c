@@ -13,7 +13,7 @@
 #ifdef EXPANSION_VEHICLE_NEW_HUD
 modded class IngameHud
 {
-	ref array<ref ExpansionVehicleModuleUI> m_Expansion_Modules = new array<ref ExpansionVehicleModuleUI>();
+	ref array<ref ExpansionVehicleComponentUI> m_Expansion_Modules = new array<ref ExpansionVehicleComponentUI>();
 
 	Widget m_Expansion_VehiclePanel;
 
@@ -57,7 +57,7 @@ modded class IngameHud
 		auto hcv = player.GetCommand_ExpansionVehicle();
 		if (hcv && hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 		{
-			m_Expansion_CurrentVehicle = hcv.GetTransport();
+			m_Expansion_CurrentVehicle = hcv.GetExpansionVehicle();
 		}
 
 		if (!m_Expansion_CurrentVehicle)
@@ -68,12 +68,12 @@ modded class IngameHud
 
 		if (m_Expansion_CurrentVehicle.IsPlane() || m_Expansion_CurrentVehicle.IsHelicopter())
 		{
-			m_Expansion_Modules.Insert(new ExpansionVehicleAltimeterModuleUI(m_Expansion_CurrentVehicle, null, m_Expansion_VehiclePanel));
+			m_Expansion_Modules.Insert(new ExpansionVehicleAltimeterUI(m_Expansion_CurrentVehicle, null, m_Expansion_VehiclePanel));
 		}
 
 		for (int i = 0; i < m_Expansion_CurrentVehicle.m_Engines.Count(); i++)
 		{
-			m_Expansion_Modules.Insert(new ExpansionVehicleEngineModuleUI(m_Expansion_CurrentVehicle, m_Expansion_CurrentVehicle.m_Engines[i], m_Expansion_VehiclePanel));
+			m_Expansion_Modules.Insert(new ExpansionVehicleEngineUI(m_Expansion_CurrentVehicle, m_Expansion_CurrentVehicle.m_Engines[i], m_Expansion_VehiclePanel));
 		}
 
 		m_Expansion_VehiclePanel.Show(true);

@@ -47,7 +47,7 @@ class ExpansionRaidSchedule
 			Error(ToString() + " Invalid start minute " + StartMinute);
 
 		if (StartHour * 60 + StartMinute + DurationMinutes > 1440)
-			Error(ToString() + " Invalid duration " + DurationMinutes);
+			Error(ToString() + " Invalid duration " + DurationMinutes + " for start time " + StartHour + ":" + StartMinute + " on " + Weekday);
 	}
 
 	void OnSend(ParamsWriteContext ctx)

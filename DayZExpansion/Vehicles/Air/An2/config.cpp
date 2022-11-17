@@ -507,7 +507,7 @@ class CfgVehicles
 						transferToGlobalCoef = 1;
 						healthLevels[] = {{1.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.7,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva.rvmat"}},{0.5,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.3,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}},{0.0,{"dz\vehicles\wheeled\offroadhatchback\data\engine_niva_destruct.rvmat"}}};
 					};
-					inventorySlots[] = {"CarBattery","SparkPlug","CarRadiator"};
+					inventorySlots[] = {"ExpansionAircraftBattery","GlowPlug","CarRadiator"};
 					inventorySlotsCoefs[] = {0.2,0.2,0.4};
 				};
 				class FuelTank

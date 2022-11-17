@@ -62,7 +62,7 @@ class ExpansionEntityStorageContext
 [CF_RegisterModule(ExpansionEntityStorageModule)]
 class ExpansionEntityStorageModule: CF_ModuleWorld
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 	static const string EXT = ".bin";
 
 	static const int FAILURE = 0;
@@ -187,7 +187,9 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				ctx.Write(entity.GetOrientation());
 				break;
 			case InventoryLocationType.ATTACHMENT:
-				ctx.Write(il.GetSlot());
+				int slotId = il.GetSlot();
+				ctx.Write(slotId);
+				ctx.Write(parent.GetInventory().GetSlotLock(slotId));
 				break;
 			case InventoryLocationType.HANDS:
 				//! Nothing to do
@@ -390,7 +392,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		bool createEntity = level || !entity;
 		if (createEntity)
 		{
-			int result = Restore_Phase1(ctx, entity, parent, player, type, level);
+			int result = Restore_Phase1(ctx, entity, parent, player, entityStorageVersion, type, level);
 			if (result == FAILURE)
 				return false;
 			else if (result == SKIP)
@@ -418,7 +420,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return restored;
 	}
 
-	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, string type = string.Empty, int level = 0)
+	static int Restore_Phase1(ParamsReadContext ctx, out EntityAI entity, EntityAI parent, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0)
 	{
 		//! 1a) entity type
 		if (!level || !type)
@@ -457,9 +459,14 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 				int slotId;
 				if (!ctx.Read(slotId))
 					return ErrorFalse(type + ": Couldn't read slot ID");
+				bool slotLocked;
+				if (entityStorageVersion >= 9 && !ctx.Read(slotLocked))
+					return ErrorFalse(type + ": Couldn't read slot locked state");
 				il = new InventoryLocation();
 				il.SetAttachment(parent, null, slotId);
 				entity = GameInventory.LocationCreateEntity(il, type, ECE_IN_INVENTORY, RF_DEFAULT);
+				if (entity)
+					parent.GetInventory().SetSlotLock(slotId, slotLocked);
 				break;
 			case InventoryLocationType.HANDS:
 				il = new InventoryLocation();

@@ -1128,6 +1128,13 @@ modded class ItemBase
 	{
 		return m_Expansion_IsAdminTool;
 	}
+	
+	bool Expansion_IsSelectionRuined(string selection)
+	{
+		string zone;
+		DamageSystem.GetDamageZoneFromComponentName(this, selection, zone);
+		return GetHealthLevel(zone) == GameConstants.STATE_RUINED;
+	}
 
 	bool Expansion_IsStackable()
 	{

@@ -40,7 +40,7 @@ class ExpansionVehicleActionUnlockVehicle: ActionInteractBase
 
 		if ( player.GetCommand_ExpansionVehicle() )
 		{
-			if ( !Class.CastTo( car, player.GetCommand_ExpansionVehicle().GetTransport() ) )
+			if ( !Class.CastTo( car, player.GetCommand_ExpansionVehicle().GetExpansionVehicle() ) )
 				return false;
 
 			if ( !car.HasKey() )

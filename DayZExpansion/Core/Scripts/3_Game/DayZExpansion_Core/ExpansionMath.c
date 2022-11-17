@@ -13,6 +13,9 @@
 
 class ExpansionMath
 {
+	static const float OneOverLN2 = 1.4426950408889634;
+	static const float Epsilon = 0.000000001;
+
 	static float LinearConversion(float minFrom, float maxFrom, float value, float minTo = 0, float maxTo = 1, bool clamp = true)
 	{
 		float newValue = (((value - minFrom) * (maxTo - minTo)) / (maxFrom - minFrom)) + minTo;
@@ -477,5 +480,39 @@ class ExpansionMath
 		}
 
 		return log2x;
+	}
+
+	static float Log10(float x, float tolerance = 1e-13)
+	{
+		static const float Log2_10 = Log2(10);
+		return Log2(x) / Log2_10;
+	}
+	
+	static float NewtonNext(float r, float x)
+	{
+		int ir = r;
+		int div = 1 << ir;
+		return r - OneOverLN2 * (1.0 - (x / div));
+	}
+
+	static float NewtonLog2(float x)
+	{
+		float r = x / 2; // better first guesses converge faster
+		float r2 = NewtonNext(r, x);
+		float delta = r - r2;
+		while (delta * delta > Epsilon)
+		{ 
+			r = r2;
+			r2 = NewtonNext(r, x);
+			delta = r - r2;
+		}
+		return r2;
+	}
+
+	static float NewtonLog10(float x)
+	{
+		//static const float Log2_10 = NewtonLog2(10);
+		//return NewtonLog2(x) / Log2_10;
+		return 0;
 	}
 }

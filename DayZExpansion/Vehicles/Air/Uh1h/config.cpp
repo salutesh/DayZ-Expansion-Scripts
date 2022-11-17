@@ -352,7 +352,7 @@ class CfgVehicles
 					fatalInjuryCoef = 0.001;
 					memoryPoints[] = {"dmgZone_engine"};
 					componentNames[] = {"dmgZone_engine"};
-					inventorySlots[] = {"CarBattery","SparkPlug","EngineBelt","CarRadiator"};
+					inventorySlots[] = {"ExpansionHelicopterBattery","ExpansionIgniterPlug"};
 					inventorySlotsCoefs[] = {0.2,0.2,0.01,0.4};
 				};
 				class FuelTank

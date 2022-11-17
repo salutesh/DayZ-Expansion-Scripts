@@ -312,7 +312,7 @@ modded class ItemBase
 		if (!super.IsOpen())
 			return false;
 
-		if (ExpansionIsOpenable() || IsNonExpansionOpenable())
+		if (ExpansionIsOpenable())
 			return IsOpened();
 
 		//! @note vanilla by default returns true, we need to keep this compatible

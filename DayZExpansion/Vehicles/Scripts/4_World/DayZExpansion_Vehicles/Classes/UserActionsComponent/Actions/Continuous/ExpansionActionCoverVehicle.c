@@ -96,15 +96,13 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 			return false;
 		}
 
-#ifdef EXPANSIONMODGARAGE
 		//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
-		if (!GetExpansionSettings().GetGarage().CanStoreWithCargo)
+		if (!settings.CanCoverWithCargo)
 		{
 			EntityAI entity;
 			if (Class.CastTo(entity, targetObject) && MiscGameplayFunctions.Expansion_HasAnyCargo(entity))
 				return false;
 		}
-#endif
 
 		if (!GetGame().IsDedicatedServer())
 		{

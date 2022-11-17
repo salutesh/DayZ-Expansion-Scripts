@@ -749,8 +749,8 @@ class CfgVehicles
 					finalRatio = 4.1;
 					brakeBias = 0.6;
 					brakeForce = 4000;
-					wheelHubMass = 1;
-					wheelHubRadius = 0.01;
+					wheelHubMass = 5;
+					wheelHubRadius = 0.125;
 					maxBrakeTorque = 2000;
 					maxHandbrakeTorque = 2500;
 					class Differential
@@ -761,11 +761,11 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
+						stiffness = 40000;
+						compression = 2100;
+						damping = 7500;
+						travelMaxUp = 0.0882;
+						travelMaxDown = 0.0833;
 					};
 					class Wheels: Wheels
 					{
@@ -787,8 +787,8 @@ class CfgVehicles
 					finalRatio = 4.1;
 					brakeBias = 0.4;
 					brakeForce = 3800;
-					wheelHubMass = 1;
-					wheelHubRadius = 0.01;
+					wheelHubMass = 5;
+					wheelHubRadius = 0.125;
 					maxBrakeTorque = 1000;
 					maxHandbrakeTorque = 2500;
 					class Differential
@@ -799,11 +799,11 @@ class CfgVehicles
 					class Suspension
 					{
 						swayBar = 1;
-						stiffness = 1;
-						compression = 1;
-						damping = 1;
-						travelMaxUp = 0;
-						travelMaxDown = 0;
+						stiffness = 40000;
+						compression = 2200;
+						damping = 7600;
+						travelMaxUp = 0.1587;
+						travelMaxDown = 0.1059;
 					};
 					class Wheels: Wheels
 					{
