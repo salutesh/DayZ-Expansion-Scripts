@@ -28,7 +28,7 @@ class ExpansionActionCloseVehicleDoor: ActionInteractBase
 		//! player inside vehicle
 		if ( player && player.GetCommand_ExpansionVehicle() )
 		{
-			if ( Class.CastTo( vehicle, player.GetCommand_ExpansionVehicle().GetTransport() ) )
+			if ( Class.CastTo( vehicle, player.GetCommand_ExpansionVehicle().GetExpansionVehicle() ) )
 			{
 				int crewIdx = vehicle.CrewMemberIndex( player );
 				

@@ -32,6 +32,8 @@ class ExpansionActionNextEngine : ActionInteractBase
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		Human driver;
+		
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 		if (vehCommand)
 		{
@@ -41,7 +43,22 @@ class ExpansionActionNextEngine : ActionInteractBase
 				if (car.Expansion_EngineGetCount() <= 1)
 					return false;
 
-				Human driver = car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+				driver = car.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
+				if (driver && driver == player)
+					return true;
+			}
+		}
+
+		ExpansionHumanCommandVehicle exVehCommand = player.GetCommand_ExpansionVehicle();
+		if (exVehCommand)
+		{
+			ExpansionVehicleBase veh;
+			if (Class.CastTo(veh, exVehCommand.GetObject()))
+			{
+				if (veh.EngineGetCount() <= 1)
+					return false;
+
+				driver = veh.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER);
 				if (driver && driver == player)
 					return true;
 			}
@@ -61,6 +78,16 @@ class ExpansionActionNextEngine : ActionInteractBase
 				if (Class.CastTo(car, vehCommand.GetTransport()))
 				{
 					car.Expansion_EngineSetNext();
+				}
+			}
+
+			ExpansionHumanCommandVehicle exVehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
+			if (exVehCommand)
+			{
+				ExpansionVehicleBase veh;
+				if (Class.CastTo(veh, exVehCommand.GetObject()))
+				{
+					veh.EngineSetNext();
 				}
 			}
 		}

@@ -509,9 +509,15 @@ class ExpansionClientSettings
 				}
 
 				if (MutedPlayers.Find(muted) == -1)
+				{
 					MutedPlayers.Insert( muted );
+				}
 				else
+				{
 					settingsRepaired = true;
+					if (mutedPlayersCount > 100)
+						return true;  //! Bail
+				}
 			}
 		}
 

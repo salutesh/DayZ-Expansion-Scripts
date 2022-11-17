@@ -74,7 +74,7 @@ class ExpansionActionCarHorn : ActionContinuousBase
 
 		ExpansionHumanCommandVehicle expVehCommand = player.GetCommand_ExpansionVehicle();
 		ExpansionVehicleBase vehicle;
-		if (expVehCommand && Class.CastTo(vehicle, expVehCommand.GetTransport()))
+		if (expVehCommand && Class.CastTo(vehicle, expVehCommand.GetExpansionVehicle()))
 		{
 			if (expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				return false;

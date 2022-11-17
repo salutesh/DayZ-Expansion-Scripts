@@ -8,9 +8,7 @@ modded class JMVehicleSpawnerModule
 
 		ExpansionVehicleBase car;
 		if (Class.CastTo(car, entity))
-		{
-			car.SetPosition( car.GetPosition() + "0 10 0" );
-			
+		{			
 			FillEV(car, CarFluid.FUEL);
 			FillEV(car, CarFluid.OIL);
 			FillEV(car, CarFluid.BRAKE);

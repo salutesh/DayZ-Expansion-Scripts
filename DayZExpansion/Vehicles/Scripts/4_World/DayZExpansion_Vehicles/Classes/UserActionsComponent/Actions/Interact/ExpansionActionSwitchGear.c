@@ -47,7 +47,7 @@ class ExpansionActionSwitchGear: ActionInteractBase
 			return false;
 
 		ExpansionVehicleBase vehicle;
-		if (expVehCommand && (!Class.CastTo(vehicle, expVehCommand.GetTransport()) || expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER) && !vehicle.HasGear())
+		if (expVehCommand && (!Class.CastTo(vehicle, expVehCommand.GetExpansionVehicle()) || expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER) && !vehicle.HasGear())
 			return false;
 
 		return false;

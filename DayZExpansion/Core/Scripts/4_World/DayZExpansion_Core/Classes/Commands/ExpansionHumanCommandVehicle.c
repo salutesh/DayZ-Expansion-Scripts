@@ -22,8 +22,8 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	int STATE_SWITCHING_SEAT = STATE_JUMPED_OUT + 1;
 	int STATE_FINISH = STATE_SWITCHING_SEAT + 1;
 
-	float TIME_PRE_GET_IN = 0.2;
-	float TIME_GET_IN = 1.3;
+	float TIME_PRE_GET_IN = 0.1;
+	float TIME_GET_IN = 1.73;
 	float TIME_GET_OUT = 1.5;
 	float TIME_JUMP_OUT = 2.0;
 	float TIME_SWITCH_SEAT = 1.0;
@@ -45,7 +45,8 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	float m_Time;
 	float m_TimeMax;
 
-	float m_TranslationSpeed;
+	float m_LinearSpeed;
+	float m_AngularSpeed;
 
 	vector m_StartTransform[4];
 	vector m_TargetTransform[4];
@@ -74,20 +75,62 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		m_PreviousState = STATE_UNKNOWN;
 	}
 
-	void ChangeState(int pState, vector pNewTransform[4])
+	void ChangeState(int state)
 	{
-		m_Time = 0;
-		m_State = pState;
+		m_PreviousState = m_State;
+		m_State = state;
+
+		UpdateSpeed();
+	}
+
+	void ChangeState(int state, vector newTransform[4])
+	{
+		m_PreviousState = m_State;
+		m_State = state;
 		
 		m_StartTransform[0] = m_TargetTransform[0];
 		m_StartTransform[1] = m_TargetTransform[1];
 		m_StartTransform[2] = m_TargetTransform[2];
 		m_StartTransform[3] = m_TargetTransform[3];
 
-		m_TargetTransform[0] = pNewTransform[0];
-		m_TargetTransform[1] = pNewTransform[1];
-		m_TargetTransform[2] = pNewTransform[2];
-		m_TargetTransform[3] = pNewTransform[3];
+		m_TargetTransform[0] = newTransform[0];
+		m_TargetTransform[1] = newTransform[1];
+		m_TargetTransform[2] = newTransform[2];
+		m_TargetTransform[3] = newTransform[3];
+
+		UpdateSpeed();
+	}
+
+	void UpdateSpeed()
+	{		
+		switch (m_State)
+		{
+		case STATE_PRE_GETTING_IN:
+			m_TimeMax = TIME_PRE_GET_IN;
+			break;
+		case STATE_GETTING_IN:
+			m_TimeMax = TIME_GET_IN;
+			break;
+		case STATE_GETTING_OUT:
+			m_TimeMax = TIME_GET_OUT;
+			break;
+		case STATE_JUMPED_OUT:
+		case STATE_JUMPING_OUT:
+			m_TimeMax = TIME_JUMP_OUT;
+			break;
+		case STATE_SWITCHING_SEAT:
+			m_TimeMax = TIME_SWITCH_SEAT;
+			break;
+		default:
+			m_TimeMax = 1.0;
+			break;
+		}
+		
+		vector deltaTransformForTime[4];
+		Math3D.MatrixInvMultiply3(m_StartTransform, m_TargetTransform, deltaTransformForTime);
+		
+		m_LinearSpeed = (m_TargetTransform[3] - m_StartTransform[3]).Normalize() / m_TimeMax;
+		m_AngularSpeed = Math3D.MatrixToAngles(deltaTransformForTime).Normalize() * Math.DEG2RAD / m_TimeMax;
 	}
 
 	void LeaveVehicle()
@@ -99,11 +142,10 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 		m_Table.SetVehicleType(this, -1);
 
-#ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle) m_Vehicle.CrewGetOut(m_SeatIndex);
-		else
-#endif
 		if (m_Transport) m_Transport.CrewGetOut(m_SeatIndex);
+#ifdef EXPANSIONMODVEHICLE
+		else if (m_Vehicle) m_Vehicle.CrewGetOut(m_SeatIndex);
+#endif
 
 		dBodyActive(m_Player, ActiveState.ALWAYS_ACTIVE);
 		dBodyEnableGravity(m_Player, true);
@@ -127,8 +169,8 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		super.OnActivate();
 
 		m_LeftVehicle = false;
-
-		if (!m_FromUnconscious || m_Player.GetParent() != m_Object)
+		
+		if (!m_FromUnconscious && m_Player.GetParent() != m_Object)
 		{
 			vector tmPlayer[4];
 			vector tmTarget[4];
@@ -139,24 +181,30 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 			m_Player.LinkToLocalSpaceOf(m_Object, tmLocal);
 		}
+		
+		m_Player.GetTransformWS(m_StartTransform);
 
 		vector crewPos;
 		vector crewDir;
 
-#ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle) m_Vehicle.CrewEntry(m_SeatIndex, crewPos, crewDir);
-		else
-#endif
 		if (m_Transport) m_Transport.CrewEntry(m_SeatIndex, crewPos, crewDir);
+#ifdef EXPANSIONMODVEHICLE
+		else if (m_Vehicle) m_Vehicle.CrewEntry(m_SeatIndex, crewPos, crewDir);
+#endif
 
 		Math3D.DirectionAndUpMatrix(crewDir, "0 1 0", m_TargetTransform);
 		m_TargetTransform[3] = crewPos;
 
+		if (m_Transport)
+		{
+			m_Transport.CrewGetIn(m_Player, m_SeatIndex);
+		}
 #ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle) m_Vehicle.CrewGetIn(m_Player, m_SeatIndex);
-		else
+		else if (m_Vehicle)
+		{
+			m_Vehicle.CrewGetIn(m_Player, m_SeatIndex);
+		}
 #endif
-		if (m_Transport) m_Transport.CrewGetIn(m_Player, m_SeatIndex);
 
 		m_Table.SetVehicleType(this, m_VehicleType);
 
@@ -167,9 +215,8 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 #ifdef EXPANSIONMODVEHICLE
 		m_Player.OnCommandExpansionVehicleStart();
 #endif
-
-		ChangeState(STATE_PRE_GETTING_IN, m_TargetTransform);
-		m_Player.GetTransformWS(m_StartTransform);
+		
+		ChangeState(STATE_PRE_GETTING_IN);
 	}
 
 	override void OnDeactivate()
@@ -192,72 +239,46 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 	override void PreAnimUpdate(float pDt)
 	{
-		super.PreAnimUpdate(pDt);
-		
-		float turn = 0;
-
-		auto parent = Object.Cast(m_Player.GetParent());
-		if (parent) turn -= parent.GetOrientation()[0];
-
-		PreAnim_SetFilteredHeading(-turn * Math.DEG2RAD, 0.1, 30.0);
-
 		m_Table.SetLook(this, true);
 
 		HumanCommandWeapons hcw = m_Player.GetCommandModifier_Weapons();
 		m_Table.SetLookDirX(this, hcw.GetBaseAimingAngleLR());
 		m_Table.SetLookDirY(this, hcw.GetBaseAimingAngleUD());
 
-#ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle)
-		{
-			ExpansionController controller = m_Vehicle.GetExpansionController();
+		m_Table.SetVehicleType(this, m_VehicleType);
 
-			m_Table.SetVehicleType(this, m_VehicleType);
-			m_Table.SetVehicleSteering(this, controller.GetSteering());
-			m_Table.SetVehicleThrottle(this, controller.GetThrottle());
-			m_Table.SetVehicleClutch(this, controller.GetClutch());
-			m_Table.SetVehicleBrake(this, controller.GetBrake() != 0.0);
-		}
-		else
-#endif
 		if (m_Transport)
 		{
-			CarController carController = Car.Cast(m_Transport).GetController();
+			Car car = Car.Cast(m_Transport);
 
-			m_Table.SetVehicleType(this, m_VehicleType);
-			m_Table.SetVehicleSteering(this, carController.GetSteering());
-			m_Table.SetVehicleThrottle(this, carController.GetThrust());
-			//m_Table.SetVehicleClutch(this, carController.);
-			m_Table.SetVehicleBrake(this, carController.GetBrake() != 0.0);
+			m_Table.SetVehicleSteering(this, car.GetSteering());
+			m_Table.SetVehicleThrottle(this, car.GetThrust());
+			m_Table.SetVehicleBrake(this, car.GetBrake() != 0.0);
+			m_Table.SetVehicleClutch(this, m_ClutchState);
 		}
-		
-		switch (m_State)
+#ifdef EXPANSIONMODVEHICLE
+		else if (m_Vehicle)
 		{
-		case STATE_PRE_GETTING_IN:
-			m_TimeMax = TIME_PRE_GET_IN;
-			break;
-		case STATE_GETTING_IN:
-			m_TimeMax = TIME_GET_IN;
-			break;
-		case STATE_GETTING_OUT:
-			m_TimeMax = TIME_GET_OUT;
-			break;
-		case STATE_JUMPED_OUT:
-		case STATE_JUMPING_OUT:
-			m_TimeMax = TIME_JUMP_OUT;
-			break;
-		case STATE_SWITCHING_SEAT:
-			m_TimeMax = TIME_SWITCH_SEAT;
-			break;
-		}
+			/*
+			ExpansionVehicleSimulation simulation = m_Vehicle.m_Simulation;
 
+			m_Table.SetVehicleSteering(this, simulation.GetSteering());
+			m_Table.SetVehicleThrottle(this, simulation.GetThrottle());
+			m_Table.SetVehicleBrake(this, simulation.GetBrake() != 0.0);
+			m_Table.SetVehicleClutch(this, simulation.GetClutch());
+			*/
+		}
+#endif
+
+		m_Time += pDt;
 		if (m_State != m_PreviousState)
 		{
-			m_TranslationSpeed = vector.Distance(m_StartTransform[3], m_TargetTransform[3]) / m_TimeMax;
-
+			m_PreviousState = m_State;
+			m_Time = 0;
+			
 			switch (m_State)
 			{
-			case STATE_PRE_GETTING_IN:
+			case STATE_GETTING_IN:
 				m_Table.CallVehicleGetIn(this, m_SeatAnim);
 				break;
 			case STATE_GETTING_OUT:
@@ -275,16 +296,11 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 
 	override void PrePhysUpdate(float pDt)
 	{
-		//if ((m_PreviousState == STATE_AWAIT && m_State == STATE_AWAIT) || m_State == STATE_JUMPED_OUT)
-		//	return;
-
-		if (m_State == STATE_JUMPED_OUT)
-			return;
-		
 		if (m_State == STATE_JUMPING_OUT)
 		{
 			if (m_Table.IsLeaveVehicle(this))
 			{
+				m_PreviousState = m_State;
 				m_State = STATE_JUMPED_OUT;
 
 				LeaveVehicle();
@@ -292,96 +308,113 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		}
 		
 		vector transform[4];
-		m_Player.GetTransformWS(transform);
+		vector vehicleTransform[4];
+		m_Object.GetTransform(vehicleTransform);
+		
+		//Math3D.MatrixMultiply4(vehicleTransform, m_StartTransform, transform);
+		//Shape.Create(ShapeType.LINE, 0xFFFF0000, ShapeFlags.NOZBUFFER | ShapeFlags.ONCE, transform[3], transform[3] + transform[0]);
+		//Shape.Create(ShapeType.LINE, 0xFF00FF00, ShapeFlags.NOZBUFFER | ShapeFlags.ONCE, transform[3], transform[3] + transform[1]);
+		//Shape.Create(ShapeType.LINE, 0xFF0000FF, ShapeFlags.NOZBUFFER | ShapeFlags.ONCE, transform[3], transform[3] + transform[2]);
+		//
+		//Math3D.MatrixMultiply4(vehicleTransform, m_TargetTransform, transform);
+		//Shape.Create(ShapeType.LINE, 0xFFFF0000, ShapeFlags.NOZBUFFER | ShapeFlags.ONCE, transform[3], transform[3] + transform[0]);
+		//Shape.Create(ShapeType.LINE, 0xFF00FF00, ShapeFlags.NOZBUFFER | ShapeFlags.ONCE, transform[3], transform[3] + transform[1]);
+		//Shape.Create(ShapeType.LINE, 0xFF0000FF, ShapeFlags.NOZBUFFER | ShapeFlags.ONCE, transform[3], transform[3] + transform[2]);
 
-		float rotation[4];
-		float currentRotation[4];
-		float targetRotation[4];
-		PrePhys_GetRotation(currentRotation);
-		Math3D.MatrixToQuat(m_TargetTransform, targetRotation);
-
-		vector translation;
-		PrePhys_GetTranslation(translation);		
-		DBGDrawLineDirectionMS(translation * (1.0 / pDt), 0x4400FF00);
-
-		translation = translation + vector.Direction(transform[3], m_TargetTransform[3]);
-
-		if (m_State != m_PreviousState)
+		float linearSpeed = 1.0;
+		float angularSpeed = Math.PI;
+		
+		if (m_State != STATE_AWAIT)
 		{
-			if (m_State == STATE_AWAIT)
-			{
-				translation = translation.InvMultiply3(transform);
-				Math3D.QuatToMatrix(targetRotation, transform);
-				translation = translation.InvMultiply3(transform);
-				
-				PrePhys_SetRotation(targetRotation);
-				PrePhys_SetTranslation(translation);
-				return;
-			}
+			linearSpeed = Math.Max(m_LinearSpeed, linearSpeed);
+			angularSpeed = Math.Max(m_AngularSpeed, angularSpeed);
 		}
-
-		float dt = m_Time / m_TimeMax;
-		if (dt > 1.0)
-			dt = 1.0;
 		
-		float speed = m_TranslationSpeed;
-		//if (m_State != STATE_PRE_GETTING_IN)
-		//	speed = translation.Length() / pDt;
-
-		float len = translation.Normalize();
-		if (len > pDt)
-			len = pDt;
-
-		translation = translation * speed * len;
-
-		Math3D.QuatLerp(rotation, currentRotation, targetRotation, dt);
+		linearSpeed *= pDt;
+		angularSpeed *= pDt;
 		
-		translation = translation.InvMultiply3(transform);
-		Math3D.QuatToMatrix(rotation, transform);
-		translation = translation.InvMultiply3(transform);
+		float rotation[4];
+		vector translation;
 		
-		PrePhys_SetRotation(currentRotation);
+		PrePhys_GetRotation(rotation);
+		PrePhys_GetTranslation(translation);
+		
+		vector currentTransform[4];
+		m_Player.GetTransformWS(currentTransform);
+		
+		vector deltaTransform[4];
+		Math3D.MatrixInvMultiply3(currentTransform, m_TargetTransform, deltaTransform);
+		
+		vector linearVelocity = m_TargetTransform[3] - currentTransform[3];
+		vector angularVelocity = Math3D.MatrixToAngles(deltaTransform) * Math.DEG2RAD;
+						
+		float linearMagnitude = linearVelocity.Normalize();
+		float angularMagnitude = angularVelocity.Normalize();
+		
+		vector currentLinearAcceleration = translation.Multiply3(currentTransform);
+		vector currentAngularAcceleration = Math3D.QuatToAngles(rotation) * Math.DEG2RAD;
+		
+		vector targetLinearAcceleration = linearVelocity * Math.Min(linearSpeed, linearMagnitude);
+		vector targetAngularAcceleration = angularVelocity * Math.Min(angularSpeed, angularMagnitude);
+		
+		vector linearAcceleration = vector.Lerp(currentLinearAcceleration, targetLinearAcceleration, 0.5);
+		vector angularAcceleration = vector.Lerp(currentAngularAcceleration, targetAngularAcceleration, 0.5);
+		
+		Math3D.YawPitchRollMatrix(angularAcceleration * Math.RAD2DEG, deltaTransform);
+		deltaTransform[3] = linearAcceleration;
+		
+		Math3D.MatrixToQuat(deltaTransform, rotation);
+		
+		//Math3D.MatrixMultiply3(currentTransform, deltaTransform, currentTransform);
+		translation = deltaTransform[3].InvMultiply3(currentTransform);
+			
+		PrePhys_SetRotation(rotation);
 		PrePhys_SetTranslation(translation);
 		
-		DBGDrawLineDirectionMS(translation * (1.0 / pDt), 0x44FF00FF);
+		//Print(linearMagnitude);
+		//Print(linearSpeed);
+		//Print(angularMagnitude);
+		//Print(angularSpeed);
+		
+		bool linearCheck = linearMagnitude <= linearSpeed || linearSpeed == 0.0;
+		bool angularCheck = angularMagnitude <= angularSpeed || angularSpeed == 0.0;
+		
+		if (linearCheck && angularCheck)
+		{
+			if (m_State == STATE_PRE_GETTING_IN)
+			{
+				m_PreviousState = m_State;
+				
+				if (m_Transport) m_Transport.CrewTransform(m_SeatIndex, transform);
+#ifdef EXPANSIONMODVEHICLE
+				else if (m_Vehicle) m_Vehicle.CrewTransform(m_SeatIndex, transform);
+#endif
+	
+				ChangeState(STATE_GETTING_IN, transform);
+			}
+		}
 	}
 
 	override bool PostPhysUpdate(float pDt)
-	{
-		m_Time += pDt;
-
-		m_PreviousState = m_State;
-
+	{		
 		switch (m_State)
 		{
-		case STATE_PRE_GETTING_IN:
-			if (m_Time > TIME_PRE_GET_IN)
-			{
-				vector transform[4];
-#ifdef EXPANSIONMODVEHICLE
-				if (m_Vehicle) m_Vehicle.CrewTransform(m_SeatIndex, m_TargetTransform);
-				else
-#endif
-				if (m_Transport) m_Transport.CrewTransform(m_SeatIndex, m_TargetTransform);
-				ChangeState(STATE_GETTING_IN, m_TargetTransform);
-			}
-			break;
 		case STATE_GETTING_IN:
-			if (m_Time > TIME_GET_IN)
-				m_State = STATE_AWAIT;
+			if (m_Time > m_TimeMax)
+				ChangeState(STATE_AWAIT);
 			break;
 		case STATE_GETTING_OUT:
-			if (m_Time > TIME_GET_OUT)
-				m_State = STATE_FINISH;
+			if (m_Time > m_TimeMax)
+				ChangeState(STATE_FINISH);
 			break;
 		case STATE_JUMPED_OUT:
 		case STATE_JUMPING_OUT:
-			if (m_Time > TIME_JUMP_OUT)
-				m_State = STATE_FINISH;
+			if (m_Time > m_TimeMax)
+				ChangeState(STATE_FINISH);
 			break;
 		case STATE_SWITCHING_SEAT:
-			if (m_Time > TIME_SWITCH_SEAT)
-				m_State = STATE_AWAIT;
+			if (m_Time > m_TimeMax)
+				ChangeState(STATE_AWAIT);
 			break;
 		}
 
@@ -392,17 +425,19 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	{
 		vector transform[4];
 		
-		vector pos;
-		vector dir;
+		vector crewPos;
+		vector crewDir;
 
+		if (m_Transport) m_Transport.CrewEntry(m_SeatIndex, crewPos, crewDir);
 #ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle) m_Vehicle.CrewEntry(m_SeatIndex, pos, dir);
-		else
+		else if (m_Vehicle) m_Vehicle.CrewEntry(m_SeatIndex, crewPos, crewDir);
 #endif
-		if (m_Transport) m_Transport.CrewEntry(m_SeatIndex, pos, dir);
+		
+		crewDir[1] = 0.0;
+		crewDir.Normalize();
 
-		Math3D.DirectionAndUpMatrix(-dir, vector.Up, transform);
-		transform[3] = pos - (dir * 0.5);
+		Math3D.DirectionAndUpMatrix(-crewDir, "0 1 0", transform);
+		transform[3] = crewPos;
 
 		ChangeState(STATE_GETTING_OUT, transform);
 	}
@@ -411,17 +446,19 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	{
 		vector transform[4];
 		
-		vector pos;
-		vector dir;
+		vector crewPos;
+		vector crewDir;
 
+		if (m_Transport) m_Transport.CrewEntry(m_SeatIndex, crewPos, crewDir);
 #ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle) m_Vehicle.CrewEntry(m_SeatIndex, pos, dir);
-		else
+		else if (m_Vehicle) m_Vehicle.CrewEntry(m_SeatIndex, crewPos, crewDir);
 #endif
-		if (m_Transport) m_Transport.CrewEntry(m_SeatIndex, pos, dir);
+		
+		crewDir[1] = 0.0;
+		crewDir.Normalize();
 
-		Math3D.DirectionAndUpMatrix(-dir, vector.Up, transform);
-		transform[3] = pos - (dir * 0.5);
+		Math3D.DirectionAndUpMatrix(-crewDir, "0 1 0", transform);
+		transform[3] = crewPos;
 
 		ChangeState(STATE_JUMPING_OUT, transform);
 	}
@@ -429,30 +466,31 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 	void SwitchSeat(int seatIdx, int seatAnimType)
 	{
 		m_SeatAnim = seatAnimType;
+		
+		vector transform[4];
 
-#ifdef EXPANSIONMODVEHICLE
-		if (m_Vehicle)
-		{
-			m_Vehicle.CrewGetOut(m_SeatIndex);
-
-			m_SeatIndex = seatIdx;
-
-			m_Vehicle.CrewTransform(m_SeatIndex, m_TargetTransform);
-			m_Vehicle.CrewGetIn(m_Player, m_SeatIndex);
-		}
-		else
-#endif
 		if (m_Transport)
 		{
 			m_Transport.CrewGetOut(m_SeatIndex);
 
 			m_SeatIndex = seatIdx;
 
-			m_Transport.CrewTransform(m_SeatIndex, m_TargetTransform);
+			m_Transport.CrewTransform(m_SeatIndex, transform);
 			m_Transport.CrewGetIn(m_Player, m_SeatIndex);
 		}
+#ifdef EXPANSIONMODVEHICLE
+		else if (m_Vehicle)
+		{
+			m_Vehicle.CrewGetOut(m_SeatIndex);
 
-		ChangeState(STATE_SWITCHING_SEAT, m_TargetTransform);
+			m_SeatIndex = seatIdx;
+
+			m_Vehicle.CrewTransform(m_SeatIndex, transform);
+			m_Vehicle.CrewGetIn(m_Player, m_SeatIndex);
+		}
+#endif
+
+		ChangeState(STATE_SWITCHING_SEAT, transform);
 	}
 
 	bool IsGettingOut()
@@ -497,9 +535,9 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		m_VehicleType = vehicleType;
 	}
 
-	void KeepInVehicleSpaceAfterLeave(bool pState)
+	void KeepInVehicleSpaceAfterLeave(bool state)
 	{
-		m_KeepInVehicleSpaceAfterLeave = pState;
+		m_KeepInVehicleSpaceAfterLeave = state;
 	}
 
 	void SignalGearChange()
@@ -514,8 +552,8 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		return changed;
 	}
 
-	void SetClutchState(bool pState)
+	void SetClutchState(bool state)
 	{
-		m_ClutchState = pState;
+		m_ClutchState = state;
 	}
 };

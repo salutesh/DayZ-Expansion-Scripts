@@ -40,6 +40,10 @@ modded class PlayerBase
 		super.SetActions( InputActionMap );
 		
 		AddAction( ExpansionActionGetOutExpansionVehicle, InputActionMap );
+
+#ifdef DIAG
+		AddAction( ExpansionActionPushVehicle, InputActionMap );
+#endif
 		
 		#ifdef DAYZ_1_18
 		AddAction( ExpansionActionCarHorn, InputActionMap );
@@ -280,15 +284,6 @@ modded class PlayerBase
 
 	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
 	{
-		if ( GetCommand_ExpansionVehicle() )
-		{
-			m_fLastHeadingDiff = 0;
-
-			pModel.m_fOrientationAngle = 0;
-			//pModel.m_fHeadingAngle = 0;
-			return true;
-		}
-
 		return super.HeadingModel( pDt, pModel );
 	}
 

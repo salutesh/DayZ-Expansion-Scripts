@@ -57,7 +57,7 @@ class ExpansionVehicleSettingsV2 : ExpansionVehicleSettingsBase
  */
 class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 {
-	static const int VERSION = 17;
+	static const int VERSION = 18;
 
 	ExpansionPPOGORIVMode PlacePlayerOnGroundOnReconnectInVehicle;
 	bool RevvingOverMaxRPMRuinsEngineInstantly;
@@ -70,9 +70,11 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 
 	bool EnableVehicleCovers;
 	bool AllowCoveringDEVehicles;  //! Allow covering of vehicles spawned via dynamic events (events.xml)
+	bool CanCoverWithCargo;
 	bool UseVirtualStorageForCoverCargo;
 	float VehicleAutoCoverTimeSeconds;
 	bool VehicleAutoCoverRequireCamonet;
+	bool EnableAutoCoveringDEVehicles;
 
 	string CFToolsHeliCoverIconName;
 	string CFToolsBoatCoverIconName;
@@ -135,6 +137,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Read(VehicleRoadKillDamageMultiplier);
 
 		ctx.Read(EnableVehicleCovers);
+		ctx.Read(CanCoverWithCargo);
 		ctx.Read(AllowCoveringDEVehicles);
 
 		m_IsLoaded = true;
@@ -177,6 +180,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 		ctx.Write(VehicleRoadKillDamageMultiplier);
 
 		ctx.Write(EnableVehicleCovers);
+		ctx.Write(CanCoverWithCargo);
 		ctx.Write(AllowCoveringDEVehicles);
 
 		//! Don't send VehiclesConfig
@@ -409,6 +413,9 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 					CollisionDamageMinSpeedKmh = settingsDefault.CollisionDamageMinSpeedKmh;
 				}
 
+				if (settingsBase.m_Version < 18)
+					CanCoverWithCargo = settingsDefault.CanCoverWithCargo;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -501,6 +508,7 @@ class ExpansionVehicleSettings : ExpansionVehicleSettingsV2
 #ifndef CARCOVER
 		EnableVehicleCovers = true;
 #endif
+		CanCoverWithCargo = true;
 		AllowCoveringDEVehicles = false;
 		VehicleAutoCoverTimeSeconds = 0;  //! Lower than or equal to zero = disabled
 		VehicleAutoCoverRequireCamonet = false;  //! Require camonet attachment on vehicle

@@ -2,12 +2,17 @@ class ExpansionAIPatrolManager
 {
     static ExpansionAIPatrolSettings s_AIPatrolSettings;
 
-    static eAIDynamicPatrol InitObjectPatrol(string type, vector position)
+    static bool InitSettings()
     {
         if ( !s_AIPatrolSettings )
             s_AIPatrolSettings = GetExpansionSettings().GetAIPatrol();
 
-        if ( !s_AIPatrolSettings.Enabled )
+        return s_AIPatrolSettings.Enabled;
+    }
+
+    static eAIDynamicPatrol InitObjectPatrol(string type, vector position)
+    {
+        if ( !InitSettings() )
             return NULL;
 
         //! Init matching object patrol
@@ -29,6 +34,9 @@ class ExpansionAIPatrolManager
 
     static eAIDynamicPatrol InitPatrol(ExpansionAIDynamicSpawnBase patrol, vector position = vector.Zero)
     {
+        if ( !InitSettings() )
+            return NULL;
+
         if (patrol.Chance < Math.RandomFloat(0.0, 1.0))
             return NULL;
 
@@ -112,9 +120,34 @@ class ExpansionAIPatrolManager
         }
 
         auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
-        dynPatrol.SetAccuracy(patrol.AccuracyMin, patrol.AccuracyMax);
-        dynPatrol.SetThreatDistanceLimit(patrol.ThreatDistanceLimit);
-        dynPatrol.SetDamageMultiplier(patrol.DamageMultiplier);
+
+        float accuracyMin;
+        if ( patrol.AccuracyMin <= 0 )
+            accuracyMin = s_AIPatrolSettings.AccuracyMin;
+        else
+            accuracyMin = patrol.AccuracyMin;
+
+        float accuracyMax;
+        if ( patrol.AccuracyMin <= 0 )
+            accuracyMax = s_AIPatrolSettings.AccuracyMax;
+        else
+            accuracyMax = patrol.AccuracyMax;
+
+        float threatDistanceLimit;
+        if ( patrol.ThreatDistanceLimit <= 0 )
+            threatDistanceLimit = s_AIPatrolSettings.ThreatDistanceLimit;
+        else
+            threatDistanceLimit = patrol.ThreatDistanceLimit;
+
+        float damageMultiplier;
+        if ( patrol.DamageMultiplier <= 0 )
+            damageMultiplier = s_AIPatrolSettings.DamageMultiplier;
+        else
+            damageMultiplier = patrol.DamageMultiplier;
+
+        dynPatrol.SetAccuracy(accuracyMin, accuracyMax);
+        dynPatrol.SetThreatDistanceLimit(threatDistanceLimit);
+        dynPatrol.SetDamageMultiplier(damageMultiplier);
         return dynPatrol;
     }
 

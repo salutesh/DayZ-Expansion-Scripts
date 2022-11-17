@@ -21,6 +21,9 @@
 			<input name="UAExpansionPlaneEngine" loc="STR_EXPANSION_PLANE_ENGINE" />
 			<input name="UAExpansionPlaneEngineUp" loc="STR_EXPANSION_PLANE_ENGINE_UP" />
 			<input name="UAExpansionPlaneEngineDown" loc="STR_EXPANSION_PLANE_ENGINE_DOWN" />
+			<input name="UAExpansionPlaneBrake" loc="STR_EXPANSION_PLANE_BRAKE" />
+			<input name="UAExpansionPlaneBrakeUp" loc="STR_EXPANSION_PLANE_BRAKE_UP" />
+			<input name="UAExpansionPlaneBrakeDown" loc="STR_EXPANSION_PLANE_BRAKE_DOWN" />
 			<input name="UAExpansionPlaneElevatorUp" loc="STR_EXPANSION_PLANE_ELEVATOR_UP" />
 			<input name="UAExpansionPlaneElevatorDown" loc="STR_EXPANSION_PLANE_ELEVATOR_DOWN" />
 			<input name="UAExpansionPlaneAileronLeft" loc="STR_EXPANSION_PLANE_AILERON_LEFT" />
@@ -29,6 +32,7 @@
 			<input name="UAExpansionPlaneRudderRight" loc="STR_EXPANSION_PLANE_RUDDER_LEFT" />
 			<input name="UAExpansionPlaneFlapsUp" loc="STR_EXPANSION_PLANE_FLAPS_UP" />
 			<input name="UAExpansionPlaneFlapsDown" loc="STR_EXPANSION_PLANE_FLAPS_DOWN" />
+			<input name="UAExpansionPlaneWheelBrake" loc="STR_EXPANSION_PLANE_BRAKE" />
 
 			<input name="UAExpansionBoatMoveForward" loc="STR_EXPANSION_BOAT_MOVEFORWARD" />
 			<input name="UAExpansionBoatMoveBackward" loc="STR_EXPANSION_BOAT_MOVEBACKWARD" />
@@ -182,6 +186,14 @@
 		<input name="UAExpansionPlaneEngineDown">
 			<btn name="kLControl" />
 		</input>
+		<input name="UAExpansionPlaneBrake">
+		</input>
+		<input name="UAExpansionPlaneBrakeUp">
+			<btn name="kH" />
+		</input>
+		<input name="UAExpansionPlaneBrakeDown">
+			<btn name="kN" />
+		</input>
 		<input name="UAExpansionPlaneElevatorUp">
 			<btn name="kS" />
 		</input>
@@ -201,10 +213,13 @@
 			<btn name="kE" />
 		</input>
 		<input name="UAExpansionPlaneFlapsUp" >
-			<btn name="kPrior" />
+			<btn name="kG" />
 		</input>
 		<input name="UAExpansionPlaneFlapsDown" >
-			<btn name="kNext" />
+			<btn name="kB" />
+		</input>
+		<input name="UAExpansionPlaneWheelBrake">
+			<btn name="kJ" />
 		</input>
 		<input name="UAExpansionBoatMoveForward">
 			<btn name="kW" />

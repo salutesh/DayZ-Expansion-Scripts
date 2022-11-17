@@ -379,6 +379,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 				{
 					EXTrace.StartStack(EXTrace.CHAT, this, "Mute " + player.m_RUID + " " + playerName + " " + clientSettings.MutedPlayers.Count());
 					clientSettings.MutedPlayers.Insert(player.m_RUID);
+					if (clientSettings.MutedPlayers.Count() > 100)
+						clientSettings.MutedPlayers.RemoveOrdered(0);
 					clientSettings.Save();
 					UpdateMuteList();
 					UpdateMute(playerName, true);

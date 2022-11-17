@@ -188,6 +188,7 @@ class ExpansionActionGetOutExpansionVehicle : ActionInteractBase
 
 			if (got_action_data.m_KeepInVehicleSpaceAfterLeave)
 			{
+				action_data.m_Player.m_ExAttachmentObject = veh;
 				vehCommand.GetOutVehicle();
 			}
 			else if (speed <= 8)

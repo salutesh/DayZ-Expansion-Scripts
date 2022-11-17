@@ -132,13 +132,28 @@ class ExpansionVehicleCrew
 		m_Occupied = m_Player != NULL;
 
 		if (m_Occupied)
+		{
 			m_Player.GetNetworkID(m_NetworkIDLow, m_NetworkIDHigh);
+		}
 	}
 
 	DayZPlayerImplement GetPlayer()
 	{
 		return m_Player;
 	}
+
+/*
+	void DrawDebugs(float dt, ExpansionVehicleSimulation simulation)
+	{
+		string debugText;
+		debugText += string.Format("Seat:     %1\n", m_Name);
+		simulation.Debug_Add(ExpansionDebugText.Create(debugText, vector.Lerp(m_GetInPos, m_SeatTransform[3], 0.5)));
+
+		simulation.Debug_Add(ExpansionShape.CreateSphere(0xAA0000FF, ShapeFlags.NOOUTLINE | ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, m_GetInPos, 0.1));
+		simulation.Debug_Add(ExpansionShape.CreateDirLine(0xAA0000FF, ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, m_GetInPos, m_GetInDir * 0.5));
+		simulation.Debug_Add(ExpansionShape.CreateMatrix(ShapeFlags.TRANSP | ShapeFlags.NOZBUFFER, m_SeatTransform));
+	}
+*/
 
 	void OnSend(ParamsWriteContext ctx)
 	{
@@ -200,6 +215,7 @@ class ExpansionVehicleCrew
 	 */
 	void NetworkBubbleFix()
 	{
+		/*
 		if (m_Player)
 		{
 			vector ori = m_Player.GetOrientation();
@@ -216,5 +232,6 @@ class ExpansionVehicleCrew
 				GetGame().RemoteObjectTreeCreate(m_Player);
 			}
 		}
+		*/
 	}
 };

@@ -103,9 +103,7 @@ modded class TentBase
 		{
 			if ( selection.IndexOf( "door" ) == 0 || selection.IndexOf( "entrance" ) == 0 )
 			{
-				string zone;
-				DamageSystem.GetDamageZoneFromComponentName( this, selection, zone );
-				if ( GetHealthLevel( zone ) == GameConstants.STATE_RUINED )
+				if (Expansion_IsSelectionRuined(selection))
 					return true;
 			}
 		}
@@ -136,10 +134,14 @@ modded class TentBase
 			string toggle_off = toggle.GetToggleOff();
 			toggle_off.ToLower();
 
-			bool is_closed = m_OpeningMask & toggle.GetOpeningBit();
+			if (toggle_off.Contains("entrance") || toggle_off.Contains("door"))
+			{
+				bool is_closed = m_OpeningMask & toggle.GetOpeningBit();
 
-			if (!is_closed && (toggle_off.Contains("entrance") || toggle_off.Contains("door")))
-				return true;
+				if (!is_closed || Expansion_IsSelectionRuined(toggle_off))
+					return true;
+
+			}
 		}
 
 		return false;
@@ -248,6 +250,11 @@ modded class TentBase
 		}
 
 		return super.CanDisplayAttachmentSlot(slot_id);
+	}
+
+	override bool CanDisplayCargo()
+	{
+		return !ExpansionIsLocked();
 	}
 
 	override void EEHitBy( TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef )

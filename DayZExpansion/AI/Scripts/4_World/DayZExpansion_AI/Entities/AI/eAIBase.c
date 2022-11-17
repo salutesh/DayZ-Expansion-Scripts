@@ -2559,6 +2559,13 @@ class eAIBase extends PlayerBase
 
 	override bool HeadingModel(float pDt, SDayZPlayerHeadingModel pModel)
 	{
+		if (GetCommand_VehicleAI())
+		{
+			m_fLastHeadingDiff = 0;
+
+			return false;
+		}
+
 		pModel.m_fHeadingAngle = GetOrientation()[0] * Math.DEG2RAD;
 		pModel.m_fOrientationAngle = GetOrientation()[0] * Math.DEG2RAD;
 		//Print(pModel.m_fHeadingAngle);

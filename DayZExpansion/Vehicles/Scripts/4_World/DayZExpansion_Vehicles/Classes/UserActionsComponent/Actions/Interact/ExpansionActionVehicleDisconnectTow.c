@@ -40,7 +40,7 @@ class ExpansionActionVehicleDisconnectTow : ActionInteractBase
 		auto vehCommand = player.GetCommand_ExpansionVehicle();
 
 		ExpansionVehicleBase car;
-		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
+		if (vehCommand && Class.CastTo(car, vehCommand.GetExpansionVehicle()))
 		{
 			if (car.CrewMemberIndex(player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{
@@ -59,7 +59,7 @@ class ExpansionActionVehicleDisconnectTow : ActionInteractBase
 		auto vehCommand = action_data.m_Player.GetCommand_ExpansionVehicle();
 
 		ExpansionVehicleBase car;
-		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
+		if (vehCommand && Class.CastTo(car, vehCommand.GetExpansionVehicle()))
 		{
 			if (car.CrewMemberIndex(action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{

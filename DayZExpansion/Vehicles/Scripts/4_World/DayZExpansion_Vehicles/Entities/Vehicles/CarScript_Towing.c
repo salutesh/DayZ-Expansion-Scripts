@@ -14,6 +14,8 @@ modded class CarScript
 	int m_Expansion_ChildTowNetworkIDLow;
 	int m_Expansion_ChildTowNetworkIDHigh;
 
+	bool m_Expansion_IsBeingPushed;
+
 	void CarScript()
 	{
 		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
@@ -47,8 +49,15 @@ modded class CarScript
 	{
 		super.OnInput(dt);
 
-		if (m_Expansion_TowConnectionMask != 0)
+		if (m_Expansion_TowConnectionMask != 0 || m_Expansion_IsBeingPushed)
 		{
+			if ((GetEventMask() & EntityEvent.POSTSIMULATE) != EntityEvent.POSTSIMULATE)
+				SetEventMask(EntityEvent.POSTSIMULATE);
+
+			dBodyActive(this, ActiveState.ACTIVE);
+
+			DisableSimulation(false);
+
 			SetHandbrake(0);
 			SetBrake(0);
 			SetThrust(0);
@@ -56,8 +65,7 @@ modded class CarScript
 
 			if (GearboxGetType() == CarGearboxType.MANUAL)
 			{
-				//ShiftTo(CarGear.NEUTRAL);
-				ShiftTo(CarGear.FIRST);
+				ShiftTo(CarGear.NEUTRAL);
 			}
 			else
 			{
@@ -338,10 +346,10 @@ modded class CarScript
 			minMax[0] = position - size;
 			minMax[1] = position + size;
 
-			DGBDrawBoundingBox(transform, minMax);
+			//DGBDrawBoundingBox(transform, minMax);
 		}
 
-		DBGDrawSphere(ModelToWorld(Expansion_GetTowPosition()), Expansion_GetTowLength());
+		//DBGDrawSphere(ModelToWorld(Expansion_GetTowPosition()), Expansion_GetTowLength());
 	}
 };
 #endif

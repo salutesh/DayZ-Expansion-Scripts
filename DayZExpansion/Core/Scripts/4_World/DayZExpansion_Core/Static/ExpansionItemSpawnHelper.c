@@ -344,7 +344,8 @@ class ExpansionItemSpawnHelper
 
 		int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 
-		if (!GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+		bool placeOnSurface = !GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase");
+		if (placeOnSurface)
 			flags |= ECE_TRACE;
 
 		Object obj = GetGame().CreateObjectEx(className, position, flags);
@@ -379,6 +380,12 @@ class ExpansionItemSpawnHelper
 				}
 				#endif
 			}
+
+			#ifdef EXPANSIONMODVEHICLE
+			float dist = vehicle.GetModelZeroPointDistanceFromGround();
+			if (placeOnSurface && position[1] + dist > vehicle.GetPosition()[1])
+				vehicle.SetPosition(position + Vector(0, dist, 0));
+			#endif
 		}
 		#ifdef EXPANSIONMODVEHICLE
 		else if (Class.CastTo(exVeh, obj))
@@ -481,6 +488,10 @@ class ExpansionItemSpawnHelper
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
 				break;
 			case InventoryLocationType.ATTACHMENT:
+				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
+				int slotId = location.GetSlot();
+				location.GetParent().GetInventory().SetSlotLock(slotId, src.GetHierarchyParent().GetInventory().GetSlotLock(slotId));
+				break;
 			case InventoryLocationType.HANDS:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);
 				break;

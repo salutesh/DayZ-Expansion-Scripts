@@ -71,7 +71,7 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 			return false;
 
 		ExpansionVehicleHelicopterBase helicopter;
-		if (expVehCommand && (!Class.CastTo(helicopter, expVehCommand.GetTransport()) || expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER))
+		if (expVehCommand && (!Class.CastTo(helicopter, expVehCommand.GetExpansionVehicle()) || expVehCommand.GetVehicleSeat() != DayZPlayerConstants.VEHICLESEAT_DRIVER))
 			return false;
 
 		EntityAI vehicle = EntityAI.Cast(player.GetParent());

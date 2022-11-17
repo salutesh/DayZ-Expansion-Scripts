@@ -129,7 +129,7 @@ class CfgVehicles
 		wreck = "ExpansionMh6Wreck";
 		fuelCapacity = 192;
 		fuelConsumption = 91;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","CarRadiator","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2","CamoNet"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2","CamoNet"};
 		doors[] = {"mh6door_1_1","mh6door_1_2","mh6door_2_1","mh6door_2_2"};
 		applySkinsTo[] = {"Expansion_Mh6_Door_1_1","Expansion_Mh6_Door_1_2","Expansion_Mh6_Door_2_1","Expansion_Mh6_Door_2_2"};
 		hiddenSelections[] = {"light_1_1","light_2_1","camo"};
@@ -268,7 +268,7 @@ class CfgVehicles
 					fatalInjuryCoef = 0.001;
 					memoryPoints[] = {"dmgZone_engine"};
 					componentNames[] = {"dmgZone_engine"};
-					inventorySlots[] = {"CarBattery","SparkPlug","EngineBelt","CarRadiator"};
+					inventorySlots[] = {"ExpansionHelicopterBattery","ExpansionIgniterPlug"};
 					inventorySlotsCoefs[] = {0.2,0.2,0.01,0.4};
 				};
 				class FuelTank
@@ -521,7 +521,7 @@ class CfgVehicles
 					fatalInjuryCoef = 0.001;
 					memoryPoints[] = {"dmgZone_engine"};
 					componentNames[] = {"dmgZone_engine"};
-					inventorySlots[] = {"CarBattery","SparkPlug","EngineBelt","CarRadiator"};
+					inventorySlots[] = {"ExpansionHelicopterBattery","ExpansionIgniterPlug"};
 					inventorySlotsCoefs[] = {0.2,0.2,0.01,0.4};
 				};
 				class FuelTank

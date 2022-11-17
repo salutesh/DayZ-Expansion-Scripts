@@ -1,0 +1,17 @@
+TextWidgetClass expansion_debug_text {
+ clipchildren 0
+ ignorepointer 1
+ size 0 16
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 1
+ style Normal
+ text " "
+ font "gui/fonts/system"
+ "exact text" 1
+ "size to text h" 0
+ "size to text v" 0
+ "text valign" center
+}

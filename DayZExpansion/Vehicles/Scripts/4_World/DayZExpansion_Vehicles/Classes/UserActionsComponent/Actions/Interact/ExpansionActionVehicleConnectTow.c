@@ -98,7 +98,7 @@ class ExpansionActionVehicleConnectTow : ActionInteractBase
 		auto vehCommand = player.GetCommand_ExpansionVehicle();
 
 		ExpansionVehicleBase car;
-		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
+		if (vehCommand && Class.CastTo(car, vehCommand.GetExpansionVehicle()))
 		{
 			if (car.Expansion_IsTowing())
 				return false;
@@ -205,7 +205,7 @@ class ExpansionActionVehicleConnectTow : ActionInteractBase
 		auto vehCommand = action_data_b.m_Player.GetCommand_ExpansionVehicle();
 
 		ExpansionVehicleBase car;
-		if (vehCommand && Class.CastTo(car, vehCommand.GetTransport()))
+		if (vehCommand && Class.CastTo(car, vehCommand.GetExpansionVehicle()))
 		{
 			if (car.CrewMemberIndex(action_data_b.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{

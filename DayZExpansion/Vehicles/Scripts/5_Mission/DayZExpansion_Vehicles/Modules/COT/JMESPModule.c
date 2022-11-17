@@ -18,27 +18,17 @@ modded class JMESPModule
 		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
 
 		CarScript car;
-		Transport transport;
 		if ( Class.CastTo( car, target ) )
 		{
 			car.Expansion_ForcePositionAndOrientation(position, car.GetOrientation());
-		}
-		else if ( Class.CastTo( transport, target ) )
-		{
-			for ( int i = 0; i < 2; i++ )
-			{
-				transport.SetPosition( position );
-				ForceTargetCollisionUpdate( transport );
-				transport.Synchronize();
-			}
+		
+			GetCommunityOnlineToolsBase().Log( ident, "ESP target=" + target + " action=position value=" + position );
+			SendWebhook( "Position", instance, "Set \"" + target.GetDisplayName() + "\" (" + target.GetType() + ") position to " + position.ToString() );
 		}
 		else
 		{
-			target.SetPosition( position );
+			super.Exec_SetPosition(position, target, ident, instance);
 		}
-		
-		GetCommunityOnlineToolsBase().Log( ident, "ESP target=" + target + " action=position value=" + position );
-		SendWebhook( "Position", instance, "Set \"" + target.GetDisplayName() + "\" (" + target.GetType() + ") position to " + position.ToString() );
 	}
 }
 #endif

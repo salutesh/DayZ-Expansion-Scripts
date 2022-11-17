@@ -2,6 +2,7 @@ PanelWidgetClass ExpansionGPS {
  visible 0
  disabled 1
  clipchildren 0
+ ignorepointer 1
  keepsafezone 1
  position 0.05 0.1
  size 0.156 0.29
@@ -40,6 +41,7 @@ PanelWidgetClass ExpansionGPS {
       PanelWidgetClass GPSMapFrame {
        visible 1
        clipchildren 1
+       ignorepointer 1
        keepsafezone 1
        position -0.00142 0.0106
        size 0.96385 0.70951
@@ -50,6 +52,7 @@ PanelWidgetClass ExpansionGPS {
        vexactsize 0
        {
         MapWidgetClass Map {
+         ignorepointer 1
          keepsafezone 0
          size 1 1
          hexactpos 0

@@ -23,6 +23,10 @@ modded class ActionConstructor
 		super.RegisterActions( actions );
 
 		//! Vehicles
+#ifdef DIAG
+		actions.Insert( ExpansionActionPushVehicle );
+#endif
+
 		actions.Insert( ExpansionActionGetInExpansionVehicle );
 		actions.Insert( ExpansionActionGetOutExpansionVehicle );
 

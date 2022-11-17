@@ -23,7 +23,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 	{
 		ExpansionHumanCommandVehicle vehCmd = player.GetCommand_ExpansionVehicle();
 
-		if (vehCmd && Class.CastTo(m_Vehicle, vehCmd.GetTransport()))
+		if (vehCmd && Class.CastTo(m_Vehicle, vehCmd.GetExpansionVehicle()))
 		{
 			if (vehCmd.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 			{
@@ -42,7 +42,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 		ExpansionHumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_ExpansionVehicle();
 		ExpansionVehicleBase car;
 
-		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
+		if (vehCmd && Class.CastTo(car, vehCmd.GetExpansionVehicle()))
 		{
 			car.EngineStop();
 
@@ -56,7 +56,7 @@ class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 		ExpansionHumanCommandVehicle vehCmd = action_data.m_Player.GetCommand_ExpansionVehicle();
 		ExpansionVehicleBase car;
 
-		if (vehCmd && Class.CastTo(car, vehCmd.GetTransport()))
+		if (vehCmd && Class.CastTo(car, vehCmd.GetExpansionVehicle()))
 		{
 			car.EngineStop();
 
