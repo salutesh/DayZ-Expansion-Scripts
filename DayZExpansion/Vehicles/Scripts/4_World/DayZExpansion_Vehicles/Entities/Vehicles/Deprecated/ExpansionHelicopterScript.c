@@ -61,6 +61,7 @@ class ExpansionHelicopterScript extends CarScript
 	vector m_Expansion_IsLandedHitPos;
 
 	float m_Expansion_LastContactImpulse;
+	float m_Expansion_IsLandedTick;
 
 	void ExpansionHelicopterScript()
 	{
@@ -167,23 +168,6 @@ class ExpansionHelicopterScript extends CarScript
 #endif
 
 		Error("Not implemented!");
-	}
-
-	override void EOnContact(IEntity other, Contact extra)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "EOnContact").Add(other).Add(extra);
-#endif
-
-		//! Expansion helis do not receive vanilla OnContact (for some reason?), but some 3rd party ones do.
-		//! Only call OnContact if impulse is different from last impulse handled by OnContact.
-		//! Call order Expansion helis: EOnContact (called by base game), then OnContact (called by Expansion EOnContact)
-		//! Call order 3rd party helis: OnContact (called by base game), then EOnContact (same)
-		if (extra.Impulse && extra.Impulse != m_Expansion_LastContactImpulse)
-		{
-			OnContact("", WorldToModel(extra.Position), other, extra);
-			m_Expansion_LastContactImpulse = 0;
-		}
 	}
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
@@ -550,6 +534,8 @@ class ExpansionHelicopterScript extends CarScript
 
 	override void EOnPostSimulate(IEntity other, float timeSlice)
 	{
+		m_Expansion_IsLandedTick += timeSlice;
+
 		if (IsLanded())
 		{
 			//! Bouncing/jolting/flipping fix
@@ -706,8 +692,10 @@ class ExpansionHelicopterScript extends CarScript
 		vector pos = GetPosition();
 
 		//! 1cm tolerance to last known position
-		if (m_LastKnownPosition && vector.DistanceSq(pos, m_LastKnownPosition) < 0.0001)
+		if (m_LastKnownPosition != vector.Zero && (m_Expansion_IsLandedTick < 0.025 || vector.DistanceSq(pos, m_LastKnownPosition) < 0.0001))
 			return m_IsLanded;
+
+		m_Expansion_IsLandedTick = 0;
 
 		m_LastKnownPosition = pos;
 
