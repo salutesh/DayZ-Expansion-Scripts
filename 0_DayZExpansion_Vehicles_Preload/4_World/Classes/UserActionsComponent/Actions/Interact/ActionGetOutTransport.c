@@ -145,6 +145,11 @@ modded class ActionGetOutTransport
 		}
 	}
 
+	override void Unhide(PlayerBase player)
+    {
+        player.TryHideItemInHands(false, true);
+    }
+
 	override void OnEndServer(ActionData action_data)
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
