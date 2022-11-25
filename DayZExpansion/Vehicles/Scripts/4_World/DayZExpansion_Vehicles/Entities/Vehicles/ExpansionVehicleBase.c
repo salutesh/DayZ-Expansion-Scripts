@@ -2997,7 +2997,7 @@ class ExpansionVehicleBase extends ItemBase
 	void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "EOnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
+		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "OnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
 #endif
 
 		if (zoneName == "")

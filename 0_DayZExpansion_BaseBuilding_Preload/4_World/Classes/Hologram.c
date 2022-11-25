@@ -50,17 +50,27 @@ modded class Hologram
 		
 		vector to = from + (GetGame().GetCurrentCameraDirection() * (maxProjectionDistance + cameraToPlayerDistance));
 		vector contactPosition;
-		set<Object> hitObjects = new set<Object>;
+		set<Object> hitObjects = new set<Object>();
 
 		//! @note vanilla changed raycast from ObjIntersectView to ObjIntersectFire in 1.16, which breaks some 3rd party mods including our basebuilding.
 		//! Override it back to ObjIntersectView which works just fine for vanilla and 3rd party mods.
 		DayZPhysics.RaycastRV( from, to, contactPosition, m_ContactDir, m_ContactComponent, hitObjects, player, m_Projection, false, false, ObjIntersectView );
 
+		bool contactHitProcessed = false;
 		//! will not push hologram up when there is direct hit of an item
 		if (!CfgGameplayHandler.GetDisableIsCollidingBBoxCheck())
 		{
-			if (hitObjects.Count() > 0 && hitObjects[0].IsInherited(InventoryItem))
-				contactPosition = hitObjects[0].GetPosition();
+			if (hitObjects.Count() > 0)
+			{
+				if (hitObjects[0].IsInherited(Watchtower))
+				{
+					contactHitProcessed = true;
+					contactPosition = CorrectForWatchtower(m_ContactComponent, contactPosition, player, hitObjects[0]);
+				}
+				
+				if (!contactHitProcessed && hitObjects[0].IsInherited(InventoryItem))
+					contactPosition = hitObjects[0].GetPosition();
+			}
 		}
 
 		static const float raycastOriginOffsetOnFail = 0.25;
@@ -74,9 +84,6 @@ modded class Hologram
 			DayZPhysics.RaycastRV( from, to, contactPosition, m_ContactDir, m_ContactComponent, hitObjects, player, m_Projection, false, false, ObjIntersectView );
 		}
 		
-		if ((hitObjects.Count() > 0) && hitObjects[0].IsInherited(Watchtower))
-			contactPosition = CorrectForWatchtower( m_ContactComponent, contactPosition, player, hitObjects[0] );
-
 		//! START part that is different from vanilla GetProjectionEntityPosition
 		if ( hitObjects.Count() > 0 && hitObjects[0].IsInherited( ExpansionBaseBuilding ) )
 		{

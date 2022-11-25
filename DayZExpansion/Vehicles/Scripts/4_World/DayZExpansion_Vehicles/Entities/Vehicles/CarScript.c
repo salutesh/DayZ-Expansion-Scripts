@@ -4053,7 +4053,7 @@ modded class CarScript
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "EOnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
+		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "OnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
 #endif
 
 		auto item = ItemBase.Cast(other);
@@ -4110,7 +4110,25 @@ modded class CarScript
 			}
 		}
 
-		super.OnContact(zoneName, localPos, other, data);
+		//! Vanilla contact cache is very inefficient if there are a lot of collisions per frame. Only add one entry per damage zone and add up impulse.
+		//! Only drawback is that we may not have access to all individual colliding entities (only last one), but this data isn't used anywhere (also not in vanilla) anyway.
+		//super.OnContact(zoneName, localPos, other, data);
+		if (GetGame().IsServer())
+		{
+			array<ref CarContactData> ccd;
+			if (!m_ContactCache.Find(zoneName, ccd))
+			{
+				ccd = new array<ref CarContactData>;
+				m_ContactCache.Insert(zoneName, ccd);
+				ccd.Insert(new CarContactData(localPos, other, data.Impulse));
+			}
+			else
+			{
+				ccd[0].localPos = localPos;
+				ccd[0].other = other;
+				ccd[0].impulse += data.Impulse;
+			}
+		}
 	}
 
 	void ExpansionCheckTreeContact(IEntity other, float impulse)
@@ -4230,10 +4248,5 @@ modded class CarScript
     		GetExpansionSettings().GetLog().PrintLog("[VehicleDestroyed] " + GetType() + " (id=" + GetVehiclePersistentIDString() + " pos=" + GetPosition() + ")");
 
 		m_Expansion_Killed = true;
-	}
-
-	float GetFuelAmmount()
-	{
-		return m_FuelAmmount;
 	}
 };
