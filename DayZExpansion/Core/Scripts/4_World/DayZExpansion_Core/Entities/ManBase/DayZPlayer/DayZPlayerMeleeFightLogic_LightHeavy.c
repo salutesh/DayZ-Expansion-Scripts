@@ -20,7 +20,7 @@ modded class DayZPlayerMeleeFightLogic_LightHeavy
 
 		PlayerBase player = PlayerBase.Cast(m_DZPlayer);
 
-		if (player && player.IsInSafeZone())
+		if (player && player.Expansion_IsInSafeZone())
 			return false;
 
 		return super.HandleFightLogic(pCurrentCommandID, pInputs, pEntityInHands, pMovementState, pContinueAttack);

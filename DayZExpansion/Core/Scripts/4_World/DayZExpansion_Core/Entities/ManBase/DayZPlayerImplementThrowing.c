@@ -21,7 +21,7 @@ modded class DayZPlayerImplementThrowing
 		if ( m_bThrowingModeEnabled )
 		{
 			PlayerBase player = PlayerBase.Cast(m_Player);
-			if ( player && player.IsInSafeZone() )
+			if ( player && player.Expansion_IsInSafeZone() )
 			{
 				m_bThrowingModeEnabled = false;
 				ResetState();

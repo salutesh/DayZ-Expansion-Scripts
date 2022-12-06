@@ -201,7 +201,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(callBack);
 		rpc.Write(playerUID);
- 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.RequestGroups, false);
+ 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.RequestGroups, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -247,7 +247,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 			party.OnSend(rpc, true);
 		}
 		
- 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.SendGroupsToClient, false, sender);
+ 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.SendGroupsToClient, true, sender);
 	}
 	
 	// ------------------------------------------------------------
@@ -329,7 +329,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(groupID);
 		rpc.Write(groupName);
- 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.EditGroupName, false);
+ 		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.EditGroupName, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -395,7 +395,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyID);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.DeleteGroup, false);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.DeleteGroup, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -460,7 +460,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		rpc.Write(playerUID);
 		rpc.Write(partyID);
 		rpc.Write(isMember);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.ChangeOwner, false);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.ChangeOwner, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -553,7 +553,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(playerUID);
 		rpc.Write(partyID);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.InvitePlayer, false);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.InvitePlayer, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -652,7 +652,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		rpc.Write(playerUID);
 		rpc.Write(partyID);
 		rpc.Write(playerPerm);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.UpdatePermissions, false);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.UpdatePermissions, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -755,7 +755,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyID);
 		rpc.Write(value);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.ChangeMoney, false);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.ChangeMoney, true);
 	}
 	
 #ifdef EXPANSIONMODMARKET
@@ -835,7 +835,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyID);
 		rpc.Write(playerUID);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.KickMember, false);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.KickMember, true);
 	}
 	
 	// ------------------------------------------------------------
@@ -928,7 +928,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		int partyID = party.GetPartyID();
 		auto rpc = ExpansionScriptRPC.Create();
 		party.OnSend(rpc, true);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.SendGroupUpdate, false, sender);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.SendGroupUpdate, true, sender);
 	}
 	
 	// ------------------------------------------------------------
@@ -1020,7 +1020,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(callBack);
-		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.Callback, false, reciver);
+		rpc.Send(NULL, ExpansionCOTGroupModuleRPC.Callback, true, reciver);
 	}
 	
 	// ------------------------------------------------------------

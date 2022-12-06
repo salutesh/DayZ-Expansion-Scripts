@@ -5,7 +5,7 @@ class ExpansionVehicleActionPickLock: ExpansionActionPickVehicleLockBase
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		
-		if ( player.IsInSafeZone() )
+		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
 		ExpansionVehicleBase vehicleBase = ExpansionVehicleBase.Cast( target.GetParentOrObject() );

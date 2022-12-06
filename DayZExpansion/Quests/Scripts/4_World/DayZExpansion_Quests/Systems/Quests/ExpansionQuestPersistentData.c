@@ -467,20 +467,27 @@ class ExpansionQuestPersistentData
 
 	void QuestDebugPrint(string text)
 	{
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
 		Print(text);
 	#endif
 	}
 
 	void QuestDebug()
 	{
-		Print("------------------------------------------------------------------------------------------------");
-		Print(ToString() + "::QuestDebug - File name: " + FileName);
-		Print(ToString() + "::QuestDebug - Data version: " + DataVersion);
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
+		if (GetGame().IsServer() || QuestDatas.Count())
+			Print("------------------------------------------------------------------------------------------------");
+		if (GetGame().IsServer())
+		{
+			Print(ToString() + "::QuestDebug - File name: " + FileName);
+			Print(ToString() + "::QuestDebug - Data version: " + DataVersion);
+		}
 		for (int i = 0; i < QuestDatas.Count(); i++)
 		{
 			QuestDatas[i].QuestDebug();
 		}
-		Print("------------------------------------------------------------------------------------------------");
+		if (GetGame().IsServer() || QuestDatas.Count())
+			Print("------------------------------------------------------------------------------------------------");
+	#endif
 	}
 };

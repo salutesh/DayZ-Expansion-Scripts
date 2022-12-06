@@ -60,7 +60,7 @@ modded class ExpansionESPModificationModule
 		} else if ( IsMissionClient() )
 		{
 			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnPair, false, NULL );
+			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnPair, true, NULL );
 		}
 	}
 
@@ -100,7 +100,7 @@ modded class ExpansionESPModificationModule
 		} else if ( IsMissionClient() )
 		{
 			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnLock, false, NULL );
+			rpc.Send( target, ExpansionESPModificationModuleRPC.CarUnLock, true, NULL );
 		}
 	}
 

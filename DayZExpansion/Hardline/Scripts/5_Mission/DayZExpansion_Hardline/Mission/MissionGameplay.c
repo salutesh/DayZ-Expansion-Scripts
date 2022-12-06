@@ -19,10 +19,10 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	override void OnInit()
 	{
+		super.OnInit();
+		
 		//! Expansion Hardline Hud
 		InitExpansionHardlineHud();
-
-		super.OnInit();
 	}
 
 	// ------------------------------------------------------------
@@ -32,7 +32,7 @@ modded class MissionGameplay
 	{
 		if (!m_ExpansionHardlineHUD)
 		{
-			m_ExpansionHardlineHUD = new ExpansionHardlineHUD();
+			m_ExpansionHardlineHUD = new ExpansionHardlineHUD(m_Hud);
 		}
 	}
 

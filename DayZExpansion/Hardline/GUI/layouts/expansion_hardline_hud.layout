@@ -55,7 +55,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        vexactsize 1
        fixaspect fixwidth
        scriptclass "ViewBinding"
-       image0 ""
+       image0 "{5A608B8E5F095FC6}DayZExpansion/Core/GUI/icons/hud/Reputation-Stars.edds"
        mode blend
        "src alpha" 1
        "no wrap" 1
@@ -126,6 +126,21 @@ FrameWidgetClass ExpansionHardlineHUD {
      }
     }
    }
+  }
+  ImageWidgetClass CoveredIndicator {
+   visible 1
+   clipchildren 0
+   position 0 -2
+   size 32 9
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   image0 "{A86A06F14A0DABC8}DayZExpansion/Core/GUI/icons/hud/under-roof.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1    
   }
  }
 }

@@ -13,138 +13,69 @@
 /**@class		ExpansionStove
  * @brief		
  **/
-class ExpansionStove extends FireplaceBase 
+class ExpansionStove extends PortableGasStove 
 {
-	//! Expansion burning, turn on and turn off sound
-	const string SOUND_BURNING 		= "portablegasstove_burn_SoundSet";
-	const string SOUND_TURN_ON		= "portablegasstove_turn_on_SoundSet";
-	const string SOUND_TURN_OFF		= "portablegasstove_turn_off_SoundSet";
+	const int   DIRECT_COOKING_SLOT_COUNT			= 2;
+	const int   SMOKING_SLOT_COUNT					= 4;
 
-	protected EffectSound m_SoundBurningLoop;
-	protected EffectSound m_SoundTurnOn;
-	protected EffectSound m_SoundTurnOff;
-	
-	//cooking
-	protected const float PARAM_COOKING_TIME_INC_COEF			= 0.5;		//cooking time increase coeficient, can be used when balancing how fast a food can be cooked
+	ItemBase m_DirectCookingSlots[DIRECT_COOKING_SLOT_COUNT];
+	ItemBase m_SmokingSlots[SMOKING_SLOT_COUNT];
 
-	// ------------------------------------------------------------
-	// Expansion GetCookingEquipment
-	// ------------------------------------------------------------
-	override ItemBase GetCookingEquipment()
-	{
-		return m_CookingEquipment;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion SetCookingEquipment
-	// ------------------------------------------------------------
-	override void SetCookingEquipment( ItemBase equipment )
-	{
-		m_CookingEquipment = equipment;
-	}
-	
-	#ifdef DAYZ_1_17
-	// ------------------------------------------------------------
-	// Expansion ClearCookingEquipment
-	// ------------------------------------------------------------
-	override void ClearCookingEquipment()
-	{
-		SetCookingEquipment( NULL );
-	}
-	#endif
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionStove()
-	{
-	}
-
-	// ------------------------------------------------------------
-	// SetActions
-	// ------------------------------------------------------------
 	override void SetActions()
 	{
 		super.SetActions();
-		
-		AddAction(ActionLightItemOnFire);
-		AddAction(ActionTurnOnWhileOnGround);
-		AddAction(ActionTurnOffWhileOnGround);
 
 		AddAction(ActionTogglePlaceObject);
 		AddAction(ActionPlaceObject);
 	}
-	
-	//================================================================
-	// SOUNDS
-	//================================================================
-	protected void SoundBurningStart()
-	{
-		PlaySoundSetLoop( m_SoundBurningLoop, SOUND_BURNING, 0.1, 0.3 );
-	}
-	
-	protected void SoundBurningStop()
-	{
-		StopSoundSet( m_SoundBurningLoop );
-	}	
 
-	protected void SoundTurnOn()
+	void Expansion_AddTemperatureToItemByEnergy(ItemBase item, float consumed_energy)
 	{
-		PlaySoundSet( m_SoundTurnOn, SOUND_TURN_ON, 0.1, 0.1 );
-	}
-	
-	protected void SoundTurnOff()
-	{
-		PlaySoundSet( m_SoundTurnOff, SOUND_TURN_OFF, 0.1, 0.1 );
+		if (item.GetTemperatureMax() >= FireplaceBase.PARAM_ITEM_HEAT_MIN_TEMP)
+		{
+			float temperature = item.GetTemperature() + (FireplaceBase.PARAM_ITEM_HEAT_TEMP_INCREASE_COEF * consumed_energy);
+			temperature = Math.Clamp(temperature, FireplaceBase.PARAM_ITEM_HEAT_MIN_TEMP, FireplaceBase.PARAM_MAX_ITEM_HEAT_TEMP_INCREASE);
+			item.SetTemperature(temperature);
+		}
 	}
 
-	// ------------------------------------------------------------
-	// Expansion CookWithEquipment
-	// ------------------------------------------------------------
-	override void CookWithEquipment()
+	protected void CookOnDirectSlot(ItemBase slot_item, float temp_equip, float temp_ext)
+	{
+		if (m_CookingProcess == null)
+		{
+			m_CookingProcess = new Cooking();
+		}
+		
+		m_CookingProcess.CookWithEquipment(slot_item);
+	}
+	
+	protected void SmokeOnSmokingSlot( ItemBase slot_item, float temp_equip, float temp_ext )
 	{
 		if ( m_CookingProcess == NULL )
 		{
 			m_CookingProcess = new Cooking();
 		}
 		
-		m_CookingProcess.CookWithEquipment ( GetCookingEquipment(), PARAM_COOKING_TIME_INC_COEF );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion DestroyFireplace
-	// ------------------------------------------------------------
-	override void DestroyFireplace()
-	{
-		GetGame().ObjectDelete( this );
-	}
-
-	// ------------------------------------------------------------
-	// Expansion RemoveCookingAudioVisuals
-	// ------------------------------------------------------------
-	protected void RemoveCookingAudioVisuals()
-	{
-		if ( GetCookingEquipment() )
+		// smoking slots accept only individual meat/fruit/veg items
+		Edible_Base ingr = Edible_Base.Cast( slot_item );
+		if ( ingr )
 		{
-			Bottle_Base cooking_pot = Bottle_Base.Cast( GetCookingEquipment() );
-			cooking_pot.RemoveAudioVisualsOnClient();
+			m_CookingProcess.SmokeItem( ingr, FireplaceBase.TIMER_HEATING_UPDATE_INTERVAL * FireplaceBase.SMOKING_SPEED );
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Expansion CanOpen
-	// ------------------------------------------------------------
+	override protected void RefreshFlameVisual(bool working = false, bool hasAttachment = false)
+	{
+	}
+
 	override bool ExpansionCanOpen( PlayerBase player, string selection )
 	{			
-		if (selection == "doors1" && GetAnimationPhase("doors1") == 0 && ExpansionIsOpenable())
+		if (selection == "doors1" && GetAnimationPhase("doors1") < 1.0 && ExpansionIsOpenable())
 			return true;
 		
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion CanClose
-	// ------------------------------------------------------------
 	override bool ExpansionCanClose( PlayerBase player, string selection )
 	{
 		return CanClose( selection );
@@ -152,15 +83,12 @@ class ExpansionStove extends FireplaceBase
 
 	override bool CanClose( string selection )
 	{
-		if (selection == "doors1" && GetAnimationPhase("doors1") == 1 && ExpansionIsOpenable())
+		if (selection == "doors1" && GetAnimationPhase("doors1") > 0.0 && ExpansionIsOpenable())
 			return true;
 		
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion Open
-	// ------------------------------------------------------------
 	override void Open( string selection ) 
 	{
 		//! Door open animation
@@ -170,9 +98,6 @@ class ExpansionStove extends FireplaceBase
 		super.Open( selection );
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion Close
-	// ------------------------------------------------------------
 	override void Close( string selection ) 
 	{
 		//! Door open animation
@@ -182,364 +107,138 @@ class ExpansionStove extends FireplaceBase
 		super.Close( selection );
 	}
 
-	//returns if item attached to fireplace is fuel
-	protected override bool IsFuel( ItemBase item )
+	override void EEItemAttached(EntityAI item, string slot_name)
 	{
-		if ( item.IsKindOf( "SmallGasCanister" ) || item.IsKindOf( "MediumGasCanister" ) || item.IsKindOf( "LargeGasCanister" ) )
-		{
-			return true;
-		}
+		super.EEItemAttached(item, slot_name);
 		
-		return false;
-	}
+		ItemBase item_base = ItemBase.Cast(item);
 
-	//================================================================
-	// ATTACHMENTS
-	//================================================================	
-	override bool CanReceiveAttachment( EntityAI attachment, int slotId )
-	{
-		if ( !super.CanReceiveAttachment(attachment, slotId) )
-			return false;	
-		
-		ItemBase item = ItemBase.Cast( attachment );
-		
-		//fuel items
-		if ( IsFuel ( item ) )
-			return true;
-		
-		//direct cooking slots
-		if ( ( item.Type() == ATTACHMENT_COOKING_POT ) || ( item.Type() == ATTACHMENT_FRYING_PAN ) || ( item.IsKindOf( "Edible_Base" ) ) )
-			return true;
-		
-		return false;
-	}
-	
-	override bool CanLoadAttachment( EntityAI attachment )
-	{
-		if ( !super.CanLoadAttachment(attachment) )
-			return false;	
-		
-		ItemBase item = ItemBase.Cast( attachment );
-		
-		//fuel items
-		if ( IsFuel ( item ) )
-			return true;
-		
-		//direct cooking slots
-		if ( ( item.Type() == ATTACHMENT_COOKING_POT ) || ( item.Type() == ATTACHMENT_FRYING_PAN ) || ( item.IsKindOf( "Edible_Base" ) ) )
-			return true;
-		
-		return false;
-	}
-
-	override bool CanReleaseAttachment( EntityAI attachment )
-	{
-		if( !super.CanReleaseAttachment( attachment ) )
-			return false;
-		
-		ItemBase item = ItemBase.Cast( attachment );
-		
-		//fuel items
-		if ( IsFuel( item ) && !IsIgnited() )
-		{
-			return true;
-		}
-		
-		//has last attachment and there are still items in cargo
-		if ( GetInventory().AttachmentCount() == 1 && GetInventory().GetCargo().GetItemCount() != 0 )
-		{
-			return false;
-		}
-		
-		//direct cooking slots
-		if ( ( item.Type() == ATTACHMENT_COOKING_POT ) || ( item.Type() == ATTACHMENT_FRYING_PAN ) || ( item.IsKindOf( "Edible_Base" ) ) )
-		{
-			return true;
-		}
-		
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// EEItemAttached
-	// ------------------------------------------------------------
-	override void EEItemAttached( EntityAI item, string slot_name ) 
-	{
-		super.EEItemAttached( item, slot_name );
-		
-		ItemBase item_base = ItemBase.Cast( item );
-		
-		//kindling / fuel
-		if ( IsFuel( item_base ) )
-		{
-			//remove from consumables
-			RemoveFromFireConsumables( GetFireConsumableByItem( item_base ) );
-		}
-		
-		// direct cooking slots
-		switch ( slot_name )
+		// direct cooking/smoking slots
+		bool edible_base_attached = false;
+		switch (slot_name)
 		{
 			case "DirectCookingA":
 				m_DirectCookingSlots[0] = item_base;
+				edible_base_attached = true;
 				break;
-
 			case "DirectCookingB":
 				m_DirectCookingSlots[1] = item_base;
+				edible_base_attached = true;
 				break;
-		}
 
-		// smoking slots
-		switch ( slot_name )
-		{
 			case "SmokingA":
 				m_SmokingSlots[0] = item_base;
+				edible_base_attached = true;
 				break;
-
 			case "SmokingB":
 				m_SmokingSlots[1] = item_base;
+				edible_base_attached = true;
 				break;
-
 			case "SmokingC":
 				m_SmokingSlots[2] = item_base;
+				edible_base_attached = true;
 				break;
+			case "SmokingD":
+				m_SmokingSlots[3] = item_base;
+				edible_base_attached = true;
+				break;
+		}
+		
+		// reset cooking time (to prevent the cooking exploit)
+		if (GetGame().IsServer() && edible_base_attached)
+		{
+			Edible_Base edBase = Edible_Base.Cast(item_base);
+			if (edBase)
+			{
+				if (edBase.GetFoodStage())
+				{
+					edBase.SetCookingTime(0);
+				}
+			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	// EEItemDetached
-	// ------------------------------------------------------------
-	override void EEItemDetached( EntityAI item, string slot_name ) 
+	override void EEItemDetached(EntityAI item, string slot_name)
 	{
-		super.EEItemDetached ( item, slot_name );
-		
-		ItemBase item_base = ItemBase.Cast( item );
-		
-		//kindling / fuel
-		if ( IsFuel( item_base ) )
-		{
-			//remove from consumables
-			RemoveFromFireConsumables( GetFireConsumableByItem( item_base ) );
-		}
+		super.EEItemDetached(item, slot_name);
 
-		// direct cooking slots
-		switch ( slot_name )
+		// direct cooking/smoking slots
+		switch (slot_name)
 		{
 			case "DirectCookingA":
-				m_DirectCookingSlots[0] = NULL;
+				m_DirectCookingSlots[0] = null;
 				break;
-
 			case "DirectCookingB":
-				m_DirectCookingSlots[1] = NULL;
+				m_DirectCookingSlots[1] = null;
 				break;
-		}
 
-		// smoking slots
-		switch ( slot_name )
-		{
 			case "SmokingA":
-				m_SmokingSlots[0] = NULL;
+				m_SmokingSlots[0] = null;
 				break;
-
 			case "SmokingB":
-				m_SmokingSlots[1] = NULL;
+				m_SmokingSlots[1] = null;
 				break;
-
 			case "SmokingC":
-				m_SmokingSlots[2] = NULL;
+				m_SmokingSlots[2] = null;
 				break;
-		}
-
-		// food on direct cooking slots (removal of sound effects)
-		if ( item_base.IsKindOf( "Edible_Base" ) )
-		{
-			Edible_Base food_on_dcs = Edible_Base.Cast( item_base );
-			food_on_dcs.MakeSoundsOnClient( false );
-		}
-		
-		// cookware-specifics (remove audio visuals)
-		if ( item_base.Type() == ATTACHMENT_COOKING_POT )
-		{	
-			Bottle_Base cooking_pot = Bottle_Base.Cast( item );
-			cooking_pot.RemoveAudioVisualsOnClient();	
-		}
-		if ( item_base.Type() == ATTACHMENT_FRYING_PAN )
-		{	
-			FryingPan frying_pan = FryingPan.Cast( item );
-			frying_pan.RemoveAudioVisualsOnClient();
+			case "SmokingD":
+				m_SmokingSlots[3] = null;
+				break;
 		}
 	}
-
-	//Do heating
-	override protected void Heating()
+	
+	override void OnWorkStart()
 	{
-		float temperature = GetTemperature();
-		float temperature_modifier = 0;
-		
-		//calculate and set temperature
-		AddTemperatureToFireplace( PARAM_TEMPERATURE_INCREASE - temperature_modifier );
-		
-		//damage cargo items
-		BurnItemsInFireplace();
-		
-		//manage cooking equipment (this applies only for case of cooking pot on a tripod)
-		if ( m_CookingEquipment )
-		{
-			float cook_equip_temp = m_CookingEquipment.GetTemperature();
-			
-			if ( cook_equip_temp >= PARAM_COOKING_TEMP_THRESHOLD )
-			{
-				//start cooking
-				CookWithEquipment();
-			}
+		//sound (client only)
+		SoundBurningStart();
+	}
 
-			//set temperature to cooking equipment
-			cook_equip_temp = cook_equip_temp + PARAM_COOKING_EQUIP_TEMP_INCREASE;
-			if ( temperature <= PARAM_SMALL_FIRE_TEMPERATURE )
-			{
-				cook_equip_temp = Math.Clamp ( cook_equip_temp, PARAM_ITEM_HEAT_MIN_TEMP, PARAM_SMALL_FIRE_TEMPERATURE );
-			}
-			else
-			{
-				cook_equip_temp = Math.Clamp ( cook_equip_temp, PARAM_ITEM_HEAT_MIN_TEMP, PARAM_COOKING_EQUIP_MAX_TEMP );
-			}
-			m_CookingEquipment.SetTemperature( cook_equip_temp );
-		}
+	override void OnWorkStop()
+	{
+		//stop steam particle
+		RemoveCookingAudioVisuals();		
+		//sound (client only)
+		SoundBurningStop();
+	}
+	
+	override void OnWork(float consumed_energy)
+	{
+		//manage cooking equipment
+		super.OnWork(consumed_energy);
+
+		if (!GetGame().IsServer())
+			return;
+
+		float temperature = GetTemperature();
 
 		float cook_item_temp;
 		int i;
 		// manage cooking on direct cooking slots
-		if ( DirectCookingSlotsInUse() )
+		for ( i = 0; i < DIRECT_COOKING_SLOT_COUNT; i++ )
 		{
-			for ( i = 0; i < DIRECT_COOKING_SLOT_COUNT; i++ )
+			if ( m_DirectCookingSlots[i] )
 			{
-				if ( m_DirectCookingSlots[i] )
-				{
-					cook_item_temp = m_DirectCookingSlots[i].GetTemperature();
-					if ( cook_item_temp >= PARAM_COOKING_TEMP_THRESHOLD )
-					{
-						CookOnDirectSlot( m_DirectCookingSlots[i], cook_item_temp, temperature );
-					}
-				}
+				CookOnDirectSlot( m_DirectCookingSlots[i], m_DirectCookingSlots[i].GetTemperature(), temperature );
+				Expansion_AddTemperatureToItemByEnergy(m_DirectCookingSlots[i], consumed_energy);
 			}
 		}
 
 		// manage smoking slots
-		if ( SmokingSlotsInUse() )
+		for ( i = 0; i < SMOKING_SLOT_COUNT; i++ )
 		{
-			for ( i = 0; i < SMOKING_SLOT_COUNT; i++ )
+			if ( m_SmokingSlots[i] )
 			{
-				if ( m_SmokingSlots[i] )
-				{
-					SmokeOnSmokingSlot( m_SmokingSlots[i], cook_item_temp, temperature );
-				}
-			}
-		}
-	}
-	
-	//================================================================
-	// FIRE VICINITY
-	//================================================================
-	override protected void BurnItemsInFireplace()
-	{
-		for ( int j = 0; j < GetInventory().AttachmentCount(); ++j )
-		{
-			ItemBase attachment = ItemBase.Cast( GetInventory().GetAttachmentFromIndex( j ) );
-			
-			//set damage (fuel items only)
-			if ( !IsFuel( attachment ) )
-			{
-				//add temperature
-				AddTemperatureToItemByFire( attachment );
-			
-				//remove wetness
-				AddWetnessToItem( attachment, -PARAM_WET_HEATING_DECREASE_COEF );		
+				SmokeOnSmokingSlot( m_SmokingSlots[i], m_SmokingSlots[i].GetTemperature(), temperature );
+				Expansion_AddTemperatureToItemByEnergy(m_SmokingSlots[i], consumed_energy);
 			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	// OnSwitchOn
-	// ------------------------------------------------------------
-	override void OnSwitchOn()
-	{
-		super.OnSwitchOn();
-		
-		StartHeating();
-		SoundTurnOn();
-	}
-
-	// ------------------------------------------------------------
-	// OnSwitchOff
-	// ------------------------------------------------------------
-	override void OnSwitchOff()
-	{
-		super.OnSwitchOff();
-		
-		StopHeating();
-		SoundTurnOff();
-	}
-
-	// ------------------------------------------------------------
-	// OnWork
-	// ------------------------------------------------------------
-	override void OnWork( float consumed_energy )
-	{
-		//! Manage cooking equipment
-		if ( GetCookingEquipment() )
-		{
-			if ( GetGame() && GetGame().IsServer() )
-			{
-				float cook_equip_temp = GetCookingEquipment().GetTemperature();
-				
-				//! Start cooking
-				if ( cook_equip_temp >= PARAM_COOKING_TEMP_THRESHOLD )
-				{
-					CookWithEquipment();
-				}				
-				
-				//! Set temperature to cooking equipment
-				cook_equip_temp = cook_equip_temp + PARAM_COOKING_EQUIP_TEMP_INCREASE;
-				cook_equip_temp = Math.Clamp ( cook_equip_temp, 0, PARAM_COOKING_EQUIP_MAX_TEMP );
-				GetCookingEquipment().SetTemperature( cook_equip_temp );
-			}
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// IsContainer
-	// ------------------------------------------------------------
-	override bool IsContainer()
-	{
-		return true;
-	}
-
-	// ------------------------------------------------------------
-	// IsHeavyBehaviour
-	// ------------------------------------------------------------
 	override bool IsHeavyBehaviour() 
 	{
 		return true;
 	}
-
-	// ------------------------------------------------------------
-	// IsIgnited
-	// ------------------------------------------------------------
-	override bool IsIgnited()
-	{
-		return GetCompEM().IsWorking();
-	}
-
-	// ------------------------------------------------------------
-	// CanIgniteItem
-	// ------------------------------------------------------------
-	override bool CanIgniteItem(EntityAI ignite_target = NULL)
-	{
-		return GetCompEM().IsWorking();
-	}	
 	
-	// ------------------------------------------------------------
-	// CanPutInCargo
-	// ------------------------------------------------------------
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		if( !super.CanPutInCargo( parent ) )
@@ -555,9 +254,6 @@ class ExpansionStove extends FireplaceBase
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// CanPutIntoHands
-	// ------------------------------------------------------------
 	override bool CanPutIntoHands( EntityAI parent )
 	{		
 		if( !super.CanPutIntoHands( parent ) )
@@ -573,9 +269,6 @@ class ExpansionStove extends FireplaceBase
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// OnPlacementComplete
-	// ------------------------------------------------------------
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{
 		if ( IsMissionHost() )
@@ -589,4 +282,4 @@ class ExpansionStove extends FireplaceBase
 		
 		SetIsDeploySound( true );
 	}
-} 
+}

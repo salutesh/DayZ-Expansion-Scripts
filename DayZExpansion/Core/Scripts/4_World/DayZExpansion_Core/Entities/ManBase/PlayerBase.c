@@ -494,7 +494,7 @@ modded class PlayerBase
 		super.OnConnect();
 
 		//! Make sure we check straight away if player connects in a safezone
-		if (!IsInSafeZone() && GetExpansionSettings().GetSafeZone().Enabled)
+		if (!Expansion_IsInSafeZone() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
 	}
 
@@ -503,7 +503,7 @@ modded class PlayerBase
 		super.OnReconnect();
 
 		//! Make sure we check straight away if player reconnects in a safezone
-		if (!IsInSafeZone() && GetExpansionSettings().GetSafeZone().Enabled)
+		if (!Expansion_IsInSafeZone() && GetExpansionSettings().GetSafeZone().Enabled)
 			m_Expansion_SafeZoneInstance.Update();
 	}
 

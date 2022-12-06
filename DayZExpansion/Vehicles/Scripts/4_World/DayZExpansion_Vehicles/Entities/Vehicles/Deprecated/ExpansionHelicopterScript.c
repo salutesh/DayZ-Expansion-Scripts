@@ -65,8 +65,6 @@ class ExpansionHelicopterScript extends CarScript
 
 	void ExpansionHelicopterScript()
 	{
-		SetEventMask(EntityEvent.CONTACT | EntityEvent.SIMULATE);
-
 		string path;
 
 		path = "CfgVehicles " + GetType() + " SimulationModule maxSpeed";
@@ -168,6 +166,23 @@ class ExpansionHelicopterScript extends CarScript
 #endif
 
 		Error("Not implemented!");
+	}
+
+	override void EOnContact(IEntity other, Contact extra)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "EOnContact").Add(other).Add(extra);
+#endif
+
+		//! Expansion helis do not receive vanilla OnContact for frontal collisions, but some 3rd party ones do.
+		//! Only call OnContact if impulse is different from last impulse handled by OnContact.
+		//! Call order Expansion helis: EOnContact (called by base game), then OnContact (called by Expansion EOnContact)
+		//! Call order 3rd party helis: OnContact (called by base game), then EOnContact (same)
+		if (extra.Impulse && extra.Impulse != m_Expansion_LastContactImpulse)
+		{
+			OnContact("", WorldToModel(extra.Position), other, extra);
+			m_Expansion_LastContactImpulse = 0;
+		}
 	}
 
 	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)

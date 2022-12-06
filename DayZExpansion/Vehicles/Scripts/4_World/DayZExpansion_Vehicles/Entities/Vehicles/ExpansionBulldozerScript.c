@@ -24,9 +24,6 @@ class ExpansionBulldozerScript extends CarScript
 
 		//! Default values	
 		m_TreesCutted = 0;
-		
-		//! Events layer mask
-		SetEventMask(EntityEvent.SIMULATE);
 	}
 
 	void SyncVariables()

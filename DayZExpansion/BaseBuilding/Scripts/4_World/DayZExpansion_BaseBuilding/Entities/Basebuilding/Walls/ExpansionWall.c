@@ -333,12 +333,23 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		return m_HasDoor;
 	}
 	
-	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
+	void ExpansionResetBaseBuildingState()
 	{
 		m_HasWindow = false;
 		m_HasDoor = false;
 		m_HasGate = false;
 		m_HasWall = false;
+
+		m_Expansion_IsOpened = false;
+		m_Expansion_IsOpened1 = false;
+		m_Expansion_IsOpened2 = false;
+		m_Expansion_IsOpened3 = false;
+		m_Expansion_IsOpened4 = false;
+	}
+
+	override void OnPartBuiltServer( notnull Man player, string part_name, int action_id )
+	{
+		ExpansionResetBaseBuildingState();
 
 		ExpansionUpdateBaseBuildingStateFromPartBuilt( part_name );
 
@@ -376,10 +387,7 @@ class ExpansionWallBase: ExpansionBaseBuilding
 		if ( codelock )
 			codelock.UnlockServer( player, this );
 
-		m_HasWindow = false;
-		m_HasDoor = false;
-		m_HasGate = false;
-		m_HasWall = false;
+		ExpansionResetBaseBuildingState();
 
 		super.OnPartDismantledServer( player, part_name, action_id );
 
@@ -388,10 +396,11 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
-		m_HasWindow = false;
-		m_HasDoor = false;
-		m_HasGate = false;
-		m_HasWall = false;
+		ExpansionCodeLock codelock = ExpansionGetCodeLock();
+		if ( codelock )
+			codelock.UnlockServer( player, this );
+
+		ExpansionResetBaseBuildingState();
 
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );
 

@@ -228,7 +228,8 @@ class ExpansionVehicleBase extends ItemBase
 	float m_ModelZeroPointDistanceFromGround = -1;
 
 	autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ExpansionVehicleBase>(this);
-	bool m_SafeZone;
+	bool m_Expansion_IsInSafeZone;
+	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 
 	protected string m_Expansion_LastDriverUID;
 	protected bool m_Expansion_SynchLastDriverUID;
@@ -1627,7 +1628,7 @@ class ExpansionVehicleBase extends ItemBase
 		if (type != ExpansionZoneType.SAFE)
 			return;
 
-		m_SafeZone = true;
+		m_Expansion_IsInSafeZone = true;
 
 		if (GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone)
 			SetAllowDamage(false);
@@ -1641,7 +1642,7 @@ class ExpansionVehicleBase extends ItemBase
 		if (type != ExpansionZoneType.SAFE)
 			return;
 
-		m_SafeZone = false;
+		m_Expansion_IsInSafeZone = false;
 
 		if (CanBeDamaged())
 			SetAllowDamage(true);
@@ -4580,7 +4581,7 @@ class ExpansionVehicleBase extends ItemBase
 			return false;
 		}
 
-		if (GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone())
+		if (GetExpansionSettings().GetSafeZone().Enabled && Expansion_IsInSafeZone())
 		{
 			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
@@ -4673,10 +4674,16 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		return "ExpansionUniversalWheel"; //this should never happen
 	}
-
+	
 	bool IsInSafeZone()
 	{
-		return m_SafeZone;
+		Expansion_Error("DEPRECATED: Please use Expansion_IsInSafeZone", m_Expansion_IsInSafeZone_DeprecationWarning);
+		return Expansion_IsInSafeZone();
+	}
+
+	bool Expansion_IsInSafeZone()
+	{
+		return m_Expansion_IsInSafeZone;
 	}
 	
 	set<Human> Expansion_GetVehicleCrew(bool playersOnly = true)

@@ -128,7 +128,7 @@ class CfgVehicles
 		wreck = "ExpansionUh1hWreck";
 		fuelCapacity = 119;
 		fuelConsumption = 99;
-		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2","CamoNet"};
+		attachments[] = {"Reflector_1_1","ExpansionHelicopterBattery","ExpansionIgniterPlug","ExpansionHydraulicHoses","uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
 		doors[] = {"uh1hdoor_1_1","uh1hdoor_1_2","uh1hdoor_2_1","uh1hdoor_2_2"};
 		applySkinsTo[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2"};
 		hiddenSelections[] = {"camo1","camo2"};

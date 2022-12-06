@@ -19,7 +19,8 @@ modded class CarScript
 	
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<CarScript>(this);
 	
-	protected bool m_SafeZone;
+	protected bool m_Expansion_IsInSafeZone;
+	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 
 	protected string m_CurrentSkinName;
 
@@ -104,16 +105,22 @@ modded class CarScript
 	{
 	}
 	
-	// ------------------------------------------------------------
 	bool IsInSafeZone()
 	{
-		return m_SafeZone;
+		Expansion_Error("DEPRECATED: Please use Expansion_IsInSafeZone", m_Expansion_IsInSafeZone_DeprecationWarning);
+		return Expansion_IsInSafeZone();
+	}
+
+	// ------------------------------------------------------------
+	bool Expansion_IsInSafeZone()
+	{
+		return m_Expansion_IsInSafeZone;
 	}
 
 	// ------------------------------------------------------------
 	bool CanBeDamaged()
 	{
-		if ( GetExpansionSettings().GetSafeZone().Enabled && IsInSafeZone() )
+		if ( GetExpansionSettings().GetSafeZone().Enabled && Expansion_IsInSafeZone() )
 		{
 			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
@@ -130,7 +137,7 @@ modded class CarScript
 
 		EXPrint(ToString() + "::OnEnterZone " + GetPosition());
 
-		m_SafeZone = true;
+		m_Expansion_IsInSafeZone = true;
 
 		if ( GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone )
 			SetAllowDamage(false);
@@ -145,7 +152,7 @@ modded class CarScript
 
 		EXPrint(ToString() + "::OnExitZone " + GetPosition());
 
-		m_SafeZone = false;
+		m_Expansion_IsInSafeZone = false;
 
 		if ( CanBeDamaged() )
 			SetAllowDamage(true);
@@ -166,7 +173,7 @@ modded class CarScript
 
 	override void DamageCrew(float dmg)
 	{
-		if (IsInSafeZone())
+		if (Expansion_IsInSafeZone())
 			return;
 
 		super.DamageCrew(dmg);

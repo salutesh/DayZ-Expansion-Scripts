@@ -602,7 +602,7 @@ modded class ItemBase
 			return false;
 
 		PlayerBase player;
-		if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.IsInSafeZone())
+		if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.Expansion_IsInSafeZone())
 			return false;
 
 		m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");

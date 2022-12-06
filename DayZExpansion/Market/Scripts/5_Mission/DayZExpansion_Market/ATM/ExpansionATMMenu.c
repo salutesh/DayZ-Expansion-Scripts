@@ -34,7 +34,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	
 	protected EditBoxWidget atm_filter_box;
 	protected ButtonWidget PartyButtonWithdraw;
-	protected Widget PartyButtonWithdrawBackground;
+	protected ButtonWidget PartyButtonWithdrawAll;
 	protected ButtonWidget atm_filter_clear;
 	protected ImageWidget atm_filter_clear_icon;
 	
@@ -171,7 +171,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			if (m_Party && GetPlayerPartyData().CanWithdrawMoney())
 			{
 				PartyButtonWithdraw.Show(true);
-				PartyButtonWithdrawBackground.Show(true);
+				PartyButtonWithdrawAll.Show(true);
 			}
 			#endif
 		}
@@ -257,6 +257,29 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	}
 	
 	// ------------------------------------------------------------
+	// ExpansionATMMenu OnWithdrawAllButtonClick
+	// ------------------------------------------------------------
+	void OnWithdrawAllButtonClick()
+	{
+		m_Amount = m_ATMData.MoneyDeposited;
+		
+		//! Make sure we dont send negative or 0 amounts
+		if (m_Amount <= 0)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED", "STR_EXPANSION_ATM_NONZERO").Error();
+			return;
+		}
+		
+		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED", "STR_EXPANSION_ATM_NO_CURRENCIES_DEFINED").Error();
+			return;
+		}
+
+		m_MarketModule.RequestWithdrawMoney(m_Amount);
+	}
+	
+	// ------------------------------------------------------------
 	// ExpansionATMMenu OnDepositButtonClick
 	// ------------------------------------------------------------	
 	void OnDepositButtonClick()
@@ -286,6 +309,30 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		if (m_PlayerMoney < m_Amount)
 		{
 			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED", new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_NOTENOUGHMONEY", m_PlayerMoney.ToString())).Error();
+			return;
+		}		
+		
+		m_MarketModule.RequestDepositMoney(m_Amount);
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionATMMenu OnDepositButtonClick
+	// ------------------------------------------------------------	
+	void OnDepositAllButtonClick()
+	{
+		m_Amount = m_PlayerMoney;
+		
+		//! Make sure we dont send negative or 0 amounts
+		if (m_Amount <= 0)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED", "STR_EXPANSION_ATM_NONZERO").Error();
+			return;
+		}
+		
+		//! We can only deposit money until we reach max. depending on server setting
+		if ((m_ATMData.MoneyDeposited + m_Amount) > GetExpansionSettings().GetMarket().MaxDepositMoney)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED", new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_MAX_ERROR", GetExpansionSettings().GetMarket().MaxDepositMoney.ToString())).Error();
 			return;
 		}		
 		
@@ -467,6 +514,32 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	}
 	
 	// ------------------------------------------------------------
+	// ExpansionATMMenu OnTransferAllButtonClick
+	// ------------------------------------------------------------
+	void OnTransferAllButtonClick()
+	{
+		if (!m_SelectedPlayer)
+			return;
+	
+		if (!GetExpansionSettings().GetMarket().ATMPlayerTransferEnabled)	
+			return;
+		
+		m_Amount = m_ATMData.MoneyDeposited;
+		
+		//! Make sure we dont send negative or 0 amounts
+		if (m_Amount <= 0)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_UI_TRANSFER_PLAYER", "STR_EXPANSION_ATM_NONZERO").Error();
+			return;
+		}
+		
+		if (!m_TransferDialog)
+			m_TransferDialog = new ExpansionATMMenuTransferDialog(this, m_SelectedPlayer, m_Amount);	
+		
+		m_TransferDialog.Show();
+	}
+	
+	// ------------------------------------------------------------
 	// ExpansionATMMenu ConfirmTransfer
 	// ------------------------------------------------------------
 	void ConfirmTransfer()
@@ -518,6 +591,37 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_PartyTransferDialog.Show();
 		#endif
 	}
+	// ------------------------------------------------------------
+	// ExpansionATMMenu OnTransferAllPartyButtonClick
+	// ------------------------------------------------------------
+	void OnTransferAllPartyButtonClick()
+	{
+		#ifdef EXPANSIONMODGROUPS
+		if (!m_Party)
+			return;
+
+		m_Amount = m_ATMData.MoneyDeposited;
+		
+		//! Make sure we dont send negative or 0 amounts
+		if (m_Amount <= 0)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED", "STR_EXPANSION_ATM_NONZERO").Error();
+			return;
+		}
+		
+		//! We can only deposit money until we reach max. depending on server setting
+		if ((m_Party.GetMoneyDeposited() + m_Amount) > GetExpansionSettings().GetMarket().MaxPartyDepositMoney)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_FAILED",  new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_MAX_ERROR", GetExpansionSettings().GetMarket().MaxPartyDepositMoney.ToString())).Error();
+			return;
+		}
+		
+		if (!m_PartyTransferDialog)
+			m_PartyTransferDialog = new ExpansionATMMenuPartyTransferDialog(this, m_Amount, m_Party);	
+		
+		m_PartyTransferDialog.Show();
+		#endif
+	}
 	
 	// ------------------------------------------------------------
 	// ExpansionATMMenu OnWithdrawButtonClick
@@ -550,6 +654,39 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		if (m_Amount > m_Party.GetMoneyDeposited())
 		{
 			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED", "STR_EXPANSION_ATM_AMOUNT_MAX_ERROR").Error();
+			return;
+		}
+		
+		//! We can only withdraw money to your personal account until we reach max. depending on server setting
+		if ((m_ATMData.MoneyDeposited + m_Amount) > GetExpansionSettings().GetMarket().MaxDepositMoney)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED",  new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_MAX_ERROR", GetExpansionSettings().GetMarket().MaxDepositMoney.ToString())).Error();
+			return;
+		}
+		
+		m_MarketModule.RequestPartyWithdrawMoney(m_Amount, m_Party.GetPartyID());
+		#endif
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionATMMenu OnWithdrawAllPartyButtonClick
+	// ------------------------------------------------------------
+	void OnWithdrawAllPartyButtonClick()
+	{
+		#ifdef EXPANSIONMODGROUPS
+		if (!m_Party)
+			return;
+		
+		//! Only can withdaw money when promotet
+		if (!GetPlayerPartyData() || !GetPlayerPartyData().CanWithdrawMoney())
+			return;
+
+		m_Amount = m_Party.GetMoneyDeposited();
+		
+		//! Make sure we dont send negative or 0 amounts
+		if (m_Amount <= 0)
+		{
+			ExpansionNotification("STR_EXPANSION_ATM_WITHDRAW_FAILED", "STR_EXPANSION_ATM_NONZERO").Error();
 			return;
 		}
 		
@@ -612,7 +749,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		{
 			//! Deposit
 			case 1:
-			{	
+			{
 				ExpansionNotification("STR_EXPANSION_ATM_DEPOSIT_SUCCESS", new StringLocaliser("STR_EXPANSION_ATM_DEPOSIT_SUCCESS_TEXT", amount.ToString())).Success();
 			}
 			break;

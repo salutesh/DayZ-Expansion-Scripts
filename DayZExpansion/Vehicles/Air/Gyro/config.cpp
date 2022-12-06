@@ -56,7 +56,7 @@ class CfgVehicles
 		wreck = "ExpansionGyrocopterWreck";
 		fuelCapacity = 50;
 		fuelConsumption = 31;
-		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","CamoNet"};
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
 		class GUIInventoryAttachmentsProps
 		{
 			class Engine

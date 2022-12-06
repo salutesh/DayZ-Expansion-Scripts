@@ -5,23 +5,23 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
 modded class Chat
 {
-	ref ExpansionChatUIWindow m_ExChatUI;
-	private bool m_HideChatToggle = true;
-		
+	protected ref ExpansionChatUIWindow m_ExChatUI;
+	protected bool m_HideChatToggle = true;
+
 	void Chat()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Chat");
 #endif
 	}
-	
+
 	override void Init(Widget root_widget)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
@@ -34,13 +34,13 @@ modded class Chat
 			m_ExChatUI.Hide();
 		}
 	}
-	
+
 	void OnChatInputShow()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnChatInputShow");
 #endif
-		
+
 		m_ExChatUI.Show();
 	}
 
@@ -52,7 +52,7 @@ modded class Chat
 
 		m_ExChatUI.Hide();
 	}
-	
+
 	void HideChatToggle()
 	{
 		m_HideChatToggle = !m_HideChatToggle;
@@ -63,13 +63,13 @@ modded class Chat
 	{
 		return m_HideChatToggle;
 	}
-		
+
 	override void Add(ChatMessageEventParams params)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "Add");
 #endif
-		
+
 		if (CanMute(params.param1) && IsPlayerMuted(params.param2))
 			return;
 
@@ -82,14 +82,14 @@ modded class Chat
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "AddInternal");
 #endif
-		
+
 		if (CanMute(params.param1) && IsPlayerMuted(params.param2))
 			return;
-		
+
 		if (m_ExChatUI)
 			m_ExChatUI.AddInternal(params);
 	}
-		
+
 	override void Clear()
 	{
 #ifdef EXPANSIONTRACE
@@ -98,25 +98,25 @@ modded class Chat
 
 		//! DON'T clear chat lines
 	}
-	
+
 	bool IsPlayerMuted(string playerName)
 	{
 		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
-		
+
 		if (clientSettings.MutedPlayers.Count() == 0)
 			return false;
-		
+
 		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
-		{	
+		{
 			if (player.m_PlayerName == playerName)
 			{
 				return clientSettings.MutedPlayers.Find(player.m_RUID) > -1;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	bool CanMute(int channel)
 	{
 		switch (channel)
@@ -129,7 +129,7 @@ modded class Chat
 
 		return true;
 	}
-	
+
 	ExpansionChatUIWindow GetChatWindow()
 	{
 		return m_ExChatUI;

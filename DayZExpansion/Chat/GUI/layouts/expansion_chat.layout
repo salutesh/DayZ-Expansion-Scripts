@@ -104,7 +104,7 @@ PanelWidgetClass ExpansionChatUIWindow {
      vexactpos 1
      hexactsize 1
      vexactsize 1
-     imageTexture "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds"
+     image0 "set:expansion_iconset image:icon_events"
      mode blend
      "src alpha" 1
      stretch 1

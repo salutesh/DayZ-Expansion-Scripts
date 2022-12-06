@@ -216,6 +216,7 @@ class CfgAmmo
 };
 class CfgVehicles
 {
+	class Inventory_Base;
 	class Container_Base;
 	class ExpansionKitLarge;
 	class ExpansionBaseBuilding;
@@ -452,7 +453,7 @@ class CfgVehicles
 			};
 		};
 	};
-	class ExpansionCone: Container_Base
+	class ExpansionCone: Inventory_Base
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_CONE";
@@ -491,7 +492,7 @@ class CfgVehicles
 		scope = 2;
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\Signs\Cone_Preview.p3d";
 	};
-	class ExpansionSignDanger: Container_Base
+	class ExpansionSignDanger: Inventory_Base
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_SIGN_DANGER";
@@ -608,7 +609,7 @@ class CfgVehicles
 		scope = 2;
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\Signs\Danger3_Preview.p3d";
 	};
-	class ExpansionSignRoadBarrier: Container_Base
+	class ExpansionSignRoadBarrier: Inventory_Base
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_SIGN_ROADBARRIER";
@@ -659,7 +660,7 @@ class CfgVehicles
 		scope = 2;
 		model = "\DayZExpansion\Objects\Basebuilding\Misc\Signs\Roadbarrier_Preview.p3d";
 	};
-	class ExpansionStove: Container_Base
+	class ExpansionStove: Inventory_Base
 	{
 		scope = 2;
 		displayname = "$STR_EXPANSION_STOVE";
@@ -693,7 +694,7 @@ class CfgVehicles
 				attachmentSlots[] = {"SmokingA","SmokingB","SmokingC","SmokingD"};
 				icon = "cookingequipment";
 			};
-			class CookingEquipment
+			class DirectCooking
 			{
 				name = "$STR_attachment_CookingEquipment0";
 				description = "";
@@ -719,6 +720,7 @@ class CfgVehicles
 			powerSocketsCount = 0;
 			plugType = 7;
 			attachmentAction = 1;
+			updateInterval = 10;
 		};
 		class DamageSystem
 		{
