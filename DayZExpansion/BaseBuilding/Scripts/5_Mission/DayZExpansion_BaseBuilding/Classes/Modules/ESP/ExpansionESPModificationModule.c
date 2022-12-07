@@ -55,7 +55,7 @@ modded class ExpansionESPModificationModule
 		} else if ( IsMissionClient() )
 		{
 			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
+			rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, true, NULL );
 		}
 	}
 
@@ -100,7 +100,7 @@ modded class ExpansionESPModificationModule
 
 			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Write( item.GetCode() );
-			rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
+			rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, true, NULL );
 		} else
 		{
 			string code;
@@ -123,7 +123,7 @@ modded class ExpansionESPModificationModule
 		} else if ( IsMissionClient() )
 		{
 			auto rpc = ExpansionScriptRPC.Create();
-			rpc.Send( target, ExpansionESPModificationModuleRPC.RemoveCode, false, NULL );
+			rpc.Send( target, ExpansionESPModificationModuleRPC.RemoveCode, true, NULL );
 		}
 	}
 
@@ -144,7 +144,7 @@ modded class ExpansionESPModificationModule
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write( "" );
-		rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, false, NULL );
+		rpc.Send( target, ExpansionESPModificationModuleRPC.RequestCode, true, NULL );
 	}
 };
 #endif

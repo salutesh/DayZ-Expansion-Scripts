@@ -18,6 +18,7 @@ modded class ZombieBase
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ZombieBase>(this);
 
 	protected bool m_Expansion_IsInSafeZone;
+	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 	
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
@@ -86,10 +87,13 @@ modded class ZombieBase
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ZombieBase IsInSafeZone
-	// ------------------------------------------------------------
 	bool IsInSafeZone()
+	{
+		Expansion_Error("DEPRECATED: Please use Expansion_IsInSafeZone", m_Expansion_IsInSafeZone_DeprecationWarning);
+		return Expansion_IsInSafeZone();
+	}
+
+	bool Expansion_IsInSafeZone()
 	{
 		return m_Expansion_IsInSafeZone;
 	}

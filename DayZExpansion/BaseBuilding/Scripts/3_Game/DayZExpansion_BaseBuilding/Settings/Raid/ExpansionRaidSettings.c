@@ -76,7 +76,7 @@ class ExpansionRaidSchedule
  **/
 class ExpansionRaidSettings: ExpansionSettingBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	ExpansionBaseBuildingRaidMode BaseBuildingRaidMode;			//! 0 = Default, everything can take dmg | 1 = doors and gates | 2 = doors, gates and windows | 3 = any wall/fence
 	float ExplosionTime;								//! Ammount of time it takes for explosive to explode.
@@ -86,6 +86,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	float ProjectileDamageMultiplier;					//! Damage multiplier from projectiles.
 
 	bool CanRaidSafes;									//! If enabled, make safes raidable
+	bool SafeRaidUseSchedule;
 
 	float SafeExplosionDamageMultiplier;				//! Damage multiplier from explosion on safes.
 	float SafeProjectileDamageMultiplier;				//! Damage multiplier from explosion on safes.
@@ -114,6 +115,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 	float LockRaidToolDamagePercent;					//! Total damage dealt to tool over time (100 = tool will be in ruined state after all cycles finished)
 
 	bool CanRaidLocksOnContainers;							//! If enabled, makes code locked containers raidable
+	bool LockOnContainerRaidUseSchedule;
 
 	autoptr TStringArray LockOnContainerRaidTools;			//! List of tools allowed for raiding locks on containers
 	int LockOnContainerRaidToolTimeSeconds;					//! Time needed to raid lock on container with tool
@@ -159,6 +161,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ctx.Read(ProjectileDamageMultiplier);
 
 		ctx.Read(CanRaidSafes);
+		ctx.Read(SafeRaidUseSchedule);
 
 		ctx.Read(SafeExplosionDamageMultiplier);
 		ctx.Read(SafeProjectileDamageMultiplier);
@@ -187,6 +190,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ctx.Read(LockRaidToolDamagePercent);
 
 		ctx.Read(CanRaidLocksOnContainers);
+		ctx.Read(LockOnContainerRaidUseSchedule);
 
 		ctx.Read(LockOnContainerRaidTools);
 		ctx.Read(LockOnContainerRaidToolTimeSeconds);
@@ -232,6 +236,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ctx.Write(ProjectileDamageMultiplier);
 
 		ctx.Write(CanRaidSafes);
+		ctx.Write(SafeRaidUseSchedule);
 
 		ctx.Write(SafeExplosionDamageMultiplier);
 		ctx.Write(SafeProjectileDamageMultiplier);
@@ -260,6 +265,7 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ctx.Write(LockRaidToolDamagePercent);
 
 		ctx.Write(CanRaidLocksOnContainers);
+		ctx.Write(LockOnContainerRaidUseSchedule);
 
 		ctx.Write(LockOnContainerRaidTools);
 		ctx.Write(LockOnContainerRaidToolTimeSeconds);
@@ -420,6 +426,12 @@ class ExpansionRaidSettings: ExpansionSettingBase
 					}
 				}
 
+				if (m_Version < 5)
+				{
+					SafeRaidUseSchedule = settingsDefault.SafeRaidUseSchedule;
+					LockOnContainerRaidUseSchedule = settingsDefault.LockOnContainerRaidUseSchedule;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -485,7 +497,9 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ProjectileDamageMultiplier = 1;
 		
 		CanRaidSafes = true;
+		SafeRaidUseSchedule = true;
 		CanRaidLocksOnContainers = true;
+		LockOnContainerRaidUseSchedule = true;
 		SafeExplosionDamageMultiplier = 17;
 		SafeProjectileDamageMultiplier = 1;
 

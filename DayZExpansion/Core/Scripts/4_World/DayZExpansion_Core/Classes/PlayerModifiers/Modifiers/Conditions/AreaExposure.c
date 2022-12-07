@@ -15,13 +15,13 @@ modded class AreaExposureMdfr
 {
 	override void OnActivate(PlayerBase player)
 	{
-		if (!player.IsInSafeZone())
+		if (!player.Expansion_IsInSafeZone())
 			super.OnActivate(player);
 	}
 
 	override void OnTick(PlayerBase player, float deltaT)
 	{
-		if (!player.IsInSafeZone())
+		if (!player.Expansion_IsInSafeZone())
 			super.OnTick(player, deltaT);
 	}
 }

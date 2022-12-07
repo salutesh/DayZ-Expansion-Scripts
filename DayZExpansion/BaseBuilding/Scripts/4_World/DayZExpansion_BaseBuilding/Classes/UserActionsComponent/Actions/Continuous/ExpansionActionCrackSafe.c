@@ -44,6 +44,6 @@ class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 	override bool CanBeDestroyed( Object targetObject )
 	{
 		auto settings = GetExpansionSettings().GetRaid();
-		return settings.CanRaidSafes && settings.IsRaidableNow();
+		return settings.CanRaidSafes && (!settings.SafeRaidUseSchedule || settings.IsRaidableNow());
 	}
 }

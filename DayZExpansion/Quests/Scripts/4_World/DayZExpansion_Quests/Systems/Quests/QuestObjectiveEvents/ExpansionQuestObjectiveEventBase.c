@@ -319,6 +319,7 @@ class ExpansionQuestObjectiveEventBase
 
 	void QuestDebug()
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		ObjectivePrint("------------------------------------------------------------");
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective index: " + m_Index);
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective quest: " + m_Quest);
@@ -329,6 +330,7 @@ class ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective time limit: " + m_TimeLimit);
 		ObjectivePrint(ToString() + "::ObjectiveDebug - Objective time remaining: " + GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(OnTimeLimitReached));
 		ObjectivePrint("------------------------------------------------------------");
+	#endif
 	}
 
 	void ObjectivePrint(string text)

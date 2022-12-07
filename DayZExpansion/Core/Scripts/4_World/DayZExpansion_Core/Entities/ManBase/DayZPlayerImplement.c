@@ -19,6 +19,7 @@ modded class DayZPlayerImplement
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<DayZPlayerImplement>(this);
 
 	protected bool m_Expansion_IsInSafeZone;
+	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
@@ -65,8 +66,14 @@ modded class DayZPlayerImplement
 			m_Expansion_IsInSafeZone = false;
 		}
 	}
-	
+
 	bool IsInSafeZone()
+	{
+		Expansion_Error("DEPRECATED: Please use Expansion_IsInSafeZone", m_Expansion_IsInSafeZone_DeprecationWarning);
+		return Expansion_IsInSafeZone();
+	}
+	
+	bool Expansion_IsInSafeZone()
 	{
 		return m_Expansion_IsInSafeZone;
 	}

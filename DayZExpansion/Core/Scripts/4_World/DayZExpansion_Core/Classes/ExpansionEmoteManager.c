@@ -20,7 +20,7 @@ modded class EmoteManager
 
 		if (m_Player)
 		{
-			if (m_Player.IsInSafeZone())
+			if (m_Player.Expansion_IsInSafeZone())
 			{
 				return;
 			}
@@ -37,7 +37,7 @@ modded class EmoteManager
 
 		if (m_Player)
 		{
-			if (m_Player.IsInSafeZone())
+			if (m_Player.Expansion_IsInSafeZone())
 			{				
 				return;
 			}

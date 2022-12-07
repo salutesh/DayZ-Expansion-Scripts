@@ -21,6 +21,15 @@ static bool Expansion_Assert_False( bool check, string message )
 	return false;
 }
 
+static void Expansion_Error(string s, inout bool check = false)
+{
+	if (!check)
+	{
+		check = true;
+		Error(s);
+	}
+}
+
 // -----------------------------------------------------------
 // Expansion EXPrint
 // -----------------------------------------------------------

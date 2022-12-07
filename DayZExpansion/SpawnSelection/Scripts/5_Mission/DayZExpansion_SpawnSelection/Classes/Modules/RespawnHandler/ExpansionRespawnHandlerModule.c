@@ -447,14 +447,13 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player)
 		{
-			Error(ToString() + "::Exec_SelectSpawn - ERROR: player or playerUID");
+			Error(ToString() + "::Exec_SelectSpawn - ERROR: player with UID " + playerUID + " dos not exist");
 			return;
 		}
 		
-		ExpansionPlayerState state = m_PlayerStartStates.Get(playerUID); //! This seems to fail and seems to return NULL on respawns?
+		ExpansionPlayerState state = m_PlayerStartStates.Get(playerUID);
 		if (!state)
 		{
-			Error(ToString() + "::Exec_SelectSpawn - Player start state not found for player " + player.GetIdentity().GetName() + " (id=" + player.GetIdentity().GetId() + ")!");
 			return;
 		}
 

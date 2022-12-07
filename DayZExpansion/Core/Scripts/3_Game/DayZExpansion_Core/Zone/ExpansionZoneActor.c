@@ -187,7 +187,7 @@ class ExpansionZoneActorT<Class T> : ExpansionZoneActor
 
 	override bool InZone()
 	{
-		return m_Instance.IsInSafeZone();
+		return m_Instance.Expansion_IsInSafeZone();
 	}
 };
 

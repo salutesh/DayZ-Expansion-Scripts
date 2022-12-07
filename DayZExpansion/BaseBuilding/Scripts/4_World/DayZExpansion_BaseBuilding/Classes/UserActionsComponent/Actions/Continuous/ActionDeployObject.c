@@ -81,7 +81,7 @@ modded class ActionDeployObject
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		
-		if ( player.IsInSafeZone() )
+		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
 		bool isDisallowedOutsideBuildZone;

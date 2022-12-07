@@ -10,14 +10,13 @@
  *
 */
 
-modded class ChatInputMenu 
+modded class ChatInputMenu
 {
 	const int WHEEL_STEP = 20;
-	private EditBoxWidget m_edit_box;
-	private float m_Position;
-	private ref Chat m_Chat;
-	
-	// Don't want the vanilla layout to load at all...
+	protected EditBoxWidget m_edit_box;
+	protected float m_Position;
+	protected ref Chat m_Chat;
+
 	override Widget Init()
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
@@ -26,11 +25,11 @@ modded class ChatInputMenu
 		m_edit_box = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("InputEditBoxWidget"));
 
 		m_Position = 1;
-		
+
 		MissionGameplay mission = MissionGameplay.Cast(GetGame().GetMission());
 		if (mission && mission.GetChat())
 			m_Chat = mission.GetChat();
-		
+
 		return layoutRoot;
 	}
 
@@ -77,7 +76,7 @@ modded class ChatInputMenu
 					auto rpc = ExpansionScriptRPC.Create();
 					rpc.Write(chat_params_rpc);
 					rpc.Send(null, ExpansionGlobalChatRPC.AddChatMessage, true);
-				} 
+				}
 				else
 				{
 					string name;
@@ -86,51 +85,37 @@ modded class ChatInputMenu
 					ChatMessageEventParams chat_params = new ChatMessageEventParams(gameplayMission.GetChatChannel(), name, text, "");
 					gameplayMission.m_Chat.Add(chat_params);
 				}
-				
+
 				m_close_timer.Run(0.1, this, "Close");
-				
+
 				return true;
 			}
 		}
-		
+
 		return super.OnChange(w, x, y, finished);
 	}
 
 	override void OnShow()
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
-		
+
 		super.OnShow();
-		
+
 		if (m_Chat)
 			m_Chat.OnChatInputShow();
 	}
 
-	/*override bool OnMouseWheel(Widget w, int x, int y, int wheel)
-	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
-		
-		//! Controlls scroll steps in the chat panel grid
-		float step = (1.0 / (m_Chat.GetChatWindow().GetContentHeight() - m_Chat.GetChatWindow().GetRootHeight())) * WHEEL_STEP;
-		m_Position += wheel * step;
-
-		//m_Chat.GetChatWindow().SetPosition(m_Position);
-		//m_Chat.GetChatWindow().UpdateScroller();
-		
-		return true;
-	}*/
-	
 	override void OnHide()
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
 		if (GetGame() && GetGame().GetMission())  //! Prevent NULL pointer on game exit
 			super.OnHide();
-			
+
 		if (m_Chat)
 			m_Chat.OnChatInputHide();
 	}
-	
+
 	EditBoxWidget GetEditboxWidget()
 	{
 		return m_edit_box;

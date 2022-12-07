@@ -47,7 +47,7 @@ modded class IngameHud
 		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
 		PlayerBase playerB;
 
-		bool isInSafeZone = safeZone && playerA && playerA.IsInSafeZone();
+		bool isInSafeZone = safeZone && playerA && playerA.Expansion_IsInSafeZone();
 	#ifdef EXPANSIONMODBASEBUILDING
 		bool isInTerritory = territory && playerA && playerA.IsInTerritory();
 	#endif
@@ -66,7 +66,7 @@ modded class IngameHud
 			Class.CastTo(playerB, player);
 			bool check = !safeZone && !territory;
 
-			if (safeZone && isInSafeZone && playerB && playerB.IsInSafeZone())
+			if (safeZone && isInSafeZone && playerB && playerB.Expansion_IsInSafeZone())
 				check = true;
 
 		#ifdef EXPANSIONMODBASEBUILDING

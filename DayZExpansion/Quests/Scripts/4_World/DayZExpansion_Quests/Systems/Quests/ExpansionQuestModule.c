@@ -719,7 +719,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestPlayerQuests, false);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestPlayerQuests, true);
 
 		QuestModulePrint(ToString() + "::RequestPlayerQuests - End");
 	}
@@ -816,7 +816,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			questConfig.OnSend(rpc);
 		}
 
-		rpc.Send(NULL, ExpansionQuestModuleRPC.SendPlayerQuests, false, identity);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.SendPlayerQuests, true, identity);
 
 		QuestModulePrint(ToString() + "::SendPlayerQuestServer - End");
 	}
@@ -874,7 +874,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			questConfig.OnSend(rpc);
 		}
 
-		rpc.Send(NULL, ExpansionQuestModuleRPC.SendPlayerQuests, false, identity);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.SendPlayerQuests, true, identity);
 
 		QuestModulePrint(ToString() + "::RPC_RequestPlayerQuests - End");
 	}
@@ -1182,7 +1182,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 	#endif
 
-		rpc.Send(target, ExpansionQuestModuleRPC.RequestOpenQuestMenu, false, identity);
+		rpc.Send(target, ExpansionQuestModuleRPC.RequestOpenQuestMenu, true, identity);
 
 		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - End");
 	}
@@ -1279,7 +1279,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.CreateQuestInstance, false);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.CreateQuestInstance, true);
 
 		QuestModulePrint(ToString() + "::CreateQuestInstance - End");
 	}
@@ -1526,7 +1526,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Write(playerUID);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.CompleteQuest, false);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.CompleteQuest, true);
 
 		QuestModulePrint(ToString() + "::CompleteQuestClient - End");
 	}
@@ -1793,7 +1793,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
-		rpc.Send(NULL, ExpansionQuestModuleRPC.CancelQuest, false);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.CancelQuest, true);
 
 		QuestModulePrint(ToString() + "::CancelQuest - End");
 	}
@@ -1920,7 +1920,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 					auto rpc = ExpansionScriptRPC.Create();
 					rpc.Write(ExpansionQuestModuleCallback.CANCELED_QUEST);
-					rpc.Send(NULL, ExpansionQuestModuleRPC.CallbackClient, false, groupPlayer.GetIdentity());
+					rpc.Send(NULL, ExpansionQuestModuleRPC.CallbackClient, true, groupPlayer.GetIdentity());
 				}
 			}
 		#endif
@@ -3012,7 +3012,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (selectReward)
 			selectedReward.OnSend(rpc);
 
-		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCompleteQuest, false);
+		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCompleteQuest, true);
 
 		QuestModulePrint(ToString() + "::RequestTurnInQuestClient - End");
 	}

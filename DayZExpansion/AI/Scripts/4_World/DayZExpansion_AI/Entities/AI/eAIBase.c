@@ -21,7 +21,7 @@ class eAIBase extends PlayerBase
 
 	private static autoptr array<eAIBase> s_AllAI = new array<eAIBase>();
 
-	private autoptr eAIFSM m_FSM;
+	protected autoptr eAIFSM m_FSM;
 
 	// Targeting data
 	private autoptr array<eAITarget> m_eAI_Targets;
@@ -361,7 +361,7 @@ class eAIBase extends PlayerBase
 		if (!player)
 			return true;
 
-		if (player.IsInSafeZone())
+		if (player.Expansion_IsInSafeZone())
 			return false;
 
 		if (!GetGroup())

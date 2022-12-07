@@ -40,7 +40,7 @@ class CfgVehicles
 		vehicleClass = "Expansion_Boat";
 		fuelCapacity = 192;
 		fuelConsumption = 21;
-		attachments[] = {"CarRadiator","GlowPlug","TruckBattery","CamoNet"};
+		attachments[] = {"GlowPlug","TruckBattery","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
 		hiddenSelections[] = {"camo","antiwater"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\inflatable_boat_ca.paa",""};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\Vehicles\Water\Zodiac\data\zodiac.rvmat",""};
@@ -123,83 +123,6 @@ class CfgVehicles
 				timeToUncoupleClutch = 0.3;
 				timeToCoupleClutch = 0.45;
 				maxClutchTorque = 260;
-			};
-			class Axles: Axles
-			{
-				class Front: Front
-				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
-					wheelHubMass = 5;
-					wheelHubRadius = 0.15;
-					class Suspension
-					{
-						swayBar = 1700;
-						stiffness = 40000;
-						compression = 2100;
-						damping = 7500;
-						travelMaxUp = 0.0882;
-						travelMaxDown = 0.0833;
-					};
-					class Wheels
-					{
-						class Left
-						{
-							animDamper = "damper_1_1";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "turnfrontleft";
-							animRotation = "wheelfrontleft";
-							wheelHub = "wheel_1_1_damper_land";
-						};
-						class Right
-						{
-							animDamper = "damper_2_1";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "turnfrontright";
-							animRotation = "wheelfrontright";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-					};
-				};
-				class Rear: Rear
-				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 0;
-					wheelHubMass = 5;
-					wheelHubRadius = 0.15;
-					class Suspension
-					{
-						swayBar = 1800;
-						stiffness = 40000;
-						compression = 2200;
-						damping = 7600;
-						travelMaxUp = 0.1587;
-						travelMaxDown = 0.1059;
-					};
-					class Wheels
-					{
-						class Left
-						{
-							animDamper = "damper_1_2";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "wheelbackleft";
-							animRotation = "wheelbackleft";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-						class Right
-						{
-							animDamper = "damper_2_2";
-							inventorySlot = "NivaWheel_1_1";
-							animTurn = "turnbackright";
-							animRotation = "wheelbackright";
-							wheelHub = "wheel_2_1_damper_land";
-						};
-					};
-				};
 			};
 		};
 		class Sounds

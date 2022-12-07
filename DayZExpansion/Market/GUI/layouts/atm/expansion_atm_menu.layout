@@ -79,7 +79,7 @@ FrameWidgetClass ExpansionATMMenu {
        vexactpos 1
        hexactsize 0
        vexactsize 1
-       style UIDefaultPanel
+       style Colorable
        Padding 4
        Margin 6
        "Size To Content V" 1
@@ -315,38 +315,23 @@ FrameWidgetClass ExpansionATMMenu {
           }
          }
         }
-        PanelWidgetClass ButtonsPanel {
+        GridSpacerWidgetClass ButtonsPanel {
          ignorepointer 1
+         color 0.1412 0.1412 0.1412 0.549
          position 0 0
          size 1 24
          hexactpos 1
          vexactpos 1
          hexactsize 0
          vexactsize 1
+         style Expansion_01
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 2
+         Rows 2
          {
-          PanelWidgetClass ButtonWithdrawBackground {
-           ignorepointer 1
-           color 0.1412 0.1412 0.1412 0.549
-           size 0.49 1
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           style UIDefaultPanel
-          }
-          PanelWidgetClass ButtonDepositBackground {
-           ignorepointer 1
-           color 0.1412 0.1412 0.1412 0.549
-           size 0.49 1
-           halign right_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           style UIDefaultPanel
-          }
           ButtonWidgetClass ButtonWithdraw {
-           color 0.9059 0.298 0.2353 0.5529
+           color 0.8863 0.2549 0.2588 0.7843
            position 0 0
            size 0.49 24
            hexactpos 0
@@ -364,6 +349,7 @@ FrameWidgetClass ExpansionATMMenu {
              vexactpos 0
              hexactsize 0
              vexactsize 1
+             priority 1
              text "#STR_EXPANSION_ATM_UI_WITHDRAW"
              font "gui/fonts/etelkatextpro22"
              "text halign" center
@@ -377,7 +363,7 @@ FrameWidgetClass ExpansionATMMenu {
            }
           }
           ButtonWidgetClass ButtonDeposit {
-           color 0.1804 0.8 0.4431 0.549
+           color 0.1804 0.8 0.4431 0.7843
            position 0 0
            size 0.49 24
            halign right_ref
@@ -396,6 +382,7 @@ FrameWidgetClass ExpansionATMMenu {
              vexactpos 0
              hexactsize 0
              vexactsize 1
+             priority 1
              text "#STR_EXPANSION_ATM_UI_DEPOSIT"
              font "gui/fonts/etelkatextpro22"
              "text halign" center
@@ -405,6 +392,71 @@ FrameWidgetClass ExpansionATMMenu {
            {
             ScriptParamsClass {
              Relay_Command "OnDepositButtonClick"
+            }
+           }
+          }
+          ButtonWidgetClass ButtonWithdrawAll {
+           color 0.8863 0.2549 0.2588 0.7843
+           position 0 0
+           size 0.49 24
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Expansion_01
+           {
+            TextWidgetClass ButtonWithdrawAllLabel {
+             ignorepointer 1
+             position 0 0
+             size 1 24
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             priority 1
+             text "#STR_EXPANSION_ATM_UI_WITHDRAW_ALL"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnWithdrawAllButtonClick"
+            }
+           }
+          }
+          ButtonWidgetClass ButtonDepositAll {
+           color 0.1804 0.8 0.4431 0.7843
+           position 0 0
+           size 0.49 24
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Expansion_01
+           {
+            TextWidgetClass ButtonDepositAllLabel {
+             ignorepointer 1
+             position 0 0
+             size 1 24
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 1
+             priority 1
+             text "#STR_EXPANSION_ATM_UI_DEPOSIT_ALL"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnDepositAllButtonClick"
             }
            }
           }
@@ -471,7 +523,7 @@ FrameWidgetClass ExpansionATMMenu {
        vexactpos 1
        hexactsize 0
        vexactsize 1
-       style UIDefaultPanel
+       style Colorable
        Padding 4
        Margin 6
        "Size To Content V" 1
@@ -623,31 +675,27 @@ FrameWidgetClass ExpansionATMMenu {
          vexactsize 1
          style rover_sim_colorable
         }
-        PanelWidgetClass TransferButtonsPanel {
+        GridSpacerWidgetClass TransferButtonsPanel {
          ignorepointer 1
+         color 0.1412 0.1412 0.1412 0.549
          position 0 0
          size 1 24
          hexactpos 1
          vexactpos 1
          hexactsize 0
          vexactsize 1
+         style Expansion_01
+         "Size To Content H" 1
+         "Size To Content V" 1
+         content_halign center
+         content_valign center
+         Columns 1
+         Rows 2
          {
-          PanelWidgetClass ButtonTransfereBackground {
-           ignorepointer 1
-           color 0.1412 0.1412 0.1412 0.549
-           size 0.49 1
-           halign center_ref
-           valign center_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           style UIDefaultPanel
-          }
-          ButtonWidgetClass ButtonTransfere {
-           color 0.1804 0.8 0.4431 0.549
+          ButtonWidgetClass ButtonTransfer {
+           color 0.1804 0.8 0.4431 0.7843
            position 0 0
-           size 0.49 24
+           size 1 24
            halign center_ref
            hexactpos 0
            vexactpos 0
@@ -656,13 +704,14 @@ FrameWidgetClass ExpansionATMMenu {
            scriptclass "ViewBinding"
            style Expansion_01
            {
-            TextWidgetClass ButtonTransfereLabel {
+            TextWidgetClass ButtonTransferLabel {
              ignorepointer 1
              size 1 24
              hexactpos 1
              vexactpos 1
              hexactsize 0
              vexactsize 1
+             priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_PLAYER"
              font "gui/fonts/etelkatextpro22"
              "text halign" center
@@ -672,6 +721,38 @@ FrameWidgetClass ExpansionATMMenu {
            {
             ScriptParamsClass {
              Relay_Command "OnTransferButtonClick"
+            }
+           }
+          }
+          ButtonWidgetClass ButtonTransferAll {
+           color 0.1804 0.8 0.4431 0.7843
+           position 0 0
+           size 1 24
+           halign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Expansion_01
+           {
+            TextWidgetClass ButtonTransferAllLabel {
+             ignorepointer 1
+             size 1 24
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             priority 1
+             text "#STR_EXPANSION_ATM_UI_TRANSFER_ALL_PLAYER"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnTransferAllButtonClick"
             }
            }
           }
@@ -737,7 +818,7 @@ FrameWidgetClass ExpansionATMMenu {
        vexactpos 1
        hexactsize 0
        vexactsize 1
-       style UIDefaultPanel
+       style Colorable
        Padding 4
        Margin 6
        "Size To Content V" 1
@@ -999,39 +1080,24 @@ FrameWidgetClass ExpansionATMMenu {
          vexactsize 1
          style rover_sim_colorable
         }
-        PanelWidgetClass PartyButtonsPanel {
+        GridSpacerWidgetClass PartyButtonsPanel {
          ignorepointer 1
+         color 0.1412 0.1412 0.1412 0.549
          position 0 0
          size 1 24
          hexactpos 1
          vexactpos 1
          hexactsize 0
          vexactsize 1
+         style Expansion_01
+         "Ignore invisible" 0
+         "Size To Content H" 1
+         "Size To Content V" 1
+         Columns 2
+         Rows 2
          {
-          PanelWidgetClass PartyButtonDepositBackground {
-           ignorepointer 1
-           color 0.1412 0.1412 0.1412 0.549
-           size 0.49 1
-           halign right_ref
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           style UIDefaultPanel
-          }
-          PanelWidgetClass PartyButtonWithdrawBackground {
-           visible 0
-           ignorepointer 1
-           color 0.1412 0.1412 0.1412 0.549
-           size 0.49 1
-           hexactpos 0
-           vexactpos 0
-           hexactsize 0
-           vexactsize 0
-           style UIDefaultPanel
-          }
           ButtonWidgetClass PartyButtonDeposit {
-           color 0.1804 0.8 0.4431 0.549
+           color 0.1804 0.8 0.4431 0.7843
            size 0.49 24
            halign right_ref
            hexactpos 1
@@ -1041,13 +1107,14 @@ FrameWidgetClass ExpansionATMMenu {
            scriptclass "ViewBinding"
            style Expansion_01
            {
-            TextWidgetClass ButtonPartyTransferLabel {
+            TextWidgetClass ButtonPartyDepositLabel {
              ignorepointer 1
              size 1 24
              hexactpos 1
              vexactpos 1
              hexactsize 0
              vexactsize 1
+             priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_PARTY"
              font "gui/fonts/etelkatextpro22"
              "text halign" center
@@ -1062,7 +1129,7 @@ FrameWidgetClass ExpansionATMMenu {
           }
           ButtonWidgetClass PartyButtonWithdraw {
            visible 0
-           color 0.9059 0.298 0.2353 0.5529
+           color 0.8863 0.2549 0.2588 0.7843
            size 0.49 24
            hexactpos 1
            vexactpos 1
@@ -1078,6 +1145,7 @@ FrameWidgetClass ExpansionATMMenu {
              vexactpos 1
              hexactsize 0
              vexactsize 1
+             priority 1
              text "#STR_EXPANSION_ATM_UI_TRANSFER_YOU"
              font "gui/fonts/etelkatextpro22"
              "text halign" center
@@ -1087,6 +1155,68 @@ FrameWidgetClass ExpansionATMMenu {
            {
             ScriptParamsClass {
              Relay_Command "OnWithdrawPartyButtonClick"
+            }
+           }
+          }
+          ButtonWidgetClass PartyButtonDepositAll {
+           color 0.1804 0.8 0.4431 0.7843
+           size 0.49 24
+           halign right_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Expansion_01
+           {
+            TextWidgetClass ButtonPartyDepositAllLabel {
+             ignorepointer 1
+             size 1 24
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             priority 1
+             text "#STR_EXPANSION_ATM_UI_TRANSFER_ALL_PARTY"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnTransferAllPartyButtonClick"
+            }
+           }
+          }
+          ButtonWidgetClass PartyButtonWithdrawAll {
+           visible 0
+           color 0.8863 0.2549 0.2588 0.7843
+           size 0.49 24
+           hexactpos 1
+           vexactpos 1
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           style Expansion_01
+           {
+            TextWidgetClass PartyButtonWithdrawAllLabel {
+             ignorepointer 1
+             size 1 24
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             priority 1
+             text "#STR_EXPANSION_ATM_UI_TRANSFER_ALL_YOU"
+             font "gui/fonts/etelkatextpro22"
+             "text halign" center
+             "text valign" center
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnWithdrawAllPartyButtonClick"
             }
            }
           }

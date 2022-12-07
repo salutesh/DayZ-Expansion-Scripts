@@ -46,8 +46,6 @@ class ExpansionBoatScript extends CarScript
 		//! Values
 		m_Offset = 0.75;
 
-		SetEventMask(EntityEvent.CONTACT | EntityEvent.SIMULATE);
-
 		int i;
 		int count;
 
@@ -137,6 +135,25 @@ class ExpansionBoatScript extends CarScript
 		super.LongDeferredInit();
 
 		m_IsInitialized = true;
+	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		bool isGlobal = !dmgZone || dmgZone == "GlobalHealth";
+
+		if (isGlobal)
+		{
+			//! Always damage engine proportionally when taking global damage
+			float engineMaxHealth = GetMaxHealth("Engine", "");
+			float engineHealth = GetHealth("Engine", "");
+			float engineHealthNew = engineMaxHealth * GetHealth01(dmgZone, "");
+			if (engineHealthNew < engineHealth)
+			{
+				SetHealth("Engine", "", engineHealthNew);
+			}
+		}
 	}
 
 	override void SetActions()
@@ -689,6 +706,11 @@ class ExpansionBoatScript extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
 #endif
 
+		return false;
+	}
+
+	override bool IsVitalRadiator()
+	{
 		return false;
 	}
 

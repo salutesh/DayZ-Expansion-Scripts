@@ -17,7 +17,7 @@ modded class ActionDigGardenPlot
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 		
-		if ( player.IsInSafeZone() )
+		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
 		if ( !GetExpansionSettings().GetTerritory(false).IsLoaded() || !GetExpansionSettings().GetTerritory().EnableTerritories )

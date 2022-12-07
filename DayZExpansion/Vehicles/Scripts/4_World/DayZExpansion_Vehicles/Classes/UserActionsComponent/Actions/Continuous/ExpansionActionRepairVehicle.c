@@ -59,11 +59,11 @@ class ExpansionActionRepairHelicopter: ExpansionActionRepairVehicleBase
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		ExpansionHelicopterScript heli = ExpansionHelicopterScript.Cast( target.GetParentOrObject() );
+		CarScript vehicle = CarScript.Cast( target.GetParentOrObject() );
 
-		if (!heli || heli.IsDamageDestroyed())
+		if ((!vehicle.IsHelicopter() && !vehicle.IsBoat()) || vehicle.IsDamageDestroyed())
 			return false;
 
-		return heli.GetHealthLevel() != GameConstants.STATE_PRISTINE || heli.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE;
+		return vehicle.GetHealthLevel() != GameConstants.STATE_PRISTINE || vehicle.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE;
 	}
 }

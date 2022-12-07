@@ -14,7 +14,7 @@ modded class ActionDismantlePart
 {
 	override protected bool DismantleCondition( PlayerBase player, ActionTarget target, ItemBase item, bool camera_check )
 	{
-		if ( player.IsInSafeZone() )
+		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
 		return super.DismantleCondition( player, target, item, camera_check );

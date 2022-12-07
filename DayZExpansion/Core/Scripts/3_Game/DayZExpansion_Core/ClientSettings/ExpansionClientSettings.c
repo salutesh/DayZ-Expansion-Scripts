@@ -106,6 +106,8 @@ class ExpansionClientSettings
 
 	ref array<string> MutedPlayers;
 
+	bool ShowUnderRoofIndicator;
+
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
 	// -----------------------------------------------------------
@@ -533,6 +535,15 @@ class ExpansionClientSettings
 			return false;
 		}
 
+		if (version < 44)
+			return true;
+
+		if ( !ctx.Read( ShowUnderRoofIndicator ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowUnderRoofIndicator!");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -633,6 +644,8 @@ class ExpansionClientSettings
 
 		ctx.Write( VehicleResyncTimeout );
 		ctx.Write( ShowDesyncInvulnerabilityNotifications );
+
+		ctx.Write( ShowUnderRoofIndicator );
 	}
 
 	// -----------------------------------------------------------
@@ -883,6 +896,10 @@ class ExpansionClientSettings
 		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
 		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 60.0, 1.0 );
 		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );
+	#endif
+
+	#ifdef EXPANSIONMODHARDLINE
+		CreateToggle( "ShowUnderRoofIndicator", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR_DESC" );
 	#endif
 
 	#ifdef EXPANSIONMODVEHICLE

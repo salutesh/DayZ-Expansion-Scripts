@@ -144,7 +144,13 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 	override bool CanBeDestroyed( Object targetObject )
 	{
 		auto settings = GetExpansionSettings().GetRaid();
-		if (!settings.IsRaidableNow())
+
+		bool raidableNow = settings.IsRaidableNow();
+
+		if ( targetObject.IsInherited( Container_Base ) )
+			return settings.CanRaidLocksOnContainers && (!settings.LockOnContainerRaidUseSchedule || raidableNow);
+	
+		if (!raidableNow)
 			return false;
 
 		if ( targetObject.IsInherited( TentBase ) )
@@ -152,9 +158,6 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 		if ( targetObject.IsInherited( Fence ) )
 			return settings.CanRaidLocksOnFences;
-
-		if ( targetObject.IsInherited( Container_Base ) )
-			return settings.CanRaidLocksOnContainers;
 
 		ExpansionWallBase wall;
 		if (Class.CastTo(wall, targetObject) && (wall.HasDoor() || wall.HasGate()))

@@ -14,7 +14,7 @@ modded class ActionSewTarget
 {
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( player.IsInSafeZone() )
+		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
 		return super.ActionCondition(player, target, item);

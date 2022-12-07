@@ -121,7 +121,7 @@ class CfgVehicles
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.316;
+		radius = 0.228;
 		width = 0.152;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
@@ -148,7 +148,7 @@ class CfgVehicles
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.221;
+		radius = 0.325;
 		width = 0.618;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
@@ -175,7 +175,7 @@ class CfgVehicles
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.316;
+		radius = 0.228;
 		width = 0.152;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
@@ -202,7 +202,7 @@ class CfgVehicles
 		rotationFlags = 4;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.221;
+		radius = 0.325;
 		width = 0.618;
 		tyreRollResistance = 0.015;
 		tyreTread = 0.7;
@@ -244,6 +244,7 @@ class CfgVehicles
 		fuelCapacity = 292;
 		fuelConsumption = 95;
 		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","ExpansionIgniterPlug","ExpansionHydraulicHoses","merlinwheel_1_1","merlinwheel_1_2","merlinwheel_2_1","merlinwheel_2_2","CamoNet"};
+		wheels[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","ExpansionMerlinBackWheel"};
 		doors[] = {};
 		applySkinsTo[] = {};
 		hiddenSelections[] = {"camo1","camo2","camo3"};

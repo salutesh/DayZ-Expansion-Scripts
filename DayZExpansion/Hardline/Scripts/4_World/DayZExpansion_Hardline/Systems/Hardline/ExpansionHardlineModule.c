@@ -27,7 +27,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	//! Client only
 	private ref ExpansionHardlinePlayerData m_HardlinePlayerData; //! Client
-	private ref ScriptInvoker m_HardlineHUDInvoker; //! Client
 
 	override void OnInit()
 	{
@@ -91,29 +90,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseReputation)
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetupClientData, 1000, false, cArgs.Identity);
-		}
-		
-		if (GetGame().IsClient())
-		{
-			if (!m_HardlineHUDInvoker && GetExpansionSettings().GetHardline().ShowHardlineHUD)
-				m_HardlineHUDInvoker = new ScriptInvoker(); //! Client
-		}
-	}
-
-	override void OnClientReady(Class sender, CF_EventArgs args)
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.HARDLINE, this, "OnClientReady");
-	#endif
-
-		super.OnClientReady(sender, args);
-
-		auto cArgs = CF_EventPlayerArgs.Cast(args);
-		
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseReputation)
-		{
-			//! Send needed hardline module data to the client.
-			SetupClientData(cArgs.Identity);
 		}
 	}
 
@@ -556,7 +532,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		
 		auto rpc = ExpansionScriptRPC.Create();
 		hardlinePlayerData.OnSend(rpc);
-		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendPlayerHardlineData, false, identity);
+		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendPlayerHardlineData, true, identity);
 	}
 
 	protected void RPC_SendPlayerHardlineData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
@@ -564,7 +540,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 		
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 			return;
 
 		if (!m_HardlinePlayerData)
@@ -586,14 +562,5 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	ExpansionHardlinePlayerData GetHardlineClientData()
 	{
 		return m_HardlinePlayerData;
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionHardlineModule GetHardlineHUDInvoker
-	// Called on client
-	// ------------------------------------------------------------
-	ScriptInvoker GetHardlineHUDInvoker()
-	{
-		return m_HardlineHUDInvoker;
 	}
  };
