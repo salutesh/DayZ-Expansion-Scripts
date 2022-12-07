@@ -60,7 +60,6 @@ class ExpansionHelicopterScript extends CarScript
 	bool m_IsLanded;
 	vector m_Expansion_IsLandedHitPos;
 
-	float m_Expansion_LastContactImpulse;
 	float m_Expansion_IsLandedTick;
 
 	void ExpansionHelicopterScript()
@@ -168,27 +167,18 @@ class ExpansionHelicopterScript extends CarScript
 		Error("Not implemented!");
 	}
 
+	//! Expansion helis do not seem to receive vanilla OnContact for frontal collisions, but some 3rd party ones do.
+	//! Expansion helis: Receive EOnContact, no OnContact
+	//! 3rd party helis: Receive OnContact, then EOnContact
+	//! Suppress OnContact on HelicopterScript and handle all contacts in EOnContact
+	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
+	{
+	}
+
 	override void EOnContact(IEntity other, Contact extra)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_2(ExpansionTracing.VEHICLES, this, "EOnContact").Add(other).Add(extra);
-#endif
-
-		//! Expansion helis do not receive vanilla OnContact for frontal collisions, but some 3rd party ones do.
-		//! Only call OnContact if impulse is different from last impulse handled by OnContact.
-		//! Call order Expansion helis: EOnContact (called by base game), then OnContact (called by Expansion EOnContact)
-		//! Call order 3rd party helis: OnContact (called by base game), then EOnContact (same)
-		if (extra.Impulse && extra.Impulse != m_Expansion_LastContactImpulse)
-		{
-			OnContact("", WorldToModel(extra.Position), other, extra);
-			m_Expansion_LastContactImpulse = 0;
-		}
-	}
-
-	override void OnContact(string zoneName, vector localPos, IEntity other, Contact data)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_4(ExpansionTracing.VEHICLES, this, "EOnContact").Add(zoneName).Add(localPos).Add(other).Add(data);
 #endif
 
 		if (!m_IsInitialized)
@@ -201,13 +191,11 @@ class ExpansionHelicopterScript extends CarScript
 
 		bool resetImpulse = GetGame().IsServer() && !IsDamageDestroyed();
 
+		vector transform[4];
+		GetTransform(transform);
+
 		if (resetImpulse)
 		{
-			m_Expansion_LastContactImpulse = data.Impulse;
-
-			vector transform[4];
-			GetTransform(transform);
-
 			//! Unfortunately GetTransform[1] sometimes returns "0.7 -0.7 0" sometimes on flat terrain "0 1 0"
 			//! In game rendering does not show this behaviour and the helicopter appears to only translate, not rotate
 			//! This is possibly a DayZ SA/Enfusion bug but it will need more testing. May also be the cause for some
@@ -222,13 +210,13 @@ class ExpansionHelicopterScript extends CarScript
 			if (other) //! check done just incase
 				impulseRequired += Math.Max(dBodyGetMass(other), 0.0) * maxVelocityMagnitude * 2.0;
 
-			if (data.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && data.RelativeVelocityBefore.Length() >= maxVelocityMagnitude && !IsLanded()))
+			if (extra.Impulse > impulseRequired || (m_Simulation.m_RotorSpeed > 0 && extra.RelativeVelocityBefore.LengthSq() >= maxVelocityMagnitude * maxVelocityMagnitude && !IsLanded()))
 			{
 #ifdef EXPANSIONVEHICLELOG
 				Print(dot);
 				Print(impulseRequired);
 				Print(other);
-				Print(data.Impulse);
+				Print(extra.Impulse);
 				Print(GetVelocity(this));
 				Print(dBodyGetAngularVelocity(this));
 #endif
@@ -236,10 +224,13 @@ class ExpansionHelicopterScript extends CarScript
 			}
 		}
 
-		if (resetImpulse)
-			data.Impulse = 0;  //! Make sure we take no damage while conditions are not met
+		if (!resetImpulse)
+		{
+			vector localPos = extra.Position.InvMultiply4(transform);
 
-		super.OnContact(zoneName, localPos, other, data);
+			//! Call CarScript OnContact
+			super.OnContact("", localPos, other, extra);
+		}
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)

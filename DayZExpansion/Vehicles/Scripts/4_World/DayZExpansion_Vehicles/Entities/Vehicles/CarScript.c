@@ -454,6 +454,16 @@ modded class CarScript
 		delete m_DebugShapes;
 	}
 
+	override void EEInit()
+	{
+		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
+
+		super.EEInit();
+
+		if (GetGame().IsServer() && (IsHelicopter() || IsBoat()))
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_AddWheels);
+	}
+
 	override void EEDelete(EntityAI parent)
 	{
 		super.EEDelete(parent);
@@ -2012,65 +2022,58 @@ modded class CarScript
 		}
 	}
 
-	override void OnUpdate(float dt) 			
+	void Expansion_AddWheels()
 	{
-		super.OnUpdate(dt);
-		
-		if (!m_Expansion_WheelsAdded && (IsHelicopter() || IsBoat()))
+		int totalAttachedWheelsCount;
+
+		TStringArray wheelTypes = m_Expansion_WheelsToAdd.GetKeyArray();
+		for (int i = 0; i < GetInventory().AttachmentCount(); i++)
 		{
-			int totalAttachedWheelsCount;
-
-			TStringArray wheelTypes = m_Expansion_WheelsToAdd.GetKeyArray();
-			for (int i = 0; i < GetInventory().AttachmentCount(); i++)
+			EntityAI attachment = GetInventory().GetAttachmentFromIndex(i);
+			if (!attachment)
+				continue;
+			if (attachment.IsInherited(CarWheel))
+				totalAttachedWheelsCount++;
+			if (ExpansionStatic.IsAnyOf(attachment, wheelTypes))
 			{
-				EntityAI attachment = GetInventory().GetAttachmentFromIndex(i);
-				if (!attachment)
-					continue;
-				if (attachment.IsInherited(CarWheel))
-					totalAttachedWheelsCount++;
-				if (ExpansionStatic.IsAnyOf(attachment, wheelTypes))
-				{
-					string wheelType = attachment.GetType();
-					wheelType.ToLower();
-					int wheelCount = m_Expansion_WheelsToAdd[wheelType];
-					if (wheelCount > 1)
-						m_Expansion_WheelsToAdd[wheelType] = wheelCount - 1;
-					else
-						m_Expansion_WheelsToAdd.Remove(wheelType);
-				}
+				string wheelType = attachment.GetType();
+				wheelType.ToLower();
+				int wheelCount = m_Expansion_WheelsToAdd[wheelType];
+				if (wheelCount > 1)
+					m_Expansion_WheelsToAdd[wheelType] = wheelCount - 1;
+				else
+					m_Expansion_WheelsToAdd.Remove(wheelType);
 			}
-
-			InventoryLocation loc = new InventoryLocation();
-			foreach (string type, int count: m_Expansion_WheelsToAdd)
-			{
-				while (count > 0)
-				{
-					count--;
-					EXTrace.Print(EXTrace.VEHICLES, this, "Trying to add " + type);
-					EntityAI wheel = GetInventory().CreateAttachment(type);
-					if (wheel)
-					{
-						EXTrace.Print(EXTrace.VEHICLES, this, string.Format("Added %1, %2 to go", wheel, count));
-						wheel.GetInventory().GetCurrentInventoryLocation(loc);
-						if (loc.IsValid())
-						{
-							totalAttachedWheelsCount++;
-							EXTrace.Print(EXTrace.VEHICLES, this, "Locking slot " + InventorySlots.GetSlotName(loc.GetSlot()));
-							GetInventory().SetSlotLock(loc.GetSlot(), true);
-						}
-					}
-					else
-					{
-						EXTrace.Print(EXTrace.VEHICLES, this, "Failed to add " + type);
-					}
-				}
-			}
-
-			m_Expansion_WheelsAdded = true;
-
-			if (totalAttachedWheelsCount < 4)
-				Error(string.Format("Vehicle %1 (type=%2, pos=%3) has only %4 attached wheels!", ToString(), GetType(), GetPosition(), totalAttachedWheelsCount));
 		}
+
+		InventoryLocation loc = new InventoryLocation();
+		foreach (string type, int count: m_Expansion_WheelsToAdd)
+		{
+			while (count > 0)
+			{
+				count--;
+				EXTrace.Print(EXTrace.VEHICLES, this, "Trying to add " + type);
+				EntityAI wheel = GetInventory().CreateAttachment(type);
+				if (wheel)
+				{
+					EXTrace.Print(EXTrace.VEHICLES, this, string.Format("Added %1, %2 to go", wheel, count));
+					wheel.GetInventory().GetCurrentInventoryLocation(loc);
+					if (loc.IsValid())
+					{
+						totalAttachedWheelsCount++;
+						EXTrace.Print(EXTrace.VEHICLES, this, "Locking slot " + InventorySlots.GetSlotName(loc.GetSlot()));
+						GetInventory().SetSlotLock(loc.GetSlot(), true);
+					}
+				}
+				else
+				{
+					EXTrace.Print(EXTrace.VEHICLES, this, "Failed to add " + type);
+				}
+			}
+		}
+
+		if (totalAttachedWheelsCount < 4)
+			Error(string.Format("Vehicle %1 (type=%2, pos=%3) has only %4 attached wheels!", ToString(), GetType(), GetPosition(), totalAttachedWheelsCount));
 	}
 
 	void CreateLights(Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0)
