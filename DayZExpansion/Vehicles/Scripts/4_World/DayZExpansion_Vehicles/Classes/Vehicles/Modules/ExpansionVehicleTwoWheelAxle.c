@@ -84,7 +84,12 @@ class ExpansionVehicleTwoWheelAxle : ExpansionVehicleAxle
 
 		m_Brake = 0.0;
 		if (m_ControlIndex != -1)
-			m_Brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+		{
+			if (m_MaxBrakeTorque)
+				m_Brake = m_Controller.m_Brake[m_ControlIndex] * m_MaxBrakeTorque;  //! 1.19
+			else
+				m_Brake = m_Controller.m_Brake[m_ControlIndex] * m_BrakeForce * m_BrakeBias;
+		}
 
 		float steering = m_Controller.m_Yaw;
 

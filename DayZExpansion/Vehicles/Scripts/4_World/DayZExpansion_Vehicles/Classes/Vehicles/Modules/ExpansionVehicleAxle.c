@@ -32,8 +32,10 @@ class ExpansionVehicleAxle : ExpansionVehicleRotational
 
 	float m_Brake;
 
-	float m_BrakeBias;
-	float m_BrakeForce;
+	float m_BrakeBias;  //! 1.18 and lower
+	float m_BrakeForce;  //! 1.18 and lower
+	float m_MaxBrakeTorque;  //! 1.19
+	float m_MaxHandbrakeTorque;  //! 1.19
 	float m_WheelHubMass;
 	float m_WheelHubRadius;
 
@@ -58,7 +60,17 @@ class ExpansionVehicleAxle : ExpansionVehicleRotational
 			m_ControlIndex = GetGame().ConfigGetInt(path);
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " maxSteeringAngle";
-		m_MaxSteeringAngle = GetGame().ConfigGetFloat(path);
+		if (GetGame().ConfigIsExisting(path))
+		{
+			m_MaxSteeringAngle = GetGame().ConfigGetFloat(path);
+		}
+		else
+		{
+			path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Steering maxSteeringAngle";  //! 1.19
+			m_MaxSteeringAngle = GetGame().ConfigGetFloat(path);
+		}
+		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " maxBrakeTorque";
+		m_MaxBrakeTorque = GetGame().ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " finalRatio";
 		m_Ratio = GetGame().ConfigGetFloat(path);
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Axles " + pName + " brakeBias";

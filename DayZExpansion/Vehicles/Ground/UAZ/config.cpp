@@ -590,8 +590,6 @@ class CfgVehicles
 		};
 		class SimulationModule: SimulationModule
 		{
-			centralDiffRatio = 1.45;
-			airDragFrontTotal = 0.995;
 			class Steering
 			{
 				maxSteeringAngle = 30;
@@ -607,7 +605,6 @@ class CfgVehicles
 				turboCoef = 5;
 				gentleCoef = 0.75;
 			};
-			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Brake
 			{
 				pressureBySpeed[] = {0,0.85,10,0.7,20,0.5,40,0.4,60,0.43,80,0.46,100,0.52,120,0.7};
@@ -622,21 +619,15 @@ class CfgVehicles
 			drive = "DRIVE_AWD";
 			class Engine
 			{
-				torqueCurve[] = {650,0,750,40,1400,80,3400,114,5400,95,8000,0};
+				torqueCurve[] = {650,0,750,59,1400,117,2250,167,4500,101,6000,0};
 				inertia = 0.11;
 				frictionTorque = 100;
 				rollingFriction = 0.5;
 				viscousFriction = 0.5;
-				steepness = 1.5;
-				torqueMax = 136;
-				torqueRpm = 3400;
-				powerMax = 58.7;
-				powerRpm = 5400;
 				rpmIdle = 800;
 				rpmMin = 900;
 				rpmClutch = 1400;
-				rpmRedline = 6000;
-				rpmMax = 8000;
+				rpmRedline = 5000;
 			};
 			class Clutch
 			{
@@ -649,9 +640,6 @@ class CfgVehicles
 				type = "GEARBOX_MANUAL";
 				reverse = 3.526;
 				ratios[] = {3.667,2.1,1.361,1.0};
-				timeToUncoupleClutch = 0.2;
-				timeToCoupleClutch = 0.35;
-				maxClutchTorque = 330;
 			};
 			class CentralDifferential
 			{
@@ -662,10 +650,6 @@ class CfgVehicles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4500;
 					maxBrakeTorque = 4500;
 					maxHandbrakeTorque = 5000;
 					wheelHubMass = 5;
@@ -677,7 +661,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 1700;
 						stiffness = 40000;
 						compression = 2100;
 						damping = 7500;
@@ -706,10 +689,6 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 4200;
 					maxBrakeTorque = 4200;
 					maxHandbrakeTorque = 4700;
 					wheelHubMass = 5;
@@ -721,7 +700,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 1700;
 						stiffness = 40000;
 						compression = 2200;
 						damping = 7600;

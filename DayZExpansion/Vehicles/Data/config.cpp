@@ -336,6 +336,30 @@ class CfgVehicles
 		oilCapacity = 4;
 		coolantCapacity = 6;
 		hasDoors = 0;
+		class ObstacleGenerator
+		{
+			carve = 1;
+			timeToStationary = 5;
+			moveThreshold = 0.5;
+			class Shapes
+			{
+				class Cylindric
+				{
+					class Cyl1
+					{
+						radius = 1;
+						height = 1.5;
+						center[] = {0,0,0.7};
+					};
+					class Cyl3
+					{
+						radius = 1;
+						height = 1.5;
+						center[] = {0,0,-0.7};
+					};
+				};
+			};
+		};
 	};
 	class ExpansionVehicleBikeBase: ExpansionVehicleBase
 	{
@@ -639,7 +663,6 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 1.0;
 			maxSpeed = 220;
 			altitudeFullForce = 1000;
 			altitudeNoForce = 2000;
@@ -692,7 +715,6 @@ class CfgVehicles
 				turboCoef = 4.0;
 				gentleCoef = 0.75;
 			};
-			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
 			class Brake
 			{
 				pressureBySpeed[] = {0,0.85,10,0.7,20,0.5,40,0.4,60,0.43,80,0.46,100,0.52,120,0.7};
@@ -711,15 +733,10 @@ class CfgVehicles
 				frictionTorque = 100;
 				rollingFriction = 0.5;
 				viscousFriction = 0.5;
-				torqueMax = 114;
-				torqueRpm = 3400;
-				powerMax = 53.7;
-				powerRpm = 5400;
 				rpmIdle = 850;
 				rpmMin = 900;
 				rpmClutch = 1350;
 				rpmRedline = 6000;
-				rpmMax = 8000;
 			};
 			class Clutch
 			{
@@ -732,9 +749,6 @@ class CfgVehicles
 				type = "GEARBOX_MANUAL";
 				reverse = 3.526;
 				ratios[] = {3.667,2.1,1.361,1.0};
-				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 260;
 			};
 			class CentralDifferential
 			{
@@ -745,10 +759,6 @@ class CfgVehicles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.125;
 					maxBrakeTorque = 2000;
@@ -760,7 +770,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 1;
 						stiffness = 40000;
 						compression = 2100;
 						damping = 7500;
@@ -789,10 +798,6 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 3800;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.125;
 					maxBrakeTorque = 1000;
@@ -804,7 +809,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 1;
 						stiffness = 40000;
 						compression = 2200;
 						damping = 7600;
@@ -855,6 +859,30 @@ class CfgVehicles
 			itemsCargoSize[] = {10,25};
 			allowOwnedCargoManipulation = 1;
 			openable = 0;
+		};
+		class ObstacleGenerator
+		{
+			carve = 1;
+			timeToStationary = 5;
+			moveThreshold = 0.5;
+			class Shapes
+			{
+				class Cylindric
+				{
+					class Cyl1
+					{
+						radius = 1;
+						height = 1.5;
+						center[] = {0,0,0.7};
+					};
+					class Cyl3
+					{
+						radius = 1;
+						height = 1.5;
+						center[] = {0,0,-0.7};
+					};
+				};
+			};
 		};
 	};
 	class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
@@ -1024,8 +1052,6 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.995;
-			braking[] = {0.0,0.1,1.0,0.8,3.0,0.9,3.5,1.0};
 			class Steering
 			{
 				maxSteeringAngle = 30;
@@ -1060,11 +1086,9 @@ class CfgVehicles
 			};
 			class Gearbox
 			{
+				type = "GEARBOX_MANUAL";
 				reverse = 2.526;
 				ratios[] = {1.3,1.2,1.1,1.0};
-				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 260;
 			};
 			class Engines
 			{
@@ -1092,10 +1116,6 @@ class CfgVehicles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
 					maxBrakeTorque = 2000;
@@ -1107,7 +1127,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 1700;
 						stiffness = 40000;
 						compression = 2100;
 						damping = 7500;
@@ -1136,10 +1155,6 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 0;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
 					maxBrakeTorque = 1000;
@@ -1151,7 +1166,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 1800;
 						stiffness = 40000;
 						compression = 2200;
 						damping = 7600;
@@ -1313,30 +1327,6 @@ class CfgVehicles
 							animDamper = "damper_2_2";
 							inventorySlot = "NivaWheel_1_1";
 						};
-					};
-				};
-			};
-		};
-		class ObstacleGenerator
-		{
-			carve = 1;
-			timeToStationary = 5;
-			moveThreshold = 0.5;
-			class Shapes
-			{
-				class Cylindric
-				{
-					class Cyl1
-					{
-						radius = 1;
-						height = 1.5;
-						center[] = {0,0,0.7};
-					};
-					class Cyl3
-					{
-						radius = 1;
-						height = 1.5;
-						center[] = {0,0,-0.7};
 					};
 				};
 			};

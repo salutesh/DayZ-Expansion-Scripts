@@ -30,15 +30,27 @@ class ExpansionVehicleGearboxAdvanced : ExpansionVehicleGearbox
 		if (GetGame().ConfigIsExisting(path))
 			GetGame().ConfigGetTextArray(path, m_Gears);
 
-		path = rootPath + " timeToUncoupleClutch";
+		string clutchRootPath = rootPath;
+		bool clutch_119 = clutchRootPath.Replace("Gearbox", "Clutch") == 1 && GetGame().ConfigIsExisting(clutchRootPath);
+
+		if (clutch_119)
+			path = clutchRootPath + " uncoupleTime";
+		else
+			path = rootPath + " timeToUncoupleClutch";
 		if (GetGame().ConfigIsExisting(path))
 			m_TimeToUncoupleClutch = GetGame().ConfigGetFloat(path);
 
-		path = rootPath + " timeToCoupleClutch";
+		if (clutch_119)
+			path = clutchRootPath + " coupleTime";
+		else
+			path = rootPath + " timeToCoupleClutch";
 		if (GetGame().ConfigIsExisting(path))
 			m_TimeToCoupleClutch = GetGame().ConfigGetFloat(path);
 
-		path = rootPath + " maxClutchTorque";
+		if (clutch_119)
+			path = clutchRootPath + " maxTorqueTransfer";
+		else
+			path = rootPath + " maxClutchTorque";
 		if (GetGame().ConfigIsExisting(path))
 			m_MaxClutchTorque = GetGame().ConfigGetFloat(path);
 

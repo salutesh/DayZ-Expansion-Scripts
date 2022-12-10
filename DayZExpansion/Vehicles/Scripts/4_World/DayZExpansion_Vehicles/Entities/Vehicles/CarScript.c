@@ -188,7 +188,7 @@ modded class CarScript
 	float m_Expansion_CollisionDamageMinSpeed; 
 
 	ref map<string, int> m_Expansion_WheelsToAdd = new map<string, int>();
-	bool m_Expansion_WheelsAdded;
+	int m_Expansion_AttachedWheelsCount;
 
 	void CarScript()
 	{
@@ -1727,6 +1727,22 @@ modded class CarScript
 				door.SetDoor(CarDoor.Cast(item));
 			}
 #endif
+
+			if (item.IsInherited(CarWheel))
+			{
+				EXTrace.Print(EXTrace.VEHICLES, this, string.Format("Attached %1 (type=%2)", item.ToString(), item.GetType()));
+				m_Expansion_AttachedWheelsCount++;
+				string wheelType = item.GetType();
+				wheelType.ToLower();
+				if (m_Expansion_WheelsToAdd[wheelType])
+				{
+					int wheelCount = m_Expansion_WheelsToAdd[wheelType];
+					if (wheelCount > 1)
+						m_Expansion_WheelsToAdd[wheelType] = wheelCount - 1;
+					else
+						m_Expansion_WheelsToAdd.Remove(wheelType);
+				}
+			}
 		}
 
 		super.EEItemAttached(item, slot_name);
@@ -1771,6 +1787,9 @@ modded class CarScript
 
 			if (slot_name == "ExpansionAircraftBattery")
 				m_BatteryHealth = -1;
+
+			if (item.IsInherited(CarWheel))
+				m_Expansion_AttachedWheelsCount--;
 		}
 
 		super.EEItemDetached(item, slot_name);
@@ -2024,29 +2043,9 @@ modded class CarScript
 
 	void Expansion_AddWheels()
 	{
-		int totalAttachedWheelsCount;
+		if (ToDelete())
+			return;
 
-		TStringArray wheelTypes = m_Expansion_WheelsToAdd.GetKeyArray();
-		for (int i = 0; i < GetInventory().AttachmentCount(); i++)
-		{
-			EntityAI attachment = GetInventory().GetAttachmentFromIndex(i);
-			if (!attachment)
-				continue;
-			if (attachment.IsInherited(CarWheel))
-				totalAttachedWheelsCount++;
-			if (ExpansionStatic.IsAnyOf(attachment, wheelTypes))
-			{
-				string wheelType = attachment.GetType();
-				wheelType.ToLower();
-				int wheelCount = m_Expansion_WheelsToAdd[wheelType];
-				if (wheelCount > 1)
-					m_Expansion_WheelsToAdd[wheelType] = wheelCount - 1;
-				else
-					m_Expansion_WheelsToAdd.Remove(wheelType);
-			}
-		}
-
-		InventoryLocation loc = new InventoryLocation();
 		foreach (string type, int count: m_Expansion_WheelsToAdd)
 		{
 			while (count > 0)
@@ -2054,26 +2053,13 @@ modded class CarScript
 				count--;
 				EXTrace.Print(EXTrace.VEHICLES, this, "Trying to add " + type);
 				EntityAI wheel = GetInventory().CreateAttachment(type);
-				if (wheel)
-				{
-					EXTrace.Print(EXTrace.VEHICLES, this, string.Format("Added %1, %2 to go", wheel, count));
-					wheel.GetInventory().GetCurrentInventoryLocation(loc);
-					if (loc.IsValid())
-					{
-						totalAttachedWheelsCount++;
-						EXTrace.Print(EXTrace.VEHICLES, this, "Locking slot " + InventorySlots.GetSlotName(loc.GetSlot()));
-						GetInventory().SetSlotLock(loc.GetSlot(), true);
-					}
-				}
-				else
-				{
-					EXTrace.Print(EXTrace.VEHICLES, this, "Failed to add " + type);
-				}
+				if (!wheel)
+					Error(string.Format("Vehicle %1 (type=%2, pos=%3): Failed to add %4", ToString(), GetType(), GetPosition(), type));
 			}
 		}
 
-		if (totalAttachedWheelsCount < 4)
-			Error(string.Format("Vehicle %1 (type=%2, pos=%3) has only %4 attached wheels!", ToString(), GetType(), GetPosition(), totalAttachedWheelsCount));
+		if (m_Expansion_AttachedWheelsCount < 4)
+			Error(string.Format("Vehicle %1 (type=%2, pos=%3) has only %4 attached wheels!", ToString(), GetType(), GetPosition(), m_Expansion_AttachedWheelsCount));
 	}
 
 	void CreateLights(Object lod, string point, typename type, vector color, vector ambient, float radius, float brigthness, bool flare, bool shadows, float default = 0)
@@ -3864,6 +3850,9 @@ modded class CarScript
 	{
 		if (!super.CanReceiveAttachment(attachment, slotId))
 			return false;
+
+		if (attachment.IsInherited(CarWheel))
+			return true;
 
 		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
 	}
