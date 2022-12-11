@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionViewController: ViewController 
+class ExpansionViewController: ViewController
 {
 	void ExpansionViewController()
 	{
@@ -21,13 +21,13 @@ class ExpansionViewController: ViewController
 class ExpansionScriptViewBase: ScriptView
 {
 	private bool m_IsVisible;
-	
+
 	void ExpansionScriptViewBase()
 	{
 		Debug_Logging = false;
 		m_IsVisible = !IsInherited(ExpansionScriptViewMenuBase);
 	}
-	
+
 	void Destroy()
 	{
 		if (!g_Game)
@@ -40,21 +40,21 @@ class ExpansionScriptViewBase: ScriptView
 	{
 		m_IsVisible = state;
 	}
-	
+
 	bool IsVisible()
 	{
 		return m_IsVisible;
 	}
-	
+
 	void Show();
-	
+
 	void OnShow();
-	
+
 	void Hide();
-	
+
 	void OnHide();
-	
+
 	bool CanShow();
-	
+
 	void Refresh();
 }

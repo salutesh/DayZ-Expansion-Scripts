@@ -16,6 +16,7 @@ static const string EXPANSION_TRADER_ZONES_FOLDER = EXPANSION_MISSION_FOLDER + "
 static const string EXPANSION_TRADER_FOLDER = EXPANSION_FOLDER + "Traders\\";
 static const string EXPANSION_ATM_FOLDER = EXPANSION_FOLDER + "ATM\\";
 static const string EXPANSION_MARKET_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "MarketSettings.json";
+static const string EXPANSION_P2PMARKET_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "P2PMarketSettings.json";
 
 //! Client
 static const string EXPANSION_MARKET_PRESETS_FOLDER = EXPANSION_FOLDER + "MarketPresets\\";

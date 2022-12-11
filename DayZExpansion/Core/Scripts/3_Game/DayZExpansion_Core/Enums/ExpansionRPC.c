@@ -263,7 +263,8 @@ enum ExpansionSettingsRPC
 	NotificationScheduler,  //! Not used, settings don't need to be available on client
 	Hardline,
 	Garage,
-	COUNT  //! 29 INCREMENT FOLLOWING RPCs WHEN NEEDED FFS
+	BlackMarket,
+	COUNT  //! 30 INCREMENT FOLLOWING RPCs WHEN NEEDED FFS
 };
 
 enum ExpansionCOTBookModuleRPC
@@ -436,6 +437,18 @@ enum ExpansionGarageModuleRPC
 	Callback,
 	COUNT
 };
+
+enum ExpansionP2PMarketModuleRPC
+{
+	INVALID = 40060,
+	RequestBMTraderData,
+	SendBMTraderData,
+	RequestListBMItem,
+	RequestPurchaseBMItem,
+	Callback,
+	COUNT
+};
+
 
 enum ExpansionLockRPC
 {

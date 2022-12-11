@@ -16,7 +16,7 @@ class ExpansionMarketPlayerItem
 	string ClassName;
 	string DisplayName;
 	int Count;
-	ref map<string, int> ContainerItems = new map<string, int>;
+	ref map<string, int> ContainerItems;
 	int ContainerItemsCount;
 	bool IsWeapon = false;
 	bool IsMagazine = false;
@@ -40,6 +40,7 @@ class ExpansionMarketPlayerItem
 		if (item.IsInherited(MagazineStorage))
 			IsMagazine = true;
 		
+		ContainerItems = new map<string, int>;
 		UpdateContainerItems(true);
 	}
 	

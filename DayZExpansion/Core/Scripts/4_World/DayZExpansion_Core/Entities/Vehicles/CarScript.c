@@ -316,4 +316,9 @@ modded class CarScript
 	{
 		return m_FuelAmmount;
 	}
+	
+	string ExpansionGetCurrentSkinName()
+	{
+		return m_CurrentSkinName;
+	}
 };

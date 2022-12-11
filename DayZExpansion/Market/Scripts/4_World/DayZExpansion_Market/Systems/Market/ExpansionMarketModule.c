@@ -4906,6 +4906,36 @@ class ExpansionMarketModule: CF_ModuleWorld
 	#endif
 	
 	// ------------------------------------------------------------
+	// Expansion RemoveMoney
+	// ------------------------------------------------------------
+	bool RemoveMoney(int amount, PlayerBase player)
+	{
+		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		{
+			Error(ToString() + "::RemoveMoney - No currencies defined in market settings!");
+			return false;
+		}
+
+		array<int> monies = new array<int>;
+		if (!FindMoneyAndCountTypes(player, amount, monies, true, NULL, NULL, true))
+		{
+			Error(ToString() + "::RemoveMoney - Could not find player money!");
+			UnlockMoney(player);
+			return false;
+		}
+
+		EntityAI parent = player;
+		int removed = RemoveMoney(player);
+		if (removed - amount > 0)
+		{
+		    SpawnMoney(player, parent, removed - amount, true, NULL, NULL, true);
+			CheckSpawn(player, parent);
+		}
+
+		return true;
+	}
+	
+	// ------------------------------------------------------------
 	// Expansion ExpansionLogMarket
 	// ------------------------------------------------------------
 	private void ExpansionLogMarket(string message)

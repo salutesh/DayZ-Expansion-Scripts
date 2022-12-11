@@ -536,6 +536,21 @@ modded class ItemBase
 			ExpansionOnSkinDamageZoneUpdate( m_CurrentSkin.DamageZones[i], GetHealthLevel( m_CurrentSkin.DamageZones[i].Zone ) );
 		}
 	}
+	
+	ExpansionSkin ExpansionGetCurrentSkin()
+	{
+		return m_CurrentSkin;
+	}
+
+	string ExpansionGetCurrentSkinName()
+	{
+		return m_CurrentSkinName;
+	}
+	
+	int  ExpansionGetCurrentSkinIndex()
+	{
+		return m_CurrentSkinIndex;
+	}
 
 	override void Explode(int damageType, string ammoType = "")
 	{

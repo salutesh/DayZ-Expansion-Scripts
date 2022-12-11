@@ -586,7 +586,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		}
 		
 		if (!m_PartyTransferDialog)
-			m_PartyTransferDialog = new 	ExpansionATMMenuPartyTransferDialog(this, m_Amount, m_Party);	
+			m_PartyTransferDialog = new ExpansionATMMenuPartyTransferDialog(this, m_Amount, m_Party);	
 		
 		m_PartyTransferDialog.Show();
 		#endif

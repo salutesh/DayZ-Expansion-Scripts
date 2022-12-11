@@ -46,6 +46,8 @@ class EXTrace
 	static bool AI = ENABLE;
 
 	static bool BASEBUILDING = ENABLE;
+	
+	static bool BLACKMARKET = ENABLE;
 
 	static bool BOOK;
 

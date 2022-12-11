@@ -300,7 +300,6 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.828;
 			class Steering
 			{
 				maxSteeringAngle = 30;
@@ -316,7 +315,6 @@ class CfgVehicles
 				turboCoef = 5.0;
 				gentleCoef = 0.75;
 			};
-			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Brake
 			{
 				pressureBySpeed[] = {0,0.5,10,0.46,30,0.43,40,0.4,60,0.5,80,0.6};
@@ -330,21 +328,15 @@ class CfgVehicles
 			};
 			class Engine
 			{
-				torqueCurve[] = {525,0,1000,330,1400,360,1900,340,3000,0};
-				inertia = 0.15;
-				frictionTorque = 100;
-				rollingFriction = 4;
-				viscousFriction = 2.5;
-				torqueMax = 150;
-				steepness = 10;
-				torqueRpm = 3400;
-				powerMax = 70;
-				powerRpm = 5400;
+				torqueCurve[] = {650,0,750,73,1400,125,3400,150,5400,130,8000,0};
+				inertia = 0.2;
+				frictionTorque = 90;
+				rollingFriction = 0.7;
+				viscousFriction = 1;
 				rpmIdle = 850;
 				rpmMin = 900;
 				rpmClutch = 1350;
-				rpmRedline = 6500;
-				rpmMax = 8000;
+				rpmRedline = 6000;
 			};
 			class Clutch
 			{
@@ -356,36 +348,28 @@ class CfgVehicles
 			{
 				type = "GEARBOX_MANUAL";
 				reverse = 5.526;
-				ratios[] = {5.667,3.5,2.861,1.3};
-				timeToUncoupleClutch = 0.3;
-				timeToCoupleClutch = 0.45;
-				maxClutchTorque = 660;
+				ratios[] = {5.667,3.5,2.861,1.5};
 			};
 			class CentralDifferential
 			{
-				ratio = 0.75;
+				ratio = 2.121;
 				type = "DIFFERENTIAL_LOCKED";
 			};
 			class Axles: Axles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 30;
-					finalRatio = 4.1;
-					brakeBias = 0.6;
-					brakeForce = 4000;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
 					maxBrakeTorque = 5000;
 					maxHandbrakeTorque = 6000;
 					class Differential
 					{
-						ratio = 8.35;
+						ratio = 2.73;
 						type = "DIFFERENTIAL_LOCKED";
 					};
 					class Suspension
 					{
-						swayBar = 1700;
 						stiffness = 49000;
 						compression = 2400;
 						damping = 8090;
@@ -414,22 +398,17 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 4.1;
-					brakeBias = 0.4;
-					brakeForce = 3800;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.15;
 					maxBrakeTorque = 5000;
 					maxHandbrakeTorque = 6000;
 					class Differential
 					{
-						ratio = 8.35;
+						ratio = 2.73;
 						type = "DIFFERENTIAL_LOCKED";
 					};
 					class Suspension
 					{
-						swayBar = 1800;
 						stiffness = 50000;
 						compression = 2700;
 						damping = 8290;

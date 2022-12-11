@@ -155,6 +155,17 @@ enum ExpansionPlayerRaycastResult
 	DETACH
 }
 
+enum ExpansionItemQuantityType
+{
+	PC = 1,
+	PERCENTAGE = 2,
+	GRAM = 4,
+	MILLILITER = 8,
+	MAGAZINE = 16,
+	POWER = 32,
+	HEATISOLATION = 64
+}
+
 /**
  * Expansion URLs
  * @{

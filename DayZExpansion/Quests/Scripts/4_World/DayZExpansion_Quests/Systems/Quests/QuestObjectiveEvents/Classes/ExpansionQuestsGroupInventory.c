@@ -73,28 +73,6 @@ class ExpansionQuestsGroupInventory
 			m_GroupInventory.Insert(item);
 		}
 	}
-
-	bool HasItem(string typeName, out array<EntityAI> items)
-	{
-		if (!items)
-			items = new array<EntityAI>;
-
-		foreach (EntityAI item: m_GroupInventory)
-		{
-			if (!item)
-				continue;
-
-			if (item.ClassName() == typeName || item.IsKindOf(typeName))
-			{
-				items.Insert(item);
-			}
-		}
-
-		if (items.Count() > 0)
-			return true;
-
-		return false;
-	}
 	
 	bool HasAnyOf(array<string> typeNames, out array<EntityAI> items)
 	{

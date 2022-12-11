@@ -264,10 +264,9 @@ class CfgVehicles
 		class SimulationModule: SimulationModule
 		{
 			drive = "DRIVE_AWD";
-			airDragFrontTotal = 0.8;
 			class Steering
 			{
-				maxSteeringAngle = 30;
+				maxSteeringAngle = 40;
 				increaseSpeed[] = {0,75,60,23,100,12};
 				decreaseSpeed[] = {0,80,60,40,90,20};
 				centeringSpeed[] = {0,30,15,25,60,40,100,60};
@@ -280,7 +279,6 @@ class CfgVehicles
 				turboCoef = 5;
 				gentleCoef = 0.75;
 			};
-			braking[] = {0.0,0.1,1.0,0.8,2.5,0.9,3.0,1.0};
 			class Brake
 			{
 				pressureBySpeed[] = {0,0.9,10,0.85,20,0.8,50,0.7,80,0.8,100,1};
@@ -299,15 +297,10 @@ class CfgVehicles
 				frictionTorque = 90;
 				rollingFriction = 0.7;
 				viscousFriction = 1;
-				torqueMax = 420;
-				torqueRpm = 1800;
-				powerMax = 130.0;
-				powerRpm = 2800;
 				rpmIdle = 850;
 				rpmMin = 900;
 				rpmClutch = 1250;
 				rpmRedline = 3600;
-				rpmMax = 4200;
 			};
 			class Clutch
 			{
@@ -320,9 +313,6 @@ class CfgVehicles
 				type = "GEARBOX_MANUAL";
 				reverse = 3.426;
 				ratios[] = {3.0670002,1.9999999,1.2609999,0.9};
-				timeToUncoupleClutch = 0.2;
-				timeToCoupleClutch = 0.35;
-				maxClutchTorque = 420;
 			};
 			class CentralDifferential
 			{
@@ -333,10 +323,6 @@ class CfgVehicles
 			{
 				class Front: Front
 				{
-					maxSteeringAngle = 40;
-					finalRatio = 8.099999;
-					brakeBias = 0.6;
-					brakeForce = 4500;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.14;
 					maxBrakeTorque = 3800;
@@ -348,7 +334,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 300;
 						stiffness = 40000;
 						compression = 2100;
 						damping = 5500;
@@ -371,10 +356,6 @@ class CfgVehicles
 				};
 				class Rear: Rear
 				{
-					maxSteeringAngle = 0;
-					finalRatio = 8.099999;
-					brakeBias = 0.4;
-					brakeForce = 4200;
 					wheelHubMass = 5;
 					wheelHubRadius = 0.14;
 					maxBrakeTorque = 3050;
@@ -386,7 +367,6 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						swayBar = 300;
 						stiffness = 39000;
 						compression = 2100;
 						damping = 5500;

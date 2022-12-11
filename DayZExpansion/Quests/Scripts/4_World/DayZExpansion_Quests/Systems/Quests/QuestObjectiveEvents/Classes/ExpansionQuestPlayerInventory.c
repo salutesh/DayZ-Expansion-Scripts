@@ -69,33 +69,6 @@ class ExpansionQuestsPlayerInventory
 			m_Inventory.Insert(item);
 		}
 	}
-
-	bool HasItem(string typeName, out array<EntityAI> items)
-	{
-		if (!items)
-			items = new array<EntityAI>;
-
-		foreach (EntityAI item: m_Inventory)
-		{
-		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print(ToString() + "::HasItem - Check item: " + item.GetType() + " | Comparte with: " + typeName);
-		#endif
-
-			if (item.ClassName() == typeName || item.IsKindOf(typeName))
-			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::HasItem - Add item: " + item.GetType());
-			#endif
-
-				items.Insert(item);
-			}
-		}
-
-		if (items.Count() > 0)
-			return true;
-
-		return false;
-	}
 	
 	bool HasAnyOf(array<string> typeNames, out array<EntityAI> items)
 	{
@@ -107,7 +80,7 @@ class ExpansionQuestsPlayerInventory
 			if (ExpansionStatic.IsAnyOf(item, typeNames, true))
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::HasItem - Add item: " + item.GetType());
+				Print(ToString() + "::HasAnyOf - Add item: " + item.GetType());
 			#endif
 				items.Insert(item);
 			}
