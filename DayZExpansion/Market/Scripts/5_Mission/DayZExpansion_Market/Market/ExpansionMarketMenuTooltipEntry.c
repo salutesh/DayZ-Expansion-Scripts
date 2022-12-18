@@ -12,9 +12,9 @@
 
 class ExpansionMarketMenuTooltipEntry: ExpansionScriptView
 {
-	ref ExpansionMarketMenuTooltipEntryController m_TooltipEntryController;	
+	protected ref ExpansionMarketMenuTooltipEntryController m_TooltipEntryController;	
 	protected RichTextWidget tooltip_entry_text;
-	string m_Label;
+	protected string m_Label;
 
 	void ExpansionMarketMenuTooltipEntry(string label)
 	{
@@ -54,8 +54,9 @@ class ExpansionMarketMenuTooltipEntry: ExpansionScriptView
 		m_TooltipEntryController.NotifyPropertyChanged("EntryText");
 		tooltip_entry_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 	}
-}
+};
+
 class ExpansionMarketMenuTooltipEntryController: ExpansionViewController
 {
 	string EntryText;
-}
+};

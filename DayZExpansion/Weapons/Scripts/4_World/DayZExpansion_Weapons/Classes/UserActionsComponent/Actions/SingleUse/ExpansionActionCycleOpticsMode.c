@@ -11,6 +11,7 @@
 */
 
 //! Todo, once this is working try to make it work like weapon flashlights so it isnt needed to remove item to hands. 
+[RegisterAction(ExpansionActionCycleOpticsMode)]
 class ExpansionActionCycleOpticsMode: ActionSingleUseBase
 {
 	ExpansionReflexMRSOptic m_optic;

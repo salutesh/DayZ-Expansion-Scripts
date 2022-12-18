@@ -13,6 +13,7 @@
 /**@class		ExpansionActionEnterFlagMenu
  * @brief		
  **/
+[RegisterAction(ExpansionActionEnterFlagMenu)]
 class ExpansionActionEnterFlagMenu: ActionInteractBase
 {
 	protected ExpansionTerritoryModule m_TerritoryModule;

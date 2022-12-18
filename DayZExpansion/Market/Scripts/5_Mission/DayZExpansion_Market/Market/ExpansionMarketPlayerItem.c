@@ -139,4 +139,4 @@ class ExpansionMarketPlayerItem
 	{
 		return Item;
 	}
-}
+};

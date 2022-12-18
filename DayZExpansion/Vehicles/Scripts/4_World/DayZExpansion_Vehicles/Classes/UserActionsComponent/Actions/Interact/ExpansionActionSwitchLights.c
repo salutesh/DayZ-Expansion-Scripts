@@ -1,3 +1,4 @@
+[RegisterAction(ExpansionActionSwitchLights)]
 class ExpansionActionSwitchLights: ActionInteractBase
 {
 	void ExpansionActionSwitchLights()

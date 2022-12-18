@@ -13,6 +13,7 @@
 /**@class		ExpansionActionEnterSafeLock
  * @brief		
  **/
+[RegisterAction(ExpansionActionEnterSafeLock)]
 class ExpansionActionEnterSafeLock: ActionInteractBase
 {
 	//! WARNING: If 'IsLocal' is false, refactor this

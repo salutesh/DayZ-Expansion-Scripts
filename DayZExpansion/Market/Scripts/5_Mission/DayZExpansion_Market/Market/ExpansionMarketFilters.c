@@ -29,16 +29,14 @@ enum ExpansionMarketAttachType
 	CANTEENS,
 	GRENADES,
 	OTHER,
-}
+};
 
 class ExpansionMarketFilters
 {
 	protected ref map<string, ref TStringArray> m_AttachmentsMap;
 	protected ref ExpansionMarketOutputs m_MarketOutputs;
 	protected ref ExpansionMarketModule m_MarketModule;
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters Constructor
-	// ------------------------------------------------------------		
+
 	void ExpansionMarketFilters()
 	{
 		if (!m_MarketModule)
@@ -55,74 +53,47 @@ class ExpansionMarketFilters
 			m_MarketOutputs = new ExpansionMarketOutputs;
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetPrimaryWeaponMagazines
-	// ------------------------------------------------------------
+
 	TStringArray GetPrimaryWeaponMagazines()
 	{
 		return GetWeaponMagazines(GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetSecondaryWeaponMagazines
-	// ------------------------------------------------------------
+
 	TStringArray GetSecondaryWeaponMagazines()
 	{
 		return GetWeaponMagazines(GetGame().GetPlayer().FindAttachmentBySlotName("Melee"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetHandWeaponMagazines
-	// ------------------------------------------------------------
+
 	TStringArray GetHandWeaponMagazines()
 	{
 		return GetWeaponMagazines(GetGame().GetPlayer().GetHumanInventory().GetEntityInHands());
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetPrimaryWeaponBullets
-	// ------------------------------------------------------------
+
 	TStringArray GetPrimaryWeaponBullets()
 	{
 		return GetWeaponBullets(GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetSecondaryWeaponBullets
-	// ------------------------------------------------------------
+
 	TStringArray GetSecondaryWeaponBullets()
 	{
 		return GetWeaponBullets(GetGame().GetPlayer().FindAttachmentBySlotName("Melee"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetHandWeaponBullets
-	// ------------------------------------------------------------	
+
 	TStringArray GetHandWeaponBullets()
 	{
 		return GetWeaponBullets(GetGame().GetPlayer().GetHumanInventory().GetEntityInHands());
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetPrimaryWeaponAttachments
-	// ------------------------------------------------------------
+
 	TStringArray GetPrimaryWeaponAttachments()
 	{
 		return GetWeaponAttachments(GetGame().GetPlayer().FindAttachmentBySlotName("Shoulder"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetSecondaryWeaponAttachments
-	// ------------------------------------------------------------
+
 	TStringArray GetSecondaryWeaponAttachments()
 	{
 		return GetWeaponAttachments(GetGame().GetPlayer().FindAttachmentBySlotName("Melee"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetHandWeaponAttachments
-	// ------------------------------------------------------------
+
 	TStringArray GetHandWeaponAttachments()
 	{
 		return GetWeaponAttachments(GetGame().GetPlayer().GetHumanInventory().GetEntityInHands());
@@ -200,9 +171,6 @@ class ExpansionMarketFilters
 		return items;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GenerateAttachmentsMap
-	// ------------------------------------------------------------	
 	void GenerateAttachmentsMap()
 	{
 		if (m_AttachmentsMap)
@@ -212,9 +180,6 @@ class ExpansionMarketFilters
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GenerateAttachmentsMap
-	// ------------------------------------------------------------		
 	void GenerateAttachmentsMapFromPath(out map<string, ref TStringArray> currentMap, string path)
 	{
 		for (int i = 0; i < GetGame().ConfigGetChildrenCount(path); i++) 
@@ -253,10 +218,7 @@ class ExpansionMarketFilters
 			}	
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GenerateWeaponAttachmentDenom
-	// ------------------------------------------------------------	
+
 	void GenerateWeaponAttachmentDenom(string className)
 	{
 		if (!m_MarketOutputs.Weapons)
@@ -274,10 +236,7 @@ class ExpansionMarketFilters
 			m_MarketOutputs.Weapons.Insert(className, weapon);
 		}
 	}
-			
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetSellables
-	// ------------------------------------------------------------
+
 	TStringArray GetSellables()
 	{
 		TStringArray sellables = new TStringArray;
@@ -308,9 +267,6 @@ class ExpansionMarketFilters
 		return sellables;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetPurchasables
-	// ------------------------------------------------------------
 	TStringArray GetPurchasables()
 	{
 		TStringArray purchasables = new TStringArray;
@@ -359,9 +315,6 @@ class ExpansionMarketFilters
 			return GetWeaponAttachmentsByType(ExpansionMarketWeapon.Cast(output), attachType);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponAttachmentsByType
-	// ------------------------------------------------------------	
 	TStringArray GetWeaponAttachmentsByType(ExpansionMarketWeapon weapon, ExpansionMarketAttachType attachType)
 	{
 		switch (attachType)
@@ -393,10 +346,7 @@ class ExpansionMarketFilters
 		//! ExpansionMarketAttachType.OTHER
 		return weapon.attachments;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetAttachmentsByClassNameAndTypes
-	// ------------------------------------------------------------	
+
 	TStringArray GetAttachmentsByClassNameAndTypes(string className, array<ExpansionMarketAttachType> attachTypes)
 	{
 		TStringArray attachments = new TStringArray;
@@ -494,98 +444,62 @@ class ExpansionMarketFilters
 
 		return className;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponMagazinesByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponMagazinesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.MAGAZINE});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponOpticsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponOpticsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.OPTIC});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponSuppressorsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponSuppressorsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.SUPPRESSOR});
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponGhilliesByClassName
-	// ------------------------------------------------------------
 	TStringArray GetWeaponGhilliesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.WRAP});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponSwitchablesByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponSwitchablesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.SWITCH});
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponAttachmentsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponAttachmentsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.OTHER});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponButtstocksByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponButtstocksByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.BUTTSTOCK});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponHandguardsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponHandguardsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.HANDGUARD});
 	}
-	
-		// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponBayonetsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponBayonetsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.BAYONET});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponRailsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponRailsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.RAIL});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponLightsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetWeaponLightsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.LIGHT});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetWeaponAttachmentAttachType
-	// ------------------------------------------------------------	
+
 	static ExpansionMarketAttachType GetWeaponAttachmentAttachType(string className, string slotName = "")
 	{
 		string baseClassName;
@@ -665,10 +579,7 @@ class ExpansionMarketFilters
 
 		return ExpansionMarketAttachType.OTHER;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters HasAttachments
-	// ------------------------------------------------------------	
+
 	bool HasWeaponAttachments(string className)
 	{
 		if (GetWeaponButtstocksByClassName(className).Count() > 0 ) return true;
@@ -683,12 +594,9 @@ class ExpansionMarketFilters
 		if (GetWeaponBayonetsByClassName(className).Count() > 0) return true;
 		if (GetWeaponLightsByClassName(className).Count() > 0) return true;
 		
-		 return false;
+		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GenerateClothingAttachmentDenom
-	// ------------------------------------------------------------	
+
 	void GenerateClothingAttachmentDenom(string className)
 	{
 		if (!m_MarketOutputs.Clothing)
@@ -725,9 +633,6 @@ class ExpansionMarketFilters
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters AddAttachmentDenom
-	// ------------------------------------------------------------		
 	void AddAttachmentDenom(ExpansionMarketOutput output, string cfgPath)
 	{
 		TStringArray attachmentSlotNames = {};
@@ -756,10 +661,7 @@ class ExpansionMarketFilters
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingAttachmentAttachType
-	// ------------------------------------------------------------	
+
 	static ExpansionMarketAttachType GetClothingAttachmentAttachType(string className, string slotName = "")
 	{
 		string baseClassName;
@@ -803,10 +705,7 @@ class ExpansionMarketFilters
 		
 		return ExpansionMarketAttachType.OTHER;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters HasAttachments
-	// ------------------------------------------------------------		
+
 	bool HasClothingAttachments(string className)
 	{
 		if (GetClothingPouchesByClassName(className).Count() > 0 ) return true;
@@ -818,10 +717,7 @@ class ExpansionMarketFilters
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingAttachmentsByType
-	// ------------------------------------------------------------	
+
 	TStringArray GetClothingAttachmentsByType(ExpansionMarketClothing clothing, ExpansionMarketAttachType attachType)
 	{
 		switch (attachType)
@@ -841,52 +737,34 @@ class ExpansionMarketFilters
 		//! ExpansionMarketAttachType.OTHER
 		return clothing.attachments;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingAttachmentsByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetClothingAttachmentsByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.OTHER});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingPouchesByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetClothingPouchesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.POUCHES});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingHolstersByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetClothingHolstersByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.HOLSTERS});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingCanteensByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetClothingCanteensByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.CANTEENS});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingGrenadesByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetClothingGrenadesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.GRENADES});
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketFilters GetClothingPatchesByClassName
-	// ------------------------------------------------------------
+
 	TStringArray GetClothingPatchesByClassName(string className)
 	{
 		return GetAttachmentsByClassNameAndTypes(className, {ExpansionMarketAttachType.PATCHES});
 	}
-}
+};

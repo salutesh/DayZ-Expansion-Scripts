@@ -357,36 +357,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	protected void HandlePlayerKilledAI(PlayerBase killer, PlayerBase victim)
     {
 		HardlineModulePrint(ToString() + "::HandlePlayerKilledAI - Start");
-		
-        string killerUID = killer.GetIdentity().GetId();
-        ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
-        
-        if (!killerPlayerData)
-            return;
-        
-        eAIBase victimAI = eAIBase.Cast(victim);
-        if (!victimAI)
-            return;
         
         int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillAI;
         
-        //! If the ai was friendly to the killer the killer will lose humanity.
-        bool isFriendly;
-        if (killer.GetGroup())
-            isFriendly = victimAI.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
-        else
-            isFriendly = victimAI.GetGroup().GetFaction().IsFriendly(killer);
-        
-		if (isFriendly)
-        {
-			killerReputation = -killerReputation;  //! Hero/Bambi looses humanity when negative
-        }    
-        
-		HardlineModulePrint(ToString() + "::HandlePlayerKilledAI - Killer humanity change: " + killerReputation);
-		
-        killerPlayerData.AddReputation(killerReputation);
-        killerPlayerData.Save(killerUID);
-        SendPlayerHardlineData(killerPlayerData, killer.GetIdentity());
+        HandlePlayerKill(killer, victim, killerReputation);
 		
 		HardlineModulePrint(ToString() + "::HandlePlayerKilledAI - End");
     }
@@ -399,13 +373,38 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (!killer.GetIdentity() || !victim.GetIdentity())
 			return;
 					
-		string killerUID = killer.GetIdentity().GetId();
-        ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
 		int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillPlayer;	
 		
-		HandlePlayerDeath(victim);
+		HandlePlayerKill(killer, victim, killerReputation);
 		
 		HardlineModulePrint(ToString() + "::HandlePlayerKilledPlayer - End");
+	}
+	
+	protected void HandlePlayerKill(PlayerBase killer, PlayerBase victim, int killerReputation)
+	{
+		string killerUID = killer.GetIdentity().GetId();
+		ExpansionHardlinePlayerData killerPlayerData = GetPlayerHardlineDataByUID(killerUID);
+		
+		if (!killerPlayerData)
+			return;
+
+	#ifdef EXPANSIONMODAI
+		//! If the other player was friendly to the killer the killer will lose reputation.
+		bool isFriendly;
+		if (killer.GetGroup())
+			isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
+		else
+			isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer);
+		
+		if (isFriendly)
+			killerReputation = -killerReputation;
+	#endif
+		
+		HardlineModulePrint(ToString() + "::HandlePlayerKill - Killer reputation change: " + killerReputation);
+		
+		killerPlayerData.AddReputation(killerReputation);
+		killerPlayerData.Save(killerUID);
+		SendPlayerHardlineData(killerPlayerData, killer.GetIdentity());
 	}
 		
 	protected void HandlePlayerDeath(PlayerBase victim)

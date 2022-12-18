@@ -57,13 +57,13 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 		return 9.0;
 	}
 
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return 2.0;
+		return "0 2 0";
 	}
 	override int GetSeatAnimationType(int posIdx)
 	{

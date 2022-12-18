@@ -14,7 +14,7 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 {
 	protected ref ExpansionMarketMenuItemManagerPresetElementController m_MarketItemManagerPresetElementController;
 	protected ExpansionMarketMenuItemManager m_MarketMenuItemManager;
-	ExpansionMarketMenuItemManagerPreset m_Preset;
+	protected ExpansionMarketMenuItemManagerPreset m_Preset;
 	
 	protected ButtonWidget dropdown_element_button;
 	protected ButtonWidget dropdown_element_clear;
@@ -101,6 +101,7 @@ class ExpansionMarketMenuItemManagerPresetElement: ExpansionScriptView
 		return false;
 	}
 };
+
 class ExpansionMarketMenuItemManagerPresetElementController: ExpansionViewController
 {
 	string Text;

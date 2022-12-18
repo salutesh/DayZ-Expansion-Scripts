@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionOpenTraderMenu)]
 class ExpansionActionOpenTraderMenu: ActionInteractBase
 {
 	private ref ExpansionTraderObjectBase m_TraderObject;

@@ -28,7 +28,7 @@ class ExpansionMarketMenuDropdownElement_FilterPrimeMag: ExpansionMarketMenuDrop
 		m_MarketMenu.SetFilterPrimeMag(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterSecondMag: ExpansionMarketMenuDropdownElement
 {
@@ -48,7 +48,7 @@ class ExpansionMarketMenuDropdownElement_FilterSecondMag: ExpansionMarketMenuDro
 		m_MarketMenu.SetFilterSecondMag(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterHandMag: ExpansionMarketMenuDropdownElement
 {
@@ -68,7 +68,7 @@ class ExpansionMarketMenuDropdownElement_FilterHandMag: ExpansionMarketMenuDropd
 		m_MarketMenu.SetFilterHandMag(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterPrimeAttach: ExpansionMarketMenuDropdownElement
 {
@@ -88,7 +88,7 @@ class ExpansionMarketMenuDropdownElement_FilterPrimeAttach: ExpansionMarketMenuD
 		m_MarketMenu.SetFilterPrimeAttach(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterSecondAttach: ExpansionMarketMenuDropdownElement
 {
@@ -109,7 +109,7 @@ class ExpansionMarketMenuDropdownElement_FilterSecondAttach: ExpansionMarketMenu
 		super.ApplyFilter();
 		
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterHandAttach: ExpansionMarketMenuDropdownElement
 {
@@ -129,7 +129,7 @@ class ExpansionMarketMenuDropdownElement_FilterHandAttach: ExpansionMarketMenuDr
 		m_MarketMenu.SetFilterHandAttach(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterPrimeBullet: ExpansionMarketMenuDropdownElement
 {
@@ -149,7 +149,7 @@ class ExpansionMarketMenuDropdownElement_FilterPrimeBullet: ExpansionMarketMenuD
 		m_MarketMenu.SetFilterPrimeBullet(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterSecondBullet: ExpansionMarketMenuDropdownElement
 {
@@ -169,7 +169,7 @@ class ExpansionMarketMenuDropdownElement_FilterSecondBullet: ExpansionMarketMenu
 		m_MarketMenu.SetFilterSecondBullet(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement_FilterHandBullet: ExpansionMarketMenuDropdownElement
 {
@@ -189,7 +189,7 @@ class ExpansionMarketMenuDropdownElement_FilterHandBullet: ExpansionMarketMenuDr
 		m_MarketMenu.SetFilterHandBullet(IsChecked());
 		super.ApplyFilter();
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 {
@@ -282,17 +282,14 @@ class ExpansionMarketMenuDropdownElement: ExpansionScriptView
 		
 		return super.OnMouseLeave(w, enterW, x, y);
 	}
-}
+};
 
 class ExpansionMarketMenuDropdownElementController: ExpansionViewController
 {
 	string Text;
 	bool CheckBox;
 	bool WasChecked;
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuDropdownElementController PropertyChanged
-	// ------------------------------------------------------------
+
 	override void PropertyChanged(string property_name)
 	{
 		if (property_name == "CheckBox" && CheckBox != WasChecked)
@@ -307,4 +304,4 @@ class ExpansionMarketMenuDropdownElementController: ExpansionViewController
 			}
 		}
 	}
-}
+};

@@ -12,20 +12,20 @@
 
 class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 {
-	ref ExpansionMarketMenuItemTooltipController m_TooltipController;
-	ref ExpansionMarketMenuItem m_ItemElement;
-	ref ExpansionMarketPlayerItem m_PlayerItem;
+	protected ref ExpansionMarketMenuItemTooltipController m_TooltipController;
+	protected ref ExpansionMarketMenuItem m_ItemElement;
+	protected ref ExpansionMarketPlayerItem m_PlayerItem;
 	
 	protected ImageWidget tooltip_icon;
 	protected Widget tooltip_header;
 	protected Widget tooltip_content;
 	protected HtmlWidget tooltip_title;
 	
-	bool m_IsEquiped = false;
-	bool m_HasItems = false;
-	bool m_HasAttachments = false;
-	bool m_HasAmmo = false;
-	bool m_IsAttached = false;
+	protected bool m_IsEquiped = false;
+	protected bool m_HasItems = false;
+	protected bool m_HasAttachments = false;
+	protected bool m_HasAmmo = false;
+	protected bool m_IsAttached = false;
 	
 	void ExpansionMarketMenuItemTooltip(ExpansionMarketMenuItem element)
 	{
@@ -62,7 +62,7 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	
 	void CheckForItemInfos()
 	{			
-		if (m_ItemElement.m_MarketMenu.HasPlayerItem(m_ItemElement.GetMarketItem().ClassName))
+		if (m_ItemElement.GetMarketMenu().HasPlayerItem(m_ItemElement.GetMarketItem().ClassName))
 		{
 			ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
 
@@ -229,10 +229,10 @@ class ExpansionMarketMenuItemTooltip: ExpansionScriptView
 	{
 		return m_IsAttached;
 	}
-}
+};
 
 class ExpansionMarketMenuItemTooltipController: ExpansionViewController
 {
 	string TooltipTitle;
 	ref ObservableCollection<ref ExpansionMarketMenuItemTooltipEntryBase> SpacerEntries = new ObservableCollection<ref ExpansionMarketMenuItemTooltipEntryBase>(this);
-}
+};

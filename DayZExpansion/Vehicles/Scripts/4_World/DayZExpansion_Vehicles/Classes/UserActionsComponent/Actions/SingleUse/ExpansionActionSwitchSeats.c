@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionSwitchSeats)]
 class ExpansionActionSwitchSeats: ActionBase
 {
 	void ExpansionActionSwitchSeats()

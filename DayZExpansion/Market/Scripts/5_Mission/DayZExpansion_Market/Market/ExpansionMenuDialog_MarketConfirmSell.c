@@ -10,40 +10,34 @@
  *
 */
 
-class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
+class ExpansionMenuDialog_MarketConfirmSell: ExpansionDialogBase
 {
-	ref ExpansionMenuDialogContent_Text m_Text;
-	ref ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept m_AcceptButton;
-	ref ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel m_CancelButton;
-	
-	ref ExpansionMenuDialogContent_WrapSpacer m_WrapSpacer;
-	ref ExpansionMenuDialogContent_Text m_AdditionalText;
-	ref ExpansionMenuDialogContentSpacer m_AdditionalText_Spacer;
-	
-	ref ExpansionMarketMenu m_MarketMenu;
-	ref ExpansionMarketMenuDialogData m_DialogData;
-	
-	bool m_IncludeAttachments;
-	bool m_KeyInput = false;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialog_MarketConfirmSell(ExpansionScriptViewMenu parentMenu, ExpansionMarketMenuDialogData dialogData)
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept m_AcceptButton;
+	protected ref ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel m_CancelButton;
+	protected ref ExpansionDialogContent_WrapSpacer m_WrapSpacer;
+	protected ref ExpansionDialogContent_Text m_AdditionalText;
+	protected ref ExpansionDialogContentSpacer m_AdditionalText_Spacer;
+	protected ref ExpansionMarketMenu m_MarketMenu;
+	protected ref ExpansionMarketMenuDialogData m_DialogData;
+	protected bool m_IncludeAttachments;
+	protected bool m_KeyInput = false;
+
+	void ExpansionMenuDialog_MarketConfirmSell(ScriptView parentView, ExpansionMarketMenuDialogData dialogData)
 	{
-		m_ParentMenu = parentMenu;
+		m_ParentView = parentView;
 		m_DialogData = dialogData;
 		
 		if (!m_MarketMenu)
-			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentMenu);
+			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentView);
 		
-		ExpansionMenuDialogContentSpacer spacer;
-		spacer = new ExpansionMenuDialogContentSpacer(this);
+		ExpansionDialogContentSpacer spacer;
+		spacer = new ExpansionDialogContentSpacer(this);
 		AddContent(spacer);	
 		
 		if (!m_Text)
 		{
-			m_Text = new ExpansionMenuDialogContent_Text(this);
+			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
 			
 			string amount = m_DialogData.Amount.ToString();
@@ -65,7 +59,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 			m_Text.Show();
 		}
 		
-		spacer = new ExpansionMenuDialogContentSpacer(this);
+		spacer = new ExpansionDialogContentSpacer(this);
 		AddContent(spacer);	
 				
 		if (!m_AcceptButton)
@@ -84,45 +78,34 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 		
 		if (!m_AdditionalText)
 		{
-			m_AdditionalText = new ExpansionMenuDialogContent_Text(this);
+			m_AdditionalText = new ExpansionDialogContent_Text(this);
 			m_AdditionalText.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 			AddContent(m_AdditionalText);
 			m_AdditionalText.Hide();
 		
-			m_AdditionalText_Spacer = new ExpansionMenuDialogContentSpacer(this);
+			m_AdditionalText_Spacer = new ExpansionDialogContentSpacer(this);
 			AddContent(m_AdditionalText_Spacer);
 		}
 		
 		if (!m_WrapSpacer)
 		{			
-			m_WrapSpacer = ExpansionMenuDialogContent_WrapSpacer(this);
+			m_WrapSpacer = ExpansionDialogContent_WrapSpacer(this);
 			AddContent(m_WrapSpacer);
 			
 			PopulateAttachmentsList();
 		}
-		
-		dialog_info_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell GetDialogTitle
-	// ------------------------------------------------------------	
+
 	override string GetDialogTitle()
 	{
 		return "#STR_EXPANSION_MARKET_SELL_DIALOG_TITLE";
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell GetMarketMenu
-	// ------------------------------------------------------------		
 	ExpansionMarketMenu GetMarketMenu()
 	{
 		return m_MarketMenu;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell PopulateAttachmentsList
-	// ------------------------------------------------------------	
+
 	void PopulateAttachmentsList()
 	{
 		ExpansionMarketModule marketModule = ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
@@ -132,7 +115,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 		if (items.Count() == 0)
 			return;
 		
-		ExpansionMenuDialogContentSpacer spacer;
+		ExpansionDialogContentSpacer spacer;
 				
 		for (int j = 0; j < items.Count(); j++)
 		{
@@ -149,13 +132,13 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 		
 		if (playerItem)
 		{			
-			ExpansionMenuDialogContent_WrapSpacer_Entry entry;
+			ExpansionDialogContent_WrapSpacer_Entry entry;
 			string name;
 			if (playerItem.ContainerItems.Count() > 1)
 			{
 				foreach (string containerItemName, int quantity: playerItem.ContainerItems)
 				{
-					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(containerItemName));
+					entry = new ExpansionDialogContent_WrapSpacer_Entry(m_WrapSpacer, ExpansionStatic.GetItemDisplayNameWithType(containerItemName));
 					entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
 					m_WrapSpacer.AddSpacerContent(entry);
 				}
@@ -169,7 +152,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 					m_AdditionalText.SetText("#STR_EXPANSION_MARKET_ITEM_TOOLTIP_WARNING_SELL_ATT");
 				}
 				m_AdditionalText.Show();
-				spacer = new ExpansionMenuDialogContentSpacer(this);
+				spacer = new ExpansionDialogContentSpacer(this);
 				AddContent(spacer);
 			}
 			else if (playerItem.IsMagazine())
@@ -187,12 +170,12 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 				if (playerItem.GetItem().GetHierarchyParent())
 				{
 					name = playerItem.GetItem().GetHierarchyParent().GetDisplayName();
-					entry = new ExpansionMenuDialogContent_WrapSpacer_Entry(m_WrapSpacer, name);	
+					entry = new ExpansionDialogContent_WrapSpacer_Entry(m_WrapSpacer, name);	
 					entry.SetTextColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));	
 					m_WrapSpacer.AddSpacerContent(entry);
 					m_AdditionalText.SetText("#STR_EXPANSION_MARKET_SELL_DIALOG_WARNING_ATTACHED");
 					m_AdditionalText.Show();
-					spacer = new ExpansionMenuDialogContentSpacer(this);
+					spacer = new ExpansionDialogContentSpacer(this);
 					AddContent(spacer);
 				}
 			}
@@ -203,21 +186,13 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 
 		if (!m_WrapSpacer.m_WrapSpacerController.SpacerContent.Count())
 			m_WrapSpacer.Hide();
-
-		CenterVertically();
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell GetUpdateTickRate
-	// ------------------------------------------------------------	
+
 	override float GetUpdateTickRate()
 	{
 		return 0.25;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell Update
-	// ------------------------------------------------------------	
+
 	override void Update()
 	{		
 		if ((ExpansionStatic.Key_Y() || ExpansionStatic.Key_Z()) && !m_KeyInput)
@@ -237,14 +212,11 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionMenuDialogBase
 	}
 };
 
-class ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept: ExpansionMenuDialogButton_Text
+class ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept: ExpansionDialogButton_Text
 {
-	ref ExpansionMenuDialog_MarketConfirmSell m_ConfirmDialog;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept(ExpansionMenuDialogBase dialog)
+	protected ref ExpansionMenuDialog_MarketConfirmSell m_ConfirmDialog;
+
+	void ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;		
 		
@@ -253,10 +225,7 @@ class ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept: ExpansionMenuDial
 		
 		SetButtonText("#STR_EXPANSION_MARKET_DIALOG_ACCEPT");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept OnButtonClick
-	// ------------------------------------------------------------	
+
 	override void OnButtonClick()
 	{	
 		m_ConfirmDialog.GetMarketMenu().OnConfirmSellButtonClick();
@@ -264,14 +233,11 @@ class ExpansionMenuDialogButton_Text_MarketConfirmSell_Accept: ExpansionMenuDial
 	}
 };
 
-class ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel: ExpansionMenuDialogButton_Text
+class ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel: ExpansionDialogButton_Text
 {
-	ref ExpansionMenuDialog_MarketConfirmSell m_ConfirmDialog;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel(ExpansionMenuDialogBase dialog)
+	protected ref ExpansionMenuDialog_MarketConfirmSell m_ConfirmDialog;
+
+	void ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 		
@@ -280,10 +246,7 @@ class ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel: ExpansionMenuDial
 		
 		SetButtonText("#STR_EXPANSION_MARKET_DIALOG_CANCLE");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmSell_Cancel OnButtonClick
-	// ------------------------------------------------------------	
+
 	override void OnButtonClick()
 	{
 		m_ConfirmDialog.Hide();

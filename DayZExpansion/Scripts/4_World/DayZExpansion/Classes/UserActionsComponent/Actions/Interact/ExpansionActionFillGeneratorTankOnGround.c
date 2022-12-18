@@ -20,6 +20,7 @@ class ActionFillGeneratorTankOnGroundCB : ActionContinuousBaseCB
 	}
 }
 
+//[RegisterAction(ExpansionActionFillGeneratorTankOnGround)]
 class ExpansionActionFillGeneratorTankOnGround: ActionContinuousBase
 {
 	// ------------------------------------------------------------

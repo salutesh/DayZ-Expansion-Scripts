@@ -445,6 +445,9 @@ enum ExpansionP2PMarketModuleRPC
 	SendBMTraderData,
 	RequestListBMItem,
 	RequestPurchaseBMItem,
+	RequestSaleFromListing,
+	RequestAllSales,
+	RemoveTradingPlayer,
 	Callback,
 	COUNT
 };

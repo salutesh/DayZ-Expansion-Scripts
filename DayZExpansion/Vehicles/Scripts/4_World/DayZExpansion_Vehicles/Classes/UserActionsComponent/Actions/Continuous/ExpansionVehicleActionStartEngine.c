@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionVehicleActionStartEngine)]
 class ExpansionVehicleActionStartEngine : ActionContinuousBase
 {
 	private	const float ROUGH_SPECIALTY_WEIGHT = 0.5;

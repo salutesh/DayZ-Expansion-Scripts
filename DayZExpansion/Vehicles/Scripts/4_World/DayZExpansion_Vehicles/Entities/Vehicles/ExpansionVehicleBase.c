@@ -3903,25 +3903,6 @@ class ExpansionVehicleBase extends ItemBase
 		return 2.0;
 	}
 
-	bool HasBattery()
-	{
-		ItemBase battery;
-
-		if (IsVitalCarBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
-
-		if (!battery)
-			return false;
-
-		return true;
-	}
-
 	ItemBase GetBattery()
 	{
 		if (IsVitalCarBattery())
@@ -3938,16 +3919,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	bool IsBatteryWorking()
 	{
-		ItemBase battery;
-
-		if (IsVitalCarBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+		ItemBase battery = GetBattery();
 
 		if (!battery || battery.IsRuined())
 			return false;

@@ -25,6 +25,7 @@ class ExpansionActionCarHornCB : ActionContinuousBaseCB
 /**@class		ExpansionActionCarHorn
  * @brief		
  **/
+[RegisterAction(ExpansionActionCarHorn)]
 class ExpansionActionCarHorn : ActionContinuousBase
 {
 	void ExpansionActionCarHorn()

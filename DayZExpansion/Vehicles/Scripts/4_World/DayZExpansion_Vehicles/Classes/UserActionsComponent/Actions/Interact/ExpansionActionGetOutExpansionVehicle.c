@@ -24,6 +24,8 @@ class ExpansionActionGetOutExpansionVehicleActionData : ActionData
 /**@class		ExpansionActionGetOutExpansionVehicle
  * @brief		
  **/
+
+[RegisterAction(ExpansionActionGetOutExpansionVehicle)]
 class ExpansionActionGetOutExpansionVehicle : ActionInteractBase
 {
 

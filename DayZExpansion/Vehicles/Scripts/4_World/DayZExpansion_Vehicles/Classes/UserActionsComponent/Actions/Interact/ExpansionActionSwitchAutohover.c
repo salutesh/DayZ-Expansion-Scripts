@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionSwitchAutoHover)]
 class ExpansionActionSwitchAutoHover: ActionInteractBase
 {
 	private bool m_IsOn;
@@ -79,6 +80,7 @@ class ExpansionActionSwitchAutoHover: ActionInteractBase
 	}
 };
 
+[RegisterAction(ExpansionActionSwitchAutoHoverInput)]
 class ExpansionActionSwitchAutoHoverInput: ExpansionActionSwitchAutoHover
 {
 	override typename GetInputType()

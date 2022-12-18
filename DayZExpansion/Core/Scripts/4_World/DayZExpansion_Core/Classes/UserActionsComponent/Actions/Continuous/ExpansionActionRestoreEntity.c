@@ -18,6 +18,7 @@ class ExpansionActionRestoreEntityCB: ActionContinuousBaseCB
 	}
 };
 
+[RegisterAction(ExpansionActionRestoreEntity)]
 class ExpansionActionRestoreEntity: ActionContinuousBase
 {
 	void ExpansionActionRestoreEntity()

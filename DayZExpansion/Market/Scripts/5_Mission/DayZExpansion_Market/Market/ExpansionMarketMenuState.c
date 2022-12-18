@@ -20,4 +20,4 @@ enum ExpansionMarketMenuState
 	REQUESTING_PURCHASE,
 	REQUESTING_SELL,
 	COUNT
-}
+};

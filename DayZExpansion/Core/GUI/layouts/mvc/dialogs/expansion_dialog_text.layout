@@ -1,5 +1,5 @@
 WrapSpacerWidgetClass ExpansionDialogText {
- size 1 32
+ size 0.95 32
  hexactpos 1
  vexactpos 1
  hexactsize 0
@@ -12,18 +12,20 @@ WrapSpacerWidgetClass ExpansionDialogText {
  content_halign center
  content_valign center
  {
-  RichTextWidgetClass dialog_text {
-   size 0.95 1
+  MultilineTextWidgetClass dialog_text {
+   keepsafezone 1
+   size 1 1
    hexactpos 0
    vexactpos 0
    hexactsize 0
    vexactsize 0
    scriptclass "ViewBinding"
    style DayZNormal
-   font "gui/fonts/etelkatextpro22"
+   text "Test Test"
+   font "gui/fonts/etelkatextpro28"
    "text color" 0 0 0 1
-   "exact text" 1
-   "size to text h" 1
+   "exact text" 0
+   "size to text h" 0
    "size to text v" 1
    "text halign" center
    "text valign" center

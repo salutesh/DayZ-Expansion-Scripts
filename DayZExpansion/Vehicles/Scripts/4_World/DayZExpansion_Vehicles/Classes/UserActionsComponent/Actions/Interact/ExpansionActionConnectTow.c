@@ -22,6 +22,9 @@ class ExpansionActionConnectTowData : ActionData
 	int m_Index;
 };
 
+#ifdef EXPANSION_VEHICLE_TOWING
+[RegisterAction(ExpansionActionConnectTow)]
+#endif
 class ExpansionActionConnectTow : ActionInteractBase
 {
 	bool m_IsWinch;

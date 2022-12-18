@@ -74,9 +74,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		
 		ShowHud(false);
 		ShowUICursor(true);
-
-		//! XXX: GetGame().GetInput().ChangeGameFocus(1) works, but disables ESC key...
-		//GetGame().GetInput().ChangeGameFocus(1);
 		
 		LockInputs(true, lockMovement);
 		GetUApi().UpdateControls();
@@ -90,8 +87,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 				
 		ShowHud(true);
 		ShowUICursor(false);
-		
-		//GetGame().GetInput().ResetGameFocus();
 		
 		UnlockInputs();
 		GetUApi().UpdateControls();

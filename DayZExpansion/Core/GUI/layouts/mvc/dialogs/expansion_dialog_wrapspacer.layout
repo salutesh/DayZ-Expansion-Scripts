@@ -1,4 +1,4 @@
-GridSpacerWidgetClass ExpansionMenuDialogWrapSpacer {
+GridSpacerWidgetClass ExpansioDialogWrapSpacer {
  clipchildren 1
  position 0 0
  size 0.95 5
@@ -6,7 +6,7 @@ GridSpacerWidgetClass ExpansionMenuDialogWrapSpacer {
  vexactpos 0
  hexactsize 0
  vexactsize 1
- scriptclass "ExpansionMenuDialogContent_WrapSpacerController"
+ scriptclass "ExpansionDialogContent_WrapSpacerController"
  Padding 0
  Margin 0
  "Size To Content H" 1
@@ -33,10 +33,6 @@ GridSpacerWidgetClass ExpansionMenuDialogWrapSpacer {
      Binding_Name "SpacerContent"
     }
    }
-  }
- }
- {
-  ScriptParamsClass {
   }
  }
 }

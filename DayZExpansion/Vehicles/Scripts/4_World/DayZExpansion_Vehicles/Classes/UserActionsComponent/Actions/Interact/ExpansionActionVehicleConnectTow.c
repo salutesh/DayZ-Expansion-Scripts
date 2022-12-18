@@ -10,6 +10,9 @@
  *
 */
 
+#ifdef EXPANSION_VEHICLE_TOWING
+[RegisterAction(ExpansionActionVehicleConnectTow)]
+#endif
 class ExpansionActionVehicleConnectTow : ActionInteractBase
 {
 	bool m_IsWinch;

@@ -51,19 +51,19 @@ class ExpansionMarketMenuCategoryColorHandler
 
 class ExpansionMarketMenuCategory: ExpansionScriptView
 {
-	ref ExpansionMarketMenu m_MarketMenu;
-	ref ExpansionMarketCategory m_Category;
-	ref ExpansionMarketMenuCategoryController m_CategoryController;
-	ref map<string, ref array<ExpansionMarketItem>> m_TempItems;
-	ref array<string> m_TempDisplayNames;
-	int m_ItemUpdateIdx;
-	ref array<ExpansionMarketItem> m_MarketItems;
-	ref TIntArray m_ItemIDs;
-	bool m_UpdateItemCount;
-	float m_UpdateItemCountTime;
-	string m_CategoryInfo_Loading;
-	int m_CategoryInfo_Loading_Idx;
-	string m_CategoryInfo_ItemCount;
+	protected ref ExpansionMarketMenu m_MarketMenu;
+	protected ref ExpansionMarketCategory m_Category;
+	protected ref ExpansionMarketMenuCategoryController m_CategoryController;
+	protected ref map<string, ref array<ExpansionMarketItem>> m_TempItems;
+	protected ref array<string> m_TempDisplayNames;
+	protected int m_ItemUpdateIdx;
+	protected ref array<ExpansionMarketItem> m_MarketItems;
+	protected ref TIntArray m_ItemIDs;
+	protected bool m_UpdateItemCount;
+	protected float m_UpdateItemCountTime;
+	protected string m_CategoryInfo_Loading;
+	protected int m_CategoryInfo_Loading_Idx;
+	protected string m_CategoryInfo_ItemCount;
 	
 	protected GridSpacerWidget category_items;
 	protected  ButtonWidget category_button;
@@ -71,14 +71,11 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 	protected ImageWidget category_collapse_icon;
 	protected ImageWidget category_icon;
 		
-	bool IsExpanded = false;
+	protected bool m_IsExpanded = false;
 	static int UpdateCategoryID = -1;
 	static int ForceUpdateCategoryID = -1;
-	ref ExpansionMarketMenuCategoryColorHandler m_ColorHandler;
+	protected ref ExpansionMarketMenuCategoryColorHandler m_ColorHandler;
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory Constructor
-	// ------------------------------------------------------------	
 	void ExpansionMarketMenuCategory(ExpansionMarketMenu menu, ExpansionMarketCategory category, ref map<string, ref array<ExpansionMarketItem>> tempItems)
 	{
 		m_MarketMenu = menu;
@@ -132,33 +129,21 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			UpdateItemCount(show);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory Destructor
-	// ------------------------------------------------------------		
 	void ~ExpansionMarketMenuCategory()
 	{
 		ClearCategoryItems();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory GetLayoutFile
-	// ------------------------------------------------------------	
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Market/GUI/layouts/market/expansion_market_menu_category_element.layout";
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory GetControllerType
-	// ------------------------------------------------------------	
+
 	override typename GetControllerType() 
 	{
 		return ExpansionMarketMenuCategoryController;
 	}
-
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory AddItem
-	// ------------------------------------------------------------			
+		
 	void AddItem(ExpansionMarketItem item)
 	{
 		ExpansionMarketMenuItem itemElement = new ExpansionMarketMenuItem(m_MarketMenu, item);
@@ -182,10 +167,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 
 		m_ItemIDs.Insert(item.ItemID);
 	}
-
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory GetItems
-	// ------------------------------------------------------------		
+	
 	ObservableCollection<ref ExpansionMarketMenuItem> GetItems()
 	{
 		return m_CategoryController.MarketItems;
@@ -213,9 +195,6 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		return shown;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory ClearCategoryItems
-	// ------------------------------------------------------------		
 	void ClearCategoryItems()
 	{
 		for (int i = 0; i < m_CategoryController.MarketItems.Count(); i++)
@@ -226,22 +205,16 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 
 		m_CategoryController.MarketItems.Clear();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory GetUpdateTickRate
-	// ------------------------------------------------------------		
+
 	override float GetUpdateTickRate()
 	{
 		return 0.016666;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory Update
-	// ------------------------------------------------------------		
+
 	override void Update()
 	{
 		//! Prevent framerate drop due to too many categories updating at the same time
-		if (UpdateCategoryID == -1 || (IsExpanded && IsVisible()))
+		if (UpdateCategoryID == -1 || (m_IsExpanded && IsVisible()))
 			UpdateCategoryID = m_Category.CategoryID;
 		else if (UpdateCategoryID != m_Category.CategoryID)
 		{
@@ -358,17 +331,11 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		return m_UpdateTimer.IsRunning();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory OnCategoryButtonClick
-	// ------------------------------------------------------------	
 	void OnCategoryButtonClick()
 	{
-		ToggleCategory(!IsExpanded, true);
+		ToggleCategory(!m_IsExpanded, true);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory ToggleCategory
-	// ------------------------------------------------------------	
 	void ToggleCategory(bool toggleState, bool forceUpdate = false)
 	{
 		if (toggleState)
@@ -395,17 +362,14 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		category_expand_icon.Show(!toggleState);
 		category_collapse_icon.Show(toggleState);
 
-		if (!IsExpanded && toggleState)
+		if (!m_IsExpanded && toggleState)
 			m_MarketMenu.CategoriesExpanded++;
-		else if (IsExpanded && !toggleState)
+		else if (m_IsExpanded && !toggleState)
 			m_MarketMenu.CategoriesExpanded--;
 
-		IsExpanded = toggleState;
+		m_IsExpanded = toggleState;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory OnMouseEnter
-	// ------------------------------------------------------------	
+
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		switch (w)
@@ -417,10 +381,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		
 		return super.OnMouseEnter(w, x, y);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory OnMouseLeave
-	// ------------------------------------------------------------	
+
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		switch (w)
@@ -432,10 +393,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		
 		return super.OnMouseLeave(w, enterW, x, y);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategory AllowButtonInputs
-	// ------------------------------------------------------------	
+
 	void AllowButtonInputs(bool state)
 	{
 		if (!state)
@@ -449,6 +407,31 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			category_button.ClearFlags(WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS);
 		}
 	}
+	
+	ExpansionMarketCategory GetCategory()
+	{
+		return m_Category;
+	}
+	
+	map<string, ref array<ExpansionMarketItem>> GetTempItems()
+	{
+		return m_TempItems;
+	}
+	
+	array<ExpansionMarketItem> GetMarketItems()
+	{
+		return m_MarketItems;
+	}
+	
+	ExpansionMarketMenuCategoryController GetCategoryController()
+	{
+		return m_CategoryController;
+	}
+	
+	bool UpdateItemCount()
+	{
+		return m_UpdateItemCount;
+	}
 };
 
 class ExpansionMarketMenuCategoryController: ExpansionViewController
@@ -461,9 +444,6 @@ class ExpansionMarketMenuCategoryController: ExpansionViewController
 	
 	ref ExpansionMarketMenuCategory m_Category;
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuCategoryController Constructor
-	// ------------------------------------------------------------	
 	void ExpansionMarketMenuCategoryController()
 	{
 		if (!m_Category)

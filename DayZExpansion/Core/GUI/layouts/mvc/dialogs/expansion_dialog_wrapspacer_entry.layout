@@ -1,4 +1,4 @@
-WrapSpacerWidgetClass ExpansionMenuDialogWrapSpacerEntry {
+WrapSpacerWidgetClass ExpansionDialogWrapSpacerEntry {
  clipchildren 0
  ignorepointer 1
  size 0.95 32
@@ -7,7 +7,7 @@ WrapSpacerWidgetClass ExpansionMenuDialogWrapSpacerEntry {
  hexactsize 0
  vexactsize 1
  priority 101
- scriptclass "ExpansionMenuDialogContent_WrapSpacer_EntryController"
+ scriptclass "ExpansionDialogContent_WrapSpacer_EntryController"
  style Colorable
  Padding 0
  Margin 0

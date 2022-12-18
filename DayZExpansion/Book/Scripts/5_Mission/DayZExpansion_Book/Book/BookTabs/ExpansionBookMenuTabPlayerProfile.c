@@ -14,6 +14,8 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabPlayerProfileController m_PlayerProfileController;
 		
+	Widget hardline_reputation_spacer;
+
 	Widget hab_suicides_spacer;
 	Widget hab_affinity_spacer;
 	Widget hab_level_spacer;
@@ -60,6 +62,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#endif
 
 		UpdateHaBUIElements();
+		UpdateHardlineUIElements();
 	}
 	
 	void ~ExpansionBookMenuTabPlayerProfile()
@@ -92,7 +95,6 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		{
 			m_PlayerProfileController.HaB_Affinity = g_HeroesAndBanditsPlayer.getAffinity().DisplayName;
 			m_PlayerProfileController.HaB_Level = g_HeroesAndBanditsPlayer.getLevel().Name;
-			m_PlayerProfileController.HaB_HumanityLabel = "#HAB_HUMANITY";
 			if ( GetHeroesAndBanditsSettings().Mode != 1 )
 			{
 				m_PlayerProfileController.HaB_Humanity = ExpansionStatic.GetValueString(g_HeroesAndBanditsPlayer.getHumanity());
@@ -109,7 +111,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			m_PlayerProfileController.HaB_Raid = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Raid") );
 			m_PlayerProfileController.HaB_Suicides = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Sucide") );
 
-			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_Affinity", "HaB_Level", "HaB_HumanityLabel", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
+			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_Affinity", "HaB_Level", "HaB_Humanity", "HaB_Medic", "HaB_Raid", "HaB_Suicides"});
 		}
 	#endif
 
@@ -147,9 +149,8 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		if (m_ShowHardlineStats && m_HardlineModule)
 		{
 			int reputation = m_HardlineModule.GetHardlineClientData().GetReputation();
-			m_PlayerProfileController.HaB_HumanityLabel = "#STR_EXPANSION_HARDLINE_REPUTATION_UPPERCASE";
-			m_PlayerProfileController.HaB_Humanity = reputation.ToString();
-			m_PlayerProfileController.NotifyPropertiesChanged({"HaB_HumanityLabel", "HaB_Humanity"});
+			m_PlayerProfileController.Hardline_Reputation = reputation.ToString();
+			m_PlayerProfileController.NotifyPropertyChanged("Hardline_Reputation");
 		}
 	#endif
 		
@@ -168,7 +169,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	
 	void UpdateHardlineUIElements()
 	{
-		hab_humanity_spacer.Show(m_ShowHardlineStats);
+		hardline_reputation_spacer.Show(m_ShowHardlineStats);
 	}
 	
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)
@@ -302,11 +303,11 @@ class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 	string PlayerEnergyValue;
 	float PlayerStamina;
 	string PlayerStaminaValue;
-	
+	string Hardline_Reputation;
+
 	//! Heros and Bandits
 	string HaB_Affinity;
 	string HaB_Level;
-	string HaB_HumanityLabel;
 	string HaB_Humanity;
 	string HaB_Medic;
 	string HaB_Raid;

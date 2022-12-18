@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionDestroyLock)]
 class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 {
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )

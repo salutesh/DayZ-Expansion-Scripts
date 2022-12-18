@@ -97,7 +97,7 @@ class EXHitch
 	{
 		int elapsed = TickCount(m_Ticks);
 		if (elapsed > m_Threshold)
-			PrintFormat("%1 %2HITCH: %3ms %4ms", ExpansionStatic.GetTimestamp(), m_MsgPrefix, (elapsed / 10000.0).ToString());
+			PrintFormat("%1 %2HITCH: %3ms", ExpansionStatic.GetTimestamp(), m_MsgPrefix, (elapsed / 10000.0).ToString());
 	}
 }
 
@@ -615,24 +615,32 @@ class ExpansionStatic
 	{
 		string time_string;
 
-		if( total_time < 0 )
+		if ( total_time < 0 )
 		{
 			time_string =  "0 #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";
 			return time_string;
 		}
 
-		int time_seconds = total_time; 									//convert total time to int
+		int time_seconds = total_time;	//! Convert total time to int
 		
-		int hours = time_seconds / 3600;
-		if ( hours > 0 )
+		int days = time_seconds / 86400;
+		if ( days > 0 )
 		{
-			time_string += GetValueString( hours ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
+			time_string += GetValueString( days ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_DAYS";	//! Days
 		}
 		
-		time_string += " ";												//separator
+		time_string += " ";	//! Separator
 		
+		int hours = ( time_seconds % 86400 ) / 3600;
+		if ( hours > 0 )
+		{
+			time_string += GetValueString( hours ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";	//! Hours
+		}
+		
+		time_string += " ";	//! Separator
+
 		int minutes = ( time_seconds % 3600 ) / 60;
-		time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
+		time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";	//! Minutes
 		
 		return time_string;
 	}

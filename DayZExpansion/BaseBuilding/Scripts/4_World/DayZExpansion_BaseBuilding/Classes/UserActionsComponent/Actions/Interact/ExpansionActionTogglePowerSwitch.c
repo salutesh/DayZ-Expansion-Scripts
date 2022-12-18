@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionTogglePowerSwitch)]
 class ExpansionActionTogglePowerSwitch: ActionInteractBase
 {
 	void ExpansionActionTogglePowerSwitch()

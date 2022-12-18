@@ -15,18 +15,14 @@ class ExpansionATMMenuPlayerEntry: ExpansionScriptView
 	protected ref ExpansionATMMenu m_ATMMenu;
 	protected ref ExpansionATMMenuPlayerEntryController m_ATMMenuPlayerEntryController;
 	
-	ref SyncPlayer m_Player;
+	protected ref SyncPlayer m_Player;
 	
 	protected Widget player_element_button_background;
-	//protected ButtonWidget player_element_button;
 	protected TextWidget player_element_text;
 	protected Widget player_element_button_highlight;
 	
-	private bool m_Selected = false;
+	protected bool m_Selected = false;
 	
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry Constructor
-	// ------------------------------------------------------------	
 	void ExpansionATMMenuPlayerEntry(ExpansionATMMenu atm, SyncPlayer player)
 	{
 		m_ATMMenu = atm;
@@ -38,38 +34,25 @@ class ExpansionATMMenuPlayerEntry: ExpansionScriptView
 		SetView();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry GetLayoutFile
-	// ------------------------------------------------------------
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Market/GUI/layouts/atm/expansion_atm_menu_player_entry.layout";
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry GetControllerType
-	// ------------------------------------------------------------
+
 	override typename GetControllerType() 
 	{
 		return ExpansionATMMenuPlayerEntryController;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry SetView
-	// ------------------------------------------------------------	
+
 	void SetView()
 	{
 		player_element_button_background.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorLabels"));
-		//player_element_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorSetQuantityButton"));
 		player_element_text.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText"));
 		
 		m_ATMMenuPlayerEntryController.PlayerName = m_Player.m_PlayerName;
 		m_ATMMenuPlayerEntryController.NotifyPropertyChanged("PlayerName");
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry OnPlayerEntryButtonClick
-	// ------------------------------------------------------------	
 	void OnPlayerEntryButtonClick()
 	{
 		if (!m_Selected)
@@ -83,22 +66,21 @@ class ExpansionATMMenuPlayerEntry: ExpansionScriptView
 			m_ATMMenu.SetPlayer(NULL, this);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry SetSelected
-	// ------------------------------------------------------------	
+
 	void SetSelected(bool state)
 	{
 		m_Selected = state;
 		player_element_button_highlight.Show(state);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenuPlayerEntry IsSelected
-	// ------------------------------------------------------------	
+
 	bool IsSelected()
 	{
 		return m_Selected;
+	}
+	
+	SyncPlayer GetPlayer()
+	{
+		return m_Player;
 	}
 }
 

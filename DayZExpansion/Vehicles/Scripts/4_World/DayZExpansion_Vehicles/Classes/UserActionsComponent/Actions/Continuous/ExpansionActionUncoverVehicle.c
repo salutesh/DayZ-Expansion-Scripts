@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionUncoverVehicle)]
 class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

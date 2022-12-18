@@ -52,6 +52,7 @@ class ExpansionActionRepairVehicleBase: ExpansionActionToolBase
 	}
 }
 
+[RegisterAction(ExpansionActionRepairHelicopter)]
 class ExpansionActionRepairHelicopter: ExpansionActionRepairVehicleBase
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

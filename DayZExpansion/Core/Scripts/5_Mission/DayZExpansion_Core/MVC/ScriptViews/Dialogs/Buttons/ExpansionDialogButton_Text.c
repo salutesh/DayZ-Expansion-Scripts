@@ -13,124 +13,62 @@
 class ExpansionDialogButton_Text: ExpansionDialogButtonBase
 {
 	ref ExpansionDialogButton_TextController m_TextButtonController;
-	
+
 	string m_Text;
-	
+
 	TextWidget dialog_text;
 	ButtonWidget dialog_button;
-	
+
 	void ExpansionDialogButton_Text(ExpansionDialogBase dialog)
-	{		
+	{
 		m_Dialog = dialog;
-		
+
 		if (!m_TextButtonController)
 			m_TextButtonController = ExpansionDialogButton_TextController.Cast(GetController());
 	}
-	
+
 	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_button_text.layout";
 	}
-	
-	override typename GetControllerType() 
+
+	override typename GetControllerType()
 	{
 		return ExpansionDialogButton_TextController;
 	}
-	
+
 	string GetButtonText()
 	{
 		return m_Text;
 	}
-	
+
 	void SetButtonText(string text)
 	{
 		m_Text = text;
 	}
-	
+
 	void SetContent()
 	{
 		m_TextButtonController.ButtonText = GetButtonText();
 		m_TextButtonController.NotifyPropertyChanged("ButtonText");
 	}
-	
+
 	void OnButtonClick();
-	
+
 	override void OnShow()
 	{
 		super.OnShow();
-		
+
 		SetContent();
 	}
-	
+
 	void SetTextColor(int color)
 	{
 		dialog_text.SetColor(color);
 	}
-}
+};
 
 class ExpansionDialogButton_TextController: ExpansionViewController
 {
 	string ButtonText;
-}
-
-class ExpansionMenuDialogButton_Text: ExpansionMenuDialogButtonBase
-{
-	ref ExpansionMenuDialogButton_TextController m_TextButtonController;
-	
-	TextWidget dialog_text;
-	
-	string m_Text;
-	
-	void ExpansionMenuDialogButton_Text(ExpansionMenuDialogBase dialog)
-	{		
-		m_Dialog = dialog;
-		
-		if (!m_TextButtonController)
-			m_TextButtonController = ExpansionMenuDialogButton_TextController.Cast(GetController());
-	}
-	
-	override string GetLayoutFile() 
-	{
-		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_menu_dialog_button_text.layout";
-	}
-	
-	override typename GetControllerType() 
-	{
-		return ExpansionMenuDialogButton_TextController;
-	}
-	
-	string GetButtonText()
-	{
-		return m_Text;
-	}
-	
-	void SetButtonText(string text)
-	{
-		m_Text = text;
-	}
-	
-	void SetContent()
-	{
-		m_TextButtonController.ButtonText = GetButtonText();
-		m_TextButtonController.NotifyPropertyChanged("ButtonText");
-	}
-	
-	void OnButtonClick();
-	
-	void SetTextColor(int color)
-	{
-		dialog_text.SetColor(color);
-	}
-	
-	override void OnShow()
-	{
-		super.OnShow();
-		
-		SetContent();
-	}
-}
-
-class ExpansionMenuDialogButton_TextController: ExpansionViewController
-{
-	string ButtonText;
-}
+};

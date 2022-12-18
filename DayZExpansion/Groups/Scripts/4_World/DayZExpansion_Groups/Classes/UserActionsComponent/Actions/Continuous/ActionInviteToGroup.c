@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ActionInviteToGroup)]
 class ActionInviteToGroup: ActionInteractBase
 {
 	void ActionInviteToGroup()

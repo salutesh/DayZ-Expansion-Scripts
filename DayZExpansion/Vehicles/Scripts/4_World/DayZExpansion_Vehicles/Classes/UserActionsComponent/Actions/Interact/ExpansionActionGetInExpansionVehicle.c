@@ -13,6 +13,8 @@
 /**@class		ExpansionActionGetInExpansionVehicle
  * @brief		
  **/
+
+[RegisterAction(ExpansionActionGetInExpansionVehicle)]
 class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 {
 	void ExpansionActionGetInExpansionVehicle()

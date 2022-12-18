@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionFillFuel)]
 class ExpansionActionFillFuel: ActionContinuousBase
 {
 	const string FUEL_SELECTION_NAME = "refill";

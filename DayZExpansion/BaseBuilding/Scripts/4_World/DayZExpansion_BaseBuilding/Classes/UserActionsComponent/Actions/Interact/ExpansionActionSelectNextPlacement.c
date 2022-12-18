@@ -1,3 +1,4 @@
+[RegisterAction(ExpansionActionSelectNextPlacement)]
 class ExpansionActionSelectNextPlacement: ActionInteractBase
 {
 	private Hologram m_Hologram;

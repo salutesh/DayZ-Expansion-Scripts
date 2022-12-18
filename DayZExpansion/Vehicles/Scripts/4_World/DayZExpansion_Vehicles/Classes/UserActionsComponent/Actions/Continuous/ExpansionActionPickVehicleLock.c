@@ -26,6 +26,7 @@ class ExpansionActionPickVehicleLockBase: ExpansionActionToolBase
 	}
 }
 
+[RegisterAction(ExpansionActionPickVehicleLock)]
 class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase 
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

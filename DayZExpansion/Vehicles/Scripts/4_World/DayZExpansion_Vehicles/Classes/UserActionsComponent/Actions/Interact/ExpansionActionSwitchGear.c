@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionSwitchGear)]
 class ExpansionActionSwitchGear: ActionInteractBase
 {
 	void ExpansionActionSwitchGear()

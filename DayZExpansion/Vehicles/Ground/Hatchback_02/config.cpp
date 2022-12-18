@@ -28,6 +28,8 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
+	class GUIInventoryAttachmentsProps;
+	class Body;
 	class Vehicle_Hatchback_02_Wheel: ExpansionWheelBase
 	{
 		scope = 0;
@@ -492,9 +494,9 @@ class CfgVehicles
 		doors[] = {"Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood"};
 		defaultSkin = "Red";
 		attachments[] += {"CamoNet"};
-		class GUIInventoryAttachmentsProps
+		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Body
+			class Body: Body
 			{
 				attachmentSlots[] += {"CamoNet"};
 			};

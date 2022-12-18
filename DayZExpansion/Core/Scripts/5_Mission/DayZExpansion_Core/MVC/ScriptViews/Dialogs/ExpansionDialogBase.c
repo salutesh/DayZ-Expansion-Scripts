@@ -11,30 +11,17 @@
 */
 
 class ExpansionDialogContentSpacer: ExpansionDialogContentBase
-{	
+{
 	void ExpansionDialogContentSpacer(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 	}
-	
-	override string GetLayoutFile() 
-	{
-		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_content_spacer.layout";
-	}
-}
 
-class ExpansionMenuDialogContentSpacer: ExpansionMenuDialogContentBase
-{	
-	void ExpansionMenuDialogContentSpacer(ExpansionMenuDialogBase dialog)
-	{
-		m_Dialog = dialog;
-	}
-	
-	override string GetLayoutFile() 
+	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_content_spacer.layout";
 	}
-}
+};
 
 class ExpansionDialogBase: ExpansionScriptView
 {
@@ -45,119 +32,121 @@ class ExpansionDialogBase: ExpansionScriptView
 	WrapSpacerWidget dialog_body_content;
 	GridSpacerWidget dialog_buttons_grid;
 	ImageWidget dialog_base_backround;
-	
-	ref ExpansionScriptView m_ParentView;
+	WrapSpacerWidget dialog_base_spacer;
+
+	ref ScriptView m_ParentView;
 	ref ExpansionDialogBaseController m_DialogBaseController;
-	
-	void ExpansionDialogBase(ExpansionScriptView parentView)
+
+	void ExpansionDialogBase(ScriptView parentView)
 	{
 		m_ParentView = parentView;
-		
+
 		if (!m_DialogBaseController)
 			m_DialogBaseController = ExpansionDialogBaseController.Cast(GetController());
-		
+
 		SetBaseDialogView();
 	}
 	
-	override string GetLayoutFile() 
+	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_base.layout";
 	}
-	
-	override typename GetControllerType() 
+
+	override typename GetControllerType()
 	{
 		return ExpansionDialogBaseController;
 	}
-	
+
 	string GetDialogTitle()
 	{
 		return "";
 	}
-	
+
 	bool HasHeader()
 	{
 		return false;
 	}
-	
+
 	bool HasFooter()
 	{
 		return false;
 	}
-	
+
 	bool HasCloseButton()
 	{
 		return false;
 	}
-	
+
 	void SetBaseDialogView()
 	{
 		if (!HasHeader())
 			dialog_base_header.Show(false);
-		
+
 		if (!HasCloseButton() && HasHeader())
 			dialog_close_button.Show(false);
-		
+
 		if (GetDialogTitle() == "")
 		{
 			dialog_base_title.Show(false);
-		} 
+		}
 		else
 		{
 			m_DialogBaseController.DialogTitle = GetDialogTitle();
 			m_DialogBaseController.NotifyPropertyChanged("DialogTitle");
 		}
-		
+
 		if (!HasFooter())
 			dialog_base_footer.Show(false);
 	}
-	
+
 	void AddContent(ExpansionDialogContentBase content)
 	{
 		m_DialogBaseController.DialogContents.Insert(content);
 		m_DialogBaseController.DialogContents.Insert(new ExpansionDialogContentSpacer(this));
 	}
-	
+
 	void AddButton(ExpansionDialogButtonBase button)
 	{
 		m_DialogBaseController.DialogButtons.Insert(button);
 	}
-		
-	ExpansionScriptView GetParentView()
+
+	ScriptView GetParentView()
 	{
 		return m_ParentView;
 	}
-}
+};
 
 class ExpansionDialogBaseController: ExpansionViewController
 {
 	ref ObservableCollection<ref ExpansionDialogContentBase> DialogContents = new ObservableCollection<ref ExpansionDialogContentBase>(this);
 	ref ObservableCollection<ref ExpansionDialogButtonBase> DialogButtons = new ObservableCollection<ref ExpansionDialogButtonBase>(this);
 	string DialogTitle;
-}
+};
 
-class ExpansionDialogButtonBase: ExpansionScriptView 
+class ExpansionDialogButtonBase: ExpansionScriptView
 {
 	ref ExpansionDialogBase m_Dialog;
-	
+
 	void ExpansionDialogButtonBase(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 	}
-	
+
 	ExpansionDialogBase GetDialog()
 	{
 		return m_Dialog;
 	}
 };
-class ExpansionDialogContentBase: ExpansionScriptView 
+
+class ExpansionDialogContentBase: ExpansionScriptView
 {
 	ref ExpansionDialogBase m_Dialog;
-	
+
 	void ExpansionDialogContentBase(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 	}
-	
+
 	ExpansionDialogBase GetDialog()
 	{
 		return m_Dialog;

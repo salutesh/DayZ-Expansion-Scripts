@@ -1510,49 +1510,24 @@ modded class CarScript
 
 	bool HasBattery()
 	{
-		ItemBase battery;
+		Error("DEPRECATED, use GetBattery");
 
-		if (IsVitalCarBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
-
-		if (!battery)
-			return false;
-
-		return true;
+		return GetBattery() != null;
 	}
 
 	override ItemBase GetBattery()
 	{
-		if (IsVitalCarBattery())
-			return ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery())
-			return ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
 		if (IsVitalHelicopterBattery())
 			return ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
 		if (IsVitalAircraftBattery())
 			return ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
 
-		return null;
+		return super.GetBattery();
 	}
 
 	bool IsBatteryWorking()
 	{
-		ItemBase battery;
-
-		if (IsVitalCarBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("CarBattery"));
-		if (IsVitalTruckBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("TruckBattery"));
-		if (IsVitalHelicopterBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
-		if (IsVitalAircraftBattery())
-			battery = ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
+		ItemBase battery = GetBattery();
 
 		if (!battery || battery.IsRuined())
 			return false;
@@ -2764,16 +2739,6 @@ modded class CarScript
 		 */
 		if (!isActive)
 		{
-			if (GetGame().IsServer())
-			{
-				SetVelocity(this, "0 0 0");
-				dBodySetAngularVelocity(this, "0 0 0");
-
-				dBodyActive(this, ActiveState.INACTIVE);
-
-				SetSynchDirty();
-			}
-
 			//! This needs to run on client as well so dust particle is stopped if no driver
 			OnNoSimulation(dt);
 
@@ -4049,7 +4014,9 @@ modded class CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
 #endif
 
-		return 1.3;
+		Error("DEPRECATED, use GetTransportCameraOffset");
+
+		return GetTransportCameraOffset()[1];
 	}
 
 	float GetCameraDistance()
@@ -4058,7 +4025,9 @@ modded class CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
 #endif
 
-		return 4.5;
+		Error("DEPRECATED, use GetTransportCameraDistance");
+
+		return GetTransportCameraDistance();
 	}
 
 	float GetModelZeroPointDistanceFromGround()
@@ -4085,24 +4054,6 @@ modded class CarScript
 		}
 
 		return m_ModelZeroPointDistanceFromGround;
-	}
-
-	override float GetTransportCameraDistance()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
-#endif
-
-		return GetCameraDistance();
-	}
-
-	override vector GetTransportCameraOffset()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
-#endif
-
-		return Vector(0, GetCameraHeight(), 0);
 	}
 
 	float GetWreckAltitude()

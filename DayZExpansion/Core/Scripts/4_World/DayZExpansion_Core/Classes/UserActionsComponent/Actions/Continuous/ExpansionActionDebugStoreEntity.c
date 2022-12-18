@@ -18,6 +18,9 @@ class ExpansionActionDebugStoreEntityCB: ActionContinuousBaseCB
 	}
 };
 
+#ifdef DIAG
+[RegisterAction(ExpansionActionDebugStoreEntity)]
+#endif
 class ExpansionActionDebugStoreEntity: ActionContinuousBase
 {
 	void ExpansionActionDebugStoreEntity()

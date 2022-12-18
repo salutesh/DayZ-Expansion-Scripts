@@ -445,7 +445,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	override bool CanClose()
 	{
-		return !m_CancelQuestDialog || !m_CancelQuestDialog.IsVisible();
+		return !m_CancelQuestDialog.IsVisible();
 	}
 
 	void QuestDebug(string text)
@@ -469,23 +469,23 @@ class ExpansionQuestMenuController: ExpansionViewController
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 };
 
-class ExpansionDialog_QuestMenu_CancelQuest: ExpansionMenuDialogBase
+class ExpansionDialog_QuestMenu_CancelQuest: ExpansionDialogBase
 {
-	ref ExpansionMenuDialogContent_Text m_Text;
+	ref ExpansionDialogContent_Text m_Text;
 	ref ExpansionDialogButton_QuestMenu_CancelQuest_Accept m_AcceptButton;
 	ref ExpansionDialogButton_QuestMenu_CancelQuest_Cancel m_CancelButton;
 	ExpansionQuestMenu m_QuestMenu;
 
-	void ExpansionDialog_QuestMenu_CancelQuest(ExpansionScriptViewMenu parentMenu)
+	void ExpansionDialog_QuestMenu_CancelQuest(ScriptView parentView)
 	{
-		m_ParentMenu = parentMenu;
+		m_ParentView = parentView;
 
 		if (!m_QuestMenu)
-			m_QuestMenu = ExpansionQuestMenu.Cast(m_ParentMenu);
+			m_QuestMenu = ExpansionQuestMenu.Cast(m_ParentView);
 
 		if (!m_Text)
 		{
-			m_Text = new ExpansionMenuDialogContent_Text(this);
+			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
 			m_Text.SetText("#STR_EXPANSION_QUEST_CONFIRM_CANCEL_TEXT");
 			m_Text.SetTextColor(ARGB(255, 220, 220, 220));
@@ -513,19 +513,19 @@ class ExpansionDialog_QuestMenu_CancelQuest: ExpansionMenuDialogBase
 	}
 };
 
-class ExpansionDialogButton_QuestMenu_CancelQuest_Accept: ExpansionMenuDialogButton_Text
+class ExpansionDialogButton_QuestMenu_CancelQuest_Accept: ExpansionDialogButton_Text
 {
 	ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
 	ExpansionQuestMenu m_QuestMenu;
 	ExpansionQuestModule m_QuestModule;
 
-	void ExpansionDialogButton_QuestMenu_CancelQuest_Accept(ExpansionMenuDialogBase dialog)
+	void ExpansionDialogButton_QuestMenu_CancelQuest_Accept(ExpansionDialogBase dialog)
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = ExpansionDialog_QuestMenu_CancelQuest.Cast(GetDialog());
 
 		if (!m_QuestMenu)
-			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentMenu());
+			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentView());
 
 		if (!m_QuestModule)
 			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
@@ -545,18 +545,18 @@ class ExpansionDialogButton_QuestMenu_CancelQuest_Accept: ExpansionMenuDialogBut
 	}
 };
 
-class ExpansionDialogButton_QuestMenu_CancelQuest_Cancel: ExpansionMenuDialogButton_Text
+class ExpansionDialogButton_QuestMenu_CancelQuest_Cancel: ExpansionDialogButton_Text
 {
 	ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
 	ExpansionQuestMenu m_QuestMenu;
 
-	void ExpansionDialogButton_QuestMenu_CancelQuest_Cancel(ExpansionMenuDialogBase dialog)
+	void ExpansionDialogButton_QuestMenu_CancelQuest_Cancel(ExpansionDialogBase dialog)
 	{
 		if (!m_CancelQuestDialog)
 			m_CancelQuestDialog = ExpansionDialog_QuestMenu_CancelQuest.Cast(GetDialog());
 
 		if (!m_QuestMenu)
-			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentMenu());
+			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentView());
 
 		SetButtonText("#STR_EXPANSION_CANCEL");
 		SetTextColor(ARGB(255, 220, 220, 220));

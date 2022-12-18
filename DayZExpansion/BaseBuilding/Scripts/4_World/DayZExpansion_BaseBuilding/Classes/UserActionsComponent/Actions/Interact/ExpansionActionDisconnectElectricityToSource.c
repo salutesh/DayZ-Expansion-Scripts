@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionDisconnectElectricityToSource)]
 class ExpansionActionDisconnectElectricityToSource: ActionInteractBase
 {
 	void ExpansionActionDisconnectElectricityToSource()

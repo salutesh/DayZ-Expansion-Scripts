@@ -717,15 +717,6 @@ class ExpansionBus extends CarScript
 		return false;
 	}
 
-	override float GetCameraDistance()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
-#endif
-
-		return 10;
-	}
-
 	override bool LeavingSeatDoesAttachment(int posIdx)
 	{
 #ifdef EXPANSIONTRACE

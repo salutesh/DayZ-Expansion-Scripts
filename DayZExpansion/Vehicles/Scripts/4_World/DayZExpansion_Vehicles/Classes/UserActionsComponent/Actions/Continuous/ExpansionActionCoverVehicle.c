@@ -18,6 +18,7 @@ class ExpansionActionCoverVehicleCB: ActionContinuousBaseCB
 	}
 };
 
+[RegisterAction(ExpansionActionCoverVehicle)]
 class ExpansionActionCoverVehicle: ActionContinuousBase
 {
 	void ExpansionActionCoverVehicle()

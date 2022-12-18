@@ -41,10 +41,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	protected ref ExpansionATMMenuColorHandler m_ColorHandler;	
 	
 	protected int m_PlayerSearchRadius = 25;
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu Constructor
-	// ------------------------------------------------------------	
+		
 	void ExpansionATMMenu()
 	{
 		if (!m_ATMMenuController)
@@ -64,59 +61,47 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			m_ColorHandler = new ExpansionATMMenuColorHandler(GetLayoutRoot());
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionATMMenu GetLayoutFile
-	// ------------------------------------------------------------
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Market/GUI/layouts/atm/expansion_atm_menu.layout";
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionATMMenu GetControllerType
-	// ------------------------------------------------------------
 	override typename GetControllerType() 
 	{
 		return ExpansionATMMenuController;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionATMMenu CanShow
-	// ------------------------------------------------------------
+
 	override bool CanShow()
 	{
 		return GetExpansionSettings().GetMarket().ATMSystemEnabled;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnHide
-	// ------------------------------------------------------------	
+
 	override void OnHide()
 	{
 		super.OnHide();
 		
 		if (GetExpansionSettings().GetMarket().ATMPlayerTransferEnabled)
 			ClearPlayers();
-	}
 		
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnMouseButtonDown
-	// ------------------------------------------------------------
+		if (m_TransferDialog)
+			m_TransferDialog.Destroy();
+		
+		if (m_PartyTransferDialog)
+			m_PartyTransferDialog.Destroy();
+	}
+
 	void SetPlayerATMData(ExpansionMarketATM_Data data)
 	{
 		m_ATMData = data;
 		
 		SetView();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu SetView
-	// ------------------------------------------------------------
+
 	void SetView()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "SetView");
-#endif
+	#endif
 
 		m_ATMMenuController.MaxValue = GetExpansionSettings().GetMarket().MaxDepositMoney.ToString();
 		m_ATMMenuController.NotifyPropertyChanged("MaxValue");
@@ -176,10 +161,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			#endif
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu UpdateView
-	// ------------------------------------------------------------
+
 	void UpdateView(bool updatePlayerMoney = true)
 	{
 		m_ATMMenuController.MoneyDepositValue = m_ATMData.MoneyDeposited.ToString();
@@ -220,10 +202,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 
 		return quantity.ToInt();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnWithdrawButtonClick
-	// ------------------------------------------------------------
+
 	void OnWithdrawButtonClick()
 	{		
 		//! Only numbers are allowed
@@ -255,10 +234,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 
 		m_MarketModule.RequestWithdrawMoney(m_Amount);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnWithdrawAllButtonClick
-	// ------------------------------------------------------------
+
 	void OnWithdrawAllButtonClick()
 	{
 		m_Amount = m_ATMData.MoneyDeposited;
@@ -278,10 +254,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 
 		m_MarketModule.RequestWithdrawMoney(m_Amount);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnDepositButtonClick
-	// ------------------------------------------------------------	
+
 	void OnDepositButtonClick()
 	{
 		//! Only numbers are allowed
@@ -314,10 +287,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		m_MarketModule.RequestDepositMoney(m_Amount);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnDepositButtonClick
-	// ------------------------------------------------------------	
+
 	void OnDepositAllButtonClick()
 	{
 		m_Amount = m_PlayerMoney;
@@ -339,9 +309,6 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_MarketModule.RequestDepositMoney(m_Amount);
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnCallback
-	// ------------------------------------------------------------	
 	void OnCallback(int amount, ExpansionMarketATM_Data data, int state)
 	{
 		switch (state)
@@ -362,10 +329,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		UpdateView(false);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu LoadPlayers
-	// ------------------------------------------------------------
+
 	void LoadPlayers(string filter)
 	{
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
@@ -419,7 +383,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		for (int i = 0; i < m_ATMMenuController.PlayerEntries.Count(); ++i)
 		{
 			ExpansionATMMenuPlayerEntry entry = m_ATMMenuController.PlayerEntries[i];
-			if (entry.m_Player.m_RUID == playerSync.m_RUID)
+			if (entry.GetPlayer().m_RUID == playerSync.m_RUID)
 			{
 				isInList = true;
 				continue;
@@ -432,10 +396,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			m_ATMMenuController.PlayerEntries.Insert(newEntry);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu ClearPlayers
-	// ------------------------------------------------------------
+
 	void ClearPlayers()
 	{
 		if (m_ATMMenuController.PlayerEntries.Count() > 0)
@@ -450,10 +411,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 			m_ATMMenuController.PlayerEntries.Clear();
 		}
 	}	
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu SetPlayer
-	// ------------------------------------------------------------
+
 	void SetPlayer(SyncPlayer playerSync, ExpansionATMMenuPlayerEntry selectedEntry)
 	{
 		m_SelectedPlayer = playerSync;
@@ -465,19 +423,13 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 				entry.SetSelected(false);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnFilterButtonClick
-	// ------------------------------------------------------------
+
 	void OnFilterButtonClick()
 	{
 		atm_filter_box.SetText("");
 		LoadPlayers("");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnTransferButtonClick
-	// ------------------------------------------------------------
+
 	void OnTransferButtonClick()
 	{
 		if (!m_SelectedPlayer)
@@ -512,10 +464,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		m_TransferDialog.Show();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnTransferAllButtonClick
-	// ------------------------------------------------------------
+
 	void OnTransferAllButtonClick()
 	{
 		if (!m_SelectedPlayer)
@@ -538,19 +487,14 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		m_TransferDialog.Show();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu ConfirmTransfer
-	// ------------------------------------------------------------
+
 	void ConfirmTransfer()
 	{
 		m_TransferDialog.Hide();
+		m_TransferDialog.Destroy();
 		m_MarketModule.RequestTransferMoneyToPlayer(m_Amount, m_SelectedPlayer.m_RUID);
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnTransferPartyButtonClick
-	// ------------------------------------------------------------
+
 	void OnTransferPartyButtonClick()
 	{
 		#ifdef EXPANSIONMODGROUPS
@@ -591,9 +535,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_PartyTransferDialog.Show();
 		#endif
 	}
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnTransferAllPartyButtonClick
-	// ------------------------------------------------------------
+
 	void OnTransferAllPartyButtonClick()
 	{
 		#ifdef EXPANSIONMODGROUPS
@@ -622,10 +564,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_PartyTransferDialog.Show();
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnWithdrawButtonClick
-	// ------------------------------------------------------------
+
 	void OnWithdrawPartyButtonClick()
 	{
 		#ifdef EXPANSIONMODGROUPS
@@ -667,10 +606,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_MarketModule.RequestPartyWithdrawMoney(m_Amount, m_Party.GetPartyID());
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnWithdrawAllPartyButtonClick
-	// ------------------------------------------------------------
+
 	void OnWithdrawAllPartyButtonClick()
 	{
 		#ifdef EXPANSIONMODGROUPS
@@ -700,10 +636,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		m_MarketModule.RequestPartyWithdrawMoney(m_Amount, m_Party.GetPartyID());
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu ConfirmPartyTransfer
-	// ------------------------------------------------------------
+
 	void ConfirmPartyTransfer()
 	{
 		#ifdef EXPANSIONMODGROUPS
@@ -713,18 +646,12 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	}
 	
 	#ifdef EXPANSIONMODGROUPS
-	// ------------------------------------------------------------
-	// ExpansionATMMenu GetPlayerPartyData
-	// ------------------------------------------------------------
 	ExpansionPartyPlayerData GetPlayerPartyData()
 	{
 		return m_Party.GetPlayer(GetGame().GetPlayer().GetIdentity().GetId());
 	}
 	#endif
 	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnTransferCallback
-	// ------------------------------------------------------------
 	void OnTransferCallback(ExpansionMarketATM_Data data)
 	{
 		m_ATMData = data;
@@ -733,14 +660,11 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	}
 	
 	#ifdef EXPANSIONMODGROUPS
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnPartyCallback
-	// ------------------------------------------------------------
 	void OnPartyCallback(int amount, ExpansionPartyData party, ExpansionMarketATM_Data data, int state)
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.MARKET, this, "OnPartyCallback");
-#endif
+	#endif
 
 		m_Party = party;
 		m_ATMData = data;
@@ -765,9 +689,6 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 	}
 	#endif
 	
-	// ------------------------------------------------------------
-	// ExpansionATMMenu OnChange
-	// ------------------------------------------------------------
 	override bool OnChange(Widget w, int x, int y, bool finished)
 	{
 		if (w == atm_filter_box)
@@ -778,10 +699,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseEnter
-	// ------------------------------------------------------------
+
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		switch (w)
@@ -793,10 +711,7 @@ class ExpansionATMMenu: ExpansionScriptViewMenu
 		
 		return super.OnMouseEnter(w, x, y);
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseLeave
-	// ------------------------------------------------------------
+
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		switch (w)

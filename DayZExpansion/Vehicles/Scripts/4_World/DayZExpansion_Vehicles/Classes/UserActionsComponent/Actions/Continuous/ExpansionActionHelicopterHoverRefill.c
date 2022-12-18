@@ -24,6 +24,8 @@ class ExpansionActionHelicopterHoverRefillCB : ActionContinuousBaseCB
 /**@class		ExpansionActionHelicopterHoverRefill
  * @brief		
  **/
+
+[RegisterAction(ExpansionActionHelicopterHoverRefill)]
 class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 {
 	void ExpansionActionHelicopterHoverRefill()

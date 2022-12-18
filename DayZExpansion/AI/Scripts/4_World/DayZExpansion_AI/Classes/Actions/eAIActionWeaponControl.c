@@ -1,3 +1,4 @@
+[RegisterAction(eAIActionWeaponControl)]
 class eAIActionWeaponControl : ActionBase
 {
 	override typename GetInputType()

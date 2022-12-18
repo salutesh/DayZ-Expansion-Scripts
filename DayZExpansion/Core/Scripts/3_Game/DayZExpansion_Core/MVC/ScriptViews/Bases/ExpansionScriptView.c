@@ -20,7 +20,7 @@ class ExpansionViewController: ViewController
 
 class ExpansionScriptViewBase: ScriptView
 {
-	private bool m_IsVisible;
+	protected bool m_IsVisible;
 
 	void ExpansionScriptViewBase()
 	{

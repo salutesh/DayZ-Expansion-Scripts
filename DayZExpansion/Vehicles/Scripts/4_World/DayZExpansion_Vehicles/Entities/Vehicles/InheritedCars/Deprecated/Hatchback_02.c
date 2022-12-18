@@ -12,15 +12,6 @@
 
 modded class Hatchback_02
 {
-	override bool IsVitalCarBattery()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalHelicopterBattery");
-#endif
-
-		return true;
-	}
-
 	override string ExpansionGetWheelType(int slot_id)
 	{
 		return "Hatchback_02_Wheel";

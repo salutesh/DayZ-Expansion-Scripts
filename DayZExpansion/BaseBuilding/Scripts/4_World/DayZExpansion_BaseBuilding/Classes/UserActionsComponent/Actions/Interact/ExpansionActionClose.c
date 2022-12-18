@@ -10,6 +10,7 @@
  *
 */
 
+[RegisterAction(ExpansionActionClose)]
 class ExpansionActionClose: ActionInteractBase
 {
 	ItemBase m_Target;
