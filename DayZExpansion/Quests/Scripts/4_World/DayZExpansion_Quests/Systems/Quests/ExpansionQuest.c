@@ -1223,9 +1223,13 @@ class ExpansionQuest
 		ExpansionHardlineModule hardlineModule;
 		ExpansionHardlinePlayerData hardlinePlayerData;
 	#endif
+	//! If group mod is not loaded but the quest is flaged as a group quest make it a normal one.
+	#ifndef EXPANSIONMODGROUPS
+		if (m_IsGroupQuest)
+			m_IsGroupQuest = false;
+	#endif
 
-		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
-
+		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);		
 		if (!m_IsGroupQuest)
 		{
 			EntityAI playerEntity = questPlayer;
@@ -1279,20 +1283,18 @@ class ExpansionQuest
 			if (groupOwner)
 				isGroupOwnerOnline = true;
 
+			if (Config.RewardsForGroupOwnerOnly() && !isGroupOwnerOnline)
+				return;
+			
 			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
 			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
 				if (Config.RewardsForGroupOwnerOnly())
 				{
 					QuestDebugPrint(ToString() + "::SpawnQuestRewards - Quest rewards for quest " + GetQuestConfig().GetID() + " are for the quest owner only.");
-					if (isGroupOwnerOnline && playerGroupData.GetID() != GetGroup().GetOwnerUID())
+					if (playerGroupData.GetID() != GetGroup().GetOwnerUID())
 					{
-						QuestDebugPrint(ToString() + "::SpawnQuestRewards - Owner is online but player [UID: " + playerGroupData.GetID() + "] is not the group owner. Skip!");
-						continue;
-					}
-					else if (!isGroupOwnerOnline && playerGroupData.GetID() != playerUID)
-					{
-						QuestDebugPrint(ToString() + "::SpawnQuestRewards - Owner is not online and player [UID: " + playerGroupData.GetID() + "] is not the player who has turned-in the quest. Skip!");
+						QuestDebugPrint(ToString() + "::SpawnQuestRewards - Player [UID: " + playerGroupData.GetID() + "] is not the group owner. Skip!");
 						continue;
 					}
 				}
@@ -1311,7 +1313,7 @@ class ExpansionQuest
 					QuestDebugPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
 					SpawnReward(reward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), m_Player.GetOrientation());
 				}
-				else
+				else if (!Config.NeedToSelectReward)
 				{
 					//! Add all quest rewards to the players inventory
 					array<ref ExpansionQuestRewardConfig> groupQuestRewards = Config.GetRewards();

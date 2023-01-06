@@ -76,6 +76,9 @@ modded class DayZPlayerImplement
 		if (!Object.CastTo(attchObh, m_ExClimbResult.m_ClimbStandPointParent))
 			return false;
 
+		if (m_ExClimbResult.m_bIsClimbOver)
+			return false;
+
 		if (!ExpansionAttachmentHelper.CanAttachTo(this, attchObh))
 			return false;
 

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Merlin
 	{
-		units[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","ExpansionMerlinCargoRamp","ExpansionMerlinWreck","ExpansionMerlin","ExpansionSpraycanGreen","ExpansionMerlin_Green","ExpansionSpraycanDahoman","ExpansionMerlin_Dahoman","ExpansionSpraycanIon","ExpansionMerlin_Ion","ExpansionSpraycanPresident","ExpansionMerlin_President","ExpansionSpraycanVrana","ExpansionMerlin_Vrana","ExpansionSpraycanWave","ExpansionMerlin_Wave"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -595,7 +595,7 @@ class CfgVehicles
 						travelMaxUp = 0.079;
 						travelMaxDown = 0.06;
 					};
-					class Wheels: Wheels
+					class Wheels
 					{
 						class Left: Left
 						{
@@ -627,7 +627,7 @@ class CfgVehicles
 						travelMaxUp = 0.086;
 						travelMaxDown = 0.133;
 					};
-					class Wheels: Wheels
+					class Wheels
 					{
 						class Left: Left
 						{
@@ -1152,22 +1152,12 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Green";
 	};
-	class ExpansionMerlin_Green: ExpansionMerlin
-	{
-		skinBase = "ExpansionMerlin";
-		skinName = "Green";
-	};
 	class ExpansionSpraycanDahoman: ExpansionSpraycanBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Dahoman_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Dahoman_DESC";
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
-		skinName = "Dahoman";
-	};
-	class ExpansionMerlin_Dahoman: ExpansionMerlin
-	{
-		skinBase = "ExpansionMerlin";
 		skinName = "Dahoman";
 	};
 	class ExpansionSpraycanIon: ExpansionSpraycanBase
@@ -1178,22 +1168,12 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Ion";
 	};
-	class ExpansionMerlin_Ion: ExpansionMerlin
-	{
-		skinBase = "ExpansionMerlin";
-		skinName = "Ion";
-	};
 	class ExpansionSpraycanPresident: ExpansionSpraycanBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_President_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_President_DESC";
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
-		skinName = "President";
-	};
-	class ExpansionMerlin_President: ExpansionMerlin
-	{
-		skinBase = "ExpansionMerlin";
 		skinName = "President";
 	};
 	class ExpansionSpraycanVrana: ExpansionSpraycanBase
@@ -1204,22 +1184,12 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Vrana";
 	};
-	class ExpansionMerlin_Vrana: ExpansionMerlin
-	{
-		skinBase = "ExpansionMerlin";
-		skinName = "Vrana";
-	};
 	class ExpansionSpraycanWave: ExpansionSpraycanBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Wave_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Wave_DESC";
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
-		skinName = "Wave";
-	};
-	class ExpansionMerlin_Wave: ExpansionMerlin
-	{
-		skinBase = "ExpansionMerlin";
 		skinName = "Wave";
 	};
 };

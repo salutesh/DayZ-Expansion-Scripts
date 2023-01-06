@@ -633,7 +633,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return GetCameraDistance();
+		return 15;
 	}
 	
 	override vector GetTransportCameraOffset()
@@ -642,25 +642,7 @@ class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return Vector( 0, GetCameraHeight(), 0 );
-	}
-
-	float GetCameraHeight()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
-#endif
-
-		return 5;
-	}
-
-	float GetCameraDistance()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
-#endif
-
-		return 15;
+		return Vector( 0, 5, 0 );
 	}
 
 	override bool IsHelicopter()

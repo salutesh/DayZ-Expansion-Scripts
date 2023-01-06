@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Carrier
 	{
-		units[] = {"ExpansionLHD","ExpansionLHD1","ExpansionLHD2","ExpansionLHD3","ExpansionLHD4","ExpansionLHD5","ExpansionLHD6","ExpansionLHDHouse1","ExpansionLHDHouse2","ExpansionLHDElevatorL","ExpansionLHDElevatorR","ExpansionLHDInterior1","ExpansionLHDInterior2","ExpansionLHDInterior3","bldr_expansion_lhd1","bldr_expansion_lhd2","bldr_expansion_lhd3","bldr_expansion_lhd4","bldr_expansion_lhd5","bldr_expansion_lhd6","bldr_expansion_evelv_r","bldr_expansion_house1","bldr_expansion_house2","bldr_expansion_shadow","bldr_expansion_wall_lamp","bldr_expansion_lhd_evelv_r","bldr_expansion_lhd_house1","bldr_expansion_lhd_house2","bldr_expansion_lhd_shadow","bldr_expansion_lhd_wall_lamp"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};

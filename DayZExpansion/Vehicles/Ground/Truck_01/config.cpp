@@ -29,21 +29,21 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
-	class Truck_01_Base: CarScript
-	{
-		attachments[] += {"CamoNet"};
-		class GUIInventoryAttachmentsProps
-		{
-			class Body
-			{
-				attachmentSlots[] += {"CamoNet"};
-			};
-		};
-	};
+	class GUIInventoryAttachmentsProps;
+	class Body;
+	class Truck_01_Base;
 	class Truck_01_Covered: Truck_01_Base
 	{
 		doors[] = {"Truck_01_Door_1_1","Truck_01_Door_2_1","Truck_01_Hood"};
 		defaultSkin = "Green";
+		attachments[] += {"CamoNet"};
+		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
+		{
+			class Body: Body
+			{
+				attachmentSlots[] += {"CamoNet"};
+			};
+		};
 	};
 	class Vehicle_Truck_01_Base: ExpansionVehicleCarBase
 	{

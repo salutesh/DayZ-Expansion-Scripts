@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_C130J
 	{
-		units[] = {"ExpansionSpraycanGrey"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -435,11 +435,6 @@ class CfgVehicles
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Grey_DESC";
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_grey_co.paa"};
 		skinName = "Grey";
-	};
-	class Vehicle_ExpansionC130J_Gray: Vehicle_ExpansionC130J
-	{
-		skinBase = "Vehicle_ExpansionC130J";
-		skinName = "Gray";
 	};
 };
 class CfgNonAIVehicles

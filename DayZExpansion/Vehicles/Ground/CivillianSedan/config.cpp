@@ -28,6 +28,8 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
+	class GUIInventoryAttachmentsProps;
+	class Body;
 	class Vehicle_CivSedanWheel: ExpansionWheelBase
 	{
 		scope = 0;
@@ -502,9 +504,9 @@ class CfgVehicles
 		applySkinsTo[] = {"CivSedanDoors_Driver","CivSedanDoors_CoDriver","CivSedanDoors_BackLeft","CivSedanDoors_BackRight","CivSedanHood","CivSedanTrunk","Expansion_CivSedanDoors_Driver","Expansion_CivSedanDoors_CoDriver","Expansion_CivSedanDoors_BackLeft","Expansion_CivSedanDoors_BackRight","Expansion_CivSedanHood","Expansion_CivSedanTrunk"};
 		defaultSkin = "White";
 		attachments[] += {"CamoNet"};
-		class GUIInventoryAttachmentsProps
+		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Body
+			class Body: Body
 			{
 				attachmentSlots[] += {"CamoNet"};
 			};

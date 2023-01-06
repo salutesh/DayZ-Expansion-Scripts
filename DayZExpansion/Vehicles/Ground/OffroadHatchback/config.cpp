@@ -29,6 +29,8 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
+	class GUIInventoryAttachmentsProps;
+	class Body;
 	class Vehicle_HatchbackWheel: ExpansionWheelBase
 	{
 		scope = 0;
@@ -545,9 +547,9 @@ class CfgVehicles
 		doors[] = {"NivaDriverDoors","NivaCoDriverDoors","NivaTrunk","NivaHood"};
 		defaultSkin = "Green";
 		attachments[] += {"CamoNet"};
-		class GUIInventoryAttachmentsProps
+		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Body
+			class Body: Body
 			{
 				attachmentSlots[] += {"CamoNet"};
 			};

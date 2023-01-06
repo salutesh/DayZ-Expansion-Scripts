@@ -6,21 +6,18 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Camping"};
-		units[] = {};
-		weapons[] = {};
 	};
 };
 class CfgVehicles
 {
 	class TentBase;
 	class GUIInventoryAttachmentsProps;
-	class Attachments;
 	class MediumTent: TentBase
 	{
 		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Attachments: Attachments
+			class Attachments
 			{
 				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
@@ -31,7 +28,7 @@ class CfgVehicles
 		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Attachments: Attachments
+			class Attachments
 			{
 				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
@@ -42,7 +39,7 @@ class CfgVehicles
 		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Attachments: Attachments
+			class Attachments
 			{
 				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};
@@ -53,7 +50,7 @@ class CfgVehicles
 		attachments[] += {"Att_ExpansionCodeLock"};
 		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Attachments: Attachments
+			class Attachments
 			{
 				attachmentSlots[] += {"Att_ExpansionCodeLock"};
 			};

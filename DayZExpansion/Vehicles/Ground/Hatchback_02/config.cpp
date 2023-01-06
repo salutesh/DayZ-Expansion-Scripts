@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Hatchback_02
 	{
-		units[] = {"Hatchback_02_Hood","Hatchback_02_Trunk","Hatchback_02_Hood_Red","Hatchback_02_Trunk_Red","Hatchback_02_Hood_Black","Hatchback_02_Trunk_Black","Hatchback_02_Hood_Blue","Hatchback_02_Trunk_Blue","Hatchback_02_Hood_RedRust","Hatchback_02_Trunk_RedRust","Hatchback_02_Hood_BlackRust","Hatchback_02_Trunk_BlackRust","Hatchback_02_Hood_BlueRust","Hatchback_02_Trunk_BlueRust","Hatchback_02_Hood_BanditKitty","Hatchback_02_Trunk_BanditKitty"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -28,6 +28,8 @@ class CfgVehicles
 	class Left;
 	class Right;
 	class AnimationSources;
+	class GUIInventoryAttachmentsProps;
+	class Body;
 	class Vehicle_Hatchback_02_Wheel: ExpansionWheelBase
 	{
 		scope = 0;
@@ -492,9 +494,9 @@ class CfgVehicles
 		doors[] = {"Hatchback_02_Door_1_1","Hatchback_02_Door_1_2","Hatchback_02_Door_2_1","Hatchback_02_Door_2_2","Hatchback_02_Trunk","Hatchback_02_Hood"};
 		defaultSkin = "Red";
 		attachments[] += {"CamoNet"};
-		class GUIInventoryAttachmentsProps
+		class GUIInventoryAttachmentsProps: GUIInventoryAttachmentsProps
 		{
-			class Body
+			class Body: Body
 			{
 				attachmentSlots[] += {"CamoNet"};
 			};

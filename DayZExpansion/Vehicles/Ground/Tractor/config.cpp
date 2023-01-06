@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Tractor
 	{
-		units[] = {"ExpansionTractorFrontWheel","ExpansionTractorFrontWheel_Ruined","ExpansionTractorBackWheel","ExpansionTractorBackWheel_Ruined","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","ExpansionTractor","ExpansionSpraycanRed","ExpansionTractor_Red","ExpansionSpraycanBlue","ExpansionTractor_Blue","ExpansionSpraycanGreen","ExpansionTractor_Green"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};

@@ -178,7 +178,10 @@ class ExpansionQuestObjectiveDeliveryEventBase: ExpansionQuestObjectiveEventBase
 			overallNeeded += needed;
 
 			array<EntityAI> items = new array<EntityAI>;
-			if (m_PlayerEntityInventory && m_PlayerEntityInventory.HasItem(name, items))
+			TStringArray typeNames = new TStringArray;
+			typeNames.Insert(name);
+			
+			if (m_PlayerEntityInventory && m_PlayerEntityInventory.HasAnyOf(typeNames, items))
 			{
 				foreach (EntityAI item: items)
 				{
@@ -194,7 +197,8 @@ class ExpansionQuestObjectiveDeliveryEventBase: ExpansionQuestObjectiveEventBase
 						break;
 				}
 			}
-
+			
+			typeNames.Clear();
 			overallCount += overallItemCount; //! Add current overall inventroy item count to overall collection inventory items count.
 
 			ObjectivePrint(ToString() + "::HasAllObjectiveItems - Item: " + name + " | Inventory count: " + overallItemCount);
@@ -252,7 +256,10 @@ class ExpansionQuestObjectiveDeliveryEventBase: ExpansionQuestObjectiveEventBase
 			overallNeeded += needed;
 
 			array<EntityAI> items = new array<EntityAI>;
-			if (m_GroupEntityInventory && m_GroupEntityInventory.HasItem(name, items))
+			TStringArray typeNames = new TStringArray;
+			typeNames.Insert(name);
+			
+			if (m_GroupEntityInventory && m_GroupEntityInventory.HasAnyOf(typeNames, items))
 			{
 				foreach (EntityAI item: items)
 				{
@@ -268,7 +275,8 @@ class ExpansionQuestObjectiveDeliveryEventBase: ExpansionQuestObjectiveEventBase
 						break;
 				}
 			}
-
+			
+			typeNames.Clear();
 			overallCount += overallItemCount;
 
 			ObjectivePrint(ToString() + "::HasGroupAllObjectiveItems - Item: " + name + " | Inventory count: " + overallItemCount);

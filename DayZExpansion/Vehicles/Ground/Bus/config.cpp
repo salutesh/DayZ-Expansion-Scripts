@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Ikarus
 	{
-		units[] = {"ExpansionBusWheel","ExpansionBusWheel_Ruined","ExpansionBusWheelDouble","ExpansionBusWheelDouble_Ruined","ExpansionBus","ExpansionSpraycanBlue","ExpansionBus_Blue","ExpansionSpraycanWeeb","ExpansionBus_Weeb","ExpansionSpraycanRed","ExpansionBus_Red"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -1173,16 +1173,6 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_blue_co.paa"};
 		skinName = "Blue";
 	};
-	class ExpansionBus_Blue: ExpansionBus
-	{
-		skinBase = "ExpansionBus";
-		skinName = "Blue";
-	};
-	class Vehicle_ExpansionBus_Blue: Vehicle_ExpansionBus
-	{
-		skinBase = "Vehicle_ExpansionBus";
-		skinName = "Blue";
-	};
 	class ExpansionSpraycanWeeb: ExpansionSpraycanBase
 	{
 		scope = 2;
@@ -1191,32 +1181,12 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Weeb";
 	};
-	class ExpansionBus_Weeb: ExpansionBus
-	{
-		skinBase = "ExpansionBus";
-		skinName = "Weeb";
-	};
-	class Vehicle_ExpansionBus_Weeb: Vehicle_ExpansionBus
-	{
-		skinBase = "Vehicle_ExpansionBus";
-		skinName = "Weeb";
-	};
 	class ExpansionSpraycanRed: ExpansionSpraycanBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Red_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Red_DESC";
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_red_co.paa"};
-		skinName = "Red";
-	};
-	class ExpansionBus_Red: ExpansionBus
-	{
-		skinBase = "ExpansionBus";
-		skinName = "Red";
-	};
-	class Vehicle_ExpansionBus_Red: Vehicle_ExpansionBus
-	{
-		skinBase = "Vehicle_ExpansionBus";
 		skinName = "Red";
 	};
 };

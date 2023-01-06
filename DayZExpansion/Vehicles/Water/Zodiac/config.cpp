@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Water_Boat_Zodiac
 	{
-		units[] = {"ExpansionZodiacBoat","ExpansionSpraycanOrange","ExpansionZodiacBoat_Orange","ExpansionSpraycanBlack","ExpansionZodiacBoat_Black","ExpansionSpraycanGreen","ExpansionZodiacBoat_Green"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};

@@ -26,22 +26,4 @@ modded class Truck_01_Base
 
 		return "Truck_01_Wheel";
 	}
-
-	override float GetTransportCameraDistance()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
-#endif
-
-		return 6.0;
-	}
-
-	override float GetCameraHeight()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
-#endif
-
-		return 3.2;
-	}
 };

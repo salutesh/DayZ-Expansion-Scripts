@@ -102,16 +102,16 @@ class ExpansionTractor extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
-		return 3.5;
+		return 4.0;
 	}
 
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return 2.2;
+		return "0 2.2 0";
 	}
 
 	override int GetAnimInstance()

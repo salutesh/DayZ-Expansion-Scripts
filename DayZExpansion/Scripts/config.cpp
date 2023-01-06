@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Scripts
 	{
-		units[] = {"ExpansionRadio"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core_Scripts"};

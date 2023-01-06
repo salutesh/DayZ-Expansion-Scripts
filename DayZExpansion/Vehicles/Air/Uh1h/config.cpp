@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Uh1h
 	{
-		units[] = {"ExpansionUh1hDoor_1_1","ExpansionUh1hDoor_1_2","ExpansionUh1hDoor_2_1","ExpansionUh1hDoor_2_2","ExpansionUh1hWreck","ExpansionUh1h","ExpansionSpraycanGreen","ExpansionUh1h_Green","ExpansionUh1hDoor_1_1_Green","ExpansionUh1hDoor_1_2_Green","ExpansionUh1hDoor_2_1_Green","ExpansionUh1hDoor_2_2_Green","ExpansionSpraycanCivilian","ExpansionUh1h_Civilian","ExpansionUh1hDoor_1_1_Civilian","ExpansionUh1hDoor_1_2_Civilian","ExpansionUh1hDoor_2_1_Civilian","ExpansionUh1hDoor_2_2_Civilian","ExpansionSpraycanMedical","ExpansionUh1h_Medical","ExpansionUh1hDoor_1_1_Medical","ExpansionUh1hDoor_1_2_Medical","ExpansionUh1hDoor_2_1_Medical","ExpansionUh1hDoor_2_2_Medical","ExpansionSpraycanUber","ExpansionUh1h_Uber","ExpansionUh1hDoor_1_1_Uber","ExpansionUh1hDoor_1_2_Uber","ExpansionUh1hDoor_2_1_Uber","ExpansionUh1hDoor_2_2_Uber","ExpansionSpraycanResistance","ExpansionUh1h_Resistance","ExpansionUh1hDoor_1_1_Resistance","ExpansionUh1hDoor_1_2_Resistance","ExpansionUh1hDoor_2_1_Resistance","ExpansionUh1hDoor_2_2_Resistance"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -31,7 +31,7 @@ class CfgSlots
 	class Slot_uh1hdoor_2_1
 	{
 		name = "uh1hdoor_2_1";
-		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFTT";
+		displayName = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_UH1H_DOOR_LEFT_DESC";
 		selection = "uh1hdoor_2_1";
 		ghostIcon = "doorfront";

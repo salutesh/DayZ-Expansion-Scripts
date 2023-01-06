@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Objects_Gear
 	{
-		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","Expansion_Generic_Vehicle_Cover","ExpansionBus_Cover","Expansion_Landrover_Cover","ExpansionUAZ_Cover","ExpansionUAZCargo_Cover","ExpansionUAZRoofless_Cover","ExpansionUAZCargoRoofless_Cover","ExpansionMh6_Cover","ExpansionUh1h_Cover","ExpansionMerlin_Cover","ExpansionGyrocopter_Cover","ExpansionLHD_Cover","ExpansionUtilityBoat_Cover","ExpansionZodiacBoat_Cover","ExpansionTractor_Cover","ExpansionVodnik_Cover","OffroadHatchback_Cover","CivilianSedan_Cover","Hatchback_02_Cover","Sedan_02_Cover","Truck_01_Covered_Cover","Offroad_02_Cover"};
+		units[] = {"ExpansionStaticKeyGrinder","ExpansionCarKey","ExpansionCarAdminKey","ExpansionKeyChainBase","ExpansionKeyChain_Red","ExpansionKeyChain_White","ExpansionKeyChain_Black","ExpansionKeyChain_Blue","ExpansionKeyChain_Green","ExpansionKeyChain_Grey","ExpansionKeyChain_Orange","ExpansionKeyChain_Pink","ExpansionKeyChain_Purple","ExpansionKeyChain_Yellow","GlowPlug","ExpansionIgniterPlug","ExpansionHydraulicHoses","ExpansionHelicopterBattery","ExpansionAircraftBattery","Expansion_Generic_Vehicle_Cover","ExpansionBus_Cover","Expansion_Landrover_Cover","ExpansionUAZ_Cover","ExpansionUAZCargo_Cover","ExpansionUAZRoofless_Cover","ExpansionUAZCargoRoofless_Cover","ExpansionMh6_Cover","ExpansionUh1h_Cover","ExpansionMerlin_Cover","ExpansionGyrocopter_Cover","ExpansionLHD_Cover","ExpansionUtilityBoat_Cover","ExpansionZodiacBoat_Cover","ExpansionTractor_Cover","ExpansionVodnik_Cover","OffroadHatchback_Cover","CivilianSedan_Cover","Hatchback_02_Cover","Sedan_02_Cover","Truck_01_Covered_Cover","Offroad_02_Cover","ExpansionHatchBird_Cover"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Camping","DZ_Scripts","DayZExpansion_Objects_Gear_Spraycans"};
@@ -563,6 +563,7 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
 	};
+	class ExpansionHatchBird_Cover: OffroadHatchback_Cover{};
 };
 class CfgSlots
 {

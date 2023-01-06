@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_LandRover
 	{
-		units[] = {"Expansion_Landrover_Driverdoor","Expansion_Landrover_Codriverdoor","Expansion_Landrover_Left","Expansion_Landrover_Right","Expansion_Landrover_Trunk","Expansion_Landrover_Hood","Expansion_Landrover_Wheel","Expansion_Landrover_Wheel_Ruined","Expansion_Landrover","ExpansionSpraycanYellow","Expansion_Landrover_Yellow","Expansion_Landrover_Driverdoor_Yellow","Expansion_Landrover_Codriverdoor_Yellow","Expansion_Landrover_Left_Yellow","Expansion_Landrover_Right_Yellow","Expansion_Landrover_Trunk_Yellow","Expansion_Landrover_Hood_Yellow","Expansion_Landrover_Wheel_Yellow","ExpansionSpraycanGreen","Expansion_Landrover_Green","Expansion_Landrover_Driverdoor_Green","Expansion_Landrover_Codriverdoor_Green","Expansion_Landrover_Left_Green","Expansion_Landrover_Right_Green","Expansion_Landrover_Trunk_Green","Expansion_Landrover_Hood_Green","Expansion_Landrover_Wheel_Green","ExpansionSpraycanRed","Expansion_Landrover_Red","Expansion_Landrover_Driverdoor_Red","Expansion_Landrover_Codriverdoor_Red","Expansion_Landrover_Left_Red","Expansion_Landrover_Right_Red","Expansion_Landrover_Trunk_Red","Expansion_Landrover_Hood_Red","Expansion_Landrover_Wheel_Red","ExpansionSpraycanGrey","Expansion_Landrover_Grey","Expansion_Landrover_Driverdoor_Grey","Expansion_Landrover_Codriverdoor_Grey","Expansion_Landrover_Left_Grey","Expansion_Landrover_Right_Grey","Expansion_Landrover_Trunk_Grey","Expansion_Landrover_Hood_Grey","Expansion_Landrover_Wheel_Grey","ExpansionSpraycanBlue","Expansion_Landrover_Blue","Expansion_Landrover_Driverdoor_Blue","Expansion_Landrover_Codriverdoor_Blue","Expansion_Landrover_Left_Blue","Expansion_Landrover_Right_Blue","Expansion_Landrover_Trunk_Blue","Expansion_Landrover_Hood_Blue","Expansion_Landrover_Wheel_Blue","ExpansionSpraycanOrange","Expansion_Landrover_Orange","Expansion_Landrover_Driverdoor_Orange","Expansion_Landrover_Codriverdoor_Orange","Expansion_Landrover_Left_Orange","Expansion_Landrover_Right_Orange","Expansion_Landrover_Trunk_Orange","Expansion_Landrover_Hood_Orange","Expansion_Landrover_Wheel_Orange"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Gear_Camping","DZ_Vehicles_Parts","DayZExpansion_Vehicles_Data"};
@@ -577,7 +577,7 @@ class CfgVehicles
 		tyreRoughness = 1.2;
 		tyreTread = 0.5;
 	};
-	class Expansion_Landrover_Base: Carscript
+	class Expansion_Landrover_Base: CarScript
 	{
 		scope = 0;
 		displayname = "$STR_EXPANSION_VEHICLE_LANDROVER";

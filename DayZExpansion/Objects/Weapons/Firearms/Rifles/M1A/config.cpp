@@ -4,11 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Weapons_Rifles_M1A
 	{
-		units[] = {"Expansion_M1A_RailAtt"};
-		weapons[] = {"Expansion_M1A","Expansion_M1A_Black","Expansion_M1A_Tan","Expansion_M1A_Green"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms","DZ_Scripts","DayZExpansion_PMII25Optic"};
-		magazines[] = {"Mag_Expansion_M14_10Rnd","Mag_Expansion_M14_20Rnd"};
 	};
 };
 class Mode_Safe;

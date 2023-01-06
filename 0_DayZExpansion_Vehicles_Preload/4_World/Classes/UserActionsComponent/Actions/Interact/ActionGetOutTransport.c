@@ -60,12 +60,19 @@ modded class ActionGetOutTransport
 	}
 
 	/**
-	 * Very sorry other modders, can't call super in this function. Will cause crashes.
-	 * If bohemia overrides ::OnStart instead of ::Start then I will be able to call super
+	 * Can't call super in this function. Will cause crashes.
+	 * If bohemia overrides ::OnStart instead of ::Start then we will be able to call super.
+	 * We do the same things in the same order as vanilla would for compatibility.
 	 */
 	override void Start(ActionData action_data)
 	{
+		//! Vanilla ActionBase::Start BEGIN
 		action_data.m_State = UA_START;
+		
+		if ( LogManager.IsActionLogEnable() )
+		{
+			Debug.ActionLog("Time stamp: " + action_data.m_Player.GetSimulationTimeStamp(), this.ToString() , "n/a", "OnStart", action_data.m_Player.ToString() );
+		}
 
 		OnStart(action_data);
 
@@ -79,8 +86,7 @@ modded class ActionGetOutTransport
 		}
 
 		InformPlayers(action_data.m_Player, action_data.m_Target, UA_START);
-
-		actionDebugPrint("[action] " + Object.GetDebugName(action_data.m_Player) + " started " + ToString() + " item=" + Object.GetDebugName(action_data.m_MainItem));
+		//! Vanilla ActionBase::Start END
 
 		PerformGetOutTransport(action_data);
 
@@ -96,6 +102,7 @@ modded class ActionGetOutTransport
 		}
 	}
 
+	//! Equivalent to vanilla ActionGetOutTransport::Start amended with player attachment handling
 	void PerformGetOutTransport(ActionData action_data)
 	{
 		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
@@ -150,6 +157,7 @@ modded class ActionGetOutTransport
         player.TryHideItemInHands(false, true);
     }
 
+	//! Equivalent to vanilla ActionGetOutTransport::OnEndServer amended with player attachment and was in vehicle handling as well as proper raycast
 	override void OnEndServer(ActionData action_data)
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);

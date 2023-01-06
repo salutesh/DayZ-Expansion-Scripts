@@ -5,7 +5,7 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
@@ -97,7 +97,7 @@ class EXHitch
 	{
 		int elapsed = TickCount(m_Ticks);
 		if (elapsed > m_Threshold)
-			PrintFormat("%1 %2HITCH: %3ms %4ms", ExpansionStatic.GetTimestamp(), m_MsgPrefix, (elapsed / 10000.0).ToString());
+			PrintFormat("%1 %2HITCH: %3ms", ExpansionStatic.GetTimestamp(), m_MsgPrefix, (elapsed / 10000.0).ToString());
 	}
 }
 
@@ -113,7 +113,7 @@ class ExpansionStatic
 		//It's a int number so doesn't need to convert it
 		if ( nmb == Math.Ceil(nmb) || nmb == Math.Floor(nmb) )
 			return nmb.ToString();
-		
+
 		//It's a temp string
 		string str;
 
@@ -130,9 +130,9 @@ class ExpansionStatic
 	// -----------------------------------------------------------
 	// Expansion Float FloatNewPrecision
 	// -----------------------------------------------------------
-	static float FloatNewPrecision(float n, float i) 
-	{ 
-		return Math.Floor(Math.Pow(10,i)*n)/Math.Pow(10,i); 
+	static float FloatNewPrecision(float n, float i)
+	{
+		return Math.Floor(Math.Pow(10,i)*n)/Math.Pow(10,i);
 	}
 
 	// -----------------------------------------------------------
@@ -196,7 +196,7 @@ class ExpansionStatic
 	{
 		string cfg_name;
 		string cfg_name_path;
-		
+
 		if ( cache && cache.Find( type_name, cfg_name ) )
 		{
 			return cfg_name;
@@ -205,12 +205,12 @@ class ExpansionStatic
 		{
 			cfg_name_path = CFG_WEAPONSPATH + " " + type_name + " displayName";
 			GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		} 
+		}
 		else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 		{
 			cfg_name_path = CFG_VEHICLESPATH + " " + type_name + " displayName";
 			GetGame().ConfigGetText( cfg_name_path, cfg_name );
-		} 
+		}
 		else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 		{
 			cfg_name_path = CFG_MAGAZINESPATH + " " + type_name + " displayName";
@@ -225,7 +225,7 @@ class ExpansionStatic
 		{
 			cache.Insert( type_name, cfg_name );
 		}
-		
+
 		return cfg_name;
 	}
 
@@ -247,12 +247,12 @@ class ExpansionStatic
 		{
 			cfg_des_path = CFG_WEAPONSPATH + " " + type_name + " descriptionShort";
 			GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		} 
+		}
 		else if ( GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) )
 		{
 			cfg_des_path = CFG_VEHICLESPATH + " " + type_name + " descriptionShort";
 			GetGame().ConfigGetText( cfg_des_path, cfg_des );
-		} 
+		}
 		else if ( GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name ) )
 		{
 			cfg_des_path = CFG_MAGAZINESPATH + " " + type_name + " descriptionShort";
@@ -263,10 +263,10 @@ class ExpansionStatic
 		{
 			cache.Insert( type_name, cfg_des );
 		}
-		
+
 		return cfg_des;
 	}
-	
+
 	static float GetBoundingRadius(string className)
 	{
 		vector minMax[2];
@@ -335,6 +335,11 @@ class ExpansionStatic
 	static bool ItemExists(string type_name)
 	{
 		return GetGame().ConfigIsExisting( CFG_VEHICLESPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_WEAPONSPATH + " " + type_name ) || GetGame().ConfigIsExisting( CFG_MAGAZINESPATH + " " + type_name );
+	}
+
+	static bool TypeExists(string type_name)
+	{
+		return type_name.ToType().ToString() != string.Empty;
 	}
 
 	//! Inheritance check, case insensitive for cfg class; equality check, case sensitive for script class (if not empty string)
@@ -517,11 +522,11 @@ class ExpansionStatic
 		int hour;
 		int minute;
 		int second;
-		
+
 		GetHourMinuteSecond(hour, minute, second);
-		
+
 		string date = hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
-		
+
 		return date;
 	}
 
@@ -554,11 +559,11 @@ class ExpansionStatic
 		int hour;
 		int minute;
 		int second;
-		
+
 		GetHourMinuteSecondUTC(hour, minute, second);
-		
+
 		string date = hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
-		
+
 		return date;
 	}
 
@@ -581,9 +586,9 @@ class ExpansionStatic
 		int minutes = (int) time / 60;
 		time -= minutes * 60;
 		int seconds = (int) time;
-		
+
 		string timestring = hours.ToStringLen(2) + ":" + minutes.ToStringLen(2) + ":" + seconds.ToStringLen(2);
-		
+
 		if ( include_ms )
 		{
 			time -= seconds;
@@ -622,33 +627,33 @@ class ExpansionStatic
 		}
 
 		int time_seconds = total_time; 									//convert total time to int
-		
+
 		int hours = time_seconds / 3600;
 		if ( hours > 0 )
 		{
 			time_string += GetValueString( hours ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";			//hours
 		}
-		
+
 		time_string += " ";												//separator
-		
+
 		int minutes = ( time_seconds % 3600 ) / 60;
 		time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";			//minutes
-		
+
 		return time_string;
 	}
 
 	static string GetWeightString(int weight, bool grams_only = false)
 	{
 		string weight_string;
-		
+
 		if( weight < 0 )
 		{
 			weight_string =  "0 #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";
 			return weight_string;
 		}
-		
+
 		int weight_grams = weight;
-		
+
 		int kilograms = weight_grams / 1000;
 		if ( kilograms > 0 && !grams_only )
 		{
@@ -658,14 +663,14 @@ class ExpansionStatic
 		{
 			weight_string = GetValueString( weight_grams ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_GRAMS";	//grams
 		}
-		
+
 		return weight_string;
 	}
 
 	static string GetDistanceString( float total_distance, bool meters_only = false )
 	{
 		string distance_string;
-		
+
 		if( total_distance < 0 )
 		{
 			distance_string =  "0 #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";
@@ -673,7 +678,7 @@ class ExpansionStatic
 		}
 
 		int distance_meters = total_distance;
-		
+
 		int kilometers = distance_meters / 1000;
 		if ( kilometers > 0 && !meters_only )
 		{
@@ -683,7 +688,7 @@ class ExpansionStatic
 		{
 			distance_string = GetValueString( distance_meters ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_METERS";	//meters
 		}
-		
+
 		return distance_string;
 	}
 
@@ -694,23 +699,23 @@ class ExpansionStatic
 
 		int value = total_value;
 		string out_string;
-		
+
 		if ( value >= 1000 )
 		{
 			string value_string = value.ToString();
-			
-			int count;		
+
+			int count;
 			int first_length = value_string.Length() % 3;		//calculate position of the first separator
 			if ( first_length > 0 )
 			{
 				count = 3 - first_length;
 			}
-			
+
 			for ( int i = 0; i < value_string.Length(); ++i )
 			{
 				out_string += value_string.Get( i );
 				count ++;
-				
+
 				if ( count >= 3 )
 				{
 					out_string += " ";			//separator
@@ -722,7 +727,7 @@ class ExpansionStatic
 		{
 			out_string = value.ToString();
 		}
-		
+
 		return out_string.Trim();
 	}
 
@@ -784,7 +789,7 @@ class ExpansionStatic
 			{
 				files.Insert( fileName );
 			}
-			
+
 			while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
 			{
 				if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
@@ -946,7 +951,7 @@ class ExpansionStatic
 				return dec.ToString() + "K";
 			}
 		}
-		
+
 		for (i = (strNumber.Length() - 1); i >= 0; i--)
 		{
 			moneyReversed += strNumber[i];
@@ -989,7 +994,7 @@ class ExpansionStatic
 	{
 		return KeyState(KeyCode.KC_Z) > 0;
 	}
-			
+
 	static bool Key_C()
 	{
 		return KeyState(KeyCode.KC_C) > 0;
@@ -1024,24 +1029,24 @@ class ExpansionStatic
 	{
 		return KeyState(KeyCode.KC_RIGHT) > 0;
 	}
-	
+
 	static bool INPUT_FORWARD()
 	{
    		return GetGame().GetInput().LocalPress( "UAMoveForward", false );
 	}
-	
+
 	static bool INPUT_BACK()
 	{
    		return GetGame().GetInput().LocalPress( "UAMoveBack", false );
 	}
-	
+
 	static bool INPUT_LEFT()
 	{
    		return GetGame().GetInput().LocalPress( "UAMoveLeft", false );
 	}
-	
+
 	static bool INPUT_RIGHT()
-	{		
+	{
    		return GetGame().GetInput().LocalPress( "UAMoveRight", false );
 	}
 
@@ -1088,7 +1093,7 @@ class ExpansionStatic
 	{
 		return GetGame().GetWaterDepth(GetSurfacePosition(x, z));
 	}
-	
+
 	//! Get ground surface position or water surface position, whichever has higher elevation
 	static vector GetSurfaceWaterPosition(vector position)
 	{
@@ -1130,6 +1135,9 @@ class ExpansionStatic
 		game.GetWorldName(worldName);
 		worldName.ToLower();
 
+		if (worldName.Length() < 5)
+			return worldName;
+
 		if (worldName.IndexOf("gloom") == worldName.Length() - 5)
 			worldName = worldName.Substring(0, worldName.Length() - 5);
 
@@ -1157,7 +1165,7 @@ class ExpansionStatic
 		{
 			if (type.GetVariableName(i) != name)
 				continue;
-				
+
 			type.GetVariableValue(null, i, val);
 			return true;
 		}
@@ -1169,7 +1177,7 @@ class ExpansionStatic
 	{
 		int attcount = entity.GetInventory().AttachmentCount();
 		for (int att = 0; att < attcount; att++)
-		{ 
+		{
 			EntityAI attachmentEntity = entity.GetInventory().GetAttachmentFromIndex(att);
 			if (attachmentEntity)
 				LockInventoryRecursive(attachmentEntity, lockType);
@@ -1181,7 +1189,7 @@ class ExpansionStatic
 	{
 		int attcount = entity.GetInventory().AttachmentCount();
 		for (int att = 0; att < attcount; att++)
-		{ 
+		{
 			EntityAI attachmentEntity = entity.GetInventory().GetAttachmentFromIndex(att);
 			if (attachmentEntity)
 				UnlockInventoryRecursive(attachmentEntity, lockType);

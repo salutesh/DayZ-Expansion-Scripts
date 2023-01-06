@@ -804,19 +804,19 @@ class ExpansionBoatScript extends CarScript
 		return true;
 	}
 
-	override float GetCameraHeight()
+	override vector GetTransportCameraOffset()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraHeight");
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraOffset");
 #endif
 
-		return 1.5;
+		return "0 1.5 0";
 	}
 
-	override float GetCameraDistance()
+	override float GetTransportCameraDistance()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetCameraDistance");
+		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetTransportCameraDistance");
 #endif
 
 		return 3.5;
