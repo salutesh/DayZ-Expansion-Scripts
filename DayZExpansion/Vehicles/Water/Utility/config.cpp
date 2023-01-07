@@ -532,12 +532,27 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_black_co.paa"};
 		skinName = "Black";
 	};
+	class Vehicle_ExpansionUtilityBoat_Black: Vehicle_ExpansionUtilityBoat
+	{
+		skinBase = "Vehicle_ExpansionUtilityBoat";
+		skinName = "Black";
+	};
+	class ExpansionUtilityBoat_Black: ExpansionUtilityBoat
+	{
+		skinBase = "ExpansionUtilityBoat";
+		skinName = "Black";
+	};
 	class ExpansionSpraycanGreen: ExpansionSpraycanBase
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_SPRAYCAN_Green_NAME";
 		descriptionShort = "$STR_EXPANSION_SPRAYCAN_Green_DESC";
 		hiddenSelectionsTextures[] = {"DZ\gear\consumables\data\spraycan_green_co.paa"};
+		skinName = "Green";
+	};
+	class ExpansionUtilityBoat_Green: ExpansionUtilityBoat
+	{
+		skinBase = "ExpansionUtilityBoat";
 		skinName = "Green";
 	};
 };

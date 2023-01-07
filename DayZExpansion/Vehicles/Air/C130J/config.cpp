@@ -436,6 +436,11 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Gear\Spraycans\data\spraycan_grey_co.paa"};
 		skinName = "Grey";
 	};
+	class Vehicle_ExpansionC130J_Gray: Vehicle_ExpansionC130J
+	{
+		skinBase = "Vehicle_ExpansionC130J";
+		skinName = "Gray";
+	};
 };
 class CfgNonAIVehicles
 {
