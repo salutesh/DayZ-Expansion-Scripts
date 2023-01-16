@@ -27,7 +27,7 @@ modded class DayZPlayerCamera1stPerson
 
 		PlayerBase m_pbPlayer = PlayerBase.Cast( m_pPlayer );
 		
-		if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) || m_pbPlayer.IsAttached() )
+		if ( Class.CastTo( vehicle, m_pPlayer.GetParent() ) || m_pbPlayer.Expansion_IsAttached() )
 		{
 			pOutResult.m_fInsideCamera = 0.0;
 			

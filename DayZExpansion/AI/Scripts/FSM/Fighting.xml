@@ -71,7 +71,11 @@
 						}
 					}
 				
-					if (distanceSq &lt;= 1.0)
+					float minDist = 1.0;
+					auto player = PlayerBase.Cast(target.GetEntity());
+					if (player &amp;&amp; player.IsUnconscious())
+						minDist = 4.0;
+					if (distanceSq &lt;= minDist)
 					{
 						time += DeltaTime;
 						//unit.OverrideStance(DayZPlayerConstants.STANCEIDX_RAISEDERECT);

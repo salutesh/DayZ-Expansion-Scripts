@@ -206,10 +206,6 @@
 			</event_update>
 		</state>
 		<state name="Vehicles" fsm="Vehicles">
-			<variables>
-				<variable name="entity" type="EntityAI" />
-				<variable name="seat" type="int" />
-			</variables>
 			<editor_data>
 				<position x="895.709194546504" y="371.938198458873" />
 				<size width="150" height="40" />
@@ -225,29 +221,19 @@
 
 				if (leader == unit)
 				{
-					if (!entity) return EXIT;
+					if (!sub_fsm.entity) return EXIT;
 
 					//! TODO: Allow for exit vehicle since this AI is the leader
 					return CONTINUE;
 				}
 				
-				//! MAYBE BUG? Might deadlock the ai if there are no free seats for the vehicle in the group
-				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) 
-				{
-					Transport transport;
-					if (!Class.CastTo(transport, leader.GetParent())) return EXIT;
-
-					for (int i = 0; i &lt; transport.CrewSize(); i++)
-					{
-						if (transport.CrewMember(i) == null)
-						{
-							seat = i;
-							entity = transport;
-
-							return CONTINUE;
-						}
-					}
-				}
+				if ((leader.IsInTransport() &amp;&amp; leader.GetParent() == sub_fsm.entity) || unit.IsInTransport()) return CONTINUE;
+				
+				//! Wait until AI has left the vehicle and closed the door (if any)
+				bool hasDoor;
+				string source;
+				ExpansionFSMHelper.DoorAnimationSource(sub_fsm.entity, sub_fsm.seat, hasDoor, source);
+				if (hasDoor &amp;&amp; sub_fsm.entity.GetAnimationPhase(source) &gt; 0.5) return CONTINUE;
 				
 				return EXIT;
 			</event_update>
@@ -795,6 +781,20 @@
 		</transition>
 		<transition>
 			<editor_data>
+				<position_source x="895.709194546504" y="389.964300297873" />
+				<position_destination x="694" y="356.89192130556" />
+			</editor_data>
+			<guard>
+				if (unit.IsInTransport()) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="Vehicles" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
 				<position_source x="963.83813732635" y="345.935333753678" />
 				<position_destination x="963.7091945465" y="371.938198458873" />
 			</editor_data>
@@ -809,17 +809,18 @@
 				
 				if (!leader.IsInTransport()) return FAIL;
 				
-				Transport transport;
-				if (!Class.CastTo(transport, leader.GetParent())) return FAIL;
+				CarScript car;
+				if (!Class.CastTo(car, leader.GetParent())) return FAIL;
 				
 				//TODO: make this event based instead and store as a variable within CarScript.
 				//Prevents looping through the crew and insteads just compares a bool.
-				for (int i = 1; i &lt; transport.CrewSize(); i++)
+				for (int i = 1; i &lt; car.CrewSize(); i++)
 				{
-					if (transport.CrewMember(i) == null)
+					if (car.CrewMember(i) == null &amp;&amp; !car.Expansion_IsSeatReservedByOther(i, unit))
 					{
-						dst.seat = i;
-						dst.entity = transport;
+						dst.sub_fsm.seat = i;
+						dst.sub_fsm.entity = car;
+						car.Expansion_ReserveSeat(i, unit);
 						
 				  		return SUCCESS;
 					}
@@ -830,72 +831,6 @@
 			<event />
 			<from_state />
 			<to_state name="Vehicles" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="963.83813732635" y="345.935333753678" />
-				<position_destination x="963.7091945465" y="371.938198458873" />
-			</editor_data>
-			<guard>
-				auto group = unit.GetGroup();
-				if (!group) return;
-				
-				auto leader = group.GetLeader();
-				if (!leader || leader != unit) return;
-
-				auto targetPosition = unit.m_PathFinding.m_TargetReference.Position;
-				targetPosition[1] = GetPosition()[1];
-				float distance = vector.Distance(targetPosition, unit.GetPosition());
-
-				float minDistance = float.MAX;
-				float distance;
-
-				if (distance &lt; 5.0) return FAIL;
-		
-				auto cars = CarScript.GetAll();
-				foreach (CarScript car : cars)
-				{
-					distance = vector.Distance(unit.GetPosition(), car.GetPosition());
-					if (distance &lt; minDistance)
-					{
-						int i = 0;
-						//for (int i = 0; i &lt; car.CrewSize(); i++)
-						{
-							if (car.CrewMember(i) == null)
-							{
-								dst.seat = i;
-								dst.entity = car;
-
-								minDistance = distance;
-
-								break;
-							}
-						}
-					}
-				}
-
-				if (dst.entity)
-				{
-					return SUCCESS;
-				}
-				
-				return FAIL;
-			</guard>
-			<event />
-			<from_state />
-			<to_state name="Vehicles" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="895.709194546504" y="389.964300297873" />
-				<position_destination x="694" y="356.89192130556" />
-			</editor_data>
-			<guard>
-				return SUCCESS;
-			</guard>
-			<event />
-			<from_state name="Vehicles" />
-			<to_state name="Idle" />
 		</transition>
 		<transition>
 			<editor_data>

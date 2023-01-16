@@ -19,6 +19,6 @@ modded class PipeWrench
 #endif
 
 		super.SetActions();
-		AddAction(ExpansionActionRepairHelicopter);
+		AddAction(ExpansionActionRepairVehicle);
 	}
 }

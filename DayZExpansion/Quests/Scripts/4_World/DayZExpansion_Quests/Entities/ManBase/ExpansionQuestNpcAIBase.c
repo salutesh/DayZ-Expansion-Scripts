@@ -34,9 +34,9 @@ class ExpansionQuestNPCAIBase extends eAIBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionFixPositionAndOrientation, 10000);
 		}
 
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		SetMovementSpeedLimits(1.0);  //! Always walk
-#endif
+	#endif
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
@@ -110,19 +110,6 @@ class ExpansionQuestNPCAIBase extends eAIBase
 	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase PlayRandomEmote
-	// ------------------------------------------------------------
-	void ExpansionPlayRandomEmote()
-	{
-		EmoteManager emoteManager = GetEmoteManager();
-		if (!emoteManager.IsEmotePlaying())
-		{
-			emoteManager.PlayEmote(EmoteConstants.ID_EMOTE_WATCHING);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(emoteManager.ServerRequestEmoteCancel, 2000);
-		}
 	}
 
 	// ------------------------------------------------------------

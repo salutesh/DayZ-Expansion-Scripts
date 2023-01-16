@@ -116,7 +116,7 @@ modded class IngameHud
 				m_BoatGearNext						= TextWidget.Cast( m_BoatPanel.FindAnyWidget("Next") );
 
 				m_BoatShield					= ImageWidget.Cast( m_BoatPanel.FindAnyWidget("BoatShieldLight") );
-				m_BoatShield.SetColor( ARGB(255, 0, 255, 255) );
+				m_BoatShield.LoadImageFile(1, "{206DBEAC9C7AD942}DayZExpansion/Core/GUI/icons/hud/connection_lost.edds");
 			}
 			
 			//! Helicopter
@@ -144,7 +144,7 @@ modded class IngameHud
 				m_HelicopterHoverAltitudeLabel		= TextWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliHoverALTLabel") );
 
 				m_HelicopterShield					= ImageWidget.Cast( m_HelicopterPanel.FindAnyWidget("HeliShieldLight") );
-				m_HelicopterShield.SetColor( ARGB(255, 0, 255, 255) );
+				m_HelicopterShield.LoadImageFile(1, "{206DBEAC9C7AD942}DayZExpansion/Core/GUI/icons/hud/connection_lost.edds");
 			}
 			
 			//! Plane
@@ -170,7 +170,7 @@ modded class IngameHud
 				m_PlaneFlaps						= ProgressBarWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneFlapsIndicator") );
 
 				m_PlaneShield					= ImageWidget.Cast( m_PlanePanel.FindAnyWidget("PlaneShieldLight") );
-				m_PlaneShield.SetColor( ARGB(255, 0, 255, 255) );
+				m_PlaneShield.LoadImageFile(1, "{206DBEAC9C7AD942}DayZExpansion/Core/GUI/icons/hud/connection_lost.edds");
 			}
 		}
 	}
@@ -430,16 +430,6 @@ modded class IngameHud
 
 		super.RefreshVehicleHud( timeslice );
 
-		if (m_CurrentVehicle && !m_CurrentVehicle.m_State.m_IsSync)
-		{
-			m_VehicleSpeedValue.SetText( "!SYNC" );
-			m_VehicleSpeedValue.SetColor( ARGB(255, 255, 0, 0) );
-		}
-		else
-		{
-			m_VehicleSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
-		}
-
 		if (m_CurrentVehicle && m_CurrentVehicle.m_State.m_IsInvulnerable)
 		{
 			m_VehicleEngineLight.Show( true );
@@ -463,18 +453,23 @@ modded class IngameHud
 		m_HelicopterSpeedPointer.SetRotation( 0, 0, h_speed_value * 360 - 130, true );
 		m_HelicopterAltitudePointer.SetRotation( 0, 0, ( h_alt_value / 1600) * 360 - 130, true );
 		
+		m_HelicopterSpeedValue.SetText( Math.AbsInt( helicopter.GetSpeedometer() ).ToString() );
+
 		if (!helicopter.m_State.m_IsSync)
 		{
-			m_HelicopterSpeedValue.SetText( "!SYNC" );
-			m_HelicopterSpeedValue.SetColor( ARGB(255, 255, 0, 0) );
+			m_HelicopterShield.SetImage(1);
+			if (helicopter.m_State.m_HaltPhysics)
+				m_HelicopterShield.SetColor( ARGB(255, 255, 0, 0) );
+			else
+				m_HelicopterShield.SetColor( ARGB(255, 255, 255, 255) );
 		}
 		else
 		{
-			m_HelicopterSpeedValue.SetText( Math.AbsInt( helicopter.GetSpeedometer() ).ToString() );
-			m_HelicopterSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
+			m_HelicopterShield.SetImage(0);
+			m_HelicopterShield.SetColor( ARGB(255, 0, 255, 255) );
 		}
 
-		m_HelicopterShield.Show(helicopter.m_State.m_IsInvulnerable);
+		m_HelicopterShield.Show(helicopter.m_State.m_IsInvulnerable || !helicopter.m_State.m_IsSync);
 
 		m_HelicopterAltitudeValue.SetText( Math.Floor( helicopter.GetPosition()[1] ).ToString() );
 
@@ -620,28 +615,29 @@ modded class IngameHud
 		m_BoatRPMPointer.SetRotation( 0, 0, rpm_value * 270 - 130, true );
 		m_BoatSpeedPointer.SetRotation( 0, 0, speed_value * 260 - 130, true );
 		
+		m_BoatSpeedValue.SetText( Math.AbsInt( boat.GetSpeedometer() ).ToString() );
+
 		if (!boat.m_State.m_IsSync)
 		{
-			m_BoatSpeedValue.SetText( "!SYNC" );
-			m_BoatSpeedValue.SetColor( ARGB(255, 255, 0, 0) );
+			m_BoatShield.SetImage(1);
+			if (boat.m_State.m_HaltPhysics)
+				m_BoatShield.SetColor( ARGB(255, 255, 0, 0) );
+			else
+				m_BoatShield.SetColor( ARGB(255, 255, 255, 255) );
 		}
 		else
 		{
-			m_BoatSpeedValue.SetText( Math.AbsInt( boat.GetSpeedometer() ).ToString() );
-			m_BoatSpeedValue.SetColor( ARGB(255, 255, 255, 255) );
+			m_BoatShield.SetImage(0);
+			m_BoatShield.SetColor( ARGB(255, 0, 255, 255) );
 		}
 
-		m_BoatShield.Show(boat.m_State.m_IsInvulnerable);
+		m_BoatShield.Show(boat.m_State.m_IsInvulnerable || !boat.m_State.m_IsSync);
 
 		m_BoatFuelPointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.FUEL ) * 260 - 130, true );
 		m_BoatTemperaturePointer.SetRotation( 0, 0, boat.GetFluidFraction( CarFluid.COOLANT ) * 260 - 130, true );
-
-#ifdef DAYZ_1_18
-		int engaged_gear = boat.GetController().GetGear();	
-#else
+		
 		//! 1.19
 		int engaged_gear = boat.GetGear();
-#endif
 			
 		int prev_gear = engaged_gear - 1;
 		int next_gear = engaged_gear + 1;

@@ -139,7 +139,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonSaveFile(fileName, config);
+			config.Save(fileName);
 		}
 
 		return config;
@@ -147,7 +147,10 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveAIPatrolConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveAIPatrolConfigBase configBase)

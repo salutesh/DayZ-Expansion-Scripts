@@ -20,5 +20,6 @@ class ExpansionPartyHudMemberController: ExpansionViewController
 	string PlayerBloodVal;
 	string PlayerName;
 	string PlayerRangIcon;
+	string PlayerDistance;
 }
 #endif

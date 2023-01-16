@@ -49,6 +49,6 @@ class ExpansionState_GoToVehicle : eAIState
 			unit.OverrideTargetPosition(position);
 		}
 
-		return CONTINUE;
+		return EXIT;
 	}
 };

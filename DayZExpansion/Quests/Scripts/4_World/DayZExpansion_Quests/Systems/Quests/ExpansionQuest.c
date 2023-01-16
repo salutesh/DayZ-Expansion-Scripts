@@ -1059,9 +1059,32 @@ class ExpansionQuest
 		{
 			obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, remainingAmount, item.GetAttachments());
 		}
-
+		
+		float dmg = (obj.GetHealth("", "Health") / 100) * item.GetHealthPercent();
+		
+		Print(ToString() + "::Spawn - Set object damage: " + dmg);
+		
+		EntityAI objEntity = EntityAI.Cast(obj);
+		ProcessDamage(objEntity, dmg);
+		
 		return obj;
 	}
+	
+	protected void ProcessDamage(EntityAI parent, int dmg)
+	{
+		parent.AddHealth("", "Health", -dmg);
+		
+		array<EntityAI> items = new array<EntityAI>;
+		parent.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);		
+		foreach (EntityAI item: items)
+		{
+			if (item.IsInherited(SurvivorBase))
+				continue;
+
+			item.AddHealth("", "Health", -dmg);
+		}
+	}
+
 
 	// -----------------------------------------------------------
 	// ExpansionQuest GetObjectives
@@ -1303,7 +1326,7 @@ class ExpansionQuest
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (!groupPlayer)
 				{
-					Error(ToString() + "::SpawnQuestRewards - Could not get player with UID: " + playerGroupData.GetID());
+					QuestDebugPrint(ToString() + "::SpawnQuestRewards - Could not get player with UID: " + playerGroupData.GetID() + ". Not online?!");
 					continue;
 				}
 

@@ -105,6 +105,7 @@ class eAIBase extends PlayerBase
 	/*private*/ ref eAIPathFinding m_PathFinding;
 #endif
 	bool m_eAI_TargetPositionIsFinal;
+	bool m_eAI_PositionIsFinal;
 
 	private float m_eAI_DoorInteractionTimeout;
 
@@ -1074,7 +1075,7 @@ class eAIBase extends PlayerBase
 #ifdef DIAG
 				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
 #endif
-				if (!m_eAI_Targets[i].RemoveAI(this))
+				if (m_eAI_Targets[i] == null || !m_eAI_Targets[i].RemoveAI(this))
 				{
 					m_eAI_Targets.RemoveOrdered(i);
 					for (int k = m_eAI_TargetInformationStates.Count() - 1; k >= 0; k--)
@@ -1169,6 +1170,11 @@ class eAIBase extends PlayerBase
 
 		m_eAI_Transport = vehicle;
 		m_eAI_Transport_SeatIndex = seatIndex;
+	}
+
+	Transport eAI_GetTransport()
+	{
+		return m_eAI_Transport;
 	}
 
 	void Notify_Melee()
@@ -1579,6 +1585,8 @@ class eAIBase extends PlayerBase
 		}
 
 		m_eAI_CommandTime += pDt;
+
+		Expansion_UpdateBonePositionTimes(pDt);
 
 		//! handle death with high priority
 		if (HandleDeath(pCurrentCommandID))
@@ -2846,6 +2854,9 @@ class eAIBase extends PlayerBase
 
 	bool HandleVaulting(float pDt)
 	{
+		if (m_eAI_PositionIsFinal)
+			return false;
+
 		//if (!m_PathFinding.IsVault())
 		//{
 		//	return false;
@@ -2968,7 +2979,10 @@ class eAIBase extends PlayerBase
 			if (object.IsTree() || object.IsBush() || object.IsMan())
 				return false;
 
-			if (object.IsBuilding() && !climbRes.m_bIsClimb)
+			if (object.IsBuilding() && (!climbRes.m_bIsClimb || object.GetType().Contains("Land_House")))
+				return false;
+
+			if (object.IsTransport() && climbRes.m_bIsClimbOver)
 				return false;
 		}
 

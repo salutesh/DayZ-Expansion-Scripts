@@ -150,8 +150,9 @@ class CfgVehicles
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.325;
 		width = 0.618;
+		tyreOffroadResistance = 0.75;
+		tyreGrip = 0.8;
 		tyreRollResistance = 0.015;
-		tyreTread = 0.7;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -177,8 +178,9 @@ class CfgVehicles
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.228;
 		width = 0.152;
+		tyreOffroadResistance = 0.75;
+		tyreGrip = 0.8;
 		tyreRollResistance = 0.015;
-		tyreTread = 0.7;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -204,8 +206,9 @@ class CfgVehicles
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.325;
 		width = 0.618;
+		tyreOffroadResistance = 0.75;
+		tyreGrip = 0.8;
 		tyreRollResistance = 0.015;
-		tyreTread = 0.7;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -589,8 +592,8 @@ class CfgVehicles
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						stiffness = 76000;
-						compression = 5900;
+						stiffness = 266000;
+						compression = 20650;
 						damping = 6600;
 						travelMaxUp = 0.079;
 						travelMaxDown = 0.06;
@@ -621,8 +624,8 @@ class CfgVehicles
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						stiffness = 46000;
-						compression = 10450;
+						stiffness = 115000;
+						compression = 26125;
 						damping = 13200;
 						travelMaxUp = 0.086;
 						travelMaxDown = 0.133;

@@ -98,10 +98,9 @@ class ExpansionSyncedPlayerStats
 	int m_Blood;
 	int m_Water;
 	int m_Energy;
-
-	//! @note not synced for client player (can get synced values from StaminaHandler)
-	int m_Stamina;
-
+	vector m_Position;
+	int m_Stamina; //! @note not synced for client player (can get synced values from StaminaHandler)
+	
 	bool m_HasRegisteredStats;
 	float m_Distance;
 	float m_Playtime;
@@ -109,9 +108,7 @@ class ExpansionSyncedPlayerStats
 	int m_InfectedKilled;
 	int m_AnimalsKilled;
 	float m_LongestShot;
-
-	//! @note not synced (can calculate on client)
-	float m_Weight;
+	float m_Weight; //! @note not synced (can calculate on client)
 
 	void OnSend(ParamsWriteContext ctx, bool includeRegisteredStats = false, bool includeBaseStats = true)
 	{
@@ -121,6 +118,7 @@ class ExpansionSyncedPlayerStats
 			ctx.Write(m_Blood);
 			ctx.Write(m_Water);
 			ctx.Write(m_Energy);
+			ctx.Write(m_Position);
 		}
 
 		if (includeRegisteredStats)
@@ -135,7 +133,7 @@ class ExpansionSyncedPlayerStats
 		}
 	}
 
-	bool OnRecieve( ParamsReadContext ctx, bool includeRegisteredStats = false, bool includeBaseStats = true )
+	bool OnRecieve(ParamsReadContext ctx, bool includeRegisteredStats = false, bool includeBaseStats = true )
 	{
 		if (includeBaseStats)
 		{
@@ -149,6 +147,9 @@ class ExpansionSyncedPlayerStats
 				return false;
 			
 			if (!ctx.Read(m_Energy))
+				return false;
+			
+			if (!ctx.Read(m_Position))
 				return false;
 
 			m_HasBaseStats = true;
@@ -187,14 +188,14 @@ class ExpansionSyncedPlayerStats
 	{
 		m_Stamina = player.m_StaminaHandler.GetSyncedStaminaNormalized() * 100;
 
-/*
+	/*
 		m_Distance = player.StatGet(AnalyticsManagerServer.STAT_DISTANCE);
 		m_Playtime = player.StatGet(AnalyticsManagerServer.STAT_PLAYTIME);
 		m_PlayersKilled = player.StatGet(AnalyticsManagerServer.STAT_PLAYERS_KILLED);
 		m_InfectedKilled = player.StatGet(AnalyticsManagerServer.STAT_INFECTED_KILLED);
 		m_AnimalsKilled = player.StatGet(AnalyticsManagerServer.EXP_STAT_ANIMALS_KILLED);
 		m_LongestShot = player.StatGet(AnalyticsManagerServer.STAT_LONGEST_SURVIVOR_HIT);
-*/
+	*/
 
 		player.UpdateWeight();
 		m_Weight = player.GetWeight();

@@ -17,11 +17,9 @@ class ExpansionLHD : ExpansionZodiacBoat
 
 		m_Offset = 4.0;
 		
-		#ifndef DAYZ_1_18
 		//! 1.19
 		//! Sound set unsuitable for short horn sound (breaks player interaction and infinite bugged playback)
 		m_CarHornLongSoundName	= "Expansion_LHD_Horn_Ext_SoundSet";
-		#endif
 
 		if (IsMissionHost())
 			SetAllowDamage(false);

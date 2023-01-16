@@ -248,7 +248,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 			settingsDefault.Defaults();
 
 			ExpansionQuestSettingsBase settingsBase;
-			JsonFileLoader<ExpansionQuestSettingsBase>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, settingsBase);
+			if (!ExpansionJsonFileParser<ExpansionQuestSettingsBase>.Load(EXPANSION_QUEST_SETTINGS, settingsBase))
+				return false;
+
 			if (settingsBase.m_Version < VERSION)
 			{
 				Print(ToString() + "::Load - Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
@@ -276,7 +278,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 				}
 				else
 				{
-					JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
+					if (!ExpansionJsonFileParser<ExpansionQuestSettings>.Load(EXPANSION_QUEST_SETTINGS, this))
+						return false;
 				}
 
 			#ifdef EXPANSIONMODGROUPS
@@ -294,7 +297,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 			}
 			else
 			{
-				JsonFileLoader<ExpansionQuestSettings>.JsonLoadFile(EXPANSION_QUEST_SETTINGS, this);
+				if (!ExpansionJsonFileParser<ExpansionQuestSettings>.Load(EXPANSION_QUEST_SETTINGS, this))
+					return false;
 			}
 		}
 		else
@@ -322,7 +326,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSave");
 #endif
 
-		JsonFileLoader<ExpansionQuestSettings>.JsonSaveFile(EXPANSION_QUEST_SETTINGS, this);
+		ExpansionJsonFileParser<ExpansionQuestSettings>.Save(EXPANSION_QUEST_SETTINGS, this);
 
 		return true;
 	}

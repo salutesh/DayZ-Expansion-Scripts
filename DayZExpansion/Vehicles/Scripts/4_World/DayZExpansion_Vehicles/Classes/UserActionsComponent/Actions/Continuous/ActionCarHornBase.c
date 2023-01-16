@@ -1,4 +1,3 @@
-#ifndef DAYZ_1_18
 //! 1.19
 modded class ActionCarHornBase
 {
@@ -49,4 +48,3 @@ modded class ActionCarHornShort
 		return true;
 	}
 }
-#endif

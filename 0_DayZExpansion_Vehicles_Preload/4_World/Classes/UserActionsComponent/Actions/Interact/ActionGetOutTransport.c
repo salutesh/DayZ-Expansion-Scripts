@@ -156,6 +156,17 @@ modded class ActionGetOutTransport
     {
         player.TryHideItemInHands(false, true);
     }
+	
+	override void OnEnd(ActionData action_data)
+	{
+		auto got_action_data = GetOutTransportActionData.Cast(action_data);
+		CarScript car = CarScript.Cast(got_action_data.m_Car);
+
+		if (car && !car.IsCar() && !car.IsDuck())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
+		else
+			super.OnEnd(action_data);
+	}
 
 	//! Equivalent to vanilla ActionGetOutTransport::OnEndServer amended with player attachment and was in vehicle handling as well as proper raycast
 	override void OnEndServer(ActionData action_data)

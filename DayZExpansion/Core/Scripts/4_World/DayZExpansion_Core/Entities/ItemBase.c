@@ -601,9 +601,37 @@ modded class ItemBase
 		if (!super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 			return false;
 
-		PlayerBase player;
-		if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.Expansion_IsInSafeZone())
-			return false;
+		EntityAI root = GetHierarchyRoot();
+
+		if (root != this)
+		{
+			PlayerBase player;
+			if (Class.CastTo(player, root))
+			{
+				if (player.Expansion_IsInSafeZone())
+					return false;
+			}
+			else
+			{
+				CarScript cs;
+				if (Class.CastTo(cs, root))
+				{
+					if (!cs.CanBeDamaged())
+						return false;
+				}
+			#ifdef EXPANSIONMODVEHICLE
+				else
+				{
+					ExpansionVehicleBase evb;
+					if (Class.CastTo(evb, root))
+					{
+						if (!evb.CanBeDamaged())
+							return false;
+					}
+				}
+			#endif
+			}
+		}
 
 		m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");
 

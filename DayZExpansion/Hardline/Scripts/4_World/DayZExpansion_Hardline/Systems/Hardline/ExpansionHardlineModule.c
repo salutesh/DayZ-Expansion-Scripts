@@ -391,10 +391,13 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODAI
 		//! If the other player was friendly to the killer the killer will lose reputation.
 		bool isFriendly;
-		if (killer.GetGroup())
-			isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
-		else
-			isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer);
+		if (victim.GetGroup())
+		{
+			if (killer.GetGroup())
+				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
+			else
+				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer);
+		}
 		
 		if (isFriendly)
 			killerReputation = -killerReputation;

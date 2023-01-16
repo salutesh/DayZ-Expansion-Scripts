@@ -38,11 +38,6 @@ modded class ItemBase
 		if (!Class.CastTo(car, tow) && !Class.CastTo(item, tow))
 			return;
 
-#ifdef DAYZ_1_18
-		if ((car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
-			return;
-#endif
-
 		m_Expansion_ChildTow = EntityAI.Cast(tow);
 		m_Expansion_IsTowing = true;
 		m_Expansion_TowConnectionIndex = index;

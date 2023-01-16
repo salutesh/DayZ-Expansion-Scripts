@@ -25,6 +25,19 @@ modded class DayZPlayerImplement
 
 	ref map<string, bool> m_Expansion_DisabledAmmoDamage = new map<string, bool>;
 
+	vector m_Expansion_HeadBonePositionMS;
+	float m_Expansion_HeadBoneIdleTime;
+	vector m_Expansion_LHandBonePositionMS;
+	float m_Expansion_LHandBoneIdleTime;
+	vector m_Expansion_RHandBonePositionMS;
+	float m_Expansion_RHandBoneIdleTime;
+	vector m_Expansion_LFootBonePositionMS;
+	float m_Expansion_LFootBoneIdleTime;
+	vector m_Expansion_RFootBonePositionMS;
+	float m_Expansion_RFootBoneIdleTime;
+
+	bool m_Expansion_EnableBonePositionUpdate;
+
 	void DayZPlayerImplement()
 	{
 		Expansion_Init();
@@ -138,6 +151,14 @@ modded class DayZPlayerImplement
 			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 
+	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
+	{
+		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
+
+		if (m_Expansion_EnableBonePositionUpdate)
+			Expansion_UpdateBonePositionTimes(pDt);
+	}
+
 	vector Expansion_GetHeadingVector()
 	{
 		return Vector(-GetInputController().GetHeadingAngle() * Math.RAD2DEG, 0, 0).AnglesToVector();
@@ -159,6 +180,75 @@ modded class DayZPlayerImplement
 			return hcm.GetCurrentMovementAngle();
 
 		return 0.0;
+	}
+
+	void Expansion_UpdateBonePositionTimes(float pDt)
+	{
+		vector headPosition = GetBonePositionMS(GetBoneIndexByName("Head"));
+		if (vector.DistanceSq(headPosition, m_Expansion_HeadBonePositionMS) < 0.0004)
+		{
+			m_Expansion_HeadBoneIdleTime += pDt;
+		}
+		else
+		{
+			m_Expansion_HeadBonePositionMS = headPosition;
+			m_Expansion_HeadBoneIdleTime = 0;
+		}
+		vector lHandPosition = GetBonePositionMS(GetBoneIndexByName("LeftHand"));
+		if (vector.DistanceSq(lHandPosition, m_Expansion_LHandBonePositionMS) < 0.01)
+		{
+			m_Expansion_LHandBoneIdleTime += pDt;
+		}
+		else
+		{
+			m_Expansion_LHandBonePositionMS = lHandPosition;
+			m_Expansion_LHandBoneIdleTime = 0;
+		}
+		vector rHandPosition = GetBonePositionMS(GetBoneIndexByName("RightHand"));
+		if (vector.DistanceSq(rHandPosition, m_Expansion_RHandBonePositionMS) < 0.01)
+		{
+			m_Expansion_RHandBoneIdleTime += pDt;
+		}
+		else
+		{
+			m_Expansion_RHandBonePositionMS = rHandPosition;
+			m_Expansion_RHandBoneIdleTime = 0;
+		}
+		vector lFootPosition = GetBonePositionMS(GetBoneIndexByName("LeftFoot"));
+		if (vector.DistanceSq(lFootPosition, m_Expansion_LFootBonePositionMS) < 0.0004)
+		{
+			m_Expansion_LFootBoneIdleTime += pDt;
+		}
+		else
+		{
+			m_Expansion_LFootBonePositionMS = lFootPosition;
+			m_Expansion_LFootBoneIdleTime = 0;
+		}
+		vector rFootPosition = GetBonePositionMS(GetBoneIndexByName("RightFoot"));
+		if (vector.DistanceSq(rFootPosition, m_Expansion_RFootBonePositionMS) < 0.0004)
+		{
+			m_Expansion_RFootBoneIdleTime += pDt;
+		}
+		else
+		{
+			m_Expansion_RFootBonePositionMS = rFootPosition;
+			m_Expansion_RFootBoneIdleTime = 0;
+		}
+	}
+
+	bool Expansion_IsAnimationIdle()
+	{
+		if (m_Expansion_HeadBoneIdleTime < 0.25)
+			return false;
+		if (m_Expansion_LHandBoneIdleTime < 0.25)
+			return false;
+		if (m_Expansion_RHandBoneIdleTime < 0.25)
+			return false;
+		if (m_Expansion_LFootBoneIdleTime < 0.25)
+			return false;
+		if (m_Expansion_RFootBoneIdleTime < 0.25)
+			return false;
+		return true;
 	}
 };
 

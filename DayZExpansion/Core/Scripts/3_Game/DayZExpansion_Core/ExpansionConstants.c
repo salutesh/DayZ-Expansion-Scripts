@@ -10,6 +10,8 @@
  *
 */
 
+const float NAN = "nan".ToFloat();
+
 /**
  * Expansion chat channels
  * @{

@@ -34,13 +34,6 @@ modded class ExpansionBaseBuilding
 	protected string m_CurrentBuild;
 
 	// ------------------------------------------------------------
-	//! Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionBaseBuilding()
-	{
-	}
-
-	// ------------------------------------------------------------
 	//! SetActions
 	// ------------------------------------------------------------
 	override void SetActions()

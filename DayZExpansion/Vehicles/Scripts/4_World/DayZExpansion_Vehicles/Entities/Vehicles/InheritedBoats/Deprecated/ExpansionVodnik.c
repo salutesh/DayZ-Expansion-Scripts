@@ -43,7 +43,6 @@ class ExpansionVodnik extends ExpansionBoatScript
 	
 		m_Offset					= -0.4;
 
-		#ifndef DAYZ_1_18
 		//! 1.19
 		m_EngineStartOK			= "Offroad_02_engine_start_SoundSet";
 		m_EngineStartBattery	= "Offroad_02_engine_failed_start_battery_SoundSet";
@@ -56,16 +55,6 @@ class ExpansionVodnik extends ExpansionBoatScript
 
 		m_CarHornShortSoundName = "Offroad_02_Horn_Short_SoundSet";
 		m_CarHornLongSoundName	= "Offroad_02_Horn_SoundSet";
-		#else
-		m_EngineStartOK = "Truck_01_engine_start_SoundSet";
-		m_EngineStartBattery = "Truck_01_engine_failed_start_battery_SoundSet";
-		m_EngineStartPlug = "Truck_01_engine_failed_start_sparkplugs_SoundSet";
-		m_EngineStartFuel = "Truck_01_engine_failed_start_fuel_SoundSet";
-		m_EngineStopFuel = "Truck_01_engine_stop_fuel_SoundSet";
-
-		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
-		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
-		#endif
 		
 		SetEnginePos("0 1.36 -0.4");
 	}
@@ -322,6 +311,26 @@ class ExpansionVodnik extends ExpansionBoatScript
 		}
 
 		return super.OnSound(ctrl, oldValue);
+	}
+	
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		switch (animSource)
+		{
+		case "vodnikdriverdoor":
+		case "vodnikcodriverdoor":
+			if (phase == 0)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorOpenSound, GetPosition());
+			}
+			else if (phase == 1)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorCloseSound, GetPosition());
+			}
+			break;
+		default:
+			super.HandleDoorsSound(animSource, phase);
+		}
 	}
 
 	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)

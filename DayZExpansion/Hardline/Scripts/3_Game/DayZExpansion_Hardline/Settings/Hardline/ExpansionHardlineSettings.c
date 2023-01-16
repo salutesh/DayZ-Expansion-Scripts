@@ -881,9 +881,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("NVGoggles", ExpansionHardlineItemRarity.Epic);
 
 		AddItem("AlarmClock_Blue", ExpansionHardlineItemRarity.Uncommon);
-	#ifdef DAYZ_1_17
 		AddItem("KitchenTimer", ExpansionHardlineItemRarity.Uncommon);
-	#endif
 	#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_tool_watch", ExpansionHardlineItemRarity.Uncommon);
 	#endif

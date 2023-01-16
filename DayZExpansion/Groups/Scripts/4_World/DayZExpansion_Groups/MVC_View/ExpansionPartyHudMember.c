@@ -34,6 +34,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	protected ImageWidget StanceBoat;
 	protected ImageWidget StanceDead;
 	protected ImageWidget StanceUncon;
+	protected TextWidget PlayerDistance;
 	
 	protected int m_CurrentHealth;
 	protected int m_CurrentBlood;
@@ -102,6 +103,9 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 	{
 		m_PartyMemberController.PlayerName = m_PlayerName;
 		m_PartyMemberController.NotifyPropertyChanged("PlayerName");
+		
+		if (GetExpansionSettings().GetParty().ShowHUDMemberDistance)
+			PlayerDistance.Show(true);
 	}
 	
 	void OnDataRecived( ExpansionSyncedPlayerStats player_stats)
@@ -113,7 +117,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		SetStats(player_stats);
 	}
 	
-	void OnStateDataRecived( ExpansionSyncedPlayerStates player_states)
+	void OnStateDataRecived(ExpansionSyncedPlayerStates player_states)
 	{
 		auto trace = EXTrace.Start(EXTrace.PLAYER_MONITOR, this, player_states.m_PlainID);
 
@@ -123,7 +127,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		SetStates(player_states);
 	}
 	
-	void SetStats( ExpansionSyncedPlayerStats player_stats)
+	void SetStats(ExpansionSyncedPlayerStats player_stats)
 	{
 		PlayerBloodPanel.Show(GetExpansionSettings().GetParty().ShowHUDMemberBlood);
 
@@ -151,6 +155,15 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 			
 			m_PartyMemberController.PlayerBloodVal = m_CurrentBlood.ToString() + "%";
 			m_PartyMemberController.NotifyPropertyChanged("PlayerBloodVal");
+		}
+		
+		if (GetExpansionSettings().GetParty().ShowHUDMemberDistance)
+		{
+			vector playerPos = GetGame().GetPlayer().GetPosition();
+			float distance = vector.Distance( player_stats.m_Position, playerPos);
+			float round = Math.Round(distance);
+			m_PartyMemberController.PlayerDistance = round.ToString() + " m";
+			m_PartyMemberController.NotifyPropertyChanged("PlayerDistance");
 		}
 	}
 	
@@ -350,12 +363,12 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		
 	float GetUpdateTickRate()
 	{
-		return 1.0;
+		return 0.5;
 	}
 	
 	void Update()
 	{
-#ifdef EXPANSIONMONITORMODULE
+	#ifdef EXPANSIONMONITORMODULE
 		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
 			return;
 
@@ -367,13 +380,12 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 			else
 				monitorModule.RequestPlayerStats(m_PlayerPlainID);
 		}
-#endif
+	#endif
 	}
 	
 	void CreateUpdateTimer()
 	{
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
-
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
 			m_UpdateTimer = new Timer(CALL_CATEGORY_GUI);

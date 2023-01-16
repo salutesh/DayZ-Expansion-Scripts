@@ -122,13 +122,6 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionCOTTerritoriesMenu Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionCOTTerritoriesMenu()
-	{
-	}
-	
-	// ------------------------------------------------------------
 	// Expansion SetModule
 	// ------------------------------------------------------------
 	#ifdef COT_BUGFIX_REF

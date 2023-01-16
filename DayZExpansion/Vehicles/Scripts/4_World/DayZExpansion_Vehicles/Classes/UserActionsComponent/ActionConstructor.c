@@ -44,9 +44,6 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionAdminUnpairKey );
 		actions.Insert( ExpansionActionLockVehicle );
 		actions.Insert( ExpansionActionUnlockVehicle );
-		#ifdef DAYZ_1_18
-		actions.Insert( ExpansionActionCarHorn );
-		#endif
 		actions.Insert( ExpansionActionOpenVehicleDoor );
 		actions.Insert( ExpansionActionCloseVehicleDoor );
 		
@@ -60,7 +57,7 @@ modded class ActionConstructor
 		actions.Insert( ExpansionActionPickVehicleLock );
 		actions.Insert( ExpansionVehicleActionPickLock );
 		actions.Insert( ExpansionActionChangeVehicleLock );
-		actions.Insert( ExpansionActionRepairHelicopter );
+		actions.Insert( ExpansionActionRepairVehicle );
 
 		//! Boats
 		actions.Insert( ExpansionActionNextEngine );

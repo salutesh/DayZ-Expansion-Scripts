@@ -11,19 +11,7 @@
 */
 
 modded class TerritoryFlagKit
-{	
-	ref Timer m_BuildFlagTimer;
-	
-	void TerritoryFlagKit()
-	{
-		
-	}
-	
-	void ~TerritoryFlagKit()
-	{
-
-	}
-	
+{
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{
 		if ( GetGame().IsServer() )
@@ -45,9 +33,9 @@ modded class TerritoryFlagKit
 			//! If the server hoster doesn't want to build with the vanilla way the entire flag pole
 			if (GetExpansionSettings().GetBaseBuilding().SimpleTerritory)
 			{
-				totem.GetConstruction().AdminBuildPartServer( player_base, "base", AT_BUILD_PART );
-				totem.GetConstruction().AdminBuildPartServer( player_base, "support", AT_BUILD_PART );
-				totem.GetConstruction().AdminBuildPartServer( player_base, "pole", AT_BUILD_PART );
+				totem.GetConstruction().Expansion_AdminBuildPartServer( player, "base", AT_BUILD_PART );
+				totem.GetConstruction().Expansion_AdminBuildPartServer( player, "support", AT_BUILD_PART );
+				totem.GetConstruction().Expansion_AdminBuildPartServer( player, "pole", AT_BUILD_PART );
 			}
 		}
 	}

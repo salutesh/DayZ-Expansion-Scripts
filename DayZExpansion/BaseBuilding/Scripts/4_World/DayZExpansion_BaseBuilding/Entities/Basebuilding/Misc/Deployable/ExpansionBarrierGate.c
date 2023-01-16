@@ -24,13 +24,6 @@ class ExpansionBarrierGate: ExpansionBaseBuilding
 	}
 
 	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionBarrierGate()
-	{
-	}
-
-	// ------------------------------------------------------------
 	// CanPutIntoHands
 	// ------------------------------------------------------------
 	override bool CanPutIntoHands(EntityAI parent)

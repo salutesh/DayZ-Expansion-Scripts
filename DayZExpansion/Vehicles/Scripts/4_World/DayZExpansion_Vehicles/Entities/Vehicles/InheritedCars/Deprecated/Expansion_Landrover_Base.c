@@ -38,11 +38,9 @@ class Expansion_Landrover_Base extends CarScript
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 		
-		#ifndef DAYZ_1_18
 		//! 1.19
 		m_CarHornShortSoundName = "Offroad_Horn_Short_SoundSet";
 		m_CarHornLongSoundName	= "Offroad_Horn_SoundSet";
-		#endif
 		
 		SetEnginePos("0 0.95 1.7");
 	}

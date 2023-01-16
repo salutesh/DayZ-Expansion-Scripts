@@ -15,21 +15,21 @@
  **/
 class ExpansionPartySettings: ExpansionSettingBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
-	bool EnableParties;												// enable party module, allow players to create parties
-	int MaxMembersInParty; 										// If <= 0, unlimited party size
-	bool UseWholeMapForInviteList; 								// Use it if you want whole map available in invite list, instead only nearby players
-	bool ShowPartyMember3DMarkers;					// If enabled, allow to see 3D marker above teammates location
-	bool ShowDistanceUnderPartyMembersMarkers;		// Show the distance of the party member marker
-	bool ShowNameOnPartyMembersMarkers;				// Show the name of the party member marker
-	bool EnableQuickMarker;										// Enable/Diable quick marker option
-	bool ShowDistanceUnderQuickMarkers;					//  Show the distance of the quick marker
-	bool ShowNameOnQuickMarkers;							// Show the distance of the quick marker
-	bool CanCreatePartyMarkers;									// Allow player to create party markers
+	bool EnableParties;	//! Enable party module, allow players to create parties
+	int MaxMembersInParty; //! If <= 0, unlimited party size
+	bool UseWholeMapForInviteList; //! Use it if you want whole map available in invite list, instead only nearby players
+	bool ShowPartyMember3DMarkers; //! If enabled, allow to see 3D marker above teammates location
+	bool ShowDistanceUnderPartyMembersMarkers; //! Show the distance of the party member marker
+	bool ShowNameOnPartyMembersMarkers; //! Show the name of the party member marker
+	bool EnableQuickMarker; //! Enable/Diable quick marker option
+	bool ShowDistanceUnderQuickMarkers; //! Show the distance of the quick marker
+	bool ShowNameOnQuickMarkers; //! Show the distance of the quick marker
+	bool CanCreatePartyMarkers; //! Allow player to create party markers
 	
 	//! Added with version 2
-	bool ShowPartyMemberHUD;									// Show the party hud interface that displays eacht party members name and health
+	bool ShowPartyMemberHUD; //! Show the party hud interface that displays eacht party members name and health
 	
 	//! Added with version 3
 	bool ShowHUDMemberBlood;
@@ -38,6 +38,9 @@ class ExpansionPartySettings: ExpansionSettingBase
 	
 	//! Added with version 4
 	bool ShowPartyMemberMapMarkers;
+	
+	//! Added with version 5
+	bool ShowHUDMemberDistance;
 	
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -126,6 +129,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowHUDMemberStance = s.ShowHUDMemberStance;
 		
 		ShowPartyMemberMapMarkers = s.ShowPartyMemberMapMarkers;
+		
+		ShowHUDMemberDistance = s.ShowHUDMemberDistance;
 	}
 	
 	// ------------------------------------------------------------
@@ -182,6 +187,11 @@ class ExpansionPartySettings: ExpansionSettingBase
 				{
 					ShowPartyMemberMapMarkers = settingsDefault.ShowPartyMemberMapMarkers;
 				}
+				
+				if (m_Version < 5)
+				{
+					ShowHUDMemberDistance = settingsDefault.ShowHUDMemberDistance;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -224,7 +234,6 @@ class ExpansionPartySettings: ExpansionSettingBase
 		MaxMembersInParty = 10;
 		UseWholeMapForInviteList = false;
 		ShowPartyMember3DMarkers = true;
-		ShowPartyMemberMapMarkers = true;
 		ShowDistanceUnderPartyMembersMarkers = true;
 		ShowNameOnPartyMembersMarkers = true;
 		EnableQuickMarker = true;
@@ -239,6 +248,12 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowHUDMemberBlood = true;
 		ShowHUDMemberStates = true;
 		ShowHUDMemberStance = true;
+		
+		//! Added with version 4
+		ShowPartyMemberMapMarkers = true;
+		
+		//! Added with version 5
+		ShowHUDMemberDistance = true;
 	}
 	
 	// ------------------------------------------------------------

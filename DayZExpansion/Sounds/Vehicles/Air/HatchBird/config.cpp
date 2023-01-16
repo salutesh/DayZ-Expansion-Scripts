@@ -24,13 +24,13 @@ class CfgSoundShaders
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\HatchBird\HatchBird_Engine",1}};
 		frequency = "rpm";
-		volume = "engineOn * rpm * (1 - camPos ) * 0.4";
+		volume = "rpm * (1 - camPos ) * 0.4";
 	};
 	class Expansion_HatchBird_Engine_Ext_SoundShader: Expansion_HatchBird_Base_Ext_SoundShader
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\HatchBird\HatchBird_Engine",1}};
 		frequency = "rpm";
-		volume = "engineOn * rpm * camPos";
+		volume = "rpm * camPos";
 	};
 	class Expansion_HatchBird_Rotor_Int_SoundShader: Expansion_HatchBird_Base_Int_SoundShader
 	{

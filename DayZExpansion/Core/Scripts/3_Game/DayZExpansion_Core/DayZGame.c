@@ -27,6 +27,10 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	void DayZGame()
 	{
+#ifdef DIAG
+		CF_Log.Level = CF_LogLevel.TRACE;
+#endif
+
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZGame");
 #endif
@@ -183,47 +187,7 @@ modded class DayZGame
 
 	float GetWorldSize()
 	{
-		#ifndef DAYZ_1_18
 		return GetGame().GetWorld().GetWorldSize();
-		#endif
-		
-		float size;
-
-		switch (ExpansionStatic.GetCanonicalWorldName())
-		{
-			case "chernarusplus":
-				size = 15360.0;
-				break;
-
-			case "enoch":
-			case "namalsk":
-			case "esseker":
-				size = 12800.0;
-				break;
-
-			case "chiemsee":
-				size = 10240.0;
-				break;
-
-			case "deerisle":
-				size = 16384.0;
-				break;
-
-			case "rostow":
-				size = 14336.0;
-				break;
-
-			case "sandbox":
-				size = 2048.0;
-				break;
-				
-			default:
-				//! Just fall back to Chernarus size
-				size = 15360.0;
-				break;
-		}
-
-		return size;
 	}
 
 	// ------------------------------------------------------------

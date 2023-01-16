@@ -120,7 +120,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonSaveFile(fileName, config);
+			config.Save(fileName);
 		}
 
 		return config;
@@ -128,7 +128,10 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveAICampConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveAICampConfigBase configBase)

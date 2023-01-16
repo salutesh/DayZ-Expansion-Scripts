@@ -651,9 +651,6 @@ class ExpansionVehicleBase extends ItemBase
 
 		Fill(CarFluid.FUEL, GetFluidCapacity(CarFluid.FUEL));
 
-		if (IsMissionHost())
-			SetAllowDamage(CanBeDamaged());
-
 		//! This exists so it can be overridden (e.g.) by server owners who don't have access to unbinarized models
 		path = "CfgVehicles " + GetType() + " mass";
 		if (GetGame().ConfigIsExisting(path))
@@ -1629,9 +1626,6 @@ class ExpansionVehicleBase extends ItemBase
 			return;
 
 		m_Expansion_IsInSafeZone = true;
-
-		if (GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone)
-			SetAllowDamage(false);
 	}
 
 	/**
@@ -1643,9 +1637,14 @@ class ExpansionVehicleBase extends ItemBase
 			return;
 
 		m_Expansion_IsInSafeZone = false;
+	}
 
-		if (CanBeDamaged())
-			SetAllowDamage(true);
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		return CanBeDamaged();
 	}
 
 	override void EEInit()

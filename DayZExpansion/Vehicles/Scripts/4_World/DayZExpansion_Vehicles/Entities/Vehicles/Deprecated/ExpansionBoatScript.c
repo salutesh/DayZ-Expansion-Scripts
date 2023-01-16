@@ -197,14 +197,9 @@ class ExpansionBoatScript extends CarScript
 			brake = backward;
 			thrust = forward;
 		}
-
-#ifdef DAYZ_1_18
-		int gear = GetController().GetGear();
-#else
 		//! 1.19
 		int gear = GetGear();
-#endif
-
+		
 		if (brake > 0)
 		{
 			m_ThrustTarget = -m_State.m_LinearVelocityMS[2] * (1.0 / m_MaxSpeedMS) * 2.0;

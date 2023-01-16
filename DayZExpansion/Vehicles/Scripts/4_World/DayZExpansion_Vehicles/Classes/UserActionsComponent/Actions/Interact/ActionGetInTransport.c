@@ -31,30 +31,6 @@ modded class ActionGetInTransport
 
 		CarScript car = CarScript.Cast(target.GetObject());
 
-#ifdef DAYZ_1_18
-		EntityAI towParent = car.Expansion_GetTowParent();
-
-		ExpansionVehicleBase exVeh;
-		if (Class.CastTo(exVeh, towParent))
-		{
-			//! Currently only prevent getting in the vehicle if it is being winched, not towed
-			if (exVeh.Expansion_IsHelicopter())
-			{
-				return false;
-			}
-		}
-
-		CarScript vnVeh;
-		if (Class.CastTo(vnVeh, towParent))
-		{
-			//! Currently only prevent getting in the vehicle if it is being winched, not towed
-			if (vnVeh.Expansion_IsHelicopter())
-			{
-				return false;
-			}
-		}
-#endif
-
 		// Temp fix for being able to enter Uh1h despite being locked
 		ExpansionUh1h uh1h = ExpansionUh1h.Cast(target.GetObject());
 		if (car.DoorCount() <= 0 || uh1h)
@@ -63,34 +39,14 @@ modded class ActionGetInTransport
 		return true;
 	}
 
-	/**
-	 * Very sorry other modders, can't call super in this function. Will cause crashes.
-	 * If bohemia overrides ::OnStart instead of ::Start then I will be able to call super
-	 */
 	override void Start(ActionData action_data)
 	{
 		//AttachmentDebugPrint(action_data.m_Player, "+ActionGetInTransport::Start");
-		action_data.m_State = UA_START;
-
-		OnStart(action_data);
-
-		if (GetGame().IsServer())
-		{
-			OnStartServer(action_data);
-		}
-		else
-		{
-			OnStartClient(action_data);
-		}
-
-		InformPlayers(action_data.m_Player, action_data.m_Target, UA_START);
-
-		actionDebugPrint("[action] " + Object.GetDebugName(action_data.m_Player) + " started " + ToString() + " item=" + Object.GetDebugName(action_data.m_MainItem));
 
 		CarScript car = CarScript.Cast(action_data.m_Target.GetObject());
 		//AttachmentDebugPrint(action_data.m_Player, "car=" + car);
 
-		if (action_data.m_Player.GetParent())
+		if (action_data.m_Player.Expansion_IsAttached() && action_data.m_Player.GetParent())
 		{
 			//AttachmentDebugPrint(action_data.m_Player, "parent=" + action_data.m_Player.GetParent());
 
@@ -103,25 +59,25 @@ modded class ActionGetInTransport
 		}
 
 		//AttachmentDebugPrint(action_data.m_Player, "Has No Parent");
-		PerformGetInTransport(action_data);
+		super.Start(action_data);
 
-		//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::Start");
+		Expansion_OnPerformGetInTransport(car);
 	}
 
 	override void OnUpdate(ActionData action_data)
 	{
 		if (action_data.m_State == UA_START)
 		{
-			if (action_data.m_Player.CanPerformVehicleGetIn())
+			if (action_data.m_Player.Expansion_CanPerformVehicleGetIn())
 			{
-				//AttachmentDebugPrint(action_data.m_Player, "CanPerformVehicleGetIn");
+				//AttachmentDebugPrint(action_data.m_Player, "Expansion_CanPerformVehicleGetIn");
 				if (GetGame().IsClient() && !ScriptInputUserData.CanStoreInputUserData())
 				{
 					//AttachmentDebugPrint(action_data.m_Player, "CanStoreInputUserData Fail");
 					return;
 				}
 
-				action_data.m_Player.EndVehiclePrep();
+				action_data.m_Player.Expansion_EndVehiclePrep();
 
 				//AttachmentDebugPrint(action_data.m_Player, "parent=" + action_data.m_Player.GetParent());
 
@@ -130,14 +86,14 @@ modded class ActionGetInTransport
 					return;
 				}
 
-				PerformGetInTransport(action_data);
+				Expansion_PerformGetInTransport(action_data);
 
 				return;
 			}
 
-			if (action_data.m_Player.IsPreparingVehicle())
+			if (action_data.m_Player.Expansion_IsPreparingVehicle())
 			{
-				//AttachmentDebugPrint(action_data.m_Player, "IsPreparingVehicle");
+				//AttachmentDebugPrint(action_data.m_Player, "Expansion_IsPreparingVehicle");
 				return;
 			}
 		}
@@ -145,9 +101,9 @@ modded class ActionGetInTransport
 		super.OnUpdate(action_data);
 	}
 
-	private void PerformGetInTransport(ActionData action_data)
+	private void Expansion_PerformGetInTransport(ActionData action_data)
 	{
-		//AttachmentDebugPrint(action_data.m_Player, "+ActionGetInTransport::PerformGetInTransport");
+		//AttachmentDebugPrint(action_data.m_Player, "+ActionGetInTransport::Expansion_PerformGetInTransport");
 		vector playerPosition = action_data.m_Player.GetPosition();
 		//AttachmentDebugPrint(action_data.m_Player, "playerPosition=" + playerPosition);
 
@@ -155,7 +111,7 @@ modded class ActionGetInTransport
 		//AttachmentDebugPrint(action_data.m_Player, "car=" + car);
 		if (!car)
 		{
-			//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::PerformGetInTransport");
+			//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::Expansion_PerformGetInTransport");
 			return;
 		}
 		int componentIndex = action_data.m_Target.GetComponentIndex();
@@ -178,6 +134,27 @@ modded class ActionGetInTransport
 			if (action_data.m_Player.GetInventory())
 				action_data.m_Player.GetInventory().LockInventory(LOCK_FROM_SCRIPT);
 
+			Expansion_OnPerformGetInTransport(car);
+		}
+		else
+		{
+			// TODO: don't go back to 0 0 0
+
+			//AttachmentDebugPrint(action_data.m_Player, "no vehCommand parent=" + action_data.m_Player.GetParent());
+			if (action_data.m_Player.GetParent())
+			{
+				EXTrace.Print(EXTrace.VEHICLES, this, "::Expansion_PerformGetInTransport - detaching from " + action_data.m_Player.GetParent());
+				action_data.m_Player.UnlinkFromLocalSpace();
+			}
+
+			action_data.m_Player.SetPosition(playerPosition);
+		}
+	}
+
+	void Expansion_OnPerformGetInTransport(CarScript car)
+	{
+		if (car)
+		{
 			if (IsMissionClient())
 			{
 				bool isCar = car.IsCar();
@@ -210,20 +187,6 @@ modded class ActionGetInTransport
 				}
 			}
 		}
-		else
-		{
-			// TODO: don't go back to 0 0 0
-
-			//AttachmentDebugPrint(action_data.m_Player, "no vehCommand parent=" + action_data.m_Player.GetParent());
-			if (action_data.m_Player.GetParent())
-			{
-				action_data.m_Player.UnlinkFromLocalSpace();
-			}
-
-			action_data.m_Player.SetPosition(playerPosition);
-		}
-
-		//AttachmentDebugPrint(action_data.m_Player, "-ActionGetInTransport::PerformGetInTransport");
 	}
 
 	override void OnEndServer(ActionData action_data)

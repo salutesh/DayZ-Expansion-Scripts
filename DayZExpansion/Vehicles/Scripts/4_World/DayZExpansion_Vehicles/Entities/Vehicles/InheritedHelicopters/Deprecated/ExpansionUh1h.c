@@ -194,6 +194,26 @@ class ExpansionUh1h : ExpansionHelicopterScript
 		return super.OnSound(ctrl, oldValue);
 	}
 
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		switch (animSource)
+		{
+		case "uh1hdoor_2_1":
+		case "uh1hdoor_2_2":
+			if (phase == 0)
+			{
+				SEffectManager.Expansion_PlaySound("Expansion_Uh1h_SlidingDoor_Open_SoundSet", GetPosition());
+			}
+			else if (phase == 1)
+			{
+				SEffectManager.Expansion_PlaySound("Expansion_Uh1h_SlidingDoor_Close_SoundSet", GetPosition());
+			}
+			break;
+		default:
+			super.HandleDoorsSound(animSource, phase);
+		}
+	}
+
 	override string GetDoorSelectionNameFromSeatPos(int posIdx)
 	{
 #ifdef EXPANSIONTRACE

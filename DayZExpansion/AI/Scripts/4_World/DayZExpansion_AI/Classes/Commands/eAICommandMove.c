@@ -667,7 +667,8 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		//! Clockwise: Positive, counter-clockwise: Negative
 		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
 		
-		if (isFinal && m_WayPointDistance < minFinal)
+		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal;
+		if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
 		}

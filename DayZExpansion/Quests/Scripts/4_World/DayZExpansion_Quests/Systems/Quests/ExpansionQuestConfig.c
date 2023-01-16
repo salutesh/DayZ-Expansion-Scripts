@@ -99,6 +99,11 @@ class ExpansionQuestConfigBase
 	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
 	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
 
+	int QuestColor = 0;  //! Main color that will be used in all the quest menus and interfaces for this quest.
+	int ReputationReward = 0; //! Reputation reward when completing the quest.
+	int ReputationRequirement = -1; //! Reputation needed to see and start the quest.
+	ref array<int> PreQuestIDs; //! Pre-Quest Quest IDs of the quest the player need to have completed to accept this quest.
+	
 	void ExpansionQuestConfigBase()
 	{
 		Descriptions = new array<string>;
@@ -107,23 +112,17 @@ class ExpansionQuestConfigBase
 		Rewards = new array<ref ExpansionQuestRewardConfig>;
 		QuestGiverIDs = new array<int>;
 		QuestTurnInIDs = new array<int>;
+		PreQuestIDs = new array<int>;
 	}
 };
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
-	static const int CONFIGVERSION = 6;
-
-	int QuestColor = 0;  //! Main color that will be used in all the quest menus and interfaces for this quest.
-	int ReputationReward = 0; //! Reputation reward when completing the quest.
-	int ReputationRequirement = -1; //! Reputation needed to see and start the quest.
-	ref array<int> PreQuestIDs; //! Pre-Quest Quest IDs of the quest the player need to have completed to accept this quest.
+	static const int CONFIGVERSION = 7;
 
 	void ExpansionQuestConfig()
 	{
 		ConfigVersion = CONFIGVERSION;
-
-		PreQuestIDs = new array<int>;
 	}
 
 	void SetType(int type)
@@ -480,7 +479,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 		ExpansionQuestConfig questConfig;
 		ExpansionQuestConfigBase questConfigBase;
-		JsonFileLoader<ExpansionQuestConfigBase>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase);
+
+		if (!ExpansionJsonFileParser<ExpansionQuestConfigBase>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
+			return NULL;
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
 		{
@@ -493,8 +494,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			if (questConfigBase.ConfigVersion < 6)
 			{
 				ExpansionQuestConfigV5 questConfigv5;
-				JsonFileLoader<ExpansionQuestConfigV5>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigv5);
-				if (questConfigv5)
+				if (ExpansionJsonFileParser<ExpansionQuestConfigV5>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigv5))
 				{
 					questConfig.ReputationReward = questConfigv5.HumanityReward;
 					if (questConfigv5.PreQuest != -1)
@@ -503,23 +503,39 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 				questConfig.SetType(ExpansionQuestType.NORMAL);
 			}
+			
+			if (questConfigBase.ConfigVersion < 7)
+			{
+				for (int i = questConfig.Rewards.Count() - 1; i >= 0; i--)
+				{
+					ExpansionQuestRewardConfigBase rewardBase = questConfig.Rewards[i];
+					ExpansionQuestRewardConfig convertedReward = new ExpansionQuestRewardConfig();
+					convertedReward.Copy(rewardBase);
+					
+					convertedReward.HealthPercent = 100;
+					
+					questConfig.Rewards.RemoveOrdered(i);
+					questConfig.Rewards.InsertAt(convertedReward, i);
+				}
+			}
 
 			questConfig.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
 		else
 		{
-			JsonFileLoader<ExpansionQuestConfig>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfig);
+			if (!ExpansionJsonFileParser<ExpansionQuestConfig>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfig))
+				return NULL;
 		}
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfig);
+			questConfig.Save(fileName);
 		}
 
 		return questConfig;
 	}
-
+	
 	bool ValidateQuestConfiguration(string fileName)
 	{
 		bool save;
@@ -717,14 +733,17 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		}
 
 		if (save)
-			JsonFileLoader<ExpansionQuestConfig>.JsonLoadFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
+			Save(fileName);
 
 		return true;
 	}
 
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestConfig>.JsonSaveFile(EXPANSION_QUESTS_QUESTS_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestConfig>.Save(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestConfigBase questConfigBase)
@@ -752,6 +771,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		RewardsForGroupOwnerOnly = questConfigBase.RewardsForGroupOwnerOnly;
 		QuestGiverIDs = questConfigBase.QuestGiverIDs;
 		QuestTurnInIDs = questConfigBase.QuestTurnInIDs;
+		QuestColor = questConfigBase.QuestColor;
+		ReputationReward = questConfigBase.ReputationReward;
+		ReputationRequirement = questConfigBase.ReputationRequirement;
+		PreQuestIDs = questConfigBase.PreQuestIDs;
 	}
 
 	void OnSend(ParamsWriteContext ctx)

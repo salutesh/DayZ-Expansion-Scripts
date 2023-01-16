@@ -37,11 +37,9 @@ class ExpansionTractor extends CarScript
 		m_CarDoorOpenSound = "Truck_01_door_open_SoundSet";
 		m_CarDoorCloseSound = "Truck_01_door_close_SoundSet";
 		
-		#ifndef DAYZ_1_18
 		//! 1.19
 		m_CarHornShortSoundName = "Truck_01_Horn_Short_SoundSet";
 		m_CarHornLongSoundName	= "Truck_01_Horn_SoundSet";
-		#endif
 
 		SetEnginePos("0 1.27 1.04");
 	}
@@ -278,6 +276,26 @@ class ExpansionTractor extends CarScript
 		}
 
 		return super.OnSound(ctrl, oldValue);
+	}
+
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		switch (animSource)
+		{
+		case "expansiontractordoorsdriver":
+		case "expansiontractordoorscodriver":
+			if (phase == 0)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorOpenSound, GetPosition());
+			}
+			else if (phase == 1)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorCloseSound, GetPosition());
+			}
+			break;
+		default:
+			super.HandleDoorsSound(animSource, phase);
+		}
 	}
 
 	override string GetAnimSourceFromSelection(string selection)

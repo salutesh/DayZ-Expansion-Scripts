@@ -441,7 +441,7 @@ class ExpansionMath
 		if (!x)
 		{
 			Error("Math domain error");
-			return 0.0;  //! We need to return something, unfortunately EnForce doesn't have a NaN value
+			return NAN;
 		}
 
 		//! Shortcut for x == 1.0

@@ -33,12 +33,46 @@ class ExpansionString
 		return m_String.IndexOf(prefix) == 0;
 	}
 
+	static bool StartsWith(string str, string prefix)
+	{
+		return str.IndexOf(prefix) == 0;
+	}
+
+	bool StartsWithIgnoreCase(string prefix)
+	{
+		return StartsWithIgnoreCase(m_String, prefix);
+	}
+
+	static bool StartsWithIgnoreCase(string str, string prefix)
+	{
+		str.ToLower();
+		prefix.ToLower();
+		return StartsWith(str, prefix);
+	}
+
 	bool EndsWith(string suffix)
 	{
+		return EndsWith(m_String, suffix);
+	}
+
+	static bool EndsWith(string str, string suffix)
+	{
 		int suffixLength = suffix.Length();
-		if (m_String.Length() < suffixLength)
+		if (str.Length() < suffixLength)
 			return false;
-		return m_String.IndexOf(suffix) == m_String.Length() - suffixLength;
+		return str.IndexOf(suffix) == str.Length() - suffixLength;
+	}
+
+	bool EndsWithIgnoreCase(string suffix)
+	{
+		return EndsWithIgnoreCase(m_String, suffix);
+	}
+
+	static bool EndsWithIgnoreCase(string str, string suffix)
+	{
+		str.ToLower();
+		suffix.ToLower();
+		return EndsWith(str, suffix);
 	}
 
 	bool Equals(string cmp)
@@ -46,9 +80,20 @@ class ExpansionString
 		return m_String == cmp;
 	}
 
+	//! DEPRECATED, alias for EqualsIgnoreCase
 	bool EqualsCaseInsensitive(string cmp)
 	{
-		string str = m_String;
+		Error("DEPRECATED, use EqualsIgnoreCase");
+		return EqualsIgnoreCase(m_String, cmp);
+	}
+
+	bool EqualsIgnoreCase(string cmp)
+	{
+		return EqualsIgnoreCase(m_String, cmp);
+	}
+
+	static bool EqualsIgnoreCase(string str, string cmp)
+	{
 		str.ToLower();
 		cmp.ToLower();
 		return str == cmp;
@@ -57,11 +102,16 @@ class ExpansionString
 	//! Reimplement LastIndexOf (vanilla string.LastIndexOf is broken...)
 	int LastIndexOf(string sample)
 	{
+		return LastIndexOf(m_String, sample);
+	}
+
+	static int LastIndexOf(string str, string sample)
+	{
 		int idx = -1;
 		int lastIdx = -1;
 		while (true)
 		{
-			idx = m_String.IndexOfFrom(idx + 1, sample);
+			idx = str.IndexOfFrom(idx + 1, sample);
 			if (idx > -1)
 				lastIdx = idx;
 			else
@@ -79,7 +129,10 @@ class ExpansionString
 	static int ToAscii(string character)
 	{
 		if (!character)
-			return 0;
+		{
+			Error("Expected a character, but got a string of length 0");
+			return NAN;
+		}
 
 		if (!s_ToAscii.Count())
 		{
@@ -99,6 +152,11 @@ class ExpansionString
 	 * 
 	 * @return a copy of str with the first character removed
 	 */
+	string RemoveFirstChar() 
+	{
+		return m_String.Substring( 1, m_String.Length() - 1 );
+	}
+
 	static string RemoveFirstChar( string str ) 
 	{
 		return str.Substring( 1, str.Length() - 1 );
@@ -111,9 +169,26 @@ class ExpansionString
 	 * 
 	 * @return a copy of str with the last character removed
 	 */
+	string RemoveLastChar() 
+	{
+		return m_String.Substring( 0, m_String.Length() - 1 );
+	}
+
 	static string RemoveLastChar( string str ) 
 	{
 		return str.Substring( 0, str.Length() - 1 );
+	}
+
+	static string JoinStrings(array<ExpansionString> strings, string glue = ", ")
+	{
+		string output = "";
+		for (int i = 0; i < strings.Count(); i++)
+		{
+			if (glue && output)
+				output += glue;
+			output += strings[i].Get();
+		}
+		return output;
 	}
 
 	static string JoinStrings(TStringArray strings, string glue = ", ")

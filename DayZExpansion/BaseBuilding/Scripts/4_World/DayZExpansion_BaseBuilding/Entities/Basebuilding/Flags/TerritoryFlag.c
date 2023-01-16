@@ -446,17 +446,7 @@ modded class TerritoryFlag
 
 		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && part_name == "pole" ) 
 		{
-			if ( !FindAttachmentBySlotName("Material_FPole_Flag") )
-			{
-				Flag_DayZ flag = Flag_DayZ.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
-				if ( flag )
-				{
-					if ( !m_FlagTexturePath )
-						m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
-					
-					flag.SetFlagTexture( m_FlagTexturePath );
-				}
-			}
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_AttachDefaultFlag, 34, false);
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -464,6 +454,21 @@ modded class TerritoryFlag
 		#endif
 	}
 	
+	void Expansion_AttachDefaultFlag()
+	{
+		if ( !FindAttachmentBySlotName("Material_FPole_Flag") )
+		{
+			Flag_DayZ flag = Flag_DayZ.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
+			if ( flag )
+			{
+				if ( !m_FlagTexturePath )
+					m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
+				
+				flag.SetFlagTexture( m_FlagTexturePath );
+			}
+		}
+	}
+
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );

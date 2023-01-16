@@ -741,7 +741,7 @@ modded class PlayerBase
 
 	override bool CanReceiveItemIntoHands(EntityAI item_to_hands)
 	{
-		if ( IsAttached() )
+		if ( Expansion_IsAttached() )
 		{
 			Object attachmentObject = Expansion_GetAttachmentObject();
 			bool isVehicle;

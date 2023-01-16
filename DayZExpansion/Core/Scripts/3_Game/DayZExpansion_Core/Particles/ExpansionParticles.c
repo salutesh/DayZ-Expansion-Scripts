@@ -27,6 +27,7 @@ modded class ParticleList
 	//! Helicopters
 	static const int EXPANSION_HELICOPTER_WATER = RegisterParticle( "DayZExpansion/Particles/Vehicles/" , "Expansion_Helicopter_Water");
 	static const int EXPANSION_HELICOPTER_GROUND = RegisterParticle( "DayZExpansion/Particles/Vehicles/" , "Expansion_Helicopter_Ground");
+	static const int EXPANSION_HELICOPTER_EXHAUST = RegisterParticle( "DayZExpansion/Particles/Vehicles/" , "Expansion_Helicopter_Exhaust");
 	
 	// Weapons
 	static const int EXPANSION_FLARE_SMOKE = RegisterParticle( "DayZExpansion/Particles/Weapons/" , "Expansion_World_Flare");

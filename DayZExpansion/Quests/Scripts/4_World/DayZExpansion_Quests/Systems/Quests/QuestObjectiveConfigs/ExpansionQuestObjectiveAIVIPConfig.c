@@ -98,7 +98,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestObjectiveAIVIPConfig>.JsonSaveFile(fileName, config);
+			config.Save(fileName);
 		}
 
 		return config;
@@ -106,7 +106,10 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveAIVIPConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveAIVIPConfigBase configBase)

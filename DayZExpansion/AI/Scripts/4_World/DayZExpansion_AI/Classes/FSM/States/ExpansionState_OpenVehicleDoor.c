@@ -9,12 +9,8 @@ class ExpansionState_OpenVehicleDoor : ExpansionState_GoToVehicle
 		string source;
 
 		ExpansionFSMHelper.DoorAnimationSource(entity, seat, hasDoor, source);
-		if (hasDoor)
-		{
-			return entity.GetAnimationPhase(source) > 0.5;
-		}
 
-		return false;
+		return hasDoor;
 	}
 
 	override void OnEntry(string Event, ExpansionState From)
@@ -38,7 +34,7 @@ class ExpansionState_OpenVehicleDoor : ExpansionState_GoToVehicle
 
 		time += DeltaTime;
 
-		if (time > 0.5 || entity.GetAnimationPhase(source) > 0.5)
+		if (time > 1.0 || !source || entity.GetAnimationPhase(source) > 0.95)
 		{
 			return EXIT;
 		}

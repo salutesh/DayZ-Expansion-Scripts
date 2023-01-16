@@ -26,7 +26,10 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveConfig
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveCraftingConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveCraftingConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER + fileName, this);
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

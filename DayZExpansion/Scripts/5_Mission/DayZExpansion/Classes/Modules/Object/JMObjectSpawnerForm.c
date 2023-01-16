@@ -38,11 +38,9 @@ modded class JMObjectSpawnerForm
 		"dartgun",
 		"shockpistol",
 		"shockpistol_black",
-#ifdef DAYZ_1_17
 		"derringer_black",
 		"derringer_pink",
 		"derringer_grey",
-#endif
 		"fnx45_arrow",
 		"makarovpb",
 		"mp133shotgun_pistolgrip",

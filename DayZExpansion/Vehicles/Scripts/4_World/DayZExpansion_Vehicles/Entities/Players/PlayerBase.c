@@ -44,10 +44,6 @@ modded class PlayerBase
 #ifdef DIAG
 		AddAction( ExpansionActionPushVehicle, InputActionMap );
 #endif
-		
-		#ifdef DAYZ_1_18
-		AddAction( ExpansionActionCarHorn, InputActionMap );
-		#endif
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
 
 		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
@@ -195,7 +191,7 @@ modded class PlayerBase
 
 	override void TryHideItemInHands(bool hide, bool force = false)
 	{
-		if (!hide && IsAttached())
+		if (!hide && Expansion_IsAttached())
 		{
 			//! Vanilla turns false (= show) into true (= hide) if parent is transport (additional check added to IsInVehicle with 1.16). Force show item in hands.
 			super.TryHideItemInHands(false, true);
@@ -217,7 +213,7 @@ modded class PlayerBase
 
 	override bool IsInVehicle()
 	{
-		if (IsAttached())
+		if (Expansion_IsAttached())
 			return false;
 
 		if (super.IsInVehicle())
@@ -397,9 +393,9 @@ modded class PlayerBase
 		//todo: branchless ??
 		if ( GetGame().IsServer() ) 
 		{
-			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_WasInVehicle + " is attached " + IsAttached() + " " + GetParent());
+			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_WasInVehicle + " is attached " + Expansion_IsAttached() + " " + GetParent());
 
-			if ( !IsAttached() && !GetParent() )
+			if ( !Expansion_IsAttached() && !GetParent() )
 			{
 				vector rayStart = GetPosition() + "0 0.6 0";
 

@@ -54,13 +54,6 @@ modded class ItemBase
 			//RegisterNetSyncVariableInt( "m_SourceNetHigh" );
 		}
 	}
-	
-	//============================================
-	// ItemBase Destructor
-	//============================================
-	void ~ItemBase()
-	{
-	}
 
 	override void EEInit()
 	{

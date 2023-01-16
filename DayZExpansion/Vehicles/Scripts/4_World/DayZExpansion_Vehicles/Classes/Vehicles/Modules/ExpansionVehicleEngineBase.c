@@ -271,10 +271,8 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			m_Controller.m_State[m_EngineIndex] = false;
 		}
 
-#ifndef DAYZ_1_18
 		//! 1.19
 		auto car = CarScript.Cast(m_Vehicle);
-#endif
 
 		if (m_RPM >= m_RPMRedline)
 		{
@@ -283,19 +281,15 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 
 			dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
 
-#ifndef DAYZ_1_18
 			//! 1.19
 			if (car)
 				car.SetEngineZoneReceivedHit(true);
-#endif
 		}
-#ifndef DAYZ_1_18
 		//! 1.19
 		else if (car)
 		{
 			car.SetEngineZoneReceivedHit(false);
 		}
-#endif
 
 		if (pCoolant >= 0 && pCoolant < 0.5)
 		{
@@ -312,7 +306,7 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			m_Vehicle.AddHealth(m_DamageZone, "Health", -dmg);
 		}
 
-		if (m_RPM >= m_RPMIdle)
+		if (m_RPM >= m_RPMIdle || (car && car.Expansion_IsHelicopter()))
 		{
 			pOutFuel += m_FuelConsumption * pDt / 3600.0;
 		}
