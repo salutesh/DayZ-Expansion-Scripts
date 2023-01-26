@@ -155,9 +155,9 @@ class ExpansionZoneActor
 		return vector.Zero;
 	}
 
-	bool InZone()
+	bool InZone(int index)
 	{
-		return m_Inside;
+		return m_Inside[index];
 	}
 };
 

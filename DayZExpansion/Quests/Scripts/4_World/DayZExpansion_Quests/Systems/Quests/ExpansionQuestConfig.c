@@ -118,7 +118,7 @@ class ExpansionQuestConfigBase
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
-	static const int CONFIGVERSION = 7;
+	static const int CONFIGVERSION = 8;
 
 	void ExpansionQuestConfig()
 	{
@@ -504,18 +504,20 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				questConfig.SetType(ExpansionQuestType.NORMAL);
 			}
 			
-			if (questConfigBase.ConfigVersion < 7)
+			if (questConfigBase.ConfigVersion == 7)
 			{
-				for (int i = questConfig.Rewards.Count() - 1; i >= 0; i--)
+				//! v7 variable HealthPercent was treated as damage (so 100% HealthPercent actually meant 100% damage or 0% health).
+				//! Variable was renamed to DamagePercent to clarify usage.
+				for (int j = questConfig.Rewards.Count() - 1; j >= 0; j--)
 				{
-					ExpansionQuestRewardConfigBase rewardBase = questConfig.Rewards[i];
-					ExpansionQuestRewardConfig convertedReward = new ExpansionQuestRewardConfig();
-					convertedReward.Copy(rewardBase);
+					ExpansionQuestRewardConfigV1 rewardV1 = questConfig.Rewards[j];
+					ExpansionQuestRewardConfig convertedRewardV8 = new ExpansionQuestRewardConfig();
+					convertedRewardV8.Copy(rewardV1);
 					
-					convertedReward.HealthPercent = 100;
+					convertedRewardV8.DamagePercent = rewardV1.HealthPercent;
 					
-					questConfig.Rewards.RemoveOrdered(i);
-					questConfig.Rewards.InsertAt(convertedReward, i);
+					questConfig.Rewards.RemoveOrdered(j);
+					questConfig.Rewards.InsertAt(convertedRewardV8, j);
 				}
 			}
 

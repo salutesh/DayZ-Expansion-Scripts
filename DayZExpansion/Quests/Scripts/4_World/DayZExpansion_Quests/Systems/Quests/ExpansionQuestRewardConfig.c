@@ -17,9 +17,21 @@ class ExpansionQuestRewardConfigBase
 	ref TStringArray Attachments = new TStringArray;
 };
 
-class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
+class ExpansionQuestRewardConfigV1: ExpansionQuestRewardConfigBase
 {
 	int HealthPercent;
+	
+	void Copy(ExpansionQuestRewardConfigBase rewardBase)
+	{
+		ClassName = rewardBase.ClassName;
+		Amount = rewardBase.Amount;
+		Attachments = rewardBase.Attachments;
+	}
+};
+
+class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
+{
+	int DamagePercent = 0;
 	
 	void SetClassName(string name)
 	{
@@ -59,16 +71,14 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigBase
 		return Attachments;
 	}
 	
-	int GetHealthPercent()
+	int GetDamagePercent()
 	{
-		return HealthPercent;
+		return DamagePercent;
 	}
 	
-	void Copy(ExpansionQuestRewardConfigBase rewardBase)
+	void SetDamagePercent(int value)
 	{
-		ClassName = rewardBase.ClassName;
-		Amount = rewardBase.Amount;
-		Attachments = rewardBase.Attachments;
+		DamagePercent = value;
 	}
 	
 	void OnSend(ParamsWriteContext ctx)

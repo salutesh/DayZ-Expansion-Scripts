@@ -24,7 +24,10 @@ modded class DayZPlayerImplementJumpClimb
 
 			if (climbType != -1 && m_Player.CanClimb(climbType, m_Player.m_ExClimbResult))
 			{
-				//m_Player.Expansion_OnClimbStart(climbType);
+			#ifndef DAYZ_1_19
+				//! 1.20+
+				m_Player.Expansion_OnClimbStart(climbType);
+			#endif
 				m_Player.StartCommand_Climb(m_Player.m_ExClimbResult, climbType);
 				m_Player.StopHandEvent();
 
@@ -40,9 +43,8 @@ modded class DayZPlayerImplementJumpClimb
 		return false;
 	}
 
-	//! @note if the same climb command returns different climb test results (e.g. isClimb or isClimbOver true on server, but false on client)
-	//! this causes desync and teleportation of player to sea. Disabled climb attach for this reason, attaching will be handled by raycast.
-/*
+#ifndef DAYZ_1_19
+	//! 1.20+
 	override void JumpOrClimb()
 	{
 #ifdef DIAG
@@ -80,5 +82,5 @@ modded class DayZPlayerImplementJumpClimb
 
 		super.JumpOrClimb();
 	}
-*/
+#endif
 };

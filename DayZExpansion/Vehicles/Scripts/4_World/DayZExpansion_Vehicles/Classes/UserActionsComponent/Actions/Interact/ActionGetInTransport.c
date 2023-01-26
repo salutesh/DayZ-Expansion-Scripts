@@ -61,6 +61,12 @@ modded class ActionGetInTransport
 		//AttachmentDebugPrint(action_data.m_Player, "Has No Parent");
 		super.Start(action_data);
 
+#ifdef DAYZ_1_19
+		//! Disable collision while getting in to prevent impulse being applied to vehicle
+		//! https://feedback.bistudio.com/T168870
+		dBodySetInteractionLayer(action_data.m_Player, PhxInteractionLayers.RAGDOLL);
+#endif
+
 		Expansion_OnPerformGetInTransport(car);
 	}
 
@@ -122,13 +128,18 @@ modded class ActionGetInTransport
 
 		HumanCommandVehicle vehCommand = action_data.m_Player.StartCommand_Vehicle(car, crew_index, seat, false);
 
+#ifdef DAYZ_1_19
+		//! Disable collision while getting in to prevent impulse being applied to vehicle
+		//! https://feedback.bistudio.com/T168870
+		dBodySetInteractionLayer(action_data.m_Player, PhxInteractionLayers.RAGDOLL);
+#endif
+
 		//AttachmentDebugPrint(action_data.m_Player, "vehCommand=" + vehCommand);
 		if (vehCommand)
 		{
 			//AttachmentDebugPrint(action_data.m_Player, "vehCommand parent=" + action_data.m_Player.GetParent());
 
 			vehCommand.SetVehicleType(car.GetAnimInstance());
-			action_data.m_Player.TryHideItemInHands(true);
 
 			GetDayZGame().GetBacklit().OnEnterCar();
 			if (action_data.m_Player.GetInventory())
@@ -195,7 +206,7 @@ modded class ActionGetInTransport
 
 		super.OnEndServer(action_data);
 
-		action_data.m_Player.SetInVehicle(true);
+		action_data.m_Player.Expansion_SetIsInVehicleSeatOrAttached(true);
 		if (!car)
 			return;
 

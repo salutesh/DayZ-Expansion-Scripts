@@ -141,7 +141,7 @@ class ExpansionNotificationView: ScriptView
 			if (GetLayoutRoot() && GetLayoutRoot().IsVisible())	
 				GetLayoutRoot().Show(false);
 			
-			m_NotificationModule.RemoveNotification(this);
+			m_NotificationModule.RemoveNotificationView(this);
 			RemoveNotificationElement();
 			m_Hiding = false;
 		}

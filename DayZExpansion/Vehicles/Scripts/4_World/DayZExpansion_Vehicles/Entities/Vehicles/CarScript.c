@@ -357,7 +357,9 @@ modded class CarScript
 			m_Expansion_CollisionDamageMinSpeed = settings.CollisionDamageMinSpeedKmh / 3.6;  //! Converted to m/s
 
 			TStringArray wheels = new TStringArray();
+		#ifdef DAYZ_1_19
 			ConfigGetTextArray("wheels", wheels);
+		#endif
 
 			if ((IsHelicopter() || IsBoat()) && wheels.Count() < 4)
 			{
@@ -1470,8 +1472,16 @@ modded class CarScript
 			}
 		}
 
-		if (!GetGame().IsDedicatedServer() && item.GetType() == "HatchbackWheel" && !IsCar() && !IsDuck())
-			item.SetInvisible(true);
+		if (item.GetType() == "HatchbackWheel" && !IsCar() && !IsDuck())
+		{
+			if (!GetGame().IsDedicatedServer())
+				item.SetInvisible(true);
+		#ifndef DAYZ_1_19
+			//! DayZ 1.20+
+			if (GetGame().IsServer())
+				item.SetAllowDamage(false);
+		#endif
+		}
 
 		super.EEItemAttached(item, slot_name);
 	}
@@ -1779,9 +1789,20 @@ modded class CarScript
 		}
 	}
 
+	override void OnUpdate(float dt)
+	{
+		if (GetGame().IsServer() && m_DrownTime > 0 && !CanBeDamaged())
+			m_DrownTime = 0;
+
+		super.OnUpdate(dt);
+	}
+
 	void Expansion_AddWheels()
 	{
 		if (ToDelete())
+			return;
+
+		if (!m_Expansion_WheelsToAdd.Count())
 			return;
 
 		foreach (string type, int count: m_Expansion_WheelsToAdd)
@@ -3820,25 +3841,7 @@ modded class CarScript
 			}
 		}
 
-		//! Vanilla contact cache is very inefficient if there are a lot of collisions per frame. Only add one entry per damage zone and add up impulse.
-		//! Only drawback is that we may not have access to all individual colliding entities (only last one), but this data isn't used anywhere (also not in vanilla) anyway.
-		//super.OnContact(zoneName, localPos, other, data);
-		if (GetGame().IsServer())
-		{
-			array<ref CarContactData> ccd;
-			if (!m_ContactCache.Find(zoneName, ccd))
-			{
-				ccd = new array<ref CarContactData>;
-				m_ContactCache.Insert(zoneName, ccd);
-				ccd.Insert(new CarContactData(localPos, other, data.Impulse));
-			}
-			else
-			{
-				ccd[0].localPos = localPos;
-				ccd[0].other = other;
-				ccd[0].impulse += data.Impulse;
-			}
-		}
+		super.OnContact(zoneName, localPos, other, data);
 	}
 
 	void ExpansionCheckTreeContact(IEntity other, float impulse)
@@ -3874,30 +3877,12 @@ modded class CarScript
 
 		foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
 		{
-			float dmg;
-
-			int contactCount = data.Count();
-			if (IsInherited(ExpansionHelicopterScript))
-			{
-				//! Use highest damage
-				float contactDmg;
-				for (int j = 0; j < contactCount; ++j)
-				{
-					contactDmg = data[j].impulse * m_dmgContactCoef;
-					if (contactDmg > dmg)
-						dmg = contactDmg;
-				}
-			}
-			else
-			{
-				//! Vanilla needlessly iterates over all contact data entries but ends up using only the last one anyway.
-				//! Do this properly.
-				int lastContactIdx = contactCount - 1;
-				dmg = data[lastContactIdx].impulse * m_dmgContactCoef;
-			}
+			float dmg = Math.AbsInt(data[0].impulse * m_dmgContactCoef);
 
 			if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
 				continue;
+
+			float crewDmgBase = Math.AbsInt((data[0].impulse / dBodyGetMass(this)) * 1000 * m_dmgContactCoef);// calculates damage as if the object's weight was 1000kg instead of its actual weight
 
 			int pddfFlags;
 
@@ -3908,7 +3893,7 @@ modded class CarScript
 			}
 			else
 			{
-				float crewDmg = dmg * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;
+				float crewDmg = crewDmgBase * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;
 				if (crewDmg > 0)
 					DamageCrew(crewDmg);
 				SynchCrashHeavySound(true);

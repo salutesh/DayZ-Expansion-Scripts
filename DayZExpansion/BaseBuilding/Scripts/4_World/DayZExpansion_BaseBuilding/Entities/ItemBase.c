@@ -292,12 +292,6 @@ modded class ItemBase
 		return m_Expansion_IsOpened;
 	}
 
-	//! @note vanilla BaseBuildingBase and Fence overwrite our ItemBase::IsOpened
-	bool IsOpened()
-	{
-		return ExpansionIsOpened();
-	}
-
 	//! All actions dealing with opened/closed state should use IsOpen() for best compatibility with vanilla and 3rd party modded items,
 	//! not ExpansionIsOpened(), although the latter is preferred when it is purely an Expansion item we are dealing with
 	override bool IsOpen()
@@ -306,7 +300,7 @@ modded class ItemBase
 			return false;
 
 		if (ExpansionIsOpenable())
-			return IsOpened();
+			return ExpansionIsOpened();
 
 		//! @note vanilla by default returns true, we need to keep this compatible
 		return true;
@@ -501,11 +495,6 @@ modded class ItemBase
 		return m_CodeLength > 0 && m_Locked;
 	}
 
-	override bool IsLocked()
-	{
-		return ExpansionIsLocked();
-	}
-
 	/**
 	\brief Returning if the item has a codelock attached
 		\param "selection" selection for codelock
@@ -623,11 +612,6 @@ modded class ItemBase
 		}
 
 		SetSynchDirty();
-	}
-	
-	void Unlock()
-	{
-		ExpansionUnlock();
 	}
 
 	/**

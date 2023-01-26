@@ -105,6 +105,28 @@ class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
 
+	static string BitmaskEnumToString(typename e, int enumValue)
+	{
+		int cnt = e.GetVariableCount();
+		int val;
+
+		string ret;
+		for (int i = 0; i < cnt; i++)
+		{
+			if (e.GetVariableType(i) == int && e.GetVariableValue(null, i, val) && (enumValue & val) == val)
+			{
+				if (ret.Length() > 0)
+					ret += "|";
+				ret += e.GetVariableName(i);
+			}
+		}
+
+		if (ret.Length() > 0)
+			return ret;
+
+		return "unknown";
+	}
+
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------

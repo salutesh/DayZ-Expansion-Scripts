@@ -590,7 +590,7 @@ class ExpansionQuest
 				if (!questPlayer || !questPlayer.GetIdentity())
 					return false;
 
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenu, 1000, false, Config.GetQuestTurnInIDs(), questPlayer.GetIdentity());
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenuCB, 1000, false, Config.GetQuestTurnInIDs(), questPlayer.GetIdentity());
 			}
 		}
 
@@ -1060,19 +1060,20 @@ class ExpansionQuest
 			obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, remainingAmount, item.GetAttachments());
 		}
 		
-		float dmg = (obj.GetHealth("", "Health") / 100) * item.GetHealthPercent();
+		float dmg = item.GetDamagePercent();
 		
-		Print(ToString() + "::Spawn - Set object damage: " + dmg);
+		Print(ToString() + "::Spawn - Set object damage %: " + dmg);
 		
-		EntityAI objEntity = EntityAI.Cast(obj);
-		ProcessDamage(objEntity, dmg);
+		EntityAI objEntity;
+		if (Class.CastTo(objEntity, obj))
+			ProcessHealth01(objEntity, 1 - dmg / 100);
 		
 		return obj;
 	}
 	
-	protected void ProcessDamage(EntityAI parent, int dmg)
+	protected void ProcessHealth01(EntityAI parent, float health01)
 	{
-		parent.AddHealth("", "Health", -dmg);
+		parent.SetHealth("", "Health", parent.GetMaxHealth("", "Health") * health01);
 		
 		array<EntityAI> items = new array<EntityAI>;
 		parent.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);		
@@ -1081,7 +1082,7 @@ class ExpansionQuest
 			if (item.IsInherited(SurvivorBase))
 				continue;
 
-			item.AddHealth("", "Health", -dmg);
+			item.SetHealth("", "Health", item.GetMaxHealth("", "Health") * health01);
 		}
 	}
 

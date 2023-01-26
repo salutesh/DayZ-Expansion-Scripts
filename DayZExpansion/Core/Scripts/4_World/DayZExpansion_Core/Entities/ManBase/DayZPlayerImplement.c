@@ -38,6 +38,8 @@ modded class DayZPlayerImplement
 
 	bool m_Expansion_EnableBonePositionUpdate;
 
+	int m_Expansion_CurrentPhxInteractionLayer;
+
 	void DayZPlayerImplement()
 	{
 		Expansion_Init();
@@ -157,6 +159,15 @@ modded class DayZPlayerImplement
 
 		if (m_Expansion_EnableBonePositionUpdate)
 			Expansion_UpdateBonePositionTimes(pDt);
+
+#ifdef DIAG
+		int interactionLayer = dBodyGetInteractionLayer(this);
+		if (interactionLayer != m_Expansion_CurrentPhxInteractionLayer)
+		{
+			m_Expansion_CurrentPhxInteractionLayer = interactionLayer;
+			EXTrace.Print(EXTrace.PLAYER, this, "::CommandHandler current interaction layer " + ExpansionStatic.BitmaskEnumToString(PhxInteractionLayers, interactionLayer));
+		}
+#endif
 	}
 
 	vector Expansion_GetHeadingVector()

@@ -91,6 +91,11 @@ modded class Fence
 		return HasHinges();
 	}
 
+	override bool ExpansionIsOpened()
+	{
+		return IsOpened();
+	}
+
 	override ExpansionCodeLock ExpansionGetCodeLock()
 	{
 		return ExpansionCodeLock.Cast(FindAttachmentBySlotName( "Att_CombinationLock" ));

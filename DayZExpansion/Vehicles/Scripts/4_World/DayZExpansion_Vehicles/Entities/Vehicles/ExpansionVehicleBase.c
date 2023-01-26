@@ -3243,7 +3243,7 @@ class ExpansionVehicleBase extends ItemBase
 		GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", message, ""));
 	}
 
-	override bool IsLocked()
+	bool IsLocked()
 	{
 		if (HasKey())
 		{

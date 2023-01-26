@@ -24,17 +24,6 @@ modded class PlaceObjectActionData
 	Object m_PlacingParent;
 }
 
-/*
-modded class ActiondeployObjectCB
-{
-	override void CreateActionComponent()
-	{
-		super.CreateActionComponent();
-		m_ActionData.m_ActionComponent = new CAContinuousTime( 0.1 );
-	}
-}
-*/
-
 modded class ActionDeployObject
 {
 	// ------------------------------------------------------------	

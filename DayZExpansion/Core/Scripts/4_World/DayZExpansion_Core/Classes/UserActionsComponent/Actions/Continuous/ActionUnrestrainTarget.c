@@ -1,5 +1,5 @@
 /**
- * ActionRestrainTarget.c
+ * ActionUnrestrainTarget.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,13 +10,10 @@
  *
 */
 
-modded class ActionRestrainTarget
+modded class ActionUnrestrainTarget
 {
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( player.Expansion_IsInSafeZone() )
-			return false;
-
 		if (target && !PlayerBase.Cast(target.GetObject()))
 			return false;
 

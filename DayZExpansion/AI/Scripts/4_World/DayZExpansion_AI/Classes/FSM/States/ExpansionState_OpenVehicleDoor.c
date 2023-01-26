@@ -3,16 +3,6 @@ class ExpansionState_OpenVehicleDoor : ExpansionState_GoToVehicle
 	string source;
 	float time;
 
-	bool PerformTest(EntityAI entity, int seat)
-	{
-		bool hasDoor;
-		string source;
-
-		ExpansionFSMHelper.DoorAnimationSource(entity, seat, hasDoor, source);
-
-		return hasDoor;
-	}
-
 	override void OnEntry(string Event, ExpansionState From)
 	{
 		super.OnEntry(Event, From);

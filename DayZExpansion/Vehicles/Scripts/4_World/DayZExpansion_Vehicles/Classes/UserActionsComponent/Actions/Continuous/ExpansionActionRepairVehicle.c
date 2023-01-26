@@ -64,6 +64,9 @@ class ExpansionActionRepairVehicle: ExpansionActionRepairVehicleBase
 		if (!vehicle || (!vehicle.IsHelicopter() && !vehicle.IsBoat()) || vehicle.IsDamageDestroyed())
 			return false;
 
+		if (vehicle.Expansion_EngineIsOn())
+			return false;
+
 		return vehicle.GetHealthLevel() != GameConstants.STATE_PRISTINE || vehicle.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE;
 	}
 }

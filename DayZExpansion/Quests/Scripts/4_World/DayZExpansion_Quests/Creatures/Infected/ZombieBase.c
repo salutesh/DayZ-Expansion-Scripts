@@ -24,7 +24,6 @@ modded class ZombieBase
 			return;
 
 		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		PlayerBase player;
 
 		questModule.OnEntityKilled(this, killSource, killSource.GetHierarchyRootPlayer());
 	}

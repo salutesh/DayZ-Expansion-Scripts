@@ -187,10 +187,10 @@ class ExpansionAirdropContainerBase extends Container_Base
 					m_wind[1] = 9.0;
 					m_wind[2] = ( ( m_wind[2] + 0.1 ) * 2 ) / 100;
 					
-					this.dBodyApplyImpulse( this, mass * m_wind * deltaTime ); //! Null pointer with deltaTime
+					dBodyApplyImpulse( this, mass * m_wind * deltaTime );
 				}
 			} else {
-				this.dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
+				dBodyApplyImpulse( this, "0 9.0 0" * mass * deltaTime );
 			}
 		} else if ( !m_HasLanded )
 		{

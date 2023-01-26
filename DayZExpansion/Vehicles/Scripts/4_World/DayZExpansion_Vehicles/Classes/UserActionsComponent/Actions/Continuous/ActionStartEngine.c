@@ -111,8 +111,13 @@ modded class ActionStartEngine
 			}
 		}
 	}
-
+#ifndef DAYZ_1_19
+	//! 1.20+
+	override void OnExecuteServer(ActionData action_data)
+#else
+	//! 1.19
 	override void OnStartServer(ActionData action_data)
+#endif
 	{
 		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
 		if (vehCommand)

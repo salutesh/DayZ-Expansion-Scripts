@@ -27,12 +27,6 @@ modded class Construction
 		}
 	}
 
-	void AdminBuildPartServer( notnull Man player, string part_name, int action_id )
-	{
-		Error("DEPRECATED, use Expansion_AdminBuildPartServer");
-		Expansion_AdminBuildPartServer( player, part_name, action_id );
-	}
-
 	void Expansion_AdminBuildPartServer( notnull Man player, string part_name, int action_id )
 	{
 		//! Like vanilla BuildPartServer but calls Expansion_AdminLockLockableSlots instead of TakeMaterialsServer

@@ -560,7 +560,7 @@ class ExpansionHelicopterScript extends CarScript
 		}
 	}
 
-	bool Expansion_EngineIsSpinning()
+	override bool Expansion_EngineIsSpinning()
 	{
 		return m_Simulation.m_RotorSpeed > 0;
 	}

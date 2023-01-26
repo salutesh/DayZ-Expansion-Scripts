@@ -81,18 +81,18 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 				if (timer.HasCooldown())
 				{
 					int cooldownTime = timer.GetTimeDiff();
-					int cooldown = respawnCooldown;
+					int cooldownEnd = respawnCooldown;
 					if (GetExpansionSettings().GetSpawn().PunishMultispawn)
 					{
-						cooldown += timer.GetPunishment();
+						cooldownEnd += timer.GetPunishment();
 					}
-					if (cooldownTime < cooldown)
+					if (cooldownTime < cooldownEnd)
 					{
 						m_HasCooldown = true;
 					}
 					if (m_HasCooldown)
 					{
-						SetDisplayTime(cooldown - cooldownTime);
+						SetDisplayTime(cooldownEnd - cooldownTime);
 						if (!m_IsLocked)
 							SetLocked();
 					}
@@ -236,9 +236,9 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		m_SpawnSelectionEntryController.NotifyPropertyChanged("Cooldown");
 	}
 	
-	void SetIcon(string icon)
+	void SetIcon(string iconName)
 	{
-		m_SpawnSelectionEntryController.EntryIcon = icon;
+		m_SpawnSelectionEntryController.EntryIcon = iconName;
 		m_SpawnSelectionEntryController.NotifyPropertyChanged("EntryIcon");
 	}
 	

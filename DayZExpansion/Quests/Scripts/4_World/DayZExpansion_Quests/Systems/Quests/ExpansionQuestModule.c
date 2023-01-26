@@ -1059,10 +1059,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestModule RequestOpenQuestMenu
+	// ExpansionQuestModule RequestOpenQuestMenuCB
 	// Called on server
 	// ------------------------------------------------------------
-	void RequestOpenQuestMenu(array<int> questNPCIDs, PlayerIdentity identity)
+	void RequestOpenQuestMenuCB(array<int> questNPCIDs, PlayerIdentity identity)
 	{
 		PlayerBase player = PlayerBase.GetPlayerByUID(identity.GetId());
 		if (!player)
@@ -3108,7 +3108,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		foreach (ExpansionQuest quest: m_ActiveQuests)
 		{
 			//! Get quest from active quest instances
-			if (quest.GetQuestConfig().GetID() == questID)
+			if (quest && quest.GetQuestConfig().GetID() == questID)
 			{
 				if (!quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
 				{
@@ -3858,6 +3858,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		string playerUID = killerPlayer.GetIdentity().GetId();
 		foreach (ExpansionQuest quest: m_ActiveQuests)
 		{
+			if (!quest)
+				continue;
+				
 			if (!quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
 			{
 				continue;
@@ -3878,7 +3881,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				if (!objective.IsActive() || objective.IsCompleted())
 					continue;
 
-				//! Run thrue all possible objective types
+				//! Run through all possible objective types
 				switch (objective.GetObjectiveConfig().GetObjectiveType())
 				{
 					case ExpansionQuestObjectiveType.TARGET:

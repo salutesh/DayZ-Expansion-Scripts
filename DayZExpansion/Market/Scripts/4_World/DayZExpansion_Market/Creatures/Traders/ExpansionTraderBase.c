@@ -32,7 +32,7 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 		m_allTraders.Insert(this);
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
 	
 	// ------------------------------------------------------------
@@ -518,7 +518,7 @@ class ExpansionTraderStaticBase extends BuildingSuper
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
 	
 	// ------------------------------------------------------------
@@ -604,7 +604,7 @@ class ExpansionTraderZombieBase extends ZombieBase
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
 	
 	// ------------------------------------------------------------
@@ -707,7 +707,7 @@ class ExpansionTraderAIBase extends eAIBase
 #endif
 
 		if (GetGame() && GetGame().IsClient())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
 	
 	// ------------------------------------------------------------

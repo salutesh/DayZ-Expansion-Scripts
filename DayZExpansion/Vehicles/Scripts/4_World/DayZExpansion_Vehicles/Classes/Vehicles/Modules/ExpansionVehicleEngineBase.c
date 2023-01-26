@@ -271,42 +271,50 @@ class ExpansionVehicleEngineBase : ExpansionVehicleRotational
 			m_Controller.m_State[m_EngineIndex] = false;
 		}
 
-		//! 1.19
-		auto car = CarScript.Cast(m_Vehicle);
+		CarScript car;
+		ExpansionVehicleBase vehicle;
+		bool canBeDamaged;
+		if (Class.CastTo(car, m_Vehicle))
+			canBeDamaged = car.CanBeDamaged();
+		else if (Class.CastTo(vehicle, m_Vehicle))
+			canBeDamaged = vehicle.CanBeDamaged();
 
-		if (m_RPM >= m_RPMRedline)
+		if (canBeDamaged)
 		{
-			if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
-				m_Vehicle.AddHealth(m_DamageZone, "Health", -m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05);
+			if (m_RPM >= m_RPMRedline)
+			{
+				if (m_RPM > m_RPMMax && GetExpansionSettings().GetVehicle().RevvingOverMaxRPMRuinsEngineInstantly)
+					dmg += m_Vehicle.GetMaxHealth(m_DamageZone, "") * 0.05;
 
-			dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
+				dmg += m_RPM * 0.001 * Math.RandomFloat(0.02, 1.0) * pDt;
 
-			//! 1.19
-			if (car)
-				car.SetEngineZoneReceivedHit(true);
+				//! 1.19+
+				if (car)
+					car.SetEngineZoneReceivedHit(true);
+			}
+			//! 1.19+
+			else if (car)
+			{
+				car.SetEngineZoneReceivedHit(false);
+			}
+
+			if (pCoolant >= 0 && pCoolant < 0.5)
+			{
+				dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
+			}
+
+			if (pOil < 1.0)
+			{
+				dmg += Math.Lerp(0.02, 10, 1.0 - pOil);
+			}
+
+			if (dmg != 0.0)
+			{
+				m_Vehicle.AddHealth(m_DamageZone, "Health", -dmg);
+			}
 		}
-		//! 1.19
-		else if (car)
-		{
-			car.SetEngineZoneReceivedHit(false);
-		}
 
-		if (pCoolant >= 0 && pCoolant < 0.5)
-		{
-			dmg += (1.0 - pCoolant) * Math.RandomFloat(0.02, 10.00) * pDt;
-		}
-
-		if (pOil < 1.0)
-		{
-			dmg += Math.Lerp(0.02, 10, 1.0 - pOil);
-		}
-
-		if (dmg != 0.0)
-		{
-			m_Vehicle.AddHealth(m_DamageZone, "Health", -dmg);
-		}
-
-		if (m_RPM >= m_RPMIdle || (car && car.Expansion_IsHelicopter()))
+		if (m_RPM >= m_RPMIdle || (car && car.Expansion_IsHelicopter()) || (vehicle && vehicle.Expansion_IsHelicopter()))
 		{
 			pOutFuel += m_FuelConsumption * pDt / 3600.0;
 		}

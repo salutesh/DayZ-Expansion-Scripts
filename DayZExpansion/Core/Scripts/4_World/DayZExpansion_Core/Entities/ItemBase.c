@@ -126,11 +126,6 @@ modded class ItemBase
 		return false;
 	}
 
-	bool IsLocked()
-	{
-		return false;
-	}
-
 	static void ExpansionPhaseObject(EntityAI other)
 	{
 #ifdef EXPANSIONMODVEHICLE
