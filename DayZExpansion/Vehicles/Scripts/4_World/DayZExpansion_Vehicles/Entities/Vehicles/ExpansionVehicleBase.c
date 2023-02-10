@@ -4557,7 +4557,7 @@ class ExpansionVehicleBase extends ItemBase
 			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
 
-		return true;
+		return super.CanBeDamaged();
 	}
 
 	float GetModelZeroPointDistanceFromGround()

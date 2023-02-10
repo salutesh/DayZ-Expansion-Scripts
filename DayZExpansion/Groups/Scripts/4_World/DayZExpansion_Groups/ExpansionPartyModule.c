@@ -283,7 +283,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 
-		if (HasParty(player))
+		if (player.Expansion_GetParty())
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
 			return;
@@ -477,7 +477,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 		
-		if (HasParty(targetPlayer))
+		if (targetPlayer.Expansion_GetParty())
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
 			return;
@@ -597,7 +597,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 			return;
 		}
 
-		if (HasParty(senderPlayer))
+		if (senderPlayer.Expansion_GetParty())
 		{
 			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
 			return;
@@ -1250,7 +1250,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		SyncPlayerInvitesServer(cArgs.Player);
 
-		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.Identity.GetId());
+		ExpansionPartyPlayerData party_player = GetPartyPlayerData(cArgs.Identity.GetId(), true);
 
 		if (party_player)
 		{
@@ -1261,8 +1261,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 		}
 	}
 
-	ExpansionPartyPlayerData GetPartyPlayerData(string uid)
+	ExpansionPartyPlayerData GetPartyPlayerData(string uid, bool search = false)
 	{
+		if (!search)
+		{
+			PlayerBase player = PlayerBase.GetPlayerByUID(uid);
+			if (player)
+				return player.m_Expansion_PartyPlayerData;
+		}
+
+		//! @note at this point, player may be NULL or PlayerBase::m_Expansion_PlayerPartyData may have not yet been set. Look for party in array
 		foreach (int i, ExpansionPartyData data : m_Parties)
 		{
 			ExpansionPartyPlayerData party_player = data.GetPlayer(uid);
@@ -1365,13 +1373,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] HasParty with player argument shall only be called on server!"))
 			return false;
 
-		foreach (int i, ExpansionPartyData party : m_Parties)
-		{
-			if (party && party.GetPlayer(player.GetIdentityUID()))
-				return true;
-		}
+		Error("DEPRECATED: Use PlayerBase::Expansion_GetParty() instead");
 
-		return false;
+		return player.Expansion_GetParty() != NULL;
 	}
 	
 	bool IsClientInitialized()
@@ -1395,7 +1399,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] GetPartyID with player argument shall only be called on server!"))
 			return -1;
 
-		ExpansionPartyData party = GetParty(player);
+		ExpansionPartyData party = player.Expansion_GetParty();
 
 		if (party)
 			return party.GetPartyID();
@@ -1416,18 +1420,9 @@ class ExpansionPartyModule: CF_ModuleWorld
 		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] GetParty with player argument shall only be called on server!"))
 			return NULL;
 
-		string id = player.GetIdentityUID();
+		Error("DEPRECATED: Use PlayerBase::Expansion_GetParty() instead");
 
-		if (!id)
-			return NULL;
-
-		foreach (int i, ExpansionPartyData party : m_Parties)
-		{
-			if (party && party.GetPlayer(id))
-				return party;
-		}
-
-		return NULL;
+		return player.Expansion_GetParty();
 	}
 
 	array<ref ExpansionPartyInviteData> GetPartyInvites()

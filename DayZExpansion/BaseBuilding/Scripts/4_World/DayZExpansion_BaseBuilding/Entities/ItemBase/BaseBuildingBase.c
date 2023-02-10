@@ -16,4 +16,17 @@ modded class BaseBuildingBase
 	{
 		return super.GetKitSpawnPosition();
 	}
+
+	override bool IsOpen()
+	{
+		if (!super.IsOpen())
+			return false;
+
+		//! For 3rd party mod compat (we override and return ExpansionIsOpened() in ExpansionbaseBuilding::IsOpened to support our basebuilding transparently)
+		if (ExpansionIsOpenable())
+			return IsOpened();
+
+		//! @note vanilla by default returns true, we need to keep this compatible
+		return true;
+	}
 }

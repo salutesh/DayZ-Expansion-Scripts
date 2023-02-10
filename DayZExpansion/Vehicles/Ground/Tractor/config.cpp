@@ -66,7 +66,6 @@ class CfgVehicles
 	class CarDoor;
 	class CarScript;
 	class CarWheel;
-	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;

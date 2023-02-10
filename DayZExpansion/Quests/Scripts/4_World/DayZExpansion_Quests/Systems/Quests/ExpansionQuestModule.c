@@ -2893,22 +2893,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODHARDLINE
 		if (GetExpansionSettings().GetHardline().UseReputation && questConfig.GetReputationRequirement() > 0)
 		{
-			ExpansionHardlineModule hardlineModule;
-			if (Class.CastTo(hardlineModule, CF_ModuleCoreManager.Get(ExpansionHardlineModule)))
+			PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+			if (player)
 			{
-				ExpansionHardlinePlayerData hardlinePlayerData;
-				if (IsMissionHost()) hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(playerUID);
-				else if (IsMissionClient()) hardlinePlayerData = hardlineModule.GetHardlineClientData();
-
-				if (hardlinePlayerData)
+				int reputation = player.Expansion_GetReputation();
+				QuestModulePrint(ToString() + "::QuestConditionsCheck - Reputation for Player [UID: " + playerUID + "]: " + reputation);
+				if (reputation < questConfig.GetReputationRequirement())
 				{
-					int reputation = hardlinePlayerData.GetReputation();
-					QuestModulePrint(ToString() + "::QuestConditionsCheck - Reputation for Player [UID: " + playerUID + "]: " + reputation);
-					if (reputation < questConfig.GetReputationRequirement())
-					{
-						QuestModulePrint(ToString() + "::QuestConditionsCheck - Player has not enough reputation to start this quest! Player [UID: " + playerUID + "] is not a bandit!");
-						return false;
-					}
+					QuestModulePrint(ToString() + "::QuestConditionsCheck - Player has not enough reputation to start this quest! Player [UID: " + playerUID + "] is not a bandit!");
+					return false;
 				}
 			}
 		}

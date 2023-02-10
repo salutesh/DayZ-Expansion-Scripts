@@ -99,6 +99,7 @@
 				unit.SetMovementSpeedLimit(speedLimit);  //! Restore speed limit
 			</event_exit>
 			<event_update>
+				if (!group) return EXIT;
 				unit.OverrideTargetPosition(group.GetFormationPosition(unit));
 				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
@@ -354,6 +355,32 @@
 				return EXIT;
 			</event_update>
 		</state>
+		<state name="TakeItemToInventory">
+			<variables>
+				<variable name="item" type="ItemBase" />
+				<variable name="time" type="float" />
+			</variables>
+			<editor_data>
+				<position x="375.340877794781" y="647.920853681019" />
+				<size width="150" height="40" />
+			</editor_data>
+			<event_entry>
+				EXTrace.Print(EXTrace.AI, unit, "TakeItemToInventory " + item.ToString());
+				time = 0;
+				
+				unit.eAI_TakeItemToInventory(item);
+			</event_entry>
+			<event_exit />
+			<event_update>
+				if (time &lt; 0.5)
+				{
+					time += DeltaTime;
+					return CONTINUE;
+				}
+				
+				return EXIT;
+			</event_update>
+		</state>
 		<state name="Bandaging_Self">
 			<variables>
 				<variable name="last_bandage_attempt_time" type="int" />
@@ -404,7 +431,7 @@
 				{
 					if (bandage)
 					{
-						if (unit.GetBleedingSourceCount() &amp;&amp; bandage.GetHealth() &gt; 0.0)
+						if (unit.IsBleeding() &amp;&amp; bandage.GetHealth() &gt; 0.0)
 						{
 							last_bandage_attempt_time = GetGame().GetTime();
 							time = 0;
@@ -497,16 +524,18 @@
 				<position_destination x="323.444352352527" y="467.752853681019" />
 			</editor_data>
 			<guard>
-				if (unit.IsInMelee()) return FAIL;
+				if (unit.IsFighting()) return FAIL;
 				
-				if (!unit.GetBleedingSourceCount()) return FAIL;
+				if (unit.IsRestrained()) return FAIL;
+				
+				if (!unit.IsBleeding()) return FAIL;
 				
 				if (GetGame().GetTime() - dst.last_bandage_attempt_time &lt; 4000) return FAIL;
 				
 				auto hands = unit.GetItemInHands();
 				if (!hands) return FAIL;
 				
-				if (!(hands.IsInherited(BandageDressing) || hands.IsInherited(Rag)) || hands.GetHealth() &lt;= 0.0) return FAIL;
+				if (!hands.Expansion_CanBeUsedToBandage() || hands.GetHealth() &lt;= 0.0) return FAIL;
 				
 				dst.bandage = hands;
 				
@@ -581,7 +610,8 @@
 				<position_destination x="591.936642317143" y="369" />
 			</editor_data>
 			<guard>
-				if (unit.GetThreatToSelf() &gt; 0.4) return SUCCESS;
+				auto group = unit.GetGroup();
+				if (unit.GetThreatToSelf() &gt; 0.4 || !group || group.GetLeader() != unit) return SUCCESS;
 				
 				return FAIL;
 			</guard>
@@ -614,7 +644,9 @@
 			<guard>
 				if (GetGame().GetTime() - dst.sub_fsm.last_attempt_time &lt; 1000) return FAIL;
 				
-				if (unit.IsInMelee()) return FAIL;
+				if (unit.IsFighting()) return FAIL;
+				
+				if (unit.IsRestrained()) return FAIL;
 				
 				if (!Class.CastTo(dst.sub_fsm.weapon, unit.GetItemInHands())) return FAIL;
 				
@@ -640,7 +672,9 @@
 				<position_destination x="345.340877794781" y="547.920853681019" />
 			</editor_data>
 			<guard>
-				if (unit.IsInMelee()) return FAIL;
+				if (unit.IsFighting()) return FAIL;
+				
+				if (unit.IsRestrained()) return FAIL;
 				
 				//! Taking items to hands while raised breaks hands! Wait until lowered
 				if (unit.IsRaised()) return FAIL;
@@ -648,9 +682,9 @@
 				ItemBase hands = unit.GetItemInHands();
 				
 				//! First check if we want to switch to bandage
-				if (unit.GetBleedingSourceCount() &amp;&amp; unit.GetThreatToSelf(true) &lt; 0.4)
+				if (unit.IsBleeding() &amp;&amp; unit.GetThreatToSelf(true) &lt; 0.4)
 				{
-					if (!hands || !(hands.IsInherited(BandageDressing) || hands.IsInherited(Rag)) || hands.GetHealth() &lt;= 0.0)
+					if (!hands || !hands.Expansion_CanBeUsedToBandage() || hands.GetHealth() &lt;= 0.0)
 					{
 						//! Item in hand is either not bandage/rag or is ruined
 						dst.item = unit.GetBandageToUse();
@@ -673,11 +707,12 @@
 					return SUCCESS;
 				
 				eAITarget target = unit.GetTarget();
-				if (target &amp;&amp; target.GetEntity().IsInherited(ItemBase) &amp;&amp; !target.GetEntity().GetHierarchyRootPlayer() &amp;&amp; !target.GetEntity().IsSetForDeletion())
+				ItemBase targetItem;
+				if (target &amp;&amp; Class.CastTo(targetItem, target.GetEntity()) &amp;&amp; (targetItem.IsWeapon() || targetItem.Expansion_IsMeleeWeapon()) &amp;&amp; !targetItem.GetHierarchyRootPlayer() &amp;&amp; !targetItem.IsSetForDeletion())
 				{
 					if (target.GetDistanceSq(unit, true) &lt; 2.25 &amp;&amp; target.GetThreat(unit) &gt; 0.1)
 					{
-						dst.item = ItemBase.Cast(target.GetEntity());
+						dst.item = targetItem;
 					}
 				}
 				
@@ -708,11 +743,81 @@
 		</transition>
 		<transition>
 			<editor_data>
+				<position_source x="444.344352352527" y="620.921949556564" />
+				<position_destination x="445.340877794781" y="647.920853681019" />
+			</editor_data>
+			<guard>
+				if (unit.IsFighting()) return FAIL;
+				
+				if (unit.IsRestrained()) return FAIL;
+				
+				if (unit.IsRaised()) return FAIL;
+				
+				eAITarget target = unit.GetTarget();
+				ItemBase targetItem;
+				
+				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion())
+					return FAIL;
+				
+				if (targetItem.IsWeapon() || targetItem.IsMagazine())
+				{
+					//! If target is gun or magazine (latter means gun w/o ammo is in inventory) and we have melee in hand, prepare swap
+					ItemBase hands = unit.GetItemInHands();
+					if (hands &amp;&amp; hands.Expansion_IsMeleeWeapon())
+					{
+						//! Only drop if destroyed, else might target it again...
+						if (hands.IsDamageDestroyed())
+							unit.eAI_DropItem(hands);
+						else
+							unit.eAI_TakeItemToInventory(hands);
+					}
+					
+					if (targetItem.IsWeapon())  //! Picking up guns is handled by TakeItemToHands state
+						return FAIL;
+				}
+				else if (targetItem.Expansion_IsMeleeWeapon())
+				{
+					return FAIL;
+				}
+				
+				if (target.GetDistanceSq(unit, true) &gt;= 2.25)
+					return FAIL;
+				
+				if (target.GetThreat(unit) &lt;= 0.1)
+					return FAIL;
+				
+				if (!unit.eAI_FindFreeInventoryLocationFor(targetItem))
+					return FAIL;
+				
+				dst.item = targetItem;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="TakeItemToInventory" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="425.340877794781" y="566.587863735993" />
+				<position_destination x="587.553377501537" y="369" />
+			</editor_data>
+			<guard>
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="TakeItemToInventory" />
+			<to_state name="Idle" />
+		</transition>
+		<transition>
+			<editor_data>
 				<position_source x="309.931260171115" y="257.964244245612" />
 				<position_destination x="310.678975886238" y="283.953840426607" />
 			</editor_data>
 			<guard>
-				if (unit.IsInMelee()) return FAIL;
+				if (unit.IsFighting()) return FAIL;
+				
+				if (unit.IsRestrained()) return FAIL;
 				
 				if (!Class.CastTo(dst.weapon, unit.GetItemInHands())) return FAIL;
 				
@@ -754,6 +859,8 @@
 				<position_destination x="411.886600687193" y="193.617136976937" />
 			</editor_data>
 			<guard>
+				if (unit.IsRestrained()) return FAIL;
+				
 				if (unit.GetThreatToSelf() &lt; 0.4) return FAIL;
 				if (unit.GetActionManager().GetRunningAction()) return FAIL;
 				
@@ -771,7 +878,7 @@
 			<guard>
 				if (unit.GetThreatToSelf() &gt; 0.2) return FAIL;
 				
-				if (unit.IsInMelee()) return FAIL;
+				if (unit.IsFighting()) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -838,15 +945,17 @@
 				<position_destination x="794" y="456.89192130556" />
 			</editor_data>
 			<guard>
+				if (unit.IsRestrained()) return FAIL;
+				
 				if (!unit.m_Expansion_EmoteID) return FAIL;
 				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetEmoteManager().Expansion_GetCurrentGesture() == unit.m_Expansion_EmoteID) return FAIL;
 				if (unit.GetThreatToSelf(true) &gt; 0.2) return FAIL;
-				if (unit.IsInMelee()) return FAIL;
+				if (unit.IsFighting()) return FAIL;
 				if (unit.GetWeaponManager().IsRunning()) return FAIL;
 				if (unit.GetActionManager().GetRunningAction()) return FAIL;
 				
 				auto hands = unit.GetItemInHands();
-				if (hands &amp;&amp; (hands.IsInherited(BandageDressing) || hands.IsInherited(Rag)))
+				if (hands &amp;&amp; hands.Expansion_CanBeUsedToBandage())
 					return FAIL;
 				
 				return SUCCESS;

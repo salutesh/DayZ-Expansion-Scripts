@@ -128,16 +128,28 @@ class ExpansionEntityStoragePlaceholder: InventoryItemSuper
 
 	bool Expansion_HasStoredEntity()
 	{
+		string type;
+		bool hasNetsyncData = m_Expansion_NetsyncData.Get(0, type);
+
 		if (GetGame().IsClient())
 		{
-			string type;
-			return m_Expansion_NetsyncData.Get(0, type);
+			return hasNetsyncData;
 		}
 
 		if (m_Expansion_StoredEntityGlobalID.IsZero())
+		{
+			EXPrint("[EntityStorage] ERROR: Global ID for " + GetType() + " (stored entity " + type + ") is zero!");
 			return false;
+		}
 
-		return FileExist(Expansion_GetEntityStorageFileName());
+		string fileName = Expansion_GetEntityStorageFileName();
+		if (!FileExist(fileName))
+		{
+			EXPrint("[EntityStorage] ERROR: Storage file \"" + fileName + "\" for " + GetType() + " (stored entity " + type + ") does not exist!");
+			return false;
+		}
+
+		return true;
 	}
 
 	override bool CanDisplayAttachmentSlot(int slot_id)

@@ -58,6 +58,16 @@ modded class DayZPlayerImplement
 	{
 	}
 
+	bool Expansion_HasAdminToolGodMode()
+	{
+		return false;
+	}
+
+	bool Expansion_HasAdminToolInvisibility()
+	{
+		return false;
+	}
+
 	void OnEnterZone(ExpansionZoneType type)
 	{
 #ifdef EXPANSIONTRACE

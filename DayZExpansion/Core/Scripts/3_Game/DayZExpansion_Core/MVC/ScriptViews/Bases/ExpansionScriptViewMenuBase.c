@@ -18,7 +18,8 @@ class ExpansionScriptViewMenuBase: ExpansionScriptViewBase
 	void UnlockInputs();
 	void ShowHud(bool state);
 	void ShowUICursor(bool state);
-	
+	void CloseMenu();
+
 	override bool CanShow()
 	{
 		return true;

@@ -67,7 +67,7 @@ modded class ExpansionMarketModule
 		}
 
 		required = GetExpansionSettings().GetHardline().GetReputationForRarity(rarity);
-		return Math.AbsFloat(player.GetReputation()) >= Math.AbsFloat(required);
+		return Math.AbsFloat(player.Expansion_GetReputation()) >= Math.AbsFloat(required);
 	}
 };
 #endif

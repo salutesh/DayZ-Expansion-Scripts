@@ -125,7 +125,7 @@ modded class CarScript
 			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
 
-		return true;
+		return GetAllowDamage();
 	}
 
 	// ------------------------------------------------------------

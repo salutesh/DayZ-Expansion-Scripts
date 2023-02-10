@@ -26,9 +26,6 @@ modded class PlayerBase
 	private static autoptr map< string, string > s_Expansion_AllPlayersUID2PlainID = new map< string, string >;
 
 	private static ref set<PlayerBase> s_Expansion_AllPlayers = new set<PlayerBase>;
-
-	//! XXX: Linked list DOES NOT WORK
-	//static PlayerBase s_AllPlayers;
 	
 	PlayerBase m_Expansion_NextPlayer;
 	PlayerBase m_Expansion_PrevPlayer;
@@ -40,16 +37,6 @@ modded class PlayerBase
 
 	void PlayerBase()
 	{
-		//m_Expansion_NextPlayer = s_AllPlayers;
-		//m_Expansion_PrevPlayer = null;
-
-		//if (m_Expansion_NextPlayer)
-		//{
-			//m_Expansion_NextPlayer.m_Expansion_PrevPlayer = this;
-		//}
-
-		//s_AllPlayers = this;
-
 		s_Expansion_AllPlayers.Insert(this);
 
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
@@ -60,21 +47,6 @@ modded class PlayerBase
 	{
 		if (!GetGame())
 			return;
-
-		//if (s_AllPlayers == this)
-		//{
-			//s_AllPlayers = m_Expansion_NextPlayer;
-		//}
-
-		//if (m_Expansion_PrevPlayer)
-		//{
-			//m_Expansion_PrevPlayer.m_Expansion_NextPlayer = m_Expansion_NextPlayer;
-		//}
-
-		//if (m_Expansion_NextPlayer)
-		//{
-			//m_Expansion_NextPlayer.m_Expansion_PrevPlayer = m_Expansion_PrevPlayer;
-		//}
 	
 		if ( m_PlayerUID && s_Expansion_AllPlayersUID.Get( m_PlayerUID ) == this )
 		{
@@ -89,16 +61,12 @@ modded class PlayerBase
 	static void Expansion_SendNear(ScriptRPC rpc, int id, vector position, float distance, Object target = null, bool guaranteed = false)
 	{
 		float distanceSq = distance * distance;
-		//PlayerBase player = s_AllPlayers;
-		//while (player)
 		foreach (string uid, PlayerBase player: s_Expansion_AllPlayersUID)
 		{
 			if (player.GetIdentity() && vector.DistanceSq(player.GetPosition(), position) < distanceSq)
 			{
 				rpc.Send(target, id, guaranteed, player.GetIdentity());
 			}
-
-			//player = player.m_Expansion_NextPlayer;
 		}
 	}
 
@@ -181,15 +149,6 @@ modded class PlayerBase
 
 		return m_PlayerName;
 	}
-
-	// ------------------------------------------------------------
-	// PlayerBase GetAll
-	// ------------------------------------------------------------
-	//static array< PlayerBase > GetAll()
-	//{
-		//Error("DEPRECATED");
-		//return new array< PlayerBase >();
-	//}
 	
 	static set< PlayerBase > GetAll()
 	{
@@ -298,13 +257,12 @@ modded class PlayerBase
 		return s_Expansion_AllPlayersUID2PlainID[id];
 	}
 
-	//! GetPlayerByUID should probably be used over this where possible
 	static PlayerBase ExpansionGetPlayerByIdentity( PlayerIdentity identity )
 	{
 		if ( !GetGame().IsMultiplayer() )
 			return PlayerBase.Cast( GetGame().GetPlayer() );
 
-		return GetPlayerByUID(identity.GetId());
+		return PlayerBase.Cast( identity.GetPlayer() );
 	}
 
 	static bool Expansion_IsOnline(string uid)
@@ -586,7 +544,7 @@ modded class PlayerBase
 		}
 	}
 
-	bool Expansion_HasAdminToolGodMode()
+	override bool Expansion_HasAdminToolGodMode()
 	{
 		bool godMode;
 #ifdef JM_COT
@@ -596,6 +554,18 @@ modded class PlayerBase
 		godMode |= GodModeStatus();
 #endif
 		return godMode;
+	}
+
+	override bool Expansion_HasAdminToolInvisibility()
+	{
+		bool invisibility;
+#ifdef JM_COT_INVISIBILITY
+		invisibility |= COTIsInvisible();
+#endif
+#ifdef VPPADMINTOOLS
+		invisibility |= InvisibilityStatus();
+#endif
+		return invisibility;
 	}
 
 	// ------------------------------------------------------------

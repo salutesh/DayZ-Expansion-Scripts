@@ -52,28 +52,35 @@ modded class DayZExpansion
 		auto trace = CF_Trace_0(this, "SpawnAI_Helper");
 		#endif
 
-		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), owner.GetPosition()))) return null;
+		auto group = eAIGroup.GetGroupByLeader(owner);
+		auto form = group.GetFormation();
+		vector pos = ExpansionAISpawnBase.GetPlacementPosition(form.ToWorld(form.GetPosition(group.Count())));
+		auto ai = SpawnAIEx(pos, loadout);
 
-		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
-
-		ExpansionHumanLoadout.Apply(ai, loadout, true);
+		if (ai)
+			ai.SetGroup(group);
 
 		return ai;
 	}
 	
+	eAIBase SpawnAIEx(vector pos, string loadout = "HumanLoadout.json")
+	{
+		eAIBase ai;
+		if (Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos)))
+			ExpansionHumanLoadout.Apply(ai, loadout, true);
+
+		EXTrace.Print(EXTrace.AI, null, "Spawned AI at " + pos);
+
+		return ai;
+	}
+
 	eAIBase SpawnAI_Sentry(vector pos, string loadout = "WestLoadout.json")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "SpawnAI_Sentry");
 		#endif
 
-		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
-
-		ExpansionHumanLoadout.Apply(ai, loadout, true);
-
-		return ai;
+		return SpawnAIEx(pos, loadout);
 	}
 	
 	eAIBase SpawnAI_Patrol(vector pos, string loadout = "HumanLoadout.json")
@@ -82,12 +89,7 @@ modded class DayZExpansion
 		auto trace = CF_Trace_0(this, "SpawnAI_Patrol");
 		#endif
 
-		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos))) return null;
-
-		ExpansionHumanLoadout.Apply(ai, loadout, true);
-				
-		return ai;
+		return SpawnAIEx(pos, loadout);
 	}
 	
 	vector GetEntitySpawnPosition(DayZPlayer player)
@@ -95,18 +97,10 @@ modded class DayZExpansion
 		vector position, direction, rotation;
 		player.GetCurrentCameraTransform(position, direction, rotation);
 		position = position + direction * 20;
-		vector begPos = position + "0 1.5 0";
-		position[1] = GetGame().SurfaceY(position[0], position[2]);
-		PhxInteractionLayers collisionLayerMask;
-		collisionLayerMask |= PhxInteractionLayers.ROADWAY;
-		collisionLayerMask |= PhxInteractionLayers.BUILDING;
-		collisionLayerMask |= PhxInteractionLayers.FENCE;
-		collisionLayerMask |= PhxInteractionLayers.VEHICLE;
-		collisionLayerMask |= PhxInteractionLayers.TERRAIN;
-		vector hitPosition;
-		if (DayZPhysics.SphereCastBullet(begPos, position, 0.3, collisionLayerMask, player, null, hitPosition, null, null))
-			position = hitPosition;
-		return position;
+		float surfaceY = GetGame().SurfaceY(position[0], position[2]);
+		if (surfaceY > position[1])
+			position[1] = surfaceY;
+		return ExpansionAISpawnBase.GetPlacementPosition(position);
 	}
 
 	// Server Side: This RPC spawns a helper AI next to the player, and tells them to join the player's formation.

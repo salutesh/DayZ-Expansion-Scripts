@@ -804,7 +804,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				float buoyancyAcceleration = buoyancyForce * pState.m_InvMass;
 				if (buoyancyAcceleration > 1.0)
 				{
-					m_Vehicle.AddHealth("", "", -0.001 * buoyancyForce);
+					CarScript car;
+					ExpansionVehicleBase vehicle;
+					bool canBeDamaged;
+					if (Class.CastTo(car, m_Vehicle))
+						canBeDamaged = car.CanBeDamaged();
+					else if (Class.CastTo(vehicle, m_Vehicle))
+						canBeDamaged = vehicle.CanBeDamaged();
+
+					if (canBeDamaged)
+						m_Vehicle.AddHealth("", "", -0.001 * buoyancyForce);
 				}
 			}
 

@@ -23,26 +23,6 @@ modded class ExpansionSettings
 		Init(ExpansionMissionSettings);
 	}
 
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
-	{
-		if (super.OnRPC(sender, target, rpc_type, ctx))
-			return true;
-
-		if (rpc_type <= ExpansionSettingsRPC.INVALID || rpc_type >= ExpansionSettingsRPC.COUNT)
-			return false;
-
-		switch (rpc_type)
-		{
-		case ExpansionSettingsRPC.AirDrop:
-		{
-			Receive(ExpansionAirdropSettings, ctx);
-			return true;
-		}
-		}
-
-		return false;
-	}
-
 	ExpansionAirdropSettings GetAirdrop(bool checkLoaded = true)
 	{
 		return ExpansionAirdropSettings.Cast(Get(ExpansionAirdropSettings, checkLoaded));

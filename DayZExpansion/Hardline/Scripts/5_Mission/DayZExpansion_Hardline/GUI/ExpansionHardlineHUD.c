@@ -13,17 +13,16 @@
 class ExpansionHardlineHUD: ExpansionScriptView
 {
 	private ref ExpansionHardlineHUDController m_HardlineHUDController;
-	private ExpansionHardlineModule m_HardlineModule;
 	private int m_CurrentReputation;
 
-	protected Widget Humanity;
-	protected TextWidget HumanityVal;
-	protected Widget HumanityChange;
-	protected TextWidget HumanityChangeVal;
+	protected Widget Reputation;
+	protected TextWidget ReputationVal;
+	protected Widget ReputationChange;
+	protected TextWidget ReputationChangeVal;
 
-	protected ref WidgetFadeTimer m_HumanityChangeFadeTimer;
-	protected ref Timer m_HumanityChangeTimer;
-	protected ref Timer m_HumanityChangeFadeOut;
+	protected ref WidgetFadeTimer m_ReputationChangeFadeTimer;
+	protected ref Timer m_ReputationChangeTimer;
+	protected ref Timer m_ReputationChangeFadeOut;
 	protected bool m_ViewInit = false;
 	protected float m_StartPosX, m_StartPosY;
 	protected float m_LastYPos = 0;
@@ -38,10 +37,9 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		m_Hud = hud;
 
 		m_HardlineHUDController = ExpansionHardlineHUDController.Cast(GetController());
-		m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-		m_HumanityChangeFadeTimer = new WidgetFadeTimer;
-		m_HumanityChangeTimer = new Timer(CALL_CATEGORY_GUI);
-		m_HumanityChangeFadeOut = new Timer(CALL_CATEGORY_GUI);
+		m_ReputationChangeFadeTimer = new WidgetFadeTimer;
+		m_ReputationChangeTimer = new Timer(CALL_CATEGORY_GUI);
+		m_ReputationChangeFadeOut = new Timer(CALL_CATEGORY_GUI);
 		
 		Widget stancePanel = m_Hud.GetStancePanel();
 		if (stancePanel)
@@ -53,20 +51,17 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		CoveredIndicator.Show(false);
 	}
 
-	void SetView(ExpansionHardlinePlayerData data)
+	void SetView()
 	{
-		if (!data)
-			return;
-
 		bool viewInit = m_ViewInit;
 		if (!m_ViewInit)
 		{
-			Humanity.Show(true);
-			HumanityChange.GetPos(m_StartPosX, m_StartPosY);
+			Reputation.Show(true);
+			ReputationChange.GetPos(m_StartPosX, m_StartPosY);
 			m_ViewInit = true;
 		}
 
-		int reputation = data.GetReputation();
+		int reputation = PlayerBase.Cast(GetGame().GetPlayer()).Expansion_GetReputation();
 		int difference = reputation - m_CurrentReputation;
 
 		if (difference)
@@ -76,81 +71,81 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			if (viewInit)
 			{
 				//! Update (animated)
-				OnHumanityChangeReset();
-				OnHumanityChange(difference);
+				OnReputationChangeReset();
+				OnReputationChange(difference);
 			}
 			else
 			{
 				//! Initial (static)
-				m_HardlineHUDController.HumanityVal = m_CurrentReputation.ToString();
-				m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+				m_HardlineHUDController.ReputationVal = m_CurrentReputation.ToString();
+				m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
 			}
 		}
 	}
 
-	void OnHumanityChange(int difference)
+	void OnReputationChange(int difference)
 	{
 		string text;
 		if (difference > 0)
 		{
 			text = "+" + difference.ToString();
-			HumanityChangeVal.SetColor(ARGB(200, 46, 204, 113));
+			ReputationChangeVal.SetColor(ARGB(200, 46, 204, 113));
 		}
 		else
 		{
 			text = difference.ToString();
-			HumanityChangeVal.SetColor(ARGB(200, 231, 76, 60));
+			ReputationChangeVal.SetColor(ARGB(200, 231, 76, 60));
 		}
 
-		m_HardlineHUDController.HumanityChangeValue = text;
-		m_HardlineHUDController.NotifyPropertyChanged("HumanityChangeValue");
-		m_HumanityChangeFadeTimer.FadeIn(HumanityChangeVal, 3.0, true);
-		m_HumanityChangeTimer.Run(0.01, this, "UpdateHumanityChange", NULL, true);
+		m_HardlineHUDController.ReputationChangeValue = text;
+		m_HardlineHUDController.NotifyPropertyChanged("ReputationChangeValue");
+		m_ReputationChangeFadeTimer.FadeIn(ReputationChangeVal, 3.0, true);
+		m_ReputationChangeTimer.Run(0.01, this, "UpdateReputationChange", NULL, true);
 	}
 
-	void UpdateHumanityChange()
+	void UpdateReputationChange()
 	{
 		float finalXPos, finalYPos;
-		HumanityVal.GetPos(finalXPos, finalYPos);
+		ReputationVal.GetPos(finalXPos, finalYPos);
 
 		float x, y;
-		HumanityChange.GetPos(x, y);
+		ReputationChange.GetPos(x, y);
 		m_LastYPos = y;
 
 		if (m_LastYPos > finalYPos)
 		{
 			float newY = m_LastYPos - 1.0;
-			HumanityChange.SetPos(x, newY, true);
+			ReputationChange.SetPos(x, newY, true);
 
-			m_HardlineHUDController.HumanityVal = Math.RandomInt(0, m_CurrentReputation).ToString();
-			m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+			m_HardlineHUDController.ReputationVal = Math.RandomInt(0, m_CurrentReputation).ToString();
+			m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
 		}
 		else if (m_LastYPos <= finalYPos)
 		{
-			HumanityVal.Show(false);
-			m_HumanityChangeTimer.Stop();
-			m_HumanityChangeTimer.Run(1.0, this, "OnHumanityChangeFadeOut");
+			ReputationVal.Show(false);
+			m_ReputationChangeTimer.Stop();
+			m_ReputationChangeTimer.Run(1.0, this, "OnReputationChangeFadeOut");
 		}
 	}
 
-	void OnHumanityChangeFadeOut()
+	void OnReputationChangeFadeOut()
 	{
-		m_HumanityChangeFadeTimer.FadeOut(HumanityChangeVal, 3.0, true);
-		m_HumanityChangeFadeOut.Run(3.0, this, "OnHumanityChangeReset");
+		m_ReputationChangeFadeTimer.FadeOut(ReputationChangeVal, 3.0, true);
+		m_ReputationChangeFadeOut.Run(3.0, this, "OnReputationChangeReset");
 	}
 
-	void OnHumanityChangeReset()
+	void OnReputationChangeReset()
 	{
-		m_HumanityChangeTimer.Stop();
-		m_HumanityChangeFadeOut.Stop();
+		m_ReputationChangeTimer.Stop();
+		m_ReputationChangeFadeOut.Stop();
 
-		HumanityChangeVal.SetAlpha(0);
-		HumanityChange.SetPos(m_StartPosX, m_StartPosY);
+		ReputationChangeVal.SetAlpha(0);
+		ReputationChange.SetPos(m_StartPosX, m_StartPosY);
 
-		HumanityVal.Show(true);
+		ReputationVal.Show(true);
 
-		m_HardlineHUDController.HumanityVal = m_CurrentReputation.ToString();
-		m_HardlineHUDController.NotifyPropertyChanged("HumanityVal");
+		m_HardlineHUDController.ReputationVal = m_CurrentReputation.ToString();
+		m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
 	}
 
 	override typename GetControllerType()
@@ -182,12 +177,9 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 	override void Update()
 	{
-		if (m_HardlineModule && GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().ShowHardlineHUD)
+		if (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().ShowHardlineHUD)
 		{
-			if (!m_HardlineModule.GetHardlineClientData())
-				return;
-
-			SetView(m_HardlineModule.GetHardlineClientData());
+			SetView();
 		}
 
 		bool underRoof = GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(GetGame().GetPlayer());
@@ -197,9 +189,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 class ExpansionHardlineHUDController: ExpansionViewController
 {
-	string HumanityVal;
-	string HumanityIcon;
-	string SanityVal;
-	string SanityIcon;
-	string HumanityChangeValue;
+	string ReputationVal;
+	string ReputationIcon;
+	string ReputationChangeValue;
 };

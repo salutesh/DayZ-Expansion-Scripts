@@ -12,27 +12,49 @@
 
 modded class PlayerBase
 {
-	private int m_Reputation;
-	
-	void SetReputation(int reputation)
+	private int m_Expansion_Reputation;
+
+	override void Init()
 	{
-		m_Reputation = reputation;
+		super.Init();
+
+		m_Expansion_Reputation = -1;
+
+		RegisterNetSyncVariableInt("m_Expansion_Reputation");
 	}
-	
-	int GetReputation()
+
+	void Expansion_SetReputation(int rep)
 	{
-		return m_Reputation;
+		if (rep < 0)
+			rep = 0;
+		m_Expansion_Reputation = rep;
+		SetSynchDirty();
 	}
-	
-   // ------------------------------------------------------------
-	// Override EEKilled
-	// ------------------------------------------------------------
+
+	void Expansion_AddReputation(int rep)
+	{
+		m_Expansion_Reputation += rep;
+		if (m_Expansion_Reputation < 0)
+			m_Expansion_Reputation = 0;
+		SetSynchDirty();
+	}
+
+	void Expansion_DecreaseReputation(int rep)
+	{
+		Expansion_AddReputation(-rep);
+	}
+
+	int Expansion_GetReputation()
+	{
+		return m_Expansion_Reputation;
+	}
+
 	override void EEKilled(Object killer)
 	{
-		if  (GetExpansionSettings().GetHardline().UseReputation)
-		{	
-			ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-			if (hardlineModule)
+		if (GetExpansionSettings().GetHardline().UseReputation)
+		{
+			ExpansionHardlineModule hardlineModule;
+			if (CF_Modules<ExpansionHardlineModule>.Get(hardlineModule))
 			{
 				hardlineModule.OnEntityKilled(this, killer);
 			}
@@ -40,4 +62,33 @@ modded class PlayerBase
 
 		super.EEKilled(killer);
 	}
+
+#ifdef EXPANSION_MODSTORAGE
+	override void CF_OnStoreSave(CF_ModStorageMap storage)
+	{
+		super.CF_OnStoreSave(storage);
+
+		auto ctx = storage[DZ_Expansion_Hardline];
+		if (!ctx) return;
+
+		ctx.Write(m_Expansion_Reputation);
+	}
+
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_Hardline];
+		if (!ctx) return true;
+
+		if (ctx.GetVersion() < 47)
+			return true;
+
+		if (!ctx.Read(m_Expansion_Reputation))
+			return false;
+
+		return true;
+	}
+#endif
 };

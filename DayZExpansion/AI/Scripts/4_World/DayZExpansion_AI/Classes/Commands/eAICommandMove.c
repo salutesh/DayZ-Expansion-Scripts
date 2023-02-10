@@ -277,7 +277,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		}
 
 		//! Try and avoid obstacles if we are moving and not climbing
-		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.eAI_IsClimb())
+		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.IsClimbing())
 		{
 			vector leftPos;
 			vector rightPos;
@@ -850,6 +850,6 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		//if (m_BlockedLeftDist > 0.16 && m_BlockedRightDist > 0.16)
 			//return false;
 
-		return !m_Unit.eAI_IsClimb();
+		return !m_Unit.IsClimbing();
 	}
 };

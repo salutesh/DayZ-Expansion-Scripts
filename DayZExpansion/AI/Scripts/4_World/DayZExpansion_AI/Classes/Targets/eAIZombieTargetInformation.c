@@ -28,10 +28,10 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 	// https://www.desmos.com/calculator/r4mqu91qff
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		float levelFactor = 0;
-
 		if (m_Zombie.GetHealth("", "") <= 0.0)
 			return 0.0;
+
+		float levelFactor;
 
 		// TODO: check to see if ::GetMindState() returns int of 0->4
 		int level = m_DIIP.GetMindState();

@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -30,6 +30,8 @@ class ExpansionAISettings: ExpansionSettingBase
 	bool Vaulting;
 
 	bool Manners;
+
+	bool CanRecruitGuards;
 
 #ifdef DIAG
 	float FormationScale;
@@ -80,6 +82,12 @@ class ExpansionAISettings: ExpansionSettingBase
 			return false;
 		}
 
+		if ( !ctx.Read( CanRecruitGuards ) )
+		{
+			Error("ExpansionAISettings::OnRecieve CanRecruitGuards");
+			return false;
+		}
+
 #ifdef DIAG
 		if ( !ctx.Read( FormationScale ) )
 		{
@@ -114,6 +122,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		ctx.Write( AccuracyMax );
 		ctx.Write( Vaulting );
 		ctx.Write( Manners );
+		ctx.Write( CanRecruitGuards );
 
 #ifdef DIAG
 		ctx.Write( FormationScale );

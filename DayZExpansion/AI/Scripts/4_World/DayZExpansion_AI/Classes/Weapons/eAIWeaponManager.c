@@ -178,7 +178,7 @@ class eAIWeaponManager extends WeaponManager
 
 	bool CanAttachMagazine_NoHandsCheck(Weapon_Base wpn, Magazine mag, bool reservationCheck = true )
 	{	
-		if ( !wpn || !mag )
+		if ( !wpn || !mag || mag.IsAmmoPile() )
 			return false;
 		
 		if ( wpn.IsDamageDestroyed())
@@ -212,7 +212,7 @@ class eAIWeaponManager extends WeaponManager
 
 	bool CanSwapMagazine_NoHandsCheck(Weapon_Base wpn, Magazine mag, bool reservationCheck = true)
 	{
-		if ( !wpn || !mag )
+		if ( !wpn || !mag || mag.IsAmmoPile() )
 			return false;
 		
 		if ( mag.IsDamageDestroyed() || wpn.IsDamageDestroyed())
@@ -241,12 +241,9 @@ class eAIWeaponManager extends WeaponManager
 		if( !Class.CastTo(mag2, wpn.GetMagazine(muzzleIndex)) ) 
 			return false;
 		
-		if( GameInventory.CanSwapEntitiesEx( mag, mag2 ) )
-			return true;
-		
-		InventoryLocation il = new InventoryLocation;
-		
-		if( GameInventory.CanForceSwapEntitiesEx( mag, null, mag2, il ) )
+		TStringArray mags = new TStringArray();
+		wpn.ConfigGetTextArray("magazines", mags);
+		if (ExpansionStatic.StringArrayContainsIgnoreCase(mags, mag.GetType()))
 			return true;
 		
 		return false;

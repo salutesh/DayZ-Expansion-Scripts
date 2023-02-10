@@ -19,6 +19,10 @@ class ExpansionGameMissionSelecterModule: JMRenderableModuleBase
 		GetPermissionsManager().RegisterPermission( "Expansion.GameMission.View" );
 	}
 
+	override void EnableUpdate()
+	{
+	}
+
 	override bool HasAccess()
 	{
 		return GetPermissionsManager().HasPermission( "Expansion.GameMission.View" );

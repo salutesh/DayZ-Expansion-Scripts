@@ -3720,14 +3720,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionATMMenu");
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion CloseMenu
-	// ------------------------------------------------------------
-	void CloseMenu()
-	{
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseMenu();
-	}
 
 	// ------------------------------------------------------------
 	// Expansion MarketModulePrint

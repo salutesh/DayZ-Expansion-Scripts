@@ -12,6 +12,31 @@
 
 modded class Weapon_Base
 {
+	static ref map<string, ref map<ExpansionFireMode, int>> s_Expansion_FireModes = new map<string, ref map<ExpansionFireMode, int>>();
+
+	void Weapon_Base()
+	{
+		string type = GetType();
+		if (!s_Expansion_FireModes[type])
+		{
+			auto fireModes = new map<ExpansionFireMode, int>();
+			s_Expansion_FireModes[type] = fireModes;
+			TStringArray modes = new TStringArray();
+			ConfigGetTextArray("modes", modes);
+			for (int i = 0; i < modes.Count(); i++)
+			{
+				ExpansionFireMode fireMode = typename.StringToEnum(ExpansionFireMode, modes[i]);
+				if (fireMode != -1)
+				{
+				#ifdef DIAG
+					EXTrace.Print(EXTrace.WEAPONS, this, "mode " + modes[i]);
+				#endif
+					fireModes[fireMode] = i;
+				}
+			}
+		}
+	}
+
 	//! Return -1 on unknown state
 	int ExpansionGetMagAttachedFSMStateID()
 	{
@@ -110,5 +135,47 @@ modded class Weapon_Base
 			return true;
 
 		return false;
+	}
+
+	bool Expansion_SetFireMode(ExpansionFireMode fireMode)
+	{
+		string type = GetType();
+		auto fireModes = s_Expansion_FireModes[type];
+		if (!fireModes)
+			return false;
+
+		int fireModeIndex;
+		if (!fireModes.Find(fireMode, fireModeIndex))
+			return false;
+
+		int muzzleIndex = GetCurrentMuzzle();
+		if (GetCurrentMode(muzzleIndex) != fireModeIndex)
+		{
+		#ifdef DIAG
+			EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_SetFireMode - setting mode " + typename.EnumToString(ExpansionFireMode, fireMode));
+		#endif
+			OnFireModeChange(fireModeIndex);
+			SetCurrentMode(muzzleIndex, fireModeIndex);
+		}
+
+		return true;
+	}
+
+	ExpansionFireMode Expansion_GetFireMode()
+	{
+		int muzzleIndex = GetCurrentMuzzle();
+		int mode = GetCurrentMode(muzzleIndex);
+		string type = GetType();
+		foreach (ExpansionFireMode fireMode, int i: s_Expansion_FireModes[type])
+		{
+			if (mode == i)
+			{
+			#ifdef DIAG
+				EXTrace.Print(EXTrace.WEAPONS, this, "::Expansion_GetFireMode - current mode " + typename.EnumToString(ExpansionFireMode, fireMode));
+			#endif
+				return fireMode;
+			}
+		}
+		return ExpansionFireMode.INVALID;
 	}
 }

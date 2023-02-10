@@ -35,9 +35,6 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	bool m_Updated;
 
 	bool m_ShowHardlineStats;
-#ifdef EXPANSIONMODHARDLINE
-	ExpansionHardlineModule m_HardlineModule;
-#endif
 
 	void ExpansionBookMenuTabPlayerProfile(ExpansionBookMenu book_menu)
 	{
@@ -57,7 +54,6 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#endif
 
 	#ifdef EXPANSIONMODHARDLINE
-		m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation);
 	#endif
 
@@ -81,7 +77,9 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		if (!stats || stats.m_PlainID != string.Empty || !stats.m_HasBaseStats || !stats.m_HasRegisteredStats)
 			return;
 
-		stats.Acquire(PlayerBase.Cast(GetGame().GetPlayer()));
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
+		stats.Acquire(player);
 
 		//! Profile stats
 		m_PlayerProfileController.ProfileTimePlayed = ExpansionStatic.GetTimeString(stats.m_Playtime);
@@ -146,10 +144,9 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		m_PlayerProfileController.NotifyPropertiesChanged(player_properties);
 
 	#ifdef EXPANSIONMODHARDLINE
-		if (m_ShowHardlineStats && m_HardlineModule)
+		if (m_ShowHardlineStats)
 		{
-			int reputation = m_HardlineModule.GetHardlineClientData().GetReputation();
-			m_PlayerProfileController.Hardline_Reputation = reputation.ToString();
+			m_PlayerProfileController.Hardline_Reputation = player.Expansion_GetReputation().ToString();
 			m_PlayerProfileController.NotifyPropertyChanged("Hardline_Reputation");
 		}
 	#endif

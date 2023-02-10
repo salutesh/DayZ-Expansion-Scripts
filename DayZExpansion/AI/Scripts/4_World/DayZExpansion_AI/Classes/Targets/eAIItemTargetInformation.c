@@ -36,11 +36,37 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 
 		if (ai)
 		{
-			if (ai.GetHumanInventory().GetEntityInHands())
-				return 0.0;
+			bool canBandage = ai.IsBleeding() && m_Item.Expansion_CanBeUsedToBandage();
 
-			if (m_Item.IsWeapon() || m_Item.Expansion_IsMeleeWeapon())
+			Magazine targetMag;
+
+			if (canBandage && ai.GetBandageToUse())
 			{
+				//! Don't need to pick up bandage if AI already has one in inventory
+				return 0.0;
+			}
+			else if (m_Item.IsWeapon() || m_Item.Expansion_IsMeleeWeapon() || canBandage || (Class.CastTo(targetMag, m_Item) && targetMag.GetAmmoCount()))
+			{
+				ItemBase itemInHands = ai.GetItemInHands();
+				Weapon_Base gunInHands;
+
+				if (!canBandage && itemInHands && !itemInHands.IsDamageDestroyed())
+				{
+					if (Class.CastTo(gunInHands, itemInHands))
+					{
+						if (gunInHands.Expansion_HasAmmo())
+							return 0.0;
+					}
+					else if (itemInHands.Expansion_IsMeleeWeapon() && m_Item.Expansion_IsMeleeWeapon())
+					{
+						return 0.0;
+					}
+				}
+
+				//! Ignore magazines and ammo if AI has no gun
+				if (m_Item.IsMagazine() && !gunInHands && !ai.GetWeaponToUse())
+					return 0.0;
+
 				Weapon_Base gun;
 				if (Class.CastTo(gun, m_Item))
 				{
@@ -57,9 +83,22 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 
 				float q;
 				if (m_Item.IsWeapon())
+				{
 					q = 1000000;
-				else
+				}
+				else if (m_Item.IsAmmoPile())
+				{
+					q = 1000;
+				}
+				else if (m_Item.Expansion_IsMeleeWeapon() || m_Item.IsMagazine())
+				{
 					q = 10000;
+				}
+				else
+				{
+					distance = Math.Sqrt(distance);
+					q = 12;  //! Threat level 0.4 at 30 m
+				}
 
 				return q / distance;
 			}

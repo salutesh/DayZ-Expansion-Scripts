@@ -45,12 +45,11 @@ class ActionInviteToGroup: ActionInteractBase
 		if (!targetPlayer.GetIdentity())
 			return false;
 		
-		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-		
-		if (GetGame().IsClient())
+		ExpansionPartyModule partyModule;
+		if (GetGame().IsClient() && CF_Modules<ExpansionPartyModule>.Get(partyModule))
 			return partyModule.GetParty() != null;
 
-		return partyModule.HasParty(player) && !partyModule.HasParty(targetPlayer);
+		return player.Expansion_GetParty() && !targetPlayer.Expansion_GetParty();
 	}
 	
 	override void OnExecuteClient( ActionData action_data )

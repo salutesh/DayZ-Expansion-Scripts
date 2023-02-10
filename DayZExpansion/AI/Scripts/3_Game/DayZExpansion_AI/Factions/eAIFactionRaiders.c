@@ -1,3 +1,4 @@
+[eAIRegisterFaction(eAIFactionRaiders)]
 class eAIFactionRaiders : eAIFaction
 {
 	void eAIFactionRaiders()

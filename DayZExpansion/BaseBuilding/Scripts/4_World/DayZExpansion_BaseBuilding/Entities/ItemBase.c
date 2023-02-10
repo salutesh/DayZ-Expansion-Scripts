@@ -299,7 +299,7 @@ modded class ItemBase
 		if (!super.IsOpen())
 			return false;
 
-		if (ExpansionIsOpenable())
+		if (!IsInherited(BaseBuildingBase) && ExpansionIsOpenable())
 			return ExpansionIsOpened();
 
 		//! @note vanilla by default returns true, we need to keep this compatible

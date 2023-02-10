@@ -33,6 +33,14 @@ class CfgMods
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{
+			class engineScriptModule
+			{
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/1_Core"};
+			};
+			class gameLibScriptModule
+			{
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/2_GameLib"};
+			};
 			class gameScriptModule
 			{
 				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/3_Game"};

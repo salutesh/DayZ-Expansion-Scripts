@@ -10,6 +10,7 @@
  *
 */
 
+//! LEGACY: Only exists so we can read old hardline data
 class ExpansionHardlinePlayerData
 {
 	static const int CONFIGVERSION = 4;
@@ -21,91 +22,19 @@ class ExpansionHardlinePlayerData
 	private int AIKills = 0;
 	private int InfectedKills = 0;
 	private int PlayerDeaths = 0;
-	
-	[NonSerialized()]
-	ExpansionHardlineModule m_HardlineModule;
 
 	void ExpansionHardlinePlayerData()
 	{
 		ConfigVersion = CONFIGVERSION;
 	}
-		
+
 	int GetReputation()
 	{
 		return Reputation;
 	}
-	
-	void AddReputation(int rep)
-	{
-		Reputation += rep;
-	}
-	
-	void RemoveReputation(int rep)
-	{
-		Reputation -= rep;
-	}
-	
-	void ResetReputation()
-	{
-		Reputation = 0;
-	}
-	
-	void OnKillPlayer()
-	{
-		PlayerKills++;
-	}
-	
-	int GetPlayerKills()
-	{
-		return PlayerKills;
-	}
 
-	void OnAIKilled()
-	{
-		AIKills++;
-	}
-	
-	int GetAIKills()
-	{
-		return AIKills;
-	}
-	
-	void OnInfectedKilled()
-	{
-		InfectedKills++;
-	}
-	
-	int GetInfectedKills()
-	{
-		return InfectedKills;
-	}
-	
-	void OnPlayerDeath()
-	{
-		PlayerDeaths++;
-	}
-	
-	int GetPlayerDeaths()
-	{
-		return PlayerDeaths;
-	}
-	
-	void Save(string fileName)
-	{
-		FileSerializer file = new FileSerializer();
-		if (file.Open(EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
-		{
-			file.Write(ConfigVersion);
-
-			OnSend(file);
-
-			file.Close();
-		}
-	}
-	
 	bool Load(string fileName)
 	{
-		string legacyPath = EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".JSON";
 		string path = EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin";
 		if (FileExist(path))
 		{
@@ -114,83 +43,70 @@ class ExpansionHardlinePlayerData
 			{
 				file.Read(ConfigVersion);
 
-				OnRecieve(file);
+				OnRead(file);
+
+				if (Reputation < 0)
+					Reputation = 0;
 
 				file.Close();
 			}
 			ConfigVersion = CONFIGVERSION;
-			return true;
-		}
-		else if (FileExist(legacyPath))
-		{
-			JsonFileLoader<ExpansionHardlinePlayerData>.JsonLoadFile(legacyPath, this);
-			ConfigVersion = CONFIGVERSION;
-			DeleteFile(legacyPath);
-			Save(fileName);
+			DeleteFile(path);
 			return true;
 		}
 		
 		return false;
 	}
-	
-	void OnSend(ParamsWriteContext ctx)
-	{
-		ctx.Write(Reputation);		
-		ctx.Write(PlayerKills);
-		ctx.Write(AIKills);
-		ctx.Write(InfectedKills);
-		ctx.Write(PlayerDeaths);
-	}
-	
-	bool OnRecieve(ParamsReadContext ctx)
+
+	bool OnRead(ParamsReadContext ctx)
 	{
 		int rank;
 		if (ConfigVersion < 3 && !ctx.Read(rank))
 		{
-			Error(ToString() + "::OnRecieve Rank");
+			Error(ToString() + "::OnRead Rank");
 			return false;
 		}
 		
 		if (!ctx.Read(Reputation))
 		{
-			Error(ToString() + "::OnRecieve Reputation");
+			Error(ToString() + "::OnRead Reputation");
 			return false;
 		}
-		
+
 		if (ConfigVersion < 4)
 		{
 			int sanity;
 			if (!ctx.Read(sanity))
 			{
-				Error(ToString() + "::OnRecieve Sanity");
+				Error(ToString() + "::OnRead Sanity");
 				return false;
 			}
 			
 			int heroKills;
 			if (!ctx.Read(heroKills))
 			{
-				Error(ToString() + "::OnRecieve HeroKills");
+				Error(ToString() + "::OnRead HeroKills");
 				return false;
 			}
 			
 			int banditKills;
 			if (!ctx.Read(banditKills))
 			{
-				Error(ToString() + "::OnRecieve BanditKills");
+				Error(ToString() + "::OnRead BanditKills");
 				return false;
 			}
 			
 			int bambiKills;
 			if (!ctx.Read(bambiKills))
 			{
-				Error(ToString() + "::OnRecieve BambiKills");
+				Error(ToString() + "::OnRead BambiKills");
 				return false;
 			}
 			
 			int totalPlayerKills;
 			if (ConfigVersion < 3 && !ctx.Read(totalPlayerKills))
 			{
-				Error(ToString() + "::OnRecieve TotalPlayerKills");
+				Error(ToString() + "::OnRead TotalPlayerKills");
 				return false;
 			}
 
@@ -200,26 +116,26 @@ class ExpansionHardlinePlayerData
 		{
 			if (!ctx.Read(PlayerKills))
 			{
-				Error(ToString() + "::OnRecieve PlayerKills");
+				Error(ToString() + "::OnRead PlayerKills");
 				return false;
 			}
 		}
 		
 		if (!ctx.Read(AIKills))
 		{
-			Error(ToString() + "::OnRecieve AIKills");
+			Error(ToString() + "::OnRead AIKills");
 			return false;
 		}
 		
 		if (!ctx.Read(InfectedKills))
 		{
-			Error(ToString() + "::OnRecieve InfectedKills");
+			Error(ToString() + "::OnRead InfectedKills");
 			return false;
 		}
 
 		if (!ctx.Read(PlayerDeaths))
 		{
-			Error(ToString() + "::OnRecieve PlayerDeaths");
+			Error(ToString() + "::OnRead PlayerDeaths");
 			return false;
 		}
 		

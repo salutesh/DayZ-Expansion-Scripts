@@ -1,3 +1,4 @@
+[eAIRegisterFaction(eAIFactionMercenaries)]
 class eAIFactionMercenaries : eAIFaction
 {
 	void eAIFactionMercenaries()

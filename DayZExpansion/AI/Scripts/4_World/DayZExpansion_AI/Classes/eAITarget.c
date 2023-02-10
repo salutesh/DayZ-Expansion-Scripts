@@ -107,8 +107,8 @@ class eAITarget
 		if (distSq > 1.0 && hasAmmo)
 			return false;
 
-		//! We don't punch the bear if we have a firearm with ammo
-		if (GetEntity().IsInherited(Animal_UrsusArctos))
+		//! We don't punch the bear or the zombie if we have a firearm with ammo
+		if (GetEntity().IsInherited(Animal_UrsusArctos) || GetEntity().IsInherited(ZombieBase))
 		{
 			if (hasAmmo)
 				return false;

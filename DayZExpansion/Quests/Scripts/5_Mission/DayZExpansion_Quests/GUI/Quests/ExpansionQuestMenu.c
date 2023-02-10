@@ -325,12 +325,6 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	void CloseMenu()
-	{
-		Hide();
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseMenu();
-	}
-
 	void OnCloseButtonClick()
 	{
 		if (!m_InDetailView)

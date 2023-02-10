@@ -1305,4 +1305,9 @@ modded class ItemBase
 	{
 		return string.Empty;
 	}
+
+	bool Expansion_CanBeUsedToBandage()
+	{
+		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase);
+	}
 };

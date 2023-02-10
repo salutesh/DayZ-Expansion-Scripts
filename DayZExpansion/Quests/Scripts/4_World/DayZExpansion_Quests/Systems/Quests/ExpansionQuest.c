@@ -1242,11 +1242,6 @@ class ExpansionQuest
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-	#ifdef EXPANSIONMODHARDLINE
-		int humanity;
-		ExpansionHardlineModule hardlineModule;
-		ExpansionHardlinePlayerData hardlinePlayerData;
-	#endif
 	//! If group mod is not loaded but the quest is flaged as a group quest make it a normal one.
 	#ifndef EXPANSIONMODGROUPS
 		if (m_IsGroupQuest)
@@ -1281,16 +1276,9 @@ class ExpansionQuest
 		#ifdef EXPANSIONMODHARDLINE
 			if (GetExpansionSettings().GetHardline().UseReputation && Config.GetReputationReward() != 0)
 			{
-				hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-				if (hardlineModule)
+				if (questPlayer)
 				{
-					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(questPlayer.GetIdentity().GetId());
-					if (hardlinePlayerData)
-					{
-						hardlinePlayerData.AddReputation(Config.GetReputationReward());
-						hardlinePlayerData.Save(questPlayer.GetIdentity().GetId());
-						hardlineModule.SendPlayerHardlineData(hardlinePlayerData, questPlayer.GetIdentity());
-					}
+					questPlayer.Expansion_AddReputation(Config.GetReputationReward());
 				}
 			}
 		#endif
@@ -1350,16 +1338,9 @@ class ExpansionQuest
 			#ifdef EXPANSIONMODHARDLINE
 				if (GetExpansionSettings().GetHardline().UseReputation && Config.GetReputationReward() != 0)
 				{
-					hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-					if (hardlineModule)
+					if (groupPlayer)
 					{
-						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
-						if (hardlinePlayerData)
-						{
-							hardlinePlayerData.AddReputation(Config.GetReputationReward());
-							hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
-							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
-						}
+						groupPlayer.Expansion_AddReputation(Config.GetReputationReward());
 					}
 				}
 			#endif

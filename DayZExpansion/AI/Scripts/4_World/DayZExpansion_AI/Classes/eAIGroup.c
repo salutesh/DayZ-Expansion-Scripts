@@ -84,8 +84,8 @@ class eAIGroup
 
 	static void DeleteGroup(eAIGroup group)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0("eAIGroup", "eAIGroup::DeleteGroup");
+#ifdef DIAG
+		auto trace = CF_Trace_0(EXTrace.AI, group);
 #endif
 
 		int index = s_AllGroups.Find(group);
@@ -119,7 +119,7 @@ class eAIGroup
 	/*private*/ void ~eAIGroup()
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "~eAIGroup");
+		auto trace = CF_Trace_0(EXTrace.AI, this);
 #endif
 
 		if (!GetGame())
@@ -220,8 +220,8 @@ class eAIGroup
 
 	void SetFaction(eAIFaction f)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "SetFaction");
+#ifdef DIAG
+		auto trace = CF_Trace_1(EXTrace.AI, this).Add(f);
 #endif
 
 		if (!f)
@@ -231,6 +231,12 @@ class eAIGroup
 		}
 
 		m_Faction = f;
+
+		foreach (auto member: m_Members)
+		{
+			if (member)
+				member.eAI_SetFactionTypeID(f.GetTypeID());
+		}
 	}
 
 	eAIFaction GetFaction()
@@ -290,7 +296,10 @@ class eAIGroup
 #endif
 
 		for (int i = m_Targets.Count() - 1; i >= 0; i--)
-			m_Targets[i].Process(m_ID);
+		{
+			if (!m_Targets[i].Process(m_ID))
+				m_Targets.RemoveOrdered(i);
+		}
 	}
 
 	/**

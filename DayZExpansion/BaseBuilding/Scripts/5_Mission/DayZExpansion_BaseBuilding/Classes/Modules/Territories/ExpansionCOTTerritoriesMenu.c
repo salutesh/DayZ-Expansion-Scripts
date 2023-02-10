@@ -15,8 +15,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 {
 	private ExpansionCOTTerritoriesModule m_Module;
 	
-	private Widget m_TerritoryMapPanel;
-	private MapWidget m_TerritoryMap;
+	private Widget m_MapWidgetPanel;
+	private MapWidget m_MapWidget;
 
 	private Widget m_TerritoryListPanel;
 	private GridSpacerWidget m_TerritoryListContent;
@@ -142,8 +142,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		EXLogPrint( "ExpansionCOTTerritoriesMenu::OnInit - Start" );
 		#endif
 		
-		m_TerritoryMapPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territories_map_panel" ) );	
-		m_TerritoryMap = MapWidget.Cast( layoutRoot.FindAnyWidget( "territories_map" ) );	
+		m_MapWidgetPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territories_map_panel" ) );	
+		m_MapWidget = MapWidget.Cast( layoutRoot.FindAnyWidget( "territories_map" ) );	
 		
 		m_TerritoryListPanel = Widget.Cast( layoutRoot.FindAnyWidget( "territories_list_panel" ) );	
 		m_TerritoryListContent = GridSpacerWidget.Cast( layoutRoot.FindAnyWidget( "territories_list_content" ) );	
@@ -240,7 +240,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			string name = currentTerritory.GetTerritoryName();
 			
 			//! Create map marker for territory
-			ExpansionCOTTerritoriesMapMarker marker = new ExpansionCOTTerritoriesMapMarker( m_TerritoryMapPanel, m_TerritoryMap, true);
+			ExpansionCOTTerritoriesMapMarker marker = new ExpansionCOTTerritoriesMapMarker( m_MapWidgetPanel, m_MapWidget, true);
 			//marker.Init();
 			marker.SetIcon( ExpansionIcons.Get( "Marker" ) );
 			marker.SetPosition( pos[0], pos[1] );
@@ -354,7 +354,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 			m_Module.RequestServerTerritories();
 			
 			m_TerritoryListPanel.Show( true );
-			m_TerritoryMapPanel.Show( true );
+			m_MapWidgetPanel.Show( true );
 			m_TerritoryMemberInfoPanel.Show( false );
 			m_TerritoryMemberInfoButtonsPanel.Show( false );
 			m_TerritoryInfoPanel.Show( false );
@@ -387,7 +387,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		}	
 		
 		m_TerritoryListPanel.Show( true );
-		m_TerritoryMapPanel.Show( true );
+		m_MapWidgetPanel.Show( true );
 		m_TerritoryInfoPanel.Show( false );
 		
 		if (m_TerritoryMemberInfoPanel.IsVisible())
@@ -536,8 +536,28 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		super.OnShow();
 		
 		m_Module.RequestServerTerritories();
+
+		GetGame().GetCallQueue( CALL_CATEGORY_GUI ).CallLater( UpdateMapPosition, 34, false, true );
 	}
 	
+	void UpdateMapPosition( bool usePlayerPosition, vector mapPosition = vector.Zero )
+	{
+		if ( usePlayerPosition )
+		{
+			PlayerBase player;
+			float scale;
+			if ( Class.CastTo( player, GetGame().GetPlayer() ) && !player.GetLastMapInfo( scale, mapPosition ) )
+			{
+				scale = 0.33;
+				mapPosition = player.GetWorldPosition();
+			}
+
+			m_MapWidget.SetScale( scale );
+		}
+
+		m_MapWidget.SetMapPos( mapPosition );
+	}
+
 	// ------------------------------------------------------------
 	// Expansion OnHide
 	// ------------------------------------------------------------
@@ -571,7 +591,7 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		}
 		
 		m_TerritoryListPanel.Show( false );
-		m_TerritoryMapPanel.Show( false );
+		m_MapWidgetPanel.Show( false );
 		m_TerritoryMemberInfoPanel.Show( false );
 		m_TerritoryMemberInfoButtonsPanel.Show( false );
 		m_TerritoryInfoPanel.Show( true );
@@ -590,6 +610,8 @@ class ExpansionCOTTerritoriesMenu: JMFormBase
 		CreateTerritorieMembersList( territory );
 		
 		m_Module.RequestTerritoryObjects( territory.GetPosition() );
+
+		UpdateMapPosition( false, territory.GetPosition() );
 		
 		#ifdef EXPANSION_COT_TERRITORY_MODULE_DEBUG
 		EXLogPrint( "ExpansionCOTTerritoriesMenu::SetTerritoryInfo - End" );

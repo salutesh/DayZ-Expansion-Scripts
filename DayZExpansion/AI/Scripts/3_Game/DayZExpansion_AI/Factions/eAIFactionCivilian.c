@@ -1,3 +1,4 @@
+[eAIRegisterFaction(eAIFactionCivilian)]
 class eAIFactionCivilian : eAIFaction
 {
 	void eAIFactionCivilian()

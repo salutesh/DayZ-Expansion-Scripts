@@ -399,7 +399,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 	string GetQuestClassName()
 	{
-		return QuestClassName:
+		return QuestClassName;
 	}
 
 	void SetAutocomplete(bool state)
@@ -819,79 +819,171 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			int objectiveID = Objectives[i].GetID();
 			ctx.Write(objectiveType);
 
-			ExpansionQuestObjectiveConfig configBase = Objectives[i];
-			if (objectiveType == ExpansionQuestObjectiveType.DELIVERY)
+			switch (objectiveType)
 			{
-				QuestPrint("ExpansionQuestConfig::OnSend - DELIVER");
-				ExpansionQuestObjectiveDeliveryConfig deliveryConfig = questModule.GetDeliveryObjectiveConfigByID(objectiveID);
-				deliveryConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - SUCCESS");
+				case ExpansionQuestObjectiveType.DELIVERY:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - DELIVER");
+					ExpansionQuestObjectiveDeliveryConfig deliveryConfig = questModule.GetDeliveryObjectiveConfigByID(objectiveID);
+					
+					if (!deliveryConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - FAILED");
+						break;
+					}
+
+					deliveryConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.TRAVEL:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - TRAVEL");
+					ExpansionQuestObjectiveTravelConfig travelConfig = questModule.GetTravelObjectiveConfigByID(objectiveID);
+
+					if (!travelConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - FAILED");
+						break;
+					}
+
+					travelConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.TARGET:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - TARGET");
+					ExpansionQuestObjectiveTargetConfig targetConfig = questModule.GetTargetObjectiveConfigByID(objectiveID);
+
+					if (!targetConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - FAILED");
+						break;
+					}
+
+					targetConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.COLLECT:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - COLLECT");
+					ExpansionQuestObjectiveCollectionConfig collectionConfig = questModule.GetCollectionObjectiveConfigByID(objectiveID);
+
+					if (!collectionConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - FAILED");
+						break;
+					}
+
+					collectionConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.TREASUREHUNT:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - TREASUREHUNT");
+					ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig = questModule.GetTreasureHuntObjectiveConfigByID(objectiveID);
+
+					if (!treasureHuntConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - FAILED");
+						break;
+					}
+					
+					treasureHuntConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.ACTION:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - ACTION");
+					ExpansionQuestObjectiveActionConfig actionConfig = questModule.GetActionObjectiveConfigByID(objectiveID);
+
+					if (!actionConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - FAILED");
+						break;
+					}
+
+					actionConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.CRAFTING:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - CRAFTING");
+					ExpansionQuestObjectiveCraftingConfig craftingConfig = questModule.GetCraftingObjectiveConfigByID(objectiveID);
+
+					if (!craftingConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - FAILED");
+						break;
+					}
+
+					craftingConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - SUCCESS");
+					break;
+				}
+#ifdef EXPANSIONMODAI
+				case ExpansionQuestObjectiveType.AIPATROL:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - AIPATROL");
+					ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = questModule.GetAIPatrolObjectiveConfigByID(objectiveID);
+
+					if (!aiPatrolConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - FAILED");
+						break;
+					}
+
+					aiPatrolConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.AICAMP:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - AICAMP");
+					ExpansionQuestObjectiveAICampConfig aiCampConfig = questModule.GetAICampObjectiveConfigByID(objectiveID);
+
+					if (!aiCampConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - FAILED");
+						break;
+					}
+
+					aiCampConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - SUCCESS");
+					break;
+				}
+				case ExpansionQuestObjectiveType.AIVIP:
+				{
+					QuestPrint("ExpansionQuestConfig::OnSend - AIVIP");
+					ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = questModule.GetAIVIPObjectiveConfigByID(objectiveID);
+
+					if (!aiVIPConfig)
+					{
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - FAILED");
+						break;
+					}
+
+					aiVIPConfig.OnSend(ctx);
+					QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - SUCCESS");
+					break;
+				}
+#endif
 			}
-			else if (objectiveType == ExpansionQuestObjectiveType.TRAVEL)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - TRAVEL");
-				ExpansionQuestObjectiveTravelConfig travelConfig = questModule.GetTravelObjectiveConfigByID(objectiveID);
-				travelConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.TARGET)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - TARGET");
-				ExpansionQuestObjectiveTargetConfig targetConfig = questModule.GetTargetObjectiveConfigByID(objectiveID);
-				targetConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.COLLECT)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - COLLECT");
-				ExpansionQuestObjectiveCollectionConfig collectionConfig = questModule.GetCollectionObjectiveConfigByID(objectiveID);
-				collectionConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.TREASUREHUNT)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - TREASUREHUNT");
-				ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig = questModule.GetTreasureHuntObjectiveConfigByID(objectiveID);
-				treasureHuntConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.ACTION)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - ACTION");
-				ExpansionQuestObjectiveActionConfig actionConfig = questModule.GetActionObjectiveConfigByID(objectiveID);
-				actionConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.CRAFTING)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - CRAFTING");
-				ExpansionQuestObjectiveCraftingConfig craftingConfig = questModule.GetCraftingObjectiveConfigByID(objectiveID);
-				craftingConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - SUCCESS");
-			}
-		#ifdef EXPANSIONMODAI
-			else if (objectiveType == ExpansionQuestObjectiveType.AIPATROL)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - AIPATROL");
-				ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = questModule.GetAIPatrolObjectiveConfigByID(objectiveID);
-				aiPatrolConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.AICAMP)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - AICAMP");
-				ExpansionQuestObjectiveAICampConfig aiCampConfig = questModule.GetAICampObjectiveConfigByID(objectiveID);
-				aiCampConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - SUCCESS");
-			}
-			else if (objectiveType == ExpansionQuestObjectiveType.AIVIP)
-			{
-				QuestPrint("ExpansionQuestConfig::OnSend - AIVIP");
-				ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = questModule.GetAIVIPObjectiveConfigByID(objectiveID);
-				aiVIPConfig.OnSend(ctx);
-				QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - SUCCESS");
-			}
-		#endif
 		}
 
 		//! Quest items

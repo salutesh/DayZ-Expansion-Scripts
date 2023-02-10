@@ -142,12 +142,10 @@ class ExpansionZoneModule : CF_ModuleWorld
 		auto trace = CF_Trace_0(ExpansionTracing.ZONES, this, "OnUpdate");
 #endif
 
-		super.OnUpdate(sender, args);
-
-		auto update = CF_EventUpdateArgs.Cast(args);
-
 		if (!s_ExEnabled)
 			return;
+
+		auto update = CF_EventUpdateArgs.Cast(args);
 
 		m_TimeCounter += update.DeltaTime * 1000;
 		if (m_TimeCounter < m_Interval)

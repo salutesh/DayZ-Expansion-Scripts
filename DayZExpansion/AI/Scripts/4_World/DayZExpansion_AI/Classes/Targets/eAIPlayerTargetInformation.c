@@ -33,7 +33,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
 
 			//! Guards are friendly to everyone until the other player raises their weapon
-			if (ai.GetGroup() && ai.GetGroup().GetFaction().IsGuard() && !m_Player.IsRaised())
+			if (ai.GetGroup() && ai.GetGroup().GetFaction().IsGuard() && !m_Player.IsRaised() && !m_Player.IsFighting())
 			{
 				if (enemyHands && (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon()))
 					levelFactor = 0.2;  //! They aim at you
