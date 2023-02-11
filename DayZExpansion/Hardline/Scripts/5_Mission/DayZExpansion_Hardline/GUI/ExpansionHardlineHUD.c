@@ -13,7 +13,7 @@
 class ExpansionHardlineHUD: ExpansionScriptView
 {
 	private ref ExpansionHardlineHUDController m_HardlineHUDController;
-	private int m_CurrentReputation;
+	private int m_CurrentReputation = -1;
 
 	protected Widget Reputation;
 	protected TextWidget ReputationVal;
@@ -62,24 +62,25 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		}
 
 		int reputation = PlayerBase.Cast(GetGame().GetPlayer()).Expansion_GetReputation();
-		int difference = reputation - m_CurrentReputation;
+		if (reputation == -1)  //! Not yet initialized
+			return;
 
-		if (difference)
+		if (m_CurrentReputation != reputation)
 		{
-			m_CurrentReputation = reputation;
-
-			if (viewInit)
+			if (viewInit && m_CurrentReputation != -1)
 			{
 				//! Update (animated)
 				OnReputationChangeReset();
-				OnReputationChange(difference);
+				OnReputationChange(reputation - m_CurrentReputation);
 			}
 			else
 			{
 				//! Initial (static)
-				m_HardlineHUDController.ReputationVal = m_CurrentReputation.ToString();
+				m_HardlineHUDController.ReputationVal = reputation.ToString();
 				m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
 			}
+
+			m_CurrentReputation = reputation;
 		}
 	}
 

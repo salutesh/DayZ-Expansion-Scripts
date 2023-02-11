@@ -1,6 +1,10 @@
 modded class MissionBase
 {
+#ifdef SERVER
 	static const float EXPANSION_UPDATEINTERVAL = 0.025;
+#else
+	static const float EXPANSION_UPDATEINTERVAL = 0.005;
+#endif
 
 	protected float m_Expansion_UpdateTime;
 
@@ -11,7 +15,7 @@ modded class MissionBase
 		CreateDayZExpansion();
 	}
 
-#ifndef CF_MISSIONBASE_ONUPDATE_RATE_LIMIT
+#ifndef CF_ONUPDATE_RATE_LIMIT
 	override void CF_OnUpdate(float timeslice)
 	{
 		if (!m_bLoaded)

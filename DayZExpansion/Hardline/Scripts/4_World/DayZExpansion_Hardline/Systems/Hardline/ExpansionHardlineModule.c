@@ -55,17 +55,13 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		if (!player || !identity)
 			return;
 
-		if (player.Expansion_GetReputation() < 0)
-		{
-			//! If reputation is negative, this is a legacy player DB storage format where reputation was saved externally.
-			//! Check if hardline player data file exists and load it
-			string playerUID = identity.GetId();
-			auto hardlinePlayerData = new ExpansionHardlinePlayerData();
-			if (hardlinePlayerData.Load(playerUID))
-				EXPrint("ExpansionHardlineModule::SetupClientData - Loaded legacy player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
-			//! If data was succesfully loaded, player rep will be set to value from file, else zero
-			player.Expansion_SetReputation(hardlinePlayerData.GetReputation());
-		}
+		//! Check if hardline player data file exists and load it
+		string playerUID = identity.GetId();
+		auto hardlinePlayerData = player.m_Expansion_HardlineData;
+		if (hardlinePlayerData.Load(playerUID))
+			EXPrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+		//! If data was succesfully loaded, player rep will be set to value from file, else zero
+		player.Expansion_SetReputation(hardlinePlayerData.Reputation);
 	}
 	
 	void OnEntityKilled(EntityAI victim, Object killer)

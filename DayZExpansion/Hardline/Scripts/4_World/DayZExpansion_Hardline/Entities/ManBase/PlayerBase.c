@@ -13,6 +13,7 @@
 modded class PlayerBase
 {
 	private int m_Expansion_Reputation;
+	ref ExpansionHardlinePlayerData m_Expansion_HardlineData;
 
 	override void Init()
 	{
@@ -20,25 +21,43 @@ modded class PlayerBase
 
 		m_Expansion_Reputation = -1;
 
+		if (GetGame().IsServer())
+			m_Expansion_HardlineData = new ExpansionHardlinePlayerData();
+
 		RegisterNetSyncVariableInt("m_Expansion_Reputation");
 	}
 
+	//! Only to be called on server!
+	void Expansion_SaveHardlineData()
+	{
+		if (GetIdentity() && m_Expansion_HardlineData.Reputation != m_Expansion_Reputation)
+		{
+			m_Expansion_HardlineData.Reputation = m_Expansion_Reputation;
+			m_Expansion_HardlineData.Save(GetIdentity().GetId());
+		}
+	}
+
+	//! Only to be called on server!
 	void Expansion_SetReputation(int rep)
 	{
 		if (rep < 0)
 			rep = 0;
 		m_Expansion_Reputation = rep;
 		SetSynchDirty();
+		Expansion_SaveHardlineData();
 	}
 
+	//! Only to be called on server!
 	void Expansion_AddReputation(int rep)
 	{
 		m_Expansion_Reputation += rep;
 		if (m_Expansion_Reputation < 0)
 			m_Expansion_Reputation = 0;
 		SetSynchDirty();
+		Expansion_SaveHardlineData();
 	}
 
+	//! Only to be called on server!
 	void Expansion_DecreaseReputation(int rep)
 	{
 		Expansion_AddReputation(-rep);
@@ -64,16 +83,6 @@ modded class PlayerBase
 	}
 
 #ifdef EXPANSION_MODSTORAGE
-	override void CF_OnStoreSave(CF_ModStorageMap storage)
-	{
-		super.CF_OnStoreSave(storage);
-
-		auto ctx = storage[DZ_Expansion_Hardline];
-		if (!ctx) return;
-
-		ctx.Write(m_Expansion_Reputation);
-	}
-
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
@@ -82,7 +91,7 @@ modded class PlayerBase
 		auto ctx = storage[DZ_Expansion_Hardline];
 		if (!ctx) return true;
 
-		if (ctx.GetVersion() < 47)
+		if (ctx.GetVersion() < 47 || ctx.GetVersion() >= 48)
 			return true;
 
 		if (!ctx.Read(m_Expansion_Reputation))

@@ -69,41 +69,36 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		
 	override void LockControls(bool lockMovement = true)
 	{
-		super.LockControls();
-		
-		if (lockMovement)
-			GetGame().GetMission().AddActiveInputExcludes({"menu"});
-		else
-			GetGame().GetMission().AddActiveInputExcludes({"inventory"});
-		
 		ShowHud(false);
 		ShowUICursor(true);
-
-		//! XXX: GetGame().GetInput().ChangeGameFocus(1) works, but disables ESC key...
-		//GetGame().GetInput().ChangeGameFocus(1);
 		
 		LockInputs(true, lockMovement);
-		GetUApi().UpdateControls();
 	}
 	
 	override void UnlockControls()
 	{
-		super.UnlockControls();
-		
-		GetGame().GetMission().PlayerControlEnable(true);
-				
 		ShowHud(true);
 		ShowUICursor(false);
 		
-		//GetGame().GetInput().ResetGameFocus();
-		
 		UnlockInputs();
-		GetUApi().UpdateControls();
 	}
 	
 	override void LockInputs(bool state, bool lockMovement = true)
 	{
-		super.LockInputs(state);
+		if (state)
+		{
+			if (lockMovement)
+				GetGame().GetMission().AddActiveInputExcludes({"menu"});
+			else
+				GetGame().GetMission().AddActiveInputExcludes({"inventory"});
+		}
+		else
+		{
+			if (m_MovementLocked)
+				GetGame().GetMission().RemoveActiveInputExcludes({"menu"});
+			else
+				GetGame().GetMission().RemoveActiveInputExcludes({"inventory"});
+		}
 		
 		m_MovementLocked = lockMovement;
 		
@@ -140,12 +135,12 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 				GetUApi().GetInputByID(inputID).ForceDisable(state);
 			}
 		}
+
+		GetUApi().UpdateControls();
 	}
 	
 	override void UnlockInputs()
 	{
-		super.UnlockInputs();
-		
 		LockInputs(false, m_MovementLocked);
 	}
 	

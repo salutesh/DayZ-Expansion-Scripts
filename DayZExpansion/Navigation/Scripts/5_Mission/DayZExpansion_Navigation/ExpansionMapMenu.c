@@ -1265,7 +1265,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		m_OpenMapTime = 0;
 
 		SetFocus(layoutRoot);
-		GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
+		GetGame().GetMission().AddActiveInputExcludes({"map"});
 
 		PPEffects.SetBlurMenu(0.5);
 
@@ -1294,7 +1294,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		m_MarkerModule.SaveLocalServerMarkers();
 
 		if (GetGame().GetMission())
-			GetGame().GetMission().PlayerControlEnable(true);
+			GetGame().GetMission().RemoveActiveInputExcludes({"map"});
 
 		PPEffects.SetBlurMenu(0.0);
 

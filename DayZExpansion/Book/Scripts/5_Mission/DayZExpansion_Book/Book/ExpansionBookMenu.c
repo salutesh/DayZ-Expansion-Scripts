@@ -309,7 +309,6 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 			UnlockInputs();
 		
 		LockInputs(true, lockMovement);
-		GetUApi().UpdateControls();
 	}
 	
 	void Callback(int rpc_type)

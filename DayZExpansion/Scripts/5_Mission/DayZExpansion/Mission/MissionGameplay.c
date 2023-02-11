@@ -46,11 +46,11 @@ modded class MissionGameplay
 
 		if (focusedWidget)
 		{
-			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
+			if (focusedWidget.IsInherited(EditBoxWidget))
 			{
 				inputIsFocused = true;
 			}
-			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
+			else if (focusedWidget.IsInherited(MultilineEditBoxWidget))
 			{
 				inputIsFocused = true;
 			}
@@ -61,7 +61,6 @@ modded class MissionGameplay
 		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
-		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(viewMenu);
 
 		if (playerPB)
 		{
@@ -103,7 +102,7 @@ modded class MissionGameplay
 						m_AutoRunModule.UpdateAutoWalk();
 
 					//! Stop autorun when different inputs are pressed
-					if (!m_AutoRunModule.IsDisabled())
+					if (!m_AutoRunModule.IsDisabled() && !inputIsFocused)
 					{
 						if (ExpansionStatic.INPUT_FORWARD() || ExpansionStatic.INPUT_BACK() || ExpansionStatic.INPUT_LEFT() || ExpansionStatic.INPUT_RIGHT() || ExpansionStatic.INPUT_STANCE())
 							m_AutoRunModule.AutoRun();
@@ -215,6 +214,20 @@ modded class MissionGameplay
 				}
 				break;
 			}
+		}
+	}
+
+	override void AddActiveInputRestriction(int restrictor)
+	{
+		super.AddActiveInputRestriction(restrictor);
+
+		switch (restrictor)
+		{
+			case EInputRestrictors.INVENTORY:
+			case EInputRestrictors.MAP:
+				if (!m_AutoRunModule.IsDisabled())
+					GetUApi().GetInputByID(UAWalkRunForced).ForceEnable(false); //! force walk off if autorunning
+				break;
 		}
 	}
 };

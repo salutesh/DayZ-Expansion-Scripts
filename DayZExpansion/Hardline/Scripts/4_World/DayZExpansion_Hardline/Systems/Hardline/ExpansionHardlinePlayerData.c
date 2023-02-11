@@ -10,27 +10,30 @@
  *
 */
 
-//! LEGACY: Only exists so we can read old hardline data
 class ExpansionHardlinePlayerData
 {
-	static const int CONFIGVERSION = 4;
+	static const int CONFIGVERSION = 5;
 
 	int ConfigVersion;
 	
-	private int Reputation = 0;	
-	private int PlayerKills = 0;
-	private int AIKills = 0;
-	private int InfectedKills = 0;
-	private int PlayerDeaths = 0;
+	int Reputation;
 
 	void ExpansionHardlinePlayerData()
 	{
 		ConfigVersion = CONFIGVERSION;
 	}
-
-	int GetReputation()
+	
+	void Save(string fileName)
 	{
-		return Reputation;
+		FileSerializer file = new FileSerializer();
+		if (file.Open(EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
+		{
+			file.Write(ConfigVersion);
+
+			OnWrite(file);
+
+			file.Close();
+		}
 	}
 
 	bool Load(string fileName)
@@ -51,11 +54,15 @@ class ExpansionHardlinePlayerData
 				file.Close();
 			}
 			ConfigVersion = CONFIGVERSION;
-			DeleteFile(path);
 			return true;
 		}
 		
 		return false;
+	}
+	
+	void OnWrite(ParamsWriteContext ctx)
+	{
+		ctx.Write(Reputation);
 	}
 
 	bool OnRead(ParamsReadContext ctx)
@@ -72,6 +79,9 @@ class ExpansionHardlinePlayerData
 			Error(ToString() + "::OnRead Reputation");
 			return false;
 		}
+
+		if (ConfigVersion >= 5)
+			return true;
 
 		if (ConfigVersion < 4)
 		{
@@ -109,31 +119,33 @@ class ExpansionHardlinePlayerData
 				Error(ToString() + "::OnRead TotalPlayerKills");
 				return false;
 			}
-
-			PlayerKills = heroKills + banditKills + bambiKills;
 		}
 		else
 		{
-			if (!ctx.Read(PlayerKills))
+			int playerKills;
+			if (!ctx.Read(playerKills))
 			{
 				Error(ToString() + "::OnRead PlayerKills");
 				return false;
 			}
 		}
 		
-		if (!ctx.Read(AIKills))
+		int aiKills;
+		if (!ctx.Read(aiKills))
 		{
 			Error(ToString() + "::OnRead AIKills");
 			return false;
 		}
 		
-		if (!ctx.Read(InfectedKills))
+		int infectedKills;
+		if (!ctx.Read(infectedKills))
 		{
 			Error(ToString() + "::OnRead InfectedKills");
 			return false;
 		}
 
-		if (!ctx.Read(PlayerDeaths))
+		int playerDeaths;
+		if (!ctx.Read(playerDeaths))
 		{
 			Error(ToString() + "::OnRead PlayerDeaths");
 			return false;
