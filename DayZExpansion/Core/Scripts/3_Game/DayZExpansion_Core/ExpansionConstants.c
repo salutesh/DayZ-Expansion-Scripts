@@ -10,6 +10,8 @@
  *
 */
 
+const float NAN = "nan".ToFloat();
+
 /**
  * Expansion chat channels
  * @{
@@ -316,7 +318,7 @@ static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Struc
 static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
 
 //! Storage save version
-static const int EXPANSION_VERSION_CURRENT_SAVE = 46;
+static const int EXPANSION_VERSION_CURRENT_SAVE = 48;
 
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 44;

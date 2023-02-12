@@ -18,7 +18,6 @@ class ExpansionActionDamageBaseBuildingCB : ActionContinuousBaseCB
 	}
 }
 
-[RegisterAction(ExpansionActionDamageBaseBuilding)]
 class ExpansionActionDamageBaseBuilding: ActionContinuousBase
 {
 	void ExpansionActionDamageBaseBuilding()

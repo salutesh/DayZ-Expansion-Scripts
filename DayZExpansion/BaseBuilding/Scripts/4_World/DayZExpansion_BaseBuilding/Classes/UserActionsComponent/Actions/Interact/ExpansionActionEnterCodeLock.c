@@ -13,8 +13,6 @@
 /**@class		ExpansionActionEnterCodeLock
  * @brief		
  **/
-
-[RegisterAction(ExpansionActionEnterCodeLock)]
 class ExpansionActionEnterCodeLock: ActionInteractBase
 {
 	//! WARNING: If 'IsLocal' is false, refactor this

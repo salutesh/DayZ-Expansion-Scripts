@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionAttachCodeLock)]
 class ExpansionActionAttachCodeLock: ActionSingleUseBase
 {
 	override void CreateConditionComponents()

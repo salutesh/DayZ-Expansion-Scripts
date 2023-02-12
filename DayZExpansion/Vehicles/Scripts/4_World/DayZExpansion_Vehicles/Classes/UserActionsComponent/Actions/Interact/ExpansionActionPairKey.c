@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionPairKey)]
 class ExpansionActionPairKey: ActionInteractBase
 {
 	//! DO NOT STORE VARIABLES FOR SERVER SIDE OPERATION

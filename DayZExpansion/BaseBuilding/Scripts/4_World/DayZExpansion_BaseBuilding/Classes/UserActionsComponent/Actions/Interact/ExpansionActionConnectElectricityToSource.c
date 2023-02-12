@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionConnectElectricityToSource)]
 class ExpansionActionConnectElectricityToSource: ActionInteractBase
 {
 

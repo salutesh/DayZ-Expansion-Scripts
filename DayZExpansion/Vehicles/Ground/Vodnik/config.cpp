@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Vodnik
 	{
-		units[] = {"ExpansionVodnikWheel","ExpansionVodnikDoorDriver","ExpansionVodnikDoorCoDriver","ExpansionVodnik","ExpansionSpraycanCamo","ExpansionVodnik_Camo","ExpansionVodnikDoorDriver_Camo","ExpansionVodnikDoorCoDriver_Camo","ExpansionSpraycanCamoMedical","ExpansionVodnik_CamoMedical","ExpansionVodnikDoorDriver_CamoMedical","ExpansionVodnikDoorCoDriver_CamoMedical"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};

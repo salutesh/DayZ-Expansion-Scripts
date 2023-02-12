@@ -18,7 +18,6 @@ class ExpansionActionRestoreEntityCB: ActionContinuousBaseCB
 	}
 };
 
-[RegisterAction(ExpansionActionRestoreEntity)]
 class ExpansionActionRestoreEntity: ActionContinuousBase
 {
 	void ExpansionActionRestoreEntity()
@@ -58,7 +57,17 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 			return false;
 
 		if (!placeholder.Expansion_HasStoredEntity())
+		{
+			if (GetGame().IsServer())
+			{
+				ExpansionNotification("Entity Storage", "Could not restore " + placeholder.Expansion_GetStoredEntityDisplayName() + " (missing data?)").Error(player.GetIdentity());
+
+				if (GetExpansionSettings().GetLog().EntityStorage)
+					GetExpansionSettings().GetLog().PrintLog("[EntityStorage] ERROR: Player \"%1\" (id=%2 pos=%3) tried to restore entity \"%4\" (GlobalID=%5 pos=%6) but it failed! (missing data?)", player.GetIdentity().GetName(), player.GetIdentity().GetId(), player.GetPosition().ToString(), placeholder.Expansion_GetStoredEntityType(), placeholder.m_Expansion_StoredEntityGlobalID.IDToHex(), placeholder.GetPosition().ToString());
+			}
+
 			return false;
+		}
 
 		return true;
 	}
@@ -80,17 +89,22 @@ class ExpansionActionRestoreEntity: ActionContinuousBase
 		else
 		{
 			placeholder.SetPosition(position);
+	
 			string type;
 			placeholder.m_Expansion_NetsyncData.Get(0, type);
+
 			Error(ToString() + "::Expansion_OnFinishProgressServer - Could not restore vehicle " + type + " from file " + placeholder.Expansion_GetEntityStorageFileName());
+
 			ExpansionNotification("Entity Storage", "Could not restore " + placeholder.Expansion_GetStoredEntityDisplayName()).Error(action_data.m_Player.GetIdentity());
+
 			if (log && GetExpansionSettings().GetLog().EntityStorage)
-				GetExpansionSettings().GetLog().PrintLog("[EntityStorage]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to restore a entity \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, placeholder.GetPosition().ToString());
+				GetExpansionSettings().GetLog().PrintLog("[EntityStorage] ERROR: Player \"%1\" (id=%2 pos=%3) tried to restore entity \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, placeholder.GetPosition().ToString());
+
 			return false;
 		}
 		
 		if (log && GetExpansionSettings().GetLog().EntityStorage)
-			GetExpansionSettings().GetLog().PrintLog("[EntityStorage] Player \"%1\" (id=%2 pos=%3) restored a entity \"%4\" (GlobalID=%5 pos=%6)", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), entity.GetType(), id, entity.GetPosition().ToString());
+			GetExpansionSettings().GetLog().PrintLog("[EntityStorage] Player \"%1\" (id=%2 pos=%3) restored entity \"%4\" (GlobalID=%5 pos=%6)", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), entity.GetType(), id, entity.GetPosition().ToString());
 
 		return true;
 	}

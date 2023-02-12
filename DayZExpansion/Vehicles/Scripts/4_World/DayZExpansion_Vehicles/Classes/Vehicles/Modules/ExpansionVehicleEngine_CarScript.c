@@ -39,8 +39,6 @@ class ExpansionVehicleEngine_CarScript : ExpansionVehicleEngineBase
 	{
 		if (!m_Car.IsHelicopter())
 			m_RPM = m_Car.EngineGetRPM();
-		else
-			m_RPM = m_RPMIdle;  //! Make fuel consumption for helis work
 
 		super.ProcessHealth(pDt, pFuel, pCoolant, pOil, pBrake, pOutHealth, pOutFuel);
 	}

@@ -71,7 +71,11 @@
 						}
 					}
 				
-					if (distanceSq &lt;= 1.0)
+					float minDist = 1.0;
+					auto player = PlayerBase.Cast(target.GetEntity());
+					if (player &amp;&amp; player.IsUnconscious())
+						minDist = 4.0;
+					if (distanceSq &lt;= minDist)
 					{
 						time += DeltaTime;
 						//unit.OverrideStance(DayZPlayerConstants.STANCEIDX_RAISEDERECT);
@@ -250,7 +254,7 @@
 					return CONTINUE;
 				}
 				
-				if (unit.IsInMelee() &amp;&amp; time &lt; 0.3)
+				if (unit.IsFighting() &amp;&amp; time &lt; 0.3)
 				{
 					return CONTINUE;
 				}
@@ -270,6 +274,8 @@
 				<position_destination x="1228" y="711" />
 			</editor_data>
 			<guard>
+				if (unit.IsRestrained()) return FAIL;
+				
 				// we are targetting an entity?
 				dst.target = unit.GetTarget();
 				if (!dst.target || !dst.target.IsMeleeViable(unit)) return FAIL;
@@ -286,11 +292,29 @@
 				<position_destination x="696.636363636364" y="715.727272727273" />
 			</editor_data>
 			<guard>
+				if (unit.IsRestrained()) return FAIL;
+				
 				// we are aiming at something?
 				dst.target = unit.GetTarget();
 				if (!dst.target) return FAIL;
 				
-				if (unit.IsInMelee()) return FAIL;
+				PlayerBase player;
+				ItemBase itemTarget;
+				if (Class.CastTo(player, dst.target.GetEntity()))
+				{
+					if (player.IsUnconscious())
+						return FAIL;
+				}
+				else if (Class.CastTo(itemTarget, dst.target.GetEntity()))
+				{
+					// don't shoot at bandages or ammo/magazines, silly
+					if (itemTarget.Expansion_CanBeUsedToBandage())
+						return FAIL;
+					if (itemTarget.IsMagazine())
+						return FAIL;
+				}
+				
+				if (unit.IsFighting()) return FAIL;
 				
 				// we are holding a weapon
 				Weapon_Base weapon;

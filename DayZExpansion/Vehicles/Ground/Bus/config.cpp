@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Ikarus
 	{
-		units[] = {"ExpansionBusWheel","ExpansionBusWheel_Ruined","ExpansionBusWheelDouble","ExpansionBusWheelDouble_Ruined","ExpansionBus","ExpansionSpraycanBlue","ExpansionBus_Blue","ExpansionSpraycanWeeb","ExpansionBus_Weeb","ExpansionSpraycanRed","ExpansionBus_Red"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};

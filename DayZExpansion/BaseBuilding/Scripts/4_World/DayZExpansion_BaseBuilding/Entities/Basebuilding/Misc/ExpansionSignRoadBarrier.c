@@ -36,20 +36,6 @@ class ExpansionSignRoadBarrier: Container_Base
 	protected ScriptedLightBase m_Light;
 
 	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void ExpansionSignRoadBarrier()
-	{
-	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionSignRoadBarrier()
-	{
-	}
-
-	// ------------------------------------------------------------
 	// SetActions
 	// ------------------------------------------------------------
 	override void SetActions()

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Core_Scripts
 	{
-		units[] = {"ExpansionBakedMapObject","ExpansionPhysicsStructure"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_ModStorage_Scripts","DF_Scripts"};

@@ -59,13 +59,38 @@ modded class ActionGetOutTransport
 		action_data_po.m_KeepInVehicleSpaceAfterLeave = recive_data_po.m_KeepInVehicleSpaceAfterLeave;
 	}
 
-	/**
-	 * Very sorry other modders, can't call super in this function. Will cause crashes.
-	 * If bohemia overrides ::OnStart instead of ::Start then I will be able to call super
-	 */
+#ifndef DAYZ_1_19
+	//! 1.20+
+	override void OnStart(ActionData action_data)
+	{
+		bool keepInVehicleSpaceAfterLeave;
+		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
+		if (vehCommand)
+		{
+			CarScript car;
+			if (Class.CastTo(car, vehCommand.GetTransport()))
+			{
+				keepInVehicleSpaceAfterLeave = car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
+			}
+		}
+
+		if (keepInVehicleSpaceAfterLeave)
+			Expansion_PerformGetOutTransport(action_data);
+		else
+			super.OnStart(action_data);
+#else
+	//! 1.19
+
+	//! Can't call super in this function. Will cause crashes.
 	override void Start(ActionData action_data)
 	{
+		//! Vanilla ActionBase::Start BEGIN
 		action_data.m_State = UA_START;
+		
+		if ( LogManager.IsActionLogEnable() )
+		{
+			Debug.ActionLog("Time stamp: " + action_data.m_Player.GetSimulationTimeStamp(), this.ToString() , "n/a", "OnStart", action_data.m_Player.ToString() );
+		}
 
 		OnStart(action_data);
 
@@ -79,10 +104,10 @@ modded class ActionGetOutTransport
 		}
 
 		InformPlayers(action_data.m_Player, action_data.m_Target, UA_START);
+		//! Vanilla ActionBase::Start END
 
-		actionDebugPrint("[action] " + Object.GetDebugName(action_data.m_Player) + " started " + ToString() + " item=" + Object.GetDebugName(action_data.m_MainItem));
-
-		PerformGetOutTransport(action_data);
+		Expansion_PerformGetOutTransport(action_data);
+#endif
 
 		if (IsMissionClient())
 		{
@@ -96,7 +121,7 @@ modded class ActionGetOutTransport
 		}
 	}
 
-	void PerformGetOutTransport(ActionData action_data)
+	void Expansion_PerformGetOutTransport(ActionData action_data)
 	{
 		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
 		if (vehCommand)
@@ -108,15 +133,21 @@ modded class ActionGetOutTransport
 				bool keepInVehicleSpaceAfterLeave = car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
 
 				auto got_action_data = GetOutTransportActionData.Cast(action_data);
+#ifndef DAYZ_1_19
+				//! 1.20+
+				ProcessGetOutActionData(car, got_action_data);
+#else
+				//! 1.19
 				got_action_data.m_StartLocation = got_action_data.m_Player.GetPosition();
 				got_action_data.m_Car = car;
 				got_action_data.m_CarSpeed = speed;
+				got_action_data.m_DmgTaken = (got_action_data.m_CarSpeed * got_action_data.m_CarSpeed) / m_DmgFactor; //When using multiplications, wrong value is returned
+				got_action_data.m_ShockTaken = (got_action_data.m_CarSpeed * got_action_data.m_CarSpeed) / m_ShockFactor;
+				got_action_data.m_WasJumpingOut = speed > 8.0;
+#endif
 
 				if (IsMissionClient())
 					got_action_data.m_KeepInVehicleSpaceAfterLeave = keepInVehicleSpaceAfterLeave;
-
-				got_action_data.m_DmgTaken = (got_action_data.m_CarSpeed * got_action_data.m_CarSpeed) / m_DmgFactor; //When using multiplications, wrong value is returned
-				got_action_data.m_ShockTaken = (got_action_data.m_CarSpeed * got_action_data.m_CarSpeed) / m_ShockFactor;
 
 				vehCommand.KeepInVehicleSpaceAfterLeave(got_action_data.m_KeepInVehicleSpaceAfterLeave);
 
@@ -125,18 +156,14 @@ modded class ActionGetOutTransport
 					action_data.m_Player.Expansion_GettingOutVehicle();
 					vehCommand.GetOutVehicle();
 				}
-				else if (speed <= 8)
+				else if (!got_action_data.m_WasJumpingOut)
 				{
 					vehCommand.GetOutVehicle();
 				}
 				else
 				{
-					got_action_data.m_WasJumpingOut = true;
 					vehCommand.JumpOutVehicle();
 				}
-
-				//action_data.m_Player.GetItemAccessor().HideItemInHands(false);
-				//action_data.m_Player.GetItemAccessor().OnItemInHandsChanged();
 
 				GetDayZGame().GetBacklit().OnLeaveCar();
 				if (action_data.m_Player.GetInventory())
@@ -145,11 +172,18 @@ modded class ActionGetOutTransport
 		}
 	}
 
-	override void Unhide(PlayerBase player)
-    {
-        player.TryHideItemInHands(false, true);
-    }
+	override void OnEnd(ActionData action_data)
+	{
+		auto got_action_data = GetOutTransportActionData.Cast(action_data);
+		CarScript car = CarScript.Cast(got_action_data.m_Car);
 
+		if (car && !car.IsCar() && !car.IsDuck())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
+		else
+			super.OnEnd(action_data);
+	}
+
+	//! Equivalent to vanilla ActionGetOutTransport::OnEndServer amended with player attachment and was in vehicle handling as well as proper raycast
 	override void OnEndServer(ActionData action_data)
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
@@ -172,30 +206,9 @@ modded class ActionGetOutTransport
 		if (got_action_data.m_KeepInVehicleSpaceAfterLeave)
 			return;
 
-		action_data.m_Player.SetInVehicle(false);
+		action_data.m_Player.Expansion_SetIsInVehicleSeatOrAttached(false);
 		if (car && car.IsHelicopter())
 			car.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
-
-		//! The following code is similar to vanilla ActionGetOutTransport::OnEndServer,
-		//! except that we don't use RaycastRV(Proxy) because it can return results that aren't even in the rays path or radius.
-		//! This fixes an exploit that was introduced with DayZ 1.11 where players could glitch through floors when getting out of a vehicle.
-
-		vector endLocation = playerPos + "0 0.5 0";
-
-		PhxInteractionLayers layerMask = PhxInteractionLayers.BUILDING | PhxInteractionLayers.DOOR | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.ROADWAY | PhxInteractionLayers.TERRAIN | PhxInteractionLayers.ITEM_SMALL | PhxInteractionLayers.ITEM_LARGE | PhxInteractionLayers.FENCE;
-
-		Object hitObject;
-		vector hitPosition;
-		vector hitNormal;
-		float hitFraction;
-
-		if (DayZPhysics.SphereCastBullet(got_action_data.m_StartLocation, endLocation, 0.3, layerMask, got_action_data.m_Car, hitObject, hitPosition, hitNormal, hitFraction))
-		{
-			vector offset = got_action_data.m_StartLocation - hitPosition;
-			offset.Normalize();
-			offset = offset * 0.5; //! Reduce offset so there's less chance that player gets stuck in vehicle
-			got_action_data.m_Player.SetPosition(hitPosition + offset);
-		}
 
 		if (got_action_data.m_WasJumpingOut)
 		{

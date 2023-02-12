@@ -226,32 +226,32 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 	// ------------------------------------------------------------
 	// Expansion SetMapLegend
 	// ------------------------------------------------------------
-	protected void SetMapLegend(Widget layoutRoot)
+	protected void SetMapLegend(Widget root)
 	{
 		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 
 		m_IsOpenning = true;
-		Widget mapToolsContainer = layoutRoot.FindAnyWidget("Map_Tools_Container");
+		Widget mapToolsContainer = root.FindAnyWidget("Map_Tools_Container");
 		mapToolsContainer.GetScript(m_LegendResizer);
 
-		m_GPSMarker = layoutRoot.FindAnyWidget("GPSMarkerCircle");
-		m_GPSMarkerArrow = ImageWidget.Cast(layoutRoot.FindAnyWidget("GPSMarkerArrow"));
-		m_UpperLegendContainer = layoutRoot.FindAnyWidget("Tools_Extra");
-		layoutRoot.Update();
+		m_GPSMarker = root.FindAnyWidget("GPSMarkerCircle");
+		m_GPSMarkerArrow = ImageWidget.Cast(root.FindAnyWidget("GPSMarkerArrow"));
+		m_UpperLegendContainer = root.FindAnyWidget("Tools_Extra");
+		root.Update();
 
-		m_ToolsCompassBase = ImageWidget.Cast(layoutRoot.FindAnyWidget("Tools_Compass_Base"));
+		m_ToolsCompassBase = ImageWidget.Cast(root.FindAnyWidget("Tools_Compass_Base"));
 		m_ToolsCompassBase.SetColor(ARGB(255, 220, 220, 220));
 
-		m_ToolsCompassArrow = ImageWidget.Cast(layoutRoot.FindAnyWidget("Tools_Compass_Arrow"));
+		m_ToolsCompassArrow = ImageWidget.Cast(root.FindAnyWidget("Tools_Compass_Arrow"));
 		m_ToolsCompassArrow.SetColor(ARGB(255, 220, 220, 220));
 
-		m_ToolsCompassAzimuth = TextWidget.Cast(layoutRoot.FindAnyWidget("Tools_Compass_Azimuth"));
-		m_ToolsGPSXText = TextWidget.Cast(layoutRoot.FindAnyWidget("Tools_GPS_X_Value"));
-		m_ToolsGPSYText = TextWidget.Cast(layoutRoot.FindAnyWidget("Tools_GPS_Y_Value"));
-		m_ToolsGPSElevationText = TextWidget.Cast(layoutRoot.FindAnyWidget("Tools_GPS_Elevation_Value"));
-		m_ToolsScaleContourText = TextWidget.Cast(layoutRoot.FindAnyWidget("Tools_Scale_Contour_Value"));
-		m_ToolsScaleCellSizeText = TextWidget.Cast(layoutRoot.FindAnyWidget("Tools_Scale_CellSize_Value"));
-		m_ToolsScaleCellSizeCanvas = CanvasWidget.Cast(layoutRoot.FindAnyWidget("Tools_Scale_CellSize_Canvas"));
+		m_ToolsCompassAzimuth = TextWidget.Cast(root.FindAnyWidget("Tools_Compass_Azimuth"));
+		m_ToolsGPSXText = TextWidget.Cast(root.FindAnyWidget("Tools_GPS_X_Value"));
+		m_ToolsGPSYText = TextWidget.Cast(root.FindAnyWidget("Tools_GPS_Y_Value"));
+		m_ToolsGPSElevationText = TextWidget.Cast(root.FindAnyWidget("Tools_GPS_Elevation_Value"));
+		m_ToolsScaleContourText = TextWidget.Cast(root.FindAnyWidget("Tools_Scale_Contour_Value"));
+		m_ToolsScaleCellSizeText = TextWidget.Cast(root.FindAnyWidget("Tools_Scale_CellSize_Value"));
+		m_ToolsScaleCellSizeCanvas = CanvasWidget.Cast(root.FindAnyWidget("Tools_Scale_CellSize_Canvas"));
 
 		float canvasHeight = 0;
 		m_ToolsScaleCellSizeCanvas.GetSize(m_ToolScaleCellSizeCanvasWidth, canvasHeight);
@@ -1265,7 +1265,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		m_OpenMapTime = 0;
 
 		SetFocus(layoutRoot);
-		GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
+		GetGame().GetMission().AddActiveInputExcludes({"map"});
 
 		PPEffects.SetBlurMenu(0.5);
 
@@ -1294,7 +1294,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		m_MarkerModule.SaveLocalServerMarkers();
 
 		if (GetGame().GetMission())
-			GetGame().GetMission().PlayerControlEnable(true);
+			GetGame().GetMission().RemoveActiveInputExcludes({"map"});
 
 		PPEffects.SetBlurMenu(0.0);
 

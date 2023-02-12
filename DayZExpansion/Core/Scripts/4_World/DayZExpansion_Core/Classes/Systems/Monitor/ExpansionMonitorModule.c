@@ -60,7 +60,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 		EnableInvokeConnect();
 		EnableInvokeDisconnect();
 		EnableRPC();
-		//EnableUpdate();
 
 		//EXPrint(ToString() + "::OnInit - GetGame() " + GetGame());  // OK
 		//EXPrint(ToString() + "::OnInit - GetGame().IsServer() " + GetGame().IsServer());  // true on client during init
@@ -250,61 +249,6 @@ class ExpansionMonitorModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMonitorModule OnUpdate
-	// ------------------------------------------------------------
-	override void OnUpdate(Class sender, CF_EventArgs args)
-	{
-		super.OnUpdate(sender, args);
-		
-		/*
-		if (IsMissionClient() || !GetExpansionSettings().GetMonitoring().Enabled)
-			return;
-
-		auto update = CF_EventUpdateArgs.Cast(args);
-		
-		m_UpdateQueueTimer += update.DeltaTime;
-		if ( m_UpdateQueueTimer >= UPDATE_TICK_TIME )
-		{
-			if (m_PlayerIDs.Count() > 0)
-			{
-				for (int i = 0; i < UPDATE_PLAYERS_PER_TICK; ++i) 
-				{
-					if (m_CurrentPlayerTick >= m_PlayerIDs.Count())
-					{
-						m_CurrentPlayerTick = 0;
-					}
-					
-					string currentPlayerID = m_PlayerIDs[m_CurrentPlayerTick];
-					if (currentPlayerID == "")
-					{
-						Error("ExpansionMonitorModule::OnUpdate - Player ID is empty!");
-						continue;
-					}
-					
-					EXTrace.Print(EXTrace.PLAYER_MONITOR, this, "OnUpdate - player " + currentPlayerID);
-
-					UpdateStats(currentPlayerID);
-					UpdateStates(currentPlayerID);
-					
-					m_CurrentPlayerTick++;
-
-					if (m_CurrentPlayerTick == m_PlayerIDs.Count())
-					{
-						break;
-					}
-				}
-			}
-			else
-			{
-				m_CurrentPlayerTick = 0;
-			}
-			
-			m_UpdateQueueTimer = 0.0;
-		}
-		*/
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionMonitorModule UpdateStats
 	// ------------------------------------------------------------	
 	private void UpdateStats(string playerID)
@@ -337,6 +281,7 @@ class ExpansionMonitorModule: CF_ModuleWorld
 			stats.m_Blood = CalcBlood(player);
 			stats.m_Water = CalcWater(player);
 			stats.m_Energy = CalcEnergy(player);
+			stats.m_Position = player.GetPosition();
 		}
 
 		if (includeRegisteredStats)

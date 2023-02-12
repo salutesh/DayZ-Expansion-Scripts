@@ -22,9 +22,6 @@ class ExpansionActionConnectTowData : ActionData
 	int m_Index;
 };
 
-#ifdef EXPANSION_VEHICLE_TOWING
-[RegisterAction(ExpansionActionConnectTow)]
-#endif
 class ExpansionActionConnectTow : ActionInteractBase
 {
 	bool m_IsWinch;
@@ -137,37 +134,6 @@ class ExpansionActionConnectTow : ActionInteractBase
 					CarScript other_car;
 					if (Class.CastTo(other_car, o))
 					{
-#ifdef DAYZ_1_18
-						if (!other_car.Expansion_IsBeingTowed() && !other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
-						{
-							m_IsWinch = car.Expansion_IsHelicopter();
-
-							//! Check if someone is inside the Vehicle the Helicopter is trying to winch
-							//! Goal is to prevent a exploit allowing to get inside people bases
-							if (m_IsWinch)
-							{
-								hasCrew = false;
-								for (i = 0; i < other_car.CrewSize(); i++)
-								{
-									crew = other_car.CrewMember(i);
-									if (crew)
-										hasCrew = true;
-								}
-
-								if (hasCrew)
-									continue;
-							}
-
-							if (other_car.Expansion_GetMass() * 0.9 < car.Expansion_GetMass())
-							{
-								if (other_car.Expansion_GetOverlappingTowConnection(towPosition, towRadius, out_index))
-								{
-									out_car = other_car;
-									return true;
-								}
-							}
-						}
-#else
 						if (!other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
 						{
 							m_IsWinch = car.Expansion_IsHelicopter();
@@ -178,7 +144,6 @@ class ExpansionActionConnectTow : ActionInteractBase
 								return true;
 							}
 						}
-#endif
 					}
 
 					ItemBase other_vehicle;

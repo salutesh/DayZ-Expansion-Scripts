@@ -20,99 +20,23 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	override void OnInit()
 	{
 		super.OnInit();
-
-		EnableRPC();
 	}
 
-	// ------------------------------------------------------------
-	// Expansion SHIFT
-	// ------------------------------------------------------------
+	override bool IsServer()
+	{
+		return false;
+	}
+
 	static bool SHIFT()
 	{		
    		return( ( KeyState( KeyCode.KC_LSHIFT ) > 0 ) || ( KeyState( KeyCode.KC_RSHIFT ) > 0 ) );
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion CTRL
-	// ------------------------------------------------------------
+
 	static bool CTRL()
 	{		
    		return( ( KeyState( KeyCode.KC_LCONTROL ) > 0 ) || ( KeyState( KeyCode.KC_RCONTROL ) > 0 ) );
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion AutorunSync
-	// ------------------------------------------------------------
-	void AutorunSync(ParamsReadContext ctx, PlayerIdentity sender, Object target)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunSync");
-#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
 
-		if ( !IsMissionHost() )
-			return;
-		
-		int autoWalkMode;
-		if ( !ctx.Read( autoWalkMode ) )
-		{
-			Error("ExpansionAutorunModule::AutorunSync can't read autoWalkMode");
-			return;
-		}
-		
-		PlayerBase player;
-		if ( !Class.CastTo( player, target ) )
-		{
-			return;
-		}
-
-		if ( autoWalkMode > 0 )
-	   	{
-		   	if ( ( player.GetInputController().LimitsIsSprintDisabled() ) || ( autoWalkMode == 1 ) )
-			{
-		   		player.GetInputController().OverrideMovementSpeed( true, 2 );
-		   	} else if ( autoWalkMode == 3 )
-			{
-		   		player.GetInputController().OverrideMovementSpeed( true, 1 );
-		   	} else
-		   	{
-			   	player.GetInputController().OverrideMovementSpeed( true, 3 );
-		   	}
-
-		   	player.GetInputController().OverrideMovementAngle( true, 1 );
-	   	}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion AutorunDisable
-	// ------------------------------------------------------------
-	void AutorunDisable(ParamsReadContext ctx, PlayerIdentity sender, Object target)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "AutorunDisable");
-#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-
-		if ( !IsMissionHost() )
-			return;
-		
-		PlayerBase player;
-		if ( !Class.CastTo( player, target ) )
-		{
-			return;
-		}
-
-		player.GetInputController().OverrideMovementSpeed( false, 1 );	
-		player.GetInputController().OverrideMovementAngle( false, 1 );
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion AutoRun
-	// ------------------------------------------------------------
 	void AutoRun()
 	{
 #ifdef EXPANSIONTRACE
@@ -124,8 +48,9 @@ class ExpansionAutorunModule: CF_ModuleWorld
 		if ( m_AutoWalkMode > 0 && !SHIFT() )
 		{
 			m_AutoWalkMode = 0;
-			player.GetInputController().OverrideMovementSpeed( false, 0 );
-			player.GetInputController().OverrideMovementAngle( false, 0 );
+			GetUApi().GetInputByName("UAMoveForward").ForceEnable(false);
+			GetUApi().GetInputByName("UATurbo").ForceEnable(false);
+			GetUApi().GetInputByName("UAWalkRunTemp").ForceEnable(false);
 			m_StartedWithSprint = false;
 		} else if ( m_AutoWalkMode == 0 )
 		{
@@ -161,40 +86,26 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	  		{
 	   			if ( ( player.GetInputController().LimitsIsSprintDisabled() && m_StartedWithSprint ) || ( m_AutoWalkMode == 1 && !m_StartedWithSprint ) )
 	   	   		{
-	   				player.GetInputController().OverrideMovementSpeed( true, 2 );
+	   				GetUApi().GetInputByName("UAMoveForward").ForceEnable(true);
 					m_AutoWalkMode = 1;
 	   			}
 	   			else if ( m_AutoWalkMode == 3 && !m_StartedWithSprint )
 	   	   		{
-	   				player.GetInputController().OverrideMovementSpeed( true, 1 );
+	   				GetUApi().GetInputByName("UAMoveForward").ForceEnable(true);
+					GetUApi().GetInputByName("UAWalkRunTemp").ForceEnable(true);
 					m_AutoWalkMode = 3;
 	   			}
 	   			else
 	   			{
-	   				player.GetInputController().OverrideMovementSpeed( true, 3 );
+					GetUApi().GetInputByName("UAMoveForward").ForceEnable(true);
+					GetUApi().GetInputByName("UATurbo").ForceEnable(true);
 					m_AutoWalkMode = 2;
 	   			}
+			}
 
-	   			player.GetInputController().OverrideMovementAngle( true, 1 );
-				
-				if (m_OldAutoWalkMode != m_AutoWalkMode)
-				{
-					auto rpc = ExpansionScriptRPC.Create();
-					rpc.Write( m_AutoWalkMode );
-					rpc.Send( player, ExpansionAutoRunRPC.AUTORUNSYNC, true );	
-					
-					m_OldAutoWalkMode = m_AutoWalkMode;
-				}
-	   		}
-			else
+			if (m_OldAutoWalkMode != m_AutoWalkMode)
 			{
-				if (m_OldAutoWalkMode != m_AutoWalkMode)
-				{
-					auto rpc2 = ExpansionScriptRPC.Create();
-					rpc2.Send( player, ExpansionAutoRunRPC.AUTORUNDISABLE, true );
-					
-					m_OldAutoWalkMode = m_AutoWalkMode;
-				}
+				m_OldAutoWalkMode = m_AutoWalkMode;
 			}
 		}
 	}
@@ -205,46 +116,5 @@ class ExpansionAutorunModule: CF_ModuleWorld
 	bool IsDisabled()
 	{
 		return ( m_AutoWalkMode == 0 );
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetRPCMin
-	// ------------------------------------------------------------
-	override int GetRPCMin()
-	{
-		return ExpansionAutoRunRPC.INVALID;
-	}
-	
-	// ------------------------------------------------------------
-	// Override GetRPCMax
-	// ------------------------------------------------------------
-	override int GetRPCMax()
-	{
-		return ExpansionAutoRunRPC.COUNT;
-	}
-	
-	// ------------------------------------------------------------
-	// Override OnRPC
-	// ------------------------------------------------------------
-	override void OnRPC(Class sender, CF_EventArgs args)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnRPC");
-#endif
-
-		super.OnRPC(sender, args);
-
-		auto rpc = CF_EventRPCArgs.Cast(args);
-
-		switch ( rpc.ID )
-		{
-			case ExpansionAutoRunRPC.AUTORUNSYNC:
-				AutorunSync( rpc.Context, rpc.Sender, rpc.Target );
-			break;
-			
-			case ExpansionAutoRunRPC.AUTORUNDISABLE:
-				AutorunDisable( rpc.Context, rpc.Sender, rpc.Target );
-			break;
-		}
 	}
 };

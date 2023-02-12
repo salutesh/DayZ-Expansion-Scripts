@@ -109,6 +109,11 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 		return 0;
 
 	}
+
+	override bool IsDuck()
+	{
+		return true;
+	}
 	
 	
 	override CarRearLightBase CreateRearLight()
@@ -498,10 +503,10 @@ class ExpansionHatchBird: ExpansionHelicopterScript
 		GetInventory().CreateInInventory( "ExpansionIgniterPlug" );
 		GetInventory().CreateInInventory( "ExpansionHydraulicHoses" );
 
-		GetInventory().CreateInInventory( "HatchbackDoors_Driver" );
-		GetInventory().CreateInInventory( "HatchbackDoors_CoDriver" );
-		GetInventory().CreateInInventory( "HatchbackHood" );
-		GetInventory().CreateInInventory( "HatchbackTrunk" );
+		GetInventory().CreateInInventory( "ExpansionHatchBirdDoors_Driver" );
+		GetInventory().CreateInInventory( "ExpansionHatchBirdDoors_CoDriver" );
+		GetInventory().CreateInInventory( "ExpansionHatchBirdHood" );
+		GetInventory().CreateInInventory( "ExpansionHatchBirdTrunk" );
 
 		GetInventory().CreateInInventory( "HeadlightH7" );
 		GetInventory().CreateInInventory( "HeadlightH7" );

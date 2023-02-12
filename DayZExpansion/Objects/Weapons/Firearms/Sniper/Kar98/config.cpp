@@ -4,12 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Kar98
 	{
-		units[] = {"Expansion_AmmoBox_8mm_15rnd"};
-		weapons[] = {"Expansion_Kar98"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
-		magazines[] = {"Expansion_Ammo_8mm"};
-		ammo[] = {"Bullet_Expansion_8mm"};
 	};
 };
 class Mode_Safe;

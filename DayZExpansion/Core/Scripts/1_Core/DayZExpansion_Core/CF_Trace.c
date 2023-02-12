@@ -58,13 +58,6 @@ modded class CF_Trace
 	}
 };
 
-#ifdef DIAG
-modded class CF_Log
-{
-	static int Level = CF_LogLevel.TRACE;
-};
-#endif
-
 #ifndef CF_TRACE_STACK_NAME_ASSUMPTION_FIX
 static CF_Trace CF_Trace_0(bool doLog, Class instance)
 {

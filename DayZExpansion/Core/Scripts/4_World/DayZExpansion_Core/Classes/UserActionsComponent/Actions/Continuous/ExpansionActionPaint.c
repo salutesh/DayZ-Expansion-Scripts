@@ -18,7 +18,6 @@ class ExpansionActionPaintCB : ActionContinuousBaseCB
 	}
 };
 
-[RegisterAction(ExpansionActionPaint)]
 class ExpansionActionPaint: ActionContinuousBase
 {
 	private string m_TargetName;

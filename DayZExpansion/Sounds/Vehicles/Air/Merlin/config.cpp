@@ -24,13 +24,13 @@ class CfgSoundShaders
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Merlin\Expansion_Merlin_Engine_Int",1}};
 		frequency = "rpm";
-		volume = "engineOn * rpm * (1 - camPos) * 0.4";
+		volume = "rpm * (1 - camPos) * 0.4";
 	};
 	class Expansion_Merlin_Engine_Ext_SoundShader: Expansion_Merlin_Base_Ext_SoundShader
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Merlin\Expansion_Merlin_Engine_Ext",1}};
 		frequency = "rpm";
-		volume = "engineOn * rpm * camPos";
+		volume = "rpm * camPos";
 	};
 	class Expansion_Merlin_Rotor_Int_SoundShader: Expansion_Merlin_Base_Int_SoundShader
 	{

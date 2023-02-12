@@ -1,4 +1,3 @@
-[RegisterAction(eAIActionWeaponUnjam)]
 class eAIActionWeaponUnjam : eAIActionWeaponControl
 {
 	override void Start(ActionData action_data)

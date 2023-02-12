@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionLockVehicle)]
 class ExpansionActionLockVehicle: ActionInteractBase
 {
 	//! DO NOT STORE VARIABLES FOR SERVER SIDE OPERATION

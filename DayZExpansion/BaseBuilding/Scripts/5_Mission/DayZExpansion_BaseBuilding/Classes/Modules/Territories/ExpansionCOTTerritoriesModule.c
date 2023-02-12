@@ -112,6 +112,10 @@ class ExpansionCOTTerritoriesModule: JMRenderableModuleBase
 		#endif
 	}
 	
+	override void EnableUpdate()
+	{
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCOTTerritoriesModule HasAccess
 	// ------------------------------------------------------------	

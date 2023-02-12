@@ -35,7 +35,6 @@ class ExpansionActionDestroyTerritoryCB : ActionContinuousBaseCB
 	}
 };
 
-[RegisterAction(ExpansionActionDestroyTerritory)]
 class ExpansionActionDestroyTerritory: ActionContinuousBase
 {
 	void ExpansionActionDestroyTerritory()

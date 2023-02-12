@@ -177,19 +177,6 @@ enum ExpansionCOTTerritoriesModuleRPC
 	COUNT
 };
 
-enum ExpansionCOTVehiclesModuleRPC
-{
-	INVALID = 20460,
-	RequestServerVehicles,
-	SendServerVehicles,
-	DeleteVehicle,
-	DeleteVehicleAll,
-	DeleteVehicleUnclaimed,
-	DeleteVehicleDestroyed,
-	TeleportToVehicle,
-	COUNT
-};
-
 enum ExpansionKillFeedModuleRPC
 {
 	INVALID = 20470,
@@ -462,12 +449,4 @@ enum ExpansionLockRPC
 	CHANGE,
 	KNOWNUSERS_REQUEST,
 	KNOWNUSERS_REPLY
-};
-
-enum ExpansionAutoRunRPC
-{
-	INVALID = 9889130,
-	AUTORUNSYNC,
-	AUTORUNDISABLE,
-	COUNT
 };

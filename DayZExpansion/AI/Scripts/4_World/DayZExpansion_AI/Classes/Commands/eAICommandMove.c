@@ -277,7 +277,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		}
 
 		//! Try and avoid obstacles if we are moving and not climbing
-		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.eAI_IsClimb())
+		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.IsClimbing())
 		{
 			vector leftPos;
 			vector rightPos;
@@ -667,7 +667,8 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		//! Clockwise: Positive, counter-clockwise: Negative
 		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
 		
-		if (isFinal && m_WayPointDistance < minFinal)
+		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal;
+		if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
 		}
@@ -849,6 +850,6 @@ class eAICommandMove extends ExpansionHumanCommandScript
 		//if (m_BlockedLeftDist > 0.16 && m_BlockedRightDist > 0.16)
 			//return false;
 
-		return !m_Unit.eAI_IsClimb();
+		return !m_Unit.IsClimbing();
 	}
 };

@@ -17,7 +17,6 @@ class CfgVehicles
 	class CarDoor;
 	class CarScript;
 	class ExpansionAttachments;
-	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
@@ -911,22 +910,6 @@ class CfgVehicles
 				};
 			};
 		};
-	};
-	class Expansion_HatchbackDoors_Driver: ExpansionCarDoorFix
-	{
-		newBase = "HatchbackDoors_Driver";
-	};
-	class Expansion_HatchbackDoors_CoDriver: ExpansionCarDoorFix
-	{
-		newBase = "HatchbackDoors_CoDriver";
-	};
-	class Expansion_HatchbackHood: ExpansionCarDoorFix
-	{
-		newBase = "HatchbackHood";
-	};
-	class Expansion_HatchbackTrunk: ExpansionCarDoorFix
-	{
-		newBase = "HatchbackTrunk";
 	};
 	class OffroadHatchback_Green: OffroadHatchback
 	{

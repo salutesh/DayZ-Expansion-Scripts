@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ActionLickBattery)]
 class ActionLickBattery: ActionSingleUseBase
 {
 	ItemBase m_Battery;

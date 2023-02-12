@@ -13,8 +13,6 @@
 /**@class		ExpansionActionGetInExpansionVehicle
  * @brief		
  **/
-
-[RegisterAction(ExpansionActionGetInExpansionVehicle)]
 class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 {
 	void ExpansionActionGetInExpansionVehicle()
@@ -155,7 +153,7 @@ class ExpansionActionGetInExpansionVehicle: ActionInteractBase
 		if ( action_data.m_Player.GetInventory() ) 
 			action_data.m_Player.GetInventory().UnlockInventory(LOCK_FROM_SCRIPT);
 
-		action_data.m_Player.SetInVehicle( true );
+		action_data.m_Player.Expansion_SetIsInVehicleSeatOrAttached( true );
 		if (!Class.CastTo(transport, action_data.m_Target.GetObject()))
 			return;
 

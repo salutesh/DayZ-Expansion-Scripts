@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionAdminUnpairKey)]
 class ExpansionActionAdminUnpairKey: ActionInteractBase
 {
 	void ExpansionActionAdminUnpairKey()

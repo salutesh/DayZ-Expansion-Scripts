@@ -45,39 +45,6 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 	}
 	
 	// ------------------------------------------------------------
-	override bool OnRecieve( ParamsReadContext ctx )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
-
-		//Not sent to client under normal operation
-		m_IsLoaded = true;
-
-		ExpansionAirdropSettings setting;
-		if ( !ctx.Read( setting ) )
-		{
-			Error("ExpansionAirdropSettings::OnRecieve setting");
-			return false;
-		}
-
-		CopyInternal( setting );
-
-		m_IsLoaded = true;
-
-		ExpansionSettings.SI_Airdrop.Invoke();
-		
-		return true;
-	}
-	
-	override void OnSend( ParamsWriteContext ctx )
-	{
-		ExpansionAirdropSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
-	}
-	
-	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
 		//Not sent to client

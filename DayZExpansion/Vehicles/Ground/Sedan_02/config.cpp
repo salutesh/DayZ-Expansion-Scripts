@@ -16,7 +16,6 @@ class CfgVehicles
 	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
-	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
@@ -910,30 +909,6 @@ class CfgVehicles
 				};
 			};
 		};
-	};
-	class Expansion_Sedan_02_Door_1_1: ExpansionCarDoorFix
-	{
-		newBase = "Sedan_02_Door_1_1";
-	};
-	class Expansion_Sedan_02_Door_1_2: ExpansionCarDoorFix
-	{
-		newBase = "Sedan_02_Door_1_2";
-	};
-	class Expansion_Sedan_02_Door_2_1: ExpansionCarDoorFix
-	{
-		newBase = "Sedan_02_Door_2_1";
-	};
-	class Expansion_Sedan_02_Door_2_2: ExpansionCarDoorFix
-	{
-		newBase = "Sedan_02_Door_2_2";
-	};
-	class Expansion_Sedan_02_Hood: ExpansionCarDoorFix
-	{
-		newBase = "Sedan_02_Hood";
-	};
-	class Expansion_Sedan_02_Trunk: ExpansionCarDoorFix
-	{
-		newBase = "Sedan_02_Trunk";
 	};
 	class Sedan_02_Red: Sedan_02
 	{

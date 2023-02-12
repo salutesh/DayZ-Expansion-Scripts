@@ -14,7 +14,7 @@ modded class PlayerBase
 {
 	private int m_ExpansionSaveVersion;
 
-	protected bool m_WasInVehicle;
+	protected bool m_Expansion_WasInVehicleSeatOrAttached;
 	protected int m_Expansion_SessionTimeStamp;
 	
 	ref array<ExpansionCarKey> m_Expansion_CarKeys;
@@ -44,10 +44,6 @@ modded class PlayerBase
 #ifdef DIAG
 		AddAction( ExpansionActionPushVehicle, InputActionMap );
 #endif
-		
-		#ifdef DAYZ_1_18
-		AddAction( ExpansionActionCarHorn, InputActionMap );
-		#endif
 		AddAction( ExpansionActionHelicopterHoverRefill, InputActionMap );
 
 		AddAction( ExpansionVehicleActionStartEngine, InputActionMap );
@@ -195,7 +191,7 @@ modded class PlayerBase
 
 	override void TryHideItemInHands(bool hide, bool force = false)
 	{
-		if (!hide && IsAttached())
+		if (!hide && Expansion_IsAttached())
 		{
 			//! Vanilla turns false (= show) into true (= hide) if parent is transport (additional check added to IsInVehicle with 1.16). Force show item in hands.
 			super.TryHideItemInHands(false, true);
@@ -205,19 +201,19 @@ modded class PlayerBase
 		super.TryHideItemInHands(hide, force);
 	}
 
-	bool GetInVehicle( )
+	bool Expansion_IsInVehicleSeatOrAttached( )
 	{
-		return m_WasInVehicle;
+		return m_Expansion_WasInVehicleSeatOrAttached;
 	}
 
-	void SetInVehicle( bool state )
+	void Expansion_SetIsInVehicleSeatOrAttached( bool state )
 	{
-		m_WasInVehicle = state;
+		m_Expansion_WasInVehicleSeatOrAttached = state;
 	}
 
 	override bool IsInVehicle()
 	{
-		if (IsAttached())
+		if (Expansion_IsAttached())
 			return false;
 
 		if (super.IsInVehicle())
@@ -272,14 +268,14 @@ modded class PlayerBase
 	{
 		super.OnExpansionAttachTo(obj, transform);
 		
-		SetInVehicle( true );
+		Expansion_SetIsInVehicleSeatOrAttached( true );
 	}
 
 	override void OnExpansionDetachFrom( Object obj )
 	{
 		super.OnExpansionDetachFrom(obj);
 
-		SetInVehicle( false );
+		Expansion_SetIsInVehicleSeatOrAttached( false );
 	}
 
 	override bool HeadingModel( float pDt, SDayZPlayerHeadingModel pModel )
@@ -340,7 +336,7 @@ modded class PlayerBase
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return;
 
-		ctx.Write(m_WasInVehicle);
+		ctx.Write(m_Expansion_WasInVehicleSeatOrAttached);
 		ctx.Write(m_Expansion_SessionTimeStamp);
 	}
 	
@@ -352,7 +348,7 @@ modded class PlayerBase
 		auto ctx = storage[DZ_Expansion_Vehicles];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_WasInVehicle))
+		if (!ctx.Read(m_Expansion_WasInVehicleSeatOrAttached))
 			return false;
 
 		if (!ctx.Read(m_Expansion_SessionTimeStamp))
@@ -374,7 +370,7 @@ modded class PlayerBase
 
 		m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTime();
 
-		if ( m_WasInVehicle )
+		if ( m_Expansion_WasInVehicleSeatOrAttached )
 		{
 			ExpansionPPOGORIVMode mode = GetExpansionSettings().GetVehicle().PlacePlayerOnGroundOnReconnectInVehicle;
 
@@ -397,9 +393,9 @@ modded class PlayerBase
 		//todo: branchless ??
 		if ( GetGame().IsServer() ) 
 		{
-			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_WasInVehicle + " is attached " + IsAttached() + " " + GetParent());
+			EXPrint(ToString() + "::PlacePlayerOnGround - player pos " + GetPosition() + " was in vehicle " + m_Expansion_WasInVehicleSeatOrAttached + " is attached " + Expansion_IsAttached() + " " + GetParent());
 
-			if ( !IsAttached() && !GetParent() )
+			if ( !Expansion_IsAttached() && !GetParent() )
 			{
 				vector rayStart = GetPosition() + "0 0.6 0";
 
@@ -493,7 +489,7 @@ modded class PlayerBase
 					SetPosition( ground );
 				}
 
-				m_WasInVehicle = false;
+				m_Expansion_WasInVehicleSeatOrAttached = false;
 			}
 
 			//! Enable fall damage again - after a delay or player may still die from it

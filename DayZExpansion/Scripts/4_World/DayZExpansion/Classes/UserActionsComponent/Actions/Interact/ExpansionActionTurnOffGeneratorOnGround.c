@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionTurnOffGeneratorOnGround)]
 class ExpansionActionTurnOffGeneratorOnGround: ActionInteractBase
 {
 	// ------------------------------------------------------------

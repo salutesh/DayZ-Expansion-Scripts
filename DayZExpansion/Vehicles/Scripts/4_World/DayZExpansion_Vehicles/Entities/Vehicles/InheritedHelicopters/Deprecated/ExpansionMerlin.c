@@ -226,7 +226,7 @@ class ExpansionMerlin : ExpansionHelicopterScript
 
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			ItemBase battery;
 
@@ -259,12 +259,12 @@ class ExpansionMerlin : ExpansionHelicopterScript
 				}
 				else
 				{
-					for (b = 0; b < m_Particles.Count(); b++)
+					/*for (b = 0; b < m_Particles.Count(); b++)
 					{
 						m_Particles[b].Stop();
 
 						GetGame().ObjectDelete(m_Particles[b]);
-					}
+					}*/
 
 					for (b = -0; b < m_Lights.Count(); b++)
 					{

@@ -24,8 +24,6 @@ class ExpansionActionGetOutExpansionVehicleActionData : ActionData
 /**@class		ExpansionActionGetOutExpansionVehicle
  * @brief		
  **/
-
-[RegisterAction(ExpansionActionGetOutExpansionVehicle)]
 class ExpansionActionGetOutExpansionVehicle : ActionInteractBase
 {
 
@@ -232,7 +230,7 @@ class ExpansionActionGetOutExpansionVehicle : ActionInteractBase
 		if (got_action_data.m_KeepInVehicleSpaceAfterLeave)
 			return;
 
-		action_data.m_Player.SetInVehicle(false);
+		action_data.m_Player.Expansion_SetIsInVehicleSeatOrAttached(false);
 		if (got_action_data.m_Car && got_action_data.m_Car.IsHelicopter())
 			got_action_data.m_Car.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
 

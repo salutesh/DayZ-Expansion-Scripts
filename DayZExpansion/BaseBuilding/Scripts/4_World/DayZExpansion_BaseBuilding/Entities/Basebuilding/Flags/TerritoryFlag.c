@@ -18,6 +18,9 @@ modded class TerritoryFlag
 	const float MAX_ACTION_DETECTION_ANGLE_RAD = 1.3;	//1.3 RAD = ~75 DEG
 	const float MAX_ACTION_DETECTION_DISTANCE = 2.0;	//meters
 
+	const string EXPANSION_DEFAULT_FLAG_TYPE = "Flag_DayZ";
+	const string EXPANSION_DEFAULT_FLAG_TEXTURE = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
+
 	//! Expansion META DATA
 	string m_FlagTexturePath = "";						//! Flag texture path (get saved to flag (this) and attached flag (flag_base).
 	string m_OwnerID = "";								//! Player id who placed the flag (is flag owner).
@@ -407,11 +410,12 @@ modded class TerritoryFlag
 				EXPrint(ToString() + "::EEOnAfterLoad " + GetPosition() + " - creating missing flag");
 				bool locked = GetInventory().GetSlotLock( slot );
 				GetInventory().SetSlotLock( slot, false );
-				Flag_Base flag = Flag_Base.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
-				if ( flag )
+
+				Flag_Base flag;
+				if (Flag_Base.CastTo(flag, GetInventory().CreateAttachment(EXPANSION_DEFAULT_FLAG_TYPE)))
 				{
-					flag.SetFlagTexture( m_FlagTexturePath );
-					GetInventory().SetSlotLock( slot, locked );
+					flag.SetFlagTexture(EXPANSION_DEFAULT_FLAG_TEXTURE);
+					GetInventory().SetSlotLock(slot, locked);
 				}
 			}
 			else
@@ -446,17 +450,7 @@ modded class TerritoryFlag
 
 		if ( GetExpansionSettings().GetBaseBuilding().AutomaticFlagOnCreation && part_name == "pole" ) 
 		{
-			if ( !FindAttachmentBySlotName("Material_FPole_Flag") )
-			{
-				Flag_DayZ flag = Flag_DayZ.Cast( GetInventory().CreateAttachment( "Flag_DayZ" ) );
-				if ( flag )
-				{
-					if ( !m_FlagTexturePath )
-						m_FlagTexturePath = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
-					
-					flag.SetFlagTexture( m_FlagTexturePath );
-				}
-			}
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_AttachDefaultFlag, 34, false);
 		}
 		
 		#ifdef EXPANSION_TERRITORY_MODULE_DEBUG
@@ -464,6 +458,21 @@ modded class TerritoryFlag
 		#endif
 	}
 	
+	void Expansion_AttachDefaultFlag()
+	{
+		if (!FindAttachmentBySlotName("Material_FPole_Flag"))
+		{
+			Flag_Base flag;
+			if (Flag_Base.CastTo(flag, GetInventory().CreateAttachment(EXPANSION_DEFAULT_FLAG_TYPE)))
+			{
+				if (!m_FlagTexturePath)
+					m_FlagTexturePath = EXPANSION_DEFAULT_FLAG_TEXTURE;
+				
+				flag.SetFlagTexture(m_FlagTexturePath);
+			}
+		}
+	}
+
 	override void OnPartDestroyedServer( Man player, string part_name, int action_id, bool destroyed_by_connected_part = false )
 	{
 		super.OnPartDestroyedServer( player, part_name, action_id, destroyed_by_connected_part );

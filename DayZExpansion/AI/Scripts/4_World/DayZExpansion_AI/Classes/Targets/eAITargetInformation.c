@@ -173,7 +173,7 @@ class eAITargetInformation
 	 *
 	 * @param group_id group id of an eAIGroup
 	 */
-	void Process(int group_id)
+	bool Process(int group_id)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "Process").Add(group_id);
@@ -183,13 +183,15 @@ class eAITargetInformation
 		if (!m_Groups.Find(group_id, target))
 		{
 			Error("eAITargetInformation::Process called when target is not in group specified | group_id=" + group_id);
-			return;
+			return false;
 		}
 
 		if (!IsActive())
 		{
 			Remove(group_id);
 		}
+
+		return true;
 	}
 
 	/**

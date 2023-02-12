@@ -18,7 +18,6 @@ class ExpansionActionDismantleFlagCB : ActionContinuousBaseCB
 	}
 };
 
-[RegisterAction(ExpansionActionDismantleFlag)]
 class ExpansionActionDismantleFlag: ActionContinuousBase
 {
 	private bool m_IsDismantle;

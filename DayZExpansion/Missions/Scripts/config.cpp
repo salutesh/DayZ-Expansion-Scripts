@@ -8,7 +8,6 @@ class CfgPatches
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core_Scripts","DZ_Weapons_Ammunition","DZ_Weapons_Explosives"};
-		magazines[] = {};
 	};
 };
 class CfgMods

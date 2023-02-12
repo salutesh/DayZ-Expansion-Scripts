@@ -12,10 +12,20 @@
 
 modded class PlayerBase
 {
+	ExpansionPartyPlayerData m_Expansion_PartyPlayerData;
+
 	override void SetActionsRemoteTarget(out TInputActionMap InputActionMap)
 	{
 		super.SetActionsRemoteTarget(InputActionMap);
 
 		AddAction(ActionInviteToGroup, InputActionMap);
+	}
+
+	ExpansionPartyData Expansion_GetParty()
+	{
+		if (m_Expansion_PartyPlayerData)
+			return m_Expansion_PartyPlayerData.GetParty();
+
+		return NULL;
 	}
 }

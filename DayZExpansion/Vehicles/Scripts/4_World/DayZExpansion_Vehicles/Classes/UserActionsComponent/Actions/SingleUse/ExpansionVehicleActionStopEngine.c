@@ -1,4 +1,3 @@
-[RegisterAction(ExpansionVehicleActionStopEngine)]
 class ExpansionVehicleActionStopEngine : ActionSingleUseBase
 {
 	ExpansionVehicleBase m_Vehicle;

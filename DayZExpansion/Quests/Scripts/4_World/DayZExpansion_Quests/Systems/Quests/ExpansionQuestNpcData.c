@@ -25,18 +25,20 @@ class ExpansionQuestNPCDataBase
 #ifdef EXPANSIONMODAI
 	ref array<vector> Waypoints = new array<vector>;
 	int NPCEmoteID = EmoteConstants.ID_EMOTE_WATCHING;
-#endif
-}
-
-class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
-{
-	static const int CONFIGVERSION = 1;
-
-#ifdef EXPANSIONMODAI
 	bool NPCEmoteIsStatic;
 #endif
 	string NPCLoadoutFile;
 	bool IsStatic;
+}
+
+class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
+{
+	static const int CONFIGVERSION = 2;
+
+	int NPCInteractionEmoteID = EmoteConstants.ID_EMOTE_GREETING;
+	int NPCQuestCancelEmoteID = EmoteConstants.ID_EMOTE_SHRUG;
+	int NPCQuestStartEmoteID = EmoteConstants.ID_EMOTE_NOD;
+	int NPCQuestCompleteEmoteID = EmoteConstants.ID_EMOTE_CLAP;
 
 	void ExpansionQuestNPCData()
 	{
@@ -290,7 +292,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(fileName, npcConfig);
+			npcConfig.Save(fileName);
 		}
 
 		return npcConfig;
@@ -298,7 +300,10 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestNPCData>.JsonSaveFile(EXPANSION_QUESTS_NPCS_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestNPCData>.Save(EXPANSION_QUESTS_NPCS_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestNPCDataBase npcDataBase)
@@ -315,7 +320,10 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	#ifdef EXPANSIONMODAI
 		Waypoints = npcDataBase.Waypoints;
 		NPCEmoteID = npcDataBase.NPCEmoteID;
+		NPCEmoteIsStatic = npcDataBase.NPCEmoteIsStatic;
 	#endif
+		NPCLoadoutFile = npcDataBase.NPCLoadoutFile;
+		IsStatic = npcDataBase.IsStatic;
 	}
 
 	void QuestDebug()

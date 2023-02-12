@@ -92,30 +92,6 @@ modded class CarScript
 	// Timeslice for Engine damage via rev or fluids
 	protected float m_FluidCheckTime;
 
-	// Towing
-#ifdef DAYZ_1_18
-	protected vector m_Expansion_TowPointCenter;
-	protected int m_Expansion_TowConnectionIndex;
-	protected bool m_Expansion_IsBeingTowed;
-	protected bool m_Expansion_IsTowing;
-
-	protected EntityAI m_Expansion_ParentTow;
-	protected int m_Expansion_ParentTowNetworkIDLow;
-	protected int m_Expansion_ParentTowNetworkIDHigh;
-	protected int m_Expansion_ParentTowPersistentIDA;
-	protected int m_Expansion_ParentTowPersistentIDB;
-	protected int m_Expansion_ParentTowPersistentIDC;
-	protected int m_Expansion_ParentTowPersistentIDD;
-
-	protected EntityAI m_Expansion_ChildTow;
-	protected int m_Expansion_ChildTowNetworkIDLow;
-	protected int m_Expansion_ChildTowNetworkIDHigh;
-	protected int m_Expansion_ChildTowPersistentIDA;
-	protected int m_Expansion_ChildTowPersistentIDB;
-	protected int m_Expansion_ChildTowPersistentIDC;
-	protected int m_Expansion_ChildTowPersistentIDD;
-#endif
-
 	// Physics
 #ifndef EXPANSION_DEBUG_SHAPES_DISABLE
 	vector m_DbgTransform[4];
@@ -190,6 +166,11 @@ modded class CarScript
 	ref map<string, int> m_Expansion_WheelsToAdd = new map<string, int>();
 	int m_Expansion_AttachedWheelsCount;
 
+	protected ref EffVehicleSmoke m_Expansion_ExhaustFx[3];
+	protected vector m_Expansion_ExhaustPtcPos[3];
+	protected vector m_Expansion_ExhaustPtcDir[3];
+	protected int m_Expansion_ExhaustPtcFx[3];
+
 	void CarScript()
 	{
 		g_Expansion_Car = this;
@@ -205,16 +186,6 @@ modded class CarScript
 		RegisterNetSyncVariableBool("m_Expansion_AcceptingAttachment");
 		RegisterNetSyncVariableBool("m_Expansion_CanPlayerAttach");
 		RegisterNetSyncVariableFloat("m_Expansion_LockComplexity", 0, 0, 2);
-
-#ifdef DAYZ_1_18
-		RegisterNetSyncVariableBool("m_Expansion_IsBeingTowed");
-		RegisterNetSyncVariableBool("m_Expansion_IsTowing");
-		RegisterNetSyncVariableInt("m_Expansion_TowConnectionIndex");
-		RegisterNetSyncVariableInt("m_Expansion_ParentTowNetworkIDLow");
-		RegisterNetSyncVariableInt("m_Expansion_ParentTowNetworkIDHigh");
-		RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDLow");
-		RegisterNetSyncVariableInt("m_Expansion_ChildTowNetworkIDHigh");
-#endif
 
 		RegisterNetSyncVariableBool("m_HornSynchRemote");
 
@@ -293,7 +264,6 @@ modded class CarScript
 
 		if (IsMissionHost())
 		{
-			SetAllowDamage(CanBeDamaged());
 			m_Expansion_WasMissionLoadedAtVehicleInstantiation = GetDayZGame().GetExpansionGame().IsLoaded();
 		}
 
@@ -387,7 +357,9 @@ modded class CarScript
 			m_Expansion_CollisionDamageMinSpeed = settings.CollisionDamageMinSpeedKmh / 3.6;  //! Converted to m/s
 
 			TStringArray wheels = new TStringArray();
+		#ifdef DAYZ_1_19
 			ConfigGetTextArray("wheels", wheels);
+		#endif
 
 			if ((IsHelicopter() || IsBoat()) && wheels.Count() < 4)
 			{
@@ -406,6 +378,36 @@ modded class CarScript
 			{
 				wheelType.ToLower();
 				m_Expansion_WheelsToAdd[wheelType] = m_Expansion_WheelsToAdd[wheelType] + 1;
+			}
+		}
+
+		m_Expansion_ExhaustPtcPos[0] = m_exhaustPtcPos;
+		m_Expansion_ExhaustPtcDir[0] = m_exhaustPtcDir;
+
+		for (i = 1; i < 3; i++)
+		{
+			string exhaustEnd = string.Format("ptcExhaust%1_end", i);
+			if (MemoryPointExists(exhaustEnd))
+			{
+				m_Expansion_ExhaustPtcPos[i] = GetMemoryPointPos(exhaustEnd);
+				string exhaustStart = string.Format("ptcExhaust%1_start", i);
+				if (MemoryPointExists(exhaustStart))
+				{
+					vector exhaustStartPos = GetMemoryPointPos(exhaustStart);
+					vector tempOri = vector.Direction(exhaustStartPos, m_Expansion_ExhaustPtcPos[i]);
+
+					vector exhaustPtcDir;
+					exhaustPtcDir[0] = -tempOri[2];
+					exhaustPtcDir[1] = tempOri[1];
+					exhaustPtcDir[2] = tempOri[0];
+
+					m_Expansion_ExhaustPtcDir[i] = exhaustPtcDir.Normalized().VectorToAngles();
+				}
+			}
+			else
+			{
+				m_Expansion_ExhaustPtcDir[i] = "1 1 1";
+				m_Expansion_ExhaustPtcFx[i] = -1;
 			}
 		}
 	}
@@ -610,259 +612,6 @@ modded class CarScript
 		AddAction(ExpansionActionLockVehicle);
 		AddAction(ExpansionActionUnlockVehicle);
 	}
-
-#ifdef DAYZ_1_18
-	void Expansion_CreateTow(Object tow, int index)
-	{
-		if (m_Expansion_IsTowing)
-			return;
-
-		CarScript car;
-		ItemBase item;
-
-		if (!Class.CastTo(car, tow) && !Class.CastTo(item, tow))
-			return;
-
-		if ((car && car.Expansion_IsBeingTowed()) || !IsMissionHost())
-			return;
-
-		m_Expansion_ChildTow = EntityAI.Cast(tow);
-		m_Expansion_IsTowing = true;
-		m_Expansion_TowConnectionIndex = index;
-
-		bool success = false;
-
-		if (car)
-			success = car.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
-		else if (item)
-			success = item.Expansion_OnTowCreated(this, Expansion_GetTowPosition(), m_Expansion_TowConnectionIndex);
-
-		if (!success)
-		{
-			m_Expansion_ChildTow = null;
-			m_Expansion_IsTowing = false;
-			m_Expansion_TowConnectionIndex = -1;
-			return;
-		}
-
-		if (!GetGame().IsClient())
-		{
-			m_Expansion_ChildTow.GetNetworkID(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh);
-
-			SetSynchDirty();
-		}
-	}
-
-	bool Expansion_OnTowCreated(Object parent, vector towPos, int index)
-	{
-		if (index < 0 || index >= Expansion_NumberTowConnections())
-			return false;
-
-		vector connectionPoint;
-		vector connectionSize;
-
-		Expansion_GetTowConnection(index, connectionPoint, connectionSize);
-
-		m_Expansion_TowPointCenter = towPos - connectionPoint;
-
-		m_Expansion_ParentTow = EntityAI.Cast(parent);
-		m_Expansion_IsBeingTowed = true;
-
-		if (!IsMissionOffline())
-			m_Expansion_ParentTow.GetNetworkID(m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh);
-
-		if (GetGame().IsServer())
-			SetSynchDirty();
-
-		return true;
-	}
-
-	EntityAI Expansion_GetTowedEntity()
-	{
-		if (m_Expansion_IsTowing)
-			return m_Expansion_ChildTow;
-
-		return NULL;
-	}
-
-	EntityAI Expansion_GetTowParent()
-	{
-		if (m_Expansion_IsBeingTowed)
-			return m_Expansion_ParentTow;
-
-		return null;
-	}
-
-	void Expansion_DestroyTow()
-	{
-		if (!m_Expansion_IsTowing)
-			return;
-
-		CarScript cs;
-		ItemBase evs;
-
-		if (Class.CastTo(cs, m_Expansion_ChildTow))
-		{
-			cs.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
-		}
-
-		if (Class.CastTo(evs, m_Expansion_ChildTow))
-		{
-			evs.Expansion_OnTowDestroyed(this, m_Expansion_TowConnectionIndex);
-		}
-
-		m_Expansion_ChildTow = NULL;
-		m_Expansion_IsTowing = false;
-
-		if (GetGame().IsServer())
-			SetSynchDirty();
-	}
-
-	void Expansion_OnTowDestroyed(EntityAI parent, int connectionIndex)
-	{
-		m_Expansion_ParentTow = null;
-		m_Expansion_IsBeingTowed = false;
-
-		if (GetGame().IsServer())
-			SetSynchDirty();
-	}
-
-	void Expansion_DBGTowing()
-	{
-		vector transform[4];
-		GetTransform(transform);
-
-		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
-		{
-			vector position;
-			vector size;
-			Expansion_GetTowConnection(i, position, size);
-
-			vector minMax[2];
-
-			minMax[0] = position - size;
-			minMax[1] = position + size;
-
-			DGBDrawBoundingBox(transform, minMax);
-		}
-
-		DBGDrawSphere(ModelToWorld(Expansion_GetTowPosition()), Expansion_GetTowLength());
-	}
-
-	bool Expansion_IsBeingTowed()
-	{
-		return m_Expansion_IsBeingTowed;
-	}
-
-	bool Expansion_IsTowing()
-	{
-		return m_Expansion_IsTowing;
-	}
-
-	int Expansion_NumberTowConnections()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAutoHoverTargetHeight");
-#endif
-
-		return 1;
-	}
-
-	void Expansion_GetTowConnection(int index, out vector position, out vector size)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_GetTowConnection").Add(index);
-#endif
-
-		vector minMax[2];
-		GetCollisionBox(minMax);
-
-		position = Vector(0.0, 0.0, minMax[1][2] + Expansion_GetTowLength());
-		position[0] = dBodyGetCenterOfMass(this)[0];
-		position[2] = position[2] - dBodyGetCenterOfMass(this)[2];
-
-		size = "0.5 0.5 0.5";
-	}
-
-	bool Expansion_GetOverlappingTowConnection(vector towPosition, float towRadius, out int index)
-	{
-		index = -1;
-
-		towPosition = WorldToModel(towPosition);
-
-		for (int i = 0; i < Expansion_NumberTowConnections(); i++)
-		{
-			vector conPos, conSize;
-			Expansion_GetTowConnection(i, conPos, conSize);
-
-			if (Math3D.IntersectSphereBox(towPosition, towRadius, conPos - conSize, conPos + conSize))
-			{
-				index = i;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	vector Expansion_GetTowPosition()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowPosition");
-#endif
-
-		vector minMax[2];
-		GetCollisionBox(minMax);
-		return Vector(0.0, minMax[0][1], minMax[0][2] - dBodyGetCenterOfMass(this)[2]);
-	}
-
-	vector Expansion_GetTowDirection()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowDirection");
-#endif
-
-		return -GetDirection();
-	}
-
-	float Expansion_GetTowLength()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "Expansion_GetTowLength");
-#endif
-
-		return 0.4;
-	}
-
-	/**
-	 * @brief is it a car ? Is it already towing something ? And is it locked ?
-	 */
-	bool Expansion_CanConnectTow(notnull Object other)
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "Expansion_CanConnectTow").Add(other);
-#endif
-
-		ItemBase item;
-		ExpansionVehicleBase evs;
-		CarScript cs;
-		if (Class.CastTo(evs, other))
-		{
-			return evs.Expansion_NumberTowConnections() > 0 && evs.Expansion_IsCar() && !evs.Expansion_IsTowing() && !evs.IsLocked();
-		}
-		else if (Class.CastTo(cs, other))
-		{
-			return cs.Expansion_NumberTowConnections() > 0 && cs.Expansion_IsCar() && !cs.Expansion_IsTowing() && !cs.IsLocked();
-		}
-		else if (Class.CastTo(item, other))
-		{
-			return item.Expansion_NumberTowConnections() > 0 && !item.Expansion_IsTowing();
-		}
-
-		//! don't...
-		return false;
-	}
-#endif
 
 	bool Expansion_CanPlayerAttach()
 	{
@@ -1553,7 +1302,6 @@ modded class CarScript
 		return false;
 	}
 
-#ifndef DAYZ_1_18
 	bool Expansion_HasVehicleHorn()
 	{
 		return m_CarHornLongSoundName != string.Empty;
@@ -1563,7 +1311,6 @@ modded class CarScript
 	{
 		return m_CarHornShortSoundName != string.Empty;
 	}
-#endif
 
 	bool IsCar()
 	{
@@ -1572,6 +1319,11 @@ modded class CarScript
 #endif
 
 		return true;
+	}
+
+	bool IsDuck()
+	{
+		return false;
 	}
 
 	bool IsBoat()
@@ -1720,6 +1472,17 @@ modded class CarScript
 			}
 		}
 
+		if (item.GetType() == "HatchbackWheel" && !IsCar() && !IsDuck())
+		{
+			if (!GetGame().IsDedicatedServer())
+				item.SetInvisible(true);
+		#ifndef DAYZ_1_19
+			//! DayZ 1.20+
+			if (GetGame().IsServer())
+				item.SetAllowDamage(false);
+		#endif
+		}
+
 		super.EEItemAttached(item, slot_name);
 	}
 
@@ -1832,48 +1595,34 @@ modded class CarScript
 		float time = m_FluidCheckTime;
 		m_FluidCheckTime = 0;
 
+		int i;
+
 		if (GetGame().IsServer())
 		{
-#ifdef DAYZ_1_18
-			ItemBase radiator;
-			Class.CastTo(radiator, FindAttachmentBySlotName("CarRadiator"));
-			if (radiator)
-			{
-				m_RadiatorHealth = radiator.GetHealth01("", "");
-			}
-#else
-			//! 1.19
 			if (HasRadiator())
 			{
 				m_RadiatorHealth = GetRadiator().GetHealth01("", "");
 			}
-#endif
 			else
 			{
 				m_RadiatorHealth = 0;
 			}
 
 			m_FuelTankHealth = GetHealth01("FuelTank", "");
-		}
 
-		if (GetGame().IsServer() && Expansion_EngineIsOn())
-		{
-			CheckVitalItem(IsVitalCarBattery(), "CarBattery");
-			CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
-			CheckVitalItem(IsVitalAircraftBattery(), "ExpansionAircraftBattery");
-			CheckVitalItem(IsVitalHelicopterBattery(), "ExpansionHelicopterBattery");
-			CheckVitalItem(IsVitalIgniterPlug(), "ExpansionIgniterPlug");
-			CheckVitalItem(IsVitalHydraulicHoses(), "ExpansionHydraulicHoses");
-			CheckVitalItem(IsVitalSparkPlug(), "SparkPlug");
-			CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
-			// engine belt is not needed right now
-			//CheckVitalItem(IsVitalEngineBelt(), "EngineBelt");
-		}
-
-		if (Expansion_EngineIsOn())
-		{
-			if (GetGame().IsServer())
+			if (Expansion_EngineIsOn())
 			{
+				CheckVitalItem(IsVitalCarBattery(), "CarBattery");
+				CheckVitalItem(IsVitalTruckBattery(), "TruckBattery");
+				CheckVitalItem(IsVitalAircraftBattery(), "ExpansionAircraftBattery");
+				CheckVitalItem(IsVitalHelicopterBattery(), "ExpansionHelicopterBattery");
+				CheckVitalItem(IsVitalIgniterPlug(), "ExpansionIgniterPlug");
+				CheckVitalItem(IsVitalHydraulicHoses(), "ExpansionHydraulicHoses");
+				CheckVitalItem(IsVitalSparkPlug(), "SparkPlug");
+				CheckVitalItem(IsVitalGlowPlug(), "GlowPlug");
+				// engine belt is not needed right now
+				//CheckVitalItem(IsVitalEngineBelt(), "EngineBelt");
+
 				float fuel = GetFluidFraction(CarFluid.FUEL);
 				float coolant = GetFluidFraction(CarFluid.COOLANT);
 				float oil = GetFluidFraction(CarFluid.OIL);
@@ -1885,13 +1634,12 @@ modded class CarScript
 
 				float fuelConsumption;
 				m_EngineHealth = 0;
-				for (int i = 0; i < m_Engines.Count(); i++)
+				for (i = 0; i < m_Engines.Count(); i++)
 				{
 					m_Engines[i].ProcessHealth(time, fuel, coolant, oil, brake, m_EngineHealth, fuelConsumption);
 				}
 				m_EngineHealth = m_EngineHealth / m_Engines.Count();
 
-#ifndef DAYZ_1_18
 				//! 1.19
 				if (IsVitalFuelTank())
 				{
@@ -1900,7 +1648,6 @@ modded class CarScript
 						SetHealth("Engine", "Health", GameConstants.DAMAGE_RUINED_VALUE);
 					}
 				}
-#endif
 
 				//! leaking of coolant from radiator when damaged
 				if (IsVitalRadiator() && coolant > 0.0 && m_RadiatorHealth < 0.5) //CARS_LEAK_THRESHOLD
@@ -1922,15 +1669,37 @@ modded class CarScript
 						Expansion_EngineStop();
 				}
 			}
+		}
 
-			//FX only on Client and in Single
-			if (!GetGame().IsDedicatedServer() && !IsInherited(ExpansionBoatScript) && !IsInherited(ExpansionHelicopterScript))
+		//FX only on Client and in Single
+		if (!GetGame().IsDedicatedServer())
+		{
+			if (Expansion_EngineIsSpinning())
 			{
-				if (!SEffectManager.IsEffectExist(m_exhaustPtcFx))
+				auto helicopter = ExpansionHelicopterScript.Cast(this);
+
+				for (i = 0; i < 3; i++)
 				{
-					m_exhaustFx = new EffExhaustSmoke();
-					m_exhaustPtcFx = SEffectManager.PlayOnObject(m_exhaustFx, this, m_exhaustPtcPos, m_exhaustPtcDir);
-					m_exhaustFx.SetParticleStateLight();
+					if (m_Expansion_ExhaustPtcPos[i] == vector.Zero)
+						continue;
+
+					if (!SEffectManager.IsEffectExist(m_Expansion_ExhaustPtcFx[i]))
+					{
+						m_Expansion_ExhaustFx[i] = new EffExhaustSmoke();
+						m_Expansion_ExhaustPtcFx[i] = SEffectManager.PlayOnObject(m_Expansion_ExhaustFx[i], this, m_Expansion_ExhaustPtcPos[i], m_Expansion_ExhaustPtcDir[i]);
+						if (helicopter)
+						{
+							m_Expansion_ExhaustFx[i].Expansion_SetParticleStateHelicopter();
+							m_Expansion_ExhaustFx[i].SetEnableEventFrame(true);
+						}
+						else
+						{
+							m_Expansion_ExhaustFx[i].SetParticleStateLight();
+						}
+					}
+
+					if (helicopter)
+						m_Expansion_ExhaustFx[i].Expansion_SetRotorSpeed(helicopter.m_Simulation.m_RotorSpeed);
 				}
 
 				if (IsVitalRadiator() && GetFluidFraction(CarFluid.COOLANT) < 0.5)
@@ -1955,16 +1724,15 @@ modded class CarScript
 						SEffectManager.Stop(m_coolantPtcFx);
 				}
 			}
-		}
-		else
-		{
-			//FX only on Client and in Single
-			if (!GetGame().IsDedicatedServer())
+			else
 			{
-				if (SEffectManager.IsEffectExist(m_exhaustPtcFx))
+				for (i = 0; i < 3; i++)
 				{
-					SEffectManager.Stop(m_exhaustPtcFx);
-					m_exhaustPtcFx = -1;
+					if (m_Expansion_ExhaustPtcFx[i] != -1 && SEffectManager.IsEffectExist(m_Expansion_ExhaustPtcFx[i]))
+					{
+						SEffectManager.Stop(m_Expansion_ExhaustPtcFx[i]);
+						m_Expansion_ExhaustPtcFx[i] = -1;
+					}
 				}
 
 				if (SEffectManager.IsEffectExist(m_coolantPtcFx))
@@ -1974,6 +1742,11 @@ modded class CarScript
 				}
 			}
 		}
+	}
+
+	bool Expansion_EngineIsSpinning()
+	{
+		return Expansion_EngineIsOn();
 	}
 
 	bool CanUpdateHorn(float pDt)
@@ -2016,9 +1789,20 @@ modded class CarScript
 		}
 	}
 
+	override void OnUpdate(float dt)
+	{
+		if (GetGame().IsServer() && m_DrownTime > 0 && !CanBeDamaged())
+			m_DrownTime = 0;
+
+		super.OnUpdate(dt);
+	}
+
 	void Expansion_AddWheels()
 	{
 		if (ToDelete())
+			return;
+
+		if (!m_Expansion_WheelsToAdd.Count())
 			return;
 
 		foreach (string type, int count: m_Expansion_WheelsToAdd)
@@ -2145,12 +1929,8 @@ modded class CarScript
 
 			if (newGear == -1)
 			{
-#ifdef DAYZ_1_18
-				gear = GetController().GetGear();
-#else
 				//! 1.19
 				gear = GetGear();
-#endif
 			}
 			else
 			{
@@ -2205,10 +1985,8 @@ modded class CarScript
 				switch (gear)
 				{
 				case CarGear.REVERSE:
-#ifndef DAYZ_1_18
 				//! 1.19
 				case CarAutomaticGearboxMode.R:
-#endif
 					m_RearLightType = CarRearLightType.BRAKES_AND_REVERSE;
 					break;
 				default:
@@ -2221,10 +1999,8 @@ modded class CarScript
 				switch (gear)
 				{
 				case CarGear.REVERSE:
-#ifndef DAYZ_1_18
 				//! 1.19
 				case CarAutomaticGearboxMode.R:
-#endif
 					m_RearLightType = CarRearLightType.REVERSE_ONLY;
 					break;
 				default:
@@ -2300,16 +2076,12 @@ modded class CarScript
 
 			if (newGear == -1)
 			{
-#ifdef DAYZ_1_18
-				gear = GetController().GetGear();
-#else
 				//! 1.19
 				gear = GetGear();
 				if (GearboxGetType() == CarGearboxType.AUTOMATIC)
 				{
 					gear = GearboxGetMode();
 				}
-#endif
 			}
 			else
 			{
@@ -2356,10 +2128,8 @@ modded class CarScript
 				switch (gear)
 				{
 				case CarGear.REVERSE:
-#ifndef DAYZ_1_18
 				//! 1.19
 				case CarAutomaticGearboxMode.R:
-#endif
 					m_RearLightType = CarRearLightType.BRAKES_AND_REVERSE;
 					break;
 				default:
@@ -2373,10 +2143,8 @@ modded class CarScript
 				switch (gear)
 				{
 				case CarGear.REVERSE:
-#ifndef DAYZ_1_18
 				//! 1.19
 				case CarAutomaticGearboxMode.R:
-#endif
 					m_RearLightType = CarRearLightType.REVERSE_ONLY;
 					break;
 				default:
@@ -2619,9 +2387,6 @@ modded class CarScript
 		{
 			m_IsPhysicsHost = true;
 
-#ifdef DIAG
-			m_Expansion_AcceptingAttachment = true;
-#else
 			if (dBodyIsActive(this) && !m_Expansion_AcceptingAttachment)
 			{
 				m_Expansion_AcceptingAttachment = true;
@@ -2632,7 +2397,6 @@ modded class CarScript
 				m_Expansion_AcceptingAttachment = false;
 				SetSynchDirty();
 			}
-#endif
 
 			if (!driver && Expansion_CanSimulate())
 			{
@@ -2643,11 +2407,7 @@ modded class CarScript
 
 				Expansion_OnHandleController(null, dt);
 
-#ifdef DAYZ_1_18
-				if (!m_Expansion_IsBeingTowed && Expansion_ShouldDisableSimulation())
-#else
 				if (Expansion_ShouldDisableSimulation())
-#endif
 				{
 					dBodyActive(this, ActiveState.INACTIVE);
 					return;
@@ -2667,26 +2427,6 @@ modded class CarScript
 			foreach (auto door : m_Doors)
 			{
 				door.OnUpdate(dt);
-			}
-#endif
-
-#ifdef DAYZ_1_18
-			if (m_Expansion_IsBeingTowed)
-			{
-				// shouldn't ever be NULL but just incase
-				if (!m_Expansion_ParentTow)
-					return;
-
-				if (m_TowingEnabled && dBodyIsActive(m_Expansion_ParentTow) && dBodyIsDynamic(m_Expansion_ParentTow))
-				{
-					vector towTransform[4];
-					m_Expansion_ParentTow.GetTransform(towTransform);
-					towTransform[3] = m_Expansion_ParentTow.ModelToWorld(m_Expansion_TowPointCenter);
-
-					dBodySetTargetMatrix(this, towTransform, dt);
-				}
-
-				return;
 			}
 #endif
 		}
@@ -2744,37 +2484,21 @@ modded class CarScript
 
 			return;
 		}
-
-#ifdef DAYZ_1_18
-		m_Controller.m_Yaw = GetController().GetSteering();
-		//m_Controller.m_Throttle[0] = GetController().GetThrust();
-		m_Controller.m_Brake[0] = GetController().GetBrake();
-		m_Controller.m_Gear[0] = GetController().GetGear();
-#else
 		//! 1.19
 		m_Controller.m_Yaw = GetSteering();
 		//m_Controller.m_Throttle[0] = GetThrust();
 		m_Controller.m_Brake[0] = GetBrake();
 		m_Controller.m_Gear[0] = GetGear();
-#endif
 
 		TFloatArray gears = new TFloatArray;
 		GetGame().ConfigGetFloatArray("CfgVehicles " + GetType() + " SimulationModule Gearbox ratios", gears);
 
-#ifdef DAYZ_1_18
-		if (GetController().GetGear() > 2)
-		{
-			m_Controller.m_Ratio[0] = gears[GetController().GetGear() - 2];
-		}
-		else if (GetController().GetGear() == 0)
-#else
 		//! 1.19
 		if (GetGear() > 2)
 		{
 			m_Controller.m_Ratio[0] = gears[GetGear() - 2];
 		}
 		else if (GetGear() == 0)
-#endif
 		{
 			m_Controller.m_Ratio[0] = GetGame().ConfigGetFloat("CfgVehicles " + GetType() + " SimulationModule Gearbox reverse");
 		}
@@ -3511,29 +3235,6 @@ modded class CarScript
 			ExpansionOnSpawnExploded();
 		}
 
-#ifdef DAYZ_1_18
-		if (!IsMissionOffline())
-		{
-			if (m_Expansion_IsBeingTowed)
-			{
-				m_Expansion_ParentTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ParentTowNetworkIDLow, m_Expansion_ParentTowNetworkIDHigh));
-			}
-			else
-			{
-				m_Expansion_ParentTow = NULL;
-			}
-
-			if (m_Expansion_IsTowing)
-			{
-				m_Expansion_ChildTow = EntityAI.Cast(GetGame().GetObjectByNetworkId(m_Expansion_ChildTowNetworkIDLow, m_Expansion_ChildTowNetworkIDHigh));
-			}
-			else
-			{
-				m_Expansion_ChildTow = NULL;
-			}
-		}
-#endif
-
 		if (m_CanBeSkinned && m_CurrentSkinSynchRemote != m_CurrentSkinIndex)
 		{
 			m_CurrentSkinIndex = m_CurrentSkinSynchRemote;
@@ -3918,7 +3619,7 @@ modded class CarScript
 		float playerAvoidanceRadius = m_BoundingRadius * 1.5;
 		if (playerAvoidanceRadius <= 0)
 			playerAvoidanceRadius = 150;
-		if (Expansion_EngineIsOn() || !GetCEApi().AvoidPlayer(GetPosition(), playerAvoidanceRadius))
+		if (Expansion_EngineIsOn() || !GetCEApi().AvoidPlayer(GetPosition(), playerAvoidanceRadius) || Expansion_GetVehicleCrew(false).Count())
 		{
 			m_Expansion_VehicleAutoCoverTimestamp = GetGame().GetTickTime();
 			return;
@@ -3942,7 +3643,7 @@ modded class CarScript
 				return;
 			}
 
-			Expansion_CoverVehicle();
+			Expansion_CoverVehicle(cover);
 		}
 	}
 
@@ -4124,11 +3825,6 @@ modded class CarScript
 			}
 		}
 
-#ifdef DAYZ_1_18
-		if (m_Expansion_IsBeingTowed)
-			return;
-#endif
-
 		ExpansionCheckTreeContact(other, data.Impulse);
 
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
@@ -4155,25 +3851,7 @@ modded class CarScript
 			}
 		}
 
-		//! Vanilla contact cache is very inefficient if there are a lot of collisions per frame. Only add one entry per damage zone and add up impulse.
-		//! Only drawback is that we may not have access to all individual colliding entities (only last one), but this data isn't used anywhere (also not in vanilla) anyway.
-		//super.OnContact(zoneName, localPos, other, data);
-		if (GetGame().IsServer())
-		{
-			array<ref CarContactData> ccd;
-			if (!m_ContactCache.Find(zoneName, ccd))
-			{
-				ccd = new array<ref CarContactData>;
-				m_ContactCache.Insert(zoneName, ccd);
-				ccd.Insert(new CarContactData(localPos, other, data.Impulse));
-			}
-			else
-			{
-				ccd[0].localPos = localPos;
-				ccd[0].other = other;
-				ccd[0].impulse += data.Impulse;
-			}
-		}
+		super.OnContact(zoneName, localPos, other, data);
 	}
 
 	void ExpansionCheckTreeContact(IEntity other, float impulse)
@@ -4209,30 +3887,12 @@ modded class CarScript
 
 		foreach (string zoneName, array<ref CarContactData> data: m_ContactCache)
 		{
-			float dmg;
-
-			int contactCount = data.Count();
-			if (IsInherited(ExpansionHelicopterScript))
-			{
-				//! Use highest damage
-				float contactDmg;
-				for (int j = 0; j < contactCount; ++j)
-				{
-					contactDmg = data[j].impulse * m_dmgContactCoef;
-					if (contactDmg > dmg)
-						dmg = contactDmg;
-				}
-			}
-			else
-			{
-				//! Vanilla needlessly iterates over all contact data entries but ends up using only the last one anyway.
-				//! Do this properly.
-				int lastContactIdx = contactCount - 1;
-				dmg = data[lastContactIdx].impulse * m_dmgContactCoef;
-			}
+			float dmg = Math.AbsInt(data[0].impulse * m_dmgContactCoef);
 
 			if (dmg < GameConstants.CARS_CONTACT_DMG_MIN)
 				continue;
+
+			float crewDmgBase = Math.AbsInt((data[0].impulse / dBodyGetMass(this)) * 1000 * m_dmgContactCoef);// calculates damage as if the object's weight was 1000kg instead of its actual weight
 
 			int pddfFlags;
 
@@ -4243,19 +3903,17 @@ modded class CarScript
 			}
 			else
 			{
-				float crewDmg = dmg * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;
+				float crewDmg = crewDmgBase * GetExpansionSettings().GetVehicle().VehicleCrewDamageMultiplier;
 				if (crewDmg > 0)
 					DamageCrew(crewDmg);
 				SynchCrashHeavySound(true);
 				pddfFlags = 0;
 			}
 
-#ifndef DAYZ_1_18
 			//! 1.19
 			#ifdef DEVELOPER
 			m_DebugContactDamageMessage += string.Format("%1: %2\n", zoneName, dmg);
 			#endif
-#endif
 
 			//! This in turn invokes EEHitBy which deals with exploding the heli if its health reaches 0
 			if (CanBeDamaged())
@@ -4276,12 +3934,6 @@ modded class CarScript
 
 	override float GetBatteryConsumption()
 	{
-#ifdef DAYZ_1_18
-		//! Should prevent towed cars to consume the battery
-		if (Expansion_IsBeingTowed())
-			return 0;
-#endif
-
 		return m_BatteryConsume;
 	}
 

@@ -125,7 +125,7 @@ modded class CarScript
 			return !GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone;
 		}
 
-		return true;
+		return GetAllowDamage();
 	}
 
 	// ------------------------------------------------------------
@@ -135,12 +135,9 @@ modded class CarScript
 	{
 		if (type != ExpansionZoneType.SAFE) return;
 
-		EXPrint(ToString() + "::OnEnterZone " + GetPosition());
+		EXTrace.Print(EXTrace.VEHICLES, this, "::OnEnterZone " + GetPosition());
 
 		m_Expansion_IsInSafeZone = true;
-
-		if ( GetExpansionSettings().GetSafeZone().DisableVehicleDamageInSafeZone )
-			SetAllowDamage(false);
 	}
 
 	// ------------------------------------------------------------
@@ -150,12 +147,17 @@ modded class CarScript
 	{
 		if (type != ExpansionZoneType.SAFE) return;
 
-		EXPrint(ToString() + "::OnExitZone " + GetPosition());
+		EXTrace.Print(EXTrace.VEHICLES, this, "::OnExitZone " + GetPosition());
 
 		m_Expansion_IsInSafeZone = false;
+	}
 
-		if ( CanBeDamaged() )
-			SetAllowDamage(true);
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		return CanBeDamaged();
 	}
 
 	bool Expansion_CanObjectAttach(Object obj)

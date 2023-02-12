@@ -1,5 +1,3 @@
-
-#ifndef DAYZ_1_18
 modded class CarScript
 {
 	ref map<int, ref ExpansionTowConnection> m_Expansion_Connections = new map<int, ref ExpansionTowConnection>();
@@ -352,4 +350,3 @@ modded class CarScript
 		//DBGDrawSphere(ModelToWorld(Expansion_GetTowPosition()), Expansion_GetTowLength());
 	}
 };
-#endif

@@ -83,6 +83,9 @@ class ExpansionHelicopterScript extends CarScript
 		AddModule(m_Simulation);
 
 		RegisterNetSyncVariableFloat("m_Simulation.m_RotorSpeed");
+		
+		m_CarDoorOpenSound 		= "offroad_door_open_SoundSet";
+		m_CarDoorCloseSound 	= "offroad_door_close_SoundSet";
 	}
 
 	override void AfterStoreLoad()
@@ -183,11 +186,6 @@ class ExpansionHelicopterScript extends CarScript
 
 		if (!m_IsInitialized)
 			return;
-
-#ifdef DAYZ_1_18
-		if (m_Expansion_IsBeingTowed)
-			return;
-#endif
 
 		bool resetImpulse = GetGame().IsServer() && !IsDamageDestroyed();
 
@@ -554,9 +552,17 @@ class ExpansionHelicopterScript extends CarScript
 				vector modelBottomPos = ModelToWorld(Vector(0, -GetModelZeroPointDistanceFromGround(), 0));
 				f *= ExpansionMath.LinearConversion(0, 0.5, modelBottomPos[1] - m_Expansion_IsLandedHitPos[1], 0, 1, true);
 			}
-			SetVelocity(this, GetVelocity(this) * m_Simulation.m_RotorSpeed);
-			dBodySetAngularVelocity(this, dBodyGetAngularVelocity(this) * f);
+			//SetVelocity(this, GetVelocity(this) * m_Simulation.m_RotorSpeed);
+			vector angularVelocity = dBodyGetAngularVelocity(this);
+			angularVelocity[0] = angularVelocity[0] * f;
+			angularVelocity[2] = angularVelocity[2] * f;
+			dBodySetAngularVelocity(this, angularVelocity);
 		}
+	}
+
+	override bool Expansion_EngineIsSpinning()
+	{
+		return m_Simulation.m_RotorSpeed > 0;
 	}
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)
@@ -588,6 +594,21 @@ class ExpansionHelicopterScript extends CarScript
 		}
 
 		return oldValue;
+	}
+
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		if (animSource.Contains("door_") || animSource.Contains("doors"))
+		{
+			if (phase == 0)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorOpenSound, GetPosition());
+			}
+			else if (phase == 1)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorCloseSound, GetPosition());
+			}
+		}
 	}
 
 	override void SetActions()

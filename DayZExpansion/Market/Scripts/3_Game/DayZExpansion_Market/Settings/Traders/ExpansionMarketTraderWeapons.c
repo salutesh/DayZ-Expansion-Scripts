@@ -62,5 +62,8 @@ class ExpansionMarketTraderWeapons: ExpansionMarketTrader
 		// WEAPON LIGHTS
 		AddItem("UniversalLight", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
 		AddItem("TLRLight", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+	#ifdef EXPANSIONMODWEAPONS	
+		AddItem("Expansion_Ammo_Taser", ExpansionMarketTraderBuySell.CanBuyAndSellAsAttachmentOnly);
+	#endif
 	}
 };

@@ -52,8 +52,7 @@ class ExpansionActionRepairVehicleBase: ExpansionActionToolBase
 	}
 }
 
-[RegisterAction(ExpansionActionRepairHelicopter)]
-class ExpansionActionRepairHelicopter: ExpansionActionRepairVehicleBase
+class ExpansionActionRepairVehicle: ExpansionActionRepairVehicleBase
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
@@ -62,9 +61,20 @@ class ExpansionActionRepairHelicopter: ExpansionActionRepairVehicleBase
 
 		CarScript vehicle = CarScript.Cast( target.GetParentOrObject() );
 
-		if ((!vehicle.IsHelicopter() && !vehicle.IsBoat()) || vehicle.IsDamageDestroyed())
+		if (!vehicle || (!vehicle.IsHelicopter() && !vehicle.IsBoat()) || vehicle.IsDamageDestroyed())
+			return false;
+
+		if (vehicle.Expansion_EngineIsOn())
 			return false;
 
 		return vehicle.GetHealthLevel() != GameConstants.STATE_PRISTINE || vehicle.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE;
+	}
+}
+
+class ExpansionActionRepairHelicopter: ExpansionActionRepairVehicle
+{
+	void ExpansionActionRepairHelicopter()
+	{
+		Error("DEPRECATED, please use ExpansionActionRepairVehicle");
 	}
 }

@@ -23,8 +23,7 @@ modded class ExpansionActionOpenTraderMenu
 		{
 			int minRep = m_TraderObject.GetTraderMarket().MinRequiredReputation;
 			int maxRep = m_TraderObject.GetTraderMarket().MaxRequiredReputation;
-			int reputation = player.GetReputation();
-			if (!Math.IsInRangeInt(player.GetReputation(), minRep, maxRep))
+			if (!Math.IsInRangeInt(player.Expansion_GetReputation(), minRep, maxRep))
 			{
 				if (player.GetIdentity())
 				{

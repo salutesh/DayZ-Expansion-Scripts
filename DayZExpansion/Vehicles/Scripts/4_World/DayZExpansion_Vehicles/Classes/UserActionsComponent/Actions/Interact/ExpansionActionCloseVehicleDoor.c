@@ -1,4 +1,3 @@
-[RegisterAction(ExpansionActionCloseVehicleDoor)]
 class ExpansionActionCloseVehicleDoor: ActionInteractBase
 {
 	string m_AnimSource = "";

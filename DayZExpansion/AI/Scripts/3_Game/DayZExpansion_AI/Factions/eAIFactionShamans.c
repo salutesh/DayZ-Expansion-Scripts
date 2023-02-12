@@ -1,3 +1,4 @@
+[eAIRegisterFaction(eAIFactionShamans)]
 class eAIFactionShamans : eAIFaction
 {
 	void eAIFactionShamans()

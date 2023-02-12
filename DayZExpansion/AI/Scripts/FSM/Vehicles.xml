@@ -5,7 +5,7 @@
 		<variable name="entity" type="EntityAI" />
 		<variable name="seat" type="int" />
 	</variables>
-	<states default="GoTo">
+	<states default="GoToVehicle">
 		<state name="GoToVehicle" class="ExpansionState_GoToVehicle">
 			<editor_data>
 				<position x="1149.9818389093" y="451.533421790161" />
@@ -15,7 +15,7 @@
 				entity = fsm.entity;
 				seat = fsm.seat;
 
-				super.OnEntry(Event, From);
+				super.OnEntry(Event, null);
 			</event_entry>
 		</state>
 		<state name="GetInVehicle" class="ExpansionState_GetInVehicle">
@@ -64,8 +64,6 @@
 			</editor_data>
 			<guard>
 				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
-
-				if (!dst.PerformTest(src.entity, src.seat)) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -80,6 +78,8 @@
 			</editor_data>
 			<guard>
 				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
+				if (unit.IsInTransport()) return FAIL;
+				if (src.entity.IsKindOf("ExpansionBus")) return FAIL;  //! Hard block bus until seating CTD is fixed
 				
 				return SUCCESS;
 			</guard>
@@ -105,6 +105,8 @@
 				<position_destination x="1313.68971690692" y="781.144645880103" />
 			</editor_data>
 			<guard>
+				if (!unit.IsInTransport()) return FAIL;
+				
 				return SUCCESS;
 			</guard>
 			<event />
@@ -123,7 +125,7 @@
 				auto leader = group.GetLeader();
 				if (!leader || leader == unit) return SUCCESS;
 				
-				if (group.GetFormationState() == eAIGroupFormationState.IN &amp;&amp; leader.IsInTransport()) return FAIL;
+				if (group.GetFormationState() != eAIGroupFormationState.IN || leader.GetParent() == unit.GetParent()) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -137,6 +139,8 @@
 				<position_destination x="1310.98813306457" y="939.143311463732" />
 			</editor_data>
 			<guard>
+				if (!unit.IsInTransport()) return FAIL;
+				
 				return SUCCESS;
 			</guard>
 			<event />
@@ -161,6 +165,8 @@
 				<position_destination x="1305.61352816716" y="1108.33240728083" />
 			</editor_data>
 			<guard>
+				if (unit.IsInTransport()) return FAIL;
+				
 				return SUCCESS;
 			</guard>
 			<event />

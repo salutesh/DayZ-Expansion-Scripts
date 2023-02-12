@@ -50,20 +50,20 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool KillFeedCarHitNoDriver;
 	bool KillFeedCarCrash;
 	bool KillFeedCarCrashCrew;
-#ifdef EXPANSIONMODVEHICLE
-	bool KillFeedHeliHitDriver;
-	bool KillFeedHeliHitNoDriver;
-	bool KillFeedHeliCrash;
-	bool KillFeedHeliCrashCrew;
-	bool KillFeedBoatHitDriver;
-	bool KillFeedBoatHitNoDriver;
-	bool KillFeedBoatCrash;
-	bool KillFeedBoatCrashCrew;
-	/*bool KillFeedPlaneHitDriver;
-	bool KillFeedPlaneHitNoDriver;
-	bool KillFeedBikeHitDriver;
-	bool KillFeedBikeHitNoDriver;*/
-#endif
+	#ifdef EXPANSIONMODVEHICLE
+		bool KillFeedHeliHitDriver;
+		bool KillFeedHeliHitNoDriver;
+		bool KillFeedHeliCrash;
+		bool KillFeedHeliCrashCrew;
+		bool KillFeedBoatHitDriver;
+		bool KillFeedBoatHitNoDriver;
+		bool KillFeedBoatCrash;
+		bool KillFeedBoatCrashCrew;
+		/*bool KillFeedPlaneHitDriver;
+		bool KillFeedPlaneHitNoDriver;
+		bool KillFeedBikeHitDriver;
+		bool KillFeedBikeHitNoDriver;*/
+	#endif
 	bool KillFeedBarbedWire;
 	bool KillFeedFire;
 	bool KillFeedWeaponExplosion;
@@ -79,9 +79,9 @@ class ExpansionNotificationSettingsBase: ExpansionSettingBase
 	bool KillFeedAnimal;
 	bool KillFeedKilledUnknown;
 	bool KillFeedDiedUnknown;
-#ifdef JM_COT
-	bool EnableKillFeedDiscordMsg;
-#endif
+	#ifdef JM_COT
+		bool EnableKillFeedDiscordMsg;
+	#endif
 #endif
 }
 

@@ -12,8 +12,7 @@
 
 
 
-/**@class		ExpansionHardlineSettingsBase
- * @brief		Hardline settings base class
+/**@class		ExpansionHardlineSettingsV5 (legacy)
  **/
 class ExpansionHardlineSettingsV5: ExpansionSettingBase
 {
@@ -96,7 +95,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	void ExpansionHardlineSettings()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "ExpansionHardlineSettings");
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this);
 	#endif
 		
 		ItemRarity = new map<string, ExpansionHardlineItemRarity>;
@@ -106,9 +105,12 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
 		
+		//! @note commented lines below are settings that are not needed on client at the moment
+
+		/*
 		if (!ctx.Read(ReputationOnKillInfected))
 		{
 			Error(ToString() + "::OnRecieve ReputationOnKillInfected");
@@ -186,6 +188,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			Error(ToString() + "::OnRecieve ExoticItemRequirement");
 			return false;
 		}
+		*/
 
 		if (!ctx.Read(ShowHardlineHUD))
 		{
@@ -195,7 +198,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		if (!ctx.Read(UseReputation))
 		{
-			Error(ToString() + "::OnRecieve UseHumanity");
+			Error(ToString() + "::OnRecieve UseReputation");
 			return false;
 		}
 
@@ -205,6 +208,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			return false;
 		}
 
+		/*
 		if (!ctx.Read(UseItemRarityForMarketPurchase))
 		{
 			Error(ToString() + "::OnRecieve UseItemRarityForMarketPurchase");
@@ -216,6 +220,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			Error(ToString() + "::OnRecieve UseItemRarityForMarketSell");
 			return false;
 		}
+		*/
 
 		m_IsLoaded = true;
 
@@ -226,9 +231,12 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	override void OnSend( ParamsWriteContext ctx )
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
 
+		//! @note commented lines below are settings that are not needed on client at the moment
+
+		/*
 		ctx.Write(ReputationOnKillInfected);
 		ctx.Write(ReputationOnKillPlayer);
 		ctx.Write(ReputationOnKillAnimal);
@@ -244,13 +252,17 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		ctx.Write(LegendaryItemRequirement);
 		ctx.Write(MythicItemRequirement);
 		ctx.Write(ExoticItemRequirement);
+		*/
 
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
 		
 		ctx.Write(EnableItemRarity);
+
+		/*
 		ctx.Write(UseItemRarityForMarketPurchase);
 		ctx.Write(UseItemRarityForMarketSell);
+		*/
 	}
 
 	// ------------------------------------------------------------
@@ -274,7 +286,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	private void CopyInternal( ExpansionHardlineSettings s )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(s);
 #endif
 		
 		ReputationOnKillInfected = s.ReputationOnKillInfected;
@@ -319,7 +331,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	override bool OnLoad()
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
+		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this);
 	#endif
 
 		m_IsLoaded = true;
@@ -392,7 +404,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	override void Update( ExpansionSettingBase setting )
 	{
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(setting);
 	#endif
 
 		super.Update( setting );
@@ -881,9 +893,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("NVGoggles", ExpansionHardlineItemRarity.Epic);
 
 		AddItem("AlarmClock_Blue", ExpansionHardlineItemRarity.Uncommon);
-	#ifdef DAYZ_1_17
 		AddItem("KitchenTimer", ExpansionHardlineItemRarity.Uncommon);
-	#endif
 	#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_tool_watch", ExpansionHardlineItemRarity.Uncommon);
 	#endif

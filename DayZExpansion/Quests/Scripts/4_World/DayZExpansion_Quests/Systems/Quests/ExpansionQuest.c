@@ -590,7 +590,7 @@ class ExpansionQuest
 				if (!questPlayer || !questPlayer.GetIdentity())
 					return false;
 
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenu, 1000, false, Config.GetQuestTurnInIDs(), questPlayer.GetIdentity());
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_QuestModule.RequestOpenQuestMenuCB, 1000, false, Config.GetQuestTurnInIDs(), questPlayer.GetIdentity());
 			}
 		}
 
@@ -1059,9 +1059,33 @@ class ExpansionQuest
 		{
 			obj = ExpansionItemSpawnHelper.SpawnVehicle(item.GetClassName(), player, parent, position, orientation, remainingAmount, item.GetAttachments());
 		}
-
+		
+		float dmg = item.GetDamagePercent();
+		
+		Print(ToString() + "::Spawn - Set object damage %: " + dmg);
+		
+		EntityAI objEntity;
+		if (Class.CastTo(objEntity, obj))
+			ProcessHealth01(objEntity, 1 - dmg / 100);
+		
 		return obj;
 	}
+	
+	protected void ProcessHealth01(EntityAI parent, float health01)
+	{
+		parent.SetHealth("", "Health", parent.GetMaxHealth("", "Health") * health01);
+		
+		array<EntityAI> items = new array<EntityAI>;
+		parent.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);		
+		foreach (EntityAI item: items)
+		{
+			if (item.IsInherited(SurvivorBase))
+				continue;
+
+			item.SetHealth("", "Health", item.GetMaxHealth("", "Health") * health01);
+		}
+	}
+
 
 	// -----------------------------------------------------------
 	// ExpansionQuest GetObjectives
@@ -1218,14 +1242,13 @@ class ExpansionQuest
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);
 	#endif
 
-	#ifdef EXPANSIONMODHARDLINE
-		int humanity;
-		ExpansionHardlineModule hardlineModule;
-		ExpansionHardlinePlayerData hardlinePlayerData;
+	//! If group mod is not loaded but the quest is flaged as a group quest make it a normal one.
+	#ifndef EXPANSIONMODGROUPS
+		if (m_IsGroupQuest)
+			m_IsGroupQuest = false;
 	#endif
 
-		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
-
+		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);		
 		if (!m_IsGroupQuest)
 		{
 			EntityAI playerEntity = questPlayer;
@@ -1253,16 +1276,9 @@ class ExpansionQuest
 		#ifdef EXPANSIONMODHARDLINE
 			if (GetExpansionSettings().GetHardline().UseReputation && Config.GetReputationReward() != 0)
 			{
-				hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-				if (hardlineModule)
+				if (questPlayer)
 				{
-					hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(questPlayer.GetIdentity().GetId());
-					if (hardlinePlayerData)
-					{
-						hardlinePlayerData.AddReputation(Config.GetReputationReward());
-						hardlinePlayerData.Save(questPlayer.GetIdentity().GetId());
-						hardlineModule.SendPlayerHardlineData(hardlinePlayerData, questPlayer.GetIdentity());
-					}
+					questPlayer.Expansion_AddReputation(Config.GetReputationReward());
 				}
 			}
 		#endif
@@ -1279,20 +1295,18 @@ class ExpansionQuest
 			if (groupOwner)
 				isGroupOwnerOnline = true;
 
+			if (Config.RewardsForGroupOwnerOnly() && !isGroupOwnerOnline)
+				return;
+			
 			array<ref ExpansionPartyPlayerData> groupPlayers = GetGroup().GetPlayers();
 			foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
 			{
 				if (Config.RewardsForGroupOwnerOnly())
 				{
 					QuestDebugPrint(ToString() + "::SpawnQuestRewards - Quest rewards for quest " + GetQuestConfig().GetID() + " are for the quest owner only.");
-					if (isGroupOwnerOnline && playerGroupData.GetID() != GetGroup().GetOwnerUID())
+					if (playerGroupData.GetID() != GetGroup().GetOwnerUID())
 					{
-						QuestDebugPrint(ToString() + "::SpawnQuestRewards - Owner is online but player [UID: " + playerGroupData.GetID() + "] is not the group owner. Skip!");
-						continue;
-					}
-					else if (!isGroupOwnerOnline && playerGroupData.GetID() != playerUID)
-					{
-						QuestDebugPrint(ToString() + "::SpawnQuestRewards - Owner is not online and player [UID: " + playerGroupData.GetID() + "] is not the player who has turned-in the quest. Skip!");
+						QuestDebugPrint(ToString() + "::SpawnQuestRewards - Player [UID: " + playerGroupData.GetID() + "] is not the group owner. Skip!");
 						continue;
 					}
 				}
@@ -1301,7 +1315,7 @@ class ExpansionQuest
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
 				if (!groupPlayer)
 				{
-					Error(ToString() + "::SpawnQuestRewards - Could not get player with UID: " + playerGroupData.GetID());
+					QuestDebugPrint(ToString() + "::SpawnQuestRewards - Could not get player with UID: " + playerGroupData.GetID() + ". Not online?!");
 					continue;
 				}
 
@@ -1311,7 +1325,7 @@ class ExpansionQuest
 					QuestDebugPrint(ToString() + "::SpawnQuestRewards - Spawn selected reward: " + reward.ToString());
 					SpawnReward(reward, groupPlayer, groupPlayerEntity, groupPlayer.GetPosition(), m_Player.GetOrientation());
 				}
-				else
+				else if (!Config.NeedToSelectReward)
 				{
 					//! Add all quest rewards to the players inventory
 					array<ref ExpansionQuestRewardConfig> groupQuestRewards = Config.GetRewards();
@@ -1324,16 +1338,9 @@ class ExpansionQuest
 			#ifdef EXPANSIONMODHARDLINE
 				if (GetExpansionSettings().GetHardline().UseReputation && Config.GetReputationReward() != 0)
 				{
-					hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-					if (hardlineModule)
+					if (groupPlayer)
 					{
-						hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(groupPlayer.GetIdentity().GetId());
-						if (hardlinePlayerData)
-						{
-							hardlinePlayerData.AddReputation(Config.GetReputationReward());
-							hardlinePlayerData.Save(groupPlayer.GetIdentity().GetId());
-							hardlineModule.SendPlayerHardlineData(hardlinePlayerData, groupPlayer.GetIdentity());
-						}
+						groupPlayer.Expansion_AddReputation(Config.GetReputationReward());
 					}
 				}
 			#endif

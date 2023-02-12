@@ -14,7 +14,9 @@ modded class DayZPlayerImplementJumpClimb
 {
 	bool Expansion_Climb()
 	{
+#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(EXTrace.PLAYER, this).Add(m_Player);
+#endif
 
 		if (m_Player.m_ExClimbResult.m_bIsClimb || m_Player.m_ExClimbResult.m_bIsClimbOver)
 		{
@@ -22,7 +24,11 @@ modded class DayZPlayerImplementJumpClimb
 
 			if (climbType != -1 && m_Player.CanClimb(climbType, m_Player.m_ExClimbResult))
 			{
-				m_Player.OnClimbStart(climbType);
+			#ifndef DAYZ_1_19
+				//! 1.20+
+				m_Player.Expansion_OnClimbStart(climbType);
+			#endif
+				m_Player.StartCommand_Climb(m_Player.m_ExClimbResult, climbType);
 				m_Player.StopHandEvent();
 
 				if (climbType == 1)
@@ -37,9 +43,13 @@ modded class DayZPlayerImplementJumpClimb
 		return false;
 	}
 
+#ifndef DAYZ_1_19
+	//! 1.20+
 	override void JumpOrClimb()
 	{
+#ifdef DIAG
 		auto trace = CF_Trace_1(EXTrace.PLAYER, this).Add(m_Player);
+#endif
 
 		SHumanCommandClimbSettings hcls = m_Player.GetDayZPlayerType().CommandClimbSettingsW();
 
@@ -57,7 +67,7 @@ modded class DayZPlayerImplementJumpClimb
 			{
 				if (climbType != -1 && m_Player.CanClimb(climbType, m_Player.m_ExClimbResult))
 				{
-					m_Player.OnClimbStart(climbType);
+					m_Player.Expansion_OnClimbStart(climbType);
 					m_Player.StopHandEvent();
 
 					if (climbType == 1)
@@ -72,4 +82,5 @@ modded class DayZPlayerImplementJumpClimb
 
 		super.JumpOrClimb();
 	}
+#endif
 };

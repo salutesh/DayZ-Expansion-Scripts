@@ -18,7 +18,6 @@ class ExpansionActionConvertFloorCB : ActionContinuousBaseCB
 	}
 };
 
-[RegisterAction(ExpansionActionConvertFloor)]
 class ExpansionActionConvertFloor : ActionContinuousBase
 {
 	//! Set and use this on client only!

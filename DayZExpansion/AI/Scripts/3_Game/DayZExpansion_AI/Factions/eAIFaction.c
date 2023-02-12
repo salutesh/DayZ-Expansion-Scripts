@@ -4,6 +4,24 @@ class eAIFaction
 	protected string m_Loadout = "HumanLoadout";
 	protected bool m_IsGuard;
 
+	void eAIFaction()
+	{
+		typename type = Type();
+		if (eAIRegisterFaction.s_FactionTypes.Find(type) == -1)
+			Error("Faction type " + type + " is not registered! Please prepend [eAIRegisterFaction(" + type + ")]");
+	}
+
+	int GetTypeID()
+	{
+		typename type = Type();
+		return eAIRegisterFaction.s_FactionTypes.Find(type);
+	}
+
+	static typename GetTypeByID(int typeID)
+	{
+		return eAIRegisterFaction.s_FactionTypes[typeID];
+	}
+
 	string GetName()
 	{
 		return m_Name;

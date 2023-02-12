@@ -16,7 +16,6 @@ class CfgVehicles
 	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
-	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
@@ -648,18 +647,6 @@ class CfgVehicles
 	class Truck_01_Hood: CarDoor
 	{
 		defaultSkin = "Green";
-	};
-	class Expansion_Truck_01_Door_1_1: ExpansionCarDoorFix
-	{
-		newBase = "Truck_01_Door_1_1";
-	};
-	class Expansion_Truck_01_Door_2_1: ExpansionCarDoorFix
-	{
-		newBase = "Truck_01_Door_2_1";
-	};
-	class Expansion_Truck_01_Hood: ExpansionCarDoorFix
-	{
-		newBase = "Truck_01_Hood";
 	};
 	class Truck_01_Covered_Green: Truck_01_Covered
 	{

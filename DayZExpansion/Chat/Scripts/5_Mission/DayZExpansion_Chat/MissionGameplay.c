@@ -76,10 +76,6 @@ modded class MissionGameplay
 		GetUApi().GetInputByName("UAPersonView").ForceDisable(true);
 		GetGame().GetUIManager().ShowUICursor(true);
 
-		//! Not sure why this is here?!
-		if (g_Game.GetProfileOption(EDayZProfilesOptions.PLAYER_MESSAGES))
-			return;
-
 		//! If we are no longer in a vehicle and last used channel was transport, switch to direct
 		if (m_ChatChannel == ExpansionChatChannels.CCTransport)
 		{

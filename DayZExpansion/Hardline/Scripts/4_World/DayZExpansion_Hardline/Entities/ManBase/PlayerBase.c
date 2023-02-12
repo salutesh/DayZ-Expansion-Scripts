@@ -12,27 +12,68 @@
 
 modded class PlayerBase
 {
-	private int m_Reputation;
-	
-	void SetReputation(int reputation)
+	private int m_Expansion_Reputation;
+	ref ExpansionHardlinePlayerData m_Expansion_HardlineData;
+
+	override void Init()
 	{
-		m_Reputation = reputation;
+		super.Init();
+
+		m_Expansion_Reputation = -1;
+
+		if (GetGame().IsServer())
+			m_Expansion_HardlineData = new ExpansionHardlinePlayerData();
+
+		RegisterNetSyncVariableInt("m_Expansion_Reputation");
 	}
-	
-	int GetReputation()
+
+	//! Only to be called on server!
+	void Expansion_SaveHardlineData()
 	{
-		return m_Reputation;
+		if (GetIdentity() && m_Expansion_HardlineData.Reputation != m_Expansion_Reputation)
+		{
+			m_Expansion_HardlineData.Reputation = m_Expansion_Reputation;
+			m_Expansion_HardlineData.Save(GetIdentity().GetId());
+		}
 	}
-	
-   // ------------------------------------------------------------
-	// Override EEKilled
-	// ------------------------------------------------------------
+
+	//! Only to be called on server!
+	void Expansion_SetReputation(int rep)
+	{
+		if (rep < 0)
+			rep = 0;
+		m_Expansion_Reputation = rep;
+		SetSynchDirty();
+		Expansion_SaveHardlineData();
+	}
+
+	//! Only to be called on server!
+	void Expansion_AddReputation(int rep)
+	{
+		m_Expansion_Reputation += rep;
+		if (m_Expansion_Reputation < 0)
+			m_Expansion_Reputation = 0;
+		SetSynchDirty();
+		Expansion_SaveHardlineData();
+	}
+
+	//! Only to be called on server!
+	void Expansion_DecreaseReputation(int rep)
+	{
+		Expansion_AddReputation(-rep);
+	}
+
+	int Expansion_GetReputation()
+	{
+		return m_Expansion_Reputation;
+	}
+
 	override void EEKilled(Object killer)
 	{
-		if  (GetExpansionSettings().GetHardline().UseReputation)
-		{	
-			ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-			if (hardlineModule)
+		if (GetExpansionSettings().GetHardline().UseReputation)
+		{
+			ExpansionHardlineModule hardlineModule;
+			if (CF_Modules<ExpansionHardlineModule>.Get(hardlineModule))
 			{
 				hardlineModule.OnEntityKilled(this, killer);
 			}
@@ -40,4 +81,23 @@ modded class PlayerBase
 
 		super.EEKilled(killer);
 	}
+
+#ifdef EXPANSION_MODSTORAGE
+	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
+	{
+		if (!super.CF_OnStoreLoad(storage))
+			return false;
+
+		auto ctx = storage[DZ_Expansion_Hardline];
+		if (!ctx) return true;
+
+		if (ctx.GetVersion() < 47 || ctx.GetVersion() >= 48)
+			return true;
+
+		if (!ctx.Read(m_Expansion_Reputation))
+			return false;
+
+		return true;
+	}
+#endif
 };

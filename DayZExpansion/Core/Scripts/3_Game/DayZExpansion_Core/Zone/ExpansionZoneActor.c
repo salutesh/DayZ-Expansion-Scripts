@@ -157,7 +157,13 @@ class ExpansionZoneActor
 
 	bool InZone()
 	{
-		return m_Inside;
+		for (int i = 0; i < COUNT; i++)
+		{
+			if (m_Inside[i])
+				return true;
+		}
+
+		return false;
 	}
 };
 
@@ -183,11 +189,6 @@ class ExpansionZoneActorT<Class T> : ExpansionZoneActor
 	override vector GetPosition()
 	{
 		return m_Instance.GetPosition();
-	}
-
-	override bool InZone()
-	{
-		return m_Instance.Expansion_IsInSafeZone();
 	}
 };
 

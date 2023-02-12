@@ -20,6 +20,8 @@ modded class MissionGameplay
 	protected float m_Expansion_NVUpdateTick;
 	//! Modules
 	protected ref ExpansionAutorunModule m_AutoRunModule;
+	
+	private autoptr TStringArray m_ExpansionAutoRunIgnoreInputs = {"menu","inventory","map","loopedactions"};
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -46,11 +48,11 @@ modded class MissionGameplay
 
 		if (focusedWidget)
 		{
-			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
+			if (focusedWidget.IsInherited(EditBoxWidget))
 			{
 				inputIsFocused = true;
 			}
-			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
+			else if (focusedWidget.IsInherited(MultilineEditBoxWidget))
 			{
 				inputIsFocused = true;
 			}
@@ -61,7 +63,6 @@ modded class MissionGameplay
 		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
-		ExpansionPlayerListMenu playerListMenu = ExpansionPlayerListMenu.Cast(viewMenu);
 
 		if (playerPB)
 		{
@@ -103,7 +104,7 @@ modded class MissionGameplay
 						m_AutoRunModule.UpdateAutoWalk();
 
 					//! Stop autorun when different inputs are pressed
-					if (!m_AutoRunModule.IsDisabled())
+					if (!m_AutoRunModule.IsDisabled() && !inputIsFocused)
 					{
 						if (ExpansionStatic.INPUT_FORWARD() || ExpansionStatic.INPUT_BACK() || ExpansionStatic.INPUT_LEFT() || ExpansionStatic.INPUT_RIGHT() || ExpansionStatic.INPUT_STANCE())
 							m_AutoRunModule.AutoRun();
@@ -215,6 +216,77 @@ modded class MissionGameplay
 				}
 				break;
 			}
+		}
+	}
+
+	override void AddActiveInputRestriction(int restrictor)
+	{
+		super.AddActiveInputRestriction(restrictor);
+
+		switch (restrictor)
+		{
+			case EInputRestrictors.INVENTORY:
+			case EInputRestrictors.MAP:
+				if (!m_AutoRunModule.IsDisabled())
+				{
+					GetUApi().GetInputByID(UAWalkRunForced).ForceEnable(false);
+					RemoveActiveInputRestriction(restrictor);
+				}
+				break;
+		}
+	}
+	
+	override void AddActiveInputExcludes(array<string> excludes)
+	{
+		super.AddActiveInputExcludes(excludes);
+		
+		if (m_AutoRunModule.IsDisabled())
+			return;
+
+		if (excludes.Count() != 0)
+		{
+			bool changed = false;
+			
+			for (int i = 0; i < excludes.Count(); i++)
+			{
+				if (m_ExpansionAutoRunIgnoreInputs.Find(excludes[i]) != -1)
+				{
+					RemoveActiveInputExcludes({excludes[i]},true);
+					AddActiveInputExcludes({"expansionexclude"+excludes[i]});
+					changed = true;
+				}
+			}
+			
+			if (changed)
+				RefreshExcludes();
+		}
+	}
+
+	override void RemoveActiveInputExcludes(array<string> excludes, bool bForceSupress = false)
+	{
+		super.RemoveActiveInputExcludes(excludes,bForceSupress);
+		
+		if (excludes.Count() != 0)
+		{
+			bool changed = false;
+			
+			if (m_ActiveInputExcludeGroups)
+			{
+				for (int i = 0; i < excludes.Count(); i++)
+				{
+					if (m_ActiveInputExcludeGroups.Find("expansionexclude"+excludes[i]) != -1)
+					{
+						m_ActiveInputExcludeGroups.RemoveItem("expansionexclude"+excludes[i]);
+						changed = true;
+					}
+				}
+				
+				if (changed)
+					RefreshExcludes();
+			}
+			
+			// supress control for next frame
+			GetUApi().SupressNextFrame(bForceSupress);
 		}
 	}
 };

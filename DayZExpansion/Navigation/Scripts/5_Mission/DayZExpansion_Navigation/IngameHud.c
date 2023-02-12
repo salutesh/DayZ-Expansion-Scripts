@@ -497,4 +497,9 @@ modded class IngameHud
 	{
 		m_HasGPSItem = state;
 	}
+
+	override bool Expansion_GetHudState()
+	{
+		return GetHudState();
+	};
 };

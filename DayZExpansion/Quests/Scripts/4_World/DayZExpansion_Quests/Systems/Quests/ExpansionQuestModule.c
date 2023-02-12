@@ -28,7 +28,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 #endif
 	protected ref array<ref ExpansionQuest> m_ActiveQuests; //! Server
 	protected ref map<int, ref ExpansionQuestNPCData> m_QuestsNPCs; //! Server
-	protected ref map<int, ref ExpansionQuestConfig> m_QuestConfigs;	//! Server
+	protected ref map<int, ref ExpansionQuestConfig> m_QuestConfigs; //! Server
 
 	protected ref map<int, ExpansionQuestNPCBase> m_QuestNPCEntities; //! Server
 #ifdef EXPANSIONMODAI
@@ -1059,10 +1059,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 
 	// ------------------------------------------------------------
-	// ExpansionQuestModule RequestOpenQuestMenu
+	// ExpansionQuestModule RequestOpenQuestMenuCB
 	// Called on server
 	// ------------------------------------------------------------
-	void RequestOpenQuestMenu(array<int> questNPCIDs, PlayerIdentity identity)
+	void RequestOpenQuestMenuCB(array<int> questNPCIDs, PlayerIdentity identity)
 	{
 		PlayerBase player = PlayerBase.GetPlayerByUID(identity.GetId());
 		if (!player)
@@ -1172,11 +1172,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			EmoteManager npcEmoteManager = npcAI.GetEmoteManager();
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
-				if (validQuests.Count() > 0)
-					npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_GREETING);
-				else if (validQuests.Count() == 0)
-					npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_SHRUG);
-
+				npcEmoteManager.PlayEmote(questNPCData.NPCInteractionEmoteID);
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 		}
@@ -1489,7 +1485,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			EmoteManager npcEmoteManager = npc.GetEmoteManager();
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
-				npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_NOD);
+				npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestStartEmoteID);
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
 			}
 		}
@@ -1925,12 +1921,25 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		#endif
 
+		#ifdef EXPANSIONMODAI
+			ExpansionQuestNPCAIBase npc = GetClosestQuestAINPC(quest.GetQuestConfig().GetQuestTurnInIDs(), quest.GetPlayer().GetPosition());
+			if (npc)
+			{
+				EmoteManager npcEmoteManager = npc.GetEmoteManager();
+				if (!npcEmoteManager.IsEmotePlaying())
+				{
+					npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestCancelEmoteID);
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+				}
+			}
+		#endif
+
 			if (!quest.OnQuestCancel())
 				QuestModulePrint(ToString() + "::CancelQuestServer - Quest cancel evet failed for quest with quest id: " + questID);
 
 			m_ActiveQuests.RemoveOrdered(i);
 		}
-
+		
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CancelQuestServer - Player with UID " + identity.GetId() + " has cancelled quest " + questID);
 		QuestModulePrint(ToString() + "::CancelQuestServer - End");
 	}
@@ -2884,22 +2893,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODHARDLINE
 		if (GetExpansionSettings().GetHardline().UseReputation && questConfig.GetReputationRequirement() > 0)
 		{
-			ExpansionHardlineModule hardlineModule;
-			if (Class.CastTo(hardlineModule, CF_ModuleCoreManager.Get(ExpansionHardlineModule)))
+			PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+			if (player)
 			{
-				ExpansionHardlinePlayerData hardlinePlayerData;
-				if (IsMissionHost()) hardlinePlayerData = hardlineModule.GetPlayerHardlineDataByUID(playerUID);
-				else if (IsMissionClient()) hardlinePlayerData = hardlineModule.GetHardlineClientData();
-
-				if (hardlinePlayerData)
+				int reputation = player.Expansion_GetReputation();
+				QuestModulePrint(ToString() + "::QuestConditionsCheck - Reputation for Player [UID: " + playerUID + "]: " + reputation);
+				if (reputation < questConfig.GetReputationRequirement())
 				{
-					int reputation = hardlinePlayerData.GetReputation();
-					QuestModulePrint(ToString() + "::QuestConditionsCheck - Reputation for Player [UID: " + playerUID + "]: " + reputation);
-					if (reputation < questConfig.GetReputationRequirement())
-					{
-						QuestModulePrint(ToString() + "::QuestConditionsCheck - Player has not enough reputation to start this quest! Player [UID: " + playerUID + "] is not a bandit!");
-						return false;
-					}
+					QuestModulePrint(ToString() + "::QuestConditionsCheck - Player has not enough reputation to start this quest! Player [UID: " + playerUID + "] is not a bandit!");
+					return false;
 				}
 			}
 		}
@@ -3098,13 +3100,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		foreach (ExpansionQuest quest: m_ActiveQuests)
 		{
-			bool isPlayerQuest;
 			//! Get quest from active quest instances
-			if (quest.GetQuestConfig().GetID() == questID)
+			if (quest && quest.GetQuestConfig().GetID() == questID)
 			{
-				if (!quest.IsGroupQuest() && quest.GetPlayerUID() == playerUID)
+				if (!quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
 				{
-					isPlayerQuest = true;
+					continue;
 				}
 			#ifdef EXPANSIONMODGROUPS
 				else if (quest.IsGroupQuest())
@@ -3112,13 +3113,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 					ExpansionPartyData group = quest.GetGroup();
 					if (!group || !group.IsMember(playerUID))
 						continue;
+					
+					if (group.GetOwnerUID() != quest.GetPlayerUID())
+						continue;
 
 					auto settings = GetExpansionSettings().GetQuest();
-					if (settings.GroupQuestMode <= 1 && group.GetOwnerUID() == playerUID || group.IsMember(playerUID))
-					{
-						isPlayerQuest = true;
-					}
-					else
+					if (settings.GroupQuestMode <= 1 && group.GetOwnerUID() != playerUID)
 					{
 						ExpansionNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestNotGroupOwnerTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestNotGroupOwnerText), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 						return;
@@ -3126,8 +3126,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 			#endif
 
-
-				if (isPlayerQuest && quest.CanCompleteQuest())
+				if (quest.CanCompleteQuest())
 					CompleteQuest(quest, playerUID, identity, isAutoComplete, reward);
 			}
 		}
@@ -3191,23 +3190,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODNAVIGATION
 		RemoveClientMarkers(quest.GetQuestConfig().GetID(), identity);
 	#endif
+		
+	#ifdef EXPANSIONMODAI
+		ExpansionQuestNPCAIBase npc = GetClosestQuestAINPC(quest.GetQuestConfig().GetQuestTurnInIDs(), quest.GetPlayer().GetPosition());
+		if (npc)
+		{
+			EmoteManager npcEmoteManager = npc.GetEmoteManager();
+			if (!npcEmoteManager.IsEmotePlaying())
+			{
+				npcEmoteManager.PlayEmote(npc.GetQuestNPCData().NPCQuestCompleteEmoteID);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
+			}
+		}
+	#endif
 
 		if (!isAutoComplete)
-		{
-		#ifdef EXPANSIONMODAI
-			ExpansionQuestNPCAIBase npc = GetClosestQuestAINPC(quest.GetQuestConfig().GetQuestTurnInIDs(), quest.GetPlayer().GetPosition());
-			if (npc)
-			{
-				EmoteManager npcEmoteManager = npc.GetEmoteManager();
-				if (!npcEmoteManager.IsEmotePlaying())
-				{
-					npcEmoteManager.PlayEmote(EmoteConstants.ID_EMOTE_CLAP);
-					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(npcEmoteManager.ServerRequestEmoteCancel, 2000);
-				}
-			}
-		#endif
-		}
-		else
 		{
 			//! Add the following quest regardless when the pre-quest was a auto-complete quest
 			int followUpQuest = quest.GetQuestConfig().FollowUpQuest;
@@ -3220,6 +3217,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 			}
 		}
+		
+		quest.OnQuestCleanup();
+		RemoveActiveQuest(quest);
 
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CompleteQuest - Player with UID " + identity.GetId() + " has completed quest " + quest.GetQuestConfig().GetID());
 		QuestModulePrint(ToString() + "::CompleteQuest - End");
@@ -3849,15 +3849,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#endif
 
 		string playerUID = killerPlayer.GetIdentity().GetId();
-
 		foreach (ExpansionQuest quest: m_ActiveQuests)
 		{
+			if (!quest)
+				continue;
+				
 			if (!quest.IsGroupQuest() && quest.GetPlayerUID() != playerUID)
+			{
 				continue;
-
+			}
 		#ifdef EXPANSIONMODGROUPS
-			if (quest.IsGroupQuest() && !quest.IsQuestGroupMember(playerUID))
+			else if (quest.IsGroupQuest() && !quest.IsQuestGroupMember(playerUID))
+			{
 				continue;
+			}
 		#endif
 
 			if (quest.IsCompeleted() || quest.GetQuestState() >= ExpansionQuestState.COMPLETED)
@@ -3869,7 +3874,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				if (!objective.IsActive() || objective.IsCompleted())
 					continue;
 
-				//! Run thrue all possible objective types
+				//! Run through all possible objective types
 				switch (objective.GetObjectiveConfig().GetObjectiveType())
 				{
 					case ExpansionQuestObjectiveType.TARGET:
@@ -4652,25 +4657,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 						m_CurrentQuestTick = 0;
 
 					ExpansionQuest quest = m_ActiveQuests.Get(m_CurrentQuestTick);
-					if (quest)
-					{
-						if (quest.IsInitialized())
-						{
-							if (quest.IsCompeleted())
-							{
-								quest.OnQuestCleanup();
-								m_ActiveQuests.Remove(m_CurrentQuestTick);
-							}
-							else
-							{
-								quest.OnUpdate(m_UpdateQueueTimer);
-							}
-						}
+					if (quest && quest.IsInitialized() && !quest.IsCompeleted())
+						quest.OnUpdate(m_UpdateQueueTimer);
+					
+					m_CurrentQuestTick++;
 
-						m_CurrentQuestTick++;
-						if (m_CurrentQuestTick == m_ActiveQuests.Count())
-							break;
-					}
+					if (m_CurrentQuestTick == m_ActiveQuests.Count())
+						break;
 				}
 			}
 			else
@@ -4686,6 +4679,27 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			CheckQuestResetTime();
 			m_CheckResetTimer = 0.0;
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// ExpansionQuestModule RemoveActiveQuest
+	// Server
+	// ------------------------------------------------------------
+	protected void RemoveActiveQuest(ExpansionQuest quest)
+	{
+		for (int i = m_ActiveQuests.Count() - 1; i >= 0; i--)
+		{
+			ExpansionQuest activeQuest = m_ActiveQuests.Get(i);
+			if (!activeQuest || !activeQuest.IsCompeleted())
+				continue;
+			
+			if (activeQuest == quest)
+			{
+				Print(ToString() + "::RemoveActiveQuest - Removeing completed quest. ID: " + quest.GetQuestConfig().GetID() + " | Player UID: " + quest.GetPlayerUID());
+				m_ActiveQuests.RemoveOrdered(i);
+				return;
+			}
 		}
 	}
 

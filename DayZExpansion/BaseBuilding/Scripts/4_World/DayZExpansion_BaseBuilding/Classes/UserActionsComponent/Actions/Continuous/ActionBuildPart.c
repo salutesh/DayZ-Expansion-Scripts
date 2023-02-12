@@ -54,7 +54,7 @@ modded class ActionBuildPart
 			{
 				if ( !construction.IsColliding( part_name ) && construction.CanBuildPart( part_name, action_data.m_MainItem, true ) )
 				{
-					construction.AdminBuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
+					construction.Expansion_AdminBuildPartServer( action_data.m_Player, part_name, AT_BUILD_PART );
 
 					if ( GetExpansionSettings().GetLog().AdminTools )
 						GetExpansionSettings().GetLog().PrintLog("[AdminTools] Player \"" + action_data.m_Player.GetIdentity().GetName() + "\" (id=" + action_data.m_Player.GetIdentity().GetId() + " pos=" + action_data.m_Player.GetPosition() + ")" + " used the Admin Hammer to build " + part_name);

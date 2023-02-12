@@ -5,9 +5,9 @@ class eAIDynamicPatrol : eAIPatrol
 	vector m_Position;
 	autoptr array<vector> m_Waypoints;
 	eAIWaypointBehavior m_WaypointBehaviour;
-	float m_MinimumRadiusSq;
-	float m_MaximumRadiusSq;
-	float m_DespawnRadiusSq;
+	float m_MinimumRadius;
+	float m_MaximumRadius;
+	float m_DespawnRadius;
 	float m_MovementSpeedLimit;
 	float m_MovementThreatSpeedLimit;
 	int m_NumberOfAI;
@@ -66,9 +66,9 @@ class eAIDynamicPatrol : eAIPatrol
 		patrol.m_Loadout = loadout;
 		patrol.m_RespawnTime = respawnTime;
 		patrol.m_DespawnTime = despawnTime;
-		patrol.m_MinimumRadiusSq = Math.SqrFloat(minR);
-		patrol.m_MaximumRadiusSq = Math.SqrFloat(maxR);
-		patrol.m_DespawnRadiusSq = Math.SqrFloat(despawnR);
+		patrol.m_MinimumRadius = minR;
+		patrol.m_MaximumRadius = maxR;
+		patrol.m_DespawnRadius = despawnR;
 		patrol.m_MovementSpeedLimit = speedLimit;
 		patrol.m_MovementThreatSpeedLimit = threatspeedLimit;
 		patrol.m_Faction = faction;
@@ -247,6 +247,10 @@ class eAIDynamicPatrol : eAIPatrol
 			}
 		}
 
+		//! CE API is only avaialble after game is loaded
+		if (!GetCEApi())
+			return;
+
 		vector patrolPos = m_Position;
 		DayZPlayerImplement leader = null;
 		if (m_Group && m_Group.GetLeader())
@@ -254,19 +258,10 @@ class eAIDynamicPatrol : eAIPatrol
 			leader = m_Group.GetLeader();
 			patrolPos = leader.GetPosition();
 		}
-		
-		array<Man> players = {};
-		GetGame().GetPlayers(players);
-		float minimumDistanceSq = float.MAX;
-		foreach (auto player : players)
-		{
-			float distSq = vector.DistanceSq(patrolPos, player.GetPosition());
-			if (distSq < minimumDistanceSq && leader != player) minimumDistanceSq = distSq;
-		}
 
 		if (m_Group)
 		{
-			if (minimumDistanceSq > m_DespawnRadiusSq)
+			if (GetCEApi().AvoidPlayer(patrolPos, m_DespawnRadius))
 			{
 				m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
 				if (m_TimeSinceLastSpawn >= m_DespawnTime)
@@ -275,7 +270,7 @@ class eAIDynamicPatrol : eAIPatrol
 		}
 		else
 		{
-			if (minimumDistanceSq < m_MaximumRadiusSq && minimumDistanceSq > m_MinimumRadiusSq)
+			if (!GetCEApi().AvoidPlayer(patrolPos, m_MaximumRadius) && GetCEApi().AvoidPlayer(patrolPos, m_MinimumRadius))
 			{
 				Spawn();
 			}

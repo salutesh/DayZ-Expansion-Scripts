@@ -26,21 +26,23 @@ modded class Construction
 			return super.IsColliding(part_name);
 		}
 	}
-	
-	void AdminBuildPartServer( notnull Man player, string part_name, int action_id )
-	{
-		//! Like vanilla BuildPartServer but calls AdminLockLockableSlots instead of TakeMaterialsServer
 
-		bsbDebugPrint("[bsb] Construction AdminBuildPartServer | " + part_name);
+	void Expansion_AdminBuildPartServer( notnull Man player, string part_name, int action_id )
+	{
+		//! Like vanilla BuildPartServer but calls Expansion_AdminLockLockableSlots instead of TakeMaterialsServer
+
+		bsbDebugPrint("[bsb] Construction Expansion_AdminBuildPartServer | " + part_name);
 		//reset DamageZone health
 		string damage_zone;
 		if (DamageSystem.GetDamageZoneFromComponentName(GetParent(),part_name,damage_zone))
 		{
+			GetParent().SetAllowDamage(true);
 			GetParent().SetHealthMax(damage_zone);
+			GetParent().ProcessInvulnerabilityCheck(GetParent().GetInvulnerabilityTypeString());
 		}
 		
 		//on action
-		AdminLockLockableSlots( part_name );
+		Expansion_AdminLockLockableSlots( part_name );
 
 		//destroy build collision check trigger
 		DestroyCollisionTrigger();
@@ -50,6 +52,12 @@ modded class Construction
 	}
 
 	void AdminLockLockableSlots( string part_name, bool repairing = false )
+	{
+		Error("DEPRECATED, use Expansion_AdminBuildPartServer");
+		Expansion_AdminLockLockableSlots( part_name, repairing );
+	}
+
+	void Expansion_AdminLockLockableSlots( string part_name, bool repairing = false )
 	{
 		//! Like vanilla TakeMaterialsServer but does not touch materials and only locks lockable slots
 

@@ -13,6 +13,7 @@
 class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 {
 	protected ref Timer m_UpdateTimer;
+	protected bool m_MovementLocked;
 	
 	void ExpansionScriptViewMenu()
 	{
@@ -68,33 +69,38 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		
 	override void LockControls(bool lockMovement = true)
 	{
-		super.LockControls();
-		
-		GetGame().GetMission().PlayerControlDisable(INPUT_EXCLUDE_ALL);
-		
 		ShowHud(false);
 		ShowUICursor(true);
 		
 		LockInputs(true, lockMovement);
-		GetUApi().UpdateControls();
 	}
 	
 	override void UnlockControls()
 	{
-		super.UnlockControls();
-		
-		GetGame().GetMission().PlayerControlEnable(true);
-				
 		ShowHud(true);
 		ShowUICursor(false);
 		
 		UnlockInputs();
-		GetUApi().UpdateControls();
 	}
 	
 	override void LockInputs(bool state, bool lockMovement = true)
 	{
-		super.LockInputs(state);
+		if (state)
+		{
+			if (lockMovement)
+				GetGame().GetMission().AddActiveInputExcludes({"menu"});
+			else
+				GetGame().GetMission().AddActiveInputExcludes({"inventory"});
+		}
+		else
+		{
+			if (m_MovementLocked)
+				GetGame().GetMission().RemoveActiveInputExcludes({"menu"});
+			else
+				GetGame().GetMission().RemoveActiveInputExcludes({"inventory"});
+		}
+		
+		m_MovementLocked = lockMovement;
 		
 		TIntArray inputIDs = new TIntArray;
 		GetUApi().GetActiveInputs(inputIDs);
@@ -129,13 +135,13 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 				GetUApi().GetInputByID(inputID).ForceDisable(state);
 			}
 		}
+
+		GetUApi().UpdateControls();
 	}
 	
 	override void UnlockInputs()
 	{
-		super.UnlockInputs();
-		
-		LockInputs(false);
+		LockInputs(false, m_MovementLocked);
 	}
 	
 	override void ShowHud(bool state)
@@ -192,8 +198,23 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 			m_UpdateTimer = null;
 		}
 	}
+
+	override void CloseMenu()
+	{
+		if (!CanClose())
+			return;
+
+		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager())
+		{
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseMenu();
+		}
+	}
 	
-	void Update();
+	void Update()
+	{
+		if (GetGame().GetInput().LocalPress("UAUIBack", false))
+			CloseMenu();
+	}
 	
 	bool CanClose()
 	{

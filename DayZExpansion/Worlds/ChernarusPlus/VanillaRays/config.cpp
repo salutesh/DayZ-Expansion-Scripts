@@ -8,7 +8,6 @@ class CfgPatches
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Worlds_Chernarusplus_World"};
-		worlds[] = {};
 	};
 };
 class CfgWorlds
@@ -376,7 +375,6 @@ class CfgWorlds
 		starsIntensity = 0.141;
 		hazeDistCoef = 0;
 		hazeFogCoef = 1;
-		rainMaterial = "{AD76A616D0EF1ABC}Graphics/Materials/postprocess/rain.emat";
 		satelliteNormalBlendStart = 100;
 		satelliteNormalBlendEnd = 500;
 		flareMinDistance = 2;

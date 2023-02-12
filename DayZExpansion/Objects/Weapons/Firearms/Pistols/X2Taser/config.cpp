@@ -5,11 +5,9 @@ class CfgPatches
 	class DayZExpansion_Weapons_Pistols_Taser
 	{
 		units[] = {};
-		weapons[] = {"Expansion_Taser_Yellow","Expansion_Taser_Black"};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
-		magazines[] = {"Mag_Expansion_Taser","Expansion_Ammo_Taser"};
-		ammo[] = {"Bullet_Expansion_Taser"};
 	};
 };
 class Mode_Safe;

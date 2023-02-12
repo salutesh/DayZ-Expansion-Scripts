@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionChangeVehicleLock)]
 class ExpansionActionChangeVehicleLock: ExpansionActionToolBase 
 {
 	void ExpansionActionChangeVehicleLock()

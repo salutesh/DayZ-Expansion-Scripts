@@ -15,20 +15,6 @@
  **/
 modded class DayZExpansion
 {
-	void DayZExpansion()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZExpansion");
-#endif
-	}
-
-	void ~DayZExpansion()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "~DayZExpansion");
-#endif
-	}
-
 	override void OnLoaded()
 	{
 		if ( IsMissionHost() )

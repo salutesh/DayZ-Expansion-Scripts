@@ -5,10 +5,9 @@ class CfgPatches
 	class DayZExpansion_Weapons_SMG_VityazSN
 	{
 		units[] = {};
-		weapons[] = {"Expansion_VityazSN"};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
-		magazines[] = {"Mag_Expansion_Vityaz_30Rnd"};
 	};
 };
 class Mode_Safe;

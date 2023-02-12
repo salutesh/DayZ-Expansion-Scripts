@@ -1,6 +1,6 @@
 class ExpansionFSMHelper
 {
-	static void DoorAnimationSource(EntityAI transport, int seatPos, out bool exists, out string selectionName)
+	static void DoorAnimationSource(EntityAI transport, int seatPos, out bool exists, out string animSource)
 	{
 		CarScript car;
 		if (!Class.CastTo(car, transport))
@@ -12,7 +12,8 @@ class ExpansionFSMHelper
 		
 		if (exists)
 		{
-			selectionName = car.GetDoorSelectionNameFromSeatPos(seatPos);
+			string selectionName = car.GetDoorSelectionNameFromSeatPos(seatPos);
+			animSource = car.GetAnimSourceFromSelection(selectionName);
 		}
 	}
 };

@@ -55,11 +55,9 @@ class ExpansionUAZ extends CarScript
 		m_CarDoorOpenSound = "offroad_door_open_SoundSet";
 		m_CarDoorCloseSound = "offroad_door_close_SoundSet";
 		
-		#ifndef DAYZ_1_18
 		//! 1.19
 		m_CarHornShortSoundName = "Offroad_Horn_Short_SoundSet";
 		m_CarHornLongSoundName	= "Offroad_Horn_SoundSet";
-		#endif
 		
 		SetEnginePos("0 0.01 1.15");
 	}
@@ -411,6 +409,30 @@ class ExpansionUAZ extends CarScript
 		}
 
 		return super.OnSound(ctrl, oldValue);
+	}
+
+	override protected void HandleDoorsSound(string animSource, float phase)
+	{
+		switch (animSource)
+		{
+		case "uazdriverdoor":
+		case "uazcodriverdoor":
+		case "uazcargo1door":
+		case "uazcargo2door":
+		case "uaztrunkdoor":
+		case "uazhooddoor":
+			if (phase == 0)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorOpenSound, GetPosition());
+			}
+			else if (phase == 1)
+			{
+				SEffectManager.Expansion_PlaySound(m_CarDoorCloseSound, GetPosition());
+			}
+			break;
+		default:
+			super.HandleDoorsSound(animSource, phase);
+		}
 	}
 
 	override bool CanReachDoorsFromSeat(string pDoorsSelection, int pCurrentSeat)

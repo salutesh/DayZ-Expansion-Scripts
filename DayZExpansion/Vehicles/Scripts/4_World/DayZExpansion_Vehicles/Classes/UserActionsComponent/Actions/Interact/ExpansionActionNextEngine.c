@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionNextEngine)]
 class ExpansionActionNextEngine : ActionInteractBase
 {
 	void ExpansionActionNextEngine()
@@ -102,7 +101,6 @@ class ExpansionActionNextEngine : ActionInteractBase
 	}
 };
 
-[RegisterAction(ExpansionActionNextEngineInput)]
 class ExpansionActionNextEngineInput : ExpansionActionNextEngine
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

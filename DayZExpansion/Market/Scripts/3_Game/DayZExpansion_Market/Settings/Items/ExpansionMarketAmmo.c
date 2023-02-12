@@ -82,6 +82,7 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 		AddItem("Ammo_Expansion_46x30", 					2,		5,	  	1,		500);
 		AddItem("Ammo_Expansion_338", 						2,		5,	  	1,		500);
 		AddItem("Expansion_Ammo_8mm", 						2,		5,	  	1,		500);
+		AddItem("Expansion_Ammo_Taser", 						1,		1,	  	1,		1);
 	#endif
 	}
 };

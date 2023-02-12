@@ -325,12 +325,6 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	void CloseMenu()
-	{
-		Hide();
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseMenu();
-	}
-
 	void OnCloseButtonClick()
 	{
 		if (!m_InDetailView)
@@ -445,7 +439,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	override bool CanClose()
 	{
-		return !m_CancelQuestDialog.IsVisible();
+		if (m_CancelQuestDialog)
+			return !m_CancelQuestDialog.IsVisible();
+
+		return true;
 	}
 
 	void QuestDebug(string text)

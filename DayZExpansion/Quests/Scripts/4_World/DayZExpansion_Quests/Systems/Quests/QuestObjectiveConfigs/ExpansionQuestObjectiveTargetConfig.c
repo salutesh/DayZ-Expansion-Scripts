@@ -79,7 +79,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(fileName, config);
+			config.Save(fileName);
 		}
 
 		return config;
@@ -87,7 +87,10 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveTargetConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveTargetConfigBase configBase)

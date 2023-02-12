@@ -29,12 +29,8 @@ class ExpansionVehicleGearbox_CarScript : ExpansionVehicleGearboxDefault
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-#ifdef DAYZ_1_18
-		m_Gear = m_Car.GetController().GetGear() + 2;
-#else
 		//! 1.19
 		m_Gear = m_Car.GetGear() + 2;
-#endif
 		m_Ratio = m_Ratios[m_Gear];
 
 		super.PreSimulate(pState);

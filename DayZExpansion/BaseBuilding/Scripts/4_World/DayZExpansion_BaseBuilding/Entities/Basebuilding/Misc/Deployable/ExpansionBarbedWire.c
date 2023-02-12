@@ -18,13 +18,6 @@ class ExpansionBarbedWire: ExpansionBaseBuilding
 	protected ref AreaDamageLoopedDeferred_NoVehicle m_AreaDamage;
 
 	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void ExpansionBarbedWire()
-	{
-	}
-
-	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
 	void ~ExpansionBarbedWire()

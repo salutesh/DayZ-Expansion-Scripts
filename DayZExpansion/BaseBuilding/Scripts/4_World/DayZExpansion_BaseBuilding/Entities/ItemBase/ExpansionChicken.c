@@ -23,20 +23,6 @@ class ExpansionChicken extends Inventory_Base
 	protected vector m_ThrowImpulse;
 	protected bool m_IsThrowing;
 
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void ExpansionChicken()
-	{
-	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionChicken()
-	{
-	}
-
 	string GetTypeChicken()
 	{
 		return m_TypeChicken;

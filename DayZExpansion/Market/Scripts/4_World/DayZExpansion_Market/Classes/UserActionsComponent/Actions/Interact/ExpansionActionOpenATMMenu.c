@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionOpenATMMenu)]
 class ExpansionActionOpenATMMenu: ActionInteractBase
 {	
 	private ExpansionMarketModule m_MarketModule;

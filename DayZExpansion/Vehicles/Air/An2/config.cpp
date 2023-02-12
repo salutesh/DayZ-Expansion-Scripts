@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_An2
 	{
-		units[] = {"ExpansionSpraycanGreen","ExpansionSpraycanWhite","ExpansionSpraycanOrange"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};

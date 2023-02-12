@@ -30,9 +30,4 @@ modded class ActionAnimateCarSelection
 
 		return super.ActionCondition(player, target, item);
 	}
-
-	override bool CanBeUsedInVehicle()
-	{
-		return true;
-	}
 }

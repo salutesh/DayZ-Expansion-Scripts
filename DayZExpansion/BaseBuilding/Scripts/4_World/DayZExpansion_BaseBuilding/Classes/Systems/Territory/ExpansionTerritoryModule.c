@@ -56,14 +56,6 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionTerritoryModule Destructor
-	// Gets called on server and client
-	// ------------------------------------------------------------
-	void ~ExpansionTerritoryModule()
-	{
-	}
-	
 	override void OnInit()
 	{
 		super.OnInit();

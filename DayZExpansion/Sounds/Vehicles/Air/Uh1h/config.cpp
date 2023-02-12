@@ -12,6 +12,7 @@ class CfgPatches
 };
 class CfgSoundShaders
 {
+	class baseVehicles_SoundShader;
 	class Expansion_Uh1h_Base_Int_SoundShader
 	{
 		range = 2000;
@@ -24,13 +25,13 @@ class CfgSoundShaders
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\Expansion_Uh1h_Engine_Int",1}};
 		frequency = "rpm";
-		volume = "engineOn * rpm * (1 - camPos) * 0.4";
+		volume = "rpm * (1 - camPos) * 0.4";
 	};
 	class Expansion_Uh1h_Engine_Ext_SoundShader: Expansion_Uh1h_Base_Ext_SoundShader
 	{
 		samples[] = {{"DayZExpansion\Sounds\Vehicles\Air\Uh1h\Expansion_Uh1h_Engine_Ext",1}};
 		frequency = "rpm";
-		volume = "engineOn * rpm * camPos";
+		volume = "rpm * camPos";
 	};
 	class Expansion_Uh1h_Rotor_Int_SoundShader: Expansion_Uh1h_Base_Int_SoundShader
 	{
@@ -44,9 +45,20 @@ class CfgSoundShaders
 		frequency = "rpm * speed";
 		volume = "rpm * speed * camPos";
 	};
+	class Expansion_Uh1h_SlidingDoor_Open_SoundShader: baseVehicles_SoundShader
+	{
+		samples[] = {{"\DZ\sounds\environment\buildings\doors\WoodSlideBig\doorWoodSlideBigOpen_2",1}};
+		volume = 0.9;
+	};
+	class Expansion_Uh1h_SlidingDoor_Close_SoundShader: baseVehicles_SoundShader
+	{
+		samples[] = {{"\DZ\sounds\environment\buildings\doors\WoodSlide\doorWoodSlideClose_4",1}};
+		volume = 0.9;
+	};
 };
 class CfgSoundSets
 {
+	class baseVehicles_SoundSet;
 	class Expansion_Uh1h_Base_Ext_SoundSet
 	{
 		sound3DProcessingType = "Vehicle_Ext_3DProcessingType";
@@ -90,5 +102,13 @@ class CfgSoundSets
 	{
 		soundShaders[] = {"Expansion_Uh1h_Rotor_Ext_SoundShader"};
 		volumeFactor = 1;
+	};
+	class Expansion_Uh1h_SlidingDoor_Open_SoundSet: baseVehicles_SoundSet
+	{
+		soundShaders[] = {"Expansion_Uh1h_SlidingDoor_Open_SoundShader"};
+	};
+	class Expansion_Uh1h_SlidingDoor_Close_SoundSet: baseVehicles_SoundSet
+	{
+		soundShaders[] = {"Expansion_Uh1h_SlidingDoor_Close_SoundShader"};
 	};
 };

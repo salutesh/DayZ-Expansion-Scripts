@@ -85,7 +85,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestObjectiveTravelConfig>.JsonSaveFile(fileName, config);
+			config.Save(fileName);
 		}
 
 		return config;
@@ -93,7 +93,10 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveTravelConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER  + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER  + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveTravelConfigBase configBase)

@@ -130,11 +130,12 @@ modded class CharacterCreationMenu
 		SetCharacter();
 		CheckNewOptions();
 
-	#ifndef DAYZ_1_18
-		//! 1.19
+	#ifdef DAYZ_1_19
 		GetGame().GetMission().GetOnInputPresetChanged().Insert(OnInputPresetChanged);
+	#endif
 		GetGame().GetMission().GetOnInputDeviceChanged().Insert(OnInputDeviceChanged);
 
+	#ifdef DAYZ_1_19
 		OnInputDeviceChanged(GetGame().GetInput().GetCurrentInputDevice());
 	#endif
 

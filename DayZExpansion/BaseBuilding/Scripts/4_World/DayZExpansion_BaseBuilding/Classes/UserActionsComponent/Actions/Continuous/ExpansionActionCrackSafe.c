@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionCrackSafe)]
 class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 {
 	override void Setup( PlayerBase player, ActionTarget target, ItemBase item )

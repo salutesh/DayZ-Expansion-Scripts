@@ -42,9 +42,6 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("ExpansionDeltapointOptic", "dz/anims/workspaces/player/player_main/props/player_main_1h_scope_kobra.asi", pBehavior, "dz/anims/anm/player/ik/attachments/optic/optic_fnp45_mrd.anm");
 		pType.AddItemInHandsProfileIK("Expansion_MP5_RailAtt", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/fence_kit_folded.anm");
 		pType.AddItemInHandsProfileIK("Expansion_M1A_RailAtt", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/rice.anm");
-		
-		//! Props
-		pType.AddItemInHandsProfileIK("Expansion_Guitar", "DayZExpansion/Animations/Player/Props/player_main_guitar.asi", pBehavior, "dz/anims/anm/player/ik/gear/LongWoodenStick.anm");
 	}
 
 	override void RegisterRestrained( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
@@ -82,15 +79,15 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("Expansion_G36_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_m4a1.asi", pBehavior, "dz/anims/anm/player/ik/weapons/m4a1_ik.anm", "dz/anims/anm/player/reloads/M4A1/w_M4A1_states.anm");	   
 		pType.AddItemInHandsProfileIK("Expansion_Kedr_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_cz61.asi", pBehavior, "dz/anims/anm/player/ik/weapons/CZ61.anm", "dz/anims/anm/player/reloads/cz61/w_cz61_states.anm");	   
 		pType.AddItemInHandsProfileIK("Expansion_MP5_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_ump45.asi", pBehavior, "dz/anims/anm/player/ik/weapons/ump.anm", "dz/anims/anm/player/reloads/UMP45/w_UMP45_states.anm");
-		pType.AddItemInHandsProfileIK("Expansion_BenelliM4_Base", "DayZExpansion/Animations/Player/Weapons/SemiAutomaticShotgun.asi", pBehavior, "dz/anims/anm/player/ik/weapons/mp133.anm", "dz/anims/anm/player/reloads/MP133/w_mp133_states.anm");
+		pType.AddItemInHandsProfileIK("Expansion_BenelliM4_Base", "DayZExpansion/Weapons/Animations/Player/SemiAutomaticShotgun.asi", pBehavior, "dz/anims/anm/player/ik/weapons/mp133.anm", "dz/anims/anm/player/reloads/MP133/w_mp133_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_DT11_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_b95.asi", pBehavior, "dz/anims/anm/player/ik/weapons/b95.anm", "dz/anims/anm/player/reloads/B95/w_B95_states.anm"); 
-		pType.AddItemInHandsProfileIK("ExpansionCrossbow_Base", "DayZExpansion/Animations/Player/weapons/player_main_Expansion_Crossbow.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
+		pType.AddItemInHandsProfileIK("ExpansionCrossbow_Base", "DayZExpansion/Weapons/Animations/Player/player_main_Expansion_Crossbow.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Vityaz_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_akm.asi", pBehavior, "dz/anims/anm/player/ik/weapons/akm.anm", "dz/anims/anm/player/reloads/AKM/w_akm_states.anm");
-		pType.AddItemInHandsProfileIK("Expansion_MP5SD", "DayZExpansion/Animations/Player/Weapons/player_main_Expansion_MP5SD.asi", pBehavior, "dz/anims/anm/player/ik/weapons/fn_fal.anm",  "dz/anims/anm/player/reloads/FNFal/w_FNFal_states.anm");
+		pType.AddItemInHandsProfileIK("Expansion_MP5SD", "DayZExpansion/Weapons/Animations/Player/player_main_Expansion_MP5SD.asi", pBehavior, "dz/anims/anm/player/ik/weapons/fn_fal.anm",  "dz/anims/anm/player/reloads/FNFal/w_FNFal_states.anm");
 		//pType.AddItemInHandsProfileIK("Expansion_W1873_Base", "dz/anims/workspaces/player/player_main/weapons/player_main_repeater.asi", pBehavior, "dz/anims/anm/player/ik/weapons/repeater.anm", "dz/anims/anm/player/reloads/repeater/w_repeater_states.anm");
 			
-		pType.AddItemInHandsProfileIK("ExpansionRPG7Base", "DayZExpansion/Animations/Player/Weapons/player_main_rpg.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
-		//pType.AddItemInHandsProfileIK("ExpansionLAWBase", "DayZExpansion/Animations/Player/Weapons/player_main_law.asi", pBehavior, "dz/anims/anm/player/ik/weapons/SKS.anm", "dz/anims/anm/player/reloads/SKS/w_SKS_states.anm");
+		pType.AddItemInHandsProfileIK("ExpansionRPG7Base", "DayZExpansion/Weapons/Animations/Player/player_main_rpg.asi", pBehavior, "dz/anims/anm/player/ik/weapons/izh18.anm", "dz/anims/anm/player/reloads/IZH18/w_izh18_states.anm");
+		//pType.AddItemInHandsProfileIK("ExpansionLAWBase", "DayZExpansion/Weapons/Animations/Player/player_main_law.asi", pBehavior, "dz/anims/anm/player/ik/weapons/SKS.anm", "dz/anims/anm/player/reloads/SKS/w_SKS_states.anm");
 	}
 
 	override void RegisterArcheryItem( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )

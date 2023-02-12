@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Air_Merlin
 	{
-		units[] = {"ExpansionMerlinFrontWheel","ExpansionMerlinBackWheel","ExpansionMerlinCargoRamp","ExpansionMerlinWreck","ExpansionMerlin","ExpansionSpraycanGreen","ExpansionMerlin_Green","ExpansionSpraycanDahoman","ExpansionMerlin_Dahoman","ExpansionSpraycanIon","ExpansionMerlin_Ion","ExpansionSpraycanPresident","ExpansionMerlin_President","ExpansionSpraycanVrana","ExpansionMerlin_Vrana","ExpansionSpraycanWave","ExpansionMerlin_Wave"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -150,8 +150,9 @@ class CfgVehicles
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.325;
 		width = 0.618;
+		tyreOffroadResistance = 0.75;
+		tyreGrip = 0.8;
 		tyreRollResistance = 0.015;
-		tyreTread = 0.7;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -177,8 +178,9 @@ class CfgVehicles
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.228;
 		width = 0.152;
+		tyreOffroadResistance = 0.75;
+		tyreGrip = 0.8;
 		tyreRollResistance = 0.015;
-		tyreTread = 0.7;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -204,8 +206,9 @@ class CfgVehicles
 		radiusByDamage[] = {0,0.343,0.3,0.4,0.9998,0.25,0.9999,0.2};
 		radius = 0.325;
 		width = 0.618;
+		tyreOffroadResistance = 0.75;
+		tyreGrip = 0.8;
 		tyreRollResistance = 0.015;
-		tyreTread = 0.7;
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -238,7 +241,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_MERLIN";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
-		modelZeroPointDistanceFromGround = 3.81;
+		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Helicopter";
 		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;
@@ -589,13 +592,13 @@ class CfgVehicles
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						stiffness = 76000;
-						compression = 5900;
+						stiffness = 266000;
+						compression = 20650;
 						damping = 6600;
 						travelMaxUp = 0.079;
 						travelMaxDown = 0.06;
 					};
-					class Wheels: Wheels
+					class Wheels
 					{
 						class Left: Left
 						{
@@ -621,13 +624,13 @@ class CfgVehicles
 					wheelHubRadius = 0.15;
 					class Suspension
 					{
-						stiffness = 46000;
-						compression = 10450;
+						stiffness = 115000;
+						compression = 26125;
 						damping = 13200;
 						travelMaxUp = 0.086;
 						travelMaxDown = 0.133;
 					};
-					class Wheels: Wheels
+					class Wheels
 					{
 						class Left: Left
 						{
@@ -700,7 +703,7 @@ class CfgVehicles
 		scope = 0;
 		displayname = "$STR_EXPANSION_VEHICLE_MERLIN";
 		model = "\DayZExpansion\Vehicles\Air\Merlin\merlin.p3d";
-		modelZeroPointDistanceFromGround = 3.81;
+		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Helicopter";
 		wreck = "ExpansionMerlinWreck";
 		fuelCapacity = 292;

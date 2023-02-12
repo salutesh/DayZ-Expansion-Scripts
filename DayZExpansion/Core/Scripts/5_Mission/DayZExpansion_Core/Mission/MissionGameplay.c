@@ -79,11 +79,6 @@ modded class MissionGameplay
 		{
 			return;
 		}
-		
-		//! Why is this here?
-		#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
-		GetDayZExpansion().OnUpdate( timeslice );
-		#endif
 
 		//! Checking for keyboard focus
 		bool inputIsFocused = false;

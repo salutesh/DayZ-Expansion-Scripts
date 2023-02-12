@@ -113,20 +113,7 @@ class ExpansionCOTGroupsMapMarker: ExpansionMapMarker
 	
 	override void FocusOnMarker(bool shouldEdit = false)
 	{
-		vector worldPos = GetPosition();
-		float pos_x = worldPos[0];
-		float pos_y = worldPos[2];
-		
-		float map_width, map_height;
-		GetMapWidget().GetScreenSize(map_width, map_height);
-	
-		float shift_x = map_width;
-		float shift_y = map_height;
-		
-		vector map_pos = Vector(pos_x + shift_x, 0, pos_y - shift_y);
-		
-		GetMapWidget().SetScale(0.05);
-		GetMapWidget().SetMapPos(map_pos);
+		GetMapWidget().SetMapPos(GetPosition());
 	}
 	
 	override bool IsEditting()

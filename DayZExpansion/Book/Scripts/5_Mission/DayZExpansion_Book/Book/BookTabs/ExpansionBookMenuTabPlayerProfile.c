@@ -13,7 +13,7 @@
 class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 {
 	ref ExpansionBookMenuTabPlayerProfileController m_PlayerProfileController;
-		
+
 	Widget hardline_reputation_spacer;
 
 	Widget hab_suicides_spacer;
@@ -28,67 +28,65 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	int m_PlayerPreviewRotationX = 0;
 	int m_PlayerPreviewRotationY = 0;
 	PlayerPreviewWidget player_preview;
-	
+
 	protected bool m_MouseButtonIsDown;
 
 	bool m_ShowHaBStats;
 	bool m_Updated;
-	
+
 	bool m_ShowHardlineStats;
-#ifdef EXPANSIONMODHARDLINE
-	ExpansionHardlineModule m_HardlineModule;
-#endif
-	
+
 	void ExpansionBookMenuTabPlayerProfile(ExpansionBookMenu book_menu)
 	{
 		if (!m_PlayerProfileController)
 			m_PlayerProfileController = ExpansionBookMenuTabPlayerProfileController.Cast(GetController());
-		
+
 	#ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
-		
+
 		monitorModule.m_StatsInvoker.Insert(SetStats);
 	#endif
 
 	#ifdef HEROESANDBANDITSMOD
 		m_ShowHaBStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
 	#endif
-		
+
 	#ifdef EXPANSIONMODHARDLINE
-		m_HardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
 		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation);
 	#endif
 
 		UpdateHaBUIElements();
 		UpdateHardlineUIElements();
 	}
-	
+
 	void ~ExpansionBookMenuTabPlayerProfile()
 	{
 #ifdef EXPANSIONMONITORMODULE
 		ExpansionMonitorModule monitorModule = ExpansionMonitorModule.Cast(CF_ModuleCoreManager.Get(ExpansionMonitorModule));
 		if (!monitorModule)
 			return;
-		
+
 		monitorModule.m_StatsInvoker.Remove(SetStats);
 #endif
 	}
-	
+
 	void SetStats(ExpansionSyncedPlayerStats stats)
 	{
 		if (!stats || stats.m_PlainID != string.Empty || !stats.m_HasBaseStats || !stats.m_HasRegisteredStats)
 			return;
-		
-		stats.Acquire(PlayerBase.Cast(GetGame().GetPlayer()));
+
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
+		stats.Acquire(player);
 
 		//! Profile stats
-		m_PlayerProfileController.ProfileTimePlayed = ExpansionStatic.GetTimeString(stats.m_Playtime);	
+		m_PlayerProfileController.ProfileTimePlayed = ExpansionStatic.GetTimeString(stats.m_Playtime);
 		m_PlayerProfileController.ProfileLongestShot = ExpansionStatic.GetDistanceString(stats.m_LongestShot);
-		m_PlayerProfileController.ProfilePlayerKills = ExpansionStatic.GetValueString(stats.m_PlayersKilled) + " Kills";	
-		m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " Kills";		
-		m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " Kills";		
+		m_PlayerProfileController.ProfilePlayerKills = ExpansionStatic.GetValueString(stats.m_PlayersKilled) + " Kills";
+		m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " Kills";
+		m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " Kills";
 
 	#ifdef HEROESANDBANDITSMOD
 		if (m_ShowHaBStats)
@@ -116,20 +114,20 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#endif
 
 		UpdateHaBUIElements();
-		
-		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);	
+
+		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);
 		m_PlayerProfileController.ProfileWeight = ExpansionStatic.GetWeightString(stats.m_Weight);
-		
+
 		array<string> profile_properties = {"ProfileTimePlayed", "ProfileLongestShot", "ProfilePlayerKills", "ProfileZombieKills", "ProfileAnimalKills", "ProfileDistanceTraveled", "ProfileWeight"};
 		m_PlayerProfileController.NotifyPropertiesChanged(profile_properties);
-		
+
 		//! Player preview
 		if (!m_PlayerProfileController.PlayerCharacter)
 		{
 			m_PlayerProfileController.PlayerCharacter = GetGame().GetPlayer();
 			m_PlayerProfileController.NotifyPropertyChanged("PlayerCharacter");
 		}
-		
+
 		//! Player conditions
 		m_PlayerProfileController.PlayerHealth = stats.m_Health;
 		m_PlayerProfileController.PlayerHealthValue = stats.m_Health.ToString() + "%";
@@ -138,22 +136,21 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		m_PlayerProfileController.PlayerWater = stats.m_Water;
 		m_PlayerProfileController.PlayerWaterValue = stats.m_Water.ToString() + "%";
 		m_PlayerProfileController.PlayerEnergy = stats.m_Energy;
-		m_PlayerProfileController.PlayerEnergyValue = stats.m_Energy.ToString() + "%";	
-		m_PlayerProfileController.PlayerStamina = stats.m_Stamina;		
+		m_PlayerProfileController.PlayerEnergyValue = stats.m_Energy.ToString() + "%";
+		m_PlayerProfileController.PlayerStamina = stats.m_Stamina;
 		m_PlayerProfileController.PlayerStaminaValue = stats.m_Stamina.ToString() + "%";
-		
+
 		array<string> player_properties = {"PlayerHealth", "PlayerHealthValue", "PlayerBlood", "PlayerBloodValue", "PlayerWater", "PlayerWaterValue", "PlayerEnergy", "PlayerEnergyValue", "PlayerStamina", "PlayerStaminaValue"};
 		m_PlayerProfileController.NotifyPropertiesChanged(player_properties);
-		
+
 	#ifdef EXPANSIONMODHARDLINE
-		if (m_ShowHardlineStats && m_HardlineModule)
+		if (m_ShowHardlineStats)
 		{
-			int reputation = m_HardlineModule.GetHardlineClientData().GetReputation();
-			m_PlayerProfileController.Hardline_Reputation = reputation.ToString();
+			m_PlayerProfileController.Hardline_Reputation = player.Expansion_GetReputation().ToString();
 			m_PlayerProfileController.NotifyPropertyChanged("Hardline_Reputation");
 		}
 	#endif
-		
+
 		UpdateHardlineUIElements();
 	}
 
@@ -166,12 +163,12 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		hab_medic_spacer.Show(m_ShowHaBStats);
 		hab_raid_spacer.Show(m_ShowHaBStats);
 	}
-	
+
 	void UpdateHardlineUIElements()
 	{
 		hardline_reputation_spacer.Show(m_ShowHardlineStats);
 	}
-	
+
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)
 	{
 		vector orientation = m_PlayerPreviewOrientation;
@@ -184,34 +181,34 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			m_PlayerPreviewOrientation = orientation;
 		}
 	}
-	
-	override string GetLayoutFile() 
+
+	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Book/GUI/layouts/tabs/expansion_book_tab_playerProfile.layout";
 	}
-	
-	override typename GetControllerType() 
+
+	override typename GetControllerType()
 	{
 		return ExpansionBookMenuTabPlayerProfileController;
 	}
-	
+
 	override string GetTabIconName()
 	{
 		return "Persona";
 	}
-	
+
 	override string GetTabName()
 	{
 		return "#STR_EXPANSION_BOOK_STATUS_CHARACTER_TABTITLE";
 	}
-	
+
 	override int GetTabColor()
 	{
 		return ARGB(255,0,0,0);
 	}
-	
+
 	override bool OnMouseButtonDown( Widget w, int x, int y, int button )
-	{		
+	{
 		if (w == player_preview && !m_MouseButtonIsDown)
 		{
 			//! For some reason, OnMouseButtonDown gets called twice when holding down the mouse button, which fucks with player preview rotation.
@@ -220,27 +217,27 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			GetGame().GetMousePos(m_PlayerPreviewRotationX, m_PlayerPreviewRotationY);
 			GetGame().GetDragQueue().Call(this, "UpdatePlayerPreviewRotation");
 		}
-		
+
 		return super.OnMouseButtonDown(w, x, y, button);
 	}
-	
+
 	override bool OnMouseButtonUp( Widget w, int x, int y, int button )
 	{
 		m_MouseButtonIsDown = false;
 
 		return super.OnMouseButtonUp(w, x, y, button);
 	}
-	
+
 	override bool CanShow()
 	{
 		return GetExpansionSettings().GetBook().EnableStatusTab;
 	}
-	
+
 	override bool IsParentTab()
 	{
 		return true;
 	}
-	
+
 	override float GetUpdateTickRate()
 	{
 		if (!IsVisible())
@@ -248,11 +245,11 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 
 		return 1.0;
 	}
-	
+
 	override void OnShow()
 	{
 		super.OnShow();
-		
+
 		Update();  //! 1st update immediately after first shown
 		m_Updated = true;
 
@@ -283,7 +280,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	}
 };
 
-class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController 
+class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 {
 	string ProfileTimePlayed;
 	string ProfileLongestShot;

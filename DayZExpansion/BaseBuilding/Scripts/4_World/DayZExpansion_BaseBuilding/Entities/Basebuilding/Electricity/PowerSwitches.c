@@ -1,9 +1,5 @@
 class ExpansionPowerSwitch extends ItemBase
 {
-	void ExpansionPowerSwitch()
-	{
-	}
-
 	override bool ExpansionIsPowerSource()
 	{
 		return true;

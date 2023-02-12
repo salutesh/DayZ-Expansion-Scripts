@@ -126,11 +126,6 @@ modded class ItemBase
 		return false;
 	}
 
-	bool IsLocked()
-	{
-		return false;
-	}
-
 	static void ExpansionPhaseObject(EntityAI other)
 	{
 #ifdef EXPANSIONMODVEHICLE
@@ -616,9 +611,37 @@ modded class ItemBase
 		if (!super.EEOnDamageCalculated( damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 			return false;
 
-		PlayerBase player;
-		if (Class.CastTo(player, GetHierarchyRootPlayer()) && player.Expansion_IsInSafeZone())
-			return false;
+		EntityAI root = GetHierarchyRoot();
+
+		if (root != this)
+		{
+			PlayerBase player;
+			if (Class.CastTo(player, root))
+			{
+				if (player.Expansion_IsInSafeZone())
+					return false;
+			}
+			else
+			{
+				CarScript cs;
+				if (Class.CastTo(cs, root))
+				{
+					if (!cs.CanBeDamaged())
+						return false;
+				}
+			#ifdef EXPANSIONMODVEHICLE
+				else
+				{
+					ExpansionVehicleBase evb;
+					if (Class.CastTo(evb, root))
+					{
+						if (!evb.CanBeDamaged())
+							return false;
+					}
+				}
+			#endif
+			}
+		}
 
 		m_Expansion_HealthBeforeHit[dmgZone] = GetHealth(dmgZone, "Health");
 
@@ -1296,5 +1319,10 @@ modded class ItemBase
 	string Expansion_GetEntityStorageFileName()
 	{
 		return string.Empty;
+	}
+
+	bool Expansion_CanBeUsedToBandage()
+	{
+		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase);
 	}
 };

@@ -4,12 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Weapons_Sniper_AWM
 	{
-		units[] = {"AmmoBox_Expansion_338_15rnd"};
-		weapons[] = {"Expansion_AWM","Expansion_AWM_Black","Expansion_AWM_Green"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_PMII25Optic"};
-		magazines[] = {"Mag_Expansion_AWM_5rnd","Ammo_Expansion_338"};
-		ammo[] = {"Bullet_Expansion_338"};
 	};
 };
 class Mode_Safe;

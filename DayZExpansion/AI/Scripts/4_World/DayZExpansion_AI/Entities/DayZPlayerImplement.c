@@ -5,8 +5,11 @@ modded class DayZPlayerImplement
 	private autoptr eAITargetInformation m_TargetInformation;
 
 	private eAIGroup m_eAI_Group;
+	private eAIGroup m_Expansion_FormerGroup;
 	protected typename m_eAI_FactionType;
 	private int m_eAI_GroupID;
+	private int m_eAI_FactionTypeID;
+	private int m_eAI_FactionTypeIDSynch;
 	private int m_eAI_GroupMemberIndex;
 	private int m_eAI_GroupMemberIndexSynch;
 
@@ -18,23 +21,27 @@ modded class DayZPlayerImplement
 
 	void DayZPlayerImplement()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "DayZPlayerImplement");
+#ifdef DIAG
+		auto trace = CF_Trace_0(EXTrace.AI, this);
 #endif
 
 		m_TargetInformation = CreateTargetInformation();
-
-		RegisterNetSyncVariableInt("m_eAI_GroupID");
-		RegisterNetSyncVariableInt("m_eAI_GroupMemberIndexSynch");
-
-		m_eAI_GroupID = -1;
-		m_eAI_GroupMemberIndex = 0;
-		m_eAI_GroupMemberIndex = m_eAI_GroupMemberIndexSynch;
 	}
 
 	override void Expansion_Init()
 	{
+#ifdef DIAG
+		auto trace = CF_Trace_0(EXTrace.AI, this);
+#endif
+
 		super.Expansion_Init();
+
+		RegisterNetSyncVariableInt("m_eAI_GroupID");
+		RegisterNetSyncVariableInt("m_eAI_FactionTypeIDSynch");
+		RegisterNetSyncVariableInt("m_eAI_GroupMemberIndexSynch");
+
+		m_eAI_GroupID = -1;
+		m_eAI_FactionTypeID = -1;
 
 		if (GetGame().IsServer() && m_eAI_FactionType)
 		{
@@ -72,10 +79,10 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
-	void SetGroup(eAIGroup group)
+	void SetGroup(eAIGroup group, bool autoDeleteFormerGroupIfEmpty = true)
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "SetGroup").Add(group);
+#ifdef DIAG
+		auto trace = CF_Trace_2(EXTrace.AI, this).Add(group).Add(autoDeleteFormerGroupIfEmpty);
 #endif
 
 		if (m_eAI_Group == group)
@@ -83,21 +90,29 @@ modded class DayZPlayerImplement
 
 		if (m_eAI_Group)
 		{
-			m_eAI_Group.RemoveMember(this);
+			m_eAI_Group.RemoveMember(this, autoDeleteFormerGroupIfEmpty);
 
 			m_eAI_GroupID = -1;
+
+			EXTrace.Print(EXTrace.AI, this, "Current AI group: " + m_eAI_Group);
+			if (!autoDeleteFormerGroupIfEmpty)
+				m_Expansion_FormerGroup = m_eAI_Group;
 		}
 
+		EXTrace.Print(EXTrace.AI, this, "Setting AI group: " + group);
 		m_eAI_Group = group;
 
 		if (m_eAI_Group)
 		{
-			SetGroupMemberIndex(m_eAI_Group.AddMember(this));
-
 			m_eAI_GroupID = m_eAI_Group.GetID();
+			eAI_SetFactionTypeID(m_eAI_Group.GetFaction().GetTypeID());
+
+			SetGroupMemberIndex(m_eAI_Group.AddMember(this));
+			EXTrace.Print(EXTrace.AI, this, "Group ID: " + m_eAI_GroupID);
 		}
 
-		SetSynchDirty();
+		if (GetGame().IsDedicatedServer())
+			SetSynchDirty();
 	}
 
 	eAIGroup GetGroup()
@@ -107,6 +122,16 @@ modded class DayZPlayerImplement
 #endif
 
 		return m_eAI_Group;
+	}
+
+	void Expansion_SetFormerGroup(eAIGroup group)
+	{
+		m_Expansion_FormerGroup = group;
+	}
+
+	eAIGroup Expansion_GetFormerGroup()
+	{
+		return m_Expansion_FormerGroup;
 	}
 
 	int GetGroupID()
@@ -127,54 +152,92 @@ modded class DayZPlayerImplement
 		m_eAI_GroupMemberIndex = index;
 		m_eAI_GroupMemberIndexSynch = index;
 
-		SetSynchDirty();
+		if (GetGame().IsDedicatedServer())
+			SetSynchDirty();
+	}
+
+	void eAI_SetFactionTypeID(int id)
+	{
+#ifdef DIAG
+		auto trace = CF_Trace_1(EXTrace.AI, this).Add(id);
+#endif
+
+		m_eAI_FactionTypeID = id;
+		m_eAI_FactionTypeIDSynch = id;
+
+		if (GetGame().IsDedicatedServer())
+			SetSynchDirty();
 	}
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "OnVariablesSynchronized");
+#ifdef DIAG
+		auto trace = CF_Trace_0(EXTrace.AI, this);
 #endif
 
 		super.OnVariablesSynchronized();
 
-		if (GetGame().IsServer())
-			return;
-
 		if ((m_eAI_Group && m_eAI_Group.GetID() != m_eAI_GroupID))
 		{
-			// moved group
+			EXTrace.Print(EXTrace.AI, this, "moved from group ID " + m_eAI_Group.GetID() + " -> " + m_eAI_GroupID);
 
 			m_eAI_Group.RemoveMember(this);
 
 			m_eAI_Group = eAIGroup.GetGroupByID(m_eAI_GroupID, true);
 
 			m_eAI_Group.Client_SetMemberIndex(this, m_eAI_GroupMemberIndexSynch);
+
+			m_eAI_FactionTypeID = -1;  //! Make sure faction is updated if necessary
 		}
 		else if (m_eAI_GroupID != -1 && !m_eAI_Group)
 		{
-			// joined group
+			EXTrace.Print(EXTrace.AI, this, "joined group ID " + m_eAI_GroupID);
 
 			m_eAI_Group = eAIGroup.GetGroupByID(m_eAI_GroupID, true);
 
 			m_eAI_Group.Client_SetMemberIndex(this, m_eAI_GroupMemberIndexSynch);
+
+			m_eAI_FactionTypeID = -1;  //! Make sure faction is updated if necessary
 		}
 		else if (m_eAI_GroupID == -1 && m_eAI_Group)
 		{
-			// left group
+			EXTrace.Print(EXTrace.AI, this, "left group ID " + m_eAI_Group.GetID());
 
 			m_eAI_Group.RemoveMember(this);
 
 			m_eAI_Group = null;
+
+			m_eAI_FactionTypeID = -1;  //! Make sure faction is updated if necessary
 		}
 		else if (m_eAI_Group && m_eAI_GroupMemberIndexSynch != m_eAI_GroupMemberIndex)
 		{
-			// moved within group
+			EXTrace.Print(EXTrace.AI, this, "moved within group, member index " + m_eAI_GroupMemberIndex + " -> " + m_eAI_GroupMemberIndexSynch);
 
 			// @note: this has to be the last check as when moving/joining groups
 			// the index is out of synch and will be handled in the above checks
 
 			m_eAI_Group.Client_SetMemberIndex(this, m_eAI_GroupMemberIndexSynch);
+		}
+
+		if (m_eAI_Group && m_eAI_GroupMemberIndexSynch != m_eAI_GroupMemberIndex)
+			m_eAI_GroupMemberIndex = m_eAI_GroupMemberIndexSynch;
+
+		if (m_eAI_Group && m_eAI_FactionTypeID != m_eAI_FactionTypeIDSynch)
+		{
+			EXTrace.Print(EXTrace.AI, this, "changing faction ID from " + m_eAI_FactionTypeID + " -> " + m_eAI_FactionTypeIDSynch);
+
+			m_eAI_FactionTypeID = m_eAI_FactionTypeIDSynch;
+	
+			typename factionType = eAIFaction.GetTypeByID(m_eAI_FactionTypeIDSynch);
+
+			if (factionType && m_eAI_Group.GetFaction().Type() != factionType)
+			{
+				EXTrace.Print(EXTrace.AI, this, "changing faction from " + m_eAI_Group.GetFaction().Type() + " -> " + factionType);
+
+				auto faction = eAIFaction.Cast(factionType.Spawn());
+				if (faction)
+					m_eAI_Group.SetFaction(faction);
+			}
 		}
 	}
 

@@ -23,11 +23,11 @@ class ExpansionNewsFeedLink: ExpansionScriptView
 	protected TextWidget label;
 	protected ButtonWidget button;
 
-	void ExpansionNewsFeedLink(string label, string icon, string url)
+	void ExpansionNewsFeedLink(string labelText, string icon, string url)
 	{
 		Class.CastTo(m_NewsFeedLinkController, GetController());
 
-		m_Label = label;
+		m_Label = labelText;
 		m_Icon = icon;
 		m_URL = url;
 

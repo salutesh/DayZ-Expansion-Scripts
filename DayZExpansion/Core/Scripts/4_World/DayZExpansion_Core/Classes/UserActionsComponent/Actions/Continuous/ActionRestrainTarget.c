@@ -17,6 +17,9 @@ modded class ActionRestrainTarget
 		if ( player.Expansion_IsInSafeZone() )
 			return false;
 
+		if (target && !PlayerBase.Cast(target.GetObject()))
+			return false;
+
 		return super.ActionCondition(player, target, item);
 	}
 };

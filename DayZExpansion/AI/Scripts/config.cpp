@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_AI_Scripts
 	{
-		units[] = {"eAI_SurvivorM_Mirek","eAI_SurvivorM_Denis","eAI_SurvivorM_Boris","eAI_SurvivorM_Cyril","eAI_SurvivorM_Elias","eAI_SurvivorM_Francis","eAI_SurvivorM_Guo","eAI_SurvivorM_Hassan","eAI_SurvivorM_Indar","eAI_SurvivorM_Jose","eAI_SurvivorM_Kaito","eAI_SurvivorM_Lewis","eAI_SurvivorM_Manua","eAI_SurvivorM_Niki","eAI_SurvivorM_Oliver","eAI_SurvivorM_Peter","eAI_SurvivorM_Quinn","eAI_SurvivorM_Rolf","eAI_SurvivorM_Seth","eAI_SurvivorM_Taiki","eAI_SurvivorF_Linda","eAI_SurvivorF_Maria","eAI_SurvivorF_Frida","eAI_SurvivorF_Gabi","eAI_SurvivorF_Helga","eAI_SurvivorF_Irena","eAI_SurvivorF_Judy","eAI_SurvivorF_Keiko","eAI_SurvivorF_Eva","eAI_SurvivorF_Naomi","eAI_SurvivorF_Baty"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Core_Scripts"};
@@ -33,6 +33,14 @@ class CfgMods
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{
+			class engineScriptModule
+			{
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/1_Core"};
+			};
+			class gameLibScriptModule
+			{
+				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/2_GameLib"};
+			};
 			class gameScriptModule
 			{
 				files[] = {"DayZExpansion/AI/Scripts/Common","DayZExpansion/AI/Scripts/3_Game"};

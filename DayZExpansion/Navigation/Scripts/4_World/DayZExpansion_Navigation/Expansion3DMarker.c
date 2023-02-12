@@ -121,7 +121,7 @@ class Expansion3DMarker extends ScriptedWidgetEventHandler
 		}
 
 		Hud inGameHUD = GetGame().GetMission().GetHud();
-		if ( inGameHUD && !inGameHUD.GetHudState() )
+		if ( inGameHUD && !inGameHUD.Expansion_GetHudState() )
 		{
 			m_LayoutRoot.Show( false );
 			return true;

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_P2PMarket_Objects
 	{
-		units[] = {"ExpansionBMTraderMirek","ExpansionBMTraderDenis","ExpansionBMTraderBoris","ExpansionBMTraderCyril","ExpansionBMTraderElias","ExpansionBMTraderFrancis","ExpansionBMTraderGuo","ExpansionBMTraderHassan","ExpansionBMTraderIndar","ExpansionBMTraderJose","ExpansionBMTraderKaito","ExpansionBMTraderLewis","ExpansionBMTraderManua","ExpansionBMTraderNiki","ExpansionBMTraderOliver","ExpansionBMTraderPeter","ExpansionBMTraderQuinn","ExpansionBMTraderRolf","ExpansionBMTraderSeth","ExpansionBMTraderTaiki","ExpansionBMTraderLinda","ExpansionBMTraderMaria","ExpansionBMTraderFrida","ExpansionBMTraderGabi","ExpansionBMTraderHelga","ExpansionBMTraderIrena","ExpansionBMTraderJudy","ExpansionBMTraderKeiko","ExpansionBMTraderEva","ExpansionBMTraderNaomi","ExpansionBMTraderBaty"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data","DZ_Characters","DayZExpansion_Dta_Core"};

@@ -80,7 +80,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 					if (!m_PartyModule) break;
 					if (player) partyID = m_PartyModule.GetPartyID(player);
 
-					canSendMessage = player && m_PartyModule.HasParty(player) && GetExpansionSettings().GetChat().EnablePartyChat;
+					canSendMessage = partyID >= 0 && GetExpansionSettings().GetChat().EnablePartyChat;
 					channelName = "Team";
 					break;
 #endif

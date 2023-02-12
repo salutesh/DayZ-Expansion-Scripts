@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionUncoverVehicle)]
 class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
@@ -21,9 +20,10 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
+		Object targetObject = target.GetParentOrObject();
+
 		if (!GetGame().IsDedicatedServer())
 		{
-			Object targetObject = target.GetParentOrObject();
 			string placeholderType = targetObject.GetType();
 			string placeholderModel = targetObject.ConfigGetString("model");
 			string vehicleType = placeholderType.Substring(0, placeholderType.Length() - 6);
@@ -32,6 +32,20 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 				m_Text = "#STR_EXPANSION_ACTION_RESTORE";
 			else
 				m_Text = "#STR_EXPANSION_ACTION_UNCOVER";
+		}
+
+		if (GetGame().IsServer())
+		{
+			auto placeholder = ExpansionEntityStoragePlaceholder.Cast(targetObject);
+			if (placeholder)
+			{
+				string type = placeholder.Expansion_GetStoredEntityType();
+				if (!GetGame().ConfigIsExisting("CfgVehicles " + type))
+				{
+					ExpansionNotification("Entity Storage", "Cannot restore " + type + " because the mod providing this vehicle is not loaded").Error(player.GetIdentity());
+					return false;
+				}
+			}
 		}
 
 		return true;
@@ -55,7 +69,7 @@ class ExpansionActionUncoverVehicle: ExpansionActionRestoreEntity
 		if (!result)
 		{
 			if (GetExpansionSettings().GetLog().VehicleCover)
-				GetExpansionSettings().GetLog().PrintLog("[VehicleCover]::ERROR:: Player \"%1\" (id=%2 pos=%3) tried to uncover vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, placeholder.GetPosition().ToString());
+				GetExpansionSettings().GetLog().PrintLog("[VehicleCover] ERROR: Player \"%1\" (id=%2 pos=%3) tried to uncover vehicle \"%4\" (GlobalID=%5 pos=%6) but it failed!", action_data.m_Player.GetIdentity().GetName(), action_data.m_Player.GetIdentity().GetId(), action_data.m_Player.GetPosition().ToString(), type, id, placeholder.GetPosition().ToString());
 			return;
 		}
 

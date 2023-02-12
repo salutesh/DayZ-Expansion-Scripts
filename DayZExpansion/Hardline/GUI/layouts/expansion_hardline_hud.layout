@@ -26,7 +26,7 @@ FrameWidgetClass ExpansionHardlineHUD {
    fixaspect fixwidth
    priority 100
    {
-    PanelWidgetClass Humanity {
+    PanelWidgetClass Reputation {
      visible 0
      clipchildren 0
      inheritalpha 0
@@ -40,7 +40,7 @@ FrameWidgetClass ExpansionHardlineHUD {
      fixaspect fixwidth
      style blank
      {
-      ImageWidgetClass HumanityIcon {
+      ImageWidgetClass ReputationIcon {
        disabled 0
        clipchildren 1
        inheritalpha 0
@@ -66,11 +66,11 @@ FrameWidgetClass ExpansionHardlineHUD {
        nocache 0
        {
         ScriptParamsClass {
-         Binding_Name "HumanityIcon"
+         Binding_Name "ReputationIcon"
         }
        }
       }
-      TextWidgetClass HumanityVal {
+      TextWidgetClass ReputationVal {
        ignorepointer 1
        color 0.8627 0.8627 0.8627 1
        position 0 36
@@ -85,11 +85,11 @@ FrameWidgetClass ExpansionHardlineHUD {
        "text valign" center
        {
         ScriptParamsClass {
-         Binding_Name "HumanityVal"
+         Binding_Name "ReputationVal"
         }
        }
       }
-      PanelWidgetClass HumanityChange {
+      PanelWidgetClass ReputationChange {
        visible 1
        clipchildren 0
        ignorepointer 1
@@ -101,7 +101,7 @@ FrameWidgetClass ExpansionHardlineHUD {
        hexactsize 1
        vexactsize 1
        {
-        TextWidgetClass HumanityChangeVal {
+        TextWidgetClass ReputationChangeVal {
          visible 1
          ignorepointer 1
          keepsafezone 1
@@ -117,7 +117,7 @@ FrameWidgetClass ExpansionHardlineHUD {
          "text valign" center
          {
           ScriptParamsClass {
-           Binding_Name "HumanityChangeValue"
+           Binding_Name "ReputationChangeValue"
           }
          }
         }

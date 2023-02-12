@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionDestroyBarbedWire)]
 class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 {
 	string m_SlotName;

@@ -21,7 +21,7 @@ modded class DayZPlayerImplement
 
 	bool m_ExForceUnlink;
 
-	bool m_IsAttached;
+	bool m_ExIsAttached;
 
 	ref SHumanCommandClimbResult m_ExClimbResult;
 	int m_ExClimbType;
@@ -47,7 +47,7 @@ modded class DayZPlayerImplement
 		//SetEventMask(EntityEvent.SIMULATE | EntityEvent.POSTSIMULATE);
 		//SetEventMask(EntityEvent.FRAME | EntityEvent.POSTFRAME);
 
-		RegisterNetSyncVariableBool("m_IsAttached");
+		RegisterNetSyncVariableBool("m_ExIsAttached");
 
 		m_ExClimbResult = new SHumanCommandClimbResult;
 	}
@@ -70,24 +70,51 @@ modded class DayZPlayerImplement
 
 	bool CallExpansionClimbCode()
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 		Object attchObh;
 		if (!Object.CastTo(attchObh, m_ExClimbResult.m_ClimbStandPointParent))
+		{
+		#ifdef DIAG
+			trace.Info("No climb standpoint parent");
+		#endif
 			return false;
+		}
+
+		if (m_ExClimbResult.m_bIsClimbOver)
+		{
+		#ifdef DIAG
+			trace.Info("Climb over " + attchObh);
+		#endif
+			return false;
+		}
 
 		if (!ExpansionAttachmentHelper.CanAttachTo(this, attchObh))
+		{
+		#ifdef DIAG
+			trace.Info("Cannot attach to " + attchObh);
+		#endif
 			return false;
+		}
 
 		if (attchObh == GetParent())
+		{
+		#ifdef DIAG
+			trace.Info("Already attached to " + attchObh);
+		#endif
 			return false;
+		}
 
 		return true;
 	}
 
-	void OnClimbStart(int climbType)
+	void Expansion_OnClimbStart(int climbType)
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_1(EXTrace.PLAYER, this).Add(climbType);
+	#endif
 
 		//if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE || m_ExIsAwaitingServerLink || m_ExClimbType != -1)
 		//{
@@ -100,7 +127,9 @@ modded class DayZPlayerImplement
 
 		if (!ExpansionAttachmentHelper.CanAttachTo(this, m_ExAttachmentObject))
 		{
-			trace.Info("Do not need to attach to object " + m_ExAttachmentObject);
+		#ifdef DIAG
+			trace.Info("Cannot attach to " + m_ExAttachmentObject);
+		#endif
 
 			m_ExAttachmentObject = NULL;
 
@@ -113,7 +142,9 @@ modded class DayZPlayerImplement
 
 		if (m_ExAttachmentObject == GetParent())
 		{
+		#ifdef DIAG
 			trace.Info("Can climb because we are already attached " + m_ExAttachmentObject);
+		#endif
 
 			StartCommand_Climb(m_ExClimbResult, m_ExClimbType);
 
@@ -124,11 +155,13 @@ modded class DayZPlayerImplement
 
 		if (GetParent())
 		{
+		#ifdef DIAG
 			trace.Info("Unlink from parent " + GetParent());
+		#endif
 
 			UnlinkFromLocalSpace();
 
-			m_IsAttached = false;
+			m_ExIsAttached = false;
 
 			m_ExIsAwaitingServerLink = true;
 
@@ -139,7 +172,9 @@ modded class DayZPlayerImplement
 		}
 		else
 		{
+		#ifdef DIAG
 			trace.Info("Will perform attach, then climb");
+		#endif
 			
 			m_ExPerformClimbAttach = true;
 
@@ -149,7 +184,11 @@ modded class DayZPlayerImplement
 
 	override bool CanClimb(int climbType, SHumanCommandClimbResult climbRes)
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+
+		trace.Info("m_ExPlayerLinkType " + typename.EnumToString(ExpansionPlayerLink, m_ExPlayerLinkType));
+	#endif
 
 		if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE)
 			return false;
@@ -162,7 +201,9 @@ modded class DayZPlayerImplement
 	 */
 	void Expansion_PrepareGettingInVehicle()
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 		if (!Class.CastTo(m_ExAttachmentObject, GetParent()))
 		{
@@ -177,11 +218,13 @@ modded class DayZPlayerImplement
 
 		UnlinkFromLocalSpace();
 
-		m_IsAttached = false;
+		m_ExIsAttached = false;
 
 		if (GetGame().IsServer())
 		{
+		#ifdef DIAG
 			trace.Info("Sending to client");
+		#endif
 			DayZPlayerSyncJunctures.ExpansionSendGetInTransportUnlink(this);
 		}
 	}
@@ -193,7 +236,9 @@ modded class DayZPlayerImplement
 
 	void Expansion_GettingOutVehicle()
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 		if (!Class.CastTo(m_ExAttachmentObject, GetParent()))
 		{
@@ -201,26 +246,30 @@ modded class DayZPlayerImplement
 		}
 	}
 
-	bool CanPerformVehicleGetIn()
+	bool Expansion_CanPerformVehicleGetIn()
 	{
 		return m_ExPerformVehicleGetIn;
 	}
 
-	bool IsPreparingVehicle()
+	bool Expansion_IsPreparingVehicle()
 	{
 		return m_ExIsPreparingVehicle;
 	}
 
-	void EndVehiclePrep()
+	void Expansion_EndVehiclePrep()
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 		m_ExIsPreparingVehicle = false;
 		m_ExPerformVehicleGetIn = false;
 
 		if (GetGame().IsClient())
 		{
+		#ifdef DIAG
 			trace.Info("Sending to server");
+		#endif
 
 			ScriptInputUserData ctx = new ScriptInputUserData;
 			ctx.Write(EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK);
@@ -267,12 +316,20 @@ modded class DayZPlayerImplement
 
 	bool IsAttached()
 	{
-		return m_IsAttached;
+		Error("DEPRECATED - please use Expansion_IsAttached()");
+		return Expansion_IsAttached();
 	}
 
-	void AttachTo(IEntity target, bool already_validated = false)
+	bool Expansion_IsAttached()
 	{
+		return m_ExIsAttached;
+	}
+
+	void Expansion_AttachTo(IEntity target, bool already_validated = false)
+	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 
@@ -288,29 +345,35 @@ modded class DayZPlayerImplement
 				vector size[2];
 				m_ExAttachmentRadius = m_ExAttachmentObject.ClippingInfo(size);
 
+			#ifdef DIAG
 				trace.Info("success");
+			#endif
 			}
 			else
 			{
 				m_ExAttachmentObject = NULL;
 				m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 
+			#ifdef DIAG
 				trace.Info("failure");
+			#endif
 			}
 		}
 
 		if (m_ExAttachmentObject)
 		{
-			m_IsAttached = true;
+			m_ExIsAttached = true;
 		}
 	}
 
-	void Detach()
+	void Expansion_Detach()
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 		m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
-		m_IsAttached = false;
+		m_ExIsAttached = false;
 
 		if (IsMissionClient())
 		{
@@ -320,7 +383,9 @@ modded class DayZPlayerImplement
 
 	override bool OnInputUserDataProcess(int userDataType, ParamsReadContext ctx)
 	{
+	#ifdef DIAG
 		CF_Trace trace;
+	#endif
 
 		if (super.OnInputUserDataProcess(userDataType, ctx))
 		{
@@ -329,7 +394,9 @@ modded class DayZPlayerImplement
 
 		if (userDataType == EXPANSION_INPUT_UDT_PLAYER_LINK)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_INPUT_UDT_PLAYER_LINK");
+		#endif
 
 			if (!ctx.Read(m_ExPlayerLinkType))
 			{
@@ -349,7 +416,9 @@ modded class DayZPlayerImplement
 
 				if (m_ExAttachmentObject == null || ExpansionAttachmentHelper.CanAttachTo(this, m_ExAttachmentObject) == false)
 				{
+				#ifdef DIAG
 					trace.Info("Force Reject");
+				#endif
 
 					m_ExAttachmentObject = null;
 					m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
@@ -357,8 +426,10 @@ modded class DayZPlayerImplement
 					DayZPlayerSyncJunctures.ExpansionSendForceUnlink(this);
 				}
 
+			#ifdef DIAG
 				trace.Info("m_ExAttachmentObject: " + m_ExAttachmentObject);
 				trace.Info("m_ExPlayerLinkType: " + m_ExPlayerLinkType);
+			#endif
 			}
 
 			return true;
@@ -366,7 +437,9 @@ modded class DayZPlayerImplement
 
 		if (userDataType == EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK");
+		#endif
 
 			m_ExPerformVehicleGetIn = true;
 
@@ -375,7 +448,9 @@ modded class DayZPlayerImplement
 
 		if (userDataType == EXPANSION_INPUT_UDT_PERFORM_CLIMB)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_INPUT_UDT_PERFORM_CLIMB");
+		#endif
 
 			m_ExPerformClimb = true;
 			return true;
@@ -386,32 +461,42 @@ modded class DayZPlayerImplement
 
 	override void OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
 	{
+	#ifdef DIAG
 		CF_Trace trace;
+	#endif
 
 		super.OnSyncJuncture(pJunctureID, pCtx);
 
 		switch (pJunctureID)
 		{
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_NEXT_LINK:
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_NEXT_LINK");
+		#endif
 			DayZPlayerSyncJunctures.ExpansionReadNextLink(pCtx);
 
 			m_ExIsAwaitingServerLink = false;
 			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_PERFORM_CLIMB:
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_PERFORM_CLIMB");
+		#endif
 
 			DayZPlayerSyncJunctures.ExpansionReadPerformClimb(pCtx, m_ExPerformClimb, m_ExPerformClimbAttach);
 			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_GET_IN_TRANSPORT_UNLINK:
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_GET_IN_TRANSPORT_UNLINK");
+		#endif
 
 			DayZPlayerSyncJunctures.ExpansionReadGetInTransportUnlink(pCtx);
 
 			m_ExPerformVehicleGetIn = true;
 			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_FORCE_UNLINK:
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_FORCE_UNLINK");
+		#endif
 
 			DayZPlayerSyncJunctures.ExpansionReadForceUnlink(pCtx);
 
@@ -510,14 +595,16 @@ modded class DayZPlayerImplement
 	 */
 	void Expansion_RunAttachment(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished, bool pPerformOnServer)
 	{
+	#ifdef DIAG
 		CF_Trace trace;
+	#endif
 
 		if (m_ExForceUnlink && (IsMissionClient() || pPerformOnServer))
 		{
 			if (m_ExAttachmentObject == GetParent() && m_ExAttachmentObject)
 			{
 				UnlinkFromLocalSpace();
-				m_IsAttached = false;
+				m_ExIsAttached = false;
 
 				OnExpansionDetachFrom(m_ExAttachmentObject);
 
@@ -536,7 +623,9 @@ modded class DayZPlayerImplement
 
 		if (m_ExPerformClimb)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("PerformClimb");
+		#endif
 
 			StartCommand_Climb(m_ExClimbResult, m_ExClimbType);
 
@@ -546,7 +635,9 @@ modded class DayZPlayerImplement
 
 			if (!pPerformOnServer)
 			{
+			#ifdef DIAG
 				trace.Info("pPerformOnServer: " + pPerformOnServer);
+			#endif
 
 				if (GetGame().IsServer())
 				{
@@ -566,26 +657,36 @@ modded class DayZPlayerImplement
 
 		if (m_ExPerformClimbAttach)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("PerformClimbAttach");
+		#endif
 
 			m_ExPerformClimbAttach = false;
 
+		#ifdef DIAG
 			trace.Info("Attaching onto " + m_ExAttachmentObject);
+		#endif
 
 			if (!dBodyIsActive(m_ExAttachmentObject) && IsMissionHost())
 			{
+			#ifdef DIAG
 				trace.Info("is not active and is server");
+			#endif
 
 				if (m_ExAttachmentObject.IsInherited(CarScript))
 				{
+				#ifdef DIAG
 					trace.Info("is car");
+				#endif
 
 					//! Allow climbing onto inactive vehicles (this is the only way to get into the Merlin from ground)
 					dBodyActive(m_ExAttachmentObject, ActiveState.ACTIVE);
 				}
 				else
 				{
+				#ifdef DIAG
 					trace.Info("is not car");
+				#endif
 
 					if (!pPerformOnServer)
 					{
@@ -602,7 +703,7 @@ modded class DayZPlayerImplement
 
 			LinkToLocalSpaceOf(m_ExAttachmentObject, m_ExTransformLocal);
 
-			m_IsAttached = true;
+			m_ExIsAttached = true;
 
 			m_ExAttachmentObject.Update();
 
@@ -620,7 +721,7 @@ modded class DayZPlayerImplement
 			return;
 		}
 
-		if (IsPreparingVehicle())
+		if (Expansion_IsPreparingVehicle())
 		{
 			return;
 		}
@@ -629,7 +730,9 @@ modded class DayZPlayerImplement
 
 		if ((IsMissionClient() || pPerformOnServer) && m_ExPlayerLinkType == ExpansionPlayerLink.NONE && !m_ExIsAwaitingServerLink)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER_CONSTANT, this);
+		#endif
 
 			// GetParent() and parent must match
 			if (parent == GetParent())
@@ -672,45 +775,65 @@ modded class DayZPlayerImplement
 						{
 							if (parent && parent != target) // Detach the player if the parent object is not the same as the target, we have to deal with attachment in next frame.
 							{
-								trace.Info("Current parent doesn't match target, detaching");
+							#ifdef DIAG
+								trace.Add("Raycast");
+								trace.Info("Current parent doesn't match target, detaching from " + parent);
+							#endif
 
-								Detach();
+								Expansion_Detach();
 							}
 							else if (!parent) // If the parent is null, verify the target and attach the player
 							{
-								trace.Info("Attaching to target");
+							#ifdef DIAG
+								trace.Add("Raycast");
+								trace.Info("Attaching to target " + target);
+							#endif
 
-								AttachTo(target);
+								Expansion_AttachTo(target);
 							}
 						}
 						else if (parent && parent == m_ExAttachmentObject)
 						{
-							trace.Info("Successful raycast with parent, no target, detatching");
+						#ifdef DIAG
+							trace.Add("Raycast");
+							trace.Info("Successful raycast with parent " + parent + ", no target");
+						#endif
 
-							Detach();
+							Expansion_Detach();
 						}
 					}
 					else if (parent && parent == m_ExAttachmentObject) // Currently have a parent when the raycast failed, forcefully detach the player
 					{
-						trace.Info("Unsuccessfuly raycast with parent, detatching");
-						Detach();
+					#ifdef DIAG
+						trace.Add("Raycast");
+						trace.Info("Unsuccessful raycast with parent, detatching from " + parent);
+					#endif
+						Expansion_Detach();
 					}
 				}
 				else if (parent && m_ExRaycastResultType == ExpansionPlayerRaycastResult.DETACH)
 				{
-					trace.Info("State requests detach");
+				#ifdef DIAG
+					trace.Add("Raycast");
+					trace.Info("State requests detach from " + parent);
+				#endif
 
-					Detach();
+					Expansion_Detach();
 				}
 			}
 			else if (parent)
 			{
-				trace.Info("Parents don't match, detach");
+			#ifdef DIAG
+				trace.Add("Detach");
+				trace.Info("Parents don't match, new parent " + GetParent() + ", detaching from " + parent);
+			#endif
 
-				Detach();
+				Expansion_Detach();
 			}
 
+		#ifdef DIAG
 			delete trace;
+		#endif
 		}
 
 		m_ExPlayerLinkTypeFrameDelayed = m_ExPlayerLinkType;
@@ -720,15 +843,24 @@ modded class DayZPlayerImplement
 		// Attachment code
 		if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE && notRemote)
 		{
+		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this);
 			trace.Add(m_ExPlayerLinkType, ExpansionPlayerLink);
+		#endif
 
 			switch (m_ExPlayerLinkType)
 			{
 			case ExpansionPlayerLink.DETACH:
 			{
+			#ifdef DIAG
+				trace.Info("DETACH m_ExAttachmentObject: " + m_ExAttachmentObject);
+			#endif
+
 				if (m_ExAttachmentObject == GetParent())
 				{
+				#ifdef DIAG
+					trace.Info("DETACH parent: " + GetParent());
+				#endif
 					UnlinkFromLocalSpace();
 				}
 
@@ -737,7 +869,7 @@ modded class DayZPlayerImplement
 					OnExpansionDetachFrom(m_ExAttachmentObject);
 				}
 
-				m_IsAttached = false;
+				m_ExIsAttached = false;
 
 				//m_ExAttachmentObject.Update();
 
@@ -748,7 +880,9 @@ modded class DayZPlayerImplement
 			}
 			case ExpansionPlayerLink.ATTACH:
 			{
-				trace.Info("m_ExAttachmentObject: " + m_ExAttachmentObject);
+			#ifdef DIAG
+				trace.Info("ATTACH m_ExAttachmentObject: " + m_ExAttachmentObject);
+			#endif
 
 				if (m_ExAttachmentObject.IsInherited(CarScript) && !dBodyIsActive(m_ExAttachmentObject))
 				{
@@ -762,7 +896,7 @@ modded class DayZPlayerImplement
 
 				LinkToLocalSpaceOf(m_ExAttachmentObject, m_ExTransformLocal);
 				
-				m_IsAttached = true;
+				m_ExIsAttached = true;
 
 				m_ExAttachmentObject.Update();
 
@@ -776,7 +910,9 @@ modded class DayZPlayerImplement
 			// Send the user input to the server
 			if (GetGame().IsClient())
 			{
+			#ifdef DIAG
 				trace.Info("Sending Context to Server");
+			#endif
 
 				if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE)
 				{
@@ -790,7 +926,9 @@ modded class DayZPlayerImplement
 					ctx.Send();
 				}
 
+			#ifdef DIAG
 				trace.Info("Sent Context to Server");
+			#endif
 			}
 			else if (GetGame().IsMultiplayer())
 			{
@@ -803,13 +941,17 @@ modded class DayZPlayerImplement
 
 			m_ExPlayerLinkType = ExpansionPlayerLink.NONE;
 
+		#ifdef DIAG
 			delete trace;
+		#endif
 		}
 	}
 
 	void OnExpansionAttachTo(Object obj, vector transform[4])
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 #ifdef EXPANSIONMODVEHICLE
 		CarScript car;
@@ -822,7 +964,9 @@ modded class DayZPlayerImplement
 
 	void OnExpansionDetachFrom(Object obj)
 	{
+	#ifdef DIAG
 		auto trace = CF_Trace_0(EXTrace.PLAYER, this);
+	#endif
 
 #ifdef EXPANSIONMODVEHICLE
 		CarScript car;
@@ -852,7 +996,6 @@ modded class DayZPlayerImplement
 		instance.Add("Instance Type", GetInstanceType(), DayZPlayerInstanceType);
 
 		instance.Add("Mission Client", IsMissionClient());
-		instance.Add("Preparing Vehicle", IsPreparingVehicle());
 
 		instance.Add("Perform Climb", m_ExPerformClimb);
 		instance.Add("Perform Vehicle Get In", m_ExPerformVehicleGetIn);

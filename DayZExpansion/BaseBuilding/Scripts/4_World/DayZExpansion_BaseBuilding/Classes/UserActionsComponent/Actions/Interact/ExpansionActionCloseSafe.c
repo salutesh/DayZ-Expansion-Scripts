@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionCloseSafe)]
 class ExpansionActionCloseSafe: ActionInteractBase
 {
 	void ExpansionActionCloseSafe()

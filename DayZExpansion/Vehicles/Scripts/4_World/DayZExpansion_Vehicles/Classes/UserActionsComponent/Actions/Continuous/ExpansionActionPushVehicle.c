@@ -110,9 +110,6 @@ class ExpansionActionPushVehicleCB : ActionContinuousBaseCB
 	}
 };
 
-#ifdef DIAG
-[RegisterAction(ExpansionActionPushVehicle)]
-#endif
 class ExpansionActionPushVehicle : ActionContinuousBase
 {
 	void ExpansionActionPushVehicle()

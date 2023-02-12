@@ -35,7 +35,7 @@ modded class DayZPlayerCamera3rdPerson
 	{
 		super.Ex_OnUpdate(pDt, pOutResult);
 
-		if (m_Ex_Player.IsAttached())
+		if (m_Ex_Player.Expansion_IsAttached())
 		{
 			pOutResult.m_CollisionIgnoreEntity = m_pPlayer.GetParent();
 			pOutResult.m_fIgnoreParentRoll = 1.0;

@@ -12,7 +12,11 @@
 
 #ifdef JM_COT
 #ifdef EXPANSIONCOTESPMODULE
+#ifdef JM_COT_EXPTRANSITION_1
+modded class JMESPMetaCar
+#else
 class JMESPMetaCar : JMESPMeta
+#endif
 {
 	ExpansionESPModificationModule exp_Module;
 

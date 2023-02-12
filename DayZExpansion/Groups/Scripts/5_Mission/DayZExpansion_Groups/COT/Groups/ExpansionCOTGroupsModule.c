@@ -39,6 +39,10 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 		
 	}
 	
+	override void EnableUpdate()
+	{
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionCOTGroupModule HasAccess
 	// ------------------------------------------------------------	
@@ -613,7 +617,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 			return false;
 		}
 		
-		if (partyModule.HasParty(targetPlayer))
+		if (targetPlayer.Expansion_GetParty())
 		{
 			ExpansionNotification("[COT] Expansion Groups Manager", "STR_EXPANSION_PARTY_ERROR_IN_PARTY").Error(sender);
 			return false;

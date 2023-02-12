@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Vehicles_Ground_Hatchback_02
 	{
-		units[] = {"Hatchback_02_Hood","Hatchback_02_Trunk","Hatchback_02_Hood_Red","Hatchback_02_Trunk_Red","Hatchback_02_Hood_Black","Hatchback_02_Trunk_Black","Hatchback_02_Hood_Blue","Hatchback_02_Trunk_Blue","Hatchback_02_Hood_RedRust","Hatchback_02_Trunk_RedRust","Hatchback_02_Hood_BlackRust","Hatchback_02_Trunk_BlackRust","Hatchback_02_Hood_BlueRust","Hatchback_02_Trunk_BlueRust","Hatchback_02_Hood_BanditKitty","Hatchback_02_Trunk_BanditKitty"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Vehicles_Data"};
@@ -16,7 +16,6 @@ class CfgVehicles
 	class ExpansionVehicleCarBase;
 	class CarDoor;
 	class CarScript;
-	class ExpansionCarDoorFix;
 	class Crew;
 	class Driver;
 	class CoDriver;
@@ -875,30 +874,6 @@ class CfgVehicles
 				};
 			};
 		};
-	};
-	class Expansion_Hatchback_02_Door_1_1: ExpansionCarDoorFix
-	{
-		newBase = "Hatchback_02_Door_1_1";
-	};
-	class Expansion_Hatchback_02_Door_1_2: ExpansionCarDoorFix
-	{
-		newBase = "Hatchback_02_Door_1_2";
-	};
-	class Expansion_Hatchback_02_Door_2_1: ExpansionCarDoorFix
-	{
-		newBase = "Hatchback_02_Door_2_1";
-	};
-	class Expansion_Hatchback_02_Door_2_2: ExpansionCarDoorFix
-	{
-		newBase = "Hatchback_02_Door_2_2";
-	};
-	class Expansion_Hatchback_02_Hood: ExpansionCarDoorFix
-	{
-		newBase = "Hatchback_02_Hood";
-	};
-	class Expansion_Hatchback_02_Trunk: ExpansionCarDoorFix
-	{
-		newBase = "Hatchback_02_Trunk";
 	};
 	class Hatchback_02_Red: Hatchback_02
 	{

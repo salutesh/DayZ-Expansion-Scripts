@@ -114,7 +114,7 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestPersistentServerData>.JsonSaveFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, data);
+			data.Save();
 		}
 
 		return data;
@@ -122,7 +122,7 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 
 	void Save()
 	{
-		JsonFileLoader<ExpansionQuestPersistentServerData>.JsonSaveFile(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, this);
+		ExpansionJsonFileParser<ExpansionQuestPersistentServerData>.Save(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, this);
 	}
 
 	void CopyConfig(ExpansionQuestPersistentServerDataBase dataBase)

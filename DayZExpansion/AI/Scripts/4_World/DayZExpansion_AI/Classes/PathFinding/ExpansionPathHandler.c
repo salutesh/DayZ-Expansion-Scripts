@@ -609,7 +609,8 @@ class ExpansionPathHandler
 
 	int GetNext(out vector position)
 	{
-		position = m_Next0.GetPosition();// + CalculateOffset();
+		if (m_Count)
+			position = m_Next0.GetPosition();// + CalculateOffset();
 
 		return m_Count;
 	}

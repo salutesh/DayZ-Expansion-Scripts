@@ -8,7 +8,6 @@ class CfgPatches
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Surfaces_Bliss","DZ_Worlds_Chernarusplus_World"};
-		worlds[] = {};
 	};
 };
 class CfgWorlds
@@ -470,7 +469,6 @@ class CfgWorlds
 		hazeDistCoef = -1.0;
 		hazeFogCoef = 2.0;
 		volFogOffset = 2.0;
-		rainMaterial = "{AD76A616D0EF1ABC}Graphics/Materials/postprocess/rain.emat";
 		oceanMaterial = "{5DCC3416E18F592C}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean.emat";
 		oceanNiceMaterial = "{71A6259AA29D1AFA}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Nice.emat";
 		oceanStormMaterial = "{52820612B43B2E7B}DayZExpansion/Particles/Materials/World/Expansion_Material_Ocean_Storm.emat";

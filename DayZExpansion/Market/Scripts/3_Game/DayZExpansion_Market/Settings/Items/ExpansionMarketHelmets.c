@@ -58,12 +58,14 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 		AddItem("MotoHelmet_Green", 				80,		160,	1,		100);
 
 		AddItem("DarkMotoHelmet_Grey", 				80,		170,	1,		100);
-		AddItem("DarkMotoHelmet_Lime", 			80,		170,	1,		100);
+		AddItem("DarkMotoHelmet_Lime", 				80,		170,	1,		100);
 		AddItem("DarkMotoHelmet_Blue", 				80,		170,	1,		100);
 		AddItem("DarkMotoHelmet_Red", 				80,		170,	1,		100);
 		AddItem("DarkMotoHelmet_White", 			80,		170,	1,		100);
 		AddItem("DarkMotoHelmet_Black", 			85,		170,	1,		100);
 		AddItem("DarkMotoHelmet_Green", 			90,		180,	1,		100);
+		AddItem("DarkMotoHelmet_Yellow", 			90,		180,	1,		100);
+		AddItem("DarkMotoHelmet_YellowScarred", 	90,		180,	1,		100);
 
 		AddItem("TankerHelmet", 					100,	200,	1,		100);
 		

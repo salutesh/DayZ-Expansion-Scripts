@@ -150,6 +150,7 @@ class ExpansionPhysicsState
 
 		//! Client/server (not netsynched), but used for different purpose
 		m_IsSync = true;
+		m_SyncPosition = pos;
 
 		//! Server only
 		if (GetGame().IsServer())

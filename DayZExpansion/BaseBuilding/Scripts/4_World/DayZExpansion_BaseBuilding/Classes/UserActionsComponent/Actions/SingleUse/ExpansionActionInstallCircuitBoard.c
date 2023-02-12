@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionInstallCircuitBoard)]
 class ExpansionActionInstallCircuitBoard: ActionSingleUseBase
 {
 	protected int m_Expansion_CircuitBoardSlotId;

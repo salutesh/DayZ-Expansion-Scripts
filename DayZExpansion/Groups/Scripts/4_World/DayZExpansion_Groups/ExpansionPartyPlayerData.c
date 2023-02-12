@@ -48,11 +48,18 @@ class ExpansionPartyPlayerData
 			delete Marker;
 	}
 
-	void OnLeave()	{}
+	void OnLeave()
+	{
+		if (Player)
+			Player.m_Expansion_PartyPlayerData = NULL;
+		Player = NULL;
+	}
 
 	void OnJoin(PlayerBase player)
 	{
 		Name = player.GetIdentityName();
+		Player = player;
+		Player.m_Expansion_PartyPlayerData = this;
 	}
 	
 	void OnStoreSave(ParamsWriteContext ctx)

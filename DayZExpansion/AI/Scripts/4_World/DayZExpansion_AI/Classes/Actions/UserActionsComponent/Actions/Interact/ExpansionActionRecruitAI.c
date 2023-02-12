@@ -1,0 +1,65 @@
+/**
+ * ExpansionActionRecruitAI.c
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
+
+[RegisterAction(ExpansionActionRecruitAI)]
+class ExpansionActionRecruitAI: ActionInteractBase
+{
+	void ExpansionActionRecruitAI()
+	{
+		m_CommandUID = DayZPlayerConstants.CMD_GESTUREMOD_COME;
+		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_HUDCursorIcon = CursorIcons.Cursor;
+		m_Text = "#STR_EXPANSION_AI_RECRUIT";
+	}
+
+	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
+	{
+		eAIBase tAI;
+		if (!Class.CastTo(tAI, target.GetObject()))
+			return false;
+
+		if (!tAI.IsAlive() || tAI.IsUnconscious())
+			return false;
+
+		if (player.GetGroup() == tAI.GetGroup())
+			return false;
+
+		//! Don't allow to recruit other player's AI
+		if (tAI.GetGroup().GetLeader() && !tAI.GetGroup().GetLeader().IsAI())
+			return false;
+
+		//! Don't allow to recruit passive AI
+		if (tAI.eAI_IsPassive())
+			return false;
+
+		if ((!tAI.GetGroup().GetFaction().IsGuard() && tAI.PlayerIsEnemy(player, false)) || !GetExpansionSettings().GetAI().CanRecruitGuards)
+			return false;
+
+		return true;
+	}
+	
+	override void OnStartServer(ActionData action_data)
+	{
+		auto tAI = eAIBase.Cast(action_data.m_Target.GetObject());
+
+		eAIGroup group = action_data.m_Player.GetGroup();
+
+		//! If player has no group, create new group with player as leader
+		if (!group)
+			group = eAIGroup.GetGroupByLeader(action_data.m_Player, true, tAI.GetGroup().GetFaction());
+		else
+			action_data.m_Player.Expansion_SetFormerGroup(group);
+
+		//! Add AI to player group
+		tAI.SetGroup(group, false);
+	}
+};

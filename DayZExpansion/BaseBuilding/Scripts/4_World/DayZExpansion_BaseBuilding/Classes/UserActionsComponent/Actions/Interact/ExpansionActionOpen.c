@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionOpen)]
 class ExpansionActionOpen: ActionInteractBase
 {
 	ItemBase m_Target;

@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionOpenQuestMenu)]
 class ExpansionActionOpenQuestMenu: ActionInteractBase
 {
 	protected ExpansionQuestModule m_Expansion_QuestModule;

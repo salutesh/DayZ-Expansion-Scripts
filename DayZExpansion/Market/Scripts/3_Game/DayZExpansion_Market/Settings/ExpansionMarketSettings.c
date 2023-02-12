@@ -157,11 +157,6 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 
 		//TraderPrint("ExpansionMarketSettings - End");
 	}
-	
-	void ~ExpansionMarketSettings()
-	{
-		EXPrint("~ExpansionMarketSettings");
-	}
 
 	// ------------------------------------------------------------
 	protected void LoadCategories()

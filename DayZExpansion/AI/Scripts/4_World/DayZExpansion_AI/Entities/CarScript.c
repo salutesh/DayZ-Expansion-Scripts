@@ -55,7 +55,6 @@ modded class CarScript
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
-#ifndef DAYZ_1_18
 	override void OnInput(float dt)
 	{
 		super.OnInput(dt);
@@ -113,5 +112,4 @@ modded class CarScript
 
 		SetHandbrake(0);
 	}
-#endif
 };

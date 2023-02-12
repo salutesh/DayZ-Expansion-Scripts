@@ -62,7 +62,7 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 		if (save)
 		{
-			JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(fileName, config);
+			config.Save(fileName);
 		}
 
 		return config;
@@ -70,7 +70,10 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 	override void Save(string fileName)
 	{
-		JsonFileLoader<ExpansionQuestObjectiveTreasureHuntConfig>.JsonSaveFile(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + ".json", this);
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+	
+		ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveTreasureHuntConfigBase configBase)

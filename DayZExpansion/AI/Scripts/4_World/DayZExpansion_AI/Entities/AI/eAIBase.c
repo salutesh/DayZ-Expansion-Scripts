@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 class eAIBase extends PlayerBase
 {
 	const int EAI_COMMANDID_MOVE = 1;
@@ -48,7 +49,7 @@ class eAIBase extends PlayerBase
 
 	private bool m_eAI_Melee;
 	private bool m_eAI_MeleeDidHit;
-	private float m_eAI_MeleeTimeout;
+	private int m_eAI_MeleeTime;
 
 	private ref eAIAimingProfile m_AimingProfile;
 
@@ -105,6 +106,7 @@ class eAIBase extends PlayerBase
 	/*private*/ ref eAIPathFinding m_PathFinding;
 #endif
 	bool m_eAI_TargetPositionIsFinal;
+	bool m_eAI_PositionIsFinal;
 
 	private float m_eAI_DoorInteractionTimeout;
 
@@ -124,6 +126,9 @@ class eAIBase extends PlayerBase
 	int m_Expansion_EmoteAutoCancelDelay; //! ms
 
 	ref map<int, Object> m_Expansion_DebugObjects = new map<int, Object>();
+
+	int m_eAI_MinTimeTillNextFire;
+	int m_eAI_QueuedShots;
 
 	void eAIBase()
 	{
@@ -353,6 +358,11 @@ class eAIBase extends PlayerBase
 
 	bool PlayerIsEnemy(EntityAI other)
 	{
+		return PlayerIsEnemy(other, true);
+	}
+
+	bool PlayerIsEnemy(EntityAI other, bool safeZoneCheck)
+	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "PlayerIsEnemy").Add(other);
 #endif
@@ -361,7 +371,10 @@ class eAIBase extends PlayerBase
 		if (!player)
 			return true;
 
-		if (player.Expansion_IsInSafeZone())
+		if (player.Expansion_HasAdminToolGodMode() || player.Expansion_HasAdminToolInvisibility())
+			return false;
+
+		if (safeZoneCheck && player.Expansion_IsInSafeZone())
 			return false;
 
 		if (!GetGroup())
@@ -372,7 +385,7 @@ class eAIBase extends PlayerBase
 			if (player.GetGroup() == GetGroup())
 				return false;
 
-			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()))
+			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendly(this))
 			{
 				if (eAI_IsPassive())
 					return player.GetTargetInformation().IsTargetted(GetGroup());
@@ -383,45 +396,143 @@ class eAIBase extends PlayerBase
 			//! If the other player is a guard and we are not a guard, consider them an enemy if WE raise our weapon
 			//! (because then THEY will consider us a threat)
 			if (player.GetGroup().GetFaction().IsGuard())
-				return IsRaised();
+				return IsRaised() || IsFighting();
 		}
+
+		if (GetGroup().GetFaction().IsFriendly(other))
+		{
+			if (eAI_IsPassive())
+				return player.GetTargetInformation().IsTargetted(GetGroup());
+			else
+				return false;
+		}
+
+#ifdef EXPANSIONMODGROUPS
+		if (GetGame().IsServer())
+		{
+			PlayerBase leader;
+			PlayerBase otherLeader;
+			if (player.GetGroup())
+				Class.CastTo(otherLeader, player.GetGroup().GetLeader());
+			else
+				Class.CastTo(otherLeader, player);
+			if (otherLeader && otherLeader.Expansion_GetParty() && Class.CastTo(leader, GetGroup().GetLeader()) && leader.Expansion_GetParty())
+			{
+				//! If leaders of both AI groups are actual players or other player has no AI group,
+				//! check if they are in the same Expansion party, and if so,
+				//! AI will not be hostile to the other group/player
+				if (leader.Expansion_GetParty() == otherLeader.Expansion_GetParty())
+					return false;
+			}
+		}
+#endif
 
 		// at this point we know both we and they have groups, and the groups aren't friendly towards each other
 		return true;
 	}
 
-	int m_MinTimeTillNextFire;
 	void TryFireWeapon()
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "TryFireWeapon");
 #endif
 
-		if (GetGame().GetTime() < m_MinTimeTillNextFire)
+		if (GetGame().GetTime() < m_eAI_MinTimeTillNextFire)
 			return;
-		m_MinTimeTillNextFire = GetGame().GetTime() + 250.0;
 
 		Weapon_Base weapon = Weapon_Base.Cast(GetHumanInventory().GetEntityInHands());
 		if (!weapon)
 			return;
 
-		if (GetDayZPlayerInventory().IsProcessing())
-			return;
-		if (!IsRaised())
-			return;
-		if (!weapon.CanFire())
-			return;
-		if (GetWeaponManager().IsRunning())
-			return;
-
-		int muzzleIndex = weapon.GetCurrentMuzzle();
-		if (!weapon.CanFire(muzzleIndex))
+		if (!eAI_CanFire(weapon))
 			return;
 
 		if (!eAI_HasLOS())
 			return;
 
+		if (m_eAI_QueuedShots > 0)
+		{
+			//! Continue firing in current mode until all queued shots fired
+		}
+		else if (Math.RandomFloat(0.0, 1.0) > 0.40)
+		{
+			//! Determine firing mode
+
+			float distSq = GetTarget().GetDistanceSq(this, true);
+
+			bool burst;
+			bool fullAuto;
+
+			if (distSq < 200)
+			{
+				if (Math.RandomFloat(0.0, 1.0) > 0.60 || !weapon.Expansion_SetFireMode(ExpansionFireMode.FullAuto))
+					burst = weapon.Expansion_SetFireMode(ExpansionFireMode.Burst);
+				else
+					fullAuto = true;
+			}
+			else if (distSq < 1500)
+			{
+				burst = weapon.Expansion_SetFireMode(ExpansionFireMode.Burst);
+			}
+
+			if (burst)
+			{
+				weapon.ResetBurstCount();
+				m_eAI_QueuedShots = weapon.GetCurrentModeBurstSize(weapon.GetCurrentMuzzle());
+			}
+			else if (fullAuto)
+			{
+				Magazine mag;
+				if (Class.CastTo(mag, weapon.GetMagazine(weapon.GetCurrentMuzzle())))
+					m_eAI_QueuedShots = Math.Ceil(((200 - distSq) / 200) * Math.Min(mag.GetAmmoMax() / 4, mag.GetAmmoCount()));
+			}
+			else
+			{
+				weapon.Expansion_SetFireMode(ExpansionFireMode.SemiAuto);
+			}
+		}
+		else
+		{
+			weapon.Expansion_SetFireMode(ExpansionFireMode.SemiAuto);
+		}
+
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "Firing, queued shots: " + m_eAI_QueuedShots);
+	#endif
+
 		GetWeaponManager().Fire(weapon);
+
+		if (m_eAI_QueuedShots > 0)
+			m_eAI_QueuedShots--;
+
+		if (m_eAI_QueuedShots > 0)
+			m_eAI_MinTimeTillNextFire = GetGame().GetTime() + weapon.GetReloadTime(weapon.GetCurrentMuzzle()) * 1000;
+		else
+			m_eAI_MinTimeTillNextFire = GetGame().GetTime() + Math.RandomIntInclusive(200, 300);
+	}
+
+	bool eAI_CanFire(Weapon_Base weapon)
+	{
+		if (IsClimbing() || IsFalling() || IsFighting())
+			return false;
+
+		if (GetDayZPlayerInventory().IsProcessing())
+			return false;
+
+		if (!IsRaised())
+			return false;
+
+		if (!weapon.CanFire())
+			return false;
+
+		if (GetWeaponManager().IsRunning())
+			return false;
+
+		int muzzleIndex = weapon.GetCurrentMuzzle();
+		if (!weapon.CanFire(muzzleIndex))
+			return false;
+
+		return true;
 	}
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -431,7 +542,9 @@ class eAIBase extends PlayerBase
 		if (!IsAI() || !GetGroup())
 			return;
 
+	#ifdef DIAG
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	#endif
 
 		ZombieBase zmb;
 		if (Class.CastTo(zmb, source))
@@ -513,7 +626,7 @@ class eAIBase extends PlayerBase
 	ItemBase GetWeaponToUse(bool requireAmmo = false)
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_1(this, "GetWeaponToUse").Add(requireAmmo);
+		auto trace = CF_Trace_1(EXTrace.AI, this).Add(requireAmmo);
 #endif
 
 		// very messy :)
@@ -562,7 +675,6 @@ class eAIBase extends PlayerBase
 
 		Weapon_Base weapon_base = Weapon_Base.Cast(weapon);
 		eAIWeaponManager weapon_manager = eAIWeaponManager.Cast(GetWeaponManager());
-		EntityAI magazine_to_reload;
 
 		EntityAI ammo_magazine; // magazine
 		int last_ammo_magazine_count;
@@ -648,6 +760,13 @@ class eAIBase extends PlayerBase
 			}
 		}
 
+#ifdef DIAG
+		if (ammo_magazine)
+			EXTrace.Print(EXTrace.AI, this, "GetMagazineInInventory " + ammo_magazine + " ammo count " + last_ammo_magazine_count);
+		else
+			EXTrace.Print(EXTrace.AI, this, "GetMagazineInInventory " + ammo_pile + " ammo count " + last_ammo_pile_count);
+#endif
+
 		// prioritize magazine
 		if (ammo_magazine)
 		{
@@ -708,9 +827,9 @@ class eAIBase extends PlayerBase
 		EXTrace.Add(trace, multiplier);
 	}
 
-	bool IsInMelee()
+	override bool IsFighting()
 	{
-		return m_eAI_MeleeTimeout > 0;
+		return m_IsFighting || (m_eAI_MeleeTime > 0 && GetGame().GetTime() - m_eAI_MeleeTime < 1500);
 	}
 
 	eAIAimingProfile GetAimingProfile()
@@ -979,7 +1098,6 @@ class eAIBase extends PlayerBase
 		DayZPlayerImplement playerThreat;
 		ItemBase targetItem;
 		EntityAI targetEntity;
-		EntityAI entityInHands = GetHumanInventory().GetEntityInHands();
 
 		float group_count = GetGroup().Count();
 
@@ -1001,9 +1119,7 @@ class eAIBase extends PlayerBase
 			else if (Class.CastTo(targetItem, obj))
 			{
 				//! If the object is an item, ignore it if any of the following conditions are met
-				if (entityInHands)
-					continue;
-				if (!obj.IsWeapon() && !targetItem.Expansion_IsMeleeWeapon())
+				if (targetItem.IsSetForDeletion())
 					continue;
 			}
 			else if (obj.IsInherited(Building))
@@ -1072,14 +1188,15 @@ class eAIBase extends PlayerBase
 			if (m_eAI_Targets[i] == null || m_eAI_Targets[i].ShouldRemove(this))
 			{
 #ifdef DIAG
-				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
+				if (m_eAI_Targets[i])
+					EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
 #endif
-				if (!m_eAI_Targets[i].RemoveAI(this))
+				if (m_eAI_Targets[i] == null || !m_eAI_Targets[i].RemoveAI(this))
 				{
 					m_eAI_Targets.RemoveOrdered(i);
 					for (int k = m_eAI_TargetInformationStates.Count() - 1; k >= 0; k--)
 					{
-						if (!m_eAI_TargetInformationStates.GetElement(k))
+						if (!m_eAI_TargetInformationStates.GetKey(k))
 							m_eAI_TargetInformationStates.RemoveElement(k);
 					}
 				}
@@ -1092,10 +1209,6 @@ class eAIBase extends PlayerBase
 			int min_idx = i;
 			for (int j = i + 1; j < m_eAI_Targets.Count(); j++)
 			{
-				if (!m_eAI_Targets[j] && !m_eAI_Targets[min_idx])
-				{
-					continue;
-				}
 				float threat = m_eAI_Targets[j].GetThreat(this);
 				if (threat > m_eAI_Targets[min_idx].GetThreat(this))
 				{
@@ -1116,7 +1229,7 @@ class eAIBase extends PlayerBase
 			if (m_eAI_Targets[0])
 				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + m_eAI_Targets[0].info.GetEntityDebugName());
 			else
-				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - no more trargets");
+				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - no more targets");
 #endif
 		}
 	}
@@ -1171,6 +1284,11 @@ class eAIBase extends PlayerBase
 		m_eAI_Transport_SeatIndex = seatIndex;
 	}
 
+	Transport eAI_GetTransport()
+	{
+		return m_eAI_Transport;
+	}
+
 	void Notify_Melee()
 	{
 #ifdef EAI_TRACE
@@ -1180,6 +1298,19 @@ class eAIBase extends PlayerBase
 		Expansion_GetUp();
 
 		m_eAI_Melee = true;
+	}
+
+	override void OnCommandMelee2Start()
+	{
+		super.OnCommandMelee2Start();
+		EXTrace.Print(EXTrace.AI, this, "OnCommandMelee2Start");
+		m_eAI_MeleeTime = GetGame().GetTime();
+	}
+
+	override void EndFighting()
+	{
+		super.EndFighting();
+		EXTrace.Print(EXTrace.AI, this, "EndFighting - melee time " + (GetGame().GetTime() - m_eAI_MeleeTime) + " ms");
 	}
 
 	/**
@@ -1397,7 +1528,7 @@ class eAIBase extends PlayerBase
 			return;
 		}
 
-		if (item.IsInherited(BandageDressing) || item.IsInherited(Rag))
+		if (item.Expansion_CanBeUsedToBandage())
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - bandage/rag " + item);
 			m_Bandages.Insert(item);
@@ -1430,7 +1561,7 @@ class eAIBase extends PlayerBase
 			return;
 		}
 
-		if (item.IsInherited(BandageDressing) || item.IsInherited(Rag))
+		if (item.Expansion_CanBeUsedToBandage())
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveItem - bandage/rag " + item);
 			m_Bandages.RemoveItem(item);
@@ -1467,6 +1598,7 @@ class eAIBase extends PlayerBase
 			//! GetMagazineInInventory will only return non-empty mags/ammo. EXPENSIVE, use with care.
 			Class.CastTo(mag, GetMagazineInInventory(gun));
 
+			EXTrace.Print(EXTrace.AI, this, "eAI_HasAmmoForFirearm - inserting " + gun.Type() + " " + mag);
 			m_eAI_EvaluatedFirearmTypes[gun.Type()] = mag;
 
 			return mag != null;
@@ -1487,6 +1619,7 @@ class eAIBase extends PlayerBase
 
 		foreach (typename removeType: toRemove)
 		{
+			EXTrace.Print(EXTrace.AI, this, "eAI_EvaluateFirearmTypes - removing " + removeType + " " + m_eAI_EvaluatedFirearmTypes[removeType]);
 			m_eAI_EvaluatedFirearmTypes.Remove(removeType);
 		}
 	}
@@ -1579,6 +1712,10 @@ class eAIBase extends PlayerBase
 		}
 
 		m_eAI_CommandTime += pDt;
+
+		Expansion_UpdateBonePositionTimes(pDt);
+
+		GetMovementState(m_MovementState);
 
 		//! handle death with high priority
 		if (HandleDeath(pCurrentCommandID))
@@ -1926,7 +2063,7 @@ class eAIBase extends PlayerBase
 				if (m_eAI_Melee && m_eAI_MeleeDidHit)
 				{
 					m_eAI_Melee = false;
-					m_eAI_MeleeTimeout = 1.5;
+					m_eAI_MeleeTime = GetGame().GetTime();
 
 					m_eMeleeCombat.Combo(hcm2);
 				}
@@ -1935,16 +2072,11 @@ class eAIBase extends PlayerBase
 		else if (m_eAI_Melee)
 		{
 			m_eAI_Melee = false;
-			m_eAI_MeleeTimeout = 1.5;
 
 			m_eMeleeCombat.Start();
 
 			//! Prevent NULL pointers by skipping COMMANDID_SCRIPT handling
 			skipScript = true;
-		}
-		else if (IsInMelee())
-		{
-			m_eAI_MeleeTimeout -= pDt;
 		}
 
 		m_eAI_MeleeDidHit = false;
@@ -2151,7 +2283,7 @@ class eAIBase extends PlayerBase
 
 			if (obj != targetEntity && obj != parent)
 			{
-				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4))
+				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4) || contactToTargetDistSq <= 0.0625)
 					state.m_LOS = true;
 				//! If object is zombie, animal or tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
 				break;
@@ -2450,16 +2582,18 @@ class eAIBase extends PlayerBase
 
 	bool CanRaiseWeapon()
 	{
-		if (IsClimbing() || IsFalling())
+		if (!GetTarget() || IsClimbing() || IsFalling())
 			return false;
 
-		return eAI_HasLOS() && m_eAI_SideStepTimeout <= 0;
+		return (eAI_HasLOS() || GetTarget().GetDistanceSq(this) <= 900) && m_eAI_SideStepTimeout <= 0;
 	}
 
 	// @param true to put weapon up, false to lower
 	void RaiseWeapon(bool up)
 	{
 		m_WeaponRaised = up;
+		if (!up)
+			m_eAI_QueuedShots = 0;
 	}
 
 	override bool IsRaised()
@@ -2651,7 +2785,7 @@ class eAIBase extends PlayerBase
 		return eAI_TakeItemToLocation(item, il_dst);
 	}
 
-	bool eAI_TakeItemToInventory(EntityAI item, FindInventoryLocationType flags = 0)
+	bool eAI_FindFreeInventoryLocationFor(EntityAI item, FindInventoryLocationType flags = 0, out InventoryLocation il_dst = null)
 	{
 		/*!
 		 * ATTACHMENT          = 4
@@ -2665,9 +2799,16 @@ class eAIBase extends PlayerBase
 		if (!flags)
 			flags = FindInventoryLocationType.ATTACHMENT | FindInventoryLocationType.ANY_CARGO;
 
-		InventoryLocation il_dst = new InventoryLocation();
+		il_dst = new InventoryLocation();
 
-		if (!GetInventory().FindFreeLocationFor(item, flags, il_dst))
+		return GetInventory().FindFreeLocationFor(item, flags, il_dst);
+	}
+
+	bool eAI_TakeItemToInventory(EntityAI item, FindInventoryLocationType flags = 0)
+	{
+		InventoryLocation il_dst;
+
+		if (!eAI_FindFreeInventoryLocationFor(item, flags, il_dst))
 			return false;
 
 		return eAI_TakeItemToLocation(item, il_dst);
@@ -2682,9 +2823,9 @@ class eAIBase extends PlayerBase
 		if (il_src.CompareLocationOnly(il_dst) && il_src.GetFlip() == il_dst.GetFlip())
 			return false;
 
-		if (il_dst.GetType() == InventoryLocationType.HANDS)
+		if (il_dst.GetType() == InventoryLocationType.HANDS || il_src.GetType() == InventoryLocationType.HANDS)
 		{
-			//! Forcing switch to HumanCommandMove before taking to hands,
+			//! Forcing switch to HumanCommandMove before taking to/from hands,
 			//! and hiding/showing item in hands after, unbreaks hand anim state
 			if (!GetCommand_Move())
 				StartCommand_Move();
@@ -2692,10 +2833,24 @@ class eAIBase extends PlayerBase
 				m_eAI_CommandTime = 0.0;
 		}
 
+		if (il_src.GetType() == InventoryLocationType.HANDS)
+		{
+			//! Forcing switch to HumanCommandMove before taking from hands,
+			//! and hiding item in hands before, unbreaks hand anim state
+			GetItemAccessor().HideItemInHands(true);
+		}
+
 		if (GetGame().IsMultiplayer())
 			GetGame().RemoteObjectTreeDelete(item);
 
 		bool result = LocalTakeToDst(il_src, il_dst);
+
+		if (il_src.GetType() == InventoryLocationType.HANDS)
+		{
+			//! Forcing switch to HumanCommandMove before taking from hands,
+			//! and showing item in hands after, unbreaks hand anim state
+			GetItemAccessor().HideItemInHands(false);
+		}
 
 		if (result)
 		{
@@ -2846,6 +3001,9 @@ class eAIBase extends PlayerBase
 
 	bool HandleVaulting(float pDt)
 	{
+		if (m_eAI_PositionIsFinal)
+			return false;
+
 		//if (!m_PathFinding.IsVault())
 		//{
 		//	return false;
@@ -2866,24 +3024,6 @@ class eAIBase extends PlayerBase
 		{
 			return false;
 		}
-
-		return true;
-	}
-
-	bool eAI_IsClimb()
-	{
-		if (!m_ExClimbResult)
-			return false;
-
-		if (!m_ExClimbResult.m_bIsClimb && !m_ExClimbResult.m_bIsClimbOver)
-			return false;
-			
-		if (!eAI_CanClimbOn(m_ExClimbResult.m_GrabPointParent, m_ExClimbResult))
-			return false;
-		if (!eAI_CanClimbOn(m_ExClimbResult.m_ClimbStandPointParent, m_ExClimbResult))
-			return false;
-		if (!eAI_CanClimbOn(m_ExClimbResult.m_ClimbOverStandPointParent, m_ExClimbResult))
-			return false;
 
 		return true;
 	}
@@ -2968,7 +3108,10 @@ class eAIBase extends PlayerBase
 			if (object.IsTree() || object.IsBush() || object.IsMan())
 				return false;
 
-			if (object.IsBuilding() && !climbRes.m_bIsClimb)
+			if (object.IsBuilding() && (!climbRes.m_bIsClimb || object.GetType().Contains("Land_House")))
+				return false;
+
+			if (object.IsTransport() && climbRes.m_bIsClimbOver)
 				return false;
 		}
 
