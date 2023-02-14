@@ -190,7 +190,7 @@ modded class MissionGameplay
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
-		m_ChatChannelName.SetText("Direct Chat");
+		m_ChatChannelName.SetText("Proximity Chat");
 	}
 
 	void SwitchChannel()

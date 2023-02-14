@@ -51,9 +51,4 @@ class ExpansionScriptedtQuestTemplate extends ExpansionQuest
 
 		return super.OnQuestContinue();
 	}
-
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-	}
 };

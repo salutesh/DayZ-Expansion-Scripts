@@ -14,11 +14,13 @@ class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfig
 	vector Position = vector.Zero;
 	float MaxDistance = 10.0;
 	string MarkerName = string.Empty;
+	bool ShowDistance = true;
 };
 
 class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBase
 {
-	bool ShowDistance = true;
+	bool TriggerOnEnter = true;
+	bool TriggerOnExit = false;
 
 	void SetPosition(vector pos)
 	{
@@ -55,20 +57,40 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		return ShowDistance;
 	}
 
+	void SetTriggerOnEnter(bool state)
+	{
+		TriggerOnEnter = state;
+	}
+
+	override bool TriggerOnEnter()
+	{
+		return TriggerOnEnter;
+	}
+
+	void SetTriggerOnExit(bool state)
+	{
+		TriggerOnExit = state;
+	}
+
+	override bool TriggerOnExit()
+	{
+		return TriggerOnExit;
+	}
+
 	static ExpansionQuestObjectiveTravelConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveTravelConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveTravelConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER + fileName);
 
 		ExpansionQuestObjectiveTravelConfig config;
 		ExpansionQuestObjectiveTravelConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveTravelConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveTravelConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveTravelConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -79,7 +101,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -93,10 +115,11 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
-		ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER  + fileName, this);
+		
+		ExpansionJsonFileParser<ExpansionQuestObjectiveTravelConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER + fileName, this);
 	}
 
 	void CopyConfig(ExpansionQuestObjectiveTravelConfigBase configBase)
@@ -109,6 +132,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
+		ShowDistance = configBase.ShowDistance;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

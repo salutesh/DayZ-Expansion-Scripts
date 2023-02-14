@@ -371,7 +371,7 @@ class eAIBase extends PlayerBase
 		if (!player)
 			return true;
 
-		if (player.Expansion_HasAdminToolGodMode() || player.Expansion_HasAdminToolInvisibility())
+		if (player.Expansion_HasAdminToolInvisibility())
 			return false;
 
 		if (safeZoneCheck && player.Expansion_IsInSafeZone())

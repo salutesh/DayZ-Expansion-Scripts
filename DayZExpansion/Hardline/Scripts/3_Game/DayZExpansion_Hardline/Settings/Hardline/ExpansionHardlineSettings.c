@@ -107,88 +107,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
-		
-		//! @note commented lines below are settings that are not needed on client at the moment
-
-		/*
-		if (!ctx.Read(ReputationOnKillInfected))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillInfected");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationOnKillPlayer))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillPlayer");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationOnKillAnimal))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillAnimal");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationOnKillAI))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillAI");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationLossOnDeath))
-		{
-			Error(ToString() + "::OnRecieve ReputationLossOnDeath");
-			return false;
-		}
-		
-		if (!ctx.Read(PoorItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve PoorItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(CommonItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve CommonItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(UncommonItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve UncommonItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(RareItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve RareItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(EpicItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve EpicItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(LegendaryItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve LegendaryItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(MythicItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve MythicItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(ExoticItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve ExoticItemRequirement");
-			return false;
-		}
-		*/
 
 		if (!ctx.Read(ShowHardlineHUD))
 		{
@@ -208,20 +126,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			return false;
 		}
 
-		/*
-		if (!ctx.Read(UseItemRarityForMarketPurchase))
-		{
-			Error(ToString() + "::OnRecieve UseItemRarityForMarketPurchase");
-			return false;
-		}
-
-		if (!ctx.Read(UseItemRarityForMarketSell))
-		{
-			Error(ToString() + "::OnRecieve UseItemRarityForMarketSell");
-			return false;
-		}
-		*/
-
 		m_IsLoaded = true;
 
 		return true;
@@ -234,35 +138,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
 
-		//! @note commented lines below are settings that are not needed on client at the moment
-
-		/*
-		ctx.Write(ReputationOnKillInfected);
-		ctx.Write(ReputationOnKillPlayer);
-		ctx.Write(ReputationOnKillAnimal);
-		ctx.Write(ReputationOnKillAI);
-		
-		ctx.Write(ReputationLossOnDeath);
-		
-		ctx.Write(PoorItemRequirement);
-		ctx.Write(CommonItemRequirement);
-		ctx.Write(UncommonItemRequirement);
-		ctx.Write(RareItemRequirement);
-		ctx.Write(EpicItemRequirement);
-		ctx.Write(LegendaryItemRequirement);
-		ctx.Write(MythicItemRequirement);
-		ctx.Write(ExoticItemRequirement);
-		*/
-
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
-		
 		ctx.Write(EnableItemRarity);
-
-		/*
-		ctx.Write(UseItemRarityForMarketPurchase);
-		ctx.Write(UseItemRarityForMarketSell);
-		*/
 	}
 
 	// ------------------------------------------------------------

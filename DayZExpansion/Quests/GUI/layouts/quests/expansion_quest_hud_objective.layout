@@ -1,10 +1,10 @@
 WrapSpacerWidgetClass ExpansionQuestHudObjective {
  clipchildren 1
  ignorepointer 1
- size 1 1
+ size 260 1
  hexactpos 0
  vexactpos 0
- hexactsize 0
+ hexactsize 1
  vexactsize 0
  scriptclass "ExpansionQuestHUDObjectiveController"
  style Empty
@@ -19,7 +19,6 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
    visible 1
    ignorepointer 1
    size 1 1
-   halign right_ref
    hexactpos 0
    vexactpos 0
    hexactsize 0
@@ -83,8 +82,6 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      visible 1
      ignorepointer 1
      size 0.95 1
-     halign center_ref
-     valign bottom_ref
      hexactpos 0
      vexactpos 0
      hexactsize 0

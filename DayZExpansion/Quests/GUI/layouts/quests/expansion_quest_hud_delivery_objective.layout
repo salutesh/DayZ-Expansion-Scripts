@@ -1,12 +1,12 @@
 WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
  clipchildren 1
  ignorepointer 1
- size 0.95 1
+ size 0.95 26
  halign right_ref
  hexactpos 0
  vexactpos 0
  hexactsize 0
- vexactsize 0
+ vexactsize 1
  scriptclass "ExpansionQuestHUDDeliveryObjectiveController"
  style Empty
  Padding 0
@@ -54,6 +54,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
        "text offset" 5 0
        "size to text h" 0
        "size to text v" 0
+       "text valign" center
        {
         ScriptParamsClass {
          Binding_Name "DeliveryValue"
@@ -74,6 +75,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
        "text offset" 5 0
        "size to text h" 0
        "size to text v" 0
+       "text valign" center
        {
         ScriptParamsClass {
          Binding_Name "DeliveryName"

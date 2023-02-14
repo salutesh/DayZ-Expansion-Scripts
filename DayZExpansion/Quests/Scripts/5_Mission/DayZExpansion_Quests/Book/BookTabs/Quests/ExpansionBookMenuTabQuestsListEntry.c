@@ -45,8 +45,8 @@ class ExpansionBookMenuTabQuestsListEntry: ExpansionScriptView
 		m_QuestMenuListEntryController.QuestTitle = m_Quest.GetTitle();
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestTitle");
 
-		int questState = m_QuestMenu.GetQuestModule().GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
-		if (questState == ExpansionQuestState.COMPLETED || m_QuestMenu.GetQuestModule().GetClientQuestData().GetQuestCompletionCountByQuestID(m_Quest.GetID()) > 0)
+		int questState = ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
+		if (questState == ExpansionQuestState.COMPLETED || ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestCompletionCountByQuestID(m_Quest.GetID()) > 0)
 		{
 			m_QuestMenuListEntryController.QuestIcon = ExpansionIcons.GetPath("Exclamationmark");
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));

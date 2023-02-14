@@ -56,6 +56,11 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 			Print( "Item " + clsName + " | Stock " + stock + " | Reserved " + ReservedZone.ReservedStock.Get( clsName ) );
 		}
 	}
+	
+	string GetZoneClassName()
+	{
+		return "ExpansionMarketTraderZone";
+	}
 
 	// ------------------------------------------------------------
 	// ExpansionMarketTraderZone Load

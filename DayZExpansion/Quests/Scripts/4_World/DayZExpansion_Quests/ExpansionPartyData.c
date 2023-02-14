@@ -10,6 +10,7 @@
  *
 */
 
+
 #ifdef EXPANSIONMODGROUPS
 modded class ExpansionPartyData
 {
@@ -36,29 +37,20 @@ modded class ExpansionPartyData
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnGroupMemberJoined, 3000, false, player);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnGroupMemberJoined, 1000, false, player);
 	}
 
 	protected void OnGroupMemberJoined(ExpansionPartyPlayerData player)
 	{
-		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		if (!questModule)
-		{
-			Error(ToString() + "::OnGroupMemberJoined - Could not get quest module!");
-			return;
-		}
-
 		string playerUID = player.GetID();
-		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
+		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
 			Error(ToString() + "::OnGroupMemberJoined - No player quest data!");
 			return;
 		}
 
-		questModule.AddPlayerGroupID(playerUID, player.GetParty().GetPartyID());
-
-		array<ref ExpansionQuest> activeQuests = questModule.GetActiveQuests();
+		array<ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests();
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
@@ -71,7 +63,7 @@ modded class ExpansionPartyData
 			#endif
 				//! Make sure player has the correct quest state for this quest in his quest data.
 				if (!playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
-					playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig());
+					playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
 
 				activeQuestInstance.UpdateQuest();
 				activeQuestInstance.OnGroupMemberJoined(playerUID);
@@ -87,12 +79,16 @@ modded class ExpansionPartyData
 			return;
 		}
 
-		questModule.SendPlayerQuestData(playerBase.GetIdentity());
+		//! Add the group ID to the player in to our group list in the quest module.
+		ExpansionQuestModule.GetModuleInstance().AddPlayerGroupID(playerUID, player.GetParty().GetPartyID());
+
+		//! Send the updated persistent quest data to the client.
+		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerBase.GetIdentity());
 	}
 
 	//! We send all the group quests to the leaving member
 	//! ToDo: Might want to check if the leaving player had already
-	//! quest states for the quests that are active for this group so Well
+	//! quest states for the quests that are active for this group so we
 	//! can recover these sates.
 	override void OnLeave(ExpansionPartyPlayerData player)
 	{
@@ -101,22 +97,15 @@ modded class ExpansionPartyData
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
 			return;
 
-		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		if (!questModule)
-		{
-			Error(ToString() + "::OnLeave - Could not get quest module!");
-			return;
-		}
-
 		string playerUID = player.GetID();
-		ExpansionQuestPersistentData playerQuestData = questModule.GetPlayerQuestDataByUID(playerUID);
+		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
 		{
 			Error(ToString() + "::OnLeave - No player quest data!");
 			return;
 		}
 
-		array<ref ExpansionQuest> activeQuests = questModule.GetActiveQuests();
+		array<ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests();
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
@@ -148,7 +137,8 @@ modded class ExpansionPartyData
 			return;
 		}
 
-		questModule.SendPlayerQuestData(playerBase.GetIdentity());
+		//! Send the updated persistent quest data to the client.
+		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerBase.GetIdentity());
 	}
 };
 #endif

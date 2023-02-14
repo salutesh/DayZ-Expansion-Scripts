@@ -10,6 +10,12 @@
  *
 */
 
+class ExpansionQuestAction
+{
+	string ActionName;
+	string MethodName;
+};
+
 class ExpansionQuestSettingsBase: ExpansionSettingBase
 {
 	bool EnableQuests;
@@ -45,31 +51,30 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 
 	string QuestNotGroupOwnerTitle;
 	string QuestNotGroupOwnerText;
+	int GroupQuestMode = 0; //! 0 - Only group owners can accept and turn-in quests. | 1 - Only group owner can turn-in quest but all group members can accept them. | 2 - All group members can accept and turn-in quests.
 #endif
-}
+};
 
 /**@class		ExpansionQuestSettings
  * @brief		Vehicle settings class
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
 
-#ifdef EXPANSIONMODGROUPS
-	int GroupQuestMode = 0; //! 0 - Only group owners can accept and turn-in quests. | 1 - Only group owner can turn-in quest but all group members can accept them. | 2 - All group members can accept and turn-in quests.
-#endif
+	ref array<ref ExpansionQuestAction> QuestActions = new array<ref ExpansionQuestAction>;
 
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings OnRecieve
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
+	#endif
 
 		ExpansionQuestSettings setting;
 		if ( !ctx.Read( setting ) )
@@ -92,13 +97,12 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
-#endif
+	#endif
 
 		ExpansionQuestSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
+		ctx.Write(thisSetting);
 	}
 
 	// ------------------------------------------------------------
@@ -106,18 +110,18 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
+	#endif
 
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 		{
 			return 0;
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Quest, true, identity );
+		OnSend(rpc);
+		rpc.Send(null, ExpansionSettingsRPC.Quest, true, identity);
 
 		return 0;
 	}
@@ -127,12 +131,12 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
-#endif
+	#endif
 
 		ExpansionQuestSettings s;
-		if ( !Class.CastTo( s, setting ) )
+		if (!Class.CastTo(s, setting))
 			return false;
 
 		CopyInternal( s );
@@ -144,9 +148,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	protected void CopyInternal( ExpansionQuestSettingsBase s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
 		EnableQuests = s.EnableQuests;
 		EnableQuestLogTab = s.EnableQuestLogTab;
@@ -193,6 +197,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 		QuestNotGroupOwnerTitle = s.QuestNotGroupOwnerTitle;
 		QuestNotGroupOwnerText = s.QuestNotGroupOwnerText;
+
+		GroupQuestMode = s.GroupQuestMode;
 	#endif
 	}
 
@@ -201,13 +207,11 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	protected void CopyInternal( ExpansionQuestSettings s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
-#ifdef EXPANSIONMODGROUPS
-		GroupQuestMode = s.GroupQuestMode;
-#endif
+		QuestActions = s.QuestActions;
 
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
@@ -234,9 +238,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
+	#endif
 
 		m_IsLoaded = true;
 
@@ -289,6 +293,11 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 				}
 			#endif
 
+				if (settingsBase.m_Version < 5)
+				{
+					QuestActions = settingsDefault.QuestActions;
+				}
+
 				//! Copy over old settings that haven't changed
 				CopyInternal(settingsBase);
 
@@ -304,7 +313,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		else
 		{
 			Print(ToString() + "::Load - No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
-
 			Defaults();
 			save = true;
 		}
@@ -322,9 +330,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSave");
-#endif
+	#endif
 
 		ExpansionJsonFileParser<ExpansionQuestSettings>.Save(EXPANSION_QUEST_SETTINGS, this);
 
@@ -334,11 +342,11 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	// ------------------------------------------------------------
 	// ExpansionQuestSettings Update
 	// ------------------------------------------------------------
-override void Update( ExpansionSettingBase setting )
+	override void Update( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
-#endif
+	#endif
 
 		super.Update( setting );
 
@@ -396,9 +404,34 @@ override void Update( ExpansionSettingBase setting )
 
 		UseUTCTime = false;
 
-#ifdef EXPANSIONMODGROUPS
+	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;
-#endif
+	#endif
+
+		ExpansionQuestAction questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ActionBandageSelf";
+		questAction.MethodName = "OnActionBandageSelf";
+		QuestActions.Insert(questAction);
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ActionBandageTarget";
+		questAction.MethodName = "OnActionBandageTarget";
+		QuestActions.Insert(questAction);
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ExpansionActionPickVehicleLock";
+		questAction.MethodName = "OnExpansionActionPickVehicleLock";
+		QuestActions.Insert(questAction);
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ExpansionVehicleActionPickLock";
+		questAction.MethodName = "OnExpansionVehicleActionPickLock";
+		QuestActions.Insert(questAction);
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ActionPlantSeed";
+		questAction.MethodName = "OnActionPlantSeed";
+		QuestActions.Insert(questAction);
 	}
 
 	// ------------------------------------------------------------

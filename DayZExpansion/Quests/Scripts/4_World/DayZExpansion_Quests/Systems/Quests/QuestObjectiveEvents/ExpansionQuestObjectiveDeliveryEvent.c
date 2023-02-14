@@ -10,285 +10,308 @@
  *
 */
 
-class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveDeliveryEventBase
+class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectItemEventBase
 {
-	override bool OnTurnIn()
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent OnEventStart
+	// -----------------------------------------------------------
+	override bool OnEventStart()
 	{
+		ObjectivePrint(ToString() + "::OnEventStart - Start");
+
 	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnTurnIn");
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEventStart");
 	#endif
 
-		CleanupDeliveryItems();
-
-		if (!super.OnTurnIn())
+		if (!super.OnEventStart())
 			return false;
+
+		UpdateObjectiveItemsMap();
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		int objEntry = 1;
+		foreach (string objectiveItem, int needed: m_ObjectiveItemsMap)
+		{
+			Print(ToString() + "::OnEventStart - Objective items needed: [" + objEntry + "] " + objectiveItem + " | Needed: " + needed);
+			objEntry++;
+		}
+	#endif
+
+		PlayerBase player = PlayerBase.GetPlayerByUID(m_Quest.GetPlayerUID());
+		if (!player || !player.GetIdentity())
+		{
+			Error(ToString() + "::OnEventStart - Could not get quest player!");
+			return false;
+		}
+
+		vector position = player.GetPosition();
+		vector orientation = player.GetOrientation();
+		array<ref ExpansionQuestObjectiveDelivery> deliveries = m_ObjectiveConfig.GetDeliveries();
+		if (!deliveries || deliveries.Count() == 0)
+		{
+			Error(ToString() + "::OnEventStart - Could not get delivery configuration!");
+			m_Quest.CancelQuest();
+		}
+
+		foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
+		{
+			SpawnDeliveryItems(delivery, player, player, position, orientation);
+		}
+
+		if (!m_ObjectiveTrigger)
+			CreateTrigger();
+
+		CheckQuestPlayersForObjectiveItems();
+		UpdateObjectivesInventoryItemsMap();
+		UpdateDeliveryData();
+		m_Quest.QuestCompletionCheck();
+
+		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
 
 		return true;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveCollectItemEventBase CheckQuestPlayersForObjectiveItems
+	// -----------------------------------------------------------
+	protected void CheckQuestPlayersForObjectiveItems()
+	{
+		PlayerBase player;
+		ItemBase itemIB;
+		array<EntityAI> items;
+		int amount;
+		int newAmount;
+
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
+		{
+			player = PlayerBase.GetPlayerByUID(m_Quest.GetPlayerUID());
+			if (!player)
+				return;
+
+			items = new array<EntityAI>;
+			player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+			foreach (EntityAI item: items)
+			{
+				if (!Class.CastTo(itemIB, item))
+					continue;
+
+				if (itemIB.GetQuestID() != m_Quest.GetQuestConfig().GetID())
+					continue;
+				
+				amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
+				newAmount = m_ObjectiveItemsCount + amount;
+				if (newAmount <= m_ObjectiveItemsAmount)
+				{
+					m_ObjectiveItemsCount += amount;
+					m_ObjectiveItems.Insert(item);
+				}
+			}
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			array<string> playerUIDs = m_Quest.GetPlayerUIDs();
+			foreach (string playerUID: playerUIDs)
+			{
+				player = PlayerBase.GetPlayerByUID(playerUID);
+				if (!player)
+					continue;
+
+				items = new array<EntityAI>;
+		  	 	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+				foreach (EntityAI itemM: items)
+				{
+					if (!Class.CastTo(itemIB, itemM))
+						continue;
+
+					if (itemIB.GetQuestID() != m_Quest.GetQuestConfig().GetID())
+						continue;
+
+					amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(itemM);
+					newAmount = m_ObjectiveItemsCount + amount;
+					if (newAmount <= m_ObjectiveItemsAmount)
+					{
+						m_ObjectiveItemsCount += amount;
+						m_ObjectiveItems.Insert(itemM);
+					}
+				}
+			}
+		}
+	#endif
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent OnContinue
+	// -----------------------------------------------------------
+	override bool OnContinue()
+	{
+		ObjectivePrint(ToString() + "::OnContinue - Start");
+
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
+	#endif
+
+		if (!super.OnContinue())
+			return false;
+
+		UpdateObjectiveItemsMap();
+
+		if (!m_ObjectiveTrigger)
+			CreateTrigger();
+
+		CheckQuestPlayersForObjectiveItems();
+		UpdateObjectivesInventoryItemsMap();
+		UpdateDeliveryData();
+		m_Quest.QuestCompletionCheck();
+
+		//! When the quest continues we call this method to check if the quest players still holding all the objective items and if not we cancel the quest.
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveItemsCheck, 3000);
+
+		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+
+		return true;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent ObjectiveItemsCheck
+	// -----------------------------------------------------------
+	protected void ObjectiveItemsCheck()
+	{
+		ObjectivePrint(ToString() + "::ObjectiveItemsCheck - Start");
+		ObjectivePrint(ToString() + "::ObjectiveItemsCheck - m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
+		ObjectivePrint(ToString() + "::ObjectiveItemsCheck - m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
+
+		if (m_ObjectiveItemsCount == m_ObjectiveItemsAmount)
+			return;
+
+		m_Quest.CancelQuest();
+
+		ObjectivePrint(ToString() + "::ObjectiveItemsCheck - End and CYA!!");
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent OnTurnIn
+	// -----------------------------------------------------------
+	override bool OnTurnIn(string playerUID)
+	{
+		ObjectivePrint(ToString() + "::OnTurnIn - Start");
+
+		if (!super.OnTurnIn(playerUID))
+			return false;
+
+	#ifdef EXPANSIONMODMARKET
+		AddItemsToServerData(playerUID);
+	#endif
+
+		DeleteObjectiveItems();
+
+		ObjectivePrint(ToString() + "::OnTurnIn - End and return TRUE.");
+
+		return true;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent OnCancel
+	// -----------------------------------------------------------
 	override bool OnCancel()
 	{
+		ObjectivePrint(ToString() + "::OnCancel - Start");
+
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
 	#endif
 
 		if (!super.OnCancel())
 			return false;
+		
+		DeleteObjectiveItems();
 
-		CleanupDeliveryItems();
-
-		return true;
-	}
-	
-	override bool OnEventStart(bool continues = false)
-	{
-		if (!continues)
-		{
-			PlayerBase player = GetQuest().GetPlayer();
-			if (!player)
-				return false;
-
-			vector position = player.GetPosition();
-			vector orientation = player.GetOrientation();
-			array<ref ExpansionQuestObjectiveDelivery> deliveries = GetObjectiveConfig().GetDeliveries();
-			foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
-			{
-				EntityAI playerEntity = player;
-				Object object = Spawn(delivery, player, playerEntity, position, orientation);
-				if (!object)
-					return false;;
-
-				ItemBase item;
-				if (!Class.CastTo(item, object))
-				{
-					GetGame().ObjectDelete(object);
-					return false;
-				}
-
-				item.SetQuestID(GetQuest().GetQuestConfig().GetID());
-			}
-		}
-
-		if (!GetQuest().IsGroupQuest())
-		{
-			if (!m_PlayerItems)
-				m_PlayerItems = new array<EntityAI>;
-
-			EnumeratePlayerInventory(GetQuest().GetPlayer());
-			if (continues && !HasAllObjectiveItems())
-				return false;
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			if (!m_GroupItems)
-				m_GroupItems = new array<EntityAI>;
-
-			EnumerateGroupInventory(GetQuest().GetGroup());
-			if (continues && !HasGroupAllObjectiveItems())
-				return false;
-		}
-	#endif
+		ObjectivePrint(ToString() + "::OnCancel - End and return TRUE.");
 
 		return true;
 	}
 
-	protected void DeleteDeliveryItem(EntityAI item, inout int amountToDelete)
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent OnCleanup
+	// -----------------------------------------------------------
+	override bool OnCleanup()
 	{
-		ItemBase itemBase;
-		if (Class.CastTo(itemBase, item) && itemBase.Expansion_IsStackable())
-		{
-			itemBase.Expansion_DecreaseStackAmount(amountToDelete, true);
-		}
-		else
-		{
-			//! Everything else
-			GetGame().ObjectDelete(item);
-			amountToDelete--;
-		}
-	}
+		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
-	protected void CleanupDeliveryItems()
-	{
-		ObjectivePrint(ToString() + "::CleanupDeliveryItems - Start");
-
-		array<ref ExpansionQuestObjectiveDelivery> deliveries = GetObjectiveConfig().GetDeliveries();
-		int amountToDelete;
-		string name;
-		if (!GetQuest().IsGroupQuest())
-		{
-			foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
-			{
-				amountToDelete = delivery.GetAmount();
-				name = delivery.GetClassName();
-
-				ObjectivePrint(ToString() + "::CleanupDeliveryItems - Search for delivery Item: " + name + " | Amount to delete: " + amountToDelete);
-
-				foreach (EntityAI item: m_PlayerItems)
-				{
-					if ((name == item.ClassName() || item.IsKindOf(name)) && amountToDelete > 0)
-					{
-						ItemBase itemIB;
-						if (Class.CastTo(itemIB, item))
-						{
-							if (itemIB.GetQuestID() > -1 && itemIB.GetQuestID() == GetQuest().GetQuestConfig().GetID())
-							{
-								ObjectivePrint(ToString() + "::CleanupDeliveryItems - Clean up delivery item: " + item.GetType() + " | Amount: " + amountToDelete);
-								DeleteDeliveryItem(item, amountToDelete);
-								ObjectivePrint(ToString() + "::CleanupDeliveryItems - Cleaned up delivery item: " + item.GetType() + " | Amount left: " + amountToDelete);
-							}
-						}
-					}
-				}
-			}
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else if (GetQuest().IsGroupQuest())
-		{
-			foreach (ExpansionQuestObjectiveDelivery groupDelivery: deliveries)
-			{
-				amountToDelete = groupDelivery.GetAmount();
-				name = groupDelivery.GetClassName();
-
-				ObjectivePrint(ToString() + "::CleanupDeliveryItems - Search for delivery Item: " + name + " | Amount to delete: " + amountToDelete);
-
-				foreach (EntityAI groupItem: m_GroupItems)
-				{
-					if ((name == groupItem.ClassName() || groupItem.IsKindOf(name)) && amountToDelete > 0)
-					{
-						ItemBase groupItemIB;
-						if (Class.CastTo(groupItemIB, groupItem))
-						{
-							if (groupItemIB.GetQuestID() > -1 && groupItemIB.GetQuestID() == GetQuest().GetQuestConfig().GetID())
-							{
-								ObjectivePrint(ToString() + "::CleanupDeliveryItems - Clean up delivery item: " + groupItem.GetType() + " | Amount: " + amountToDelete);
-								DeleteDeliveryItem(groupItem, amountToDelete);
-								ObjectivePrint(ToString() + "::CleanupDeliveryItems - Cleaned up delivery item: " + groupItem.GetType() + " | Amount left: " + amountToDelete);
-							}
-						}
-					}
-				}
-			}
-		}
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
 	#endif
 
-		ObjectivePrint(ToString() + "::CleanupDeliveryItems - End");
+		if (!super.OnCleanup())
+			return false;
+
+		if (m_ObjectiveTrigger)
+			GetGame().ObjectDelete(m_ObjectiveTrigger);
+
+		ObjectivePrint(ToString() + "::OnCleanup - End and return TRUE.");
+
+		return true;
 	}
 
-	Object Spawn(ExpansionQuestObjectiveDelivery delivery, PlayerBase player, inout EntityAI parent, vector position, vector orientation)
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent SpawnDeliveryItems
+	// -----------------------------------------------------------
+	protected void SpawnDeliveryItems(ExpansionQuestObjectiveDelivery delivery, PlayerBase player, EntityAI parent, vector position, vector orientation)
 	{
-		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(delivery.GetClassName(), player, parent, delivery.GetAmount());
-		return obj;
+		ObjectivePrint(ToString() + "::SpawnDeliveryItems - Start");
+
+		if (!m_ObjectiveItems)
+			m_ObjectiveItems = new array<EntityAI>;
+
+	    int amountToSpawn = delivery.GetAmount();
+		while (amountToSpawn > 0)
+	    {
+	        Object obj = ExpansionItemSpawnHelper.SpawnOnParent(delivery.GetClassName(), player, parent, amountToSpawn);
+	        if (!obj)
+	            break;
+
+	        ItemBase questItem;
+	        if (!Class.CastTo(questItem, obj))
+	        {
+	            GetGame().ObjectDelete(obj);
+	            return;
+	        }
+
+	        questItem.SetQuestID(m_Quest.GetQuestConfig().GetID());
+			m_ObjectiveItems.Insert(questItem);
+	    }
+
+		ObjectivePrint(ToString() + "::SpawnDeliveryItems - End");
 	}
 
-#ifdef EXPANSIONMODGROUPS
-	bool HasAnyDeliveryGroupItem(string playerUID)
-	{
-		foreach (EntityAI item: m_GroupItems)
-		{
-			ItemBase itemIB;
-			if (item && Class.CastTo(itemIB, item))
-			{
-				if (itemIB.GetHierarchyRootPlayer() && itemIB.GetHierarchyRootPlayer().GetIdentity())
-				{
-					if (itemIB.GetHierarchyRootPlayer().GetIdentity().GetId() == playerUID)
-						return true;
-				}
-			}
-		}
-
-		return false;
-	}
-#endif
-
-	array<ref ExpansionQuestDeliveryObjectiveData> GetDeliveryData()
-	{
-		return m_DeliveryData;
-	}
-
-	override void OnUpdate(float timeslice)
-	{
-		super.OnUpdate(timeslice);
-
-		m_UpdateQueueTimer += timeslice;
-		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
-		{
-			bool hasItems;
-			bool conditionCheck;
-			if (!GetQuest().IsGroupQuest())
-			{
-				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
-				EnumeratePlayerInventory(player);
-				
-				hasItems = HasAllObjectiveItems();
-			#ifdef EXPANSIONMODNAVIGATION
-				if (hasItems && !m_MarkerCreated)
-				{
-					m_MarkerCreated = true;
-					OnRecreateClientMarkers();
-				}
-				else if (!hasItems && m_MarkerCreated)
-				{
-					m_MarkerCreated = false;
-					GetQuest().RemoveMarkers();
-				}
-			#endif
-				
-				conditionCheck = hasItems && DestinationCheck();
-				if (!conditionCheck && IsCompleted())
-				{
-					ObjectivePrint("ExpansionQuestObjectiveDeliveryEvent::OnUpdate - INCOMPLETE");
-					SetCompleted(false);
-					OnIncomplete();
-				}
-				else if (conditionCheck && !IsCompleted())
-				{
-					ObjectivePrint("ExpansionQuestObjectiveDeliveryEvent::OnUpdate - COMPLETE");
-					SetCompleted(true);
-					OnComplete();
-				}
-			}
-		#ifdef EXPANSIONMODGROUPS
-			else
-			{
-				EnumerateGroupInventory(GetQuest().GetGroup());
-				
-				hasItems = HasGroupAllObjectiveItems();
-			#ifdef EXPANSIONMODNAVIGATION
-				if (hasItems && !m_MarkerCreated)
-				{
-					m_MarkerCreated = true;
-					OnRecreateClientMarkers();
-				}
-				else if (!hasItems && m_MarkerCreated)
-				{
-					m_MarkerCreated = false;
-					GetQuest().RemoveMarkers();
-				}
-			#endif
-				
-				conditionCheck = hasItems && DestinationCheck();
-				if (!conditionCheck && IsCompleted())
-				{
-					ObjectivePrint("ExpansionQuestObjectiveDeliveryEvent::OnUpdate - INCOMPLETE");
-					SetCompleted(false);
-					OnIncomplete();
-				}
-				else if (conditionCheck && !IsCompleted())
-				{
-					ObjectivePrint("ExpansionQuestObjectiveDeliveryEvent::OnUpdate - COMPLETE");
-					SetCompleted(true);
-					OnComplete();
-				}
-			}
-		#endif
-
-			m_UpdateQueueTimer = 0.0;
-		}
-	}
-
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent GetObjectiveType
+	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.DELIVERY;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent HasDynamicState
+	// -----------------------------------------------------------
+	override bool HasDynamicState()
+	{
+		return true;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveDeliveryEvent QuestDebug
+	// -----------------------------------------------------------
+	override void QuestDebug()
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		super.QuestDebug();
+		ObjectivePrint("------------------------------------------------------------");
+		ObjectivePrint(ToString() + "::QuestDebug - Objective destination reached: " + m_DestinationReached);
+		ObjectivePrint(ToString() + "::QuestDebug - Objective items needed: " + m_ObjectiveItemsAmount);
+		ObjectivePrint(ToString() + "::QuestDebug - Objective items count: " + m_ObjectiveItemsCount);
+		ObjectivePrint("------------------------------------------------------------");
+	#endif
 	}
 };

@@ -12,233 +12,393 @@
 
 class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 {
-	protected float m_UpdateQueueTimer;
-	protected const float UPDATE_TICK_TIME = 2.0;
-	
-	protected ref array<Object> LootItems = new array<Object>;
-	protected UndergroundStash Stash;
-	protected ExpansionQuestSeaChest Chest;
-	protected vector StashPos;
+	protected ref map<string, int> m_LootItemsMap = new map<string, int>;
+	protected ref array<EntityAI> m_LootItems = new array<EntityAI>;
+	protected bool m_LootedItemFromChest;
+	protected UndergroundStash m_Stash;
+	protected ExpansionQuestSeaChest m_Chest;
+	protected vector m_StashPos;
+	protected bool m_DestinationReached;
+	protected ExpansionTravelObjectiveSphereTrigger m_ObjectiveTrigger;
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent OnEventStart
+	// -----------------------------------------------------------
+	//! Event called when the player starts the quest.
+	override bool OnEventStart()
+	{
+		ObjectivePrint(ToString() + "::OnEventStart - Start");
+
+		if (!super.OnEventStart())
+			return false;
+
+		ExpansionQuestObjectiveTreasureHunt treasureHunt = m_ObjectiveConfig.GetTreasureHunt();
+		if (!treasureHunt)
+			return false;
+
+		vector pos = treasureHunt.GetPositions().GetRandomElement();
+		m_StashPos = pos;
+
+		if (!m_ObjectiveTrigger)
+			CreateTrigger(m_StashPos);
+
+		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+
+		return true;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent OnEventStart
+	// -----------------------------------------------------------
+	//! Event called when the player starts the quest.
+	override bool OnContinue()
+	{
+		ObjectivePrint(ToString() + "::OnContinue - Start");
+
+		if (!super.OnContinue())
+			return false;
+
+		//! Only create the stash trigger when not already completed!
+		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
+		{
+			ExpansionQuestObjectiveTreasureHunt treasureHunt = m_ObjectiveConfig.GetTreasureHunt();
+			if (!treasureHunt)
+				return false;
+
+			if (m_StashPos == vector.Zero)
+				return false;
+
+			if (!m_ObjectiveTrigger)
+				CreateTrigger(m_StashPos);
+		}
+
+		m_Quest.QuestCompletionCheck();
+
+		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+
+		return true;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent OnCleanup
+	// -----------------------------------------------------------
 	override bool OnCleanup()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
-	#endif
+		ObjectivePrint(ToString() + "::OnCleanup - Start");
 
 		if (!super.OnCleanup())
 			return false;
 
-		int state = ExpansionQuestState.NONE;
-		ExpansionQuestPersistentData questPlayerData = GetQuest().GetQuestModule().GetPlayerQuestDataByUID(GetQuest().GetPlayerUID());
-		if (questPlayerData)
-			state = questPlayerData.GetQuestStateByQuestID(GetQuest().GetQuestConfig().GetID());
-
-		//! Only cleanup the treasure if quest is not completed
-		if (state == ExpansionQuestState.STARTED)
+		//! Only cleanup the loot if quest is not completed
+		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
 		{
-			foreach (Object obj: LootItems)
+			foreach (EntityAI obj: m_LootItems)
 			{
 				GetGame().ObjectDelete(obj);
 			}
 		}
 
-		GetGame().ObjectDelete(Chest);
-		GetGame().ObjectDelete(Stash);
+		if (m_Chest)
+			GetGame().ObjectDelete(m_Chest);
+
+		if (m_Stash)
+			GetGame().ObjectDelete(m_Stash);
+
+		if (m_ObjectiveTrigger)
+			GetGame().ObjectDelete(m_ObjectiveTrigger);
+
+		ObjectivePrint(ToString() + "::OnCleanup - End and return TRUE.");
 
 		return true;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent OnCancel
+	// -----------------------------------------------------------
 	override bool OnCancel()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
-	#endif
+		ObjectivePrint(ToString() + "::OnCancel - Start");
 
 		if (!super.OnCancel())
 			return false;
 
-		foreach (Object obj: LootItems)
+		//! Only cleanup the loot if quest is not completed
+		foreach (EntityAI obj: m_LootItems)
 		{
 			GetGame().ObjectDelete(obj);
 		}
 
-		GetGame().ObjectDelete(Chest);
-		GetGame().ObjectDelete(Stash);
+		if (m_Chest)
+			GetGame().ObjectDelete(m_Chest);
+
+		if (m_Stash)
+			GetGame().ObjectDelete(m_Stash);
+
+		if (m_ObjectiveTrigger)
+			GetGame().ObjectDelete(m_ObjectiveTrigger);
+
+		ObjectivePrint(ToString() + "::OnCancel - End and return TRUE.");
 
 		return true;
 	}
 
-	override bool OnEventStart(bool continues = false)
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent CreateTreasure
+	// -----------------------------------------------------------
+	protected void CreateTreasure()
 	{
-		ExpansionQuestObjectiveTreasureHunt treasureHunt = GetObjectiveConfig().GetTreasureHunt();
+		ObjectivePrint(ToString() + "::CreateTreasure - Start");
+
+		ExpansionQuestObjectiveTreasureHunt treasureHunt = m_ObjectiveConfig.GetTreasureHunt();
 		if (!treasureHunt)
-			return false;
-
-		return CreateTreasure(treasureHunt);
-	}
-
-	protected bool CreateTreasure(ExpansionQuestObjectiveTreasureHunt treasureHunt)
-	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CreateTreasure");
-	#endif
-
-		vector pos = treasureHunt.GetPositions().GetRandomElement();
-		StashPos = pos;
-
-		//! Check if there is already a stash on this position for this quest ID.
-		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition3D(pos, 3.0, objects, NULL);
-		foreach (Object obj: objects)
-		{
-			UndergroundStash existingStash;
-			if (Class.CastTo(existingStash, obj))
-			{
-				if (existingStash && existingStash.GetQuestID() == GetQuest().GetQuestConfig().GetID())
-					return false;
-			}
-		}
+			return;
 
 		//! Create the underground stash and hide it
-		if (!Class.CastTo(Stash, GetGame().CreateObjectEx("UndergroundStash", StashPos, ECE_PLACE_ON_SURFACE)))
-			return false;
+		Object stashObj = GetGame().CreateObjectEx("UndergroundStash", m_StashPos, ECE_PLACE_ON_SURFACE);
+		if (!Class.CastTo(m_Stash, stashObj))
+			return;
 
-		Stash.SetQuestID(GetQuest().GetQuestConfig().GetID());
-		Stash.PlaceOnGround();
-
-		EntityAI stashEntity;
-		if (!Class.CastTo(stashEntity, Stash))
-			return false;
+		m_Stash.SetQuestID(m_Quest.GetQuestConfig().GetID());
+		m_Stash.PlaceOnGround();
 
 		//! Spawn the chest in the underground stash
-		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
+		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(m_Quest.GetPlayerUID());
 		if (!questPlayer)
-			return false;
+			return;
 
-		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, stashEntity, StashPos, Vector(0, 0, 0));
-		if (!Class.CastTo(Chest, chestObj))
-			return false;
+		Object chestObj = Spawn("ExpansionQuestSeaChest", 1, questPlayer, m_Stash, m_StashPos, Vector(0, 0, 0));
+		if (!Class.CastTo(m_Chest, chestObj))
+			return;
 
-		ExpansionQuestSeaChest chestIB;
-		if (!Class.CastTo(chestIB, chestObj))
-			return false;
+		if (!m_Chest)
+		{
+			GetGame().ObjectDelete(m_Chest);
+			return;
+		}
 
-		chestIB.SetQuestID(GetQuest().GetQuestConfig().GetID());
+		m_Chest.SetQuestID(m_Quest.GetQuestConfig().GetID());
 
 		//! Spawn the loot in the chest
 		EntityAI chestEntity;
-		if (!Class.CastTo(chestEntity, Chest))
-			return false;
+		if (!Class.CastTo(chestEntity, m_Chest))
+			return;
 
 		map<string, int> items = treasureHunt.GetItems();
 		foreach (string name, int amount: items)
 		{
-			Object item = Spawn(name, amount, questPlayer, chestEntity, StashPos, Vector(0, 0, 0));
-			LootItems.Insert(item);
+			Object obj = Spawn(name, amount, questPlayer, chestEntity, m_StashPos, Vector(0, 0, 0));
+			EntityAI item;
+			if (!Class.CastTo(item, obj))
+			{
+				GetGame().ObjectDelete(obj);
+				return;
+			}
+			
+			int current;
+			if (m_LootItemsMap.Find(name, current))
+			{
+				int newAmount = current + amount;
+				m_LootItemsMap.Set(name, newAmount);
+			}
+			else
+			{
+				m_LootItemsMap.Insert(name, amount);
+			}
+			
+			m_LootItems.Insert(item);
 		}
 
-		return true;
+		ObjectivePrint(ToString() + "::CreateTreasure - End");
 	}
 
-	Object Spawn(string name, int amount, PlayerBase player, inout EntityAI parent, vector position, vector orientation)
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent Spawn
+	// -----------------------------------------------------------
+	Object Spawn(string name, int amount, PlayerBase player, EntityAI parent, vector position, vector orientation)
 	{
 		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(name, player, parent, amount);
 		return obj;
 	}
 
-	override void OnUpdate(float timeslice)
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent CreateTrigger
+	// -----------------------------------------------------------
+	protected void CreateTrigger(vector pos)
 	{
-		super.OnUpdate(timeslice);
-		
-		if (!Chest)
-			return;
-		
-		m_UpdateQueueTimer += timeslice;
-		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
-		{						
-			vector position = StashPos;
-			float maxDistance = 5.0;
-			float currentDistance;
-			array<vector> groupMemberPos = new array<vector>;
-			bool isChestStashed = true;
+		ObjectivePrint(ToString() + "::CreateTrigger - Start");
 
-			if (!GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetPlayer())
-			{
-				vector playerPos = GetQuest().GetPlayer().GetPosition();
-				currentDistance = vector.Distance(playerPos, position);
-			}
-		#ifdef EXPANSIONMODGROUPS
-			else if (GetQuest().IsGroupQuest() && GetQuest() && GetQuest().GetGroup())
-			{
-				//! Set the position of the group member that has the shortest distance to the target location
-				//! as our current position if the quest is a group quest.
-				ExpansionPartyData group = GetQuest().GetGroup();
-				if (!group)
-					return;
-	
-				array<ref ExpansionPartyPlayerData> groupPlayers = group.GetPlayers();
-				foreach (ExpansionPartyPlayerData playerGroupData: groupPlayers)
-				{
-					PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerGroupData.GetID());
-					if (!groupPlayer)
-						continue;
-	
-					groupMemberPos.Insert(groupPlayer.GetPosition());
-				}
-	
-				float smallestDistance;
-				int posIndex;
-				bool firstSet = false;
-				for (int p = 0; p < groupMemberPos.Count(); p++)
-				{
-					float dist = vector.Distance(groupMemberPos[p], position);
-					if (!firstSet)
-					{
-						smallestDistance = dist;
-						posIndex = p;
-						firstSet = true;
-					}
-					else if (firstSet && dist < smallestDistance)
-					{
-						smallestDistance = dist;
-						posIndex = p;
-					}
-				}
-	
-				currentDistance = vector.Distance(groupMemberPos[posIndex], position);
-				groupMemberPos.Clear();
-			}
-		#endif
-	
-			position[1] = GetGame().SurfaceY(position[0], position[2]);
-	
-			bool conditionsCheck = currentDistance <= maxDistance;
-			if (conditionsCheck && !IsCompleted())
-			{
-				SetCompleted(true);
-				OnComplete();
-			}
-			else if (!conditionsCheck && IsCompleted())
-			{
-				SetCompleted(false);
-				OnIncomplete();
-			}
-			
-			m_UpdateQueueTimer = 0.0;
-		}
+		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_NONE));
+		m_ObjectiveTrigger.SetPosition(pos);
+		m_ObjectiveTrigger.SetObjectiveData(this);
+
+		ObjectivePrint(ToString() + ":: CreateTrigger - Created objective trigger at position: " + pos + ".");
+		ObjectivePrint(ToString() + "::CreateTrigger - End");
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent GetPosition
+	// -----------------------------------------------------------
 	vector GetPosition()
 	{
-		return StashPos;
+		return m_StashPos;
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent SetStashPosition
+	// -----------------------------------------------------------	
+	void SetStashPosition(vector pos)
+	{
+		m_StashPos = pos;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent SetReachedLocation
+	// -----------------------------------------------------------
+	//! Used by the trigger
+	void SetReachedLocation(bool state)
+	{
+		ObjectivePrint(ToString() + "::SetReachedLocation - Start");
+		ObjectivePrint(ToString() + "::SetReachedLocation - State: " + state);
+
+		if (m_DestinationReached == state)
+			return:
+
+		SetLocationState(state);
+
+		if (m_DestinationReached)
+		{
+			CreateTreasure();
+		}
+		else
+		{
+			if (m_Chest)
+				GetGame().ObjectDelete(m_Chest);
+
+			if (m_Stash)
+				GetGame().ObjectDelete(m_Stash);
+		}
+		
+		m_Quest.UpdateQuest();
+		m_Quest.QuestCompletionCheck();
+
+		ObjectivePrint(ToString() + "::SetReachedLocation - End");
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent SetLocationState
+	// -----------------------------------------------------------
+	void SetLocationState(bool state)
+	{
+		m_DestinationReached = state;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent LootedItemFromChest
+	// -----------------------------------------------------------
+	void LootedItemFromChest()
+	{
+		ObjectivePrint(ToString() + "::LootedItemFromChest - Start");
+
+		//int amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
+		//m_LootedItemsAmount += amount;
+		m_LootedItemFromChest = true;
+
+		m_Quest.UpdateQuest();
+		m_Quest.QuestCompletionCheck();
+		ObjectivePrint(ToString() + "::LootedItemFromChest - End");
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent OnInventoryItemLocationChange
+	// -----------------------------------------------------------
+	void OnInventoryItemLocationChange(ItemBase item, string state)
+	{
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + state);
+		
+		if (m_LootItems.Find(item) == -1)
+			return;
+		
+		int amount;
+		if (!m_LootItemsMap.Find(item.GetType(), amount))
+			return;
+		
+		int itemAmount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
+		if (itemAmount != amount)
+		{
+			m_LootedItemFromChest = true;
+
+			m_Quest.UpdateQuest();
+			m_Quest.QuestCompletionCheck();
+		}
+		
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - End");
+	}
+	
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent HasLootedItemFromChest
+	// -----------------------------------------------------------	
+	bool HasLootedItemFromChest()
+	{
+		return m_LootedItemFromChest;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTravelEvent CanComplete
+	// -----------------------------------------------------------
+	override bool CanComplete()
+	{
+		ObjectivePrint(ToString() + "::CanComplete - Start");
+		ObjectivePrint(ToString() + "::CanComplete - m_DestinationReached: " + m_DestinationReached);
+		ObjectivePrint(ToString() + "::CanComplete - m_LootedItemFromChest: " + m_LootedItemFromChest);
+
+		bool conditionsResult = m_DestinationReached && m_LootedItemFromChest;
+		if (!conditionsResult)
+		{
+			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			return false;
+		}
+
+		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+
+		return super.CanComplete();
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent GetStash
+	// -----------------------------------------------------------
+	UndergroundStash GetStash()
+	{
+		return m_Stash;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent GetChest
+	// -----------------------------------------------------------
+	ExpansionQuestSeaChest GetChest()
+	{
+		return m_Chest;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent GetLootItems
+	// -----------------------------------------------------------
+	array<EntityAI> GetLootItems()
+	{
+		return m_LootItems;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent GetObjectiveType
+	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TREASUREHUNT;
 	}
-	
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveTreasureHuntEvent HasDynamicState
+	// -----------------------------------------------------------
 	override bool HasDynamicState()
 	{
 		return true;

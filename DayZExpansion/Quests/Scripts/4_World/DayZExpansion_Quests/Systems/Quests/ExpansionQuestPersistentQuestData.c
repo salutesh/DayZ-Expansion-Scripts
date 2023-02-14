@@ -15,9 +15,15 @@ class ExpansionQuestPersistentQuestData
 	int QuestID = -1;
 	int State = ExpansionQuestState.NONE;
 	int Timestamp = -1;
-	ref array<ref ExpansionQuestObjectiveData> QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
+	ref array<ref ExpansionQuestObjectiveData> QuestObjectives;
 	int LastUpdateTime;
 	int CompletionCount;
+
+	void ExpansionQuestPersistentQuestData()
+	{
+		if (!QuestObjectives)
+			QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
+	}
 
 	ExpansionQuestObjectiveData GetObjectiveByIndex(int index)
 	{
@@ -28,6 +34,16 @@ class ExpansionQuestPersistentQuestData
 		}
 
 		return NULL;
+	}
+
+	void ClearObjectiveData()
+	{
+		QuestObjectives.Clear();
+	}
+	
+	array<ref ExpansionQuestObjectiveData> GetQuestObjectives()
+	{
+		return QuestObjectives;
 	}
 
 	void OnWrite(ParamsWriteContext ctx)
@@ -132,7 +148,7 @@ class ExpansionQuestPersistentQuestData
 		{
 			QuestObjectives[i].QuestDebug();
 		}
-		Print(ToString() + "::QuestDebug - Quest LastUpdateTime: " + LastUpdateTime);
+		Print(ToString() + "::QuestDebug - Quest LastUpdateTime: " + ExpansionStatic.FormatTime(LastUpdateTime, false));
 		Print(ToString() + "::QuestDebug - Quest CompletionCount: " + CompletionCount);
 		Print("------------------------------------------------------------");
 	#endif

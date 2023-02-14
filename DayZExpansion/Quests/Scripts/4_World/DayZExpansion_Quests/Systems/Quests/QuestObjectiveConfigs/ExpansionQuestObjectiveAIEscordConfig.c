@@ -1,5 +1,5 @@
 /**
- * ExpansionQuestObjectiveAIVIPConfig.c
+ * ExpansionQuestObjectiveAIEscordConfigBase.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -11,7 +11,7 @@
 */
 
 #ifdef EXPANSIONMODAI
-class ExpansionQuestObjectiveAIVIPConfigBase: ExpansionQuestObjectiveConfig
+class ExpansionQuestObjectiveAIEscordConfigBase: ExpansionQuestObjectiveConfig
 {
 	vector Position = vector.Zero;
 	float MaxDistance = 0;
@@ -19,7 +19,7 @@ class ExpansionQuestObjectiveAIVIPConfigBase: ExpansionQuestObjectiveConfig
 	string MarkerName = string.Empty;
 };
 
-class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
+class ExpansionQuestObjectiveAIEscordConfig: ExpansionQuestObjectiveAIEscordConfigBase
 {
 	bool ShowDistance = true;
 
@@ -68,21 +68,21 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 		return ShowDistance;
 	}
 
-	static ExpansionQuestObjectiveAIVIPConfig Load(string fileName)
+	static ExpansionQuestObjectiveAIEscordConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveAIVIPConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveAIEscordConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName);
 
-		ExpansionQuestObjectiveAIVIPConfig config;
-		ExpansionQuestObjectiveAIVIPConfigBase configBase;
+		ExpansionQuestObjectiveAIEscordConfig config;
+		ExpansionQuestObjectiveAIEscordConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscordConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveAIVIPConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveAIVIPConfig();
+			Print("[ExpansionQuestObjectiveAIEscordConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName + " to version " + CONFIGVERSION);
+			config = new ExpansionQuestObjectiveAIEscordConfig();
 
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
@@ -92,7 +92,7 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscordConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -103,16 +103,17 @@ class ExpansionQuestObjectiveAIVIPConfig: ExpansionQuestObjectiveAIVIPConfigBase
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
-		ExpansionJsonFileParser<ExpansionQuestObjectiveAIVIPConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, this);
+		
+		ExpansionJsonFileParser<ExpansionQuestObjectiveAIEscordConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER + fileName, this);
 	}
 
-	void CopyConfig(ExpansionQuestObjectiveAIVIPConfigBase configBase)
+	void CopyConfig(ExpansionQuestObjectiveAIEscordConfigBase configBase)
 	{
 		ID = configBase.ID;
 		ObjectiveType = configBase.ObjectiveType;

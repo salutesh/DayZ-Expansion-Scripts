@@ -169,7 +169,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetIsRepeatable(true); //! Set if the quest is repeatable and can be accapted again after it has been completed
 		questConfig.SetIsDailyQuest(true); //! Set if the quest is a daily quest and has as 24h cooldown if the quest is also repeatable.
 		questConfig.SetAutocomplete(true); //! Set if the quest is autocompleted
-		
+
 		//! Quest items on quest start
 		array <ExpansionQuestItemConfig> questItems = new array<ExpansionQuestItemConfig>;
 		ExpansionQuestItemConfig questItem_1 = new ExpansionQuestItemConfig;
@@ -178,16 +178,11 @@ class ExpansionDefaultQuestData
 		questItems.Insert(questItem_1);
 		questConfig.SetQuestItems(questItems);
 
-		//! Quest objectives		
+		//! Quest objectives
 		ExpansionQuestObjectiveTreasureHuntConfig objective_1 = new ExpansionQuestObjectiveTreasureHuntConfig();
 		objective_1.SetID(1);
 		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.TREASUREHUNT);
 		questConfig.AddObjectiveConfig(objective_1);
-		
-		ExpansionQuestObjectiveActionConfig objective_2 = new ExpansionQuestObjectiveActionConfig();
-		objective_2.SetID(3);
-		objective_2.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
-		questConfig.AddObjectiveConfig(objective_2);
 
 		return questConfig;
 	}
@@ -389,9 +384,9 @@ class ExpansionDefaultQuestData
 		questConfig.AddQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
-		ExpansionQuestObjectiveAIVIPConfig objective_1 = new ExpansionQuestObjectiveAIVIPConfig();
+		ExpansionQuestObjectiveAIEscordConfig objective_1 = new ExpansionQuestObjectiveAIEscordConfig();
 		objective_1.SetID(1);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIVIP);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIESCORD);
 		objective_1.SetTimeLimit(180);
 		questConfig.AddObjectiveConfig(objective_1);
 

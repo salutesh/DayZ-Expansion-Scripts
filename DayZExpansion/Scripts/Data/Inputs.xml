@@ -11,67 +11,6 @@
 			<input name="UAExpansionAutoRunToggle" />
 		</exclude>
 
-		<exclude name="expansionexcludeactionslite">
-			<input name="UAFire" />
-			<input name="UAHeavyMeleeAttack" />
-			<input name="UAAction" />
-			<input name="UADropitem" />
-			<input name="UAThrowitem" />
-			<input name="UAToggleWeapons" />
-			<input name="UAUIQuickbarToggle" />
-			<input name="UAReloadMagazine" />
-			<input name="UAPrevActionCategory" />
-			<input name="UANextActionCategory" />
-		</exclude>
-		<exclude name="expansionexcludeactions">
-			<input name="UAPersonView" />
-			<input name="UALookAround" />
-			<input name="UAFire" />
-			<input name="UAHeavyMeleeAttack" />
-			<input name="UADefaultAction" />
-			<input name="UAAction" />
-			<input name="UADropitem" />
-			<input name="UAThrowitem" />
-			<input name="UAToggleWeapons" />
-			<input name="UAUIQuickbarToggle" />
-			<input name="UATempRaiseWeapon" />
-			<input name="UAReloadMagazine" />
-			<input name="UAPrevActionCategory" />
-			<input name="UANextActionCategory" />
-			<input name="UACarHorn" />
-		</exclude>
-		<exclude name="expansionexcludeinventory">
-			<include name="gestures" />  
-			<include name="aiming" />  
-			<include name="stances" />  
-			<include name="optics" />  
-			<include name="expansionexcludeactions" />
-			<input name="UAUIGesturesOpen" />
-		</exclude>
-		<exclude name="expansionexcludemenu">
-			<include name="expansionexcludeinventory" />
-			<include name="hotkey" />  
-			<input name="UAGear" />
-			<input name="UAVoiceLevel" />
-			<input name="UAVoiceModifierHelper" />
-			<input name="UAVoiceDistanceUp" />
-			<input name="UAVoiceDistanceDown" />
-			<input name="UAVoiceOverNet" />
-			<input name="UAVoiceOverNetToggle" />
-			<input name="UAVoiceOverNetMute" />
-		</exclude>
-		<exclude name="expansionexcludemap">
-			<include name="expansionexcludemenu" />
-		</exclude>
-		<exclude name="expansionexcludeloopedactions">
-			<include name="hotkey" />
-			<include name="gestures" />
-			<include name="expansionexcludeactionslite" />
-			<input name="UAUIGesturesOpen" />
-			<input name="UAUIQuickbarRadialOpen" />
-			<input name="UAUIQuickbarRadialInventoryOpen" />
-		</exclude>
-
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionEarplugsToggle" />
 			<input name="UAExpansionAutoRunToggle" />

@@ -12,33 +12,136 @@
 
 modded class PlayerBase
 {
+	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new ref array<ExpansionQuestObjectiveEventBase>;
+
 	// ------------------------------------------------------------
-	// PlayerBase SetActions
+	// PlayerBase AssignQuestObjective
+	// ------------------------------------------------------------
+	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
+	{
+		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
+		if (index == -1)
+		{
+			s_Expansion_AssignedQuestObjectives.Insert(objective);
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print("PlayerBase::AssignQuestObjective - Assigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
+		#endif
+		}
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		else
+		{
+			Print("PlayerBase::AssignQuestObjective - Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is already assigned to this entity! Skiped");
+		}
+	#endif
+	}
+
+	// ------------------------------------------------------------
+	// PlayerBase DeassignQuestObjective
+	// ------------------------------------------------------------
+	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
+	{
+		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
+		if (index > -1)
+		{
+			s_Expansion_AssignedQuestObjectives.Remove(index);
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print("PlayerBase::DeassignQuestObjective - Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
+		#endif
+		}
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		else
+		{
+			Print("PlayerBase::AssignQuestObjective - Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is not assigned to this entity and cant be deassigned!");
+		}
+	#endif
+	}
+
+	// ------------------------------------------------------------
+	// PlayerBase CheckAssignedObjectivesForEntity
+	// ------------------------------------------------------------
+	protected void CheckAssignedObjectivesForEntity(Object killer)
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::CheckAssignedObjectivesForEntity - Start");
+	#endif
+
+		EntityAI killSource = EntityAI.Cast(killer);
+		if (!killSource || killSource == this)
+			return;
+
+		Man killerPlayer = killSource.GetHierarchyRootPlayer();
+		if (!killerPlayer || !killerPlayer.GetIdentity())
+			return;
+
+		string killerUID = killerPlayer.GetIdentity().GetId();
+		if (killerUID == string.Empty)
+			return;
+
+		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
+		{
+			if (!objective || !objective.GetQuest())
+				continue;
+			
+			if (!objective.GetQuest().IsQuestPlayer(killerUID))
+				continue;
+
+			int objectiveType = objective.GetObjectiveType();
+			switch (objectiveType)
+			{
+				case ExpansionQuestObjectiveType.TARGET:
+				{
+					ExpansionQuestObjectiveTargetEvent targetEvent;
+					if (Class.CastTo(targetEvent, objective))
+						targetEvent.OnEntityKilled(this, killSource, killerPlayer);
+				}
+				break;
+			#ifdef EXPANSIONMODAI
+				case ExpansionQuestObjectiveType.AICAMP:
+				{
+					ExpansionQuestObjectiveAICampEvent aiCampEvent;
+					if (Class.CastTo(aiCampEvent, objective))
+						aiCampEvent.OnEntityKilled(this, killSource, killerPlayer);
+				}
+				break;
+				case ExpansionQuestObjectiveType.AIPATROL:
+				{
+					ExpansionQuestObjectiveAIPatrolEvent aiPatrolEvent;
+					if (Class.CastTo(aiPatrolEvent, objective))
+						aiPatrolEvent.OnEntityKilled(this, killSource, killerPlayer);
+				}
+				break;
+				case ExpansionQuestObjectiveType.AIESCORD:
+				{
+					ExpansionQuestObjectiveAIEscortEvent aiEscortEvent;
+					if (Class.CastTo(aiEscortEvent, objective))
+						aiEscortEvent.OnEntityKilled(this, killSource, killerPlayer);
+				}
+				break;
+			#endif
+			}
+		}
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::CheckAssignedObjectivesForEntity - End");
+	#endif
+	}
+
+	// ------------------------------------------------------------
+	// SurvivorBase EEKilled
+	// ------------------------------------------------------------
+	override void EEKilled(Object killer)
+	{
+		super.EEKilled(killer);
+
+		CheckAssignedObjectivesForEntity(killer);
+	}
+
+	// ------------------------------------------------------------
+	// SurvivorBase SetActions
 	// ------------------------------------------------------------
 	override void SetActions(out TInputActionMap InputActionMap)
 	{
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenQuestMenu, InputActionMap);
-	}
-
-	// ------------------------------------------------------------
-	// PlayerBase EEKilled
-	// ------------------------------------------------------------
-	override void EEKilled(Object killer)
-	{
-		super.EEKilled(killer);
-
-		EntityAI killSource = EntityAI.Cast(killer);
-		if (!killSource || killSource == this)
-			return;
-
-		ExpansionQuestModule questModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-		if (!questModule)
-			return;
-
-		PlayerBase player;
-
-		questModule.OnEntityKilled(this, killSource, killSource.GetHierarchyRootPlayer());
 	}
 };

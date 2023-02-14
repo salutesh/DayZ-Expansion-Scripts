@@ -25,8 +25,8 @@ class ExpansionQuestObjectiveDataV0
 	int ObjectiveType = ExpansionQuestObjectiveType.NONE;
 	bool IsCompleted = false;
 	bool IsActive = false;
-	int ObjectiveAmount = -1;
-	int ObjectiveCount = -1;
+	int ObjectiveAmount;
+	int ObjectiveCount;
 	vector ObjectivePosition = vector.Zero;
 };
 
@@ -57,6 +57,16 @@ class ExpansionQuestDeliveryObjectiveData
 
 		return true;
 	}
+
+	void QuestDebug()
+	{
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
+		Print("------------------------------------------------------------");
+		Print(ToString() + "::QuestDebug - Index: " + Index);
+		Print(ToString() + "::QuestDebug - Count: " + Count);
+		Print("------------------------------------------------------------");
+	#endif
+	}
 };
 
 class ExpansionQuestObjectiveData
@@ -65,8 +75,8 @@ class ExpansionQuestObjectiveData
 	int ObjectiveType = ExpansionQuestObjectiveType.NONE;
 	bool IsCompleted = false;
 	bool IsActive = false;
-	int ObjectiveAmount = -1;
-	int ObjectiveCount = -1;
+	int ObjectiveAmount;
+	int ObjectiveCount;
 	vector ObjectivePosition = vector.Zero;
 
 	bool ActionState = false;
@@ -176,7 +186,7 @@ class ExpansionQuestObjectiveData
 			DeliveryData.Insert(data);
 		}
 
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
 		Print(ToString() + "::SetDeliveries - Set delivery data: " + DeliveryData.ToString() + " | Count: " + DeliveryData.Count());
 	#endif
 	}
@@ -274,7 +284,7 @@ class ExpansionQuestObjectiveData
 
 	void QuestDebug()
 	{
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
 		Print("------------------------------------------------------------");
 		Print(ToString() + "::QuestDebug - ObjectiveIndex: " + ObjectiveIndex);
 		Print(ToString() + "::QuestDebug - ObjectiveType: " + ObjectiveType);
@@ -285,6 +295,16 @@ class ExpansionQuestObjectiveData
 		Print(ToString() + "::QuestDebug - ObjectivePosition: " + ObjectivePosition);
 		Print(ToString() + "::QuestDebug - ActionState: " + ActionState);
 		Print(ToString() + "::QuestDebug - TimeLimit: " + TimeLimit);
+		Print(ToString() + "::QuestDebug - Deliveries:");
+		if (ObjectiveType == ExpansionQuestObjectiveType.DELIVERY || ObjectiveType == ExpansionQuestObjectiveType.COLLECT)
+		{
+			if (!DeliveryData || DeliveryData.Count() == 0)
+				return;
+			foreach (ExpansionQuestDeliveryObjectiveData delivery: DeliveryData)
+			{
+				delivery.QuestDebug();
+			}
+		}
 		Print("------------------------------------------------------------");
 	#endif
 	}

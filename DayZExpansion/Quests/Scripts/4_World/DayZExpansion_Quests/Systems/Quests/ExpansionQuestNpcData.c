@@ -279,8 +279,10 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		{
 			Print("[ExpansionQuestNPCData] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
 			npcConfig = new ExpansionQuestNPCData();
+			
 			//! Copy over old configuration that haven't changed
 			npcConfig.CopyConfig(npcConfigBase);
+			
 			npcConfig.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
@@ -291,9 +293,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		}
 
 		if (save)
-		{
 			npcConfig.Save(fileName);
-		}
 
 		return npcConfig;
 	}
@@ -302,7 +302,7 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+
 		ExpansionJsonFileParser<ExpansionQuestNPCData>.Save(EXPANSION_QUESTS_NPCS_FOLDER + fileName, this);
 	}
 

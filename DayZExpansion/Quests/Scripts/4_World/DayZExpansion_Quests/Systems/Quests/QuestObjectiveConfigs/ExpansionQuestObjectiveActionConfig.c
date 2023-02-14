@@ -13,12 +13,13 @@
 class ExpansionQuestObjectiveActionConfigBase: ExpansionQuestObjectiveConfig
 {
 	autoptr array<string> ActionNames = new array<string>;
+	autoptr array<string> AllowedClassNames = new array<string>;
+	autoptr array<string> ExcludedClassNames = new array<string>;
 };
 
 class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBase
 {
-	protected autoptr array<string> AllowedClassNames = new array<string>;
-	protected autoptr array<string> ExcludedClassNames = new array<string>;
+	int ExecutionAmount = 1;
 
 	void AddActionName(string name)
 	{
@@ -49,28 +50,45 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 	{
 		return ExcludedClassNames;
 	}
+	
+	void SetExecutionAmount(int amount)
+	{
+		ExecutionAmount = amount;
+	}
+	
+	override int GetExecutionAmount()
+	{
+		return ExecutionAmount;
+	}
 
 	static ExpansionQuestObjectiveActionConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveActionConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveActionConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName);
 
 		ExpansionQuestObjectiveActionConfig config;
 		ExpansionQuestObjectiveActionConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveActionConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveActionConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveActionConfig();
-
+			
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
+			
 			if (configBase.ConfigVersion < 11)
 			{
 				//! Copy over old configuration that haven't HandAnimEventChanged
-				config.CopyConfig(configBase);
 				config.ObjectiveText == "";
+			}
+			
+			if (configBase.ConfigVersion < 12)
+			{
+				config.ExecutionAmount = 1;
 			}
 
 			config.ConfigVersion = CONFIGVERSION;
@@ -78,7 +96,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -89,12 +107,13 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveActionConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER + fileName, this);
 	}
 
@@ -106,6 +125,8 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		TimeLimit = configBase.TimeLimit;
 
 		ActionNames = configBase.ActionNames;
+		AllowedClassNames = configBase.AllowedClassNames;
+		ExcludedClassNames = configBase.ExcludedClassNames;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

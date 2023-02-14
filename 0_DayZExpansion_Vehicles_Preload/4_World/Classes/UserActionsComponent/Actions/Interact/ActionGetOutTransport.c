@@ -10,18 +10,16 @@
  *
 */
 
+#ifdef DAYZ_1_19
 modded class GetOutTransportActionData
 {
 	bool m_KeepInVehicleSpaceAfterLeave = false;
 };
-
-class ExpansionActionGetOutTransportReciveData : ActionReciveData
-{
-	bool m_KeepInVehicleSpaceAfterLeave;
-};
+#endif
 
 modded class ActionGetOutTransport
 {
+#ifdef DAYZ_1_19
 	override void WriteToContext(ParamsWriteContext ctx, ActionData action_data)
 	{
 		super.WriteToContext(ctx, action_data);
@@ -59,28 +57,6 @@ modded class ActionGetOutTransport
 		action_data_po.m_KeepInVehicleSpaceAfterLeave = recive_data_po.m_KeepInVehicleSpaceAfterLeave;
 	}
 
-#ifndef DAYZ_1_19
-	//! 1.20+
-	override void OnStart(ActionData action_data)
-	{
-		bool keepInVehicleSpaceAfterLeave;
-		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
-		if (vehCommand)
-		{
-			CarScript car;
-			if (Class.CastTo(car, vehCommand.GetTransport()))
-			{
-				keepInVehicleSpaceAfterLeave = car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
-			}
-		}
-
-		if (keepInVehicleSpaceAfterLeave)
-			Expansion_PerformGetOutTransport(action_data);
-		else
-			super.OnStart(action_data);
-#else
-	//! 1.19
-
 	//! Can't call super in this function. Will cause crashes.
 	override void Start(ActionData action_data)
 	{
@@ -107,7 +83,6 @@ modded class ActionGetOutTransport
 		//! Vanilla ActionBase::Start END
 
 		Expansion_PerformGetOutTransport(action_data);
-#endif
 
 		if (IsMissionClient())
 		{
@@ -133,18 +108,12 @@ modded class ActionGetOutTransport
 				bool keepInVehicleSpaceAfterLeave = car.Expansion_CanObjectAttach(action_data.m_Player) && car.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
 
 				auto got_action_data = GetOutTransportActionData.Cast(action_data);
-#ifndef DAYZ_1_19
-				//! 1.20+
-				ProcessGetOutActionData(car, got_action_data);
-#else
-				//! 1.19
 				got_action_data.m_StartLocation = got_action_data.m_Player.GetPosition();
 				got_action_data.m_Car = car;
 				got_action_data.m_CarSpeed = speed;
 				got_action_data.m_DmgTaken = (got_action_data.m_CarSpeed * got_action_data.m_CarSpeed) / m_DmgFactor; //When using multiplications, wrong value is returned
 				got_action_data.m_ShockTaken = (got_action_data.m_CarSpeed * got_action_data.m_CarSpeed) / m_ShockFactor;
 				got_action_data.m_WasJumpingOut = speed > 8.0;
-#endif
 
 				if (IsMissionClient())
 					got_action_data.m_KeepInVehicleSpaceAfterLeave = keepInVehicleSpaceAfterLeave;
@@ -171,50 +140,20 @@ modded class ActionGetOutTransport
 			}
 		}
 	}
+#endif
 
-	override void OnEnd(ActionData action_data)
-	{
-		auto got_action_data = GetOutTransportActionData.Cast(action_data);
-		CarScript car = CarScript.Cast(got_action_data.m_Car);
-
-		if (car && !car.IsCar() && !car.IsDuck())
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(action_data.m_Player.GetInventory().UnlockInventory, 1500, false, LOCK_FROM_SCRIPT); //! Unlock after delay to fix hand desync bug
-		else
-			super.OnEnd(action_data);
-	}
-
-	//! Equivalent to vanilla ActionGetOutTransport::OnEndServer amended with player attachment and was in vehicle handling as well as proper raycast
+	//! Equivalent to vanilla ActionGetOutTransport::OnEndServer but will apply jump out dmg only for land vehicles (cars), not helis, planes or boats
 	override void OnEndServer(ActionData action_data)
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
 
 		CarScript car = CarScript.Cast(got_action_data.m_Car);
 
-		vector playerPos = action_data.m_Player.GetPosition();
-
-		if (car && car.IsBoat())
-		{
-			//! Prevent player glitching below boat
-			float vehicleY = car.GetPosition()[1] - car.GetModelZeroPointDistanceFromGround();
-			if (playerPos[1] < vehicleY + 1.0)
-			{
-				playerPos[1] = vehicleY + 1.0;
-				action_data.m_Player.SetPosition(playerPos);
-			}
-		}
-
-		if (got_action_data.m_KeepInVehicleSpaceAfterLeave)
-			return;
-
-		action_data.m_Player.Expansion_SetIsInVehicleSeatOrAttached(false);
-		if (car && car.IsHelicopter())
-			car.SetHasPilot(false);  //! So we are able to detect if pilot got disconnected or got out on own accord
-
 		if (got_action_data.m_WasJumpingOut)
 		{
 			got_action_data.m_Player.OnJumpOutVehicleFinish(got_action_data.m_CarSpeed);
 
-			//! Additional jump out damage should only apply for land vehicles (cars), not helis, planes or boats
+			//! Jump out damage should only apply for land vehicles (cars), not helis, planes or boats
 			if (car && car.IsCar())
 			{
 				PlayerBase player = got_action_data.m_Player;

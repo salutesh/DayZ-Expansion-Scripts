@@ -288,15 +288,15 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			}
 			break;
 
-			case ExpansionQuestObjectiveType.AIVIP:
+			case ExpansionQuestObjectiveType.AIESCORD:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - AIVIP");
-				ExpansionQuestObjectiveAIVIPConfig vipConfig;
-				if (Class.CastTo(vipConfig, objectiveConfigBase))
+				QuestDebugPrint(ToString() + "::SetEntryObjective - AIESCORD");
+				ExpansionQuestObjectiveAIEscordConfig escordConfig;
+				if (Class.CastTo(escordConfig, objectiveConfigBase))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					if (vipConfig.ShowDistance())
+					if (escordConfig.ShowDistance())
 					{
 						objectivePos = m_Objective.GetObjectivePosition();
 						playerPos = GetGame().GetPlayer().GetPosition();
@@ -308,7 +308,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						ObjectiveWrapper.Show(false);
 					}
-					QuestDebugPrint(ToString() + "::SetEntryObjective - AIVIP - ADDED");
+					QuestDebugPrint(ToString() + "::SetEntryObjective - AIESCORD - ADDED");
 				}
 			}
 			break;
@@ -317,13 +317,21 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.ACTION:
 			{
 				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION");
-				m_QuestHUDObjectiveController.ObjectiveTarget = objectiveConfigBase.ObjectiveText;
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-				if (m_Objective.GetActionState())
-					m_QuestHUDObjectiveController.ObjectiveValue = "1/1";
-				else
-					m_QuestHUDObjectiveController.ObjectiveValue = "0/1";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				ExpansionQuestObjectiveActionConfig actionConfig;
+				if (Class.CastTo(actionConfig, objectiveConfigBase))
+				{
+					m_QuestHUDObjectiveController.ObjectiveTarget = actionConfig.ObjectiveText;
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+
+					count = m_Objective.GetObjectiveCount();
+					amount = m_Objective.GetObjectiveAmount();
+
+					QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
+					QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
+
+					m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				}
 				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
 			}
 			break;
@@ -331,13 +339,21 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
 				QuestDebugPrint(ToString() + "::SetEntryObjective - CRAFTING");
-				m_QuestHUDObjectiveController.ObjectiveTarget = objectiveConfigBase.ObjectiveText;
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-				if (m_Objective.GetActionState())
-					m_QuestHUDObjectiveController.ObjectiveValue = "1/1";
-				else
-					m_QuestHUDObjectiveController.ObjectiveValue = "0/1";
-				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				ExpansionQuestObjectiveCraftingConfig craftingConfig;
+				if (Class.CastTo(craftingConfig, objectiveConfigBase))
+				{
+					m_QuestHUDObjectiveController.ObjectiveTarget = craftingConfig.ObjectiveText;
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
+
+					count = m_Objective.GetObjectiveCount();
+					amount = m_Objective.GetObjectiveAmount();
+
+					QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
+					QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
+
+					m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
+					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+				}
 				QuestDebugPrint(ToString() + "::SetEntryObjective - CRAFTING - ADDED");
 			}
 			break;

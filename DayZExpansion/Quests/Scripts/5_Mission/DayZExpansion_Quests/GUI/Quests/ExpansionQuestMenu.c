@@ -13,7 +13,6 @@
 class ExpansionQuestMenu: ExpansionScriptViewMenu
 {
 	protected autoptr ExpansionQuestMenuController m_QuestMenuController;
-	protected ExpansionQuestModule m_QuestModule;
 	protected autoptr array<ref ExpansionQuestConfig> m_Quests = new array<ref ExpansionQuestConfig>;
 	protected autoptr ExpansionQuestConfig m_SelectedQuest;
 	protected autoptr ExpansionQuestRewardConfig m_SelectedReward;
@@ -52,17 +51,16 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	void ExpansionQuestMenu()
 	{
-		Class.CastTo(m_QuestModule, CF_ModuleCoreManager.Get(ExpansionQuestModule));
 		Class.CastTo(m_QuestMenuController, GetController());
 
-		m_QuestModule.GetQuestMenuSI().Insert(SetQuests);
+		ExpansionQuestModule.GetModuleInstance().GetQuestMenuSI().Insert(SetQuests);
 		QuestListPanel.Show(true);
 		QuestDetailsPanel.Show(false);
 	}
 
 	void ~ExpansionQuestMenu()
 	{
-		m_QuestModule.GetQuestMenuSI().Remove(SetQuests);
+		ExpansionQuestModule.GetModuleInstance().GetQuestMenuSI().Remove(SetQuests);
 		m_QuestMenuController.Quests.Clear();
 		m_Quests.Clear();
 
@@ -80,15 +78,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		return ExpansionQuestMenuController;
 	}
 
-	void SetQuests(array<ref ExpansionQuestConfig> quests, string npcName, string defaultText)
+	void SetQuests(string npcName, string defaultText, int questNPCID)
 	{
 		QuestDebug(ToString() + "::SetQuests - Start");
-		QuestDebug(ToString() + "::SetQuests - Quest: " + quests.ToString());
 		QuestDebug(ToString() + "::SetQuests - NPC name: " + npcName);
 		QuestDebug(ToString() + "::SetQuests - NPC default text: " + defaultText);
-
-		if (!m_QuestModule)
-			return;
 
 		m_SelectedReward = NULL;
 		ButtonsPanel.Show(false);
@@ -96,31 +90,50 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		m_QuestMenuController.QuestNPCName = npcName;
 		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
 
-		if (quests.Count() > 0)
+		QuestListContent.Show(true);
+		DefaultPanel.Show(false);
+
+		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		if (!playerQuestData)
 		{
-			QuestListContent.Show(true);
-			DefaultPanel.Show(false);
-
-			foreach (ExpansionQuestConfig quest: quests)
-			{
-				int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
-				if (questState == ExpansionQuestState.COMPLETED && !quest.IsRepeatable())
-					continue;
-
-				if (quest.IsAchivement())
-					continue;
-
-			#ifdef EXPANSIONMODHARDLINE
-				if (quest.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
-					continue;
-			#endif
-
-				m_Quests.Insert(quest);
-				ExpansionQuestMenuListEntry questEntry = new ExpansionQuestMenuListEntry(quest, this);
-				m_QuestMenuController.Quests.Insert(questEntry);
-			}
+			Error(ToString() + "::SetQuests - Could not get players persistent quest data!");
+			CloseMenu();
+			return;
 		}
-		else if (quests.Count() == 0)
+
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (!player)
+		{
+			Error(ToString() + "::SetQuests - Could not player!");
+			CloseMenu();
+			return;
+		}
+
+		array<ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
+		if (!questConfigs || questConfigs.Count() == 0)
+		{
+			Error(ToString() + "::SetQuests - Could not get any quest configurations!");
+			CloseMenu();
+			return;
+		}
+		//! Check quest configurations array for valid quests to display.
+		foreach (ExpansionQuestConfig questConfig: questConfigs)
+		{
+			QuestDebug(ToString() + "::SetQuests - Checking if quest " + questConfig.GetID() + " should be displayed..");
+			if (!QuestDisplayConditions(playerQuestData, questConfig, player, questNPCID))
+			{
+				QuestDebug(ToString() + "::SetQuests - Don't show quest " + questConfig.GetID() + ". Skip..");
+				continue;
+			}
+
+			QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
+			m_Quests.Insert(questConfig);
+			ExpansionQuestMenuListEntry questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+			m_QuestMenuController.Quests.Insert(questEntry);
+		}
+
+		//! Display default NPC text if there are no quests to display.
+		if (m_Quests.Count() == 0)
 		{
 			QuestListContent.Show(false);
 			DefaultPanel.Show(true);
@@ -132,12 +145,103 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		QuestDebug(ToString() + "::SetQuests - End");
 	}
 
+	protected bool QuestDisplayConditions(ExpansionQuestPersistentData playerQuestData, ExpansionQuestConfig config, PlayerBase player, int questNPCID)
+	{
+		QuestDebug(ToString() + "::QuestDisplayConditions - Start");
+
+		string playerUID = player.GetIdentity().GetId();
+
+		//! Check if quest is completed if not repeatable.
+		int questState = playerQuestData.GetQuestStateByQuestID(config.GetID());
+		if (!config.IsRepeatable() && questState == ExpansionQuestState.COMPLETED)
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is already completed!");
+			return false;
+		}
+
+		//! Check if this quest is a quest of the NPC the client is interacting with.
+		array<int> questGiverIDs = config.GetQuestGiverIDs();
+		if (questState != ExpansionQuestState.CAN_TURNIN && (!questGiverIDs || questGiverIDs.Count() == 0 || questGiverIDs.Find(questNPCID) == -1))
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. NPC is not quest giver NPC!");
+			return false;
+		}
+
+		array<int> questTurnInIDs = config.GetQuestTurnInIDs();
+		if (questState == ExpansionQuestState.CAN_TURNIN && (!questTurnInIDs || questTurnInIDs.Count() == 0 || questTurnInIDs.Find(questNPCID) == -1))
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. NPC is not quest turn-in NPC!");
+			return false;
+		}
+
+		//! Check if client has a cooldown on this quest if quest is repeatable.
+		int timestamp;
+		bool hasCooldown = playerQuestData.HasCooldownOnQuest(config.GetID(), timestamp);
+		if (config.IsRepeatable() && hasCooldown)
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is on cooldown!");
+			return false;
+		}
+
+		//! Check if quest is a achivement quest.
+		if (config.IsAchivement())
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is achiement quest!");
+			return false;
+		}
+
+		//! Check if all pre-quests are completed.
+		bool completedPreQuest = true;
+		if (config.GetPreQuestIDs().Count() > 0)
+		{
+			array<int> preQuestIDs = config.GetPreQuestIDs();
+			foreach (int preQuest: preQuestIDs)
+			{
+				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(preQuest, playerUID))
+				{
+					completedPreQuest = false;
+					break;
+				}
+			}
+		}
+
+		if (!completedPreQuest)
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
+			return false;
+		}
+
+	#ifdef EXPANSIONMODHARDLINE
+		//! Check if for reputation requirement if config has a value but system is disabled.
+		if (config.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
+		{
+			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Reputation system disabled!");
+			return false;
+		}
+
+		//! Check if client meats the reputation requirement.
+		if (GetExpansionSettings().GetHardline().UseReputation && config.GetReputationRequirement() > 0)
+		{
+			int reputation = player.Expansion_GetReputation();
+			if (reputation < config.GetReputationRequirement());
+			{
+				QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Reputation requirements not met!");
+				return false;
+			}
+		}
+	#endif
+
+		QuestDebug(ToString() + "::QuestDisplayConditions - End and return TRUE.");
+
+		return true;
+	}
+
 	void OnAcceptButtonClick()
 	{
 		if (!m_SelectedQuest)
 			return;
 
-		m_QuestModule.CreateQuestInstance(m_SelectedQuest.GetID());
+		ExpansionQuestModule.GetModuleInstance().RequestCreateQuestInstance(m_SelectedQuest.GetID());
 		CloseMenu();
 	}
 
@@ -158,7 +262,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		{
 			if (m_SelectedReward)
 			{
-				m_QuestModule.RequestTurnInQuestClient(m_SelectedQuest.GetID(), true, m_SelectedReward);
+				ExpansionQuestModule.GetModuleInstance().RequestTurnInQuestClient(m_SelectedQuest.GetID(), true, m_SelectedReward);
 			}
 			else
 			{
@@ -169,7 +273,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		}
 		else
 		{
-			m_QuestModule.RequestTurnInQuestClient(m_SelectedQuest.GetID());
+			ExpansionQuestModule.GetModuleInstance().RequestTurnInQuestClient(m_SelectedQuest.GetID());
 		}
 
 		ButtonsPanel.Show(false);
@@ -180,10 +284,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		QuestDebug(ToString() + "::SetQuest - Start");
 
-		if (!m_QuestModule)
-			return;
-
-		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
+		int questState = ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
 
 		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
 		QuestListPanel.Show(false);
@@ -345,10 +446,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		if (!m_SelectedQuest)
 			return;
 
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
-		m_QuestModule.CancelQuest(m_SelectedQuest.GetID());
+		ExpansionQuestModule.GetModuleInstance().CancelQuest(m_SelectedQuest.GetID());
 		OnCloseButtonClick();
 	}
 
@@ -431,9 +529,6 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 
 	override void OnShow()
 	{
-		if (!m_QuestModule)
-			m_QuestModule =  ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
 		SetFocus(GetLayoutRoot());
 	}
 
@@ -514,7 +609,6 @@ class ExpansionDialogButton_QuestMenu_CancelQuest_Accept: ExpansionDialogButton_
 {
 	ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
 	ExpansionQuestMenu m_QuestMenu;
-	ExpansionQuestModule m_QuestModule;
 
 	void ExpansionDialogButton_QuestMenu_CancelQuest_Accept(ExpansionDialogBase dialog)
 	{
@@ -523,9 +617,6 @@ class ExpansionDialogButton_QuestMenu_CancelQuest_Accept: ExpansionDialogButton_
 
 		if (!m_QuestMenu)
 			m_QuestMenu = ExpansionQuestMenu.Cast(m_CancelQuestDialog.GetParentView());
-
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255, 220, 220, 220));

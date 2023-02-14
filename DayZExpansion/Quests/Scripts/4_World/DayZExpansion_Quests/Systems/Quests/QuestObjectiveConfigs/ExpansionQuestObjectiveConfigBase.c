@@ -12,12 +12,15 @@
 
 class ExpansionQuestObjectiveConfig
 {
-	static const int CONFIGVERSION = 11;
+	static const int CONFIGVERSION = 13;
 	int ConfigVersion;
 	int ID = -1; //! Unique objective ID
 	int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
 	string ObjectiveText = string.Empty;
 	int TimeLimit = - 1;
+
+	[NonSerialized()];
+	protected ref array<string> m_ObjectiveAllocationClasses;
 
 	void ExpansionQuestObjectiveConfig()
 	{
@@ -160,7 +163,316 @@ class ExpansionQuestObjectiveConfig
 	{
 		return NULL;
 	}
+
+	int GetExecutionAmount()
+	{
+		return -1;
+	}
+
+#ifdef EXPANSIONMODMARKET
+	bool AddItemsToNearbyMarketZone()
+	{
+		return false;
+	}
+#endif
 	
+	bool TriggerOnEnter()
+	{
+		return false;
+	}
+	
+	bool TriggerOnExit()
+	{
+		return false;
+	}
+
+	void CollectAllocationClasses()
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::CollectAllocationClasses - Start");
+	#endif
+
+		int objectiveType = GetObjectiveType();
+		string baseClassName;
+		array<string> validClassNames = new array<string>;
+		switch (objectiveType)
+		{
+			case ExpansionQuestObjectiveType.ACTION:
+			{
+				validClassNames.Insert("ActionBase");
+			}
+			break;
+			case ExpansionQuestObjectiveType.CRAFTING:
+			{
+				validClassNames.Insert("RecipeBase");
+				validClassNames.Insert("ItemBase");
+			}
+			break;
+			case ExpansionQuestObjectiveType.TARGET:
+			{
+				ExpansionQuestObjectiveTargetConfig targetConfig;
+				if (Class.CastTo(targetConfig, this))
+				{
+					ExpansionQuestObjectiveTarget target = targetConfig.GetTarget();
+					if (!target)
+						return;
+
+					validClassNames = target.GetClassNames();
+				}
+			}
+			break;
+			case ExpansionQuestObjectiveType.DELIVERY:
+			{
+				validClassNames.Insert("ItemBase");
+			}
+			break;
+			case ExpansionQuestObjectiveType.COLLECT:
+			{
+				validClassNames.Insert("ItemBase");
+			}
+			break;
+			case ExpansionQuestObjectiveType.TREASUREHUNT:
+			{
+				validClassNames.Insert("ItemBase");
+			}
+			break;
+		#ifdef EXPANSIONMODAI
+			case ExpansionQuestObjectiveType.AICAMP:
+			{
+				validClassNames.Insert("SurvivorBase");
+			}
+			break;
+			case ExpansionQuestObjectiveType.AIPATROL:
+			{
+				validClassNames.Insert("SurvivorBase");
+			}
+			break;
+			case ExpansionQuestObjectiveType.AIESCORD:
+			{
+				validClassNames.Insert("SurvivorBase");
+				validClassNames.Insert("ActionBase");
+			}
+			break;
+		#endif
+		}
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		foreach (string name: validClassNames)
+		{
+			Print(ToString() + "::CollectAllocationClasses - Valid Class-Names: " + name);
+		}
+	#endif
+
+		if (!validClassNames || validClassNames.Count() == 0)
+			return;
+
+		foreach (string className: validClassNames)
+		{
+			if (GetGame().ConfigIsExisting("CfgVehicles " + className))
+			{
+				GetGame().ConfigGetBaseName("CfgVehicles " + className, baseClassName);
+				if (baseClassName != string.Empty)
+				{
+				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+					Print(ToString() + "::CollectAllocationClasses - Name: " + baseClassName);
+				#endif
+					AllocationClassNameCheck(baseClassName);
+				}
+				else
+				{
+					//! Should never happening?!
+					Error(ToString() + "::CollectAllocationClasses - Base class name for " + className + " is EMPTY?!");
+				}
+			}
+			else
+			{
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+				Print(ToString() + "::CollectAllocationClasses - " + className + " is not a valid class name or has no RV-Config.");
+			#endif
+				string type = className;
+				typename typeName = type.ToType();
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+				Print(ToString() + "::CollectAllocationClasses - Result type name: " + typeName.ToString());
+			#endif
+				AllocationTypeNameCheck(typeName);
+			}
+		}
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::CollectAllocationClasses - End");
+	#endif
+	}
+
+	void AllocationClassNameCheck(string className)
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::AllocationClassNameCheck - Start");
+		Print(ToString() + "::AllocationClassNameCheck - " + className);
+	#endif
+
+		bool added;
+		string baseName;
+		if (InheritsFrom(className, "ZombieBase"))
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationClassNameCheck - ZombieBase");
+		#endif
+			baseName = "ZombieBase";
+			added = true;
+		}
+		else if (InheritsFrom(className, "AnimalBase"))
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationClassNameCheck - AnimalBase");
+		#endif
+			baseName = "AnimalBase";
+			added = true;
+		}
+		else if (className == "Man")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationClassNameCheck - PlayerBase");
+		#endif
+			baseName = "PlayerBase";
+			added = true;
+		}
+		else if (className == "ItemBase")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationClassNameCheck - ItemBase");
+		#endif
+			baseName = className;
+			added = true;
+		}
+		else if (className == "ActionBase")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationClassNameCheck - ActionBase");
+		#endif
+			baseName = className;
+			added = true;
+		}
+		else if (className == "RecipeBase")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationClassNameCheck - RecipeBase");
+		#endif
+			baseName = className;
+			added = true;
+		}
+
+		if (added)
+		{
+			if (!m_ObjectiveAllocationClasses)
+				m_ObjectiveAllocationClasses = new array<string>;
+
+			int index = m_ObjectiveAllocationClasses.Find(baseName);
+			if (index == -1)
+				m_ObjectiveAllocationClasses.Insert(baseName);
+		}
+
+		Print(ToString() + "::AllocationClassNameCheck - End");
+	}
+
+	void AllocationTypeNameCheck(typename typeName)
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::AllocationTypeNameCheck - Start");
+		Print(ToString() + "::AllocationTypeNameCheck - " + typeName);
+	#endif
+
+		bool added;
+		string baseName;
+		if (typeName.IsInherited(ZombieBase))
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationTypeNameCheck - ZombieBase");
+		#endif
+			baseName = "ZombieBase";
+			added = true;
+		}
+		else if (typeName.IsInherited(AnimalBase))
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationTypeNameCheck - AnimalBase");
+		#endif
+			baseName = "AnimalBase";
+			added = true;
+		}
+		else if (typeName.IsInherited(Man) || typeName.ToString() == "Man")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationTypeNameCheck - PlayerBase");
+		#endif
+			baseName = "PlayerBase";
+			added = true;
+		}
+		else if (typeName.IsInherited(ItemBase) || typeName.ToString() == "ItemBase")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationTypeNameCheck - ItemBase");
+		#endif
+			baseName = "ItemBase";
+			added = true;
+		}
+		else if (typeName.IsInherited(ActionBase) || typeName.ToString() == "ActionBase")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationTypeNameCheck - ActionBase");
+		#endif
+			baseName = "ActionBase";
+			added = true;
+		}
+		else if (typeName.IsInherited(RecipeBase) || typeName.ToString() == "RecipeBase")
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::AllocationTypeNameCheck - RecipeBase");
+		#endif
+			baseName = "RecipeBase";
+			added = true;
+		}
+
+		if (added)
+		{
+			if (!m_ObjectiveAllocationClasses)
+				m_ObjectiveAllocationClasses = new array<string>;
+
+			int index = m_ObjectiveAllocationClasses.Find(baseName);
+			if (index == -1)
+				m_ObjectiveAllocationClasses.Insert(baseName);
+		}
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::AllocationClassNameCheck - End");
+	#endif
+	}
+
+	bool InheritsFrom(string value, string baseclass)
+	{
+		auto hitch = EXHitch(ToString() + "::InheritsFrom - ");
+
+		string child = value;
+		string parent;
+		while (GetGame().ConfigGetBaseName("cfgVehicles " + child, parent))
+		{
+		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+			Print(ToString() + "::InheritsFrom - Value: " + child + " | Parent: " + parent);
+		#endif
+			if (parent == baseclass)
+			{
+				return true;
+			}
+			child = parent;
+		}
+
+		return false;
+	}
+
+	array<string> GetAllocationClasseNames()
+	{
+		return m_ObjectiveAllocationClasses;
+	}
+
 	void Save(string fileName);
 
 	void OnSend(ParamsWriteContext ctx)

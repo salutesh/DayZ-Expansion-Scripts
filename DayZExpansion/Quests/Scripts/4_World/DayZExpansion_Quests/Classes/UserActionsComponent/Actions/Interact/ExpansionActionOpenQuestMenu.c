@@ -30,16 +30,6 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 		return InteractActionInput;
 	}
 
-	override void OnStartClient( ActionData action_data )
-	{
-		super.OnStartClient(action_data);
-
-		if (!CF_Modules<ExpansionQuestModule>.Get(m_Expansion_QuestModule))
-			return;
-
-		m_Expansion_QuestModule.RequestPlayerQuests();
-	}
-
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
 		Object targetObject;
@@ -62,7 +52,6 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 		if (!GetGame().IsDedicatedServer())
 		{
 			//! Client
-
 			//! Dont show action if menu is already opened
 			if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 				return false;

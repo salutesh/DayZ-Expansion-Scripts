@@ -76,17 +76,17 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	static ExpansionQuestObjectiveAICampConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveAICampConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveAICampConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName);
 
 		ExpansionQuestObjectiveAICampConfig config;
 		ExpansionQuestObjectiveAICampConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveAICampConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveAICampConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveAICampConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -111,7 +111,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -125,12 +125,13 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveAICampConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName, this);
 	}
 

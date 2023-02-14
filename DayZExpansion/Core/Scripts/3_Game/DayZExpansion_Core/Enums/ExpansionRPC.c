@@ -397,14 +397,10 @@ enum ExpansionRPC
 enum ExpansionQuestModuleRPC
 {
 	INVALID = 40020,
-	SendQuestNPCData,
-	RequestPlayerQuests,
-	SendPlayerQuests,
-	SendPlayerQuestData,
 	RequestOpenQuestMenu,
-	SetupClientData,
-	UpdatePlayerQuestData,
-	CreateQuestInstance,
+	SendClientQuestData,
+	SendClientQuestConfigs,
+	RequestCreateQuestInstance,
 	RequestCompleteQuest,
 	CompleteQuest,
 	CreateClientMarker,
@@ -449,4 +445,12 @@ enum ExpansionLockRPC
 	CHANGE,
 	KNOWNUSERS_REQUEST,
 	KNOWNUSERS_REPLY
+};
+
+enum ExpansionAutoRunRPC
+{
+	INVALID = 9889130,
+	AUTORUNSYNC,
+	AUTORUNDISABLE,
+	COUNT
 };

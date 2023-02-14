@@ -15,7 +15,6 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 {
 	protected ref ExpansionBookMenuTabQuestsController m_QuestTabController;
 	protected ScrollWidget rules_list_scroller;
-	protected ExpansionQuestModule m_QuestModule;
 	protected ExpansionQuestConfig m_Quest;
 	protected ref ExpansionDialog_CancelQuest m_CancelQuestDialog;
 
@@ -34,8 +33,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		if (!m_QuestTabController)
 			m_QuestTabController = ExpansionBookMenuTabQuestsController.Cast(GetController());
 
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+		ExpansionQuestModule.GetModuleInstance().GetQuestLogCallbackSI().Insert(MenuCallback);
 	}
 
 	override string GetLayoutFile()
@@ -71,24 +69,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 	override void OnShow()
 	{
 		super.OnShow();
-
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
-		m_QuestModule.GetQuestLogSI().Insert(SetView);
-		m_QuestModule.GetQuestLogCallbackSI().Insert(MenuCallback);
-
-		m_QuestModule.RequestPlayerQuests();
-	}
-
-	override void OnHide()
-	{
-		super.OnHide();
-
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
-		m_QuestModule.GetQuestLogSI().Clear();
+		SetView(ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient());
 	}
 
 	override bool IsParentTab()
@@ -108,21 +89,18 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		QuestDebugPrint("ExpansionBookMenuTabQuests::SetQuest - End");
 	}
 
-	void SetView(map<int, ref ExpansionQuestConfig> quests)
+	void SetView(array<ref ExpansionQuestConfig> quests)
 	{
 		quest_info_panel.Show(false);
-
-		if (!m_QuestModule)
-			return;
-
 		m_QuestTabController.Quests.Clear();
 
-		foreach (int questID, ExpansionQuestConfig questConfig: quests)
+		foreach (ExpansionQuestConfig questConfig: quests)
 		{
 			if (!questConfig || questConfig.IsAchivement())
 				continue;
 
-			int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(questID);
+			int questID = questConfig.GetID();
+			int questState = ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestStateByQuestID(questID);
 			if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
 			{
 				ExpansionBookMenuTabQuestsListEntry questEntry = new ExpansionBookMenuTabQuestsListEntry(questConfig, this);
@@ -152,13 +130,10 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 
 	void SetQuest(ExpansionQuestConfig quest)
 	{
-		if (!m_QuestModule)
-			return;
-
 		m_Quest = quest;
 		quest_info_panel.Show(true);
 
-		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
+		int questState = ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
 		m_QuestTabController.QuestTitle = quest.GetTitle();
 
 		string description;
@@ -179,12 +154,9 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
 		m_QuestTabController.QuestDescription = descriptiontext.Format();
 		m_QuestTabController.QuestObjective = quest.GetObjectiveText();
-
 		m_QuestTabController.NotifyPropertiesChanged({"QuestTitle", "QuestDescription", "QuestObjective"});
-
 		m_QuestTabController.RewardEntries.Clear();
 		int rewardsCount = quest.GetRewards().Count();
-
 		reward_panel.Show(false);
 	#ifdef EXPANSIONMODHARDLINE
 		if (rewardsCount > 0 || quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
@@ -266,11 +238,7 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		if (!m_Quest)
 			return;
 
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
-
-		m_QuestModule.CancelQuest(m_Quest.GetID());
-
+		ExpansionQuestModule.GetModuleInstance().CancelQuest(m_Quest.GetID());
 		ExpansionUIManager uiManager = GetDayZExpansion().GetExpansionUIManager();
 		ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(uiManager.GetMenu());
 		if (bookMenu)
@@ -301,11 +269,6 @@ class ExpansionBookMenuTabQuests: ExpansionBookMenuTabBase
 		QuestDebugPrint("ExpansionBookMenuTabQuests::OnHideHUDButtonClick - End");
 	}
 #endif
-
-	ExpansionQuestModule GetQuestModule()
-	{
-		return m_QuestModule;
-	}
 
 	ExpansionQuestConfig GetQuest()
 	{
@@ -420,7 +383,6 @@ class ExpansionDialogButton_Text_CancelQuest_Accept: ExpansionDialogBookButton_T
 {
 	ExpansionDialog_CancelQuest m_CancelQuestDialog;
 	ExpansionBookMenuTabQuests m_QuestTab;
-	ExpansionQuestModule m_QuestModule;
 
 	void ExpansionDialogButton_Text_CancelQuest_Accept(ExpansionDialogBase dialog)
 	{
@@ -429,9 +391,6 @@ class ExpansionDialogButton_Text_CancelQuest_Accept: ExpansionDialogBookButton_T
 
 		if (!m_QuestTab)
 			m_QuestTab = ExpansionBookMenuTabQuests.Cast(m_CancelQuestDialog.GetParentView());
-
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
 
 		SetButtonText("#STR_EXPANSION_ACCEPT");
 		SetTextColor(ARGB(255,0,0,0));

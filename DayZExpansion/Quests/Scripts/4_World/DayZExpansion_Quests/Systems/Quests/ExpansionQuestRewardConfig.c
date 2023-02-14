@@ -20,7 +20,7 @@ class ExpansionQuestRewardConfigBase
 class ExpansionQuestRewardConfigV1: ExpansionQuestRewardConfigBase
 {
 	int HealthPercent;
-	
+
 	void Copy(ExpansionQuestRewardConfigBase rewardBase)
 	{
 		ClassName = rewardBase.ClassName;
@@ -32,7 +32,7 @@ class ExpansionQuestRewardConfigV1: ExpansionQuestRewardConfigBase
 class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 {
 	int DamagePercent = 0;
-	
+
 	void SetClassName(string name)
 	{
 		ClassName = name;
@@ -70,17 +70,17 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 	{
 		return Attachments;
 	}
-	
+
 	int GetDamagePercent()
 	{
 		return DamagePercent;
 	}
-	
+
 	void SetDamagePercent(int value)
 	{
 		DamagePercent = value;
 	}
-	
+
 	void OnSend(ParamsWriteContext ctx)
 	{
 		ctx.Write(ClassName);

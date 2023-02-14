@@ -17,10 +17,13 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	protected int m_TotalUnitsAmount = 0;
 	protected int m_UnitsToSpawn = 0;
 
-	//! Event called when the player starts or continues the quest after a server restart/reconnect
-	protected override bool OnEventStart(bool continues = false)
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase OnEventStart
+	// -----------------------------------------------------------
+	//! Event called when the player starts the quest.
+	protected override bool OnEventStart()
 	{
-		if (!super.OnEventStart(continues))
+		if (!super.OnEventStart())
 			return false;
 
 		CheckQuestAIPatrol();
@@ -28,46 +31,60 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase OnContinue
+	// -----------------------------------------------------------
+	//! Event called when the player starts the quest.
+	protected override bool OnContinue()
+	{
+		if (!super.OnContinue())
+			return false;
+
+		CheckQuestAIPatrol();
+		m_Quest.QuestCompletionCheck();
+
+		return true;
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase OnCleanup
+	// -----------------------------------------------------------
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override bool OnCleanup()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCleanup");
-	#endif
-
 		if (!super.OnCleanup())
 			return false;
 
-		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest))
 			CleanupPatrol();
 
 		return true;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase OnCancel
+	// -----------------------------------------------------------
 	//! Event called when the quest gets manualy canceled by the player.
 	override bool OnCancel()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnCancel");
-	#endif
-
 		if (!super.OnCancel())
 			return false;
 
-		if (!GetQuest().GetQuestModule().IsOtherQuestInstanceActive(GetQuest()))
+		if (!ExpansionQuestModule.GetModuleInstance().IsOtherQuestInstanceActive(m_Quest))
 			CleanupPatrol(true);
 
 		return true;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase OnComplete
+	// -----------------------------------------------------------
 	override bool OnComplete()
 	{
-		ObjectivePrint(ToString() + "::OnComplete - Start");
-
 		if (!super.OnComplete())
 			return false;
 
-		if (GetQuest().GetQuestModule().CanDeleteQuestPatrol(GetQuest().GetQuestConfig().GetID()))
+		if (ExpansionQuestModule.GetModuleInstance().CanDeleteQuestPatrol(m_Quest.GetQuestConfig().GetID()))
 		{
 			CleanupPatrol();
 		}
@@ -75,14 +92,13 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CleanupPatrol
+	// -----------------------------------------------------------
 	protected void CleanupPatrol(bool despawn = false)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CleanupPatrol");
-	#endif
-
 		array<eAIDynamicPatrol> questPatrols;
-		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
+		if (ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
 		{
 			foreach(eAIDynamicPatrol patrol: questPatrols)
 			{
@@ -101,9 +117,12 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			}
 		}
 
-		GetQuest().GetQuestModule().RemoveQuestPatrol(GetQuest().GetQuestConfig().GetID());
+		ExpansionQuestModule.GetModuleInstance().RemoveQuestPatrol(m_Quest.GetQuestConfig().GetID());
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase KilledAIMember
+	// -----------------------------------------------------------
 	protected bool KilledAIMember(EntityAI victim)
 	{
 		DayZPlayerImplement victimPlayer;
@@ -111,7 +130,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			return false;
 
 		array<eAIDynamicPatrol> questPatrols;
-		if (!GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
+		if (!ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
 			return false;
 
 		foreach (eAIDynamicPatrol patrol: questPatrols)
@@ -124,6 +143,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		return false;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase OnEntityKilled
+	// -----------------------------------------------------------
 	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		//! Check if killed ai entity was part of this objective event group
@@ -132,23 +154,20 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			if (m_TotalKillCount < m_TotalUnitsAmount)
 			{
 				m_TotalKillCount++;
-
-				if (GetQuest())
-					GetQuest().UpdateQuest();
+				m_Quest.UpdateQuest();
+				m_Quest.QuestCompletionCheck();
 			}
 		}
-
-		if (m_TotalKillCount >= m_TotalUnitsAmount)
-		{
-			SetCompleted(true);
-			OnComplete();
-		}
 	}
 
-	protected void CheckQuestAIPatrol()
-	{
-	}
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CheckQuestAIPatrol
+	// -----------------------------------------------------------
+	protected void CheckQuestAIPatrol();
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CheckQuestAIPatrol
+	// -----------------------------------------------------------
 	protected void CheckQuestAIPatrol(int patrolsToKill)
 	{
 		//! If all the targets are already killed dont create patrols
@@ -156,7 +175,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			return;
 
 		array<eAIDynamicPatrol> questPatrols;
-		if (GetQuest().GetQuestModule().QuestPatrolExists(GetQuest().GetQuestConfig().GetID(), questPatrols))
+		if (ExpansionQuestModule.GetModuleInstance().QuestPatrolExists(m_Quest.GetQuestConfig().GetID(), questPatrols))
 		{
 			//! Check if the previous patrol groups related to this quest have been killed
 			int killedPatrolCount;
@@ -178,10 +197,14 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		}
 	}
 
-	protected void CreateQuestAIPatrol()
-	{
-	}
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CreateQuestAIPatrol
+	// -----------------------------------------------------------
+	protected void CreateQuestAIPatrol();
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CreateQuestPatrol
+	// -----------------------------------------------------------
 	static eAIDynamicPatrol CreateQuestPatrol(ExpansionQuestAIGroup group, int killCount = 0, int respawnTime = -1, int despawnTime = 0, float minDistRadius = 20, float maxDistRadius = 600, float despawnRadius = 880)
 	{
 		Print("=================== Expansion Quest AI Patrol ===================");
@@ -230,13 +253,12 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		return patrol;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CleanupZeds
+	// -----------------------------------------------------------
 	protected void CleanupZeds()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CleanupZeds");
-	#endif
-
-		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -249,21 +271,54 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 		}
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase SetKillCount
+	// -----------------------------------------------------------
 	void SetKillCount(int count)
 	{
 		m_TotalKillCount = count;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase GetCount
+	// -----------------------------------------------------------
 	int GetCount()
 	{
 		return m_TotalKillCount;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase GetAmount
+	// -----------------------------------------------------------
 	int GetAmount()
 	{
 		return m_TotalUnitsAmount;
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CanComplete
+	// -----------------------------------------------------------
+	override bool CanComplete()
+	{
+		ObjectivePrint(ToString() + "::CanComplete - Start");
+		ObjectivePrint(ToString() + "::CanComplete - m_TotalKillCount: " + m_TotalKillCount);
+		ObjectivePrint(ToString() + "::CanComplete - m_TotalUnitsAmount: " + m_TotalUnitsAmount);
+
+		bool conditionsResult = (m_TotalKillCount == m_TotalUnitsAmount);
+		if (!conditionsResult)
+		{
+			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			return false;
+		}
+
+		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+
+		return super.CanComplete();
+	}
+
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAIEventBase CanComplete
+	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AICAMP;

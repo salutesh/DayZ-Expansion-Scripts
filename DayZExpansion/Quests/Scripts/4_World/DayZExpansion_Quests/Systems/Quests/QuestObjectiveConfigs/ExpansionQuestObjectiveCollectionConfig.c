@@ -20,11 +20,20 @@ class ExpansionQuestObjectiveCollectionConfigBase:ExpansionQuestObjectiveConfig
 	float MaxDistance = 10.0;
 	string MarkerName = "Deliver Items";
 	bool ShowDistance = true;
+	ref array<ref ExpansionQuestObjectiveDelivery> Collections;
 };
 
 class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollectionConfigBase
 {
-	ref array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
+#ifdef EXPANSIONMODMARKET
+	bool AddItemsToNearbyMarketZone = true;
+#endif
+
+	void ExpansionQuestObjectiveCollectionConfig()
+	{
+		if (!Collections)
+			Collections = new array<ref ExpansionQuestObjectiveDelivery>;
+	}
 
 	void AddCollection(int amount, string name)
 	{
@@ -64,29 +73,41 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		return Collections;
 	}
 
+#ifdef EXPANSIONMODMARKET
+	void SetAddItemsToNearbyMarketZone(bool state)
+	{
+		AddItemsToNearbyMarketZone = state;
+	}
+
+	override bool AddItemsToNearbyMarketZone()
+	{
+		return AddItemsToNearbyMarketZone;
+	}
+#endif
+
 	static ExpansionQuestObjectiveCollectionConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveCollectionConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveCollectionConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName);
 
 		ExpansionQuestObjectiveCollectionConfig config;
 		ExpansionQuestObjectiveCollectionConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveCollectionConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveCollectionConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveCollectionConfig();
+
+			//! Copy over old configuration that haven't HandAnimEventChanged
+			config.CopyConfig(configBase);
 
 			if (configBase.ConfigVersion < 11)
 			{
-				//! Copy over old configuration that haven't HandAnimEventChanged
-				config.CopyConfig(configBase);
-
 				ExpansionQuestObjectiveCollectionConfig_V10 configV10;
-				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig_V10>.Load(fileName, configV10))
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig_V10>.Load(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, configV10))
 					return NULL;
 
 				config.AddCollection(configV10.Collection.GetAmount(), configV10.Collection.GetClassName());
@@ -97,7 +118,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -111,9 +132,10 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, this);
 	}
 
@@ -126,6 +148,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
+		Collections = configBase.Collections;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

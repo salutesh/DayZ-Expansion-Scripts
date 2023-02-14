@@ -2,11 +2,10 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
  visible 1
  clipchildren 1
  inheritalpha 1
- size 1 1
- halign right_ref
+ size 264 1
  hexactpos 0
  vexactpos 0
- hexactsize 0
+ hexactsize 1
  vexactsize 0
  scriptclass "ExpansionQuestHUDEntryController"
  style Empty
@@ -125,19 +124,19 @@ GridSpacerWidgetClass ExpansionQuestHudEntry {
      ignorepointer 1
      keepsafezone 1
      position 0 0
-     size 0.96 1
+     size 264 1
      hexactpos 0
      vexactpos 0
-     hexactsize 0
+     hexactsize 1
      vexactsize 0
      scaled 1
      draggable 0
      scriptclass ""
      style Empty
      "Ignore invisible" 0
-     Padding 5
+     Padding 0
      Margin 0
-     "Size To Content H" 0
+     "Size To Content H" 1
      "Size To Content V" 1
     }
    }

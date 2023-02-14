@@ -12,6 +12,9 @@
 
 class ExpansionQuestItemBase extends ItemBase
 {
+	// ------------------------------------------------------------
+	// ExpansionQuestItemBase Constructor
+	// ------------------------------------------------------------
 	void ExpansionQuestItemBase()
 	{
 		m_CanBeSkinned = false;

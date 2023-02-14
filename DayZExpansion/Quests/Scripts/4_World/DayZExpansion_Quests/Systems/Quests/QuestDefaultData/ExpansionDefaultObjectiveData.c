@@ -29,6 +29,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Village");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Village");
+		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -50,6 +51,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Village");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Village");
+		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -71,6 +73,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Camp");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Camp");
+		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -92,6 +95,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Find the patrol");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Find the patrol");
+		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -234,6 +238,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
 		objective.SetObjectiveText("Kill 100 Infected");
+		objective.SetMaxDistance(150.0);
 
 		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
 		//! Civilian Infected
@@ -316,6 +321,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(3);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TARGET);
 		objective.SetObjectiveText("Kill 10 Infected");
+		objective.SetMaxDistance(150.0);
 
 		ExpansionQuestObjectiveTarget target = new ExpansionQuestObjectiveTarget();
 		//! Civilian Infected
@@ -651,12 +657,13 @@ class ExpansionDefaultObjectiveData
 	}
 
 	//! AI VIP OBJECTIVES
-	ExpansionQuestObjectiveAIVIPConfig ExpansionQuestObjective_AIVIP_001()
+	ExpansionQuestObjectiveAIEscordConfig ExpansionQuestObjective_AIEscord_001()
 	{
-		ExpansionQuestObjectiveAIVIPConfig objective = new ExpansionQuestObjectiveAIVIPConfig();
+		ExpansionQuestObjectiveAIEscordConfig objective = new ExpansionQuestObjectiveAIEscordConfig();
 		objective.SetID(1);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIVIP);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIESCORD);
 		objective.SetObjectiveText("Bring the VIP to the marked location.");
+		objective.SetTimeLimit(180);
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Escort VIP");
 
@@ -687,6 +694,8 @@ class ExpansionDefaultObjectiveData
 		objective.AddActionName("ExpansionVehicleActionPickLock");
 		objective.AddActionName("ExpansionActionPickVehicleLockBase");
 		objective.AddActionName("ExpansionActionPickVehicleLock");
+		objective.SetObjectiveText("Lockpick a vehicle:");
+		objective.SetExecutionAmount(1);
 
 		return objective;
 	}
@@ -698,17 +707,9 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
 		objective.AddActionName("ActionPlantSeed");
 		objective.AddAllowedClassName("PumpkinSeeds");
+		objective.SetObjectiveText("Plant pumkin seeds:");
+		objective.SetExecutionAmount(1);
 
-		return objective;
-	}
-	
-	ExpansionQuestObjectiveActionConfig ExpansionQuestObjective_Action_003()
-	{
-		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
-		objective.SetID(3);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
-		objective.AddActionName("ActionDigOutStash");
-		objective.SetObjectiveText("Digged out stach:");
 		return objective;
 	}
 
@@ -718,7 +719,9 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveCraftingConfig objective = new ExpansionQuestObjectiveCraftingConfig();
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.CRAFTING);
+		objective.SetObjectiveText("Craft a improvised fishing rod:");
 		objective.AddItemName("ImprovisedFishingRod");
+		objective.SetExecutionAmount(1);
 
 		return objective;
 	}

@@ -57,4 +57,28 @@ class ExpansionScriptViewBase: ScriptView
 	bool CanShow();
 
 	void Refresh();
+	
+	static array<ScriptView> GetAll()
+	{
+		return All;
+	}
+	
+	static ScriptView GetSciptViewByClassName(string name)
+	{
+		Print("ExpansionScriptViewBase::GetSciptViewByClassName - Search for view with name: " + name);
+		foreach (ScriptView view: All)
+		{
+			string viewName = view.ClassName();
+			Print("ExpansionScriptViewBase::GetSciptViewByClassName - View name: " + viewName);
+			if (viewName == name)
+			{
+				Print("ExpansionScriptViewBase::GetSciptViewByClassName - Found and return view: " + viewName);
+				return view;
+			}
+		}
+		
+		Print("ExpansionScriptViewBase::GetSciptViewByClassName - Could not find view name. Return NULL.");
+		
+		return null;
+	}
 }

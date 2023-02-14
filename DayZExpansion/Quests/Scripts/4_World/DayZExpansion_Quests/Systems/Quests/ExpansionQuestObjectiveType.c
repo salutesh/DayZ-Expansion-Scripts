@@ -20,7 +20,7 @@ enum ExpansionQuestObjectiveType
 	TREASUREHUNT,
 	AIPATROL,
 	AICAMP,
-	AIVIP,
+	AIESCORD,
 	ACTION,
 	CRAFTING,
 	SCRIPTED

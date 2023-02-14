@@ -13,20 +13,27 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 {
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAICampEvent CleanupPatrol
+	// -----------------------------------------------------------
 	override protected void CleanupPatrol(bool despawn = false)
 	{
-		super.CleanupPatrol(despawn);
+		ObjectivePrint(ToString() + "::CleanupPatrol - Start");
 
+		super.CleanupPatrol(despawn);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CleanupZeds);
+
+		ObjectivePrint(ToString() + "::CleanupPatrol - End");
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAICampEvent OnEntityKilled
+	// -----------------------------------------------------------
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
-	#endif
+		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
 
-		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -39,40 +46,42 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 		//! Check if killed entities class name is a valid one from our objective config
 		bool found = ExpansionStatic.IsAnyOf(victim, aiCamp.GetClassNames(), true);
-
 		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
-
 		if (!found)
 			return;
 
 		super.OnEntityKilled(victim, killer, killerPlayer);
+
+		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAICampEvent CheckQuestAIPatrol
+	// -----------------------------------------------------------
 	override protected void CheckQuestAIPatrol()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CheckQuestAIPatrol");
-	#endif
+		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
 
-		if (!GetQuest() || !GetQuest().GetQuestModule() || !GetQuest().GetQuestConfig() || !GetObjectiveConfig())
+		if (!GetObjectiveConfig())
 			return;
 
-		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
 		m_TotalUnitsAmount = aiCamp.GetPositions().Count();
 
 		CheckQuestAIPatrol(m_TotalUnitsAmount);
+
+		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAICampEvent CreateQuestAIPatrol
+	// -----------------------------------------------------------
 	override void CreateQuestAIPatrol()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CreateQuestAIPatrol");
-	#endif
-
-		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -85,35 +94,36 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			array<vector> waypoint = new array<vector>;
 			waypoint.Insert(pos);
 
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), GetObjectiveConfig().CanLootAI(), false, waypoint);
+			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_ObjectiveConfig.CanLootAI(), false, waypoint);
 			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
 			group.AccuracyMin = aiCamp.NPCAccuracyMin;
 			group.AccuracyMax = aiCamp.NPCAccuracyMax;
-			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
+			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, m_ObjectiveConfig.GetMinDistRadius(), m_ObjectiveConfig.GetMaxDistRadius(), m_ObjectiveConfig.GetDespawnRadius());
 			if (!patrol)
 				return;
 
 			questPatrols.Insert(patrol);
 		}
 
-		GetQuest().GetQuestModule().SetQuestPatrols(GetQuest().GetQuestConfig().GetID(), questPatrols);
+		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CleanupZeds, 30000, true);
 
 	#ifdef EXPANSIONMODNAVIGATION
-		string markerName = GetObjectiveConfig().GetObjectiveText();
+		string markerName = m_ObjectiveConfig.GetObjectiveText();
 
 		if (markerName != string.Empty)
-			GetQuest().CreateClientMarker(aiCamp.GetPositions()[0], markerName);
+			m_Quest.CreateClientMarker(aiCamp.GetPositions()[0], markerName);
 	#endif
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAICampEvent CleanupZeds
+	// -----------------------------------------------------------
+	//! ToDo: Spawn a trigger that calls that method on infected that get spawned in the objective area.
+	//! Maybe make this also optional as a objective configuration setting.
 	protected override void CleanupZeds()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "CleanupZeds");
-	#endif
-
-		ExpansionQuestObjectiveAICamp aiCamp = GetObjectiveConfig().GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -126,6 +136,9 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		}
 	}
 
+	// -----------------------------------------------------------
+	// ExpansionQuestObjectiveAICampEvent CleanupZeds
+	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AICAMP;

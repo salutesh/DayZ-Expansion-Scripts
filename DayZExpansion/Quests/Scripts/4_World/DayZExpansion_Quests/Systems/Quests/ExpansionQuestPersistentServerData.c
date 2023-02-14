@@ -10,6 +10,42 @@
  *
 */
 
+#ifdef EXPANSIONMODMARKET
+class ExpansionQuestItemForMarket
+{
+	protected vector ZonePosition;
+	protected string ClassName;
+	protected int Amount;
+
+	void ExpansionQuestItemForMarket(vector pos, string className, int amount)
+	{
+		ZonePosition = pos;
+		ClassName = className;
+		Amount = amount;
+	}
+
+	vector GetZonePosition()
+	{
+		return ZonePosition;
+	}
+
+	string GetClassName()
+	{
+		return ClassName;
+	}
+
+	int GetAmount()
+	{
+		return Amount;
+	}
+
+	void SetAmount(int amount)
+	{
+		Amount = amount;
+	}
+};
+#endif
+
 class ExpansionQuestPersistentServerDataBase
 {
 	int ConfigVersion;
@@ -19,12 +55,75 @@ class ExpansionQuestPersistentServerDataBase
 
 class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 {
-	static const int CONFIGVERSION = 0;
+	static const int CONFIGVERSION = 1;
+#ifdef EXPANSIONMODMARKET
+	ref array<ref ExpansionQuestItemForMarket> m_QuestMarketItems;
+#endif
 
 	[NonSerialized()]
 	static int DAY_TIME = 86400; //! Day in seconds
 	[NonSerialized()]
 	static int WEEK_TIME = 604800; //! Week in seconds
+
+	void ExpansionQuestPersistentServerData()
+	{
+		ConfigVersion = 1;
+
+		if (!m_QuestMarketItems)
+			m_QuestMarketItems = new array<ref ExpansionQuestItemForMarket>;
+	}
+
+	void AddQuestMarketItem(vector pos, string className, int amount)
+	{
+		bool added;
+		foreach (ExpansionQuestItemForMarket current: m_QuestMarketItems)
+		{
+			if (current.GetZonePosition() == pos)
+			{
+				if (current.GetClassName() == className)
+				{
+					int currentAmount = current.GetAmount();
+					int newAmount = currentAmount + amount;
+					current.SetAmount(newAmount);
+					added = true;
+				}
+			}
+		}
+
+		if (!added)
+		{
+			ExpansionQuestItemForMarket questMarketItem = new ExpansionQuestItemForMarket(pos, className, amount);
+			m_QuestMarketItems.Insert(questMarketItem);
+		}
+	}
+
+	void AddQuestMarketItemsToZones()
+	{
+		auto marketSettings = GetExpansionSettings().GetMarket();
+		array<ExpansionMarketTraderZone> zonesToUpdate = new array<ExpansionMarketTraderZone>;
+		foreach (ExpansionQuestItemForMarket marketItem: m_QuestMarketItems)
+		{
+			vector zonePos = marketItem.GetZonePosition();
+			ExpansionMarketTraderZone traderZone = marketSettings.GetTraderZoneByPosition(zonePos);
+			if (!traderZone)
+				return;
+
+			string name = marketItem.GetClassName();
+			int amount = marketItem.GetAmount();
+			traderZone.AddStock(name, amount);
+
+			if (zonesToUpdate.Find(traderZone) == -1)
+				zonesToUpdate.Insert(traderZone);
+		}
+
+		foreach (ExpansionMarketTraderZone zone: zonesToUpdate)
+		{
+			zone.Save();
+		}
+
+		m_QuestMarketItems.Clear();
+		Save();
+	}
 
 	void SetWeeklyResetTime()
 	{

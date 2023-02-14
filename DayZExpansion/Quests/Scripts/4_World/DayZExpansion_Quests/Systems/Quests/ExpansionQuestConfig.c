@@ -103,7 +103,7 @@ class ExpansionQuestConfigBase
 	int ReputationReward = 0; //! Reputation reward when completing the quest.
 	int ReputationRequirement = -1; //! Reputation needed to see and start the quest.
 	ref array<int> PreQuestIDs; //! Pre-Quest Quest IDs of the quest the player need to have completed to accept this quest.
-	
+
 	void ExpansionQuestConfigBase()
 	{
 		Descriptions = new array<string>;
@@ -118,7 +118,7 @@ class ExpansionQuestConfigBase
 
 class ExpansionQuestConfig: ExpansionQuestConfigBase
 {
-	static const int CONFIGVERSION = 8;
+	static const int CONFIGVERSION = 9;
 
 	void ExpansionQuestConfig()
 	{
@@ -253,11 +253,11 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			break;
 
-			case ExpansionQuestObjectiveType.AIVIP:
+			case ExpansionQuestObjectiveType.AIESCORD:
 			{
-				ExpansionQuestObjectiveAIVIPConfig aiVIPConfig;
-				if (Class.CastTo(aiVIPConfig, config))
-					Objectives.Insert(aiVIPConfig);
+				ExpansionQuestObjectiveAIEscordConfig aiEscordConfig;
+				if (Class.CastTo(aiEscordConfig, config))
+					Objectives.Insert(aiEscordConfig);
 			}
 			break;
 		#endif
@@ -485,12 +485,24 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("ExpansionQuestConfig::Load - Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("ExpansionQuestConfig::Load - Convert existing configuration file:" + EXPANSION_QUESTS_QUESTS_FOLDER + fileName + " to version " + CONFIGVERSION);
 			questConfig = new ExpansionQuestConfig();
 
 			//! Copy over old configuration that haven't changed
 			questConfig.CopyConfig(questConfigBase);
-
+			
+			//! Update quest configuration objectives config version.
+			if (questConfigBase.Objectives && questConfigBase.Objectives.Count() > 0)
+			{
+				if (questConfigBase.Objectives.Get(0).ConfigVersion < ExpansionQuestObjectiveConfig.CONFIGVERSION)
+				{
+					foreach (ExpansionQuestObjectiveConfig objectiveConfig: questConfigBase.Objectives)
+					{
+						objectiveConfig.ConfigVersion = ExpansionQuestObjectiveConfig.CONFIGVERSION;
+					}
+				}
+			}
+			
 			if (questConfigBase.ConfigVersion < 6)
 			{
 				ExpansionQuestConfigV5 questConfigv5;
@@ -503,7 +515,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 				questConfig.SetType(ExpansionQuestType.NORMAL);
 			}
-			
+
 			if (questConfigBase.ConfigVersion == 7)
 			{
 				//! v7 variable HealthPercent was treated as damage (so 100% HealthPercent actually meant 100% damage or 0% health).
@@ -513,9 +525,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 					ExpansionQuestRewardConfigV1 rewardV1 = questConfig.Rewards[j];
 					ExpansionQuestRewardConfig convertedRewardV8 = new ExpansionQuestRewardConfig();
 					convertedRewardV8.Copy(rewardV1);
-					
+
 					convertedRewardV8.DamagePercent = rewardV1.HealthPercent;
-					
+
 					questConfig.Rewards.RemoveOrdered(j);
 					questConfig.Rewards.InsertAt(convertedRewardV8, j);
 				}
@@ -531,13 +543,11 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		}
 
 		if (save)
-		{
 			questConfig.Save(fileName);
-		}
 
 		return questConfig;
 	}
-	
+
 	bool ValidateQuestConfiguration(string fileName)
 	{
 		bool save;
@@ -695,15 +705,15 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				break;
 
-				case ExpansionQuestObjectiveType.AIVIP:
+				case ExpansionQuestObjectiveType.AIESCORD:
 				{
-					ExpansionQuestObjectiveAIVIPConfig aiVIPConfig;
-					if (Class.CastTo(aiVIPConfig, objectiveConfig))
+					ExpansionQuestObjectiveAIEscordConfig aiEscordConfig;
+					if (Class.CastTo(aiEscordConfig, objectiveConfig))
 					{
-						if (!aiVIPConfig.Validate())
+						if (!aiEscordConfig.Validate())
 						{
 							Error("ExpansionQuestConfig::ValidateQuestConfiguration - Validation check for quest objective configuration with ID: " + objectiveConfig.GetID() + " and type " + objectiveConfig.GetObjectiveType() + " failed! Please check the objective configuration!");
-							aiVIPConfig.QuestDebug();
+							aiEscordConfig.QuestDebug();
 							objectivesValid = false;
 						}
 
@@ -744,7 +754,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+
 		ExpansionJsonFileParser<ExpansionQuestConfig>.Save(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
 	}
 
@@ -823,9 +833,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			{
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - DELIVER");
 					ExpansionQuestObjectiveDeliveryConfig deliveryConfig = questModule.GetDeliveryObjectiveConfigByID(objectiveID);
-					
+
 					if (!deliveryConfig)
 					{
 						QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - Unable to find quest by ID: " + objectiveID);
@@ -839,7 +848,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				case ExpansionQuestObjectiveType.TRAVEL:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - TRAVEL");
 					ExpansionQuestObjectiveTravelConfig travelConfig = questModule.GetTravelObjectiveConfigByID(objectiveID);
 
 					if (!travelConfig)
@@ -855,7 +863,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				case ExpansionQuestObjectiveType.TARGET:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - TARGET");
 					ExpansionQuestObjectiveTargetConfig targetConfig = questModule.GetTargetObjectiveConfigByID(objectiveID);
 
 					if (!targetConfig)
@@ -871,7 +878,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - COLLECT");
 					ExpansionQuestObjectiveCollectionConfig collectionConfig = questModule.GetCollectionObjectiveConfigByID(objectiveID);
 
 					if (!collectionConfig)
@@ -887,7 +893,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				case ExpansionQuestObjectiveType.TREASUREHUNT:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - TREASUREHUNT");
 					ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig = questModule.GetTreasureHuntObjectiveConfigByID(objectiveID);
 
 					if (!treasureHuntConfig)
@@ -896,14 +901,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 						QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - FAILED");
 						break;
 					}
-					
+
 					treasureHuntConfig.OnSend(ctx);
 					QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.ACTION:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - ACTION");
 					ExpansionQuestObjectiveActionConfig actionConfig = questModule.GetActionObjectiveConfigByID(objectiveID);
 
 					if (!actionConfig)
@@ -919,7 +923,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				case ExpansionQuestObjectiveType.CRAFTING:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - CRAFTING");
 					ExpansionQuestObjectiveCraftingConfig craftingConfig = questModule.GetCraftingObjectiveConfigByID(objectiveID);
 
 					if (!craftingConfig)
@@ -933,10 +936,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 					QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - SUCCESS");
 					break;
 				}
-#ifdef EXPANSIONMODAI
+			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AIPATROL:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - AIPATROL");
 					ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = questModule.GetAIPatrolObjectiveConfigByID(objectiveID);
 
 					if (!aiPatrolConfig)
@@ -952,7 +954,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 				case ExpansionQuestObjectiveType.AICAMP:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - AICAMP");
 					ExpansionQuestObjectiveAICampConfig aiCampConfig = questModule.GetAICampObjectiveConfigByID(objectiveID);
 
 					if (!aiCampConfig)
@@ -966,23 +967,22 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 					QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - SUCCESS");
 					break;
 				}
-				case ExpansionQuestObjectiveType.AIVIP:
+				case ExpansionQuestObjectiveType.AIESCORD:
 				{
-					QuestPrint("ExpansionQuestConfig::OnSend - AIVIP");
-					ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = questModule.GetAIVIPObjectiveConfigByID(objectiveID);
+					ExpansionQuestObjectiveAIEscordConfig aiEscordConfig = questModule.GetAIEscordObjectiveConfigByID(objectiveID);
 
-					if (!aiVIPConfig)
+					if (!aiEscordConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - FAILED");
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AIESCORD - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ExpansionQuestConfig::OnRecieve - AIESCORD - FAILED");
 						break;
 					}
 
-					aiVIPConfig.OnSend(ctx);
+					aiEscordConfig.OnSend(ctx);
 					QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - SUCCESS");
 					break;
 				}
-#endif
+			#endif
 			}
 		}
 
@@ -1103,7 +1103,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 			if (objectiveType == ExpansionQuestObjectiveType.DELIVERY)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER");
 				ExpansionQuestObjectiveDeliveryConfig deliveryConfig = new ExpansionQuestObjectiveDeliveryConfig();
 				if (!deliveryConfig.OnRecieve(ctx))
 				{
@@ -1115,7 +1114,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.TRAVEL)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL");
 				ExpansionQuestObjectiveTravelConfig travelConfig = new ExpansionQuestObjectiveTravelConfig();
 				if (!travelConfig.OnRecieve(ctx))
 				{
@@ -1127,7 +1125,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.TARGET)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET");
 				ExpansionQuestObjectiveTargetConfig targetConfig = new ExpansionQuestObjectiveTargetConfig();
 				if (!targetConfig.OnRecieve(ctx))
 				{
@@ -1139,7 +1136,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.COLLECT)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT");
 				ExpansionQuestObjectiveCollectionConfig collectionConfig = new ExpansionQuestObjectiveCollectionConfig();
 				if (!collectionConfig.OnRecieve(ctx))
 				{
@@ -1151,7 +1147,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.TREASUREHUNT)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT");
 				ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig = new ExpansionQuestObjectiveTreasureHuntConfig();
 				if (!treasureHuntConfig.OnRecieve(ctx))
 				{
@@ -1163,7 +1158,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.ACTION)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION");
 				ExpansionQuestObjectiveActionConfig actionConfig = new ExpansionQuestObjectiveActionConfig();
 				if (!actionConfig.OnRecieve(ctx))
 				{
@@ -1175,7 +1169,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.CRAFTING)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING");
 				ExpansionQuestObjectiveCraftingConfig craftingConfig = new ExpansionQuestObjectiveCraftingConfig();
 				if (!craftingConfig.OnRecieve(ctx))
 				{
@@ -1188,7 +1181,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		#ifdef EXPANSIONMODAI
 			else if (objectiveType == ExpansionQuestObjectiveType.AIPATROL)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL");
 				ExpansionQuestObjectiveAIPatrolConfig aiPatrolConfig = new ExpansionQuestObjectiveAIPatrolConfig();
 				if (!aiPatrolConfig.OnRecieve(ctx))
 				{
@@ -1200,7 +1192,6 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			}
 			else if (objectiveType == ExpansionQuestObjectiveType.AICAMP)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP");
 				ExpansionQuestObjectiveAICampConfig aiCampConfig = new ExpansionQuestObjectiveAICampConfig();
 				if (!aiCampConfig.OnRecieve(ctx))
 				{
@@ -1210,17 +1201,16 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 				Objectives.Insert(aiCampConfig);
 			}
-			else if (objectiveType == ExpansionQuestObjectiveType.AIVIP)
+			else if (objectiveType == ExpansionQuestObjectiveType.AIESCORD)
 			{
-				QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP");
-				ExpansionQuestObjectiveAIVIPConfig aiVIPConfig = new ExpansionQuestObjectiveAIVIPConfig();
-				if (!aiVIPConfig.OnRecieve(ctx))
+				ExpansionQuestObjectiveAIEscordConfig aiEscordConfig = new ExpansionQuestObjectiveAIEscordConfig();
+				if (!aiEscordConfig.OnRecieve(ctx))
 				{
-					Error("ExpansionQuestConfig::OnRecieve - AIVIP");
+					Error("ExpansionQuestConfig::OnRecieve - AIESCORD");
 					return false;
 				}
 
-				Objectives.Insert(aiVIPConfig);
+				Objectives.Insert(aiEscordConfig);
 			}
 		#endif
 		}

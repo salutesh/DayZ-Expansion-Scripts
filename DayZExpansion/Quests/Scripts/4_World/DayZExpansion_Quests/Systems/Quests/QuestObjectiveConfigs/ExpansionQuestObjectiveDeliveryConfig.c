@@ -15,11 +15,14 @@ class ExpansionQuestObjectiveDeliveryConfigBase:ExpansionQuestObjectiveConfig
 	autoptr array<ref ExpansionQuestObjectiveDelivery> Deliveries = new array<ref ExpansionQuestObjectiveDelivery>;
 	float MaxDistance = 0;
 	string MarkerName = string.Empty;
+	bool ShowDistance = true;
 };
 
 class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConfigBase
 {
-	bool ShowDistance = true;
+#ifdef EXPANSIONMODMARKET
+	bool AddItemsToNearbyMarketZone = true;
+#endif
 
 	void AddDelivery(int amount, string name)
 	{
@@ -59,20 +62,32 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		return Deliveries;
 	}
 
+#ifdef EXPANSIONMODMARKET
+	void SetAddItemsToNearbyMarketZone(bool state)
+	{
+		AddItemsToNearbyMarketZone = state;
+	}
+
+	override bool AddItemsToNearbyMarketZone()
+	{
+		return AddItemsToNearbyMarketZone;
+	}
+#endif
+
 	static ExpansionQuestObjectiveDeliveryConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
 
 		ExpansionQuestObjectiveDeliveryConfig config;
 		ExpansionQuestObjectiveDeliveryConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveDeliveryConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -83,23 +98,22 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
 				return NULL;
 		}
 
 		if (save)
-		{
 			config.Save(fileName);
-		}
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, this);
 	}
 
@@ -112,6 +126,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		Deliveries = configBase.Deliveries;
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
+		ShowDistance = configBase.ShowDistance;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)
@@ -171,7 +186,7 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 		if (!super.Validate())
 			return false;
 
-		if (!Deliveries || Deliveries && Deliveries.Count() == 0)
+		if (!Deliveries || Deliveries.Count() == 0)
 			return false;
 
 		return true;
