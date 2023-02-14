@@ -70,10 +70,17 @@ modded class PlayerBase
 	{
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
 		{
-		#ifdef ENFUSION_AI_PROJECT
+			#ifdef ENFUSION_AI_PROJECT
 			if (!IsAI())
-		#endif
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false);
+			{
+			#endif
+			
+				EntityAI handEntity = GetHumanInventory().GetEntityInHands();
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false, handEntity);
+
+			#ifdef ENFUSION_AI_PROJECT
+			}
+			#endif
 		}
 
 		super.EEKilled(killer);
@@ -123,7 +130,7 @@ modded class PlayerBase
 	// ------------------------------------------------------------
 	// Expansion SpawnGraveCross
 	// ------------------------------------------------------------
-	void CreateGraveCross()
+	void CreateGraveCross(EntityAI handEntity)
 	{
 		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
 		bool deleteBody = GetExpansionSettings().GetGeneral().GravecrossDeleteBody;
@@ -182,11 +189,17 @@ modded class PlayerBase
 		grave = Expansion_GraveBase.Cast(GetGame().CreateObjectEx(graveobject, ground, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH));
 		grave.SetPosition(ground);
 
-		grave.MoveAttachmentsFromEntity(this, ground, GetOrientation());
+		if ( handEntity && handEntity.GetHierarchyRootPlayer() )
+			handEntity = NULL;
+
+		grave.MoveAttachmentsFromEntity(this, handEntity, ground, GetOrientation());
 		grave.SetOrientation(GetOrientation());
 
 		if (deleteBody)
-			Delete();
+		{
+            SetPosition("0 0 0");
+        	GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Delete, 5000, false);
+		}
 	}
 
 	// ------------------------------------------------------------

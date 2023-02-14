@@ -21,6 +21,11 @@ class ExpansionActionGetOutExpansionVehicleActionData : ActionData
 	float m_ShockTaken = 0; // Shock inflicted to the player when jumping out of vehicle
 }
 
+class ExpansionActionGetOutTransportReciveData : ActionReciveData
+{
+	bool m_KeepInVehicleSpaceAfterLeave;
+};
+
 /**@class		ExpansionActionGetOutExpansionVehicle
  * @brief		
  **/

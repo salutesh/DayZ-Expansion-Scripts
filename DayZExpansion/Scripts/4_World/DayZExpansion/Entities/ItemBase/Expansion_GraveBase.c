@@ -107,49 +107,54 @@ class Expansion_GraveBase extends Inventory_Base
 			Delete();
 	}
 
-	void MoveAttachmentsFromEntity(EntityAI entity, vector ground, vector orientation)
+	void MoveAttachmentsFromEntity(EntityAI entity, EntityAI handEntity, vector ground, vector orientation)
 	{
 		for (int i = 0; i < entity.GetInventory().GetAttachmentSlotsCount(); i++)
 		{
 			int slot = entity.GetInventory().GetAttachmentSlotId(i);
 			EntityAI item = entity.GetInventory().FindAttachment(slot);
 
-			if (item)
-			{
-				float health;
-
-				if (GetGame().IsServer())
-				{
-					health = item.GetHealth();
-					item.SetHealth(item.GetMaxHealth()); // set item to max health, so we can move ruined items
-				}
-
-				if (GetInventory().CanAddAttachment(item))
-				{
-					if (GetGame().IsMultiplayer())
-						ServerTakeEntityToInventory( FindInventoryLocationType.ATTACHMENT, item );
-						//entity.ServerTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
-					else
-						entity.LocalTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
-				}
-				else
-				{
-					if (GetGame().IsMultiplayer())
-						entity.GetInventory().DropEntity(InventoryMode.SERVER, entity, item);
-					else
-						entity.GetInventory().DropEntity(InventoryMode.LOCAL, entity, item);
-
-					item.SetPosition(ground);
-					item.SetOrientation(orientation);
-				}
-
-				if (GetGame().IsServer())
-					item.SetHealth(health);
-			}
+			if ( item )
+				AddItem(entity, item, ground, orientation);
 		}
+
+		if ( handEntity )
+			AddItem(handEntity, handEntity, ground, orientation);
 
 		m_ReceivedAttachments = true;
 		SetSynchDirty();
+	}
+	
+	void AddItem(EntityAI entity, EntityAI item, vector ground, vector orientation)
+	{
+		float health;
+
+		if (GetGame().IsServer())
+		{
+			health = item.GetHealth();
+			item.SetHealth(item.GetMaxHealth()); // set item to max health, so we can move ruined items
+		}
+
+		if (GetInventory().CanAddAttachment(item))
+		{
+			if (GetGame().IsMultiplayer())
+				ServerTakeEntityToInventory( FindInventoryLocationType.ATTACHMENT, item );
+			else
+				entity.LocalTakeEntityToTargetInventory(this, FindInventoryLocationType.ATTACHMENT, item);
+		}
+		else
+		{
+			if (GetGame().IsMultiplayer())
+				entity.GetInventory().DropEntity(InventoryMode.SERVER, entity, item);
+			else
+				entity.GetInventory().DropEntity(InventoryMode.LOCAL, entity, item);
+
+			item.SetPosition(ground);
+			item.SetOrientation(orientation);
+		}
+
+		if (GetGame().IsServer())
+			item.SetHealth(health);
 	}
 }
 
