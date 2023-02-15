@@ -29,6 +29,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 		m_CarHornLongSoundName	= "Expansion_Utility_Horn_Ext_SoundSet";
 	}
 
+#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
@@ -37,6 +38,7 @@ class ExpansionUtilityBoat extends ExpansionBoatScript
 
 		return ExpansionVehicleAnimInstances.EXPANSION_UTILITY_BOAT;
 	}
+#endif
 
 	override CarLightBase CreateFrontLight()
 	{

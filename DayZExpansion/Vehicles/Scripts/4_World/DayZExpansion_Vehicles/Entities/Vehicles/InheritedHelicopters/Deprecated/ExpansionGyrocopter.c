@@ -71,6 +71,7 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionHelicopterFrontLight));
 	}
 
+#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
@@ -79,6 +80,7 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 
 		return ExpansionVehicleAnimInstances.EXPANSION_GYROCOPTER;
 	}
+#endif
 
 	override int GetSeatAnimationType(int posIdx)
 	{

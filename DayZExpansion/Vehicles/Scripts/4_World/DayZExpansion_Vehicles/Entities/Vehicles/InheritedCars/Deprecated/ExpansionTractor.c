@@ -118,7 +118,7 @@ class ExpansionTractor extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EXPANSION_TRACTOR;
+		return VehicleAnimInstances.V3S;
 	}
 
 	override int GetSeatAnimationType(int posIdx)

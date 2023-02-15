@@ -69,14 +69,16 @@ class ExpansionMerlin : ExpansionHelicopterScript
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionHelicopterFrontLight));
 	}
 
+#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
+		return ExpansionVehicleAnimInstances.EXPANSION_MERLIN;
 	}
+#endif
 
 	override int GetSeatAnimationType(int posIdx)
 	{

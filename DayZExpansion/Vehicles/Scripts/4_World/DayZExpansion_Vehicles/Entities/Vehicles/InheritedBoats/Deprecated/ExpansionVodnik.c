@@ -120,7 +120,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EX_SEDAN;
+		return VehicleAnimInstances.SEDAN;
 	}
 
 	override CarRearLightBase CreateRearLight()
