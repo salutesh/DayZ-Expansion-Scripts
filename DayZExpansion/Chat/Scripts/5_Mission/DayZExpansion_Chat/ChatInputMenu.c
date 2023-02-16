@@ -17,15 +17,13 @@ modded class ChatInputMenu
 	protected float m_Position;
 	protected ref Chat m_Chat;
 	
-	protected ref array<string> m_ChatInputNames = {"UAUIBack","UAUIMenu"};
-	protected ref array<UAIDWrapper> m_ChatInputWrappers;
 	protected int m_ChatInputWrappersCount;
 
 	override Widget Init()
 	{
-		InitInputWrapperData();
-
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+
+		m_BackInputWrapper = GetUApi().GetInputByID(UAUIBack).GetPersistentWrapper();
 
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Chat/GUI/layouts/expansion_chat_input.layout");
 		m_edit_box = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("InputEditBoxWidget"));
@@ -37,19 +35,6 @@ modded class ChatInputMenu
 			m_Chat = mission.GetChat();
 
 		return layoutRoot;
-	}
-
-	void InitInputWrapperData()
-	{
-		int namesCount = m_ChatInputNames.Count();
-		m_ChatInputWrappers = new array<UAIDWrapper>;
-		
-		for (int i = 0; i < namesCount; i++)
-		{
-			m_ChatInputWrappers.Insert(GetUApi().GetInputByName(m_ChatInputNames[i]).GetPersistentWrapper());
-		}
-		
-		m_ChatInputWrappersCount = m_ChatInputWrappers.Count();
 	}
 
 	override bool UseKeyboard()
@@ -133,19 +118,6 @@ modded class ChatInputMenu
 
 		if (m_Chat)
 			m_Chat.OnChatInputHide();
-	}
-
-	override void Update(float timeslice)
-	{
-		super.Update(timeslice);
-
-		for (int i = 0; i < m_ChatInputWrappersCount; i++)
-		{
-			if (m_ChatInputWrappers[i].InputP().LocalPress())
-			{
-				Close();
-			}
-		}
 	}
 
 	EditBoxWidget GetEditboxWidget()

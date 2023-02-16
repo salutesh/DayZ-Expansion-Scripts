@@ -1218,13 +1218,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		Object obj;
 
+		int spawnAmount = remainingAmount;
+
 		if (!item.IsVehicle())
 			obj = ExpansionItemSpawnHelper.SpawnOnParent( item.ClassName, player, parent, remainingAmount, item.QuantityPercent, NULL, skinIndex, false );
 		else
 			obj = ExpansionItemSpawnHelper.SpawnVehicle( item.ClassName, player, parent, position, orientation, remainingAmount, NULL, skinIndex, GetExpansionSettings().GetMarket().VehicleKeys.GetRandomElement() );
 
 		if (obj && spawnedAmounts)
-			spawnedAmounts[item.ClassName] = spawnedAmounts[item.ClassName] + 1;
+			spawnedAmounts[item.ClassName] = spawnedAmounts[item.ClassName] + spawnAmount - remainingAmount;
 		
 		//! Now deal with attachments and attachments on attachments
 		if (obj && includeAttachments && level < 3)
