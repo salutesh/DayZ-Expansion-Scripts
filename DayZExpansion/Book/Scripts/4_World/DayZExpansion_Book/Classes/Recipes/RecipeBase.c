@@ -153,8 +153,8 @@ modded class RecipeBase
 			foreach (string cfgSearch : cfgSearches)
 			{
 				//! Only set amount if item can be split
-				string cfgPath = cfgSearch + " " + className + " canBeSplit";
-				if (GetGame().ConfigIsExisting(cfgPath) && GetGame().ConfigGetInt(cfgPath))
+				string cfgPath = cfgSearch + " " + className;
+				if (GetGame().ConfigGetInt(cfgPath + " canBeSplit") && !GetGame().ConfigGetInt(cfgPath + " quantityBar"))
 				{
 					return quantity;
 				}

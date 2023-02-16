@@ -24,7 +24,6 @@ modded class ActionGetOutTransport
 		if (Class.CastTo(cs, car) && cs.Expansion_CanObjectAttach(got_action_data.m_Player) && cs.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()))
 		{
 			got_action_data.m_WasJumpingOut = false;
-			vehCommand.KeepInVehicleSpaceAfterLeave(true);
 		}
 
 		car.CrewGetOut(vehCommand.GetVehicleSeat());

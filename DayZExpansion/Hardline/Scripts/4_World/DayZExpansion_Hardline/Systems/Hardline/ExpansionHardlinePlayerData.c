@@ -26,6 +26,10 @@ class ExpansionHardlinePlayerData
 	void Save(string fileName)
 	{
 		FileSerializer file = new FileSerializer();
+
+		if (!FileExist(EXPANSION_HARDLINE_PLAYERDATA_FOLDER))
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
+
 		if (file.Open(EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
 		{
 			file.Write(ConfigVersion);
@@ -39,6 +43,10 @@ class ExpansionHardlinePlayerData
 	bool Load(string fileName)
 	{
 		string path = EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin";
+
+		if (!FileExist(EXPANSION_HARDLINE_PLAYERDATA_FOLDER))
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
+		
 		if (FileExist(path))
 		{
 			FileSerializer file = new FileSerializer();

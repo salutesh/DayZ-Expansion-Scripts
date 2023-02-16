@@ -221,7 +221,7 @@ class ExpansionMarketItem
 
 	bool IsMagazine()
 	{
-		return GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().ConfigGetInt("CfgMagazines " + ClassName + " canBeSplit");
+		return GetGame().IsKindOf(ClassName, "Magazine_Base") && !GetGame().IsKindOf(ClassName, "Ammunition_Base");
 	}
 
 	map<string, bool> GetAttachmentTypes(out int magAmmoCount)

@@ -243,7 +243,7 @@ class ExpansionPrefabObject : Managed
 					if (quantity > 0)
 					{
 						float itemQuantity = quantityMax * quantity;
-						if (item.ConfigGetBool("canBeSplit") || mag)
+						if (item.Expansion_IsStackable() || mag)
 							itemQuantity = Math.Round(itemQuantity);
 						if (mag)
 						{

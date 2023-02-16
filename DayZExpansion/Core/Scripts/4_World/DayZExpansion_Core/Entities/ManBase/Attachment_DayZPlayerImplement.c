@@ -242,7 +242,11 @@ modded class DayZPlayerImplement
 
 		if (!Class.CastTo(m_ExAttachmentObject, GetParent()))
 		{
-			CF_Log.Error("'Expansion_GettingOutVehicle' called when not parented to anything");
+			Error("'Expansion_GettingOutVehicle' called when not parented to anything");
+		}
+		else
+		{
+			m_ExIsAttached = true;
 		}
 	}
 

@@ -99,7 +99,7 @@ class ExpansionItemSpawnHelper
 			else
 				mag.ServerSetAmmoCount(0);
 		}
-		else if (!item.IsInherited(Edible_Base) && item.ConfigGetBool("canBeSplit"))
+		else if (!item.IsInherited(Edible_Base) && item.Expansion_IsStackable())
 		{
 			//! Stackable items
 			int max = item.GetQuantityMax();
@@ -129,7 +129,7 @@ class ExpansionItemSpawnHelper
 			if (item.HasQuantity())
 			{
 				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
-				if (item.ConfigGetBool("canBeSplit"))
+				if (item.Expansion_IsStackable())
 					itemQuantity = Math.Round(itemQuantity);
 				item.SetQuantity(itemQuantity);
 			}

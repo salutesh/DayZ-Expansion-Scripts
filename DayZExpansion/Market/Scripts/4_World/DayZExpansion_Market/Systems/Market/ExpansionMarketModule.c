@@ -35,6 +35,7 @@ enum ExpansionMarketResult
 	FailedCannotBuy,
 	FailedNotInPlayerPossession,
 	FailedItemDoesNotExistInTrader,
+	FailedItemSpawn,
 	FailedSellListMismatch
 }
 
@@ -881,7 +882,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Any item with quantity except storage containers
 		//! @note only non-splittable items, except edibles - needs to have compatible logic to ExpansionItemSpawnHelper::SpawnOnParent
 		ItemBase consumable;
-		if (conditionModifier && Class.CastTo(consumable, item) && (item.IsInherited(Edible_Base) || (!item.IsKindOf("Container_Base") && !item.ConfigGetBool("canBeSplit"))))
+		if (conditionModifier && Class.CastTo(consumable, item) && (item.IsInherited(Edible_Base) || (!item.IsKindOf("Container_Base") && !consumable.Expansion_IsStackable())))
 		{
 			Edible_Base edible = Edible_Base.Cast(item);
 
@@ -1155,7 +1156,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion Array<Object> Spawn
 	// ------------------------------------------------------------
-	array<Object> Spawn(ExpansionMarketReserve reserve, PlayerBase player, inout EntityAI parent, bool includeAttachments = true, int skinIndex = -1, inout bool attachmentNotAttached = false)
+	array<Object> Spawn(ExpansionMarketReserve reserve, PlayerBase player, inout EntityAI parent, bool includeAttachments = true, int skinIndex = -1, inout bool attachmentNotAttached = false, TStringIntMap spawnedAmounts = null)
 	{		
 		MarketModulePrint("Spawn - Start");
 				
@@ -1185,15 +1186,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 				}
 			}
 
-			Object obj = Spawn(reserve.Trader.GetTraderMarket(), item, player, parent, position, orientation, remainingAmount, includeAttachments, skinIndex, 0, attachmentNotAttached);
-
-			objs.Insert(obj);
+			Object obj = Spawn(reserve.Trader.GetTraderMarket(), item, player, parent, position, orientation, remainingAmount, includeAttachments, skinIndex, 0, attachmentNotAttached, spawnedAmounts);
 
 			if (!obj)
 			{
 				Error("Error: Couldn't spawn " + item.ClassName);
 				break;
 			}
+
+			objs.Insert(obj);
 
 			if (remainingAmount == remainingAmountBefore)
 			{
@@ -1211,9 +1212,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion Object Spawn
 	// ------------------------------------------------------------
-	Object Spawn(ExpansionMarketTrader trader, ExpansionMarketItem item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, bool includeAttachments = true, int skinIndex = -1, int level = 0, inout bool attachmentNotAttached = false)
+	Object Spawn(ExpansionMarketTrader trader, ExpansionMarketItem item, PlayerBase player, inout EntityAI parent, vector position, vector orientation, out int remainingAmount, bool includeAttachments = true, int skinIndex = -1, int level = 0, inout bool attachmentNotAttached = false, TStringIntMap spawnedAmounts = null)
 	{		
-		MarketModulePrint("Spawn - Start");
+		MarketModulePrint("Spawn - Start " + player + " " + parent);
 
 		Object obj;
 
@@ -1221,6 +1222,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 			obj = ExpansionItemSpawnHelper.SpawnOnParent( item.ClassName, player, parent, remainingAmount, item.QuantityPercent, NULL, skinIndex, false );
 		else
 			obj = ExpansionItemSpawnHelper.SpawnVehicle( item.ClassName, player, parent, position, orientation, remainingAmount, NULL, skinIndex, GetExpansionSettings().GetMarket().VehicleKeys.GetRandomElement() );
+
+		if (obj && spawnedAmounts)
+			spawnedAmounts[item.ClassName] = spawnedAmounts[item.ClassName] + 1;
 		
 		//! Now deal with attachments and attachments on attachments
 		if (obj && includeAttachments && level < 3)
@@ -1242,13 +1246,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 						//! Everything else
 						int attachmentQuantity = 1;
-						if (!Spawn(trader, attachment, player, objEntity, position, orientation, attachmentQuantity, true, skinIndex, level + 1))
-							attachmentNotAttached = true;
+						Spawn(trader, attachment, player, objEntity, position, orientation, attachmentQuantity, true, skinIndex, level + 1, attachmentNotAttached, spawnedAmounts);
 					}
 				}
 
 				if (objEntity.IsInherited(ExpansionTemporaryOwnedContainer))
+				{
 					parent = objEntity;
+					if (level > 0)
+						attachmentNotAttached = true;
+				}
 
 				MagazineStorage mag;
 				if (Class.CastTo(mag, obj) && magAmmoCount > 0)
@@ -1276,6 +1283,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 								{
 									mag.ServerStoreCartridge(0, bulletName);
 								}
+
+								if (spawnedAmounts)
+									spawnedAmounts[ammoName] = spawnedAmounts[ammoName] + 1;
 
 								totalAmmo++;
 								if (totalAmmo == ammoMax)
@@ -1806,9 +1816,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// Expansion RemoveMoney
 	// ------------------------------------------------------------
 	//! Remove reserved money amounts from player, return removed price
-	int RemoveMoney(PlayerBase player)
+	//! If limitAmount is given and greater than -1, remove up to but not more than limitAmount
+	int RemoveMoney(PlayerBase player, int limitAmount = -1)
 	{
-		Print("RemoveMoney - Start");
+		MarketModulePrint("RemoveMoney - Start");
 		if (!player)
 		{
 			return 0;
@@ -1824,11 +1835,20 @@ class ExpansionMarketModule: CF_ModuleWorld
 			ItemBase money;
 			if (Class.CastTo(money, item) && money.ExpansionIsMoneyReserved())
 			{
-				int quantity = money.GetQuantity() - money.ExpansionGetReservedMoneyAmount();
-				string type = money.GetType();
-				type.ToLower();
-				removed += money.ExpansionGetReservedMoneyAmount() * GetMoneyPrice(type);
-				Print("RemoveMoney - Removed " + money.ExpansionGetReservedMoneyAmount() + " from " + money);
+				int removeAmount = money.ExpansionGetReservedMoneyAmount();
+				if (limitAmount > -1)
+				{
+					if (removeAmount > limitAmount)
+						removeAmount = limitAmount;
+				}
+				int quantity = money.GetQuantity() - removeAmount;
+				if (removeAmount)
+				{
+					string type = money.GetType();
+					type.ToLower();
+					removed += removeAmount * GetMoneyPrice(type);
+					MarketModulePrint("RemoveMoney - Removed " + removeAmount + " from " + money);
+				}
 				if (!quantity)
 				{
 					GetGame().ObjectDelete(money);
@@ -1836,11 +1856,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 				else
 				{
 					money.ExpansionReserveMoney(0);
-					money.SetQuantity(quantity);
+					if (removeAmount)
+						money.SetQuantity(quantity);
 				}
+				if (limitAmount > -1)
+					limitAmount -= removeAmount;
 			}
 		}
-		Print("RemoveMoney - End");
+		MarketModulePrint("RemoveMoney - End");
 
 		return removed;
 	}
@@ -2594,40 +2617,64 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		int removed = RemoveMoney(player);
-
-		MarketModulePrint("Exec_ConfirmPurchase - Total money removed: " + removed);
-		MarketModulePrint("Exec_ConfirmPurchase - Change owed to player: " + (removed - reserve.Price));
-
 		EntityAI parent = player;
-
-		if (removed - reserve.Price > 0)
-		{
-			SpawnMoney(player, parent, removed - reserve.Price, true, NULL, reserve.Trader.GetTraderMarket());
-		}
 		
+		//! Filled by spawn function:
+		//! objs - spawned top-level objects
+		//! spawnedAmounts - classnames + amounts of ALL spawned objects (top level + hierarchy of attachments)
 		array<Object> objs = new array<Object>;
 		bool attachmentNotAttached;
-		objs = Spawn(reserve, player, parent, includeAttachments, skinIndex, attachmentNotAttached);
+		TStringIntMap spawnedAmounts = new TStringIntMap;
+		objs = Spawn(reserve, player, parent, includeAttachments, skinIndex, attachmentNotAttached, spawnedAmounts);
 		
 		MarketModulePrint("objs : " + objs);
 		MarketModulePrint("Exec_ConfirmPurchase " + reserve.RootItem.ClassName + " " + reserve.TotalAmount + " " + reserve.Reserved.Count());
 		
-		foreach (ExpansionMarketReserveItem currentReservedItem: reserve.Reserved)
+		if (objs.Count())
 		{
-			zone.RemoveStock(currentReservedItem.ClassName, currentReservedItem.Amount, false);
-		}
-		
-		CheckSpawn(player, parent, attachmentNotAttached);
+			foreach (ExpansionMarketReserveItem currentReservedItem: reserve.Reserved)
+			{
+				int spawnedAmount = spawnedAmounts[currentReservedItem.ClassName];
+				if (spawnedAmount < currentReservedItem.Amount)
+				{
+					if (spawnedAmount)
+						zone.RemoveStock(currentReservedItem.ClassName, spawnedAmount, false);
+					spawnedAmounts.Remove(currentReservedItem.ClassName);
+					reserve.Price -= currentReservedItem.Price / currentReservedItem.Amount * (currentReservedItem.Amount - spawnedAmount);
+				}
+				else
+				{
+					zone.RemoveStock(currentReservedItem.ClassName, currentReservedItem.Amount, false);
+					spawnedAmounts[currentReservedItem.ClassName] = spawnedAmount - currentReservedItem.Amount;
+				}
+			}
 
-		ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has bought %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) for a price of %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), reserve.RootItem.ClassName, reserve.TotalAmount, reserve.Trader.GetTraderMarket().m_FileName, reserve.Trader.GetDisplayName(), reserve.Trader.GetTraderZone().m_DisplayName, reserve.Trader.GetTraderZone().Position.ToString(), reserve.Price));	
+			int removed = RemoveMoney(player, reserve.Price);
+
+			MarketModulePrint("Exec_ConfirmPurchase - Total money removed: " + removed);
+			MarketModulePrint("Exec_ConfirmPurchase - Change owed to player: " + (removed - reserve.Price));
+
+			if (removed - reserve.Price > 0)
+			{
+				SpawnMoney(player, parent, removed - reserve.Price, true, NULL, reserve.Trader.GetTraderMarket());
+			}
 		
-		Callback(itemClassName, ExpansionMarketResult.PurchaseSuccess, player.GetIdentity(), reserve.TotalAmount, reserve.Price);
+			CheckSpawn(player, parent, attachmentNotAttached);
+
+			ExpansionLogMarket(string.Format("Player \"%1\" (id=%2) has bought %3 x%4 from the trader \"%5 (%6)\" in market zone \"%7\" (pos=%8) for a price of %9.", player.GetIdentity().GetName(), player.GetIdentity().GetId(), reserve.RootItem.ClassName, reserve.TotalAmount, reserve.Trader.GetTraderMarket().m_FileName, reserve.Trader.GetDisplayName(), reserve.Trader.GetTraderZone().m_DisplayName, reserve.Trader.GetTraderZone().Position.ToString(), reserve.Price));	
+			
+			Callback(itemClassName, ExpansionMarketResult.PurchaseSuccess, player.GetIdentity(), reserve.TotalAmount, reserve.Price);
+		}
+		else
+		{
+			Callback(itemClassName, ExpansionMarketResult.FailedItemSpawn, player.GetIdentity());
+		}
 		
 		//! Need to clear reserved after a purchase
 		ClearReserved(player);
 		
-		zone.Save();
+		if (objs.Count())
+			zone.Save();
 
 		MarketModulePrint("Exec_ConfirmPurchase - End");
 	}
@@ -3726,7 +3773,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	static void MarketModulePrint(string text)
 	{
-	#ifdef EXPANSIONMODMARKET_DEBUG
+	#ifdef DIAG
 		EXPrint("ExpansionMarketModule::" + text);
 	#endif
 	}

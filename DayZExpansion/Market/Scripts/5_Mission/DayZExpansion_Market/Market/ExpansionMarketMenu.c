@@ -2434,6 +2434,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				break;
 			}
 
+			case ExpansionMarketResult.FailedItemSpawn:
+			{
+				MarketPrint("MenuCallback - item could not be spawned: " + itemClassName);
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Transaction failed: " + GetDisplayName(itemClassName) + " (" + itemClassName + ") could not be spawned.";
+				break;
+			}
+
 			//! Inventory desync or tampering attempt
 			case ExpansionMarketResult.FailedSellListMismatch:
 			{
@@ -2457,7 +2466,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (notify)
 			ExpansionNotification(title, text, icon, color, 3, ExpansionNotificationType.MARKET).Create();
 	
-		if (result != ExpansionMarketResult.FailedItemDoesNotExistInTrader)
+		if (result != ExpansionMarketResult.FailedItemDoesNotExistInTrader && result != ExpansionMarketResult.FailedItemSpawn)
 			RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
 				
 		MarketPrint("MenuCallback - End");
