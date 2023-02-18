@@ -47,7 +47,7 @@ modded class JMPlayerForm
 	{
 		super.RefreshStats();
 
-		if (m_ExpansionReputation)
+		if (m_ExpansionReputation && m_SelectedInstance && m_SelectedInstance.PlayerObject)
 			m_ExpansionReputation.SetText(m_SelectedInstance.PlayerObject.Expansion_GetReputation().ToString());
 	}
 

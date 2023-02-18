@@ -16,8 +16,6 @@ modded class ChatInputMenu
 	protected EditBoxWidget m_edit_box;
 	protected float m_Position;
 	protected ref Chat m_Chat;
-	
-	protected int m_ChatInputWrappersCount;
 
 	override Widget Init()
 	{

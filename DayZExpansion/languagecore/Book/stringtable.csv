@@ -1,7 +1,7 @@
 LANGUAGE,ORIGINAL,ENGLISH,CZECH,GERMAN,RUSSIAN,POLISH,HUNGARIAN,ITALIAN,SPANISH,FRENCH,CHINESE,PORTUGUESE,JAPANESE,CHINESESIMP,
 STR_USRACT_SEARCH,Search,Search,Hledat,Suche,Поиск,Przeszukaj,Keresés,Cerca,Buscar,Chercher,搜索,Pesquisar,検索,搜索,
 STR_EXPANSION_TOGGLE_BOOK,Toggle Book Menu,Toggle Book Menu,Přepnout menu knih,Buchmenü umschalten,Меню-блокнот,Pokaż/Schowaj Książkę,Túlélőkönyv menü,Attiva Menu libro,Abrir menu de Libro,Basculer le menu du livre,切換書本菜單,Menu do Livro,ブックメニューのトグル,切换书本菜单,
-STR_EXPANSION_BOOK_TAB_TERRITORY_MANAGER,Territory Manager,Territory Manager,Territory Manager,Territorium-Verwaltung,Менеджер территории,Territory Manager,Territory Manager,Gestore del territorio,Territory Manager,Gestion du Territoire,區域經理,Territory Manager,Territory Manager,区域经理,
+STR_EXPANSION_BOOK_TAB_TERRITORY_MANAGER,Territory Manager,Territory Manager,Territory Manager,Territorium-Verwaltung,Менеджер территории,Territory Manager,Territory Manager,Gestore del territorio,Territory Manager,Gestion du Territoire,區域經理,Territory Manager,Territory Manager,区域管理,
 STR_EXPANSION_BOOK_TAB_TERRITORY_INVITES,Territory Invites,Territory Invites,Territory Invites,Territorium-Einladungen,Территориальные приглашения,Territory Invites,Territory Invites,Inviti Territorio ,Territory Invites,Invitations de territoire,領土邀請,Territory Invites,Territory Invites,领土邀请,
 STR_EXPANSION_BOOK_TAB_TERRITORY_NAME,TERRITORY NAME,TERRITORY NAME,TERRITORY NAME,Territoriums-Name,ИМЯ ТЕРРИТОРИИ,TERRITORY NAME,TERRITORY NAME,NOME TERRITORIO ,TERRITORY NAME,NOM DU TERRITOIRE,地區名稱,TERRITORY NAME,TERRITORY NAME,地区名称,
 STR_EXPANSION_BOOK_TAB_TERRITORY_TITLE,TITLE,TITLE,TITLE,TITEL,ТИТУЛ,TITLE,TITLE,TITOLO,TITLE,TITRE,標題,TITLE,TITLE,标题,

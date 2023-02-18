@@ -10,6 +10,11 @@
  *
 */
 
+modded class GetOutTransportActionData
+{
+	bool m_KeepInVehicleSpaceAfterLeave = false;
+};
+
 modded class ActionGetOutTransport
 {
 #ifndef DAYZ_1_19
@@ -24,6 +29,7 @@ modded class ActionGetOutTransport
 		if (Class.CastTo(cs, car) && cs.Expansion_CanObjectAttach(got_action_data.m_Player) && cs.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()))
 		{
 			got_action_data.m_WasJumpingOut = false;
+			got_action_data.m_KeepInVehicleSpaceAfterLeave = true;
 		}
 
 		car.CrewGetOut(vehCommand.GetVehicleSeat());
@@ -70,15 +76,42 @@ modded class ActionGetOutTransport
 
 		if (Class.CastTo(cs, got_action_data.m_Car))
 		{
-			if (!got_action_data.m_WasJumpingOut && cs.IsBoat())
+			if (!got_action_data.m_WasJumpingOut)
 			{
-				//! Prevent player glitching below boat
 				vector playerPos = action_data.m_Player.GetPosition();
-				float vehicleY = cs.GetPosition()[1] - cs.GetModelZeroPointDistanceFromGround();
-				if (playerPos[1] < vehicleY + 1.0)
+
+				if (cs.Expansion_IsBoat() && !cs.Expansion_IsCar())
 				{
-					playerPos[1] = vehicleY + 1.0;
-					action_data.m_Player.SetPosition(playerPos);
+					//! Prevent player glitching below boat
+
+					float vehicleY = cs.GetPosition()[1] - cs.GetModelZeroPointDistanceFromGround();
+					if (playerPos[1] < vehicleY + 1.0)
+					{
+						playerPos[1] = vehicleY + 1.0;
+						action_data.m_Player.SetPosition(playerPos);
+					}
+				}
+				else if (cs.Expansion_IsHelicopter() && !got_action_data.m_KeepInVehicleSpaceAfterLeave)
+				{
+					//! Prevent player glitching below surface
+
+					vector surfacePos = ExpansionStatic.GetSurfacePosition(playerPos);
+
+					PhxInteractionLayers layerMask;
+					layerMask |= PhxInteractionLayers.BUILDING;
+					layerMask |= PhxInteractionLayers.VEHICLE;
+					layerMask |= PhxInteractionLayers.ITEM_LARGE;
+					layerMask |= PhxInteractionLayers.ROADWAY;
+					layerMask |= PhxInteractionLayers.TERRAIN;
+					layerMask |= PhxInteractionLayers.WATERLAYER;
+
+					vector hitPosition;
+
+					if (!DayZPhysics.RayCastBullet(playerPos + "0 1.5 0", surfacePos, layerMask, action_data.m_Player, NULL, hitPosition, NULL, NULL))
+						hitPosition = surfacePos;
+
+					if (Math.AbsFloat(playerPos[1] - hitPosition[1]) <= 1.5)
+						action_data.m_Player.SetPosition(hitPosition);
 				}
 			}
 

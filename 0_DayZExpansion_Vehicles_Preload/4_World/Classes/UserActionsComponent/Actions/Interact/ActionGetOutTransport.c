@@ -10,13 +10,6 @@
  *
 */
 
-#ifdef DAYZ_1_19
-modded class GetOutTransportActionData
-{
-	bool m_KeepInVehicleSpaceAfterLeave = false;
-};
-#endif
-
 modded class ActionGetOutTransport
 {
 #ifdef DAYZ_1_19

@@ -165,13 +165,16 @@ modded class DayZPlayerImplement
 
 	override void CommandHandler(float pDt, int pCurrentCommandID, bool pCurrentCommandFinished)
 	{
+#ifdef DIAG
+		int interactionLayer = dBodyGetInteractionLayer(this);
+#endif
+
 		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
 
 		if (m_Expansion_EnableBonePositionUpdate)
 			Expansion_UpdateBonePositionTimes(pDt);
 
 #ifdef DIAG
-		int interactionLayer = dBodyGetInteractionLayer(this);
 		if (interactionLayer != m_Expansion_CurrentPhxInteractionLayer)
 		{
 			m_Expansion_CurrentPhxInteractionLayer = interactionLayer;
