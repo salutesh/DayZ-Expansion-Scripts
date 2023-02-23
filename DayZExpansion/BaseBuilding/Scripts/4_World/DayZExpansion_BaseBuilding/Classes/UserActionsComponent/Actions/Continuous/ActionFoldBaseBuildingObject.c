@@ -30,9 +30,9 @@ modded class ActionFoldBaseBuildingObject
 				return false;
 		}
 
-		//! Can fold if inside own territory, but not if in enemy territory
+		//! Can fold if inside own territory, but not if in enemy territory unless whitelisted
 		if (player.IsInTerritory())
-			return (isDeployableConstruction || super.ActionCondition(player, target, item)) && player.IsInsideOwnTerritory();
+			return (isDeployableConstruction || super.ActionCondition(player, target, item)) && ActionDeployObject.CanDeployInTerritory(player, item);
 
 		//! Can fold if outside territory
 		if (isDeployableConstruction)

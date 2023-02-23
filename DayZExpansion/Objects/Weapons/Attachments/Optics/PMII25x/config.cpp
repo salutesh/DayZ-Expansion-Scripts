@@ -4,16 +4,16 @@ class CfgPatches
 {
 	class DayZExpansion_PMII25Optic
 	{
-		units[] = {"Expansion_PMII25Optic"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Scripts"};
+		requiredAddons[] = {"DZ_Weapons_Optics"};
 	};
 };
 class cfgVehicles
 {
-	class ItemOptics;
-	class Expansion_PMII25Optic: ItemOptics
+	class ItemOptics_Base;
+	class Expansion_PMII25Optic: ItemOptics_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_PMII25";

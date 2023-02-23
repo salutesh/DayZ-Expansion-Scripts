@@ -3777,6 +3777,33 @@ class ExpansionVehicleBase extends ItemBase
 		return false;
 	}
 
+	// these felt pointless to implement
+	// since these are not used in stable, yet - wrdg
+	bool Expansion_CanCover()
+	{
+		if (IsDamageDestroyed())
+			return false;
+
+		auto settings = GetExpansionSettings().GetVehicle();
+
+		if (!settings.EnableVehicleCovers)
+			return false;
+
+		if (!m_Expansion_HasLifetime && !settings.AllowCoveringDEVehicles)
+			return false;
+
+		if (Expansion_GetVehicleCrew().Count())
+			return false;
+
+		if (!settings.CanCoverWithCargo)
+		{
+			if (MiscGameplayFunctions.Expansion_HasAnyCargo(this))
+				return false;
+		}
+
+		return true;
+	}
+
 	string Expansion_GetPlaceholderType(string coverType)
 	{
 		//! TODO

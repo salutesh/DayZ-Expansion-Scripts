@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Kar98ScopeOptic
 	{
-		units[] = {"ExpansionKar98ScopeOptic"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Optics"};
@@ -12,8 +12,8 @@ class CfgPatches
 };
 class cfgVehicles
 {
-	class ItemOptics;
-	class ExpansionKar98ScopeOptic: ItemOptics
+	class ItemOptics_Base;
+	class ExpansionKar98ScopeOptic: ItemOptics_Base
 	{
 		scope = 2;
 		displayName = "$STR_KAR98_SCOPE";

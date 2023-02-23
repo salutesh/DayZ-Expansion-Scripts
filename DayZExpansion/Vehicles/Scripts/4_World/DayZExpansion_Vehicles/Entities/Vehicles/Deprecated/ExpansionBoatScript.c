@@ -41,10 +41,13 @@ class ExpansionBoatScript extends CarScript
 
 	float m_Expansion_SDSCheckTime;
 
+	float m_ExpansionSink;
+
 	void ExpansionBoatScript()
 	{
 		//! Values
 		m_Offset = 0.75;
+		m_ExpansionSink = 1.0;
 
 		int i;
 		int count;
@@ -211,6 +214,8 @@ class ExpansionBoatScript extends CarScript
 			if (gear == CarGear.REVERSE)
 			{
 				thrust *= -1.0;
+				if ( thrust > 0.0 )
+					thrust = -thrust;
 
 				steering = -steering;
 			}
@@ -223,6 +228,8 @@ class ExpansionBoatScript extends CarScript
 			else
 			{
 				thrust *= 1.0;
+				if ( thrust < 0.0 )
+					thrust = -thrust;
 
 				steering = steering;
 			}
@@ -345,7 +352,7 @@ class ExpansionBoatScript extends CarScript
 		bool isAboveWater;
 		float buoyancyForce;
 
-		if (m_Exploded)
+		if (m_ExpansionSink < 0.1)
 		{
 			if (dBodyIsActive(this))
 			{
@@ -382,6 +389,33 @@ class ExpansionBoatScript extends CarScript
 			linVel = m_State.m_LinearVelocityMS[2] * (1.0 / m_MaxSpeedMS);
 
 		buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition(GetPosition(), m_Offset, m_State.m_Mass, 0.5, m_State.m_LinearVelocity, isAboveWater);
+
+		if ( AllDoorsClosed() && !m_EngineDestroyed && !m_Exploded )
+		{
+			m_ExpansionSink += pDt * 0.001;
+		}
+		else
+		{
+			if ( !AllDoorsClosed() )
+				m_ExpansionSink -= pDt * 0.1;
+
+			if ( m_EngineDestroyed )
+				m_ExpansionSink -= pDt * 0.1;
+
+			if ( m_Exploded )
+				m_ExpansionSink -= pDt * 0.1;
+		}
+
+		if ( m_ExpansionSink > 1.0 )
+		{
+			m_ExpansionSink = 1.0;
+		}
+		else if (m_ExpansionSink < 0.001)
+		{
+			m_ExpansionSink = 0.0;
+		}
+
+		buoyancyForce = buoyancyForce * m_ExpansionSink;
 
 		float waterContactCoef = Math.Clamp(Math.Sign(buoyancyForce), 0, 1);
 
@@ -485,7 +519,8 @@ class ExpansionBoatScript extends CarScript
 	{
 		super.OnUpdate( dt );
 
-		m_DrownTime = 0;  //! Prevent vanilla engine drown damage
+		if ( AllDoorsClosed() )
+			m_DrownTime = 0;  //! Prevent vanilla engine drown damage
 	}
 
 	private vector GetLinearFrictionForce()

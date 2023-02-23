@@ -18,9 +18,29 @@ class ExpansionOwnedContainer: Container_Base
 	void ExpansionOwnedContainer()
 	{
 		if (GetGame().IsClient())  //! Only client, not server or COM
-		{
+		{	
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionRequestContainerUID, 250);
-			SetInvisible(true);
+		}
+	}
+
+	// allow other players to see the container while it's being carried (no more mimes!)
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	{
+		super.EEItemLocationChanged(oldLoc, newLoc);
+
+		switch (newLoc.GetType())
+		{
+			case InventoryLocationType.HANDS:
+			{
+				SetFlags(EntityFlags.VISIBLE, false);
+				break;
+			}
+			default:
+			{
+				if (!ExpansionIsContainerOwner())
+					ClearFlags(EntityFlags.VISIBLE, false);
+				break;
+			}
 		}
 	}
 
@@ -201,9 +221,13 @@ class ExpansionOwnedContainer: Container_Base
 				{
 					Error(ToString() + "::OnRPC ExpansionRPC.SyncOwnedContainerUID couldn't read m_ExpansionContainerUID");
 				}
-				else if (ExpansionIsContainerOwner())
+
+				if (!ExpansionIsContainerOwner())
 				{
-					SetInvisible(false);
+					if (GetHierarchyParent() && !GetHierarchyParent().IsMan())
+						return;
+
+					ClearFlags(EntityFlags.VISIBLE, false);
 				}
 			}
 		}
@@ -246,9 +270,6 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		{
 			SetAllowDamage(false);
 
-			//! Check if empty every 5 seconds
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionCheckStorage, 5000, true );
-
 			//! Delete after 20 minutes
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
 		}
@@ -256,6 +277,14 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		//! Warn about pending deletion after 15 minutes
 		if (IsMissionClient())  //! Client or COM
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+	}
+
+	override void EECargoOut(EntityAI item)
+	{
+		super.EECargoOut(item);
+
+		if (IsEmpty())
+			ExpansionDeleteStorage();
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)

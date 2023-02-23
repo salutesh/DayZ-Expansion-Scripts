@@ -53,6 +53,10 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 	void SetView()
 	{
+		PlayerBase player;
+		if (!Class.CastTo(player, GetGame().GetPlayer()))
+			return;
+
 		bool viewInit = m_ViewInit;
 		if (!m_ViewInit)
 		{
@@ -61,7 +65,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			m_ViewInit = true;
 		}
 
-		int reputation = PlayerBase.Cast(GetGame().GetPlayer()).Expansion_GetReputation();
+		int reputation = player.Expansion_GetReputation();
 		if (reputation == -1)  //! Not yet initialized
 			return;
 
@@ -182,6 +186,9 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		{
 			SetView();
 		}
+
+		if (!GetGame().GetPlayer())
+			return;
 
 		bool underRoof = GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(GetGame().GetPlayer());
 		CoveredIndicator.Show(underRoof);

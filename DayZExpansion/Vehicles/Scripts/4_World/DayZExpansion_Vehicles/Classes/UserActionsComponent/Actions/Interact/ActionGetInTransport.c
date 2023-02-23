@@ -186,7 +186,7 @@ modded class ActionGetInTransport
 
 				if (isBoat)
 				{
-					GetUApi().GetInputByName("UACarBack").ForceDisable(true);
+					GetUApi().GetInputByName("UACarBack").ForceDisable(!isCar);
 					GetUApi().GetInputByName("UACarShiftGearUp").ForceDisable(false);
 					GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(false);
 				}

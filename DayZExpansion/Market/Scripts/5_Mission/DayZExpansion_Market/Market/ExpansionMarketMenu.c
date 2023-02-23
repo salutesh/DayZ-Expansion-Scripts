@@ -2039,7 +2039,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
 		{
-			//! Special handling for Expansion
+			/*************************************************************************************************************************
+			 * WARNING: Only TESTED basebuilding items!
+			 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
+			 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
+			 *************************************************************************************************************************/
+
+			//! Expansion
 			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
 			{
 				string path = "CfgVehicles " + className + " placingTypes";
@@ -2058,6 +2064,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 
+			//! Vanilla
 			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
 			{
 				//! Item name is kit name without "kit" at the end

@@ -71,6 +71,9 @@ class bldr_fire_barrel extends BarrelHoles_Red
 	protected bool m_bldr_Opened;
 
 	override protected void SpendFireConsumable( float amount ) {};
+	override void StopFire( FireplaceFireState fire_state = FireplaceFireState.END_FIRE ) {};
+	override void AddWetnessToFireplace(float amount) {};
+	override protected void AddWetnessToItem(ItemBase item, float amount) {};
 
 	void bldr_fire_barrel()
 	{
@@ -78,6 +81,11 @@ class bldr_fire_barrel extends BarrelHoles_Red
 	}
 
 	override bool CanExtinguishFire()
+	{
+		return false;
+	}
+
+	override bool CanHaveWetness()
 	{
 		return false;
 	}
@@ -114,6 +122,9 @@ class bldr_fire_barrel extends BarrelHoles_Red
 class bldr_fireplace extends Fireplace
 {
 	override protected void SpendFireConsumable( float amount ) {};
+	override void StopFire( FireplaceFireState fire_state = FireplaceFireState.END_FIRE ) {};
+	override void AddWetnessToFireplace(float amount) {};
+	override protected void AddWetnessToItem(ItemBase item, float amount) {};
 
 	void bldr_fireplace()
 	{
@@ -121,6 +132,11 @@ class bldr_fireplace extends Fireplace
 	}
 
 	override bool CanExtinguishFire()
+	{
+		return false;
+	}
+
+	override bool CanHaveWetness()
 	{
 		return false;
 	}

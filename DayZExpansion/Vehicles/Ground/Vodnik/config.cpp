@@ -175,9 +175,9 @@ class CfgVehicles
 		model = "\DayZExpansion\Vehicles\Ground\Vodnik\vodnik.p3d";
 		modelZeroPointDistanceFromGround = 0;
 		vehicleClass = "Expansion_Car";
-		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med","antiwater"};
-		hiddenSelectionsTextures[] = {"","","","","","","","","","",""};
-		hiddenSelectionsMaterials[] = {"","","","","","","","","","",""};
+		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","med"};
+		hiddenSelectionsTextures[] = {"","","","","","","","","",""};
+		hiddenSelectionsMaterials[] = {"","","","","","","","","",""};
 		frontReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass_on.rvmat";
 		frontReflectorMatOff = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_glass.rvmat";
 		TailReflectorMatOn = "dayzexpansion\vehicles\ground\vodnik\data\gaz39371_vodnik_basis_01_on.rvmat";

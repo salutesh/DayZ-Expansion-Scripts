@@ -34,6 +34,9 @@ modded class JMPlayerForm
 		if (actions)
 		{
 			m_ExpansionReputation = UIActionManager.CreateEditableText(actions, "Reputation", this, "Click_SetExpansionReputation", "", "");
+			#ifdef COT_UIACTIONS_SETWIDTH
+			m_ExpansionReputation.SetEditBoxWidth(0.5);
+			#endif
 			Widget spacer = UIActionManager.CreatePanel(actions, 0, 1);
 			int sort = spacer.GetSort();
 			m_ApplyStats.GetLayoutRoot().SetSort(sort + 1);
@@ -43,15 +46,31 @@ modded class JMPlayerForm
 		return parent;
 	}
 
+#ifdef COT_REFRESHSTATS_NEW
+	override void RefreshStats(bool force = false)
+	{
+		super.RefreshStats(force);
+
+		if (force)
+			m_ExpansionReputationUpdated = false;
+#else
 	override void RefreshStats()
 	{
 		super.RefreshStats();
+#endif
 
-		if (m_ExpansionReputation && m_SelectedInstance && m_SelectedInstance.PlayerObject)
+		if (!m_SelectedInstance || !m_SelectedInstance.PlayerObject)
+			return;
+
+		if (m_ExpansionReputation && !m_ExpansionReputationUpdated)
 			m_ExpansionReputation.SetText(m_SelectedInstance.PlayerObject.Expansion_GetReputation().ToString());
 	}
 
+#ifdef COT_BUGFIX_REF_UIACTIONS
+	override void Click_ApplyStats(UIEvent eid, UIActionBase action)
+#else
 	override void Click_ApplyStats(UIEvent eid, ref UIActionBase action)
+#endif
 	{
 		super.Click_ApplyStats(eid, action);
 
@@ -67,7 +86,7 @@ modded class JMPlayerForm
 		}
 	}
 
-	void Click_SetExpansionReputation(UIEvent eid, ref UIActionBase action)
+	void Click_SetExpansionReputation(UIEvent eid, UIActionBase action)
 	{
 		if (eid != UIEvent.CHANGE)
 			return;

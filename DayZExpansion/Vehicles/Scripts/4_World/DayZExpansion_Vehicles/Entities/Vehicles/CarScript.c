@@ -3592,6 +3592,11 @@ modded class CarScript
 	{
 		super.OnCEUpdate();
 
+		Expansion_OnCEUpdate();
+	}
+
+	void Expansion_OnCEUpdate()
+	{
 		//! Prevent autocover before forcing initial storeloaded position
 		if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
 			return;
@@ -3633,7 +3638,8 @@ modded class CarScript
 				return;
 			}
 
-			Expansion_CoverVehicle(cover);
+			if (Expansion_CanCover())
+				Expansion_CoverVehicle(cover);
 		}
 	}
 
@@ -3668,6 +3674,31 @@ modded class CarScript
 		}
 
 		return false;
+	}
+
+	bool Expansion_CanCover()
+	{		
+		if (IsDamageDestroyed())
+			return false;
+
+		auto settings = GetExpansionSettings().GetVehicle();
+
+		if (!settings.EnableVehicleCovers)
+			return false;
+
+		if (!m_Expansion_HasLifetime && !settings.AllowCoveringDEVehicles)
+			return false;
+
+		if (Expansion_GetVehicleCrew().Count())
+			return false;
+
+		if (!settings.CanCoverWithCargo)
+		{
+			if (MiscGameplayFunctions.Expansion_HasAnyCargo(this))
+				return false;
+		}
+
+		return true;
 	}
 
 	string Expansion_GetPlaceholderType(string coverType)
@@ -3849,22 +3880,35 @@ modded class CarScript
 		if (impulse < 7500)
 			return;
 
-		Object tree = Object.Cast(other);
-		if (tree && (tree.IsTree() || tree.IsBush()))
+		Plant plant;
+		if (!Plant.CastTo(plant, other))
+			return;
+
+		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+			Expansion_PlayFellPlantSound(plant);
+
+		if (GetGame().IsServer())
+			plant.SetHealth(0);
+
+		dBodyDestroy(plant);
+	}
+
+	protected void Expansion_PlayFellPlantSound(Object plant)
+	{
+		if (plant.IsTree())
 		{
-			EntityAI cutting_tool = EntityAI.Cast(GetGame().CreateObject("WoodAxe", vector.Zero, false, true));
-
-			if (IsMissionClient())
+			if (plant.IsInherited(TreeHard))
 				SoundHardTreeFallingPlay();
+			else if (plant.IsInherited(TreeSoft))
+				SoundSoftTreeFallingPlay();
+		}
 
-			if (GetGame().IsServer())
-				tree.DecreaseHealth("", "", 100, true);
-
-			tree.OnTreeCutDown(cutting_tool);
-
-			dBodyDestroy(tree);
-
-			GetGame().ObjectDelete(cutting_tool);
+		if (plant.IsBush())
+		{
+			if (plant.IsInherited(BushHard))
+				SoundHardBushFallingPlay();
+			else if (plant.IsInherited(BushSoft))
+				SoundSoftBushFallingPlay();
 		}
 	}
 

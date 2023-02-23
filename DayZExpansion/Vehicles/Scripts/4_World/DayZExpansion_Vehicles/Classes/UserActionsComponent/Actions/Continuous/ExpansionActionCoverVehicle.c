@@ -50,14 +50,6 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		if (!targetObject)
 			return false;
 
-		if (targetObject.IsDamageDestroyed())
-			return false;
-
-		auto settings = GetExpansionSettings().GetVehicle();
-
-		if (!settings.EnableVehicleCovers)
-			return false;
-
 		string placeholderType;
 		string vehicleModel;
 
@@ -65,10 +57,7 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		ExpansionVehicleBase exVehicle;
 		if (Class.CastTo(vehicle, targetObject))
 		{
-			if (!vehicle.m_Expansion_HasLifetime && !settings.AllowCoveringDEVehicles)
-				return false;
-
-			if (vehicle.Expansion_GetVehicleCrew().Count())
+			if (!vehicle.Expansion_CanCover())
 				return false;
 
 			if (!GetGame().IsDedicatedServer())
@@ -79,10 +68,7 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		}
 		else if (Class.CastTo(exVehicle, targetObject))
 		{
-			if (!vehicle.m_Expansion_HasLifetime && !settings.AllowCoveringDEVehicles)
-				return false;
-
-			if (exVehicle.Expansion_GetVehicleCrew().Count())
+			if (!exVehicle.Expansion_CanCover())
 				return false;
 
 			if (!GetGame().IsDedicatedServer())
@@ -94,14 +80,6 @@ class ExpansionActionCoverVehicle: ActionContinuousBase
 		else
 		{
 			return false;
-		}
-
-		//! Check if vehicle has any cargo items that are not attachments if the "CanStoreWithCargo" setting is enabled.
-		if (!settings.CanCoverWithCargo)
-		{
-			EntityAI entity;
-			if (Class.CastTo(entity, targetObject) && MiscGameplayFunctions.Expansion_HasAnyCargo(entity))
-				return false;
 		}
 
 		if (!GetGame().IsDedicatedServer())

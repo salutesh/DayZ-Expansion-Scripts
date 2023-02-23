@@ -449,7 +449,7 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 	
 	TStringArray GetNoBuildZoneWhitelist()
 	{
-		return {"Fireplace", "LandMineTrap", "BearTrap", "FishNetTrap", "RabbitSnareTrap", "SmallFishTrap", "TripwireTrap"};
+		return {"Fireplace", "LandMineTrap", "BearTrap", "FishNetTrap", "RabbitSnareTrap", "SmallFishTrap", "TripwireTrap", "ExplosivesBase"};
 	}
 	
 	// ------------------------------------------------------------	

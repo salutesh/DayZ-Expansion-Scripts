@@ -269,6 +269,12 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
 			if (baseBuilding && baseBuilding.CanUseConstruction())
 			{
+				/*************************************************************************************************************************
+				 * WARNING: Only TESTED basebuilding items!
+				 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
+				 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
+				 *************************************************************************************************************************/
+
 				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
 				#ifdef EXPANSIONMODBASEBUILDING
 				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
