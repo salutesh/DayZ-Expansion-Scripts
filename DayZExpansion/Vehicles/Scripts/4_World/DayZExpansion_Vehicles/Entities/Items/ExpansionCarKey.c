@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionCarKey extends ItemBase
+class ExpansionCarKey: ItemBase
 {
 	protected static autoptr array<ExpansionCarKey> m_AllKeys = new array<ExpansionCarKey>;
 

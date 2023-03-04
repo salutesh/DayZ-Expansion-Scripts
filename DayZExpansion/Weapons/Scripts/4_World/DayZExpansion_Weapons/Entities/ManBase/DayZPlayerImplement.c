@@ -49,4 +49,4 @@ modded class DayZPlayerImplement
 			}
 		}
 	}
-}
+};

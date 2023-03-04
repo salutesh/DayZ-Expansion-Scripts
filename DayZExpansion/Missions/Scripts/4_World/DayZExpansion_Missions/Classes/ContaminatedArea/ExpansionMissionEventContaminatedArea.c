@@ -1,4 +1,4 @@
-class ExpansionMissionEventContaminatedArea extends ExpansionMissionEventBase
+class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 {
 	ref JsonDataAreaData Data = new JsonDataAreaData();
 	ref JsonDataPlayerData PlayerData = new JsonDataPlayerData();

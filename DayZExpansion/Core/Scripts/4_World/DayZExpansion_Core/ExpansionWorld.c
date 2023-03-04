@@ -61,4 +61,46 @@ class ExpansionWorld: ExpansionGame
 	{
 		ExpansionWorldObjectsModule.RPC_RemoveObjects(ctx);
 	}
+
+	static void CheckTreeContact(IEntity other, float impulse)
+	{
+		if (impulse < 7500)
+			return;
+
+		Plant plant;
+		if (!Plant.CastTo(plant, other))
+			return;
+
+		if (!GetGame().IsDedicatedServer())
+			PlayFellPlantSound(plant);
+
+		if (GetGame().IsServer())
+			plant.SetHealth(0);
+
+		dBodyDestroy(plant);
+	}
+
+	static void PlayFellPlantSound(Object plant)
+	{
+		EffectSound sound;
+
+		if (plant.IsTree())
+		{
+			if (plant.IsInherited(TreeHard))
+				sound =	SEffectManager.PlaySound( "hardTreeFall_SoundSet", plant.GetPosition() );
+			else if (plant.IsInherited(TreeSoft))
+				sound =	SEffectManager.PlaySound( "softTreeFall_SoundSet", plant.GetPosition() );
+		}
+
+		if (plant.IsBush())
+		{
+			if (plant.IsInherited(BushHard))
+				sound =	SEffectManager.PlaySound( "hardBushFall_SoundSet", plant.GetPosition() );
+			else if (plant.IsInherited(BushSoft))
+				sound =	SEffectManager.PlaySound( "softBushFall_SoundSet", plant.GetPosition() );
+		}
+
+		if (sound)
+			sound.SetAutodestroy( true );
+	}
 };

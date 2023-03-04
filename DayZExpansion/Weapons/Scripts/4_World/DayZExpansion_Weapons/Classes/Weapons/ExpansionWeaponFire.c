@@ -35,7 +35,7 @@ bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int
 		weapon.ExpansionSetNextFire( muzzleIndex );
 	}
 
-	if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+	if (!GetGame().IsDedicatedServer())
 	{
 		ExpansionWeaponFireBase fireBase;
 		if ( Class.CastTo( fireBase, firehandle.Spawn() ) )
@@ -60,7 +60,7 @@ bool ExpansionTryFireWeapon( DayZPlayerImplement player, Weapon_Base weapon, int
 	return true;
 };
 
-class ExpansionWeaponFire extends WeaponStartAction
+class ExpansionWeaponFire: WeaponStartAction
 {
 	float m_dtAccumulator;
 
@@ -107,7 +107,7 @@ class ExpansionWeaponFire extends WeaponStartAction
 	}
 };
 
-class ExpansionWeaponFireToJam extends WeaponStartAction
+class ExpansionWeaponFireToJam: WeaponStartAction
 {
 	float m_dtAccumulator;
 
@@ -156,7 +156,7 @@ class ExpansionWeaponFireToJam extends WeaponStartAction
 	}
 };
 
-class ExpansionWeaponFireAndChamber extends ExpansionWeaponFire
+class ExpansionWeaponFireAndChamber: ExpansionWeaponFire
 {
 	override void OnEntry(WeaponEventBase e)
 	{
@@ -175,7 +175,7 @@ class ExpansionWeaponFireAndChamber extends ExpansionWeaponFire
 	}
 };
 
-class ExpansionWeaponFireAndChamberFromInnerMagazine extends ExpansionWeaponFire
+class ExpansionWeaponFireAndChamberFromInnerMagazine: ExpansionWeaponFire
 {
 	override void OnEntry(WeaponEventBase e)
 	{
@@ -194,7 +194,7 @@ class ExpansionWeaponFireAndChamberFromInnerMagazine extends ExpansionWeaponFire
 	}
 };
 
-class ExpansionWeaponFireLast extends WeaponStateBase
+class ExpansionWeaponFireLast: WeaponStateBase
 {
 	WeaponActions m_action;
 	int m_actionType;
@@ -266,7 +266,7 @@ class ExpansionWeaponFireLast extends WeaponStateBase
 	}
 };
 
-class ExpansionWeaponFireAndChamberNext extends WeaponStateBase
+class ExpansionWeaponFireAndChamberNext: WeaponStateBase
 {
 	WeaponActions m_action;
 	int m_actionType;

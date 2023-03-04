@@ -13,7 +13,7 @@
 /**@class		ExpansionPairKeyWithMasterKey
  * @brief		
  **/
-class ExpansionPairKeyWithMasterKey extends RecipeBase
+class ExpansionPairKeyWithMasterKey: RecipeBase
 {
 	override void Init()
 	{

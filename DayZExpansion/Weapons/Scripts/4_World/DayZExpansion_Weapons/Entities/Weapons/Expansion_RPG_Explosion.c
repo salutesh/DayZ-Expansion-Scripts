@@ -34,7 +34,7 @@ class Expansion_RPG_Explosion: BuildingBase
 
 		
 		Explode(DT_EXPLOSION, "ExpansionRocket_Ammo");
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 			m_ParticleExplosion = Particle.PlayInWorld(ParticleList.EXPANSION_EXPLOSION_ROCKET, this.GetPosition());
 	}
 }

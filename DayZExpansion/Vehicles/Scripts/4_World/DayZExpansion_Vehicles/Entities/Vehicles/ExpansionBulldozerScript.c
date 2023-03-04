@@ -13,7 +13,7 @@
 /**@class		ExpansionBulldozerScript
  * @brief		This class handle bulldozer simulation
  **/
-class ExpansionBulldozerScript extends CarScript
+class ExpansionBulldozerScript: CarScript
 {
 	protected int m_TreesCutted;
 	protected vector m_RayStart;
@@ -89,7 +89,7 @@ class ExpansionBulldozerScript extends CarScript
 						}
 					}
 
-					Expansion_PlayFellPlantSound(obj);
+					ExpansionWorld.PlayFellPlantSound(obj);
 				}
 			}
 		}	

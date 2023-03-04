@@ -14,7 +14,7 @@
  * @class		Vehicle_ExpansionC130J
  * @brief
  */
-class Vehicle_ExpansionC130J extends ExpansionVehiclePlaneBase
+class Vehicle_ExpansionC130J: ExpansionVehiclePlaneBase
 {
 	void Vehicle_ExpansionC130J()
 	{
@@ -184,7 +184,7 @@ class Vehicle_ExpansionC130J extends ExpansionVehiclePlaneBase
 
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			ItemBase battery;
 

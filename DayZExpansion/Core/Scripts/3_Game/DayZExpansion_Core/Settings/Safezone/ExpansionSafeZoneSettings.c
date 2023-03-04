@@ -45,7 +45,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
-	void ExpansionSafeZoneSettings() {}
+	void ExpansionSafeZoneSettings() {};
 
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )

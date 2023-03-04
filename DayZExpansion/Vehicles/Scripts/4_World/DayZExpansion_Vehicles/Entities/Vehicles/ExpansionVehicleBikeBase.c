@@ -14,7 +14,7 @@
  * @class		ExpansionVehicleBikeBase
  * @brief		This class handle bicycle simulation
  */
-class ExpansionVehicleBikeBase extends ExpansionVehicleBase
+class ExpansionVehicleBikeBase: ExpansionVehicleBase
 {
 	float m_AirControlForwardCoef;
 	float m_AirControlRightCoef;

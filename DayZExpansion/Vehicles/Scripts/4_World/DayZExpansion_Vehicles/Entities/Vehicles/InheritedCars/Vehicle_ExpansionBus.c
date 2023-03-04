@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionBus extends ExpansionVehicleCarBase
+class Vehicle_ExpansionBus: ExpansionVehicleCarBase
 {
 	CarLightBase m_BusLight1;
 	CarLightBase m_BusLight2;

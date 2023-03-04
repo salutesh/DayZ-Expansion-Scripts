@@ -1,4 +1,4 @@
-class ExpansionUnloadHideBullet extends WeaponEjectBullet
+class ExpansionUnloadHideBullet: WeaponEjectBullet
 {
     override void OnEntry (WeaponEventBase e)
     {

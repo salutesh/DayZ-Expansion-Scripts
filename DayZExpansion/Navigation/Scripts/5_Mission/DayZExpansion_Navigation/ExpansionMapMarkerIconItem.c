@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMapMarkerIconItem extends ScriptedWidgetEventHandler
+class ExpansionMapMarkerIconItem: ScriptedWidgetEventHandler
 {
 	private ExpansionIcon m_IconData;
 	private ExpansionMapMarker m_Marker;

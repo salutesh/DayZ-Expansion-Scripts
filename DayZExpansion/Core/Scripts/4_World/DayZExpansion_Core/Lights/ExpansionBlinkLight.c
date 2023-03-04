@@ -13,7 +13,7 @@
 /**@class		ExpansionBlinkingLight
  * @brief		
  **/
-class ExpansionBlinkLight extends ExpansionPointLight
+class ExpansionBlinkLight: ExpansionPointLight
 {
 	// ------------------------------------------------------------
 	// Constructor
@@ -24,7 +24,7 @@ class ExpansionBlinkLight extends ExpansionPointLight
 		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "ExpansionBlinkLight");
 #endif
 		
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			SetEnabled(true);
 
@@ -52,7 +52,7 @@ class ExpansionBlinkLight extends ExpansionPointLight
 		auto trace = CF_Trace_0(ExpansionTracing.LIGHTS, this, "EOnFrame");
 #endif
 		
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			if ( ExpansionGetEnabled() )
 			{

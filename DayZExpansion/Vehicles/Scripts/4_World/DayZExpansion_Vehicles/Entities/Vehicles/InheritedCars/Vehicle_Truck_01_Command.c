@@ -10,6 +10,6 @@
  *
  */
 
-class Vehicle_Truck_01_Command extends Vehicle_Truck_01_Base
+class Vehicle_Truck_01_Command: Vehicle_Truck_01_Base
 {
 };

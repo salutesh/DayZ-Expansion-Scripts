@@ -78,6 +78,12 @@ class CfgVehicles
 				animPeriod = 0.01;
 				initPhase = 1;
 			};
+			class waterramp
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
 		};
 		class SimulationModule: SimulationModule
 		{
@@ -247,6 +253,12 @@ class CfgVehicles
 		class AnimationSources
 		{
 			class antiwater
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class waterramp
 			{
 				source = "user";
 				animPeriod = 0.01;

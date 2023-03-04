@@ -14,7 +14,7 @@
  * @brief		
  **/
 
-class ExpansionKitBase extends WatchtowerKit
+class ExpansionKitBase: WatchtowerKit
 {	
 	private int m_PlacingTypeChosen;
 	private autoptr array< string > m_PlacingTypes;
@@ -94,9 +94,9 @@ class ExpansionKitBase extends WatchtowerKit
 /**@class		ExpansionKitSmall
  * @brief		
  **/
-class ExpansionKitSmall extends ExpansionKitBase {}
+class ExpansionKitSmall: ExpansionKitBase {};
 
 /**@class		ExpansionKitLarge
  * @brief		
  **/
-class ExpansionKitLarge extends ExpansionKitBase {}
+class ExpansionKitLarge: ExpansionKitBase {};

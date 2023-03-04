@@ -14,7 +14,7 @@
  * @brief		
  **/
 
-class ExpansionFlagMenu extends ExpansionUIScriptedMenu
+class ExpansionFlagMenu: ExpansionUIScriptedMenu
 {
 	protected Widget m_FlagWindow;
 	protected TextWidget m_FlagWindowLable;

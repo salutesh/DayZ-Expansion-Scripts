@@ -10,31 +10,31 @@
  *
  */
 
-class ExpansionUAZDoorDriver extends CarDoor
+class ExpansionUAZDoorDriver: CarDoor
 {
 };
 
-class ExpansionUAZDoorCoDriver extends CarDoor
+class ExpansionUAZDoorCoDriver: CarDoor
 {
 };
 
-class ExpansionUAZDoorCargo1 extends CarDoor
+class ExpansionUAZDoorCargo1: CarDoor
 {
 };
 
-class ExpansionUAZDoorCargo2 extends CarDoor
+class ExpansionUAZDoorCargo2: CarDoor
 {
 };
 
-class ExpansionUAZDoorHood extends CarDoor
+class ExpansionUAZDoorHood: CarDoor
 {
 };
 
-class ExpansionUAZDoorTrunk extends CarDoor
+class ExpansionUAZDoorTrunk: CarDoor
 {
 };
 
-class ExpansionUAZ extends CarScript
+class ExpansionUAZ: CarScript
 {
 	bool m_HasRoof;
 
@@ -650,7 +650,7 @@ class ExpansionUAZ extends CarScript
 	}
 };
 
-class ExpansionUAZRoofless extends ExpansionUAZ
+class ExpansionUAZRoofless: ExpansionUAZ
 {
 	override bool HasRoof()
 	{
@@ -658,7 +658,7 @@ class ExpansionUAZRoofless extends ExpansionUAZ
 	}
 };
 
-class ExpansionUAZCargoRoofless extends ExpansionUAZRoofless
+class ExpansionUAZCargoRoofless: ExpansionUAZRoofless
 {
 	void ExpansionUAZCargoRoofless()
 	{

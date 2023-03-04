@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionZodiacBoat extends ExpansionVehicleBoatBase
+class Vehicle_ExpansionZodiacBoat: ExpansionVehicleBoatBase
 {
 	void Vehicle_ExpansionZodiacBoat()
 	{

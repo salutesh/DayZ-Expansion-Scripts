@@ -13,7 +13,7 @@
 /**@class		ExpansionRampKit
  * @brief		This class handle base class of expansion basebuilding	
  **/
-class ExpansionRampKit extends ExpansionKitLarge
+class ExpansionRampKit: ExpansionKitLarge
 {
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{

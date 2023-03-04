@@ -10,13 +10,13 @@
  *
 */
 
-class ExpansionAirdropParticle extends House
+class ExpansionAirdropParticle: House
 {
 	Particle m_ParticleEfx;
 	
 	void ExpansionAirdropParticle()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 			m_ParticleEfx = Particle.PlayOnObject(ParticleList.EXPANSION_AIRDROP_SMOKE, this);
 	}
 	

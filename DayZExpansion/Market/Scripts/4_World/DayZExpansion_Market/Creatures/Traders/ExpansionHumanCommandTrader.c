@@ -6,7 +6,7 @@ class ExpansionHumanCommandTrader_ST
 	}
 };
 
-class ExpansionHumanCommandTrader extends HumanCommandScript
+class ExpansionHumanCommandTrader: HumanCommandScript
 {
 	private ExpansionHumanCommandTrader_ST m_Table;
 

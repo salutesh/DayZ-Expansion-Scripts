@@ -13,7 +13,7 @@
 /**@class		ExpansionCrafWoodtStairsKit
  * @brief		
  **/
-class ExpansionCraftStairKit extends RecipeBase
+class ExpansionCraftStairKit: RecipeBase
 {	
 	override void Init()
 	{

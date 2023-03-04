@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionStairBase extends ExpansionBaseBuilding
+class ExpansionStairBase: ExpansionBaseBuilding
 {
 	private bool m_HasStair;
 

@@ -12,6 +12,9 @@
 
 modded class DayZGame
 {
+	protected float m_Expansion_ServerUpdateRateLimit_Interval;
+	protected float m_Expansion_ServerUpdateRateLimit_Time;
+
 	protected string m_ExpansionClientVersion;
 	protected string m_ExpansionLastestVersion;
 	protected ref ExpansionGame m_ExpansionGame;
@@ -207,10 +210,23 @@ modded class DayZGame
 
 	override void OnUpdate(bool doSim, float timeslice)
 	{
+#ifdef SERVER
+		m_Expansion_ServerUpdateRateLimit_Time += timeslice;
+		if (m_Expansion_ServerUpdateRateLimit_Time >= m_Expansion_ServerUpdateRateLimit_Interval)
+		{
+			super.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_Time);
+
+			if (m_ExpansionGame != NULL)
+				m_ExpansionGame.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_Time);
+
+			m_Expansion_ServerUpdateRateLimit_Time = 0;
+		}
+#else
 		super.OnUpdate(doSim, timeslice);
 
 		if (m_ExpansionGame != NULL)
 			m_ExpansionGame.OnUpdate(doSim, timeslice);
+#endif
 	}
 
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
@@ -230,5 +246,10 @@ modded class DayZGame
 	bool Expansion_IsMissionMainMenu()
 	{
 		return m_Expansion_IsMissionMainMenu;
+	}
+
+	void Expansion_SetServerUpdateRateLimit(int rate)
+	{
+		m_Expansion_ServerUpdateRateLimit_Interval = 1.0 / rate;
 	}
 };

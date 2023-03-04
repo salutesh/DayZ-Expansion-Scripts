@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftStickySmoke
  * @brief		
  **/
-class ExpansionCraftStickySmoke extends RecipeBase
+class ExpansionCraftStickySmoke: RecipeBase
 {
 	string NewItem;
 	

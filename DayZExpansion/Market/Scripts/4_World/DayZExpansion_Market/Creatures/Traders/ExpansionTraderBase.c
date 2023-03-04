@@ -497,7 +497,7 @@ class ExpansionTraderObjectBase
 /**@class		ExpansionTraderStaticBase
  * @brief		This class handles static trader objects
  **/
-class ExpansionTraderStaticBase extends BuildingSuper
+class ExpansionTraderStaticBase: BuildingSuper
 {
 	private static ref set<ExpansionTraderStaticBase> m_allTraders = new set<ExpansionTraderStaticBase>;
 
@@ -583,7 +583,7 @@ class ExpansionTraderStaticBase extends BuildingSuper
 /**@class		ExpansionTraderZombieBase
  * @brief		This class handles Infected traders
  **/
-class ExpansionTraderZombieBase extends ZombieBase
+class ExpansionTraderZombieBase: ZombieBase
 {
 	private static ref set<ExpansionTraderZombieBase> m_allTraders = new set<ExpansionTraderZombieBase>;
 
@@ -685,9 +685,9 @@ class ExpansionTraderZombieBase extends ZombieBase
  * @brief		This class handles AI traders
  **/
 #ifdef EXPANSIONMODAI
-class ExpansionTraderAIBase extends eAINPCBase
+class ExpansionTraderAIBase: eAINPCBase
 #else
-class ExpansionTraderAIBase extends eAIBase
+class ExpansionTraderAIBase: eAIBase
 #endif
 {
 	private ref ExpansionTraderObjectBase m_TraderObject;

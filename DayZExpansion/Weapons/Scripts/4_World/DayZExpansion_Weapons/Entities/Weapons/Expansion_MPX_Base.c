@@ -21,9 +21,8 @@ class Expansion_MPX_Base: RifleBoltLock_Base
 		super.EEItemAttached(item,slot_name);
 
 		if (ItemOptics.Cast(item))
-		{ 
-			EntityAI ParentItem = this;
-			FoldOpticsDown(ParentItem);
+		{
+			Expansion_FoldOpticsDown();
 		}
 	}
 
@@ -37,8 +36,7 @@ class Expansion_MPX_Base: RifleBoltLock_Base
 
 		if (ItemOptics.Cast(item))
 		{ 
-			EntityAI ParentItem = this;
-			FoldOpticsUp(ParentItem);
+			Expansion_FoldOpticsUp();
 		}
 	}	
 

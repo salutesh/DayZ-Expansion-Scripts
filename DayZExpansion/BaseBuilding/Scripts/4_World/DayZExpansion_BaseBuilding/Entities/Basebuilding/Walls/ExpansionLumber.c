@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionLumberBase extends ItemBase
+class ExpansionLumberBase: ItemBase
 {
 	override void SetActions()
 	{
@@ -19,7 +19,7 @@ class ExpansionLumberBase extends ItemBase
 		AddAction(ActionAttachToConstruction);
 	}
 };
-class ExpansionLumber0_5 extends ExpansionLumberBase{};
-class ExpansionLumber1 extends ExpansionLumberBase{};
-class ExpansionLumber1_5 extends ExpansionLumberBase{};
-class ExpansionLumber3 extends ExpansionLumberBase{};
+class ExpansionLumber0_5: ExpansionLumberBase{};
+class ExpansionLumber1: ExpansionLumberBase{};
+class ExpansionLumber1_5: ExpansionLumberBase{};
+class ExpansionLumber3: ExpansionLumberBase{};

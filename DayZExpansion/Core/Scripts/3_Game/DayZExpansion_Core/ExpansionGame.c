@@ -153,7 +153,7 @@ class ExpansionGame
 
 	static bool IsClientOrOffline()
 	{
-		return GetGame().IsClient() || !GetGame().IsMultiplayer();
+		return !GetGame().IsDedicatedServer();
 	}
 
 	static bool IsServerOrOffline()

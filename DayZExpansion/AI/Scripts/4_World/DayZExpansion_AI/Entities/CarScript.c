@@ -9,8 +9,6 @@ modded class CarScript
 #endif
 
 		m_TargetInformation = CreateTargetInformation();
-
-		// SetEventMask(EntityEvent.ALL);
 	}
 
 	protected eAITargetInformation CreateTargetInformation()
@@ -19,7 +17,7 @@ modded class CarScript
 		auto trace = CF_Trace_0(this, "CreateTargetInformation");
 #endif
 
-		return new eAIEntityTargetInformation(this);
+		return new eAIVehicleTargetInformation(this);
 	}
 
 	eAITargetInformation GetTargetInformation()

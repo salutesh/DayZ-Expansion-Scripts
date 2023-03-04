@@ -10,7 +10,7 @@
  *
  */
 
-class ExpansionBus extends CarScript
+class ExpansionBus: CarScript
 {
 	CarLightBase m_BusLight1;
 	CarLightBase m_BusLight2;

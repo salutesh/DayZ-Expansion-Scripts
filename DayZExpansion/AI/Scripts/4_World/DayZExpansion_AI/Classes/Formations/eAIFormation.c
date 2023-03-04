@@ -85,7 +85,7 @@ class eAIFormation
 	}
 
 	// Unused thus far
-	void SetSize(int num_of_people) {}
+	void SetSize(int num_of_people) {};
 
 	static typename GetType(string formationName)
 	{

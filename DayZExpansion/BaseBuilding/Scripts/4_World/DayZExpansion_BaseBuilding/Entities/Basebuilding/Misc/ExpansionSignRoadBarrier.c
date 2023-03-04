@@ -56,7 +56,7 @@ class ExpansionSignRoadBarrier: Container_Base
 	{
 		super.OnSwitchOn();
 
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			SoundTurnOn();
 			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa_on.rvmat" );
@@ -93,7 +93,7 @@ class ExpansionSignRoadBarrier: Container_Base
 	{
 		super.OnSwitchOff();
 
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			SoundTurnOff();
 			SetObjectMaterial( 0, "DayZExpansion\\Objects\\Basebuilding\\Misc\\Signs\\Data\\bariera_lampa.rvmat" );

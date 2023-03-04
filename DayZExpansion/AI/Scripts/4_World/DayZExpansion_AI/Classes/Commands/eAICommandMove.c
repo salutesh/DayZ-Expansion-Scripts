@@ -1,4 +1,4 @@
-class eAICommandMove extends ExpansionHumanCommandScript
+class eAICommandMove: ExpansionHumanCommandScript
 {
 	static const int TURN_STATE_NONE = 0;
 	static const int TURN_STATE_TURNING = 1;

@@ -111,7 +111,7 @@ class ExpansionPartyPlayerData
         return true;
     }
 
-	void OnSettingChanged() {}
+	void OnSettingChanged() {};
 	
 	string GetID()
 	{

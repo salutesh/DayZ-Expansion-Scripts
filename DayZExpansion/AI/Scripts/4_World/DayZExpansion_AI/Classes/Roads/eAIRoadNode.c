@@ -1,4 +1,4 @@
-class eAIRoadNode extends eAIRoadNodeBase
+class eAIRoadNode: eAIRoadNodeBase
 {
 	static ref array<string> ROAD_MEMORY_POINT_PAIRS =
 	{

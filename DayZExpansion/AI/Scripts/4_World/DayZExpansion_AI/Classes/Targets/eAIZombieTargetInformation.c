@@ -1,4 +1,4 @@
-class eAIZombieTargetInformation extends eAIEntityTargetInformation
+class eAIZombieTargetInformation: eAIEntityTargetInformation
 {
 	private ZombieBase m_Zombie;
 	private DayZInfectedInputController m_DIIP;
@@ -28,7 +28,7 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 	// https://www.desmos.com/calculator/r4mqu91qff
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (m_Zombie.GetHealth("", "") <= 0.0)
+		if (m_Zombie.IsDamageDestroyed())
 			return 0.0;
 
 		float levelFactor;

@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionTT650 extends ExpansionVehicleBikeBase
+class Vehicle_ExpansionTT650: ExpansionVehicleBikeBase
 {
 	override int GetAnimInstance()
 	{

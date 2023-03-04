@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionStaticKeyGrinder extends ItemBase
+class ExpansionStaticKeyGrinder: ItemBase
 {
 	void ExpansionStaticKeyGrinder()
 	{

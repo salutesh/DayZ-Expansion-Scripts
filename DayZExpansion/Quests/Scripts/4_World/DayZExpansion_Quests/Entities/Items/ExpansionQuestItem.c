@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionQuestItemBase extends ItemBase
+class ExpansionQuestItemBase: ItemBase
 {
 	void ExpansionQuestItemBase()
 	{

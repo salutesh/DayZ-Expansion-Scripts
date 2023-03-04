@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMapMenu extends ExpansionUIScriptedMenu
+class ExpansionMapMenu: ExpansionUIScriptedMenu
 {
 	protected PlayerBase m_PlayerB;
 	protected ref MapWidget m_MapWidget;
@@ -264,7 +264,7 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 			{
 				vector tempPosition = GetGame().ConfigGetVector(string.Format("CfgWorlds %1 centerPosition", GetGame().GetWorldName()));
 				scale = 0.33;
-				mapPosition = Vector(tempPosition[0], tempPosition[1], tempPosition[2]);
+				mapPosition = tempPosition;
 			}
 
 			m_MapWidget.SetScale(scale);
@@ -1137,27 +1137,30 @@ class ExpansionMapMenu extends ExpansionUIScriptedMenu
 		EXLogPrint("ExpansionMapMenu::SetMapPosition - Start");
 		#endif
 
-		float scale;
+		float scale; //! Lower number zooms in / Higher number zooms out | Float between 0-1
 		vector map_pos;
 		vector player_pos;
-		vector camera_pos;
 
 		if (!m_PlayerB)
 			m_PlayerB = PlayerBase.Cast( GetGame().GetPlayer() );
 
 		if (m_PlayerB && !m_PlayerB.GetLastMapInfo(scale, map_pos))
 		{
-			//! Lower number zooms in / Higher number zooms out
-			scale = 0.10; // Float between 0-1 ?!
 			player_pos = m_PlayerB.GetPosition();
 			map_pos = Vector(0,0,0);
 
 			//! Only do this if the server want to show player pos (if not, we don't want to open the map on player pos)
 			if (GetExpansionSettings().GetMap().ShowPlayerPosition)
 			{
-				camera_pos = GetGame().GetCurrentCameraPosition();
-				map_pos = camera_pos;
+				scale = 0.10;
+				map_pos = player_pos;
 			}
+			else
+			{
+				scale = 0.50;
+				map_pos = GetGame().ConfigGetVector(string.Format("CfgWorlds %1 centerPosition", GetGame().GetWorldName()));
+			}
+			m_PlayerB.SetLastMapInfo(scale, map_pos);
 		}
 
 		m_MapWidget.SetScale(scale);

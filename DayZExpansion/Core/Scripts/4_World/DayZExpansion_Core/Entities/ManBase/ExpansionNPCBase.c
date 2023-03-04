@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionNPCBase extends DayZPlayerImplement
+class ExpansionNPCBase: DayZPlayerImplement
 {
 	protected ref TInputActionMap m_InputActionMap;
 

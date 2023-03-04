@@ -266,7 +266,10 @@ modded class IngameHud
 			m_GPSMapPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting);
 
 		if (m_PlayerArrowMarker)
-			m_PlayerArrowMarker.ShowRoot(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2));
+		{
+			bool show = m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2);
+			m_PlayerArrowMarker.Show(show);
+		}
 
 		if (m_MapStatsPanel)
 			m_MapStatsPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapStatsState && m_ExpansionGPSSetting);

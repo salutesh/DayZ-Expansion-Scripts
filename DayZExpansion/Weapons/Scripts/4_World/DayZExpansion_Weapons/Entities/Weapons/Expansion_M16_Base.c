@@ -21,9 +21,8 @@ class Expansion_M16_Base : RifleBoltLock_Base
 		super.EEItemAttached(item,slot_name);
 
 		if (ItemOptics.Cast(item))
-		{ 
-			EntityAI ParentItem = this;
-			FoldOpticsDown(ParentItem);
+		{
+			Expansion_FoldOpticsDown();
 		}
 	}
 	
@@ -34,10 +33,10 @@ class Expansion_M16_Base : RifleBoltLock_Base
 #endif
 
 		super.EEItemDetached(item,slot_name);
+
 		if (ItemOptics.Cast(item))
-		{ 
-			EntityAI ParentItem = this;
-			FoldOpticsUp(ParentItem);
+		{
+			Expansion_FoldOpticsUp();
 		}
 	}	
 

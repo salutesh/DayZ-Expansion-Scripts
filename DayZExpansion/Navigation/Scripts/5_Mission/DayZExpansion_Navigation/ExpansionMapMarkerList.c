@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
+class ExpansionMapMarkerList: ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
 	

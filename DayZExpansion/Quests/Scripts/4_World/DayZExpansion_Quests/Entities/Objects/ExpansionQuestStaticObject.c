@@ -13,7 +13,7 @@
 /**@class		ExpansionQuestStaticObject
  * @brief		This class handles static quest objects used to head-out or take-in quests
  **/
-class ExpansionQuestStaticObject extends BuildingSuper
+class ExpansionQuestStaticObject: BuildingSuper
 {
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;

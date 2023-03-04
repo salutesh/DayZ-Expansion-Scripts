@@ -13,7 +13,7 @@
 /**@class		ExpansionSafeLarge
  * @brief		
  **/
-class ExpansionSafeLarge extends ExpansionSafeBase 
+class ExpansionSafeLarge: ExpansionSafeBase 
 {
 
 } 

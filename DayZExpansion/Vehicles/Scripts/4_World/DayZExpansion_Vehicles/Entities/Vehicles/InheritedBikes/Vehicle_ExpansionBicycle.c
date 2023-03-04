@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionBicycle extends ExpansionVehicleBikeBase
+class Vehicle_ExpansionBicycle: ExpansionVehicleBikeBase
 {
 	void Vehicle_ExpansionBicycle()
 	{

@@ -6,8 +6,6 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DayZExpansion_Objects_BaseBuilding_Data"};
-		units[] = {"ExpansionWallKit","ExpansionWall6x3"};
-		weapons[] = {};
 	};
 };
 class CfgVehicles
@@ -140,7 +138,7 @@ class CfgVehicles
 			class wood_door: AnimSourceHidden{};
 			class wood_gate_l: AnimSourceHidden{};
 			class wood_gate_r: AnimSourceHidden{};
-			class wood_window_ll_rotate: window_LL_rotate{};
+			class wood_window_ll_rotate: window_ll_rotate{};
 			class wood_window_lr_rotate: window_LR_rotate{};
 			class wood_window_rl_rotate: window_RL_rotate{};
 			class wood_window_RR_rotate: window_RR_rotate{};

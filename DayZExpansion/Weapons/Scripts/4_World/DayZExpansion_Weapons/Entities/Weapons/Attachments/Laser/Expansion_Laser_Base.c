@@ -10,7 +10,7 @@
  *
 */
 
-class Expansion_Laser_Base extends UniversalLight
+class Expansion_Laser_Base: UniversalLight
 {
 	private Expansion_Laser_Beam m_Laser;
 	

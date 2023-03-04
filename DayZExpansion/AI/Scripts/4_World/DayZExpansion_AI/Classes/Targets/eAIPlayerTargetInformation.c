@@ -1,4 +1,4 @@
-class eAIPlayerTargetInformation extends eAIEntityTargetInformation
+class eAIPlayerTargetInformation: eAIEntityTargetInformation
 {
 	private DayZPlayerImplement m_Player;
 
@@ -9,7 +9,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (m_Player.GetHealth("", "") <= 0.0)
+		if (m_Player.IsDamageDestroyed())
 			return 0.0;
 
 		if (m_Player.IsUnconscious())
@@ -19,7 +19,7 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 		if (ai)
 		{
-			if (ai == m_Player || !ai.PlayerIsEnemy(m_Player))
+			if (ai == m_Player)
 				return 0.0;
 
 #ifdef DIAG
@@ -28,6 +28,18 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 			// the further away the player, the less likely they will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
+
+			if (distance <= 100.0 && m_Player.GetParent() != ai.GetParent())
+			{
+				//! Any AI, even passive, will react if vehicle is speeding towards them
+				//! Vehicles WITHOUT drivers are handled by vehicle target info
+				levelFactor = ProcessVehicleThreat(ai, distance);
+				if (levelFactor > 0.0)
+					return levelFactor;
+			}
+
+			if (!ai.PlayerIsEnemy(m_Player))
+				return 0.0;
 
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
@@ -130,6 +142,21 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
 	}
 
+	float ProcessVehicleThreat(eAIBase ai, float distance)
+	{
+		Transport transport;
+		if (!Class.CastTo(transport, m_Player.GetParent()))
+			return 0.0;
+
+		if (transport.CrewMemberIndex(m_Player) != DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			return 0.0;
+
+		float speed, fromTargetDot;
+		float levelFactor = eAIVehicleTargetInformation.ProcessVehicleThreat(transport, ai, distance, speed, fromTargetDot);
+		//PrintFormat("eAIPlayerTargetInformation dist %1 spd %2 dot %3 lvl %4", distance, speed, fromTargetDot, levelFactor);
+		return levelFactor;
+	}
+
 	static bool AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor, bool hasLOS = true)
 	{
 		Weapon_Base gun;
@@ -191,22 +218,20 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override bool ShouldRemove(eAIBase ai = null)
 	{
-		return GetThreat(ai) <= 0.01;  //! Will remove if 1000 m away and no LOS
+		return GetThreat(ai) <= 0.02;  //! Will remove if 500 m away and no LOS
 	}
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		if (m_Player.GetCommand_Vehicle())
-		{
-			return "0 0.5 0";
-		}
-
 #ifdef EXPANSIONMODVEHICLE
-		if (m_Player.GetCommand_ExpansionVehicle())
-		{
-			return "0 0.5 0";
-		}
+		if (m_Player.GetCommand_Vehicle() || m_Player.GetCommand_ExpansionVehicle())
+#else
+		if (m_Player.GetCommand_Vehicle())
 #endif
+		{
+			vector pos = m_Player.GetBonePositionMS(m_Player.GetBoneIndexByName("spine3"));
+			return pos;
+		}
 
 		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
 		{

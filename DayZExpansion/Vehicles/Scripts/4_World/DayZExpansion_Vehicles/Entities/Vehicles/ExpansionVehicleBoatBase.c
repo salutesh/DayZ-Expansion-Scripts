@@ -14,7 +14,7 @@
  * @class		ExpansionBoat
  * @brief		This class handle boat movement and physics
  */
-class ExpansionVehicleBoatBase extends ExpansionVehicleCarBase
+class ExpansionVehicleBoatBase: ExpansionVehicleCarBase
 {
 	void ExpansionVehicleBoatBase()
 	{

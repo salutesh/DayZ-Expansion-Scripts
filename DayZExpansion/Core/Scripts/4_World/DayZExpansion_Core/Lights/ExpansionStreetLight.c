@@ -13,7 +13,7 @@
 /**@class		ExpansionStreetLight
  * @brief		
  **/
-class ExpansionStreetLight extends SpotLightBase
+class ExpansionStreetLight: SpotLightBase
 {
 	// ------------------------------------------------------------
 	// Constructor
@@ -52,5 +52,5 @@ class ExpansionStreetLight extends SpotLightBase
 		
 	}
 	
-	override void CheckIfParentIsInCargo() {}
+	override void CheckIfParentIsInCargo() {};
 }

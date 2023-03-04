@@ -24,7 +24,7 @@ modded class MissionGameplay
 		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
 		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-		bool showPartyHUDSetting = GetExpansionSettings().GetParty(false).IsLoaded() && GetExpansionSettings().GetParty().ShowPartyMemberHUD;
+		bool showPartyHUDSetting = GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD);
 		
 		if (playerPB && playerPB.GetHumanInventory())
 		{

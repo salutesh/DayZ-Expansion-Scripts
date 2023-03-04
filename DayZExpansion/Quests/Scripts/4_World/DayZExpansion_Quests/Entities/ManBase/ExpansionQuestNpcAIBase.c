@@ -15,9 +15,9 @@
  * @brief		This class quest AI NPCs
  **/
 #ifdef EXPANSIONMODAI
-class ExpansionQuestNPCAIBase extends eAINPCBase
+class ExpansionQuestNPCAIBase: eAINPCBase
 #else
-class ExpansionQuestNPCAIBase extends eAIBase
+class ExpansionQuestNPCAIBase: eAIBase
 #endif
 {
 	protected int m_QuestNPCID = -1;

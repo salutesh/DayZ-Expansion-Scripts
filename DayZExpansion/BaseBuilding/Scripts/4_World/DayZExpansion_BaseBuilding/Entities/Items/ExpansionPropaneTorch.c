@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionPropaneTorchLight extends PointLightBase
+class ExpansionPropaneTorchLight: PointLightBase
 {
 	protected static float m_DefaultBrightness = 1.0;
 	protected static float m_DefaultRadius = 2.0;
@@ -28,7 +28,7 @@ class ExpansionPropaneTorchLight extends PointLightBase
 	}
 }
 
-class ExpansionPropaneTorch extends ItemBase
+class ExpansionPropaneTorch: ItemBase
 {
 	Particle					m_FireParticle;
 

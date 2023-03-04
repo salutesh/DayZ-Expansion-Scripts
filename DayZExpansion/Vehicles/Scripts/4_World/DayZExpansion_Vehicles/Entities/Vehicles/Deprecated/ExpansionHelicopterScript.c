@@ -13,7 +13,7 @@
 /**@class		ExpansionHelicopterScript
  * @brief		This class handle helicopter movement and physics
  **/
-class ExpansionHelicopterScript extends CarScript
+class ExpansionHelicopterScript: CarScript
 {
 	ExpansionVehicleHelicopter_OLD m_Simulation;
 

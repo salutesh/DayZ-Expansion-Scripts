@@ -14,7 +14,7 @@
  * @brief		
  **/
 #ifndef EXPANSION_CHICKEN_DISABLE
-class ExpansionChicken extends Inventory_Base
+class ExpansionChicken: Inventory_Base
 {
 	protected string m_TypeChicken;
 

@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionScriptedtQuestTemplate extends ExpansionQuest
+class ExpansionScriptedtQuestTemplate: ExpansionQuest
 {
 	//! Event called when a quest is stated
 	override bool OnQuestStart()

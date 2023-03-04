@@ -36,7 +36,7 @@ modded class ExpansionWorld
 
 		m_UpdateTime = 0;
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			DayZPlayerImplement player;
 			Class.CastTo(player, GetGame().GetPlayer());

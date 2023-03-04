@@ -160,7 +160,7 @@ class ExpansionVehicleActionStartEngine : ActionContinuousBase
 				if (fuel > 0)
 					m_FuelCon = true;
 
-				if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+				if (!GetGame().IsDedicatedServer())
 				{
 					//Now we can play the proper sound
 					EffectSound effectSound = NULL;

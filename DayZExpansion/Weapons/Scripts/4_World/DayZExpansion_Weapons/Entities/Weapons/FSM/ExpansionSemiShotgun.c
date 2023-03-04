@@ -28,7 +28,7 @@ enum ExpansionSemiShotGunStableStateID
 	Jammed		=  4,
 }
 
-class ExpansionSemiShotGunEmpty extends WeaponStableState
+class ExpansionSemiShotGunEmpty: WeaponStableState
 {
 	override void OnEntry (WeaponEventBase e) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " { Empty"); super.OnEntry(e); }
 	override void OnExit (WeaponEventBase e) { super.OnExit(e); wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " } Empty"); }
@@ -37,7 +37,7 @@ class ExpansionSemiShotGunEmpty extends WeaponStableState
 	override bool IsJammed () { return false; }
 	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
-class ExpansionSemiShotGunDry extends WeaponStableState
+class ExpansionSemiShotGunDry: WeaponStableState
 {
 	override void OnEntry (WeaponEventBase e) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " { Dry"); super.OnEntry(e); }
 	override void OnExit (WeaponEventBase e) { super.OnExit(e); wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " } Dry"); }
@@ -47,7 +47,7 @@ class ExpansionSemiShotGunDry extends WeaponStableState
 	override bool IsBoltOpen () { return true; }
 	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
-class ExpansionSemiShotGunLoaded extends WeaponStableState
+class ExpansionSemiShotGunLoaded: WeaponStableState
 {
 	override void OnEntry (WeaponEventBase e) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " { Loaded C"); super.OnEntry(e); }
 	override void OnExit (WeaponEventBase e) { super.OnExit(e); wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " } Loaded C"); }
@@ -57,7 +57,7 @@ class ExpansionSemiShotGunLoaded extends WeaponStableState
 	override bool IsJammed () { return false; }
 	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
-class ExpansionSemiShotGunJammed extends WeaponStateJammed
+class ExpansionSemiShotGunJammed: WeaponStateJammed
 {
 	override void OnEntry (WeaponEventBase e) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " { Jammed"); super.OnEntry(e); }
 	override void OnExit (WeaponEventBase e) { super.OnExit(e); wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " } Jammed"); }
@@ -68,7 +68,7 @@ class ExpansionSemiShotGunJammed extends WeaponStateJammed
 	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 }
 
-class ExpansionSemiShotGun extends Rifle_Base
+class ExpansionSemiShotGun: Rifle_Base
 {
 	ref WeaponStateBase Empty;			
 	ref WeaponStateBase Dry;

@@ -13,7 +13,7 @@
 /**@class		ExpansionSafeMini
  * @brief		
  **/
-class ExpansionSafeMini extends ExpansionSafeBase 
+class ExpansionSafeMini: ExpansionSafeBase 
 {
 
 } 

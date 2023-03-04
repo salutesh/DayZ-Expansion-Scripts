@@ -13,7 +13,7 @@
 /**@class		ExpansionBoat
  * @brief		This class handle boat movement and physics
  **/
-class ExpansionBoatScript extends CarScript
+class ExpansionBoatScript: CarScript
 {
 	protected float m_BoatTime;
 
@@ -390,20 +390,32 @@ class ExpansionBoatScript extends CarScript
 
 		buoyancyForce = ExpansionPhysics.CalculateBuoyancyAtPosition(GetPosition(), m_Offset, m_State.m_Mass, 0.5, m_State.m_LinearVelocity, isAboveWater);
 
-		if ( AllDoorsClosed() && !m_EngineDestroyed && !m_Exploded )
+		if ( !isAboveWater )
 		{
-			m_ExpansionSink += pDt * 0.001;
+			if ( AllDoorsClosed() && !m_EngineDestroyed && !m_Exploded )
+			{
+				m_ExpansionSink += pDt * 0.001;
+			}
+			else
+			{
+				if ( !AllDoorsClosed() )
+					m_ExpansionSink -= pDt * 0.025;
+
+				if ( m_EngineDestroyed )
+					m_ExpansionSink -= pDt * 0.025;
+
+				if ( m_Exploded )
+					m_ExpansionSink -= pDt * 0.05;
+			}
 		}
-		else
+		else if ( !m_EngineDestroyed && !m_Exploded )
 		{
-			if ( !AllDoorsClosed() )
-				m_ExpansionSink -= pDt * 0.1;
-
-			if ( m_EngineDestroyed )
-				m_ExpansionSink -= pDt * 0.1;
-
-			if ( m_Exploded )
-				m_ExpansionSink -= pDt * 0.1;
+			if ( AllDoorsClosed() )
+			{
+				m_ExpansionSink += pDt * 0.005;
+			} else {
+				m_ExpansionSink += pDt * 0.05;
+			}
 		}
 
 		if ( m_ExpansionSink > 1.0 )
@@ -519,7 +531,7 @@ class ExpansionBoatScript extends CarScript
 	{
 		super.OnUpdate( dt );
 
-		if ( AllDoorsClosed() )
+		if ( AllDoorsClosed() && !m_Expansion_CollisionDamageIfEngineOff )
 			m_DrownTime = 0;  //! Prevent vanilla engine drown damage
 	}
 

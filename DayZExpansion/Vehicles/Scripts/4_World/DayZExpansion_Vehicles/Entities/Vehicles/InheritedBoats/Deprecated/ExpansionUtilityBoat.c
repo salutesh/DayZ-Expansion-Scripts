@@ -10,7 +10,7 @@
  *
  */
 
-class ExpansionUtilityBoat extends ExpansionBoatScript
+class ExpansionUtilityBoat: ExpansionBoatScript
 {
 	void ExpansionUtilityBoat()
 	{

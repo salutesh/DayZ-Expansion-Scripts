@@ -11,7 +11,7 @@
 */
 
 #ifdef EXPANSIONMODGARAGE
-class ExpansionParkingMeterKit extends ExpansionConstructionKitLarge
+class ExpansionParkingMeterKit: ExpansionConstructionKitLarge
 {
 	override bool CanBePlaced(Man player, vector position)
 	{

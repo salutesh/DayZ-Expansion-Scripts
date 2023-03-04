@@ -10,7 +10,7 @@
  *
 */
 
-class bldr_expansion_Airdrop_Plane extends House
+class bldr_expansion_Airdrop_Plane: House
 {
 	float m_RotorAnimationPosition;
 

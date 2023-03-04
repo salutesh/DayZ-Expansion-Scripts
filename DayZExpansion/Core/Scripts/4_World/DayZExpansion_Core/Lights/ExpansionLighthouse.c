@@ -13,7 +13,7 @@
 /**@class		ExpansionLighthouse
  * @brief		
  **/
-class ExpansionLighthouse extends SpotLightBase
+class ExpansionLighthouse: SpotLightBase
 {
 	float m_Val = 0;
 	

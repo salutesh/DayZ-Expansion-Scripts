@@ -9,7 +9,7 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class Expansion_ANPEQ15_Green extends Expansion_Laser_Base
+class Expansion_ANPEQ15_Green: Expansion_Laser_Base
 {
 	override string LaserColor()
 	{

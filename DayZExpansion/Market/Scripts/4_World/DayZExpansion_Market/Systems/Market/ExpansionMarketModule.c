@@ -540,7 +540,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		MarketModulePrint("FindSellPrice - player inventory: " + items.Count() + " - looking for " + sell.Item.ClassName);
 		
-		float unsellablePrice;
+		int unsellablePrice;
 
 		foreach (EntityAI itemEntity: items) 
 		{
@@ -606,14 +606,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 				}
 
 				//! Process all attachments (and attachments of attachments)
-				float currentPrice = sell.Price;
+				int currentPrice = sell.Price;
 				if (includeAttachments && !FindAttachmentsSellPrice(itemEntity, sell, addedStock, canSell, failedClassName))
 				{
 					result = ExpansionMarketResult.FailedItemDoesNotExistInTrader;
 					return false;
 				}
 
-				float price = 0;
+				int price = 0;
 				for (int j = 0; j < amountTaken; j++)
 				{
 					if (canSell && !sell.Item.IsStaticStock())
@@ -622,19 +622,18 @@ class ExpansionMarketModule: CF_ModuleWorld
 					if (ExpansionGame.IsMultiplayerServer())
 						MarketModulePrint(ToString() + "::FindSellPrice - " + sell.Item.ClassName + " stock " + stock + " increment stock " + curAddedStock);
 
-					price += sell.Item.CalculatePrice(stock + curAddedStock);
+					price += sell.Item.CalculatePrice(stock + curAddedStock, modifier);
 				}
-				price = Math.Round(price * modifier);
 
 				if (canSell)
 				{
-					sell.Price += (int) price;
+					sell.Price += price;
 				}
 				else
 				{
-					float unsellableAttachmentsPrice = sell.Price - currentPrice;
+					int unsellableAttachmentsPrice = sell.Price - currentPrice;
 					unsellablePrice += price + unsellableAttachmentsPrice;
-					sell.Price -= (int) unsellableAttachmentsPrice;
+					sell.Price -= unsellableAttachmentsPrice;
 				}
 
 				if (amountWanted == 0)
@@ -649,7 +648,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (result == ExpansionMarketResult.Success)
 			result = ExpansionMarketResult.FailedNotInPlayerPossession;
 		else if (result == ExpansionMarketResult.FailedCannotSell && !sell.Price)
-			sell.Price += (int) unsellablePrice;
+			sell.Price += unsellablePrice;
 
 		MarketModulePrint("FindSellPrice - End and return false");
 		return false;
@@ -817,7 +816,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (canSell)
 			sell.AddItem(0, amount, incrementStockModifier, attachmentEntity, attachment.ClassName);
 
-		float price = 0;
+		int price = 0;
 		for (int j = 0; j < amount; j++)
 		{
 			if (canSell && !attachment.IsStaticStock())
@@ -826,10 +825,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (ExpansionGame.IsMultiplayerServer())
 				MarketModulePrint(ToString() + "::FindAttachmentsSellPriceInternal - " + attachment.ClassName + " stock " + stock + " increment stock " + curAddedStock);
 
-			price += attachment.CalculatePrice(stock + curAddedStock);
+			price += attachment.CalculatePrice(stock + curAddedStock, modifier);
 		}
 
-		sell.Price += (int) Math.Round(price * modifier);
+		sell.Price += price;
 
 		if (canSell && !attachment.IsStaticStock())
 		{
@@ -1087,10 +1086,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		float priceModifier = zone.BuyPricePercent / 100;
 
-		float itemPrice;  //! Item price (chosen amount, no atts)
+		int itemPrice;  //! Item price (chosen amount, no atts)
 		for (int i = 0; i < amountWanted; i++)
 		{
-			itemPrice += item.CalculatePrice(stock - curRemovedStock);
+			itemPrice += item.CalculatePrice(stock - curRemovedStock, 1.0, true);
 
 			if (!item.IsStaticStock())
 			{
@@ -1137,7 +1136,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
 
 		itemPrice = Math.Round(itemPrice * priceModifier);
-		price += (int) itemPrice;
+		price += itemPrice;
 
 		if (result == ExpansionMarketResult.Success && reserved)
 		{
@@ -2232,7 +2231,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPurchase(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestPurchase - Sart");
 			
@@ -2494,7 +2493,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ConfirmPurchase(string itemClassName, PlayerBase player = NULL, bool includeAttachments = true, int skinIndex = -1)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("ConfirmPurchase - Start");
 			
@@ -2709,7 +2708,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void CancelPurchase(string itemClassName, PlayerBase player = NULL)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("CancelPurchase - Sart");
 			
@@ -2764,7 +2763,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestSell(string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, ExpansionMarketSell sell)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestSell - Sart");
 			
@@ -3011,7 +3010,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ConfirmSell(string itemClassName, PlayerBase player = NULL)
 	{		
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("ConfirmSell - Sart");
 			
@@ -3122,7 +3121,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void CancelSell(string itemClassName, PlayerBase player = NULL)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("CancelSell - Sart");
 			
@@ -3174,7 +3173,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestTraderData(ExpansionTraderObjectBase trader)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestTraderData - Sart");
 			
@@ -3736,7 +3735,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	bool CanOpenMenu()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			if (GetGame().GetUIManager().GetMenu())
 				return false;
@@ -3881,7 +3880,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RequestPlayerATMData()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestPlayerATMData - Start");
 						
@@ -4008,7 +4007,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestDepositMoney(int amount)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestDepositMoney - Start");
 						
@@ -4180,7 +4179,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestWithdrawMoney(int amount)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestWithdraw - Start");
 						
@@ -4348,7 +4347,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestTransferMoneyToPlayer(int amount, string playerID)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestTransferMoneyToPlayer - Start");
 			
@@ -4559,7 +4558,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestPartyTransferMoney(int amount, int partyID)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestPartyTransferMoney - Start");
 						
@@ -4753,7 +4752,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestPartyWithdrawMoney(int amount, int partyID)
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			MarketModulePrint("RequestPartyWithdrawMoney - Start");
 						

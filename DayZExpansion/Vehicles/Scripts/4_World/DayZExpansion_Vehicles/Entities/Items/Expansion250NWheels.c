@@ -1,4 +1,4 @@
-class Expansion_250N_wheel_front extends ExpansionWheelBase 
+class Expansion_250N_wheel_front: ExpansionWheelBase 
 {
 	override void EEKilled(Object killer)
 	{
@@ -34,7 +34,7 @@ class Expansion_250N_wheel_front extends ExpansionWheelBase
 	}
 };
 
-class Expansion_250N_wheel_back extends ExpansionWheelBase 
+class Expansion_250N_wheel_back: ExpansionWheelBase 
 {
 	override void EEKilled(Object killer)
 	{
@@ -70,5 +70,5 @@ class Expansion_250N_wheel_back extends ExpansionWheelBase
 	}
 };
 
-class Expansion_250N_wheel_front_destroyed extends ExpansionWheelBase {};
-class Expansion_250N_wheel_back_destroyed extends ExpansionWheelBase {};
+class Expansion_250N_wheel_front_destroyed: ExpansionWheelBase {};
+class Expansion_250N_wheel_back_destroyed: ExpansionWheelBase {};

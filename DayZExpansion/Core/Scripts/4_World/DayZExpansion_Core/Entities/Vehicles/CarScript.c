@@ -318,4 +318,38 @@ modded class CarScript
 	{
 		return m_FuelAmmount;
 	}
+
+	void Expansion_EstimateTransform(float pDt, inout vector mat[4])
+	{
+		vector transform[4];
+		GetTransform(transform);
+
+		vector velocity = GetVelocity(this);
+		vector angularVelocity = dBodyGetAngularVelocity(this);
+
+		vector futureAngularVelocity = (angularVelocity * pDt);
+
+		mat[0][0] = 0.0;
+		mat[1][1] = 0.0;
+		mat[2][2] = 0.0;
+
+		mat[0][1] = -futureAngularVelocity[2];
+		mat[1][0] = futureAngularVelocity[2];
+		mat[2][0] = -futureAngularVelocity[1];
+		mat[0][2] = futureAngularVelocity[1];
+		mat[1][2] = -futureAngularVelocity[0];
+		mat[2][1] = futureAngularVelocity[0];
+
+		Math3D.MatrixInvMultiply3(mat, transform, mat);
+
+		mat[0] = transform[0] + mat[0];
+		mat[1] = transform[1] + mat[1];
+		mat[2] = transform[2] + mat[2];
+
+		mat[0].Normalize();
+		mat[1].Normalize();
+		mat[2].Normalize();
+
+		mat[3] = transform[3] + (velocity * pDt);
+	}
 };

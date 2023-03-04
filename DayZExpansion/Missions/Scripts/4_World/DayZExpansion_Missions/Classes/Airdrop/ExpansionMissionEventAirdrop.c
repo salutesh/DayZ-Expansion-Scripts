@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMissionEventAirdrop extends ExpansionMissionEventBase
+class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 {
 	bool ShowNotification;
 	

@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftExpansionHelipadKit
  * @brief		
  **/
-class ExpansionCraftExpansionHelipadKit extends RecipeBase
+class ExpansionCraftExpansionHelipadKit: RecipeBase
 {
 	override void Init()
 	{

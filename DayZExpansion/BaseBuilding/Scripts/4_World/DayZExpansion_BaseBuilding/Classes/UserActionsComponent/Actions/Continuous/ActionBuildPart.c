@@ -10,7 +10,6 @@
  *
 */
 
-
 modded class ActionBuildPartCB
 {
 	override float SetCallbackDuration( ItemBase item )
@@ -20,23 +19,29 @@ modded class ActionBuildPartCB
 		
 		return super.SetCallbackDuration(item);
 	}
-}
+};
 
 modded class ActionBuildPart
 {
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		//! It's not a territory flag, but his he in a territory
+		if ( !super.ActionCondition( player, target, item ) )
+			return false;
+
 		if ( player.IsInTerritory() )
 		{
-			//! It's his territory ?
-			if ( !player.IsInsideOwnTerritory() )
-			{
-				return false;
-			}
+			//! If it was deployable, it's also buildable
+			ItemBase targetItem = ItemBase.Cast( target.GetObject() );
+			if (ActionDeployObject.CanDeployInTerritory(player, targetItem))
+				return true;
+
+			if (GetGame().IsServer() && player.GetIdentity())
+				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY").Error(player.GetIdentity());
+
+			return false;
 		}
 
-		return super.ActionCondition( player, target, item );
+		return true;
 	}
 
 	override void OnFinishProgressServer( ActionData action_data )
@@ -68,4 +73,4 @@ modded class ActionBuildPart
 			}
 		}
 	}
-}
+};

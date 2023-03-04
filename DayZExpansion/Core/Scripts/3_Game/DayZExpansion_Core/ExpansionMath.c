@@ -515,4 +515,11 @@ class ExpansionMath
 		//return NewtonLog2(x) / Log2_10;
 		return 0;
 	}
+
+	//! @brief returns side of line defined by points p1, p2 that point p lies on.
+	//! @return float side > 0 if on the left, side < 0 if on the right, 0 if on the line.
+	static float Side(vector p1, vector p2, vector p)
+	{
+		return (p2[0] - p1[0]) * (p[2] - p1[2]) - (p2[2] - p1[2]) * (p[0] - p1[0]);
+	}
 }

@@ -14,7 +14,7 @@
  * @brief
  **/
 
-class ExpansionConstructionKitBase extends ItemBase
+class ExpansionConstructionKitBase: ItemBase
 {
 	const float MAX_PLACEMENT_HEIGHT_DIFF = 1.5;
 	ref protected EffectSound m_DeployLoopSound;
@@ -192,10 +192,10 @@ class ExpansionConstructionKitBase extends ItemBase
 	}
 };
 
-class ExpansionConstructionKitLarge extends ExpansionConstructionKitBase {};
-class ExpansionConstructionKitSmall extends ExpansionConstructionKitBase {};
+class ExpansionConstructionKitLarge: ExpansionConstructionKitBase {};
+class ExpansionConstructionKitSmall: ExpansionConstructionKitBase {};
 
-class ExpansionDeployableConstruction extends ItemBase
+class ExpansionDeployableConstruction: ItemBase
 {
 	float m_ConstructionKitHealth;
 	

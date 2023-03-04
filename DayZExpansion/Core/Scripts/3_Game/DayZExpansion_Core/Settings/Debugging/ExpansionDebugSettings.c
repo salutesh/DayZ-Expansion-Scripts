@@ -15,7 +15,7 @@
  **/
 class ExpansionDebugSettings: ExpansionSettingBase
 {
-	static const int VERSION = 0;
+	static const int VERSION = 2;
 	
 	bool ShowVehicleDebugMarkers;
 
@@ -24,6 +24,8 @@ class ExpansionDebugSettings: ExpansionSettingBase
 
 	int DebugVehiclePlayerNetworkBubbleMode;
 	
+	int ServerUpdateRateLimit;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -137,12 +139,32 @@ class ExpansionDebugSettings: ExpansionSettingBase
 			EXPrint("[ExpansionDebugSettings] Load existing setting file:" + EXPANSION_DEBUG_SETTINGS);
 
 			JsonFileLoader<ExpansionDebugSettings>.JsonLoadFile( EXPANSION_DEBUG_SETTINGS, this );
+
+			if (m_Version < VERSION)
+			{
+				m_Version = VERSION;
+
+				save = true;
+			}
 		}
 		else
 		{
 			EXPrint("[ExpansionDebugSettings] No existing setting file:" + EXPANSION_DEBUG_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
+		}
+
+		if (ServerUpdateRateLimit > 0)
+		{
+			if (ServerUpdateRateLimit >= 40)
+			{
+				EXPrint("[ExpansionDebugSettings] Limiting server script update rate to " + ServerUpdateRateLimit + " per second");
+				GetDayZGame().Expansion_SetServerUpdateRateLimit(ServerUpdateRateLimit);
+			}
+			else
+			{
+				EXPrint("[ExpansionDebugSettings] ERROR: ServerUpdateRateLimit " + ServerUpdateRateLimit + " is too low!");
+			}
 		}
 		
 		if (save)

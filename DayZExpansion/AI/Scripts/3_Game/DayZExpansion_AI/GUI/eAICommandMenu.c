@@ -50,7 +50,7 @@ class eAICommandMenuItem
 	}
 };
 
-class eAICommandMenu extends UIScriptedMenu
+class eAICommandMenu: UIScriptedMenu
 {
 	protected Widget m_GestureItemCardPanel;
 	protected ref array < ref eAICommandMenuItem > m_GestureItems;
@@ -77,7 +77,7 @@ class eAICommandMenu extends UIScriptedMenu
 		m_GestureItems = new array < ref eAICommandMenuItem > ;
 	}
 
-	void ~eAICommandMenu() {}
+	void ~eAICommandMenu() {};
 
 	static void OpenMenu()
 	{
@@ -566,7 +566,7 @@ class eAICommandMenu extends UIScriptedMenu
 	{
 		if (instance.m_IsCategorySelected && instance.m_SelectedItem)
 		{
-			if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+			if (!GetGame().IsDedicatedServer())
 			{
 				eAICommandMenuItem selected;
 				instance.m_SelectedItem.GetUserData(selected);

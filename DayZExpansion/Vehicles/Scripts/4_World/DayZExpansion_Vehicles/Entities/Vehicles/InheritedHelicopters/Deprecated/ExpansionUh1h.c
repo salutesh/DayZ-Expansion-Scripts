@@ -10,19 +10,19 @@
  *
  */
 
-class ExpansionUh1hDoor_1_1 extends CarDoor
+class ExpansionUh1hDoor_1_1: CarDoor
 {
 };
 
-class ExpansionUh1hDoor_1_2 extends CarDoor
+class ExpansionUh1hDoor_1_2: CarDoor
 {
 };
 
-class ExpansionUh1hDoor_2_1 extends CarDoor
+class ExpansionUh1hDoor_2_1: CarDoor
 {
 };
 
-class ExpansionUh1hDoor_2_2 extends CarDoor
+class ExpansionUh1hDoor_2_2: CarDoor
 {
 };
 

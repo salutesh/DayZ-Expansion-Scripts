@@ -341,7 +341,7 @@ class ExpansionMarketFilters
 					}
 
 					//! We are only interested in the base item price here, not including attachments
-					int price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier);
+					int price = tItem.MarketItem.CalculatePrice(itemStock, priceModifier, true);
 					if (worth >= price)
 						purchasables.Insert(tItem.MarketItem.ClassName);
 				}

@@ -9,15 +9,15 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
  */
-class ExpansionTractorDoorsDriver extends CarDoor
+class ExpansionTractorDoorsDriver: CarDoor
 {
 };
 
-class ExpansionTractorDoorsCodriver extends CarDoor
+class ExpansionTractorDoorsCodriver: CarDoor
 {
 };
 
-class ExpansionTractor extends CarScript
+class ExpansionTractor: CarScript
 {
 
 	protected ref UniversalTemperatureSource m_UTSource;

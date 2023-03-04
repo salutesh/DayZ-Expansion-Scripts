@@ -43,7 +43,7 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return false;
 		
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			if ( !m_TraderObject || !m_TraderObject.GetTraderMarket() )
 				return false;

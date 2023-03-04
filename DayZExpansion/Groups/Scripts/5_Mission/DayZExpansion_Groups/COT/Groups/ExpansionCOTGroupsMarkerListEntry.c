@@ -12,7 +12,7 @@
 
 #ifdef JM_COT
 #ifdef EXPANSIONMODNAVIGATION
-class ExpansionCOTGroupsMarkerListEntry extends ScriptedWidgetEventHandler
+class ExpansionCOTGroupsMarkerListEntry: ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
 	private ImageWidget m_MarkerIcon;

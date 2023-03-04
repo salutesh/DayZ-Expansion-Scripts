@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionRampBase extends ExpansionBaseBuilding
+class ExpansionRampBase: ExpansionBaseBuilding
 {
 	private bool m_HasRamp;
 

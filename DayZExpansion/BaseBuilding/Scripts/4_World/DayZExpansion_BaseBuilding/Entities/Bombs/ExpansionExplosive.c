@@ -13,7 +13,7 @@
 /**@class		ExpansionExplosive
  * @brief		
  **/
-class ExpansionExplosive extends ItemBase
+class ExpansionExplosive: ItemBase
 {
 	protected int m_Time = 10;
 	protected int m_Timer;
@@ -42,7 +42,7 @@ class ExpansionExplosive extends ItemBase
 
 	void ~ExpansionExplosive()
 	{
-		if ( GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer()) ) 
+		if ( GetGame() && (!GetGame().IsDedicatedServer()) ) 
 		{
 			if (m_ParticleEfx)
 				m_ParticleEfx.Stop();

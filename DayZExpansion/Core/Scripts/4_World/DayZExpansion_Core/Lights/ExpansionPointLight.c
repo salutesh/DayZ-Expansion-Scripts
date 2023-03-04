@@ -13,7 +13,7 @@
 /**@class		ExpansionPointLight
  * @brief		
  **/
-class ExpansionPointLight extends PointLightBase
+class ExpansionPointLight: PointLightBase
 {
 	float m_Val;
 	

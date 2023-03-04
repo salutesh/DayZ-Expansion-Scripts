@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionUAZWheel extends CarWheel
+class ExpansionUAZWheel: CarWheel
 {
 	override void EEKilled(Object killer)
 	{
@@ -30,9 +30,9 @@ class ExpansionUAZWheel extends CarWheel
 	}
 };
 
-class ExpansionUAZWheel_Ruined extends CarWheel_Ruined{};
+class ExpansionUAZWheel_Ruined: CarWheel_Ruined{};
 
-class ExpansionBusWheel extends CarWheel
+class ExpansionBusWheel: CarWheel
 {
 	override void EEKilled(Object killer)
 	{
@@ -52,7 +52,7 @@ class ExpansionBusWheel extends CarWheel
 	}
 };
 
-class ExpansionBusWheelDouble extends CarWheel
+class ExpansionBusWheelDouble: CarWheel
 {
 	override void EEKilled(Object killer)
 	{
@@ -72,10 +72,10 @@ class ExpansionBusWheelDouble extends CarWheel
 	}
 };
 
-class ExpansionBusWheel_Ruined extends CarWheel_Ruined{};
-class ExpansionBusWheelDouble_Ruined extends CarWheel_Ruined{};
+class ExpansionBusWheel_Ruined: CarWheel_Ruined{};
+class ExpansionBusWheelDouble_Ruined: CarWheel_Ruined{};
 
-class ExpansionTractorFrontWheel extends CarWheel
+class ExpansionTractorFrontWheel: CarWheel
 {
 	override void EEKilled(Object killer)
 	{
@@ -95,7 +95,7 @@ class ExpansionTractorFrontWheel extends CarWheel
 	}
 };
 
-class ExpansionTractorBackWheel extends CarWheel
+class ExpansionTractorBackWheel: CarWheel
 {
 	override void EEKilled(Object killer)
 	{
@@ -115,10 +115,10 @@ class ExpansionTractorBackWheel extends CarWheel
 	}
 };
 
-class ExpansionTractorFrontWheel_Ruined extends CarWheel_Ruined{};
-class ExpansionTractorBackWheel_Ruined extends CarWheel_Ruined{};
+class ExpansionTractorFrontWheel_Ruined: CarWheel_Ruined{};
+class ExpansionTractorBackWheel_Ruined: CarWheel_Ruined{};
 
-/*class Expansion_Landrover_Wheel extends CarWheel
+/*class Expansion_Landrover_Wheel: CarWheel
 {
 	override void EEKilled(Object killer)
 	{
@@ -138,4 +138,4 @@ class ExpansionTractorBackWheel_Ruined extends CarWheel_Ruined{};
 	}
 };
 
-class Expansion_Landrover_Wheel_Ruined extends CarWheel_Ruined{};*/
+class Expansion_Landrover_Wheel_Ruined: CarWheel_Ruined{};*/

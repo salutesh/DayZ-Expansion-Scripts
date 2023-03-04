@@ -31,8 +31,6 @@ modded class ActionGetOutTransport
 			got_action_data.m_WasJumpingOut = false;
 			got_action_data.m_KeepInVehicleSpaceAfterLeave = true;
 		}
-
-		car.CrewGetOut(vehCommand.GetVehicleSeat());
 	}
 
 	override void OnStart(ActionData action_data)

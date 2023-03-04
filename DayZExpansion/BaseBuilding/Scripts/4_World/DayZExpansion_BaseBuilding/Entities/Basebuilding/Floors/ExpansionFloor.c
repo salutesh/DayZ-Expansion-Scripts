@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionFloorBase extends ExpansionBaseBuilding
+class ExpansionFloorBase: ExpansionBaseBuilding
 {
 	private bool m_HasFloor;
 	private bool m_IsRoof;

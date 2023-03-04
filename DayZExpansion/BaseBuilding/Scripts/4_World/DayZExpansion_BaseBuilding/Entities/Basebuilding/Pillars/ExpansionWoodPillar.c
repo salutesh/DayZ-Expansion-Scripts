@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionWoodPillar extends ExpansionBaseBuilding
+class ExpansionWoodPillar: ExpansionBaseBuilding
 {
 	override bool CanPutInCargo (EntityAI parent)
 	{

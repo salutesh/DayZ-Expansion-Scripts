@@ -14,11 +14,11 @@ modded class ExpansionWorld
 {
 	static autoptr array< ref ExpansionBulletTrace > m_bullets = new array< ref ExpansionBulletTrace >();
 
+	#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
 	override void OnUpdate( bool doSim, float timeslice ) 
 	{
 		super.OnUpdate( doSim, timeslice );
 
-		#ifdef EXPANSION_WEAPON_DEBUG_OBJECTS
 		if (m_bullets && m_bullets.Count() > 0)
 		{
 			for ( int i = m_bullets.Count() - 1; i >= 0; --i )
@@ -30,8 +30,8 @@ modded class ExpansionWorld
 				}
 			}
 		}
-		#endif
 	}
+	#endif
 
 	override void FirearmEffects( Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType ) 
 	{

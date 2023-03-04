@@ -3483,7 +3483,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	// ------------------------------------------------------------
 	void PlayMarketSound()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{	
 			if (GetGame().GetPlayer())
 			{

@@ -10,7 +10,7 @@
  *
 */
 
-class Expansion3DMarker extends ScriptedWidgetEventHandler
+class Expansion3DMarker: ScriptedWidgetEventHandler
 {
 	private Widget m_LayoutRoot;
 	private Widget m_Frame;

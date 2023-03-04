@@ -34,7 +34,7 @@ modded class ActionDeployObject
 			PlaceObjectActionData poActionData;
 			poActionData = PlaceObjectActionData.Cast( action_data );
 
-			if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+			if ( !GetGame().IsDedicatedServer() )
 			{
 				Hologram hologram = poActionData.m_Player.GetHologramLocal();
 				if ( hologram )
@@ -212,6 +212,9 @@ modded class ActionDeployObject
 	{
 		if ( !GetGame().IsServer() || player.IsInsideOwnTerritory() )
 			return true;
+
+		if (!item)
+			return false;
 
 		//! @note deployables are not sent to client (intentional)
 		foreach (string deployable: GetExpansionSettings().GetBaseBuilding().DeployableInsideAEnemyTerritory)

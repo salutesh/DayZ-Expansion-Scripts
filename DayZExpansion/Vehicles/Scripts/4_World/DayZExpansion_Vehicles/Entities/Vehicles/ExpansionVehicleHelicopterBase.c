@@ -14,7 +14,7 @@
  * @class		ExpansionVehicleHelicopterBase
  * @brief		This class handle helicopter movement and physics
  */
-class ExpansionVehicleHelicopterBase extends ExpansionVehicleBase
+class ExpansionVehicleHelicopterBase: ExpansionVehicleBase
 {
 	ExpansionVehicleHelicopter_OLD m_Simulation;
 

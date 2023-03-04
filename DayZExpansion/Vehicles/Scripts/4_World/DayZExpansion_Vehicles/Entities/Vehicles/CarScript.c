@@ -1153,7 +1153,7 @@ modded class CarScript
 				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 					return;	
 				
-				if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+				if (!GetGame().IsDedicatedServer())
 				{
 					if (m_SoundLock)
 						delete m_SoundLock;
@@ -3846,7 +3846,7 @@ modded class CarScript
 			}
 		}
 
-		ExpansionCheckTreeContact(other, data.Impulse);
+		ExpansionWorld.CheckTreeContact(other, data.Impulse);
 
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
@@ -3873,43 +3873,6 @@ modded class CarScript
 		}
 
 		super.OnContact(zoneName, localPos, other, data);
-	}
-
-	void ExpansionCheckTreeContact(IEntity other, float impulse)
-	{
-		if (impulse < 7500)
-			return;
-
-		Plant plant;
-		if (!Plant.CastTo(plant, other))
-			return;
-
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
-			Expansion_PlayFellPlantSound(plant);
-
-		if (GetGame().IsServer())
-			plant.SetHealth(0);
-
-		dBodyDestroy(plant);
-	}
-
-	protected void Expansion_PlayFellPlantSound(Object plant)
-	{
-		if (plant.IsTree())
-		{
-			if (plant.IsInherited(TreeHard))
-				SoundHardTreeFallingPlay();
-			else if (plant.IsInherited(TreeSoft))
-				SoundSoftTreeFallingPlay();
-		}
-
-		if (plant.IsBush())
-		{
-			if (plant.IsInherited(BushHard))
-				SoundHardBushFallingPlay();
-			else if (plant.IsInherited(BushSoft))
-				SoundSoftBushFallingPlay();
-		}
 	}
 
 	override void CheckContactCache()

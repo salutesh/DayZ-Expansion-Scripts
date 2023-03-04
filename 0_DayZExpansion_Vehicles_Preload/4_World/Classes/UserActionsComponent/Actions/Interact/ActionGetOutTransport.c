@@ -146,8 +146,8 @@ modded class ActionGetOutTransport
 		{
 			got_action_data.m_Player.OnJumpOutVehicleFinish(got_action_data.m_CarSpeed);
 
-			//! Jump out damage should only apply for land vehicles (cars), not helis, planes or boats
-			if (car && car.IsCar())
+			//! Jump out damage should only apply for land vehicles (cars), not helis, planes or boats, and only if player is not in godmode
+			if (got_action_data.m_Player.GetAllowDamage() && car && car.IsCar())
 			{
 				PlayerBase player = got_action_data.m_Player;
 

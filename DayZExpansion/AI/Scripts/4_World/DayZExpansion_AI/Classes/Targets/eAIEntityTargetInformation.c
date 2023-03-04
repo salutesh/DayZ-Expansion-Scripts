@@ -1,4 +1,4 @@
-class eAIEntityTargetInformation extends eAITargetInformation
+class eAIEntityTargetInformation: eAITargetInformation
 {
 	private EntityAI m_Target;
 	private string m_TargetDebugName;
@@ -39,7 +39,7 @@ class eAIEntityTargetInformation extends eAITargetInformation
 		if (!m_Target)
 			return false;
 
-		return m_Target.GetHealth() > 0.0;
+		return !m_Target.IsDamageDestroyed();
 	}
 
 	override vector GetPosition(eAIBase ai = null, bool actual = false)

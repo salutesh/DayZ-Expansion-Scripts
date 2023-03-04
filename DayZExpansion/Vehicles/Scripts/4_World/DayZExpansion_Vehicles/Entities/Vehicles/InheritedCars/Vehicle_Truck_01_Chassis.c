@@ -10,6 +10,6 @@
  *
  */
 
-class Vehicle_Truck_01_Chassis extends Vehicle_Truck_01_Base
+class Vehicle_Truck_01_Chassis: Vehicle_Truck_01_Base
 {
 };

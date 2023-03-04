@@ -197,7 +197,7 @@ class ExpansionMarketItem
 	// Expansion CalculatePrice
 	// Calculates the current price of the item for one item at the current stock level
 	// ------------------------------------------------------------
-	int CalculatePrice(int stock, float modifier = 1.0)
+	int CalculatePrice(int stock, float modifier = 1.0, bool round = false)
 	{
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketItem::CalculatePrice - Start - " + ClassName + " - stock " + stock + " modifier " + modifier + " minstock " + MinStockThreshold + " maxstock " + MaxStockThreshold + " maxprice " + m_MaxPriceThreshold + " minprice " + m_MinPriceThreshold + " pct " + SellPricePercent);
@@ -210,7 +210,10 @@ class ExpansionMarketItem
 		else
 			price = m_MinPriceThreshold;
 
-		price = Math.Round(price * modifier);
+		if (round)
+			price = Math.Round(price * modifier);
+		else
+			price = Math.Floor(price * modifier);
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketItem::CalculatePrice - End and return calculated price: " + price);

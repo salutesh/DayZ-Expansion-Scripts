@@ -33,7 +33,7 @@ modded class JMPlayerForm
 		Widget actions = m_Stamina.GetLayoutRoot().GetParent();
 		if (actions)
 		{
-			m_ExpansionReputation = UIActionManager.CreateEditableText(actions, "Reputation", this, "Click_SetExpansionReputation", "", "");
+			m_ExpansionReputation = UIActionManager.CreateEditableText(actions, "Reputation:", this, "Click_SetExpansionReputation", "", "");
 			#ifdef COT_UIACTIONS_SETWIDTH
 			m_ExpansionReputation.SetEditBoxWidth(0.5);
 			#endif
@@ -46,31 +46,23 @@ modded class JMPlayerForm
 		return parent;
 	}
 
-#ifdef COT_REFRESHSTATS_NEW
 	override void RefreshStats(bool force = false)
 	{
 		super.RefreshStats(force);
 
 		if (force)
 			m_ExpansionReputationUpdated = false;
-#else
-	override void RefreshStats()
-	{
-		super.RefreshStats();
-#endif
 
-		if (!m_SelectedInstance || !m_SelectedInstance.PlayerObject)
+		if (!m_SelectedInstance)
 			return;
 
+		//! @note using Playerbase::Expansion_GetReputation on client is not an option because it'll only work for players in network bubble,
+		//! so we send the value from server
 		if (m_ExpansionReputation && !m_ExpansionReputationUpdated)
-			m_ExpansionReputation.SetText(m_SelectedInstance.PlayerObject.Expansion_GetReputation().ToString());
+			m_ExpansionReputation.SetText(m_SelectedInstance.GetExpansionReputation().ToString());
 	}
 
-#ifdef COT_BUGFIX_REF_UIACTIONS
 	override void Click_ApplyStats(UIEvent eid, UIActionBase action)
-#else
-	override void Click_ApplyStats(UIEvent eid, ref UIActionBase action)
-#endif
 	{
 		super.Click_ApplyStats(eid, action);
 

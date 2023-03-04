@@ -17,7 +17,7 @@ enum ExpansionVehicleDynamicState
 	DYNAMIC
 };
 
-class ExpansionVehicleBase extends ItemBase
+class ExpansionVehicleBase: ItemBase
 {
 	static ref set<ExpansionVehicleBase> m_allVehicles = new set<ExpansionVehicleBase>;
 
@@ -704,7 +704,7 @@ class ExpansionVehicleBase extends ItemBase
 	{
 		super.EEDelete(parent);
 		
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			if (SEffectManager.IsEffectExist(m_coolantPtcFx))
 				SEffectManager.Stop(m_coolantPtcFx);
@@ -984,7 +984,7 @@ class ExpansionVehicleBase extends ItemBase
 				}
 
 				//FX only on Client and in Single
-				if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+				if (!GetGame().IsDedicatedServer())
 				{
 					if (!SEffectManager.IsEffectExist(m_exhaustPtcFx))
 					{
@@ -1020,7 +1020,7 @@ class ExpansionVehicleBase extends ItemBase
 			else
 			{
 				//FX only on Client and in Single
-				if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+				if (!GetGame().IsDedicatedServer())
 				{
 					if (SEffectManager.IsEffectExist(m_exhaustPtcFx))
 						SEffectManager.Stop(m_exhaustPtcFx);
@@ -2554,7 +2554,7 @@ class ExpansionVehicleBase extends ItemBase
 		}
 
 		//FX only on Client and in Single
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			if (IsDamageDestroyed() && GetGame().GetWaterDepth(GetEnginePosWS()) <= 0)
 			{
@@ -4479,7 +4479,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	void PlayCrashLightSound()
 	{
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			EffectSound sound = SEffectManager.PlaySound("offroad_hit_light_SoundSet", GetPosition());
 			sound.SetSoundAutodestroy(true);
@@ -4500,7 +4500,7 @@ class ExpansionVehicleBase extends ItemBase
 
 	void PlayCrashHeavySound()
 	{
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			EffectSound sound = SEffectManager.PlaySound("offroad_hit_heavy_SoundSet", GetPosition());
 			sound.SetSoundAutodestroy(true);

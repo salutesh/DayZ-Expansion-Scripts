@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftFloorKit
  * @brief		
  **/
-class ExpansionCraftFloorKit extends RecipeBase
+class ExpansionCraftFloorKit: RecipeBase
 {	
 	override void Init()
 	{

@@ -1,4 +1,4 @@
-class eAIGroupTargetInformation extends eAITargetInformation
+class eAIGroupTargetInformation: eAITargetInformation
 {
 	private eAIGroup m_Target;
 

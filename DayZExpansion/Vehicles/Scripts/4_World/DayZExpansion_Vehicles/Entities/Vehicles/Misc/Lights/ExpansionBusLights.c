@@ -10,7 +10,7 @@
  *
  */
 
-class ExpansionBusLights extends CarLightBase
+class ExpansionBusLights: CarLightBase
 {
 	void ExpansionBusLights()
 	{

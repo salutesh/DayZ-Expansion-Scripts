@@ -11,7 +11,7 @@
 */
 
 #ifdef JM_COT
-class ExpansionCOTTerritoriesMemberListEntry extends ScriptedWidgetEventHandler
+class ExpansionCOTTerritoriesMemberListEntry: ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
 	private TextWidget m_MemberName;

@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionTractor extends ExpansionVehicleCarBase
+class Vehicle_ExpansionTractor: ExpansionVehicleCarBase
 {
 	void Vehicle_ExpansionTractor()
 	{

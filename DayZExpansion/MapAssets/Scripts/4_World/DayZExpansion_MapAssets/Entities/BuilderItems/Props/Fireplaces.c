@@ -1,4 +1,4 @@
-class bldr_prop_Fireplace extends House
+class bldr_prop_Fireplace: House
 {
 	Particle m_ParticleEfx;
 	protected EffectSound m_SoundFireLoop;
@@ -6,7 +6,7 @@ class bldr_prop_Fireplace extends House
 	
 	void bldr_prop_Fireplace()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnParticles, 2000, false);
 		}
@@ -32,7 +32,7 @@ class bldr_prop_Fireplace extends House
 	
 }
 
-class bldr_prop_FireplaceIndoor extends House
+class bldr_prop_FireplaceIndoor: House
 {
 	Particle m_ParticleEfx;
 	protected EffectSound m_SoundFireLoop;
@@ -40,7 +40,7 @@ class bldr_prop_FireplaceIndoor extends House
 	
 	void bldr_prop_FireplaceIndoor()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(SpawnParticles, 2000, false);
 		}
@@ -66,7 +66,7 @@ class bldr_prop_FireplaceIndoor extends House
 	
 }
 
-class bldr_fire_barrel extends BarrelHoles_Red
+class bldr_fire_barrel: BarrelHoles_Red
 {
 	protected bool m_bldr_Opened;
 
@@ -119,7 +119,7 @@ class bldr_fire_barrel extends BarrelHoles_Red
 	}
 }
 
-class bldr_fireplace extends Fireplace
+class bldr_fireplace: Fireplace
 {
 	override protected void SpendFireConsumable( float amount ) {};
 	override void StopFire( FireplaceFireState fire_state = FireplaceFireState.END_FIRE ) {};
@@ -152,7 +152,7 @@ class bldr_fireplace extends Fireplace
 	}
 }
 
-class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
+class bldr_Chemlight_ColorBase: Chemlight_ColorBase
 {
 	void bldr_Chemlight_ColorBase()
 	{
@@ -305,13 +305,13 @@ class bldr_Chemlight_ColorBase extends Chemlight_ColorBase
 	}
 }
 
-class bldr_Chemlight_White extends bldr_Chemlight_ColorBase {};
-class bldr_Chemlight_Red extends bldr_Chemlight_ColorBase {};
-class bldr_Chemlight_Green extends bldr_Chemlight_ColorBase {};
-class bldr_Chemlight_Blue extends bldr_Chemlight_ColorBase {};
-class bldr_Chemlight_Yellow extends bldr_Chemlight_ColorBase {};
+class bldr_Chemlight_White: bldr_Chemlight_ColorBase {};
+class bldr_Chemlight_Red: bldr_Chemlight_ColorBase {};
+class bldr_Chemlight_Green: bldr_Chemlight_ColorBase {};
+class bldr_Chemlight_Blue: bldr_Chemlight_ColorBase {};
+class bldr_Chemlight_Yellow: bldr_Chemlight_ColorBase {};
 
-class bldr_PortableGasLamp_Prop extends PortableGasLamp
+class bldr_PortableGasLamp_Prop: PortableGasLamp
 {
 	void bldr_PortableGasLamp_Prop()
 	{
@@ -443,7 +443,7 @@ class bldr_PortableGasLamp_Prop extends PortableGasLamp
 	}
 }
 
-class CandleLight extends PointLightBase
+class CandleLight: PointLightBase
 {
 	void CandleLight()
 	{
@@ -462,7 +462,7 @@ class CandleLight extends PointLightBase
 	}
 }
 
-class bldr_Candle extends Candle
+class bldr_Candle: Candle
 {
 	CandleLight m_Light;
 	
@@ -601,7 +601,7 @@ class bldr_Candle extends Candle
 	}
 }
 
-class SpotlightLightProp extends SpotLightBase
+class SpotlightLightProp: SpotLightBase
 {
 	void SpotlightLightProp()
 	{
@@ -617,7 +617,7 @@ class SpotlightLightProp extends SpotLightBase
 	}
 }
 
-class bldr_Spotlight extends Spotlight
+class bldr_Spotlight: Spotlight
 {
 	SpotlightLightProp m_LightProp;
 	
@@ -690,7 +690,7 @@ class bldr_Spotlight extends Spotlight
 	}
 }
 
-class bldr_land_misc_barel_fire_1 extends BuildingWithFireplace {};
-class bldr_land_misc_barel_fire_2 extends BuildingWithFireplace {};
-class bldr_land_misc_barel_fire_3 extends BuildingWithFireplace {};
-class bldr_land_misc_barel_fire_4 extends BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_1: BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_2: BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_3: BuildingWithFireplace {};
+class bldr_land_misc_barel_fire_4: BuildingWithFireplace {};

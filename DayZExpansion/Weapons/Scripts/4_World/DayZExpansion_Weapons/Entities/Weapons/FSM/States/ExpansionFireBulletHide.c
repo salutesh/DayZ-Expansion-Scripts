@@ -1,4 +1,4 @@
-class ExpansionFireBulletHide extends WeaponFire
+class ExpansionFireBulletHide: WeaponFire
 {
 	override void OnEntry (WeaponEventBase e)
 	{

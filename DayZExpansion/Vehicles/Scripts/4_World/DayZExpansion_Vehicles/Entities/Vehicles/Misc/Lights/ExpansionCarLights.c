@@ -10,7 +10,7 @@
  *
  */
 
-class ExpansionRearCarLights extends CarRearLightBase
+class ExpansionRearCarLights: CarRearLightBase
 {
 	void ExpansionRearCarLights()
 	{
@@ -43,7 +43,7 @@ class ExpansionRearCarLights extends CarRearLightBase
 	}
 };
 
-class ExpansionCarFrontLight extends CarLightBase
+class ExpansionCarFrontLight: CarLightBase
 {
 	void ExpansionCarFrontLight()
 	{

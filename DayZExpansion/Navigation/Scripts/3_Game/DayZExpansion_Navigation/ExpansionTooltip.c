@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionUITooltip extends ScriptedWidgetEventHandler
+class ExpansionUITooltip: ScriptedWidgetEventHandler
 {
 	protected Widget				m_Root;
 	protected HtmlWidget			m_Title;

@@ -11,7 +11,7 @@
 */
 
 #ifdef JM_COT
-class ExpansionCOTGroupsPlayersListEntry extends ScriptedWidgetEventHandler
+class ExpansionCOTGroupsPlayersListEntry: ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
 	private TextWidget m_PlayerName;
