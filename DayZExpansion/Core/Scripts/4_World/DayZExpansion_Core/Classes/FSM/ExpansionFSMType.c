@@ -202,7 +202,7 @@ class ExpansionFSMType
 			new_type.m_Transitions.Insert(transitionType);
 		}
 
-		FPrintln(file, "class " + class_name + " extends " + type + "FSM {");
+		FPrintln(file, "class " + class_name + ": " + type + "FSM {");
 
 		auto variables = document.Get("fsm");
 		variables = variables[0].GetTag("variables");

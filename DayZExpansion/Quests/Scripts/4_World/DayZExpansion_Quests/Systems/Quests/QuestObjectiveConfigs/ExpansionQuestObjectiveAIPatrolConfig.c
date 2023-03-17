@@ -28,7 +28,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		AIPatrol = patrol;
 	}
 
-	override ExpansionQuestObjectiveAIPatrol GetAIPatrol()
+	ExpansionQuestObjectiveAIPatrol GetAIPatrol()
 	{
 		return AIPatrol;
 	}
@@ -38,7 +38,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		MinDistRadius = dist;
 	}
 
-	override float GetMinDistRadius()
+	float GetMinDistRadius()
 	{
 		return MinDistRadius;
 	}
@@ -48,7 +48,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		MaxDistRadius = dist;
 	}
 
-	override float GetMaxDistRadius()
+	float GetMaxDistRadius()
 	{
 		return MaxDistRadius;
 	}
@@ -58,7 +58,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		DespawnRadius = dist;
 	}
 
-	override float GetDespawnRadius()
+	float GetDespawnRadius()
 	{
 		return DespawnRadius;
 	}
@@ -68,7 +68,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		CanLootAI = state;
 	}
 
-	override bool CanLootAI()
+	bool CanLootAI()
 	{
 		return CanLootAI;
 	}
@@ -137,6 +137,13 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		if (!config.DespawnRadius)
 			config.DespawnRadius = 880;
 
+		string removeExt = ExpansionString.StripExtension(config.AIPatrol.GetNPCLoadoutFile(), ".json");
+		if (removeExt != config.AIPatrol.GetNPCLoadoutFile())
+		{
+			config.AIPatrol.SetNPCLoadoutFile(removeExt);
+			save = true;
+		}
+		
 		if (save)
 		{
 			config.Save(fileName);

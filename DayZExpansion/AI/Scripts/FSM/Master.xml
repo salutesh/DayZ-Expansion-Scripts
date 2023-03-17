@@ -71,7 +71,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.OverrideTargetPosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed());
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -126,7 +126,7 @@
 				path = unit.GetGroup().GetWaypoints();
 				if (path.Count() == 0)
 				{
-					path = { unit.GetPosition() };
+					path = { unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() };
 				}
 				behaviour = unit.GetGroup().GetWaypointBehaviour();
 				unit.Expansion_GetUp();
@@ -405,7 +405,7 @@
 				unit.Expansion_GetUp(true);
 				if (bandage)
 				{
-					if (bandage.GetHealth() &lt;= 0.0 || !unit.eAI_TakeItemToInventory(bandage))
+					if (bandage.IsDamageDestroyed() || !unit.eAI_TakeItemToInventory(bandage))
 					{
 						unit.eAI_DropItem(bandage);
 					}
@@ -431,7 +431,7 @@
 				{
 					if (bandage)
 					{
-						if (unit.IsBleeding() &amp;&amp; bandage.GetHealth() &gt; 0.0)
+						if (unit.IsBleeding() &amp;&amp; !bandage.IsDamageDestroyed())
 						{
 							last_bandage_attempt_time = GetGame().GetTime();
 							time = 0;
@@ -535,7 +535,7 @@
 				auto hands = unit.GetItemInHands();
 				if (!hands) return FAIL;
 				
-				if (!hands.Expansion_CanBeUsedToBandage() || hands.GetHealth() &lt;= 0.0) return FAIL;
+				if (!hands.Expansion_CanBeUsedToBandage() || hands.IsDamageDestroyed()) return FAIL;
 				
 				dst.bandage = hands;
 				
@@ -681,17 +681,24 @@
 				
 				ItemBase hands = unit.GetItemInHands();
 				
+				//! If ruined, drop
+				if (hands &amp;&amp; hands.IsDamageDestroyed())
+				{
+					unit.eAI_DropItem(hands);
+					hands = null;
+				}
+				
 				//! First check if we want to switch to bandage
 				if (unit.IsBleeding() &amp;&amp; unit.GetThreatToSelf(true) &lt; 0.4)
 				{
-					if (!hands || !hands.Expansion_CanBeUsedToBandage() || hands.GetHealth() &lt;= 0.0)
+					if (!hands || !hands.Expansion_CanBeUsedToBandage())
 					{
 						//! Item in hand is either not bandage/rag or is ruined
 						dst.item = unit.GetBandageToUse();
 						if (dst.item)
 						{
-							//! If ruined, drop, else put in inventory (shoulder slot or cargo)
-							if (hands &amp;&amp; (hands.GetHealth() &lt;= 0.0 || !unit.eAI_TakeItemToInventory(hands)))
+							//! Try to put in inventory (shoulder slot or cargo), drop if not possible
+							if (hands &amp;&amp; !unit.eAI_TakeItemToInventory(hands))
 								unit.eAI_DropItem(hands);
 							
 							return SUCCESS;
@@ -759,6 +766,9 @@
 				if (!target || !Class.CastTo(targetItem, target.GetEntity()) || targetItem.GetHierarchyRootPlayer() || targetItem.IsSetForDeletion())
 					return FAIL;
 				
+				if (target.GetDistanceSq(unit, true) &gt;= 2.25)
+					return FAIL;
+				
 				if (targetItem.IsWeapon() || targetItem.IsMagazine())
 				{
 					//! If target is gun or magazine (latter means gun w/o ammo is in inventory) and we have melee in hand, prepare swap
@@ -779,9 +789,6 @@
 				{
 					return FAIL;
 				}
-				
-				if (target.GetDistanceSq(unit, true) &gt;= 2.25)
-					return FAIL;
 				
 				if (target.GetThreat(unit) &lt;= 0.1)
 					return FAIL;

@@ -101,6 +101,13 @@ class EXHitch
 	}
 }
 
+enum ExpansionVectorToString
+{
+	Plain,
+	Beautify,
+	Labels
+}
+
 class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
@@ -361,7 +368,8 @@ class ExpansionStatic
 
 	static bool TypeExists(string type_name)
 	{
-		return type_name.ToType().ToString() != string.Empty;
+		typename nullType;
+		return type_name.ToType() != nullType;
 	}
 
 	//! Inheritance check, case insensitive for cfg class; equality check, case sensitive for script class (if not empty string)
@@ -601,15 +609,24 @@ class ExpansionStatic
 	// ------------------------------------------------------------
 	// Expansion FormatTimestamp (seconds)
 	// ------------------------------------------------------------
-	static string FormatTimestamp( float time, bool include_ms = true )
+	static string FormatTimestamp( float time, bool include_ms = true, bool include_hours = true )
 	{
-		int hours = (int) time / 3600;
-		time -= hours * 3600;
+		if (include_hours)
+		{
+			int hours = (int) time / 3600;
+			time -= hours * 3600;
+		}
+
 		int minutes = (int) time / 60;
 		time -= minutes * 60;
 		int seconds = (int) time;
 
-		string timestring = hours.ToStringLen(2) + ":" + minutes.ToStringLen(2) + ":" + seconds.ToStringLen(2);
+		string timestring;
+
+		if (include_hours)
+			timestring = hours.ToStringLen(2) + ":" + minutes.ToStringLen(2) + ":" + seconds.ToStringLen(2);
+		else
+			timestring = minutes.ToStringLen(2) + ":" + seconds.ToStringLen(2);
 
 		if ( include_ms )
 		{
@@ -1174,7 +1191,7 @@ class ExpansionStatic
 		return worldName;
 	}
 
-	static string VectorToString(vector vec, bool beautify = true, int precision = 2)
+	static string VectorToString(vector vec, ExpansionVectorToString format = ExpansionVectorToString.Beautify, int precision = 2)
 	{
 		float m = Math.Pow(10, precision);
 		TStringArray output();
@@ -1182,10 +1199,15 @@ class ExpansionStatic
 		for (int i = 0; i < 3; i++)
 			output.Insert((Math.Round(vec[i] * m) / m).ToString());
 
-		if (beautify)
-			return "<" + ExpansionString.JoinStrings(output, ", ") + ">";
-		else
-			return ExpansionString.JoinStrings(output, " ");
+		switch (format)
+		{
+			case ExpansionVectorToString.Beautify:
+				return "<" + ExpansionString.JoinStrings(output, ", ") + ">";
+			case ExpansionVectorToString.Labels:
+				return "X: " + output[0] + " Y: " + output[1] + " Z: " + output[2];
+		}
+
+		return ExpansionString.JoinStrings(output, " ");
 	}
 
 	static bool GetVariableIntByName(typename type, string name, out int val)

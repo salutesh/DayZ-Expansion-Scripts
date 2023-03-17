@@ -184,14 +184,14 @@ ImageSetClass {
   }
   ImageSetDefClass clock_blank {
    Name "clock_blank"
-   Pos 216 272
-   Size 34 34
+   Pos 215 271
+   Size 36 36
    Flags 0
   }
   ImageSetDefClass clock_filled {
    Name "clock_filled"
-   Pos 259 274
-   Size 32 32
+   Pos 258 273
+   Size 34 34
    Flags 0
   }
   ImageSetDefClass icon_patreon {

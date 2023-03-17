@@ -502,6 +502,14 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			//! Need to open barrel first, otherwise can't add items
 			if (fireplace.IsInherited(BarrelHoles_ColorBase))
 				fireplace.Open();
+			
+			if (fireplace.GetType() == "bldr_fireplace")
+			{
+				//! Add stones
+				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Stone"));
+				item.SetQuantity(16);
+				fireplace.SetStoneCircleState(true);
+			}
 
 			//! Add bark
 			item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Bark_Oak"));
@@ -514,6 +522,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
 
 			fireplace.StartFire();
+			fireplace.RefreshFireplaceVisuals();
 		}
 	}
 

@@ -4,16 +4,16 @@ class CfgPatches
 {
 	class DayZExpansion_Weapons_Optics_DeltaPoint
 	{
-		units[] = {"ExpansionDeltapointOptic"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
+		requiredAddons[] = {"DZ_Weapons_Optics"};
 	};
 };
 class cfgVehicles
 {
-	class ItemOptics;
-	class ExpansionDeltapointOptic: ItemOptics
+	class ItemOptics_Base;
+	class ExpansionDeltapointOptic: ItemOptics_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_DELTAPOINT";

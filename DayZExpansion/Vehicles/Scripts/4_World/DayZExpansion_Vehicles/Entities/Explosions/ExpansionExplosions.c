@@ -33,12 +33,12 @@ class ExplosionPoint : Building
  * @class		ExplosionSmall
  * @brief
  */
-class ExplosionSmall extends ExplosionPoint
+class ExplosionSmall: ExplosionPoint
 {
 	// ------------------------------------------------------------
 	override void ExplodeNow()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			SEffectManager.PlaySound("Expansion_Explosive_Small_SoundSet", GetPosition());
 

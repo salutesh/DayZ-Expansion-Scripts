@@ -10,7 +10,7 @@
  *
 */
 
-class Vehicle_ExpansionOldBike extends ExpansionVehicleBikeBase
+class Vehicle_ExpansionOldBike: ExpansionVehicleBikeBase
 {
 	override int GetAnimInstance()
 	{

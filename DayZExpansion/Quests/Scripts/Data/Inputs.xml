@@ -3,6 +3,7 @@
 	<inputs>
 		<actions>
 			<input name="UAExpansionQuestToggle" loc="STR_EXPANSION_QUEST_TOGGLE" />
+			<input name="UAExpansionQuestLogToggle" loc="STR_EXPANSION_TOGGLE_QUESTLOG" />
 		</actions>
 
 		<exclude name="questexpansion">
@@ -11,11 +12,15 @@
 
 		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
 			<input name="UAExpansionQuestToggle" />
+			<input name="UAExpansionQuestLogToggle" />
 		</sorting>
 	</inputs>
 	<preset>
 		<input name="UAExpansionQuestToggle">
 			<btn name="kSlash" />
+		</input>
+		<input name="UAExpansionQuestLogToggle">
+			<btn name="kO" />
 		</input>
 	</preset>
 </modded_inputs>

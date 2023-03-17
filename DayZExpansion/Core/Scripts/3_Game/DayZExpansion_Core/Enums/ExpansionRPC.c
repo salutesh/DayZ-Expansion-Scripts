@@ -250,8 +250,9 @@ enum ExpansionSettingsRPC
 	NotificationScheduler,  //! Not used, settings don't need to be available on client
 	Hardline,
 	Garage,
-	BlackMarket,
-	COUNT  //! 30 INCREMENT FOLLOWING RPCs WHEN NEEDED FFS
+	P2PMarket,
+	PersonalStorage,
+	COUNT  //! 31 INCREMENT THIS NUMBER AND FOLLOWING RPCs WHEN NEEDED FFS
 };
 
 enum ExpansionCOTBookModuleRPC
@@ -429,12 +430,28 @@ enum ExpansionP2PMarketModuleRPC
 	RequestListBMItem,
 	RequestPurchaseBMItem,
 	RequestSaleFromListing,
-	RequestAllSales,
+	RequestAllPlayerSales,
 	RemoveTradingPlayer,
 	Callback,
 	COUNT
 };
 
+enum ExpansionPersonalStorageModuleRPC
+{
+	INVALID = 40080,
+	RequestDepositItem,
+	RequestRetrieveItem
+	SendItemData,
+	Callback,
+	COUNT
+};
+
+enum ExpansionTeleporterModuleRPC
+{
+	INVALID = 40100,
+	PlayTeleportSound
+	COUNT
+};
 
 enum ExpansionLockRPC
 {

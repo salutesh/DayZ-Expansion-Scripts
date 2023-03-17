@@ -35,8 +35,10 @@ class ExpansionMarketEyewear: ExpansionMarketCategory
 		AddItem("TacticalGoggles", 					60,		120,	1,		100);
 		
 		AddItem("NVGHeadstrap", 					200,	400,	1,		100);
-#ifndef DAYZ_1_18
+
 		AddItem("EyePatch_Improvised", 				10,		20,		1,		100);
-#endif
+		
+		AddItem("EyeMask_Black", 					30,		100,	1,		100, null, {"EyeMask_Blue","EyeMask_Christmas","EyeMask_Dead","EyeMask_NewYears","EyeMask_Red","EyeMask_Valentines","EyeMask_Yellow"});
+		
 	}
 };

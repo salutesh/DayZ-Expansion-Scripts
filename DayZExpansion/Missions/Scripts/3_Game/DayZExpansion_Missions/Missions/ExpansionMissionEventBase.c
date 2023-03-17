@@ -226,7 +226,7 @@ class ExpansionMissionEventBase
 	
 			Event_OnStart();
 	
-			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( OnUpdate );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnUpdate, 1000, true, 1.0 );
 		}
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -245,7 +245,7 @@ class ExpansionMissionEventBase
 		
 		if ( GetGame().IsServer() )
 		{
-			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
 	
 			SI_OnMissionEnd.Invoke( this );
 	
@@ -264,10 +264,6 @@ class ExpansionMissionEventBase
 	// ------------------------------------------------------------
 	void OnUpdate( float delta )
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::OnUpdate - Start");
-		#endif
-		
 		if ( GetGame().IsServer() )
 		{
 			m_CurrentMissionTime += delta;
@@ -279,10 +275,6 @@ class ExpansionMissionEventBase
 				End();
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::OnUpdate - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------

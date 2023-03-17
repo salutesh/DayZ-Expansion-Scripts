@@ -266,7 +266,10 @@ modded class IngameHud
 			m_GPSMapPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting);
 
 		if (m_PlayerArrowMarker)
-			m_PlayerArrowMarker.ShowRoot(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2));
+		{
+			bool show = m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapState && m_ExpansionGPSSetting && (m_ExpansionGPSPosSetting == 1 || m_ExpansionGPSPosSetting == 2);
+			m_PlayerArrowMarker.Show(show);
+		}
 
 		if (m_MapStatsPanel)
 			m_MapStatsPanel.Show(m_HudState && m_ExpansionGPSState && m_ExpansionGPSMapStatsState && m_ExpansionGPSSetting);
@@ -281,7 +284,36 @@ modded class IngameHud
 			RefreshGPSMapStats();
 
 		if (m_GPSMapPanel.IsVisible())
+		{
+			UpdateGPSZoom();
 			RefreshGPSMap();
+		}
+	}
+
+	void UpdateGPSZoom()
+	{
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+		{
+			HumanCommandVehicle hcv = player.GetCommand_Vehicle();
+			if (hcv)
+			{
+				CarScript car = CarScript.Cast(hcv.GetTransport());
+				if (car)
+				{
+					float carSpeed = car.GetSpeedometerAbsolute() / 200;
+					
+					// Converting negative speed (backward)
+					if ( carSpeed < 0.0 )
+						carSpeed += carSpeed * 2;
+
+					m_GPSMapScale = carSpeed;
+
+					if ( m_GPSMapScale >= 0.8 ) 	m_GPSMapScale = 0.8;
+					else if (m_GPSMapScale <= 0.1)	m_GPSMapScale = 0.1;
+				}
+			}
+		}
 	}
 
 	void RefreshGPSMapStats()

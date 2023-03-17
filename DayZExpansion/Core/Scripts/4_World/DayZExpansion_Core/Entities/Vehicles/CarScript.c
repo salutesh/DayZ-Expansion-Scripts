@@ -5,20 +5,20 @@
  * www.dayzexpansion.com
  * © 2022 DayZ Expansion Mod Team
  *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
 /**@class		CarScript
- * @brief		
+ * @brief
  **/
 modded class CarScript
 {
 	private static ref set< CarScript > m_allVehicles = new set< CarScript >;
-	
+
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<CarScript>(this);
-	
+
 	protected bool m_Expansion_IsInSafeZone;
 	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 
@@ -26,7 +26,7 @@ modded class CarScript
 
 	protected bool m_Expansion_IsStoreLoaded;
 	protected bool m_Expansion_IsStoreSaved;
-	
+
 	protected string m_Expansion_LastDriverUID;
 	protected bool m_Expansion_SynchLastDriverUID;
 	protected bool m_Expansion_LastDriverUIDSynched;
@@ -34,7 +34,7 @@ modded class CarScript
 	bool m_Expansion_AcceptingAttachment;
 
 	int m_Expansion_CargoCount;
-	
+
 	ref ExpansionGlobalID m_Expansion_GlobalID = new ExpansionGlobalID();
 
 	// ------------------------------------------------------------
@@ -46,7 +46,7 @@ modded class CarScript
 		RegisterNetSyncVariableBool("m_Expansion_SynchLastDriverUID");
 		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
 	}
-	
+
 	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
@@ -85,7 +85,7 @@ modded class CarScript
 
 		return super.OnStoreLoad( ctx, version );
 	}
-	
+
 	static set< CarScript > GetAll()
 	{
 		return m_allVehicles;
@@ -100,11 +100,11 @@ modded class CarScript
 	{
 		return false;
 	}
-	
+
 	void ExpansionSetSkin( int skinIndex )
 	{
 	}
-	
+
 	bool IsInSafeZone()
 	{
 		Expansion_Error("DEPRECATED: Please use Expansion_IsInSafeZone", m_Expansion_IsInSafeZone_DeprecationWarning);
@@ -209,7 +209,7 @@ modded class CarScript
 
 		m_Expansion_GlobalID.OnStoreSave(ctx);
 	}
-	
+
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
@@ -230,7 +230,7 @@ modded class CarScript
 		return true;
 	}
 	#endif
-	
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
@@ -284,7 +284,7 @@ modded class CarScript
 	{
 		set<Human> players = new set<Human>;
 		Human crew;
-		
+
 		//! Seated players
 		for (int i = 0; i < CrewSize(); i++)
 		{
@@ -310,17 +310,46 @@ modded class CarScript
 			if (!playersOnly || crew.GetIdentity())
 				players.Insert(crew);
 		}
-		
+
 		return players;
 	}
-	
+
 	float Expansion_GetFuelAmmount()
 	{
 		return m_FuelAmmount;
 	}
-	
-	string ExpansionGetCurrentSkinName()
+
+	void Expansion_EstimateTransform(float pDt, inout vector mat[4])
 	{
-		return m_CurrentSkinName;
+		vector transform[4];
+		GetTransform(transform);
+
+		vector velocity = GetVelocity(this);
+		vector angularVelocity = dBodyGetAngularVelocity(this);
+
+		vector futureAngularVelocity = (angularVelocity * pDt);
+
+		mat[0][0] = 0.0;
+		mat[1][1] = 0.0;
+		mat[2][2] = 0.0;
+
+		mat[0][1] = -futureAngularVelocity[2];
+		mat[1][0] = futureAngularVelocity[2];
+		mat[2][0] = -futureAngularVelocity[1];
+		mat[0][2] = futureAngularVelocity[1];
+		mat[1][2] = -futureAngularVelocity[0];
+		mat[2][1] = futureAngularVelocity[0];
+
+		Math3D.MatrixInvMultiply3(mat, transform, mat);
+
+		mat[0] = transform[0] + mat[0];
+		mat[1] = transform[1] + mat[1];
+		mat[2] = transform[2] + mat[2];
+
+		mat[0].Normalize();
+		mat[1].Normalize();
+		mat[2].Normalize();
+
+		mat[3] = transform[3] + (velocity * pDt);
 	}
 };

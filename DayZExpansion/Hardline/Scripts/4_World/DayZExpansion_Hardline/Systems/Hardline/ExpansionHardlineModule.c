@@ -13,6 +13,13 @@
 [CF_RegisterModule(ExpansionHardlineModule)]
 class ExpansionHardlineModule: CF_ModuleWorld
 {
+	protected static ExpansionHardlineModule m_Instance;
+	
+	void ExpansionHardlineModule()
+	{
+		m_Instance = this;
+	}
+	
 	override void OnInit()
 	{
 		super.OnInit();
@@ -37,7 +44,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseReputation)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetupClientData, 1000, false, cArgs.Player, cArgs.Identity);
+			SetupClientData(cArgs.Player, cArgs.Identity);
 		}
 	}
 
@@ -49,20 +56,91 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EXTrace.Add(trace, identity);
 	#endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
-
 		if (!player || !identity)
 			return;
 
 		//! Check if hardline player data file exists and load it
 		string playerUID = identity.GetId();
 		auto hardlinePlayerData = player.m_Expansion_HardlineData;
+		bool factionReset;
 		if (hardlinePlayerData.Load(playerUID))
+		{
 			EXPrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
-		//! If data was succesfully loaded, player rep will be set to value from file, else zero
+		#ifdef EXPANSIONMODAI
+			//! @note this takes precedence over random faction from AISettings.json
+			if (hardlinePlayerData.FactionID != -1)
+			{
+				if (GetExpansionSettings().GetHardline().EnableFactionPersistence)
+				{
+					typename factionType = eAIFaction.GetTypeByID(hardlinePlayerData.FactionID);
+					if (factionType)
+						player.SetGroup(eAIGroup.CreateGroup(eAIFaction.Cast(factionType.Spawn())));
+				}
+				else
+				{
+					hardlinePlayerData.FactionID = -1;
+					factionReset = true;
+				}
+			}
+		#endif
+		}
+		//! If data was successfully loaded, player rep will be set to value from file, else zero
 		player.Expansion_SetReputation(hardlinePlayerData.Reputation);
+	#ifdef EXPANSIONMODAI
+		//! Save data if faction was reset
+		if (factionReset)
+			player.Expansion_SaveHardlineData(true);
+	#endif
 	}
+	
+#ifdef EXPANSIONMODAI
+	//! Server
+	//! @note oldFactionID will be -1 if player didn't have a group/faction before (e.g. initial assignment),
+	//! newFactionID will be -1 if removing group/faction
+	void OnFactionChange(DayZPlayerImplement playerImp, int oldFactionID, int newFactionID)
+	{
+	#ifdef DIAG
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		EXTrace.Add(trace, playerImp);
+		EXTrace.Add(trace, oldFactionID);
+		EXTrace.Add(trace, newFactionID);
+	#endif
+		
+		PlayerBase player;
+		if (Class.CastTo(player, playerImp))
+		{
+			bool persistFaction = GetExpansionSettings().GetHardline().EnableFactionPersistence;
+
+			if (persistFaction)
+				oldFactionID = player.m_Expansion_HardlineData.FactionID;
+
+			if (newFactionID != oldFactionID)
+			{
+				if (oldFactionID != -1)
+				{
+					//! Store current reputation for old faction
+					player.m_Expansion_HardlineData.FactionReputation[oldFactionID] = player.Expansion_GetReputation();
+	
+					if (newFactionID != -1)
+					{
+						//! Replace the player's current reputation with the one from the hashmap
+						//! for the given faction if found, else zero
+						player.Expansion_SetReputation(player.m_Expansion_HardlineData.FactionReputation[newFactionID]);
+					}
+				}
+				else
+				{
+					//! Player didn't have a faction before, carry over current reputation
+					player.m_Expansion_HardlineData.FactionReputation[newFactionID] = player.Expansion_GetReputation();
+				}
+
+				player.m_Expansion_HardlineData.FactionID = newFactionID;
+
+				player.Expansion_SaveHardlineData();
+			}
+		}
+	}
+#endif
 	
 	void OnEntityKilled(EntityAI victim, Object killer)
 	{
@@ -279,5 +357,10 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	#endif
 
 		player.Expansion_AddReputation(reputation);
+	}
+	
+	static ExpansionHardlineModule GetModuleInstance()
+	{
+		return m_Instance;
 	}
  };

@@ -13,7 +13,7 @@
 /**@class		ExpansionStove
  * @brief		
  **/
-class ExpansionStove extends PortableGasStove 
+class ExpansionStove: PortableGasStove 
 {
 	const int   DIRECT_COOKING_SLOT_COUNT			= 2;
 	const int   SMOKING_SLOT_COUNT					= 4;

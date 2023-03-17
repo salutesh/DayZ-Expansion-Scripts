@@ -20,7 +20,7 @@ enum ExpansionParkingMeterState
 	EVR = 4
 };
 
-class ExpansionParkingMeter extends ExpansionDeployableConstruction
+class ExpansionParkingMeter: ExpansionDeployableConstruction
 {
 	private static ref set<ExpansionParkingMeter> s_Expansion_ParkingMeters = new set<ExpansionParkingMeter>;
 
@@ -447,7 +447,7 @@ class ExpansionParkingMeter extends ExpansionDeployableConstruction
 };
 #endif
 
-class ExpansionCircuitBoardBase extends ItemBase
+class ExpansionCircuitBoardBase: ItemBase
 {
 	int GetTier()
 	{
@@ -455,21 +455,21 @@ class ExpansionCircuitBoardBase extends ItemBase
 	}
 };
 
-class ExpansionCircuitBoard_MK1 extends ExpansionCircuitBoardBase
+class ExpansionCircuitBoard_MK1: ExpansionCircuitBoardBase
 {
 	override int GetTier()
 	{
 		return 1;
 	}
 };
-class ExpansionCircuitBoard_MK2 extends ExpansionCircuitBoardBase
+class ExpansionCircuitBoard_MK2: ExpansionCircuitBoardBase
 {
 	override int GetTier()
 	{
 		return 2;
 	}
 };
-class ExpansionCircuitBoard_MK3 extends ExpansionCircuitBoardBase
+class ExpansionCircuitBoard_MK3: ExpansionCircuitBoardBase
 {
 	override int GetTier()
 	{

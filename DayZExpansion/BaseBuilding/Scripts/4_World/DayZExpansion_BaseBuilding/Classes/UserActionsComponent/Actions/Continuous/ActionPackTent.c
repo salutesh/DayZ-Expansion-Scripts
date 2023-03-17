@@ -18,8 +18,21 @@ modded class ActionPackTent
 			return false;
 
 		if ( player.IsInTerritory() )
-			return player.IsInsideOwnTerritory();
+		{
+			if (GetExpansionSettings().GetBaseBuilding().DismantleInsideTerritory)
+				return true;
+
+			//! If it was deployable, it's also packable
+			ItemBase targetItem = ItemBase.Cast( target.GetParentOrObject() );
+			if (ActionDeployObject.CanDeployInTerritory(player, targetItem))
+				return true;
+
+			if (GetGame().IsServer() && player.GetIdentity())
+				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY").Error(player.GetIdentity());
+
+			return false;
+		}
 
 		return true;
 	}
-}
+};

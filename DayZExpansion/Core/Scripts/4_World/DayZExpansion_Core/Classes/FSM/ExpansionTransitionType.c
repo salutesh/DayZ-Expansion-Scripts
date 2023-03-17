@@ -109,7 +109,7 @@ class ExpansionTransitionType
 		ExpansionTransitionType new_type = new ExpansionTransitionType();
 		new_type.m_ClassName = class_name;
 
-		FPrintln(file, "class " + class_name + " extends " + fsmType.m_Type + "Transition {");
+		FPrintln(file, "class " + class_name + ": " + fsmType.m_Type + "Transition {");
 
 		FPrintln(file, "private " + from_state_class + " src;");
 		FPrintln(file, "private " + to_state_class + " dst;");

@@ -1,0 +1,81 @@
+FrameWidgetClass ExpansionCooldownIndicator {
+ visible 0
+ clipchildren 0
+ position 0 0
+ size 288 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionCooldownIndicatorController"
+ {
+  PanelWidgetClass SpecializationPanel {
+   visible 1
+   clipchildren 1
+   size 288 32
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   fixaspect fixwidth
+   priority 1
+   style blank
+   {
+    ImageWidgetClass BattleIcon {
+     visible 1
+     color 0.9412 0.149 0.149 1
+     position 36 0
+     size 32 32
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     priority 999
+     image0 "set:expansion_notification_iconset image:icon_bandit"
+     mode additive
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     "flip u" 0
+     "flip v" 0
+     filter 1
+    }
+    PanelWidgetClass BattleTimePanel {
+     visible 1
+     clipchildren 0
+     position 72 0
+     size 180 32
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect fixwidth
+     priority 999
+     {
+      TextWidgetClass TextWidget0 {
+       ignorepointer 1
+       color 0.9412 0.149 0.149 1
+       size 180 22
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scriptclass "ViewBinding"
+       text "MM:SS"
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "Text"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

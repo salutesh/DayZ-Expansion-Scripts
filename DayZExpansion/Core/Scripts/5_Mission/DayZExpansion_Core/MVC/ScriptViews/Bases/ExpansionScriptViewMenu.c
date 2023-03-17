@@ -27,10 +27,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	{
 		EXPrint("~" + ToString());
 		DestroyUpdateTimer();
-		
-		Hide();
 	}
-	
+
 	override void Show()
 	{
 		if (!CanShow())
@@ -61,6 +59,9 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void OnHide()
 	{
+		if (!GetGame())
+			return;
+		
 		super.OnHide();
 		
 		PPEffects.SetBlurMenu(0.0);
@@ -212,6 +213,9 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	void Update()
 	{
+		if (!GetGame())
+			return;
+		
 		if (GetGame().GetInput().LocalPress("UAUIBack", false))
 			CloseMenu();
 	}

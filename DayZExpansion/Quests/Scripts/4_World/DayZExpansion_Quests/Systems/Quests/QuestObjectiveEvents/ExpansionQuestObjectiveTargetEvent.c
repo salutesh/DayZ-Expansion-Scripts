@@ -15,16 +15,17 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	protected int m_Count;
 	protected int m_Amount;
 	protected int m_UpdateCount;
-
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent OnEventStart
-	// -----------------------------------------------------------
+	protected ref ExpansionQuestObjectiveTargetConfig m_Config;
+	
 	override bool OnEventStart()
 	{
 		if (!super.OnEventStart())
 			return false;
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 
-		ExpansionQuestObjectiveTarget target = m_ObjectiveConfig.GetTarget();
+		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
 			return false;
 
@@ -33,15 +34,15 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent OnContinue
-	// -----------------------------------------------------------
 	override bool OnContinue()
 	{
 		if (!super.OnContinue())
 			return false;
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 
-		ExpansionQuestObjectiveTarget target = m_ObjectiveConfig.GetTarget();
+		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
 			return false;
 
@@ -51,14 +52,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent OnEntityKilled
-	// -----------------------------------------------------------
 	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
 		
-		ExpansionQuestObjectiveTarget target = m_ObjectiveConfig.GetTarget();
+		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
 			return;
 
@@ -83,7 +81,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			//! of this quest and if its a group quest make sure he was not in the involved party before.
 			//! If he is in the related group or was in it we dont count the kill!
 		#ifdef EXPANSIONMODGROUPS
-			if (m_Quest.IsGroupQuest() && victimPlayer.GetIdentity())
+			if (m_Quest.GetQuestConfig().IsGroupQuest() && victimPlayer.GetIdentity())
 			{
 				string victimPlayerUID = victimPlayer.GetIdentity().GetId();
 				int groupID = m_Quest.GetGroupID();
@@ -99,7 +97,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		//! Use max range check if used in config
-		if (m_ObjectiveConfig.GetMaxDistance() > -1)
+		if (m_Config.GetMaxDistance() > 0)
 			maxRangeCheck = true;
 
 		if (killerPlayer && maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
@@ -125,16 +123,13 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (m_UpdateCount != m_Count)
 		{
 			m_UpdateCount = m_Count;
-			m_Quest.UpdateQuest();
+			m_Quest.UpdateQuest(false);
 			m_Quest.QuestCompletionCheck();
 		}
 		
 		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent CanComplete
-	// -----------------------------------------------------------
 	override bool CanComplete()
 	{
 		ObjectivePrint(ToString() + "::CanComplete - Start");
@@ -156,13 +151,10 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return super.CanComplete();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent IsInMaxRange
-	// -----------------------------------------------------------
 	protected bool IsInMaxRange(vector playerPos)
 	{
-		vector position = m_ObjectiveConfig.GetPosition();
-		float maxDistance = m_ObjectiveConfig.GetMaxDistance();
+		vector position = m_Config.GetPosition();
+		float maxDistance = m_Config.GetMaxDistance();
 		float currentDistanceSq = vector.DistanceSq(playerPos, position);
 		position[1] = GetGame().SurfaceY(position[0], position[2]);
 
@@ -172,9 +164,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		return false;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent SetCount
-	// -----------------------------------------------------------
 	void SetCount(int count)
 	{
 		ObjectivePrint(ToString() + "::SetCount - Start");
@@ -185,25 +174,16 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::SetCount - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent GetCount
-	// -----------------------------------------------------------
 	int GetCount()
 	{
 		return m_Count;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent GetAmount
-	// -----------------------------------------------------------
 	int GetAmount()
 	{
 		return m_Amount;
 	}
-	
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveTargetEvent GetObjectiveType
-	// -----------------------------------------------------------
+
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TARGET;

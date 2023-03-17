@@ -95,7 +95,7 @@ modded class ItemBase
 	}
 }
 
-class ExpansionMoneyBase extends ItemBase
+class ExpansionMoneyBase: ItemBase
 {
 	// ------------------------------------------------------------
 	// ExpansionMoneyBase CanBeDamaged
@@ -106,11 +106,11 @@ class ExpansionMoneyBase extends ItemBase
 	}
 }
 
-class ExpansionSilverNugget: ExpansionMoneyBase {}
-class ExpansionSilverBar: ExpansionMoneyBase {}
-class ExpansionGoldNugget: ExpansionMoneyBase {}
-class ExpansionGoldBar: ExpansionMoneyBase {}
-class ExpansionBanknoteUSD: ExpansionMoneyBase {}
-class ExpansionBanknoteEuro: ExpansionMoneyBase {}
-class ExpansionBanknoteHryvnia: ExpansionMoneyBase {}
+class ExpansionSilverNugget: ExpansionMoneyBase {};
+class ExpansionSilverBar: ExpansionMoneyBase {};
+class ExpansionGoldNugget: ExpansionMoneyBase {};
+class ExpansionGoldBar: ExpansionMoneyBase {};
+class ExpansionBanknoteUSD: ExpansionMoneyBase {};
+class ExpansionBanknoteEuro: ExpansionMoneyBase {};
+class ExpansionBanknoteHryvnia: ExpansionMoneyBase {};
  

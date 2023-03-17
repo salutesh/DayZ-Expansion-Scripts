@@ -15,6 +15,7 @@ class ExpansionQuestRewardConfigBase
 	string ClassName;
 	int Amount = 0;
 	ref TStringArray Attachments = new TStringArray;
+	int DamagePercent = 0;
 };
 
 class ExpansionQuestRewardConfigV1: ExpansionQuestRewardConfigBase
@@ -31,7 +32,7 @@ class ExpansionQuestRewardConfigV1: ExpansionQuestRewardConfigBase
 
 class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 {
-	int DamagePercent = 0;
+	int QuestID = -1;
 
 	void SetClassName(string name)
 	{
@@ -79,6 +80,16 @@ class ExpansionQuestRewardConfig: ExpansionQuestRewardConfigV1
 	void SetDamagePercent(int value)
 	{
 		DamagePercent = value;
+	}
+
+	void SetQuestID(int questID)
+	{
+		QuestID = questID;
+	}
+	
+	int GetQuestID()
+	{
+		return QuestID;
 	}
 
 	void OnSend(ParamsWriteContext ctx)

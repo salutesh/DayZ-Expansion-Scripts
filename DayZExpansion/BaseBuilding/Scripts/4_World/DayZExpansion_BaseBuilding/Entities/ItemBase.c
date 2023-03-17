@@ -637,7 +637,7 @@ modded class ItemBase
 			SOUND_CODE_DENIED = "Expansion_Denied_SoundSet";
 		}
 
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		if ( !GetGame().IsDedicatedServer() ) // client side
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_CODE_DENIED, GetPosition());
 			sound.SetSoundAutodestroy( true );

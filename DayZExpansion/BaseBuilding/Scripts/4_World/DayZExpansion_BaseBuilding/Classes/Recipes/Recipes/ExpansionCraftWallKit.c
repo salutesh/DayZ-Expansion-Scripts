@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftWallKit
  * @brief		
  **/
-class ExpansionCraftWallKit extends RecipeBase
+class ExpansionCraftWallKit: RecipeBase
 {	
 	override void Init()
 	{

@@ -14,7 +14,7 @@
  * @class		Vehicle_ExpansionAn2
  * @brief		
  */
-class Vehicle_ExpansionAn2 extends ExpansionVehiclePlaneBase
+class Vehicle_ExpansionAn2: ExpansionVehiclePlaneBase
 {
 	void Vehicle_ExpansionAn2()
 	{

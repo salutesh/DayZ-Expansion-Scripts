@@ -13,7 +13,7 @@
 /**@class		ExpansionStairKit
  * @brief		This class handle base class of expansion basebuilding	
  **/
-class ExpansionStairKit extends ExpansionKitLarge
+class ExpansionStairKit: ExpansionKitLarge
 {
 	override void OnPlacementComplete( Man player, vector position = "0 0 0", vector orientation = "0 0 0" )
 	{

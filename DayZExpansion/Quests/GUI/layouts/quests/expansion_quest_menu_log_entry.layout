@@ -1,0 +1,177 @@
+PanelWidgetClass ExpansionQuestMenuLogEntry {
+ position 0 0
+ size 1 36
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ scriptclass "ExpansionQuestMenuLogEntryController"
+ style blank
+ {
+  PanelWidgetClass Background {
+   ignorepointer 1
+   color 0 0 0 0.7843
+   position 0 0
+   size 0.9 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style UIDefaultPanel
+  }
+  ImageWidgetClass QuestIcon {
+   ignorepointer 1
+   color 1 0.7059 0.0941 0.7843
+   position 0.013 0
+   size 36 36
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   imageTexture "{1595828A6EA76F98}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "QuestIcon"
+    }
+   }
+  }
+  TextWidgetClass Text {
+   ignorepointer 1
+   color 0.8627 0.8627 0.8627 1
+   position 0.08 0
+   size 0.98 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   text "Quest Title"
+   font "gui/fonts/etelkatextpro22"
+   "size to text h" 1
+   "size to text v" 0
+   "text halign" center
+   "text valign" center
+   {
+    ScriptParamsClass {
+     Binding_Name "QuestTitle"
+    }
+   }
+  }
+  ButtonWidgetClass Button {
+   size 0.9 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Empty
+   {
+    ScriptParamsClass {
+     Relay_Command "OnEntryClick"
+    }
+   }
+  }
+  ImageWidgetClass CooldownIcon {
+   visible 0
+   ignorepointer 1
+   color 0.8863 0.2549 0.2588 1
+   position 0.013 0
+   size 26 26
+   halign right_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   scriptclass "ViewBinding"
+   image0 "set:expansion_iconset image:clock_blank"
+   mode blend
+   "src alpha" 1
+   stretch 1
+   {
+    ScriptParamsClass {
+     Binding_Name "QuestIcon"
+    }
+   }
+  }
+  PanelWidgetClass HidePanelButton {
+   ignorepointer 1
+   position 0 0
+   size 0.1 1
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   {
+    PanelWidgetClass HideBackground {
+     ignorepointer 1
+     color 0 0 0 0.7843
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style UIDefaultPanel
+     {
+      CheckBoxWidgetClass HideCheckbox {
+       visible 0
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       size 34 34
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scriptclass ""
+       style Expansnion_04
+      }
+      ImageWidgetClass HideIcon {
+       ignorepointer 1
+       size 34 34
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scriptclass "ViewBinding"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       {
+        ScriptParamsClass {
+         Binding_Name "HideIcon"
+        }
+       }
+      }
+     }
+    }
+    ButtonWidgetClass HideButton {
+     visible 1
+     size 1 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     style Empty
+     {
+      ScriptParamsClass {
+       Relay_Command "OnHideEntryClick"
+      }
+     }
+    }
+   }
+  }
+ }
+}

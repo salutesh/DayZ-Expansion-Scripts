@@ -264,7 +264,7 @@ class ExpansionNotificationViewController: ExpansionViewController
 	string NotificationText;
 };
 
-class ExpansionNotificationViewToast extends ExpansionNotificationView
+class ExpansionNotificationViewToast: ExpansionNotificationView
 {
 	override typename GetControllerType() 
 	{
@@ -278,7 +278,7 @@ class ExpansionNotificationViewToast extends ExpansionNotificationView
 };
 class ExpansionNotificationViewToastController: ExpansionNotificationViewController {};
 
-class ExpansionNotificationViewBaguette extends ExpansionNotificationView
+class ExpansionNotificationViewBaguette: ExpansionNotificationView
 {
 	override typename GetControllerType() 
 	{
@@ -292,7 +292,7 @@ class ExpansionNotificationViewBaguette extends ExpansionNotificationView
 };
 class ExpansionNotificationViewBaguetteController: ExpansionNotificationViewController {};
 
-class ExpansionNotificationViewActivity extends ExpansionNotificationView
+class ExpansionNotificationViewActivity: ExpansionNotificationView
 {
 	override typename GetControllerType() 
 	{
@@ -306,7 +306,7 @@ class ExpansionNotificationViewActivity extends ExpansionNotificationView
 };
 class ExpansionNotificationViewActivityController: ExpansionNotificationViewController {};
 
-class ExpansionNotificationViewKillfeed extends ExpansionNotificationView
+class ExpansionNotificationViewKillfeed: ExpansionNotificationView
 {
 	override typename GetControllerType() 
 	{
@@ -320,7 +320,7 @@ class ExpansionNotificationViewKillfeed extends ExpansionNotificationView
 };
 class ExpansionNotificationViewKillfeedController: ExpansionNotificationViewController {};
 
-class ExpansionNotificationViewMarket extends ExpansionNotificationView
+class ExpansionNotificationViewMarket: ExpansionNotificationView
 {
 	override typename GetControllerType() 
 	{
@@ -334,6 +334,6 @@ class ExpansionNotificationViewMarket extends ExpansionNotificationView
 };
 class ExpansionNotificationViewMarketController: ExpansionNotificationViewController {};
 
-class ExpansionNotificationViewGarage extends ExpansionNotificationViewMarket
+class ExpansionNotificationViewGarage: ExpansionNotificationViewMarket
 {
 };

@@ -1,4 +1,4 @@
-class eAIRoadNodeSection extends eAIRoadNodeBase
+class eAIRoadNodeSection: eAIRoadNodeBase
 {
 	eAIRoadNode m_Node;
 

@@ -13,7 +13,7 @@
 /**@class		ExpansionBulldozerScript
  * @brief		This class handle bulldozer simulation
  **/
-class ExpansionBulldozerScript extends CarScript
+class ExpansionBulldozerScript: CarScript
 {
 	protected int m_TreesCutted;
 	protected vector m_RayStart;
@@ -58,12 +58,6 @@ class ExpansionBulldozerScript extends CarScript
 				Object obj = objects.Get(i);
 				if ( obj.IsTree() || obj.IsBush() )
 				{
-					EntityAI cutting_tool;
-					if ( IsMissionHost() ) 
-					{
-						cutting_tool = EntityAI.Cast( GetGame().CreateObject("WoodAxe", vector.Zero, false, true) );
-					}
-
 					if ( obj.IsTree() )
 					{
 						tree = TreeHard.Cast( obj );		
@@ -72,17 +66,13 @@ class ExpansionBulldozerScript extends CarScript
 							if ( IsMissionHost() ) 
 							{
 								tree.DecreaseHealth("", "", 100, true);			
-								tree.OnTreeCutDown( cutting_tool );
 								if ( tree.IsTree() )
 								{
 									ItemBase wooden_logs = ItemBase.Cast(GetGame().CreateObject("WoodenLog", GetPosition(), false));
 								}
 								dBodyDestroy(tree);
-								GetGame().ObjectDelete(cutting_tool);	
 								m_TreesCutted++;	
 							}
-							if (GetGame().IsClient() || !GetGame().IsMultiplayer())
-								SoundHardTreeFallingPlay();
 						}	
 					} else if (obj.IsBush())
 					{
@@ -92,17 +82,14 @@ class ExpansionBulldozerScript extends CarScript
 							if ( IsMissionHost()) 
 							{
 								bush.DecreaseHealth("", "", 100, true);			
-								bush.OnTreeCutDown( cutting_tool );
 								ItemBase wooden_sticks = ItemBase.Cast(GetGame().CreateObject("LongWoodenStick", GetPosition(), false));
 								dBodyDestroy(bush);
-								GetGame().ObjectDelete(cutting_tool);	
 								m_TreesCutted++;	
 							}
-
-							if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
-								SoundHardBushFallingPlay();
 						}
 					}
+
+					ExpansionWorld.PlayFellPlantSound(obj);
 				}
 			}
 		}	

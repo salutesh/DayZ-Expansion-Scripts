@@ -69,10 +69,13 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 	{
 		ConfigVersion = 1;
 
+	#ifdef EXPANSIONMODMARKET
 		if (!m_QuestMarketItems)
 			m_QuestMarketItems = new array<ref ExpansionQuestItemForMarket>;
+	#endif
 	}
 
+#ifdef EXPANSIONMODMARKET
 	void AddQuestMarketItem(vector pos, string className, int amount)
 	{
 		bool added;
@@ -124,12 +127,13 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 		m_QuestMarketItems.Clear();
 		Save();
 	}
+#endif
 
 	void SetWeeklyResetTime()
 	{
 		int year, month, day, hour, minute, second;
-		int weeklyResetHour = GetExpansionSettings().GetQuest().WeeklyQuestResetHour;
-		int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyQuestResteMinute;
+		int weeklyResetHour = GetExpansionSettings().GetQuest().WeeklyResetHour;
+		int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyResetMinute;
 		int current = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
 		CF_Date.TimestampToDate(current, year, month, day, hour, minute, second);
 
@@ -143,8 +147,8 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 	void SetDailyResetTime()
 	{
 		int year, month, day, hour, minute, second;
-		int dailyResetHour = GetExpansionSettings().GetQuest().DailyQuestResetHour;
-		int dailyResetMinute = GetExpansionSettings().GetQuest().DailyQuestResetMinute;
+		int dailyResetHour = GetExpansionSettings().GetQuest().DailyResetHour;
+		int dailyResetMinute = GetExpansionSettings().GetQuest().DailyResetMinute;
 		int current = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
 		CF_Date.TimestampToDate(current, year, month, day, hour, minute, second);
 

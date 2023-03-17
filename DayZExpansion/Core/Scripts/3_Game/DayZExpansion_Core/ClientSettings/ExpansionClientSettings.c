@@ -52,6 +52,8 @@ class ExpansionClientSettings
 	bool Show2DPlayerMarkers;
 	bool Show2DPartyMarkers;
 	bool Show2DGlobalMarkers;
+	
+	bool ShowPartyMemberHUD;
 
 	// Notifications
 	bool ShowNotifications;
@@ -71,6 +73,7 @@ class ExpansionClientSettings
 	// Markers Settings
 	ExpansionClientUIMemberMarkerType MemberMarkerType;
 	ExpansionClientUIMarkerSize MarkerSize;
+	ExpansionClientUIPlayerArrowColor PlayerArrowColor;
 	bool ShowMemberNameMarker;
 	bool ShowMemberDistanceMarker;
 	bool ForceColorMemberMarker;
@@ -544,6 +547,21 @@ class ExpansionClientSettings
 			return false;
 		}
 
+		if (version < 45)
+			return true;
+
+		if ( !ctx.Read( ShowPartyMemberHUD ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowPartyMemberHUD!");
+			return false;
+		}
+
+		if ( !ctx.Read( PlayerArrowColor ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowPartyMemberHUD!");
+			return false;
+		}		
+
 		return true;
 	}
 
@@ -646,6 +664,9 @@ class ExpansionClientSettings
 		ctx.Write( ShowDesyncInvulnerabilityNotifications );
 
 		ctx.Write( ShowUnderRoofIndicator );
+
+		ctx.Write( ShowPartyMemberHUD );
+		ctx.Write( PlayerArrowColor );
 	}
 
 	// -----------------------------------------------------------
@@ -734,6 +755,8 @@ class ExpansionClientSettings
 		Show2DPartyMarkers = true;
 		Show2DGlobalMarkers = true;
 
+		ShowPartyMemberHUD = true;
+
 		ShowNotifications = true;
 		NotificationSound = true;
 		NotificationJoin = true;
@@ -761,6 +784,8 @@ class ExpansionClientSettings
 
 		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;
 		MarkerSize = ExpansionClientUIMarkerSize.MEDIUM;
+		PlayerArrowColor = ExpansionClientUIPlayerArrowColor.GREY;
+
 		ShowMemberNameMarker = true;
 		ShowMemberDistanceMarker = true;
 		ForceColorMemberMarker = false;
@@ -864,6 +889,11 @@ class ExpansionClientSettings
 		CreateSlider( "EarplugLevel", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_EARPLUG_LEVEL_DESC", 0.0, 1.0, 0.05 );
 	#endif
 
+	#ifdef EXPANSIONMODGROUPS
+		//! Option to show/hide the party hud on client side
+		CreateToggle( "ShowPartyMemberHUD", "#STR_EXPANSION_SETTINGS_CLIENT_PARTY_SHOWPARTYMEMBERHUD", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_CLIENT_PARTY_SHOWPARTYMEMBERHUD_DESC" );
+	#endif
+
 	#ifdef EXPANSIONMODNAVIGATION
 		//! Option to use the desired party member marker
 		//CreateEnum( "MemberMarkerType", ExpansionClientUIMemberMarkerType, "MemberMarkerType", "MemberMarkerType", "MemberMarkerType" );
@@ -883,6 +913,8 @@ class ExpansionClientSettings
 
 		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
 
+		//! Option to set the 3D marker size
+		CreateEnum( "PlayerArrowColor", ExpansionClientUIPlayerArrowColor, "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR_DESC" );
 		//Color slider for party member on top of player head
 		//CreateSlider( "AlphaColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_ALPHA_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );
 		//CreateSlider( "RedColorHUDOnTopOfHeadOfPlayers", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_RED_HEAD_PLAYER_DESC", 0.0, 255.0, 5.0 );

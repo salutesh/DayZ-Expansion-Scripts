@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionOptionSettingWidget extends ScriptedWidgetEventHandler
+class ExpansionOptionSettingWidget: ScriptedWidgetEventHandler
 {
 	protected Widget layoutRoot;
 	protected Widget selectWidget;

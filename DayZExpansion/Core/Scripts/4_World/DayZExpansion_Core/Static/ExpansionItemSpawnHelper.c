@@ -99,7 +99,7 @@ class ExpansionItemSpawnHelper
 			else
 				mag.ServerSetAmmoCount(0);
 		}
-		else if (!item.IsInherited(Edible_Base) && item.ConfigGetBool("canBeSplit"))
+		else if (!item.IsInherited(Edible_Base) && item.Expansion_IsStackable())
 		{
 			//! Stackable items
 			int max = item.GetQuantityMax();
@@ -129,7 +129,7 @@ class ExpansionItemSpawnHelper
 			if (item.HasQuantity())
 			{
 				float itemQuantity = item.GetQuantityMax() * quantityPercent / 100;
-				if (item.ConfigGetBool("canBeSplit"))
+				if (item.Expansion_IsStackable())
 					itemQuantity = Math.Round(itemQuantity);
 				item.SetQuantity(itemQuantity);
 			}
@@ -300,7 +300,11 @@ class ExpansionItemSpawnHelper
 			s_VehicleSizes.Insert(className, size);
 		}
 
-		blockingObject = GetObjectBlockingPosition(position, orientation, size);
+		//! Reduce check dimensions by 5% so we don't get blocked by objects the vehicle may stand on
+		vector checkDimensions = Vector(size[0] * 0.95, size[1] * 0.95, size[2] * 0.95);
+		vector checkPosition = Vector(position[0], position[1] + size[1] * 0.05, position[2]);
+
+		blockingObject = GetObjectBlockingPosition(checkPosition, orientation, checkDimensions);
 
 		CF_Log.Debug("IsVehicleSpawnPositionFree " + className + " size " + size + " pos " + position + " ori " + orientation + " blocking " + blockingObject);
 		

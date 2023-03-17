@@ -14,21 +14,22 @@
 class ExpansionQuestObjectiveAICampConfigBase: ExpansionQuestObjectiveConfig
 {
 	ref ExpansionQuestObjectiveAICamp AICamp;
-}
-
-class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBase
-{
 	float MinDistRadius = 50;
 	float MaxDistRadius = 150;
 	float DespawnRadius = 880;
 	bool CanLootAI = true;
+}
 
+class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBase
+{
+	int InfectedDeletionRadius = 500;
+	
 	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
 	{
 		AICamp = camp;
 	}
 
-	override ExpansionQuestObjectiveAICamp GetAICamp()
+	ExpansionQuestObjectiveAICamp GetAICamp()
 	{
 		return AICamp;
 	}
@@ -38,7 +39,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		MinDistRadius = dist;
 	}
 
-	override float GetMinDistRadius()
+	float GetMinDistRadius()
 	{
 		return MinDistRadius;
 	}
@@ -48,7 +49,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		MaxDistRadius = dist;
 	}
 
-	override float GetMaxDistRadius()
+	float GetMaxDistRadius()
 	{
 		return MaxDistRadius;
 	}
@@ -58,7 +59,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		DespawnRadius = dist;
 	}
 
-	override float GetDespawnRadius()
+	float GetDespawnRadius()
 	{
 		return DespawnRadius;
 	}
@@ -68,9 +69,14 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		CanLootAI = state;
 	}
 
-	override bool CanLootAI()
+	bool CanLootAI()
 	{
 		return CanLootAI;
+	}
+	
+	int GetInfectedDeletionRadius()
+	{
+		return InfectedDeletionRadius;
 	}
 
 	static ExpansionQuestObjectiveAICampConfig Load(string fileName)
@@ -117,6 +123,13 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 
 		if (!config.DespawnRadius)
 			config.DespawnRadius = 880;
+		
+		string removeExt = ExpansionString.StripExtension(config.AICamp.GetNPCLoadoutFile(), ".json");
+		if (removeExt != config.AICamp.GetNPCLoadoutFile())
+		{
+			config.AICamp.SetNPCLoadoutFile(removeExt);
+			save = true;
+		}
 
 		if (save)
 		{
@@ -143,6 +156,10 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		TimeLimit = configBase.TimeLimit;
 
 		AICamp = configBase.AICamp;
+		MinDistRadius = configBase.MinDistRadius;
+		MaxDistRadius = configBase.MaxDistRadius;
+		DespawnRadius = configBase.DespawnRadius;
+		CanLootAI = configBase.CanLootAI;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

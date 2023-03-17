@@ -14,9 +14,6 @@ modded class RecipeBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ExpansionQuestObjectiveEventBase>;
 
-	// ------------------------------------------------------------
-	// RecipeBase AssignQuestObjective
-	// ------------------------------------------------------------
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -35,9 +32,6 @@ modded class RecipeBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// RecipeBase DeassignQuestObjective
-	// ------------------------------------------------------------
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -56,9 +50,6 @@ modded class RecipeBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// RecipeBase CheckAssignedObjectives
-	// ------------------------------------------------------------
 	protected void CheckAssignedObjectives(PlayerBase player, array<ItemBase> spawned_objects)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -124,9 +115,6 @@ modded class RecipeBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ActionBase OnObjectiveActionExecuted
-	// ------------------------------------------------------------
 	protected void OnObjectiveActionExecuted(ExpansionQuestObjectiveEventBase objective, PlayerBase player, array<ItemBase> spawned_objects)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -151,9 +139,6 @@ modded class RecipeBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ActionBase OnObjectiveActionExecuted
-	// ------------------------------------------------------------
 	override void SpawnItems(ItemBase ingredients[], PlayerBase player, array<ItemBase> spawned_objects)
 	{
 		super.SpawnItems(ingredients, player, spawned_objects);

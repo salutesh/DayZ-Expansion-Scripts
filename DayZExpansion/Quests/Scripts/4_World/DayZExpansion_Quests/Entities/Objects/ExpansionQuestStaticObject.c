@@ -13,14 +13,11 @@
 /**@class		ExpansionQuestStaticObject
  * @brief		This class handles static quest objects used to head-out or take-in quests
  **/
-class ExpansionQuestStaticObject extends BuildingSuper
+class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 {
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
-	// ------------------------------------------------------------
-	// ExpansionQuestStaticObject Constructor
-	// ------------------------------------------------------------
 	void ExpansionQuestStaticObject()
 	{
 		if (IsMissionHost())
@@ -31,9 +28,6 @@ class ExpansionQuestStaticObject extends BuildingSuper
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestStaticObject DeferredInit
-	// ------------------------------------------------------------
 	override void DeferredInit()
     {
 		super.DeferredInit();
@@ -46,34 +40,22 @@ class ExpansionQuestStaticObject extends BuildingSuper
 	#endif
     }
 
-	// ------------------------------------------------------------
-	// ExpansionQuestStaticObject SetQuestNPCID
-	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
 		m_QuestNPCID = id;
 		SetSynchDirty();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestStaticObject GetQuestNPCID
-	// ------------------------------------------------------------
 	int GetQuestNPCID()
 	{
 		return m_QuestNPCID;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestStaticObject SetQuestNPCData
-	// ------------------------------------------------------------
 	void SetQuestNPCData(ExpansionQuestNPCData questNPCData)
 	{
 		m_QuestNPCData = questNPCData;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestStaticObject GetQuestNPCData
-	// ------------------------------------------------------------
 	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;

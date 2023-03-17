@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftLumber_0_5
  * @brief		
  **/
-class ExpansionCraftLumber_0_5 extends RecipeBase
+class ExpansionCraftLumber_0_5: RecipeBase
 {	
 	override void Init()
 	{

@@ -51,7 +51,6 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Village");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Village");
-		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -73,7 +72,6 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Camp");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Camp");
-		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -116,7 +114,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.DELIVERY);
 		objective.SetObjectiveText("Deliver the note to Steve");
-		objective.AddDelivery(1, "ExpansionQuestItemPaper");
+		objective.AddCollection(1, "ExpansionQuestItemPaper");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Talk to Steve");
 
@@ -129,7 +127,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetID(2);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.DELIVERY);
 		objective.SetObjectiveText("Deliver the package to Peter");
-		objective.AddDelivery(1, "ExpansionQuestItemPackage");
+		objective.AddCollection(1, "ExpansionQuestItemPackage");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Talk to Peter");
 
@@ -178,7 +176,7 @@ class ExpansionDefaultObjectiveData
 		target.AddClassName("ZmbM_Jacket_Base");
 		target.AddClassName("ZmbM_Jacket_LT_Base");
 		target.AddClassName("ZmbM_JoggerSkinny_Base");
-		target.AddClassName("ZmbM__Runner_Base");
+		target.AddClassName("ZmbM_Runner_Base");
 		target.AddClassName("ZmbM_JournalistSkinny_Base");
 		target.AddClassName("ZmbM_MechanicSkinny_Base");
 		target.AddClassName("ZmbM_MotobikerFat_Base");
@@ -485,22 +483,16 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.TREASUREHUNT);
 		objective.SetObjectiveText("Find the location of the treasure");
 
-		ExpansionQuestObjectiveTreasureHunt hunt = new ExpansionQuestObjectiveTreasureHunt();
-		hunt.AddItem("ExpansionBanknoteHryvnia", 100);
-		hunt.AddItem("Zucchini", 1); //! For the luls
-
 		if (m_WorldName == "namalsk")
 		{
-			hunt.AddPosition(Vector(8541.46, 15.3878, 10299.1));
+			objective.AddPosition(Vector(8541.46, 15.3878, 10299.1));
 		}
 		else if (m_WorldName == "chernarusplus" || m_WorldName == "chernarusplusgloom")
 		{
-			hunt.AddPosition(Vector(2936.48, 350.404, 6369.39));
-			hunt.AddPosition(Vector(3143.35, 365.776, 6942.04));
-			hunt.AddPosition(Vector(5233.51, 290.881, 6246.37));
+			objective.AddPosition(Vector(2936.48, 350.404, 6369.39));
+			objective.AddPosition(Vector(3143.35, 365.776, 6942.04));
+			objective.AddPosition(Vector(5233.51, 290.881, 6246.37));
 		}
-
-		objective.SetTreasureHunt(hunt);
 
 		return objective;
 	}
@@ -657,11 +649,11 @@ class ExpansionDefaultObjectiveData
 	}
 
 	//! AI VIP OBJECTIVES
-	ExpansionQuestObjectiveAIEscordConfig ExpansionQuestObjective_AIEscord_001()
+	ExpansionQuestObjectiveAIEscortConfig ExpansionQuestObjective_AIEscort_001()
 	{
-		ExpansionQuestObjectiveAIEscordConfig objective = new ExpansionQuestObjectiveAIEscordConfig();
+		ExpansionQuestObjectiveAIEscortConfig objective = new ExpansionQuestObjectiveAIEscortConfig();
 		objective.SetID(1);
-		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIESCORD);
+		objective.SetObjectiveType(ExpansionQuestObjectiveType.AIESCORT);
 		objective.SetObjectiveText("Bring the VIP to the marked location.");
 		objective.SetTimeLimit(180);
 		objective.SetMaxDistance(20.0);

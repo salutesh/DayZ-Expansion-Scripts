@@ -21,7 +21,6 @@ modded class Land_House_1B01_Pub
 	{
 		return true;
 	}
-
 	
 	override void SpawnIvys()
 	{

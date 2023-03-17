@@ -17,10 +17,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	protected eAIGroup m_Group;
 	protected ExpansionEscortObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
+	protected ref ExpansionQuestObjectiveAIEscortConfig m_Config;
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnEventStart
-	// -----------------------------------------------------------
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
 	{
@@ -29,23 +27,23 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnEventStart())
 			return false;
 
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
-		OnRecreateClientMarkers();
+		CreateMarkers();
 	#endif
 
 		if (!m_ObjectiveTrigger)
-			CreateTrigger(m_ObjectiveConfig.GetPosition());
+			CreateTrigger(m_Config.GetPosition());
 
 		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
 
 		return true;
 	}
-	
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnContinue
-	// -----------------------------------------------------------
+
 	//! Event called when the player starts the quest.
 	override bool OnContinue()
 	{
@@ -53,15 +51,22 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnContinue())
 			return false;
-
-		CreateVIP();
-
-	#ifdef EXPANSIONMODNAVIGATION
-		OnRecreateClientMarkers();
-	#endif
-
-		if (!m_ObjectiveTrigger)
-			CreateTrigger(m_ObjectiveConfig.GetPosition());
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		//! Only create the VIP and trigger when not already completed!
+		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
+		{
+			CreateVIP();
+	
+			if (!m_ObjectiveTrigger)
+				CreateTrigger(m_Config.GetPosition());
+			
+		#ifdef EXPANSIONMODNAVIGATION
+			CreateMarkers();
+		#endif
+		}
 
 		m_Quest.QuestCompletionCheck();
 		
@@ -70,22 +75,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnRecreateClientMarkers
-	// -----------------------------------------------------------
-#ifdef EXPANSIONMODNAVIGATION
-	override void OnRecreateClientMarkers()
-	{
-		vector markerPosition = m_ObjectiveConfig.GetPosition();
-		string markerName = m_ObjectiveConfig.GetMarkerName();
-		if (markerName != string.Empty && markerPosition != vector.Zero)
-			m_Quest.CreateClientMarker(markerPosition, markerName);
-	}
-#endif
-
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnComplete
-	// -----------------------------------------------------------
 	override bool OnComplete()
 	{
 		ObjectivePrint(ToString() + "::OnComplete - Start");
@@ -101,18 +90,18 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		m_Group.SetLeader(m_VIP);
-		m_Group.AddWaypoint(m_ObjectiveConfig.GetPosition());
+		m_Group.AddWaypoint(m_Config.GetPosition());
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
+
+		auto player = m_Quest.GetPlayer();
+		player.SetGroup(player.Expansion_GetFormerGroup());
 
 		ObjectivePrint(ToString() + "::OnComplete - End and return TRUE.");
 
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnCleanup
-	// -----------------------------------------------------------
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override bool OnCleanup()
 	{
@@ -131,9 +120,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnCancel
-	// -----------------------------------------------------------
 	//! Event called when the quest gets canceled by the player.
 	override bool OnCancel()
 	{
@@ -148,14 +134,26 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
+		auto player = m_Quest.GetPlayer();
+		player.SetGroup(player.Expansion_GetFormerGroup());
+
 		ObjectivePrint(ToString() + "::OnCancel - End and return TRUE.");
 
 		return true;
 	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	override void CreateMarkers()
+	{
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return;
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnEntityKilled
-	// -----------------------------------------------------------
+		vector markerPosition = m_Config.GetPosition();
+		string markerName = m_Config.GetMarkerName();
+		CreateObjectiveMarker(markerPosition, markerName);
+	}
+#endif
+
 	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
@@ -170,9 +168,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent DeleteVIP
-	// -----------------------------------------------------------
 	protected void DeleteVIP()
 	{
 		if (!m_VIP)
@@ -183,20 +178,15 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		GetGame().ObjectDelete(m_VIP);
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent CreateVIP
-	// -----------------------------------------------------------
 	protected void CreateVIP()
 	{
 		ObjectivePrint(ToString() + "::CreateVIP - Start");
 
-		ExpansionQuestObjectiveAIVIP vip = m_ObjectiveConfig.GetAIVIP();
+		ExpansionQuestObjectiveAIVIP vip = m_Config.GetAIVIP();
 		if (!vip)
 			return;
 
-		m_Group = eAIGroup.GetGroupByLeader(m_Quest.GetPlayer());
-		if (!m_Group)
-			return;
+		m_Group = eAIGroup.GetGroupByLeader(m_Quest.GetPlayer(), true, null, false);
 
 		m_VIP = SpawnAI_VIP(m_Quest.GetPlayer(), vip.GetNPCLoadoutFile());
 		if (!m_VIP)
@@ -214,10 +204,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::CreateVIP - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent SpawnAI_VIP
-	// -----------------------------------------------------------
-	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout.json")
+	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout")
 	{
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), owner.GetPosition())))
@@ -229,39 +216,27 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		return ai;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent CreateTrigger
-	// -----------------------------------------------------------
 	protected void CreateTrigger(vector pos)
 	{
 		ObjectivePrint(ToString() + "::CreateTrigger - Start");
 
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_NONE));
 		m_ObjectiveTrigger.SetPosition(pos);
-		m_ObjectiveTrigger.SetObjectiveData(Math.Round(m_ObjectiveConfig.GetMaxDistance()), this);
+		m_ObjectiveTrigger.SetObjectiveData(Math.Round(m_Config.GetMaxDistance()), this);
 
 		ObjectivePrint(ToString() + "::CreateTrigger - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent GetPosition
-	// -----------------------------------------------------------
 	vector GetPosition()
 	{
-		return m_ObjectiveConfig.GetPosition();
+		return m_Config.GetPosition();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent GetAIVIP
-	// -----------------------------------------------------------
 	eAIBase GetAIVIP()
 	{
 		return m_VIP;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent CanComplete
-	// -----------------------------------------------------------
 	override bool CanComplete()
 	{
 		ObjectivePrint(ToString() + "::CanComplete - Start");
@@ -279,9 +254,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		return super.CanComplete();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent SetReachedLocation
-	// -----------------------------------------------------------
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
@@ -292,21 +264,15 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::SetReachedLocation - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent OnDissmissAIGroup
-	// -----------------------------------------------------------
 	void OnDissmissAIGroup()
 	{
 		m_Quest.SendNotification(StringLocaliser("VIP Group Dismissed"), new StringLocaliser("The group with the VIP got dismissed. Objective failed.."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
 		m_Quest.CancelQuest();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAIEscortEvent GetObjectiveType
-	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
-		return ExpansionQuestObjectiveType.AIESCORD;
+		return ExpansionQuestObjectiveType.AIESCORT;
 	}
 };
 #endif

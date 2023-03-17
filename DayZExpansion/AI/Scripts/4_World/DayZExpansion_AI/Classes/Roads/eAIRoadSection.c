@@ -1,4 +1,4 @@
-class eAIRoadSection extends eAIRoadNodeBase
+class eAIRoadSection: eAIRoadNodeBase
 {
 	ref array<eAIRoadNode> m_Nodes = new array<eAIRoadNode>();
 

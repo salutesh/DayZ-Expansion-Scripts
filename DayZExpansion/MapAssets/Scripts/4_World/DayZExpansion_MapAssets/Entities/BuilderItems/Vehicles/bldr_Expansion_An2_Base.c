@@ -10,7 +10,7 @@
  *
 */
 
-class bldr_expansion_An2_Base extends House
+class bldr_expansion_An2_Base: House
 {
 	float m_RotorAnimationPosition;
 

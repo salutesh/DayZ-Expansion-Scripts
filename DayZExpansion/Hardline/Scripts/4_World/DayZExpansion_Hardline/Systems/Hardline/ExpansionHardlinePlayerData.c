@@ -12,20 +12,29 @@
 
 class ExpansionHardlinePlayerData
 {
-	static const int CONFIGVERSION = 5;
+	static const int CONFIGVERSION = 7;
 
 	int ConfigVersion;
-	
 	int Reputation;
+
+	ref map<int, int> FactionReputation; //! Hash map with all that faction IDs and there respective reputation. -1 is the key for the normal reputation.
+	int FactionID;  //! Most recent faction the player was part of
 
 	void ExpansionHardlinePlayerData()
 	{
 		ConfigVersion = CONFIGVERSION;
+
+		FactionReputation = new map<int, int>;
+		FactionID = -1;
 	}
 	
 	void Save(string fileName)
 	{
 		FileSerializer file = new FileSerializer();
+
+		if (!FileExist(EXPANSION_HARDLINE_PLAYERDATA_FOLDER))
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
+
 		if (file.Open(EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
 		{
 			file.Write(ConfigVersion);
@@ -39,6 +48,10 @@ class ExpansionHardlinePlayerData
 	bool Load(string fileName)
 	{
 		string path = EXPANSION_HARDLINE_PLAYERDATA_FOLDER + fileName + ".bin";
+
+		if (!FileExist(EXPANSION_HARDLINE_PLAYERDATA_FOLDER))
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_HARDLINE_PLAYERDATA_FOLDER);
+		
 		if (FileExist(path))
 		{
 			FileSerializer file = new FileSerializer();
@@ -63,6 +76,16 @@ class ExpansionHardlinePlayerData
 	void OnWrite(ParamsWriteContext ctx)
 	{
 		ctx.Write(Reputation);
+
+		ctx.Write(FactionReputation.Count());
+		
+		foreach (int factionID, int factionRep: FactionReputation)
+		{
+			ctx.Write(factionID);
+			ctx.Write(factionRep);
+		}
+
+		ctx.Write(FactionID);
 	}
 
 	bool OnRead(ParamsReadContext ctx)
@@ -79,9 +102,6 @@ class ExpansionHardlinePlayerData
 			Error(ToString() + "::OnRead Reputation");
 			return false;
 		}
-
-		if (ConfigVersion >= 5)
-			return true;
 
 		if (ConfigVersion < 4)
 		{
@@ -120,7 +140,7 @@ class ExpansionHardlinePlayerData
 				return false;
 			}
 		}
-		else
+		else if (ConfigVersion == 4)
 		{
 			int playerKills;
 			if (!ctx.Read(playerKills))
@@ -130,27 +150,76 @@ class ExpansionHardlinePlayerData
 			}
 		}
 		
-		int aiKills;
-		if (!ctx.Read(aiKills))
+		if (ConfigVersion < 5)
 		{
-			Error(ToString() + "::OnRead AIKills");
+			int aiKills;
+			if (!ctx.Read(aiKills))
+			{
+				Error(ToString() + "::OnRead AIKills");
+				return false;
+			}
+			
+			int infectedKills;
+			if (!ctx.Read(infectedKills))
+			{
+				Error(ToString() + "::OnRead InfectedKills");
+				return false;
+			}
+
+			int playerDeaths;
+			if (!ctx.Read(playerDeaths))
+			{
+				Error(ToString() + "::OnRead PlayerDeaths");
+				return false;
+			}
+		}
+
+		if (ConfigVersion < 6)
+			return true;
+
+		int factionRepCount;
+		if (!ctx.Read(factionRepCount))
+		{
+			Error(ToString() + "::OnRead factionRepCount");
 			return false;
 		}
 		
-		int infectedKills;
-		if (!ctx.Read(infectedKills))
+		for (int i = 0; i < factionRepCount; i++)
 		{
-			Error(ToString() + "::OnRead InfectedKills");
+			int factionID;
+			if (!ctx.Read(factionID))
+			{
+				Error(ToString() + "::OnRead factionID");
+				return false;
+			}
+			
+			int factionRep;
+			if (!ctx.Read(factionRep))
+			{
+				Error(ToString() + "::OnRead factionID");
+				return false;
+			}
+			
+			FactionReputation[factionID] = factionRep;
+		}
+
+		if (ConfigVersion < 7)
+			return true;
+
+		if (!ctx.Read(FactionID))
+		{
+			Error(ToString() + "::OnRead FactionID");
 			return false;
 		}
 
-		int playerDeaths;
-		if (!ctx.Read(playerDeaths))
-		{
-			Error(ToString() + "::OnRead PlayerDeaths");
-			return false;
-		}
-		
+		if (FactionID != -1)
+			FactionReputation[FactionID] = Reputation;
+
 		return true;
+	}
+	
+	protected int GetReputationByFactionID(int factionID)
+	{
+		return FactionReputation[factionID];
 	}
 };

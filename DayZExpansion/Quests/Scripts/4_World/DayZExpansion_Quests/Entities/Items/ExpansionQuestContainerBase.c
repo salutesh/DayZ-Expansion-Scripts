@@ -15,9 +15,6 @@ class ExpansionQuestContainerBase: Container_Base
 	protected bool m_ExpansionCanReceiveItems;
 	protected bool m_ExpansionStashDelete;
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionQuestContainerBase()
 	{
 		if (IsMissionHost())  //! Server or COM
@@ -26,52 +23,43 @@ class ExpansionQuestContainerBase: Container_Base
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase Destructor
-	// ------------------------------------------------------------	
 	void ~ExpansionQuestContainerBase()
 	{
 		if (m_ExpansionStashDelete)
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
 	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase CanPutInCargo
-	// ------------------------------------------------------------
-	override bool CanPutInCargo(EntityAI parent)
+	
+	override bool CanPutIntoHands(EntityAI parent)
 	{
-		if (parent.IsInherited(UndergroundStash))
-			return true;
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase CanReceiveAttachment
-	// ------------------------------------------------------------
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		if (!super.CanPutInCargo(parent))
+			return false;
+
+		if (parent.IsInherited(UndergroundStash))
+			return true;
+
+		return false;
+	}
+
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase CanReceiveItemIntoCargo
-	// ------------------------------------------------------------
 	override bool CanReceiveItemIntoCargo(EntityAI item)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase CanSwapItemInCargo
-	// ------------------------------------------------------------
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase ExpansionCheckStorage
-	// ------------------------------------------------------------
 	void ExpansionCheckStorage()
 	{
 		if (!IsInStash() && !m_ExpansionStashDelete)
@@ -81,9 +69,6 @@ class ExpansionQuestContainerBase: Container_Base
 			ExpansionDeleteStorage();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase ExpansionDeleteStashAfterCooldown
-	// ------------------------------------------------------------
 	protected void ExpansionDeleteStashAfterCooldown()
 	{
 		m_ExpansionStashDelete = true;
@@ -94,9 +79,6 @@ class ExpansionQuestContainerBase: Container_Base
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase IsInStash
-	// ------------------------------------------------------------
 	bool IsInStash()
 	{
 		UndergroundStash stash;
@@ -106,41 +88,32 @@ class ExpansionQuestContainerBase: Container_Base
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestContainerBase ExpansionDeleteStorage
-	// ------------------------------------------------------------
 	protected void ExpansionDeleteStorage()
 	{
 		GetGame().ObjectDelete(this);
 		if (m_ExpansionStashDelete)
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
 	}
-	
-	// ------------------------------------------------------------
-	// UndergroundStash OnInventoryExit
-	// ------------------------------------------------------------	
+
 	override void EECargoOut(EntityAI item)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::EECargoOut - Start");
 	#endif
-		
+
 		super.EECargoOut(item);
-		
+
 		if (m_Expansion_QuestID > -1)
 		{
 			CheckAssignedObjectives(item);
 			ExpansionCheckStorage();
 		}
-		
+
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::EECargoOut - End");
 	#endif
 	}
-	
-	// ------------------------------------------------------------
-	// UndergroundStash CheckAssignedObjectives
-	// ------------------------------------------------------------
+
 	protected void CheckAssignedObjectives(EntityAI item)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -162,11 +135,11 @@ class ExpansionQuestContainerBase: Container_Base
 		{
 			if (!objective || !objective.GetQuest())
 				continue;
-			
+
 			int questID = objective.GetQuest().GetQuestConfig().GetID();
 			Print(ToString() + "::CheckAssignedObjectives - Objective quest ID: " + questID);
 			Print(ToString() + "::CheckAssignedObjectives - Stash quest ID: " + m_Expansion_QuestID);
-			
+
 			if (questID != m_Expansion_QuestID)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -174,7 +147,7 @@ class ExpansionQuestContainerBase: Container_Base
 			#endif
 				continue;
 			}
-			
+
 			if (objective.GetObjectiveType() != ExpansionQuestObjectiveType.TREASUREHUNT)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -182,15 +155,15 @@ class ExpansionQuestContainerBase: Container_Base
 			#endif
 				continue;
 			}
-			
+
 			ExpansionQuestObjectiveTreasureHuntEvent treasureHuntEvent;
 			if (!Class.CastTo(treasureHuntEvent, objective))
 			{
 				Error(ToString() + "::CheckAssignedObjectives - Could not get Treasure Hunt objective!");
 				continue;
 			}
-			
-			ExpansionQuestSeaChest objectiveChest = ExpansionQuestSeaChest.Cast(this);
+
+			ExpansionQuestContainerBase objectiveChest = ExpansionQuestContainerBase.Cast(this);
 			if (treasureHuntEvent.GetChest() != objectiveChest)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -198,11 +171,11 @@ class ExpansionQuestContainerBase: Container_Base
 			#endif
 				continue;
 			}
-			
+
 			array<EntityAI> lootItems = treasureHuntEvent.GetLootItems();
 			if (lootItems.Find(item) == -1)
 				return;
-			
+
 			if (!treasureHuntEvent.HasLootedItemFromChest())
 				treasureHuntEvent.LootedItemFromChest();
 		}
@@ -214,3 +187,11 @@ class ExpansionQuestContainerBase: Container_Base
 };
 
 class ExpansionQuestSeaChest: ExpansionQuestContainerBase {};
+class ExpansionQuestDryBag_ColorBase: ExpansionQuestContainerBase {};
+class ExpansionQuestDryBag_Orange: ExpansionQuestDryBag_ColorBase {};
+class ExpansionQuestDryBag_Yellow: ExpansionQuestDryBag_ColorBase {};
+class ExpansionQuestDryBag_Blue: ExpansionQuestDryBag_ColorBase {};
+class ExpansionQuestDryBag_Green: ExpansionQuestDryBag_ColorBase {};
+class ExpansionQuestDryBag_Black: ExpansionQuestDryBag_ColorBase {};
+class ExpansionQuestDryBag_Red: ExpansionQuestDryBag_ColorBase {};
+ 

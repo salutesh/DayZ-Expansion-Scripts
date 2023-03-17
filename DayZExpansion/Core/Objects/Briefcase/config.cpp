@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Gear_Breifcase
 	{
-		units[] = {"bldr_ExpansionBriefcase","bldr_ExpansionBriefcase_Open","bldr_ExpansionBriefcase_MidOpen","ExpansionBriefcase"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
@@ -15,13 +15,13 @@ class CfgVehicles
 	class HouseNoDestruct;
 	class bldr_ExpansionBriefcase: HouseNoDestruct
 	{
-		scope = 2;
+		scope = 1;
 		rotationFlags = 17;
 		model = "\DayZExpansion\Core\Objects\Briefcase\briefcase.p3d";
 	};
 	class bldr_ExpansionBriefcase_Open: bldr_ExpansionBriefcase
 	{
-		scope = 2;
+		scope = 1;
 		class AnimationSources
 		{
 			class upperpart_rotate
@@ -34,7 +34,7 @@ class CfgVehicles
 	};
 	class bldr_ExpansionBriefcase_MidOpen: bldr_ExpansionBriefcase
 	{
-		scope = 2;
+		scope = 1;
 		class AnimationSources
 		{
 			class upperpart_rotate

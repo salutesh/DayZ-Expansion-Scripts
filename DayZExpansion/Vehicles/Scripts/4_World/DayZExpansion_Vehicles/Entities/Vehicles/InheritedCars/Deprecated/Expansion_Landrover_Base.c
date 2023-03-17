@@ -10,16 +10,16 @@
  *
 */
 
-class Expansion_Landrover_Driverdoor extends CarDoor{};
-class Expansion_Landrover_Codriverdoor extends CarDoor{};
-class Expansion_Landrover_Left extends CarDoor{};
-class Expansion_Landrover_Right extends CarDoor{};
-class Expansion_Landrover_Trunk extends CarDoor{};
-class Expansion_Landrover_Hood extends CarDoor{};
+class Expansion_Landrover_Driverdoor: CarDoor{};
+class Expansion_Landrover_Codriverdoor: CarDoor{};
+class Expansion_Landrover_Left: CarDoor{};
+class Expansion_Landrover_Right: CarDoor{};
+class Expansion_Landrover_Trunk: CarDoor{};
+class Expansion_Landrover_Hood: CarDoor{};
 
-class Expansion_Landrover extends Expansion_Landrover_Base{};
+class Expansion_Landrover: Expansion_Landrover_Base{};
 
-class Expansion_Landrover_Base extends CarScript
+class Expansion_Landrover_Base: CarScript
 {
 	protected ref UniversalTemperatureSource m_UTSource;
 	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
@@ -604,7 +604,7 @@ class Expansion_Landrover_Base extends CarScript
 	}
 };
 
-modded class SeaChest extends Container_Base
+modded class SeaChest
 {
 	override void SetActions()
 	{
@@ -615,7 +615,7 @@ modded class SeaChest extends Container_Base
 	}
 };
 
-modded class CanisterGasoline extends Bottle_Base
+modded class CanisterGasoline
 {
 	override void SetActions()
 	{
@@ -626,7 +626,7 @@ modded class CanisterGasoline extends Bottle_Base
 		AddAction(ActionDetach);
 	}
 };
-modded class SeaChest extends DeployableContainer_Base
+modded class SeaChest
 {
 	override void SetActions()
 	{
@@ -636,7 +636,7 @@ modded class SeaChest extends DeployableContainer_Base
 		AddAction(ActionDetach);
 	}
 };
-modded class WoodenCrate extends DeployableContainer_Base
+modded class WoodenCrate
 {
 	override void SetActions()
 	{

@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftBarbedWireKit
  * @brief		
  **/
-class ExpansionCraftBarbedWireKit extends RecipeBase
+class ExpansionCraftBarbedWireKit: RecipeBase
 {	
 	override void Init()
 	{

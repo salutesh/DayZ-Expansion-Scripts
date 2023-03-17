@@ -1,4 +1,4 @@
-class ExpansionMissionEventHorde extends ExpansionMissionEventBase
+class ExpansionMissionEventHorde: ExpansionMissionEventBase
 {
 	int MinInfectedAmount;
 	int MaxInfectedAmount;

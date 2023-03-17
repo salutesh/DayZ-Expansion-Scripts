@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
+class ExpansionMapMarkerList: ScriptedWidgetEventHandler
 {
 	private Widget m_Root;
 	
@@ -45,7 +45,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 #endif
 	
 	private TextWidget m_CursorPositionX;
-	private TextWidget m_CursorPositionY;
+	private TextWidget m_CursorPositionZ;
 	
 	private ButtonWidget m_ServerMarkersToggle;
 	private ImageWidget m_ServerMarkersToggleIcon;
@@ -134,7 +134,7 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		m_MarkerListInfoIcon = ImageWidget.Cast(m_Root.FindAnyWidget("MarkerListPanelFooterInfoIcon"));
 		
 		m_CursorPositionX = TextWidget.Cast(m_Root.FindAnyWidget("Pos_X")); 
-		m_CursorPositionY = TextWidget.Cast(m_Root.FindAnyWidget("Pos_Y")); 
+		m_CursorPositionZ = TextWidget.Cast(m_Root.FindAnyWidget("Pos_Z")); 
 	
 		#ifdef EXPANSION_MAP_MENU_DEBUG
 		EXLogPrint("ExpansionMapMarkerList::OnWidgetScriptInit - End");
@@ -815,9 +815,9 @@ class ExpansionMapMarkerList extends ScriptedWidgetEventHandler
 		}
 	}
 	
-	void UpdatePosition(float pos_x, float pos_y)
+	void UpdatePosition(float pos_x, float pos_z)
 	{
 		m_CursorPositionX.SetText(pos_x.ToString());
-		m_CursorPositionY.SetText(pos_y.ToString());
+		m_CursorPositionZ.SetText(pos_z.ToString());
 	}
 }

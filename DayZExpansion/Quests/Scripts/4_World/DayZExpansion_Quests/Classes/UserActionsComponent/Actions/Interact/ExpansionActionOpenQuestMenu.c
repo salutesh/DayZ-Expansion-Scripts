@@ -37,12 +37,12 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 			return false;
 
 		auto npc = ExpansionQuestNPCBase.Cast(targetObject);
-	#ifdef ENFUSION_AI_PROJECT
+	#ifdef EXPANSIONMODAI
 		auto npcAI = ExpansionQuestNPCAIBase.Cast(targetObject);
 	#endif
 		auto npcObject = ExpansionQuestStaticObject.Cast(targetObject);
 
-	#ifdef ENFUSION_AI_PROJECT
+	#ifdef EXPANSIONMODAI
 		if (!npc && !npcAI && !npcObject)
 	#else
 		if (!npc && !npcObject)
@@ -57,7 +57,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 				return false;
 
 			string actionText;
-		#ifdef ENFUSION_AI_PROJECT
+		#ifdef EXPANSIONMODAI
 			if (npc || npcAI)
 		#else
 			if (npc)
@@ -72,8 +72,18 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 		return true;
 	}
 
+	/**
+	 * Client/server handshake
+	 * 
+	 * Server: ExpansionActionOpenQuestMenu::OnExecuteServer
+	 * Server: ExpansionQuestModule::RequestOpenQuestMenu
+	 * Client: ExpansionQuestModule::RPC_RequestOpenQuestMenu
+	 * Client: Invoke ExpansionQuestMenu::SetQuests
+	 **/
 	override void OnExecuteServer(ActionData action_data)
 	{
+		Print(ToString() + "::OnExecuteServer - Start");
+
 		super.OnExecuteServer(action_data);
 
 		PlayerBase player = action_data.m_Player;
@@ -88,5 +98,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 			return;
 
 		m_Expansion_QuestModule.RequestOpenQuestMenu(targetObject, player.GetIdentity());
+		
+		Print(ToString() + "::OnExecuteServer - End");
 	}
 }

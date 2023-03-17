@@ -678,17 +678,6 @@ modded class PlayerBase
 			hic.OverrideRaise(!mode, false);
 		}
 	}
-
-	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
-	{
-		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
-			return false;
-
-		if (m_Expansion_IsInSafeZone)
-			return false;
-
-		return true;
-	}
 	
 	// ------------------------------------------------------------
 	// PlayerBase EEKilled

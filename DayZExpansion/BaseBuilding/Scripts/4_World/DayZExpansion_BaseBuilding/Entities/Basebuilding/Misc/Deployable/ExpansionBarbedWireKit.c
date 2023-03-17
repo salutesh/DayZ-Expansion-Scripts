@@ -13,7 +13,7 @@
 /**@class		ExpansionBarbedWireKit
  * @brief		This class handle base class of expansion basebuilding	
  **/
-class ExpansionBarbedWireKit extends ExpansionKitLarge
+class ExpansionBarbedWireKit: ExpansionKitLarge
 {
 	// ------------------------------------------------------------
 	// OnPlacementComplete

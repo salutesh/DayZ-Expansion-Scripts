@@ -192,7 +192,23 @@ class ExpansionAirdropContainerManager
 		if ( GetExpansionSettings().GetAirdrop().ShowAirdropTypeOnMarker )
 			markerName = m_Container.GetDisplayName();
 		
-		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", m_Container.GetPosition(), ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
+		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_SpawnPosition);
+
+		PhxInteractionLayers layerMask;
+		layerMask |= PhxInteractionLayers.BUILDING;
+		layerMask |= PhxInteractionLayers.DOOR;
+		layerMask |= PhxInteractionLayers.VEHICLE;
+		layerMask |= PhxInteractionLayers.ROADWAY;
+		layerMask |= PhxInteractionLayers.TERRAIN;
+		layerMask |= PhxInteractionLayers.ITEM_LARGE;
+		layerMask |= PhxInteractionLayers.FENCE;
+
+		vector hitPosition;
+
+		if (!DayZPhysics.RayCastBullet(m_Container.m_SpawnPosition, surfacePosition, layerMask, m_Container, null, hitPosition, null, null))
+			hitPosition = surfacePosition;
+
+		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", hitPosition, ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
 		#endif
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG

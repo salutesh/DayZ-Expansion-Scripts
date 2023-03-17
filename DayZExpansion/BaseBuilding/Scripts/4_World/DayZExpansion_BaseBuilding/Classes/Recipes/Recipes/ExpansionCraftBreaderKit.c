@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftChickenBreaderKit
  * @brief		
  **/
-class ExpansionCraftChickenBreaderKit extends RecipeBase
+class ExpansionCraftChickenBreaderKit: RecipeBase
 {	
 	override void Init()
 	{

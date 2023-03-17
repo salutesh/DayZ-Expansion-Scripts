@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_Truck_01_Base extends ExpansionVehicleCarBase
+class Vehicle_Truck_01_Base: ExpansionVehicleCarBase
 {
 	override bool LeavingSeatDoesAttachment(int posIdx)
 	{

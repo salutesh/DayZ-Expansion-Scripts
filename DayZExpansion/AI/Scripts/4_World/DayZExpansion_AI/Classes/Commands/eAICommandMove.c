@@ -1,4 +1,4 @@
-class eAICommandMove extends ExpansionHumanCommandScript
+class eAICommandMove: ExpansionHumanCommandScript
 {
 	static const int TURN_STATE_NONE = 0;
 	static const int TURN_STATE_TURNING = 1;
@@ -767,7 +767,7 @@ class eAICommandMove extends ExpansionHumanCommandScript
 
 			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
 
-			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.1, 30.0);
+			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.5, 30.0);
 		}
 
 		if (m_GetUp)

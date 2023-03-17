@@ -13,7 +13,7 @@
 /**@class		ExpansionRefillKitMasterKey
  * @brief		
  **/
-class ExpansionRefillKitMasterKey extends RecipeBase
+class ExpansionRefillKitMasterKey: RecipeBase
 {
 	override void Init()
 	{

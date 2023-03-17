@@ -15,14 +15,12 @@
  **/
 modded class ActionConstructor
 {
-	// ------------------------------------------------------------
-	// RegisterActions
-	// ------------------------------------------------------------
 	override void RegisterActions(TTypenameArray actions)
 	{
 		super.RegisterActions(actions);
 
 		//! Quests
 		actions.Insert(ExpansionActionOpenQuestMenu);
+		actions.Insert(ExpansionActionUseQuestItem);
 	}
 }

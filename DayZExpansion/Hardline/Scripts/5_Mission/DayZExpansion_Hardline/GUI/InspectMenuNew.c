@@ -11,7 +11,7 @@
 */
 
 modded class InspectMenuNew
-{
+{	
 	override Widget Init()
 	{
 		layoutRoot = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/Hardline/GUI/layouts/expansion_inventory_inspect.layout");

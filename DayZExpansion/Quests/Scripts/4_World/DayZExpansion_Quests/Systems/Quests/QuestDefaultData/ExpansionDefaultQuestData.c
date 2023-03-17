@@ -384,9 +384,9 @@ class ExpansionDefaultQuestData
 		questConfig.AddQuestTurnInID(2); //! Quest NPC ID of the NPC that will take-in the quest
 
 		//! Quest objectives
-		ExpansionQuestObjectiveAIEscordConfig objective_1 = new ExpansionQuestObjectiveAIEscordConfig();
+		ExpansionQuestObjectiveAIEscortConfig objective_1 = new ExpansionQuestObjectiveAIEscortConfig();
 		objective_1.SetID(1);
-		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIESCORD);
+		objective_1.SetObjectiveType(ExpansionQuestObjectiveType.AIESCORT);
 		objective_1.SetTimeLimit(180);
 		questConfig.AddObjectiveConfig(objective_1);
 

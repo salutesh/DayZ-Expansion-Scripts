@@ -1,5 +1,5 @@
 #ifdef EXPANSION_MISSION_AI_ENABLE
-class ExpansionMissionEventAI extends ExpansionMissionEventBase
+class ExpansionMissionEventAI: ExpansionMissionEventBase
 {
 	ref ExpansionAIMissionMeta MissionMeta;
 

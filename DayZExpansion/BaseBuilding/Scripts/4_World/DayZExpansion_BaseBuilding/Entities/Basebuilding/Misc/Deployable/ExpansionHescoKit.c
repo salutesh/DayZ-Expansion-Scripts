@@ -13,7 +13,7 @@
 /**@class		ExpansionHescoKit
  * @brief		This class handle base class of expansion basebuilding	
  **/
-class ExpansionHescoKit extends ExpansionKitLarge
+class ExpansionHescoKit: ExpansionKitLarge
 {
 	// ------------------------------------------------------------
 	// OnPlacementComplete

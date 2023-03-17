@@ -1,4 +1,4 @@
-class ExpansionPowerSwitch extends ItemBase
+class ExpansionPowerSwitch: ItemBase
 {
 	override bool ExpansionIsPowerSource()
 	{

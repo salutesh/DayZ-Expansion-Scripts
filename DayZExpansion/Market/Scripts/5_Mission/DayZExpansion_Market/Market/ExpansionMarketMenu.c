@@ -677,7 +677,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				menuCategory.Show();
 				MarketPrint("UpdateMarketCategories - Show category: " + menuCategory.GetCategoryController().CategoryName);
-				if (!menuCategory.IsUpdateTimerRunning() || !menuCategory.UpdateItemCount())
+				if (!menuCategory.IsUpdateTimerRunning() || !menuCategory.GetUpdateItemCount())
 				{
 					int show;
 					if (isFiltered)
@@ -1674,11 +1674,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			else
 			{
-				//! Player doesn't have the item. Use preview item.
+				//! Player doesn't have the item
 				items = new array<EntityAI>;
-				EntityAI previewEntity;
-				if (Class.CastTo(previewEntity, m_SelectedMarketItemElement.GetPreviewObject()))
-					items.Insert(previewEntity);
 				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
 			}
 
@@ -1908,7 +1905,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		else if (!ignoreBaseBuildingKits && className.IndexOf("kit") == className.Length() - 3)
 		{
-			//! Special handling for Expansion
+			/*************************************************************************************************************************
+			 * WARNING: Only TESTED basebuilding items!
+			 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
+			 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
+			 *************************************************************************************************************************/
+
+			//! Expansion
 			if (GetGame().IsKindOf(className, "ExpansionKitLarge"))
 			{
 				string path = "CfgVehicles " + className + " placingTypes";
@@ -1927,6 +1930,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 
+			//! Vanilla
 			if (className == "fencekit" || className == "watchtowerkit" || className == "territoryflagkit")
 			{
 				//! Item name is kit name without "kit" at the end
@@ -2291,6 +2295,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				break;
 			}
 
+			case ExpansionMarketResult.FailedItemSpawn:
+			{
+				MarketPrint("MenuCallback - item could not be spawned: " + itemClassName);
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Transaction failed: " + GetDisplayName(itemClassName) + " (" + itemClassName + ") could not be spawned.";
+				break;
+			}
+
 			//! Inventory desync or tampering attempt
 			case ExpansionMarketResult.FailedSellListMismatch:
 			{
@@ -2314,7 +2327,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (notify)
 			ExpansionNotification(title, text, icon, color, 3, ExpansionNotificationType.MARKET).Create();
 	
-		if (result != ExpansionMarketResult.FailedItemDoesNotExistInTrader)
+		if (result != ExpansionMarketResult.FailedItemDoesNotExistInTrader && result != ExpansionMarketResult.FailedItemSpawn)
 			RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
 				
 		MarketPrint("MenuCallback - End");
@@ -3133,7 +3146,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 	void PlayMarketSound()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{	
 			if (GetGame().GetPlayer())
 			{

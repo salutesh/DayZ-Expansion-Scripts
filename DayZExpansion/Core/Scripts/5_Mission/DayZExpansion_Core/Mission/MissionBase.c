@@ -1,12 +1,8 @@
 modded class MissionBase
 {
 #ifdef SERVER
-	static const float EXPANSION_UPDATEINTERVAL = 0.025;
-#else
-	static const float EXPANSION_UPDATEINTERVAL = 0.005;
-#endif
-
 	protected float m_Expansion_UpdateTime;
+#endif
 
 	void MissionBase()
 	{
@@ -18,6 +14,17 @@ modded class MissionBase
 #ifndef CF_ONUPDATE_RATE_LIMIT
 	override void CF_OnUpdate(float timeslice)
 	{
+#ifdef SERVER
+		float updateTime = GetGame().GetTickTime();
+		float elapsed = updateTime - m_Expansion_UpdateTime;
+		bool update = elapsed >= 0.025;
+
+		if (update)
+		{
+			m_Expansion_UpdateTime = updateTime;
+		}
+#endif
+
 		if (!m_bLoaded)
 		{
 			if (g_Game.IsLoading())
@@ -29,14 +36,14 @@ modded class MissionBase
 			OnMissionLoaded();
 		}
 
-		m_Expansion_UpdateTime += timeslice;
-
-		if (m_Expansion_UpdateTime >= EXPANSION_UPDATEINTERVAL)
+#ifdef SERVER
+		if (update)
 		{
-			CF_ModuleGameManager.OnUpdate(this, new CF_EventUpdateArgs(m_Expansion_UpdateTime));
-
-			m_Expansion_UpdateTime = 0;
+			CF_ModuleGameManager.OnUpdate(this, new CF_EventUpdateArgs(elapsed));
 		}
+#else
+		CF_ModuleGameManager.OnUpdate(this, new CF_EventUpdateArgs(timeslice));
+#endif
 	}
 #endif
 };

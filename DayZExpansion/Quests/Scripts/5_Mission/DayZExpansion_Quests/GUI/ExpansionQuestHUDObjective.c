@@ -20,6 +20,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	protected RichTextWidget ObjectiveName;
 	protected RichTextWidget ObjectiveTime;
 	protected WrapSpacerWidget ObjectiveWrapper;
+	protected WrapSpacerWidget ObjectiveDeliveryEnties;
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
 	{
@@ -40,29 +41,24 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void SetEntryObjective()
 	{
-		QuestDebugPrint(ToString() + "::SetEntryObjective - Start");
-		QuestDebugPrint(ToString() + "::SetEntryObjective - objective type is: " + m_Objective.GetObjectiveType());
-
 		if (!m_QuestHUDObjectiveController)
 			m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
-
-		Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 
 		vector objectivePos;
 		vector playerPos;
 		int currentDistance;
 		int count;
 		int amount;
+		int i;
 
-		ExpansionQuestObjectiveConfig objectiveConfigBase = m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()];
-		if (!objectiveConfigBase)
+		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()]);
+		if (!objectiveConfig)
 			return;
 
-		QuestDebugPrint(ToString() + "::SetEntryObjective - Objective config: " + objectiveConfigBase);
-
 		bool completed = m_Objective.IsCompleted();
-		if (objectiveConfigBase.GetObjectiveText() != string.Empty)
+		if (objectiveConfig.GetObjectiveText() != string.Empty)
 		{
+			ObjectiveName.Show(true);
 			string objectiveState;
 			if (completed)
 			{
@@ -75,16 +71,13 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				objectiveState = "[" + incompleteKey + "] ";
 			}
 
-			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + objectiveConfigBase.GetObjectiveText();
+			m_QuestHUDObjectiveController.ObjectiveName = objectiveState + objectiveConfig.GetObjectiveText();
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveName");
-		}
-		else
-		{
-			ObjectiveName.Show(false);
 		}
 
 		if (m_Objective.GetTimeLimit() > -1)
 		{
+			ObjectiveTime.Show(true);
 			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
 
@@ -101,33 +94,24 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
 			}
 		}
-		else
-		{
-			ObjectiveTime.Show(false);
-		}
 
-		switch (objectiveConfigBase.GetObjectiveType())
+		switch (objectiveConfig.GetObjectiveType())
 		{
 			case ExpansionQuestObjectiveType.TARGET:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - TARGET");
 				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_KILLED";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 				count = m_Objective.GetObjectiveCount();
 				amount = m_Objective.GetObjectiveAmount();
-				QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
-				QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
 				m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-				QuestDebugPrint(ToString() + "::SetEntryObjective - TARGET - ADDED");
 			}
 			break;
 
 			case  ExpansionQuestObjectiveType.TRAVEL:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - TRAVEL");
 				ExpansionQuestObjectiveTravelConfig travelObjective;
-				if (Class.CastTo(travelObjective, objectiveConfigBase))
+				if (Class.CastTo(travelObjective, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -143,16 +127,14 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						ObjectiveWrapper.Show(false);
 					}
-					QuestDebugPrint(ToString() + "::SetEntryObjective - TRAVEL - ADDED");
 				}
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.DELIVERY:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - DELIVERY");
 				ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
-				if (Class.CastTo(deliveryObjective, objectiveConfigBase))
+				if (Class.CastTo(deliveryObjective, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_DELIVER";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -168,31 +150,34 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						ObjectiveWrapper.Show(false);
 					}
+ 					
+					ObjectiveDeliveryEnties.Show(true);
+					array<ref ExpansionQuestObjectiveDelivery> deliveries = deliveryObjective.GetCollections();
 
-					array<ref ExpansionQuestObjectiveDelivery> deliveries = deliveryObjective.GetDeliveries();
-
-					int deliveryIndex = 0;
-					foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
+					for (i = 0; i < deliveries.Count(); i++)
 					{
-						int currentDeliveryCount = m_Objective.GetDeliveryCountByIndex(deliveryIndex);
+						int currentDeliveryCount = m_Objective.GetDeliveryCountByIndex(i);
+						ExpansionQuestObjectiveDelivery delivery = deliveries[i];
 						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery, currentDeliveryCount);
 						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
-						deliveryIndex++;
+						
 					}
-					QuestDebugPrint(ToString() + "::SetEntryObjective - DELIVERY - ADDED");
 				}
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - COLLECT");
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
-				if (Class.CastTo(collectionObjective, objectiveConfigBase))
+				ExpansionQuestHUDDeliveryObjective collectionEntry;
+				ExpansionQuestObjectiveDelivery collection;
+				int currentCollectionCount;
+
+				if (Class.CastTo(collectionObjective, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_COLLECT";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					if (collectionObjective.ShowDistance())
+					if (collectionObjective.ShowDistance() && completed)
 					{
 						objectivePos = m_Objective.GetObjectivePosition();
 						playerPos = GetGame().GetPlayer().GetPosition();
@@ -200,35 +185,67 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
 						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 					}
-					else
+					else if (!collectionObjective.ShowDistance() || !completed)
 					{
 						ObjectiveWrapper.Show(false);
 					}
 
+					ObjectiveDeliveryEnties.Show(true);
 					array<ref ExpansionQuestObjectiveDelivery> collections = collectionObjective.GetDeliveries();
-
-					QuestDebugPrint(ToString() + "::SetEntryObjective - COLLECT - Collections data count: " + collections.Count());
-
-					int collectionIndex = 0;
-					foreach (ExpansionQuestObjectiveDelivery collection: collections)
+					
+					map<int, int> collectionsMap = new map<int, int>;
+					int collectionsCount;
+					for (i = 0; i < collections.Count(); i++)
 					{
-						int currentCollectionCount = m_Objective.GetDeliveryCountByIndex(collectionIndex);
-						QuestDebugPrint(ToString() + "::SetEntryObjective - COLLECT - Collection index: " + collectionIndex + " | Count: " + currentCollectionCount);
-
-						ExpansionQuestHUDDeliveryObjective collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);
-						m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
-						collectionIndex++;
+						currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
+						collection = collections[i];
+						
+						if (!collectionObjective.NeedAnyCollection())
+						{
+							collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
+							m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
+						}
+						else if (collectionObjective.NeedAnyCollection() && currentCollectionCount >= collection.GetAmount())
+						{
+							collectionsCount += currentCollectionCount;
+							collectionsMap.Insert(i, currentCollectionCount);	
+						}
 					}
-					QuestDebugPrint(ToString() + "::SetEntryObjective - COLLECT - ADDED");
+					
+					//! Steve: This is a mess. Don't look at it :(
+					if (collectionObjective.NeedAnyCollection())
+					{
+						if (collectionsCount > 0)
+						{
+							foreach (int collectionIndex, int collectionCount: collectionsMap)
+							{
+								collection = collections[collectionIndex];
+								if (!collection)
+									continue;
+
+								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, collectionCount);					
+								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
+							}
+						}
+						else
+						{
+							for (i = 0; i < collections.Count(); i++)
+							{
+								currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
+								collection = collections[i];
+								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
+								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
+							}
+						}
+					}
 				}
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - TREASUREHUNT");
 				ExpansionQuestObjectiveTreasureHuntConfig treasureObjective;
-				if (Class.CastTo(treasureObjective, objectiveConfigBase))
+				if (Class.CastTo(treasureObjective, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TREASURE";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -244,7 +261,6 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						ObjectiveWrapper.Show(false);
 					}
-					QuestDebugPrint(ToString() + "::SetEntryObjective - TREASUREHUNT - ADDED");
 				}
 			}
 			break;
@@ -252,51 +268,38 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		#ifdef EXPANSIONMODAI
 			case ExpansionQuestObjectiveType.AIPATROL:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - AIPATROL");
 				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_KILLED";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 				count = m_Objective.GetObjectiveCount();
 				amount = m_Objective.GetObjectiveAmount();
 
-				QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
-				QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-
 				m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-
-				QuestDebugPrint(ToString() + "::SetEntryObjective - AIPATROL - ADDED");
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.AICAMP:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - AICAMP");
 				m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_KILLED";
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 				count = m_Objective.GetObjectiveCount();
 				amount = m_Objective.GetObjectiveAmount();
 
-				QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
-				QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-
 				m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 				m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
-
-				QuestDebugPrint(ToString() + "::SetEntryObjective - AICAMP - ADDED");
 			}
 			break;
 
-			case ExpansionQuestObjectiveType.AIESCORD:
+			case ExpansionQuestObjectiveType.AIESCORT:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - AIESCORD");
-				ExpansionQuestObjectiveAIEscordConfig escordConfig;
-				if (Class.CastTo(escordConfig, objectiveConfigBase))
+				ExpansionQuestObjectiveAIEscortConfig escortConfig;
+				if (Class.CastTo(escortConfig, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = "#STR_EXPANSION_QUEST_HUD_TRAVEL";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
-					if (escordConfig.ShowDistance())
+					if (escortConfig.ShowDistance())
 					{
 						objectivePos = m_Objective.GetObjectivePosition();
 						playerPos = GetGame().GetPlayer().GetPosition();
@@ -308,7 +311,6 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						ObjectiveWrapper.Show(false);
 					}
-					QuestDebugPrint(ToString() + "::SetEntryObjective - AIESCORD - ADDED");
 				}
 			}
 			break;
@@ -316,9 +318,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 			case ExpansionQuestObjectiveType.ACTION:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION");
 				ExpansionQuestObjectiveActionConfig actionConfig;
-				if (Class.CastTo(actionConfig, objectiveConfigBase))
+				if (Class.CastTo(actionConfig, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = actionConfig.ObjectiveText;
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -326,21 +327,16 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					count = m_Objective.GetObjectiveCount();
 					amount = m_Objective.GetObjectiveAmount();
 
-					QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
-					QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-
 					m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				}
-				QuestDebugPrint(ToString() + "::SetEntryObjective - ACTION - ADDED");
 			}
 			break;
 
 			case ExpansionQuestObjectiveType.CRAFTING:
 			{
-				QuestDebugPrint(ToString() + "::SetEntryObjective - CRAFTING");
 				ExpansionQuestObjectiveCraftingConfig craftingConfig;
-				if (Class.CastTo(craftingConfig, objectiveConfigBase))
+				if (Class.CastTo(craftingConfig, objectiveConfig))
 				{
 					m_QuestHUDObjectiveController.ObjectiveTarget = craftingConfig.ObjectiveText;
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
@@ -348,25 +344,17 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					count = m_Objective.GetObjectiveCount();
 					amount = m_Objective.GetObjectiveAmount();
 
-					QuestDebugPrint(ToString() + "::SetEntryObjective - Count: " + count);
-					QuestDebugPrint(ToString() + "::SetEntryObjective - Amount: " + amount);
-
 					m_QuestHUDObjectiveController.ObjectiveValue = Math.Min(count, amount).ToString() + "/" + amount.ToString();
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
 				}
-				QuestDebugPrint(ToString() + "::SetEntryObjective - CRAFTING - ADDED");
 			}
 			break;
 		}
-
-		QuestDebugPrint(ToString() + "::SetEntryObjective - End");
-	}
-
-	void QuestDebugPrint(string text)
-	{
-	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
-	#endif
+		
+		if (!completed)
+			Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
+		else
+			Spacer.SetColor(ARGB(200, 160, 223, 59));
 	}
 };
 

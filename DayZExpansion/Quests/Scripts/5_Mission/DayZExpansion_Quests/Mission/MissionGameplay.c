@@ -17,9 +17,9 @@ modded class MissionGameplay
 	protected ref ExpansionQuestHUD m_ExpansionQuestHUD;
 	protected bool m_HideHUD = false;
 
-	// ------------------------------------------------------------
-	// OnInit
-	// ------------------------------------------------------------
+	//! Quest menu check
+	protected bool m_Expansion_QuestMenuTogglePressed;
+
 	override void OnInit()
 	{
 		//! Expansion Quest Hud
@@ -28,9 +28,6 @@ modded class MissionGameplay
 		super.OnInit();
 	}
 
-	// ------------------------------------------------------------
-	// InitExpansionQuestHud
-	// ------------------------------------------------------------
 	void InitExpansionQuestHud()
 	{
 		if (!m_ExpansionQuestHUD)
@@ -40,9 +37,6 @@ modded class MissionGameplay
 		}
 	}
 
-	// ------------------------------------------------------------
-	// OnUpdate
-	// ------------------------------------------------------------
 	override void OnUpdate( float timeslice )
 	{
 		super.OnUpdate( timeslice );
@@ -70,6 +64,7 @@ modded class MissionGameplay
 			UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
 			PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
 			ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+			ExpansionQuestMenu questMenu = ExpansionQuestMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		#ifdef JM_COT
 			bool isCOTWindowOpen = GetCommunityOnlineTools().IsOpen();
 		#endif
@@ -104,6 +99,20 @@ modded class MissionGameplay
 							m_Expansion_QuestHUDTogglePressed = false;
 						}
 					}
+
+					if ((questMenu || !topMenu) && !inputIsFocused)
+					{
+						//! Toggle quest menu
+						if (input.LocalPress("UAExpansionQuestLogToggle", false) && !m_Expansion_QuestMenuTogglePressed)
+						{
+							m_Expansion_QuestMenuTogglePressed = true;
+							OnQuestTogglePressed();
+						}
+						else if (input.LocalRelease("UAExpansionQuestLogToggle", false) || input.LocalValue("UAExpansionQuestLogToggle", false) == 0)
+						{
+							m_Expansion_QuestMenuTogglePressed = false;
+						}
+					}
 				}
 				else
 				{
@@ -126,6 +135,25 @@ modded class MissionGameplay
 	ExpansionQuestHUD GetQuestHUD()
 	{
 		return m_ExpansionQuestHUD;
+	}
+
+	protected void OnQuestTogglePressed()
+	{
+		ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();	//! Reference to expansion ui manager
+		ScriptView menu = uiManager.GetMenu();	//! Reference to current opened script view menu
+
+		ExpansionQuestMenu questMenu = ExpansionQuestMenu.Cast(menu);
+		if (!questMenu)
+		{
+			uiManager.CreateSVMenu("ExpansionQuestMenu");
+			questMenu = ExpansionQuestMenu.Cast(uiManager.GetMenu());
+			if (questMenu)
+				questMenu.SetLogMode(true);
+		}
+		else if (questMenu && questMenu.IsVisible())
+		{
+			uiManager.CloseMenu();
+		}
 	}
 };
 #endif

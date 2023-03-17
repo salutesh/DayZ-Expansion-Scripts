@@ -10,19 +10,19 @@
  *
  */
 
-class Expansion_Mh6_Door_1_1 extends CarDoor
+class Expansion_Mh6_Door_1_1: CarDoor
 {
 };
 
-class Expansion_Mh6_Door_1_2 extends CarDoor
+class Expansion_Mh6_Door_1_2: CarDoor
 {
 };
 
-class Expansion_Mh6_Door_2_1 extends CarDoor
+class Expansion_Mh6_Door_2_1: CarDoor
 {
 };
 
-class Expansion_Mh6_Door_2_2 extends CarDoor
+class Expansion_Mh6_Door_2_2: CarDoor
 {
 };
 
@@ -51,6 +51,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionHelicopterFrontLight));
 	}
 
+#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
@@ -59,6 +60,7 @@ class ExpansionMh6 : ExpansionHelicopterScript
 
 		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
 	}
+#endif
 
 	override int GetSeatAnimationType(int posIdx)
 	{

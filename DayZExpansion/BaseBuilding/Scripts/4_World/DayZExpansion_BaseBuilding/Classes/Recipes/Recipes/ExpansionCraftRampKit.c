@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftRampKit
  * @brief		
  **/
-class ExpansionCraftRampKit extends RecipeBase
+class ExpansionCraftRampKit: RecipeBase
 {	
 	override void Init()
 	{

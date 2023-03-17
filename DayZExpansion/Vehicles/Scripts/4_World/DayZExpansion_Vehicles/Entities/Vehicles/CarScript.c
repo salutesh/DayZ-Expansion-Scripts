@@ -1153,7 +1153,7 @@ modded class CarScript
 				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 					return;	
 				
-				if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+				if (!GetGame().IsDedicatedServer())
 				{
 					if (m_SoundLock)
 						delete m_SoundLock;
@@ -3298,8 +3298,13 @@ modded class CarScript
 	{
 		return m_CurrentSkin;
 	}
+
+	string ExpansionGetCurrentSkinName()
+	{
+		return m_CurrentSkinName;
+	}
 	
-	int  ExpansionGetCurrentSkinIndex()
+	int ExpansionGetCurrentSkinIndex()
 	{
 		return m_CurrentSkinIndex;
 	}
@@ -3587,6 +3592,8 @@ modded class CarScript
 		m_IsCECreated = true;
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(GetInventory().CountInventory());
+
 		GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 		for (int i = 0; i < items.Count(); i++)
 		{
@@ -3602,6 +3609,11 @@ modded class CarScript
 	{
 		super.OnCEUpdate();
 
+		Expansion_OnCEUpdate();
+	}
+
+	void Expansion_OnCEUpdate()
+	{
 		//! Prevent autocover before forcing initial storeloaded position
 		if (m_Expansion_IsStoreLoaded && !m_Expansion_ForcedStoreLoadedPositionAndOrientation && !m_Expansion_WasMissionLoadedAtVehicleInstantiation)
 			return;
@@ -3643,7 +3655,8 @@ modded class CarScript
 				return;
 			}
 
-			Expansion_CoverVehicle(cover);
+			if (Expansion_CanCover())
+				Expansion_CoverVehicle(cover);
 		}
 	}
 
@@ -3678,6 +3691,31 @@ modded class CarScript
 		}
 
 		return false;
+	}
+
+	bool Expansion_CanCover()
+	{		
+		if (IsDamageDestroyed())
+			return false;
+
+		auto settings = GetExpansionSettings().GetVehicle();
+
+		if (!settings.EnableVehicleCovers)
+			return false;
+
+		if (!m_Expansion_HasLifetime && !settings.AllowCoveringDEVehicles)
+			return false;
+
+		if (Expansion_GetVehicleCrew().Count())
+			return false;
+
+		if (!settings.CanCoverWithCargo)
+		{
+			if (MiscGameplayFunctions.Expansion_HasAnyCargo(this))
+				return false;
+		}
+
+		return true;
 	}
 
 	string Expansion_GetPlaceholderType(string coverType)
@@ -3825,7 +3863,7 @@ modded class CarScript
 			}
 		}
 
-		ExpansionCheckTreeContact(other, data.Impulse);
+		ExpansionWorld.CheckTreeContact(other, data.Impulse);
 
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
@@ -3852,30 +3890,6 @@ modded class CarScript
 		}
 
 		super.OnContact(zoneName, localPos, other, data);
-	}
-
-	void ExpansionCheckTreeContact(IEntity other, float impulse)
-	{
-		if (impulse < 7500)
-			return;
-
-		Object tree = Object.Cast(other);
-		if (tree && (tree.IsTree() || tree.IsBush()))
-		{
-			EntityAI cutting_tool = EntityAI.Cast(GetGame().CreateObject("WoodAxe", vector.Zero, false, true));
-
-			if (IsMissionClient())
-				SoundHardTreeFallingPlay();
-
-			if (GetGame().IsServer())
-				tree.DecreaseHealth("", "", 100, true);
-
-			tree.OnTreeCutDown(cutting_tool);
-
-			dBodyDestroy(tree);
-
-			GetGame().ObjectDelete(cutting_tool);
-		}
 	}
 
 	override void CheckContactCache()

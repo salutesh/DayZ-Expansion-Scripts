@@ -4,10 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Market_Objects
 	{
-		units[] = {"ExpansionTraderZmbM_JournalistSkinny","ExpansionTraderMirek","ExpansionTraderDenis","ExpansionTraderBoris","ExpansionTraderCyril","ExpansionTraderElias","ExpansionTraderFrancis","ExpansionTraderGuo","ExpansionTraderHassan","ExpansionTraderIndar","ExpansionTraderJose","ExpansionTraderKaito","ExpansionTraderLewis","ExpansionTraderManua","ExpansionTraderNiki","ExpansionTraderOliver","ExpansionTraderPeter","ExpansionTraderQuinn","ExpansionTraderRolf","ExpansionTraderSeth","ExpansionTraderTaiki","ExpansionTraderLinda","ExpansionTraderMaria","ExpansionTraderFrida","ExpansionTraderGabi","ExpansionTraderHelga","ExpansionTraderIrena","ExpansionTraderJudy","ExpansionTraderKeiko","ExpansionTraderEva","ExpansionTraderNaomi","ExpansionTraderBaty","ExpansionBanknoteUSD","ExpansionBanknoteEuro","ExpansionBanknoteHryvnia"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs","DZ_Animals","DZ_Animals_Bliss","DZ_Characters","DZ_Characters_Zombies","DayZExpansion_Dta_Core","DayZExpansion_Core_Objects_Currencies"};
+		requiredAddons[] = {"DZ_Data","DZ_Structures_Signs","DZ_Animals","DZ_Animals_Bliss","DZ_Characters","DZ_Characters_Zombies","DayZExpansion_Dta_Core","DayZExpansion_Core_Objects_Currencies","DayZExpansion_Core_Objects_Bases"};
 	};
 };
 class CfgVehicles
@@ -50,7 +50,8 @@ class CfgVehicles
 	class ZmbM_JournalistSkinny;
 	class ExpansionATMBase;
 	class ExpansionMoneyBanknote_Base;
-	class ExpansionTraderStaticBase: HouseNoDestruct
+	class ExpansionStaticObjectBase;
+	class ExpansionTraderStaticBase: ExpansionStaticObjectBase
 	{
 		scope = 0;
 		vehicleClass = "Expansion_Static";

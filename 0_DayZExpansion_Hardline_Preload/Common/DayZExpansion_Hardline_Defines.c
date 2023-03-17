@@ -15,3 +15,5 @@
 
 //! Used for hardline mod debugging
 //#define EXPANSIONMODHARDLINEDEBUG
+
+#define EXPANSION_COT_BUGFIX_REF_UIACTIONS

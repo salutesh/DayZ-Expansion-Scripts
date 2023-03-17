@@ -12,7 +12,7 @@
 
 class ExpansionQuestObjectiveCraftingConfigBase: ExpansionQuestObjectiveConfig
 {
-	autoptr array<string> ItemNames = new array<string>;
+	ref array<string> ItemNames = new array<string>;
 };
 
 class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConfigBase
@@ -24,7 +24,7 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConf
 		ItemNames.Insert(name);
 	}
 
-	override array<string> GetItemNames()
+	array<string> GetItemNames()
 	{
 		return ItemNames;
 	}
@@ -34,7 +34,7 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConf
 		ExecutionAmount = amount;
 	}
 
-	override int GetExecutionAmount()
+	int GetExecutionAmount()
 	{
 		return ExecutionAmount;
 	}
@@ -102,13 +102,33 @@ class ExpansionQuestObjectiveCraftingConfig: ExpansionQuestObjectiveCraftingConf
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		super.OnSend(ctx);
+		
+		int nameCount = ItemNames.Count();
+		ctx.Write(nameCount);
+		foreach (string name: ItemNames)
+		{
+			ctx.Write(name);
+		}
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
 	{
 		if (!super.OnRecieve(ctx))
 			return false;
+		
+		int nameCount;
+		if (!ctx.Read(nameCount))
+			return false;
+		
+		for (int i = 0; i < nameCount; i++)
+		{
+			string name;
+			if (!ctx.Read(name))
+				return false;
 
+			ItemNames.Insert(name);
+		}
+		
 		return true;
 	}
 

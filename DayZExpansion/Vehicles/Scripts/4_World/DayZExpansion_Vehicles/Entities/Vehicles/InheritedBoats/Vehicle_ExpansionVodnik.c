@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
+class Vehicle_ExpansionVodnik: ExpansionVehicleBoatBase
 {
 	void Vehicle_ExpansionVodnik()
 	{
@@ -409,7 +409,7 @@ class Vehicle_ExpansionVodnik extends ExpansionVehicleBoatBase
 
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			ItemBase battery;
 

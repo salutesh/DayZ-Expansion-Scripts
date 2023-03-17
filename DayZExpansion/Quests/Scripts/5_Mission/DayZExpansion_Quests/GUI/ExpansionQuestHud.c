@@ -17,7 +17,6 @@ class ExpansionQuestHUD: ExpansionScriptView
 	protected ref array<int> m_HiddenIDs = new array<int>;
 	protected WrapSpacerWidget QuestEntriesWraper;
 	protected ref array<ref ExpansionQuestHUDEntry> m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
-	protected ExpansionQuestModule m_QuestModule;
 
 	void ExpansionQuestHUD()
 	{
@@ -27,12 +26,9 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void SetView()
 	{
-		QuestDebugPrint(ToString() + "::SetView - Start");
-
-		ExpansionQuestPersistentData playerData = m_QuestModule.GetClientQuestData();
+		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerData)
 		{
-			Error(ToString() + "::SetView - Could not get persistent client quest data!");
 			return;
 		}
 
@@ -51,15 +47,11 @@ class ExpansionQuestHUD: ExpansionScriptView
 		{
 			if (!data)
 			{
-				Error(ToString() + "::SetView - Could not get persistent quest data!");
 				continue;
 			}
 
 			int questID = data.QuestID;
-			int state = data.State;
-
-			QuestDebugPrint(ToString() + "::SetView - Quest ID: " + questID);
-			QuestDebugPrint(ToString() + "::SetView - Quest state: " + state);
+			ExpansionQuestState state = data.State;
 
 			if (state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED)
 				continue;
@@ -67,15 +59,11 @@ class ExpansionQuestHUD: ExpansionScriptView
 			ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigClientByID(questID);
 			if (!questConfig)
 			{
-				QuestDebugPrint(ToString() + "::SetView - Could not get any quest config for quest ID " + questID + ". Maybe its a achivement quest?!");
 				continue;
 			}
 
 			if (questConfig.IsAchivement())
 				continue;
-
-			QuestDebugPrint(ToString() + "::SetView - Quest config: " + questConfig);
-			QuestDebugPrint(ToString() + "::SetView - Add new entry for quest: " + questID);
 
 			ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, data);
 			QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
@@ -93,8 +81,6 @@ class ExpansionQuestHUD: ExpansionScriptView
 				entry.Hide();
 			}
 		}
-
-		QuestDebugPrint(ToString() + "::SetView - End");
 	}
 
 	void ShowHud(bool state)
@@ -116,11 +102,13 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	override void Update()
 	{
-		if (!m_QuestModule)
-			m_QuestModule = ExpansionQuestModule.Cast(CF_ModuleCoreManager.Get(ExpansionQuestModule));
+		if (!GetGame())
+			return;
 
-		if (m_QuestModule && GetGame().GetPlayer())
-			SetView();
+		if (!GetGame().GetPlayer())
+			return;
+
+		SetView();
 	}
 
 	override string GetLayoutFile()
@@ -131,13 +119,6 @@ class ExpansionQuestHUD: ExpansionScriptView
 	override typename GetControllerType()
 	{
 		return ExpansionQuestHUDController;
-	}
-
-	void QuestDebugPrint(string text)
-	{
-	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
-	#endif
 	}
 
 	void ToggleQuestEntryVisibilityByID(int questID)
@@ -164,9 +145,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 			if (hudEntry.GetEntryQuestID() == questID)
 			{
 				if (findIndex == -1)
-				{
 					return false;
-				}
 
 				entry = hudEntry;
 			}

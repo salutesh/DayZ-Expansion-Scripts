@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionUIScriptedMenu extends UIScriptedMenu
+class ExpansionUIScriptedMenu: UIScriptedMenu
 {	
 	// ------------------------------------------------------------
 	// ExpansionUIScriptedMenu OnShow

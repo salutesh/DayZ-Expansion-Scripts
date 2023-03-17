@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftPillarKit
  * @brief		
  **/
-class ExpansionCraftPillarKit extends RecipeBase
+class ExpansionCraftPillarKit: RecipeBase
 {	
 	override void Init()
 	{

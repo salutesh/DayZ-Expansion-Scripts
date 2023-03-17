@@ -14,7 +14,7 @@
  * @brief Handles the UI for the CodeLock		
  */
 
-class ExpansionCodeLockUI extends ExpansionLockUIBase
+class ExpansionCodeLockUI: ExpansionLockUIBase
 {	
 	protected ButtonWidget m_Button0;
 	protected TextWidget m_Button0_Text;

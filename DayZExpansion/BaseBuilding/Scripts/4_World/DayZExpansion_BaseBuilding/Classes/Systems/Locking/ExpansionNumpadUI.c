@@ -13,7 +13,7 @@
 /** @class		ExpansionNumpadUI
  * @brief Handles the UI for the numpad
  */
-class ExpansionNumpadUI extends ExpansionLockUIBase
+class ExpansionNumpadUI: ExpansionLockUIBase
 {
 	protected ButtonWidget m_Button0;
 	protected TextWidget m_Button0_Text;

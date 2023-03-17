@@ -1,5 +1,5 @@
 /**
- * ModStructure.c
+ * DZ_Expansion_Quest.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

@@ -14,7 +14,7 @@
  * @class		ExpansionPlane
  * @brief		This class handle plane movement and physics
  */
-class ExpansionVehiclePlaneBase extends ExpansionVehicleBase
+class ExpansionVehiclePlaneBase: ExpansionVehicleBase
 {
 	private bool m_Hit;
 	private bool m_HitDetermined;

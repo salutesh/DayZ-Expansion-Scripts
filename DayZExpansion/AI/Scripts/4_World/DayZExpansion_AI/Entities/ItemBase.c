@@ -122,8 +122,134 @@ modded class ItemBase
 				break;
 		}
 		
-		subclass_path = "CfgVehicles " + this.GetType() + " Protection ";
+		subclass_path = "CfgVehicles " + GetType() + " Protection ";
 		
 		return GetGame().ConfigGetFloat(subclass_path + entryName);
+	}
+
+	bool Expansion_TryTurningOn()
+	{
+		if ( HasEnergyManager() )
+		{
+			if ( GetCompEM().CanWork() )
+			{
+				GetCompEM().SwitchOn();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool Expansion_TryTurningOff()
+	{
+		if ( HasEnergyManager() )
+		{
+			if ( GetCompEM().IsSwitchedOn() )
+			{
+				GetCompEM().SwitchOff();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
+	{
+		ActionTarget atrg;
+		ActionManagerClient mngr_client;
+		CastTo(mngr_client, player.GetActionManager());
+		atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
+
+		if ( !skipNVG && mngr_client.GetAction(ActionToggleNVG).Can(player, atrg, this) )
+		{
+			NVGoggles goggles = NVGoggles.Cast(FindAttachmentBySlotName("NVG"));
+			goggles.RotateGoggles(false);
+			nightVisibility = 0.35;
+			EXTrace.Print(EXTrace.AI, player, "switched on " + goggles.ToString());
+			return true;
+		}
+		
+		if ( !skipNonNVG )
+		{
+			if ( mngr_client.GetAction(ActionTurnOnHelmetFlashlight).Can(player, atrg, this) )
+			{
+				ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
+				if ( itemChild.Expansion_TryTurningOn() )
+				{
+					nightVisibility = 0.15;
+					EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
+					return true;
+				}
+			}
+
+			if ( mngr_client.GetAction(ActionTurnOnHeadtorch).Can(player, atrg, this) )
+			{
+				if ( Expansion_TryTurningOn() )
+				{
+					nightVisibility = 0.15;
+					EXTrace.Print(EXTrace.AI, player, "switched on head torch");
+					return true;
+				}
+			}
+			else if ( mngr_client.GetAction(ActionTurnOnWhileInHands).Can(player, atrg, this) )
+			{
+				if ( Expansion_TryTurningOn() )
+				{
+					nightVisibility = 0.15;
+					EXTrace.Print(EXTrace.AI, player, "switched on " + player.GetItemInHands());
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
+	{
+		ActionTarget atrg;
+		ActionManagerClient mngr_client;
+		CastTo(mngr_client, player.GetActionManager());
+		atrg = new ActionTarget(this,null,-1,vector.Zero,-1.0);
+
+		if ( !skipNVG && mngr_client.GetAction(ActionToggleNVG).Can(player, atrg, this) )
+		{
+			NVGoggles goggles = NVGoggles.Cast(FindAttachmentBySlotName("NVG"));
+			if (goggles.Expansion_GetBatteryEnergy())
+			{
+				goggles.RotateGoggles(true);
+				EXTrace.Print(EXTrace.AI, player, "switched off " + goggles.ToString());
+				return true;
+			}
+		}
+
+		if ( mngr_client.GetAction(ActionTurnOffHelmetFlashlight).Can(player, atrg, this) )
+		{
+			ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
+			if ( itemChild.Expansion_TryTurningOff() )
+			{
+				EXTrace.Print(EXTrace.AI, player, "switched off " + itemChild.ToString());
+				return true;
+			}
+		}
+
+		if ( mngr_client.GetAction(ActionTurnOffHeadtorch).Can(player, atrg, this) )
+		{
+			if ( Expansion_TryTurningOff() )
+			{
+				EXTrace.Print(EXTrace.AI, player, "switched off head torch");
+				return true;
+			}
+		}
+		else if ( mngr_client.GetAction(ActionTurnOffWhileInHands).Can(player, atrg, this) )
+		{
+			if ( Expansion_TryTurningOff() )
+			{
+				EXTrace.Print(EXTrace.AI, player, "switched off " + player.GetItemInHands());
+				return true;
+			}
+		}
+
+		return false;
 	}
 };

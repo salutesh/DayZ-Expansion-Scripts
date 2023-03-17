@@ -10,7 +10,7 @@
  *
  */
 
-class Vehicle_ExpansionUAZ extends ExpansionVehicleCarBase
+class Vehicle_ExpansionUAZ: ExpansionVehicleCarBase
 {
 	void Vehicle_ExpansionUAZ()
 	{
@@ -459,7 +459,7 @@ class Vehicle_ExpansionUAZ extends ExpansionVehicleCarBase
 	}
 };
 
-class Vehicle_ExpansionUAZCargoRoofless extends Vehicle_ExpansionUAZ
+class Vehicle_ExpansionUAZCargoRoofless: Vehicle_ExpansionUAZ
 {
 	void Vehicle_ExpansionUAZCargoRoofless()
 	{

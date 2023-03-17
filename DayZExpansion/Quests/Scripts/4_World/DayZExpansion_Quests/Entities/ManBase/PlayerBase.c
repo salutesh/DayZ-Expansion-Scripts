@@ -14,9 +14,6 @@ modded class PlayerBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new ref array<ExpansionQuestObjectiveEventBase>;
 
-	// ------------------------------------------------------------
-	// PlayerBase AssignQuestObjective
-	// ------------------------------------------------------------
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -35,9 +32,6 @@ modded class PlayerBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase DeassignQuestObjective
-	// ------------------------------------------------------------
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -56,9 +50,6 @@ modded class PlayerBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase CheckAssignedObjectivesForEntity
-	// ------------------------------------------------------------
 	protected void CheckAssignedObjectivesForEntity(Object killer)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -81,7 +72,7 @@ modded class PlayerBase
 		{
 			if (!objective || !objective.GetQuest())
 				continue;
-			
+
 			if (!objective.GetQuest().IsQuestPlayer(killerUID))
 				continue;
 
@@ -110,7 +101,7 @@ modded class PlayerBase
 						aiPatrolEvent.OnEntityKilled(this, killSource, killerPlayer);
 				}
 				break;
-				case ExpansionQuestObjectiveType.AIESCORD:
+				case ExpansionQuestObjectiveType.AIESCORT:
 				{
 					ExpansionQuestObjectiveAIEscortEvent aiEscortEvent;
 					if (Class.CastTo(aiEscortEvent, objective))
@@ -125,19 +116,13 @@ modded class PlayerBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// SurvivorBase EEKilled
-	// ------------------------------------------------------------
 	override void EEKilled(Object killer)
 	{
-		super.EEKilled(killer);
-
 		CheckAssignedObjectivesForEntity(killer);
+
+		super.EEKilled(killer);
 	}
 
-	// ------------------------------------------------------------
-	// SurvivorBase SetActions
-	// ------------------------------------------------------------
 	override void SetActions(out TInputActionMap InputActionMap)
 	{
 		super.SetActions(InputActionMap);

@@ -80,7 +80,7 @@ class ExpansionActionSwitchSeats: ActionBase
 				{
 					//pTransportPositionIndex, int pVehicleSeat
 					vehCommand.SwitchSeat( nextSeat, seat );
-					if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+					if ( !GetGame().IsDedicatedServer() )
 					{
 
 						action_data.m_Player.OnVehicleSwitchSeat( nextSeat );

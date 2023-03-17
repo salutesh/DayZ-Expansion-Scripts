@@ -242,6 +242,12 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
 			if (baseBuilding && baseBuilding.CanUseConstruction())
 			{
+				/*************************************************************************************************************************
+				 * WARNING: Only TESTED basebuilding items!
+				 * Most mods do NOT have the necessary rvConfig entries to get a reasonable preview and/or can cause client CTD if used!
+				 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
+				 *************************************************************************************************************************/
+
 				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
 				#ifdef EXPANSIONMODBASEBUILDING
 				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
@@ -389,11 +395,8 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			}
 			else
 			{
-				//! Player doesn't have the item. Use preview item.
+				//! Player doesn't have the item
 				items = new array<EntityAI>;
-				EntityAI previewEntity;
-				if (Class.CastTo(previewEntity, m_Object))
-					items.Insert(previewEntity);
 			}
 
 			ExpansionMarketSell marketSell = new ExpansionMarketSell;
@@ -471,11 +474,17 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		return ARGB(255, 41, 128, 185);
 	}
 	
-	void OnItemButtonClick()
+	void OnItemButtonClick(ButtonCommandArgs args)
 	{
-		m_MarketMenu.SetItemInfo(this);
-		if (!m_MarketMenu.IsLoading())
-			m_MarketMenu.RequestSelectedItem(ExpansionMarketMenuState.REQUESTING_SELECTED_ITEM, GetMarketItem().ClassName);
+		int button = args.GetMouseButton();
+		bool buttonState = args.GetButtonState();
+		
+		if (button == MouseState.LEFT && buttonState)
+		{
+			m_MarketMenu.SetItemInfo(this);
+			if (!m_MarketMenu.IsLoading())
+				m_MarketMenu.RequestSelectedItem(ExpansionMarketMenuState.REQUESTING_SELECTED_ITEM, GetMarketItem().ClassName);
+		}
 	}
 
 	void CreateTooltip()
@@ -522,43 +531,72 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		DestroyItemTooltip();
 	}
 	
-	override bool OnMouseEnter(Widget w, int x, int y)
+	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		switch (w)
+		if (w != NULL && w == market_item_button)
 		{
-		case market_item_button:
-			market_item_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemButton"));
-			if (!m_ItemTooltip && m_Object)
+			if (button == MouseState.MIDDLE && m_Object)
 			{
-				m_ItemTooltip = new ExpansionItemTooltip(m_Object);
-				m_ItemTooltip.Show();
+				MissionGameplay.InspectItem(m_MarketMenu, m_Object);
+				return true;
 			}
-			break;
-		case market_item_info_button:
-			if (m_Tooltip) m_Tooltip.Show();
-			market_item_info_icon.SetColor(ARGB(255, 220, 220, 220));
-			break;
-		
 		}
 		
-		return super.OnMouseEnter(w, x, y);
+		return false;
+	}
+	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if (w != NULL)
+		{
+			if (w == market_item_button)
+			{
+				market_item_button.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemButton"));
+				if (!m_ItemTooltip && m_Object)
+				{
+					m_ItemTooltip = MissionGameplay.SetItemTooltip(m_Object);
+				}
+				
+				return true;
+			}
+			else if (w == market_item_info_button)
+			{
+				if (m_Tooltip) 
+					m_Tooltip.Show();
+				
+				market_item_info_icon.SetColor(ARGB(255, 220, 220, 220));
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		switch (w)
+		if (w != NULL)
 		{
-		case market_item_button:
-			market_item_button.SetColor(ARGB(220, 0, 0, 0));
-			if (m_ItemTooltip) m_ItemTooltip.Destroy();
-			break;
-		case market_item_info_button:
-			if (m_Tooltip) m_Tooltip.Hide();
-			market_item_info_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
-			break;
+			if (w == market_item_button)
+			{
+				market_item_button.SetColor(ARGB(220, 0, 0, 0));
+				if (m_ItemTooltip)
+				{
+					MissionGameplay.Expansion_DestroyItemTooltip();
+					m_ItemTooltip = null;
+				}
+				return true;
+			}
+			else if (w == market_item_info_button)
+			{
+				if (m_Tooltip) 
+					m_Tooltip.Hide();
+
+				market_item_info_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoIcon"));
+				return true;
+			}
 		}
 		
-		return super.OnMouseLeave(w, enterW, x, y);
+		return false;
 	}
 	
 	Object GetPreviewObject()

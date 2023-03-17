@@ -1,4 +1,4 @@
-class eAIPlayerTargetInformation extends eAIEntityTargetInformation
+class eAIPlayerTargetInformation: eAIEntityTargetInformation
 {
 	private DayZPlayerImplement m_Player;
 
@@ -9,17 +9,14 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (m_Player.GetHealth("", "") <= 0.0)
+		if (m_Player.IsDamageDestroyed())
 			return 0.0;
-
-		if (m_Player.IsUnconscious())
-			return 0.1;
 
 		float levelFactor = 0.1;
 
 		if (ai)
 		{
-			if (ai == m_Player || !ai.PlayerIsEnemy(m_Player))
+			if (ai == m_Player)
 				return 0.0;
 
 #ifdef DIAG
@@ -29,21 +26,57 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			// the further away the player, the less likely they will be a threat
 			float distance = GetDistance(ai, true) + 0.1;
 
+			if (m_Player.IsUnconscious() || m_Player.IsRestrained())
+				return ExpansionMath.LinearConversion(0, 100, distance, 0.15, 0.1);
+
+			if (distance <= 100.0 && m_Player.GetParent() != ai.GetParent())
+			{
+				//! Any AI, even passive, will react if vehicle is speeding towards them
+				//! Vehicles WITHOUT drivers are handled by vehicle target info
+				levelFactor = ProcessVehicleThreat(ai, distance);
+				if (levelFactor > 0.0)
+					return levelFactor;
+			}
+
+			if (!ai.PlayerIsEnemy(m_Player))
+				return 0.0;
+
+			vector fromTargetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
+			float fromTargetDot = vector.Dot(m_Player.Expansion_GetAimDirection(), fromTargetDirection);
+
 			//! Enemy weapon
 			auto enemyHands = ItemBase.Cast(m_Player.GetHumanInventory().GetEntityInHands());
 
-			//! Guards are friendly to everyone until the other player raises their weapon
-			if (ai.GetGroup() && ai.GetGroup().GetFaction().IsGuard() && !m_Player.IsRaised() && !m_Player.IsFighting())
+			//! Threat handling for guards and observers
+			//! Guards won't aggro until the other player raises their weapon in their direction, starts melee fighting or shoots another player
+			//! Observers will never aggro and just look at the player
+			if (ai.GetGroup())
 			{
-				if (enemyHands && (enemyHands.IsWeapon() || enemyHands.Expansion_IsMeleeWeapon()))
-					levelFactor = 0.2;  //! They aim at you
-				else
-					levelFactor = 0.15;  //! They eyeball you menacingly
+				bool canEnterFightingState;
 
-				if (distance > 30)
-					levelFactor *= (30 / distance);
+				if (ai.GetGroup().GetFaction().IsGuard())
+				{
+					if (m_Player.IsRaised() && fromTargetDot >= 0.85 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
+						canEnterFightingState = true;
+					else if (m_Player.eAI_UpdateHitPlayerWithinTimeThreshold(150.0 - distance))
+						canEnterFightingState = true;
 
-				return levelFactor;
+					if (!canEnterFightingState && m_Player.IsRaised())
+					{
+						//! They aim at you
+						return ExpansionMath.PowerConversion(0.5, 30, distance, 0.2, 0.0, 0.1);
+					}
+				}
+				else if (!ai.GetGroup().GetFaction().IsObserver() && !m_Player.Expansion_IsInSafeZone())
+				{
+					canEnterFightingState = true;
+				}
+
+				if (!canEnterFightingState)
+				{
+					//! They eyeball you menacingly
+					return ExpansionMath.PowerConversion(0.5, 30, distance, 0.152, 0.0, 0.1);
+				}
 			}
 
 			levelFactor = 10 / distance;
@@ -51,10 +84,8 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 			if (distance > 30)
 			{
 				//! Check if target is facing AI or AI is facing target when not in near range (30 m)
-				vector fromTargetDirection = vector.Direction(m_Player.GetPosition(), ai.GetPosition()).Normalized();
-				float fromTargetDot = vector.Dot(m_Player.GetDirection(), fromTargetDirection);
 				vector toTargetDirection = vector.Direction(ai.GetPosition(), m_Player.GetPosition()).Normalized();
-				float toTargetDot = vector.Dot(ai.GetDirection(), toTargetDirection);
+				float toTargetDot = vector.Dot(ai.GetAimDirection(), toTargetDirection);
 				if (fromTargetDot < 0.75 && toTargetDot < 0.75)  //! Target is facing away and AI is facing away
 					return Math.Clamp(levelFactor, 0.0, 1000000.0);
 			}
@@ -86,48 +117,25 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 				}
 			}
 
-			//! TODO: Since weather and environment are global, maybe only calculate periodically and use result for all AI?
-			Weather weather = GetGame().GetWeather();
-			//! At 100% fog, visibility is around 50 m
-			//! At 50% fog, visibility is roughly 460 m
-			float fogVisibility = 1.0 - weather.GetFog().GetActual() * 0.95;
-			//! At 100% overcast, visibility is around 250 m
-			float overcastVisibility = 1.0 - weather.GetOvercast().GetActual() * 0.75;
-			//! At 100% rain, visibility is around 500 m
-			float rainVisibility = 1.0 - weather.GetRain().GetActual() * 0.5;
-			//! Daylight
-			float daylightVisibility = g_Game.GetWorld().GetSunOrMoon();  //! 0/1 Night/Day
-			if (!daylightVisibility)
-			{
-				//! Check if AI has NVG or NV optics with battery
-				ItemBase nvItem = ai.Expansion_GetNVItem();
-				if (nvItem && nvItem.Expansion_GetBatteryEnergy())
-				{
-					ItemOptics optic;
-					if (Class.CastTo(optic, nvItem))
-						daylightVisibility = optic.GetZeroingDistanceZoomMax() * 0.001;
-					else
-						daylightVisibility = 0.35;  //! 350 m (realistic value for Starlight optic)
-				}
-				else
-				{
-					daylightVisibility = 0.1;  //! 100 m
-				}
-			}
-			float visibilityLimit = ai.m_eAI_ThreatDistanceLimit * 0.001;
-			if (daylightVisibility > visibilityLimit)
-				daylightVisibility = visibilityLimit;
-			//! Limit visibility in contaminated areas due to gas clouds
-			if (daylightVisibility > 0.2 && ai.GetModifiersManager().IsModifierActive(eModifiers.MDF_AREAEXPOSURE))
-				daylightVisibility = 0.2;  //! 200 m
-			//! Final visibility
-			float visibility = Math.Min(Math.Min(fogVisibility, Math.Min(overcastVisibility, rainVisibility)), daylightVisibility);
-			float visibilityDistThreshold = 900 * visibility;
-			if (distance > visibilityDistThreshold)
-				levelFactor *= ExpansionMath.PowerConversion(1100 * visibility, visibilityDistThreshold, distance, 0.0, 1.0, 2.0);
+			levelFactor *= ai.Expansion_GetVisibility(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
+	}
+
+	float ProcessVehicleThreat(eAIBase ai, float distance)
+	{
+		Transport transport;
+		if (!Class.CastTo(transport, m_Player.GetParent()))
+			return 0.0;
+
+		if (transport.CrewMemberIndex(m_Player) != DayZPlayerConstants.VEHICLESEAT_DRIVER)
+			return 0.0;
+
+		float speed, fromTargetDot;
+		float levelFactor = eAIVehicleTargetInformation.ProcessVehicleThreat(transport, ai, distance, speed, fromTargetDot);
+		//PrintFormat("eAIPlayerTargetInformation dist %1 spd %2 dot %3 lvl %4", distance, speed, fromTargetDot, levelFactor);
+		return levelFactor;
 	}
 
 	static bool AdjustThreatLevelBasedOnWeapon(EntityAI weapon, float distance, inout float levelFactor, bool hasLOS = true)
@@ -191,38 +199,13 @@ class eAIPlayerTargetInformation extends eAIEntityTargetInformation
 
 	override bool ShouldRemove(eAIBase ai = null)
 	{
-		return GetThreat(ai) <= 0.01;  //! Will remove if 1000 m away and no LOS
+		return GetThreat(ai) <= 0.02;  //! Will remove if 500 m away and no LOS
 	}
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		if (m_Player.GetCommand_Vehicle())
-		{
-			return "0 0.5 0";
-		}
-
-#ifdef EXPANSIONMODVEHICLE
-		if (m_Player.GetCommand_ExpansionVehicle())
-		{
-			return "0 0.5 0";
-		}
-#endif
-
-		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
-		{
-			return "0 1.5 0";
-		}
-
-		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_RAISEDCROUCH))
-		{
-			return "0 0.8 0";
-		}
-
-		if (m_Player.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
-		{
-			return "0 0.1 0";
-		}
-
-		return "0 0 0";
+		vector pos = m_Player.GetBonePositionWS(m_Player.GetBoneIndexByName("neck"));
+		pos = pos - m_Player.GetPosition();
+		return pos;
 	}
 };

@@ -21,140 +21,89 @@ class ExpansionQuestObjectiveEventBase
 	protected ref ExpansionQuestObjectiveConfig m_ObjectiveConfig;
 	protected int m_TimeLimit = -1;
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase Constructor
-	// -----------------------------------------------------------
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
 		m_Quest = quest;
 	}
-	
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase Deconstructor
-	// -----------------------------------------------------------
+
 	void ~ExpansionQuestObjectiveEventBase()
 	{
 		DeassignObjectiveOnClasses();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SetIndex
-	// -----------------------------------------------------------
 	void SetIndex(int index)
 	{
 		m_Index = index;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase GetIndex
-	// -----------------------------------------------------------
 	int GetIndex()
 	{
 		return m_Index;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase GetQuest
-	// -----------------------------------------------------------
 	ExpansionQuest GetQuest()
 	{
 		return m_Quest;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase IsInitialized
-	// -----------------------------------------------------------
 	bool IsInitialized()
 	{
 		return m_Initialized;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase IsActive
-	// -----------------------------------------------------------
 	bool IsActive()
 	{
 		return m_Active;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SetIsActive
-	// -----------------------------------------------------------
 	void SetIsActive(bool state)
 	{
 		m_Active = state;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase IsCompleted
-	// -----------------------------------------------------------
 	bool IsCompleted()
 	{
 		return m_Completed;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SetCompleted
-	// -----------------------------------------------------------
 	void SetCompleted(bool state)
 	{
 		m_Completed = state;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SetInitialized
-	// -----------------------------------------------------------
 	void SetInitialized(bool state)
 	{
 		m_Initialized = state;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SetObjectiveConfig
-	// -----------------------------------------------------------
 	void SetObjectiveConfig(ExpansionQuestObjectiveConfig config)
 	{
 		m_ObjectiveConfig = config;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SetTimeLimit
-	// -----------------------------------------------------------
 	void SetTimeLimit(int time)
 	{
 		m_TimeLimit = time;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase GetTimeLimit
-	// -----------------------------------------------------------
 	int GetTimeLimit()
 	{
 		return m_TimeLimit;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnTimeLimitReached
-	// -----------------------------------------------------------
 	//! Event called when objective time-limit is reached.
 	void OnTimeLimitReached()
 	{
 		m_Quest.CancelQuest();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase SyncTimeLimitTime
-	// -----------------------------------------------------------
 	//! Event called when objective has a time-limit to update the current remainig time in the persistent quest data of the quest players.
 	void SyncTimeLimitTime()
 	{
 		m_TimeLimit = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(OnTimeLimitReached) / 1000;
-		m_Quest.UpdateQuest();
+		m_Quest.UpdateQuest(false);
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnStart
-	// -----------------------------------------------------------
 	//! Event called when the player starts or continues the quest.
 	bool OnStart(bool continues)
 	{
@@ -183,9 +132,6 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase AssignObjectiveOnClasses
-	// -----------------------------------------------------------
 	//! Assign objective to allocated classes.
 	//! ToDo: Dokumentation
 	void AssignObjectiveOnClasses()
@@ -250,9 +196,6 @@ class ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase DeassignObjectiveOnClasses
-	// -----------------------------------------------------------
 	//! Deassign objective from allocated classes.
 	//! ToDo: Dokumentation
 	void DeassignObjectiveOnClasses()
@@ -296,7 +239,7 @@ class ExpansionQuestObjectiveEventBase
 					ItemBase.DeassignQuestObjective(this);
 				}
 				break;
-				
+
 				case "RecipeBase":
 				{
 					RecipeBase.DeassignQuestObjective(this);
@@ -308,18 +251,12 @@ class ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::DeassignObjectiveOnClasses - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnEventStart
-	// -----------------------------------------------------------
 	//! Event called when the player starts the quest.
 	bool OnEventStart()
 	{
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnContinue
-	// -----------------------------------------------------------
 	//! Event called when the player continues the quest after a server restart/reconnect.
 	bool OnContinue()
 	{
@@ -329,11 +266,8 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnTurnIn
-	// -----------------------------------------------------------
 	//! Event called when quest is completed and turned-in.
-	bool OnTurnIn(string playerUID)
+	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
 		SetInitialized(false);
 		SetIsActive(false);
@@ -341,9 +275,6 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase CanComplete
-	// -----------------------------------------------------------
 	//! Control condition method that controlls if the objective can be completed or not.
 	//! Used in ExpansionQuest::QuestCompletionCheck.
 	bool CanComplete()
@@ -351,34 +282,27 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnComplete
-	// -----------------------------------------------------------
 	//! Event called when objective is completed
 	bool OnComplete()
 	{
 		SetCompleted(true);
+	#ifdef EXPANSIONMODNAVIGATION
+		RemoveObjectiveMarkers();
+	#endif
 
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnIncomplete
-	// -----------------------------------------------------------
 	bool OnIncomplete()
 	{
 		SetCompleted(false);
-
-	/*#ifdef EXPANSIONMODNAVIGATION
-		OnRecreateClientMarkers();
-	#endif*/
+	#ifdef EXPANSIONMODNAVIGATION
+		CreateMarkers();
+	#endif
 
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnCancel
-	// -----------------------------------------------------------
 	bool OnCancel()
 	{
 		SetInitialized(false);
@@ -386,19 +310,19 @@ class ExpansionQuestObjectiveEventBase
 
 		if (!OnCleanup())
 			return false;
-		
+
 		DeassignObjectiveOnClasses();
 
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnCleanup
-	// -----------------------------------------------------------
 	//! Event called when the quest gets cleaned up.
 	bool OnCleanup()
 	{
 		SetInitialized(false);
+	#ifdef EXPANSIONMODNAVIGATION
+		RemoveObjectiveMarkers();
+	#endif
 
 		if (m_TimeLimit > -1)
 		{
@@ -412,50 +336,24 @@ class ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnRecreateClientMarkers
-	// -----------------------------------------------------------
-	//! Event called when the quest markers should get recreated
-	void OnRecreateClientMarkers();
-
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnGroupMemberJoined
-	// -----------------------------------------------------------
 	//! Event called for group quests only when a group member joins/rejoins the quest group
 #ifdef EXPANSIONMODGROUPS
-	void OnGroupMemberJoined(string playerUID)
-	{
-	#ifdef EXPANSIONMODNAVIGATION
-		OnRecreateClientMarkers();
-	#endif
-	}
+	void OnGroupMemberJoined(string playerUID);
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase OnGroupMemberLeave
-	// -----------------------------------------------------------
 	//! Event called for group quests only when a group member leaves the quest group
 	void OnGroupMemberLeave(string playerUID);
 #endif
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase GetObjectiveConfig
-	// -----------------------------------------------------------
 	ExpansionQuestObjectiveConfig GetObjectiveConfig()
 	{
 		return m_ObjectiveConfig;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase HasDynamicState
-	// -----------------------------------------------------------
 	bool HasDynamicState()
 	{
 		return false;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase QuestDebug
-	// -----------------------------------------------------------
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -471,75 +369,79 @@ class ExpansionQuestObjectiveEventBase
 	#endif
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase ObjectivePrint
-	// -----------------------------------------------------------
 	void ObjectivePrint(string text)
 	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
-	#endif
+	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		EXTrace.Print(EXTrace.QUESTS, null, text);
+	//#endif
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveEventBase GetObjectiveType
-	// -----------------------------------------------------------
 	int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.NONE;
 	}
 
-#ifdef EXPANSIONMODMARKET
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCollectItemEventBase AddItemsToServerData
-	// -----------------------------------------------------------
-	//! Add the delivered delivery items to the market zone if there is one nearby.
-	protected void AddItemsToServerData(string playerUID)
+#ifdef EXPANSIONMODNAVIGATION
+	void CreateObjectiveMarker(vector pos, string name, int visibility = 6)
 	{
-		ObjectivePrint(ToString() + "::AddItemsToServerData - Start");
+		ObjectivePrint(ToString() + "::CreateObjectiveMarker - Start");
 
-		ExpansionQuestPersistentServerData serverData = ExpansionQuestModule.GetModuleInstance().GetServerData();
-		if (!serverData)
-			return;
-
-		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
-		if (!player)
-			return;
-
-		auto marketSettings = GetExpansionSettings().GetMarket();
-		ExpansionMarketTraderZone traderZone = marketSettings.GetTraderZoneByPosition(player.GetPosition());
-		if (!traderZone)
-			return;
-
-		vector zonePos = traderZone.Position;
-		ObjectivePrint(ToString() + "::AddItemsToServerData - Market zone pos: " + zonePos.ToString());
-		array<ref ExpansionQuestObjectiveDelivery> deliveries = m_ObjectiveConfig.GetDeliveries();
-		foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
 		{
-			string name = delivery.GetClassName();
-			string nameLower = name;
-			nameLower.ToLower();
-			int amount = delivery.GetAmount();
+			PlayerBase player = m_Quest.GetPlayer();
+			if (!player)
+				return;
 
-			if (name.ToType().IsInherited(ExpansionQuestItemBase))
-			{
-				ObjectivePrint(ToString() + "::AddItemsToServerData - Item " + name + " extends from ExpansionQuestItemBase. Skip..");
-				continue;
-			}
-
-			ExpansionMarketItem marketItem = marketSettings.GetItem(nameLower);
-			if (!marketItem)
-			{
-				ObjectivePrint(ToString() + "::AddItemsToServerData - Item " + name + " is not a market item. Skip..");
-				continue;
-			}
-
-			serverData.AddQuestMarketItem(zonePos, name, amount);
+			m_Quest.GetQuestModule().CreateClientMarker(pos, name, m_Quest.GetQuestConfig().GetID(), player.GetIdentity(), m_Index, visibility);
 		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			array<string> members = m_Quest.GetPlayerUIDs();
+			foreach (string memberUID: members)
+			{
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
+				if (!groupPlayer)
+					continue;
 
-		serverData.Save();
+				m_Quest.GetQuestModule().CreateClientMarker(pos, name, m_Quest.GetQuestConfig().GetID(), groupPlayer.GetIdentity(), m_Index, visibility);
+			}
+		}
+	#endif
 
-		ObjectivePrint(ToString() + "::AddItemsToServerData - End");
+		ObjectivePrint(ToString() + "::CreateObjectiveMarker - End");
 	}
+
+	void RemoveObjectiveMarkers()
+	{
+		ObjectivePrint(ToString() + "::RemoveObjectiveMarkers - Start");
+
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
+		{
+			PlayerBase player = m_Quest.GetPlayer();
+			if (!player)
+				return;
+
+			m_Quest.GetQuestModule().RemoveClientMarkers(m_Quest.GetQuestConfig().GetID(), player.GetIdentity(), m_Index);
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			array<string> members = m_Quest.GetPlayerUIDs();
+			foreach (string memberUID: members)
+			{
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
+				if (!groupPlayer)
+					continue;
+
+				m_Quest.GetQuestModule().RemoveClientMarkers(m_Quest.GetQuestConfig().GetID(), groupPlayer.GetIdentity(), m_Index);
+			}
+		}
+	#endif
+
+		ObjectivePrint(ToString() + "::RemoveObjectiveMarkers - End");
+	}
+
+	void CreateMarkers();
 #endif
 };

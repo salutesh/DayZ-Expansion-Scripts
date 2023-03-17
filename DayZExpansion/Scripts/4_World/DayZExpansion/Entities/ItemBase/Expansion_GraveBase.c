@@ -9,50 +9,13 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-
 class Expansion_GraveBase extends Inventory_Base
 {
 	protected bool m_ReceivedAttachments;
-	protected int m_FliesIndex = -1;
-
-	protected ref EffectParticle m_FliesEffect;
-	protected ref EffectSound m_SoundFliesEffect;
 
 	void Expansion_GraveBase()
 	{
 		RegisterNetSyncVariableBool("m_ReceivedAttachments");
-	}
-
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-
-
-		// disabling flies effect for now, they might be a tad annoying...
-
-		/* if (!m_FliesEffect)
-			m_FliesEffect = new EffSwarmingFlies();
-				
-		if (m_FliesEffect && !SEffectManager.IsEffectExist(m_FliesIndex))
-		{
-			m_FliesEffect.SetDecalOwner(this);
-			m_FliesIndex = SEffectManager.PlayOnObject(m_FliesEffect, this, "0 0.25 0");
-
-			Particle part = m_FliesEffect.GetParticle();
-			AddChild(part, -1);
-
-			if (!m_SoundFliesEffect)
-				PlaySoundSetLoop(m_SoundFliesEffect, "Flies_SoundSet", 1.0, 1.0);
-		} */
-	}
-
-	override void EEDelete(EntityAI parent)
-	{
-		if (m_FliesEffect)
-			m_FliesEffect.Stop();
-
-		if (m_SoundFliesEffect)
-			StopSoundSet(m_SoundFliesEffect);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE

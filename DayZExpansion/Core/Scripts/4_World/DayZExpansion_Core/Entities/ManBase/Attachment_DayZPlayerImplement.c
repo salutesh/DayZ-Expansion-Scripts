@@ -242,7 +242,11 @@ modded class DayZPlayerImplement
 
 		if (!Class.CastTo(m_ExAttachmentObject, GetParent()))
 		{
-			CF_Log.Error("'Expansion_GettingOutVehicle' called when not parented to anything");
+			Error("'Expansion_GettingOutVehicle' called when not parented to anything");
+		}
+		else
+		{
+			m_ExIsAttached = true;
 		}
 	}
 
@@ -458,17 +462,29 @@ modded class DayZPlayerImplement
 
 		return false;
 	}
-
-	override void OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
+	
+	void Expansion_OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
 	{
 	#ifdef DIAG
 		CF_Trace trace;
 	#endif
 
-		super.OnSyncJuncture(pJunctureID, pCtx);
-
 		switch (pJunctureID)
 		{
+		case DayZPlayerSyncJunctures.EXPANSION_SJ_TELEPORT:
+		#ifdef DIAG
+			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_TELEPORT");
+		#endif
+		
+			vector position;
+			vector orientation;
+
+			DayZPlayerSyncJunctures.ExpansionReadTeleport(pCtx, position, orientation);
+
+			SetPosition(position);
+			SetOrientation(orientation);
+
+			break;
 		case DayZPlayerSyncJunctures.EXPANSION_SJ_NEXT_LINK:
 		#ifdef DIAG
 			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ_NEXT_LINK");
@@ -502,6 +518,27 @@ modded class DayZPlayerImplement
 
 			m_ExForceUnlink = true;
 			m_ExIsAwaitingServerLink = false;
+			break;
+		}
+	}
+
+	override void OnSyncJuncture(int pJunctureID, ParamsReadContext pCtx)
+	{
+	#ifdef DIAG
+		CF_Trace trace;
+	#endif
+
+		super.OnSyncJuncture(pJunctureID, pCtx);
+
+		switch (pJunctureID)
+		{
+		case DayZPlayerSyncJunctures.EXPANSION_SJ:
+		#ifdef DIAG
+			trace = CF_Trace_1(EXTrace.PLAYER, this).Add("EXPANSION_SJ");
+		#endif
+			int id;
+			pCtx.Read(id);
+			Expansion_OnSyncJuncture(id, pCtx);
 			break;
 		}
 	}

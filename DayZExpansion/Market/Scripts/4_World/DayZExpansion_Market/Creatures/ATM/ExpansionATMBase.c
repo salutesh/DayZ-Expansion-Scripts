@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionATMBase extends BuildingSuper
+class ExpansionATMBase: BuildingSuper
 {
 	// ------------------------------------------------------------
 	// ExpansionATMBase Constructor
@@ -42,7 +42,7 @@ class ExpansionATMBase extends BuildingSuper
 	}
 }
 
-class ExpansionATMLocker: ExpansionATMBase {}
-class ExpansionATM_1: ExpansionATMBase {}
-class ExpansionATM_2: ExpansionATMBase {}
+class ExpansionATMLocker: ExpansionATMBase {};
+class ExpansionATM_1: ExpansionATMBase {};
+class ExpansionATM_2: ExpansionATMBase {};
 class ExpansionATM_3: ExpansionATMBase {}

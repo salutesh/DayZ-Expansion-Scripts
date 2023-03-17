@@ -34,14 +34,17 @@ class ExpansionEscortObjectiveSphereTrigger: Trigger
 	//! When an Object enters the trigger
 	override void EOnEnter(IEntity other, int extra)
 	{
+		if (GetGame().IsClient())
+			return;
+		
+		if (!m_Objective)
+			return;
+
 		eAIBase eAIplayer;
 		if (!Class.CastTo(eAIplayer, other))
 			return;
 
-		if (!eAIplayer.IsAI() || eAIplayer != m_Objective.GetAIVIP())
-			return;
-
-		if (!m_Objective.GetQuest())
+		if (eAIplayer != m_Objective.GetAIVIP())
 			return;
 
 		if (m_Objective && m_Objective.IsActive() && !m_Objective.IsCompleted())

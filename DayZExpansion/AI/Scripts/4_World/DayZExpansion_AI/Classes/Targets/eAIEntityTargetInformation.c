@@ -1,4 +1,4 @@
-class eAIEntityTargetInformation extends eAITargetInformation
+class eAIEntityTargetInformation: eAITargetInformation
 {
 	private EntityAI m_Target;
 	private string m_TargetDebugName;
@@ -6,7 +6,7 @@ class eAIEntityTargetInformation extends eAITargetInformation
 	void eAIEntityTargetInformation(EntityAI target)
 	{
 		m_Target = target;
-		m_TargetDebugName = Object.GetDebugName(m_Target);  //! Useful for logging even after entity has been deleted
+		m_TargetDebugName = "" + m_Target;  //! Useful for logging even after entity has been deleted
 	}
 
 	override string GetDebugName()
@@ -39,7 +39,7 @@ class eAIEntityTargetInformation extends eAITargetInformation
 		if (!m_Target)
 			return false;
 
-		return m_Target.GetHealth() > 0.0;
+		return !m_Target.IsDamageDestroyed();
 	}
 
 	override vector GetPosition(eAIBase ai = null, bool actual = false)

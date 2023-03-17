@@ -327,8 +327,11 @@ class ExpansionMarkerClientData : Managed
 
 	void PersonalInsert(ExpansionMarkerData data)
 	{
-		m_NextPersonalUID++;
-		data.SetUID(NextPersonalUID());
+		if (data.GetUID() == "")
+		{
+			m_NextPersonalUID++;
+			data.SetUID(NextPersonalUID());
+		}
 		m_PersonalMarkers.Insert(data);
 	}
 

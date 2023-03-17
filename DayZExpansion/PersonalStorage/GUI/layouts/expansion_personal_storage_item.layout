@@ -1,0 +1,279 @@
+WrapSpacerWidgetClass ExpansionPersonalStorageMenuItem {
+ color 0 0 0 1
+ position 0 0
+ size 1 48
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ priority 2
+ scriptclass "ExpansionPersonalStorageMenuItemController"
+ style Expansion_01
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ content_halign right
+ {
+  WrapSpacerWidgetClass button_panel {
+   visible 1
+   ignorepointer 1
+   position 0.01 0
+   size 0.1 48
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   style Empty
+   "Ignore invisible" 0
+   Padding 0
+   Margin 0
+   content_halign center
+   content_valign center
+   {
+    WrapSpacerWidgetClass button_background {
+     visible 1
+     ignorepointer 1
+     color 0.1529 0.1529 0.1765 1
+     size 1 26
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style Expansion_01
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     {
+      ButtonWidgetClass button {
+       color 0.1529 0.6824 0.3765 1
+       position 0 0
+       size 1 26
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       switch normal
+       {
+        TextWidgetClass button_text {
+         ignorepointer 1
+         color 0.9843 0.9882 0.9961 1
+         size 1 26
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "Deposit"
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ButtonText"
+          }
+         }
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnStateButtonClick"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ButtonWidgetClass item_button {
+   position 0 0
+   size 0.9 48
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   scriptclass "ViewBinding"
+   style Expansion_01
+   {
+    WrapSpacerWidgetClass panel {
+     visible 1
+     ignorepointer 1
+     position 0.01 0
+     size 0.99 48
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style Expansion_01
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     {
+      PanelWidgetClass tree_elements {
+       visible 0
+       ignorepointer 1
+       position 0.005 0
+       size 0.015 1
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       {
+        PanelWidgetClass tree_panel_1 {
+         ignorepointer 1
+         color 1 1 1 0.1961
+         position 0 -11
+         size 2 20
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style rover_sim_colorable
+        }
+        PanelWidgetClass tree_panel_2 {
+         ignorepointer 1
+         color 1 1 1 0.1961
+         size 14 2
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style rover_sim_colorable
+        }
+        PanelWidgetClass tree_panel_3 {
+         visible 0
+         ignorepointer 1
+         color 1 1 1 0.1961
+         position 0 11
+         size 2 20
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         style rover_sim_colorable
+        }
+       }
+      }
+      PanelWidgetClass item_preview_panel {
+       ignorepointer 1
+       color 1 1 1 0.1961
+       position 0 0
+       size 46 46
+       valign center_ref
+       hexactpos 0
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style Outline
+       {
+        ItemPreviewWidgetClass item_preview {
+         ignorepointer 1
+         size 46 46
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         scriptclass "ViewBinding"
+         {
+          ScriptParamsClass {
+           Binding_Name "Preview"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass spacer {
+       ignorepointer 1
+       position 0.006 0.215
+       size 12 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 0
+      }
+      GridSpacerWidgetClass item_name_panel {
+       ignorepointer 1
+       position 0.04 0
+       size 0.22 48
+       hexactpos 0
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       content_halign center
+       content_valign center
+       Columns 2
+       Rows 1
+       {
+        TextWidgetClass item_name_text {
+         ignorepointer 1
+         position 0.04 0
+         size 1 48
+         hexactpos 0
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         font "gui/fonts/etelkatextpro22"
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ItemName"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnItemButtonClick"
+    }
+   }
+  }
+  WrapSpacerWidgetClass cargo_content {
+   visible 1
+   ignorepointer 1
+   size 0.985 0.5
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Empty
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign right
+   {
+    ScriptParamsClass {
+     Binding_Name "CargoItems"
+    }
+   }
+  }
+ }
+}

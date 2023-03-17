@@ -13,7 +13,7 @@
 /**@class		ExpansionSafeMedium
  * @brief		
  **/
-class ExpansionSafeMedium extends ExpansionSafeBase 
+class ExpansionSafeMedium: ExpansionSafeBase 
 {
 
 } 

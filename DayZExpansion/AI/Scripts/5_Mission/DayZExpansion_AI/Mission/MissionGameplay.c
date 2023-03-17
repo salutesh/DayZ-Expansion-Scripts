@@ -45,9 +45,9 @@ modded class MissionGameplay
 		}
 #endif
 
-		//TODO: move to 5_Mission/DayZExpansion
-
+		UIScriptedMenu menu = m_UIManager.GetMenu();
 		Input input = GetGame().GetInput();
+		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
 
 		// If we want to open the command menu, and nothing else is open
 		if (input.LocalPress("eAICommandMenu", false) && !GetGame().GetUIManager().GetMenu())
@@ -61,11 +61,36 @@ modded class MissionGameplay
 		// If we want to close the command menu, and our menu is open
 		if (input.LocalRelease("eAICommandMenu", false) || input.LocalValue("eAICommandMenu", false) == 0)
 		{
-			auto menu = GetGame().GetUIManager().GetMenu();
 			if (menu && menu == eAICommandMenu.instance)
 			{
 				eAICommandMenu.instance.OnMenuRelease();
 				GetUIManager().Back();
+			}
+		}
+		
+		if (player && player.GetHumanInventory())
+		{
+			if (player.GetPlayerState() == EPlayerStates.ALIVE && !player.IsUnconscious())
+			{
+				if (viewMenu || menu)
+				{
+					m_Hud.Expansion_GetCooldownIndicator().Hide();
+				}
+				else
+				{
+					if (player.eAI_GetLastPlayerHitTimeout() > 0)
+					{
+						m_Hud.Expansion_GetCooldownIndicator().Show();
+					}
+					else
+					{
+						m_Hud.Expansion_GetCooldownIndicator().Hide();
+					}
+				}
+			}
+			else
+			{
+				m_Hud.Expansion_GetCooldownIndicator().Hide();
 			}
 		}
 	}

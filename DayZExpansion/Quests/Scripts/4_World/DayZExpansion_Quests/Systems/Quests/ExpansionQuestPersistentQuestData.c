@@ -13,16 +13,15 @@
 class ExpansionQuestPersistentQuestData
 {
 	int QuestID = -1;
-	int State = ExpansionQuestState.NONE;
+	ExpansionQuestState State = ExpansionQuestState.NONE;
 	int Timestamp = -1;
 	ref array<ref ExpansionQuestObjectiveData> QuestObjectives;
-	int LastUpdateTime;
-	int CompletionCount;
+	int LastUpdateTime = -1;
+	int CompletionCount = 0;
 
 	void ExpansionQuestPersistentQuestData()
 	{
-		if (!QuestObjectives)
-			QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
+		QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
 	}
 
 	ExpansionQuestObjectiveData GetObjectiveByIndex(int index)
@@ -38,7 +37,15 @@ class ExpansionQuestPersistentQuestData
 
 	void ClearObjectiveData()
 	{
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
+		Print(ToString() + "::ClearObjectiveData - Start");
+	#endif
+		
 		QuestObjectives.Clear();
+		
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
+		Print(ToString() + "::ClearObjectiveData - End");
+	#endif
 	}
 	
 	array<ref ExpansionQuestObjectiveData> GetQuestObjectives()
@@ -93,14 +100,8 @@ class ExpansionQuestPersistentQuestData
 			return false;
 		}
 
-		if (!QuestObjectives)
-		{
-			QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
-		}
-		else
-		{
+		if (QuestObjectives)
 			QuestObjectives.Clear();
-		}
 
 		for (int i = 0; i < objectivesCount; i++)
 		{
@@ -111,7 +112,7 @@ class ExpansionQuestPersistentQuestData
 				return false;
 			}
 
-			QuestObjectives.InsertAt(objective, i);
+			QuestObjectives.Insert(objective);
 		}
 
 		return true;
@@ -142,13 +143,18 @@ class ExpansionQuestPersistentQuestData
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
 		Print("------------------------------------------------------------");
 		Print(ToString() + "::QuestDebug - Quest ID: " + QuestID);
-		Print(ToString() + "::QuestDebug - Quest State: " + State);
+		string stateName = typename.EnumToString(ExpansionQuestState, State);
+		Print(ToString() + "::QuestDebug - Quest State: " + stateName);
 		Print(ToString() + "::QuestDebug - Quest Timestamp: " + Timestamp);
 		for (int i = 0; i < QuestObjectives.Count(); i++)
 		{
 			QuestObjectives[i].QuestDebug();
 		}
-		Print(ToString() + "::QuestDebug - Quest LastUpdateTime: " + ExpansionStatic.FormatTime(LastUpdateTime, false));
+		
+		int year, month, day, hour, minute, second;
+		CF_Date.TimestampToDate(LastUpdateTime, year, month, day, hour, minute, second);
+		string updateTimeText = string.Format("%1-%2-%3 - %4:%5:%6", day, month, year, hour, minute, second);
+		Print(ToString() + "::QuestDebug - Quest LastUpdateTime: " + updateTimeText);
 		Print(ToString() + "::QuestDebug - Quest CompletionCount: " + CompletionCount);
 		Print("------------------------------------------------------------");
 	#endif

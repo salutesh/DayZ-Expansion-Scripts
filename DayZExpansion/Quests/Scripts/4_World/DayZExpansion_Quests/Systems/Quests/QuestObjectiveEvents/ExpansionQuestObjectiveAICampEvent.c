@@ -13,27 +13,59 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 {
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAICampEvent CleanupPatrol
-	// -----------------------------------------------------------
-	override protected void CleanupPatrol(bool despawn = false)
+	protected ExpansionAICampObjectiveSphereTrigger m_ObjectiveTrigger;
+	protected ref ExpansionQuestObjectiveAICampConfig m_Config;
+
+	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::CleanupPatrol - Start");
+		ObjectivePrint(ToString() + "::OnEventStart - Start");
 
-		super.CleanupPatrol(despawn);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(CleanupZeds);
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		if (!super.OnEventStart())
+			return false;
 
-		ObjectivePrint(ToString() + "::CleanupPatrol - End");
+		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		
+		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAICampEvent OnEntityKilled
-	// -----------------------------------------------------------
+	override bool OnContinue()
+	{
+		ObjectivePrint(ToString() + "::OnContinue - Start");
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		if (!super.OnContinue())
+			return false;
+
+		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		
+		return true;
+	}
+	
+	override bool OnCleanup()
+	{
+		ObjectivePrint(ToString() + "::OnCleanup - Start");
+		
+		if (!super.OnCleanup())
+			return false;
+
+		if (m_ObjectiveTrigger)
+			GetGame().ObjectDelete(m_ObjectiveTrigger);
+
+		ObjectivePrint(ToString() + "::OnCleanup - End");
+		
+		return true;
+	}
+	
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -55,17 +87,14 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAICampEvent CheckQuestAIPatrol
-	// -----------------------------------------------------------
 	override protected void CheckQuestAIPatrol()
 	{
 		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
 
-		if (!GetObjectiveConfig())
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
+		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -76,12 +105,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAICampEvent CreateQuestAIPatrol
-	// -----------------------------------------------------------
 	override void CreateQuestAIPatrol()
 	{
-		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
+		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - Start");
+
+		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
 		if (!aiCamp)
 			return;
 
@@ -94,11 +122,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			array<vector> waypoint = new array<vector>;
 			waypoint.Insert(pos);
 
-			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_ObjectiveConfig.CanLootAI(), false, waypoint);
+			ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(1, aiCamp.GetNPCSpeed(), aiCamp.GetNPCMode(), "HALT", aiCamp.GetNPCFaction(), aiCamp.GetNPCLoadoutFile(), m_Config.CanLootAI(), false, waypoint);
 			group.Formation = "RANDOM";  //! Just set a default, it's not really used as the NPCs are separate
 			group.AccuracyMin = aiCamp.NPCAccuracyMin;
 			group.AccuracyMax = aiCamp.NPCAccuracyMax;
-			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, m_ObjectiveConfig.GetMinDistRadius(), m_ObjectiveConfig.GetMaxDistRadius(), m_ObjectiveConfig.GetDespawnRadius());
+			eAIDynamicPatrol patrol = CreateQuestPatrol(group, 0, 600, 300, m_Config.GetMinDistRadius(), m_Config.GetMaxDistRadius(), m_Config.GetDespawnRadius());
 			if (!patrol)
 				return;
 
@@ -106,39 +134,40 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		}
 
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CleanupZeds, 30000, true);
+		
+		if (m_Config.GetInfectedDeletionRadius() > 0 && !m_ObjectiveTrigger)
+			CreateTrigger(aiCamp.GetPositions()[0], m_Config.GetInfectedDeletionRadius());
 
 	#ifdef EXPANSIONMODNAVIGATION
-		string markerName = m_ObjectiveConfig.GetObjectiveText();
-
-		if (markerName != string.Empty)
-			m_Quest.CreateClientMarker(aiCamp.GetPositions()[0], markerName);
+		CreateMarkers();
 	#endif
+		
+		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
+	}
+	
+	protected void CreateTrigger(vector pos, int radius)
+	{
+		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionAICampObjectiveSphereTrigger", pos, ECE_NONE));
+		m_ObjectiveTrigger.SetPosition(pos);
+		m_ObjectiveTrigger.SetTriggerRadius(radius);
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAICampEvent CleanupZeds
-	// -----------------------------------------------------------
-	//! ToDo: Spawn a trigger that calls that method on infected that get spawned in the objective area.
-	//! Maybe make this also optional as a objective configuration setting.
-	protected override void CleanupZeds()
+#ifdef EXPANSIONMODNAVIGATION
+	override void CreateMarkers()
 	{
-		ExpansionQuestObjectiveAICamp aiCamp = m_ObjectiveConfig.GetAICamp();
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return;
+
+		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
 		if (!aiCamp)
 			return;
 
-		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition3D(aiCamp.GetPositions()[0], 500, objects, NULL);
-		foreach (Object obj: objects)
-		{
-			if (obj.IsInherited(ZombieBase))
-				GetGame().ObjectDelete(obj);
-		}
+		string markerName = m_Config.GetObjectiveText();
+		if (markerName != string.Empty)
+			CreateObjectiveMarker(aiCamp.GetPositions()[0], markerName);
 	}
+#endif
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveAICampEvent CleanupZeds
-	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.AICAMP;

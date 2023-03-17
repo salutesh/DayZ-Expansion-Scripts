@@ -13,7 +13,7 @@
 /**@class		bldr_expansion_Sign_RoadBarrier_LightOn
  * @brief		
  **/
-class bldr_expansion_Sign_RoadBarrier_LightOn  extends House
+class bldr_expansion_Sign_RoadBarrier_LightOn : House
 {	
 	protected ScriptedLightBase m_Light;
 
@@ -22,7 +22,7 @@ class bldr_expansion_Sign_RoadBarrier_LightOn  extends House
 	// ------------------------------------------------------------
 	void bldr_expansion_Sign_RoadBarrier_LightOn()
 	{		
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			if ( !m_Light )
 			{

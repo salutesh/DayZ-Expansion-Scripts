@@ -13,10 +13,8 @@
 modded class AnimalBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new ref array<ExpansionQuestObjectiveEventBase>;
+	protected bool m_CalledObjectiveCheck = false;
 
-	// ------------------------------------------------------------
-	// AnimalBase AssignQuestObjective
-	// ------------------------------------------------------------
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -35,9 +33,6 @@ modded class AnimalBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// AnimalBase DeassignQuestObjective
-	// ------------------------------------------------------------
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -56,11 +51,12 @@ modded class AnimalBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// AnimalBase CheckAssignedObjectivesForEntity
-	// ------------------------------------------------------------
 	protected void CheckAssignedObjectivesForEntity(Object killer)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::CheckAssignedObjectivesForEntity - Start");
+	#endif
+
 		EntityAI killSource = EntityAI.Cast(killer);
 		if (!killSource || killSource == this)
 			return;
@@ -89,15 +85,52 @@ modded class AnimalBase
 				}
 			}
 		}
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::CheckAssignedObjectivesForEntity - End");
+	#endif
 	}
 
-	// ------------------------------------------------------------
-	// AnimalBase EEKilled
-	// ------------------------------------------------------------
-	override void EEKilled(Object killer)
+	//! Not usable since 1.20 as the killer object always returns the killed entity.
+	/*override void EEKilled(Object killer)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::EEKilled - Start");
+	#endif
+
 		super.EEKilled(killer);
 
+		Print(ToString() + "::EEKilled - Killed entity: " + GetType());
+		Print(ToString() + "::EEKilled - Killer entity: " + killer.GetType());
+
 		CheckAssignedObjectivesForEntity(killer);
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::EEKilled - End");
+	#endif
+	}*/
+
+	//! Workaround for vanilla bug as EEKilled returns the killed entity always as the kill source since 1.20.
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::EEHitBy - Start");
+	#endif
+
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (!IsAlive() && !m_CalledObjectiveCheck)
+		{
+			CheckAssignedObjectivesForEntity(source);
+			m_CalledObjectiveCheck = true;
+		}
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::EEHitBy - Damage type: " + damageType);
+		Print(ToString() + "::EEHitBy - Source entity: " + source.GetType());
+		Print(ToString() + "::EEHitBy - Damage Zone: " + dmgZone);
+		Print(ToString() + "::EEHitBy - Ammo: " + ammo);
+		Print(ToString() + "::EEHitBy - End");
+	#endif
 	}
 };

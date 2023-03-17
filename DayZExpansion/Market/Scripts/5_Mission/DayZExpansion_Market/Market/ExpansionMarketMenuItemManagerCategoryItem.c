@@ -226,7 +226,8 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 				
 				if (!m_ItemTooltip && m_Object)
 				{
-					m_ItemTooltip = new ExpansionItemTooltip(m_Object);
+					m_ItemTooltip = MissionGameplay.Expansion_GetItemTooltip();
+					m_ItemTooltip.SetItem(m_Object);
 					m_ItemTooltip.SetContentOffset(0.019531, -0.076389);
 					m_ItemTooltip.SetShowItemPreview(true);
 					m_ItemTooltip.Show();

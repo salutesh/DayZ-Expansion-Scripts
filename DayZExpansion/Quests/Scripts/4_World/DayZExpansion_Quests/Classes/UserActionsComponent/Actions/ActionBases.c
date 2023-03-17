@@ -14,9 +14,6 @@ modded class ActionBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ExpansionQuestObjectiveEventBase>;
 
-	// ------------------------------------------------------------
-	// ActionBase AssignQuestObjective
-	// ------------------------------------------------------------
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -35,9 +32,6 @@ modded class ActionBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ActionBase DeassignQuestObjective
-	// ------------------------------------------------------------
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -56,9 +50,6 @@ modded class ActionBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ActionBase CheckAssignedObjectives
-	// ------------------------------------------------------------
 	protected void CheckAssignedObjectives(ActionData action_data, bool isInit)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -124,9 +115,6 @@ modded class ActionBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ActionBase OnObjectiveActionExecuted
-	// ------------------------------------------------------------
 	protected void OnObjectiveActionExecuted(ExpansionQuestObjectiveEventBase objective, ActionData action_data, bool isInit)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -145,25 +133,25 @@ modded class ActionBase
 				}
 			}
 			break;
-			
+
 		#ifdef EXPANSIONMODAI
-			case ExpansionQuestObjectiveType.AIESCORD:
+			case ExpansionQuestObjectiveType.AIESCORT:
 			{
 				if (ClassName() != "ExpansionActionDismissAI")
 					return;
 
-				ExpansionQuestObjectiveAIEscortEvent aiEscordObjective;
-				if (!Class.CastTo(aiEscordObjective, objective))
+				ExpansionQuestObjectiveAIEscortEvent aiEscortObjective;
+				if (!Class.CastTo(aiEscortObjective, objective))
 					return;
-				
+
 				eAIBase aiUnit;
 				if (!Class.CastTo(aiUnit, action_data.m_Target.GetObject()))
 					return;
-				
-				if (aiUnit != aiEscordObjective.GetAIVIP())
+
+				if (aiUnit != aiEscortObjective.GetAIVIP())
 					return;
-					
-				aiEscordObjective.OnDissmissAIGroup();
+
+				aiEscortObjective.OnDissmissAIGroup();
 			}
 			break;
 		#endif
@@ -201,6 +189,16 @@ modded class AnimatedActionBase
 	override protected void OnExecuteServer(ActionData action_data)
 	{
 		super.OnExecuteServer(action_data);
+		CheckAssignedObjectives(action_data, false);
+	}
+	override void OnStartServer(ActionData action_data)
+	{
+		super.OnStartServer(action_data);
+		CheckAssignedObjectives(action_data, true);
+	}
+	override void OnEndServer(ActionData action_data)
+	{
+		super.OnEndServer(action_data);
 		CheckAssignedObjectives(action_data, false);
 	}
 };

@@ -364,59 +364,59 @@ class CfgVehicles
 	};
 	class bldr_expansion_lhd1: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_1.p3d";
 	};
 	class bldr_expansion_lhd2: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_2.p3d";
 	};
 	class bldr_expansion_lhd3: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_3.p3d";
 	};
 	class bldr_expansion_lhd4: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_4.p3d";
 	};
 	class bldr_expansion_lhd5: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_5.p3d";
 	};
 	class bldr_expansion_lhd6: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_6.p3d";
 	};
 	class bldr_expansion_evelv_r: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_elev_R.p3d";
 	};
 	class bldr_expansion_house1: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_house_1.p3d";
 	};
 	class bldr_expansion_house2: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_house_2.p3d";
 	};
 	class bldr_expansion_shadow: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\LHD_shadow.p3d";
 		physLayer = "item_small";
 		carveNavmesh = 0;
 	};
 	class bldr_expansion_wall_lamp: bldr_expansion_lhd
 	{
-		scope = 2;
+		scope = 1;
 		model = "\DayZExpansion\Vehicles\Water\Carrier\bldr\Misc_wall_lamp.p3d";
 		physLayer = "item_small";
 		carveNavmesh = 0;

@@ -27,9 +27,16 @@ class eAICommandManagerClient : eAICommandManager
 				GetRPCManager().SendRPC("eAI", "SpawnBear", new Param1<DayZPlayer>(GetGame().GetPlayer()));
 				return true;
 			case eAICommands.FOR_VEE:
+			case eAICommands.FOR_INVVEE:
 			case eAICommands.FOR_FILE:
+			case eAICommands.FOR_INVFILE:
 			case eAICommands.FOR_WALL:
 			case eAICommands.FOR_COL:
+			case eAICommands.FOR_INVCOL:
+			case eAICommands.FOR_CIRCLE:
+			case eAICommands.FOR_CIRCLEDOT:
+			case eAICommands.FOR_STAR:
+			case eAICommands.FOR_STARDOT:
 				GetRPCManager().SendRPC("eAI", "ReqFormationChange", new Param2<DayZPlayer, int>(GetGame().GetPlayer(), cmd));
 				return true;
 			

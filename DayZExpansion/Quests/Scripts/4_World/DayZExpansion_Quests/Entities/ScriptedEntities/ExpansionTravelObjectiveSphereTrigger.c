@@ -10,84 +10,75 @@
  *
 */
 
-class ExpansionObjectiveTriggerBase: Trigger
-{
-	protected ExpansionQuestObjectiveEventBase m_Objective;
-
-	void ExpansionObjectiveTriggerBase()
-	{
-		SetEventMask(EntityEvent.ENTER | EntityEvent.LEAVE);
-	}
-	
-	void SetObjectiveData(ExpansionQuestObjectiveEventBase objective)
-	{
-		m_Objective = objective;
-
-		int radius = 10;
-		if (objective.GetObjectiveConfig().GetMaxDistance() > 0)
-			radius = objective.GetObjectiveConfig().GetMaxDistance();
-		
-		if (m_Objective.GetObjectiveType() == ExpansionQuestObjectiveType.TREASUREHUNT)
-			radius = 30;
-
-		SetCollisionSphere(radius);
-	}
-
-	//! Condition checks on given entity.
-	bool EntityConditions(IEntity other)
-	{
-		return true;
-	}
-
-#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-	protected void TriggerDebug()
-	{
-		vector pos = GetPosition();
-		QuestPrint(ToString() + "::TriggerDebug - Position: " + pos);
-		QuestPrint(ToString() + "::TriggerDebug - Objective: " + m_Objective.ToString());
-		m_Objective.QuestDebug();
-	}
-#endif
-
-	override protected void AddInsider(Object obj)
-	{
-		//! Do nothing..
-	}
-	
-	override protected void RemoveInsiderByObject(Object object)
-	{
-		//! Do nothing..
-	}
-	
-	protected void QuestPrint(string text)
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
-	#endif
-	}
-};
-
 class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 {
 	override void SetObjectiveData(ExpansionQuestObjectiveEventBase objective)
 	{
 		QuestPrint(ToString() + "::SetObjectiveData - Start");
-		
+
 		super.SetObjectiveData(objective);
 		
+		float distance;
 		int objectiveType = objective.GetObjectiveType();
 		if (objectiveType == ExpansionQuestObjectiveType.TRAVEL)
 		{
-			if (!objective.GetObjectiveConfig().TriggerOnEnter())
-				ClearEventMask(EntityEvent.ENTER);
-			
-			if (!objective.GetObjectiveConfig().TriggerOnExit())
-				ClearEventMask(EntityEvent.LEAVE);
+			ExpansionQuestObjectiveTravelConfig travelConfig;
+			if (Class.CastTo(travelConfig, objective.GetObjectiveConfig()))
+			{
+				if (!travelConfig.TriggerOnEnter())
+					ClearEventMask(EntityEvent.ENTER);
+	
+				if (!travelConfig.TriggerOnExit())
+					ClearEventMask(EntityEvent.LEAVE);
+				
+				distance = travelConfig.GetMaxDistance();
+				if (distance <= 0)
+					distance = 5.0;
+
+				SetTriggerRadius(distance);
+			}
 		}
-		
+		else if (objectiveType == ExpansionQuestObjectiveType.COLLECT)
+		{
+			ExpansionQuestObjectiveCollectionConfig collectionConfig;
+			if (Class.CastTo(collectionConfig, objective.GetObjectiveConfig()))
+			{
+				distance = collectionConfig.GetMaxDistance();
+				if (distance <= 0)
+					distance = 5.0;
+
+				SetTriggerRadius(distance);
+			}
+		}
+		else if (objectiveType == ExpansionQuestObjectiveType.DELIVERY)
+		{
+			ExpansionQuestObjectiveDeliveryConfig deliveryConfig;
+			if (Class.CastTo(deliveryConfig, objective.GetObjectiveConfig()))
+			{
+				distance = deliveryConfig.GetMaxDistance();
+				if (distance <= 0)
+					distance = 5.0;
+				
+				SetTriggerRadius(distance);
+			}
+		}
+		else if (objectiveType == ExpansionQuestObjectiveType.TREASUREHUNT)
+		{
+			ExpansionQuestObjectiveTreasureHuntConfig treasureHuntConfig;
+			if (Class.CastTo(treasureHuntConfig, objective.GetObjectiveConfig()))
+			{
+				distance = treasureHuntConfig.GetMaxDistance();
+				if (distance <= 0)
+					distance = 20.0;
+
+				SetTriggerRadius(distance);
+				ClearEventMask(EntityEvent.LEAVE);
+			}
+		}
+
 		QuestPrint(ToString() + "::SetObjectiveData - End");
 	}
-	
+
 	//! Event called when an entity enters the trigger area.
 	override void EOnEnter(IEntity other, int extra)
 	{
@@ -108,6 +99,8 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		}
 
 		int objectiveType = m_Objective.GetObjectiveType();
+		string objectiveTypeText = typename.EnumToString(ExpansionQuestObjectiveType, objectiveType);
+		QuestPrint(ToString() + "::EOnEnter - Objective type: " + objectiveTypeText);
 		switch (objectiveType)
 		{
 			case ExpansionQuestObjectiveType.DELIVERY:
@@ -117,7 +110,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 			break;
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
-				OnEnter_Delivery();
+				OnEnter_Collection();
 			}
 			break;
 			case ExpansionQuestObjectiveType.TRAVEL:
@@ -134,12 +127,12 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 
 		QuestPrint(ToString() + "::EOnEnter - End");
 	}
-
+	
 	protected void OnEnter_Delivery()
 	{
 		QuestPrint(ToString() + "::OnEnter_Delivery - Start");
 
-		ExpansionQuestObjectiveCollectItemEventBase deliveryEvent;
+		ExpansionQuestObjectiveDeliveryEvent deliveryEvent;
 		if (!Class.CastTo(deliveryEvent, m_Objective))
 			return;
 
@@ -148,6 +141,19 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		QuestPrint(ToString() + "::OnEnter_Delivery - End");
 	}
 
+	protected void OnEnter_Collection()
+	{
+		QuestPrint(ToString() + "::OnEnter_Collection - Start");
+
+		ExpansionQuestObjectiveCollectionEvent collectionEvent;
+		if (!Class.CastTo(collectionEvent, m_Objective))
+			return;
+
+		collectionEvent.SetReachedLocation(true);
+
+		QuestPrint(ToString() + "::OnEnter_Collection - End");
+	}
+	
 	protected void OnEnter_Travel()
 	{
 		QuestPrint(ToString() + "::OnEnter_Travel - Start");
@@ -160,7 +166,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 
 		QuestPrint(ToString() + "::OnEnter_Travel - End");
 	}
-	
+
 	protected void OnEnter_TreasureHunt()
 	{
 		QuestPrint(ToString() + "::OnEnter_TreasureHunt - Start");
@@ -188,11 +194,13 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		bool result = EntityConditions(other);
 		if (!result)
 		{
-			QuestPrint(ToString() + "::EOnEnter - Entity conditions result: " + result);
+			QuestPrint(ToString() + "::EOnLeave - Entity conditions result: " + result);
 			return;
 		}
 
 		int objectiveType = m_Objective.GetObjectiveType();
+		string objectiveTypeText = typename.EnumToString(ExpansionQuestObjectiveType, objectiveType);
+		QuestPrint(ToString() + "::EOnLeave - Objective type: " + objectiveTypeText);
 		switch (objectiveType)
 		{
 			case ExpansionQuestObjectiveType.DELIVERY:
@@ -202,7 +210,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 			break;
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
-				OnLeave_Delivery();
+				OnLeave_Collection();
 			}
 			break;
 			case ExpansionQuestObjectiveType.TRAVEL:
@@ -210,27 +218,40 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 				OnLeave_Travel();
 			}
 			break;
-			case ExpansionQuestObjectiveType.TREASUREHUNT:
+			/*case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				OnLeave_TreasureHunt();
 			}
-			break;
+			break;*/
 		}
 
 		QuestPrint(ToString() + "::EOnLeave - End");
 	}
-
+	
 	protected void OnLeave_Delivery()
 	{
 		QuestPrint(ToString() + "::OnLeave_Delivery - Start");
 
-		ExpansionQuestObjectiveCollectItemEventBase deliveryEvent;
+		ExpansionQuestObjectiveDeliveryEvent deliveryEvent;
 		if (!Class.CastTo(deliveryEvent, m_Objective))
 			return;
 
 		deliveryEvent.SetReachedLocation(false);
 
 		QuestPrint(ToString() + "::OnLeave_Delivery - End");
+	}
+
+	protected void OnLeave_Collection()
+	{
+		QuestPrint(ToString() + "::OnLeave_Collection - Start");
+
+		ExpansionQuestObjectiveCollectionEvent collectionEvent;
+		if (!Class.CastTo(collectionEvent, m_Objective))
+			return;
+
+		collectionEvent.SetReachedLocation(false);
+
+		QuestPrint(ToString() + "::OnLeave_Collection - End");
 	}
 
 	protected void OnLeave_Travel()
@@ -245,8 +266,8 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 
 		QuestPrint(ToString() + "::OnLeave_Travel - End");
 	}
-	
-	protected void OnLeave_TreasureHunt()
+
+	/*protected void OnLeave_TreasureHunt()
 	{
 		QuestPrint(ToString() + "::OnLeave_TreasureHunt - Start");
 
@@ -257,7 +278,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		treasureHuntEvent.SetReachedLocation(false);
 
 		QuestPrint(ToString() + "::OnLeave_TreasureHunt - End");
-	}
+	}*/
 
 	//! Condition checks on given entity.
 	override bool EntityConditions(IEntity other)

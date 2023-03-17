@@ -13,7 +13,7 @@
 /**@class		ExpansionHelicopterScript
  * @brief		This class handle helicopter movement and physics
  **/
-class ExpansionHelicopterScript extends CarScript
+class ExpansionHelicopterScript: CarScript
 {
 	ExpansionVehicleHelicopter_OLD m_Simulation;
 
@@ -629,7 +629,7 @@ class ExpansionHelicopterScript extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EX_HATCHBACK;
+		return VehicleAnimInstances.HATCHBACK;
 	}
 
 	override int GetSeatAnimationType(int posIdx)

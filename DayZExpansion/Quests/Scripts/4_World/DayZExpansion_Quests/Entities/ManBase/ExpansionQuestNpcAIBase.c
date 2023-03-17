@@ -10,121 +10,52 @@
  *
 */
 
-#ifdef ENFUSION_AI_PROJECT
 /**@class		ExpansionQuestNPCAIBase
  * @brief		This class quest AI NPCs
  **/
+
 #ifdef EXPANSIONMODAI
-class ExpansionQuestNPCAIBase extends eAINPCBase
-#else
-class ExpansionQuestNPCAIBase extends eAIBase
-#endif
+class ExpansionQuestNPCAIBase: eAINPCBase
 {
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionQuestNPCAIBase()
 	{
-		if (IsMissionHost())
-		{
-			SetAllowDamage(false);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionFixPositionAndOrientation, 10000);
-		}
-
-	#ifdef EXPANSIONMODAI
 		SetMovementSpeedLimits(1.0);  //! Always walk
-	#endif
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase Deconstructor
-	// ------------------------------------------------------------
-	void ~ExpansionQuestNPCAIBase()
+	
+	override void Expansion_Init()
 	{
-		if (IsMissionHost())
+		if (GetGame().IsServer())
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionFixPositionAndOrientation);
+			m_eAI_FactionType = eAIFactionInvincibleObservers;
 		}
+
+		super.Expansion_Init();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase DeferredInit
-	// ------------------------------------------------------------
-	override void DeferredInit()
-    {
-		super.DeferredInit();
-
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		Print("-----------------------------------------------------------------------------------------");
-		Print(ToString() + "::DeferredInit - NPC ID: " + m_QuestNPCID);
-		Print(ToString() + "::DeferredInit - NPC type: " + GetType());
-		Print("-----------------------------------------------------------------------------------------");
-	#endif
-    }
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase Constructor
-	// ------------------------------------------------------------
-#ifdef EXPANSIONMODAI
-	override bool PlayerIsEnemy(EntityAI other)
-#else
-	override bool PlayerIsEnemy(PlayerBase other)
-#endif
-	{
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase SetQuestNPCID
-	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
 		m_QuestNPCID = id;
 		SetSynchDirty();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase GetQuestNPCID
-	// ------------------------------------------------------------
 	int GetQuestNPCID()
 	{
 		return m_QuestNPCID;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase SetQuestNPCData
-	// ------------------------------------------------------------
 	void SetQuestNPCData(ExpansionQuestNPCData questNPCData)
 	{
 		m_QuestNPCData = questNPCData;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase GetQuestNPCData
-	// ------------------------------------------------------------
 	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCAIBase FixPositionAndOrientation
-	// ------------------------------------------------------------
-	void ExpansionFixPositionAndOrientation()
-	{
-		if (m_QuestNPCData)
-		{
-			if (GetPosition() != m_QuestNPCData.GetPosition())
-				SetPosition(m_QuestNPCData.GetPosition());
-
-			if (GetOrientation() != m_QuestNPCData.GetOrientation())
-				SetOrientation(m_QuestNPCData.GetOrientation());
-		}
 	}
 };
 

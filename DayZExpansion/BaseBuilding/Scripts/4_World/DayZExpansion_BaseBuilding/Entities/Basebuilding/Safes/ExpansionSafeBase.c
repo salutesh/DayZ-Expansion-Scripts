@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionSafeBase extends Container_Base
+class ExpansionSafeBase: Container_Base
 {
 	protected EffectSound m_Sound;
 	
@@ -92,7 +92,7 @@ class ExpansionSafeBase extends Container_Base
 	
 	protected void SoundCodeLockLocked()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock3_SoundSet", GetPosition());
 			m_Sound.SetSoundAutodestroy( true );
@@ -101,7 +101,7 @@ class ExpansionSafeBase extends Container_Base
 	
 	protected void SoundCodeLockUnlocked()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		if ( !GetGame().IsDedicatedServer() ) // client side
 		{
 			// Expansion_Succes_SoundSet
 			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());

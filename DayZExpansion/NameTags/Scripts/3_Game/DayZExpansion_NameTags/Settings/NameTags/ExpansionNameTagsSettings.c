@@ -31,7 +31,7 @@ class ExpansionNameTagsSettingsV0: ExpansionNameTagsSettingsBase
  **/
 class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 4;
 
 	int PlayerTagsColor;
 	int PlayerNameColor;
@@ -39,28 +39,100 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	bool OnlyInSafeZones;
 	bool OnlyInTerritories;
 	
+	bool ShowPlayerItemInHands;
+	bool ShowNPCTags;
+#ifdef EXPANSIONMODAI
+	bool ShowPlayerFaction;
+#endif
+#ifdef EXPANSIONMODHARDLINE
+	bool UseRarityColorForItemInHands;
+#endif
+	
 	[NonSerialized()]
 	private bool m_IsLoaded;
-	
+
 	// ------------------------------------------------------------
 	// ExpansionNameTagsSettings OnRecieve
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
+	#endif
 
-		ExpansionNameTagsSettings setting;
-		if ( !ctx.Read( setting ) )
+		if ( !ctx.Read( EnablePlayerTags ) )
 		{
-			Error("ExpansionNameTagsSettings::OnRecieve setting");
+			Error("ExpansionNameTagsSettings::OnRecieve EnablePlayerTags");
 			return false;
 		}
-
-		CopyInternal( setting );
+		
+		if ( !ctx.Read( PlayerTagViewRange ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve PlayerTagViewRange");
+			return false;
+		}
+		
+		if ( !ctx.Read( PlayerTagsIcon ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve PlayerTagsIcon");
+			return false;
+		}
+		
+		if ( !ctx.Read( PlayerTagsColor ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve PlayerTagsColor");
+			return false;
+		}
+		
+		if ( !ctx.Read( PlayerNameColor ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve PlayerNameColor");
+			return false;
+		}
+		
+		if ( !ctx.Read( OnlyInSafeZones ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve OnlyInSafeZones");
+			return false;
+		}
+		
+		if ( !ctx.Read( OnlyInTerritories ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve OnlyInTerritories");
+			return false;
+		}
+		
+		if ( !ctx.Read( ShowPlayerItemInHands ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve ShowPlayerFaction");
+			return false;
+		}
+		
+		if ( !ctx.Read( ShowNPCTags ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve ShowNPCTags");
+			return false;
+		}
+		
+	#ifdef EXPANSIONMODAI
+		if ( !ctx.Read( ShowPlayerFaction ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve ShowPlayerFaction");
+			return false;
+		}
+	#endif
+		
+	#ifdef EXPANSIONMODHARDLINE
+		if ( !ctx.Read( UseRarityColorForItemInHands ) )
+		{
+			Error("ExpansionNameTagsSettings::OnRecieve UseRarityColorForItemInHands");
+			return false;
+		}
+	#endif
 
 		m_IsLoaded = true;
+		
+		EXLogPrint("Received Name-Tag settings");
 
 		ExpansionSettings.SI_NameTags.Invoke();
 	
@@ -72,9 +144,26 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ExpansionNameTagsSettings thisSetting = this;
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
+	#endif
 
-		ctx.Write( thisSetting );
+		ctx.Write( EnablePlayerTags );
+		ctx.Write( PlayerTagViewRange );
+		ctx.Write( PlayerTagsIcon );
+		ctx.Write( PlayerTagsColor );
+		ctx.Write( PlayerNameColor );
+		ctx.Write( OnlyInSafeZones );
+		ctx.Write( OnlyInTerritories );
+		ctx.Write( ShowPlayerItemInHands );
+		ctx.Write( ShowNPCTags );
+	#ifdef EXPANSIONMODAI
+		ctx.Write( ShowPlayerFaction );
+	#endif
+		
+	#ifdef EXPANSIONMODHARDLINE
+		ctx.Write( UseRarityColorForItemInHands );
+	#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -82,9 +171,9 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
+	#endif
 
 		if ( !IsMissionHost() )
 		{
@@ -114,17 +203,27 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionNameTagsSettings s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
-		ExpansionNameTagsSettingsBase sb = s;
-		CopyInternal( sb );
 		PlayerTagsColor = s.PlayerTagsColor;
 		PlayerNameColor = s.PlayerNameColor;
 
 		OnlyInSafeZones = s.OnlyInSafeZones;
 		OnlyInTerritories = s.OnlyInTerritories;
+	
+		ShowPlayerItemInHands = s.ShowPlayerItemInHands;
+		ShowNPCTags = s.ShowNPCTags;
+	#ifdef EXPANSIONMODAI
+		ShowPlayerFaction = s.ShowPlayerFaction;
+	#endif
+	#ifdef EXPANSIONMODHARDLINE
+		UseRarityColorForItemInHands = s.UseRarityColorForItemInHands;
+	#endif
+
+		ExpansionNameTagsSettingsBase sb = s;
+		CopyInternal( sb );
 	}
 	
 	// ------------------------------------------------------------
@@ -132,9 +231,9 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	private void CopyInternal( ExpansionNameTagsSettingsBase s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
 		EnablePlayerTags = s.EnablePlayerTags;
 
@@ -161,19 +260,17 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
+	#endif
 
 		m_IsLoaded = true;
 
 		bool save;
-
 		bool nameTagsSettingsExist = FileExist(EXPANSION_NAMETAGS_SETTINGS);
-
 		if (nameTagsSettingsExist)
 		{
-			EXPrint("[ExpansionNameTagsSettings] Load existing setting file:" + EXPANSION_NAMETAGS_SETTINGS);
+			CF_Log.Info(ToString() + "::OnLoad - Load existing setting file %1", EXPANSION_NAMETAGS_SETTINGS);
 			
 			ExpansionNameTagsSettings settingsDefault = new ExpansionNameTagsSettings;
 			settingsDefault.Defaults();
@@ -183,7 +280,7 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
-				EXPrint("[ExpansionNotificationSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMETAGS_SETTINGS + "\" to v" + VERSION);
+				CF_Log.Info(ToString() + "::OnLoad - Converting v %1 %2 to v %3", settingsBase.m_Version.ToString(), EXPANSION_NAMETAGS_SETTINGS, VERSION.ToString());
 
 				if (settingsBase.m_Version < 1)
 				{
@@ -212,7 +309,7 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		}
 		else
 		{
-			EXPrint("[ExpansionNameTagsSettings] No existing setting file:" + EXPANSION_NAMETAGS_SETTINGS + ". Creating defaults!");
+			CF_Log.Info(ToString() + "::OnLoad - No existing setting file %1. Creating defaults!", EXPANSION_NAMETAGS_SETTINGS);
 			Defaults();
 			save = true;
 		}
@@ -228,8 +325,7 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-		Print("[ExpansionNameTagsSettings] Saving settings");
-
+		CF_Log.Info(ToString() + "::OnSave - Saving settings %1", EXPANSION_NAMETAGS_SETTINGS);
 		JsonFileLoader<ExpansionNameTagsSettings>.JsonSaveFile( EXPANSION_NAMETAGS_SETTINGS, this );
 
 		return true;
@@ -259,6 +355,14 @@ class ExpansionNameTagsSettings: ExpansionNameTagsSettingsBase
 		PlayerNameColor = -1;
 		OnlyInSafeZones = false;
 		OnlyInTerritories = false;
+		ShowPlayerItemInHands = false;
+		ShowNPCTags = false;
+	#ifdef EXPANSIONMODAI
+		ShowPlayerFaction = false;
+	#endif
+	#ifdef EXPANSIONMODHARDLINE
+		UseRarityColorForItemInHands = false;
+	#endif
 	}
 		
 	// ------------------------------------------------------------

@@ -1,16 +1,16 @@
-// Copyright 2021 William Bowers
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * DayZExpansion.c
+ * 
+ * Partly based on Enfusion AI Project Copyright 2021 William Bowers
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
 modded class DayZExpansion
 {
@@ -303,14 +303,35 @@ modded class DayZExpansion
 				case eAICommands.FOR_VEE:
 					newForm = new eAIFormationVee(g);
 					break;
+				case eAICommands.FOR_INVVEE:
+					newForm = new eAIFormationInvVee(g);
+					break;
 				case eAICommands.FOR_FILE:
 					newForm = new eAIFormationFile(g);
+					break;
+				case eAICommands.FOR_INVFILE:
+					newForm = new eAIFormationInvFile(g);
 					break;
 				case eAICommands.FOR_WALL:
 					newForm = new eAIFormationWall(g);
 					break;
 				case eAICommands.FOR_COL:
 					newForm = new eAIFormationColumn(g);
+					break;
+				case eAICommands.FOR_INVCOL:
+					newForm = new eAIFormationInvColumn(g);
+					break;
+				case eAICommands.FOR_CIRCLE:
+					newForm = new eAIFormationCircle(g);
+					break;
+				case eAICommands.FOR_CIRCLEDOT:
+					newForm = new eAIFormationCircleDot(g);
+					break;
+				case eAICommands.FOR_STAR:
+					newForm = new eAIFormationStar(g);
+					break;
+				case eAICommands.FOR_STARDOT:
+					newForm = new eAIFormationStarDot(g);
 					break;
 				// no default needed here
 			}

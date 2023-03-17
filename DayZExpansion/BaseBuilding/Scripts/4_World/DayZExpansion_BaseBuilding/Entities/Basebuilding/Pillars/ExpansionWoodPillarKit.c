@@ -13,7 +13,7 @@
 /**@class		ExpansionWoodPillarKit
  * @brief		This class handle base class of expansion basebuilding	
  **/
-class ExpansionWoodPillarKit extends ExpansionKitLarge
+class ExpansionWoodPillarKit: ExpansionKitLarge
 {
 	// ------------------------------------------------------------
 	// OnPlacementComplete

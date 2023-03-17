@@ -10,7 +10,7 @@
  *
  */
 
-class ExpansionBus extends CarScript
+class ExpansionBus: CarScript
 {
 	CarLightBase m_BusLight1;
 	CarLightBase m_BusLight2;
@@ -149,7 +149,11 @@ class ExpansionBus extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
+#ifdef EXPANSIONMODANIMATIONS
 		return ExpansionVehicleAnimInstances.EXPANSION_BUS;
+#else
+		return VehicleAnimInstances.HATCHBACK;
+#endif
 	}
 
 	override CarRearLightBase CreateRearLight()

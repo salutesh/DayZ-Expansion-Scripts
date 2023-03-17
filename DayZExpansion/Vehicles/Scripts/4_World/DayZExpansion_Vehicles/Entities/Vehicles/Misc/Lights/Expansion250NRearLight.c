@@ -1,4 +1,4 @@
-class Expansion250NRearLight extends CarRearLightBase
+class Expansion250NRearLight: CarRearLightBase
 {
 	void Expansion250NRearLight()
 	{

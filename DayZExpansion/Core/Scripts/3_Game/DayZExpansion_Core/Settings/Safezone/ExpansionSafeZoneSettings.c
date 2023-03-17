@@ -45,7 +45,7 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
-	void ExpansionSafeZoneSettings() {}
+	void ExpansionSafeZoneSettings() {};
 
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
@@ -220,6 +220,16 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			EXPrint("[ExpansionSafeZoneSettings] No existing setting file:" + EXPANSION_SAFE_ZONES_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
+		}
+
+		for (int i=0; i < CircleZones.Count(); i++)
+		{
+			vector pos = ExpansionStatic.GetSurfacePosition(CircleZones[i].Center);
+			if ( pos[1] > CircleZones[i].Center[1])
+			{
+				CircleZones[i].Center[1] = pos[1];
+				save = true;
+			}
 		}
 		
 		if (save)

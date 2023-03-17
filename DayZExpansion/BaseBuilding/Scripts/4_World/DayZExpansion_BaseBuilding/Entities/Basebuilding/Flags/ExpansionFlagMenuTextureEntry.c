@@ -14,7 +14,7 @@
  * @brief		
  **/
 
-class ExpansionFlagMenuTextureEntry extends ScriptedWidgetEventHandler
+class ExpansionFlagMenuTextureEntry: ScriptedWidgetEventHandler
 {
 	protected GridSpacerWidget					m_Root;
 	protected ButtonWidget						m_Button;

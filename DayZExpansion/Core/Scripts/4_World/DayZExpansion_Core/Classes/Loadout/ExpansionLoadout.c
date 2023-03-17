@@ -3183,16 +3183,7 @@ class ExpansionHumanLoadout
 	{
 		ExpansionHumanLoadout.Init();
 		
-		int length = file.IndexOf(FILETYPE);
-		string name = "";
-
-		// the file doesn't contain .json at the end
-		if (length == -1)
-		{
-			name = file;
-		} else {
-			name = file.Substring(0, length);
-		}
+		string name = ExpansionString.StripExtension(file, FILETYPE);
 
 		ExpansionLoadout loadout = ExpansionLoadout.Load(name, forceReload);
 		if (!loadout)

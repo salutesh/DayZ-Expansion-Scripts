@@ -20,19 +20,23 @@ class ExpansionItemTooltip: ExpansionScriptView
 	protected RichTextWidget ItemDescWidget;
 	protected GridSpacerWidget Content;
 
-	protected EntityAI m_Item;
+	protected Object m_Item;
 	protected bool m_ShowPreview = false;
 	protected bool m_ShowContent = true;
 
 	protected float m_ContentOffsetX;
 	protected float m_ContentOffsetY;
+	
+	protected bool m_UpdateStatsOnShow;
 
-	protected bool m_UpdateStatsOnShow = true;
-
-	void ExpansionItemTooltip(EntityAI item)
+	void ExpansionItemTooltip()
 	{
-		m_Item = item;
 		m_ItemTooltipController = ExpansionItemTooltipController.Cast(GetController());
+	}
+	
+	void ~ExpansionItemTooltip()
+	{
+		m_ItemTooltipController.ItemStatsElements.Clear();
 	}
 
 	override string GetLayoutFile()
@@ -45,11 +49,13 @@ class ExpansionItemTooltip: ExpansionScriptView
 		return ExpansionItemTooltipController;
 	}
 
+	void SetItem(EntityAI item)
+	{
+		m_Item = item;
+	}
+	
 	protected void SetView()
 	{
-		if (!m_ItemTooltipController)
-			m_ItemTooltipController = ExpansionItemTooltipController.Cast(GetController());
-
 		if (!ShowItemPreview())
 		{
 			ItemFrameWidget.Show(false);
@@ -64,30 +70,16 @@ class ExpansionItemTooltip: ExpansionScriptView
 			Content.Show(false);
 
 		m_ItemTooltipController.ItemName = m_Item.GetDisplayName();
-		m_ItemTooltipController.NotifyPropertyChanged("ItemName");
+		m_ItemTooltipController.ItemDescription = ExpansionStatic.GetItemDescriptionWithType(m_Item.GetType());
+		ItemDescWidget.Update();
+		m_ItemTooltipController.NotifyPropertiesChanged({"ItemDescription", "ItemName"});
 
-		if (!m_Item.IsInherited(ZombieBase) || !m_Item.IsInherited(Car) || !m_Item.IsInherited(CarScript))
+		if (m_UpdateStatsOnShow)
 		{
-			InventoryItem iItem = InventoryItem.Cast(m_Item);
-			if (iItem)
-			{
-				m_ItemTooltipController.ItemDescription = iItem.GetTooltip();
-				m_ItemTooltipController.NotifyPropertyChanged("ItemDescription");
-				ItemDescWidget.Update();
-			}
-
-			if (m_UpdateStatsOnShow)
-			{
-				UpdateItemStats();
-				UpdateItemInfoDamage();
-				UpdateItemInfoQuantity();
-				UpdateItemInfoWeight();
-			}
-		}
-		else
-		{
-			if (ShowContent())
-				Content.Show(false);
+			UpdateItemStats();
+			UpdateItemInfoDamage();
+			UpdateItemInfoQuantity();
+			UpdateItemInfoWeight();
 		}
 	}
 
@@ -98,6 +90,12 @@ class ExpansionItemTooltip: ExpansionScriptView
 		UpdateItemInfoLiquidType();
 		UpdateItemInfoFoodStage();
 		UpdateItemInfoCleanness();
+		UpdateItemInfoCargoSize(m_Item.GetType());
+		
+	#ifdef EXPANSIONMODHARDLINE
+		if (GetExpansionSettings().GetHardline().EnableItemRarity)
+			UpdateItemRarity();
+	#endif
 	}
 
 	bool ShowContent()
@@ -122,8 +120,6 @@ class ExpansionItemTooltip: ExpansionScriptView
 
 	protected void UpdateItemInfoDamage()
 	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(CarScript)) return;
-
 		int damageLevel = m_Item.GetHealthLevel();
 		UpdateItemInfoDamage(damageLevel);
 	}
@@ -272,94 +268,163 @@ class ExpansionItemTooltip: ExpansionScriptView
 		ItemQuantityWidget.SetColor(color);
 	}
 
-	protected void UpdateItemInfoQuantity()
+	void UpdateItemInfoQuantity()
 	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car))
-			return;
-
-		float item_quantity = m_Item.GetQuantity();
-		int max_quantity = m_Item.GetQuantityMax();
-		int quantity_type;
-
-		if (max_quantity > 0) // Some items, like books, have max_quantity set to 0 => division by ZERO error in quantity_ratio
+		string text;
+		int color;
+		ItemBase item_base = ItemBase.Cast(m_Item);
+		if (item_base)
 		{
-			if (m_Item.ConfigGetString("stackedUnit") == "pc.")
+			float item_quantity = item_base.GetQuantity();
+			int max_quantity = item_base.GetQuantityMax();
+			
+			float quantity_ratio;
+			
+			if (max_quantity > 0) // Some items, like books, have max_quantity set to 0 => division by ZERO error in quantity_ratio
 			{
-				quantity_type = ExpansionItemQuantityType.PC;
+				string quantity_str;
+				if (m_Item.ConfigGetString("stackedUnit") == "pc.")
+				{
+					if (item_quantity == 1)
+					{
+						text =  item_quantity.ToString() + " " + "#inv_inspect_piece";
+						color = Colors.COLOR_DEFAULT;	
+					}
+					else
+					{
+						text =  item_quantity.ToString() + " " + "#inv_inspect_pieces";
+						color = Colors.COLOR_DEFAULT;	
+					}		
+				}
+				else if (m_Item.ConfigGetString("stackedUnit") == "percentage")
+				{
+					quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
+					quantity_str = "#inv_inspect_remaining " + quantity_ratio.ToString() + "#inv_inspect_percent";
+					text = quantity_str;
+					color = Colors.COLOR_DEFAULT;	
+				}
+				else if (m_Item.ConfigGetString("stackedUnit") == "g")
+				{
+					quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
+					quantity_str = "#inv_inspect_remaining " + quantity_ratio.ToString() + "#inv_inspect_percent";
+					text = quantity_str;
+					color = Colors.COLOR_DEFAULT;			
+				}
+				else if (m_Item.ConfigGetString("stackedUnit") == "ml")
+				{
+					quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
+					quantity_str = "#inv_inspect_remaining " + quantity_ratio.ToString() + "#inv_inspect_percent";
+					text = quantity_str;
+					color = Colors.COLOR_DEFAULT;	
+				}
+				else if (m_Item.IsInherited(Magazine))
+				{
+					Magazine magazine_item;
+					Class.CastTo(magazine_item, m_Item);
+					
+					if (magazine_item.GetAmmoCount() == 1)
+					{
+						text = magazine_item.GetAmmoCount().ToString() + " " + "#inv_inspect_piece";
+						color = Colors.COLOR_DEFAULT;		
+					}
+					else
+					{
+						text = magazine_item.GetAmmoCount().ToString() + " " + "#inv_inspect_pieces";
+						color = Colors.COLOR_DEFAULT;		
+					}
+				}
+				else
+				{	
+					text = "";
+					color = 0;
+					ItemQuantityWidget.Show(false);
+				}
 			}
-			else if (m_Item.ConfigGetString("stackedUnit") == "percentage")
+			else
 			{
-				quantity_type = ExpansionItemQuantityType.PERCENTAGE;
+				if (m_Item.IsInherited(ClothingBase))
+				{
+					float heatIsolation = MiscGameplayFunctions.GetCurrentItemHeatIsolation(item_base);
+					if (heatIsolation <= GameConstants.HEATISO_THRESHOLD_BAD)
+					{
+						text = "#inv_inspect_iso_bad";
+						color = GetTemperatureColor(10);
+					}
+					else if ((heatIsolation > GameConstants.HEATISO_THRESHOLD_BAD) && (heatIsolation <= GameConstants.HEATISO_THRESHOLD_LOW))
+					{
+						text = "#inv_inspect_iso_low";
+						color = GetTemperatureColor(20);
+					}
+					else if ((heatIsolation > GameConstants.HEATISO_THRESHOLD_LOW) && (heatIsolation <= GameConstants.HEATISO_THRESHOLD_MEDIUM))
+					{
+						text = "#inv_inspect_iso_medium";
+						color = GetTemperatureColor(30);
+					}
+					else if ((heatIsolation > GameConstants.HEATISO_THRESHOLD_MEDIUM) && (heatIsolation <= GameConstants.HEATISO_THRESHOLD_HIGH))
+					{
+						text = "#inv_inspect_iso_high";
+						color = GetTemperatureColor(50);
+					}
+					else
+					{
+						text = "#inv_inspect_iso_excel";
+						color = GetTemperatureColor(70);
+					}
+				}
+				else
+				{
+					text = "";
+					color = 0;
+					ItemQuantityWidget.Show(false);
+				}
 			}
-			else if (m_Item.ConfigGetString("stackedUnit") == "g")
-			{
-				quantity_type = ExpansionItemQuantityType.GRAM;
-			}
-			else if (m_Item.ConfigGetString("stackedUnit") == "ml")
-			{
-				quantity_type = ExpansionItemQuantityType.MILLILITER;
-			}
-			else if (m_Item.ConfigGetString("stackedUnit") == "w" || m_Item.HasEnergyManager())
-			{
-				quantity_type = ExpansionItemQuantityType.POWER;
-			}
-			else if (m_Item.IsInherited(Magazine))
-			{
-				quantity_type = ExpansionItemQuantityType.MAGAZINE;
-			}
-
-			UpdateItemInfoQuantity(quantity_type, item_quantity, max_quantity);
-		}
-		else
-		{
-			if (m_Item.IsInherited(ClothingBase))
-			{
-				ItemBase itemIB;
-				Class.CastTo(itemIB, m_Item);
-				float heatIsolation = MiscGameplayFunctions.GetCurrentItemHeatIsolation(itemIB);
-				quantity_type = ExpansionItemQuantityType.HEATISOLATION;
-				UpdateItemInfoQuantity(quantity_type, heatIsolation, max_quantity);
-			}
+		
+			m_ItemTooltipController.ItemQuantity = text;
+			m_ItemTooltipController.NotifyPropertyChanged("ItemQuantity");
+			ItemQuantityWidget.SetColor(color | 0x7F000000);
 		}
 	}
 
 	protected void UpdateItemInfoWeight()
 	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-
 		string text;
 		int color;
+		int weight;
 		ItemBase item_IB = ItemBase.Cast(m_Item);
-		if(item_IB)
+		if (item_IB)
 		{
-			int weight = item_IB.GetWeight();
+			weight = item_IB.GetWeight();
+		}
+		else
+		{
+			weight = dBodyGetMass(m_Item) * 1000;
+		}
 
-			if (GetLayoutRoot().GetName() != "ExpansionItemTooltip")
-			{
-				weight = item_IB.GetSingleInventoryItemWeight();
-			}
+		if (GetLayoutRoot().GetName() != "ExpansionItemTooltip")
+		{
+			weight = item_IB.GetSingleInventoryItemWeight();
+		}
 
-			if (weight >= 1000)
-			{
-				int kilos = Math.Round(weight / 1000.0);
-				text = "#inv_inspect_about" + " " + kilos.ToString() + " " + "#inv_inspect_kg";
-				color = Colors.COLOR_DEFAULT;
-			}
-			else if (weight >= 500)
-			{
-				text = "#inv_inspect_under_1";
-				color = Colors.COLOR_DEFAULT;
-			}
-			else if (weight >= 250)
-			{
-				text = "#inv_inspect_under_05";
-				color = Colors.COLOR_DEFAULT;
-			}
-			else
-			{
-				text = "#inv_inspect_under_025";
-				color = Colors.COLOR_DEFAULT;
-			}
+		if (weight >= 1000)
+		{
+			int kilos = Math.Round(weight / 1000.0);
+			text = "#inv_inspect_about" + " " + kilos.ToString() + " " + "#inv_inspect_kg";
+			color = Colors.COLOR_DEFAULT;
+		}
+		else if (weight >= 500)
+		{
+			text = "#inv_inspect_under_1";
+			color = Colors.COLOR_DEFAULT;
+		}
+		else if (weight >= 250)
+		{
+			text = "#inv_inspect_under_05";
+			color = Colors.COLOR_DEFAULT;
+		}
+		else
+		{
+			text = "#inv_inspect_under_025";
+			color = Colors.COLOR_DEFAULT;
 		}
 
 		m_ItemTooltipController.ItemWeight = text;
@@ -369,32 +434,30 @@ class ExpansionItemTooltip: ExpansionScriptView
 
 	protected void UpdateItemInfoWetness()
 	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-
 		string text;
 		int color;
 		float wetness = 0;
-		if (m_Item.IsInherited(ItemBase))
-		{
-			ItemBase item_IB = ItemBase.Cast(m_Item);
-			wetness = item_IB.GetWet();
-		}
+		ItemBase item_IB = ItemBase.Cast(m_Item);
+		if (!item_IB)
+			return;
 
-		if(wetness < GameConstants.STATE_DAMP)
+		wetness = item_IB.GetWet();
+
+		if (wetness < GameConstants.STATE_DAMP)
 		{
 			return;
 		}
-		else if(wetness >= GameConstants.STATE_DAMP && wetness < GameConstants.STATE_WET)
+		else if (wetness >= GameConstants.STATE_DAMP && wetness < GameConstants.STATE_WET)
 		{
 			text = "#inv_inspcet_damp";
 			color = Colors.COLOR_DAMP;
 		}
-		else if(wetness >= GameConstants.STATE_WET && wetness < GameConstants.STATE_SOAKING_WET)
+		else if (wetness >= GameConstants.STATE_WET && wetness < GameConstants.STATE_SOAKING_WET)
 		{
 			text = "#inv_inspect_wet";
 			color = Colors.COLOR_WET;
 		}
-		else if(wetness >= GameConstants.STATE_SOAKING_WET && wetness < GameConstants.STATE_DRENCHED)
+		else if (wetness >= GameConstants.STATE_SOAKING_WET && wetness < GameConstants.STATE_DRENCHED)
 		{
 			text = "#inv_inspect_soaking_wet";
 			color = Colors.COLOR_SOAKING_WET;
@@ -403,9 +466,9 @@ class ExpansionItemTooltip: ExpansionScriptView
 		{
 			text = "#inv_inspect_drenched";
 			color = Colors.COLOR_DRENCHED;
-			
-			#ifdef NAMALSK_SURVIVAL
-			if((wetness > STATE_FREEZING) && (wetness <= STATE_FROZEN) )
+
+		#ifdef NAMALSK_SURVIVAL
+			if ((wetness > STATE_FREEZING) && (wetness <= STATE_FROZEN) )
 			{
 				text = "#nam_inv_ins_freezing";
 				color = COLOR_FROZEN;
@@ -415,7 +478,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 				text = "#nam_inv_ins_frozen";
 				color = COLOR_FROZEN;
 			}
-			#endif
+		#endif
 		}
 
 		ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
@@ -424,18 +487,16 @@ class ExpansionItemTooltip: ExpansionScriptView
 
 	protected void UpdateItemInfoTemperature()
 	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-
 		string text;
 		int color;
 		float temperature;
 		ItemBase item_base = ItemBase.Cast(m_Item);
-		if(item_base)
-		{
-			temperature = item_base.GetTemperature();
-		}
+		if (!item_base)
+			return;
 
-		if(temperature > 30)
+		temperature = item_base.GetTemperature();
+
+		if (temperature > 30)
 		{
 			if (temperature > 100)
 			{
@@ -456,13 +517,14 @@ class ExpansionItemTooltip: ExpansionScriptView
 
 	protected void UpdateItemInfoLiquidType()
 	{
-		if (m_Item.IsInherited(ZombieBase) || m_Item.IsInherited(Car)) return;
-
 		string text;
 		int color;
 		ExpansionItemTooltipStatElement element;
 		ItemBase item_base = ItemBase.Cast(m_Item);
-		if (item_base && item_base.GetQuantity() > 0 && item_base.IsBloodContainer())
+		if (!item_base || item_base.GetQuantity() <= 0)
+			return;
+
+		if (item_base.IsBloodContainer())
 		{
 			BloodContainerBase blood_container = BloodContainerBase.Cast(item_base);
 			if (blood_container.GetBloodTypeVisible())
@@ -653,7 +715,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 		string text;
 		int color;
 		ItemBase ib = ItemBase.Cast(m_Item);
-		if(ib && ib.m_Cleanness == 1)
+		if (ib && ib.m_Cleanness == 1)
 		{
 			text = "#inv_inspect_cleaned";
 			color = Colors.WHITEGRAY;
@@ -662,6 +724,62 @@ class ExpansionItemTooltip: ExpansionScriptView
 			m_ItemTooltipController.ItemStatsElements.Insert(element);
 		}
 	}
+	
+	void UpdateItemInfoCargoSize(string className)
+	{
+		string cfgClassPath;
+		if (GetGame().ConfigIsExisting("cfgVehicles " + className + " " + "Cargo "))
+		{
+			cfgClassPath = "cfgVehicles " + className + " " + "Cargo ";
+		}
+		else
+		{
+			cfgClassPath = "cfgVehicles " + className + " ";
+		}
+		
+		array<int> cargoSize = new array<int>;
+		int size1, size2;
+		GetGame().ConfigGetIntArray(cfgClassPath + "itemsCargoSize", cargoSize);
+
+		size1 = cargoSize[0];
+		size2 = cargoSize[1];
+		
+		Print(ToString() + "::UpdateItemInfoCargoSize - Cargo size: " + size1 + "x" + size2);
+
+		if (size1 > 0 && size2 > 0)
+		{
+			string text = "#STR_EXPANSION_INV_CARGO_SIZE " + size1 + "x" + size2;
+			int color = Colors.WHITEGRAY;
+			ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+			m_ItemTooltipController.ItemStatsElements.Insert(element);
+		}
+	}
+	
+#ifdef EXPANSIONMODHARDLINE
+	protected void UpdateItemRarity()
+	{
+		ItemBase itemBase;
+		if (Class.CastTo(itemBase, m_Item))
+		{	
+			UpdateItemRarity(itemBase.Expansion_GetRarity());
+		}
+	}
+	
+	void UpdateItemRarity(ExpansionHardlineItemRarity rarity)
+	{
+		if (rarity == ExpansionHardlineItemRarity.NONE)
+			return;
+
+		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
+		string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
+		int color;
+		typename type = ExpansionHardlineItemRarityColor;
+		ExpansionStatic.GetVariableIntByName(type, rarityName, color);
+
+        ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
+        m_ItemTooltipController.ItemStatsElements.Insert(element);
+	}
+#endif
 
 	override void Show()
 	{
@@ -752,12 +870,12 @@ class ExpansionItemTooltipStatElementController: ExpansionViewController
 class ExpansionItemPreviewTooltip: ExpansionScriptView
 {
 	ref ExpansionItemPreviewTooltipController m_ItemTooltipController;
-	EntityAI m_Item;
+	Object m_Item;
 
 	private float m_ContentOffsetX;
 	private float m_ContentOffsetY;
 
-	void ExpansionItemPreviewTooltip(EntityAI item)
+	void ExpansionItemPreviewTooltip(Object item)
 	{
 		m_Item = item;
 

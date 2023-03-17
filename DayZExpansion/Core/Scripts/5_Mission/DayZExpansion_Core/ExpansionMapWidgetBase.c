@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionMapWidgetBase extends ScriptedWidgetEventHandler
+class ExpansionMapWidgetBase: ScriptedWidgetEventHandler
 {
 	reference string MapWidgetName;
 	protected MapWidget m_MapWidget;
@@ -200,14 +200,22 @@ class ExpansionMapWidgetBase extends ScriptedWidgetEventHandler
 
 	void Show()
 	{
-		m_LayoutRoot.Show(true);
-		m_Name.SetColor(m_PrimaryColor);
-		m_Icon.SetColor(m_PrimaryColor);
+		Show(true);
+	}
+
+	void Show(bool show)
+	{
+		if (show)
+		{
+			m_Name.SetColor(m_PrimaryColor);
+			m_Icon.SetColor(m_PrimaryColor);
+		}
+		m_LayoutRoot.Show(show);
 	}
 
 	void Hide()
 	{
-		m_LayoutRoot.Show(false);
+		Show(false);
 	}
 
 	void SetName(StringLocaliser name)

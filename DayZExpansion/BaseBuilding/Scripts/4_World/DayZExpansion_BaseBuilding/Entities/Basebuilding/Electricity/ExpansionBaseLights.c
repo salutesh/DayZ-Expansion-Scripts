@@ -1,4 +1,4 @@
-class ExpansionBaseLightBase extends ItemBase
+class ExpansionBaseLightBase: ItemBase
 {
 	override bool ExpansionCanRecievePower()
 	{

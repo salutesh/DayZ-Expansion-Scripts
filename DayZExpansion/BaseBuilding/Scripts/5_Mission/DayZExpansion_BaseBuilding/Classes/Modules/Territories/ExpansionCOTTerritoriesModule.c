@@ -45,8 +45,11 @@ class ExpansionEntityMetaData
 		
 		if ( entity.IsInherited(Container_Base) )
 		{
+			Container_Base container = Container_Base.Cast(entity);
+
 			array<EntityAI> container_items = new array<EntityAI>;
-			Container_Base container = Container_Base.Cast( entity );
+			container_items.Reserve(container.GetInventory().CountInventory());
+			
 			container.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, container_items);
 					
 			if ( container_items && container_items.Count() > 0 )

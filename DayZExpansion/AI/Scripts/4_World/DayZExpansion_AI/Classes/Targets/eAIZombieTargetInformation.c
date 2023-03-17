@@ -1,4 +1,4 @@
-class eAIZombieTargetInformation extends eAIEntityTargetInformation
+class eAIZombieTargetInformation: eAIEntityTargetInformation
 {
 	private ZombieBase m_Zombie;
 	private DayZInfectedInputController m_DIIP;
@@ -19,16 +19,15 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		if (m_Crawling)
-			return "0 0 0";
-
-		return "0 1.3 0";
+		vector pos = m_Zombie.GetBonePositionWS(m_Zombie.GetBoneIndexByName("neck"));
+		pos = pos - m_Zombie.GetPosition();
+		return pos;
 	}
 
 	// https://www.desmos.com/calculator/r4mqu91qff
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (m_Zombie.GetHealth("", "") <= 0.0)
+		if (m_Zombie.IsDamageDestroyed())
 			return 0.0;
 
 		float levelFactor;
@@ -73,6 +72,8 @@ class eAIZombieTargetInformation extends eAIEntityTargetInformation
 				if (hands)
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
+
+			levelFactor *= ai.Expansion_GetVisibility(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);

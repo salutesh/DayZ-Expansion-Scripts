@@ -16,7 +16,7 @@
  * @class		ExpansionVehicleCarBase
  * @brief		This class handle bicycle simulation
  */
-class ExpansionVehicleCarBase extends ExpansionVehicleBase
+class ExpansionVehicleCarBase: ExpansionVehicleBase
 {
 	void ExpansionVehicleCarBase()
 	{

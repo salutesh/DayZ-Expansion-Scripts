@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionCarAdminKey extends ExpansionCarKey
+class ExpansionCarAdminKey: ExpansionCarKey
 {
 	// ------------------------------------------------------------
 	// ExpansionCarAdminKey Constructor

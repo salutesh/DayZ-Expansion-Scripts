@@ -16,9 +16,6 @@ modded class ExpansionPartyData
 {
 	protected bool m_ManualLeave;
 
-	// ------------------------------------------------------------
-	// Expansion RemoveMember
-	// ------------------------------------------------------------
 	override bool RemoveMember(string uid)
 	{
 		m_ManualLeave = true;
@@ -56,7 +53,7 @@ modded class ExpansionPartyData
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 			Print(ToString() + "::OnGroupMemberJoined - Quest: " + activeQuestInstance);
 		#endif
-			if (activeQuestInstance.IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
+			if (activeQuestInstance.GetQuestConfig().IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 				Print(ToString() + "::OnGroupMemberJoined - There is a active group quest instance for this player! Add quest.");
@@ -65,7 +62,7 @@ modded class ExpansionPartyData
 				if (!playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
 					playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
 
-				activeQuestInstance.UpdateQuest();
+				activeQuestInstance.UpdateQuest(true);
 				activeQuestInstance.OnGroupMemberJoined(playerUID);
 			}
 		}
@@ -111,7 +108,7 @@ modded class ExpansionPartyData
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 			Print(ToString() + "::OnLeave - Quest: " + activeQuestInstance);
 		#endif
-			if (activeQuestInstance.IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
+			if (activeQuestInstance.GetQuestConfig().IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
 				Print(ToString() + "::OnLeave - There is a active group quest instance for this player! Remove quest.");

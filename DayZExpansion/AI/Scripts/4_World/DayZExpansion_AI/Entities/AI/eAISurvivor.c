@@ -2,8 +2,7 @@ string GetRandomAI()
 {
 	auto trace = CF_Trace_0(null, "GetRandomAI");
 
-	int FemaleChance = 50;
-	if (Math.RandomInt(0, 100) > FemaleChance)
+	if (Math.RandomIntInclusive(0, 1) == 1)
 	{
 		return GetRandomAIFemale();
 	}
@@ -37,34 +36,34 @@ string GetRandomAIMale()
 	return "eAI_" + MaleList.GetRandomElement();
 }
 
-class eAI_SurvivorM_Mirek extends eAIBase {}
-class eAI_SurvivorM_Denis extends eAIBase {}
-class eAI_SurvivorM_Boris extends eAIBase {}
-class eAI_SurvivorM_Cyril extends eAIBase {}
-class eAI_SurvivorM_Elias extends eAIBase {}
-class eAI_SurvivorM_Francis extends eAIBase {}
-class eAI_SurvivorM_Guo extends eAIBase {}
-class eAI_SurvivorM_Hassan extends eAIBase {}
-class eAI_SurvivorM_Indar extends eAIBase {}
-class eAI_SurvivorM_Jose extends eAIBase {}
-class eAI_SurvivorM_Kaito extends eAIBase {}
-class eAI_SurvivorM_Lewis extends eAIBase {}
-class eAI_SurvivorM_Manua extends eAIBase {}
-class eAI_SurvivorM_Niki extends eAIBase {}
-class eAI_SurvivorM_Oliver extends eAIBase {}
-class eAI_SurvivorM_Peter extends eAIBase {}
-class eAI_SurvivorM_Quinn extends eAIBase {}
-class eAI_SurvivorM_Rolf extends eAIBase {}
-class eAI_SurvivorM_Seth extends eAIBase {}
-class eAI_SurvivorM_Taiki extends eAIBase {}
-class eAI_SurvivorF_Linda extends eAIBase {}
-class eAI_SurvivorF_Maria extends eAIBase {}
-class eAI_SurvivorF_Frida extends eAIBase {}
-class eAI_SurvivorF_Gabi extends eAIBase {}
-class eAI_SurvivorF_Helga extends eAIBase {}
-class eAI_SurvivorF_Irena extends eAIBase {}
-class eAI_SurvivorF_Judy extends eAIBase {}
-class eAI_SurvivorF_Keiko extends eAIBase {}
-class eAI_SurvivorF_Eva extends eAIBase {}
-class eAI_SurvivorF_Naomi extends eAIBase {}
-class eAI_SurvivorF_Baty extends eAIBase {}
+class eAI_SurvivorM_Mirek: eAIBase {};
+class eAI_SurvivorM_Denis: eAIBase {};
+class eAI_SurvivorM_Boris: eAIBase {};
+class eAI_SurvivorM_Cyril: eAIBase {};
+class eAI_SurvivorM_Elias: eAIBase {};
+class eAI_SurvivorM_Francis: eAIBase {};
+class eAI_SurvivorM_Guo: eAIBase {};
+class eAI_SurvivorM_Hassan: eAIBase {};
+class eAI_SurvivorM_Indar: eAIBase {};
+class eAI_SurvivorM_Jose: eAIBase {};
+class eAI_SurvivorM_Kaito: eAIBase {};
+class eAI_SurvivorM_Lewis: eAIBase {};
+class eAI_SurvivorM_Manua: eAIBase {};
+class eAI_SurvivorM_Niki: eAIBase {};
+class eAI_SurvivorM_Oliver: eAIBase {};
+class eAI_SurvivorM_Peter: eAIBase {};
+class eAI_SurvivorM_Quinn: eAIBase {};
+class eAI_SurvivorM_Rolf: eAIBase {};
+class eAI_SurvivorM_Seth: eAIBase {};
+class eAI_SurvivorM_Taiki: eAIBase {};
+class eAI_SurvivorF_Linda: eAIBase {};
+class eAI_SurvivorF_Maria: eAIBase {};
+class eAI_SurvivorF_Frida: eAIBase {};
+class eAI_SurvivorF_Gabi: eAIBase {};
+class eAI_SurvivorF_Helga: eAIBase {};
+class eAI_SurvivorF_Irena: eAIBase {};
+class eAI_SurvivorF_Judy: eAIBase {};
+class eAI_SurvivorF_Keiko: eAIBase {};
+class eAI_SurvivorF_Eva: eAIBase {};
+class eAI_SurvivorF_Naomi: eAIBase {};
+class eAI_SurvivorF_Baty: eAIBase {};

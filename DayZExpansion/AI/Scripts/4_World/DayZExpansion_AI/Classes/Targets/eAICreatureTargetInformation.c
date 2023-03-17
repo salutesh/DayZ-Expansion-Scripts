@@ -1,4 +1,4 @@
-class eAICreatureTargetInformation extends eAIEntityTargetInformation
+class eAICreatureTargetInformation: eAIEntityTargetInformation
 {
 	private DayZCreatureAI m_Creature;
 
@@ -19,7 +19,7 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 
 	override float CalculateThreat(eAIBase ai = null)
 	{
-		if (m_Creature.GetHealth("", "") <= 0.0)
+		if (m_Creature.IsDamageDestroyed())
 			return 0.0;
 
 		if (!m_Creature.IsDanger())
@@ -46,6 +46,8 @@ class eAICreatureTargetInformation extends eAIEntityTargetInformation
 				if (hands)
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
+
+			levelFactor *= ai.Expansion_GetVisibility(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);

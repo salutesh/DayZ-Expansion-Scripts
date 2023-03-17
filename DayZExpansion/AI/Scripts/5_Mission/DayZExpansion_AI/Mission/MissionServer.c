@@ -33,6 +33,10 @@ modded class MissionServer
 	{
 		super.InvokeOnConnect(player, identity);
 
+		if (player.GetGroup())
+			return;
+
+		//! ToDo: Need to add a setting for that maybe?!
 		string factionName = GetExpansionSettings().GetAI().PlayerFactions.GetRandomElement();
 		if (factionName)
 		{

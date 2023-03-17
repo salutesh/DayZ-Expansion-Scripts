@@ -1,18 +1,18 @@
-// Copyright 2021 William Bowers
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * eAIWeaponManager.c
+ * 
+ * Partly based on Enfusion AI Project Copyright 2021 William Bowers
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
-class eAIWeaponManager extends WeaponManager
+class eAIWeaponManager: WeaponManager
 {
 	override bool StartAction(int action, Magazine mag, InventoryLocation il, ActionBase control_action = NULL)
 	{

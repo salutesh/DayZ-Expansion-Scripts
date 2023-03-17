@@ -26,7 +26,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		ActionNames.Insert(name);
 	}
 
-	override array<string> GetActionNames()
+	array<string> GetActionNames()
 	{
 		return ActionNames;
 	}
@@ -36,7 +36,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		AllowedClassNames.Insert(typeName);
 	}
 
-	override array<string> GetAllowedClassNames()
+	array<string> GetAllowedClassNames()
 	{
 		return AllowedClassNames;
 	}
@@ -46,7 +46,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		ExcludedClassNames.Insert(typeName);
 	}
 
-	override array<string> GetExcludedClassNames()
+	array<string> GetExcludedClassNames()
 	{
 		return ExcludedClassNames;
 	}
@@ -56,7 +56,7 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		ExecutionAmount = amount;
 	}
 	
-	override int GetExecutionAmount()
+	int GetExecutionAmount()
 	{
 		return ExecutionAmount;
 	}
@@ -127,19 +127,6 @@ class ExpansionQuestObjectiveActionConfig: ExpansionQuestObjectiveActionConfigBa
 		ActionNames = configBase.ActionNames;
 		AllowedClassNames = configBase.AllowedClassNames;
 		ExcludedClassNames = configBase.ExcludedClassNames;
-	}
-
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		return true;
 	}
 
 	override bool Validate()

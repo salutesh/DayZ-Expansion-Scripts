@@ -84,7 +84,7 @@ class ExpansionStateType
 		ExpansionStateType new_type = new ExpansionStateType();
 		new_type.m_ClassName = class_name;
 
-		FPrintln(file, "class " + class_name + " extends " + inherited + " {");
+		FPrintln(file, "class " + class_name + ": " + inherited + " {");
 
 		string child_fsm_name = "Expansion_" + child_fsm + "_FSM_" + ExpansionFSMType.s_ReloadNumber;
 

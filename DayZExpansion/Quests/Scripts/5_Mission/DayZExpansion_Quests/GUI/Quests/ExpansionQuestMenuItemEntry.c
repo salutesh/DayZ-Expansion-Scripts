@@ -17,9 +17,12 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	protected int m_Amount;
 	protected array<string> m_Attachments;
 	protected ref ExpansionItemTooltip m_ItemTooltip;
-	protected bool m_IsRewardEntry = false;
+	protected bool m_IsRewardEntry;
 	protected ExpansionQuestMenu m_QuestMenu;
 	protected ExpansionQuestRewardConfig m_QuestRewardConfig;
+
+	protected bool m_IsObjectiveItemEntry;
+	protected int m_ObjectiveItemIndex = -1;
 
 	protected ButtonWidget reward_item_button;
 	EntityAI m_Object;
@@ -82,18 +85,27 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 
 	void OnItemButtonClick()
 	{
-		if (!m_IsRewardEntry || !m_QuestMenu || !m_QuestRewardConfig)
-			return;
+		QuestDebug(ToString() + "::OnItemButtonClick - Start");
 
-		if (!m_QuestMenu.GetSelectedQuest())
+		if (!m_QuestMenu || !m_QuestMenu.GetSelectedQuest())
+		{
+			QuestDebug(ToString() + "::OnItemButtonClick - F1");
 			return;
+		}
 
-		if (!m_QuestMenu.GetSelectedQuest().NeedToSelectReward())
-			return;
+		if (m_IsRewardEntry && m_QuestRewardConfig && m_QuestMenu.GetSelectedQuest().NeedToSelectReward())
+		{
+			m_QuestMenu.ResetRewardElements();
+			reward_item_button.SetColor(ARGB(140, 226, 65, 66));
+			m_QuestMenu.SetSelectedReward(m_QuestRewardConfig);
+		}
+		else if (m_IsObjectiveItemEntry && m_ObjectiveItemIndex > -1)
+		{
+			reward_item_button.SetColor(ARGB(140, 226, 65, 66));
+			m_QuestMenu.SetSelectedObjectiveItem(m_ObjectiveItemIndex);
+		}
 
-		m_QuestMenu.ResetRewardElements();
-		reward_item_button.SetColor(ARGB(140, 226, 65, 66));
-		m_QuestMenu.SetSelectedReward(m_QuestRewardConfig);
+		QuestDebug(ToString() + "::OnItemButtonClick - End");
 	}
 
 	void Reset()
@@ -109,16 +121,17 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 			{
 				if (!m_ItemTooltip && m_Object)
 				{
-					m_ItemTooltip = new ExpansionItemTooltip(m_Object);
+					m_ItemTooltip = MissionGameplay.Expansion_GetItemTooltip();
+					m_ItemTooltip.SetItem(m_Object);
 					m_ItemTooltip.SetContentOffset(-600.0, 0.0);
 					m_ItemTooltip.Show();
 				}
-				break;
+				return true;
 			}
 		}
 
 
-		return super.OnMouseEnter(w, x, y);
+		return false;
 	}
 
 	void SetQuestMenu(ExpansionQuestMenu questMenu)
@@ -141,6 +154,28 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 		m_QuestRewardConfig = config;
 	}
 
+	void SetIsObjectiveItemEntry(bool state)
+	{
+		m_IsObjectiveItemEntry = state;
+		QuestDebug(ToString() + "::SetIsObjectiveItemEntry - State: " + m_IsObjectiveItemEntry);
+	}
+
+	bool IsObjectiveItemEntry()
+	{
+		return m_IsObjectiveItemEntry;
+	}
+
+	void SetObjectiveItemIndex(int index)
+	{
+		m_ObjectiveItemIndex = index;
+		QuestDebug(ToString() + "::SetObjectiveItemIndex - Index: " + m_ObjectiveItemIndex);
+	}
+
+	int GetObjectiveItemIndex()
+	{
+		return m_ObjectiveItemIndex;
+	}
+
 	ButtonWidget GetItemButton()
 	{
 		return reward_item_button;
@@ -152,12 +187,20 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 		{
 			case reward_item_button:
 			{
-				if (m_ItemTooltip) m_ItemTooltip.Destroy();
-				break;
+				if (m_ItemTooltip) 
+					m_ItemTooltip.Destroy();
+				return true;
 			}
 		}
 
-		return super.OnMouseLeave(w, enterW, x, y);
+		return false;
+	}
+
+	void QuestDebug(string text)
+	{
+	#ifdef EXPANSIONMODQUESTSUIDEBUG
+		Print(text);
+	#endif
 	}
 };
 

@@ -18,27 +18,39 @@ modded class ActionFoldBaseBuildingObject
 		bool isParkingMeter;
 
 		//! Don't allow to fold (e.g.) camo box and camo tent if not empty
-		ItemBase item_base = ItemBase.Cast( target.GetObject() );
-		if (item_base)
+		ItemBase targetItem = ItemBase.Cast( target.GetObject() );
+		if (targetItem)
 		{
-			isDeployableConstruction = item_base.IsInherited(ExpansionDeployableConstruction);
+			isDeployableConstruction = targetItem.IsInherited(ExpansionDeployableConstruction);
 		#ifdef EXPANSIONMODGARAGE
-			isParkingMeter = item_base.IsInherited(ExpansionParkingMeter);
+			isParkingMeter = targetItem.IsInherited(ExpansionParkingMeter);
 		#endif
 
-			if (!isParkingMeter && item_base.GetNumberOfItems() > 0)
+			if (!isParkingMeter && targetItem.GetNumberOfItems() > 0)
 				return false;
 		}
 
-		//! Can fold if inside own territory, but not if in enemy territory
+		//! Standard checks
+		if (!isDeployableConstruction && !super.ActionCondition(player, target, item))
+			return false;
+
+		//! Can fold if inside own territory, but not if in enemy territory unless whitelisted
 		if (player.IsInTerritory())
-			return (isDeployableConstruction || super.ActionCondition(player, target, item)) && player.IsInsideOwnTerritory();
+		{
+			if (GetExpansionSettings().GetBaseBuilding().DismantleInsideTerritory)
+				return true;
 
-		//! Can fold if outside territory
-		if (isDeployableConstruction)
-			return true;
+			//! If it was deployable, it's also foldable
+			if (ActionDeployObject.CanDeployInTerritory(player, targetItem))
+				return true;
 
-		return super.ActionCondition(player, target, item);
+			if (GetGame().IsServer() && player.GetIdentity())
+				ExpansionNotification("STR_EXPANSION_TERRITORY_TITLE", "STR_EXPANSION_TERRITORY_ENEMY_TERRITORY").Error(player.GetIdentity());
+
+			return false;
+		}
+
+		return true;
 	}
 	
 	override void OnFinishProgressServer(ActionData action_data)

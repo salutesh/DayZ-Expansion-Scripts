@@ -10,7 +10,7 @@
  *
 */
 
-class OptionsMenuExpansion extends ScriptedWidgetEventHandler
+class OptionsMenuExpansion: ScriptedWidgetEventHandler
 {
 	protected Widget m_Root;
 	

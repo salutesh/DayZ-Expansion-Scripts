@@ -1252,6 +1252,11 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 		EXPrint("Clearing cached traders " + m_Traders.Count());
 		m_Traders.Clear();
 	}
+	
+	void AddMarketZone(ExpansionMarketTraderZone zone)
+	{
+		m_TraderZones.Insert(zone);
+	}
 
 	// ------------------------------------------------------------
 	string GetAmmoBoxWithAmmoName(string name)

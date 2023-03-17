@@ -10,23 +10,12 @@
  *
 */
 
-class ExpansionQuestObjectiveConfig
+class ExpansionQuestObjectiveConfigBase
 {
-	static const int CONFIGVERSION = 13;
 	int ConfigVersion;
 	int ID = -1; //! Unique objective ID
-	int ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
-	string ObjectiveText = string.Empty;
-	int TimeLimit = - 1;
-
-	[NonSerialized()];
-	protected ref array<string> m_ObjectiveAllocationClasses;
-
-	void ExpansionQuestObjectiveConfig()
-	{
-		ConfigVersion = CONFIGVERSION;
-	}
-
+	ExpansionQuestObjectiveType ObjectiveType = ExpansionQuestObjectiveType.NONE; //! Quest obecjtive type.
+	
 	void SetID(int id)
 	{
 		ID = id;
@@ -42,9 +31,25 @@ class ExpansionQuestObjectiveConfig
 		ObjectiveType = type;
 	}
 
-	int GetObjectiveType()
+	ExpansionQuestObjectiveType GetObjectiveType()
 	{
 		return ObjectiveType;
+	}
+};
+
+class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
+{
+	static const int CONFIGVERSION = 18;
+
+	string ObjectiveText = string.Empty;
+	int TimeLimit = - 1;
+
+	[NonSerialized()];
+	protected ref array<string> m_ObjectiveAllocationClasses;
+
+	void ExpansionQuestObjectiveConfig()
+	{
+		ConfigVersion = CONFIGVERSION;
 	}
 
 	void SetObjectiveText(string text)
@@ -65,125 +70,6 @@ class ExpansionQuestObjectiveConfig
 	int GetTimeLimit()
 	{
 		return TimeLimit;
-	}
-
-	int GetAmount()
-	{
-		return -1;
-	}
-
-	array<string> GetClassNames()
-	{
-		return NULL;
-	}
-
-	ExpansionQuestObjectiveTarget GetTarget()
-	{
-		return NULL;
-	}
-
-	vector GetPosition()
-	{
-		return vector.Zero;
-	}
-
-	float GetMaxDistance()
-	{
-		return -1;
-	}
-
-	string GetMarkerName()
-	{
-		return string.Empty;
-	}
-
-	array<string> GetActionNames()
-	{
-		return NULL;
-	}
-
-	array<string> GetItemNames()
-	{
-		return NULL;
-	}
-
-	float GetMaxDistRadius()
-	{
-		return 50;
-	}
-
-	float GetMinDistRadius()
-	{
-		return 150;
-	}
-
-	float GetDespawnRadius()
-	{
-		return 880;
-	}
-
-	bool CanLootAI()
-	{
-		return false;
-	}
-
-	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
-	{
-		return NULL;
-	}
-
-	ExpansionQuestObjectiveTreasureHunt GetTreasureHunt()
-	{
-		return NULL;
-	}
-
-#ifdef EXPANSIONMODAI
-	ExpansionQuestObjectiveAIPatrol GetAIPatrol()
-	{
-		return NULL;
-	}
-
-	ExpansionQuestObjectiveAICamp GetAICamp()
-	{
-		return NULL;
-	}
-
-	ExpansionQuestObjectiveAIVIP GetAIVIP()
-	{
-		return NULL;
-	}
-#endif
-
-	array<string> GetAllowedClassNames()
-	{
-		return NULL;
-	}
-
-	array<string> GetExcludedClassNames()
-	{
-		return NULL;
-	}
-
-	int GetExecutionAmount()
-	{
-		return -1;
-	}
-
-#ifdef EXPANSIONMODMARKET
-	bool AddItemsToNearbyMarketZone()
-	{
-		return false;
-	}
-#endif
-	
-	bool TriggerOnEnter()
-	{
-		return false;
-	}
-	
-	bool TriggerOnExit()
-	{
-		return false;
 	}
 
 	void CollectAllocationClasses()
@@ -247,7 +133,7 @@ class ExpansionQuestObjectiveConfig
 				validClassNames.Insert("SurvivorBase");
 			}
 			break;
-			case ExpansionQuestObjectiveType.AIESCORD:
+			case ExpansionQuestObjectiveType.AIESCORT:
 			{
 				validClassNames.Insert("SurvivorBase");
 				validClassNames.Insert("ActionBase");

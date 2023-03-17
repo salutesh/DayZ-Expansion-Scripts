@@ -15,30 +15,20 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	protected ref map<string, int> m_ObjectiveItemsMap;
 	protected ref map<string, int> m_ObjectiveInventoryItemsMap;
 	protected ref array<EntityAI> m_ObjectiveItems;
-	protected int m_ObjectiveItemsAmount = 0;
-	protected int m_ObjectiveItemsCount = 0;
-	protected int m_UpdateCount = 0;
-	protected int m_ObjectiveActionAmount = 0;
-	protected int m_ObjectiveActionCount = 0;
+	protected int m_ObjectiveItemsAmount;
+	protected int m_ObjectiveItemsCount;
+	protected int m_UpdateCount;
+	protected int m_ObjectiveActionAmount;
+	protected int m_ObjectiveActionCount;
+	protected ref ExpansionQuestObjectiveCraftingConfig m_Config;
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent Constructor
-	// -----------------------------------------------------------
 	void ExpansionQuestObjectiveCraftingEvent(ExpansionQuest quest)
 	{
-		if (!m_ObjectiveItems)
-			m_ObjectiveItems = new array<EntityAI>;
-
-		if (!m_ObjectiveItemsMap)
-			m_ObjectiveItemsMap = new map<string, int>;
-
-		if (!m_ObjectiveInventoryItemsMap)
-			m_ObjectiveInventoryItemsMap = new map<string, int>;
+		m_ObjectiveItems = new array<EntityAI>;
+		m_ObjectiveItemsMap = new map<string, int>;
+		m_ObjectiveInventoryItemsMap = new map<string, int>;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent OnEventStart
-	// -----------------------------------------------------------
 	override bool OnEventStart()
 	{
 		ObjectivePrint(ToString() + "::OnEventStart - Start");
@@ -50,7 +40,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnEventStart())
 			return false;
 
-		m_ObjectiveActionAmount = m_ObjectiveConfig.GetExecutionAmount();
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		m_ObjectiveActionAmount = m_Config.GetExecutionAmount();
 
 		UpdateObjectiveItemsMap();
 
@@ -68,9 +61,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent OnContinue
-	// -----------------------------------------------------------
 	override bool OnContinue()
 	{
 		ObjectivePrint(ToString() + "::OnContinue - Start");
@@ -81,8 +71,11 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnContinue())
 			return false;
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 
-		m_ObjectiveActionAmount = m_ObjectiveConfig.GetExecutionAmount();
+		m_ObjectiveActionAmount = m_Config.GetExecutionAmount();
 
 		UpdateObjectiveItemsMap();
 
@@ -103,18 +96,30 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent UpdateObjectiveItemsMap
-	// -----------------------------------------------------------
+	override bool OnCancel()
+	{
+		ObjectivePrint(ToString() + "::OnCancel - Start");
+
+		if (!super.OnCancel())
+			return false;
+		
+		CheckQuestPlayersForObjectiveItems();
+		DeleteObjectiveItems();
+		
+		ObjectivePrint(ToString() + "::OnCancel - End");
+		
+		return true;
+	}
+
 	//! Populate objective item map with the data from the objectives deliveries configuration
 	protected void UpdateObjectiveItemsMap()
 	{
 		ObjectivePrint(ToString() + "::UpdateObjectiveItemsMap - Start");
 
-		if (!m_ObjectiveConfig || !m_ObjectiveConfig.GetItemNames() || m_ObjectiveConfig.GetItemNames().Count() == 0)
+		if (!m_Config || !m_Config.GetItemNames() || m_Config.GetItemNames().Count() == 0)
 			return;
 
-		array<string> itemNames = m_ObjectiveConfig.GetItemNames();
+		array<string> itemNames = m_Config.GetItemNames();
 		foreach (string name: itemNames)
 		{
 			m_ObjectiveItemsAmount += 1;
@@ -133,16 +138,13 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		if (!m_ObjectiveItemsMap || m_ObjectiveItemsMap.Count() == 0)
 		{
-			Error(ToString() + "::UpdateObjectiveItemsMap - There are no deliveries defined for the delivery objective with ID " + m_ObjectiveConfig.GetID() + ". Cancel quest..");
+			Error(ToString() + "::UpdateObjectiveItemsMap - There are no deliveries defined for the delivery objective with ID " + m_Config.GetID() + ". Cancel quest..");
 			m_Quest.CancelQuest();
 		}
 
 		ObjectivePrint(ToString() + "::UpdateObjectiveItemsMap - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent CheckQuestPlayersForObjectiveItems
-	// -----------------------------------------------------------
 	protected void CheckQuestPlayersForObjectiveItems()
 	{
 		ObjectivePrint(ToString() + "::CheckQuestPlayersForObjectiveItems - Start");
@@ -245,26 +247,20 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::CheckQuestPlayersForObjectiveItems - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCollectionEvent OnTurnIn
-	// -----------------------------------------------------------
-	override bool OnTurnIn(string playerUID)
+	override bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
 		ObjectivePrint(ToString() + "::OnTurnIn - Start");
 
-		if (!super.OnTurnIn(playerUID))
+		DeleteObjectiveItems();
+	
+		if (!super.OnTurnIn(playerUID, selectedObjItemIndex))
 			return false;
 
-		DeleteObjectiveItems();
-
-		ObjectivePrint(ToString() + "::OnTurnIn - End and return TRUE.");
+		ObjectivePrint(ToString() + "::OnTurnIn - End");
 
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCollectItemEventBase DeleteObjectiveItems
-	// -----------------------------------------------------------
 	protected void DeleteObjectiveItems()
 	{
 		ObjectivePrint(ToString() + "::DeleteObjectiveItems - Start");
@@ -278,9 +274,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::DeleteObjectiveItems - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent OnObjectiveActionExecuted
-	// -----------------------------------------------------------
 	void OnObjectiveActionExecuted(PlayerBase player, array<ItemBase> spawned_objects)
 	{
 		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - Start");
@@ -295,11 +288,11 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			int needed;
 			if (m_ObjectiveItemsMap.Find(typeName, needed))
 			{
-				if (amount <= needed)
+				if (m_ObjectiveActionCount < m_ObjectiveActionAmount)
 				{
-					m_ObjectiveItemsCount += amount;
-					m_ObjectiveActionCount += 1;
-					m_ObjectiveItems.Insert(craftedItem);
+					//! Set quest ID on item as it is now a quest item?!
+					//craftedItem.SetQuestID(m_Quest.GetQuestConfig().GetID());
+					m_ObjectiveActionCount++;
 				}
 			}
 		}
@@ -309,9 +302,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent OnInventoryItemLocationChange
-	// -----------------------------------------------------------
 	void OnInventoryItemLocationChange(ItemBase item, Man player, string state)
 	{
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
@@ -331,7 +321,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			if (index > -1)
 			{
 				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Remove " + item.GetType() + " from objective items. Item amount: " + amount);
-				m_ObjectiveItemsCount = m_ObjectiveItemsCount - amount;
+				m_ObjectiveItemsCount -= amount;
 				m_ObjectiveItems.Remove(index);
 				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Objective items count: " + m_ObjectiveItemsCount);
 			}
@@ -377,9 +367,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent UpdateObjectivesInventoryItemsMap
-	// -----------------------------------------------------------
 	//! Populate objective item inventory map with the data from the given items in m_ObjectiveItems if there are any.
 	protected void UpdateObjectivesInventoryItemsMap()
 	{
@@ -428,30 +415,24 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent UpdateObjective
-	// -----------------------------------------------------------
 	protected void UpdateObjective()
 	{
 		ObjectivePrint(ToString() + "::UpdateObjective - Start");
 
 		UpdateObjectivesInventoryItemsMap();
-		m_Quest.UpdateQuest();
+		m_Quest.UpdateQuest(false);
 		m_Quest.QuestCompletionCheck();
 
 		ObjectivePrint(ToString() + "::UpdateObjective - End");
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent CanComplete
-	// -----------------------------------------------------------
 	override bool CanComplete()
 	{
 		ObjectivePrint(ToString() + "::CanComplete - Start");
 		ObjectivePrint(ToString() + "::CanComplete - m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint(ToString() + "::CanComplete - m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		bool conditionsResult = (m_ObjectiveItemsCount == m_ObjectiveItemsAmount) && GetCraftingState();
+		bool conditionsResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount == m_ObjectiveItemsAmount) && GetCraftingState();
 		if (!conditionsResult)
 		{
 			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
@@ -463,41 +444,26 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		return super.CanComplete();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent GetCraftingState
-	// -----------------------------------------------------------
 	bool GetCraftingState()
 	{
 		return (m_ObjectiveActionCount <= m_ObjectiveActionAmount);
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent GetObjectiveItemsAmount
-	// -----------------------------------------------------------
 	int GetObjectiveItemsAmount()
 	{
 		return m_ObjectiveItemsAmount;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent GetObjectiveItemsCount
-	// -----------------------------------------------------------
 	int GetObjectiveItemsCount()
 	{
 		return m_ObjectiveItemsCount;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent HasDynamicState
-	// -----------------------------------------------------------
 	override bool HasDynamicState()
 	{
 		return true;
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionQuestObjectiveCraftingEvent GetObjectiveType
-	// -----------------------------------------------------------
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.CRAFTING;

@@ -77,6 +77,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		m_Version = VERSION;
 
 		Items = new map<string, ExpansionMarketTraderBuySell>;
+		Currencies = new TStringArray; 
 		Categories = new TStringArray;
 		m_Categories = new map<int, ExpansionMarketTraderBuySell>;
 		m_Items = new array<ref ExpansionMarketTraderItem>;

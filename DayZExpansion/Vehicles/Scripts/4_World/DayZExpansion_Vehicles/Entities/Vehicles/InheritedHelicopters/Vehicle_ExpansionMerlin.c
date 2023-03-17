@@ -275,7 +275,7 @@ class Vehicle_ExpansionMerlin : ExpansionVehicleHelicopterBase
 	{
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			ItemBase battery;
 

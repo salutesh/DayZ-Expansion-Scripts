@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionLockUIBase extends ExpansionUIScriptedMenu
+class ExpansionLockUIBase: ExpansionUIScriptedMenu
 {
 	protected ref EffectSound m_Sound;
 	PlayerBase m_Player;
@@ -38,7 +38,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 
 		m_Sound = new EffectSound;
 		
-		if (GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer())) 
+		if (GetGame() && (!GetGame().IsDedicatedServer())) 
 		{
 			m_Player = PlayerBase.Cast( GetGame().GetPlayer() );
 		}
@@ -235,7 +235,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 
 	protected void SoundOnclick()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{
@@ -247,7 +247,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 	
 	protected void SoundOnReset()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{
@@ -259,7 +259,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 
 	protected void SoundOnError()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{
@@ -271,7 +271,7 @@ class ExpansionLockUIBase extends ExpansionUIScriptedMenu
 
 	protected void SoundOnSuccess()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			if ( m_Player )
 			{

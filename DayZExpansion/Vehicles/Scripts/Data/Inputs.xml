@@ -97,10 +97,12 @@
 			<input name="UAExpansionHeliAntiTorqueRight" />
 			<input name="UAExpansionHeliCargoDoorUp" />
 			<input name="UAExpansionHeliCargoDoorDown" />
-			<input name="UAExpansionPlaneFlare" />
 			<input name="UAExpansionPlaneEngine" />
 			<input name="UAExpansionPlaneEngineUp" />
 			<input name="UAExpansionPlaneEngineDown" />
+			<input name="UAExpansionPlaneBrake" />
+			<input name="UAExpansionPlaneBrakeUp" />
+			<input name="UAExpansionPlaneBrakeDown" />
 			<input name="UAExpansionPlaneElevatorUp" />
 			<input name="UAExpansionPlaneElevatorDown" />
 			<input name="UAExpansionPlaneAileronLeft" />
@@ -109,6 +111,7 @@
 			<input name="UAExpansionPlaneRudderRight" />
 			<input name="UAExpansionPlaneFlapsUp" />
 			<input name="UAExpansionPlaneFlapsDown" />
+			<input name="UAExpansionPlaneWheelBrake" />
 			<input name="UAExpansionBoatMoveForward" />
 			<input name="UAExpansionBoatMoveBackward" />
 			<input name="UAExpansionBoatRotateLeft" />
@@ -170,10 +173,8 @@
             <btn name="x1ShoulderRight" />
 		</input>
 		<input name="UAExpansionHeliCargoDoorUp">
-			<btn name="kO" />
 		</input>
 		<input name="UAExpansionHeliCargoDoorDown">
-			<btn name="kP" />
 		</input>
 		<input name="UAExpansionPlaneFlare">
 			<btn name="kSpace" />

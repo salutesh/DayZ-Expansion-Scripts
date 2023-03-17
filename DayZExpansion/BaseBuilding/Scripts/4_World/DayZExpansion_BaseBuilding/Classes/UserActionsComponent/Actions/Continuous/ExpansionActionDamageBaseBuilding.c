@@ -79,7 +79,7 @@ class ExpansionActionDamageBaseBuilding: ActionContinuousBase
 						//! Camera check 
 						if ( camera_check )
 						{
-							if ( GetGame() && ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) )
+							if ( GetGame() && ( !GetGame().IsDedicatedServer() ) )
 							{
 								if ( !base_building.IsFacingCamera( part_name ) )
 								{

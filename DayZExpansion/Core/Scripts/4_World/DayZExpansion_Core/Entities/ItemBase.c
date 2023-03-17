@@ -542,7 +542,7 @@ modded class ItemBase
 		return m_CurrentSkinName;
 	}
 	
-	int  ExpansionGetCurrentSkinIndex()
+	int ExpansionGetCurrentSkinIndex()
 	{
 		return m_CurrentSkinIndex;
 	}
@@ -618,7 +618,7 @@ modded class ItemBase
 			PlayerBase player;
 			if (Class.CastTo(player, root))
 			{
-				if (player.Expansion_IsInSafeZone())
+				if (!player.Expansion_CanBeDamaged())
 					return false;
 			}
 			else
@@ -1176,7 +1176,7 @@ modded class ItemBase
 
 	bool Expansion_IsStackable()
 	{
-		return m_CanThisBeSplit;
+		return m_CanThisBeSplit && !m_HasQuantityBar;
 	}
 
 	//! @brief Attempt to set stack amount if item is stackable. Return true if operation was performed, false if not.
@@ -1190,7 +1190,7 @@ modded class ItemBase
 			return true;
 		}
 
-		if (!m_CanThisBeSplit)
+		if (!Expansion_IsStackable())
 		{
 			if (amount != 1)
 				Error(ToString() + " is not a stackable item, cannot set stack amount to " + amount + "!");
@@ -1246,12 +1246,73 @@ modded class ItemBase
 			auto mag = Magazine.Cast(this);
 			return mag.GetAmmoCount();
 		}
-		else if (m_CanThisBeSplit)
+		else if (Expansion_IsStackable())
 		{
 			return GetQuantity();
 		}
 
 		return 1;
+	}
+
+	float Expansion_GetQuantity(inout int quantityType)
+	{
+		float item_quantity = GetQuantity();
+		int max_quantity = GetQuantityMax();
+
+		float quantity_ratio;
+		float quantity_output;
+
+		if (max_quantity > 0) // Some items, like books, have max_quantity set to 0 => division by ZERO error in quantity_ratio
+		{
+			quantity_ratio = Math.Round((item_quantity / max_quantity) * 100);
+			if (ConfigGetString("stackedUnit") == "pc.")
+			{
+				quantity_output = item_quantity;
+				quantityType = ExpansionItemQuantityType.PC;
+			}
+			else if (ConfigGetString("stackedUnit") == "percentage")
+			{
+				quantity_output = quantity_ratio;
+				quantityType = ExpansionItemQuantityType.PERCENTAGE;
+			}
+			else if (ConfigGetString("stackedUnit") == "g")
+			{
+				quantity_output = quantity_ratio;
+				quantityType = ExpansionItemQuantityType.GRAM;
+			}
+			else if (ConfigGetString("stackedUnit") == "ml")
+			{
+				quantity_output = quantity_ratio;
+				quantityType = ExpansionItemQuantityType.MILLILITER;
+			}
+			else if (ConfigGetString("stackedUnit") == "w" || HasEnergyManager())
+			{
+				quantity_output = quantity_ratio;
+				quantityType = ExpansionItemQuantityType.POWER;
+			}
+			else if (IsInherited(Magazine))
+			{
+				Magazine magazine_item;
+				Class.CastTo(magazine_item, this);
+				quantity_output = magazine_item.GetAmmoCount();
+				quantityType = ExpansionItemQuantityType.MAGAZINE;
+			}
+			else
+			{
+				quantity_output = 0;
+			}
+		}
+		else
+		{
+			if (IsInherited(ClothingBase))
+			{
+				float heatIsolation = MiscGameplayFunctions.GetCurrentItemHeatIsolation(this);
+				quantity_output = heatIsolation;
+				quantityType = ExpansionItemQuantityType.HEATISOLATION;
+			}
+		}
+
+		return quantity_output;
 	}
 
 	//! @brief if item is 9V battery or has one attached, return battery energy in range [0, 100], else 0
@@ -1324,5 +1385,10 @@ modded class ItemBase
 	bool Expansion_CanBeUsedToBandage()
 	{
 		return IsInherited(Rag) || IsInherited(BandageDressing) || IsInherited(Bandana_ColorBase);
+	}
+
+	bool Expansion_CanUseVirtualStorage(bool restoreOverride = false)
+	{
+		return false;
 	}
 };

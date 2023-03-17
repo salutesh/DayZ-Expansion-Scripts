@@ -7,9 +7,16 @@ enum eAICommands
 	MOV_GETIN,
 	// Formation 
 	FOR_VEE,
+	FOR_INVVEE,
 	FOR_FILE,
+	FOR_INVFILE,
 	FOR_WALL,
 	FOR_COL,
+	FOR_INVCOL,
+	FOR_CIRCLE,
+	FOR_CIRCLEDOT,
+	FOR_STAR,
+	FOR_STARDOT,
 	// Status
 	STA_SITREP, // report health and ammo level
 	STA_POSITION, // report position

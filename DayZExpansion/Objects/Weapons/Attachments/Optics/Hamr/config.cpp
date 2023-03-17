@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_HAMROptic
 	{
-		units[] = {"ExpansionHAMROptic"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Optics"};
@@ -12,8 +12,8 @@ class CfgPatches
 };
 class cfgVehicles
 {
-	class ItemOptics;
-	class ExpansionHAMROptic: ItemOptics
+	class ItemOptics_Base;
+	class ExpansionHAMROptic: ItemOptics_Base
 	{
 		scope = 2;
 		displayName = "$STR_EXPANSION_HAMR";

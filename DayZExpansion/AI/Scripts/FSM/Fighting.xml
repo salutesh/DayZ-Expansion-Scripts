@@ -170,6 +170,18 @@
 					return CONTINUE;
 				}
 				
+				auto direction = vector.Direction(unit.GetPosition() + "0 1.5 0", aimPosition).Normalized();
+				if (vector.Dot(unit.GetAimDirection(), direction) &lt; 0.75)
+				{
+					if (time &gt;= 0.5)
+					{
+						return EXIT;
+					}
+				
+					// waiting for unit to face target
+					return CONTINUE;
+				}
+				
 				unit.TryFireWeapon();
 				
 				return EXIT;
@@ -278,7 +290,7 @@
 				
 				// we are targetting an entity?
 				dst.target = unit.GetTarget();
-				if (!dst.target || !dst.target.IsMeleeViable(unit)) return FAIL;
+				if (!dst.target || !dst.target.IsMeleeViable(unit) || dst.target.GetThreat(unit) &lt; 0.4) return FAIL;
 				
 				return SUCCESS;
 			</guard>

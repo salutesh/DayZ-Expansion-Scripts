@@ -16,8 +16,23 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected autoptr array<ref ExpansionQuestConfig> m_Quests = new array<ref ExpansionQuestConfig>;
 	protected autoptr ExpansionQuestConfig m_SelectedQuest;
 	protected autoptr ExpansionQuestRewardConfig m_SelectedReward;
+	
+	protected autoptr ExpansionQuestPersistentData m_PlayerData;
+	protected autoptr ExpansionQuestPersistentQuestData m_CurrentPlayerQuestData;
+	
+	protected int m_SelectedObjectiveItemIndex = -1;
+	protected bool m_NeedToSelectObjItem;
 	protected bool m_InDetailView;
 	protected autoptr ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
+	protected autoptr ExpansionQuestPersistentData m_ClientQuestData;
+	protected autoptr array<ref ExpansionQuestConfig> m_ClientQuestConfigs;
+	
+	protected string m_CurrentNPCName;
+	protected string m_CurrentNPCText;
+	protected int m_CurrentNPCID = -1;
+	protected int m_CurrentQuestID = -1;
+	
+	protected bool m_QuestLogMode;
 
 	protected Widget QuestListPanel;
 	protected Widget QuestDetailsPanel;
@@ -41,19 +56,25 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected Widget CloseBackground;
 	protected WrapSpacerWidget ButtonsPanel;
 
+	protected WrapSpacerWidget QuestItemsPanel;
+	protected WrapSpacerWidget RewardSelection;
 	protected TextWidget Reward;
 	protected Widget RewardPanel;
-	protected ScrollWidget ObjectiveSectionScroller;
-	protected RichTextWidget Objective;
+	protected WrapSpacerWidget ObjectivePanel;
 	protected WrapSpacerWidget QuestListContent;
 	protected Widget DefaultPanel;
 	protected Widget Reputation;
+	
+	protected ButtonWidget HideHud;
+	protected TextWidget HideHudLable;
+	protected Widget HideHudBackground;
 
 	void ExpansionQuestMenu()
 	{
 		Class.CastTo(m_QuestMenuController, GetController());
 
 		ExpansionQuestModule.GetModuleInstance().GetQuestMenuSI().Insert(SetQuests);
+		ExpansionQuestModule.GetModuleInstance().GetQuestMenuCallbackSI().Insert(MenuCallback);
 		QuestListPanel.Show(true);
 		QuestDetailsPanel.Show(false);
 	}
@@ -61,11 +82,23 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	void ~ExpansionQuestMenu()
 	{
 		ExpansionQuestModule.GetModuleInstance().GetQuestMenuSI().Remove(SetQuests);
+		ExpansionQuestModule.GetModuleInstance().GetQuestMenuCallbackSI().Remove(MenuCallback);
+		
 		m_QuestMenuController.Quests.Clear();
 		m_Quests.Clear();
 
-		m_SelectedQuest = NULL;
-		m_SelectedReward = NULL;
+		m_QuestLogMode = false;
+		
+		m_SelectedQuest = null;
+		m_SelectedReward = null;
+		
+		m_ClientQuestData = null;
+		m_ClientQuestConfigs = null;
+		
+		m_CurrentNPCName = "";
+		m_CurrentNPCText = "";
+		m_CurrentNPCID = -1;
+		m_CurrentQuestID = -1;
 	}
 
 	override string GetLayoutFile()
@@ -77,15 +110,126 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		return ExpansionQuestMenuController;
 	}
+	
+	void MenuCallback()
+	{
+		m_ClientQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
+		
+		m_QuestMenuController.Quests.Clear();
+		
+		if (!m_QuestLogMode)
+		{
+			SetQuests(m_CurrentNPCName, m_CurrentNPCText, m_CurrentNPCID, m_CurrentQuestID);
+		}
+		else
+		{
+			SetQuestLogView();
+		}
+	}
+	
+	void SetQuestLogView()
+	{
+		QuestDebug(ToString() + "::SetQuestLogView - Start");
+		
+		m_QuestMenuController.QuestLogs.Clear();
+		
+		ButtonsPanel.Show(false);
+		HideHud.Show(true);
 
-	void SetQuests(string npcName, string defaultText, int questNPCID)
+		MissionGameplay mission = MissionGameplay.Cast(GetDayZGame().GetMission());
+		if (mission)
+		{
+			if (!mission.QuestHudState())
+			{
+				m_QuestMenuController.HideHudLable = "#STR_EXPANSION_QUEST_MENU_HIDE_HUD";
+			}
+			else
+			{
+				m_QuestMenuController.HideHudLable = "#STR_EXPANSION_QUEST_MENU_SHOW_HUD";
+			}
+
+			m_QuestMenuController.NotifyPropertyChanged("HideHudLable");
+		}
+		
+		m_QuestMenuController.QuestNPCName = "Quest Log";
+		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
+		
+		QuestListContent.Show(true);
+		DefaultPanel.Show(false);
+		
+		if (!m_ClientQuestData)
+		{
+			QuestDebug(ToString() + "::SetQuestLogView - Could not get players persistent quest data! Not created yet?!");
+		}
+		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (!player)
+		{
+			Error(ToString() + "::SetQuests - Could not player!");
+			CloseMenu();
+			return;
+		}
+
+		if (!m_ClientQuestConfigs || m_ClientQuestConfigs.Count() == 0)
+		{
+			Error(ToString() + "::SetQuests - Could not get any quest configurations!");
+			CloseMenu();
+			return;
+		}
+		
+		//! Check quest configurations array for valid quests to display.
+		ExpansionQuestMenuLogEntry questEntry;
+		foreach (ExpansionQuestConfig questConfig: m_ClientQuestConfigs)
+		{
+			//! We only want to display active quests here the player is currently progressing thrue 
+			//! or when it is ready for turn-in and when it is not a achivement quest.
+			int questID = questConfig.GetID();
+			ExpansionQuestState questState = ExpansionQuestState.NONE;
+			questState = m_ClientQuestData.GetQuestStateByQuestID(questID);
+			string stateText = typename.EnumToString(ExpansionQuestState, questState);
+			QuestDebug(ToString() + "::SetQuests - Quest state for quest " + questID + " is " + stateText);
+			
+			if (!questConfig.IsAchivement() && (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN))
+			{
+				QuestDebug(ToString() + "::SetQuests - Show quest " + questID + ". Add to menu quest.");
+				m_Quests.Insert(questConfig);
+				questEntry = new ExpansionQuestMenuLogEntry(questConfig, this);
+				m_QuestMenuController.QuestLogs.Insert(questEntry);
+			}
+		}
+		
+		QuestDebug(ToString() + "::SetQuestLogView - End");
+	}
+	
+	/**
+	 * Client/server handshake
+	 * 
+	 * Server: ExpansionActionOpenQuestMenu::OnExecuteServer
+	 * Server: ExpansionQuestModule::RequestOpenQuestMenu
+	 * Client: ExpansionQuestModule::RPC_RequestOpenQuestMenu
+	 * Client: Invoke ExpansionQuestMenu::SetQuests
+	 **/
+	void SetQuests(string npcName = "", string defaultText = "", int questNPCID = -1, int questID = -1)
 	{
 		QuestDebug(ToString() + "::SetQuests - Start");
 		QuestDebug(ToString() + "::SetQuests - NPC name: " + npcName);
 		QuestDebug(ToString() + "::SetQuests - NPC default text: " + defaultText);
-
+		QuestDebug(ToString() + "::SetQuests - NPC ID: " + questNPCID);
+		QuestDebug(ToString() + "::SetQuests - Quest ID: " + questID);
+		
+		m_QuestMenuController.Quests.Clear();
+		
+		m_CurrentNPCName = npcName;
+		m_CurrentNPCText = defaultText;
+		m_CurrentNPCID = questNPCID;
+		m_CurrentQuestID = questID;
+		
 		m_SelectedReward = NULL;
+		m_PlayerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+
 		ButtonsPanel.Show(false);
+		HideHud.Show(false);
 
 		m_QuestMenuController.QuestNPCName = npcName;
 		m_QuestMenuController.NotifyPropertyChanged("QuestNPCName");
@@ -93,12 +237,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		QuestListContent.Show(true);
 		DefaultPanel.Show(false);
 
-		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
-		if (!playerQuestData)
+		if (!m_ClientQuestData)
 		{
-			Error(ToString() + "::SetQuests - Could not get players persistent quest data!");
-			CloseMenu();
-			return;
+			QuestDebug(ToString() + "::SetQuests - Could not get players persistent quest data! Not created yet?!");
 		}
 
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
@@ -109,27 +250,40 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			return;
 		}
 
-		array<ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
-		if (!questConfigs || questConfigs.Count() == 0)
+		if (!m_ClientQuestConfigs || m_ClientQuestConfigs.Count() == 0)
 		{
 			Error(ToString() + "::SetQuests - Could not get any quest configurations!");
 			CloseMenu();
 			return;
 		}
+		
+		ExpansionQuestConfig questToShow;
+		ExpansionQuestMenuListEntry questEntry;
 		//! Check quest configurations array for valid quests to display.
-		foreach (ExpansionQuestConfig questConfig: questConfigs)
+		foreach (ExpansionQuestConfig questConfig: m_ClientQuestConfigs)
 		{
 			QuestDebug(ToString() + "::SetQuests - Checking if quest " + questConfig.GetID() + " should be displayed..");
-			if (!QuestDisplayConditions(playerQuestData, questConfig, player, questNPCID))
+			if (!ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, m_ClientQuestData, questNPCID))
 			{
 				QuestDebug(ToString() + "::SetQuests - Don't show quest " + questConfig.GetID() + ". Skip..");
 				continue;
 			}
-
-			QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
-			m_Quests.Insert(questConfig);
-			ExpansionQuestMenuListEntry questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
-			m_QuestMenuController.Quests.Insert(questEntry);
+			
+			if (questID == -1)
+			{
+				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
+				m_Quests.Insert(questConfig);
+				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+				m_QuestMenuController.Quests.Insert(questEntry);
+			}
+			else if (questID > -1 && questConfig.GetID() == questID)
+			{
+				questToShow = questConfig;
+				QuestDebug(ToString() + "::SetQuests - Show quest " + questConfig.GetID() + ". Add to menu quest.");
+				m_Quests.Insert(questConfig);
+				questEntry = new ExpansionQuestMenuListEntry(questConfig, this);
+				m_QuestMenuController.Quests.Insert(questEntry);
+			}
 		}
 
 		//! Display default NPC text if there are no quests to display.
@@ -137,105 +291,287 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		{
 			QuestListContent.Show(false);
 			DefaultPanel.Show(true);
-
-			m_QuestMenuController.DefaultText = defaultText;
+			
+			StringLocaliser defaultNPCText = new StringLocaliser(defaultText, GetGame().GetPlayer().GetIdentity().GetName());
+			m_QuestMenuController.DefaultText = defaultNPCText.Format();
 			m_QuestMenuController.NotifyPropertyChanged("DefaultText");
+		}
+		
+		if (questID > -1 && questToShow)
+		{
+			SetQuest(questToShow);
 		}
 
 		QuestDebug(ToString() + "::SetQuests - End");
 	}
 
-	protected bool QuestDisplayConditions(ExpansionQuestPersistentData playerQuestData, ExpansionQuestConfig config, PlayerBase player, int questNPCID)
+	void SetQuest(ExpansionQuestConfig quest)
 	{
-		QuestDebug(ToString() + "::QuestDisplayConditions - Start");
+		QuestDebug(ToString() + "::SetQuest - Start");
+		
+		ExpansionQuestState questState = ExpansionQuestState.NONE;
+		m_PlayerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		
+		if (m_PlayerData)
+			m_CurrentPlayerQuestData = m_PlayerData.GetQuestDataByQuestID(quest.GetID());
+		
+		if (m_CurrentPlayerQuestData)
+			questState = m_CurrentPlayerQuestData.State;
 
-		string playerUID = player.GetIdentity().GetId();
+		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
+		QuestListPanel.Show(false);
 
-		//! Check if quest is completed if not repeatable.
-		int questState = playerQuestData.GetQuestStateByQuestID(config.GetID());
-		if (!config.IsRepeatable() && questState == ExpansionQuestState.COMPLETED)
+		ButtonsPanel.Show(true);
+		QuestDetailsPanel.Show(true);
+
+		m_SelectedQuest = quest;
+		m_QuestMenuController.QuestTitle = quest.GetTitle();
+		m_QuestMenuController.NotifyPropertyChanged("QuestTitle");
+
+		string description;
+		string objectiveText;
+		if (questState == ExpansionQuestState.NONE)
 		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is already completed!");
-			return false;
-		}
-
-		//! Check if this quest is a quest of the NPC the client is interacting with.
-		array<int> questGiverIDs = config.GetQuestGiverIDs();
-		if (questState != ExpansionQuestState.CAN_TURNIN && (!questGiverIDs || questGiverIDs.Count() == 0 || questGiverIDs.Find(questNPCID) == -1))
-		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. NPC is not quest giver NPC!");
-			return false;
-		}
-
-		array<int> questTurnInIDs = config.GetQuestTurnInIDs();
-		if (questState == ExpansionQuestState.CAN_TURNIN && (!questTurnInIDs || questTurnInIDs.Count() == 0 || questTurnInIDs.Find(questNPCID) == -1))
-		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. NPC is not quest turn-in NPC!");
-			return false;
-		}
-
-		//! Check if client has a cooldown on this quest if quest is repeatable.
-		int timestamp;
-		bool hasCooldown = playerQuestData.HasCooldownOnQuest(config.GetID(), timestamp);
-		if (config.IsRepeatable() && hasCooldown)
-		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is on cooldown!");
-			return false;
-		}
-
-		//! Check if quest is a achivement quest.
-		if (config.IsAchivement())
-		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is achiement quest!");
-			return false;
-		}
-
-		//! Check if all pre-quests are completed.
-		bool completedPreQuest = true;
-		if (config.GetPreQuestIDs().Count() > 0)
-		{
-			array<int> preQuestIDs = config.GetPreQuestIDs();
-			foreach (int preQuest: preQuestIDs)
+			description = quest.GetDescriptions()[0];
+			objectiveText = quest.GetObjectiveText();
+			ObjectivePanel.Show(true);
+			
+			if (!m_QuestLogMode)
 			{
-				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(preQuest, playerUID))
+				Accept.Show(true);
+			}
+			
+			Complete.Show(false);
+			Cancel.Show(false);
+		}
+		else if (questState == ExpansionQuestState.STARTED)
+		{
+			description = quest.GetDescriptions()[1];
+			objectiveText = quest.GetObjectiveText();
+			ObjectivePanel.Show(true);
+
+			Cancel.Show(true);
+			Accept.Show(false);
+			Complete.Show(false);
+		}
+		else if (questState == ExpansionQuestState.CAN_TURNIN)
+		{
+			description = quest.GetDescriptions()[2];
+			ObjectivePanel.Show(false);
+			
+			if (!m_QuestLogMode)
+			{
+				Complete.Show(true);
+			}
+
+			Accept.Show(false);
+			Cancel.Show(true);
+		}
+
+		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
+		m_QuestMenuController.QuestDescription = descriptiontext.Format();
+		m_QuestMenuController.NotifyPropertyChanged("QuestDescription");
+		
+		if (objectiveText != string.Empty)
+		{
+			m_QuestMenuController.QuestObjective = objectiveText;
+			m_QuestMenuController.NotifyPropertyChanged("QuestObjective");
+		}
+
+		SetObjectiveItems(quest, questState);
+
+		SetQuestItems(quest);
+		
+		SetRewardItems(quest);
+
+	#ifdef EXPANSIONMODHARDLINE
+		if (quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
+		{
+			RewardPanel.Show(true);
+			Reputation.Show(true);
+			m_QuestMenuController.ReputationVal = quest.GetReputationReward().ToString();
+			m_QuestMenuController.NotifyPropertyChanged("ReputationVal");
+		}
+	#endif
+
+		m_InDetailView = true;
+
+		QuestDebug(ToString() + "::SetQuest - End");
+	}
+	
+	protected void SetObjectiveItems(ExpansionQuestConfig quest, ExpansionQuestState questState)
+	{
+		string className;
+		int amount;
+		
+		m_QuestMenuController.ObjectiveItems.Clear();
+		
+		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = quest.GetObjectives();
+		if (questObjectives && questObjectives.Count() > 0)
+		{
+			for (int i = 0; i < questObjectives.Count(); i++)
+			{
+				ExpansionQuestObjectiveConfigBase objective = quest.GetObjectives()[i];
+				ExpansionQuestObjectiveData playerObjectiveData;
+				int objectiveType = objective.GetObjectiveType();
+				int j;
+
+				QuestDebug(ToString() + "::SetObjectiveItems - Objective type: " + objectiveType);
+				
+				switch (objectiveType)
 				{
-					completedPreQuest = false;
+					case ExpansionQuestObjectiveType.COLLECT:
+					{
+						QuestDebug(ToString() + "::SetObjectiveItems - Check for items to collect..");
+						ExpansionQuestObjectiveCollectionConfig collectionDelivery = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
+						if (collectionDelivery.NeedAnyCollection() && !m_NeedToSelectObjItem)
+						{
+							ObjectivePanel.Show(true);
+							m_NeedToSelectObjItem = true;
+						}
+
+						for (j = 0; j < collectionDelivery.GetDeliveries().Count(); j++)
+						{
+							ExpansionQuestObjectiveDelivery collection = collectionDelivery.GetDeliveries()[j];
+							int currentCollectionCount = 0;
+							className = collection.GetClassName();
+							amount = collection.GetAmount();
+							ExpansionQuestMenuItemEntry collectionObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
+							
+							if (collectionDelivery.NeedAnyCollection())
+							{
+								if (m_CurrentPlayerQuestData)
+									playerObjectiveData = m_CurrentPlayerQuestData.GetObjectiveByIndex(i);
+								
+								if (playerObjectiveData)
+								{
+									currentCollectionCount = playerObjectiveData.GetDeliveryCountByIndex(j);
+									if (currentCollectionCount >= amount)
+									{
+										collectionObjectiveEntry.SetQuestMenu(this);
+										collectionObjectiveEntry.SetIsObjectiveItemEntry(true);
+										collectionObjectiveEntry.SetObjectiveItemIndex(j);
+									}
+								}
+							}
+							
+							if (questState == ExpansionQuestState.CAN_TURNIN && collectionDelivery.NeedAnyCollection() && currentCollectionCount < amount)
+								continue;
+
+							m_QuestMenuController.ObjectiveItems.Insert(collectionObjectiveEntry);
+							QuestDebug(ToString() + "::SetObjectiveItems - Add objective item entry for item: " + className + " - COLLECT");
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.DELIVERY:
+					{
+						QuestDebug(ToString() + "::SetObjectiveItems - Check for items to deliver..");
+						ExpansionQuestObjectiveDeliveryConfig objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
+						array<ref ExpansionQuestObjectiveDelivery> deliveries = objectiveDelivery.GetCollections();
+						for (j = 0; j < deliveries.Count(); j++)
+						{
+							ExpansionQuestObjectiveDelivery delivery = deliveries[j];
+							className = delivery.GetClassName();
+							amount = delivery.GetAmount();
+							ExpansionQuestMenuItemEntry deliverObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
+							m_QuestMenuController.ObjectiveItems.Insert(deliverObjectiveEntry);
+							QuestDebug(ToString() + "::SetObjectiveItems - Add objective item entry for item: " + className + " - DELIVERY");
+						}
+					}
+					break;
+					case ExpansionQuestObjectiveType.CRAFTING:
+					{
+						QuestDebug(ToString() + "::SetObjectiveItems - Check for items to craft..");
+						ExpansionQuestObjectiveCraftingConfig objectiveCrafting = ExpansionQuestObjectiveCraftingConfig.Cast(objective);
+						for (j = 0; j < objectiveCrafting.GetItemNames().Count(); j++)
+						{
+							className = objectiveCrafting.GetItemNames()[j];
+							amount = 1;
+							ExpansionQuestMenuItemEntry craftingObjectiveEntry = new ExpansionQuestMenuItemEntry(className, amount);
+							m_QuestMenuController.ObjectiveItems.Insert(craftingObjectiveEntry);
+							QuestDebug(ToString() + "::SetObjectiveItems - Add objective item entry for item: " + className + " - CRAFTING");
+						}
+					}
 					break;
 				}
 			}
 		}
-
-		if (!completedPreQuest)
+	}
+	
+	protected void SetQuestItems(ExpansionQuestConfig quest)
+	{
+		QuestItemsPanel.Show(false);
+		m_QuestMenuController.QuestItemEntries.Clear();
+		
+		array<ref ExpansionQuestItemConfig> questItems = quest.GetQuestItems();
+		if (questItems && questItems.Count() > 0)
 		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
-			return false;
-		}
-
-	#ifdef EXPANSIONMODHARDLINE
-		//! Check if for reputation requirement if config has a value but system is disabled.
-		if (config.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
-		{
-			QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Reputation system disabled!");
-			return false;
-		}
-
-		//! Check if client meats the reputation requirement.
-		if (GetExpansionSettings().GetHardline().UseReputation && config.GetReputationRequirement() > 0)
-		{
-			int reputation = player.Expansion_GetReputation();
-			if (reputation < config.GetReputationRequirement());
+			QuestItemsPanel.Show(true);
+			foreach (ExpansionQuestItemConfig questItem: questItems)
 			{
-				QuestDebug(ToString() + "::QuestDisplayConditions - Return FALSE. Reputation requirements not met!");
-				return false;
+				string className = questItem.GetClassName();
+				int amount = questItem.GetAmount();
+				ExpansionQuestMenuItemEntry questItemEntry = new ExpansionQuestMenuItemEntry(className, amount);
+				m_QuestMenuController.QuestItemEntries.Insert(questItemEntry);
+				QuestDebug(ToString() + "::SetQuestItems - Add quest item entry for item: " + className);
 			}
 		}
-	#endif
-
-		QuestDebug(ToString() + "::QuestDisplayConditions - End and return TRUE.");
-
-		return true;
+	}
+	
+	protected void SetRewardItems(ExpansionQuestConfig quest)
+	{
+		m_QuestMenuController.RewardEntries.Clear();
+		int rewardsCount = quest.GetRewards().Count();
+		RewardPanel.Show(false);
+		if (rewardsCount > 0)
+		{
+			RewardPanel.Show(true);
+			if (quest.NeedToSelectReward() && quest.GetRewards().Count() > 1)
+			{
+				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARD_LABEL");
+			}
+			else
+			{
+				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
+			}
+			
+			RewardSelection.Show(false);
+			if (rewardsCount > 0)
+			{
+				RewardSelection.Show(true);
+				for (int i = 0; i < quest.GetRewards().Count(); i++)
+				{
+					ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
+					ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount(), reward.GetAttachments());
+					rewardEntry.SetQuestRewardConfig(reward);
+					rewardEntry.SetQuestMenu(this);
+					rewardEntry.SetIsRewardEntry(true);
+					m_QuestMenuController.RewardEntries.Insert(rewardEntry);
+				}
+			}
+		}
 	}
 
+	void SetSelectedReward(ExpansionQuestRewardConfig reward)
+	{
+		m_SelectedReward = reward;
+	}
+	
+	void SetSelectedObjectiveItem(int itemIndex)
+	{
+		m_SelectedObjectiveItemIndex = itemIndex;
+		QuestDebug(ToString() + "::SetSelectedObjectiveItem - Set selected objective item index: " + m_SelectedObjectiveItemIndex);
+	}
+
+	void ResetRewardElements()
+	{
+		for (int i = 0; i < m_QuestMenuController.RewardEntries.Count(); i++)
+		{
+			ExpansionQuestMenuItemEntry entry = m_QuestMenuController.RewardEntries[i];
+			entry.Reset();
+		}
+	}
+	
 	void OnAcceptButtonClick()
 	{
 		if (!m_SelectedQuest)
@@ -257,174 +593,41 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	{
 		if (!m_SelectedQuest)
 			return;
+		
+		StringLocaliser title;
+		StringLocaliser text;
 
+		if (m_NeedToSelectObjItem && m_SelectedObjectiveItemIndex == -1)
+		{
+			title = new StringLocaliser("STR_EXPANSION_QUEST_TITLE", m_SelectedQuest.GetTitle());
+			text = new StringLocaliser("STR_EXPANSION_QUEST_MENU_ERROR_OBJECTIVEITEM");
+			ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR).Create();
+			return;
+		}
+		
 		if (m_SelectedQuest.NeedToSelectReward())
 		{
 			if (m_SelectedReward)
 			{
-				ExpansionQuestModule.GetModuleInstance().RequestTurnInQuestClient(m_SelectedQuest.GetID(), true, m_SelectedReward);
+				ExpansionQuestModule.GetModuleInstance().RequestTurnInQuestClient(m_SelectedQuest.GetID(), true, m_SelectedReward, m_SelectedObjectiveItemIndex);
 			}
 			else
 			{
-				StringLocaliser title = new StringLocaliser("STR_EXPANSION_QUEST_TITLE", m_SelectedQuest.GetTitle());
-				StringLocaliser text = new StringLocaliser("STR_EXPANSION_QUEST_MENU_ERROR_REWARD");
+				title = new StringLocaliser("STR_EXPANSION_QUEST_TITLE", m_SelectedQuest.GetTitle());
+				text = new StringLocaliser("STR_EXPANSION_QUEST_MENU_ERROR_REWARD");
 				ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR).Create();
+				return;
 			}
 		}
 		else
 		{
-			ExpansionQuestModule.GetModuleInstance().RequestTurnInQuestClient(m_SelectedQuest.GetID());
+			ExpansionQuestModule.GetModuleInstance().RequestTurnInQuestClient(m_SelectedQuest.GetID(), false, null, m_SelectedObjectiveItemIndex);
 		}
 
 		ButtonsPanel.Show(false);
 		CloseMenu();
 	}
 
-	void SetQuest(ExpansionQuestConfig quest)
-	{
-		QuestDebug(ToString() + "::SetQuest - Start");
-
-		int questState = ExpansionQuestModule.GetModuleInstance().GetClientQuestData().GetQuestStateByQuestID(quest.GetID());
-
-		QuestDebug(ToString() + "::SetQuest - Quest state: " + questState);
-		QuestListPanel.Show(false);
-		ButtonsPanel.Show(true);
-		QuestDetailsPanel.Show(true);
-
-		m_SelectedQuest = quest;
-		m_QuestMenuController.QuestTitle = quest.GetTitle();
-
-		m_SelectedQuest.QuestDebug();
-
-		string description;
-		if (questState == ExpansionQuestState.STARTED)
-		{
-			description = quest.GetDescriptions()[1];
-			Accept.Show(false);
-			Complete.Show(false);
-			Cancel.Show(true);
-		}
-		else if (questState == ExpansionQuestState.CAN_TURNIN)
-		{
-			description = quest.GetDescriptions()[2];
-			Accept.Show(false);
-			Complete.Show(true);
-			Cancel.Show(true);
-		}
-		else
-		{
-			description = quest.GetDescriptions()[0];
-			Accept.Show(true);
-			Complete.Show(false);
-			Cancel.Show(false);
-		}
-
-		StringLocaliser descriptiontext = new StringLocaliser(description, GetGame().GetPlayer().GetIdentity().GetName());
-		m_QuestMenuController.QuestDescription = descriptiontext.Format();
-		m_QuestMenuController.QuestObjective = quest.GetObjectiveText();
-
-		m_QuestMenuController.NotifyPropertiesChanged({"QuestTitle", "QuestDescription", "QuestObjective"});
-
-		m_QuestMenuController.RewardEntries.Clear();
-		int rewardsCount = quest.GetRewards().Count();
-		int i;
-
-		RewardPanel.Show(false);
-	#ifdef EXPANSIONMODHARDLINE
-		if (rewardsCount > 0 || quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
-	#else
-		if (rewardsCount > 0)
-	#endif
-		{
-			RewardPanel.Show(true);
-			if (quest.NeedToSelectReward() && quest.GetRewards().Count() > 1)
-			{
-				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARD_LABEL");
-			}
-			else
-			{
-				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
-			}
-
-			for (i = 0; i < quest.GetRewards().Count(); i++)
-			{
-				ExpansionQuestRewardConfig reward = quest.GetRewards()[i];
-				ExpansionQuestMenuItemEntry rewardEntry = new ExpansionQuestMenuItemEntry(reward.GetClassName(), reward.GetAmount(), reward.GetAttachments());
-				rewardEntry.SetQuestRewardConfig(reward);
-				rewardEntry.SetQuestMenu(this);
-				rewardEntry.SetIsRewardEntry(true);
-				m_QuestMenuController.RewardEntries.Insert(rewardEntry);
-			}
-
-			Reputation.Show(false);
-		#ifdef EXPANSIONMODHARDLINE
-			if (quest.GetReputationReward() > 0 && GetExpansionSettings().GetHardline().UseReputation)
-			{
-				Reputation.Show(true);
-				m_QuestMenuController.ReputationVal = quest.GetReputationReward().ToString();
-				m_QuestMenuController.NotifyPropertyChanged("ReputationVal");
-			}
-		#endif
-		}
-
-		m_QuestMenuController.ObjectiveItems.Clear();
-
-		for (i = 0; i < quest.GetObjectives().Count(); i++)
-		{
-			ExpansionQuestObjectiveConfig objective = quest.GetObjectives()[i];
-			int objectiveType = objective.GetObjectiveType();
-			QuestDebug(ToString() + "::SetQuest - Objective type: " + objectiveType);
-			switch (objectiveType)
-			{
-				case ExpansionQuestObjectiveType.COLLECT:
-				{
-					ExpansionQuestObjectiveCollectionConfig collectionDelivery = ExpansionQuestObjectiveCollectionConfig.Cast(objective);
-					for (int j = 0; j < collectionDelivery.GetDeliveries().Count(); j++)
-					{
-						ExpansionQuestObjectiveDelivery collection = collectionDelivery.GetDeliveries()[j];
-						string collectionClassName = collection.GetClassName();
-						int collectionAmount = collection.GetAmount();
-						ExpansionQuestMenuItemEntry collectionObjectiveEntry = new ExpansionQuestMenuItemEntry(collectionClassName, collectionAmount);
-						m_QuestMenuController.ObjectiveItems.Insert(collectionObjectiveEntry);
-						QuestDebug(ToString() + "::SetQuest - Add objective item entry for item: " + collectionClassName);
-					}
-				}
-				break;
-				case ExpansionQuestObjectiveType.DELIVERY:
-				{
-					ExpansionQuestObjectiveDeliveryConfig objectiveDelivery = ExpansionQuestObjectiveDeliveryConfig.Cast(objective);
-					for (int k = 0; k < objectiveDelivery.GetDeliveries().Count(); k++)
-					{
-						ExpansionQuestObjectiveDelivery delivery = objectiveDelivery.GetDeliveries()[k];
-						string deliveryClassName = delivery.GetClassName();
-						int deliveryAmount = delivery.GetAmount();
-						ExpansionQuestMenuItemEntry deliverObjectiveEntry = new ExpansionQuestMenuItemEntry(deliveryClassName, deliveryAmount);
-						m_QuestMenuController.ObjectiveItems.Insert(deliverObjectiveEntry);
-						QuestDebug(ToString() + "::SetQuest - Add objective item entry for item: " + deliveryClassName);
-					}
-				}
-				break;
-			}
-		}
-
-		m_InDetailView = true;
-
-		QuestDebug(ToString() + "::SetQuest - End");
-	}
-
-	void SetSelectedReward(ExpansionQuestRewardConfig reward)
-	{
-		m_SelectedReward = reward;
-	}
-
-	void ResetRewardElements()
-	{
-		for (int i = 0; i < m_QuestMenuController.RewardEntries.Count(); i++)
-		{
-			ExpansionQuestMenuItemEntry entry = m_QuestMenuController.RewardEntries[i];
-			entry.Reset();
-		}
-	}
 
 	void OnCloseButtonClick()
 	{
@@ -449,6 +652,25 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		ExpansionQuestModule.GetModuleInstance().CancelQuest(m_SelectedQuest.GetID());
 		OnCloseButtonClick();
 	}
+	
+	void OnHideHudButtonClick()
+	{
+		MissionGameplay mission = MissionGameplay.Cast(GetDayZGame().GetMission());
+		if (mission)
+		{
+			mission.ToggleQuestHUD();
+			if (!mission.QuestHudState())
+			{
+				m_QuestMenuController.HideHudLable = "#STR_EXPANSION_QUEST_MENU_HIDE_HUD";
+			}
+			else
+			{
+				m_QuestMenuController.HideHudLable = "#STR_EXPANSION_QUEST_MENU_SHOW_HUD";
+			}
+
+			m_QuestMenuController.NotifyPropertyChanged("HideHudLable");
+		}
+	}
 
 	ExpansionQuestConfig GetSelectedQuest()
 	{
@@ -461,34 +683,46 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		{
 			AcceptBackground.SetColor(ARGB(200, 220, 220, 220));
 			AcceptLable.SetColor(ARGB(255, 0, 0, 0));
+			return true;
 		}
 		else if (w == Complete)
 		{
 			CompleteBackground.SetColor(ARGB(200, 220, 220, 220));
 			CompleteLable.SetColor(ARGB(255, 0, 0, 0));
+			return true;
 		}
 		else if (w == Cancel)
 		{
 			CancelBackground.SetColor(ARGB(200, 220, 220, 220));
 			CancelLable.SetColor(ARGB(255, 0, 0, 0));
+			return true;
 		}
 		else if (w == Close)
 		{
 			CloseBackground.SetColor(ARGB(200, 220, 220, 220));
 			CloseLable.SetColor(ARGB(255, 0, 0, 0));
+			return true;
 		}
 		else if (w == CloseMenu)
 		{
 			CloseMenuCharacter.SetColor(ARGB(255, 0, 0, 0));
 			CloseMenuImage.SetColor(ARGB(255, 0, 0, 0));
+			return true;
 		}
 		else if (w == Back)
 		{
 			BackBackground.SetColor(ARGB(200, 220, 220, 220));
 			BackImage.SetColor(ARGB(255, 0, 0, 0));
+			return true;
+		}
+		else if (w == HideHud)
+		{
+			HideHudBackground.SetColor(ARGB(200, 220, 220, 220));
+			HideHudLable.SetColor(ARGB(255, 0, 0, 0));
+			return true;
 		}
 
-		return super.OnMouseEnter(w, x, y);;
+		return false;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
@@ -497,39 +731,59 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		{
 			AcceptBackground.SetColor(ARGB(200, 0, 0, 0));
 			AcceptLable.SetColor(ARGB(255, 220, 220, 220));
+			return true;
 		}
 		else if (w == Complete)
 		{
 			CompleteBackground.SetColor(ARGB(200, 0, 0, 0));
 			CompleteLable.SetColor(ARGB(255, 220, 220, 220));
+			return true;
 		}
 		else if (w == Cancel)
 		{
 			CancelBackground.SetColor(ARGB(200, 0, 0, 0));
 			CancelLable.SetColor(ARGB(255, 220, 220, 220));
+			return true;
 		}
 		else if (w == Close)
 		{
 			CloseBackground.SetColor(ARGB(200, 0, 0, 0));
 			CloseLable.SetColor(ARGB(255, 220, 220, 220));
+			return true;
 		}
 		else if (w == CloseMenu)
 		{
 			CloseMenuCharacter.SetColor(ARGB(255, 220, 220, 220));
 			CloseMenuImage.SetColor(ARGB(255, 220, 220, 220));
+			return true;
 		}
 		else if (w == Back)
 		{
 			BackBackground.SetColor(ARGB(200, 0, 0, 0));
 			BackImage.SetColor(ARGB(255, 220, 220, 220));
+			return true;
+		}
+		else if (w == HideHud)
+		{
+			HideHudBackground.SetColor(ARGB(200, 0, 0, 0));
+			HideHudLable.SetColor(ARGB(255, 220, 220, 220));
+			return true;
 		}
 
-		return super.OnMouseLeave(w, enterW, x, y);
+		return false;
 	}
 
 	override void OnShow()
 	{
+		super.OnShow();
+		
 		SetFocus(GetLayoutRoot());
+		
+		GetUApi().GetInputByName("UAExpansionQuestLogToggle").ForceDisable(false);		
+		GetUApi().UpdateControls();
+		
+		m_ClientQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
 	}
 
 	override bool CanClose()
@@ -538,6 +792,21 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			return !m_CancelQuestDialog.IsVisible();
 
 		return true;
+	}
+	
+	void SetLogMode(bool state)
+	{
+		QuestDebug(ToString() + "::SetLogMode - Start");
+		QuestDebug(ToString() + "::SetLogMode - State: " + state);
+		
+		m_QuestLogMode = state;
+		
+		if (state)
+		{
+			SetQuestLogView();
+		}
+		
+		QuestDebug(ToString() + "::SetLogMode - End");
 	}
 
 	void QuestDebug(string text)
@@ -556,9 +825,12 @@ class ExpansionQuestMenuController: ExpansionViewController
 	string DefaultText;
 	string ReputationVal;
 	string QuestNPCName;
+	string HideHudLable;
 	ref ObservableCollection<ref ExpansionQuestMenuListEntry> Quests = new ObservableCollection<ref ExpansionQuestMenuListEntry>(this);
+	ref ObservableCollection<ref ExpansionQuestMenuLogEntry> QuestLogs = new ObservableCollection<ref ExpansionQuestMenuLogEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> RewardEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> ObjectiveItems = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
+	ref ObservableCollection<ref ExpansionQuestMenuItemEntry> QuestItemEntries = new ObservableCollection<ref ExpansionQuestMenuItemEntry>(this);
 };
 
 class ExpansionDialog_QuestMenu_CancelQuest: ExpansionDialogBase

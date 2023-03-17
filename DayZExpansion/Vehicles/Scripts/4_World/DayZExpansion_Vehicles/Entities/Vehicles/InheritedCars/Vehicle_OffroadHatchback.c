@@ -1,4 +1,4 @@
-class Vehicle_OffroadHatchback extends ExpansionVehicleCarBase
+class Vehicle_OffroadHatchback: ExpansionVehicleCarBase
 {
 	void Vehicle_OffroadHatchback()
 	{

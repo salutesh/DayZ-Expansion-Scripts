@@ -41,7 +41,7 @@ class ExpansionAISettings: ExpansionSettingBase
 
 	[NonSerialized()]
 	private bool m_IsAdmin;
-	
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -50,7 +50,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		Admins = new TStringArray;
 		PlayerFactions = new TStringArray;
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -101,16 +101,16 @@ class ExpansionAISettings: ExpansionSettingBase
 			Error("ExpansionAISettings::OnRecieve m_IsAdmin");
 			return false;
 		}
-		
+
 		m_IsLoaded = true;
-		
+
 		EXLogPrint("Received AI settings");
 
 		ExpansionSettings.SI_AI.Invoke();
 
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
@@ -139,12 +139,12 @@ class ExpansionAISettings: ExpansionSettingBase
 		{
 			return 0;
 		}
-		
+
 		auto rpc = ExpansionScriptRPC.Create();
 		OnSend( rpc );
 		rpc.Write( IsAdmin( identity ) );
 		rpc.Send( null, ExpansionSettingsRPC.AI, true, identity );
-		
+
 		return 0;
 	}
 
@@ -160,10 +160,10 @@ class ExpansionAISettings: ExpansionSettingBase
 			return false;
 
 		CopyInternal( s );
-		
+
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	private void CopyInternal(  ExpansionAISettings s )
 	{
@@ -181,7 +181,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		FormationScale = s.FormationScale;
 #endif
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
@@ -193,7 +193,7 @@ class ExpansionAISettings: ExpansionSettingBase
 	{
 		m_IsLoaded = false;
 	}
-	
+
 	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
@@ -227,7 +227,7 @@ class ExpansionAISettings: ExpansionSettingBase
 			else if (m_Version < VERSION)
 			{
 				EXPrint("[ExpansionAISettings] Load - Converting v" + m_Version + " \"" + EXPANSION_AI_SETTINGS + "\" to v" + VERSION);
-			
+
 				ExpansionAISettings settingsDefault = new ExpansionAISettings;
 				settingsDefault.Defaults();
 
@@ -266,7 +266,7 @@ class ExpansionAISettings: ExpansionSettingBase
 			Defaults();
 			save = true;
 		}
-		
+
 		if (save)
 			Save();
 
@@ -278,7 +278,7 @@ class ExpansionAISettings: ExpansionSettingBase
 			EXLogPrint("[ExpansionAISettings] Copying loadout " + humanLoadout + " to " + humanLoadoutAI);
 			CopyFile(humanLoadout, humanLoadoutAI);
 		}
-		
+
 		return AISettingsExist;
 	}
 
@@ -286,11 +286,11 @@ class ExpansionAISettings: ExpansionSettingBase
 	override bool OnSave()
 	{
 		Print("[ExpansionAISettings] Saving settings");
-		
+
 		JsonFileLoader<ExpansionAISettings>.JsonSaveFile( EXPANSION_AI_SETTINGS, this );
 		return true;
 	}
-	
+
 	// ------------------------------------------------------------
 	override void Update( ExpansionSettingBase setting )
 	{
@@ -318,7 +318,7 @@ class ExpansionAISettings: ExpansionSettingBase
 		FormationScale = 0.15;
 #endif
 	}
-	
+
 	// ------------------------------------------------------------
 	override string SettingName()
 	{

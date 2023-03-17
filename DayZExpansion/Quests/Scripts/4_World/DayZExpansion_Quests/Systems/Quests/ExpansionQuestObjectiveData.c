@@ -10,26 +10,6 @@
  *
 */
 
-//! DEPRECATED BUT STILL HERE FOR CONVERSION
-class ExpansionQuestTimestampData
-{
-	int QuestID = -1;
-	int Timestamp = -1;
-};
-
-//! DEPRECATED BUT STILL HERE FOR CONVERSION
-class ExpansionQuestObjectiveDataV0
-{
-	int QuestID = -1;
-	int ObjectiveIndex = -1;
-	int ObjectiveType = ExpansionQuestObjectiveType.NONE;
-	bool IsCompleted = false;
-	bool IsActive = false;
-	int ObjectiveAmount;
-	int ObjectiveCount;
-	vector ObjectivePosition = vector.Zero;
-};
-
 class ExpansionQuestDeliveryObjectiveData
 {
 	int Index;
@@ -72,7 +52,7 @@ class ExpansionQuestDeliveryObjectiveData
 class ExpansionQuestObjectiveData
 {
 	int ObjectiveIndex = -1;
-	int ObjectiveType = ExpansionQuestObjectiveType.NONE;
+	ExpansionQuestObjectiveType ObjectiveType = ExpansionQuestObjectiveType.NONE;
 	bool IsCompleted = false;
 	bool IsActive = false;
 	int ObjectiveAmount;
@@ -99,7 +79,7 @@ class ExpansionQuestObjectiveData
 		ObjectiveType =type;
 	}
 
-	int GetObjectiveType()
+	ExpansionQuestObjectiveType GetObjectiveType()
 	{
 		return ObjectiveType;
 	}

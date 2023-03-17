@@ -1,4 +1,4 @@
-class ExpansionReloadShowBullet extends WeaponChambering
+class ExpansionReloadShowBullet: WeaponChambering
 {
 	override void OnAbort(WeaponEventBase e)
 	{

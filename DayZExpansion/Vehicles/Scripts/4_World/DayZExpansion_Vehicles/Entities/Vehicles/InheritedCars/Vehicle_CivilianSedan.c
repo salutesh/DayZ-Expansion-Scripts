@@ -1,4 +1,4 @@
-class Vehicle_CivilianSedan extends ExpansionVehicleCarBase
+class Vehicle_CivilianSedan: ExpansionVehicleCarBase
 {
 	void Expansion_CivilianSedan()
 	{

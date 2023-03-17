@@ -22,23 +22,15 @@ class ExpansionQuestPersistentData
 
 	void ExpansionQuestPersistentData()
 	{
-		if (!QuestDatas)
-			QuestDatas = new array<ref ExpansionQuestPersistentQuestData>
+		QuestDatas = new array<ref ExpansionQuestPersistentQuestData>
 	}
 
-	void AddQuestData(int questID, int state)
+	void AddQuestData(int questID, ExpansionQuestState state)
 	{
 		QuestDebugPrint(ToString() + "::AddQuestData - Start");
 		QuestDebugPrint(ToString() + "::AddQuestData - Quest ID: " + questID + " | State: " + state);
 
-		bool hasData;
-		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
-		{
-			if (currentData.QuestID == questID)
-				hasData = true;
-		}
-
-		if (hasData)
+		if (HasDataForQuest(questID))
 		{
 			QuestDebugPrint(ToString() + "::AddQuestData - There is already a data set for the quest with ID: " + questID + ". Skip..");
 			return;
@@ -55,15 +47,21 @@ class ExpansionQuestPersistentData
 
 	void RemoveQuestDataByQuestID(int questID)
 	{
+		QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - Start");
+
 		for (int i = QuestDatas.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuestPersistentQuestData currentData = QuestDatas[i];
-			if (currentData && currentData.QuestID == questID)
+			QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - Check data for quest with ID: " + currentData.QuestID);
+			if (currentData.QuestID == questID)
 			{
+				QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - Remove data for quest ID: " + currentData.QuestID);
 				currentData.ClearObjectiveData();
 				QuestDatas.RemoveOrdered(i);
 			}
 		}
+		
+		QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - End");
 	}
 
 	bool HasDataForQuest(int questID)
@@ -77,7 +75,7 @@ class ExpansionQuestPersistentData
 		return false;
 	}
 
-	int GetQuestStateByQuestID(int questID)
+	ExpansionQuestState GetQuestStateByQuestID(int questID)
 	{
 		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
 		{
@@ -205,18 +203,31 @@ class ExpansionQuestPersistentData
 		newData.QuestDebug();
 
 		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
-		if (!questData)
+		if (questData)
 		{
-			Error(ToString() + "::UpdateObjective - Could not get persistent quest data!");
-			return false;
+			questData.QuestObjectives.RemoveOrdered(objectiveIndex);
+			questData.UpdateLastUpdateTime();
+			questData.QuestObjectives.InsertAt(newData, objectiveIndex);
+			questData.QuestDebug();
+			return true;
 		}
-
-		questData.QuestObjectives.RemoveOrdered(objectiveIndex);
-		questData.UpdateLastUpdateTime();
-		questData.QuestObjectives.InsertAt(newData, objectiveIndex);
-		questData.QuestDebug();
-
-		return true;
+		
+		return false;
+	}
+	
+	bool UpdateCompletionCount(int questID)
+	{
+		QuestDebugPrint(ToString() + "::UpdateCompletionCount - Update quest completion count for quest: " + questID + " | File: " + FileName);		
+		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		if (questData)
+		{
+			questData.CompletionCount = (questData.CompletionCount + 1);
+			questData.UpdateLastUpdateTime();
+			QuestDebugPrint(ToString() + "::UpdateCompletionCount - Updated completion count for quest. Quest ID: " + questID + " | Completion count: " + questData.CompletionCount);
+			return true;
+		}
+		
+		return false;
 	}
 
 	bool Load(string fileName)
@@ -254,17 +265,18 @@ class ExpansionQuestPersistentData
 				save = true;
 
 			if (save)
-				Save(fileName);
+				Save(fileName, false);
 		}
 
 		return true;
 	}
 
-	void Save(string fileName)
+	void Save(string fileName, bool doCheck = true)
 	{
 		EXTrace.Print(EXTrace.QUESTS, this, "::Save - Save existing data file: " + fileName);
 
-		DataCheck();
+		if (doCheck)
+			DataCheck();
 
 		FileSerializer file = new FileSerializer();
 		if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
@@ -275,78 +287,86 @@ class ExpansionQuestPersistentData
 		}
 	}
 
-	bool DataCheck()
+	protected bool DataCheck()
 	{
 		bool changed = false;
-		for (int i = QuestDatas.Count() - 1; i >= 0; i--)
+		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
-			//! Data mismatch checks
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
-			if (!data)
-				continue;
-
-			int questID = data.QuestID;
-
-			QuestDebugPrint(ToString() + "::DataCheck - Check data for quest with ID: " + questID + " | File: " + FileName);
-			data.QuestDebug();
-			ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
-			if (!questConfig)
+			if (data)
 			{
-				Error(ToString() + "::DataCheck - Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
-				QuestDatas.Remove(questID);
-				changed = true;
-				continue;
-			}
-
-			bool removed = false;
-			for (int o = 0; o < data.QuestObjectives.Count(); o++)
-			{
-				ExpansionQuestObjectiveData questObjectiveData = data.QuestObjectives[o];
-				ExpansionQuestObjectiveConfig questObjectiveConfig = questConfig.GetObjectives()[o];
-
-				if (questObjectiveData && questObjectiveConfig)
-					QuestDebugPrint(ToString() + "::DataCheck - Check objective with index: " + o + " | Objective Config Type: " + questObjectiveData.GetObjectiveType() + " | Objective Data Type: " + questObjectiveConfig.GetObjectiveType() + " | Quest ID: " + data.QuestID);
-
-				if (questObjectiveData && questObjectiveConfig && questObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
+				int questID = data.QuestID;
+				QuestDebugPrint(ToString() + "::DataCheck - Check data for quest with ID: " + questID + " | File: " + FileName);
+				data.QuestDebug();
+				ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
+				if (!questConfig)
 				{
-					QuestDebugPrint(ToString() + "::DataCheck - Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
-					QuestDatas.Remove(questID);
-					removed = true;
+					QuestDebugPrint(ToString() + "::DataCheck - Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+					RemoveQuestDataByQuestID(questID);
 					changed = true;
-					break;
+					continue;
+				}
+	
+				bool removedQuestData = false;
+				for (int o = 0; o < data.QuestObjectives.Count(); o++)
+				{
+					ExpansionQuestObjectiveData questObjectiveData = data.QuestObjectives[o];
+					ExpansionQuestObjectiveConfigBase questObjectiveConfig = questConfig.GetObjectives()[o];
+	
+					if (questObjectiveData && questObjectiveConfig)
+						QuestDebugPrint(ToString() + "::DataCheck - Check objective with index: " + o + " | Objective Config Type: " + questObjectiveData.GetObjectiveType() + " | Objective Data Type: " + questObjectiveConfig.GetObjectiveType() + " | Quest ID: " + data.QuestID);
+					
+					if (!questObjectiveConfig)
+					{
+						QuestDebugPrint(ToString() + "::DataCheck - Could not get quest objective config!");
+						RemoveQuestDataByQuestID(questID);
+						changed = true;
+						removedQuestData = true;
+						break;
+					}
+					
+					if (questObjectiveData && questObjectiveConfig && questObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
+					{
+						QuestDebugPrint(ToString() + "::DataCheck - Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+						RemoveQuestDataByQuestID(questID);
+						changed = true;
+						removedQuestData = true;
+						break;
+					}
+				}
+
+				if (removedQuestData)
+					continue;
+	
+				if (data.State == ExpansionQuestState.NONE || data.State == ExpansionQuestState.COMPLETED)
+				{
+					//! Never cleanup quest data if the quest is a achivement, auto-complete or group quest.
+					if (questConfig.IsAchivement() || questConfig.IsAutocomplete() || questConfig.IsGroupQuest())
+						continue;
+	
+					//! Never cleanup quest data that match auto-start quest configuration
+					if (questConfig.GetPreQuestIDs().Count() == 0 && questConfig.GetQuestGiverIDs().Count() == 0 && !questConfig.IsAchivement() && !questConfig.IsGroupQuest())
+						continue;
+	
+					//! Never cleanup daylie/weekly quest data.
+					if (questConfig.IsWeeklyQuest() || questConfig.IsDailyQuest())
+						continue;
+	
+					//! Never cleanup quest data for quests that have a pre/followup quest.
+					if (questConfig.GetFollowUpQuestID() > -1 || questConfig.GetPreQuestIDs().Count() > 0)
+						continue;
+	
+					//! Never cleanup quest data if the quest is repeatable or not repeatable
+					if (questConfig.IsRepeatable() || !questConfig.IsRepeatable())
+						continue;
+	
+					QuestDebugPrint(ToString() + "::DataCheck - Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
+					RemoveQuestDataByQuestID(questID);
+					changed = true;
 				}
 			}
-
-			if (removed)
-				continue;
-
-			if (data.State == ExpansionQuestState.NONE || data.State == ExpansionQuestState.COMPLETED)
-			{
-				//! Never cleanup quest data if the quest is a achivement, auto-complete or group quest.
-				if (questConfig.IsAchivement() || questConfig.IsAutocomplete() || questConfig.IsGroupQuest())
-					continue;
-
-				//! Never cleanup quest data that match auto-start quest configuration
-				if (questConfig.GetPreQuestIDs().Count() == 0 && questConfig.GetQuestGiverIDs().Count() == 0 && !questConfig.IsAchivement() && !questConfig.IsGroupQuest())
-					continue;
-
-				//! Never cleanup daylie/weekly quest data.
-				if (questConfig.IsWeeklyQuest() || questConfig.IsDailyQuest())
-					continue;
-
-				//! Never cleanup quest data for quests that have a pre/followup quest.
-				if (questConfig.GetFollowUpQuestID() > -1 || questConfig.GetPreQuestIDs().Count() > 0)
-					continue;
-
-				//! Never cleanup quest data if the quest is repeatable or not repeatable
-				if (questConfig.IsRepeatable() || !questConfig.IsRepeatable())
-					continue;
-
-				QuestDebugPrint(ToString() + "::DataCheck - Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
-				QuestDatas.Remove(questID);
-				changed = true;
-			}
 		}
+		
+		QuestDebugPrint(ToString() + "::DataCheck - End and return " + changed);
 
 		return changed;
 	}

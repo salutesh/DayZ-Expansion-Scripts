@@ -36,7 +36,7 @@ class ExpansionSettingBase
 
 	bool Load()
 	{
-		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			Defaults();
 			return false;

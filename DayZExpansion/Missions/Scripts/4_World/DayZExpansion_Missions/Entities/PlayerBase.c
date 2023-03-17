@@ -46,7 +46,7 @@ modded class PlayerBase
 			GetModifiersManager().ActivateModifier(eModifiers.MDF_AREAEXPOSURE);
 		}
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			auto area = ExpansionContaminatedArea.GetArea(GetPosition());
 			if (!area)
@@ -76,7 +76,7 @@ modded class PlayerBase
 			GetModifiersManager().DeactivateModifier(eModifiers.MDF_AREAEXPOSURE);
 		}
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 		{
 			SetContaminatedEffect(false, m_Expansion_ContaminatedAreaPPERequesterIdx);
 		}

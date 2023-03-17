@@ -46,8 +46,6 @@ class EXTrace
 	static bool AI = ENABLE;
 
 	static bool BASEBUILDING = ENABLE;
-	
-	static bool BLACKMARKET = ENABLE;
 
 	static bool BOOK;
 
@@ -86,8 +84,12 @@ class EXTrace
 	static bool MISSIONS = ENABLE;
 
 	static bool NOTIFICATIONS;
+	
+	static bool P2PMARKET = ENABLE;
 
 	static bool PATH_INTERPOLATION;
+	
+	static bool PERSONALSTORAGE;
 
 	static bool PLAYER = ENABLE;
 

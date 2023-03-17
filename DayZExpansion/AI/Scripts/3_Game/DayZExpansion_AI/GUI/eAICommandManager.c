@@ -1,3 +1,4 @@
-class eAICommandManager {
-	bool Send(eAICommands cmd) {}
+class eAICommandManager
+{
+	bool Send(eAICommands cmd) {};
 };

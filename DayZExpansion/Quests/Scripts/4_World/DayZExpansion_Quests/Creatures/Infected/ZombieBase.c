@@ -14,9 +14,6 @@ modded class ZombieBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new ref array<ExpansionQuestObjectiveEventBase>;
 
-	// ------------------------------------------------------------
-	// ZombieBase AssignQuestObjective
-	// ------------------------------------------------------------
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -35,9 +32,6 @@ modded class ZombieBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ZombieBase DeassignQuestObjective
-	// ------------------------------------------------------------
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -56,9 +50,6 @@ modded class ZombieBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ZombieBase CheckAssignedObjectivesForEntity
-	// ------------------------------------------------------------
 	protected void CheckAssignedObjectivesForEntity(Object killer)
 	{
 		EntityAI killSource = EntityAI.Cast(killer);
@@ -92,13 +83,20 @@ modded class ZombieBase
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ZombieBase EEKilled
-	// ------------------------------------------------------------
 	override void EEKilled(Object killer)
 	{
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::EEKilled - Start");
+		Print(ToString() + "::EEKilled - Killed entity: " + GetType());
+		Print(ToString() + "::EEKilled - Killer entity: " + killer.GetType());
+	#endif
+
 		super.EEKilled(killer);
 
 		CheckAssignedObjectivesForEntity(killer);
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		Print(ToString() + "::EEKilled - Start");
+	#endif
 	}
 };

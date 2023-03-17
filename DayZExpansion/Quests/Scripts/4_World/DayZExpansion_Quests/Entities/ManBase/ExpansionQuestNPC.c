@@ -15,9 +15,6 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionQuestNPCBase()
 	{
 		if (IsMissionHost())
@@ -26,9 +23,6 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCBase DeferredInit
-	// ------------------------------------------------------------
 	override void DeferredInit()
     {
 		super.DeferredInit();
@@ -41,34 +35,22 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 	#endif
     }
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCBase SetQuestNPCID
-	// ------------------------------------------------------------
 	void SetQuestNPCID(int id)
 	{
 		m_QuestNPCID = id;
 		SetSynchDirty();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCBase GetQuestNPCID
-	// ------------------------------------------------------------
 	int GetQuestNPCID()
 	{
 		return m_QuestNPCID;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCBase SetQuestNPCData
-	// ------------------------------------------------------------
 	void SetQuestNPCData(ExpansionQuestNPCData questNPCData)
 	{
 		m_QuestNPCData = questNPCData;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestNPCBase GetQuestNPCData
-	// ------------------------------------------------------------
 	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;

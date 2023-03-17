@@ -13,7 +13,7 @@
 /**@class		ExpansionHelipadKit
  * @brief		This class handle base class of expansion basebuilding	
  **/
-class ExpansionHelipadKit extends ExpansionKitLarge
+class ExpansionHelipadKit: ExpansionKitLarge
 {
 	// ------------------------------------------------------------
 	// OnPlacementComplete

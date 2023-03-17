@@ -13,7 +13,7 @@
 /**@class		ExpansionToastLocations
  * @brief		This class handle location toasts
  **/
-class ExpansionLocatorUI extends ScriptedWidgetEventHandler
+class ExpansionLocatorUI: ScriptedWidgetEventHandler
 {
 	protected Widget m_LocatorRoot;
 	protected TextWidget m_LocatorTime;

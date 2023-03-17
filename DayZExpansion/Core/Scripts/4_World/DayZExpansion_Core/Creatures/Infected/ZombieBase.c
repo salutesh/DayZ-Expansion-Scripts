@@ -12,47 +12,12 @@
 
 modded class ZombieBase
 {
-	//! TODO: AllInfected isn't used anywhere, should get rid?
-	private static ref set< ZombieBase > m_Expansion_AllInfected = new set< ZombieBase >;
-	
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<ZombieBase>(this);
 
 	protected bool m_Expansion_IsInSafeZone;
 	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
 	
-	ref ExpansionNetsyncData m_Expansion_NetsyncData;
-
-	// ------------------------------------------------------------
-	// ZombieBase Consturctor
-	// ------------------------------------------------------------	
-	void ZombieBase()
-	{
-		m_Expansion_AllInfected.Insert( this );
-	}
-	
-	// ------------------------------------------------------------
-	// ZombieBase Destructor
-	// ------------------------------------------------------------	
-	void ~ZombieBase()
-	{
-		if (!GetGame())
-			return;
-
-		int idx = m_Expansion_AllInfected.Find( this );
-		if ( idx >= 0 )
-		{
-			m_Expansion_AllInfected.Remove( idx );
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// ZombieBase GetAll
-	// ------------------------------------------------------------	
-	static set< ZombieBase > GetAll()
-	{
-		return m_Expansion_AllInfected;
-	}
-	
+	ref ExpansionNetsyncData m_Expansion_NetsyncData;	
 	
 	// ------------------------------------------------------------
 	// ZombieBase OnEnterZone

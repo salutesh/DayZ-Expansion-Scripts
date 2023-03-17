@@ -1,4 +1,4 @@
-class eAIItemTargetInformation extends eAIEntityTargetInformation
+class eAIItemTargetInformation: eAIEntityTargetInformation
 {
 	private ItemBase m_Item;
 
@@ -28,7 +28,7 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 		auto trace = CF_Trace_1(this, "GetThreat").Add(ai);
 #endif
 
-		if (m_Item.GetHealth("", "") <= 0.0)
+		if (m_Item.IsDamageDestroyed())
 			return 0.0;
 
 		if (m_Item.GetHierarchyRootPlayer())
@@ -78,6 +78,10 @@ class eAIItemTargetInformation extends eAIEntityTargetInformation
 				}
 
 				float distance = GetDistanceSq(ai, true);
+
+				if (ai.GetPathFinding().IsBlocked(ai.GetPosition(), m_Item.GetPosition()))
+					return ExpansionMath.LinearConversion(0.0, 900.0, distance, 0.2, 0.41);
+
 				if (distance < 0.001)
 					distance = 0.001;
 

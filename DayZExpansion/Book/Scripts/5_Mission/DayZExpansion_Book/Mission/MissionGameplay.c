@@ -70,7 +70,7 @@ modded class MissionGameplay
 		}
     }
 	
-	void OnBookTogglePressed()
+	protected void OnBookTogglePressed()
 	{
 		ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();	//! Reference to expansion ui manager
 		ScriptView menu = uiManager.GetMenu();	//! Reference to current opened script view menu

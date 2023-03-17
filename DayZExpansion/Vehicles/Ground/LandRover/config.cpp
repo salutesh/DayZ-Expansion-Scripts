@@ -583,7 +583,7 @@ class CfgVehicles
 		displayname = "$STR_EXPANSION_VEHICLE_LANDROVER";
 		descriptionShort = "$STR_EXPANSION_VEHICLE_LANDROVER_DESC";
 		model = "\DayZExpansion\Vehicles\Ground\LandRover\expansion_landrover.p3d";
-		modelZeroPointDistanceFromGround = 0.52;
+		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Car";
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","body_inside","body_outdoor","bottom","dmgzone_front","dmgzone_back","dmgzone_roof","dmgzone_doors","dmgzone_chassis","dmgzone_w_frameL","dmgzone_w_frameR","dmgzone_fender_1_1","dmgzone_fender_1_2","dmgzone_fender_2_1","dmgzone_fender_2_2","dmgzone_interior"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","","","","","","","","","","","","","","","",""};

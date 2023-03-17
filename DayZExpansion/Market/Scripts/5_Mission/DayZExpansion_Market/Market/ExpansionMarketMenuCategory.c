@@ -428,7 +428,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		return m_CategoryController;
 	}
 	
-	bool UpdateItemCount()
+	bool GetUpdateItemCount()
 	{
 		return m_UpdateItemCount;
 	}

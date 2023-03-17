@@ -9,15 +9,15 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
  */
-class ExpansionTractorDoorsDriver extends CarDoor
+class ExpansionTractorDoorsDriver: CarDoor
 {
 };
 
-class ExpansionTractorDoorsCodriver extends CarDoor
+class ExpansionTractorDoorsCodriver: CarDoor
 {
 };
 
-class ExpansionTractor extends CarScript
+class ExpansionTractor: CarScript
 {
 
 	protected ref UniversalTemperatureSource m_UTSource;
@@ -118,7 +118,7 @@ class ExpansionTractor extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EXPANSION_TRACTOR;
+		return VehicleAnimInstances.V3S;
 	}
 
 	override int GetSeatAnimationType(int posIdx)
@@ -169,6 +169,9 @@ class ExpansionTractor extends CarScript
 		if (EngineIsOn())
 		{
 			if (attType == "CarBattery")
+				return false;
+			
+			if (attType == "SparkPlug")
 				return false;
 		}
 
@@ -338,7 +341,7 @@ class ExpansionTractor extends CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "IsVitalSparkPlug");
 #endif
 
-		return false;
+		return true;
 	}
 
 	override bool IsVitalGlowPlug()

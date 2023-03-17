@@ -174,7 +174,10 @@ class ExpansionBookMenuTabCraftingResult: ExpansionScriptView
 		m_RecipeChecked = true;
 
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
 		player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 		//! Initializes CanUseInRecipe() result for each ingredient. After calling this,

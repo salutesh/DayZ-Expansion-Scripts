@@ -15,24 +15,25 @@ class ExpansionQuestObjectiveCollectionConfig_V10: ExpansionQuestObjectiveCollec
 	ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
 };
 
-class ExpansionQuestObjectiveCollectionConfigBase:ExpansionQuestObjectiveConfig
+class ExpansionQuestObjectiveCollectionConfigBase: ExpansionQuestObjectiveConfig
 {
+	ref array<ref ExpansionQuestObjectiveDelivery> Collections;
 	float MaxDistance = 10.0;
 	string MarkerName = "Deliver Items";
 	bool ShowDistance = true;
-	ref array<ref ExpansionQuestObjectiveDelivery> Collections;
 };
 
 class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollectionConfigBase
 {
 #ifdef EXPANSIONMODMARKET
-	bool AddItemsToNearbyMarketZone = true;
+	bool AddItemsToNearbyMarketZone = false;
 #endif
+	
+	bool NeedAnyCollection = false;
 
 	void ExpansionQuestObjectiveCollectionConfig()
 	{
-		if (!Collections)
-			Collections = new array<ref ExpansionQuestObjectiveDelivery>;
+		Collections = new array<ref ExpansionQuestObjectiveDelivery>;
 	}
 
 	void AddCollection(int amount, string name)
@@ -48,7 +49,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MaxDistance = max;
 	}
 
-	override float GetMaxDistance()
+	float GetMaxDistance()
 	{
 		return MaxDistance;
 	}
@@ -63,12 +64,12 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MarkerName = name;
 	}
 
-	override string GetMarkerName()
+	string GetMarkerName()
 	{
 		return MarkerName;
 	}
 
-	override array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
+	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
 	{
 		return Collections;
 	}
@@ -79,11 +80,16 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		AddItemsToNearbyMarketZone = state;
 	}
 
-	override bool AddItemsToNearbyMarketZone()
+	bool AddItemsToNearbyMarketZone()
 	{
 		return AddItemsToNearbyMarketZone;
 	}
 #endif
+	
+	bool NeedAnyCollection()
+	{
+		return NeedAnyCollection;
+	}
 
 	static ExpansionQuestObjectiveCollectionConfig Load(string fileName)
 	{
@@ -163,9 +169,8 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 			collection.OnSend(ctx);
 		}
 
-		ctx.Write(MaxDistance);
-		ctx.Write(MarkerName);
 		ctx.Write(ShowDistance);
+		ctx.Write(NeedAnyCollection);
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
@@ -191,13 +196,10 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 			Collections.Insert(collection);
 		}
 
-		if (!ctx.Read(MaxDistance))
-			return false;
-
-		if (!ctx.Read(MarkerName))
-			return false;
-
 		if (!ctx.Read(ShowDistance))
+			return false;
+		
+		if (!ctx.Read(NeedAnyCollection))
 			return false;
 
 		return true;

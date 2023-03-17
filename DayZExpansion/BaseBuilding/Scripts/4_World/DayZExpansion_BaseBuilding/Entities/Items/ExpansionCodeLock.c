@@ -13,7 +13,7 @@
 /**@class		ExpansionCodeLock
  * @brief		
  **/
-class ExpansionCodeLock extends ItemBase
+class ExpansionCodeLock: ItemBase
 {
 	static protected const string RED_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_r.rvmat";
 	static protected const string GREEN_LIGHT_GLOW	= "dz\\gear\\camping\\data\\battery_charger_light_g.rvmat";
@@ -258,7 +258,7 @@ class ExpansionCodeLock extends ItemBase
 	
 	protected void SoundCodeLockLocked()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Lock1_SoundSet", GetPosition());
 			m_Sound.SetSoundAutodestroy( true );
@@ -267,7 +267,7 @@ class ExpansionCodeLock extends ItemBase
 	
 	protected void SoundCodeLockUnlocked()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() ) // client side
+		if ( !GetGame().IsDedicatedServer() ) // client side
 		{
 			m_Sound = SEffectManager.PlaySound("Expansion_CodeLock_Unlock1_SoundSet", GetPosition());
 			m_Sound.SetSoundAutodestroy( true );

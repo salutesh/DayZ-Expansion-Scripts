@@ -32,7 +32,7 @@ class eAIGroup
 	bool m_UpdateSearchPosition;
 
 	// return the group owned by leader, otherwise create a new one.
-	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null)
+	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null, bool autoDeleteFormerGroupIfEmpty = true)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_2("eAIGroup", "eAIGroup::GetGroupByLeader").Add(leader).Add(createIfNoneExists).Add(faction);
@@ -46,7 +46,7 @@ class eAIGroup
 			return null;
 
 		eAIGroup group = CreateGroup(faction);
-		leader.SetGroup(group);
+		leader.SetGroup(group, autoDeleteFormerGroupIfEmpty);
 		return group;
 	}
 

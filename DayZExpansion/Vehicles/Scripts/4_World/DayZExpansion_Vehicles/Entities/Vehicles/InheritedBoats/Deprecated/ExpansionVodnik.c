@@ -10,23 +10,23 @@
  *
 */
 
-class ExpansionVodnikDoorDriver extends CarDoor
+class ExpansionVodnikDoorDriver: CarDoor
 {
 };
 
-class ExpansionVodnikDoorCoDriver extends CarDoor
+class ExpansionVodnikDoorCoDriver: CarDoor
 {
 };
 
-class ExpansionVodnikDoorCargo1 extends CarDoor
+class ExpansionVodnikDoorCargo1: CarDoor
 {
 };
 
-class ExpansionVodnikDoorCargo2 extends CarDoor
+class ExpansionVodnikDoorCargo2: CarDoor
 {
 };
 
-class ExpansionVodnik extends ExpansionBoatScript
+class ExpansionVodnik: ExpansionBoatScript
 {
 	protected ref UniversalTemperatureSource m_UTSource;
 	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
@@ -120,7 +120,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EX_SEDAN;
+		return VehicleAnimInstances.SEDAN;
 	}
 
 	override CarRearLightBase CreateRearLight()
@@ -537,7 +537,7 @@ class ExpansionVodnik extends ExpansionBoatScript
 
 		super.UpdateLights(new_gear);
 
-		if (!GetGame().IsMultiplayer() || GetGame().IsClient())
+		if (!GetGame().IsDedicatedServer())
 		{
 			ItemBase battery;
 

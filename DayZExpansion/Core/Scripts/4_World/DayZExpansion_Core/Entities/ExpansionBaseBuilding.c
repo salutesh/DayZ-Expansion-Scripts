@@ -10,4 +10,4 @@
  *
 */
 
-class ExpansionBaseBuilding extends BaseBuildingBase {};
+class ExpansionBaseBuilding: BaseBuildingBase {};

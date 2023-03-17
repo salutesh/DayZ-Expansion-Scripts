@@ -443,7 +443,7 @@ modded class ExpansionBaseBuilding
 	// ------------------------------------------------------------
 	protected void SoundGateOpenStart()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_OPEN_START, GetPosition());
 			sound.SetSoundAutodestroy( true );
@@ -452,7 +452,7 @@ modded class ExpansionBaseBuilding
 
 	protected void SoundGateCloseStart()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_START, GetPosition());
 			sound.SetSoundAutodestroy( true );
@@ -461,7 +461,7 @@ modded class ExpansionBaseBuilding
 
 	protected void SoundGateCloseEnd()
 	{
-		if ( !GetGame().IsMultiplayer() || GetGame().IsClient() )
+		if ( !GetGame().IsDedicatedServer() )
 		{
 			EffectSound sound = SEffectManager.PlaySound(SOUND_GATE_CLOSE_END, GetPosition());
 			sound.SetSoundAutodestroy( true );

@@ -14,42 +14,40 @@ modded class ItemBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ExpansionQuestObjectiveEventBase>;
 	protected int m_Expansion_QuestID = -1;
+	protected bool m_Expansion_IsQuestGiver;
+	protected ref TStringArray m_ExpansionOjectiveItemExcludes = {"FireplaceBase"};
 
-	// ------------------------------------------------------------
-	// ItemBase Constructor
-	// ------------------------------------------------------------
 	void ItemBase()
 	{
 		RegisterNetSyncVariableInt("m_Expansion_QuestID");
+		RegisterNetSyncVariableBool("m_Expansion_IsQuestGiver");
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase IsQuestItem
-	// ------------------------------------------------------------
 	bool IsQuestItem()
 	{
 		return (m_Expansion_QuestID > -1);
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase GetQuestID
-	// ------------------------------------------------------------
 	int GetQuestID()
 	{
 		return m_Expansion_QuestID;
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase SetQuestID
-	// ------------------------------------------------------------
 	void SetQuestID(int id)
 	{
 		m_Expansion_QuestID = id;
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase DeferredInit
-	// ------------------------------------------------------------
+	bool IsQuestGiver()
+	{
+		return m_Expansion_IsQuestGiver;
+	}
+
+	void SetIsQuestGiver(bool state)
+	{
+		m_Expansion_IsQuestGiver = state;
+	}
+
 	override void DeferredInit()
 	{
 		super.DeferredInit();
@@ -65,65 +63,66 @@ modded class ItemBase
 			CheckAssignedObjectivesForEntity("INV_ENTER", player);
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase OnInventoryEnter
-	// ------------------------------------------------------------
 	override void OnInventoryEnter(Man player)
 	{
 		super.OnInventoryEnter(player);
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			if (m_Expansion_QuestID > -1 && player && player.GetIdentity())
+			if (player && player.GetIdentity())
 			{
-				//! Delete this item when it has a quest ID assigned but the player who picks it up has not a active quest instance with that ID.
-				string playerUID = player.GetIdentity().GetId();
-				if (!ExpansionQuestModule.GetModuleInstance().HasActiveQuestWithID(playerUID, m_Expansion_QuestID))
-					GetGame().ObjectDelete(this);
-			}
+				if (m_Expansion_QuestID > -1 && !IsQuestGiver())
+				{
+					//! Delete this item when it has a quest ID assigned but the player who picks it up has not a active quest instance with that ID.
+					string playerUID = player.GetIdentity().GetId();
+					if (!ExpansionQuestModule.GetModuleInstance().HasActiveQuestWithID(playerUID, m_Expansion_QuestID))
+						GetGame().ObjectDelete(this);
+				}
 
-			CheckAssignedObjectivesForEntity("INV_ENTER", player);
+				CheckAssignedObjectivesForEntity("INV_ENTER", player);
+			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase OnInventoryExit
-	// ------------------------------------------------------------
 	override void OnInventoryExit(Man player)
 	{
 		super.OnInventoryExit(player);
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			if (m_Expansion_QuestID > -1 && player && player.GetIdentity())
+			if (player && player.GetIdentity())
 			{
-				//! Delete this item when it has a quest ID assigned but the player dropping it has not a active quest instance with that ID.
-				string playerUID = player.GetIdentity().GetId();
-				if (!ExpansionQuestModule.GetModuleInstance().HasActiveQuestWithID(playerUID, m_Expansion_QuestID))
-					GetGame().ObjectDelete(this);
-			}
+				if (m_Expansion_QuestID > -1 && !IsQuestGiver())
+				{
+					//! Delete this item when it has a quest ID assigned but the player dropping it has not a active quest instance with that ID.
+					string playerUID = player.GetIdentity().GetId();
+					if (!ExpansionQuestModule.GetModuleInstance().HasActiveQuestWithID(playerUID, m_Expansion_QuestID))
+						GetGame().ObjectDelete(this);
+				}
 
-			CheckAssignedObjectivesForEntity("INV_EXIT", player);
+				CheckAssignedObjectivesForEntity("INV_EXIT", player);
+			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase OnInventoryExit
-	// ------------------------------------------------------------
 	override void OnQuantityChanged(float delta)
 	{
 		super.OnQuantityChanged(delta);
-		
+
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			CheckAssignedObjectivesForEntity("QUANTITY_CHANGED");
 		}
 	}
 
+	override void SetActions()
+	{
+		super.SetActions();
+
+		AddAction(ExpansionActionUseQuestItem);
+	}
+
 #ifdef EXPANSION_MODSTORAGE
-	// ------------------------------------------------------------
-	// ItemBase CF_OnStoreSave
-	// ------------------------------------------------------------
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
 		super.CF_OnStoreSave(storage);
@@ -132,11 +131,9 @@ modded class ItemBase
 		if (!ctx) return;
 
 		ctx.Write(m_Expansion_QuestID);
+		ctx.Write(m_Expansion_IsQuestGiver);
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase CF_OnStoreLoad
-	// ------------------------------------------------------------
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
 	{
 		if (!super.CF_OnStoreLoad(storage))
@@ -151,13 +148,16 @@ modded class ItemBase
 		if (!ctx.Read(m_Expansion_QuestID))
 			return false;
 
+		if (ctx.GetVersion() < 49)
+			return true;
+
+		if (!ctx.Read(m_Expansion_IsQuestGiver))
+			return false;
+
 		return true;
 	}
 #endif
 
-	// ------------------------------------------------------------
-	// ItemBase CanBeSplit
-	// ------------------------------------------------------------
 	override bool CanBeSplit()
 	{
 		if (IsQuestItem())
@@ -175,9 +175,6 @@ modded class ItemBase
 		return super.CanBeSplit();
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase AssignQuestObjective
-	// ------------------------------------------------------------
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -196,9 +193,6 @@ modded class ItemBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase DeassignQuestObjective
-	// ------------------------------------------------------------
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
@@ -217,9 +211,6 @@ modded class ItemBase
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ItemBase CheckAssignedObjectivesForEntity
-	// ------------------------------------------------------------
 	protected void CheckAssignedObjectivesForEntity(string state, Man player = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -229,6 +220,12 @@ modded class ItemBase
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
+		foreach (string typeName: m_ExpansionOjectiveItemExcludes)
+		{
+			if (GetType().ToType().IsInherited(typeName.ToType()))
+				return;
+		}
+
 		if (!s_Expansion_AssignedQuestObjectives || s_Expansion_AssignedQuestObjectives.Count() == 0)
 		{
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
@@ -236,14 +233,14 @@ modded class ItemBase
 		#endif
 			return;
 		}
-		
+
 		string playerUID;
 		if (player && player.GetIdentity())
 			playerUID = player.GetIdentity().GetId();
 
 		if (state != "QUANTITY_CHANGED" && playerUID == string.Empty)
 			return;
-		
+
 		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
 		{
 			if (!objective || !objective.GetQuest())
@@ -280,76 +277,66 @@ modded class ItemBase
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::OnObjectiveItemInventoryChange - Start");
 	#endif
-		
-		if (state == "INV_ENTER" || state == "INV_EXIT")
+		//! Run thrue all possible objective types
+		switch (objective.GetObjectiveType())
 		{
-			//! Run thrue all possible objective types
-			switch (objective.GetObjectiveType())
+			case ExpansionQuestObjectiveType.DELIVERY:
 			{
-				case ExpansionQuestObjectiveType.DELIVERY:
+				ExpansionQuestObjectiveDeliveryEvent deliveryObjective;
+				if (Class.CastTo(deliveryObjective, objective))
 				{
-					ExpansionQuestObjectiveDeliveryEvent deliveryObjective;
-					if (Class.CastTo(deliveryObjective, objective))
-					{
-						//! For delivery objectives we only accept the items that have the respective quest ID of the quest that belongs to the objective.
-						//! So we compare the quest ID that has been applied to to item if so.
-						int questID = deliveryObjective.GetQuest().GetQuestConfig().GetID();
-					#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-						Print(ToString() + "::OnObjectiveItemInventoryChange - " + objective.ToString() + " is a Delivery objective. Objective quest ID: " + questID + " | Item quest ID: " + m_Expansion_QuestID);
-					#endif
-						if (m_Expansion_QuestID != questID)
-							return;
-	
-						deliveryObjective.OnInventoryItemLocationChange(this, player, state);
-					}
+					//! For delivery objectives we only accept the items that have the respective quest ID of the quest that belongs to the objective.
+					//! So we compare the quest ID that has been applied to to item if so.
+					int questID = deliveryObjective.GetQuest().GetQuestConfig().GetID();
+				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+					Print(ToString() + "::OnObjectiveItemInventoryChange - " + objective.ToString() + " is a Delivery objective. Objective quest ID: " + questID + " | Item quest ID: " + m_Expansion_QuestID);
+				#endif
+					if (m_Expansion_QuestID != questID)
+						return;
+
+					deliveryObjective.OnInventoryItemLocationChange(this, player, state);
 				}
-				break;
-				case ExpansionQuestObjectiveType.COLLECT:
-				{
-					ExpansionQuestObjectiveCollectionEvent collectionObjective;
-					if (Class.CastTo(collectionObjective, objective))
-					{
-						collectionObjective.OnInventoryItemLocationChange(this, player, state);
-					}
-				}
-				break;
-				case ExpansionQuestObjectiveType.CRAFTING:
-				{
-					ExpansionQuestObjectiveCraftingEvent craftingObjective;
-					if (Class.CastTo(craftingObjective, objective))
-					{
-						craftingObjective.OnInventoryItemLocationChange(this, player, state);
-					}
-				}
-				break;
 			}
-		}
-		else if (state == "QUANTITY_CHANGED")
-		{
-			switch (objective.GetObjectiveType())
+			break;
+			case ExpansionQuestObjectiveType.COLLECT:
 			{
-				case ExpansionQuestObjectiveType.TREASUREHUNT:
+				ExpansionQuestObjectiveCollectionEvent collectionObjective;
+				if (Class.CastTo(collectionObjective, objective))
 				{
-					ExpansionQuestObjectiveTreasureHuntEvent treasureHuntObjective;
-					if (Class.CastTo(treasureHuntObjective, objective))
-					{
-						treasureHuntObjective.OnInventoryItemLocationChange(this, state);
-					}
+					collectionObjective.OnInventoryItemLocationChange(this, player, state);
 				}
-				break;
 			}
+			break;
+			case ExpansionQuestObjectiveType.CRAFTING:
+			{
+				ExpansionQuestObjectiveCraftingEvent craftingObjective;
+				if (Class.CastTo(craftingObjective, objective))
+				{
+					craftingObjective.OnInventoryItemLocationChange(this, player, state);
+				}
+			}
+			break;
+			case ExpansionQuestObjectiveType.TREASUREHUNT:
+			{
+				ExpansionQuestObjectiveTreasureHuntEvent treasureHuntObjective;
+				if (Class.CastTo(treasureHuntObjective, objective))
+				{
+					treasureHuntObjective.OnInventoryItemLocationChange(this, state);
+				}
+			}
+			break;
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::OnObjectiveItemInventoryChange - End");
 	#endif
 	}
-	
+
 #ifdef EXPANSIONMODHARDLINE
 	override ExpansionHardlineItemRarity Expansion_GetRarity()
 	{
-		if (m_Expansion_QuestID > -1)
+		if (IsQuestItem())
 			return ExpansionHardlineItemRarity.Quest;
-		
+
 		return m_Expansion_Rarity;
 	}
 #endif

@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionAirdropPlane extends House
+class ExpansionAirdropPlane: House
 {
 	float m_SpawnRadius;
 	float m_HeadingAngle;
@@ -370,8 +370,6 @@ class ExpansionAirdropPlane extends House
 					Error( "ExpansionMissionEventAirdrop::Event_OnUpdate - ERROR: Could not create container object!" );
 				} else
 				{
-					GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( m_Container.InitAirdrop, 0, false, m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount );
-				
 					if ( GetExpansionSettings() && GetExpansionSettings().GetNotification().ShowAirdropDropped && m_AirdropCreatedMsg )
 						ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop"), m_AirdropCreatedMsg, EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_MISSION).Create();
 				}
@@ -534,6 +532,8 @@ class ExpansionAirdropPlane extends House
 
 			drop.SetPosition( dropPosition );
 			drop.SetOrientation( "0 0 0" );
+
+			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount);
 		}
 
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG

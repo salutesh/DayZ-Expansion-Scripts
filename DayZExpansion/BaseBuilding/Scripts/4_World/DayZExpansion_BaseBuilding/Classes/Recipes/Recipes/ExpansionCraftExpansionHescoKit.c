@@ -13,7 +13,7 @@
 /**@class		ExpansionCraftExpansionHescoKit
  * @brief		
  **/
-class ExpansionCraftExpansionHescoKit extends RecipeBase
+class ExpansionCraftExpansionHescoKit: RecipeBase
 {
 	override void Init()
 	{

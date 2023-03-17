@@ -1,19 +1,18 @@
-// Copyright 2021 William Bowers
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//	http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * eAIBase.c
+ * 
+ * Partly based on Enfusion AI Project Copyright 2021 William Bowers
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
-
-class eAIBase extends PlayerBase
+class eAIBase: PlayerBase
 {
 	const int EAI_COMMANDID_MOVE = 1;
 
@@ -25,7 +24,7 @@ class eAIBase extends PlayerBase
 	protected autoptr eAIFSM m_FSM;
 
 	// Targeting data
-	private autoptr array<eAITarget> m_eAI_Targets;
+	private autoptr array<ref eAITarget> m_eAI_Targets;
 	private autoptr map<eAITargetInformation, ref eAITargetInformationState> m_eAI_TargetInformationStates;
 	float m_ThreatClearedTimeout;
 	float m_eAI_CurrentThreatToSelf;
@@ -114,7 +113,7 @@ class eAIBase extends PlayerBase
 	private vector m_DebugTargetOrientation;
 
 	float m_eAI_UpdateTargetsTick;
-	autoptr array<Object> m_eAI_PotentialTargetObjects = new array<Object>();
+	autoptr array<EntityAI> m_eAI_PotentialTargetEntities = new array<EntityAI>();
 	int m_eAI_CurrentPotentialTargetIndex;
 	PlayerBase m_eAI_PotentialTargetPlayer;
 	int m_eAI_CurrentPotentialTargetPlayerIndex;
@@ -129,6 +128,15 @@ class eAIBase extends PlayerBase
 
 	int m_eAI_MinTimeTillNextFire;
 	int m_eAI_QueuedShots;
+
+	private float m_Expansion_UpdateTime;
+	private float m_Expansion_UpdateTimeThreshold = 5.0;
+
+	float m_Expansion_DaylightVisibility;
+	float m_Expansion_BaseVisibility;
+	float m_Expansion_Visibility = 0.1;
+	float m_Expansion_VisibilityDistThreshold = 90.0;
+	int m_Expansion_ActiveVisibilityEnhancersCount;
 
 	void eAIBase()
 	{
@@ -172,7 +180,7 @@ class eAIBase extends PlayerBase
 
 		super.Init();
 
-		m_eAI_Targets = new array<eAITarget>();
+		m_eAI_Targets = new array<ref eAITarget>();
 		m_eAI_TargetInformationStates = new map<eAITargetInformation, ref eAITargetInformationState>();
 
 		m_AimingProfile = new eAIAimingProfile(this);
@@ -270,10 +278,7 @@ class eAIBase extends PlayerBase
 	{
 		super.EEDelete(parent);
 
-		foreach (Object obj: m_Expansion_DebugObjects)
-		{
-			GetGame().ObjectDelete(obj);
-		}
+		eAI_Cleanup();
 	}
 
 	static void ReloadAllFSM()
@@ -356,55 +361,106 @@ class eAIBase extends PlayerBase
 		m_ActionManager = m_eActionManager;
 	}
 
-	bool PlayerIsEnemy(EntityAI other)
+#ifdef DIAG
+	ref map<EntityAI, bool> m_eAI_PlayerIsEnemyStatus = new map<EntityAI, bool>;
+	void eAI_UpdatePlayerIsEnemyStatus(EntityAI player, bool state, string reason)
 	{
-		return PlayerIsEnemy(other, true);
+		bool currentState;
+		if (!m_eAI_PlayerIsEnemyStatus.Find(player, currentState) || state != currentState)
+		{
+			EXPrint(this, "::eAI_UpdatePlayerIsEnemyStatus " + GetGroup().GetFaction() + " | " + reason + " | " + player.ToString() + " | is enemy? " + state);
+			m_eAI_PlayerIsEnemyStatus[player] = state;
+		}
 	}
+#endif
 
-	bool PlayerIsEnemy(EntityAI other, bool safeZoneCheck)
+	bool PlayerIsEnemy(EntityAI other)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "PlayerIsEnemy").Add(other);
 #endif
 
-		DayZPlayerImplement player = DayZPlayerImplement.Cast(other);
-		if (!player)
+		PlayerBase player;
+		if (!Class.CastTo(player, other))
+		{
+#ifdef DIAG
+			eAI_UpdatePlayerIsEnemyStatus(player, true, "target not a player");
+#endif
 			return true;
+		}
 
 		if (player.Expansion_HasAdminToolInvisibility())
+		{
+#ifdef DIAG
+			eAI_UpdatePlayerIsEnemyStatus(player, false, "target invisible");
+#endif
 			return false;
+		}
 
-		if (safeZoneCheck && player.Expansion_IsInSafeZone())
-			return false;
+		if (GetGroup().GetFaction().IsObserver())
+		{
+			//! Actual player are always "enemies" to observers (will be looked at)
+			if (!player.IsAI())
+				return true;
 
-		if (!GetGroup())
-			return true;
+			//! Don't look at other AI until they move
+			return player.Expansion_GetMovementSpeed() > 0 || player.IsClimbing() || player.IsFalling() || player.IsFighting();
+		}
+
+		//! Are we targeting them?
+		bool targeted = player.GetTargetInformation().IsTargetted(GetGroup());
 
 		if (player.GetGroup())
 		{
 			if (player.GetGroup() == GetGroup())
-				return false;
-
-			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendly(this))
 			{
-				if (eAI_IsPassive())
-					return player.GetTargetInformation().IsTargetted(GetGroup());
-				else
-					return false;
+#ifdef DIAG
+				eAI_UpdatePlayerIsEnemyStatus(player, false, "target has same group");
+#endif
+				return false;
 			}
 
-			//! If the other player is a guard and we are not a guard, consider them an enemy if WE raise our weapon
-			//! (because then THEY will consider us a threat)
+			//! If we are not targeting them, are they targeting us?
+			if (!targeted && !player.GetGroup().GetFaction().IsObserver())
+				targeted = GetTargetInformation().IsTargetted(player.GetGroup());
+
+			//! Other faction friendly to our faction or this specific AI?
+			if (player.GetGroup().GetFaction().IsFriendly(GetGroup().GetFaction()) || player.GetGroup().GetFaction().IsFriendly(this))
+			{
+#ifdef DIAG
+				if (eAI_IsPassive())
+					eAI_UpdatePlayerIsEnemyStatus(player, targeted, "passive | target is friendly " + player.GetGroup().GetFaction());
+				else
+					eAI_UpdatePlayerIsEnemyStatus(player, targeted, "target is friendly " + player.GetGroup().GetFaction());
+#endif
+
+				return targeted;
+			}
+
+			//! If the other player is a guard and we are not, consider them an enemy if they raised their weapon and
+			//! either aren't AI or consider us a threat
 			if (player.GetGroup().GetFaction().IsGuard())
-				return IsRaised() || IsFighting();
+			{
+				eAIBase ai;
+				bool hostile = (player.IsRaised() || player.IsFighting()) && (!Class.CastTo(ai, player) || ai.eAI_GetTargetThreat(GetTargetInformation()) >= 0.4);
+#ifdef DIAG
+				eAI_UpdatePlayerIsEnemyStatus(player, hostile, "target is guard");
+#endif
+				return hostile;
+			}
 		}
 
+		//! Our faction fiendly to specific player?
 		if (GetGroup().GetFaction().IsFriendly(other))
 		{
+#ifdef DIAG
 			if (eAI_IsPassive())
-				return player.GetTargetInformation().IsTargetted(GetGroup());
+				eAI_UpdatePlayerIsEnemyStatus(player, targeted, "passive | friendly | target has no group");
 			else
-				return false;
+				eAI_UpdatePlayerIsEnemyStatus(player, targeted, "friendly");
+#endif
+
+			return targeted;
 		}
 
 #ifdef EXPANSIONMODGROUPS
@@ -415,19 +471,27 @@ class eAIBase extends PlayerBase
 			if (player.GetGroup())
 				Class.CastTo(otherLeader, player.GetGroup().GetLeader());
 			else
-				Class.CastTo(otherLeader, player);
+				otherLeader = player;
 			if (otherLeader && otherLeader.Expansion_GetParty() && Class.CastTo(leader, GetGroup().GetLeader()) && leader.Expansion_GetParty())
 			{
 				//! If leaders of both AI groups are actual players or other player has no AI group,
 				//! check if they are in the same Expansion party, and if so,
 				//! AI will not be hostile to the other group/player
 				if (leader.Expansion_GetParty() == otherLeader.Expansion_GetParty())
-					return false;
+				{
+#ifdef DIAG
+					eAI_UpdatePlayerIsEnemyStatus(player, targeted, "target party is leader party");
+#endif
+					return targeted;
+				}
 			}
 		}
 #endif
 
 		// at this point we know both we and they have groups, and the groups aren't friendly towards each other
+#ifdef DIAG
+		eAI_UpdatePlayerIsEnemyStatus(player, true, "not friendly");
+#endif
 		return true;
 	}
 
@@ -539,7 +603,7 @@ class eAIBase extends PlayerBase
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		if (!IsAI() || !GetGroup())
+		if (!GetGroup())
 			return;
 
 	#ifdef DIAG
@@ -553,16 +617,30 @@ class eAIBase extends PlayerBase
 			{
 				zmb.GetTargetInformation().AddAI(this);
 			}
+
+			return;
 		}
 
 		PlayerBase player;
 		if (Class.CastTo(player, source.GetHierarchyRootPlayer()))
 		{
-			if (!player.GetTargetInformation().IsTargettedBy(this))
+			//! If attacking player is AI, check if we are their current target, else it was accidental friendly fire
+			eAIBase ai;
+			if (!Class.CastTo(ai, player) || (ai.GetTarget() && ai.GetTarget().GetEntity() == this))
 			{
-				//! target the attacking player for upto 2 minutes
-				player.GetTargetInformation().AddAI(this, 120000);
+				//! Target the attacking player for up to 2 minutes
+				if (!player.GetTargetInformation().IsTargettedBy(this))
+				{
+					player.GetTargetInformation().AddAI(this, 120000);
+				}
+				else
+				{
+					//! Update target found at time if already targeting
+					player.GetTargetInformation().Update(GetGroup());
+				}
 			}
+
+			return;
 		}
 
 		AnimalBase animal;
@@ -572,6 +650,18 @@ class eAIBase extends PlayerBase
 			{
 				animal.GetTargetInformation().AddAI(this);
 			}
+
+			return;
+		}
+
+		//! If AI looses 5.55555% of current damage zone health or more by vehicle hit, add vehicle as target
+		CarScript vehicle;
+		if (Class.CastTo(vehicle, source) && damageResult.GetDamage(dmgZone, "Health") >= GetHealth(dmgZone, "Health") * 0.055555)
+		{
+			if (!vehicle.GetTargetInformation().IsTargettedBy(this))
+			{
+				vehicle.GetTargetInformation().AddAI(this);
+			}
 		}
 	}
 
@@ -579,15 +669,25 @@ class eAIBase extends PlayerBase
 	{
 		super.EEKilled(killer);
 
-		if (IsAI() && GetGroup())
-		{
-			GetGroup().RemoveMember(this);
-		}
+		eAI_Cleanup();
 
 		if (GetGame().IsServer())
 		{
 			if (!m_Expansion_EmoteAutoCancel)
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(Expansion_PlayEmote);
+		}
+	}
+
+	void eAI_Cleanup()
+	{
+		if (GetGroup() && GetGroup().Count() > 1)
+		{
+			GetGroup().RemoveMember(this);
+		}
+
+		foreach (Object obj: m_Expansion_DebugObjects)
+		{
+			GetGame().ObjectDelete(obj);
 		}
 	}
 
@@ -614,7 +714,7 @@ class eAIBase extends PlayerBase
 	{
 		foreach (ItemBase bandage: m_Bandages)
 		{
-			if (bandage && bandage.GetHealth() > 0)
+			if (bandage && !bandage.IsDamageDestroyed())
 			{
 				return bandage;
 			}
@@ -634,7 +734,7 @@ class eAIBase extends PlayerBase
 		Magazine mag;
 		foreach (ItemBase weapon: m_Weapons)
 		{
-			if (weapon && weapon.GetHealth() > 0)
+			if (weapon && !weapon.IsDamageDestroyed())
 			{
 				if (!requireAmmo)
 					return weapon;
@@ -659,7 +759,7 @@ class eAIBase extends PlayerBase
 		// very messy :)
 		foreach (ItemBase melee: m_MeleeWeapons)
 		{
-			if (melee && melee.GetHealth() > 0)
+			if (melee && !melee.IsDamageDestroyed())
 			{
 				return melee;
 			}
@@ -837,7 +937,7 @@ class eAIBase extends PlayerBase
 		return m_AimingProfile;
 	}
 
-	array<eAITarget> GetTargets()
+	array<ref eAITarget> GetTargets()
 	{
 		return m_eAI_Targets;
 	}
@@ -871,10 +971,24 @@ class eAIBase extends PlayerBase
 
 	float GetThreatToSelf(bool ignoreLOS = false)
 	{
-		if (!eAI_HasLOS() && !ignoreLOS)
-			return m_eAI_CurrentThreatToSelfActive;
+		if (ignoreLOS || eAI_HasLOS())
+			return m_eAI_CurrentThreatToSelf;
 
-		return m_eAI_CurrentThreatToSelf;
+		return m_eAI_CurrentThreatToSelfActive;
+	}
+
+	float eAI_GetTargetThreat(eAITargetInformation info, bool ignoreLOS = false)
+	{
+		eAITargetInformationState state;
+		if (m_eAI_TargetInformationStates.Find(info, state))
+		{
+			if (ignoreLOS || info.IsInherited(eAIItemTargetInformation))
+				return state.m_ThreatLevel;
+
+			return state.m_ThreatLevelActive;
+		}
+
+		return 0.0;
 	}
 
 	void DetermineThreatToSelf(float pDt)
@@ -934,14 +1048,25 @@ class eAIBase extends PlayerBase
 		{
 			if (m_eAI_PreviousThreatToSelf < 0.2)
 				EXTrace.Print(EXTrace.AI, this, "current threat to self >= 0.2 (active " + m_eAI_CurrentThreatToSelfActive + ")");
+
+			if (!m_Expansion_DaylightVisibility && m_eAI_CurrentThreatToSelfActive >= 0.4 && m_eAI_PreviousThreatToSelfActive < 0.4 && !m_Expansion_ActiveVisibilityEnhancersCount)
+			{
+				float nightVisibility;
+				Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, false, true);  //! Switch on lights at night (skip NVG)
+			}
 		}
 		else
 		{
 			if (m_eAI_PreviousThreatToSelf >= 0.2)
+			{
 				EXTrace.Print(EXTrace.AI, this, "current threat to self < 0.2 (active " + m_eAI_CurrentThreatToSelfActive + ")");
+
+				if (!m_Expansion_DaylightVisibility && m_Expansion_ActiveVisibilityEnhancersCount)
+					Expansion_TryTurningOffAnyLightsOrNVG(true);  //! Switch off any lights (skip NVG)
+			}
 		}
 
-		if (m_eAI_CurrentThreatToSelf >= 0.4)
+		if (m_eAI_CurrentThreatToSelfActive >= 0.4)
 		{
 			if (m_ThreatClearedTimeout <= 0)
 				m_ThreatClearedTimeout = Math.RandomFloat(1, 3);
@@ -1028,7 +1153,7 @@ class eAIBase extends PlayerBase
 		vector center = GetPosition();
 
 		m_eAI_UpdateTargetsTick += pDt;
-		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetObjects.Count() && m_eAI_UpdateTargetsTick > Math.RandomFloat(0.1, 0.2))
+		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetEntities.Count() && m_eAI_UpdateTargetsTick > Math.RandomFloat(0.1, 0.2))
 		{
 			m_eAI_UpdateTargetsTick = 0;
 			m_eAI_CurrentPotentialTargetIndex = 0;
@@ -1039,8 +1164,10 @@ class eAIBase extends PlayerBase
 			ticks = TickCount(0);
 #endif
 
-			array<CargoBase> proxyCargos = new array<CargoBase>();
-			GetGame().GetObjectsAtPosition(center, 30.0, m_eAI_PotentialTargetObjects, proxyCargos);
+			vector min = Vector(center[0] - 30, center[1] - 30, center[2] - 30);
+			vector max = Vector(center[0] + 30, center[1] + 30, center[2] + 30);
+
+			DayZPlayerUtils.SceneGetEntitiesInBox(min, max, m_eAI_PotentialTargetEntities);
 
 #ifdef EAI_TRACE
 			elapsed = TickCount(ticks);
@@ -1049,7 +1176,7 @@ class eAIBase extends PlayerBase
 			m_eAI_UpdateNearTargetsCount++;
 			float timeAvg = m_eAI_UpdateNearTargetsTime / m_eAI_UpdateNearTargetsCount;
 
-			EXTrace.Add(trace, "objects in near range " + m_eAI_PotentialTargetObjects.Count() + " time (ms) " + time + " timeAvg (ms) " + timeAvg);
+			EXTrace.Add(trace, "objects in near range " + m_eAI_PotentialTargetEntities.Count() + " time (ms) " + time + " timeAvg (ms) " + timeAvg);
 #endif
 		}
 
@@ -1059,51 +1186,54 @@ class eAIBase extends PlayerBase
 		ticks = TickCount(0);
 #endif
 
-		PlayerBase player;
-		//if (m_eAI_PotentialTargetPlayer)
-		//{
-			//player = m_eAI_PotentialTargetPlayer.m_Expansion_NextPlayer;
-			//if (!player)
-				//EXTrace.Print(EXTrace.AI, this, "NextPlayer is NULL!");
-		//}
-
-		//if (!player)
-		//{
-			//player = s_AllPlayers;
-			//if (!player)
-				//EXTrace.Print(EXTrace.AI, this, "s_AllPlayers is NULL!");
-		//}
-
-		//m_eAI_PotentialTargetPlayer = player;
-
-		set<PlayerBase> allPlayers = GetAll();
-
-		if (m_eAI_CurrentPotentialTargetPlayerIndex >= allPlayers.Count())
-			m_eAI_CurrentPotentialTargetPlayerIndex = 0;
-
-		player = allPlayers[m_eAI_CurrentPotentialTargetPlayerIndex++];
-
-		Object playerObject = player;
-		if (player && player != this && m_eAI_PotentialTargetObjects.Find(playerObject) == -1 && Math.IsPointInCircle(center, 1000, player.GetPosition()))
+		if (!GetGroup().GetFaction().IsObserver())  //! Observers only react to near players
 		{
-			m_eAI_PotentialTargetObjects.Insert(playerObject);
+			PlayerBase player;
+			//if (m_eAI_PotentialTargetPlayer)
+			//{
+				//player = m_eAI_PotentialTargetPlayer.m_Expansion_NextPlayer;
+				//if (!player)
+					//EXTrace.Print(EXTrace.AI, this, "NextPlayer is NULL!");
+			//}
+
+			//if (!player)
+			//{
+				//player = s_AllPlayers;
+				//if (!player)
+					//EXTrace.Print(EXTrace.AI, this, "s_AllPlayers is NULL!");
+			//}
+
+			//m_eAI_PotentialTargetPlayer = player;
+
+			set<PlayerBase> allPlayers = GetAll();
+
+			if (m_eAI_CurrentPotentialTargetPlayerIndex >= allPlayers.Count())
+				m_eAI_CurrentPotentialTargetPlayerIndex = 0;
+
+			player = allPlayers[m_eAI_CurrentPotentialTargetPlayerIndex++];
+
+			EntityAI playerEntity = player;
+			if (player && player != this && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1 && Math.IsPointInCircle(center, 1000, player.GetPosition()))
+			{
+				m_eAI_PotentialTargetEntities.Insert(playerEntity);
 
 #ifdef EAI_TRACE
-			elapsed = TickCount(ticks);
+				elapsed = TickCount(ticks);
 
-			EXTrace.Add(trace, "player/AI in extended range " + player.GetType() + " time (ms) " + (elapsed / 10000.0).ToString());
+				EXTrace.Add(trace, "player/AI in extended range " + player.GetType() + " time (ms) " + (elapsed / 10000.0).ToString());
 #endif
+			}
 		}
 
-		DayZPlayerImplement playerThreat;
+		PlayerBase playerThreat;
 		ItemBase targetItem;
 		EntityAI targetEntity;
 
 		float group_count = GetGroup().Count();
 
-		while (m_eAI_CurrentPotentialTargetIndex < m_eAI_PotentialTargetObjects.Count())
+		while (m_eAI_CurrentPotentialTargetIndex < m_eAI_PotentialTargetEntities.Count())
 		{
-			Object obj = m_eAI_PotentialTargetObjects[m_eAI_CurrentPotentialTargetIndex++];
+			EntityAI obj = m_eAI_PotentialTargetEntities[m_eAI_CurrentPotentialTargetIndex++];
 			if (!obj)
 				continue;
 
@@ -1113,13 +1243,17 @@ class eAIBase extends PlayerBase
 					continue;
 				if (playerThreat.eAI_IsPassive())
 					continue;
+				if (!playerThreat.IsPlayerLoaded())
+					continue;
 				if (!PlayerIsEnemy(playerThreat))
 					continue;
 			}
+			else if (obj.IsInherited(DayZPlayerImplement))
+				continue;  //! Ignore non PlayerBase NPCs
 			else if (Class.CastTo(targetItem, obj))
 			{
 				//! If the object is an item, ignore it if any of the following conditions are met
-				if (targetItem.IsSetForDeletion())
+				if (targetItem.IsSetForDeletion() || GetGroup().GetFaction().IsObserver())
 					continue;
 			}
 			else if (obj.IsInherited(Building))
@@ -1164,72 +1298,76 @@ class eAIBase extends PlayerBase
 				break;
 		}
 
-		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetObjects.Count())
-			m_eAI_PotentialTargetObjects.Clear();
+		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetEntities.Count())
+			m_eAI_PotentialTargetEntities.Clear();
 	}
 
-	// TODO: Use CF_PriorityQueue<T>
-	void PrioritizeTargets()
+	bool eAI_RemoveTargets()
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "PrioritizeTargets");
+		auto trace = CF_Trace_0(this, "eAI_RemoveTargets");
 #endif
 
 #ifdef DIAG
-		auto hitch = EXHitch(ToString() + "::PrioritizeTargets ", 20000);
+		auto hitch = EXHitch(ToString() + "::eAI_RemoveTargets ", 20000);
 #endif
 
-		auto target = m_eAI_Targets[0];
+		int count = m_eAI_Targets.Count();
 
-		// sorting the targets so the highest the threat is indexed lowest
-
-		for (int i = m_eAI_Targets.Count() - 1; i >= 0; i--)
+		for (int i = count - 1; i >= 0; i--)
 		{
-			if (m_eAI_Targets[i] == null || m_eAI_Targets[i].ShouldRemove(this))
+			if (m_eAI_Targets[i].ShouldRemove(this))
 			{
 #ifdef DIAG
-				if (m_eAI_Targets[i])
-					EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
+				EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTargets - removing target " + m_eAI_Targets[i].info.GetEntityDebugName());
 #endif
-				if (m_eAI_Targets[i] == null || !m_eAI_Targets[i].RemoveAI(this))
-				{
-					m_eAI_Targets.RemoveOrdered(i);
-					for (int k = m_eAI_TargetInformationStates.Count() - 1; k >= 0; k--)
-					{
-						if (!m_eAI_TargetInformationStates.GetKey(k))
-							m_eAI_TargetInformationStates.RemoveElement(k);
-					}
-				}
+				m_eAI_Targets[i].RemoveAI(this);
 			}
 		}
 
+#ifdef DIAG
+		if (count > 0 && m_eAI_Targets.Count() == 0)
+			EXTrace.Print(EXTrace.AI, this, "eAI_RemoveTargets - no more targets");
+#endif
+
+		return count != m_eAI_Targets.Count();
+	}
+
+	void eAI_PrioritizeTargets()
+	{
+#ifdef EAI_TRACE
+		auto trace = CF_Trace_0(this, "eAI_PrioritizeTargets");
+#endif
+
+#ifdef DIAG
+		auto hitch = EXHitch(ToString() + "::eAI_PrioritizeTargets ", 20000);
+#endif
+
+		//! find the target with the highest threat level, no sorting
+		//! (sorting performance would be abysmal if there are many targets due to processing n*(n/2)-n/2 targets when comparing threat levels)
+
+		float threat;
 		float max_threat;
-		for (i = 0; i < m_eAI_Targets.Count() - 1; i++)
-		{
-			int min_idx = i;
-			for (int j = i + 1; j < m_eAI_Targets.Count(); j++)
-			{
-				float threat = m_eAI_Targets[j].GetThreat(this);
-				if (threat > m_eAI_Targets[min_idx].GetThreat(this))
-				{
-					min_idx = j;
-					max_threat = threat;
-				}
-			}
+		int max_threat_idx;
 
-			if (min_idx != i)
+		for (int i = 0; i < m_eAI_Targets.Count(); i++)
+		{
+			threat = m_eAI_Targets[i].GetThreat(this);
+			if (threat > max_threat)
 			{
-				m_eAI_Targets.SwapItems(min_idx, i);
+				max_threat_idx = i;
+				max_threat = threat;
 			}
 		}
 
-		if (m_eAI_Targets[0] != target)
+		if (max_threat_idx > 0)
 		{
+			eAITarget target = m_eAI_Targets[0];
+			m_eAI_Targets[0] = m_eAI_Targets[max_threat_idx];
+			m_eAI_Targets[max_threat_idx] = target;
+
 #ifdef DIAG
-			if (m_eAI_Targets[0])
-				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - prioritizing target " + m_eAI_Targets[0].info.GetEntityDebugName());
-			else
-				EXTrace.Print(EXTrace.AI, this, "PrioritizeTargets - no more targets");
+			EXTrace.Print(EXTrace.AI, this, "eAI_PrioritizeTargets - prioritizing target " + max_threat_idx + " " + m_eAI_Targets[0].info.GetEntityDebugName() + " threat lvl " + max_threat);
 #endif
 		}
 	}
@@ -1729,7 +1867,8 @@ class eAIBase extends PlayerBase
 		int simulationPrecision = 0;
 
 		UpdateTargets(pDt);
-		PrioritizeTargets();
+		if (eAI_RemoveTargets() || m_eAI_UpdateTargetsTick == 0)
+			eAI_PrioritizeTargets();
 
 		GetTransform(m_ExTransformPlayer);
 
@@ -1738,13 +1877,15 @@ class eAIBase extends PlayerBase
 		DetermineThreatToSelf(pDt);
 		ReactToThreatChange(pDt);
 
-		if (m_eAI_Targets.Count() > 0)
+		eAITarget target = m_eAI_Targets[0];
+
+		if (target)
 		{
-			vector aimPosition = m_eAI_Targets[0].GetPosition(this, false) + m_eAI_Targets[0].GetAimOffset(this);
-			LookAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.15 && hasLOS);
+			vector aimPosition = target.GetPosition(this, false) + target.GetAimOffset(this);
+			LookAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive > 0.1 && hasLOS);
 			if (!m_eAI_LookDirection_Recalculate)
 				LookAtDirection("0 0 1");
-			AimAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive >= 0.2);
+			AimAtPosition(aimPosition, m_eAI_CurrentThreatToSelfActive > 0.15);
 		}
 		else
 		{
@@ -1755,9 +1896,8 @@ class eAIBase extends PlayerBase
 				AimAtDirection("0 0 1");
 		}
 
-		if (m_eAI_Targets.Count() > 0 && m_eAI_CurrentThreatToSelfActive > 0.2)
+		if (target && m_eAI_CurrentThreatToSelfActive > 0.2)
 		{
-			eAITarget target = m_eAI_Targets[0];
 			if (target.HasInfo())
 			{
 #ifndef EAI_USE_LEGACY_PATHFINDING
@@ -2103,7 +2243,7 @@ class eAIBase extends PlayerBase
 			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
 
 			//TODO: quaternion slerp instead for better, accurate results
-			m_eAI_LookRelAngles = vector.Lerp(m_eAI_LookRelAngles, lookTargetRelAngles, pDt * 4);
+			m_eAI_LookRelAngles = ExpansionMath.InterpolateAngles(m_eAI_LookRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
 
 			m_eAI_Command.SetLookAnglesRel(m_eAI_LookRelAngles[0], m_eAI_LookRelAngles[1]);
 
@@ -2154,7 +2294,7 @@ class eAIBase extends PlayerBase
 						setTurnTarget = true;
 					}
 				}
-				else if (IsInherited(eAINPCBase))
+				else if (IsInherited(eAINPCBase) && speedLimit == 0)
 				{
 					turnTarget = GetOrientation()[0];
 					setTurnTarget = true;
@@ -2229,8 +2369,15 @@ class eAIBase extends PlayerBase
 		if (!state)
 			return false;
 
+		//if (targetEntity.IsInherited(Transport))
+		//{
+			//state.m_LOS = true;
+			//return true;
+		//}
+
 		vector begPos = GetBonePositionWS(GetBoneIndexByName("Head"));
-		vector endPos = targetEntity.GetPosition() + target.GetAimOffset(this);
+		vector aimOffset = target.GetAimOffset(this);
+		vector endPos = targetEntity.GetPosition() + aimOffset;
 
 		vector contactPos;
 		vector contactDir;
@@ -2240,9 +2387,20 @@ class eAIBase extends PlayerBase
 		bool hadLos = state.m_LOS;
 		state.m_LOS = DayZPhysics.RaycastRV(begPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectView, 0.05);
 		if (!state.m_LOS && hadLos)
+		{
 			EXTrace.Print(EXTrace.AI, this, "lost line of sight to target " + targetEntity);
+			EXTrace.Print(EXTrace.AI, this, "aim offset " + aimOffset + " end pos " + endPos);
+		}
 		if (!state.m_LOS)
 			return false;
+
+		if (results.Count() && results[0].IsBuilding())
+		{
+			//! Check again in case it's a window/other see-through object
+			results.Clear();
+			//Expansion_DebugObject_Deferred(9999, contactPos, "ExpansionDebugBox_Red", contactDir);
+			state.m_LOS = DayZPhysics.RaycastRV(contactPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectFire, 0.05);
+		}
 
 		//float targetDistSq = vector.DistanceSq(begPos, endPos);
 		float contactToTargetDistSq = vector.DistanceSq(contactPos, endPos);
@@ -2252,26 +2410,19 @@ class eAIBase extends PlayerBase
 		bool sideStep;
 
 		state.m_LOS = false;
+		Object hitObj;
+		EntityAI hitEntity;
 		foreach (Object obj: results)
 		{
+			hitObj = obj;
+
+			if (Class.CastTo(hitEntity, obj))
+				obj = hitEntity.GetHierarchyRoot();
+
 			//! Tree with player more than 2 m away from contact pos
 			if (obj.IsTree() && contactToTargetDistSq > 4 && !state.m_SearchPositionUpdateCount)
 			{
 				sideStep = state.m_ThreatLevelActive >= 0.4;
-				break;
-			}
-
-			if (Class.CastTo(player, obj))
-			{
-				if (!PlayerIsEnemy(player))
-				{
-					sideStep = true;
-				}
-				else
-				{
-					state.m_LOS = true;
-				}
-				//! If player is an enemy, but not the target, we don't care if they get shot when they are in the way
 				break;
 			}
 
@@ -2283,9 +2434,24 @@ class eAIBase extends PlayerBase
 
 			if (obj != targetEntity && obj != parent)
 			{
-				if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4) || contactToTargetDistSq <= 0.0625)
+				if (Class.CastTo(player, obj))
+				{
+					if (eAI_GetTargetThreat(player.GetTargetInformation()) < 0.2)
+					{
+						sideStep = true;
+					}
+					else
+					{
+						//! If player is a threat, but not the target, we don't care if they get shot when they are in the way
+						state.m_LOS = true;
+					}
+				}
+				else if (obj.IsInherited(ZombieBase) || obj.IsInherited(AnimalBase) || ((obj.IsTree() || obj.IsBush()) && contactToTargetDistSq <= 4) || contactToTargetDistSq <= 0.0625)
+				{
+					//! If object is zombie, animal or tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
 					state.m_LOS = true;
-				//! If object is zombie, animal or tree/bush but not the target or its parent, we don't care if they get shot when they are in the way
+				}
+
 				break;
 			}
 			else
@@ -2297,7 +2463,10 @@ class eAIBase extends PlayerBase
 		}
 
 		if (state.m_LOS != hadLos)
+		{
 			EXTrace.Print(EXTrace.AI, this, "has line of sight to target (" + targetEntity + ")? " + state.m_LOS);
+			EXTrace.Print(EXTrace.AI, this, "aim offset " + aimOffset + " end pos " + endPos);
+		}
 
 		if (sideStep)
 		{
@@ -2312,42 +2481,51 @@ class eAIBase extends PlayerBase
 			float dot = vector.Dot(GetDirection(), targetDirection);
 			if (dot >= 0.75)
 			{
-				vector transform[4];
-				GetTransform(transform);
-				bool blockedLeft = m_PathFinding.IsBlocked(transform[3], transform[3] + (-0.5 * transform[0]));
-				bool blockedRight = m_PathFinding.IsBlocked(transform[3], transform[3] + (0.5 * transform[0]));
-				//! Move, b*tch, get out the way :-)
-				m_eAI_SideStepTimeout = 1.5;
-				if (blockedLeft && blockedRight)
-					//! Backpedal
-					m_SideStepAngle = -180;
-				else if (blockedLeft || (!blockedRight && Math.RandomIntInclusive(0, 1)))
-					//! Go right if only blocked left or 50% chance go right if neither blocked left/right
-					m_SideStepAngle = 90;
-				else
-					//! Go left
-					m_SideStepAngle = -90;
-				EXTrace.Print(EXTrace.AI, this, "sidestep " + m_SideStepAngle + " " + obj);
-				OverrideMovementDirection(true, m_SideStepAngle);
+				eAI_ForceSideStep(1.5, hitObj);
 			}
 		}
 
 		return state.m_LOS;
 	}
 
+	void eAI_ForceSideStep(float duration, Object obj = null, float angle = 0.0, bool allowBackPedaling = true)
+	{
+		vector transform[4];
+		GetTransform(transform);
+		bool blockedLeft = angle == 0.0 && m_PathFinding.IsBlocked(transform[3], transform[3] + (-0.5 * transform[0]));
+		bool blockedRight = angle == 0.0 && m_PathFinding.IsBlocked(transform[3], transform[3] + (0.5 * transform[0]));
+		//! Move, b*tch, get out the way :-)
+		if (!blockedLeft || !blockedRight || allowBackPedaling)
+			m_eAI_SideStepTimeout = duration;
+		if (blockedLeft && blockedRight)
+			//! Backpedal
+			m_SideStepAngle = -180;
+		else if (blockedLeft || (angle == 0.0 && !blockedRight && Math.RandomIntInclusive(0, 1)))
+			//! Go right if only blocked left or 50% chance go right if neither blocked left/right
+			m_SideStepAngle = 90;
+		else if (angle == 0.0)
+			//! Go left
+			m_SideStepAngle = -90;
+		else
+			m_SideStepAngle = angle;
+		EXTrace.Print(EXTrace.AI, this, "sidestep " + m_SideStepAngle + " " + obj);
+		OverrideMovementDirection(true, m_SideStepAngle);
+	}
+
+	bool eAI_IsSideStepping()
+	{
+		return m_eAI_SideStepTimeout > 0.0;
+	}
+
 	bool eAI_HasLOS()
 	{
-		if (!m_eAI_Targets.Count())
-			return false;
-
 		auto target = GetTarget();
 
-		EntityAI targetEntity = target.GetEntity();
+		if (!target)
+			return false;
 
-		if (targetEntity.IsInherited(ItemBase))
-		{
+		if (target.info.IsInherited(eAIItemTargetInformation))
 			return true;
-		}
 
 		auto state = m_eAI_TargetInformationStates[target.info];
 		if (!state)
@@ -2360,15 +2538,20 @@ class eAIBase extends PlayerBase
 	{
 		if (!IsPlayerSelected() || !IsAlive())
 			return;
+
 		if (m_ModifiersManager)
 			m_ModifiersManager.OnScheduledTick(deltaTime);
 		if (m_NotifiersManager)
 			m_NotifiersManager.OnScheduledTick();
 		//! These send RPC to identity which is NULL for AI and thus affects all actual players HUDs (shows AI values instead of player)
-		// if( m_TrasferValues ) m_TrasferValues.OnScheduledTick(deltaTime);
-		// if( m_VirtualHud ) m_VirtualHud.OnScheduledTick();
+		// if( m_TrasferValues )
+			//m_TrasferValues.OnScheduledTick(deltaTime);
+		// if( m_VirtualHud )
+			//m_VirtualHud.OnScheduledTick();
 		if (GetBleedingManagerServer())
 			GetBleedingManagerServer().OnTick(deltaTime);
+		if ( m_Environment )
+			m_Environment.Update(deltaTime);
 
 		// Check if electric device needs to be unplugged
 		ItemBase heldItem = GetItemInHands();
@@ -2380,6 +2563,14 @@ class eAIBase extends PlayerBase
 			// Unplug the device when the player is too far from the power source.
 			placed_entity.GetCompEM().UpdatePlugState();
 		}
+
+		m_Expansion_UpdateTime += deltaTime;
+		if ( m_Expansion_UpdateTime > m_Expansion_UpdateTimeThreshold )
+		{
+			m_Expansion_UpdateTime = 0;
+			Expansion_OnAIUpdate();
+		}
+
 	}
 
 	// We should integrate this into ReloadWeapon
@@ -2446,12 +2637,6 @@ class eAIBase extends PlayerBase
 
 	override void QuickReloadWeapon(EntityAI weapon)
 	{
-		if (!IsAI())
-		{
-			super.QuickReloadWeapon(weapon);
-			return;
-		}
-
 		ReloadWeaponAI(weapon, GetMagazineToReload(weapon));
 	}
 
@@ -2492,6 +2677,107 @@ class eAIBase extends PlayerBase
 		return true;
 	}
 #endif
+
+	//! @note: Goal is to check only from time to time to not add a strain for such moundain things
+	//!		   Please do not update me frequently
+	void Expansion_OnAIUpdate()
+	{
+		Expansion_UpdateVisibility();
+	}
+
+	void Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, bool skipNonNVG = false, bool skipNVG = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		ItemBase itembs;
+		
+		itembs = GetItemOnHead();
+		if ( itembs && itembs.Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, this, skipNonNVG, skipNVG) )
+			m_Expansion_ActiveVisibilityEnhancersCount++;
+		
+		itembs = GetItemOnSlot("Eyewear");
+		if ( itembs && itembs.Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, this, skipNonNVG, skipNVG) )
+			m_Expansion_ActiveVisibilityEnhancersCount++;
+
+		itembs = GetItemInHands();
+		if ( itembs && itembs.Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, this, skipNonNVG, skipNVG) )
+			m_Expansion_ActiveVisibilityEnhancersCount++;
+	}
+
+	void Expansion_TryTurningOffAnyLightsOrNVG(bool skipNVG = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		ItemBase itembs;
+		
+		itembs = GetItemOnHead();
+		if ( itembs && itembs.Expansion_TryTurningOffAnyLightsOrNVG(this, skipNVG) )
+			m_Expansion_ActiveVisibilityEnhancersCount--;
+		
+		itembs = GetItemOnSlot("Eyewear");
+		if ( itembs && itembs.Expansion_TryTurningOffAnyLightsOrNVG(this, skipNVG) )
+			m_Expansion_ActiveVisibilityEnhancersCount--;
+
+		itembs = GetItemInHands();
+		if ( itembs && itembs.Expansion_TryTurningOffAnyLightsOrNVG(this, skipNVG) )
+			m_Expansion_ActiveVisibilityEnhancersCount--;
+	}
+
+	void Expansion_UpdateVisibility(bool force = false)
+	{
+		float fogVisibility;
+		float overcastVisibility;
+		float rainVisibility;
+		float daylightVisibility;
+
+		m_Environment.Expansion_GetWeatherVisibility(fogVisibility, overcastVisibility, rainVisibility, daylightVisibility);
+
+		if (force || daylightVisibility != m_Expansion_DaylightVisibility)
+		{
+			m_Expansion_DaylightVisibility = daylightVisibility;
+			m_Expansion_BaseVisibility = daylightVisibility;
+
+			if (!daylightVisibility)
+			{
+				//! Switch on any lights (only if threat lvl is above 0.4) or NVG at night
+				Expansion_TryTurningOnAnyLightsOrNVG(m_Expansion_BaseVisibility, m_eAI_CurrentThreatToSelfActive < 0.4);
+				if (m_Expansion_BaseVisibility < 0.1)
+					m_Expansion_BaseVisibility = 0.1;  //! 100 m
+				EXTrace.Print(EXTrace.AI, this, "nighttime base visibility " + m_Expansion_BaseVisibility);
+			}
+			else if ( m_Expansion_ActiveVisibilityEnhancersCount )
+			{
+				Expansion_TryTurningOffAnyLightsOrNVG();
+			}
+		}
+
+		m_Expansion_Visibility = m_Expansion_BaseVisibility;
+
+		float visibilityLimit = m_eAI_ThreatDistanceLimit * 0.001;
+		if (m_Expansion_Visibility > visibilityLimit)
+			m_Expansion_Visibility = visibilityLimit;
+
+		//! Limit visibility in contaminated areas due to gas clouds
+		if (m_Expansion_Visibility > 0.2 && GetModifiersManager().IsModifierActive(eModifiers.MDF_AREAEXPOSURE))
+			m_Expansion_Visibility = 0.2;  //! 200 m
+
+		//! Final visibility
+		m_Expansion_Visibility = Math.Min(Math.Min(fogVisibility, Math.Min(overcastVisibility, rainVisibility)), m_Expansion_Visibility);
+		m_Expansion_VisibilityDistThreshold = 900 * m_Expansion_Visibility;
+	}
+
+	float Expansion_GetVisibility(float distance)
+	{
+		if (distance > m_Expansion_VisibilityDistThreshold)
+			return ExpansionMath.PowerConversion(1100 * m_Expansion_Visibility, m_Expansion_VisibilityDistThreshold, distance, 0.0, 1.0, 2.0);
+
+		return 1.0;
+	}
+
+	float Expansion_GetVisibilityDistThreshold()
+	{
+		return m_Expansion_VisibilityDistThreshold;
+	}
 
 	override void HandleWeapons(float pDt, Entity pInHands, HumanInputController pInputs, out bool pExitIronSights)
 	{
@@ -2539,7 +2825,7 @@ class eAIBase extends PlayerBase
 			aimTargetRelAngles[1] = Math.Clamp(aimTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
 
 			//TODO: quaternion slerp instead for better, accurate results
-			m_eAI_AimRelAngles = vector.Lerp(m_eAI_AimRelAngles, aimTargetRelAngles, pDt * 4);
+			m_eAI_AimRelAngles = ExpansionMath.InterpolateAngles(m_eAI_AimRelAngles, aimTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
 
 			float dist = vector.Distance(GetPosition() + "0 1.5 0", m_eAI_AimPosition_WorldSpace);
 			dist = Math.Clamp(dist, 1.0, 360.0);
@@ -2561,7 +2847,7 @@ class eAIBase extends PlayerBase
 
 			lookTargetRelAngles[1] = Math.Clamp(lookTargetRelAngles[1], -85.0, 85.0);  //! Valid range is [-85, 85]
 
-			m_eAI_AimRelAngles = vector.Lerp(m_eAI_AimRelAngles, lookTargetRelAngles, pDt * 4);
+			m_eAI_AimRelAngles = ExpansionMath.InterpolateAngles(m_eAI_AimRelAngles, lookTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
 		}
 	}
 
@@ -2582,10 +2868,10 @@ class eAIBase extends PlayerBase
 
 	bool CanRaiseWeapon()
 	{
-		if (!GetTarget() || IsClimbing() || IsFalling())
+		if (IsClimbing() || IsFalling())
 			return false;
 
-		return (eAI_HasLOS() || GetTarget().GetDistanceSq(this) <= 900) && m_eAI_SideStepTimeout <= 0;
+		return eAI_HasLOS() && m_eAI_SideStepTimeout <= 0;
 	}
 
 	// @param true to put weapon up, false to lower
@@ -2658,7 +2944,7 @@ class eAIBase extends PlayerBase
 
 	vector GetLookDirection()
 	{
-		return m_eAI_LookRelAngles.AnglesToVector();
+		return m_eAI_LookRelAngles.AnglesToVector().Multiply3(m_ExTransformPlayer);
 	}
 
 	bool GetLookDirectionRecalculate()
@@ -2673,7 +2959,12 @@ class eAIBase extends PlayerBase
 
 	vector GetAimDirection()
 	{
-		return m_eAI_AimRelAngles.AnglesToVector();
+		return m_eAI_AimRelAngles.AnglesToVector().Multiply3(m_ExTransformPlayer);
+	}
+
+	override vector Expansion_GetAimDirection()
+	{
+		return GetAimDirection();
 	}
 
 	override vector GetAimPosition()
@@ -2748,7 +3039,7 @@ class eAIBase extends PlayerBase
 
 	override void OnUnconsciousStart()
 	{
-		eAI_DropItemInHands();
+		eAI_DropItemInHands(false);
 
 		super.OnUnconsciousStart();
 	}
@@ -2760,32 +3051,42 @@ class eAIBase extends PlayerBase
 		Expansion_GetUp(true);
 	}
 
-	void eAI_DropItemInHands()
+	void eAI_DropItemInHands(bool switchOff = true)
 	{
-		EntityAI itemInHands = GetHumanInventory().GetEntityInHands();
+		ItemBase itemInHands = GetItemInHands();
 		if (itemInHands)
-			eAI_DropItem(itemInHands);
+			eAI_DropItem(itemInHands, switchOff);
 	}
 
-	void eAI_DropItem(EntityAI item)
+	void eAI_DropItem(ItemBase item, bool switchOff = true)
 	{
 		InventoryLocation il_dst = new InventoryLocation();
 
 		GameInventory.SetGroundPosByOwner(this, item, il_dst);
 
+		if (switchOff)
+			item.Expansion_TryTurningOffAnyLightsOrNVG(this);
+
 		eAI_TakeItemToLocation(item, il_dst);
+
+		if (switchOff)
+			Expansion_UpdateVisibility(true);
 	}
 
-	bool eAI_TakeItemToHands(EntityAI item)
+	bool eAI_TakeItemToHands(ItemBase item)
 	{
 		InventoryLocation il_dst = new InventoryLocation();
 
 		il_dst.SetHands(this, item);
 
-		return eAI_TakeItemToLocation(item, il_dst);
+		bool result = eAI_TakeItemToLocation(item, il_dst);
+
+		Expansion_UpdateVisibility(true);
+
+		return result;
 	}
 
-	bool eAI_FindFreeInventoryLocationFor(EntityAI item, FindInventoryLocationType flags = 0, out InventoryLocation il_dst = null)
+	bool eAI_FindFreeInventoryLocationFor(ItemBase item, FindInventoryLocationType flags = 0, out InventoryLocation il_dst = null)
 	{
 		/*!
 		 * ATTACHMENT          = 4
@@ -2804,17 +3105,23 @@ class eAIBase extends PlayerBase
 		return GetInventory().FindFreeLocationFor(item, flags, il_dst);
 	}
 
-	bool eAI_TakeItemToInventory(EntityAI item, FindInventoryLocationType flags = 0)
+	bool eAI_TakeItemToInventory(ItemBase item, FindInventoryLocationType flags = 0)
 	{
 		InventoryLocation il_dst;
 
 		if (!eAI_FindFreeInventoryLocationFor(item, flags, il_dst))
 			return false;
 
-		return eAI_TakeItemToLocation(item, il_dst);
+		item.Expansion_TryTurningOffAnyLightsOrNVG(this);
+
+		bool result = eAI_TakeItemToLocation(item, il_dst);
+
+		Expansion_UpdateVisibility(true);
+
+		return result;
 	}
 
-	bool eAI_TakeItemToLocation(EntityAI item, InventoryLocation il_dst)
+	bool eAI_TakeItemToLocation(ItemBase item, InventoryLocation il_dst)
 	{
 		InventoryLocation il_src = new InventoryLocation();
 

@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionScriptedtQuestTemplate extends ExpansionQuest
+class ExpansionScriptedtQuestTemplate: ExpansionQuest
 {
 	//! Event called when a quest is stated
 	override bool OnQuestStart()
@@ -23,7 +23,7 @@ class ExpansionScriptedtQuestTemplate extends ExpansionQuest
 	}
 
 	//! Event called when ever a quest is completed and turned-in
-	override bool OnQuestTurnIn(string playerUID, ExpansionQuestRewardConfig reward = null)
+	override bool OnQuestTurnIn(string playerUID, ExpansionQuestRewardConfig reward = null, int selectedObjItemIndex = -1)
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.QUESTS, this);

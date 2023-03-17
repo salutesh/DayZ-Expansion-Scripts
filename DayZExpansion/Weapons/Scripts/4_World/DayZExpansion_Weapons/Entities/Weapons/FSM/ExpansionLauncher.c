@@ -22,7 +22,7 @@ enum ELBStableStateID
 	Loaded				=  2,
 }
 
-class ELBEmpty extends WeaponStableState
+class ELBEmpty: WeaponStableState
 {
 	override void OnEntry (WeaponEventBase e) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " { Empty E"); super.OnEntry(e); }
 	override void OnExit (WeaponEventBase e) { super.OnExit(e); wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " } Empty E"); }
@@ -33,7 +33,7 @@ class ELBEmpty extends WeaponStableState
 	override bool IsRepairEnabled () { return true; }
 	override void InitMuzzleArray () { m_muzzleHasBullet = {MuzzleState.E}; }
 };
-class ELBLoaded extends WeaponStableState
+class ELBLoaded: WeaponStableState
 {
 	override void OnEntry (WeaponEventBase e) { wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " { Loaded C"); super.OnEntry(e); }
 	override void OnExit (WeaponEventBase e) { super.OnExit(e); wpnPrint("[wpnfsm] " + Object.GetDebugName(m_weapon) + " } Loaded C"); }
@@ -47,7 +47,7 @@ class ELBLoaded extends WeaponStableState
 
 // This is a very basic singleshot FSM wich only has 2 states - empty and loaded
 // It will not make any "clicking" noises when trying to fire it empty
-class ExpansionLauncher_Base extends Rifle_Base
+class ExpansionLauncher_Base: Rifle_Base
 {
 	void ExpansionLauncher_Base ()
 	{

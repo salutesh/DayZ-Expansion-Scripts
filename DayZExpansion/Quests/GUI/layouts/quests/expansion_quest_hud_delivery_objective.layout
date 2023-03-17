@@ -16,7 +16,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
  content_halign center
  content_valign center
  {
-  WrapSpacerWidgetClass QuestDeliveryObjectiveEntry {
+  WrapSpacerWidgetClass objective_entries {
    visible 1
    ignorepointer 1
    position 0.06 0.159
@@ -30,16 +30,16 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
    "Size To Content H" 1
    "Size To Content V" 1
    {
-    PanelWidgetClass PanelWidget0 {
+    PanelWidgetClass panel {
      ignorepointer 1
      position 0.007 0.73
-     size 0.9 14
+     size 0.9 16
      hexactpos 0
      vexactpos 0
      hexactsize 0
      vexactsize 1
      {
-      TextWidgetClass DeliveryValue {
+      TextWidgetClass delivery_value {
        ignorepointer 1
        position 9 0
        size 0.5 1
@@ -50,10 +50,10 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
        vexactsize 0
        scriptclass "ViewBinding"
        text "0/10"
-       font "gui/fonts/etelkatextpro14"
-       "text offset" 5 0
+       font "gui/fonts/etelkatextpro16"
        "size to text h" 0
        "size to text v" 0
+       "text halign" right
        "text valign" center
        {
         ScriptParamsClass {
@@ -61,7 +61,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
         }
        }
       }
-      TextWidgetClass DeliveryName {
+      TextWidgetClass delivery_name {
        ignorepointer 1
        position 14 0
        size 0.48 1
@@ -71,7 +71,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
        vexactsize 0
        scriptclass "ViewBinding"
        text "ClassName"
-       font "gui/fonts/etelkatextpro14"
+       font "gui/fonts/etelkatextpro16"
        "text offset" 5 0
        "size to text h" 0
        "size to text v" 0
@@ -82,15 +82,15 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
         }
        }
       }
-      ImageWidgetClass DeliveryIcon {
+      ImageWidgetClass delivery_icon {
        ignorepointer 1
        position 0 0
-       size 14 14
+       size 16 16
        hexactpos 1
        vexactpos 1
        hexactsize 1
        vexactsize 1
-       imageTexture "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds"
+       imageTexture ""
        mode blend
        "src alpha" 1
        "no wrap" 1

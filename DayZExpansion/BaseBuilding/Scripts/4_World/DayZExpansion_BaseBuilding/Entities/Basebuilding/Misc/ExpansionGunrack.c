@@ -13,7 +13,7 @@
 /**@class		ExpansionGunrack
  * @brief		
  **/
-class ExpansionGunrack extends DeployableContainer_Base 
+class ExpansionGunrack: DeployableContainer_Base 
 {
 	// ------------------------------------------------------------
 	// Constructor

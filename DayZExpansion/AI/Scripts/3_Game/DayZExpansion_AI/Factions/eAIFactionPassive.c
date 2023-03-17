@@ -3,6 +3,6 @@ class eAIFactionPassive : eAIFactionCivilian
 {
 	void eAIFactionPassive()
 	{
-		m_Name = "Passive";
+		m_IsPassive = true;
 	}
 };

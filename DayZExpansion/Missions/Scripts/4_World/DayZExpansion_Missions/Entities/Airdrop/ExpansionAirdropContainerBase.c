@@ -13,7 +13,7 @@
 /**@class		ExpansionAirdropContainerBase
  * @brief		
  **/
-class ExpansionAirdropContainerBase extends Container_Base
+class ExpansionAirdropContainerBase: Container_Base
 {
 	const int EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE = 120009009;
 	
@@ -31,6 +31,8 @@ class ExpansionAirdropContainerBase extends Container_Base
 	//! Particle
 	Particle m_ParticleEfx;
 
+	vector m_SpawnPosition;  //! @note position where container is spawned, not necessarily where it lands!
+
 	// ------------------------------------------------------------
 	// Constructor
 	// ------------------------------------------------------------
@@ -43,7 +45,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		RegisterNetSyncVariableBool("m_LightOn");
 		RegisterNetSyncVariableBool("m_IsLooted");
 		
-		SetEventMask( EntityEvent.INIT ); 
+		SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT ); 
 
 		SetAnimationPhase( "parachute", 1 );	
 		
@@ -62,6 +64,32 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#endif	
 	}
 	
+	override void EEInit()
+	{
+		super.EEInit();
+
+		if (GetGame().IsServer())
+		{
+			m_SpawnPosition = GetPosition();
+
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnUpdate, 25, true, 0.025 );
+	
+			SetAnimationPhase( "parachute", 0 );
+			SetOrientation( Vector( GetOrientation()[0], 0, 0 ) );
+			SetDirection( GetDirection() );
+			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
+			EnableDynamicCCD( true );
+			SetDynamicPhysicsLifeTime( -1 );
+			
+			m_StartTime = GetGame().GetTime();
+		}
+	}
+
+	override void EOnContact(IEntity other, Contact extra)
+	{
+		ExpansionWorld.CheckTreeContact(other, 7500);
+	}
+
 	// ------------------------------------------------------------
 	// Destructor
 	// ------------------------------------------------------------
@@ -119,18 +147,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		#endif
 		
 		if ( IsMissionHost() )
-		{				
-			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Insert( this.OnUpdate );
-	
-			SetAnimationPhase( "parachute", 0 );
-			SetOrientation( Vector( GetOrientation()[0], 0, 0 ) );
-			SetDirection( GetDirection() );
-			CreateDynamicPhysics( PhxInteractionLayers.DYNAMICITEM );
-			EnableDynamicCCD( true );
-			SetDynamicPhysicsLifeTime( -1 );
-			
-			m_StartTime = GetGame().GetTime();
-
+		{
 			ExpansionAirdropContainerManagers.Add( this, infected, infectedCount );
 
 			ExpansionLootSpawner.SpawnLoot( this, Loot, ItemCount );
@@ -168,11 +185,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 	// Expansion OnUpdate
 	// ------------------------------------------------------------
 	void OnUpdate( float deltaTime )
-	{		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint( "ExpansionAirdropContainerBase::OnUpdate - Start");
-		#endif
-		
+	{
 		if ( !IsGround( 0.5 ) ) 
 		{
 			float mass = dBodyGetMass( this );
@@ -196,7 +209,7 @@ class ExpansionAirdropContainerBase extends Container_Base
 		{
 			m_HasLanded = true;
 
-			GetGame().GetUpdateQueue( CALL_CATEGORY_SYSTEM ).Remove( this.OnUpdate );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( OnUpdate );
 	
 	   		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 
@@ -214,10 +227,6 @@ class ExpansionAirdropContainerBase extends Container_Base
 				manager.SpawnInfected();
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint( "ExpansionAirdropContainerBase::OnUpdate - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------

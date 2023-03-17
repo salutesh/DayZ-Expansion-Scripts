@@ -11,7 +11,7 @@
 */
 
 //! Todo, once this is working try to make it work like weapon flashlights so it isnt needed to remove item to hands. 
-class ExpansionActionCycleOpticsModeInHands extends ActionSingleUseBase
+class ExpansionActionCycleOpticsModeInHands: ActionSingleUseBase
 {
 	void ExpansionActionCycleOpticsModeInHands()
 	{

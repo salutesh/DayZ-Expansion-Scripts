@@ -1,16 +1,16 @@
-// Copyright 2021 William Bowers
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * Weapon_Base.c
+ * 
+ * Partly based on Enfusion AI Project Copyright 2021 William Bowers
+ *
+ * DayZ Expansion Mod
+ * www.dayzexpansion.com
+ * © 2022 DayZ Expansion Mod Team
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. 
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+ *
+*/
 
 modded class Weapon_Base
 {
@@ -80,13 +80,7 @@ modded class Weapon_Base
 			}
 			else
 			{
-				float x1 = unitPosition[0];
-				float y1 = unitPosition[2];
-				float x2 = aimPosition[0];
-				float y2 = aimPosition[2];
-				float x = missedPosition[0];
-				float y = missedPosition[2];
-				if ((x2 - x1) * (y - y1) > (y2 - y1) * (x - x1))
+				if (ExpansionMath.Side(unitPosition, aimPosition, missedPosition) > 0)
 					missed = "left";
 				else
 					missed = "right";
@@ -235,5 +229,82 @@ modded class Weapon_Base
 		}
 
 		return super.ProcessWeaponAbortEvent(e);
+	}
+
+	override bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		ItemOptics optic;
+		if (!skipNVG && Class.CastTo(optic, GetAttachedOptics()) && optic.GetCurrentNVType() != NVTypes.NONE)
+		{
+			nightVisibility = optic.GetZeroingDistanceZoomMax() * 0.001;
+			EXTrace.Print(EXTrace.AI, player, "switched on " + optic.ToString());
+			return true;
+		}
+
+		if ( skipNonNVG )
+			return false;
+
+		ActionTarget atrg;
+		ActionManagerClient mngr_client;
+		CastTo(mngr_client, player.GetActionManager());
+		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
+
+		if ( mngr_client.GetAction(ActionTurnOnWeaponFlashlight).Can(player, atrg, this) )
+		{
+			ItemBase itemChild;
+
+			if ( IsInherited(Rifle_Base) )
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
+			}
+			else if (IsInherited(Pistol_Base))
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
+			}
+
+			if ( itemChild && itemChild.Expansion_TryTurningOn() )
+			{
+				FlashlightOn();
+				nightVisibility = 0.15;
+				EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	override bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		ActionTarget atrg;
+		ActionManagerClient mngr_client;
+		CastTo(mngr_client, player.GetActionManager());
+		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
+
+		if ( mngr_client.GetAction(ActionTurnOffWeaponFlashlight).Can(player, atrg, this) )
+		{
+			ItemBase itemChild;
+			if ( IsInherited(Rifle_Base) )
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
+			}
+			else if (IsInherited(Pistol_Base))
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
+			}
+
+			if ( itemChild && itemChild.Expansion_TryTurningOff() )
+			{
+				FlashlightOff();
+				EXTrace.Print(EXTrace.AI, player, "switched off " + itemChild.ToString());
+				return true;
+			}
+		}
+
+		return false;
 	}
 };

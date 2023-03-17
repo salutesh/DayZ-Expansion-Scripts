@@ -10,10 +10,18 @@
  *
 */
 
+class ExpansionActionEnterFlagMenuCB : ActionContinuousBaseCB
+{
+	override void CreateActionComponent()
+	{
+		m_ActionData.m_ActionComponent = new CAContinuousTime(-1.0);
+	}
+};
+
 /**@class		ExpansionActionEnterFlagMenu
  * @brief		
  **/
-class ExpansionActionEnterFlagMenu: ActionInteractBase
+class ExpansionActionEnterFlagMenu: ActionContinuousBase
 {
 	protected ExpansionTerritoryModule m_TerritoryModule;
 	protected bool m_ActionCreate;
@@ -27,9 +35,10 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 		EXLogPrint("ExpansionActionEnterFlagMenu::ExpansionActionEnterFlagMenu - Start");
 		#endif
 		
+		m_CallbackClass = ExpansionActionEnterFlagMenuCB;
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
-		m_HUDCursorIcon = CursorIcons.CloseDoors;
+		//m_HUDCursorIcon = CursorIcons.CloseDoors;
 		
 		CF_Modules<ExpansionTerritoryModule>.Get(m_TerritoryModule);
 		
@@ -44,7 +53,7 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTNonRuined( UAMaxDistances.DEFAULT );
+		m_ConditionTarget = new CCTCursor;
 	}
 	
 	// -----------------------------------------------------------
@@ -66,6 +75,16 @@ class ExpansionActionEnterFlagMenu: ActionInteractBase
 	override bool IsInstant()
 	{
 		return true;
+	}
+
+	override bool HasProgress()
+	{
+		return false;
+	}
+
+	override typename GetInputType()
+	{
+		return ContinuousInteractActionInput;
 	}
 
 	// -----------------------------------------------------------

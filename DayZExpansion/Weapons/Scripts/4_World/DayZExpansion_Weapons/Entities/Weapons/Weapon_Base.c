@@ -10,24 +10,6 @@
  *
 */
 
-void FoldOpticsDown( EntityAI item )
-{
-	TStringArray selectionNames = new TStringArray;
-	item.ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
-
-	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_raised" ), false );
-	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_lowered" ), true );
-}
-
-void FoldOpticsUp( EntityAI item )
-{
-	TStringArray selectionNames = new TStringArray;
-	item.ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
-
-	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_raised" ), true );
-	item.SetSimpleHiddenSelectionState( selectionNames.Find( "folding_lowered" ), false );
-}
-
 modded class Weapon_Base
 {
 	private int m_ExShouldFire;
@@ -45,6 +27,24 @@ modded class Weapon_Base
 		SetEventMask( EntityEvent.SIMULATE );
 
 		UpdateLaser();
+	}
+
+	void Expansion_FoldOpticsDown()
+	{
+		TStringArray selectionNames = new TStringArray;
+		ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
+
+		SetSimpleHiddenSelectionState( selectionNames.Find( "folding_raised" ), false );
+		SetSimpleHiddenSelectionState( selectionNames.Find( "folding_lowered" ), true );
+	}
+
+	void Expansion_FoldOpticsUp()
+	{
+		TStringArray selectionNames = new TStringArray;
+		ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
+
+		SetSimpleHiddenSelectionState( selectionNames.Find( "folding_raised" ), true );
+		SetSimpleHiddenSelectionState( selectionNames.Find( "folding_lowered" ), false );
 	}
 	
 	void ExpansionHideWeaponPart(string WeaponSelectionS, bool state)

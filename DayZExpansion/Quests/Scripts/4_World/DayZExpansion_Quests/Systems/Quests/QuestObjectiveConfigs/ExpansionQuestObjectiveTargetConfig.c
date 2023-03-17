@@ -24,7 +24,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Position = pos;
 	}
 
-	override vector GetPosition()
+	vector GetPosition()
 	{
 		return Position;
 	}
@@ -34,7 +34,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		MaxDistance = max;
 	}
 
-	override float GetMaxDistance()
+	float GetMaxDistance()
 	{
 		return MaxDistance;
 	}
@@ -44,7 +44,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Target = target;
 	}
 
-	override ExpansionQuestObjectiveTarget GetTarget()
+	ExpansionQuestObjectiveTarget GetTarget()
 	{
 		return Target;
 	}
@@ -113,19 +113,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		Target = configBase.Target;
-	}
-
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		return true;
 	}
 
 	override bool Validate()

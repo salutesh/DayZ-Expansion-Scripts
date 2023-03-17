@@ -20,14 +20,14 @@ class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfig
 class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBase
 {
 	bool TriggerOnEnter = true;
-	bool TriggerOnExit = false;
+	bool TriggerOnExit = true;
 
 	void SetPosition(vector pos)
 	{
 		Position = pos;
 	}
 
-	override vector GetPosition()
+	vector GetPosition()
 	{
 		return Position;
 	}
@@ -37,7 +37,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		MaxDistance = max;
 	}
 
-	override float GetMaxDistance()
+	float GetMaxDistance()
 	{
 		return MaxDistance;
 	}
@@ -47,7 +47,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		MarkerName = name;
 	}
 
-	override string GetMarkerName()
+	string GetMarkerName()
 	{
 		return MarkerName;
 	}
@@ -62,7 +62,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		TriggerOnEnter = state;
 	}
 
-	override bool TriggerOnEnter()
+	bool TriggerOnEnter()
 	{
 		return TriggerOnEnter;
 	}
@@ -72,7 +72,7 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		TriggerOnExit = state;
 	}
 
-	override bool TriggerOnExit()
+	bool TriggerOnExit()
 	{
 		return TriggerOnExit;
 	}

@@ -7,9 +7,9 @@ enum eAIProcessingState
 
 modded class ExpansionWorld
 {
-	private float m_UpdateInterval = 0.05;
-	private float m_UpdateTime;
-	private int m_GroupsPerTick = 5;
+	private float m_GroupsUpdateInterval = 0.05;
+	private float m_GroupsUpdateTime;
+	private int m_UpdateGroupsPerTick = 5;
 
 	private ref eAIRoadNetwork m_Network;
 	private bool m_NetworkGenerate;
@@ -28,21 +28,22 @@ modded class ExpansionWorld
 	{
 		super.OnUpdate(doSim, timeslice);
 
-		m_UpdateTime += timeslice;
-		if (m_UpdateTime < m_UpdateInterval)
-			return;
+		float updateTime = g_Game.GetTickTime();
+		float elapsedSinceLastGroupsUpdate = updateTime - m_GroupsUpdateTime;
 
-		eAIGroup.UpdateAll(m_UpdateTime, m_GroupsPerTick);
-
-		m_UpdateTime = 0;
-
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (elapsedSinceLastGroupsUpdate >= m_GroupsUpdateInterval)
 		{
-			DayZPlayerImplement player;
-			Class.CastTo(player, GetGame().GetPlayer());
+			eAIGroup.UpdateAll(elapsedSinceLastGroupsUpdate, m_UpdateGroupsPerTick);
 
-			SetInGroup(player && player.GetGroup() && player.GetGroup().Count() > 1);
+			m_GroupsUpdateTime = updateTime;
 		}
+
+	#ifndef SERVER
+		DayZPlayerImplement player;
+		Class.CastTo(player, GetGame().GetPlayer());
+
+		SetInGroup(player && player.GetGroup() && player.GetGroup().Count() > 1);
+	#endif
 
 /*
 		if (m_NetworkGenerate)

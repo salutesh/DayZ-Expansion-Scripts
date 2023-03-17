@@ -103,7 +103,7 @@ modded class Truck_01_WheelDouble
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
-class ExpansionUAZWheel extends CarWheel
+class ExpansionUAZWheel: CarWheel
 {
 	override void OnWasDetached( EntityAI parent, int slot_id )
 	{
@@ -116,7 +116,7 @@ class ExpansionUAZWheel extends CarWheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
-class ExpansionBusWheel extends CarWheel
+class ExpansionBusWheel: CarWheel
 {
 	override void OnWasDetached( EntityAI parent, int slot_id )
 	{
@@ -129,7 +129,7 @@ class ExpansionBusWheel extends CarWheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
-class ExpansionBusWheelDouble extends CarWheel
+class ExpansionBusWheelDouble: CarWheel
 {
 	override void OnWasDetached( EntityAI parent, int slot_id )
 	{
@@ -142,7 +142,7 @@ class ExpansionBusWheelDouble extends CarWheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
-class ExpansionTractorFrontWheel extends CarWheel
+class ExpansionTractorFrontWheel: CarWheel
 {
 	override void OnWasDetached( EntityAI parent, int slot_id )
 	{
@@ -155,7 +155,7 @@ class ExpansionTractorFrontWheel extends CarWheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
-class ExpansionTractorBackWheel extends CarWheel
+class ExpansionTractorBackWheel: CarWheel
 {
 	override void OnWasDetached( EntityAI parent, int slot_id )
 	{
@@ -168,6 +168,6 @@ class ExpansionTractorBackWheel extends CarWheel
 		parent.GetInventory().ReplaceItemWithNew(InventoryMode.SERVER, lambda );
 	}
 };
-class ExpansionBusWheel_Ruined extends CarWheel_Ruined {};
-class ExpansionBusWheelDouble_Ruinedel extends CarWheel_Ruined {};
+class ExpansionBusWheel_Ruined: CarWheel_Ruined {};
+class ExpansionBusWheelDouble_Ruinedel: CarWheel_Ruined {};
 #endif

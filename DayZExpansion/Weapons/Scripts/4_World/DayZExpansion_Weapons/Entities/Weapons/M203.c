@@ -33,12 +33,12 @@ class Expansion_M203_HE_Explosion: BuildingBase
 
 		Explode(DT_EXPLOSION, "RGD5Grenade_Ammo");
 
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (!GetGame().IsDedicatedServer())
 			m_ParticleExplosion = Particle.PlayInWorld(ParticleList.RGD5, this.GetPosition());
 	}
 };
 
-class Expansion_M203Round_Smoke_Colorbase extends SmokeGrenadeBase
+class Expansion_M203Round_Smoke_Colorbase: SmokeGrenadeBase
 {
 	const string SOUND_SMOKE_START = "SmokegGrenades_M18_start_loop_SoundSet";
 	const string SOUND_SMOKE_LOOP = "SmokegGrenades_M18_active_loop_SoundSet";
@@ -57,7 +57,7 @@ class Expansion_M203Round_Smoke_Colorbase extends SmokeGrenadeBase
 		SetSoundSmokeEnd(SOUND_SMOKE_END);
 	}
 
-	void ~Expansion_M203Round_Smoke_Colorbase() {}
+	void ~Expansion_M203Round_Smoke_Colorbase() {};
 
 	override void SetActions()
 	{
@@ -67,7 +67,7 @@ class Expansion_M203Round_Smoke_Colorbase extends SmokeGrenadeBase
 	}
 };
 
-class Expansion_M203Round_Smoke_White extends Expansion_M203Round_Smoke_Colorbase
+class Expansion_M203Round_Smoke_White: Expansion_M203Round_Smoke_Colorbase
 {
 	void Expansion_M203Round_Smoke_White()
 	{
@@ -83,7 +83,7 @@ class Expansion_M203Round_Smoke_White extends Expansion_M203Round_Smoke_Colorbas
 	}
 };
 
-class Expansion_M203Round_Smoke_Red extends Expansion_M203Round_Smoke_Colorbase
+class Expansion_M203Round_Smoke_Red: Expansion_M203Round_Smoke_Colorbase
 {
 	void Expansion_M203Round_Smoke_Red()
 	{
@@ -99,7 +99,7 @@ class Expansion_M203Round_Smoke_Red extends Expansion_M203Round_Smoke_Colorbase
 	}
 };
 
-class Expansion_M203Round_Smoke_Green extends Expansion_M203Round_Smoke_Colorbase
+class Expansion_M203Round_Smoke_Green: Expansion_M203Round_Smoke_Colorbase
 {
 	void Expansion_M203Round_Smoke_Green()
 	{
@@ -115,7 +115,7 @@ class Expansion_M203Round_Smoke_Green extends Expansion_M203Round_Smoke_Colorbas
 	}
 };
 
-class Expansion_M203Round_Smoke_Yellow extends Expansion_M203Round_Smoke_Colorbase
+class Expansion_M203Round_Smoke_Yellow: Expansion_M203Round_Smoke_Colorbase
 {
 	void Expansion_M203Round_Smoke_Yellow()
 	{
@@ -131,7 +131,7 @@ class Expansion_M203Round_Smoke_Yellow extends Expansion_M203Round_Smoke_Colorba
 	}
 };
 
-class Expansion_M203Round_Smoke_Purple extends Expansion_M203Round_Smoke_Colorbase
+class Expansion_M203Round_Smoke_Purple: Expansion_M203Round_Smoke_Colorbase
 {
 	void Expansion_M203Round_Smoke_Purple()
 	{
@@ -147,7 +147,7 @@ class Expansion_M203Round_Smoke_Purple extends Expansion_M203Round_Smoke_Colorba
 	}
 };
 
-class Expansion_M203Round_Smoke_Teargas extends Expansion_M203Round_Smoke_Colorbase
+class Expansion_M203Round_Smoke_Teargas: Expansion_M203Round_Smoke_Colorbase
 {
 	protected ref ExpansionTeargasHelper m_ExpansionTeargasHelper;
 

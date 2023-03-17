@@ -10,8 +10,8 @@
  *
 */
 
-modded class CraftTerritoryFlagKit extends RecipeBase
-{	
+modded class CraftTerritoryFlagKit
+{
 	// ------------------------------------------------------------
 	// CraftTerritoryFlagKit CanDo
 	// ------------------------------------------------------------	
