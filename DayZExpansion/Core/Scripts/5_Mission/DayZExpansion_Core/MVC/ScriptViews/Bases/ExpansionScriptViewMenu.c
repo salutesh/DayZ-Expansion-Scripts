@@ -141,7 +141,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	}
 	
 	override void UnlockInputs()
-	{
+	{		
 		LockInputs(false, m_MovementLocked);
 	}
 	
@@ -212,7 +212,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	}
 	
 	void Update()
-	{
+	{		
 		if (!GetGame())
 			return;
 		
