@@ -34,7 +34,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		if (!CanShow())
 			return;
 		
-		LockControls();
 		SetIsVisible(true);
 		GetLayoutRoot().Show(true);
 		OnShow();
@@ -44,6 +43,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	{
 		super.OnShow();
 		
+		LockControls();
+
 		PPEffects.SetBlurMenu(0.5);
 		SetFocus(GetLayoutRoot());
 		CreateUpdateTimer();
@@ -51,7 +52,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void Hide()
 	{
-		UnlockControls();
 		SetIsVisible(false);
 		GetLayoutRoot().Show(false);
 		OnHide();
@@ -66,6 +66,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		
 		PPEffects.SetBlurMenu(0.0);
 		DestroyUpdateTimer();
+
+		UnlockControls();
 	}
 		
 	override void LockControls(bool lockMovement = true)
