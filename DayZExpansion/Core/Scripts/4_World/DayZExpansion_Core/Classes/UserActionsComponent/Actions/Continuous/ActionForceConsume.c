@@ -14,9 +14,12 @@ modded class ActionForceConsume
 {
 	override bool ActionCondition ( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		if ( player.Expansion_IsInSafeZone() )
+		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		return super.ActionCondition(player, target, item);
+		if (!player.Expansion_CanBeDamaged())
+			return false;
+
+		return true;
 	}
 };

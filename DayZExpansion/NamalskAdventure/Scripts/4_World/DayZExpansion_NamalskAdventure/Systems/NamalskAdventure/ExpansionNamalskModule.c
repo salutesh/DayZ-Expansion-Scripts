@@ -147,39 +147,39 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		//! Spawn AI guards
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8597.78, 14.7325, 10529.7));
-		SpawnSingleGuardAI(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8619.11, 34.9968, 10479.6));
-		SpawnSingleGuardAI(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8634.89, 35.0096, 10512.5));
-		SpawnSingleGuardAI(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8566.56, 35.1376, 10554.2));
-		SpawnSingleGuardAI(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8539.49, 35.1852, 10512.8));
-		SpawnSingleGuardAI(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8583.78, 14.7504, 10496.2));
-		SpawnSingleGuardAI(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8618.76, 14.7886, 10516.2));
-		SpawnSingleGuardAI(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8559.18, 15.682, 10528.2));
-		SpawnSingleGuardAI(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8578.85, 14.7807, 10489.5));
-		SpawnSingleGuardAI(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, false, true);
+		SpawnSingleGuardAI(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
 	}
 
 	protected void A3_AI()
@@ -202,7 +202,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		SpawnSingleAI(Vector(3591.66, 143.823, 6718.72), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC");
 	}
 
-	protected void SpawnSingleAI(vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool allowDmg = true, bool canBeLooted = true, bool unlimtedReload = true)
+	protected void SpawnSingleAI(vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true)
 	{
 		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
 
@@ -210,7 +210,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos)))
 			return;
 
-		ai.SetAllowDamage(allowDmg);
 		ai.SetPosition(pos);
 		ai.SetOrientation(ori);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
@@ -243,7 +242,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 	}
 
-	protected void SpawnSingleGuardAI(string npcName, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool allowDmg = true, bool canBeLooted = true, bool unlimtedReload = true)
+	protected void SpawnSingleGuardAI(string npcName, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true)
 	{
 		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
 
@@ -253,7 +252,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		ai.m_Expansion_NetsyncData.Set(0, npcName);
 		ai.m_Expansion_NetsyncData.Set(1, "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds");
-		ai.SetAllowDamage(allowDmg);
 		ai.SetPosition(pos);
 		ai.SetOrientation(ori);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
