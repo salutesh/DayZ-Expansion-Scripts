@@ -88,21 +88,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void LockInputs(bool state, bool lockMovement = true)
 	{
-		if (state)
-		{
-			if (lockMovement)
-				GetGame().GetMission().AddActiveInputExcludes({"menu"});
-			else
-				GetGame().GetMission().AddActiveInputExcludes({"inventory"});
-		}
-		else
-		{
-			if (m_MovementLocked)
-				GetGame().GetMission().RemoveActiveInputExcludes({"menu"});
-			else
-				GetGame().GetMission().RemoveActiveInputExcludes({"inventory"});
-		}
-		
 		m_MovementLocked = lockMovement;
 		
 		TIntArray inputIDs = new TIntArray;
@@ -110,8 +95,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 
 		TStringArray skip = new TStringArray;
 		skip.Insert("UAUIBack");
-		skip.Insert("UALeanLeft");
-		skip.Insert("UALeanRight");
 
 		if (!lockMovement)
 		{
@@ -123,6 +106,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 			skip.Insert("UATurbo");
 			skip.Insert("UAWalkRunTemp");
 			skip.Insert("UAWalkRunToggle");
+			skip.Insert("UALeanLeft");
+			skip.Insert("UALeanRight");
 		}
 
 		TIntArray skipIDs = new TIntArray;
@@ -213,14 +198,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		}
 	}
 	
-	void Update()
-	{		
-		if (!GetGame())
-			return;
-		
-		if (GetGame().GetInput().LocalPress("UAUIBack", false))
-			CloseMenu();
-	}
+	void Update();
 	
 	bool CanClose()
 	{

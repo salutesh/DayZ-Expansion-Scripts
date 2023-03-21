@@ -17,7 +17,8 @@ modded class ActionInjectTarget
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		if (!player.Expansion_CanBeDamaged())
+		PlayerBase targetPlayer;
+		if (Class.CastTo(targetPlayer, target.GetObject()) && !targetPlayer.Expansion_CanBeDamaged())
 			return false;
 
 		return true;
