@@ -35,13 +35,19 @@ class ExpansionBookSettingsV1: ExpansionBookSettingsBase
  */
 class ExpansionBookSettings: ExpansionBookSettingsBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 
 	bool EnableBookMenu;
 	bool CreateBookmarks;
+
+	bool ShowHaBStats;
+	
+#ifdef EXPANSIONMODAI
+	bool ShowPlayerFaction;
+#endif
+
 	ref array<ref ExpansionBookRuleCategory> RuleCategories = new array<ref ExpansionBookRuleCategory>;
 	bool DisplayServerSettingsInServerInfoTab;
-	bool ShowHaBStats;
 	ref array<ref ExpansionBookSettingCategory> SettingCategories = new array<ref ExpansionBookSettingCategory>;
 	ref array<ref ExpansionBookLink> Links = new array<ref ExpansionBookLink>;
 	ref array<ref ExpansionBookDescriptionCategory> Descriptions = new array<ref ExpansionBookDescriptionCategory>;
@@ -52,9 +58,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
+	#endif
 
 		ExpansionBookSettings setting;
 		if ( !ctx.Read( setting ) )
@@ -74,20 +80,19 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	override void OnSend( ParamsWriteContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
-#endif
+	#endif
 
 		ExpansionBookSettings thisSetting = this;
-
 		ctx.Write( thisSetting );
 	}
 
 	override int Send( PlayerIdentity identity )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
+	#endif
 
 		if ( !IsMissionHost() )
 		{
@@ -103,9 +108,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	override bool Copy( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
-#endif
+	#endif
 
 		ExpansionBookSettings s;
 		if ( !Class.CastTo( s, setting ) )
@@ -115,11 +120,11 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		return true;
 	}
 
-	private void CopyInternal( ExpansionBookSettings s )
+	protected void CopyInternal( ExpansionBookSettings s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
 		EnableBookMenu = s.EnableBookMenu;
 		CreateBookmarks = s.CreateBookmarks;
@@ -130,16 +135,20 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		Descriptions = s.Descriptions;
 		CraftingCategories = s.CraftingCategories;
 		ShowHaBStats = s.ShowHaBStats;
+		
+	#ifdef EXPANSIONMODAI
+		ShowPlayerFaction = s.ShowPlayerFaction;
+	#endif
 
 		ExpansionBookSettingsBase sb = s;
 		CopyInternal( sb );
 	}
 
-	private void CopyInternal( ExpansionBookSettingsBase s )
+	protected void CopyInternal( ExpansionBookSettingsBase s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
 		EnableStatusTab = s.EnableStatusTab;
 		EnablePartyTab = s.EnablePartyTab;
@@ -160,9 +169,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
+	#endif
 
 		m_IsLoaded = true;
 
@@ -312,9 +321,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	override bool OnSave()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSave");
-#endif
+	#endif
 
 		JsonFileLoader<ExpansionBookSettings>.JsonSaveFile( EXPANSION_BOOK_SETTINGS, this );
 
@@ -323,9 +332,9 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 
 	override void Update( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
-#endif
+	#endif
 
 		super.Update( setting );
 
@@ -350,6 +359,10 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		DefaultLinks();
 		DefaultDescriptions();
 		DefaultCraftingCategories();
+		
+	#ifdef EXPANSIONMODAI
+		ShowPlayerFaction = false;
+	#endif
 	}
 
 	void DefaultRules()
@@ -368,7 +381,7 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 	{
 		ExpansionBookSettingCategory category;
 
-		#ifdef EXPANSIONMODBASEBUILDING
+	#ifdef EXPANSIONMODBASEBUILDING
 		category = new ExpansionBookSettingCategory("Base-Building Settings");
 		category.AddSetting("Expansion.Settings.BaseBuilding.CanCraftVanillaBasebuilding");
 		category.AddSetting("Expansion.Settings.BaseBuilding.CanCraftExpansionBasebuilding");
@@ -382,28 +395,28 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		category.AddSetting("Expansion.Settings.Raid.ExplosionDamageMultiplier");
 		category.AddSetting("Expansion.Settings.Raid.ProjectileDamageMultiplier");
 		SettingCategories.Insert(category);
-		#endif
+	#endif
 
-		#ifdef EXPANSIONMODNAVIGATION
+	#ifdef EXPANSIONMODNAVIGATION
 		category = new ExpansionBookSettingCategory("Map Settings");
 		category.AddSetting("Expansion.Settings.Map.NeedGPSItemForKeyBinding");
 		category.AddSetting("Expansion.Settings.Map.NeedMapItemForKeyBinding");
 		SettingCategories.Insert(category);
-		#endif
+	#endif
 
-		#ifdef EXPANSIONMODGROUPS
+	#ifdef EXPANSIONMODGROUPS
 		category = new ExpansionBookSettingCategory("Party Settings");
 		category.AddSetting("Expansion.Settings.Party.MaxMembersInParty");
 		category.AddSetting("Expansion.Settings.Party.UseWholeMapForInviteList");
 		SettingCategories.Insert(category);
-		#endif
+	#endif
 
-		#ifdef EXPANSIONMODBASEBUILDING
+	#ifdef EXPANSIONMODBASEBUILDING
 		category = new ExpansionBookSettingCategory("Territory Settings");
 		category.AddSetting("Expansion.Settings.Territory.TerritorySize");
 		category.AddSetting("Expansion.Settings.Territory.UseWholeMapForInviteList");
 		SettingCategories.Insert(category);
-		#endif
+	#endif
 	}
 
 	void DefaultLinks()

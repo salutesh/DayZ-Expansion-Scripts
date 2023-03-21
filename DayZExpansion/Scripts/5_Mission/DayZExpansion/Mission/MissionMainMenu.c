@@ -13,7 +13,7 @@
 modded class MissionMainMenu
 {
 #ifndef EXPANSION_MAINMENU_NEW_DISABLE
-	private ref DayZIntroSceneExpansion m_IntroSceneExpansion;
+	protected ref DayZIntroSceneExpansion m_IntroSceneExpansion;
 
 	void ~MissionMainMenu()
 	{

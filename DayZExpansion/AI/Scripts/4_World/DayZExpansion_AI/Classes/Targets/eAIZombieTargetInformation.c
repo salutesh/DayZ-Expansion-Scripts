@@ -19,10 +19,9 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		if (m_Crawling)
-			return "0 0 0";
-
-		return "0 1.3 0";
+		vector pos = m_Zombie.GetBonePositionWS(m_Zombie.GetBoneIndexByName("neck"));
+		pos = pos - m_Zombie.GetPosition();
+		return pos;
 	}
 
 	// https://www.desmos.com/calculator/r4mqu91qff
@@ -73,6 +72,8 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 				if (hands)
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
+
+			levelFactor *= ai.Expansion_GetVisibility(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);

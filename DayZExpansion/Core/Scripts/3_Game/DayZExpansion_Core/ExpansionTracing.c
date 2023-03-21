@@ -84,8 +84,12 @@ class EXTrace
 	static bool MISSIONS = ENABLE;
 
 	static bool NOTIFICATIONS;
+	
+	static bool P2PMARKET = ENABLE;
 
 	static bool PATH_INTERPOLATION;
+	
+	static bool PERSONALSTORAGE;
 
 	static bool PLAYER = ENABLE;
 

@@ -32,7 +32,7 @@ class eAIGroup
 	bool m_UpdateSearchPosition;
 
 	// return the group owned by leader, otherwise create a new one.
-	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null)
+	static eAIGroup GetGroupByLeader(DayZPlayerImplement leader, bool createIfNoneExists = true, eAIFaction faction = null, bool autoDeleteFormerGroupIfEmpty = true)
 	{
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_2("eAIGroup", "eAIGroup::GetGroupByLeader").Add(leader).Add(createIfNoneExists).Add(faction);
@@ -46,7 +46,7 @@ class eAIGroup
 			return null;
 
 		eAIGroup group = CreateGroup(faction);
-		leader.SetGroup(group);
+		leader.SetGroup(group, autoDeleteFormerGroupIfEmpty);
 		return group;
 	}
 
@@ -390,12 +390,30 @@ class eAIGroup
 		auto trace = CF_Trace_1(this, "GetFormationPosition").Add(ai);
 #endif
 
-		int pos = GetMemberIndex(ai);
-		vector position = "0 0 0";
-		if (pos != -1)
-			position = m_Form.GetPosition(pos);
+		float time = GetGame().GetTickTime();
+		bool isInitialUpdate = ai.m_eAI_FormationPositionUpdateTime == 0.0;
+		if (time - ai.m_eAI_FormationPositionUpdateTime > Math.RandomFloat(2.0, 4.0) || isInitialUpdate)
+		{
+			int index = GetMemberIndex(ai);
+			if (index != -1)
+			{
+				vector position = m_Form.GetPosition(index);
+				bool isMoving = GetLeader().Expansion_GetMovementSpeed() > 0;
+				if (isMoving || isInitialUpdate)
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						position[i] = position[i] + m_Form.GetLooseness();
+						if (i == 2)
+							position[i] = position[i] + isMoving;  //! Compensate for head start of leader
+					}
+				}
+				ai.m_eAI_FormationPosition = position;
+				ai.m_eAI_FormationPositionUpdateTime = time;
+			}
+		}
 			
-		return m_Form.ToWorld(position);
+		return m_Form.ToWorld(ai.m_eAI_FormationPosition);
 	}
 
 	void SetLeader(DayZPlayerImplement leader)

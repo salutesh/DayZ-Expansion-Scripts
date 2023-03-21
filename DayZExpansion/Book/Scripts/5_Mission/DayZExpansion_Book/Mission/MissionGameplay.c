@@ -45,7 +45,8 @@ modded class MissionGameplay
 			Input input = GetGame().GetInput(); 	//! Reference to input
 			UIScriptedMenu topMenu = m_UIManager.GetMenu(); 	//! Expansion reference to menu
 			PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
-			ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+			ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
+			ExpansionBookMenu bookMenu = ExpansionBookMenu.Cast(viewMenu);
 			
 			//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
 			if (playerPB && playerPB.GetHumanInventory()) 

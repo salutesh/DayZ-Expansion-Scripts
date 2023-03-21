@@ -2257,7 +2257,7 @@ class ExpansionVehicleBase: ItemBase
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EX_HATCHBACK;
+		return VehicleAnimInstances.HATCHBACK;
 	}
 
 	int GetSeatAnimationType(int posIdx)
@@ -3760,6 +3760,8 @@ class ExpansionVehicleBase: ItemBase
 		Fill(CarFluid.FUEL, amount);
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(GetInventory().CountInventory());
+
 		GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 		for (int i = 0; i < items.Count(); i++)
 		{

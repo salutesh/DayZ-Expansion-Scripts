@@ -15,7 +15,9 @@
  **/
 modded class MissionGameplay
 {
-	ref ExpansionUIMenuManager m_EXUIMenuManager;
+	protected ref ExpansionUIMenuManager m_EXUIMenuManager;
+	protected static ref ExpansionItemTooltip m_EXItemTooltip;
+	protected static ref ExpansionItemInspection m_EXItemInspection;
 	
 	// ------------------------------------------------------------
 	// Constructor
@@ -101,15 +103,24 @@ modded class MissionGameplay
 		Man man = GetGame().GetPlayer(); 	//! Refernce to man
 		Input input = GetGame().GetInput(); 	//! Reference to input
 		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		UIScriptedMenu menu = m_UIManager.GetMenu();
+		InventoryMenu inventory = InventoryMenu.Cast( m_UIManager.FindMenu(MENU_INVENTORY) );
 		
-		//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
+		//! ToDo: Make ExpansionInputs class and handle stuff there to keep this clean
 		if (viewMenu && viewMenu.IsVisible())
 		{
 			//! Close current opened expansion script view menu when ESC is pressed
 			if (input.LocalPress("UAUIBack", false))
 			{
-				if (viewMenu && viewMenu.IsVisible() && viewMenu.CanClose())
+				if (!m_EXItemInspection && viewMenu.CanClose())
+				{
 					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+				}
+				else if (m_EXItemInspection)
+				{
+					Expansion_DestroyItemInspection();
+					viewMenu.GetLayoutRoot().Show(true);
+				}
 			}
 		}
 	}
@@ -187,6 +198,118 @@ modded class MissionGameplay
 		if (menu)
 		{
 			manager.CloseMenu();
+		}
+	}
+	
+	static ExpansionItemTooltip Expansion_GetItemTooltip()
+	{
+		if (!m_EXItemTooltip)
+			m_EXItemTooltip = new ExpansionItemTooltip();
+
+		return m_EXItemTooltip;
+	}
+	
+	static void Expansion_DestroyItemTooltip()
+	{
+		if (m_EXItemTooltip)
+		{
+			m_EXItemTooltip.Destroy();
+			m_EXItemTooltip = null;
+		}
+	}
+	
+	static ExpansionItemTooltip SetItemTooltip(Object object)
+	{
+		ExpansionItemTooltip itemTooltip = Expansion_GetItemTooltip();
+		if (itemTooltip)
+		{
+			itemTooltip.SetItem(EntityAI.Cast(object));
+			itemTooltip.SetShowItemPreview(true);
+			itemTooltip.SetUpdateStatsOnShow(true);
+			itemTooltip.Show();
+		}
+		
+		return itemTooltip;
+	}
+	
+	static ExpansionItemTooltip SetItemTooltip(Object object, int healthLevel, int liquidType, bool isBloodContainer, int quantityType, float quantity, int quantityMax, int foodStage, string className, int rarity = -1)
+	{
+		ExpansionItemTooltip itemTooltip = Expansion_GetItemTooltip();
+		if (itemTooltip)
+		{
+			itemTooltip.SetItem(EntityAI.Cast(object));
+			itemTooltip.SetShowItemPreview(true);
+			itemTooltip.SetUpdateStatsOnShow(false);		
+			if (!object.IsInherited(Car))
+			{
+				itemTooltip.UpdateItemInfoDamage(healthLevel);
+				itemTooltip.UpdateItemInfoLiquidType(liquidType, isBloodContainer);
+				itemTooltip.UpdateItemInfoQuantity(quantityType, quantity, quantityMax, false);
+				itemTooltip.UpdateItemInfoFoodStage(foodStage);
+				itemTooltip.UpdateItemInfoCargoSize(className);
+			#ifdef EXPANSIONMODHARDLINE
+				if (rarity != -1)
+					itemTooltip.UpdateItemRarity(rarity);
+			#endif
+			}
+			
+			itemTooltip.Show();
+		}
+		
+		return itemTooltip;
+	}
+	
+	
+	static ExpansionItemInspection Expansion_GetItemInspection()
+	{
+		if (!m_EXItemInspection)
+			m_EXItemInspection = new ExpansionItemInspection();
+		
+		return m_EXItemInspection;
+	}
+
+	static void Expansion_DestroyItemInspection()
+	{
+		if (m_EXItemInspection)
+		{
+			m_EXItemInspection.Destroy();
+			m_EXItemInspection = null;
+		}
+	}
+
+	static void InspectItem(ScriptView parentView, Object object)
+	{
+		ExpansionItemInspection itemInspection = Expansion_GetItemInspection();
+		if (itemInspection)
+		{
+			itemInspection.SetItem(object);
+			itemInspection.UpdateItemStats();
+			itemInspection.SetParentView(parentView);
+			parentView.GetLayoutRoot().Show(false);
+		}
+	}
+	
+	static void InspectItem(ScriptView parentView, Object object, int healthLevel, int liquidType, bool isBloodContainer, int quantityType, float quantity, int quantityMax, int foodStage, string className, int rarity = -1)
+	{
+		ExpansionItemInspection itemInspection = Expansion_GetItemInspection();
+		if (itemInspection)
+		{
+			itemInspection.SetItem(object);			
+			if (!object.IsInherited(Car))
+			{
+				itemInspection.UpdateItemInfoDamage(healthLevel);
+				itemInspection.UpdateItemInfoLiquidType(liquidType, isBloodContainer);
+				itemInspection.UpdateItemInfoQuantity(quantityType, quantity, quantityMax, false);
+				itemInspection.UpdateItemInfoFoodStage(foodStage);
+				itemInspection.UpdateItemInfoCargoSize(className);
+			#ifdef EXPANSIONMODHARDLINE
+				if (rarity != -1)
+					itemInspection.UpdateItemRarity(rarity);
+			#endif
+			}
+			
+			itemInspection.SetParentView(parentView);
+			parentView.GetLayoutRoot().Show(false);
 		}
 	}
 };

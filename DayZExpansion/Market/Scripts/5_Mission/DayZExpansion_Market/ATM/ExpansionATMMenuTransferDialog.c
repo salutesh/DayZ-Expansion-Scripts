@@ -10,29 +10,28 @@
  *
 */
 
-class ExpansionATMMenuTransferDialog: ExpansionMenuDialogBase
+class ExpansionATMMenuTransferDialog: ExpansionDialogBase
 {
-	ref ExpansionMenuDialogContent_Text m_Text;
-	ref ExpansionMenuDialogContent_Editbox m_Editbox;
-	ref ExpansionATMMenuTransferDialogButton_Accept m_AcceptButton;
-	ref ExpansionATMMenuTransferDialogButton_Cancel m_CancelButton;
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionATMMenuTransferDialogButton_Accept m_AcceptButton;
+	protected ref ExpansionATMMenuTransferDialogButton_Cancel m_CancelButton;
 	
-	ref ExpansionATMMenu m_ATMMenu;
-	ref SyncPlayer m_Player;
-	int m_Amount;
+	protected ref ExpansionATMMenu m_ATMMenu;
+	protected ref SyncPlayer m_Player;
+	protected int m_Amount;
 	
-	void ExpansionATMMenuTransferDialog(ExpansionScriptViewMenu parentMenu, SyncPlayer player, int amount)
+	void ExpansionATMMenuTransferDialog(ScriptView parentView, SyncPlayer player, int amount)
 	{
-		m_ParentMenu = parentMenu;
+		m_ParentView = parentView;
 		m_Player = player;
 		m_Amount = amount;
 		
 		if (!m_ATMMenu)
-			m_ATMMenu = ExpansionATMMenu.Cast(m_ParentMenu);
+			m_ATMMenu = ExpansionATMMenu.Cast(m_ParentView);
 		
 		if (!m_Text)
 		{
-			m_Text = new ExpansionMenuDialogContent_Text(this);
+			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
 			m_Text.SetText(string.Format("Are you sure you want to transfer %1 to the player %2", m_Amount, m_Player.m_PlayerName));
 			m_Text.Show();
@@ -64,11 +63,11 @@ class ExpansionATMMenuTransferDialog: ExpansionMenuDialogBase
 	}
 };
 
-class ExpansionATMMenuTransferDialogButton_Accept: ExpansionMenuDialogButton_Text
+class ExpansionATMMenuTransferDialogButton_Accept: ExpansionDialogButton_Text
 {
-	ref ExpansionATMMenuTransferDialog m_TransferDialog;
+	protected ref ExpansionATMMenuTransferDialog m_TransferDialog;
 	
-	void ExpansionATMMenuTransferDialogButton_Accept(ExpansionMenuDialogBase dialog)
+	void ExpansionATMMenuTransferDialogButton_Accept(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;		
 		
@@ -84,11 +83,11 @@ class ExpansionATMMenuTransferDialogButton_Accept: ExpansionMenuDialogButton_Tex
 	}
 };
 
-class ExpansionATMMenuTransferDialogButton_Cancel: ExpansionMenuDialogButton_Text
+class ExpansionATMMenuTransferDialogButton_Cancel: ExpansionDialogButton_Text
 {
-	ref ExpansionATMMenuTransferDialog m_TransferDialog;
+	protected ref ExpansionATMMenuTransferDialog m_TransferDialog;
 	
-	void ExpansionATMMenuTransferDialogButton_Cancel(ExpansionMenuDialogBase dialog)
+	void ExpansionATMMenuTransferDialogButton_Cancel(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 		
@@ -101,33 +100,33 @@ class ExpansionATMMenuTransferDialogButton_Cancel: ExpansionMenuDialogButton_Tex
 	override void OnButtonClick()
 	{
 		m_TransferDialog.Hide();
+		m_TransferDialog.Destroy();
 	}
 };
 
-class ExpansionATMMenuPartyTransferDialog: ExpansionMenuDialogBase
+class ExpansionATMMenuPartyTransferDialog: ExpansionDialogBase
 {
-	ref ExpansionMenuDialogContent_Text m_Text;
-	ref ExpansionMenuDialogContent_Editbox m_Editbox;
-	ref ExpansionATMMenuPartyTransferDialogButton_Accept m_AcceptButton;
-	ref ExpansionATMMenuPartyTransferDialogButton_Cancel m_CancelButton;
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionATMMenuPartyTransferDialogButton_Accept m_AcceptButton;
+	protected ref ExpansionATMMenuPartyTransferDialogButton_Cancel m_CancelButton;
 	
-	ref ExpansionATMMenu m_ATMMenu;
-	int m_Amount;
+	protected ref ExpansionATMMenu m_ATMMenu;
+	protected int m_Amount;
 	#ifdef EXPANSIONMODGROUPS
-	ref ExpansionPartyData m_Party;
+	protected ref ExpansionPartyData m_Party;
 	
-	void ExpansionATMMenuPartyTransferDialog(ExpansionScriptViewMenu parentMenu, int amount, ExpansionPartyData party)
+	void ExpansionATMMenuPartyTransferDialog(ScriptView parentView, int amount, ExpansionPartyData party)
 	{
-		m_ParentMenu = parentMenu;
+		m_ParentView = parentView;
 		m_Amount = amount;
 		m_Party = party;
 		
 		if (!m_ATMMenu)
-			m_ATMMenu = ExpansionATMMenu.Cast(m_ParentMenu);
+			m_ATMMenu = ExpansionATMMenu.Cast(m_ParentView);
 		
 		if (!m_Text)
 		{
-			m_Text = new ExpansionMenuDialogContent_Text(this);
+			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
 			m_Text.SetText(string.Format("Are you sure you want to transfer %1 to the %2 party deposit?", m_Amount, m_Party.GetPartyName()));
 			m_Text.Show();
@@ -160,11 +159,11 @@ class ExpansionATMMenuPartyTransferDialog: ExpansionMenuDialogBase
 	}
 };
 
-class ExpansionATMMenuPartyTransferDialogButton_Accept: ExpansionMenuDialogButton_Text
+class ExpansionATMMenuPartyTransferDialogButton_Accept: ExpansionDialogButton_Text
 {
-	ref ExpansionATMMenuPartyTransferDialog m_PartyTransferDialog;
+	protected ref ExpansionATMMenuPartyTransferDialog m_PartyTransferDialog;
 	
-	void ExpansionATMMenuPartyTransferDialogButton_Accept(ExpansionMenuDialogBase dialog)
+	void ExpansionATMMenuPartyTransferDialogButton_Accept(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;		
 		
@@ -180,11 +179,11 @@ class ExpansionATMMenuPartyTransferDialogButton_Accept: ExpansionMenuDialogButto
 	}
 };
 
-class ExpansionATMMenuPartyTransferDialogButton_Cancel: ExpansionMenuDialogButton_Text
+class ExpansionATMMenuPartyTransferDialogButton_Cancel: ExpansionDialogButton_Text
 {
-	ref ExpansionATMMenuPartyTransferDialog m_PartyTransferDialog;
+	protected ref ExpansionATMMenuPartyTransferDialog m_PartyTransferDialog;
 	
-	void ExpansionATMMenuPartyTransferDialogButton_Cancel(ExpansionMenuDialogBase dialog)
+	void ExpansionATMMenuPartyTransferDialogButton_Cancel(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 		
@@ -197,5 +196,6 @@ class ExpansionATMMenuPartyTransferDialogButton_Cancel: ExpansionMenuDialogButto
 	override void OnButtonClick()
 	{
 		m_PartyTransferDialog.Hide();
+		m_PartyTransferDialog.Destroy();
 	}
 };

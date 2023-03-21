@@ -13,13 +13,13 @@
 class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 {
 	protected ref ExpansionMarketMenuItemManagerCategoryController m_MarketItemManagerCategoryController;
-	string m_CategoryName;
-	ref TStringArray m_ItemAttachments = new TStringArray;
-	ExpansionMarketMenuItemManager m_MarketMenuItemManager;
+	protected string m_CategoryName;
+	protected ref TStringArray m_ItemAttachments = new TStringArray;
+	protected ExpansionMarketMenuItemManager m_MarketMenuItemManager;
 	protected ref ExpansionMarketMenuTooltip m_CategoryTooltip;
 		
-	ButtonWidget category_button;
-	Widget category_background;
+	protected ButtonWidget category_button;
+	protected Widget category_background;
 	
 	void ExpansionMarketMenuItemManagerCategory(string categoryName, TStringArray attachments, ExpansionMarketMenuItemManager itemManager)
 	{
@@ -94,6 +94,7 @@ class ExpansionMarketMenuItemManagerCategory: ExpansionScriptView
 		return false;
 	}
 };
+
 class ExpansionMarketMenuItemManagerCategoryController: ExpansionViewController
 {
 	string CategoryIcon;

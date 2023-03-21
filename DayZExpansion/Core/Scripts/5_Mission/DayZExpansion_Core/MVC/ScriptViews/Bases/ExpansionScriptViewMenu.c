@@ -27,16 +27,13 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	{
 		EXPrint("~" + ToString());
 		DestroyUpdateTimer();
-		
-		Hide();
 	}
-	
+
 	override void Show()
 	{
 		if (!CanShow())
 			return;
 		
-		LockControls();
 		SetIsVisible(true);
 		GetLayoutRoot().Show(true);
 		OnShow();
@@ -46,6 +43,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	{
 		super.OnShow();
 		
+		LockControls();
+
 		PPEffects.SetBlurMenu(0.5);
 		SetFocus(GetLayoutRoot());
 		CreateUpdateTimer();
@@ -53,7 +52,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void Hide()
 	{
-		UnlockControls();
 		SetIsVisible(false);
 		GetLayoutRoot().Show(false);
 		OnHide();
@@ -61,10 +59,15 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void OnHide()
 	{
+		if (!GetGame())
+			return;
+		
 		super.OnHide();
 		
 		PPEffects.SetBlurMenu(0.0);
 		DestroyUpdateTimer();
+
+		UnlockControls();
 	}
 		
 	override void LockControls(bool lockMovement = true)
@@ -85,21 +88,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	
 	override void LockInputs(bool state, bool lockMovement = true)
 	{
-		if (state)
-		{
-			if (lockMovement)
-				GetGame().GetMission().AddActiveInputExcludes({"menu"});
-			else
-				GetGame().GetMission().AddActiveInputExcludes({"inventory"});
-		}
-		else
-		{
-			if (m_MovementLocked)
-				GetGame().GetMission().RemoveActiveInputExcludes({"menu"});
-			else
-				GetGame().GetMission().RemoveActiveInputExcludes({"inventory"});
-		}
-		
 		m_MovementLocked = lockMovement;
 		
 		TIntArray inputIDs = new TIntArray;
@@ -107,8 +95,6 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 
 		TStringArray skip = new TStringArray;
 		skip.Insert("UAUIBack");
-		skip.Insert("UALeanLeft");
-		skip.Insert("UALeanRight");
 
 		if (!lockMovement)
 		{
@@ -120,6 +106,8 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 			skip.Insert("UATurbo");
 			skip.Insert("UAWalkRunTemp");
 			skip.Insert("UAWalkRunToggle");
+			skip.Insert("UALeanLeft");
+			skip.Insert("UALeanRight");
 		}
 
 		TIntArray skipIDs = new TIntArray;
@@ -140,7 +128,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 	}
 	
 	override void UnlockInputs()
-	{
+	{		
 		LockInputs(false, m_MovementLocked);
 	}
 	
@@ -210,11 +198,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		}
 	}
 	
-	void Update()
-	{
-		if (GetGame().GetInput().LocalPress("UAUIBack", false))
-			CloseMenu();
-	}
+	void Update();
 	
 	bool CanClose()
 	{

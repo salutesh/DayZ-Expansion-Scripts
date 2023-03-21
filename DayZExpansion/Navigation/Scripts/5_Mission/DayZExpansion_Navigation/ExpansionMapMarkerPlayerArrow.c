@@ -33,6 +33,28 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 			case ExpansionClientUIPlayerArrowColor.BLACK:
 				SetPrimaryColor(-14803426);
 				break;
+
+			case ExpansionClientUIPlayerArrowColor.RED:
+				SetPrimaryColor(-3657166);
+				break;
+			case ExpansionClientUIPlayerArrowColor.GREEN:
+				SetPrimaryColor(-10178716);
+				break;
+			case ExpansionClientUIPlayerArrowColor.BLUE:
+				SetPrimaryColor(-13487416);
+				break;
+
+			case ExpansionClientUIPlayerArrowColor.CYAN:
+				SetPrimaryColor(-16715536);
+				break;
+			case ExpansionClientUIPlayerArrowColor.MAGENTA:
+				SetPrimaryColor(-1048336);
+				break;
+			case ExpansionClientUIPlayerArrowColor.YELLOW:
+				SetPrimaryColor(-987136);
+				break;
+
+			case ExpansionClientUIPlayerArrowColor.WHITE:
 			default:
 				SetPrimaryColor(-1644826);
 				break;

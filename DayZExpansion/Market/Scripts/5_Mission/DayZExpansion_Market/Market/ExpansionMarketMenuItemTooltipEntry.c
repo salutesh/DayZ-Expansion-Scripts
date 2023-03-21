@@ -12,8 +12,8 @@
 
 class ExpansionMarketMenuItemTooltipEntryBase: ExpansionScriptView
 {
-	ref ExpansionMarketMenuItemTooltipEntryBaseController m_TooltipEntryBaseController;
-	ref ExpansionMarketMenuItemTooltip m_TooltipElement;
+	protected ref ExpansionMarketMenuItemTooltipEntryBaseController m_TooltipEntryBaseController;
+	protected ref ExpansionMarketMenuItemTooltip m_TooltipElement;
 	
 	void ExpansionMarketMenuItemTooltip(ExpansionMarketMenuItemTooltip tooltip)
 	{
@@ -27,16 +27,13 @@ class ExpansionMarketMenuItemTooltipEntryBase: ExpansionScriptView
 	{
 		return ExpansionMarketMenuItemTooltipEntryBaseController;
 	}
-}
+};
 
-class ExpansionMarketMenuItemTooltipEntryBaseController: ExpansionViewController
-{
-
-}
+class ExpansionMarketMenuItemTooltipEntryBaseController: ExpansionViewController {};
 
 class ExpansionMarketMenuItemTooltipEntryItemInfo: ExpansionMarketMenuItemTooltipEntryBase
 {
-	ref ExpansionMarketMenuItemTooltipEntryItemInfoController m_TooltipEntryController;
+	protected ref ExpansionMarketMenuItemTooltipEntryItemInfoController m_TooltipEntryController;
 
 	protected ImageWidget tooltip_icon;
 	protected TextWidget tooltip_entry_title;
@@ -77,10 +74,10 @@ class ExpansionMarketMenuItemTooltipEntryItemInfo: ExpansionMarketMenuItemToolti
 		tooltip_icon.SetColor(color);
 		tooltip_entry_text.SetColor(color);
 	}
-}
+};
 
 class ExpansionMarketMenuItemTooltipEntryItemInfoController: ExpansionViewController
 {
 	string EntryIcon;
 	string EntryText;
-}
+};

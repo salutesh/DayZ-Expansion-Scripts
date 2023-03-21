@@ -20,39 +20,6 @@ enum ExpansionHardlineItemRarity
 	Epic,
 	Legendary,
 	Mythic,
-	Exotic
-};
-
-enum ExpansionHardlineItemTier
-{
-	TIER_1 = 1,
-	TIER_2,
-	TIER_3,
-	TIER_4,
-	TIER_5,
-	TIER_6,
-    TIER_7,
-    TIER_8
-};
-
-enum ExpansionHardlineRank
-{
-	INVALID = 0,
-
-	Bambi,
-	Survivor,
-
-	//! Hero ranks
-	Scout,
-	Pathfinder,
-	Hero,
-	Superhero,
-	Legend,
-
-	//! Bandit ranks
-	Kleptomaniac,
-	Bully,
-	Bandit,
-	Killer,
-	Madman
+	Exotic,
+	Quest
 };

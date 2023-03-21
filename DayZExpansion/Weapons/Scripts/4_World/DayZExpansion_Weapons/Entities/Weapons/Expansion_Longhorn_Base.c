@@ -1,1 +1,1 @@
-class Expansion_Longhorn: LongHorn{};
+class Expansion_Longhorn: LongHorn {};

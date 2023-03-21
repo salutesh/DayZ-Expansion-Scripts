@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Quests_Dta_Core
 	{
-		units[] = {"ExpansionQuestNPCDenis","ExpansionQuestNPCBoris","ExpansionQuestNPCCyril","ExpansionQuestNPCElias","ExpansionQuestNPCFrancis","ExpansionQuestNPCGuo","ExpansionQuestNPCHassan","ExpansionQuestNPCIndar","ExpansionQuestNPCJose","ExpansionQuestNPCKaito","ExpansionQuestNPCLewis","ExpansionQuestNPCManua","ExpansionQuestNPCNiki","ExpansionQuestNPCOliver","ExpansionQuestNPCPeter","ExpansionQuestNPCQuinn","ExpansionQuestNPCRolf","ExpansionQuestNPCSeth","ExpansionQuestNPCTaiki","ExpansionQuestNPCLinda","ExpansionQuestNPCMaria","ExpansionQuestNPCFrida","ExpansionQuestNPCGabi","ExpansionQuestNPCHelga","ExpansionQuestNPCIrena","ExpansionQuestNPCJudy","ExpansionQuestNPCKeiko","ExpansionQuestNPCEva","ExpansionQuestNPCNaomi","ExpansionQuestNPCBaty","ExpansionQuestItemBase","ExpansionQuestItemPaper","ExpansionQuestItemPackage"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Characters","DZ_Scripts","DZ_AI","DayZExpansion_Dta_Core"};
@@ -89,162 +89,162 @@ class CfgVehicles
 	class ExpansionQuestNPCAIMirek: eAI_SurvivorM_Mirek
 	{
 		displayName = "Mirek";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIDenis: eAI_SurvivorM_Denis
 	{
 		displayName = "Denis";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIBoris: eAI_SurvivorM_Boris
 	{
 		displayName = "Boris";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAICyril: eAI_SurvivorM_Cyril
 	{
 		displayName = "Cyril";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIElias: eAI_SurvivorM_Elias
 	{
 		displayName = "Elias";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIFrancis: eAI_SurvivorM_Francis
 	{
 		displayName = "Francis";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIGuo: eAI_SurvivorM_Guo
 	{
 		displayName = "Guo";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIHassan: eAI_SurvivorM_Hassan
 	{
 		displayName = "Hassan";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIIndar: eAI_SurvivorM_Indar
 	{
 		displayName = "Indar";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIJose: eAI_SurvivorM_Jose
 	{
 		displayName = "Jose";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIKaito: eAI_SurvivorM_Kaito
 	{
 		displayName = "Kaito";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAILewis: eAI_SurvivorM_Lewis
 	{
 		displayName = "Lewis";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIManua: eAI_SurvivorM_Manua
 	{
 		displayName = "Manua";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAINiki: eAI_SurvivorM_Niki
 	{
 		displayName = "Niki";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIOliver: eAI_SurvivorM_Oliver
 	{
 		displayName = "Oliver";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIPeter: eAI_SurvivorM_Peter
 	{
 		displayName = "Peter";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIQuinn: eAI_SurvivorM_Quinn
 	{
 		displayName = "Quinn";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIRolf: eAI_SurvivorM_Rolf
 	{
 		displayName = "Rolf";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAISeth: eAI_SurvivorM_Seth
 	{
 		displayName = "Seth";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAITaiki: eAI_SurvivorM_Taiki
 	{
 		displayName = "Taiki";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAILinda: eAI_SurvivorF_Linda
 	{
 		displayName = "Linda";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIMaria: eAI_SurvivorF_Maria
 	{
 		displayName = "Maria";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIFrida: eAI_SurvivorF_Frida
 	{
 		displayName = "Frida";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIGabi: eAI_SurvivorF_Gabi
 	{
 		displayName = "Gabi";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIHelga: eAI_SurvivorF_Helga
 	{
 		displayName = "Helga";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIIrena: eAI_SurvivorF_Irena
 	{
 		displayName = "Irena";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIJudy: eAI_SurvivorF_Judy
 	{
 		displayName = "Judy";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIKeiko: eAI_SurvivorF_Keiko
 	{
 		displayName = "Keiko";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIEva: eAI_SurvivorF_Eva
 	{
 		displayName = "Eva";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAINaomi: eAI_SurvivorF_Naomi
 	{
 		displayName = "Naomi";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCAIBaty: eAI_SurvivorF_Baty
 	{
 		displayName = "Baty";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCMirek: eAI_SurvivorM_Mirek
 	{
 		displayName = "Mirek";
-		vehicleClass = "Expansion_Trader";
+		vehicleClass = "Expansion_Npc";
 	};
 	class ExpansionQuestNPCDenis: SurvivorM_Denis
 	{
@@ -396,9 +396,164 @@ class CfgVehicles
 		scope = 2;
 		vehicleClass = "Expansion_Npc";
 	};
-	class ExpansionQuestItemBase: Inventory_Base
+	class ExpansionGuardAIMirek: eAI_SurvivorM_Mirek
+	{
+		displayName = "Mirek";
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIDenis: SurvivorM_Denis
 	{
 		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIBoris: SurvivorM_Boris
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAICyril: SurvivorM_Cyril
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIElias: SurvivorM_Elias
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIFrancis: SurvivorM_Francis
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIGuo: SurvivorM_Guo
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIHassan: SurvivorM_Hassan
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIIndar: SurvivorM_Indar
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIJose: SurvivorM_Jose
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIKaito: SurvivorM_Kaito
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAILewis: SurvivorM_Lewis
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIManua: SurvivorM_Manua
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAINiki: SurvivorM_Niki
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIOliver: SurvivorM_Oliver
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIPeter: SurvivorM_Peter
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIQuinn: SurvivorM_Quinn
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIRolf: SurvivorM_Rolf
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAISeth: SurvivorM_Seth
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAITaiki: SurvivorM_Taiki
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAILinda: SurvivorF_Linda
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIMaria: SurvivorF_Maria
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIFrida: SurvivorF_Frida
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIGabi: SurvivorF_Gabi
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIHelga: SurvivorF_Helga
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIIrena: SurvivorF_Irena
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIJudy: SurvivorF_Judy
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIKeiko: SurvivorF_Keiko
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIEva: SurvivorF_Eva
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAINaomi: SurvivorF_Naomi
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionGuardAIBaty: SurvivorF_Baty
+	{
+		scope = 2;
+		vehicleClass = "Expansion_Npc";
+	};
+	class ExpansionQuestItemBase: Inventory_Base
+	{
+		scope = 1;
 	};
 	class ExpansionQuestItemPaper: ExpansionQuestItemBase
 	{
@@ -470,5 +625,57 @@ class CfgVehicles
 		scope = 1;
 		model = "\DZ\structures\furniture\cases\locker\locker_closed_blue_v1.p3d";
 		forceFarBubble = "true";
+	};
+	class ExpansionQuestItemBook: ExpansionQuestItemBase
+	{
+		scope = 2;
+		displayName = "The Art of War";
+		descriptionShort = "It looks like a normal copy of the book The Art of War but there is some handwriting on one of the pages.";
+		model = "\dz\gear\books\book_kniga.p3d";
+		rotationFlags = 1;
+		hiddenSelections[] = {"camoGround"};
+		hiddenSelectionsTextures[] = {"dz\gear\books\data\book_TheWarOfTheWorlds_co.paa"};
+		quantityShow = 0;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 100;
+					healthLevels[] = {{1,{"DZ\gear\books\Data\book.rvmat"}},{0.7,{"DZ\gear\books\Data\book.rvmat"}},{0.5,{"DZ\gear\books\Data\book_damage.rvmat"}},{0.3,{"DZ\gear\books\Data\book_damage.rvmat"}},{0,{"DZ\gear\books\Data\book_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class ExpansionQuestItem_NamalskRadio: ExpansionQuestItemBase
+	{
+		scope = 2;
+		displayName = "Frozen Radio";
+		descriptionShort = "A normal radio but it's completely frozen..";
+		model = "\dz\gear\radio\WalkieTalkie.p3d";
+		weight = 250;
+		absorbency = 0.5;
+		itemSize[] = {1,3};
+		rotationFlags = 1;
+		isMeleeWeapon = 1;
+		class MeleeModes
+		{
+			class Default
+			{
+				ammo = "MeleeLightBlunt";
+				range = 1;
+			};
+			class Heavy
+			{
+				ammo = "MeleeLightBlunt_Heavy";
+				range = 1;
+			};
+			class Sprint
+			{
+				ammo = "MeleeLightBlunt_Heavy";
+				range = 2.8;
+			};
+		};
 	};
 };

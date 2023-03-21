@@ -310,7 +310,7 @@ class CfgVehicles
 		scope = 2;
 		displayName = "$STR_EXPANSION_VEHICLE_TRACTOR";
 		model = "\DayZExpansion\Vehicles\Ground\Tractor\Tractor2.p3d";
-		modelZeroPointDistanceFromGround = 0.06;
+		modelZeroPointDistanceFromGround = 0.0;
 		attachments[] = {"ExpansionTractorFrontWheel_1_1","ExpansionTractorFrontWheel_2_1","ExpansionTractorBackWheel_1_2","ExpansionTractorBackWheel_2_2","ExpansionTractorDoorsDriver","ExpansionTractorDoorsCodriver","CarBattery","SparkPlug","Reflector_1_1","Reflector_2_1","CamoNet"};
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo","dmgZone_front","dmgZone_back","dmgZone_roof"};
 		hiddenSelectionsTextures[] = {"","","","","","","","","DayZExpansion\Vehicles\Ground\Tractor\Data\tractor_2_co.paa","","",""};

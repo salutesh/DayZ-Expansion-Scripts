@@ -10,6 +10,12 @@
  *
 */
 
+class ExpansionQuestAction
+{
+	string ActionName;
+	string MethodName;
+};
+
 class ExpansionQuestSettingsBase: ExpansionSettingBase
 {
 	bool EnableQuests;
@@ -29,12 +35,6 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	string QuestObjectiveCompletedText;
 	string AchivementCompletedTitle;
 	string AchivementCompletedText;
-	string WeeklyQuestResetDay;
-	int WeeklyQuestResetHour;
-	int WeeklyQuestResteMinute;
-	int DailyQuestResetHour;
-	int DailyQuestResetMinute;
-	bool UseUTCTime;
 
 	string QuestCooldownTitle;
 	string QuestCooldownText;
@@ -45,31 +45,44 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 
 	string QuestNotGroupOwnerTitle;
 	string QuestNotGroupOwnerText;
+	int GroupQuestMode = 0; //! 0 - Only group owners can accept and turn-in quests. | 1 - Only group owner can turn-in quest but all group members can accept them. | 2 - All group members can accept and turn-in quests.
 #endif
-}
+};
+
+class ExpansionQuestSettingsV5: ExpansionSettingBase
+{
+	string WeeklyQuestResetDay;
+	int WeeklyQuestResetHour;
+	int WeeklyQuestResteMinute;
+	int DailyQuestResetHour;
+	int DailyQuestResetMinute;
+	bool UseUTCTime;
+};
 
 /**@class		ExpansionQuestSettings
  * @brief		Vehicle settings class
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 4;
+	static const int VERSION = 6;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
 
-#ifdef EXPANSIONMODGROUPS
-	int GroupQuestMode = 0; //! 0 - Only group owners can accept and turn-in quests. | 1 - Only group owner can turn-in quest but all group members can accept them. | 2 - All group members can accept and turn-in quests.
-#endif
+	ref array<ref ExpansionQuestAction> QuestActions = new array<ref ExpansionQuestAction>;
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings OnRecieve
-	// ------------------------------------------------------------
+	string WeeklyResetDay;
+	int WeeklyResetMinute;
+	int WeeklyResetHour;
+	int DailyResetHour;
+	int DailyResetMinute;
+	bool UseUTCTime;
+
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
-#endif
+	#endif
 
 		ExpansionQuestSettings setting;
 		if ( !ctx.Read( setting ) )
@@ -87,66 +100,53 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings OnSend
-	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSend").Add(ctx);
-#endif
+	#endif
 
 		ExpansionQuestSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
+		ctx.Write(thisSetting);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings Send
-	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Send").Add(identity);
-#endif
+	#endif
 
-		if ( !IsMissionHost() )
+		if (!IsMissionHost())
 		{
 			return 0;
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		OnSend( rpc );
-		rpc.Send( null, ExpansionSettingsRPC.Quest, true, identity );
+		OnSend(rpc);
+		rpc.Send(null, ExpansionSettingsRPC.Quest, true, identity);
 
 		return 0;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings Copy
-	// ------------------------------------------------------------
 	override bool Copy( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Copy").Add(setting);
-#endif
+	#endif
 
 		ExpansionQuestSettings s;
-		if ( !Class.CastTo( s, setting ) )
+		if (!Class.CastTo(s, setting))
 			return false;
 
 		CopyInternal( s );
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings CopyInternal
-	// ------------------------------------------------------------
 	protected void CopyInternal( ExpansionQuestSettingsBase s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
 		EnableQuests = s.EnableQuests;
 		EnableQuestLogTab = s.EnableQuestLogTab;
@@ -173,16 +173,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		AchivementCompletedTitle = s.AchivementCompletedTitle;
 		AchivementCompletedText = s.AchivementCompletedText;
 
-		//! Version 1
-		WeeklyQuestResetDay = s.WeeklyQuestResetDay;
-		WeeklyQuestResetHour = s.WeeklyQuestResetHour;
-		WeeklyQuestResteMinute = s.WeeklyQuestResteMinute;
-		DailyQuestResetHour = s.DailyQuestResetHour;
-		DailyQuestResetMinute = s.DailyQuestResetMinute;
-
-		//! Version 2
-		UseUTCTime = s.UseUTCTime;
-
 		//! Version 3
 		QuestCooldownTitle = s.QuestCooldownTitle;
 		QuestCooldownText = s.QuestCooldownText;
@@ -193,50 +183,45 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 		QuestNotGroupOwnerTitle = s.QuestNotGroupOwnerTitle;
 		QuestNotGroupOwnerText = s.QuestNotGroupOwnerText;
+
+		GroupQuestMode = s.GroupQuestMode;
 	#endif
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings CopyInternal
-	// ------------------------------------------------------------
 	protected void CopyInternal( ExpansionQuestSettings s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
-#endif
+	#endif
 
-#ifdef EXPANSIONMODGROUPS
-		GroupQuestMode = s.GroupQuestMode;
-#endif
+		QuestActions = s.QuestActions;
+
+		WeeklyResetDay = s.WeeklyResetDay;
+		WeeklyResetMinute = s.WeeklyResetMinute;
+		WeeklyResetHour = s.WeeklyResetHour;
+		DailyResetHour = s.DailyResetHour;
+		DailyResetMinute = s.DailyResetMinute;
+		UseUTCTime = s.UseUTCTime;
 
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings IsLoaded
-	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
 		return m_IsLoaded;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings Unload
-	// ------------------------------------------------------------
 	override void Unload()
 	{
 		m_IsLoaded = false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings OnLoad
-	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-#endif
+	#endif
 
 		m_IsLoaded = true;
 
@@ -254,33 +239,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 			if (settingsBase.m_Version < VERSION)
 			{
 				Print(ToString() + "::Load - Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
-				if (settingsBase.m_Version < 1)
-				{
-					WeeklyQuestResetDay = settingsDefault.WeeklyQuestResetDay;
-					WeeklyQuestResetHour = settingsDefault.WeeklyQuestResetHour;
-					WeeklyQuestResteMinute = settingsDefault.WeeklyQuestResteMinute;
-					DailyQuestResetHour = settingsDefault.DailyQuestResetHour;
-					DailyQuestResetMinute = settingsDefault.DailyQuestResetMinute;
-				}
 
-				if (settingsBase.m_Version < 3)
-				{
-					QuestCooldownTitle = settingsDefault.QuestCooldownTitle;
-					QuestCooldownText = settingsDefault.QuestCooldownText;
-
-				#ifdef EXPANSIONMODGROUPS
-					QuestNotInGroupTitle = settingsDefault.QuestNotInGroupTitle;
-					QuestNotInGroupText = settingsDefault.QuestNotInGroupText;
-
-					QuestNotGroupOwnerTitle = settingsDefault.QuestNotGroupOwnerTitle;
-					QuestNotGroupOwnerText = settingsDefault.QuestNotGroupOwnerText;
-				#endif
-				}
-				else
-				{
-					if (!ExpansionJsonFileParser<ExpansionQuestSettings>.Load(EXPANSION_QUEST_SETTINGS, this))
-						return false;
-				}
+				//! Copy over old settings that haven't changed
+				CopyInternal(settingsBase);
 
 			#ifdef EXPANSIONMODGROUPS
 				if (settingsBase.m_Version < 4)
@@ -289,8 +250,24 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 				}
 			#endif
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (settingsBase.m_Version < 5)
+				{
+					QuestActions = settingsDefault.QuestActions;
+				}
+
+				if (settingsBase.m_Version < 6)
+				{
+					ExpansionQuestSettingsV5 settingsV5;
+					if (!ExpansionJsonFileParser<ExpansionQuestSettingsV5>.Load(EXPANSION_QUEST_SETTINGS, settingsV5))
+						return false;
+
+					DailyResetHour = settingsV5.DailyQuestResetHour;
+					DailyResetMinute = settingsV5.DailyQuestResetMinute;
+					WeeklyResetDay = settingsV5.WeeklyQuestResetDay;
+					WeeklyResetMinute = settingsV5.WeeklyQuestResteMinute;
+					WeeklyResetHour = settingsV5.WeeklyQuestResetHour;
+					UseUTCTime = settingsV5.UseUTCTime;
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -304,7 +281,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		else
 		{
 			Print(ToString() + "::Load - No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
-
 			Defaults();
 			save = true;
 		}
@@ -317,37 +293,28 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		return questSettingsExist;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings OnSave
-	// ------------------------------------------------------------
 	override bool OnSave()
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSave");
-#endif
+	#endif
 
 		ExpansionJsonFileParser<ExpansionQuestSettings>.Save(EXPANSION_QUEST_SETTINGS, this);
 
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings Update
-	// ------------------------------------------------------------
-override void Update( ExpansionSettingBase setting )
+	override void Update( ExpansionSettingBase setting )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "Update").Add(setting);
-#endif
+	#endif
 
 		super.Update( setting );
 
 		ExpansionSettings.SI_Quest.Invoke();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings Defaults
-	// ------------------------------------------------------------
 	override void Defaults()
 	{
 		m_Version = VERSION;
@@ -388,22 +355,46 @@ override void Update( ExpansionSettingBase setting )
 		QuestNotGroupOwnerText = "Only a group owner can accept and turn-in group quest!";
 	#endif
 
-		WeeklyQuestResetDay = "Wednesday";
-		WeeklyQuestResetHour = 8;
-		WeeklyQuestResteMinute = 0;
-		DailyQuestResetHour = 8;
-		DailyQuestResetMinute = 0;
+		WeeklyResetDay = "Wednesday";
+		WeeklyResetHour = 8;
+		WeeklyResetMinute = 0;
+		DailyResetHour = 8;
+		DailyResetMinute = 0;
 
 		UseUTCTime = false;
 
-#ifdef EXPANSIONMODGROUPS
+	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;
-#endif
+	#endif
+
+		ExpansionQuestAction questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ActionBandageSelf";
+		questAction.MethodName = "OnActionBandageSelf";
+		QuestActions.Insert(questAction);
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ActionBandageTarget";
+		questAction.MethodName = "OnActionBandageTarget";
+		QuestActions.Insert(questAction);
+
+	#ifdef EXPANSIONMODVEHICLE
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ExpansionActionPickVehicleLock";
+		questAction.MethodName = "OnExpansionActionPickVehicleLock";
+		QuestActions.Insert(questAction);
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ExpansionVehicleActionPickLock";
+		questAction.MethodName = "OnExpansionVehicleActionPickLock";
+		QuestActions.Insert(questAction);
+	#endif
+
+		questAction = new ExpansionQuestAction();
+		questAction.ActionName = "ActionPlantSeed";
+		questAction.MethodName = "OnActionPlantSeed";
+		QuestActions.Insert(questAction);
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionQuestSettings SettingName
-	// ------------------------------------------------------------
 	override string SettingName()
 	{
 		return "Quest Settings";

@@ -13,7 +13,8 @@
 modded class DayZGame
 {
 	protected float m_Expansion_ServerUpdateRateLimit_Interval;
-	protected float m_Expansion_ServerUpdateRateLimit_Time;
+	protected float m_Expansion_ServerUpdateRateLimit_LastUpdateTime;
+	protected float m_Expansion_ServerUpdateRateLimit_TimeSlice;
 
 	protected string m_ExpansionClientVersion;
 	protected string m_ExpansionLastestVersion;
@@ -84,6 +85,11 @@ modded class DayZGame
 			}
 		}
     }
+
+	void Expansion_SetFoodDecayModifier(float foodDecayModifier)
+	{
+		m_FoodDecayModifier = foodDecayModifier;
+	}
 
 	// ------------------------------------------------------------
 	// Expansion SetExpansionGame
@@ -211,16 +217,26 @@ modded class DayZGame
 	override void OnUpdate(bool doSim, float timeslice)
 	{
 #ifdef SERVER
-		m_Expansion_ServerUpdateRateLimit_Time += timeslice;
-		if (m_Expansion_ServerUpdateRateLimit_Time >= m_Expansion_ServerUpdateRateLimit_Interval)
+		//! @note timeslice isn't accurate for measuring actual elapsed time, so it's just passed to super to match vanilla
+		float updateTime = GetTickTime();
+		float elapsed = updateTime - m_Expansion_ServerUpdateRateLimit_LastUpdateTime;
+		m_Expansion_ServerUpdateRateLimit_TimeSlice += timeslice;
+		if (elapsed >= m_Expansion_ServerUpdateRateLimit_Interval)
 		{
-			super.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_Time);
+			super.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_TimeSlice);
 
 			if (m_ExpansionGame != NULL)
-				m_ExpansionGame.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_Time);
+				m_ExpansionGame.OnUpdate(doSim, m_Expansion_ServerUpdateRateLimit_TimeSlice);
 
-			m_Expansion_ServerUpdateRateLimit_Time = 0;
+			m_Expansion_ServerUpdateRateLimit_LastUpdateTime = updateTime;
+			m_Expansion_ServerUpdateRateLimit_TimeSlice = 0;
 		}
+#ifdef CFTOOLS
+		else
+		{
+			gl_ticks++;
+		}
+#endif
 #else
 		super.OnUpdate(doSim, timeslice);
 

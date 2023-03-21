@@ -119,7 +119,9 @@ class ExpansionAIPatrolManager
             PatrolLog(patrol, "!!! ERROR !!!");
         }
 
-        auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), eAIFormation.Create(patrol.Formation), true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
+        auto formation = eAIFormation.Create(patrol.Formation);
+        formation.SetLooseness(patrol.FormationLooseness);
+        auto dynPatrol = eAIDynamicPatrol.CreateEx(startpos, waypoints, behaviour, patrol.LoadoutFile, aiSum, respawntime, despawntime, eAIFaction.Create(patrol.Faction), formation, true, mindistradius, maxdistradius, despawnradius, patrol.GetSpeed(), patrol.GetThreatSpeed(), patrol.CanBeLooted, patrol.UnlimitedReload);
 
         float accuracyMin;
         if ( patrol.AccuracyMin <= 0 )

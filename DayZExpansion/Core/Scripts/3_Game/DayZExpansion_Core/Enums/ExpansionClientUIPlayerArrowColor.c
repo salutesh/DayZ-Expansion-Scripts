@@ -12,7 +12,18 @@
 
 enum ExpansionClientUIPlayerArrowColor
 {
+	// GrayScale
 	WHITE = 0,
 	GREY,
 	BLACK,
+
+	// RGB
+	RED,
+	GREEN,
+	BLUE,
+
+	// CMY
+	CYAN,
+	MAGENTA,
+	YELLOW
 };

@@ -13,9 +13,6 @@
 #ifdef EXPANSIONMODMARKET
 modded class ExpansionMarketModule
 {
-	// ------------------------------------------------------------
-	// Expansion Bool CanSellItem
-	// ------------------------------------------------------------
 	override bool CanSellItem(EntityAI item, bool checkIfRuined = false)
 	{
 		ItemBase itemBase;

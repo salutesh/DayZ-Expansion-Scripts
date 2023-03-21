@@ -496,7 +496,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
 		spawnPoint[1] = spawnPoint[1] + 1;  //! Hack fix for inability to open inv after spawn: Let them fall a bit, that'll unlock it
-		player.SetPosition(spawnPoint);
+
+		DayZPlayerSyncJunctures.ExpansionTeleport(player, spawnPoint);
 					
 		EndSpawnSelection(player, state);
 
@@ -551,6 +552,8 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(parent.GetInventory().CountInventory());
+
 		parent.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 		ItemBase item;
 		foreach (EntityAI entity: items)

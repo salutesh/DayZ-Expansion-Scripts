@@ -103,6 +103,11 @@ modded class DayZPlayerImplement
 		return m_Expansion_IsInSafeZone;
 	}
 
+	bool Expansion_CanBeDamaged()
+	{
+		return !m_Expansion_IsInSafeZone && GetAllowDamage();
+	}
+
 	void Expansion_SetCanBeLooted(bool canBeLooted)
 	{
 		m_Expansion_CanBeLooted = canBeLooted;
@@ -122,6 +127,9 @@ modded class DayZPlayerImplement
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		if (!Expansion_CanBeDamaged())
 			return false;
 
 		if (m_Expansion_DisabledAmmoDamage[ammo])
@@ -204,6 +212,42 @@ modded class DayZPlayerImplement
 			return hcm.GetCurrentMovementAngle();
 
 		return 0.0;
+	}
+
+	//! Uses head/barrel to determine direction, can be used on server
+	vector Expansion_GetAimDirection()
+	{
+		vector headTransform[4];
+		GetBoneTransformWS(GetBoneIndexByName("head"), headTransform);
+
+		EntityAI hands = GetHumanInventory().GetEntityInHands();
+
+		Weapon_Base weapon;
+		vector weaponTransform[4];
+
+		bool isADS;
+
+		vector dir;
+
+		if (Class.CastTo(weapon, hands))
+		{
+			weapon.GetTransform(weaponTransform);
+			vector eyePos = weapon.GetSelectionPositionLS("eye").Multiply4(weaponTransform);
+			isADS = vector.DistanceSq(eyePos, headTransform[3]) < 0.04;
+		}
+
+		if (isADS)
+		{
+			vector barrel_start = weapon.GetSelectionPositionLS("konec hlavne").Multiply4(weaponTransform);
+			vector barrel_end = weapon.GetSelectionPositionLS("usti hlavne").Multiply4(weaponTransform);
+			dir = vector.Direction(barrel_start, barrel_end).Normalized();
+		}
+		else
+		{
+			dir = headTransform[1];
+		}
+
+		return dir;
 	}
 
 	void Expansion_UpdateBonePositionTimes(float pDt)

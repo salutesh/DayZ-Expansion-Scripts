@@ -71,7 +71,7 @@
 				<size width="150" height="40" />
 			</editor_data>
 			<event_entry>
-				unit.OverrideTargetPosition(unit.GetPosition());
+				unit.OverrideTargetPosition(unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed());
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -126,7 +126,7 @@
 				path = unit.GetGroup().GetWaypoints();
 				if (path.Count() == 0)
 				{
-					path = { unit.GetPosition() };
+					path = { unit.GetPosition() + unit.GetDirection() * unit.Expansion_GetMovementSpeed() };
 				}
 				behaviour = unit.GetGroup().GetWaypointBehaviour();
 				unit.Expansion_GetUp();

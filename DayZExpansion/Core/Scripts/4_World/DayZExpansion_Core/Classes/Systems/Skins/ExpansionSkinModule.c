@@ -12,10 +12,17 @@
 
 [CF_RegisterModule(ExpansionSkinModule)]
 class ExpansionSkinModule: CF_ModuleWorld
-{	
+{
+	static ExpansionSkinModule s_Instance;
+
 	private autoptr map< string, ref ExpansionSkins > m_Skins = new map< string, ref ExpansionSkins >;
 	private autoptr map< string, string > m_SkinBase = new map< string, string >;
 	private autoptr map< string, string > m_SkinName = new map< string, string >;
+
+	void ExpansionSkinModule()
+	{
+		s_Instance = this;
+	}
 		
 	// ------------------------------------------------------------
 	// ExpansionSkinModule OnInit

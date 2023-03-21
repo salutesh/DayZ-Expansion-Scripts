@@ -1,4 +1,4 @@
-//! @note vehicles are only targeted by AI if a taegeted player jumps out a moving vehicle (ActionGetOutTransport),
+//! @note vehicles are only targeted by AI if a targeted player jumps out a moving vehicle (ActionGetOutTransport) or gets hit by it,
 //! otherwise they are dealt with by player target info
 
 class eAIVehicleTargetInformation: eAIEntityTargetInformation
@@ -22,20 +22,18 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			if (m_Transport == ai.GetParent())
 				return 0.0;
 
-			float distance = GetDistance(ai, true) + 0.1;
-
 			//! Any AI, even passive, will react if vehicle is speeding towards them
 			//! Vehicles WITH drivers are handled by player target info
-			if (distance > 100.0)
-			{
-				levelFactor = 15.0 / distance;  //! 0.1 at 200 m
-			}
-			else if (!m_Transport.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER))
-			{
-				float speed, fromTargetDot;
-				levelFactor = ProcessVehicleThreat(m_Transport, ai, distance, speed, fromTargetDot);
-				//PrintFormat("eAIVehicleTargetInformation dist %1 spd %2 dot %3 lvl %4", distance, speed, fromTargetDot, levelFactor);
-			}
+			if (m_Transport.CrewMember(DayZPlayerConstants.VEHICLESEAT_DRIVER))
+				return 0.100001;  //! Just above threshold so it doesn't get removed prematurely
+
+			float distance = GetDistance(ai, true) + 0.1;
+
+			float speed, fromTargetDot;
+			levelFactor = ProcessVehicleThreat(m_Transport, ai, distance, speed, fromTargetDot);
+			//PrintFormat("eAIVehicleTargetInformation dist %1 spd %2 dot %3 lvl %4", distance, speed, fromTargetDot, levelFactor);
+
+			levelFactor *= ai.Expansion_GetVisibility(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
@@ -43,14 +41,6 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 
 	static float ProcessVehicleThreat(Transport transport, eAIBase ai, float distance, out float speed = 0.0, out float fromTargetDot = 0.0)
 	{
-		vector minMax[2];
-		float radius = transport.ClippingInfo(minMax);
-
-		if (distance > radius + 0.1)
-			distance -= radius;
-		else
-			distance = 0.1;
-
 		Car car;
 		if (Class.CastTo(car, transport))
 			speed = car.GetSpeedometer();
@@ -58,8 +48,26 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			speed = GetVelocity(transport).Length() * 3.6;
 
 		float speedAbs = Math.AbsFloat(speed);
-		if (distance > Math.Max(speedAbs, 4.0) * 0.833333 * 3)
-			return 0.15;
+
+		if (speedAbs < 2)  //! RegisterTransportHit tolerance
+			return 0.0;
+
+		vector minMax[2];
+		float radius = transport.ClippingInfo(minMax);
+
+		if (distance > radius + 0.1)
+		{
+			distance -= radius;
+
+			if (distance > 100.0)
+				return 15.0 / distance;  //! 0.1 at 200 m
+			else if (distance > Math.Max(speedAbs, 4.0) * 0.833333 * 3)
+				return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
+		}
+		else
+		{
+			distance = 0.1;
+		}
 
 		if (!ai.eAI_IsSideStepping())
 		{
@@ -72,7 +80,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			fromTargetDot = vector.Dot(vehicleDir, fromTargetDirection);
 
 			if (fromTargetDot < 0.97 && distance > 10)
-				return 0.15;
+				return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 
 			//! If AI is within distance that vehicle can travel in three seconds, sidestep
 			if (distance < speedAbs * 0.833333)
@@ -125,9 +133,14 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			}
 			else if (!ai.GetHumanInventory().GetEntityInHands() || !ai.GetHumanInventory().GetEntityInHands().IsWeapon())
 			{
-				return 0.15;
+				return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 			}
 		}
+
+		//! Invincible AI will only sidestep unless they have been hit by this vehicle
+		CarScript vehicle;
+		if (!ai.Expansion_CanBeDamaged() && (!Class.CastTo(vehicle, transport) || !vehicle.GetTargetInformation().IsTargettedBy(ai)))
+			return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 
 		float levelFactor = speedAbs / 20.0;  //! 0.4 at 8 km/h
 		levelFactor *= 100.0 / distance;

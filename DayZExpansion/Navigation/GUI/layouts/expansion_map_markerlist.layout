@@ -1005,7 +1005,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
            vexactsize 1
            style blank
            {
-            TextWidgetClass Y {
+            TextWidgetClass Z {
              ignorepointer 1
              color 1 1 1 0.549
              size 26 26
@@ -1015,11 +1015,11 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
              vexactpos 1
              hexactsize 1
              vexactsize 1
-             text "Y"
+             text "Z"
              "text halign" center
              "text valign" center
             }
-            ImageWidgetClass ImageY {
+            ImageWidgetClass ImageZ {
              ignorepointer 1
              color 0.1608 0.502 0.7255 0.549
              size 30 30
@@ -1037,7 +1037,7 @@ WrapSpacerWidgetClass ExpansionMapUIMarkerList {
             }
            }
           }
-          TextWidgetClass Pos_Y {
+          TextWidgetClass Pos_Z {
            ignorepointer 1
            color 1 1 1 0.549
            position 152 0

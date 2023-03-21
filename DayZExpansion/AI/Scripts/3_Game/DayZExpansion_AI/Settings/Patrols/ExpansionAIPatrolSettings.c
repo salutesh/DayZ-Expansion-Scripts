@@ -30,7 +30,7 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 11;
+	static const int VERSION = 12;
 
 	float DespawnRadius;
 

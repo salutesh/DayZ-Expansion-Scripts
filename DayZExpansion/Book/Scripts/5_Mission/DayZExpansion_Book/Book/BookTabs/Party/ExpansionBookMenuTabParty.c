@@ -388,6 +388,8 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 	
 	override void OnHide()
 	{
+		SwitchMovementLockState(false);
+
 		super.OnHide();
 		
 		if (m_CreatePartyDialog && m_CreatePartyDialog.IsVisible())
@@ -398,8 +400,6 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		
 		if (m_DeleteDialog && m_DeleteDialog.IsVisible())
 			m_DeleteDialog.Hide();
-		
-		SwitchMovementLockState(false);
 		
 		m_Party = NULL;
 	}

@@ -4,12 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_Weapons_SMG_MP7
 	{
-		units[] = {"AmmoBox_Expansion_46x30_25rnd"};
-		weapons[] = {"Expansion_MP7"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms_cz61"};
-		magazines[] = {"Mag_Expansion_MP7_40Rnd","Ammo_Expansion_46x30"};
-		ammo[] = {"Bullet_Expansion_46x30"};
 	};
 };
 class Mode_Safe;
@@ -41,7 +39,8 @@ class CfgWeapons
 		chamberableFrom[] = {"Ammo_Expansion_46x30","TTC_Ammo_4630","SNAFU_Ammo_46x30"};
 		magazines[] = {"Mag_Expansion_MP7_40Rnd"};
 		magazineSwitchTime = 0.3;
-		barrelArmor = 800;
+		WeaponLength = 0.66353;
+		barrelArmor = 1.35;
 		ejectType = 1;
 		recoilModifier[] = {1,1,1};
 		reloadAction = "ReloadCZ61";
@@ -303,7 +302,7 @@ class CfgWeapons
 				class Health
 				{
 					hitpoints = 175;
-					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_damaged.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_damaged.rvmat"}},{0.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_ruined.rvmat"}}};
+					healthLevels[] = {{1,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_damaged.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_damaged.rvmat"}},{0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\mp7\data\mp7_body_ruined.rvmat"}}};
 				};
 			};
 		};

@@ -10,26 +10,33 @@
  *
 */
 
-#ifdef EXPANSIONMODNAVIGATION
+/*#ifdef EXPANSIONMODNAVIGATION
 class ExpansionQuestClientMarker
 {
-	protected int QuestID = -1;
-	protected string MarkerUID = string.Empty;
+	protected int m_QuestID = -1;
+	protected int m_ObjectiveIndex = -1;
+	protected string m_MarkerUID = string.Empty;
 
-	void ExpansionQuestClientMarker(int questID, string markerUID)
+	void ExpansionQuestClientMarker(int questID, string markerUID, int objectiveIndex)
 	{
-		QuestID = questID;
-		MarkerUID = markerUID;
+		m_QuestID = questID;
+		m_MarkerUID = markerUID;
+		m_ObjectiveIndex = objectiveIndex;
 	}
 
 	int GetQuestID()
 	{
-		return QuestID;
+		return m_QuestID;
+	}
+	
+	int GetObjectiveIndex()
+	{
+		return m_ObjectiveIndex;
 	}
 
 	string GetMarkerUID()
 	{
-		return MarkerUID;
+		return m_MarkerUID;
 	}
 };
-#endif
+#endif*/

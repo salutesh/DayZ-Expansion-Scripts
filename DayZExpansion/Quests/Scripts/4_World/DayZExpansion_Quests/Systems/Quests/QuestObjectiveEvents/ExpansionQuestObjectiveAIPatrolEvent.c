@@ -13,13 +13,59 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 {
+	protected ref ExpansionQuestObjectiveAIPatrolConfig m_Config;
+
+	override bool OnEventStart()
+	{
+		ObjectivePrint(ToString() + "::OnEventStart - Start");
+				
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		if (!super.OnEventStart())
+			return false;
+
+		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		
+		return true;
+	}
+
+	override bool OnContinue()
+	{
+		ObjectivePrint(ToString() + "::OnContinue - Start");
+				
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+				
+		if (!super.OnContinue())
+			return false;
+
+		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		
+		return true;
+	}
+	
+#ifdef EXPANSIONMODNAVIGATION
+	override void CreateMarkers()
+	{
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return;
+
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
+		if (!aiPatrol)
+			return;
+
+		string markerName = m_Config.GetObjectiveText();
+		if (markerName != string.Empty)
+			CreateObjectiveMarker(aiPatrol.GetWaypoints()[0], markerName);
+	}
+#endif
+	
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEntityKilled");
-	#endif
+		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = GetObjectiveConfig().GetAIPatrol();
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)
 			return;
 
@@ -32,60 +78,60 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 		//! Check if killed entities class name is a valid one from our objective config
 		bool found = ExpansionStatic.IsAnyOf(victim, aiPatrol.GetClassNames(), true);
-
 		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
-
 		if (!found)
 			return;
 
 		m_TotalUnitsAmount = aiPatrol.GetNPCUnits();
 		super.OnEntityKilled(victim, killer, killerPlayer);
+
+		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
 	override protected void CheckQuestAIPatrol()
 	{
 		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
 
-		if (!GetQuest() || !GetQuest().GetQuestModule() || !GetQuest().GetQuestConfig() || !GetObjectiveConfig())
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = GetObjectiveConfig().GetAIPatrol();
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)
 			return;
 
 		m_TotalUnitsAmount = aiPatrol.GetNPCUnits();
 
 		CheckQuestAIPatrol(1);
+
+		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
 	}
 
 	override void CreateQuestAIPatrol()
 	{
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - Start");
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = GetObjectiveConfig().GetAIPatrol();
+		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)
 			return;
 
 		m_UnitsToSpawn = m_TotalUnitsAmount - m_TotalKillCount;
 
 		array<eAIDynamicPatrol> questPatrols = new array<eAIDynamicPatrol>;
-		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), GetObjectiveConfig().CanLootAI(), false, aiPatrol.GetWaypoints());
+		ExpansionQuestAIGroup group = new ExpansionQuestAIGroup(m_UnitsToSpawn, aiPatrol.GetNPCSpeed(), aiPatrol.GetNPCMode(), "ALTERNATE", aiPatrol.GetNPCFaction(), aiPatrol.GetNPCLoadoutFile(), m_Config.CanLootAI(), false, aiPatrol.GetWaypoints());
 		group.Formation = aiPatrol.NPCFormation;
 		group.AccuracyMin = aiPatrol.NPCAccuracyMin;
 		group.AccuracyMax = aiPatrol.NPCAccuracyMax;
-		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAIEventBase.CreateQuestPatrol(group, 0, 600, 300, GetObjectiveConfig().GetMinDistRadius(), GetObjectiveConfig().GetMaxDistRadius(), GetObjectiveConfig().GetDespawnRadius());
+		eAIDynamicPatrol patrol = ExpansionQuestObjectiveAIEventBase.CreateQuestPatrol(group, 0, 600, 300, m_Config.GetMinDistRadius(), m_Config.GetMaxDistRadius(), m_Config.GetDespawnRadius());
 		if (!patrol)
 			return;
 
 		questPatrols.Insert(patrol);
-		GetQuest().GetQuestModule().SetQuestPatrols(GetQuest().GetQuestConfig().GetID(), questPatrols);
-
+		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
+		
 	#ifdef EXPANSIONMODNAVIGATION
-		string markerName = GetQuest().GetQuestConfig().GetObjectives().Get(GetIndex()).GetObjectiveText();
-		if (markerName != string.Empty)
-			GetQuest().CreateClientMarker(aiPatrol.GetWaypoints()[0], markerName);
+		CreateMarkers();
 	#endif
-
+		
 		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}
 

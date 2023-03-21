@@ -14,13 +14,17 @@ class ExpansionNetsyncData
 {
 	Object m_Object;
 	ref TStringArray m_Data;
+	ref ScriptInvoker SI_Receive;
 
 	void ExpansionNetsyncData(Object object)
 	{
 		m_Object = object;
 
 		if (GetGame().IsClient())
+		{
+			SI_Receive = new ScriptInvoker();
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Request, 250);  //! Has to be delayed, else won't work!
+		}
 	}
 
 	void Set(int index, string value)
@@ -87,6 +91,9 @@ class ExpansionNetsyncData
 			m_Data.Insert(value);
 			count--;
 		}
+
+		if (SI_Receive)
+			SI_Receive.Invoke();
 
 		EXTrace.Print(EXTrace.ENABLE, m_Object, "Received " + m_Data.Count() + " netsync data entries");
 	}

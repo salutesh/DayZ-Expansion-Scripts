@@ -56,7 +56,7 @@ modded class Land_House_1W03
 
 	}
 
-		override bool HasIvys()
+	override bool HasIvys()
 	{
 		return true;
 	}

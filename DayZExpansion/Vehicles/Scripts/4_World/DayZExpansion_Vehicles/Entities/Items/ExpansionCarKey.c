@@ -49,6 +49,9 @@ class ExpansionCarKey: ItemBase
 		m_VehicleDisplayName = ConfigGetString( "displayName" );
 		
 		m_AllKeys.Insert(this);
+
+		if (!GetGame().IsDedicatedServer())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RequestItemData, 250);
 		
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::ExpansionCarKey - End");
@@ -72,21 +75,6 @@ class ExpansionCarKey: ItemBase
 		#ifdef EXPANSION_CARKEY_LOGGING
 		EXLogPrint("ExpansionCarKey::~ExpansionCarKey - End");
 		#endif
-	}
-
-	// ------------------------------------------------------------
-	// Expansion EEInit
-	// ------------------------------------------------------------
-	override void EEInit()
-	{
-		auto trace = EXTrace.Start(EXTrace.VEHICLES, this);
-		
-		super.EEInit();
-		
-		if ( IsMissionClient() )
-		{
-			RequestItemData();
-		}
 	}
 	
 	// ------------------------------------------------------------

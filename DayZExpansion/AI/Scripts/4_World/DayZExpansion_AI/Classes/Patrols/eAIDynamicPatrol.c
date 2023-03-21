@@ -205,12 +205,13 @@ class eAIDynamicPatrol : eAIPatrol
 		auto trace = CF_Trace_0(this, "Despawn");
 		#endif
 
-		if (!m_Group) return;
-
 		m_TimeSinceLastSpawn = 0;
 
-		m_Group.ClearAI();
-		m_Group = null;
+		if (m_Group)
+		{
+			m_Group.ClearAI();
+			m_Group = null;
+		}
 
 		if (!m_WasGroupDestroyed && m_NumberOfDynamicPatrols)
 			m_NumberOfDynamicPatrols--;

@@ -15,7 +15,10 @@ static TransferInventoryResult ExpansionTransferInventory(EntityAI sourceItem, E
 	TransferInventoryResult result = TransferInventoryResult.Ok;
 
 	array<EntityAI> children = new array<EntityAI>;
+	children.Reserve(sourceItem.GetInventory().CountInventory());
+
 	sourceItem.GetInventory().EnumerateInventory(InventoryTraversalType.LEVELORDER, children);
+
 	for (int i = 0; i < children.Count(); i++)
 	{
 		auto child = children[i];

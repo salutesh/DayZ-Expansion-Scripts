@@ -345,6 +345,16 @@ class ExpansionBaseBuildingSettings: ExpansionBaseBuildingSettingsBaseV2
 			Defaults();
 			save = true;
 		}
+
+		for (int i=0; i < Zones.Count(); i++)
+		{
+			vector pos = ExpansionStatic.GetSurfacePosition(Zones[i].Center);
+			if ( pos[1] > Zones[i].Center[1])
+			{
+				Zones[i].Center[1] = pos[1];
+				save = true;
+			}
+		}
 		
 		if (save)
 			Save();

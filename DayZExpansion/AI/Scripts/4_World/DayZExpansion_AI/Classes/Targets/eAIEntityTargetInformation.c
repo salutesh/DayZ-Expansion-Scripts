@@ -6,7 +6,7 @@ class eAIEntityTargetInformation: eAITargetInformation
 	void eAIEntityTargetInformation(EntityAI target)
 	{
 		m_Target = target;
-		m_TargetDebugName = Object.GetDebugName(m_Target);  //! Useful for logging even after entity has been deleted
+		m_TargetDebugName = "" + m_Target;  //! Useful for logging even after entity has been deleted
 	}
 
 	override string GetDebugName()

@@ -32,7 +32,6 @@ class ExpansionBookMenuManager
 	
 	ref ExpansionBookMenuTabRules m_RulesTab;
 	ref ExpansionBookMenuTabServerInfo m_ServerInfoTab;
-	//ref ExpansionBookMenuTabNotes m_NotesTab;
 	ref ExpansionBookMenuTabCrafting m_CraftingTab;
 	
 	void ~ExpansionBookMenuManager()
@@ -83,12 +82,9 @@ class ExpansionBookMenuManager
 			m_ServerInfoTab = new ExpansionBookMenuTabServerInfo(book_menu);
 			m_Tabs.Insert(m_ServerInfoTab);
 		}
-		
-		//m_NotesTab = new ExpansionBookMenuTabNotes(book_menu);
-		//m_Tabs.Insert(m_NotesTab);
-		
+				
 		m_CraftingTab = new ExpansionBookMenuTabCrafting(book_menu);
-		m_Tabs.Insert(m_CraftingTab);	//! WIP
+		m_Tabs.Insert(m_CraftingTab);
 		
 		foreach (ExpansionBookMenuTabBase tab: m_Tabs)
 		{
@@ -173,11 +169,6 @@ class ExpansionBookMenuManager
 	{
 		return m_ServerInfoTab;
 	}
-	
-	/*ExpansionBookMenuTabNotes GetNotesTab()
-	{
-		return m_NotesTab;
-	}*/
 	
 	ExpansionBookMenuTabCrafting GetCraftingTab()
 	{

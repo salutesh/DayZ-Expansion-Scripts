@@ -18,10 +18,7 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 	private static ref set<ExpansionTraderNPCBase> m_allTraders = new set<ExpansionTraderNPCBase>;
 
 	private ref ExpansionTraderObjectBase m_TraderObject;
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase Constructor
-	// ------------------------------------------------------------
+
 	void ExpansionTraderNPCBase()
 	{
 		if (IsMissionHost())
@@ -34,10 +31,7 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase Destructor
-	// ------------------------------------------------------------
+
 	void ~ExpansionTraderNPCBase()
 	{
 		if (!GetGame())
@@ -49,18 +43,12 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 			m_allTraders.Remove(idx);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase GetAll
-	// ------------------------------------------------------------
+
 	static set<ExpansionTraderNPCBase> GetAll()
 	{
 		return m_allTraders;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderNPCBase OnRPC
-	// ------------------------------------------------------------
+
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
@@ -105,9 +93,6 @@ class ExpansionTraderObjectBase
 	
 	ref map<string, bool> m_TradingPlayers;
 
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionTraderObjectBase(EntityAI traderEntity, string fileName = "")
 	{
 #ifdef EXPANSIONTRACE
@@ -121,10 +106,7 @@ class ExpansionTraderObjectBase
 		SetTraderEntity(traderEntity);
 		LoadTrader(fileName);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase Destructor
-	// ------------------------------------------------------------
+
 	void ~ExpansionTraderObjectBase()
 	{
 #ifdef EXPANSIONTRACE
@@ -140,18 +122,12 @@ class ExpansionTraderObjectBase
 			m_allTraderObjects.Remove(idx);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase GetAll
-	// ------------------------------------------------------------
+
 	static set<ExpansionTraderObjectBase> GetAll()
 	{
 		return m_allTraderObjects;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase LoadTrader
-	// ------------------------------------------------------------
+
 	void LoadTrader(string fileName)
 	{
 		if (IsMissionHost())
@@ -163,10 +139,7 @@ class ExpansionTraderObjectBase
 			RequestTraderObject();
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase LoadTraderHost
-	// ------------------------------------------------------------
+
 	void LoadTraderHost(string fileName)
 	{
 #ifdef EXPANSIONTRACE
@@ -205,10 +178,7 @@ class ExpansionTraderObjectBase
 
 		UpdateTraderZone();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase RequestTraderObject
-	// ------------------------------------------------------------
+
 	void RequestTraderObject()
 	{
 		if ( IsMissionOffline() )
@@ -217,10 +187,7 @@ class ExpansionTraderObjectBase
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(this.GetTraderEntity(), ExpansionMarketRPC.TraderObject, true, NULL);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase OnRPC
-	// ------------------------------------------------------------
+
 	void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		if (rpc_type <= ExpansionMarketRPC.INVALID)
@@ -235,10 +202,7 @@ class ExpansionTraderObjectBase
 			break;
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase RPC_TraderObject
-	// ------------------------------------------------------------
+
 	private void RPC_TraderObject(ParamsReadContext ctx, PlayerIdentity sender)
 	{
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
@@ -287,10 +251,7 @@ class ExpansionTraderObjectBase
 				return;
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase UpdateTraderZone
-	// ------------------------------------------------------------
+
 	void UpdateTraderZone()
 	{
 		if (!m_TraderZone)
@@ -328,10 +289,7 @@ class ExpansionTraderObjectBase
 		m_TraderZone.DebugPrint();
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase GetNetworkSerialization
-	// ------------------------------------------------------------
+
 	int GetNetworkSerialization(out array<ref ExpansionMarketNetworkItem> list, int start, bool stockOnly, TIntArray itemIDs = NULL)
 	{
 		if (!m_Trader)
@@ -348,26 +306,27 @@ class ExpansionTraderObjectBase
 		
 		return m_TraderZone.GetNetworkSerialization(m_Trader, list, start, stockOnly, itemIDs);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase GetTraderZone
-	// ------------------------------------------------------------
+
 	ExpansionMarketTraderZone GetTraderZone()
 	{
 		return m_TraderZone;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase GetTraderMarket
-	// ------------------------------------------------------------
+	void SetTraderZone(ExpansionMarketTraderZone zone)
+	{
+		m_TraderZone = zone;
+	}
+
 	ExpansionMarketTrader GetTraderMarket()
 	{
 		return m_Trader;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionTraderObjectBase HasVehicleSpawnPosition
-	// ------------------------------------------------------------
+	void SetTraderMarket(ExpansionMarketTrader trader)
+	{
+		m_Trader = trader;
+	}
+
 	bool HasVehicleSpawnPosition(string className, out vector spawnPosition, out vector spawnOrientation, out ExpansionMarketVehicleSpawnType spawnType = 0, out ExpansionMarketResult result = ExpansionMarketResult.Success, out Object blockingObject = NULL, int amountNeeded = 1)
 	{
 #ifdef EXPANSIONTRACE
@@ -476,7 +435,12 @@ class ExpansionTraderObjectBase
 		if (!m_TraderEntity)
 			return traderName;
 
-		return m_TraderEntity.GetDisplayName() + " [" + traderName + "]";
+		string entityName = m_TraderEntity.GetDisplayName();
+
+		if (entityName != traderName)
+			return entityName + " [" + traderName + "]";
+		
+		return entityName;
 	}
 
 	void SetTraderEntity(EntityAI entity)
@@ -497,33 +461,19 @@ class ExpansionTraderObjectBase
 /**@class		ExpansionTraderStaticBase
  * @brief		This class handles static trader objects
  **/
-class ExpansionTraderStaticBase: BuildingSuper
+class ExpansionTraderStaticBase: ExpansionStaticObjectBase
 {
 	private static ref set<ExpansionTraderStaticBase> m_allTraders = new set<ExpansionTraderStaticBase>;
-
 	private ref ExpansionTraderObjectBase m_TraderObject;
 
-	// ------------------------------------------------------------
-	// ExpansionTraderStaticBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionTraderStaticBase()
 	{
-		if (IsMissionHost())
-		{
-			SetAllowDamage(false);
-		}
-
 		m_allTraders.Insert(this);
-
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderStaticBase Destructor
-	// ------------------------------------------------------------
+
 	void ~ExpansionTraderStaticBase()
 	{
 		if (!GetGame())
@@ -531,22 +481,14 @@ class ExpansionTraderStaticBase: BuildingSuper
 
 		int idx = m_allTraders.Find(this);
 		if (idx >= 0)
-		{
 			m_allTraders.Remove(idx);
-		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderStaticBase GetAll
-	// ------------------------------------------------------------
+
 	static set<ExpansionTraderStaticBase> GetAll()
 	{
 		return m_allTraders;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderStaticBase OnRPC
-	// ------------------------------------------------------------
+
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
@@ -578,7 +520,7 @@ class ExpansionTraderStaticBase: BuildingSuper
 	{
 		return true;
 	}
-}
+};
 
 /**@class		ExpansionTraderZombieBase
  * @brief		This class handles Infected traders
@@ -586,12 +528,8 @@ class ExpansionTraderStaticBase: BuildingSuper
 class ExpansionTraderZombieBase: ZombieBase
 {
 	private static ref set<ExpansionTraderZombieBase> m_allTraders = new set<ExpansionTraderZombieBase>;
-
 	private ref ExpansionTraderObjectBase m_TraderObject;
 
-	// ------------------------------------------------------------
-	// ExpansionTraderZombieBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionTraderZombieBase()
 	{
 		if (IsMissionHost())
@@ -606,10 +544,7 @@ class ExpansionTraderZombieBase: ZombieBase
 		if (GetGame() && GetGame().IsClient())
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderZombieBase Destructor
-	// ------------------------------------------------------------
+
 	void ~ExpansionTraderZombieBase()
 	{
 		if (!GetGame())
@@ -621,18 +556,7 @@ class ExpansionTraderZombieBase: ZombieBase
 			m_allTraders.Remove(idx);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderZombieBase GetAll
-	// ------------------------------------------------------------
-	//static set<ExpansionTraderZombieBase> GetAll()
-	//{
-		//return m_allTraders;
-	//}
-	
-	// ------------------------------------------------------------
-	// ExpansionTraderZombieBase OnRPC
-	// ------------------------------------------------------------
+
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
@@ -678,7 +602,7 @@ class ExpansionTraderZombieBase: ZombieBase
 	{
 		return true;
 	}
-}
+};
 
 #ifdef ENFUSION_AI_PROJECT
 /**@class		ExpansionTraderAIBase
@@ -692,16 +616,8 @@ class ExpansionTraderAIBase: eAIBase
 {
 	private ref ExpansionTraderObjectBase m_TraderObject;
 
-	// ------------------------------------------------------------
-	// ExpansionTraderAIBase Constructor
-	// ------------------------------------------------------------
 	void ExpansionTraderAIBase()
 	{
-		if (IsMissionHost())
-		{
-			SetAllowDamage(false);
-		}
-
 #ifdef EXPANSIONMODAI
 		SetMovementSpeedLimits(1.0);  //! Always walk
 #endif
@@ -710,9 +626,28 @@ class ExpansionTraderAIBase: eAIBase
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(LoadTrader, 250, false, "");
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionTraderAIBase OnRPC
-	// ------------------------------------------------------------
+	override void Expansion_Init()
+	{
+		if (GetGame().IsServer())
+		{
+		#ifdef EXPANSIONMODAI
+			m_eAI_FactionType = eAIFactionInvincibleObservers;
+		#else
+			SetAllowDamage(false);
+		#endif
+		}
+
+		super.Expansion_Init();
+	}
+
+#ifndef EXPANSIONMODAI
+	//! Vanilla, prevent being targeted by Zs/animals
+	override bool CanBeTargetedByAI(EntityAI ai)
+	{
+		return false;
+	}
+#endif
+
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
@@ -740,14 +675,12 @@ class ExpansionTraderAIBase: eAIBase
 		SetTraderObject(new ExpansionTraderObjectBase(this, fileName));
 	}
 
-#ifdef EXPANSIONMODAI
-	override bool PlayerIsEnemy(EntityAI other)
-#else
+#ifndef EXPANSIONMODAI
 	override bool PlayerIsEnemy(PlayerBase other)
-#endif
 	{
 		return false;
 	}
+#endif
 
 #ifdef EXPANSIONMODAI
 	override bool IsTrading()
@@ -760,7 +693,7 @@ class ExpansionTraderAIBase: eAIBase
 	{
 		return true;
 	}
-}
+};
 
 class ExpansionTraderAIMirek: ExpansionTraderAIBase {};
 class ExpansionTraderAIDenis: ExpansionTraderAIBase {};

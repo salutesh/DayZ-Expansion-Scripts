@@ -12,212 +12,451 @@
 
 class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 {
-	protected float m_UpdateQueueTimer;
-	protected const float UPDATE_TICK_TIME = 2.0;
-	protected bool m_CraftingState;
-	protected bool m_CallLater;
-	protected ItemBase m_CraftedItem;
+	protected ref map<string, int> m_ObjectiveItemsMap;
+	protected ref map<string, int> m_ObjectiveInventoryItemsMap;
+	protected ref array<EntityAI> m_ObjectiveItems;
+	protected int m_ObjectiveItemsAmount;
+	protected int m_ObjectiveItemsCount;
+	protected int m_UpdateCount;
+	protected int m_ObjectiveActionAmount;
+	protected int m_ObjectiveActionCount;
+	protected ref ExpansionQuestObjectiveCraftingConfig m_Config;
 
-	void OnItemsCrafted(PlayerBase player, array<ItemBase> spawned_objects)
+	void ExpansionQuestObjectiveCraftingEvent(ExpansionQuest quest)
 	{
-		ObjectivePrint(ToString() + "::OnItemsCrafted - Start");
-
-		if (CraftedItemsCheck(spawned_objects))
-		{
-			m_CraftingState = true;
-			SetCompleted(true);
-			OnComplete();
-		}
-
-		ObjectivePrint(ToString() + "::OnItemsCrafted - End");
+		m_ObjectiveItems = new array<EntityAI>;
+		m_ObjectiveItemsMap = new map<string, int>;
+		m_ObjectiveInventoryItemsMap = new map<string, int>;
 	}
 
-	override bool OnEventStart(bool continues = false)
+	override bool OnEventStart()
 	{
 		ObjectivePrint(ToString() + "::OnEventStart - Start");
 
-		bool conditionCheck;
-		if (!GetQuest().IsGroupQuest())
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnEventStart");
+	#endif
+
+		if (!super.OnEventStart())
+			return false;
+
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+		
+		m_ObjectiveActionAmount = m_Config.GetExecutionAmount();
+
+		UpdateObjectiveItemsMap();
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		int objEntry = 1;
+		foreach (string objectiveItem, int needed: m_ObjectiveItemsMap)
 		{
-			PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
-			EnumeratePlayerInventory(player);
-			conditionCheck = HasPlayerCraftedItem();
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			EnumerateGroupInventory(GetQuest().GetGroup());
-			conditionCheck = HasGroupCraftedItem();
+			Print(ToString() + "::OnEventStart - Objective items needed: [" + objEntry + "] " + objectiveItem + " | Needed: " + needed);
+			objEntry++;
 		}
 	#endif
-		
-		if (m_CraftingState && continues && !conditionCheck)
-			CancelQuest();
 
-		ObjectivePrint(ToString() + "::OnEventStart - End");
+		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
 
 		return true;
 	}
 
-	protected bool CraftedItemsCheck(array<ItemBase> items)
+	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::CraftedItemsCheck - Start");
+		ObjectivePrint(ToString() + "::OnContinue - Start");
 
-		if (!items)
+	#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.QUESTS, this, "OnContinue");
+	#endif
+
+		if (!super.OnContinue())
+			return false;
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		foreach (ItemBase item: items)
-		{
-			if (!item)
-				continue;
+		m_ObjectiveActionAmount = m_Config.GetExecutionAmount();
 
-			ObjectivePrint(ToString() + "::CraftedItemsCheck - Checking item: " + item.GetType());
-			if (ExpansionStatic.IsAnyOf(item, GetObjectiveConfig().GetItemNames(), true))
+		UpdateObjectiveItemsMap();
+
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		int objEntry = 1;
+		foreach (string objectiveItem, int needed: m_ObjectiveItemsMap)
+		{
+			Print(ToString() + "::OnEventStart - Objective items needed: [" + objEntry + "] " + objectiveItem + " | Needed: " + needed);
+			objEntry++;
+		}
+	#endif
+
+		CheckQuestPlayersForObjectiveItems();
+		m_Quest.QuestCompletionCheck();
+
+		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+
+		return true;
+	}
+
+	override bool OnCancel()
+	{
+		ObjectivePrint(ToString() + "::OnCancel - Start");
+
+		if (!super.OnCancel())
+			return false;
+		
+		CheckQuestPlayersForObjectiveItems();
+		DeleteObjectiveItems();
+		
+		ObjectivePrint(ToString() + "::OnCancel - End");
+		
+		return true;
+	}
+
+	//! Populate objective item map with the data from the objectives deliveries configuration
+	protected void UpdateObjectiveItemsMap()
+	{
+		ObjectivePrint(ToString() + "::UpdateObjectiveItemsMap - Start");
+
+		if (!m_Config || !m_Config.GetItemNames() || m_Config.GetItemNames().Count() == 0)
+			return;
+
+		array<string> itemNames = m_Config.GetItemNames();
+		foreach (string name: itemNames)
+		{
+			m_ObjectiveItemsAmount += 1;
+
+			int current;
+			if (m_ObjectiveItemsMap.Find(name, current))
 			{
-				m_CraftedItem = item;
-				m_CraftedItem.SetQuestID(GetQuest().GetQuestConfig().GetID());
-				ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
-				ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-				return true;
+				int newAmount = current + 1;
+				m_ObjectiveItemsMap.Set(name, newAmount);
+			}
+			else
+			{
+				m_ObjectiveItemsMap.Insert(name, 1);
 			}
 		}
 
-		ObjectivePrint(ToString() + "::CraftedItemsCheck - End - FALSE");
-		return false;
-	}
-	
-	protected bool CraftedItemsCheck(array<EntityAI> items)
-	{
-		ObjectivePrint(ToString() + "::CraftedItemsCheck - Start");
-
-		if (!items)
-			return false;
-
-		foreach (EntityAI item: items)
+		if (!m_ObjectiveItemsMap || m_ObjectiveItemsMap.Count() == 0)
 		{
-			if (!item)
-				continue;
-			
-			ItemBase itemIB;
-			if (!Class.CastTo(itemIB, item))
-				continue;
+			Error(ToString() + "::UpdateObjectiveItemsMap - There are no deliveries defined for the delivery objective with ID " + m_Config.GetID() + ". Cancel quest..");
+			m_Quest.CancelQuest();
+		}
 
-			ObjectivePrint(ToString() + "::CraftedItemsCheck - Checking item: " + itemIB.GetType());
-			if (ExpansionStatic.IsAnyOf(itemIB, GetObjectiveConfig().GetItemNames(), true))
+		ObjectivePrint(ToString() + "::UpdateObjectiveItemsMap - End");
+	}
+
+	protected void CheckQuestPlayersForObjectiveItems()
+	{
+		ObjectivePrint(ToString() + "::CheckQuestPlayersForObjectiveItems - Start");
+
+		PlayerBase player;
+		ItemBase itemIB;
+		array<EntityAI> items;
+		int amount;
+		int needed;
+		int current;
+		int newAmount;
+		string typeName;
+
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
+		{
+			player = PlayerBase.GetPlayerByUID(m_Quest.GetPlayerUID());
+			if (!player)
+				return;
+
+			items = new array<EntityAI>;
+	  	 	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+			foreach (EntityAI item: items)
 			{
-				if (itemIB.GetQuestID() == GetQuest().GetQuestConfig().GetID())
+				if (!Class.CastTo(itemIB, item))
+					continue;
+
+				typeName = itemIB.GetType();
+				if (!m_ObjectiveItemsMap.Find(typeName, needed))
+					continue;
+
+				amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(itemIB);
+				if (!m_ObjectiveInventoryItemsMap.Find(typeName, current))
 				{
-					m_CraftedItem = itemIB;
-					ObjectivePrint(ToString() + "::CraftedItemsCheck - Found crafted item: " + m_CraftedItem.GetType());
-					ObjectivePrint(ToString() + "::CraftedItemsCheck - End - TRUE");
-					return true;
+					if (amount <= needed)
+					{
+						m_ObjectiveItemsCount += amount;
+						m_ObjectiveInventoryItemsMap.Insert(typeName, amount);
+						m_ObjectiveItems.Insert(item);
+					}
+				}
+				else
+				{
+					newAmount = current + amount;
+					if (newAmount <= needed)
+					{
+						m_ObjectiveItemsCount += amount;
+						m_ObjectiveInventoryItemsMap.Set(typeName, newAmount);
+						m_ObjectiveItems.Insert(item);
+					}
 				}
 			}
 		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			array<string> playerUIDs = m_Quest.GetPlayerUIDs();
+			foreach (string playerUID: playerUIDs)
+			{
+				player = PlayerBase.GetPlayerByUID(playerUID);
+				if (!player)
+					continue;
 
-		ObjectivePrint(ToString() + "::CraftedItemsCheck - End - FALSE");
-		return false;
+				items = new array<EntityAI>;
+		  	 	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+				foreach (EntityAI itemM: items)
+				{
+					if (!Class.CastTo(itemIB, itemM))
+						continue;
+
+					typeName = itemIB.GetType();
+					if (!m_ObjectiveItemsMap.Find(typeName, needed))
+						continue;
+
+					amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(itemM);
+					if (!m_ObjectiveInventoryItemsMap.Find(typeName, current))
+					{
+						if (amount <= needed)
+						{
+							m_ObjectiveItemsCount += amount;
+							m_ObjectiveInventoryItemsMap.Insert(typeName, amount);
+							m_ObjectiveItems.Insert(itemM);
+						}
+					}
+					else
+					{
+						newAmount = current + amount;
+						if (newAmount <= needed)
+						{
+							m_ObjectiveItemsCount += amount;
+							m_ObjectiveInventoryItemsMap.Set(typeName, newAmount);
+							m_ObjectiveItems.Insert(itemM);
+						}
+					}
+				}
+			}
+		}
+	#endif
+
+		ObjectivePrint(ToString() + "::CheckQuestPlayersForObjectiveItems - m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
+		ObjectivePrint(ToString() + "::CheckQuestPlayersForObjectiveItems - End");
 	}
 
-	override bool OnTurnIn()
+	override bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
 		ObjectivePrint(ToString() + "::OnTurnIn - Start");
 
-		if (!super.OnTurnIn())
+		DeleteObjectiveItems();
+	
+		if (!super.OnTurnIn(playerUID, selectedObjItemIndex))
 			return false;
-
-		if (m_CraftedItem)
-		{
-			ObjectivePrint(ToString() + "::OnTurnIn - Cleanup crafted item: " + m_CraftedItem.GetType());
-			GetGame().ObjectDelete(m_CraftedItem);
-		}
 
 		ObjectivePrint(ToString() + "::OnTurnIn - End");
 
 		return true;
 	}
 
-	bool GetCraftingState()
+	protected void DeleteObjectiveItems()
 	{
-		return m_CraftingState;
-	}
+		ObjectivePrint(ToString() + "::DeleteObjectiveItems - Start");
 
-	void SetCraftingState(bool state)
-	{
-		m_CraftingState = state;
-	}
-	
-	bool HasPlayerCraftedItem()
-	{		
-		array<EntityAI> items = new array<EntityAI>;
-		if (m_PlayerEntityInventory && m_PlayerEntityInventory.HasAnyOf(GetObjectiveConfig().GetItemNames(), items))
+		foreach (EntityAI item: m_ObjectiveItems)
 		{
-			return CraftedItemsCheck(items);
-		}
-		
-		return false;
-	}
-	
-#ifdef EXPANSIONMODGROUPS
-	bool HasGroupCraftedItem()
-	{
-		array<EntityAI> items = new array<EntityAI>;
-		if (m_GroupEntityInventory && m_GroupEntityInventory.HasAnyOf(GetObjectiveConfig().GetItemNames(), items))
-		{			
-			return CraftedItemsCheck(items);
-		}
-		
-		return false;
-	}
-	
-	bool HasCraftedGroupItem(string playerUID)
-	{
-		if (m_CraftedItem.GetHierarchyRootPlayer() && m_CraftedItem.GetHierarchyRootPlayer().GetIdentity())
-		{
-			if (m_CraftedItem.GetHierarchyRootPlayer().GetIdentity().GetId() == playerUID)
-				return true;
+			ObjectivePrint(ToString() + "::DeleteObjectiveItems - Delete ojective item " + item.GetType());
+			GetGame().ObjectDelete(item);
 		}
 
-		return false;
+		ObjectivePrint(ToString() + "::DeleteObjectiveItems - End");
 	}
-#endif
-	
-	override void OnUpdate(float timeslice)
+
+	void OnObjectiveActionExecuted(PlayerBase player, array<ItemBase> spawned_objects)
 	{
-		super.OnUpdate(timeslice);
-		
-		m_UpdateQueueTimer += timeslice;
-		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
+		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - Start");
+
+		if (m_ObjectiveActionCount == m_ObjectiveActionAmount)
+			return;
+
+		foreach (ItemBase craftedItem: spawned_objects)
 		{
-			bool conditionCheck;
-			if (!GetQuest().IsGroupQuest())
+			string typeName = craftedItem.GetType();
+			int amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(craftedItem);
+			int needed;
+			if (m_ObjectiveItemsMap.Find(typeName, needed))
 			{
-				PlayerBase player = PlayerBase.GetPlayerByUID(GetQuest().GetPlayerUID());
-				EnumeratePlayerInventory(player);
-				conditionCheck = HasPlayerCraftedItem();
+				if (m_ObjectiveActionCount < m_ObjectiveActionAmount)
+				{
+					//! Set quest ID on item as it is now a quest item?!
+					//craftedItem.SetQuestID(m_Quest.GetQuestConfig().GetID());
+					m_ObjectiveActionCount++;
+				}
 			}
-		#ifdef EXPANSIONMODGROUPS
+		}
+
+		UpdateObjective();
+
+		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - End");
+	}
+
+	void OnInventoryItemLocationChange(ItemBase item, Man player, string state)
+	{
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + state);
+
+		string typeName = item.GetType();
+		int amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
+		int needed;
+		int index = -1;
+
+		if (!m_ObjectiveItemsMap.Find(typeName, needed))
+			return;
+
+		if (state == "INV_EXIT")
+		{
+			index = m_ObjectiveItems.Find(item);
+			if (index > -1)
+			{
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Remove " + item.GetType() + " from objective items. Item amount: " + amount);
+				m_ObjectiveItemsCount -= amount;
+				m_ObjectiveItems.Remove(index);
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Objective items count: " + m_ObjectiveItemsCount);
+			}
 			else
 			{
-				EnumerateGroupInventory(GetQuest().GetGroup());
-				conditionCheck = HasGroupCraftedItem();
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item " + item.GetType() + " is not in objective items. Skip..");
 			}
-		#endif
-			
-			if (!conditionCheck && IsCompleted())
+		}
+		else if (state == "INV_ENTER")
+		{
+			index = m_ObjectiveItems.Find(item);
+			if (index == -1)
 			{
-				SetCompleted(false);
-				OnIncomplete();
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item " + item.GetType() + " is not in objective items. Check item..");
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Check m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Check m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
+
+				if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount)
+				{
+					ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Add " + item.GetType() + " to objective items. Item amount: " + amount);
+					m_ObjectiveItemsCount += amount;
+					m_ObjectiveItems.Insert(item);
+					ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Objective items count: " + m_ObjectiveItemsCount);
+				}
 			}
-			else if (conditionCheck && !IsCompleted())
+			else
 			{
-				m_CraftingState = true;
-				SetCompleted(true);
-				OnComplete();
+				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item " + item.GetType() + " is already in objective items.");
+			}
+		}
+
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Should update? m_UpdateCount: " + m_UpdateCount);
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Should update? m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
+
+		if (m_UpdateCount != m_ObjectiveItemsCount)
+		{
+			ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Update delivery and quest-data for quest players..");
+			ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Objective items count: " + m_ObjectiveItemsCount);
+			m_UpdateCount = m_ObjectiveItemsCount;
+			UpdateObjective();
+		}
+
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - End");
+	}
+
+	//! Populate objective item inventory map with the data from the given items in m_ObjectiveItems if there are any.
+	protected void UpdateObjectivesInventoryItemsMap()
+	{
+		ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - Start");
+
+		if (!m_ObjectiveItems)
+		{
+			ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - No objective item entities collected yet!");
+		}
+
+		m_ObjectiveInventoryItemsMap.Clear();
+
+		//! Add a entry for each item from the m_ObjectiveItemsMap to m_ObjectiveInventoryItemsMap first.
+		foreach (string deliveryName, int deliveryAmount: m_ObjectiveItemsMap)
+		{
+			m_ObjectiveInventoryItemsMap.Insert(deliveryName, 0);
+		}
+
+		foreach (EntityAI item: m_ObjectiveItems)
+		{
+			string typeName = item.GetType();
+			int deliveryItemCount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
+			int current;
+			int needed;
+
+			if (!m_ObjectiveItemsMap.Find(typeName, needed))
+			{
+				ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - Item " + typeName + " is not in objective items map! Skip..");
+				return;
 			}
 
-			m_UpdateQueueTimer = 0.0;
+			if (m_ObjectiveInventoryItemsMap.Find(typeName, current))
+			{
+				int newAmount = current + deliveryItemCount;
+				if (newAmount <= needed)
+				{
+					ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - Add item to inventory items map: " + typeName);
+					ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - Needed amount: " + needed);
+					ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - Current collected amount: " + current);
+					ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - New collected amount: " + newAmount);
+					m_ObjectiveInventoryItemsMap.Set(typeName, newAmount);
+				}
+			}
 		}
+
+		ObjectivePrint(ToString() + "::UpdateObjectivesInventoryItemsMap - End");
+	}
+
+	protected void UpdateObjective()
+	{
+		ObjectivePrint(ToString() + "::UpdateObjective - Start");
+
+		UpdateObjectivesInventoryItemsMap();
+		m_Quest.UpdateQuest(false);
+		m_Quest.QuestCompletionCheck();
+
+		ObjectivePrint(ToString() + "::UpdateObjective - End");
+	}
+
+	override bool CanComplete()
+	{
+		ObjectivePrint(ToString() + "::CanComplete - Start");
+		ObjectivePrint(ToString() + "::CanComplete - m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
+		ObjectivePrint(ToString() + "::CanComplete - m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
+
+		bool conditionsResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount == m_ObjectiveItemsAmount) && GetCraftingState();
+		if (!conditionsResult)
+		{
+			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			return false;
+		}
+
+		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+
+		return super.CanComplete();
+	}
+
+	bool GetCraftingState()
+	{
+		return (m_ObjectiveActionCount <= m_ObjectiveActionAmount);
+	}
+
+	int GetObjectiveItemsAmount()
+	{
+		return m_ObjectiveItemsAmount;
+	}
+
+	int GetObjectiveItemsCount()
+	{
+		return m_ObjectiveItemsCount;
 	}
 
 	override bool HasDynamicState()

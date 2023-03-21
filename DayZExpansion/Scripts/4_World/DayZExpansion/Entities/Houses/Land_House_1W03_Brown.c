@@ -21,7 +21,6 @@ class Land_House_1W03_Brown extends BuildingWithFireplace
 		return true;
 	}
 	
-	
 	override void SpawnIvys()
 	{
 		//Ivy

@@ -12,16 +12,16 @@
 
 class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 {
-	ref ExpansionMarketMenu m_MarketMenu;
-	ref ExpansionMarketMenuSkinsDropdownElementController m_ElementController;
+	protected ref ExpansionMarketMenu m_MarketMenu;
+	protected ref ExpansionMarketMenuSkinsDropdownElementController m_ElementController;
 
-	int m_SkinIndex;
-	string m_SkinName;
-	string m_ClassName;
+	protected int m_SkinIndex;
+	protected string m_SkinName;
+	protected string m_ClassName;
 	
 	protected ButtonWidget dropdown_element_button;
 	
-	EntityAI m_Object;
+	protected EntityAI m_Object;
 	protected ref ExpansionItemPreviewTooltip m_ItemTooltip;
 	
 	void ExpansionMarketMenuSkinsDropdownElement(ExpansionMarketMenu menu, int skinIndex, string skinName, string className = "")
@@ -106,9 +106,9 @@ class ExpansionMarketMenuSkinsDropdownElement: ExpansionScriptView
 			m_MarketMenu.GetSelectedMarketItemElement().UpdateSelectedVariantOrSkin(m_ClassName, m_SkinIndex);
 		}
 	}
-}
+};
 
 class ExpansionMarketMenuSkinsDropdownElementController: ExpansionViewController
 {
 	string Text;
-}
+};

@@ -3293,6 +3293,21 @@ modded class CarScript
 	{
 		return skinIndex > -1 && skinIndex < m_Skins.Count();
 	}
+	
+	ExpansionSkin ExpansionGetCurrentSkin()
+	{
+		return m_CurrentSkin;
+	}
+
+	string ExpansionGetCurrentSkinName()
+	{
+		return m_CurrentSkinName;
+	}
+	
+	int ExpansionGetCurrentSkinIndex()
+	{
+		return m_CurrentSkinIndex;
+	}
 
 	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
 	{
@@ -3577,6 +3592,8 @@ modded class CarScript
 		m_IsCECreated = true;
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(GetInventory().CountInventory());
+
 		GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 		for (int i = 0; i < items.Count(); i++)
 		{

@@ -300,7 +300,11 @@ class ExpansionItemSpawnHelper
 			s_VehicleSizes.Insert(className, size);
 		}
 
-		blockingObject = GetObjectBlockingPosition(position, orientation, size);
+		//! Reduce check dimensions by 5% so we don't get blocked by objects the vehicle may stand on
+		vector checkDimensions = Vector(size[0] * 0.95, size[1] * 0.95, size[2] * 0.95);
+		vector checkPosition = Vector(position[0], position[1] + size[1] * 0.05, position[2]);
+
+		blockingObject = GetObjectBlockingPosition(checkPosition, orientation, checkDimensions);
 
 		CF_Log.Debug("IsVehicleSpawnPositionFree " + className + " size " + size + " pos " + position + " ori " + orientation + " blocking " + blockingObject);
 		

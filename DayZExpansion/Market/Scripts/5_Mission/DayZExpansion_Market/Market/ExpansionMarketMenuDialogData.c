@@ -16,4 +16,4 @@ class ExpansionMarketMenuDialogData
 	int Amount;
 	int Price;
 	bool IncludeAttachments;
-}
+};

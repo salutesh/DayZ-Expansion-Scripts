@@ -32,38 +32,30 @@ class CfgMods
 		dependencies[] = {"Game","World","Mission"};
 		class defs
 		{
-			class widgetStyles
-			{
-				files[] = {};
-			};
-			class imageSets
-			{
-				files[] = {};
-			};
 			class engineScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/Common","DayZExpansion/Quests/Scripts/1_Core"};
+				files[] = {"DayZExpansion/Quests/Scripts/1_Core"};
 			};
 			class gameLibScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/Common","DayZExpansion/Quests/Scripts/2_GameLib"};
+				files[] = {"DayZExpansion/Quests/Scripts/2_GameLib"};
 			};
 			class gameScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/Common","DayZExpansion/Quests/Scripts/3_Game"};
+				files[] = {"DayZExpansion/Quests/Scripts/3_Game"};
 			};
 			class worldScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/Common","DayZExpansion/Quests/Scripts/4_World"};
+				files[] = {"DayZExpansion/Quests/Scripts/4_World"};
 			};
 			class missionScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Quests/Scripts/Common","DayZExpansion/Quests/Scripts/5_Mission"};
+				files[] = {"DayZExpansion/Quests/Scripts/5_Mission"};
 			};
 		};
 	};

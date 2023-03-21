@@ -15,7 +15,7 @@ class ExpansionQuestObjectiveTargetConfigBase: ExpansionQuestObjectiveConfig
 	vector Position = vector.Zero;
 	float MaxDistance = -1;
 	autoptr ExpansionQuestObjectiveTarget Target;
-}
+};
 
 class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBase
 {
@@ -24,7 +24,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Position = pos;
 	}
 
-	override vector GetPosition()
+	vector GetPosition()
 	{
 		return Position;
 	}
@@ -34,7 +34,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		MaxDistance = max;
 	}
 
-	override float GetMaxDistance()
+	float GetMaxDistance()
 	{
 		return MaxDistance;
 	}
@@ -44,7 +44,7 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Target = target;
 	}
 
-	override ExpansionQuestObjectiveTarget GetTarget()
+	ExpansionQuestObjectiveTarget GetTarget()
 	{
 		return Target;
 	}
@@ -52,44 +52,54 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 	static ExpansionQuestObjectiveTargetConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveTargetConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveTargetConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName);
 
 		ExpansionQuestObjectiveTargetConfig config;
 		ExpansionQuestObjectiveTargetConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveTargetConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveTargetConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveTargetConfig();
-
+			
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
+
+		#ifdef EXPANSIONMODAI
+			if (configBase.ConfigVersion < 13)
+			{
+				ExpansionQuestObjectiveTarget target = config.GetTarget();
+				if (target)
+				{
+					target.SetCountAIPlayers(false);
+				}
+			}
+		#endif
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, config))
 				return NULL;
 		}
 
 		if (save)
-		{
 			config.Save(fileName);
-		}
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveTargetConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER + fileName, this);
 	}
 
@@ -103,19 +113,6 @@ class ExpansionQuestObjectiveTargetConfig: ExpansionQuestObjectiveTargetConfigBa
 		Position = configBase.Position;
 		MaxDistance = configBase.MaxDistance;
 		Target = configBase.Target;
-	}
-
-	override void OnSend(ParamsWriteContext ctx)
-	{
-		super.OnSend(ctx);
-	}
-
-	override bool OnRecieve(ParamsReadContext ctx)
-	{
-		if (!super.OnRecieve(ctx))
-			return false;
-
-		return true;
 	}
 
 	override bool Validate()

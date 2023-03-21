@@ -16,7 +16,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	protected ExpansionMarketMenu m_MarketMenu;
 	protected ExpansionMarketItem m_MarketItem;
 	
-	ScrollWidget market_item_manager_category_items_scroller;
+	protected ScrollWidget market_item_manager_category_items_scroller;
 	
 	protected ItemPreviewWidget market_item_manager_preview;
 	protected ButtonWidget market_item_manager_back_button;
@@ -48,7 +48,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	protected int m_ItemRotationY;
 	protected int m_ItemScaleDelta;
 	
-	ref array<ref ExpansionMarketMenuItemManagerPreset> m_ItemManagerPresets = new array<ref ExpansionMarketMenuItemManagerPreset>;
+	protected ref array<ref ExpansionMarketMenuItemManagerPreset> m_ItemManagerPresets = new array<ref ExpansionMarketMenuItemManagerPreset>;
 	
 	void ExpansionMarketMenuItemManager(ExpansionMarketMenu marketMenu)
 	{

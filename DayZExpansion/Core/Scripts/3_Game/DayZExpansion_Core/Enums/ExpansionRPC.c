@@ -250,7 +250,9 @@ enum ExpansionSettingsRPC
 	NotificationScheduler,  //! Not used, settings don't need to be available on client
 	Hardline,
 	Garage,
-	COUNT  //! 29 INCREMENT FOLLOWING RPCs WHEN NEEDED FFS
+	P2PMarket,
+	PersonalStorage,
+	COUNT  //! 31 INCREMENT THIS NUMBER AND FOLLOWING RPCs WHEN NEEDED FFS
 };
 
 enum ExpansionCOTBookModuleRPC
@@ -396,14 +398,10 @@ enum ExpansionRPC
 enum ExpansionQuestModuleRPC
 {
 	INVALID = 40020,
-	SendQuestNPCData,
-	RequestPlayerQuests,
-	SendPlayerQuests,
-	SendPlayerQuestData,
 	RequestOpenQuestMenu,
-	SetupClientData,
-	UpdatePlayerQuestData,
-	CreateQuestInstance,
+	SendClientQuestData,
+	SendClientQuestConfigs,
+	RequestCreateQuestInstance,
 	RequestCompleteQuest,
 	CompleteQuest,
 	CreateClientMarker,
@@ -421,6 +419,37 @@ enum ExpansionGarageModuleRPC
 	DepositVehicleRequest,
 	RetrieveVehicleRequest,
 	Callback,
+	COUNT
+};
+
+enum ExpansionP2PMarketModuleRPC
+{
+	INVALID = 40060,
+	RequestBMTraderData,
+	SendBMTraderData,
+	RequestListBMItem,
+	RequestPurchaseBMItem,
+	RequestSaleFromListing,
+	RequestAllPlayerSales,
+	RemoveTradingPlayer,
+	Callback,
+	COUNT
+};
+
+enum ExpansionPersonalStorageModuleRPC
+{
+	INVALID = 40080,
+	RequestDepositItem,
+	RequestRetrieveItem
+	SendItemData,
+	Callback,
+	COUNT
+};
+
+enum ExpansionTeleporterModuleRPC
+{
+	INVALID = 40100,
+	PlayTeleportSound
 	COUNT
 };
 

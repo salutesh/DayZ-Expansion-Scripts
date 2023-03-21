@@ -170,6 +170,18 @@
 					return CONTINUE;
 				}
 				
+				auto direction = vector.Direction(unit.GetPosition() + "0 1.5 0", aimPosition).Normalized();
+				if (vector.Dot(unit.GetAimDirection(), direction) &lt; 0.75)
+				{
+					if (time &gt;= 0.5)
+					{
+						return EXIT;
+					}
+				
+					// waiting for unit to face target
+					return CONTINUE;
+				}
+				
 				unit.TryFireWeapon();
 				
 				return EXIT;

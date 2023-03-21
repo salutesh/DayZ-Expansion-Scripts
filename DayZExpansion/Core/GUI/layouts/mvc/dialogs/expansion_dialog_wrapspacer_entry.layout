@@ -1,0 +1,43 @@
+WrapSpacerWidgetClass ExpansionDialogWrapSpacerEntry {
+ clipchildren 0
+ ignorepointer 1
+ size 0.95 32
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ priority 101
+ scriptclass "ExpansionDialogContent_WrapSpacer_EntryController"
+ style Colorable
+ Padding 0
+ Margin 0
+ "Size To Content V" 1
+ {
+  RichTextWidgetClass entry {
+   clipchildren 0
+   ignorepointer 1
+   position 20 0
+   size 0.8 32
+   halign right_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   priority 100
+   scriptclass "ViewBinding"
+   font "gui/fonts/etelkatextpro22"
+   "exact text" 1
+   "size to text h" 1
+   "size to text v" 0
+   "text valign" center
+   wrap 1
+   "strip newlines" 1
+   {
+    ScriptParamsClass {
+     Binding_Name "EntryText"
+    }
+   }
+  }
+ }
+}

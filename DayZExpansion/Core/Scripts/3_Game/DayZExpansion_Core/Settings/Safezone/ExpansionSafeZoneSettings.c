@@ -221,6 +221,16 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 			Defaults();
 			save = true;
 		}
+
+		for (int i=0; i < CircleZones.Count(); i++)
+		{
+			vector pos = ExpansionStatic.GetSurfacePosition(CircleZones[i].Center);
+			if ( pos[1] > CircleZones[i].Center[1])
+			{
+				CircleZones[i].Center[1] = pos[1];
+				save = true;
+			}
+		}
 		
 		if (save)
 			Save();

@@ -599,12 +599,12 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ------------------------------------------------------------
 	override void OnHide()
 	{
+		SwitchMovementLockState(false);
+
 		super.OnHide();
 		
 		if (m_InviteDialog && m_InviteDialog.IsVisible())
 			m_InviteDialog.Hide();
-		
-		SwitchMovementLockState(false);
 	}
 };
 

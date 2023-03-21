@@ -10,35 +10,31 @@
  *
 */
 
-class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
+class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionDialogBase
 {
-	ref ExpansionMenuDialogContent_Text m_Text;
-	ref ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept m_AcceptButton;
-	ref ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel m_CancelButton;
-	
-	ref ExpansionMarketMenu m_MarketMenu;
-	ref ExpansionMarketMenuDialogData m_DialogData;
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept m_AcceptButton;
+	protected ref ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel m_CancelButton;
+	protected ref ExpansionMarketMenu m_MarketMenu;
+	protected ref ExpansionMarketMenuDialogData m_DialogData;
 	
 	bool m_KeyInput = false;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSpawnOnGround_Cancel Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialog_MarketConfirmPurchase(ExpansionScriptViewMenu parentMenu, ExpansionMarketMenuDialogData dialogData)
+
+	void ExpansionMenuDialog_MarketConfirmPurchase(ScriptView parentView, ExpansionMarketMenuDialogData dialogData)
 	{
-		m_ParentMenu = parentMenu;
+		m_ParentView = parentView;
 		m_DialogData = dialogData;
 		
 		if (!m_MarketMenu)
-			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentMenu);
+			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentView);
 		
-		ExpansionMenuDialogContentSpacer spacer;
-		spacer = new ExpansionMenuDialogContentSpacer(this);
+		ExpansionDialogContentSpacer spacer;
+		spacer = new ExpansionDialogContentSpacer(this);
 		AddContent(spacer);
 		
 		if (!m_Text)
 		{
-			m_Text = new ExpansionMenuDialogContent_Text(this);
+			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
 			
 			string amount = m_DialogData.Amount.ToString();
@@ -60,7 +56,7 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
 			m_Text.Show();
 		}
 		
-		spacer = new ExpansionMenuDialogContentSpacer(this);
+		spacer = new ExpansionDialogContentSpacer(this);
 		AddContent(spacer);
 				
 		if (!m_AcceptButton)
@@ -76,39 +72,25 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
 			AddButton(m_CancelButton);
 			m_CancelButton.Show();
 		}
-
-		CenterVertically();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSpawnOnGround_Cancel GetDialogTitle
-	// ------------------------------------------------------------
+
 	override string GetDialogTitle()
 	{
 		return "#STR_EXPANSION_MARKET_PURCHASE_DIALOG_TITLE";
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSpawnOnGround_Cancel GetMarketMenu
-	// ------------------------------------------------------------		
 	ExpansionMarketMenu GetMarketMenu()
 	{
 		return m_MarketMenu;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell GetUpdateTickRate
-	// ------------------------------------------------------------	
+
 	override float GetUpdateTickRate()
 	{
 		return 0.25;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketConfirmSell Update
-	// ------------------------------------------------------------	
+
 	override void Update()
-	{		
+	{
 		if ((ExpansionStatic.Key_Y() || ExpansionStatic.Key_Z()) && !m_KeyInput)
 		{
 			GetMarketMenu().OnConfirmBuyButtonClick();
@@ -126,14 +108,11 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionMenuDialogBase
 	}
 };
 
-class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept: ExpansionMenuDialogButton_Text
+class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept: ExpansionDialogButton_Text
 {
 	ref ExpansionMenuDialog_MarketConfirmPurchase m_ConfirmDialog;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept(ExpansionMenuDialogBase dialog)
+
+	void ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;		
 		
@@ -143,25 +122,18 @@ class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept: ExpansionMenu
 		SetButtonText("#STR_EXPANSION_MARKET_DIALOG_ACCEPT");
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Accept OnButtonClick
-	// ------------------------------------------------------------	
 	override void OnButtonClick()
 	{	
 		m_ConfirmDialog.GetMarketMenu().OnConfirmBuyButtonClick();
-		//m_ConfirmDialog.m_KeyInput = true;
 		m_ConfirmDialog.GetMarketMenu().m_KeyInput = false;
 	}
 };
 
-class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel: ExpansionMenuDialogButton_Text
+class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel: ExpansionDialogButton_Text
 {
 	ref ExpansionMenuDialog_MarketConfirmPurchase m_ConfirmDialog;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel Constructor
-	// ------------------------------------------------------------		
-	void ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel(ExpansionMenuDialogBase dialog)
+
+	void ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 		
@@ -170,15 +142,11 @@ class ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel: ExpansionMenu
 		
 		SetButtonText("#STR_EXPANSION_MARKET_DIALOG_CANCLE");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketConfirmPurchase_Cancel OnButtonClick
-	// ------------------------------------------------------------		
+
 	override void OnButtonClick()
 	{
 		m_ConfirmDialog.Hide();
 		m_ConfirmDialog.GetMarketMenu().SetMenuState(ExpansionMarketMenuState.NONE);
-		//m_ConfirmDialog.m_KeyInput = true;
 		m_ConfirmDialog.GetMarketMenu().m_KeyInput = false;
 	}
 };

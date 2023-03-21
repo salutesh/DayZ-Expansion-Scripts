@@ -230,4 +230,81 @@ modded class Weapon_Base
 
 		return super.ProcessWeaponAbortEvent(e);
 	}
+
+	override bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		ItemOptics optic;
+		if (!skipNVG && Class.CastTo(optic, GetAttachedOptics()) && optic.GetCurrentNVType() != NVTypes.NONE)
+		{
+			nightVisibility = optic.GetZeroingDistanceZoomMax() * 0.001;
+			EXTrace.Print(EXTrace.AI, player, "switched on " + optic.ToString());
+			return true;
+		}
+
+		if ( skipNonNVG )
+			return false;
+
+		ActionTarget atrg;
+		ActionManagerClient mngr_client;
+		CastTo(mngr_client, player.GetActionManager());
+		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
+
+		if ( mngr_client.GetAction(ActionTurnOnWeaponFlashlight).Can(player, atrg, this) )
+		{
+			ItemBase itemChild;
+
+			if ( IsInherited(Rifle_Base) )
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
+			}
+			else if (IsInherited(Pistol_Base))
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
+			}
+
+			if ( itemChild && itemChild.Expansion_TryTurningOn() )
+			{
+				FlashlightOn();
+				nightVisibility = 0.15;
+				EXTrace.Print(EXTrace.AI, player, "switched on " + itemChild.ToString());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	override bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.AI, this);
+
+		ActionTarget atrg;
+		ActionManagerClient mngr_client;
+		CastTo(mngr_client, player.GetActionManager());
+		atrg = new ActionTarget(this, null, -1, vector.Zero, -1.0);
+
+		if ( mngr_client.GetAction(ActionTurnOffWeaponFlashlight).Can(player, atrg, this) )
+		{
+			ItemBase itemChild;
+			if ( IsInherited(Rifle_Base) )
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("weaponFlashlight"));
+			}
+			else if (IsInherited(Pistol_Base))
+			{
+				itemChild = ItemBase.Cast(FindAttachmentBySlotName("pistolFlashlight"));
+			}
+
+			if ( itemChild && itemChild.Expansion_TryTurningOff() )
+			{
+				FlashlightOff();
+				EXTrace.Print(EXTrace.AI, player, "switched off " + itemChild.ToString());
+				return true;
+			}
+		}
+
+		return false;
+	}
 };

@@ -2,14 +2,15 @@ class eAIFormation
 {
 	static const float DIR_RECALC_DIST_SQ = 9.0;
 
-	static autoptr TTypenameArray s_FormationTypes = {eAIFormationColumn, eAIFormationFile, eAIFormationVee, eAIFormationWall};
+	static autoptr TTypenameArray s_FormationTypes = {eAIFormationColumn, eAIFormationInvColumn, eAIFormationFile, eAIFormationInvFile, eAIFormationVee, eAIFormationInvVee, eAIFormationWall, eAIFormationCircle, eAIFormationCircleDot, eAIFormationStar, eAIFormationStarDot};
 
 	private vector m_Transform[4];
 	private float m_Scale;
 
-	private eAIGroup m_Group;
+	protected eAIGroup m_Group;
 
 	private vector m_LastUpdatePosition;
+	protected float m_Looseness;
 
 	void eAIFormation(eAIGroup group = null)
 	{
@@ -27,6 +28,16 @@ class eAIFormation
 	// Abstract function that returns the position in local space relative to the formation transformation at any given time.
 	vector GetPosition(int member_no);
 
+	void SetLooseness(float looseness)
+	{
+		m_Looseness = looseness;
+	}
+
+	float GetLooseness()
+	{
+		return Math.RandomFloatInclusive(-m_Looseness, m_Looseness);
+	}
+
 	vector ToWorld(vector fs)
 	{
 		if (m_Group.Count() > 0 && m_Group.GetLeader())
@@ -39,7 +50,7 @@ class eAIFormation
 
 	void Update(float pDt)
 	{
-		if (!m_Group.GetLeader())
+		if (!m_Group || !m_Group.GetLeader())
 			return;
 
 		vector newPos = m_Group.GetLeader().GetPosition();

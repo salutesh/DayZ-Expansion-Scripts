@@ -4,22 +4,24 @@ class CfgPatches
 {
 	class DayZExpansion_M79
 	{
-		units[] = {"Expansion_M203_HE_Explosion","Expansion_M203Round_Smoke_White","Expansion_M203Round_Smoke_Teargas","Expansion_M203Round_Smoke_Red","Expansion_M203Round_Smoke_Green","Expansion_M203Round_Smoke_Yellow","Expansion_M203Round_Smoke_Purple"};
-		weapons[] = {"Expansion_M79"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Weapons_Firearms"};
-		magazines[] = {"Ammo_Expansion_M203_Smoke_White","Ammo_Expansion_M203_Smoke_Red","Ammo_Expansion_M203_Smoke_Green","Ammo_Expansion_M203_Smoke_Yellow","Ammo_Expansion_M203_Smoke_Purple","Ammo_Expansion_M203_Smoke_Teargas","Ammo_Expansion_M203_Sticky_Smoke_White","Ammo_Expansion_M203_Sticky_Smoke_Red","Ammo_Expansion_M203_Sticky_Smoke_Green","Ammo_Expansion_M203_Sticky_Smoke_Yellow","Ammo_Expansion_M203_Sticky_Smoke_Purple","Ammo_Expansion_M203_Sticky_Smoke_Teargas","Ammo_Expansion_M203_HE"};
-		ammo[] = {"DummyShockDamage","Bullet_Expansion_M203_Smoke_Base","Bullet_Expansion_M203_Smoke_White","Bullet_Expansion_M203_Smoke_Red","Bullet_Expansion_M203_Smoke_Green","Bullet_Expansion_M203_Smoke_Yellow","Bullet_Expansion_M203_Smoke_Purple","Bullet_Expansion_M203_Smoke_Teargas","Bullet_Expansion_M203_Sticky_Smoke_White","Bullet_Expansion_M203_Sticky_Smoke_Red","Bullet_Expansion_M203_Sticky_Smoke_Green","Bullet_Expansion_M203_Sticky_Smoke_Yellow","Bullet_Expansion_M203_Sticky_Smoke_Purple","Bullet_Expansion_M203_Sticky_Smoke_Teargas","Bullet_Expansion_M203_HE"};
+		requiredAddons[] = {"DZ_Weapons_Launchers_M79"};
 	};
 };
 class cfgWeapons
 {
-	class M79;
+	class Rifle_Base;
+	class M79_Base: Rifle_Base
+	{
+		chamberableFrom[] += {"Ammo_Expansion_M203_Smoke_White","Ammo_Expansion_M203_Smoke_Red","Ammo_Expansion_M203_Smoke_Green","Ammo_Expansion_M203_Smoke_Yellow","Ammo_Expansion_M203_Smoke_Purple","Ammo_Expansion_M203_Smoke_Teargas","Ammo_Expansion_M203_Sticky_Smoke_White","Ammo_Expansion_M203_Sticky_Smoke_Red","Ammo_Expansion_M203_Sticky_Smoke_Green","Ammo_Expansion_M203_Sticky_Smoke_Yellow","Ammo_Expansion_M203_Sticky_Smoke_Purple","Ammo_Expansion_M203_Sticky_Smoke_Teargas","Ammo_Expansion_M203_HE"};
+	};
+	class M79: M79_Base{};
 	class Expansion_M79: M79
 	{
-		scope = 2;
+		scope = 0;
 		descriptionShort = "The M79 is part of the official weaponry of vanilla DayZ 1.18. This item still exists so nobody loses their gear. Please do not spawn this item anymore. This item will be removed from the mod in a few months.";
-		chamberableFrom[] += {"Ammo_Expansion_M203_Smoke_White","Ammo_Expansion_M203_Smoke_Red","Ammo_Expansion_M203_Smoke_Green","Ammo_Expansion_M203_Smoke_Yellow","Ammo_Expansion_M203_Smoke_Purple","Ammo_Expansion_M203_Smoke_Teargas","Ammo_Expansion_M203_Sticky_Smoke_White","Ammo_Expansion_M203_Sticky_Smoke_Red","Ammo_Expansion_M203_Sticky_Smoke_Green","Ammo_Expansion_M203_Sticky_Smoke_Yellow","Ammo_Expansion_M203_Sticky_Smoke_Purple","Ammo_Expansion_M203_Sticky_Smoke_Teargas","Ammo_Expansion_M203_HE"};
 	};
 };
 class CfgMagazines

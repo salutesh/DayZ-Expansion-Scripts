@@ -1,0 +1,881 @@
+FrameWidgetClass ExpansionPersonalStorageMenu {
+ ignorepointer 1
+ size 0.95 0.95
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ priority 1
+ scriptclass "ExpansionPersonalStorageMenuController"
+ {
+  PanelWidgetClass inventory_panel {
+   visible 1
+   ignorepointer 1
+   color 0.0745 0.0902 0.1059 1
+   position 0.01 0.1
+   size 0.75 0.8
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   style DayZDefaultPanel
+   {
+    WrapSpacerWidgetClass inventory_header {
+     visible 1
+     ignorepointer 1
+     position 0 0.02
+     size 0.97 48
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     content_halign center
+     content_valign center
+     {
+      ScriptParamsClass {
+       Binding_Name "ItemListings"
+      }
+     }
+    }
+    ScrollWidgetClass inventory_scroller {
+     visible 1
+     clipchildren 1
+     ignorepointer 0
+     keepsafezone 1
+     position 0 0.03
+     size 0.97 0.88
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     "Scrollbar V" 1
+     {
+      WrapSpacerWidgetClass inventory_content {
+       visible 1
+       ignorepointer 1
+       size 1 0.5
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass ""
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
+      }
+     }
+    }
+    ScrollWidgetClass player_items_scroller {
+     visible 0
+     clipchildren 1
+     ignorepointer 0
+     keepsafezone 1
+     size 0.97 0.96
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     "Scrollbar V" 1
+     {
+      WrapSpacerWidgetClass player_items_content {
+       visible 1
+       ignorepointer 1
+       size 1 0.5
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       "Size To Content V" 1
+       content_halign center
+       content_valign center
+       {
+        ScriptParamsClass {
+         Binding_Name "PlayerItems"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass categories_panel {
+   visible 1
+   ignorepointer 1
+   color 0.0745 0.0902 0.1059 1
+   position 0.01 0.1
+   size 0.2 0.8
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   style DayZDefaultPanel
+   {
+    ScrollWidgetClass categories_scroller {
+     visible 1
+     clipchildren 1
+     ignorepointer 0
+     keepsafezone 1
+     position 0 -0.01781
+     size 0.95 0.94439
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     "Scrollbar V" 1
+     {
+      WrapSpacerWidgetClass browse_categories_content {
+       visible 1
+       ignorepointer 1
+       size 1 0.5
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       Padding 5
+       "Size To Content V" 1
+       {
+        PanelWidgetClass PanelWidget0 {
+         ignorepointer 1
+         position 0 0
+         size 1 2
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style rover_sim_colorable
+        }
+        GridSpacerWidgetClass browse_category_all {
+         color 0 0 0 1
+         position 10 10
+         size 1 26
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         style Expansion_01
+         Padding 0
+         Margin 0
+         Columns 1
+         Rows 1
+         {
+          ButtonWidgetClass browse_category_all_button {
+           ignorepointer 0
+           color 0 0 0 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           style Expansion_01
+           {
+            ImageWidgetClass browse_category_all_icon {
+             visible 1
+             ignorepointer 1
+             position 0.14 0
+             size 24 24
+             valign center_ref
+             hexactpos 0
+             vexactpos 1
+             hexactsize 1
+             vexactsize 1
+             image0 ""
+             imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
+             mode blend
+             "src alpha" 1
+             "no wrap" 1
+             stretch 1
+            }
+            TextWidgetClass browse_category_all_text {
+             ignorepointer 1
+             position 0.23 0
+             size 0.42 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass ""
+             text "All"
+             "text valign" center
+            }
+            TextWidgetClass browse_category_all_items_count {
+             ignorepointer 1
+             position 0.03 0
+             size 0.15 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "AllItemsCount"
+              }
+             }
+            }
+           }
+           {
+            ScriptParamsClass {
+             Relay_Command "OnClickCategory_All"
+            }
+           }
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnClickCategory_All"
+          }
+         }
+        }
+       }
+       {
+        ScriptParamsClass {
+         Binding_Name "BrowseCategories"
+        }
+       }
+      }
+      WrapSpacerWidgetClass player_categories_content {
+       visible 0
+       ignorepointer 1
+       size 1 0.5
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       Padding 5
+       "Size To Content V" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "PlayerCategories"
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass PanelWidget1 {
+     ignorepointer 1
+     position 0 0.04
+     size 0.95 2
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style rover_sim_colorable
+    }
+    GridSpacerWidgetClass toggle_categories_panel {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0.005
+     size 0.95 26
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass ""
+     style Expansion_01
+     Padding 0
+     Margin 0
+     Columns 1
+     Rows 1
+     {
+      ButtonWidgetClass toggle_categories_button {
+       color 0 0 0 1
+       position 0 0.005
+       size 0.95 26
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass toggle_categories_text {
+         ignorepointer 1
+         size 0.95 1
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass ""
+         text "Toggle Categories"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnToggleCategoriesClick"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass details_panel {
+   visible 0
+   ignorepointer 1
+   color 0.0745 0.0902 0.1059 1
+   position 0.01 0.1
+   size 0.98 0.8
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   style DayZDefaultPanel
+  }
+  GridSpacerWidgetClass tabs_panel {
+   ignorepointer 1
+   position 0.24 0.0666
+   size 0.28 36
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   priority 1
+   style Colorable
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 1
+   Rows 1
+   {
+    GridSpacerWidgetClass tabs_button_panel {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     color 0 0 0 1
+     size 1 36
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style Expansion_01
+     Padding 5
+     Margin 0
+     "Size To Content H" 1
+     Rows 1
+     {
+      ButtonWidgetClass tabs_button_browse {
+       ignorepointer 0
+       color 0.0745 0.0902 0.1059 1
+       position 0.02 0.287
+       size 150 1.032
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 0
+       priority 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass tabs_button_browse_text {
+         clipchildren 1
+         ignorepointer 1
+         size 1 36
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "Browse"
+         font "gui/fonts/etelkatextpro28"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnBrowseButtonClick"
+        }
+       }
+      }
+      ButtonWidgetClass tabs_button_deposit {
+       color 0.0745 0.0902 0.1059 1
+       position 0.02 0.287
+       size 150 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 0
+       priority 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass tabs_button_deposit_text {
+         ignorepointer 1
+         size 1 36
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "Deposit"
+         font "gui/fonts/etelkatextpro28"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnDepositButtonClick"
+        }
+       }
+      }
+      ButtonWidgetClass tabs_button_sales {
+       visible 0
+       color 0.0745 0.0902 0.1059 1
+       position 0.02 0.287
+       size 150 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 0
+       priority 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass tabs_button_sales_text {
+         ignorepointer 1
+         size 1 36
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "Sales"
+         font "gui/fonts/etelkatextpro28"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnSalesButtonClick"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  GridSpacerWidgetClass exit_button_panel {
+   color 0 0 0 1
+   position 0.01 0.05
+   size 0.1 32
+   halign right_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   priority 1
+   scriptclass ""
+   style Expansion_01
+   Padding 0
+   Margin 0
+   Columns 1
+   Rows 1
+   {
+    ButtonWidgetClass exit_button {
+     color 0 0 0 1
+     position 0.01 0.05
+     size 0.1 32
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     style Expansion_01
+     {
+      TextWidgetClass exit_button_text {
+       ignorepointer 1
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       text "Exit"
+       font "gui/fonts/etelkatextpro22"
+       "text halign" center
+       "text valign" center
+      }
+     }
+     {
+      ScriptParamsClass {
+       Relay_Command "OnExitClick"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass background {
+   visible 1
+   ignorepointer 1
+   color 0.1059 0.1059 0.1059 0.9412
+   size 1 0.941
+   halign center_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style UIDefaultPanel
+  }
+  PanelWidgetClass loading {
+   visible 0
+   ignorepointer 0
+   color 0.0588 0.0588 0.0588 0.7843
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1000
+   style rover_sim_colorable
+   {
+    TextWidgetClass loading_text {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 64
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style Bold
+     text "#STR_EXPANSION_MARKET_LOADING"
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+  PanelWidgetClass stored_items_panel {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   position 0.01 0.0666
+   size 0.2 34
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   priority 1
+   style blank
+   {
+    PanelWidgetClass stored_items_header {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 1 32
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass stored_items_text {
+       visible 1
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.01 0
+       size 0.5 26
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       style Bold
+       text "Items Stored:"
+       "text offset" 5 0
+       "exact text" 0
+       "size to text v" 0
+       "text valign" center
+      }
+      TextWidgetClass stored_items_value {
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.04 0
+       size 0.45 26
+       halign right_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       "exact text" 0
+       "size to text v" 0
+       "text halign" right
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "StoredItemsCount"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass header {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0.1059 0.1059 0.1059 0.9412
+   size 1 0.059
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style UIDefaultPanel
+   "no focus" 1
+   {
+    TextWidgetClass trader_text {
+     visible 1
+     ignorepointer 1
+     color 0.8627 0.8627 0.8627 1
+     position 0.05 0
+     size 0.3 26
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     style Bold
+     text "Personal Storage"
+     "bold text" 0
+     "text sharpness" 1.014
+     "exact text" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "PersonalStorageName"
+      }
+     }
+    }
+    ImageWidgetClass trader_icon {
+     ignorepointer 1
+     color 0.8627 0.8627 0.8627 1
+     position 0.01 0
+     size 46 46
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     imageTexture "{C8B1F254399D471F}DayZExpansion/Core/GUI/icons/misc/T_BagPack_256x256.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "PersonalStorageIcon"
+      }
+     }
+    }
+    GridSpacerWidgetClass header_right {
+     ignorepointer 1
+     position 0.01 0
+     size 1 46
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     style Colorable
+     Padding 10
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_valign center
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass market_filter_panel {
+       ignorepointer 1
+       position 0.01 0
+       size 0.2 34
+       halign right_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       {
+        ImageWidgetClass market_filter_background {
+         ignorepointer 1
+         color 0 0 0 1
+         position 0.00284 0
+         size 1 31
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         image0 ""
+         imageTexture "{5CCDBAA76FB55F9B}DayZExpansion/Market/GUI/textures/panel_background_01.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+        EditBoxWidgetClass market_filter_box {
+         size 0.84 26
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         style ServerBrowser
+         text "#STR_EXPANSION_UPPERCASE_SEARCH"
+         "limit visible" 0
+         "Use default text" 1
+         "exact text" 1
+        }
+        ButtonWidgetClass market_filter_clear {
+         clipchildren 0
+         position 0.007 0
+         size 34 34
+         halign right_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         fixaspect fixwidth
+         scriptclass "ViewBinding"
+         style Empty
+         {
+          ImageWidgetClass market_filter_clear_icon {
+           visible 1
+           clipchildren 0
+           ignorepointer 1
+           color 0.9843 0.9882 0.9961 1
+           size 26 26
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass ""
+           image0 ""
+           imageTexture "{50590D86B12E21D3}DayZExpansion/Core/GUI/icons/hud/refresh_64x64.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+          }
+         }
+         {
+          ScriptParamsClass {
+           Relay_Command "OnFilterButtonClick"
+          }
+         }
+        }
+        PanelWidgetClass market_filter_icon {
+         clipchildren 0
+         ignorepointer 1
+         position 0.02 0
+         size 0.5 0.5
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scaled 1
+         fixaspect fixwidth
+         {
+          ImageWidgetClass market_filter_search_icon {
+           clipchildren 0
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           size 26 26
+           halign center_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{0A37CC5D0C68964C}DayZExpansion/Core/GUI/icons/misc/T_Frying_Pan_256x256.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

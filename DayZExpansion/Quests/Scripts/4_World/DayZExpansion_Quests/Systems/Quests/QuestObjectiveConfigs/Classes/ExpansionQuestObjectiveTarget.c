@@ -14,10 +14,13 @@ class ExpansionQuestObjectiveTarget
 {
 	protected int Amount = -1;
 	protected autoptr array<string> ClassNames = new array<string>;
-	bool CountSelfKill;
+	protected bool CountSelfKill;
 	protected bool SpecialWeapon = false;
 	protected autoptr array<string> AllowedWeapons = new array<string>;
 	protected autoptr array<string> ExcludedClassNames = new array<string>;
+#ifdef EXPANSIONMODAI
+	protected bool CountAIPlayers = false;
+#endif
 
 	void SetAmount(int amount)
 	{
@@ -68,6 +71,28 @@ class ExpansionQuestObjectiveTarget
 	{
 		return ExcludedClassNames;
 	}
+	
+	void SetCountSelfKill(bool state)
+	{
+		CountSelfKill = state;
+	}
+	
+	bool CountSelfKill()
+	{
+		return CountSelfKill;
+	}
+	
+#ifdef EXPANSIONMODAI
+	void SetCountAIPlayers(bool state)
+	{
+		CountAIPlayers = state;
+	}
+	
+	bool CountAIPlayers()
+	{
+		return CountAIPlayers;
+	}
+#endif
 
 	void QuestDebug()
 	{

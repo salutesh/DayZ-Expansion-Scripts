@@ -23,7 +23,9 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	TextWidget hab_humanity_label;
 	Widget hab_medic_spacer;
 	Widget hab_raid_spacer;
-
+	Widget profile_player_faction_spacer;
+	Widget profile_blood_spacer;
+	
 	vector m_PlayerPreviewOrientation = vector.Zero;
 	int m_PlayerPreviewRotationX = 0;
 	int m_PlayerPreviewRotationY = 0;
@@ -35,6 +37,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	bool m_Updated;
 
 	bool m_ShowHardlineStats;
+	bool m_ShowPlayerFaction;
 
 	void ExpansionBookMenuTabPlayerProfile(ExpansionBookMenu book_menu)
 	{
@@ -56,9 +59,11 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#ifdef EXPANSIONMODHARDLINE
 		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation);
 	#endif
+	#ifdef EXPANSIONMODAI
+		m_ShowPlayerFaction = GetExpansionSettings().GetBook().ShowPlayerFaction;
+	#endif
 
-		UpdateHaBUIElements();
-		UpdateHardlineUIElements();
+		UpdateUIElements();
 	}
 
 	void ~ExpansionBookMenuTabPlayerProfile()
@@ -103,6 +108,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			}
 			if ( !GetHeroesAndBanditsSettings().HideKillsInGUI )
 				m_PlayerProfileController.ProfilePlayerKills = ExpansionStatic.GetValueString(stats.m_PlayersKilled) + " (" + ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Kill") ) + ") Kills";
+			
 			m_PlayerProfileController.ProfileZombieKills = ExpansionStatic.GetValueString(stats.m_InfectedKilled) + " (" + ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("ZombieKill") ) + ") Kills";
 			m_PlayerProfileController.ProfileAnimalKills = ExpansionStatic.GetValueString(stats.m_AnimalsKilled) + " (" + ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Hunt") ) + ") Kills";
 			m_PlayerProfileController.HaB_Medic = ExpansionStatic.GetValueString( g_HeroesAndBanditsPlayer.getStat("Medic") );
@@ -113,12 +119,23 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		}
 	#endif
 
-		UpdateHaBUIElements();
-
 		m_PlayerProfileController.ProfileDistanceTraveled = ExpansionStatic.GetDistanceString(stats.m_Distance);
 		m_PlayerProfileController.ProfileWeight = ExpansionStatic.GetWeightString(stats.m_Weight);
 
 		array<string> profile_properties = {"ProfileTimePlayed", "ProfileLongestShot", "ProfilePlayerKills", "ProfileZombieKills", "ProfileAnimalKills", "ProfileDistanceTraveled", "ProfileWeight"};
+		
+		if (player.HasBloodTypeVisible())
+		{
+			string type;
+			bool positive;
+			m_PlayerProfileController.PlayerBloodType = BloodTypes.GetBloodTypeName(player.GetBloodType(), type, positive);
+			profile_properties.Insert("PlayerBloodType");
+		}
+		else
+		{
+			profile_blood_spacer.Show(false);
+		}
+
 		m_PlayerProfileController.NotifyPropertiesChanged(profile_properties);
 
 		//! Player preview
@@ -127,7 +144,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 			m_PlayerProfileController.PlayerCharacter = GetGame().GetPlayer();
 			m_PlayerProfileController.NotifyPropertyChanged("PlayerCharacter");
 		}
-
+		
 		//! Player conditions
 		m_PlayerProfileController.PlayerHealth = stats.m_Health;
 		m_PlayerProfileController.PlayerHealthValue = stats.m_Health.ToString() + "%";
@@ -151,22 +168,41 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		}
 	#endif
 
-		UpdateHardlineUIElements();
+	#ifdef EXPANSIONMODAI
+		if (m_ShowPlayerFaction)
+		{
+			string factionName = "#STR_EXPANSION_NONE";
+			eAIGroup group = player.GetGroup();
+			if (group)
+			{
+				eAIFaction playerFaction = group.GetFaction();
+				if (playerFaction)
+					factionName = playerFaction.GetDisplayName();
+			}
+		
+			m_PlayerProfileController.ProfilePlayerFaction = factionName;
+			m_PlayerProfileController.NotifyPropertyChanged("ProfilePlayerFaction");
+		}
+	#endif
+
+		UpdateUIElements();
 	}
 
-	void UpdateHaBUIElements()
+	void UpdateUIElements()
 	{
+		//! Heroes and bandits
 		hab_suicides_spacer.Show(m_ShowHaBStats);
 		hab_affinity_spacer.Show(m_ShowHaBStats);
 		hab_level_spacer.Show(m_ShowHaBStats);
 		hab_humanity_spacer.Show(m_ShowHaBStats);
 		hab_medic_spacer.Show(m_ShowHaBStats);
 		hab_raid_spacer.Show(m_ShowHaBStats);
-	}
 
-	void UpdateHardlineUIElements()
-	{
+		//! Hardline
 		hardline_reputation_spacer.Show(m_ShowHardlineStats);
+
+		//! Factions
+		profile_player_faction_spacer.Show(m_ShowPlayerFaction);
 	}
 
 	void UpdatePlayerPreviewRotation(int mouse_x, int mouse_y, bool is_dragging)
@@ -289,6 +325,8 @@ class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 	string ProfileAnimalKills;
 	string ProfileDistanceTraveled;
 	string ProfileWeight;
+	string PlayerBloodType;
+
 	DayZPlayer PlayerCharacter;
 	float PlayerHealth;
 	string PlayerHealthValue;
@@ -300,7 +338,9 @@ class ExpansionBookMenuTabPlayerProfileController: ExpansionViewController
 	string PlayerEnergyValue;
 	float PlayerStamina;
 	string PlayerStaminaValue;
+	
 	string Hardline_Reputation;
+	string ProfilePlayerFaction;
 
 	//! Heros and Bandits
 	string HaB_Affinity;

@@ -13,35 +13,29 @@
 //! Cargo container that's only accessible by the designated owner
 class ExpansionOwnedContainer: Container_Base
 {
-	protected string m_ExpansionContainerUID;
+	protected ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
 	void ExpansionOwnedContainer()
 	{
-		if (GetGame().IsClient())  //! Only client, not server or COM
-		{	
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionRequestContainerUID, 250);
-		}
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
+
+		if (m_Expansion_NetsyncData.SI_Receive)
+			m_Expansion_NetsyncData.SI_Receive.Insert(Expansion_OnOwnerSync);
 	}
 
-	// allow other players to see the container while it's being carried (no more mimes!)
-	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	void ~ExpansionOwnedContainer()
 	{
-		super.EEItemLocationChanged(oldLoc, newLoc);
+		if (m_Expansion_NetsyncData && m_Expansion_NetsyncData.SI_Receive)
+			m_Expansion_NetsyncData.SI_Receive.Remove(Expansion_OnOwnerSync);
+	}
 
-		switch (newLoc.GetType())
-		{
-			case InventoryLocationType.HANDS:
-			{
-				SetFlags(EntityFlags.VISIBLE, false);
-				break;
-			}
-			default:
-			{
-				if (!ExpansionIsContainerOwner())
-					ClearFlags(EntityFlags.VISIBLE, false);
-				break;
-			}
-		}
+	void Expansion_OnOwnerSync()
+	{
+#ifdef DIAG
+		string uid;
+		m_Expansion_NetsyncData.Get(0, uid);
+		EXTrace.Print(EXTrace.ENABLE, this, "ExpansionOwnedContainer::Expansion_OnOwnerSync - owner " + uid);
+#endif
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
@@ -49,7 +43,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanCombineAttachment(e, slot, stack_max_limit))
 			return false;
 
-		return !IsMissionClient() || ExpansionIsContainerOwner();
+		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanDisplayAttachmentSlot(int slot_id)
@@ -89,7 +83,7 @@ class ExpansionOwnedContainer: Container_Base
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		return !IsMissionClient() || ExpansionIsContainerOwner();
+		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
@@ -97,7 +91,7 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanReceiveItemIntoCargo(item))
 			return false;
 
-		return !IsMissionClient() || ExpansionIsContainerOwner();
+		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)
@@ -105,12 +99,12 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
-		return !IsMissionClient() || ExpansionIsContainerOwner();
+		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanReleaseCargo(EntityAI cargo)
 	{
-		return !IsMissionClient() || ExpansionIsContainerOwner();
+		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
@@ -118,13 +112,18 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CanSwapItemInCargo(child_entity, new_entity))
 			return false;
 
-		return !IsMissionClient() || ExpansionIsContainerOwner();
+		return GetGame().IsDedicatedServer() || ExpansionIsContainerOwner();
 	}
 
 	//! This hides the container from vicinity completely
 	override bool IsInventoryVisible()
 	{
 		return ExpansionIsContainerOwner();
+	}
+
+	override bool IsHealthVisible()
+	{
+		return false;
 	}
 
 	override bool NameOverride(out string output)
@@ -156,7 +155,7 @@ class ExpansionOwnedContainer: Container_Base
 
 	protected void ExpansionSetContainerOwner(string uid)
 	{
-		m_ExpansionContainerUID = uid;
+		m_Expansion_NetsyncData.Set(0, uid);
 	}
 
 	//! Callable client only
@@ -186,51 +185,19 @@ class ExpansionOwnedContainer: Container_Base
 	//! Callable client/server
 	bool ExpansionIsContainerOwner(string uid)
 	{
-		return m_ExpansionContainerUID != string.Empty && m_ExpansionContainerUID == uid;
-	}
+		if (!m_Expansion_NetsyncData)
+			return false;
 
-	void ExpansionRequestContainerUID()
-	{
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, NULL);
-	}
-
-	void ExpansionSendContainerUID(PlayerIdentity target = null)
-	{
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(m_ExpansionContainerUID);
-		rpc.Send(this, ExpansionRPC.SyncOwnedContainerUID, true, target);
+		string owner;
+		m_Expansion_NetsyncData.Get(0, owner);
+		return owner != string.Empty && owner == uid;
 	}
 
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-		
-		if (rpc_type == ExpansionRPC.SyncOwnedContainerUID)
-		{
-			if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-				return;
-			
-			if (IsMissionHost())
-			{
-				ExpansionSendContainerUID(sender);
-			}
-			else
-			{
-				if (!ctx.Read(m_ExpansionContainerUID))
-				{
-					Error(ToString() + "::OnRPC ExpansionRPC.SyncOwnedContainerUID couldn't read m_ExpansionContainerUID");
-				}
 
-				if (!ExpansionIsContainerOwner())
-				{
-					if (GetHierarchyParent() && !GetHierarchyParent().IsMan())
-						return;
-
-					ClearFlags(EntityFlags.VISIBLE, false);
-				}
-			}
-		}
+		m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -238,10 +205,15 @@ class ExpansionOwnedContainer: Container_Base
 	{
 		super.CF_OnStoreSave(storage);
 
+		if (!Expansion_PersistOwner())
+			return;
+
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return;
 
-		ctx.Write(m_ExpansionContainerUID);
+		string uid;
+		m_Expansion_NetsyncData.Get(0, uid);
+		ctx.Write(uid);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -249,12 +221,25 @@ class ExpansionOwnedContainer: Container_Base
 		if (!super.CF_OnStoreLoad(storage))
 			return false;
 
+		if (!Expansion_PersistOwner())
+			return true;
+
 		auto ctx = storage[DZ_Expansion_Core];
 		if (!ctx) return true;
 
-		if (!ctx.Read(m_ExpansionContainerUID))
+		string uid;
+		if (!ctx.Read(uid))
 			return false;
 
+		ExpansionSetContainerOwner(uid);
+
+		EXTrace.Print(EXTrace.ENABLE, this, "::CF_OnStoreLoad - owner " + uid);
+
+		return true;
+	}
+
+	bool Expansion_PersistOwner()
+	{
 		return true;
 	}
 	#endif
@@ -266,7 +251,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 	void ExpansionTemporaryOwnedContainer()
 	{
-		if (IsMissionHost())  //! Server or COM
+		if (GetGame().IsServer())  //! Server or SP
 		{
 			SetAllowDamage(false);
 
@@ -274,9 +259,58 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
 		}
 
-		//! Warn about pending deletion after 15 minutes
-		if (IsMissionClient())  //! Client or COM
+		if (!GetGame().IsDedicatedServer())  //! Client or SP
+		{
+			//! Warn about pending deletion after 15 minutes
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+
+			ClearFlags(EntityFlags.VISIBLE, false);
+		}
+	}
+
+	override void Expansion_OnOwnerSync()
+	{
+		super.Expansion_OnOwnerSync();
+
+		//! @note GetGame().GetPlayer() will only be non-NULL after player has fully loaded in
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionCheckContainerOwner, 1000, true);
+	}
+
+	void ExpansionCheckContainerOwner()
+	{
+		if (!GetGame().GetPlayer())
+			return;
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionCheckContainerOwner);
+
+		EXTrace.Print(EXTrace.ENABLE, this, "ExpansionTemporaryOwnedContainer::Expansion_OnOwnerSync - is owner? " + ExpansionIsContainerOwner());
+
+		if (ExpansionIsContainerOwner())
+			SetFlags(EntityFlags.VISIBLE, false);
+	}
+
+	// default to visible unless on ground, owner will always see it once netsync received
+	// allow other players to see the container while it's being carried (no more mimes!)
+	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
+	{
+		EXTrace.Print(EXTrace.ENABLE, this, "EEItemLocationChanged " + typename.EnumToString(InventoryLocationType, oldLoc.GetType()) + " -> " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+
+		super.EEItemLocationChanged(oldLoc, newLoc);
+
+		if (GetGame().IsDedicatedServer())
+			return;
+
+		//! @note call to ClearFlags needs to be delayed one frame, else other clients won't see other items taken to hand afterwards
+		//! Can't use ScriptCallQueue::Call to call ClearFlags directly, CTDs other clients
+		if (!ExpansionIsContainerOwner() && newLoc.GetType() == InventoryLocationType.GROUND)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_SetInvisible);
+		else
+			SetFlags(EntityFlags.VISIBLE, false);
+	}
+
+	void Expansion_SetInvisible()
+	{
+		ClearFlags(EntityFlags.VISIBLE, false);
 	}
 
 	override void EECargoOut(EntityAI item)
@@ -317,7 +351,9 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			return;
 
-		PlayerBase player = PlayerBase.GetPlayerByUID(m_ExpansionContainerUID);
+		string uid;
+		m_Expansion_NetsyncData.Get(0, uid);
+		PlayerBase player = PlayerBase.GetPlayerByUID(uid);
 		if (!player || !player.GetIdentity())
 			return;
 
@@ -327,6 +363,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(player.GetIdentity());
 	}
 
+	//! TODO: Remove ExpansionCheckStorage once Quests got updated
 	void ExpansionCheckStorage()
 	{
 		if (IsEmpty())
@@ -337,6 +374,11 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 	{
 		ExpansionStorageNotification("STR_EXPANSION_TEMPORARY_STORAGE_EXPIRED");
 
-		GetGame().ObjectDelete(this);
+		Delete();
+	}
+
+	override bool Expansion_CanUseVirtualStorage(bool restoreOverride = false)
+	{
+		return false;
 	}
 }

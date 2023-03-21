@@ -12,6 +12,7 @@
 
 enum ExpansionQuestState
 {
+	INVALID = -1,
 	NONE = 0,
 	STARTED = 1,
 	CAN_TURNIN = 2,

@@ -13,137 +13,103 @@
 
 modded class IngameHud
 {
+	protected float RAYCAST_RANGE = 500.0;
+	protected float MEMBER_RANGE = 500.0;
+	protected float SCREEN_X = 0.5615;
+	protected float SCREEN_Y = 0.55;
+	
 	//! Player Tag
 	protected ImageWidget m_PlayerTagIcon;
+	protected ImageWidget m_PlayerTagBackground;
+	protected ImageWidget m_PlayerTagIconFrame;
 	protected string m_PlayerTagIconPath;
 	protected int m_PlayerTagIconColor;
 	protected int m_PlayerNameIconColor;
 
-	override void Update(float timeslice)
+	protected EntityAI m_CurrentTaggedItem;
+	protected DayZPlayerImplement m_CurrentTaggedNPC;
+	protected EntityAI m_CurrentTaggedObject;
+	protected float m_MaxViewRange;
+	protected bool m_IsMember = false;
+	protected bool m_IsEnemy = true;
+#ifdef EXPANSIONMODAI
+	protected bool m_ShowFaction;
+	protected string m_FactionName; 
+#endif
+
+#ifdef EXPANSIONMODHARDLINE
+	protected ExpansionHardlineItemRarity m_CurrentTaggedItemRarity = -1;
+#endif
+
+	protected ref array<string>	m_AttachmentSlotNames;
+	protected string m_CurrentTaggedItemIcon;
+
+	array<string> GetItemSlots(EntityAI e)
 	{
-		super.Update(timeslice);
+		TStringArray searching_in = new TStringArray;
+		searching_in.Insert(CFG_VEHICLESPATH);
+		searching_in.Insert(CFG_WEAPONSPATH);
+		searching_in.Insert(CFG_MAGAZINESPATH);
 
-		//! Player Tags
-		if (GetExpansionSettings().GetNameTags(false).IsLoaded() && GetExpansionSettings().GetNameTags().EnablePlayerTags)
+		array<string> attachments_slots	= new array<string>;
+		for (int s = 0; s < searching_in.Count(); ++s)
 		{
-			RefreshPlayerTagsEx();
-			//! Always make sure to fade the fucker out :-)
-			ShowPlayerTagEx(timeslice);
-		}
-	}
+			string cfg_name = searching_in.Get( s );
+			string path = cfg_name + " " + e.GetType();
 
-	void RefreshPlayerTagsEx()
-	{
-		if (!GetGame().GetPlayer())
-			return;
-
-		bool safeZone = GetExpansionSettings().GetNameTags().OnlyInSafeZones;
-		bool territory = GetExpansionSettings().GetNameTags().OnlyInTerritories;
-		float viewrange = GetExpansionSettings().GetNameTags().PlayerTagViewRange;
-		vector head_pos = GetGame().GetCurrentCameraPosition();
-		float distance;
-
-		m_CurrentTaggedPlayer = null;
-		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
-		PlayerBase playerB;
-
-		bool isInSafeZone = safeZone && playerA && playerA.Expansion_IsInSafeZone();
-	#ifdef EXPANSIONMODBASEBUILDING
-		bool isInTerritory = territory && playerA && playerA.IsInTerritory();
-	#endif
-
-		foreach (Man player : ClientData.m_PlayerBaseList)
-		{
-			if (!player.IsAlive() || player == GetGame().GetPlayer())
-				continue;
-
-			vector target_player_pos = player.GetPosition();
-			distance = vector.Distance(head_pos, target_player_pos);
-
-			if (distance > viewrange)
-				continue;
-
-			Class.CastTo(playerB, player);
-			bool check = !safeZone && !territory;
-
-			if (safeZone && isInSafeZone && playerB && playerB.Expansion_IsInSafeZone())
-				check = true;
-
-		#ifdef EXPANSIONMODBASEBUILDING
-			if (territory && isInTerritory && playerB && playerB.IsInTerritory())
-				check = true;
-		#endif
-
-			if (!check)
-				continue;
-
-			vector end_pos = head_pos + GetGame().GetCurrentCameraDirection() * viewrange;
-			RaycastRVParams params = new RaycastRVParams(head_pos, end_pos, GetGame().GetPlayer(), 0);
-			params.sorted = true;
-
-			array<ref RaycastRVResult> results = new array<ref RaycastRVResult>;
-			DayZPhysics.RaycastRVProxy(params, results);
-			if (results.Count() > 0 && results.Get(0).obj == player)
+			if ( GetGame().ConfigIsExisting( path ) )
 			{
-				m_CurrentTaggedPlayer = playerB;
-				break;
-			}
-		}
-	}
-
-	void ShowPlayerTagEx(float timeslice)
-	{
-		if (m_CurrentTaggedPlayer && m_CurrentTaggedPlayer.GetIdentity() && m_CurrentTaggedPlayer.IsAlive())
-		{
-			if (!m_PlayerTag)
-			{
-				m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NameTags/GUI/layouts/expansion_hud_player_tag.layout");
-				m_PlayerTagText = TextWidget.Cast(m_PlayerTag.FindAnyWidget("TagText"));
-				m_PlayerTagIcon = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIcon"));
-				if (!m_PlayerTagIconPath)
-					Expansion_SetPlayerTagIconPath();
-				m_PlayerTagIcon.SetColor(m_PlayerTagIconColor);
-				m_PlayerTagText.SetColor(m_PlayerNameIconColor);
-				m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
-				m_PlayerTagIcon.SetImage(0);
-			}
-
-			m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex("Spine2");
-			vector player_pos = m_CurrentTaggedPlayer.GetBonePositionWS(m_PlayerSpineIndex);
-			vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
-
-			if (screen_pos[2] > 0)
-			{
-				if (screen_pos[0] > 0 && screen_pos[0] < 1)
+				GetGame().ConfigGetTextArray(path + " attachments", attachments_slots);
+				if (e.IsWeapon() && (!e.ConfigIsExisting("DisplayMagazine") || e.ConfigGetBool("DisplayMagazine")))
 				{
-					if (screen_pos[1] > 0 && screen_pos[1] < 1)
-					{
-						m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
-						m_PlayerTag.SetPos(0.55, 0.55);
-						m_PlayerTagText.SetText(m_CurrentTaggedPlayer.GetIdentityName());
-						m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
-						m_PlayerTagIcon.Show(true);
-						return;
-					}
+					attachments_slots.Insert( "magazine" );
 				}
+
+				return attachments_slots;
 			}
 		}
-
-		if (m_PlayerTag)
+		if (e.IsWeapon() && (!e.ConfigIsExisting("DisplayMagazine") || e.ConfigGetBool("DisplayMagazine")))
 		{
-			float new_alpha = Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1);
-			m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1));
-			m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
-			if (new_alpha == 0)
-			{
-				m_PlayerTagText.SetText("");
-				m_PlayerTagIcon.Show(false);
-				m_CurrentTaggedPlayer = null;
-			}
+			attachments_slots.Insert("magazine");
+		}
+
+		return attachments_slots;
+	}
+
+	protected void Expansion_CreatePlayerTagWigets()
+	{
+		m_PlayerTag = GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NameTags/GUI/layouts/expansion_hud_player_tag.layout");
+		m_PlayerTagText = TextWidget.Cast(m_PlayerTag.FindAnyWidget("TagText"));
+		m_PlayerTagIcon = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIcon"));
+		m_PlayerTagBackground = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagBackground"));
+		m_PlayerTagIconFrame = ImageWidget.Cast(m_PlayerTag.FindAnyWidget("TagIconFrame"));
+
+		if (!m_PlayerTagIconPath)
+			Expansion_SetPlayerTagIconPath();
+
+		m_PlayerTagIcon.SetColor(m_PlayerTagIconColor);
+		m_PlayerTagText.SetColor(m_PlayerNameIconColor);
+		m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
+		m_PlayerTagIcon.LoadImageFile(1, "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/eye_64x64.edds");
+		m_PlayerTagIcon.SetImage(0);
+	}
+
+	protected void Expansion_ClearPlayerTagWidgets(float timeslice)
+	{
+		float new_alpha = Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1);
+		m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() - timeslice * 10, 0, 1));
+		m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
+		m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
+		m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() - timeslice * 10, 0, 1));
+		if (new_alpha == 0)
+		{
+			m_PlayerTagText.SetText("");
+			m_PlayerTagIcon.Show(false);
+			m_CurrentTaggedPlayer = null;
 		}
 	}
 
-	void Expansion_SetPlayerTagIconPath()
+	protected void Expansion_SetPlayerTagIconPath()
 	{
 		string path = GetExpansionSettings().GetNameTags().PlayerTagsIcon;
 		if (path != string.Empty)
@@ -160,11 +126,658 @@ modded class IngameHud
 		}
 		else
 		{
-			m_PlayerTagIconPath = "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds";
+			m_PlayerTagIconPath = "{287CF3AEB0F2A6E7}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds";
 		}
 
 		m_PlayerTagIconColor = GetExpansionSettings().GetNameTags().PlayerTagsColor;
 		m_PlayerNameIconColor = GetExpansionSettings().GetNameTags().PlayerNameColor;
 
+	}
+
+	protected void Expansion_RefreshPlayerTagsEx()
+	{
+		if (!GetGame().GetPlayer())
+			return;
+
+		m_MaxViewRange = GetExpansionSettings().GetNameTags().PlayerTagViewRange;
+	#ifdef EXPANSIONMODAI
+		m_ShowFaction = GetExpansionSettings().GetNameTags().ShowPlayerFaction;
+	#endif
+		
+		bool showPlayerTags = GetExpansionSettings().GetNameTags().EnablePlayerTags;
+		bool showNPCTags = GetExpansionSettings().GetNameTags().ShowNPCTags;
+		bool useRarityColor;
+	#ifdef EXPANSIONMODHARDLINE
+		useRarityColor = GetExpansionSettings().GetNameTags().UseRarityColorForItemInHands;
+	#endif
+		bool showPlayerItem = GetExpansionSettings().GetNameTags().ShowPlayerItemInHands;
+		bool safeZone = GetExpansionSettings().GetNameTags().OnlyInSafeZones;
+		bool territory = GetExpansionSettings().GetNameTags().OnlyInTerritories;
+		vector head_pos = GetGame().GetCurrentCameraPosition();
+		float distance;
+
+		vector end_pos;
+		RaycastRVParams params;
+		array<ref RaycastRVResult> results;
+
+		m_CurrentTaggedPlayer = null;
+		m_CurrentTaggedItem = null;
+		m_CurrentTaggedObject = null;
+		m_CurrentTaggedNPC = null;
+		m_AttachmentSlotNames = null;
+
+	#ifdef EXPANSIONMODHARDLINE
+		m_CurrentTaggedItemRarity = -1;
+	#endif
+		
+	#ifdef EXPANSIONMODAI
+		m_FactionName = "";
+	#endif
+		
+		m_IsMember = false;
+		m_IsEnemy = true;
+
+		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
+		PlayerBase playerB;
+
+		bool isInSafeZone = safeZone && playerA && playerA.Expansion_IsInSafeZone();
+	#ifdef EXPANSIONMODBASEBUILDING
+		bool isInTerritory = territory && playerA && playerA.IsInTerritory();
+	#endif
+
+		foreach (Man player : ClientData.m_PlayerBaseList)
+		{
+			EntityAI entityInHands;
+			if (player.IsAlive() && player != GetGame().GetPlayer())
+			{
+				Class.CastTo(playerB, player);
+				bool check = !safeZone && !territory;
+
+				if (safeZone && isInSafeZone && playerB && playerB.Expansion_IsInSafeZone())
+					check = true;
+
+			#ifdef EXPANSIONMODBASEBUILDING
+				if (territory && isInTerritory && playerB && playerB.IsInTerritory())
+					check = true;
+			#endif
+				
+				if (!check)
+					continue;
+				
+				if (showPlayerItem && player.GetHumanInventory().GetEntityInHands())
+					entityInHands = player.GetHumanInventory().GetEntityInHands();
+				
+				end_pos = head_pos + GetGame().GetCurrentCameraDirection() * RAYCAST_RANGE;
+				params = new RaycastRVParams(head_pos, end_pos, GetGame().GetPlayer(), 0);
+				params.sorted = true;
+
+				results = new array<ref RaycastRVResult>;
+				DayZPhysics.RaycastRVProxy(params, results);
+				if (results.Count() == 0)
+					return;
+
+				Object resultObj = results.Get(0).obj;
+				if (!resultObj)
+					return;
+
+				ExpansionNPCBase expNPCBase;
+				Class.CastTo(expNPCBase, resultObj);
+			#ifdef EXPANSIONMODAI
+				eAINPCBase expAINPCBase;
+				Class.CastTo(expAINPCBase, resultObj);
+				eAIBase eAI;
+				Class.CastTo(eAI, resultObj);
+			#endif
+
+				if (resultObj == player)
+				{
+				#ifdef EXPANSIONMODAI
+					if (!playerB.IsAI() && playerB.GetIdentity() && showPlayerTags)
+				#else
+					if (playerB.GetIdentity() && showPlayerTags)
+				#endif
+					{
+						m_CurrentTaggedPlayer = playerB;
+					#ifdef EXPANSIONMODGROUPS
+						GetGroup(m_CurrentTaggedPlayer);
+					#endif
+						break;
+					}
+				/*#ifdef EXPANSIONMODAI
+					else if (playerB.IsAI() && showNPCTags)
+					{
+						m_CurrentTaggedNPC = playerB;
+						break;
+					}
+				#endif*/
+				}
+				else if (resultObj == entityInHands && showPlayerItem)
+				{
+					m_CurrentTaggedItem = entityInHands;
+				#ifdef EXPANSIONMODHARDLINE
+					if (useRarityColor)
+					{
+						ItemBase itemIB;
+						Class.CastTo(itemIB, m_CurrentTaggedItem);
+						if (itemIB)
+							m_CurrentTaggedItemRarity = itemIB.Expansion_GetRarity();
+					}
+				#endif
+
+					m_AttachmentSlotNames = GetItemSlots(entityInHands);
+					for (int i = 0; i < m_AttachmentSlotNames.Count(); i++ )
+					{
+						string path = "CfgSlots" + " Slot_" + m_AttachmentSlotNames[i];
+						//! Show different magazine icon for firearms and pistols
+						if (m_AttachmentSlotNames[i] == "magazine")
+						{
+							if (!entityInHands.IsInherited(Pistol_Base))
+								path = "CfgSlots" + " Slot_" + "magazine2";
+						}
+
+						string icon_name = ""; //! icon_name must be in format "set:<setname> image:<imagename>"
+						if (GetGame().ConfigGetText(path + " ghostIcon", icon_name) && icon_name != "")
+							m_CurrentTaggedItemIcon = StaticGUIUtils.VerifyIconImageString(StaticGUIUtils.IMAGESETGROUP_INVENTORY, icon_name);
+					}
+
+					break;
+				}
+				else if (expNPCBase && showNPCTags)
+				{
+					m_CurrentTaggedNPC = expNPCBase;
+					break;
+				}
+			#ifdef EXPANSIONMODAI
+				else if (expAINPCBase && showNPCTags)
+				{
+					m_CurrentTaggedNPC = expAINPCBase;
+					break;
+				}
+				else if (eAI && showNPCTags)
+				{
+					m_CurrentTaggedNPC = eAI;
+					break;
+				}
+			#endif
+				else
+				{
+					if (showNPCTags)
+					{
+						auto staticObject = ExpansionStaticObjectBase.Cast(resultObj);
+						if (staticObject)
+						{
+							m_CurrentTaggedObject = staticObject;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	protected void Expansion_ShowPlayerTagEx(float timeslice)
+	{
+		if (m_CurrentTaggedPlayer && m_CurrentTaggedPlayer.GetIdentity() && m_CurrentTaggedPlayer.IsAlive())
+		{
+			if (HandleCurrentTaggedPlayer(timeslice))
+				return;
+		}
+		else if (m_CurrentTaggedNPC && m_CurrentTaggedNPC.IsAlive())
+		{
+			if (HandleCurrentTaggedNPC(timeslice))
+				return;
+		}
+		else if (m_CurrentTaggedItem)
+		{
+			if (HandleCurrentTaggedItem(timeslice))
+				return;
+		}
+		else if (m_CurrentTaggedObject)
+		{
+			if (HandleCurrentTaggedObject(timeslice))
+				return;
+		}
+
+		if (m_PlayerTag)
+			Expansion_ClearPlayerTagWidgets(timeslice);
+	}
+	
+	//! Players
+	protected bool HandleCurrentTaggedPlayer(float timeslice)
+	{
+		vector target_pos = m_CurrentTaggedPlayer.GetPosition();
+		vector head_pos = GetGame().GetCurrentCameraPosition();
+		float distance = vector.Distance(head_pos, target_pos);
+		float range = m_MaxViewRange;
+		bool isMember;
+		
+		if (distance > range)
+			return false;
+		
+		if (!m_PlayerTag)
+		{
+			Expansion_CreatePlayerTagWigets();
+			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
+		}
+		
+	#ifdef EXPANSIONMODAI
+		if (m_ShowFaction)
+			GetFaction(m_CurrentTaggedPlayer);
+	#endif
+		
+		m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex("Spine2");
+		vector player_pos = m_CurrentTaggedPlayer.GetBonePositionWS(m_PlayerSpineIndex);
+		vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
+		string nameText = m_CurrentTaggedPlayer.GetIdentityName();
+		int iconColor = ARGB(255, 230, 230, 230);
+		
+		if (screen_pos[2] > 0)
+		{
+			if (screen_pos[0] > 0 && screen_pos[0] < 1)
+			{
+				if (screen_pos[1] > 0 && screen_pos[1] < 1)
+				{
+					m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
+					m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
+					
+				#ifdef EXPANSIONMODAI
+					if (m_FactionName != string.Empty)
+					{
+						nameText = "[" + m_FactionName + "] " + nameText;
+					}
+				#endif
+
+					if (!m_IsEnemy && !m_IsMember)
+					{
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
+					}
+					else
+					{
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
+					}
+					
+					m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
+					m_PlayerTagText.SetText(nameText);
+					m_PlayerTagIcon.SetImage(0);
+					m_PlayerTagIcon.SetColor(iconColor);
+					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
+					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagIcon.Show(true);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//! NPC/AI
+	protected bool HandleCurrentTaggedNPC(float timeslice)
+	{
+		if (!m_PlayerTag)
+		{
+			Expansion_CreatePlayerTagWigets();
+			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
+		}
+		
+	#ifdef EXPANSIONMODAI
+		if (m_ShowFaction)
+			GetFaction(m_CurrentTaggedNPC);
+	#endif
+
+		m_PlayerSpineIndex = m_CurrentTaggedNPC.GetBoneIndex("Spine2");
+		vector player_pos = m_CurrentTaggedNPC.GetBonePositionWS(m_PlayerSpineIndex);
+		vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
+		string npcName = "Unknown";
+		string iconPath = m_PlayerTagIconPath;
+		int iconColor = ARGB(255, 230, 230, 230);
+		string icon;
+		string nameText;
+		bool showQuestMarker;
+
+		if (screen_pos[2] > 0)
+		{
+			if (screen_pos[0] > 0 && screen_pos[0] < 1)
+			{
+				if (screen_pos[1] > 0 && screen_pos[1] < 1)
+				{
+					m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
+					m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
+
+					DayZPlayerImplement npcPlayer = m_CurrentTaggedNPC;
+					ExpansionNPCBase expNPCBase;
+					Class.CastTo(expNPCBase, npcPlayer);
+				#ifdef EXPANSIONMODAI
+					eAINPCBase expAINPCBase;
+					Class.CastTo(expAINPCBase, npcPlayer);
+					eAIBase eAI;
+					Class.CastTo(eAI, npcPlayer);
+				#endif
+
+					if (expNPCBase)
+					{
+						expNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+						expNPCBase.m_Expansion_NetsyncData.Get(1, icon);
+					#ifdef EXPANSIONMODQUESTS
+						ExpansionQuestNPCBase expQuestNPCBase;
+						if (Class.CastTo(expQuestNPCBase, expNPCBase))
+						{
+							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCBase.GetQuestNPCID());
+							if (showQuestMarker)
+							{
+								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/questionmark_2_64x64.edds";
+								iconColor = ARGB(255, 255, 180, 24);
+							}
+						}
+					#endif
+					}
+				#ifdef EXPANSIONMODAI
+					else if (expAINPCBase)
+					{
+						expAINPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+						expAINPCBase.m_Expansion_NetsyncData.Get(1, icon);
+					#ifdef EXPANSIONMODQUESTS
+						ExpansionQuestNPCAIBase expQuestNPCAIBase;
+						if (Class.CastTo(expQuestNPCAIBase, expAINPCBase))
+						{
+							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCAIBase.GetQuestNPCID());
+							if (showQuestMarker)
+							{
+								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/questionmark_2_64x64.edds";
+								iconColor = ARGB(255, 255, 180, 24);
+							}
+						}
+					#endif
+					}
+					else if (eAI)
+					{
+						//! ToDo: eAIBase enities need a name!
+						//eAI.m_Expansion_NetsyncData.Get(0, npcName);
+						//eAI.m_Expansion_NetsyncData.Get(1, icon);
+						icon = "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds";
+					}
+				#endif
+					else if (npcPlayer)
+					{
+						npcPlayer.m_Expansion_NetsyncData.Get(0, npcName);
+						npcPlayer.m_Expansion_NetsyncData.Get(1, icon);
+					}
+					
+					nameText = npcName;
+					
+				#ifdef EXPANSIONMODAI
+					if (m_FactionName != string.Empty)
+					{
+						nameText = "[" + m_FactionName + "] " + nameText;
+					}
+				#endif
+
+					if (!m_IsEnemy)
+					{
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
+					}
+					else
+					{
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
+					}
+					
+					if (icon != string.Empty)
+					{
+						iconPath = ExpansionIcons.GetPath(icon);
+						if (iconPath == string.Empty)
+							iconPath = icon;
+					}
+
+					m_PlayerTagIcon.LoadImageFile(0, iconPath);
+					m_PlayerTagText.SetText(nameText);
+					m_PlayerTagIcon.SetImage(0);
+					m_PlayerTagIcon.SetColor(iconColor);
+					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
+					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagIcon.Show(true);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//! Entity in hands
+	protected bool HandleCurrentTaggedItem(float timeslice)
+	{
+		vector target_pos = m_CurrentTaggedItem.GetPosition();
+		vector head_pos = GetGame().GetCurrentCameraPosition();
+		float distance = vector.Distance(head_pos, target_pos);
+
+		if (distance > m_MaxViewRange)
+			return false;
+		
+		if (!m_PlayerTag)
+		{
+			Expansion_CreatePlayerTagWigets();
+			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
+		}
+
+		vector screen_pos = GetGame().GetScreenPosRelative(m_CurrentTaggedItem.GetPosition());
+		string iconPath = "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/eye_64x64.edds";
+		string nameText = m_CurrentTaggedItem.GetDisplayName();
+		int iconColor = ARGB(255, 230, 230, 230);
+	#ifdef EXPANSIONMODHARDLINE
+		if (m_CurrentTaggedItemRarity > ExpansionHardlineItemRarity.NONE)
+		{
+			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, m_CurrentTaggedItemRarity);
+			int color, rarityColor;
+			typename type = ExpansionHardlineItemRarityColor;
+			ExpansionStatic.GetVariableIntByName(type, rarityName, color);
+			int a, r, g, b;
+			ExpansionStatic.IntToARGB(color, a, r, g, b);
+			rarityColor = ExpansionStatic.ARGBtoInt(255, r, g, b);
+			m_PlayerTagText.SetColor(rarityColor);
+		}
+		else
+		{
+			m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
+		}
+	#else
+		m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
+	#endif
+
+		if (m_CurrentTaggedItemIcon != string.Empty)
+		{
+			iconPath = m_CurrentTaggedItemIcon;
+		}
+		
+		if (screen_pos[2] > 0)
+		{
+			if (screen_pos[0] > 0 && screen_pos[0] < 1)
+			{
+				if (screen_pos[1] > 0 && screen_pos[1] < 1)
+				{
+					m_PlayerTagIcon.LoadImageFile(0, iconPath);
+					m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagText.SetText(nameText);
+					m_PlayerTagIcon.SetImage(0);
+					m_PlayerTagIcon.SetColor(iconColor);
+					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
+					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagIcon.Show(true);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//! Object
+	protected bool HandleCurrentTaggedObject(float timeslice)
+	{
+		vector target_pos = m_CurrentTaggedObject.GetPosition();
+		vector head_pos = GetGame().GetCurrentCameraPosition();
+		float distance = vector.Distance(head_pos, target_pos);
+		
+		if (distance > m_MaxViewRange)
+			return false;
+		
+		if (!m_PlayerTag)
+		{
+			Expansion_CreatePlayerTagWigets();
+			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
+		}
+
+		vector screen_pos = GetGame().GetScreenPosRelative(m_CurrentTaggedObject.GetPosition());
+		if (screen_pos[2] > 0)
+		{
+			if (screen_pos[0] > 0 && screen_pos[0] < 2)
+			{
+				if (screen_pos[1] > 0 && screen_pos[1] < 2)
+				{
+					string nameText = "Unknown";
+					string iconPath = "{C5A0666669DF90D2}DayZExpansion/Core/GUI/icons/hud/eye_64x64.edds";
+					int iconColor = ARGB(255, 230, 230, 230);
+					string icon;
+					m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
+
+					auto staticObject = ExpansionStaticObjectBase.Cast(m_CurrentTaggedObject);
+					if (staticObject && staticObject.m_Expansion_NetsyncData)
+					{
+						staticObject.m_Expansion_NetsyncData.Get(0, nameText);
+						staticObject.m_Expansion_NetsyncData.Get(1, icon);
+					}
+					
+				#ifdef EXPANSIONMODQUESTS
+					ExpansionQuestStaticObject staticQuestObject;
+					if (Class.CastTo(staticQuestObject, staticObject))
+					{
+						bool showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), staticQuestObject.GetQuestNPCID());
+						if (showQuestMarker)
+						{
+							icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/questionmark_2_64x64.edds";
+							iconColor = ARGB(255, 255, 180, 24);
+						}
+					}
+				#endif
+
+					if (icon != string.Empty)
+					{
+						iconPath = ExpansionIcons.GetPath(icon);
+						if (iconPath == string.Empty)
+							iconPath = icon;
+					}
+
+					m_PlayerTagIcon.LoadImageFile(0, iconPath);
+					m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagText.SetText(nameText);
+					m_PlayerTagIcon.SetImage(0);
+					m_PlayerTagIcon.SetColor(iconColor);
+					m_PlayerTagIcon.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagBackground.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 0.6275));
+					m_PlayerTagIconFrame.SetAlpha(Math.Clamp(m_PlayerTagIcon.GetAlpha() + timeslice * 10, 0, 1));
+					m_PlayerTagIcon.Show(true);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+#ifdef EXPANSIONMODAI
+	protected void GetFaction(DayZPlayerImplement player)
+	{
+		eAIGroup localGroup;
+		eAIFaction localFaction;
+		string factionName = "N/A";
+		PlayerBase localPlayer = PlayerBase.Cast(GetGame().GetPlayer());
+		eAIGroup playerGroup = player.GetGroup();
+		eAIFaction playerFaction;
+		
+		if (playerGroup)
+		{
+			playerFaction = playerGroup.GetFaction();
+			if (playerFaction)
+				factionName = playerFaction.GetDisplayName();
+			m_FactionName = factionName;
+		}
+
+		localGroup = localPlayer.GetGroup();
+		if (localGroup)
+		{
+			localFaction = localGroup.GetFaction();
+			if (localFaction && playerFaction)
+			{
+				if (playerFaction.IsFriendly(localFaction))
+					m_IsEnemy = false;
+			}
+		}
+		
+		localGroup = null;
+		localFaction = null;
+		playerGroup = null;
+		playerFaction = null;
+	}
+#endif
+	
+#ifdef EXPANSIONMODGROUPS
+	protected void GetGroup(Man player)
+	{
+		ExpansionPartyModule partyModule;
+		if (Class.CastTo(partyModule, CF_ModuleCoreManager.Get(ExpansionPartyModule)))
+		{
+			string playerUID = player.GetIdentity().GetId();
+			ExpansionPartyData party = partyModule.GetParty();
+			if (party && party.IsMember(playerUID))
+				m_IsMember = true;
+		}		
+	}
+#endif
+	
+#ifdef EXPANSIONMODQUESTS
+	bool ShowQuestMarker(PlayerBase player, int questNPCID)
+	{
+		int validQuestsCount;
+		array<ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
+		if (!questConfigs || questConfigs.Count() == 0)
+			return false;
+		
+		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		if (!playerQuestData)
+			return false;
+		
+		foreach (ExpansionQuestConfig questConfig: questConfigs)
+		{
+			if (ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, playerQuestData, questNPCID))
+				validQuestsCount++;
+		}
+		
+		return (validQuestsCount > 0);
+	}
+#endif
+
+	override void Update(float timeslice)
+	{
+		super.Update(timeslice);
+
+		UIScriptedMenu topMenu = GetGame().GetUIManager().GetMenu();
+		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
+		if ((topMenu || viewMenu) && m_PlayerTag)
+		{
+			Expansion_ClearPlayerTagWidgets(timeslice);
+		}
+		else if (!topMenu && !viewMenu)
+		{
+			//! Player Tags
+			if (GetExpansionSettings().GetNameTags(false).IsLoaded() && (GetExpansionSettings().GetNameTags().EnablePlayerTags || GetExpansionSettings().GetNameTags().ShowPlayerItemInHands))
+			{
+				Expansion_RefreshPlayerTagsEx();
+				//! Always make sure to fade the fucker out :-)
+				Expansion_ShowPlayerTagEx(timeslice);
+			}
+		}
+		
 	}
 };

@@ -168,4 +168,30 @@
             </State>
         </Style>
     </Widget>
+    <Widget Name="PanelWidget">
+        <Style Name="Expansion_01" Font="gui/fonts/AmorSerifPro-Bold" ImageSet="dayz_gui" Color="16777215">
+            <State Name="Disabled">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+            <State Name="Normal">
+                <Item Name="Bottom" Image="UIPanelHorizontalLeft" />
+                <Item Name="Center" Image="UIPanelHorizontalCenter" />
+                <Item Name="Left" Image="UIPanelHorizontalLeft" />
+                <Item Name="LeftBottom" Image="" />
+                <Item Name="LeftTop" Image="" />
+                <Item Name="Right" Image="UIPanelHorizontalRight" />
+                <Item Name="RightBottom" Image="" />
+                <Item Name="RightTop" Image="" />
+                <Item Name="Top" Image="UIPanelHorizontalTop" />
+            </State>
+        </Style>
+    </Widget>
 </WidgetStyles>

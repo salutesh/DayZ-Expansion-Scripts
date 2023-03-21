@@ -173,10 +173,8 @@
             <btn name="x1ShoulderRight" />
 		</input>
 		<input name="UAExpansionHeliCargoDoorUp">
-			<btn name="kO" />
 		</input>
 		<input name="UAExpansionHeliCargoDoorDown">
-			<btn name="kP" />
 		</input>
 		<input name="UAExpansionPlaneFlare">
 			<btn name="kSpace" />

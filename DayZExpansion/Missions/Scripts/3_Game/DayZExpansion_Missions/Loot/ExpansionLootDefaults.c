@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionLootDefaults
+modded class ExpansionLootDefaults
 {
 	static array < ref ExpansionLoot > Regular()
 	{

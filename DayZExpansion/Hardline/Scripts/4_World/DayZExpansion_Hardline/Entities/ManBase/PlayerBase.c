@@ -28,9 +28,13 @@ modded class PlayerBase
 	}
 
 	//! Only to be called on server!
-	void Expansion_SaveHardlineData()
+	void Expansion_SaveHardlineData(bool force = false)
 	{
-		if (GetIdentity() && m_Expansion_HardlineData.Reputation != m_Expansion_Reputation)
+		bool save = force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation;
+	#ifdef EXPANSIONMODAI
+		save |= m_Expansion_HardlineData.FactionID != eAI_GetFactionTypeID();
+	#endif
+		if (GetIdentity() && save)
 		{
 			m_Expansion_HardlineData.Reputation = m_Expansion_Reputation;
 			m_Expansion_HardlineData.Save(GetIdentity().GetId());

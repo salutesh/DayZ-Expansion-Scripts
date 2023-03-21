@@ -19,7 +19,7 @@ class ExpansionDialog_CreateParty: ExpansionDialogBookBase
 	ref ExpansionDialogButton_Text_CreateParty_Cancel m_CancelButton;
 	ref ExpansionBookMenuTabParty m_PartyTab;
 
-	void ExpansionDialog_CreateParty(ExpansionScriptView parentView)
+	void ExpansionDialog_CreateParty(ScriptView parentView)
 	{
 		m_ParentView = parentView;
 		
@@ -75,8 +75,8 @@ class ExpansionDialog_CreateParty: ExpansionDialogBookBase
 	
 	override void OnHide()
 	{
-		super.OnHide();	
 		SwitchMovementLockState(false);
+		super.OnHide();	
 	}
 };
 
@@ -86,7 +86,7 @@ class ExpansionDialogButton_Text_CreateParty_Accept: ExpansionDialogBookButton_T
 	ref ExpansionPartyModule m_PartyModule;
 	ref ExpansionBookMenuTabParty m_PartyTab;
 	
-	void ExpansionDialogButton_Text_CreateParty_Accept(ExpansionDialogBase dialog, ExpansionScriptView parentView)
+	void ExpansionDialogButton_Text_CreateParty_Accept(ExpansionDialogBase dialog, ScriptView parentView)
 	{
 		m_Dialog = dialog;
 		
@@ -136,7 +136,7 @@ class ExpansionDialogButton_Text_CreateParty_Cancel: ExpansionDialogBookButton_T
 	ref ExpansionDialog_CreateParty m_CreatePartyDialog;
 	ref ExpansionBookMenuTabParty m_PartyTab;
 	
-	void ExpansionDialogButton_Text_CreateParty_Cancel(ExpansionDialogBase dialog, ExpansionScriptView parentView)
+	void ExpansionDialogButton_Text_CreateParty_Cancel(ExpansionDialogBase dialog, ScriptView parentView)
 	{
 		m_Dialog = dialog;
 		

@@ -28,7 +28,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		AIPatrol = patrol;
 	}
 
-	override ExpansionQuestObjectiveAIPatrol GetAIPatrol()
+	ExpansionQuestObjectiveAIPatrol GetAIPatrol()
 	{
 		return AIPatrol;
 	}
@@ -38,7 +38,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		MinDistRadius = dist;
 	}
 
-	override float GetMinDistRadius()
+	float GetMinDistRadius()
 	{
 		return MinDistRadius;
 	}
@@ -48,7 +48,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		MaxDistRadius = dist;
 	}
 
-	override float GetMaxDistRadius()
+	float GetMaxDistRadius()
 	{
 		return MaxDistRadius;
 	}
@@ -58,7 +58,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		DespawnRadius = dist;
 	}
 
-	override float GetDespawnRadius()
+	float GetDespawnRadius()
 	{
 		return DespawnRadius;
 	}
@@ -68,7 +68,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		CanLootAI = state;
 	}
 
-	override bool CanLootAI()
+	bool CanLootAI()
 	{
 		return CanLootAI;
 	}
@@ -76,17 +76,17 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 	static ExpansionQuestObjectiveAIPatrolConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveAIPatrolConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveAIPatrolConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName);
 
 		ExpansionQuestObjectiveAIPatrolConfig config;
 		ExpansionQuestObjectiveAIPatrolConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveAIPatrolConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName + " to version " + CONFIGVERSION);
 
 			if (configBase.ConfigVersion < 4)
 			{
@@ -101,7 +101,7 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 			}
 			else
 			{
-				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(fileName, config))
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
 					return NULL;
 			}
 
@@ -130,13 +130,20 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, config))
 				return NULL;
 		}
 
 		if (!config.DespawnRadius)
 			config.DespawnRadius = 880;
 
+		string removeExt = ExpansionString.StripExtension(config.AIPatrol.GetNPCLoadoutFile(), ".json");
+		if (removeExt != config.AIPatrol.GetNPCLoadoutFile())
+		{
+			config.AIPatrol.SetNPCLoadoutFile(removeExt);
+			save = true;
+		}
+		
 		if (save)
 		{
 			config.Save(fileName);
@@ -144,12 +151,13 @@ class ExpansionQuestObjectiveAIPatrolConfig: ExpansionQuestObjectiveAIPatrolConf
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveAIPatrolConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER + fileName, this);
 	}
 

@@ -10,104 +10,86 @@
  *
 */
 
-class ExpansionMenuDialogContent_WrapSpacer: ExpansionMenuDialogContentBase 
+class ExpansionDialogContent_WrapSpacer: ExpansionDialogContentBase
 {
-	ref ExpansionMenuDialogContent_WrapSpacerController m_WrapSpacerController;
-	
-	void ExpansionMenuDialogContent_WrapSpacer(ExpansionMenuDialogBase dialog)
+	ref ExpansionDialogContent_WrapSpacerController m_WrapSpacerController;
+
+	void ExpansionDialogContent_WrapSpacer(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 
 		if (!m_WrapSpacerController)
-			m_WrapSpacerController = ExpansionMenuDialogContent_WrapSpacerController.Cast(GetController());
+			m_WrapSpacerController = ExpansionDialogContent_WrapSpacerController.Cast(GetController());
 	}
-	
-	override string GetLayoutFile() 
+
+	override string GetLayoutFile()
 	{
-		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_menu_dialog_wrapspacer.layout";
+		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_wrapspacer.layout";
 	}
-	
-	override typename GetControllerType() 
+
+	override typename GetControllerType()
 	{
-		return ExpansionMenuDialogContent_WrapSpacerController;
+		return ExpansionDialogContent_WrapSpacerController;
 	}
-	
+
 	void AddSpacerContent(ExpansionScriptView content)
 	{
 		m_WrapSpacerController.SpacerContent.Insert(content);
 	}
 };
 
-class ExpansionMenuDialogContent_WrapSpacerController: ExpansionViewController
+class ExpansionDialogContent_WrapSpacerController: ExpansionViewController
 {
 	ref ObservableCollection<ref ExpansionScriptView> SpacerContent = new ObservableCollection<ref ExpansionScriptView>(this);
 }
 
-class ExpansionMenuDialogContent_WrapSpacer_Entry: ExpansionScriptView
+class ExpansionDialogContent_WrapSpacer_Entry: ExpansionScriptView
 {
-	ref ExpansionMenuDialogContent_WrapSpacer_EntryController m_EntryController;
-	ExpansionMenuDialogContent_WrapSpacer m_WrapSpacerElement;
-	
+	ref ExpansionDialogContent_WrapSpacer_EntryController m_EntryController;
+	ExpansionDialogContent_WrapSpacer m_WrapSpacerElement;
+
 	protected RichTextWidget entry;
 	string m_Text;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogContent_WrapSpacer_Entry Constructor
-	// ------------------------------------------------------------
-	void ExpansionMenuDialogContent_WrapSpacer_Entry(ExpansionMenuDialogContent_WrapSpacer wrapSpacerElement, string text)
+
+	void ExpansionDialogContent_WrapSpacer_Entry(ExpansionDialogContent_WrapSpacer wrapSpacerElement, string text)
 	{
 		m_WrapSpacerElement = wrapSpacerElement;
 		m_Text = text;
-		
+
 		if (!m_EntryController)
-			m_EntryController = ExpansionMenuDialogContent_WrapSpacer_EntryController.Cast(GetController());
-				
+			m_EntryController = ExpansionDialogContent_WrapSpacer_EntryController.Cast(GetController());
+
 		SetView();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogContent_WrapSpacer_Entry GetLayoutFile
-	// ------------------------------------------------------------
-	override string GetLayoutFile() 
+
+	override string GetLayoutFile()
 	{
-		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_menu_dialog_wrapspacer_entry.layout";
+		return "DayZExpansion/Core/GUI/layouts/mvc/dialogs/expansion_dialog_wrapspacer_entry.layout";
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogContent_WrapSpacer_Entry GetControllerType
-	// ------------------------------------------------------------
-	override typename GetControllerType() 
+
+	override typename GetControllerType()
 	{
-		return ExpansionMenuDialogContent_WrapSpacer_EntryController;
+		return ExpansionDialogContent_WrapSpacer_EntryController;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogContent_WrapSpacer_Entry SetView
-	// ------------------------------------------------------------
+
 	void SetView()
 	{
 		m_EntryController.EntryText = m_Text;
 		m_EntryController.NotifyPropertyChanged("EntryText");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogContent_WrapSpacer_Entry GetWrapSpacerElement
-	// ------------------------------------------------------------
-	ExpansionMenuDialogContent_WrapSpacer GetWrapSpacerElement()
+
+	ExpansionDialogContent_WrapSpacer GetWrapSpacerElement()
 	{
 		return m_WrapSpacerElement;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogContent_WrapSpacer_Entry SetTextColor
-	// ------------------------------------------------------------	
+
 	void SetTextColor(int color)
 	{
 		entry.SetColor(color);
 	}
 }
 
-class ExpansionMenuDialogContent_WrapSpacer_EntryController: ExpansionViewController
+class ExpansionDialogContent_WrapSpacer_EntryController: ExpansionViewController
 {
 	string EntryText;
-}
+};

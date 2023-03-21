@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionViewController: ViewController 
+class ExpansionViewController: ViewController
 {
 	void ExpansionViewController()
 	{
@@ -20,14 +20,14 @@ class ExpansionViewController: ViewController
 
 class ExpansionScriptViewBase: ScriptView
 {
-	private bool m_IsVisible;
-	
+	protected bool m_IsVisible;
+
 	void ExpansionScriptViewBase()
 	{
 		Debug_Logging = false;
 		m_IsVisible = !IsInherited(ExpansionScriptViewMenuBase);
 	}
-	
+
 	void Destroy()
 	{
 		if (!g_Game)
@@ -40,21 +40,45 @@ class ExpansionScriptViewBase: ScriptView
 	{
 		m_IsVisible = state;
 	}
-	
+
 	bool IsVisible()
 	{
 		return m_IsVisible;
 	}
-	
+
 	void Show();
-	
+
 	void OnShow();
-	
+
 	void Hide();
-	
+
 	void OnHide();
-	
+
 	bool CanShow();
-	
+
 	void Refresh();
+	
+	static array<ScriptView> GetAll()
+	{
+		return All;
+	}
+	
+	static ScriptView GetSciptViewByClassName(string name)
+	{
+		Print("ExpansionScriptViewBase::GetSciptViewByClassName - Search for view with name: " + name);
+		foreach (ScriptView view: All)
+		{
+			string viewName = view.ClassName();
+			Print("ExpansionScriptViewBase::GetSciptViewByClassName - View name: " + viewName);
+			if (viewName == name)
+			{
+				Print("ExpansionScriptViewBase::GetSciptViewByClassName - Found and return view: " + viewName);
+				return view;
+			}
+		}
+		
+		Print("ExpansionScriptViewBase::GetSciptViewByClassName - Could not find view name. Return NULL.");
+		
+		return null;
+	}
 }

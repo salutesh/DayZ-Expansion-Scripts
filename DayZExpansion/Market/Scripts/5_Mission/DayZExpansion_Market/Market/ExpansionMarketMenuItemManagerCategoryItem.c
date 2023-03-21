@@ -14,7 +14,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 {
 	protected ref ExpansionMarketMenuItemManagerCategoryItemController m_MarketItemManagerCategoryItemController;
 	protected ExpansionMarketMenu m_MarketMenu;
-	ref ExpansionMarketMenuItemManager m_MarketMenuItemManager;
+	protected ref ExpansionMarketMenuItemManager m_MarketMenuItemManager;
 	protected string m_ItemClassName;
 	protected ButtonWidget item_element_lmbutton;
 	protected Widget item_element_background;
@@ -26,7 +26,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 	protected bool m_CanBeAttachedOrReplaceConflicting;
 	protected ref ExpansionMarketMenuTooltip m_Tooltip;
 	
-	EntityAI m_Object;
+	protected EntityAI m_Object;
 	protected ref ExpansionItemTooltip m_ItemTooltip;
 	
 	void ExpansionMarketMenuItemManagerCategoryItem(string itemClassName, ExpansionMarketMenu menu, ExpansionMarketMenuItemManager itemManager)
@@ -226,7 +226,8 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 				
 				if (!m_ItemTooltip && m_Object)
 				{
-					m_ItemTooltip = new ExpansionItemTooltip(m_Object);
+					m_ItemTooltip = MissionGameplay.Expansion_GetItemTooltip();
+					m_ItemTooltip.SetItem(m_Object);
 					m_ItemTooltip.SetContentOffset(0.019531, -0.076389);
 					m_ItemTooltip.SetShowItemPreview(true);
 					m_ItemTooltip.Show();
@@ -544,6 +545,7 @@ class ExpansionMarketMenuItemManagerCategoryItem: ExpansionScriptView
 		return m_ItemClassName;
 	}
 };
+
 class ExpansionMarketMenuItemManagerCategoryItemController: ExpansionViewController
 {
 	string ItemName;

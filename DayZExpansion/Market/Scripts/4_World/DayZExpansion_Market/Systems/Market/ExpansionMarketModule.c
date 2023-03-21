@@ -63,6 +63,8 @@ class ExpansionMarketPlayerInventory
 		auto trace = EXTrace.Start(ExpansionTracing.MARKET);
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(m_Player.GetInventory().CountInventory());
+
 		m_Player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 		AddPlayerItems(items);
 
@@ -472,6 +474,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("FindSellPrice - " + sell.Item.ClassName + " - stock " + stock + " wanted " + amountWanted);
 		
+		result = ExpansionMarketResult.Success;  //! Always set initial result to success, this is changed accordingly below where necessary
+
 		if (!player)
 		{
 			Error("FindSellPrice - [ERROR]: Player Base is NULL!");
@@ -646,9 +650,16 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		if (result == ExpansionMarketResult.Success)
+		{
+			sell.Price = sell.Item.CalculatePrice(stock, initialSellPriceModifier);
 			result = ExpansionMarketResult.FailedNotInPlayerPossession;
+			MarketModulePrint("FindSellPrice - not in player possession");
+		}
 		else if (result == ExpansionMarketResult.FailedCannotSell && !sell.Price)
+		{
 			sell.Price += unsellablePrice;
+			MarketModulePrint("FindSellPrice - cannot sell");
+		}
 
 		MarketModulePrint("FindSellPrice - End and return false");
 		return false;
@@ -1349,6 +1360,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 			ItemBase existingMoney;
 
 			array<EntityAI> items = new array<EntityAI>;
+			items.Reserve(player.GetInventory().CountInventory());
+
 			player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 			foreach (EntityAI item: items)
@@ -1520,6 +1533,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (player)
 		{
 			array<EntityAI> items = new array<EntityAI>;
+			items.Reserve(player.GetInventory().CountInventory());
+
 			player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 			foreach (EntityAI item: items)
@@ -1723,6 +1738,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 			currencies = GetExpansionSettings().GetMarket().Currencies;
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
 	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 		for (int j = 0; j < items.Count(); j++)
@@ -1770,6 +1787,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
 	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 		for (int j = 0; j < items.Count(); j++)
@@ -1801,6 +1820,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
 	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 		for (int i = 0; i < items.Count(); i++)
@@ -1829,6 +1850,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		int removed;
 
 		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
 	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
 
 		foreach (EntityAI item : items)
@@ -2281,7 +2304,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(includeAttachments))
 			return;
 		
-		bool skinIndex;
+		int skinIndex;
 		if (!ctx.Read(skinIndex))
 			return;
 
@@ -4944,6 +4967,36 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("Exec_ConfirmPartyWithdrawMoney - End");
 	}
 	#endif
+	
+	// ------------------------------------------------------------
+	// Expansion RemoveMoney
+	// ------------------------------------------------------------
+	bool RemoveMoney(int amount, PlayerBase player)
+	{
+		if (!GetExpansionSettings().GetMarket().Currencies.Count())
+		{
+			Error(ToString() + "::RemoveMoney - No currencies defined in market settings!");
+			return false;
+		}
+
+		array<int> monies = new array<int>;
+		if (!FindMoneyAndCountTypes(player, amount, monies, true, NULL, NULL, true))
+		{
+			Error(ToString() + "::RemoveMoney - Could not find player money!");
+			UnlockMoney(player);
+			return false;
+		}
+
+		EntityAI parent = player;
+		int removed = RemoveMoney(player);
+		if (removed - amount > 0)
+		{
+		    SpawnMoney(player, parent, removed - amount, true, NULL, NULL, true);
+			CheckSpawn(player, parent);
+		}
+
+		return true;
+	}
 	
 	// ------------------------------------------------------------
 	// Expansion ExpansionLogMarket

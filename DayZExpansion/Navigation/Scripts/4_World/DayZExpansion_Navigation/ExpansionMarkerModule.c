@@ -13,6 +13,7 @@
 [CF_RegisterModule(ExpansionMarkerModule)]
 class ExpansionMarkerModule: CF_ModuleWorld
 {
+	protected static ExpansionMarkerModule s_Instance;
 	protected ExpansionMarkerClientData m_CurrentData;
 	protected ref array<ref ExpansionMarkerClientData> m_AllData;
 	protected int m_Visibility[5];
@@ -23,6 +24,8 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	
 	void ExpansionMarkerModule()
 	{
+		s_Instance = this;
+
 		ExpansionSettings.SI_Map.Insert(OnSettingsUpdated);
 #ifdef EXPANSIONMODGROUPS
 		ExpansionSettings.SI_Party.Insert(OnSettingsUpdated);
@@ -972,4 +975,9 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			m_DeathMarkerUID = markerData.GetUID();
 		}
 	}
+	
+	static ExpansionMarkerModule GetModuleInstance()
+	{
+		return s_Instance;
+	} 
 };

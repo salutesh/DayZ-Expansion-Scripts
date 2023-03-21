@@ -10,46 +10,9 @@
  *
 */
 
+//! DEPRICATED since v18 - Only still here for conversion reasons.
 class ExpansionQuestObjectiveTreasureHunt
 {
-	protected ref array<vector> Positions = new array<vector>;
-	protected ref map<string, int> Items = new map<string, int>;
-
-	void AddItem(string className, int amount)
-	{
-		Items.Insert(className, amount);
-	}
-
-	map<string, int> GetItems()
-	{
-		return Items;
-	}
-
-	void AddPosition(vector pos)
-	{
-		Positions.Insert(pos);
-	}
-
-	array<vector> GetPositions()
-	{
-		return Positions;
-	}
-
-	void QuestDebug()
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print("------------------------------------------------------------");
-		foreach (vector pos: Positions)
-		{
-			Print(ToString() + "::QuestDebug - Position: " + pos);
-		}
-
-		foreach (string item, int amount: Items)
-		{
-			Print(ToString() + "::QuestDebug - Item: " + item);
-			Print(ToString() + "::QuestDebug - Item amount:" + amount);
-		}
-		Print("------------------------------------------------------------");
-	#endif
-	}
+	ref array<vector> Positions = new array<vector>;
+	ref map<string, int> Items = new map<string, int>;
 };

@@ -9,54 +9,159 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
-class ExpansionQuestObjectiveTreasureHuntConfigBase:ExpansionQuestObjectiveConfig
+
+//! DEPRICATED - Only still here for conversion reasons.
+class ExpansionQuestObjectiveTreasureHuntConfig_V17: ExpansionQuestObjectiveTreasureHuntConfigBase
+{
+	ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
+};
+
+class ExpansionQuestObjectiveTreasureHuntConfigBase: ExpansionQuestObjectiveConfig
 {
 	bool ShowDistance = true;
-	ref ExpansionQuestObjectiveTreasureHunt TreasureHunt;
 };
 
 class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasureHuntConfigBase
 {
-	void SetTreasureHunt(ExpansionQuestObjectiveTreasureHunt hunt)
+	string ContainerName = "ExpansionQuestSeaChest";
+	bool DigInStash = true;
+	string MarkerName = "???";	
+	int MarkerVisibility = 4; //! 4 - visible on map | 2 - visible in world | 6 - visible on map and in world.
+	ref array<vector> Positions;
+	ref array <ref ExpansionLoot> Loot;
+	int LootItemsAmount;
+	float MaxDistance = 10.0;
+	
+	void ExpansionQuestObjectiveTreasureHuntConfig()
 	{
-		TreasureHunt = hunt;
-	}
-
-	override ExpansionQuestObjectiveTreasureHunt GetTreasureHunt()
-	{
-		return TreasureHunt;
+		Positions = new array<vector>;
+		Loot = new array <ref ExpansionLoot>;
 	}
 
 	bool ShowDistance()
 	{
 		return ShowDistance;
 	}
+	
+	string GetContainerName()
+	{
+		return ContainerName;
+	}
+	
+	bool DigInStash()
+	{
+		return DigInStash;
+	}
+	
+	string GetMarkerName()
+	{
+		return MarkerName;
+	}
+	
+	int GetMarkerVisibility()
+	{
+		return MarkerVisibility;
+	}
+	
+	void AddPosition(vector pos)
+	{
+		int findIndex = -1;
+		findIndex = Positions.Find(pos);
+		if (findIndex == -1)
+			Positions.Insert(pos);
+	}
+	
+	array<vector> GetPositions()
+	{
+		return Positions;
+	}
+	
+	void AddLoot(ExpansionLoot loot)
+	{
+		Loot.Insert(loot);
+	}
+	
+	array <ref ExpansionLoot> GetLoot()
+	{
+		return Loot;
+	}
+	
+	void SetLootItemsAmount(int amount)
+	{
+		LootItemsAmount = amount;
+	}
+	
+	int GetLootItemsAmount()
+	{
+		return LootItemsAmount;
+	}
+	
+	void SetMaxDistance(float max)
+	{
+		MaxDistance = max;
+	}
+
+	float GetMaxDistance()
+	{
+		return MaxDistance;
+	}
 
 	static ExpansionQuestObjectiveTreasureHuntConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveTreasureHuntConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveTreasureHuntConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName);
 
 		ExpansionQuestObjectiveTreasureHuntConfig config;
 		ExpansionQuestObjectiveTreasureHuntConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveTreasureHuntConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveTreasureHuntConfig();
 
 			//! Copy over old configuration that haven't changed
 			config.CopyConfig(configBase);
+			
+			if (configBase.ConfigVersion < 18)
+			{
+				ExpansionQuestObjectiveTreasureHuntConfig_V17 configV17;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig_V17>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, configV17))
+				{
+					Error("ExpansionQuestObjectiveTreasureHuntConfig::Load - Config conversion failed for file: " + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " | Error Code: 1");
+					return NULL;
+				}
+				
+				ExpansionQuestObjectiveTreasureHunt treasureHunt = configV17.TreasureHunt;
+				if (!treasureHunt)
+				{
+					Error("ExpansionQuestObjectiveTreasureHuntConfig::Load - Config conversion failed for file: " + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName + " | Error Code: 2");
+					return NULL;
+				}
+				
+				foreach (vector pos: treasureHunt.Positions)
+				{
+					config.AddPosition(pos);
+				}
+				
+				ExpansionLoot loot;
+				foreach (string className, int amount: treasureHunt.Items)
+				{
+					loot = new ExpansionLoot(className, null, 0.30, -1, null, -1);					
+					config.AddLoot(loot);
+				}
+				
+				config.SetLootItemsAmount(treasureHunt.Items.Count());
+			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -67,12 +172,13 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 
 		return config;
 	}
-
+	
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveTreasureHuntConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER + fileName, this);
 	}
 
@@ -82,8 +188,6 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
-
-		TreasureHunt = configBase.TreasureHunt;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)
@@ -108,10 +212,13 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 	{
 		if (!super.Validate())
 			return false;
-
-		if (!TreasureHunt)
+		
+		if (!ContainerName.ToType().IsInherited(ExpansionQuestContainerBase))
 			return false;
 
+		if (!Loot || Loot.Count() == 0)
+			return false;
+		
 		return true;
 	}
 
@@ -119,8 +226,6 @@ class ExpansionQuestObjectiveTreasureHuntConfig: ExpansionQuestObjectiveTreasure
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		super.QuestDebug();
-		if (TreasureHunt)
-			TreasureHunt.QuestDebug();
 	#endif
 	}
 };

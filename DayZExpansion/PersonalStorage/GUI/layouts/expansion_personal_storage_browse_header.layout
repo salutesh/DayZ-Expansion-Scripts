@@ -1,0 +1,80 @@
+WrapSpacerWidgetClass ExpansionPersonalStorageMenuBrowseHeader {
+ color 0 0 0 1
+ size 0.99 48
+ halign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ priority 2
+ scriptclass "ExpansionPersonalStorageMenuBrowseHeaderController"
+ style DayZDefaultPanel
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ content_halign center
+ content_valign center
+ {
+  PanelWidgetClass header_panel {
+   ignorepointer 1
+   size 0.98 48
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   {
+    ButtonWidgetClass item_name_button {
+     ignorepointer 0
+     color 0 0 0 1
+     position 0.04 0
+     size 0.3 48
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     style Colorable
+     {
+      TextWidgetClass item_name_text {
+       ignorepointer 1
+       size 0.5 48
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass ""
+       text "Name:"
+       font "gui/fonts/etelkatextpro22"
+       "text valign" center
+      }
+      ImageWidgetClass item_name_icon {
+       ignorepointer 1
+       size 36 36
+       halign right_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       imageTexture "{5FCA8EED8BEE731E}DayZExpansion/Core/GUI/icons/hud/sorting_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       "flip u" 0
+      }
+     }
+     {
+      ScriptParamsClass {
+       Relay_Command "OnNameSortClick"
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -17,8 +17,6 @@ modded class GetOutTransportActionData
 
 modded class ActionGetOutTransport
 {
-#ifndef DAYZ_1_19
-	//! 1.20
 	override void ProcessGetOutActionData(Car car, GetOutTransportActionData got_action_data)
 	{
 		super.ProcessGetOutActionData(car, got_action_data);
@@ -26,10 +24,19 @@ modded class ActionGetOutTransport
 		HumanCommandVehicle vehCommand = got_action_data.m_Player.GetCommand_Vehicle();
 
 		CarScript cs;
-		if (Class.CastTo(cs, car) && cs.Expansion_CanObjectAttach(got_action_data.m_Player) && cs.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()))
+		if (Class.CastTo(cs, car))
 		{
-			got_action_data.m_WasJumpingOut = false;
-			got_action_data.m_KeepInVehicleSpaceAfterLeave = true;
+			if ( cs.Expansion_CanObjectAttach(got_action_data.m_Player) && cs.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()) )
+			{
+				got_action_data.m_WasJumpingOut = false;
+				got_action_data.m_KeepInVehicleSpaceAfterLeave = true;
+			}
+
+			// Should prevent a few issues related to towing and server crashes
+			if (cs.CrewMemberIndex(got_action_data.m_Player) == DayZPlayerConstants.VEHICLESEAT_DRIVER && cs.Expansion_IsTowing())
+			{
+				cs.Expansion_DestroyTow();
+			}
 		}
 	}
 
@@ -48,7 +55,6 @@ modded class ActionGetOutTransport
 			GetUApi().GetInputByName("UACarShiftGearDown").ForceDisable(false);
 		}
 	}
-#endif
 
 	override void OnEnd(ActionData action_data)
 	{
@@ -64,11 +70,6 @@ modded class ActionGetOutTransport
 	override void OnEndServer(ActionData action_data)
 	{
 		GetOutTransportActionData got_action_data = GetOutTransportActionData.Cast(action_data);
-
-#ifdef DAYZ_1_19
-		if (got_action_data.m_KeepInVehicleSpaceAfterLeave)
-			got_action_data.m_WasJumpingOut = false;
-#endif
 
 		CarScript cs;
 

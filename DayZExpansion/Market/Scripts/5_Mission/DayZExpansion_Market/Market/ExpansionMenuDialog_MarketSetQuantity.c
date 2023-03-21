@@ -10,43 +10,39 @@
  *
 */
 
-class ExpansionMenuDialog_MarketSetQuantity: ExpansionMenuDialogBase
+class ExpansionMenuDialog_MarketSetQuantity: ExpansionDialogBase
 {
-	ref ExpansionMenuDialogContent_Text m_Text;
-	ref ExpansionMenuDialogContent_Editbox m_Editbox;
-	ref ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept m_AcceptButton;
-	ref ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel m_CancelButton;
-	
-	ref ExpansionMarketMenu m_MarketMenu;
-		
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketSetQuantity Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialog_MarketSetQuantity(ExpansionScriptViewMenu parentMenu)
+	protected ref ExpansionDialogContent_Text m_Text;
+	protected ref ExpansionDialogContent_Editbox m_Editbox;
+	protected ref ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept m_AcceptButton;
+	protected ref ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel m_CancelButton;
+	protected ref ExpansionMarketMenu m_MarketMenu;
+
+	void ExpansionMenuDialog_MarketSetQuantity(ScriptView parentView)
 	{
-		m_ParentMenu = parentMenu;
+		m_ParentView = parentView;
 		
 		if (!m_MarketMenu)
-			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentMenu);
+			m_MarketMenu = ExpansionMarketMenu.Cast(m_ParentView);
 		
-		ExpansionMenuDialogContentSpacer spacer;
-		spacer = new ExpansionMenuDialogContentSpacer(this);
+		ExpansionDialogContentSpacer spacer;
+		spacer = new ExpansionDialogContentSpacer(this);
 		AddContent(spacer);
 		
 		if (!m_Text)
 		{
-			m_Text = new ExpansionMenuDialogContent_Text(this);
+			m_Text = new ExpansionDialogContent_Text(this);
 			AddContent(m_Text);
 			m_Text.SetText("#STR_EXPANSION_MARKET_QUANTITY_DIALOG_TEXT");
 			m_Text.Show();
 		}
 		
-		spacer = new ExpansionMenuDialogContentSpacer(this);
+		spacer = new ExpansionDialogContentSpacer(this);
 		AddContent(spacer);
 		
 		if (!m_Editbox)
 		{
-			m_Editbox = new ExpansionMenuDialogContent_Editbox(this);
+			m_Editbox = new ExpansionDialogContent_Editbox(this);
 			AddContent(m_Editbox);
 			m_Editbox.Show();
 			
@@ -66,43 +62,29 @@ class ExpansionMenuDialog_MarketSetQuantity: ExpansionMenuDialogBase
 			AddButton(m_CancelButton);
 			m_CancelButton.Show();
 		}
-
-		CenterVertically();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketSetQuantity GetDialogTitle
-	// ------------------------------------------------------------	
+
 	override string GetDialogTitle()
 	{
 		return "#STR_EXPANSION_MARKET_QUANTITY_DIALOG_TITLE";
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketSetQuantity GetEditbox
-	// ------------------------------------------------------------	
-	ExpansionMenuDialogContent_Editbox GetEditbox()
+
+	ExpansionDialogContent_Editbox GetEditbox()
 	{
 		return m_Editbox;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialog_MarketSetQuantity GetMarketMenu
-	// ------------------------------------------------------------	
+
 	ExpansionMarketMenu GetMarketMenu()
 	{
 		return m_MarketMenu;
 	}
 };
 
-class ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept: ExpansionMenuDialogButton_Text
+class ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept: ExpansionDialogButton_Text
 {
-	ref ExpansionMenuDialog_MarketSetQuantity m_SetQuantityDialog;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept Constructor
-	// ------------------------------------------------------------
-	void ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept(ExpansionMenuDialogBase dialog)
+	protected ref ExpansionMenuDialog_MarketSetQuantity m_SetQuantityDialog;
+
+	void ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;		
 		
@@ -111,10 +93,7 @@ class ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept: ExpansionMenuDial
 		
 		SetButtonText("#STR_EXPANSION_MARKET_QUANTITY_ACCEPT");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept OnButtonClick
-	// ------------------------------------------------------------	
+
 	override void OnButtonClick()
 	{
 		if (m_SetQuantityDialog.GetEditbox().GetEditboxText() != "")
@@ -135,14 +114,11 @@ class ExpansionMenuDialogButton_Text_MarketSetQuantity_Accept: ExpansionMenuDial
 	}
 };
 
-class ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel: ExpansionMenuDialogButton_Text
+class ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel: ExpansionDialogButton_Text
 {
-	ref ExpansionMenuDialog_MarketSetQuantity m_SetQuantityDialog;
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel Constructor
-	// ------------------------------------------------------------	
-	void ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel(ExpansionMenuDialogBase dialog)
+	protected ref ExpansionMenuDialog_MarketSetQuantity m_SetQuantityDialog;
+
+	void ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel(ExpansionDialogBase dialog)
 	{
 		m_Dialog = dialog;
 		
@@ -151,10 +127,7 @@ class ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel: ExpansionMenuDial
 		
 		SetButtonText("#STR_EXPANSION_MARKET_QUANTITY_CANCLE");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMenuDialogButton_Text_MarketSetQuantity_Cancel OnButtonClick
-	// ------------------------------------------------------------
+
 	override void OnButtonClick()
 	{
 		m_SetQuantityDialog.Hide();

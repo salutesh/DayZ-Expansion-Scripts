@@ -7,66 +7,161 @@ FrameWidgetClass ExpansionPlayerTag {
  hexactsize 1
  vexactsize 1
  {
-  GridSpacerWidgetClass TagFrame {
-   ignorepointer 1
-   color 1 1 1 0.7843
-   position 0 0
-   size 300 26
-   halign center_ref
+  ImageWidgetClass TagBackground {
+   visible 1
+   clipchildren 0
+   inheritalpha 0
+   ignorepointer 0
+   keepsafezone 0
+   color 0.3137 0.3137 0.3137 0.6275
+   size 350 40
    valign center_ref
-   hexactpos 0
-   vexactpos 0
+   hexactpos 1
+   vexactpos 1
    hexactsize 1
    vexactsize 1
-   style Empty
-   Padding 5
-   Margin 0
-   "Size To Content H" 1
-   "Size To Content V" 1
-   content_halign center
-   content_valign center
-   Columns 2
-   Rows 1
+   scaled 1
+   scriptclass ""
+   imageTexture "{E262CF82FD5DFF31}gui/textures/linear_gradient.edds"
+   mode blend
+   "src alpha" 1
+   stretch 1
    {
-    ImageWidgetClass TagIcon {
-     visible 0
+    GridSpacerWidgetClass TagFrame {
      ignorepointer 1
-     position 10 10
-     size 26 26
-     hexactpos 1
-     vexactpos 1
+     color 1 1 1 0.7843
+     size 300 40
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
      hexactsize 1
      vexactsize 1
-     imageTexture "{C46EFC659DD3BDAB}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds"
-     mode blend
-     "src alpha" 1
-     "no wrap" 1
-     stretch 1
-    }
-    TextWidgetClass TagText {
-     visible 1
-     ignorepointer 1
-     color 0.902 0.902 0.902 1
-     size 1 26
-     halign right_ref
-     valign center_ref
-     hexactpos 1
-     vexactpos 1
-     hexactsize 0
-     vexactsize 1
-     text "Playername"
-     font "gui/fonts/etelkatextpro22"
-     "outline size" 1
-     "outline color" 0 0 0 0.498
-     "shadow size" 5
-     "shadow color" 0 0 0 0.3922
-     "shadow offset" 1 1
-     "exact text" 0
-     "exact text size" 22
-     "size to text h" 1
-     "size to text v" 1
-     "text halign" center
-     "text valign" center
+     style Empty
+     Padding 5
+     Margin 0
+     "Size To Content H" 1
+     content_halign center
+     content_valign center
+     Columns 2
+     Rows 1
+     {
+      ContentWidgetClass TagLeft {
+       inheritalpha 0
+       position 0 0
+       size 60 26
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scaled 1
+       {
+        PanelWidgetClass TagIconPanel {
+         position 0 0
+         size 60 40
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         {
+          ImageWidgetClass TagIcon {
+           visible 1
+           clipchildren 1
+           inheritalpha 0
+           color 0.902 0.902 0.902 1
+           size 26 26
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           scaled 1
+           image0 ""
+           imageTexture "{287CF3AEB0F2A6E7}DayZExpansion/Core/GUI/icons/hud/persona_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           "flip u" 0
+           "flip v" 0
+           nocache 0
+          }
+          ImageWidgetClass TagIconFrame {
+           visible 1
+           clipchildren 1
+           inheritalpha 0
+           color 0.902 0.902 0.902 1
+           position 0 0
+           size 40 40
+           halign center_ref
+           valign center_ref
+           hexactpos 1
+           vexactpos 1
+           hexactsize 1
+           vexactsize 1
+           scaled 1
+           fixaspect inside
+           image0 ""
+           imageTexture "{DDEDAF5A8B34B62D}DayZExpansion/Core/GUI/icons/hud/ellipse_out_64x64.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           "flip u" 0
+           "flip v" 0
+           filter 1
+           nocache 0
+          }
+         }
+        }
+       }
+      }
+      ContentWidgetClass TagRight {
+       clipchildren 0
+       inheritalpha 0
+       position 60 0
+       size 290 40
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scaled 1
+       {
+        TextWidgetClass TagText {
+         visible 1
+         disabled 0
+         clipchildren 0
+         inheritalpha 0
+         ignorepointer 0
+         keepsafezone 0
+         color 0.902 0.902 0.902 1
+         position 10 0
+         size 270 16
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         scaled 1
+         style None
+         text "Survivor"
+         font "gui/fonts/sdf_MetronBook72"
+         "shadow size" 3
+         "shadow color" 0 0 0 1
+         "shadow offset" 2 2
+         "italic text" 0
+         "bold text" 0
+         "exact text" 0
+         "text valign" center
+        }
+       }
+      }
+     }
     }
    }
   }

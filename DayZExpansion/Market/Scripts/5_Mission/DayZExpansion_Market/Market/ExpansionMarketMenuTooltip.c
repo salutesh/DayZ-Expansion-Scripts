@@ -12,8 +12,8 @@
 
 class ExpansionMarketMenuTooltip: ExpansionScriptView
 {
-	ref ExpansionMarketMenuTooltipController m_TooltipController;
-			
+	protected ref ExpansionMarketMenuTooltipController m_TooltipController;
+
 	protected ImageWidget tooltip_icon;
 	protected Widget tooltip_header;
 	protected Widget tooltip_content;
@@ -121,11 +121,11 @@ class ExpansionMarketMenuTooltip: ExpansionScriptView
 		
 		GetLayoutRoot().Update();
 	}
-}
+};
 
 class ExpansionMarketMenuTooltipController: ExpansionViewController
 {
 	string TooltipTitle;
 	string TooltipText;
 	ref ObservableCollection<ref ExpansionMarketMenuTooltipEntry> SpacerEntries = new ObservableCollection<ref ExpansionMarketMenuTooltipEntry>(this);
-}
+};

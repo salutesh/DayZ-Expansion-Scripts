@@ -10,329 +10,93 @@
  *
 */
 
-/**@class		ExpansionGenerator
- * @brief		
- **/
-class ExpansionGenerator: ItemBase
+class ExpansionGenerator_Base: PowerGenerator
 {
-	protected ref Timer 		m_SoundLoopStartTimer;
-
-	protected EffectSound 		m_EngineLoop;
-	protected EffectSound 		m_EngineStart;
-	protected EffectSound 		m_EngineStop;
-
-	static const string			START_SOUND = "powerGeneratorTurnOn_SoundSet";
-	static const string			STOP_SOUND = "powerGeneratorTurnOff_SoundSet";
-	static const string			LOOP_SOUND = "powerGeneratorLoop_SoundSet";
-	static const string 		SPARKPLUG_ATTACH_SOUND = "sparkplug_attach_SoundSet";
-	static const string 		SPARKPLUG_DETACH_SOUND = "sparkplug_detach_SoundSet";
-
-	private static float 		m_FuelTankCapacity; 
-	private static float 		m_FuelToEnergyRatio; 
-	private float 				m_Fuel;
-	private int					m_FuelPercentage;
-
-	ItemBase 					m_SparkPlug;
-
-	protected ref Effect 		m_Smoke;
-
-	// ------------------------------------------------------------
-	// Constructor
-	// ------------------------------------------------------------
-	void ExpansionGenerator()
+	void ~ExpansionGenerator_Base()
 	{
-		SetEventMask(EntityEvent.INIT);
-
-		m_FuelPercentage = 50;
-
-		RegisterNetSyncVariableInt("m_FuelPercentage", 0, 100);
-		RegisterNetSyncVariableBool("m_IsSoundSynchRemote");
-		RegisterNetSyncVariableBool("m_IsPlaceSound");
-		
-		m_SoundLoopStartTimer = new Timer();
-	}
-
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionGenerator()
-	{
-		m_SoundLoopStartTimer = NULL;
-	}
-
-	// ------------------------------------------------------------
-	// SetActions
-	// ------------------------------------------------------------
-	override void SetActions()
-	{
-		super.SetActions();
-
-		AddAction( ExpansionActionFillGeneratorTankOnGround );
-		AddAction( ExpansionActionTurnOnGeneratorOnGround );
-		AddAction( ExpansionActionTurnOffGeneratorOnGround );
-	}
-
-	// ------------------------------------------------------------
-	// Init
-	// ------------------------------------------------------------
-	override void EOnInit( IEntity other, int extra)
-	{
-		if ( IsMissionHost() )
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
-			m_FuelPercentage = GetCompEM().GetEnergy0To100();
-			SetSynchDirty();
+			ExpansionWorldObjectsModule module;
+			if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
+			{
+				module.TurnOffGenerator( GetPosition() );
+			}
 		}
-		
-		UpdateFuelMeter();
 	}
 
-	// ------------------------------------------------------------
-	// OnWork
-	// ------------------------------------------------------------
-	override void OnWork( float consumed_energy )
+	override void OnSwitchOn()
 	{
-		if ( IsMissionHost() )
+		super.OnSwitchOn();
+
+		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
 		{
-			m_FuelPercentage = GetCompEM().GetEnergy0To100();
-			SetSynchDirty();
-		}
-		
-		UpdateFuelMeter();
-	}
-
-	// ------------------------------------------------------------
-	// OnWorkStart
-	//! NEED FIX
-	// ------------------------------------------------------------
-	override void OnWorkStart()
-	{
-		//super.OnWorkStart();
-
-		if ( !IsMissionHost() )
-			return;
-
-		ExpansionWorldObjectsModule module;
-		if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
-		{
-			module.TurnOnGenerator( GetPosition() );
+			SetAnimationPhase("switch", 1.0);
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// OnWorkStop
-	//! NEED FIX
-	// ------------------------------------------------------------
+	override void OnSwitchOff()
+	{
+		super.OnSwitchOff();
+
+		if ( GetGame().IsClient() || !GetGame().IsMultiplayer() )
+		{
+			SetAnimationPhase("switch", 0.0);
+		}
+	}
+
+	override void OnWorkStart()
+	{
+		super.OnWorkStart();
+		
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
+		{
+			ExpansionWorldObjectsModule module;
+			if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
+			{
+				module.TurnOnGenerator( GetPosition() );
+			}
+		}
+	}
+	
 	override void OnWorkStop()
 	{
-		//super.OnWorkStop();
+		super.OnWorkStop();
 
-		if ( !IsMissionHost() )
-			return;
-
-		ExpansionWorldObjectsModule module;
-		if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
-			module.TurnOffGenerator( GetPosition() );
-		}
-	}
-
-	// ------------------------------------------------------------
-	// EEItemAttached
-	// ------------------------------------------------------------
-	override void EEItemAttached( EntityAI item, string slot_name )
-	{
-		super.EEItemAttached( item, slot_name );
-		
-		ItemBase item_IB = ItemBase.Cast( item );
-		
-		if ( item_IB.IsKindOf("Sparkplug") )
-		{
-			m_SparkPlug = item_IB;
-			
-			if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() )
+			ExpansionWorldObjectsModule module;
+			if ( CF_Modules<ExpansionWorldObjectsModule>.Get(module) )
 			{
-				SEffectManager.PlaySound(SPARKPLUG_ATTACH_SOUND, GetPosition() );
+				module.TurnOffGenerator( GetPosition() );
 			}
 		}
 	}
 
-	// ------------------------------------------------------------
-	// EEItemDetached
-	// ------------------------------------------------------------
-	override void EEItemDetached( EntityAI item, string slot_name )
+	bool IsSwitch(string selection = "")
 	{
-		super.EEItemDetached( item, slot_name );
-		
-		ItemBase item_IB = ItemBase.Cast( item );
-		
-		if ( item_IB.IsKindOf("Sparkplug") )
-		{
-			m_SparkPlug = NULL;
-			GetCompEM().SwitchOff();
-			
-			if ( !GetGame().IsServer()  ||  !GetGame().IsMultiplayer() )
-			{
-				SEffectManager.PlaySound(SPARKPLUG_DETACH_SOUND, GetPosition() );
-			}
-		}
-
+		return selection == "switch";
 	}
 
-	// ------------------------------------------------------------
-	// IsInventoryVisible
-	// ------------------------------------------------------------
+	bool IsFuelTank(string selection = "")
+	{
+		return selection == "fuel_tank";
+	}
+
 	override bool IsInventoryVisible()
 	{
 		return true;
 	}
 
-	// ------------------------------------------------------------
-	// CanPutIntoHands
-	// ------------------------------------------------------------
 	override bool CanPutIntoHands( EntityAI parent )
 	{
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// CanPutInCargo
-	// ------------------------------------------------------------
 	override bool CanPutInCargo( EntityAI parent )
 	{
 		return false;
 	}
+};
 
-	// ------------------------------------------------------------
-	// OnVariablesSynchronized
-	// ------------------------------------------------------------
-	override void OnVariablesSynchronized()
-	{
-		super.OnVariablesSynchronized();
-				
-		UpdateFuelMeter();
-		
-		if ( IsPlaceSound() )
-		{
-			PlayPlaceSound();
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion UpdateFuelMeter
-	// ------------------------------------------------------------
-	void UpdateFuelMeter()
-	{
-		if ( GetGame().IsClient()  ||  !GetGame().IsMultiplayer() )
-		{
-			SetAnimationPhase("dial_fuel", m_FuelPercentage * 0.01);
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion SetFuel
-	// ------------------------------------------------------------
-	void SetFuel(float fuel_amount)
-	{
-		if (m_FuelTankCapacity > 0)
-		{
-			m_FuelToEnergyRatio = GetCompEM().GetEnergyMax() / m_FuelTankCapacity;
-			GetCompEM().SetEnergy(fuel_amount * m_FuelToEnergyRatio);
-			m_FuelPercentage = GetCompEM().GetEnergy0To100();
-			SetSynchDirty();
-			UpdateFuelMeter();
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion AddFuel
-	// ------------------------------------------------------------
-	float AddFuel(float available_fuel)
-	{
-		if ( available_fuel == 0 )
-		{
-			return 0;
-		}
-		
-		float needed_fuel = GetMaxFuel() - GetFuel();
-		
-		if ( needed_fuel > available_fuel )
-		{
-			SetFuel(GetFuel() + available_fuel);
-			return available_fuel;
-		}
-		else
-		{
-			SetFuel(GetMaxFuel());
-			return needed_fuel;
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion CanAddFuel
-	// ------------------------------------------------------------
-	bool CanAddFuel( ItemBase container )
-	{
-		if (container)
-		{
-			int liquid_type	= container.GetLiquidType();
-			
-			if ( container.GetQuantity() > 0  &&  GetCompEM().GetEnergy() < GetCompEM().GetEnergyMax()  &&  (liquid_type & LIQUID_GASOLINE) )
-			{
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion GetFuel
-	// ------------------------------------------------------------
-	float GetFuel()
-	{
-		return GetCompEM().GetEnergy() / m_FuelToEnergyRatio;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion GetMaxFuel
-	// ------------------------------------------------------------
-	float GetMaxFuel()
-	{
-		return m_FuelTankCapacity;
-	}
-
-	// ------------------------------------------------------------
-	// Expansion StartLoopSound
-	// ------------------------------------------------------------
-	void StartLoopSound()
-	{
-		if ( GetGame().IsClient()  ||  !GetGame().IsMultiplayer() )
-		{
-			if ( GetCompEM().IsWorking() )
-			{
-				PlaySoundSetLoop( m_EngineLoop, LOOP_SOUND, 0, 0 );
-				
-				vector local_pos = "0.3 0.21 0.4";
-				vector local_ori = "270 0 0";
-				m_Smoke = new EffGeneratorSmoke();
-				SEffectManager.PlayOnObject(m_Smoke, this, local_pos, local_ori);
-			}
-		}
-	}
-
-	// ------------------------------------------------------------
-	// Expansion HasSparkplug
-	// ------------------------------------------------------------
-	bool HasSparkplug()
-	{
-		if ( m_SparkPlug )
-		{
-			if ( !m_SparkPlug.IsRuined() )
-			{
-				return true;
-			}
-		}
-		
-		return false;
-	}
-}
+class ExpansionGenerator_Large: ExpansionGenerator_Base {};
+class ExpansionGenerator_Small: ExpansionGenerator_Base {};

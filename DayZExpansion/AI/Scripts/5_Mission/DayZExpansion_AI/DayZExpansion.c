@@ -303,14 +303,35 @@ modded class DayZExpansion
 				case eAICommands.FOR_VEE:
 					newForm = new eAIFormationVee(g);
 					break;
+				case eAICommands.FOR_INVVEE:
+					newForm = new eAIFormationInvVee(g);
+					break;
 				case eAICommands.FOR_FILE:
 					newForm = new eAIFormationFile(g);
+					break;
+				case eAICommands.FOR_INVFILE:
+					newForm = new eAIFormationInvFile(g);
 					break;
 				case eAICommands.FOR_WALL:
 					newForm = new eAIFormationWall(g);
 					break;
 				case eAICommands.FOR_COL:
 					newForm = new eAIFormationColumn(g);
+					break;
+				case eAICommands.FOR_INVCOL:
+					newForm = new eAIFormationInvColumn(g);
+					break;
+				case eAICommands.FOR_CIRCLE:
+					newForm = new eAIFormationCircle(g);
+					break;
+				case eAICommands.FOR_CIRCLEDOT:
+					newForm = new eAIFormationCircleDot(g);
+					break;
+				case eAICommands.FOR_STAR:
+					newForm = new eAIFormationStar(g);
+					break;
+				case eAICommands.FOR_STARDOT:
+					newForm = new eAIFormationStarDot(g);
 					break;
 				// no default needed here
 			}

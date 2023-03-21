@@ -1,20 +1,23 @@
 class eAIFaction
 {
-	protected string m_Name;
+	protected string m_Name;  //! DEPRECATED
 	protected string m_Loadout = "HumanLoadout";
 	protected bool m_IsGuard;
+	protected bool m_IsInvincible;
+	protected bool m_IsPassive;
+	protected bool m_IsObserver;
 
 	void eAIFaction()
 	{
 		typename type = Type();
-		if (eAIRegisterFaction.s_FactionTypes.Find(type) == -1)
+		if (!eAIRegisterFaction.s_FactionIDs[type])
 			Error("Faction type " + type + " is not registered! Please prepend [eAIRegisterFaction(" + type + ")]");
 	}
 
 	int GetTypeID()
 	{
 		typename type = Type();
-		return eAIRegisterFaction.s_FactionTypes.Find(type);
+		return eAIRegisterFaction.s_FactionIDs[type];
 	}
 
 	static typename GetTypeByID(int typeID)
@@ -24,7 +27,15 @@ class eAIFaction
 
 	string GetName()
 	{
-		return m_Name;
+		string cls = Type().ToString();
+		return cls.Substring(10, cls.Length() - 10);
+	}
+
+	string GetDisplayName()
+	{
+		string name = GetName();
+		name.ToUpper();
+		return "#STR_EXPANSION_AI_FACTION_" + name;
 	}
 
 	string GetDefaultLoadout()
@@ -47,6 +58,21 @@ class eAIFaction
 		return m_IsGuard;
 	}
 
+	bool IsInvincible()
+	{
+		return m_IsInvincible;
+	}
+
+	bool IsPassive()
+	{
+		return m_IsPassive;
+	}
+
+	bool IsObserver()
+	{
+		return m_IsObserver;
+	}
+
 	static typename GetType(string factionName)
 	{
 		return ("eAIFaction" + factionName).ToType();
@@ -63,6 +89,6 @@ class eAIFaction
 		else
 			Error("Invalid faction name " + factionName);
 
-		return new eAIFactionRaiders();
+		return null;
 	}
 };

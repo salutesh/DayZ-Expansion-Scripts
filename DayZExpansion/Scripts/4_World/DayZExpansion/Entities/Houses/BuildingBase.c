@@ -72,9 +72,9 @@ modded class BuildingBase
 		auto mapping = GetExpansionSettings().GetGeneral().Mapping;
 
 		bool loadInterior = HasInterior() && mapping.BuildingInteriors && ExpansionStatic.IsAnyOf(this, mapping.Interiors, false);
-		bool loadIvys = HasIvys() && mapping.BuildingIvys;
+		int loadIvys = mapping.BuildingIvys;
 
-		if (!loadInterior && !loadIvys)
+		if (!loadInterior && loadIvys == 0)
 			return;
 
 		if (GetGame().IsDedicatedServer())
@@ -96,7 +96,7 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	// BuildingBase LoadCustomObjects
 	// ------------------------------------------------------------
-	void LoadCustomObjects(bool loadInterior, bool loadIvys)
+	void LoadCustomObjects(bool loadInterior, int loadIvys)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
@@ -105,8 +105,8 @@ modded class BuildingBase
 		if (loadInterior)
 			LoadInterior();
 	
-		if (loadIvys)
-			LoadIvys();
+		if (loadIvys != 0)
+			LoadIvys(loadIvys);
 	}
 	
 	// ------------------------------------------------------------
@@ -276,7 +276,7 @@ modded class BuildingBase
 	// ------------------------------------------------------------
 	// BuildingBase LoadIvys
 	// ------------------------------------------------------------	
-	void LoadIvys()
+	void LoadIvys(int loadMode)
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
@@ -305,14 +305,21 @@ modded class BuildingBase
 			else
 				UnloadIvys();
 		}
-				
-		if (!s_InteriorModule) {
+
+		if (!s_InteriorModule)
 			CF_Modules<ExpansionInteriorBuildingModule>.Get(s_InteriorModule);
+
+		bool canSpawnIvy = true;
+		if ( loadMode == 1 )
+		{
+			if ( !s_InteriorModule.ShouldIvySpawn(GetPosition()) )
+			{
+				canSpawnIvy = false;
+			}
 		}
-		
-		if (s_InteriorModule.ShouldIvySpawn(GetPosition())) {
+
+		if ( canSpawnIvy )
 			SpawnIvys();
-		}
 		
 		m_IvysLoaded = true;
 	}

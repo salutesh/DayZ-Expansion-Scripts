@@ -480,11 +480,11 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				vector smoke_point_pos = buildingWithFireplace.GetSelectionPositionMS(FireplaceIndoor.FIREPOINT_SMOKE_POSITION + fire_point_index.ToString());
 				vector smoke_point_pos_world = buildingWithFireplace.ModelToWorld(smoke_point_pos);		
 				vector smokePos = smoke_point_pos_world;
-				
-				Object obj_fireplace = GetGame().CreateObjectEx("FireplaceIndoor", fire_place_pos_world, ECE_PLACE_ON_SURFACE|ECE_NOLIFETIME);
+
+				Object obj_fireplace = GetGame().CreateObjectEx("bldr_fireplace", fire_place_pos_world, ECE_PLACE_ON_SURFACE|ECE_NOLIFETIME);
 				s_FirePlacesToDelete.Insert(obj_fireplace);
 				
-				ProcessFireplace(obj_fireplace);
+				ProcessFireplace(obj_fireplace, false);
 			}
 
 			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
@@ -492,7 +492,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		#endif
 	}
 
-	static void ProcessFireplace(Object obj)
+	static void ProcessFireplace(Object obj, bool addStones = true)
 	{
 		FireplaceBase fireplace = FireplaceBase.Cast(obj);
 		if (fireplace)
@@ -502,6 +502,14 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			//! Need to open barrel first, otherwise can't add items
 			if (fireplace.IsInherited(BarrelHoles_ColorBase))
 				fireplace.Open();
+			
+			if (fireplace.GetType() == "bldr_fireplace" && addStones)
+			{
+				//! Add stones
+				item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Stone"));
+				item.SetQuantity(16);
+				fireplace.SetStoneCircleState(true);
+			}
 
 			//! Add bark
 			item = ItemBase.Cast(fireplace.GetInventory().CreateAttachment("Bark_Oak"));
@@ -514,6 +522,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			item.SetQuantity(10);  //! Can only increase stack over 5 AFTER it has been attached because stack max depends on slot!
 
 			fireplace.StartFire();
+			fireplace.RefreshFireplaceVisuals();
 		}
 	}
 

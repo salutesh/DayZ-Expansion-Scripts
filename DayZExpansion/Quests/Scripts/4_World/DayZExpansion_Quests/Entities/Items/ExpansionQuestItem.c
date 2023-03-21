@@ -10,16 +10,6 @@
  *
 */
 
-class ExpansionQuestItemBase: ItemBase
-{
-	void ExpansionQuestItemBase()
-	{
-		m_CanBeSkinned = false;
-
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-			SetAllowDamage(false);
-	}
-};
-
-class ExpansionQuestItemPaper: ExpansionQuestItemBase {};
-class ExpansionQuestItemPackage: ExpansionQuestItemBase {};
+class ExpansionQuestItemPaper: ItemBase {};
+class ExpansionQuestItemPackage: ItemBase {};
+class ExpansionQuestItemBook: ItemBase {};

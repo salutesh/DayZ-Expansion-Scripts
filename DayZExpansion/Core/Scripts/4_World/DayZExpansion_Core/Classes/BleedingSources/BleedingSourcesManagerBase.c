@@ -14,7 +14,7 @@ modded class BleedingSourcesManagerBase
 {
 	override protected bool CanAddBleedingSource(int bit)
 	{
-		if (m_Player.Expansion_IsInSafeZone())
+		if (!m_Player.Expansion_CanBeDamaged())
 			return false;
 
 		return super.CanAddBleedingSource(bit);

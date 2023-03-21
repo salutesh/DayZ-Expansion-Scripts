@@ -15,8 +15,9 @@ class ExpansionQuestObjectiveCollectionConfig_V10: ExpansionQuestObjectiveCollec
 	ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
 };
 
-class ExpansionQuestObjectiveCollectionConfigBase:ExpansionQuestObjectiveConfig
+class ExpansionQuestObjectiveCollectionConfigBase: ExpansionQuestObjectiveConfig
 {
+	ref array<ref ExpansionQuestObjectiveDelivery> Collections;
 	float MaxDistance = 10.0;
 	string MarkerName = "Deliver Items";
 	bool ShowDistance = true;
@@ -24,7 +25,16 @@ class ExpansionQuestObjectiveCollectionConfigBase:ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollectionConfigBase
 {
-	ref array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
+#ifdef EXPANSIONMODMARKET
+	bool AddItemsToNearbyMarketZone = false;
+#endif
+	
+	bool NeedAnyCollection = false;
+
+	void ExpansionQuestObjectiveCollectionConfig()
+	{
+		Collections = new array<ref ExpansionQuestObjectiveDelivery>;
+	}
 
 	void AddCollection(int amount, string name)
 	{
@@ -39,7 +49,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MaxDistance = max;
 	}
 
-	override float GetMaxDistance()
+	float GetMaxDistance()
 	{
 		return MaxDistance;
 	}
@@ -54,39 +64,56 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MarkerName = name;
 	}
 
-	override string GetMarkerName()
+	string GetMarkerName()
 	{
 		return MarkerName;
 	}
 
-	override array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
+	array<ref ExpansionQuestObjectiveDelivery> GetDeliveries()
 	{
 		return Collections;
+	}
+
+#ifdef EXPANSIONMODMARKET
+	void SetAddItemsToNearbyMarketZone(bool state)
+	{
+		AddItemsToNearbyMarketZone = state;
+	}
+
+	bool AddItemsToNearbyMarketZone()
+	{
+		return AddItemsToNearbyMarketZone;
+	}
+#endif
+	
+	bool NeedAnyCollection()
+	{
+		return NeedAnyCollection;
 	}
 
 	static ExpansionQuestObjectiveCollectionConfig Load(string fileName)
 	{
 		bool save;
-		Print("[ExpansionQuestObjectiveCollectionConfig] Load existing configuration file:" + fileName);
+		Print("[ExpansionQuestObjectiveCollectionConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName);
 
 		ExpansionQuestObjectiveCollectionConfig config;
 		ExpansionQuestObjectiveCollectionConfigBase configBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfigBase>.Load(fileName, configBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, configBase))
 			return NULL;
 
 		if (configBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("[ExpansionQuestObjectiveCollectionConfig] Convert existing configuration file:" + fileName + " to version " + CONFIGVERSION);
+			Print("[ExpansionQuestObjectiveCollectionConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName + " to version " + CONFIGVERSION);
 			config = new ExpansionQuestObjectiveCollectionConfig();
+
+			//! Copy over old configuration that haven't HandAnimEventChanged
+			config.CopyConfig(configBase);
 
 			if (configBase.ConfigVersion < 11)
 			{
-				//! Copy over old configuration that haven't HandAnimEventChanged
-				config.CopyConfig(configBase);
-
 				ExpansionQuestObjectiveCollectionConfig_V10 configV10;
-				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig_V10>.Load(fileName, configV10))
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig_V10>.Load(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, configV10))
 					return NULL;
 
 				config.AddCollection(configV10.Collection.GetAmount(), configV10.Collection.GetClassName());
@@ -97,7 +124,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Load(fileName, config))
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, config))
 				return NULL;
 		}
 
@@ -111,9 +138,10 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 
 	override void Save(string fileName)
 	{
+		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName);
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
-	
+		
 		ExpansionJsonFileParser<ExpansionQuestObjectiveCollectionConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER + fileName, this);
 	}
 
@@ -126,6 +154,7 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
+		Collections = configBase.Collections;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)
@@ -140,9 +169,8 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 			collection.OnSend(ctx);
 		}
 
-		ctx.Write(MaxDistance);
-		ctx.Write(MarkerName);
 		ctx.Write(ShowDistance);
+		ctx.Write(NeedAnyCollection);
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
@@ -168,13 +196,10 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 			Collections.Insert(collection);
 		}
 
-		if (!ctx.Read(MaxDistance))
-			return false;
-
-		if (!ctx.Read(MarkerName))
-			return false;
-
 		if (!ctx.Read(ShowDistance))
+			return false;
+		
+		if (!ctx.Read(NeedAnyCollection))
 			return false;
 
 		return true;

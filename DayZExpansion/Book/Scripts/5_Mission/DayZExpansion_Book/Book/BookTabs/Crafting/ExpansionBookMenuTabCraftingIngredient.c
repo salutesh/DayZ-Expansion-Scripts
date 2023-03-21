@@ -53,7 +53,6 @@ class ExpansionBookMenuTabCraftingIngredient: ExpansionScriptView
 		
 	void SetView()
 	{
-		StringLocaliser name = new StringLocaliser(m_Item.DisplayName);
 		if (m_Item.Amount > 1)
 		{
 			m_IngredientController.ItemName = m_Item.Amount.ToString() + "x " + m_Item.DisplayName;

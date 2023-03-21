@@ -76,6 +76,26 @@ class ExpansionMath
 		return edge0 + result * (edge1 - edge0);
 	}
 
+	static vector InterpolateAngles(vector from, vector to, float time, float mult = 4.0, float pow = 2.0)
+	{
+		float diff;
+		float f;
+
+		vector result;
+
+		for (int i = 0; i < 3; i++)
+		{
+			diff = Math.AbsFloat(AngleDiff2(from[i], to[i]));
+			if (diff > 22.5)
+				f = mult - PowerConversion(0.0, 1.0, 22.5 / diff, mult, 0.0, pow);
+			else
+				f = mult;
+			result[i] = LinearConversion(0.0, 1.0, time * f, from[i], to[i]);
+		}
+
+		return result;
+	}
+
 	static vector ExRotateAroundPoint(vector point, vector pos, vector axis, float cosAngle, float sinAngle)
     {
         return vector.RotateAroundZero(pos - point, axis, cosAngle, sinAngle) + point;
@@ -84,7 +104,7 @@ class ExpansionMath
 	//! Generate random point at angle in dregrees
 	static vector GetRandomPointAtDegrees(vector center, float degrees, float minRadius, float maxRadius)
 	{
-		float theta = degrees * Math.PI / 180.0;
+		float theta = degrees * Math.DEG2RAD;
 
 		return GetRandomPointAtRadians(center, theta, minRadius, maxRadius);
 	}
@@ -441,7 +461,7 @@ class ExpansionMath
 		if (!x)
 		{
 			Error("Math domain error");
-			return NAN;
+			return "nan".ToFloat();
 		}
 
 		//! Shortcut for x == 1.0

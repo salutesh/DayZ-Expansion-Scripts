@@ -147,7 +147,7 @@ class ExpansionUAZ: CarScript
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return VehicleAnimInstances.SEDAN;
+		return ExpansionVehicleAnimInstances.EXPANSION_UAZ;
 	}
 
 	override CarRearLightBase CreateRearLight()

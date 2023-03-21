@@ -826,7 +826,7 @@ class CfgVehicles
 		scope = 2;
 		displayname = "$STR_EXPANSION_VEHICLE_UAZ";
 		model = "\DayZExpansion\Vehicles\Ground\UAZ\UAZ.p3d";
-		modelZeroPointDistanceFromGround = 0.13;
+		modelZeroPointDistanceFromGround = 0.0;
 		vehicleClass = "Expansion_Car";
 		defaultSkin = "Green";
 		hiddenSelections[] = {"light_1_1","light_2_1","light_brake_1_2","light_brake_2_2","light_reverse_1_2","light_reverse_2_2","light_1_2","light_2_2","light_dashboard","camo1","camo2","dmgZone_front","dmgZone_back","dmgZone_roof","dmgzone_fender_FL","dmgzone_fender_BL","dmgzone_fender_FR","dmgzone_fender_BR"};

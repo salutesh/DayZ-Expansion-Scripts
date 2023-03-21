@@ -60,7 +60,7 @@ class ExpansionHardlineSettingsV5: ExpansionSettingBase
  **/
 class ExpansionHardlineSettings: ExpansionSettingBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 	
 	int ReputationOnKillInfected;
 	int ReputationOnKillPlayer;
@@ -80,6 +80,10 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	
 	bool ShowHardlineHUD;
 	bool UseReputation;
+#ifdef EXPANSIONMODAI
+	bool UseFactionReputation;
+	bool EnableFactionPersistence;
+#endif
 	
 	bool EnableItemRarity;
 	bool UseItemRarityForMarketPurchase;
@@ -97,7 +101,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this);
 	#endif
-		
+
 		ItemRarity = new map<string, ExpansionHardlineItemRarity>;
 	}
 
@@ -107,88 +111,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
-		
-		//! @note commented lines below are settings that are not needed on client at the moment
-
-		/*
-		if (!ctx.Read(ReputationOnKillInfected))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillInfected");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationOnKillPlayer))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillPlayer");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationOnKillAnimal))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillAnimal");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationOnKillAI))
-		{
-			Error(ToString() + "::OnRecieve ReputationOnKillAI");
-			return false;
-		}
-		
-		if (!ctx.Read(ReputationLossOnDeath))
-		{
-			Error(ToString() + "::OnRecieve ReputationLossOnDeath");
-			return false;
-		}
-		
-		if (!ctx.Read(PoorItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve PoorItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(CommonItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve CommonItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(UncommonItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve UncommonItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(RareItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve RareItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(EpicItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve EpicItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(LegendaryItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve LegendaryItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(MythicItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve MythicItemRequirement");
-			return false;
-		}
-
-		if (!ctx.Read(ExoticItemRequirement))
-		{
-			Error(ToString() + "::OnRecieve ExoticItemRequirement");
-			return false;
-		}
-		*/
 
 		if (!ctx.Read(ShowHardlineHUD))
 		{
@@ -208,20 +130,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			return false;
 		}
 
-		/*
-		if (!ctx.Read(UseItemRarityForMarketPurchase))
-		{
-			Error(ToString() + "::OnRecieve UseItemRarityForMarketPurchase");
-			return false;
-		}
-
-		if (!ctx.Read(UseItemRarityForMarketSell))
-		{
-			Error(ToString() + "::OnRecieve UseItemRarityForMarketSell");
-			return false;
-		}
-		*/
-
 		m_IsLoaded = true;
 
 		return true;
@@ -234,35 +142,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(ctx);
 	#endif
 
-		//! @note commented lines below are settings that are not needed on client at the moment
-
-		/*
-		ctx.Write(ReputationOnKillInfected);
-		ctx.Write(ReputationOnKillPlayer);
-		ctx.Write(ReputationOnKillAnimal);
-		ctx.Write(ReputationOnKillAI);
-		
-		ctx.Write(ReputationLossOnDeath);
-		
-		ctx.Write(PoorItemRequirement);
-		ctx.Write(CommonItemRequirement);
-		ctx.Write(UncommonItemRequirement);
-		ctx.Write(RareItemRequirement);
-		ctx.Write(EpicItemRequirement);
-		ctx.Write(LegendaryItemRequirement);
-		ctx.Write(MythicItemRequirement);
-		ctx.Write(ExoticItemRequirement);
-		*/
-
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
-		
 		ctx.Write(EnableItemRarity);
-
-		/*
-		ctx.Write(UseItemRarityForMarketPurchase);
-		ctx.Write(UseItemRarityForMarketSell);
-		*/
 	}
 
 	// ------------------------------------------------------------
@@ -311,7 +193,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		EnableItemRarity = s.EnableItemRarity;
 		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
 		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
-
+		
 		ItemRarity = s.ItemRarity;
 	}
 
@@ -363,6 +245,14 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 						UseReputation = settingsV5.UseHumanity;
 					}
 				}
+
+			#ifdef EXPANSIONMODAI
+				if (m_Version < 7)
+				{
+					UseFactionReputation = settingsDefault.UseFactionReputation;
+					EnableFactionPersistence = settingsDefault.EnableFactionPersistence;
+				}
+			#endif
 
 				m_Version = VERSION;
 				save = true;
@@ -436,10 +326,14 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		ShowHardlineHUD = true;
 		UseReputation = true;
+	#ifdef EXPANSIONMODAI
+		UseFactionReputation = false;
+		EnableFactionPersistence = false;
+	#endif
 		EnableItemRarity = true;
 		UseItemRarityForMarketPurchase = true;
 		UseItemRarityForMarketSell = true;
-
+	
 		DefaultItemRarity();
 	}
 
@@ -452,15 +346,43 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			return;
 
 	#ifdef NAMALSK_SURVIVAL
-		AddItem("dzn_module_card", ExpansionHardlineItemRarity.Mythic);
-		AddItem("dzn_module_lantia", ExpansionHardlineItemRarity.Mythic);
-		AddItem("dzn_module_surge", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_module_card", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_module_lantia", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_module_surge", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_module_ext", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_module_ext2", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_lehs", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_lehs_helmet", ExpansionHardlineItemRarity.Exotic);
+		
+		AddItem("dzn_printer_filament_abs", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_printer_filament_tpc", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_printer_filament_nylon", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_blueprint_lehs", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_lehs_battery", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_lehs_o2tank", ExpansionHardlineItemRarity.Mythic);
+		
+		AddItem("dzn_athena_planning", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_athena_action1", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_athena_action2", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_netanyas_log", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_athena3_august", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_athena3_exp1", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_athena3_exp2", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_athena3_october", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_phoenix_log_1", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_phoenix_log_2", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_phoenix_log_3", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_phoenix_log_4", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_phoenix_log_5", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_lantia_december", ExpansionHardlineItemRarity.Mythic);
+		AddItem("dzn_lantia_vega7", ExpansionHardlineItemRarity.Mythic);
+		
+		AddItem("dzn_apsi", ExpansionHardlineItemRarity.Legendary);
+		AddItem("dzn_vinyl_bubson", ExpansionHardlineItemRarity.Legendary);
 
-		AddItem("ER7_Gauss_Magazine", ExpansionHardlineItemRarity.Exotic);
-		AddItem("Ammo_ER7RFW", ExpansionHardlineItemRarity.Exotic);
-		AddItem("ER7_Scope", ExpansionHardlineItemRarity.Exotic);
-		AddItem("ER7_Gauss", ExpansionHardlineItemRarity.Exotic);
-		AddItem("ER7_Gauss_Battery", ExpansionHardlineItemRarity.Exotic);
+		AddItem("dzn_detector", ExpansionHardlineItemRarity.Epic);
+		
+		AddItem("dzn_tool_watch", ExpansionHardlineItemRarity.Uncommon);
 	#endif
 
 	#ifdef EXPANSIONMODMARKET
@@ -894,9 +816,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		AddItem("AlarmClock_Blue", ExpansionHardlineItemRarity.Uncommon);
 		AddItem("KitchenTimer", ExpansionHardlineItemRarity.Uncommon);
-	#ifdef NAMALSK_SURVIVAL
-		AddItem("dzn_tool_watch", ExpansionHardlineItemRarity.Uncommon);
-	#endif
+
 		//! EXPLOSIVE GRANADES
 		AddItem("RGD5Grenade", ExpansionHardlineItemRarity.Epic);
 		AddItem("M67Grenade", ExpansionHardlineItemRarity.Epic);
@@ -1334,12 +1254,26 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		return ExpansionHardlineItemRarity.NONE;
 	}
-
+	
 	int GetReputationForRarity(ExpansionHardlineItemRarity rarity)
 	{
 		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
 		int rarityReq;
 		EnScript.GetClassVar(this, rarityName + "ItemRequirement", 0, rarityReq);
 		return rarityReq;
+	}
+	
+	int GetLimitByReputation(int reputation, int reputationToUnlock, int minVal, int increment)
+	{
+		Print(ToString() + "::GetLimitByReputation - Start");
+		Print(ToString() + "::GetLimitByReputation - Reputation: " + reputation + " | Reputation to unlock: " + reputationToUnlock + " | Min value: " + minVal + " | Increment: " + increment);
+		int playerLevel = reputation / 1000;
+		int limit;
+		if (reputation > reputationToUnlock)
+			limit = minVal + playerLevel * increment;
+		else
+			limit = minVal;
+		Print(ToString() + "::GetLimitByReputation - Level: " + playerLevel + " | Limit: " + limit);
+		return limit;
 	}
 };

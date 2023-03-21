@@ -134,7 +134,9 @@ class ExpansionActionConnectTow : ActionInteractBase
 					CarScript other_car;
 					if (Class.CastTo(other_car, o))
 					{
-						if (!other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car))
+						// while we technically could allow towing a vehicle itself towing another one
+						// dayz will get more and more fucky so we limit it to only pairs
+						if (!other_car.Expansion_IsTowing() && car.Expansion_CanConnectTow(other_car) && !other_car.Expansion_GetTowedEntity())
 						{
 							m_IsWinch = car.Expansion_IsHelicopter();
 

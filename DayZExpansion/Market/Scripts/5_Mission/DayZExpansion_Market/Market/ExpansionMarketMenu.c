@@ -143,10 +143,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected Widget market_item_info_stock_player;
 	protected Widget dropdown_background;
 	protected Widget market_item_info_item_manager_panel;
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu Constructor
-	// ------------------------------------------------------------
+
 	void ExpansionMarketMenu()
 	{
 		SetIsLoading(true);
@@ -203,9 +200,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdatePlayerItems
-	// ------------------------------------------------------------
 	void UpdatePlayerItems()
 	{
 		MarketPrint("UpdatePlayerItems - Start");
@@ -243,10 +237,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		MarketPrint("UpdatePlayerItems - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu HasPlayerItem
-	// ------------------------------------------------------------
+
 	bool HasPlayerItem(string name)
 	{
 		MarketPrint("HasPlayerItem - Start");
@@ -268,70 +259,45 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("HasPlayerItem - End and return false: " + name);
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu HasPlayerMarketItem
-	// ------------------------------------------------------------	
+
 	bool HasPlayerMarketItem(ExpansionMarketItem item)
 	{
 		return (m_MarketModule.GetAmountInInventory(item, m_MarketModule.LocalGetEntityInventory()) > 0);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetPlayerItem
-	// ------------------------------------------------------------
+
 	ExpansionMarketPlayerItem GetPlayerItem(string name)
 	{		
 		ExpansionMarketPlayerItem item;
 		for (int i = 0; i < m_PlayerItems.Count(); i++)
 		{
-			string itemName = m_PlayerItems[i].ClassName;
-			//itemName.ToLower();
-			
+			string itemName = m_PlayerItems[i].ClassName;			
 			if (itemName == name)
-			{
 				item = m_PlayerItems[i];
-			}
 		}
 		
 		return item;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetPlayerItems
-	// ------------------------------------------------------------
+
 	array<ref ExpansionMarketPlayerItem> GetPlayerItems()
 	{
 		return m_PlayerItems;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetLayoutFile
-	// ------------------------------------------------------------
+
 	override string GetLayoutFile() 
 	{
 		return "DayZExpansion/Market/GUI/layouts/market/expansion_market_menu.layout";
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetControllerType
-	// ------------------------------------------------------------
+
 	override typename GetControllerType() 
 	{
 		return ExpansionMarketMenuController;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu CanShow
-	// ------------------------------------------------------------
+
 	override bool CanShow()
 	{
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu InitMarketCategories
-	// ------------------------------------------------------------	
+
 	void InitMarketCategories()
 	{
 		MarketPrint("InitMarketCategories - Start");
@@ -375,9 +341,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("InitMarketCategories - End");
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu CreateMenuCategories
-	// ------------------------------------------------------------
 	void CreateMenuCategories()
 	{
 		MarketPrint("CreateMenuCategories - Start");
@@ -406,9 +369,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("CreateMenuCategories - End");
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu CreateMenuCategories
-	// ------------------------------------------------------------
 	protected void CreateMenuCategories( array<ref ExpansionMarketCategory> categories, string search = "")
 	{
 		MarketPrint("CreateMenuCategories - Start");
@@ -420,10 +380,10 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
 			{
-				if (m_MarketMenuController.MarketCategories[i].m_Category.CategoryID == currentCategory.CategoryID)
+				if (m_MarketMenuController.MarketCategories[i].GetCategory().CategoryID == currentCategory.CategoryID)
 				{
 					marketCategoryElement = m_MarketMenuController.MarketCategories[i];
-					tempItems = marketCategoryElement.m_TempItems;
+					tempItems = marketCategoryElement.GetTempItems();
 				}
 			}
 
@@ -510,9 +470,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShouldShowItem
-	// ------------------------------------------------------------	
 	bool ShouldShowItem(ExpansionMarketItem currentItem, string displayName, string search = "")
 	{
 		MarketPrint("CreateMenuCategories - Start");
@@ -552,10 +509,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("ExpansionMarketMenu::ShouldShowItem - End - No option filter is active. Add item: " + currentItem.ClassName);
 		return true;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu TempInsertItem
-	// ------------------------------------------------------------
+
 	void TempInsertItem(string displayName, ExpansionMarketItem currentItem, map<string, ref array<ExpansionMarketItem>> tempItems)
 	{
 		MarketPrint("TempInsertItem - Start");
@@ -580,17 +534,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("TempInsertItem - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu AddMenuCategory
-	// ------------------------------------------------------------
+
 	void AddMenuCategory(ExpansionMarketMenuCategory marketCategoryElement)
 	{
 		MarketPrint("AddMenuCategory - Start");
 		
 		int count = m_MarketMenuController.MarketCategories.Count();
 
-		if (!count || marketCategoryElement.m_Category.m_Idx > m_MarketMenuController.MarketCategories[count - 1].m_Category.m_Idx)
+		if (!count || marketCategoryElement.GetCategory().m_Idx > m_MarketMenuController.MarketCategories[count - 1].GetCategory().m_Idx)
 		{
 			m_MarketMenuController.MarketCategories.Insert(marketCategoryElement);
 		}
@@ -598,7 +549,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		{
 			for (int i = 0; i < count; i++)
 			{
-				if (marketCategoryElement.m_Category.m_Idx < m_MarketMenuController.MarketCategories[i].m_Category.m_Idx)
+				if (marketCategoryElement.GetCategory().m_Idx < m_MarketMenuController.MarketCategories[i].GetCategory().m_Idx)
 					break;
 			}
 
@@ -607,10 +558,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("AddMenuCategory - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateMarketCategories
-	// ------------------------------------------------------------
+
 	void UpdateMarketCategories(bool updateItemViews = false)
 	{
 		MarketPrint("UpdateMarketCategories - Start");
@@ -641,11 +589,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			ObservableCollection<ref ExpansionMarketMenuItem> menuItems = menuCategory.GetItems();
 			
 			MarketPrint("-----------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-			MarketPrint("UpdateMarketCategories - Update category: " + menuCategory.m_Category.m_FileName + " | " +menuItems.Count());
+			MarketPrint("UpdateMarketCategories - Update category: " + menuCategory.GetCategory().m_FileName + " | " + menuItems.Count());
 			
 			if (isFiltered)
 			{
-				foreach (ExpansionMarketItem tempItem: menuCategory.m_MarketItems)
+				array<ExpansionMarketItem> marketItems = menuCategory.GetMarketItems();
+				foreach (ExpansionMarketItem tempItem: marketItems)
 				{
 					if (!tempItem.m_ShowInMenu)
 						filteredItemCount++;
@@ -719,20 +668,20 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				}
 			}
 			
-			if (isFiltered && filteredItemCount == menuCategory.m_MarketItems.Count())
+			if (isFiltered && filteredItemCount == menuCategory.GetMarketItems().Count())
 			{
 				menuCategory.Hide();
-				MarketPrint("UpdateMarketCategories - Hide category: " + menuCategory.m_CategoryController.CategoryName);
+				MarketPrint("UpdateMarketCategories - Hide category: " + menuCategory.GetCategoryController().CategoryName);
 			}
 			else
 			{
 				menuCategory.Show();
-				MarketPrint("UpdateMarketCategories - Show category: " + menuCategory.m_CategoryController.CategoryName);
-				if (!menuCategory.IsUpdateTimerRunning() || !menuCategory.m_UpdateItemCount)
+				MarketPrint("UpdateMarketCategories - Show category: " + menuCategory.GetCategoryController().CategoryName);
+				if (!menuCategory.IsUpdateTimerRunning() || !menuCategory.GetUpdateItemCount())
 				{
 					int show;
 					if (isFiltered)
-						show = menuCategory.m_MarketItems.Count() - filteredItemCount;
+						show = menuCategory.GetMarketItems().Count() - filteredItemCount;
 					else
 						show = menuCategory.GetShowItemsCount();
 					menuCategory.UpdateItemCount(show);
@@ -742,10 +691,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateMarketCategories - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateOptionFilterStrings
-	// ------------------------------------------------------------
+
 	void UpdateOptionFilterStrings()
 	{
 		MarketPrint("UpdateOptionFilterStrings - Start");
@@ -880,19 +826,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateOptionFilterStrings - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu IsFiltered
-	// ------------------------------------------------------------
+
 	bool IsFiltered()
 	{
 		//! NOTE: ShowSellables/ShowPurchasables needs to be checked separately because it can result in zero option filter strings
 		return m_FilterOptionStrings.Count() > 0 || GetSearchText() != "" || ShowSellables() || ShowPurchasables();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu IsInFilter
-	// ------------------------------------------------------------
 	bool IsInFilter(string className)
 	{
 		int index = m_FilterOptionStrings.Find(className);
@@ -901,10 +841,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu IsInFilter
-	// ------------------------------------------------------------
+
 	void RemoveFromFilter(string className)
 	{
 		MarketPrint("RemoveFromFilter - Start");
@@ -915,18 +852,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("RemoveFromFilter - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetSearchText
-	// ------------------------------------------------------------
+
 	string GetSearchText()
 	{
 		return market_filter_box.GetText();
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ClearCategories
-	// ------------------------------------------------------------
 	void ClearCategories()
 	{
 		MarketPrint("ClearCategories - Start");
@@ -943,10 +874,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("ClearCategories - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ClearCategoryItems
-	// ------------------------------------------------------------
+
 	void ClearCategoryItems()
 	{
 		MarketPrint("ClearCategoryItems - Start");
@@ -959,10 +887,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("ClearCategoryItems - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetTraderObject
-	// ------------------------------------------------------------
+
 	//! Gets called from market module SI_SetTraderInvoker invoker and sets the current intracted market trader and its market class
 	void SetTraderObject( ExpansionTraderObjectBase trader, bool complete)
 	{
@@ -1056,10 +981,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("SetTraderObject - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateFilterView
-	// ------------------------------------------------------------
+
 	void UpdateFilterView()
 	{
 		MarketPrint("UpdateFilterView - Start");
@@ -1078,8 +1000,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				dropdownElement = m_MarketMenuController.DropdownElements[i];
 				dropdownCheckedStates.Insert(dropdownElement.ClassName(), dropdownElement.IsChecked());
 			}
-			
-			//ResetDropdownFilterStates();
+
 			UpdateDropdownFilterElements();
 
 			//! Restore state of selected filters
@@ -1102,10 +1023,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateFilterView - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ClearDropdownElements
-	// ------------------------------------------------------------
+
 	void ClearDropdownElements()
 	{
 		MarketPrint("ClearDropdownElements - Start");
@@ -1120,10 +1038,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("ClearDropdownElements - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateDropdownFilterElements
-	// ------------------------------------------------------------
+
 	void UpdateDropdownFilterElements()
 	{
 		MarketPrint("UpdateDropdownFilterElements - Start");
@@ -1223,10 +1138,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		MarketPrint("UpdateDropdownFilterElements - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdatePlayerCurrency
-	// ------------------------------------------------------------
+
 	void UpdatePlayerCurrency()
 	{
 		MarketPrint("UpdatePlayerCurrency - Start");
@@ -1290,10 +1202,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdatePlayerCurrency - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetItemInfo
-	// ------------------------------------------------------------
+
 	void SetItemInfo( ExpansionMarketMenuItem itemElement, bool resetQuantity = true)
 	{
 		MarketPrint("SetItemInfo - Start");
@@ -1347,10 +1256,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("SetItemInfo - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetItemInfo
-	// ------------------------------------------------------------
+
 	void UpdatePreview()
 	{
 		MarketPrint("UpdatePreview - Start");
@@ -1436,10 +1342,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdatePreview - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu CreateAttachments
-	// ------------------------------------------------------------
+
 	//! Create all attachments from src in dst
 	void CreateAttachments(EntityAI src, EntityAI dst)
 	{
@@ -1466,10 +1369,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("CreateAttachments - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateItemDescriptionPanel
-	// ------------------------------------------------------------
+
 	void UpdateItemDescriptionPanel()
 	{
 		MarketPrint("UpdateItemDescriptionPanel - Start");
@@ -1488,18 +1388,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateItemDescriptionPanel - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ClearSkins
-	// ------------------------------------------------------------
+
 	void ClearSkins()
 	{
 		m_MarketMenuController.SkinsDropdownElements.Clear();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateItemSkins
-	// ------------------------------------------------------------
+
 	void UpdateItemSkins()
 	{
 		MarketPrint("UpdateItemSkins - Start");
@@ -1682,10 +1576,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateItemSkins - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetItemAttachmentsInfo
-	// ------------------------------------------------------------
+
 	void SetItemAttachmentsInfo( ExpansionMarketMenuItem itemElement)
 	{
 		MarketPrint("SetItemAttachmentsInfo - Start");
@@ -1716,9 +1607,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				market_item_info_attachments.Show(true);
 				market_item_info_attachments_icon.SetColor(GetExpansionSettings().GetMarket().MarketMenuColors.Get("ColorItemInfoAttachments"));
 			}
-			//market_item_info_attachments_panel.Show(itemElement.GetMarketItem().SpawnAttachments.Count() > 0);
-			//market_item_info_attachments_setup_panel.Show(itemElement.GetMarketItem().SpawnAttachments.Count() > 0);
-		
+
 			if (!itemElement.GetIncludeAttachments())
 			{
 				if (market_item_info_attachments.IsVisible()) 
@@ -1728,10 +1617,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("SetItemAttachmentsInfo - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateItemFieldFromBasicNetSync
-	// ------------------------------------------------------------
+
 	void UpdateItemFieldFromBasicNetSync()
 	{
 		MarketPrint("UpdateItemFieldFromBasicNetSync - Start");
@@ -1761,7 +1647,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		int color;
 
-		if (GetSelectedMarketItemElement().m_CanSell)
+		if (GetSelectedMarketItemElement().CanSell())
 		{
 			if (m_PlayerStock >= 0)
 			{
@@ -1788,11 +1674,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 			else
 			{
-				//! Player doesn't have the item. Use preview item.
+				//! Player doesn't have the item
 				items = new array<EntityAI>;
-				EntityAI previewEntity;
-				if (Class.CastTo(previewEntity, m_SelectedMarketItemElement.GetPreviewObject()))
-					items.Insert(previewEntity);
 				color = COLOR_EXPANSION_NOTIFICATION_EXPANSION;
 			}
 
@@ -1813,7 +1696,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		market_item_sell_price_icon.Show(m_SellPrice > -1);
 		
-		if (GetSelectedMarketItemElement().m_CanBuy)
+		if (GetSelectedMarketItemElement().CanBuy())
 		{
 			if (m_TraderItemStock > 0)
 			{
@@ -1855,29 +1738,18 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 
 		market_item_buy_price_icon.Show(m_BuyPrice > -1);
-
 		m_MarketMenuController.MarketQuantity = m_Quantity.ToString();
-
 		m_MarketMenuController.NotifyPropertiesChanged({"MarketItemStockPlayer", "MarketItemTotalSellPrice", "MarketItemStockTrader", "MarketItemTotalBuyPrice", "MarketQuantity"});
-
-		market_item_buy.Show(GetSelectedMarketItemElement().m_CanBuy && m_Quantity > 0 && m_TraderHasQuantity && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
-
+		market_item_buy.Show(GetSelectedMarketItemElement().CanBuy() && m_Quantity > 0 && m_TraderHasQuantity && m_BuyPrice > -1 && m_MarketModule.GetPlayerWorth() >= m_BuyPrice);
 		market_item_info_stock.SetColor(GetSelectedMarketItemElement().GetMarketStockColor(m_TraderHasQuantity));
-
-		market_item_sell.Show(GetSelectedMarketItemElement().m_CanSell && m_Quantity > 0 && m_Quantity <= m_PlayerStock && m_SellPrice > -1);
-
+		market_item_sell.Show(GetSelectedMarketItemElement().CanSell() && m_Quantity > 0 && m_Quantity <= m_PlayerStock && m_SellPrice > -1);
 		market_item_info_stock_player.SetColor(GetSelectedMarketItemElement().GetPlayerStockColor(m_Quantity <= m_PlayerStock));
-		
 		UpdateMonieDenominations();
-		
+
 		MarketPrint("UpdateItemFieldFromBasicNetSync - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateMonieDenominations
-	// Should update and display the current needed monie denominations
-	// for the selected and currently displayed market item
-	// ------------------------------------------------------------
+
+	//! Should update and display the current needed monie denominations for the selected and currently displayed market item
 	void UpdateMonieDenominations()
 	{
 		MarketPrint("UpdateMonieDenominations - Start");
@@ -2017,20 +1889,14 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateMonieDenominations - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetDisplayName
-	// ------------------------------------------------------------
+
 	string GetDisplayName(string type)
 	{
 		//! Uses a cache to speed up repeat lookups
 		type.ToLower();
 		return ExpansionStatic.GetItemDisplayNameWithType(type, m_TypeDisplayNames);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetPreviewClassName
-	// ------------------------------------------------------------
+
 	string GetPreviewClassName(string className, bool ignoreBaseBuildingKits = false)
 	{
 		if (GetGame().ConfigIsExisting("CfgVehicles " + className + "_ExpansionMarketPreview"))
@@ -2075,10 +1941,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		return className;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnIncrementQuantityButtonClick
-	// ------------------------------------------------------------
+
 	void OnIncrementQuantityButtonClick()
 	{
 		MarketPrint("OnIncrementQuantityButtonClick - Start");
@@ -2112,10 +1975,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnIncrementQuantityButtonClick - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnDecrementQuantityButtonClick
-	// ------------------------------------------------------------
+
 	void OnDecrementQuantityButtonClick()
 	{
 		MarketPrint("OnDecrementQuantityButtonClick - Start");
@@ -2144,10 +2004,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnDecrementQuantityButtonClick - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateQuantity
-	// ------------------------------------------------------------
+
 	void UpdateQuantity()
 	{
 		MarketPrint("UpdateQuantity - Start");
@@ -2174,10 +2031,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("UpdateQuantity - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu MenuCallback
-	// ------------------------------------------------------------
+
 	//! @note option1 and option2 can have different meaning depending on result
 	void MenuCallback(string itemClassName, ExpansionMarketResult result, int option1 = -1, int option2 = -1, Object object = NULL)
 	{
@@ -2514,9 +2368,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		MarketPrint("RequestSelectedItem - End");
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnBuyButtonClick
-	// ------------------------------------------------------------
 	void OnBuyButtonClick()
 	{
 		MarketPrint("OnBuyButtonClick - Start");
@@ -2546,10 +2397,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnBuyButtonClick - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnConfirmBuyButtonClick
-	// ------------------------------------------------------------
+
 	void OnConfirmBuyButtonClick()
 	{
 		MarketPrint("OnConfirmBuyButtonClick - Start");
@@ -2561,16 +2409,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			return;
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_PURCHASE);
-		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().m_CurrentSelectedSkinIndex, GetCurrentSelectedAttachmentIDs());
+		m_MarketModule.RequestPurchase(GetSelectedMarketItem().ClassName, m_Quantity, m_BuyPrice, m_TraderObject, NULL, GetSelectedMarketItem().SpawnAttachments.Count() > 0 && GetSelectedMarketItemElement().GetIncludeAttachments(), GetSelectedMarketItemElement().GetCurrentSelectedSkinIndex(), GetCurrentSelectedAttachmentIDs());
 		if (m_PurchaseDialog)
 			m_PurchaseDialog.Hide();
 		
 		MarketPrint("OnConfirmBuyButtonClick - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnSellButtonClick
-	// ------------------------------------------------------------
+
 	void OnSellButtonClick()
 	{
 		MarketPrint("OnSellButtonClick - Start");
@@ -2611,10 +2456,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnSellButtonClick - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnConfirmSellButtonClick
-	// ------------------------------------------------------------
+
 	void OnConfirmSellButtonClick()
 	{
 		MarketPrint("OnConfirmSellButtonClick - Start");
@@ -2630,19 +2472,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "STR_EXPANSION_MARKET_DONT_HAVE_ITEM", EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 3, ExpansionNotificationType.MARKET).Create();
 			return;
 		}
-
-		//! We COULD check this on client and avoid a roundtrip to server, but then server owners
-		//! will not see in their logs if their market configuration is faulty/incomplete
-		//if (m_LastFindSellPriceResult != ExpansionMarketResult.Success)
-		//{
-		//	string itemClassName;
-		//	if (m_LastFindSellPriceResult == ExpansionMarketResult.FailedItemDoesNotExistInTrader)
-		//		itemClassName = m_LastFindSellPriceFailedClassName;
-		//	else
-		//		itemClassName = GetSelectedMarketItem().ClassName;
-		//	MenuCallback(itemClassName, m_LastFindSellPriceResult);
-		//	return;
-		//}
 		
 		SetMenuState(ExpansionMarketMenuState.REQUESTING_SELL);
 		m_MarketModule.RequestSell(GetSelectedMarketItem().ClassName, m_Quantity, m_SellPrice, m_TraderObject, m_MarketSell);
@@ -2651,10 +2480,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnConfirmSellButtonClick - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnQuantityButtonClick
-	// ------------------------------------------------------------
+
 	void OnQuantityButtonClick()
 	{
 		MarketPrint("OnQuantityButtonClick - Start");
@@ -2667,10 +2493,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnQuantityButtonClick - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetQuantity
-	// ------------------------------------------------------------
+
 	void SetQuantity(string quantity)
 	{
 		MarketPrint("SetQuantity - Start");
@@ -2687,18 +2510,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("SetQuantity - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetQuantity
-	// ------------------------------------------------------------
+
 	int GetQuantity()
 	{
 		return m_Quantity;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnFilterButtonClick
-	// ------------------------------------------------------------
+
 	void OnFilterButtonClick()
 	{
 		MarketPrint("OnFilterButtonClick - Start");
@@ -2708,10 +2525,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnFilterButtonClick - End");
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnHide
-	// ------------------------------------------------------------
+
 	override void OnHide()
 	{
 		MarketPrint("OnHide - Start");
@@ -2798,10 +2612,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnHide - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnAttachmentsCheckboxStateChange
-	// ------------------------------------------------------------	
+
 	void OnAttachmentsCheckboxStateChange()
 	{
 		MarketPrint("OnAttachmentsCheckboxStateChange - Start");
@@ -2819,10 +2630,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnAttachmentsCheckboxStateChange - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnChange
-	// ------------------------------------------------------------
+
 	override bool OnChange(Widget w, int x, int y, bool finished)
 	{				
 		if (w == market_filter_box)
@@ -2832,10 +2640,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		return false;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseEnter
-	// ------------------------------------------------------------
+
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
 		switch (w)
@@ -2885,10 +2690,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}		
 		return false;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseLeave
-	// ------------------------------------------------------------
+
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		switch (w)
@@ -2937,10 +2739,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseButtonDown
-	// ------------------------------------------------------------
+
 	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{		
 		if (w == market_item_preview)
@@ -2958,10 +2757,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseButtonUp
-	// ------------------------------------------------------------	
+
 	override bool OnMouseButtonUp( Widget w, int x, int y, int button )
 	{
 		if (w == dropdown_selector && button == MouseState.LEFT)
@@ -2976,10 +2772,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnMouseWheel
-	// ------------------------------------------------------------
+
 	override bool OnMouseWheel(Widget w, int x, int y, int wheel) 
 	{
 		if (w == market_item_preview)
@@ -2996,9 +2789,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnItemSelected
-	// ------------------------------------------------------------
 	override bool OnItemSelected(Widget w, int x, int y, int row, int column, int oldRow, int oldColumn)
 	{
 		float itemx, itemy;
@@ -3013,7 +2803,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			market_item_preview.SetSize(1.5, 1.5);
 
-			// align to center 
+			//! Align to center 
 			market_item_preview.SetPos(-0.225, -0.225);
 		}
 		else if (w == market_player_preview)
@@ -3027,16 +2817,13 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			market_player_preview.SetSize(1.5, 1.5);
 
-			// align to center 
+			//! Align to center 
 			market_player_preview.SetPos(-0.225, -0.225);
 		}
 		
 		return false;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateScale
-	// ------------------------------------------------------------
+
 	void UpdateScale(int mouse_x, int mouse_y, bool is_dragging, int wheel)
 	{
 		float w, h, x, y;		
@@ -3048,7 +2835,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		{
 			market_item_preview.SetSize(w, h);
 	
-			// align to center 
+			//! Align to center 
 			int screen_w, screen_h;
 			GetScreenSize(screen_w, screen_h);
 			float new_x = x - (m_CharacterScaleDelta / 8);
@@ -3056,10 +2843,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			market_item_preview.SetPos(new_x, new_y);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateScalePlayerPreview
-	// ------------------------------------------------------------
+
 	void UpdateScalePlayerPreview(int mouse_x, int mouse_y, bool is_dragging, int wheel)
 	{
 		float w, h, x, y;		
@@ -3084,13 +2868,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetPositionPlayerPreviewTargetY
-	// ------------------------------------------------------------
 	float GetPositionPlayerPreviewTargetY()
 	{
 		//! Keep focus on item slot when zooming in
-
 		bool isVestSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Vest");
 		bool isBodySlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Body");
 		bool isBackSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Back");
@@ -3118,44 +2898,30 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		return v;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetPositionPlayerPreviewInterpolatedY
-	// ------------------------------------------------------------
 	float GetPositionPlayerPreviewInterpolatedY(float w, float targetY)
 	{
 		//! Normalize to 0..1
 		float normalized = ExpansionMath.LinearConversion(POSITION_PLAYER_PREVIEW_W_THRESHOLD_MIN, POSITION_PLAYER_PREVIEW_W_THRESHOLD_MAX, w);
-
 		//! Smooth normalized value
 		float smooth = ExpansionMath.SmoothStep(normalized, 2);
-
 		//! Interpolate to targetY
 		float y = ExpansionMath.LinearConversion(0, 1, smooth, POSITION_PLAYER_PREVIEW_Y_OFFSET, targetY);
 
 		return y;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdatePositionPlayerPreview
-	// ------------------------------------------------------------
+
 	void UpdatePositionPlayerPreview(float y)
 	{
 		market_player_preview.SetModelPosition(Vector(0, y, 0));
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateLastPositionPlayerPreview
-	// ------------------------------------------------------------
+
 	void UpdateLastPositionPlayerPreview(float w)
 	{
 		m_LastPositionPlayerPreviewW = w;
 		if (!m_PlayerPosAnimRunning)
 			m_LastPositionPlayerPreviewY = GetPositionPlayerPreviewInterpolatedY(w, GetPositionPlayerPreviewTargetY());
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu AnimatePositionPlayerPreview
-	// ------------------------------------------------------------
+
 	int AnimatePositionPlayerPreview(int animID = 0, int frameNumber = 1)
 	{
 		if (!animID)
@@ -3196,10 +2962,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		return animID;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateRotation
-	// ------------------------------------------------------------
+
 	void UpdateRotation(int mouse_x, int mouse_y, bool is_dragging)
 	{
 		vector o = m_CharacterOrientation;
@@ -3213,10 +2976,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_CharacterOrientation = o;
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UpdateRotationPlayerPreview
-	// ------------------------------------------------------------
+
 	void UpdateRotationPlayerPreview(int mouse_x, int mouse_y, bool is_dragging)
 	{
 		vector o = m_CharacterOrientation;
@@ -3230,204 +2990,119 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_CharacterOrientation = o;
 		}
 	}
-				
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterPrimeMag
-	// ------------------------------------------------------------
+
 	void SetFilterPrimeMag(bool state)
 	{
 		m_ShowPrimeMag = state;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowPrimeMag
-	// ------------------------------------------------------------
+
 	bool ShowPrimeMag()
 	{
 		return m_ShowPrimeMag;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterSecondMag
-	// ------------------------------------------------------------
+
 	void SetFilterSecondMag(bool state)
 	{
 		m_ShowSecondMag = state;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowSecondMag
-	// ------------------------------------------------------------
+
 	bool ShowSecondMag()
 	{
 		return m_ShowSecondMag;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterPrimeAttach
-	// ------------------------------------------------------------
+
 	void SetFilterPrimeAttach(bool state)
 	{
 		m_ShowPrimeAttach = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowPrimeAttach
-	// ------------------------------------------------------------
+
 	bool ShowPrimeAttach()
 	{
 		return m_ShowPrimeAttach;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterSecondAttach
-	// ------------------------------------------------------------
+
 	void SetFilterSecondAttach(bool state)
 	{
 		m_ShowSecondAttach = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowSecondAttach
-	// ------------------------------------------------------------
+
 	bool ShowSecondAttach()
 	{
 		return m_ShowSecondAttach;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterHandMag
-	// ------------------------------------------------------------
+
 	void SetFilterHandMag(bool state)
 	{
 		m_ShowHandMag = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowHandMag
-	// ------------------------------------------------------------
+
 	bool ShowHandMag()
 	{
 		return m_ShowHandMag;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterHandAttach
-	// ------------------------------------------------------------
+
 	void SetFilterHandAttach(bool state)
 	{
 		m_ShowHandAttach = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowHandAttach
-	// ------------------------------------------------------------
+
 	bool ShowHandAttach()
 	{
 		return m_ShowHandAttach;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterPrimeBullet
-	// ------------------------------------------------------------
+
 	void SetFilterPrimeBullet(bool state)
 	{
 		m_ShowPrimeBullets = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowPrimeBullet
-	// ------------------------------------------------------------
+
 	bool ShowPrimeBullet()
 	{
 		return m_ShowPrimeBullets;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterSellables
-	// ------------------------------------------------------------
+
 	void SetFilterSellables(bool state)
 	{
 		m_ShowSellable = state;
 		m_MarketMenuController.ShowSellables = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowSellables
-	// ------------------------------------------------------------
+
 	bool ShowSellables()
 	{
 		return m_ShowSellable;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterPurchasables
-	// ------------------------------------------------------------
+
 	void SetFilterPurchasables(bool state)
 	{
 		m_ShowPurchasables = state;
 		m_MarketMenuController.ShowPurchasables = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowPurchasables
-	// ------------------------------------------------------------
+
 	bool ShowPurchasables()
 	{
 		return m_ShowPurchasables;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterSecondBullet
-	// ------------------------------------------------------------
+
 	void SetFilterSecondBullet(bool state)
 	{
 		m_ShowSecondBullets = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowSecondBullet
-	// ------------------------------------------------------------
+
 	bool ShowSecondBullet()
 	{
 		return m_ShowSecondBullets;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetFilterHandBullet
-	// ------------------------------------------------------------
+
 	void SetFilterHandBullet(bool state)
 	{
 		m_ShowHandBullets = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ShowHandBullet
-	// ------------------------------------------------------------
+
 	bool ShowHandBullet()
 	{
 		return m_ShowHandBullets;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu ResetDropdownFilterStates
-	// ------------------------------------------------------------
-	/*void ResetDropdownFilterStates()
-	{
-		m_ShowPrimeMag = false;
-		m_ShowSecondMag = false;
-		m_ShowPrimeAttach = false;
-		m_ShowSecondAttach = false;
-		m_ShowHandAttach = false;
-		m_ShowHandMag = false;
-		m_ShowPrimeBullets = false;
-		m_ShowSecondBullets = false;
-		m_ShowHandBullets = false;
-	}*/
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetIsLoading
-	// ------------------------------------------------------------
 	void SetIsLoading(bool state, ExpansionMarketMenuState menuState = ExpansionMarketMenuState.INVALID)
 	{
 		if (menuState == ExpansionMarketMenuState.INVALID)
@@ -3442,18 +3117,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		market_loading.Show(state);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu IsLoading
-	// ------------------------------------------------------------
+
 	bool IsLoading()
 	{
 		return m_CurrentState != ExpansionMarketMenuState.NONE || !m_Complete;
 	}
-		
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnNetworkItemUpdate
-	// ------------------------------------------------------------
+
 	protected void OnNetworkItemUpdate()
 	{
 		MarketPrint("OnNetworkItemUpdate - Start");
@@ -3469,18 +3138,12 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnNetworkItemUpdate - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetTraderObject
-	// ------------------------------------------------------------
+
 	ExpansionTraderObjectBase GetTraderObject()
 	{
 		return m_TraderObject;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu PlayMarketSound
-	// ------------------------------------------------------------
+
 	void PlayMarketSound()
 	{
 		if (!GetGame().IsDedicatedServer())
@@ -3522,30 +3185,21 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu UsePlayerPreview
-	// ------------------------------------------------------------
-	private bool UsePlayerPreview()
+
+	protected bool UsePlayerPreview()
 	{
 		if (GetSelectedMarketItemElement().GetPreviewObject())
 			return GetSelectedMarketItemElement().GetPreviewObject().IsInherited(Clothing_Base);
 		return false;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu MarketPrint
-	// ------------------------------------------------------------
 	void MarketPrint(string text)
 	{
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketMenu::" + text);
 		#endif
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnToggleCategoriesButtonClick
-	// ------------------------------------------------------------
+
 	void OnToggleCategoriesButtonClick()
 	{
 		MarketPrint("OnToggleCategoriesButtonClick - Start");
@@ -3564,42 +3218,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("OnToggleCategoriesButtonClick - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnCloseMenuButtonClick
-	// ------------------------------------------------------------
+
 	void OnCloseMenuButtonClick()
 	{
 		GetDayZExpansion().GetExpansionUIManager().CloseMenu();
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetSelectedMarketItemElement
-	// ------------------------------------------------------------
+
 	ExpansionMarketMenuItem GetSelectedMarketItemElement()
 	{
 		return m_SelectedMarketItemElement;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetSelectedMarketItem
-	// ------------------------------------------------------------
+
 	ExpansionMarketItem GetSelectedMarketItem()
 	{
 		return m_SelectedMarketItem;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetUpdateTickRate
-	// ------------------------------------------------------------
 	override float GetUpdateTickRate()
 	{
 		return 0.5;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu Update
-	// ------------------------------------------------------------
+
 	override void Update()
 	{
 		//! Buy/Sell Shortcuts
@@ -3632,76 +3271,49 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetMenuState
-	// ------------------------------------------------------------
+
 	ExpansionMarketMenuState GetMenuState()
 	{
 		return m_CurrentState;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetMenuState
-	// ------------------------------------------------------------
+
 	void SetMenuState(ExpansionMarketMenuState state)
 	{
 		EXPrint(ToString() + "::SetMenuState " + typename.EnumToString(ExpansionMarketMenuState, m_CurrentState) + " -> " + typename.EnumToString(ExpansionMarketMenuState, state));
 		m_CurrentState = state;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetCurrentTraderItemStock
-	// ------------------------------------------------------------
+
 	int GetCurrentTraderItemStock()
 	{
 		return m_TraderItemStock;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetCurrentPlayerItemStock
-	// ------------------------------------------------------------
+
 	int GetCurrentPlayerItemStock()
 	{
 		return m_PlayerStock;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetCurrentItemBuyPrice
-	// ------------------------------------------------------------
+
 	int GetCurrentItemBuyPrice()
 	{
 		return m_BuyPrice;
 	}	
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetCurrentItemSellPrice
-	// ------------------------------------------------------------
+
 	int GetCurrentItemSellPrice()
 	{
 		return m_SellPrice;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetMarketTrader
-	// ------------------------------------------------------------
+
 	ExpansionMarketTrader GetMarketTrader()
 	{
 		return m_TraderMarket;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnSelectAttachmentsButtonClick
-	// ------------------------------------------------------------
+
 	void OnSelectAttachmentsButtonClick()
 	{
 		market_menu_content.Show(false);
 		market_menu_attachments_content.Show(true);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu AllowCategoryButtonInputs
-	// ------------------------------------------------------------
+
 	void AllowCategoryButtonInputs(bool state)
 	{
 		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
@@ -3710,10 +3322,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			category.AllowButtonInputs(state);
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetDropdownState
-	// ------------------------------------------------------------	
+
 	void SetDropdownState()
 	{
 		MarketPrint("SetDropdownState - Start");
@@ -3736,19 +3345,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("SetDropdownState - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu SetSkinSelectorState
-	// ------------------------------------------------------------	
+
 	void SetSkinSelectorState()
 	{
 		MarketPrint("SetSkinSelectorState - Start");
 		
 		m_IsSkinSelectorExpanded = !m_IsSkinSelectorExpanded;
-		//skin_selector.Show( m_IsSkinSelectorExpanded );
-		skin_selector_content.Show( m_IsSkinSelectorExpanded );
-		skin_selector_expand_image.Show( m_IsSkinSelectorExpanded );
-		skin_selector_collapse_image.Show( !m_IsSkinSelectorExpanded );
+		skin_selector_content.Show(m_IsSkinSelectorExpanded);
+		skin_selector_expand_image.Show(m_IsSkinSelectorExpanded);
+		skin_selector_collapse_image.Show(!m_IsSkinSelectorExpanded);
 		skin_selector.Update();
 				
 		if (!m_IsSkinSelectorExpanded)
@@ -3766,42 +3371,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		
 		MarketPrint("SetSkinSelectorState - End");
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetMarketFilters
-	// ------------------------------------------------------------
+
 	ExpansionMarketFilters GetMarketFilters()
 	{
 		return m_MarketFilters;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu HideItemManager
-	// ------------------------------------------------------------		
+
 	void HideItemManager()
 	{
 		market_menu_content.Show(true);
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetMarketMenuController
-	// ------------------------------------------------------------			
+			
 	ExpansionMarketMenuController GetMarketMenuController()
 	{
 		return m_MarketMenuController;
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetMarketMenuItemManager
-	// ------------------------------------------------------------		
+
 	ExpansionMarketMenuItemManager GetMarketMenuItemManager()
 	{
 		return m_MarketMenuItemManager;
 	}
 
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu OnOpenItemManagerButtonClick
-	// ------------------------------------------------------------	
 	void OnOpenItemManagerButtonClick()
 	{
 		if (!m_MarketMenuItemManager.IsVisible())
@@ -3817,10 +3407,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenu GetCurrentSelectedAttachmentIDs
-	// ------------------------------------------------------------	
+
 	array<int> GetCurrentSelectedAttachmentIDs(bool recursive = false, ExpansionMarketItem item = NULL)
 	{
 		array<int> attachmentIDs = new array<int>;
@@ -3835,18 +3422,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		return attachmentIDs;
 	}
-	
-	bool IsAnyDialogVisible()
-	{
-		return (m_MarketMenuItemManager && m_MarketMenuItemManager.IsVisible()) || (m_QuantityDialog && m_QuantityDialog.IsVisible()) || (m_PurchaseDialog && m_PurchaseDialog.IsVisible()) || (m_SellDialog && m_SellDialog.IsVisible());
-	}
-	
-	/*
-	override bool CanClose()
-	{
-		return !IsAnyDialogVisible();
-	}
-	*/
 };
 
 class ExpansionMarketMenuController: ExpansionViewController
@@ -3876,10 +3451,7 @@ class ExpansionMarketMenuController: ExpansionViewController
 	bool WasShowingPurchasables;
 	bool IncludeAttachments = true;
 	bool WasIncludingAttachments = true;
-	
-	// ------------------------------------------------------------
-	// ExpansionMarketMenuController PropertyChanged
-	// ------------------------------------------------------------
+
 	override void PropertyChanged(string property_name)
 	{
 	#ifdef EXPANSIONMODMARKET_DEBUG

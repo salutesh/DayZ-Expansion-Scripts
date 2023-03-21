@@ -22,10 +22,6 @@ modded class ActionConstructor
 	{
 		super.RegisterActions( actions );
 
-		//! Generator
-		actions.Insert( ExpansionActionTurnOnGeneratorOnGround );
-		actions.Insert( ExpansionActionTurnOffGeneratorOnGround );
-
 		//! Misc
 		actions.Insert( ActionLickBattery );
 	}

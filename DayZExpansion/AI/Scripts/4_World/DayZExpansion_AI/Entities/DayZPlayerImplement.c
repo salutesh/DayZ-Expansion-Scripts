@@ -15,6 +15,9 @@ modded class DayZPlayerImplement
 
 	private bool m_eAI_IsPassive;
 
+	int m_eAI_LastAggressionTime;
+	float m_eAI_LastAggressionTimeout;
+
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
 #endif
@@ -36,9 +39,9 @@ modded class DayZPlayerImplement
 
 		super.Expansion_Init();
 
-		RegisterNetSyncVariableInt("m_eAI_GroupID");
+		RegisterNetSyncVariableInt("m_eAI_GroupID", -1, int.MAX);
 		RegisterNetSyncVariableInt("m_eAI_FactionTypeIDSynch");
-		RegisterNetSyncVariableInt("m_eAI_GroupMemberIndexSynch");
+		RegisterNetSyncVariableInt("m_eAI_GroupMemberIndexSynch", 0, 0xffff);
 
 		m_eAI_GroupID = -1;
 		m_eAI_FactionTypeID = -1;
@@ -110,6 +113,10 @@ modded class DayZPlayerImplement
 			SetGroupMemberIndex(m_eAI_Group.AddMember(this));
 			EXTrace.Print(EXTrace.AI, this, "Group ID: " + m_eAI_GroupID);
 		}
+		else
+		{
+			eAI_SetFactionTypeID(-1);
+		}
 
 		if (GetGame().IsDedicatedServer())
 			SetSynchDirty();
@@ -161,12 +168,25 @@ modded class DayZPlayerImplement
 #ifdef DIAG
 		auto trace = CF_Trace_1(EXTrace.AI, this).Add(id);
 #endif
-
+		
+#ifdef EXPANSIONMODHARDLINE
+		if (GetGame().IsServer() && GetIdentity())
+		{
+			auto hardlineSettings = GetExpansionSettings().GetHardline();
+			if (hardlineSettings.UseReputation && hardlineSettings.UseFactionReputation)
+				ExpansionHardlineModule.GetModuleInstance().OnFactionChange(this, m_eAI_FactionTypeID, id);
+		}
+#endif
 		m_eAI_FactionTypeID = id;
 		m_eAI_FactionTypeIDSynch = id;
 
 		if (GetGame().IsDedicatedServer())
 			SetSynchDirty();
+	}
+
+	int eAI_GetFactionTypeID()
+	{
+		return m_eAI_FactionTypeID;
 	}
 
 	override void OnVariablesSynchronized()
@@ -177,7 +197,19 @@ modded class DayZPlayerImplement
 
 		super.OnVariablesSynchronized();
 
-		if ((m_eAI_Group && m_eAI_Group.GetID() != m_eAI_GroupID))
+		if (m_eAI_GroupID == -1 && m_eAI_Group)
+		{
+			//! @note this is only ever to be used for players, not AI! AI may NEVER not have a group!
+
+			EXTrace.Print(EXTrace.AI, this, "left group ID " + m_eAI_Group.GetID());
+
+			m_eAI_Group.RemoveMember(this);
+
+			m_eAI_Group = null;
+
+			m_eAI_FactionTypeID = -1;  //! Make sure faction is updated if necessary
+		}
+		else if (m_eAI_Group && m_eAI_Group.GetID() != m_eAI_GroupID)
 		{
 			EXTrace.Print(EXTrace.AI, this, "moved from group ID " + m_eAI_Group.GetID() + " -> " + m_eAI_GroupID);
 
@@ -196,16 +228,6 @@ modded class DayZPlayerImplement
 			m_eAI_Group = eAIGroup.GetGroupByID(m_eAI_GroupID, true);
 
 			m_eAI_Group.Client_SetMemberIndex(this, m_eAI_GroupMemberIndexSynch);
-
-			m_eAI_FactionTypeID = -1;  //! Make sure faction is updated if necessary
-		}
-		else if (m_eAI_GroupID == -1 && m_eAI_Group)
-		{
-			EXTrace.Print(EXTrace.AI, this, "left group ID " + m_eAI_Group.GetID());
-
-			m_eAI_Group.RemoveMember(this);
-
-			m_eAI_Group = null;
 
 			m_eAI_FactionTypeID = -1;  //! Make sure faction is updated if necessary
 		}
@@ -251,8 +273,19 @@ modded class DayZPlayerImplement
 		if (m_eAI_IsPassive)
 			return true;
 		if (m_eAI_Group)
-			return m_eAI_Group.GetFaction().IsInherited(eAIFactionPassive);
+			return m_eAI_Group.GetFaction().IsPassive();
 		return false;
+	}
+
+	override bool Expansion_CanBeDamaged()
+	{
+		if (!super.Expansion_CanBeDamaged())
+			return false;
+
+		if (m_eAI_Group)
+			return !m_eAI_Group.GetFaction().IsInvincible();
+			
+		return true;
 	}
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -262,7 +295,24 @@ modded class DayZPlayerImplement
 		if (damageType == DT_FIRE_ARM && !source)
 			return false;
 
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
+			player.m_eAI_LastAggressionTime = GetGame().GetTickTime();  //! Aggro guards in area (if any)
+
 		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
+	//! Suppress "couldn't kill player" in server logs when AI gets killed
+	Hive GetHive()
+	{
+		#ifdef DIAG
+		auto trace = CF_Trace_0(EXTrace.AI, this);
+		#endif
+
+		if (IsAI())
+			return null;
+
+		return Expansion_GlobalGetHive();
 	}
 
 	override void EEKilled(Object killer)
@@ -277,6 +327,33 @@ modded class DayZPlayerImplement
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+
+	bool eAI_UpdateHitPlayerWithinTimeThreshold(float timeThreshold)
+	{
+		if (!m_eAI_LastAggressionTime)
+			return false;
+
+		float time = GetGame().GetTickTime();
+		float timeout = timeThreshold - (time - m_eAI_LastAggressionTime);
+		bool active = timeout > 0;
+
+		if (active && time + timeout > m_eAI_LastAggressionTimeout)
+		{
+			m_eAI_LastAggressionTimeout = time + timeout;
+			SetSynchDirty();
+		}
+
+		return active;
+	}
+
+	float eAI_GetLastAggressionCooldown()
+	{
+		float cooldown = m_eAI_LastAggressionTimeout - GetGame().GetTickTime();
+		if (cooldown > 0)
+			return cooldown;
+
+		return 0;
 	}
 
 #ifndef SERVER

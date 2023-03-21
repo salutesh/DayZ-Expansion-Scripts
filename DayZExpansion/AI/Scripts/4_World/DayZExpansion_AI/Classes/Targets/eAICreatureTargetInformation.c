@@ -46,6 +46,8 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 				if (hands)
 					eAIPlayerTargetInformation.AdjustThreatLevelBasedOnWeapon(hands, distance, levelFactor);
 			}
+
+			levelFactor *= ai.Expansion_GetVisibility(distance);
 		}
 
 		return Math.Clamp(levelFactor, 0.0, 1000000.0);
