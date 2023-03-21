@@ -15,6 +15,8 @@ class ExpansionPersonalStorageItemBase
 	[NonSerialized()];
 	protected EntityAI m_Object;
 	
+	int m_Version;
+	
 	string m_OwnerUID;
 	string m_ClassName;
 	string m_SkinName;

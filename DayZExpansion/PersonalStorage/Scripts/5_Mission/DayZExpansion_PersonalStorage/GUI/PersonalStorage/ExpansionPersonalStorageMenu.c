@@ -142,16 +142,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			m_PersonalStorageMenuController.NotifyPropertyChanged("PersonalStorageIcon");
 		}
 		
-		if (storageID > -1)
-		{
-			if (m_StorageID > -1 && storageID != m_StorageID)
-			{
-				Print(ToString() + "::SetDepositedItems - Storage ID mismatch!");
-				return;
-			}
-
-			m_StorageID = storageID;
-		}
+		m_StorageID = storageID;
 
 		if (!m_DepositedItems)
 			m_DepositedItems = new array<ref ExpansionPersonalStorageMenuItem>;
@@ -1180,12 +1171,6 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		if (!playerItem)
 			return;
 
-		if (m_StorageID == -1)
-		{
-			Error(ToString() + "::ExpansionPersonalStorageMenu - Invalid storage ID: " + m_StorageID);
-			return;
-		}
-
 		loading.Show(true);
 		m_RequestsLocked = true;
 		ExpansionPersonalStorageModule.GetModuleInstance().RequestDepositItem(m_StorageID, playerItem);
@@ -1201,12 +1186,6 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem())
 			return;
-
-		if (m_StorageID == -1)
-		{
-			Error(ToString() + "::ExpansionPersonalStorageMenu - Invalid storage ID: " + m_StorageID);
-			return;
-		}
 
 		loading.Show(true);
 		m_RequestsLocked = true;
@@ -1416,6 +1395,8 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	override void OnShow()
 	{
+		super.OnShow();
+		
 		SetFocus(GetLayoutRoot());
 		loading.Show(true);
 		ShowBrowseView();

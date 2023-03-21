@@ -78,7 +78,7 @@ modded class MissionGameplay
 				}
 				else
 				{
-					if (player.eAI_GetLastPlayerHitTimeout() > 0)
+					if (player.eAI_GetLastAggressionCooldown() > 0)
 					{
 						m_Hud.Expansion_GetCooldownIndicator().Show();
 					}

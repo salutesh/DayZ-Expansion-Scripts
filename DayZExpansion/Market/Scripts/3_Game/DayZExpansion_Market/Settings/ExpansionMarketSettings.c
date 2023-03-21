@@ -1168,7 +1168,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		foreach (int categoryID, ExpansionMarketCategory currentCategory : m_Categories)
 		{
-			if (currentCategory.m_FileName == fileName)
+			if (CF_String.EqualsIgnoreCase(currentCategory.m_FileName, fileName))
 				return currentCategory;
 		}
 
@@ -1231,7 +1231,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		foreach (ExpansionMarketTrader currentTrader : m_Traders)
 		{
-			if (currentTrader.m_FileName == fileName)
+			if (CF_String.EqualsIgnoreCase(currentTrader.m_FileName, fileName))
 			{
 				return currentTrader;
 			}

@@ -170,13 +170,66 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 			Edible_Base food_item = Edible_Base.Cast(m_Object);
 			if (food_item && food_item.HasFoodStage())
 			{
-				FoodStage foodStage = food_item.GetFoodStage();
-				foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
+				FoodStage foodStage;
+				if (!m_IsStored)
+				{
+					foodStage = food_item.GetFoodStage();
+					foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
+				}
+				else
+				{
+					foodStage = food_item.GetFoodStage();
+					foodStage.ChangeFoodStage(m_Item.GetFoodStageType());
+					
+					int storeTime = m_Item.GetStoreTime();
+					int currentTime = CF_Date.Now(true).GetTimestamp();
+					int elapsed = (currentTime - storeTime);
+					
+					Print(ToString() + "::UpdatePreviewObject - Time elapsed: " + GetTimeString(elapsed));
+					FoodStageType processedFoodStage = food_item.Expansion_GetProcessedFoodStageDecay(elapsed, false);
+					Print(ToString() + "::UpdatePreviewObject - Processed food stage: " + typename.EnumToString(FoodStageType, processedFoodStage));
+					foodStage = food_item.GetFoodStage();
+					foodStage.ChangeFoodStage(processedFoodStage);
+					
+					m_Item.SetFoodStageType(processedFoodStage);
+				}
 			}
 		}
 
 		m_PersonalStorageMenuItemController.Preview = m_Object;
 		m_PersonalStorageMenuItemController.NotifyPropertyChanged("Preview");
+	}
+	
+	string GetTimeString( float total_time )
+	{
+		string time_string;
+		if ( total_time < 0 )
+		{
+			time_string =  "0 H";
+			return time_string;
+		}
+
+		int time_seconds = total_time;	//! Convert total time to int
+		int days = time_seconds / 86400;
+		if ( days > 0 )
+		{
+			time_string += ExpansionStatic.GetValueString( days ) + " D";	//! Days
+		}
+
+		time_string += " ";	//! Separator
+
+		int hours = ( time_seconds % 86400 ) / 3600;
+		if ( hours > 0 )
+		{
+			time_string += ExpansionStatic.GetValueString( hours ) + " H";	//! Hours
+		}
+
+		time_string += " ";	//! Separator
+
+		int minutes = ( time_seconds % 3600 ) / 60;
+		time_string += ExpansionStatic.GetValueString( minutes ) + " M";	//! Minutes
+
+		return time_string;
 	}
 	
 	void OnItemButtonClick(ButtonCommandArgs args)

@@ -13,19 +13,12 @@
 class ExpansionPersonalStorageDataBase
 {
 	int ConfigVersion;
-};
-class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
-{
-	[NonSerialized()];
-	static const int VERSION = 0;
-	
 	int StorageID;
 	string ClassName;
 	string DisplayName;
 	string DisplayIcon;
 	vector Position;
 	vector Orientation;
-	bool NeedUnlock = false;
 #ifdef EXPANSIONMODQUESTS
 	int QuestID = -1;
 #endif
@@ -35,6 +28,13 @@ class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
 #ifdef EXPANSIONMODAI
 	string Faction;
 #endif
+};
+class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
+{
+	[NonSerialized()];
+	static const int VERSION = 2;
+	
+	bool IsGlobalStorage;
 	
 	void ExpansionPersonalStorageData()
 	{
@@ -43,14 +43,33 @@ class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
 	
 	void CopyFromBaseClass(ExpansionPersonalStorageDataBase base)
 	{
-		//! Nothing to do here yet
+		string m_ClassName;
+		string m_SkinName;
+	
+		[NonSerialized()];
+		int m_SkinIndex;
+	
+		int m_HealthLevel;
+		float m_Quantity;
+		int m_QuantityType;
+		int m_LiquidType = -1;
+		bool m_IsBloodContainer;
+		int m_FoodStageType = -1;
+	
+	#ifdef EXPANSIONMODHARDLINE
+		ExpansionHardlineItemRarity m_Rarity = ExpansionHardlineItemRarity.NONE;
+	#endif
+	
+		int m_ContainerItemsCount;
+		autoptr array<ref ExpansionP2PMarketContainerItem> m_ContainerItems;
 	}
 	
 	static ExpansionPersonalStorageData Load(string fileName)
 	{
 		CF_Log.Info("[ExpansionPersonalStorageData] Load existing personal storage file:" + fileName);
 		ExpansionPersonalStorageDataBase personalStorageDataBase;
-		ExpansionJsonFileParser<ExpansionPersonalStorageDataBase>.Load(fileName, personalStorageDataBase);
+		if (!ExpansionJsonFileParser<ExpansionPersonalStorageDataBase>.Load(fileName, personalStorageDataBase))
+			return NULL;
 		
 		bool save;
 		ExpansionPersonalStorageData personalStorageData = new ExpansionPersonalStorageData();
@@ -187,15 +206,6 @@ class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
 		return Orientation;
 	}
 	
-	void SetNeedUnlock(bool state)
-	{
-		NeedUnlock = state;
-	}
-	
-	bool NeedUnlock()
-	{
-		return NeedUnlock;
-	}
 #ifdef EXPANSIONMODQUESTS
 	void SetQuestID(int questID)
 	{
@@ -231,4 +241,9 @@ class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
 		return Faction;
 	}
 #endif
+	
+	bool IsGlobalStoage()
+	{
+		return IsGlobalStorage;
+	}
 };

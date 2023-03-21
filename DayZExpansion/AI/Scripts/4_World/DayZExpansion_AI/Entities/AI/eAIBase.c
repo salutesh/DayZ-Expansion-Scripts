@@ -82,6 +82,9 @@ class eAIBase: PlayerBase
 	private bool m_eAI_TurnTargetActive;
 	private float m_eAI_TurnTarget;
 
+	float m_eAI_FormationPositionUpdateTime;
+	vector m_eAI_FormationPosition;
+
 	private bool m_WeaponRaised;
 	private bool m_WeaponRaisedPrev;
 
@@ -971,18 +974,19 @@ class eAIBase: PlayerBase
 
 	float GetThreatToSelf(bool ignoreLOS = false)
 	{
-		if (ignoreLOS || eAI_HasLOS())
+		if (ignoreLOS)
 			return m_eAI_CurrentThreatToSelf;
 
 		return m_eAI_CurrentThreatToSelfActive;
 	}
 
+	//! @note all targets except item targets (no state)
 	float eAI_GetTargetThreat(eAITargetInformation info, bool ignoreLOS = false)
 	{
 		eAITargetInformationState state;
 		if (m_eAI_TargetInformationStates.Find(info, state))
 		{
-			if (ignoreLOS || info.IsInherited(eAIItemTargetInformation))
+			if (ignoreLOS)
 				return state.m_ThreatLevel;
 
 			return state.m_ThreatLevelActive;
@@ -2396,7 +2400,9 @@ class eAIBase: PlayerBase
 
 		if (results.Count() && results[0].IsBuilding())
 		{
-			//! Check again in case it's a window/other see-through object
+			//! Check again in case view is "blocked" by a window/other see-through object
+			//! TODO: If a player is behind an Expansion BaseBuilding wall, the AI will "see" the player if he is standing next to a window position
+			//! (regardless if the wall actually has windows or not or if they are closed) due to the wall's firegeo and use of ObjIntersectFire
 			results.Clear();
 			//Expansion_DebugObject_Deferred(9999, contactPos, "ExpansionDebugBox_Red", contactDir);
 			state.m_LOS = DayZPhysics.RaycastRV(contactPos, endPos, contactPos, contactDir, contactComponent, results, null, this, false, false, ObjIntersectFire, 0.05);
@@ -2438,7 +2444,7 @@ class eAIBase: PlayerBase
 				{
 					if (eAI_GetTargetThreat(player.GetTargetInformation()) < 0.2)
 					{
-						sideStep = true;
+						sideStep = state.m_ThreatLevelActive >= 0.4;
 					}
 					else
 					{
@@ -2541,8 +2547,8 @@ class eAIBase: PlayerBase
 
 		if (m_ModifiersManager)
 			m_ModifiersManager.OnScheduledTick(deltaTime);
-		if (m_NotifiersManager)
-			m_NotifiersManager.OnScheduledTick();
+		//if (m_NotifiersManager)
+			//m_NotifiersManager.OnScheduledTick();
 		//! These send RPC to identity which is NULL for AI and thus affects all actual players HUDs (shows AI values instead of player)
 		// if( m_TrasferValues )
 			//m_TrasferValues.OnScheduledTick(deltaTime);
@@ -3308,7 +3314,7 @@ class eAIBase: PlayerBase
 
 	bool HandleVaulting(float pDt)
 	{
-		if (m_eAI_PositionIsFinal)
+		if (m_eAI_PositionIsFinal && Expansion_GetMovementSpeed() == 0.0)
 			return false;
 
 		//if (!m_PathFinding.IsVault())

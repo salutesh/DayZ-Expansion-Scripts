@@ -10,16 +10,17 @@
  *
 */
 
-class ExpansionPersonalStorageSettingsBase: ExpansionSettingBase {};
-class ExpansionPersonalStorageSettings: ExpansionPersonalStorageSettingsBase
+class ExpansionPersonalStorageSettingsBase: ExpansionSettingBase 
 {
-	static const int VERSION = 0;
-
 	bool Enabled;
 	bool UsePersonalStorageCase;
 	int MaxItemsPerStorage;
 	ref TStringArray ExcludedClassNames;
 	ref array<ref ExpansionPersonalStorageMenuCategory> MenuCategories;
+};
+class ExpansionPersonalStorageSettings: ExpansionPersonalStorageSettingsBase
+{
+	static const int VERSION = 1;
 
 	[NonSerialized()]
 	bool m_IsLoaded;
@@ -125,12 +126,6 @@ class ExpansionPersonalStorageSettings: ExpansionPersonalStorageSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 	#endif
 
-		Enabled = s.Enabled;
-		UsePersonalStorageCase = s.UsePersonalStorageCase;
-		MaxItemsPerStorage = s.MaxItemsPerStorage;
-		ExcludedClassNames = s.ExcludedClassNames;
-		MenuCategories = s.MenuCategories;
-
 		ExpansionPersonalStorageSettingsBase sb = s;
 		CopyInternal(sb);
 	}
@@ -140,6 +135,12 @@ class ExpansionPersonalStorageSettings: ExpansionPersonalStorageSettingsBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 	#endif
+		
+		Enabled = s.Enabled;
+		UsePersonalStorageCase = s.UsePersonalStorageCase;
+		MaxItemsPerStorage = s.MaxItemsPerStorage;
+		ExcludedClassNames = s.ExcludedClassNames;
+		MenuCategories = s.MenuCategories;
 	}
 
 	override bool IsLoaded()

@@ -8,24 +8,8 @@ class CfgPatches
 		requiredAddons[] = {"DZ_Data","DZ_Characters","DayZExpansion_Dta_Core"};
 	};
 };
-class CfgSlots
-{
-	class Slot_Expansion_Personal_Container
-	{
-		name = "ExpansionPersonalContainer";
-		displayName = "Personal Container";
-		ghosticon = "";
-	};
-	class Slot_Expansion_Personal_Container_Swap
-	{
-		name = "ExpansionPersonalContainer_Swap";
-		show = "false";
-	};
-};
 class CfgVehicles
 {
-	class Man;
-	class InventoryEquipment;
 	class Container_Base;
 	class ExpansionStaticObjectBase;
 	class ExpansionPersonalStorageBase: ExpansionStaticObjectBase
@@ -37,14 +21,6 @@ class CfgVehicles
 	{
 		scope = 1;
 		model = "\DZ\gear\camping\sea_chest.p3d";
-	};
-	class SurvivorBase: Man
-	{
-		attachments[] += {"ExpansionPersonalContainer","ExpansionPersonalContainer_Swap"};
-		class InventoryEquipment: InventoryEquipment
-		{
-			playerSlots[] += {"Slot_Expansion_Personal_Container"};
-		};
 	};
 	class ExpansionPersonalProtectiveCaseBase: Container_Base
 	{

@@ -5,7 +5,7 @@ modded class PlayerBase
 		super.Init();
 
 		if (!IsAI())
-			RegisterNetSyncVariableFloat("m_eAI_LastPlayerHitTime_Timeout", 0.0, float.MAX, 2);
+			RegisterNetSyncVariableFloat("m_eAI_LastAggressionTimeout", 0.0, float.MAX, 2);
 	}
 
 	override void SetActions(out TInputActionMap InputActionMap)

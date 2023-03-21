@@ -31,7 +31,11 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 		if (!storage)
 			return false;
 		
-		if (storage.GetStorageID() == -1)
+		auto settings = GetExpansionSettings().GetPersonalStorage(false);
+		if (!settings.IsLoaded())
+			return false;
+
+		if (!settings.Enabled)
 			return false;
 
 		return true;
@@ -69,7 +73,7 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 		{
 			int questID = storageData.GetQuestID();
 			Print(ToString() + "::OnExecuteServer - Need to complete quest with ID: " + questID);
-			if (storageData.NeedUnlock() && questID > -1)
+			if (questID > -1)
 			{
 				//! Check if player has completed required quest
 				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, player.GetIdentity().GetId()))
@@ -93,7 +97,7 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 		{
 			int reputationRequirement = storageData.GetReputation();
 			Print(ToString() + "::OnExecuteServer - Need to have reputation: " + reputationRequirement);
-			if (storageData.NeedUnlock() && reputationRequirement > 0)
+			if (reputationRequirement > 0)
 			{
 				int reputation = player.Expansion_GetReputation();
 				Print(ToString() + "::OnExecuteServer - Player reputation: " + reputation);
@@ -111,7 +115,7 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 		bool isInFaction;
 		bool isInInOtherFaction;
 		Print(ToString() + "::OnExecuteServer - Need to be in faction: " + factionName);
-		if (storageData.NeedUnlock() && factionName != string.Empty)
+		if (factionName != string.Empty)
 		{
 			eAIGroup group = player.GetGroup();
 			if (!group)

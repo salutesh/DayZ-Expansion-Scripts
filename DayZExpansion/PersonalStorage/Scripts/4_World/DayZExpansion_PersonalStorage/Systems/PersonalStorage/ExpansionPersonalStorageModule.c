@@ -154,7 +154,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		personalStorage.SetDisplayIcon("Backpack");
 		personalStorage.SetPosition(Vector(8617.609375, 14.767379, 10521.810547));
 		personalStorage.SetOrientation(Vector(-35.0, 0, 0));
-		personalStorage.SetNeedUnlock(true);
 		personalStorage.SetQuestID(500);
 		personalStorage.SetReputation(1000);
 	#ifdef EXPANSIONMODAI
@@ -250,7 +249,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		ExpansionPersonalStorageItem itemData = ExpansionPersonalStorageItem.Load(path + fileName);
 		if (!itemData)
 			return;
-		
+
 		//! Check if the entity storage file still exists otherwise we delete the personal storage item file and dont add it to the system.
 		if (!FileExist(itemData.GetEntityStorageFileName()))
 		{
@@ -336,8 +335,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		ExpansionPersonalStorageData storageData = GetPersonalStorageDataByID(storageID);
 		if (!storageData)
+		{
+			Error(ToString() + "::SendItemData - Could not get personal stroage data for ID " + storageID);
 			return;
-		
+		}
+
 		auto rpc = ExpansionScriptRPC.Create();
 		storageData.OnSend(rpc);
 		rpc.Write(storageID);
@@ -345,8 +347,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		rpc.Write(displayName);
 		rpc.Write(displayIcon);
 
-		int itemsCount = 0;
-		if (storageID > -1 && items && items.Count() > 0)
+		int itemsCount;
+		array<ExpansionPersonalStorageItem> itemsToSend = new array<ExpansionPersonalStorageItem>;
+
+		if (items && items.Count() > 0)
 		{
 			for (int i = 0; i < items.Count(); ++i)
 			{
@@ -354,14 +358,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 				if (!item)
 					continue;
 
-				DebugPring("::SendItemData - Check item " + item.GetClassName() + " | Storage ID: " + item.GetStorageID());
-				if (item.GetStorageID() == storageID)
+				if (storageData.IsGlobalStoage() || !storageData.IsGlobalStoage() && item.GetStorageID() == storageID)
 					itemsCount++;
+					itemsToSend.Insert(item);
 			}
-		}
-		else if (storageID > -1 && items && items.Count() > 0)
-		{
-			itemsCount = items.Count();
 		}
 
 		DebugPring("::SendItemData - Items data array: " + m_ItemsData.ToString());
@@ -370,13 +370,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		rpc.Write(itemsCount);
 
-		if (itemsCount > 0 && items)
+		if (itemsCount > 0 && itemsToSend)
 		{
-			for (int j = 0; j < itemsCount; ++j)
+			for (int j = 0; j < itemsToSend.Count(); ++j)
 			{
-				ExpansionPersonalStorageItem storedItem = items[j];
-				if (storedItem && (storageID == -1 || storageID > -1 && storedItem.GetStorageID() == storageID))
-					storedItem.OnSend(rpc);
+				ExpansionPersonalStorageItem storedItem = itemsToSend[j];
+				if (!storedItem)
+					continue;
+
+				storedItem.OnSend(rpc);
 			}
 		}
 
@@ -404,9 +406,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		ExpansionPersonalStorageData storageData = new ExpansionPersonalStorageData();
 		if (!storageData.OnRecieve(ctx))
 			return;
-		
+
 		m_PersonalStorageClientData = storageData;
-		
+
 		int storageID;
 		if (!ctx.Read(storageID))
 			return;
@@ -423,7 +425,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (!ctx.Read(displayIcon))
 			return;
 
-		int itemsCount = 0;
+		int itemsCount;
 		if (!ctx.Read(itemsCount))
 			return;
 
@@ -494,9 +496,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			Error(ToString() + "::RequestRetrieveItem - Tryed to call RequestRetrieveItem on Server!");
 			return;
 		}
-
-		if (storageID == -1)
-			Print(ToString() + "::RequestRetrieveItem - Storage ID is -1.");
 
 		TIntArray globalID = item.GetGlobalID();
 
@@ -586,9 +585,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
-		if (storageID == -1)
-			Print(ToString() + "::RequestDepositItem - Storage ID is -1.");
-
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(storageID);
 		rpc.Send(item, ExpansionPersonalStorageModuleRPC.RequestDepositItem, true);
@@ -631,15 +627,22 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
+		ExpansionPersonalStorageData storageData = GetPersonalStorageDataByID(storageID);
+		if (!storageData)
+		{
+			Error(ToString() + "::RPC_RequestDepositItem - Could not get personal stroage data for ID " + storageID);
+			return;
+		}
+
 		EntityAI objEntity;
 		Class.CastTo(objEntity, target);
 
-		if (!ConditonCheck(senderRPC, storageID, objEntity))
+		if (!ConditonCheck(senderRPC, storageID, objEntity, storageData.IsGlobalStoage()))
 			return;
 
 		string displayName = objEntity.GetDisplayName();
 		string playerUID = senderRPC.GetId();
-		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
 		if (!player)
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Could not get player for UID " + playerUID);
@@ -664,8 +667,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			newItem = null;
 			return;
 		}
+		
+		newItem.SetStoreTime();
 
-		newItem.SetStorageID(storageID);
 		AddStoredItem(playerUID, newItem);
 
 		newItem.Save();
@@ -774,10 +778,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	}
 
 	//! Boilerplaite for better modding purposes.
-	bool ConditonCheck(PlayerIdentity identity, int storageID, EntityAI item)
+	bool ConditonCheck(PlayerIdentity identity, int storageID, EntityAI item, bool isGlobal = false)
 	{
 		auto settings = GetExpansionSettings().GetPersonalStorage();
-		int playerItemsCount = GetPlayerItemsCount(identity.GetId(), storageID);
+		int playerItemsCount = GetPlayerItemsCount(identity.GetId(), storageID, isGlobal);
 		if (settings.MaxItemsPerStorage != -1 && playerItemsCount >= settings.MaxItemsPerStorage)
 		{
 			ExpansionNotification(new StringLocaliser("Max items to deposit reached!"), new StringLocaliser("You already have %1 items in total in your storage. Limit is %2.", playerItemsCount.ToString(), settings.MaxItemsPerStorage.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
@@ -866,7 +870,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		return slotItems;
 	}
 
-	protected int GetPlayerItemsCount(string playerUID, int storageID = -1)
+	protected int GetPlayerItemsCount(string playerUID, int storageID = -1, bool isGlobal = false)
 	{
 		int count;
 		foreach (string uid, array<ref ExpansionPersonalStorageItem> items: m_ItemsData)
@@ -878,7 +882,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			{
 				if (item.GetOwnerUID() == playerUID)
 				{
-					if (storageID > -1 && item.GetStorageID() != storageID)
+					if (!isGlobal && item.GetStorageID() != storageID)
 						continue;
 
 					count++;
@@ -1052,7 +1056,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		return data;
 	}
-	
+
 	ExpansionPersonalStorageData GetPersonalStorageClientData()
 	{
 		return m_PersonalStorageClientData;

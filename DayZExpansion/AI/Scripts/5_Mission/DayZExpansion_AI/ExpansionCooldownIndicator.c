@@ -36,7 +36,7 @@ class ExpansionCooldownIndicator: ExpansionScriptView
 		if (!player)
 			return;
 		
-		int cooldown = player.eAI_GetLastPlayerHitTimeout();
+		int cooldown = player.eAI_GetLastAggressionCooldown();
 		if (cooldown != m_LastCooldown)
 		{
 			m_LastCooldown = cooldown;

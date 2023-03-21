@@ -13,14 +13,14 @@
 class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 {
 	[NonSerialized()];
-	static const int VERSION = 1;
+	static const int VERSION = 2;
 	[NonSerialized()]
 	bool m_IsStoredItem;
 
-	int m_Version;
 	int m_StorageID = -1;
 	autoptr TIntArray m_GlobalID;
 	string m_ItemSlotName;
+	int m_StoreTime = -1;
 
 	void ExpansionPersonalStorageItem()
 	{
@@ -144,17 +144,53 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 	{
 		return m_ItemSlotName;
 	}
+	
+	void SetStoreTime()
+	{
+		m_StoreTime = CF_Date.Now(true).GetTimestamp();
+	}
+
+	int GetStoreTime()
+	{
+		return m_StoreTime;
+	}
+	
+	void CopyFromBaseClass(ExpansionPersonalStorageItemBase base)
+	{
+		m_OwnerUID = base.m_OwnerUID;
+		m_ClassName = base.m_ClassName;
+		m_SkinName = base.m_SkinName;
+	
+		m_HealthLevel = base.m_HealthLevel;
+		m_Quantity = base.m_Quantity;
+		m_QuantityType = base.m_QuantityType;
+		m_LiquidType = base.m_LiquidType;
+		m_IsBloodContainer = base.m_IsBloodContainer;
+		m_FoodStageType = base.m_FoodStageType;
+	
+	#ifdef EXPANSIONMODHARDLINE
+		m_Rarity = base.m_Rarity;
+	#endif			
+		
+		m_ContainerItemsCount = base.m_ContainerItemsCount;
+		m_ContainerItems = base.m_ContainerItems;
+	}
 
 	static ExpansionPersonalStorageItem Load(string fileName)
 	{
-		Print("[ExpansionPersonalStorageItem] Load existing P2P market listing file:" + fileName);
-
+		CF_Log.Info("[ExpansionPersonalStorageItem] Load existing personal storage item:" + fileName);
+		ExpansionPersonalStorageItemBase dataBase;
+		if (!ExpansionJsonFileParser<ExpansionPersonalStorageItemBase>.Load(fileName, dataBase))
+			return NULL;
+		
 		bool save;
 		ExpansionPersonalStorageItem data = new ExpansionPersonalStorageItem();
-		if (data.m_Version < VERSION)
+		if (dataBase.m_Version < VERSION)
 		{
 			save = true;
+			data.CopyFromBaseClass(dataBase);
 			data.m_Version = VERSION;
+			
 			if (save)
 				Save(data);
 		}
@@ -201,7 +237,6 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 
 	void OnSend(ParamsWriteContext ctx)
 	{
-		ctx.Write(m_IsStoredItem);
 		ctx.Write(m_StorageID);
 
 		ctx.Write(m_GlobalID);
@@ -225,6 +260,8 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 	#ifdef EXPANSIONMODHARDLINE
 		ctx.Write(m_Rarity);
 	#endif
+		
+		ctx.Write(m_StoreTime);
 
 		int containerItemsCount = m_ContainerItems.Count();
 		ctx.Write(containerItemsCount);
@@ -238,12 +275,6 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 
 	bool OnRecieve(ParamsReadContext ctx)
 	{
-		if (!ctx.Read(m_IsStoredItem))
-		{
-			Error(ToString() + "::OnRecieve - m_IsStoredItem");
-			return false;
-		}
-
 		if (!ctx.Read(m_StorageID))
 		{
 			Error(ToString() + "::OnRecieve - m_StorageID");
@@ -320,6 +351,12 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 		if (!ctx.Read(m_Rarity))
 			return false;
 	#endif
+		
+		if (!ctx.Read(m_StoreTime))
+		{
+			Error(ToString() + "::OnRecieve - m_StoreTime");
+			return false;
+		}
 
 		int containerItemsCount;
 		if (!ctx.Read(containerItemsCount))

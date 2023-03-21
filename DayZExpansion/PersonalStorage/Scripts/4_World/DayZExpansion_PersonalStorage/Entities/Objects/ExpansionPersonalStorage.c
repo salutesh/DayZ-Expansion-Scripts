@@ -24,19 +24,11 @@ class ExpansionPersonalStorageBase extends ExpansionStaticObjectBase
 	{
 		if (IsMissionHost())
 			SetAllowDamage(false);
-		
+
 		RegisterNetSyncVariableInt("m_Expansion_StorageID");
-		
+
 		if (!m_Expansion_NetsyncData)
 			m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionPersonalStorageBase Constructor
-	// ------------------------------------------------------------
-	bool HasStorageID()
-	{
-		return (m_Expansion_StorageID > -1);
 	}
 
 	// ------------------------------------------------------------
@@ -57,7 +49,6 @@ class ExpansionPersonalStorageBase extends ExpansionStaticObjectBase
 };
 
 class ExpansionPersonalStorageChest: ExpansionPersonalStorageBase {};
-class ExpansionPersonalStorageOldChest: ExpansionPersonalStorageBase {};
 
 class ExpansionPersonalProtectiveCaseBase: ExpansionOwnedContainer
 {
@@ -80,7 +71,7 @@ modded class PlayerBase
 	override void EEKilled(Object killer)
 	{
 		super.EEKilled(killer);
-		
+
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			if (GetIdentity() && GetExpansionSettings().GetPersonalStorage().UsePersonalStorageCase)

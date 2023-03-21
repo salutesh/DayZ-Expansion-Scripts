@@ -10,6 +10,7 @@ class eAIFormation
 	protected eAIGroup m_Group;
 
 	private vector m_LastUpdatePosition;
+	protected float m_Looseness;
 
 	void eAIFormation(eAIGroup group = null)
 	{
@@ -26,6 +27,16 @@ class eAIFormation
 
 	// Abstract function that returns the position in local space relative to the formation transformation at any given time.
 	vector GetPosition(int member_no);
+
+	void SetLooseness(float looseness)
+	{
+		m_Looseness = looseness;
+	}
+
+	float GetLooseness()
+	{
+		return Math.RandomFloatInclusive(-m_Looseness, m_Looseness);
+	}
 
 	vector ToWorld(vector fs)
 	{

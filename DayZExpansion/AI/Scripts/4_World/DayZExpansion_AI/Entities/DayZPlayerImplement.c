@@ -15,8 +15,8 @@ modded class DayZPlayerImplement
 
 	private bool m_eAI_IsPassive;
 
-	int m_eAI_LastPlayerHitTime;
-	float m_eAI_LastPlayerHitTime_Timeout;
+	int m_eAI_LastAggressionTime;
+	float m_eAI_LastAggressionTimeout;
 
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
@@ -295,6 +295,10 @@ modded class DayZPlayerImplement
 		if (damageType == DT_FIRE_ARM && !source)
 			return false;
 
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
+			player.m_eAI_LastAggressionTime = GetGame().GetTickTime();  //! Aggro guards in area (if any)
+
 		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
@@ -323,35 +327,31 @@ modded class DayZPlayerImplement
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
-		DayZPlayerImplement player;
-		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
-			player.m_eAI_LastPlayerHitTime = GetGame().GetTickTime();
 	}
 
 	bool eAI_UpdateHitPlayerWithinTimeThreshold(float timeThreshold)
 	{
-		if (!m_eAI_LastPlayerHitTime)
+		if (!m_eAI_LastAggressionTime)
 			return false;
 
 		float time = GetGame().GetTickTime();
-		float timeout = timeThreshold - (time - m_eAI_LastPlayerHitTime);
+		float timeout = timeThreshold - (time - m_eAI_LastAggressionTime);
 		bool active = timeout > 0;
 
-		if (active && time + timeout > m_eAI_LastPlayerHitTime_Timeout)
+		if (active && time + timeout > m_eAI_LastAggressionTimeout)
 		{
-			m_eAI_LastPlayerHitTime_Timeout = time + timeout;
+			m_eAI_LastAggressionTimeout = time + timeout;
 			SetSynchDirty();
 		}
 
 		return active;
 	}
 
-	float eAI_GetLastPlayerHitTimeout()
+	float eAI_GetLastAggressionCooldown()
 	{
-		float timeout = m_eAI_LastPlayerHitTime_Timeout - GetGame().GetTickTime();
-		if (timeout > 0)
-			return timeout;
+		float cooldown = m_eAI_LastAggressionTimeout - GetGame().GetTickTime();
+		if (cooldown > 0)
+			return cooldown;
 
 		return 0;
 	}

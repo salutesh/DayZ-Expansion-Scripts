@@ -678,11 +678,15 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 		else if (!m_SpeedOverrider)
 		{
-			if (isFinal && m_WayPointDistance < 8.0)
+			auto state = m_Unit.GetFSM().GetState();
+			float distanceFactor = 4.0;
+			if ((state && state.GetName() == "FollowFormation") || (m_Unit.GetThreatToSelf() > 0.4 && m_Unit.eAI_HasLOS()))
+				distanceFactor = 0.5;
+			if (isFinal && m_WayPointDistance < 2.0 * distanceFactor)
 			{
 				SetTargetSpeed(1.0);
 			}
-			else if (isFinal && m_WayPointDistance < 20.0)
+			else if (isFinal && m_WayPointDistance < 5.0 * distanceFactor)
 			{
 				SetTargetSpeed(2.0);
 			}
