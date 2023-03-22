@@ -303,10 +303,10 @@ modded class PlayerBase
 	}
 	
 	// ------------------------------------------------------------
-	// PlayerBase AddPlayer
+	// PlayerBase Expansion_AddPlayer
 	// Only called server side, to get only alive players
 	// ------------------------------------------------------------
-	static void AddPlayer( PlayerBase player, PlayerIdentity identity )
+	static void Expansion_AddPlayer( PlayerBase player, PlayerIdentity identity )
 	{
 		if ( !player )
 			return;

@@ -118,6 +118,7 @@ modded class PlayerBase
 
 	override void EEKilled(Object killer)
 	{
+		ExpansionQuestModule.GetModuleInstance().CheckActivePlayerQuests(this);
 		CheckAssignedObjectivesForEntity(killer);
 
 		super.EEKilled(killer);

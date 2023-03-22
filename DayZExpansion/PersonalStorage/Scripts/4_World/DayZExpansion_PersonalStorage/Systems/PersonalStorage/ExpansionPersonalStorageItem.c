@@ -223,7 +223,9 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 
 	static void Save(ExpansionPersonalStorageItem data)
 	{
-		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDirectory() + data.GetOwnerUID() + "\\";
+		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + data.GetOwnerUID() + "\\";
+		if (!FileExist(storagePath) && !ExpansionStatic.MakeDirectoryRecursive(storagePath))
+			return;
 		auto globalID = new ExpansionGlobalID;
 		globalID.Set(data.GetGlobalID());
 		string fileName = globalID.IDToHex();

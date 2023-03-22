@@ -4252,6 +4252,22 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		return true;
 	}
+	
+	//! Server
+	//! @note: Gets called from PlayerBase::EEKilled to check if the killed player has a active quest that should be cancled
+	//! when a quest player dies.
+	void CheckActivePlayerQuests(PlayerBase player)
+	{
+		if (!player.GetIdentity())
+			return;
+
+		string playerUID = player.GetIdentity().GetId();
+		foreach (ExpansionQuest activeQuest: m_ActiveQuests)
+		{
+			if (activeQuest.IsQuestPlayer(playerUID) && activeQuest.GetQuestConfig().CancelQuestOnPlayerDeath)
+				activeQuest.CancelQuest();
+		}
+	}
 
 	//! Server
 	ExpansionQuest CreateQuestInstance(string className)

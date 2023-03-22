@@ -337,13 +337,16 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 	
 	void UpdatePreview()
 	{
+		if (!m_PersonalStorageMenu.GetSelectedPreviewObject())
+			return;
+
 		string previewClassName = GetPreviewClassName(m_PersonalStorageMenu.GetSelectedPreviewObject().ClassName());
 
 		if (!UsePlayerPreview())
 		{
 			view_item_preview.Show(true);
 			view_player_preview.Show(false);
-			m_PersonalStorageMenuDetailsController.ViewItemPreview = m_PersonalStorageMenu.GetSelectedPreviewObject(;
+			m_PersonalStorageMenuDetailsController.ViewItemPreview = m_PersonalStorageMenu.GetSelectedPreviewObject();
 			m_PersonalStorageMenuDetailsController.NotifyPropertyChanged("ViewItemPreview");
 
 			m_CurrentPreviewObject = m_PersonalStorageMenu.GetSelectedPreviewObject();
@@ -383,13 +386,10 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 						previewAttachments.Insert(previewItem);
 				}
 
-				if (previewAttachments && previewAttachments.Count() > 0)
+				foreach (EntityAI previewAttachment: previewAttachments)
 				{
-					foreach (EntityAI previewAttachment: previewAttachments)
-					{
-						if (previewAttachment)
-							m_PlayerPreview.GetInventory().LocalDestroyEntity(previewAttachment);
-					}
+					if (previewAttachment)
+						m_PlayerPreview.GetInventory().LocalDestroyEntity(previewAttachment);
 				}
 			}
 

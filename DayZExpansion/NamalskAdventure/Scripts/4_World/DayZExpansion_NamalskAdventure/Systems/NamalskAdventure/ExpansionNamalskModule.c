@@ -401,8 +401,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		ExpansionMarketTrader trader = new ExpansionMarketTrader();
 		trader.DisplayName = "Merchant";
+	#ifdef EXPANSIONMODHARDLINE
 		trader.MinRequiredReputation = 0;
 		trader.MaxRequiredReputation = 2147483647;
+	#endif
 		trader.TraderIcon = "Deliver";
 		trader.Currencies.Insert("expansionbanknotehryvnia");
 

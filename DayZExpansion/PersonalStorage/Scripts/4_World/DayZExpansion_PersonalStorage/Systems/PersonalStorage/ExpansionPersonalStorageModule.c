@@ -64,15 +64,16 @@ enum ExpansionPersonalStorageModuleCallback
 class ExpansionPersonalStorageModule: CF_ModuleWorld
 {
 	protected static ExpansionPersonalStorageModule s_Instance;
+	static string s_PersonalStorageConfigFolderPath = "$mission:expansion\\personalstorage\\";
 
 	protected ref map<string, ref array<ref ExpansionPersonalStorageItem>> m_ItemsData; //! Server
-	protected ref map<int, ref ExpansionPersonalStorageData> m_PersonalStorageData; //! Server
+	protected ref map<int, ref ExpansionPersonalStorageConfig> m_PersonalStorageConfig; //! Server
 
 	protected ref array<ref ExpansionPersonalStorageItem> m_PlayerItems //! Client
 	protected ref ExpansionPersonalStoragePlayerInventory m_LocalEntityInventory; //! Client
 	protected ref ScriptInvoker m_PersonalStorageMenuCallbackInvoker; //! Client
 	protected ref ScriptInvoker m_PersonalStorageMenuInvoker; //! Client
-	protected ref ExpansionPersonalStorageData m_PersonalStorageClientData; //! Client
+	protected ref ExpansionPersonalStorageConfig m_PersonalStorageClientConfig; //! Client
 
 	static ref TStringArray m_HardcodedExcludes = {"AugOptic"};
 
@@ -94,8 +95,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void CreateDirectoryStructure()
 	{
-		if (!FileExist(GetPersonalStorageDirectory()))
-			ExpansionStatic.MakeDirectoryRecursive(GetPersonalStorageDirectory());
+		if (!FileExist(s_PersonalStorageConfigFolderPath))
+			ExpansionStatic.MakeDirectoryRecursive(s_PersonalStorageConfigFolderPath);
+
+		if (!FileExist(GetPersonalStorageDataDirectory()))
+			ExpansionStatic.MakeDirectoryRecursive(GetPersonalStorageDataDirectory());
 	}
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
@@ -119,85 +123,96 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			m_ItemsData = new map<string, ref array<ref ExpansionPersonalStorageItem>>;
-			m_PersonalStorageData = new map<int, ref ExpansionPersonalStorageData>;
-			CreateDirectoryStructure();
-			LoadPersonalStorageServerData();
+			m_PersonalStorageConfig = new map<int, ref ExpansionPersonalStorageConfig>;
+			if (GetExpansionSettings().GetPersonalStorage().Enabled)
+			{
+				CreateDirectoryStructure();
+				LoadPersonalStorageServerConfig();
+			}
 		}
 
 		m_Initialized = true;
 	}
 
-	protected void LoadPersonalStorageServerData()
+	protected void LoadPersonalStorageServerConfig()
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		array<string> personalStorageFiles = ExpansionStatic.FindFilesInLocation(GetPersonalStorageDirectory(), ".json");
-		if (personalStorageFiles && personalStorageFiles.Count() > 0)
+
+		//! Move existing configs (if any) from old to new location
+		string dataDir = GetPersonalStorageDataDirectory();
+		array<string> personalStorageFilesExisting = ExpansionStatic.FindFilesInLocation(dataDir, ".json");
+		foreach (string existingFile: personalStorageFilesExisting)
+		{
+			ExpansionStatic.CopyFileOrDirectoryTree(dataDir + existingFile, s_PersonalStorageConfigFolderPath + existingFile, "", true);
+		}
+		
+		array<string> personalStorageFiles = ExpansionStatic.FindFilesInLocation(s_PersonalStorageConfigFolderPath, ".json");
+		if (personalStorageFiles.Count() > 0)
 		{
 			foreach (string fileName: personalStorageFiles)
 			{
-				GetPersonalStorageData(fileName, GetPersonalStorageDirectory());
+				GetPersonalStorageConfig(fileName, s_PersonalStorageConfigFolderPath);
 			}
 		}
 		else
 		{
-			CreateDefaultPersonalStorageData();
+			CreateDefaultPersonalStorageConfig();
 		}
 	}
 
-	protected void CreateDefaultPersonalStorageData()
+	protected void CreateDefaultPersonalStorageConfig()
 	{
 		string worldname;
 		GetGame().GetWorldName(worldname);
 		worldname.ToLower();
 		
 		vector mapPos = GetDayZGame().GetWorldCenterPosition();
-		ExpansionPersonalStorageData personalStorage;
+		ExpansionPersonalStorageConfig personalStorage;
 		if (worldname.IndexOf("namalsk") > -1)
 		{
-			personalStorage = new ExpansionPersonalStorageData();
+			personalStorage = new ExpansionPersonalStorageConfig();
 			personalStorage.SetStorageID(1);
 			personalStorage.SetClassName("ExpansionPersonalStorageChest");
 			personalStorage.SetDisplayName("Jalovisco - Personal Storage");
 			personalStorage.SetDisplayIcon("Backpack");
 			personalStorage.SetPosition(Vector(8617.609375, 14.767379, 10521.810547));
 			personalStorage.SetOrientation(Vector(-35.0, 0, 0));
+		#ifdef EXPANSIONMODQUESTS
 			personalStorage.SetQuestID(500);
+		#endif
+		#ifdef EXPANSIONMODHARDLINE
 			personalStorage.SetReputation(1000);
+		#endif
 		#ifdef EXPANSIONMODAI
 			personalStorage.SetFaction("Survivors");
 		#endif
 			personalStorage.Save();
 	
-			m_PersonalStorageData.Insert(1, personalStorage);
+			m_PersonalStorageConfig.Insert(1, personalStorage);
 	
 			personalStorage.Spawn();
 		}
 		else
 		{
-			personalStorage = new ExpansionPersonalStorageData();
+			personalStorage = new ExpansionPersonalStorageConfig();
 			personalStorage.SetStorageID(1);
 			personalStorage.SetClassName("ExpansionPersonalStorageChest");
 			personalStorage.SetDisplayName("Personal Storage");
 			personalStorage.SetDisplayIcon("Backpack");
 			personalStorage.SetPosition(mapPos);
 			personalStorage.SetOrientation(Vector(0, 0, 0));
-			personalStorage.SetQuestID(-1);
-			personalStorage.SetReputation(0);
-		#ifdef EXPANSIONMODAI
-			personalStorage.SetFaction("");
-		#endif
 			personalStorage.Save();
 		}
 	}
 
-	protected void GetPersonalStorageData(string fileName, string path)
+	protected void GetPersonalStorageConfig(string fileName, string path)
 	{
-		ExpansionPersonalStorageData personalStorageData = ExpansionPersonalStorageData.Load(path + fileName);
-		if (!personalStorageData)
+		ExpansionPersonalStorageConfig personalStorageConfig = ExpansionPersonalStorageConfig.Load(path + fileName);
+		if (!personalStorageConfig)
 			return;
 
-		m_PersonalStorageData.Insert(personalStorageData.GetStorageID(), personalStorageData);
-		personalStorageData.Spawn(); //! Spawn the personal storage.
+		m_PersonalStorageConfig.Insert(personalStorageConfig.GetStorageID(), personalStorageConfig);
+		personalStorageConfig.Spawn(); //! Spawn the personal storage.
 	}
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
@@ -243,23 +258,16 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	{
 		DebugPring("::LoadPersonalStorageItemData - Start");
 
-		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDirectory() + playerUID + "\\";
+		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + playerUID + "\\";
 		DebugPring("::LoadPersonalStorageItemData - Folder: " + storagePath);
 		if (FileExist(storagePath))
 		{
-			array<string> personalStorageFile = ExpansionStatic.FindFilesInLocation(storagePath, ".json");
-			DebugPring("::LoadPersonalStorageItemData - Folder files: " + personalStorageFile.Count());
-			if (personalStorageFile && personalStorageFile.Count() > 0)
+			array<string> personalStorageFiles = ExpansionStatic.FindFilesInLocation(storagePath, ".json");
+			DebugPring("::LoadPersonalStorageItemData - Folder files: " + personalStorageFiles.Count());
+			foreach (string fileName: personalStorageFiles)
 			{
-				foreach (string fileName: personalStorageFile)
-				{
-					GetPersonalStorageItemData(fileName, storagePath);
-				}
+				GetPersonalStorageItemData(fileName, storagePath);
 			}
-		}
-		else
-		{
-			MakeDirectory(storagePath);
 		}
 
 		DebugPring("::LoadPersonalStorageItemData - End");
@@ -356,15 +364,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		array<ref ExpansionPersonalStorageItem> items = new array<ref ExpansionPersonalStorageItem>;
 		m_ItemsData.Find(playerUID, items);
 
-		ExpansionPersonalStorageData storageData = GetPersonalStorageDataByID(storageID);
-		if (!storageData)
+		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
+		if (!storageConfig)
 		{
 			Error(ToString() + "::SendItemData - Could not get personal stroage data for ID " + storageID);
 			return;
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		storageData.OnSend(rpc);
+		storageConfig.OnSend(rpc);
 		rpc.Write(storageID);
 		rpc.Write(invoke);
 		rpc.Write(displayName);
@@ -381,7 +389,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 				if (!item)
 					continue;
 
-				if (storageData.IsGlobalStoage() || !storageData.IsGlobalStoage() && item.GetStorageID() == storageID)
+				if (storageConfig.IsGlobalStorage() || !storageConfig.IsGlobalStorage() && item.GetStorageID() == storageID)
 					itemsCount++;
 					itemsToSend.Insert(item);
 			}
@@ -405,7 +413,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			}
 		}
 
-		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.SendItemData, true);
+		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.SendItemData, true, identity);
 
 		DebugPring("::SendItemData - End");
 	}
@@ -426,11 +434,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
-		ExpansionPersonalStorageData storageData = new ExpansionPersonalStorageData();
-		if (!storageData.OnRecieve(ctx))
+		ExpansionPersonalStorageConfig storageConfig = new ExpansionPersonalStorageConfig();
+		if (!storageConfig.OnRecieve(ctx))
 			return;
 
-		m_PersonalStorageClientData = storageData;
+		m_PersonalStorageClientConfig = storageConfig;
 
 		int storageID;
 		if (!ctx.Read(storageID))
@@ -644,23 +652,21 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
-		if (!target)
+		EntityAI objEntity;
+		if (!Class.CastTo(objEntity, target))
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Could not get target object!");
 			return;
 		}
 
-		ExpansionPersonalStorageData storageData = GetPersonalStorageDataByID(storageID);
-		if (!storageData)
+		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
+		if (!storageConfig)
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Could not get personal stroage data for ID " + storageID);
 			return;
 		}
 
-		EntityAI objEntity;
-		Class.CastTo(objEntity, target);
-
-		if (!ConditonCheck(senderRPC, storageID, objEntity, storageData.IsGlobalStoage()))
+		if (!ConditonCheck(senderRPC, storageID, objEntity, storageConfig.IsGlobalStorage()))
 			return;
 
 		string displayName = objEntity.GetDisplayName();
@@ -677,7 +683,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (!newItem.IsGlobalIDValid())
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Global ID for item is invalid! Global ID: " + newItem.GetGlobalID());
-			newItem = null;
 			return;
 		}
 
@@ -687,7 +692,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (!StoreItem(newItem, objEntity))
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Could not store item!");
-			newItem = null;
 			return;
 		}
 		
@@ -812,11 +816,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		}
 
 	#ifdef EXPANSIONMODHARDLINE
-		ExpansionPersonalStorageData storageData = GetPersonalStorageDataByID(storageID);
-		if (!storageData)
+		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
+		if (!storageConfig)
 			return false;
 
-		int reputationToUnlock = storageData.GetReputation();
+		int reputationToUnlock = storageConfig.GetReputation();
 		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(identity);
 		if (player)
 		{
@@ -971,7 +975,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		auto globalIDHex = new ExpansionGlobalID;
 		globalIDHex.Set(globalID);
 		string fileName = globalIDHex.IDToHex();
-		string filePath = GetPersonalStorageDirectory() + playerUID + "\\" + fileName + ".json";
+		string filePath = GetPersonalStorageDataDirectory() + playerUID + "\\" + fileName + ".json";
 		if (FileExist(filePath))
 			DeleteFile(filePath);
 	}
@@ -1072,17 +1076,17 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		return m_PersonalStorageMenuInvoker;
 	}
 
-	ExpansionPersonalStorageData GetPersonalStorageDataByID(int storageID)
+	ExpansionPersonalStorageConfig GetPersonalStorageConfigByID(int storageID)
 	{
-		ExpansionPersonalStorageData data;
-		m_PersonalStorageData.Find(storageID, data);
+		ExpansionPersonalStorageConfig config;
+		m_PersonalStorageConfig.Find(storageID, config);
 
-		return data;
+		return config;
 	}
 
-	ExpansionPersonalStorageData GetPersonalStorageClientData()
+	ExpansionPersonalStorageConfig GetPersonalStorageClientConfig()
 	{
-		return m_PersonalStorageClientData;
+		return m_PersonalStorageClientConfig;
 	}
 
 	static ExpansionPersonalStorageModule GetModuleInstance()
@@ -1097,7 +1101,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	#endif
 	}
 	
-	static string GetPersonalStorageDirectory()
+	static string GetPersonalStorageDataDirectory()
 	{
 		int instance_id = GetGame().ServerConfigGetInt("instanceId");
 		return "$mission:storage_" + instance_id + "\\expansion\\personalstorage\\";

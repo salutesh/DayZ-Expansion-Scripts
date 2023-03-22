@@ -1399,29 +1399,6 @@ class ExpansionQuest
 	#endif
 	}
 
-	bool QuestPlayersAlive()
-	{
-		if (!m_Config.IsGroupQuest())
-		{
-			m_Player = PlayerBase.GetPlayerByUID(m_PlayerUID);
-			if (m_Player && !m_Player.IsAlive())
-				return false;
-		}
-	#ifdef EXPANSIONMODGROUPS
-		else
-		{
-			foreach (string memberUID: m_PlayerUIDs)
-			{
-				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
-				if (groupPlayer && !groupPlayer.IsAlive())
-					return false;
-			}
-		}
-	#endif
-
-		return true;
-	}
-
 	bool IsQuestPlayer(string uid)
 	{
 		if (!m_Config.IsGroupQuest())

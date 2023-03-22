@@ -54,8 +54,8 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 		
 		int storageID = storage.GetStorageID();
 		Print(ToString() + "::OnExecuteServer - Storage ID: " + storageID);
-		ExpansionPersonalStorageData storageData = ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageDataByID(storageID);
-		if (!storageData)
+		ExpansionPersonalStorageConfig storageConfig = ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageConfigByID(storageID);
+		if (!storageConfig)
 		{
 			Error(ToString() + "::OnExecuteServer - Could not get storage data!");
 			return;
@@ -71,7 +71,7 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 	#ifdef EXPANSIONMODQUESTS
 		if (GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			int questID = storageData.GetQuestID();
+			int questID = storageConfig.GetQuestID();
 			Print(ToString() + "::OnExecuteServer - Need to complete quest with ID: " + questID);
 			if (questID > -1)
 			{
@@ -95,7 +95,7 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 	#ifdef EXPANSIONMODHARDLINE
 		if (GetExpansionSettings().GetHardline().UseReputation)
 		{
-			int reputationRequirement = storageData.GetReputation();
+			int reputationRequirement = storageConfig.GetReputation();
 			Print(ToString() + "::OnExecuteServer - Need to have reputation: " + reputationRequirement);
 			if (reputationRequirement > 0)
 			{
@@ -111,7 +111,7 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 	#endif
 		
 	#ifdef EXPANSIONMODAI
-		string factionName = storageData.GetFaction();
+		string factionName = storageConfig.GetFaction();
 		bool isInFaction;
 		bool isInInOtherFaction;
 		Print(ToString() + "::OnExecuteServer - Need to be in faction: " + factionName);
