@@ -12,11 +12,6 @@
 
 class ExpansionMarketMenu: ExpansionScriptViewMenu
 {
-	protected static float POSITION_PLAYER_PREVIEW_W_THRESHOLD_MIN = 1.5;
-	protected static float POSITION_PLAYER_PREVIEW_W_THRESHOLD_MAX = 4;
-	protected static float POSITION_PLAYER_PREVIEW_Y_OFFSET = -0.125;
-	protected static float POSITION_PLAYER_PREVIEW_ANIMATION_DURATION = 0.5;
-
 	protected ref ExpansionMarketMenuController m_MarketMenuController;
 	protected ref ExpansionMarketModule m_MarketModule;
 	protected ref ExpansionTraderObjectBase m_TraderObject;
@@ -36,11 +31,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected ref ExpansionMarketMenuTooltip m_BuyDenomsTooltip;
 	protected ref ExpansionMarketMenuTooltip m_QuatityTooltip;	
 	
-	protected int m_SelectedItemSlot;
-	protected float m_LastPositionPlayerPreviewW;
-	protected float m_LastPositionPlayerPreviewY;
-	protected int m_PlayerPosCurrentAnimID;
-	protected bool m_PlayerPosAnimRunning;
 	protected int m_Quantity = 1;
 	protected int m_TraderItemStock;
 	protected bool m_TraderHasQuantity;
@@ -75,7 +65,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	protected bool m_FirstCall;
 	protected bool m_Complete;
 	protected ref map<string, string> m_TypeDisplayNames;
-	PlayerBase m_PlayerPreview;
+	ref ExpansionPlayerPreview m_PlayerPreview;
 	int CategoriesExpanded;
 	protected ref ExpansionMarketMenuColorHandler m_ColorHandler;
 	Object m_CurrentPreviewObject;
@@ -198,6 +188,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			m_MarketMenuItemManager = new ExpansionMarketMenuItemManager(this);
 			m_MarketMenuItemManager.Hide();
 		}
+
+		m_PlayerPreview = new ExpansionPlayerPreview(this, market_player_preview);
 	}
 
 	void UpdatePlayerItems()
@@ -1277,97 +1269,27 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			market_item_preview.Show(false);
 			market_player_preview.Show(true);
 
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-			int i;
-			
-			if (!m_PlayerPreview)
-			{
-				//! Oh fml... of all the things I tried to get the player preview face texture to render,
-				//! it turns out the preview entity needs to be close to the player's viewport. Go figure.
-				//! Just spawn it behind the player camera so it won't be seen under normal circumstances.
-				vector dir = GetGame().GetCurrentCameraDirection();
-				dir.Normalize();
-				vector pos = GetGame().GetCurrentCameraPosition() - dir * 0.5;
-				pos[1] = player.GetPosition()[1];
-				m_PlayerPreview = PlayerBase.Cast(GetGame().CreateObjectEx(player.GetType(), pos, ECE_LOCAL|ECE_NOLIFETIME));
-				m_PlayerPreview.SetOrientation(player.GetOrientation());
-
-				m_MarketMenuController.MarketPlayerPreview = m_PlayerPreview;
-				m_MarketMenuController.NotifyPropertyChanged("MarketPlayerPreview");
-			}
-			else
-			{
-				//! Remove existing attachments on player preview
-				array<ItemBase> previewAttachments = new array<ItemBase>;
-				for (i = 0; i < m_PlayerPreview.GetInventory().AttachmentCount(); i++)
-				{
-					ItemBase previewItem = ItemBase.Cast(m_PlayerPreview.GetInventory().GetAttachmentFromIndex(i));
-					//! Removing the attachment here would change attachment count, so add it to a temp array for later removal
-					if (previewItem)
-						previewAttachments.Insert(previewItem);
-				}
-				foreach (ItemBase previewAttachment: previewAttachments)
-				{
-					m_PlayerPreview.GetInventory().LocalDestroyEntity(previewAttachment);
-				}
-			}
-
-			//! Add selected item first to override any current player attachment on same slot
-			EntityAI item = m_PlayerPreview.GetInventory().CreateAttachment(previewClassName);
-			if (GetSelectedMarketItem().SpawnAttachments.Count() && GetSelectedMarketItemElement().GetIncludeAttachments())
-				GetSelectedMarketItemElement().SpawnAttachments(GetSelectedMarketItem(), item);
-
-			m_CurrentPreviewObject = item;
-			
-			//! Get slot (for dynamic preview focus)
-			m_SelectedItemSlot = -1;
-			if (item)
-			{
-				InventoryLocation loc = new InventoryLocation;
-				item.GetInventory().GetCurrentInventoryLocation(loc);
-				if (loc)
-					m_SelectedItemSlot = loc.GetSlot();
-			}
-
-			//! Add player's current attachments to player preview
-			CreateAttachments(player, m_PlayerPreview);
-
-			if (!m_LastPositionPlayerPreviewW)
-				UpdateLastPositionPlayerPreview(1.0);
-			else
-				m_LastPositionPlayerPreviewY = market_player_preview.GetModelPosition()[1];
-
-			AnimatePositionPlayerPreview();
+			m_PlayerPreview.Update(previewClassName);
 		}
 		
 		MarketPrint("UpdatePreview - End");
 	}
 
-	//! Create all attachments from src in dst
-	void CreateAttachments(EntityAI src, EntityAI dst)
+	override void UpdatePlayerPreviewObject(Object previewObject)
 	{
-		MarketPrint("CreateAttachments - Start");
-		
-		if (!src.GetInventory())
-			return;
+		m_MarketMenuController.MarketPlayerPreview = previewObject;
+		m_MarketMenuController.NotifyPropertyChanged("MarketPlayerPreview");
+	}
 
-		for (int i = 0; i < src.GetInventory().AttachmentCount(); i++)
-		{
-			ItemBase srcAttachment = ItemBase.Cast(src.GetInventory().GetAttachmentFromIndex(i));
-			if (srcAttachment)
-			{
-				//! Create attachment
-				EntityAI dstAttachment;
-				if (dst.IsInherited(Weapon_Base))
-					dstAttachment = Weapon_Base.Cast(dst).ExpansionCreateInInventory(srcAttachment.GetType());
-				else
-					dstAttachment = dst.GetInventory().CreateAttachment(srcAttachment.GetType());
-				if (dstAttachment)
-					CreateAttachments(srcAttachment, dstAttachment);  //! Create attachments of attachment
-			}
-		}
-		
-		MarketPrint("CreateAttachments - End");
+	override void SpawnPlayerPreviewAttachments(EntityAI item)
+	{
+		if (GetSelectedMarketItem().SpawnAttachments.Count() && GetSelectedMarketItemElement().GetIncludeAttachments())
+			GetSelectedMarketItemElement().SpawnAttachments(GetSelectedMarketItem(), item);
+	}
+
+	override void SetCurrentPreviewObject(Object obj)
+	{
+		m_CurrentPreviewObject = obj;
 	}
 
 	void UpdateItemDescriptionPanel()
@@ -2537,7 +2459,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		ExpansionMarketModule.SI_Callback.Remove(MenuCallback);
 
 		if (m_PlayerPreview)
-			GetGame().ObjectDelete(m_PlayerPreview);
+			m_PlayerPreview = null;
 	
 		m_SelectedMarketItem = NULL;
 		
@@ -2750,7 +2672,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		else if (w == market_player_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotationPlayerPreview");
+			m_PlayerPreview.OnMouseButtonDown(w, x, y, button);
 			g_Game.GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}
@@ -2782,7 +2704,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 		else if (w == market_player_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateScalePlayerPreview");
+			m_PlayerPreview.OnMouseWheel(w, x, y, wheel);
 			m_CharacterScaleDelta = wheel ;
 		}
 		
@@ -2810,15 +2732,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		{
 			m_CharacterOrientation = vector.Zero;
 			
-			market_player_preview.SetModelPosition(Vector(0,0,0.5));
-			market_player_preview.SetModelOrientation(m_CharacterOrientation);
-	
-			market_player_preview.GetPos(itemx, itemy);
-
-			market_player_preview.SetSize(1.5, 1.5);
-
-			//! Align to center 
-			market_player_preview.SetPos(-0.225, -0.225);
+			m_PlayerPreview.OnItemSelected(w, x, y, row, column, oldRow, oldColumn);
 		}
 		
 		return false;
@@ -2844,125 +2758,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		}
 	}
 
-	void UpdateScalePlayerPreview(int mouse_x, int mouse_y, bool is_dragging, int wheel)
-	{
-		float w, h, x, y;		
-		market_player_preview.GetPos(x, y);
-		market_player_preview.GetSize(w,h);
-		w = w + (m_CharacterScaleDelta / 8);
-		h = h + (m_CharacterScaleDelta / 8);
-		if ( w > 0.5 && w < 6 )
-		{
-			market_player_preview.SetSize(w, h);
-	
-			//! Align to center
-			int screen_w, screen_h;
-			GetScreenSize(screen_w, screen_h);
-			float new_x = x - (m_CharacterScaleDelta / 16);
-			float new_y = y - (m_CharacterScaleDelta / 16);
-			market_player_preview.SetPos(new_x, new_y);
-
-			UpdateLastPositionPlayerPreview(w);
-			if (!m_PlayerPosAnimRunning)
-				UpdatePositionPlayerPreview(m_LastPositionPlayerPreviewY);
-		}
-	}
-	
-	float GetPositionPlayerPreviewTargetY()
-	{
-		//! Keep focus on item slot when zooming in
-		bool isVestSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Vest");
-		bool isBodySlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Body");
-		bool isBackSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Back");
-		bool isHipsSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Hips");
-		bool isLegsSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Legs");
-		bool isFeetSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Feet");
-		bool isHeadgearSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Headgear");
-		bool isMaskSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Mask");
-		bool isEyewearSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Eyewear");
-		bool isArmbandSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Armband");
-		bool isGlovesSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Gloves");
-		bool isTopSlot = isVestSlot || isBodySlot || isBackSlot || isArmbandSlot;
-		bool isHeadSlot = isHeadgearSlot || isMaskSlot || isEyewearSlot;
-
-		float v = POSITION_PLAYER_PREVIEW_Y_OFFSET;
-		if (isTopSlot)
-			v = -0.4375;
-		else if (isHeadSlot)
-			v = -0.75;
-		else if (isLegsSlot)
-			v = 0.275;
-		else if (isFeetSlot)
-			v = 0.625;
-
-		return v;
-	}
-	
-	float GetPositionPlayerPreviewInterpolatedY(float w, float targetY)
-	{
-		//! Normalize to 0..1
-		float normalized = ExpansionMath.LinearConversion(POSITION_PLAYER_PREVIEW_W_THRESHOLD_MIN, POSITION_PLAYER_PREVIEW_W_THRESHOLD_MAX, w);
-		//! Smooth normalized value
-		float smooth = ExpansionMath.SmoothStep(normalized, 2);
-		//! Interpolate to targetY
-		float y = ExpansionMath.LinearConversion(0, 1, smooth, POSITION_PLAYER_PREVIEW_Y_OFFSET, targetY);
-
-		return y;
-	}
-
-	void UpdatePositionPlayerPreview(float y)
-	{
-		market_player_preview.SetModelPosition(Vector(0, y, 0));
-	}
-
-	void UpdateLastPositionPlayerPreview(float w)
-	{
-		m_LastPositionPlayerPreviewW = w;
-		if (!m_PlayerPosAnimRunning)
-			m_LastPositionPlayerPreviewY = GetPositionPlayerPreviewInterpolatedY(w, GetPositionPlayerPreviewTargetY());
-	}
-
-	int AnimatePositionPlayerPreview(int animID = 0, int frameNumber = 1)
-	{
-		if (!animID)
-		{
-			m_PlayerPosAnimRunning = true;
-			m_PlayerPosCurrentAnimID++;
-			animID = m_PlayerPosCurrentAnimID;
-		}
-		else if (m_PlayerPosCurrentAnimID != animID)
-			return 0;
-
-		float targetInterpolatedY = GetPositionPlayerPreviewInterpolatedY(m_LastPositionPlayerPreviewW, GetPositionPlayerPreviewTargetY());
-
-		int fps = 60;
-		float frames = fps * POSITION_PLAYER_PREVIEW_ANIMATION_DURATION;
-		float step = (targetInterpolatedY - m_LastPositionPlayerPreviewY) / frames * frameNumber;
-		float currentY = m_LastPositionPlayerPreviewY + step;
-
-		float smooth;
-
-		if (targetInterpolatedY != m_LastPositionPlayerPreviewY)  //! Prevent division by zero
-			smooth = ExpansionMath.SmoothStep(currentY, 2, m_LastPositionPlayerPreviewY, targetInterpolatedY);
-		else
-			smooth = currentY;
-		MarketPrint("" + smooth);
-
-		UpdatePositionPlayerPreview(smooth);
-
-		if (currentY != targetInterpolatedY && frameNumber < frames)
-		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(AnimatePositionPlayerPreview, Math.Round(1000 / fps), false, animID, frameNumber + 1);
-		}
-		else
-		{
-			m_PlayerPosAnimRunning = false;
-			m_LastPositionPlayerPreviewY = currentY;
-		}
-
-		return animID;
-	}
-
 	void UpdateRotation(int mouse_x, int mouse_y, bool is_dragging)
 	{
 		vector o = m_CharacterOrientation;
@@ -2970,20 +2765,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		o[1] = o[1] - (m_CharacterRotationX - mouse_x);
 		
 		market_item_preview.SetModelOrientation(o);
-		
-		if (!is_dragging)
-		{
-			m_CharacterOrientation = o;
-		}
-	}
-
-	void UpdateRotationPlayerPreview(int mouse_x, int mouse_y, bool is_dragging)
-	{
-		vector o = m_CharacterOrientation;
-		o[2] = o[2] + (m_CharacterRotationY - mouse_y);
-		o[1] = o[1] - (m_CharacterRotationX - mouse_x);
-		
-		market_player_preview.SetModelOrientation(o);
 		
 		if (!is_dragging)
 		{

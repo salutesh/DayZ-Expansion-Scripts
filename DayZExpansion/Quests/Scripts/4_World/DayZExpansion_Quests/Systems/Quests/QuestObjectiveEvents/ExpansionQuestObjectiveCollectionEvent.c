@@ -79,6 +79,9 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		ObjectivePrint(ToString() + "::CanComplete - Start");
 		ObjectivePrint(ToString() + "::CanComplete - m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint(ToString() + "::CanComplete - m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 
 		bool conditionsResult;
 	#ifdef EXPANSIONMODNAVIGATION
@@ -385,19 +388,20 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 		ObjectivePrint(ToString() + "::UpdateDeliveryData - End");
 	}
 
-	void OnInventoryItemLocationChange(EntityAI item, Man player, string state)
+	void OnInventoryItemLocationChange(EntityAI item, Man player, ExpansionQuestItemState state)
 	{
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
 		string typeName = item.GetType();
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item: " + typeName);
-		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Inventory location state: " + state);
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Inventory location state: " + typename.EnumToString(ExpansionQuestItemState, state));
 
 		if (!m_ObjectiveItemsMap.Contains(typeName))
 			return;
 
 		int amount = GetItemAmount(item);
-		if (state == "INV_EXIT")
+		switch (state)
 		{
+		case ExpansionQuestItemState.INV_EXIT:
 			int foundIndex = -1;
 			if (IsObjectiveItem(item, foundIndex))
 			{
@@ -406,24 +410,23 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 				m_ObjectiveItems.Remove(foundIndex);
 				UpdateDeliveryData();
 			}
-		}
-		else if (state == "INV_ENTER")
-		{
+			break;
+		case ExpansionQuestItemState.INV_ENTER:
 			if (player && player.GetIdentity())
 			{
 				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item is not in objective items array: " + typeName + ". Check player..");
 				CheckPlayerForObjectiveItems(player);
 				UpdateDeliveryData();
 			}
-		}
-		else if (state == "QUANTITY_CHANGED")
-		{
+			break;
+		case ExpansionQuestItemState.QUANTITY_CHANGED:
 			if (IsObjectiveItem(item))
 			{
 				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - The quantity of a objective item has changed: " + typeName + " | Amount: " + amount);
 				CheckQuestPlayersForObjectiveItems();
 				UpdateDeliveryData();
 			}
+			break;
 		}
 
 		m_Quest.QuestCompletionCheck();

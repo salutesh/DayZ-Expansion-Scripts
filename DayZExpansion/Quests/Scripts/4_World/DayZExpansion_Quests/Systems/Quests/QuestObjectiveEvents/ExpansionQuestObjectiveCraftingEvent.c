@@ -302,10 +302,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - End");
 	}
 
-	void OnInventoryItemLocationChange(ItemBase item, Man player, string state)
+	void OnInventoryItemLocationChange(ItemBase item, Man player, ExpansionQuestItemState state)
 	{
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
-		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + state);
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + typename.EnumToString(ExpansionQuestItemState, state));
 
 		string typeName = item.GetType();
 		int amount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
@@ -315,8 +315,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		if (!m_ObjectiveItemsMap.Find(typeName, needed))
 			return;
 
-		if (state == "INV_EXIT")
+		switch (state)
 		{
+		case ExpansionQuestItemState.INV_EXIT:
 			index = m_ObjectiveItems.Find(item);
 			if (index > -1)
 			{
@@ -329,9 +330,8 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			{
 				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item " + item.GetType() + " is not in objective items. Skip..");
 			}
-		}
-		else if (state == "INV_ENTER")
-		{
+			break;
+		case ExpansionQuestItemState.INV_ENTER:
 			index = m_ObjectiveItems.Find(item);
 			if (index == -1)
 			{
@@ -351,6 +351,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			{
 				ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Item " + item.GetType() + " is already in objective items.");
 			}
+			break;
 		}
 
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Should update? m_UpdateCount: " + m_UpdateCount);

@@ -226,9 +226,7 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + data.GetOwnerUID() + "\\";
 		if (!FileExist(storagePath) && !ExpansionStatic.MakeDirectoryRecursive(storagePath))
 			return;
-		auto globalID = new ExpansionGlobalID;
-		globalID.Set(data.GetGlobalID());
-		string fileName = globalID.IDToHex();
+		string fileName = ExpansionStatic.IntToHex(data.GetGlobalID());
 		ExpansionJsonFileParser<ExpansionPersonalStorageItem>.Save(storagePath + fileName + ".json", data);
 	}
 

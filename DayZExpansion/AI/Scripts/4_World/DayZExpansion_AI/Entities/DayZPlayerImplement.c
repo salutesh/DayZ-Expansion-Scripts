@@ -329,7 +329,7 @@ modded class DayZPlayerImplement
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
-	bool eAI_UpdateHitPlayerWithinTimeThreshold(float timeThreshold)
+	bool eAI_UpdateAgressionTimeout(float timeThreshold)
 	{
 		if (!m_eAI_LastAggressionTime)
 			return false;

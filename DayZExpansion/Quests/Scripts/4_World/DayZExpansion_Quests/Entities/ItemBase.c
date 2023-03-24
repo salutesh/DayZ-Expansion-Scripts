@@ -10,12 +10,19 @@
  *
 */
 
+enum ExpansionQuestItemState
+{
+	INV_ENTER,
+	INV_EXIT,
+	QUANTITY_CHANGED
+}
+
 modded class ItemBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ExpansionQuestObjectiveEventBase>;
 	protected int m_Expansion_QuestID = -1;
 	protected bool m_Expansion_IsQuestGiver;
-	protected ref TStringArray m_ExpansionOjectiveItemExcludes = {"FireplaceBase"};
+	protected static ref TTypenameArray s_ExpansionOjectiveItemExcludes = {FireplaceBase};
 
 	void ItemBase()
 	{
@@ -60,7 +67,7 @@ modded class ItemBase
 
 		Man player = GetHierarchyRootPlayer();
 		if (player && player.GetIdentity())
-			CheckAssignedObjectivesForEntity("INV_ENTER", player);
+			CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_ENTER, player);
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -79,7 +86,7 @@ modded class ItemBase
 						GetGame().ObjectDelete(this);
 				}
 
-				CheckAssignedObjectivesForEntity("INV_ENTER", player);
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_ENTER, player);
 			}
 		}
 	}
@@ -100,7 +107,7 @@ modded class ItemBase
 						GetGame().ObjectDelete(this);
 				}
 
-				CheckAssignedObjectivesForEntity("INV_EXIT", player);
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, player);
 			}
 		}
 	}
@@ -111,7 +118,9 @@ modded class ItemBase
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			CheckAssignedObjectivesForEntity("QUANTITY_CHANGED");
+			Man player = GetHierarchyRootPlayer();
+			if (player && player.GetIdentity())
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED);
 		}
 	}
 
@@ -211,18 +220,15 @@ modded class ItemBase
 	#endif
 	}
 
-	protected void CheckAssignedObjectivesForEntity(string state, Man player = null)
+	protected void CheckAssignedObjectivesForEntity(ExpansionQuestItemState state, Man player = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::CheckAssignedObjectivesForEntity - Start");
 	#endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
-
-		foreach (string typeName: m_ExpansionOjectiveItemExcludes)
+		foreach (typename typeName: s_ExpansionOjectiveItemExcludes)
 		{
-			if (GetType().ToType().IsInherited(typeName.ToType()))
+			if (IsInherited(typeName))
 				return;
 		}
 
@@ -238,7 +244,7 @@ modded class ItemBase
 		if (player && player.GetIdentity())
 			playerUID = player.GetIdentity().GetId();
 
-		if (state != "QUANTITY_CHANGED" && playerUID == string.Empty)
+		if (state != ExpansionQuestItemState.QUANTITY_CHANGED && playerUID == string.Empty)
 			return;
 
 		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
@@ -272,7 +278,7 @@ modded class ItemBase
 	#endif
 	}
 
-	protected void OnObjectiveItemInventoryChange(ExpansionQuestObjectiveEventBase objective, Man player, string state)
+	protected void OnObjectiveItemInventoryChange(ExpansionQuestObjectiveEventBase objective, Man player, ExpansionQuestItemState state)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::OnObjectiveItemInventoryChange - Start");

@@ -318,7 +318,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("Killed 10 Infected");
 		questConfig.SetObjectiveText("Achievement completed: You have killed 10 Infected! Reward: 100 Hryvnia");
 		questConfig.SetAutocomplete(true);
-		questConfig.SetIsAchivement(true);
+		questConfig.SetIsAchievement(true);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
@@ -346,7 +346,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("Killed 100 civilian Infected");
 		questConfig.SetObjectiveText("Achievement completed: You have killed 100 civilian Infected! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
-		questConfig.SetIsAchivement(true);
+		questConfig.SetIsAchievement(true);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
@@ -404,7 +404,7 @@ class ExpansionDefaultQuestData
 	}
 #endif
 
-	//! Achivement action quest to lockpick a vehicle
+	//! Achievement action quest to lockpick a vehicle
 	ExpansionQuestConfig ExpansionQuestConfig011()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
@@ -413,7 +413,7 @@ class ExpansionDefaultQuestData
 		questConfig.SetTitle("Lockpick your first vehicle");
 		questConfig.SetObjectiveText("Achievement completed: You have lockpicked your first vehicle! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
-		questConfig.SetIsAchivement(true);
+		questConfig.SetIsAchievement(true);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveActionConfig objective_1 = new ExpansionQuestObjectiveActionConfig();

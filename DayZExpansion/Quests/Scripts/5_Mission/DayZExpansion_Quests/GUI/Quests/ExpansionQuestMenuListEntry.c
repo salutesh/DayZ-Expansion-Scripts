@@ -36,7 +36,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		SetEntry();
 	}
-	
+
 	override string GetLayoutFile()
 	{
 		return "DayZExpansion/Quests/GUI/layouts/quests/expansion_quest_menu_log_entry.layout";
@@ -46,7 +46,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 	{
 		return ExpansionQuestMenuLogEntryController;
 	}
-	
+
 	void SetEntry()
 	{
 		if (!m_Quest || !m_QuestModule || !m_QuestModule.GetClientQuestData())
@@ -74,11 +74,6 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 			QuestIcon.SetImage(0);
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
 		}
-		else if (questState == ExpansionQuestState.COMPLETED)
-		{
-			QuestIcon.SetImage(0);
-			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
-		}
 
 		int timestamp;
 		if (m_QuestModule.GetClientQuestData().HasCooldownOnQuest(m_Quest.GetID(), timestamp))
@@ -89,31 +84,31 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 		{
 			CooldownIcon.Show(false);
 		}
-		
+
 		MissionGameplay mission;
 		if (!Class.CastTo(mission, GetGame().GetMission()))
 			return;
-		
+
 		ExpansionQuestHUD questHUD = mission.GetQuestHUD();
 		if (!questHUD)
 			return;
-		
+
 		ExpansionQuestHUDEntry questEntry;
 		int findIndex = -1;
-		
+
 		if (!questHUD.IsEntryHidden(m_Quest.GetID(), questEntry, findIndex))
 		{
 			//HideCheckbox.SetChecked(true);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
 		}
 		else
-		{ 
+		{
 			//HideCheckbox.SetChecked(false);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
 	}
-	
+
 	void OnEntryClick()
 	{
 		if (!m_Quest)
@@ -161,7 +156,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		return false;
 	}
-	
+
 	void OnHideEntryClick()
 	{
 		Print(ToString() + "::OnHideEntryClick - Start");
@@ -188,12 +183,12 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
 		}
 		else
-		{ 
+		{
 			//HideCheckbox.SetChecked(false);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
-		
+
 		Print(ToString() + "::OnHideEntryClick - End");
 	}
 };
@@ -264,11 +259,6 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		{
 			QuestIcon.SetImage(0);
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
-		}
-		else if (questState == ExpansionQuestState.COMPLETED)
-		{
-			QuestIcon.SetImage(0);
-			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 
 		int timestamp;

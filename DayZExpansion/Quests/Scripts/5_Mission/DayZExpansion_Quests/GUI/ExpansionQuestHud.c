@@ -62,7 +62,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 				continue;
 			}
 
-			if (questConfig.IsAchivement())
+			if (questConfig.IsAchievement())
 				continue;
 
 			ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, data);
@@ -144,13 +144,13 @@ class ExpansionQuestHUD: ExpansionScriptView
 		{
 			if (hudEntry.GetEntryQuestID() == questID)
 			{
-				if (findIndex == -1)
-					return false;
-
 				entry = hudEntry;
+				break;
 			}
 		}
 
+		if (findIndex == -1)
+			return false;
 		return true;
 	}
 };

@@ -33,8 +33,6 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	string QuestTurnInText;
 	string QuestObjectiveCompletedTitle;
 	string QuestObjectiveCompletedText;
-	string AchivementCompletedTitle;
-	string AchivementCompletedText;
 
 	string QuestCooldownTitle;
 	string QuestCooldownText;
@@ -49,7 +47,13 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 #endif
 };
 
-class ExpansionQuestSettingsV5: ExpansionSettingBase
+class ExpansionQuestSettingsV5Base: ExpansionQuestSettingsBase
+{
+	string AchivementCompletedTitle;
+	string AchivementCompletedText;
+};
+
+class ExpansionQuestSettingsV5: ExpansionQuestSettingsV5Base
 {
 	string WeeklyQuestResetDay;
 	int WeeklyQuestResetHour;
@@ -64,10 +68,13 @@ class ExpansionQuestSettingsV5: ExpansionSettingBase
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 7;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
+
+	string AchievementCompletedTitle;
+	string AchievementCompletedText;
 
 	ref array<ref ExpansionQuestAction> QuestActions = new array<ref ExpansionQuestAction>;
 
@@ -170,9 +177,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestObjectiveCompletedTitle = s.QuestObjectiveCompletedTitle;
 		QuestObjectiveCompletedText = s.QuestObjectiveCompletedText;
 
-		AchivementCompletedTitle = s.AchivementCompletedTitle;
-		AchivementCompletedText = s.AchivementCompletedText;
-
 		//! Version 3
 		QuestCooldownTitle = s.QuestCooldownTitle;
 		QuestCooldownText = s.QuestCooldownText;
@@ -193,6 +197,9 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 	#endif
+
+		AchievementCompletedTitle = s.AchievementCompletedTitle;
+		AchievementCompletedText = s.AchievementCompletedText;
 
 		QuestActions = s.QuestActions;
 
@@ -266,7 +273,16 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					WeeklyResetDay = settingsV5.WeeklyQuestResetDay;
 					WeeklyResetMinute = settingsV5.WeeklyQuestResteMinute;
 					WeeklyResetHour = settingsV5.WeeklyQuestResetHour;
-					UseUTCTime = settingsV5.UseUTCTime;
+				}
+
+				if (settingsBase.m_Version < 7)
+				{
+					ExpansionQuestSettingsV5Base settingsV5Base;
+					if (!ExpansionJsonFileParser<ExpansionQuestSettingsV5Base>.Load(EXPANSION_QUEST_SETTINGS, settingsV5Base))
+						return false;
+
+					AchievementCompletedTitle = settingsV5Base.AchivementCompletedTitle;
+					AchievementCompletedText = settingsV5Base.AchivementCompletedText;
 				}
 
 				m_Version = VERSION;
@@ -341,8 +357,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestObjectiveCompletedTitle = "Objective Completed";
 		QuestObjectiveCompletedText = "You have completed the objective %1 of the quest %2.";
 
-		AchivementCompletedTitle = "Achievement \"%1\" completed!";
-		AchivementCompletedText = "You have completed the achievement %1";
+		AchievementCompletedTitle = "Achievement \"%1\" completed!";
+		AchievementCompletedText = "You have completed the achievement %1";
 
 		QuestCooldownTitle = "Quest Cooldown";
 		QuestCooldownText = "This quest is still on cooldown! Come back in %1";

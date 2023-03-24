@@ -59,7 +59,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	
 	override void Event_OnStart()
 	{
-		#ifdef BUILD_EXPERIMENTAL
+		#ifdef EXPANSION_MISSION_AI_ENABLE
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionStarted )
 			CreateNotif(MissionMeta.NotificationStart);
 		#endif
@@ -186,7 +186,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			m_ServerMarker = m_MarkerModule.CreateServerMarker(MissionMeta.Marker.Name, EXPANSION_NOTIFICATION_ICON_AI_MISSION, MissionMeta.Marker.Position, COLOR_EXPANSION_NOTIFICATION_MISSION, true);
 		#endif
 		
-		#ifdef BUILD_EXPERIMENTAL
+		#ifdef EXPANSION_MISSION_AI_ENABLE
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
 			CreateNotif(MissionMeta.NotificationEnd);
 		#endif
@@ -282,7 +282,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 					m_MarkerModule.RemoveServerMarker(m_ServerMarker.GetUID());
 				#endif
 
-				#ifdef BUILD_EXPERIMENTAL
+				#ifdef EXPANSION_MISSION_AI_ENABLE
 				if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
 					CreateNotif(MissionMeta.NotificationEnd);
 				#endif
@@ -503,7 +503,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			notifStart 	= new ExpansionSettingNotificationData("Ambushed Military Convoy", "A military convoy was ambushed in the North of Elecktro","Ambush","#b53128");
 			notifAction = new ExpansionSettingNotificationData("Ambushed Military Convoy", "PLACEHOLDER ACTION","Ambush","#b53128");
 			notifEnd 	= new ExpansionSettingNotificationData("Ambushed Military Convoy", "PLACEHOLDER END","Ambush","#b53128");
-			mapMarker	= new ExpansionSettingMarkerData("Ambushed Military Convoy","Ambush","#b53128", "9072.484375 280.127106 10716.075195", true);
+			mapMarker	= new ExpansionSettingMarkerData("Ambushed Military Convoy","Ambush","#b53128", "10671.889648 124.513763 4557.255859", true);
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
 			MappingFile = "AmbushedMilitaryConvoy.map";

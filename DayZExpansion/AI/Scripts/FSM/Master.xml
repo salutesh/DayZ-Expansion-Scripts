@@ -248,8 +248,11 @@
 			<event_entry>
 				if (unit.GetEmoteManager().IsEmotePlaying())
 					unit.GetEmoteManager().ServerRequestEmoteCancel();
+				
+				unit.eAI_SetIsFightingFSM(true);
 			</event_entry>
 			<event_exit>
+				unit.eAI_SetIsFightingFSM(false);
 			</event_exit>
 			<event_update>
 				return EXIT;

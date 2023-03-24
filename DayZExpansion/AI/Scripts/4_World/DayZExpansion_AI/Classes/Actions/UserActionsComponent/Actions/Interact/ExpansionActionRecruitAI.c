@@ -21,6 +21,12 @@ class ExpansionActionRecruitAI: ActionInteractBase
 		m_Text = "#STR_EXPANSION_AI_RECRUIT";
 	}
 
+	override void CreateConditionComponents()  
+	{
+		m_ConditionItem = new CCINone;
+		m_ConditionTarget = new CCTCursor;
+	}
+
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		eAIBase tAI;
@@ -41,7 +47,7 @@ class ExpansionActionRecruitAI: ActionInteractBase
 		if (tAI.eAI_IsPassive() || tAI.GetGroup().GetFaction().IsInvincible())
 			return false;
 
-		if ((!tAI.GetGroup().GetFaction().IsGuard() && tAI.PlayerIsEnemy(player)) || !GetExpansionSettings().GetAI().CanRecruitGuards)
+		if ((!tAI.GetGroup().GetFaction().IsGuard() && tAI.PlayerIsEnemy(player)) || (tAI.GetGroup().GetFaction().IsGuard() && !GetExpansionSettings().GetAI().CanRecruitGuards))
 			return false;
 
 		return true;

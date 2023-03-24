@@ -218,8 +218,8 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 		m_ActionEventData.SetTargetActionMainItem();
 		ObjectivePrint(ToString() + "::OnActionPlantSeed - Item target: " + m_ActionEventData.m_Target.GetType());
-		bool isExculuded = ExpansionStatic.IsAnyOf(m_ActionEventData.m_Target, m_Config.GetExcludedClassNames());
-		bool isAllowed = ExpansionStatic.IsAnyOf(m_ActionEventData.m_Target, m_Config.GetAllowedClassNames());
+		bool isExculuded = ExpansionStatic.IsAnyOf(m_ActionEventData.m_Target, m_Config.GetExcludedClassNames(), true);
+		bool isAllowed = ExpansionStatic.IsAnyOf(m_ActionEventData.m_Target, m_Config.GetAllowedClassNames(), true);
 
 		ObjectivePrint(ToString() + "::OnActionPlantSeed - Is Excluded: " + isExculuded);
 		ObjectivePrint(ToString() + "::OnActionPlantSeed - Is Allowed: " + isAllowed);

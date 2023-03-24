@@ -75,7 +75,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected ref ScriptInvoker m_PersonalStorageMenuInvoker; //! Client
 	protected ref ExpansionPersonalStorageConfig m_PersonalStorageClientConfig; //! Client
 
-	static ref TStringArray m_HardcodedExcludes = {"AugOptic"};
+	static ref TStringArray m_HardcodedExcludes = {"AugOptic", "Magnum_Cylinder", "Magnum_Ejector", "M97DummyOptics"};
 
 	protected bool m_Initialized;
 
@@ -972,9 +972,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		m_ItemsData.Insert(playerUID, items);
 
-		auto globalIDHex = new ExpansionGlobalID;
-		globalIDHex.Set(globalID);
-		string fileName = globalIDHex.IDToHex();
+		string fileName = ExpansionStatic.IntToHex(globalID);
 		string filePath = GetPersonalStorageDataDirectory() + playerUID + "\\" + fileName + ".json";
 		if (FileExist(filePath))
 			DeleteFile(filePath);
@@ -982,7 +980,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected ExpansionPersonalStorageItem GetPersonalItemByGlobalID(string playerUID, TIntArray globalID)
 	{
-		ExpansionPersonalStorageItem validItem;
 		array<ref ExpansionPersonalStorageItem>  items = new array<ref ExpansionPersonalStorageItem>;
 		m_ItemsData.Find(playerUID, items);
 
@@ -991,12 +988,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			ExpansionPersonalStorageItem item = items[i];
 			if (item && item.IsGlobalIDValid() && item.IsGlobalIDEqual(globalID))
 			{
-				validItem = item;
-				break;
+				return item;
 			}
 		}
 
-		return validItem;
+		return null;
 	}
 
 	static bool ItemCheck(EntityAI item)
@@ -1009,10 +1005,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	static bool ItemCheckEx(EntityAI item)
 	{
-	#ifdef EXPANSIONMODMARKET
-		if (ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetP2PMarket().ExcludedClassNames))
+		if (ExpansionStatic.IsAnyOf(item, GetExpansionSettings().GetPersonalStorage().ExcludedClassNames))
 			return false;
-	#endif
 
 		if (item.IsRuined())
 			return false;

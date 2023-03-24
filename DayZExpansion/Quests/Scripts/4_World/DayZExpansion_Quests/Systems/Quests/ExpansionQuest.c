@@ -334,7 +334,7 @@ class ExpansionQuest
 
 		SetQuestState(ExpansionQuestState.STARTED);
 
-		if (!m_Config.IsAchivement())
+		if (!m_Config.IsAchievement())
 			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestAcceptedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestAcceptedText, m_Config.GetTitle()), ExpansionIcons.GetPath("Questionmark 2"), COLOR_EXPANSION_NOTIFICATION_INFO);
 
 		UpdateQuest(true);
@@ -465,7 +465,7 @@ class ExpansionQuest
 			return;
 		}
 
-		if (!m_Config.IsAchivement())
+		if (!m_Config.IsAchievement())
 			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestCompletedTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestCompletedText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO);
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -485,7 +485,7 @@ class ExpansionQuest
 		}
 		else
 		{
-			if (m_Config.GetQuestTurnInIDs().Count() > 0 && m_Config.GetQuestTurnInIDs()[0] == -1 && !m_Config.IsAchivement())
+			if (m_Config.GetQuestTurnInIDs().Count() > 0 && m_Config.GetQuestTurnInIDs()[0] == -1 && !m_Config.IsAchievement())
 				ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenu(m_Player.GetIdentity(), m_Config.GetID());
 		}
 
@@ -563,13 +563,13 @@ class ExpansionQuest
 		#endif
 				SpawnQuestRewards(playerUID, reward);
 
-			if (!m_Config.IsAchivement())
+			if (!m_Config.IsAchievement())
 			{
 				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestTurnInTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestTurnInText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
 			}
 			else
 			{
-				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().AchivementCompletedTitle, m_Config.GetTitle()), new StringLocaliser(GetExpansionSettings().GetQuest().AchivementCompletedText, m_Config.GetObjectiveText()), ExpansionIcons.GetPath("Star"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
+				SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().AchievementCompletedTitle, m_Config.GetTitle()), new StringLocaliser(GetExpansionSettings().GetQuest().AchievementCompletedText, m_Config.GetObjectiveText()), ExpansionIcons.GetPath("Star"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
 			}
 
 			SetIsCompleted(true);
@@ -622,7 +622,7 @@ class ExpansionQuest
 		//! Call on quest cleanup event when quest is canceled.
 		OnQuestCleanup();
 
-		if (!m_Config.IsAchivement())
+		if (!m_Config.IsAchievement())
 			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
 
 		UpdateQuest(true);
@@ -779,7 +779,7 @@ class ExpansionQuest
 		{
 			m_QuestModule.RequestCompleteQuestServer(m_Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
 		}
-		else if (!m_Config.IsAutocomplete() && !m_Config.IsAchivement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
+		else if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
 		{
 			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenu(m_Player.GetIdentity());
 		}
@@ -819,11 +819,11 @@ class ExpansionQuest
 
 	void CreateQuestItems()
 	{
+		array<ref ExpansionQuestItemConfig> questItemConfigs = m_Config.GetQuestItems();
 		if (!m_Config.IsGroupQuest() && m_Player)
 		{
 			//! Add all quest items to the players inventory
 			EntityAI playerEntity = m_Player;
-			array<ref ExpansionQuestItemConfig> questItemConfigs = m_Config.GetQuestItems();
 			foreach (ExpansionQuestItemConfig questItem: questItemConfigs)
 			{
 				SpawnQuestItem(questItem, m_Player, m_Player, m_Player.GetPosition(), m_Player.GetOrientation());
@@ -895,11 +895,16 @@ class ExpansionQuest
 			if (currentActiveObjective.IsActive() && currentActiveObjective.IsInitialized())
 				currentActiveObjective.OnGroupMemberJoined(playerUID);
 
-			if (m_PlayerUIDs.Find(playerUID) == -1)
-				m_PlayerUIDs.Insert(playerUID);
+			AddGroupMember(playerUID);
 		}
 
 		QuestDebugPrint(ToString() + "::OnGroupMemberJoined - End");
+	}
+	
+	void AddGroupMember(string playerUID)
+	{
+		if (m_PlayerUIDs.Find(playerUID) == -1)
+			m_PlayerUIDs.Insert(playerUID);
 	}
 
 	//! Event called for group quests only when a group member leaves the quest group

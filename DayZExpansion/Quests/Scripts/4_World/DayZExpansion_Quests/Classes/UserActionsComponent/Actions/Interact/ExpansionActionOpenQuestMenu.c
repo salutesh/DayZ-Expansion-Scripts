@@ -22,7 +22,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 	override void CreateConditionComponents()
 	{
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTObject(UAMaxDistances.BASEBUILDING);
+		m_ConditionTarget = new CCTCursor;
 	}
 
 	override typename GetInputType()

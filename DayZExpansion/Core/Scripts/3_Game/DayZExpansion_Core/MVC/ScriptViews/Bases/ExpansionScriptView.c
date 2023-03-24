@@ -81,4 +81,16 @@ class ExpansionScriptViewBase: ScriptView
 		
 		return null;
 	}
+
+	void UpdatePlayerPreviewObject(Object previewObject)
+	{
+	}
+
+	void SpawnPlayerPreviewAttachments(EntityAI item)
+	{
+	}
+
+	void SetCurrentPreviewObject(Object obj)
+	{
+	}
 }

@@ -28,15 +28,30 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
+		Init();
+
+		ObjectivePrint(ToString() + "::OnEventStart - End");
+
+		return true;
+	}
+
+	void Init()
+	{
 		//! Set objective position.
-		m_Position = m_Config.GetPosition();
-		vector playerPos;
 		if (m_Position == vector.Zero)
 		{
-			if (m_Quest.GetPlayer())
+			m_Position = m_Config.GetPosition();
+			if (m_Position == vector.Zero)
 			{
-				playerPos = m_Quest.GetPlayer().GetPosition();
-				m_Position = GetRandomPointInCircle(playerPos, 50.0);
+				if (m_Quest.GetPlayer())
+				{
+					vector playerPos = m_Quest.GetPlayer().GetPosition();
+					m_Position = GetRandomPointInCircle(playerPos, m_Config.GetMaxDistance());
+					if (m_Position == vector.Zero)
+						m_Position = playerPos;
+					else
+						m_Position[1] = GetGame().SurfaceY(m_Position[0], m_Position[2]);
+				}
 			}
 		}
 		
@@ -50,10 +65,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			CreateObjectiveTrigger(m_Position);
 		
 		DestinationCheck();
-
-		ObjectivePrint(ToString() + "::OnEventStart - End");
-
-		return true;
 	}
 
 	void DestinationCheck()
@@ -109,7 +120,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		float maxDistance = m_Config.GetMaxDistance();
-		position[1] = GetGame().SurfaceY(position[0], position[2]);
+
 		if (position != vector.Zero && currentDistance <= maxDistance)
 		{
 			ObjectivePrint(ToString() + "::DestinationCheck - End and return TRUE");
@@ -135,29 +146,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		//! Only create the trigger when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED || m_Config.TriggerOnExit())
 		{
-			if (m_Position == vector.Zero)
-				m_Position = m_Config.GetPosition();
-			
-			if (m_Position == vector.Zero)
-			{
-				if (m_Quest.GetPlayer())
-				{
-					vector playerPos = m_Quest.GetPlayer().GetPosition();
-					m_Position = GetRandomPointInCircle(playerPos, m_Config.GetMaxDistance());
-					if (m_Position == vector.Zero)
-						m_Position = playerPos;
-				}
-			}
-	
-			if (!m_ObjectiveTrigger)
-				CreateObjectiveTrigger(m_Position);
-			
-			DestinationCheck();
-		
-		#ifdef EXPANSIONMODNAVIGATION
-			if (m_Config.GetMarkerName() != string.Empty)
-				CreateMarkers();
-		#endif
+			Init();
 		}
 		else if (m_Quest.GetQuestState() >= ExpansionQuestState.CAN_TURNIN)
 		{
@@ -203,7 +192,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 		return true;
 	}
-	
+
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{

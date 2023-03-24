@@ -321,6 +321,14 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 			ExpansionDeleteStorage();
 	}
 
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (IsEmpty())
+			ExpansionDeleteStorage();
+	}
+
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
 	{
 		return false;

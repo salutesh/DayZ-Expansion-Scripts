@@ -195,8 +195,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		m_Chest.SetQuestID(m_Quest.GetQuestConfig().GetID());
-		
-		SpawnLoot(m_Chest, m_Config.GetLoot(), m_Config.GetLootItemsAmount());	
+
+		m_Chest.ExpansionSetCanReceiveItems(true);
+		ExpansionLootSpawner.SpawnLoot(m_Chest, m_Config.GetLoot(), m_Config.GetLootItemsAmount(), m_LootItems, m_LootItemsMap);
+		m_Chest.ExpansionSetCanReceiveItems(false);	
 
 		ObjectivePrint(ToString() + "::CreateTreasure - End");
 	}
@@ -217,186 +219,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	Object Spawn(string name, int amount, PlayerBase player, EntityAI parent, vector position, vector orientation)
 	{
 		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(name, player, parent, amount);
+		if (!obj)
+			Error(ToString() + "::Spawn - couldn't spawn " + name + " on " + parent + " at " + position);
 		return obj;
-	}
-	
-	void Spawn(string className, EntityAI parent, int quantityPercent, TStringArray attachments = null)
-	{
-        ItemBase itembs;
-		ItemBase item;
-
-		if (Class.CastTo(itembs, parent))
-        {
-            item = ItemBase.Cast(itembs.ExpansionCreateInInventory(className));
-        }
-        else
-        {
-            item = ItemBase.Cast(parent.GetInventory().CreateInInventory(className));
-        } 
-		
-		if (item)
-		{			
-			Magazine_Base mag;
-
-			float quantity;
-			float quantity01;
-
-			if (quantityPercent > 0)
-			{
-				quantity01 = quantityPercent / 100;
-			}
-			else if (quantityPercent == -2)
-			{
-				CEItemProfile profile = item.GetEconomyProfile();
-
-				if (profile)
-				{
-					float quantityMin01 = profile.GetQuantityMin();
-					float quantityMax01 = profile.GetQuantityMax();
-
-					if (quantityMin01 >= 0 && quantityMax01 > 0)
-						quantity01 = Math.RandomFloatInclusive( quantityMin01, quantityMax01 );
-					else
-						quantityPercent = -1;
-				}
-			}
-
-			if (Class.CastTo(mag, item))
-			{
-				//! Ammo/magazines
-
-				if (quantityPercent == -1)
-					quantity = mag.GetAmmoMax();
-				else
-					quantity = Math.Round(mag.GetAmmoMax() * quantity01);
-
-				if (!quantity && item.IsAmmoPile())
-					quantity = 1;
-
-				mag.ServerSetAmmoCount( quantity );
-			}
-			else if (item.HasQuantity())
-			{
-				if (quantityPercent == -1)
-					quantity = item.GetQuantityInit();
-				else
-					quantity = Math.Round(item.GetQuantityMax() * quantity01);
-
-				item.SetQuantity(quantity);
-			}
-
-			if (attachments)
-			{
-				//! Yes this is needed, otherwise you get NULL pointers if there is more than one attachment :-(
-				TStringArray attachmentsTmp();
-				attachmentsTmp.Copy(attachments);
-
-				foreach (string attachment: attachmentsTmp)
-				{
-					Spawn(attachment, item, quantityPercent);
-				}
-			}
-			
-			int current;
-			if (m_LootItemsMap.Find(className, current))
-			{
-				int newAmount = current + quantity;
-				m_LootItemsMap.Set(className, newAmount);
-			}
-			else
-			{
-				m_LootItemsMap.Insert(className, quantity);
-			}
-			
-			m_LootItems.Insert(item);
-		}
-	}
-	
-	void SpawnLoot(EntityAI container, array <ref ExpansionLoot> Loot, int ItemCount)
-	{
-		array<float> chances = new array<float>;
-		array<int> max = new array<int>;
-
-		for (int i = 0; i < Loot.Count(); ++i)
-		{
-			chances.Insert(Loot[i].Chance);
-
-			max.Insert(Loot[i].Max);
-		}
-
-		if (ItemCount < 0)
-			ItemCount = Math.RandomInt(1, -ItemCount);
-
-		int LootItemsSpawned = 0;
-		while (LootItemsSpawned < ItemCount)
-		{
-			//! Chances are treated as weights here, otherwise it wouldn't make sense as we always want a fixed number of items
-			int index = ExpansionStatic.GetWeightedRandom(chances);
-
-			if (index > -1)
-			{
-				LootItemsSpawned++;
-				AddItem( container, Loot.Get( index ) );
-
-				if ( max[index] > 0 )
-					max[index] = max[index] - 1;
-
-				if ( max[index] == 0 )
-					chances[index] = 0;
-			} 
-			else
-			{
-				Print(ToString() + "::SpawnLoot couldn't select a loot item to spawn (all chances zero?) - items spawned : " + LootItemsSpawned);
-				break;
-			}
-		}
-	}
-	
-	void AddItem(EntityAI container, ExpansionLoot loot )
-	{
-		string className = loot.Name;
-		
-		TStringArray attachments = loot.Attachments;
-
-		if (loot.Variants && loot.Variants.Count() > 0)
-		{
-			array<float> chances = new array< float >;
-
-			int count = loot.Variants.Count();
-			float chance;
-			float chancesSum;
-
-			for ( int j = 0; j < count; ++j )
-			{
-				chance = loot.Variants[j].Chance;
-				chances.Insert( chance );
-				chancesSum += chance;
-			}
-
-			//! Determine chance for parent item
-			if ( chancesSum < 1.0 )
-			{
-				//! Chances are treated as actual chances here, i.e. total sum is 1.0
-				chance = 1.0 - chancesSum;
-			} else
-			{
-				//! Just give parent item a 1.0 chance
-				chance = 1.0;
-			}
-
-			chances.Insert( chance );
-
-			int index = ExpansionStatic.GetWeightedRandom( chances );
-
-			if ( index > -1 && index < count )
-			{
-				className = loot.Variants[index].Name;
-				if (loot.Variants[index].Attachments && loot.Variants[index].Attachments.Count() > 0)
-					attachments = loot.Variants[index].Attachments;
-			}
-		}
-
-		Spawn(className, container, loot.QuantityPercent, attachments); 
 	}
 
 	protected void CreateTrigger(vector pos)
@@ -463,10 +288,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint(ToString() + "::LootedItemFromChest - End");
 	}
 
-	void OnInventoryItemLocationChange(ItemBase item, string state)
+	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
 		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
-		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + state);
+		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + typename.EnumToString(ExpansionQuestItemState, state));
 		
 		if (m_LootItems.Find(item) == -1)
 			return;

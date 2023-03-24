@@ -10,55 +10,6 @@
  *
 */
 
-class ExpansionQuestConfigV5
-{
-	int ConfigVersion;
-	//! Main parameters
-	int ID = -1; //! Unique quest ID.
-	int Type = ExpansionQuestType.NORMAL; //! Quest type from ExpansionQuestType.
-	string Title;	//! Quest title.
-	ref array<string> Descriptions; //! 0 - Description on getting quest | 1 - Description while quest is active | 2 - Description when take in quest.
-	string ObjectiveText; //! Short objective desctiption.
-	int PreQuest = -1; //! Pre-Quest Quest ID.
-	int FollowUpQuest = -1; //! Follow-up Quest ID.
-
-	//! Additional quest logic controll parameters
-	bool IsAchivement = false;
-	bool Repeatable = false; //! Quest is a repeatable quest. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
-	bool IsDailyQuest = false; //! Quest is daylie quest and has a daylie reset. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
-	bool IsWeeklyQuest = false; //! Quest is a weekly quest and has a weekly cooldown.
-	bool CancelQuestOnPlayerDeath = false; //! Quest will be cancled if the quest player (or one of his group members when its a group quest) dies.
-	bool Autocomplete = false; //! Quest will be autocompleted when all quest ojectives are completed.
-	bool IsGroupQuest = false; //! Quest is a group quest.
-	bool IsBanditQuest = false; //! Quest for bandits only
-	bool IsHeroQuest = false; //! Quest for heros only
-
-	string ObjectSetFileName = string.Empty; //! File name of the .map file that will get loaded
-
-	ref array<ref ExpansionQuestObjectiveConfig> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
-	ref array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
-	ref array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
-
-	//! Added with version 2
-	bool NeedToSelectReward = false; //! If there is more then one item in the Rewards array and this config param is set to true the player needs to select a reward item on quest competion from the given items in the Rewards array.
-
-	bool RewardsForGroupOwnerOnly = true; //! If the quest is a group quest this option controlls if all group players get the reward or ownly the group owner.
-	int HumanityReward = 0; //! Reputation reward when completing the quest.
-
-	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
-	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
-
-	void ExpansionQuestConfigV5()
-	{
-		Descriptions = new array<string>;
-		Objectives = new array<ref ExpansionQuestObjectiveConfig>;
-		QuestItems = new array<ref ExpansionQuestItemConfig>;
-		Rewards = new array<ref ExpansionQuestRewardConfig>;
-		QuestGiverIDs = new array<int>;
-		QuestTurnInIDs = new array<int>;
-	}
-};
-
 class ExpansionQuestConfigBase
 {
 	int ConfigVersion;
@@ -71,7 +22,6 @@ class ExpansionQuestConfigBase
 	int FollowUpQuest = -1; //! Follow-up Quest ID.
 
 	//! Additional quest logic controll parameters
-	bool IsAchivement = false;
 	bool Repeatable = false; //! Quest is a repeatable quest. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
 	bool IsDailyQuest = false; //! Quest is daylie quest and has a daylie reset. Currently every player has a individual cooldown that resets at the exact same time when the timestamp is created. Might want to change that to a fixed reset time for every player.
 	bool IsWeeklyQuest = false; //! Quest is a weekly quest and has a weekly cooldown.
@@ -81,7 +31,6 @@ class ExpansionQuestConfigBase
 
 	string ObjectSetFileName = string.Empty; //! File name of the .map file that will get loaded
 
-	ref array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
 	ref array<ref ExpansionQuestItemConfig> QuestItems; //! Quest items that the player will recive when starting the quest.
 	ref array<ref ExpansionQuestRewardConfig> Rewards; //! Quest rewards that the player will revice when turning in the quest and all objectives are completed.
 
@@ -93,26 +42,59 @@ class ExpansionQuestConfigBase
 	ref array<int> QuestGiverIDs; //! NPC IDs of the NPCs that will head out the quest.
 	ref array<int> QuestTurnInIDs;	//! NPC IDs of the NPCs where players can turn in the quest when completed.
 
+	void ExpansionQuestConfigBase()
+	{
+		Descriptions = new array<string>;
+		QuestItems = new array<ref ExpansionQuestItemConfig>;
+		Rewards = new array<ref ExpansionQuestRewardConfig>;
+		QuestGiverIDs = new array<int>;
+		QuestTurnInIDs = new array<int>;
+	}
+};
+
+class ExpansionQuestConfigV5Base: ExpansionQuestConfigBase
+{
+	bool IsAchivement = false;
+}
+
+class ExpansionQuestConfigV5: ExpansionQuestConfigV5Base
+{
+	int PreQuest = -1; //! Pre-Quest Quest ID.
+
+	bool IsBanditQuest = false; //! Quest for bandits only
+	bool IsHeroQuest = false; //! Quest for heros only
+
+	ref array<ref ExpansionQuestObjectiveConfig> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
+
+	int HumanityReward = 0; //! Reputation reward when completing the quest.
+
+	void ExpansionQuestConfigV5()
+	{
+		Objectives = new array<ref ExpansionQuestObjectiveConfig>;
+	}
+};
+
+class ExpansionQuestConfigV15Base: ExpansionQuestConfigBase
+{
+	bool IsAchievement = false;
+
+	ref array<ref ExpansionQuestObjectiveConfigBase> Objectives; //! Quest objectives that the player need to complete to get the quest rewards.
+
 	int QuestColor = 0;  //! Main color that will be used in all the quest menus and interfaces for this quest.
 	int ReputationReward = 0; //! Reputation reward when completing the quest.
 	int ReputationRequirement = -1; //! Reputation needed to see and start the quest.
 	ref array<int> PreQuestIDs; //! Pre-Quest Quest IDs of the quest the player need to have completed to accept this quest.
 
-	void ExpansionQuestConfigBase()
+	void ExpansionQuestConfigV15Base()
 	{
-		Descriptions = new array<string>;
 		Objectives = new array<ref ExpansionQuestObjectiveConfigBase>;
-		QuestItems = new array<ref ExpansionQuestItemConfig>;
-		Rewards = new array<ref ExpansionQuestRewardConfig>;
-		QuestGiverIDs = new array<int>;
-		QuestTurnInIDs = new array<int>;
 		PreQuestIDs = new array<int>;
 	}
 };
 
-class ExpansionQuestConfig: ExpansionQuestConfigBase
+class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 {
-	static const int CONFIGVERSION = 14;
+	static const int CONFIGVERSION = 15;
 
 #ifdef EXPANSIONMODAI
 	string RequiredFaction = ""; //! Player need to be part of this faction to start this quest.
@@ -334,14 +316,14 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		return QuestTurnInIDs;
 	}
 
-	void SetIsAchivement(bool achivement)
+	void SetIsAchievement(bool achievement)
 	{
-		IsAchivement = achivement;
+		IsAchievement = achievement;
 	}
 
-	bool IsAchivement()
+	bool IsAchievement()
 	{
-		return IsAchivement;
+		return IsAchievement;
 	}
 
 	void SetIsRepeatable(bool repeatable)
@@ -361,10 +343,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 	bool IsGroupQuest()
 	{
-	#ifndef EXPANSIONMODGROUPS
-		return false;
-	#else
+	#ifdef EXPANSIONMODGROUPS
 		return IsGroupQuest;
+	#else
+		return false;
 	#endif
 	}
 
@@ -516,9 +498,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		Print("ExpansionQuestConfig::Load - Load existing configuration file:" + fileName);
 
 		ExpansionQuestConfig questConfig;
-		ExpansionQuestConfigBase questConfigBase;
+		ExpansionQuestConfigV15Base questConfigBase;
 
-		if (!ExpansionJsonFileParser<ExpansionQuestConfigBase>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
+		if (!ExpansionJsonFileParser<ExpansionQuestConfigV15Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigBase))
 			return NULL;
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
@@ -567,6 +549,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 				}
 			}
 
+			if (questConfigBase.ConfigVersion < 15)
+			{
+				ExpansionQuestConfigV5Base questConfigV5Base;
+				if (ExpansionJsonFileParser<ExpansionQuestConfigV5Base>.Load(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, questConfigV5Base))
+					questConfig.IsAchievement = questConfigV5Base.IsAchivement;
+			}
+
 			//! Update quest configuration objectives config version.
 			UpdateQuestObjectivesConfigs(questConfig);
 
@@ -592,15 +581,17 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 	{
 		if (questConfig.Objectives && questConfig.Objectives.Count() > 0)
 		{
-			if (questConfig.Objectives.Get(0).ConfigVersion < ExpansionQuestObjectiveConfig.CONFIGVERSION)
+			bool updated;
+			foreach (ExpansionQuestObjectiveConfigBase objectiveConfig: questConfig.Objectives)
 			{
-				foreach (ExpansionQuestObjectiveConfigBase objectiveConfig: questConfig.Objectives)
+				if (objectiveConfig.ConfigVersion < ExpansionQuestObjectiveConfig.CONFIGVERSION)
 				{
 					objectiveConfig.ConfigVersion = ExpansionQuestObjectiveConfig.CONFIGVERSION;
+					updated = true;
 				}
 			}
 
-			if (fileName != string.Empty)
+			if (updated && fileName != string.Empty)
 				questConfig.Save(fileName);
 		}
 	}
@@ -903,7 +894,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		ExpansionJsonFileParser<ExpansionQuestConfig>.Save(EXPANSION_QUESTS_QUESTS_FOLDER + fileName, this);
 	}
 
-	void CopyConfig(ExpansionQuestConfigBase questConfigBase)
+	void CopyConfig(ExpansionQuestConfigV15Base questConfigBase)
 	{
 		ConfigVersion = questConfigBase.ConfigVersion;
 		ID = questConfigBase.ID;
@@ -912,7 +903,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		Descriptions = questConfigBase.Descriptions;
 		ObjectiveText = questConfigBase.ObjectiveText;
 		FollowUpQuest = questConfigBase.FollowUpQuest;
-		IsAchivement = questConfigBase.IsAchivement;
+		IsAchievement = questConfigBase.IsAchievement;
 		Repeatable = questConfigBase.Repeatable;
 		IsDailyQuest = questConfigBase.IsDailyQuest;
 		IsWeeklyQuest = questConfigBase.IsWeeklyQuest;
@@ -951,7 +942,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 
 		ctx.Write(ObjectiveText);
 		ctx.Write(FollowUpQuest);
-		ctx.Write(IsAchivement);
+		ctx.Write(IsAchievement);
 		ctx.Write(Repeatable);
 		ctx.Write(IsDailyQuest);
 		ctx.Write(IsWeeklyQuest);
@@ -1239,9 +1230,9 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 			return false;
 		}
 
-		if (!ctx.Read(IsAchivement))
+		if (!ctx.Read(IsAchievement))
 		{
-			Error(ToString() + "::OnRecieve - IsAchivement");
+			Error(ToString() + "::OnRecieve - IsAchievement");
 			return false;
 		}
 
@@ -1623,7 +1614,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigBase
 		Print(ToString() + "::QuestDebug - IsWeeklyQuest: " + IsWeeklyQuest);
 		Print(ToString() + "::QuestDebug - CancelQuestOnPlayerDeath: " + CancelQuestOnPlayerDeath);
 		Print(ToString() + "::QuestDebug - Autocomplete: " + Autocomplete);
-		Print(ToString() + "::QuestDebug - IsAchivement: " + IsAchivement);
+		Print(ToString() + "::QuestDebug - IsAchievement: " + IsAchievement);
 		Print(ToString() + "::QuestDebug - ObjectSetFileName: " + ObjectSetFileName);
 		Print(ToString() + "::QuestDebug - NeedToSelectReward: " + NeedToSelectReward);
 		Print(ToString() + "::QuestDebug - RewardsForGroupOwnerOnly: " + RewardsForGroupOwnerOnly);

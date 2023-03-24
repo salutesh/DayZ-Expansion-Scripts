@@ -47,17 +47,22 @@ class ExpansionQuestContainerBase: Container_Base
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		return false;
+		return m_ExpansionCanReceiveItems;
 	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
 	{
-		return false;
+		return m_ExpansionCanReceiveItems;
 	}
 
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
 	{
 		return false;
+	}
+
+	void ExpansionSetCanReceiveItems(bool state)
+	{
+		m_ExpansionCanReceiveItems = state;
 	}
 
 	void ExpansionCheckStorage()
@@ -112,6 +117,17 @@ class ExpansionQuestContainerBase: Container_Base
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		Print(ToString() + "::EECargoOut - End");
 	#endif
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (m_Expansion_QuestID > -1)
+		{
+			CheckAssignedObjectives(item);
+			ExpansionCheckStorage();
+		}
 	}
 
 	protected void CheckAssignedObjectives(EntityAI item)

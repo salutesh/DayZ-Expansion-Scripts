@@ -96,11 +96,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		#endif
 		}
 
-		//! Use max range check if used in config
-		if (m_Config.GetMaxDistance() > 0)
-			maxRangeCheck = true;
-
-		if (killerPlayer && maxRangeCheck && !IsInMaxRange(killerPlayer.GetPosition()))
+		if (killerPlayer && !IsInMaxRange(killerPlayer.GetPosition()))
 		{
 			ObjectivePrint(ToString() + "::OnEntityKilled - Killer is out of legit kill range! Skip..");
 			return;
@@ -154,11 +150,18 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	protected bool IsInMaxRange(vector playerPos)
 	{
 		vector position = m_Config.GetPosition();
+		if (position == vector.Zero)
+			return true;
+
 		float maxDistance = m_Config.GetMaxDistance();
-		float currentDistanceSq = vector.DistanceSq(playerPos, position);
+		if (maxDistance <= 0)
+			return true;
+
 		position[1] = GetGame().SurfaceY(position[0], position[2]);
 
-		if (position != vector.Zero && currentDistanceSq <= maxDistance * maxDistance)
+		float currentDistanceSq = vector.DistanceSq(playerPos, position);
+
+		if (currentDistanceSq <= maxDistance * maxDistance)
 			return true;
 
 		return false;

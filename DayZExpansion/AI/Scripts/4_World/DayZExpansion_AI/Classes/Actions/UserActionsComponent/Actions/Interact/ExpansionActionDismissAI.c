@@ -21,6 +21,12 @@ class ExpansionActionDismissAI: ActionInteractBase
 		m_Text = "#STR_EXPANSION_AI_DISMISS";
 	}
 
+	override void CreateConditionComponents()  
+	{
+		m_ConditionItem = new CCINone;
+		m_ConditionTarget = new CCTCursor;
+	}
+
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
 		eAIBase tAI;

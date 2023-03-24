@@ -339,12 +339,12 @@ class ExpansionQuestPersistentData
 	
 				if (data.State == ExpansionQuestState.NONE || data.State == ExpansionQuestState.COMPLETED)
 				{
-					//! Never cleanup quest data if the quest is a achivement, auto-complete or group quest.
-					if (questConfig.IsAchivement() || questConfig.IsAutocomplete() || questConfig.IsGroupQuest())
+					//! Never cleanup quest data if the quest is a achievement, auto-complete or group quest.
+					if (questConfig.IsAchievement() || questConfig.IsAutocomplete() || questConfig.IsGroupQuest())
 						continue;
 	
 					//! Never cleanup quest data that match auto-start quest configuration
-					if (questConfig.GetPreQuestIDs().Count() == 0 && questConfig.GetQuestGiverIDs().Count() == 0 && !questConfig.IsAchivement() && !questConfig.IsGroupQuest())
+					if (questConfig.GetPreQuestIDs().Count() == 0 && questConfig.GetQuestGiverIDs().Count() == 0 && !questConfig.IsAchievement() && !questConfig.IsGroupQuest())
 						continue;
 	
 					//! Never cleanup daylie/weekly quest data.

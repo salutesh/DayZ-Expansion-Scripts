@@ -12,11 +12,6 @@
 
 class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 {
-	protected static float POSITION_PLAYER_PREVIEW_W_THRESHOLD_MIN = 1.5;
-	protected static float POSITION_PLAYER_PREVIEW_W_THRESHOLD_MAX = 4;
-	protected static float POSITION_PLAYER_PREVIEW_Y_OFFSET = -0.125;
-	protected static float POSITION_PLAYER_PREVIEW_ANIMATION_DURATION = 0.5;
-
 	protected ref ExpansionPersonalStorageMenuDetailsViewController m_PersonalStorageMenuDetailsController;
 	protected ref ExpansionPersonalStorageMenu m_PersonalStorageMenu;
 
@@ -49,12 +44,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 	protected PlayerPreviewWidget view_player_preview;
 
 	Object m_CurrentPreviewObject;
-	PlayerBase m_PlayerPreview;
-	protected int m_SelectedItemSlot;
-	protected float m_LastPositionPlayerPreviewW;
-	protected float m_LastPositionPlayerPreviewY;
-	protected int m_PlayerPosCurrentAnimID;
-	protected bool m_PlayerPosAnimRunning;
+	ref ExpansionPlayerPreview m_PlayerPreview;
 	protected vector m_CharacterOrientation;
 	protected int m_CharacterRotationX;
 	protected int m_CharacterRotationY;
@@ -72,7 +62,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 	void ~ExpansionPersonalStorageMenuDetailsView()
 	{
 		if (m_PlayerPreview)
-			GetGame().ObjectDelete(m_PlayerPreview);
+			m_PlayerPreview = null;
 	}
 
 	override string GetLayoutFile()
@@ -139,28 +129,6 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		}
 	}
 
-	void CreateAttachments(EntityAI src, EntityAI dst)
-	{
-		if (!src.GetInventory())
-			return;
-
-		for (int i = 0; i < src.GetInventory().AttachmentCount(); i++)
-		{
-			ItemBase srcAttachment = ItemBase.Cast(src.GetInventory().GetAttachmentFromIndex(i));
-			if (srcAttachment)
-			{
-				//! Create attachment
-				EntityAI dstAttachment;
-				if (dst.IsInherited(Weapon_Base))
-					dstAttachment = Weapon_Base.Cast(dst).ExpansionCreateInInventory(srcAttachment.GetType());
-				else
-					dstAttachment = dst.GetInventory().CreateAttachment(srcAttachment.GetType());
-				if (dstAttachment)
-					CreateAttachments(srcAttachment, dstAttachment);  //! Create attachments of attachment
-			}
-		}
-	}
-
 	void UpdateScale(int mouse_x, int mouse_y, bool is_dragging, int wheel)
 	{
 		float w, h, x, y;
@@ -181,126 +149,6 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		}
 	}
 
-	void UpdateScalePlayerPreview(int mouse_x, int mouse_y, bool is_dragging, int wheel)
-	{
-		float w, h, x, y;
-		view_player_preview.GetPos(x, y);
-		view_player_preview.GetSize(w,h);
-		w = w + (m_CharacterScaleDelta / 8);
-		h = h + (m_CharacterScaleDelta / 8);
-		if ( w > 0.5 && w < 6 )
-		{
-			view_player_preview.SetSize(w, h);
-
-			//! Align to center
-			int screen_w, screen_h;
-			GetScreenSize(screen_w, screen_h);
-			float new_x = x - (m_CharacterScaleDelta / 16);
-			float new_y = y - (m_CharacterScaleDelta / 16);
-			view_player_preview.SetPos(new_x, new_y);
-
-			UpdateLastPositionPlayerPreview(w);
-			if (!m_PlayerPosAnimRunning)
-				UpdatePositionPlayerPreview(m_LastPositionPlayerPreviewY);
-		}
-	}
-
-	float GetPositionPlayerPreviewTargetY()
-	{
-		//! Keep focus on item slot when zooming in
-		bool isVestSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Vest");
-		bool isBodySlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Body");
-		bool isBackSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Back");
-		bool isHipsSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Hips");
-		bool isLegsSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Legs");
-		bool isFeetSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Feet");
-		bool isHeadgearSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Headgear");
-		bool isMaskSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Mask");
-		bool isEyewearSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Eyewear");
-		bool isArmbandSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Armband");
-		bool isGlovesSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Gloves");
-		bool isTopSlot = isVestSlot || isBodySlot || isBackSlot || isArmbandSlot;
-		bool isHeadSlot = isHeadgearSlot || isMaskSlot || isEyewearSlot;
-
-		float v = POSITION_PLAYER_PREVIEW_Y_OFFSET;
-		if (isTopSlot)
-			v = -0.4375;
-		else if (isHeadSlot)
-			v = -0.75;
-		else if (isLegsSlot)
-			v = 0.275;
-		else if (isFeetSlot)
-			v = 0.625;
-
-		return v;
-	}
-
-	float GetPositionPlayerPreviewInterpolatedY(float w, float targetY)
-	{
-		//! Normalize to 0..1
-		float normalized = ExpansionMath.LinearConversion(POSITION_PLAYER_PREVIEW_W_THRESHOLD_MIN, POSITION_PLAYER_PREVIEW_W_THRESHOLD_MAX, w);
-
-		//! Smooth normalized value
-		float smooth = ExpansionMath.SmoothStep(normalized, 2);
-
-		//! Interpolate to targetY
-		float y = ExpansionMath.LinearConversion(0, 1, smooth, POSITION_PLAYER_PREVIEW_Y_OFFSET, targetY);
-
-		return y;
-	}
-
-	void UpdatePositionPlayerPreview(float y)
-	{
-		view_player_preview.SetModelPosition(Vector(0, y, 0));
-	}
-
-	void UpdateLastPositionPlayerPreview(float w)
-	{
-		m_LastPositionPlayerPreviewW = w;
-		if (!m_PlayerPosAnimRunning)
-			m_LastPositionPlayerPreviewY = GetPositionPlayerPreviewInterpolatedY(w, GetPositionPlayerPreviewTargetY());
-	}
-
-	int AnimatePositionPlayerPreview(int animID = 0, int frameNumber = 1)
-	{
-		if (!animID)
-		{
-			m_PlayerPosAnimRunning = true;
-			m_PlayerPosCurrentAnimID++;
-			animID = m_PlayerPosCurrentAnimID;
-		}
-		else if (m_PlayerPosCurrentAnimID != animID)
-			return 0;
-
-		float targetInterpolatedY = GetPositionPlayerPreviewInterpolatedY(m_LastPositionPlayerPreviewW, GetPositionPlayerPreviewTargetY());
-
-		int fps = 60;
-		float frames = fps * POSITION_PLAYER_PREVIEW_ANIMATION_DURATION;
-		float step = (targetInterpolatedY - m_LastPositionPlayerPreviewY) / frames * frameNumber;
-		float currentY = m_LastPositionPlayerPreviewY + step;
-
-		float smooth;
-
-		if (targetInterpolatedY != m_LastPositionPlayerPreviewY)  //! Prevent division by zero
-			smooth = ExpansionMath.SmoothStep(currentY, 2, m_LastPositionPlayerPreviewY, targetInterpolatedY);
-		else
-			smooth = currentY;
-
-		UpdatePositionPlayerPreview(smooth);
-
-		if (currentY != targetInterpolatedY && frameNumber < frames)
-		{
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(AnimatePositionPlayerPreview, Math.Round(1000 / fps), false, animID, frameNumber + 1);
-		}
-		else
-		{
-			m_PlayerPosAnimRunning = false;
-			m_LastPositionPlayerPreviewY = currentY;
-		}
-
-		return animID;
-	}
-
 	void UpdateRotation(int mouse_x, int mouse_y, bool is_dragging)
 	{
 		vector o = m_CharacterOrientation;
@@ -315,24 +163,9 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		}
 	}
 
-	void UpdateRotationPlayerPreview(int mouse_x, int mouse_y, bool is_dragging)
-	{
-		vector o = m_CharacterOrientation;
-		o[2] = o[2] + (m_CharacterRotationY - mouse_y);
-		o[1] = o[1] - (m_CharacterRotationX - mouse_x);
-
-		view_player_preview.SetModelOrientation(o);
-
-		if (!is_dragging)
-		{
-			m_CharacterOrientation = o;
-		}
-	}
-
 	void ResetPreview()
 	{
 		m_CurrentPreviewObject = NULL;
-		m_PlayerPreview = NULL;
 	}
 	
 	void UpdatePreview()
@@ -356,77 +189,35 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 			view_item_preview.Show(false);
 			view_player_preview.Show(true);
 
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
-			int i;
-
 			if (!m_PlayerPreview)
-			{
-				//! Oh fml... of all the things I tried to get the player preview face texture to render,
-				//! it turns out the preview entity needs to be close to the player's viewport. Go figure.
-				//! Just spawn it behind the player camera so it won't be seen under normal circumstances.
-				vector dir = GetGame().GetCurrentCameraDirection();
-				dir.Normalize();
-				vector pos = GetGame().GetCurrentCameraPosition() - dir * 0.5;
-				pos[1] = player.GetPosition()[1];
-				m_PlayerPreview = PlayerBase.Cast(GetGame().CreateObjectEx(player.GetType(), pos, ECE_LOCAL|ECE_NOLIFETIME));
-				m_PlayerPreview.SetOrientation(player.GetOrientation());
+				m_PlayerPreview = new ExpansionPlayerPreview(this, view_player_preview);
 
-				m_PersonalStorageMenuDetailsController.ViewPlayerPreview = m_PlayerPreview;
-				m_PersonalStorageMenuDetailsController.NotifyPropertyChanged("ViewPlayerPreview");
-			}
-			else
-			{
-				//! Remove existing attachments on player preview
-				array<EntityAI> previewAttachments = new array<EntityAI>;
-				for (i = 0; i < m_PlayerPreview.GetInventory().AttachmentCount(); i++)
-				{
-					EntityAI previewItem = m_PlayerPreview.GetInventory().GetAttachmentFromIndex(i);
-					//! Removing the attachment here would change attachment count, so add it to a temp array for later removal
-					if (previewItem)
-						previewAttachments.Insert(previewItem);
-				}
-
-				foreach (EntityAI previewAttachment: previewAttachments)
-				{
-					if (previewAttachment)
-						m_PlayerPreview.GetInventory().LocalDestroyEntity(previewAttachment);
-				}
-			}
-
-			//! Add selected item first to override any current player attachment on same slot
-			EntityAI item = m_PlayerPreview.GetInventory().CreateAttachment(previewClassName);
-			if (m_PersonalStorageMenu.GetSelectedContainerItems().Count() > 0)
-			{
-				int skinIndex;
-				ItemBase itemIB;
-				if (Class.CastTo(itemIB, m_PersonalStorageMenu.GetSelectedPreviewObject()))
-					skinIndex = itemIB.ExpansionGetCurrentSkinIndex();
-
-				SpawnAttachments(m_PersonalStorageMenu.GetSelectedContainerItems(), item);
-			}
-
-			m_CurrentPreviewObject = item;
-
-			//! Get slot (for dynamic preview focus)
-			m_SelectedItemSlot = -1;
-			if (item)
-			{
-				InventoryLocation loc = new InventoryLocation;
-				item.GetInventory().GetCurrentInventoryLocation(loc);
-				if (loc)
-					m_SelectedItemSlot = loc.GetSlot();
-			}
-
-			//! Add player's current attachments to player preview
-			CreateAttachments(player, m_PlayerPreview);
-
-			if (!m_LastPositionPlayerPreviewW)
-				UpdateLastPositionPlayerPreview(1.0);
-			else
-				m_LastPositionPlayerPreviewY = view_player_preview.GetModelPosition()[1];
-
-			AnimatePositionPlayerPreview();
+			m_PlayerPreview.Update(previewClassName);
 		}
+	}
+
+	override void UpdatePlayerPreviewObject(Object previewObject)
+	{
+		m_PersonalStorageMenuDetailsController.ViewPlayerPreview = previewObject;
+		m_PersonalStorageMenuDetailsController.NotifyPropertyChanged("ViewPlayerPreview");
+	}
+
+	override void SpawnPlayerPreviewAttachments(EntityAI item)
+	{
+		if (m_PersonalStorageMenu.GetSelectedContainerItems().Count() > 0)
+		{
+			int skinIndex;
+			ItemBase itemIB;
+			if (Class.CastTo(itemIB, m_PersonalStorageMenu.GetSelectedPreviewObject()))
+				skinIndex = itemIB.ExpansionGetCurrentSkinIndex();
+
+			SpawnAttachments(m_PersonalStorageMenu.GetSelectedContainerItems(), item);
+		}
+	}
+
+	override void SetCurrentPreviewObject(Object obj)
+	{
+		m_CurrentPreviewObject = obj;
 	}
 
 	ExpansionPersonalStorageMenuDetailsViewController GetDetailsViewController()
@@ -631,7 +422,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		}
 		else if (w == view_player_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateScalePlayerPreview");
+			m_PlayerPreview.OnMouseWheel(w, x, y, wheel);
 			m_CharacterScaleDelta = wheel ;
 		}
 
@@ -648,7 +439,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		}
 		else if (w == view_player_preview)
 		{
-			GetGame().GetDragQueue().Call(this, "UpdateRotationPlayerPreview");
+			m_PlayerPreview.OnMouseButtonDown(w, x, y, button);
 			g_Game.GetMousePos(m_CharacterRotationX, m_CharacterRotationY);
 			return true;
 		}
@@ -677,15 +468,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		{
 			m_CharacterOrientation = vector.Zero;
 
-			view_player_preview.SetModelPosition(Vector(0,0,0.5));
-			view_player_preview.SetModelOrientation(m_CharacterOrientation);
-
-			view_player_preview.GetPos(itemx, itemy);
-
-			view_player_preview.SetSize(1.5, 1.5);
-
-			// align to center
-			view_player_preview.SetPos(-0.225, -0.225);
+			m_PlayerPreview.OnItemSelected(w, x, y, row, column, oldRow, oldColumn);
 		}
 
 		return false;
@@ -696,7 +479,7 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 		super.OnHide();
 
 		if (m_PlayerPreview)
-			GetGame().ObjectDelete(m_PlayerPreview);
+			m_PlayerPreview = null;
 	}
 };
 

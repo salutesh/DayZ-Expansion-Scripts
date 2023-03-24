@@ -183,14 +183,14 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		foreach (ExpansionQuestConfig questConfig: m_ClientQuestConfigs)
 		{
 			//! We only want to display active quests here the player is currently progressing thrue 
-			//! or when it is ready for turn-in and when it is not a achivement quest.
+			//! or when it is ready for turn-in and when it is not a achievement quest.
 			int questID = questConfig.GetID();
 			ExpansionQuestState questState = ExpansionQuestState.NONE;
 			questState = m_ClientQuestData.GetQuestStateByQuestID(questID);
 			string stateText = typename.EnumToString(ExpansionQuestState, questState);
 			QuestDebug(ToString() + "::SetQuests - Quest state for quest " + questID + " is " + stateText);
 			
-			if (!questConfig.IsAchivement() && (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN))
+			if (!questConfig.IsAchievement() && (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN))
 			{
 				QuestDebug(ToString() + "::SetQuests - Show quest " + questID + ". Add to menu quest.");
 				m_Quests.Insert(questConfig);

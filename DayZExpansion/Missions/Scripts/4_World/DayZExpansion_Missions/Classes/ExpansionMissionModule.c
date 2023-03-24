@@ -17,6 +17,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 	static ref ScriptInvoker SI_Ended = new ScriptInvoker();
 
 	private autoptr array< ref ExpansionMissionEventBase > m_Missions;
+	private autoptr ref array< float > m_AvailableMissions;
 	private autoptr map< typename, ref array< ExpansionMissionEventBase > > m_MissionsTyped;
 
 	private typename m_MissionConstructor;
@@ -84,6 +85,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 		SI_OnMissionEnd.Insert( RemoveMission );
 
 		m_Missions = new array< ref ExpansionMissionEventBase >;
+
+		m_AvailableMissions = new ref array< float >;
 
 		m_MissionTypesArray = new array< typename >;
 
@@ -234,6 +237,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 			{
 				missionEvent.LoadDefault( j );
 				m_Missions.Insert( missionEvent );
+				m_AvailableMissions.Insert( missionEvent.Weight );
 
 				ExpansionMissionMeta missionMeta = new ExpansionMissionMeta;
 
@@ -296,6 +300,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 			m_MissionSettings.Missions.Insert( missionMeta );
 
+			m_AvailableMissions.Insert( missionEvent.Weight );
 			m_Missions.Insert( missionEvent );
 		}
 	}
@@ -397,6 +402,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 #endif
 	
 		m_RunningMissions.RemoveItem( mission );
+		
+		m_AvailableMissions[m_Missions.Find(mission)] = mission.Weight;
 
 		SI_Ended.Invoke( mission );
 
@@ -409,23 +416,17 @@ class ExpansionMissionModule: CF_ModuleWorld
 	protected bool FindNewMission()
 	{
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-
-		array< float > weights = new array< float >;
-
-		for ( int i = 0; i < m_Missions.Count(); i++ )
-		{
-			weights.Insert( m_Missions[i].Weight );
-		}
 		
-		int index = ExpansionStatic.GetWeightedRandom( weights );
+		int index = ExpansionStatic.GetWeightedRandom( m_AvailableMissions );
 
 		EXTrace.Print(EXTrace.MISSIONS, this, "Selected mission index " + index);
 
 		if ( index > -1 )
 		{
-			EXTrace.Print(EXTrace.MISSIONS, this, "Selected mission " + m_Missions[ index ].MissionName + " - weight: " + weights[index] );
+			EXTrace.Print(EXTrace.MISSIONS, this, "Selected mission " + m_Missions[ index ].MissionName + " - weight: " + m_AvailableMissions[index] );
 			
 			StartMissionInternal( m_Missions[ index ] );
+			m_AvailableMissions[index] = 0;
 			return true;
 		}
 

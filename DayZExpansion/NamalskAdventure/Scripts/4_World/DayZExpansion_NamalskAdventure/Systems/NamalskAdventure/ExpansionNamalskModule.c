@@ -131,9 +131,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			A3_AI();
 		#endif
 
-		#ifdef EXPANSIONMODMARKET
+		/*#ifdef EXPANSIONMODMARKET
 			CreateMerchant();
-		#endif
+		#endif*/
 		}
 
 		ModuleDebugPrint("::OnMissionLoaded - End");

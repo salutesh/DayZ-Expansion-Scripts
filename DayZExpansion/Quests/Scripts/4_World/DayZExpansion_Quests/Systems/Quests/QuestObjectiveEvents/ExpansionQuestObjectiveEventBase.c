@@ -138,53 +138,50 @@ class ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Start");
 
-		array<string> allocationClassNames = m_ObjectiveConfig.GetAllocationClasseNames();
-		if (!allocationClassNames || allocationClassNames.Count() == 0)
-		{
-			ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - No classes to allocate! Skip..");
+		set<typename> allocationTypeNames = m_ObjectiveConfig.GetAllocationTypeNames();
+		if (!allocationTypeNames)
 			return;
-		}
 
-		foreach (string className: allocationClassNames)
+		foreach (typename typeName: allocationTypeNames)
 		{
-			switch (className)
+			switch (typeName)
 			{
-				case "ActionBase":
+				case ActionBase:
 				{
 					ActionBase.AssignQuestObjective(this);
 					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to ActionBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "ZombieBase":
+				case ZombieBase:
 				{
 					ZombieBase.AssignQuestObjective(this);
 					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to ZombieBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "AnimalBase":
+				case AnimalBase:
 				{
 					AnimalBase.AssignQuestObjective(this);
 					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to AnimalBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "PlayerBase":
+				case PlayerBase:
 				{
 					PlayerBase.AssignQuestObjective(this);
 					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to PlayerBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "ItemBase":
+				case ItemBase:
 				{
 					ItemBase.AssignQuestObjective(this);
 					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to ItemBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "RecipeBase":
+				case RecipeBase:
 				{
 					RecipeBase.AssignQuestObjective(this);
 					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to RecipeBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
@@ -202,45 +199,45 @@ class ExpansionQuestObjectiveEventBase
 	{
 		ObjectivePrint(ToString() + "::DeassignObjectiveOnClasses - Start");
 
-		array<string> allocationClassNames = m_ObjectiveConfig.GetAllocationClasseNames();
-		if (!allocationClassNames || allocationClassNames.Count() == 0)
+		set<typename> allocationTypeNames = m_ObjectiveConfig.GetAllocationTypeNames();
+		if (!allocationTypeNames)
 			return;
 
-		foreach (string className: allocationClassNames)
+		foreach (typename typeName: allocationTypeNames)
 		{
-			switch (className)
+			switch (typeName)
 			{
-				case "ActionBase":
+				case ActionBase:
 				{
 					ActionBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "ZombieBase":
+				case ZombieBase:
 				{
 					ZombieBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "AnimalBase":
+				case AnimalBase:
 				{
 					AnimalBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "PlayerBase":
+				case PlayerBase:
 				{
 					PlayerBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "ItemBase":
+				case ItemBase:
 				{
 					ItemBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "RecipeBase":
+				case RecipeBase:
 				{
 					RecipeBase.DeassignQuestObjective(this);
 				}

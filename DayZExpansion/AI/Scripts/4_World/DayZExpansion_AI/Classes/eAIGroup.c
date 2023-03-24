@@ -398,7 +398,8 @@ class eAIGroup
 			if (index != -1)
 			{
 				vector position = m_Form.GetPosition(index);
-				bool isMoving = GetLeader().Expansion_GetMovementSpeed() > 0;
+				auto leader = GetLeader();
+				bool isMoving = leader && leader.Expansion_GetMovementSpeed() > 0;
 				if (isMoving || isInitialUpdate)
 				{
 					for (int i = 0; i < 3; i++)

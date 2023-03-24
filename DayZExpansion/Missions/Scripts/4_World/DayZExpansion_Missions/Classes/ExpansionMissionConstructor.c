@@ -26,13 +26,11 @@ class ExpansionMissionConstructor
 		//! DayZ rewritten Contaminated Areas
 		missions.Insert( ExpansionMissionEventContaminatedArea );
 		
-		#ifdef BUILD_EXPERIMENTAL
-		//! Zombie Horde
-		//missions.Insert( ExpansionMissionEventHorde );
 		#ifdef EXPANSION_MISSION_AI_ENABLE
+		//! Zombie Horde
+		missions.Insert( ExpansionMissionEventHorde );
 		//! AI General missions (Patrol, Faction War, Protecting Loot)
 		missions.Insert( ExpansionMissionEventAI );
-		#endif
 		#endif
 	}
 };

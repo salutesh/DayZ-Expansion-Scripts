@@ -532,37 +532,7 @@ class ExpansionDefaultObjectiveData
 			aiPatrol.AddWaypoint(Vector(6883.98, 403.192, 11380.8));
 		}
 
-		aiPatrol.AddClassName("eAI_SurvivorM_Mirek");
-		aiPatrol.AddClassName("eAI_SurvivorM_Denis");
-		aiPatrol.AddClassName("eAI_SurvivorM_Boris");
-		aiPatrol.AddClassName("eAI_SurvivorM_Cyril");
-		aiPatrol.AddClassName("eAI_SurvivorM_Elias");
-		aiPatrol.AddClassName("eAI_SurvivorM_Francis");
-		aiPatrol.AddClassName("eAI_SurvivorM_Guo");
-		aiPatrol.AddClassName("eAI_SurvivorM_Hassan");
-		aiPatrol.AddClassName("eAI_SurvivorM_Indar");
-		aiPatrol.AddClassName("eAI_SurvivorM_Jose");
-		aiPatrol.AddClassName("eAI_SurvivorM_Kaito");
-		aiPatrol.AddClassName("eAI_SurvivorM_Lewis");
-		aiPatrol.AddClassName("eAI_SurvivorM_Manua");
-		aiPatrol.AddClassName("eAI_SurvivorM_Niki");
-		aiPatrol.AddClassName("eAI_SurvivorM_Oliver");
-		aiPatrol.AddClassName("eAI_SurvivorM_Peter");
-		aiPatrol.AddClassName("eAI_SurvivorM_Quinn");
-		aiPatrol.AddClassName("eAI_SurvivorM_Rolf");
-		aiPatrol.AddClassName("eAI_SurvivorM_Seth");
-		aiPatrol.AddClassName("eAI_SurvivorM_Taiki");
-		aiPatrol.AddClassName("eAI_SurvivorF_Linda");
-		aiPatrol.AddClassName("eAI_SurvivorF_Maria");
-		aiPatrol.AddClassName("eAI_SurvivorF_Frida");
-		aiPatrol.AddClassName("eAI_SurvivorF_Gabi");
-		aiPatrol.AddClassName("eAI_SurvivorF_Helga");
-		aiPatrol.AddClassName("eAI_SurvivorF_Irena");
-		aiPatrol.AddClassName("eAI_SurvivorF_Judy");
-		aiPatrol.AddClassName("eAI_SurvivorF_Keiko");
-		aiPatrol.AddClassName("eAI_SurvivorF_Eva");
-		aiPatrol.AddClassName("eAI_SurvivorF_Naomi");
-		aiPatrol.AddClassName("eAI_SurvivorF_Baty");
+		aiPatrol.AddClassName("eAIBase");
 
 		objective.SetAIPatrol(aiPatrol);
 
@@ -611,37 +581,7 @@ class ExpansionDefaultObjectiveData
 			aiCamp.AddPosition(Vector(4523.01, 290.427, 6448.3));
 		}
 
-		aiCamp.AddClassName("eAI_SurvivorM_Mirek");
-		aiCamp.AddClassName("eAI_SurvivorM_Denis");
-		aiCamp.AddClassName("eAI_SurvivorM_Boris");
-		aiCamp.AddClassName("eAI_SurvivorM_Cyril");
-		aiCamp.AddClassName("eAI_SurvivorM_Elias");
-		aiCamp.AddClassName("eAI_SurvivorM_Francis");
-		aiCamp.AddClassName("eAI_SurvivorM_Guo");
-		aiCamp.AddClassName("eAI_SurvivorM_Hassan");
-		aiCamp.AddClassName("eAI_SurvivorM_Indar");
-		aiCamp.AddClassName("eAI_SurvivorM_Jose");
-		aiCamp.AddClassName("eAI_SurvivorM_Kaito");
-		aiCamp.AddClassName("eAI_SurvivorM_Lewis");
-		aiCamp.AddClassName("eAI_SurvivorM_Manua");
-		aiCamp.AddClassName("eAI_SurvivorM_Niki");
-		aiCamp.AddClassName("eAI_SurvivorM_Oliver");
-		aiCamp.AddClassName("eAI_SurvivorM_Peter");
-		aiCamp.AddClassName("eAI_SurvivorM_Quinn");
-		aiCamp.AddClassName("eAI_SurvivorM_Rolf");
-		aiCamp.AddClassName("eAI_SurvivorM_Seth");
-		aiCamp.AddClassName("eAI_SurvivorM_Taiki");
-		aiCamp.AddClassName("eAI_SurvivorF_Linda");
-		aiCamp.AddClassName("eAI_SurvivorF_Maria");
-		aiCamp.AddClassName("eAI_SurvivorF_Frida");
-		aiCamp.AddClassName("eAI_SurvivorF_Gabi");
-		aiCamp.AddClassName("eAI_SurvivorF_Helga");
-		aiCamp.AddClassName("eAI_SurvivorF_Irena");
-		aiCamp.AddClassName("eAI_SurvivorF_Judy");
-		aiCamp.AddClassName("eAI_SurvivorF_Keiko");
-		aiCamp.AddClassName("eAI_SurvivorF_Eva");
-		aiCamp.AddClassName("eAI_SurvivorF_Naomi");
-		aiCamp.AddClassName("eAI_SurvivorF_Baty");
+		aiCamp.AddClassName("eAIBase");
 
 		objective.SetAICamp(aiCamp);
 

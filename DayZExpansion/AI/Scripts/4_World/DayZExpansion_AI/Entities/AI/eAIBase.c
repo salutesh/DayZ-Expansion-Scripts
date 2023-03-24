@@ -22,6 +22,7 @@ class eAIBase: PlayerBase
 	private static autoptr array<eAIBase> s_AllAI = new array<eAIBase>();
 
 	protected autoptr eAIFSM m_FSM;
+	bool m_eAI_IsFightingFSM;
 
 	// Targeting data
 	private autoptr array<ref eAITarget> m_eAI_Targets;
@@ -2444,7 +2445,7 @@ class eAIBase: PlayerBase
 				{
 					if (eAI_GetTargetThreat(player.GetTargetInformation()) < 0.2)
 					{
-						sideStep = state.m_ThreatLevelActive >= 0.4;
+						sideStep = m_eAI_IsFightingFSM;  //! Sidestep if we are in fighting FSM
 					}
 					else
 					{
@@ -2538,6 +2539,14 @@ class eAIBase: PlayerBase
 			return false;
 
 		return state.m_LOS;
+	}
+
+	void eAI_SetIsFightingFSM(bool state)
+	{
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.AI, this, "SetIsFightingFSM " + state);
+	#endif
+		m_eAI_IsFightingFSM = state;
 	}
 
 	override void OnScheduledTick(float deltaTime)

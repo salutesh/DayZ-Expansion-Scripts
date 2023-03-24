@@ -386,15 +386,16 @@ class ExpansionStatic
 		return false;
 	}
 
-	static bool IsAnyOf(Object obj, TStringArray cfg_parent_names, bool check_script_class_name = false)
+	static bool IsAnyOf(Object obj, TStringArray cfg_parent_names, bool check_script_inheritance = false)
 	{
-		string script_class_name;
-		if (check_script_class_name)
-			script_class_name = obj.ClassName();
 		foreach (string cfg_parent_name: cfg_parent_names)
 		{
-			if (check_script_class_name && cfg_parent_name == script_class_name)
-				return true;
+			if (check_script_inheritance)
+			{
+				typename cfg_parent_type = cfg_parent_name.ToType();
+				if (cfg_parent_type && obj.IsInherited(cfg_parent_type))
+					return true;
+			}
 			if (GetGame().ObjectIsKindOf(obj, cfg_parent_name))
 				return true;
 		}
@@ -420,6 +421,20 @@ class ExpansionStatic
 			if (instance.IsInherited(parent_type))
 				return true;
 		}
+		return false;
+	}
+
+	static bool IsItemBase(string className)
+	{
+		if (g_Game.IsKindOf(className, "Inventory_Base"))
+			return true;
+
+		if (g_Game.ConfigIsExisting("CfgMagazines " + className))
+			return true;
+
+		if (g_Game.ConfigIsExisting("CfgWeapons " + className))
+			return true;
+
 		return false;
 	}
 
