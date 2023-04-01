@@ -12,7 +12,7 @@
 
 class ExpansionAICampObjectiveSphereTrigger: Trigger
 {
-	void ExpansionObjectiveTriggerBase()
+	void ExpansionAICampObjectiveSphereTrigger()
 	{
 		SetEventMask(EntityEvent.ENTER);
 	}
@@ -30,8 +30,9 @@ class ExpansionAICampObjectiveSphereTrigger: Trigger
 	//! Event called when an entity enters the trigger area.
 	override void EOnEnter(IEntity other, int extra)
 	{
-		QuestPrint(ToString() + "::EOnEnter - Start");
-		QuestPrint(ToString() + "::EOnEnter - Entity: " + other.Type());
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Entity: " + other.Type());
+	#endif
 
 		if (GetGame().IsClient())
 			return;
@@ -40,14 +41,14 @@ class ExpansionAICampObjectiveSphereTrigger: Trigger
 		if (!Class.CastTo(infected, other))
 			return;
 
-		QuestPrint(ToString() + "::EOnEnter - Delete infected: " + infected.GetType());
+		QuestPrint("Delete infected: " + infected.GetType());
 		GetGame().ObjectDelete(infected);
 	}
 	
 	protected void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 };

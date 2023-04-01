@@ -127,7 +127,7 @@ FrameWidgetClass ExpansionMarketMenuItemManager {
            priority 1
            scriptclass ""
            style Normal
-           text "#STR_EXPANSION_MARKET_PRESETS_CLOSE_BUTTON_LABEL"
+           text "#STR_MOD_EXPANSION_CLOSE"
            font "gui/fonts/etelkatextpro28"
            "text offset" 10 0
            "exact text" 0

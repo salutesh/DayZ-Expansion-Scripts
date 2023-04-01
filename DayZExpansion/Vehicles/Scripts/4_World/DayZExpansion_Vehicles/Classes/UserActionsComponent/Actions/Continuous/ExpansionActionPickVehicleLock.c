@@ -71,4 +71,13 @@ class ExpansionActionPickVehicleLock: ExpansionActionPickVehicleLockBase
 			super.OnFinishProgressServer( action_data );
 		}
 	}
+
+	override bool Expansion_CheckSuccess(ActionData action_data)
+	{
+		CarScript carScript;
+		if (Class.CastTo(carScript, action_data.m_Target.GetParentOrObject()))
+			return !carScript.IsLocked();
+
+		return false;
+	}
 }

@@ -24,12 +24,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-
-		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
-		if (!target)
-			return false;
-
-		m_Amount = target.GetAmount();
 		
 		return true;
 	}
@@ -42,19 +36,14 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
-		if (!target)
-			return false;
-
-		m_Amount = target.GetAmount();
 		m_Quest.QuestCompletionCheck();
 
 		return true;
 	}
 
-	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
-		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
@@ -98,14 +87,14 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		if (killerPlayer && !IsInMaxRange(killerPlayer.GetPosition()))
 		{
-			ObjectivePrint(ToString() + "::OnEntityKilled - Killer is out of legit kill range! Skip..");
+			ObjectivePrint("Killer is out of legit kill range! Skip..");
 			return;
 		}
 
 		//! If the target need to be killed with a special weapon check incoming killer class type
 		if (target.NeedSpecialWeapon() && !ExpansionStatic.IsAnyOf(killer, target.GetAllowedWeapons(), true))
 		{
-			ObjectivePrint(ToString() + "::OnEntityKilled - Entity got not killed with any allowed weapon! Skip..");
+			ObjectivePrint("Entity got not killed with any allowed weapon! Skip..");
 			return;
 		}
 
@@ -119,18 +108,17 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (m_UpdateCount != m_Count)
 		{
 			m_UpdateCount = m_Count;
-			m_Quest.UpdateQuest(false);
-			m_Quest.QuestCompletionCheck();
+			m_Quest.QuestCompletionCheck(true);
 		}
 		
-		ObjectivePrint(ToString() + "::OnEntityKilled - End");
+		
 	}
 
 	override bool CanComplete()
 	{
-		ObjectivePrint(ToString() + "::CanComplete - Start");
-		ObjectivePrint(ToString() + "::CanComplete - m_Count: " + m_Count);
-		ObjectivePrint(ToString() + "::CanComplete - m_Amount: " + m_Amount);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("m_Count: " + m_Count);
+		ObjectivePrint("m_Amount: " + m_Amount);
 
 		if (m_Amount == 0)
 			return false;
@@ -138,11 +126,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		bool conditionsResult = (m_Count == m_Amount);
 		if (!conditionsResult)
 		{
-			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			ObjectivePrint("End and return: FALSE");
 			return false;
 		}
 
-		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+		ObjectivePrint("End and return: TRUE");
 
 		return super.CanComplete();
 	}
@@ -169,17 +157,22 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 	void SetCount(int count)
 	{
-		ObjectivePrint(ToString() + "::SetCount - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		m_Count = count;
 		
-		ObjectivePrint(ToString() + "::SetCount - Count: " + m_Count);		
-		ObjectivePrint(ToString() + "::SetCount - End");
+		ObjectivePrint("Count: " + m_Count);		
+		
 	}
 
 	int GetCount()
 	{
 		return m_Count;
+	}
+
+	void SetAmount(int amount)
+	{
+		m_Amount = amount;
 	}
 
 	int GetAmount()

@@ -10,12 +10,6 @@
  *
 */
 
-class ExpansionQuestAction
-{
-	string ActionName;
-	string MethodName;
-};
-
 class ExpansionQuestSettingsBase: ExpansionSettingBase
 {
 	bool EnableQuests;
@@ -68,15 +62,13 @@ class ExpansionQuestSettingsV5: ExpansionQuestSettingsV5Base
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
 
 	string AchievementCompletedTitle;
 	string AchievementCompletedText;
-
-	ref array<ref ExpansionQuestAction> QuestActions = new array<ref ExpansionQuestAction>;
 
 	string WeeklyResetDay;
 	int WeeklyResetMinute;
@@ -201,8 +193,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		AchievementCompletedTitle = s.AchievementCompletedTitle;
 		AchievementCompletedText = s.AchievementCompletedText;
 
-		QuestActions = s.QuestActions;
-
 		WeeklyResetDay = s.WeeklyResetDay;
 		WeeklyResetMinute = s.WeeklyResetMinute;
 		WeeklyResetHour = s.WeeklyResetHour;
@@ -226,9 +216,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override bool OnLoad()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-	#endif
+		auto trace = EXTrace.Start(ExpansionTracing.SETTINGS, this);
 
 		m_IsLoaded = true;
 
@@ -245,10 +233,10 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
-				Print(ToString() + "::Load - Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
+				EXTrace.Print(EXTrace.SETTINGS, this, "Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (!ExpansionJsonFileParser<ExpansionQuestSettings>.Load(EXPANSION_QUEST_SETTINGS, this))
+					return false;
 
 			#ifdef EXPANSIONMODGROUPS
 				if (settingsBase.m_Version < 4)
@@ -256,11 +244,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					GroupQuestMode = settingsDefault.GroupQuestMode;
 				}
 			#endif
-
-				if (settingsBase.m_Version < 5)
-				{
-					QuestActions = settingsDefault.QuestActions;
-				}
 
 				if (settingsBase.m_Version < 6)
 				{
@@ -296,7 +279,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		}
 		else
 		{
-			Print(ToString() + "::Load - No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
+			EXTrace.Print(EXTrace.SETTINGS, this, "No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -382,33 +365,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;
 	#endif
-
-		ExpansionQuestAction questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ActionBandageSelf";
-		questAction.MethodName = "OnActionBandageSelf";
-		QuestActions.Insert(questAction);
-
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ActionBandageTarget";
-		questAction.MethodName = "OnActionBandageTarget";
-		QuestActions.Insert(questAction);
-
-	#ifdef EXPANSIONMODVEHICLE
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ExpansionActionPickVehicleLock";
-		questAction.MethodName = "OnExpansionActionPickVehicleLock";
-		QuestActions.Insert(questAction);
-
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ExpansionVehicleActionPickLock";
-		questAction.MethodName = "OnExpansionVehicleActionPickLock";
-		QuestActions.Insert(questAction);
-	#endif
-
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ActionPlantSeed";
-		questAction.MethodName = "OnActionPlantSeed";
-		QuestActions.Insert(questAction);
 	}
 
 	override string SettingName()

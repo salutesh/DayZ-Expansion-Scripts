@@ -90,6 +90,15 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 			{
 				AddAllocationTypeName(RecipeBase);
 				AddAllocationTypeName(ItemBase);
+
+				ExpansionQuestObjectiveCraftingConfig craftingConfig;
+				if (Class.CastTo(craftingConfig, this))
+				{
+					foreach (string itemName: craftingConfig.ItemNames)
+					{
+						PlayerBase.Expansion_RegisterInventoryItemType(itemName);
+					}
+				}
 			}
 			break;
 			case ExpansionQuestObjectiveType.TARGET:
@@ -114,6 +123,16 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				AddAllocationTypeName(ItemBase);
+
+				ExpansionQuestObjectiveDeliveryConfigBase deliveryConfig;
+				if (Class.CastTo(deliveryConfig, this))
+				{
+					array<ref ExpansionQuestObjectiveDelivery> collections = deliveryConfig.GetCollections();
+					foreach (auto collection: collections)
+					{
+						PlayerBase.Expansion_RegisterInventoryItemType(collection.GetClassName());
+					}
+				}
 			}
 			break;
 		#ifdef EXPANSIONMODAI
@@ -142,19 +161,19 @@ class ExpansionQuestObjectiveConfig: ExpansionQuestObjectiveConfigBase
 		typename typeName = className.ToType();
 		EXTrace.Print(EXTrace.QUESTS, this, "::AddAllocationTypeName - className: " + className + " typeName: " + typeName);
 
-		if (typeName.IsInherited(ZombieBase))
+		if (ExpansionStatic.Is(className, "ZombieBase"))
 		{
 			AddAllocationTypeName(ZombieBase);
 		}
-		else if (typeName.IsInherited(AnimalBase))
+		else if (ExpansionStatic.Is(className, "AnimalBase"))
 		{
 			AddAllocationTypeName(AnimalBase);
 		}
-		else if (typeName.IsInherited(PlayerBase))
+		else if (ExpansionStatic.IsPlayer(className))
 		{
 			AddAllocationTypeName(PlayerBase);
 		}
-		else if (typeName.IsInherited(ItemBase))
+		else if (ExpansionStatic.IsInventoryItem(className))
 		{
 			AddAllocationTypeName(ItemBase);
 		}

@@ -156,6 +156,10 @@ class ExpansionQuestObjectiveData
 
 	void SetDeliveries(array<ref ExpansionQuestDeliveryObjectiveData> deliveryData)
 	{
+	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	#endif
+
 		if (!DeliveryData)
 			DeliveryData = new array<ref ExpansionQuestDeliveryObjectiveData>;
 		else
@@ -167,7 +171,7 @@ class ExpansionQuestObjectiveData
 		}
 
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		Print(ToString() + "::SetDeliveries - Set delivery data: " + DeliveryData.ToString() + " | Count: " + DeliveryData.Count());
+		EXTrace.Print(EXTrace.QUESTS, this, "Set delivery data: " + DeliveryData.ToString() + " | Count: " + DeliveryData.Count());
 	#endif
 	}
 

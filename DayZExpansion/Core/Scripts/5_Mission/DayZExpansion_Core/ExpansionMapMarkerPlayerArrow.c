@@ -84,4 +84,4 @@ class ExpansionMapMarkerPlayerArrow : ExpansionMapWidgetBase
 	{
 		return false;
 	}
-}
+};

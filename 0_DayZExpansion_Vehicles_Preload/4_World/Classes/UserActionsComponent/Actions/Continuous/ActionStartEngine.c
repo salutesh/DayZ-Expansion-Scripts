@@ -113,4 +113,21 @@ modded class ActionStartEngine
 			}
 		}
 	}
+
+	override bool Expansion_CheckSuccess(ActionData action_data)
+	{
+		HumanCommandVehicle vehCommand = action_data.m_Player.GetCommand_Vehicle();
+		if (vehCommand)
+		{
+			Transport trans = vehCommand.GetTransport();
+			if (trans)
+			{
+				CarScript car;
+				if (Class.CastTo(car, trans))
+					return car.Expansion_EngineIsOn();
+			}
+		}
+
+		return false;
+	}
 };

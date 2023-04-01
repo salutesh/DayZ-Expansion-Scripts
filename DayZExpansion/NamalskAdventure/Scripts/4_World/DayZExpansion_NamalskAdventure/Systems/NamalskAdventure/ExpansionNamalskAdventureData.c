@@ -10,8 +10,6 @@
  *
 */
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
-#ifdef NAMALSK_TERRAIN
 class ExpansionNamalskAdventureDataBase
 {
 	int Version;
@@ -91,5 +89,3 @@ class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 		return m_LastMerchantPositions:
 	}
 };
-#endif
-#endif

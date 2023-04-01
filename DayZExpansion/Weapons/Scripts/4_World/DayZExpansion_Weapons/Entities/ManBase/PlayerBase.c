@@ -12,6 +12,8 @@
 
 modded class PlayerBase
 {
+	float m_Expansion_LaserUpdateInterval;
+
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		if (ammo == "Bullet_Expansion_Taser")
@@ -33,23 +35,15 @@ modded class PlayerBase
 	{
 		AddHealth("","Shock", 100);
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion ModCommandHandlerInside
-	// ------------------------------------------------------------
-	override bool ModCommandHandlerInside( float pDt, int pCurrentCommandID, bool pCurrentCommandFinished )	
+
+	override void EOnFrame(IEntity other, float timeSlice)
 	{
+		m_Expansion_LaserUpdateInterval += timeSlice;
+		if (m_Expansion_LaserUpdateInterval < 0.025)
+			return;
+		m_Expansion_LaserUpdateInterval = 0.0;
 		ItemBase item = GetItemInHands();
-		if ( item )
-		{
+		if (item)
 			item.UpdateLaser();
-		}
-
-		if ( super.ModCommandHandlerInside( pDt, pCurrentCommandID, pCurrentCommandFinished ) )
-		{
-			return true;
-		}
-
-		return false;
 	}
 };

@@ -128,8 +128,6 @@ class eAIBase: PlayerBase
 	bool m_Expansion_EmoteAutoCancel;
 	int m_Expansion_EmoteAutoCancelDelay; //! ms
 
-	ref map<int, Object> m_Expansion_DebugObjects = new map<int, Object>();
-
 	int m_eAI_MinTimeTillNextFire;
 	int m_eAI_QueuedShots;
 
@@ -240,42 +238,6 @@ class eAIBase: PlayerBase
 			return !GetGroup().GetFaction().IsFriendly(ai);
 
 		return true;
-	}
-
-	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
-	{
-#ifdef DIAG
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin);
-#endif
-	}
-
-	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
-	{
-#ifdef DIAG
-		if (!m_Expansion_DebugObjects[i])
-		{
-			m_Expansion_DebugObjects[i] = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
-			EntityAI ent;
-			if (Class.CastTo(ent, m_Expansion_DebugObjects[i]))
-				ent.SetLifetime(300);
-		}
-		else
-		{
-			m_Expansion_DebugObjects[i].SetPosition(position);
-		}
-
-		if (direction != vector.Zero)
-		{
-			m_Expansion_DebugObjects[i].SetDirection(direction);
-		}
-
-		if (origin != vector.Zero)
-		{
-			ExpansionDebugRod rod;
-			if (Class.CastTo(rod, m_Expansion_DebugObjects[i]))
-				rod.Expansion_DrawDebugLine(origin);
-		}
-#endif
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -687,11 +649,6 @@ class eAIBase: PlayerBase
 		if (GetGroup() && GetGroup().Count() > 1)
 		{
 			GetGroup().RemoveMember(this);
-		}
-
-		foreach (Object obj: m_Expansion_DebugObjects)
-		{
-			GetGame().ObjectDelete(obj);
 		}
 	}
 

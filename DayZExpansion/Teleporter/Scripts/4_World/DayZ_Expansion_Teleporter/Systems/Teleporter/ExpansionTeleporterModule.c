@@ -10,190 +10,10 @@
  *
 */
 
-class ExpansionTeleportPosition
+enum ExpansionTeleporterSound
 {
-	vector m_Position;
-	vector m_Orientation;
-	
-	void ExpansionTeleportPosition(vector pos, vector ori)
-	{
-		m_Position = pos;
-		m_Orientation = ori;
-	}
-	
-	vector GetPosition()
-	{
-		return m_Position;
-	}
-	
-	vector GetOrientation()
-	{
-		return m_Orientation;
-	}
-};
-
-class ExpansionTeleportDataBase 
-{
-	int ConfigVersion;
-};
-
-class ExpansionTeleportData: ExpansionTeleportDataBase
-{
-	[NonSerialized()];
-	static const int VERSION = 0;
-	
-	protected int m_ID;
-	protected vector m_ObjectPosition;
-	protected vector m_ObjectOrientation;
-	protected ref array<ref ExpansionTeleportPosition> m_TeleportPositions;
-
-#ifdef EXPANSIONMODAI
-	protected string m_FactionName;
-#endif
-#ifdef EXPANSIONMODHARDLINE
-	protected int m_Reputation;
-#endif
-#ifdef EXPANSIONMODQUESTS
-	protected int m_QuestID = -1;
-#endif
-	
-	void ExpansionTeleportData()
-	{
-		ConfigVersion = VERSION;
-		
-		if (!m_TeleportPositions)
-			m_TeleportPositions = new array<ref ExpansionTeleportPosition>;
-	}
-	
-	void CopyFromBaseClass(ExpansionTeleportDataBase base)
-	{
-		//! Nothing to do here yet
-	}
-	
-	static ExpansionTeleportData Load(string fileName)
-	{
-		CF_Log.Info("[ExpansionTeleportData] Load existing teleporter file:" + fileName);
-		ExpansionTeleportDataBase teleporterDataBase;
-		ExpansionJsonFileParser<ExpansionTeleportDataBase>.Load(fileName, teleporterDataBase);
-		
-		bool save;
-		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
-		if (teleporterDataBase.ConfigVersion < VERSION)
-		{
-			save = true;
-			teleporterData.CopyFromBaseClass(teleporterDataBase); //! Copy over old data that has not changed.			
-			teleporterData.ConfigVersion = VERSION;
-						
-			if (save)
-				Save(teleporterData);
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionTeleportData>.Load(fileName, teleporterData))
-				return NULL;
-		}
-		
-		return teleporterData;
-	}
-	
-	void Save()
-	{
-		ExpansionJsonFileParser<ExpansionTeleportData>.Save(ExpansionTeleporterModule.s_TeleporterDataFolderPath + "Teleporter_" + m_ID + ".json", this);
-	}
-	
-	static void Save(ExpansionTeleportData teleporterData)
-	{
-		ExpansionJsonFileParser<ExpansionTeleportData>.Save(ExpansionTeleporterModule.s_TeleporterDataFolderPath + "Teleporter_" + teleporterData.GetID() + ".json", teleporterData);
-	}
-	
-	void AddTeleportPosition(vector pos, vector ori)
-	{
-		ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition(pos, ori);
-		m_TeleportPositions.Insert(teleportPos);
-	}
-	
-	void SetID(int id)
-	{
-		m_ID = id;
-	}
-	
-	int GetID()
-	{
-		return m_ID;
-	}
-	
-	void SetObjectPosition(vector objPos)
-	{
-		m_ObjectPosition = objPos;
-	}
-	
-	void SetObjectOrientation(vector objOri)
-	{
-		m_ObjectOrientation = objOri;
-	}
-	
-	vector GetObjectPosition()
-	{
-		return m_ObjectPosition;
-	}
-	
-	vector GetObjectOrientation()
-	{
-		return m_ObjectOrientation;
-	}
-	
-#ifdef EXPANSIONMODAI
-	void SetFactionName(string factionName)
-	{
-		m_FactionName = factionName;
-	}
-
-	string GetFactionName()
-	{
-		return m_FactionName;
-	}
-#endif
-	
-#ifdef EXPANSIONMODHARDLINE
-	void SetReputation(int reputation)
-	{
-		m_Reputation = reputation;
-	}
-	
-	int GetReputation()
-	{
-		return m_Reputation;
-	}
-#endif
-	
-#ifdef EXPANSIONMODQUESTS
-	void SetQuestID(int questID)
-	{
-		m_QuestID = questID;
-	}
-
-	int GetQuestID()
-	{
-		return m_QuestID;
-	}
-#endif
-	
-	array<ref ExpansionTeleportPosition> GetTeleportPositions()
-	{
-		return m_TeleportPositions;
-	}
-	
-	void SpawnTeleporter()
-	{
-		Object obj = GetGame().CreateObjectEx("Expansion_Teleporter_Big", m_ObjectPosition, ECE_NONE);
-		Expansion_Teleporter_Big teleportObj = Expansion_Teleporter_Big.Cast(obj);
-		if (!teleportObj)
-			GetGame().ObjectDelete(obj);
-		
-		teleportObj.SetPosition(m_ObjectPosition);
-		teleportObj.SetOrientation(m_ObjectOrientation);
-		teleportObj.SetTeleportData(this);
-	}
+	TELEPORT_ACTIVE = 1,
+	TELEPORT_DESTINATION = 2
 };
 
 [CF_RegisterModule(ExpansionTeleporterModule)]
@@ -201,6 +21,12 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 {
 	protected static ExpansionTeleporterModule s_Instance;
 	static string s_TeleporterDataFolderPath = "$mission:expansion\\teleporter\\";
+
+	protected ref ScriptInvoker m_TeleporterMenuInvoker; //! Client
+	protected ref ScriptInvoker m_TeleporterMenuCallbackInvoker; //! Client
+
+	protected ref map<int, ref ExpansionTeleportData> m_TeleporterData; //! Server
+	protected ref ExpansionTeleportData m_TeleporterClientData;
 
 	void ExpansionTeleporterModule()
 	{
@@ -218,16 +44,35 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		if (!FileExist(s_TeleporterDataFolderPath))
 			ExpansionStatic.MakeDirectoryRecursive(s_TeleporterDataFolderPath);
 	}
-	
+
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+		m_TeleporterData = new map<int, ref ExpansionTeleportData>;
+
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{		
+		{
 			CreateDirectoryStructure();
 			LoadTeleporterServerData();
 		}
+
+		if (GetGame().IsClient())
+			ClientModuleInit();
 	}
-	
+
+	protected void ClientModuleInit()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (GetGame().IsClient())
+		{
+			if (!m_TeleporterMenuInvoker)
+				m_TeleporterMenuInvoker = new ScriptInvoker(); //! Client
+
+			if (!m_TeleporterMenuCallbackInvoker)
+				m_TeleporterMenuCallbackInvoker = new ScriptInvoker(); //! Client
+		}
+	}
+
 	protected void LoadTeleporterServerData()
 	{
 		array<string> teleporterFiles = ExpansionStatic.FindFilesInLocation(s_TeleporterDataFolderPath, ".json");
@@ -246,38 +91,37 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void CreateDefaultTeleporterData()
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE		
 		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
 		teleporterData.SetID(1);
-		teleporterData.SetObjectPosition(Vector(8551.52, 15.643, 10530.8));
-		teleporterData.SetObjectOrientation(Vector(-53.5181, 0, 0));
-		teleporterData.AddTeleportPosition(Vector(5079.96, 2085.61, 11720.7),  Vector(39.18, 0, 0));
-		teleporterData.AddTeleportPosition(Vector(5075.36, 2085.61, 11715.3),  Vector(132.59, 0, 0));
+		teleporterData.SetDisplayName("Sebjan Reservoir");
+		teleporterData.SetFactionName("Resistance");
+		teleporterData.SetObjectPosition(Vector(6030.101563, 5.685052, 10047.874023));
+		teleporterData.SetObjectOrientation(Vector(77.317390, 0, 0));
+
+		ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
+		teleportPos.SetData("Jalovisco Camp", "Resistance");
+		teleportPos.AddPosition(Vector(6023.755371, 5.852886, 10041.519531), Vector(-81.172432, 0.000000, 0.000000));
+		teleportPos.AddPosition(Vector(6021.498047, 5.871239, 10050.499023), Vector(-81.172432, 0.000000, 0.000000));
+
+		teleporterData.AddTeleportPosition(teleportPos);
+		
+		m_TeleporterData.Insert(teleporterData.GetID(), teleporterData);
+		
 		teleporterData.Save();
 
 		teleporterData.SpawnTeleporter();
-
-		teleporterData = new ExpansionTeleportData();
-		teleporterData.SetID(2);
-		teleporterData.SetObjectPosition(Vector(5080.87, 2085.49, 11714.6));
-		teleporterData.SetObjectOrientation(Vector(130.388, 0, 0));
-		teleporterData.AddTeleportPosition(Vector(8564.36, 14.8901, 10509.8),  Vector(0, 0, 0));
-		teleporterData.AddTeleportPosition(Vector(8599.56, 14.793, 10511.9),  Vector(0, 0, 0));
-		teleporterData.Save();
-
-		teleporterData.SpawnTeleporter();
-	#endif
 	}
-	
+
 	protected void GetTeleporterData(string fileName, string path)
 	{
 		ExpansionTeleportData teleporterData = ExpansionTeleportData.Load(path + fileName);
 		if (!teleporterData)
 			return;
 
+		m_TeleporterData.Insert(teleporterData.GetID(), teleporterData);
 		teleporterData.SpawnTeleporter(); //! Spawn the teleporter.
 	}
-	
+
 	override int GetRPCMin()
 	{
 		return ExpansionTeleporterModuleRPC.INVALID;
@@ -295,6 +139,16 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		switch (rpc.ID)
 		{
+			case ExpansionTeleporterModuleRPC.RequestOpenTeleporterMenu:
+			{
+				RPC_RequestOpenTeleporterMenu(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
+			case ExpansionTeleporterModuleRPC.RequestTeleport:
+			{
+				RPC_RequestTeleport(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
 			case ExpansionTeleporterModuleRPC.PlayTeleportSound:
 			{
 				RPC_PlayTeleportSound(rpc.Context, rpc.Sender, rpc.Target);
@@ -302,21 +156,167 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			}
 		}
 	}
+
+	//! Server
+	void RequestOpenTeleporterMenu(Object target, PlayerIdentity identity)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		{
+			Error(ToString() + "::RequestOpenTeleporterMenu - Tryed to call RequestOpenTeleporterMenu on Client!");
+			return;
+		}
+
+		if (!identity)
+		{
+			Error(ToString() + "::RequestOpenTeleporterMenu - identity is NULL!");
+			return;
+		}
+
+		auto teleporterObject = Expansion_Teleporter_Base.Cast(target);
+		if (!teleporterObject)
+		{
+			Error(ToString() + "::RequestOpenTeleporterMenu - Teleporter object is NULL!");
+			return;
+		}
+
+		int teleporterID = teleporterObject.GetTeleporterID();
+		TeleporterModulePrint("Teleporter ID: " + teleporterID);
+		ExpansionTeleportData teleporterData = GetTeleporterDataByID(teleporterID);
+		if (!teleporterData)
+		{
+			Error(ToString() + "::RequestOpenTeleporterMenu - Could not get teleporter data!");
+			return;
+		}
+
+		auto rpc = ExpansionScriptRPC.Create();
+		teleporterData.OnSend(rpc);
+		rpc.Send(target, ExpansionTeleporterModuleRPC.RequestOpenTeleporterMenu, true, identity);
+	}
+
+	//! Client
+	protected void RPC_RequestOpenTeleporterMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (!GetGame().IsClient())
+		{
+			Error(ToString() + "::RPC_RequestOpenTeleporterMenu - Tryed to call RPC_RequestOpenTeleporterMenu on Server!");
+			return;
+		}
+
+		if (m_TeleporterClientData)
+			m_TeleporterClientData = null;
+		
+		m_TeleporterClientData = new ExpansionTeleportData();
+		if (!m_TeleporterClientData.OnRecieve(ctx))
+		{
+			Error(ToString() + "::RPC_RequestOpenTeleporterMenu - Could not get teleporter data!");
+			return;
+		}
+
+		TeleporterModulePrint("Teleporter data: " + m_TeleporterClientData.ToString());
+		TeleporterModulePrint("Teleporter ID: " + m_TeleporterClientData.GetID());
+
+		//! Open teleporter menu
+		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionTeleporterMenu");
+
+		//! Populate teleporter menu with needed client data.
+		m_TeleporterMenuInvoker.Invoke();
+	}
 	
-	void PlayTeleportSound(vector teleportPos)
+	//! Client
+	void RequestTeleport(ExpansionTeleportPositionEntry pos, vector teleporterObjPos)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		if (!GetGame().IsClient())
+		{
+			Error(ToString() + "::RequestTeleport - Tryed to call RequestTeleport on Server!");
+			return;
+		}
+		
+		auto rpc = ExpansionScriptRPC.Create();
+		rpc.Write(teleporterObjPos);
+		pos.OnSend(rpc);
+		rpc.Send(null, ExpansionTeleporterModuleRPC.RequestTeleport, true);
+	}
+	
+	//! Server
+	protected void RPC_RequestTeleport(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Tryed to call RPC_RequestTeleport on Client!");
+			return;
+		}
+		
+		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
+		if (!player)
+			return;
+		
+		vector teleporterObjPos;
+		if (!ctx.Read(teleporterObjPos))
+		{
+			Error(ToString() + "::RPC_PlayTeleportSound - Could not read teleporterObjPos");
+			return;
+		}
+				
+		ExpansionTeleportPositionEntry pos = new ExpansionTeleportPositionEntry();
+		if (!pos.OnRecieve(ctx))
+		{
+			Error(ToString() + "::RPC_RequestTeleport - Could not get teleport position!");
+			return;
+		}
+		
+		vector playerPos = player.GetPosition();	
+		vector position = pos.GetPosition();
+		vector orientation = pos.GetOrientation();
+		if (position[1] == 0)
+			position[1] = GetGame().SurfaceY(position[0], position[2]);
+
+		PlayTeleportSound(playerPos, ExpansionTeleporterSound.TELEPORT_ACTIVE);
+		PlayTeleportSound(position, ExpansionTeleporterSound.TELEPORT_ACTIVE);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, player, position, orientation, teleporterObjPos);
+	}
+	
+	void TeleportPlayer(PlayerBase player, vector pos, vector ori, vector teleporterObjPos)
+	{
+		vector playerPos = player.GetPosition();
+		int currentDistance = vector.Distance(playerPos, teleporterObjPos);
+		if (currentDistance > 3.0)
+			return;
+		
+		player.SetPosition(pos);
+		player.SetOrientation(ori);
+		DayZPlayerSyncJunctures.ExpansionTeleport(player, pos, ori);
+		PlayTeleportSound(pos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
+	}
+
+	void PlayTeleportSound(vector position, ExpansionTeleporterSound sound)
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
 			Error(ToString() + "::PlayTeleportSound - Tryed to call PlayTeleportSound on Client!");
 			return;
 		}
-		
+
 		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(teleportPos);
-		
+		rpc.Write(position);
+		rpc.Write(sound);
+
 		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition3D(teleportPos, 300, objects, null);
-		
+		GetGame().GetObjectsAtPosition3D(position, 300, objects, null);
+
 		foreach (Object obj: objects)
 		{
 			PlayerBase player = PlayerBase.Cast(obj);
@@ -324,7 +324,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 				rpc.Send(NULL, ExpansionTeleporterModuleRPC.PlayTeleportSound, true, player.GetIdentity());
 		}
 	}
-	
+
 	protected void RPC_PlayTeleportSound(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
@@ -339,20 +339,73 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			return;
 		}
 		
-		vector teleportPos;
-		if (!ctx.Read(teleportPos))
+		vector position;
+		if (!ctx.Read(position))
 		{
-			Error(ToString() + "::RPC_PlayTeleportSound - Could not read teleportPos");
+			Error(ToString() + "::RPC_PlayTeleportSound - Could not read position");
 			return;
 		}
-
+		
+		ExpansionTeleporterSound sound;
+		if (!ctx.Read(sound))
+		{
+			Error(ToString() + "::RPC_PlayTeleportSound - Could not read sound");
+			return;
+		}
+		
+		string soundShader;
+		switch (sound)
+		{
+			case ExpansionTeleporterSound.TELEPORT_ACTIVE:
+				soundShader = "Expansion_Teleporter_Active_Soundset";
+				break;
+			case ExpansionTeleporterSound.TELEPORT_DESTINATION:
+				soundShader = "Blowout_Teleport";
+				break;
+		}
+		
 	#ifndef EDITOR
-		EffectSound sound = SEffectManager.PlaySound("Blowout_Teleport", teleportPos, 0, 0, false);
-		if (!sound)
+		EffectSound soundEffect = SEffectManager.PlaySound(soundShader, position, 0, 0, false);
+		if (!soundEffect)
 			return;
 
-		sound.SetParent(target);
-		sound.SetSoundAutodestroy(true);
+		soundEffect.SetParent(target);
+		soundEffect.SetSoundAutodestroy(true);
+	#endif
+	}
+
+	//! Server
+	ExpansionTeleportData GetTeleporterDataByID(int id)
+	{
+		ExpansionTeleportData foundData;
+		if (m_TeleporterData.Find(id, foundData))
+			return foundData;
+
+		return NULL;
+	}
+
+	//! Client
+	ExpansionTeleportData GetTeleporterClientData()
+	{
+		return m_TeleporterClientData;
+	}
+
+	//! Client
+	ScriptInvoker GetTeleporterMenuSI()
+	{
+		return m_TeleporterMenuInvoker;
+	}
+
+	//! Client
+	ScriptInvoker GetTeleporterMenuCallbackSI()
+	{
+		return m_TeleporterMenuCallbackInvoker;
+	}
+
+	void TeleporterModulePrint(string text)
+	{
+	#ifdef EXPANSIONMODTELEPORTERDEBUG
+		Print(text);
 	#endif
 	}
 

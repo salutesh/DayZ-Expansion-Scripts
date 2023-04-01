@@ -23,61 +23,165 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 	protected bool m_CreatedMarker;
 #endif
 
+	protected ref ExpansionQuestObjectiveDeliveryConfigBase m_Config;
+
 	void ExpansionQuestObjectiveCollectionEventBase(ExpansionQuest quest)
 	{
-		ObjectivePrint(ToString() + "::ExpansionQuestObjectiveCollectionEventBase - Start");
-
 		m_ObjectiveItemsMap = new map<string, int>;
 		m_DeliveryData = new array<ref ExpansionQuestDeliveryObjectiveData>;
 		m_ObjectiveItems = new array<ref ExpansionQuestObjectiveItem>;
-
-		ObjectivePrint(ToString() + "::ExpansionQuestObjectiveCollectionEventBase - End");
 	}
 
 	void ~ExpansionQuestObjectiveCollectionEventBase()
 	{
-		ObjectivePrint(ToString() + "::~ExpansionQuestObjectiveCollectionEventBase - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_ObjectiveItemsMap.Clear();
 		m_DeliveryData.Clear();
 		m_ObjectiveItems.Clear();
+	}
 
-		ObjectivePrint(ToString() + "::~ExpansionQuestObjectiveCollectionEventBase - End");
+	override bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (!CleanupObjectiveItems(selectedObjItemIndex))
+			return false;
+
+	#ifdef EXPANSIONMODMARKET
+		if (m_Config.AddItemsToNearbyMarketZone())
+			AddItemsToMarketZone(playerUID);
+	#endif
+
+		if (!super.OnTurnIn(playerUID, selectedObjItemIndex))
+			return false;
+
+		return true;
+	}
+
+	protected bool CleanupObjectiveItems(int selectedObjItemIndex = -1)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("Selected objective item index: " + selectedObjItemIndex);
+
+		int all = 0;
+		int allCollection = 0;
+		array<ExpansionQuestObjectiveItem> changedItems = new array<ExpansionQuestObjectiveItem>;
+
+		foreach (string typeName, int needed: m_ObjectiveItemsMap)
+		{
+			if (m_Config.NeedAnyCollection())
+			{
+				if (selectedObjItemIndex == -1)
+					continue;
+
+				ExpansionQuestObjectiveDelivery delivery = m_Config.GetCollections().Get(selectedObjItemIndex);
+				if (!delivery)
+					continue;
+
+				if (delivery.GetClassName() != typeName)
+					continue;
+			}
+
+			ObjectivePrint("Check objective items for item " + typeName + " | Needed: " + needed);
+			int remove = 0;
+			foreach (ExpansionQuestObjectiveItem objItem: m_ObjectiveItems)
+			{
+				if (objItem.GetClassName() == typeName)
+				{
+					int amount = objItem.GetItem().Expansion_GetStackAmount();
+					int remaining;
+					ObjectivePrint("Check objective item " + typeName + " | Amount: " + amount);
+					if (amount <= needed)
+					{
+						remaining = amount - amount;
+						ObjectivePrint("Item amount is lower or exacly the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: " + remaining);
+						objItem.SetRemaining(remaining);
+						remove += amount;
+						changedItems.Insert(objItem);
+					}
+					else if (amount > needed)
+					{
+						remaining = amount - needed;
+						ObjectivePrint("Item amount is higher then the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: " + remaining);
+						objItem.SetRemaining(remaining);
+						remove += needed;
+						changedItems.Insert(objItem);
+					}
+				}
+
+				if (remove >= needed)
+					break;
+			}
+
+			if (!m_Config.NeedAnyCollection() && remove < needed)
+			{
+				ObjectivePrint("E1 - Could not get all objective items! Needed: " + needed + " | Found to remove: " + remove);
+				changedItems.Clear();
+				return false;
+			}
+
+			all += remove;
+			allCollection = needed;
+
+			if (m_Config.NeedAnyCollection() && remove >= needed)
+				break;
+
+			if (!m_Config.NeedAnyCollection() && all >= m_ObjectiveItemsAmount)
+				break;
+		}
+
+		ObjectivePrint("Need any ollection: " + m_Config.NeedAnyCollection().ToString());
+
+		if (!m_Config.NeedAnyCollection() && all < m_ObjectiveItemsAmount)
+		{
+			ObjectivePrint("E2 - Could not get all objective items! All needed: " + m_ObjectiveItemsAmount + " | Found to remove: " + all);
+			changedItems.Clear();
+			return false;
+		}
+		else if (m_Config.NeedAnyCollection() && (all < allCollection || selectedObjItemIndex == -1))
+		{
+			ObjectivePrint("E2 - Could not get all collection objective items! All needed: " + allCollection + " | Found to remove: " + all);
+			changedItems.Clear();
+			return false;
+		}
+
+		foreach (ExpansionQuestObjectiveItem itemtoDelete: changedItems)
+		{
+			itemtoDelete.DestroyItem();
+		}
+
+		return true;
 	}
 
 	override bool OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnCleanup())
 			return false;
 		
 		DeleteObjectiveTrigger();
 
-		ObjectivePrint(ToString() + "::OnCleanup - End");
-
 		return true;
 	}
 
 	protected void DeleteObjectiveTrigger()
 	{
-		ObjectivePrint(ToString() + ":: DeleteObjectiveTrigger - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!m_ObjectiveTrigger)
 			return;
 
 		GetGame().ObjectDelete(m_ObjectiveTrigger);
-
-		ObjectivePrint(ToString() + ":: DeleteObjectiveTrigger - End");
 	}
 
 	void SetReachedLocation(bool state)
 	{
-		ObjectivePrint(ToString() + "::SetReachedLocation - Start");
-		ObjectivePrint(ToString() + ":: SetReachedLocation - State: " + state);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
 		m_Quest.QuestCompletionCheck();
-		ObjectivePrint(ToString() + "::SetReachedLocation - End");
 	}
 
 	bool GetLocationState()
@@ -85,51 +189,297 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		return m_DestinationReached;
 	}
 
-	protected int GetItemAmount(EntityAI item)
-	{
-		if (!item)
-			Error(ToString() + "::GetItemAmount - Item is NULL!");
-
-		int amount;
-		ItemBase itemBase;
-		if (Class.CastTo(itemBase, item))
-		{
-			amount = itemBase.Expansion_GetStackAmount();
-		}
-		else
-		{
-			amount = 1;
-		}
-
-		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item, true))
-			amount = -amount;
-
-		return amount;
-	}
-
 	array<ref ExpansionQuestDeliveryObjectiveData> GetDeliveryData()
 	{
 		return m_DeliveryData;
 	}
 
-	protected bool IsObjectiveItem(EntityAI item, out int index = -1)
+	protected bool CreateObjectiveTrigger()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (!m_Quest || !m_Quest.GetQuestConfig())
+			return false;
+		
+		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();
+		if (!questNPCTurnInIDs || questNPCTurnInIDs.Count() == 0)
+			return false;
+		
+		PlayerBase player = m_Quest.GetPlayer();
+		if (!player || !player.GetIdentity())
+			return false;
+
+		vector playerPos = player.GetPosition();
+		Object npcObj = m_Quest.GetQuestModule().GetClosestQuestNPCForQuest(questNPCTurnInIDs, playerPos);
+		if (!npcObj)
+			return false;
+
+		vector npcPos = npcObj.GetPosition();
+
+		//! If trigger radius is large enough to cover the whole map, don't create it
+		float worldSize = GetGame().GetWorld().GetWorldSize();
+		//! Choose world pos at edge of map that is farthest from NPC pos
+		vector worldPos;
+		if (npcPos[0] < worldSize * 0.5)
+			worldPos[0] = worldSize;
+		worldPos[1] = npcPos[1];
+		if (npcPos[2] < worldSize * 0.5)
+			worldPos[2] = worldSize;
+		if (m_Config.GetMaxDistance() <= 0 || m_Config.GetMaxDistance() >= vector.Distance(npcPos, worldPos))
+		{
+			m_DestinationReached = true;
+			return true;
+		}
+
+		Object trigger = GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_NONE);
+		if (!Class.CastTo(m_ObjectiveTrigger, trigger))
+		{
+			GetGame().ObjectDelete(trigger);
+			return false;
+		}
+
+		m_ObjectiveTrigger.SetObjectiveData(this);
+		m_ObjectiveTrigger.SetPosition(npcPos);
+		
+		return true;
+	}
+	
+	protected bool GetObjectiveDataFromConfig()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		m_ObjectiveItemsMap.Clear();
+		
+		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
+		if (!objectiveDeliveries || objectiveDeliveries.Count() == 0)
+		{
+			int objectiveID = m_Config.GetID();
+			Error(ToString() + "::GetObjectiveDataFromConfig - Collection objective with ID " + objectiveID + " has no collections defined!");
+			return false;
+		}
+		
+		foreach (ExpansionQuestObjectiveDelivery objectiveDelivery: objectiveDeliveries)
+		{
+			string typeName = objectiveDelivery.GetClassName();
+			int amount = objectiveDelivery.GetAmount();
+			ObjectivePrint("Add collection data for type name: " + typeName + " | Amount: " + amount);
+			
+			m_ObjectiveItemsAmount += amount;
+
+			int current;
+			if (!m_ObjectiveItemsMap.Find(typeName, current))
+			{
+				m_ObjectiveItemsMap.Insert(typeName, amount);
+				ObjectivePrint("Added collection data for type name: " + typeName + " | Amount: " + amount + " to objective items map.");
+			}
+			else
+			{
+				int neededNew = current + amount;
+				m_ObjectiveItemsMap.Set(typeName, neededNew);
+			}
+		}
+		
+		ObjectivePrint("End and return TRUE");
+		
+		return true;
+	}
+
+	protected bool CheckQuestPlayersForObjectiveItems(bool continues = false)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		m_ObjectiveItems.Clear();
+		m_ObjectiveItemsCount = 0;
+
+		if (!m_Quest.GetQuestConfig().IsGroupQuest())
+		{
+			if (!CheckPlayerForObjectiveItems(m_Quest.GetPlayer()))
+				return false;
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			array<string> playerUIDs = m_Quest.GetPlayerUIDs();
+			foreach (string playerUID: playerUIDs)
+			{
+				if (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
+					break;
+
+				if (!CheckPlayerForObjectiveItems(playerUID))
+					return false;
+			}
+		}
+	#endif
+
+		ObjectivePrint("End and return TRUE");
+
+		return true;
+	}
+
+	protected bool CheckPlayerForObjectiveItems(string playerUID)
+	{
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+
+		return CheckPlayerForObjectiveItems(player);
+	}
+
+	protected bool CheckPlayerForObjectiveItems(PlayerBase player)
+	{
+		if (!player)
+			return false;
+
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, player.GetIdentity().GetId());
+
+		foreach (string typeName, int needed: m_ObjectiveItemsMap)
+		{
+			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);
+			ExpansionInventoryItemType itemType = player.Expansion_GetInventoryItemType(typeName);
+			if (itemType)
+			{
+				foreach (ItemBase item: itemType.Items)
+				{
+					if (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
+						break;
+
+					if (CanAddObjectiveItem(item))
+						AddObjectiveItem(item);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	protected bool CanAddObjectiveItem(ItemBase item)
+	{
+		switch (m_Config.GetObjectiveType())
+		{
+			case ExpansionQuestObjectiveType.COLLECT:
+				return !item.IsQuestItem();
+			case ExpansionQuestObjectiveType.DELIVERY:
+				return item.GetQuestID() == m_Quest.GetQuestConfig().GetID();
+		}
+
+		return true;
+	}
+
+	protected void AddObjectiveItem(ItemBase item)
+	{
+		int amount = item.Expansion_GetStackAmount();
+		EXTrace.Print(EXTrace.QUESTS, this, "add: " + amount);
+		ExpansionQuestObjectiveItem objItem = new ExpansionQuestObjectiveItem(item);
+		m_ObjectiveItems.Insert(objItem);
+		m_ObjectiveItemsCount += amount;
+	}
+
+	protected void UpdateDeliveryData()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		m_DeliveryData.Clear();
+
+		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
+		for (int i = 0; i < objectiveDeliveries.Count(); i++)
+		{
+			ExpansionQuestObjectiveDelivery objectiveDelivery = objectiveDeliveries[i];
+			string typeName = objectiveDelivery.GetClassName();
+			int needed = objectiveDelivery.GetAmount();
+			int inventoryCount = 0;
+
+			ObjectivePrint("Check objective items for items with type name " + typeName);
+			foreach (ExpansionQuestObjectiveItem objItem: m_ObjectiveItems)
+			{
+				if (objItem.GetClassName() == typeName)
+				{
+					int amount = objItem.GetItem().Expansion_GetStackAmount();
+					ObjectivePrint("Count objective item " + typeName + " | Amount: " + amount);
+					inventoryCount += amount;
+				}
+			}
+
+			ObjectivePrint("Add delivery data entry for item: " + typeName + " | Inventory count: " + inventoryCount + " | Needed: " + needed + " | Index: " + i);
+			ExpansionQuestDeliveryObjectiveData deliveryData = new ExpansionQuestDeliveryObjectiveData();
+			deliveryData.SetFromDelivery(i, inventoryCount);
+			m_DeliveryData.Insert(deliveryData);
+		}
+	}
+
+	void OnInventoryItemLocationChange(ItemBase item, Man player, ExpansionQuestItemState state)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		string typeName = item.GetType();
+
+		if (!m_ObjectiveItemsMap.Contains(typeName))
+			return;
+	
+		ObjectivePrint("Item: " + typeName);
+		ObjectivePrint("Inventory location state: " + typename.EnumToString(ExpansionQuestItemState, state));
+
+		int amount = item.Expansion_GetStackAmount();
+		switch (state)
+		{
+		case ExpansionQuestItemState.INV_EXIT:
+			int foundIndex;
+			if (IsObjectiveItem(item, foundIndex))
+			{
+				ObjectivePrint("Found item in current objective items array, removing: " + typeName + " | Amount: " + amount + " | Index: " + foundIndex);
+				m_ObjectiveItemsCount -= amount;
+				m_ObjectiveItems.Remove(foundIndex);
+				UpdateDeliveryData();
+			}
+			break;
+		case ExpansionQuestItemState.INV_ENTER:
+			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
+			{
+				ObjectivePrint("Item is not in objective items array: " + typeName + ", adding");
+				AddObjectiveItem(item);
+				UpdateDeliveryData();
+			}
+			break;
+		case ExpansionQuestItemState.QUANTITY_CHANGED:
+			if (IsObjectiveItem(item))
+			{
+				ObjectivePrint("The quantity of a objective item has changed: " + typeName + " | Amount: " + amount);
+				CheckQuestPlayersForObjectiveItems();
+				UpdateDeliveryData();
+			}
+			break;
+		}
+
+		m_Quest.QuestCompletionCheck(true);
+	}
+
+	protected bool IsObjectiveItem(ItemBase item, out int index = -1)
+	{
+		if (!CanAddObjectiveItem(item))
+			return false;
+
 		for (int i = 0; i < m_ObjectiveItems.Count(); i++)
 		{
 			ExpansionQuestObjectiveItem objItem = m_ObjectiveItems[i];
 			if (objItem.GetItem() == item)
 			{
-				ItemBase itemIB;
-				if (Class.CastTo(itemIB, item) && !itemIB.IsQuestItem())
-				{
-					index = i;
-					return true;
-				}
+				index = i;
+				return true;
 			}
 		}
 
 		return false;
 	}
+
+#ifdef EXPANSIONMODNAVIGATION
+	override void CreateMarkers()
+	{
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return;
+
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		string markerName = m_Config.GetMarkerName();
+		vector npcPos = m_Quest.GetClosestQuestNPCPosition(m_Quest.GetQuestConfig().GetQuestTurnInIDs(), m_Quest.GetPlayer().GetPosition());
+		CreateObjectiveMarker(npcPos, markerName);
+	}
+#endif
 
 	protected bool HasAnyCollectionCompleted()
 	{
@@ -140,7 +490,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			{
 				if (objItem.GetClassName() == typeName)
 				{
-					int amount = GetItemAmount(objItem.GetItem());
+					int amount = objItem.GetItem().Expansion_GetStackAmount();
 					collectionItemCount += amount;
 				}
 			}
@@ -150,5 +500,56 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		}
 
 		return false;
+	}
+
+#ifdef EXPANSIONMODMARKET
+	//! Add the delivered delivery items to the market zone if there is one nearby.
+	protected void AddItemsToMarketZone(string playerUID)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		if (m_Config.GetObjectiveType() != ExpansionQuestObjectiveType.COLLECT )
+			return;
+
+		ExpansionQuestPersistentServerData serverData = ExpansionQuestModule.GetModuleInstance().GetServerData();
+		if (!serverData)
+			return;
+
+		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
+		if (!player)
+			return;
+
+		auto marketSettings = GetExpansionSettings().GetMarket();
+		ExpansionMarketTraderZone traderZone = marketSettings.GetTraderZoneByPosition(player.GetPosition());
+		if (!traderZone)
+			return;
+
+		vector zonePos = traderZone.Position;
+		ObjectivePrint("Market zone pos: " + zonePos.ToString());
+		array<ref ExpansionQuestObjectiveDelivery> deliveries = m_Config.GetCollections();
+		foreach (ExpansionQuestObjectiveDelivery delivery: deliveries)
+		{
+			string name = delivery.GetClassName();
+			string nameLower = name;
+			nameLower.ToLower();
+			int amount = delivery.GetAmount();
+
+			ExpansionMarketItem marketItem = marketSettings.GetItem(nameLower);
+			if (!marketItem)
+			{
+				ObjectivePrint("Item " + name + " is not a market item. Skip..");
+				continue;
+			}
+
+			serverData.AddQuestMarketItem(zonePos, name, amount);
+		}
+
+		serverData.Save();
+	}
+#endif
+
+	override bool HasDynamicState()
+	{
+		return true;
 	}
 };

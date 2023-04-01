@@ -17,22 +17,22 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::OnEventStart - Start");
-				
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
 		if (!super.OnEventStart())
 			return false;
 
-		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		ObjectivePrint("::OnEventStart - End and return TRUE.");
 		
 		return true;
 	}
 
 	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 				
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -40,7 +40,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		if (!super.OnContinue())
 			return false;
 
-		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}
@@ -63,7 +63,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
-		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)
@@ -78,37 +78,26 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 
 		//! Check if killed entities class name is a valid one from our objective config
 		bool found = ExpansionStatic.IsAnyOf(victim, aiPatrol.GetClassNames(), true);
-		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
+		ObjectivePrint("Target found: " + found);
 		if (!found)
 			return;
 
-		m_TotalUnitsAmount = aiPatrol.GetNPCUnits();
 		super.OnEntityKilled(victim, killer, killerPlayer);
-
-		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
 	override protected void CheckQuestAIPatrol()
 	{
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
-		if (!aiPatrol)
-			return;
-
-		m_TotalUnitsAmount = aiPatrol.GetNPCUnits();
-
 		CheckQuestAIPatrol(1);
-
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
 	}
 
 	override void CreateQuestAIPatrol()
 	{
-		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
 		if (!aiPatrol)
@@ -131,8 +120,6 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateMarkers();
 	#endif
-		
-		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}
 
 	override int GetObjectiveType()

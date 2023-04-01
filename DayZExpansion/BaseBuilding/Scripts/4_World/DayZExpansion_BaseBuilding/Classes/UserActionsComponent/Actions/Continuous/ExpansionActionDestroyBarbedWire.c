@@ -80,4 +80,13 @@ class ExpansionActionDestroyBarbedWire : ExpansionActionDestroyBase
 			return base_building.FindAttachmentBySlotName( m_SlotName );
 		}
 	}
+
+	override bool Expansion_CheckSuccess(ActionData action_data)
+	{
+		ItemBase barbedWire;
+		if (Class.CastTo(barbedWire, GetActualTargetObject(action_data.m_Target.GetParentOrObject())))
+			return barbedWire.IsDamageDestroyed();
+
+		return false;
+	}
 }

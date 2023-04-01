@@ -22,11 +22,6 @@ modded class Weapon_Base
 #endif
 	
 		m_ExMuzzleIndices = new array< int >;
-
-		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
-		SetEventMask( EntityEvent.SIMULATE );
-
-		UpdateLaser();
 	}
 
 	void Expansion_FoldOpticsDown()
@@ -52,11 +47,6 @@ modded class Weapon_Base
 		TStringArray selectionNames = new TStringArray;
 		ConfigGetTextArray( "simpleHiddenSelections", selectionNames );
 		SetSimpleHiddenSelectionState( selectionNames.Find( WeaponSelectionS ), !state );
-	}
-
-	override void EOnSimulate( IEntity other, float dt )
-	{
-		UpdateLaser();
 	}
 
 	override void OnInventoryExit(Man player)

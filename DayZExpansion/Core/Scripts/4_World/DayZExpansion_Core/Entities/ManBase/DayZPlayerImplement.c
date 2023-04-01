@@ -40,6 +40,8 @@ modded class DayZPlayerImplement
 
 	int m_Expansion_CurrentPhxInteractionLayer;
 
+	ref map<int, Object> m_Expansion_DebugObjects = new map<int, Object>();
+
 	void DayZPlayerImplement()
 	{
 		Expansion_Init();
@@ -145,6 +147,15 @@ modded class DayZPlayerImplement
 		if (!m_Expansion_CanBeLooted)
 			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
 			ExpansionStatic.LockInventoryRecursive(this, 10134);
+
+		Expansion_DeleteDebugObjects();
+	}
+
+	override void EEDelete(EntityAI parent)
+	{
+		super.EEDelete(parent);
+
+		Expansion_DeleteDebugObjects();
 	}
 
 	override bool CanBeSkinned()
@@ -214,38 +225,97 @@ modded class DayZPlayerImplement
 		return 0.0;
 	}
 
+	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
+	{
+#ifdef DIAG
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin);
+#endif
+	}
+
+	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
+	{
+#ifdef DIAG
+		if (!m_Expansion_DebugObjects[i])
+		{
+			m_Expansion_DebugObjects[i] = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
+			EntityAI ent;
+			if (Class.CastTo(ent, m_Expansion_DebugObjects[i]))
+				ent.SetLifetime(300);
+		}
+		else
+		{
+			m_Expansion_DebugObjects[i].SetPosition(position);
+		}
+
+		if (direction != vector.Zero)
+		{
+			m_Expansion_DebugObjects[i].SetDirection(direction);
+		}
+
+		if (origin != vector.Zero)
+		{
+			ExpansionDebugObject obj;
+			if (Class.CastTo(obj, m_Expansion_DebugObjects[i]))
+				obj.Expansion_DrawDebugLine(origin);
+		}
+#endif
+	}
+
+	void Expansion_DeleteDebugObjects()
+	{
+		foreach (Object obj: m_Expansion_DebugObjects)
+		{
+			GetGame().ObjectDelete(obj);
+		}
+	}
+
 	//! Uses head/barrel to determine direction, can be used on server
+	//! @note on server, aim direction is always an approximation
 	vector Expansion_GetAimDirection()
 	{
 		vector headTransform[4];
 		GetBoneTransformWS(GetBoneIndexByName("head"), headTransform);
 
-		EntityAI hands = GetHumanInventory().GetEntityInHands();
-
-		Weapon_Base weapon;
-		vector weaponTransform[4];
-
-		bool isADS;
+		auto hands = GetHumanInventory().GetEntityInHands();
 
 		vector dir;
 
-		if (Class.CastTo(weapon, hands))
+		if (hands && IsRaised() && hands.IsWeapon())
 		{
-			weapon.GetTransform(weaponTransform);
-			vector eyePos = weapon.GetSelectionPositionLS("eye").Multiply4(weaponTransform);
-			isADS = vector.DistanceSq(eyePos, headTransform[3]) < 0.04;
-		}
-
-		if (isADS)
-		{
-			vector barrel_start = weapon.GetSelectionPositionLS("konec hlavne").Multiply4(weaponTransform);
-			vector barrel_end = weapon.GetSelectionPositionLS("usti hlavne").Multiply4(weaponTransform);
+#ifdef SERVER
+			vector ori = GetOrientation();
+			vector headOri = headTransform[1].VectorToAngles();
+			ori[0] = headOri[0] + 5;
+			if (ori[0] > 360)
+				ori[0] = ori[0] - 360;
+			ori[2] = headOri[2];
+			//! @note pitch will only be accurate if looking straight ahead while ADS since it can't follow the barrel,
+			//! and would need different adjustment if not ADS
+			ori[1] = headOri[1] + 12.5;
+			if (ori[1] > 360)
+				ori[1] = ori[1] - 360;
+			dir = ori.AnglesToVector();
+#else
+			//! Can only follow barrel on client, selection positions on server are completely off base
+			vector weaponTransform[4];
+			hands.GetTransform(weaponTransform);
+			vector barrel_start = hands.GetSelectionPositionLS("konec hlavne").Multiply4(weaponTransform);
+			vector barrel_end = hands.GetSelectionPositionLS("usti hlavne").Multiply4(weaponTransform);
 			dir = vector.Direction(barrel_start, barrel_end).Normalized();
+#endif
 		}
 		else
 		{
 			dir = headTransform[1];
 		}
+
+#ifdef SERVER
+#ifdef DIAG
+		vector neckPosition = GetBonePositionWS(GetBoneIndexByName("neck"));
+		Expansion_DebugObject(0, neckPosition, "ExpansionDebugBox_Red", dir);
+		Expansion_DebugObject(1, neckPosition + dir, "ExpansionDebugBox", dir, neckPosition);
+#endif
+#endif
 
 		return dir;
 	}

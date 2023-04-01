@@ -1495,12 +1495,14 @@ modded class CarScript
 				if (slot_name == "ExpansionHelicopterBattery" || slot_name == "ExpansionAircraftBattery")
 					ToggleHeadlights();
 
+				EntityAI bulb;
+
 				if (slot_name == "Reflector_1_1")
 				{
 					SetHealth("Reflector_1_1", "Health", 0);
 
-					item = FindAttachmentBySlotName("Reflector_2_1");
-					if (!item || GetHealth01("Reflector_2_1", "") <= 0)
+					bulb = FindAttachmentBySlotName("Reflector_2_1");
+					if (!bulb || GetHealth01("Reflector_2_1", "") <= 0)
 						ToggleHeadlights();
 				}
 
@@ -1508,8 +1510,8 @@ modded class CarScript
 				{
 					SetHealth("Reflector_2_1", "Health", 0);
 
-					item = FindAttachmentBySlotName("Reflector_1_1");
-					if (!item || GetHealth01("Reflector_1_1", "") <= 0)
+					bulb = FindAttachmentBySlotName("Reflector_1_1");
+					if (!bulb || GetHealth01("Reflector_1_1", "") <= 0)
 						ToggleHeadlights();
 				}
 			}

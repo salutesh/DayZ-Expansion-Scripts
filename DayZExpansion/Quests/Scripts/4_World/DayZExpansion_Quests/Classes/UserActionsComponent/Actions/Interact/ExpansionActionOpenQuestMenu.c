@@ -82,7 +82,7 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 	 **/
 	override void OnExecuteServer(ActionData action_data)
 	{
-		Print(ToString() + "::OnExecuteServer - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnExecuteServer(action_data);
 
@@ -98,7 +98,5 @@ class ExpansionActionOpenQuestMenu: ActionInteractBase
 			return;
 
 		m_Expansion_QuestModule.RequestOpenQuestMenu(targetObject, player.GetIdentity());
-		
-		Print(ToString() + "::OnExecuteServer - End");
 	}
 }

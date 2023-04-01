@@ -185,4 +185,13 @@ class ExpansionActionDestroyLock : ExpansionActionDestroyBase
 
 		return lockObj;
 	}
+
+	override bool Expansion_CheckSuccess(ActionData action_data)
+	{
+		ItemBase codeLock;
+		if (Class.CastTo(codeLock, GetActualTargetObject(action_data.m_Target.GetParentOrObject())))
+			return !codeLock.ExpansionIsLocked();
+
+		return false;
+	}
 }

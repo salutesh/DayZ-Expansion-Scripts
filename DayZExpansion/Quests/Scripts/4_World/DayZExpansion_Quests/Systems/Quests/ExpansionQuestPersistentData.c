@@ -27,12 +27,12 @@ class ExpansionQuestPersistentData
 
 	void AddQuestData(int questID, ExpansionQuestState state)
 	{
-		QuestDebugPrint(ToString() + "::AddQuestData - Start");
-		QuestDebugPrint(ToString() + "::AddQuestData - Quest ID: " + questID + " | State: " + state);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestDebugPrint("Quest ID: " + questID + " | State: " + state);
 
 		if (HasDataForQuest(questID))
 		{
-			QuestDebugPrint(ToString() + "::AddQuestData - There is already a data set for the quest with ID: " + questID + ". Skip..");
+			QuestDebugPrint("There is already a data set for the quest with ID: " + questID + ". Skip..");
 			return;
 		}
 
@@ -42,26 +42,26 @@ class ExpansionQuestPersistentData
 		questData.UpdateLastUpdateTime();
 		QuestDatas.Insert(questData);
 
-		QuestDebugPrint(ToString() + "::AddQuestData - End");
+		
 	}
 
 	void RemoveQuestDataByQuestID(int questID)
 	{
-		QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		for (int i = QuestDatas.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuestPersistentQuestData currentData = QuestDatas[i];
-			QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - Check data for quest with ID: " + currentData.QuestID);
+			QuestDebugPrint("Check data for quest with ID: " + currentData.QuestID);
 			if (currentData.QuestID == questID)
 			{
-				QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - Remove data for quest ID: " + currentData.QuestID);
+				QuestDebugPrint("Remove data for quest ID: " + currentData.QuestID);
 				currentData.ClearObjectiveData();
 				QuestDatas.RemoveOrdered(i);
 			}
 		}
 		
-		QuestDebugPrint(ToString() + "::RemoveQuestDataByQuestID - End");
+		
 	}
 
 	bool HasDataForQuest(int questID)
@@ -126,7 +126,7 @@ class ExpansionQuestPersistentData
 
 	array<ref ExpansionQuestObjectiveData> GetQuestObjectivesByQuestID(int questID)
 	{
-		QuestDebugPrint(ToString() + "::GetQuestObjectivesByQuestID - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		array<ref ExpansionQuestObjectiveData> validObjectives = new array<ref ExpansionQuestObjectiveData>;
 		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
@@ -139,14 +139,14 @@ class ExpansionQuestPersistentData
 			}
 		}
 
-		QuestDebugPrint(ToString() + "::GetQuestObjectivesByQuestID - End and return objectives: " + validObjectives.Count());
+		QuestDebugPrint("End and return objectives: " + validObjectives.Count());
 
 		return validObjectives;
 	}
 
 	ExpansionQuestObjectiveData GetQuestObjectiveByQuestIDAndIndex(int questID, int index)
 	{
-		QuestDebugPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
 		if (questData)
@@ -155,20 +155,20 @@ class ExpansionQuestPersistentData
 			{
 				if (currentObjective.GetObjectiveIndex() == index)
 				{
-					QuestDebugPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - Return ExpansionQuestObjectiveData: " + currentObjective.ToString());
+					QuestDebugPrint("Return ExpansionQuestObjectiveData: " + currentObjective.ToString());
 					return currentObjective;
 				}
 			}
 		}
 
-		QuestDebugPrint(ToString() + "::GetQuestObjectiveByQuestIDAndIndex - Return NULL");
+		QuestDebugPrint("Return NULL");
 		return NULL;
 	}
 
 	void UpdateQuestState(int questID, int state)
 	{
-		QuestDebugPrint(ToString() + "::UpdateQuestState - Start");
-		QuestDebugPrint(ToString() + "::UpdateQuestState - Quest ID: " + questID + " | State: " + state);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestDebugPrint("Quest ID: " + questID + " | State: " + state);
 
 		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
 		if (!questData)
@@ -180,7 +180,7 @@ class ExpansionQuestPersistentData
 		questData.UpdateLastUpdateTime();
 		questData.QuestDebug();
 
-		QuestDebugPrint(ToString() + "::UpdateQuestState - End");
+		
 	}
 
 	void UpdateQuestTimestamp(int questID, int time)
@@ -198,8 +198,8 @@ class ExpansionQuestPersistentData
 
 	bool UpdateObjective(int questID, int objectiveIndex, ExpansionQuestObjectiveData newData)
 	{
-		QuestDebugPrint(ToString() + "::UpdateObjective - Update quest objective data for quest: " + questID + " | File: " + FileName);
-		QuestDebugPrint(ToString() + "::UpdateObjective - New data:");
+		QuestDebugPrint("Update quest objective data for quest: " + questID + " | File: " + FileName);
+		QuestDebugPrint("New data:");
 		newData.QuestDebug();
 
 		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
@@ -217,13 +217,13 @@ class ExpansionQuestPersistentData
 	
 	bool UpdateCompletionCount(int questID)
 	{
-		QuestDebugPrint(ToString() + "::UpdateCompletionCount - Update quest completion count for quest: " + questID + " | File: " + FileName);		
+		QuestDebugPrint("Update quest completion count for quest: " + questID + " | File: " + FileName);		
 		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
 		if (questData)
 		{
 			questData.CompletionCount = (questData.CompletionCount + 1);
 			questData.UpdateLastUpdateTime();
-			QuestDebugPrint(ToString() + "::UpdateCompletionCount - Updated completion count for quest. Quest ID: " + questID + " | Completion count: " + questData.CompletionCount);
+			QuestDebugPrint("Updated completion count for quest. Quest ID: " + questID + " | Completion count: " + questData.CompletionCount);
 			return true;
 		}
 		
@@ -273,7 +273,7 @@ class ExpansionQuestPersistentData
 
 	void Save(string fileName, bool doCheck = true)
 	{
-		EXTrace.Print(EXTrace.QUESTS, this, "::Save - Save existing data file: " + fileName);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, fileName, "doCheck: " + doCheck);
 
 		if (doCheck)
 			DataCheck();
@@ -295,12 +295,12 @@ class ExpansionQuestPersistentData
 			if (data)
 			{
 				int questID = data.QuestID;
-				QuestDebugPrint(ToString() + "::DataCheck - Check data for quest with ID: " + questID + " | File: " + FileName);
+				QuestDebugPrint("Check data for quest with ID: " + questID + " | File: " + FileName);
 				data.QuestDebug();
 				ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
 				if (!questConfig)
 				{
-					QuestDebugPrint(ToString() + "::DataCheck - Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+					QuestDebugPrint("Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 					continue;
@@ -313,11 +313,11 @@ class ExpansionQuestPersistentData
 					ExpansionQuestObjectiveConfigBase questObjectiveConfig = questConfig.GetObjectives()[o];
 	
 					if (questObjectiveData && questObjectiveConfig)
-						QuestDebugPrint(ToString() + "::DataCheck - Check objective with index: " + o + " | Objective Config Type: " + questObjectiveData.GetObjectiveType() + " | Objective Data Type: " + questObjectiveConfig.GetObjectiveType() + " | Quest ID: " + data.QuestID);
+						QuestDebugPrint("Check objective with index: " + o + " | Objective Config Type: " + questObjectiveData.GetObjectiveType() + " | Objective Data Type: " + questObjectiveConfig.GetObjectiveType() + " | Quest ID: " + data.QuestID);
 					
 					if (!questObjectiveConfig)
 					{
-						QuestDebugPrint(ToString() + "::DataCheck - Could not get quest objective config!");
+						QuestDebugPrint("Could not get quest objective config!");
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -326,7 +326,7 @@ class ExpansionQuestPersistentData
 					
 					if (questObjectiveData && questObjectiveConfig && questObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
 					{
-						QuestDebugPrint(ToString() + "::DataCheck - Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+						QuestDebugPrint("Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -359,19 +359,19 @@ class ExpansionQuestPersistentData
 					if (questConfig.IsRepeatable() || !questConfig.IsRepeatable())
 						continue;
 	
-					QuestDebugPrint(ToString() + "::DataCheck - Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
+					QuestDebugPrint("Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 				}
 			}
 		}
 		
-		QuestDebugPrint(ToString() + "::DataCheck - End and return " + changed);
+		QuestDebugPrint("End and return " + changed);
 
 		return changed;
 	}
 
-	bool HasCooldownOnQuest(int questID, out int timestamp)
+	bool HasCooldownOnQuest(int questID, out int remaining)
 	{
 		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
 		{
@@ -393,21 +393,15 @@ class ExpansionQuestPersistentData
 				Error(ToString() + "::HasCooldownOnQuest - Could not get quest config for quest ID: " + questID);
 				return false;
 			}
-
-			int daylie = 86400; //! Day in seconds
-			int weekly = 604800; //! Week in seconds
-			int remaining;
-
+			
 			if (data.Timestamp > 0)
 			{
-				timestamp = data.Timestamp;
-				if (questConfig.IsDailyQuest())
+				if (questConfig.IsDailyQuest() || questConfig.IsWeeklyQuest())
 				{
-					return HasCooldown(data.QuestID, daylie, remaining);
-				}
-				else if (questConfig.IsWeeklyQuest())
-				{
-					return HasCooldown(data.QuestID, weekly, remaining);
+					int timestamp = data.Timestamp;
+					int currentTime = CF_Date.Now(true).GetTimestamp();
+					remaining = timestamp - currentTime;
+					return remaining > 0;
 				}
 			}
 		}
@@ -457,36 +451,6 @@ class ExpansionQuestPersistentData
 		}
 
 		return true;
-	}
-
-	bool HasCooldown(int questID, int cooldown, out int timedif)
-	{
-		int timestamp = GetQuestTimestampByQuestID(questID);
-		if (timestamp == -1)
-		{
-			QuestDebugPrint(ToString() + "::HasCooldown - Time -1 for quest with ID: " + questID);
-			return false;
-		}
-
-		timedif = GetTimeDiff(timestamp);
-		QuestDebugPrint("------------------------------------------------------------------------------------------------");
-		QuestDebugPrint(ToString() + "::HasCooldown - Time for quest with ID: " + timestamp);
-		QuestDebugPrint(ToString() + "::HasCooldown - Formated time for quest with ID: " + ExpansionStatic.FormatTime(timestamp, false));
-		QuestDebugPrint("------------------------------------------------------------------------------------------------");
-		QuestDebugPrint(ToString() + "::HasCooldown - Time difference for quest with ID: " + timedif);
-		QuestDebugPrint(ToString() + "::HasCooldown - Formated time difference for quest with ID: " + ExpansionStatic.FormatTime(timedif, false));
-		QuestDebugPrint("------------------------------------------------------------------------------------------------");
-
-		if (timedif < cooldown)
-			return true;
-
-		return false;
-	}
-
-	int GetTimeDiff(int timestamp)
-	{
-		int currentTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
-		return (currentTime - timestamp);
 	}
 
 	void QuestDebugPrint(string text)

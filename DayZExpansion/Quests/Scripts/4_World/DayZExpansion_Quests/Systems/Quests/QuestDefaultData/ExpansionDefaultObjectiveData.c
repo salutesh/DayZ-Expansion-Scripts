@@ -51,6 +51,7 @@ class ExpansionDefaultObjectiveData
 		objective.SetObjectiveText("Get to the Village");
 		objective.SetMaxDistance(20.0);
 		objective.SetMarkerName("Get to the Village");
+		objective.SetTriggerOnExit(false);
 
 		if (m_WorldName.Contains("namalsk"))
 		{
@@ -623,8 +624,6 @@ class ExpansionDefaultObjectiveData
 		ExpansionQuestObjectiveActionConfig objective = new ExpansionQuestObjectiveActionConfig();
 		objective.SetID(1);
 		objective.SetObjectiveType(ExpansionQuestObjectiveType.ACTION);
-		objective.AddActionName("ExpansionVehicleActionPickLock");
-		objective.AddActionName("ExpansionActionPickVehicleLockBase");
 		objective.AddActionName("ExpansionActionPickVehicleLock");
 		objective.SetObjectiveText("Lockpick a vehicle:");
 		objective.SetExecutionAmount(1);

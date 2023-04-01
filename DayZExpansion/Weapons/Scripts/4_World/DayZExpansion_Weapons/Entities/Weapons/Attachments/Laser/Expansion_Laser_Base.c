@@ -12,19 +12,13 @@
 
 class Expansion_Laser_Base: UniversalLight
 {
-	private Expansion_Laser_Beam m_Laser;
-	
-	void Expansion_Laser_Base()
-	{
-		SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
-		SetEventMask( EntityEvent.FRAME );
-	}
+	private Expansion_Laser_Beam m_Expansion_LaserBeam;
 
 	void ~Expansion_Laser_Base()
 	{
-		if ( m_Laser )
+		if ( m_Expansion_LaserBeam )
 		{
-			GetGame().ObjectDelete( m_Laser );
+			GetGame().ObjectDelete( m_Expansion_LaserBeam );
 		}
 	}
 	
@@ -34,58 +28,41 @@ class Expansion_Laser_Base: UniversalLight
 		{
 			Object laser = GetGame().CreateObject( "Expansion_Laser_Beam", GetMemoryPointPos( "beamStart" ), true, false, true );
 
-			m_Laser = Expansion_Laser_Beam.Cast( laser );
+			m_Expansion_LaserBeam = Expansion_Laser_Beam.Cast( laser );
 			if ( !IsVisibleWithoutNVG() && !CheckNVGState() )
-				m_Laser.SetObjectTexture( 0, InvisibleColor() );
+				m_Expansion_LaserBeam.SetObjectTexture( 0, InvisibleColor() );
 			else
-				m_Laser.SetObjectTexture( 0, LaserColor() );
+				m_Expansion_LaserBeam.SetObjectTexture( 0, LaserColor() );
 				
-			m_Laser.SetObjectMaterial( 0, LaserMaterial() );
+			m_Expansion_LaserBeam.SetObjectMaterial( 0, LaserMaterial() );
 
-			AddChild( m_Laser, -1 );
-
-			SetFlags( EntityFlags.ACTIVE | EntityFlags.SOLID | EntityFlags.VISIBLE, false );
+			AddChild( m_Expansion_LaserBeam, -1 );
 
 			Update();
 		}
 	}
 
-	override bool CanDisplayAttachmentSlot(int slot_id)
-	{
-		if (!super.CanDisplayAttachmentSlot(slot_id))
-			return false;
-
-		string slot_name = InventorySlots.GetSlotName(slot_id);
-
-		if ( slot_name == "expansionLaserBeam" )
-		{
-			return false;
-		}
-			
-		return true;
-	}
-	
 	override void OnWorkStop()
 	{
-		if ( !m_Laser )
+		if ( !m_Expansion_LaserBeam )
 			return;
 
-		RemoveChild( m_Laser );
+		RemoveChild( m_Expansion_LaserBeam );
 			
-		GetGame().ObjectDelete( m_Laser );
+		GetGame().ObjectDelete( m_Expansion_LaserBeam );
 	}
 
 	override void UpdateLaser()
 	{
-		if ( !m_Laser )
+		if ( !m_Expansion_LaserBeam )
 			return;
-
+		
 		if ( !IsVisibleWithoutNVG() )
 		{
 			if ( !CheckNVGState() )
-				m_Laser.SetObjectTexture( 0, InvisibleColor() );
+				m_Expansion_LaserBeam.SetObjectTexture( 0, InvisibleColor() );
 			else
-				m_Laser.SetObjectTexture( 0, LaserColor() );
+				m_Expansion_LaserBeam.SetObjectTexture( 0, LaserColor() );
 		}
 
 		float distance = GetDistance();
@@ -98,7 +75,7 @@ class Expansion_Laser_Base: UniversalLight
 			GetMemoryPointPos( "beamStart" )
 		};
 
-		m_Laser.SetTransform( transform );
+		m_Expansion_LaserBeam.SetTransform( transform );
 	}
 
 	float GetDistance()

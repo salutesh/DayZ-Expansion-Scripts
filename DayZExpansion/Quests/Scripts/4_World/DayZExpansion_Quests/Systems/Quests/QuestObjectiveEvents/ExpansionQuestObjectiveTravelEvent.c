@@ -20,7 +20,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::OnEventStart - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnEventStart())
 			return false;
@@ -30,8 +30,6 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		
 		Init();
 
-		ObjectivePrint(ToString() + "::OnEventStart - End");
-
 		return true;
 	}
 
@@ -40,18 +38,14 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		//! Set objective position.
 		if (m_Position == vector.Zero)
 		{
-			m_Position = m_Config.GetPosition();
-			if (m_Position == vector.Zero)
+			if (m_Quest.GetPlayer())
 			{
-				if (m_Quest.GetPlayer())
-				{
-					vector playerPos = m_Quest.GetPlayer().GetPosition();
-					m_Position = GetRandomPointInCircle(playerPos, m_Config.GetMaxDistance());
-					if (m_Position == vector.Zero)
-						m_Position = playerPos;
-					else
-						m_Position[1] = GetGame().SurfaceY(m_Position[0], m_Position[2]);
-				}
+				vector playerPos = m_Quest.GetPlayer().GetPosition();
+				m_Position = GetRandomPointInCircle(playerPos, m_Config.GetMaxDistance());
+				if (m_Position == vector.Zero)
+					m_Position = playerPos;
+				else
+					m_Position[1] = GetGame().SurfaceY(m_Position[0], m_Position[2]);
 			}
 		}
 		
@@ -69,7 +63,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	void DestinationCheck()
 	{
-		ObjectivePrint(ToString() + "::DestinationCheck - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		vector position = m_Position;
 		float currentDistance;
@@ -123,18 +117,18 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 		if (position != vector.Zero && currentDistance <= maxDistance)
 		{
-			ObjectivePrint(ToString() + "::DestinationCheck - End and return TRUE");
+			ObjectivePrint("End and return TRUE");
 			SetReachedLocation(true);
 			return;
 		}
 
-		ObjectivePrint(ToString() + "::DestinationCheck - End and return FALSE");
+		ObjectivePrint("End and return FALSE");
 		SetReachedLocation(false);
 	}
 
 	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnContinue())
 			return false;
@@ -142,7 +136,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
-		//! Only create the trigger when not already completed!
+		EXTrace.Print(EXTrace.QUESTS, this, "OnContinue - quest state: " + typename.EnumToString(ExpansionQuestState, m_Quest.GetQuestState()) + " trigger on exit: " + m_Config.TriggerOnExit());
+
 		//! Only create the trigger when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED || m_Config.TriggerOnExit())
 		{
@@ -153,14 +148,12 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			SetReachedLocation(true);
 		}
 
-		ObjectivePrint(ToString() + "::OnContinue - End");
-
 		return true;
 	}
 
 	override bool OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		if (!super.OnCleanup())
 			return false;
@@ -168,15 +161,13 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		ObjectivePrint(ToString() + "::OnCleanup - End");
-		
 		return true;
 	}
 
 	override bool CanComplete()
 	{
-		ObjectivePrint(ToString() + "::CanComplete - Start");
-		ObjectivePrint(ToString() + "::CanComplete - m_DestinationReached: " + m_DestinationReached);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 
 		if (!super.CanComplete())
 			return false;
@@ -184,11 +175,11 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		bool conditionsResult = m_DestinationReached;
 		if (!conditionsResult)
 		{
-			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			ObjectivePrint("End and return: FALSE");
 			return false;
 		}
 
-		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+		ObjectivePrint("End and return: TRUE");
 
 		return true;
 	}
@@ -199,10 +190,9 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		ObjectivePrint(ToString() + "::CreateMarkers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		string markerName = m_Config.GetMarkerName();
 		CreateObjectiveMarker(m_Position, markerName);
-		ObjectivePrint(ToString() + "::CreateMarkers - End");
 	}
 #endif
 
@@ -214,20 +204,17 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
-		ObjectivePrint(ToString() + "::SetReachedLocation - Start");
-		ObjectivePrint(ToString() + "::SetReachedLocation - State: " + state);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
 		m_Quest.QuestCompletionCheck();
-		
-		ObjectivePrint(ToString() + "::SetReachedLocation - End");
 	}
 
 	void SetLocationPosition(vector pos)
 	{
-		ObjectivePrint(ToString() + "::SetLocationPosition - Start");
-		ObjectivePrint(ToString() + "::SetLocationPosition - Position: " + pos.ToString());
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("Position: " + pos.ToString());
 		m_Position = pos;
-		ObjectivePrint(ToString() + "::SetLocationPosition - End");
 	}
 
 	bool GetLocationState()
@@ -252,7 +239,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		}
 		else
 		{
-			Print(ToString() + "::GetRandomPointInCircle - m_PointSearchCount: " + m_PointSearchCount);
+			ObjectivePrint("m_PointSearchCount: " + m_PointSearchCount);
 		}
 		
 		vector position = ExpansionMath.GetRandomPointInCircle(pos, radius);

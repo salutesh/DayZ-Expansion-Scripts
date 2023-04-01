@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class Expansion_Lasers_ANPEQ15
 	{
-		units[] = {"Expansion_ANPEQ15_Red","Expansion_ANPEQ15_Green"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
@@ -24,7 +24,7 @@ class CfgVehicles
 		weight = 80;
 		itemSize[] = {2,1};
 		inventorySlot[] = {"weaponFlashlight"};
-		attachments[] = {"BatteryD","expansionLaserBeam"};
+		attachments[] = {"BatteryD"};
 		repairableWithKits[] = {5,7};
 		repairCosts[] = {30,25};
 		class EnergyManager

@@ -23,7 +23,6 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 	protected ImageWidget HideIcon;
 	protected TextWidget Text;
 	protected ImageWidget QuestIcon;
-	protected ImageWidget CooldownIcon;
 	protected CheckBoxWidget HideCheckbox;
 
 	void ExpansionQuestMenuLogEntry(ExpansionQuestConfig quest, ExpansionQuestMenu menu)
@@ -73,16 +72,6 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 		{
 			QuestIcon.SetImage(0);
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
-		}
-
-		int timestamp;
-		if (m_QuestModule.GetClientQuestData().HasCooldownOnQuest(m_Quest.GetID(), timestamp))
-		{
-			CooldownIcon.Show(true);
-		}
-		else
-		{
-			CooldownIcon.Show(false);
 		}
 
 		MissionGameplay mission;
@@ -159,7 +148,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 	void OnHideEntryClick()
 	{
-		Print(ToString() + "::OnHideEntryClick - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!m_Quest)
 			return;
@@ -188,8 +177,6 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
-
-		Print(ToString() + "::OnHideEntryClick - End");
 	}
 };
 class ExpansionQuestMenuLogEntryController: ExpansionViewController
@@ -210,7 +197,11 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	protected ButtonWidget Button;
 	protected TextWidget Text;
 	protected ImageWidget QuestIcon;
+	protected Widget CooldownPanel;
 	protected ImageWidget CooldownIcon;
+	protected TextWidget CooldownText;
+	
+	protected bool m_HasCooldown;
 
 	void ExpansionQuestMenuListEntry(ExpansionQuestConfig quest, ExpansionQuestMenu menu)
 	{
@@ -235,6 +226,8 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 	void SetEntry()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!m_Quest || !m_QuestModule || !m_QuestModule.GetClientQuestData())
 			return;
 
@@ -260,24 +253,48 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 			QuestIcon.SetImage(0);
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
 		}
+		
+		SetCooldown();
+	}
+	
+	protected void SetCooldown()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		int timestamp;
-		if (m_QuestModule.GetClientQuestData().HasCooldownOnQuest(m_Quest.GetID(), timestamp))
+		m_HasCooldown = false;
+		
+		int timedif;
+		if (m_Quest.IsDailyQuest() || m_Quest.IsWeeklyQuest())
 		{
-			CooldownIcon.Show(true);
+			if (m_QuestModule.GetClientQuestData().HasCooldownOnQuest(m_Quest.GetID(), timedif))
+			{
+				m_HasCooldown = true;
+			}
+		}
+		
+		if (m_HasCooldown && timedif != 0)
+		{
+			CooldownPanel.Show(true);
+			m_QuestMenuListEntryController.Cooldown = ExpansionStatic.GetTimeString(timedif);
+			m_QuestMenuListEntryController.NotifyPropertyChanged("Cooldown");
 		}
 		else
 		{
-			CooldownIcon.Show(false);
+			CooldownPanel.Show(false);
 		}
 	}
 
 	void OnEntryClick()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!m_Quest)
 			return;
-
-		m_QuestMenu.SetQuest(m_Quest);
+		
+		if (!m_HasCooldown)
+		{
+			m_QuestMenu.SetQuest(m_Quest);
+		}
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -288,6 +305,11 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 			{
 				Text.SetColor(ARGB(255, 0, 0, 0));
 				Background.SetColor(ARGB(200, 220, 220, 220));
+				if (m_HasCooldown)
+				{
+					CooldownIcon.SetColor(ARGB(255, 0, 0, 0));
+					CooldownText.SetColor(ARGB(255, 0, 0, 0));
+				}
 				return true;
 			}
 		}
@@ -303,11 +325,28 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 			{
 				Text.SetColor(ARGB(255, 220, 220, 220));
 				Background.SetColor(ARGB(200, 0, 0, 0));
+				if (m_HasCooldown)
+				{
+					CooldownIcon.SetColor(ARGB(255, 226, 65, 66));
+					CooldownText.SetColor(ARGB(255, 220, 220, 220));
+				}
 				return true;
 			}
 		}
 
 		return false;
+	}
+	
+	override float GetUpdateTickRate()
+	{
+		return 10.0;
+	}
+	
+	override void Update()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		SetCooldown();
 	}
 };
 
@@ -315,4 +354,5 @@ class ExpansionQuestMenuListEntryController: ExpansionViewController
 {
 	string QuestIcon;
 	string QuestTitle;
+	string Cooldown;
 };

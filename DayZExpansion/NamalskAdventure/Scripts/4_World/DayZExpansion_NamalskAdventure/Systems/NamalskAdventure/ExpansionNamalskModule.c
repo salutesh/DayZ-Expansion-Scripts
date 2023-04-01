@@ -10,8 +10,6 @@
  *
 */
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
-#ifdef NAMALSK_TERRAIN
 [CF_RegisterModule(ExpansionNamalskModule)]
 class ExpansionNamalskModule: CF_ModuleWorld
 {
@@ -19,26 +17,30 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	static string s_dataFolderPath = "$mission:expansion\\namalsk_adventure\\";
 
 	protected ref ExpansionNamalskAdventureData m_ServerData; //! Server
-
-#ifdef EXPANSIONMODMARKET
-	protected ref array<ref ExpansionMerchantPosition> m_MerchantPositions; //! Server
-	protected ref array<ref ExpansionMerchantItemSet> m_MerchantItemSets; //! Server
-#endif
 #ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_MerchantServerMarker;
 #endif
+	
+	protected const int MAX_ANOMALY_SPAWN_TRIES = 100;
+	
+	protected int m_AnomalySpawnTries;
+	protected ref array<Expansion_Anomaly_Base> m_Anomalies;
+	protected ref array<vector> m_AnomalyPositions;
 
 	void ExpansionNamalskModule()
 	{
-		s_ModuleInstance = this;
-	#ifdef EXPANSIONMODMARKET
-		m_MerchantPositions = new array<ref ExpansionMerchantPosition>;
-		m_MerchantItemSets = new array<ref ExpansionMerchantItemSet>;
-	#endif
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		s_ModuleInstance = this;		
+		
+		m_Anomalies = new array<Expansion_Anomaly_Base>;
+		m_AnomalyPositions = new array<vector>; 
 	}
 
 	override void OnInit()
 	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
 		super.OnInit();
 
 		EnableMissionStart();
@@ -47,6 +49,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void CreateDirectoryStructure()
 	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
 		if (!FileExist(s_dataFolderPath))
 			ExpansionStatic.MakeDirectoryRecursive(s_dataFolderPath);
 	}
@@ -54,24 +58,23 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef EXPANSIONMODMARKET
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		ModuleDebugPrint("::OnMissionStart - Start");
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		super.OnMissionLoaded(sender, args);
 
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			CreateDirectoryStructure();
-			LoadNamalskAdventureServerData();
-			SetMerchantData();
+			CreateDirectoryStructure(); //! Create directoy structure if not existing.
+			LoadNamalskAdventureServerData(); //! Load server data.
 		}
-
-		ModuleDebugPrint("::OnMissionStart - End");
 	}
 #endif
 
 	protected void LoadNamalskAdventureServerData()
 	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
 		array<string> files = ExpansionStatic.FindFilesInLocation(s_dataFolderPath, ".json");
 		if (files && files.Count() > 0)
 		{
@@ -89,139 +92,86 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void GetServerData(string fileName, string path)
 	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
 		m_ServerData = ExpansionNamalskAdventureData.Load(path + fileName);
 		if (!m_ServerData)
 			Error(ToString() + "::GetServerData - Could not get namalsk adventure server data!");
 	}
 
-	protected void SetMerchantData()
-	{
-		//! Merchant positions
-		m_MerchantPositions.Insert(new ExpansionMerchantPosition_1());
-		m_MerchantPositions.Insert(new ExpansionMerchantPosition_2());
-		m_MerchantPositions.Insert(new ExpansionMerchantPosition_3());
-		m_MerchantPositions.Insert(new ExpansionMerchantPosition_4());
-		m_MerchantPositions.Insert(new ExpansionMerchantPosition_5());
-
-		//! Merchant item sets
-		m_MerchantItemSets.Insert(new ExpansionMerchantItemSet_1());
-	}
-
-	protected ExpansionMerchantPosition GetMerchantPosition()
-	{
-		return m_MerchantPositions.GetRandomElement();
-	}
-
-	protected ExpansionMerchantItemSet GetMerchantItemSet()
-	{
-		return m_MerchantItemSets.GetRandomElement();
-	}
-
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-		ModuleDebugPrint("::OnMissionLoaded - Start");
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		super.OnMissionLoaded(sender, args);
-
+		
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
+			SpawnAnomalies();
+			
 		#ifdef EXPANSIONMODAI
-			Jalovisco_AI();
-			A3_AI();
+			SpawnAI();
 		#endif
 
-		/*#ifdef EXPANSIONMODMARKET
+		#ifdef EXPANSIONMODMARKET
 			CreateMerchant();
-		#endif*/
+		#endif
 		}
-
-		ModuleDebugPrint("::OnMissionLoaded - End");
+	}
+	
+	protected void SpawnAnomalies()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		foreach (ExpansionAnomalyData anoamly: GetExpansionSettings().GetNamalskAdventure().Anomalies)
+		{
+			SpawnAnomaly(anoamly);
+		}
 	}
 
-#ifdef EXPANSIONMODAI
-	protected void Jalovisco_AI()
+#ifdef EXPANSIONMODAI	
+	protected void SpawnAI()
 	{
-		array<vector> waypoints = new array<vector>;
-		string npcName = "Survivor Guard";
-		//! Spawn AI guards
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8597.78, 14.7325, 10529.7));
-		SpawnSingleGuardAI(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8619.11, 34.9968, 10479.6));
-		SpawnSingleGuardAI(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8634.89, 35.0096, 10512.5));
-		SpawnSingleGuardAI(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8566.56, 35.1376, 10554.2));
-		SpawnSingleGuardAI(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8539.49, 35.1852, 10512.8));
-		SpawnSingleGuardAI(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8583.78, 14.7504, 10496.2));
-		SpawnSingleGuardAI(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8618.76, 14.7886, 10516.2));
-		SpawnSingleGuardAI(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8559.18, 15.682, 10528.2));
-		SpawnSingleGuardAI(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(8578.85, 14.7807, 10489.5));
-		SpawnSingleGuardAI(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "Guards", 1.0, 1.0, 1.0, 1.0, false, true);
+		foreach (ExpansionAISpawnPosition aiSpawn: GetExpansionSettings().GetNamalskAdventure().AISpawnPositions)
+		{
+			SpawnSingleAI(aiSpawn);
+		}
 	}
 
-	protected void A3_AI()
+	protected void SpawnSingleAI(ExpansionAISpawnPosition aiSpawn)
 	{
-		array<vector> waypoints = new array<vector>;
-		//! Spawn NAC AI Soldier Units at A3
-		waypoints.Insert(Vector(3601.81, 145.102, 6661.04));
-		SpawnSingleAI(Vector(3601.81, 145.102, 6661.04), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC");
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(3596.59, 170.731, 6659.7));
-		SpawnSingleAI(Vector(3596.59, 170.731, 6659.7), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC");
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(3605.11, 155.144, 6659.77));
-		SpawnSingleAI(Vector(3605.11, 155.144, 6659.77), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC");
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(3591.66, 143.823, 6718.72));
-		SpawnSingleAI(Vector(3591.66, 143.823, 6718.72), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC");
-	}
-
-	protected void SpawnSingleAI(vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true)
-	{
-		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
+		vector pos = ExpansionAIPatrol.GetPlacementPosition(aiSpawn.Position);
 
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos)))
 			return;
+		
+		if (!ai.m_Expansion_NetsyncData)
+			ai.m_Expansion_NetsyncData = new ExpansionNetsyncData(ai);
+
+		if (ai.m_Expansion_NetsyncData)
+		{
+			ai.m_Expansion_NetsyncData.Set(0, aiSpawn.NPCName);
+			ai.m_Expansion_NetsyncData.Set(1, "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds");
+		}
 
 		ai.SetPosition(pos);
-		ai.SetOrientation(ori);
-		ExpansionHumanLoadout.Apply(ai, loadout, false);
-		ai.SetMovementSpeedLimits(minSpeed, maxSpeed);
-		ai.Expansion_SetCanBeLooted(canBeLooted);
-		ai.eAI_SetUnlimitedReload(unlimtedReload);
-		ai.eAI_SetAccuracy(minAccuracy, maxAccuracy);
-		ai.eAI_SetThreatDistanceLimit(800);
-		ai.eAI_SetDamageMultiplier(1.0);
+		ai.SetOrientation(aiSpawn.Orientation);
+		ExpansionHumanLoadout.Apply(ai, aiSpawn.Loadout, false);
+		ai.SetMovementSpeedLimits(aiSpawn.MinSpeed, aiSpawn.MaxSpeed);
+		ai.Expansion_SetCanBeLooted(aiSpawn.CanBeLooted);
+		ai.eAI_SetUnlimitedReload(aiSpawn.UnlimtedReload);
+		ai.eAI_SetAccuracy(aiSpawn.MinAccuracy, aiSpawn.MaxAccuracy);
+		ai.eAI_SetThreatDistanceLimit(aiSpawn.ThreatDistanceLimit);
+		ai.eAI_SetDamageMultiplier(aiSpawn.DamageMultiplier);
 
 		eAIGroup aiGroup;
-		eAIFaction faction = eAIFaction.Create(factionName);
+		eAIFaction faction = eAIFaction.Create(aiSpawn.Faction);
 		if (!Class.CastTo(aiGroup, ai.GetGroup()))
 		{
 			if (!Class.CastTo(aiGroup, eAIGroup.CreateGroup(faction)))
@@ -234,52 +184,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		aiGroup.SetFormation(eAIFormation.Create("Column"));
 		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 
-		for (int idx = 0; idx < waypoints.Count(); idx++)
+		for (int idx = 0; idx < aiSpawn.Waypoints.Count(); idx++)
 		{
-			aiGroup.AddWaypoint(waypoints[idx]);
-			if (waypoints[idx] == pos)
-				aiGroup.m_CurrentWaypointIndex = idx;
-		}
-	}
-
-	protected void SpawnSingleGuardAI(string npcName, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true)
-	{
-		pos = ExpansionAIPatrol.GetPlacementPosition(pos);
-
-		ExpansionGuardAI ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomGuardAI(), pos)))
-			return;
-
-		ai.m_Expansion_NetsyncData.Set(0, npcName);
-		ai.m_Expansion_NetsyncData.Set(1, "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds");
-		ai.SetPosition(pos);
-		ai.SetOrientation(ori);
-		ExpansionHumanLoadout.Apply(ai, loadout, false);
-		ai.SetMovementSpeedLimits(minSpeed, maxSpeed);
-		ai.Expansion_SetCanBeLooted(canBeLooted);
-		ai.eAI_SetUnlimitedReload(unlimtedReload);
-		ai.eAI_SetAccuracy(minAccuracy, maxAccuracy);
-		ai.eAI_SetThreatDistanceLimit(800);
-		ai.eAI_SetDamageMultiplier(1.0);
-
-		eAIGroup aiGroup;
-		eAIFaction faction = eAIFaction.Create(factionName);
-		if (!Class.CastTo(aiGroup, ai.GetGroup()))
-		{
-			if (!Class.CastTo(aiGroup, eAIGroup.CreateGroup(faction)))
-				return;
-
-			ai.SetGroup(aiGroup);
-		}
-
-		aiGroup.SetFaction(faction);
-		aiGroup.SetFormation(eAIFormation.Create("Column"));
-		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
-
-		for (int idx = 0; idx < waypoints.Count(); idx++)
-		{
-			aiGroup.AddWaypoint(waypoints[idx]);
-			if (waypoints[idx] == pos)
+			aiGroup.AddWaypoint(aiSpawn.Waypoints[idx]);
+			if (aiSpawn.Waypoints[idx] == pos)
 				aiGroup.m_CurrentWaypointIndex = idx;
 		}
 	}
@@ -288,15 +196,16 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef EXPANSIONMODMARKET
 	protected void CreateMerchant()
 	{
-		Print(ToString() + "::CreateMerchant - Start");
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
 		ExpansionMarketSettings marketSettings = GetExpansionSettings().GetMarket();
 		int findIndex = -1;
 
 		array<int> usedMerchantPositions = m_ServerData.GetUsedMerchantPositions();
 		array<int> usedMerchantSets = m_ServerData.GetUsedMerchantItemSets();
 
-		ExpansionMerchantPosition positionToUse = GetMerchantPosition(); //! Get a random position for the merchant to spawn.
-		int posIDToUse = positionToUse.GetID();
+		ExpansionMerchantPosition positionToUse = GetExpansionSettings().GetNamalskAdventure().GetMerchantPosition(); //! Get a random position for the merchant to spawn.
+		int posIDToUse = positionToUse.ID;
 
 		//! Check if the random seleted position already got used in the previous sessions.
 		findIndex = -1;
@@ -306,32 +215,32 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		//! we reset the server data that holds that information and get a random position again.
 		if (findIndex > -1)
 		{
-			Print(ToString() + "::CreateMerchant - Position with ID " + posIDToUse + " got already used in previous sessions. Check if we have still unused positions..");
+			ModuleDebugPrint("::CreateMerchant - Position with ID " + posIDToUse + " got already used in previous sessions. Check if we have still unused positions..");
 			positionToUse = null;
-			foreach (ExpansionMerchantPosition pos: m_MerchantPositions)
+			foreach (ExpansionMerchantPosition pos: GetExpansionSettings().GetNamalskAdventure().MerchantPositions)
 			{
-				int posID = pos.GetID();
-				Print(ToString() + "::CreateMerchant - Check if position with ID " + posID + " got used yet..");
+				int posID = pos.ID;
+				ModuleDebugPrint("::CreateMerchant - Check if position with ID " + posID + " got used yet..");
 				findIndex = -1;
 				findIndex = usedMerchantPositions.Find(posID);
 				if (findIndex == -1)
 				{
-					Print(ToString() + "::CreateMerchant - Position with ID " + posID + " got not used yet! Using position..");
+					ModuleDebugPrint("::CreateMerchant - Position with ID " + posID + " got not used yet! Using position..");
 					positionToUse = pos;
 					break;
 				}
 				else
 				{
-					Print(ToString() + "::CreateMerchant - Position with ID " + posID + " got already used! Check next..");
+					ModuleDebugPrint("::CreateMerchant - Position with ID " + posID + " got already used! Check next..");
 				}
 			}
 
 			//! If we found no position to use we need to reset the server data vector array of the last used merchant positions.
 			if (!positionToUse)
 			{
-				Print(ToString() + "::CreateMerchant - No unused positions left! Reset used positons..");
+				ModuleDebugPrint("::CreateMerchant - No unused positions left! Reset used positons..");
 				m_ServerData.ResetUsedPositions();
-				positionToUse = GetMerchantPosition(); //! Get a random position for the merchant to spawn.
+				positionToUse = GetExpansionSettings().GetNamalskAdventure().GetMerchantPosition(); //! Get a random position for the merchant to spawn.
 			}
 		}
 
@@ -341,10 +250,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			return;
 		}
 
-		m_ServerData.GetUsedMerchantPositions().Insert(positionToUse.GetID());
+		m_ServerData.GetUsedMerchantPositions().Insert(positionToUse.ID);
 
-		ExpansionMerchantItemSet itemSetToUse = GetMerchantItemSet(); //! Get a random set of items that the merchant will display.
-		int itemSetIDToUse = itemSetToUse.GetID();
+		ExpansionMerchantItemSet itemSetToUse = GetExpansionSettings().GetNamalskAdventure().GetMerchantItemSet(); //! Get a random set of items that the merchant will display.
+		int itemSetIDToUse = itemSetToUse.ID;
 
 		//! Check if the random seleted set already got used in the previous sessions.
 		findIndex = -1;
@@ -354,17 +263,17 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		//! we reset the server data that holds that information and get a random set again.
 		if (findIndex > -1)
 		{
-			Print(ToString() + "::CreateMerchant - Item set with ID " + itemSetIDToUse + " got already used in previous sessions. Check if we have still unused item sets..");
+			ModuleDebugPrint("::CreateMerchant - Item set with ID " + itemSetIDToUse + " got already used in previous sessions. Check if we have still unused item sets..");
 			itemSetToUse = null;
-			foreach (ExpansionMerchantItemSet itemSet: m_MerchantItemSets)
+			foreach (ExpansionMerchantItemSet itemSet: GetExpansionSettings().GetNamalskAdventure().MerchantItemSets)
 			{
-				int setID = itemSet.GetID();
-				Print(ToString() + "::CreateMerchant - Check if item set with ID " + setID + " got used yet..");
+				int setID = itemSet.ID;
+				ModuleDebugPrint("::CreateMerchant - Check if item set with ID " + setID + " got used yet..");
 				findIndex = -1;
 				findIndex = usedMerchantSets.Find(setID);
 				if (findIndex == -1)
 				{
-					Print(ToString() + "::CreateMerchant - Item set with ID " + setID + " got not used yet! Using Item set..");
+					ModuleDebugPrint("::CreateMerchant - Item set with ID " + setID + " got not used yet! Using Item set..");
 					itemSetToUse = itemSet;
 					break;
 				}
@@ -377,9 +286,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			//! If we found no set to use we need to reset the server data int array of the last used merchant item sets.
 			if (!itemSetToUse)
 			{
-				Print(ToString() + "::CreateMerchant - No unused item sets left! Reset used item sets..");
+				ModuleDebugPrint("::CreateMerchant - No unused item sets left! Reset used item sets..");
 				m_ServerData.ResetUsedItemSets();
-				itemSetToUse = GetMerchantItemSet(); //! Get a random set of items that the merchant will display.
+				itemSetToUse = GetExpansionSettings().GetNamalskAdventure().GetMerchantItemSet(); //! Get a random set of items that the merchant will display.
 			}
 		}
 
@@ -389,12 +298,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			return;
 		}
 
-		m_ServerData.GetUsedMerchantItemSets().Insert(itemSetToUse.GetID());
+		m_ServerData.GetUsedMerchantItemSets().Insert(itemSetToUse.ID);
 		m_ServerData.Save();
 
 		ExpansionMarketTraderZone traderZone = new ExpansionMarketTraderZone();
 		traderZone.m_DisplayName = "Merchant";
-		traderZone.Position = positionToUse.GetPosition();
+		traderZone.Position = positionToUse.Position;
 		traderZone.Radius = 10.0;
 		traderZone.BuyPricePercent = 100.0;
 		traderZone.SellPricePercent = -1.0;
@@ -408,18 +317,25 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		trader.TraderIcon = "Deliver";
 		trader.Currencies.Insert("expansionbanknotehryvnia");
 
-		map<string, int> items = itemSetToUse.GetItems();
-		foreach (string className, int stock: items)
+		string className;
+		int amount;
+		ExpansionMarketTraderBuySell buySell;
+
+		array<ref ExpansionMerchantItem> items = itemSetToUse.Items;
+		foreach (ExpansionMerchantItem item: items)
 		{
-			Print(ToString() + "::CreateMerchant - Add item to market zone and trader: " + className + " | Stock: " + stock);
-			traderZone.AddStock(className, stock);
-			trader.AddItem(className, ExpansionMarketTraderBuySell.CanOnlyBuy);
+			className = item.ClassName;
+			amount = item.Amount;
+			buySell = item.BuySell;
+
+			traderZone.AddStock(className, amount);
+			trader.AddItem(className, buySell);
 		}
 
 		marketSettings.AddMarketZone(traderZone);
 		marketSettings.AddMarketTrader(trader);
 
-		Object obj = GetGame().CreateObject("ExpansionTraderAIMirek", positionToUse.GetPosition());
+		Object obj = GetGame().CreateObject("ExpansionTraderAIMirek", positionToUse.Position);
 		ExpansionTraderAIBase aiTrader = ExpansionTraderAIBase.Cast(obj);
 		if (!aiTrader)
 		{
@@ -444,19 +360,135 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		aiTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
 
 		ExpansionHumanLoadout.Apply(aiTrader, "SurvivorLoadout", false);
-		aiTrader.SetPosition(positionToUse.GetPosition());
-		aiTrader.SetOrientation(positionToUse.GetOrientation());
+		aiTrader.SetPosition(positionToUse.Position);
+		aiTrader.SetOrientation(positionToUse.Orientation);
 
 		traderBase.UpdateTraderZone();
 
 	#ifdef EXPANSIONMODNAVIGATION
-		m_MerchantServerMarker = ExpansionMarkerModule.GetModuleInstance().CreateServerMarker("Merchant", "Coins 2", positionToUse.GetPosition(), ARGB(255, 235, 59, 90), false);
+		m_MerchantServerMarker = ExpansionMarkerModule.GetModuleInstance().CreateServerMarker("Merchant", "Coins 2", positionToUse.Position, ARGB(255, 15, 185, 177), false);
 	#endif
-
-		Print(ToString() + "::CreateMerchant - End");
 	}
 #endif
+	
+	protected vector GetRandomPosInRadius(vector center, float radius)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		vector pos = center + Vector(Math.RandomFloat(-radius, radius), 0, Math.RandomFloat(-radius, radius));
+		pos[1] = GetGame().SurfaceY(pos[0], pos[2]);
+		return pos;
+	}
 
+	protected void SpawnAnomaly(ExpansionAnomalyData anomaly)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);			
+		
+		int amountToSpawn = anomaly.Amount;
+		int amountSpawned;
+		ModuleDebugPrint("::SpawnAnomalies ---------============ Type: " + anomaly.AnomalyType + " | Amount: " + amountToSpawn);
+		
+		while (amountSpawned < amountToSpawn)
+		{
+			ModuleDebugPrint("----------------------------------");
+			bool validPos = true;
+		    vector position = GetRandomPosInRadius(anomaly.CenterPosition, anomaly.Range);
+			position[1] = GetGame().SurfaceY(position[0], position[2]);
+			
+			foreach (vector pos: m_AnomalyPositions)
+			{
+				float dist = vector.Distance(position, pos);
+				if (dist < anomaly.Distance)
+					validPos = false;
+			}
+			
+			if (GetGame().SurfaceIsSea(position[0], position[2]) || GetGame().SurfaceIsPond(position[0], position[2]))
+				validPos = false;
+			
+		   	array<Object> exlcudes;
+			Object entity;
+		    if (GetGame().IsBoxColliding(position, Vector(4, 1, 4), Vector(5, 0, 5), exlcudes))
+				validPos = false;
+			
+			if (!validPos)
+			{
+				m_AnomalySpawnTries++;
+				break;
+			}
+			
+			if (m_AnomalySpawnTries == MAX_ANOMALY_SPAWN_TRIES)
+			{
+				m_AnomalySpawnTries = 0;
+				ModuleDebugPrint("::SpawnAnomaly - To many spawn failures: " + m_AnomalySpawnTries + ". Stop anomaly creation. Type: " + anomaly.AnomalyType + " | Center position: " + anomaly.CenterPosition + " | Randius: " + anomaly.Range);
+				return;
+			}
+
+		    entity = GetGame().CreateObjectEx(anomaly.AnomalyType, position, ECE_NOLIFETIME);
+			Expansion_Anomaly_Base anomalyObj;
+			if (!Class.CastTo(anomalyObj, entity))
+			{
+				GetGame().ObjectDelete(entity);
+				return;
+			}
+			
+			ModuleDebugPrint("::SpawnAnomaly - Spawned anomaly: " + "[" + amountSpawned + "] " +  anomaly.AnomalyType + " | Position: " + position.ToString() + " | Spawn tries: " + m_AnomalySpawnTries);
+			
+			m_AnomalyPositions.Insert(position);
+			m_Anomalies.Insert(anomalyObj);
+			amountSpawned++;
+		}
+		
+		/*for (int i = 0; i < amountToSpawn; i++) 
+		{
+			ModuleDebugPrint("----------------------------------");
+			bool validPos = true;
+		    vector position = GetRandomPosInRadius(anomaly.CenterPosition, anomaly.Range);
+			position[1] = GetGame().SurfaceY(position[0], position[2]);
+			
+			foreach (vector pos: m_AnomalyPositions)
+			{
+				float dist = vector.Distance(position, pos);
+				if (dist < anomaly.Distance)
+					validPos = false;
+			}
+			
+			if (GetGame().SurfaceIsSea(position[0], position[2]) || GetGame().SurfaceIsPond(position[0], position[2]))
+				validPos = false;
+			
+		   	array<Object> exlcudes;
+			Object entity;
+		    if (GetGame().IsBoxColliding(position, Vector(4, 1, 4), Vector(5, 0, 5), exlcudes))
+				validPos = false;
+			
+			if (!validPos)
+			{
+				amountToSpawn++;
+				m_AnomalySpawnTries++;
+				continue;
+			}
+			
+			if (m_AnomalySpawnTries == MAX_ANOMALY_SPAWN_TRIES)
+			{
+				m_AnomalySpawnTries = 0;
+				ModuleDebugPrint("::SpawnAnomaly - To many spawn failures: " + m_AnomalySpawnTries + ". Stop anomaly creation. Type: " + anomaly.AnomalyType + " | Center position: " + anomaly.CenterPosition + " | Randius: " + anomaly.Range);
+				return;
+			}
+
+		    entity = GetGame().CreateObjectEx(anomaly.AnomalyType, position, ECE_NOLIFETIME);
+			Expansion_Anomaly_Base anomalyObj;
+			if (!Class.CastTo(anomalyObj, entity))
+			{
+				GetGame().ObjectDelete(entity);
+				return;
+			}
+			
+			ModuleDebugPrint("::SpawnAnomaly - Spawned anomaly: " + "[" + i + "] " +  anomaly.AnomalyType + " | Position: " + position.ToString() + " | Spawn tries: " + m_AnomalySpawnTries);
+			
+			m_AnomalyPositions.Insert(position);
+			m_Anomalies.Insert(anomalyObj);
+		}*/
+	}
+	
 	/*void AfterQuestModuleClientInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity)
 	{
 		ModuleDebugPrint("::AfterQuestModuleClientInit - Start");
@@ -491,6 +523,57 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenu(identity, 1);
 	}*/
+	
+	void OnEVRStormInitPhaseServer()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		foreach (Expansion_Anomaly_Base anomaly: m_Anomalies)
+		{
+			if (anomaly.GetAnomalyCore())
+			{
+				anomaly.SetAnomalyUnstable();
+			}
+		}
+		
+		set<Expansion_AnomalyCore_Base> anomalyCores = Expansion_AnomalyCore_Base.GetAllAnomalyCores();
+		foreach (Expansion_AnomalyCore_Base anomalyCore: anomalyCores)
+		{
+			anomalyCore.SetAnomalyCoreUnstable();
+		}
+	}
+	
+	void OnEVRStormEndPhaseServer()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		int randomTime;
+		foreach (Expansion_Anomaly_Base anomaly: m_Anomalies)
+		{
+			if (anomaly.GetAnomalyCore())
+			{
+				randomTime = Math.RandomInt(1, 3);
+				anomaly.SetAnomalyExplosion(randomTime);
+			}
+		}
+	}
+	
+	bool IsEVRStormActive()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+	#ifdef NAMALSK_SURVIVAL
+	    NamEventManager event_manager;
+	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+	
+	    if (!event_manager)
+	        return false;
+	
+	    return EVRStorm.Cast(event_manager.GetEvent(EVRStorm)) || EVRStorm.Cast(event_manager.GetEvent(EVRStormDeadly));
+	#endif
+	
+		return false;
+	}
 
 	static ExpansionNamalskModule GetModuleInstance()
 	{
@@ -499,7 +582,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	void ModuleDebugPrint(string text)
 	{
-		Print(ToString() + text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
  };
 
@@ -515,5 +598,3 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		Print(ToString() + "::AfterClientInit - Start");
 	}
 };*/
-#endif
-#endif

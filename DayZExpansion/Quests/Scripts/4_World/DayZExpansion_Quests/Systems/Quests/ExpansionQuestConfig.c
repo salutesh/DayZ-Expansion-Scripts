@@ -494,8 +494,10 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 	static ExpansionQuestConfig Load(string fileName)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS);
+
 		bool save;
-		Print("ExpansionQuestConfig::Load - Load existing configuration file:" + fileName);
+		EXTrace.Print(EXTrace.QUESTS, null, "Load existing configuration file:" + fileName);
 
 		ExpansionQuestConfig questConfig;
 		ExpansionQuestConfigV15Base questConfigBase;
@@ -505,7 +507,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 		if (questConfigBase.ConfigVersion < CONFIGVERSION)
 		{
-			Print("ExpansionQuestConfig::Load - Convert existing configuration file:" + EXPANSION_QUESTS_QUESTS_FOLDER + fileName + " to version " + CONFIGVERSION);
+			EXTrace.Print(EXTrace.QUESTS, null, "Convert existing configuration file:" + EXPANSION_QUESTS_QUESTS_FOLDER + fileName + " to version " + CONFIGVERSION);
 			questConfig = new ExpansionQuestConfig();
 
 			//! Copy over old configuration that haven't changed
@@ -598,6 +600,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 	bool ValidateQuestConfiguration(string fileName)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		bool save;
 
 		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = GetObjectives();
@@ -875,7 +879,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		//! Make sure quest has repeatable parameter if it is a weekly/daily quest.
 		if ((IsWeeklyQuest() || IsDailyQuest()) && !IsRepeatable())
 		{
-			Print("ExpansionQuestConfig::ValidateQuestConfiguration - Quest configuration with ID:" + GetID() + " is a Daily/Weekly quest but not flaged as repeatable. Repeatable flag gets applied and file saved!");
+			EXTrace.Print(EXTrace.QUESTS, this, "Quest configuration with ID:" + GetID() + " is a Daily/Weekly quest but not flaged as repeatable. Repeatable flag gets applied and file saved!");
 			SetIsRepeatable(true);
 			save = true;
 		}
@@ -926,6 +930,8 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 	void OnSend(ParamsWriteContext ctx)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		int i;
 
 		ctx.Write(ID);
@@ -972,13 +978,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!deliveryConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - FAILED");
+						QuestPrint("DELIVER - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("DELIVER - FAILED");
 						break;
 					}
 
 					deliveryConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - DELIVER - SUCCESS");
+					QuestPrint("DELIVER - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.TRAVEL:
@@ -987,13 +993,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!travelConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - FAILED");
+						QuestPrint("TRAVEL - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("TRAVEL - FAILED");
 						break;
 					}
 
 					travelConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - TRAVEL - SUCCESS");
+					QuestPrint("TRAVEL - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.TARGET:
@@ -1002,13 +1008,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!targetConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - FAILED");
+						QuestPrint("TARGET - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("TARGET - FAILED");
 						break;
 					}
 
 					targetConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - TARGET - SUCCESS");
+					QuestPrint("TARGET - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.COLLECT:
@@ -1017,13 +1023,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!collectionConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - FAILED");
+						QuestPrint("COLLECT - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("COLLECT - FAILED");
 						break;
 					}
 
 					collectionConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - COLLECT - SUCCESS");
+					QuestPrint("COLLECT - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.TREASUREHUNT:
@@ -1032,13 +1038,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!treasureHuntConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - FAILED");
+						QuestPrint("TREASUREHUNT - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("TREASUREHUNT - FAILED");
 						break;
 					}
 
 					treasureHuntConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - TREASUREHUNT - SUCCESS");
+					QuestPrint("TREASUREHUNT - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.ACTION:
@@ -1047,13 +1053,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!actionConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - FAILED");
+						QuestPrint("ACTION - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("ACTION - FAILED");
 						break;
 					}
 
 					actionConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - ACTION - SUCCESS");
+					QuestPrint("ACTION - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.CRAFTING:
@@ -1062,13 +1068,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!craftingConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - FAILED");
+						QuestPrint("CRAFTING - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("CRAFTING - FAILED");
 						break;
 					}
 
 					craftingConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - CRAFTING - SUCCESS");
+					QuestPrint("CRAFTING - SUCCESS");
 					break;
 				}
 			#ifdef EXPANSIONMODAI
@@ -1078,13 +1084,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!aiPatrolConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - FAILED");
+						QuestPrint("AIPATROL - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("AIPATROL - FAILED");
 						break;
 					}
 
 					aiPatrolConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - AIPATROL - SUCCESS");
+					QuestPrint("AIPATROL - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.AICAMP:
@@ -1093,13 +1099,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!aiCampConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - FAILED");
+						QuestPrint("AICAMP - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("AICAMP - FAILED");
 						break;
 					}
 
 					aiCampConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - AICAMP - SUCCESS");
+					QuestPrint("AICAMP - SUCCESS");
 					break;
 				}
 				case ExpansionQuestObjectiveType.AIESCORT:
@@ -1108,13 +1114,13 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 					if (!aiEscortConfig)
 					{
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AIESCORT - Unable to find quest by ID: " + objectiveID);
-						QuestPrint("ExpansionQuestConfig::OnRecieve - AIESCORT - FAILED");
+						QuestPrint("AIESCORT - Unable to find quest by ID: " + objectiveID);
+						QuestPrint("AIESCORT - FAILED");
 						break;
 					}
 
 					aiEscortConfig.OnSend(ctx);
-					QuestPrint("ExpansionQuestConfig::OnRecieve - AIVIP - SUCCESS");
+					QuestPrint("AIVIP - SUCCESS");
 					break;
 				}
 			#endif
@@ -1572,7 +1578,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 	void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSINSTANCEDEBUG
-		Print(text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 

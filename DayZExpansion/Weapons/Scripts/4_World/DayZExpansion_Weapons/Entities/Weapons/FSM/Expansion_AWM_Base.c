@@ -19,14 +19,14 @@ class Expansion_AWM_Base: BoltActionRifle_ExternalMagazine_Base
 
 		string slot_name = InventorySlots.GetSlotName(slot_id);   
 		
-		if ( slot_name == "sniperOptics" )
+		if ( slot_name == "ExpansionSniperOptics" )
 		{
-			return this.FindAttachmentBySlotName("sniperOptics") != NULL;
+			return this.FindAttachmentBySlotName("ExpansionSniperOptics") != NULL;
 		}
 
 		if ( slot_name == "weaponOptics" )
 		{
-			return this.FindAttachmentBySlotName("sniperOptics") == NULL;	
+			return this.FindAttachmentBySlotName("ExpansionSniperOptics") == NULL;	
 		} 
 
 		return true;

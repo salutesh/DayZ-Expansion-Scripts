@@ -263,7 +263,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		foreach (ExpansionQuestConfig questConfig: m_ClientQuestConfigs)
 		{
 			QuestDebug(ToString() + "::SetQuests - Checking if quest " + questConfig.GetID() + " should be displayed..");
-			if (!ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, m_ClientQuestData, questNPCID))
+			if (!ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, m_ClientQuestData, questNPCID, true))
 			{
 				QuestDebug(ToString() + "::SetQuests - Don't show quest " + questConfig.GetID() + ". Skip..");
 				continue;
@@ -372,7 +372,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		m_QuestMenuController.QuestDescription = descriptiontext.Format();
 		m_QuestMenuController.NotifyPropertyChanged("QuestDescription");
 		
-		if (objectiveText != string.Empty)
+		if (objectiveText != m_QuestMenuController.QuestObjective)
 		{
 			m_QuestMenuController.QuestObjective = objectiveText;
 			m_QuestMenuController.NotifyPropertyChanged("QuestObjective");
@@ -430,9 +430,9 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 							m_NeedToSelectObjItem = true;
 						}
 
-						for (j = 0; j < collectionDelivery.GetDeliveries().Count(); j++)
+						for (j = 0; j < collectionDelivery.GetCollections().Count(); j++)
 						{
-							ExpansionQuestObjectiveDelivery collection = collectionDelivery.GetDeliveries()[j];
+							ExpansionQuestObjectiveDelivery collection = collectionDelivery.GetCollections()[j];
 							int currentCollectionCount = 0;
 							className = collection.GetClassName();
 							amount = collection.GetAmount();
@@ -812,7 +812,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	void QuestDebug(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 };

@@ -39,6 +39,8 @@ modded class ExpansionPartyData
 
 	protected void OnGroupMemberJoined(ExpansionPartyPlayerData player)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		string playerUID = player.GetID();
 		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
 		if (!playerQuestData)
@@ -51,12 +53,12 @@ modded class ExpansionPartyData
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			Print(ToString() + "::OnGroupMemberJoined - Quest: " + activeQuestInstance);
+			EXTrace.Print(EXTrace.QUESTS, this, "Quest: " + activeQuestInstance);
 		#endif
 			if (activeQuestInstance.GetQuestConfig().IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-				Print(ToString() + "::OnGroupMemberJoined - There is a active group quest instance for this player! Add quest.");
+				EXTrace.Print(EXTrace.QUESTS, this, "There is a active group quest instance for this player! Add quest.");
 			#endif
 				//! Make sure player has the correct quest state for this quest in his quest data.
 				if (!playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
@@ -71,7 +73,7 @@ modded class ExpansionPartyData
 		if (!playerBase)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			Print(ToString() + "::OnGroupMemberJoined - Could not get player base. Player is offline!");
+			EXTrace.Print(EXTrace.QUESTS, this, "Could not get player base. Player is offline!");
 		#endif
 			return;
 		}
@@ -89,6 +91,8 @@ modded class ExpansionPartyData
 	//! can recover these sates.
 	override void OnLeave(ExpansionPartyPlayerData player)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		super.OnLeave(player);
 
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
@@ -106,12 +110,12 @@ modded class ExpansionPartyData
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			Print(ToString() + "::OnLeave - Quest: " + activeQuestInstance);
+			EXTrace.Print(EXTrace.QUESTS, this, "Quest: " + activeQuestInstance);
 		#endif
 			if (activeQuestInstance.GetQuestConfig().IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
 			{
 			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-				Print(ToString() + "::OnLeave - There is a active group quest instance for this player! Remove quest.");
+				EXTrace.Print(EXTrace.QUESTS, this, "There is a active group quest instance for this player! Remove quest.");
 			#endif
 
 				if (m_ManualLeave)
@@ -129,7 +133,7 @@ modded class ExpansionPartyData
 		if (!playerBase)
 		{
 		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			Print(ToString() + "::OnLeave - Could not get player base. Player is offline!");
+			EXTrace.Print(EXTrace.QUESTS, this, "Could not get player base. Player is offline!");
 		#endif
 			return;
 		}

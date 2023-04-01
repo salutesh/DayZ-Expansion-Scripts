@@ -151,7 +151,7 @@ class ExpansionItemSpawnHelper
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnInInventorySecure");
 #endif
 
-		bool canSpawnInInventory = ExpansionStatic.IsItemBase(className);
+		bool canSpawnInInventory = ExpansionStatic.IsInventoryItem(className);
 
 		if (!canSpawnInInventory)
 			return NULL;

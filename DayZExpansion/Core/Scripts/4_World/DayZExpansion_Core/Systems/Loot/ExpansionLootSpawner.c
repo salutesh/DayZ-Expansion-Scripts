@@ -162,7 +162,10 @@ class ExpansionLootSpawner
 		}
 		else
 		{
-			Error("ExpansionLootSpawner::Spawn - couldn't spawn " + className + " on " + parent);
+			if (ExpansionStatic.ItemExists(className))
+				EXPrint("ExpansionLootSpawner::Spawn - WARNING: Couldn't spawn " + className + " on " + parent);
+			else
+				Error("ExpansionLootSpawner::Spawn - ERROR: Couldn't spawn " + className + " - item with that classname does not exist!");
 		}
 	}
 	

@@ -199,7 +199,7 @@ class ExpansionQuestMenuItemEntry: ExpansionScriptView
 	void QuestDebug(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSUIDEBUG
-		Print(text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 };

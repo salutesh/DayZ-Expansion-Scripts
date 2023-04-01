@@ -16,12 +16,11 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	protected int m_ExecutionAmount;
 	protected int m_ExecutionCount;
 	protected int m_UpdateCount;
-	protected ref ExpansionQuestObjectiveActionEventData m_ActionEventData;
 	protected ref ExpansionQuestObjectiveActionConfig m_Config;
 
 	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::OnEventStart - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		if (!super.OnEventStart())
 			return false;
@@ -29,248 +28,121 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		m_ExecutionAmount = m_Config.GetExecutionAmount();
-
-		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}
 
 	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!super.OnContinue())
 			return false;
 		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		m_ExecutionAmount = m_Config.GetExecutionAmount();
 		m_Quest.QuestCompletionCheck();
 
-		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}
 
-	void OnObjectiveActionExecuted(ActionBase actionBase, ActionData actionData, bool isInit = false)
+	void OnObjectiveActionExecuted(ActionBase actionBase, ActionData actionData)
 	{
-		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (IsCompleted() || m_Config.GetActionNames().Find(actionBase.ClassName()) == -1)
 			return;
 
-		string methodName = GetActionMethodName(actionBase.ClassName());
-		if (methodName == string.Empty)
-		{
-			ObjectivePrint(ToString() + "::OnActionUsed - No event handling for action " + actionBase.ClassName() + ".");
-			return;
-		}
-
-		if (!m_ActionEventData)
-		{
-			m_ActionEventData = new ExpansionQuestObjectiveActionEventData();
-			m_ActionEventData.m_ActionBase = actionBase;
-			m_ActionEventData.m_ActionData = actionData;
-			m_ActionEventData.m_ActionName = actionBase.ClassName();
-		}
-
-		HandleAction(methodName, isInit);
-
-		ObjectivePrint(ToString() + "::OnObjectiveActionExecuted - End");
-	}
-
-	protected string GetActionMethodName(string actionName)
-	{
-		foreach (ExpansionQuestAction action: GetExpansionSettings().GetQuest().QuestActions)
-		{
-			if (actionName == action.ActionName)
-				return action.MethodName;
-		}
-
-		return string.Empty;
-	}
-
-	protected void HandleAction(string methodName, bool isInit = false)
-	{
-		ScriptModule module = GetGame().GetMission().MissionScript;
-		module.Call(this, methodName, isInit);
-	}
-
-	//! Action handling methods
-	protected void OnActionBandageSelf(bool isInit = false)
-	{
-		ObjectivePrint(ToString() + "::OnActionBandageSelf - Start");
-
-		if (!m_ActionEventData)
+		if (!MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_CheckActionSuccess(actionBase, actionData))
 			return;
 
-		PlayerBase targetPlayer;
-		if (isInit)
+		if (actionData.m_Target || actionData.m_MainItem)
 		{
-			m_ActionEventData.SetTargetActionPlayer();
-			targetPlayer = PlayerBase.Cast(m_ActionEventData.m_Target);
-			if (!targetPlayer)
+			array<Object> objects = {};
+	
+			if (actionData.m_Target)
+			{
+				Object targetObject = actionData.m_Target.GetObject();
+				Object targetParent = actionData.m_Target.GetParent();
+
+				if (targetObject)
+					objects.Insert(targetObject);
+
+				if (targetParent && targetParent != targetObject)
+					objects.Insert(targetParent);
+			}
+
+			if (actionData.m_MainItem)
+				objects.Insert(actionData.m_MainItem);
+
+			TStringArray excluded = m_Config.GetExcludedClassNames();
+			TStringArray allowed = m_Config.GetAllowedClassNames();
+
+			bool isAllowed = allowed.Count() == 0;
+
+			foreach (Object obj: objects)
+			{
+				if (ExpansionStatic.IsAnyOf(obj, excluded))
+					return;
+
+				if (!isAllowed && ExpansionStatic.IsAnyOf(obj, allowed))
+				{
+					isAllowed = true;
+					break;
+				}
+			}
+
+			if (!isAllowed)
 				return;
-
-			m_ActionEventData.m_ConditionInt = targetPlayer.GetBleedingSourceCount(); //! Get current bleeding source count.
-		}
-		else
-		{
-			targetPlayer = PlayerBase.Cast(m_ActionEventData.m_Target);
-			if (m_ActionEventData.m_ConditionInt > targetPlayer.GetBleedingSourceCount()) //! Compare bleeding source count after action execution.
-			{
-				OnActionExecutionValid();
-				ClearActionData();
-			}
 		}
 
-		ObjectivePrint(ToString() + "::OnActionBandageSelf - End");
-	}
-
-	protected void OnActionBandageTarget(bool isInit = false)
-	{
-		ObjectivePrint(ToString() + "::OnActionBandageTarget - Start");
-
-		if (!m_ActionEventData)
-			return;
-
-		PlayerBase targetPlayer;
-		if (isInit)
-		{
-			m_ActionEventData.SetTargetActionTarget();
-			targetPlayer = PlayerBase.Cast(m_ActionEventData.m_Target);
-			if (!targetPlayer)
-				return;
-
-			m_ActionEventData.m_ConditionInt = targetPlayer.GetBleedingSourceCount(); //! Get current bleeding source count.
-		}
-		else
-		{
-			targetPlayer = PlayerBase.Cast(m_ActionEventData.m_Target);
-			if (m_ActionEventData.m_ConditionInt > targetPlayer.GetBleedingSourceCount()) //! Compare bleeding source count after action execution.
-			{
-				OnActionExecutionValid();
-				ClearActionData();
-			}
-		}
-
-		ObjectivePrint(ToString() + "::OnActionBandageTarget - End");
-	}
-
-#ifdef EXPANSIONMODVEHICLE
-	protected void OnExpansionActionPickVehicleLock(bool isInit = false)
-	{
-		ObjectivePrint(ToString() + "::OnExpansionActionPickVehicleLock - Start");
-
-		if (!m_ActionEventData)
-			return;
-
-		if (isInit)
-		{
-			m_ActionEventData.SetTargetActionTarget();
-		}
-		else
-		{
-			CarScript vehicle = CarScript.Cast(m_ActionEventData.m_Target);
-			if (vehicle && vehicle.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
-			{
-				OnActionExecutionValid();
-				ClearActionData();
-			}
-		}
-
-		ObjectivePrint(ToString() + "::OnExpansionActionPickVehicleLock - End");
-	}
-
-	protected void OnExpansionVehicleActionPickLock(bool isInit = false)
-	{
-		ObjectivePrint(ToString() + "::OnExpansionVehicleActionPickLock - Start");
-
-		if (!m_ActionEventData)
-			return;
-
-		if (isInit)
-		{
-			m_ActionEventData.SetTargetActionTarget();
-		}
-		else
-		{
-			ExpansionVehicleBase vehicle = ExpansionVehicleBase.Cast(m_ActionEventData.m_Target);
-			if (vehicle && vehicle.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
-			{
-				OnActionExecutionValid();
-				ClearActionData();
-			}
-		}
-
-		ObjectivePrint(ToString() + "::OnExpansionVehicleActionPickLock - End");
-	}
-#endif
-
-	protected void OnActionPlantSeed(bool isInit = false)
-	{
-		ObjectivePrint(ToString() + "::OnActionPlantSeed - Start");
-
-		if (!m_ActionEventData)
-			return;
-
-		m_ActionEventData.SetTargetActionMainItem();
-		ObjectivePrint(ToString() + "::OnActionPlantSeed - Item target: " + m_ActionEventData.m_Target.GetType());
-		bool isExculuded = ExpansionStatic.IsAnyOf(m_ActionEventData.m_Target, m_Config.GetExcludedClassNames(), true);
-		bool isAllowed = ExpansionStatic.IsAnyOf(m_ActionEventData.m_Target, m_Config.GetAllowedClassNames(), true);
-
-		ObjectivePrint(ToString() + "::OnActionPlantSeed - Is Excluded: " + isExculuded);
-		ObjectivePrint(ToString() + "::OnActionPlantSeed - Is Allowed: " + isAllowed);
-
-		if (!isExculuded && isAllowed)
-		{
-			OnActionExecutionValid();
-			ClearActionData();
-		}
-
-		ObjectivePrint(ToString() + "::OnActionPlantSeed - End");
+		OnActionExecutionValid();
 	}
 
 	protected void OnActionExecutionValid()
 	{
-		ObjectivePrint(ToString() + "::OnActionExecutionValid - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_ExecutionCount++;
+		bool updateQuest;
 		if (m_UpdateCount != m_ExecutionCount)
 		{
 			m_UpdateCount = m_ExecutionCount;
-			m_Quest.UpdateQuest(false);
+			updateQuest = true;
 		}
 
 		if (m_ExecutionCount == m_ExecutionAmount)
 		{
 			m_ActionState = true;
-			m_Quest.QuestCompletionCheck();
+			m_Quest.QuestCompletionCheck(true);
 		}
-
-		ObjectivePrint(ToString() + "::OnActionExecutionValid - End");
-	}
-
-	protected void ClearActionData()
-	{
-		m_ActionEventData = NULL;
+		else if (updateQuest)
+		{
+			m_Quest.UpdateQuest(false);
+		}
 	}
 
 	void SetExecutionCount(int count)
 	{
-		ObjectivePrint(ToString() + "::SetExecutionCount - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		m_ExecutionCount = count;
 		
-		ObjectivePrint(ToString() + "::SetExecutionCount - m_ExecutionCount: " + m_ExecutionCount);
-		ObjectivePrint(ToString() + "::SetExecutionCount - End");
+		ObjectivePrint("m_ExecutionCount: " + m_ExecutionCount);
 	}
 
 	int GetExecutionCount()
 	{
 		return m_ExecutionCount;
+	}
+
+	void SetExecutionAmount(int amount)
+	{
+		m_ExecutionAmount = amount;
 	}
 
 	int GetExecutionAmount()
@@ -285,20 +157,20 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 
 	void SetActionState(bool state)
 	{
-		ObjectivePrint(ToString() + "::SetActionState - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_ActionState = state;
 
-		ObjectivePrint(ToString() + "::SetActionState - m_ActionState: " + m_ActionState);
-		ObjectivePrint(ToString() + "::SetActionState - End");
+		ObjectivePrint("m_ActionState: " + m_ActionState);
 	}
 
 	override bool CanComplete()
 	{
-		ObjectivePrint(ToString() + "::CanComplete - Start");
-		ObjectivePrint(ToString() + "::CanComplete - m_ExecutionCount: " + m_ExecutionCount);
-		ObjectivePrint(ToString() + "::CanComplete - m_ExecutionAmount: " + m_ExecutionAmount);
-		ObjectivePrint(ToString() + "::CanComplete - m_ActionState: " + m_ActionState);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		ObjectivePrint("m_ExecutionCount: " + m_ExecutionCount);
+		ObjectivePrint("m_ExecutionAmount: " + m_ExecutionAmount);
+		ObjectivePrint("m_ActionState: " + m_ActionState);
 		
 		if (m_ExecutionCount == 0)
 			return false;
@@ -306,11 +178,9 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		bool conditionsResult = m_ActionState && (m_ExecutionCount == m_ExecutionAmount);
 		if (!conditionsResult)
 		{
-			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			ObjectivePrint("End and return: FALSE");
 			return false;
 		}
-
-		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
 
 		return super.CanComplete();
 	}

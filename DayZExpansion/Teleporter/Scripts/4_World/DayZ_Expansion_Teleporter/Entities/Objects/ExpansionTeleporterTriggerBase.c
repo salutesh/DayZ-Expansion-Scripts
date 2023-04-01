@@ -14,7 +14,7 @@
  * @brief		This class handles teleporter objects used to head-out or take-in quests
  **/
 
-class ExpansionTeleporterTriggerBase: Trigger
+/*class ExpansionTeleporterTriggerBase: Trigger
 {
 	protected ref ExpansionTeleportData m_TeleportData;
 	protected Expansion_Teleporter_Base m_TeleporterObj;
@@ -238,4 +238,4 @@ class ExpansionTeleporterTriggerBase: Trigger
 	#endif
 	}
 };
-class ExpansionTeleporterTrigger: ExpansionTeleporterTriggerBase {};
+class ExpansionTeleporterTrigger: ExpansionTeleporterTriggerBase {};*/

@@ -85,6 +85,8 @@ class EXTrace
 
 	static bool NOTIFICATIONS;
 	
+	static bool NAMALSKADVENTURE = ENABLE;
+	
 	static bool P2PMARKET = ENABLE;
 
 	static bool PATH_INTERPOLATION;
@@ -106,6 +108,8 @@ class EXTrace
 	static bool SPAWNSELECTION;
 
 	static bool SKIN;
+	
+	static bool TELEPORTER = ENABLE;
 
 	static bool TERRITORY;
 
@@ -119,7 +123,8 @@ class EXTrace
 
 	//! -----------------------------------------------------------------------
 
-	static string m_Indent = "                                  ";
+	static const string INDENT = "                        ";
+	static string s_Indent;
 	protected string m_Instance;
 	protected string m_Params[10];
 	protected int m_ParamsCount;
@@ -128,18 +133,27 @@ class EXTrace
 	protected int m_Start;  //! Default start = 2 (second line of stack)
 	protected bool m_End;
 
-	private void EXTrace(Class instance = null)
+	private void EXTrace(Class instance = null, bool initialDump = true)
 	{
 		if (instance)
 			m_Instance = instance.ToString();
-		m_Ticks = TickCount(0);
 		m_Depth = 1;
 		m_Start = 2;
+		m_Ticks = TickCount(0);
+		if (initialDump)
+			InitialDump();
 	}
 
 	void ~EXTrace()
 	{
+		s_Indent = s_Indent.Substring(0, s_Indent.Length() - 1);
 		Dump(m_Depth, m_Start, true);
+	}
+
+	void InitialDump(int initialDumpStart = 1)
+	{
+		Dump(m_Depth, m_Start + initialDumpStart);
+		s_Indent += " ";
 	}
 
 	void Dump(int depth = 1, int start = 1, bool end = false)
@@ -148,20 +162,21 @@ class EXTrace
 			return;
 		m_End = end;
 		int elapsed = TickCount(m_Ticks);
-		string res;
+		string params;
 		for (int i = 0; i < m_ParamsCount; i++)
 		{
-			res += m_Params[i] + " ";
+			params += " " + m_Params[i];
 		}
+		string prefix;
 		if (m_Instance)
 		{
-			res += m_Instance;
+			prefix = m_Instance;
 			if (depth != 0)
-				res += "::";
+				prefix += "::";
 		}
 		if (depth == 0)
 		{
-			DumpLine(res, elapsed, end);
+			DumpLine(prefix + params, elapsed, end);
 		}
 		else
 		{
@@ -172,10 +187,18 @@ class EXTrace
 			int n = start;
 			while (depth != 0 && n < stacka.Count())
 			{
+				string line = stacka[n];
 				if (n > start)
-					PrintFormat("%1%2", m_Indent, stacka[n++]);
+				{
+					PrintFormat("%1%2", s_Indent + INDENT, line);
+				}
 				else
-					DumpLine(res + stacka[n++], elapsed, end);
+				{
+					if (end || m_Instance)
+						line = line.Substring(0, line.IndexOf("("));
+					DumpLine(prefix + line + params, elapsed, end);
+				}
+				n++;
 				if (depth > 0)
 					depth--;
 			}
@@ -184,12 +207,12 @@ class EXTrace
 	}
 
 	//! @note max script log line length 256 characters
-	void DumpLine(string res, int elapsed, bool end = false)
+	void DumpLine(string line, int elapsed, bool end = false)
 	{
-		string prefix;
 		if (end)
-			prefix = "~";
-		PrintFormat("%1 [%2EXTRACE] %3ms %4", ExpansionStatic.GetTimestamp(), prefix, (elapsed / 10000.0).ToString(), res);
+			PrintFormat("%1 [EXTRACE] %2 %3 ms", ExpansionStatic.GetTimestamp(), s_Indent + "-" + line, (elapsed / 10000.0).ToString());
+		else
+			PrintFormat("%1 [EXTRACE] %2", ExpansionStatic.GetTimestamp(), s_Indent + "+" + line);
 	}
 
 	EXTrace Add(bool param)
@@ -279,6 +302,11 @@ class EXTrace
 		m_Start = start;
 	}
 
+	void Print(string msg = "")
+	{
+		PrintFormat("%1 [EXPRINT] %2", ExpansionStatic.GetTimestamp(), s_Indent + msg);
+	}
+
 	static void Print(bool yes = true, Class instance = null, string msg = "")
 	{
 		//! Unconditionally conditionally enable if define not defined kappa
@@ -290,9 +318,9 @@ class EXTrace
 		string ts = ExpansionStatic.GetTimestamp();
 
 		if (instance)
-			PrintFormat("%1 [EXTRACE] %2 %3", ts, instance.ToString(), msg);
+			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent + instance.ToString(), msg);
 		else
-			PrintFormat("%1 [EXTRACE] %2", ts, msg);
+			PrintFormat("%1 [EXPRINT] %2", ts, s_Indent + msg);
 	}
 
 	static void PrintHit(bool yes = true, Class instance = null, string msg = "", TotalDamageResult damageResult = null, int damageType = 0, EntityAI source = null, int component = 0, string dmgZone = "", string ammo = "", vector modelPos = "0 0 0", float speedCoef = 1.0)
@@ -326,7 +354,7 @@ class EXTrace
 	}
 
 	//! Includes 1st line of stack
-	static EXTrace Start(bool yes = true, Class instance = null, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "")
+	static EXTrace Start(bool yes = true, Class instance = null, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "", int initialDumpStart = 1)
 	{
 		//! Unconditionally conditionally enable if define not defined kappa
 #ifndef EXPANSIONTRACE
@@ -334,7 +362,7 @@ class EXTrace
 			return null;
 #endif
 
-		auto trace = new EXTrace(instance);
+		auto trace = new EXTrace(instance, false);
 		if (param0)
 			trace.Add(param0);
 		if (param1)
@@ -355,6 +383,8 @@ class EXTrace
 			trace.Add(param8);
 		if (param9)
 			trace.Add(param9);
+		if (initialDumpStart)
+			trace.InitialDump(initialDumpStart);
 		return trace;
 	}
 
@@ -367,8 +397,9 @@ class EXTrace
 			return null;
 #endif
 
-		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(-1);
+		trace.InitialDump(2);
 		return trace;
 	}
 
@@ -381,8 +412,9 @@ class EXTrace
 			return null;
 #endif
 
-		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(0);
+		trace.InitialDump(2);
 		return trace;
 	}
 }

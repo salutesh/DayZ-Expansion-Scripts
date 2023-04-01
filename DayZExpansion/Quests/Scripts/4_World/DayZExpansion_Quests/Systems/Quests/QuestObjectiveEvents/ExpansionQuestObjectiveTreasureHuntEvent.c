@@ -25,7 +25,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::OnEventStart - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnEventStart())
 			return false;
@@ -44,7 +44,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			CreateMarkers();
 	#endif
 
-		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -52,7 +52,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnContinue())
 			return false;
@@ -77,14 +77,14 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		m_Quest.QuestCompletionCheck();
 
-		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
 
 	override bool OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnCleanup())
 			return false;
@@ -107,14 +107,14 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		ObjectivePrint(ToString() + "::OnCleanup - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
 
 	override bool OnCancel()
 	{
-		ObjectivePrint(ToString() + "::OnCancel - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnCancel())
 			return false;
@@ -134,14 +134,14 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		ObjectivePrint(ToString() + "::OnCancel - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
 
 	protected void CreateTreasure()
 	{
-		ObjectivePrint(ToString() + "::CreateTreasure - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!m_Config)
 			return;
@@ -200,7 +200,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		ExpansionLootSpawner.SpawnLoot(m_Chest, m_Config.GetLoot(), m_Config.GetLootItemsAmount(), m_LootItems, m_LootItemsMap);
 		m_Chest.ExpansionSetCanReceiveItems(false);	
 
-		ObjectivePrint(ToString() + "::CreateTreasure - End");
+		
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -209,10 +209,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		ObjectivePrint(ToString() + "::CreateMarkers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		string markerName = m_Config.GetMarkerName();
 		CreateObjectiveMarker(m_StashPos, markerName, m_Config.GetMarkerVisibility());
-		ObjectivePrint(ToString() + "::CreateMarkers - End");
+		
 	}
 #endif	
 	
@@ -226,14 +226,11 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CreateTrigger(vector pos)
 	{
-		ObjectivePrint(ToString() + "::CreateTrigger - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", pos, ECE_NONE));
 		m_ObjectiveTrigger.SetPosition(pos);
 		m_ObjectiveTrigger.SetObjectiveData(this);
-
-		ObjectivePrint(ToString() + ":: CreateTrigger - Created objective trigger at position: " + pos + ".");
-		ObjectivePrint(ToString() + "::CreateTrigger - End");
 	}
 
 	vector GetPosition()
@@ -249,8 +246,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
-		ObjectivePrint(ToString() + "::SetReachedLocation - Start");
-		ObjectivePrint(ToString() + "::SetReachedLocation - State: " + state);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("State: " + state);
 		
 		if (state)
 		{
@@ -268,10 +265,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!m_DestinationReached)
 			SetLocationState(state);
 		
-		m_Quest.UpdateQuest(false);
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
-		ObjectivePrint(ToString() + "::SetReachedLocation - End");
+		
 	}
 
 	void SetLocationState(bool state)
@@ -281,17 +277,16 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	void LootedItemFromChest()
 	{
-		ObjectivePrint(ToString() + "::LootedItemFromChest - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		m_LootedItemFromChest = true;
-		m_Quest.UpdateQuest(false);
-		m_Quest.QuestCompletionCheck();
-		ObjectivePrint(ToString() + "::LootedItemFromChest - End");
+		m_Quest.QuestCompletionCheck(true);
+		
 	}
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
-		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - Start");
-		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - State: " + typename.EnumToString(ExpansionQuestItemState, state));
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("State: " + typename.EnumToString(ExpansionQuestItemState, state));
 		
 		if (m_LootItems.Find(item) == -1)
 			return;
@@ -300,16 +295,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!m_LootItemsMap.Find(item.GetType(), amount))
 			return;
 		
-		int itemAmount = ExpansionQuestModule.GetModuleInstance().GetItemAmount(item);
+		int itemAmount = item.Expansion_GetStackAmount();
 		if (itemAmount != amount)
 		{
 			m_LootedItemFromChest = true;
 
-			m_Quest.UpdateQuest(false);
-			m_Quest.QuestCompletionCheck();
+			m_Quest.QuestCompletionCheck(true);
 		}
-		
-		ObjectivePrint(ToString() + "::OnInventoryItemLocationChange - End");
 	}
 
 	bool HasLootedItemFromChest()
@@ -319,18 +311,18 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
-		ObjectivePrint(ToString() + "::CanComplete - Start");
-		ObjectivePrint(ToString() + "::CanComplete - m_DestinationReached: " + m_DestinationReached);
-		ObjectivePrint(ToString() + "::CanComplete - m_LootedItemFromChest: " + m_LootedItemFromChest);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
+		ObjectivePrint("m_LootedItemFromChest: " + m_LootedItemFromChest);
 
 		bool conditionsResult = m_DestinationReached && m_LootedItemFromChest;
 		if (!conditionsResult)
 		{
-			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			ObjectivePrint("End and return: FALSE");
 			return false;
 		}
 
-		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+		ObjectivePrint("End and return: TRUE");
 
 		return super.CanComplete();
 	}
