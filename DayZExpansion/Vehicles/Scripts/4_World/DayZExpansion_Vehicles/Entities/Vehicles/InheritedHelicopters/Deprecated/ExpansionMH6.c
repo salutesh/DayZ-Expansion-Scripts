@@ -51,7 +51,6 @@ class ExpansionMh6 : ExpansionHelicopterScript
 		return CarLightBase.Cast(ScriptedLightBase.CreateLight(ExpansionHelicopterFrontLight));
 	}
 
-#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
@@ -60,7 +59,6 @@ class ExpansionMh6 : ExpansionHelicopterScript
 
 		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
 	}
-#endif
 
 	override int GetSeatAnimationType(int posIdx)
 	{

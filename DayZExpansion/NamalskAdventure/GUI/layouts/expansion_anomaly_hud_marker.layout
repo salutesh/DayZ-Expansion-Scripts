@@ -1,0 +1,60 @@
+PanelWidgetClass ExpansionAnomalyHudMarker {
+ clipchildren 0
+ ignorepointer 1
+ position 0 0
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionAnomalyHUDMarkerController"
+ {
+  WrapSpacerWidgetClass Marker {
+   clipchildren 0
+   ignorepointer 1
+   size 50 12
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   Padding 0
+   Margin 0
+   "Size To Content H" 1
+   "Size To Content V" 1
+   {
+    ImageWidgetClass Point {
+     clipchildren 0
+     ignorepointer 1
+     color 0.3804 0.1804 0.4588 1
+     size 12 12
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+    }
+    PanelWidgetClass PanelWidget0 {
+     ignorepointer 1
+     position 10 10
+     size 5 12
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+    }
+    TextWidgetClass Distance {
+     clipchildren 0
+     ignorepointer 1
+     position 0 0
+     size 24 12
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     text "13 m"
+     "text valign" center
+    }
+   }
+  }
+ }
+}

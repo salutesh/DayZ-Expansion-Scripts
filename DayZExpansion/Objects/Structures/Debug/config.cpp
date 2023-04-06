@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Objects_Structures_Debug
 	{
-		units[] = {"ExpansionAdminHammer","ExpansionDebugRod","ExpansionDebugRod_Red","ExpansionDebugRod_Orange","ExpansionDebugRod_Blue","ExpansionDebugRod_Purple","ExpansionDebugRodBig","ExpansionDebugRodBig_Red","ExpansionDebugRodBig_Orange","ExpansionDebugRodBig_Blue","ExpansionDebugRodBig_Purple","ExpansionDebugBox","ExpansionDebugBox_Red","ExpansionDebugBox_Orange","ExpansionDebugBox_Blue","ExpansionDebugBox_Purple","ExpansionNetSyncDebugObject","ExpansionDebugLine","ExpansionDebugLine_Red","ExpansionDebugLine_Orange","ExpansionDebugLine_Blue","ExpansionDebugLine_Purple","ExpansionDebugNoticeMe","ExpansionDebugNoticeMe_Red","ExpansionDebugNoticeMe_Orange","ExpansionDebugNoticeMe_Blue","ExpansionDebugNoticeMe_Purple","ExpansionDebugArrow","ExpansionDebugArrow_Red","ExpansionDebugArrow_Orange","ExpansionDebugArrow_Blue","ExpansionDebugArrow_Purple","ExpansionDebugGoat"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data","DZ_Gear_Tools"};
@@ -26,12 +26,15 @@ class CfgVehicles
 		displayName = "Admin Hammer";
 		expansionIsAdminTool = 1;
 	};
-	class ExpansionDebugRod: HouseNoDestruct
+	class ExpansionDebugObject: HouseNoDestruct
+	{
+		hiddenSelections[] = {"texture"};
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,0,1,co)"};
+	};
+	class ExpansionDebugRod: ExpansionDebugObject
 	{
 		scope = 2;
 		model = "DayZExpansion\Objects\Structures\Debug\DebugRod.p3d";
-		hiddenSelections[] = {"texture"};
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,0,1,co)"};
 	};
 	class ExpansionDebugRod_Red: ExpansionDebugRod
 	{
@@ -69,8 +72,9 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
-	class ExpansionDebugBox: ExpansionDebugRod
+	class ExpansionDebugBox: ExpansionDebugObject
 	{
+		scope = 2;
 		model = "DayZExpansion\Objects\Structures\Debug\DebugBox.p3d";
 	};
 	class ExpansionDebugBox_Red: ExpansionDebugBox
@@ -89,13 +93,14 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
-	class ExpansionNetSyncDebugObject: ExpansionDebugBox
+	class ExpansionNetSyncDebugObject: ExpansionDebugObject
 	{
 		model = "DayZExpansion\Objects\Structures\Debug\DebugCube.p3d";
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
-	class ExpansionDebugLine: ExpansionDebugRod
+	class ExpansionDebugLine: ExpansionDebugObject
 	{
+		scope = 2;
 		model = "DayZExpansion\Objects\Structures\Debug\DebugLine.p3d";
 	};
 	class ExpansionDebugLine_Red: ExpansionDebugLine
@@ -114,8 +119,9 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
-	class ExpansionDebugNoticeMe: ExpansionDebugRod
+	class ExpansionDebugNoticeMe: ExpansionDebugObject
 	{
+		scope = 2;
 		model = "DayZExpansion\Objects\Structures\Debug\DebugNoticeMe.p3d";
 	};
 	class ExpansionDebugNoticeMe_Red: ExpansionDebugNoticeMe
@@ -134,8 +140,9 @@ class CfgVehicles
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
-	class ExpansionDebugArrow: ExpansionDebugRod
+	class ExpansionDebugArrow: ExpansionDebugObject
 	{
+		scope = 2;
 		model = "DayZExpansion\Objects\Structures\Debug\DebugArrow.p3d";
 		class AnimationSources
 		{

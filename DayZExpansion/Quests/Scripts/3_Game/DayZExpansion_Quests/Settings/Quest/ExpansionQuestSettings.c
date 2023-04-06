@@ -10,12 +10,6 @@
  *
 */
 
-class ExpansionQuestAction
-{
-	string ActionName;
-	string MethodName;
-};
-
 class ExpansionQuestSettingsBase: ExpansionSettingBase
 {
 	bool EnableQuests;
@@ -33,8 +27,6 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 	string QuestTurnInText;
 	string QuestObjectiveCompletedTitle;
 	string QuestObjectiveCompletedText;
-	string AchivementCompletedTitle;
-	string AchivementCompletedText;
 
 	string QuestCooldownTitle;
 	string QuestCooldownText;
@@ -49,7 +41,13 @@ class ExpansionQuestSettingsBase: ExpansionSettingBase
 #endif
 };
 
-class ExpansionQuestSettingsV5: ExpansionSettingBase
+class ExpansionQuestSettingsV5Base: ExpansionQuestSettingsBase
+{
+	string AchivementCompletedTitle;
+	string AchivementCompletedText;
+};
+
+class ExpansionQuestSettingsV5: ExpansionQuestSettingsV5Base
 {
 	string WeeklyQuestResetDay;
 	int WeeklyQuestResetHour;
@@ -64,12 +62,13 @@ class ExpansionQuestSettingsV5: ExpansionSettingBase
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 6;
+	static const int VERSION = 8;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
 
-	ref array<ref ExpansionQuestAction> QuestActions = new array<ref ExpansionQuestAction>;
+	string AchievementCompletedTitle;
+	string AchievementCompletedText;
 
 	string WeeklyResetDay;
 	int WeeklyResetMinute;
@@ -170,9 +169,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestObjectiveCompletedTitle = s.QuestObjectiveCompletedTitle;
 		QuestObjectiveCompletedText = s.QuestObjectiveCompletedText;
 
-		AchivementCompletedTitle = s.AchivementCompletedTitle;
-		AchivementCompletedText = s.AchivementCompletedText;
-
 		//! Version 3
 		QuestCooldownTitle = s.QuestCooldownTitle;
 		QuestCooldownText = s.QuestCooldownText;
@@ -194,7 +190,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 	#endif
 
-		QuestActions = s.QuestActions;
+		AchievementCompletedTitle = s.AchievementCompletedTitle;
+		AchievementCompletedText = s.AchievementCompletedText;
 
 		WeeklyResetDay = s.WeeklyResetDay;
 		WeeklyResetMinute = s.WeeklyResetMinute;
@@ -219,9 +216,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 	override bool OnLoad()
 	{
-	#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnLoad");
-	#endif
+		auto trace = EXTrace.Start(ExpansionTracing.SETTINGS, this);
 
 		m_IsLoaded = true;
 
@@ -238,10 +233,10 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 			if (settingsBase.m_Version < VERSION)
 			{
-				Print(ToString() + "::Load - Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
+				EXTrace.Print(EXTrace.SETTINGS, this, "Convert quest settings version " + settingsBase.m_Version + " to version " + VERSION);
 
-				//! Copy over old settings that haven't changed
-				CopyInternal(settingsBase);
+				if (!ExpansionJsonFileParser<ExpansionQuestSettings>.Load(EXPANSION_QUEST_SETTINGS, this))
+					return false;
 
 			#ifdef EXPANSIONMODGROUPS
 				if (settingsBase.m_Version < 4)
@@ -249,11 +244,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					GroupQuestMode = settingsDefault.GroupQuestMode;
 				}
 			#endif
-
-				if (settingsBase.m_Version < 5)
-				{
-					QuestActions = settingsDefault.QuestActions;
-				}
 
 				if (settingsBase.m_Version < 6)
 				{
@@ -266,7 +256,16 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 					WeeklyResetDay = settingsV5.WeeklyQuestResetDay;
 					WeeklyResetMinute = settingsV5.WeeklyQuestResteMinute;
 					WeeklyResetHour = settingsV5.WeeklyQuestResetHour;
-					UseUTCTime = settingsV5.UseUTCTime;
+				}
+
+				if (settingsBase.m_Version < 7)
+				{
+					ExpansionQuestSettingsV5Base settingsV5Base;
+					if (!ExpansionJsonFileParser<ExpansionQuestSettingsV5Base>.Load(EXPANSION_QUEST_SETTINGS, settingsV5Base))
+						return false;
+
+					AchievementCompletedTitle = settingsV5Base.AchivementCompletedTitle;
+					AchievementCompletedText = settingsV5Base.AchivementCompletedText;
 				}
 
 				m_Version = VERSION;
@@ -280,7 +279,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		}
 		else
 		{
-			Print(ToString() + "::Load - No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
+			EXTrace.Print(EXTrace.SETTINGS, this, "No existing setting file:" + EXPANSION_QUEST_SETTINGS + ". Creating defaults!");
 			Defaults();
 			save = true;
 		}
@@ -341,8 +340,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		QuestObjectiveCompletedTitle = "Objective Completed";
 		QuestObjectiveCompletedText = "You have completed the objective %1 of the quest %2.";
 
-		AchivementCompletedTitle = "Achievement \"%1\" completed!";
-		AchivementCompletedText = "You have completed the achievement %1";
+		AchievementCompletedTitle = "Achievement \"%1\" completed!";
+		AchievementCompletedText = "You have completed the achievement %1";
 
 		QuestCooldownTitle = "Quest Cooldown";
 		QuestCooldownText = "This quest is still on cooldown! Come back in %1";
@@ -366,33 +365,6 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;
 	#endif
-
-		ExpansionQuestAction questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ActionBandageSelf";
-		questAction.MethodName = "OnActionBandageSelf";
-		QuestActions.Insert(questAction);
-
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ActionBandageTarget";
-		questAction.MethodName = "OnActionBandageTarget";
-		QuestActions.Insert(questAction);
-
-	#ifdef EXPANSIONMODVEHICLE
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ExpansionActionPickVehicleLock";
-		questAction.MethodName = "OnExpansionActionPickVehicleLock";
-		QuestActions.Insert(questAction);
-
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ExpansionVehicleActionPickLock";
-		questAction.MethodName = "OnExpansionVehicleActionPickLock";
-		QuestActions.Insert(questAction);
-	#endif
-
-		questAction = new ExpansionQuestAction();
-		questAction.ActionName = "ActionPlantSeed";
-		questAction.MethodName = "OnActionPlantSeed";
-		QuestActions.Insert(questAction);
 	}
 
 	override string SettingName()

@@ -27,11 +27,11 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(1); //! Unique quest ID - Need to be the same as when registered in the quest module
-		questConfig.SetTitle("A dirty rats job"); //! Quest title
+		questConfig.SetTitle("A dirty rat's job"); //! Quest title
 		questConfig.SetObjectiveText("Deliver the note and talk to Steve."); //! Quest objectives text
 		array<string> desc = new array<string>;
-		desc.Insert("Shit man, who are you? Is your name %1? I thought we already dealt with you. ** (He stares at you for a moment and then begins to smile) ** Ah nevermind... Today is your lucky day, my friend! If you do me a little favor, I'll make sure you get off this island as soon as possible. I swear by my mother's beard! All you have to do is take this NOTE here to my useless colleague Steve and have him read it, then he will give something to you. Bring it to me! You can find Steve in the little village down the street in the north west. Make sure he reads the note and don't come back with empty hands!"); //! 0 - Quest description on getting quest
-		desc.Insert("I thought I made clear what you need to do?! Go to Steve now and don't come back with empty hands!"); //! 1 - Quest description while quest is active
+		desc.Insert("Shit man, who are you? Is your name %1? I thought we already dealt with you. ** (He stares at you for a moment and then begins to smile) ** Ah nevermind... Today is your lucky day, my friend! If you do me a little favor, I'll make sure you get off this island as soon as possible. I swear by my mother's beard! All you have to do is take this NOTE here to my useless colleague Steve and have him read it, then he will give something to you. Bring it to me! You can find Steve in the little village down the street in the north west. Make sure he reads the note and don't come back empty handed!"); //! 0 - Quest description on getting quest
+		desc.Insert("I thought I made clear what you need to do?! Go to Steve now and don't come back empty handed!"); //! 1 - Quest description while quest is active
 		desc.Insert("Look at that... Another little bambi in the forests of death..."); //! 2 - Quest description when take in quest
 		questConfig.SetDescriptions(desc);
 		questConfig.SetFollowUpQuestID(2); //! Follow-up quest ID
@@ -106,11 +106,11 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(3);
 		questConfig.SetTitle("Peter's package");
-		questConfig.SetObjectiveText("Go back to peter and give him the package from Steve.");
+		questConfig.SetObjectiveText("Go back to Peter and give him the package from Steve.");
 		array<string> desc = new array<string>;
 		desc.Insert("Oh right, here's what Peter wants. Bring it to him and he will be satisfied. Don't even think about opening the package! Just go and bring it to him.");
-		desc.Insert("What are you doing still here? Go to Peter!");
-		desc.Insert("Why did this take so long?... You got what I wanted? ** (He looks at the package with wide eyes and rips it out of your hands) ** Good!... What? Your way out? Well what should I say, but I lied to you. There is no fucking way out of this hell, and you will die here as we all. You can have this backpack and try your luck out there. I am sorry I lied to you, but we all have to see how we somehow survive here. I wish you good luck out there... You will need it.");
+		desc.Insert("What are you still doing here? Go to Peter!");
+		desc.Insert("Why did this take so long?... You got what I wanted? ** (He looks at the package with wide eyes and rips it out of your hands) ** Good!... What? Your way out? Well what should I say, but I lied to you. There is no fucking way out of this hell, and you will die here like all of us. You can have this backpack and try your luck out there. I am sorry I lied to you, but we all have to survive here somehow. I wish you good luck out there... You will need it.");
 		questConfig.SetDescriptions(desc);
 
 		questConfig.AddPreQuestID(2); //! Pre-quest ID
@@ -195,7 +195,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(5);
 		questConfig.SetTitle("Clear Patrol - Bandits");
-		questConfig.SetObjectiveText("Kill all units of the bandit patrol at the marked location.");
+		questConfig.SetObjectiveText("Kill all members of the bandit patrol at the marked location.");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("PLACEHOLDER");
@@ -316,9 +316,9 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(8);
 		questConfig.SetTitle("Killed 10 Infected");
-		questConfig.SetObjectiveText("You have killed 10 Infected and completed a server achievement! Reward: 100 Hryvnia");
+		questConfig.SetObjectiveText("Achievement completed: You have killed 10 Infected! Reward: 100 Hryvnia");
 		questConfig.SetAutocomplete(true);
-		questConfig.SetIsAchivement(true);
+		questConfig.SetIsAchievement(true);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
@@ -344,9 +344,9 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(9);
 		questConfig.SetTitle("Killed 100 civilian Infected");
-		questConfig.SetObjectiveText("You have killed 100 civilian Infected and completed a server achievement! Reward: 500 Hryvnia");
+		questConfig.SetObjectiveText("Achievement completed: You have killed 100 civilian Infected! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
-		questConfig.SetIsAchivement(true);
+		questConfig.SetIsAchievement(true);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveTargetConfig objective_1 = new ExpansionQuestObjectiveTargetConfig();
@@ -404,16 +404,16 @@ class ExpansionDefaultQuestData
 	}
 #endif
 
-	//! Achivement action quest to lockpick a vehicle
+	//! Achievement action quest to lockpick a vehicle
 	ExpansionQuestConfig ExpansionQuestConfig011()
 	{
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(11);
 		questConfig.SetTitle("Lockpick your first vehicle");
-		questConfig.SetObjectiveText("You have lockpicked your first vehicle and completed a server achievement! Reward: 500 Hryvnia");
+		questConfig.SetObjectiveText("Achievement completed: You have lockpicked your first vehicle! Reward: 500 Hryvnia");
 		questConfig.SetAutocomplete(true);
-		questConfig.SetIsAchivement(true);
+		questConfig.SetIsAchievement(true);
 
 		//! Quest objectives
 		ExpansionQuestObjectiveActionConfig objective_1 = new ExpansionQuestObjectiveActionConfig();
@@ -440,7 +440,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(12);
 		questConfig.SetTitle("Apple Juice");
-		questConfig.SetObjectiveText("Get 5 Apples");
+		questConfig.SetObjectiveText("Get 5 apples");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER");
 		desc.Insert("Obtain 5 apples.");
@@ -523,7 +523,7 @@ class ExpansionDefaultQuestData
 
 		questConfig.SetID(14); //! Unique quest ID - Need to be the same as when registered in the quest module
 		questConfig.SetTitle("Welcome to Hell"); //! Quest title
-		questConfig.SetObjectiveText("Visit the camp at the marker location."); //! Quest objectives text
+		questConfig.SetObjectiveText("Visit the camp at the marked location."); //! Quest objectives text
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
 		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active
@@ -582,8 +582,8 @@ class ExpansionDefaultQuestData
 		ExpansionQuestConfig questConfig = new ExpansionQuestConfig();
 
 		questConfig.SetID(16);
-		questConfig.SetTitle("For the Lich.. i mean Yellow King!");
-		questConfig.SetObjectiveText("Find the yellow kings helmet.");
+		questConfig.SetTitle("For the Lich... I mean Yellow King!");
+		questConfig.SetObjectiveText("Find the yellow king's helmet.");
 		array<string> desc = new array<string>;
 		desc.Insert("PLACEHOLDER"); //! 0 - Quest description on getting quest
 		desc.Insert("PLACEHOLDER"); //! 1 - Quest description while quest is active

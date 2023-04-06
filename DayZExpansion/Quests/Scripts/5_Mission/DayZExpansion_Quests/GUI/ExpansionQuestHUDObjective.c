@@ -191,7 +191,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					}
 
 					ObjectiveDeliveryEnties.Show(true);
-					array<ref ExpansionQuestObjectiveDelivery> collections = collectionObjective.GetDeliveries();
+					array<ref ExpansionQuestObjectiveDelivery> collections = collectionObjective.GetCollections();
 					
 					map<int, int> collectionsMap = new map<int, int>;
 					int collectionsCount;
@@ -321,7 +321,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				ExpansionQuestObjectiveActionConfig actionConfig;
 				if (Class.CastTo(actionConfig, objectiveConfig))
 				{
-					m_QuestHUDObjectiveController.ObjectiveTarget = actionConfig.ObjectiveText;
+					m_QuestHUDObjectiveController.ObjectiveTarget = "";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 					count = m_Objective.GetObjectiveCount();
@@ -338,7 +338,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 				ExpansionQuestObjectiveCraftingConfig craftingConfig;
 				if (Class.CastTo(craftingConfig, objectiveConfig))
 				{
-					m_QuestHUDObjectiveController.ObjectiveTarget = craftingConfig.ObjectiveText;
+					m_QuestHUDObjectiveController.ObjectiveTarget = "";
 					m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTarget");
 
 					count = m_Objective.GetObjectiveCount();

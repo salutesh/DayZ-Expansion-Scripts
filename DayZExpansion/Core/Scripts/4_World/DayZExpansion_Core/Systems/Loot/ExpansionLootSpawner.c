@@ -15,7 +15,7 @@ class ExpansionLootSpawner
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	static void AddItem(EntityAI container, ExpansionLoot loot )
+	static void AddItem(EntityAI container, ExpansionLoot loot, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionLootSpawner::AddItem - Start");
@@ -63,27 +63,34 @@ class ExpansionLootSpawner
 			}
 		}
 
-		Spawn( className, container, loot.QuantityPercent, attachments ); 
+		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap, spawnOnGround ); 
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionLootSpawner::AddItem - End");
 		#endif
 	}
 
-	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments )
+	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
-        ItemBase itembs;
+        ItemBase itemParent;
 		ItemBase item;
-
-		if ( Class.CastTo( itembs, parent ) )
-        {
-            item = ItemBase.Cast( itembs.ExpansionCreateInInventory( className ) );
-        }
-        else
-        {
-            item = ItemBase.Cast( parent.GetInventory().CreateInInventory( className ) );
-        } 
-        
+		
+		if ( !spawnOnGround )
+		{
+			if ( Class.CastTo( itemParent, parent ) )
+	        {
+	            item = ItemBase.Cast( itemParent.ExpansionCreateInInventory( className ) );
+	        }
+	        else
+	        {
+	            item = ItemBase.Cast( parent.GetInventory().CreateInInventory( className ) );
+	        }
+		}
+		else
+		{
+			vector spawnPos = ExpansionMath.GetRandomPointInRing(parent.GetWorldPosition(), 3, 5);
+			item = ItemBase.Cast(GetGame().CreateObjectEx(className, spawnPos, ECE_PLACE_ON_SURFACE));
+		}
 
 		if ( item )
 		{
@@ -147,6 +154,25 @@ class ExpansionLootSpawner
 					Spawn( attachment, item, quantityPercent, NULL );
 				}
 			}
+
+			if (spawnedEntitiesMap)
+			{
+				int current;
+				if (spawnedEntitiesMap.Find(className, current))
+					spawnedEntitiesMap.Set(className, current + item.Expansion_GetStackAmount());
+				else
+					spawnedEntitiesMap.Insert(className, item.Expansion_GetStackAmount());
+			}
+
+			if (spawnedEntities)
+				spawnedEntities.Insert(item);
+		}
+		else
+		{
+			if (ExpansionStatic.ItemExists(className))
+				EXPrint("ExpansionLootSpawner::Spawn - WARNING: Couldn't spawn " + className + " on " + parent);
+			else
+				Error("ExpansionLootSpawner::Spawn - ERROR: Couldn't spawn " + className + " - item with that classname does not exist!");
 		}
 	}
 	
@@ -169,7 +195,7 @@ class ExpansionLootSpawner
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------
-	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > Loot, int ItemCount )
+	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > Loot, int ItemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
 		array< float > chances = new array< float >;
 		array< int > max = new array< int >;
@@ -194,7 +220,7 @@ class ExpansionLootSpawner
 			{
 				LootItemsSpawned++;
 
-				AddItem( container, Loot.Get( index ) );
+				AddItem( container, Loot.Get( index ), spawnedEntities, spawnedEntitiesMap, spawnOnGround );
 
 				if ( max[index] > 0 )
 					max[index] = max[index] - 1;
@@ -220,18 +246,23 @@ class ExpansionLootSpawner
 		#endif
 		
 		vector pos = container.GetPosition();
+		
+		if (GetCEApi())
+			return !GetCEApi().AvoidPlayer(pos, radius);
+
 		array<Man> players = new array<Man>;
 		GetGame().GetWorld().GetPlayerList(players);
-		float distance;
+		float distanceSq;
+		float radiusSq = radius * radius;
 		
 		for ( int i = 0; i < players.Count(); i++ )
 		{
 			Man player = players[i];
 			if (!player) continue;
 			
-			distance = vector.Distance( pos, player.GetPosition() );
+			distanceSq = vector.DistanceSq( pos, player.GetPosition() );
 			
-			if ( distance <= radius )
+			if ( distanceSq <= radiusSq )
 			{
 				#ifdef EXPANSION_MISSION_EVENT_DEBUG
 				EXLogPrint("ExpansionLootSpawner::IsPlayerNearby - End and return true");

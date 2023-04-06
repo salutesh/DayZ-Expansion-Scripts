@@ -16,11 +16,6 @@
 class ExpansionDebugSettings: ExpansionSettingBase
 {
 	static const int VERSION = 2;
-	
-	bool ShowVehicleDebugMarkers;
-
-	int DebugVehicleSync;
-	int DebugVehicleTransformSet;
 
 	int DebugVehiclePlayerNetworkBubbleMode;
 	
@@ -41,14 +36,20 @@ class ExpansionDebugSettings: ExpansionSettingBase
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
 
-		ExpansionDebugSettings setting;
-		if ( !ctx.Read( setting ) )
+		if ( !ctx.Read( DebugVehiclePlayerNetworkBubbleMode ) )
 		{
-			Error("ExpansionDebugSettings::OnRecieve setting");
+			Error("ExpansionDebugSettings::OnRecieve DebugVehiclePlayerNetworkBubbleMode");
 			return false;
 		}
 
-		CopyInternal( setting );
+		float foodDecayModifier;
+		if ( !ctx.Read( foodDecayModifier ) )
+		{
+			Error("ExpansionDebugSettings::OnRecieve foodDecayModifier");
+			return false;
+		}
+
+		g_Game.Expansion_SetFoodDecayModifier(foodDecayModifier);
 
 		m_IsLoaded = true;
 
@@ -59,9 +60,8 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	
 	override void OnSend( ParamsWriteContext ctx )
 	{
-		ExpansionDebugSettings thisSetting = this;
-
-		ctx.Write( thisSetting );
+		ctx.Write(DebugVehiclePlayerNetworkBubbleMode);
+		ctx.Write(g_Game.GetFoodDecayModifier());
 	}
 	
 	// ------------------------------------------------------------
@@ -100,11 +100,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "CopyInternal").Add(s);
 #endif
-
-		ShowVehicleDebugMarkers = s.ShowVehicleDebugMarkers;
-
-		DebugVehicleSync = s.DebugVehicleSync;
-		DebugVehicleTransformSet = s.DebugVehicleTransformSet;
 
 		DebugVehiclePlayerNetworkBubbleMode = s.DebugVehiclePlayerNetworkBubbleMode;
 	}
@@ -195,11 +190,6 @@ class ExpansionDebugSettings: ExpansionSettingBase
 	override void Defaults()
 	{
 		m_Version = VERSION;
-		
-		ShowVehicleDebugMarkers = false;
-
-		DebugVehicleSync = 0;
-		DebugVehicleTransformSet = 0;
 		
 		DebugVehiclePlayerNetworkBubbleMode = 0;
 	}

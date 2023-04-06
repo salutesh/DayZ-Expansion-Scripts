@@ -51,4 +51,9 @@ modded class ActionBase
 		if ( action_data.m_MainItem )
 			action_data.m_MainItem.ExpansionActionOnEnd( action_data );
 	}
+
+	bool Expansion_CheckSuccess(ActionData action_data)
+	{
+		return true;
+	}
 }

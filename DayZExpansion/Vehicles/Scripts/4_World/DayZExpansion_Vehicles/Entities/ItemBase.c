@@ -499,6 +499,8 @@ modded class ItemBase
 
 		InventoryLocation src = new InventoryLocation;
 		GetInventory().GetCurrentInventoryLocation(src);
+		if (parent.GetInventory().GetSlotLock(src.GetSlot()))
+			parent.GetInventory().SetSlotLock(src.GetSlot(), false);
 		InventoryLocation dst = new InventoryLocation;
 		dst.SetGround(this, transform);
 

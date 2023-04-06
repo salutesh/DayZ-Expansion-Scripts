@@ -58,7 +58,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	protected ref array<ref ExpansionQuestObjectSet> m_QuestObjectSets;	//! Server
 
-	protected const float CHECK_TICK_TIME = 300;
 	protected ref ExpansionQuestPersistentServerData m_ServerData; //! Server
 
 	//! Client only
@@ -66,8 +65,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	protected ref ExpansionQuestPersistentData m_ClientQuestData; //! Client
 	protected ref ScriptInvoker m_QuestMenuInvoker; //! Client
 	protected ref ScriptInvoker m_QuestMenuCallbackInvoker; //! Client
-
-	protected ref array<ref ExpansionQuestAction> m_QuestActions; //! Client
 
 	protected static ExpansionQuestModule s_ModuleInstance;
 
@@ -78,80 +75,25 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	override void OnInit()
 	{
-		QuestModulePrint(ToString() + "::OnInit - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnInit();
 
-	#ifdef EXPANSIONMODMARKET
 		EnableMissionStart();
-	#endif
-		EnableMissionLoaded();
 		EnableMissionFinish();
 		EnableInvokeConnect();
 		EnableClientDisconnect();
 		EnableClientNew();
 		EnableRPC();
-
-		QuestModulePrint(ToString() + "::OnInit - End");
 	}
 
-	protected void CreateDirectoryStructure()
-	{
-		if (!FileExist(EXPANSION_QUESTS_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_QUESTS_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_QUESTS_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_PLAYERDATA_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_PLAYERDATA_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_NPCS_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_NPCS_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER);
-
-	#ifdef EXPANSIONMODAI
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
-
-		if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER))
-			MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
-	#endif
-	}
-
-#ifdef EXPANSIONMODMARKET
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		QuestModulePrint(ToString() + "::OnMissionStart - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnMissionStart(sender, args);
 
+#ifdef EXPANSIONMODMARKET
 		//! Add delivered/collected quest items from last session to the market zones.
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
@@ -161,16 +103,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				m_ServerData.AddQuestMarketItemsToZones();
 			}
 		}
-
-		QuestModulePrint(ToString() + "::OnMissionStart - End");
-	}
 #endif
-
-	override void OnMissionLoaded(Class sender, CF_EventArgs args)
-	{
-		QuestModulePrint(ToString() + "::OnMissionLoaded - Start");
-
-		super.OnMissionLoaded(sender, args);
 
 		m_QuestsNPCs = new map<int, ref ExpansionQuestNPCData>; //! Server & Client
 		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server & Client
@@ -185,13 +118,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (GetGame().IsClient())
 			ClientModuleInit();
-
-		QuestModulePrint(ToString() + "::OnMissionLoaded - End");
 	}
 
 	void ServerModuleInit()
 	{
-		QuestModulePrint(ToString() + "::ServerModuleInit - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
@@ -225,12 +156,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			m_QuestObjectEntities = new map<int, ExpansionQuestStaticObject>;
 
-			m_QuestActions = new array<ref ExpansionQuestAction>;
-
-			CreateDirectoryStructure();
+			if (!FileExist(EXPANSION_QUESTS_FOLDER))
+				MakeDirectory(EXPANSION_QUESTS_FOLDER);
+			if (!FileExist(EXPANSION_QUESTS_OBJECTIVES_FOLDER))
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_FOLDER);
+			if (!FileExist(EXPANSION_QUESTS_PLAYERDATA_FOLDER))
+				MakeDirectory(EXPANSION_QUESTS_PLAYERDATA_FOLDER);
 
 			string worldName = ExpansionStatic.GetCanonicalWorldName();
-
 			m_DefaultQuestNPCData = new ExpansionDefaultQuestNPCData(worldName);
 			m_DefaultQuestConfigData = new ExpansionDefaultQuestData(worldName);
 			m_DefaultObjectiveConfigData = new ExpansionDefaultObjectiveData(worldName);
@@ -247,136 +180,169 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			//! OBJECTIVE FILES
 			//! TRAVEL OBJECTIVES
-			array<string> travelObjectiveFiles = new array<string>;
-			travelObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER, ".json");
-			if (travelObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER))
 			{
-				LoadObjectivesData(travelObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+				array<string> travelObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER, ".json");
+				if (travelObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(travelObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TRAVEL_FOLDER);
 				DefaultTravelObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! TARGET OBJECTIVES
-			array<string> targetObjectiveFiles = new array<string>;
-			targetObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER, ".json");
-			if (targetObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER))
 			{
-				LoadObjectivesData(targetObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+				array<string> targetObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER, ".json");
+				if (targetObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(targetObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TARGET_FOLDER);
 				DefaultTargetObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! DELIVERY OBJECTIVES
-			array<string> deliveryObjectiveFiles = new array<string>;
-			deliveryObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER, ".json");
-			if (deliveryObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER))
 			{
-				LoadObjectivesData(deliveryObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+				array<string> deliveryObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER, ".json");
+				if (deliveryObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(deliveryObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER);
 				DefaultDeliveryObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! COLLECTION OBJECTIVES
-			array<string> collectionObjectiveFiles = new array<string>;
-			collectionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER, ".json");
-			if (collectionObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER))
 			{
-				LoadObjectivesData(collectionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+				array<string> collectionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER, ".json");
+				if (collectionObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(collectionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_COLLECTION_FOLDER);
 				DefaultCollectionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! TREASURE HUNT OBJECTIVES
-			array<string> treasureHuntObjectiveFiles = new array<string>;
-			treasureHuntObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER, ".json");
-			if (treasureHuntObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER))
 			{
-				LoadObjectivesData(treasureHuntObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+				array<string> treasureHuntObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER, ".json");
+				if (treasureHuntObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(treasureHuntObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_TREASUREHUNT_FOLDER);
 				DefaultTreasureHuntObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! ACTION OBJECTIVES
-			array<string> actionObjectiveFiles = new array<string>;
-			actionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER, ".json");
-			if (actionObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER))
 			{
-				LoadObjectivesData(actionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
+				array<string> actionObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER, ".json");
+				if (actionObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(actionObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_ACTION_FOLDER);
 				DefaultActionObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! CRAFTING OBJECTIVES
-			array<string> craftingObjectiveFiles = new array<string>;
-			craftingObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER, ".json");
-			if (craftingObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER))
 			{
-				LoadObjectivesData(craftingObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER);
+				array<string> craftingObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER, ".json");
+				if (craftingObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(craftingObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_CRAFTING_FOLDER);
 				DefaultCraftingObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 		#ifdef EXPANSIONMODAI
 			//! AI PATROL OBJECTIVES
-			array<string> aiPatrolObjectiveFiles = new array<string>;
-			aiPatrolObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER, ".json");
-			if (aiPatrolObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER))
 			{
-				LoadObjectivesData(aiPatrolObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+				array<string> aiPatrolObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER, ".json");
+				if (aiPatrolObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(aiPatrolObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIPATROL_FOLDER);
 				DefaultAIPatrolObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! AI CAMP OBJECTIVES
-			array<string> aiCampObjectiveFiles = new array<string>;
-			aiCampObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER, ".json");
-			if (aiCampObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER))
 			{
-				LoadObjectivesData(aiCampObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+				array<string> aiCampObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER, ".json");
+				if (aiCampObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(aiCampObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER);
 				DefaultAICampObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
 			//! AI ESCORT OBJECTIVES
-			array<string> aiVIPObjectiveFiles = new array<string>;
-			aiVIPObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER, ".json");
-			if (aiVIPObjectiveFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER))
 			{
-				LoadObjectivesData(aiVIPObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+				array<string> aiVIPObjectiveFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER, ".json");
+				if (aiVIPObjectiveFiles.Count() > 0)
+				{
+					LoadObjectivesData(aiVIPObjectiveFiles, EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_OBJECTIVES_AIVIP_FOLDER);
 				DefaultAIEscortObjectivesData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 		#endif
 
 			//! QUEST FILES
-			array<string> questFiles = new array<string>;
-			questFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_QUESTS_FOLDER, ".json");
-			if (questFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_QUESTS_FOLDER))
 			{
-				LoadQuestData(questFiles); //! Server: Load existing quest data files from the server and load them into m_QuestConfigs.
+				array<string> questFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_QUESTS_FOLDER, ".json");
+				if (questFiles.Count() > 0)
+				{
+					LoadQuestData(questFiles); //! Server: Load existing quest data files from the server and load them into m_QuestConfigs.
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_QUESTS_FOLDER);
 				DefaultQuestData(); //! Server: Create default quest data on the server and load them into m_QuestConfigs.
 			}
 
@@ -384,30 +350,29 @@ class ExpansionQuestModule: CF_ModuleWorld
 			LoadObjectSets();
 
 			//! QUEST NPC FILES
-			array<string> questNPCFiles = new array<string>;
-			questNPCFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_NPCS_FOLDER, ".json");
-			if (questNPCFiles.Count() > 0)
+			if (FileExist(EXPANSION_QUESTS_NPCS_FOLDER))
 			{
-				LoadQuestNPCData(questNPCFiles); //! Server: Load existing quest NPCs data files from the server and load them into m_QuestsNPCs.
+				array<string> questNPCFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_NPCS_FOLDER, ".json");
+				if (questNPCFiles.Count() > 0)
+				{
+					LoadQuestNPCData(questNPCFiles); //! Server: Load existing quest NPCs data files from the server and load them into m_QuestsNPCs.
+				}
 			}
 			else
 			{
+				MakeDirectory(EXPANSION_QUESTS_NPCS_FOLDER);
 				DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
 			}
 
 			SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
 
 			PlayerQuestDataCheck(); //! Server: Debug check method to scan persistent quest data.
-
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckQuestResetTime, CHECK_TICK_TIME * 1000, true); //! Server: Check if daily/weekly reset time is happening.
 		}
-
-		QuestModulePrint(ToString() + "::ServerModuleInit - End");
 	}
 
 	void ClientModuleInit()
 	{
-		QuestModulePrint(ToString() + "::ClientModuleInit - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (GetGame().IsClient())
 		{
@@ -423,29 +388,26 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (!m_QuestMenuCallbackInvoker)
 				m_QuestMenuCallbackInvoker = new ScriptInvoker(); //! Client
 		}
-
-		QuestModulePrint(ToString() + "::ClientModuleInit - End");
 	}
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		QuestModulePrint(ToString() + "::OnInvokeConnect - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 		{
-			QuestModulePrint(ToString() + "::OnInvokeConnect - Initialize quest system on the connected client with UID: [" + cArgs.Identity.GetId() + "].");
-			InitQuestSystemClient(cArgs.Identity);
+			QuestModulePrint("Initialize quest system on the connected client with UID: [" + cArgs.Identity.GetId() + "].");
+			//! Need to init in next frame because group init happens in OnInvokeConnect as well and needs to be done first
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(InitQuestSystemClient, cArgs.Identity);
 		}
-
-		QuestModulePrint(ToString() + "::OnInvokeConnect - End");
 	}
 
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
-		QuestModulePrint(ToString() + "::OnClientDisconnect - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnClientDisconnect(sender, args);
 
@@ -455,13 +417,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! If we find existing data we sync that data from the players client to the server and save it for the next session.
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 			CleanupPlayerQuests(cArgs.UID);
-
-		QuestModulePrint(ToString() + "::OnClientDisconnect - End");
 	}
 
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
-		QuestModulePrint(ToString() + "::OnMissionFinish - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnMissionFinish(sender, args);
 
@@ -479,8 +439,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 				m_ActiveQuests.RemoveOrdered(i);
 			}
 		}
-
-		QuestModulePrint(ToString() + "::OnMissionFinish - End");
 	}
 
 	//! Server
@@ -488,7 +446,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	// and to send the needed data from the quest module to the client
 	void InitQuestSystemClient(PlayerIdentity identity)
 	{
-		QuestModulePrint(ToString() + "::InitQuestSystemClient - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -524,8 +482,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		InitClientQuests(questPlayerData, identity);
-
-		QuestModulePrint(ToString() + "::InitQuestSystemClient - End");
 	}
 
 	//! Server
@@ -534,7 +490,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! so the progress of the quest objectives contiues and no quest progress is lost.
 	protected void InitClientQuests(ExpansionQuestPersistentData playerData, PlayerIdentity identity)
 	{
-		QuestModulePrint(ToString() + "::InitClientQuests - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -555,13 +511,22 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		string playerUID = identity.GetId();
-		QuestModulePrint(ToString() + "::InitClientQuests - Player UID: " + playerUID);
-		
+		QuestModulePrint("Player UID: " + playerUID);
+
+		auto inhibitor = ExpansionInhibitor.Add(this);
+
 		array<int> activeGroupQuestIDs = new array<int>;
 		int groupID = -1;
 	#ifdef EXPANSIONMODGROUPS
+		auto player = PlayerBase.Cast(identity.GetPlayer());
+		if (player)
+		{
+			auto group = player.Expansion_GetParty();
+			if (group)
+				groupID = group.GetPartyID();
+		}
 		//! Check for all active group quests the player can participate in one of them if he is member of a group.
-		InitClientQuests_Groups(playerData, playerUID, activeGroupQuestIDs, groupID);
+		InitClientQuests_Groups(playerData, playerUID, activeGroupQuestIDs);
 	#endif
 
 		//! Recreate old quests based on the data from the players persistent quest data.
@@ -569,6 +534,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Create archievement and auto-start quests.
 		InitClientQuests_AutoAndAchievementQuests(playerData, playerUID);
+
+		delete inhibitor;
+
+		playerData.Save(playerUID);
 
 		//! Send all valid quest configurations to the client.
 		SendClientQuestConfigs(identity);
@@ -578,8 +547,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Call AfterClientInit method. Can be used to hook into the quest module and call events after client initalisation.
 		AfterClientInit(playerData, identity);
-
-		QuestModulePrint(ToString() + "::InitClientQuests - End");
 	}
 
 	//! Server
@@ -589,9 +556,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Server
 	//! Check for all active group quests the player can participate in one of them if he is member of a group.
 #ifdef EXPANSIONMODGROUPS
-	protected void InitClientQuests_Groups(ExpansionQuestPersistentData playerData, string playerUID, inout array<int> activeGroupQuestIDs, out int groupID)
+	protected void InitClientQuests_Groups(ExpansionQuestPersistentData playerData, string playerUID, inout array<int> activeGroupQuestIDs)
 	{
-		QuestModulePrint(ToString() + "::InitClientQuests_Groups - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		foreach (ExpansionQuest activeQuest: m_ActiveQuests)
 		{
@@ -604,10 +571,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! Check if player is group member of current checked active quest
 			if (activeQuest.GetQuestConfig().IsGroupQuest() && activeQuest.IsQuestGroupMember(playerUID))
 			{
-				QuestModulePrint(ToString() + "::InitClientQuests_Groups - There is already a active quest instance for this quest. Skip this quest for quest init!");
+				QuestModulePrint("There is already a active quest instance for this quest. Skip this quest for quest init!");
 				activeGroupQuestIDs.Insert(activeQuest.GetQuestConfig().GetID());
 
-				QuestModulePrint(ToString() + "::InitClientQuests_Groups - Add quest to players quest data!");
+				QuestModulePrint("Add quest to players quest data!");
 				ExpansionQuestConfig activeQuestConfig = GetQuestConfigByID(activeQuest.GetQuestConfig().GetID());
 				if (!activeQuestConfig)
 					continue;
@@ -616,8 +583,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 				UpdateQuestForQuestPlayers(activeQuest, true);
 			}
 		}
-
-		QuestModulePrint(ToString() + "::InitClientQuests_Groups - End");
 	}
 #endif
 
@@ -625,7 +590,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Recreate old quests based on the data from the players persistent quest data.
 	protected void InitClientQuests_NormalQuests(ExpansionQuestPersistentData playerData, string playerUID, array<int> activeGroupQuestIDs, int groupID = -1)
 	{
-		QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		array<ref ExpansionQuestPersistentQuestData> playerQuestData = playerData.GetQuestDatas();
 		array<int> questDatasToCleanUp = new array<int>;
@@ -634,7 +599,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int questID = data.QuestID;
 			ExpansionQuestState questState = data.State;
 			string stateName = typename.EnumToString(ExpansionQuestState, questState);
-			QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Checking quest with id: " + questID + " | State: " + stateName);
+			QuestModulePrint("Checking quest with id: " + questID + " | State: " + stateName);
 
 			//! Check if we want to create a already active group quest
 		#ifdef EXPANSIONMODGROUPS
@@ -642,20 +607,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 			findIndex = activeGroupQuestIDs.Find(questID);
 			if (findIndex > -1)
 			{
-				QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Quest is in skip list. Skip quest creation!");
+				QuestModulePrint("Quest is in skip list. Skip quest creation!");
 				continue;
 			}
 		#endif
 
 			if (HasActiveQuestWithID(playerUID, questID))
 			{
-				QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Player has already a active quest with this quest ID: " + questID + " | Player UID: " + playerUID);
+				QuestModulePrint("Player has already a active quest with this quest ID: " + questID + " | Player UID: " + playerUID);
 				continue;
 			}
 
 			if (questState == ExpansionQuestState.STARTED || questState == ExpansionQuestState.CAN_TURNIN)
 			{
-				QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Create new quest instance for quest: " + questID + " - Creator UID: " + playerUID);
+				QuestModulePrint("Create new quest instance for quest: " + questID + " - Creator UID: " + playerUID);
 				GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - InitClientQuests_NormalQuests - Create new quest instance for quest: " + questID + " - Creator UID: " + playerUID);
 
 				//! Get quest config. for the quest
@@ -675,12 +640,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			#ifdef EXPANSIONMODGROUPS
 				if (configInstance.IsGroupQuest() && groupID > -1)
 				{
-					QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Player is member of group with ID: " + groupID + " | Set group for quest " + questID);
+					QuestModulePrint("Player is member of group with ID: " + groupID + " | Set group for quest " + questID);
 					newQuestInstance.SetGroup(groupID); //! Set the quest group!
 				}
 				else if (configInstance.IsGroupQuest() && groupID == -1)
 				{
-					QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Can't create instance for group quest with ID: " + questID + ". Player [UID: " + playerUID + "] has no group.");
+					QuestModulePrint("Can't create instance for group quest with ID: " + questID + ". Player [UID: " + playerUID + "] has no group.");
 					questDatasToCleanUp.Insert(questID);
 					newQuestInstance = NULL;
 					continue;
@@ -697,7 +662,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				if (!newQuestInstance.OnQuestContinue())
 				{
-					QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - Quest continue event failed for quest with quest id: " + questID);
+					QuestModulePrint("Quest continue event failed for quest with quest id: " + questID);
 					CancelQuestServer(newQuestInstance);
 					continue;
 				}
@@ -713,8 +678,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			playerData.Save(playerUID);
 		}
-
-		QuestModulePrint(ToString() + "::InitClientQuests_NormalQuests - End");
 	}
 
 	protected bool QuestConfigComparison(ExpansionQuestPersistentQuestData data, ExpansionQuestConfig questConfig)
@@ -737,7 +700,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Create archievement and auto-start quests.
 	protected void InitClientQuests_AutoAndAchievementQuests(ExpansionQuestPersistentData playerData, string playerUID)
 	{
-		QuestModulePrint(ToString() + "::InitClientQuests_AutoAndAchievementQuests - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		foreach (int configQuestID, ExpansionQuestConfig questConfig: m_QuestConfigs)
 		{
@@ -746,7 +709,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			if (questConfig.IsGroupQuest() || questConfig.GetQuestGiverIDs().Count() > 0 || questConfig.GetPreQuestIDs().Count() > 0)
 			{
-				QuestModulePrint(ToString() + "::InitClientQuests_AutoAndAchievementQuests - Quest with ID: " + configQuestID +" is not a a valid achivement or auto start quest. Skip!");
+				QuestModulePrint("Quest with ID: " + configQuestID +" is not a a valid achievement or auto start quest. Skip!");
 				continue;
 			}
 
@@ -760,7 +723,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				playerData.AddQuestData(configQuestID, ExpansionQuestState.NONE);
 
 				//! Create quest
-				QuestModulePrint(ToString() + "::InitClientQuests_AutoAndAchievementQuests - Create new achievement/auto-start quest for quest ID: " + configQuestID);
+				QuestModulePrint("Create new achievement/auto-start quest for quest ID: " + configQuestID);
 				autoQuest = new ExpansionQuest(this);
 				autoQuest.SetPlayerUID(playerUID);
 				autoQuest.SetQuestConfig(questConfig);
@@ -769,7 +732,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				if (!autoQuest.OnQuestStart())
 				{
-					QuestModulePrint(ToString() + "::InitClientQuests_AutoAndAchievementQuests - Quest start event failed for quest with quest id: " + configQuestID);
+					QuestModulePrint("Quest start event failed for quest with quest id: " + configQuestID);
 					CancelQuestServer(autoQuest);
 					continue;
 				}
@@ -777,12 +740,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! If the player is already on this archiement/auto-start quest recreate it and update the progress from the players persistent quest data
 			else if (playerQuestState == ExpansionQuestState.STARTED || playerQuestState == ExpansionQuestState.CAN_TURNIN)
 			{
-				QuestModulePrint(ToString() + "::InitClientQuests_AutoAndAchievementQuests - Create achievement/auto-start quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
+				QuestModulePrint("Create achievement/auto-start quest for quest ID: " + configQuestID + " and add progress from player quest data [UID: " + playerUID + "]");
 
 				ExpansionQuestPersistentQuestData playerQuestData = playerData.GetQuestDataByQuestID(questConfig.GetID());
 				if (!playerQuestData || !QuestConfigComparison(playerQuestData, questConfig))
 				{
-					Print(ToString() + "::InitClientQuests_AutoAndAchievementQuests - Skip quest creation for quest with ID: " + questConfig.GetID() + ". Quest objectives configuration has changed.");
+					QuestModulePrint("Skip quest creation for quest with ID: " + questConfig.GetID() + ". Quest objectives configuration has changed.");
 					continue;
 				}
 
@@ -804,8 +767,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 				}
 			}
 		}
-
-		QuestModulePrint(ToString() + "::InitClientQuests_AutoAndAchievementQuests - End");
 	}
 
 	override int GetRPCMin()
@@ -820,7 +781,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		QuestModulePrint(ToString() + "::OnRPC - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		super.OnRPC(sender, args);
 
@@ -876,18 +837,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		#endif
 		}
-
-		QuestModulePrint(ToString() + "::OnRPC - End");
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------
 	//! RPC Event classes
 	// ------------------------------------------------------------------------------------------------------------------------
 	//! Server
-	//! Sends all quest configurations to the player if it is not a archivement quest configuration or the player is not part of a certain faction.
+	//! Sends all quest configurations to the player if it is not a archievement quest configuration or the player is not part of a certain faction.
 	void SendClientQuestConfigs(PlayerIdentity identity)
 	{
-		QuestModulePrint(ToString() + "::SendClientQuestConfigs - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -923,8 +882,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		rpc.Send(NULL, ExpansionQuestModuleRPC.SendClientQuestConfigs, false, identity);
-
-		QuestModulePrint(ToString() + "::SendClientQuestConfigs - End");
 	}
 
 	//! Client
@@ -933,7 +890,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
 
-		QuestModulePrint(ToString() + "::RPC_SendClientQuestConfigs - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -964,18 +921,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 				return;
 			}
 
-			QuestModulePrint(ToString() + "::RPC_SendClientQuestConfigs - Insert config for quest with ID: " + questConfig.GetID() + " | Config: " + questConfig.ToString());
+			QuestModulePrint("Insert config for quest with ID: " + questConfig.GetID() + " | Config: " + questConfig.ToString());
 			m_QuestClientConfigs.Insert(questConfig);
 		}
-
-		QuestModulePrint(ToString() + "::RPC_SendClientQuestConfigs - End");
 	}
 
 	//! Server
 	//! Called to send the persistent quest data from the server to the given client.
 	void SendClientQuestData(PlayerIdentity identity)
 	{
-		QuestModulePrint(ToString() + "::SendClientQuestData - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -989,18 +944,22 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
+		if (ExpansionInhibitor.Contains(this))
+		{
+			QuestModulePrint("SKIPPING SendClientQuestData");
+			return;
+		}
+
 		//! Get existing player quest data if there is a exiting one in m_PlayerDatas
 		string playerUID = identity.GetId();
 		ExpansionQuestPersistentData questPlayerData = GetPlayerQuestDataByUID(playerUID);
 		if (questPlayerData)
 		{
-			QuestModulePrint(ToString() + "::SendClientQuestData - Send player quest data to client for UID: " + playerUID);
+			QuestModulePrint("Send player quest data to client for UID: " + playerUID);
 			auto rpc = ExpansionScriptRPC.Create();
 			questPlayerData.OnWrite(rpc);
 			rpc.Send(NULL, ExpansionQuestModuleRPC.SendClientQuestData, true, identity);
 		}
-
-		QuestModulePrint(ToString() + "::SendClientQuestData - End");
 	}
 
 	//! Client
@@ -1009,7 +968,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
-		QuestModulePrint(ToString() + "::RPC_SendClientQuestData - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1026,8 +985,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		m_ClientQuestData = data;
 		m_ClientQuestData.QuestDebug();
-
-		QuestModulePrint(ToString() + "::RPC_SendClientQuestData - End");
 	}
 
 	//! Server
@@ -1055,7 +1012,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Server
 	void RequestOpenQuestMenu(Object target, PlayerIdentity identity)
 	{
-		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1095,7 +1052,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		else if (npcObject)
 			questNPCID = npcObject.GetQuestNPCID();
 
-		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - Quest NPC ID: " + questNPCID);
+		QuestModulePrint("Quest NPC ID: " + questNPCID);
 		ExpansionQuestNPCData questNPCData = GetQuestNPCDataByID(questNPCID);
 		if (!questNPCData)
 		{
@@ -1120,14 +1077,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	#endif
-
-		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - End");
 	}
 
 	//! Server
 	void RequestOpenQuestMenu(PlayerIdentity identity, int questID = -1)
 	{
-		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1146,8 +1101,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write("");
 		rpc.Write(questID);
 		rpc.Send(null, ExpansionQuestModuleRPC.RequestOpenQuestMenu, true, identity);
-
-		QuestModulePrint(ToString() + "::RequestOpenQuestMenu - End");
 	}
 
 	//! Client
@@ -1156,7 +1109,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
-		QuestModulePrint(ToString() + "::RPC_RequestOpenQuestMenu - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1175,7 +1128,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		QuestModulePrint(ToString() + "::RPC_RequestOpenQuestMenu - Quest NPC ID: " + questNPCID);
+		QuestModulePrint("Quest NPC ID: " + questNPCID);
 
 		string defaultText;
 		if (!ctx.Read(defaultText))
@@ -1184,7 +1137,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		QuestModulePrint(ToString() + "::RPC_RequestOpenQuestMenu - Default text: " + defaultText);
+		QuestModulePrint("Default text: " + defaultText);
 
 		int questID;
 		if (!ctx.Read(questID))
@@ -1193,22 +1146,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		QuestModulePrint(ToString() + "::RPC_RequestOpenQuestMenu - Quest ID: " + questID);
+		QuestModulePrint("Quest ID: " + questID);
 
 		//! Open quest menu
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionQuestMenu");
 
 		//! Populate quest menu with needed client data.
 		m_QuestMenuInvoker.Invoke(displayName, defaultText, questNPCID, questID);
-
-		QuestModulePrint(ToString() + "::RPC_RequestOpenQuestMenu - End");
 	}
 
 	//! Client
 	//! Request creation of selected quest from quest menu by the client and sends the request to the server.
 	void RequestCreateQuestInstance(int questID)
 	{
-		QuestModulePrint(ToString() + "::RequestCreateQuestInstance - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1219,8 +1170,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCreateQuestInstance, true);
-
-		QuestModulePrint(ToString() + "::RequestCreateQuestInstance - End");
 	}
 
 	//! Server
@@ -1229,7 +1178,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
-		QuestModulePrint(ToString() + "::RPC_RequestCreateQuestInstance - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1245,15 +1194,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		CreateQuestInstance(questID, senderRPC);
-
-		QuestModulePrint(ToString() + "::RPC_RequestCreateQuestInstance - End");
 	}
 
 	//! Server
 	//! Create new quest instance.
 	void CreateQuestInstance(int questID, PlayerIdentity sender)
 	{
-		QuestModulePrint(ToString() + "::CreateQuestInstance - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		//! Get quest config instance and create a copy of that config for our new quest instance
 		ExpansionQuestConfig configInstance = GetQuestConfigByID(questID);
@@ -1286,7 +1233,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			QuestModulePrint(ToString() + "::CreateQuestInstance - Quest is a group quest. Apply needed parameters!");
+			QuestModulePrint("Quest is a group quest. Apply needed parameters!");
 			ExpansionPartyModule partyModule;
 			if (!Class.CastTo(partyModule, CF_ModuleCoreManager.Get(ExpansionPartyModule)))
 			{
@@ -1304,18 +1251,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 				return;
 			}
 
-			int partyID = groupPlayerData.GetParty().GetPartyID();
-			ExpansionPartyData groupData = partyModule.GetPartyByID(partyID);
-			if (!groupData)
-			{
-				newQuestInstance = null;
-				Error(ToString() + "::CreateQuestInstance - Could not get party data for party with ID: " + partyID);
-				return;
-			}
+			ExpansionPartyData groupData = groupPlayerData.GetParty();
+			int partyID = groupData.GetPartyID();
 
-			QuestModulePrint(ToString() + "::CreateQuestInstance - Group data of player with ID: " + playerUID);
-			QuestModulePrint(ToString() + "::CreateQuestInstance - Group data: " + groupData.ToString());
-			QuestModulePrint(ToString() + "::CreateQuestInstance - Group ID: " + groupData.GetPartyID());
+			QuestModulePrint("Group data of player with ID: " + playerUID);
+			QuestModulePrint("Group data: " + groupData.ToString());
+			QuestModulePrint("Group ID: " + partyID);
 
 			//! Only group members accept quest!
 			auto settings = GetExpansionSettings().GetQuest();
@@ -1336,15 +1277,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 			foreach (ExpansionPartyPlayerData member: groupMembers)
 			{
 				string memberUID = member.GetID();
+				QuestModulePrint("Create quest instance for group member " + memberUID);
 				ExpansionQuestPersistentData memberQuestData = GetPlayerQuestDataByUID(memberUID);
+				QuestModulePrint("Member data: " + memberQuestData.ToString());
 				if (!memberQuestData)
 				{
-					newQuestInstance = null;
-					Error(ToString() + "::CreateQuestInstance - Could not get players persisten quest data!");
-					return;
+					QuestModulePrint("Could not get players persisten quest data! Member offline?");
+					continue;
 				}
 
 				memberQuestData.AddQuestData(questID, ExpansionQuestState.NONE);
+
+				newQuestInstance.AddGroupMember(memberUID);
 			}
 		}
 	#endif
@@ -1354,7 +1298,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (!newQuestInstance.OnQuestStart())
 		{
-			QuestModulePrint(ToString() + "::CreateQuestInstance - Quest start event failed for quest with quest id: " + questID);
+			QuestModulePrint("Quest start event failed for quest with quest id: " + questID);
 			CancelQuestServer(newQuestInstance);
 			return;
 		}
@@ -1373,13 +1317,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#endif
 
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CreateQuestInstance - Created new quest instance for player with UID " + sender.GetId() + " for quest " + questID);
-		QuestModulePrint(ToString() + "::CreateQuestInstance - End");
 	}
 
 	//! Client
 	protected void CompleteQuestClient(int questID)
 	{
-		QuestModulePrint(ToString() + "::CompleteQuestClient - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1398,15 +1341,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(questID);
 		rpc.Write(playerUID);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.CompleteQuest, true);
-
-		QuestModulePrint(ToString() + "::CompleteQuestClient - End");
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
 	//! Server
 	void CreateClientMarker(vector pos, string text, int questID, PlayerIdentity identity, int objectiveIndex, int visibility = 6)
 	{
-		QuestModulePrint(ToString() + "::CreateClientMarker - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1422,8 +1363,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(objectiveIndex);
 		rpc.Write(visibility);
 		rpc.Send(null, ExpansionQuestModuleRPC.CreateClientMarker, true, identity);
-
-		QuestModulePrint(ToString() + "::CreateClientMarker - End");
 	}
 
 	//! Client
@@ -1432,7 +1371,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
 
-		QuestModulePrint(ToString() + "::RPC_CreateClientMarker - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1465,17 +1404,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 
 		CreateMarkerClient(pos, text, questID, is3D, objectiveIndex, visibility);
-
-		QuestModulePrint(ToString() + "::RPC_CreateClientMarker - End");
 	}
-	
+
 	bool HasQuestMarker(int questID, int objectiveIndex)
 	{
-		QuestModulePrint(ToString() + "::HasQuestMarker - Start");
-		QuestModulePrint(ToString() + "::HasQuestMarker - Quest ID: " + questID + " | Objective index: " + objectiveIndex);
-		
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestModulePrint("Quest ID: " + questID + " | Objective index: " + objectiveIndex);
+
 		ExpansionMarkerModule markerModule;
-		Class.CastTo(markerModule, CF_ModuleCoreManager.Get(ExpansionMarkerModule));	
+		Class.CastTo(markerModule, CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 		ExpansionMarkerClientData clientMarkerData = markerModule.GetData();
 		if (!clientMarkerData)
 		{
@@ -1483,44 +1420,44 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return false;
 		}
 
-		QuestModulePrint(ToString() + "::HasQuestMarker - Client marker data: " + clientMarkerData.ToString());
-		QuestModulePrint(ToString() + "::HasQuestMarker - Client personal markers data count: " + clientMarkerData.m_PersonalMarkers.Count());
-		
+		QuestModulePrint("Client marker data: " + clientMarkerData.ToString());
+		QuestModulePrint("Client personal markers data count: " + clientMarkerData.m_PersonalMarkers.Count());
+
 		string search = "Q" + questID + "_";
 		if (objectiveIndex > -1)
-		{	
-			search += "" + objectiveIndex;			
+		{
+			search += "" + objectiveIndex;
 		}
-		
+
 		for (int i = clientMarkerData.m_PersonalMarkers.Count() - 1; i >= 0; i--)
 		{
 			ExpansionMarkerData markerData = clientMarkerData.m_PersonalMarkers[i];
 			if (markerData)
 			{
 				string uid = markerData.GetUID();
-				QuestModulePrint(ToString() + "::HasQuestMarker - Marker UID: " + uid + " Name: " + markerData.GetName());
-				
+				QuestModulePrint("Marker UID: " + uid + " Name: " + markerData.GetName());
+
 				if (uid.IndexOf(search) == 0)
 				{
-					Print(ToString() + "::HasQuestMarker - End and return TRUE");
+					QuestModulePrint("End and return TRUE");
 					return true;
 				}
 			}
 		}
 
-		Print(ToString() + "::HasQuestMarker - End and return FALSE");
+		QuestModulePrint("End and return FALSE");
 		return false;
 	}
 
 	//! Client
 	protected void CreateMarkerClient(vector pos, string text, int questID, bool is3D, int objectiveIndex, int visibility)
 	{
-		QuestModulePrint(ToString() + "::CreateMarkerClient - Start");
-		QuestModulePrint(ToString() + "::CreateMarkerClient - Quest ID: " + questID + " | Objective index: " + objectiveIndex + " | Position: " + pos + " | Text: " + text);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestModulePrint("Quest ID: " + questID + " | Objective index: " + objectiveIndex + " | Position: " + pos + " | Text: " + text);
 
 		if (HasQuestMarker(questID, objectiveIndex))
 			return;
-		
+
 		ExpansionMarkerModule markerModule;
 		Class.CastTo(markerModule, CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 
@@ -1529,15 +1466,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 			is3D = false;
 
 		pos[1] = pos[1] + 2.0;
-		
+
 		string uid = "Q" + questID + "_";
 		if (objectiveIndex > -1)
 		{
 			uid += "" + objectiveIndex;
 		}
-		
-		QuestModulePrint(ToString() + "::CreateMarkerClient - Set marker UID: " + uid);
-		
+
+		QuestModulePrint("Set marker UID: " + uid);
+
 		ExpansionMarkerData markerData = ExpansionMarkerData.Create(ExpansionMapMarkerType.PERSONAL, uid, false);
 		markerData.SetName(text);
 		markerData.SetIcon("Questionmark");
@@ -1547,17 +1484,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 		markerData.SetVisibility(visibility);
 		markerData.SetLockState(true);
 		markerModule.CreateMarker(markerData);
-		
+
 		string markerUID = markerData.GetUID();
 		QuestModulePrint("ExpansionMarkerModule::CreateMarkerClient - Create marker with UID: " + markerUID + " Name: " + markerData.GetName() + " for quest " + questID);
-
-		QuestModulePrint(ToString() + "::CreateMarkerClient - End");
 	}
 
 	//! Server
 	void RemoveClientMarkers(int questID, PlayerIdentity identity, int objectiveIndex)
 	{
-		QuestModulePrint(ToString() + "::RemoveClientMarkers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1569,8 +1504,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(questID);
 		rpc.Write(objectiveIndex);
 		rpc.Send(null, ExpansionQuestModuleRPC.RemoveClientMarkers, true, identity);
-
-		QuestModulePrint(ToString() + "::RemoveClientMarkers - End");
 	}
 
 	//! Client
@@ -1579,7 +1512,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
 
-		QuestModulePrint(ToString() + "::RPC_RemoveClientMarkers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1596,15 +1529,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 
 		RemoveMarkersClient(questID, objectiveIndex);
-
-		QuestModulePrint(ToString() + "::RPC_RemoveClientMarkers - End");
 	}
 
 	//! Client
 	protected void RemoveMarkersClient(int questID, int objectiveIndex)
 	{
-		QuestModulePrint(ToString() + "::RemoveMarkersClient - Start");
-		QuestModulePrint(ToString() + "::RemoveMarkersClient - Quest ID: " + questID + " || Objective index: " + objectiveIndex);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestModulePrint("Quest ID: " + questID + " || Objective index: " + objectiveIndex);
 
 		ExpansionMarkerModule markerModule = ExpansionMarkerModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarkerModule));
 		if (!markerModule)
@@ -1620,32 +1551,30 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		QuestModulePrint(ToString() + "::RemoveMarkersClient - Client marker data: " + clientMarkerData.ToString());
-		QuestModulePrint(ToString() + "::RemoveMarkersClient - Client personal markers data count: " + clientMarkerData.m_PersonalMarkers.Count());
-		
+		QuestModulePrint("Client marker data: " + clientMarkerData.ToString());
+		QuestModulePrint("Client personal markers data count: " + clientMarkerData.m_PersonalMarkers.Count());
+
 		string search = "Q" + questID + "_";
 		if (objectiveIndex > -1)
-		{	
-			search += "" + objectiveIndex;			
+		{
+			search += "" + objectiveIndex;
 		}
-		
+
 		for (int i = clientMarkerData.m_PersonalMarkers.Count() - 1; i >= 0; i--)
 		{
 			ExpansionMarkerData markerData = clientMarkerData.m_PersonalMarkers[i];
 			if (markerData)
 			{
 				string uid = markerData.GetUID();
-				QuestModulePrint(ToString() + "::RemoveMarkersClient - Marker UID: " + uid + " Name: " + markerData.GetName());
-				
+				QuestModulePrint("Marker UID: " + uid + " Name: " + markerData.GetName());
+
 				if (uid.IndexOf(search) == 0)
 				{
-					Print(ToString() + "::RemoveMarkersClient - Delete marker!");
+					QuestModulePrint("Delete marker!");
 					markerModule.RemovePersonalMarkerByUID(uid);
 				}
 			}
 		}
-
-		QuestModulePrint(ToString() + "::RemoveMarkersClient - End");
 	}
 #endif
 
@@ -1654,7 +1583,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! update players quest data on the client after it has been changed
 	void CancelQuest(int questID)
 	{
-		QuestModulePrint(ToString() + "::CancelQuest - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1665,8 +1594,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(questID);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.CancelQuest, true);
-
-		QuestModulePrint(ToString() + "::CancelQuest - End");
 	}
 
 	//! Server
@@ -1675,7 +1602,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
 
-		QuestModulePrint(ToString() + "::RPC_CancelQuest - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1727,15 +1654,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! Log message about quest cancelation
 			GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CancelQuestServer - Player with UID " + identity.GetId() + " has cancelled quest " + questID);
 		}
-
-		QuestModulePrint(ToString() + "::RPC_CancelQuest - End");
 	}
 
 	//! Server
 	//! Only called when quest is cancelled by a quest player.
 	void CancelQuestServer(ExpansionQuest quest, int questIndex)
 	{
-		QuestModulePrint(ToString() + "::CancelQuestServer - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1748,7 +1673,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Call the OnQuestCancel on the active quest instance.
 		//! Sends update of quest data to all quest players also.
 		if (!quest.OnQuestCancel())
-			QuestModulePrint(ToString() + "::CancelQuestServer - Something went wrong in the cancel quest event for quest with ID: " + questID);
+			QuestModulePrint("Something went wrong in the cancel quest event for quest with ID: " + questID);
 
 		//! Reset the quest timestamp in the persisten quest data of the quest players.
 		UpdateQuestTimestampForQuestPlayers(quest, 0);
@@ -1780,15 +1705,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		quest = null;
 		m_ActiveQuests.RemoveOrdered(questIndex);
-
-		QuestModulePrint(ToString() + "::CancelQuestServer - End");
 	}
 
 	//! Server
 	//! Only called by the quest system if somethig went wrong with a active quest.
 	void CancelQuestServer(ExpansionQuest quest)
 	{
-		QuestModulePrint(ToString() + "::CancelQuestServer - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1810,20 +1733,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 			CancelQuestServer(quest, i);
 		}
-
-		QuestModulePrint(ToString() + "::CancelQuestServer - End");
 	}
 
 	//! Server
 	protected void SendCallbackToClient(int callback, PlayerIdentity identity)
 	{
-		QuestModulePrint(ToString() + "::SendCallbackToClient - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(callback);
 		rpc.Send(NULL, ExpansionQuestModuleRPC.CallbackClient, true, identity);
-
-		QuestModulePrint(ToString() + "::SendCallbackToClient - End");
 	}
 
 	//! Client
@@ -1832,7 +1751,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
 
-		QuestModulePrint(ToString() + "::RPC_CallbackClient - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1851,20 +1770,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			case ExpansionQuestModuleCallback.CANCELED_QUEST:
 			{
-				QuestModulePrint(ToString() + "::RPC_CallbackClient - CANCELED_QUEST");
+				QuestModulePrint("CANCELED_QUEST");
 				m_QuestMenuCallbackInvoker.Invoke();
 				break;
 			}
 		}
-
-		QuestModulePrint(ToString() + "::RPC_CallbackClient - End");
 	}
 
 	//! Client
 	//! Gets called when a player truns in a certain quest
 	void RequestTurnInQuestClient(int questID, bool selectReward = false, ExpansionQuestRewardConfig selectedReward = null, int selectedObjItemIndex = -1)
 	{
-		QuestModulePrint(ToString() + "::RequestTurnInQuestClient - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -1886,8 +1803,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		rpc.Write(selectedObjItemIndex);
 
 		rpc.Send(NULL, ExpansionQuestModuleRPC.RequestCompleteQuest, true);
-
-		QuestModulePrint(ToString() + "::RequestTurnInQuestClient - End");
 	}
 
 	//! Server
@@ -1896,7 +1811,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
-		QuestModulePrint(ToString() + "::RPC_RequestCompleteQuest - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -1955,13 +1870,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			RequestCompleteQuestServer(questID, playerUID, identity, false, null, selectedObjItemIndex);
 		}
-
-		QuestModulePrint(ToString() + "::RPC_RequestCompleteQuest - End");
 	}
 
 	//! Server
 	void RequestCompleteQuestServer(int questID, string playerUID, PlayerIdentity identity, bool isAutoComplete = false, ExpansionQuestRewardConfig reward = null, int selectedObjItemIndex = -1)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		for (int i = 0; i < m_ActiveQuests.Count(); i++)
 		{
 			ExpansionQuest quest = m_ActiveQuests[i];
@@ -1979,9 +1894,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (quest.GetQuestConfig().IsGroupQuest())
 			{
 				auto settings = GetExpansionSettings().GetQuest();
-				if (settings.GroupQuestMode == 0)
-					continue;
-
 				if (settings.GroupQuestMode <= 1 && quest.GetPlayerUID() != playerUID)
 				{
 					ExpansionNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestNotGroupOwnerTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestNotGroupOwnerText), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
@@ -1990,10 +1902,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		#endif
 
-			QuestModulePrint(ToString() + "::RPC_RequestCompleteQuest - Quest: " + quest.ToString());
-			QuestModulePrint(ToString() + "::RPC_RequestCompleteQuest - Quest ID: " + instanceQuestID);
+			QuestModulePrint("Quest: " + quest.ToString());
+			QuestModulePrint("Quest ID: " + instanceQuestID);
+			QuestModulePrint("Can complete quest: " + quest.CanCompleteQuest());
 
-			if (quest.CanCompleteQuest())
+			if (MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_CanCompleteQuest(quest))
 			{
 				CompleteQuest(quest, playerUID, identity, isAutoComplete, reward, selectedObjItemIndex);
 				return;
@@ -2004,7 +1917,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Server
 	protected void CompleteQuest(ExpansionQuest quest, string playerUID, PlayerIdentity identity, bool isAutoComplete = false, ExpansionQuestRewardConfig reward = null, int selectedObjItemIndex = -1)
 	{
-		QuestModulePrint(ToString() + "::CompleteQuest - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!quest)
 		{
@@ -2014,38 +1927,80 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (!quest.OnQuestTurnIn(playerUID, reward, selectedObjItemIndex))
 		{
-			QuestModulePrint(ToString() + "::CompleteQuest - Quest turn-in event failed for quest with quest id: " + quest.GetQuestConfig().GetID());
+			QuestModulePrint("Quest turn-in event failed for quest with quest id: " + quest.GetQuestConfig().GetID());
 			ExpansionNotification(new StringLocaliser("Quest turn-In failed!"), new StringLocaliser("Something went wrong.."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
 			return;
 		}
 
 		if (quest.GetQuestConfig().IsDailyQuest() || quest.GetQuestConfig().IsWeeklyQuest())
 		{
-			int time = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
-			QuestModulePrint(ToString() + "::CompleteQuest - Current timestamp: " + ExpansionStatic.FormatTimestamp(time, false));
-			QuestModulePrint(ToString() + "::CompleteQuest - Current time: " + ExpansionStatic.FormatTime(time, false));
-			int year, month, day, hour, minute, second;
-			CF_Date.TimestampToDate(time, year, month, day, hour, minute, second);
-			QuestModulePrint(ToString() + "::CompleteQuest - Formated time: " + day + "." + month + "." + year + " | " + hour + ":" + minute + ":" + second);
-
+			int weeklyResetDay = CF_Date.GetDayByName(GetExpansionSettings().GetQuest().WeeklyResetDay);
 			int weeklyResetHour = GetExpansionSettings().GetQuest().WeeklyResetHour;
 			int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyResetMinute;
 			int dailyResetHour = GetExpansionSettings().GetQuest().DailyResetHour;
 			int dailyResetMinute = GetExpansionSettings().GetQuest().DailyResetMinute;
 
+			bool useUTC = GetExpansionSettings().GetQuest().UseUTCTime;
+			CF_Date now = CF_Date.Now(useUTC);
+
+			int localToUTC;
+			if (!useUTC)
+			{
+				//! Convert local time to UTC
+				CF_Date nowUTC = CF_Date.Now(true);
+				localToUTC = nowUTC.GetTimestamp() - now.GetTimestamp();
+				QuestModulePrint("Local time to UTC (seconds): " + localToUTC);
+			}
+
+			int days;
+			int hours;
+			int minutes;
+
 			if (quest.GetQuestConfig().IsDailyQuest())
 			{
-				hour = dailyResetHour;
-				minute = dailyResetMinute;
+				QuestModulePrint("It is: " + now.GetDayName() + " | " + now.GetHours() + ":" + now.GetMinutes());
+				QuestModulePrint("Reset is at: " + now.GetDayName() + " | " + dailyResetHour + ":" + dailyResetMinute);
+				if (now.GetHours() >= dailyResetHour && now.GetMinutes() >= dailyResetMinute)
+				{
+					days = 1;
+					QuestModulePrint("Completed quest after reset! Add cooldown for next day!");
+				}
+
+				hours = dailyResetHour;
+				minutes = dailyResetMinute;
 			}
 			else if (quest.GetQuestConfig().IsWeeklyQuest())
 			{
-				hour = weeklyResetHour;
-				minute = weeklyResetMinute;
+				QuestModulePrint("It is: " + now.GetDayName() + " | " + now.GetHours() + ":" + now.GetMinutes());
+				QuestModulePrint("Reset is at: " + GetExpansionSettings().GetQuest().WeeklyResetDay + " | " + weeklyResetHour + ":" + weeklyResetMinute);
+				if (now.GetDayName() == GetExpansionSettings().GetQuest().WeeklyResetDay)
+				{
+					if (now.GetHours() >= weeklyResetHour && now.GetMinutes() >= weeklyResetMinute)
+					{
+						days = now.GetDaysToNextWeekDay(weeklyResetDay);
+						QuestModulePrint("Completed quest after reset! Add cooldown for next week!");
+					}
+				}
+				else
+				{
+					days = now.GetDaysToNextWeekDay(weeklyResetDay);
+					QuestModulePrint("Completed quest after reset! Add cooldown for next week!");
+				}
+
+				hours = weeklyResetHour;
+				minutes = weeklyResetMinute;
+				QuestModulePrint("Days to next weekly reset: " + days);
 			}
 
-			time = CF_Date.CreateDateTime(year, month, day, hour, minute, second).GetTimestamp();
-			UpdateQuestTimestampForQuestPlayers(quest, time);
+			now.SetHours(0);
+			now.SetMinutes(0);
+			now.SetSeconds(0);
+
+			now.EpochToDate(now.GetTimestamp() + days * 86400 + hours * 3600 + minutes * 60 + localToUTC);
+
+			QuestModulePrint("Reset is on (UTC): " + now.Format(CF_Date.DATETIME));
+
+			UpdateQuestTimestampForQuestPlayers(quest, now.GetTimestamp());
 		}
 
 		UpdateQuestCompletionCountForQuestPlayers(quest);
@@ -2087,7 +2042,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		RemoveActiveQuest(quest);
 
 		GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - CompleteQuest - Player with UID " + identity.GetId() + " has completed quest " + quest.GetQuestConfig().GetID());
-		QuestModulePrint(ToString() + "::CompleteQuest - End");
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------
@@ -2098,19 +2052,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		//! Quest NPC #1
 		ExpansionQuestNPCData questNPC_1 = new ExpansionQuestNPCData();
-		questNPC_1 = GetDefaultQuestNPCData().QuestNPCData_1();
+		questNPC_1 = m_DefaultQuestNPCData.QuestNPCData_1();
 		questNPC_1.Save("QuestNPC_1");
 		m_QuestsNPCs.Insert(1, questNPC_1);
 
 		//! Quest NPC #2
 		ExpansionQuestNPCData questNPC_2 = new ExpansionQuestNPCData();
-		questNPC_2 = GetDefaultQuestNPCData().QuestNPCData_2();
+		questNPC_2 = m_DefaultQuestNPCData.QuestNPCData_2();
 		questNPC_2.Save("QuestNPC_2");
 		m_QuestsNPCs.Insert(2, questNPC_2);
 
 		//! Quest NPC #3
 		ExpansionQuestNPCData questNPC_3 = new ExpansionQuestNPCData();
-		questNPC_3 = GetDefaultQuestNPCData().QuestNPCData_3();
+		questNPC_3 = m_DefaultQuestNPCData.QuestNPCData_3();
 		questNPC_3.Save("QuestNPC_3");
 		m_QuestsNPCs.Insert(3, questNPC_3);
 	}
@@ -2581,7 +2535,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	protected void LoadObjectSets()
 	{
-		QuestModulePrint(ToString() + "::LoadObjectSets - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		foreach (ExpansionQuestConfig questConfig: m_QuestConfigs)
 		{
@@ -2592,43 +2546,37 @@ class ExpansionQuestModule: CF_ModuleWorld
 				questObjectSet.SetObjectSetFileName(EXPANSION_QUESTS_OBJECTS_FOLDER, questConfig.GetObjectSetFileName());
 
 				m_QuestObjectSets.Insert(questObjectSet);
-				QuestModulePrint(ToString() + "::LoadObjectSets - Added objects set for quest ID [" + questConfig.GetID() + "]: " + questObjectSet.ToString());
+				QuestModulePrint("Added objects set for quest ID [" + questConfig.GetID() + "]: " + questObjectSet.ToString());
 			}
 		}
-
-		QuestModulePrint(ToString() + "::LoadObjectSets - End");
 	}
 
 	void CheckAndSpawnObjectSet(int questID)
 	{
-		QuestModulePrint(ToString() + "::CheckAndSpawnObjectSet - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		foreach (ExpansionQuestObjectSet objectSet: m_QuestObjectSets)
 		{
 			if (objectSet.GetQuestID() == questID && !objectSet.IsSpawned())
 			{
 				objectSet.Spawn();
-				QuestModulePrint(ToString() + "::CheckAndSpawnObjectSet - Spawned object set: " + objectSet.ToString());
+				QuestModulePrint("Spawned object set: " + objectSet.ToString());
 			}
 		}
-
-		QuestModulePrint(ToString() + "::CheckAndSpawnObjectSet - End");
 	}
 
 	void CheckAndDeleteObjectSet(int questID)
 	{
-		QuestModulePrint(ToString() + "::CheckAndDeleteObjectSet - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		foreach (ExpansionQuestObjectSet objectSet: m_QuestObjectSets)
 		{
 			if (objectSet.GetQuestID() == questID && objectSet.IsSpawned())
 			{
 				objectSet.Delete();
-				QuestModulePrint(ToString() + "::CheckAndDeleteObjectSet - Deleted object set: " + objectSet.ToString());
+				QuestModulePrint("Deleted object set: " + objectSet.ToString());
 			}
 		}
-
-		QuestModulePrint(ToString() + "::CheckAndDeleteObjectSet - Start");
 	}
 
 	protected void GetQuestNPCData(string fileName)
@@ -2642,7 +2590,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestNPCData questNPCData = ExpansionQuestNPCData.Load(fileName);
 		if (questNPCData)
 		{
-			QuestModulePrint(ToString() + "::GetQuestNPCData - Adding quest npc data from file " + fileName);
+			QuestModulePrint("Adding quest npc data from file " + fileName);
 			m_QuestsNPCs.Insert(questNPCData.GetID(), questNPCData);
 		}
 	}
@@ -2658,7 +2606,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestConfig questData = ExpansionQuestConfig.Load(fileName);
 		if (questData)
 		{
-			QuestModulePrint(ToString() + "::GetQuestData - Try adding quest data from file: " + fileName);
+			QuestModulePrint("Try adding quest data from file: " + fileName);
 			if (!questData.ValidateQuestConfiguration(fileName))
 			{
 				Error(ToString() + "::GetQuestData - Quest configuration validation failed! Quest was not added to the file system. Please check the quest configuration file: " + fileName);
@@ -2674,7 +2622,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		ExpansionQuestPersistentData playerQuestData = GetPlayerQuestData(playerUID);
 		if (!playerQuestData)
 		{
-			QuestModulePrint(ToString() + "::HasCompletedQuest - Could not get quest data for player with UID: " + playerUID + ". Return TRUE");
+			QuestModulePrint("Could not get quest data for player with UID: " + playerUID + ". Return TRUE");
 			return true;
 		}
 
@@ -2682,11 +2630,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		int completionCount = playerQuestData.GetQuestCompletionCountByQuestID(questID);
 		if (questState != ExpansionQuestState.COMPLETED && completionCount == 0)
 		{
-			QuestModulePrint(ToString() + "::HasCompletedQuest - Player with UID: " + playerUID + " has never completed quest with ID " + questID + "! Return FALSE");
+			QuestModulePrint("Player with UID: " + playerUID + " has never completed quest with ID " + questID + "! Return FALSE");
 			return false;
 		}
 
-		QuestModulePrint(ToString() + "::HasCompletedQuest - Player with UID: " + playerUID + " has completed quest with ID " + questID + " once! Return TRUE");
+		QuestModulePrint("Player with UID: " + playerUID + " has completed quest with ID " + questID + " once! Return TRUE");
 		return true;
 	}
 
@@ -2746,8 +2694,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! We need to get and handle the persistent objective data of the player so the progress of the quest objectives continues and no quest progress is lost.
 	protected void GetObjectiveProgressFromQuestData(ExpansionQuestPersistentData playerData, ExpansionQuest quest)
 	{
-		QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Start");
-		QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Quest ID: " + quest.GetQuestConfig().GetID());
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestModulePrint("Quest ID: " + quest.GetQuestConfig().GetID());
 
 		if (!playerData)
 		{
@@ -2822,8 +2770,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int objectiveType = objectiveData.GetObjectiveType();
 			int objectiveIndex = objectiveData.GetObjectiveIndex();
 
-			QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective data type: " + objectiveType);
-			QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective data index: " + objectiveIndex);
+			QuestModulePrint("Objective data type: " + objectiveType);
+			QuestModulePrint("Objective data index: " + objectiveIndex);
 			objectiveData.QuestDebug();
 
 			//! Get the correct objective event base cass with the objective index
@@ -2853,7 +2801,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				case ExpansionQuestObjectiveType.ACTION:
 				{
-					QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: ACTION");
+					QuestModulePrint("Objective event type: ACTION");
 					ExpansionQuestObjectiveActionEvent action = ExpansionQuestObjectiveActionEvent.Cast(objective);
 					if (action)
 					{
@@ -2861,40 +2809,27 @@ class ExpansionQuestModule: CF_ModuleWorld
 						action.SetActionState(objectiveData.GetActionState());
 						//! Get execution count progress from persistent data.
 						action.SetExecutionCount(objectiveData.GetObjectiveCount());
-						QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: ACTION");
+						QuestModulePrint("Objective progress added: ACTION");
 					}
 				}
 				break;
 
 				case ExpansionQuestObjectiveType.TARGET:
 				{
-					QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: TARGET");
+					QuestModulePrint("Objective event type: TARGET");
 					ExpansionQuestObjectiveTargetEvent target = ExpansionQuestObjectiveTargetEvent.Cast(objective);
 					if (target)
 					{
 						//! Get kill count progress from persistent data.
 						target.SetCount(objectiveData.GetObjectiveCount());
-						QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: TARGET");
-					}
-				}
-				break;
-
-				case ExpansionQuestObjectiveType.TRAVEL:
-				{
-					QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: TRAVEL");
-					ExpansionQuestObjectiveTravelEvent travel = ExpansionQuestObjectiveTravelEvent.Cast(objective);
-					if (travel)
-					{
-						//! Get destination check progress from persistent data.
-						travel.SetLocationPosition(objectiveData.GetObjectivePosition());
-						QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: TRAVEL");
+						QuestModulePrint("Objective progress added: TARGET");
 					}
 				}
 				break;
 
 				case ExpansionQuestObjectiveType.TREASUREHUNT:
 				{
-					QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: TREASUREHUNT");
+					QuestModulePrint("Objective event type: TREASUREHUNT");
 					ExpansionQuestObjectiveTreasureHuntEvent treasureHunt = ExpansionQuestObjectiveTreasureHuntEvent.Cast(objective);
 					if (treasureHunt)
 					{
@@ -2902,7 +2837,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 						treasureHunt.SetLocationState(objectiveData.GetActionState());
 						//! Set the previous position for the stash location from persistent data.
 						treasureHunt.SetStashPosition(objectiveData.GetObjectivePosition());
-						QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: TREASUREHUNT");
+						QuestModulePrint("Objective progress added: TREASUREHUNT");
 					}
 				}
 				break;
@@ -2910,63 +2845,59 @@ class ExpansionQuestModule: CF_ModuleWorld
 			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AIPATROL:
 				{
-					QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: AIPATROL");
+					QuestModulePrint("Objective event type: AIPATROL");
 					ExpansionQuestObjectiveAIPatrolEvent aiPatrolHunt = ExpansionQuestObjectiveAIPatrolEvent.Cast(objective);
 					if (aiPatrolHunt)
 					{
 						//! Get kill count progress from persistent data.
 						aiPatrolHunt.SetKillCount(objectiveData.GetObjectiveCount());
-						aiPatrolHunt.SetKillAmount(objectiveData.GetObjectiveAmount());
-						QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: AIPATROL");
+						QuestModulePrint("Objective progress added: AIPATROL");
 					}
 				}
 				break;
 
 				case ExpansionQuestObjectiveType.AICAMP:
 				{
-					QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective event type: AICAMP");
+					QuestModulePrint("Objective event type: AICAMP");
 					ExpansionQuestObjectiveAICampEvent aiCamp = ExpansionQuestObjectiveAICampEvent.Cast(objective);
 					if (aiCamp)
 					{
 						//! Get kill count progress from persistent data.
 						aiCamp.SetKillCount(objectiveData.GetObjectiveCount());
-						aiCamp.SetKillAmount(objectiveData.GetObjectiveAmount());
-						QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - Objective progress added: AICAMP");
+						QuestModulePrint("Objective progress added: AICAMP");
 					}
 				}
 				break;
 			#endif
 			}
 		}
-
-		QuestModulePrint(ToString() + "::GetObjectiveProgressFromQuestData - End");
 	}
 
 	//! Server
 	protected void CleanupPlayerQuests(string playerUID)
 	{
-		QuestModulePrint(ToString() + "::CleanupPlayerQuests - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
 			Error(ToString() + "::CleanupPlayerQuests - Tryed to call CleanupPlayerQuests on Client!");
 			return;
 		}
 
-		QuestModulePrint(ToString() + "::CleanupPlayerQuests - Look for quests of player with UID [" + playerUID + "]");
+		QuestModulePrint("Look for quests of player with UID [" + playerUID + "]");
 		for (int i = m_ActiveQuests.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuest quest = m_ActiveQuests[i];
-			QuestModulePrint(ToString() + "::CleanupPlayerQuests - Check active quest. ID: " + quest.GetQuestConfig().GetID() + " | Player UID: " + quest.GetPlayerUID());
+			QuestModulePrint("Check active quest. ID: " + quest.GetQuestConfig().GetID() + " | Player UID: " + quest.GetPlayerUID());
 			if (quest.GetPlayerUID() == playerUID)
 			{
-				QuestModulePrint(ToString() + "::CleanupPlayerQuests - Quest " + quest.GetQuestConfig().GetID() + " is a quest of player with UID [" + playerUID + "] Delete quest!");
+				QuestModulePrint("Quest " + quest.GetQuestConfig().GetID() + " is a quest of player with UID [" + playerUID + "] Delete quest!");
 			#ifdef EXPANSIONMODGROUPS
 				//! Dont delete the quest if its a group quest and a other group member is still online
 				if (quest.GetQuestConfig().IsGroupQuest())
 				{
 					if (quest.IsOtherGroupMemberOnline(playerUID))
 					{
-						QuestModulePrint(ToString() + "::CleanupPlayerQuests - Quest is a group quest and other group players are still online! Skip quest deletion!");
+						QuestModulePrint("Quest is a group quest and other group players are still online! Skip quest deletion!");
 						continue;
 					}
 				}
@@ -2975,24 +2906,24 @@ class ExpansionQuestModule: CF_ModuleWorld
 				//! Delete quest
 				quest.OnQuestCleanup(true);
 				m_ActiveQuests.RemoveOrdered(i);
-				QuestModulePrint(ToString() + "::CleanupPlayerQuests - Quest deleted!");
+				QuestModulePrint("Quest deleted!");
 			}
 		}
-
-		QuestModulePrint(ToString() + "::CleanupPlayerQuests - End");
 	}
 
 	//! Server
 	//! Updates quest objective data for given client
 	void UpdateQuestObjectiveData(ExpansionQuest quest, ExpansionQuestPersistentData playerQuestData, string playerUID)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		array<ref ExpansionQuestObjectiveEventBase> questObjectiveEvents = quest.GetObjectives();
 		if (!questObjectiveEvents || questObjectiveEvents.Count() == 0)
 			return;
 
 		foreach (ExpansionQuestObjectiveEventBase currentObjective: questObjectiveEvents)
 		{
-			QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Try update from objective event base: " + currentObjective.ToString());
+			QuestModulePrint("Try update from objective event base: " + currentObjective.ToString());
 			ExpansionQuestObjectiveData objectiveData = playerQuestData.GetQuestObjectiveByQuestIDAndIndex(quest.GetQuestConfig().GetID(), currentObjective.GetIndex());
 			if (!objectiveData)
 			{
@@ -3017,12 +2948,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				case ExpansionQuestObjectiveType.TARGET:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: TARGET");
+					QuestModulePrint("Objective event type is: TARGET");
 					ExpansionQuestObjectiveTargetEvent targetObjective;
 					if (Class.CastTo(targetObjective, currentObjective))
 					{
-						if (objectiveData.GetObjectiveAmount() <= 0)
-							objectiveData.SetObjectiveAmount(targetObjective.GetAmount());
+						objectiveData.SetObjectiveAmount(targetObjective.GetAmount());
 						objectiveData.SetObjectiveCount(targetObjective.GetCount());
 					}
 				}
@@ -3030,19 +2960,20 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				case ExpansionQuestObjectiveType.TRAVEL:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: TRAVEL");
+					QuestModulePrint("Objective event type is: TRAVEL");
 					ExpansionQuestObjectiveTravelEvent travelObjective;
 					if (Class.CastTo(travelObjective, currentObjective))
 					{
-						if (objectiveData.GetObjectivePosition() == vector.Zero)
-							objectiveData.SetObjectivePosition(travelObjective.GetPosition());
+						QuestModulePrint("Objective position is: " + travelObjective.GetPosition());
+						QuestModulePrint("Objective data position is: " + objectiveData.GetObjectivePosition());
+						objectiveData.SetObjectivePosition(travelObjective.GetPosition());
 					}
 				}
 				break;
 
 				case ExpansionQuestObjectiveType.COLLECT:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: COLLECT");
+					QuestModulePrint("Objective event type is: COLLECT");
 					ExpansionQuestObjectiveCollectionEvent collectionObjective;
 					if (Class.CastTo(collectionObjective, currentObjective))
 					{
@@ -3075,11 +3006,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 								npcPos = quest.GetPlayer().GetPosition();
 						}
 
-						if (npcPos != vector.Zero && objectiveData.GetObjectivePosition() == vector.Zero)
-							objectiveData.SetObjectivePosition(npcPos);
+						objectiveData.SetObjectivePosition(npcPos);
 
 						array<ref ExpansionQuestDeliveryObjectiveData> collectionData = collectionObjective.GetDeliveryData();
-						QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Set collection data: " + collectionData.ToString() + " | Count: " + collectionData.Count());
+						QuestModulePrint("Set collection data: " + collectionData.ToString() + " | Count: " + collectionData.Count());
 						objectiveData.SetDeliveries(collectionData);
 					}
 				}
@@ -3087,7 +3017,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				case ExpansionQuestObjectiveType.DELIVERY:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: DELIVERY");
+					QuestModulePrint("Objective event type is: DELIVERY");
 					ExpansionQuestObjectiveDeliveryEvent deliveryObjective;
 					if (Class.CastTo(deliveryObjective, currentObjective))
 					{
@@ -3120,11 +3050,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 								npcPos = quest.GetPlayer().GetPosition();
 						}
 
-						if (npcPos != vector.Zero && objectiveData.GetObjectivePosition() == vector.Zero)
-							objectiveData.SetObjectivePosition(npcPos);
+						objectiveData.SetObjectivePosition(npcPos);
 
 						array<ref ExpansionQuestDeliveryObjectiveData> deliveryData = deliveryObjective.GetDeliveryData();
-						QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Set delivery data: " + deliveryData.ToString() + " | Count: " + deliveryData.Count());
+						QuestModulePrint("Set delivery data: " + deliveryData.ToString() + " | Count: " + deliveryData.Count());
 						objectiveData.SetDeliveries(deliveryData);
 					}
 				}
@@ -3132,25 +3061,23 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				case ExpansionQuestObjectiveType.TREASUREHUNT:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: TREASUREHUNT");
+					QuestModulePrint("Objective event type is: TREASUREHUNT");
 					ExpansionQuestObjectiveTreasureHuntEvent treasureObjective;
 					if (Class.CastTo(treasureObjective, currentObjective))
 					{
-						if (objectiveData.GetObjectivePosition() == vector.Zero)
-							objectiveData.SetObjectivePosition(treasureObjective.GetPosition());
+						objectiveData.SetObjectivePosition(treasureObjective.GetPosition());
 					}
 				}
 				break;
 
 				case ExpansionQuestObjectiveType.ACTION:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: ACTION");
+					QuestModulePrint("Objective event type is: ACTION");
 					ExpansionQuestObjectiveActionEvent actionObjective;
 					if (Class.CastTo(actionObjective, currentObjective))
 					{
 						objectiveData.SetActionState(actionObjective.GetActionState());
-						if (objectiveData.GetObjectiveAmount() <= 0)
-							objectiveData.SetObjectiveAmount(actionObjective.GetExecutionAmount());
+						objectiveData.SetObjectiveAmount(actionObjective.GetExecutionAmount());
 						objectiveData.SetObjectiveCount(actionObjective.GetExecutionCount());
 					}
 				}
@@ -3158,13 +3085,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				case ExpansionQuestObjectiveType.CRAFTING:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: CRAFTING");
+					QuestModulePrint("Objective event type is: CRAFTING");
 					ExpansionQuestObjectiveCraftingEvent craftingObjective;
 					if (Class.CastTo(craftingObjective, currentObjective))
 					{
 						objectiveData.SetActionState(craftingObjective.GetCraftingState());
-						if (objectiveData.GetObjectiveAmount() <= 0)
-							objectiveData.SetObjectiveAmount(craftingObjective.GetObjectiveItemsAmount());
+						objectiveData.SetObjectiveAmount(craftingObjective.GetObjectiveItemsAmount());
 						objectiveData.SetObjectiveCount(craftingObjective.GetObjectiveItemsCount());
 					}
 				}
@@ -3173,12 +3099,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			#ifdef EXPANSIONMODAI
 				case ExpansionQuestObjectiveType.AICAMP:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: AICAMP");
+					QuestModulePrint("Objective event type is: AICAMP");
 					ExpansionQuestObjectiveAICampEvent aiCampObjective;
 					if (Class.CastTo(aiCampObjective, currentObjective))
 					{
-						if (objectiveData.GetObjectiveAmount() <= 0)
-							objectiveData.SetObjectiveAmount(aiCampObjective.GetAmount());
+						objectiveData.SetObjectiveAmount(aiCampObjective.GetAmount());
 						objectiveData.SetObjectiveCount(aiCampObjective.GetCount());
 					}
 				}
@@ -3186,12 +3111,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				case ExpansionQuestObjectiveType.AIPATROL:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: AIPATROL");
+					QuestModulePrint("Objective event type is: AIPATROL");
 					ExpansionQuestObjectiveAIPatrolEvent aiPatrolObjective;
 					if (Class.CastTo(aiPatrolObjective, currentObjective))
 					{
-						if (objectiveData.GetObjectiveAmount() <= 0)
-							objectiveData.SetObjectiveAmount(aiPatrolObjective.GetAmount());
+						objectiveData.SetObjectiveAmount(aiPatrolObjective.GetAmount());
 						objectiveData.SetObjectiveCount(aiPatrolObjective.GetCount());
 					}
 				}
@@ -3199,12 +3123,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 				case ExpansionQuestObjectiveType.AIESCORT:
 				{
-					QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Objective event type is: AIESCORT");
+					QuestModulePrint("Objective event type is: AIESCORT");
 					ExpansionQuestObjectiveAIEscortEvent aiEscortObjective;
 					if (Class.CastTo(aiEscortObjective, currentObjective))
 					{
-						if (objectiveData.GetObjectivePosition() == vector.Zero)
-							objectiveData.SetObjectivePosition(aiEscortObjective.GetPosition());
+						objectiveData.SetObjectivePosition(aiEscortObjective.GetPosition());
 					}
 				}
 				break;
@@ -3222,9 +3145,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (questData)
 				questData.UpdateLastUpdateTime();
 
-			playerQuestData.Save(playerUID);
-
-			QuestModulePrint(ToString() + "::UpdateQuestObjectiveData - Added new objective data for type: " + objectiveType);
+			QuestModulePrint("Added new objective data for type: " + objectiveType);
 		}
 	}
 
@@ -3232,12 +3153,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Updates quest objectives and the quest state data for all quest clients on the server and syncs that data to that clients afterwards.
 	void UpdateQuestForQuestPlayers(ExpansionQuest quest, bool updateQuestState)
 	{
-		QuestModulePrint(ToString() + "::UpdateQuestForQuestPlayers - Start");
 		string questState = typename.EnumToString(ExpansionQuestState, quest.GetQuestState());
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + quest.GetQuestConfig().GetID(), "State: " + questState);
+
 		if (!quest.GetQuestConfig().IsGroupQuest())
 		{
 			string playerUID = quest.GetPlayerUID();
-			QuestModulePrint(ToString() + "::UpdateQuestForQuestPlayers - Quest ID: " + quest.GetQuestConfig().GetID() + " | UID: " + playerUID + " | State: " + questState);
 			ExpansionQuestPersistentData playerQuestData = GetPlayerQuestDataByUID(playerUID);
 			if (!playerQuestData)
 			{
@@ -3250,9 +3171,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			foreach (string memberUID: quest.GetPlayerUIDs())
+			array<string> memberUIDs = quest.GetPlayerUIDs();
+			foreach (string memberUID: memberUIDs)
 			{
-				QuestModulePrint(ToString() + "::UpdateQuestForQuestPlayers - Quest ID: " + quest.GetQuestConfig().GetID() + " | UID: " + memberUID + " | State: " + questState);
 				ExpansionQuestPersistentData groupPlayerQuestData = GetPlayerQuestDataByUID(memberUID);
 				if (!groupPlayerQuestData)
 				{
@@ -3264,14 +3185,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	#endif
-
-		QuestModulePrint(ToString() + "::UpdateQuestForQuestPlayers - End");
 	}
 
 	//! Server
 	protected void ProcessUpdateAndSync(ExpansionQuest quest, ExpansionQuestPersistentData questData, string playerUID, bool updateQuestState)
 	{
-		QuestModulePrint(ToString() + "::ProcessUpdateAndSync - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + quest.GetQuestConfig().GetID(), "Player UID: " + playerUID, "Update state: " + updateQuestState);
 
 		//! Update quest state for the player.
 		if (updateQuestState)
@@ -3282,27 +3201,31 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Update quest objective data for the player.
 		UpdateQuestObjectiveData(quest, questData, playerUID);
 
+		if (ExpansionInhibitor.Contains(this))
+		{
+			QuestModulePrint("SKIPPING player quest data save and sync");
+			return;
+		}
+
 		//! Check and save persistent player data changes.
 		questData.Save(playerUID);
 
 		PlayerBase player = PlayerBase.GetPlayerByUID(playerUID);
 		if (!player || !player.GetIdentity())
 		{
-			Print(ToString() + "::ProcessUpdateAndSync - Could not get player with UID: " + playerUID);
+			QuestModulePrint("Could not get player with UID: " + playerUID);
 			return;
 		}
 
 		//! Send persistent quest player data from the server to the client.
 		SendClientQuestData(player.GetIdentity());
-
-		QuestModulePrint(ToString() + "::ProcessUpdateAndSync - End");
 	}
 
 	//! Server
 	//! Updates quest state on given persistent quest data with the given quest state.
 	protected void UpdateQuestState(ExpansionQuestPersistentData playerData, string playerUID, ExpansionQuest quest, ExpansionQuestState state = ExpansionQuestState.INVALID)
 	{
-		QuestModulePrint(ToString() + "::UpdateQuestState - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		int questID = quest.GetQuestConfig().GetID();
 		ExpansionQuestState questState = quest.GetQuestState();
 
@@ -3326,14 +3249,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Sets updated time data for all quest clients.
 	protected void UpdateQuestTimestampForQuestPlayers(ExpansionQuest quest, int time)
 	{
-		QuestModulePrint(ToString() + "::UpdateQuestTimestampForQuestPlayers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!quest.GetQuestConfig().IsGroupQuest())
 		{
 			ExpansionQuestPersistentData playerQuestData = GetPlayerQuestDataByUID(quest.GetPlayerUID());
 			if (playerQuestData)
 			{
-				QuestModulePrint(ToString() + "::UpdateQuestTimestampForQuestPlayers - Player quest data: " + playerQuestData.ToString());
+				QuestModulePrint("Player quest data: " + playerQuestData.ToString());
 				playerQuestData.UpdateQuestTimestamp(quest.GetQuestConfig().GetID(), time);
 				playerQuestData.Save(quest.GetPlayerUID());
 			}
@@ -3341,7 +3264,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			foreach (string memberUID: quest.GetPlayerUIDs())
+			array<string> memberUIDs = quest.GetPlayerUIDs();
+			foreach (string memberUID: memberUIDs)
 			{
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
 				if (!groupPlayer)
@@ -3356,24 +3280,22 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	#endif
-
-		QuestModulePrint(ToString() + "::UpdateQuestTimestampForQuestPlayers - End");
 	}
 
 	//! Server
 	//! Sets updated quest completion data for all quest clients.
 	protected void UpdateQuestCompletionCountForQuestPlayers(ExpansionQuest quest)
 	{
-		QuestModulePrint(ToString() + "::UpdateQuestCompletionCountForQuestPlayers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!quest.GetQuestConfig().IsGroupQuest())
 		{
 			string playerUID = quest.GetPlayerUID();
-			QuestModulePrint(ToString() + "::UpdateQuestCompletionCountForQuestPlayers - Player UID: " + playerUID);
+			QuestModulePrint("Player UID: " + playerUID);
 			ExpansionQuestPersistentData playerQuestData = GetPlayerQuestDataByUID(playerUID);
 			if (playerQuestData)
 			{
-				QuestModulePrint(ToString() + "::UpdateQuestCompletionCountForQuestPlayers - Player quest data: " + playerQuestData.ToString());
+				QuestModulePrint("Player quest data: " + playerQuestData.ToString());
 				playerQuestData.UpdateCompletionCount(quest.GetQuestConfig().GetID());
 				playerQuestData.Save(playerUID);
 			}
@@ -3381,7 +3303,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			foreach (string memberUID: quest.GetPlayerUIDs())
+			array<string> memberUIDs = quest.GetPlayerUIDs();
+			foreach (string memberUID: memberUIDs)
 			{
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
 				if (!groupPlayer)
@@ -3396,157 +3319,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	#endif
-
-		QuestModulePrint(ToString() + "::UpdateQuestTimestampForQuestPlayers - End");
-	}
-
-	void CheckQuestResetTime()
-	{
-		auto now = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime);
-		int weekDay = now.GetDayOfWeek();
-		int minutes = now.GetMinutes();
-		int hours = now.GetHours();
-		string dayName = GetDayName(weekDay);
-		string resetDay = GetExpansionSettings().GetQuest().WeeklyResetDay;
-		int weeklyResetHour = GetExpansionSettings().GetQuest().WeeklyResetHour;
-		int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyResetMinute;
-		int dailyResetHour = GetExpansionSettings().GetQuest().DailyResetHour;
-		int dailyResetMinute = GetExpansionSettings().GetQuest().DailyResetMinute;
-
-		int lastWeeklyReset = m_ServerData.LastWeeklyReset;
-		int lastDailyReset = m_ServerData.LastDailyReset;
-
-		if (lastWeeklyReset == 0)
-		{
-			m_ServerData.SetWeeklyResetTime();
-			lastWeeklyReset = m_ServerData.LastWeeklyReset;
-		}
-
-		if (lastDailyReset == 0)
-		{
-			m_ServerData.SetWeeklyResetTime();
-			lastDailyReset = m_ServerData.LastDailyReset;
-		}
-
-		//! Get last weekly reset time
-		int lastWeeklyYear, lastWeeklyMonth, lastWeeklyDay, lastWeeklyHour, lastWeeklyMinute, lastWeeklySecond;
-		CF_Date.TimestampToDate(lastWeeklyReset, lastWeeklyYear, lastWeeklyMonth, lastWeeklyDay, lastWeeklyHour, lastWeeklyMinute, lastWeeklySecond);
-
-		//! Get last daily reset time
-		int lastDailyYear, lastDailyMonth, lastDailyDay, lastDailyHour, lastDailyMinute, lastDailySecond;
-		CF_Date.TimestampToDate(lastDailyReset, lastDailyYear, lastDailyMonth, lastDailyDay, lastDailyHour, lastDailyMinute, lastDailySecond);
-
-		string lastWeeklyResetText = string.Format("%1-%2-%3 - %4:%5:%6", lastWeeklyDay, lastWeeklyMonth, lastWeeklyYear, lastWeeklyHour, lastWeeklyMinute, lastWeeklySecond);
-		string lastDailyResetText = string.Format("%1-%2-%3 - %4:%5:%6", lastDailyDay, lastDailyMonth, lastDailyYear, lastDailyHour, lastDailyMinute, lastDailySecond);
-
-		QuestModulePrint(ToString() + "::CheckQuestResetTime - Todays day: " + dayName);
-		QuestModulePrint(ToString() + "::CheckQuestResetTime - Reset day: " + resetDay);
-		QuestModulePrint(ToString() + "::CheckQuestResetTime - Last Weekly reset was: " + lastWeeklyResetText);
-		QuestModulePrint(ToString() + "::CheckQuestResetTime - Last Daily reset was: " + lastWeeklyResetText);
-
-		if (dayName == resetDay)
-		{
-			QuestModulePrint(ToString() + "::CheckQuestResetTime - Today is weekly quest reset day! Reset at " + weeklyResetHour + ":" + weeklyResetMinute);
-			if (!m_ServerData.HasWeeklyResetCooldown() && minutes >= weeklyResetMinute && hours >= weeklyResetHour)
-			{
-				QuestModulePrint(ToString() + "::CheckQuestResetTime - Execute weekly quest reset!");
-				ResetWeeklyQuestCooldowns();
-				m_ServerData.SetWeeklyResetTime();
-				m_ServerData.Save();
-			}
-		}
-
-		if (!m_ServerData.HasDailyResetCooldown() && minutes >= dailyResetMinute && hours >= dailyResetHour)
-		{
-			QuestModulePrint(ToString() + "::CheckQuestResetTime - Execute daily quest reset!");
-			ResetDailyQuestCooldowns();
-			m_ServerData.SetDailyResetTime();
-			m_ServerData.Save();
-		}
-	}
-
-	void ResetWeeklyQuestCooldowns()
-	{
-		foreach (string playerUID, ExpansionQuestPersistentData playerData: m_PlayerDatas)
-		{
-			array<ref ExpansionQuestPersistentQuestData> questDatas = playerData.GetQuestDatas();
-			foreach (ExpansionQuestPersistentQuestData data: questDatas)
-			{
-				int questID = data.QuestID;
-				ExpansionQuestConfig questConfig = GetQuestConfigByID(questID);
-				if (!questConfig)
-					continue;
-
-				if (questConfig.IsWeeklyQuest())
-				{
-					//! Reset started/completed or ready to turn-in weekly quests.
-					if (data.State >= ExpansionQuestState.STARTED)
-						data.State == ExpansionQuestState.NONE; //! Will cleanup this quest entry when data gets saved
-
-					data.Timestamp = 0;
-					playerData.Save(playerUID);
-				}
-			}
-		}
-	}
-
-	void ResetDailyQuestCooldowns()
-	{
-		foreach (string playerUID, ExpansionQuestPersistentData playerData: m_PlayerDatas)
-		{
-			array<ref ExpansionQuestPersistentQuestData> questDatas = playerData.GetQuestDatas();
-			foreach (ExpansionQuestPersistentQuestData data: questDatas)
-			{
-				int questID = data.QuestID;
-				ExpansionQuestConfig questConfig = GetQuestConfigByID(questID);
-				if (!questConfig)
-					continue;
-
-				if (questConfig.IsDailyQuest())
-				{
-					//! Reset started/completed or ready to turn-in weekly quests.
-					if (data.State >= ExpansionQuestState.STARTED)
-						data.State == ExpansionQuestState.NONE; //! Will cleanup this quest entry when data gets saved
-
-					data.Timestamp = 0;
-					playerData.Save(playerUID);
-				}
-			}
-		}
-	}
-
-	string GetDayName(int day)
-	{
-		string dayName;
-		switch (day)
-		{
-			case 0:
-				dayName = "Sunday";
-				break;
-			case 1:
-				dayName = "Monday";
-				break;
-			case 2:
-				dayName = "Tuesday";
-				break;
-			case 3:
-				dayName = "Wednesday";
-				break;
-			case 4:
-				dayName = "Thursday";
-				break;
-			case 5:
-				dayName = "Friday";
-				break;
-			case 6:
-				dayName = "Saturday";
-				break;
-			default:
-				dayName = "NONE";
-				break;
-		}
-
-		return dayName;
 	}
 
 #ifdef EXPANSIONMODGROUPS
@@ -3584,7 +3356,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	void QuestModulePrint(string text)
 	{
 	//#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, null, text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	//#endif
 	}
 
@@ -3600,7 +3372,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			if (activeQuest == quest)
 			{
 				activeQuest.OnQuestCleanup();
-				Print(ToString() + "::RemoveActiveQuest - Removeing completed quest. ID: " + quest.GetQuestConfig().GetID() + " | Player UID: " + quest.GetPlayerUID());
+				QuestModulePrint("Removeing completed quest. ID: " + quest.GetQuestConfig().GetID() + " | Player UID: " + quest.GetPlayerUID());
 				m_ActiveQuests.RemoveOrdered(i);
 				return;
 			}
@@ -3678,12 +3450,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 	ExpansionQuestPersistentData GetPlayerQuestDataByUID(string playerUID)
 	{
 		return m_PlayerDatas.Get(playerUID);
-	}
-
-	//! Server
-	ExpansionDefaultQuestNPCData GetDefaultQuestNPCData()
-	{
-		return m_DefaultQuestNPCData;
 	}
 
 	//! Server
@@ -3776,17 +3542,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Server
 	bool QuestPatrolExists(int questID, out array<eAIDynamicPatrol> patrols)
 	{
-		QuestModulePrint(ToString() + "::QuestPatrolExists - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		array<eAIDynamicPatrol> foundPatrols;
 		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
 		{
 			patrols = foundPatrols;
-			QuestModulePrint(ToString() + "::QuestPatrolExists - End and return TRUE");
+			QuestModulePrint("End and return TRUE");
 			return true;
 		}
 
-		QuestModulePrint(ToString() + "::QuestPatrolExists - End and return FALSE");
+		QuestModulePrint("End and return FALSE");
 
 		return false;
 	}
@@ -3794,7 +3560,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Server
 	void SetQuestPatrols(int questID, array<eAIDynamicPatrol> patrols)
 	{
-		QuestModulePrint(ToString() + "::SetQuestPatrols - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		array<eAIDynamicPatrol> foundPatrols;
 		if (m_GlobalAIPatrols.Find(questID, foundPatrols))
@@ -3820,8 +3586,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		{
 			m_GlobalAIPatrols.Insert(questID, patrols);
 		}
-
-		QuestModulePrint(ToString() + "::SetQuestPatrols - End");
 	}
 
 	//! Server
@@ -3829,17 +3593,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 	//! Called from ExpansionQuestObjectiveAIEventBase::CleanupPatrol which deals with despawning AI if necessary.
 	void RemoveQuestPatrol(int questID)
 	{
-		QuestModulePrint(ToString() + "::RemoveQuestPatrol - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_GlobalAIPatrols.Remove(questID);
-
-		QuestModulePrint(ToString() + "::RemoveQuestPatrol - End");
 	}
 
 	//! Server
 	bool CanDeleteQuestPatrol(int questID)
 	{
-		QuestModulePrint(ToString() + "::CanDeleteQuestPatrol - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		int incompleteCount = 0;
 		foreach (ExpansionQuest quest: m_ActiveQuests)
@@ -3860,11 +3622,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (incompleteCount > 0)
 		{
-			QuestModulePrint(ToString() + "::CanDeleteQuestPatrol - End and return FALSE");
+			QuestModulePrint("End and return FALSE");
 			return false;
 		}
 
-		QuestModulePrint(ToString() + "::CanDeleteQuestPatrol - End and return TRUE");
+		QuestModulePrint("End and return TRUE");
 		return true;
 	}
 
@@ -4006,7 +3768,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			foreach (string file: playerDataFiles)
 			{
 				file.Replace(".bin", "");
-				Print(ToString() + "::PlayerQuestDataCheck - Check player data file: " + file);
+				QuestModulePrint("Check player data file: " + file);
 				ExpansionQuestPersistentData questPlayerData = new ExpansionQuestPersistentData();
 				if (!questPlayerData.Load(file))
 				{
@@ -4052,35 +3814,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 		return color;
 	}
 
-	int GetItemAmount(EntityAI item)
+	bool QuestDisplayConditions(ExpansionQuestConfig config, PlayerBase player, ExpansionQuestPersistentData playerQuestData = null, int questNPCID = -1, bool displayQuestsWithCooldown = false)
 	{
-		if (!item)
-			Error(ToString() + "::GetItemAmount - Item is NULL!");
-
-		int amount;
-		ItemBase itemBase;
-		if (Class.CastTo(itemBase, item))
-		{
-			amount = itemBase.Expansion_GetStackAmount();
-		}
-		else
-		{
-			amount = 1;
-		}
-
-		if (!MiscGameplayFunctions.Expansion_IsLooseEntity(item, true))
-			amount = -amount;
-
-		return amount;
-	}
-
-	bool QuestDisplayConditions(ExpansionQuestConfig config, PlayerBase player, ExpansionQuestPersistentData playerQuestData = null, int questNPCID = -1)
-	{
-		QuestModulePrint(ToString() + "::QuestDisplayConditions - Start");
-		QuestModulePrint(ToString() + "::QuestDisplayConditions - Quest ID: " + config.GetID());
-		QuestModulePrint(ToString() + "::QuestDisplayConditions - Quest NPC ID: " + questNPCID);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		QuestModulePrint("Quest ID: " + config.GetID());
+		QuestModulePrint("Quest NPC ID: " + questNPCID);
 		if (playerQuestData)
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Player quest data: " + playerQuestData.ToString());
+			QuestModulePrint("Player quest data: " + playerQuestData.ToString());
 
 		if (!player || !player.GetIdentity())
 			return false;
@@ -4096,10 +3836,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 			string stateText = typename.EnumToString(ExpansionQuestState, questState);
 		}
 
-		QuestModulePrint(ToString() + "::QuestDisplayConditions - Quest state is: " + stateText + " | Quest ID: " + questID);
+		QuestModulePrint("Quest state is: " + stateText + " | Quest ID: " + questID);
 		if (!config.IsRepeatable() && questState == ExpansionQuestState.COMPLETED)
 		{
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is already completed and not repeatable!");
+			QuestModulePrint("Return FALSE. Quest is already completed and not repeatable!");
 			return false;
 		}
 
@@ -4110,13 +3850,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int questGiverIndex;
 			foreach (int questGiverID: questGiverIDs)
 			{
-				QuestModulePrint(ToString() + "::QuestDisplayConditions - Quest NPC giver ID [" + questGiverIndex + "]: " + questGiverID);
+				QuestModulePrint("Quest NPC giver ID [" + questGiverIndex + "]: " + questGiverID);
 				questGiverIndex++;
 			}
 
 			if ((questState == ExpansionQuestState.NONE || questState == ExpansionQuestState.STARTED || (questState == ExpansionQuestState.COMPLETED && config.IsRepeatable())) && (!questGiverIDs || questGiverIDs.Count() == 0 || questGiverIDs.Find(questNPCID) == -1))
 			{
-				QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. NPC is not quest giver NPC!");
+				QuestModulePrint("Return FALSE. NPC is not quest giver NPC!");
 				return false;
 			}
 
@@ -4124,33 +3864,36 @@ class ExpansionQuestModule: CF_ModuleWorld
 			int turnInIDIndex;
 			foreach (int turnInID: questTurnInIDs)
 			{
-				QuestModulePrint(ToString() + "::QuestDisplayConditions - Quest NPC turn-in ID [" + turnInIDIndex + "]: " + turnInID);
+				QuestModulePrint("Quest NPC turn-in ID [" + turnInIDIndex + "]: " + turnInID);
 				turnInIDIndex++;
 			}
 
 			if (questState == ExpansionQuestState.CAN_TURNIN && (!questTurnInIDs || questTurnInIDs.Count() == 0 || questTurnInIDs.Find(questNPCID) == -1))
 			{
-				QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. NPC is not quest turn-in NPC!");
+				QuestModulePrint("Return FALSE. NPC is not quest turn-in NPC!");
 				return false;
 			}
 		}
 
 		//! Check if client has a cooldown on this quest if quest is repeatable.
-		int timestamp;
-		bool hasCooldown = false;
-		if (playerQuestData)
-			hasCooldown = playerQuestData.HasCooldownOnQuest(questID, timestamp);
-
-		if (config.IsRepeatable() && hasCooldown)
+		if (!displayQuestsWithCooldown)
 		{
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is repeatable but on cooldown!");
-			return false;
+			int timestamp;
+			bool hasCooldown = false;
+			if (playerQuestData)
+				hasCooldown = playerQuestData.HasCooldownOnQuest(questID, timestamp);
+
+			if (config.IsRepeatable() && hasCooldown)
+			{
+				QuestModulePrint("Return FALSE. Quest is repeatable but on cooldown!");
+				return false;
+			}
 		}
 
-		//! Check if quest is a achivement quest.
-		if (config.IsAchivement())
+		//! Check if quest is a achievement quest.
+		if (config.IsAchievement())
 		{
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. Quest is achiement quest!");
+			QuestModulePrint("Return FALSE. Quest is achiement quest!");
 			return false;
 		}
 
@@ -4177,7 +3920,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					if (preQuestState == ExpansionQuestState.COMPLETED || preQuestState == ExpansionQuestState.NONE && prequestCompletionCount > completionCount)
 					{
 						string preQuestStateText = typename.EnumToString(ExpansionQuestState, preQuestState);
-						QuestModulePrint(ToString() + "::QuestDisplayConditions - Quest state for pre-quest with ID: " + preQuestID + " | State: " + preQuestStateText + ". Has completed quest!");
+						QuestModulePrint("Quest state for pre-quest with ID: " + preQuestID + " | State: " + preQuestStateText + ". Has completed quest!");
 						completedPreQuestCount++;
 					}
 					else
@@ -4190,16 +3933,16 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		if (config.GetPreQuestIDs().Count() > 0 && completedPreQuestCount < config.GetPreQuestIDs().Count())
 		{
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - --------------------------------------------------");
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Cant display quest with ID: " + questID);
+			QuestModulePrint("--------------------------------------------------");
+			QuestModulePrint("Cant display quest with ID: " + questID);
 
 			foreach (int incompletedQuestID: incompletedQuestIDs)
 			{
-				QuestModulePrint(ToString() + "::QuestDisplayConditions - Has not completed quest with ID: " + incompletedQuestID);
+				QuestModulePrint("Has not completed quest with ID: " + incompletedQuestID);
 			}
 
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. Not all pre-quests completed!");
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - --------------------------------------------------");
+			QuestModulePrint("Return FALSE. Not all pre-quests completed!");
+			QuestModulePrint("--------------------------------------------------");
 
 			return false;
 		}
@@ -4208,7 +3951,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		//! Check if for reputation requirement if config has a value but system is disabled.
 		if (config.GetReputationRequirement() > 0 && !GetExpansionSettings().GetHardline().UseReputation)
 		{
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. Reputation system disabled!");
+			QuestModulePrint("Return FALSE. Reputation system disabled!");
 			return false;
 		}
 
@@ -4216,11 +3959,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (config.GetReputationRequirement() > 0)
 		{
 			int reputation = player.Expansion_GetReputation();
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Reputation requirement: " + config.GetReputationRequirement());
-			QuestModulePrint(ToString() + "::QuestDisplayConditions - Player reputation: " + reputation);
+			QuestModulePrint("Reputation requirement: " + config.GetReputationRequirement());
+			QuestModulePrint("Player reputation: " + reputation);
 			if (reputation < config.GetReputationRequirement())
 			{
-				QuestModulePrint(ToString() + "::QuestDisplayConditions - Return FALSE. Reputation requirements not met!");
+				QuestModulePrint("Return FALSE. Reputation requirements not met!");
 				return false;
 			}
 		}
@@ -4248,9 +3991,30 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return false;
 	#endif
 
-		QuestModulePrint(ToString() + "::QuestDisplayConditions - End and return TRUE.");
+		QuestModulePrint("End and return TRUE.");
 
 		return true;
+	}
+
+	//! Server
+	//! @note: Gets called from PlayerBase::EEKilled to check if the killed player has a active quest that should be cancled
+	//! when a quest player dies.
+	void CheckActivePlayerQuests(PlayerBase player)
+	{
+		if (!player.GetIdentity())
+			return;
+
+		if (!GetExpansionSettings().GetQuest().EnableQuests)
+			return;
+
+		string playerUID = player.GetIdentity().GetId();
+
+		for (int i = m_ActiveQuests.Count() - 1; i >= 0; i--)
+		{
+			ExpansionQuest activeQuest = m_ActiveQuests[i];
+			if (activeQuest.IsQuestPlayer(playerUID) && activeQuest.GetQuestConfig().CancelQuestOnPlayerDeath)
+				activeQuest.CancelQuest();
+		}
 	}
 
 	//! Server

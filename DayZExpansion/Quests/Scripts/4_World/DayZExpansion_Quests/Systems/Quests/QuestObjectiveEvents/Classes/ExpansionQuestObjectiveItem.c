@@ -12,11 +12,11 @@
 
 class ExpansionQuestObjectiveItem
 {
-	EntityAI m_ObjectiveItem;
+	ItemBase m_ObjectiveItem;
 	int m_RemainingAmount;
 	string m_ClassName;
 
-	void ExpansionQuestObjectiveItem(EntityAI item)
+	void ExpansionQuestObjectiveItem(ItemBase item)
 	{
 		m_ObjectiveItem = item;
 		m_ClassName = item.GetType();
@@ -55,14 +55,9 @@ class ExpansionQuestObjectiveItem
 
 		ItemBase itm;
 		Magazine mag;
-		Ammunition_Base ammo;
 		if (Class.CastTo(mag, m_ObjectiveItem))
 		{
 			mag.ServerSetAmmoCount(m_RemainingAmount);
-		}
-		else if (Class.CastTo(ammo, m_ObjectiveItem))
-		{
-			ammo.ServerSetAmmoCount(m_RemainingAmount);
 		}
 		else if ( Class.CastTo(itm, m_ObjectiveItem))
 		{
@@ -70,7 +65,7 @@ class ExpansionQuestObjectiveItem
 		}
 	}
 
-	EntityAI GetItem()
+	ItemBase GetItem()
 	{
 		return m_ObjectiveItem;
 	}

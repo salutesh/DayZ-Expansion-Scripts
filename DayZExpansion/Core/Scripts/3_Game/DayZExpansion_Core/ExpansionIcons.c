@@ -48,6 +48,7 @@ class ExpansionIcons
 		AddIcon("Axe", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Axe_256x256.edds");
 		AddIcon("Arrow", "DayZExpansion\\Core\\GUI\\icons\\hud\\arrow_64x64.edds");
 		AddIcon("Airdrop", "set:expansion_notification_iconset image:icon_airdrop");
+		AddIcon("Anomaly", "set:expansion_inventory image:anomaly");
 		
 		AddIcon("Backpack", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_BagPack_256x256.edds");
 		AddIcon("Bandage", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Bandage_256x256.edds");
@@ -77,6 +78,7 @@ class ExpansionIcons
 		AddIcon("Chicken", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Chicken_256x256.edds");
 		AddIcon("Chocolate", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Chocolate_bar_256x256.edds");
 		AddIcon("Cigarets", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cigarets_256x256.edds");
+		AddIcon("Circuit Board", "set:expansion_inventory image:circuit_board");
 		AddIcon("Cloth", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Cloth_256x256.edds");
 		AddIcon("Compass", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Compass_256x256.edds");
 		AddIcon("Corn", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Corn_256x256.edds");
@@ -85,6 +87,7 @@ class ExpansionIcons
 		AddIcon("Claw", "DayZExpansion\\Core\\GUI\\icons\\hud\\claw_64x64.edds");
 		AddIcon("Coins", "DayZExpansion\\Core\\GUI\\icons\\misc\\coinstack_64x64.edds");
 		AddIcon("Coins 2", "DayZExpansion\\Core\\GUI\\icons\\misc\\coinstack2_64x64.edds");
+		AddIcon("Codelock", "set:expansion_inventory image:codelock");
 		
 		AddIcon("Deliver", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_deliver.paa");
 		AddIcon("Dinosaur Skull", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Dinosaur_Skull_256x256.edds");

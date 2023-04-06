@@ -49,8 +49,6 @@ class ExpansionQuestItemForMarket
 class ExpansionQuestPersistentServerDataBase
 {
 	int ConfigVersion;
-	int LastWeeklyReset;
-	int LastDailyReset;
 };
 
 class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
@@ -60,18 +58,12 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 	ref array<ref ExpansionQuestItemForMarket> m_QuestMarketItems;
 #endif
 
-	[NonSerialized()]
-	static int DAY_TIME = 86400; //! Day in seconds
-	[NonSerialized()]
-	static int WEEK_TIME = 604800; //! Week in seconds
-
 	void ExpansionQuestPersistentServerData()
 	{
 		ConfigVersion = 1;
 
 	#ifdef EXPANSIONMODMARKET
-		if (!m_QuestMarketItems)
-			m_QuestMarketItems = new array<ref ExpansionQuestItemForMarket>;
+		m_QuestMarketItems = new array<ref ExpansionQuestItemForMarket>;
 	#endif
 	}
 
@@ -129,66 +121,6 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 	}
 #endif
 
-	void SetWeeklyResetTime()
-	{
-		int year, month, day, hour, minute, second;
-		int weeklyResetHour = GetExpansionSettings().GetQuest().WeeklyResetHour;
-		int weeklyResetMinute = GetExpansionSettings().GetQuest().WeeklyResetMinute;
-		int current = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
-		CF_Date.TimestampToDate(current, year, month, day, hour, minute, second);
-
-		hour = weeklyResetHour;
-		minute = weeklyResetMinute;
-		second = 0;
-
-		LastWeeklyReset = CF_Date.CreateDateTime(year, month, day, hour, minute, second).GetTimestamp();
-	}
-
-	void SetDailyResetTime()
-	{
-		int year, month, day, hour, minute, second;
-		int dailyResetHour = GetExpansionSettings().GetQuest().DailyResetHour;
-		int dailyResetMinute = GetExpansionSettings().GetQuest().DailyResetMinute;
-		int current = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
-		CF_Date.TimestampToDate(current, year, month, day, hour, minute, second);
-
-		hour = dailyResetHour;
-		minute = dailyResetMinute;
-		second = 0;
-
-		LastDailyReset = CF_Date.CreateDateTime(year, month, day, hour, minute, second).GetTimestamp();
-	}
-
-	int GetLastWeeklyResetTimeDiff()
-	{
-		int currentTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
-		return (currentTime - LastWeeklyReset);
-	}
-
-	int GetLastDailyResetTimeDiff()
-	{
-		int currentTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
-		return (currentTime - LastDailyReset);
-	}
-
-	bool HasWeeklyResetCooldown()
-	{
-		int timedif = GetLastWeeklyResetTimeDiff();
-		if (timedif < WEEK_TIME)
-			return true;
-
-		return false;
-	}
-
-	bool HasDailyResetCooldown()
-	{
-		int timedif = GetLastDailyResetTimeDiff();
-		if (timedif < DAY_TIME)
-			return true;
-
-		return false;
-	}
-
 	static ExpansionQuestPersistentServerData Load()
 	{
 		bool save;
@@ -225,12 +157,12 @@ class ExpansionQuestPersistentServerData: ExpansionQuestPersistentServerDataBase
 
 	void Save()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		ExpansionJsonFileParser<ExpansionQuestPersistentServerData>.Save(EXPANSION_QUESTS_PERSISTENT_SERVER_DATA_FILE, this);
 	}
 
 	void CopyConfig(ExpansionQuestPersistentServerDataBase dataBase)
 	{
-		LastWeeklyReset = dataBase.LastWeeklyReset;
-		LastDailyReset = dataBase.LastDailyReset;
 	}
 };

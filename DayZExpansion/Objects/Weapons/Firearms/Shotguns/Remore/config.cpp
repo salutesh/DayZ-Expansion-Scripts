@@ -5,7 +5,7 @@ class CfgPatches
 	class DayZExpansion_Weapons_Shotguns_BenelliM4
 	{
 		units[] = {};
-		weapons[] = {"Expansion_BenelliM4"};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
 	};

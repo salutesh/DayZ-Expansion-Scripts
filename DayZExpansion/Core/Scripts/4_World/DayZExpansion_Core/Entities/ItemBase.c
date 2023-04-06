@@ -39,6 +39,8 @@ modded class ItemBase
 	bool m_Expansion_IsMeleeWeapon;
 
 	bool m_Expansion_IsWorking;
+	Man m_Expansion_PreviousOwner;
+	Man m_Expansion_CurrentOwner;
 
 	protected int m_Expansion_QueuedActions;
 	protected bool m_Expansion_IsLootable = true;
@@ -896,6 +898,13 @@ modded class ItemBase
 	{
 		super.OnInventoryEnter(player);
 
+		Expansion_OnInventoryEnter(player);
+	}
+
+	void Expansion_OnInventoryEnter(Man player)
+	{
+		m_Expansion_CurrentOwner = player;
+
 		PlayerBase pb;
 		if (Class.CastTo(pb, player))
 			pb.Expansion_OnInventoryUpdate(this, true);
@@ -907,6 +916,14 @@ modded class ItemBase
 	override void OnInventoryExit(Man player)
 	{
 		super.OnInventoryExit(player);
+
+		Expansion_OnInventoryExit(player);
+	}
+
+	void Expansion_OnInventoryExit(Man player)
+	{
+		m_Expansion_PreviousOwner = m_Expansion_CurrentOwner;
+		m_Expansion_CurrentOwner = null;
 
 		PlayerBase pb;
 		if (Class.CastTo(pb, player))

@@ -25,7 +25,6 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 		m_Offset = 0.97;
 	}
 
-#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
@@ -34,7 +33,6 @@ class ExpansionZodiacBoat: ExpansionBoatScript
 
 		return ExpansionVehicleAnimInstances.EXPANSION_ZODIAC;
 	}
-#endif
 
 	override int GetSeatAnimationType(int posIdx)
 	{

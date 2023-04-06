@@ -59,7 +59,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	
 	override void Event_OnStart()
 	{
-		#ifdef BUILD_EXPERIMENTAL
+		#ifdef EXPANSION_MISSION_AI_ENABLE
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionStarted )
 			CreateNotif(MissionMeta.NotificationStart);
 		#endif
@@ -186,7 +186,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			m_ServerMarker = m_MarkerModule.CreateServerMarker(MissionMeta.Marker.Name, EXPANSION_NOTIFICATION_ICON_AI_MISSION, MissionMeta.Marker.Position, COLOR_EXPANSION_NOTIFICATION_MISSION, true);
 		#endif
 		
-		#ifdef BUILD_EXPERIMENTAL
+		#ifdef EXPANSION_MISSION_AI_ENABLE
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
 			CreateNotif(MissionMeta.NotificationEnd);
 		#endif
@@ -282,7 +282,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 					m_MarkerModule.RemoveServerMarker(m_ServerMarker.GetUID());
 				#endif
 
-				#ifdef BUILD_EXPERIMENTAL
+				#ifdef EXPANSION_MISSION_AI_ENABLE
 				if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
 					CreateNotif(MissionMeta.NotificationEnd);
 				#endif
@@ -412,7 +412,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "5457.122070 173.275223 12304.987305"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		case 1:
 			Weight = 10;
@@ -433,7 +433,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "10813.508789 335.859680 12842.180664"));
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "10810.214844 335.881378 12840.517578"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		case 2:
 			Weight = 10;
@@ -453,7 +453,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"CivilianSedan","CivilianSedan_Wine","CivilianSedan_Black"}, "1936.86 316.167 8116.66", "10 0 0"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		case 3:
 			Weight = 10;
@@ -477,7 +477,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"Truck_01_Covered"}, "8324.178711 292.289398 5974.528320", "-79.88 -0.6868 -0.12599"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		case 4:
 			Weight = 10;
@@ -496,14 +496,14 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			containers.Insert(new ExpansionAIMissionContainer({"WoodenCrate"}, "9070.771484 280.396698 10713.153320"));
 			containers.Insert(new ExpansionAIMissionContainer({"WoodenCrate"}, "9072.484375 280.127106 10716.075195"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -5, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -5, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		case 5:
 			Weight = 10;
 			notifStart 	= new ExpansionSettingNotificationData("Ambushed Military Convoy", "A military convoy was ambushed in the North of Elecktro","Ambush","#b53128");
 			notifAction = new ExpansionSettingNotificationData("Ambushed Military Convoy", "PLACEHOLDER ACTION","Ambush","#b53128");
 			notifEnd 	= new ExpansionSettingNotificationData("Ambushed Military Convoy", "PLACEHOLDER END","Ambush","#b53128");
-			mapMarker	= new ExpansionSettingMarkerData("Ambushed Military Convoy","Ambush","#b53128", "9072.484375 280.127106 10716.075195", true);
+			mapMarker	= new ExpansionSettingMarkerData("Ambushed Military Convoy","Ambush","#b53128", "10671.889648 124.513763 4557.255859", true);
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
 			MappingFile = "AmbushedMilitaryConvoy.map";
@@ -518,11 +518,11 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"WoodenCrate"}, "10671.889648 124.513763 4557.255859"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -5, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -5, ExpansionLootDefaults.Airdrop_Regular() ) );
 
 			containers = new array < ref ExpansionAIMissionContainer >;
 			containers.Insert(ExpansionAIMissionContainer({"Truck_01_Covered"}, "10677.7 123.279 4551.63", "-165.168 -8.42441 -0.49713"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		case 6:
 			Weight = 10;
@@ -545,7 +545,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			containers = new array < ref ExpansionAIMissionContainer >;
 			containers.Insert(ExpansionAIMissionContainer({"Offroad_02"}, "9072.484375 280.127106 10716.075195"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Military() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Military() ) );
 			break;
 		}
 
@@ -593,15 +593,15 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			container = new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue","WoodenCrate","ExpansionSafeLarge","ExpansionSafeMedium","ExpansionSafeSmall"}, "11905.581055 22.699667 7517.568359");
 			containers.Insert(container);
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
 			
 			containers = new array < ref ExpansionAIMissionContainer >;
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue","WoodenCrate"}, "11891.248047 13.267243 7550.458984"));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -15, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -15, ExpansionLootDefaults.Airdrop_Regular() ) );
 
 			containers = new array < ref ExpansionAIMissionContainer >;
 			containers.Insert(new ExpansionAIMissionContainer({"ExpansionSafeLarge","ExpansionSafeMedium","ExpansionSafeSmall"}, "11891.200195 16.549999 7515.000000", "0 0 0", true));
-			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -10, ExpansionLootDefaults.Regular() ) );
+			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -10, ExpansionLootDefaults.Airdrop_Regular() ) );
 			break;
 		}
 

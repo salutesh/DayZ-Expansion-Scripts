@@ -94,6 +94,8 @@ class ExpansionClientSettings
 
 	bool ShowMapMarkerList;
 
+	bool EnableGPSBasedOnVehicleSpeed;
+
 	float VehicleCameraHeight;
 	float VehicleCameraDistance;
 	float VehicleCameraOffsetY;
@@ -560,7 +562,16 @@ class ExpansionClientSettings
 		{
 			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read ShowPartyMemberHUD!");
 			return false;
-		}		
+		}
+
+		if (version < 46)
+			return true;
+
+		if ( !ctx.Read( EnableGPSBasedOnVehicleSpeed ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read EnableGPSBasedOnVehicleSpeed!");
+			return false;
+		}
 
 		return true;
 	}
@@ -667,6 +678,8 @@ class ExpansionClientSettings
 
 		ctx.Write( ShowPartyMemberHUD );
 		ctx.Write( PlayerArrowColor );
+
+		ctx.Write( EnableGPSBasedOnVehicleSpeed );		
 	}
 
 	// -----------------------------------------------------------
@@ -798,6 +811,8 @@ class ExpansionClientSettings
 
 		ShowMapMarkerList = true;
 
+		EnableGPSBasedOnVehicleSpeed = false;
+
 		VehicleCameraHeight = 1.0;
 		VehicleCameraDistance = 1.0;
 
@@ -912,6 +927,8 @@ class ExpansionClientSettings
 		CreateToggle( "ShowDistanceQuickMarkers", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PARTY_QUICK_MARKER_DISTANCE_DESC" );
 
 		CreateToggle( "ShowMapMarkerList", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_MAPMENULIST_STATE_PREFERENCE_DESC" );
+
+		CreateToggle( "EnableGPSBasedOnVehicleSpeed", "#STR_EXPANSION_SETTINGS_GPS_AUTO_UPDATE_STATE_PREFERENCE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_GPS_AUTO_UPDATE_STATE_PREFERENCE_DESC" );
 
 		//! Option to set the 3D marker size
 		CreateEnum( "PlayerArrowColor", ExpansionClientUIPlayerArrowColor, "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_PLAYERARROW_COLOR_DESC" );

@@ -75,8 +75,8 @@ class ExpansionDialog_CreateParty: ExpansionDialogBookBase
 	
 	override void OnHide()
 	{
-		super.OnHide();	
 		SwitchMovementLockState(false);
+		super.OnHide();	
 	}
 };
 

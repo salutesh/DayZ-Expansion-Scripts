@@ -25,10 +25,7 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 	float MaxDistance = 10.0;
 	string MarkerName = "Deliver Items";
 	bool ShowDistance = true;
-};
 
-class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConfigBase
-{
 #ifdef EXPANSIONMODMARKET
 	bool AddItemsToNearbyMarketZone = false;
 #endif
@@ -88,61 +85,9 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 	}
 #endif
 	
-	static ExpansionQuestObjectiveDeliveryConfig Load(string fileName)
+	bool NeedAnyCollection()
 	{
-		bool save;
-		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
-
-		ExpansionQuestObjectiveDeliveryConfig config;
-		ExpansionQuestObjectiveDeliveryConfigBase configBase;
-
-		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configBase))
-			return NULL;
-
-		if (configBase.ConfigVersion < CONFIGVERSION)
-		{
-			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + " to version " + CONFIGVERSION);
-			config = new ExpansionQuestObjectiveDeliveryConfig();
-
-			//! Copy over old configuration that haven't changed
-			config.CopyConfig(configBase);
-
-			if (configBase.ConfigVersion < 18)
-			{
-				ExpansionQuestObjectiveDeliveryConfig_v17 configV17;
-				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig_v17>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configV17))
-					return NULL;
-				
-				foreach (ExpansionQuestObjectiveDelivery delivery: configV17.Deliveries)
-				{
-					string className = delivery.GetClassName();
-					int amount = delivery.GetAmount();
-					config.AddCollection(amount, className);
-				}
-			}
-			
-			config.ConfigVersion = CONFIGVERSION;
-			save = true;
-		}
-		else
-		{
-			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
-				return NULL;
-		}
-
-		if (save)
-			config.Save(fileName);
-
-		return config;
-	}
-	
-	override void Save(string fileName)
-	{
-		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
-		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
-			fileName += ".json";
-		
-		ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, this);
+		return false;
 	}
 	
 	void CopyConfig(ExpansionQuestObjectiveDeliveryConfigBase configBase)
@@ -224,5 +169,66 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 			}
 		}
 	#endif
+	}
+};
+
+class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConfigBase
+{
+	static ExpansionQuestObjectiveDeliveryConfig Load(string fileName)
+	{
+		bool save;
+		Print("[ExpansionQuestObjectiveDeliveryConfig] Load existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
+
+		ExpansionQuestObjectiveDeliveryConfig config;
+		ExpansionQuestObjectiveDeliveryConfigBase configBase;
+
+		if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfigBase>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configBase))
+			return NULL;
+
+		if (configBase.ConfigVersion < CONFIGVERSION)
+		{
+			Print("[ExpansionQuestObjectiveDeliveryConfig] Convert existing configuration file:" + EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName + " to version " + CONFIGVERSION);
+			config = new ExpansionQuestObjectiveDeliveryConfig();
+
+			//! Copy over old configuration that haven't changed
+			config.CopyConfig(configBase);
+
+			if (configBase.ConfigVersion < 18)
+			{
+				ExpansionQuestObjectiveDeliveryConfig_v17 configV17;
+				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig_v17>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configV17))
+					return NULL;
+				
+				foreach (ExpansionQuestObjectiveDelivery delivery: configV17.Deliveries)
+				{
+					string className = delivery.GetClassName();
+					int amount = delivery.GetAmount();
+					config.AddCollection(amount, className);
+				}
+			}
+			
+			config.ConfigVersion = CONFIGVERSION;
+			save = true;
+		}
+		else
+		{
+			if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, config))
+				return NULL;
+		}
+
+		if (save)
+			config.Save(fileName);
+
+		return config;
+	}
+	
+	override void Save(string fileName)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName);
+
+		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
+			fileName += ".json";
+		
+		ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig>.Save(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, this);
 	}
 };

@@ -372,41 +372,38 @@ class ExpansionStatic
 		return type_name.ToType() != nullType;
 	}
 
-	//! Inheritance check, case insensitive for cfg class; equality check, case sensitive for script class (if not empty string)
-	static bool IsAnyOf(string cfg_class_name, TStringArray cfg_parent_names, string script_class_name = string.Empty)
+	//! Inheritance check based on rvConfig class name or EnforceScript typename
+	static bool IsAnyOf(string className, TStringArray parentNames)
 	{
-		bool check_script_class_name = script_class_name != string.Empty && script_class_name != cfg_class_name;
-		foreach (string cfg_parent_name: cfg_parent_names)
+		foreach (string parentName: parentNames)
 		{
-			if (check_script_class_name && cfg_parent_name == script_class_name)
-				return true;
-			if (GetGame().IsKindOf(cfg_class_name, cfg_parent_name))
+			if (Is(className, parentName))
 				return true;
 		}
 		return false;
 	}
 
-	static bool IsAnyOf(Object obj, TStringArray cfg_parent_names, bool check_script_class_name = false)
+	//! Inheritance check based on rvConfig class name or EnforceScript typename
+	//! @note `check_script_inheritance` is a legacy parameter and no longer used (script inheritance is always checked).
+	static bool IsAnyOf(Object obj, TStringArray parentNames, bool check_script_inheritance = false)
 	{
-		string script_class_name;
-		if (check_script_class_name)
-			script_class_name = obj.ClassName();
-		foreach (string cfg_parent_name: cfg_parent_names)
+		foreach (string parentName: parentNames)
 		{
-			if (check_script_class_name && cfg_parent_name == script_class_name)
+			typename parentType = parentName.ToType();
+			if (parentType && obj.IsInherited(parentType))
 				return true;
-			if (GetGame().ObjectIsKindOf(obj, cfg_parent_name))
+			if (g_Game.ObjectIsKindOf(obj, parentName))
 				return true;
 		}
 		return false;
 	}
 
-	//! Equality check based on typename
+	//! Inheritance check based on typename
 	static bool IsAnyOf(typename type, TTypenameArray parent_types)
 	{
 		foreach (typename parent_type: parent_types)
 		{
-			if (type == parent_type)
+			if (type.IsInherited(parent_type))
 				return true;
 		}
 		return false;
@@ -421,6 +418,73 @@ class ExpansionStatic
 				return true;
 		}
 		return false;
+	}
+
+	//! Inheritance check based on rvConfig class name or EnforceScript typename
+	static bool Is(string className, string parentName)
+	{
+		typename classType = className.ToType();
+		if (classType)
+		{
+			typename parentType = parentName.ToType();
+
+			if (parentType && classType.IsInherited(parentType))
+				return true;
+		}
+
+		return g_Game.IsKindOf(className, parentName);
+	}
+
+	//! Inheritance check based on rvConfig class name or EnforceScript typename
+	static bool Is(Object obj, string parentName)
+	{
+		typename parentType = parentName.ToType();
+
+		if (parentType && obj.IsInherited(parentType))
+			return true;
+
+		return g_Game.ObjectIsKindOf(obj, parentName);
+	}
+
+	//! Special case: Any inventory item (rvConfig Inventory_Base, CfgWeapons, CfgMagazines or EnforceScript ItemBase type)
+	static bool IsInventoryItem(string className)
+	{
+		typename classType = className.ToType();
+		if (classType)
+		{
+			string itemClass = "ItemBase";
+			typename itemType = itemClass.ToType();
+
+			if (classType.IsInherited(itemType))
+				return true;
+		}
+
+		if (g_Game.IsKindOf(className, "Inventory_Base"))
+			return true;
+
+		if (g_Game.ConfigIsExisting("CfgMagazines " + className))
+			return true;
+
+		if (g_Game.ConfigIsExisting("CfgWeapons " + className))
+			return true;
+
+		return false;
+	}
+
+	//! Special case: Any player (rvConfig SurvivorBase or EnforceScript PlayerBase type)
+	static bool IsPlayer(string className)
+	{
+		typename classType = className.ToType();
+		if (classType)
+		{
+			string playerClass = "PlayerBase";
+			typename playerType = playerClass.ToType();
+
+			if (classType.IsInherited(playerType))
+				return true;
+		}
+
+		return g_Game.IsKindOf(className, "SurvivorBase");
 	}
 
 	//! TODO: Maybe use CF_Byte after next CF update?

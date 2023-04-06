@@ -10,6 +10,15 @@ class CfgPatches
 		requiredAddons[] = {"DZ_Data"};
 	};
 };
+class CfgSlots
+{
+	class Slot_Att_ExpansionAnomalyCore
+	{
+		name = "Att_ExpansionAnomalyCore";
+		displayName = "Anomaly Core";
+		selection = "att_anomaly_core";
+	};
+};
 class CfgVehicles
 {
 	class CigarettePack_Chernamorka;
@@ -45,5 +54,79 @@ class CfgVehicles
 		scope = 2;
 		displayName = "Infected Flesh";
 		descriptionShort = "This piece of meat has been torn from the flesh of an infected. It's rotten and not fit for human consumption, but some desperate survivors might try to eat it anyway.";
+	};
+	class Grenade_Base;
+	class Expansion_AnomalyCore_Base: Grenade_Base
+	{
+		scope = 1;
+		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\Anomaly_Core.p3d";
+		hiddenSelections[] = {"steel","sun"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core.rvmat"};
+		weight = 500;
+		itemSize[] = {1,1};
+		inventorySlot[] = {"IEDExplosiveA","IEDExplosiveB","Att_ExpansionAnomalyCore"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 5;
+					healthLevels[] = {{1,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}}};
+				};
+			};
+		};
+		class AnimationSources
+		{
+			class AnimSourceShown
+			{
+				source = "sun";
+				animPeriod = 0.009999999;
+				initPhase = 1;
+			};
+			class AnimSourceHidden
+			{
+				source = "sun";
+				animPeriod = 0.009999999;
+				initPhase = 0;
+			};
+			class AnimRotate
+			{
+				source = "sun";
+				animPeriod = 0.018;
+				initPhase = 0;
+			};
+			class Sun_Rotation: AnimRotate{};
+			class Sun_Hidden: AnimSourceHidden{};
+			class Sun_Shown: AnimSourceShown{};
+		};
+	};
+	class Expansion_AnomalyCore_Ice: Expansion_AnomalyCore_Base
+	{
+		scope = 2;
+		displayName = "Permafrost Gem";
+		descriptionShort = "The Permafrost Gem is a rare and valuable artifact recovered from a frozen anomaly on Namalsk. It emits an eerie, otherworldly energy that is both captivating and chilling. Handle with care.";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_ice_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
+	};
+	class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
+	{
+		scope = 2;
+		displayName = "Warper Plasma";
+		descriptionShort = "A mysterious device that emits an otherworldly energy signature. It is believed to be a key component of the teleport anomalies found on Namalsk.";
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_ice_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
+	};
+	class EffectArea;
+	class ExpansionAnomalyAreaBase_Dynamic: EffectArea
+	{
+		scope = 2;
+	};
+	class ExpansionAnomalyAreaSingularity_Local: ExpansionAnomalyAreaBase_Dynamic
+	{
+		scope = 2;
+	};
+	class ExpansionAnomalyAreaWarper_Local: ExpansionAnomalyAreaBase_Dynamic
+	{
+		scope = 2;
 	};
 };

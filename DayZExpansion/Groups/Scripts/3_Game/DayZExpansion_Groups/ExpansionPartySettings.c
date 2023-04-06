@@ -20,6 +20,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 	bool EnableParties;	//! Enable party module, allow players to create parties
 	int MaxMembersInParty; //! If <= 0, unlimited party size
 	bool UseWholeMapForInviteList; //! Use it if you want whole map available in invite list, instead only nearby players
+	
+	#ifdef EXPANSIONMODNAVIGATION
 	bool ShowPartyMember3DMarkers; //! If enabled, allow to see 3D marker above teammates location
 	bool ShowDistanceUnderPartyMembersMarkers; //! Show the distance of the party member marker
 	bool ShowNameOnPartyMembersMarkers; //! Show the name of the party member marker
@@ -27,6 +29,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 	bool ShowDistanceUnderQuickMarkers; //! Show the distance of the quick marker
 	bool ShowNameOnQuickMarkers; //! Show the distance of the quick marker
 	bool CanCreatePartyMarkers; //! Allow player to create party markers
+	#endif
 	
 	//! Added with version 2
 	bool ShowPartyMemberHUD; //! Show the party hud interface that displays eacht party members name and health
@@ -37,7 +40,9 @@ class ExpansionPartySettings: ExpansionSettingBase
 	bool ShowHUDMemberStance;
 	
 	//! Added with version 4
+	#ifdef EXPANSIONMODNAVIGATION
 	bool ShowPartyMemberMapMarkers;
+	#endif
 	
 	//! Added with version 5
 	bool ShowHUDMemberDistance;
@@ -50,7 +55,6 @@ class ExpansionPartySettings: ExpansionSettingBase
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnRecieve").Add(ctx);
 #endif
-
 		
 		ExpansionPartySettings setting;
 		if ( !ctx.Read( setting ) )
@@ -115,6 +119,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 		EnableParties = s.EnableParties;
 		MaxMembersInParty = s.MaxMembersInParty;
 		UseWholeMapForInviteList = s.UseWholeMapForInviteList;
+
+		#ifdef EXPANSIONMODNAVIGATION
 		ShowPartyMember3DMarkers = s.ShowPartyMember3DMarkers;
 		ShowDistanceUnderPartyMembersMarkers = s.ShowDistanceUnderPartyMembersMarkers;
 		ShowNameOnPartyMembersMarkers = s.ShowNameOnPartyMembersMarkers;
@@ -122,13 +128,17 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowDistanceUnderQuickMarkers = s.ShowDistanceUnderQuickMarkers;
 		ShowNameOnQuickMarkers = s.ShowNameOnQuickMarkers;
 		CanCreatePartyMarkers = s.CanCreatePartyMarkers;
+		#endif
+		
 		ShowPartyMemberHUD = s.ShowPartyMemberHUD;
 		
 		ShowHUDMemberBlood = s.ShowHUDMemberBlood;
 		ShowHUDMemberStates = s.ShowHUDMemberStates;
 		ShowHUDMemberStance = s.ShowHUDMemberStance;
 		
+		#ifdef EXPANSIONMODNAVIGATION
 		ShowPartyMemberMapMarkers = s.ShowPartyMemberMapMarkers;
+		#endif
 		
 		ShowHUDMemberDistance = s.ShowHUDMemberDistance;
 	}
@@ -185,7 +195,9 @@ class ExpansionPartySettings: ExpansionSettingBase
 				
 				if (m_Version < 4)
 				{
+					#ifdef EXPANSIONMODNAVIGATION
 					ShowPartyMemberMapMarkers = settingsDefault.ShowPartyMemberMapMarkers;
+					#endif
 				}
 				
 				if (m_Version < 5)
@@ -233,6 +245,8 @@ class ExpansionPartySettings: ExpansionSettingBase
 		EnableParties = true;
 		MaxMembersInParty = 10;
 		UseWholeMapForInviteList = false;
+
+		#ifdef EXPANSIONMODNAVIGATION
 		ShowPartyMember3DMarkers = true;
 		ShowDistanceUnderPartyMembersMarkers = true;
 		ShowNameOnPartyMembersMarkers = true;
@@ -240,6 +254,7 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowDistanceUnderQuickMarkers = true;
 		ShowNameOnQuickMarkers = true;
 		CanCreatePartyMarkers = true;
+		#endif
 		
 		//! Added with version 2
 		ShowPartyMemberHUD = true;
@@ -249,8 +264,10 @@ class ExpansionPartySettings: ExpansionSettingBase
 		ShowHUDMemberStates = true;
 		ShowHUDMemberStance = true;
 		
+		#ifdef EXPANSIONMODNAVIGATION
 		//! Added with version 4
 		ShowPartyMemberMapMarkers = true;
+		#endif
 		
 		//! Added with version 5
 		ShowHUDMemberDistance = true;

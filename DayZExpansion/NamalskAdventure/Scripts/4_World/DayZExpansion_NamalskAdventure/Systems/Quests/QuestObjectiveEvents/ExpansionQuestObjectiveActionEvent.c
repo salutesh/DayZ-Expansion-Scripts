@@ -10,7 +10,7 @@
  *
 */
 
-#ifdef NAMALSK_SURVIVAL
+/*#ifdef NAMALSK_SURVIVAL
 modded class ExpansionQuestObjectiveActionEvent
 {
 	// -----------------------------------------------------------
@@ -58,4 +58,4 @@ modded class ExpansionQuestObjectiveActionEvent
 		return (count == 2);
 	}
 };
-#endif
+#endif*/

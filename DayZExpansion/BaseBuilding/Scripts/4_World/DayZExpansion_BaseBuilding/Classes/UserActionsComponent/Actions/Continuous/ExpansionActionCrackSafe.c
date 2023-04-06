@@ -46,4 +46,13 @@ class ExpansionActionCrackSafe : ExpansionActionDestroyBase
 		auto settings = GetExpansionSettings().GetRaid();
 		return settings.CanRaidSafes && (!settings.SafeRaidUseSchedule || settings.IsRaidableNow());
 	}
+
+	override bool Expansion_CheckSuccess(ActionData action_data)
+	{
+		ExpansionSafeBase safe;
+		if (Class.CastTo(safe, action_data.m_Target.GetObject()))
+			return !safe.ExpansionIsLocked();
+
+		return false;
+	}
 }

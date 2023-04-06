@@ -1,0 +1,62 @@
+PanelWidgetClass ExpansionAnomalyHud {
+ clipchildren 0
+ ignorepointer 1
+ position 0.05 0.05
+ size 256 256
+ halign right_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 1
+ vexactsize 1
+ scriptclass "ExpansionAnomalyHUDController"
+ {
+  PanelWidgetClass MarkerPanel {
+   clipchildren 0
+   ignorepointer 1
+   size 256 256
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   scriptclass ""
+  }
+  ImageWidgetClass RadarCircle {
+   ignorepointer 1
+   position 0 0
+   size 256 256
+   halign center_ref
+   valign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   imageTexture "{BB22E505830963EF}DayZExpansion/NamalskAdventure/GUI/textures/expansion_radar.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 0
+   stretch 1
+   {
+    TextWidgetClass North {
+     ignorepointer 1
+     position 0 -107
+     size 16 16
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     text "N"
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+ }
+ {
+  ScriptParamsClass {
+  }
+ }
+}

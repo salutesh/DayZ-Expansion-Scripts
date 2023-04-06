@@ -68,7 +68,9 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		EnableMissionLoaded();
 		EnableRPC();
 		//EnableSettingsChanged();
+		#ifndef SERVER
 		EnableUpdate();
+		#endif
 
 		m_3DMarkers = new array<ref Expansion3DMarker>();
 		m_AllData = new array<ref ExpansionMarkerClientData>();
@@ -590,15 +592,10 @@ class ExpansionMarkerModule: CF_ModuleWorld
 		return m_CurrentData;
 	}
 	
-	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnUpdate
-	// ------------------------------------------------------------	
+	#ifndef SERVER
 	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
 		super.OnUpdate(sender, args);
-
-		if (!IsMissionClient())
-			return;
 
 		auto update = CF_EventUpdateArgs.Cast(args);
 
@@ -620,6 +617,7 @@ class ExpansionMarkerModule: CF_ModuleWorld
 			} 
 		}
 	}
+	#endif
 	
 	// ------------------------------------------------------------
 	// ExpansionMarkerModule CanCreateMarker

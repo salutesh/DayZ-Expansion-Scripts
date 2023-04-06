@@ -1,5 +1,5 @@
 /**
- * ExpansionPersonalStorageData.c
+ * ExpansionPersonalStorageConfig.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionPersonalStorageDataBase
+class ExpansionPersonalStorageConfigBase
 {
 	int ConfigVersion;
 	int StorageID;
@@ -29,88 +29,86 @@ class ExpansionPersonalStorageDataBase
 	string Faction;
 #endif
 };
-class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
+class ExpansionPersonalStorageConfig: ExpansionPersonalStorageConfigBase
 {
 	[NonSerialized()];
 	static const int VERSION = 2;
 	
 	bool IsGlobalStorage;
 	
-	void ExpansionPersonalStorageData()
+	void ExpansionPersonalStorageConfig()
 	{
 		ConfigVersion = VERSION;
 	}
 	
-	void CopyFromBaseClass(ExpansionPersonalStorageDataBase base)
+	void CopyFromBaseClass(ExpansionPersonalStorageConfigBase base)
 	{
-		string m_ClassName;
-		string m_SkinName;
-	
-		[NonSerialized()];
-		int m_SkinIndex;
-	
-		int m_HealthLevel;
-		float m_Quantity;
-		int m_QuantityType;
-		int m_LiquidType = -1;
-		bool m_IsBloodContainer;
-		int m_FoodStageType = -1;
-	
-	#ifdef EXPANSIONMODHARDLINE
-		ExpansionHardlineItemRarity m_Rarity = ExpansionHardlineItemRarity.NONE;
-	#endif
-	
-		int m_ContainerItemsCount;
-		autoptr array<ref ExpansionP2PMarketContainerItem> m_ContainerItems;
+		StorageID = base.StorageID;
+		ClassName = base.ClassName;
+		DisplayName = base.DisplayName;
+		DisplayIcon = base.DisplayIcon;
+		Position = base.Position;
+		Orientation = base.Orientation;
+#ifdef EXPANSIONMODQUESTS
+		QuestID = base.QuestID;
+#endif
+#ifdef EXPANSIONMODHARDLINE
+		Reputation = base.Reputation;
+#endif
+#ifdef EXPANSIONMODAI
+		Faction = base.Faction;
+#endif
 	}
 	
-	static ExpansionPersonalStorageData Load(string fileName)
+	static ExpansionPersonalStorageConfig Load(string fileName)
 	{
-		CF_Log.Info("[ExpansionPersonalStorageData] Load existing personal storage file:" + fileName);
-		ExpansionPersonalStorageDataBase personalStorageDataBase;
-		if (!ExpansionJsonFileParser<ExpansionPersonalStorageDataBase>.Load(fileName, personalStorageDataBase))
+		CF_Log.Info("[ExpansionPersonalStorageConfig] Load existing personal storage file:" + fileName);
+		ExpansionPersonalStorageConfigBase personalStorageConfigBase;
+		if (!ExpansionJsonFileParser<ExpansionPersonalStorageConfigBase>.Load(fileName, personalStorageConfigBase))
 			return NULL;
 		
 		bool save;
-		ExpansionPersonalStorageData personalStorageData = new ExpansionPersonalStorageData();
-		if (personalStorageDataBase.ConfigVersion < VERSION)
+		ExpansionPersonalStorageConfig personalStorageConfig = new ExpansionPersonalStorageConfig();
+		if (personalStorageConfigBase.ConfigVersion < VERSION)
 		{
 			save = true;
-			personalStorageData.CopyFromBaseClass(personalStorageDataBase); //! Copy over old data that has not changed.			
-			personalStorageData.ConfigVersion = VERSION;
+			personalStorageConfig.CopyFromBaseClass(personalStorageConfigBase); //! Copy over old data that has not changed.			
+			personalStorageConfig.ConfigVersion = VERSION;
 						
 			if (save)
-				Save(personalStorageData);
+				Save(personalStorageConfig);
 		}
 		else
 		{
-			if (!ExpansionJsonFileParser<ExpansionPersonalStorageData>.Load(fileName, personalStorageData))
+			if (!ExpansionJsonFileParser<ExpansionPersonalStorageConfig>.Load(fileName, personalStorageConfig))
 				return NULL;
 		}
 		
-		return personalStorageData;
+		return personalStorageConfig;
 	}
 
 	void Save()
 	{
-		ExpansionJsonFileParser<ExpansionPersonalStorageData>.Save(ExpansionPersonalStorageModule.s_PersonalStorageDataFolderPath + "PersonalStorage_" + StorageID + ".json", this);
+		Save(this);
 	}
 	
-	static void Save(ExpansionPersonalStorageData personalStorageData)
+	static void Save(ExpansionPersonalStorageConfig personalStorageConfig)
 	{
-		ExpansionJsonFileParser<ExpansionPersonalStorageData>.Save(ExpansionPersonalStorageModule.s_PersonalStorageDataFolderPath + "PersonalStorage_" + personalStorageData.StorageID + ".json", personalStorageData);
+		ExpansionJsonFileParser<ExpansionPersonalStorageConfig>.Save(ExpansionPersonalStorageModule.s_PersonalStorageConfigFolderPath + "PersonalStorage_" + personalStorageConfig.StorageID + ".json", personalStorageConfig);
 	}
 	
 	void Spawn()
 	{
-		typename chestType = ClassName.ToType();
-		if (!chestType || !chestType.IsInherited(ExpansionPersonalStorageBase))
+		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
+		
+		if (!obj || !obj.IsInherited(ExpansionPersonalStorageBase))
 		{
+			if (obj)
+				GetGame().ObjectDelete(obj);
 			Error(ToString() + "::Spawn - Tried to spawn personal storage object with unsuported type name: " + ClassName);
 			return;
 		}
 		
-		Object obj = GetGame().CreateObjectEx(ClassName, Position, ECE_SETUP | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);		
 		auto personalStorage = ExpansionPersonalStorageBase.Cast(obj);
 		if (!personalStorage)
 		{
@@ -242,7 +240,7 @@ class ExpansionPersonalStorageData: ExpansionPersonalStorageDataBase
 	}
 #endif
 	
-	bool IsGlobalStoage()
+	bool IsGlobalStorage()
 	{
 		return IsGlobalStorage;
 	}

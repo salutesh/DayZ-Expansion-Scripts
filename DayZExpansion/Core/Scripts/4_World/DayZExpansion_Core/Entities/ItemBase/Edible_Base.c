@@ -12,6 +12,8 @@
 
 modded class Edible_Base
 {
+	//! Similar to vanilla ProcessDecay, but call to GetHealth01 has been replaced with GetHealthLevelValue so it works on client (used in P2P market and personal storage previews)
+	//! @note due to some intended randomness in the decay values, computed state may be different on client than actual state on server
 	FoodStageType Expansion_GetProcessedFoodStageDecay( float delta, bool hasRootAsPlayer )
 	{
 		int decayTimer;
@@ -19,7 +21,7 @@ modded class Edible_Base
 		FoodStageType lastDecayStage;
 		float decayDelta = 0.0;
 		decayDelta *= DayZGame.Cast(GetGame()).GetFoodDecayModifier();
-		decayDelta += ( 1 + ( 1 - GetHealth01( "", "" ) ) );
+		decayDelta += ( 1 + ( 1 - GetHealthLevelValue(GetHealthLevel()) ) );
 		if ( hasRootAsPlayer )
 			decayDelta += GameConstants.DECAY_RATE_ON_PLAYER;
 

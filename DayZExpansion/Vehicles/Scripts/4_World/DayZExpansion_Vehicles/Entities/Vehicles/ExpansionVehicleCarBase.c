@@ -47,7 +47,7 @@ class ExpansionVehicleCarBase: ExpansionVehicleBase
 		auto trace = CF_Trace_0(ExpansionTracing.VEHICLES, this, "GetAnimInstance");
 #endif
 
-		return ExpansionVehicleAnimInstances.EXPANSION_MH6;
+		return VehicleAnimInstances.HATCHBACK;
 	}
 
 	override int GetSeatAnimationType(int posIdx)

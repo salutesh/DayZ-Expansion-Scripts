@@ -141,7 +141,8 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 	
 	override void Save(string fileName)
 	{
-		Print(ToString() + "::Save - FileName: " + EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_OBJECTIVES_AICAMP_FOLDER + fileName);
+
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
 		

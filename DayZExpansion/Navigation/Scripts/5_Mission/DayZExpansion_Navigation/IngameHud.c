@@ -292,6 +292,9 @@ modded class IngameHud
 
 	void UpdateGPSZoom()
 	{
+		if ( GetExpansionClientSettings() && !GetExpansionClientSettings().EnableGPSBasedOnVehicleSpeed )
+			return;
+
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player)
 		{

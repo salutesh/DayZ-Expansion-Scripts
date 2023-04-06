@@ -30,13 +30,15 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 
 	override void DeferredInit()
     {
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		super.DeferredInit();
 
 	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		Print("-----------------------------------------------------------------------------------------");
-		Print(ToString() + "::DeferredInit - NPC ID: " + m_QuestNPCID);
-		Print(ToString() + "::DeferredInit - NPC type: " + GetType());
-		Print("-----------------------------------------------------------------------------------------");
+		EXTrace.Print(EXTrace.QUESTS, this, "-----------------------------------------------------------------------------------------");
+		EXTrace.Print(EXTrace.QUESTS, this, "NPC ID: " + m_QuestNPCID);
+		EXTrace.Print(EXTrace.QUESTS, this, "NPC type: " + GetType());
+		EXTrace.Print(EXTrace.QUESTS, this, "-----------------------------------------------------------------------------------------");
 	#endif
     }
 

@@ -151,7 +151,7 @@ class ExpansionItemSpawnHelper
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, "ExpansionItemSpawnHelper", "SpawnInInventorySecure");
 #endif
 
-		bool canSpawnInInventory = GetGame().IsKindOf(className, "Inventory_Base") || GetGame().IsKindOf(className, "Magazine_Base") || GetGame().IsKindOf(className, "Rifle_Base") || GetGame().IsKindOf(className, "Pistol_Base") || GetGame().IsKindOf(className, "Archery_Base") || GetGame().IsKindOf(className, "Launcher_Base");
+		bool canSpawnInInventory = ExpansionStatic.IsInventoryItem(className);
 
 		if (!canSpawnInInventory)
 			return NULL;

@@ -1,0 +1,332 @@
+FrameWidgetClass LoadingFrame {
+ position 0 0
+ size 1 1
+ halign center_ref
+ valign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ priority 1000
+ {
+  PanelWidgetClass PanelWidget1 {
+   clipchildren 0
+   color 0 0 0 1
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style rover_sim_colorable
+   {
+    TextWidgetClass TextWidget {
+     visible 0
+     position 0 0.05
+     size 0.7438 0.06
+     halign center_ref
+     valign bottom_ref
+     text "#layout_loading_loadingtext"
+     "exact text" 1
+     "text halign" center
+     "text valign" center
+    }
+    ImageWidgetClass ImageBackground {
+     visible 1
+     position 0 0
+     size 0.16 0.09
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     fixaspect outside
+     image0 ""
+     imageTexture "{7191994FF1687B93}DayZExpansion/NamalskAdventure/GUI/LoadingScreens/loading_screen_1.edds"
+     mode blend
+     "src alpha" 0
+     stretch 1
+     "Transition width" 1
+     Progress 0
+    }
+    TextWidgetClass StatusText {
+     position 0 0.024
+     size 0.7438 0.03
+     halign center_ref
+     valign bottom_ref
+     "exact text" 1
+     "text halign" center
+     "text valign" center
+    }
+    ImageWidgetClass ImageLogoMid {
+     visible 0
+     inheritalpha 1
+     position 100 78
+     size 444 208
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect outside
+     image0 "set:dayz_gui image:DayZLogo"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     filter 1
+     nocache 0
+    }
+    ImageWidgetClass ImageLogoCorner {
+     visible 0
+     inheritalpha 1
+     position 100 78
+     size 444 208
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect outside
+     image0 "set:dayz_gui image:DayZLogo"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+     filter 1
+     nocache 0
+    }
+    ImageWidgetClass ImageLoadingIcon {
+     visible 0
+     inheritalpha 0
+     ignorepointer 0
+     keepsafezone 0
+     position 80 80
+     size 64 64
+     halign right_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     scaled 1
+     scriptclass ""
+     image0 "set:dayz_gui image:icon_refresh"
+     mode additive
+     "src alpha" 1
+     "no wrap" 0
+     filter 1
+     nocache 0
+    }
+    TextWidgetClass ProgressText {
+     visible 0
+     clipchildren 0
+     ignorepointer 1
+     position 0 200
+     size 100 30
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     text "100%"
+     font "gui/fonts/sdf_MetronLight24"
+     "text halign" center
+    }
+    PanelWidgetClass BottomPanel {
+     ignorepointer 1
+     color 0 0 0 0.549
+     size 1 0.1
+     halign center_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style rover_sim_colorable
+     {
+      ProgressBarWidgetClass LoadingBar {
+       ignorepointer 1
+       color 0.5529 0.7843 0.8824 1
+       position 0 25
+       size 600 3
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style Stamina
+       vertical 0
+      }
+      ImageWidgetClass Icon1 {
+       ignorepointer 1
+       position -330 7
+       size 36 36
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:expansion_inventory image:anomaly"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+      }
+      ImageWidgetClass Icon2 {
+       ignorepointer 1
+       position 330 7
+       size 36 36
+       halign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       image0 "set:expansion_inventory image:anomaly"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       "flip v" 1
+      }
+     }
+    }
+    MultilineTextWidgetClass ModdedWarning {
+     visible 0
+     inheritalpha 1
+     position 100 286
+     size 444 30
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     fixaspect outside
+     text "#str_modded_version_warning0"
+     font "gui/fonts/sdf_MetronLight24"
+     "exact text" 1
+     "size to text h" 1
+     "size to text v" 1
+     wrap 1
+    }
+   }
+  }
+  PanelWidgetClass notification_root {
+   visible 0
+   clipchildren 1
+   ignorepointer 1
+   color 0 0 0 0.5882
+   size 900 140.287
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 1
+   vexactsize 1
+   scaled 1
+   userID 100
+   scriptclass "NoticeSpacer"
+   style DayZDefaultPanel
+   "no focus" 1
+   {
+    RichTextWidgetClass notification_part_1_text {
+     clipchildren 1
+     ignorepointer 1
+     position 0 0
+     size 673 100
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scriptclass ""
+     text "Welcome to the Namalsk Adventure playtest!"
+     font "gui/fonts/sdf_MetronLight24"
+     "text offset" 18 0
+     "exact text" 1
+     "exact text size" 24
+     "size to text h" 1
+     "size to text v" 1
+     "text valign" center
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+     "content offset" 2
+    }
+    RichTextWidgetClass notification_part_2_text {
+     ignorepointer 1
+     position 0 0
+     size 673 100
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scaled 1
+     scriptclass ""
+     font "gui/fonts/sdf_MetronLight24"
+     "text offset" 18 0
+     "exact text" 1
+     "exact text size" 24
+     "size to text h" 1
+     "size to text v" 1
+     "text valign" center
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+     "content offset" 2
+    }
+    RichTextWidgetClass notification_part_3_text {
+     ignorepointer 1
+     keepsafezone 0
+     position 0 0
+     size 673 100
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scaled 1
+     scriptclass ""
+     font "gui/fonts/sdf_MetronLight24"
+     "text offset" 18 0
+     "exact text" 1
+     "exact text size" 24
+     "size to text h" 1
+     "size to text v" 1
+     "text valign" center
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+     "content offset" 2
+    }
+    RichTextWidgetClass notification_part_4_text {
+     ignorepointer 1
+     position 0 0
+     size 673 100
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     font "gui/fonts/sdf_MetronLight24"
+     "text offset" 18 0
+     "exact text" 1
+     "exact text size" 24
+     "size to text h" 1
+     "size to text v" 1
+     "text valign" center
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+     "content offset" 2
+    }
+   }
+   {
+    ScriptParamsClass {
+     AlignChilds 1
+    }
+   }
+  }
+ }
+}

@@ -23,6 +23,8 @@ class ExpansionQuestObjectiveEventBase
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		m_Quest = quest;
 	}
 
@@ -136,119 +138,114 @@ class ExpansionQuestObjectiveEventBase
 	//! ToDo: Dokumentation
 	void AssignObjectiveOnClasses()
 	{
-		ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		array<string> allocationClassNames = m_ObjectiveConfig.GetAllocationClasseNames();
-		if (!allocationClassNames || allocationClassNames.Count() == 0)
-		{
-			ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - No classes to allocate! Skip..");
+		set<typename> allocationTypeNames = m_ObjectiveConfig.GetAllocationTypeNames();
+		if (!allocationTypeNames)
 			return;
-		}
 
-		foreach (string className: allocationClassNames)
+		foreach (typename typeName: allocationTypeNames)
 		{
-			switch (className)
+			switch (typeName)
 			{
-				case "ActionBase":
+				case ActionBase:
 				{
 					ActionBase.AssignQuestObjective(this);
-					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to ActionBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
+					ObjectivePrint("Assign to ActionBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "ZombieBase":
+				case ZombieBase:
 				{
 					ZombieBase.AssignQuestObjective(this);
-					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to ZombieBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
+					ObjectivePrint("Assign to ZombieBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "AnimalBase":
+				case AnimalBase:
 				{
 					AnimalBase.AssignQuestObjective(this);
-					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to AnimalBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
+					ObjectivePrint("Assign to AnimalBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "PlayerBase":
+				case PlayerBase:
 				{
 					PlayerBase.AssignQuestObjective(this);
-					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to PlayerBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
+					ObjectivePrint("Assign to PlayerBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "ItemBase":
+				case ItemBase:
 				{
 					ItemBase.AssignQuestObjective(this);
-					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to ItemBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
+					ObjectivePrint("Assign to ItemBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 
-				case "RecipeBase":
+				case RecipeBase:
 				{
 					RecipeBase.AssignQuestObjective(this);
-					ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - Assign to RecipeBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
+					ObjectivePrint("Assign to RecipeBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
 				}
 				break;
 			}
 		}
 
-		ObjectivePrint(ToString() + "::AssignObjectiveOnClasses - End");
+		
 	}
 
 	//! Deassign objective from allocated classes.
 	//! ToDo: Dokumentation
 	void DeassignObjectiveOnClasses()
 	{
-		ObjectivePrint(ToString() + "::DeassignObjectiveOnClasses - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		array<string> allocationClassNames = m_ObjectiveConfig.GetAllocationClasseNames();
-		if (!allocationClassNames || allocationClassNames.Count() == 0)
+		set<typename> allocationTypeNames = m_ObjectiveConfig.GetAllocationTypeNames();
+		if (!allocationTypeNames)
 			return;
 
-		foreach (string className: allocationClassNames)
+		foreach (typename typeName: allocationTypeNames)
 		{
-			switch (className)
+			switch (typeName)
 			{
-				case "ActionBase":
+				case ActionBase:
 				{
 					ActionBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "ZombieBase":
+				case ZombieBase:
 				{
 					ZombieBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "AnimalBase":
+				case AnimalBase:
 				{
 					AnimalBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "PlayerBase":
+				case PlayerBase:
 				{
 					PlayerBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "ItemBase":
+				case ItemBase:
 				{
 					ItemBase.DeassignQuestObjective(this);
 				}
 				break;
 
-				case "RecipeBase":
+				case RecipeBase:
 				{
 					RecipeBase.DeassignQuestObjective(this);
 				}
 				break;
 			}
 		}
-
-		ObjectivePrint(ToString() + "::DeassignObjectiveOnClasses - End");
 	}
 
 	//! Event called when the player starts the quest.
@@ -265,6 +262,8 @@ class ExpansionQuestObjectiveEventBase
 
 		return true;
 	}
+
+	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL);
 
 	//! Event called when quest is completed and turned-in.
 	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
@@ -358,13 +357,13 @@ class ExpansionQuestObjectiveEventBase
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		ObjectivePrint("------------------------------------------------------------");
-		ObjectivePrint(ToString() + "::QuestDebug - Objective index: " + m_Index);
-		ObjectivePrint(ToString() + "::QuestDebug - Objective quest: " + m_Quest);
-		ObjectivePrint(ToString() + "::QuestDebug - Objective completed: " + m_Completed);
-		ObjectivePrint(ToString() + "::QuestDebug - Objective Initialized: " + m_Initialized);
-		ObjectivePrint(ToString() + "::QuestDebug - Objective active: " + m_Active);
-		ObjectivePrint(ToString() + "::QuestDebug - Objective config: " + m_ObjectiveConfig);
-		ObjectivePrint(ToString() + "::QuestDebug - Objective time limit: " + m_TimeLimit);
+		ObjectivePrint("Objective index: " + m_Index);
+		ObjectivePrint("Objective quest: " + m_Quest);
+		ObjectivePrint("Objective completed: " + m_Completed);
+		ObjectivePrint("Objective Initialized: " + m_Initialized);
+		ObjectivePrint("Objective active: " + m_Active);
+		ObjectivePrint("Objective config: " + m_ObjectiveConfig);
+		ObjectivePrint("Objective time limit: " + m_TimeLimit);
 		ObjectivePrint("------------------------------------------------------------");
 	#endif
 	}
@@ -384,7 +383,7 @@ class ExpansionQuestObjectiveEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	void CreateObjectiveMarker(vector pos, string name, int visibility = 6)
 	{
-		ObjectivePrint(ToString() + "::CreateObjectiveMarker - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!m_Quest.GetQuestConfig().IsGroupQuest())
 		{
@@ -408,13 +407,11 @@ class ExpansionQuestObjectiveEventBase
 			}
 		}
 	#endif
-
-		ObjectivePrint(ToString() + "::CreateObjectiveMarker - End");
 	}
 
 	void RemoveObjectiveMarkers()
 	{
-		ObjectivePrint(ToString() + "::RemoveObjectiveMarkers - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!m_Quest.GetQuestConfig().IsGroupQuest())
 		{
@@ -438,8 +435,6 @@ class ExpansionQuestObjectiveEventBase
 			}
 		}
 	#endif
-
-		ObjectivePrint(ToString() + "::RemoveObjectiveMarkers - End");
 	}
 
 	void CreateMarkers();

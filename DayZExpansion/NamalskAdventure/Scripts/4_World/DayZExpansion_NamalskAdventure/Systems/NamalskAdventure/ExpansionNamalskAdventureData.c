@@ -10,8 +10,6 @@
  *
 */
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
-#ifdef NAMALSK_TERRAIN
 class ExpansionNamalskAdventureDataBase
 {
 	int Version;
@@ -80,16 +78,14 @@ class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 	{
 		m_LastMerchantPositions.Clear();
 	}
-	
+
 	array<int> GetUsedMerchantItemSets()
 	{
 		return m_LastMerchantItemSets:
 	}
-	
+
 	array<int> GetUsedMerchantPositions()
 	{
 		return m_LastMerchantPositions:
 	}
 };
-#endif
-#endif

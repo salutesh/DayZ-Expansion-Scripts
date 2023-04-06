@@ -43,9 +43,7 @@ class Expansion_M14_Base: RifleBoltLock_Base
 			{
 				return false;
 			}
-		}
-		if  ( attachment.IsKindOf("ItemOptics") )
-		{			
+	
 			if ( FindAttachmentBySlotName("ExpansionSniperOptics") != NULL || FindAttachmentBySlotName("WeaponOptics"))
 			{
 				return false;

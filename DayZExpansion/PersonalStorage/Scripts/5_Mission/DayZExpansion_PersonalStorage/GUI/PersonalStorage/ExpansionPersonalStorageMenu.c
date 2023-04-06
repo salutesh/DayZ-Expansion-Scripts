@@ -187,10 +187,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 		int maxItemsPerStorage = m_PersonalStorageSettings.MaxItemsPerStorage;
 	#ifdef EXPANSIONMODHARDLINE
-		ExpansionPersonalStorageData personalStorageData = ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageClientData();
-		if (personalStorageData)
+		ExpansionPersonalStorageConfig personalStorageConfig = ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageClientConfig();
+		if (personalStorageConfig)
 		{
-			int reputationToUnlock = personalStorageData.GetReputation();
+			int reputationToUnlock = personalStorageConfig.GetReputation();
 			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 			if (player)
 			{
@@ -1164,7 +1164,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	{
 		PrintDebug(ToString() + "::OnConfirmDepositClick - Start");
 
-		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem())
+		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 			return;
 
 		EntityAI playerItem = m_SelectedPlayerItem.GetPlayerItem().GetItem();
@@ -1184,7 +1184,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	{
 		PrintDebug(ToString() + "::OnConfirmRetrieveClick - Start");
 
-		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem())
+		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 			return;
 
 		loading.Show(true);
@@ -1375,6 +1375,12 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		PrintDebug(ToString() + "::OnModuleCallback - End");
 	}
 
+	override bool CanClose()
+	{
+		bool canClose = !m_RequestsLocked;
+		return canClose;
+	}
+	
 	void OnExitClick()
 	{
 		CloseMenu();

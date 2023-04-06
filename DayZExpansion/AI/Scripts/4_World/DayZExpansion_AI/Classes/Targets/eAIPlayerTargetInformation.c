@@ -56,9 +56,9 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 
 				if (ai.GetGroup().GetFaction().IsGuard())
 				{
-					if (m_Player.IsRaised() && fromTargetDot >= 0.85 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
+					if (m_Player.IsRaised() && fromTargetDot >= 0.9 && ((enemyHands && enemyHands.IsWeapon()) || m_Player.IsFighting()))
 						canEnterFightingState = true;
-					else if (m_Player.eAI_UpdateHitPlayerWithinTimeThreshold(150.0 - distance))
+					else if (m_Player.eAI_UpdateAgressionTimeout(150.0 - distance))
 						canEnterFightingState = true;
 
 					if (!canEnterFightingState && m_Player.IsRaised())

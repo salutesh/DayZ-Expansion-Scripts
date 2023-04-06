@@ -18,7 +18,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::OnEventStart - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -26,44 +26,42 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		if (!super.OnEventStart())
 			return false;
 
-		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}
 
 	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
 		if (!super.OnContinue())
 			return false;
 
-		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}
 	
 	override bool OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!super.OnCleanup())
 			return false;
 
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		ObjectivePrint(ToString() + "::OnCleanup - End");
-		
 		return true;
 	}
 	
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
-		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
 		if (!aiCamp)
@@ -78,36 +76,26 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 		//! Check if killed entities class name is a valid one from our objective config
 		bool found = ExpansionStatic.IsAnyOf(victim, aiCamp.GetClassNames(), true);
-		ObjectivePrint(ToString() + "::OnEntityKilled - Target found: " + found);
+		ObjectivePrint("Target found: " + found);
 		if (!found)
 			return;
 
 		super.OnEntityKilled(victim, killer, killerPlayer);
-
-		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
 	override protected void CheckQuestAIPatrol()
 	{
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
-		if (!aiCamp)
-			return;
-
-		m_TotalUnitsAmount = aiCamp.GetPositions().Count();
-
 		CheckQuestAIPatrol(m_TotalUnitsAmount);
-
-		ObjectivePrint(ToString() + "::CheckQuestAIPatrol - End");
 	}
 
 	override void CreateQuestAIPatrol()
 	{
-		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
 		if (!aiCamp)
@@ -141,8 +129,6 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateMarkers();
 	#endif
-		
-		ObjectivePrint(ToString() + "::CreateQuestAIPatrol - End");
 	}
 	
 	protected void CreateTrigger(vector pos, int radius)

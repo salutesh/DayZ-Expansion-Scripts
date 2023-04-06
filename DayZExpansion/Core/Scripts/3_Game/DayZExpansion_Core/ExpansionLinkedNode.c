@@ -15,6 +15,7 @@
 class CF_DoublyLinkedNodes<Class T>
 {
 	ref CF_DoublyLinkedNode<T> m_Head;
+	CF_DoublyLinkedNode<T> m_Current;
 
 	int m_Count;
 
@@ -84,6 +85,26 @@ class CF_DoublyLinkedNodes<Class T>
 #ifdef EXPANSIONTRACE
 		trace.Debug("Count: %1", "" + m_Count);
 #endif
+	}
+
+	int Each(ScriptCaller caller, int limit = 0)
+	{
+		if (!m_Current)
+			m_Current = m_Head;
+		
+		ScriptCaller areYouFuckingKiddingMeSideFX = caller; //! @note: SideFX looses references inside loops. BIG YIKES!
+
+		int count;
+		while (m_Current)
+		{
+			areYouFuckingKiddingMeSideFX.Invoke(m_Current.m_Value);
+			m_Current = m_Current.m_Next;
+			count++;
+			if (limit > 0 && count == limit)
+				break;
+		}
+
+		return count;
 	}
 }
 
@@ -165,6 +186,7 @@ class CF_DoublyLinkedNode<Class T>
 class CF_DoublyLinkedNodes_WeakRef<Class T>
 {
 	ref CF_DoublyLinkedNode_WeakRef<T> m_Head;
+	CF_DoublyLinkedNode_WeakRef<T> m_Current;
 
 	int m_Count;
 
@@ -235,6 +257,26 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 		trace.Debug("Count: %1", "" + m_Count);
 #endif
 	}
+
+	int Each(ScriptCaller caller, int limit = 0)
+    {
+        if (!m_Current)
+            m_Current = m_Head;
+
+        ScriptCaller areYouFuckingKiddingMeSideFX = caller; //! @note: SideFX looses references inside loops. BIG YIKES!
+
+        int count;
+        while (m_Current)
+        {                
+            areYouFuckingKiddingMeSideFX.Invoke(m_Current.m_Value);
+            m_Current = m_Current.m_Next;
+            count++;
+            if (limit > 0 && count == limit)
+                break;
+        }
+
+        return count;
+    }
 }
 
 class CF_DoublyLinkedNode_WeakRef<Class T>

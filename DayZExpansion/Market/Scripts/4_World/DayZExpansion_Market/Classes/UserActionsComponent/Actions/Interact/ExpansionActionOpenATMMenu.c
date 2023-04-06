@@ -23,7 +23,7 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 	override void CreateConditionComponents()  
 	{	
 		m_ConditionItem = new CCINone;
-		m_ConditionTarget = new CCTObject(UAMaxDistances.BASEBUILDING);
+		m_ConditionTarget = new CCTCursor;
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )

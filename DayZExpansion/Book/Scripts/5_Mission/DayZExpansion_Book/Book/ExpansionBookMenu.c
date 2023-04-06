@@ -305,6 +305,9 @@ class ExpansionBookMenu: ExpansionScriptViewMenu
 
 	void SwitchMovementLockState(bool lockMovement)
 	{
+		if (!IsVisible())
+			return;
+
 		if (!lockMovement)
 			UnlockInputs();
 		

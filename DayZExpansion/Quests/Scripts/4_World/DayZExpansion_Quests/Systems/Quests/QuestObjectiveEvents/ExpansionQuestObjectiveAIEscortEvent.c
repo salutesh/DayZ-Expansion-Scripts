@@ -22,7 +22,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
 	{
-		ObjectivePrint(ToString() + "::OnEventStart - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnEventStart())
 			return false;
@@ -39,7 +39,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!m_ObjectiveTrigger)
 			CreateTrigger(m_Config.GetPosition());
 
-		ObjectivePrint(ToString() + "::OnEventStart - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -47,7 +47,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	override bool OnContinue()
 	{
-		ObjectivePrint(ToString() + "::OnContinue - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnContinue())
 			return false;
@@ -70,14 +70,14 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		m_Quest.QuestCompletionCheck();
 		
-		ObjectivePrint(ToString() + "::OnContinue - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
 
 	override bool OnComplete()
 	{
-		ObjectivePrint(ToString() + "::OnComplete - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnComplete())
 			return false;
@@ -97,7 +97,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		auto player = m_Quest.GetPlayer();
 		player.SetGroup(player.Expansion_GetFormerGroup());
 
-		ObjectivePrint(ToString() + "::OnComplete - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -105,7 +105,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up (server shutdown/player disconnect).
 	override bool OnCleanup()
 	{
-		ObjectivePrint(ToString() + "::OnCleanup - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnCleanup())
 			return false;
@@ -115,7 +115,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		ObjectivePrint(ToString() + "::OnCleanup - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -123,7 +123,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets canceled by the player.
 	override bool OnCancel()
 	{
-		ObjectivePrint(ToString() + "::OnCancel - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnCancel())
 			return false;
@@ -137,7 +137,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		auto player = m_Quest.GetPlayer();
 		player.SetGroup(player.Expansion_GetFormerGroup());
 
-		ObjectivePrint(ToString() + "::OnCancel - End and return TRUE.");
+		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -154,9 +154,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	}
 #endif
 
-	void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
+	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
-		ObjectivePrint(ToString() + "::OnEntityKilled - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		eAIBase victimAI = eAIBase.Cast(victim);
 		if (victimAI && victim == m_VIP)
@@ -164,8 +164,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			m_Quest.SendNotification(StringLocaliser("VIP Killed"), new StringLocaliser("The VIP got killed. Objective failed.."), ExpansionIcons.GetPath("Error"), COLOR_EXPANSION_NOTIFICATION_ERROR);
 			m_Quest.CancelQuest();
 		}
-
-		ObjectivePrint(ToString() + "::OnEntityKilled - End");
 	}
 
 	protected void DeleteVIP()
@@ -180,7 +178,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CreateVIP()
 	{
-		ObjectivePrint(ToString() + "::CreateVIP - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ExpansionQuestObjectiveAIVIP vip = m_Config.GetAIVIP();
 		if (!vip)
@@ -200,8 +198,6 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_VIP.RequestTransition, 10000, false, "Rejoin");
 		m_VIP.SetAI(m_Group);
 	#endif
-
-		ObjectivePrint(ToString() + "::CreateVIP - End");
 	}
 
 	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout")
@@ -218,13 +214,11 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	protected void CreateTrigger(vector pos)
 	{
-		ObjectivePrint(ToString() + "::CreateTrigger - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionEscortObjectiveSphereTrigger", pos, ECE_NONE));
 		m_ObjectiveTrigger.SetPosition(pos);
 		m_ObjectiveTrigger.SetObjectiveData(Math.Round(m_Config.GetMaxDistance()), this);
-
-		ObjectivePrint(ToString() + "::CreateTrigger - End");
 	}
 
 	vector GetPosition()
@@ -239,17 +233,18 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	override bool CanComplete()
 	{
-		ObjectivePrint(ToString() + "::CanComplete - Start");
-		ObjectivePrint(ToString() + "::CanComplete - m_DestinationReached: " + m_DestinationReached);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 
 		bool conditionsResult = m_DestinationReached;
 		if (!conditionsResult)
 		{
-			ObjectivePrint(ToString() + "::CanComplete - End and return: FALSE");
+			ObjectivePrint("End and return: FALSE");
 			return false;
 		}
 
-		ObjectivePrint(ToString() + "::CanComplete - End and return: TRUE");
+		ObjectivePrint("End and return: TRUE");
 
 		return super.CanComplete();
 	}
@@ -257,11 +252,11 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	//! Used by the trigger
 	void SetReachedLocation(bool state)
 	{
-		ObjectivePrint(ToString() + "::SetReachedLocation - Start");
-		ObjectivePrint(ToString() + ":: SetReachedLocation - State: " + state);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
 		m_Quest.QuestCompletionCheck();
-		ObjectivePrint(ToString() + "::SetReachedLocation - End");
 	}
 
 	void OnDissmissAIGroup()

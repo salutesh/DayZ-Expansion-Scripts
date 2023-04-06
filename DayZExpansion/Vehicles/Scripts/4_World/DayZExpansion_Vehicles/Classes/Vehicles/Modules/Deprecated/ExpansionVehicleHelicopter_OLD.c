@@ -741,21 +741,6 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				torque[2] = torque[2] - (pState.m_BoundingRadius * 0.01 * tailForce);
 			}
 
-			// rotate to the direction of the speed
-			//TODO: back to the drawing board...
-			{
-				float heliSpeedY = pState.m_LinearVelocityMS[1] * (pState.m_LinearVelocityMS[0] * 0.1);
-
-				float rotateX = m_TailRotateFactor * ((pState.m_LinearVelocityMS[0] * -0.500) + (Math.SquareSign(pState.m_LinearVelocityMS[0]) * -0.010)) * pState.m_Mass;
-				float rotateY = m_TailRotateFactor * ((heliSpeedY * -0.005) + (Math.SquareSign(heliSpeedY) * -0.0003)) * pState.m_Mass;
-
-				vector heliRotateDir = Vector(0, 0, -pState.m_BoundingRadius) * Vector(rotateX, rotateY, 0);
-
-				//torque[0] = torque[0] + heliRotateDir[0];
-				//torque[1] = torque[1] + heliRotateDir[1];
-				//torque[2] = torque[2] + heliRotateDir[2];
-			}
-
 			//! Linear Friction
 			{
 				vector friction;

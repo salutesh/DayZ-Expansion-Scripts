@@ -184,7 +184,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultRegular()
 	{
-		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Regular();
+		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Airdrop_Regular();
 		TStringArray Infected = {	
 			"ZmbM_HermitSkinny_Beige",
 			"ZmbM_HermitSkinny_Black",
@@ -288,7 +288,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultMedical()
 	{
-		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Medical();
+		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Airdrop_Medical();
 		TStringArray Infected = {	
 			"ZmbM_HermitSkinny_Beige",
 			"ZmbM_HermitSkinny_Black",
@@ -397,7 +397,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultBaseBuilding()
 	{
-		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.BaseBuilding();
+		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Airdrop_BaseBuilding();
 		TStringArray Infected = {	
 			"ZmbM_HermitSkinny_Beige",
 			"ZmbM_HermitSkinny_Black",
@@ -518,7 +518,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 	void DefaultMilitary()
 	{
-		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Military();
+		array < ref ExpansionLoot > Loot = ExpansionLootDefaults.Airdrop_Military();
 		TStringArray Infected = {	
 			"ZmbM_usSoldier_normal_Woodland",
 			"ZmbM_SoldierNormal",

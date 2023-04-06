@@ -38,9 +38,11 @@ class ExpansionObjectiveTriggerBase: Trigger
 #ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 	protected void TriggerDebug()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		vector pos = GetPosition();
-		QuestPrint(ToString() + "::TriggerDebug - Position: " + pos);
-		QuestPrint(ToString() + "::TriggerDebug - Objective: " + m_Objective.ToString());
+		QuestPrint("Position: " + pos);
+		QuestPrint("Objective: " + m_Objective.ToString());
 		m_Objective.QuestDebug();
 	}
 #endif
@@ -58,7 +60,7 @@ class ExpansionObjectiveTriggerBase: Trigger
 	protected void QuestPrint(string text)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(text);
+		EXTrace.Print(EXTrace.QUESTS, this, text);
 	#endif
 	}
 };

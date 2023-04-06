@@ -47,17 +47,22 @@ class ExpansionQuestContainerBase: Container_Base
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		return false;
+		return m_ExpansionCanReceiveItems;
 	}
 
 	override bool CanReceiveItemIntoCargo(EntityAI item)
 	{
-		return false;
+		return m_ExpansionCanReceiveItems;
 	}
 
 	override bool CanSwapItemInCargo(EntityAI child_entity, EntityAI new_entity)
 	{
 		return false;
+	}
+
+	void ExpansionSetCanReceiveItems(bool state)
+	{
+		m_ExpansionCanReceiveItems = state;
 	}
 
 	void ExpansionCheckStorage()
@@ -95,10 +100,15 @@ class ExpansionQuestContainerBase: Container_Base
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionDeleteStorage);
 	}
 
+	override bool Expansion_CanUseVirtualStorage(bool restoreOverride = false)
+	{
+		return false;
+	}
+
 	override void EECargoOut(EntityAI item)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::EECargoOut - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
 		super.EECargoOut(item);
@@ -108,42 +118,49 @@ class ExpansionQuestContainerBase: Container_Base
 			CheckAssignedObjectives(item);
 			ExpansionCheckStorage();
 		}
+	}
 
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::EECargoOut - End");
-	#endif
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		if (m_Expansion_QuestID > -1)
+		{
+			CheckAssignedObjectives(item);
+			ExpansionCheckStorage();
+		}
 	}
 
 	protected void CheckAssignedObjectives(EntityAI item)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::CheckAssignedObjectives - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
-		if (!s_Expansion_AssignedQuestObjectives || s_Expansion_AssignedQuestObjectives.Count() == 0)
+		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
 		{
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print(ToString() + "::CheckAssignedObjectives - No quest objectives assigned!");
+			EXTrace.Print(EXTrace.QUESTS, this, "No quest objectives assigned!");
 		#endif
 			return;
 		}
 
 		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
 		{
-			if (!objective || !objective.GetQuest())
+			if (!objective.GetQuest())
 				continue;
 
 			int questID = objective.GetQuest().GetQuestConfig().GetID();
-			Print(ToString() + "::CheckAssignedObjectives - Objective quest ID: " + questID);
-			Print(ToString() + "::CheckAssignedObjectives - Stash quest ID: " + m_Expansion_QuestID);
+			EXTrace.Print(EXTrace.QUESTS, this, "Objective quest ID: " + questID);
+			EXTrace.Print(EXTrace.QUESTS, this, "Stash quest ID: " + m_Expansion_QuestID);
 
 			if (questID != m_Expansion_QuestID)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectives - Objective quest ID mismatch! Skip..");
+				EXTrace.Print(EXTrace.QUESTS, this, "Objective quest ID mismatch! Skip..");
 			#endif
 				continue;
 			}
@@ -151,7 +168,7 @@ class ExpansionQuestContainerBase: Container_Base
 			if (objective.GetObjectiveType() != ExpansionQuestObjectiveType.TREASUREHUNT)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectives - Objective type mismatch! Skip..");
+				EXTrace.Print(EXTrace.QUESTS, this, "Objective type mismatch! Skip..");
 			#endif
 				continue;
 			}
@@ -159,7 +176,7 @@ class ExpansionQuestContainerBase: Container_Base
 			ExpansionQuestObjectiveTreasureHuntEvent treasureHuntEvent;
 			if (!Class.CastTo(treasureHuntEvent, objective))
 			{
-				Error(ToString() + "::CheckAssignedObjectives - Could not get Treasure Hunt objective!");
+				EXTrace.Print(EXTrace.QUESTS, this, "Could not get Treasure Hunt objective!");
 				continue;
 			}
 
@@ -167,7 +184,7 @@ class ExpansionQuestContainerBase: Container_Base
 			if (treasureHuntEvent.GetChest() != objectiveChest)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectives - Objective stash is not this stash! Skip..");
+				EXTrace.Print(EXTrace.QUESTS, this, "Objective stash is not this stash! Skip..");
 			#endif
 				continue;
 			}
@@ -179,10 +196,6 @@ class ExpansionQuestContainerBase: Container_Base
 			if (!treasureHuntEvent.HasLootedItemFromChest())
 				treasureHuntEvent.LootedItemFromChest();
 		}
-
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::CheckAssignedObjectives - End");
-	#endif
 	}
 };
 

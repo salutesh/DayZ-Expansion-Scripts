@@ -113,11 +113,7 @@ class ExpansionActionEnterFlagMenu: ActionContinuousBase
 		if ( Class.CastTo( flag, target.GetObject() ) )
 		{
 			//! Is the flag fully construced ?
-#ifdef BUILD_EXPERIMENTAL
-			float state = flag.GetAnimationPhase("flag_mast");  //! Vanilla fix for flag lower action is not on stable DayZ yet
-#else
-			float state = 1.0;
-#endif
+			float state = flag.GetAnimationPhase("flag_mast");
 			if ( flag.FindAttachmentBySlotName("Material_FPole_Flag") && state >= 0.99 )
 			{
 				#ifdef EXPANSION_TERRITORY_MODULE_DEBUG

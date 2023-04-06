@@ -189,6 +189,22 @@ modded class PlayerBase
 		return cmd;
 	}
 
+    override void OnDisconnect()
+    {
+        CarScript car;
+        HumanCommandVehicle hcv = GetCommand_Vehicle();
+
+        if (hcv && CarScript.CastTo(car, hcv.GetTransport()))
+        {
+            if (hcv.GetVehicleSeat() == DayZPlayerConstants.VEHICLESEAT_DRIVER && car.Expansion_IsTowing())
+            {
+				car.Expansion_DestroyTow();
+            }
+        }
+
+        super.OnDisconnect();
+    }
+
 	override void TryHideItemInHands(bool hide, bool force = false)
 	{
 		if (!hide && Expansion_IsAttached())

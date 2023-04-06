@@ -44,6 +44,12 @@ ImageSetClass {
    Size 170 170
    Flags 0
   }
+  ImageSetDefClass anomaly {
+   Name "anomaly"
+   Pos 1 348
+   Size 170 170
+   Flags 0
+  }
  }
  Groups {
  }

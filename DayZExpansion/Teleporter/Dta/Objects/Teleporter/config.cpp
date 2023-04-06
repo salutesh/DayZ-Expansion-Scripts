@@ -10,7 +10,6 @@ class CfgPatches
 		requiredAddons[] = {"DZ_Data"};
 	};
 };
-class CfgSlots{};
 class CfgVehicles
 {
 	class HouseNoDestruct;
@@ -21,8 +20,58 @@ class CfgVehicles
 	};
 	class Expansion_Teleporter_Big: HouseNoDestruct
 	{
-		scope = 1;
+		scope = 2;
 		model = "\DayZExpansion\Teleporter\Dta\Objects\Teleporter\teleporter.p3d";
+		bounding = "BSphere";
+		overrideDrawArea = "3.0";
+		forceFarBubble = "true";
+		openable = 1;
+		carveNavmesh = 1;
+		itemBehaviour = 2;
+		attachments[] = {"CarBattery","Att_ExpansionCircuitBoard"};
+		rotationFlags = 2;
+		soundImpactType = "metal";
+		oldpower = 0;
+		ChargeEnergyPerSecond = 1;
+		class EnergyManager
+		{
+			hasIcon = 1;
+			autoSwitchOff = 1;
+			energyUsagePerSecond = 0.01;
+			plugType = 5;
+			attachmentAction = 1;
+		};
+		class AnimationSources
+		{
+			class body
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class carbattery
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 0;
+			};
+			class battery_installed
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+		};
+		class GUIInventoryAttachmentsProps
+		{
+			class Attachments
+			{
+				name = "$STR_attachment_accessories";
+				description = "";
+				attachmentSlots[] = {"CarBattery","Att_ExpansionCircuitBoard"};
+				icon = "set:expansion_iconset image:icon_options";
+			};
+		};
 		class Doors
 		{
 			class Doors1

@@ -16,53 +16,57 @@ modded class ActionBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS);
+
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
 		{
 			s_Expansion_AssignedQuestObjectives.Insert(objective);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print("ActionBase::AssignQuestObjective - Assigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
+			EXTrace.Print(EXTrace.QUESTS, null, "Assigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		else
 		{
-			Print("ActionBase::AssignQuestObjective - Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is already assigned to this entity! Skiped");
+			EXTrace.Print(EXTrace.QUESTS, null, "Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is already assigned to this entity! Skiped");
 		}
 	#endif
 	}
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS);
+
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
 		{
 			s_Expansion_AssignedQuestObjectives.Remove(index);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print("ActionBase::DeassignQuestObjective - Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
+			EXTrace.Print(EXTrace.QUESTS, null, "Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		else
 		{
-			Print("ActionBase::AssignQuestObjective - Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is not assigned to this entity and cant be deassigned!");
+			EXTrace.Print(EXTrace.QUESTS, null, "Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is not assigned to this entity and cant be deassigned!");
 		}
 	#endif
 	}
 
-	protected void CheckAssignedObjectives(ActionData action_data, bool isInit)
+	protected void CheckAssignedObjectives(ActionData action_data)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::CheckAssignedObjectives - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
 
-		if (!s_Expansion_AssignedQuestObjectives || s_Expansion_AssignedQuestObjectives.Count() == 0)
+		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
 		{
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print(ToString() + "::CheckAssignedObjectives - No quest objectives assigned!");
+			EXTrace.Print(EXTrace.QUESTS, this, "No quest objectives assigned!");
 		#endif
 			return;
 		}
@@ -70,7 +74,7 @@ modded class ActionBase
 		if (!action_data.m_Player || !action_data.m_Player.GetIdentity())
 		{
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print(ToString() + "::CheckAssignedObjectives - Could not get player of action data!");
+			EXTrace.Print(EXTrace.QUESTS, this, "Could not get player of action data!");
 		#endif
 			return;
 		}
@@ -79,46 +83,44 @@ modded class ActionBase
 		if (playerUID == string.Empty)
 		{
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print(ToString() + "::CheckAssignedObjectives - Could not get player UID!");
+			EXTrace.Print(EXTrace.QUESTS, this, "Could not get player UID!");
 		#endif
 			return;
 		}
 
+		ExpansionQuest quest;
 		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
 		{
-			if (!objective || !objective.GetQuest())
-				continue;
-
-			//! Check if the current objective belongs to the item owner if we got the UID.
-			if (!objective.GetQuest().IsQuestPlayer(playerUID))
-			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectives - Player with UID [" + playerUID + "] is not a quest player of this quest objective. Skip..");
-			#endif
-				return;
-			}
-
 			//! Check if the current objective is active
 			if (!objective.IsActive())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectives - Objective is not active. Skip..");
+				EXTrace.Print(EXTrace.QUESTS, this, "Objective is not active. Skip...");
 			#endif
 				continue;
 			}
 
-			OnObjectiveActionExecuted(objective, action_data, isInit);
-		}
+			quest = objective.GetQuest();
+			if (!quest)
+				continue;
 
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::CheckAssignedObjectives - End");
-	#endif
+			//! Check if the current objective belongs to the item owner if we got the UID.
+			if (!quest.IsQuestPlayer(playerUID))
+			{
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + playerUID + "] is not a quest player of this quest objective. Skip...");
+			#endif
+				continue;
+			}
+
+			OnObjectiveActionExecuted(objective, action_data);
+		}
 	}
 
-	protected void OnObjectiveActionExecuted(ExpansionQuestObjectiveEventBase objective, ActionData action_data, bool isInit)
+	protected void OnObjectiveActionExecuted(ExpansionQuestObjectiveEventBase objective, ActionData action_data)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnObjectiveActionExecuted - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
 		//! Run thrue all possible objective types
@@ -129,7 +131,7 @@ modded class ActionBase
 				ExpansionQuestObjectiveActionEvent actionObjective;
 				if (Class.CastTo(actionObjective, objective))
 				{
-					actionObjective.OnObjectiveActionExecuted(this, action_data, isInit);
+					actionObjective.OnObjectiveActionExecuted(this, action_data);
 				}
 			}
 			break;
@@ -156,49 +158,44 @@ modded class ActionBase
 			break;
 		#endif
 		}
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnObjectiveActionExecuted - End");
-	#endif
+	}
+
+	override void OnStart(ActionData action_data)
+	{
+		super.OnStart(action_data);
+
+		if (g_Game.IsServer() && IsInstant())
+			CheckAssignedObjectives(action_data);
+	}
+
+	override void OnEnd(ActionData action_data)
+	{
+		super.OnEnd(action_data);
+
+		if (g_Game.IsServer() && !IsInstant() && !IsInherited(AnimatedActionBase))
+			CheckAssignedObjectives(action_data);
 	}
 };
 
 modded class ActionContinuousBase
 {
-	override void OnStartAnimationLoop(ActionData action_data)
+	override void OnFinishProgress(ActionData action_data)
 	{
-		super.OnStartAnimationLoop(action_data);
-		CheckAssignedObjectives(action_data, true);
-	}
+		super.OnFinishProgress(action_data);
 
-	override void OnFinishProgressServer(ActionData action_data)
-	{
-		super.OnFinishProgressServer(action_data);
-		CheckAssignedObjectives(action_data, false);
+		if (g_Game.IsServer())
+			CheckAssignedObjectives(action_data);
 	}
 };
 
 
 modded class AnimatedActionBase
 {
-	override void OnStart(ActionData action_data)
+	override void OnExecute(ActionData action_data)
 	{
-		super.OnStart(action_data);
-		CheckAssignedObjectives(action_data, true);
-	}
+		super.OnExecute(action_data);
 
-	override protected void OnExecuteServer(ActionData action_data)
-	{
-		super.OnExecuteServer(action_data);
-		CheckAssignedObjectives(action_data, false);
-	}
-	override void OnStartServer(ActionData action_data)
-	{
-		super.OnStartServer(action_data);
-		CheckAssignedObjectives(action_data, true);
-	}
-	override void OnEndServer(ActionData action_data)
-	{
-		super.OnEndServer(action_data);
-		CheckAssignedObjectives(action_data, false);
+		if (g_Game.IsServer() && !IsInherited(ActionContinuousBase))
+			CheckAssignedObjectives(action_data);
 	}
 };

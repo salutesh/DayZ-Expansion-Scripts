@@ -10,12 +10,19 @@
  *
 */
 
+enum ExpansionQuestItemState
+{
+	INV_ENTER,
+	INV_EXIT,
+	QUANTITY_CHANGED
+}
+
 modded class ItemBase
 {
 	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ExpansionQuestObjectiveEventBase>;
 	protected int m_Expansion_QuestID = -1;
 	protected bool m_Expansion_IsQuestGiver;
-	protected ref TStringArray m_ExpansionOjectiveItemExcludes = {"FireplaceBase"};
+	protected static ref TTypenameArray s_ExpansionOjectiveItemExcludes = {FireplaceBase};
 
 	void ItemBase()
 	{
@@ -57,10 +64,6 @@ modded class ItemBase
 			if (!GetHierarchyRootPlayer())
 				GetGame().ObjectDelete(this);
 		}
-
-		Man player = GetHierarchyRootPlayer();
-		if (player && player.GetIdentity())
-			CheckAssignedObjectivesForEntity("INV_ENTER", player);
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -79,7 +82,7 @@ modded class ItemBase
 						GetGame().ObjectDelete(this);
 				}
 
-				CheckAssignedObjectivesForEntity("INV_ENTER", player);
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_ENTER, player);
 			}
 		}
 	}
@@ -100,7 +103,7 @@ modded class ItemBase
 						GetGame().ObjectDelete(this);
 				}
 
-				CheckAssignedObjectivesForEntity("INV_EXIT", player);
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, player);
 			}
 		}
 	}
@@ -109,9 +112,11 @@ modded class ItemBase
 	{
 		super.OnQuantityChanged(delta);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && Expansion_IsStackable())
 		{
-			CheckAssignedObjectivesForEntity("QUANTITY_CHANGED");
+			Man player = GetHierarchyRootPlayer();
+			if (player && player.GetIdentity())
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED);
 		}
 	}
 
@@ -177,59 +182,60 @@ modded class ItemBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS);
+
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
 		{
 			s_Expansion_AssignedQuestObjectives.Insert(objective);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print("ItemBase::AssignQuestObjective - Assigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
+			EXTrace.Print(EXTrace.QUESTS, null, "Assigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		else
 		{
-			Print("ItemBase::AssignQuestObjective - Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is already assigned to this entity! Skiped");
+			EXTrace.Print(EXTrace.QUESTS, null, "Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is already assigned to this entity! Skiped");
 		}
 	#endif
 	}
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS);
+
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
 		{
 			s_Expansion_AssignedQuestObjectives.Remove(index);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print("ItemBase::DeassignQuestObjective - Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
+			EXTrace.Print(EXTrace.QUESTS, null, "Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
 		}
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		else
 		{
-			Print("ItemBase::AssignQuestObjective - Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is not assigned to this entity and cant be deassigned!");
+			EXTrace.Print(EXTrace.QUESTS, null, "Quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID() + " is not assigned to this entity and cant be deassigned!");
 		}
 	#endif
 	}
 
-	protected void CheckAssignedObjectivesForEntity(string state, Man player = null)
+	protected void CheckAssignedObjectivesForEntity(ExpansionQuestItemState state, Man player = null)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::CheckAssignedObjectivesForEntity - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
-
-		foreach (string typeName: m_ExpansionOjectiveItemExcludes)
+		foreach (typename typeName: s_ExpansionOjectiveItemExcludes)
 		{
-			if (GetType().ToType().IsInherited(typeName.ToType()))
+			if (IsInherited(typeName))
 				return;
 		}
 
-		if (!s_Expansion_AssignedQuestObjectives || s_Expansion_AssignedQuestObjectives.Count() == 0)
+		if (s_Expansion_AssignedQuestObjectives.Count() == 0)
 		{
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-			Print(ToString() + "::CheckAssignedObjectivesForEntity - No quest objectives assigned!");
+			EXTrace.Print(EXTrace.QUESTS, this, "No quest objectives assigned!");
 		#endif
 			return;
 		}
@@ -238,44 +244,42 @@ modded class ItemBase
 		if (player && player.GetIdentity())
 			playerUID = player.GetIdentity().GetId();
 
-		if (state != "QUANTITY_CHANGED" && playerUID == string.Empty)
+		if (state != ExpansionQuestItemState.QUANTITY_CHANGED && playerUID == string.Empty)
 			return;
 
+		ExpansionQuest quest;
 		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
 		{
-			if (!objective || !objective.GetQuest())
-				continue;
-
-			//! Check if the current objective belongs to the item owner if we got the UID.
-			if (playerUID != string.Empty && !objective.GetQuest().IsQuestPlayer(playerUID))
-			{
-			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectivesForEntity - Player with UID [" + playerUID + "] is not a quest player of this quest objective. Skip..");
-			#endif
-				return;
-			}
-
 			//! Check if the current objective is active
 			if (!objective.IsActive())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-				Print(ToString() + "::CheckAssignedObjectivesForEntity - Objective is not active. Skip..");
+				EXTrace.Print(EXTrace.QUESTS, this, "Objective is not active. Skip...");
+			#endif
+				continue;
+			}
+
+			quest = objective.GetQuest();
+			if (!quest)
+				continue;
+
+			//! Check if the current objective belongs to the item owner if we got the UID.
+			if (playerUID != string.Empty && !quest.IsQuestPlayer(playerUID))
+			{
+			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + playerUID + "] is not a quest player of this quest objective. Skip...");
 			#endif
 				continue;
 			}
 
 			OnObjectiveItemInventoryChange(objective, player, state);
 		}
-
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::CheckAssignedObjectivesForEntity - End");
-	#endif
 	}
 
-	protected void OnObjectiveItemInventoryChange(ExpansionQuestObjectiveEventBase objective, Man player, string state)
+	protected void OnObjectiveItemInventoryChange(ExpansionQuestObjectiveEventBase objective, Man player, ExpansionQuestItemState state)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnObjectiveItemInventoryChange - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 		//! Run thrue all possible objective types
 		switch (objective.GetObjectiveType())
@@ -289,7 +293,7 @@ modded class ItemBase
 					//! So we compare the quest ID that has been applied to to item if so.
 					int questID = deliveryObjective.GetQuest().GetQuestConfig().GetID();
 				#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-					Print(ToString() + "::OnObjectiveItemInventoryChange - " + objective.ToString() + " is a Delivery objective. Objective quest ID: " + questID + " | Item quest ID: " + m_Expansion_QuestID);
+					EXTrace.Print(EXTrace.QUESTS, this, objective.ToString() + " is a Delivery objective. Objective quest ID: " + questID + " | Item quest ID: " + m_Expansion_QuestID);
 				#endif
 					if (m_Expansion_QuestID != questID)
 						return;
@@ -326,9 +330,6 @@ modded class ItemBase
 			}
 			break;
 		}
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		Print(ToString() + "::OnObjectiveItemInventoryChange - End");
-	#endif
 	}
 
 #ifdef EXPANSIONMODHARDLINE

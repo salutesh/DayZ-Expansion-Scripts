@@ -295,6 +295,8 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 
 	void Save(string fileName)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, EXPANSION_QUESTS_NPCS_FOLDER + fileName);
+
 		if (!ExpansionString.EndsWithIgnoreCase(fileName, ".json"))
 			fileName += ".json";
 

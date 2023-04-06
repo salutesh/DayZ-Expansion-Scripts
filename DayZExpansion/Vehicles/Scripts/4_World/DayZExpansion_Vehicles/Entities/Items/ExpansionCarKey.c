@@ -183,14 +183,17 @@ class ExpansionCarKey: ItemBase
 
 			CF_Log.Debug(ToString() + "::GetKeyObject - looking for vehicle");
 
-			foreach ( CarScript car : CarScript.GetAll() )
+			auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+			while (node)
 			{
+				CarScript car = node.m_Value;
 				if ( IsPairedTo( car ) )
 				{
 					EXPrint(ToString() + "::GetKeyObject - found " + car);
 					m_Vehicle = car;
 					break;
 				}
+				node = node.m_Next;
 			}
 		}
 

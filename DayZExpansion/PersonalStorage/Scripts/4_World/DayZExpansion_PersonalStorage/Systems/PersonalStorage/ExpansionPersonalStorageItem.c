@@ -223,10 +223,10 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 
 	static void Save(ExpansionPersonalStorageItem data)
 	{
-		string storagePath = ExpansionPersonalStorageModule.s_PersonalStorageDataFolderPath + data.GetOwnerUID() + "\\";
-		auto globalID = new ExpansionGlobalID;
-		globalID.Set(data.GetGlobalID());
-		string fileName = globalID.IDToHex();
+		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + data.GetOwnerUID() + "\\";
+		if (!FileExist(storagePath) && !ExpansionStatic.MakeDirectoryRecursive(storagePath))
+			return;
+		string fileName = ExpansionStatic.IntToHex(data.GetGlobalID());
 		ExpansionJsonFileParser<ExpansionPersonalStorageItem>.Save(storagePath + fileName + ".json", data);
 	}
 

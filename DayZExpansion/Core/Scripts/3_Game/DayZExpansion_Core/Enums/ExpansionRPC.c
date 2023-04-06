@@ -252,7 +252,8 @@ enum ExpansionSettingsRPC
 	Garage,
 	P2PMarket,
 	PersonalStorage,
-	COUNT  //! 31 INCREMENT THIS NUMBER AND FOLLOWING RPCs WHEN NEEDED FFS
+	NamalskAdventure,
+	COUNT  //! 32 INCREMENT THIS NUMBER AND FOLLOWING RPCs WHEN NEEDED FFS
 };
 
 enum ExpansionCOTBookModuleRPC
@@ -449,6 +450,8 @@ enum ExpansionPersonalStorageModuleRPC
 enum ExpansionTeleporterModuleRPC
 {
 	INVALID = 40100,
+	RequestOpenTeleporterMenu,
+	RequestTeleport,
 	PlayTeleportSound
 	COUNT
 };

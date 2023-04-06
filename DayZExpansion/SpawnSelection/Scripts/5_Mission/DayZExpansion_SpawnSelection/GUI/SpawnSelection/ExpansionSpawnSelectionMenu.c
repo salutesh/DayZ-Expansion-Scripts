@@ -297,7 +297,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 	{
 		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
 		{
-			m_MapMarkers[i].Update(0.3);
+			m_MapMarkers[i].Update(0.1);
 		}
 
 		if (IsVisible())

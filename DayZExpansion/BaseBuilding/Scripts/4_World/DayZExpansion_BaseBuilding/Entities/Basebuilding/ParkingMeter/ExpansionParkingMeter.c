@@ -446,33 +446,3 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 	}
 };
 #endif
-
-class ExpansionCircuitBoardBase: ItemBase
-{
-	int GetTier()
-	{
-		return -1;
-	}
-};
-
-class ExpansionCircuitBoard_MK1: ExpansionCircuitBoardBase
-{
-	override int GetTier()
-	{
-		return 1;
-	}
-};
-class ExpansionCircuitBoard_MK2: ExpansionCircuitBoardBase
-{
-	override int GetTier()
-	{
-		return 2;
-	}
-};
-class ExpansionCircuitBoard_MK3: ExpansionCircuitBoardBase
-{
-	override int GetTier()
-	{
-		return 3;
-	}
-};

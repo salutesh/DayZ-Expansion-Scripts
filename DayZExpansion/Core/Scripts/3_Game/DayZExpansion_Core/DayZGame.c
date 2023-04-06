@@ -86,6 +86,11 @@ modded class DayZGame
 		}
     }
 
+	void Expansion_SetFoodDecayModifier(float foodDecayModifier)
+	{
+		m_FoodDecayModifier = foodDecayModifier;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion SetExpansionGame
 	// ------------------------------------------------------------

@@ -38,14 +38,10 @@ class ExpansionQuestPersistentQuestData
 	void ClearObjectiveData()
 	{
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		Print(ToString() + "::ClearObjectiveData - Start");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	#endif
 		
 		QuestObjectives.Clear();
-		
-	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		Print(ToString() + "::ClearObjectiveData - End");
-	#endif
 	}
 	
 	array<ref ExpansionQuestObjectiveData> GetQuestObjectives()
@@ -151,10 +147,8 @@ class ExpansionQuestPersistentQuestData
 			QuestObjectives[i].QuestDebug();
 		}
 		
-		int year, month, day, hour, minute, second;
-		CF_Date.TimestampToDate(LastUpdateTime, year, month, day, hour, minute, second);
-		string updateTimeText = string.Format("%1-%2-%3 - %4:%5:%6", day, month, year, hour, minute, second);
-		Print(ToString() + "::QuestDebug - Quest LastUpdateTime: " + updateTimeText);
+		CF_Date date = CF_Date.Epoch(LastUpdateTime);
+		Print(ToString() + "::QuestDebug - Quest LastUpdateTime (UTC): " + date.Format(CF_Date.DATETIME));
 		Print(ToString() + "::QuestDebug - Quest CompletionCount: " + CompletionCount);
 		Print("------------------------------------------------------------");
 	#endif
@@ -162,6 +156,6 @@ class ExpansionQuestPersistentQuestData
 
 	void UpdateLastUpdateTime()
 	{
-		LastUpdateTime = CF_Date.Now(GetExpansionSettings().GetQuest().UseUTCTime).GetTimestamp();
+		LastUpdateTime = CF_Date.Now(true).GetTimestamp();
 	}
 };

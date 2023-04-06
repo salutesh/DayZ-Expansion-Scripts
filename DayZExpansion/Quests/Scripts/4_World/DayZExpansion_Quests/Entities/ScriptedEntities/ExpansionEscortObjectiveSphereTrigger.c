@@ -37,7 +37,7 @@ class ExpansionEscortObjectiveSphereTrigger: Trigger
 		if (GetGame().IsClient())
 			return;
 		
-		if (!m_Objective)
+		if (!m_Objective || !m_Objective.IsActive() || m_Objective.IsCompleted())
 			return;
 
 		eAIBase eAIplayer;
@@ -47,10 +47,7 @@ class ExpansionEscortObjectiveSphereTrigger: Trigger
 		if (eAIplayer != m_Objective.GetAIVIP())
 			return;
 
-		if (m_Objective && m_Objective.IsActive() && !m_Objective.IsCompleted())
-		{
-			m_Objective.SetReachedLocation(true);
-		}
+		m_Objective.SetReachedLocation(true);
 	}
 };
 #endif

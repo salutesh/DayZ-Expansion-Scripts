@@ -63,7 +63,9 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		EnableClientRespawn();
 		EnableInvokeConnect();
 		EnableRPC();
+		#ifndef SERVER
 		EnableUpdate();
+		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -134,12 +136,10 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 		#endif
 	}
 	
-	// ------------------------------------------------------------
-	// Override OnUpdate
-	// ------------------------------------------------------------
+	#ifndef SERVER
 	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
-		if (!IsMissionClient() || !GetExpansionSettings().GetNotification(false).IsLoaded())
+		if (!GetExpansionSettings().GetNotification(false).IsLoaded())
 			return;
 
 		auto update = CF_EventUpdateArgs.Cast(args);
@@ -152,6 +152,7 @@ class ExpansionTerritoryModule: CF_ModuleWorld
 			m_TimeSliceCheckPlayer = 0;
 		}
 	}
+	#endif
 	
 	///////////////////////// RPCS /////////////////////////////////
 	

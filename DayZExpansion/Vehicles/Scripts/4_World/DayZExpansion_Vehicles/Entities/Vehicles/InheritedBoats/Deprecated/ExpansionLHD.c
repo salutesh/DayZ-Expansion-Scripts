@@ -76,7 +76,6 @@ class ExpansionLHD : ExpansionZodiacBoat
 		}
 	}
 
-#ifdef EXPANSIONMODANIMATIONS
 	override int GetAnimInstance()
 	{
 #ifdef EXPANSIONTRACE
@@ -85,7 +84,6 @@ class ExpansionLHD : ExpansionZodiacBoat
 
 		return ExpansionVehicleAnimInstances.EXPANSION_LHD;
 	}
-#endif
 	
 	override void EOnSimulate(IEntity other, float dt)
 	{

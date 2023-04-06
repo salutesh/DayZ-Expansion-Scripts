@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionDebugRod: Building
+class ExpansionDebugObject: Building
 {
 	float m_Expansion_DebugOriginX;
 	float m_Expansion_DebugOriginY;
@@ -18,7 +18,7 @@ class ExpansionDebugRod: Building
 	int m_Expansion_DebugColor;
 	Shape m_Expansion_DebugLine;
 
-	void ExpansionDebugRod()
+	void ExpansionDebugObject()
 	{
 		RegisterNetSyncVariableFloat("m_Expansion_DebugOriginX", 0, 0, 2);
 		RegisterNetSyncVariableFloat("m_Expansion_DebugOriginY", 0, 0, 2);
@@ -48,7 +48,7 @@ class ExpansionDebugRod: Building
 			dBodyDestroy(this);  //! Remove physics
 	}
 
-	void ~ExpansionDebugRod()
+	void ~ExpansionDebugObject()
 	{
 #ifndef SERVER
 		Debug.RemoveShape(m_Expansion_DebugLine);
@@ -76,3 +76,41 @@ class ExpansionDebugRod: Building
 #endif
 	}
 }
+
+class ExpansionDebugRod: ExpansionDebugObject {};
+class ExpansionDebugRod_Red: ExpansionDebugRod {};
+class ExpansionDebugRod_Orange: ExpansionDebugRod {};
+class ExpansionDebugRod_Blue: ExpansionDebugRod {};
+class ExpansionDebugRod_Purple: ExpansionDebugRod {};
+
+class ExpansionDebugRodBig: ExpansionDebugRod {};
+class ExpansionDebugRodBig_Red: ExpansionDebugRodBig {};
+class ExpansionDebugRodBig_Orange: ExpansionDebugRodBig {};
+class ExpansionDebugRodBig_Blue: ExpansionDebugRodBig {};
+class ExpansionDebugRodBig_Purple: ExpansionDebugRodBig {};
+
+class ExpansionDebugBox: ExpansionDebugObject {};
+class ExpansionDebugBox_Red: ExpansionDebugBox {};
+class ExpansionDebugBox_Orange: ExpansionDebugBox {};
+class ExpansionDebugBox_Blue: ExpansionDebugBox {};
+class ExpansionDebugBox_Purple: ExpansionDebugBox {};
+
+class ExpansionNetSyncDebugObject: ExpansionDebugObject {};
+
+class ExpansionDebugLine: ExpansionDebugObject {};
+class ExpansionDebugLine_Red: ExpansionDebugLine {};
+class ExpansionDebugLine_Orange: ExpansionDebugLine {};
+class ExpansionDebugLine_Blue: ExpansionDebugLine {};
+class ExpansionDebugLine_Purple: ExpansionDebugLine {};
+
+class ExpansionDebugNoticeMe: ExpansionDebugObject {};
+class ExpansionDebugNoticeMe_Red: ExpansionDebugNoticeMe {};
+class ExpansionDebugNoticeMe_Orange: ExpansionDebugNoticeMe {};
+class ExpansionDebugNoticeMe_Blue: ExpansionDebugNoticeMe {};
+class ExpansionDebugNoticeMe_Purple: ExpansionDebugNoticeMe {};
+
+class ExpansionDebugArrow: ExpansionDebugObject {};
+class ExpansionDebugArrow_Red: ExpansionDebugArrow {};
+class ExpansionDebugArrow_Orange: ExpansionDebugArrow {};
+class ExpansionDebugArrow_Blue: ExpansionDebugArrow {};
+class ExpansionDebugArrow_Purple: ExpansionDebugArrow {};

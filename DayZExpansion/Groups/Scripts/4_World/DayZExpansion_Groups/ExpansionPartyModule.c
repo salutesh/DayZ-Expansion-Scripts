@@ -67,12 +67,17 @@ class ExpansionPartyModule: CF_ModuleWorld
 	#endif
 	}
 
+	// client side
 	protected void ClearPlayerParty()
 	{
 		m_Parties.Clear();
 		m_PartyIDs.Clear();
 		m_Party = NULL;
 		m_PartyInvites.Clear();
+		
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+		if (player)
+			player.m_Expansion_PartyPlayerData = NULL;
 	}
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
@@ -156,8 +161,22 @@ class ExpansionPartyModule: CF_ModuleWorld
 		m_PartyIDs.Insert(partyID);
 	}
 
+	// Server side
 	private void RemoveParty(int partyID)
 	{
+		ExpansionPartyData party = m_Parties.Get(partyID);
+		array<ref ExpansionPartyPlayerData> players = m_Parties.Get(partyID).GetPlayers();
+		foreach (ExpansionPartyPlayerData player : players)
+		{
+			if (!player)
+				continue;
+
+			// looks super ugly but at least it yeet everyone
+			// from the group when the party is deleted
+			party.RemoveMember(player.GetID());
+			party.Save();
+		}
+
 		m_Parties.Remove(partyID);
 		m_PartyIDs.RemoveItem(partyID);
 	}

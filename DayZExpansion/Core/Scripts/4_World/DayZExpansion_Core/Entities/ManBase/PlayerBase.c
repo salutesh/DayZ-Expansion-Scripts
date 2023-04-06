@@ -12,8 +12,20 @@
 
 class ExpansionInventoryItemType
 {
-	int Count;
+	ref array<ItemBase> Items = new array<ItemBase>;
 	int WorkingCount;
+
+	int GetStackAmount()
+	{
+		int amount;
+
+		foreach (ItemBase item: Items)
+		{
+			amount += item.Expansion_GetStackAmount();
+		}
+
+		return amount;
+	}
 }
 
 modded class PlayerBase
@@ -33,7 +45,9 @@ modded class PlayerBase
 	protected bool m_Expansion_IsInSafeZoneSynchRemote;
 	protected bool m_Expansion_LeavingSafeZone;
 
-	ref map<typename, ref ExpansionInventoryItemType> m_Expansion_InventoryItemTypes = new map<typename, ref ExpansionInventoryItemType>;
+	static ref map<string, bool> s_Expansion_RegisteredInventoryItemTypes = new map<string, bool>;
+	static ref set<typename> s_Expansion_RegisteredInventoryItemTypenames = new set<typename>;
+	ref map<string, ref ExpansionInventoryItemType> m_Expansion_InventoryItemTypes = new map<string, ref ExpansionInventoryItemType>;
 
 	void PlayerBase()
 	{
@@ -303,10 +317,10 @@ modded class PlayerBase
 	}
 	
 	// ------------------------------------------------------------
-	// PlayerBase AddPlayer
+	// PlayerBase Expansion_AddPlayer
 	// Only called server side, to get only alive players
 	// ------------------------------------------------------------
-	static void AddPlayer( PlayerBase player, PlayerIdentity identity )
+	static void Expansion_AddPlayer( PlayerBase player, PlayerIdentity identity )
 	{
 		if ( !player )
 			return;
@@ -732,6 +746,71 @@ modded class PlayerBase
 		}
 	}
 
+	static void Expansion_RegisterInventoryItemType(typename type)
+	{
+		EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "PlayerBase::Expansion_RegisterInventoryItemType " + type.ToString());
+		s_Expansion_RegisteredInventoryItemTypenames.Insert(type);
+	}
+
+	static void Expansion_RegisterInventoryItemType(string type)
+	{
+		typename typeName = type.ToType();
+		if (typeName)
+		{
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "PlayerBase::Expansion_RegisterInventoryItemType " + typeName);
+			s_Expansion_RegisteredInventoryItemTypenames.Insert(typeName);
+		}
+		else
+		{
+			type.ToLower();
+			EXTrace.Print(EXTrace.GENERAL_ITEMS, null, "PlayerBase::Expansion_RegisterInventoryItemType " + type);
+			s_Expansion_RegisteredInventoryItemTypes[type] = true;
+		}
+	}
+
+	static bool Expansion_IsInventoryItemTypeRegistered(ItemBase item, out string registeredType)
+	{
+		//if (Expansion_IsInventoryItemTypeRegistered(item.Type(), registeredType))
+			//return true;
+
+		if (Expansion_IsInventoryItemTypeRegistered(item.GetType(), registeredType))
+			return true;
+
+		foreach (typename typeName: s_Expansion_RegisteredInventoryItemTypenames)
+		{
+			if (item.IsInherited(typeName))
+			{
+				registeredType = typeName.ToString();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	//protected static bool Expansion_IsInventoryItemTypeRegistered(typename type, out string registeredType)
+	//{
+		//if (s_Expansion_RegisteredInventoryItemTypenames.Find(type) > -1)
+		//{
+			//registeredType = type.ToString();
+			//return true;
+		//}
+
+		//return false;
+	//}
+
+	static bool Expansion_IsInventoryItemTypeRegistered(string type, out string registeredType)
+	{
+		type.ToLower();
+		if (s_Expansion_RegisteredInventoryItemTypes.Contains(type))
+		{
+			registeredType = type;
+			return true;
+		}
+
+		return false;
+	}
+
 	void Expansion_OnInventoryUpdate(ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{
 #ifdef DIAG
@@ -741,34 +820,22 @@ modded class PlayerBase
 		EXTrace.Add(trace, checkOnlyIfWorking);
 #endif
 
-		typename type = item.Type();
-		typename familyType = item.Expansion_GetFamilyType();
+		string registeredType;
+		ExpansionInventoryItemType itemType;
 
-		Expansion_OnInventoryUpdateEx(type, item, inInventory, checkOnlyIfWorking);
+		if (Expansion_IsInventoryItemTypeRegistered(item, registeredType))
+			itemType = Expansion_OnInventoryUpdateEx(registeredType, item, inInventory, checkOnlyIfWorking);
+
 #ifdef DIAG
-		ExpansionInventoryItemType itemType = m_Expansion_InventoryItemTypes[type];
 		if (itemType)
 		{
-			EXTrace.Add(trace, itemType.Count);
+			EXTrace.Add(trace, itemType.Items.Count());
 			EXTrace.Add(trace, itemType.WorkingCount);
 		}
 #endif
-
-		if (familyType != type)
-		{
-			Expansion_OnInventoryUpdateEx(familyType, item, inInventory, checkOnlyIfWorking);
-#ifdef DIAG
-			itemType = m_Expansion_InventoryItemTypes[familyType];
-			if (itemType)
-			{
-				EXTrace.Add(trace, itemType.Count);
-				EXTrace.Add(trace, itemType.WorkingCount);
-			}
-#endif
-		}
 	}
 
-	void Expansion_OnInventoryUpdateEx(typename type, ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
+	ExpansionInventoryItemType Expansion_OnInventoryUpdateEx(string type, ItemBase item, bool inInventory = true, bool checkOnlyIfWorking = false)
 	{
 		ExpansionInventoryItemType itemType;
 
@@ -785,7 +852,7 @@ modded class PlayerBase
 			if (!checkOnlyIfWorking || !found)
 			{
 				//! Item entered inventory
-				itemType.Count++;
+				itemType.Items.Insert(item);
 			}
 
 			if (item.GetCompEM())
@@ -800,31 +867,55 @@ modded class PlayerBase
 		else if (found)
 		{
 			//! Item exited inventory
-			if (itemType.Count > 1)
+			if (itemType.Items.Count() > 1)
 			{
-				itemType.Count--;
+				itemType.Items.RemoveItem(item);
+
 				if (item.GetCompEM() && item.GetCompEM().IsWorking() && itemType.WorkingCount > 0)
 					itemType.WorkingCount--;
 			}
 			else
 			{
 				m_Expansion_InventoryItemTypes.Remove(type);
+				return null;
 			}
 		}
+
+		return itemType;
 	}
 
 	int Expansion_GetInventoryCount(typename type, bool working = false)
 	{
-		ExpansionInventoryItemType itemType;
+		return Expansion_GetInventoryCount(Expansion_GetInventoryItemType(type), working);
+	}
 
-		if (m_Expansion_InventoryItemTypes.Find(type, itemType))
+	int Expansion_GetInventoryCount(string type, bool working = false)
+	{
+		return Expansion_GetInventoryCount(Expansion_GetInventoryItemType(type), working);
+	}
+
+	int Expansion_GetInventoryCount(ExpansionInventoryItemType itemType, bool working = false)
+	{
+		if (itemType)
 		{
 			if (working)
 				return itemType.WorkingCount;
 			else
-				return itemType.Count;
+				return itemType.Items.Count();
 		}
 
 		return 0;
+	}
+
+	ExpansionInventoryItemType Expansion_GetInventoryItemType(typename type)
+	{
+		return m_Expansion_InventoryItemTypes[type.ToString()];
+	}
+
+	ExpansionInventoryItemType Expansion_GetInventoryItemType(string type)
+	{
+		if (!type.ToType())
+			type.ToLower();
+		return m_Expansion_InventoryItemTypes[type];
 	}
 }
