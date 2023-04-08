@@ -56,9 +56,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	protected Particle m_ParticleEffect;
 	protected ExpansionAnomalyCoreLightBase m_EffectLight;
 	protected ExpansionAnomalyCoreState m_CoreState;
-	
-	static ScriptCaller s_EVRStormStartSC;
-	static ScriptCaller s_EVRStormBlowoutSC;
 
 	void Expansion_AnomalyCore_Base()
 	{
@@ -199,52 +196,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 		super.ShowSelection(selection_name);
 	}
-	
-	static void EVRStormStart()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-
-		if (!s_EVRStormStartSC)
-     		s_EVRStormStartSC = ScriptCaller.Create(OnEVRStormStart);
-
-       	s_Expansion_AllAnomalyCores.Each(s_EVRStormStartSC, CHUNK_SIZE);
-	}
-	
-	static void OnEVRStormStart(Expansion_AnomalyCore_Base anomalyCore)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-		
-		anomalyCore.SetAnomalyCoreUnstable();
-	}
-	
-	static void EVRStormFinalBlowout()
-    {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-	
-		if (!s_EVRStormBlowoutSC)
-     		s_EVRStormBlowoutSC = ScriptCaller.Create(OnEVRStormFinalBlowout);
-
-       	s_Expansion_AllAnomalyCores.Each(s_EVRStormBlowoutSC, CHUNK_SIZE);
-    }
-	
-	static void OnEVRStormFinalBlowout(Expansion_AnomalyCore_Base anomalyCore)
-    {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-
-		if (!anomalyCore.CanUnsatabilize())
-			return;
-		
-		int gamble2 = Math.RandomInt(0, 2); //! Gamble if this core will explode or not if on player
-		int randomTime2 = Math.RandomInt(1, 3);
-		if (gamble2 == 0)
-		{
-			anomalyCore.ActivateAnomalyCore(randomTime2); //! Let the core explode after 1-3 seconds.
-		}
-		else
-		{
-			anomalyCore.SetAnomalyCoreStable(); //! Set the core state back to stable
-		}
-    }
 
 	override protected void OnExplode()
 	{

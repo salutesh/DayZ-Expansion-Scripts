@@ -10,6 +10,8 @@
  *
 */
 
+#ifdef EXPANSIONMODQUESTS
+#ifdef NAMALSK_SURVIVAL
 class ExpansionQuestItem_NamalskRadio extends ItemBase
 {
 	override void DeferredInit()
@@ -20,4 +22,5 @@ class ExpansionQuestItem_NamalskRadio extends ItemBase
 		SetIsQuestGiver(true);
 	}
 };
-
+#endif
+#endif

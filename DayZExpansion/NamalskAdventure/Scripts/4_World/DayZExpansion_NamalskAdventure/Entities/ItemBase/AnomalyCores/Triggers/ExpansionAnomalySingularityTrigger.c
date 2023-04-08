@@ -40,7 +40,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 
 				item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the item.
 
-				ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
+				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 
 				m_IsActive = false;
 			}
@@ -50,7 +50,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 				if (!player || !player.IsAlive())
                 	return;
 
-				if (ExpansionNamalskModule.GetModuleInstance().HasActiveLEHSSuit(player))
+				if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 					return;
 
 				if (!player.IsInTransport())
@@ -63,7 +63,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
 					player.GetBleedingManagerServer().AttemptAddBleedingSource(1); //! Add a bleeding source to the character.
 
-					ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
+					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 				}
 
 				m_IsActive = false;
@@ -76,7 +76,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 
 				car.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the vehicle.
 
-				ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
+				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
 
 				m_IsActive = false;
 			}

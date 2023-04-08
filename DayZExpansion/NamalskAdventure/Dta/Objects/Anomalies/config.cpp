@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class DayZExpansion_NamalskAdventure_Objects
+	class DayZExpansion_NamalskAdventure_Objects_Anomalies
 	{
 		units[] = {};
 		weapons[] = {};

@@ -15,6 +15,7 @@ class ExpansionNamalskAdventureDataBase
 	int Version;
 };
 
+
 class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 {
 	[NonSerialized()];

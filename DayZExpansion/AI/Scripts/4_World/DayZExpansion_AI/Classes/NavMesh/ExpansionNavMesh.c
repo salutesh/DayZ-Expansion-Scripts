@@ -6,7 +6,9 @@ class ExpansionNavMesh
 {
 	autoptr array<ref ExpansionNavMeshPolygon> m_Polygons = new array<ref ExpansionNavMeshPolygon>();
 
+#ifdef DIAG
 	autoptr array<Shape> m_DebugShapes = new array<Shape>();
+#endif
 
 	ref array<vector> m_LastFoundPath;
 
@@ -17,7 +19,9 @@ class ExpansionNavMesh
 
 	void ~ExpansionNavMesh()
 	{
+	#ifdef DIAG
 		DestroyDebugShapes();
+	#endif
 	}
 
 	void Generate(Object object, LOD lod)
@@ -205,6 +209,7 @@ class ExpansionNavMesh
 		return true;
 	}
 
+#ifdef DIAG
 	void DrawDebug(Object parent)
 	{
 #ifdef EAI_TRACE
@@ -299,4 +304,5 @@ class ExpansionNavMesh
 
 		m_DebugShapes.Clear();
 	}
+#endif
 };

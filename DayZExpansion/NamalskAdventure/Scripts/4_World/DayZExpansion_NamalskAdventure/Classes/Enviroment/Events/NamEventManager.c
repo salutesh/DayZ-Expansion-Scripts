@@ -18,9 +18,8 @@ modded class NamEventManager
 
 		super.StartEvent(event_type, force);
 
-		ExpansionNamalskModule expNamalskModule = ExpansionNamalskModule.GetModuleInstance();
-		if (expNamalskModule)
-			expNamalskModule.OnNamalskEventStart(event_type);
+		ExpansionNamalskModule.GetModuleInstance().OnNamalskEventStart(event_type);
+		ExpansionAnomaliesModule.GetModuleInstance().OnNamalskEventStart(event_type);
 	}
 
 	override void CancelEvent(typename event_type)
@@ -29,9 +28,8 @@ modded class NamEventManager
 
 		super.CancelEvent(event_type);
 
-		ExpansionNamalskModule expNamalskModule = ExpansionNamalskModule.GetModuleInstance();
-		if (expNamalskModule)
-			expNamalskModule.OnNamalskEventCancel(event_type);
+		ExpansionNamalskModule.GetModuleInstance().OnNamalskEventCancel(event_type);
+		ExpansionAnomaliesModule.GetModuleInstance().OnNamalskEventCancel(event_type);
 	}
 
 	override private void ServerEventThread()
@@ -39,8 +37,6 @@ modded class NamEventManager
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		super.ServerEventThread();
-
-		m_ServerEventTimer.Run(m_NextEventIn, this, "ServerEventThread");
 
 	#ifdef DIAG
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT MANAGER"), new StringLocaliser("SERVER EVENT THREAD - %1", m_LastEventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();

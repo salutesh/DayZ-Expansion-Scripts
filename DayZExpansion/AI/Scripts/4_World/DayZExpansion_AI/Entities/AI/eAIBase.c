@@ -1792,13 +1792,13 @@ class eAIBase: PlayerBase
 		//{
 		//	car.Control(pDt);
 		// }
-
+#ifdef DIAG
 #ifndef SERVER
 		for (int i = m_Expansion_DebugShapes.Count() - 1; i >= 0; i--)
 			m_Expansion_DebugShapes[i].Destroy();
 		m_Expansion_DebugShapes.Clear();
 #endif
-
+#endif
 		if (pCurrentCommandID != m_eAI_CurrentCommandID)
 		{
 			if (EXTrace.AI)
@@ -2703,6 +2703,12 @@ class eAIBase: PlayerBase
 		float daylightVisibility;
 
 		m_Environment.Expansion_GetWeatherVisibility(fogVisibility, overcastVisibility, rainVisibility, daylightVisibility);
+		if (!fogVisibility)
+			EXPrint(this, "ERROR: Fog visibility is zero!");
+		if (!overcastVisibility)
+			EXPrint(this, "ERROR: Overcast visibility is zero!");
+		if (!rainVisibility)
+			EXPrint(this, "ERROR: Rain visibility is zero!");
 
 		if (force || daylightVisibility != m_Expansion_DaylightVisibility)
 		{
@@ -2724,9 +2730,13 @@ class eAIBase: PlayerBase
 		}
 
 		m_Expansion_Visibility = m_Expansion_BaseVisibility;
+		if (!m_Expansion_Visibility)
+			EXPrint(this, "ERROR: Base visibility is zero!");
 
 		float visibilityLimit = m_eAI_ThreatDistanceLimit * 0.001;
-		if (m_Expansion_Visibility > visibilityLimit)
+		if (!visibilityLimit)
+			EXPrint(this, "ERROR: Visibility limit is zero! Threat distance limit: " + m_eAI_ThreatDistanceLimit);
+		if (visibilityLimit > 0 && m_Expansion_Visibility > visibilityLimit)
 			m_Expansion_Visibility = visibilityLimit;
 
 		//! Limit visibility in contaminated areas due to gas clouds
@@ -2775,6 +2785,7 @@ class eAIBase: PlayerBase
 		{
 			m_WeaponRaisedTimer += pDt;
 
+#ifdef DIAG
 #ifndef SERVER
 			vector position;
 			vector direction;
@@ -2785,6 +2796,7 @@ class eAIBase: PlayerBase
 			points[0] = position;
 			points[1] = position + (direction * 1000.0);
 			m_Expansion_DebugShapes.Insert(Shape.CreateLines(COLOR_BLUE, ShapeFlags.VISIBLE, points, 2));
+#endif
 #endif
 
 			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();

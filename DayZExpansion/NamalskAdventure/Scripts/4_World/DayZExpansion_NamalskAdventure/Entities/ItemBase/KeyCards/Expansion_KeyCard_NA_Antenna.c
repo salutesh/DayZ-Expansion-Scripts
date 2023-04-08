@@ -1,19 +1,26 @@
 /**
- * DayZExpansion_NamalskAdventure_Defines.c
+ * InfectedSteakMeat.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2022 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
  *
 */
 
-#define EXPANSION_NAMALSK_ADVENTURE
+class Expansion_KeyCard_NA_Antenna extends ItemBase 
+{
+	override void SetActions()
+	{
+		super.SetActions();
 
-#define EXPANSION_NAMALSK_ADVENTURE_LOADING_SCREEN
+		AddAction(ExpansionActionUseSatelliteControl);
+	}
 
-#define EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
-
-#define EXPANSION_NAMALSK_ADVENTURE_DEBUG;
+	void OnCardUsed()
+	{
+		AddHealthLevel(1);
+	}
+};

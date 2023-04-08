@@ -87,17 +87,23 @@ class CF_DoublyLinkedNodes<Class T>
 #endif
 	}
 
-	int Each(ScriptCaller caller, int limit = 0)
+	//! @brief processes elements in the linked list.
+	//! if `limit` is set to a nonzero value, only `n` elements are processed each call.
+	//! The value of each node is passed to the callback.
+	//! Returns the number of processed elements.
+	int Each(ScriptCaller callback, int limit = 0)
 	{
 		if (!m_Current)
 			m_Current = m_Head;
-		
-		ScriptCaller areYouFuckingKiddingMeSideFX = caller; //! @note: SideFX looses references inside loops. BIG YIKES!
+
+		//! @note: Enforce garbage collects references to function arguments inside loops after the first iteration,
+		//! so we have to assign a local variable and use that instead to avoid premature garbage collection
+		ScriptCaller localCallback = callback;
 
 		int count;
 		while (m_Current)
 		{
-			areYouFuckingKiddingMeSideFX.Invoke(m_Current.m_Value);
+			localCallback.Invoke(m_Current.m_Value);
 			m_Current = m_Current.m_Next;
 			count++;
 			if (limit > 0 && count == limit)
@@ -258,25 +264,31 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 #endif
 	}
 
-	int Each(ScriptCaller caller, int limit = 0)
-    {
-        if (!m_Current)
-            m_Current = m_Head;
+	//! @brief processes elements in the linked list.
+	//! if `limit` is set to a nonzero value, only `n` elements are processed each call.
+	//! The value of each node is passed to the callback.
+	//! Returns the number of processed elements.
+	int Each(ScriptCaller callback, int limit = 0)
+	{
+		if (!m_Current)
+			m_Current = m_Head;
 
-        ScriptCaller areYouFuckingKiddingMeSideFX = caller; //! @note: SideFX looses references inside loops. BIG YIKES!
+		//! @note: Enforce garbage collects references to function arguments inside loops after the first iteration,
+		//! so we have to assign a local variable and use that instead to avoid premature garbage collection
+		ScriptCaller localCallback = callback;
 
-        int count;
-        while (m_Current)
-        {                
-            areYouFuckingKiddingMeSideFX.Invoke(m_Current.m_Value);
-            m_Current = m_Current.m_Next;
-            count++;
-            if (limit > 0 && count == limit)
-                break;
-        }
+		int count;
+		while (m_Current)
+		{
+			localCallback.Invoke(m_Current.m_Value);
+			m_Current = m_Current.m_Next;
+			count++;
+			if (limit > 0 && count == limit)
+				break;
+		}
 
-        return count;
-    }
+		return count;
+	}
 }
 
 class CF_DoublyLinkedNode_WeakRef<Class T>

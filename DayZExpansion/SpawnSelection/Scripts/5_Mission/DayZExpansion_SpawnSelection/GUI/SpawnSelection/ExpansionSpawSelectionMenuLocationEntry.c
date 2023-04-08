@@ -151,7 +151,7 @@ class ExpansionSpawSelectionMenuLocationEntry: ExpansionScriptView
 		{
 			vector mapPos = m_Location.Positions[0];
 			spawnSelectionMenu.GetMapWidget().SetScale(0.2);
-			spawnSelectionMenu.GetMapWidget().SetMapPos(Vector(mapPos[0] + 900.0, 0, mapPos[2] - 600.0));
+			spawnSelectionMenu.GetMapWidget().SetMapPos(Vector(mapPos[0], 0, mapPos[2]));
 			spawnSelectionMenu.GetConfirmButton().Show(false);
 			spawnSelectionMenu.GetConfirmButton().Enable(false);
 			spawnSelectionMenu.ClearSpawnPoint();

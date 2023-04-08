@@ -21,15 +21,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected ExpansionMarkerData m_MerchantServerMarker;
 #endif
 
-	protected const int MAX_ANOMALY_SPAWN_TRIES = 100;
-	protected const int ANOMALY_SPAWN_DISTANCE = 100;
-
-	protected ref array<vector> m_AnomalyPositions;
-	protected bool m_DynamicSpawned;
-	protected bool m_StaticSpawned;
-
 #ifdef EXPANSIONMODAI
 	protected ref map<eAIBase, ref array<vector>> m_SpawnedAI;
+	protected int m_AISpeed;
 #endif
 #ifdef EXPANSIONMODQUESTS
 	protected ref map<eAIBase, ref array<vector>> m_QuestAI;
@@ -37,15 +31,25 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected bool m_AIBuildingPositionsSet;
 
 	protected typename m_LastNamalskEvent;
-	protected ref array<vector> m_BuildingPositions;
 
+	protected bool m_EVRStormActive;
+	protected bool m_EVRStormBlowout;
+
+#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+	protected SV_Abandoned_Sattelite_Antenna m_AbdonedSatellite;
+	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
+	protected Expansion_Satellite_Control m_SatelliteController;
+	
+	protected const float SATELLITE_CRY_TIME = 300.0;
+	protected float m_SatelliteCryTimer;
+	protected bool m_SatelitteState;
+#endif
+	
 	void ExpansionNamalskModule()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		s_ModuleInstance = this;
-		m_AnomalyPositions = new array<vector>;
-		m_BuildingPositions = new array<vector>;
 
 	#ifdef EXPANSIONMODAI
 		m_SpawnedAI = new map<eAIBase, ref array<vector>>;
@@ -63,6 +67,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		EnableMissionStart();
 		EnableMissionLoaded();
+		EnableUpdate();
 	}
 
 	protected void CreateDirectoryStructure()
@@ -73,7 +78,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			ExpansionStatic.MakeDirectoryRecursive(s_dataFolderPath);
 	}
 
-#ifdef EXPANSIONMODMARKET
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -87,7 +91,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			LoadNamalskAdventureServerData(); //! Load server data.
 		}
 	}
-#endif
 
 	protected void LoadNamalskAdventureServerData()
 	{
@@ -96,8 +99,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		array<string> files = ExpansionStatic.FindFilesInLocation(s_dataFolderPath, ".json");
 		if (files && files.Count() > 0)
 		{
-			foreach (string fileName: files)
+			for (int i = 0; i < files.Count(); i++)
 			{
+				string fileName = files[i];
 				GetServerData(fileName, s_dataFolderPath);
 			}
 		}
@@ -126,9 +130,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
-			if (GetExpansionSettings().GetNamalskAdventure().EnableAnomalies)
-				SpawnAnomalies();
-
 		#ifdef EXPANSIONMODAI
 			if (GetExpansionSettings().GetNamalskAdventure().EnableAISpawns)
 				SpawnAI();
@@ -137,48 +138,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			if (GetExpansionSettings().GetNamalskAdventure().EnableMerchant)
 				CreateMerchant();
 		#endif
-		}
-	}
-
-	//! @note: Spawns all configured anomalies from the NamalskAdventureSettings class.
-	protected void SpawnAnomalies(bool isDynamicEvent = false)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (GetExpansionSettings().GetNamalskAdventure().EnableDynamic)
-		{
-			if (!m_DynamicSpawned && (!isDynamicEvent && !GetExpansionSettings().GetNamalskAdventure().SpawnDynamicWithEVRStorms || isDynamicEvent && GetExpansionSettings().GetNamalskAdventure().SpawnDynamicWithEVRStorms))
-			{
-				array<ref ExpansionAnomalyDynamic> dynamicSpawns = GetExpansionSettings().GetNamalskAdventure().DynamicAnomalies;
-				for (int i = 0; i < dynamicSpawns.Count(); i++)
-				{
-					ExpansionAnomalyDynamic dynamicAnoamlyData = dynamicSpawns[i];
-					if (!dynamicAnoamlyData)
-						continue;
-
-					SpawnAnomaliesDynamic(dynamicAnoamlyData, isDynamicEvent);
-				}
-
-				m_DynamicSpawned = true;
-			}
-		}
-
-		if (GetExpansionSettings().GetNamalskAdventure().EnableStatic)
-		{
-			if (!m_StaticSpawned && (!isDynamicEvent && !GetExpansionSettings().GetNamalskAdventure().SpawnStaticWithEVRStorms || isDynamicEvent && GetExpansionSettings().GetNamalskAdventure().SpawnStaticWithEVRStorms))
-			{
-				array<ref ExpansionAnomalyStatic> staticSpawns = GetExpansionSettings().GetNamalskAdventure().StaticAnomalies;
-				for (int j = 0; j < staticSpawns.Count(); j++)
-				{
-					ExpansionAnomalyStatic staticAnoamlyData = staticSpawns[j];
-					if (!staticAnoamlyData)
-						continue;
-
-					SpawnAnomalieStatic(staticAnoamlyData, isDynamicEvent);
-				}
-
-				m_StaticSpawned = true;
-			}
+			
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+			SpawnSatelliteAntennaObjects();
+		#endif
 		}
 	}
 
@@ -188,8 +151,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		foreach (ExpansionAISpawnPosition aiSpawn: GetExpansionSettings().GetNamalskAdventure().AISpawnPositions)
+		for (int i = 0; i < GetExpansionSettings().GetNamalskAdventure().AISpawnPositions.Count(); i++)
 		{
+			ExpansionAISpawnPosition aiSpawn = GetExpansionSettings().GetNamalskAdventure().AISpawnPositions[i];
+			if (!aiSpawn)
+				continue;
+
 			SpawnSingleAI(aiSpawn);
 		}
 	}
@@ -245,9 +212,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				aiGroup.m_CurrentWaypointIndex = idx;
 		}
 
-		array<vector> positions = new array<vector>;
-		positions = aiGroup.GetWaypoints();
-		m_SpawnedAI.Insert(ai, positions);
+		if (aiSpawn.ShelterPositions)
+		{
+			m_SpawnedAI.Insert(ai, aiSpawn.ShelterPositions);
+		}
 	}
 #endif
 
@@ -276,8 +244,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		{
 			ModuleDebugPrint("::CreateMerchant - Position with ID " + posIDToUse + " got already used in previous sessions. Check if we have still unused positions..");
 			positionToUse = null;
-			foreach (ExpansionMerchantPosition pos: GetExpansionSettings().GetNamalskAdventure().MerchantPositions)
+			
+			for (int i = 0; i < GetExpansionSettings().GetNamalskAdventure().MerchantPositions.Count(); i++)
 			{
+				ExpansionMerchantPosition pos = GetExpansionSettings().GetNamalskAdventure().MerchantPositions[i];
+				if (!pos)
+					continue;
+				
 				int posID = pos.ID;
 				ModuleDebugPrint("::CreateMerchant - Check if position with ID " + posID + " got used yet..");
 				findIndex = -1;
@@ -324,8 +297,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		{
 			ModuleDebugPrint("::CreateMerchant - Item set with ID " + itemSetIDToUse + " got already used in previous sessions. Check if we have still unused item sets..");
 			itemSetToUse = null;
-			foreach (ExpansionMerchantItemSet itemSet: GetExpansionSettings().GetNamalskAdventure().MerchantItemSets)
+			
+			for (int j = 0; j < GetExpansionSettings().GetNamalskAdventure().MerchantItemSets.Count(); j++)
 			{
+				ExpansionMerchantItemSet itemSet = GetExpansionSettings().GetNamalskAdventure().MerchantItemSets[j];
+				if (!itemSet)
+					continue;
+				
 				int setID = itemSet.ID;
 				ModuleDebugPrint("::CreateMerchant - Check if item set with ID " + setID + " got used yet..");
 				findIndex = -1;
@@ -381,8 +359,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		ExpansionMarketTraderBuySell buySell;
 
 		array<ref ExpansionMerchantItem> items = itemSetToUse.Items;
-		foreach (ExpansionMerchantItem item: items)
+		
+		for (int k = 0; k < items.Count(); k++)
 		{
+			ExpansionMerchantItem item = items[k];
+			if (!item)
+				continue;
+
 			className = item.ClassName;
 			amount = item.Amount;
 			buySell = item.BuySell;
@@ -430,104 +413,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	}
 #endif
 
-	//! @note: Handles spawns of static anomaly spawns
-	protected void SpawnAnomalieStatic(ExpansionAnomalyStatic anomaly, bool isDynamicEvent = false)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		string typeToSpawn = anomaly.AnomalyTypes.GetRandomElement();
-	    Object entity = GetGame().CreateObjectEx(typeToSpawn, anomaly.CenterPosition, ECE_PLACE_ON_SURFACE, ECE_NOLIFETIME);
-	    Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);
-		if (!anomalyObj)
-        {
-           GetGame().ObjectDelete(entity);
-           return;
-        }
-
-		//! @note: We increase the survived EVR storms count for the static spawned anomalies on spawn so the OnEVRStormFinalBlowout method
-		//! takes these anomalies into account for the anomaly implosion event gamble on the next EVR storm event that hits the server.
-		anomalyObj.IncreaseEVRStormsCount();
-
-		if (anomaly.Loot && anomaly.Loot.Count() > 0)
-		{
-			ModuleDebugPrint("::SpawnAnomalieStatic - Add loot configuration from settings to anomaly. Loot amount: " + anomaly.Loot.Count());
-			anomalyObj.SetLoot(anomaly.Loot, anomaly.LootItemsMin, anomaly.LootItemsMax, anomaly.LootSpawnType);
-			if (!isDynamicEvent && anomaly.LootSpawnType == ExpansionAnomalyLootSpawnType.STATIC && !anomalyObj.IsLootSpawned())
-				anomalyObj.SpawnLoot();
-		}
-
-        m_AnomalyPositions.Insert(anomaly.CenterPosition);
-
-		ModuleDebugPrint("::SpawnAnomalieStatic - Spawned anomaly: " + typeToSpawn + " | Position: " + anomaly.CenterPosition);
-	}
-
-	//! @note: Handles spawns of dynamic anomaly spawns
-	protected void SpawnAnomaliesDynamic(ExpansionAnomalyDynamic anomaly, bool isDynamicEvent = false)
-	{
-	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-	    int amountToSpawn = anomaly.Amount;
-		float squareSize = anomaly.SquareSize;
-	    int amountSpawned = 0;
-
-		 ModuleDebugPrint("::SpawnAnomaliesDynamic - Generate random positions for " + amountToSpawn + " anomalies.");
-
-		//! Generate positions within a square area
-		array<vector> positions = GeneratePositions(anomaly.CenterPosition, squareSize, anomaly.Amount, ANOMALY_SPAWN_DISTANCE);
-		ModuleDebugPrint("::SpawnAnomaliesDynamic - Generated " + positions.Count() + " random positions.");
-
-		for (int i = 0; i < positions.Count(); i++)
-		{
-			if (amountSpawned >= amountToSpawn)
-				return;
-
-			ModuleDebugPrint("----------------------------------");
-	        string typeToSpawn = anomaly.AnomalyTypes.GetRandomElement();
-			int flags = ECE_PLACE_ON_SURFACE;
-			if (anomaly.Persistance < ExpansionAnomalyPersistance.LIFETIME)
-				flags = ECE_NOLIFETIME;
-
-	        Object entity = GetGame().CreateObjectEx(typeToSpawn, positions[i], flags);
-	        Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);
-	        if (!anomalyObj)
-	        {
-	            GetGame().ObjectDelete(entity);
-	            break;
-	        }
-
-			if (anomaly.Loot && anomaly.Loot.Count() > 0)
-			{
-				ModuleDebugPrint("::SpawnAnomaliesDynamic - Add loot configuration from settings to anomaly. Loot amount: " + anomaly.Loot.Count());
-				anomalyObj.SetLoot(anomaly.Loot, anomaly.LootItemsMin, anomaly.LootItemsMax, anomaly.LootSpawnType);
-				if (!isDynamicEvent && anomaly.LootSpawnType == ExpansionAnomalyLootSpawnType.STATIC && !anomalyObj.IsLootSpawned())
-					anomalyObj.SpawnLoot();
-			}
-
-			//! @note: We increase the survived EVR storms count for the dynamic spawned anomalies on spawn so the OnEVRStormFinalBlowout method
-			//! takes these anomalies into account for the anomaly implosion event gamble on the next EVR storm event that hits the server.
-			anomalyObj.IncreaseEVRStormsCount();
-
-	        m_AnomalyPositions.Insert(positions[i]);
-
-			amountSpawned++;
-
-	        ModuleDebugPrint("::SpawnAnomaliesDynamic - Spawned anomaly: " + "[" + amountSpawned + "] " +  typeToSpawn + " | Position: " + positions[i].ToString());
-		}
-	}
-
 	void OnNamalskEventStart(typename eventType)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-	#ifdef DIAG
-		ExpansionNotification(new StringLocaliser("NAMALSK EVENT STARTED"), new StringLocaliser("%1 EVENT STARTED", eventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
-	#endif
-
+		
 		if (eventType == EVRStorm || eventType == EVRStormDeadly)
 		{
-			Expansion_Anomaly_Base.EVRStormStart();
-			
-			Expansion_AnomalyCore_Base.EVRStormStart();
+			m_EVRStormActive = true;
 		}
 	}
 
@@ -538,11 +430,15 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	#ifdef DIAG
 		ExpansionNotification(new StringLocaliser("NAMALSK EVENT CANCELED"), new StringLocaliser("%1 EVENT CANCELED", eventType.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
 	#endif
-
-		if (eventType == EVRStorm || eventType == EVRStormDeadly || m_LastNamalskEvent == EVRStorm || m_LastNamalskEvent == EVRStormDeadly)
-			StabilizeAnomalies();
-
+		
 		m_LastNamalskEvent = eventType;
+
+		if (eventType == EVRStorm || eventType == EVRStormDeadly)
+		{
+			m_EVRStormActive = false;
+			
+			SetSatelitteActive(false);
+		}
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event starts.
@@ -555,8 +451,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	void OnEVRStormMidPhaseServer()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
+		
+		SetSatelitteActive(true);
+		
+	#ifdef EXPANSIONMODAI
 		SetAIBuildingPositions();
+	#endif
 	}
 	
 	//! @note: Handles events that should start when ever the EVR storm final blowout starts.
@@ -565,12 +465,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-	    if (GetGame().IsServer())
-	    {
-	        Expansion_Anomaly_Base.EVRStormFinalBlowout();
-
-	        Expansion_AnomalyCore_Base.EVRStormFinalBlowout();
-		}
+		m_EVRStormBlowout = true;
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event end phase starts.
@@ -578,19 +473,16 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!m_DynamicSpawned)
-		{
-			SpawnAnomalies(true);
-			Sleep(5000);
-		}
-
+	#ifdef EXPANSIONMODAI
 		ResetAIPositions();
-
-		StabilizeAnomalies();
+	#endif
 
 		NamEventManager event_manager;
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
+		
 		m_LastNamalskEvent = event_manager.GetLastEventType();
+		m_EVRStormActive = false;
+		m_EVRStormBlowout = false;
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event ended.
@@ -599,9 +491,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		//! PLACEHOLDER
+		
+		SetSatelitteActive(false);
 	}
 
-	protected void SetAIBuildingPositions()
+#ifdef EXPANSIONMODAI
+	void SetAIBuildingPositions()
 	{
 	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
@@ -618,44 +513,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			 	GetAIBuildingWaypoint(ai);
 	        }
 	    }
-
-	    m_QuestAI.Clear();
-
-		auto node = ExpansionQuestNPCAIBase.s_Expansion_AllNPCs.m_Head;
-	    while (node)
-	    {
-	       	ExpansionQuestNPCAIBase questNPC = node.m_Value;
-			ModuleDebugPrint("::SetAIBuildingPositions - Quest NPC: " + questNPC.ToString());
-			
-			if (m_QuestAI.Contains(questNPC))
-			{
-				node = node.m_Next;
-				continue;
-			}
-			
-			eAIGroup questNPCGroup = questNPC.GetGroup();
-			if (!questNPCGroup)
-			{
-				node = node.m_Next;
-				continue;
-			}
-
-			array<vector> npcPositions = new array<vector>;
-			npcPositions = questNPCGroup.GetWaypoints();
-			m_QuestAI.Insert(questNPC, npcPositions);
-			
-			GetAIBuildingWaypoint(questNPC);
-			
-			node = node.m_Next;
-	    }
-	}
-	
-	bool IsEntityOnInteriorSurface(notnull EntityAI entity_ai)
-	{
-		string surface_type;
-		vector pos = entity_ai.GetPosition();
-		GetGame().SurfaceGetType3D(pos[0], pos[1] + 1.0, pos[2], surface_type);
-		return ((GetGame().ConfigGetInt("CfgSurfaces " + surface_type + " interior")) == 1);
 	}
 
 	//! @note: Handles reset of spawned AI units and active quest AI NPCs waypoints after a EVR strom event.
@@ -667,45 +524,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		{
 			eAIBase npcAI = m_SpawnedAI.GetKey(i);
 			ModuleDebugPrint("::ResetAIPositions - AI: " + npcAI.GetType());
-			//ResetSpawnedAIWaypoints(npcAI);
-			
-			eAIGroup aiGroup = npcAI.GetGroup();
-			if (!aiGroup)
-				continue;
-			
-			array<vector> aiPositions = new array<vector>;
-			aiPositions = aiGroup.GetWaypoints();
-			if (aiGroup.m_CurrentWaypointIndex > 0)
-				aiGroup.m_CurrentWaypointIndex = 0;
+			ResetSpawnedAIWaypoints(npcAI);
 		}
-		
-		auto node = ExpansionQuestNPCAIBase.s_Expansion_AllNPCs.m_Head;
-	    while (node)
-	    {
-			ExpansionQuestNPCAIBase questNPC = node.m_Value;
-			//ResetQuestAIWaypoints(questAI);
-			
-			eAIGroup questNPCGroup = questNPC.GetGroup();
-			if (!questNPCGroup)
-			{
-				node = node.m_Next;
-				continue;
-			}
-			
-			array<vector> npcPositions = new array<vector>;
-			npcPositions = questNPCGroup.GetWaypoints();
-			if (questNPCGroup.m_CurrentWaypointIndex > 0)
-				questNPCGroup.m_CurrentWaypointIndex = 0;
-			
-			node = node.m_Next;
-		}
-	}
-
-	protected void StabilizeAnomalies()
-	{
-	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-	    Expansion_Anomaly_Base.StabilizeAnomalies();
 	}
 
 	protected void GetAIBuildingWaypoint(eAIBase ai)
@@ -718,44 +538,25 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	    eAIGroup aiGroup = ai.GetGroup();
 	    if (!aiGroup)
 	        return;
-	
-	    vector pos = ai.GetPosition();
-	    float radius = 50; //! Replace with your desired radius
-	    array<Object> objects = new array<Object>;
-	    array<string> buildingTypes = {"House", "BuildingWithFireplace"}; //! Add more types as desired
 		
-		//! Get nearby objects
-	    GetGame().GetObjectsAtPosition(pos, radius, objects, null);
-
-	    //! Get positions within buildings
-	    foreach (Object obj : objects)
-	    {
-	        if (ExpansionStatic.IsAnyOf(obj.GetType(), buildingTypes))
-	        {
-	            vector objPos = obj.GetPosition();
-	            float surfacePos = GetGame().SurfaceY(objPos[0], objPos[2]);
-	            objPos[1] = surfacePos;
-	            m_BuildingPositions.Insert(objPos);
-	        }
-	    }
-	
-	    ModuleDebugPrint("::GetAIBuildingWaypoint - Found " + m_BuildingPositions.Count() + " buildings within " + radius + " meters of " + pos);
-
-		//! Select a random building position
-	    vector buildingPos = m_BuildingPositions.GetRandomElement();
-		
-		//! Generate a random position from the selected building position.
-		array<vector> randomPositions = GeneratePositions(buildingPos, 2.0, 1);
-		ModuleDebugPrint("::GetAIBuildingWaypoint - Selected building position " + buildingPos.ToString() + ".");
-		if (randomPositions.Count() == 0)
+		array<vector> shelterPositions = m_SpawnedAI.Get(ai);
+		ModuleDebugPrint("::GetAIBuildingWaypoint - Shelter positions: " + shelterPositions.ToString() + " | Count: " + shelterPositions.Count());
+		if (shelterPositions)
 		{
-			Error(ToString() + "::GetAIBuildingWaypoint - Could not generate any random building position for AI " + ai.ToString() + " for building position " + buildingPos.ToString());
-			return;
+			array<vector> waypoints = new array<vector>;
+			
+			waypoints.Copy(aiGroup.GetWaypoints());
+
+			m_SpawnedAI.Set(ai, waypoints);
+	   		
+			aiGroup.ClearWaypoints();
+	   		
+			aiGroup.AddWaypoint(shelterPositions.GetRandomElement());
+			
+			aiGroup.m_CurrentWaypointIndex = 0;
+			ai.SetMovementSpeedLimit(eAIMovementSpeed.JOG);
+			m_AISpeed = ai.GetMovementSpeedLimit();
 		}
-		
-	    aiGroup.ClearWaypoints();
-	    aiGroup.AddWaypoint(randomPositions[0]);
-		aiGroup.m_CurrentWaypointIndex = 0;
 	}
 
 	protected void ResetSpawnedAIWaypoints(eAIBase ai)
@@ -775,41 +576,20 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		array<vector> waypoints = m_SpawnedAI.Get(ai);
 		ModuleDebugPrint("::ResetSpawnedAIWaypoints - Waypoints: " + waypoints.ToString());
-		foreach (vector pos: waypoints)
+		
+		for (int i = 0; i < waypoints.Count(); i++)
 		{
+			vector pos = waypoints[i];
+			
 			ModuleDebugPrint("::ResetSpawnedAIWaypoints - Adding back old waypoint: " + waypoints.Count());
 			aiGroup.AddWaypoint(pos);
 		}
 		
 		aiGroup.m_CurrentWaypointIndex = 0;
+		
+		ai.SetMovementSpeedLimit(m_AISpeed);
 	}
-
-	protected void ResetQuestAIWaypoints(eAIBase ai)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		ModuleDebugPrint("::ResetQuestAIWaypoints - AI: " + ai.ToString());
-		
-		eAIGroup aiGroup = ai.GetGroup();
-		if (!aiGroup)
-		{
-			Error("::ResetQuestAIWaypoints - AI has not Group!");
-			return;
-		}
-
-		ModuleDebugPrint("::ResetQuestAIWaypoints - AI group: " + aiGroup.ToString());
-		
-		aiGroup.ClearWaypoints();
-
-		array<vector> waypoints = m_QuestAI.Get(ai);
-		ModuleDebugPrint("::ResetQuestAIWaypoints - Waypoints: " + waypoints.ToString());
-		foreach (vector pos: waypoints)
-		{
-			ModuleDebugPrint("::ResetQuestAIWaypoints - Adding back old waypoint: " + waypoints.Count());
-			aiGroup.AddWaypoint(pos);
-		}
-		
-		aiGroup.m_CurrentWaypointIndex = 0;
-	}
+#endif
 
 #ifdef EXPANSIONMODQUESTS
 	void AfterQuestModuleClientInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity)
@@ -848,6 +628,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	}
 #endif
 
+#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
 	{
@@ -868,127 +649,163 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		return false;
 	}
-	
-	bool HasActiveLEHSSuit(PlayerBase player)
+
+	void SpawnSatelliteAntennaObjects()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		int slot_id_lehsSuit = InventorySlots.GetSlotIdFromString("LEHS");
-		dzn_lehs lehsSuit = dzn_lehs.Cast(player.GetInventory().FindAttachment(slot_id_lehsSuit));
-		if (!lehsSuit || lehsSuit && lehsSuit.IsRuined())
+		
+		Object obj = GetGame().CreateObject("SV_Abandoned_Sattelite_Antenna", Vector(1202.799561, 14.207986, 11784.280273));
+		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(obj);
+		if (!m_AbdonedSatellite)
 		{
-			ModuleDebugPrint("::OnEnterAnomalyServer - Return FALSE");
-			return false;
+			Error(ToString() + "::SpawnSatelliteAntennaObjects - Could not spawn antenna object!");
+			GetGame().ObjectDelete(obj);
+			return;
 		}
-
-		ModuleDebugPrint("::OnEnterAnomalyServer - Player has LEHS suit: " + lehsSuit.ToString());
-
-		int slot_id_Headgear = InventorySlots.GetSlotIdFromString("Headgear");
-		dzn_lehs_helmet lehsHelmet = dzn_lehs_helmet.Cast(player.GetInventory().FindAttachment(slot_id_Headgear));
-		if (!lehsHelmet || lehsHelmet && lehsHelmet.IsRuined())
+		
+		m_AbdonedSatellite.SetPosition(Vector(1202.799561, 14.207986, 11784.280273));
+		m_AbdonedSatellite.SetOrientation(Vector(81.209969, -0.000000, -0.000000));
+		
+	#ifdef EXPANSIONMODTELEPORTER
+		obj = GetGame().CreateObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508));
+		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(obj);
+		if (!m_SatelliteTeleporter)
 		{
-			ModuleDebugPrint("::OnEnterAnomalyServer - Return FALSE");
-			return false;
+			Error(ToString() + "::SpawnSatelliteAntennaObjects - Could not spawn antenna teleporter object!");
+			GetGame().ObjectDelete(obj);
+			return;
 		}
+		
+		m_SatelliteTeleporter.SetPosition(Vector(1200.880127, 4.619668, 11780.145508));
+		m_SatelliteTeleporter.SetOrientation(Vector(-100.711388, -0.000000, -0.000000));
+		m_SatelliteTeleporter.SetTeleporterID(100);
+		m_SatelliteTeleporter.SetActive(false);
+		
+		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
+		teleporterData.SetID(100);
+		teleporterData.SetDisplayName("???");
+		teleporterData.SetObjectPosition(Vector(1200.880127, 4.619668, 11780.145508));
 
-		ModuleDebugPrint("::OnEnterAnomalyServer - Player has LEHS helmet: " + lehsHelmet.ToString());
-		ModuleDebugPrint("::OnEnterAnomalyServer - LEHS status: Visor up: " + lehsHelmet.IsVisorUp() + " | Has power: " + lehsHelmet.HasPower() + " | Pressurized: " + lehsHelmet.IsPressurized());
+		ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
+		teleportPos.SetData("???");
+		teleportPos.AddPosition(Vector(5079.959961, 2085.610107, 11720.700195), Vector(39.183594, 0.000000, 0.000000));
+		teleportPos.AddPosition(Vector(5075.359863, 2085.610107, 11715.299805), Vector(132.597000, 0.000000, 0.000000));
 
-		if (lehsHelmet.IsVisorUp() || !lehsHelmet.HasPower() || !lehsHelmet.IsPressurized() || !lehsHelmet.HasCircuitBoard())
+		teleporterData.AddTeleportPosition(teleportPos);
+		
+		ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
+	#endif
+
+		obj = GetGame().CreateObject("Expansion_Satellite_Control", Vector(1204.062256, 5.146724, 11782.631836));
+		m_SatelliteController = Expansion_Satellite_Control.Cast(obj);
+		if (!m_SatelliteController)
 		{
-			ModuleDebugPrint("::OnEnterAnomalyServer - Return FALSE");
-			return false;
+			Error(ToString() + "::SpawnSatelliteAntennaObjects - Could not spawn antenna teleporter object!");
+			GetGame().ObjectDelete(obj);
+			return;
 		}
-
-
-		ModuleDebugPrint("::OnEnterAnomalyServer - Return TRUE");
-		return true;
+		
+		m_SatelliteController.SetPosition(Vector(1204.062256, 5.146724, 11782.631836));
+		m_SatelliteController.SetOrientation(Vector(171.544205, 0.000000, 0.000000));
+		if (m_AbdonedSatellite)
+			m_SatelliteController.SetSatelliteLink(m_AbdonedSatellite);
+	#ifdef EXPANSIONMODTELEPORTER
+		if (m_SatelliteTeleporter)
+			m_SatelliteController.SetTeleporterLink(m_SatelliteTeleporter);
+	#endif
 	}
 	
-	void ProcessCargoDamage(EntityAI parent, int minDmg, int maxDmg)
+	void PlaySatelliteCrySFX()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		ModuleDebugPrint("::ProcessCargoDamage - Entity: " + parent.GetType() + " | Entity parent: " + parent.GetParent().ToString());
-
-		array<EntityAI> items = new array<EntityAI>;
-		parent.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
-
-		foreach (EntityAI item: items)
+		
+		string soundSet = "Expansion_Satellite_Cry_Distance_SoundSet";
+		Param3<bool, vector, int> satelliteCry = new Param3<bool, vector, int>(true, Vector(1202, 14, 11784), soundSet.Hash());
+		GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, satelliteCry, true);
+	}
+	
+	void SetSatelitteActive(bool state)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (state == m_SatelitteState)
+			return;
+				
+		if (state)
 		{
-			ModuleDebugPrint("::ProcessCargoDamage - Item: " + item.GetType() + " | Item parent: " + item.GetParent().ToString());
-			if (item.IsInherited(SurvivorBase) || item.IsInherited(ExpansionAnomalyCoreProtectiveCase))
-				continue;
-
-			//! @note: Don't damage items in anomaly/evr protector cases.
-			if (item.GetParent() && ExpansionAnomalyCoreProtectiveCase.Cast(item.GetParent()))
-				continue;
-
-			item.AddHealth("", "", Math.RandomFloatInclusive(minDmg, maxDmg));
+			ActivateSatellite();
+		}
+		else
+		{
+			DeactivateSatellite();
+		}
+		
+		m_SatelitteState = state;
+	}
+	
+	void ActivateSatellite()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (!m_AbdonedSatellite)
+			return;
+		
+		m_SatelliteController.SetActivateState(true);
+		m_AbdonedSatellite.SetSatelliteActive(true);
+	}
+	
+	void DeactivateSatellite()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (!m_AbdonedSatellite)
+			return;
+		
+		if (!m_SatelliteController.IsActive())
+		{
+			m_SatelliteController.SetActivateState(false);
+			m_AbdonedSatellite.SetSatelliteActive(false);
 		}
 	}
-
-	//! @note: In this modified version of the GeneratePositions method, a larger square area is generated using a for loop with a fixed number of iterations equal to amount * 2.
-	//! Valid positions within the larger area are then selected randomly until the desired number of positions is reached or there are no more valid positions left.
-	//! This reduces the number of collision checks and distance calculations required and should improve server performance.
-	array<vector> GeneratePositions(vector center, float squareSize, int amount, int distanceToPos = 0)
+	
+	SV_Abandoned_Sattelite_Antenna GetSatelliteAntenna()
 	{
-	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-	    array<vector> positions = new array<vector>;
-		vector position;
-
-	    //! Generate positions within a larger square area
-	    float largeSquareSize = squareSize * 2;
-	    array<vector> largePositions = new array<vector>;
-	    for (int i = 0; i < amount * 2; i++)
-	    {
-	        position = center + Vector(Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2), 0, Math.RandomFloat(-largeSquareSize / 2, largeSquareSize / 2));
-	        position[1] = GetGame().SurfaceY(position[0], position[2]);
-
-	        if (!GetGame().SurfaceIsSea(position[0], position[2]) && !GetGame().SurfaceIsPond(position[0], position[2]))
-	            largePositions.Insert(position);
-	    }
-
-	    //! Select valid positions from the larger area
-	    while (positions.Count() < amount && largePositions.Count() > 0)
-	    {
-	        int index = Math.RandomInt(0, largePositions.Count() - 1);
-	        position = largePositions[index];
-	        largePositions.Remove(index);
-
-	        array<Object> excludes;
-	        if (!GetGame().IsBoxColliding(position, Vector(4, 1, 4), Vector(5, 0, 5), excludes))
-	        {
-	            bool validPos = true;
-	            foreach (vector prevPos: positions)
-	            {
-					if (position == vector.Zero)
-					{
-	                    validPos = false;
-	                    break;
-	                }
-					
-					if (distanceToPos > 0)
-					{
-		                if (vector.Distance(position, prevPos) < distanceToPos)
-		                {
-		                    validPos = false;
-		                    break;
-		                }
-					}
-	            }
-
-	            if (validPos)
-	                positions.Insert(position);
-	        }
-	    }
-
-	    return positions;
+		return m_AbdonedSatellite;
 	}
+
+	Expansion_Teleporter_Big GetSatelliteTeleporter()
+	{
+		return m_SatelliteTeleporter;
+	}
+	
+	Expansion_Satellite_Control GetSatelliteController()
+	{
+		return m_SatelliteController;
+	}
+#endif
 
 	static ExpansionNamalskModule GetModuleInstance()
 	{
 		return s_ModuleInstance;
+	}
+	
+	override void OnUpdate(Class sender, CF_EventArgs args)
+	{
+		super.OnUpdate(sender, args);
+
+		if (!GetGame().IsServer())
+			return;
+		
+		auto update = CF_EventUpdateArgs.Cast(args);
+		
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+		m_SatelliteCryTimer += update.DeltaTime;
+		if (m_SatelliteCryTimer >= SATELLITE_CRY_TIME)
+		{
+			PlaySatelliteCrySFX();
+			m_SatelliteCryTimer = 0;
+		}
+	#endif
 	}
 
 	void ModuleDebugPrint(string text)

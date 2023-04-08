@@ -85,7 +85,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
 		{
 			PlayerBase player = PlayerBase.Cast(other);
-			if (player && ExpansionNamalskModule.GetModuleInstance().HasActiveLEHSSuit(player))
+			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
 				DebugTrace("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
@@ -108,7 +108,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		{
 			EntityAI objectEntity = EntityAI.Cast(other);
 			vector position = objectEntity.GetPosition();
-			array<vector> positions = ExpansionNamalskModule.GetModuleInstance().GeneratePositions(position, 500, 1);
+			array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, 500, 1);
 			vector randomPosition = positions[0];
 			vector ori = objectEntity.GetOrientation();
 
@@ -126,7 +126,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
                 	return;
 
 				item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
-				ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
+				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
 
 				item.SetPosition(randomPosition);
 				item.SetOrientation(ori);
@@ -142,7 +142,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 				if (!player || !player.IsAlive())
                 	return;
 
-				if (ExpansionNamalskModule.GetModuleInstance().HasActiveLEHSSuit(player))
+				if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 					return;
 
 				if (!player.IsInTransport())
@@ -150,7 +150,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_PAIN_LIGHT); //! Let the character feel the pain :)
 					player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
 					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
-					ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
+					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 
 					player.SetPosition(randomPosition);
 					player.SetOrientation(ori);
@@ -170,9 +170,11 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 					return;
 
 				car.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the vehicle.
-				ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
-
+				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
+				
+			#ifdef JM_COT
 				car.COT_PlaceOnSurfaceAtPosition(randomPosition);
+			#endif
 			}
 			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Animals, true))
 			{

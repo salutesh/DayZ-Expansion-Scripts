@@ -55,8 +55,4 @@ PanelWidgetClass ExpansionAnomalyHud {
    }
   }
  }
- {
-  ScriptParamsClass {
-  }
- }
 }

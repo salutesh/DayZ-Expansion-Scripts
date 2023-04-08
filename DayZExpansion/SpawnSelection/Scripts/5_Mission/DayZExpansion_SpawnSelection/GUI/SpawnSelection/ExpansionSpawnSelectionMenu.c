@@ -46,6 +46,9 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		
 		Confirm.Show(false);
 		Confirm.Enable(false);
+
+		int mapSize = GetGame().GetWorld().GetWorldSize() / 2;
+		Map_Widget.SetMapPos(Vector(mapSize, 0, mapSize));
 		
 		Print("ExpansionSpawnSelectionMenu - End");
 	}
@@ -89,6 +92,8 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 				isTerritory = true;
 			break;
 		}
+
+		int selectedSpawn = Math.RandomIntInclusive(0,SpawnLocations.Count());
 				
 		for (int i = 0; i < SpawnLocations.Count(); i++)
 		{
@@ -99,6 +104,9 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 			//! Create map marker for territory
 			vector pos;
 			pos = currenLocation.Positions[0];
+
+			if ( selectedSpawn == i )
+				Map_Widget.SetMapPos(Vector(pos[0], 0, pos[2]));			
 			
 			ExpansionSpawSelectionMenuMapMarker marker = new ExpansionSpawSelectionMenuMapMarker(MapSpacer, Map_Widget, true);
 			marker.SetIcon(markerIcon);
@@ -135,8 +143,8 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		if (setmappos)
 		{
 			vector mapPos = location.Positions[0];
-			Map_Widget.SetScale(0.2);
-			Map_Widget.SetMapPos(Vector(mapPos[0] + 900.0, 0, mapPos[2] - 600.0));
+			Map_Widget.SetScale(0.33);
+			Map_Widget.SetMapPos(Vector(mapPos[0], 0, mapPos[2]));
 		}
 		
 		Confirm.Show(true);

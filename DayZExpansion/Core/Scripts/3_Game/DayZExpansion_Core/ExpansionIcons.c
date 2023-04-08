@@ -160,6 +160,7 @@ class ExpansionIcons
 		
 		AddIcon("Open Hand", "DayZExpansion\\Core\\GUI\\icons\\hud\\hand_open_64x64.edds");
 		AddIcon("Orientation", "DayZExpansion\\Core\\GUI\\icons\\hud\\orientation_64x64.edds");
+		AddIcon("Options", "set:expansion_iconset image:icon_options");
 		
 		AddIcon("Pen", "DayZExpansion\\Core\\GUI\\icons\\hud\\pen_64x64.edds");
 		AddIcon("Persona", "DayZExpansion\\Core\\GUI\\icons\\hud\\persona_64x64.edds");
@@ -200,6 +201,7 @@ class ExpansionIcons
 		AddIcon("Shovel", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Shovel_256x256.edds");
 		AddIcon("Soda", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Soda_256x256.edds");
 		AddIcon("Soldier", "DayZExpansion\\Core\\GUI\\icons\\misc\\T_Soldier_256x256.edds");
+		AddIcon("Status", "set:expansion_iconset image:icon_status");
 		
 		AddIcon("Territory", "set:expansion_iconset image:icon_territory");
 		AddIcon("Trader", "DayZExpansion\\Core\\GUI\\icons\\marker\\marker_trader.paa");

@@ -51,7 +51,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
                 	return;
 
 				item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
-				ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
+				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
 
 				item.SetPosition(randomPosition);
 				item.SetOrientation(ori);
@@ -69,7 +69,7 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				if (!player || !player.IsAlive())
                 	return;
 
-				if (ExpansionNamalskModule.GetModuleInstance().HasActiveLEHSSuit(player))
+				if (ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 					return;
 
 				if (!player.IsInTransport())
@@ -77,15 +77,11 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 					player.GetSymptomManager().QueueUpPrimarySymptom(SymptomIDs.SYMPTOM_PAIN_LIGHT); //! Let the character feel the pain :)
 					player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
 					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
-					ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
+					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 
 					player.SetPosition(randomPosition);
 					player.SetOrientation(ori);
 					DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
-
-					//! Drop all items from entities inventroy/cargo - TEST
-					/*if (MiscGameplayFunctions.Expansion_HasAnyCargo(player))
-						MiscGameplayFunctions.ThrowAllItemsInInventory(player, ThrowEntityFlags.SPLIT);*/
 				}
 
 				m_IsActive = false;
@@ -101,13 +97,11 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 					return;
 
 				car.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the vehicle.
-				ExpansionNamalskModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
+				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
 
+			#ifdef JM_COT
 				car.COT_PlaceOnSurfaceAtPosition(randomPosition);
-
-				//! Drop all items from entities inventroy/cargo - TEST
-				/*if (MiscGameplayFunctions.Expansion_HasAnyCargo(car))
-					MiscGameplayFunctions.ThrowAllItemsInInventory(car, ThrowEntityFlags.SPLIT);*/
+			#endif
 
 				m_IsActive = false;
 			}
@@ -134,10 +128,6 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 
 				zombie.SetPosition(randomPosition);
 				zombie.SetOrientation(ori);
-
-				//! Drop all items from entities inventroy/cargo - TEST
-				/*if (MiscGameplayFunctions.Expansion_HasAnyCargo(zombie))
-					MiscGameplayFunctions.ThrowAllItemsInInventory(zombie, ThrowEntityFlags.SPLIT);*/
 
 				m_IsActive = false;
 			}

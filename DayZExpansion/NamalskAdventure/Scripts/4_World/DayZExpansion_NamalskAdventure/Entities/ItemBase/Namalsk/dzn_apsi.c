@@ -10,7 +10,6 @@
  *
 */
 
-/*
 #ifdef NAMALSK_SURVIVAL
 class ExpansionAnomalyHUDMarker: ScriptView
 {
@@ -73,7 +72,8 @@ class ExpansionAnomalyHUDMarker: ScriptView
 		vector alignedToAnomaly = vector.Dot(toAnomaly, camDir) * camDir;
 		
 		// Get the screen position of the aligned vector
-		vector screenPos = GetGame().GetScreenPos(alignedToAnomaly);
+		//vector screenPos = GetGame().GetScreenPos(alignedToAnomaly);
+		vector screenPos = GetGame().GetScreenPosRelative(alignedToAnomaly);
 		
 		int screen_width, screen_height;
 		GetGame().GetScreenSize(screen_width, screen_height);
@@ -266,4 +266,3 @@ modded class dzn_apsi
 	}
 };
 #endif
-*/

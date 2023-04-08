@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef EXPANSION_NAMALSK_ADVENTURE_LOADING_SCREEN
 class ExpansionNamalskAdventureLoadingScreenBackground
 {
 	string Path;
@@ -204,3 +205,4 @@ modded class LoadingScreen
 	#endif
 	}
 };
+#endif

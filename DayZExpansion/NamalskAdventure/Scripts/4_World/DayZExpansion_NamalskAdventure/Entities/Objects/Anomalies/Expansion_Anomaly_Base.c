@@ -50,8 +50,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected const string SOUND_ACTIVATED = "Expansion_AnomalyWindBlowActivated_Soundset";
 	protected const int TRIGGER_RADIUS = 2;
 	protected const string OBJECT_CLUTTER_CUTTER = "ClutterCutterFireplace";
-	
-	static const int CHUNK_SIZE = 10; //! Process 10 anomalies at a time.
 
 	static ref CF_DoublyLinkedNodes_WeakRef<Expansion_Anomaly_Base> s_Expansion_AllAnomalies = new CF_DoublyLinkedNodes_WeakRef<Expansion_Anomaly_Base>();
 	ref CF_DoublyLinkedNode_WeakRef<Expansion_Anomaly_Base> m_Expansion_AnomalyNode = new CF_DoublyLinkedNode_WeakRef<Expansion_Anomaly_Base>(this);
@@ -87,13 +85,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected int m_LootSpawnType;
 
 	protected int m_SurviviedEVRStorms;
-
-	static ScriptCaller s_EVRStormStartSC;
-	static ScriptCaller s_EVRStormBlowoutSC;
-	static ScriptCaller s_StablizeAnomaliesSC;
-	static ScriptCaller s_ClosestAnomalySC;
-	
-	static ScriptInvoker s_ClosestAnomalySI;
 
 	void Expansion_Anomaly_Base()
 	{
@@ -270,80 +261,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		}
 
 		return false;
-	}
-	
-	static void EVRStormStart()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-
-		if (!s_EVRStormStartSC)
-     		s_EVRStormStartSC = ScriptCaller.Create(OnEVRStormStart);
-			
-       	int all = s_Expansion_AllAnomalies.Each(s_EVRStormStartSC, CHUNK_SIZE);
-		Print("Expansion_Anomaly_Base::EVRStormStart - All anomalies: " + all);
-	}
-	
-	static void OnEVRStormStart(Expansion_Anomaly_Base anomaly)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-		
-		anomaly.SetAnomalyUnstable();
-	}
-	
-	static void EVRStormFinalBlowout()
-    {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-	
-		if (!s_EVRStormBlowoutSC)
-     		s_EVRStormBlowoutSC = ScriptCaller.Create(OnEVRStormFinalBlowout);
-
-       	s_Expansion_AllAnomalies.Each(s_EVRStormBlowoutSC, CHUNK_SIZE);
-    }
-	
-	static void OnEVRStormFinalBlowout(Expansion_Anomaly_Base anomaly)
-    {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-
-		if (anomaly.SurviviedEVRStormsCount() > 0)
-		{
-		   //! @note: We gamble if the the anomaly will impode this when it has already survived one EVR storm.
-		   int gamble = Math.RandomInt(0, 2); //! Gamble if this anomaly will implode or not
-		   if (gamble == 0)
-		   {
-				int randomTime = Math.RandomInt(0, 3);
-				anomaly.SetAnomalyExplosion(randomTime);
-		   }
-		   else
-		   {
-				anomaly.IncreaseEVRStormsCount();
-				anomaly.IncreaseLifetime();
-		   }
-		}
-		//! @note: Anomaly just got spawned thru the EVR storm event so dont harm it for now.
-		else
-		{
-			anomaly.IncreaseEVRStormsCount();
-			anomaly.IncreaseLifetime();
-		}
-    }
-	
-	static void StabilizeAnomalies()
-    {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-		
-		if (!s_StablizeAnomaliesSC)
-     		s_StablizeAnomaliesSC = ScriptCaller.Create(OnStabilizeAnomaly);
-
-       	int all = s_Expansion_AllAnomalies.Each(s_StablizeAnomaliesSC, CHUNK_SIZE);
-		Print("Expansion_Anomaly_Base::StabilizeAnomalies - All anomalies: " + all);
-    }
-	
-	static void OnStabilizeAnomaly(Expansion_Anomaly_Base anomaly)
-	{
-	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
-		
-		if (anomaly.GetAnomalyState() >= ExpansionAnomalyState.UNSTABLE)
-		    anomaly.SetAnomalyStable();
 	}
 
 	void SetAnomalyState(ExpansionAnomalyState state)
@@ -1008,6 +925,11 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		return true;
 	}
 
+	override bool DisableVicinityIcon()
+    {
+        return true;
+    }
+	
 	override void OnStoreSave(ParamsWriteContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);

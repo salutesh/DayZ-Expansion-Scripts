@@ -36,8 +36,8 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 		if (!Class.CastTo(targetObject, target.GetParentOrObject()))
 			return false;
 
-		auto teleportObj = Expansion_Teleporter_Base.Cast(targetObject);
-		if (!teleportObj)
+		Expansion_Teleporter_Base teleportObj = Expansion_Teleporter_Base.Cast(targetObject);
+		if (!teleportObj || teleportObj && !teleportObj.IsActive())
 			return false;
 
 		if (!GetGame().IsDedicatedServer())

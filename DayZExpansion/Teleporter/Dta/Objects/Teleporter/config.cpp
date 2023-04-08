@@ -22,17 +22,16 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DayZExpansion\Teleporter\Dta\Objects\Teleporter\teleporter.p3d";
-		bounding = "BSphere";
-		overrideDrawArea = "3.0";
-		forceFarBubble = "true";
-		openable = 1;
+		displayName = "Teleporter MK.1";
+		handheld = "false";
+		weight = 50000;
+		physLayer = "item_large";
 		carveNavmesh = 1;
-		itemBehaviour = 2;
-		attachments[] = {"CarBattery","Att_ExpansionCircuitBoard"};
 		rotationFlags = 2;
-		soundImpactType = "metal";
 		oldpower = 0;
 		ChargeEnergyPerSecond = 1;
+		storageCategory = 10;
+		attachments[] = {"CarBattery","Att_ExpansionCircuitBoard"};
 		class EnergyManager
 		{
 			hasIcon = 1;
