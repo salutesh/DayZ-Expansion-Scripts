@@ -31,7 +31,11 @@ class ExpansionNamalskAdventureLoadingScreenBackgrounds
 
 modded class LoadingScreen
 {
+	protected const float UPDATE_TICK_TIME = 5.0;
+	
 	protected autoptr array<ref ExpansionNamalskAdventureLoadingScreenBackground> m_NABackgrounds;
+	protected float m_UpdateQueueTimer;
+
     protected int m_CurrentImageIndex; // current index of the image being displayed
     protected float m_SlideshowImageDuration; // duration of each image in slideshow in seconds
     protected float m_SlideshowImageTimer; // timer for changing images in slideshow
@@ -136,8 +140,14 @@ modded class LoadingScreen
 		
 		super.OnUpdate(timeslice);
 
-		if (IsLoading())
-			UpdateNALoadingBackground();
+		m_UpdateQueueTimer += timeslice;
+		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
+		{
+			if (IsLoading())
+				UpdateNALoadingBackground();
+			
+			m_UpdateQueueTimer = 0;
+		}
 	}
 	
 	override void Show()

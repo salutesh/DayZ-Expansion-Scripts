@@ -75,7 +75,8 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 		DebugTrace("::ProcessEntityEvents - Entity: " + entityObj.GetType());
 
 		vector position = entityObj.GetPosition();
-		array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, 500, 1);
+		float squareSize = Math.RandomFloat(200.0, 250.0);
+		array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, squareSize, 1);
 		vector randomPosition = positions[0];
 		vector ori = entityObj.GetOrientation();
 
@@ -102,8 +103,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			mass = dBodyGetMass(item);
 			item.dBodyApplyImpulse(item, mass * wind);
 		}
-		else
-		if (ExpansionStatic.IsAnyOf(entityObj, m_Players, true))
+		else if (ExpansionStatic.IsAnyOf(entityObj, m_Players, true))
 		{
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (!player || !player.IsAlive())

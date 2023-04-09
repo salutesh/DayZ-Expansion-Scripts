@@ -71,15 +71,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 		RegisterNetSyncVariableInt("m_CoreState", 1, 3);
 
-		if (GetCoreTexturePath() != string.Empty)
-		{
-			SetObjectTexture(1, GetCoreTexturePath());
-		}
-		else
-		{
-			HideSunSelection();
-		}
-
 		if (!ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive())
 		{
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.STABLE);
@@ -126,7 +117,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	protected void InitAnomalyCore()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
+		
 		if (!GetGame().IsDedicatedServer())
 		{
 			InitAnomalyCoreClient();
@@ -171,30 +162,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 				UpdateAnomalyCoreState(ExpansionAnomalyCoreState.UNSTABLE);
 			}
 		}
-	}
-
-	void HideSunSelection()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		SetAnimationPhase("Sun_Shown", 0);
-		SetAnimationPhase("Sun_Hidden", 1);
-	}
-
-	override void HideSelection(string selection_name)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::HideSelection - Selection name: " + selection_name);
-
-		super.HideSelection(selection_name);
-	}
-
-	override void ShowSelection(string selection_name)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::ShowSelection - Selection name: " + selection_name);
-
-		super.ShowSelection(selection_name);
 	}
 
 	override protected void OnExplode()
@@ -420,7 +387,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		DebugTrace("::UpdateAnomalyCoreVFX_Deferred - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
-
+		
 		switch (state)
 		{
 			case ExpansionAnomalyCoreState.STABLE:
@@ -499,11 +466,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		return -1;
 	}
 
-	string GetCoreTexturePath()
-	{
-		return "";
-	}
-
 	void SetAnomalyCoreUnstable()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -578,6 +540,15 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	typename GetAnomalyCoreLight()
 	{
 		return ExpansionAnomalyCoreLightBase;
+	}
+	
+	void SetSunSelectionMaterial(string material_name)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		DebugTrace("::SetSunSelectionMaterial - Material: " + material_name);
+	
+		SetObjectMaterial(1, material_name);
+		SetObjectTexture(1, "");
 	}
 
 	protected void DebugTrace(string text)

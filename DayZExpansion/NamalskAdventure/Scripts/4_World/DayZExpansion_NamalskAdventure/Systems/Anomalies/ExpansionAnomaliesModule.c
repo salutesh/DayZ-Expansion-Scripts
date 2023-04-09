@@ -52,13 +52,11 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected static ScriptCaller s_EVRStormStartCoresSC;
 	protected static ScriptCaller s_EVRStormBlowoutCoresSC;
 	
+	protected int m_SpawnedAnomaliesInTick;
 	protected int m_DynamicAnomaliesToSpawn;
 	protected int m_SpawnedDynamicAnomaliesCount;
-	protected int m_SpawnedDynamicAnomaliesInTick;
-	
 	protected int m_StaticAnomaliesToSpawn;
 	protected int m_SpawnedStaticAnomaliesCount;
-	protected int m_SpawnedStaticAnomaliesInTick;
 
 	void ExpansionAnomaliesModule()
 	{
@@ -102,46 +100,27 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 				m_StaticAnomalySpawns = GetExpansionSettings().GetNamalskAdventure().StaticAnomalies;
 				m_StaticAnomaliesToSpawn = m_StaticAnomalySpawns.Count();
-				
+
 				SpawnAnomalies();
 			}
 		}
 	}
 
 	//! @note: Spawns all configured anomalies from the NamalskAdventureSettings class.
-	protected void SpawnAnomalies(bool isDynamicEvent = false)
+	protected void SpawnAnomalies()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		if (GetExpansionSettings().GetNamalskAdventure().EnableDynamic)
 		{
-			if (!m_DynamicSpawned && !isDynamicEvent && !GetExpansionSettings().GetNamalskAdventure().SpawnDynamicWithEVRStorms)
+			if (!m_DynamicSpawned && !GetExpansionSettings().GetNamalskAdventure().SpawnDynamicWithEVRStorms)
 			{
-				if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn) 
+				foreach (ExpansionAnomalyDynamic dynamicSpawn: m_DynamicAnomalySpawns)
 				{
-					m_DynamicSpawned = true;
-					return;
-				}
-				
-				if (m_DynamicAnomalySpawns && m_DynamicAnomalySpawns.Count() > 0) 
-				{
-					for (int i = m_DynamicAnomalySpawns.Count() - 1; i >= 0; i--)
+					array<vector> positions = dynamicSpawn.GetPositions();
+					foreach (vector pos: positions)
 					{
-						ExpansionAnomalyDynamic dynamicSpawn = m_DynamicAnomalySpawns[i];
-						if (!dynamicSpawn)
-							continue;
-						
-						for (int j = dynamicSpawn.PositionsCount() - 1; j >= 0; j--)
-						{
-							SpawnAnomalyDynamic(dynamicSpawn, i);
-							m_SpawnedDynamicAnomaliesInTick++;
-							
-							if (m_SpawnedDynamicAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-							{
-								m_SpawnedDynamicAnomaliesInTick = 0;
-								break;
-							}
-						}
+						SpawnAnomalyDynamic(dynamicSpawn, pos);
 					}
 				}
 			}
@@ -149,39 +128,18 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 		if (GetExpansionSettings().GetNamalskAdventure().EnableStatic)
 		{
-			if (!m_StaticSpawned && !isDynamicEvent && !GetExpansionSettings().GetNamalskAdventure().SpawnStaticWithEVRStorms)
+			if (!m_StaticSpawned && !GetExpansionSettings().GetNamalskAdventure().SpawnStaticWithEVRStorms)
 			{
-				if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn) 
-				{
-					m_StaticSpawned = true;
-					return;
-				}
-				
-				if (m_StaticAnomalySpawns && m_StaticAnomalySpawns.Count() > 0) 
-				{
-					for (int k = m_StaticAnomalySpawns.Count() - 1; k >= 0; k--)
-					{
-						ExpansionAnomalyStatic staticAnoamlyData = m_StaticAnomalySpawns[k];
-						if (!staticAnoamlyData)
-							continue;
-						
-						SpawnAnomalyStatic(staticAnoamlyData, k, isDynamicEvent);
-						
-						m_SpawnedStaticAnomaliesInTick++;
-					
-						if (m_SpawnedStaticAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-						{
-							m_SpawnedStaticAnomaliesInTick = 0;
-							break;
-						}
-					}
+				foreach (ExpansionAnomalyStatic staticSpawn: m_StaticAnomalySpawns)
+				{				
+					SpawnAnomalyStatic(staticSpawn);
 				}
 			}
 		}
 	}
 
 	//! @note: Handles spawns of static anomaly spawns
-	protected void SpawnAnomalyStatic(ExpansionAnomalyStatic anomaly, int index, bool isDynamicEvent = false)
+	protected void SpawnAnomalyStatic(ExpansionAnomalyStatic anomaly, bool isDynamicEvent = false)
 	{
 		string typeToSpawn = anomaly.AnomalyTypes.GetRandomElement();
 	    Object entity = GetGame().CreateObjectEx(typeToSpawn, anomaly.CenterPosition, ECE_PLACE_ON_SURFACE, ECE_NOLIFETIME);
@@ -205,18 +163,16 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
         m_AnomalyPositions.Insert(anomaly.CenterPosition);
 		
 		m_SpawnedStaticAnomaliesCount++;
-		m_StaticAnomalySpawns.RemoveOrdered(index);
 	}
 
 	//! @note: Handles spawns of dynamic anomaly spawns
-	protected void SpawnAnomalyDynamic(ExpansionAnomalyDynamic dynamicSpawn, int index, bool isDynamic = false)
+	protected void SpawnAnomalyDynamic(ExpansionAnomalyDynamic dynamicSpawn, vector position, bool isDynamic = false)
 	{
 		string typeToSpawn = dynamicSpawn.AnomalyTypes.GetRandomElement();
 		int flags = ECE_PLACE_ON_SURFACE;
 		if (dynamicSpawn.Persistance < ExpansionAnomalyPersistance.LIFETIME)
 		    flags = ECE_NOLIFETIME;
 
-		vector position = dynamicSpawn.GetNextPosition();
 		Object entity = GetGame().CreateObjectEx(typeToSpawn, position, flags);
 		Expansion_Anomaly_Base anomalyObj = Expansion_Anomaly_Base.Cast(entity);
 		if (!anomalyObj)
@@ -238,9 +194,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		m_AnomalyPositions.Insert(position);
 		
 		m_SpawnedDynamicAnomaliesCount++;
-		
-		if (dynamicSpawn.GetNextPosition() == vector.Zero)
-			m_DynamicAnomalySpawns.RemoveOrdered(index);
 	}
 
 	void OnNamalskEventStart(typename eventType)
@@ -636,30 +589,27 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		if (!m_DynamicSpawned)
 		{
 			if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn) 
-			{
 				m_DynamicSpawned = true;
-				return;
-			}
-			
-			if (m_DynamicAnomalySpawns && m_DynamicAnomalySpawns.Count() > 0) 
+
+			foreach (ExpansionAnomalyDynamic dynamicSpawn: m_DynamicAnomalySpawns)
 			{
-				for (int i = m_DynamicAnomalySpawns.Count() - 1; i >= 0; i--)
+				array<vector> positions = dynamicSpawn.GetPositions();
+				foreach (vector pos: positions)
 				{
-					ExpansionAnomalyDynamic dynamicSpawn = m_DynamicAnomalySpawns[i];
-					if (!dynamicSpawn)
-						continue;
+					SpawnAnomalyDynamic(dynamicSpawn, pos, true);
+					m_SpawnedAnomaliesInTick++;
 					
-					for (int j = dynamicSpawn.PositionsCount() - 1; j >= 0; j--)
+					if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
 					{
-						SpawnAnomalyDynamic(dynamicSpawn, i, true);
-						m_SpawnedDynamicAnomaliesInTick++;
-						
-						if (m_SpawnedDynamicAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-						{
-							m_SpawnedDynamicAnomaliesInTick = 0;
-							break;
-						}
+						m_SpawnedAnomaliesInTick = 0;
+						break;
 					}
+				}
+				
+				if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
+				{
+					m_SpawnedAnomaliesInTick = 0;
+					break;
 				}
 			}
 		}
@@ -667,33 +617,29 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		if (!m_StaticSpawned)
 		{
 			if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn) 
-			{
 				m_StaticSpawned = true;
-				return;
-			}
-			
-			if (m_StaticAnomalySpawns && m_StaticAnomalySpawns.Count() > 0) 
+
+			foreach (ExpansionAnomalyStatic staticSpawn: m_StaticAnomalySpawns)
 			{
-				for (int k = m_StaticAnomalySpawns.Count() - 1; k >= 0; k--)
+				SpawnAnomalyStatic(staticSpawn, true);
+				m_SpawnedAnomaliesInTick++;
+
+				if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
 				{
-					ExpansionAnomalyStatic staticAnoamlyData = m_StaticAnomalySpawns[k];
-					if (!staticAnoamlyData)
-						continue;
-					
-					SpawnAnomalyStatic(staticAnoamlyData, k, true);
-					
-					m_SpawnedStaticAnomaliesInTick++;
-				
-					if (m_SpawnedStaticAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-					{
-						m_SpawnedStaticAnomaliesInTick = 0;
-						break;
-					}
+					m_SpawnedAnomaliesInTick = 0;
+					break;
 				}
 			}
 		}
 		
-		m_SpawnAnomalies = false;
+		if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
+			m_StaticSpawned = true;
+		
+		if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn)
+			m_StaticSpawned = true;
+		
+		if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn && m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
+			m_SpawnAnomalies = false;
 	}
 
 	static ExpansionAnomaliesModule GetModuleInstance()

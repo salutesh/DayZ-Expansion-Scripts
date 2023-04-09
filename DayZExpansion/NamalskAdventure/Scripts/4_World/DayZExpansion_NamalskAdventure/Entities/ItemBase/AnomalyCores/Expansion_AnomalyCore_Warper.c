@@ -294,11 +294,6 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		GetGame().RPCSingleParam(this, Expansion_AnomalyCore_ERPCs.PLAY_TARGET_FX, p, true, identity);
 	}
 
-	override string GetCoreTexturePath()
-	{
-		return "DayZExpansion\\NamalskAdventure\\Dta\\Items\\Anomaly_Core\\data\\anomaly_core_energy_co.paa";
-	}
-
 	override int GetAnomalyCoreParticle()
 	{
 		return PARTICLE_EFFECT;
@@ -308,7 +303,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	{
 		return ExpansionAnomalyCoreLightWarper;
 	}
-
+	
 	/*override void OnInventoryExit(Man player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);

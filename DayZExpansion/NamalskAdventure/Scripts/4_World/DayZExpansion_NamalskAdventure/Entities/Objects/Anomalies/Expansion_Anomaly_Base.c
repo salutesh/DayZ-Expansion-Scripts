@@ -364,7 +364,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		DebugTrace("::UpdateAnomalyVFX_Deferred - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state) + " | Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_PrevAnonmalyState));
 
 		bool hasCore = true;
-
+		
 		//! Create anomaly light
 		if (!m_Light)
 		{
@@ -877,13 +877,13 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		if (m_VisualState != m_AnonmalyState)
 			UpdateVisualState(m_AnonmalyState);
 	}
-
-	override void SetActions()
+	
+	/*override void SetActions()
 	{
 		super.SetActions();
 
 		AddAction(ActionAttach);
-	}
+	}*/
 
 	override bool IsHealthVisible()
 	{

@@ -1,5 +1,8 @@
 [
     {
         "Path": "DayZExpansion/NamalskAdventure/GUI/LoadingScreens/loading_screen_1.edds"
+    },
+    {
+        "Path": "DayZExpansion/NamalskAdventure/GUI/LoadingScreens/loading_screen_2.edds"
     }
 ]

@@ -37,7 +37,9 @@ modded class PlayerBase
 	private static autoptr map< string, PlayerBase > s_Expansion_AllPlayersUID = new map< string, PlayerBase >;
 	private static autoptr map< string, string > s_Expansion_AllPlayersUID2PlainID = new map< string, string >;
 
-	private static ref set<PlayerBase> s_Expansion_AllPlayers = new set<PlayerBase>;
+	static ref CF_DoublyLinkedNodes_WeakRef<PlayerBase> s_Expansion_AllPlayers = new CF_DoublyLinkedNodes_WeakRef<PlayerBase>();
+
+	ref CF_DoublyLinkedNode_WeakRef<PlayerBase> m_Expansion_Node;
 	
 	PlayerBase m_Expansion_NextPlayer;
 	PlayerBase m_Expansion_PrevPlayer;
@@ -51,7 +53,7 @@ modded class PlayerBase
 
 	void PlayerBase()
 	{
-		s_Expansion_AllPlayers.Insert(this);
+		m_Expansion_Node = s_Expansion_AllPlayers.Add(this);
 
 		if ( IsMissionClient() && GetGame() && GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ) ) 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeferredClientInit, 100, false );
@@ -67,9 +69,8 @@ modded class PlayerBase
 			RemovePlayer( m_PlayerUID );
 		}
 
-		int index = s_Expansion_AllPlayers.Find(this);
-		if (index > -1)
-			s_Expansion_AllPlayers.Remove(index);
+		if (s_Expansion_AllPlayers)
+			s_Expansion_AllPlayers.Remove(m_Expansion_Node);
 	}
 
 	static void Expansion_SendNear(ScriptRPC rpc, int id, vector position, float distance, Object target = null, bool guaranteed = false)
@@ -166,7 +167,15 @@ modded class PlayerBase
 	
 	static set< PlayerBase > GetAll()
 	{
-		return s_Expansion_AllPlayers;
+		Error("DEPRECATED - please use linked list s_Expansion_AllPlayers");
+		set<PlayerBase> allPlayers = new set<PlayerBase>;
+		auto node = s_Expansion_AllPlayers.m_Head;
+		while (node)
+		{
+			allPlayers.Insert(node.m_Value);
+			node = node.m_Next;
+		}
+		return allPlayers;
 	}
 
 	static set<PlayerBase> Expansion_GetInSphere(vector position, int radius)

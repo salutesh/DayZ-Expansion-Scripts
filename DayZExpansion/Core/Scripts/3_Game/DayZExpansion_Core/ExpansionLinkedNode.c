@@ -19,6 +19,8 @@ class CF_DoublyLinkedNodes<Class T>
 
 	int m_Count;
 
+	ref ScriptInvoker m_OnRemove = new ScriptInvoker;
+
 	void ~CF_DoublyLinkedNodes()
 	{
 #ifdef EXPANSIONTRACE
@@ -68,7 +70,11 @@ class CF_DoublyLinkedNodes<Class T>
 		if (!isHead && node.m_Next == null && node.m_Prev == null)
 			return;
 
+		bool isCurrent = m_Current == node;
+
 		auto next = node.m_Next;
+
+		m_OnRemove.Invoke(node);
 
 		delete node;
 
@@ -78,6 +84,14 @@ class CF_DoublyLinkedNodes<Class T>
 			trace.Debug("Assigning %1 as head node", "" + next);
 #endif
 			m_Head = next;
+		}
+
+		if (isCurrent)
+		{
+#ifdef EXPANSIONTRACE
+			trace.Debug("Assigning %1 as current node", "" + next);
+#endif
+			m_Current = next;
 		}
 
 		m_Count--;
@@ -196,6 +210,8 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 
 	int m_Count;
 
+	ref ScriptInvoker m_OnRemove = new ScriptInvoker;
+
 	void ~CF_DoublyLinkedNodes_WeakRef()
 	{
 #ifdef EXPANSIONTRACE
@@ -245,7 +261,11 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 		if (!isHead && node.m_Next == null && node.m_Prev == null)
 			return;
 
+		bool isCurrent = m_Current == node;
+
 		auto next = node.m_Next;
+
+		m_OnRemove.Invoke(node);
 
 		delete node;
 
@@ -255,6 +275,14 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 			trace.Debug("Assigning %1 as head node", "" + next);
 #endif
 			m_Head = next;
+		}
+
+		if (isCurrent)
+		{
+#ifdef EXPANSIONTRACE
+			trace.Debug("Assigning %1 as current node", "" + next);
+#endif
+			m_Current = next;
 		}
 
 		m_Count--;

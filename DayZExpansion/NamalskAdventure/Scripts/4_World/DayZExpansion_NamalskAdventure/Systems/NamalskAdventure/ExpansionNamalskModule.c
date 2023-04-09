@@ -483,6 +483,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_LastNamalskEvent = event_manager.GetLastEventType();
 		m_EVRStormActive = false;
 		m_EVRStormBlowout = false;
+
+		SetSatelitteActive(false);
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event ended.
@@ -491,8 +493,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		//! PLACEHOLDER
-		
-		SetSatelitteActive(false);
 	}
 
 #ifdef EXPANSIONMODAI

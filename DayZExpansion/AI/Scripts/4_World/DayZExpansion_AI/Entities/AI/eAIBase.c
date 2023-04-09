@@ -119,8 +119,7 @@ class eAIBase: PlayerBase
 	float m_eAI_UpdateTargetsTick;
 	autoptr array<EntityAI> m_eAI_PotentialTargetEntities = new array<EntityAI>();
 	int m_eAI_CurrentPotentialTargetIndex;
-	PlayerBase m_eAI_PotentialTargetPlayer;
-	int m_eAI_CurrentPotentialTargetPlayerIndex;
+	CF_DoublyLinkedNode_WeakRef<PlayerBase> m_eAI_PotentialTargetPlayer;
 	float m_eAI_UpdateNearTargetsTime;
 	int m_eAI_UpdateNearTargetsCount;
 
@@ -216,6 +215,8 @@ class eAIBase: PlayerBase
 		//! Vehicles mod will set this in PlayerBase::Init if loaded
 		if (!m_ExpansionST)
 			m_ExpansionST = new ExpansionHumanST(this);
+
+		s_Expansion_AllPlayers.m_OnRemove.Insert(eAI_OnRemovePlayer);
 	}
 
 	override void Expansion_Init()
@@ -1150,29 +1151,10 @@ class eAIBase: PlayerBase
 
 		if (!GetGroup().GetFaction().IsObserver())  //! Observers only react to near players
 		{
-			PlayerBase player;
-			//if (m_eAI_PotentialTargetPlayer)
-			//{
-				//player = m_eAI_PotentialTargetPlayer.m_Expansion_NextPlayer;
-				//if (!player)
-					//EXTrace.Print(EXTrace.AI, this, "NextPlayer is NULL!");
-			//}
+			if (!m_eAI_PotentialTargetPlayer)
+				m_eAI_PotentialTargetPlayer = s_Expansion_AllPlayers.m_Head;
 
-			//if (!player)
-			//{
-				//player = s_AllPlayers;
-				//if (!player)
-					//EXTrace.Print(EXTrace.AI, this, "s_AllPlayers is NULL!");
-			//}
-
-			//m_eAI_PotentialTargetPlayer = player;
-
-			set<PlayerBase> allPlayers = GetAll();
-
-			if (m_eAI_CurrentPotentialTargetPlayerIndex >= allPlayers.Count())
-				m_eAI_CurrentPotentialTargetPlayerIndex = 0;
-
-			player = allPlayers[m_eAI_CurrentPotentialTargetPlayerIndex++];
+			PlayerBase player = m_eAI_PotentialTargetPlayer.m_Value;
 
 			EntityAI playerEntity = player;
 			if (player && player != this && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1 && Math.IsPointInCircle(center, 1000, player.GetPosition()))
@@ -1185,6 +1167,8 @@ class eAIBase: PlayerBase
 				EXTrace.Add(trace, "player/AI in extended range " + player.GetType() + " time (ms) " + (elapsed / 10000.0).ToString());
 #endif
 			}
+
+			m_eAI_PotentialTargetPlayer = m_eAI_PotentialTargetPlayer.m_Next;
 		}
 
 		PlayerBase playerThreat;
@@ -1262,6 +1246,12 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetEntities.Count())
 			m_eAI_PotentialTargetEntities.Clear();
+	}
+
+	void eAI_OnRemovePlayer(CF_DoublyLinkedNode_WeakRef<PlayerBase> node)
+	{
+		if (node == m_eAI_PotentialTargetPlayer)
+			m_eAI_PotentialTargetPlayer = node.m_Next;
 	}
 
 	bool eAI_RemoveTargets()
@@ -3513,13 +3503,13 @@ class eAIBase: PlayerBase
 			 * Events are stored in the transitions
 			 */
 
-			//! Decrease chance of AI getting stuck between wall and opened door by temporarily limiting speed to walking
+			//! Decrease chance of AI getting stuck between wall and opened door by temporarily stopping before opening
 			int speedLimit = m_MovementSpeedLimit;
 			int speedLimitThreat = m_MovementSpeedLimitUnderThreat;
-			if (speedLimit > 1 || speedLimitThreat > 1)
+			if (speedLimit > 0 || speedLimitThreat > 0)
 			{
-				SetMovementSpeedLimits(1, 1);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 1500, false, speedLimit, speedLimitThreat);
+				SetMovementSpeedLimits(0, 0);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 650, false, speedLimit, speedLimitThreat);
 			}
 
 			//! Always close wreck doors (less chance of getting stuck on them when closed)

@@ -165,11 +165,6 @@ class Expansion_Satellite_Control: House
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-	#ifdef EXPANSIONMODTELEPORTER
-		if (m_LinkedTeleporter)
-			m_LinkedTeleporter.SetActive(true);
-	#endif
-		
 		array<Object> objects = new array<Object>;
 		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
 
@@ -200,6 +195,11 @@ class Expansion_Satellite_Control: House
 				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, null, true, player.GetIdentity());
 		}
 		
+	#ifdef EXPANSIONMODTELEPORTER
+		if (m_LinkedTeleporter)
+			m_LinkedTeleporter.SetActive(true);
+	#endif	
+		
 		SetSatelliteState(true);
 		
 		m_ActiveTimer = new Timer();
@@ -209,9 +209,7 @@ class Expansion_Satellite_Control: House
 	void StopSatellite()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		SetSatelliteState(false);
-		
+			
 		array<Object> objects = new array<Object>;
 		GetGame().GetObjectsAtPosition(GetPosition(), 200, objects, null);
 		
@@ -222,6 +220,12 @@ class Expansion_Satellite_Control: House
 				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, null, true, player.GetIdentity());
 		}
 		
+	#ifdef EXPANSIONMODTELEPORTER
+		if (m_LinkedTeleporter)
+			m_LinkedTeleporter.SetActive(false);
+	#endif	
+		
+		SetSatelliteState(false);
 		m_LinkedSatellite.SetSatelliteActive(false);
 	}
 	

@@ -42,7 +42,7 @@ modded class EVRStorm
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		m_EVRStormPhase = ExpansionEVRStormPhase.MID_PHASE;		
+		m_EVRStormPhase = ExpansionEVRStormPhase.MID_PHASE;
 		ExpansionNamalskModule.GetModuleInstance().OnEVRStormMidPhaseServer();
 		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormMidPhaseServer();
 

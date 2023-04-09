@@ -35,10 +35,10 @@ class Expansion_AnomalyCore_Ice: Expansion_AnomalyCore_Base
 		}
 	}
 	
-	override string GetCoreTexturePath()
+	/*override string GetCoreTexturePath()
 	{
 		return "DayZExpansion\\NamalskAdventure\\Dta\\Items\\Anomaly_Core\\data\\anomaly_core_energy_co.paa";
-	}
+	}*/
 
 	override int GetAnomalyCoreParticle()
 	{

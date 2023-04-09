@@ -57,8 +57,6 @@ modded class CarScript
 		if (!GetGame())
 			return;
 
-		int i;
-
 		if (s_Expansion_AllVehicles)
 			s_Expansion_AllVehicles.Remove(m_Expansion_Node);
 	}
@@ -89,7 +87,7 @@ modded class CarScript
 	{
 		Error("DEPRECATED - please use linked list s_Expansion_AllVehicles");
 		set<CarScript> allVehicles = new set<CarScript>;
-		auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+		auto node = s_Expansion_AllVehicles.m_Head;
 		while (node)
 		{
 			allVehicles.Insert(node.m_Value);

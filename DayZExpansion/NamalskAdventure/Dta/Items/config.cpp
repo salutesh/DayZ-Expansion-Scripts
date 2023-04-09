@@ -63,7 +63,7 @@ class CfgVehicles
 		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\Anomaly_Core.p3d";
 		hiddenSelections[] = {"steel","sun"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core.rvmat"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core_Energy.rvmat"};
 		weight = 500;
 		itemSize[] = {1,1};
 		inventorySlot[] = {"IEDExplosiveA","IEDExplosiveB","Att_ExpansionAnomalyCore"};
@@ -126,7 +126,8 @@ class CfgVehicles
 		scope = 2;
 		displayName = "Warper Plasma";
 		descriptionShort = "A mysterious device that emits an otherworldly energy signature. It is believed to be a key component of the teleport anomalies found on Namalsk.";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_ice_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_warper_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core_Warper_Energy.rvmat"};
 	};
 	class EffectArea;
 	class ExpansionAnomalyAreaBase_Dynamic: EffectArea
