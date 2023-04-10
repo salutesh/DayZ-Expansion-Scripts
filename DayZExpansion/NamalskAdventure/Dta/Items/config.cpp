@@ -62,8 +62,8 @@ class CfgVehicles
 		scope = 1;
 		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\Anomaly_Core.p3d";
 		hiddenSelections[] = {"steel","sun"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core_Energy.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Energy.rvmat"};
 		weight = 500;
 		itemSize[] = {1,1};
 		inventorySlot[] = {"IEDExplosiveA","IEDExplosiveB","Att_ExpansionAnomalyCore"};
@@ -74,7 +74,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 5;
-					healthLevels[] = {{1,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0,{"\DayZExpansion\NamalskAdventure\Dta\Items\data\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat"}}};
 				};
 			};
 			class AnimEvents
@@ -114,6 +114,11 @@ class CfgVehicles
 			class Sun_Shown: AnimSourceShown{};
 		};
 	};
+	class Expansion_AnomalyCore_RedExample: Expansion_AnomalyCore_Base
+	{
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_red_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_red_Energy.rvmat"};
+	};
 	class Expansion_AnomalyCore_Ice: Expansion_AnomalyCore_Base
 	{
 		scope = 2;
@@ -127,7 +132,7 @@ class CfgVehicles
 		displayName = "Warper Plasma";
 		descriptionShort = "A mysterious device that emits an otherworldly energy signature. It is believed to be a key component of the teleport anomalies found on Namalsk.";
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_warper_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\data\Expansion_Anomaly_Core_Warper_Energy.rvmat"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Warper_Energy.rvmat"};
 	};
 	class EffectArea;
 	class ExpansionAnomalyAreaBase_Dynamic: EffectArea
@@ -184,5 +189,14 @@ class CfgVehicles
 		hiddenSelections[] = {"body"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\key_card_satellite_co.paa"};
 		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+	};
+	class Expansion_KeyCard_Teleporter: Expansion_KeyCard_Base
+	{
+		scope = 2;
+		displayName = "Teleporter Access Card";
+		descriptionShort = "PLACEHOLDER";
+		hiddenSelections[] = {"body"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\key_card_teleporter_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Teleporter.rvmat"};
 	};
 };

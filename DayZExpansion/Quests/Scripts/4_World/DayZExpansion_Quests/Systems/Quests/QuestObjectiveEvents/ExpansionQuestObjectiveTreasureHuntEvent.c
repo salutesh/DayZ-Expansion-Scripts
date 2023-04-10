@@ -266,8 +266,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			SetLocationState(state);
 		
 		m_Quest.QuestCompletionCheck(true);
-
-		
 	}
 
 	void SetLocationState(bool state)

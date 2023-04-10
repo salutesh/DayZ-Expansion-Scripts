@@ -69,7 +69,6 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 					distance = 20.0;
 
 				SetTriggerRadius(distance);
-				ClearEventMask(EntityEvent.LEAVE);
 			}
 			break;
 		}
@@ -210,11 +209,11 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 				OnLeave_Travel();
 			}
 			break;
-			/*case ExpansionQuestObjectiveType.TREASUREHUNT:
+			case ExpansionQuestObjectiveType.TREASUREHUNT:
 			{
 				OnLeave_TreasureHunt();
 			}
-			break;*/
+			break;
 		}
 	}
 	
@@ -251,7 +250,7 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		travelEvent.SetReachedLocation(false);
 	}
 
-	/*protected void OnLeave_TreasureHunt()
+	protected void OnLeave_TreasureHunt()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -259,10 +258,8 @@ class ExpansionTravelObjectiveSphereTrigger: ExpansionObjectiveTriggerBase
 		if (!Class.CastTo(treasureHuntEvent, m_Objective))
 			return;
 
-		treasureHuntEvent.SetReachedLocation(false);
-
-		
-	}*/
+		treasureHuntEvent.SetReachedLocation(false);		
+	}
 
 	//! Condition checks on given entity.
 	override bool EntityConditions(IEntity other)

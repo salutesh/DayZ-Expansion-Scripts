@@ -36,7 +36,7 @@ class CfgSoundShaders
 	class Expansion_TeleporterActive_SoundShader: Expansion_Teleporter_SoundShader
 	{
 		samples[] = {{"DayZExpansion\Teleporter\Sounds\data\teleporter_active",1}};
-		volume = 0.7;
+		volume = 0.5;
 		radius = 80;
 		range = 300;
 	};

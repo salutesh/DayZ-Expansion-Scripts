@@ -12,10 +12,9 @@
 
 class ExpansionIcons
 {
-	private static ref ExpansionIcons s_Icons = new ExpansionIcons;
-
-	private autoptr map<string, ref ExpansionIcon> m_IconMap;
-	private autoptr array<ExpansionIcon> m_Icons;
+	protected static ref ExpansionIcons s_Icons = new ExpansionIcons;
+	protected autoptr map<string, ref ExpansionIcon> m_IconMap;
+	protected autoptr array<ExpansionIcon> m_Icons;
 
 	// ------------------------------------------------------------
 	// ExpansionIcons Constructor

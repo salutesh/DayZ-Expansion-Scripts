@@ -24,9 +24,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef EXPANSIONMODAI
 	protected ref map<eAIBase, ref array<vector>> m_SpawnedAI;
 	protected int m_AISpeed;
-#endif
 #ifdef EXPANSIONMODQUESTS
 	protected ref map<eAIBase, ref array<vector>> m_QuestAI;
+#endif
 #endif
 	protected bool m_AIBuildingPositionsSet;
 
@@ -53,9 +53,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	#ifdef EXPANSIONMODAI
 		m_SpawnedAI = new map<eAIBase, ref array<vector>>;
-	#endif
 	#ifdef EXPANSIONMODQUESTS
 		m_QuestAI = new map<eAIBase, ref array<vector>>;
+	#endif
 	#endif
 	}
 
@@ -589,7 +589,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		ai.SetMovementSpeedLimit(m_AISpeed);
 	}
-#endif
 
 #ifdef EXPANSIONMODQUESTS
 	void AfterQuestModuleClientInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity)
@@ -626,6 +625,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenu(identity, 1);
 	}
+#endif
 #endif
 
 #ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL

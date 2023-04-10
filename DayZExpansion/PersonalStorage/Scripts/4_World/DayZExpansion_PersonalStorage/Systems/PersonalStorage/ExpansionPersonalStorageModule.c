@@ -662,12 +662,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
 		if (!storageConfig)
 		{
-			Error(ToString() + "::RPC_RequestDepositItem - Could not get personal stroage data for ID " + storageID);
+			Error(ToString() + "::RPC_RequestDepositItem - Could not get personal stroage data for ID " + storageID);			
 			return;
 		}
 
 		if (!ConditonCheck(senderRPC, storageID, objEntity, storageConfig.IsGlobalStorage()))
+		{
+			CallbackError(senderRPC);
 			return;
+		}
 
 		string displayName = objEntity.GetDisplayName();
 		string playerUID = senderRPC.GetId();
@@ -811,7 +814,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		int playerItemsCount = GetPlayerItemsCount(identity.GetId(), storageID, isGlobal);
 		if (settings.MaxItemsPerStorage != -1 && playerItemsCount >= settings.MaxItemsPerStorage)
 		{
-			ExpansionNotification(new StringLocaliser("Max items to deposit reached!"), new StringLocaliser("You already have %1 items in total in your storage. Limit is %2.", playerItemsCount.ToString(), settings.MaxItemsPerStorage.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);
+			ExpansionNotification(new StringLocaliser("Max items to deposit reached!"), new StringLocaliser("You already have %1 items in total in your storage. Limit is %2.", playerItemsCount.ToString(), settings.MaxItemsPerStorage.ToString()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(identity);			
 			return false;
 		}
 
@@ -957,7 +960,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void RemoveItemByGlobalID(string playerUID, TIntArray globalID)
 	{
-		array<ref ExpansionPersonalStorageItem> items = new array<ref ExpansionPersonalStorageItem>;
+		array<ref ExpansionPersonalStorageItem> items;
 		m_ItemsData.Find(playerUID, items);
 
 		for (int i = items.Count() - 1; i >= 0; i--)
@@ -980,7 +983,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected ExpansionPersonalStorageItem GetPersonalItemByGlobalID(string playerUID, TIntArray globalID)
 	{
-		array<ref ExpansionPersonalStorageItem>  items = new array<ref ExpansionPersonalStorageItem>;
+		array<ref ExpansionPersonalStorageItem> items;
 		m_ItemsData.Find(playerUID, items);
 
 		for (int i = 0; i < items.Count(); i++)
