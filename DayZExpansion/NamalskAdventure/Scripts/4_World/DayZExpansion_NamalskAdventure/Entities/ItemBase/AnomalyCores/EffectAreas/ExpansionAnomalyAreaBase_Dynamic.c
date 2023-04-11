@@ -1,5 +1,5 @@
 /**
- * ExpansionAnomalyArea_Local.c
+ * ExpansionAnomalyAreaBase_Dynamic.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,8 +10,9 @@
  *
 */
 
-// The dynamic anormal area, using it's own default settings
-class ExpansionAnomalyArea_Dynamic : EffectArea
+//! The dynamic anormal area, using it's own default settings
+//! @note:
+class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 {
 	protected ref Timer 	m_StartupTimer;
 	protected ref Timer 	m_FXTimer;
@@ -41,7 +42,7 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 	const ref array<float> 		SPAWN_ITEM_RAD_MAX 		= {15};//max distance the item will be spawned from the area position(epicenter)
 
 
-	void ExpansionAnomalyArea_Dynamic()
+	void ExpansionAnomalyAreaBase_Dynamic()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
@@ -150,7 +151,7 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 
 			//! We update the trigger state values as we also want to update player bound effects
 			if (m_Trigger)
-				ExpansionAnomalyTrigger_Dynamic.Cast(m_Trigger).SetAreaState(m_DecayState);
+				ExpansionAnomalyTriggerBase_Dynamic.Cast(m_Trigger).SetAreaState(m_DecayState);
 
 			SetSynchDirty();
 		}
@@ -174,7 +175,7 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 		m_OuterSpacing = 30;
 		m_OuterRingOffset = 0;
 		m_Type = eZoneType.DYNAMIC;
-		m_TriggerType = "ExpansionAnomalyTrigger_Dynamic";
+		m_TriggerType = "ExpansionAnomalyTriggerBase_Dynamic";
 
 		SetSynchDirty();
 
@@ -215,10 +216,10 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 		super.InitZoneServer();
 
 		SpawnItems();
-		
+
 		//! We create the trigger on server
 		if (m_TriggerType != "")
-			CreateTrigger( m_Position, m_Radius );
+			CreateTrigger(m_Position, m_Radius);
 	}
 
 	void SpawnItems()
@@ -247,12 +248,14 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 
 	override void InitZoneClient()
 	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
 		super.InitZoneClient();
 
 		if (!m_ToxicClouds)
 			m_ToxicClouds = new array<Particle>;
 
-		// We spawn VFX on client
+		//! We spawn VFX on client
 		PlaceParticles(GetWorldPosition(), m_Radius, m_InnerRings, m_InnerSpacing, m_OuterRingToggle, m_OuterSpacing, m_OuterRingOffset, m_ParticleID);
 	}
 
@@ -261,7 +264,7 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		super.OnParticleAllocation(pm, particles);
-				
+
 		if ( m_DecayState > eAreaDecayStage.LIVE )
 		{
 			foreach (ParticleSource p : particles)
@@ -286,8 +289,8 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 
 		super.CreateTrigger(pos, radius);
 
-		// This handles the specific case of dynamic triggers as some additionnal parameters are present
-		ExpansionAnomalyTrigger_Dynamic dynaTrigger = ExpansionAnomalyTrigger_Dynamic.Cast(m_Trigger);
+		//! note: This handles the specific case of dynamic triggers as some additionnal parameters are present
+		ExpansionAnomalyTriggerBase_Dynamic dynaTrigger = ExpansionAnomalyTriggerBase_Dynamic.Cast(m_Trigger);
 		if (dynaTrigger)
 		{
 			dynaTrigger.SetLocalEffects(m_AroundParticleID, m_TinyParticleID, m_PPERequesterIdx);
@@ -301,19 +304,19 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 
 		if (GetGame().IsServer())
 		{
-			Param1<vector> pos; // The value to be sent through RPC
-			array<ref Param> params; // The RPC params
+			Param1<vector> pos; //! The value to be sent through RPC
+			array<ref Param> params; //! The RPC params
 
-			// We prepare to send the message
+			//! We prepare to send the message
 			pos = new Param1<vector>(vector.Zero);
 			params = new array<ref Param>;
 
-			// We send the message with this set of coords
+			//! We send the message with this set of coords
 			pos.param1 = m_OffsetPos;
 			params.Insert(pos);
 			GetGame().RPC(null, ERPCs.RPC_SOUND_CONTAMINATION, params, true);
 
-			// We go to the next stage
+			//! We go to the next stage
 			m_DecayState = eAreaDecayStage.START;
 			SetSynchDirty();
 		}
@@ -393,7 +396,7 @@ class ExpansionAnomalyArea_Dynamic : EffectArea
 			break;
 		}
 	}
-	
+
 	protected void DebugTrace(string text)
 	{
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);

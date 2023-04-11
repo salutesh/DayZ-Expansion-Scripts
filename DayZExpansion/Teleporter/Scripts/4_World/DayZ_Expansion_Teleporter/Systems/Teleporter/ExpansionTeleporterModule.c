@@ -30,11 +30,15 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	void ExpansionTeleporterModule()
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		s_Instance = this;
 	}
 
 	override void OnInit()
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		EnableMissionStart();
 		EnableRPC();
 	}
@@ -47,6 +51,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		m_TeleporterData = new map<int, ref ExpansionTeleportData>;
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
@@ -75,6 +81,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void LoadTeleporterServerData()
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		array<string> teleporterFiles = ExpansionStatic.FindFilesInLocation(s_TeleporterDataFolderPath, ".json");
 		if (teleporterFiles && teleporterFiles.Count() > 0)
 		{
@@ -91,10 +99,14 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void CreateDefaultTeleporterData()
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
 		teleporterData.SetID(1);
 		teleporterData.SetDisplayName("Sebjan Reservoir");
+	#ifdef EXPANSIONMODAI
 		teleporterData.SetFactionName("Resistance");
+	#endif
 		teleporterData.SetObjectPosition(Vector(6030.101563, 5.685052, 10047.874023));
 		teleporterData.SetObjectOrientation(Vector(77.317390, 0, 0));
 
@@ -105,15 +117,39 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		teleporterData.AddTeleportPosition(teleportPos);
 		
-		m_TeleporterData.Insert(teleporterData.GetID(), teleporterData);
+		AddTeleporterData(teleporterData);
 		
 		teleporterData.Save();
-
 		teleporterData.SpawnTeleporter();
+		
+	#ifdef EXPANSION_NAMALSK_ADVENTURE
+		teleporterData = new ExpansionTeleportData();
+		teleporterData.SetID(2);
+		teleporterData.SetDisplayName("Science Society");
+	#ifdef EXPANSIONMODAI
+		teleporterData.SetFactionName("ScienceSociety");
+	#endif
+		teleporterData.SetObjectPosition(Vector(6030.101563, 5.685052, 10047.874023));
+		teleporterData.SetObjectOrientation(Vector(77.317390, 0, 0));
+
+		teleportPos = new ExpansionTeleportPosition();
+		teleportPos.SetData("Science Society - Secret Base", "ScienceSociety");
+		teleportPos.AddPosition(Vector(5079.959961, 2085.610107, 11720.700195), Vector(0.000000, 0.000000, 0.000000));
+		teleportPos.AddPosition(Vector(5075.359863, 2085.610107, 11715.299805), Vector(0.000000, 0.000000, 0.000000));
+
+		teleporterData.AddTeleportPosition(teleportPos);
+
+		AddTeleporterData(teleporterData);
+		
+		teleporterData.Save();
+		teleporterData.SpawnTeleporter();
+	#endif
 	}
 
 	protected void GetTeleporterData(string fileName, string path)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		ExpansionTeleportData teleporterData = ExpansionTeleportData.Load(path + fileName);
 		if (!teleporterData)
 			return;
@@ -134,6 +170,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		super.OnRPC(sender, args);
 		auto rpc = CF_EventRPCArgs.Cast(args);
 
@@ -160,7 +198,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Server
 	void RequestOpenTeleporterMenu(Object target, PlayerIdentity identity)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -198,10 +236,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Client
 	protected void RPC_RequestOpenTeleporterMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
-
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -232,7 +270,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Client
 	void RequestTeleport(ExpansionTeleportPositionEntry pos, vector teleporterObjPos)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 		
 		if (!GetGame().IsClient())
 		{
@@ -249,10 +287,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	//! Server
 	protected void RPC_RequestTeleport(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
-
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -284,13 +322,15 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		if (position[1] == 0)
 			position[1] = GetGame().SurfaceY(position[0], position[2]);
 
-		PlayTeleportSound(playerPos, ExpansionTeleporterSound.TELEPORT_ACTIVE);
+		PlayTeleportSound(teleporterObjPos, ExpansionTeleporterSound.TELEPORT_ACTIVE);
 		PlayTeleportSound(position, ExpansionTeleporterSound.TELEPORT_ACTIVE);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, player, position, orientation, teleporterObjPos);
 	}
 	
 	void TeleportPlayer(PlayerBase player, vector pos, vector ori, vector teleporterObjPos)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		vector playerPos = player.GetPosition();
 		int currentDistance = vector.Distance(playerPos, teleporterObjPos);
 		if (currentDistance > 3.0)
@@ -304,6 +344,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	void PlayTeleportSound(vector position, ExpansionTeleporterSound sound)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
 			Error(ToString() + "::PlayTeleportSound - Tryed to call PlayTeleportSound on Client!");
@@ -327,6 +369,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 	protected void RPC_PlayTeleportSound(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
 			Error(ToString() + "::RPC_PlayTeleportSound - Magic number check failed!");
@@ -373,6 +417,14 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		soundEffect.SetSoundAutodestroy(true);
 	#endif
 	}
+	
+	void AddTeleporterData(ExpansionTeleportData data)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+		if (!m_TeleporterData.Contains(data.GetID()))
+			m_TeleporterData.Insert(data.GetID(), data);
+	}
 
 	//! Server
 	ExpansionTeleportData GetTeleporterDataByID(int id)
@@ -405,7 +457,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	void TeleporterModulePrint(string text)
 	{
 	#ifdef EXPANSIONMODTELEPORTERDEBUG
-		Print(text);
+		EXTrace.Print(EXTrace.TELEPORTER, this, text);
 	#endif
 	}
 

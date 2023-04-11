@@ -119,8 +119,7 @@ class eAIBase: PlayerBase
 	float m_eAI_UpdateTargetsTick;
 	autoptr array<EntityAI> m_eAI_PotentialTargetEntities = new array<EntityAI>();
 	int m_eAI_CurrentPotentialTargetIndex;
-	PlayerBase m_eAI_PotentialTargetPlayer;
-	int m_eAI_CurrentPotentialTargetPlayerIndex;
+	CF_DoublyLinkedNode_WeakRef<PlayerBase> m_eAI_PotentialTargetPlayer;
 	float m_eAI_UpdateNearTargetsTime;
 	int m_eAI_UpdateNearTargetsCount;
 
@@ -208,6 +207,8 @@ class eAIBase: PlayerBase
 #endif
 
 			LoadFSM();
+
+			s_Expansion_AllPlayers.m_OnRemove.Insert(eAI_OnRemovePlayer);
 		}
 
 		LookAtDirection("0 0 1");
@@ -650,6 +651,9 @@ class eAIBase: PlayerBase
 		{
 			GetGroup().RemoveMember(this);
 		}
+
+		if (GetGame().IsServer() && !IsDamageDestroyed())
+			s_Expansion_AllPlayers.m_OnRemove.Remove(eAI_OnRemovePlayer);
 	}
 
 	override bool IsAI()
@@ -1150,29 +1154,10 @@ class eAIBase: PlayerBase
 
 		if (!GetGroup().GetFaction().IsObserver())  //! Observers only react to near players
 		{
-			PlayerBase player;
-			//if (m_eAI_PotentialTargetPlayer)
-			//{
-				//player = m_eAI_PotentialTargetPlayer.m_Expansion_NextPlayer;
-				//if (!player)
-					//EXTrace.Print(EXTrace.AI, this, "NextPlayer is NULL!");
-			//}
+			if (!m_eAI_PotentialTargetPlayer)
+				m_eAI_PotentialTargetPlayer = s_Expansion_AllPlayers.m_Head;
 
-			//if (!player)
-			//{
-				//player = s_AllPlayers;
-				//if (!player)
-					//EXTrace.Print(EXTrace.AI, this, "s_AllPlayers is NULL!");
-			//}
-
-			//m_eAI_PotentialTargetPlayer = player;
-
-			set<PlayerBase> allPlayers = GetAll();
-
-			if (m_eAI_CurrentPotentialTargetPlayerIndex >= allPlayers.Count())
-				m_eAI_CurrentPotentialTargetPlayerIndex = 0;
-
-			player = allPlayers[m_eAI_CurrentPotentialTargetPlayerIndex++];
+			PlayerBase player = m_eAI_PotentialTargetPlayer.m_Value;
 
 			EntityAI playerEntity = player;
 			if (player && player != this && m_eAI_PotentialTargetEntities.Find(playerEntity) == -1 && Math.IsPointInCircle(center, 1000, player.GetPosition()))
@@ -1185,6 +1170,8 @@ class eAIBase: PlayerBase
 				EXTrace.Add(trace, "player/AI in extended range " + player.GetType() + " time (ms) " + (elapsed / 10000.0).ToString());
 #endif
 			}
+
+			m_eAI_PotentialTargetPlayer = m_eAI_PotentialTargetPlayer.m_Next;
 		}
 
 		PlayerBase playerThreat;
@@ -1262,6 +1249,12 @@ class eAIBase: PlayerBase
 
 		if (m_eAI_CurrentPotentialTargetIndex >= m_eAI_PotentialTargetEntities.Count())
 			m_eAI_PotentialTargetEntities.Clear();
+	}
+
+	void eAI_OnRemovePlayer(CF_DoublyLinkedNode_WeakRef<PlayerBase> node)
+	{
+		if (node == m_eAI_PotentialTargetPlayer)
+			m_eAI_PotentialTargetPlayer = node.m_Next;
 	}
 
 	bool eAI_RemoveTargets()
@@ -1792,13 +1785,13 @@ class eAIBase: PlayerBase
 		//{
 		//	car.Control(pDt);
 		// }
-
+#ifdef DIAG
 #ifndef SERVER
 		for (int i = m_Expansion_DebugShapes.Count() - 1; i >= 0; i--)
 			m_Expansion_DebugShapes[i].Destroy();
 		m_Expansion_DebugShapes.Clear();
 #endif
-
+#endif
 		if (pCurrentCommandID != m_eAI_CurrentCommandID)
 		{
 			if (EXTrace.AI)
@@ -2703,6 +2696,12 @@ class eAIBase: PlayerBase
 		float daylightVisibility;
 
 		m_Environment.Expansion_GetWeatherVisibility(fogVisibility, overcastVisibility, rainVisibility, daylightVisibility);
+		if (!fogVisibility)
+			EXPrint(this, "ERROR: Fog visibility is zero!");
+		if (!overcastVisibility)
+			EXPrint(this, "ERROR: Overcast visibility is zero!");
+		if (!rainVisibility)
+			EXPrint(this, "ERROR: Rain visibility is zero!");
 
 		if (force || daylightVisibility != m_Expansion_DaylightVisibility)
 		{
@@ -2724,9 +2723,13 @@ class eAIBase: PlayerBase
 		}
 
 		m_Expansion_Visibility = m_Expansion_BaseVisibility;
+		if (!m_Expansion_Visibility)
+			EXPrint(this, "ERROR: Base visibility is zero!");
 
 		float visibilityLimit = m_eAI_ThreatDistanceLimit * 0.001;
-		if (m_Expansion_Visibility > visibilityLimit)
+		if (!visibilityLimit)
+			EXPrint(this, "ERROR: Visibility limit is zero! Threat distance limit: " + m_eAI_ThreatDistanceLimit);
+		if (visibilityLimit > 0 && m_Expansion_Visibility > visibilityLimit)
 			m_Expansion_Visibility = visibilityLimit;
 
 		//! Limit visibility in contaminated areas due to gas clouds
@@ -2775,6 +2778,7 @@ class eAIBase: PlayerBase
 		{
 			m_WeaponRaisedTimer += pDt;
 
+#ifdef DIAG
 #ifndef SERVER
 			vector position;
 			vector direction;
@@ -2785,6 +2789,7 @@ class eAIBase: PlayerBase
 			points[0] = position;
 			points[1] = position + (direction * 1000.0);
 			m_Expansion_DebugShapes.Insert(Shape.CreateLines(COLOR_BLUE, ShapeFlags.VISIBLE, points, 2));
+#endif
 #endif
 
 			vector aimTargetRelAngles = m_eAI_AimDirectionTarget_ModelSpace.VectorToAngles();
@@ -3501,13 +3506,13 @@ class eAIBase: PlayerBase
 			 * Events are stored in the transitions
 			 */
 
-			//! Decrease chance of AI getting stuck between wall and opened door by temporarily limiting speed to walking
+			//! Decrease chance of AI getting stuck between wall and opened door by temporarily stopping before opening
 			int speedLimit = m_MovementSpeedLimit;
 			int speedLimitThreat = m_MovementSpeedLimitUnderThreat;
-			if (speedLimit > 1 || speedLimitThreat > 1)
+			if (speedLimit > 0 || speedLimitThreat > 0)
 			{
-				SetMovementSpeedLimits(1, 1);
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 1500, false, speedLimit, speedLimitThreat);
+				SetMovementSpeedLimits(0, 0);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, 650, false, speedLimit, speedLimitThreat);
 			}
 
 			//! Always close wreck doors (less chance of getting stuck on them when closed)

@@ -15,8 +15,11 @@
 class CF_DoublyLinkedNodes<Class T>
 {
 	ref CF_DoublyLinkedNode<T> m_Head;
+	CF_DoublyLinkedNode<T> m_Current;
 
 	int m_Count;
+
+	ref ScriptInvoker m_OnRemove = new ScriptInvoker;
 
 	void ~CF_DoublyLinkedNodes()
 	{
@@ -67,7 +70,11 @@ class CF_DoublyLinkedNodes<Class T>
 		if (!isHead && node.m_Next == null && node.m_Prev == null)
 			return;
 
+		bool isCurrent = m_Current == node;
+
 		auto next = node.m_Next;
+
+		m_OnRemove.Invoke(node);
 
 		delete node;
 
@@ -79,11 +86,45 @@ class CF_DoublyLinkedNodes<Class T>
 			m_Head = next;
 		}
 
+		if (isCurrent)
+		{
+#ifdef EXPANSIONTRACE
+			trace.Debug("Assigning %1 as current node", "" + next);
+#endif
+			m_Current = next;
+		}
+
 		m_Count--;
 
 #ifdef EXPANSIONTRACE
 		trace.Debug("Count: %1", "" + m_Count);
 #endif
+	}
+
+	//! @brief processes elements in the linked list.
+	//! if `limit` is set to a nonzero value, only `n` elements are processed each call.
+	//! The value of each node is passed to the callback.
+	//! Returns the number of processed elements.
+	int Each(ScriptCaller callback, int limit = 0)
+	{
+		if (!m_Current)
+			m_Current = m_Head;
+
+		//! @note: Enforce garbage collects references to function arguments inside loops after the first iteration,
+		//! so we have to assign a local variable and use that instead to avoid premature garbage collection
+		ScriptCaller localCallback = callback;
+
+		int count;
+		while (m_Current)
+		{
+			localCallback.Invoke(m_Current.m_Value);
+			m_Current = m_Current.m_Next;
+			count++;
+			if (limit > 0 && count == limit)
+				break;
+		}
+
+		return count;
 	}
 }
 
@@ -165,8 +206,11 @@ class CF_DoublyLinkedNode<Class T>
 class CF_DoublyLinkedNodes_WeakRef<Class T>
 {
 	ref CF_DoublyLinkedNode_WeakRef<T> m_Head;
+	CF_DoublyLinkedNode_WeakRef<T> m_Current;
 
 	int m_Count;
+
+	ref ScriptInvoker m_OnRemove = new ScriptInvoker;
 
 	void ~CF_DoublyLinkedNodes_WeakRef()
 	{
@@ -217,7 +261,11 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 		if (!isHead && node.m_Next == null && node.m_Prev == null)
 			return;
 
+		bool isCurrent = m_Current == node;
+
 		auto next = node.m_Next;
+
+		m_OnRemove.Invoke(node);
 
 		delete node;
 
@@ -229,11 +277,45 @@ class CF_DoublyLinkedNodes_WeakRef<Class T>
 			m_Head = next;
 		}
 
+		if (isCurrent)
+		{
+#ifdef EXPANSIONTRACE
+			trace.Debug("Assigning %1 as current node", "" + next);
+#endif
+			m_Current = next;
+		}
+
 		m_Count--;
 
 #ifdef EXPANSIONTRACE
 		trace.Debug("Count: %1", "" + m_Count);
 #endif
+	}
+
+	//! @brief processes elements in the linked list.
+	//! if `limit` is set to a nonzero value, only `n` elements are processed each call.
+	//! The value of each node is passed to the callback.
+	//! Returns the number of processed elements.
+	int Each(ScriptCaller callback, int limit = 0)
+	{
+		if (!m_Current)
+			m_Current = m_Head;
+
+		//! @note: Enforce garbage collects references to function arguments inside loops after the first iteration,
+		//! so we have to assign a local variable and use that instead to avoid premature garbage collection
+		ScriptCaller localCallback = callback;
+
+		int count;
+		while (m_Current)
+		{
+			localCallback.Invoke(m_Current.m_Value);
+			m_Current = m_Current.m_Next;
+			count++;
+			if (limit > 0 && count == limit)
+				break;
+		}
+
+		return count;
 	}
 }
 

@@ -15,6 +15,7 @@ class ExpansionNamalskAdventureDataBase
 	int Version;
 };
 
+
 class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 {
 	[NonSerialized()];
@@ -78,12 +79,12 @@ class ExpansionNamalskAdventureData: ExpansionNamalskAdventureDataBase
 	{
 		m_LastMerchantPositions.Clear();
 	}
-	
+
 	array<int> GetUsedMerchantItemSets()
 	{
 		return m_LastMerchantItemSets:
 	}
-	
+
 	array<int> GetUsedMerchantPositions()
 	{
 		return m_LastMerchantPositions:

@@ -12,10 +12,13 @@
 
 modded class ModItemRegisterCallbacks
 {
-	override void RegisterOneHanded( DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior )
+	override void RegisterOneHanded(DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior)
 	{
-		super.RegisterOneHanded( pType, pBehavior );
+		super.RegisterOneHanded(pType, pBehavior);
 
 		pType.AddItemInHandsProfileIK("Expansion_AnomalyCore_Ice", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/explosives/POX_grenade.anm");
+		pType.AddItemInHandsProfileIK("Expansion_AnomalyCore_Warper", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/explosives/POX_grenade.anm");
+		pType.AddItemInHandsProfileIK("ExpansionAnomalyCoreProtectiveCase", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/protector_case.anm");
+		pType.AddItemInHandsProfileIK("Expansion_KeyCard_NA_Antenna", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
 	}
 };

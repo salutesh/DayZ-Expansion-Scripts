@@ -1,5 +1,5 @@
 /**
- * ExpansionAnomalyArea_Local.c
+ * ExpansionAnomalyAreaSingularity_Local.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,7 +10,7 @@
  *
 */
 
-class ExpansionAnomalyArea_Local: ExpansionAnomalyArea_Dynamic
+class ExpansionAnomalyAreaSingularity_Local: ExpansionAnomalyAreaBase_Dynamic
 {
 	const float TICK_RATE 	= 1;
 	ref Timer 	m_Timer1 	= new Timer;
@@ -30,7 +30,7 @@ class ExpansionAnomalyArea_Local: ExpansionAnomalyArea_Dynamic
 		params.m_ParamNegHeight 	= 5;
 		params.m_ParamRadius 		= 10;
 		params.m_ParamOuterToggle 	= false;
-		params.m_ParamTriggerType 	= "ExpansionAnomalyTrigger_Dynamic";
+		params.m_ParamTriggerType 	= "ExpansionAnomalyTriggerSingularity_Dynamic";
 
 		params.m_ParamAroundPartId 	= 0;
 		params.m_ParamTinyPartId 	= 0;

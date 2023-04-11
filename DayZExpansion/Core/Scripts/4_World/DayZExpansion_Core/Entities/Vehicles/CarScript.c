@@ -15,7 +15,9 @@
  **/
 modded class CarScript
 {
-	private static ref set< CarScript > m_allVehicles = new set< CarScript >;
+	static ref CF_DoublyLinkedNodes_WeakRef<CarScript> s_Expansion_AllVehicles = new CF_DoublyLinkedNodes_WeakRef<CarScript>();
+
+	ref CF_DoublyLinkedNode_WeakRef<CarScript> m_Expansion_Node;
 
 	protected autoptr ExpansionZoneActor m_Expansion_SafeZoneInstance = new ExpansionZoneEntity<CarScript>(this);
 
@@ -42,7 +44,7 @@ modded class CarScript
 	// ------------------------------------------------------------
 	void CarScript()
 	{
-		m_allVehicles.Insert( this );
+		m_Expansion_Node = s_Expansion_AllVehicles.Add(this);
 		RegisterNetSyncVariableBool("m_Expansion_SynchLastDriverUID");
 		RegisterNetSyncVariableInt("m_Expansion_CargoCount");
 	}
@@ -55,13 +57,8 @@ modded class CarScript
 		if (!GetGame())
 			return;
 
-		int i;
-
-		i = m_allVehicles.Find( this );
-		if ( i >= 0 )
-		{
-			m_allVehicles.Remove( i );
-		}
+		if (s_Expansion_AllVehicles)
+			s_Expansion_AllVehicles.Remove(m_Expansion_Node);
 	}
 
 	override void DeferredInit()
@@ -88,7 +85,15 @@ modded class CarScript
 
 	static set< CarScript > GetAll()
 	{
-		return m_allVehicles;
+		Error("DEPRECATED - please use linked list s_Expansion_AllVehicles");
+		set<CarScript> allVehicles = new set<CarScript>;
+		auto node = s_Expansion_AllVehicles.m_Head;
+		while (node)
+		{
+			allVehicles.Insert(node.m_Value);
+			node = node.m_Next;
+		}
+		return allVehicles;
 	}
 
 	array< ExpansionSkin > ExpansionGetSkins()
@@ -163,6 +168,50 @@ modded class CarScript
 	bool Expansion_CanObjectAttach(Object obj)
 	{
 		return false;
+	}
+
+	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false)
+	{
+		if (IsDamageDestroyed())
+			return false;
+
+		if (GetFluidFraction(CarFluid.FUEL) <= 0)
+			return false;
+
+		EntityAI item;
+
+		if (IsVitalCarBattery() || IsVitalTruckBattery())
+		{
+			item = GetBattery();
+			if (!item || item.IsRuined() || item.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
+				return false;
+		}
+
+		if (IsVitalSparkPlug())
+		{
+			item = FindAttachmentBySlotName("SparkPlug");
+			if (!item || item.IsRuined())
+				return false;
+		}
+
+		if (IsVitalGlowPlug())
+		{
+			item = FindAttachmentBySlotName("GlowPlug");
+			if (!item || item.IsRuined())
+				return false;
+		}
+
+		if (checkOptionalParts)
+		{
+			if (IsVitalRadiator())
+			{
+				item = GetRadiator();
+				if (!item || item.IsRuined())
+					return false;
+			}
+		}
+
+		return true;
 	}
 
 	override void EEInit()

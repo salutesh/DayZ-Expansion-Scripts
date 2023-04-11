@@ -1386,6 +1386,37 @@ modded class CarScript
 		return Expansion_CanPlayerAttach();
 	}
 
+	override bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false)
+	{
+		if (!super.Expansion_IsVehicleFunctional(checkOptionalParts))
+			return false;
+
+		EntityAI item;
+		
+		if (IsVitalHelicopterBattery() || IsVitalAircraftBattery())
+		{
+			item = GetBattery();
+			if (!item || item.IsRuined() || item.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
+				return false;
+		}
+	
+		if (IsVitalHydraulicHoses())
+		{
+			item = FindAttachmentBySlotName("ExpansionHydraulicHoses");
+			if (!item || item.IsRuined())
+				return false;
+		}
+	
+		if (IsVitalIgniterPlug())
+		{
+			item = FindAttachmentBySlotName("ExpansionIgniterPlug");
+			if (!item || item.IsRuined())
+				return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * @note only called if CanObjectAttach returns true.
 	 */

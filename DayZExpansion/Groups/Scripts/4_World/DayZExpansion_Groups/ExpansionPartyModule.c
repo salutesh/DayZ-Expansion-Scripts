@@ -390,6 +390,8 @@ class ExpansionPartyModule: CF_ModuleWorld
 				continue;
 			}
 
+			currPlayer.OnLeave();
+
 			PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
 			if (partyPlayer && partyPlayer.GetIdentity())
 			{

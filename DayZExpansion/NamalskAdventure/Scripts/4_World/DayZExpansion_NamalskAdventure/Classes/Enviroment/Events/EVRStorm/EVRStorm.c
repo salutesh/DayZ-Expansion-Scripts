@@ -10,69 +10,127 @@
  *
 */
 
+enum ExpansionEVRStormPhase
+{
+	NONE = 0,
+	INIT_PHASE = 1,
+	MID_PHASE = 2,
+	BLOWOUT = 3,
+	END_PHASE = 4
+};
+
 modded class EVRStorm
 {
+	protected ExpansionEVRStormPhase m_EVRStormPhase = ExpansionEVRStormPhase.NONE;
+	
 	override void InitPhaseServer()
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		m_EVRStormPhase = ExpansionEVRStormPhase.INIT_PHASE;
+		ExpansionNamalskModule.GetModuleInstance().OnEVRStormInitPhaseServer();
+		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormInitPhaseServer();
+
+	#ifdef DIAG
+		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("INIT PHASE STARTED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
+	#endif
+
 		super.InitPhaseServer();
-		
-		ExpansionNamalskModule expNamalskModule = ExpansionNamalskModule.GetModuleInstance();
-		if (expNamalskModule)
-		{
-			expNamalskModule.OnEVRStormInitPhaseServer();
-		}
 	}
 
 	override void MidPhaseServer()
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		m_EVRStormPhase = ExpansionEVRStormPhase.MID_PHASE;
+		ExpansionNamalskModule.GetModuleInstance().OnEVRStormMidPhaseServer();
+		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormMidPhaseServer();
+
+	#ifdef DIAG
+		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("MID PHASE STARTED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
+	#endif
+
 		super.MidPhaseServer();
 	}
 
 	override void EndPhaseServer()
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		m_EVRStormPhase = ExpansionEVRStormPhase.END_PHASE;
+
 		super.EndPhaseServer();
-		
-		ExpansionNamalskModule expNamalskModule = ExpansionNamalskModule.GetModuleInstance();
-		if (expNamalskModule)
-		{
-			expNamalskModule.OnEVRStormEndPhaseServer();
-		}
+
+		ExpansionNamalskModule.GetModuleInstance().OnEVRStormEndPhaseServer();
+		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormEndPhaseServer();
+
+		m_EVRStormPhase = ExpansionEVRStormPhase.NONE;
+
+	#ifdef DIAG
+		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("END PHASE STARTED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
+	#endif
+
 	}
 
-	override void InitPhaseClient(float phase_time)
+	override void CreateBlowoutFinalServer()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		m_EVRStormPhase = ExpansionEVRStormPhase.BLOWOUT;
+
+		super.CreateBlowoutFinalServer();
+		
+		ExpansionNamalskModule.GetModuleInstance().OnEVRStormFinalBlowout();
+		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormFinalBlowout();
+
+	#ifdef DIAG
+		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("EVR STORM BLOWOUT"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create();
+	#endif
+	}
+	
+	override void OnEVRFinished(notnull SurvivorBase player)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		if (!player.GetIdentity())
+			return;
+
+		super.OnEVRFinished(player);
+		
+		ExpansionNamalskModule.GetModuleInstance().OnEVRStormFinished(player);
+		ExpansionAnomaliesModule.GetModuleInstance().OnEVRStormFinished(player);
+
+	#ifdef DIAG
+		ExpansionNotification(new StringLocaliser("EVR STORM"), new StringLocaliser("EVR STORM FINISHED"), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_INFO, 7, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+	#endif
+	}
+
+	/*override void InitPhaseClient(float phase_time)
 	{
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		super.InitPhaseClient(phase_time);
 	}
 
 	override void MidPhaseClient(float phase_time)
 	{
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		super.MidPhaseClient(phase_time);
 	}
 
 	override void EndPhaseClient(float phase_time)
 	{
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		super.EndPhaseClient(phase_time);
+	}*/
+
+	ExpansionEVRStormPhase GetEVRStormPhase()
+	{
+		return m_EVRStormPhase;
 	}
 
-	override void OnEVRFinished(notnull SurvivorBase player)
-	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		super.OnEVRFinished(player);
-	}
-	
 	protected void DebugTrace(string text)
 	{
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);

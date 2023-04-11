@@ -1,6 +1,9 @@
 modded class DayZPlayerImplement
 {
-	static int DEBUG_EXPANSION_CLIMB = 0;
+#ifdef DIAG
+	static int DEBUG_EXPANSION_AI_CLIMB;
+	static bool DEBUG_EXPANSION_AI_VEHICLE;
+#endif
 	
 	private autoptr eAITargetInformation m_TargetInformation;
 
@@ -18,8 +21,10 @@ modded class DayZPlayerImplement
 	int m_eAI_LastAggressionTime;
 	float m_eAI_LastAggressionTimeout;
 
+#ifdef DIAG
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
+#endif
 #endif
 
 	void DayZPlayerImplement()
@@ -356,6 +361,7 @@ modded class DayZPlayerImplement
 		return 0;
 	}
 
+#ifdef DIAG
 #ifndef SERVER
 	void AddShape(Shape shape)
 	{
@@ -371,19 +377,19 @@ modded class DayZPlayerImplement
 		m_Expansion_DebugShapes.Clear();
 #endif
 
-		if (DEBUG_EXPANSION_CLIMB != 0)
+		if (DEBUG_EXPANSION_AI_CLIMB != 0)
 		{
 			PlayerBase playerPB = PlayerBase.Cast(this);
 	
 			SHumanCommandClimbResult result();
 			
-			if (DEBUG_EXPANSION_CLIMB & 0x01 != 0)
+			if (DEBUG_EXPANSION_AI_CLIMB & 0x01 != 0)
 			{
 				HumanCommandClimb.DoClimbTest(playerPB, result, 0);
 				ExpansionClimb.DebugClimb(playerPB, result, 0xAAFFFF00, 0xAA00FFFF);
 			}
 			
-			if (DEBUG_EXPANSION_CLIMB & 0x10 != 0)
+			if (DEBUG_EXPANSION_AI_CLIMB & 0x10 != 0)
 			{
 				ExpansionClimb.DoClimbTest(playerPB, result);
 				ExpansionClimb.DebugClimb(playerPB, result, 0xAAFF0000, 0xAA0000FF);
@@ -392,4 +398,5 @@ modded class DayZPlayerImplement
 
 		super.CommandHandler(pDt, pCurrentCommandID, pCurrentCommandFinished);
 	}
+#endif
 };

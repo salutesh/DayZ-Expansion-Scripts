@@ -24,6 +24,7 @@ modded class MissionGameplay
 	{
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 
+		PlayerBase.Expansion_RegisterInventoryItemType(ItemMap);
 		PlayerBase.Expansion_RegisterInventoryItemType(ExpansionGPS);
 		PlayerBase.Expansion_RegisterInventoryItemType(Pen_ColorBase);
 		PlayerBase.Expansion_RegisterInventoryItemType(ItemCompass);

@@ -39,7 +39,7 @@ modded class MissionGameplay
 		Class.CastTo(player, GetGame().GetPlayer());
 
 #ifdef DIAG
-		if (player && g_Expansion_Car && g_ExpansionNavMesh)
+		if (player && player.DEBUG_EXPANSION_AI_VEHICLE && g_Expansion_Car && g_ExpansionNavMesh)
 		{
 			g_ExpansionNavMesh.DebugScripts();
 		}

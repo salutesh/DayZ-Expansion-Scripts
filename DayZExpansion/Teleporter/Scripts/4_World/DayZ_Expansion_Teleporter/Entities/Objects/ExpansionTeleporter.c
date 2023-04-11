@@ -16,26 +16,95 @@
 
 class Expansion_Teleporter_Base: BuildingSuper
 {
-	protected int m_TelerporterID;	 //! Unique teleporter id. Used to get and identify the teleporter in the teleporter module.
+	protected int m_TeleporterID;	 //! Unique teleporter id. Used to get and identify the teleporter in the teleporter module.
+	protected bool m_IsActive;
+
+#ifdef DIAG
+#ifdef EXPANSIONMODNAVIGATION
+	protected ExpansionMarkerData m_ServerMarker;
+#endif
+#endif
 
 	void Expansion_Teleporter_Base()
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		if (IsMissionHost())
 			SetAllowDamage(false);
 
-		m_TelerporterID = -1;
-		RegisterNetSyncVariableInt("m_TelerporterID");
+		m_TeleporterID = -1;
+		m_IsActive = true;
+		
+		RegisterNetSyncVariableInt("m_TeleporterID");
+		RegisterNetSyncVariableInt("m_IsActive");
+	}
+	
+	void ~Expansion_Teleporter_Base()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
+		if (!m_ServerMarker)
+			return;
+
+		ExpansionMarkerModule markerModule;
+		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
+		if (markerModule)
+			markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
+	#endif
+	#endif
+	}
+	
+	override void EEInit()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		super.EEInit();
+
+		InitTeleporter();
+	}
+	
+	protected void InitTeleporter()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!GetGame().IsDedicatedServer())
+		{
+			InitTeleporterClient();
+		}
+
+		if (GetGame().IsServer())
+		{
+			InitTeleporterServer();
+		}
+	}
+	
+	protected void InitTeleporterClient()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 	}
 
+	protected void InitTeleporterServer()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
+	#endif
+	#endif
+	}
+	
 	void SetTeleporterID(int id)
 	{
-		m_TelerporterID = id;
-		EXPrint(ToString() + "::SetTeleporterID - ID: " + m_TelerporterID);
+		m_TeleporterID = id;
+		EXPrint(ToString() + "::SetTeleporterID - ID: " + m_TeleporterID);
 	}
 
 	int GetTeleporterID()
 	{
-		return m_TelerporterID;
+		return m_TeleporterID;
 	}
 
 	bool IsEVRStormActive()
@@ -52,6 +121,47 @@ class Expansion_Teleporter_Base: BuildingSuper
 
 		return false;
 	}
+	
+	bool IsActive()
+	{
+		return m_IsActive;
+	}
+	
+	void SetActive(bool state)
+	{
+		m_IsActive = state;
+		
+		SetSynchDirty();
+	}
+	
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		return false;
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
+	}
+	
+	override bool DisableVicinityIcon()
+    {
+        return true;
+    }
+
+#ifdef DIAG
+#ifdef EXPANSIONMODNAVIGATION
+	void CreateDebugMarker()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
+		ExpansionMarkerModule markerModule;
+		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
+		if (markerModule)
+			markerModule.CreateServerMarker(GetType(), "Moon", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 142, 68, 173), true);
+	}
+#endif
+#endif
 };
 
 enum ExpansionTeleporterState
@@ -91,7 +201,7 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	void ~Expansion_Teleporter_Big()
 	{
-		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		if (GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer()))
 		{
 			if (m_Particle)
 			{
@@ -299,20 +409,20 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		{
 			case ExpansionTeleporterState.OFF:
 			{
-				#ifndef SERVER
+			#ifndef SERVER
 				StopIdleSound();
 				StopParticleEffect();
 				DestroyLight();
-				#endif
+			#endif
 			}
 			break;
 			case ExpansionTeleporterState.ACTIVE:
 			{
-				#ifndef SERVER
+			#ifndef SERVER
 				PlayIdleSound();
 				CreateParticleEffect();
 				CreateLight();
-				#endif
+			#endif
 			}
 			break;
 			/*case ExpansionTeleporterState.LOW_ENERGY:

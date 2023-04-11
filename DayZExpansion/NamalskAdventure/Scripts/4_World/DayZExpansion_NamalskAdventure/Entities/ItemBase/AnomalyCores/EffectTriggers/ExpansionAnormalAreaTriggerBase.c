@@ -10,15 +10,24 @@
  *
 */
 
-// In this file you will find both Static and Dynamic contaminated area triggers
-class ExpansionAnormalAreaTrigger extends EffectTrigger
+//! @note: Base class of the area effect trigger
+class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 {
+	protected ref TStringArray m_Items = {"ItemBase"};
+	protected ref TStringArray m_Players = {"SurvivorBase"};
+	protected ref TStringArray m_Animals = {"AnimalBase"};
+	protected ref TStringArray m_Vehicles = {"Transport"};
+	protected ref TStringArray m_Infected = {"ZombieBase"};
+	
+	protected const float MAX_CARGODMG_INFLICTED = -5.0; //! Max. damage infliced on players gear when triggering the anomaly.
+	protected const float MIN_CARGODMG_INFLICTED = -1.0; //! Min. damage infliced on players gear when triggering the anomaly.
+	protected const float MAX_SHOCK_INFLICTED = -25.0; //! Max. shock damage infliced on players.
+	protected const float MIN_SHOCK_INFLICTED = -20.0; //! Min. shock damage infliced on players.
+	protected const float MAX_DMG_INFLICTED = -10.0; //! Max. damage infliced on players.
+	protected const float MIN_DMG_INFLICTED = -5.0; //! Min. damage infliced on players.
+	
 	const float DAMAGE_TICK_RATE = 10; //deal damage every n-th second
 	const int DAMAGE_PER_TICK = 1;
-
-	// ----------------------------------------------
-	// 				TRIGGER EVENTS
-	// ----------------------------------------------
 
 	override void OnEnterServerEvent(TriggerInsider insider)
 	{
@@ -26,7 +35,7 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 		DebugTrace("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnEnterServerEvent(insider);
-		
+
 		if (insider)
 		{
 			PlayerBase playerInsider = PlayerBase.Cast(insider.GetObject());
@@ -41,7 +50,6 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 					creature.IncreaseEffectTriggerCount();
 			}
 		}
-
 	}
 
 	override void OnLeaveServerEvent(TriggerInsider insider)
@@ -72,7 +80,7 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		DebugTrace("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
-		
+
 		super.OnEnterClientEvent(insider);
 	}
 
@@ -92,7 +100,7 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 		if (m_TimeAccuStay > DAMAGE_TICK_RATE)
 		{
 			m_DealDamageFlag = true;
-			//! This is where we would normally reset the m_TimeAccuStay, but we need the value as deltaT when dealing damage to the insiders, so we reset it only after the insider update in OnStayFinishServerEvent
+			//! @note: This is where we would normally reset the m_TimeAccuStay, but we need the value as deltaT when dealing damage to the insiders, so we reset it only after the insider update in OnStayFinishServerEvent
 		}
 	}
 
@@ -100,7 +108,7 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (m_DealDamageFlag) //! The flag was previously set to true, the insiders have been updated at this point, reset the flag and the timer as well
+		if (m_DealDamageFlag) //! @note: The flag was previously set to true, the insiders have been updated at this point, reset the flag and the timer as well
 		{
 			m_TimeAccuStay = 0;
 			m_DealDamageFlag = false;
@@ -117,19 +125,8 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 			DayZCreatureAI creature = DayZCreatureAI.Cast(insider.GetObject());
 			if (creature && creature.m_EffectTriggerCount != 0)
 			{
-				creature.DecreaseHealth("", "", DAMAGE_PER_TICK * m_TimeAccuStay / creature.m_EffectTriggerCount);// we devide by m_EffectTriggerCount for multiple trigger presence(overlapping triggers)
-			}
-			
-			PlayerBase player = PlayerBase.Cast(insider.GetObject());
-			if (player)
-			{
-				creature = DayZCreatureAI.Cast(insider.GetObject());
-				if (creature && creature.m_EffectTriggerCount != 0)
-				{
-					float heatComfort = player.GetStatHeatComfort().Get();
-					heatComfort = heatComfort - 1000 * m_TimeAccuStay / creature.m_EffectTriggerCount;
-					player.GetStatHeatComfort().Set(heatComfort); //! Let the character feel the cold.
-				}
+				//! @note: We devide by m_EffectTriggerCount for multiple trigger presence(overlapping triggers)
+				creature.DecreaseHealth("", "", DAMAGE_PER_TICK * m_TimeAccuStay / creature.m_EffectTriggerCount);
 			}
 		}
 	}
@@ -138,7 +135,7 @@ class ExpansionAnormalAreaTrigger extends EffectTrigger
 	{
 		return "Expansion_AnomalyArea1_Soundset";
 	}
-	
+
 	protected void DebugTrace(string text)
 	{
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);

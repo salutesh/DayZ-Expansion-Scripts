@@ -10,7 +10,7 @@
  *
 */
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE
+#ifdef EXPANSIONMODQUESTS
 #ifdef NAMALSK_SURVIVAL
 modded class dzn_athena_planning
 {

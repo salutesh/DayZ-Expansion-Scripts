@@ -4004,6 +4004,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 		if (!player.GetIdentity())
 			return;
 
+		if (!GetExpansionSettings().GetQuest().EnableQuests)
+			return;
+
 		string playerUID = player.GetIdentity().GetId();
 
 		for (int i = m_ActiveQuests.Count() - 1; i >= 0; i--)

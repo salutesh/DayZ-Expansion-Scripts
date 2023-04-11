@@ -15,7 +15,7 @@ class ExpansionLootSpawner
 	// ------------------------------------------------------------
 	// Expansion AddItem
 	// ------------------------------------------------------------
-	static void AddItem(EntityAI container, ExpansionLoot loot, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null )
+	static void AddItem(EntityAI container, ExpansionLoot loot, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionLootSpawner::AddItem - Start");
@@ -63,27 +63,34 @@ class ExpansionLootSpawner
 			}
 		}
 
-		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap ); 
+		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap, spawnOnGround ); 
 		
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		EXLogPrint("ExpansionLootSpawner::AddItem - End");
 		#endif
 	}
 
-	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null )
+	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
         ItemBase itemParent;
 		ItemBase item;
-
-		if ( Class.CastTo( itemParent, parent ) )
-        {
-            item = ItemBase.Cast( itemParent.ExpansionCreateInInventory( className ) );
-        }
-        else
-        {
-            item = ItemBase.Cast( parent.GetInventory().CreateInInventory( className ) );
-        } 
-        
+		
+		if ( !spawnOnGround )
+		{
+			if ( Class.CastTo( itemParent, parent ) )
+	        {
+	            item = ItemBase.Cast( itemParent.ExpansionCreateInInventory( className ) );
+	        }
+	        else
+	        {
+	            item = ItemBase.Cast( parent.GetInventory().CreateInInventory( className ) );
+	        }
+		}
+		else
+		{
+			vector spawnPos = ExpansionMath.GetRandomPointInRing(parent.GetWorldPosition(), 3, 5);
+			item = ItemBase.Cast(GetGame().CreateObjectEx(className, spawnPos, ECE_PLACE_ON_SURFACE));
+		}
 
 		if ( item )
 		{
@@ -188,7 +195,7 @@ class ExpansionLootSpawner
 	// ------------------------------------------------------------
 	// Expansion SpawnLoot
 	// ------------------------------------------------------------
-	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > Loot, int ItemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null )
+	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > Loot, int ItemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
 		array< float > chances = new array< float >;
 		array< int > max = new array< int >;
@@ -213,7 +220,7 @@ class ExpansionLootSpawner
 			{
 				LootItemsSpawned++;
 
-				AddItem( container, Loot.Get( index ), spawnedEntities, spawnedEntitiesMap );
+				AddItem( container, Loot.Get( index ), spawnedEntities, spawnedEntitiesMap, spawnOnGround );
 
 				if ( max[index] > 0 )
 					max[index] = max[index] - 1;

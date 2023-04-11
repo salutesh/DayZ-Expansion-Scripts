@@ -302,12 +302,12 @@ class EXTrace
 		m_Start = start;
 	}
 
-	void Print(string msg = "")
+	void Print(string msg)
 	{
 		PrintFormat("%1 [EXPRINT] %2", ExpansionStatic.GetTimestamp(), s_Indent + msg);
 	}
 
-	static void Print(bool yes = true, Class instance = null, string msg = "")
+	static void Print(bool yes, Class instance, string msg)
 	{
 		//! Unconditionally conditionally enable if define not defined kappa
 #ifndef EXPANSIONTRACE

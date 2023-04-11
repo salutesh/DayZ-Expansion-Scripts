@@ -1367,6 +1367,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 				ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 				UpdatePlayerItems();
 				OnBackClick();
+				loading.Show(false);
 				m_RequestsLocked = false;
 			}
 			break;

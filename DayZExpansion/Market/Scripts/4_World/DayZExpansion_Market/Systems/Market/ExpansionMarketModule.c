@@ -115,9 +115,10 @@ class ExpansionMarketPlayerInventory
 
 		string type;
 
-		set<CarScript> cars = CarScript.GetAll();
-		foreach (CarScript car: cars)
+		auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+		while (node)
 		{
+			CarScript car = node.m_Value;
 			type = car.GetType();
 			type.ToLower();
 			if ((!className || type == className) && car.ExpansionGetLastDriverUID() == m_Player.GetIdentityUID())
@@ -136,6 +137,7 @@ class ExpansionMarketPlayerInventory
 				if (driven.Count() == amount)
 					return driven;
 			}
+			node = node.m_Next;
 		}
 
 		#ifdef EXPANSIONMODVEHICLE

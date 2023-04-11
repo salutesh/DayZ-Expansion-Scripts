@@ -3,7 +3,7 @@
 class ExpansionPathHandler
 {
 	static bool ATTACHMENT_PATH_FINDING = true;
-	
+
 	eAIBase m_Unit;
 	float m_Time;
 
@@ -102,7 +102,7 @@ class ExpansionPathHandler
 	{
 		m_CheckFilter.SetFlags(filter, ~filter, PGPolyFlags.NONE);
 		m_CheckFilter.SetCost(PGAreaType.BUILDING, 1.0);
-		
+
 		vector p = m_Unit.GetPosition();
 		vector d = m_Unit.GetDirection();
 
@@ -135,7 +135,7 @@ class ExpansionPathHandler
 	{
 		if (m_Count <= 1)
 			return false;
-			
+
 		if (m_Current && m_Current.NavMesh)
 		{
 			vector hitPos;
@@ -147,7 +147,7 @@ class ExpansionPathHandler
 		//vector hitPos;
 		//return Raycast(PGPolyFlags.CLIMB, 0.5, hitPos);
 	}
-	
+
 	bool IsBlocked(vector start, vector end)
 	{
 		#ifdef EAI_TRACE
@@ -156,10 +156,10 @@ class ExpansionPathHandler
 
 		vector hitPos;
 		vector hitNormal;
-		
+
 		return m_AIWorld.RaycastNavMesh(start, end, m_PathFilter, hitPos, hitNormal);
 	}
-	
+
 	bool IsBlocked(vector start, vector end, out vector hitPos, out vector hitNormal)
 	{
 		#ifdef EAI_TRACE
@@ -222,7 +222,7 @@ class ExpansionPathHandler
 
 		vector d1 = vector.Direction(p0, p1).Normalized();
 		vector d2 = vector.Direction(p1, p2).Normalized();
-		
+
 		float do0 = 1.0;
 		if (index <= 1)
 		{
@@ -240,6 +240,7 @@ class ExpansionPathHandler
 
 	void DrawDebug()
 	{
+#ifdef DIAG
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "DrawDebug");
 #endif
@@ -251,25 +252,25 @@ class ExpansionPathHandler
 			navMesh = m_TargetReference.NavMesh;
 			parent = m_TargetReference.Parent;
 		}
-				
+
 		if (navMesh)
 		{
 			navMesh.DrawDebug(parent);
 		}
-		
+
 #ifdef EAI_DEBUG_PATH
-#ifndef SERVER		
+#ifndef SERVER
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFFF0000, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Current.GetPosition(), 0.3));
 		//m_Unit.AddShape(Shape.CreateSphere(0xFF00FF00, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Target.GetPosition(), 0.3));
-		
+
 		//m_Unit.AddShape(Shape.CreateSphere(0xFF0000FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_TargetReference.GetPosition(), 0.3));
-		
+
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFFF00AA, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Next0.GetPosition(), 0.3));
 		//m_Unit.AddShape(Shape.CreateSphere(0xFFAA00FF, ShapeFlags.WIREFRAME | ShapeFlags.NOZBUFFER, m_Next1.GetPosition(), 0.3));
 
-		int i;		
+		int i;
 		vector points[2];
-		
+
 		vector offset = vector.Zero;
 
 		map<int, int> possibleFlags();
@@ -304,7 +305,7 @@ class ExpansionPathHandler
 
 			vector flagOffset = Vector(0, radius, 0);
 			int currentFlag = m_Path[i].Flags;
-			
+
 			foreach (auto flag, auto flagColor : possibleFlags)
 			{
 				if ((currentFlag & flag) == 0)
@@ -332,6 +333,7 @@ class ExpansionPathHandler
 		}
 #endif
 #endif
+#endif
 	}
 
 	void OnUpdate(float pDt, int pSimulationPrecision)
@@ -345,9 +347,9 @@ class ExpansionPathHandler
 #endif
 
 		m_Time += pDt;
-		
+
 		//SetPathFilter();
-		
+
 		vector unitPosition = m_Unit.GetPosition();
 		vector unitDirection = m_Unit.GetDirection();
 		vector unitVelocity = GetVelocity(m_Unit);
@@ -356,22 +358,22 @@ class ExpansionPathHandler
 
 		bool recalculate = m_Recalculate;
 		bool recalculateFromNext = false;
-		
+
 //#ifdef DIAG
 		//recalculate = true;
 //#endif
 
 		int i;
-		
+
 		if (pSimulationPrecision < 0)
 		{
 			recalculate = true;
-			
+
 			// HACK FIX for recalculating while climbing
-			
+
 			unitPosition = unitPosition + (unitDirection * 0.5);
-			
-			
+
+
 			m_Current.Position = unitPosition;
 			m_Current.Parent = Object.Cast(m_Unit.GetParent());
 			m_Current.OnParentUpdate();
@@ -380,7 +382,7 @@ class ExpansionPathHandler
 		{
 			UpdateCurrent();
 		}
-		
+
 		if (!recalculate && m_Time >= ((pSimulationPrecision + 1.0) * 2.0))
 		{
 			recalculate = vector.DistanceSq(unitPosition, targetPosition) > 0.5;
@@ -408,7 +410,7 @@ class ExpansionPathHandler
 
 			m_Points.Clear();
 			m_Count = 0;
-			
+
 			int F_STATE = -1;
 			int P_STATE = -1;
 
@@ -417,16 +419,16 @@ class ExpansionPathHandler
 				if (m_Current.Parent && !m_TargetReference.Parent) // moving to world
 				{
 					F_STATE = 1;
-					
+
 					m_Target.Copy(m_Current);
-	
+
 					m_Target.Position = m_TargetReference.Position;
 					m_Target.OnParentUpdate();
-	
+
 					m_Target.FindPath(this, m_Points);
-					
+
 					m_Count = m_Points.Count();
-	
+
 					if (m_Count == 2)
 					{
 						vector pathDir = vector.Direction(m_Points[0], m_Points[1]).Normalized();
@@ -436,84 +438,84 @@ class ExpansionPathHandler
 				else if (!m_Current.Parent && m_TargetReference.Parent) // moving to attachment
 				{
 					F_STATE = 2;
-					
+
 					// Find the path from the target position to the entry of the attachment
-	
+
 					m_Target.Copy(m_TargetReference);
-	
+
 					m_Target.Position = unitPosition;
 					m_Target.OnParentUpdate();
-					
+
 					if (!m_Target.NavMesh)
 					{
 						Print("Navmesh removed??");
 					}
-					
+
 					vector checkingIfAlreadyOnPathsPosition = m_Target.Position;
-					
+
 					m_Target.NavMesh.SamplePosition(checkingIfAlreadyOnPathsPosition, checkingIfAlreadyOnPathsPosition);
-					
+
 					float heightDiff = Math.AbsFloat(m_Target.Position[1] - checkingIfAlreadyOnPathsPosition[1]) * 2.0;
-					
+
 					bool isAlreadyOnPaths = vector.Distance(checkingIfAlreadyOnPathsPosition, m_Target.Position) < heightDiff;
-			
+
 					if (isAlreadyOnPaths)
 					{
 						m_Target.Copy(m_TargetReference);
-		
+
 						m_Target.FindPath(this, m_Points);
-		
+
 						m_Count = m_Points.Count();
 					}
 					else
 					{
 						m_Target.FindPathFrom(m_TargetReference.GetPosition(), this, tempPath);
 						m_Count = tempPath.Count();
-						
+
 						// Find the path to the entry
-						
+
 						m_Target.Position = m_Current.Position;
 						m_Target.Parent = null;
 						m_Target.OnParentUpdate();
-						
+
 						vector closestPositionOnAttachment = tempPath[m_Count - 1];
-											
+
 						m_Target.FindPathFrom(closestPositionOnAttachment, this, m_Points);
-						
+
 						m_Path.RemoveOrdered(m_Count);
-						
-						m_Path.Invert();					
+
+						m_Path.Invert();
 						m_Points.Invert();
-						
+
 						m_Points.Remove(m_Points.Count() - 1);
-					
+
 						for (i = 0; i < tempPath.Count(); i++)
 						{
 							int ii = tempPath.Count() - (i + 1);
 							m_Points.Insert(tempPath[ii]);
 						}
-						
+
 						m_Count = m_Points.Count();
 					}
 				}
 				else if (m_TargetReference.Parent) // moving in attachment
 				{
 					F_STATE = 3;
-					
+
 					m_Target.Copy(m_TargetReference);
-	
+
 					m_Target.FindPath(this, m_Points);
-	
+
 					m_Count = m_Points.Count();
 				}
 				else if (!m_TargetReference.Parent) // moving in world
 				{
 					F_STATE = 4;
-					
+
 					m_Target.Copy(m_TargetReference);
-	
+
 					m_Target.FindPath(this, m_Points);
-	
+
 					m_Count = m_Points.Count();
 				}
 				else
@@ -524,18 +526,18 @@ class ExpansionPathHandler
 			else
 			{
 				F_STATE = 6;
-					
+
 				m_Target.Copy(m_TargetReference);
 
 				m_Target.FindPath(this, m_Points);
 
 				m_Count = m_Points.Count();
 			}
-			
+
 			if (m_Count > 2)
 			{
 				P_STATE = 1;
-				
+
 				UpdatePoint(m_Next0, m_Points[1]);
 				UpdatePoint(m_Next1, m_Points[2]);
 
@@ -554,20 +556,20 @@ class ExpansionPathHandler
 			else if (m_Count != 0)
 			{
 				P_STATE = 2;
-				
+
 				UpdatePoint(m_Next0, m_Points[1]);
 			}
-			else 
+			else
 			{
 				P_STATE = 3;
-				
+
 				m_Next0.Copy(m_Current);
 			}
-			
+
 			//Print(F_STATE);
 			//Print(P_STATE);
 		}
-		
+
 		if (m_Count == 2)
 		{
 			UpdatePoint(m_Next0, m_TargetReference.GetPosition());
@@ -646,7 +648,7 @@ class ExpansionPathHandler
 		vector oldPos = m_TargetReference.Position;
 
 		UpdatePoint(m_TargetReference, pPosition);
-		
+
 		if (m_TargetReference.Parent)
 		{
 			return;

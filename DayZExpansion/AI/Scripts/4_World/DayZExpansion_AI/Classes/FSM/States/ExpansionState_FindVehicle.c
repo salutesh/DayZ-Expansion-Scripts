@@ -8,15 +8,16 @@ class ExpansionState_FindVehicle : eAIState
 		float minDistance = float.MAX;
 		float distance;
 
-		auto cars = CarScript.GetAll();
-		foreach (CarScript car : cars)
+		auto node = CarScript.s_Expansion_AllVehicles.m_Head;
+		while (node)
 		{
-			distance = vector.Distance(unit.GetPosition(), car.GetPosition());
+			distance = vector.Distance(unit.GetPosition(), node.m_Value.GetPosition());
 			if (distance < minDistance)
 			{
-				entity = car;
+				entity = node.m_Value;
 				minDistance = distance;
 			}
+			node = node.m_Next;
 		}
 	}
 

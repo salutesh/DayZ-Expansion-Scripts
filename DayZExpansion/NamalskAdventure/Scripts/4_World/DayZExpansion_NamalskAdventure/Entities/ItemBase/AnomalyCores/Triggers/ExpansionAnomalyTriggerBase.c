@@ -12,12 +12,19 @@
 
 class ExpansionAnomalyTriggerBase: Trigger
 {
+	protected const float MAX_CARGODMG_INFLICTED = -5.0; //! Max. damage infliced on players gear when triggering the anomaly.
+	protected const float MIN_CARGODMG_INFLICTED = -1.0; //! Min. damage infliced on players gear when triggering the anomaly.
+	protected const float MAX_SHOCK_INFLICTED = -25.0; //! Max. shock damage infliced on players.
+	protected const float MIN_SHOCK_INFLICTED = -20.0; //! Min. shock damage infliced on players.
+	protected const float MAX_DMG_INFLICTED = -10.0; //! Max. damage infliced on players.
+	protected const float MIN_DMG_INFLICTED = -5.0; //! Min. damage infliced on players.
+
 	protected Expansion_Anomaly_Base m_Anomaly;
 
 	protected ref TStringArray m_Items = {"ItemBase"};
 	protected ref TStringArray m_Players = {"SurvivorBase"};
 	protected ref TStringArray m_Animals = {"AnimalBase"};
-	protected ref TStringArray m_Vehicles = {"CarScript"};
+	protected ref TStringArray m_Vehicles = {"Transport"};
 	protected ref TStringArray m_Infected = {"ZombieBase"};
 
 	protected const int TRIGGER_CHECK_DELAY = 5000;
@@ -60,12 +67,19 @@ class ExpansionAnomalyTriggerBase: Trigger
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		DebugTrace("::EntityConditions - Entity: " + other.ToString());
-		
-		Object entityObj; 
+
+		Object entityObj;
 		Object.CastTo(entityObj, other);
-		
+
 		if (ExpansionStatic.IsAnyOf(entityObj, m_Items, true) || ExpansionStatic.IsAnyOf(entityObj, m_Players, true) || ExpansionStatic.IsAnyOf(entityObj, m_Animals, true) || ExpansionStatic.IsAnyOf(entityObj, m_Vehicles, true) || ExpansionStatic.IsAnyOf(entityObj, m_Infected, true))
 		{
+			PlayerBase player = PlayerBase.Cast(other);
+			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
+			{
+				DebugTrace("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
+				return false;
+			}
+
 			DebugTrace("::EntityConditions - Return TRUE");
 			return true;
 		}
@@ -117,29 +131,24 @@ class ExpansionAnomalyTriggerBase: Trigger
 	void OnEnterAnomalyServer(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!m_Anomaly)
 			return;
-		
-		DebugTrace("::OnEnterAnomalyServer - Entity: " + other.ToString() + " | Anomaly: " + m_Anomaly.ToString() + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()) + "| Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()));
 
-		PlayerBase player = PlayerBase.Cast(other);
-		if (player && HasActiveLEHSSuit(player))
-			return;
-					
-		if (m_Anomaly.GetAnomalyCore())
+		DebugTrace("::OnEnterAnomalyServer - Entity: " + other.ToString() + " | Anomaly: " + m_Anomaly.ToString() + " | Position: " + m_Anomaly.GetPosition() + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()) + "| Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()));
+
+		//! Inform anomaly about trigger activation so anomaly activation particle VFX is created and played.
+		m_Anomaly.OnAnomalyZoneEnter();
+
+		//! @note: MiscGameplayFunctions.Expansion_HasAnyCargo does not return true when the anomaly has a attached core in its core slot so we check for the core entity also here.
+		if (MiscGameplayFunctions.Expansion_HasAnyCargo(m_Anomaly) || m_Anomaly.HasAnomalyCore())
 		{
 			m_Anomaly.DropAnormalyItems();
-			//! note: Expansion_Anomaly_Base::AnomalyCoreRemoved should be called automaticly here after the core item has been detached by the Expansion_Anomaly_Base::EEItemDetached method.
+			//! @note: Expansion_Anomaly_Base::AnomalyCoreRemoved should be called automaticly here after the core item has been detached by the Expansion_Anomaly_Base::EEItemDetached method.
 			//! witch sets the anomaly state to ExpansionAnomalyState.NOCORE.
 		}
-		else
-		{
-			//! Inform anomaly about trigger activation so anomaly activation particle VFX is created and played.
-			m_Anomaly.OnAnomalyZoneEnter();
-		}
-		
-		//! note: When overriding this method you will need to call ExpansionAnomalyTriggerBase::DeferredTriggerCheck after all event calls
+
+		//! @note: When overriding this method you will need to call ExpansionAnomalyTriggerBase::DeferredTriggerCheck after all event calls
 		//! to make sure the anomaly state is switched back to the correct state after it has been triggered (reset).
 		//! --> GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeferredTriggerCheck, TRIGGER_CHECK_DELAY);
 	}
@@ -150,14 +159,28 @@ class ExpansionAnomalyTriggerBase: Trigger
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		m_IsActive = true;
-
-		if (m_Anomaly.GetAnomalyCore())
+		bool evrStromActive = ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive();
+		if (!evrStromActive)
 		{
-			m_Anomaly.SetAnomalyState(ExpansionAnomalyState.IDLE);
+			if (m_Anomaly.HasAnomalyCore())
+			{
+				m_Anomaly.SetAnomalyState(ExpansionAnomalyState.IDLE);
+			}
+			else
+			{
+				m_Anomaly.SetAnomalyState(ExpansionAnomalyState.NOCORE);
+			}
 		}
 		else
 		{
-			m_Anomaly.SetAnomalyState(ExpansionAnomalyState.NOCORE);
+			if (m_Anomaly.HasAnomalyCore())
+			{
+				m_Anomaly.SetAnomalyState(ExpansionAnomalyState.UNSTABLE);
+			}
+			else
+			{
+				m_Anomaly.SetAnomalyState(ExpansionAnomalyState.UNSTABLENOCORE);
+			}
 		}
 	}
 
@@ -178,45 +201,11 @@ class ExpansionAnomalyTriggerBase: Trigger
 		if (!EntityConditions(other))
 			return;
 	}*/
-	
-	protected bool HasActiveLEHSSuit(PlayerBase player)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		int slot_id_lehsSuit = InventorySlots.GetSlotIdFromString("LEHS");
-		dzn_lehs lehsSuit = dzn_lehs.Cast(player.GetInventory().FindAttachment(slot_id_lehsSuit));
-		if (!lehsSuit || lehsSuit && lehsSuit.IsRuined())
-		{
-			DebugTrace("::OnEnterAnomalyServer - Return FALSE");
-			return false;
-		}
-		
-		DebugTrace("::OnEnterAnomalyServer - Player has LEHS suit: " + lehsSuit.ToString());
-		
-		int slot_id_Headgear = InventorySlots.GetSlotIdFromString("Headgear");
-		dzn_lehs_helmet lehsHelmet = dzn_lehs_helmet.Cast(player.GetInventory().FindAttachment(slot_id_Headgear));
-		if (!lehsHelmet || lehsHelmet && lehsHelmet.IsRuined())
-		{
-			DebugTrace("::OnEnterAnomalyServer - Return FALSE");
-			return false;
-		}
-		
-		DebugTrace("::OnEnterAnomalyServer - Player has LEHS helmet: " + lehsHelmet.ToString());
-		DebugTrace("::OnEnterAnomalyServer - LEHS status: Visor up: " + lehsHelmet.IsVisorUp() + " | Has power: " + lehsHelmet.HasPower() + " | Pressurized: " + lehsHelmet.IsPressurized());
-		
-		if (lehsHelmet.IsVisorUp() || !lehsHelmet.HasPower() || !lehsHelmet.IsPressurized() || !lehsHelmet.HasCircuitBoard())
-		{
-			DebugTrace("::OnEnterAnomalyServer - Return FALSE");
-			return false;
-		}
-		
-		
-		DebugTrace("::OnEnterAnomalyServer - Return TRUE");
-		return true;
-	}
 
 	protected void DebugTrace(string text)
 	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+	#endif
 	}
 };

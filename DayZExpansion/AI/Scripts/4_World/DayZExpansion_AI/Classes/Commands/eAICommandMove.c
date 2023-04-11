@@ -2,7 +2,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 {
 	static const int TURN_STATE_NONE = 0;
 	static const int TURN_STATE_TURNING = 1;
-	
+
 	static const vector CHECK_MIN_HEIGHT = "0 1.25 0";
 
 	static const int ORIGINAL_WAYPOINT = 0;
@@ -23,7 +23,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 	static const int BLOCKED_LEFT_HITPOSITION = 15;
 	static const int BLOCKED_RIGHT_HITPOSITION = 16;
 	static const int BLOCKED_BACKWARD_HITPOSITION = 17;
-	
+
 	static int s_InstanceCount;
 	private int m_InstanceNum;
 
@@ -59,13 +59,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private float m_LookUD;
 	private float m_AimLR;
 	private float m_AimUD;
-	
+
 	private float m_SpeedUpdateTime;
 	private float m_MovementSpeed;
 	private float m_TargetSpeed;
 	private float m_SpeedLimit;
 	private bool m_SpeedOverrider;
-	
+
 	private PhxInteractionLayers m_CollisionLayerMask = PhxInteractionLayers.ROADWAY|PhxInteractionLayers.BUILDING|PhxInteractionLayers.FENCE|PhxInteractionLayers.VEHICLE;
 	private Object m_HitObject; //! always null and low priority fix at BI
 	private vector m_HitPosition;
@@ -74,7 +74,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 	private bool m_GetUp;
 	private int m_Stance;
-			
+
 	private bool m_LastBlockedForward;
 	private bool m_LastBlockedLeft;
 	private float m_BlockedLeftDist;
@@ -90,12 +90,12 @@ class eAICommandMove: ExpansionHumanCommandScript
 	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
 	{
 		Class.CastTo(m_Unit, player);
-		
+
 		m_PathFinding = m_Unit.GetPathFinding();
 
 		m_InstanceNum = s_InstanceCount++;
 	}
-	
+
 	void ~eAICommandMove()
 	{
 	}
@@ -144,7 +144,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		if (m_SpeedLimit < 0 || m_SpeedLimit > 3) m_SpeedLimit = 3;
 	}
-	
+
 	void SetTargetSpeed(float pTarget)
 	{
 		if (m_TargetSpeed > pTarget && pTarget < 2.0 && m_SpeedUpdateTime < 0.1) return;
@@ -390,7 +390,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 					m_LastBlockedRight = blockedRight;
 					chg = true;
 				}
-				
+
 				if (blockedBackward != m_LastBlockedBackward)
 				{
 					m_LastBlockedBackward = blockedBackward;
@@ -666,7 +666,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		//! Clockwise: Positive, counter-clockwise: Negative
 		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
-		
+
 		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal;
 		if (m_Unit.m_eAI_PositionIsFinal)
 		{
@@ -700,7 +700,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 				SetTargetSpeed(Math.Lerp(m_MovementSpeed, maxSpeed, pDt * 2.0));
 			}
 		}
-		
+
 		DBGDrawSphere(wayPoint, 0.05, 0xFF00FF00);
 		//DBGDrawLine(position, wayPoint, 0xFF00FF00);
 		m_Unit.Expansion_DebugObject_Deferred(CORRECTED_WAYPOINT, wayPoint, "ExpansionDebugBox");
@@ -713,7 +713,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);
 
 		m_MovementSpeed = m_TargetSpeed;
-		if (m_MovementSpeed > m_SpeedLimit && m_SpeedLimit != -1) m_MovementSpeed = m_SpeedLimit;	
+		if (m_MovementSpeed > m_SpeedLimit && m_SpeedLimit != -1) m_MovementSpeed = m_SpeedLimit;
 
 		m_Table.SetMovementDirection(this, m_MovementDirection);
 		m_Table.SetMovementSpeed(this, m_MovementSpeed);
@@ -721,13 +721,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_Table.SetLook(this, m_Look);
 		m_Table.SetLookDirX(this, m_LookLR);
 		m_Table.SetLookDirY(this, m_LookUD);
-		
+
 		//m_Table.SetAimX(this, m_AimLR);
 		//m_Table.SetAimY(this, m_AimUD);
 
 		//m_TurnVelocity = ExpansionMath.AngleDiff2(m_Turn, m_TurnPrevious);
 		//m_TurnPrevious = m_Turn;
-		
+
 		if (m_MovementSpeed == 0)
 		{
 			switch (m_TurnState)
@@ -745,7 +745,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 					break;
 				case TURN_STATE_TURNING:
 					m_TurnTime += pDt;
-				
+
 					if (m_TurnTime > 2.0 || Math.AbsFloat(m_TurnDifference) < 1)
 					{
 						m_Table.CallStopTurn(this);
@@ -771,7 +771,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
 
-			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.5, 30.0);
+			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 		}
 
 		if (m_GetUp)
@@ -784,7 +784,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_Table.SetStance(this, m_Stance);
 		}
 	}
-	
+
 	override void PrePhysUpdate(float pDt)
 	{
 	}
@@ -824,7 +824,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 			hit = DayZPhysics.SphereCastBullet(start + dir * 0.125, end, 0.25, hit_mask, m_Unit, hitObject, hitPosition, hitNormal, hitFraction);
 			hitFraction = 1.0 - hitFraction;
 		}
-			
+
+#ifdef DIAG
 #ifndef SERVER
 		int debugColour = 0xFF00AAFF;
 		if (hit) debugColour = 0xFFAA00FF;
@@ -833,6 +834,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 		points2[1] = end;
 		if (hit) points2[1] = hitPosition;
 		m_Unit.AddShape(Shape.CreateLines(debugColour, ShapeFlags.NOZBUFFER, points2, 2));
+#endif
 #endif
 
 		return hit;

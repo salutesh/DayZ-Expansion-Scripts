@@ -10,11 +10,11 @@
  *
 */
 
-class ExpansionAnomalyTrigger_Dynamic : ExpansionAnormalAreaTrigger
+class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 {
 	protected int m_AreaState; //! Used to get the state from linked area and update effects
 
-	void ExpansionAnomalyTrigger_Dynamic()
+	void ExpansionAnomalyTriggerBase_Dynamic()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 

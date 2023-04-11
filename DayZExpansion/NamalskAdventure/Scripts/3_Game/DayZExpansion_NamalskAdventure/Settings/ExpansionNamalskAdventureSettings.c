@@ -23,18 +23,24 @@ class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase {};
 class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 {
 	[NonSerialized()]
-	protected const float ANOMALY_SPAWN_DIST = 250;
-	[NonSerialized()]
-	protected const float ANOMALY_SPAWN_RANGE = 500;
+	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 500;
 	
 	static const int VERSION = 0;
 	
-	ref array<ref ExpansionAnomalyData> Anomalies;
+	bool EnableAnomalies;
+	ref array<ref ExpansionAnomalyDynamic> DynamicAnomalies;
+	ref array<ref ExpansionAnomalyStatic> StaticAnomalies;
+	bool EnableDynamic;
+	bool EnableStatic;
+	bool SpawnDynamicWithEVRStorms;
+	bool SpawnStaticWithEVRStorms;
 #ifdef EXPANSIONMODMARKET
+	bool EnableMerchant;
 	ref array<ref ExpansionMerchantPosition> MerchantPositions; //! Server
 	ref array<ref ExpansionMerchantItemSet> MerchantItemSets; //! Server
 #endif
 #ifdef EXPANSIONMODAI
+	bool EnableAISpawns;
 	ref array<ref ExpansionAISpawnPosition> AISpawnPositions; //! Server
 #endif
 
@@ -45,7 +51,8 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		Anomalies = new array<ref ExpansionAnomalyData>;
+		DynamicAnomalies = new array<ref ExpansionAnomalyDynamic>;
+		StaticAnomalies = new array<ref ExpansionAnomalyStatic>;
 	#ifdef EXPANSIONMODMARKET
 		MerchantPositions = new array<ref ExpansionMerchantPosition>;
 		MerchantItemSets = new array<ref ExpansionMerchantItemSet>;
@@ -179,13 +186,21 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		
 		m_Version = VERSION;
 		
+		EnableAnomalies = true;
 		DefaultNamalskAnomalies();
 		
+		EnableDynamic = true;
+		EnableStatic = true;
+		SpawnDynamicWithEVRStorms = true;
+		SpawnStaticWithEVRStorms = true;
+		
 	#ifdef EXPANSIONMODMARKET
+		EnableMerchant = true;
 		DefaultNamalskMerchantData();
 		DefaultNamalskMerchantItemData();
 	#endif
 	#ifdef EXPANSIONMODAI
+		EnableAISpawns = true;
 		DefaultAISpawnPositions();
 	#endif
 	}
@@ -194,9 +209,33 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		Anomalies.Insert(new ExpansionAnomalyData("Expansion_Anomaly_Singularity", Vector(5935.47, 32.1953, 10375.7), ANOMALY_SPAWN_RANGE, ANOMALY_SPAWN_DIST, 10));
-		Anomalies.Insert(new ExpansionAnomalyData("Expansion_Anomaly_Singularity", Vector(6851.73, 4.70827, 9946.15), ANOMALY_SPAWN_RANGE, ANOMALY_SPAWN_DIST, 10));
-		Anomalies.Insert(new ExpansionAnomalyData("Expansion_Anomaly_Singularity", Vector(3750.35, 153.448, 8243.16), ANOMALY_SPAWN_RANGE, ANOMALY_SPAWN_DIST, 10));
+		array<string> anomalies = {"Expansion_Anomaly_Singularity", "Expansion_Anomaly_Teleport"};
+		array<ref ExpansionLoot> anomaly_loot = new array<ref ExpansionLoot>;
+		
+		ExpansionLoot loot_1 = ExpansionLoot("Apple", null, 1, 1, NULL, 1);
+		anomaly_loot.Insert(loot_1);
+		
+		//! Dynamic spawns
+		ExpansionAnomalyDynamic anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5935.47, 32.1953, 10375.7), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		//anomaly.SetLoot(anomaly_loot, 1, 3, ExpansionAnomalyLootSpawnType.DYNAMIC);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6851.73, 4.70827, 9946.15), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6851.73, 4.70827, 9946.15), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3770.85, 153.138, 8244.01), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		//! Static spawns
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5698.69, 21.3942, 9995.46)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5702.67, 21.3942, 9962.45)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5711.87, 21.3942, 9913.56)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5687.73, 21.3942, 9963.86)));
 	}
 	
 #ifdef EXPANSIONMODMARKET
@@ -224,44 +263,64 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 #ifdef EXPANSIONMODAI
 	protected void DefaultAISpawnPositions()
 	{
+		array<vector> shelterPositions = {"8551.87 15.7033 10530.6", "8553.74 15.7033 10533.4"};
 		array<vector> waypoints = new array<vector>;
 		string npcName = "Survivor Guard";
 		//! AI guards - Jalovisco - Survivors Camp
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8597.78, 14.7325, 10529.7));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		ExpansionAISpawnPosition aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		aiSpawn.SetShelterPositions(shelterPositions);
+		AISpawnPositions.Insert(aiSpawn);
 
+		shelterPositions = {"8579.5 14.7433 10545.3", "8583.97 14.7324 10542.4"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8619.11, 34.9968, 10479.6));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8634.89, 35.0096, 10512.5));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true); 
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8566.56, 35.1376, 10554.2));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8539.49, 35.1852, 10512.8));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
+		shelterPositions = {"8609.96 14.7887 10522.3"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8583.78, 14.7504, 10496.2));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
-
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		aiSpawn.SetShelterPositions(shelterPositions);
+		AISpawnPositions.Insert(aiSpawn);
+		
+		shelterPositions = {"8601.2 15.0546 10485.7"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8618.76, 14.7886, 10516.2));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		aiSpawn.SetShelterPositions(shelterPositions);
+		AISpawnPositions.Insert(aiSpawn);
 
+		shelterPositions = {"8599.39 15.0545 10489"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8559.18, 15.682, 10528.2));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		aiSpawn.SetShelterPositions(shelterPositions);
+		AISpawnPositions.Insert(aiSpawn);
 
+		shelterPositions = {"8563.82 15.7036 10541.3"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8578.85, 14.7807, 10489.5));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 1.0, 1.0, 1.0, 1.0, false, true);
+		aiSpawn.SetShelterPositions(shelterPositions);
+		AISpawnPositions.Insert(aiSpawn);
 	
 		//! AI guards - Sebjan Reservoir - Resistance Camp
 		waypoints = new array<vector>;
@@ -279,7 +338,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(6019.13, 5.80883, 10026.7));
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(6019.13, 5.80883, 10026.7), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
-	
+
 		//! Spawn NAC AI Soldier Units at A3
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(3601.81, 145.102, 6661.04));
@@ -299,6 +358,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	}
 #endif
 	
+#ifdef EXPANSIONMODMARKET
 	ExpansionMerchantPosition GetMerchantPosition()
 	{
 		return MerchantPositions.GetRandomElement();
@@ -308,6 +368,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	{
 		return MerchantItemSets.GetRandomElement();
 	}
+#endif
 
 	// ------------------------------------------------------------
 	override string SettingName()
