@@ -155,23 +155,24 @@ modded class ItemBase
 
 	bool Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, PlayerBase player, bool skipNonNVG = false, bool skipNVG = false)
 	{
-		ActionTarget atrg;
-		ActionManagerClient mngr_client;
-		CastTo(mngr_client, player.GetActionManager());
-		atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
-
-		if ( !skipNVG && mngr_client.GetAction(ActionToggleNVG).Can(player, atrg, this) )
+		if ( !skipNVG && !player.IsUnconscious() && !player.IsRestrained() )
 		{
 			NVGoggles goggles = NVGoggles.Cast(FindAttachmentBySlotName("NVG"));
-			goggles.RotateGoggles(false);
-			nightVisibility = 0.35;
-			EXTrace.Print(EXTrace.AI, player, "switched on " + goggles.ToString());
-			return true;
+			if (goggles)
+			{
+				goggles.RotateGoggles(false);
+				nightVisibility = 0.35;
+				EXTrace.Print(EXTrace.AI, player, "switched on " + goggles.ToString());
+				return true;
+			}
 		}
 		
+		ActionManagerBase actionManager = player.GetActionManager();
+		ActionTarget atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
+
 		if ( !skipNonNVG )
 		{
-			if ( mngr_client.GetAction(ActionTurnOnHelmetFlashlight).Can(player, atrg, this) )
+			if ( actionManager.GetAction(ActionTurnOnHelmetFlashlight).Can(player, atrg, this) )
 			{
 				ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
 				if ( itemChild.Expansion_TryTurningOn() )
@@ -182,7 +183,7 @@ modded class ItemBase
 				}
 			}
 
-			if ( mngr_client.GetAction(ActionTurnOnHeadtorch).Can(player, atrg, this) )
+			if ( IsInherited(Headtorch_ColorBase) && actionManager.GetAction(ActionTurnOnHeadtorch).Can(player, atrg, this) )
 			{
 				if ( Expansion_TryTurningOn() )
 				{
@@ -191,12 +192,12 @@ modded class ItemBase
 					return true;
 				}
 			}
-			else if ( mngr_client.GetAction(ActionTurnOnWhileInHands).Can(player, atrg, this) )
+			else if ( actionManager.GetAction(ActionTurnOnWhileInHands).Can(player, atrg, this) )
 			{
 				if ( Expansion_TryTurningOn() )
 				{
 					nightVisibility = 0.15;
-					EXTrace.Print(EXTrace.AI, player, "switched on " + player.GetItemInHands());
+					EXTrace.Print(EXTrace.AI, player, "switched on " + ToString());
 					return true;
 				}
 			}
@@ -207,15 +208,10 @@ modded class ItemBase
 
 	bool Expansion_TryTurningOffAnyLightsOrNVG(PlayerBase player, bool skipNVG = false)
 	{
-		ActionTarget atrg;
-		ActionManagerClient mngr_client;
-		CastTo(mngr_client, player.GetActionManager());
-		atrg = new ActionTarget(this,null,-1,vector.Zero,-1.0);
-
-		if ( !skipNVG && mngr_client.GetAction(ActionToggleNVG).Can(player, atrg, this) )
+		if ( !skipNVG && !player.IsUnconscious() && !player.IsRestrained() )
 		{
 			NVGoggles goggles = NVGoggles.Cast(FindAttachmentBySlotName("NVG"));
-			if (goggles.Expansion_GetBatteryEnergy())
+			if (goggles)
 			{
 				goggles.RotateGoggles(true);
 				EXTrace.Print(EXTrace.AI, player, "switched off " + goggles.ToString());
@@ -223,7 +219,10 @@ modded class ItemBase
 			}
 		}
 
-		if ( mngr_client.GetAction(ActionTurnOffHelmetFlashlight).Can(player, atrg, this) )
+		ActionManagerBase actionManager = player.GetActionManager();
+		ActionTarget atrg = new ActionTarget(this, null, -1, vector.Zero, -1);
+
+		if ( actionManager.GetAction(ActionTurnOffHelmetFlashlight).Can(player, atrg, this) )
 		{
 			ItemBase itemChild = ItemBase.Cast(FindAttachmentBySlotName("helmetFlashlight"));
 			if ( itemChild.Expansion_TryTurningOff() )
@@ -233,7 +232,7 @@ modded class ItemBase
 			}
 		}
 
-		if ( mngr_client.GetAction(ActionTurnOffHeadtorch).Can(player, atrg, this) )
+		if ( IsInherited(Headtorch_ColorBase) && actionManager.GetAction(ActionTurnOffHeadtorch).Can(player, atrg, this) )
 		{
 			if ( Expansion_TryTurningOff() )
 			{
@@ -241,11 +240,11 @@ modded class ItemBase
 				return true;
 			}
 		}
-		else if ( mngr_client.GetAction(ActionTurnOffWhileInHands).Can(player, atrg, this) )
+		else if ( actionManager.GetAction(ActionTurnOffWhileInHands).Can(player, atrg, this) )
 		{
 			if ( Expansion_TryTurningOff() )
 			{
-				EXTrace.Print(EXTrace.AI, player, "switched off " + player.GetItemInHands());
+				EXTrace.Print(EXTrace.AI, player, "switched off " + ToString());
 				return true;
 			}
 		}

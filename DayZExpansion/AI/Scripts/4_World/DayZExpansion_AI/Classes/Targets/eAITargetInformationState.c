@@ -34,8 +34,10 @@ class eAITargetInformationState
 			//! Make active threat level rise depending on distance if LOS, fall slowly if no LOS
 			if (m_LOS)
 			{
+				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player
 				float distanceFactor;
-				if (m_ThreatLevelActive < 0.4)
+				DayZPlayerImplement player;
+				if (m_ThreatLevelActive < 0.4 && Class.CastTo(player, m_Info.GetEntity()) && GetGame().GetTickTime() - player.m_eAI_LastAggressionTime > 1.0)
 					distanceFactor = m_SearchDirection.Length();
 				if (distanceFactor > 0)
 				{

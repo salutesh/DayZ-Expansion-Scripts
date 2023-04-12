@@ -133,11 +133,11 @@ class eAIBase: PlayerBase
 	private float m_Expansion_UpdateTime;
 	private float m_Expansion_UpdateTimeThreshold = 5.0;
 
-	float m_Expansion_DaylightVisibility;
-	float m_Expansion_BaseVisibility;
+	float m_Expansion_DaylightVisibility = -1;
 	float m_Expansion_Visibility = 0.1;
 	float m_Expansion_VisibilityDistThreshold = 90.0;
-	int m_Expansion_ActiveVisibilityEnhancersCount;
+	ref array<ItemBase> m_Expansion_ActiveVisibilityEnhancers = {};
+	bool m_Expansion_TriedTurningOnVisibilityEnhancers;
 
 	void eAIBase()
 	{
@@ -1015,7 +1015,7 @@ class eAIBase: PlayerBase
 			if (m_eAI_PreviousThreatToSelf < 0.2)
 				EXTrace.Print(EXTrace.AI, this, "current threat to self >= 0.2 (active " + m_eAI_CurrentThreatToSelfActive + ")");
 
-			if (!m_Expansion_DaylightVisibility && m_eAI_CurrentThreatToSelfActive >= 0.4 && m_eAI_PreviousThreatToSelfActive < 0.4 && !m_Expansion_ActiveVisibilityEnhancersCount)
+			if (!m_Expansion_DaylightVisibility && m_eAI_CurrentThreatToSelfActive >= 0.4 && m_eAI_PreviousThreatToSelfActive < 0.4 && !m_Expansion_ActiveVisibilityEnhancers.Count())
 			{
 				float nightVisibility;
 				Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, false, true);  //! Switch on lights at night (skip NVG)
@@ -1027,7 +1027,7 @@ class eAIBase: PlayerBase
 			{
 				EXTrace.Print(EXTrace.AI, this, "current threat to self < 0.2 (active " + m_eAI_CurrentThreatToSelfActive + ")");
 
-				if (!m_Expansion_DaylightVisibility && m_Expansion_ActiveVisibilityEnhancersCount)
+				if (!m_Expansion_DaylightVisibility && m_Expansion_ActiveVisibilityEnhancers.Count())
 					Expansion_TryTurningOffAnyLightsOrNVG(true);  //! Switch off any lights (skip NVG)
 			}
 		}
@@ -2643,8 +2643,7 @@ class eAIBase: PlayerBase
 	}
 #endif
 
-	//! @note: Goal is to check only from time to time to not add a strain for such moundain things
-	//!		   Please do not update me frequently
+	//! @note: do not call frequently
 	void Expansion_OnAIUpdate()
 	{
 		Expansion_UpdateVisibility();
@@ -2658,15 +2657,17 @@ class eAIBase: PlayerBase
 		
 		itembs = GetItemOnHead();
 		if ( itembs && itembs.Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, this, skipNonNVG, skipNVG) )
-			m_Expansion_ActiveVisibilityEnhancersCount++;
+			m_Expansion_ActiveVisibilityEnhancers.Insert(itembs);
 		
 		itembs = GetItemOnSlot("Eyewear");
 		if ( itembs && itembs.Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, this, skipNonNVG, skipNVG) )
-			m_Expansion_ActiveVisibilityEnhancersCount++;
+			m_Expansion_ActiveVisibilityEnhancers.Insert(itembs);
 
 		itembs = GetItemInHands();
 		if ( itembs && itembs.Expansion_TryTurningOnAnyLightsOrNVG(nightVisibility, this, skipNonNVG, skipNVG) )
-			m_Expansion_ActiveVisibilityEnhancersCount++;
+			m_Expansion_ActiveVisibilityEnhancers.Insert(itembs);
+
+		m_Expansion_TriedTurningOnVisibilityEnhancers = true;
 	}
 
 	void Expansion_TryTurningOffAnyLightsOrNVG(bool skipNVG = false)
@@ -2677,15 +2678,15 @@ class eAIBase: PlayerBase
 		
 		itembs = GetItemOnHead();
 		if ( itembs && itembs.Expansion_TryTurningOffAnyLightsOrNVG(this, skipNVG) )
-			m_Expansion_ActiveVisibilityEnhancersCount--;
+			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(itembs);
 		
 		itembs = GetItemOnSlot("Eyewear");
 		if ( itembs && itembs.Expansion_TryTurningOffAnyLightsOrNVG(this, skipNVG) )
-			m_Expansion_ActiveVisibilityEnhancersCount--;
+			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(itembs);
 
 		itembs = GetItemInHands();
 		if ( itembs && itembs.Expansion_TryTurningOffAnyLightsOrNVG(this, skipNVG) )
-			m_Expansion_ActiveVisibilityEnhancersCount--;
+			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(itembs);
 	}
 
 	void Expansion_UpdateVisibility(bool force = false)
@@ -2706,23 +2707,28 @@ class eAIBase: PlayerBase
 		if (force || daylightVisibility != m_Expansion_DaylightVisibility)
 		{
 			m_Expansion_DaylightVisibility = daylightVisibility;
-			m_Expansion_BaseVisibility = daylightVisibility;
+			if (daylightVisibility)
+				m_Expansion_Visibility = 1.0;
+			else
+				m_Expansion_Visibility = 0.1;  //! 100 m
 
-			if (!daylightVisibility)
-			{
-				//! Switch on any lights (only if threat lvl is above 0.4) or NVG at night
-				Expansion_TryTurningOnAnyLightsOrNVG(m_Expansion_BaseVisibility, m_eAI_CurrentThreatToSelfActive < 0.4);
-				if (m_Expansion_BaseVisibility < 0.1)
-					m_Expansion_BaseVisibility = 0.1;  //! 100 m
-				EXTrace.Print(EXTrace.AI, this, "nighttime base visibility " + m_Expansion_BaseVisibility);
-			}
-			else if ( m_Expansion_ActiveVisibilityEnhancersCount )
-			{
-				Expansion_TryTurningOffAnyLightsOrNVG();
-			}
+			m_Expansion_TriedTurningOnVisibilityEnhancers = false;
 		}
 
-		m_Expansion_Visibility = m_Expansion_BaseVisibility;
+		if (!daylightVisibility)
+		{
+			if (force || !m_Expansion_TriedTurningOnVisibilityEnhancers)
+			{
+				//! Try switching on any lights (only if threat lvl is above 0.4) or NVG at night
+				Expansion_TryTurningOnAnyLightsOrNVG(m_Expansion_Visibility, m_eAI_CurrentThreatToSelfActive < 0.4);
+				EXTrace.Print(EXTrace.AI, this, "nighttime base visibility " + m_Expansion_Visibility);
+			}
+		}
+		else if (m_Expansion_ActiveVisibilityEnhancers.Count())
+		{
+			Expansion_TryTurningOffAnyLightsOrNVG();
+		}
+
 		if (!m_Expansion_Visibility)
 			EXPrint(this, "ERROR: Base visibility is zero!");
 
@@ -3046,6 +3052,8 @@ class eAIBase: PlayerBase
 
 		eAI_TakeItemToLocation(item, il_dst);
 
+		m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
+
 		if (switchOff)
 			Expansion_UpdateVisibility(true);
 	}
@@ -3092,6 +3100,9 @@ class eAIBase: PlayerBase
 		item.Expansion_TryTurningOffAnyLightsOrNVG(this);
 
 		bool result = eAI_TakeItemToLocation(item, il_dst);
+
+		if (result)
+			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
 
 		Expansion_UpdateVisibility(true);
 
