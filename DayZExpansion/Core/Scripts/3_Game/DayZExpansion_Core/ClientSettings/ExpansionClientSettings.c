@@ -27,7 +27,7 @@ class ExpansionClientSettings
 	[NonSerialized()]
 	bool m_ShouldShowHUDCategory = false;
 
-	// Vehicles
+	// ================= Vehicles Settings =================
 	bool UseCameraLock;
 	bool UseInvertedMouseControl;
 
@@ -37,10 +37,10 @@ class ExpansionClientSettings
 	bool UsePlaneMouseControl;
 	bool TurnOffAutoHoverDuringFlight;
 
-	// Video
+	// ================= Video Settings =================
 	bool CastLightShadows;
 
-	// Mapping
+	// ================= Navigation Settings =================
 	bool Show3DClientMarkers;
 	bool Show3DPlayerMarkers;
 	bool Show3DPartyMarkers;
@@ -55,22 +55,6 @@ class ExpansionClientSettings
 	
 	bool ShowPartyMemberHUD;
 
-	// Notifications
-	bool ShowNotifications;
-	bool NotificationSound;
-	bool NotificationSoundLeaveJoin;
-	bool NotificationJoin;
-	bool NotificationLeave;
-	// int NotificationSoundType;
-
-	// Streamer mode
-	bool StreamerMode;
-	bool ShowPINCode;
-
-	// HUD Settings
-	float EarplugLevel;
-
-	// Markers Settings
 	ExpansionClientUIMemberMarkerType MemberMarkerType;
 	ExpansionClientUIMarkerSize MarkerSize;
 	ExpansionClientUIPlayerArrowColor PlayerArrowColor;
@@ -84,10 +68,27 @@ class ExpansionClientSettings
 	float AlphaColorLookAtMinimum;
 	bool DefaultMarkerLockState;
 
+	// ================= Notification Settings =================
+	bool ShowNotifications;
+	bool NotificationSound;
+	bool NotificationSoundLeaveJoin;
+	bool NotificationJoin;
+	bool NotificationLeave;
+	// int NotificationSoundType;
+
+	// ================= Codelock Settings =================
+	bool StreamerMode;
+	bool ShowPINCode;
+
+	// ================= HUD Settings =================
+	float EarplugLevel;
+
 	// Chat Settings
+	bool HUDChatToggle;
 	ExpansionClientUIChatSize HUDChatSize;
 	float HUDChatFadeOut;
 	ExpansionClientUIChatChannel DefaultChatChannel;
+	float HUDChatMessageTimeThreshold;
 
 	bool ShowNameQuickMarkers;
 	bool ShowDistanceQuickMarkers;
@@ -573,6 +574,21 @@ class ExpansionClientSettings
 			return false;
 		}
 
+		if (version < 47)
+			return true;
+
+		if ( !ctx.Read( HUDChatToggle ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatToggle!");
+			return false;
+		}
+
+		if ( !ctx.Read( HUDChatMessageTimeThreshold ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read HUDChatToggle!");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -679,7 +695,10 @@ class ExpansionClientSettings
 		ctx.Write( ShowPartyMemberHUD );
 		ctx.Write( PlayerArrowColor );
 
-		ctx.Write( EnableGPSBasedOnVehicleSpeed );		
+		ctx.Write( EnableGPSBasedOnVehicleSpeed );
+
+		ctx.Write( HUDChatToggle );
+		ctx.Write( HUDChatMessageTimeThreshold );
 	}
 
 	// -----------------------------------------------------------
@@ -792,6 +811,8 @@ class ExpansionClientSettings
 		HelicopterMouseVerticalSensitivity = 1.0;
 		HelicopterMouseHorizontalSensitivity = 1.0;
 
+		HUDChatToggle = true;
+		HUDChatMessageTimeThreshold = 10.0;
 		HUDChatSize = ExpansionClientUIChatSize.MEDIUM;
 		HUDChatFadeOut = 10;
 
@@ -942,6 +963,8 @@ class ExpansionClientSettings
 	#endif
 
 	#ifdef EXPANSIONMODCHAT
+		CreateToggle( "HUDChatToggle", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE_DESC" );
+		CreateSlider( "HUDChatMessageTimeThreshold", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD_DESC", 1.0, 20.0, 0.25 );
 		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
 		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 60.0, 1.0 );
 		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );

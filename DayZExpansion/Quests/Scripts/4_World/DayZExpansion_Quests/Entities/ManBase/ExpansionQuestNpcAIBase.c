@@ -17,25 +17,14 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestNPCAIBase: eAINPCBase
 {
-	static ref CF_DoublyLinkedNodes_WeakRef<ExpansionQuestNPCAIBase> s_Expansion_AllNPCs = new CF_DoublyLinkedNodes_WeakRef<ExpansionQuestNPCAIBase>();
-	ref CF_DoublyLinkedNode_WeakRef<ExpansionQuestNPCAIBase> m_Expansion_NPCNode = new CF_DoublyLinkedNode_WeakRef<ExpansionQuestNPCAIBase>(this);
-	
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
 
 	void ExpansionQuestNPCAIBase()
 	{
-		m_Expansion_NPCNode = s_Expansion_AllNPCs.Add(this);
-
 		SetMovementSpeedLimits(1.0);  //! Always walk
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
-	}
-	
-	void ~ExpansionQuestNPCAIBase()
-	{
-		if (s_Expansion_AllNPCs)
-			s_Expansion_AllNPCs.Remove(m_Expansion_NPCNode);
 	}
 	
 	override void Expansion_Init()

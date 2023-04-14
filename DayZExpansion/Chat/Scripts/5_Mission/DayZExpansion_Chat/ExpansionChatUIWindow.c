@@ -33,6 +33,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	protected ref WidgetFadeTimer m_FadeOutTimerChat;
 
 	protected ExpansionClientUIChatSize m_ChatSize;
+	protected float m_MessageTimeTheshold;
 
 	bool m_ChatHover;
 
@@ -51,6 +52,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		m_FadeOutTimerChat = new WidgetFadeTimer;
 
 		m_ChatSize = GetExpansionClientSettings().HUDChatSize;
+		m_MessageTimeTheshold = GetExpansionClientSettings().HUDChatMessageTimeThreshold;
 
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 
@@ -94,6 +96,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
 
 		m_ChatFadeoutTime = Math.Round(GetExpansionClientSettings().HUDChatFadeOut);
+		
+		m_MessageTimeTheshold = GetExpansionClientSettings().HUDChatMessageTimeThreshold;
 
 		//! Recreate chat lines if chat font size setting changed
 		if (m_ChatSize == GetExpansionClientSettings().HUDChatSize)
@@ -173,6 +177,11 @@ class ExpansionChatUIWindow: ExpansionScriptView
 			}
 		}
 
+		message.TimeStamp = GetGame().GetTickTime();
+
+		string time = ExpansionStatic.GetTimestamp();
+		message.Time = time.Substring(0, time.Length() - 7);;
+
 		m_ChatParams.InsertAt(message, 0);
 
 		while (m_ChatParams.Count() > m_MaxChatMessages)
@@ -202,8 +211,18 @@ class ExpansionChatUIWindow: ExpansionScriptView
 				ExpansionChatMessage message = m_ChatParams[i++];
 				if (message.IsMuted)
 					continue;
+					
 				m_ChatLines[idx].Set(message);
 				m_ChatLines[idx].Show();
+				m_ChatLines[idx].SetAlpha(1.0);
+				
+				if ( !ChatBackground.IsVisible() && idx > count - 10 )
+				{
+					if ( message.TimeStamp < GetGame().GetTickTime() - m_MessageTimeTheshold )
+					{
+						m_ChatLines[idx].SetAlpha(0);
+					}
+				}
 			}
 			else
 			{
@@ -211,7 +230,10 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 				//! Make sure the first 12 lines are always shown even if empty so new messages appear at the bottom
 				if (idx > count - 13)
+				{
 					m_ChatLines[idx].Show();
+					m_ChatLines[idx].SetAlpha(1.0);
+				}
 			}
 
 			idx--;
@@ -246,6 +268,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		ChatBackground.Show(true);
 		ChatScroller.SetAlpha(0.1);
 		MuteListButton.Show(true);
+		RefreshChatMessages();
 	}
 
 	override void Hide()
@@ -263,6 +286,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		MutePanel.Show(false);
 		MuteListButton.Show(false);
 		HideChat();
+		RefreshChatMessages();
 	}
 
 	ScrollWidget GetChatScroller()
@@ -325,7 +349,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	{
 		//! Scroll new messages into view, but only if chat input is not open
 		//! OR if mouse is not hovering chat area
-		if (ChatScroller && (!IsVisible() || !m_ChatHover))
+		if (ChatScroller && (!IsVisible() || !m_ChatHover) )
 			ChatScroller.VScrollToPos01(1.0);  //! STAY DOWN YOU FUCKER
 	}
 

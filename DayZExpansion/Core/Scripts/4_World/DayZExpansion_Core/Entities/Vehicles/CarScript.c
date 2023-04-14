@@ -170,6 +170,50 @@ modded class CarScript
 		return false;
 	}
 
+	bool Expansion_IsVehicleFunctional(bool checkOptionalParts = false)
+	{
+		if (IsDamageDestroyed())
+			return false;
+
+		if (GetFluidFraction(CarFluid.FUEL) <= 0)
+			return false;
+
+		EntityAI item;
+
+		if (IsVitalCarBattery() || IsVitalTruckBattery())
+		{
+			item = GetBattery();
+			if (!item || item.IsRuined() || item.GetCompEM().GetEnergy() < m_BatteryEnergyStartMin)
+				return false;
+		}
+
+		if (IsVitalSparkPlug())
+		{
+			item = FindAttachmentBySlotName("SparkPlug");
+			if (!item || item.IsRuined())
+				return false;
+		}
+
+		if (IsVitalGlowPlug())
+		{
+			item = FindAttachmentBySlotName("GlowPlug");
+			if (!item || item.IsRuined())
+				return false;
+		}
+
+		if (checkOptionalParts)
+		{
+			if (IsVitalRadiator())
+			{
+				item = GetRadiator();
+				if (!item || item.IsRuined())
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 	override void EEInit()
 	{
 		super.EEInit();

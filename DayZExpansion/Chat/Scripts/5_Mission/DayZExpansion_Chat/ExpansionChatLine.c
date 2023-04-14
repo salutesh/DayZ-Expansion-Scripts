@@ -13,6 +13,8 @@
 class ExpansionChatMessage
 {
 	int Channel;
+	int TimeStamp;
+	string Time;
 	string From;
 	string Text;
 	bool IsMuted;
@@ -23,6 +25,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 	private ref ExpansionChatLineController m_ChatLineController;
 	private ref Chat m_Chat;
 
+	private TextWidget Time;
 	private TextWidget SenderName;
 	private TextWidget Message;
 	private ref WidgetFadeTimer m_FadeInTimer;
@@ -69,6 +72,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 		if (!message)
 		{
 			GetLayoutRoot().Show(false);
+			m_ChatLineController.Time = "";
+			m_ChatLineController.NotifyPropertyChanged("Time");
 			m_ChatLineController.SenderName = "";
 			m_ChatLineController.NotifyPropertyChanged("SenderName");
 			m_ChatLineController.Message = "";
@@ -122,7 +127,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 		//BreakWords(message);
 		m_ChatLineController.Message = message.Text;
-		m_ChatLineController.NotifyPropertiesChanged({"SenderName", "Message"});
+		m_ChatLineController.Time = message.Time;		
+		m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 
 		if (!IsVisible())
 		{
@@ -209,6 +215,13 @@ class ExpansionChatLineBase: ExpansionScriptView
 		return path;
 	}
 
+	void SetAlpha(float opacity)
+	{
+		Time.SetAlpha(opacity);
+		SenderName.SetAlpha(opacity);
+		Message.SetAlpha(opacity);
+	}
+
 	override typename GetControllerType()
 	{
 		return ExpansionChatLineController;
@@ -221,7 +234,6 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		EXTrace.Print(EXTrace.CHAT, this, "::OnMouseEnter - Widget: " + w.GetName());
 		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute())
 		{
 			if (w == ChatItemButton)
@@ -236,9 +248,6 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if (enterW)
-			EXTrace.Print(EXTrace.CHAT, this, "::OnMouseLeave - Widget: " + w.GetName() + " | Enter Widget: " + enterW.GetName());
-
 		if ((w == ChatItemWidget || w == ChatItemButton) && CanMute())
 		{
 			ChatItemButtonIcon.SetColor(ARGB(200, 255, 255, 255));
@@ -285,6 +294,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 class ExpansionChatLineController: ExpansionViewController
 {
+	string Time;
 	string SenderName;
 	string Message;
 };

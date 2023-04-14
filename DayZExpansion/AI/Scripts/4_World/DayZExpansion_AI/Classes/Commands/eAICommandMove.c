@@ -771,7 +771,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
 
-			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.5, 30.0);
+			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 		}
 
 		if (m_GetUp)

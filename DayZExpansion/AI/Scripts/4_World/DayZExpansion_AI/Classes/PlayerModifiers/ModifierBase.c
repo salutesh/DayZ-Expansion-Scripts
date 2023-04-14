@@ -3,7 +3,7 @@ modded class ModifierBase
 	//! Only allow modifiers that do not affect health/blood/energy/water negatively for AI if dmg is disabled
 	override void Tick(float delta_time)
 	{
-		if (m_Player.IsAI() && !m_Player.Expansion_CanBeDamaged())
+		if (m_Player.IsAI())
 		{
 			typename type = Type();
 			switch (type)
@@ -25,8 +25,12 @@ modded class ModifierBase
 				case MaskMdfr:
 				case FliesMdfr:
 					break;
+				case HungerMdfr:
+				case ThirstMdfr:
+					return;  //! Maybe re-enable hunger/thirst when we teach AI to eat & drink?
 				default:
-					return;
+					if (!m_Player.Expansion_CanBeDamaged())
+						return;
 			}
 		}
 

@@ -18,8 +18,8 @@ class eAITargetInformationState
 		m_AI = ai;
 		m_Info = info;
 
-		UpdateThreat(true);
 		UpdatePosition(true);
+		UpdateThreat(true);
 	}
 
 	void UpdateThreat(bool force = false)
@@ -31,11 +31,33 @@ class eAITargetInformationState
 			m_ThreatLevelUpdateTimestamp = time;
 			m_ThreatLevel = m_Info.CalculateThreat(m_AI);
 
-			//! Make active threat level rise/fall instantly if LOS, rise/fall slowly if no LOS
+			//! Make active threat level rise depending on distance if LOS, fall slowly if no LOS
 			if (m_LOS)
-				m_ThreatLevelActive = m_ThreatLevel;
+			{
+				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player
+				float distanceFactor;
+				DayZPlayerImplement player;
+				if (m_ThreatLevelActive < 0.4 && Class.CastTo(player, m_Info.GetEntity()) && GetGame().GetTickTime() - player.m_eAI_LastAggressionTime > 1.0)
+					distanceFactor = m_SearchDirection.Length();
+				if (distanceFactor > 0)
+				{
+					vector dirNorm = m_SearchDirection.Normalized();
+					float toTargetDot = vector.Dot(m_AI.GetAimDirection(), dirNorm);
+					if (toTargetDot < 0.75)
+						distanceFactor *= 7;  //! AI is facing away
+					else
+						distanceFactor *= 3;  //! AI is facing target
+					m_ThreatLevelActive = Math.Min(m_ThreatLevelActive + m_ThreatLevel / distanceFactor, m_ThreatLevel);
+				}
+				else
+				{
+					m_ThreatLevelActive = m_ThreatLevel;
+				}
+			}
 			else if (!force)
+			{
 				m_ThreatLevelActive = Math.Lerp(m_ThreatLevelActive, Math.Min(0.1999, m_ThreatLevel), diff / 33.333333 * 0.001111);
+			}
 		}
 	}
 

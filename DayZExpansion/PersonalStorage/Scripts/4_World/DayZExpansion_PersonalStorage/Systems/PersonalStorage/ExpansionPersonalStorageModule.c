@@ -361,8 +361,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		DebugPring("::SendItemData - Display icon: " + displayIcon);
 
 		string playerUID = identity.GetId();
-		array<ref ExpansionPersonalStorageItem> items = new array<ref ExpansionPersonalStorageItem>;
-		m_ItemsData.Find(playerUID, items);
 
 		ExpansionPersonalStorageConfig storageConfig = GetPersonalStorageConfigByID(storageID);
 		if (!storageConfig)
@@ -378,39 +376,26 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		rpc.Write(displayName);
 		rpc.Write(displayIcon);
 
-		int itemsCount;
+		array<ref ExpansionPersonalStorageItem> items = m_ItemsData[playerUID];
 		array<ExpansionPersonalStorageItem> itemsToSend = new array<ExpansionPersonalStorageItem>;
 
 		if (items && items.Count() > 0)
 		{
-			for (int i = 0; i < items.Count(); ++i)
+			foreach (ExpansionPersonalStorageItem item: items)
 			{
-				ExpansionPersonalStorageItem item = items[i];
-				if (!item)
-					continue;
-
-				if (storageConfig.IsGlobalStorage() || !storageConfig.IsGlobalStorage() && item.GetStorageID() == storageID)
-					itemsCount++;
+				if (storageConfig.IsGlobalStorage() || item.GetStorageID() == storageID)
 					itemsToSend.Insert(item);
 			}
 		}
 
-		DebugPring("::SendItemData - Items data array: " + m_ItemsData.ToString());
 		DebugPring("::SendItemData - Items data count: " + m_ItemsData.Count());
-		DebugPring("::SendItemData - Items data to send: " + itemsCount);
+		DebugPring("::SendItemData - Items data to send: " + itemsToSend.Count());
 
-		rpc.Write(itemsCount);
+		rpc.Write(itemsToSend.Count());
 
-		if (itemsCount > 0 && itemsToSend)
+		foreach (ExpansionPersonalStorageItem storedItem: itemsToSend)
 		{
-			for (int j = 0; j < itemsToSend.Count(); ++j)
-			{
-				ExpansionPersonalStorageItem storedItem = itemsToSend[j];
-				if (!storedItem)
-					continue;
-
-				storedItem.OnSend(rpc);
-			}
+			storedItem.OnSend(rpc);
 		}
 
 		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.SendItemData, true, identity);
@@ -961,7 +946,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected void RemoveItemByGlobalID(string playerUID, TIntArray globalID)
 	{
 		array<ref ExpansionPersonalStorageItem> items;
-		m_ItemsData.Find(playerUID, items);
+		if (!m_ItemsData.Find(playerUID, items))
+			return;
 
 		for (int i = items.Count() - 1; i >= 0; i--)
 		{
@@ -984,14 +970,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected ExpansionPersonalStorageItem GetPersonalItemByGlobalID(string playerUID, TIntArray globalID)
 	{
 		array<ref ExpansionPersonalStorageItem> items;
-		m_ItemsData.Find(playerUID, items);
-
-		for (int i = 0; i < items.Count(); i++)
+		if (m_ItemsData.Find(playerUID, items))
 		{
-			ExpansionPersonalStorageItem item = items[i];
-			if (item && item.IsGlobalIDValid() && item.IsGlobalIDEqual(globalID))
+			for (int i = 0; i < items.Count(); i++)
 			{
-				return item;
+				ExpansionPersonalStorageItem item = items[i];
+				if (item && item.IsGlobalIDValid() && item.IsGlobalIDEqual(globalID))
+				{
+					return item;
+				}
 			}
 		}
 
@@ -1075,10 +1062,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	ExpansionPersonalStorageConfig GetPersonalStorageConfigByID(int storageID)
 	{
-		ExpansionPersonalStorageConfig config;
-		m_PersonalStorageConfig.Find(storageID, config);
-
-		return config;
+		return m_PersonalStorageConfig[storageID];
 	}
 
 	ExpansionPersonalStorageConfig GetPersonalStorageClientConfig()

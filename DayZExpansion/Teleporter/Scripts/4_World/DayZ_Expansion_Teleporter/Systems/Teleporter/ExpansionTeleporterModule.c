@@ -86,9 +86,8 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		array<string> teleporterFiles = ExpansionStatic.FindFilesInLocation(s_TeleporterDataFolderPath, ".json");
 		if (teleporterFiles && teleporterFiles.Count() > 0)
 		{
-			for (int i = 0; i < teleporterFiles.Count(); i++)
+			foreach (string fileName: teleporterFiles)
 			{
-				string fileName = teleporterFiles[i];
 				GetTeleporterData(fileName, s_TeleporterDataFolderPath);
 			}
 		}
