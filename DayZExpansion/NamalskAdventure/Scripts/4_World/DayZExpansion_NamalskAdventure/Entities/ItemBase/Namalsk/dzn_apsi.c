@@ -10,7 +10,7 @@
  *
 */
 
-#ifdef NAMALSK_SURVIVAL
+/*#ifdef NAMALSK_SURVIVAL
 class ExpansionAnomalyHUDMarker: ScriptView
 {
 	protected ref ExpansionAnomalyHUDMarkerController m_HudMarkerController;
@@ -265,4 +265,4 @@ modded class dzn_apsi
 		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };
-#endif
+#endif*/

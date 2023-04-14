@@ -215,4 +215,30 @@ modded class LoadingScreen
 	#endif
 	}
 };
+
+modded class LoginQueueBase
+{
+	override Widget Init()
+	{
+		layoutRoot 		= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NamalskAdventure/GUI/layouts/queue_position.layout");
+		m_txtPosition	= TextWidget.Cast(layoutRoot.FindAnyWidget("txtPosition"));
+		m_txtNote 		= TextWidget.Cast(layoutRoot.FindAnyWidget("txtNote"));
+		m_btnLeave 		= ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLeave"));		
+
+		return layoutRoot;
+	}
+};
+
+modded class LoginTimeBase
+{
+	override Widget Init()
+	{
+		layoutRoot 			= GetGame().GetWorkspace().CreateWidgets("DayZExpansion/NamalskAdventure/GUI/layouts/login_time.layout");
+		m_txtDescription 	= TextWidget.Cast(layoutRoot.FindAnyWidget("txtDescription"));
+		m_txtLabel 			= TextWidget.Cast(layoutRoot.FindAnyWidget("txtLabel"));
+		m_btnLeave 			= ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLeave"));
+		
+		return layoutRoot;
+	}
+};
 #endif

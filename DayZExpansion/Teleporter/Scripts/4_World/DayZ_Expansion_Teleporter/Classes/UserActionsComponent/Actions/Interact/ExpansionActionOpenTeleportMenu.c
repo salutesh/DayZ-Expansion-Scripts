@@ -78,7 +78,23 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 		Object targetObject;
 		if (!Class.CastTo(targetObject, action_data.m_Target.GetParentOrObject()))
 			return;
-
-		m_Expansion_TeleporterModule.RequestOpenTeleporterMenu(targetObject, player.GetIdentity());
+		
+		Expansion_Teleporter_Base teleportObj = Expansion_Teleporter_Base.Cast(targetObject);
+		if (!teleportObj || teleportObj && !teleportObj.IsActive())
+			return;
+		
+		int teleporterID = teleportObj.GetTeleporterID();
+		ExpansionTeleportData teleporterData = m_Expansion_TeleporterModule.GetTeleporterDataByID(teleporterID);
+		if (!teleporterData)
+			return;
+		
+		if (!teleporterData.IsExit())
+		{
+			m_Expansion_TeleporterModule.RequestOpenTeleporterMenu(teleportObj, player.GetIdentity(), teleporterData);
+		}
+		else
+		{
+			m_Expansion_TeleporterModule.ExitTeleport(player, teleporterData);
+		}
 	}
 };
