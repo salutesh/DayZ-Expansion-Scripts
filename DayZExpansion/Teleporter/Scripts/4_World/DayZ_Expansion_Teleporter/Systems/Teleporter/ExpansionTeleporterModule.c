@@ -196,7 +196,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	}
 
 	//! Server
-	void RequestOpenTeleporterMenu(Object target, PlayerIdentity identity)
+	void RequestOpenTeleporterMenu(Expansion_Teleporter_Base target, PlayerIdentity identity, ExpansionTeleportData teleporterData)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 
@@ -212,16 +212,12 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			return;
 		}
 
-		auto teleporterObject = Expansion_Teleporter_Base.Cast(target);
-		if (!teleporterObject)
+		if (!target)
 		{
 			Error(ToString() + "::RequestOpenTeleporterMenu - Teleporter object is NULL!");
 			return;
 		}
 
-		int teleporterID = teleporterObject.GetTeleporterID();
-		TeleporterModulePrint("Teleporter ID: " + teleporterID);
-		ExpansionTeleportData teleporterData = GetTeleporterDataByID(teleporterID);
 		if (!teleporterData)
 		{
 			Error(ToString() + "::RequestOpenTeleporterMenu - Could not get teleporter data!");
@@ -324,22 +320,58 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		PlayTeleportSound(teleporterObjPos, ExpansionTeleporterSound.TELEPORT_ACTIVE);
 		PlayTeleportSound(position, ExpansionTeleporterSound.TELEPORT_ACTIVE);
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, player, position, orientation, teleporterObjPos);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, position, orientation, player, teleporterObjPos);
 	}
 	
-	void TeleportPlayer(PlayerBase player, vector pos, vector ori, vector teleporterObjPos)
+	void TeleportPlayer(vector pos, vector ori, PlayerBase player, vector teleporterObjPos = vector.Zero)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 		
-		vector playerPos = player.GetPosition();
-		int currentDistance = vector.Distance(playerPos, teleporterObjPos);
-		if (currentDistance > 3.0)
-			return;
+		if (teleporterObjPos != vector.Zero)
+		{
+			vector playerPos = player.GetPosition();
+			int currentDistance = vector.Distance(playerPos, teleporterObjPos);
+			if (currentDistance > 3.0)
+				return;
+		}
 		
 		player.SetPosition(pos);
 		player.SetOrientation(ori);
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, pos, ori);
 		PlayTeleportSound(pos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
+	}
+	
+	//! Server
+	void ExitTeleport(PlayerBase player, ExpansionTeleportData teleportData)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		{
+			Error(ToString() + "::ExitTeleport - Tryed to call ExitTeleport on Client!");
+			return;
+		}
+		
+		array<ref ExpansionTeleportPosition> teleportPositions = teleportData.GetTeleportPositions();
+		if (!teleportPositions)
+			return;
+		
+		ExpansionTeleportPosition randomTeleportPos = teleportPositions.GetRandomElement();
+		if (!randomTeleportPos)
+			return;
+		
+		array<ref ExpansionTeleportPositionEntry> positions = randomTeleportPos.GetPositions();
+		if (!positions)
+			return;
+
+		ExpansionTeleportPositionEntry randomPos = positions.GetRandomElement();
+
+		vector position = randomPos.GetPosition();
+		vector orientation = randomPos.GetOrientation();
+		if (position[1] == 0)
+			position[1] = GetGame().SurfaceY(position[0], position[2]);
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 200, false, position, orientation, player);
 	}
 
 	void PlayTeleportSound(vector position, ExpansionTeleporterSound sound)

@@ -13,28 +13,29 @@
 class ExpansionTeleportDataBase
 {
 	int ConfigVersion;
+	int m_ID;
+	string m_DisplayName;
+	vector m_ObjectPosition;
+	vector m_ObjectOrientation;
+	ref array<ref ExpansionTeleportPosition> m_TeleportPositions;
+
+#ifdef EXPANSIONMODAI
+	string m_FactionName;
+#endif
+#ifdef EXPANSIONMODHARDLINE
+	int m_Reputation;
+#endif
+#ifdef EXPANSIONMODQUESTS
+	int m_QuestID = -1;
+#endif
 };
 
 class ExpansionTeleportData: ExpansionTeleportDataBase
 {
 	[NonSerialized()];
-	static const int VERSION = 0;
+	static const int VERSION = 1;
 
-	protected int m_ID;
-	protected string m_DisplayName;
-	protected vector m_ObjectPosition;
-	protected vector m_ObjectOrientation;
-	protected ref array<ref ExpansionTeleportPosition> m_TeleportPositions;
-
-#ifdef EXPANSIONMODAI
-	protected string m_FactionName;
-#endif
-#ifdef EXPANSIONMODHARDLINE
-	protected int m_Reputation;
-#endif
-#ifdef EXPANSIONMODQUESTS
-	protected int m_QuestID = -1;
-#endif
+	protected bool m_IsExit = false;
 
 	void ExpansionTeleportData()
 	{
@@ -45,6 +46,21 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	void CopyFromBaseClass(ExpansionTeleportDataBase base)
 	{
 		//! Nothing to do here yet
+		
+		m_ID = base.m_ID;
+		m_DisplayName = base.m_DisplayName;
+		m_ObjectPosition = base.m_ObjectPosition;
+		m_ObjectOrientation = base.m_ObjectOrientation;
+		m_TeleportPositions = base.m_TeleportPositions;
+	#ifdef EXPANSIONMODAI
+		m_FactionName = base.m_FactionName;
+	#endif
+	#ifdef EXPANSIONMODHARDLINE
+		m_Reputation = base.m_Reputation;
+	#endif
+	#ifdef EXPANSIONMODQUESTS
+		m_QuestID = base.m_QuestID;
+	#endif
 	}
 
 	static ExpansionTeleportData Load(string fileName)
@@ -163,6 +179,16 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 		return m_QuestID;
 	}
 #endif
+	
+	void SetIsExit(bool state)
+	{
+		m_IsExit = state;
+	}
+	
+	bool IsExit()
+	{
+		return m_IsExit;
+	}
 
 	array<ref ExpansionTeleportPosition> GetTeleportPositions()
 	{

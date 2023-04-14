@@ -28,6 +28,6 @@ class eAIFactionInvincibleObservers : eAIFactionObservers
 
 	override string GetDisplayName()
 	{
-		return "#STR_EXPANSION_AI_FACTION_GUARDS";
+		return "#STR_EXPANSION_AI_FACTION_OBSERVERS";
 	}
 };
