@@ -179,8 +179,11 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		message.TimeStamp = GetGame().GetTickTime();
 
-		string time = ExpansionStatic.GetTimestamp();
-		message.Time = time.Substring(0, time.Length() - 7);;
+		int hour;
+		int minute;
+		int second;
+		GetHourMinuteSecond(hour, minute, second);
+		message.Time = hour.ToStringLen(2) + ":" + minute.ToStringLen(2);
 
 		m_ChatParams.InsertAt(message, 0);
 
@@ -202,8 +205,15 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		if (count != m_MaxChatMessages)  //! Still creating chat lines
 			return;
 
+		bool isChatHistoryVisible = ChatBackground.IsVisible();
+
+		//! Number of chat lines (partly) visible at smallest chat font size (adjust this when changing height of the chathistory box in layout)
+		int numChatLinesVisibleInHistory = 16;
+
+		int firstVisibleMessageIndex = count - numChatLinesVisibleInHistory;
 		int i;
 		int idx = count - 1;
+		float showMessageTimestamp = GetGame().GetTickTime() - m_MessageTimeTheshold;
 		while (idx >= 0)
 		{
 			if (i < m_ChatParams.Count())
@@ -214,22 +224,19 @@ class ExpansionChatUIWindow: ExpansionScriptView
 					
 				m_ChatLines[idx].Set(message);
 				m_ChatLines[idx].Show();
-				m_ChatLines[idx].SetAlpha(1.0);
 				
-				if ( !ChatBackground.IsVisible() && idx > count - 10 )
-				{
-					if ( message.TimeStamp < GetGame().GetTickTime() - m_MessageTimeTheshold )
-					{
-						m_ChatLines[idx].SetAlpha(0);
-					}
-				}
+				if (!isChatHistoryVisible && idx >= firstVisibleMessageIndex && message.TimeStamp < showMessageTimestamp)
+					m_ChatLines[idx].SetAlpha(0.0);
+				else
+					m_ChatLines[idx].SetAlpha(1.0);
 			}
 			else
 			{
 				m_ChatLines[idx].Set(NULL);
 
-				//! Make sure the first 12 lines are always shown even if empty so new messages appear at the bottom
-				if (idx > count - 13)
+				//! Make sure the number of lines that fit in the visible area of the chathistory box
+				//! are always shown even if empty so new messages appear at the bottom
+				if (idx >= firstVisibleMessageIndex)
 				{
 					m_ChatLines[idx].Show();
 					m_ChatLines[idx].SetAlpha(1.0);

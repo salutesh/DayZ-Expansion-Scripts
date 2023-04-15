@@ -486,11 +486,13 @@ class ExpansionRaidSettings: ExpansionSettingBase
 		ExplosiveDamageWhitelist.Insert("Expansion_C4_Explosion");
 		ExplosiveDamageWhitelist.Insert("Expansion_RPG_Explosion");
 		ExplosiveDamageWhitelist.Insert("Expansion_LAW_Explosion");
+		ExplosiveDamageWhitelist.Insert("M79");
 		
-		ExplosiveDamageWhitelist.Insert("RGD5Grenade_Ammo");
-		ExplosiveDamageWhitelist.Insert("M67Grenade_Ammo");
-		ExplosiveDamageWhitelist.Insert("FlashGrenade_Ammo");
-		ExplosiveDamageWhitelist.Insert("LandFuelFeed_Ammo");
+		ExplosiveDamageWhitelist.Insert("RGD5Grenade");
+		ExplosiveDamageWhitelist.Insert("M67Grenade");
+		ExplosiveDamageWhitelist.Insert("FlashGrenade");
+		ExplosiveDamageWhitelist.Insert("Land_FuelStation_Feed");
+		ExplosiveDamageWhitelist.Insert("Land_FuelStation_Feed_Enoch");
 
 		EnableExplosiveWhitelist = false;
 		ExplosionDamageMultiplier = 50;

@@ -138,9 +138,11 @@ class ExpansionChatLineBase: ExpansionScriptView
 		//! Adjust message size so it actually fits and doesn't get cut off
 		float root_w, root_h;
 		GetLayoutRoot().GetScreenSize(root_w, root_h);
+		float time_w, time_h;
+		Time.GetScreenSize(time_w, time_h);
 		float sender_w, sender_h;
 		SenderName.GetScreenSize(sender_w, sender_h);
-		Message.SetSize(1.0 - sender_w / root_w, 1.0);
+		Message.SetSize(1.0 - (time_w + sender_w) / root_w, 1.0);
 	}
 
 	protected void FadeInChatLine()
