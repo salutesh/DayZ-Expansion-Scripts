@@ -39,7 +39,7 @@ modded class MissionGameplay
 
 	void InitExpansionChat()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_ChatPanel = Widget.Cast(m_HudRootWidget.FindAnyWidget("ChatFrameWidget"));
 		if (m_Chat && m_ChatPanel)
@@ -67,7 +67,7 @@ modded class MissionGameplay
 
 	override void ShowChat()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		//! Disable certain controlls and inputs when the chat input menu gets opened.
 		PlayerControlDisable(INPUT_EXCLUDE_ALL);
@@ -101,7 +101,7 @@ modded class MissionGameplay
 
 	override void HideChat()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		super.HideChat();
 
@@ -113,7 +113,7 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToGlobal()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		if (GetExpansionSettings().GetChat().EnableGlobalChat)
 		{
@@ -128,7 +128,7 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToTeam()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 #ifdef EXPANSIONMODGROUPS
 		ExpansionPartyModule partyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
@@ -149,7 +149,7 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToTransport()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		PlayerBase player = PlayerBase.Cast(g_Game.GetPlayer());
 		if (!player || !player.GetParent())
@@ -172,7 +172,7 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToAdmin()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		if (GetPermissionsManager().HasPermission("Admin.Chat"))
 		{
@@ -187,7 +187,7 @@ modded class MissionGameplay
 
 	void SwitchChatChannelToDirect()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_ChatChannel = ExpansionChatChannels.CCDirect;
 		m_ChatChannelName.SetText("Proximity Chat");
@@ -195,7 +195,7 @@ modded class MissionGameplay
 
 	void SwitchChannel()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_ChatChannelHideTimer.Stop();
 		m_ChatChannelRootWidget.Show(true);

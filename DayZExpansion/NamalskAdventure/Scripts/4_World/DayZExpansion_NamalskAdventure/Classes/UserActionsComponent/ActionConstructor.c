@@ -17,5 +17,10 @@ modded class ActionConstructor
 		super.RegisterActions(actions);
 
 		actions.Insert(ExpansionActionUseSatelliteControl);
+		actions.Insert(ExpansionActionInsertGeneratorKey);
+		actions.Insert(ExpansionActionRemoveGeneratorKey);
+		actions.Insert(ExpansionActionInsertSupplyCrateKey);
+		actions.Insert(ExpansionActionRemoveSupplyCrateKey);
+		actions.Insert(ExpansionActionOpenSupplyCrate);
 	}
 };

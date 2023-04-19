@@ -24,18 +24,24 @@ class ExpansionScriptView: ExpansionScriptViewBase
 		DestroyUpdateTimer();
 	}
 	
+	override void Show(bool show)
+	{
+		SetIsVisible(show);
+		GetLayoutRoot().Show(show);
+		if (show)
+			OnShow();
+		else
+			OnHide();
+	}
+
 	override void Show()
-	{	
-		SetIsVisible(true);
-		GetLayoutRoot().Show(true);
-		OnShow();
+	{
+		Show(true);
 	}
 	
 	override void Hide()
 	{
-		SetIsVisible(false);
-		GetLayoutRoot().Show(false);
-		OnHide();
+		Show(false);
 	}
 		
 	float GetUpdateTickRate()

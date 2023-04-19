@@ -21,6 +21,7 @@ class ExpansionViewController: ViewController
 class ExpansionScriptViewBase: ScriptView
 {
 	protected bool m_IsVisible;
+	protected float m_Alpha;
 
 	void ExpansionScriptViewBase()
 	{
@@ -45,6 +46,18 @@ class ExpansionScriptViewBase: ScriptView
 	{
 		return m_IsVisible;
 	}
+
+	void SetAlpha(float alpha)
+	{
+		m_Alpha = alpha;
+	}
+
+	float GetAlpha()
+	{
+		return m_Alpha;
+	}
+
+	void Show(bool show);
 
 	void Show();
 

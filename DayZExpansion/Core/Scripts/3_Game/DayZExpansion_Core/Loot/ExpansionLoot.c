@@ -16,6 +16,9 @@ class ExpansionLootVariant
 	ref TStringArray Attachments;
 	float Chance;
 
+	[NonSerialized()]
+	float m_RemainingChance;
+
 	void ExpansionLootVariant( string name, TStringArray attachments = NULL, float chance = 1 )
 	{
 		Name = name;
@@ -28,12 +31,17 @@ class ExpansionLoot : ExpansionLootVariant
 {
 	int QuantityPercent;
 	int Max;
+	int Min;
 	ref array< ref ExpansionLootVariant > Variants;
 
-	void ExpansionLoot( string name, TStringArray attachments = NULL, float chance = 1, int quantityPercent = -1, array< ref ExpansionLootVariant > variants = NULL, int max = -1 )
+	[NonSerialized()]
+	int m_Remaining;
+
+	void ExpansionLoot( string name, TStringArray attachments = NULL, float chance = 1, int quantityPercent = -1, array< ref ExpansionLootVariant > variants = NULL, int max = -1, int min = 0 )
 	{
 		QuantityPercent = quantityPercent;
 		Max = max;
+		Min = min;
 		Variants = variants;
 	}
 };

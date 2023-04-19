@@ -81,9 +81,9 @@ class ExpansionPartyHud: ExpansionScriptViewBase
 		return true;
 	}
 	
-	void Show(bool state)
+	override void Show(bool show)
 	{
-		GetLayoutRoot().Show(state);
+		GetLayoutRoot().Show(show);
 	}
 };
 #endif

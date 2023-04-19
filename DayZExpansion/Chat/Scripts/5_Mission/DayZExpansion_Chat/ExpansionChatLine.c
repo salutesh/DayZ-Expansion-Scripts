@@ -28,7 +28,8 @@ class ExpansionChatLineBase: ExpansionScriptView
 	private TextWidget Time;
 	private TextWidget SenderName;
 	private TextWidget Message;
-	private ref WidgetFadeTimer m_FadeInTimer;
+	private ref Timer m_FadeOutLaterTimer;
+	private ref ExpansionScriptViewFadeTimer m_FadeTimer;
 	private Widget m_Parent;
 	private string m_LayoutPath;
 	private ButtonWidget ChatItemButton;
@@ -38,11 +39,13 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	void ExpansionChatLineBase(Widget parent, Chat chat)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_ChatLineController = ExpansionChatLineController.Cast(GetController());
 		m_Parent = parent;
 		m_Chat = chat;
+		m_FadeOutLaterTimer = new Timer(CALL_CATEGORY_GUI);
+		m_FadeTimer = new ExpansionScriptViewFadeTimer;
 
 		m_Parent.AddChild(GetLayoutRoot());
 
@@ -51,16 +54,19 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	void ~ExpansionChatLineBase()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
-		if (m_FadeInTimer)
-			m_FadeInTimer.Stop();
+		if (m_FadeOutLaterTimer && m_FadeOutLaterTimer.IsRunning())
+			m_FadeOutLaterTimer.Stop();
+
+		if (m_FadeTimer && m_FadeTimer.IsRunning())
+			m_FadeTimer.Stop();
 	}
 
 	void Set(ExpansionChatMessage message)	// Param 1 --> Channel, Param 2 --> sender name, Param 3 --> message, Param 4 ??
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 #endif
 
 		MissionGameplay mission;
@@ -73,11 +79,9 @@ class ExpansionChatLineBase: ExpansionScriptView
 		{
 			GetLayoutRoot().Show(false);
 			m_ChatLineController.Time = "";
-			m_ChatLineController.NotifyPropertyChanged("Time");
 			m_ChatLineController.SenderName = "";
-			m_ChatLineController.NotifyPropertyChanged("SenderName");
 			m_ChatLineController.Message = "";
-			m_ChatLineController.NotifyPropertyChanged("Message");
+			m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 			return;
 		}
 
@@ -127,41 +131,46 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 		//BreakWords(message);
 		m_ChatLineController.Message = message.Text;
-		m_ChatLineController.Time = message.Time;		
+		m_ChatLineController.Time = message.Time;
 		m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 
 		if (!IsVisible())
 		{
-			FadeInChatLine();
+			FadeIn();
 		}
 
 		//! Adjust message size so it actually fits and doesn't get cut off
 		float root_w, root_h;
 		GetLayoutRoot().GetScreenSize(root_w, root_h);
+		float time_w, time_h;
+		Time.GetScreenSize(time_w, time_h);
 		float sender_w, sender_h;
 		SenderName.GetScreenSize(sender_w, sender_h);
-		Message.SetSize(1.0 - sender_w / root_w, 1.0);
+		Message.SetSize(1.0 - (time_w + sender_w) / root_w, 1.0);
 	}
 
-	protected void FadeInChatLine()
+	void FadeIn()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
-		m_Chat.OnChatInputShow();
+		if (m_FadeOutLaterTimer.IsRunning())
+			m_FadeOutLaterTimer.Stop();
 
-		if (m_FadeInTimer)
-			m_FadeInTimer.Stop();
+		if (m_FadeTimer.IsRunning())
+			m_FadeTimer.Stop();
 
-		m_FadeInTimer = new WidgetFadeTimer;
-		m_FadeInTimer.FadeIn(GetLayoutRoot(), 1.5);
+		m_FadeTimer.FadeIn(this, 1.5, true);
 	}
 
 	void Clear()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
-		if (m_FadeInTimer)
-			m_FadeInTimer.Stop();
+		if (m_FadeOutLaterTimer.IsRunning())
+			m_FadeOutLaterTimer.Stop();
+
+		if (m_FadeTimer)
+			m_FadeTimer.Stop();
 	}
 
 	protected void SetTextColor(int colour)
@@ -215,11 +224,24 @@ class ExpansionChatLineBase: ExpansionScriptView
 		return path;
 	}
 
-	void SetAlpha(float opacity)
+	override void SetAlpha(float alpha)
 	{
-		Time.SetAlpha(opacity);
-		SenderName.SetAlpha(opacity);
-		Message.SetAlpha(opacity);
+		super.SetAlpha(alpha);
+
+		Time.SetAlpha(alpha);
+		SenderName.SetAlpha(alpha);
+		Message.SetAlpha(alpha);
+	}
+
+	void SetAlphaEx(float alpha)
+	{
+		if (m_FadeOutLaterTimer.IsRunning())
+			m_FadeOutLaterTimer.Stop();
+
+		if (m_FadeTimer.IsRunning())
+			m_FadeTimer.Stop();
+
+		SetAlpha(alpha);
 	}
 
 	override typename GetControllerType()
@@ -289,6 +311,23 @@ class ExpansionChatLineBase: ExpansionScriptView
 		super.OnHide();
 
 		ChatItemButton.Show(false);
+	}
+
+	void FadeOut(float duration)
+	{
+		if (m_FadeTimer.IsRunning())
+			m_FadeTimer.Stop();
+
+		if (!m_Chat.GetChatWindow().IsVisible())
+			m_FadeTimer.FadeOut(this, duration, true, false);
+	}
+
+	void FadeOutLater(float delay, float duration)
+	{
+		if (m_FadeOutLaterTimer.IsRunning())
+			m_FadeOutLaterTimer.Stop();
+
+		m_FadeOutLaterTimer.Run(delay, this, "FadeOut", new Param1<float>(duration));
 	}
 };
 

@@ -61,6 +61,11 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	{
 		ClassName = className;
 	}
+	
+	string GetClassName()
+	{
+		return ClassName;
+	}
 
 	void SetIsAI(bool state)
 	{
@@ -151,6 +156,16 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	int GetEmoteID()
 	{
 		return NPCEmoteID;
+	}
+	
+	void SetFaction(string faction)
+	{
+		NPCFaction = faction;
+	}
+	
+	string GetFaction()
+	{
+		return NPCFaction;
 	}
 #endif
 

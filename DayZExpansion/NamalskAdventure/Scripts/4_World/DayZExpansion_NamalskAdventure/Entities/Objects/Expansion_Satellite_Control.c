@@ -102,7 +102,7 @@ class Expansion_Satellite_Control: House
 	#endif
 	}
 	
-	void SetSatelliteLink(SV_Abandoned_Sattelite_Antenna satellite)
+	void SetLinkedSatellite(SV_Abandoned_Sattelite_Antenna satellite)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
@@ -110,7 +110,7 @@ class Expansion_Satellite_Control: House
 	}
 	
 #ifdef EXPANSIONMODTELEPORTER
-	void SetTeleporterLink(Expansion_Teleporter_Big teleporter)
+	void SetLinkedTeleporter(Expansion_Teleporter_Big teleporter)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		

@@ -10,6 +10,41 @@
  *
 */
 
+class ExpansionNamalskQuestHolder
+{
+	int ID;
+	string ClassName; 
+	ref array<ref ExpansionNamalskQuestHolderPosition> Positions = new array<ref ExpansionNamalskQuestHolderPosition>;
+	bool IsStatic;
+	string Name;
+	string DefaultText;
+	
+	void ExpansionNamalskQuestHolder(int id, string className, bool isStatic = true, string name = "Unknown", string text = "There is nothing to do here for you...")
+	{
+		ClassName = className;
+		IsStatic = isStatic;
+		Name = name;
+		DefaultText = text;
+	}
+	
+	void AddPosition(ExpansionNamalskQuestHolderPosition pos)
+	{
+		Positions.Insert(pos);
+	}
+};
+
+class ExpansionNamalskQuestHolderPosition
+{
+	vector Position;
+	vector Orientation;
+	
+	void ExpansionNamalskQuestHolderPosition(vector pos, vector ori)
+	{
+		Position = pos;
+		Orientation = ori;
+	}
+};
+
 [CF_RegisterModule(ExpansionNamalskModule)]
 class ExpansionNamalskModule: CF_ModuleWorld
 {
@@ -28,7 +63,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected ref map<eAIBase, ref array<vector>> m_QuestAI;
 #endif
 #endif
-	protected bool m_AIBuildingPositionsSet;
 
 	protected typename m_LastNamalskEvent;
 
@@ -40,10 +74,51 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
 	protected Expansion_Satellite_Control m_SatelliteController;
 	
-	protected const float SATELLITE_CRY_TIME = 300.0;
+	protected const float SATELLITE_CRY_TIME = 300.0; //! 5 minutes tick
 	protected float m_SatelliteCryTimer;
 	protected bool m_SatelitteState;
+	
+	protected const float CLIENT_UPDATE_TIME = 5.0; //! 5 seconds tick
+	protected float m_ClientUpdateTimer;
+	
+	protected const float BUNKER_GENERATORS_CHECK_TIME = 10.0; //! 10 seconds tick
+	protected float m_BunkerGeneratorsCheckTimer;
+	protected static ScriptCaller s_BunkerGeneratorCheckSC;
+	static const int BUNKER_GENERATOR_DEACTIVATION_TIME = 300.0; //! 5 minute delay.
+	
+	protected int m_CurrentCheckTime;
+	
+	protected const vector m_A1_Bunker_EntrancePos = Vector(4229.486328, 81.322319, 8218.904297);
+
+	protected const vector m_A1_Bunker_GeneratorPos = "2979.432373 17.282696 8674.547852";
+	protected const vector m_A1_Bunker_GeneratorOri = "41.105145 0.000000 0.000000";
+	
+	protected const vector m_A1_Bunker_TeleporterPos = "3006.558594 5.375517 8639.664063";
+	protected const vector m_A1_Bunker_TeleporterOri = "135.317398 0.000000 -0.000000";
+	
+	protected const vector m_A1_Bunker_EntrancePanelPos = "4226.144531 82.264626 8193.572266";
+	protected const vector m_A1_Bunker_EntrancePanelOri = "-7.753430 -0.000000 -0.000000";
+	
+	protected const vector m_A1_Bunker_EntranceLeaverPos = "4231.801758 81.996811 8198.053711";
+	protected const vector m_A1_Bunker_EntranceLeaverOri = "-97.819839 -0.000000 -0.000000";
+	
+	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "2985.023438 31.515968 8724.857422";
+	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "133.101044 0.000000 -0.000000";
+	
+	protected Expansion_Teleporter_Big m_A1BunkerTeleporter;
+	protected Expansion_Bunker_Generator m_A1BungerGenerator;
+	
+	protected Land_Underground_Panel m_A1BunkerEntrancePanel;
+	protected Land_Underground_Panel_Lever m_A1BunkerEntranceLeaver;
+	protected Land_Underground_Panel_Lever m_A1BunkerFakeEntranceLeaver;
+	
+	protected ref array<ref ExpansionNamalskQuestHolder> m_QuestHolders;
 #endif
+	
+	protected const float SUPPLY_CRATES_CHECK_TIME = 60.0; //! 1 minute tick
+	protected float m_SupplyCratesCheckTimer;
+	protected static ScriptCaller s_SupplyCratesCheckSC;
+	static const int LOOT_DELAY_TIME = 300; //! 5 minute delay.
 	
 	void ExpansionNamalskModule()
 	{
@@ -140,8 +215,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 			
 		#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
-			SpawnSatelliteAntennaObjects();
+			SpawnSatelliteAntennaObjects();			
+			SpawnA1Bunker();
 		#endif
+			
+			if (GetExpansionSettings().GetNamalskAdventure().EnableSupplyCrates)
+				SpawnSupplyCrates();
 		}
 	}
 
@@ -665,6 +744,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		m_AbdonedSatellite.SetPosition(Vector(1202.799561, 14.207986, 11784.280273));
 		m_AbdonedSatellite.SetOrientation(Vector(81.209969, -0.000000, -0.000000));
+		m_AbdonedSatellite.Update();
 		
 	#ifdef EXPANSIONMODTELEPORTER
 		obj = GetGame().CreateObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508));
@@ -680,6 +760,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_SatelliteTeleporter.SetOrientation(Vector(-100.711388, -0.000000, -0.000000));
 		m_SatelliteTeleporter.SetTeleporterID(100);
 		m_SatelliteTeleporter.SetActive(false);
+		m_SatelliteTeleporter.Update();
 		
 		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
 		teleporterData.SetID(100);
@@ -708,11 +789,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_SatelliteController.SetPosition(Vector(1204.062256, 5.146724, 11782.631836));
 		m_SatelliteController.SetOrientation(Vector(171.544205, 0.000000, 0.000000));
 		if (m_AbdonedSatellite)
-			m_SatelliteController.SetSatelliteLink(m_AbdonedSatellite);
+			m_SatelliteController.SetLinkedSatellite(m_AbdonedSatellite);
 	#ifdef EXPANSIONMODTELEPORTER
 		if (m_SatelliteTeleporter)
-			m_SatelliteController.SetTeleporterLink(m_SatelliteTeleporter);
+			m_SatelliteController.SetLinkedTeleporter(m_SatelliteTeleporter);
 	#endif
+		m_SatelliteController.Update();
 	}
 	
 	void PlaySatelliteCrySFX()
@@ -782,7 +864,296 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		return m_SatelliteController;
 	}
+	
+	void SpawnA1Bunker()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		//! Entrance trigger
+		ExpansionBunkerEntranceTriggerBase trigger = ExpansionBunkerEntranceTriggerBase.Cast(GetGame().CreateObjectEx("ExpansionBunkerEntranceTriggerBase", m_A1_Bunker_EntrancePos, ECE_NONE));
+		if (trigger)
+		{
+			trigger.SetPosition(m_A1_Bunker_EntrancePos);
+			trigger.SetTriggerRadius(1);
+			trigger.Update();
+		}
+		
+		//! Teleporter
+		Object obj = GetGame().CreateObject("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos);
+		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(obj);
+		if (!m_A1BunkerTeleporter)
+		{
+			Error(ToString() + "::SpawnA1Bunker - Could not spawn teleporer object!");
+			GetGame().ObjectDelete(obj);
+			return;
+		}
+		
+		m_A1BunkerTeleporter.SetPosition(m_A1_Bunker_TeleporterPos);
+		m_A1BunkerTeleporter.SetOrientation(m_A1_Bunker_TeleporterOri);
+		m_A1BunkerTeleporter.SetTeleporterID(101);
+		m_A1BunkerTeleporter.SetActive(false);
+		m_A1BunkerTeleporter.Update();
+		
+		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
+		teleporterData.SetID(101);
+		teleporterData.SetDisplayName("???");
+		teleporterData.SetObjectPosition(m_A1_Bunker_TeleporterPos);
+		teleporterData.SetIsExit(true);
+
+		ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
+		teleportPos.SetData("???");
+		teleportPos.AddPosition(Vector(4272.379883, 98.819305, 8398.056641), Vector(0.000000, 0.000000, 0.000000));
+		teleporterData.AddTeleportPosition(teleportPos);
+		ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
+		
+		//! Generator
+		obj = GetGame().CreateObject("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos);
+		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(obj);
+		if (!m_A1BungerGenerator)
+		{
+			Error(ToString() + "::SpawnA1Bunker - Could not spawn generator object!");
+			GetGame().ObjectDelete(obj);
+			return;
+		}
+
+		m_A1BungerGenerator.SetPosition(m_A1_Bunker_GeneratorPos);
+		m_A1BungerGenerator.SetOrientation(m_A1_Bunker_GeneratorOri);
+		if (m_A1BunkerTeleporter)
+			m_A1BungerGenerator.SetLinkedTeleporter(m_A1BunkerTeleporter);
+		m_A1BungerGenerator.Update();
+		
+		//! Locker quest object - @note: Make this a config param class in the namalsk settings class you lazy ass!
+		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", true, "Closed Locker");
+		ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("2984.784180 14.845232 8714.851563", "-47.022182 0.000000 0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionNamalskQuestHolderPosition("2978.834473 14.824975 8701.199219", "45.000000 -0.000000 -0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionNamalskQuestHolderPosition("2990.530518 15.530652 8729.129883", "45.000000 -0.000000 -0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionNamalskQuestHolderPosition("3018.906982 15.742278 8713.576172", "126.000061 0.000000 -0.000000");
+		questHolder.AddPosition(pos);
+		
+		if (!m_QuestHolders)
+			m_QuestHolders = new array<ref ExpansionNamalskQuestHolder>;
+
+		m_QuestHolders.Insert(questHolder);
+		SpawnQuestHolder(questHolder);
+		
+		//! Bunker fake entrance panel
+		obj = GetGame().CreateObject("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos);
+		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(obj);
+		if (!m_A1BunkerFakeEntranceLeaver)
+		{
+			Error(ToString() + "::SpawnA1Bunker - Could not spawn fake bunker panel object!");
+			GetGame().ObjectDelete(obj);
+			return;
+		}
+		
+		m_A1BunkerFakeEntranceLeaver.SetPosition(m_A1_Bunker_FakeEntranceLeaverPos);
+		m_A1BunkerFakeEntranceLeaver.SetOrientation(m_A1_Bunker_FakeEntranceLeaverOri);
+		m_A1BunkerTeleporter.Update();
+		
+		//! Bunker entrance panel
+		obj = GetGame().CreateObject("Land_Underground_Panel", m_A1_Bunker_EntrancePanelPos);
+		m_A1BunkerEntrancePanel = Land_Underground_Panel.Cast(obj);
+		if (!m_A1BunkerEntrancePanel)
+		{
+			Error(ToString() + "::SpawnA1Bunker - Could not spawn bunker panel object!");
+			GetGame().ObjectDelete(obj);
+			return;
+		}
+		
+		m_A1BunkerEntrancePanel.SetPosition(m_A1_Bunker_EntrancePanelPos);
+		m_A1BunkerEntrancePanel.SetOrientation(m_A1_Bunker_EntrancePanelOri);
+		m_A1BunkerEntrancePanel.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);
+		m_A1BunkerTeleporter.Update();
+
+		//! Bunker entrance panel leaver
+		obj = GetGame().CreateObject("Land_Underground_Panel_Lever", m_A1_Bunker_EntranceLeaverPos);
+		m_A1BunkerEntranceLeaver = Land_Underground_Panel_Lever.Cast(obj);
+		if (!m_A1BunkerEntranceLeaver)
+		{
+			Error(ToString() + "::SpawnA1Bunker - Could not spawn bunker leaver object!");
+			GetGame().ObjectDelete(obj);
+			return;
+		}
+		
+		m_A1BunkerEntranceLeaver.SetPosition(m_A1_Bunker_EntranceLeaverPos);
+		m_A1BunkerEntranceLeaver.SetOrientation(m_A1_Bunker_EntranceLeaverOri);
+		m_A1BunkerEntranceLeaver.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);
+		m_A1BunkerTeleporter.Update();
+	}
 #endif
+
+	protected void SpawnQuestHolder(ExpansionNamalskQuestHolder questHolder)
+	{
+		TStringArray questNPCs = {"ExpansionQuestNPCBase"};
+		TStringArray questAINPCs = {"ExpansionQuestNPCAIBase"};
+		TStringArray questObject = {"ExpansionQuestStaticObject"};
+		
+		ExpansionQuestNPCData questNPCData = new ExpansionQuestNPCData;
+		questNPCData.SetID(questHolder.ID); //! Unique NPC ID
+		questNPCData.SetClassName(questHolder.ClassName); //! Class name of the NPC entity
+		questNPCData.SetIsStatic(questHolder.IsStatic);
+		questNPCData.SetNPCName(questHolder.Name);
+		questNPCData.SetDefaultNPCText(questHolder.DefaultText);
+		
+		ExpansionNamalskQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
+		if (!randomPos)
+			return;
+
+		questNPCData.SetPosition(randomPos.Position); //! Quest NPC position
+		questNPCData.SetOrientation(randomPos.Orientation); //! Quest NPC orientation
+		
+		ExpansionQuestModule.GetModuleInstance().AddQuestNPCData(questHolder.ID, questNPCData);
+		
+		if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questObject))
+		{
+			ExpansionQuestStaticObject object = SpawnQuestObject(questNPCData);
+			if (!object)
+				return;
+	
+			object.SetQuestNPCID(questHolder.ID);
+			object.SetQuestNPCData(questNPCData);
+			ExpansionQuestModule.GetModuleInstance().AddStaticQuestObject(questHolder.ID, object);
+		}
+		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questNPCs))
+		{
+			ExpansionQuestNPCBase questNPC = SpawnQuestNPC(questNPCData);
+			if (!questNPC)
+				return;
+	
+			questNPC.SetQuestNPCID(questHolder.ID);
+			questNPC.SetQuestNPCData(questNPCData);
+			ExpansionQuestModule.GetModuleInstance().AddQuestNPC(questHolder.ID, questNPC);
+		}
+	#ifdef EXPANSIONMODAI
+		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questAINPCs))
+		{
+			ExpansionQuestNPCAIBase questNPCAI = SpawnQuestNPCAI(questNPCData);
+			if (!questNPCAI)
+				return;
+	
+			questNPCAI.SetQuestNPCID(questHolder.ID);
+			questNPCAI.SetQuestNPCData(questNPCData);
+			ExpansionQuestModule.GetModuleInstance().AddQuestNPCAI(questHolder.ID, questNPCAI);
+		}
+	#endif
+	}
+	
+	ExpansionQuestStaticObject SpawnQuestObject(ExpansionQuestNPCData questNPCData)
+	{
+	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+	    ExpansionQuestStaticObject questObject;
+	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
+	    {
+			GetGame().ObjectDelete(obj);
+	        return null;
+	    }
+
+	    questObject.SetPosition(questNPCData.GetPosition());
+	    questObject.SetOrientation(questNPCData.GetOrientation());
+		questObject.Update();
+		
+		if (questNPCData.GetNPCName() != string.Empty)
+	    	questObject.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
+
+	    return questObject;
+	}
+	
+	ExpansionQuestNPCBase SpawnQuestNPC(ExpansionQuestNPCData questNPCData)
+	{
+		Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+ 		ExpansionQuestNPCBase questNPC;
+		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
+	    {
+			GetGame().ObjectDelete(obj);
+	        return null;
+	    }
+
+	    questNPC.SetPosition(questNPCData.GetPosition());
+	    questNPC.SetOrientation(questNPCData.GetOrientation());
+
+		questNPC.Update();
+		questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
+		ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
+
+		return questNPC;
+	}
+
+#ifdef EXPANSIONMODAI
+	ExpansionQuestNPCAIBase SpawnQuestNPCAI(ExpansionQuestNPCData questNPCData)
+	{
+		vector position = ExpansionAIPatrol.GetPlacementPosition(questNPCData.GetPosition());
+		
+		Object obj = GetGame().CreateObject(questNPCData.GetClassName(), position);
+		if (!obj)
+			return null;
+
+		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(obj);
+		if (!questNPC)
+		{
+			GetGame().ObjectDelete(obj);
+			return null;
+		}
+
+		questNPC.SetPosition(position);
+		questNPC.SetOrientation(questNPCData.GetOrientation());
+		questNPC.Update();
+		questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
+		ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
+		questNPC.Expansion_SetCanBeLooted(false);
+		questNPC.eAI_SetUnlimitedReload(true);
+		questNPC.eAI_SetAccuracy(1.0, 1.0);
+		questNPC.eAI_SetThreatDistanceLimit(800);
+
+		eAIGroup aiGroup = questNPC.GetGroup();
+
+		if (questNPCData.GetFaction() != string.Empty)
+		{
+			eAIFaction faction = eAIFaction.Create(questNPCData.GetFaction());
+			if (faction && aiGroup.GetFaction().Type() != faction.Type())
+				aiGroup.SetFaction(faction);
+		}
+		
+		aiGroup.SetFormation(new eAIFormationColumn(aiGroup));
+		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
+		
+		array<vector> waypoints = questNPCData.GetWaypoints();
+		for (int idx = 0; idx < waypoints.Count(); idx++)
+		{
+			aiGroup.AddWaypoint(waypoints[idx]);
+			if (waypoints[idx] == position)
+				aiGroup.m_CurrentWaypointIndex = idx;
+		}
+		
+		return questNPC;
+	}
+#endif
+	
+	protected void SpawnSupplyCrates()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		//! Supply crates
+		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
+		foreach (ExpansionSupplyCrateSetup supplyCrate: supplyCrateSpawns)
+		{
+			Object obj = GetGame().CreateObject(supplyCrate.ClassName, supplyCrate.Position);
+			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(obj);
+			if (!supplyCareObj)
+			{
+				Error(ToString() + "::OnMissionLoaded - Could not spawn supply crate object!");
+				GetGame().ObjectDelete(obj);
+				continue;
+			}
+			
+			supplyCareObj.SetPosition(supplyCrate.Position);
+			supplyCareObj.SetOrientation(supplyCrate.Orientation);
+			supplyCareObj.SetCrateLoot(supplyCrate.CrateLoot);
+			supplyCareObj.Update();
+		}
+	}
 
 	static ExpansionNamalskModule GetModuleInstance()
 	{
@@ -792,18 +1163,123 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	override void OnUpdate(Class sender, CF_EventArgs args)
 	{
 		super.OnUpdate(sender, args);
-
-		if (!GetGame().IsServer())
-			return;
 		
 		auto update = CF_EventUpdateArgs.Cast(args);
+
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		{
+			OnUpdateServer(update.DeltaTime);
+		}
 		
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
-		m_SatelliteCryTimer += update.DeltaTime;
+		if (GetGame().IsClient())
+		{
+			OnUpdateClient(update.DeltaTime);
+		}
+	}
+	
+	protected void OnUpdateServer(float deltaTime)
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL		
+		m_SatelliteCryTimer += deltaTime;
 		if (m_SatelliteCryTimer >= SATELLITE_CRY_TIME)
 		{
 			PlaySatelliteCrySFX();
 			m_SatelliteCryTimer = 0;
+		}
+		
+		m_BunkerGeneratorsCheckTimer += deltaTime;
+		if (m_BunkerGeneratorsCheckTimer >= BUNKER_GENERATORS_CHECK_TIME)
+		{
+			if (!s_BunkerGeneratorCheckSC)
+		    	s_BunkerGeneratorCheckSC = ScriptCaller.Create(OnBunkerGeneratorCheck);
+
+			m_CurrentCheckTime = CF_Date.Now(true).GetTimestamp();
+			
+			Expansion_Bunker_Generator.s_Expansion_AllBunkerGenerators.Each(s_BunkerGeneratorCheckSC);
+			m_BunkerGeneratorsCheckTimer = 0;
+		}
+	#endif
+		
+		m_SupplyCratesCheckTimer += deltaTime;
+		if (m_SupplyCratesCheckTimer >= SUPPLY_CRATES_CHECK_TIME)
+		{
+			if (!s_SupplyCratesCheckSC)
+		    	s_SupplyCratesCheckSC = ScriptCaller.Create(OnSupplyCrateCheck);
+
+			m_CurrentCheckTime = CF_Date.Now(true).GetTimestamp();
+			
+			Expansion_SupplyCrate_Base.s_Expansion_AllSupplyCrates.Each(s_SupplyCratesCheckSC);
+			m_SupplyCratesCheckTimer = 0;
+		}
+	}
+
+	protected void OnSupplyCrateCheck(Expansion_SupplyCrate_Base supplyCrate)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+			
+		if (supplyCrate.HasLootDelay() && !supplyCrate.IsCrateOpened())
+		{
+			int crateCloseTime = supplyCrate.GetLastCloseTime();
+			int crateReactivationTime = crateCloseTime + LOOT_DELAY_TIME;
+			if (m_CurrentCheckTime > crateReactivationTime)
+			{
+				supplyCrate.EndLootDelay();
+			}
+		}
+		else if (supplyCrate.IsCrateOpened())
+		{
+			int crateOpenTime = supplyCrate.GetLastOpenTime();
+			int crateDelayTime = crateOpenTime + LOOT_DELAY_TIME;
+			if (m_CurrentCheckTime > crateDelayTime)
+			{
+				supplyCrate.CloseCrate();
+			}
+		}
+	}
+	
+#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+	protected void OnBunkerGeneratorCheck(Expansion_Bunker_Generator generator)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+			
+		if (generator.IsActive())
+		{
+			int generatorActivationTime = generator.GetLastActivationTime();
+			int generatorDisableTime = generatorActivationTime + BUNKER_GENERATOR_DEACTIVATION_TIME;
+			if (m_CurrentCheckTime > generatorDisableTime)
+			{
+				int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionGeneratorKey");
+				Expansion_Bunker_Generator_Key key = Expansion_Bunker_Generator_Key.Cast(generator.GetInventory().FindAttachment(slot_id_key));
+				if (!key)
+					return;
+				
+				GetGame().ObjectDelete(key);
+			}
+		}
+	}
+#endif
+	
+	protected void OnUpdateClient(float deltaTime)
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+		m_ClientUpdateTimer += deltaTime;
+		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME)
+		{
+			float dist = vector.Distance(m_A1_Bunker_EntrancePos, GetGame().GetPlayer().GetPosition());
+			if (dist < 200) 
+			{
+				GetGame().PreloadObject("land_underground_stairs_exit", 3000);
+				GetGame().PreloadObject("land_underground_stairs_block", 3000);
+				GetGame().PreloadObject("land_underground_stairs_start", 3000);
+				GetGame().PreloadObject("land_underground_floor_crew", 3000);
+				GetGame().PreloadObject("land_underground_floor_comms", 3000);
+				GetGame().PreloadObject("land_underground_stairs_collapsed", 3000);
+				GetGame().PreloadObject("staticobj_wall_indcnc_10", 3000);
+				GetGame().PreloadObject("land_underground_stairs_block_terminator", 3000);
+				GetGame().PreloadObject("sv_tubes_underground", 3000);
+			}
+			
+			m_ClientUpdateTimer = 0;
 		}
 	#endif
 	}
