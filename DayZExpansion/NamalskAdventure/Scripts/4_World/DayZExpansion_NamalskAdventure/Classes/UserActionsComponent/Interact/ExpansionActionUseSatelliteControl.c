@@ -15,9 +15,7 @@ class ExpansionActionUseSatelliteControl: ActionSingleUseBase
 	void ExpansionActionUseSatelliteControl()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENDOORFW;
-		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+
 		m_Text = "#use";
 	}
 
@@ -25,6 +23,8 @@ class ExpansionActionUseSatelliteControl: ActionSingleUseBase
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTCursor;
+		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
+		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)

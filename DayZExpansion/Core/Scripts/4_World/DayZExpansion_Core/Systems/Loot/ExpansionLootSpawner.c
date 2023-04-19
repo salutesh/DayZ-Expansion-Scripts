@@ -12,15 +12,8 @@
 
 class ExpansionLootSpawner
 {
-	// ------------------------------------------------------------
-	// Expansion AddItem
-	// ------------------------------------------------------------
 	static void AddItem(EntityAI container, ExpansionLoot loot, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionLootSpawner::AddItem - Start");
-		#endif
-
 		string className = loot.Name;
 		
 		TStringArray attachments = loot.Attachments;
@@ -33,9 +26,9 @@ class ExpansionLootSpawner
 			float chance;
 			float chancesSum;
 
-			for ( int j = 0; j < count; ++j )
+			foreach (ExpansionLootVariant variant: loot.Variants)
 			{
-				chance = loot.Variants[j].Chance;
+				chance = variant.Chance;
 				chances.Insert( chance );
 				chancesSum += chance;
 			}
@@ -63,11 +56,13 @@ class ExpansionLootSpawner
 			}
 		}
 
+		if ( loot.m_Remaining > 0 )
+			loot.m_Remaining--;
+
+		if ( loot.m_Remaining == 0 )
+			loot.m_RemainingChance = 0;
+
 		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap, spawnOnGround ); 
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionLootSpawner::AddItem - End");
-		#endif
 	}
 
 	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
@@ -175,76 +170,65 @@ class ExpansionLootSpawner
 				Error("ExpansionLootSpawner::Spawn - ERROR: Couldn't spawn " + className + " - item with that classname does not exist!");
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion RemoveContainer
-	// ------------------------------------------------------------
+
 	static void RemoveContainer(EntityAI container)
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionLootSpawner::RemoveContainer - Start");
-		#endif
-		
 		GetGame().ObjectDelete( container );
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionLootSpawner::RemoveContainer - End");
-		#endif
 	}
 
-	// ------------------------------------------------------------
-	// Expansion SpawnLoot
-	// ------------------------------------------------------------
-	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > Loot, int ItemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
+	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > loot, int itemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
 		array< float > chances = new array< float >;
-		array< int > max = new array< int >;
 
-		for ( int i = 0; i < Loot.Count(); ++i )
+		int lootItemsSpawned = 0;
+
+		//! Spawn min number of items first
+		foreach (ExpansionLoot lootItem: loot)
 		{
-			chances.Insert( Loot[i].Chance );
+			lootItem.m_RemainingChance = lootItem.Chance;
+			lootItem.m_Remaining = lootItem.Max;
 
-			max.Insert( Loot[i].Max );
+			int min = lootItem.Min;
+			while (min > 0)
+			{
+				lootItemsSpawned++;
+				min--;
+
+				AddItem( container, lootItem, spawnedEntities, spawnedEntitiesMap, spawnOnGround );
+			}
+
+			chances.Insert(lootItem.m_RemainingChance);
 		}
 
-		if (ItemCount < 0)
-			ItemCount = Math.RandomInt(1,-ItemCount);
+		if (itemCount < 0)
+			itemCount = Math.RandomInt(1, -itemCount);
 
-		int LootItemsSpawned = 0;
-		while ( LootItemsSpawned < ItemCount )
+		//! Spawn remaining items randomly (if any)
+		while ( lootItemsSpawned < itemCount )
 		{
 			//! Chances are treated as weights here, otherwise it wouldn't make sense as we always want a fixed number of items
 			int index = ExpansionStatic.GetWeightedRandom( chances );
 
 			if ( index > -1 )
 			{
-				LootItemsSpawned++;
+				lootItemsSpawned++;
 
-				AddItem( container, Loot.Get( index ), spawnedEntities, spawnedEntitiesMap, spawnOnGround );
+				ExpansionLoot randomLootItem = loot[index];
 
-				if ( max[index] > 0 )
-					max[index] = max[index] - 1;
+				AddItem( container, randomLootItem, spawnedEntities, spawnedEntitiesMap, spawnOnGround );
 
-				if ( max[index] == 0 )
+				if ( randomLootItem.m_Remaining == 0 )
 					chances[index] = 0;
 			} else
 			{
-				Print("ExpansionLootSpawner::SpawnLoot couldn't select a loot item to spawn (all chances zero?) - items spawned : " + LootItemsSpawned);
+				Print("ExpansionLootSpawner::SpawnLoot couldn't select a loot item to spawn (all chances zero?) - items spawned : " + lootItemsSpawned);
 				break;
 			}
 		}
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion IsPlayerNearby
-	// Check if player is nearby container
-	// ------------------------------------------------------------
+
 	static bool IsPlayerNearby(EntityAI container, float radius)
-	{		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionLootSpawner::IsPlayerNearby - Start");
-		#endif
-		
+	{
 		vector pos = container.GetPosition();
 		
 		if (GetCEApi())
@@ -264,16 +248,9 @@ class ExpansionLootSpawner
 			
 			if ( distanceSq <= radiusSq )
 			{
-				#ifdef EXPANSION_MISSION_EVENT_DEBUG
-				EXLogPrint("ExpansionLootSpawner::IsPlayerNearby - End and return true");
-				#endif
 				return true;
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionLootSpawner::IsPlayerNearby - End and return false");
-		#endif
 		
 		return false;
 	}

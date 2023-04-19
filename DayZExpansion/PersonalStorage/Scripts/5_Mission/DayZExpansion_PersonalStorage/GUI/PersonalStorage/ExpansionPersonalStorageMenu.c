@@ -1341,7 +1341,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		PrintDebug(ToString() + "::SearchInPlayerItems - End");
 	}
 
-	void OnModuleCallback(ExpansionPersonalStorageModuleCallback callback)
+	void OnModuleCallback(int callback)
 	{
 		PrintDebug(ToString() + "::OnModuleCallback - Start");
 		string callbackName = typename.EnumToString(ExpansionPersonalStorageModuleCallback, callback);

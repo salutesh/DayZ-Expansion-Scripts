@@ -35,12 +35,12 @@ static void Expansion_Error(string s, inout bool check = false)
 // -----------------------------------------------------------
 static void EXPrint( string s, string prefix = " [EXPANSION DEBUG]: " )
 {
-	PrintFormat("%1%2%3", ExpansionStatic.GetTimestamp(), prefix, s );
+	PrintFormat("%1%2%3", ExpansionStatic.GetISOTime(), prefix, s );
 }
 
 static void EXPrint( Class instance, string s, string prefix = " [EXPANSION DEBUG]: " )
 {
-	PrintFormat("%1%2%3 %4", ExpansionStatic.GetTimestamp(), prefix, instance.ToString(), s );
+	PrintFormat("%1%2%3 %4", ExpansionStatic.GetISOTime(), prefix, instance.ToString(), s );
 }
 
 // -----------------------------------------------------------
@@ -97,7 +97,7 @@ class EXHitch
 	{
 		int elapsed = TickCount(m_Ticks);
 		if (elapsed > m_Threshold)
-			PrintFormat("%1 %2HITCH: %3ms", ExpansionStatic.GetTimestamp(), m_MsgPrefix, (elapsed / 10000.0).ToString());
+			PrintFormat("%1 %2HITCH: %3ms", ExpansionStatic.GetISOTime(), m_MsgPrefix, (elapsed / 10000.0).ToString());
 	}
 }
 
@@ -608,77 +608,43 @@ class ExpansionStatic
 		return false;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion GetTime
-	// ------------------------------------------------------------
-	static string GetTime()
-	{
-		int hour;
-		int minute;
-		int second;
-
-		GetHourMinuteSecond(hour, minute, second);
-
-		string date = hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
-
-		return date;
-	}
-
-
-	// ------------------------------------------------------------
-	// Expansion GetDateTime
-	// ------------------------------------------------------------
-	static string GetDateTime()
+	static string GetISODate(bool useUTC = false)
 	{
 		int year;
 		int month;
 		int day;
-		int hour;
-		int minute;
-		int second;
 
-		GetYearMonthDay(year, month, day);
-		GetHourMinuteSecond(hour, minute, second);
+		if (useUTC)
+			GetYearMonthDayUTC(year, month, day);
+		else
+			GetYearMonthDay(year, month, day);
 
-		string result = year.ToStringLen(4) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2) + "_" + hour.ToStringLen(2) + "-" + minute.ToStringLen(2) + "-" + second.ToStringLen(2);
-
-		return result;
+		return year.ToStringLen(4) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2);
 	}
 
-	// ------------------------------------------------------------
-	// Expansion GetTimeUTC
-	// ------------------------------------------------------------
-	static string GetTimeUTC()
+	static string GetISODateTime(bool useUTC = false, string delim = "T")
 	{
-		int hour;
-		int minute;
-		int second;
-
-		GetHourMinuteSecondUTC(hour, minute, second);
-
-		string date = hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
-
-		return date;
+		return GetISODate(useUTC) + delim + GetISOTime(useUTC);
 	}
 
-	// ------------------------------------------------------------
-	// Expansion FormatTime (milliseconds)
-	// ------------------------------------------------------------
-	static string FormatTime( float time, bool include_ms = true )
-	{
-		return FormatTimestamp( time / 1000, include_ms );
-	}
-
-
-	// ------------------------------------------------------------
-	// Expansion FormatTimestamp (seconds)
-	// ------------------------------------------------------------
-	static string FormatTimestamp( float time, bool include_ms = true, bool include_hours = true )
+	/*!
+	 * @brief format timestamp (value in seconds)
+	 * @return one of the following formats as string (depending on arguments):
+	 * "HH:MM:SS.SSS" (default)
+	 * "HH:MM:SS"     (include_ms = false)
+	 * "MM:SS.SSS"    (include_hours = false)
+	 * "MM:SS"        (include_ms = false, include_hours = false)
+	 * @note HH is the total number of hours and can exceed 24 unless `discard_days` is set to true!
+	*/
+	static string FormatTimestamp(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false)
 	{
 		if (include_hours)
 		{
 			int hours = (int) time / 3600;
 			time -= hours * 3600;
+
+			if (discard_days && hours >= 24)
+				hours = hours % 24;
 		}
 
 		int minutes = (int) time / 60;
@@ -702,22 +668,28 @@ class ExpansionStatic
 		return timestring;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion GetTimestamp
-	// ------------------------------------------------------------
-	static string GetTimestamp()
+	static string GetISOTime(bool useUTC = false, bool include_ms = true)
 	{
-		if ( GetDayZGame() )
+		if ( include_ms && GetDayZGame() )
 		{
 			//! Accurate, including milliseconds
-			return FormatTimestamp( GetDayZGame().ExpansionGetStartTime() + GetDayZGame().GetTickTime() );
-		} else
+			return FormatTimestamp(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true);
+		}
+		else
 		{
 			//! Next best thing
-			return GetTime();
+			int hour;
+			int minute;
+			int second;
+
+			if (useUTC)
+				GetHourMinuteSecondUTC(hour, minute, second);
+			else
+				GetHourMinuteSecond(hour, minute, second);
+
+			return hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
 		}
 	}
-
 
 	static string GetTimeString( float total_time )
 	{
@@ -735,17 +707,15 @@ class ExpansionStatic
 		if ( days > 0 )
 		{
 			time_string += GetValueString( days ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_DAYS";	//! Days
+			time_string += " ";	//! Separator
 		}
-
-		time_string += " ";	//! Separator
 
 		int hours = ( time_seconds % 86400 ) / 3600;
 		if ( hours > 0 )
 		{
 			time_string += GetValueString( hours ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";	//! Hours
+			time_string += " ";	//! Separator
 		}
-
-		time_string += " ";	//! Separator
 
 		int minutes = ( time_seconds % 3600 ) / 60;
 		time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";	//! Minutes

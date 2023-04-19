@@ -24,7 +24,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ExpansionGlobalChatModule()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		GetPermissionsManager().RegisterPermission( "Admin.Chat" );
 	}
@@ -39,7 +39,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void AddChatMessage( ParamsReadContext ctx, PlayerIdentity sender, Object target )
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -175,7 +175,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 	
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		super.OnRPC(sender, args);
 

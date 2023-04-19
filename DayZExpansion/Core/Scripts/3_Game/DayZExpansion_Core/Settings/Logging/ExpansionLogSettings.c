@@ -247,7 +247,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		m_IsLoaded = true;
 
-		m_FileTimestamp = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetDateTime() + ".log";
+		m_FileTimestamp = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetISODateTime(false, "_") + ".log";
 
 		bool save;
 
@@ -438,7 +438,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 			ExpansionStatic.MakeDirectoryRecursive( EXPANSION_LOG_FOLDER );
 		}
 
-		string output = ExpansionStatic.GetTime() + " " + string.Format(text, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+		string output = ExpansionStatic.GetISOTime() + " " + string.Format(text, param1, param2, param3, param4, param5, param6, param7, param8, param9);
 
 		if (LogToScripts || LogToADM)
 		{

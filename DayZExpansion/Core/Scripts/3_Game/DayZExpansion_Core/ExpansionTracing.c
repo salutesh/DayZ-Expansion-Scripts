@@ -210,9 +210,9 @@ class EXTrace
 	void DumpLine(string line, int elapsed, bool end = false)
 	{
 		if (end)
-			PrintFormat("%1 [EXTRACE] %2 %3 ms", ExpansionStatic.GetTimestamp(), s_Indent + "-" + line, (elapsed / 10000.0).ToString());
+			PrintFormat("%1 [EXTRACE] %2 %3 ms", ExpansionStatic.GetISOTime(), s_Indent + "-" + line, (elapsed / 10000.0).ToString());
 		else
-			PrintFormat("%1 [EXTRACE] %2", ExpansionStatic.GetTimestamp(), s_Indent + "+" + line);
+			PrintFormat("%1 [EXTRACE] %2", ExpansionStatic.GetISOTime(), s_Indent + "+" + line);
 	}
 
 	EXTrace Add(bool param)
@@ -304,7 +304,7 @@ class EXTrace
 
 	void Print(string msg)
 	{
-		PrintFormat("%1 [EXPRINT] %2", ExpansionStatic.GetTimestamp(), s_Indent + msg);
+		PrintFormat("%1 [EXPRINT] %2", ExpansionStatic.GetISOTime(), s_Indent + msg);
 	}
 
 	static void Print(bool yes, Class instance, string msg)
@@ -315,7 +315,7 @@ class EXTrace
 			return;
 #endif
 
-		string ts = ExpansionStatic.GetTimestamp();
+		string ts = ExpansionStatic.GetISOTime();
 
 		if (instance)
 			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent + instance.ToString(), msg);

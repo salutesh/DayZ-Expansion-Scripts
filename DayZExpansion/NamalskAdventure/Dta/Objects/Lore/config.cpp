@@ -13,17 +13,18 @@ class CfgPatches
 class CfgVehicles
 {
 	class HouseNoDestruct;
+	class Inventory_Base;
+	class Container_Base;
 	class Expansion_Satellite_Control: HouseNoDestruct
 	{
 		scope = 2;
 		displayName = "Satellite Control";
-		descriptionShort = "Not needed.";
+		descriptionShort = "";
 		model = "\nst\ns2\build\a3\proxy\a3_flaxbt_panel.p3d";
 		handheld = "false";
 		weight = 50000;
 		physLayer = "item_large";
 		carveNavmesh = 1;
 		storageCategory = 10;
-		attachments[] = {};
 	};
 };

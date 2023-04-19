@@ -2578,6 +2578,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 			}
 		}
 	}
+	
+	void AddQuestNPCData(int id, ExpansionQuestNPCData questNPCData)
+	{
+		if (!m_QuestsNPCs.Contains(id))
+			m_QuestsNPCs.Insert(id, questNPCData);
+	}
 
 	protected void GetQuestNPCData(string fileName)
 	{
@@ -3654,6 +3660,12 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		return closestNPC;
 	}
+	
+	void AddQuestNPCAI(int id, ExpansionQuestNPCAIBase questNPCAI)
+	{
+		if (!m_QuestNPCAIEntities.Contains(id))
+			m_QuestNPCAIEntities.Insert(id, questNPCAI);
+	}
 
 	ExpansionQuestNPCAIBase GetQuestNPCAIByID(int id)
 	{
@@ -3738,10 +3750,22 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		return  m_QuestObjectEntities.Get(id);
 	}
+	
+	void AddStaticQuestObject(int id, ExpansionQuestStaticObject staticQustObject)
+	{
+		if (!m_QuestObjectEntities.Contains(id))
+			m_QuestObjectEntities.Insert(id, staticQustObject);
+	}
 
 	ExpansionQuestNPCBase GetQuestNPCByID(int id)
 	{
 		return m_QuestNPCEntities.Get(id);
+	}
+	
+	void AddQuestNPC(int id, ExpansionQuestNPCBase questNPC)
+	{
+		if (!m_QuestNPCEntities.Contains(id))
+			m_QuestNPCEntities.Insert(id, questNPC);
 	}
 
 	Object GetClosestQuestNPCForQuest(array<int> npcIDs, vector position)

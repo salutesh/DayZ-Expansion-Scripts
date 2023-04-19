@@ -20,7 +20,7 @@ class ExpansionAISpawnPosition
 	string Loadout = "GorkaLoadout";
 	string Faction = "InvincibleSurvivors";
 	float MinSpeed = 1.0;
-	float MaxSpeed = 1.0;
+	float MaxSpeed = 3.0;
 	float MinAccuracy = 0.5;
 	float MaxAccuracy = 1.0;
 	bool CanBeLooted = true;

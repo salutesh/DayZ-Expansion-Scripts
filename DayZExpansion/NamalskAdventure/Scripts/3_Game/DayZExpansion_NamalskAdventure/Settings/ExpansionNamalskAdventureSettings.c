@@ -10,6 +10,33 @@
  *
 */
 
+class ExpansionSupplyCrateSetup
+{
+	string ClassName;
+	vector Position;
+	vector Orientation;
+	ref array<ref ExpansionLoot> CrateLoot;
+	
+	void ExpansionSupplyCrateSetup(string className, vector pos, vector ori)
+	{
+		ClassName = className;
+		Position = pos;
+		Orientation = ori;
+		CrateLoot = new array<ref ExpansionLoot>;
+	}
+	
+	void AddLoot(string name, TStringArray attachments = NULL, float chance = 1, int quantityPercent = -1, array<ref ExpansionLootVariant> variants = NULL, int max = -1, int min = 0)
+	{
+		ExpansionLoot loot = new ExpansionLoot(name, attachments, chance, quantityPercent, variants , max, min);
+		CrateLoot.Insert(loot);
+	}
+
+	array<ref ExpansionLoot> GetLoot()
+	{
+		return CrateLoot;
+	}
+};
+
 static const string EXPANSION_NAMALSKADVENTURE_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "NamalskAdventureSettings.json";
 
 /**@class		ExpansionNamalskAdventureSettingsBase
@@ -23,7 +50,7 @@ class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase {};
 class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 {
 	[NonSerialized()]
-	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 500;
+	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 250;
 	
 	static const int VERSION = 0;
 	
@@ -44,6 +71,9 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	ref array<ref ExpansionAISpawnPosition> AISpawnPositions; //! Server
 #endif
 
+	bool EnableSupplyCrates;
+	ref array<ref ExpansionSupplyCrateSetup> SupplyCrateSpawns;
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
@@ -60,6 +90,8 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	#ifdef EXPANSIONMODAI
 		AISpawnPositions = new array<ref ExpansionAISpawnPosition>;
 	#endif
+		
+		SupplyCrateSpawns = new array<ref ExpansionSupplyCrateSetup>;
 	}
 
 	override bool OnRecieve(ParamsReadContext ctx)
@@ -203,6 +235,9 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		EnableAISpawns = true;
 		DefaultAISpawnPositions();
 	#endif
+		
+		EnableSupplyCrates = true;
+		DefaultSupplyCrates();
 	}
 	
 	protected void DefaultNamalskAnomalies()
@@ -216,26 +251,56 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		anomaly_loot.Insert(loot_1);
 		
 		//! Dynamic spawns
-		ExpansionAnomalyDynamic anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5935.47, 32.1953, 10375.7), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
-		//anomaly.SetLoot(anomaly_loot, 1, 3, ExpansionAnomalyLootSpawnType.DYNAMIC);
+		ExpansionAnomalyDynamic anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(1225.67, 2.00018, 11837.4), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 		
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6851.73, 4.70827, 9946.15), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3774.44, 144.313, 8244.01), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 		
 		DynamicAnomalies.Insert(anomaly);
 		
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6851.73, 4.70827, 9946.15), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 		
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3770.85, 153.138, 8244.01), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5549.58, 43.0471, 9543.73), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5744.57, 17.2946, 10770.0), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4502.5, 19.5023, 10854), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6708.11, 15.0, 11202.7), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7047.19, 40.0, 5817.77), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7263.92, 238.711, 7058.66), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7312.8, 84.37, 7994.47), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6273.98, 21.0682, 9351.2), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 		
 		//! Static spawns
-		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5698.69, 21.3942, 9995.46)));
-		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5702.67, 21.3942, 9962.45)));
-		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5711.87, 21.3942, 9913.56)));
-		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5687.73, 21.3942, 9963.86)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4320.681152, 77.882248, 8105.860352)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4238.989746, 77.928940, 8120.389648)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4150.605469, 78.103477, 8044.797363)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4380.786621, 77.689484, 8090.837402)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4298.584961, 78.741501, 8046.419922)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(3785.281250, 153.848358, 8266.510742)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(3762.224365, 158.773376, 8197.483398)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(3738.147949, 153.526825, 8231.050781)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5697.937500, 21.480026, 9973.298828)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5680.349609, 21.919327, 9994.563477)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5712.300293, 21.977049, 9917.190430)));
 	}
 	
 #ifdef EXPANSIONMODMARKET
@@ -339,9 +404,10 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		waypoints.Insert(Vector(6019.13, 5.80883, 10026.7));
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(6019.13, 5.80883, 10026.7), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
 
-		//! Spawn NAC AI Soldier Units at A3
-		waypoints = new array<vector>;
 		waypoints.Insert(Vector(3601.81, 145.102, 6661.04));
+		
+		//! Spawn NAC AI Soldier Units at A3
+		npcName = "NAC Soldier";
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3601.81, 145.102, 6661.04), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC"));
 
 		waypoints = new array<vector>;
@@ -355,8 +421,39 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(3591.66, 143.823, 6718.72));
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3591.66, 143.823, 6718.72), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC"));
+		
+		//! Spawn NAC AI Soldier Units at A1 Bunker
+		waypoints = new array<vector>;
+		waypoints.Insert(Vector(3019.99, 15.2586, 8692.22));
+		waypoints.Insert(Vector(3008.74, 15.3229, 8684.97));
+		waypoints.Insert(Vector(2991.24, 15.3338, 8664.89));
+		waypoints.Insert(Vector(2989.15, 15.3459, 8657.58));
+		waypoints.Insert(Vector(2994.59, 15.3337, 8658.69));
+		waypoints.Insert(Vector(3016.73, 15.3229, 8683.23));
+		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3019.99, 15.2586, 8692.22), Vector(105.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC"));
 	}
 #endif
+	
+	protected void DefaultSupplyCrates()
+	{
+		TStringArray nacPlateCarrierAtt = {"dzn_platecarrierpouches_nac", "dzn_platecarrierholster_nac"};
+		TStringArray nvgAtt = {"NVGHeadstrap"};
+		
+		ExpansionSupplyCrateSetup supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Brown", "3002.316895 15.765295 8648.774414", "53.999996 -0.000000 -0.000000");
+		supplyCrate.AddLoot("ExpansionAnomalyCoreProtectiveCase", NULL, 0.3, -1, NULL, -1);
+		supplyCrate.AddLoot("Expansion_KeyCard_NA_Antenna", NULL, 0.3, -1, NULL, -1);
+		SupplyCrateSpawns.Insert(supplyCrate);
+		
+		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Green", "2995.887939 15.740044 8645.873047", "-71.999954 0.000000 0.000000");
+		supplyCrate.AddLoot("NVGoggles", nvgAtt, 0.2, -1, NULL, -1);
+		supplyCrate.AddLoot("dzn_platecarriervest_nac", nacPlateCarrierAtt, 0.1, -1, NULL, -1);
+		SupplyCrateSpawns.Insert(supplyCrate);
+		
+		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Orange", "2982.503418 15.737301 8667.663086", "80.999924 -0.000000 -0.000000");
+		supplyCrate.AddLoot("NVGoggles", nvgAtt, 0.2, -1, NULL, -1);
+		supplyCrate.AddLoot("dzn_platecarriervest_nac", nacPlateCarrierAtt, 0.1, -1, NULL, -1);
+		SupplyCrateSpawns.Insert(supplyCrate);
+	}
 	
 #ifdef EXPANSIONMODMARKET
 	ExpansionMerchantPosition GetMerchantPosition()
@@ -369,6 +466,11 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		return MerchantItemSets.GetRandomElement();
 	}
 #endif
+	
+	array<ref ExpansionSupplyCrateSetup> GetSupplyCrateSpawns()
+	{
+		return SupplyCrateSpawns;
+	}
 
 	// ------------------------------------------------------------
 	override string SettingName()

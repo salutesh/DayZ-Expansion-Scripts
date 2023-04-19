@@ -162,6 +162,6 @@ class ExpansionActionOpenPersonalStorageMenu: ActionInteractBase
 		storage.m_Expansion_NetsyncData.Get(0, displayName);
 		storage.m_Expansion_NetsyncData.Get(1, displayIcon);
 
-		ExpansionPersonalStorageModule.GetModuleInstance().SendItemData(player.GetIdentity(), storageID, true, displayName, displayIcon);
+		ExpansionPersonalStorageModule.GetModuleInstance().SendItemData(player.GetIdentity(), storageID, displayName, displayIcon);
 	}
 };

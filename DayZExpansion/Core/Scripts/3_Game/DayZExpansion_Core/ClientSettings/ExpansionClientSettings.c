@@ -86,9 +86,9 @@ class ExpansionClientSettings
 	// Chat Settings
 	bool HUDChatToggle;
 	ExpansionClientUIChatSize HUDChatSize;
+	float HUDChatMessageTimeThreshold;
 	float HUDChatFadeOut;
 	ExpansionClientUIChatChannel DefaultChatChannel;
-	float HUDChatMessageTimeThreshold;
 
 	bool ShowNameQuickMarkers;
 	bool ShowDistanceQuickMarkers;
@@ -589,6 +589,9 @@ class ExpansionClientSettings
 			return false;
 		}
 
+		if (version < 48)
+			HUDChatFadeOut /= 10.0;
+
 		return true;
 	}
 
@@ -814,7 +817,7 @@ class ExpansionClientSettings
 		HUDChatToggle = true;
 		HUDChatMessageTimeThreshold = 10.0;
 		HUDChatSize = ExpansionClientUIChatSize.MEDIUM;
-		HUDChatFadeOut = 10;
+		HUDChatFadeOut = 1.0;
 
 		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;
 		MarkerSize = ExpansionClientUIMarkerSize.MEDIUM;
@@ -964,9 +967,9 @@ class ExpansionClientSettings
 
 	#ifdef EXPANSIONMODCHAT
 		CreateToggle( "HUDChatToggle", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_TOGGLE_DESC" );
-		CreateSlider( "HUDChatMessageTimeThreshold", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD_DESC", 1.0, 20.0, 0.25 );
 		CreateEnum( "HUDChatSize", ExpansionClientUIChatSize, "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_SIZE_DESC" );
-		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 60.0, 1.0 );
+		CreateSlider( "HUDChatMessageTimeThreshold", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_MESSAGE_TIME_THRESHOLD_DESC", 1.0, 20.0, 0.25 );
+		CreateSlider( "HUDChatFadeOut", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_FADEOUT_DESC", 0.0, 6.0, 0.1 );
 		CreateEnum( "DefaultChatChannel", ExpansionClientUIChatChannel, "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_SETTINGS_HUD_CHAT_CHANNEL_DESC" );
 	#endif
 

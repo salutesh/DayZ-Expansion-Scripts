@@ -346,7 +346,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		}
 	}
 
-	void SendItemData(PlayerIdentity identity, int storageID = -1, bool invoke = false, string displayName = string.Empty, string displayIcon = string.Empty)
+	void SendItemData(PlayerIdentity identity, int storageID = -1, string displayName = string.Empty, string displayIcon = string.Empty, ExpansionPersonalStorageModuleCallback callback = 0)
 	{
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -356,7 +356,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		DebugPring("::SendItemData - Start");
 		DebugPring("::SendItemData - Storage ID: " + storageID);
-		DebugPring("::SendItemData - Invoke: " + invoke);
 		DebugPring("::SendItemData - Display name: " + displayName);
 		DebugPring("::SendItemData - Display icon: " + displayIcon);
 
@@ -372,7 +371,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		auto rpc = ExpansionScriptRPC.Create();
 		storageConfig.OnSend(rpc);
 		rpc.Write(storageID);
-		rpc.Write(invoke);
 		rpc.Write(displayName);
 		rpc.Write(displayIcon);
 
@@ -397,6 +395,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		{
 			storedItem.OnSend(rpc);
 		}
+
+		rpc.Write(callback);
 
 		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.SendItemData, true, identity);
 
@@ -427,10 +427,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		int storageID;
 		if (!ctx.Read(storageID))
-			return;
-
-		bool invoke;
-		if (!ctx.Read(invoke))
 			return;
 
 		string displayName;
@@ -465,19 +461,22 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		DebugPring("::RPC_SendItemData - Player items array: " + m_PlayerItems.ToString());
 		DebugPring("::RPC_SendItemData - Player items count: " + m_PlayerItems.Count());
 
-		if (invoke)
-		{
-			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionPersonalStorageMenu");
+		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionPersonalStorageMenu");
 
-			if (m_PlayerItems && m_PlayerItems.Count() > 0)
-			{
-				m_PersonalStorageMenuInvoker.Invoke(storageID, m_PlayerItems, displayName, displayIcon);
-			}
-			else
-			{
-				m_PersonalStorageMenuInvoker.Invoke(storageID, null, displayName, displayIcon);
-			}
+		if (m_PlayerItems && m_PlayerItems.Count() > 0)
+		{
+			m_PersonalStorageMenuInvoker.Invoke(storageID, m_PlayerItems, displayName, displayIcon);
 		}
+		else
+		{
+			m_PersonalStorageMenuInvoker.Invoke(storageID, null, displayName, displayIcon);
+		}
+
+		int callback;
+		if (!ctx.Read(callback))
+			return;
+
+		m_PersonalStorageMenuCallbackInvoker.Invoke(callback);
 
 		DebugPring("::RPC_SendItemData - End");
 	}
@@ -495,7 +494,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 		}
 
-		ExpansionPersonalStorageModuleCallback callback;
+		int callback;
 		if (!ctx.Read(callback))
 			return;
 
@@ -581,11 +580,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		string displayName = loadedEntity.GetDisplayName();
 		RemoveItemByGlobalID(playerUID, globalID);
-		SendItemData(senderRPC, storageID, true);
-
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(ExpansionPersonalStorageModuleCallback.ItemRetrieved);
-		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.Callback, true, senderRPC);
+		SendItemData(senderRPC, storageID, "", "", ExpansionPersonalStorageModuleCallback.ItemRetrieved);
 
 		ExpansionNotification(new StringLocaliser("Item Retrieved!"), new StringLocaliser("You have retrieved a %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 	}
@@ -689,11 +684,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		newItem.Save();
 
-		SendItemData(senderRPC, storageID, true);
-
-		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(ExpansionPersonalStorageModuleCallback.ItemStored);
-		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.Callback, true, senderRPC);
+		SendItemData(senderRPC, storageID, "", "", ExpansionPersonalStorageModuleCallback.ItemStored);
 
 		ExpansionNotification(new StringLocaliser("Item Deposited!"), new StringLocaliser("You have deposited the item %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 

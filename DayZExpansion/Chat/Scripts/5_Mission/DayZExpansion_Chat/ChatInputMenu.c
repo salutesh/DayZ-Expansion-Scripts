@@ -19,7 +19,7 @@ modded class ChatInputMenu
 
 	override Widget Init()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_BackInputWrapper = GetUApi().GetInputByID(UAUIBack).GetPersistentWrapper();
 
@@ -50,7 +50,7 @@ modded class ChatInputMenu
 		if (!finished)
 			return false;
 
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		string text = m_edit_box.GetText();
 
@@ -99,7 +99,7 @@ modded class ChatInputMenu
 
 	override void OnShow()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		super.OnShow();
 
@@ -109,7 +109,7 @@ modded class ChatInputMenu
 
 	override void OnHide()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		if (GetGame() && GetGame().GetMission())  //! Prevent NULL pointer on game exit
 			super.OnHide();
