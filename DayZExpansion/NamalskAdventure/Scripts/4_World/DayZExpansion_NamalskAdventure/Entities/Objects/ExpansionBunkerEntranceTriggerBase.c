@@ -14,8 +14,8 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 {
 	protected ref array<PlayerBase> m_TeleportingPlayers;
 
-	protected const vector m_A3_Bunker_StartPos = Vector(2969.111816, 30.851454, 8708.092773);
-	protected const vector m_A3_Bunker_StartOri = Vector(-48.958839, -0.000000, -0.000000);
+	protected const vector m_A3_Bunker_StartPos = Vector(4221.477539, 2245.127686, 8220.308594);
+	protected const vector m_A3_Bunker_StartOri = Vector(290.000000, -0.000000, -0.000000);
 
 	void ExpansionBunkerEntranceTriggerBase()
 	{

@@ -622,9 +622,9 @@ class ExpansionStatic
 		return year.ToStringLen(4) + "-" + month.ToStringLen(2) + "-" + day.ToStringLen(2);
 	}
 
-	static string GetISODateTime(bool useUTC = false, string delim = "T")
+	static string GetISODateTime(bool useUTC = false, string delim = "T", string delimHMS = ":")
 	{
-		return GetISODate(useUTC) + delim + GetISOTime(useUTC);
+		return GetISODate(useUTC) + delim + GetISOTime(useUTC, false, delimHMS);
 	}
 
 	/*!
@@ -636,7 +636,7 @@ class ExpansionStatic
 	 * "MM:SS"        (include_ms = false, include_hours = false)
 	 * @note HH is the total number of hours and can exceed 24 unless `discard_days` is set to true!
 	*/
-	static string FormatTimestamp(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false)
+	static string FormatTimestamp(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false, string delimHMS = ":")
 	{
 		if (include_hours)
 		{
@@ -654,9 +654,9 @@ class ExpansionStatic
 		string timestring;
 
 		if (include_hours)
-			timestring = hours.ToStringLen(2) + ":" + minutes.ToStringLen(2) + ":" + seconds.ToStringLen(2);
+			timestring = hours.ToStringLen(2) + delimHMS + minutes.ToStringLen(2) + delimHMS + seconds.ToStringLen(2);
 		else
-			timestring = minutes.ToStringLen(2) + ":" + seconds.ToStringLen(2);
+			timestring = minutes.ToStringLen(2) + delimHMS + seconds.ToStringLen(2);
 
 		if ( include_ms )
 		{
@@ -668,12 +668,12 @@ class ExpansionStatic
 		return timestring;
 	}
 
-	static string GetISOTime(bool useUTC = false, bool include_ms = true)
+	static string GetISOTime(bool useUTC = false, bool include_ms = true, string delimHMS = ":")
 	{
 		if ( include_ms && GetDayZGame() )
 		{
 			//! Accurate, including milliseconds
-			return FormatTimestamp(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true);
+			return FormatTimestamp(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true, delimHMS);
 		}
 		else
 		{
@@ -687,7 +687,7 @@ class ExpansionStatic
 			else
 				GetHourMinuteSecond(hour, minute, second);
 
-			return hour.ToStringLen(2) + ":" + minute.ToStringLen(2) + ":" + second.ToStringLen(2);
+			return hour.ToStringLen(2) + delimHMS + minute.ToStringLen(2) + delimHMS + second.ToStringLen(2);
 		}
 	}
 

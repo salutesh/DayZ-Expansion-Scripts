@@ -18,10 +18,13 @@ class ExpansionNamalskQuestHolder
 	bool IsStatic;
 	string Name;
 	string DefaultText;
+	int ObjectiveID;
 	
-	void ExpansionNamalskQuestHolder(int id, string className, bool isStatic = true, string name = "Unknown", string text = "There is nothing to do here for you...")
+	void ExpansionNamalskQuestHolder(int id, string className, int objectiveID, bool isStatic = true, string name = "Unknown", string text = "There is nothing to do here for you...")
 	{
+		ID = id;
 		ClassName = className;
+		ObjectiveID = objectiveID;
 		IsStatic = isStatic;
 		Name = name;
 		DefaultText = text;
@@ -90,11 +93,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	protected const vector m_A1_Bunker_EntrancePos = Vector(4229.486328, 81.322319, 8218.904297);
 
-	protected const vector m_A1_Bunker_GeneratorPos = "2979.432373 17.282696 8674.547852";
-	protected const vector m_A1_Bunker_GeneratorOri = "41.105145 0.000000 0.000000";
+	protected const vector m_A1_Bunker_GeneratorPos = "4149.910645 2211.960938 8381.652344|";
+	protected const vector m_A1_Bunker_GeneratorOri = "173.105637 0.000000 0.000000";
 	
-	protected const vector m_A1_Bunker_TeleporterPos = "3006.558594 5.375517 8639.664063";
-	protected const vector m_A1_Bunker_TeleporterOri = "135.317398 0.000000 -0.000000";
+	protected const vector m_A1_Bunker_TeleporterPos = "4105.267578 2200.001709 8385.943359";
+	protected const vector m_A1_Bunker_TeleporterOri = "-94.391113 -0.000000 -0.000000";
 	
 	protected const vector m_A1_Bunker_EntrancePanelPos = "4226.144531 82.264626 8193.572266";
 	protected const vector m_A1_Bunker_EntrancePanelOri = "-7.753430 -0.000000 -0.000000";
@@ -102,8 +105,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected const vector m_A1_Bunker_EntranceLeaverPos = "4231.801758 81.996811 8198.053711";
 	protected const vector m_A1_Bunker_EntranceLeaverOri = "-97.819839 -0.000000 -0.000000";
 	
-	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "2985.023438 31.515968 8724.857422";
-	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "133.101044 0.000000 -0.000000";
+	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "4224.230469 2245.931396 8197.500000";
+	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "-98.999931 0.000000 -0.000000";
 	
 	protected Expansion_Teleporter_Big m_A1BunkerTeleporter;
 	protected Expansion_Bunker_Generator m_A1BungerGenerator;
@@ -923,21 +926,34 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_A1BungerGenerator.Update();
 		
 		//! Locker quest object - @note: Make this a config param class in the namalsk settings class you lazy ass!
-		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", true, "Closed Locker");
-		ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("2984.784180 14.845232 8714.851563", "-47.022182 0.000000 0.000000");
+		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", 1000, true, "Closed Locker");
+		ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("4401.438965 1408.807007 7579.083496", "0.000000 -0.000000 -0.000000");
 		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("2978.834473 14.824975 8701.199219", "45.000000 -0.000000 -0.000000");
+		pos = new ExpansionNamalskQuestHolderPosition("4198.405273 2200.105957 8269.550781", "162.000092 0.000000 -0.000000");
 		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("2990.530518 15.530652 8729.129883", "45.000000 -0.000000 -0.000000");
+		pos = new ExpansionNamalskQuestHolderPosition("4198.563965 2198.925781 8301.996094", "171.000122 0.000000 -0.000000");
 		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("3018.906982 15.742278 8713.576172", "126.000061 0.000000 -0.000000");
+		pos = new ExpansionNamalskQuestHolderPosition("4176.048828 2200.109863 8306.589844", "-98.999931 0.000000 -0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionNamalskQuestHolderPosition("4182.592285 2200.121826 8293.318359", "-9.000000 0.000000 0.000000");
 		questHolder.AddPosition(pos);
 		
 		if (!m_QuestHolders)
 			m_QuestHolders = new array<ref ExpansionNamalskQuestHolder>;
 
 		m_QuestHolders.Insert(questHolder);
-		SpawnQuestHolder(questHolder);
+		ExpansionNamalskQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
+		if (!randomPos)
+			return;
+		
+		SpawnQuestHolder(questHolder, randomPos);
+		
+		//! Modify quest objective position
+		ExpansionQuestObjectiveTravelConfig travelObjective = ExpansionQuestModule.GetModuleInstance().GetTravelObjectiveConfigByID(questHolder.ObjectiveID);
+		if (!travelObjective)
+			return;
+		
+		travelObjective.SetPosition(randomPos.Position);
 		
 		//! Bunker fake entrance panel
 		obj = GetGame().CreateObject("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos);
@@ -951,7 +967,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		m_A1BunkerFakeEntranceLeaver.SetPosition(m_A1_Bunker_FakeEntranceLeaverPos);
 		m_A1BunkerFakeEntranceLeaver.SetOrientation(m_A1_Bunker_FakeEntranceLeaverOri);
-		m_A1BunkerTeleporter.Update();
+		m_A1BunkerFakeEntranceLeaver.Update();
 		
 		//! Bunker entrance panel
 		obj = GetGame().CreateObject("Land_Underground_Panel", m_A1_Bunker_EntrancePanelPos);
@@ -966,7 +982,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_A1BunkerEntrancePanel.SetPosition(m_A1_Bunker_EntrancePanelPos);
 		m_A1BunkerEntrancePanel.SetOrientation(m_A1_Bunker_EntrancePanelOri);
 		m_A1BunkerEntrancePanel.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);
-		m_A1BunkerTeleporter.Update();
+		m_A1BunkerEntrancePanel.Update();
 
 		//! Bunker entrance panel leaver
 		obj = GetGame().CreateObject("Land_Underground_Panel_Lever", m_A1_Bunker_EntranceLeaverPos);
@@ -981,11 +997,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		m_A1BunkerEntranceLeaver.SetPosition(m_A1_Bunker_EntranceLeaverPos);
 		m_A1BunkerEntranceLeaver.SetOrientation(m_A1_Bunker_EntranceLeaverOri);
 		m_A1BunkerEntranceLeaver.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);
-		m_A1BunkerTeleporter.Update();
+		m_A1BunkerEntranceLeaver.Update();
 	}
 #endif
 
-	protected void SpawnQuestHolder(ExpansionNamalskQuestHolder questHolder)
+	protected void SpawnQuestHolder(ExpansionNamalskQuestHolder questHolder, ExpansionNamalskQuestHolderPosition randomPos)
 	{
 		TStringArray questNPCs = {"ExpansionQuestNPCBase"};
 		TStringArray questAINPCs = {"ExpansionQuestNPCAIBase"};
@@ -997,10 +1013,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		questNPCData.SetIsStatic(questHolder.IsStatic);
 		questNPCData.SetNPCName(questHolder.Name);
 		questNPCData.SetDefaultNPCText(questHolder.DefaultText);
-		
-		ExpansionNamalskQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
-		if (!randomPos)
-			return;
 
 		questNPCData.SetPosition(randomPos.Position); //! Quest NPC position
 		questNPCData.SetOrientation(randomPos.Orientation); //! Quest NPC orientation
@@ -1010,40 +1022,40 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questObject))
 		{
 			ExpansionQuestStaticObject object = SpawnQuestObject(questNPCData);
-			if (!object)
-				return;
-	
-			object.SetQuestNPCID(questHolder.ID);
-			object.SetQuestNPCData(questNPCData);
-			ExpansionQuestModule.GetModuleInstance().AddStaticQuestObject(questHolder.ID, object);
+			if (object)
+			{
+				object.SetQuestNPCID(questHolder.ID);
+				object.SetQuestNPCData(questNPCData);
+				ExpansionQuestModule.GetModuleInstance().AddStaticQuestObject(questHolder.ID, object);
+			}
 		}
 		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questNPCs))
 		{
 			ExpansionQuestNPCBase questNPC = SpawnQuestNPC(questNPCData);
-			if (!questNPC)
-				return;
-	
-			questNPC.SetQuestNPCID(questHolder.ID);
-			questNPC.SetQuestNPCData(questNPCData);
-			ExpansionQuestModule.GetModuleInstance().AddQuestNPC(questHolder.ID, questNPC);
+			if (questNPC)
+			{
+				questNPC.SetQuestNPCID(questHolder.ID);
+				questNPC.SetQuestNPCData(questNPCData);
+				ExpansionQuestModule.GetModuleInstance().AddQuestNPC(questHolder.ID, questNPC);
+			}
 		}
 	#ifdef EXPANSIONMODAI
 		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questAINPCs))
 		{
 			ExpansionQuestNPCAIBase questNPCAI = SpawnQuestNPCAI(questNPCData);
-			if (!questNPCAI)
-				return;
-	
-			questNPCAI.SetQuestNPCID(questHolder.ID);
-			questNPCAI.SetQuestNPCData(questNPCData);
-			ExpansionQuestModule.GetModuleInstance().AddQuestNPCAI(questHolder.ID, questNPCAI);
+			if (questNPCAI)
+			{
+				questNPCAI.SetQuestNPCID(questHolder.ID);
+				questNPCAI.SetQuestNPCData(questNPCData);
+				ExpansionQuestModule.GetModuleInstance().AddQuestNPCAI(questHolder.ID, questNPCAI);
+			}
 		}
 	#endif
 	}
 	
 	ExpansionQuestStaticObject SpawnQuestObject(ExpansionQuestNPCData questNPCData)
 	{
-	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_ROTATIONFLAGS, ECE_KEEPHEIGHT);
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
@@ -1063,7 +1075,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	ExpansionQuestNPCBase SpawnQuestNPC(ExpansionQuestNPCData questNPCData)
 	{
-		Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS | ECE_PLACE_ON_SURFACE);
+		Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS);
  		ExpansionQuestNPCBase questNPC;
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {

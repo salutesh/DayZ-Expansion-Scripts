@@ -159,7 +159,11 @@ modded class DayZPlayerCamera3rdPersonVehicle
 		{
 			rotation[0] = m_fLeftRightAngle + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
 			rotation[1] = Limit(m_fUpDownAngle + m_fUpDownAngleAdd, CONST_UD_MIN, CONST_UD_MAX) + CONST_ANGULAR_LAG_PITCH_STRENGTH * m_LagOffsetOrientation[1];
+		#ifdef DAYZ_1_20
 			rotation[2] = m_fRoll;
+		#else
+			rotation[2] = m_CurrentCameraRoll;
+		#endif
 		} else {		
 			Input input = GetGame().GetInput(); 	//! Reference to input
 			if ( input.LocalValue( "UANextAction" ) != 0 && input.LocalHold( "UAVehicleSlow", false ) )

@@ -439,17 +439,17 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		TStringArray nacPlateCarrierAtt = {"dzn_platecarrierpouches_nac", "dzn_platecarrierholster_nac"};
 		TStringArray nvgAtt = {"NVGHeadstrap"};
 		
-		ExpansionSupplyCrateSetup supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Brown", "3002.316895 15.765295 8648.774414", "53.999996 -0.000000 -0.000000");
+		ExpansionSupplyCrateSetup supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Brown", "4196.722656 2200.373779 8314.196289", "0.000000 -0.000000 -0.000000");
 		supplyCrate.AddLoot("ExpansionAnomalyCoreProtectiveCase", NULL, 0.3, -1, NULL, -1);
 		supplyCrate.AddLoot("Expansion_KeyCard_NA_Antenna", NULL, 0.3, -1, NULL, -1);
 		SupplyCrateSpawns.Insert(supplyCrate);
 		
-		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Green", "2995.887939 15.740044 8645.873047", "-71.999954 0.000000 0.000000");
+		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Green", "4173.464844 2200.505615 8284.333984", "-107.999939 0.000000 -0.000000");
 		supplyCrate.AddLoot("NVGoggles", nvgAtt, 0.2, -1, NULL, -1);
 		supplyCrate.AddLoot("dzn_platecarriervest_nac", nacPlateCarrierAtt, 0.1, -1, NULL, -1);
 		SupplyCrateSpawns.Insert(supplyCrate);
 		
-		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Orange", "2982.503418 15.737301 8667.663086", "80.999924 -0.000000 -0.000000");
+		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Orange", "4117.445801 2210.407715 8388.918945", "62.999973 -0.000000 -0.000000");
 		supplyCrate.AddLoot("NVGoggles", nvgAtt, 0.2, -1, NULL, -1);
 		supplyCrate.AddLoot("dzn_platecarriervest_nac", nacPlateCarrierAtt, 0.1, -1, NULL, -1);
 		SupplyCrateSpawns.Insert(supplyCrate);

@@ -197,6 +197,7 @@ class CfgVehicles
 				};
 			};
 		};
+		soundImpactType = "plastic";
 	};
 	class Expansion_KeyCard_NA_Antenna: Expansion_KeyCard_Base
 	{
@@ -223,7 +224,7 @@ class CfgVehicles
 		scope = 1;
 		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Keys\Keys.p3d";
 		animClass = "Knife";
-		rotationFlags = 17;
+		rotationFlags = 16;
 		weight = 4;
 		itemSize[] = {1,1};
 		fragility = 0.01;
@@ -264,13 +265,86 @@ class CfgVehicles
 		hiddenSelections[] = {"key"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
 	};
-	class Expansion_Bunker_Generator_Key: Expansion_Key_Base
+	class Expansion_SupplyCrate_Key_Red: Expansion_Key_Base
+	{
+		scope = 2;
+		displayName = "Supply Crate Key's";
+		descriptionShort = "PLACEHOLDER";
+		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
+		hiddenSelections[] = {"key"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_red.paa"};
+	};
+	class Expansion_SupplyCrate_Key_Green: Expansion_Key_Base
+	{
+		scope = 2;
+		displayName = "Supply Crate Key's";
+		descriptionShort = "PLACEHOLDER";
+		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
+		hiddenSelections[] = {"key"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_green.paa"};
+	};
+	class Expansion_SupplyCrate_Key_Blue: Expansion_Key_Base
+	{
+		scope = 2;
+		displayName = "Supply Crate Key's";
+		descriptionShort = "PLACEHOLDER";
+		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
+		hiddenSelections[] = {"key"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_blue.paa"};
+	};
+	class Expansion_SupplyCrate_Key_Purple: Expansion_Key_Base
+	{
+		scope = 2;
+		displayName = "Supply Crate Key's";
+		descriptionShort = "PLACEHOLDER";
+		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
+		hiddenSelections[] = {"key"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_purple.paa"};
+	};
+	class Expansion_Key2_Base: Inventory_Base
+	{
+		scope = 1;
+		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Keys\Keys_2.p3d";
+		animClass = "Knife";
+		rotationFlags = 16;
+		weight = 4;
+		itemSize[] = {1,1};
+		fragility = 0.01;
+		hiddenSelections[] = {"key","key_chain"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 15;
+					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
+					healthLevels[] = {{1.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}}};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem
+				{
+					soundSet = "pickUpPaper_SoundSet";
+					id = 797;
+				};
+			};
+		};
+		soundImpactType = "metal";
+	};
+	class Expansion_Bunker_Generator_Key: Expansion_Key2_Base
 	{
 		scope = 2;
 		displayName = "Generator Key's";
 		descriptionShort = "PLACEHOLDER";
 		inventorySlot[] = {"Att_ExpansionGeneratorKey"};
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
 	};
 };
