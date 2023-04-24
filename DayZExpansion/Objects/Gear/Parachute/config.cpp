@@ -2,7 +2,7 @@
 
 class CfgPatches
 {
-	class Expasnsion_Parachute
+	class DayZExpansion_Parachute
 	{
 		units[] = {};
 		weapons[] = {};

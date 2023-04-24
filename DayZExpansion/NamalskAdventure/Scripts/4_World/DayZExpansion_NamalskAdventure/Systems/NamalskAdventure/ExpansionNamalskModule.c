@@ -91,13 +91,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	protected int m_CurrentCheckTime;
 	
-	protected const vector m_A1_Bunker_EntrancePos = Vector(4229.486328, 81.322319, 8218.904297);
+	protected const vector m_A1_Bunker_EntrancePos = "4229.486328 81.322319 8218.904297";
 
-	protected const vector m_A1_Bunker_GeneratorPos = "2979.432373 17.282696 8674.547852";
-	protected const vector m_A1_Bunker_GeneratorOri = "41.105145 0.000000 0.000000";
+	protected const vector m_A1_Bunker_GeneratorPos = "1851.220459 208.544495 1386.371704";
+	protected const vector m_A1_Bunker_GeneratorOri = "170.999863 0.000000 -0.000000";
 	
-	protected const vector m_A1_Bunker_TeleporterPos = "3006.558594 5.375517 8639.664063";
-	protected const vector m_A1_Bunker_TeleporterOri = "135.317398 0.000000 -0.000000";
+	protected const vector m_A1_Bunker_TeleporterPos = "1806.715942 196.610580 1390.737427";
+	protected const vector m_A1_Bunker_TeleporterOri = "-96.636742 0.000000 -0.000000";
 	
 	protected const vector m_A1_Bunker_EntrancePanelPos = "4226.144531 82.264626 8193.572266";
 	protected const vector m_A1_Bunker_EntrancePanelOri = "-7.753430 -0.000000 -0.000000";
@@ -105,8 +105,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected const vector m_A1_Bunker_EntranceLeaverPos = "4231.801758 81.996811 8198.053711";
 	protected const vector m_A1_Bunker_EntranceLeaverOri = "-97.819839 -0.000000 -0.000000";
 	
-	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "2985.023438 31.515968 8724.857422";
-	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "133.101044 0.000000 -0.000000";
+	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "1925.534912 242.507050 1202.186157";
+	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "-98.999931 0.000000 -0.000000";
 	
 	protected Expansion_Teleporter_Big m_A1BunkerTeleporter;
 	protected Expansion_Bunker_Generator m_A1BungerGenerator;
@@ -216,7 +216,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			if (GetExpansionSettings().GetNamalskAdventure().EnableMerchant)
 				CreateMerchant();
 		#endif
-			
+
 		#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
 			SpawnSatelliteAntennaObjects();			
 			SpawnA1Bunker();
@@ -232,10 +232,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected void SpawnAI()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		for (int i = 0; i < GetExpansionSettings().GetNamalskAdventure().AISpawnPositions.Count(); i++)
+		
+		array<ref ExpansionAISpawnPosition> aiPositions = GetExpansionSettings().GetNamalskAdventure().AISpawnPositions;
+		for (int i = 0; i < aiPositions.Count(); i++)
 		{
-			ExpansionAISpawnPosition aiSpawn = GetExpansionSettings().GetNamalskAdventure().AISpawnPositions[i];
+			ExpansionAISpawnPosition aiSpawn = aiPositions[i];
 			if (!aiSpawn)
 				continue;
 
@@ -286,7 +287,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		aiGroup.SetFaction(faction);
 		aiGroup.SetFormation(eAIFormation.Create("Column"));
 		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
-
+		
 		for (int idx = 0; idx < aiSpawn.Waypoints.Count(); idx++)
 		{
 			aiGroup.AddWaypoint(aiSpawn.Waypoints[idx]);
@@ -294,7 +295,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				aiGroup.m_CurrentWaypointIndex = idx;
 		}
 
-		if (aiSpawn.ShelterPositions)
+		if (aiSpawn.ShelterPositions && aiSpawn.ShelterPositions.Count() > 0)
 		{
 			m_SpawnedAI.Insert(ai, aiSpawn.ShelterPositions);
 		}
@@ -927,13 +928,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		//! Locker quest object - @note: Make this a config param class in the namalsk settings class you lazy ass!
 		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", 1000, true, "Closed Locker");
-		ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("2984.784180 14.845232 8714.851563", "-47.022182 0.000000 0.000000");
+		ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("1908.662354 201.666977 1244.743164", "173.734970 0.000000 -0.000000");
 		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("2978.834473 14.824975 8701.199219", "45.000000 -0.000000 -0.000000");
+		pos = new ExpansionNamalskQuestHolderPosition("1915.156006 201.659302 1231.404419", "81.000038 -0.000000 -0.000000");
 		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("2990.530518 15.530652 8729.129883", "45.000000 -0.000000 -0.000000");
+		pos = new ExpansionNamalskQuestHolderPosition("1899.852783 195.486664 1306.718994", "174.815613 0.000000 0.000000");
 		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("3018.906982 15.742278 8713.576172", "126.000061 0.000000 -0.000000");
+		pos = new ExpansionNamalskQuestHolderPosition("1906.268677 196.687729 1291.300415", "80.999977 -0.000000 -0.000000");
 		questHolder.AddPosition(pos);
 		
 		if (!m_QuestHolders)
@@ -1053,7 +1054,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	ExpansionQuestStaticObject SpawnQuestObject(ExpansionQuestNPCData questNPCData)
 	{
-	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_ROTATIONFLAGS);
+	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_KEEPHEIGHT);
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
@@ -1063,7 +1064,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	    questObject.SetPosition(questNPCData.GetPosition());
 	    questObject.SetOrientation(questNPCData.GetOrientation());
-		questObject.Update();
 		
 		if (questNPCData.GetNPCName() != string.Empty)
 	    	questObject.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
@@ -1073,7 +1073,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	ExpansionQuestNPCBase SpawnQuestNPC(ExpansionQuestNPCData questNPCData)
 	{
-		Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_INITAI | ECE_CREATEPHYSICS | ECE_ROTATIONFLAGS);
+		Object obj = GetGame().CreateObject(questNPCData.GetClassName(), questNPCData.GetPosition());
  		ExpansionQuestNPCBase questNPC;
 		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
 	    {
@@ -1084,7 +1084,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	    questNPC.SetPosition(questNPCData.GetPosition());
 	    questNPC.SetOrientation(questNPCData.GetOrientation());
 
-		questNPC.Update();
 		questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
 		ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
 
@@ -1109,7 +1108,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		questNPC.SetPosition(position);
 		questNPC.SetOrientation(questNPCData.GetOrientation());
-		questNPC.Update();
 		questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
 		ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
 		questNPC.Expansion_SetCanBeLooted(false);
@@ -1284,9 +1282,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				GetGame().PreloadObject("land_underground_floor_crew", 3000);
 				GetGame().PreloadObject("land_underground_floor_comms", 3000);
 				GetGame().PreloadObject("land_underground_stairs_collapsed", 3000);
-				GetGame().PreloadObject("staticobj_wall_indcnc_10", 3000);
+				GetGame().PreloadObject("land_mil_barracks_round", 3000);
 				GetGame().PreloadObject("land_underground_stairs_block_terminator", 3000);
-				GetGame().PreloadObject("sv_tubes_underground", 3000);
+				GetGame().PreloadObject("bldr_expansion_Sign_roadbarrier", 3000);
+				GetGame().PreloadObject("expansionquestobjectlocker", 3000);
 			}
 			
 			m_ClientUpdateTimer = 0;

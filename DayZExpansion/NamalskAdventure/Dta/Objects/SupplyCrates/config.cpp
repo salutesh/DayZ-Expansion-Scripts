@@ -146,15 +146,27 @@ class CfgVehicles
 			};
 		};
 	};
-	class Expansion_SupplyCrate_Orange: Expansion_SupplyCrate_Base
+	class Expansion_SupplyCrate_Bunker_Orange: Expansion_SupplyCrate_Base
 	{
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_medic.p3d";
 	};
-	class Expansion_SupplyCrate_Green: Expansion_SupplyCrate_Base
+	class Expansion_SupplyCrate_Bunker_Green: Expansion_SupplyCrate_Base
 	{
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_military.p3d";
 	};
-	class Expansion_SupplyCrate_Brown: Expansion_SupplyCrate_Base
+	class Expansion_SupplyCrate_Bunker_Brown: Expansion_SupplyCrate_Base
+	{
+		model = "\nst\ns3\structures\crates\supplycrates_spawn_tools.p3d";
+	};
+	class Expansion_SupplyCrate_World_T1_Orange: Expansion_SupplyCrate_Base
+	{
+		model = "\nst\ns3\structures\crates\supplycrates_spawn_medic.p3d";
+	};
+	class Expansion_SupplyCrate_World_T1_Green: Expansion_SupplyCrate_Base
+	{
+		model = "\nst\ns3\structures\crates\supplycrates_spawn_military.p3d";
+	};
+	class Expansion_SupplyCrate_World_T1_Brown: Expansion_SupplyCrate_Base
 	{
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_tools.p3d";
 	};

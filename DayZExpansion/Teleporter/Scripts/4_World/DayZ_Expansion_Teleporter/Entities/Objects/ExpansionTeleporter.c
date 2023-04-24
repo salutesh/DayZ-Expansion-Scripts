@@ -31,6 +31,8 @@ class Expansion_Teleporter_Base: BuildingSuper
 		
 		if (IsMissionHost())
 			SetAllowDamage(false);
+		
+		SetEventMask(EntityEvent.INIT);
 
 		m_TeleporterID = -1;
 		m_IsActive = true;
@@ -129,6 +131,8 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	void SetActive(bool state)
 	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		
 		m_IsActive = state;
 		
 		SetSynchDirty();
@@ -162,323 +166,312 @@ class Expansion_Teleporter_Base: BuildingSuper
 	}
 #endif
 #endif
+	
+	protected void DebugTrace(string text)
+	{
+	#ifdef EXPANSIONMODTELEPORTERDEBUG
+		EXTrace.Start(EXTrace.TELEPORTER, this, text);
+	#endif
+	}
 };
 
 enum ExpansionTeleporterState
 {
 	OFF = 0,
-	ACTIVE = 1,
-	LOW_ENERGY = 2,
-	NO_ENERGY = 3,
-	EVR = 4
+	IDLE = 1,
+	ACTIVATED = 2,
+	UNSTABLE = 3
 };
 
 class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 {
-	protected Particle m_Particle;
-	protected SoundOnVehicle m_Sound;
-	protected ExpansionTeleportLight m_Light;
+	protected const string SOUND_IDLE = "Expansion_Teleporter_Idle_Soundset";
+	protected const string SOUND_ACTIVATED = "Expansion_Teleporter_Active_Soundset";
 	
-	static const string CAR_BATTERY_ATTACH_SOUND = "carbattery_attach_SoundSet";
-	static const string CAR_BATTERY_DETACH_SOUND = "carbattery_detach_SoundSet";
-	static const string TELEPORTER_IDLE_SOUND = "Expansion_TeleporterIdle_Sound";
-	
-	protected float m_ChargeEnergyPerSecond;
-	protected ExpansionTeleporterState m_State = ExpansionTeleporterState.OFF;
+	protected EffectSound m_Sound;
+	protected EffectSound m_SoundActivated;
+	protected Particle m_ParticleIdle;
 
+	protected ExpansionTeleporterState m_TeleporterState = ExpansionTeleporterState.OFF;
+	protected ExpansionTeleporterState m_PrevTeleporterState = ExpansionTeleporterState.OFF;
+	protected ExpansionTeleporterState m_VisualState = ExpansionTeleporterState.OFF;
+
+	//! Particles
+	protected const int PARTICLE_TELEPORTER_IDLE = ParticleList.EXPANSION_PARTICLE_TELEPORTER;
+	
 	void Expansion_Teleporter_Big()
 	{
-		/*if (GetGame().IsClient() || !GetGame().IsMultiplayer())
-		{
-			m_Particle = Particle.PlayOnObject(ParticleList.EXPANSION_PARTICLE_TELEPORTER, this);
-			m_Light = ExpansionTeleportLight.Cast(ScriptedLightBase.CreateLight(ExpansionTeleportLight, GetPosition() + "0 1 0"));
-			m_Light.AttachOnObject(this, "0 1 0");
-			PlayIdleSound();
-		}*/
-		
-		RegisterNetSyncVariableInt("m_State");
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		RegisterNetSyncVariableInt("m_TeleporterState", 0, 3);
+		RegisterNetSyncVariableInt("m_PrevTeleporterState", 0, 3);
 	}
 	
 	void ~Expansion_Teleporter_Big()
 	{
-		if (GetGame() && (GetGame().IsClient() || !GetGame().IsMultiplayer()))
-		{
-			if (m_Particle)
-			{
-				m_Particle.StopParticle();
-				GetGame().ObjectDelete(m_Particle);
-			}
-			
-			if (m_Sound)
-				GetGame().ObjectDelete(m_Sound);
-			
-			if (m_Light)
-				GetGame().ObjectDelete(m_Light);
-		}
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 	}
 	
-	protected void PlayIdleSound()
+	override void SetActive(bool state)
 	{
-		if (m_Sound)
-			GetGame().ObjectDelete(m_Sound);
+		if (!state)
+		{
+			SetTeleporterState(ExpansionTeleporterState.OFF);
+		}
+		else
+		{
+			SetTeleporterState(ExpansionTeleporterState.IDLE);
+		}
 
-		m_Sound = PlaySoundLoop(TELEPORTER_IDLE_SOUND, 30);
+		DebugTrace("::SetActive - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, m_TeleporterState));
+
+		super.SetActive(state);
 	}
 	
-	protected void StopIdleSound()
+	protected bool PlayParticle(out Particle particle, int particle_type)
 	{
-		if (m_Sound)
-			GetGame().ObjectDelete(m_Sound);
-	}
-	
-	protected void CreateParticleEffect()
-	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) //! Client side
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!particle && GetGame() && (!GetGame().IsDedicatedServer()))
 		{
-			m_Particle = Particle.PlayOnObject(ParticleList.EXPANSION_PARTICLE_TELEPORTER, this);
+			particle = Particle.PlayOnObject(particle_type, this, "0 0.2 0");
+			return true;
 		}
+
+		return false;
+	}
+
+	//! Returns true if particle stopped, false if not
+	protected bool StopParticle(out Particle particle)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (particle && GetGame() && (!GetGame().IsDedicatedServer()))
+		{
+			particle.Stop();
+			particle = null;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	void SetTeleporterState(ExpansionTeleporterState state)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		DebugTrace("::SetTeleporterState - Set teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state));
+
+		m_PrevTeleporterState = m_TeleporterState;
+		m_TeleporterState = state;
+
+		SetSynchDirty();
 	}
 	
-	protected void StopParticleEffect()
+	protected void SetVisualState(ExpansionTeleporterState state)
 	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) //! Client side
-		{	
-			if (m_Particle)
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		DebugTrace("::SetVisualState - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state));
+
+		m_VisualState = state;
+	}
+	
+	protected void SoundIdleStart()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		PlaySoundSetLoop(m_Sound, SOUND_IDLE, 1.0, 1.0);
+	}
+
+	protected void SoundStop()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		StopSoundSet(m_Sound);
+	}
+
+	protected void SoundActivatedStart()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		PlaySoundSet(m_SoundActivated, SOUND_ACTIVATED, 1.0, 1.0);
+	}
+
+	protected void ParticleIdleStop()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		StopParticle(m_ParticleIdle);
+	}
+
+	protected void UpdateVisualState(ExpansionTeleporterState state)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		DebugTrace("::UpdateVisualState - Teleporter state is: " + typename.EnumToString(ExpansionTeleporterState, state));
+
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateTeleporterVFX_Deferred, 0, false, state);
+	}
+	
+	//! @note: This method updates the teleporters visual effects (VFX) in a deferred manner based on the provided `state`.
+	protected void UpdateTeleporterVFX_Deferred(ExpansionTeleporterState state)
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		DebugTrace("::UpdateTeleporterVFX_Deferred - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state) + " | Previous teleporter state: " + typename.EnumToString(ExpansionTeleporterState, m_PrevTeleporterState));
+		
+		//! Stop current particle effects
+		ParticleIdleStop();
+
+		switch (state)
+		{
+			case ExpansionTeleporterState.IDLE:
 			{
-				m_Particle.Stop();
-				GetGame().ObjectDelete(m_Particle);
+				//! Create idle VFX particle
+			    CreateIdleParticle(state);
+				TurnOffUnstableEmitor();
+				TurnOffActivatedEmitor();
 			}
-		}
-	}
-	
-	protected void CreateLight()
-	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) //! Client side
-		{
-			m_Light = ExpansionTeleportLight.Cast(ScriptedLightBase.CreateLight(ExpansionTeleportLight, GetPosition() + "0 1 0"));
-		}
-	}
-	
-	protected void DestroyLight()
-	{
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer()) //! Client side
-		{
-			if (m_Light)
+			break;
+			case ExpansionTeleporterState.ACTIVATED:
 			{
-				m_Light.FadeOut();
-				GetGame().ObjectDelete(m_Light);
+				//! Create activated VFX particle
+				CreateIdleParticle(state);
+				SoundActivatedStart();
+				TurnOffUnstableEmitor();
 			}
+			break;
+			case ExpansionTeleporterState.UNSTABLE:
+			{
+				//! Create idle VFX particle
+				CreateIdleParticle(state);
+				TurnOffActivatedEmitor();
+			}
+			break;
 		}
 	}
 	
+	protected void TurnOnUnstableEmitor()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!m_ParticleIdle)
+		{
+			Error("::TurnOnUnstableEmitor - Could not get idle particle!");
+			return;
+		}
+
+		m_ParticleIdle.SetParameter(0, EmitorParam.LIFETIME, 1);
+		m_ParticleIdle.SetParameter(0, EmitorParam.REPEAT, 1);
+	}
+
+	protected void TurnOffUnstableEmitor()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!m_ParticleIdle)
+		{
+			Error("::TurnOnUnstableEmitor - Could not get idle particle!");
+			return;
+		}
+
+		m_ParticleIdle.SetParameter(0, EmitorParam.LIFETIME, 0);
+		m_ParticleIdle.SetParameter(0, EmitorParam.REPEAT, 0);
+	}
+	
+	protected void TurnOnActivatedEmitor()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!m_ParticleIdle)
+		{
+			Error("::TurnOnActivatedEmitor - Could not get idle particle!");
+			return;
+		}
+
+		m_ParticleIdle.SetParameter(1, EmitorParam.LIFETIME, 1);
+		m_ParticleIdle.SetParameter(1, EmitorParam.REPEAT, 1);
+	}
+
+	protected void TurnOffActivatedEmitor()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+
+		if (!m_ParticleIdle)
+		{
+			Error("::TurnOnActivatedEmitor - Could not get idle particle!");
+			return;
+		}
+
+		m_ParticleIdle.SetParameter(1, EmitorParam.LIFETIME, 0);
+		m_ParticleIdle.SetParameter(1, EmitorParam.REPEAT, 0);
+	}
+
+	protected void CreateIdleParticle(ExpansionTeleporterState state)
+	{
+		//! Create idle VFX particle
+		PlayParticle(m_ParticleIdle, GetTeleporterIdleParticle());
+
+		//! Create idle sound
+		if (!m_Sound)
+			SoundIdleStart();
+
+		SetVisualState(state);
+	}
+	
+	//! @note: Synchronizes variables and updates visual state of the particle depending on the anomaly state.
+	override void OnVariablesSynchronized()
+	{
+		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
+		DebugTrace("::OnVariablesSynchronized - Current teleporter visual state: " + typename.EnumToString(ExpansionTeleporterState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionTeleporterState, m_TeleporterState));
+
+		super.OnVariablesSynchronized();
+
+		if (m_VisualState != m_TeleporterState)
+			UpdateVisualState(m_TeleporterState);
+	}
+	
+	override bool IsHealthVisible()
+	{
+		return true;
+	}
+
 	override bool IsInventoryVisible()
 	{
 		return true;
 	}
-	
-	override void EEItemAttached(EntityAI item, string slot_name)
-	{
-		super.EEItemAttached(item, slot_name);
 
-		if (item.IsInherited(CarBattery))
-		{
-			if (GetCompEM().CanWork())
-				GetCompEM().SwitchOn();
-		}
-		
-		if (GetGame().IsServer())
-		{
-			ExpansionCircuitBoardBase board;
-			if (Class.CastTo(board, item))
-			{
-				int slot_id_board = InventorySlots.GetSlotIdFromString("Att_ExpansionCircuitBoard");
-				GetInventory().SetSlotLock(slot_id_board, true);
-			}
-		}
+	override bool CanDisplayCargo()
+	{
+		return true;
 	}
 
-	override void EEItemDetached(EntityAI item, string slot_name)
+	override bool CanPutInCargo(EntityAI parent)
 	{
-		super.EEItemDetached(item, slot_name);
-		
-		if (item.IsInherited(CarBattery))
-			GetCompEM().SwitchOff();
-		
-		if (GetGame().IsServer())
-		{
-			ExpansionCircuitBoardBase board;
-			if (Class.CastTo(board, item))
-			{
-				int slot_id_board = InventorySlots.GetSlotIdFromString("Att_ExpansionCircuitBoard");
-				GetInventory().SetSlotLock(slot_id_board, false);
-			}
-		}
-	}
-	
-	override void OnWork(float consumed_energy)
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
-		if (!GetGame().IsServer())
-		{
-			int slot = InventorySlots.GetSlotIdFromString("CarBattery");
-			CarBattery carBattery;
-			if (Class.CastTo(carBattery, GetInventory().FindAttachment(slot)))
-			{
-				bool isEVRStormActive = IsEVRStormActive();
-				bool isUnderRoof = MiscGameplayFunctions.IsUnderRoof(this);
-				
-				World world = GetGame().GetWorld();
-				
-				Weather weather = GetGame().GetWeather();
-				float overcast = weather.GetOvercast().GetActual();
-				float rain = weather.GetRain().GetActual();
-				float fog = weather.GetFog().GetActual();
-				float sunshine = ExpansionMath.LinearConversion(0.3, 0.7, overcast, 1.0, 0.0) * Math.Min(1.3 - rain, 1.0) * Math.Min(1.3 - fog, 1.0);
-				
-				float energy_delta = consumed_energy;
-				float max = carBattery.GetCompEM().GetEnergyMax();
-				
-				//! If no EVR storm, consume energy during cloudy/rainy/foggy weather, at night, or if object is in building
-				if (!isEVRStormActive && (isUnderRoof || world.IsNight() || sunshine < 0.3))
-				{
-					if (!isUnderRoof)
-						energy_delta *= 1.0 - sunshine;
-				#ifdef DIAG
-					EXTrace.Print(EXTrace.TELEPORTER, this, "::OnWork - consuming energy " + energy_delta);
-				#endif
-					carBattery.GetCompEM().ConsumeEnergy(energy_delta);
-				}
-				else
-				{
-					//! Add energy to the battery during daytime if not under roof or during EVR storms
-					energy_delta = m_ChargeEnergyPerSecond * (consumed_energy / GetCompEM().GetEnergyUsage());  //! Add charge each second (base value, influenced by EVR and sunshine)
-					float health01 = GetHealth01("", "");
-					energy_delta *= (0.5 + health01 * 0.5); //! 50% damage causes 75% efficiency
-					if (isEVRStormActive)
-						energy_delta * 2.0;  //! EVR gives a boost to recharging
-					else
-						energy_delta *= sunshine;
-				#ifdef DIAG
-					EXTrace.Print(EXTrace.TELEPORTER, this, "::OnWork - recharging energy " + energy_delta);
-				#endif
-					carBattery.GetCompEM().AddEnergy(energy_delta);
-				}
-				
-				float energy = carBattery.GetCompEM().GetEnergy();
-				float frac = energy / max;
-				if (frac <= 0)
-					m_State = ExpansionTeleporterState.NO_ENERGY;
-				else if (isEVRStormActive)
-					m_State = ExpansionTeleporterState.EVR;
-				else if (frac >= 0.3)
-					m_State = ExpansionTeleporterState.ACTIVE;
-				else
-					m_State = ExpansionTeleporterState.LOW_ENERGY;
-				
-				SetSynchDirty();
-			}
-
-			UpdateVisuals();
-		}
-	}
-	
-	override void OnWorkStop()
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
-		super.OnWorkStop();
-		
-		if (!GetGame().IsServer())
-		{
-			m_State = ExpansionTeleporterState.OFF;
-			SetSynchDirty();
-		}
-
-		UpdateVisuals();
-	}
-	
-	protected void UpdateVisuals()
-	{
-		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateVisuals_Deferred, 0, false, m_State);
+		return true;
 	}
 
-	protected void UpdateVisuals_Deferred(ExpansionTeleporterState state)
+	override bool CanPutIntoHands(EntityAI player)
 	{
-		switch (state)
-		{
-			case ExpansionTeleporterState.OFF:
-			{
-			#ifndef SERVER
-				StopIdleSound();
-				StopParticleEffect();
-				DestroyLight();
-			#endif
-			}
-			break;
-			case ExpansionTeleporterState.ACTIVE:
-			{
-			#ifndef SERVER
-				PlayIdleSound();
-				CreateParticleEffect();
-				CreateLight();
-			#endif
-			}
-			break;
-			/*case ExpansionTeleporterState.LOW_ENERGY:
-			{
-				
-			}
-			break;
-			case ExpansionTeleporterState.NO_ENERGY:
-			{
-				
-			}
-			break;
-			case ExpansionTeleporterState.EVR:
-			{
-				
-			}
-			break;*/
-		}
-	}
-	
-	int GetCircuitBoardTier(string typeName)
-	{
-		int tier = -1;
-		typeName.ToLower();
-		typeName.Replace("expansioncircuitboard_mk", "");
-		tier = typeName.ToInt();
-		return tier;
-	}
-
-	bool HasCarBattery()
-	{
-		int slot = InventorySlots.GetSlotIdFromString("CarBattery");
-
-		CarBattery carBattery;
-		if (Class.CastTo(carBattery, GetInventory().FindAttachment(slot)))
-			return true;
-
 		return false;
 	}
-};
 
-class ExpansionTeleportLight extends PointLightBase
-{
-	void ExpansionTeleportLight()
+	override bool CanRemoveFromCargo(EntityAI parent)
 	{
-		SetVisibleDuringDaylight(true);
-		SetRadiusTo(5);
-		SetBrightnessTo(20);
-		SetCastShadow(false);
-		SetFadeOutTime(3);
-		SetDiffuseColor(0.2, 0.5, 1.0);
-		SetAmbientColor(0.2, 0.5, 1.0);
-		SetFlareVisible(false);
-		SetFlickerAmplitude(0.2);
-		SetFlickerSpeed(10.0);
-		SetDancingShadowsMovementSpeed(0.4);
-		SetDancingShadowsAmplitude(0.5);
+		return true;
+	}
+
+	override bool CanReceiveItemIntoCargo(EntityAI item)
+	{
+		return true;
+	}
+
+	override bool CanLoadItemIntoCargo(EntityAI item)
+	{
+		return true;
+	}
+
+	override bool DisableVicinityIcon()
+    {
+        return true;
+    }
+	
+	int GetTeleporterIdleParticle()
+	{
+		return PARTICLE_TELEPORTER_IDLE;
 	}
 };

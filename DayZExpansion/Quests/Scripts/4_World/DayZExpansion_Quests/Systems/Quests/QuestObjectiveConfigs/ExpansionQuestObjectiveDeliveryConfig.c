@@ -21,7 +21,7 @@ class ExpansionQuestObjectiveDeliveryConfig_v17: ExpansionQuestObjectiveConfig
 
 class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 {
-	ref array<ref ExpansionQuestObjectiveDelivery> Collections;
+	ref array<ref ExpansionQuestObjectiveDelivery> Collections = new array<ref ExpansionQuestObjectiveDelivery>;
 	float MaxDistance = 10.0;
 	string MarkerName = "Deliver Items";
 	bool ShowDistance = true;
@@ -29,11 +29,6 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 #ifdef EXPANSIONMODMARKET
 	bool AddItemsToNearbyMarketZone = false;
 #endif
-
-	void ExpansionQuestObjectiveDeliveryConfig()
-	{
-		Collections = new array<ref ExpansionQuestObjectiveDelivery>;
-	}
 
 	void AddCollection(int amount, string name)
 	{

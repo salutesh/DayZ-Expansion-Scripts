@@ -22,5 +22,6 @@ modded class ActionConstructor
 		actions.Insert(ExpansionActionInsertSupplyCrateKey);
 		actions.Insert(ExpansionActionRemoveSupplyCrateKey);
 		actions.Insert(ExpansionActionOpenSupplyCrate);
+		actions.Insert(ExpansionActionUseBunkerPanel);
 	}
 };

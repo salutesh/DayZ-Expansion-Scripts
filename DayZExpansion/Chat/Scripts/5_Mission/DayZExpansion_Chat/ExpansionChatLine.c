@@ -48,8 +48,6 @@ class ExpansionChatLineBase: ExpansionScriptView
 		m_FadeTimer = new ExpansionScriptViewFadeTimer;
 
 		m_Parent.AddChild(GetLayoutRoot());
-
-		GetLayoutRoot().Show(false);
 	}
 
 	void ~ExpansionChatLineBase()
@@ -77,15 +75,12 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 		if (!message)
 		{
-			GetLayoutRoot().Show(false);
 			m_ChatLineController.Time = "";
 			m_ChatLineController.SenderName = "";
 			m_ChatLineController.Message = "";
 			m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 			return;
 		}
-
-		GetLayoutRoot().Show(true);
 
 		switch (message.Channel)
 		{
@@ -134,11 +129,6 @@ class ExpansionChatLineBase: ExpansionScriptView
 		m_ChatLineController.Time = message.Time;
 		m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 
-		if (!IsVisible())
-		{
-			FadeIn();
-		}
-
 		//! Adjust message size so it actually fits and doesn't get cut off
 		float root_w, root_h;
 		GetLayoutRoot().GetScreenSize(root_w, root_h);
@@ -146,7 +136,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 		Time.GetScreenSize(time_w, time_h);
 		float sender_w, sender_h;
 		SenderName.GetScreenSize(sender_w, sender_h);
-		Message.SetSize(1.0 - (time_w + sender_w) / root_w, 1.0);
+		Message.SetSize(1.0 - (time_w + 4 + sender_w) / root_w, 1.0);
 	}
 
 	void FadeIn()
@@ -324,8 +314,14 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	void FadeOutLater(float delay, float duration)
 	{
+		if (delay < 0)
+			delay = 0;
+
 		if (m_FadeOutLaterTimer.IsRunning())
 			m_FadeOutLaterTimer.Stop();
+
+		if (!m_FadeTimer.IsRunning())
+			SetAlpha(1.0);
 
 		m_FadeOutLaterTimer.Run(delay, this, "FadeOut", new Param1<float>(duration));
 	}

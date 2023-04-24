@@ -86,7 +86,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 	bool EntityStorage;			//! If enabled, generate logs for entity-storage actions.
 
 	[NonSerialized()]
-	private string m_FileTimestamp;
+	private string m_FileName;
 
 	[NonSerialized()]
 	private FileHandle m_FileLog;
@@ -247,7 +247,7 @@ class ExpansionLogSettings: ExpansionSettingBase
 
 		m_IsLoaded = true;
 
-		m_FileTimestamp = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetISODateTime(false, "_") + ".log";
+		m_FileName = EXPANSION_LOG_FOLDER + "\\" + "ExpLog_" + ExpansionStatic.GetISODateTime(false, "_", "-") + ".log";
 
 		bool save;
 
@@ -451,10 +451,10 @@ class ExpansionLogSettings: ExpansionSettingBase
 				GetGame().AdminLog(output);
 			}
 		} else {
-			if (!FileExist( m_FileTimestamp ))
-				m_FileLog = OpenFile(m_FileTimestamp, FileMode.WRITE);
+			if (!FileExist( m_FileName ))
+				m_FileLog = OpenFile(m_FileName, FileMode.WRITE);
 			else
-				m_FileLog = OpenFile(m_FileTimestamp, FileMode.APPEND);
+				m_FileLog = OpenFile(m_FileName, FileMode.APPEND);
 			FPrintln(m_FileLog, output);
 			CloseFile(m_FileLog);
 		}

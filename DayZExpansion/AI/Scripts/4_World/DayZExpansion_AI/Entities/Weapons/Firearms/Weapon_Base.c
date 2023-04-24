@@ -170,12 +170,14 @@ modded class Weapon_Base
 			entity.ProcessDirectDamage(DT_FIRE_ARM, this, damageZone, ammoType, entity.WorldToModel(hitPosition), dmgCoef);
 		}
 
-		//! Create bullet impact as visual cue
+		#ifdef DAYZ_1_20
+		//! Create bullet impact as visual cue - FIXME: Causes CTD under 1.21 if spawned bullet hits something
 		Object bullet = GetGame().CreateObjectEx(ammoType, hitPosition, ECE_LOCAL | ECE_KEEPHEIGHT);
 		if (bullet)
 		{
 			bullet.SetDirection(vector.Direction(ai.GetPosition(), hitPosition));
 		}
+		#endif
 	}
 
 	/**

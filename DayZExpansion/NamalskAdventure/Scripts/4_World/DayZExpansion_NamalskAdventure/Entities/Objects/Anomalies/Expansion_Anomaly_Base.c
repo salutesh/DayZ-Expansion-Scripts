@@ -400,7 +400,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 			    }
 			    else
 			    {
-			       CreateIdleParticle(state);
+			       	CreateIdleParticle(state);
 			    }
 
 				//! Reset the delay value for the next time the idle state is entered and we want to the delay the idle
@@ -412,6 +412,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 				//! Create activated VFX particle
 				PlayParticle(m_ParticleActivated, GetAnomalyActivatedParticle());
 				SoundActivatedStart();
+				SetVisualState(state);
 			}
 			break;
 			case ExpansionAnomalyState.NOCORE:
@@ -442,6 +443,8 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 						TurnOnUnstableEmitor();
 					}
 				}
+				
+				SetVisualState(state);
 			}
 			break;
 			case ExpansionAnomalyState.UNSTABLE:
@@ -458,6 +461,8 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 				//! Remove core emitor form core particle
 				if (m_ParticleIdle)
 					TurnOnUnstableEmitor();
+
+				SetVisualState(state);
 			}
 			break;
 			case ExpansionAnomalyState.UNSTABLENOCORE:
@@ -477,12 +482,11 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 					TurnOnUnstableEmitor();
 					TurnOffCoreEmitor();
 				}
+				
+				SetVisualState(state);
 			}
 			break;
 		}
-
-
-		SetVisualState(state);
 	}
 
 	protected void CreateIdleParticle(ExpansionAnomalyState state)

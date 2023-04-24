@@ -17,6 +17,15 @@ modded class ModItemRegisterCallbacks
 		super.RegisterHeavy( pType, pBehavior );
 
 		pType.AddItemInHandsProfileIK("ExpansionBriefcase", "dz/anims/workspaces/player/player_main/player_main_2h.asi", pBehavior, "dz/anims/anm/player/ik/two_handed/jerrycan.anm");
-		pType.AddItemInHandsProfileIK("ExpansionTemporaryOwnedContainer", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior,			 		"dz/anims/anm/player/ik/heavy/wooden_crate.anm");
+		pType.AddItemInHandsProfileIK("ExpansionTemporaryOwnedContainer", "dz/anims/workspaces/player/player_main/player_main_heavy.asi", pBehavior, "dz/anims/anm/player/ik/heavy/wooden_crate.anm");
+	}
+	
+	override void RegisterOneHanded(DayZPlayerType pType, DayzPlayerItemBehaviorCfg pBehavior)
+	{
+		super.RegisterOneHanded(pType, pBehavior);
+
+		pType.AddItemInHandsProfileIK("ExpansionCircuitBoard_MK1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/tuna.anm");
+		pType.AddItemInHandsProfileIK("ExpansionCircuitBoard_MK2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/tuna.anm");
+		pType.AddItemInHandsProfileIK("ExpansionCircuitBoard_MK3", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/tuna.anm");
 	}
 }

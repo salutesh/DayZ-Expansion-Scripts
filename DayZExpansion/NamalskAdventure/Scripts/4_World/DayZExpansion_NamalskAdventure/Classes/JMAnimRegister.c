@@ -19,9 +19,11 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("Expansion_AnomalyCore_Ice", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/explosives/POX_grenade.anm");
 		pType.AddItemInHandsProfileIK("Expansion_AnomalyCore_Warper", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/explosives/POX_grenade.anm");
 		pType.AddItemInHandsProfileIK("ExpansionAnomalyCoreProtectiveCase", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/protector_case.anm");
-		pType.AddItemInHandsProfileIK("Expansion_KeyCard_NA_Antenna", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("Expansion_KeyCard_Teleporter", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("Expansion_SupplyCrate_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");
-		pType.AddItemInHandsProfileIK("Expansion_Bunker_Generator_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");
+		pType.AddItemInHandsProfileIK("Expansion_KeyCard_NA_Antenna", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/PunchedCard.anm");
+		pType.AddItemInHandsProfileIK("Expansion_KeyCard_Teleporter", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/PunchedCard.anm");
+		pType.AddItemInHandsProfileIK("Expansion_KeyCard_A1_B1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/PunchedCard.anm");
+		pType.AddItemInHandsProfileIK("Expansion_SupplyCrate_Bunker_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");
+		pType.AddItemInHandsProfileIK("Expansion_SupplyCrate_WorldT1_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");
+		pType.AddItemInHandsProfileIK("Expansion_Bunker_Generator_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sparkplug.anm");
 	}
 };

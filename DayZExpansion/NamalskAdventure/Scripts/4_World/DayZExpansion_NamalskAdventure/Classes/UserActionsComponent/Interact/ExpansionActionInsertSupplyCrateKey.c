@@ -34,11 +34,18 @@ class ExpansionActionInsertSupplyCrateKey: ActionSingleUseBase
 
 		if (item.IsDamageDestroyed())
 			return false;
+		
+		Expansion_SupplyCrate_Key_Base key = Expansion_SupplyCrate_Key_Base.Cast(item);
+		if (!key)
+			return false;
 
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(target.GetObject());
 		if (!crate)
 			return false;
 
+		if (key.GetKeyType() != crate.GetValidKeyType())
+			return false;
+		
 		if (crate.HasLootDelay())
 			return false;
 
@@ -74,7 +81,7 @@ class ExpansionActionInsertSupplyCrateKey: ActionSingleUseBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(action_data.m_Target.GetObject());
-		Expansion_SupplyCrate_Key key = Expansion_SupplyCrate_Key.Cast(action_data.m_MainItem);
+		Expansion_SupplyCrate_Key_Base key = Expansion_SupplyCrate_Key_Base.Cast(action_data.m_MainItem);
 		if (crate && key)
 		{
 			int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");

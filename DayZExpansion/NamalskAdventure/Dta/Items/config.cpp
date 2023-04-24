@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Weapons_Lights"};
 	};
 };
 class CfgSlots
@@ -197,6 +197,7 @@ class CfgVehicles
 				};
 			};
 		};
+		soundImpactType = "plastic";
 	};
 	class Expansion_KeyCard_NA_Antenna: Expansion_KeyCard_Base
 	{
@@ -216,6 +217,16 @@ class CfgVehicles
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"chip","keycard"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_TP_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+	};
+	class Expansion_KeyCard_A1_B1: Expansion_KeyCard_Base
+	{
+		scope = 2;
+		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
+		displayName = "Security Access Card [A1-B1]";
+		descriptionShort = "A security access card that seems to open some kind of security lock.";
+		hiddenSelections[] = {"chip","keycard"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_B1_co.paa"};
 		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
 	};
 	class Expansion_Key_Base: Inventory_Base
@@ -255,58 +266,103 @@ class CfgVehicles
 		};
 		soundImpactType = "metal";
 	};
-	class Expansion_SupplyCrate_Key: Expansion_Key_Base
+	class Expansion_SupplyCrate_Key_Base: Expansion_Key_Base{};
+	class Expansion_SupplyCrate_Bunker_Key: Expansion_SupplyCrate_Key_Base
 	{
 		scope = 2;
-		displayName = "Supply Crate Key's";
-		descriptionShort = "PLACEHOLDER";
+		displayName = "ATHENA 1 - Unknown Key";
+		descriptionShort = "This key seems to open some kind of lock. The branding says Pallas Reseach Station.";
 		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
 		hiddenSelections[] = {"key"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
 	};
-	class Expansion_SupplyCrate_Key_Red: Expansion_Key_Base
+	class Expansion_SupplyCrate_WorldT1_Key: Expansion_SupplyCrate_Key_Base
 	{
 		scope = 2;
-		displayName = "Supply Crate Key's";
-		descriptionShort = "PLACEHOLDER";
+		displayName = "Unknown Key";
+		descriptionShort = "This key seems to open some kind of lock. The branding says Pallas Reseach Station.";
 		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_red.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_bw_co.paa"};
 	};
-	class Expansion_SupplyCrate_Key_Green: Expansion_Key_Base
+	class Expansion_Key2_Base: Inventory_Base
+	{
+		scope = 1;
+		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Keys\Keys_2.p3d";
+		animClass = "Knife";
+		rotationFlags = 16;
+		weight = 4;
+		itemSize[] = {1,1};
+		fragility = 0.01;
+		hiddenSelections[] = {"key","key_chain"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
+		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 15;
+					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
+					healthLevels[] = {{1.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}}};
+				};
+			};
+		};
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem
+				{
+					soundSet = "pickUpPaper_SoundSet";
+					id = 797;
+				};
+			};
+		};
+		soundImpactType = "metal";
+	};
+	class Expansion_Bunker_Generator_Key: Expansion_Key2_Base
 	{
 		scope = 2;
-		displayName = "Supply Crate Key's";
-		descriptionShort = "PLACEHOLDER";
-		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
-		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_green.paa"};
-	};
-	class Expansion_SupplyCrate_Key_Blue: Expansion_Key_Base
-	{
-		scope = 2;
-		displayName = "Supply Crate Key's";
-		descriptionShort = "PLACEHOLDER";
-		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
-		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_blue.paa"};
-	};
-	class Expansion_SupplyCrate_Key_Purple: Expansion_Key_Base
-	{
-		scope = 2;
-		displayName = "Supply Crate Key's";
-		descriptionShort = "PLACEHOLDER";
-		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
-		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_supply_crate_purple.paa"};
-	};
-	class Expansion_Bunker_Generator_Key: Expansion_Key_Base
-	{
-		scope = 2;
-		displayName = "Generator Key's";
-		descriptionShort = "PLACEHOLDER";
+		displayName = "ATHENA 1 - Generator Key's";
+		descriptionShort = "These key's seem to belong to some kind of generator as the keychain lable clearly says Generator.";
 		inventorySlot[] = {"Att_ExpansionGeneratorKey"};
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
+		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
+	};
+	class ExpansionPropUniversalLight: Inventory_Base
+	{
+		scope = 2;
+		displayName = "$STR_cfgVehicles_UniversalLight0";
+		descriptionShort = "$STR_cfgVehicles_UniversalLight1";
+		model = "\DZ\weapons\attachments\light\weaponlight_universal.p3d";
+		debug_ItemCategory = 3;
+		rotationFlags = 17;
+		reversed = 1;
+		weight = 80;
+		itemSize[] = {2,1};
+		inventorySlot[] = {"weaponFlashlight","helmetFlashlight"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 70;
+					healthLevels[] = {{1,{"DZ\weapons\attachments\data\m4_flashlight.rvmat","dz\gear\tools\data\flashlight_glass.rvmat"}},{0.7,{}},{0.5,{"DZ\weapons\attachments\data\m4_flashlight_damage.rvmat","dz\gear\tools\data\flashlight_glass_damage.rvmat"}},{0.3,{}},{0,{"DZ\weapons\attachments\data\m4_flashlight_destruct.rvmat","dz\gear\tools\data\flashlight_glass_destruct.rvmat"}}};
+				};
+			};
+		};
+		repairableWithKits[] = {7};
+		repairCosts[] = {25};
+		hiddenSelections[] = {"zbytek","reflector","glass","reflector_far"};
+		hiddenSelectionsTextures[] = {"dz\weapons\attachments\data\m4_flashlight_co.paa","dz\weapons\attachments\data\m4_flashlight_co.paa","dz\gear\tools\data\flashlight_glass.paa","dz\weapons\attachments\data\m4_flashlight_co.paa"};
+		hiddenSelectionsMaterials[] = {"dz\weapons\attachments\data\m4_flashlight.rvmat","dz\weapons\attachments\data\m4_flashlight.rvmat","dz\gear\tools\data\flashlight_glass.rvmat","dz\weapons\attachments\data\m4_flashlight.rvmat"};
+		class EnergyManager
+		{
+			energyUsagePerSecond = 0.0;
+		};
+		soundImpactType = "plastic";
 	};
 };

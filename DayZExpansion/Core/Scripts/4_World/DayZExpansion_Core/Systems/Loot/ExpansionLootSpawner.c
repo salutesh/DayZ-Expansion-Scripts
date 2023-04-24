@@ -178,6 +178,9 @@ class ExpansionLootSpawner
 
 	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > loot, int itemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
 	{
+		if (itemCount < 0)
+			itemCount = Math.RandomInt(1, -itemCount);
+
 		array< float > chances = new array< float >;
 
 		int lootItemsSpawned = 0;
@@ -189,7 +192,7 @@ class ExpansionLootSpawner
 			lootItem.m_Remaining = lootItem.Max;
 
 			int min = lootItem.Min;
-			while (min > 0)
+			while (min > 0 && lootItemsSpawned < itemCount)
 			{
 				lootItemsSpawned++;
 				min--;
@@ -199,9 +202,6 @@ class ExpansionLootSpawner
 
 			chances.Insert(lootItem.m_RemainingChance);
 		}
-
-		if (itemCount < 0)
-			itemCount = Math.RandomInt(1, -itemCount);
 
 		//! Spawn remaining items randomly (if any)
 		while ( lootItemsSpawned < itemCount )
