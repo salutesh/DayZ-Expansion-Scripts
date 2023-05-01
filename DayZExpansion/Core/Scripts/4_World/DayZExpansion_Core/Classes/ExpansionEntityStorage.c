@@ -93,7 +93,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 #endif
 
 	//! @brief save entity and all its children (attachments/cargo) to ctx. Will not delete the entity!
-	static bool Save(EntityAI entity, ParamsWriteContext ctx, string basePath, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
+	static bool Save(EntityAI entity, ParamsWriteContext ctx, string basePath, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0, TStringArray orphanedFiles = null)
 	{
 		if (!level)
 		{
@@ -123,7 +123,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 			if (!s_SubContexts.Find(type, context))
 			{
-				string childFileName = string.Format("%1\\%2.bin", basePath, type);
+				string childFileName = string.Format("%1\\%2%3", basePath, type, EXT);
 				context = new ExpansionEntityStorageContext();
 				if (!context.Open(childFileName, FileMode.WRITE))
 					return ErrorFalse("Couldn't open file for writing " + childFileName);
@@ -137,7 +137,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			file = FileSerializer.Cast(ctx);
 		}
 
-		if (!Save_Phase2(file, basePath, entity, inventoryOnly, placeholder, level))
+		if (!Save_Phase2(file, basePath, entity, inventoryOnly, placeholder, level, orphanedFiles))
 			return false;
 
 		if (!inventoryOnly || level > 0)
@@ -210,7 +210,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return SUCCESS;
 	}
 
-	static bool Save_Phase2(ParamsWriteContext ctx, string basePath, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0)
+	static bool Save_Phase2(ParamsWriteContext ctx, string basePath, EntityAI entity, bool inventoryOnly = false, EntityAI placeholder = null, int level = 0, TStringArray orphanedFiles = null)
 	{
 		//! 2) attachments + cargo
 		if (!level && placeholder && entity.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(entity, placeholder))
@@ -245,7 +245,19 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		}
 
 		if (!level)
-			Reset();
+		{
+			Reset(false, orphanedFiles);
+
+			if (orphanedFiles)
+			{
+				//! Remove orphaned files
+				foreach (string orphanedFile: orphanedFiles)
+				{
+					EXTrace.Print(EXTrace.GENERAL_ITEMS, entity, "ExpansionEntityStorage::Save_Phase2 - deleting orphaned " + orphanedFile);
+					DeleteFile(basePath + "\\" + orphanedFile);
+				}
+			}
+		}
 
 		if (!success)
 			return false;
@@ -364,7 +376,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	}
 
 	//! @brief restore entity and all its children from ctx (creates entities)
-	static bool Restore(ParamsReadContext ctx, FileSerializer file, string basePath = string.Empty, inout EntityAI entity = null, EntityAI parent = null, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0)
+	static bool Restore(ParamsReadContext ctx, FileSerializer file, string basePath = string.Empty, inout EntityAI entity = null, EntityAI parent = null, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
 		if (!level)
 		{
@@ -405,7 +417,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!file)
 			file = FileSerializer.Cast(ctx);
 
-		bool restored = Restore_Phase2(file, basePath, entity, placeholder, player, entityStorageVersion, type, level, elapsed);
+		bool restored = Restore_Phase2(file, basePath, entity, placeholder, player, entityStorageVersion, type, level, elapsed, deleteRestored);
 
 		if (restored && createEntity)
 			restored = Restore_Phase3(file, entity, entityStorageVersion, elapsed);
@@ -507,7 +519,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return SUCCESS;
 	}
 
-	static bool Restore_Phase2(ParamsReadContext ctx, string basePath, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0)
+	static bool Restore_Phase2(ParamsReadContext ctx, string basePath, EntityAI entity, EntityAI placeholder = null, PlayerBase player = null, int entityStorageVersion = 0, string type = string.Empty, int level = 0, int elapsed = 0, bool deleteRestored = true)
 	{
 		//! 2) attachments + cargo
 		if (!level && placeholder && placeholder.HasAnyCargo() && !MiscGameplayFunctions.Expansion_MoveCargo(placeholder, entity))
@@ -538,7 +550,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 				if (!s_SubContexts.Find(type, context))
 				{
-					childFileName = string.Format("%1\\%2.bin", basePath, type);
+					childFileName = string.Format("%1\\%2%3", basePath, type, EXT);
 					context = new ExpansionEntityStorageContext();
 					if (!context.Open(childFileName, FileMode.READ))
 						return ErrorFalse("Couldn't open file for reading " + childFileName);
@@ -563,7 +575,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		if (entityStorageVersion >= 7 && !level)
 		{
-			if (Reset(true))
+			if (Reset(deleteRestored))
 				DeleteFile(basePath);
 		}
 
@@ -731,7 +743,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 	}
 
 	//! @brief saves entity and all its children (attachments/cargo) to file.
-	static bool SaveToFile(EntityAI entity, string fileName, bool inventoryOnly = false, EntityAI placeholder = null)
+	static bool SaveToFile(EntityAI entity, string fileName, bool inventoryOnly = false, EntityAI placeholder = null, bool removeOrphaned = false)
 	{
 		FileSerializer file = new FileSerializer();
 
@@ -743,16 +755,25 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		auto hitch = EXHitch("[ExpansionEntityStorage] ");
 
 		string basePath;
+		TStringArray orphanedFiles;
 		auto exFileName = new ExpansionString(fileName);
 		if (exFileName.EndsWith(EXT))
+		{
 			basePath = fileName.Substring(0, fileName.Length() - EXT.Length());
+			if (removeOrphaned)
+				orphanedFiles = ExpansionStatic.FindFilesInLocation(basePath + "\\", EXT);
+		}
 
-		return Save(entity, file, basePath, inventoryOnly, placeholder);
+		bool success = Save(entity, file, basePath, inventoryOnly, placeholder, 0, orphanedFiles);
+
+		file.Close();
+
+		return success;
 	}
 
 	//! @brief restores entity and all its children from file (creates entities). Deletes file on success.
 	//! @note if you pass in an existing entity, only its children (inventory) will be restored.
-	static bool RestoreFromFile(string fileName, inout EntityAI entity = null, EntityAI placeholder = null, PlayerBase player = null)
+	static bool RestoreFromFile(string fileName, inout EntityAI entity = null, EntityAI placeholder = null, PlayerBase player = null, bool deleteRestored = true)
 	{
 		FileSerializer file = new FileSerializer();
 
@@ -776,7 +797,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (exFileName.EndsWith(EXT))
 			basePath = fileName.Substring(0, fileName.Length() - EXT.Length());
 
-		bool success = Restore(file, null, basePath, entity, entity, placeholder, player);
+		bool success = Restore(file, null, basePath, entity, entity, placeholder, player, 0, string.Empty, 0, 0, deleteRestored);
 
 		if (isInventoryLocked)
 			entity.GetInventory().LockInventory(HIDE_INV_FROM_SCRIPT);
@@ -786,7 +807,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		if (!success)
 			return false;
 
-		DeleteFile(fileName);
+		if (deleteRestored)
+			DeleteFile(fileName);
 
 		return true;
 	}
@@ -886,16 +908,23 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 		return true;
 	}
 
-	static bool Reset(bool deleteRestored = false)
+	static bool Reset(bool deleteRestored = false, TStringArray orphanedFiles = null)
 	{
 		int failedCount;
 
-		foreach (ExpansionEntityStorageContext context: s_SubContexts)
+		foreach (string type, ExpansionEntityStorageContext context: s_SubContexts)
 		{
 			context.Close();
 			failedCount += context.m_FailedCount;
 			if (deleteRestored && !context.m_FailedCount)
 				DeleteFile(context.m_FileName);
+
+			if (orphanedFiles)
+			{
+				int index = orphanedFiles.Find(type + EXT);
+				if (index > -1)
+					orphanedFiles.Remove(index);
+			}
 		}
 
 		s_SubContexts.Clear();

@@ -69,7 +69,7 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 
 		AddItem("TankerHelmet", 					100,	200,	1,		100);
 		
-		AddItem("GreatHelm", 						120,	240,	1,		100);
+		AddItem("GreatHelm", 						320,	440,	1,		100);
 	
 		AddItem("ZSh3PilotHelmet", 					130,	260,	1,		100, null, {"ZSh3PilotHelmet_Green", "ZSh3PilotHelmet_Black"});
 		AddItem("ZSh3PilotHelmet_Green", 			135,	270,	1,		100);
@@ -95,5 +95,11 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 		AddItem("BallisticHelmet_UN", 				250,	500,	1,		100, null, {"BallisticHelmet_Black", "BallisticHelmet_Green"});
 		AddItem("BallisticHelmet_Black", 			300,	600,	1,		100);
 		AddItem("BallisticHelmet_Green", 			350,	700,	1,		100);
+
+	#ifndef DAYZ_1_20
+		//! 1.21+
+		AddItem("Chainmail_Coif", 					350,	500,	1,		100);
+		AddItem("NorseHelm", 						450,	800,	1,		100);
+	#endif
 	}
 };

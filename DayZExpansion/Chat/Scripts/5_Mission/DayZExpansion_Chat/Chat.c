@@ -40,7 +40,6 @@ modded class Chat
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnChatInputShow");
 #endif
 		
-		m_RootWidget.Show(true);
 		m_ExChatUI.Show();
 	}
 
@@ -50,7 +49,6 @@ modded class Chat
 		auto trace = CF_Trace_0(ExpansionTracing.CHAT, this, "OnChatInputHide");
 #endif
 
-		m_RootWidget.Show(GetExpansionClientSettings().HUDChatToggle);
 		m_ExChatUI.Hide();
 	}
 
@@ -58,13 +56,7 @@ modded class Chat
 	{
 		GetExpansionClientSettings().HUDChatToggle = !GetExpansionClientSettings().HUDChatToggle;
 
-		m_RootWidget.Show(GetExpansionClientSettings().HUDChatToggle);
 		m_ExChatUI.GetLayoutRoot().Show(GetExpansionClientSettings().HUDChatToggle);
-	}
-
-	bool GetChatToggleState()
-	{
-		return GetExpansionClientSettings().HUDChatToggle;
 	}
 
 	override void Add(ChatMessageEventParams params)

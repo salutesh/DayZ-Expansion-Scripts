@@ -40,7 +40,7 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 			return false;
 
 		int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
-		Expansion_SupplyCrate_Key key = Expansion_SupplyCrate_Key.Cast(crate.GetInventory().FindAttachment(slot_id_key));
+		Expansion_SupplyCrate_Key_Base key = Expansion_SupplyCrate_Key_Base.Cast(crate.GetInventory().FindAttachment(slot_id_key));
 		if (!key)
 			return false;
 
@@ -67,12 +67,19 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 			int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
 			crate.GetInventory().SetSlotLock(slot_id_key, false);
 
-			Expansion_SupplyCrate_Key currentKey = Expansion_SupplyCrate_Key.Cast(crate.GetInventory().FindAttachment(slot_id_key));
+			Expansion_SupplyCrate_Key_Base currentKey = Expansion_SupplyCrate_Key_Base.Cast(crate.GetInventory().FindAttachment(slot_id_key));
 			DebugTrace("::OnExecuteServer - Attached key: " + currentKey.ToString());
 			int healthLvl = currentKey.GetHealthLevel();
+			string keyType = currentKey.GetType();
 			GetGame().ObjectDelete(currentKey);
 
-			Expansion_SupplyCrate_Key newKey = Expansion_SupplyCrate_Key.Cast(action_data.m_Player.GetHumanInventory().CreateInHands("Expansion_SupplyCrate_Key"));
+			Expansion_SupplyCrate_Key_Base newKey = Expansion_SupplyCrate_Key_Base.Cast(action_data.m_Player.GetHumanInventory().CreateInHands(keyType));
+
+			if (action_data.m_Player.GetItemInHands())
+			{
+				action_data.m_Player.GetItemAccessor().OnItemInHandsChanged();
+			}
+			
 			newKey.AddHealthLevel(healthLvl + KEY_HEALTH_DELTA);
 
 			crate.CloseCrate();

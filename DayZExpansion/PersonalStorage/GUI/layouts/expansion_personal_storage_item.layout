@@ -254,7 +254,7 @@ WrapSpacerWidgetClass ExpansionPersonalStorageMenuItem {
    }
   }
   WrapSpacerWidgetClass cargo_content {
-   visible 1
+   visible 0
    ignorepointer 1
    size 0.985 0.5
    halign right_ref

@@ -10,6 +10,15 @@
  *
 */
 
+enum ExpansionSupplyCrateKeyType
+{
+	NONE = 0,
+	WORLD_T1 = 1,
+	WORLD_T2 = 2,
+	WORLD_T3 = 3,
+	BUNKER = 4
+};
+
 class Expansion_SupplyCrate_Base: Container_Base
 {
 	static ref CF_DoublyLinkedNodes_WeakRef<Expansion_SupplyCrate_Base> s_Expansion_AllSupplyCrates = new CF_DoublyLinkedNodes_WeakRef<Expansion_SupplyCrate_Base>();
@@ -33,6 +42,8 @@ class Expansion_SupplyCrate_Base: Container_Base
 	protected int m_LastCloseTime;
 	protected int m_LastOpenTime;
 
+	protected ExpansionSupplyCrateKeyType m_ValidKeyType;
+	
 	void Expansion_SupplyCrate_Base()
 	{
 		m_Expansion_SupplyCrateNode = s_Expansion_AllSupplyCrates.Add(this);
@@ -85,7 +96,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 		super.EEItemAttached(item, slot_name);
 
-		Expansion_SupplyCrate_Key key;
+		Expansion_SupplyCrate_Key_Base key;
 		if (Class.CastTo(key, item))
 		{
 			if (GetGame().IsServer())
@@ -109,7 +120,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 		super.EEItemDetached(item, slot_name);
 
-		Expansion_SupplyCrate_Key key;
+		Expansion_SupplyCrate_Key_Base key;
 		if (Class.CastTo(key, item))
 		{
 			if (GetGame().IsServer())
@@ -137,18 +148,19 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	bool CanInsertKey()
 	{
+		//! Check if crate has already a key
 		int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
-		Expansion_SupplyCrate_Key key;
+		Expansion_SupplyCrate_Key_Base key;
 		if (Class.CastTo(key, GetInventory().FindAttachment(slot_id_key)))
 			return false;
-
+		
 		return true;
 	}
 
 	bool HasKey()
 	{
 		int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
-		Expansion_SupplyCrate_Key key;
+		Expansion_SupplyCrate_Key_Base key;
 		if (Class.CastTo(key, GetInventory().FindAttachment(slot_id_key)))
 			return true;
 
@@ -200,9 +212,13 @@ class Expansion_SupplyCrate_Base: Container_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		int lootCount = m_CrateLoot.Count();
+
+		if (lootCount >= 5)
+			lootCount = 5;
+
 		int randomAmount = Math.RandomIntInclusive(1, lootCount);
 		m_Expansion_CanReceiveItems = true;
-		ExpansionLootSpawner.SpawnLoot(this, m_CrateLoot, randomAmount, m_LootItems, m_LootItemsMap);
+		ExpansionLootSpawner.SpawnLoot(this, m_CrateLoot, randomAmount, m_LootItems, m_LootItemsMap, 0.1, 0.6);
 		m_Expansion_CanReceiveItems = false;
 	}
 
@@ -258,6 +274,14 @@ class Expansion_SupplyCrate_Base: Container_Base
 		}
 	}
 	
+	void SetValidKeyType(ExpansionSupplyCrateKeyType keyType)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		DebugTrace("::SetValidKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
+		
+		m_ValidKeyType = keyType;
+	}
+	
 	protected void SoundDecompressStart()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -276,7 +300,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	override bool CanReceiveAttachment(EntityAI attachment, int slotId)
 	{
-		if (Expansion_SupplyCrate_Key.Cast(attachment))
+		if (Expansion_SupplyCrate_Key_Base.Cast(attachment))
 			return true;
 		
 		return m_Expansion_CanReceiveItems;
@@ -315,6 +339,11 @@ class Expansion_SupplyCrate_Base: Container_Base
 	bool Expansion_CanReceiveItems()
 	{
 		return m_Expansion_CanReceiveItems;
+	}
+	
+	ExpansionSupplyCrateKeyType GetValidKeyType()
+	{
+		return m_ValidKeyType;
 	}
 
 	override void SetActions()
@@ -365,16 +394,114 @@ class Expansion_SupplyCrate_Base: Container_Base
 	}
 };
 
-class Expansion_SupplyCrate_Orange extends Expansion_SupplyCrate_Base {};
-class Expansion_SupplyCrate_Green extends Expansion_SupplyCrate_Base {};
-class Expansion_SupplyCrate_Brown extends Expansion_SupplyCrate_Base {};
-
-class Expansion_SupplyCrate_Key extends ItemBase
+class Expansion_SupplyCrate_Bunker_Orange extends Expansion_SupplyCrate_Base 
 {
+	void Expansion_SupplyCrate_Bunker_Orange()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetValidKeyType(ExpansionSupplyCrateKeyType.BUNKER);
+	}
+};
+
+class Expansion_SupplyCrate_Bunker_Green extends Expansion_SupplyCrate_Base 
+{
+	void Expansion_SupplyCrate_Bunker_Green()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetValidKeyType(ExpansionSupplyCrateKeyType.BUNKER);
+	}
+};
+
+class Expansion_SupplyCrate_Bunker_Brown extends Expansion_SupplyCrate_Base 
+{
+	void Expansion_SupplyCrate_Bunker_Brown()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetValidKeyType(ExpansionSupplyCrateKeyType.BUNKER);
+	}
+};
+
+class Expansion_SupplyCrate_World_T1_Orange extends Expansion_SupplyCrate_Base 
+{
+	void Expansion_SupplyCrate_World_T1_Orange()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetValidKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
+	}
+};
+
+class Expansion_SupplyCrate_World_T1_Green extends Expansion_SupplyCrate_Base 
+{
+	void Expansion_SupplyCrate_World_T1_Green()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetValidKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
+	}
+};
+
+class Expansion_SupplyCrate_World_T1_Brown extends Expansion_SupplyCrate_Base 
+{
+	void Expansion_SupplyCrate_World_T1_Brown()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetValidKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
+	}
+};
+
+class Expansion_SupplyCrate_Key_Base extends ItemBase
+{
+	protected ExpansionSupplyCrateKeyType m_KeyType;
+	
+	void SetKeyType(ExpansionSupplyCrateKeyType keyType)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		DebugTrace("::SetKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
+		
+		m_KeyType = keyType;
+	}
+	
 	override void SetActions()
 	{
 		super.SetActions();
 
 		AddAction(ExpansionActionInsertSupplyCrateKey);
+	}
+	
+	ExpansionSupplyCrateKeyType GetKeyType()
+	{
+		return m_KeyType;
+	}
+	
+	protected void DebugTrace(string text)
+	{
+	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+	#endif
+	}
+};
+
+class Expansion_SupplyCrate_Bunker_Key extends Expansion_SupplyCrate_Key_Base 
+{
+	void Expansion_SupplyCrate_Bunker_Key()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetKeyType(ExpansionSupplyCrateKeyType.BUNKER);
+	}
+};
+
+class Expansion_SupplyCrate_WorldT1_Key extends Expansion_SupplyCrate_Key_Base 
+{
+	void Expansion_SupplyCrate_WorldT1_Key()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		SetKeyType(ExpansionSupplyCrateKeyType.WORLD_T1);
 	}
 };

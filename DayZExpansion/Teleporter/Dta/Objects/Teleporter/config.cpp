@@ -27,19 +27,6 @@ class CfgVehicles
 		weight = 50000;
 		physLayer = "item_large";
 		carveNavmesh = 1;
-		rotationFlags = 2;
-		oldpower = 0;
-		ChargeEnergyPerSecond = 1;
-		storageCategory = 10;
-		attachments[] = {"CarBattery","Att_ExpansionCircuitBoard"};
-		class EnergyManager
-		{
-			hasIcon = 1;
-			autoSwitchOff = 1;
-			energyUsagePerSecond = 0.01;
-			plugType = 5;
-			attachmentAction = 1;
-		};
 		class AnimationSources
 		{
 			class body
@@ -59,16 +46,6 @@ class CfgVehicles
 				source = "user";
 				animPeriod = 0.01;
 				initPhase = 1;
-			};
-		};
-		class GUIInventoryAttachmentsProps
-		{
-			class Attachments
-			{
-				name = "$STR_attachment_accessories";
-				description = "";
-				attachmentSlots[] = {"CarBattery","Att_ExpansionCircuitBoard"};
-				icon = "set:expansion_iconset image:icon_options";
 			};
 		};
 		class Doors

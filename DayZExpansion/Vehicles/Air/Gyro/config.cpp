@@ -235,6 +235,103 @@ class CfgVehicles
 			};
 		};
 	};
+	class ExpansionBigGyrocopter: ExpansionGyrocopter
+	{
+		scope = 2;
+		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model = "DayZExpansion\Vehicles\Air\Gyro\Gyrocopter_big.p3d";
+		modelZeroPointDistanceFromGround = 0.0;
+		vehicleClass = "Expansion_Helicopter";
+		wreck = "ExpansionGyrocopterWreck";
+		fuelCapacity = 50;
+		fuelConsumption = 31;
+		attachments[] = {"ExpansionHelicopterBattery","Reflector_1_1","SparkPlug","NivaWheel_1_1","NivaWheel_1_2","NivaWheel_2_1","NivaWheel_2_2","CamoNet"};
+		class GUIInventoryAttachmentsProps
+		{
+			class Engine
+			{
+				name = "$STR_attachment_Engine0";
+				description = "";
+				icon = "cat_vehicle_engine";
+				attachmentSlots[] = {"ExpansionHelicopterBattery","SparkPlug"};
+			};
+			class Body
+			{
+				name = "$STR_attachment_Body0";
+				description = "";
+				icon = "cat_vehicle_body";
+				attachmentSlots[] = {"Reflector_1_1","CamoNet"};
+			};
+		};
+		class Crew: Crew
+		{
+			class Driver: Driver
+			{
+				actionSel = "seat_driver";
+				proxyPos = "crewDriver";
+				getInPos = "pos driver";
+				getInDir = "pos driver dir";
+			};
+			class CoDriver: CoDriver
+			{
+				actionSel = "seat_codriver";
+				proxyPos = "crewcoDriver";
+				getInPos = "pos driver";
+				getInDir = "pos driver dir";
+			};
+		};
+		class SimulationModule: SimulationModule
+		{
+			maxSpeed = 100;
+			altitudeFullForce = 1000;
+			altitudeNoForce = 2000;
+			bodyFrictionCoef = 4.0;
+			liftForceCoef = 1.6;
+			bankForceCoef = 0.1;
+			tailForceCoef = 8.0;
+			linearFrictionCoef[] = {16.0,0.04,0.04};
+			angularFrictionCoef = 1.5;
+			class Rotor
+			{
+				minAutoRotateSpeed = 2.0;
+				maxAutoRotateSpeed = 10.0;
+				startUpTime = 5.0;
+			};
+			class AntiTorque
+			{
+				speed = 1.5;
+				max = 0.04;
+			};
+			class Cyclic
+			{
+				forceCoefficient = 1.5;
+				class Forward
+				{
+					speed = 10.0;
+					max = 1.0;
+					coefficient = 0.3;
+					animation = "cyclicForward";
+				};
+				class Side
+				{
+					speed = 10.0;
+					max = 1.0;
+					coefficient = 0.3;
+					animation = "cyclicAside";
+				};
+			};
+		};
+	};
+	class ExpansionBigGyrocopterWreck: ExpansionWreck
+	{
+		scope = 2;
+		displayname = "$STR_EXPANSION_VEHICLE_GYROCOPTER";
+		model = "DayZExpansion\Vehicles\Air\Gyro\GyrocopterWreck.p3d";
+		class Cargo
+		{
+			itemsCargoSize[] = {5,2};
+		};
+	};
 	class Vehicle_ExpansionGyrocopter: ExpansionVehicleHelicopterBase
 	{
 		scope = 0;

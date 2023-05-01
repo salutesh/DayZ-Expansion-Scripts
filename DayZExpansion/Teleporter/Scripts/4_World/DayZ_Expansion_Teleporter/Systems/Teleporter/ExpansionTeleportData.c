@@ -20,7 +20,7 @@ class ExpansionTeleportDataBase
 	ref array<ref ExpansionTeleportPosition> m_TeleportPositions;
 
 #ifdef EXPANSIONMODAI
-	string m_FactionName;
+	string m_Faction;
 #endif
 #ifdef EXPANSIONMODHARDLINE
 	int m_Reputation;
@@ -53,7 +53,7 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 		m_ObjectOrientation = base.m_ObjectOrientation;
 		m_TeleportPositions = base.m_TeleportPositions;
 	#ifdef EXPANSIONMODAI
-		m_FactionName = base.m_FactionName;
+		m_Faction = base.m_Faction;
 	#endif
 	#ifdef EXPANSIONMODHARDLINE
 		m_Reputation = base.m_Reputation;
@@ -145,14 +145,14 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 	}
 
 #ifdef EXPANSIONMODAI
-	void SetFactionName(string factionName)
+	void SetFaction(string faction)
 	{
-		m_FactionName = factionName;
+		m_Faction = faction;
 	}
 
-	string GetFactionName()
+	string GetFaction()
 	{
-		return m_FactionName;
+		return m_Faction;
 	}
 #endif
 
@@ -215,7 +215,7 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 		ctx.Write(m_DisplayName);
 		ctx.Write(m_ObjectPosition);
 	#ifdef EXPANSIONMODAI
-		ctx.Write(m_FactionName);
+		ctx.Write(m_Faction);
 	#endif
 	#ifdef EXPANSIONMODHARDLINE
 		ctx.Write(m_Reputation);
@@ -246,7 +246,7 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 			return false;
 		
 	#ifdef EXPANSIONMODAI
-		if (!ctx.Read(m_FactionName))
+		if (!ctx.Read(m_Faction))
 			return false;
 	#endif
 		

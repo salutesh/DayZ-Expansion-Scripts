@@ -29,7 +29,7 @@ class ExpansionAISpawnPosition
 	float DamageMultiplier = 1.0;
 	ref array<vector> ShelterPositions;
 
-	void ExpansionAISpawnPosition(string name, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 1.0, float maxSpeed = 1.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true, float threatDistLimit = 800.0, float damageMultiplier = 1.0)
+	void ExpansionAISpawnPosition(string name, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 3.0, float maxSpeed = 5.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true, float threatDistLimit = 850.0, float damageMultiplier = 1.0)
 	{
 		NPCName = name;
 		Position = pos;

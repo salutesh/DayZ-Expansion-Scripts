@@ -20,18 +20,13 @@ enum ExpansionAnomalyState
 	UNSTABLENOCORE = 5
 };
 
-enum ANOMALY_ERPCs
-{
-	SYNC_ANOMALY
-};
-
 class ExpansionAnomalyLightBase extends PointLightBase
 {
 	void ExpansionAnomalyLightBase()
 	{
 		SetVisibleDuringDaylight(true);
 		SetRadiusTo(4.0);
-		SetBrightnessTo(0.2);
+		SetBrightnessTo(0.15);
 		SetCastShadow(false);
 		SetFadeOutTime(1.0);
 		SetDiffuseColor(1.0, 1.00, 1.0);
@@ -185,7 +180,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
 			InitAnomalyClient();
 		}
@@ -400,7 +395,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 			    }
 			    else
 			    {
-			       CreateIdleParticle(state);
+			       	CreateIdleParticle(state);
 			    }
 
 				//! Reset the delay value for the next time the idle state is entered and we want to the delay the idle
@@ -412,6 +407,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 				//! Create activated VFX particle
 				PlayParticle(m_ParticleActivated, GetAnomalyActivatedParticle());
 				SoundActivatedStart();
+				SetVisualState(state);
 			}
 			break;
 			case ExpansionAnomalyState.NOCORE:
@@ -442,6 +438,8 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 						TurnOnUnstableEmitor();
 					}
 				}
+				
+				SetVisualState(state);
 			}
 			break;
 			case ExpansionAnomalyState.UNSTABLE:
@@ -458,6 +456,8 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 				//! Remove core emitor form core particle
 				if (m_ParticleIdle)
 					TurnOnUnstableEmitor();
+
+				SetVisualState(state);
 			}
 			break;
 			case ExpansionAnomalyState.UNSTABLENOCORE:
@@ -477,12 +477,11 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 					TurnOnUnstableEmitor();
 					TurnOffCoreEmitor();
 				}
+				
+				SetVisualState(state);
 			}
 			break;
 		}
-
-
-		SetVisualState(state);
 	}
 
 	protected void CreateIdleParticle(ExpansionAnomalyState state)

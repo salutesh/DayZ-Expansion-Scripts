@@ -47,6 +47,7 @@ class CfgVehicles
 				};
 			};
 		};
+		soundImpactType = "plastic";
 	};
 	class ExpansionCircuitBoard_MK1: ExpansionCircuitBoardBase
 	{

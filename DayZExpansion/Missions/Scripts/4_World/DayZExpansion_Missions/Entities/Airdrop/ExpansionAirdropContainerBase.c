@@ -469,7 +469,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	override void AfterStoreLoad()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "LongDeferredInit");
+		auto trace = CF_Trace_0(ExpansionTracing.CE, this, "AfterStoreLoad");
 #endif
 
 		super.AfterStoreLoad();

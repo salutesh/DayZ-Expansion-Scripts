@@ -14,6 +14,10 @@ class ExpansionGyrocopterWreck : ExpansionHelicopterWreck
 {
 };
 
+class ExpansionBigGyrocopterWreck : ExpansionHelicopterWreck
+{
+};
+
 /**
  * @class		ExpansionGyrocopter
  * @brief
@@ -227,4 +231,25 @@ class ExpansionGyrocopter : ExpansionHelicopterScript
 		Fill(CarFluid.COOLANT, 6.0);
 		Fill(CarFluid.OIL, 4.0);
 	}
+};
+
+class ExpansionBigGyrocopter : ExpansionGyrocopter
+{
+	override int GetSeatAnimationType(int posIdx)
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_1(ExpansionTracing.VEHICLES, this, "GetSeatAnimationType").Add(posIdx);
+#endif
+
+		switch (posIdx)
+		{
+		case 0:
+			return DayZPlayerConstants.VEHICLESEAT_DRIVER;
+		case 1:
+			return DayZPlayerConstants.VEHICLESEAT_CODRIVER;
+		}
+
+		return 0;
+	}
+	
 };

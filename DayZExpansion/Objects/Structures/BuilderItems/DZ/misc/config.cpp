@@ -621,9 +621,12 @@ class CfgVehicles
 	{
 		scope = 1;
 	};
-	class bldr_PortableGasLamp_Prop: PortableGasLamp
+	class bldr_PortableGasLamp_Prop: HouseNoDestruct
 	{
 		scope = 1;
+		model = "\dz\gear\cooking\GasLight.p3d";
+		hiddenSelections[] = {"glow","zbytek","glow_on","glow_off"};
+		hiddenSelectionsMaterials[] = {"dz\gear\cooking\data\gaslight.rvmat","dz\gear\cooking\data\gaslight.rvmat","","dz\gear\cooking\data\gaslight.rvmat"};
 	};
 	class bldr_Candle: Candle
 	{

@@ -153,9 +153,22 @@ class ExpansionOwnedContainer: Container_Base
 			ExpansionSetContainerOwner(identity.GetId());
 	}
 
-	protected void ExpansionSetContainerOwner(string uid)
+	void ExpansionSetContainerOwner(string uid)
 	{
 		m_Expansion_NetsyncData.Set(0, uid);
+	}
+
+	PlayerBase ExpansionGetContainerOwner()
+	{
+		return PlayerBase.GetPlayerByUID(ExpansionGetContainerOwnerUID());
+	}
+
+	string ExpansionGetContainerOwnerUID()
+	{
+		string owner;
+		if (m_Expansion_NetsyncData)
+			m_Expansion_NetsyncData.Get(0, owner);
+		return owner;
 	}
 
 	//! Callable client only
@@ -185,11 +198,7 @@ class ExpansionOwnedContainer: Container_Base
 	//! Callable client/server
 	bool ExpansionIsContainerOwner(string uid)
 	{
-		if (!m_Expansion_NetsyncData)
-			return false;
-
-		string owner;
-		m_Expansion_NetsyncData.Get(0, owner);
+		string owner = ExpansionGetContainerOwnerUID();
 		return owner != string.Empty && owner == uid;
 	}
 

@@ -59,7 +59,6 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		GetExpansionClientSettings().SI_UpdateSetting.Insert(OnSettingChanged);
 
-
 		GetLayoutRoot().Show(false);
 		CreateChatLines();
 	}
@@ -111,7 +110,8 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 		if (GetLayoutRoot())
 		{
-			GetLayoutRoot().Show(true);
+			if (GetExpansionClientSettings().HUDChatToggle)
+				GetLayoutRoot().Show(true);
 			CreateChatLines();
 		}
 	}
@@ -194,6 +194,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 			m_ChatParams.Remove(m_ChatParams.Count() - 1);
 		}
 
+		if (GetExpansionClientSettings().HUDChatToggle)
+			GetLayoutRoot().Show(true);
+
 		RefreshChatMessages();
 	}
 
@@ -235,10 +238,9 @@ class ExpansionChatUIWindow: ExpansionScriptView
 				//! Make sure the number of lines that fit in the visible area of the chathistory box
 				//! are always shown even if empty so new messages appear at the bottom
 				if (idx >= firstVisibleMessageIndex)
-				{
 					m_ChatLines[idx].Show();
-					m_ChatLines[idx].SetAlphaEx(1.0);
-				}
+				else
+					m_ChatLines[idx].Hide();
 			}
 
 			idx--;

@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DayZExpansion_NamalskAdventure_Items","Domaged_Structures"};
+		requiredAddons[] = {"DZ_Data","DayZExpansion_NamalskAdventure_Items","ns_build_norinsk","ns_build_lubjansk","ns3","Domaged_Structures"};
 	};
 };
 class CfgVehicles
@@ -54,4 +54,10 @@ class CfgVehicles
 			};
 		};
 	};
+	class land_keyhole_habitat;
+	class Expansion_Bunker_Habitat: land_keyhole_habitat{};
+	class land_nor_entry;
+	class Expansion_Nor_Entry: land_nor_entry{};
+	class land_lub_warehouse_2;
+	class Expansion_Lub_WareHouse_2: land_lub_warehouse_2{};
 };

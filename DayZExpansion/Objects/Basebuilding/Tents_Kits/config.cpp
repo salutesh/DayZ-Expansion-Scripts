@@ -2,12 +2,10 @@
 
 class CfgPatches
 {
-	class DayZExpansion_BaseBuilding_Objects_Structures_Props
+	class DayZExpansion_Objects_BaseBuilding_Tents_Kits
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionCamoBoxKit","ExpansionCamoBoxKitPlacing","ExpansionCamoTentKit","ExpansionCamoTentKitPlacing"};
-		weapons[] = {};
 	};
 };
 class CfgVehicles

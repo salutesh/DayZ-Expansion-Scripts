@@ -105,7 +105,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		teleporterData.SetID(1);
 		teleporterData.SetDisplayName("Sebjan Reservoir");
 	#ifdef EXPANSIONMODAI
-		teleporterData.SetFactionName("Resistance");
+		teleporterData.SetFaction("Resistance");
 	#endif
 		teleporterData.SetObjectPosition(Vector(6030.101563, 5.685052, 10047.874023));
 		teleporterData.SetObjectOrientation(Vector(77.317390, 0, 0));
@@ -127,7 +127,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		teleporterData.SetID(2);
 		teleporterData.SetDisplayName("Science Society");
 	#ifdef EXPANSIONMODAI
-		teleporterData.SetFactionName("ScienceSociety");
+		teleporterData.SetFaction("ScienceSociety");
 	#endif
 		teleporterData.SetObjectPosition(Vector(6030.101563, 5.685052, 10047.874023));
 		teleporterData.SetObjectOrientation(Vector(77.317390, 0, 0));

@@ -16,9 +16,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected static ExpansionAnomaliesModule s_ModuleInstance;
 
 	protected static const int ANOMALY_SPAWN_DISTANCE = 250;
-	protected const float UPDATE_TICK_TIME = 0.100;
-	protected const int UPDATE_ANOMALIES_PER_TICK = 10;  //! Refresh up to 10 anomalies and amomaliycores every UPDATE_TICK_TIME interval
-	protected const int SPAWN_ANOMALIES_PER_TICK = 5;  //! Spawn up to 5 anomalies every UPDATE_TICK_TIME interval
+	protected const float UPDATE_TICK_TIME = 0.200;
+	protected const int UPDATE_ANOMALIES_PER_TICK = 5;  //! Refresh up to 5 anomalies and amomaliycores every UPDATE_TICK_TIME interval
+	protected const int SPAWN_ANOMALIES_PER_TICK = 1;  //! Spawn up to 1 anomalies every UPDATE_TICK_TIME interval
 
 	static ref array<vector> m_AnomalyPositions;
 	protected bool m_DynamicSpawned;
@@ -77,6 +77,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 		EnableMissionLoaded();
 		EnableUpdate();
+		
+		m_StabilizedAnomalies = true;
 	}
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)

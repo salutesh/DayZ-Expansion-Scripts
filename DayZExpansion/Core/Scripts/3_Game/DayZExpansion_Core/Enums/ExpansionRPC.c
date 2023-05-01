@@ -393,6 +393,7 @@ enum ExpansionRPC
 	INVALID = 40010,
 	SyncOwnedContainerUID,
 	CreateNotification,
+	FirearmEffects,
 	COUNT
 };
 

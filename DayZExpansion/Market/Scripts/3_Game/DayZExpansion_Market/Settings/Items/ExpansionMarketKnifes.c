@@ -30,5 +30,10 @@ class ExpansionMarketKnifes: ExpansionMarketCategory
 		AddItem("CrudeMachete", 				12,		24,		1,		100);
 		AddItem("OrientalMachete", 				12,		24,		1,		100);
 		AddItem("Cleaver", 						10,		20,		1,		100);
+
+	#ifndef DAYZ_1_20
+		//! 1.21+
+		AddItem("Sword", 						80,		300,	1,		100);
+	#endif
 	}
 };

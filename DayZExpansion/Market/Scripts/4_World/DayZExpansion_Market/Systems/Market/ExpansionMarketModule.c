@@ -431,22 +431,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		return true;
 	}
-
-	// ------------------------------------------------------------
-	// Expansion SetTrader
-	// Client only
-	// ------------------------------------------------------------
-	void SetTrader(ExpansionTraderObjectBase trader, bool complete)
-	{
-		MarketModulePrint("SetTrader - Start");
-	
-		if (complete)
-			trader.GetTraderMarket().m_StockOnly = true;
-		m_OpenedClientTrader = trader;
-		SI_SetTraderInvoker.Invoke(trader, complete);
-		
-		MarketModulePrint("SetTrader - End");
-	}
 	
 	// ------------------------------------------------------------
 	// Expansion GetTrader
@@ -3208,6 +3192,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 				return;
 			}
 			
+			m_OpenedClientTrader = trader;
+
 			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.RequestTraderData, true, NULL);
 				
@@ -3356,6 +3342,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not get ExpansionTraderObjectBase!");
 			return;
 		}
+
+		if (trader != m_OpenedClientTrader)
+		{
+			EXPrint("ExpansionMarketModule::RPC_LoadTraderData - ignoring items received for different trader");
+			return;
+		}
 		
 		if (!ctx.Read(m_ClientMarketZone.BuyPricePercent))
 		{
@@ -3454,6 +3446,12 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!trader)
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not get ExpansionTraderObjectBase!");
+			return;
+		}
+
+		if (trader != m_OpenedClientTrader)
+		{
+			EXPrint("ExpansionMarketModule::RPC_LoadTraderItems - ignoring items received for different trader");
 			return;
 		}
 
@@ -3601,12 +3599,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			ClearTmpNetworkCaches();
 
-			SetTrader(trader, true);
+			trader.GetTraderMarket().m_StockOnly = true;
+			SI_SetTraderInvoker.Invoke(trader, true);
 		}
 		else
 		{
 			//! Client can draw received items so far
-			SetTrader(trader, false);
+			SI_SetTraderInvoker.Invoke(trader, false);
 
 			//! Request next batch
 			RequestTraderItems(trader, next, stockOnly);

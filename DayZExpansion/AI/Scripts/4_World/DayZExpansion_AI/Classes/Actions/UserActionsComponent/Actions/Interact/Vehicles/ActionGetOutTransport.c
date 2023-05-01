@@ -23,6 +23,9 @@ modded class ActionGetOutTransport
 		{
 			foreach (eAIBase ai: target.ai_list)
 			{
+				if ( !ai )
+					continue;
+				
 				EXPrint(ai.ToString() + " (group " + groupId + ") targeting " + vehicle);
 				vehicleTargetInfo.AddAI(ai, 120000);
 			}

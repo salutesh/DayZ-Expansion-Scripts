@@ -23,7 +23,6 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 {
 	protected ref ExpansionPersonalStorageMenuController m_PersonalStorageMenuController;
 	protected ref array<ref ExpansionPersonalStorageItem> m_PlayerItems;
-	protected ref array<ref ExpansionPersonalStorageMenuItem> m_DepositedItems;
 
 	protected ExpansionPersonalStorageMenuViewState m_ViewState;
 	protected ExpansionPersonalStorageMenuViewState m_PreviousViewState;
@@ -99,6 +98,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void ~ExpansionPersonalStorageMenu()
 	{
+		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuCallbackSI().Remove(OnModuleCallback);
+		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuSI().Remove(SetDepositedItems);
+		
 		if (m_BrowseHeader)
 			m_BrowseHeader.Destroy();
 
@@ -143,11 +145,8 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		}
 		
 		m_StorageID = storageID;
-
-		if (!m_DepositedItems)
-			m_DepositedItems = new array<ref ExpansionPersonalStorageMenuItem>;
-		else
-			m_DepositedItems.Clear();
+		
+		m_PersonalStorageMenuController.DepositedItems.Clear();
 
 		inventory_header.AddChild(m_BrowseHeader.GetLayoutRoot());
 		m_BrowseHeader.SetSort(0, false);
@@ -158,17 +157,13 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			foreach (ExpansionPersonalStorageItem item: depositedItems)
 			{
 				ExpansionPersonalStorageMenuItem storedItem = new ExpansionPersonalStorageMenuItem(item, this);
-				m_DepositedItems.Insert(storedItem);
-				inventory_content.AddChild(storedItem.GetLayoutRoot());
+				m_PersonalStorageMenuController.DepositedItems.Insert(storedItem);
 			}
 
 			SortListingsByName();
 		}
-
-		for (int i = m_PersonalStorageMenuController.BrowseCategories.Count() - 1; i >= 0; i--)
-		{
-			m_PersonalStorageMenuController.BrowseCategories.RemoveOrdered(i);
-		}
+		
+		m_PersonalStorageMenuController.BrowseCategories.Clear();
 
 		array<ref ExpansionPersonalStorageMenuCategory> menuCategories = m_PersonalStorageSettings.MenuCategories;
 		foreach (ExpansionPersonalStorageMenuCategory category: menuCategories)
@@ -1127,8 +1122,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	
 	protected void SetCategory_All()
 	{
-		foreach (ExpansionPersonalStorageMenuItem entry: m_DepositedItems)
+		for (int i = 0; i < m_PersonalStorageMenuController.DepositedItems.Count(); i++)
 		{
+			ExpansionPersonalStorageMenuItem entry = m_PersonalStorageMenuController.DepositedItems[i];
 			if (!entry || !entry.GetPlayerItem())
 				continue;
 
@@ -1235,7 +1231,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	{
 		PrintDebug(ToString() + "::SearchInDepositedItems - Start");
 		
-		if (!m_DepositedItems || m_DepositedItems.Count() == 0)
+		if (!m_PersonalStorageMenuController.DepositedItems || m_PersonalStorageMenuController.DepositedItems.Count() == 0)
 			return;
 
 		bool hasChildWithName;
@@ -1243,9 +1239,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		string searchText = market_filter_box.GetText();
 		searchText.ToLower();
 
-		for (int i = 0; i < m_DepositedItems.Count(); i++)
+		for (int i = 0; i < m_PersonalStorageMenuController.DepositedItems.Count(); i++)
 		{
-			ExpansionPersonalStorageMenuItem entry = m_DepositedItems[i];
+			ExpansionPersonalStorageMenuItem entry = m_PersonalStorageMenuController.DepositedItems[i];
 			if (entry && entry.GetPreviewObject())
 			{
 				if (!entry.IsVisible() || searchText == string.Empty)
@@ -1489,8 +1485,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	void SortListingsByName(bool reverse = false)
 	{
 		TStringArray displayName = new TStringArray;
-		foreach (ExpansionPersonalStorageMenuItem entry: m_DepositedItems)
+		
+		for (int i = 0; i < m_PersonalStorageMenuController.DepositedItems.Count(); i++)
 		{
+			ExpansionPersonalStorageMenuItem entry = m_PersonalStorageMenuController.DepositedItems[i];
 			if (!entry || !entry.GetPlayerItem())
 				continue;
 
@@ -1499,8 +1497,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 		displayName.Sort(reverse);
 
-		foreach (ExpansionPersonalStorageMenuItem currentEntry: m_DepositedItems)
+		for (int j = 0; j < m_PersonalStorageMenuController.DepositedItems.Count(); j++)
 		{
+			ExpansionPersonalStorageMenuItem currentEntry = m_PersonalStorageMenuController.DepositedItems[j];
 			if (!currentEntry || !currentEntry.GetPlayerItem())
 				continue;
 
@@ -1522,8 +1521,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void UpdateMenuCategory(ExpansionPersonalStorageMenuCategoryBase category)
 	{
-		foreach (ExpansionPersonalStorageMenuItem entry: m_DepositedItems)
+		for (int i = 0; i < m_PersonalStorageMenuController.DepositedItems.Count(); i++)
 		{
+			ExpansionPersonalStorageMenuItem entry = m_PersonalStorageMenuController.DepositedItems[i];
 			if (!entry || !entry.GetPlayerItem())
 				continue;
 
@@ -1543,8 +1543,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	int GetCategoryItemsCount(ExpansionPersonalStorageMenuCategoryBase category)
 	{
 		int count;
-		foreach (ExpansionPersonalStorageMenuItem entry: m_DepositedItems)
+		for (int i = 0; i < m_PersonalStorageMenuController.DepositedItems.Count(); i++)
 		{
+			ExpansionPersonalStorageMenuItem entry = m_PersonalStorageMenuController.DepositedItems[i];
 			if (!entry || !entry.GetPlayerItem())
 				continue;
 
@@ -1618,6 +1619,7 @@ class ExpansionPersonalStorageMenuController: ExpansionViewController
 	string StoredItemsCount;
 	string PersonalStorageName;
 	string PersonalStorageIcon;
+	ref ObservableCollection<ref ExpansionPersonalStorageMenuItem> DepositedItems = new ObservableCollection<ref ExpansionPersonalStorageMenuItem>(this);
 	ref ObservableCollection<ref ExpansionPersonalStorageMenuItem> PlayerItems = new ObservableCollection<ref ExpansionPersonalStorageMenuItem>(this);
 	ref ObservableCollection<ref ExpansionPersonalStorageMenuCategoryElement> BrowseCategories = new ObservableCollection<ref ExpansionPersonalStorageMenuCategoryElement>(this);
 	ref ObservableCollection<ref ExpansionPersonalStorageMenuInventoryCategoryElement> PlayerCategories = new ObservableCollection<ref ExpansionPersonalStorageMenuInventoryCategoryElement>(this);

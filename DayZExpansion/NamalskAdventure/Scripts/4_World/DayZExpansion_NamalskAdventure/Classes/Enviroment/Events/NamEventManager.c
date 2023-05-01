@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_SURVIVAL
 modded class NamEventManager
 {
 	override void StartEvent(typename event_type, bool force = false)
@@ -48,3 +49,4 @@ modded class NamEventManager
 		return m_LastEventType;
 	}
 };
+#endif

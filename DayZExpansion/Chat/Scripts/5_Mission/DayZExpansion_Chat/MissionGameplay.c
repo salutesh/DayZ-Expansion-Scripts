@@ -311,7 +311,7 @@ modded class MissionGameplay
 				{
 					m_Chat.HideChatToggle();
 
-					if (m_Chat.GetChatToggleState())
+					if (GetExpansionClientSettings().HUDChatToggle)
 					{
 						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_ON", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
 					}

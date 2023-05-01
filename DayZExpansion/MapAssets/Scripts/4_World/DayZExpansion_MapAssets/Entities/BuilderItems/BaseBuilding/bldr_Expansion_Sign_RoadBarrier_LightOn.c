@@ -21,17 +21,16 @@ class bldr_expansion_Sign_RoadBarrier_LightOn : House
 	// bldr_expansion_Sign_RoadBarrier_LightOn Constructor
 	// ------------------------------------------------------------
 	void bldr_expansion_Sign_RoadBarrier_LightOn()
-	{		
-		if ( !GetGame().IsDedicatedServer() )
-		{
+	{
+		#ifndef SERVER
 			if ( !m_Light )
 			{
-#ifdef EXPANSIONMODCORE
+			#ifdef EXPANSIONMODCORE
 				m_Light = ScriptedLightBase.CreateLight( ExpansionPointLight, "0 0 0" );
-#else
+			#else
 				//! TODO: Use some kind of light
 				return;
-#endif
+			#endif
 
 				m_Light.FadeIn(0.3);			
 				m_Light.SetCastShadow(true);				
@@ -47,6 +46,6 @@ class bldr_expansion_Sign_RoadBarrier_LightOn : House
 
 				m_Light.SetEnabled( true );
 			}
-		}
+		#endif
 	}
 } 

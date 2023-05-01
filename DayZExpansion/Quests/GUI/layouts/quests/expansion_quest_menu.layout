@@ -174,7 +174,7 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
         ScrollWidgetClass ScrollWidget0 {
          ignorepointer 0
          position 0 0
-         size 1.045 0.94
+         size 1 0.94
          hexactpos 0
          vexactpos 0
          hexactsize 0
@@ -621,8 +621,8 @@ WrapSpacerWidgetClass ExpansionQuestMenu {
      {
       ScrollWidgetClass ScrollWidget1 {
        ignorepointer 0
-       position 0.022 0.037
-       size 1.02 1
+       position 0 0
+       size 1 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
