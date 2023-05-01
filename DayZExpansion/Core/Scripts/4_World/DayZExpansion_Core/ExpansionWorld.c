@@ -28,8 +28,8 @@ class ExpansionWorld: ExpansionGame
 		msg += "" + pos + " ";
 		msg += "" + surfNormal + " ";
 		msg += "" + exitPos + " ";
-		msg += "" + inSpeed + " ";
-		msg += "" + outSpeed + " ";
+		msg += "" + inSpeed.Length() + " ";
+		msg += "" + outSpeed.Length() + " ";
 		msg += "" + isWater + " ";
 		msg += "" + deflected + " ";
 		msg += "" + ammoType;

@@ -88,7 +88,12 @@ class ExpansionMarketBootsAndShoes: ExpansionMarketCategory
 		AddItem("MilitaryBoots_Black", 				110,	220,	1,		100);
 		AddItem("MilitaryBoots_Brown", 				110,	220,	1,		100);
 			
-		AddItem("NBCBootsGray", 					150,	300,	1,		100);
+		AddItem("NBCBootsGray", 					180,	320,	1,		100, null, {"NBCBootsYellow"});
 		AddItem("NBCBootsYellow", 					150,	300,	1,		100);
+
+	#ifndef DAYZ_1_20
+	//! 1.21+
+		AddItem("MedievalBoots", 					75,		250,	1,		100);
+	#endif
 	}
 };

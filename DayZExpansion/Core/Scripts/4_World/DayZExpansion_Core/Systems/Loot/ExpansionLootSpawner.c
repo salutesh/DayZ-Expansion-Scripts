@@ -12,7 +12,7 @@
 
 class ExpansionLootSpawner
 {
-	static void AddItem(EntityAI container, ExpansionLoot loot, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
+	static void AddItem(EntityAI container, ExpansionLoot loot, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false, float damagePercentMin = 0, float damagePercentMax = 0)
 	{
 		string className = loot.Name;
 		
@@ -62,10 +62,10 @@ class ExpansionLootSpawner
 		if ( loot.m_Remaining == 0 )
 			loot.m_RemainingChance = 0;
 
-		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap, spawnOnGround ); 
+		Spawn( className, container, loot.QuantityPercent, attachments, spawnedEntities, spawnedEntitiesMap, spawnOnGround, damagePercentMin, damagePercentMax ); 
 	}
 
-	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
+	static void Spawn( string className, EntityAI parent, int quantityPercent, TStringArray attachments = null, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false, float damagePercentMin = 0, float damagePercentMax = 0 )
 	{
         ItemBase itemParent;
 		ItemBase item;
@@ -146,8 +146,15 @@ class ExpansionLootSpawner
 
 				foreach ( string attachment: attachmentsTmp )
 				{
-					Spawn( attachment, item, quantityPercent, NULL );
+					Spawn( attachment, item, quantityPercent, NULL, NULL, NULL, false, damagePercentMin, damagePercentMax );
 				}
+			}
+			
+			if (damagePercentMin > 0 || damagePercentMax > 0)
+			{
+				float maxHealth = item.GetMaxHealth("", "");
+				float healthModifier = Math.RandomFloatInclusive(damagePercentMin, damagePercentMax);
+				item.SetHealth("", "", maxHealth * healthModifier);
 			}
 
 			if (spawnedEntitiesMap)
@@ -176,7 +183,7 @@ class ExpansionLootSpawner
 		GetGame().ObjectDelete( container );
 	}
 
-	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > loot, int itemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false )
+	static void SpawnLoot(EntityAI container, array < ref ExpansionLoot > loot, int itemCount, array<EntityAI> spawnedEntities = null, map<string, int> spawnedEntitiesMap = null, bool spawnOnGround = false, float damagePercentMin = 0, float damagePercentMax = 0 )
 	{
 		if (itemCount < 0)
 			itemCount = Math.RandomInt(1, -itemCount);
@@ -197,7 +204,7 @@ class ExpansionLootSpawner
 				lootItemsSpawned++;
 				min--;
 
-				AddItem( container, lootItem, spawnedEntities, spawnedEntitiesMap, spawnOnGround );
+				AddItem( container, lootItem, spawnedEntities, spawnedEntitiesMap, spawnOnGround, damagePercentMin, damagePercentMax );
 			}
 
 			chances.Insert(lootItem.m_RemainingChance);
@@ -215,7 +222,7 @@ class ExpansionLootSpawner
 
 				ExpansionLoot randomLootItem = loot[index];
 
-				AddItem( container, randomLootItem, spawnedEntities, spawnedEntitiesMap, spawnOnGround );
+				AddItem( container, randomLootItem, spawnedEntities, spawnedEntitiesMap, spawnOnGround, damagePercentMin, damagePercentMax );
 
 				if ( randomLootItem.m_Remaining == 0 )
 					chances[index] = 0;

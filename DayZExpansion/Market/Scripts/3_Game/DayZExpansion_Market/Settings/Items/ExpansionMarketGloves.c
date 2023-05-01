@@ -21,7 +21,7 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		m_FileName = "Gloves";
 
 		AddItem("SurgicalGloves_Blue", 				5,		10,		1,		100, null, {"SurgicalGloves_LightBlue", "SurgicalGloves_Green", "SurgicalGloves_White"});
-		/*AddItem("SurgicalGloves_LightBlue",			5,		10,		1,		100);
+		/*AddItem("SurgicalGloves_LightBlue",		5,		10,		1,		100);
 		AddItem("SurgicalGloves_Green", 			5,		10,		1,		100);
 		AddItem("SurgicalGloves_White", 			5,		10,		1,		100);*/
 		
@@ -40,9 +40,14 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		//AddItem("TacticalGloves_Green", 			35,		70,		1,		100);
 	
 		AddItem("OMNOGloves_Gray", 					40,		80,		1,		100, null, {"OMNOGloves_Brown"});
-		//AddItem("OMNOGloves_Brown", 				40,		80,		1,		100);
 		
-		AddItem("NBCGlovesGray", 					65,		130,	1,		100);
+		AddItem("NBCGlovesGray", 					80,		160,	1,		100, null, {"NBCGlovesYellow"});
 		AddItem("NBCGlovesYellow", 					65,		130,	1,		100);
+		
+	#ifndef DAYZ_1_20
+		//! 1.21+
+		AddItem("WoolGloves_Green", 			35,		70,		1,		100, null, {"WoolGloves_Black", "WoolGloves_Tan", "WoolGloves_White"});
+		AddItem("WoolGlovesFingerless_Green", 			35,		70,		1,		100, null, {"WoolGlovesFingerless_Black", "WoolGlovesFingerless_Tan"});
+	#endif
 	}
 };

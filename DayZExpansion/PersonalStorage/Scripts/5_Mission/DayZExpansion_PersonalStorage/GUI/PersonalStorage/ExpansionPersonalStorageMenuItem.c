@@ -19,6 +19,7 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 	protected Widget tree_panel_3;
 	protected bool m_IsExcluded;
 	protected bool m_IsStored;
+	protected bool m_CargoDisplayState;
 
 	void ExpansionPersonalStorageMenuItem(ExpansionPersonalStorageItem item, ExpansionPersonalStorageMenu menu)
 	{
@@ -65,7 +66,6 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 
 		if (m_Item.GetContainerItems() && m_Item.GetContainerItemsCount() > 0)
 		{
-			cargo_content.Show(true);
 			int cargoItemIndex = 0;
 			array<ref ExpansionPersonalStorageContainerItem> containerItems = m_Item.GetContainerItems();
 			foreach (ExpansionPersonalStorageContainerItem item: containerItems)
@@ -242,6 +242,30 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 			if (!m_IsExcluded)
 				m_PersonalStorageMenu.SetSelectedPlayerItem(this);
 		}
+		else if (button == MouseState.MIDDLE && m_Object && m_Item)
+		{
+			int rarity = -1;
+		#ifdef EXPANSIONMODHARDLINE
+			rarity = m_Item.GetRarity();
+		#endif
+			MissionGameplay.InspectItem(m_PersonalStorageMenu, m_Object, m_Item.GetHealthLevel(), m_Item.GetLiquidType(), m_Item.IsBloodContainer(), m_Item.GetQuantityType(), m_Item.GetQuantity(), m_Object.GetQuantityMax(), m_Item.GetFoodStageType(), m_Item.GetClassName(), rarity);
+		}
+		else if (button == MouseState.RIGHT)
+		{
+			if (m_Item.GetContainerItemsCount() > 0)
+			{
+				if (!m_CargoDisplayState)
+				{
+					cargo_content.Show(true);
+					m_CargoDisplayState = true;
+				}
+				else
+				{
+					cargo_content.Show(false);
+					m_CargoDisplayState = false;
+				}
+			}
+		}
 	}
 
 	void OnStateButtonClick(ButtonCommandArgs args)
@@ -264,24 +288,6 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 				}
 			}	
 		}
-	}
-	
-	override bool OnClick(Widget w, int x, int y, int button)
-	{
-		if (w != NULL && w == item_button)
-		{
-			if (button == MouseState.MIDDLE && m_Object && m_Item)
-			{
-				int rarity = -1;
-#ifdef EXPANSIONMODHARDLINE
-				rarity = m_Item.GetRarity();
-#endif
-				MissionGameplay.InspectItem(m_PersonalStorageMenu, m_Object, m_Item.GetHealthLevel(), m_Item.GetLiquidType(), m_Item.IsBloodContainer(), m_Item.GetQuantityType(), m_Item.GetQuantity(), m_Object.GetQuantityMax(), m_Item.GetFoodStageType(), m_Item.GetClassName(), rarity);
-				return true;
-			}
-		}
-		
-		return false;
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)

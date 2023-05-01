@@ -51,7 +51,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    scriptclass "ViewBinding"
    text "Quest Title"
    font "gui/fonts/etelkatextpro22"
-   "size to text h" 0
+   "size to text h" 1
    "size to text v" 0
    "text valign" center
    {

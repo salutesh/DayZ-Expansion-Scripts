@@ -91,7 +91,7 @@ class EXTrace
 
 	static bool PATH_INTERPOLATION;
 	
-	static bool PERSONALSTORAGE;
+	static bool PERSONALSTORAGE = ENABLE;
 
 	static bool PLAYER = ENABLE;
 

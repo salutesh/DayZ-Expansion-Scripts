@@ -13,7 +13,7 @@
 class ExpansionChatMessage
 {
 	int Channel;
-	int TimeStamp;
+	float TimeStamp;
 	string Time;
 	string From;
 	string Text;
@@ -218,9 +218,12 @@ class ExpansionChatLineBase: ExpansionScriptView
 	{
 		super.SetAlpha(alpha);
 
-		Time.SetAlpha(alpha);
-		SenderName.SetAlpha(alpha);
-		Message.SetAlpha(alpha);
+		if (Time)
+			Time.SetAlpha(alpha);
+		if (SenderName)
+			SenderName.SetAlpha(alpha);
+		if (Message)
+			Message.SetAlpha(alpha);
 	}
 
 	void SetAlphaEx(float alpha)

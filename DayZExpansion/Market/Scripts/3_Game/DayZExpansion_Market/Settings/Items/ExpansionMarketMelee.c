@@ -30,5 +30,10 @@ class ExpansionMarketMelee: ExpansionMarketCategory
 		AddItem("BaseballBat", 				35,		70,		1,		100);
 		AddItem("NailedBaseballBat", 		45,		90,		1,		100);
 		AddItem("BarbedBaseballBat", 		45,		90,		1,		100);
+
+	#ifndef DAYZ_1_20
+		//! 1.21+
+		AddItem("Mace", 					50,		150,	1,		100);
+	#endif
 	}
 };

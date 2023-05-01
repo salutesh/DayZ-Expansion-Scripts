@@ -13,6 +13,7 @@
 modded class PlayerBase
 {
 	private int m_Expansion_Reputation;
+	private int m_Expansion_PersonalStorageLevel;
 	ref ExpansionHardlinePlayerData m_Expansion_HardlineData;
 
 	override void Init()
@@ -25,20 +26,60 @@ modded class PlayerBase
 			m_Expansion_HardlineData = new ExpansionHardlinePlayerData();
 
 		RegisterNetSyncVariableInt("m_Expansion_Reputation");
+		RegisterNetSyncVariableInt("m_Expansion_PersonalStorageLevel", 0, 255);
 	}
 
 	//! Only to be called on server!
 	void Expansion_SaveHardlineData(bool force = false)
 	{
-		bool save = force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation;
+		bool save = force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation || m_Expansion_HardlineData.PersonalStorageLevel != m_Expansion_PersonalStorageLevel;
 	#ifdef EXPANSIONMODAI
 		save |= m_Expansion_HardlineData.FactionID != eAI_GetFactionTypeID();
 	#endif
 		if (GetIdentity() && save)
 		{
 			m_Expansion_HardlineData.Reputation = m_Expansion_Reputation;
+			m_Expansion_HardlineData.PersonalStorageLevel = m_Expansion_PersonalStorageLevel;
 			m_Expansion_HardlineData.Save(GetIdentity().GetId());
 		}
+	}
+
+	void Expansion_LoadHardlineData(PlayerIdentity identity = null)
+	{
+		if (!identity)
+			identity = GetIdentity();
+		//! Check if hardline player data file exists and load it
+		string playerUID = identity.GetId();
+		bool factionReset;
+		if (m_Expansion_HardlineData.Load(playerUID))
+		{
+			EXPrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+		#ifdef EXPANSIONMODAI
+			//! @note this takes precedence over random faction from AISettings.json
+			if (m_Expansion_HardlineData.FactionID != -1)
+			{
+				if (GetExpansionSettings().GetHardline().EnableFactionPersistence)
+				{
+					typename factionType = eAIFaction.GetTypeByID(m_Expansion_HardlineData.FactionID);
+					if (factionType)
+						SetGroup(eAIGroup.CreateGroup(eAIFaction.Cast(factionType.Spawn())));
+				}
+				else
+				{
+					m_Expansion_HardlineData.FactionID = -1;
+					factionReset = true;
+				}
+			}
+		#endif
+		}
+		//! If data was successfully loaded, player rep will be set to value from file, else zero
+		int rep = m_Expansion_HardlineData.Reputation;
+		if (rep < 0)
+			rep = 0;
+		m_Expansion_Reputation = rep;
+		m_Expansion_PersonalStorageLevel = m_Expansion_HardlineData.PersonalStorageLevel;
+		SetSynchDirty();
+		Expansion_SaveHardlineData(factionReset);
 	}
 
 	//! Only to be called on server!
@@ -70,6 +111,19 @@ modded class PlayerBase
 	int Expansion_GetReputation()
 	{
 		return m_Expansion_Reputation;
+	}
+
+	//! Only to be called on server!
+	void Expansion_SetPersonalStorageLevel(int lvl)
+	{
+		m_Expansion_PersonalStorageLevel = lvl;
+		SetSynchDirty();
+		Expansion_SaveHardlineData();
+	}
+
+	int Expansion_GetPersonalStorageLevel()
+	{
+		return m_Expansion_PersonalStorageLevel;
 	}
 
 	override void EEKilled(Object killer)

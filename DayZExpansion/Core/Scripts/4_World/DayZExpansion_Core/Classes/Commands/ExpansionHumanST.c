@@ -106,14 +106,18 @@ class ExpansionHumanST
 		m_EVT_LandVehicle = hai.BindEvent( "LandVehicle" );
 
 		m_VAR_Look = hai.BindVariableBool( "Look" );
-		m_VAR_LookDirX = hai.BindVariableFloat( "LookDirX" );
-		m_VAR_LookDirY = hai.BindVariableFloat( "LookDirY" );
+	#ifdef EXPANSIONMODAI
+		m_VAR_LookDirX = hai.BindVariableFloat( "eAI_LookDirX" );
+		m_VAR_LookDirY = hai.BindVariableFloat( "eAI_LookDirY" );
+	#endif
 
 		//m_VAR_GuitarChord = hai.BindVariableInt( "GuitarChord" );
 		//m_VAR_GuitarFret = hai.BindVariableFloat( "GuitarFret" );
 
+	#ifdef EXPANSIONMODAI
 		m_VAR_AimX = hai.BindVariableFloat( "eAI_AimX" );
 		m_VAR_AimY = hai.BindVariableFloat( "eAI_AimY" );
+	#endif
 
 		m_VAR_Raised = hai.BindVariableBool( "Raised" );
 		m_VAR_Stance = hai.BindVariableInt( "Stance" );

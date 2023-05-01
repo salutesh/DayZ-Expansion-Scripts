@@ -60,37 +60,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 			return;
 
 		//! Check if hardline player data file exists and load it
-		string playerUID = identity.GetId();
-		auto hardlinePlayerData = player.m_Expansion_HardlineData;
-		bool factionReset;
-		if (hardlinePlayerData.Load(playerUID))
-		{
-			EXPrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
-		#ifdef EXPANSIONMODAI
-			//! @note this takes precedence over random faction from AISettings.json
-			if (hardlinePlayerData.FactionID != -1)
-			{
-				if (GetExpansionSettings().GetHardline().EnableFactionPersistence)
-				{
-					typename factionType = eAIFaction.GetTypeByID(hardlinePlayerData.FactionID);
-					if (factionType)
-						player.SetGroup(eAIGroup.CreateGroup(eAIFaction.Cast(factionType.Spawn())));
-				}
-				else
-				{
-					hardlinePlayerData.FactionID = -1;
-					factionReset = true;
-				}
-			}
-		#endif
-		}
-		//! If data was successfully loaded, player rep will be set to value from file, else zero
-		player.Expansion_SetReputation(hardlinePlayerData.Reputation);
-	#ifdef EXPANSIONMODAI
-		//! Save data if faction was reset
-		if (factionReset)
-			player.Expansion_SaveHardlineData(true);
-	#endif
+		player.Expansion_LoadHardlineData(identity);
 	}
 	
 #ifdef EXPANSIONMODAI

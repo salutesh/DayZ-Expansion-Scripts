@@ -27,7 +27,7 @@ modded class ActionTurnOffWeaponFlashlight
 			return false;
 		}
 
-		if (m_flashlight.GetType() == "ExpansionPropUniversalLight")
+		if (m_flashlight && m_flashlight.GetType() == "ExpansionPropUniversalLight")
 			return false;
 
 		return super.ActionCondition(player, target, item);

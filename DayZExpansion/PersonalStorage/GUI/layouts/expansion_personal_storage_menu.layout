@@ -69,10 +69,15 @@ FrameWidgetClass ExpansionPersonalStorageMenu {
        vexactpos 0
        hexactsize 0
        vexactsize 0
-       scriptclass ""
+       scriptclass "ViewBinding"
        "Size To Content V" 1
        content_halign center
        content_valign center
+       {
+        ScriptParamsClass {
+         Binding_Name "DepositedItems"
+        }
+       }
       }
      }
     }

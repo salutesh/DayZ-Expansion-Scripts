@@ -1408,4 +1408,8 @@ modded class ItemBase
 	{
 		return false;
 	}
+
+	bool Expansion_StoreContents();
+
+	bool Expansion_RestoreContents(PlayerBase player = null);
 };

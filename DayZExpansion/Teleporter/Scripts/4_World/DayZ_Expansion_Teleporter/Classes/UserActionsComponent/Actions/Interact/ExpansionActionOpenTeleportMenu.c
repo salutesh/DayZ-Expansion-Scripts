@@ -70,7 +70,10 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 
 		PlayerBase player = action_data.m_Player;
 		if (!player || !player.GetIdentity())
+		{
+			Error(ToString() + "::OnExecuteServer - Could not get player!");
 			return;
+		}
 
 		if (!CF_Modules<ExpansionTeleporterModule>.Get(m_Expansion_TeleporterModule))
 			return;
@@ -87,6 +90,94 @@ class ExpansionActionOpenTeleportMenu: ActionInteractBase
 		ExpansionTeleportData teleporterData = m_Expansion_TeleporterModule.GetTeleporterDataByID(teleporterID);
 		if (!teleporterData)
 			return;
+
+	#ifdef EXPANSIONMODQUESTS
+		if (GetExpansionSettings().GetQuest().EnableQuests)
+		{
+			int questID = teleporterData.GetQuestID();
+			Print(ToString() + "::OnExecuteServer - Need to complete quest with ID: " + questID);
+			if (questID > -1)
+			{
+				//! Check if player has completed required quest
+				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, player.GetIdentity().GetId()))
+				{
+					ExpansionQuestConfig questConig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (!questConig)
+					{
+						Error(ToString() + "::OnExecuteServer - Could not get quest config for quest ID: " + questID);
+						return;
+					}
+		
+					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need to compelete the quest " + questConig.GetTitle() + " first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+					return;
+				}
+			}
+		}
+	#endif
+		
+	#ifdef EXPANSIONMODHARDLINE
+		if (GetExpansionSettings().GetHardline().UseReputation)
+		{
+			int reputationRequirement = teleporterData.GetReputation();
+			Print(ToString() + "::OnExecuteServer - Need to have reputation: " + reputationRequirement);
+			if (reputationRequirement > 0)
+			{
+				int reputation = player.Expansion_GetReputation();
+				Print(ToString() + "::OnExecuteServer - Player reputation: " + reputation);
+				if (reputation < reputationRequirement)
+				{
+					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need at least " + reputationRequirement + " reputation points first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+					return;
+				}
+			}
+		}
+	#endif
+		
+	#ifdef EXPANSIONMODAI
+		string factionName = teleporterData.GetFaction();
+		bool isInFaction;
+		bool isInInOtherFaction;
+		Print(ToString() + "::OnExecuteServer - Need to be in faction: " + factionName);
+		if (factionName != string.Empty)
+		{
+			eAIGroup group = player.GetGroup();
+			if (!group)
+				group = eAIGroup.GetGroupByLeader(player);
+			
+			Print(ToString() + "::OnExecuteServer - Player group: " + group.ToString());
+			if (group)
+			{
+				eAIFaction playerFaction = group.GetFaction();
+				Print(ToString() + "::OnExecuteServer - Player faction: " + playerFaction.ToString());
+				if (playerFaction)
+				{
+					string playerFactionName = playerFaction.GetName();
+					Print(ToString() + "::OnExecuteServer - Player faction name: " + playerFactionName);
+					if (playerFactionName == factionName)
+					{
+						isInFaction = true;
+					}
+					else
+					{
+						if (playerFactionName != string.Empty)
+							isInInOtherFaction = true;
+					}
+				}
+			}
+			
+			if (!isInFaction)
+			{
+				string message;
+				if (isInInOtherFaction)
+					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction. You are a member of the " + playerFactionName + " faction.";
+				else
+					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction.";
+				
+				ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser(message), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+				return;
+			}
+		}
+	#endif
 		
 		if (!teleporterData.IsExit())
 		{

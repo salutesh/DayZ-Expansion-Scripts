@@ -18,7 +18,7 @@ modded class DayZPlayerImplement
 
 	private bool m_eAI_IsPassive;
 
-	int m_eAI_LastAggressionTime;
+	float m_eAI_LastAggressionTime;
 	float m_eAI_LastAggressionTimeout;
 
 #ifdef DIAG

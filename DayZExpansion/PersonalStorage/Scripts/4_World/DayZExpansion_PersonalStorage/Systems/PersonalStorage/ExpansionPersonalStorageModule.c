@@ -382,7 +382,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			foreach (ExpansionPersonalStorageItem item: items)
 			{
 				if (storageConfig.IsGlobalStorage() || item.GetStorageID() == storageID)
-					itemsToSend.Insert(item);
+				{
+					if (itemsToSend.Find(item) == -1)
+						itemsToSend.Insert(item);
+				}
 			}
 		}
 
@@ -444,9 +447,13 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		DebugPring("::RPC_SendItemData - Player items count: " + itemsCount);
 
 		if (!m_PlayerItems)
+		{
 			m_PlayerItems = new array<ref ExpansionPersonalStorageItem>;
+		}
 		else
+		{
 			m_PlayerItems.Clear();
+		}
 
 		for (int i = 0; i < itemsCount; ++i)
 		{

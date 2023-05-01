@@ -20,18 +20,13 @@ enum ExpansionAnomalyState
 	UNSTABLENOCORE = 5
 };
 
-enum ANOMALY_ERPCs
-{
-	SYNC_ANOMALY
-};
-
 class ExpansionAnomalyLightBase extends PointLightBase
 {
 	void ExpansionAnomalyLightBase()
 	{
 		SetVisibleDuringDaylight(true);
 		SetRadiusTo(4.0);
-		SetBrightnessTo(0.2);
+		SetBrightnessTo(0.15);
 		SetCastShadow(false);
 		SetFadeOutTime(1.0);
 		SetDiffuseColor(1.0, 1.00, 1.0);
@@ -185,7 +180,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!GetGame().IsDedicatedServer())
+		if (!GetGame().IsServer() || !GetGame().IsMultiplayer())
 		{
 			InitAnomalyClient();
 		}

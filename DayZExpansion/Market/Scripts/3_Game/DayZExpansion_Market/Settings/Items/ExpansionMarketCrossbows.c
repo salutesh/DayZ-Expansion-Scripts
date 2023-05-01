@@ -20,8 +20,13 @@ class ExpansionMarketCrossbows: ExpansionMarketCategory
 		DisplayName = "#STR_EXPANSION_MARKET_CATEGORY_CROSSBOWS";
 		m_FileName = "Crossbows";
 	
-	#ifdef EXPANSIONMODWEAPONS
-		AddItem("Expansion_Crossbow", 			800,		1600,		1,		100);
+	#ifndef DAYZ_1_20
+		//! 1.21+
+		AddItem("Crossbow_Autumn", 	800,	1600,	1,		100, null, {"Crossbow_Black","Crossbow_Summer","Crossbow_Wood"});
+	#else
+		#ifdef EXPANSIONMODWEAPONS
+			AddItem("Expansion_Crossbow", 			800,		1600,		1,		100);
+		#endif
 	#endif
 	}
 };

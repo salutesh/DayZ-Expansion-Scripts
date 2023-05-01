@@ -12,13 +12,15 @@
 
 class ExpansionHardlinePlayerData
 {
-	static const int CONFIGVERSION = 7;
+	static const int CONFIGVERSION = 8;
 
 	int ConfigVersion;
 	int Reputation;
 
-	ref map<int, int> FactionReputation; //! Hash map with all that faction IDs and there respective reputation. -1 is the key for the normal reputation.
+	ref map<int, int> FactionReputation; //! Hash map with all that faction IDs and their respective reputation. -1 is the key for the normal reputation.
 	int FactionID;  //! Most recent faction the player was part of
+
+	int PersonalStorageLevel = 1;
 
 	void ExpansionHardlinePlayerData()
 	{
@@ -64,6 +66,9 @@ class ExpansionHardlinePlayerData
 				if (Reputation < 0)
 					Reputation = 0;
 
+				if (PersonalStorageLevel < 1)
+					PersonalStorageLevel = 1;
+
 				file.Close();
 			}
 			ConfigVersion = CONFIGVERSION;
@@ -86,6 +91,8 @@ class ExpansionHardlinePlayerData
 		}
 
 		ctx.Write(FactionID);
+
+		ctx.Write(PersonalStorageLevel);
 	}
 
 	bool OnRead(ParamsReadContext ctx)
@@ -214,6 +221,15 @@ class ExpansionHardlinePlayerData
 
 		if (FactionID != -1)
 			FactionReputation[FactionID] = Reputation;
+
+		if (ConfigVersion < 8)
+			return true;
+
+		if (!ctx.Read(PersonalStorageLevel))
+		{
+			Error(ToString() + "::OnRead PersonalStorageLevel");
+			return false;
+		}
 
 		return true;
 	}

@@ -218,7 +218,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 
 		#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
-			SpawnSatelliteAntennaObjects();			
+			SpawnSatelliteAntennaObjects(); //! @note - Not finished yet!
 			SpawnA1Bunker();
 		#endif
 			
@@ -459,8 +459,15 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		marketSettings.AddMarketZone(traderZone);
 		marketSettings.AddMarketTrader(trader);
-
-		Object obj = GetGame().CreateObject("ExpansionTraderAIMirek", positionToUse.Position);
+		
+		string traderType;
+	#ifdef EXPANSIONMODAI
+		traderType = "ExpansionTraderAIMirek";
+	#else
+		traderType = "ExpansionTraderMirek";
+	#endif
+		Object obj = GetGame().CreateObject(traderType, positionToUse.Position);
+	#ifdef EXPANSIONMODAI
 		ExpansionTraderAIBase aiTrader = ExpansionTraderAIBase.Cast(obj);
 		if (!aiTrader)
 		{
@@ -468,8 +475,22 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			GetGame().ObjectDelete(obj);
 			return;
 		}
-
-		ExpansionTraderObjectBase traderBase = new ExpansionTraderObjectBase(aiTrader);
+	#else
+		ExpansionTraderNPCBase npcTrader = ExpansionTraderNPCBase.Cast(obj);
+		if (!npcTrader)
+		{
+			Error(ToString() + "::CreateMerchant - Could not spawn merchant object!");
+			GetGame().ObjectDelete(obj);
+			return;
+		}
+	#endif
+		
+		ExpansionTraderObjectBase traderBase;
+	#ifdef EXPANSIONMODAI
+		traderBase = new ExpansionTraderObjectBase(aiTrader);
+	#else
+		traderBase = new ExpansionTraderObjectBase(npcTrader);
+	#endif
 		if (!traderBase)
 		{
 			Error(ToString() + "::CreateMerchant - Could not spawn merchant trader base object!");
@@ -479,14 +500,22 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		traderBase.SetTraderZone(traderZone);
 		traderBase.SetTraderMarket(trader);
+		
+	#ifdef EXPANSIONMODAI
 		aiTrader.SetTraderObject(traderBase);
-
 		aiTrader.m_Expansion_NetsyncData.Set(0, "Merchant");
 		aiTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
-
 		ExpansionHumanLoadout.Apply(aiTrader, "SurvivorLoadout", false);
 		aiTrader.SetPosition(positionToUse.Position);
 		aiTrader.SetOrientation(positionToUse.Orientation);
+	#else
+		npcTrader.SetTraderObject(traderBase);
+		npcTrader.m_Expansion_NetsyncData.Set(0, "Merchant");
+		npcTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
+		ExpansionHumanLoadout.Apply(npcTrader, "SurvivorLoadout", false);
+		npcTrader.SetPosition(positionToUse.Position);
+		npcTrader.SetOrientation(positionToUse.Orientation);
+	#endif
 
 		traderBase.UpdateTraderZone();
 
@@ -672,13 +701,14 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		ai.SetMovementSpeedLimit(m_AISpeed);
 	}
+#endif
 
+/*
 #ifdef EXPANSIONMODQUESTS
 	void AfterQuestModuleClientInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		/*
 		//! Server only
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
@@ -701,7 +731,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			//! Show the first quest to the player
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ShowMainQuest, 3000, false, identity);
 		}
-		*/
 	}
 
 	protected void ShowMainQuest(PlayerIdentity identity)
@@ -709,7 +738,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenu(identity, 1);
 	}
 #endif
-#endif
+*/
 
 #ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
 	//! @note: Condition check if a EVR storm is currently active.
@@ -780,7 +809,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
 	#endif
-
+		
+		//! @note: Don't spawn controller yet!
 		obj = GetGame().CreateObject("Expansion_Satellite_Control", Vector(1204.062256, 5.146724, 11782.631836));
 		m_SatelliteController = Expansion_Satellite_Control.Cast(obj);
 		if (!m_SatelliteController)
@@ -1301,6 +1331,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	}
 };
 
+/*
 #ifdef EXPANSIONMODQUESTS
 modded class ExpansionQuestModule
 {
@@ -1315,3 +1346,4 @@ modded class ExpansionQuestModule
 	}
 };
 #endif
+*/

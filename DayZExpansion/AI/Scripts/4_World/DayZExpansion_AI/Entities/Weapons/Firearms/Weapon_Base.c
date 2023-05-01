@@ -14,7 +14,7 @@
 
 modded class Weapon_Base
 {
-	bool Hitscan(out EntityAI entity, out vector hitPosition, out int contactComponent)
+	bool Hitscan(out Object hitObject, out vector hitPosition, out vector hitNormal, out int contactComponent)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "Hitscan");
@@ -40,14 +40,13 @@ modded class Weapon_Base
 				
 		// Prep Raycast
 		set<Object> results = new set<Object>();
-		vector hitNormal;
 		bool hit = DayZPhysics.RaycastRV(begin_point, end_point, hitPosition, hitNormal, contactComponent, results, null, ai, false, false, ObjIntersectIFire, 0.01);
 		
 		if (hit)
 		{
 			if (results.Count() > 0)
-				Class.CastTo(entity, results[0]);
-			if (entity == ai.GetTarget().GetEntity())
+				hitObject = results[0];
+			if (ai.GetTarget().GetEntity() == hitObject)
 			{
 				ai.Expansion_DebugObject_Deferred(18, hitPosition, "ExpansionDebugBox", ai.GetDirection(), position);
 				ai.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugBox_Red");
@@ -105,15 +104,51 @@ modded class Weapon_Base
 		eAIBase ai;
 		if (GetGame().IsClient() || !Class.CastTo(ai, GetHierarchyRootPlayer())) return;
 
-		EntityAI entity;
+		Object hitObject;
 		vector hitPosition;
+		vector hitNormal;
 		int contactComponent;
-		bool hit = Hitscan(entity, hitPosition, contactComponent);
+		bool hit = Hitscan(hitObject, hitPosition, hitNormal, contactComponent);
 
 		if (!hit)  //! Nothing hit
 			return;
 
-		if (entity)  //! Entity hit
+		//! Calculate projectile impact velocity and resulting damage
+		//! (initSpeed x initSpeedMultiplier) / (defaultDamageOverride value x typicalSpeed) x damage
+		//! defaultDamageOverride[]={{0.5, 1}} means 50% to 100% of typical speed will have no drop
+		//! airFriction = acceleration/v^2
+		//! airFriction x v^2 = acceleration
+		//! e.g. for 545x39:
+		//! -0.00125 x (880*880 m/s) = -968 m/s^2
+		//! damage after drop = v/v0
+		//! TODO: Add defaultDamageOverride
+		//! TODO: See if interpolation could be replaced with equation or maybe use the created bullet and move it in time?
+		//! https://www.wolframalpha.com/input?i=curve+fitting
+		float airFriction = GetGame().ConfigGetFloat("cfgAmmo " + ammoType + " airFriction");
+		float initSpeed = GetGame().ConfigGetFloat("cfgAmmo " + ammoType + " initSpeed");
+		float initSpeedMultiplier = ConfigGetFloat("initSpeedMultiplier");
+		if (initSpeedMultiplier)
+			initSpeed *= initSpeedMultiplier;
+		float speed = initSpeed;
+		vector dir = vector.Direction(ai.GetPosition(), hitPosition);
+		float distance = dir.Length();
+		float simulationStep = 0.05;  //! How fine-grained our prediction will be (could use simulationStep config value, but it's always set to 0.05 anyway, so...)
+		float distanceTraveled;
+		int n;
+		while (distanceTraveled < distance)
+		{
+			float speedLoss = airFriction * (speed * speed) * simulationStep;
+			speed += speedLoss;
+			distanceTraveled += speed * simulationStep;
+			n += 1;
+			//! Limit number of iterations, may result in too high prediction for projectiles with low initSpeed and/or high airFriction
+			//! Will mostly affect pistol rounds and shotgun shells where effective range is normally limited
+			if (n > 100)
+				break;
+		}
+
+		EntityAI entity;
+		if (Class.CastTo(entity, hitObject))  //! Entity hit
 		{
 			string damageZone = "";
 			TStringArray componentNameList();
@@ -130,39 +165,6 @@ modded class Weapon_Base
 			if (!damageZone && entity.IsInherited(DayZPlayer))
 				damageZone = "Torso";  //! Make sure we have a damageZone so that damage transfer to attachments works correctly
 
-			//! Calculate projectile impact velocity and resulting damage
-			//! (initSpeed x initSpeedMultiplier) / (defaultDamageOverride value x typicalSpeed) x damage
-			//! defaultDamageOverride[]={{0.5, 1}} means 50% to 100% of typical speed will have no drop
-			//! airFriction = acceleration/v^2
-			//! airFriction x v^2 = acceleration
-			//! e.g. for 545x39:
-			//! -0.00125 x (880*880 m/s) = -968 m/s^2
-			//! damage after drop = v/v0
-			//! TODO: Add defaultDamageOverride
-			//! TODO: See if interpolation could be replaced with equation or maybe use the created bullet and move it in time?
-			//! https://www.wolframalpha.com/input?i=curve+fitting
-			float airFriction = GetGame().ConfigGetFloat("cfgAmmo " + ammoType + " airFriction");
-			float initSpeed = GetGame().ConfigGetFloat("cfgAmmo " + ammoType + " initSpeed");
-			float initSpeedMultiplier = ConfigGetFloat("initSpeedMultiplier");
-			if (initSpeedMultiplier)
-				initSpeed *= initSpeedMultiplier;
-			float speed = initSpeed;
-			float distance = vector.Distance(ai.GetPosition(), hitPosition);
-			float simulationStep = 0.05;  //! How fine-grained our prediction will be (could use simulationStep config value, but it's always set to 0.05 anyway, so...)
-			float distanceTraveled;
-			int n;
-			while (distanceTraveled < distance)
-			{
-				float speedLoss = airFriction * (speed * speed) * simulationStep;
-				speed += speedLoss;
-				distanceTraveled += speed * simulationStep;
-				n += 1;
-				//! Limit number of iterations, may result in too high prediction for projectiles with low initSpeed and/or high airFriction
-				//! Will mostly affect pistol rounds and shotgun shells where effective range is normally limited
-				if (n > 100)
-					break;
-			}
-
 			float dmgCoef = speed / initSpeed;
 			if (entity.IsMan())  //! Could also use IsPlayer() if we wanted to restrict to PlayerBase
 				dmgCoef *= ai.m_eAI_DamageMultiplier;
@@ -170,14 +172,40 @@ modded class Weapon_Base
 			entity.ProcessDirectDamage(DT_FIRE_ARM, this, damageZone, ammoType, entity.WorldToModel(hitPosition), dmgCoef);
 		}
 
-		#ifdef DAYZ_1_20
-		//! Create bullet impact as visual cue - FIXME: Causes CTD under 1.21 if spawned bullet hits something
+#ifdef DAYZ_1_20
+		//! Create bullet impact as audiovisual cue
+		//! @note cannot be used under 1.21 as it causes CTD if spawned bullet hits something
 		Object bullet = GetGame().CreateObjectEx(ammoType, hitPosition, ECE_LOCAL | ECE_KEEPHEIGHT);
 		if (bullet)
 		{
-			bullet.SetDirection(vector.Direction(ai.GetPosition(), hitPosition));
+			bullet.SetDirection(dir);
 		}
-		#endif
+#else
+		//! Under 1.21+, call FirearmEffects the same way vanilla would (source = weapon on server, NULL on client)
+
+		DayZPlayerImplement player;
+		if (Class.CastTo(player, hitObject) && !player.Expansion_CanBeDamaged())
+			return;
+
+		Object source;
+#ifdef SERVER
+		source = this;
+#endif
+		vector surfNormal = hitNormal * -1;
+		vector inSpeed = dir.Normalized() * speed;
+		string surface = ExpansionStatic.GetImpactSurfaceType(hitObject, hitPosition, inSpeed);
+		GetDayZGame().FirearmEffects(source, hitObject, contactComponent, surface, hitPosition, surfNormal, vector.Zero, inSpeed, vector.Zero, false, false, ammoType);
+
+#ifdef SERVER
+		auto rpc = ExpansionScriptRPC.Create();
+		rpc.Write(contactComponent);
+		rpc.Write(hitPosition);
+		rpc.Write(surfNormal);
+		rpc.Write(inSpeed);
+		rpc.Write(ammoType);
+		PlayerBase.Expansion_SendNear(rpc, ExpansionRPC.FirearmEffects, ai.GetPosition(), 1000.0, hitObject);
+#endif
+#endif
 	}
 
 	/**

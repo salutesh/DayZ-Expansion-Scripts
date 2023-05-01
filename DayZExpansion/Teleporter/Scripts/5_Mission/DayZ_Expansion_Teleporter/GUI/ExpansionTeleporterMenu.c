@@ -100,7 +100,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 		
 		string displayName = m_TeleporterClientData.GetDisplayName();
 	#ifdef EXPANSIONMODAI
-		string factionName = m_TeleporterClientData.GetFactionName();
+		string factionName = m_TeleporterClientData.GetFaction();
 		if (factionName != string.Empty)
 			displayName = "[" + factionName + "] " + displayName;
 	#endif
@@ -117,6 +117,99 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 			ExpansionTeleporterMenuListEntry teleportEntry = new ExpansionTeleporterMenuListEntry(position, this);
 			m_TeleporterMenuController.Positions.Insert(teleportEntry);
 		}
+	}
+	
+	protected bool CanUseTeleportPosition(ExpansionTeleportPosition position)
+	{
+		#ifdef EXPANSIONMODQUESTS
+		if (GetExpansionSettings().GetQuest().EnableQuests)
+		{
+			int questID = position.GetQuestID();
+			Print(ToString() + "::OnExecuteServer - Need to complete quest with ID: " + questID);
+			if (questID > -1)
+			{
+				//! Check if player has completed required quest
+				if (!ExpansionQuestModule.GetModuleInstance().HasCompletedQuest(questID, m_Player.GetIdentity().GetId()))
+				{
+					ExpansionQuestConfig questConig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+					if (!questConig)
+					{
+						Error(ToString() + "::OnExecuteServer - Could not get quest config for quest ID: " + questID);
+						return false;
+					}
+		
+					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need to compelete the quest " + questConig.GetTitle() + " first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create();
+					return false;
+				}
+			}
+		}
+	#endif
+		
+	#ifdef EXPANSIONMODHARDLINE
+		if (GetExpansionSettings().GetHardline().UseReputation)
+		{
+			int reputationRequirement = position.GetReputation();
+			Print(ToString() + "::OnExecuteServer - Need to have reputation: " + reputationRequirement);
+			if (reputationRequirement > 0)
+			{
+				int reputation = m_Player.Expansion_GetReputation();
+				Print(ToString() + "::OnExecuteServer - Player reputation: " + reputation);
+				if (reputation < reputationRequirement)
+				{
+					ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser("You have no access to this teleporter yet. You need at least " + reputationRequirement + " reputation points first to use this teleporter."), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create();
+					return false;
+				}
+			}
+		}
+	#endif
+		
+	#ifdef EXPANSIONMODAI
+		string factionName = position.GetFaction();
+		bool isInFaction;
+		bool isInInOtherFaction;
+		Print(ToString() + "::OnExecuteServer - Need to be in faction: " + factionName);
+		if (factionName != string.Empty)
+		{
+			eAIGroup group = m_Player.GetGroup();
+			if (!group)
+				group = eAIGroup.GetGroupByLeader(m_Player);
+			
+			Print(ToString() + "::OnExecuteServer - Player group: " + group.ToString());
+			if (group)
+			{
+				eAIFaction playerFaction = group.GetFaction();
+				Print(ToString() + "::OnExecuteServer - Player faction: " + playerFaction.ToString());
+				if (playerFaction)
+				{
+					string playerFactionName = playerFaction.GetName();
+					Print(ToString() + "::OnExecuteServer - Player faction name: " + playerFactionName);
+					if (playerFactionName == factionName)
+					{
+						isInFaction = true;
+					}
+					else
+					{
+						if (playerFactionName != string.Empty)
+							isInInOtherFaction = true;
+					}
+				}
+			}
+			
+			if (!isInFaction)
+			{
+				string message;
+				if (isInInOtherFaction)
+					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction. You are a member of the " + playerFactionName + " faction.";
+				else
+					message = "You have no access to this teleporter. You need to be a member of the " + factionName + " faction.";
+				
+				ExpansionNotification(new StringLocaliser("Teleporter is locked!"), new StringLocaliser(message), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_AMETHYST, 10, ExpansionNotificationType.TOAST).Create();
+				return false;
+			}
+		}
+	#endif
+		
+		return true;
 	}
 	
 	protected void SetMapPosition(vector position)
@@ -170,7 +263,10 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 	
 	void OnAcceptButtonClick()
 	{
-		if (!m_SelectedTeleportPos || m_RequestLocked)
+		if (!m_SelectedTeleport || !m_SelectedTeleportPos || m_RequestLocked)
+			return;
+		
+		if (!CanUseTeleportPosition(m_SelectedTeleport))
 			return;
 		
 		m_RequestLocked = true;

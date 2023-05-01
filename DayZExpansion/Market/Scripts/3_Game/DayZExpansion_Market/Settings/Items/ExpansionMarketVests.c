@@ -37,12 +37,12 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		AddItem("HighCapacityVest_Black", 		200,		400,		1,		100, null, {"HighCapacityVest_Olive"});
 		AddItem("HighCapacityVest_Olive", 		230,		460,		1,		100);
 		
-#ifndef DAYZ_1_18
 		AddItem("PlateCarrierVest", 			250,		500,		1,		100, null, {"PlateCarrierVest_Green", "PlateCarrierVest_Black", "PlateCarrierVest_Camo"});
 		AddItem("PlateCarrierVest_Camo", 		275,		500,		1,		100);
-#else
-		AddItem("PlateCarrierVest", 			250,		500,		1,		100);
-#endif
 		AddItem("HuntingVest", 					90,			500,		1,		100);
+	#ifndef DAYZ_1_20
+		//! 1.21+
+		AddItem("Chestplate", 					150,	500,	1,		100);
+	#endif
 	}
 };

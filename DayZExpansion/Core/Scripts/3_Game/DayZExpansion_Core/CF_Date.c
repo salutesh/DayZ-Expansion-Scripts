@@ -42,4 +42,35 @@ modded class CF_Date
 	{
 		return typename.StringToEnum(CF_Weekdays, dayName);
 	}
+
+	string GetISODate()
+	{
+		return m_Year.ToStringLen(4) + "-" + m_Month.ToStringLen(2) + "-" + m_Day.ToStringLen(2);
+	}
+
+	string GetISOTime(string delimHMS = ":")
+	{
+		return m_Hour.ToStringLen(2) + delimHMS + m_Minute.ToStringLen(2) + delimHMS + m_Second.ToStringLen(2);
+	}
+
+	string GetISODateTime(string delim = "T", string delimHMS = ":")
+	{
+		return GetISODate() + delim + GetISOTime(delimHMS);
+	}
+
+	//! Fix Format() for most common formats
+	override string Format(string format)
+	{
+		switch (format)
+		{
+			case DATE:
+				return GetISODate();
+			case DATETIME:
+				return GetISODateTime(" ");
+			case TIME:
+				return GetISOTime();
+		}
+
+		return super.Format(format);
+	}
 }

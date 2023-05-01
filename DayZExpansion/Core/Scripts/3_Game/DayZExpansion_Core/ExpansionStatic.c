@@ -30,6 +30,126 @@ static void Expansion_Error(string s, inout bool check = false)
 	}
 }
 
+class EXTee
+{
+	FileHandle m_File;
+	autoptr TStringArray m_PrintBuffer = {};
+	int m_BufferLength;
+
+	void EXTee(string fileName, FileMode mode)
+	{
+		m_File = OpenFile(fileName, mode);
+	}
+
+	void ~EXTee()
+	{
+		Flush();
+		if (m_File)
+			CloseFile(m_File);
+	}
+
+	bool CanWrite()
+	{
+		if (m_File)
+			return true;
+
+		return false;
+	}
+
+	void WriteLine(string str, bool print = true)
+	{
+		if (m_File)
+			FPrintln(m_File, str);
+
+		if (print)
+		{
+			int strLen = str.Length();
+			//! @note max script log line length 256 characters
+			if (m_BufferLength + strLen >= 256)
+				Flush();
+			m_PrintBuffer.Insert(str);
+			m_BufferLength += strLen;
+		}
+	}
+
+	void Flush()
+	{
+		Print(ExpansionString.JoinStrings(m_PrintBuffer, "\n"));
+		m_PrintBuffer.Clear();
+		m_BufferLength = 0;
+	}
+}
+
+class EXError
+{
+	static ref CF_Date s_Start = CF_Date.Now();
+	static string s_BaseName;
+	static string s_FileName;
+
+	static void Log(Class instance, string msg, TStringArray stack, inout bool check = false)
+	{
+		if (check)
+			return;
+
+		check = true;
+
+		if (!s_BaseName)
+		{
+			s_BaseName = string.Format("error_%1.log", s_Start.GetISODateTime("_", "-"));
+			s_FileName = "$profile:" + s_BaseName;
+		}
+
+		string now = CF_Date.Now().Format(CF_Date.DATETIME);
+
+		//! Try to mimic vanilla error output
+
+		EXTee tee;
+
+		if (FileExist(s_FileName))
+		{
+			tee = new EXTee(s_FileName, FileMode.APPEND);
+		}
+		else
+		{
+			tee = new EXTee(s_FileName, FileMode.WRITE);
+
+			tee.WriteLine("---------------------------------------------", false);
+			tee.WriteLine(string.Format("Log %1 started at %2", s_BaseName, now), false);
+			tee.WriteLine("", false);
+		}
+
+		tee.WriteLine("", false);
+		tee.WriteLine("", false);
+		tee.WriteLine("------------------------------------", false);
+		tee.WriteLine(string.Format("%1, %2", GetMachineName(), now), false);
+		tee.WriteLine("", false);
+
+		tee.WriteLine(msg);
+
+		if (instance)
+		{
+			tee.WriteLine(string.Format("Class:      '%1'", instance.ClassName()));
+			IEntity entity;
+			if (Class.CastTo(entity, instance))
+				tee.WriteLine(string.Format("Entity id:%1", entity.GetID()));
+			tee.WriteLine("");
+		}
+
+		tee.WriteLine(string.Format("Function: '%1'", stack[0].Substring(0, stack[0].IndexOf("("))));
+
+		tee.WriteLine("Stack trace:");
+
+		bool print = true;
+		foreach (string line: stack)
+		{
+			line.Replace(" : ", ":");
+			int index = line.IndexOf(")") + 2;
+			tee.WriteLine(line.Substring(index, line.Length() - index), print);
+			print = false;
+		}
+	}
+}
+
 // -----------------------------------------------------------
 // Expansion EXPrint
 // -----------------------------------------------------------
@@ -878,8 +998,9 @@ class ExpansionStatic
 					files.Insert( fileName );
 				}
 			}
+
+			CloseFindFile( findFileHandle );
 		}
-		CloseFindFile( findFileHandle );
 		return files;
 	}
 
@@ -1204,6 +1325,61 @@ class ExpansionStatic
 	static bool SurfaceIsWater(float x, float z)
 	{
 		return GetGame().SurfaceIsSea(x, z) || GetGame().SurfaceIsPond(x, z);
+	}
+
+	static string GetImpactSurfaceType(Object directHit, vector hitPosition, vector relativeVelocityBefore)
+	{
+		string surfaceImpact;
+
+		if (directHit)
+		{
+			//vector mins, maxs;
+			//directHit.GetWorldBounds(mins, maxs);
+			//vector size = maxs - mins;		
+			//vector add = relativeVelocityBefore.Normalized() * size.Length();
+			vector add = relativeVelocityBefore.Normalized() * 0.1;
+			if (DayZPhysics.GetHitSurface(
+				directHit,
+				hitPosition - add,
+				hitPosition + add,
+				surfaceImpact) && surfaceImpact != string.Empty)
+			{
+			#ifdef DIAG
+				EXTrace.Print(EXTrace.AI, null, "GetHitSurface " + surfaceImpact);
+			#endif
+
+				return surfaceImpact;
+			}
+
+			//! Sometimes, GetHitSurface fails to return something useful
+			if (directHit.IsMan() || directHit.IsInherited(DayZCreature))
+				surfaceImpact = "Hit_MeatBones";
+			else if (directHit.IsBuilding())
+				surfaceImpact = "Hit_Concrete";
+			else if (directHit.IsBush())
+				surfaceImpact = "Hit_Foliage";
+			else if (directHit.IsTree())
+				surfaceImpact = "Hit_Wood";
+			else if (directHit.IsRock())
+				surfaceImpact = "Hit_Gravel";
+			else if (directHit.IsWeapon() || directHit.IsMagazine() || directHit.IsTransport())
+				surfaceImpact = "Hit_Metal";
+			else if (directHit.IsClothing())
+				surfaceImpact = "Hit_Textile";
+			else if (SurfaceIsWater(hitPosition))
+				surfaceImpact = "Hit_Water";
+			else
+				surfaceImpact = "Hit_Dirt";
+		}
+		else
+		{
+			if (SurfaceIsWater(hitPosition))
+				surfaceImpact = "Hit_Water";
+			else
+				surfaceImpact = "Hit_Dirt";
+		}
+
+		return surfaceImpact;
 	}
 
 	//! @brief return lowercase game world name, with "gloom" suffix removed (if present)

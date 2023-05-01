@@ -74,6 +74,12 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 			GetGame().ObjectDelete(currentKey);
 
 			Expansion_SupplyCrate_Key_Base newKey = Expansion_SupplyCrate_Key_Base.Cast(action_data.m_Player.GetHumanInventory().CreateInHands(keyType));
+
+			if (action_data.m_Player.GetItemInHands())
+			{
+				action_data.m_Player.GetItemAccessor().OnItemInHandsChanged();
+			}
+			
 			newKey.AddHealthLevel(healthLvl + KEY_HEALTH_DELTA);
 
 			crate.CloseCrate();
