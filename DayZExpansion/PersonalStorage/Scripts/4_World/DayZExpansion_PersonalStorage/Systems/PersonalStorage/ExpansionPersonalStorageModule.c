@@ -22,13 +22,6 @@ class ExpansionPersonalStoragePlayerInventory
 		Enumerate();
 	}
 
-	void ~ExpansionPersonalStoragePlayerInventory()
-	{
-	#ifdef EXPANSIONMODPERSONALSTORAGE
-		EXPrint("~ExpansionPersonalStoragePlayerInventory");
-	#endif
-	}
-
 	void Enumerate()
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.MARKET);
@@ -217,7 +210,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		DebugPring("::OnInvokeConnect - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		super.OnInvokeConnect(sender, args);
 
@@ -230,13 +223,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			if (GetExpansionSettings().GetPersonalStorage().UsePersonalStorageCase)
 				RestorePersonalStorageCase(cArgs.Player);
 		}
-
-		DebugPring("::OnInvokeConnect - End");
 	}
 
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
-		DebugPring("::OnClientDisconnect - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		super.OnClientDisconnect(sender, args);
 
@@ -250,33 +241,27 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 				m_ItemsData.Remove(playerUID);
 			}
 		}
-
-		DebugPring("::OnClientDisconnect - End");
 	}
 
 	protected void LoadPersonalStorageItemData(string playerUID)
 	{
-		DebugPring("::LoadPersonalStorageItemData - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + playerUID + "\\";
-		DebugPring("::LoadPersonalStorageItemData - Folder: " + storagePath);
 		if (FileExist(storagePath))
 		{
 			array<string> personalStorageFiles = ExpansionStatic.FindFilesInLocation(storagePath, ".json");
-			DebugPring("::LoadPersonalStorageItemData - Folder files: " + personalStorageFiles.Count());
 			foreach (string fileName: personalStorageFiles)
 			{
 				GetPersonalStorageItemData(fileName, storagePath);
 			}
 		}
-
-		DebugPring("::LoadPersonalStorageItemData - End");
 	}
 
 	protected void GetPersonalStorageItemData(string fileName, string path)
 	{
-		DebugPring("::GetPersonalStorageItemData - Start");
-		DebugPring("::GetPersonalStorageItemData - Load file: " + path + fileName);
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+
 		ExpansionPersonalStorageItem itemData = ExpansionPersonalStorageItem.Load(path + fileName);
 		if (!itemData)
 			return;
@@ -302,8 +287,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			items.Insert(itemData);
 			m_ItemsData.Insert(playerUID, items);
 		}
-
-		DebugPring("::GetPersonalStorageItemData - End");
 	}
 
 	override int GetRPCMin()
@@ -348,16 +331,13 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void SendItemData(PlayerIdentity identity, int storageID = -1, string displayName = string.Empty, string displayIcon = string.Empty, ExpansionPersonalStorageModuleCallback callback = 0)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
 			Error(ToString() + "::SendItemData - Tryed to call SendItemData on Client!");
 			return;
 		}
-
-		DebugPring("::SendItemData - Start");
-		DebugPring("::SendItemData - Storage ID: " + storageID);
-		DebugPring("::SendItemData - Display name: " + displayName);
-		DebugPring("::SendItemData - Display icon: " + displayIcon);
 
 		string playerUID = identity.GetId();
 
@@ -389,9 +369,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			}
 		}
 
-		DebugPring("::SendItemData - Items data count: " + m_ItemsData.Count());
-		DebugPring("::SendItemData - Items data to send: " + itemsToSend.Count());
-
 		rpc.Write(itemsToSend.Count());
 
 		foreach (ExpansionPersonalStorageItem storedItem: itemsToSend)
@@ -402,14 +379,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		rpc.Write(callback);
 
 		rpc.Send(NULL, ExpansionPersonalStorageModuleRPC.SendItemData, true, identity);
-
-		DebugPring("::SendItemData - End");
 	}
 
 	protected void RPC_SendItemData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
-		DebugPring("::RPC_SendItemData - Start");
-
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
 			Error(ToString() + "::RPC_SendItemData - Magic number check failed!");
@@ -444,8 +417,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (!ctx.Read(itemsCount))
 			return;
 
-		DebugPring("::RPC_SendItemData - Player items count: " + itemsCount);
-
 		if (!m_PlayerItems)
 		{
 			m_PlayerItems = new array<ref ExpansionPersonalStorageItem>;
@@ -465,9 +436,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			m_PlayerItems.Insert(item);
 		}
 
-		DebugPring("::RPC_SendItemData - Player items array: " + m_PlayerItems.ToString());
-		DebugPring("::RPC_SendItemData - Player items count: " + m_PlayerItems.Count());
-
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionPersonalStorageMenu");
 
 		if (m_PlayerItems && m_PlayerItems.Count() > 0)
@@ -484,8 +452,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 
 		m_PersonalStorageMenuCallbackInvoker.Invoke(callback);
-
-		DebugPring("::RPC_SendItemData - End");
 	}
 
 	protected void RPC_Callback(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
@@ -510,9 +476,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void RequestRetrieveItem(ExpansionPersonalStorageItem item, int storageID)
 	{
-		DebugPring("::RequestRetrieveItem - Start");
-		DebugPring("::RequestRetrieveItem - Storage ID: " + storageID);
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!GetGame().IsClient())
 		{
 			Error(ToString() + "::RequestRetrieveItem - Tryed to call RequestRetrieveItem on Server!");
@@ -529,7 +494,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void RPC_RequestRetrieveItem(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
-		DebugPring("::RPC_RequestRetrieveItem - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
@@ -594,8 +559,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void RequestDepositItem(int storageID, Entity item)
 	{
-		DebugPring("::RequestDepositItem - Start");
-		DebugPring("::RequestDepositItem - Storage ID: " + storageID);
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		if (!GetGame().IsClient())
 		{
@@ -606,13 +570,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(storageID);
 		rpc.Send(item, ExpansionPersonalStorageModuleRPC.RequestDepositItem, true);
-
-		DebugPring("::RequestDepositItem - End");
 	}
 
 	protected void RPC_RequestDepositItem(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
-		DebugPring("::RPC_RequestDepositItem - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
@@ -694,13 +656,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		SendItemData(senderRPC, storageID, "", "", ExpansionPersonalStorageModuleCallback.ItemStored);
 
 		ExpansionNotification(new StringLocaliser("Item Deposited!"), new StringLocaliser("You have deposited the item %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
-
-		DebugPring("::RPC_RequestDepositItem - End");
 	}
 
 	void StorePersonalStorageCase(PlayerBase player)
 	{
-		Print(ToString() + "::StorePersonalStorageCase - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		string playerUID = player.GetIdentity().GetId();
 
@@ -732,14 +692,10 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		AddStoredItem(playerUID, personalStorageCase);
 		personalStorageCase.Save();
-
-		Print(ToString() + "::StorePersonalStorageCase - End");
 	}
 
 	void RestorePersonalStorageCase(PlayerBase player)
 	{
-		Print(ToString() + "::RestorePersonalStorageCase - Start");
-
 		string playerUID = player.GetIdentity().GetId();
 		array<ref ExpansionPersonalStorageItem> items;
 		if (m_ItemsData.Find(playerUID, items))
@@ -756,18 +712,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 						return;
 					}
 
-					Print(ToString() + "::RestorePersonalStorageCase - Restored personal storage case for player with UID: " + playerUID);
 					return;
 				}
 			}
 		}
-
-		Print(ToString() + "::RestorePersonalStorageCase - Could not finda a stored personal storage case for player with UID: " + playerUID);
 	}
 
 	void SpawnPesonalStorageCase(PlayerBase player)
 	{
-		Print(ToString() + "::SpawnPesonalStorageCase - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		//! Make sure he has not a case already.
 		if (player.FindAttachmentBySlotName("ExpansionPersonalContainer"))
@@ -786,8 +739,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		}
 
 		personalStorageCase.ExpansionSetContainerOwner(player);
-
-		Print(ToString() + "::SpawnPesonalStorageCase - End");
 	}
 
 	//! Boilerplaite for better modding purposes.
@@ -826,17 +777,13 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 #ifdef EXPANSIONMODHARDLINE
 	int GetStorageLimitByReputation(int reputation, int reputationToUnlock)
 	{
-		Print(ToString() + "::GetStorageLimitByReputation - Start");
-		Print(ToString() + "::GetStorageLimitByReputation - Reputation: " + reputation);
-		Print(ToString() + "::GetStorageLimitByReputation - Reputation to unlock storage: " + reputationToUnlock);
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 
 		auto hardlineSettings = GetExpansionSettings().GetHardline();
 		auto personalStorageSettings = GetExpansionSettings().GetPersonalStorage();
 		int minStorage = personalStorageSettings.MaxItemsPerStorage;
 		int storageLimit = minStorage;
 		storageLimit = hardlineSettings.GetLimitByReputation(reputation, reputationToUnlock, minStorage, 1);
-
-		Print(ToString() + "::GetStorageLimitByReputation - Storage limit: " + storageLimit);
 
 		return storageLimit;
 	}
@@ -851,6 +798,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void AddStoredItem(string playerUID, ExpansionPersonalStorageItem item)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		array<ref ExpansionPersonalStorageItem> currentItems;
 		if (m_ItemsData.Find(playerUID, currentItems))
 		{
@@ -1071,13 +1020,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	static ExpansionPersonalStorageModule GetModuleInstance()
 	{
 		return s_Instance;
-	}
-
-	void DebugPring(string text)
-	{
-	#ifdef EXPANSIONMODPERSONALSTORAGEDEBUG
-		Print(ToString() + text);
-	#endif
 	}
 	
 	static string GetPersonalStorageDataDirectory()

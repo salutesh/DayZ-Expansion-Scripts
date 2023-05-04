@@ -49,8 +49,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	static ref CF_DoublyLinkedNodes_WeakRef<Expansion_Anomaly_Base> s_Expansion_AllAnomalies = new CF_DoublyLinkedNodes_WeakRef<Expansion_Anomaly_Base>();
 	ref CF_DoublyLinkedNode_WeakRef<Expansion_Anomaly_Base> m_Expansion_AnomalyNode = new CF_DoublyLinkedNode_WeakRef<Expansion_Anomaly_Base>(this);
 
-	protected bool m_ContactEventProcessing;
-
 	protected ExpansionAnomalyLightBase m_Light;
 	protected EffectSound m_Sound;
 	protected EffectSound m_SoundActivated;
@@ -92,8 +90,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 			m_LootConfig = new array <ref ExpansionLoot>;
 			m_LootItems = new array<EntityAI>;
 		}
-
-		SetEventMask(EntityEvent.INIT); //! @ToDO: Not sure if even needed. Check that!
 
 		//! @note: Add this to the class of your anomaly when inhertiting from this base and you plan to use the EOnTouch and EOnContact methods.
 		//! Also make sure you anomaly has additonaly set the event flags "EntityEvent.CONTACT" & "EntityEvent.TOUCH" via "SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);".

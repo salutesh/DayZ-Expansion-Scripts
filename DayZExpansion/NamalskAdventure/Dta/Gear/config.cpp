@@ -28,7 +28,7 @@ class CfgVehicles
 	class ExpansionAnomalyCoreProtectiveCase: SmallProtectorCase
 	{
 		displayName = "EVR Protection Case";
-		descriptionShort = "This high-tech reinforced, weather-resistant container was developed by a team of scientists to withstand even the harshest conditions on the island. This case is the ultimate solution for protecting your valuable loot during EVA storms.";
+		descriptionShort = "This high-tech reinforced, weather-resistant container was developed by a team of scientists to withstand even the harshest conditions on the island. This case is the ultimate solution for protecting your valuable loot during EVR storms.";
 		itemSize[] = {3,4};
 		storageCategory = 10;
 		hiddenSelections[] = {"zbytek"};

@@ -79,12 +79,17 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	protected bool m_CategoriesToggleState;
 
+	protected bool m_IsPersonalStorageContainer;
+	protected ExpansionPersonalStorageContainer m_Container;
+
 	void ExpansionPersonalStorageMenu()
 	{
 		Class.CastTo(m_PersonalStorageMenuController, GetController());
 
 		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuCallbackSI().Insert(OnModuleCallback);
 		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuSI().Insert(SetDepositedItems);
+		
+		ExpansionPersonalStorageContainer.SI_Expansion_OpenPersonalStorageMenu.Insert(ExSetDepositedItems);
 
 		m_PersonalStorageSettings = GetExpansionSettings().GetPersonalStorage();
 
@@ -116,6 +121,90 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	override typename GetControllerType()
 	{
 		return ExpansionPersonalStorageMenuController;
+	}
+	
+	void ExSetDepositedItems(ExpansionPersonalStorageContainer container)
+	{
+		PrintDebug(ToString() + "::ExSetDepositedItems - Start");
+		
+		m_Container = container;
+		
+		PrintDebug(ToString() + "::ExSetDepositedItems - Container: " + m_Container.ToString());
+		
+		int itemsCount;
+		
+		m_PersonalStorageMenuController.PersonalStorageName = container.GetDisplayName();
+		m_PersonalStorageMenuController.NotifyPropertyChanged("PersonalStorageName");
+		
+		m_PersonalStorageMenuController.DepositedItems.Clear();
+		
+		inventory_header.AddChild(m_BrowseHeader.GetLayoutRoot());
+		m_BrowseHeader.SetSort(0, false);
+		
+		array<EntityAI> items = new array<EntityAI>;
+		container.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		if (items && items.Count() > 0)
+		{
+			foreach (EntityAI item: items)
+			{
+				if (item.GetHierarchyParent() && item.GetHierarchyParent().IsInherited(ExpansionPersonalStorageContainer))
+				{
+					//! Hardcoded excluded type names where the item should never get added and shown in the menu.
+					if (ExpansionPersonalStorageModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
+						continue;
+					
+					ExpansionPersonalStorageItem newDepositedItem = new ExpansionPersonalStorageItem();
+					newDepositedItem.SetFromItem(item, item.GetHierarchyRootPlayer().GetIdentity().GetId());
+					newDepositedItem.SetIsStored(true);			
+					ExpansionPersonalStorageMenuItem storedItem = new ExpansionPersonalStorageMenuItem(newDepositedItem, this);
+					m_PersonalStorageMenuController.DepositedItems.Insert(storedItem);
+					itemsCount++;
+				}
+			}
+		}
+		
+		m_PersonalStorageMenuController.BrowseCategories.Clear();
+
+		array<ref ExpansionPersonalStorageMenuCategory> menuCategories = m_PersonalStorageSettings.MenuCategories;
+		foreach (ExpansionPersonalStorageMenuCategory category: menuCategories)
+		{
+			ExpansionPersonalStorageMenuCategoryElement categoryElement = new ExpansionPersonalStorageMenuCategoryElement(this, category);
+			m_PersonalStorageMenuController.BrowseCategories.Insert(categoryElement);
+		}
+
+		//! Get and set all deposited items count
+		string itemsCountText = "[0]";
+		if (itemsCount > 0)
+			itemsCountText = "[" + itemsCount + "]";
+
+		m_PersonalStorageMenuController.AllItemsCount = itemsCount.ToString();
+		m_PersonalStorageMenuController.NotifyPropertyChanged("AllItemsCount");
+		
+		/*int maxItemsPerStorage = m_PersonalStorageSettings.MaxItemsPerStorage;
+	#ifdef EXPANSIONMODHARDLINE
+		ExpansionPersonalStorageConfig personalStorageConfig = ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageClientConfig();
+		if (personalStorageConfig)
+		{
+			int reputationToUnlock = personalStorageConfig.GetReputation();
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			if (player)
+			{
+				int reputation = player.Expansion_GetReputation();
+				int limit = ExpansionPersonalStorageModule.GetModuleInstance().GetStorageLimitByReputation(reputation, reputationToUnlock);
+				maxItemsPerStorage = limit;
+			}
+		}
+	#endif
+		
+		m_PersonalStorageMenuController.StoredItemsCount = itemsCount.ToString() + "/" + maxItemsPerStorage.ToString();
+		m_PersonalStorageMenuController.NotifyPropertyChanged("StoredItemsCount");*/
+		
+		m_PreviousViewState = m_ViewState;
+		m_ViewState = ExpansionPersonalStorageMenuViewState.ViewDepositedItems;
+		
+		loading.Show(false);
+
+		m_IsPersonalStorageContainer = true;
 	}
 
 	void SetDepositedItems(int storageID, array<ref ExpansionPersonalStorageItem> depositedItems = null, string displayName = string.Empty, string displayIcon = string.Empty)
@@ -1163,13 +1252,22 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 			return;
 
-		EntityAI playerItem = m_SelectedPlayerItem.GetPlayerItem().GetItem();
-		if (!playerItem)
+		if (!m_SelectedPlayerItem.GetPlayerItem().GetItem())
 			return;
-
-		loading.Show(true);
-		m_RequestsLocked = true;
-		ExpansionPersonalStorageModule.GetModuleInstance().RequestDepositItem(m_StorageID, playerItem);
+		
+		if (!m_IsPersonalStorageContainer)
+		{
+			loading.Show(true);
+			m_RequestsLocked = true;
+			ExpansionPersonalStorageModule.GetModuleInstance().RequestDepositItem(m_StorageID, m_SelectedPlayerItem.GetPlayerItem().GetItem());
+		}
+		else
+		{
+			if (!m_Container)
+				return;
+			
+			m_Container.Expansion_RequestMoveItem(m_SelectedPlayerItem.GetPlayerItem().GetItem());
+		}
 		
 		GetDetailsView().UpdatePreview();
 		
@@ -1179,13 +1277,23 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	void OnConfirmRetrieveClick()
 	{
 		PrintDebug(ToString() + "::OnConfirmRetrieveClick - Start");
-
+		
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
 			return;
-
-		loading.Show(true);
-		m_RequestsLocked = true;
-		ExpansionPersonalStorageModule.GetModuleInstance().RequestRetrieveItem(m_SelectedPlayerItem.GetPlayerItem(), m_StorageID);
+				
+		if (!m_IsPersonalStorageContainer)
+		{
+			loading.Show(true);
+			m_RequestsLocked = true;
+			ExpansionPersonalStorageModule.GetModuleInstance().RequestRetrieveItem(m_SelectedPlayerItem.GetPlayerItem(), m_StorageID);
+		}
+		else
+		{
+			if (!m_Container || !m_SelectedPlayerItem.GetPlayerItem().GetItem())
+				return;
+			
+			m_Container.Expansion_RequestMoveItem(m_SelectedPlayerItem.GetPlayerItem().GetItem());
+		}
 		
 		GetDetailsView().UpdatePreview();
 		

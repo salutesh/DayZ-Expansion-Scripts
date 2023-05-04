@@ -264,8 +264,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
 
 		m_LastNamalskEvent = event_manager.GetLastEventType();
-		m_EVRStormActive = false;
-		m_EVRStormBlowout = false;
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event ended.
@@ -504,8 +502,13 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			{
 				OnEVRStormBlowout();
 			}
+			//! @note: Update events when m_SpawnAnomalies flag is set to true.
+			else if (m_EVRStormActive && m_SpawnAnomalies)
+			{
+				OnSpawnAnomalies();
+			}
 			//! @note: Update events when m_EVRStormActive flag is set to false.
-			else if (!m_EVRStormActive && !m_StabilizedAnomalies && m_SpawnAnomalies)
+			else if (!m_StabilizedAnomalies && !m_EVRStormActive)
 			{
 				OnIdle();
 			}
@@ -534,8 +537,15 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			m_Expansion_ProcessedCoresCount += Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.Each(s_EVRStormStartCoresSC, UPDATE_ANOMALIES_PER_TICK);
 		}
 		
-		if (m_Expansion_ProcessedAnomaliesCount == Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count && m_Expansion_ProcessedCoresCount == Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.m_Count)
+		if (m_Expansion_ProcessedAnomaliesCount >= Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count && m_Expansion_ProcessedCoresCount >= Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.m_Count)
+		{
 			m_StabilizedAnomalies = false;
+			m_Expansion_ProcessedAnomaliesCount = 0;
+			m_Expansion_ProcessedCoresCount = 0;
+			
+			ModuleDebugPrint(ToString() + "::OnEVRStormActive - EVR storm active events ended!");
+			ModuleDebugPrint(ToString() + "::OnEVRStormActive - m_StabilizedAnomalies: " + m_StabilizedAnomalies.ToString());
+		}
 	}
 
 	protected void OnEVRStormBlowout()
@@ -557,6 +567,18 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 			m_Expansion_ProcessedCoreBlowouts += Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.Each(s_EVRStormBlowoutCoresSC, UPDATE_ANOMALIES_PER_TICK);
 		}
+		
+		if (m_Expansion_ProcessedAnomaliesBlowouts >= Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count && m_Expansion_ProcessedCoreBlowouts >= Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.m_Count)
+		{
+			m_EVRStormBlowout = false;
+			m_EVRStormActive = false;
+			m_Expansion_ProcessedAnomaliesBlowouts = 0;
+			m_Expansion_ProcessedCoreBlowouts = 0;
+			
+			ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - EVR storm blowout event ended!");
+			ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - m_EVRStormBlowout: " + m_EVRStormBlowout.ToString());
+			ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - m_EVRStormActive: " + m_EVRStormActive.ToString());
+		}
 	}
 
 	protected void OnIdle()
@@ -573,14 +595,14 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 				m_Expansion_ProcessedAnomaliesStabilisations += Expansion_Anomaly_Base.s_Expansion_AllAnomalies.Each(s_StablizeAnomaliesSC, UPDATE_ANOMALIES_PER_TICK);
 			}
 			
-			if (m_Expansion_ProcessedAnomaliesStabilisations == Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
+			if (m_Expansion_ProcessedAnomaliesStabilisations >= Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
+			{
 				m_StabilizedAnomalies = true;
-		}
-
-		//! @note: Update events when m_SpawnAnomalies flag is set to true.
-		if (m_SpawnAnomalies)
-		{
-			OnSpawnAnomalies();
+				m_Expansion_ProcessedAnomaliesStabilisations = 0;
+				
+				ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - All anomalies stabilized!");
+				ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - m_StabilizedAnomalies: " + m_StabilizedAnomalies.ToString());
+			}
 		}
 	}
 
@@ -588,18 +610,24 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		if (!m_DynamicSpawned)
+		if (m_SpawnAnomalies)
 		{
-			if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn) 
-				m_DynamicSpawned = true;
-
-			foreach (ExpansionAnomalyDynamic dynamicSpawn: m_DynamicAnomalySpawns)
+			if (!m_DynamicSpawned)
 			{
-				array<vector> positions = dynamicSpawn.GetPositions();
-				foreach (vector pos: positions)
+				foreach (ExpansionAnomalyDynamic dynamicSpawn: m_DynamicAnomalySpawns)
 				{
-					SpawnAnomalyDynamic(dynamicSpawn, pos, true);
-					m_SpawnedAnomaliesInTick++;
+					array<vector> positions = dynamicSpawn.GetPositions();
+					foreach (vector pos: positions)
+					{
+						SpawnAnomalyDynamic(dynamicSpawn, pos, true);
+						m_SpawnedAnomaliesInTick++;
+						
+						if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
+						{
+							m_SpawnedAnomaliesInTick = 0;
+							break;
+						}
+					}
 					
 					if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
 					{
@@ -607,41 +635,47 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 						break;
 					}
 				}
-				
-				if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-				{
-					m_SpawnedAnomaliesInTick = 0;
-					break;
-				}
 			}
-		}
-
-		if (!m_StaticSpawned)
-		{
-			if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn) 
-				m_StaticSpawned = true;
-
-			foreach (ExpansionAnomalyStatic staticSpawn: m_StaticAnomalySpawns)
+			
+			if (!m_StaticSpawned)
 			{
-				SpawnAnomalyStatic(staticSpawn, true);
-				m_SpawnedAnomaliesInTick++;
-
-				if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
+				foreach (ExpansionAnomalyStatic staticSpawn: m_StaticAnomalySpawns)
 				{
-					m_SpawnedAnomaliesInTick = 0;
-					break;
+					SpawnAnomalyStatic(staticSpawn, true);
+					m_SpawnedAnomaliesInTick++;
+	
+					if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
+					{
+						m_SpawnedAnomaliesInTick = 0;
+						break;
+					}
 				}
 			}
+			
+			if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
+			{
+				m_DynamicSpawned = true;
+				
+				ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - All dynamic anomalies spawned!");
+				ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - m_DynamicSpawned: " + m_DynamicSpawned.ToString());
+			}
+			
+			if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn)
+			{
+				m_StaticSpawned = true;
+				
+				ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - All static anomalies spawned!");
+				ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - m_StaticSpawned: " + m_StaticSpawned.ToString());
+			}
+			
+			if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn && m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
+			{
+				m_SpawnAnomalies = false;
+				
+				ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - All anomalies spawned!");
+				ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - m_SpawnAnomalies: " + m_SpawnAnomalies.ToString());
+			}
 		}
-		
-		if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
-			m_StaticSpawned = true;
-		
-		if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn)
-			m_StaticSpawned = true;
-		
-		if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn && m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
-			m_SpawnAnomalies = false;
 	}
 
 	static ExpansionAnomaliesModule GetModuleInstance()

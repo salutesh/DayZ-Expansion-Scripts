@@ -289,7 +289,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static Object SpawnObject(string className, vector position, vector rotation, bool special = false, bool takeable = true)
 	{
-		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME;
+		int flags = ECE_CREATEPHYSICS | ECE_NOLIFETIME | ECE_KEEPHEIGHT;
 		#ifndef DAYZ_1_20
 		flags |= ECE_DYNAMIC_PERSISTENCY;
 		#endif
