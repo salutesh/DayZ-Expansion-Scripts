@@ -1,4 +1,3 @@
-#ifdef NAMALSK_ISLAND
 modded class UndergroundVFX
 {
 	override private void UndergroundCheck()
@@ -41,4 +40,3 @@ modded class UndergroundVFX
 		super.UndergroundCheck();
 	}
 };
-#endif
