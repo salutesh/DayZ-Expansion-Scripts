@@ -62,11 +62,9 @@ class ExpansionSupplySignal: M18SmokeGrenade_Purple
 				infectedCount = container.InfectedCount;
 			}
 
-			container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount );
-			
-			vector spawnPos = Vector( GetPosition()[0] + Math.RandomFloat( -150, 150 ), 0, GetPosition()[2] + Math.RandomFloat( -150, 150 ) );
+			container = new ExpansionLootContainer( container.Container, 2, 1, container.Loot, infected, itemCount, infectedCount, false, container.FallSpeed );
 
-			ExpansionAirdropPlane plane = ExpansionAirdropPlane.CreatePlane( Vector( spawnPos[0], 0, spawnPos[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
+			ExpansionAirdropPlane plane = ExpansionAirdropPlane.CreatePlane( Vector( GetPosition()[0], 0, GetPosition()[2] ), "", GetExpansionSettings().GetAirdrop().Radius, GetExpansionSettings().GetAirdrop().Height, GetExpansionSettings().GetAirdrop().Speed, container, new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_CLOSING_ON_PLAYER" ), new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED_PLAYER" ) );
 
 			if ( plane )
 			{
@@ -74,7 +72,7 @@ class ExpansionSupplySignal: M18SmokeGrenade_Purple
 					ExpansionNotification(new StringLocaliser("STR_EXPANSION_MISSION_NOTIF_TITLE", "Airdrop"), new StringLocaliser("STR_EXPANSION_MISSION_AIRDROP_HEADING_TOWARDS_PLAYER"), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_MISSION).Create();			
 
 				if ( GetExpansionSettings().GetLog().MissionAirdrop )
-					GetExpansionSettings().GetLog().PrintLog( "[Airdrop] A player called airdrop is heading toward " + Vector( spawnPos[0], 0, spawnPos[2] ) + " with a "+ container.Container );
+					GetExpansionSettings().GetLog().PrintLog( "[Airdrop] A player called airdrop is heading toward " + Vector( GetPosition()[0], 0, GetPosition()[2] ) + " with a "+ container.Container );
 			}
 		}
 	}

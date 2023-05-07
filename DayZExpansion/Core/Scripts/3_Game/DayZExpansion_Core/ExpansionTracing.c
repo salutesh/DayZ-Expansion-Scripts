@@ -399,7 +399,7 @@ class EXTrace
 
 		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(-1);
-		trace.InitialDump(2);
+		trace.InitialDump(1);
 		return trace;
 	}
 
@@ -414,7 +414,7 @@ class EXTrace
 
 		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(0);
-		trace.InitialDump(2);
+		trace.InitialDump(1);
 		return trace;
 	}
 }

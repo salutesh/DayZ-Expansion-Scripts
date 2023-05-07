@@ -257,23 +257,44 @@ class ExpansionStatic
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
+	//! @note unlike float::ToString(), returns non-scientific notation for any number
 	static string FloatToString(float nmb)
 	{
-		//It's a int number so doesn't need to convert it
-		if ( nmb == Math.Ceil(nmb) || nmb == Math.Floor(nmb) )
-			return nmb.ToString();
+		int i = nmb;
+		float f = i;
 
-		//It's a temp string
-		string str;
+		if (nmb == f)
+			return i.ToString();
 
-		if (nmb < 0)
+		float frac = nmb - i;
+		string tmp = frac.ToString();
+
+		if (tmp.Contains("e"))
 		{
-			str = (nmb - Math.Ceil(nmb)).ToString();
-			return ((Math.Ceil(nmb)).ToString() + (str.Substring(2, 10) ));
+			TStringArray parts = {};
+			tmp.Split("e", parts);
+
+			string real = parts[0];
+			real.Replace(".", "");
+
+			if (i < 0)
+				real = real.Substring(1, real.Length() - 1);
+
+			int count = parts[1].Substring(1, parts[1].Length() - 1).ToInt();
+			string zeros;
+			while (--count)
+			{
+				zeros += "0";
+			}
+
+			string str = "0." + zeros + real;
+			if (i < 0)
+				str = "-" + str;
+
+			return str;
 		}
 
-		str = (nmb - Math.Floor(nmb)).ToString();
-		return ( ( (Math.Floor(nmb)).ToString() ) + ( str.Substring(1, 10) ) );
+		return i.ToString() + tmp.Substring(1, tmp.Length() - 1);
 	}
 
 	// -----------------------------------------------------------

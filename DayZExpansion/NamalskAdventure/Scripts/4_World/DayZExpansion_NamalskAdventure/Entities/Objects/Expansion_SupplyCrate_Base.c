@@ -213,12 +213,11 @@ class Expansion_SupplyCrate_Base: Container_Base
 		
 		int lootCount = m_CrateLoot.Count();
 
-		if (lootCount >= 5)
+		if (lootCount > 5)
 			lootCount = 5;
 
-		int randomAmount = Math.RandomIntInclusive(1, lootCount);
 		m_Expansion_CanReceiveItems = true;
-		ExpansionLootSpawner.SpawnLoot(this, m_CrateLoot, randomAmount, m_LootItems, m_LootItemsMap, 0.1, 0.6);
+		ExpansionLootSpawner.SpawnLoot(this, m_CrateLoot, lootCount, m_LootItems, m_LootItemsMap, 0.1, 0.6);
 		m_Expansion_CanReceiveItems = false;
 	}
 

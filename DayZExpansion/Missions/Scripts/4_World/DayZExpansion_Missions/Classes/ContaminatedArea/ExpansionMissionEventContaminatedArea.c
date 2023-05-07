@@ -16,14 +16,10 @@ class ExpansionMissionEventContaminatedArea: ExpansionMissionEventBase
 	void ExpansionMissionEventContaminatedArea()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventContaminatedArea::ExpansionMissionEventContaminatedArea - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		m_EventName = "ContaminatedArea";
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventContaminatedArea::ExpansionMissionEventContaminatedArea - End");
-		#endif
 	}
 
 	override void Event_OnStart()

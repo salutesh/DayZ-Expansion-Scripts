@@ -93,8 +93,10 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		//! @note: Add this to the class of your anomaly when inhertiting from this base and you plan to use the EOnTouch and EOnContact methods.
 		//! Also make sure you anomaly has additonaly set the event flags "EntityEvent.CONTACT" & "EntityEvent.TOUCH" via "SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);".
-		//SetFlags(EntityFlags.TRIGGER, false);
+		//SetFlags(EntityFlags.TOUCHTRIGGERS, false);
 
+		SetEventMask(EntityEvent.INIT);
+		
 		RegisterNetSyncVariableInt("m_AnonmalyState", 0, 5);
 		RegisterNetSyncVariableInt("m_PrevAnonmalyState", 0, 5);
 	}
@@ -104,6 +106,22 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		CleanupAnomaly();
+	}
+	
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		if (m_AnomalyTrigger && ammo != string.Empty)
+		{
+			if (ammo.IndexOf("Bullet") > -1)
+				m_AnomalyTrigger.EOnEnter(source, 0);
+		}
+		
+		return false;
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -201,7 +219,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		//! Remove grass
 		Object cc_object = GetGame().CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
-		cc_object.SetOrientation (GetOrientation());
+		cc_object.SetOrientation(GetOrientation());
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DestroyClutterCutter, 200, false, cc_object);
 
 		//! Spawn the core item into the anomaly.
@@ -705,6 +723,11 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	ExpansionAnomalyLootSpawnType GetLootType()
 	{
 		return m_LootSpawnType;
+	}
+	
+	ExpansionAnomalyTriggerBase GetAnomalyTrigger()
+	{
+		return m_AnomalyTrigger;
 	}
 
 	bool HasLoot()

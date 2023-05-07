@@ -18,6 +18,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	float Speed;
 
 	string Container;
+	float FallSpeed = 3.0;
 	
 	ref ExpansionAirdropLocation DropLocation;
 
@@ -47,14 +48,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	void ExpansionMissionEventAirdrop()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::ExpansionMissionEventAirdrop - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		m_EventName = "Airdrop";
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::ExpansionMissionEventAirdrop - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -64,7 +61,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	override void Event_OnStart()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnStart - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( IsMissionHost() )
@@ -146,6 +143,9 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 
 				if ( InfectedCount == -1 )
 					InfectedCount = container.InfectedCount;
+
+				if (FallSpeed <= 0)
+					FallSpeed = container.FallSpeed;
 			}
 
 			#ifdef EXPANSION_MISSION_EVENT_DEBUG
@@ -155,7 +155,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 			if ( ItemCount <= 0 )
 				ItemCount = GetExpansionSettings().GetAirdrop().ItemCount;
 
-			container = new ExpansionLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount );
+			container = new ExpansionLootContainer( Container, 1, 1, Loot, Infected, ItemCount, InfectedCount, false, FallSpeed );
 
 			StringLocaliser warningProximityMsg;
 			StringLocaliser airdropCreatedMsg;
@@ -179,10 +179,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 					GetExpansionSettings().GetLog().PrintLog( "[MissionAirdrop] An airdrop is heading towards \"" + DropLocation.Name + "\" (pos=" + Vector( DropLocation.x, 0, DropLocation.z ) + " type="+ MissionName +") with a "+ Container );
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnStart - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -192,7 +188,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	override void Event_OnEnd()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( IsMissionHost() )
@@ -200,10 +196,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 			//! After mission ends check all 60 seconds if a player is nearby the airdrop crate and if not delete the container
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupCheck, 60 * 1000, true );
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnEnd - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -212,7 +204,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	void CleanupCheck()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::CleanupCheck - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( IsMissionHost() )
@@ -236,10 +228,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 				}
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::CleanupCheck - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -249,7 +237,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	override void Event_OnUpdate( float delta )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnUpdate - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( IsMissionHost() )
@@ -267,10 +255,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 				}
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::Event_OnUpdate - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -294,17 +278,13 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	protected override void OnSaveMission()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::OnSaveMission - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		if ( IsMissionHost() )
 		{
 			JsonFileLoader<ExpansionMissionEventAirdrop>.JsonSaveFile( m_FileName, this );
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::OnSaveMission - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -458,7 +438,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	string ExpansionMissionAirdropChernarus(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropChernarus::Defaults - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		//! NOTE: Order of locations determines their 'Weight' (probability).
@@ -513,10 +493,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropChernarus::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -525,7 +501,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	string ExpansionMissionAirdropLivonia(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropLivonia::Defaults - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		//! NOTE: Order of locations determines their 'Weight' (probability).
@@ -577,10 +553,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropLivonia::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -589,7 +561,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	string ExpansionMissionAirdropDeerIsle(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		//! NOTE: Order of locations determines their 'Weight' (probability).
@@ -644,10 +616,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropDeerIsle::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -656,7 +624,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	string ExpansionMissionAirdropNamalsk(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropNamalsk::Defaults - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		//! NOTE: Order of locations determines their 'Weight' (probability).
@@ -699,10 +667,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropNamalsk::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -711,7 +675,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	string ExpansionMissionAirdropSandbox(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropSandbox::Defaults - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		//! NOTE: Order of locations determines their 'Weight' (probability).
@@ -742,10 +706,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropSandbox::Defaults - End");
-		#endif
 	}
 
 	// ------------------------------------------------------------
@@ -754,7 +714,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	string ExpansionMissionAirdropChiemsee(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropChiemsee::Defaults - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		//! NOTE: Order of locations determines their 'Weight' (probability).
@@ -809,16 +769,12 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionAirdropChiemsee::Defaults - End");
-		#endif
 	}
 
 	string ExpansionMissionAirdropRandom(int idx)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::ExpansionMissionAirdropRandom - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		if ( m_AvailableLocations.Count() == 0 )
@@ -909,10 +865,6 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		string fname = MissionName;
 		fname.Replace( " ", "-" );
 		return fname;
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::ExpansionMissionAirdropRandom - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -921,7 +873,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	private vector SampleSpawnPosition( vector position, float maxRadius, float innerRadius )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAirdrop::SampleSpawnPosition - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		float a = Math.RandomFloatInclusive( 0.0, 1.0 ) * Math.PI2;

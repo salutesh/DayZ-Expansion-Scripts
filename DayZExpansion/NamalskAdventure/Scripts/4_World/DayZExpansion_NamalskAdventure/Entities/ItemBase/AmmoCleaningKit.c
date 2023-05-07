@@ -1,0 +1,1 @@
+class AmmoCleaningKit: Inventory_Base {};

@@ -15,7 +15,7 @@
  **/
 class ExpansionAirdropSettings: ExpansionSettingBase
 {
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	
 	bool ServerMarkerOnDropLocation;
 	bool Server3DMarkerOnDropLocation;
@@ -109,11 +109,11 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 
 			if (m_Version < VERSION)
 			{
-				if (m_Version < 2)
+				foreach (ExpansionLootContainer container : Containers)
 				{
-					foreach (ExpansionLootContainer containerV1OrLower : Containers)
+					if (m_Version < 2)
 					{
-						foreach (ExpansionLoot lootV1OrLower: containerV1OrLower.Loot)
+						foreach (ExpansionLoot lootV1OrLower: container.Loot)
 						{
 							if (!lootV1OrLower.QuantityPercent)
 								lootV1OrLower.QuantityPercent = -1;
@@ -122,6 +122,9 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 								lootV1OrLower.Max = -1;
 						}
 					}
+
+					if (m_Version < 3)
+						container.FallSpeed = 3.0;
 				}
 
 				m_Version = VERSION;

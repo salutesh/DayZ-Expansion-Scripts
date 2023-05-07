@@ -210,8 +210,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
@@ -227,8 +225,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		super.OnClientDisconnect(sender, args);
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
@@ -245,8 +241,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void LoadPersonalStorageItemData(string playerUID)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + playerUID + "\\";
 		if (FileExist(storagePath))
 		{
@@ -260,8 +254,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void GetPersonalStorageItemData(string fileName, string path)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		ExpansionPersonalStorageItem itemData = ExpansionPersonalStorageItem.Load(path + fileName);
 		if (!itemData)
 			return;
@@ -383,6 +375,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void RPC_SendItemData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
 			Error(ToString() + "::RPC_SendItemData - Magic number check failed!");
@@ -435,8 +429,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			item.SetIsStored(true);
 			m_PlayerItems.Insert(item);
 		}
-
-		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionPersonalStorageMenu");
+	
+		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
+			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionPersonalStorageMenu");
 
 		if (m_PlayerItems && m_PlayerItems.Count() > 0)
 		{
@@ -495,7 +490,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected void RPC_RequestRetrieveItem(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
+		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
 			Error(ToString() + "::RPC_RequestRetrieveItem - Magic number check failed!");
@@ -560,7 +555,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	void RequestDepositItem(int storageID, Entity item)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
+		
 		if (!GetGame().IsClient())
 		{
 			Error(ToString() + "::RequestDepositItem - Tryed to call RequestDepositItem on Server!");
@@ -575,7 +570,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected void RPC_RequestDepositItem(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
+		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
 			Error(ToString() + "::RPC_RequestDepositItem - Magic number check failed!");
@@ -660,8 +655,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void StorePersonalStorageCase(PlayerBase player)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		string playerUID = player.GetIdentity().GetId();
 
 		ExpansionPersonalProtectiveCaseBase personalStorageCaseItem;
@@ -720,8 +713,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void SpawnPesonalStorageCase(PlayerBase player)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		//! Make sure he has not a case already.
 		if (player.FindAttachmentBySlotName("ExpansionPersonalContainer"))
 			return;
@@ -777,8 +768,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 #ifdef EXPANSIONMODHARDLINE
 	int GetStorageLimitByReputation(int reputation, int reputationToUnlock)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-
 		auto hardlineSettings = GetExpansionSettings().GetHardline();
 		auto personalStorageSettings = GetExpansionSettings().GetPersonalStorage();
 		int minStorage = personalStorageSettings.MaxItemsPerStorage;
@@ -798,8 +787,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	void AddStoredItem(string playerUID, ExpansionPersonalStorageItem item)
 	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
 		array<ref ExpansionPersonalStorageItem> currentItems;
 		if (m_ItemsData.Find(playerUID, currentItems))
 		{
@@ -983,7 +970,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			if (item.GetCompEM().IsWorking())
 				return false;
 		}
-
+		
 		return true;
 	}
 

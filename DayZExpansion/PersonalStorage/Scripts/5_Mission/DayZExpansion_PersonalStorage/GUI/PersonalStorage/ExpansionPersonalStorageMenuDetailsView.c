@@ -54,6 +54,8 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 
 	void ExpansionPersonalStorageMenuDetailsView(ExpansionPersonalStorageMenu menu)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		Class.CastTo(m_PersonalStorageMenuDetailsController, GetController());
 
 		m_PersonalStorageMenu = menu;
@@ -61,6 +63,8 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 
 	void ~ExpansionPersonalStorageMenuDetailsView()
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (m_PlayerPreview)
 			m_PlayerPreview = null;
 	}
@@ -227,6 +231,8 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 
 	void OnBackClick()
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		m_PersonalStorageMenu.OnBackClick();
 	}
 
@@ -348,6 +354,8 @@ class ExpansionPersonalStorageMenuDetailsView: ExpansionScriptView
 
 	void OnConfirmButtonClick()
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		m_PersonalStorageMenu.OnConfirmButtonClick();
 	}
 

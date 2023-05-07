@@ -58,7 +58,7 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 #endif
 	}
 
-	void PlaySound(vector position, string sound)
+	void PlaySound(vector position, string sound, float radius = 100)
 	{
 		if (sound == string.Empty)
 			return;
@@ -73,12 +73,12 @@ class ExpansionItemBaseModule : CF_ModuleWorld
 		rpc.Write(position);
 		rpc.Write(sound);
 
-		PlayerBase.Expansion_SendNear(rpc, ExpansionItemBaseModuleRPC.PlaySound, position, 100);
+		PlayerBase.Expansion_SendNear(rpc, ExpansionItemBaseModuleRPC.PlaySound, position, radius);
 	}
 
 	void PlaySoundImpl(vector position, string sound)
 	{
-		SEffectManager.PlaySound(sound, position);
+		SEffectManager.Expansion_PlaySound(sound, position);
 	}
 
 	override int GetRPCMin()

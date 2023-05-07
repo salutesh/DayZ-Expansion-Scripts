@@ -20,9 +20,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 	private autoptr ref array< float > m_AvailableMissions;
 	private autoptr map< typename, ref array< ExpansionMissionEventBase > > m_MissionsTyped;
 
-	private typename m_MissionConstructor;
 	private autoptr map< string, typename > m_MissionTypes;
-	private autoptr array< typename > m_MissionTypesArray;
 	
 	private bool m_lowPlayerCheckRunning;
 
@@ -39,8 +37,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 	void ExpansionMissionModule()
 	{
 		ExpansionSettings.SI_Mission.Insert( OnSettingsUpdated );
-
-		m_MissionConstructor = ExpansionMissionConstructor;
 	}
 	
 	// ------------------------------------------------------------
@@ -48,6 +44,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ~ExpansionMissionModule()
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.MISSIONS, this);
+
 		ExpansionSettings.SI_Mission.Remove( OnSettingsUpdated );
 
 		if(m_lowPlayerCheckRunning)
@@ -57,20 +55,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 		}
 
 		SI_OnMissionEnd.Remove( RemoveMission );
-	}
-	
-	// ------------------------------------------------------------
-	// ExpansionMissionModule SetMissionConstructor
-	// ------------------------------------------------------------
-	void SetMissionConstructor( typename missionConstructor )
-	{
-		if ( missionConstructor.IsInherited( ExpansionMissionConstructor ) )
-		{
-			m_MissionConstructor = missionConstructor;
-		} else
-		{
-			Error( "Parameter '" + missionConstructor + "' is not of type 'ExpansionMissionConstructor'" );
-		}
 	}
 	
 	// ------------------------------------------------------------
@@ -88,8 +72,6 @@ class ExpansionMissionModule: CF_ModuleWorld
 
 		m_AvailableMissions = new ref array< float >;
 
-		m_MissionTypesArray = new array< typename >;
-
 		m_MissionsTyped = new map< typename, ref array< ExpansionMissionEventBase > >;
 
 		m_RunningMissions = new array< ExpansionMissionEventBase >;
@@ -102,25 +84,11 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.MISSIONS, this, "OnMissionLoaded");
-#endif
+		auto trace = EXTrace.Start(ExpansionTracing.MISSIONS, this);
 	
 		super.OnMissionLoaded(sender, args);
 
-		ExpansionMissionConstructor missionConstructor;
-		if ( Class.CastTo( missionConstructor, m_MissionConstructor.Spawn() ) )
-		{
-			missionConstructor.GenerateMissionTypes( m_MissionTypes );
-		} else
-		{
-			m_MissionTypes = new map< string, typename >;
-		}
-
-		foreach (string missionClassName, typename missionType: m_MissionTypes)
-		{
-			m_MissionTypesArray.Insert(missionType);
-		}
+		GenerateMissionTypes();
 
 		m_MissionSettings = GetExpansionSettings().GetMission();
 
@@ -137,6 +105,40 @@ class ExpansionMissionModule: CF_ModuleWorld
 		StartNewMissions();
 	}
 	
+	void GenerateMissionTypes()
+	{
+		TTypenameArray missionTypenames = new TTypenameArray;
+		RegisterMissions( missionTypenames);
+
+		missionTypenames.Sort();
+		
+		m_MissionTypes = new map< string, typename >;
+		
+		foreach (typename missionTypename: missionTypenames)
+		{
+			if (missionTypename.IsInherited( ExpansionMissionEventBase ) )
+			{
+				m_MissionTypes.Insert( missionTypename.ToString(), missionTypename );
+			}
+		}
+	}
+
+	void RegisterMissions( TTypenameArray missionTypenames )
+	{
+		//! Airdrops
+		missionTypenames.Insert( ExpansionMissionEventAirdrop );
+		
+		//! DayZ rewritten Contaminated Areas
+		missionTypenames.Insert( ExpansionMissionEventContaminatedArea );
+		
+	#ifdef EXPANSION_MISSION_AI_ENABLE
+		//! Zombie Horde
+		missionTypenames.Insert( ExpansionMissionEventHorde );
+		//! AI General missions (Patrol, Faction War, Protecting Loot)
+		missionTypenames.Insert( ExpansionMissionEventAI );
+	#endif
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMissionModule IsServer
 	// ------------------------------------------------------------
@@ -202,11 +204,11 @@ class ExpansionMissionModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	typename GetMissionType( ExpansionMissionEventBase evt )
 	{
-		for ( int i = 0; i < m_MissionTypesArray.Count(); i++ )
+		foreach (string name, typename missionType: m_MissionTypes)
 		{
-			if ( evt.IsInherited( m_MissionTypesArray[ i ] ) )
+			if (evt.IsInherited(missionType))
 			{
-				return m_MissionTypesArray[ i ];
+				return missionType;
 			}
 		}
 
@@ -315,7 +317,7 @@ class ExpansionMissionModule: CF_ModuleWorld
 		if ( !m_MissionSettings || !m_MissionSettings.Enabled || m_Missions.Count() == 0 )
 			return;
 
-		#ifdef EXPANSION_MISSION_PLAYERCOUNT_CHECK
+	#ifdef EXPANSION_MISSION_PLAYERCOUNT_CHECK
 		//! Check if Min Players is disabled
 		if ( m_MissionSettings.MinPlayersToStartMissions != 0 )
 		{
@@ -343,10 +345,8 @@ class ExpansionMissionModule: CF_ModuleWorld
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove(StartNewMissions);
 				m_lowPlayerCheckRunning = false;
 			}
-
-			
 		}
-		#endif
+	#endif
 		
 		//! If we reach this we should have the correct setting/player count on the server/ find the missions like normal
 

@@ -115,7 +115,7 @@ class ExpansionAirdropContainerManager
 	void SpawnInfected()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerManager::SpawnInfected - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		while ( m_InfectedCount < InfectedCount ) 
@@ -136,10 +136,6 @@ class ExpansionAirdropContainerManager
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ) );
 		}
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerManager::SpawnInfected - End");
-		#endif
 	}
 
 	void CreateSingleInfected( string spawnPosStr )
@@ -181,7 +177,7 @@ class ExpansionAirdropContainerManager
 	void CreateServerMarker()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerManager::CreateServerMarker - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		#ifdef EXPANSIONMODNAVIGATION
@@ -194,25 +190,15 @@ class ExpansionAirdropContainerManager
 		
 		vector surfacePosition = ExpansionStatic.GetSurfacePosition(m_Container.m_SpawnPosition);
 
-		PhxInteractionLayers layerMask;
-		layerMask |= PhxInteractionLayers.BUILDING;
-		layerMask |= PhxInteractionLayers.DOOR;
-		layerMask |= PhxInteractionLayers.VEHICLE;
-		layerMask |= PhxInteractionLayers.ROADWAY;
-		layerMask |= PhxInteractionLayers.TERRAIN;
-		layerMask |= PhxInteractionLayers.ITEM_LARGE;
-		layerMask |= PhxInteractionLayers.FENCE;
-
 		vector hitPosition;
+		vector contactDir;
+		int contactComponent;
+		set<Object> results = new set<Object>;
 
-		if (!DayZPhysics.RayCastBullet(m_Container.m_SpawnPosition, surfacePosition, layerMask, m_Container, null, hitPosition, null, null))
+		if (!DayZPhysics.RaycastRV(m_Container.m_SpawnPosition, surfacePosition, hitPosition, contactDir, contactComponent, results, null, m_Container))
 			hitPosition = surfacePosition;
 
 		m_ServerMarker = m_MarkerModule.CreateServerMarker( markerName, "Airdrop", hitPosition, ARGB(255, 235, 59, 90), GetExpansionSettings().GetAirdrop().Server3DMarkerOnDropLocation );
-		#endif
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerManager::CreateServerMarker - End");
 		#endif
 	}
 

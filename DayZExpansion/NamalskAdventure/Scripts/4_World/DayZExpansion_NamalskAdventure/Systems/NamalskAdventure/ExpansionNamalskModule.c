@@ -466,23 +466,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		marketSettings.AddMarketZone(traderZone);
 		marketSettings.AddMarketTrader(trader);
-		
-		string traderType;
-	#ifdef EXPANSIONMODAI
-		traderType = "ExpansionTraderAIMirek";
-	#else
-		traderType = "ExpansionTraderMirek";
-	#endif
-		Object obj = GetGame().CreateObject(traderType, positionToUse.Position);
-	#ifdef EXPANSIONMODAI
-		ExpansionTraderAIBase aiTrader = ExpansionTraderAIBase.Cast(obj);
-		if (!aiTrader)
-		{
-			Error(ToString() + "::CreateMerchant - Could not spawn merchant object!");
-			GetGame().ObjectDelete(obj);
-			return;
-		}
-	#else
+
+		Object obj = GetGame().CreateObject("ExpansionTraderMirek", positionToUse.Position);
 		ExpansionTraderNPCBase npcTrader = ExpansionTraderNPCBase.Cast(obj);
 		if (!npcTrader)
 		{
@@ -490,14 +475,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			GetGame().ObjectDelete(obj);
 			return;
 		}
-	#endif
 		
-		ExpansionTraderObjectBase traderBase;
-	#ifdef EXPANSIONMODAI
-		traderBase = new ExpansionTraderObjectBase(aiTrader);
-	#else
-		traderBase = new ExpansionTraderObjectBase(npcTrader);
-	#endif
+		ExpansionTraderObjectBase traderBase = new ExpansionTraderObjectBase(npcTrader);
 		if (!traderBase)
 		{
 			Error(ToString() + "::CreateMerchant - Could not spawn merchant trader base object!");
@@ -508,27 +487,17 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		traderBase.SetTraderZone(traderZone);
 		traderBase.SetTraderMarket(trader);
 		
-	#ifdef EXPANSIONMODAI
-		aiTrader.SetTraderObject(traderBase);
-		aiTrader.m_Expansion_NetsyncData.Set(0, "Merchant");
-		aiTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
-		ExpansionHumanLoadout.Apply(aiTrader, "SurvivorLoadout", false);
-		aiTrader.SetPosition(positionToUse.Position);
-		aiTrader.SetOrientation(positionToUse.Orientation);
-	#else
 		npcTrader.SetTraderObject(traderBase);
 		npcTrader.m_Expansion_NetsyncData.Set(0, "Merchant");
 		npcTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
 		ExpansionHumanLoadout.Apply(npcTrader, "SurvivorLoadout", false);
 		npcTrader.SetPosition(positionToUse.Position);
 		npcTrader.SetOrientation(positionToUse.Orientation);
-	#endif
-
 		traderBase.UpdateTraderZone();
 
-	#ifdef EXPANSIONMODNAVIGATION
+	/*#ifdef EXPANSIONMODNAVIGATION
 		m_MerchantServerMarker = ExpansionMarkerModule.GetModuleInstance().CreateServerMarker("Merchant", "Coins 2", positionToUse.Position, ARGB(255, 15, 185, 177), false);
-	#endif
+	#endif*/
 	}
 #endif
 
@@ -1042,7 +1011,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	ExpansionQuestStaticObject SpawnQuestObject(ExpansionQuestNPCData questNPCData)
 	{
-	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_KEEPHEIGHT);
+	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_KEEPHEIGHT | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
@@ -1138,7 +1107,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
 		foreach (ExpansionSupplyCrateSetup supplyCrate: supplyCrateSpawns)
 		{
-			Object obj = GetGame().CreateObject(supplyCrate.ClassName, supplyCrate.Position);
+			Object obj = GetGame().CreateObjectEx(supplyCrate.ClassName, supplyCrate.Position, ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(obj);
 			if (!supplyCareObj)
 			{
@@ -1165,6 +1134,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		
 		auto update = CF_EventUpdateArgs.Cast(args);
 
+		if (!GetGame())
+			return;
+		
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
 		{
 			OnUpdateServer(update.DeltaTime);

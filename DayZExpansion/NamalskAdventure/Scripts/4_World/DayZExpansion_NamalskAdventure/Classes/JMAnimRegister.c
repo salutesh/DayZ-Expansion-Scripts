@@ -25,5 +25,6 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("Expansion_SupplyCrate_Bunker_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");
 		pType.AddItemInHandsProfileIK("Expansion_SupplyCrate_WorldT1_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/gear/handcuff_keys.anm");
 		pType.AddItemInHandsProfileIK("Expansion_Bunker_Generator_Key", "dz/anims/workspaces/player/player_main/props/player_main_1h_keys.asi", pBehavior, "dz/anims/anm/player/ik/vehicles/sparkplug.anm");
+		pType.AddItemInHandsProfileIK("AmmoCleaningKit", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/cleaning_kit_wood.anm");
 	}
 };

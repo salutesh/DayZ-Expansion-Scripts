@@ -13,6 +13,7 @@
 class ExpansionLootContainer
 {
 	string Container;
+	float FallSpeed;
 	int Usage;  //! 0 = missions & player called, 1 = only missions, 2 = only player called
 	float Weight;
 	ref array < ref ExpansionLoot > Loot;
@@ -21,7 +22,7 @@ class ExpansionLootContainer
 	int InfectedCount;
 	bool SpawnInfectedForPlayerCalledDrops;
 
-	void ExpansionLootContainer( string container, int usage, float weight, array < ref ExpansionLoot > loot, TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false )
+	void ExpansionLootContainer( string container, int usage, float weight, array < ref ExpansionLoot > loot, TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false, float fallSpeed = 3.0 )
 	{
 		Container = container;
 		Usage = usage;
@@ -31,6 +32,7 @@ class ExpansionLootContainer
 		ItemCount = itemCount;
 		InfectedCount = infectedCount;
 		SpawnInfectedForPlayerCalledDrops = spawnInfectedForPlayerCalledDrops;
+		FallSpeed = fallSpeed;
 	}
 
 	static ExpansionLootContainer GetWeightedRandomContainer(  array< ref ExpansionLootContainer > containers, array< float > weights = NULL )

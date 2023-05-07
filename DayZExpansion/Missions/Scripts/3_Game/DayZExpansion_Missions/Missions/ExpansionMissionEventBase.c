@@ -46,11 +46,7 @@ class ExpansionMissionEventBase
 	void ExpansionMissionEventBase()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::ExpansionMissionEventBase - Start");
-		#endif
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::ExpansionMissionEventBase - End");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 	}
 	
@@ -60,7 +56,7 @@ class ExpansionMissionEventBase
 	void ~ExpansionMissionEventBase()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::~ExpansionMissionEventBase - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( GetGame() && GetGame().IsServer() )
@@ -70,10 +66,6 @@ class ExpansionMissionEventBase
 				End();
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::~ExpansionMissionEventBase - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -142,7 +134,7 @@ class ExpansionMissionEventBase
 	void LoadMission( string file )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::LoadMission - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( GetGame().IsServer() )
@@ -151,10 +143,6 @@ class ExpansionMissionEventBase
 	
 			OnLoadMission();
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::LoadMission - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -163,17 +151,13 @@ class ExpansionMissionEventBase
 	void SaveMission()
 	{	
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::SaveMission - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( GetGame().IsServer() )
 		{
 			OnSaveMission();
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::SaveMission - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -216,7 +200,7 @@ class ExpansionMissionEventBase
 	void Start()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::Start - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( GetGame().IsServer() )
@@ -228,10 +212,6 @@ class ExpansionMissionEventBase
 	
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( OnUpdate, 1000, true, 1.0 );
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::Start - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -240,7 +220,7 @@ class ExpansionMissionEventBase
 	void End()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::End - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		if ( GetGame().IsServer() )
@@ -253,10 +233,6 @@ class ExpansionMissionEventBase
 			
 			Event_OnEnd();
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventBase::End - End");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
