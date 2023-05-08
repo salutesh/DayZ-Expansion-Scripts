@@ -18,7 +18,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	float Speed;
 
 	string Container;
-	float FallSpeed = 3.0;
+	float FallSpeed = 4.5;
 	
 	ref ExpansionAirdropLocation DropLocation;
 

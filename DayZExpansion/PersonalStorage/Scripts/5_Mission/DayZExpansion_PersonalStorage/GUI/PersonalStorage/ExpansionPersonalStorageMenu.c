@@ -105,6 +105,18 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 		if (m_ItemDetailsView)
 			m_ItemDetailsView.Destroy();
+		
+		if (m_PersonalStorageMenuController.DepositedItems)
+			m_PersonalStorageMenuController.DepositedItems.Clear();
+		
+		if (m_PersonalStorageMenuController.PlayerItems)
+			m_PersonalStorageMenuController.PlayerItems.Clear();
+		
+		if (m_PersonalStorageMenuController.BrowseCategories)
+			m_PersonalStorageMenuController.BrowseCategories.Clear();
+		
+		if (m_PersonalStorageMenuController.PlayerCategories)
+			m_PersonalStorageMenuController.PlayerCategories.Clear();
 	}
 
 	override string GetLayoutFile()
@@ -129,8 +141,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		m_PersonalStorageMenuController.PersonalStorageName = container.GetDisplayName();
 		m_PersonalStorageMenuController.NotifyPropertyChanged("PersonalStorageName");
 		
-		m_PersonalStorageMenuController.DepositedItems.Clear();
-		
+		if (m_PersonalStorageMenuController.DepositedItems)
+			m_PersonalStorageMenuController.DepositedItems.Clear();
+
 		inventory_header.AddChild(m_BrowseHeader.GetLayoutRoot());
 		m_BrowseHeader.SetSort(0, false);
 		

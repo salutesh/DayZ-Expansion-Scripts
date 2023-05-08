@@ -306,11 +306,19 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	override void OnHide()
 	{
 		super.OnHide();
+		
+		if (ChatBackground)
+			ChatBackground.Show(false);
+		
+		if (ChatScroller)
+			ChatScroller.SetAlpha(0);
+		
+		if (MutePanel)
+			MutePanel.Show(false);
+		
+		if (MuteListButton)
+			MuteListButton.Show(false);
 
-		ChatBackground.Show(false);
-		ChatScroller.SetAlpha(0);
-		MutePanel.Show(false);
-		MuteListButton.Show(false);
 		ShowChatMessages(false);
 	}
 

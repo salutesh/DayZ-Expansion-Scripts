@@ -76,6 +76,11 @@ modded class PlayerBase
 		int rep = m_Expansion_HardlineData.Reputation;
 		if (rep < 0)
 			rep = 0;
+		
+		int maxRep = GetExpansionSettings().GetHardline().MaxReputaion;
+		if (maxRep > 0 && rep > maxRep)
+			rep = maxRep;
+		
 		m_Expansion_Reputation = rep;
 		m_Expansion_PersonalStorageLevel = m_Expansion_HardlineData.PersonalStorageLevel;
 		SetSynchDirty();
@@ -87,7 +92,13 @@ modded class PlayerBase
 	{
 		if (rep < 0)
 			rep = 0;
+		
+		int maxRep = GetExpansionSettings().GetHardline().MaxReputaion;
+		if (maxRep > 0 && rep > maxRep)
+			rep = maxRep;
+		
 		m_Expansion_Reputation = rep;
+		
 		SetSynchDirty();
 		Expansion_SaveHardlineData();
 	}
@@ -95,9 +106,13 @@ modded class PlayerBase
 	//! Only to be called on server!
 	void Expansion_AddReputation(int rep)
 	{
-		m_Expansion_Reputation += rep;
+		int maxRep = GetExpansionSettings().GetHardline().MaxReputaion;
+		if (maxRep > 0 && (m_Expansion_Reputation + rep) < maxRep)
+			m_Expansion_Reputation += rep;
+		
 		if (m_Expansion_Reputation < 0)
 			m_Expansion_Reputation = 0;
+
 		SetSynchDirty();
 		Expansion_SaveHardlineData();
 	}

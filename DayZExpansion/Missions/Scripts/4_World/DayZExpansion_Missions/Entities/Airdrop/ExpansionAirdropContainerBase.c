@@ -20,7 +20,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	bool m_FromSettings;
 	protected bool m_HasLanded;
 	protected bool m_IsLooted;
-	float m_Expansion_FallSpeed = 3.0;
+	float m_Expansion_FallSpeed = 4.5;
 	float m_Expansion_WindImpactStrength;
 	float m_Expansion_PreviousAltitude;
 	float m_Expansion_SimulationTimeAccumulator;
@@ -127,7 +127,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	// ------------------------------------------------------------
 	// InitAirdrop
 	// ------------------------------------------------------------
-	void InitAirdrop(  array < ref ExpansionLoot > Loot, TStringArray infected, int ItemCount, int infectedCount, float fallSpeed = 3.0, bool windImpact = 0.0 )
+	void InitAirdrop(  array < ref ExpansionLoot > Loot, TStringArray infected, int ItemCount, int infectedCount, float fallSpeed = 4.5, float windImpact = 0.0 )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -140,16 +140,16 @@ class ExpansionAirdropContainerBase: Container_Base
 			ExpansionLootSpawner.SpawnLoot( this, Loot, ItemCount );
 
 			if (fallSpeed <= 0)
-				fallSpeed = 3.0;
+				fallSpeed = 4.5;
 
 			float totalWeight = GetWeightEx();
 			float totalWeightKg = totalWeight * 0.001;
 
-			m_Expansion_FallSpeed = fallSpeed * totalWeight / m_ConfigWeight;
+			m_Expansion_FallSpeed = fallSpeed * ExpansionMath.LinearConversion(m_ConfigWeight, m_ConfigWeight * 1.666666, totalWeight, 1.0, 1.111111);
 
 			//! The higher the fall speed, the lesser the wind impact
 			if (windImpact)
-				m_Expansion_WindImpactStrength = ExpansionMath.LinearConversion(3.0, 6.0, m_Expansion_FallSpeed, 0.4, 0.2);
+				m_Expansion_WindImpactStrength = ExpansionMath.LinearConversion(3.0, 6.0, m_Expansion_FallSpeed, 0.2, 0.1) * windImpact;
 
 			EXLogPrint(this, "InitAirdrop - total weight (kg) " + totalWeightKg + " - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
 
@@ -197,20 +197,42 @@ class ExpansionAirdropContainerBase: Container_Base
 
 		if (!Expansion_CheckLanded())
 		{
-			vector windImpact;
+			//! Get current velocity
+			vector velocity = GetVelocity(this);
 
 			if ( m_Expansion_WindImpactStrength > 0.0 )
 			{
-				if ( GetGame() && GetGame().GetWeather() )
+				if (GetGame().GetWeather())
 				{
 					vector wind = GetGame().GetWeather().GetWind();
 
+					vector windImpact;
 					windImpact[0] = wind[0] * m_Expansion_WindImpactStrength;
 					windImpact[2] = wind[2] * m_Expansion_WindImpactStrength;
+
+					//! Prevent infinite acceleration by subtracting current velocity
+					windImpact = windImpact - Vector(velocity[0], 0.0, velocity[2]);
+
+					//! Apply directional wind impact
+					dBodyApplyImpulse(this, windImpact * dt);
+
+					//! Get updated velocity
+					velocity = GetVelocity(this);
+
+					//! Rotate to updated direction of movement
+					vector dirNormalized = velocity.Normalized();
+					vector ori = dirNormalized.VectorToAngles();
+					ori[0] = Math.NormalizeAngle(ori[0] + 90.0);
+					vector angles = GetAngles();
+					float angleDiff = ExpansionMath.AngleDiff2(angles[1], ori[0]);
+					angles[1] = Math.NormalizeAngle(angles[1] + angleDiff * m_Expansion_WindImpactStrength * dt);
+					SetAngles(angles);
 				}
 			}
 
-			vector velocity = Vector(windImpact[0], -m_Expansion_FallSpeed * 0.9093, windImpact[2]);
+			//! Apply fall speed accounting for gravitational acceleration
+			//! (effective fall speed will roughly match computed value from InitAirdrop)
+			velocity[1] = -m_Expansion_FallSpeed * 0.92;
 
 			SetVelocity(this, velocity);
 
@@ -226,6 +248,7 @@ class ExpansionAirdropContainerBase: Container_Base
 				float fallSpeed = m_Expansion_PreviousAltitude - position[1];
 				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - fall speed " + fallSpeed + " m/s");
 				m_Expansion_PreviousAltitude = position[1];
+				GetGame().CreateObjectEx("ExpansionDebugRodBig", position, ECE_NOLIFETIME);
 			}
 		#endif
 

@@ -22,7 +22,7 @@ class ExpansionLootContainer
 	int InfectedCount;
 	bool SpawnInfectedForPlayerCalledDrops;
 
-	void ExpansionLootContainer( string container, int usage, float weight, array < ref ExpansionLoot > loot, TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false, float fallSpeed = 3.0 )
+	void ExpansionLootContainer( string container, int usage, float weight, array < ref ExpansionLoot > loot, TStringArray infected, int itemCount, int infectedCount, bool spawnInfectedForPlayerCalledDrops = false, float fallSpeed = 4.5 )
 	{
 		Container = container;
 		Usage = usage;

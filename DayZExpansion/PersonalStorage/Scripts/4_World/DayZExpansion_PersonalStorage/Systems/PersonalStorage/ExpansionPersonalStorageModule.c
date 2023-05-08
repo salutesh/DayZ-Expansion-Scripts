@@ -62,7 +62,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	protected ref map<string, ref array<ref ExpansionPersonalStorageItem>> m_ItemsData; //! Server
 	protected ref map<int, ref ExpansionPersonalStorageConfig> m_PersonalStorageConfig; //! Server
 
-	protected ref array<ref ExpansionPersonalStorageItem> m_PlayerItems //! Client
 	protected ref ExpansionPersonalStoragePlayerInventory m_LocalEntityInventory; //! Client
 	protected ref ScriptInvoker m_PersonalStorageMenuCallbackInvoker; //! Client
 	protected ref ScriptInvoker m_PersonalStorageMenuInvoker; //! Client
@@ -82,7 +81,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		EnableMissionStart();
 		EnableMissionLoaded();
 		EnableInvokeConnect();
-		EnableInvokeDisconnect();
+		EnableClientDisconnect();
 		EnableRPC();
 	}
 
@@ -105,7 +104,6 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 	{
 		if (GetGame().IsClient())
 		{
-			m_PlayerItems = new array<ref ExpansionPersonalStorageItem>;
 			m_PersonalStorageMenuCallbackInvoker = new ScriptInvoker();
 			m_PersonalStorageMenuInvoker = new ScriptInvoker();
 		}
@@ -210,13 +208,23 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		super.OnInvokeConnect(sender, args);
 
 		auto cArgs = CF_EventPlayerArgs.Cast(args);
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetPersonalStorage().Enabled)
 		{
 			string playerUID = cArgs.Identity.GetId();
-			LoadPersonalStorageItemData(playerUID);
+			if (!m_ItemsData.Contains(playerUID))
+			{
+				EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnInvokeConnect - Add personal storage data for player with UID: " + playerUID);
+				LoadPersonalStorageItemData(playerUID);
+			}
+			else
+			{
+				EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnInvokeConnect - Personal storage data for player with UID: " + playerUID + " already loaded! Skip..");
+			}
 
 			if (GetExpansionSettings().GetPersonalStorage().UsePersonalStorageCase)
 				RestorePersonalStorageCase(cArgs.Player);
@@ -225,22 +233,26 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	override void OnClientDisconnect(Class sender, CF_EventArgs args)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		super.OnClientDisconnect(sender, args);
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetPersonalStorage().Enabled)
 		{
-			string playerUID = cArgs.Identity.GetId();
-			if (m_ItemsData.Contains(playerUID))
+			if (m_ItemsData.Contains(cArgs.UID))
 			{
-				m_ItemsData.Remove(playerUID);
+				EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnClientDisconnect - Remove personal storage data for player with UID: " + cArgs.UID);
+				m_ItemsData.Remove(cArgs.UID);
 			}
 		}
 	}
 
 	protected void LoadPersonalStorageItemData(string playerUID)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + playerUID + "\\";
 		if (FileExist(storagePath))
 		{
@@ -254,6 +266,8 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 	protected void GetPersonalStorageItemData(string fileName, string path)
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		ExpansionPersonalStorageItem itemData = ExpansionPersonalStorageItem.Load(path + fileName);
 		if (!itemData)
 			return;
@@ -411,15 +425,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		if (!ctx.Read(itemsCount))
 			return;
 
-		if (!m_PlayerItems)
-		{
-			m_PlayerItems = new array<ref ExpansionPersonalStorageItem>;
-		}
-		else
-		{
-			m_PlayerItems.Clear();
-		}
-
+		array<ref ExpansionPersonalStorageItem> playerItems = new array<ref ExpansionPersonalStorageItem>;
 		for (int i = 0; i < itemsCount; ++i)
 		{
 			ExpansionPersonalStorageItem item = new ExpansionPersonalStorageItem();
@@ -427,15 +433,15 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 				return;
 
 			item.SetIsStored(true);
-			m_PlayerItems.Insert(item);
+			playerItems.Insert(item);
 		}
 	
 		if (!GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionPersonalStorageMenu");
 
-		if (m_PlayerItems && m_PlayerItems.Count() > 0)
+		if (playerItems && playerItems.Count() > 0)
 		{
-			m_PersonalStorageMenuInvoker.Invoke(storageID, m_PlayerItems, displayName, displayIcon);
+			m_PersonalStorageMenuInvoker.Invoke(storageID, playerItems, displayName, displayIcon);
 		}
 		else
 		{
@@ -447,6 +453,9 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 			return;
 
 		m_PersonalStorageMenuCallbackInvoker.Invoke(callback);
+		
+		playerItems.Clear();
+		playerItems = null;
 	}
 
 	protected void RPC_Callback(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)

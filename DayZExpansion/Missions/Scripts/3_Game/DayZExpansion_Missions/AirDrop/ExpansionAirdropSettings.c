@@ -124,7 +124,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 					}
 
 					if (m_Version < 3)
-						container.FallSpeed = 3.0;
+						container.FallSpeed = 4.5;
 				}
 
 				m_Version = VERSION;

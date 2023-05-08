@@ -499,14 +499,27 @@ class ExpansionAirdropPlane: House
 	
 		// ExpansionNotification( new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_EVENT_DROP", m_AirdropName ), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_EXPANSION).Create();
 		Object obj = GetGame().CreateObjectEx( container, dropPosition, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_AIRBORNE );
+
+		#ifdef DIAG
+		GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME);
+		#endif
 		
 		ExpansionAirdropContainerBase drop;
 		if ( Class.CastTo( drop, obj ) )
 		{
 			drop.SetPosition( dropPosition );
-			drop.SetOrientation( "0 0 0" );
+			if (GetGame().GetWeather())
+			{
+				//! Rotate to wind
+				vector wind = GetGame().GetWeather().GetWind();
+				vector ori = wind.Normalized().VectorToAngles();
+				ori[0] = Math.NormalizeAngle(ori[0] + 90.0);
+				ori[1] = 0.0;
+				ori[2] = 0.0;
+				drop.SetOrientation(ori);
+			}
 
-			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount, m_LootContainer.FallSpeed, m_SpawnRadius > 0);
+			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount, m_LootContainer.FallSpeed, Math.Min(m_SpawnRadius * 0.01, 1.0));
 		}
 
 		return drop;
