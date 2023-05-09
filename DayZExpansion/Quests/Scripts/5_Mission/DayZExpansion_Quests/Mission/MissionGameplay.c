@@ -15,7 +15,7 @@ modded class MissionGameplay
 {
 	protected bool m_Expansion_QuestHUDTogglePressed;
 	protected ref ExpansionQuestHUD m_ExpansionQuestHUD;
-	protected bool m_HideHUD = false;
+	protected bool m_Expansion_HideQuestHUD = false;
 
 	//! Quest menu check
 	protected bool m_Expansion_QuestMenuTogglePressed;
@@ -37,86 +37,50 @@ modded class MissionGameplay
 		}
 	}
 
-	override void OnUpdate( float timeslice )
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate( timeslice );
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (GetExpansionSettings().GetQuest(false).IsLoaded() && GetExpansionSettings().GetQuest().EnableQuests)
+		if (m_ExpansionQuestHUD)
 		{
-			//! Checking for keyboard focus
-			bool inputIsFocused = false;
-			//! Reference to focused windget
-			Widget focusedWidget = GetFocus();
-			if  (focusedWidget)
+			bool isCOTOpen;
+		#ifdef JM_COT
+			isCOTOpen = GetCommunityOnlineTools().IsOpen();
+		#endif
+
+			bool show = isAliveConscious && !menu && !viewMenu && !m_Expansion_HideQuestHUD && !isCOTOpen;
+			if (m_ExpansionQuestHUD.IsVisible() != show)
+				m_ExpansionQuestHUD.ShowHud(show);
+		}
+
+		if (isAliveConscious && !inputIsFocused)
+		{
+			if (m_ExpansionQuestHUD && !menu)
 			{
-				if (focusedWidget.ClassName().Contains("EditBoxWidget"))
+				//! Toggle Quest HUD
+				if (input.LocalPress("UAExpansionQuestToggle", false) && !m_Expansion_QuestHUDTogglePressed)
 				{
-					inputIsFocused = true;
+					m_Expansion_QuestHUDTogglePressed = true;
+					ToggleQuestHUD();
 				}
-				else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
+				else if (input.LocalRelease("UAExpansionQuestToggle", false) || input.LocalValue("UAExpansionQuestToggle", false) == 0)
 				{
-					inputIsFocused = true;
+					m_Expansion_QuestHUDTogglePressed = false;
 				}
 			}
 
-			Man man = GetGame().GetPlayer(); //! Refernce to man
-			Input input = GetGame().GetInput(); //! Reference to input
-			UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
-			PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
-			ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-			ExpansionQuestMenu questMenu = ExpansionQuestMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-		#ifdef JM_COT
-			bool isCOTWindowOpen = GetCommunityOnlineTools().IsOpen();
-		#endif
-
-			if (playerPB && playerPB.GetHumanInventory())
+			ExpansionQuestMenu questMenu = ExpansionQuestMenu.Cast(viewMenu);
+			if (questMenu || !menu)
 			{
-				if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
+				//! Toggle quest menu
+				if (input.LocalPress("UAExpansionQuestLogToggle", false) && !m_Expansion_QuestMenuTogglePressed)
 				{
-				#ifdef JM_COT
-					if (viewMenu || topMenu || m_HideHUD || isCOTWindowOpen)
-				#else
-					if (viewMenu || topMenu || m_HideHUD)
-				#endif
-					{
-						m_ExpansionQuestHUD.ShowHud(false);
-					}
-					else
-					{
-						m_ExpansionQuestHUD.ShowHud(true);
-					}
-
-					if ((m_ExpansionQuestHUD || !topMenu) && !inputIsFocused)
-					{
-						//! Toggle Quest HUD
-						if (input.LocalPress("UAExpansionQuestToggle", false) && !m_Expansion_QuestHUDTogglePressed)
-						{
-							m_Expansion_QuestHUDTogglePressed = true;
-							ToggleQuestHUD();
-						}
-						else if (input.LocalRelease("UAExpansionQuestToggle", false) || input.LocalValue("UAExpansionQuestToggle", false) == 0)
-						{
-							m_Expansion_QuestHUDTogglePressed = false;
-						}
-					}
-
-					if ((questMenu || !topMenu) && !inputIsFocused)
-					{
-						//! Toggle quest menu
-						if (input.LocalPress("UAExpansionQuestLogToggle", false) && !m_Expansion_QuestMenuTogglePressed)
-						{
-							m_Expansion_QuestMenuTogglePressed = true;
-							OnQuestTogglePressed();
-						}
-						else if (input.LocalRelease("UAExpansionQuestLogToggle", false) || input.LocalValue("UAExpansionQuestLogToggle", false) == 0)
-						{
-							m_Expansion_QuestMenuTogglePressed = false;
-						}
-					}
+					m_Expansion_QuestMenuTogglePressed = true;
+					OnQuestTogglePressed();
 				}
-				else
+				else if (input.LocalRelease("UAExpansionQuestLogToggle", false) || input.LocalValue("UAExpansionQuestLogToggle", false) == 0)
 				{
-					m_ExpansionQuestHUD.ShowHud(false);
+					m_Expansion_QuestMenuTogglePressed = false;
 				}
 			}
 		}
@@ -124,12 +88,12 @@ modded class MissionGameplay
 
 	void ToggleQuestHUD()
 	{
-		m_HideHUD = !m_HideHUD;
+		m_Expansion_HideQuestHUD = !m_Expansion_HideQuestHUD;
 	}
 
 	bool QuestHudState()
 	{
-		return m_HideHUD;
+		return m_Expansion_HideQuestHUD;
 	}
 
 	ExpansionQuestHUD GetQuestHUD()
@@ -139,6 +103,9 @@ modded class MissionGameplay
 
 	protected void OnQuestTogglePressed()
 	{
+		if (!GetExpansionSettings().GetQuest(false).IsLoaded() || !GetExpansionSettings().GetQuest().EnableQuests)
+			return;
+
 		ExpansionUIManager uiManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();	//! Reference to expansion ui manager
 		ScriptView menu = uiManager.GetMenu();	//! Reference to current opened script view menu
 
@@ -148,7 +115,12 @@ modded class MissionGameplay
 			uiManager.CreateSVMenu("ExpansionQuestMenu");
 			questMenu = ExpansionQuestMenu.Cast(uiManager.GetMenu());
 			if (questMenu)
+			{
 				questMenu.SetLogMode(true);
+				
+				if (m_ExpansionQuestHUD)
+					m_ExpansionQuestHUD.UpdateView();
+			}
 		}
 		else if (questMenu && questMenu.IsVisible())
 		{

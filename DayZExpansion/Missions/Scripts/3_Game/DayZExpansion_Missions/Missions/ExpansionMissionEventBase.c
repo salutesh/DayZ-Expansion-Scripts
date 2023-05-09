@@ -214,6 +214,11 @@ class ExpansionMissionEventBase
 		}
 	}
 	
+	bool CanEnd()
+	{
+		return true;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMissionEventBase End
 	// ------------------------------------------------------------
@@ -246,7 +251,7 @@ class ExpansionMissionEventBase
 	
 			Event_OnUpdate( delta );
 	
-			if ( m_CurrentMissionTime >= MissionMaxTime )
+			if ( m_CurrentMissionTime >= MissionMaxTime && CanEnd() )
 			{
 				End();
 			}

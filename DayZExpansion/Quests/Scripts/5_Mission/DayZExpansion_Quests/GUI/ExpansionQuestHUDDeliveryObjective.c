@@ -22,43 +22,47 @@ class ExpansionQuestHUDDeliveryObjective: ExpansionScriptView
 
 	void ExpansionQuestHUDDeliveryObjective(ExpansionQuestObjectiveDelivery delivery, int count)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		m_Delivery = delivery;
 		m_Count = count;
 		Class.CastTo(m_QuestHUDDeliveryObjectiveController, GetController());
-
+		
 		SetView();
 	}
 
 	void SetView()
 	{
-		if (!m_Delivery)
-			return;
-
-		delivery_icon.LoadImageFile(0, "{EB294B6B8215EC25}DayZExpansion\\Core/GUI/icons/hud/arrow_64x64.edds");
-		delivery_icon.LoadImageFile(1, "{B0A741F8CA2EA4D5}DayZExpansion/Core/GUI/icons/hud/hook_64x64.edds");
-
-		m_QuestHUDDeliveryObjectiveController.DeliveryName = ExpansionStatic.GetItemDisplayNameWithType(m_Delivery.GetClassName());
-		m_QuestHUDDeliveryObjectiveController.NotifyPropertyChanged("DeliveryName");
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
-		int needed = m_Delivery.GetAmount();
-		m_QuestHUDDeliveryObjectiveController.DeliveryValue = m_Count.ToString() + "/" + needed.ToString();
-		m_QuestHUDDeliveryObjectiveController.NotifyPropertyChanged("DeliveryValue");
-		
-		if (m_Count >= needed)
+		if (m_Delivery)
 		{
-			delivery_name.SetColor(ARGB(255, 160, 223, 59));
-			delivery_value.SetColor(ARGB(255, 160, 223, 59));
-			delivery_icon.SetImage(1);
-			delivery_icon.SetRotation(0, 0, 0, true);
-			delivery_icon.SetColor(ARGB(255, 160, 223, 59));
-		}
-		else
-		{
-			delivery_name.SetColor(ARGB(255, 255, 255, 255));
-			delivery_value.SetColor(ARGB(255, 255, 255, 255));
-			delivery_icon.SetImage(0);
-			delivery_icon.SetRotation(0, 0, 90, true);
-			delivery_icon.SetColor(ARGB(255, 255, 255, 255));
+			delivery_icon.LoadImageFile(0, "{EB294B6B8215EC25}DayZExpansion/Core/GUI/icons/hud/arrow_64x64.edds");
+			delivery_icon.LoadImageFile(1, "{B0A741F8CA2EA4D5}DayZExpansion/Core/GUI/icons/hud/hook_64x64.edds");
+	
+			m_QuestHUDDeliveryObjectiveController.DeliveryName = ExpansionStatic.GetItemDisplayNameWithType(m_Delivery.GetClassName());
+			m_QuestHUDDeliveryObjectiveController.NotifyPropertyChanged("DeliveryName");
+			
+			int needed = m_Delivery.GetAmount();
+			m_QuestHUDDeliveryObjectiveController.DeliveryValue = m_Count.ToString() + "/" + needed.ToString();
+			m_QuestHUDDeliveryObjectiveController.NotifyPropertyChanged("DeliveryValue");
+			
+			if (m_Count >= needed)
+			{
+				delivery_name.SetColor(ARGB(255, 160, 223, 59));
+				delivery_value.SetColor(ARGB(255, 160, 223, 59));
+				delivery_icon.SetImage(1);
+				delivery_icon.SetRotation(0, 0, 0, true);
+				delivery_icon.SetColor(ARGB(255, 160, 223, 59));
+			}
+			else
+			{
+				delivery_name.SetColor(ARGB(255, 255, 255, 255));
+				delivery_value.SetColor(ARGB(255, 255, 255, 255));
+				delivery_icon.SetImage(0);
+				delivery_icon.SetRotation(0, 0, 90, true);
+				delivery_icon.SetColor(ARGB(255, 255, 255, 255));
+			}
 		}
 	}
 

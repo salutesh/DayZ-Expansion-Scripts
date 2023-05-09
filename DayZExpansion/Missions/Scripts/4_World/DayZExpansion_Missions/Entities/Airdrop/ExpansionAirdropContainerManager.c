@@ -30,6 +30,11 @@ class ExpansionAirdropContainerManager
 	float InfectedSpawnRadius;
 	int InfectedSpawnInterval;
 
+	//! Noise
+	protected ref NoiseParams m_NoisePar;
+	protected NoiseSystem m_NoiseSystem;
+	float m_NoiseTickTime;
+
 	void ExpansionAirdropContainerManager( ExpansionAirdropContainerBase container, TStringArray infected, int infectedCount )
 	{
 		m_Container = container;
@@ -46,11 +51,20 @@ class ExpansionAirdropContainerManager
 		#ifdef EXPANSIONMODNAVIGATION
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
 		#endif
+
+		m_NoiseSystem = GetGame().GetNoiseSystem();
+		if (m_NoiseSystem && !m_NoisePar)
+		{
+			m_NoisePar = new NoiseParams();
+			m_NoisePar.LoadFromPath("CfgVehicles Roadflare NoiseRoadFlare");
+		}
 	}
 
 	void ~ExpansionAirdropContainerManager()
 	{
 		Print("~ExpansionAirdropContainerManager");
+
+		StopUpdateNoise();
 	}
 
 	void Cleanup()
@@ -122,7 +136,7 @@ class ExpansionAirdropContainerManager
 		{
 			m_InfectedCount++;
 
-			vector spawnPos = Vector( m_Container.GetPosition()[0] + Math.RandomFloat( -InfectedSpawnRadius, InfectedSpawnRadius ), 0, m_Container.GetPosition()[2] + Math.RandomFloat( -InfectedSpawnRadius, InfectedSpawnRadius ) );
+			vector spawnPos = ExpansionMath.GetRandomPointInRing(m_Container.GetPosition(), InfectedSpawnRadius * 0.1, InfectedSpawnRadius);
 			spawnPos[1] = GetGame().SurfaceY( spawnPos[0], spawnPos[2] );
 
 			//! Have to convert vector to string for call queue
@@ -131,14 +145,14 @@ class ExpansionAirdropContainerManager
 			if ( InfectedSpawnInterval > 0 )
 			{
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
-				additionalDelay = 300;
+				additionalDelay = Math.RandomFloat(100, 300);
 			}
 
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ) );
+			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ), m_InfectedCount );
 		}
 	}
 
-	void CreateSingleInfected( string spawnPosStr )
+	void CreateSingleInfected( string spawnPosStr, int count )
 	{
 		vector spawnPos = spawnPosStr.ToVector();
 		string type = Infected.GetRandomElement();
@@ -168,10 +182,42 @@ class ExpansionAirdropContainerManager
 #endif
 
 			m_Infected.Insert( obj );
+
+			ZombieBase zombie;
+			if (Class.CastTo(zombie, obj))
+			{
+				zombie.m_Expansion_OverrideAlertLevel = 1;
+
+				if (m_NoiseSystem)  //! Initial noise at spawnPos to alert Infected
+					m_NoiseSystem.AddNoiseTarget(spawnPos, 1.0, m_NoisePar);
+			}
 		} else
 		{
 			Print("[ExpansionAirdropContainerManager] Warning : '" + type + "' is not a valid type!");
 		}
+
+		if (count == InfectedCount)  //! Periodic noise at container to attract Infected
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(UpdateNoise, 1000, true);
+	}
+
+	//! Make "noise" around the container which AI like Infected will "hear" and get alerted by
+	void UpdateNoise()
+	{
+		if (!m_NoiseSystem || !m_Container)
+			return;
+
+		//! Add noise if player within 5 m of container or 7-10 seconds elapsed since last noise
+		float tickTime = GetGame().GetTickTime();
+		if (ExpansionLootSpawner.IsPlayerNearby(m_Container, 5.0) || tickTime - m_NoiseTickTime > Math.RandomFloat(7.0, 10.0))
+		{
+			m_NoiseTickTime = tickTime;
+			m_NoiseSystem.AddNoiseTarget(m_Container.GetPosition(), 1.0, m_NoisePar);
+		}
+	}
+
+	void StopUpdateNoise()
+	{
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(UpdateNoise);
 	}
 
 	void CreateServerMarker()

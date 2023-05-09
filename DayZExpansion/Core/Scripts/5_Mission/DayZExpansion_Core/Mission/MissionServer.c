@@ -70,6 +70,8 @@ modded class MissionServer
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnMissionLoaded");
 #endif
 		
+		ExpansionGlobalID.s_IsMissionLoaded = true;
+
 		super.OnMissionLoaded();
 		
 		GetDayZExpansion().OnLoaded();

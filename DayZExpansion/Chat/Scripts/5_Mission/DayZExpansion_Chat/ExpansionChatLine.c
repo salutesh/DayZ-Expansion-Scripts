@@ -172,7 +172,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 	{
 		if ( message.From )
 		{
-			m_ChatLineController.SenderName = " [" + message.From + "]: ";
+			m_ChatLineController.SenderName = " " + message.From + ": ";
 		}
 		else
 		{

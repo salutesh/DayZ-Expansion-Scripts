@@ -15,79 +15,37 @@
  **/
 modded class MissionGameplay
 {
-	// ------------------------------------------------------------
-	// OnUpdate
-	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate( timeslice );
-
-		if (!m_bLoaded)
-		{
-			return;
-		}
-
-		//! Checking for keyboard focus
-		bool inputIsFocused = false;
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 		
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
-
-		if (focusedWidget)
+		//! Basebuilding Snapping
+		if (isAliveConscious && !inputIsFocused && player.IsPlacingLocal())
 		{
-			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
-			{
-				inputIsFocused = true;
-			} 
-			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
-			{
-				inputIsFocused = true;
-			}
-		}
+			Hologram hologram = player.GetHologramLocal();
 
-		Man man = GetGame().GetPlayer(); 	//! Refernce to man
-		Input input = GetGame().GetInput(); 	//! Reference to input
-		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
-		
-		if (playerPB && playerPB.GetHumanInventory()) 
-		{
-			//! Expansion reference to item in hands
-			EntityAI itemInHands = playerPB.GetHumanInventory().GetEntityInHands();
-
-			//! Expansion reference to hologram
-			Hologram hologram;	
-
-			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
+			if (hologram)
 			{
-				//! Basebuilding Snaping
-				if (playerPB && playerPB.IsPlacingLocal() && !inputIsFocused)
+				if (input.LocalPress("UAExpansionSnappingToggle"))
 				{
-					hologram = playerPB.GetHologramLocal();
-
-					if (hologram)
+					hologram.SetUsingSnap(!hologram.IsUsingSnap());
+					
+					if (hologram.IsUsingSnap())
 					{
-						if (input.LocalPress("UAExpansionSnappingToggle"))
-						{
-							hologram.SetUsingSnap(!hologram.IsUsingSnap());
-							
-							if (hologram.IsUsingSnap())
-							{
-								ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_ENABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
-							} else {
-								ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_DISABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
-							}
-						}
-
-						if (input.LocalValue("UAExpansionSnappingDirectionNext") != 0)
-						{
-							hologram.NextDirection();
-						}
-
-						if (input.LocalValue("UAExpansionSnappingDirectionPrevious") != 0)
-						{
-							hologram.PreviousDirection();
-						}
+						ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_ENABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
+					} else {
+						ExpansionNotification("STR_EXPANSION_SNAPPING_TITLE", "STR_EXPANSION_SNAPPING_DISABLED", EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
 					}
+				}
+
+				if (input.LocalValue("UAExpansionSnappingDirectionNext") != 0)
+				{
+					hologram.NextDirection();
+				}
+
+				if (input.LocalValue("UAExpansionSnappingDirectionPrevious") != 0)
+				{
+					hologram.PreviousDirection();
 				}
 			}
 		}

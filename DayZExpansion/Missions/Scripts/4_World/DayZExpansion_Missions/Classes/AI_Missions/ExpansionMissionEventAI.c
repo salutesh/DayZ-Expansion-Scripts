@@ -198,7 +198,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		{
 			m_InfectedCount++;
 
-			vector spawnPos = Vector( m_Container.GetPosition()[0] + Math.RandomFloat( -InfectedSpawnRadius, InfectedSpawnRadius ), 0, m_Container.GetPosition()[2] + Math.RandomFloat( -InfectedSpawnRadius, InfectedSpawnRadius ) );
+			vector spawnPos = ExpansionMath.GetRandomPointInRing(m_Container.GetPosition(), InfectedSpawnRadius * 0.1, InfectedSpawnRadius);
 			spawnPos[1] = GetGame().SurfaceY( spawnPos[0], spawnPos[2] );
 
 			//! Have to convert vector to string for call queue
@@ -207,7 +207,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			if ( InfectedSpawnInterval > 0 )
 			{
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
-				additionalDelay = 300;
+				additionalDelay = Math.RandomFloat(100, 300);
 			}
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ) );
@@ -231,16 +231,19 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	}
 	*/
 
-	override void Event_OnEnd()
+	override bool CanEnd()
 	{
-		if ( IsMissionHost() )
+		//! Check if a player is nearby any container in a 1000 meter radius
+		foreach (auto container: m_Containers)
 		{
-			//! After mission ends check all 60 seconds if a player is nearby the airdrop crate and if not delete the container
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupCheck, 60 * 1000, true );
+			if (ExpansionLootSpawner.IsPlayerNearby(container, 1000))
+				return false;
 		}
+
+		return true;
 	}
-	
-	void CleanupCheck()
+
+	override void Event_OnEnd()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -248,41 +251,34 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 		if ( IsMissionHost() )
 		{
-			//! Check if a player is nearby the container in a 1000 meter radius
-			for ( int j = 0; j < m_Containers.Count(); j++ )
+			foreach (auto container: m_Containers)
 			{
-				if ( !ExpansionLootSpawner.IsPlayerNearby(m_Containers[j], 1000) )
-				{
-					ExpansionLootSpawner.RemoveContainer( m_Containers[j] );
-					m_Containers.Remove(j);
-				}
+				GetGame().ObjectDelete(container);
 			}
 
-			if ( m_Containers.Count() == 0 )
+			m_Containers.Clear();
+
+		#ifdef EXPANSIONMODAI
+			foreach (auto soldiers: m_Soldiers)
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );
-			#ifdef EXPANSIONMODAI
-				for ( int i = 0; i < m_Soldiers.Count(); i++ )
-				{
-					m_Soldiers[i].Despawn();
-					m_Soldiers[i].Delete();
-					m_Soldiers.Remove(i);
-				}
-			#endif
-
-				//! TODO: Wipe the spawned Animals
-
-			#ifdef EXPANSIONMODNAVIGATION
-				if (m_ServerMarker && m_MarkerModule)
-					m_MarkerModule.RemoveServerMarker(m_ServerMarker.GetUID());
-			#endif
-
-				if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
-					CreateNotif(MissionMeta.NotificationEnd);
-
-				MappingSet.Delete();
-				return;
+				soldiers.Despawn();
+				soldiers.Delete();
 			}
+
+			m_Soldiers.Clear();
+		#endif
+
+			//! TODO: Wipe the spawned Animals
+
+		#ifdef EXPANSIONMODNAVIGATION
+			if (m_ServerMarker && m_MarkerModule)
+				m_MarkerModule.RemoveServerMarker(m_ServerMarker.GetUID());
+		#endif
+
+			if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
+				CreateNotif(MissionMeta.NotificationEnd);
+
+			MappingSet.Delete();
 		}
 	}
 

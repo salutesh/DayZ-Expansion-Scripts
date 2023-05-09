@@ -24,6 +24,8 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void ExpansionQuestHUDObjective(ExpansionQuestObjectiveData objective, ExpansionQuestConfig questConfig)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
 		m_Objective = objective;
 		m_Quest = questConfig;
@@ -41,8 +43,10 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 	void SetEntryObjective()
 	{
-		if (!m_QuestHUDObjectiveController)
-			m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		/*if (!m_QuestHUDObjectiveController)
+			m_QuestHUDObjectiveController = ExpansionQuestHUDObjectiveController.Cast(GetController());*/
 
 		vector objectivePos;
 		vector playerPos;
@@ -170,7 +174,6 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
 				ExpansionQuestHUDDeliveryObjective collectionEntry;
-				ExpansionQuestObjectiveDelivery collection;
 				int currentCollectionCount;
 
 				if (Class.CastTo(collectionObjective, objectiveConfig))
@@ -195,11 +198,10 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					
 					map<int, int> collectionsMap = new map<int, int>;
 					int collectionsCount;
-					for (i = 0; i < collections.Count(); i++)
+					
+					foreach (ExpansionQuestObjectiveDelivery collection: collections)
 					{
-						currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
-						collection = collections[i];
-						
+						currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);										
 						if (!collectionObjective.NeedAnyCollection())
 						{
 							collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
@@ -229,10 +231,11 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						}
 						else
 						{
-							for (i = 0; i < collections.Count(); i++)
+							foreach (ExpansionQuestObjectiveDelivery anyCollection: collections)
 							{
 								currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
 								collection = collections[i];
+
 								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
@@ -355,6 +358,150 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			Spacer.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		else
 			Spacer.SetColor(ARGB(200, 160, 223, 59));
+	}
+	
+	void UpdateObjectiveData(ExpansionQuestObjectiveData objectiveData)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		m_Objective = objectiveData;
+		
+		m_QuestHUDObjectiveController.DeliveryEnties.Clear();
+		
+		SetEntryObjective();
+	}
+	
+	override void Update()
+	{
+		if (!m_Objective)
+			return;
+		
+		//! @note: Update quest time limit in HUD.
+		if (m_Objective.GetTimeLimit() > -1)
+		{
+			ObjectiveTime.Show(true);
+			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
+			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
+
+			if (m_Objective.GetTimeLimit() > 60)
+			{
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_INFO);
+			}
+			else if (m_Objective.GetTimeLimit() <= 60)
+			{
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ORANGE);
+			}
+			else if (m_Objective.GetTimeLimit() <= 10)
+			{
+				ObjectiveTime.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
+			}
+		}
+		
+		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()]);
+		if (!objectiveConfig)
+			return;
+		
+		vector objectivePos;
+		vector playerPos;
+		int currentDistance;
+		
+		bool completed = m_Objective.IsCompleted();
+		
+		//! @note: Update quest objective distance in HUD.
+		switch (objectiveConfig.GetObjectiveType())
+		{
+			case  ExpansionQuestObjectiveType.TRAVEL:
+			{
+				ExpansionQuestObjectiveTravelConfig travelObjective;
+				if (Class.CastTo(travelObjective, objectiveConfig))
+				{
+					if (travelObjective.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+				}
+			}
+			break;
+
+			case ExpansionQuestObjectiveType.DELIVERY:
+			{
+				ExpansionQuestObjectiveDeliveryConfig deliveryObjective;
+				if (Class.CastTo(deliveryObjective, objectiveConfig))
+				{
+					if (deliveryObjective.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+				}
+			}
+			break;
+
+			case ExpansionQuestObjectiveType.COLLECT:
+			{
+				ExpansionQuestObjectiveCollectionConfig collectionObjective;
+				if (Class.CastTo(collectionObjective, objectiveConfig))
+				{
+					if (collectionObjective.ShowDistance() && completed)
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+				}
+			}
+			break;
+
+			case ExpansionQuestObjectiveType.TREASUREHUNT:
+			{
+				ExpansionQuestObjectiveTreasureHuntConfig treasureObjective;
+				if (Class.CastTo(treasureObjective, objectiveConfig))
+				{
+					if (treasureObjective.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+				}
+			}
+			break;
+
+		#ifdef EXPANSIONMODAI
+			case ExpansionQuestObjectiveType.AIESCORT:
+			{
+				ExpansionQuestObjectiveAIEscortConfig escortConfig;
+				if (Class.CastTo(escortConfig, objectiveConfig))
+				{
+					if (escortConfig.ShowDistance())
+					{
+						objectivePos = m_Objective.GetObjectivePosition();
+						playerPos = GetGame().GetPlayer().GetPosition();
+						currentDistance = Math.Round(vector.Distance(playerPos, objectivePos));
+						m_QuestHUDObjectiveController.ObjectiveValue = currentDistance.ToString() + " m";
+						m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveValue");
+					}
+				}
+			}
+			break;
+		#endif
+		}
+	}
+	
+	override float GetUpdateTickRate()
+	{
+		return 1.0;
 	}
 };
 

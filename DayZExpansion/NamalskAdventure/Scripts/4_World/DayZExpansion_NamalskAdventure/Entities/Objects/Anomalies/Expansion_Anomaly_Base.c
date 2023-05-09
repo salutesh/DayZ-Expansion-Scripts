@@ -978,7 +978,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		super.AfterStoreLoad();
 
-		ExpansionLootSpawner.RemoveContainer(this);
+		GetGame().ObjectDelete(this);
 	}
 
 	protected void DebugTrace(string text)

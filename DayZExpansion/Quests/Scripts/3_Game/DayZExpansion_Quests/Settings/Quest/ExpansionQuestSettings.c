@@ -62,7 +62,7 @@ class ExpansionQuestSettingsV5: ExpansionQuestSettingsV5Base
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
@@ -76,6 +76,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	int DailyResetHour;
 	int DailyResetMinute;
 	bool UseUTCTime;
+	bool UseQuestNPCIndicators;
 
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -199,6 +200,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		DailyResetHour = s.DailyResetHour;
 		DailyResetMinute = s.DailyResetMinute;
 		UseUTCTime = s.UseUTCTime;
+		UseQuestNPCIndicators = s.UseQuestNPCIndicators;
 
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
@@ -266,6 +268,11 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 
 					AchievementCompletedTitle = settingsV5Base.AchivementCompletedTitle;
 					AchievementCompletedText = settingsV5Base.AchivementCompletedText;
+				}
+				
+				if (settingsBase.m_Version < 9)
+				{
+					UseQuestNPCIndicators = settingsDefault.UseQuestNPCIndicators;
 				}
 
 				m_Version = VERSION;
@@ -361,6 +368,8 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		DailyResetMinute = 0;
 
 		UseUTCTime = false;
+		
+		UseQuestNPCIndicators = true;
 
 	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;

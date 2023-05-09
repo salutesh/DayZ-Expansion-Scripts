@@ -24,6 +24,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	float m_Expansion_WindImpactStrength;
 	float m_Expansion_PreviousAltitude;
 	float m_Expansion_SimulationTimeAccumulator;
+	bool m_Expansion_HideCargoWhileParachuteIsDeployed;
 
 	private int m_StartTime;
 	
@@ -46,7 +47,9 @@ class ExpansionAirdropContainerBase: Container_Base
 		#endif	
 
 		RegisterNetSyncVariableBool("m_LightOn");
+		RegisterNetSyncVariableBool("m_HasLanded");
 		RegisterNetSyncVariableBool("m_IsLooted");
+		RegisterNetSyncVariableBool("m_Expansion_HideCargoWhileParachuteIsDeployed");
 		
 		SetEventMask( EntityEvent.INIT | EntityEvent.CONTACT | EntityEvent.SIMULATE ); 
 
@@ -56,6 +59,9 @@ class ExpansionAirdropContainerBase: Container_Base
 		
 		UpdateLight();
 		CreateSmoke();
+
+		if (GetGame().IsServer())
+			m_Expansion_HideCargoWhileParachuteIsDeployed = GetExpansionSettings().GetAirdrop().HideCargoWhileParachuteIsDeployed;
 	}
 	
 	override void EEInit()
@@ -187,6 +193,10 @@ class ExpansionAirdropContainerBase: Container_Base
 			m_IsLooted = true;
 
 			ToggleLight();
+
+			ExpansionAirdropContainerManager manager = ExpansionAirdropContainerManagers.Find( this );
+			if ( manager )
+				manager.StopUpdateNoise();
 		}
 	}
 
@@ -195,11 +205,26 @@ class ExpansionAirdropContainerBase: Container_Base
 		if (!GetGame().IsServer())
 			return;
 
-		if (!Expansion_CheckLanded())
-		{
-			//! Get current velocity
-			vector velocity = GetVelocity(this);
+		//! Get current velocity
+		vector velocity = GetVelocity(this);
 
+		if (m_HasLanded)
+		{
+			if (velocity.LengthSq() < 0.001)
+			{
+				EnableDynamicCCD(false);
+				SetDynamicPhysicsLifeTime(0);
+
+				ClearEventMask(EntityEvent.SIMULATE);
+
+				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - stopped - updating pathgraph region");
+
+				SetAffectPathgraph(false, true);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().UpdatePathgraphRegionByObject, 100, false, this);
+			}
+		}
+		else if (!Expansion_CheckLanded())
+		{
 			if ( m_Expansion_WindImpactStrength > 0.0 )
 			{
 				if (GetGame().GetWeather())
@@ -297,10 +322,8 @@ class ExpansionAirdropContainerBase: Container_Base
 
 		m_HasLanded = true;
 
-		ClearEventMask(EntityEvent.SIMULATE);
-
 		dBodySetDamping(this, 0.5, 0.5);
-	
+
 		SetDynamicPhysicsLifeTime( ( GetGame().GetTime() - m_StartTime ) + 30 );
 
 		//! Set parachute animation phase so parachute is hidden
@@ -316,6 +339,8 @@ class ExpansionAirdropContainerBase: Container_Base
 
 			manager.SpawnInfected();
 		}
+
+		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -474,7 +499,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	// ------------------------------------------------------------
 	override bool IsInventoryVisible()
 	{
-		return true;
+		return m_HasLanded || !m_Expansion_HideCargoWhileParachuteIsDeployed;
 	}
 
 	// ------------------------------------------------------------
@@ -506,7 +531,7 @@ class ExpansionAirdropContainerBase: Container_Base
 
 		super.AfterStoreLoad();
 
-		ExpansionLootSpawner.RemoveContainer(this);
+		GetGame().ObjectDelete(this);
 	}
 
 	override void OnRPC( PlayerIdentity sender, int rpc_type, ParamsReadContext ctx )

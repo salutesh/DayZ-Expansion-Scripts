@@ -228,6 +228,13 @@ enum ExpansionVectorToString
 	Labels
 }
 
+//! Bitmask
+enum ExpansionFindFileMode
+{
+	FILES = 1,
+	DIRECTORIES = 2
+}
+
 class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
@@ -997,7 +1004,7 @@ class ExpansionStatic
 		return -1;
 	}
 
-	static array< string > FindFilesInLocation( string folder, string ext = "" )
+	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES )
 	{
 		array< string > files = new array< string >;
 		if (!FileExist(folder))
@@ -1007,22 +1014,35 @@ class ExpansionStatic
 		FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
 		if ( findFileHandle )
 		{
-			if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
-			{
-				files.Insert( fileName );
-			}
+			bool isValid = true;
+			bool includeFiles = mode & ExpansionFindFileMode.FILES;
+			bool includeDirs = mode & ExpansionFindFileMode.DIRECTORIES;
 
-			while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
+			while (isValid)
 			{
-				if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+				bool isDir = fileAttr & FileAttr.DIRECTORY;
+
+				if (fileName.Length() > 0 && ((includeFiles && !isDir) || (includeDirs && isDir)))
 				{
 					files.Insert( fileName );
 				}
+
+				isValid = FindNextFile(findFileHandle, fileName, fileAttr);
 			}
 
 			CloseFindFile( findFileHandle );
 		}
 		return files;
+	}
+
+	static array< string > FindFilesInLocation( string folder, string ext = "" )
+	{
+		return FindInLocation(folder, ext, ExpansionFindFileMode.FILES);
+	}
+
+	static array< string > FindDirectoriesInLocation( string folder, string ext = "" )
+	{
+		return FindInLocation(folder, ext, ExpansionFindFileMode.DIRECTORIES);
 	}
 
 	static bool MakeDirectoryRecursive(string path)

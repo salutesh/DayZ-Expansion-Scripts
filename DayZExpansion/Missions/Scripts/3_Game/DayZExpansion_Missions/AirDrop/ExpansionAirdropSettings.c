@@ -15,11 +15,12 @@
  **/
 class ExpansionAirdropSettings: ExpansionSettingBase
 {
-	static const int VERSION = 3;
+	static const int VERSION = 4;
 	
 	bool ServerMarkerOnDropLocation;
 	bool Server3DMarkerOnDropLocation;
 	bool ShowAirdropTypeOnMarker;
+	bool HideCargoWhileParachuteIsDeployed;
 	bool HeightIsRelativeToGroundLevel;
 
 	float Height;
@@ -103,6 +104,9 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		
 		if (airdropSettingsExist)
 		{
+			auto defaults = new ExpansionAirdropSettings;
+			defaults.Defaults();
+
 			EXPrint("[ExpansionAirdropSettings] Load existing setting file:" + EXPANSION_AIRDROP_SETTINGS);
 
 			JsonFileLoader<ExpansionAirdropSettings>.JsonLoadFile( EXPANSION_AIRDROP_SETTINGS, this );
@@ -126,6 +130,9 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 					if (m_Version < 3)
 						container.FallSpeed = 4.5;
 				}
+
+				if (m_Version < 4)
+					HideCargoWhileParachuteIsDeployed = defaults.HideCargoWhileParachuteIsDeployed;
 
 				m_Version = VERSION;
 				save = true;
@@ -168,6 +175,7 @@ class ExpansionAirdropSettings: ExpansionSettingBase
 		ServerMarkerOnDropLocation = true;
 		Server3DMarkerOnDropLocation = true;
 		ShowAirdropTypeOnMarker = true;
+		HideCargoWhileParachuteIsDeployed = true;
 		HeightIsRelativeToGroundLevel = true;
 
 		Height = 450;

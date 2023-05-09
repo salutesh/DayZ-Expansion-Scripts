@@ -89,7 +89,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	bool UseItemRarityForMarketPurchase;
 	bool UseItemRarityForMarketSell;
 	
-	int MaxReputaion;
+	int MaxReputation;
 
 	//! Needs to be always last
 	ref map<string, ExpansionHardlineItemRarity> ItemRarity;
@@ -196,7 +196,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
 		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
 		
-		MaxReputaion = s.MaxReputaion;
+		MaxReputation = s.MaxReputation;
 		
 		ItemRarity = s.ItemRarity;
 	}
@@ -259,7 +259,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			#endif
 				
 				if (m_Version < 8)
-					MaxReputaion = settingsDefault.MaxReputaion;
+					MaxReputation = settingsDefault.MaxReputation;
 
 				m_Version = VERSION;
 				save = true;
@@ -341,7 +341,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		UseItemRarityForMarketPurchase = true;
 		UseItemRarityForMarketSell = true;
 		
-		MaxReputaion = 0;
+		MaxReputation = 0;
 		
 		DefaultItemRarity();
 	}

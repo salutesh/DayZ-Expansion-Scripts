@@ -20,10 +20,12 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	protected Widget Spacer;
 	protected Widget Spacer0;
 	protected WrapSpacerWidget ObjectiveEntries;
-	protected ref array<ref ExpansionQuestHUDObjective> m_ObjectiveEntries = new array<ref ExpansionQuestHUDObjective>;
+	protected ref map<int, ref ExpansionQuestHUDObjective> m_ObjectiveEntries = new map<int, ref ExpansionQuestHUDObjective>;
 
 	void ExpansionQuestHUDEntry(ExpansionQuestConfig questConfig, ExpansionQuestPersistentQuestData questData)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		m_QuestConfig = questConfig;
 		m_QuestData = questData;
 		m_QuestHUDEntryController = ExpansionQuestHUDEntryController.Cast(GetController());
@@ -31,6 +33,8 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 
 	void SetEntry()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		m_QuestHUDEntryController.QuestName = m_QuestConfig.GetTitle();
 		m_QuestHUDEntryController.NotifyPropertyChanged("QuestName");
 
@@ -51,34 +55,49 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 		}
 
 		m_QuestHUDEntryController.NotifyPropertyChanged("ObjectiveText");
-
-		foreach (ExpansionQuestHUDObjective currentEntry: m_ObjectiveEntries)
+		
+		array<int> updatedObjectives = new array<int>;
+		int objectiveIndex;
+		foreach (ExpansionQuestObjectiveData objective: m_QuestData.QuestObjectives)
 		{
-			ObjectiveEntries.RemoveChild(currentEntry.GetLayoutRoot());
-			currentEntry.Destroy();
-		}
-
-		m_ObjectiveEntries.Clear();
-
-		int objectiveCount = 0;
-		for (int i = 0; i < m_QuestData.QuestObjectives.Count(); i++)
-		{
-			ExpansionQuestObjectiveData objective = m_QuestData.QuestObjectives.Get(i);
-			if (objective)
+			//! @note: We only want to add objectives to the HUD that are currently active!
+			if (!objective.IsActive())
+				continue;
+			
+			ExpansionQuestHUDObjective objectiveEntry;
+			if (m_ObjectiveEntries.Find(objectiveIndex, objectiveEntry))
 			{
-				if (!objective.IsActive())
-					continue;
-
-				ExpansionQuestHUDObjective objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
+				objectiveEntry.UpdateObjectiveData(objective);
+			}
+			else
+			{
+				objectiveEntry = new ExpansionQuestHUDObjective(objective, m_QuestConfig);
 				ObjectiveEntries.AddChild(objectiveEntry.GetLayoutRoot());
-				m_ObjectiveEntries.Insert(objectiveEntry);
+				m_ObjectiveEntries.Insert(objectiveIndex, objectiveEntry);
 				objectiveEntry.SetEntryObjective();
-				objectiveCount++;
+			}
+
+			updatedObjectives.Insert(objectiveIndex);
+			objectiveIndex++;
+		}
+		
+		foreach (int objectiveEntryIndex, ExpansionQuestHUDObjective objectiveHUDEntry: m_ObjectiveEntries)
+		{
+			if (updatedObjectives.Find(objectiveEntryIndex) == -1)
+			{
+				ObjectiveEntries.RemoveChild(objectiveHUDEntry.GetLayoutRoot());
+				objectiveHUDEntry.Destroy();
+				m_ObjectiveEntries.Remove(objectiveEntryIndex);
 			}
 		}
-
-		ObjectiveEntries.Update();
-		GetLayoutRoot().Update();
+	}
+	
+	void UpdateQuestData(ExpansionQuestPersistentQuestData questData)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		m_QuestData = questData;
+		SetEntry();
 	}
 
 	int GetEntryQuestID()

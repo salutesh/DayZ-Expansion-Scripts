@@ -181,6 +181,11 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		}
 	}
 	
+	override bool CanEnd()
+	{
+		return !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1500);
+	}
+
 	// ------------------------------------------------------------
 	// Expansion Event_OnEnd
 	// ------------------------------------------------------------
@@ -193,39 +198,16 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		
 		if ( IsMissionHost() )
 		{
-			//! After mission ends check all 60 seconds if a player is nearby the airdrop crate and if not delete the container
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupCheck, 60 * 1000, true );
-		}
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion CleanupCheck
-	// ------------------------------------------------------------
-	void CleanupCheck()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif
-		
-		if ( IsMissionHost() )
-		{
 			if ( !m_Container )
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );
 				return;
 			}
 			
-			//! Check if a player is nearby the container in a 1500 meter radius
-			if ( !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1500) )
-			{
-				ExpansionLootSpawner.RemoveContainer( m_Container );
-				
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );
+			GetGame().ObjectDelete(m_Container);
 
-				if ( GetExpansionSettings().GetNotification().ShowAirdropEnded && ShowNotification )
-				{
-					CreateNotification(new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name), EXPANSION_NOTIFICATION_ICON_AIRDROP, 7);
-				}
+			if ( GetExpansionSettings().GetNotification().ShowAirdropEnded && ShowNotification )
+			{
+				CreateNotification(new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_ENDED", DropLocation.Name), EXPANSION_NOTIFICATION_ICON_AIRDROP, 7);
 			}
 		}
 	}

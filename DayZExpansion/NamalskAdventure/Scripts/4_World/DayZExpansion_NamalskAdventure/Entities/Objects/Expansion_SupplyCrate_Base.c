@@ -382,7 +382,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 		super.AfterStoreLoad();
 		
-		ExpansionLootSpawner.RemoveContainer(this);
+		GetGame().ObjectDelete(this);
 	}
 
 	protected void DebugTrace(string text)

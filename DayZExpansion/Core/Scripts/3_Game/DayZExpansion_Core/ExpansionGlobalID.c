@@ -16,6 +16,8 @@ class ExpansionGlobalID
 	//! @note {0, 0, 0, 0} is reserved
 	static autoptr TIntArray s_NextID = {int.MIN, int.MIN, int.MIN, int.MIN};
 
+	static bool s_IsMissionLoaded;
+
 	int m_ID[4];
 
 	[NonSerialized()]
@@ -23,6 +25,17 @@ class ExpansionGlobalID
 
 	void Acquire()
 	{
+	#ifndef SERVER
+		Error("Can't Acquire() global ID on client!");
+		return;
+	#endif
+
+		if (!s_IsMissionLoaded)
+		{
+			Error("Can't Acquire() global ID before mission is loaded!");
+			return;
+		}
+
 		for (int i = 0; i < 4; i++)
 			m_ID[i] = s_NextID[i];
 
@@ -33,6 +46,17 @@ class ExpansionGlobalID
 
 	void Set(TIntArray id)
 	{
+	#ifndef SERVER
+		Error("Can't Set() global ID on client!");
+		return;
+	#endif
+
+		if (s_IsMissionLoaded)
+		{
+			Error("Can't Set() global ID after mission is loaded!");
+			return;
+		}
+
 		for (int i = 0; i < 4; i++)
 			m_ID[i] = id[i];
 
@@ -100,7 +124,7 @@ class ExpansionGlobalID
 	}
 	#endif
 
-	void UpdateNext()
+	protected void UpdateNext()
 	{
 		int i;
 		int same;
@@ -133,7 +157,7 @@ class ExpansionGlobalID
 			IncrementNext(3);
 	}
 
-	static void IncrementNext(int i)
+	protected static void IncrementNext(int i)
 	{
 		if (s_NextID[i] < int.MAX)
 		{
@@ -157,7 +181,7 @@ class ExpansionGlobalID
 		}
 	}
 
-	static void ResetNext()
+	protected static void ResetNext()
 	{
 		for (int i = 0; i < 4; i++)
 			s_NextID[i] = int.MIN;

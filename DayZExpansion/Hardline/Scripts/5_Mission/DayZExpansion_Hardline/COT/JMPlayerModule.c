@@ -11,12 +11,6 @@
 */
 
 #ifdef JM_COT
-enum Expansion_JMPlayerModuleRPC : JMPlayerModuleRPC
-{
-	SetReputation,
-	EX_COUNT
-}
-
 modded class JMPlayerModule
 {
 	void JMPlayerModule()

@@ -120,6 +120,20 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 				CreateDirectoryStructure();
 				LoadPersonalStorageServerConfig();
 			}
+			
+			array<string> personalStorageDirs = ExpansionStatic.FindDirectoriesInLocation(GetPersonalStorageDataDirectory());
+			foreach (string directoryName: personalStorageDirs)
+			{
+				if (!m_ItemsData.Contains(directoryName))
+				{
+					EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnMissionStart - Add personal storage data for player with UID: " + directoryName);
+					LoadPersonalStorageItemData(directoryName);
+				}
+				else
+				{
+					EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnMissionStart - Personal storage data for player with UID: " + directoryName + " already loaded! Skip..");
+				}
+			}
 		}
 
 		m_Initialized = true;
@@ -206,54 +220,11 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		personalStorageConfig.Spawn(); //! Spawn the personal storage.
 	}
 
-	override void OnInvokeConnect(Class sender, CF_EventArgs args)
+	protected void LoadPersonalStorageItemData(string directoyName)
 	{
 		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 		
-		super.OnInvokeConnect(sender, args);
-
-		auto cArgs = CF_EventPlayerArgs.Cast(args);
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetPersonalStorage().Enabled)
-		{
-			string playerUID = cArgs.Identity.GetId();
-			if (!m_ItemsData.Contains(playerUID))
-			{
-				EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnInvokeConnect - Add personal storage data for player with UID: " + playerUID);
-				LoadPersonalStorageItemData(playerUID);
-			}
-			else
-			{
-				EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnInvokeConnect - Personal storage data for player with UID: " + playerUID + " already loaded! Skip..");
-			}
-
-			if (GetExpansionSettings().GetPersonalStorage().UsePersonalStorageCase)
-				RestorePersonalStorageCase(cArgs.Player);
-		}
-	}
-
-	override void OnClientDisconnect(Class sender, CF_EventArgs args)
-	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		super.OnClientDisconnect(sender, args);
-
-		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
-
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetPersonalStorage().Enabled)
-		{
-			if (m_ItemsData.Contains(cArgs.UID))
-			{
-				EXTrace.Start(EXTrace.PERSONALSTORAGE, this, "::OnClientDisconnect - Remove personal storage data for player with UID: " + cArgs.UID);
-				m_ItemsData.Remove(cArgs.UID);
-			}
-		}
-	}
-
-	protected void LoadPersonalStorageItemData(string playerUID)
-	{
-		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
-		
-		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + playerUID + "\\";
+		string storagePath = ExpansionPersonalStorageModule.GetPersonalStorageDataDirectory() + directoyName + "\\";
 		if (FileExist(storagePath))
 		{
 			array<string> personalStorageFiles = ExpansionStatic.FindFilesInLocation(storagePath, ".json");

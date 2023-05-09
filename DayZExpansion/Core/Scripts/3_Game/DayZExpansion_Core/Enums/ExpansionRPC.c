@@ -483,3 +483,12 @@ enum ExpansionAutoRunRPC
 	AUTORUNDISABLE,
 	COUNT
 };
+
+#ifdef JM_COT
+enum Expansion_JMPlayerModuleRPC : JMPlayerModuleRPC
+{
+	SetReputation,
+	RetriveEntityStorageObj,
+	EX_COUNT
+};
+#endif
