@@ -344,7 +344,8 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 	
 	override void Update()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		if (!IsVisible())
+			return;
 
 		SetCooldown();
 	}

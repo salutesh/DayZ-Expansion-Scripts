@@ -17,11 +17,9 @@
 #ifdef EXPANSIONMODAI
 class ExpansionQuestNPCAIBase: eAINPCBase
 {
-	protected const int PARTICLE_QUEST_MARKER = ParticleList.EXPANSION_PARTICLE_QUEST_MARKER;
-	
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
-	protected Particle m_QuestParticle;
+	protected ParticleSource m_Expansion_QuestIndicator;
 
 	void ExpansionQuestNPCAIBase()
 	{
@@ -29,23 +27,17 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
 	
-	override void DeferredInit()
-    {
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
 
-		super.DeferredInit();
-
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, this, "-----------------------------------------------------------------------------------------");
-		EXTrace.Print(EXTrace.QUESTS, this, "NPC ID: " + m_QuestNPCID);
-		EXTrace.Print(EXTrace.QUESTS, this, "NPC type: " + GetType());
-		EXTrace.Print(EXTrace.QUESTS, this, "-----------------------------------------------------------------------------------------");
-	#endif
-		
-		if (GetGame().IsClient() && m_QuestNPCID > -1)
+		if (m_QuestNPCID > -1)
 			ExpansionQuestModule.AddQuestNPCAI(m_QuestNPCID, this);
-    }
-	
+
+		if (!m_Expansion_QuestIndicator)
+			ExpansionQuestModule.SetQuestNPCIndicator(m_QuestNPCID, this, m_Expansion_QuestIndicator);
+	}
+
 	override void Expansion_Init()
 	{
 		if (GetGame().IsServer())
@@ -79,79 +71,15 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 	{
 		return m_QuestNPCData;
 	}
-	
-	void UpdateQuestMarker(bool show, int state = -1)
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "::UpdateQuestMarker - Show: " + show.ToString() + " | NPC ID: " + m_QuestNPCID + " | State: " + state.ToString());
 
-		if ( GetGame() && GetGame().IsClient() || !GetGame().IsMultiplayer() )
-		{
-			if ( show && !m_QuestParticle )
-			{
-				if (m_QuestParticle)
-					m_QuestParticle.Stop();
-				
-				m_QuestParticle = ParticleManager.GetInstance().PlayOnObject(PARTICLE_QUEST_MARKER, this , "0 0.9 0", "0 0 0", true);
-				
-				if (state == 0)
-				{
-					ShowQuestionmark(true);
-					ShowExclamantionmark(false);
-				}
-				else if (state == 1)
-				{
-					ShowQuestionmark(false);
-					ShowExclamantionmark(true);
-				}
-			}
-			else if ( !show && m_QuestParticle )
-			{
-				m_QuestParticle.Stop();
-			}
-		}
+	void Expansion_SetQuestIndicator(ExpansionQuestIndicatorState state)
+	{
+		ExpansionQuestModule.SetQuestNPCIndicator(this, m_Expansion_QuestIndicator, state);
 	}
-	
-	void ShowQuestionmark(bool show)
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!m_QuestParticle)
-			return;
-		
-		if (show)
-		{
-			m_QuestParticle.SetParameter(0, EmitorParam.LIFETIME, 4);
-			m_QuestParticle.SetParameter(0, EmitorParam.REPEAT, 1);
-			m_QuestParticle.SetParameter(0, EmitorParam.SIZE, 0.3);
-		}
-		else
-		{
-			m_QuestParticle.SetParameter(0, EmitorParam.LIFETIME, 0);
-			m_QuestParticle.SetParameter(0, EmitorParam.REPEAT, 0);
-			m_QuestParticle.SetParameter(0, EmitorParam.SIZE, 0);
-		}
-	}
-	
-	void ShowExclamantionmark(bool show)
+	void Expansion_SetQuestIndicator(Particle particle)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!m_QuestParticle)
-			return;
-		
-		if (show)
-		{
-			m_QuestParticle.SetParameter(1, EmitorParam.LIFETIME, 4);
-			m_QuestParticle.SetParameter(1, EmitorParam.REPEAT, 1);
-			m_QuestParticle.SetParameter(1, EmitorParam.SIZE, 0.3);
-		}
-		else
-		{
-			m_QuestParticle.SetParameter(1, EmitorParam.LIFETIME, 0);
-			m_QuestParticle.SetParameter(1, EmitorParam.REPEAT, 0);
-			m_QuestParticle.SetParameter(1, EmitorParam.SIZE, 0);
-		
-		}
+		m_Expansion_QuestIndicator = particle;
 	}
 };
 

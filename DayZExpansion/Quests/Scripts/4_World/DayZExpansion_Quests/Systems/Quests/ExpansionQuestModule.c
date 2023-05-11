@@ -17,6 +17,14 @@ enum ExpansionQuestModuleCallback
 	MISSING_REQUIRED_ITEMS = 4
 };
 
+//! @note QUESTION and EXCLAMATION map to respective parameter of particle
+enum ExpansionQuestIndicatorState
+{
+	NOT_SET = -1,
+	QUESTION,
+	EXCLAMATION
+}
+
 [CF_RegisterModule(ExpansionQuestModule)]
 class ExpansionQuestModule: CF_ModuleWorld
 {
@@ -25,8 +33,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	static ref map<int, ExpansionQuestNPCAIBase> s_QuestNPCAIEntities = new map<int, ExpansionQuestNPCAIBase>; //! Server & Client
 #endif
 	static ref map<int, ExpansionQuestStaticObject> s_QuestObjectEntities = new map<int, ExpansionQuestStaticObject>; //! Server & Client
-
 	
+	static ref map<int, ExpansionQuestIndicatorState> s_QuestNPCIndicatorStates = new map<int, ExpansionQuestIndicatorState>; //! Client
+
 	//! Server only
 	protected ref map<string, ref ExpansionQuestPersistentData> m_PlayerDatas; //! Server
 
@@ -998,7 +1007,17 @@ class ExpansionQuestModule: CF_ModuleWorld
 		m_ClientQuestData = data;
 		m_ClientQuestData.QuestDebug();
 		
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Exec_DeferredSendClientQuestData, 1000);
+	}
+	
+	//! Client
+	protected void Exec_DeferredSendClientQuestData()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		m_QuestHUDCallbackInvoker.Invoke();
+
+		UpdateQuestNPCIndicators();
 	}
 
 	//! Server
@@ -3678,7 +3697,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	static void AddQuestNPCAI(int id, ExpansionQuestNPCAIBase questNPCAI)
 	{
 		if (!s_QuestNPCAIEntities.Contains(id))
+		{
 			s_QuestNPCAIEntities.Insert(id, questNPCAI);
+			s_QuestNPCIndicatorStates[id] = ExpansionQuestIndicatorState.NOT_SET;
+		}
 	}
 	
 	static void RemoveQuestNPCAI(int id)
@@ -3774,7 +3796,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	static void AddStaticQuestObject(int id, ExpansionQuestStaticObject staticQustObject)
 	{
 		if (!s_QuestObjectEntities.Contains(id))
+		{
 			s_QuestObjectEntities.Insert(id, staticQustObject);
+			s_QuestNPCIndicatorStates[id] = ExpansionQuestIndicatorState.NOT_SET;
+		}
 	}
 	
 	static void RemoveStaticQuestObject(int id)
@@ -3791,7 +3816,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	static void AddQuestNPC(int id, ExpansionQuestNPCBase questNPC)
 	{
 		if (!s_QuestNPCEntities.Contains(id))
+		{
 			s_QuestNPCEntities.Insert(id, questNPC);
+			s_QuestNPCIndicatorStates[id] = ExpansionQuestIndicatorState.NOT_SET;
+		}
 	}
 	
 	static void RemoveQuestNPC(int id)
@@ -3813,6 +3841,140 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return NULL;
 
 		return target;
+	}
+	
+	void UpdateQuestNPCIndicators()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
+		if (!GetExpansionSettings().GetQuest().UseQuestNPCIndicators)
+			return;
+
+		ExpansionQuestPersistentData playerQuestData = GetClientQuestData();
+		if (!playerQuestData)
+			return;
+		
+		array<ref ExpansionQuestConfig> questConfigs = GetQuestConfigsClient();
+		if (!questConfigs)
+			return;
+
+		foreach (int npcID, ExpansionQuestIndicatorState state: s_QuestNPCIndicatorStates)
+		{
+			s_QuestNPCIndicatorStates[npcID] = ExpansionQuestIndicatorState.NOT_SET;
+		}
+
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
+		foreach (int questID, ExpansionQuestConfig config: questConfigs)
+		{
+			int questState = playerQuestData.GetQuestStateByQuestID(config.GetID());
+
+			QuestModulePrint("Quest ID: " + questID + " \"" + config.Title + "\" | State: " + typename.EnumToString(ExpansionQuestState, questState));
+
+			if (questState == ExpansionQuestState.CAN_TURNIN)
+			{
+				array<int> questTurnInIDs = config.GetQuestTurnInIDs();
+				foreach (int turnInID: questTurnInIDs)
+				{
+					if (!QuestDisplayConditions(config, player, playerQuestData, turnInID, true))
+						continue;
+
+					s_QuestNPCIndicatorStates[turnInID] = ExpansionQuestIndicatorState.QUESTION;
+				}
+			}
+			else if (questState != ExpansionQuestState.STARTED)
+			{
+				array<int> questGiverIDs = config.GetQuestGiverIDs();
+				foreach (int giverID: questGiverIDs)
+				{
+					if (!QuestDisplayConditions(config, player, playerQuestData, giverID, true))
+						continue;
+
+					if (s_QuestNPCIndicatorStates[giverID] == ExpansionQuestIndicatorState.NOT_SET)
+						s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
+				}
+			}
+		}
+		
+		SetQuestNPCIndicators();
+	}
+
+	static void SetQuestNPCIndicators()
+	{
+		ExpansionQuestNPCBase questNPC;
+	#ifdef EXPANSIONMODAI
+		ExpansionQuestNPCAIBase questAINPC;
+	#endif
+		ExpansionQuestStaticObject questObj;
+		
+		foreach (int npcID, ExpansionQuestIndicatorState indicatorState: s_QuestNPCIndicatorStates)
+		{
+			questNPC = GetQuestNPCByID(npcID);
+		#ifdef EXPANSIONMODAI
+			questAINPC = GetQuestNPCAIByID(npcID);
+		#endif
+			questObj = GetQuestObjectByID(npcID);
+			
+			if (questNPC)
+			{
+				questNPC.Expansion_SetQuestIndicator(indicatorState);
+			}
+		#ifdef EXPANSIONMODAI
+			else if (questAINPC)
+			{
+				questAINPC.Expansion_SetQuestIndicator(indicatorState);
+			}
+		#endif
+			else if (questObj)
+			{
+				questObj.Expansion_SetQuestIndicator(indicatorState);
+			}
+		}
+	}
+		
+	static void SetQuestNPCIndicator(Object obj, inout ParticleSource particle, ExpansionQuestIndicatorState state)
+	{
+		auto trace = EXTrace.StartStack(EXTrace.QUESTS, s_ModuleInstance, "SetQuestNPCIndicator " + obj.ToString() + " " + obj.GetPosition() + " | State: " + typename.EnumToString(ExpansionQuestIndicatorState, state));
+
+		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
+		{
+			if (state != ExpansionQuestIndicatorState.NOT_SET)
+			{
+				vector localPos = "0 0.9 0";
+				if (ExpansionQuestStaticObject.Cast(obj))
+					localPos = "0 0.7 0";
+
+				if (!particle)
+					particle = ParticleManager.GetInstance().PlayOnObject(ParticleList.EXPANSION_PARTICLE_QUEST_MARKER, obj , localPos, "0 0 0", true);
+				else if (!particle.IsParticlePlaying())
+					particle.PlayParticle();
+
+				if (state == ExpansionQuestIndicatorState.QUESTION)
+					SetQuestIndicator(particle, ExpansionQuestIndicatorState.EXCLAMATION, false);
+				else
+					SetQuestIndicator(particle, ExpansionQuestIndicatorState.QUESTION, false);
+
+				SetQuestIndicator(particle, state, true);
+			}
+			else if (particle)
+			{
+				particle.StopParticle();
+			}
+		}
+	}
+	
+	static void SetQuestNPCIndicator(int npcID, Object obj, inout ParticleSource particle)
+	{
+		ExpansionQuestIndicatorState state;
+		if (s_QuestNPCIndicatorStates.Find(npcID, state))
+			SetQuestNPCIndicator(obj, particle, state);
+	}
+
+	static void SetQuestIndicator(ParticleSource particle, int emitter, bool show)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, s_ModuleInstance, "SetQuestIndicator " + particle + " " + typename.EnumToString(ExpansionQuestIndicatorState, emitter) + " " + show);
+
+		particle.SetParameter(emitter, EmitorParam.BIRTH_RATE, 1.0 * show);
 	}
 
 	void PlayerQuestDataCheck()
@@ -3893,7 +4055,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		QuestModulePrint("Quest state is: " + stateText + " | Quest ID: " + questID);
-		if (HasCompletedQuest(questID, playerUID))
+		if (!config.IsRepeatable() && questState == ExpansionQuestState.COMPLETED)
 		{
 			QuestModulePrint("Return FALSE. Quest is already completed and not repeatable!");
 			return false;

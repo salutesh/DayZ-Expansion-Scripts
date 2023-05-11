@@ -147,6 +147,8 @@ class EXTrace
 	void ~EXTrace()
 	{
 		s_Indent = s_Indent.Substring(0, s_Indent.Length() - 1);
+		if (m_Depth == -1)
+			m_Depth = 1;
 		Dump(m_Depth, m_Start, true);
 	}
 

@@ -238,7 +238,7 @@ class ExpansionNotificationView: ScriptView
 		}
 	}
 		
-	void Update(float timeslice) 
+	void AnimateNotification(float timeslice) 
 	{
 		if (m_Hiding)
 		{
