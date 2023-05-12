@@ -451,9 +451,9 @@ class ExpansionBookMenuTabParty: ExpansionBookMenuTabBase
 		return 1.0;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
-		super.Update();
+		super.Expansion_Update();
 
 		if (!IsVisible())
 			return;

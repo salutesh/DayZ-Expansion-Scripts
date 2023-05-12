@@ -113,7 +113,7 @@ class EXTrace
 
 	static bool TERRITORY;
 
-	static bool UI;
+	static bool UI = ENABLE;
 
 	static bool VEHICLES = ENABLE;
 
@@ -147,6 +147,8 @@ class EXTrace
 	void ~EXTrace()
 	{
 		s_Indent = s_Indent.Substring(0, s_Indent.Length() - 1);
+		if (m_Depth == -1)
+			m_Depth = 1;
 		Dump(m_Depth, m_Start, true);
 	}
 
@@ -399,7 +401,7 @@ class EXTrace
 
 		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(-1);
-		trace.InitialDump(2);
+		trace.InitialDump(1);
 		return trace;
 	}
 
@@ -414,7 +416,7 @@ class EXTrace
 
 		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(0);
-		trace.InitialDump(2);
+		trace.InitialDump(1);
 		return trace;
 	}
 }

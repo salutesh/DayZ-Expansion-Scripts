@@ -58,7 +58,7 @@ class ExpansionAirdropPlane: House
 	void ExpansionAirdropPlane()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] Constructor start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		if ( IsMissionClient() )
@@ -67,10 +67,6 @@ class ExpansionAirdropPlane: House
 		}
 
 		SetEventMask( EntityEvent.CONTACT | EntityEvent.SIMULATE );
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] Constructor end");
-		#endif
 	}
 		
 	// ------------------------------------------------------------
@@ -79,7 +75,7 @@ class ExpansionAirdropPlane: House
 	override void EEDelete(EntityAI parent)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropPlane::EEDelete - Start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		super.EEDelete(parent);
@@ -106,10 +102,6 @@ class ExpansionAirdropPlane: House
 				StopSoundSet( m_SoundLoop );
 			}
 		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropPlane::EEDelete - End");
-		#endif
 	}
 
 	static vector GetSpawnPoint( vector dropPosition, float height )
@@ -199,14 +191,10 @@ class ExpansionAirdropPlane: House
 	void PlayLoop()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] PlayLoop start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 		
 		PlaySoundSetLoop( m_SoundLoop, "Expansion_C130J_Loop_SoundSet", 3.0, 3.0 );
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] PlayLoop end");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -215,7 +203,7 @@ class ExpansionAirdropPlane: House
 	void SetupPlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] SetupPlane start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		vector position = GetPosition();
@@ -242,10 +230,6 @@ class ExpansionAirdropPlane: House
 		SetDirection( position - m_AirdropPosition );
 
 		m_HeadingAngle = Math.Atan2( m_AirdropPosition[2] - position[2], m_AirdropPosition[0] - position[0] );
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] SetupPlane end");
-		#endif
 	}
 	
 	// ------------------------------------------------------------
@@ -254,7 +238,7 @@ class ExpansionAirdropPlane: House
 	override void EOnSimulate( IEntity other, float dt )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] EOnSimulate start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		if ( IsMissionHost() )
@@ -392,10 +376,6 @@ class ExpansionAirdropPlane: House
 			m_RotorAnimationPosition -= 1;
 
 		SetAnimationPhase( "rotor", m_RotorAnimationPosition );
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] EOnSimulate end");
-		#endif
 	}
 
 	float GetTerrainY( vector position )
@@ -455,7 +435,7 @@ class ExpansionAirdropPlane: House
 	bool CheckForDrop()
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] CheckPosition start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		if ( !IsMissionHost() )
@@ -490,10 +470,6 @@ class ExpansionAirdropPlane: House
 			}
 		}
 
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] CheckPosition end");
-		#endif
-
 		return false;
 	}
 
@@ -514,7 +490,7 @@ class ExpansionAirdropPlane: House
 	ExpansionAirdropContainerBase CreateDrop( string container )
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] CreateDrop start");
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
 		#endif
 
 		m_AirdropCreated = true;
@@ -523,22 +499,28 @@ class ExpansionAirdropPlane: House
 	
 		// ExpansionNotification( new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_EVENT_DROP", m_AirdropName ), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_EXPANSION).Create();
 		Object obj = GetGame().CreateObjectEx( container, dropPosition, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_AIRBORNE );
+
+		#ifdef DIAG
+		GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME);
+		#endif
 		
 		ExpansionAirdropContainerBase drop;
 		if ( Class.CastTo( drop, obj ) )
-		{			
-			if ( m_SpawnRadius > 0 )
-				drop.SetWindImpact(true);
-
+		{
 			drop.SetPosition( dropPosition );
-			drop.SetOrientation( "0 0 0" );
+			if (GetGame().GetWeather())
+			{
+				//! Rotate to wind
+				vector wind = GetGame().GetWeather().GetWind();
+				vector ori = wind.Normalized().VectorToAngles();
+				ori[0] = Math.NormalizeAngle(ori[0] + 90.0);
+				ori[1] = 0.0;
+				ori[2] = 0.0;
+				drop.SetOrientation(ori);
+			}
 
-			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount);
+			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount, m_LootContainer.FallSpeed, Math.Min(m_SpawnRadius * 0.01, 1.0));
 		}
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("[ExpansionAirdropPlane] CreateDrop end");
-		#endif
 
 		return drop;
 	}

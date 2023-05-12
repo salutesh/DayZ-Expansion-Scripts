@@ -475,6 +475,14 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
 		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
 	};
+	class ExpansionBigGyrocopter_Cover: ExpansionVehicleCover
+	{
+		scope = 2;
+		model = "dayzexpansion\vehicles\objects\gear\vehicle_covers\gyrocopter_cover.p3d";
+		hiddenSelections[] = {"camo"};
+		hiddenSelectionsTextures[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east_co.paa"};
+		hiddenSelectionsMaterials[] = {"dayzexpansion\vehicles\objects\gear\vehicle_covers\data\camonet_east.rvmat"};
+	};
 	class ExpansionLHD_Cover: ExpansionVehicleCover
 	{
 		scope = 2;

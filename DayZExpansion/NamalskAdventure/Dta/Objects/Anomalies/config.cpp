@@ -57,30 +57,21 @@ class CfgVehicles
 				{
 					class Health
 					{
-						damage = 0.0;
-					};
-					class Blood
-					{
-						damage = 0.0;
-					};
-					class Shock
-					{
-						damage = 0.0;
+						damage = 1.0;
 					};
 				};
 				class FragGrenade
 				{
 					class Health
 					{
-						damage = 0.0;
+						damage = 1.0;
 					};
-					class Blood
+				};
+				class Meele
+				{
+					class Health
 					{
-						damage = 0.0;
-					};
-					class Shock
-					{
-						damage = 0.0;
+						damage = 1.0;
 					};
 				};
 			};

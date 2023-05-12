@@ -46,8 +46,11 @@ modded class DayZGame
 
 		m_Expansion_StartTime = ExpansionCalculateStartTime(now);
 		m_Expansion_StartTimeUTC = ExpansionCalculateStartTime(nowUTC);
-		m_Expansion_StartTimestamp = now.DateToEpoch();
-		m_Expansion_StartTimestampUTC = nowUTC.DateToEpoch();
+		m_Expansion_StartTimestamp = now.DateToEpoch() - (int) GetTickTime();
+		m_Expansion_StartTimestampUTC = nowUTC.DateToEpoch() - (int) GetTickTime();
+		EXLogPrint(this, "Start time (local time) " + CF_Date.Epoch(m_Expansion_StartTimestamp).Format(CF_Date.DATETIME));
+		EXLogPrint(this, "Start time (UTC) " + CF_Date.Epoch(m_Expansion_StartTimestampUTC).Format(CF_Date.DATETIME));
+		EXLogPrint(this, "Runtime since start (seconds) " + GetTickTime());
 
 		if (!FileExist(EXPANSION_FOLDER))
 		{
@@ -184,14 +187,11 @@ modded class DayZGame
 		return m_Expansion_StartTime;
 	}
 
-	int ExpansionGetStartTimestamp()
+	int ExpansionGetStartTimestamp(bool useUTC = false)
 	{
+		if (useUTC)
+			return m_Expansion_StartTimestampUTC;
 		return m_Expansion_StartTimestamp;
-	}
-
-	int ExpansionGetStartTimestampUTC()
-	{
-		return m_Expansion_StartTimestampUTC;
 	}
 
 	protected void SetWorldCenterPosition()

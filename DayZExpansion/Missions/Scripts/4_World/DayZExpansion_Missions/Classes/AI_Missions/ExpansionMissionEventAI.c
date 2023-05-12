@@ -5,9 +5,10 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 	string MappingFile;
 
-	#ifdef EXPANSIONMODAI
+#ifdef EXPANSIONMODAI
 	ref array< ref ExpansionAIPatrol > AIPatrols;
-	#endif
+#endif
+
 	ref array < ref ExpansionAIMissionInfected > Animals;
 	ref array< ref ExpansionAIMissionLoot > LootLocations;
 
@@ -17,21 +18,21 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	[NonSerialized()]
 	autoptr array< EntityAI > m_Containers;
 
-	#ifdef EXPANSIONMODAI
+#ifdef EXPANSIONMODAI
 	[NonSerialized()]
 	autoptr array< eAIDynamicPatrol > m_Soldiers;
 
 	[NonSerialized()]
 	ExpansionAIPatrolManager AIPatrolManager;
-	#endif
+#endif
 
-	#ifdef EXPANSIONMODNAVIGATION
+#ifdef EXPANSIONMODNAVIGATION
 	[NonSerialized()]
 	ExpansionMarkerModule m_MarkerModule;
 
 	[NonSerialized()]
 	ExpansionMarkerData m_ServerMarker;
-	#endif
+#endif
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionMissionEventAI
@@ -40,10 +41,10 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	{
 		m_EventName = "AI";
 
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		AIPatrols = new array< ref ExpansionAIPatrol >;
 		m_Soldiers = new array< eAIDynamicPatrol >;
-		#endif
+	#endif
 		
 		Animals = new array< ref ExpansionAIMissionInfected >;
 
@@ -59,16 +60,16 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	
 	override void Event_OnStart()
 	{
-		#ifdef EXPANSION_MISSION_AI_ENABLE
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionStarted )
 			CreateNotif(MissionMeta.NotificationStart);
-		#endif
 
 		MappingSet = new ExpansionObjectSet(EXPANSION_MISSIONS_OBJECTS_FOLDER,MappingFile);
 		MappingSet.SpawnObjects();
-		#ifdef EXPANSIONMODVEHICLE
+
+	#ifdef EXPANSIONMODVEHICLE
 		ExpansionCarKey key;
-		#endif
+	#endif
+
 		for ( int ll = 0; ll < LootLocations.Count(); ll++ ) 
 		{
 			ExpansionAIMissionLoot currloot = LootLocations.Get( ll );
@@ -107,7 +108,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 				{
 					itembs.Close();
 
-					#ifdef EXPANSIONMODBASEBUILDING
+				#ifdef EXPANSIONMODBASEBUILDING
 					if ( shouldLock )
 					{
 						if ( itembs.ExpansionFindCodeLockSlot() )
@@ -121,24 +122,24 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 							itembs.ExpansionLock();
 						}
 					}
-					#endif
+				#endif
 				}
+			#ifdef EXPANSIONMODVEHICLE
 				if (car)
 				{
 					if ( shouldLock )
 					{
-					#ifdef EXPANSIONMODVEHICLE
 						key = ExpansionCarKey.Cast( SpawnObject("ExpansionCarKey") );
 						car.PairKeyTo(key);
 						car.LockCar(key);
-					#endif
 					}
 				}
+			#endif
 				m_Containers.Insert(container);
 			}
 		}
 		
-		#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 		int pickedGroupId = Math.RandomInt(0, AIPatrols.Count() );
 
 		for ( int sl = 0; sl < AIPatrols.Count(); sl++ ) 
@@ -148,7 +149,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			{
 				m_Soldiers.Insert(AIPatrolManager.InitPatrol(currAIPatrol));
 			
-				#ifdef EXPANSIONMODVEHICLE
+			#ifdef EXPANSIONMODVEHICLE
 				if ( pickedGroupId == sl )
 				{
 					int soldiercount = m_Soldiers.Count() - 1;
@@ -164,10 +165,10 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 					Print("group.GetMember(pickedSoldierId) =>"+group.GetMember(pickedSoldierId));
 					Print("member =>"+member);
 				}
-				#endif
+			#endif
 			}
 		}
-		#endif
+	#endif
 
 		for ( int sa = 0; sa < Animals.Count(); sa++ ) 
 		{
@@ -181,15 +182,13 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			}
 		}
 
-		#ifdef EXPANSIONMODNAVIGATION
+	#ifdef EXPANSIONMODNAVIGATION
 		if (CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule))
 			m_ServerMarker = m_MarkerModule.CreateServerMarker(MissionMeta.Marker.Name, EXPANSION_NOTIFICATION_ICON_AI_MISSION, MissionMeta.Marker.Position, COLOR_EXPANSION_NOTIFICATION_MISSION, true);
-		#endif
+	#endif
 		
-		#ifdef EXPANSION_MISSION_AI_ENABLE
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
 			CreateNotif(MissionMeta.NotificationEnd);
-		#endif
 	}
 
 	/*
@@ -199,7 +198,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		{
 			m_InfectedCount++;
 
-			vector spawnPos = Vector( m_Container.GetPosition()[0] + Math.RandomFloat( -InfectedSpawnRadius, InfectedSpawnRadius ), 0, m_Container.GetPosition()[2] + Math.RandomFloat( -InfectedSpawnRadius, InfectedSpawnRadius ) );
+			vector spawnPos = ExpansionMath.GetRandomPointInRing(m_Container.GetPosition(), InfectedSpawnRadius * 0.1, InfectedSpawnRadius);
 			spawnPos[1] = GetGame().SurfaceY( spawnPos[0], spawnPos[2] );
 
 			//! Have to convert vector to string for call queue
@@ -208,15 +207,11 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			if ( InfectedSpawnInterval > 0 )
 			{
 				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( Send_SpawnParticle, InfectedSpawnInterval * m_InfectedCount, false, spawnPos.ToString( false ) );
-				additionalDelay = 300;
+				additionalDelay = Math.RandomFloat(100, 300);
 			}
 
 			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( CreateSingleInfected, InfectedSpawnInterval * m_InfectedCount + additionalDelay, false, spawnPos.ToString( false ) );
 		}
-
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionAirdropContainerManager::SpawnInfected - End");
-		#endif
 	}
 
 	void CreateSingleInfected( string spawnPosStr )
@@ -236,65 +231,55 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	}
 	*/
 
+	override bool CanEnd()
+	{
+		//! Check if a player is nearby any container in a 1000 meter radius
+		foreach (auto container: m_Containers)
+		{
+			if (ExpansionLootSpawner.IsPlayerNearby(container, 1000))
+				return false;
+		}
+
+		return true;
+	}
+
 	override void Event_OnEnd()
 	{
+		#ifdef EXPANSION_MISSION_EVENT_DEBUG
+		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
+		#endif
+
 		if ( IsMissionHost() )
 		{
-			//! After mission ends check all 60 seconds if a player is nearby the airdrop crate and if not delete the container
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( this.CleanupCheck, 60 * 1000, true );
-		}
-	}
-	
-	void CleanupCheck()
-	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAI::CleanupCheck - Start");
-		#endif
-		
-		if ( IsMissionHost() )
-		{
-			//! Check if a player is nearby the container in a 1000 meter radius
-			for ( int j = 0; j < m_Containers.Count(); j++ )
+			foreach (auto container: m_Containers)
 			{
-				if ( !ExpansionLootSpawner.IsPlayerNearby(m_Containers[j], 1000) )
-				{
-					ExpansionLootSpawner.RemoveContainer( m_Containers[j] );
-					m_Containers.Remove(j);
-				}
+				GetGame().ObjectDelete(container);
 			}
 
-			if ( m_Containers.Count() == 0 )
+			m_Containers.Clear();
+
+		#ifdef EXPANSIONMODAI
+			foreach (auto soldiers: m_Soldiers)
 			{
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).Remove( this.CleanupCheck );
-				#ifdef EXPANSIONMODAI
-				for ( int i = 0; i < m_Soldiers.Count(); i++ )
-				{
-					m_Soldiers[i].Despawn();
-					m_Soldiers[i].Delete();
-					m_Soldiers.Remove(i);
-				}
-				#endif
-
-				//! TODO: Wipe the spawned Animals
-
-				#ifdef EXPANSIONMODNAVIGATION
-				if (m_ServerMarker && m_MarkerModule)
-					m_MarkerModule.RemoveServerMarker(m_ServerMarker.GetUID());
-				#endif
-
-				#ifdef EXPANSION_MISSION_AI_ENABLE
-				if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
-					CreateNotif(MissionMeta.NotificationEnd);
-				#endif
-
-				MappingSet.Delete();
-				return;
+				soldiers.Despawn();
+				soldiers.Delete();
 			}
-		}
-		
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
-		EXLogPrint("ExpansionMissionEventAI::CleanupCheck - End");
+
+			m_Soldiers.Clear();
 		#endif
+
+			//! TODO: Wipe the spawned Animals
+
+		#ifdef EXPANSIONMODNAVIGATION
+			if (m_ServerMarker && m_MarkerModule)
+				m_MarkerModule.RemoveServerMarker(m_ServerMarker.GetUID());
+		#endif
+
+			if ( GetExpansionSettings().GetNotification().ShowAIMissionEnded )
+				CreateNotif(MissionMeta.NotificationEnd);
+
+			MappingSet.Delete();
+		}
 	}
 
 	protected override void OnLoadMission()
@@ -404,12 +389,12 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
 			MappingFile = "BanditRoadAmbush.map";
-			#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5458.080566 173.637192 12304.130859"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5463.901855 173.594833 12302.534180"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5462.813965 173.794785 12292.244141"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"5466.251953 185.817581 12296.766602"}));
-			#endif
+		#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "5457.122070 173.275223 12304.987305"));
 			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
@@ -422,14 +407,14 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			mapMarker	= new ExpansionSettingMarkerData("Bandit Outpost","Bandit","#b53128", "10813.508789 335.859680 12842.180664", true);
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
-			#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "HALT", "West", "", true, true, 1.0, 1, 1, -1, -10,{"10816.439453 365.125153 12851.209961"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"10803.737305 336.157471 12852.415039"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"10803.396484 335.701996 12857.082031"}));
 
 			patrol = {"10797.850586 335.714447 12860.800781","10819.007813 334.957336 12868.475586","10829.625977 334.317841 12860.252930","10826.763672 334.054077 12835.985352","10802.163086 335.897369 12835.940430","10792.398438 335.709381 12850.662109"};
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,patrol));
-			#endif
+		#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "10813.508789 335.859680 12842.180664"));
 			containers.Insert(new ExpansionAIMissionContainer({"Barrel_Red","Barrel_Yellow","Barrel_Green","Barrel_Blue"}, "10810.214844 335.881378 12840.517578"));
@@ -443,14 +428,14 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			mapMarker	= new ExpansionSettingMarkerData("Protected Car","Car","#b53128", "1935.177368 316.118530 8137.058105", true);
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
-			#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"1930.597534 316.202026 8104.156738"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"1926.229370 316.017944 8130.541504"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"1935.195068 315.958252 8122.743652"}));
 
 			patrol = {"1935.177368 316.118530 8137.058105","1947.882202 317.576721 8123.168945","1951.465942 317.578827 8100.388184","1932.192871 315.088287 8093.985840","1910.182617 314.038513 8101.887695","1896.561523 312.488312 8120.151367","1906.121704 314.353638 8140.756348"};
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,patrol));
-			#endif
+		#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"CivilianSedan","CivilianSedan_Wine","CivilianSedan_Black"}, "1936.86 316.167 8116.66", "10 0 0"));
 			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
@@ -463,7 +448,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			mapMarker	= new ExpansionSettingMarkerData("Protected Truck","Car","#b53128", "8324.178711 292.289398 5974.528320", true);
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
-			#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"8519.078125 292.434692 6036.809082"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"8398.845703 292.025513 5978.773438"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"8278.727539 292.488708 5992.928711"}));
@@ -474,7 +459,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			patrol = {"8364.980469 292.219086 5996.721191","8352.618164 292.079529 5960.034668","8319.434570 292.086975 5953.710938","8300.264648 292.067444 5978.587402","8327.583008 292.100189 6001.889648","8366.969727 292.269257 6014.940430"};
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,patrol));
-			#endif
+		#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"Truck_01_Covered"}, "8324.178711 292.289398 5974.528320", "-79.88 -0.6868 -0.12599"));
 			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -20, ExpansionLootDefaults.Airdrop_Regular() ) );
@@ -488,11 +473,11 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
 			MappingFile = "HelicrashCargo.map";
-			#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "East", "", true, true, 1.0, 1, 5, -1, -10,{"9075.427734 280.188660 10718.725586"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "East", "", true, true, 1.0, 1, 5, -1, -10,{"9067.759766 280.948578 10719.856445"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "East", "", true, true, 1.0, 1, 5, -1, -10,{"9072.833008 280.211884 10703.137695"}));
-			#endif
+		#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"WoodenCrate"}, "9070.771484 280.396698 10713.153320"));
 			containers.Insert(new ExpansionAIMissionContainer({"WoodenCrate"}, "9072.484375 280.127106 10716.075195"));
@@ -507,7 +492,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 			MissionMeta = new ExpansionAIMissionMeta( notifStart, notifAction, notifEnd, mapMarker );
 
 			MappingFile = "AmbushedMilitaryConvoy.map";
-			#ifdef EXPANSIONMODAI
+		#ifdef EXPANSIONMODAI
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"10677.689453 123.464012 4550.304199"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"10673.118164 124.459389 4559.007813"}));
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,{"10674.083984 126.926834 4575.002441"}));
@@ -515,7 +500,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			patrol = {"10665.684570 123.970688 4550.709473","10666.011719 128.632889 4577.446777","10689.669922 128.079041 4580.224609","10681.392578 123.235329 4544.676270","10661.429688 122.822968 4523.191406"};
 			AIPatrols.Insert( new ExpansionAIPatrol(-3, "WALK", "SPRINT", "ALTERNATE", "West", "", true, true, 1.0, 1, 5, -1, -10,patrol));
-			#endif
+		#endif
 
 			containers.Insert(new ExpansionAIMissionContainer({"WoodenCrate"}, "10671.889648 124.513763 4557.255859"));
 			LootLocations.Insert( new ExpansionAIMissionLoot( containers, -5, ExpansionLootDefaults.Airdrop_Regular() ) );

@@ -366,7 +366,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		return 0.5;
 	}
 	
-	void Update()
+	void Expansion_Update()
 	{
 	#ifdef EXPANSIONMONITORMODULE
 		if (!GetExpansionSettings().IsLoaded(ExpansionPartySettings))
@@ -389,7 +389,7 @@ class ExpansionPartyHudMember: ExpansionScriptViewBase
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
 			m_UpdateTimer = new Timer(CALL_CATEGORY_GUI);
-			m_UpdateTimer.Run(GetUpdateTickRate(), this, "Update", NULL, true);
+			m_UpdateTimer.Run(GetUpdateTickRate(), this, "Expansion_Update", NULL, true);
 		}
 	}
 	

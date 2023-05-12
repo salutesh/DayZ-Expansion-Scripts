@@ -84,49 +84,6 @@ modded class ItemBase
 		ai.eAI_RemoveItem(this);
 	}
 
-	override float GetProtectionLevel(int type, bool consider_filter = false, int system = 0)
-	{
-		Man player = GetHierarchyRootPlayer();
-		if (!player || !player.IsInherited(eAIBase))
-			return super.GetProtectionLevel(type, consider_filter, system);
-
-		//! @note duplicated vanilla checks for AI but ignore quantity
-
-		if (IsDamageDestroyed())
-		{
-			return 0;
-		}
-		
-		if( GetInventory().GetAttachmentSlotsCount() != 0 )//is it an item with attachable filter ?
-		{
-			ItemBase filter = ItemBase.Cast(FindAttachmentBySlotName("GasMaskFilter"));
-			if (filter )
-			{
-				return filter.GetProtectionLevel(type, false, system);//it's a valid filter, return the protection
-			}
-			else return 0;//otherwise return 0 when no filter attached
-		}
-
-		string subclass_path, entryName;
-
-		switch (type)
-		{
-			case DEF_BIOLOGICAL:
-				entryName = "biological";
-				break;
-			case DEF_CHEMICAL:
-				entryName = "chemical";
-				break;	
-			default:
-				entryName = "biological";
-				break;
-		}
-		
-		subclass_path = "CfgVehicles " + GetType() + " Protection ";
-		
-		return GetGame().ConfigGetFloat(subclass_path + entryName);
-	}
-
 	bool Expansion_TryTurningOn()
 	{
 		if ( HasEnergyManager() )

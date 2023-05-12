@@ -32,93 +32,65 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	// OnUpdate
 	// ------------------------------------------------------------
-	override void OnUpdate(float timeslice)
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate(timeslice);
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (!m_bLoaded)
-			return;
+		auto generalSettings = GetExpansionSettings().GetGeneral(false);
 
-		//! Checking for keyboard focus
-		bool inputIsFocused = false;
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
-
-		if (focusedWidget)
+		if (isAliveConscious)
 		{
-			if (focusedWidget.IsInherited(EditBoxWidget))
+			if (!menu && !inputIsFocused)
 			{
-				inputIsFocused = true;
+				//! Autorun
+				if (input.LocalPress("UAExpansionAutoRunToggle", false))
+				{
+					if (!player.GetParent() && generalSettings.EnableAutoRun)
+						m_AutoRunModule.AutoRun();
+				}
+
+				//! Toggle Earplugs
+				if (input.LocalPress( "UAExpansionEarplugsToggle", false )  && !viewMenu)
+				{
+					if (generalSettings.EnableEarPlugs)
+						m_Hud.ToggleEarplugs();
+				}
+
+				//! Toggle Player list menu
+				if (input.LocalPress("UAExpansionPlayerListToggle", false) && !m_Expansion_PlayerListTogglePressed)
+				{
+					m_Expansion_PlayerListTogglePressed = true;
+					OnPlayerListTogglePressed();
+				}
+				else if (input.LocalRelease("UAExpansionPlayerListToggle", false) || input.LocalValue("UAExpansionPlayerListToggle", false) == 0)
+				{
+					m_Expansion_PlayerListTogglePressed = false;
+				}
 			}
-			else if (focusedWidget.IsInherited(MultilineEditBoxWidget))
+
+			if (m_AutoRunModule)
 			{
-				inputIsFocused = true;
+				//! Autowalk
+				if (generalSettings.EnableAutoRun)
+					m_AutoRunModule.UpdateAutoWalk();
+
+				//! Stop autorun when different inputs are pressed
+				if (!m_AutoRunModule.IsDisabled() && !inputIsFocused)
+				{
+					if (ExpansionStatic.INPUT_FORWARD() || ExpansionStatic.INPUT_BACK() || ExpansionStatic.INPUT_LEFT() || ExpansionStatic.INPUT_RIGHT() || ExpansionStatic.INPUT_STANCE())
+						m_AutoRunModule.AutoRun();
+				}
 			}
 		}
 
-		Man man = GetGame().GetPlayer(); //! Refernce to man
-		Input input = GetGame().GetInput(); //! Reference to input
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
-		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
-		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
-
-		if (playerPB)
+		//! Nightvision check
+		if (generalSettings.EnableHUDNightvisionOverlay)
 		{
-			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
+			m_Expansion_NVUpdateTick += timeslice;
+			if (m_Expansion_NVUpdateTick > 0.1)
 			{
-				//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
-				if (!topMenu && !inputIsFocused)
-				{
-					//! Autorun
-					if (input.LocalPress("UAExpansionAutoRunToggle", false))
-					{
-						if (!man.GetParent() && GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableAutoRun)
-							m_AutoRunModule.AutoRun();
-					}
-
-					//! Toggle Earplugs
-					if (input.LocalPress( "UAExpansionEarplugsToggle", false )  && !viewMenu)
-					{
-						if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableEarPlugs)
-							m_Hud.ToggleEarplugs();
-					}
-
-					//! Toggle Player list menu
-					if (input.LocalPress("UAExpansionPlayerListToggle", false) && !m_Expansion_PlayerListTogglePressed)
-					{
-						m_Expansion_PlayerListTogglePressed = true;
-						OnPlayerListTogglePressed();
-					}
-					else if (input.LocalRelease("UAExpansionPlayerListToggle", false) || input.LocalValue("UAExpansionPlayerListToggle", false) == 0)
-					{
-						m_Expansion_PlayerListTogglePressed = false;
-					}
-				}
-
-				if (m_AutoRunModule)
-				{
-					//! Autowalk
-					if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableAutoRun)
-						m_AutoRunModule.UpdateAutoWalk();
-
-					//! Stop autorun when different inputs are pressed
-					if (!m_AutoRunModule.IsDisabled() && !inputIsFocused)
-					{
-						if (ExpansionStatic.INPUT_FORWARD() || ExpansionStatic.INPUT_BACK() || ExpansionStatic.INPUT_LEFT() || ExpansionStatic.INPUT_RIGHT() || ExpansionStatic.INPUT_STANCE())
-							m_AutoRunModule.AutoRun();
-					}
-				}
-			}
-
-			//! Nightvision check
-			if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().EnableHUDNightvisionOverlay)
-			{
-				m_Expansion_NVUpdateTick += timeslice;
-				if (m_Expansion_NVUpdateTick > 0.1)
-				{
-					m_Expansion_NVUpdateTick = 0.0;
-					PlayerCheckNV(playerPB);
-				}
+				m_Expansion_NVUpdateTick = 0.0;
+				PlayerCheckNV(player);
 			}
 		}
 	}
@@ -128,7 +100,7 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	void PlayerCheckNV(PlayerBase player)
 	{
-		if (!m_Hud)
+		if (!m_Hud || !player)
 			return;
 
 		DayZPlayerCameraBase camera;

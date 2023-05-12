@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Weapons_Lights"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Weapons_Lights","DZ_Weapons_Melee"};
 	};
 };
 class CfgSlots
@@ -140,15 +140,15 @@ class CfgVehicles
 		scope = 2;
 		displayName = "Permafrost Gem";
 		descriptionShort = "The Permafrost Gem is a rare and valuable artifact recovered from a frozen anomaly on Namalsk. It emits an eerie, otherworldly energy that is both captivating and chilling. Handle with care.";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_ice_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_ice_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_co.paa"};
 	};
 	class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	{
 		scope = 2;
 		displayName = "Warper Plasma";
 		descriptionShort = "A mysterious device that emits an otherworldly energy signature. It is believed to be a key component of the teleport anomalies found on Namalsk.";
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_warper_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Warper_Energy.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_warper_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Warper_Energy.rvmat"};
 	};
 	class ExpansionAnomalyAreaBase_Dynamic: EffectArea
 	{
@@ -165,15 +165,15 @@ class CfgVehicles
 	class Expansion_KeyCard_Base: Inventory_Base
 	{
 		scope = 1;
-		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
+		model = "DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
 		animClass = "Knife";
 		rotationFlags = 17;
 		weight = 30;
 		itemSize[] = {1,1};
 		fragility = 0.01;
 		hiddenSelections[] = {"chip","keycard"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_SAT_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_SAT_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -182,7 +182,7 @@ class CfgVehicles
 				{
 					hitpoints = 15;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"}}};
 				};
 			};
 		};
@@ -202,22 +202,22 @@ class CfgVehicles
 	class Expansion_KeyCard_NA_Antenna: Expansion_KeyCard_Base
 	{
 		scope = 2;
-		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
+		model = "DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
 		displayName = "Satellite Control Access Card";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"chip","keycard"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_SAT_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_SAT_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
 	};
 	class Expansion_KeyCard_Teleporter: Expansion_KeyCard_Base
 	{
 		scope = 2;
-		model = "\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
+		model = "DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
 		displayName = "Teleporter Access Card";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"chip","keycard"};
 		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_TP_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
 	};
 	class Expansion_KeyCard_A1_B1: Expansion_KeyCard_Base
 	{
@@ -226,8 +226,8 @@ class CfgVehicles
 		displayName = "Security Access Card [A1-B1]";
 		descriptionShort = "A security access card that seems to open some kind of security lock.";
 		hiddenSelections[] = {"chip","keycard"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_B1_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_B1_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
 	};
 	class Expansion_Key_Base: Inventory_Base
 	{
@@ -239,8 +239,8 @@ class CfgVehicles
 		itemSize[] = {1,1};
 		fragility = 0.01;
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -249,7 +249,7 @@ class CfgVehicles
 				{
 					hitpoints = 15;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat"}}};
 				};
 			};
 		};
@@ -274,7 +274,7 @@ class CfgVehicles
 		descriptionShort = "This key seems to open some kind of lock. The branding says Pallas Reseach Station.";
 		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_co.paa"};
 	};
 	class Expansion_SupplyCrate_WorldT1_Key: Expansion_SupplyCrate_Key_Base
 	{
@@ -283,7 +283,7 @@ class CfgVehicles
 		descriptionShort = "This key seems to open some kind of lock. The branding says Pallas Reseach Station.";
 		inventorySlot[] = {"Att_ExpansionSupplyCrateKey"};
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_bw_co.paa"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_bw_co.paa"};
 	};
 	class Expansion_Key2_Base: Inventory_Base
 	{
@@ -295,8 +295,8 @@ class CfgVehicles
 		itemSize[] = {1,1};
 		fragility = 0.01;
 		hiddenSelections[] = {"key","key_chain"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
-		hiddenSelectionsMaterials[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -305,7 +305,7 @@ class CfgVehicles
 				{
 					hitpoints = 15;
 					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
-					healthLevels[] = {{1.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.7,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.5,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.3,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.0,{"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}}};
+					healthLevels[] = {{1.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}},{0.0,{"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\Expansion_Keys_Chain.rvmat"}}};
 				};
 			};
 		};
@@ -329,7 +329,7 @@ class CfgVehicles
 		descriptionShort = "These key's seem to belong to some kind of generator as the keychain lable clearly says Generator.";
 		inventorySlot[] = {"Att_ExpansionGeneratorKey"};
 		hiddenSelections[] = {"key"};
-		hiddenSelectionsTextures[] = {"\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","\DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
 	};
 	class ExpansionPropUniversalLight: Inventory_Base
 	{

@@ -77,9 +77,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
 	protected Expansion_Satellite_Control m_SatelliteController;
 	
+	protected const float UPDATE_TICK_TIME = 0.500;
+	protected float m_UpdateQueueTimer;
+	
 	protected const float SATELLITE_CRY_TIME = 300.0; //! 5 minutes tick
 	protected float m_SatelliteCryTimer;
-	protected bool m_SatelitteState;
+	protected bool m_SatelliteState;
 	
 	protected const float CLIENT_UPDATE_TIME = 5.0; //! 5 seconds tick
 	protected float m_ClientUpdateTimer;
@@ -122,6 +125,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected float m_SupplyCratesCheckTimer;
 	protected static ScriptCaller s_SupplyCratesCheckSC;
 	static const int LOOT_DELAY_TIME = 300; //! 5 minute delay.
+	
+	protected int m_Expansion_ProcessedInfected;
+	protected static ScriptCaller s_EVRStormBlowoutInfectedSC;
+	protected const int UPDATE_INFECTED_PER_TICK = 5;  //! Refresh up to 5 infected every UPDATE_TICK_TIME interval
 	
 	void ExpansionNamalskModule()
 	{
@@ -459,23 +466,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		marketSettings.AddMarketZone(traderZone);
 		marketSettings.AddMarketTrader(trader);
-		
-		string traderType;
-	#ifdef EXPANSIONMODAI
-		traderType = "ExpansionTraderAIMirek";
-	#else
-		traderType = "ExpansionTraderMirek";
-	#endif
-		Object obj = GetGame().CreateObject(traderType, positionToUse.Position);
-	#ifdef EXPANSIONMODAI
-		ExpansionTraderAIBase aiTrader = ExpansionTraderAIBase.Cast(obj);
-		if (!aiTrader)
-		{
-			Error(ToString() + "::CreateMerchant - Could not spawn merchant object!");
-			GetGame().ObjectDelete(obj);
-			return;
-		}
-	#else
+
+		Object obj = GetGame().CreateObject("ExpansionTraderMirek", positionToUse.Position);
 		ExpansionTraderNPCBase npcTrader = ExpansionTraderNPCBase.Cast(obj);
 		if (!npcTrader)
 		{
@@ -483,14 +475,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			GetGame().ObjectDelete(obj);
 			return;
 		}
-	#endif
 		
-		ExpansionTraderObjectBase traderBase;
-	#ifdef EXPANSIONMODAI
-		traderBase = new ExpansionTraderObjectBase(aiTrader);
-	#else
-		traderBase = new ExpansionTraderObjectBase(npcTrader);
-	#endif
+		ExpansionTraderObjectBase traderBase = new ExpansionTraderObjectBase(npcTrader);
 		if (!traderBase)
 		{
 			Error(ToString() + "::CreateMerchant - Could not spawn merchant trader base object!");
@@ -501,27 +487,17 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		traderBase.SetTraderZone(traderZone);
 		traderBase.SetTraderMarket(trader);
 		
-	#ifdef EXPANSIONMODAI
-		aiTrader.SetTraderObject(traderBase);
-		aiTrader.m_Expansion_NetsyncData.Set(0, "Merchant");
-		aiTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
-		ExpansionHumanLoadout.Apply(aiTrader, "SurvivorLoadout", false);
-		aiTrader.SetPosition(positionToUse.Position);
-		aiTrader.SetOrientation(positionToUse.Orientation);
-	#else
 		npcTrader.SetTraderObject(traderBase);
 		npcTrader.m_Expansion_NetsyncData.Set(0, "Merchant");
 		npcTrader.m_Expansion_NetsyncData.Set(1, "{5F2743E5F6F4DF0D}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds");
 		ExpansionHumanLoadout.Apply(npcTrader, "SurvivorLoadout", false);
 		npcTrader.SetPosition(positionToUse.Position);
 		npcTrader.SetOrientation(positionToUse.Orientation);
-	#endif
-
 		traderBase.UpdateTraderZone();
 
-	#ifdef EXPANSIONMODNAVIGATION
+	/*#ifdef EXPANSIONMODNAVIGATION
 		m_MerchantServerMarker = ExpansionMarkerModule.GetModuleInstance().CreateServerMarker("Merchant", "Coins 2", positionToUse.Position, ARGB(255, 15, 185, 177), false);
-	#endif
+	#endif*/
 	}
 #endif
 
@@ -593,8 +569,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
 		
 		m_LastNamalskEvent = event_manager.GetLastEventType();
-		m_EVRStormActive = false;
-		m_EVRStormBlowout = false;
 
 		SetSatelitteActive(false);
 	}
@@ -766,69 +740,42 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		Object obj = GetGame().CreateObject("SV_Abandoned_Sattelite_Antenna", Vector(1202.799561, 14.207986, 11784.280273));
-		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(obj);
-		if (!m_AbdonedSatellite)
-		{
-			Error(ToString() + "::SpawnSatelliteAntennaObjects - Could not spawn antenna object!");
-			GetGame().ObjectDelete(obj);
-			return;
-		}
-		
-		m_AbdonedSatellite.SetPosition(Vector(1202.799561, 14.207986, 11784.280273));
-		m_AbdonedSatellite.SetOrientation(Vector(81.209969, -0.000000, -0.000000));
-		m_AbdonedSatellite.Update();
+		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(ExpansionWorldObjectsModule.SpawnObject("SV_Abandoned_Sattelite_Antenna", Vector(1202.799561, 14.207986, 11784.280273), Vector(81.209969, -0.000000, -0.000000), false, false));
 		
 	#ifdef EXPANSIONMODTELEPORTER
-		obj = GetGame().CreateObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508));
-		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(obj);
-		if (!m_SatelliteTeleporter)
+		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508), Vector(-100.711388, -0.000000, -0.000000), false, false));
+		if (m_SatelliteTeleporter)
 		{
-			Error(ToString() + "::SpawnSatelliteAntennaObjects - Could not spawn antenna teleporter object!");
-			GetGame().ObjectDelete(obj);
-			return;
+			m_SatelliteTeleporter.SetTeleporterID(100);
+			m_SatelliteTeleporter.SetActive(false);
+		
+			ExpansionTeleportData teleporterData = new ExpansionTeleportData();
+			teleporterData.SetID(100);
+			teleporterData.SetDisplayName("???");
+			teleporterData.SetObjectPosition(Vector(1200.880127, 4.619668, 11780.145508));
+
+			ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
+			teleportPos.SetData("???");
+			teleportPos.AddPosition(Vector(5079.959961, 2085.610107, 11720.700195), Vector(39.183594, 0.000000, 0.000000));
+			teleportPos.AddPosition(Vector(5075.359863, 2085.610107, 11715.299805), Vector(132.597000, 0.000000, 0.000000));
+
+			teleporterData.AddTeleportPosition(teleportPos);
+		
+			ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
 		}
-		
-		m_SatelliteTeleporter.SetPosition(Vector(1200.880127, 4.619668, 11780.145508));
-		m_SatelliteTeleporter.SetOrientation(Vector(-100.711388, -0.000000, -0.000000));
-		m_SatelliteTeleporter.SetTeleporterID(100);
-		m_SatelliteTeleporter.SetActive(false);
-		m_SatelliteTeleporter.Update();
-		
-		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
-		teleporterData.SetID(100);
-		teleporterData.SetDisplayName("???");
-		teleporterData.SetObjectPosition(Vector(1200.880127, 4.619668, 11780.145508));
-
-		ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
-		teleportPos.SetData("???");
-		teleportPos.AddPosition(Vector(5079.959961, 2085.610107, 11720.700195), Vector(39.183594, 0.000000, 0.000000));
-		teleportPos.AddPosition(Vector(5075.359863, 2085.610107, 11715.299805), Vector(132.597000, 0.000000, 0.000000));
-
-		teleporterData.AddTeleportPosition(teleportPos);
-		
-		ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
 	#endif
 		
 		//! @note: Don't spawn controller yet!
-		obj = GetGame().CreateObject("Expansion_Satellite_Control", Vector(1204.062256, 5.146724, 11782.631836));
-		m_SatelliteController = Expansion_Satellite_Control.Cast(obj);
-		if (!m_SatelliteController)
+		m_SatelliteController = Expansion_Satellite_Control.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Satellite_Control", Vector(1204.062256, 5.146724, 11782.631836), Vector(171.544205, 0.000000, 0.000000), false, false));
+		if (m_SatelliteController)
 		{
-			Error(ToString() + "::SpawnSatelliteAntennaObjects - Could not spawn antenna teleporter object!");
-			GetGame().ObjectDelete(obj);
-			return;
+			if (m_AbdonedSatellite)
+				m_SatelliteController.SetLinkedSatellite(m_AbdonedSatellite);
+		#ifdef EXPANSIONMODTELEPORTER
+			if (m_SatelliteTeleporter)
+				m_SatelliteController.SetLinkedTeleporter(m_SatelliteTeleporter);
+		#endif
 		}
-		
-		m_SatelliteController.SetPosition(Vector(1204.062256, 5.146724, 11782.631836));
-		m_SatelliteController.SetOrientation(Vector(171.544205, 0.000000, 0.000000));
-		if (m_AbdonedSatellite)
-			m_SatelliteController.SetLinkedSatellite(m_AbdonedSatellite);
-	#ifdef EXPANSIONMODTELEPORTER
-		if (m_SatelliteTeleporter)
-			m_SatelliteController.SetLinkedTeleporter(m_SatelliteTeleporter);
-	#endif
-		m_SatelliteController.Update();
 	}
 	
 	void PlaySatelliteCrySFX()
@@ -844,7 +791,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		if (state == m_SatelitteState)
+		if (state == m_SatelliteState)
 			return;
 				
 		if (state)
@@ -856,7 +803,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			DeactivateSatellite();
 		}
 		
-		m_SatelitteState = state;
+		m_SatelliteState = state;
 	}
 	
 	void ActivateSatellite()
@@ -899,134 +846,108 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		return m_SatelliteController;
 	}
 	
-	void SpawnA1Bunker()
+	protected void SpawnA1Bunker()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		//! Entrance trigger
-		ExpansionBunkerEntranceTriggerBase trigger = ExpansionBunkerEntranceTriggerBase.Cast(GetGame().CreateObjectEx("ExpansionBunkerEntranceTriggerBase", m_A1_Bunker_EntrancePos, ECE_NONE));
+		ExpansionBunkerEntranceTriggerBase trigger = ExpansionBunkerEntranceTriggerBase.Cast(ExpansionWorldObjectsModule.SpawnObject("ExpansionBunkerEntranceTriggerBase", m_A1_Bunker_EntrancePos, "0 0 0", false, false));
 		if (trigger)
 		{
 			trigger.SetPosition(m_A1_Bunker_EntrancePos);
 			trigger.SetTriggerRadius(1);
 			trigger.Update();
+			
+			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker entrance trigger at position: " + trigger.GetPosition());
 		}
 		
 		//! Teleporter
-		Object obj = GetGame().CreateObject("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos);
-		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(obj);
-		if (!m_A1BunkerTeleporter)
+		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos, m_A1_Bunker_TeleporterOri, false, false));
+		if (m_A1BunkerTeleporter)
 		{
-			Error(ToString() + "::SpawnA1Bunker - Could not spawn teleporer object!");
-			GetGame().ObjectDelete(obj);
-			return;
+			m_A1BunkerTeleporter.SetTeleporterID(101);
+			m_A1BunkerTeleporter.SetActive(false);
+			
+			ExpansionTeleportData teleporterData = new ExpansionTeleportData();
+			teleporterData.SetID(101);
+			teleporterData.SetDisplayName("???");
+			teleporterData.SetObjectPosition(m_A1_Bunker_TeleporterPos);
+			teleporterData.SetIsExit(true);
+	
+			ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
+			teleportPos.SetData("???");
+			teleportPos.AddPosition(Vector(4272.379883, 98.819305, 8398.056641), Vector(0.000000, 0.000000, 0.000000));
+			teleportPos.AddPosition(Vector(4580.25, 85.4889, 8432.24), Vector(0.000000, 0.000000, 0.000000));
+			teleportPos.AddPosition(Vector(4753.02, 64.3489, 8264.39), Vector(0.000000, 0.000000, 0.000000));
+			teleporterData.AddTeleportPosition(teleportPos);
+			ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
+			
+			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker teleporter object at position: " + m_A1BunkerTeleporter.GetPosition());
 		}
-		
-		m_A1BunkerTeleporter.SetPosition(m_A1_Bunker_TeleporterPos);
-		m_A1BunkerTeleporter.SetOrientation(m_A1_Bunker_TeleporterOri);
-		m_A1BunkerTeleporter.SetTeleporterID(101);
-		m_A1BunkerTeleporter.SetActive(false);
-		m_A1BunkerTeleporter.Update();
-		
-		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
-		teleporterData.SetID(101);
-		teleporterData.SetDisplayName("???");
-		teleporterData.SetObjectPosition(m_A1_Bunker_TeleporterPos);
-		teleporterData.SetIsExit(true);
-
-		ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
-		teleportPos.SetData("???");
-		teleportPos.AddPosition(Vector(4272.379883, 98.819305, 8398.056641), Vector(0.000000, 0.000000, 0.000000));
-		teleporterData.AddTeleportPosition(teleportPos);
-		ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
 		
 		//! Generator
-		obj = GetGame().CreateObject("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos);
-		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(obj);
-		if (!m_A1BungerGenerator)
+		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, m_A1_Bunker_GeneratorOri, false, false));
+		if (m_A1BungerGenerator)
 		{
-			Error(ToString() + "::SpawnA1Bunker - Could not spawn generator object!");
-			GetGame().ObjectDelete(obj);
-			return;
+			if (m_A1BunkerTeleporter)
+				m_A1BungerGenerator.SetLinkedTeleporter(m_A1BunkerTeleporter);
+	
+			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker generator at position: " + m_A1BungerGenerator.GetPosition());
 		}
-
-		m_A1BungerGenerator.SetPosition(m_A1_Bunker_GeneratorPos);
-		m_A1BungerGenerator.SetOrientation(m_A1_Bunker_GeneratorOri);
-		if (m_A1BunkerTeleporter)
-			m_A1BungerGenerator.SetLinkedTeleporter(m_A1BunkerTeleporter);
-		m_A1BungerGenerator.Update();
 		
 		//! Locker quest object - @note: Make this a config param class in the namalsk settings class you lazy ass!
 		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", 1000, true, "Closed Locker");
-		ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("1908.662354 201.666977 1244.743164", "173.734970 0.000000 -0.000000");
-		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("1915.156006 201.659302 1231.404419", "81.000038 -0.000000 -0.000000");
-		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("1899.852783 195.486664 1306.718994", "174.815613 0.000000 0.000000");
-		questHolder.AddPosition(pos);
-		pos = new ExpansionNamalskQuestHolderPosition("1906.268677 196.687729 1291.300415", "80.999977 -0.000000 -0.000000");
-		questHolder.AddPosition(pos);
+		if (questHolder)
+		{
+			ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("1908.662354 201.666977 1244.743164", "173.734970 0.000000 -0.000000");
+			questHolder.AddPosition(pos);
+			pos = new ExpansionNamalskQuestHolderPosition("1915.156006 201.659302 1231.404419", "81.000038 -0.000000 -0.000000");
+			questHolder.AddPosition(pos);
+			pos = new ExpansionNamalskQuestHolderPosition("1899.852783 195.486664 1306.718994", "174.815613 0.000000 0.000000");
+			questHolder.AddPosition(pos);
+			pos = new ExpansionNamalskQuestHolderPosition("1906.268677 196.687729 1291.300415", "80.999977 -0.000000 -0.000000");
+			questHolder.AddPosition(pos);
 		
-		if (!m_QuestHolders)
-			m_QuestHolders = new array<ref ExpansionNamalskQuestHolder>;
+			if (!m_QuestHolders)
+				m_QuestHolders = new array<ref ExpansionNamalskQuestHolder>;
+	
+			m_QuestHolders.Insert(questHolder);
+			ExpansionNamalskQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
+			if (!randomPos)
+				return;
+			
+			SpawnQuestHolder(questHolder, randomPos);
+			
+			//! Modify quest objective position
+			ExpansionQuestObjectiveTravelConfig travelObjective = ExpansionQuestModule.GetModuleInstance().GetTravelObjectiveConfigByID(questHolder.ObjectiveID);
+			if (!travelObjective)
+				return;
 
-		m_QuestHolders.Insert(questHolder);
-		ExpansionNamalskQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
-		if (!randomPos)
-			return;
-		
-		SpawnQuestHolder(questHolder, randomPos);
-		
-		//! Modify quest objective position
-		ExpansionQuestObjectiveTravelConfig travelObjective = ExpansionQuestModule.GetModuleInstance().GetTravelObjectiveConfigByID(questHolder.ObjectiveID);
-		if (!travelObjective)
-			return;
-		
-		travelObjective.SetPosition(randomPos.Position);
+			travelObjective.SetPosition(randomPos.Position);
+		}
 		
 		//! Bunker fake entrance panel
-		obj = GetGame().CreateObject("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos);
-		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(obj);
-		if (!m_A1BunkerFakeEntranceLeaver)
-		{
-			Error(ToString() + "::SpawnA1Bunker - Could not spawn fake bunker panel object!");
-			GetGame().ObjectDelete(obj);
-			return;
+		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(ExpansionWorldObjectsModule.SpawnObject("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos, m_A1_Bunker_FakeEntranceLeaverOri, false, false));
+		if (m_A1BunkerFakeEntranceLeaver)
+		{			
+			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker fake entrance lever panel at position: " + m_A1BunkerFakeEntranceLeaver.GetPosition());
 		}
-		
-		m_A1BunkerFakeEntranceLeaver.SetPosition(m_A1_Bunker_FakeEntranceLeaverPos);
-		m_A1BunkerFakeEntranceLeaver.SetOrientation(m_A1_Bunker_FakeEntranceLeaverOri);
-		m_A1BunkerFakeEntranceLeaver.Update();
 		
 		//! Bunker entrance panel
-		obj = GetGame().CreateObject("Land_Underground_Panel", m_A1_Bunker_EntrancePanelPos);
-		m_A1BunkerEntrancePanel = Land_Underground_Panel.Cast(obj);
-		if (!m_A1BunkerEntrancePanel)
+		m_A1BunkerEntrancePanel = Land_Underground_Panel.Cast(ExpansionWorldObjectsModule.SpawnObject("Land_Underground_Panel", m_A1_Bunker_EntrancePanelPos, m_A1_Bunker_EntrancePanelOri, false, false));
+		if (m_A1BunkerEntrancePanel)
 		{
-			Error(ToString() + "::SpawnA1Bunker - Could not spawn bunker panel object!");
-			GetGame().ObjectDelete(obj);
-			return;
+			m_A1BunkerEntrancePanel.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);			
+			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker entrance panel at position: " + m_A1BunkerEntrancePanel.GetPosition());
 		}
-		
-		m_A1BunkerEntrancePanel.SetPosition(m_A1_Bunker_EntrancePanelPos);
-		m_A1BunkerEntrancePanel.SetOrientation(m_A1_Bunker_EntrancePanelOri);
-		m_A1BunkerEntrancePanel.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);
-		m_A1BunkerEntrancePanel.Update();
-
+			
 		//! Bunker entrance panel leaver
-		obj = GetGame().CreateObject("Land_Underground_Panel_Lever", m_A1_Bunker_EntranceLeaverPos);
-		m_A1BunkerEntranceLeaver = Land_Underground_Panel_Lever.Cast(obj);
-		if (!m_A1BunkerEntranceLeaver)
+		m_A1BunkerEntranceLeaver = Land_Underground_Panel_Lever.Cast(ExpansionWorldObjectsModule.SpawnObject("Land_Underground_Panel_Lever", m_A1_Bunker_EntranceLeaverPos, m_A1_Bunker_EntranceLeaverOri, false, false));
+		if (m_A1BunkerEntranceLeaver)
 		{
-			Error(ToString() + "::SpawnA1Bunker - Could not spawn bunker leaver object!");
-			GetGame().ObjectDelete(obj);
-			return;
+			m_A1BunkerEntranceLeaver.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);			
+			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker fake entrance panel at position: " + m_A1BunkerEntranceLeaver.GetPosition());
 		}
-		
-		m_A1BunkerEntranceLeaver.SetPosition(m_A1_Bunker_EntranceLeaverPos);
-		m_A1BunkerEntranceLeaver.SetOrientation(m_A1_Bunker_EntranceLeaverOri);
-		m_A1BunkerEntranceLeaver.SetLinkedFakePanel(m_A1BunkerFakeEntranceLeaver);
-		m_A1BunkerEntranceLeaver.Update();
 	}
 #endif
 
@@ -1056,6 +977,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				object.SetQuestNPCID(questHolder.ID);
 				object.SetQuestNPCData(questNPCData);
 				ExpansionQuestModule.GetModuleInstance().AddStaticQuestObject(questHolder.ID, object);
+				
+				Print(ToString() + "::SpawnQuestHolder - A1 Bunker quest holder spawned at possition: " + object.GetPosition());
 			}
 		}
 		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questNPCs))
@@ -1066,6 +989,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				questNPC.SetQuestNPCID(questHolder.ID);
 				questNPC.SetQuestNPCData(questNPCData);
 				ExpansionQuestModule.GetModuleInstance().AddQuestNPC(questHolder.ID, questNPC);
+				
+				Print(ToString() + "::SpawnQuestHolder - A1 Bunker quest holder spawned at possition: " + questNPC.GetPosition());
 			}
 		}
 	#ifdef EXPANSIONMODAI
@@ -1077,6 +1002,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				questNPCAI.SetQuestNPCID(questHolder.ID);
 				questNPCAI.SetQuestNPCData(questNPCData);
 				ExpansionQuestModule.GetModuleInstance().AddQuestNPCAI(questHolder.ID, questNPCAI);
+							
+				Print(ToString() + "::SpawnQuestHolder - A1 Bunker quest holder spawned at possition: " + questNPCAI.GetPosition());
 			}
 		}
 	#endif
@@ -1084,7 +1011,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	ExpansionQuestStaticObject SpawnQuestObject(ExpansionQuestNPCData questNPCData)
 	{
-	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_KEEPHEIGHT);
+	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_KEEPHEIGHT | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 	    ExpansionQuestStaticObject questObject;
 	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
 	    {
@@ -1113,9 +1040,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	    questNPC.SetPosition(questNPCData.GetPosition());
 	    questNPC.SetOrientation(questNPCData.GetOrientation());
-
-		questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
-		ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
+		
+		if (questNPCData.GetNPCName() != string.Empty)
+			questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
+		
+		if (questNPCData.GetLoadoutFile() != string.Empty)
+			ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
 
 		return questNPC;
 	}
@@ -1177,7 +1107,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
 		foreach (ExpansionSupplyCrateSetup supplyCrate: supplyCrateSpawns)
 		{
-			Object obj = GetGame().CreateObject(supplyCrate.ClassName, supplyCrate.Position);
+			Object obj = GetGame().CreateObjectEx(supplyCrate.ClassName, supplyCrate.Position, ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
 			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(obj);
 			if (!supplyCareObj)
 			{
@@ -1203,16 +1133,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		super.OnUpdate(sender, args);
 		
 		auto update = CF_EventUpdateArgs.Cast(args);
-
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{
-			OnUpdateServer(update.DeltaTime);
-		}
 		
-		if (GetGame().IsClient())
-		{
-			OnUpdateClient(update.DeltaTime);
-		}
+	#ifdef SERVER
+		OnUpdateServer(update.DeltaTime);
+	#else
+		OnUpdateClient(update.DeltaTime);
+	#endif
 	}
 	
 	protected void OnUpdateServer(float deltaTime)
@@ -1232,7 +1158,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		    	s_BunkerGeneratorCheckSC = ScriptCaller.Create(OnBunkerGeneratorCheck);
 
 			m_CurrentCheckTime = CF_Date.Now(true).GetTimestamp();
-			
+
 			Expansion_Bunker_Generator.s_Expansion_AllBunkerGenerators.Each(s_BunkerGeneratorCheckSC);
 			m_BunkerGeneratorsCheckTimer = 0;
 		}
@@ -1249,6 +1175,18 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Expansion_SupplyCrate_Base.s_Expansion_AllSupplyCrates.Each(s_SupplyCratesCheckSC);
 			m_SupplyCratesCheckTimer = 0;
 		}
+		
+		/*m_UpdateQueueTimer += deltaTime;
+		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
+		{
+			//! @note: Update events when m_EVRStormBlowout flag is set to true.
+			if (m_EVRStormActive && m_EVRStormBlowout)
+			{
+				OnEVRStormBlowout();
+			}
+
+			m_UpdateQueueTimer = 0;
+		}*/
 	}
 
 	protected void OnSupplyCrateCheck(Expansion_SupplyCrate_Base supplyCrate)
@@ -1297,25 +1235,58 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	}
 #endif
 	
+	protected void OnEVRStormBlowout()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (m_Expansion_ProcessedInfected < ZombieBase.s_Expansion_AllInfected.m_Count)
+		{
+			if (!s_EVRStormBlowoutInfectedSC)
+  				s_EVRStormBlowoutInfectedSC = ScriptCaller.Create(OnEVRStormFinalBlowoutInfected);
+
+			m_Expansion_ProcessedInfected += ZombieBase.s_Expansion_AllInfected.Each(s_EVRStormBlowoutInfectedSC, UPDATE_INFECTED_PER_TICK);
+		}
+		
+		if (m_Expansion_ProcessedInfected >= ZombieBase.s_Expansion_AllInfected.m_Count)
+		{
+			m_EVRStormActive = false;
+			m_EVRStormBlowout = false;
+			m_Expansion_ProcessedInfected = 0;
+		}
+	}
+	
+	void OnEVRStormFinalBlowoutInfected(ZombieBase infected)
+    {
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+		
+		//! Gamble if infected gets killed by EVR Storm blowout or not
+		int gamble = Math.RandomIntInclusive(0, 2);
+		if (gamble == 2)
+			infected.SetHealth("", "", 0);
+    }
+	
 	protected void OnUpdateClient(float deltaTime)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
 		m_ClientUpdateTimer += deltaTime;
-		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME)
+		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && GetGame().GetPlayer())
 		{
-			float dist = vector.Distance(m_A1_Bunker_EntrancePos, GetGame().GetPlayer().GetPosition());
+			float dist = vector.Distance(m_A1_Bunker_TeleporterPos, GetGame().GetPlayer().GetPosition());
 			if (dist < 200) 
 			{
-				GetGame().PreloadObject("land_underground_stairs_exit", 3000);
-				GetGame().PreloadObject("land_underground_stairs_block", 3000);
-				GetGame().PreloadObject("land_underground_stairs_start", 3000);
-				GetGame().PreloadObject("land_underground_floor_crew", 3000);
-				GetGame().PreloadObject("land_underground_floor_comms", 3000);
-				GetGame().PreloadObject("land_underground_stairs_collapsed", 3000);
-				GetGame().PreloadObject("land_mil_barracks_round", 3000);
-				GetGame().PreloadObject("land_underground_stairs_block_terminator", 3000);
+				Print(ToString() + "::OnUpdateClient - Preload objects for player: UID: " + GetGame().GetPlayer().GetIdentity().GetId() + " | Name: " + GetGame().GetPlayer().GetIdentity().GetName());
+				GetGame().PreloadObject("Land_Underground_Stairs_Exit", 3000);
+				GetGame().PreloadObject("Land_Underground_Stairs_Block", 3000);
+				GetGame().PreloadObject("Land_Underground_Stairs_Start", 3000);
+				GetGame().PreloadObject("Land_Underground_Floor_Crew", 3000);
+				GetGame().PreloadObject("Land_Underground_Floor_Comms", 3000);
+				GetGame().PreloadObject("Land_Underground_Stairs_Collapsed", 3000);
+				GetGame().PreloadObject("Land_Mil_Barracks_Round", 3000);
+				GetGame().PreloadObject("Land_Underground_Stairs_Block_Terminator", 3000);
 				GetGame().PreloadObject("bldr_expansion_Sign_roadbarrier", 3000);
-				GetGame().PreloadObject("expansionquestobjectlocker", 3000);
+				GetGame().PreloadObject("ExpansionQuestObjectLocker", 3000);
+				GetGame().PreloadObject("Expansion_Teleporter_Big", 3000);
+				GetGame().PreloadObject("Expansion_Bunker_Generator", 3000);
 			}
 			
 			m_ClientUpdateTimer = 0;

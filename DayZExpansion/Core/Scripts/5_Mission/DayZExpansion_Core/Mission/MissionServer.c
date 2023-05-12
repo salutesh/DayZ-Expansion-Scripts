@@ -70,11 +70,20 @@ modded class MissionServer
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "OnMissionLoaded");
 #endif
 		
+		ExpansionGlobalID.s_IsMissionLoaded = true;
+
 		super.OnMissionLoaded();
 		
 		GetDayZExpansion().OnLoaded();
 
 		CF_ModuleCoreManager.OnSettingsChanged(this, CF_EventArgs.Empty);
+
+		string exitAfter;
+		if (GetCLIParam("exitAfter", exitAfter))
+		{
+			EXPrint(this, "Command line parameter exitAfter found - exiting after " + exitAfter + " seconds");
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().RequestExit, exitAfter.ToInt() * 1000, false, 0);
+		}
 	}
 	
 	override void OnClientReadyEvent( PlayerIdentity identity, PlayerBase player )

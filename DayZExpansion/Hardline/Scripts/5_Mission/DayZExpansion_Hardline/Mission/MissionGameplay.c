@@ -36,58 +36,25 @@ modded class MissionGameplay
 		}
 	}
 
-	// ------------------------------------------------------------
-	// OnUpdate
-	// ------------------------------------------------------------
-	override void OnUpdate( float timeslice )
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate( timeslice );
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if ( !m_bLoaded)
+		if (isAliveConscious)
 		{
-			return;
-		}
-
-		//! Checking for keyboard focus
-		bool inputIsFocused = false;
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
-
-		if ( focusedWidget )
-		{
-			if ( focusedWidget.ClassName().Contains( "EditBoxWidget" ) )
-			{
-				inputIsFocused = true;
-			}
-			else if ( focusedWidget.ClassName().Contains( "MultilineEditBoxWidget" ) )
-			{
-				inputIsFocused = true;
-			}
-		}
-
-		Man man = GetGame().GetPlayer(); //! Refernce to man
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
-		InventoryMenu inventoryMenu; //! Inventory menu reference
-		PlayerBase playerPB = PlayerBase.Cast(man); //! Expansion reference to player
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-
-		if (playerPB && playerPB.GetHumanInventory())
-		{
-			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
-			{
-				if (viewMenu || topMenu && !Class.CastTo(inventoryMenu, topMenu) || m_Hud.IsHideHudPlayer())
-				{
-					m_ExpansionHardlineHUD.ShowHud(false);
-				}
-				else
-				{
-					m_ExpansionHardlineHUD.ShowHud(true);
-				}
-			}
-			else
+			InventoryMenu inventoryMenu;
+			if (viewMenu || (menu && !Class.CastTo(inventoryMenu, menu)) || m_Hud.IsHideHudPlayer())
 			{
 				m_ExpansionHardlineHUD.ShowHud(false);
 			}
+			else
+			{
+				m_ExpansionHardlineHUD.ShowHud(true);
+			}
+		}
+		else
+		{
+			m_ExpansionHardlineHUD.ShowHud(false);
 		}
 	}
 };

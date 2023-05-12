@@ -69,7 +69,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		SetPinnable(false);
 		Arm();
 
-		RegisterNetSyncVariableInt("m_CoreState", 1, 3);
+		RegisterNetSyncVariableInt("m_CoreState", 1, 4);
 
 		if (!ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive())
 		{

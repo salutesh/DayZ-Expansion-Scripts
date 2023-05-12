@@ -1389,7 +1389,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			int denomPrice = GetMoneyPrice(type);
 			int divAmount = remainingAmount / denomPrice;
 
-			int toSpawn = Math.Floor(divAmount);
+			int toSpawn = divAmount;
 
 			int amountSpawned = denomPrice * toSpawn;
 
@@ -1569,8 +1569,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 			}
 
 			int denomPrice = GetMoneyPrice(m_MoneyDenominations[j]);
-			float divAmount = remainingAmount / denomPrice;
-			int toReserve = Math.Floor(divAmount);
+			int divAmount = remainingAmount / denomPrice;
+			int toReserve = divAmount;
 			int reserved = 0;
 
 			int countCurrentDenom = foundMoney[j].Count();
@@ -1659,7 +1659,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 				{
 					denomPrice = GetMoneyPrice(m_MoneyDenominations[k]);
 					divAmount = remainingAmount / denomPrice;
-					toReserve = Math.Ceil(divAmount);
+					toReserve = divAmount;
+					if (remainingAmount % denomPrice > 0)
+						toReserve++;
 					monies[k] = toReserve;
 					remainingAmount -= toReserve * denomPrice;
 				}

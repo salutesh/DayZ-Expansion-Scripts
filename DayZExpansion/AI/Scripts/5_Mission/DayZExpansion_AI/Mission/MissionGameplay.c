@@ -27,16 +27,13 @@ modded class MissionGameplay
 		super.OnMissionFinish();
 	}
 
-	override void OnUpdate(float timeslice)
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_1(this, "OnUpdate").Add(timeslice);
 		#endif
 
-		super.OnUpdate(timeslice);
-
-		DayZPlayerImplement player;
-		Class.CastTo(player, GetGame().GetPlayer());
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
 #ifdef DIAG
 		if (player && player.DEBUG_EXPANSION_AI_VEHICLE && g_Expansion_Car && g_ExpansionNavMesh)
@@ -45,12 +42,8 @@ modded class MissionGameplay
 		}
 #endif
 
-		UIScriptedMenu menu = m_UIManager.GetMenu();
-		Input input = GetGame().GetInput();
-		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
-
 		// If we want to open the command menu, and nothing else is open
-		if (input.LocalPress("eAICommandMenu", false) && !GetGame().GetUIManager().GetMenu())
+		if (input.LocalPress("eAICommandMenu", false) && !menu && !viewMenu)
 		{
 			if (GetExpansionSettings().GetAI().IsAdmin() || (player && player.GetGroup()))
 			{

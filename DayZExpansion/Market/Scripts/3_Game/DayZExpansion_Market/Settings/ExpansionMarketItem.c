@@ -210,10 +210,10 @@ class ExpansionMarketItem
 		else
 			price = m_MinPriceThreshold;
 
+		price *= modifier;
+
 		if (round)
-			price = Math.Round(price * modifier);
-		else
-			price = Math.Floor(price * modifier);
+			price = Math.Round(price);
 
 		#ifdef EXPANSIONMODMARKET_DEBUG
 		EXPrint("ExpansionMarketItem::CalculatePrice - End and return calculated price: " + price);

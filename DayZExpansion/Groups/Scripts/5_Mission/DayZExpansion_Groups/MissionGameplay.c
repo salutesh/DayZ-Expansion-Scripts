@@ -16,25 +16,20 @@
 #ifdef EXPANSIONMODGROUPSHUD
 modded class MissionGameplay
 {
-	override void OnUpdate(float timeslice)
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate(timeslice);
-
-		Man man = GetGame().GetPlayer(); //! Refernce to man
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
-		PlayerBase playerPB = PlayerBase.Cast(man);	//! Expansion reference to player
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
-		bool showPartyHUDSetting = GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD);
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 		
-		if (playerPB && playerPB.GetHumanInventory())
+		if (isAliveConscious)
 		{
-			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && showPartyHUDSetting)
+			bool showPartyHUDSetting = GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD);
+			if (showPartyHUDSetting)
 			{
 				bool isChatInputMenu;
-				if (topMenu)
-					isChatInputMenu = topMenu.IsInherited(ChatInputMenu);
+				if (menu)
+					isChatInputMenu = menu.IsInherited(ChatInputMenu);
 
-				if ((topMenu || viewMenu) && !isChatInputMenu)
+				if ((menu || viewMenu) && !isChatInputMenu)
 				{
 					if (m_Hud.GetPartyHUDState())
 						m_Hud.PartyHUDHide();

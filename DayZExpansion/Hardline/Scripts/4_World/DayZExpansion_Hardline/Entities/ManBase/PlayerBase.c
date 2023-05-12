@@ -72,34 +72,35 @@ modded class PlayerBase
 			}
 		#endif
 		}
-		//! If data was successfully loaded, player rep will be set to value from file, else zero
-		int rep = m_Expansion_HardlineData.Reputation;
-		if (rep < 0)
-			rep = 0;
-		m_Expansion_Reputation = rep;
 		m_Expansion_PersonalStorageLevel = m_Expansion_HardlineData.PersonalStorageLevel;
-		SetSynchDirty();
-		Expansion_SaveHardlineData(factionReset);
+		//! If data was successfully loaded, player rep will be set to value from file, else zero
+		Expansion_SetReputation(m_Expansion_HardlineData.Reputation, factionReset);
 	}
 
 	//! Only to be called on server!
-	void Expansion_SetReputation(int rep)
+	void Expansion_SetReputation(int rep, bool forceSave = false)
 	{
 		if (rep < 0)
+		{
 			rep = 0;
+		}
+		else
+		{
+			int maxRep = GetExpansionSettings().GetHardline().MaxReputation;
+			if (maxRep > 0 && rep > maxRep)
+				rep = maxRep;
+		}
+		
 		m_Expansion_Reputation = rep;
+		
 		SetSynchDirty();
-		Expansion_SaveHardlineData();
+		Expansion_SaveHardlineData(forceSave);
 	}
 
 	//! Only to be called on server!
 	void Expansion_AddReputation(int rep)
 	{
-		m_Expansion_Reputation += rep;
-		if (m_Expansion_Reputation < 0)
-			m_Expansion_Reputation = 0;
-		SetSynchDirty();
-		Expansion_SaveHardlineData();
+		Expansion_SetReputation(m_Expansion_Reputation + rep);
 	}
 
 	//! Only to be called on server!

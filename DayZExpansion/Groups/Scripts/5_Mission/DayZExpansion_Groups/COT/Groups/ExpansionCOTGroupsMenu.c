@@ -1220,21 +1220,7 @@ class ExpansionCOTGroupsMenu: JMFormBase
 		if (!m_Module)
 			return;
 
-		m_Module.m_COTGroupModuleSI.Insert(MenuCallback);
 		m_Module.RequestGroups(ExpansionCOTGroupsMenuCallback.GroupsInit);
-	}
-
-	// ------------------------------------------------------------
-	// ExpansionCOTGroupsMenu OnHide
-	// ------------------------------------------------------------
-	override void OnHide()
-	{
-		super.OnHide();
-
-		if (!m_Module)
-			return;
-
-		m_Module.m_COTGroupModuleSI.Remove(MenuCallback);
 	}
 
 	// ------------------------------------------------------------

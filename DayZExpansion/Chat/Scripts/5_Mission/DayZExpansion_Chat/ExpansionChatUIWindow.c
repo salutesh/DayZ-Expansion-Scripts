@@ -306,11 +306,19 @@ class ExpansionChatUIWindow: ExpansionScriptView
 	override void OnHide()
 	{
 		super.OnHide();
+		
+		if (ChatBackground)
+			ChatBackground.Show(false);
+		
+		if (ChatScroller)
+			ChatScroller.SetAlpha(0);
+		
+		if (MutePanel)
+			MutePanel.Show(false);
+		
+		if (MuteListButton)
+			MuteListButton.Show(false);
 
-		ChatBackground.Show(false);
-		ChatScroller.SetAlpha(0);
-		MutePanel.Show(false);
-		MuteListButton.Show(false);
 		ShowChatMessages(false);
 	}
 
@@ -370,7 +378,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		return false;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 		//! Scroll new messages into view, but only if chat input is not open
 		//! OR if mouse is not hovering chat area

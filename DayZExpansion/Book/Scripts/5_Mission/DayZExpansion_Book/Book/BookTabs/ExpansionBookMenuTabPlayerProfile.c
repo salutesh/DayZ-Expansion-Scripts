@@ -286,7 +286,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	{
 		super.OnShow();
 
-		Update();  //! 1st update immediately after first shown
+		Expansion_Update();  //! 1st update immediately after first shown
 		m_Updated = true;
 
 		if (!GetExpansionSettings().GetMonitoring().Enabled)
@@ -295,7 +295,7 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 		CreateUpdateTimer();
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 	#ifdef EXPANSIONMONITORMODULE
 		if (m_Updated)

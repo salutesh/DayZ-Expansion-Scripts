@@ -234,7 +234,7 @@ class ExpansionNotificationModule: CF_ModuleWorld
 			if (!m_Notifications[i])
 				continue;
 
-			m_Notifications[i].Update(update.DeltaTime);
+			m_Notifications[i].AnimateNotification(update.DeltaTime);
 		}
 	}
 	

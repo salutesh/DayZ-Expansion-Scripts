@@ -16,40 +16,47 @@ class ExpansionQuestHUD: ExpansionScriptView
 	protected ref ExpansionQuestHUDController m_QuestHUDController;
 	protected ref array<int> m_HiddenIDs = new array<int>;
 	protected WrapSpacerWidget QuestEntriesWraper;
-	protected ref array<ref ExpansionQuestHUDEntry> m_QuestEntries = new array<ref ExpansionQuestHUDEntry>;
-
+	protected ref map<int, ref ExpansionQuestHUDEntry> m_QuestEntries = new map<int, ref ExpansionQuestHUDEntry>;
+	
 	void ExpansionQuestHUD()
 	{
-		if (!m_QuestHUDController)
-			m_QuestHUDController = ExpansionQuestHUDController.Cast(GetController());
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+		
+		m_QuestHUDController = ExpansionQuestHUDController.Cast(GetController());
+		
+		ExpansionQuestModule.GetModuleInstance().GetQuestHUDCallbackSI().Insert(UpdateView);
 	}
 
-	void SetView()
+	void ~ExpansionQuestHUD()
 	{
-		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
-		if (!playerData)
+		if (ExpansionQuestModule.GetModuleInstance())
+			ExpansionQuestModule.GetModuleInstance().GetQuestHUDCallbackSI().Remove(UpdateView);
+	}
+
+	void UpdateView()
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+		
+		if (!GetGame().GetPlayer())
+			return;
+
+		if (!IsVisible())
 		{
+			EXTrace.Print(EXTrace.QUESTS & EXTrace.UI, this, "not visible - skipping");
 			return;
 		}
 
-		if (m_QuestEntries && m_QuestEntries.Count() > 0)
+		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		if (!playerData)
 		{
-			foreach (ExpansionQuestHUDEntry hudEntry: m_QuestEntries)
-			{
-				hudEntry.Destroy();
-			}
-
-			m_QuestEntries.Clear();
+			EXTrace.Print(EXTrace.QUESTS & EXTrace.UI, this, "no client quest data - skipping");
+			return;
 		}
 
 		array<ref ExpansionQuestPersistentQuestData> questDatas = playerData.GetQuestDatas();
+		array<int> updatedIDs = new array<int>;
 		foreach (ExpansionQuestPersistentQuestData data: questDatas)
 		{
-			if (!data)
-			{
-				continue;
-			}
-
 			int questID = data.QuestID;
 			ExpansionQuestState state = data.State;
 
@@ -65,26 +72,47 @@ class ExpansionQuestHUD: ExpansionScriptView
 			if (questConfig.IsAchievement())
 				continue;
 
-			ExpansionQuestHUDEntry entry = new ExpansionQuestHUDEntry(questConfig, data);
-			QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
-			m_QuestEntries.Insert(entry);
-			entry.SetEntry();
-
-			int findeIndexHidden = -1;
-			findeIndexHidden = m_HiddenIDs.Find(questID);
-			if (findeIndexHidden == -1)
+			ExpansionQuestHUDEntry entry;
+			if (m_QuestEntries.Find(questConfig.GetID(), entry))
 			{
-				entry.Show();
+				entry.UpdateQuestData(data);
 			}
 			else
 			{
-				entry.Hide();
+				entry = new ExpansionQuestHUDEntry(questConfig, data);
+				QuestEntriesWraper.AddChild(entry.GetLayoutRoot());
+				m_QuestEntries.Insert(questConfig.GetID(), entry);
+				entry.SetEntry();
+	
+				int findeIndexHidden = -1;
+				findeIndexHidden = m_HiddenIDs.Find(questID);
+				if (findeIndexHidden == -1)
+				{
+					entry.Show();
+				}
+				else
+				{
+					entry.Hide();
+				}
+			}
+			
+			updatedIDs.Insert(questID);
+		}
+		
+		foreach (int entryQuestID, ExpansionQuestHUDEntry hudEntry: m_QuestEntries)
+		{
+			if (updatedIDs.Find(entryQuestID) == -1)
+			{
+				hudEntry.Destroy();
+				m_QuestEntries.Remove(entryQuestID);
 			}
 		}
 	}
 
 	void ShowHud(bool state)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+		
 		if (state)
 		{
 			Show();
@@ -94,21 +122,21 @@ class ExpansionQuestHUD: ExpansionScriptView
 			Hide();
 		}
 	}
-
-	override float GetUpdateTickRate()
+	
+	override void OnShow()
 	{
-		return 0.5;
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+		
+		super.OnShow();
+		
+		UpdateView();
 	}
-
-	override void Update()
+	
+	override void OnHide()
 	{
-		if (!GetGame())
-			return;
-
-		if (!GetGame().GetPlayer())
-			return;
-
-		SetView();
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+		
+		super.OnHide();
 	}
 
 	override string GetLayoutFile()

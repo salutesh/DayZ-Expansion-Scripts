@@ -342,9 +342,10 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		return 10.0;
 	}
 	
-	override void Update()
+	override void Expansion_Update()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		if (!IsVisible())
+			return;
 
 		SetCooldown();
 	}

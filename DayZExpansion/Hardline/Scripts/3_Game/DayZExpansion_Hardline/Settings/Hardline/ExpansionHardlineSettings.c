@@ -60,7 +60,7 @@ class ExpansionHardlineSettingsV5: ExpansionSettingBase
  **/
 class ExpansionHardlineSettings: ExpansionSettingBase
 {
-	static const int VERSION = 7;
+	static const int VERSION = 8;
 	
 	int ReputationOnKillInfected;
 	int ReputationOnKillPlayer;
@@ -88,6 +88,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	bool EnableItemRarity;
 	bool UseItemRarityForMarketPurchase;
 	bool UseItemRarityForMarketSell;
+	
+	int MaxReputation;
 
 	//! Needs to be always last
 	ref map<string, ExpansionHardlineItemRarity> ItemRarity;
@@ -194,6 +196,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
 		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
 		
+		MaxReputation = s.MaxReputation;
+		
 		ItemRarity = s.ItemRarity;
 	}
 
@@ -253,6 +257,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 					EnableFactionPersistence = settingsDefault.EnableFactionPersistence;
 				}
 			#endif
+				
+				if (m_Version < 8)
+					MaxReputation = settingsDefault.MaxReputation;
 
 				m_Version = VERSION;
 				save = true;
@@ -333,7 +340,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		EnableItemRarity = true;
 		UseItemRarityForMarketPurchase = true;
 		UseItemRarityForMarketSell = true;
-	
+		
+		MaxReputation = 0;
+		
 		DefaultItemRarity();
 	}
 

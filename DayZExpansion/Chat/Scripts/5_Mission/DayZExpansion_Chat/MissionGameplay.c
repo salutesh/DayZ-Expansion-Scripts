@@ -263,69 +263,37 @@ modded class MissionGameplay
 		super.PlayerControlDisable(mode);
 	}
 
-	override void OnUpdate(float timeslice)
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate(timeslice);
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (!m_bLoaded)
+		if (isAliveConscious && !inputIsFocused && !menu && !viewMenu)
 		{
-			return;
-		}
-
-		//! Checking for keyboard focus
-		bool inputIsFocused = false;
-
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
-
-		if (focusedWidget)
-		{
-			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
+			//! Open main chat input and window
+			if (input.LocalPress("UAChat", false))
 			{
-				inputIsFocused = true;
+				ShowChat();
 			}
-			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
+
+			//! Hide chat toggle
+			if (input.LocalPress("UAExpansionHideChatToggle", false))
 			{
-				inputIsFocused = true;
+				m_Chat.HideChatToggle();
+
+				if (GetExpansionClientSettings().HUDChatToggle)
+				{
+					ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_ON", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
+				}
+				else
+				{
+					ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_OFF", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
+				}
 			}
-		}
 
-		Man player = GetGame().GetPlayer(); //! Reference to player
-		Input input = GetGame().GetInput(); //! Reference to input
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Reference to current opened scripted menu
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu()); //! Reference to current opened script view menu
-
-		if (player)
-		{
-			if (m_LifeState == EPlayerStates.ALIVE && !player.IsUnconscious())
+			//! Switch chat channel
+			if (input.LocalPress("UAExpansionChatSwitchChannel", false))
 			{
-				//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
-				//! Open main chat input and window
-				if (input.LocalPress("UAChat", false) && !inputIsFocused && !topMenu && !viewMenu)
-				{
-					ShowChat();
-				}
-
-				//! Hide chat toggle
-				if (input.LocalPress("UAExpansionHideChatToggle", false) && !inputIsFocused && !topMenu && !viewMenu)
-				{
-					m_Chat.HideChatToggle();
-
-					if (GetExpansionClientSettings().HUDChatToggle)
-					{
-						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_ON", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
-					}
-					else
-					{
-						ExpansionNotification("STR_EXPANSION_CHATTOGGLE_TITLE", "STR_EXPANSION_CHATTOGGLE_OFF", EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
-					}
-				}
-
-				//! Switch chat channel
-				if (input.LocalPress("UAExpansionChatSwitchChannel", false) && !inputIsFocused && !topMenu && !viewMenu)
-				{
-					SwitchChannel();
-				}
+				SwitchChannel();
 			}
 		}
 	}

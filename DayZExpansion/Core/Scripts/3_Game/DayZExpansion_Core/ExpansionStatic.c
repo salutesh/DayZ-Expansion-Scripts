@@ -228,6 +228,13 @@ enum ExpansionVectorToString
 	Labels
 }
 
+//! Bitmask
+enum ExpansionFindFileMode
+{
+	FILES = 1,
+	DIRECTORIES = 2
+}
+
 class ExpansionStatic
 {
 	static const string BASE16 = "0123456789ABCDEF";
@@ -257,23 +264,44 @@ class ExpansionStatic
 	// -----------------------------------------------------------
 	// Expansion String FloatToString
 	// -----------------------------------------------------------
+	//! @note unlike float::ToString(), returns non-scientific notation for any number
 	static string FloatToString(float nmb)
 	{
-		//It's a int number so doesn't need to convert it
-		if ( nmb == Math.Ceil(nmb) || nmb == Math.Floor(nmb) )
-			return nmb.ToString();
+		int i = nmb;
+		float f = i;
 
-		//It's a temp string
-		string str;
+		if (nmb == f)
+			return i.ToString();
 
-		if (nmb < 0)
+		float frac = nmb - i;
+		string tmp = frac.ToString();
+
+		if (tmp.Contains("e"))
 		{
-			str = (nmb - Math.Ceil(nmb)).ToString();
-			return ((Math.Ceil(nmb)).ToString() + (str.Substring(2, 10) ));
+			TStringArray parts = {};
+			tmp.Split("e", parts);
+
+			string real = parts[0];
+			real.Replace(".", "");
+
+			if (i < 0)
+				real = real.Substring(1, real.Length() - 1);
+
+			int count = parts[1].Substring(1, parts[1].Length() - 1).ToInt();
+			string zeros;
+			while (--count)
+			{
+				zeros += "0";
+			}
+
+			string str = "0." + zeros + real;
+			if (i < 0)
+				str = "-" + str;
+
+			return str;
 		}
 
-		str = (nmb - Math.Floor(nmb)).ToString();
-		return ( ( (Math.Floor(nmb)).ToString() ) + ( str.Substring(1, 10) ) );
+		return i.ToString() + tmp.Substring(1, tmp.Length() - 1);
 	}
 
 	// -----------------------------------------------------------
@@ -748,7 +776,7 @@ class ExpansionStatic
 	}
 
 	/*!
-	 * @brief format timestamp (value in seconds)
+	 * @brief format time (value in seconds)
 	 * @return one of the following formats as string (depending on arguments):
 	 * "HH:MM:SS.SSS" (default)
 	 * "HH:MM:SS"     (include_ms = false)
@@ -756,7 +784,7 @@ class ExpansionStatic
 	 * "MM:SS"        (include_ms = false, include_hours = false)
 	 * @note HH is the total number of hours and can exceed 24 unless `discard_days` is set to true!
 	*/
-	static string FormatTimestamp(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false, string delimHMS = ":")
+	static string FormatTime(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false, string delimHMS = ":")
 	{
 		if (include_hours)
 		{
@@ -793,7 +821,7 @@ class ExpansionStatic
 		if ( include_ms && GetDayZGame() )
 		{
 			//! Accurate, including milliseconds
-			return FormatTimestamp(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true, delimHMS);
+			return FormatTime(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true, delimHMS);
 		}
 		else
 		{
@@ -809,6 +837,18 @@ class ExpansionStatic
 
 			return hour.ToStringLen(2) + delimHMS + minute.ToStringLen(2) + delimHMS + second.ToStringLen(2);
 		}
+	}
+
+	//! Fast timestamp, use this instead of CF_Date.Now().GetTimestamp() when performance counts
+	static int GetTimestamp(bool useUTC = false)
+	{
+		return GetDayZGame().ExpansionGetStartTimestamp(useUTC) + (int) GetDayZGame().GetTickTime();
+	}
+
+	//! Fast accurate time in seconds, not including years/months/days
+	static float GetTime(bool useUTC = false)
+	{
+		return GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime();
 	}
 
 	static string GetTimeString( float total_time )
@@ -976,7 +1016,7 @@ class ExpansionStatic
 		return -1;
 	}
 
-	static array< string > FindFilesInLocation( string folder, string ext = "" )
+	static array< string > FindInLocation( string folder, string ext = "", int mode = ExpansionFindFileMode.FILES )
 	{
 		array< string > files = new array< string >;
 		if (!FileExist(folder))
@@ -986,22 +1026,35 @@ class ExpansionStatic
 		FindFileHandle findFileHandle = FindFile( folder + "*" + ext, fileName, fileAttr, 0 );
 		if ( findFileHandle )
 		{
-			if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
-			{
-				files.Insert( fileName );
-			}
+			bool isValid = true;
+			bool includeFiles = mode & ExpansionFindFileMode.FILES;
+			bool includeDirs = mode & ExpansionFindFileMode.DIRECTORIES;
 
-			while ( FindNextFile( findFileHandle, fileName, fileAttr ) )
+			while (isValid)
 			{
-				if ( fileName.Length() > 0 && !( fileAttr & FileAttr.DIRECTORY) )
+				bool isDir = fileAttr & FileAttr.DIRECTORY;
+
+				if (fileName.Length() > 0 && ((includeFiles && !isDir) || (includeDirs && isDir)))
 				{
 					files.Insert( fileName );
 				}
+
+				isValid = FindNextFile(findFileHandle, fileName, fileAttr);
 			}
 
 			CloseFindFile( findFileHandle );
 		}
 		return files;
+	}
+
+	static array< string > FindFilesInLocation( string folder, string ext = "" )
+	{
+		return FindInLocation(folder, ext, ExpansionFindFileMode.FILES);
+	}
+
+	static array< string > FindDirectoriesInLocation( string folder, string ext = "" )
+	{
+		return FindInLocation(folder, ext, ExpansionFindFileMode.DIRECTORIES);
 	}
 
 	static bool MakeDirectoryRecursive(string path)

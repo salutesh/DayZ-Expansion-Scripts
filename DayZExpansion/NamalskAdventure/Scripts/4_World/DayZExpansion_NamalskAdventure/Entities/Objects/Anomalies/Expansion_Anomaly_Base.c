@@ -49,8 +49,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	static ref CF_DoublyLinkedNodes_WeakRef<Expansion_Anomaly_Base> s_Expansion_AllAnomalies = new CF_DoublyLinkedNodes_WeakRef<Expansion_Anomaly_Base>();
 	ref CF_DoublyLinkedNode_WeakRef<Expansion_Anomaly_Base> m_Expansion_AnomalyNode = new CF_DoublyLinkedNode_WeakRef<Expansion_Anomaly_Base>(this);
 
-	protected bool m_ContactEventProcessing;
-
 	protected ExpansionAnomalyLightBase m_Light;
 	protected EffectSound m_Sound;
 	protected EffectSound m_SoundActivated;
@@ -93,12 +91,12 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 			m_LootItems = new array<EntityAI>;
 		}
 
-		SetEventMask(EntityEvent.INIT); //! @ToDO: Not sure if even needed. Check that!
-
 		//! @note: Add this to the class of your anomaly when inhertiting from this base and you plan to use the EOnTouch and EOnContact methods.
 		//! Also make sure you anomaly has additonaly set the event flags "EntityEvent.CONTACT" & "EntityEvent.TOUCH" via "SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);".
-		//SetFlags(EntityFlags.TRIGGER, false);
+		//SetFlags(EntityFlags.TOUCHTRIGGERS, false);
 
+		SetEventMask(EntityEvent.INIT);
+		
 		RegisterNetSyncVariableInt("m_AnonmalyState", 0, 5);
 		RegisterNetSyncVariableInt("m_PrevAnonmalyState", 0, 5);
 	}
@@ -108,6 +106,22 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		CleanupAnomaly();
+	}
+	
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		if (m_AnomalyTrigger && ammo != string.Empty)
+		{
+			if (ammo.IndexOf("Bullet") > -1)
+				m_AnomalyTrigger.EOnEnter(source, 0);
+		}
+		
+		return false;
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -205,7 +219,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		//! Remove grass
 		Object cc_object = GetGame().CreateObjectEx(OBJECT_CLUTTER_CUTTER , GetWorldPosition(), ECE_PLACE_ON_SURFACE);
-		cc_object.SetOrientation (GetOrientation());
+		cc_object.SetOrientation(GetOrientation());
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DestroyClutterCutter, 200, false, cc_object);
 
 		//! Spawn the core item into the anomaly.
@@ -710,6 +724,11 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		return m_LootSpawnType;
 	}
+	
+	ExpansionAnomalyTriggerBase GetAnomalyTrigger()
+	{
+		return m_AnomalyTrigger;
+	}
 
 	bool HasLoot()
 	{
@@ -959,7 +978,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		super.AfterStoreLoad();
 
-		ExpansionLootSpawner.RemoveContainer(this);
+		GetGame().ObjectDelete(this);
 	}
 
 	protected void DebugTrace(string text)

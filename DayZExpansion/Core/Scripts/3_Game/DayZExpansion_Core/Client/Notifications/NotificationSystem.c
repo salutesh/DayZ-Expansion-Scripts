@@ -81,6 +81,9 @@ modded class NotificationSystem
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "Exec_ExpansionCreateNotification");
 #endif
 		
+		if ( !m_Instance )
+			return;
+
 		bool joinNotif = false;
 		bool leaveNotif = false;
 				

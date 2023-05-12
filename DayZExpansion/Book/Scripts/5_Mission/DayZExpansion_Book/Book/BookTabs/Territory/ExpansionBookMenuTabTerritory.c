@@ -531,9 +531,9 @@ class ExpansionBookMenuTabTerritory: ExpansionBookMenuTabBase
 	// ------------------------------------------------------------
 	// ExpansionBookMenuTabTerritory Update
 	// ------------------------------------------------------------	
-	override void Update()
+	override void Expansion_Update()
 	{
-		super.Update();
+		super.Expansion_Update();
 
 		if (!IsVisible())
 			return;

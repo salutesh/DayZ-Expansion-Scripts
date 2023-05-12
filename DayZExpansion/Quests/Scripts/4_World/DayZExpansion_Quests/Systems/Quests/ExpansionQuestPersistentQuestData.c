@@ -15,14 +15,9 @@ class ExpansionQuestPersistentQuestData
 	int QuestID = -1;
 	ExpansionQuestState State = ExpansionQuestState.NONE;
 	int Timestamp = -1;
-	ref array<ref ExpansionQuestObjectiveData> QuestObjectives;
+	ref array<ref ExpansionQuestObjectiveData> QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
 	int LastUpdateTime = -1;
 	int CompletionCount = 0;
-
-	void ExpansionQuestPersistentQuestData()
-	{
-		QuestObjectives = new array<ref ExpansionQuestObjectiveData>;
-	}
 
 	ExpansionQuestObjectiveData GetObjectiveByIndex(int index)
 	{
@@ -51,6 +46,8 @@ class ExpansionQuestPersistentQuestData
 
 	void OnWrite(ParamsWriteContext ctx)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + QuestID + " " + typename.EnumToString(ExpansionQuestState, State));
+
 		ctx.Write(QuestID);
 		ctx.Write(State);
 		ctx.Write(Timestamp);
@@ -116,8 +113,13 @@ class ExpansionQuestPersistentQuestData
 
 	bool OnRead(ParamsReadContext ctx)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!OnRead_V1(ctx))
 			return false;
+
+		EXTrace.Add(trace, "Quest ID: " + QuestID);
+		EXTrace.Add(trace, typename.EnumToString(ExpansionQuestState, State));
 
 		if (!ctx.Read(LastUpdateTime))
 		{

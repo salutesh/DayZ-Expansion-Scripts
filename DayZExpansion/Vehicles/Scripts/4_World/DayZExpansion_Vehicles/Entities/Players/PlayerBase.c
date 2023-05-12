@@ -22,7 +22,7 @@ modded class PlayerBase
 	void PlayerBase()
 	{
 		if (IsMissionHost())
-			m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTimestampUTC();
+			m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTimestamp(true);
 		
 		m_Expansion_CarKeys = new array<ExpansionCarKey>;
 	}
@@ -384,7 +384,7 @@ modded class PlayerBase
 
 		int sessionTimeStamp = m_Expansion_SessionTimeStamp;
 
-		m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTimestampUTC();
+		m_Expansion_SessionTimeStamp = GetDayZGame().ExpansionGetStartTimestamp(true);
 
 		if ( m_Expansion_WasInVehicleSeatOrAttached )
 		{
@@ -393,7 +393,7 @@ modded class PlayerBase
 			if (mode == ExpansionPPOGORIVMode.Disabled)
 				return;
 
-			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && sessionTimeStamp == GetDayZGame().ExpansionGetStartTimestampUTC())
+			if (mode == ExpansionPPOGORIVMode.OnlyOnServerRestart && sessionTimeStamp == GetDayZGame().ExpansionGetStartTimestamp(true))
 				return;
 
 			//! Temporarily disable fall damage

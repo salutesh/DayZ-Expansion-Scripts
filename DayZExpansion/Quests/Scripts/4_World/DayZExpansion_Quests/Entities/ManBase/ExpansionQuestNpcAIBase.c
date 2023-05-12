@@ -19,14 +19,40 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 {
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
+	protected ParticleSource m_Expansion_QuestIndicator;
 
 	void ExpansionQuestNPCAIBase()
 	{
 		SetMovementSpeedLimits(1.0);  //! Always walk
-
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
 	
+	void ~ExpansionQuestNPCAIBase()
+	{
+		if (m_Expansion_QuestIndicator)
+		{
+			m_Expansion_QuestIndicator.StopParticle();
+			m_Expansion_QuestIndicator = null;
+		}
+	}
+
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
+
+		if (m_QuestNPCID > -1)
+		{
+		#ifdef DIAG
+			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestNPCAIByID(m_QuestNPCID))
+				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
+		#endif
+			ExpansionQuestModule.AddQuestNPCAI(m_QuestNPCID, this);
+		}
+
+		if (!m_Expansion_QuestIndicator)
+			ExpansionQuestModule.SetQuestNPCIndicator(m_QuestNPCID, this, m_Expansion_QuestIndicator);
+	}
+
 	override void Expansion_Init()
 	{
 		if (GetGame().IsServer())
@@ -40,6 +66,9 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 	void SetQuestNPCID(int id)
 	{
 		m_QuestNPCID = id;
+		
+		ExpansionQuestModule.AddQuestNPCAI(id, this);
+		
 		SetSynchDirty();
 	}
 
@@ -56,6 +85,16 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
+	}
+
+	void Expansion_SetQuestIndicator(ExpansionQuestIndicatorState state)
+	{
+		ExpansionQuestModule.SetQuestNPCIndicator(this, m_Expansion_QuestIndicator, state);
+	}
+
+	void Expansion_SetQuestIndicator(ParticleSource particle)
+	{
+		m_Expansion_QuestIndicator = particle;
 	}
 };
 

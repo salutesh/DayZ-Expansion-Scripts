@@ -29,7 +29,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected bool m_EVRStormActive;
 	protected bool m_EVRStormBlowout;
 	protected bool m_SpawnAnomalies;
-	protected bool m_StabilizedAnomalies;
+	protected bool m_DestabilizeAnomalies;
+	protected bool m_StabilizeAnomalies;
 
 	protected float m_UpdateQueueTimer;
 
@@ -78,7 +79,11 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		EnableMissionLoaded();
 		EnableUpdate();
 		
-		m_StabilizedAnomalies = true;
+		m_EVRStormActive = false;
+		m_EVRStormBlowout = false;
+		m_SpawnAnomalies = false;
+		m_DestabilizeAnomalies = false;
+		m_StabilizeAnomalies = false;
 	}
 
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
@@ -236,6 +241,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	void OnEVRStormInitPhaseServer()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		m_DestabilizeAnomalies = true;
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm mid phase starts.
@@ -251,6 +258,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		m_EVRStormBlowout = true;
+		m_SpawnAnomalies = true;
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event end phase starts.
@@ -258,14 +266,12 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		m_SpawnAnomalies = true;
-
 		NamEventManager event_manager;
 	    g_Script.CallFunction(GetGame().GetMission(), "GetNamEventManager", event_manager, null);
-
+		
+		m_StabilizeAnomalies = true;
+		
 		m_LastNamalskEvent = event_manager.GetLastEventType();
-		m_EVRStormActive = false;
-		m_EVRStormBlowout = false;
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event ended.
@@ -273,7 +279,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	void OnEVRStormFinished(SurvivorBase player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		//! PLACEHOLDER
 	}
 
 	//! @note: Condition check if a EVR storm is currently active.
@@ -494,21 +499,17 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		m_UpdateQueueTimer += update.DeltaTime;
 		if (m_UpdateQueueTimer >= UPDATE_TICK_TIME)
 		{
-			//! @note: Update events when m_EVRStormActive flag is set to true.
-			if (m_EVRStormActive && m_StabilizedAnomalies && !m_EVRStormBlowout)
-			{
+			if (m_EVRStormActive && m_DestabilizeAnomalies)
 				OnEVRStormActive();
-			}
-			//! @note: Update events when m_EVRStormBlowout flag is set to true.
-			else if (m_EVRStormActive && m_EVRStormBlowout)
-			{
+			
+			if (m_EVRStormActive && m_EVRStormBlowout)
 				OnEVRStormBlowout();
-			}
-			//! @note: Update events when m_EVRStormActive flag is set to false.
-			else if (!m_EVRStormActive && !m_StabilizedAnomalies && m_SpawnAnomalies)
-			{
-				OnIdle();
-			}
+			
+			if (m_EVRStormActive && m_SpawnAnomalies)
+				OnSpawnAnomalies();
+			
+			if (m_EVRStormActive && m_StabilizeAnomalies)
+				OnStabilizeAnomalies();
 
 			m_UpdateQueueTimer = 0;
 		}
@@ -534,8 +535,15 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			m_Expansion_ProcessedCoresCount += Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.Each(s_EVRStormStartCoresSC, UPDATE_ANOMALIES_PER_TICK);
 		}
 		
-		if (m_Expansion_ProcessedAnomaliesCount == Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count && m_Expansion_ProcessedCoresCount == Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.m_Count)
-			m_StabilizedAnomalies = false;
+		if (m_Expansion_ProcessedAnomaliesCount >= Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count && m_Expansion_ProcessedCoresCount >= Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.m_Count)
+		{
+			m_DestabilizeAnomalies = false;
+			m_Expansion_ProcessedAnomaliesCount = 0;
+			m_Expansion_ProcessedCoresCount = 0;
+			
+			ModuleDebugPrint(ToString() + "::OnEVRStormActive - EVR storm active events ended!");
+			ModuleDebugPrint(ToString() + "::OnEVRStormActive - m_DestabilizeAnomalies: " + m_DestabilizeAnomalies.ToString());
+		}
 	}
 
 	protected void OnEVRStormBlowout()
@@ -557,30 +565,16 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 			m_Expansion_ProcessedCoreBlowouts += Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.Each(s_EVRStormBlowoutCoresSC, UPDATE_ANOMALIES_PER_TICK);
 		}
-	}
-
-	protected void OnIdle()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		if (!m_StabilizedAnomalies)
+		if (m_Expansion_ProcessedAnomaliesBlowouts >= Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count && m_Expansion_ProcessedCoreBlowouts >= Expansion_AnomalyCore_Base.s_Expansion_AllAnomalyCores.m_Count)
 		{
-			if (m_Expansion_ProcessedAnomaliesStabilisations < Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
-			{
-				if (!s_StablizeAnomaliesSC)
-	  				s_StablizeAnomaliesSC = ScriptCaller.Create(OnStabilizeAnomaly);
-	
-				m_Expansion_ProcessedAnomaliesStabilisations += Expansion_Anomaly_Base.s_Expansion_AllAnomalies.Each(s_StablizeAnomaliesSC, UPDATE_ANOMALIES_PER_TICK);
-			}
+			m_EVRStormBlowout = false;
+			m_Expansion_ProcessedAnomaliesBlowouts = 0;
+			m_Expansion_ProcessedCoreBlowouts = 0;
 			
-			if (m_Expansion_ProcessedAnomaliesStabilisations == Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
-				m_StabilizedAnomalies = true;
-		}
-
-		//! @note: Update events when m_SpawnAnomalies flag is set to true.
-		if (m_SpawnAnomalies)
-		{
-			OnSpawnAnomalies();
+			ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - EVR storm blowout event ended!");
+			ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - m_EVRStormBlowout: " + m_EVRStormBlowout.ToString());
+			ModuleDebugPrint(ToString() + "::OnEVRStormBlowout - m_EVRStormActive: " + m_EVRStormActive.ToString());
 		}
 	}
 
@@ -590,9 +584,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		
 		if (!m_DynamicSpawned)
 		{
-			if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn) 
-				m_DynamicSpawned = true;
-
 			foreach (ExpansionAnomalyDynamic dynamicSpawn: m_DynamicAnomalySpawns)
 			{
 				array<vector> positions = dynamicSpawn.GetPositions();
@@ -615,12 +606,9 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 				}
 			}
 		}
-
+		
 		if (!m_StaticSpawned)
 		{
-			if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn) 
-				m_StaticSpawned = true;
-
 			foreach (ExpansionAnomalyStatic staticSpawn: m_StaticAnomalySpawns)
 			{
 				SpawnAnomalyStatic(staticSpawn, true);
@@ -635,13 +623,51 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 		}
 		
 		if (m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
-			m_StaticSpawned = true;
+		{
+			m_DynamicSpawned = true;
+			
+			ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - All dynamic anomalies spawned!");
+			ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - m_DynamicSpawned: " + m_DynamicSpawned.ToString());
+		}
 		
 		if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn)
+		{
 			m_StaticSpawned = true;
+			
+			ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - All static anomalies spawned!");
+			ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - m_StaticSpawned: " + m_StaticSpawned.ToString());
+		}
 		
 		if (m_SpawnedStaticAnomaliesCount >= m_StaticAnomaliesToSpawn && m_SpawnedDynamicAnomaliesCount >= m_DynamicAnomaliesToSpawn)
+		{
 			m_SpawnAnomalies = false;
+			
+			ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - All anomalies spawned!");
+			ModuleDebugPrint(ToString() + "::OnSpawnAnomalies - m_SpawnAnomalies: " + m_SpawnAnomalies.ToString());
+		}
+	}
+	
+	protected void OnStabilizeAnomalies()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (m_Expansion_ProcessedAnomaliesStabilisations < Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
+		{
+			if (!s_StablizeAnomaliesSC)
+  				s_StablizeAnomaliesSC = ScriptCaller.Create(OnStabilizeAnomaly);
+
+			m_Expansion_ProcessedAnomaliesStabilisations += Expansion_Anomaly_Base.s_Expansion_AllAnomalies.Each(s_StablizeAnomaliesSC, UPDATE_ANOMALIES_PER_TICK);
+		}
+		
+		if (m_Expansion_ProcessedAnomaliesStabilisations >= Expansion_Anomaly_Base.s_Expansion_AllAnomalies.m_Count)
+		{
+			m_StabilizeAnomalies = false;
+			m_EVRStormActive = false;
+			m_Expansion_ProcessedAnomaliesStabilisations = 0;
+			
+			ModuleDebugPrint(ToString() + "::OnStabilizeAnomalies - All anomalies stabilized!");
+			ModuleDebugPrint(ToString() + "::OnStabilizeAnomalies - m_DestabilizeAnomalies: " + m_DestabilizeAnomalies.ToString());
+		}
 	}
 
 	static ExpansionAnomaliesModule GetModuleInstance()

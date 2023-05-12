@@ -265,8 +265,6 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3774.44, 144.313, 8244.01), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 
-		DynamicAnomalies.Insert(anomaly);
-
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 
@@ -297,6 +295,24 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6273.98, 21.0682, 9351.2), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4962.06, 50, 7988.59), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3937.58, 5.72824, 10020.3), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5489.87, 101.82, 7892.35), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5015.51, 47.1122, 6555.13), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		DynamicAnomalies.Insert(anomaly);
+		
 		//! Static spawns
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4320.681152, 77.882248, 8105.860352)));
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4238.989746, 77.928940, 8120.389648)));
@@ -413,7 +429,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(6019.13, 5.80883, 10026.7), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
 
 		//! Spawn NAC AI Soldier Units at A3
-		npcName = "NAC Soldier";
+		/*npcName = "NAC Soldier";
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(3596.59, 170.731, 6659.7));
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3596.59, 170.731, 6659.7), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
@@ -424,7 +440,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(3591.66, 143.823, 6718.72));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3591.66, 143.823, 6718.72), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
+		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3591.66, 143.823, 6718.72), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));*/
 
 		//! Spawn NAC AI Soldier Units at A1 Bunker
 		waypoints = new array<vector>;

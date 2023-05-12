@@ -252,8 +252,9 @@ enum ExpansionSettingsRPC
 	Garage,
 	P2PMarket,
 	PersonalStorage,
+	PersonalStorageNew,
 	NamalskAdventure,
-	COUNT  //! 32 INCREMENT THIS NUMBER AND FOLLOWING RPCs WHEN NEEDED FFS
+	COUNT  //! 33 INCREMENT THIS NUMBER AND FOLLOWING RPCs WHEN NEEDED FFS
 };
 
 enum ExpansionCOTBookModuleRPC
@@ -442,9 +443,16 @@ enum ExpansionPersonalStorageModuleRPC
 {
 	INVALID = 40080,
 	RequestDepositItem,
-	RequestRetrieveItem
+	RequestRetrieveItem,
 	SendItemData,
 	Callback,
+	COUNT
+};
+
+enum ExpansionPersonalStorageNewRPC
+{
+	INVALID = 40090,
+	RequestMoveItem,
 	COUNT
 };
 
@@ -475,3 +483,12 @@ enum ExpansionAutoRunRPC
 	AUTORUNDISABLE,
 	COUNT
 };
+
+#ifdef JM_COT
+enum Expansion_JMPlayerModuleRPC : JMPlayerModuleRPC
+{
+	SetReputation,
+	RetriveEntityStorageObj,
+	EX_COUNT
+};
+#endif

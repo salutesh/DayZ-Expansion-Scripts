@@ -19,7 +19,7 @@ class ExpansionAirdropContainerManagers
 
 	static void Add( ExpansionAirdropContainerBase container, TStringArray infected, int infectedCount )
 	{
-		m_ContainerManagers.Insert( ExpansionAirdropContainerManager( container, infected, infectedCount ) );
+		m_ContainerManagers.Insert( new ExpansionAirdropContainerManager( container, infected, infectedCount ) );
 	}
 
 	static ExpansionAirdropContainerManager Find( ExpansionAirdropContainerBase container )

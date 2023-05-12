@@ -13,7 +13,7 @@
 class ExpansionCooldownIndicator: ExpansionScriptView
 {
 	protected ref ExpansionCooldownIndicatorController m_CooldownController;
-	protected int m_LastCooldown;
+	protected float m_LastCooldown;
 
 	void ExpansionCooldownIndicator()
 	{
@@ -36,12 +36,12 @@ class ExpansionCooldownIndicator: ExpansionScriptView
 		if (!player)
 			return;
 		
-		int cooldown = player.eAI_GetLastAggressionCooldown();
+		float cooldown = player.eAI_GetLastAggressionCooldown();
 		if (cooldown != m_LastCooldown)
 		{
 			m_LastCooldown = cooldown;
 			if (cooldown > 0)
-				m_CooldownController.Text = ExpansionStatic.FormatTimestamp(cooldown, false, false);
+				m_CooldownController.Text = ExpansionStatic.FormatTime(cooldown, false, false);
 			else
 				m_CooldownController.Text = "";
 			m_CooldownController.NotifyPropertyChanged("Text");
@@ -53,7 +53,7 @@ class ExpansionCooldownIndicator: ExpansionScriptView
 		return 0.5;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 		if (!IsVisible())
 			return;

@@ -12,6 +12,24 @@
 
 modded class ZombieBase
 {
+	static ref CF_DoublyLinkedNodes_WeakRef<ZombieBase> s_Expansion_AllInfected = new CF_DoublyLinkedNodes_WeakRef<ZombieBase>();
+	ref CF_DoublyLinkedNode_WeakRef<ZombieBase> m_Expansion_InfectedNode = new CF_DoublyLinkedNode_WeakRef<ZombieBase>(this);
+
+	void ZombieBase()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		m_Expansion_InfectedNode = s_Expansion_AllInfected.Add(this);
+	}
+
+	void ~ZombieBase()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		if (s_Expansion_AllInfected)
+			s_Expansion_AllInfected.Remove(m_Expansion_InfectedNode);
+	}
+
 	override bool CanBeSkinned()
 	{
 		return true;

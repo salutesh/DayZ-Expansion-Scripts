@@ -37,7 +37,7 @@ class eAITargetInformationState
 				//! Threat level rises slowly if below fighting threshold and AI has not been attacked by player
 				float distanceFactor;
 				DayZPlayerImplement player;
-				if (m_ThreatLevelActive < 0.4 && Class.CastTo(player, m_Info.GetEntity()) && GetGame().GetTickTime() - player.m_eAI_LastAggressionTime > 1.0)
+				if (m_ThreatLevelActive < 0.4 && Class.CastTo(player, m_Info.GetEntity()) && ExpansionStatic.GetTime(true) - player.m_eAI_LastAggressionTime > 1.0)
 					distanceFactor = m_SearchDirection.Length();
 				if (distanceFactor > 0)
 				{

@@ -180,7 +180,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		return 1.0;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 		if (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().ShowHardlineHUD)
 		{

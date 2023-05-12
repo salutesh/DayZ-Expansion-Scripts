@@ -17,6 +17,7 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 {
 	protected int m_QuestNPCID = -1;
 	protected ref ExpansionQuestNPCData m_QuestNPCData;
+	protected ParticleSource m_Expansion_QuestIndicator;
 
 	void ExpansionQuestStaticObject()
 	{
@@ -28,23 +29,39 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
 
-	override void DeferredInit()
-    {
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+	void ~ExpansionQuestStaticObject()
+	{
+		if (m_Expansion_QuestIndicator)
+		{
+			m_Expansion_QuestIndicator.StopParticle();
+			m_Expansion_QuestIndicator = null;
+		}
+	}
 
-		super.DeferredInit();
+	override void OnVariablesSynchronized()
+	{
+		super.OnVariablesSynchronized();
 
-	#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, this, "-----------------------------------------------------------------------------------------");
-		EXTrace.Print(EXTrace.QUESTS, this, "NPC ID: " + m_QuestNPCID);
-		EXTrace.Print(EXTrace.QUESTS, this, "NPC type: " + GetType());
-		EXTrace.Print(EXTrace.QUESTS, this, "-----------------------------------------------------------------------------------------");
-	#endif
-    }
+		if (m_QuestNPCID > -1)
+		{
+		#ifdef DIAG
+			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestObjectByID(m_QuestNPCID))
+				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
+		#endif
+			ExpansionQuestModule.AddStaticQuestObject(m_QuestNPCID, this);
+		}
+
+		if (!m_Expansion_QuestIndicator)
+			ExpansionQuestModule.SetQuestNPCIndicator(m_QuestNPCID, this, m_Expansion_QuestIndicator);
+	}
 
 	void SetQuestNPCID(int id)
 	{
 		m_QuestNPCID = id;
+		
+		ExpansionQuestModule.AddStaticQuestObject(id, this);
+		
+		GetGame().RegisterNetworkStaticObject(this);
 		SetSynchDirty();
 	}
 
@@ -61,6 +78,16 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 	ExpansionQuestNPCData GetQuestNPCData()
 	{
 		return m_QuestNPCData;
+	}
+
+	void Expansion_SetQuestIndicator(ExpansionQuestIndicatorState state)
+	{
+		ExpansionQuestModule.SetQuestNPCIndicator(this, m_Expansion_QuestIndicator, state);
+	}
+
+	void Expansion_SetQuestIndicator(ParticleSource particle)
+	{
+		m_Expansion_QuestIndicator = particle;
 	}
 };
 

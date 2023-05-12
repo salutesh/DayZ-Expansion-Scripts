@@ -30,186 +30,152 @@ modded class MissionGameplay
 		PlayerBase.Expansion_RegisterInventoryItemType(ItemCompass);
 	}
 
-	override void OnUpdate(float timeslice)
+	override void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
 	{
-		super.OnUpdate(timeslice);
-
-		if (!m_bLoaded)
-			return;
-
-		//! Checking for keyboard focus
-		bool inputIsFocused = false;
-
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
-
-		if (focusedWidget)
-		{
-			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
-			{
-				inputIsFocused = true;
-			} 
-			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
-			{
-				inputIsFocused = true;
-			}
-		}
-
-		Man man = GetGame().GetPlayer();				//! Refernce to man
-		Input input = GetGame().GetInput();				//! Reference to input
-		UIScriptedMenu topMenu = m_UIManager.GetMenu(); //! Expansion reference to menu
-		PlayerBase playerPB = PlayerBase.Cast(man);		//! Expansion reference to player
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
+		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 		
-		//TODO: Make ExpansionInputs class and handle stuff there to keep this clean
-		if (playerPB && playerPB.GetHumanInventory())
+		if (isAliveConscious && !menu && !inputIsFocused)
 		{
-			if (playerPB.GetPlayerState() == EPlayerStates.ALIVE && !playerPB.IsUnconscious())
+			//! Map Menu
+			if (input.LocalPress("UAExpansionMapToggle", false) && !viewMenu)
 			{
-				if (!topMenu && !inputIsFocused)
-				{
-					//! Map Menu
-					if (input.LocalPress("UAExpansionMapToggle", false) && !viewMenu)
-					{
-						ToggleMapMenu(playerPB);
-					}
+				ToggleMapMenu(player);
+			}
 
-					//! GPS
-					if (input.LocalPress("UAExpansionGPSToggle", false))
+			//! GPS
+			if (input.LocalPress("UAExpansionGPSToggle", false))
+			{
+				if (GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS)
+				{
+					if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
 					{
-						if (GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS)
+						if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
 						{
-							if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
-							{
-								if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
-								{
-									ToggleHUDGPSMode();
-								}
-							}
-							else
-							{
-								ToggleHUDGPSMode();
-							}
+							ToggleHUDGPSMode();
 						}
 					}
-					
-					if (input.LocalHold("UAExpansionGPSToggle"))
+					else
 					{
-						if (GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.HUDCloseTime() > 0.75)
-						{
-							//! If it's already open, just close it
-							if (m_Hud.GetGPSState())
+						ToggleHUDGPSMode();
+					}
+				}
+			}
+			
+			if (input.LocalHold("UAExpansionGPSToggle"))
+			{
+				if (GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.HUDCloseTime() > 0.75)
+				{
+					//! If it's already open, just close it
+					if (m_Hud.GetGPSState())
+					{
+						m_Hud.ToggleHUDGPS();
+					}
+					else if (!m_Hud.GetGPSState())
+					{
+						if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
+						{			
+							if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
 							{
+								m_Hud.SetHasGPSItem(true);
 								m_Hud.ToggleHUDGPS();
 							}
-							else if (!m_Hud.GetGPSState())
-							{
-								if (GetExpansionSettings().GetMap().NeedGPSItemForKeyBinding)
-								{			
-									if (PlayerBase.Cast(GetGame().GetPlayer()).HasItemGPS())
-									{
-										m_Hud.SetHasGPSItem(true);
-										m_Hud.ToggleHUDGPS();
-									}
-								}
-								else
-								{
-									m_Hud.ToggleHUDGPS();
-								}
-							}
+						}
+						else
+						{
+							m_Hud.ToggleHUDGPS();
 						}
 					}
-					
-					if (input.LocalPress("UAExpansionGPSMapScaleDown", false))
+				}
+			}
+			
+			if (input.LocalPress("UAExpansionGPSMapScaleDown", false))
+			{
+				if (GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.GetGPSMapState())
+				{
+					DecreaseGPSMapScale();
+				}
+			}
+
+			if (input.LocalPress("UAExpansionGPSMapScaleUp", false))
+			{
+				if (GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.GetGPSMapState())
+				{
+					IncreaseGPSMapScale();
+				}
+			}
+
+			//! Expansion Compass Hud
+			if (input.LocalPress("UAExpansionCompassToggle", false) && m_Hud)
+			{
+				if (GetExpansionSettings().GetMap().EnableHUDCompass)
+				{
+					m_Hud.SetCompassToggleState();
+				}
+			}
+
+			if (m_MarkerModule)
+			{
+				if (input.LocalPress("UAExpansion3DMarkerToggle", false) && !viewMenu)
+				{
+					int visibility;
+					int previousVisibility;
+
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER);
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PARTY);
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PLAYER);
+					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PERSONAL);
+					visibility &= EXPANSION_MARKER_VIS_WORLD;
+
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.SERVER);
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PARTY);
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PLAYER);
+					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PERSONAL);
+					previousVisibility &= EXPANSION_MARKER_VIS_WORLD;
+
+					if (!visibility)
 					{
-						if (GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.GetGPSMapState())
-						{
-							DecreaseGPSMapScale();
-						}
+						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
 					}
 
-					if (input.LocalPress("UAExpansionGPSMapScaleUp", false))
+					if (!visibility && !previousVisibility)
 					{
-						if (GetExpansionSettings() && GetExpansionSettings().GetMap().EnableHUDGPS && m_Hud.GetGPSMapState())
-						{
-							IncreaseGPSMapScale();
-						}
+						//! No 3D markers visible currently and previously, toggle all on
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+					}
+					else if (!visibility)
+					{
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+					}
+					else
+					{
+						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 					}
 
-					//! Expansion Compass Hud
-					if (input.LocalPress("UAExpansionCompassToggle", false) && m_Hud)
+					if (m_Expansion_ExpansionMapMenu)
+						m_Expansion_ExpansionMapMenu.GetMarkerList().UpdateToggleStates();
+				}
+
+				if (input.LocalPress("UAExpansionServerMarkersToggle", false) && !viewMenu)
+				{
+					if ((m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER) & EXPANSION_MARKER_VIS_WORLD) == 0)
 					{
-						if (GetExpansionSettings().GetMap().EnableHUDCompass)
-						{
-							m_Hud.SetCompassToggleState();
-						}
+						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
+						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 					}
-
-					if (m_MarkerModule)
+					else
 					{
-						if (input.LocalPress("UAExpansion3DMarkerToggle", false) && !viewMenu)
-						{
-							int visibility;
-							int previousVisibility;
-
-							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER);
-							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PARTY);
-							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PLAYER);
-							visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PERSONAL);
-							visibility &= EXPANSION_MARKER_VIS_WORLD;
-
-							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.SERVER);
-							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PARTY);
-							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PLAYER);
-							previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PERSONAL);
-							previousVisibility &= EXPANSION_MARKER_VIS_WORLD;
-
-							if (!visibility)
-							{
-								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
-							}
-
-							if (!visibility && !previousVisibility)
-							{
-								//! No 3D markers visible currently and previously, toggle all on
-								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-							}
-							else if (!visibility)
-							{
-								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-							}
-							else
-							{
-								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
-								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-							}
-
-							if (m_Expansion_ExpansionMapMenu)
-								m_Expansion_ExpansionMapMenu.GetMarkerList().UpdateToggleStates();
-						}
-
-						if (input.LocalPress("UAExpansionServerMarkersToggle", false) && !viewMenu)
-						{
-							if ((m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER) & EXPANSION_MARKER_VIS_WORLD) == 0)
-							{
-								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
-								m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-							}
-							else
-							{
-								ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(playerPB.GetIdentity());
-								m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-							}
-						}
+						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
+						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 					}
 				}
 			}
@@ -227,7 +193,7 @@ modded class MissionGameplay
 			m_Expansion_ExpansionMapMenu.CloseMapMenu(true); //! Safely destroys expansion map menu
 	}
 
-	void ToggleMapMenu(PlayerBase playerPB)
+	void ToggleMapMenu(PlayerBase player)
 	{
 		if (!GetExpansionSettings().GetMap().EnableMap)
 		{
@@ -240,7 +206,7 @@ modded class MissionGameplay
 			{
 				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
 				{
-					if (playerPB.HasItemMap() || playerPB.HasItemGPS())
+					if (player.HasItemMap() || player.HasItemGPS())
 						show_map = true;
 				}
 				else
@@ -271,7 +237,7 @@ modded class MissionGameplay
 			{
 				if (GetExpansionSettings().GetMap().NeedMapItemForKeyBinding)
 				{
-					if (playerPB.HasItemMap() || playerPB.HasItemGPS())
+					if (player.HasItemMap() || player.HasItemGPS())
 						show_map = true;
 				}
 				else

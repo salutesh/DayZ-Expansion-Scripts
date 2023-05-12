@@ -20,6 +20,9 @@ class ExpansionQuestPersistentData
 	int DataVersion;
 	ref array<ref ExpansionQuestPersistentQuestData> QuestDatas;
 
+	[NonSerialized()];
+	bool m_SynchDirty;
+
 	void ExpansionQuestPersistentData()
 	{
 		QuestDatas = new array<ref ExpansionQuestPersistentQuestData>
@@ -42,7 +45,7 @@ class ExpansionQuestPersistentData
 		questData.UpdateLastUpdateTime();
 		QuestDatas.Insert(questData);
 
-		
+		m_SynchDirty = true;
 	}
 
 	void RemoveQuestDataByQuestID(int questID)
@@ -58,10 +61,9 @@ class ExpansionQuestPersistentData
 				QuestDebugPrint("Remove data for quest ID: " + currentData.QuestID);
 				currentData.ClearObjectiveData();
 				QuestDatas.RemoveOrdered(i);
+				m_SynchDirty = true;
 			}
 		}
-		
-		
 	}
 
 	bool HasDataForQuest(int questID)
@@ -180,7 +182,7 @@ class ExpansionQuestPersistentData
 		questData.UpdateLastUpdateTime();
 		questData.QuestDebug();
 
-		
+		m_SynchDirty = true;
 	}
 
 	void UpdateQuestTimestamp(int questID, int time)
@@ -194,6 +196,8 @@ class ExpansionQuestPersistentData
 		questData.Timestamp = time;
 		questData.UpdateLastUpdateTime();
 		questData.QuestDebug();
+
+		m_SynchDirty = true;
 	}
 
 	bool UpdateObjective(int questID, int objectiveIndex, ExpansionQuestObjectiveData newData)
@@ -209,6 +213,7 @@ class ExpansionQuestPersistentData
 			questData.UpdateLastUpdateTime();
 			questData.QuestObjectives.InsertAt(newData, objectiveIndex);
 			questData.QuestDebug();
+			m_SynchDirty = true;
 			return true;
 		}
 		
@@ -224,6 +229,7 @@ class ExpansionQuestPersistentData
 			questData.CompletionCount = (questData.CompletionCount + 1);
 			questData.UpdateLastUpdateTime();
 			QuestDebugPrint("Updated completion count for quest. Quest ID: " + questID + " | Completion count: " + questData.CompletionCount);
+			m_SynchDirty = true;
 			return true;
 		}
 		
@@ -266,6 +272,8 @@ class ExpansionQuestPersistentData
 
 			if (save)
 				Save(fileName, false);
+
+			m_SynchDirty = true;
 		}
 
 		return true;
@@ -282,7 +290,7 @@ class ExpansionQuestPersistentData
 		if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
 		{
 			file.Write(DataVersion);
-			OnWrite(file);
+			OnWrite(file, false);
 			file.Close();
 		}
 	}
@@ -368,6 +376,9 @@ class ExpansionQuestPersistentData
 		
 		QuestDebugPrint("End and return " + changed);
 
+		if (changed)
+			m_SynchDirty = true;
+
 		return changed;
 	}
 
@@ -409,9 +420,14 @@ class ExpansionQuestPersistentData
 		return false;
 	}
 
-	void OnWrite(ParamsWriteContext ctx)
+	void OnWrite(ParamsWriteContext ctx, bool resetSynchDirty = true)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		int dataCount = QuestDatas.Count();
+
+		EXTrace.Add(trace, "Count: " + dataCount);
+
 		ctx.Write(dataCount);
 		for (int i = 0; i < QuestDatas.Count(); i++)
 		{
@@ -421,10 +437,15 @@ class ExpansionQuestPersistentData
 
 			data.OnWrite(ctx);
 		}
+
+		if (resetSynchDirty)
+			m_SynchDirty = false;
 	}
 
 	bool OnRead(ParamsReadContext ctx)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (!QuestDatas)
 		{
 			QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
@@ -437,6 +458,8 @@ class ExpansionQuestPersistentData
 		int dataCount;
 		if (!ctx.Read(dataCount))
 			return false;
+
+		EXTrace.Add(trace, "Count: " + dataCount);
 
 		for (int i = 0; i < dataCount; i++)
 		{

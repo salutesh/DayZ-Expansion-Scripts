@@ -25,12 +25,8 @@ class ExpansionScriptViewMenuBase: ExpansionScriptViewBase
 		return true;
 	}
 
-	bool UseMouse()
+	bool CanClose()
 	{
-		#ifdef PLATFORM_CONSOLE
-		return GetGame().GetInput().IsEnabledMouseAndKeyboardEvenOnServer();
-		#else
 		return true;
-		#endif
 	}
 };

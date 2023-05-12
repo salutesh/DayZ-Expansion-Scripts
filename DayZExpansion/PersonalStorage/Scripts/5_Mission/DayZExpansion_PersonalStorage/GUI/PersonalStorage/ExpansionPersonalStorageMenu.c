@@ -79,20 +79,18 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	protected bool m_CategoriesToggleState;
 
+	protected bool m_IsPersonalStorageContainer;
+	protected ExpansionPersonalStorageContainer m_Container;
+	protected ExpansionPersonalStorageHub m_ContainerHub;
+
 	void ExpansionPersonalStorageMenu()
 	{
 		Class.CastTo(m_PersonalStorageMenuController, GetController());
-
 		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuCallbackSI().Insert(OnModuleCallback);
 		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuSI().Insert(SetDepositedItems);
-
+		ExpansionPersonalStorageContainer.SI_Expansion_OpenPersonalStorageMenu.Insert(ExSetDepositedItems);
 		m_PersonalStorageSettings = GetExpansionSettings().GetPersonalStorage();
-
-		m_ItemDetailsView = new ExpansionPersonalStorageMenuDetailsView(this);
-		m_ItemDetailsView.Hide();
-
 		m_BrowseHeader = new ExpansionPersonalStorageMenuBrowseHeader(this);
-
 		m_PlayerUID = GetGame().GetPlayer().GetIdentity().GetId();
 	}
 
@@ -100,12 +98,25 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	{
 		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuCallbackSI().Remove(OnModuleCallback);
 		ExpansionPersonalStorageModule.GetModuleInstance().GetPersonalStorageMenuSI().Remove(SetDepositedItems);
+		ExpansionPersonalStorageContainer.SI_Expansion_OpenPersonalStorageMenu.Remove(ExSetDepositedItems);
 		
 		if (m_BrowseHeader)
 			m_BrowseHeader.Destroy();
 
 		if (m_ItemDetailsView)
 			m_ItemDetailsView.Destroy();
+		
+		if (m_PersonalStorageMenuController.DepositedItems)
+			m_PersonalStorageMenuController.DepositedItems.Clear();
+		
+		if (m_PersonalStorageMenuController.PlayerItems)
+			m_PersonalStorageMenuController.PlayerItems.Clear();
+		
+		if (m_PersonalStorageMenuController.BrowseCategories)
+			m_PersonalStorageMenuController.BrowseCategories.Clear();
+		
+		if (m_PersonalStorageMenuController.PlayerCategories)
+			m_PersonalStorageMenuController.PlayerCategories.Clear();
 	}
 
 	override string GetLayoutFile()
@@ -117,14 +128,79 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	{
 		return ExpansionPersonalStorageMenuController;
 	}
+	
+	void ExSetDepositedItems(ExpansionPersonalStorageContainer container)
+	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
+		m_Container = container;
+		m_ContainerHub = container.Expansion_GetPersonalStorageHub();
+		
+		int itemsCount;
+		
+		m_PersonalStorageMenuController.PersonalStorageName = container.GetDisplayName();
+		m_PersonalStorageMenuController.NotifyPropertyChanged("PersonalStorageName");
+		
+		if (m_PersonalStorageMenuController.DepositedItems)
+			m_PersonalStorageMenuController.DepositedItems.Clear();
+
+		inventory_header.AddChild(m_BrowseHeader.GetLayoutRoot());
+		m_BrowseHeader.SetSort(0, false);
+		
+		array<EntityAI> items = new array<EntityAI>;
+		container.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+		if (items && items.Count() > 0)
+		{
+			foreach (EntityAI item: items)
+			{
+				if (item.GetHierarchyParent() && item.GetHierarchyParent().IsInherited(ExpansionPersonalStorageContainer))
+				{
+					//! Hardcoded excluded type names where the item should never get added and shown in the menu.
+					if (ExpansionPersonalStorageModule.m_HardcodedExcludes.Find(item.GetType()) > -1)
+						continue;
+					
+					ExpansionPersonalStorageItem newDepositedItem = new ExpansionPersonalStorageItem();
+					newDepositedItem.SetFromItem(item, GetGame().GetPlayer().GetIdentity().GetId());
+					newDepositedItem.SetIsStored(true);
+								
+					ExpansionPersonalStorageMenuItem storedItem = new ExpansionPersonalStorageMenuItem(newDepositedItem, this);
+					m_PersonalStorageMenuController.DepositedItems.Insert(storedItem);
+					itemsCount++;
+				}
+			}
+		}
+		
+		m_PersonalStorageMenuController.BrowseCategories.Clear();
+
+		array<ref ExpansionPersonalStorageMenuCategory> menuCategories = m_PersonalStorageSettings.MenuCategories;
+		foreach (ExpansionPersonalStorageMenuCategory category: menuCategories)
+		{
+			ExpansionPersonalStorageMenuCategoryElement categoryElement = new ExpansionPersonalStorageMenuCategoryElement(this, category);
+			m_PersonalStorageMenuController.BrowseCategories.Insert(categoryElement);
+		}
+
+		//! Get and set all deposited items count
+		string itemsCountText = "[0]";
+		if (itemsCount > 0)
+			itemsCountText = "[" + itemsCount + "]";
+
+		m_PersonalStorageMenuController.AllItemsCount = itemsCount.ToString();
+		m_PersonalStorageMenuController.NotifyPropertyChanged("AllItemsCount");
+		
+		m_PersonalStorageMenuController.StoredItemsCount = itemsCount.ToString();
+		m_PersonalStorageMenuController.NotifyPropertyChanged("StoredItemsCount");
+		
+		m_PreviousViewState = m_ViewState;
+		m_ViewState = ExpansionPersonalStorageMenuViewState.ViewDepositedItems;
+		
+		loading.Show(false);
+
+		m_IsPersonalStorageContainer = true;
+	}
 
 	void SetDepositedItems(int storageID, array<ref ExpansionPersonalStorageItem> depositedItems = null, string displayName = string.Empty, string displayIcon = string.Empty)
 	{
-		PrintDebug(ToString() + "::SetDepositedItems - Start");
-		PrintDebug(ToString() + "::SetDepositedItems - Storage ID: " + storageID);
-		PrintDebug(ToString() + "::SetDepositedItems - Display Name: " + displayName);
-		PrintDebug(ToString() + "::SetDepositedItems - Display Icon: " + displayIcon);
-		PrintDebug(ToString() + "::SetDepositedItems - Start");
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 		
 		int itemsCount;
 		
@@ -201,16 +277,12 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		
 		m_PreviousViewState = m_ViewState;
 		m_ViewState = ExpansionPersonalStorageMenuViewState.ViewDepositedItems;
-		
-		loading.Show(false);
-		
-		PrintDebug(ToString() + "::SetDepositedItems - End");
 	}
 
 	void UpdatePlayerItems()
 	{
-		PrintDebug(ToString() + "::UpdatePlayerItems - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!m_PlayerItems)
 			m_PlayerItems = new array <ref ExpansionPersonalStorageItem>;
 		else
@@ -219,6 +291,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		array<EntityAI> items = ExpansionPersonalStorageModule.GetModuleInstance().LocalGetEntityInventory();
 		if (items && items.Count() > 0)
 		{
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 			foreach (EntityAI item: items)
 			{
 				if (item.GetHierarchyParent() && item.GetHierarchyParent().IsInherited(SurvivorBase))
@@ -229,13 +302,21 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					
 					ExpansionPersonalStorageItem newPlayerItem = new ExpansionPersonalStorageItem();
 					newPlayerItem.SetFromItem(item, item.GetHierarchyRootPlayer().GetIdentity().GetId());
+					
+					if (newPlayerItem.GetContainerItemsCount() > 0 && m_IsPersonalStorageContainer && m_Container)
+					{
+						if (!m_Container.m_Expansion_PersonalStorageAllowAttachmentCargo)
+						{
+							newPlayerItem.SetExcluded(true);
+						}
+					}
+
 					m_PlayerItems.Insert(newPlayerItem);
 				}
 			}
 
 			m_PersonalStorageMenuController.PlayerItems.Clear();
 
-			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 			array<EntityAI> slotItems = GetSlotItems(player);
 			array<string> slotNames = new array<string>;
 			slotNames.Insert("All");
@@ -278,54 +359,53 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 				m_PersonalStorageMenuController.PlayerCategories.Insert(inventoryCategoryElement);
 			}
 		}
-		
-		loading.Show(false);
-		
-		PrintDebug(ToString() + "::UpdatePlayerItems - End");
 	}
 
 	void HideItemDetailElements()
 	{
-		PrintDebug(ToString() + "::HideItemDetailElements - Start");
-
-		GetDetailsView().ShowQuantityColor(false);
-		GetDetailsView().ShowItemQuantity(false);
-		GetDetailsView().ShowItemLiquid(false);
-		GetDetailsView().ShowItemCargoCount(false);
-		GetDetailsView().ShowItemAttachmentsCount(false);
-		GetDetailsView().ShowItemFoodState(false);
+		m_ItemDetailsView.ShowQuantityColor(false);
+		m_ItemDetailsView.ShowItemQuantity(false);
+		m_ItemDetailsView.ShowItemLiquid(false);
+		m_ItemDetailsView.ShowItemCargoCount(false);
+		m_ItemDetailsView.ShowItemAttachmentsCount(false);
+		m_ItemDetailsView.ShowItemFoodState(false);
 	#ifdef EXPANSIONMODHARDLINE
-		GetDetailsView().ShowItemRarity(false);
+		m_ItemDetailsView.ShowItemRarity(false);
 	#endif
-		
-		PrintDebug(ToString() + "::HideItemDetailElements - End");
 	}
 
 	void SetSelectedMenuItem(ExpansionPersonalStorageMenuItem item)
 	{
-		PrintDebug(ToString() + "::SetSelectedMenuItem - Start");
-
-		m_SelectedPlayerItem = item;
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
 		
-		PrintDebug(ToString() + "::SetSelectedMenuItem - End");
+		m_SelectedPlayerItem = item;
 	}
 	
 	void SetSelectedPlayerItem(ExpansionPersonalStorageMenuItem item)
 	{
-		PrintDebug(ToString() + "::SetSelectedPlayerItem - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!item || !item.GetPlayerItem())
 			return;
+		
+		if (!m_ItemDetailsView)
+		{
+			m_ItemDetailsView = new ExpansionPersonalStorageMenuDetailsView(this);
+		}
+		else
+		{
+			m_ItemDetailsView.ResetPreview();
+			m_ItemDetailsView.Show();
+		}
 
-		GetDetailsView().ResetPreview();
 		m_SelectedPlayerItem = item;
 		m_SelectedPreviewObject = item.GetPreviewObject();
 		m_SelectedContainerItems = item.GetPlayerItem().GetContainerItems();
 
-		GetDetailsView().SetViewDeposit();
+		m_ItemDetailsView.SetViewDeposit();
 
-		GetDetailsView().GetDetailsViewController().SelectedName = item.GetPreviewObject().GetDisplayName();
-		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("SelectedName");
+		m_ItemDetailsView.GetDetailsViewController().SelectedName = item.GetPreviewObject().GetDisplayName();
+		m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("SelectedName");
 
 		market_filter_panel.Show(false);
 		categories_panel.Show(false);
@@ -333,7 +413,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		inventory_panel.Show(false);
 		tabs_panel.Show(false);
 
-		GetDetailsView().ShowConfirmButton(true);
+		m_ItemDetailsView.ShowConfirmButton(true);
 
 		string buttonText;
 		if (item.GetPlayerItem().IsStored())
@@ -341,10 +421,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		else
 			buttonText = "Deposit Item";
 
-		GetDetailsView().GetDetailsViewController().ConfirmButtonText = buttonText;
-		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ConfirmButtonText");
+		m_ItemDetailsView.GetDetailsViewController().ConfirmButtonText = buttonText;
+		m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("ConfirmButtonText");
 
-		details_panel.AddChild(GetDetailsView().GetLayoutRoot());
+		details_panel.AddChild(m_ItemDetailsView.GetLayoutRoot());
 		details_panel.Show(true);
 
 		HideItemDetailElements();
@@ -357,19 +437,19 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		{
 			bool isBloodContainer = ExpansionStatic.IsAnyOf(item.GetPlayerItem().GetClassName(), m_BloodContainers);
 			int liquidColor;
-			GetDetailsView().ShowItemLiquid(true);
-			GetDetailsView().GetDetailsViewController().LiquidType = GetLiquidTypeString(item.GetPlayerItem().GetLiquidType(), isBloodContainer, liquidColor);
-			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("LiquidType");
-			GetDetailsView().SetLiquidColor(liquidColor);
+			m_ItemDetailsView.ShowItemLiquid(true);
+			m_ItemDetailsView.GetDetailsViewController().LiquidType = GetLiquidTypeString(item.GetPlayerItem().GetLiquidType(), isBloodContainer, liquidColor);
+			m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("LiquidType");
+			m_ItemDetailsView.SetLiquidColor(liquidColor);
 		}
 
 		if (item.GetPlayerItem().GetFoodStageType() != -1)
 		{
 			int foodStageColor;
-			GetDetailsView().ShowItemFoodState(true);
-			GetDetailsView().GetDetailsViewController().FoodState = GetFoodStageString(item.GetPlayerItem().GetFoodStageType(), foodStageColor);
-			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("FoodState");
-			GetDetailsView().SetFoodStateColor(foodStageColor);
+			m_ItemDetailsView.ShowItemFoodState(true);
+			m_ItemDetailsView.GetDetailsViewController().FoodState = GetFoodStageString(item.GetPlayerItem().GetFoodStageType(), foodStageColor);
+			m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("FoodState");
+			m_ItemDetailsView.SetFoodStateColor(foodStageColor);
 		}
 
 		if (item.GetPlayerItem().GetQuantity() > 0)
@@ -377,10 +457,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			int quantityColor;
 			if (item.GetPlayerItem().GetQuantityType() == ExpansionItemQuantityType.POWER || item.GetPlayerItem().GetQuantityType() == ExpansionItemQuantityType.MILLILITER || item.GetPlayerItem().GetQuantityType() == ExpansionItemQuantityType.PERCENTAGE || item.GetPlayerItem().GetQuantityType() == ExpansionItemQuantityType.GRAM)
 			{
-				GetDetailsView().GetQuantityBarWidget().SetCurrent(item.GetPlayerItem().GetQuantity());
-				GetDetailsView().GetDetailsViewController().ItemQuantity = GetQuantityString(item.GetPlayerItem().GetQuantityType(), item.GetPlayerItem().GetQuantity(), quantityColor);
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
-				GetDetailsView().ShowQuantityBar(true);
+				m_ItemDetailsView.GetQuantityBarWidget().SetCurrent(item.GetPlayerItem().GetQuantity());
+				m_ItemDetailsView.GetDetailsViewController().ItemQuantity = GetQuantityString(item.GetPlayerItem().GetQuantityType(), item.GetPlayerItem().GetQuantity(), quantityColor);
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
+				m_ItemDetailsView.ShowQuantityBar(true);
 			}
 			else if (item.GetPlayerItem().GetQuantityType() == ExpansionItemQuantityType.HEATISOLATION)
 			{
@@ -413,19 +493,19 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					isolationColor = GetTemperatureColor(70);
 				}
 				
-				GetDetailsView().GetDetailsViewController().QuantityText = "Heat-Isolation:";
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("QuantityText");
-				GetDetailsView().GetDetailsViewController().ItemQuantity = isolationText;
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
-				GetDetailsView().ShowQuantityColor(true, isolationColor);
+				m_ItemDetailsView.GetDetailsViewController().QuantityText = "Heat-Isolation:";
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("QuantityText");
+				m_ItemDetailsView.GetDetailsViewController().ItemQuantity = isolationText;
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
+				m_ItemDetailsView.ShowQuantityColor(true, isolationColor);
 			}
 			else if (item.GetPlayerItem().GetQuantityType() == ExpansionItemQuantityType.PC)
 			{
-				GetDetailsView().GetDetailsViewController().QuantityText = "Quantity:";
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("QuantityText");
-				GetDetailsView().GetDetailsViewController().ItemQuantity = GetQuantityString(item.GetPlayerItem().GetQuantityType(), item.GetPlayerItem().GetQuantity(), quantityColor);
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
-				GetDetailsView().ShowItemQuantity(true);
+				m_ItemDetailsView.GetDetailsViewController().QuantityText = "Quantity:";
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("QuantityText");
+				m_ItemDetailsView.GetDetailsViewController().ItemQuantity = GetQuantityString(item.GetPlayerItem().GetQuantityType(), item.GetPlayerItem().GetQuantity(), quantityColor);
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("ItemQuantity");
+				m_ItemDetailsView.ShowItemQuantity(true);
 			}
 		}
 
@@ -440,25 +520,25 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			int a, r, g, b;
 			ExpansionStatic.IntToARGB(rarityColor, a, r, g, b);
 
-			GetDetailsView().GetDetailsViewController().Rarity = rarityText;
-			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("Rarity");
-			GetDetailsView().SetRarityColor(rarityColor);
+			m_ItemDetailsView.GetDetailsViewController().Rarity = rarityText;
+			m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("Rarity");
+			m_ItemDetailsView.SetRarityColor(rarityColor);
 
 			if (rarityText.Contains("Common"))
 			{
-				GetDetailsView().SetRarityTextColor(ARGB(255, 0, 0, 0));
+				m_ItemDetailsView.SetRarityTextColor(ARGB(255, 0, 0, 0));
 			}
 			else
 			{
-				GetDetailsView().SetRarityTextColor(ARGB(255, 255, 255, 255));
+				m_ItemDetailsView.SetRarityTextColor(ARGB(255, 255, 255, 255));
 			}
 
-			GetDetailsView().ShowItemRarity(true);
+			m_ItemDetailsView.ShowItemRarity(true);
 		}
 	#endif
 
-		GetDetailsView().ClearAttachments();
-		GetDetailsView().ClearCargo();
+		m_ItemDetailsView.ClearAttachments();
+		m_ItemDetailsView.ClearCargo();
 
 		if (item.GetPlayerItem().GetContainerItemsCount() > 0)
 		{
@@ -471,27 +551,19 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 				string rarityType;
 				for (int i = 0; i < containerItems.Count(); i++)
 				{
-					ExpansionPersonalStorageContainerItem containerItem = containerItems[i];
-					PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item: " + containerItem.ToString());
-					PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item class name: " + containerItem.GetClassName());
-				#ifdef EXPANSIONMODHARDLINE
-					rarityType = typename.EnumToString(ExpansionHardlineItemRarity, containerItem.GetRarity());
-					PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item rarity: " + rarityType);
-				#endif
-					PrintDebug(ToString() + "::SetSelectedPlayerItem - Container is excluded: " + containerItem.IsExcluded().ToString());
-					
+					ExpansionPersonalStorageContainerItem containerItem = containerItems[i];					
 					containerElement = new ExpansionPersonalStorageMenuCargoItem(this, containerItem);
 					if (!containerElement)
 						continue;
 
 					if (!containerItem.IsAttached())
 					{
-						GetDetailsView().AddCargoEntry(containerElement);
+						m_ItemDetailsView.AddCargoEntry(containerElement);
 						cargoItemsCount++;
 					}
 					else
 					{
-						GetDetailsView().AddAttachmentEntry(containerElement);
+						m_ItemDetailsView.AddAttachmentEntry(containerElement);
 						attachmentsCount++;
 					}
 
@@ -500,24 +572,16 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					{
 						foreach (ExpansionPersonalStorageContainerItem containerItemOfContainerItem: containerItemsOfContainerItem)
 						{
-							PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item of container item: " + containerItemOfContainerItem.ToString());
-							PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item of container class name: " + containerItemOfContainerItem.GetClassName());
-						#ifdef EXPANSIONMODHARDLINE
-							rarityType = typename.EnumToString(ExpansionHardlineItemRarity, containerItemOfContainerItem.GetRarity());
-							PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item of container rarity: " + rarityType);
-						#endif
-							PrintDebug(ToString() + "::SetSelectedPlayerItem - Container item of container is excluded: " + containerItemOfContainerItem.IsExcluded().ToString());
-
 							containerElement = new ExpansionPersonalStorageMenuCargoItem(this, containerItemOfContainerItem);
 							
 							if (!containerItemOfContainerItem.IsAttached())
 							{
-								GetDetailsView().AddCargoEntry(containerElement);
+								m_ItemDetailsView.AddCargoEntry(containerElement);
 								cargoItemsCount++;
 							}
 							else
 							{
-								GetDetailsView().AddAttachmentEntry(containerElement);
+								m_ItemDetailsView.AddAttachmentEntry(containerElement);
 								attachmentsCount++;
 							}
 						}
@@ -527,21 +591,20 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			
 			if (cargoItemsCount > 0)
 			{
-				GetDetailsView().ShowItemCargoCount(true);
-				GetDetailsView().GetDetailsViewController().CargoItemsCount = cargoItemsCount.ToString();
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("CargoItemsCount");
+				m_ItemDetailsView.ShowItemCargoCount(true);
+				m_ItemDetailsView.GetDetailsViewController().CargoItemsCount = cargoItemsCount.ToString();
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("CargoItemsCount");
 			}
 			
 			if (attachmentsCount > 0)
 			{
-				GetDetailsView().ShowItemAttachmentsCount(true);
-				GetDetailsView().GetDetailsViewController().AttachmentItemsCount = attachmentsCount.ToString();
-				GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("AttachmentItemsCount");
+				m_ItemDetailsView.ShowItemAttachmentsCount(true);
+				m_ItemDetailsView.GetDetailsViewController().AttachmentItemsCount = attachmentsCount.ToString();
+				m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("AttachmentItemsCount");
 			}
 		}
 
-		GetDetailsView().Show();
-		GetDetailsView().UpdatePreview();
+		m_ItemDetailsView.UpdatePreview();
 
 		m_PreviousViewState = m_ViewState;
 
@@ -555,8 +618,6 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		}
 
 		PlayObjectSound();
-		
-		PrintDebug(ToString() + "::SetSelectedPlayerItem - End");
 	}
 
 	protected void PlayObjectSound()
@@ -850,9 +911,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 			}
 		}
 
-		GetDetailsView().GetDetailsViewController().ItemHealth = text;
-		GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("ItemHealth");
-		GetDetailsView().GetHealthImageWidget().SetColor(color | 0x7F000000);
+		m_ItemDetailsView.GetDetailsViewController().ItemHealth = text;
+		m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("ItemHealth");
+		m_ItemDetailsView.GetHealthImageWidget().SetColor(color | 0x7F000000);
 	}
 
 	protected bool ItemCheck(EntityAI item)
@@ -1011,35 +1072,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		return count;
 	}
 
-	void OnDepositButtonClick()
-	{
-		PrintDebug(ToString() + "::OnDepositButtonClick - Start");
-
-		if (m_ViewState == ExpansionPersonalStorageMenuViewState.ViewPlayerItems)
-		{
-			m_BrowseHeader.Hide();
-			tabs_panel.Show(false);
-		}
-		else if (m_ViewState == ExpansionPersonalStorageMenuViewState.DetailViewPlayerItem || m_ViewState == ExpansionPersonalStorageMenuViewState.DetailViewDepositedItem)
-		{
-			ClearSelected();
-			GetDetailsView().Hide();
-
-			categories_panel.Show(true);
-			inventory_panel.Show(true);
-			player_items_scroller.Show(true);
-			details_panel.Show(false);
-		}
-		
-		ShowDepositView();
-		
-		PrintDebug(ToString() + "::OnDepositButtonClick - End");
-	}
-
 	void OnBackClick()
 	{
-		PrintDebug(ToString() + "::OnBackClick - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		ClearSelected();
 
 		if (m_ViewState == ExpansionPersonalStorageMenuViewState.DetailViewPlayerItem)
@@ -1050,34 +1086,58 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		{
 			OnBrowseButtonClick();
 		}
-		
-		PrintDebug(ToString() + "::OnBackClick - End");
 	}
 
-	void OnBrowseButtonClick()
+	void OnDepositButtonClick()
 	{
-		PrintDebug(ToString() + "::OnBrowseButtonClick - Start");
-
-		if (m_ViewState == ExpansionPersonalStorageMenuViewState.DetailViewPlayerItem || m_ViewState == ExpansionPersonalStorageMenuViewState.DetailViewDepositedItem)
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this, typename.EnumToString(ExpansionPersonalStorageMenuViewState, m_ViewState));
+		
+		if (m_ViewState == ExpansionPersonalStorageMenuViewState.ViewPlayerItems)
 		{
-			ClearSelected();
-			GetDetailsView().Hide();
-
-			categories_panel.Show(true);
-			inventory_panel.Show(true);
-			player_items_scroller.Show(false);
-			details_panel.Show(false);
+			m_BrowseHeader.Hide();
+			tabs_panel.Show(false);
+		}
+			
+		ClearSelected();
+		
+		if (m_ItemDetailsView)
+		{
+			m_ItemDetailsView.UpdatePreview();
+			m_ItemDetailsView.Hide();
 		}
 
-		ShowBrowseView();
+		categories_panel.Show(true);
+		inventory_panel.Show(true);
+		player_items_scroller.Show(true);
+		details_panel.Show(false);
 		
-		PrintDebug(ToString() + "::OnBrowseButtonClick - End");
+		ShowDepositView();
+	}
+	
+	void OnBrowseButtonClick()
+	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+
+		ClearSelected();
+		
+		if (m_ItemDetailsView)
+		{
+			m_ItemDetailsView.UpdatePreview();
+			m_ItemDetailsView.Hide();
+		}
+
+		categories_panel.Show(true);
+		inventory_panel.Show(true);
+		player_items_scroller.Show(false);
+		details_panel.Show(false);
+
+		ShowBrowseView();
 	}
 
 	protected void ShowDepositView()
 	{
-		PrintDebug(ToString() + "::ShowDepositView - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+				
 		tabs_panel.Show(true);
 		market_filter_panel.Show(true);
 		categories_panel.Show(true);
@@ -1089,16 +1149,17 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		browse_categories_content.Show(false);
 		toggle_categories_panel.Show(false);
 		
+		ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
+		UpdatePlayerItems();
+	
 		m_PreviousViewState = m_ViewState;
 		m_ViewState = ExpansionPersonalStorageMenuViewState.ViewPlayerItems;
-		
-		PrintDebug(ToString() + "::ShowDepositView - End");
 	}
 
 	protected void ShowBrowseView()
 	{
-		PrintDebug(ToString() + "::ShowBrowseView - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+				
 		m_BrowseHeader.Show();
 		tabs_panel.Show(true);
 		market_filter_panel.Show(true);
@@ -1111,13 +1172,15 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		player_categories_content.Show(false);
 		toggle_categories_panel.Show(true);
 		
-		ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
-		UpdatePlayerItems();
-		
-		m_PreviousViewState = m_ViewState;
-		m_ViewState = ExpansionPersonalStorageMenuViewState.ViewDepositedItems;
-		
-		PrintDebug(ToString() + "::ShowBrowseView - End");
+		if (m_IsPersonalStorageContainer && m_Container)
+		{
+			ExSetDepositedItems(m_Container);
+		}
+		else
+		{
+			m_PreviousViewState = m_ViewState;
+			m_ViewState = ExpansionPersonalStorageMenuViewState.ViewDepositedItems;
+		}
 	}
 	
 	protected void SetCategory_All()
@@ -1139,10 +1202,13 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	void OnConfirmButtonClick()
 	{
-		PrintDebug(ToString() + "::OnConfirmButtonClick - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (m_RequestsLocked)
+		{
+			ModuleDebugPrint("::OnConfirmButtonClick - Request locked! Return..");
 			return;
+		}
 
 		if (!m_SelectedPlayerItem.GetPlayerItem().IsStored())
 		{
@@ -1152,69 +1218,89 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		{
 			OnConfirmRetrieveClick();
 		}
-		
-		PrintDebug(ToString() + "::OnConfirmButtonClick - End");
 	}
 
 	void OnConfirmDepositClick()
 	{
-		PrintDebug(ToString() + "::OnConfirmDepositClick - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
+		{
+			ModuleDebugPrint("::OnConfirmDepositClick - Request is locked or could not get selected player item! Return..");
 			return;
+		}
 
 		EntityAI playerItem = m_SelectedPlayerItem.GetPlayerItem().GetItem();
 		if (!playerItem)
+		{
+			ModuleDebugPrint("::OnConfirmDepositClick - Could not get player item! Return..");
 			return;
-
+		}
+				
+		if (!m_IsPersonalStorageContainer)
+		{		
+			ExpansionPersonalStorageModule.GetModuleInstance().RequestDepositItem(m_StorageID, playerItem);
+		}
+		else
+		{
+			m_Container.Expansion_RequestMoveItem(playerItem);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(OnModuleCallback, 200, false, ExpansionPersonalStorageModuleCallback.ItemStored);
+		}
+		
 		loading.Show(true);
 		m_RequestsLocked = true;
-		ExpansionPersonalStorageModule.GetModuleInstance().RequestDepositItem(m_StorageID, playerItem);
-		
-		GetDetailsView().UpdatePreview();
-		
-		PrintDebug(ToString() + "::OnConfirmDepositClick - End");
 	}
 
 	void OnConfirmRetrieveClick()
 	{
-		PrintDebug(ToString() + "::OnConfirmRetrieveClick - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!m_SelectedPlayerItem || !m_SelectedPlayerItem.GetPlayerItem() || m_RequestsLocked)
+		{
+			ModuleDebugPrint("::OnConfirmRetrieveClick - Request is locked or could not get selected player item! Return..");
 			return;
+		}
+				
+		if (!m_IsPersonalStorageContainer)
+		{			
+			ExpansionPersonalStorageModule.GetModuleInstance().RequestRetrieveItem(m_SelectedPlayerItem.GetPlayerItem(), m_StorageID);
+		}
+		else
+		{
+			EntityAI playerItem = m_SelectedPlayerItem.GetPlayerItem().GetItem();
+			if (!playerItem)
+			{
+				ModuleDebugPrint("::OnConfirmRetrieveClick - Could not get player item! Return..");
+				return;
+			}
 
+			m_Container.Expansion_RequestMoveItem(playerItem);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(OnModuleCallback, 200, false, ExpansionPersonalStorageModuleCallback.ItemRetrieved);
+		}
+		
 		loading.Show(true);
 		m_RequestsLocked = true;
-		ExpansionPersonalStorageModule.GetModuleInstance().RequestRetrieveItem(m_SelectedPlayerItem.GetPlayerItem(), m_StorageID);
-		
-		GetDetailsView().UpdatePreview();
-		
-		PrintDebug(ToString() + "::OnConfirmRetrieveClick - End");
 	}
 
 	protected void ClearSelected()
 	{
-		PrintDebug(ToString() + "::ClearSelected - Start");
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		m_SelectedPlayerItem = null;
 		m_SelectedPreviewObject = null;
 		m_SelectedContainerItems = null;
 
-		GetDetailsView().ShowConfirmButton(false);
+		m_ItemDetailsView.ShowConfirmButton(false);
 
 		if (m_PreviousViewState == ExpansionPersonalStorageMenuViewState.DetailViewPlayerItem || m_PreviousViewState == ExpansionPersonalStorageMenuViewState.DetailViewDepositedItem)
 		{
-			GetDetailsView().GetDetailsViewController().SelectedName = "";
-			GetDetailsView().GetDetailsViewController().NotifyPropertyChanged("SelectedName");
+			m_ItemDetailsView.GetDetailsViewController().SelectedName = "";
+			m_ItemDetailsView.GetDetailsViewController().NotifyPropertyChanged("SelectedName");
 		}
-		
-		PrintDebug(ToString() + "::ClearSelected - End");
 	}
 
 	protected void OnSearchFilterChange()
 	{
-		PrintDebug(ToString() + "::OnSearchFilterChange - Start");
-
 		if (m_ViewState == ExpansionPersonalStorageMenuViewState.ViewPlayerItems)
 		{
 			SearchInPlayerItems();
@@ -1223,14 +1309,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		{
 			SearchInDepositedItems();
 		}
-
-		PrintDebug(ToString() + "::OnSearchFilterChange - End");
 	}
 	
 	protected void SearchInDepositedItems()
 	{
-		PrintDebug(ToString() + "::SearchInDepositedItems - Start");
-		
 		if (!m_PersonalStorageMenuController.DepositedItems || m_PersonalStorageMenuController.DepositedItems.Count() == 0)
 			return;
 
@@ -1278,14 +1360,10 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					entry.Hide();
 			}
 		}
-		
-		PrintDebug(ToString() + "::SearchInDepositedItems - End");
 	}
 
 	protected void SearchInPlayerItems()
 	{
-		PrintDebug(ToString() + "::SearchInPlayerItems - Start");
-		
 		if (!m_PersonalStorageMenuController.PlayerItems || m_PersonalStorageMenuController.PlayerItems.Count() == 0)
 			return;
 
@@ -1333,43 +1411,52 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 					entry.Hide();
 			}
 		}
-		
-		PrintDebug(ToString() + "::SearchInPlayerItems - End");
 	}
 
 	void OnModuleCallback(int callback)
 	{
-		PrintDebug(ToString() + "::OnModuleCallback - Start");
-		string callbackName = typename.EnumToString(ExpansionPersonalStorageModuleCallback, callback);
-		PrintDebug(ToString() + "::OnModuleCallback - Callback: " + callbackName);
-
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this, typename.EnumToString(ExpansionPersonalStorageModuleCallback, callback));
+		
 		switch (callback)
 		{
 			case ExpansionPersonalStorageModuleCallback.ItemStored:
 			{
-				ShowDepositView();
 				m_RequestsLocked = false;
+				loading.Show(false);
+				
+				OnDepositButtonClick();
+				
+				if (m_ItemDetailsView)
+				{
+					m_ItemDetailsView.Hide();
+				}
 			}
 			break;
 			case ExpansionPersonalStorageModuleCallback.ItemRetrieved:
-			{
-				ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
-				UpdatePlayerItems();
+			{				
 				m_RequestsLocked = false;
+				loading.Show(false);
+				
+				OnBrowseButtonClick();
+				
+				if (m_ItemDetailsView)
+				{
+					m_ItemDetailsView.Hide();
+				}
 			}
 			break;
 			case ExpansionPersonalStorageModuleCallback.Error:
 			{
 				ExpansionPersonalStorageModule.GetModuleInstance().EnumeratePlayerInventory(PlayerBase.Cast(GetGame().GetPlayer()));
 				UpdatePlayerItems();
+				
 				OnBackClick();
+				
 				loading.Show(false);
 				m_RequestsLocked = false;
 			}
 			break;
 		}
-		
-		PrintDebug(ToString() + "::OnModuleCallback - End");
 	}
 
 	override bool CanClose()
@@ -1380,6 +1467,7 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 	
 	void OnExitClick()
 	{
+		Hide();
 		CloseMenu();
 	}
 
@@ -1398,15 +1486,18 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 	override void OnShow()
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		super.OnShow();
 		
 		SetFocus(GetLayoutRoot());
-		loading.Show(true);
 		ShowBrowseView();
 	}
 
 	override void OnHide()
 	{
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this);
+		
 		if (!GetGame())
 			return;
 
@@ -1415,6 +1506,21 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 
 		if (m_BrowseHeader)
 			m_BrowseHeader.Destroy();
+		
+		if (m_IsPersonalStorageContainer && m_ContainerHub)
+		{
+			PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+			
+			if (player)
+			{
+				ActionManagerClient mngr_client = ActionManagerClient.Cast(player.GetActionManager());
+				ActionTarget atrg = new ActionTarget(m_ContainerHub, null, -1, m_ContainerHub.GetPosition(), -1.0);
+				if (mngr_client.GetAction(ExpansionActionClosePersonalStorage).Can(player, atrg, null))
+				{
+					mngr_client.PerformActionStart(player.GetActionManager().GetAction(ExpansionActionClosePersonalStorage) ,atrg, null);
+				}
+			}
+		}
 
 		super.OnHide();
 	}
@@ -1606,10 +1712,12 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		#endif
 		}
 	}
-
-	void PrintDebug(string text)
+	
+	void ModuleDebugPrint(string text)
 	{
-		Print(text);
+	#ifdef EXPANSIONMODPERSONALSTORAGEDEBUG
+		auto trace = EXTrace.Start(EXTrace.PERSONALSTORAGE, this, text);
+	#endif
 	}
 };
 

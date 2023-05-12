@@ -211,7 +211,7 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 		return 0.016666;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 		//! Prevent framerate drop due to too many categories updating at the same time
 		if (UpdateCategoryID == -1 || (m_IsExpanded && IsVisible()))

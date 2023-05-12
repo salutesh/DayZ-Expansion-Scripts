@@ -12,7 +12,7 @@
 
 modded class ExpansionLootDefaults
 {
-	static void Weapons_Civilian(out array < ref ExpansionLoot > Loot)
+	static void Weapons_Civilian(array < ref ExpansionLoot > Loot)
 	{
 		//! General Variants
 		TStringArray battery = { "Battery9V" };
@@ -38,11 +38,11 @@ modded class ExpansionLootDefaults
 		TStringArray att_M68Optic 						= { "M68Optic" };
 		TStringArray att_M4_T3NRDSOptic 				= { "M4_T3NRDSOptic" };
 		TStringArray att_StarlightOptic 				= { "StarlightOptic" };
-		#ifdef EXPANSIONMODWEAPONS
+	#ifdef EXPANSIONMODWEAPONS
 		TStringArray att_ExpansionReflexMRSOptic 		= { "ExpansionReflexMRSOptic" };
 		TStringArray att_ExpansionEXPS3HoloOptic 		= { "ExpansionEXPS3HoloOptic" };
 		TStringArray att_ExpansionHAMROptic 			= { "ExpansionHAMROptic" };
-		#endif
+	#endif
 
 		TStringArray att_AKPlastic 						= { "AK_PlasticBttstck", "AK_PlasticHndgrd" };
 		TStringArray att_AK74 							= { "AK74_WoodBttstck", "AK74_Hndgrd" };
@@ -87,46 +87,46 @@ modded class ExpansionLootDefaults
 
 		array< ref ExpansionLootVariant > sksVariants = {
 			new ExpansionLootVariant( "SKS", sks_1, 0.2 ),
-			new ExpansionLootVariant( "SKS", NULL, 0.6 ),
+			new ExpansionLootVariant( "SKS", NULL, 0.6 )
 		};
 
 		array< ref ExpansionLootVariant > umpVariants = {
-			new ExpansionLootVariant( "UMP45", NULL, 0.6 ),
+			new ExpansionLootVariant( "UMP45", NULL, 0.6 )
 		};
 
 		array< ref ExpansionLootVariant > mosinVariants = {
 			new ExpansionLootVariant( "Mosin9130", mosin_3, 0.25 ),
 			new ExpansionLootVariant( "Mosin9130", mosin_2, 0.25 ),
 			new ExpansionLootVariant( "Mosin9130", mosin_1, 0.25 ),
-			new ExpansionLootVariant( "Mosin9130", NULL, 0.25 ),
+			new ExpansionLootVariant( "Mosin9130", NULL, 0.25 )
 		};
 
 		array< ref ExpansionLootVariant > b95Variants = {
-			new ExpansionLootVariant( "B95", NULL, 0.666667 ),
+			new ExpansionLootVariant( "B95", NULL, 0.666667 )
 		};
 
 		array< ref ExpansionLootVariant > cz527Variants = {
-			new ExpansionLootVariant( "CZ527", NULL, 0.4 ),
+			new ExpansionLootVariant( "CZ527", NULL, 0.4 )
 		};
 
 		array< ref ExpansionLootVariant > cz75Variants = {
 			new ExpansionLootVariant( "CZ75", att_TLRLightAndPistolSuppressor, 0.1 ),
 			new ExpansionLootVariant( "CZ75", att_PistolSuppressor, 0.2 ),
-			new ExpansionLootVariant( "CZ75", NULL, 0.5 ),
+			new ExpansionLootVariant( "CZ75", NULL, 0.5 )
 		};
 
 		array< ref ExpansionLootVariant > fnxVariants = {
 			new ExpansionLootVariant( "FNX45", att_TLRLightAndPistolSuppressor, 0.1 ),
 			new ExpansionLootVariant( "FNX45", att_PistolSuppressor, 0.15 ),
-			new ExpansionLootVariant( "FNX45", NULL, 0.5 ),
+			new ExpansionLootVariant( "FNX45", NULL, 0.5 )
 		};
 		
 		array< ref ExpansionLootVariant > kedrVariants = {
-			new ExpansionLootVariant( "Expansion_Kedr", NULL, 0.6 ),
+			new ExpansionLootVariant( "Expansion_Kedr", NULL, 0.6 )
 		};
 
 		array< ref ExpansionLootVariant > winchester70Variants = {
-			new ExpansionLootVariant( "Winchester70", NULL, 0.8 ),
+			new ExpansionLootVariant( "Winchester70", NULL, 0.8 )
 		};
 
 		array< ref ExpansionLootVariant > ak74Variants = {
@@ -136,7 +136,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "AK74", ak_4, 0.1 ),
 			new ExpansionLootVariant( "AK74", ak_5, 0.05 ),
 			new ExpansionLootVariant( "AK74", ak_6, 0.05 ),
-			new ExpansionLootVariant( "AK74", ak_7, 0.05 ),
+			new ExpansionLootVariant( "AK74", ak_7, 0.05 )
 		};
 		array< ref ExpansionLootVariant > akmVariants = {
 			new ExpansionLootVariant( "AKM", ak_1, 0.1 ),
@@ -145,7 +145,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "AKM", ak_4, 0.1 ),
 			new ExpansionLootVariant( "AKM", ak_5, 0.05 ),
 			new ExpansionLootVariant( "AKM", ak_6, 0.05 ),
-			new ExpansionLootVariant( "AKM", ak_7, 0.05 ),
+			new ExpansionLootVariant( "AKM", ak_7, 0.05 )
 		};
 		array< ref ExpansionLootVariant > ak101Variants = {
 			new ExpansionLootVariant( "AK101", ak_1, 0.1 ),
@@ -154,11 +154,11 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "AK101", ak_4, 0.1 ),
 			new ExpansionLootVariant( "AK101", ak_5, 0.05 ),
 			new ExpansionLootVariant( "AK101", ak_6, 0.05 ),
-			new ExpansionLootVariant( "AK101", ak_7, 0.05 ),
+			new ExpansionLootVariant( "AK101", ak_7, 0.05 )
 		};
 
 		array< ref ExpansionLootVariant > ak74uVariants = {
-			new ExpansionLootVariant( "AKS74U", ak74u_2, 0.545454 ),
+			new ExpansionLootVariant( "AKS74U", ak74u_2, 0.545454 )
 		};
 
 		array< ref ExpansionLootVariant > expansionm16Variants = {
@@ -168,19 +168,19 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "Expansion_M16", att_ACOGOptic_6x, 0.1 ),
 			new ExpansionLootVariant( "Expansion_M16", att_StarlightOptic, 0.05 ),
 			new ExpansionLootVariant( "Expansion_M16", NULL, 0.05 ),
-			new ExpansionLootVariant( "Expansion_M16", att_UniversalLight, 0.05 ),
+			new ExpansionLootVariant( "Expansion_M16", att_UniversalLight, 0.05 )
 		};
 
 		array< ref ExpansionLootVariant > m4a1Variants = {
 			new ExpansionLootVariant( "M4A1", m4a1_2, 0.220339 ),
 			new ExpansionLootVariant( "M4A1", m4a1_3, 0.237288 ),
-			new ExpansionLootVariant( "M4A1", m4a1_4, 0.305085 ),
+			new ExpansionLootVariant( "M4A1", m4a1_4, 0.305085 )
 		};
 
 		array< ref ExpansionLootVariant > falVariants = {
 			new ExpansionLootVariant( "FAL", fal_2, 0.40 ),
 			new ExpansionLootVariant( "FAL", fal_3, 0.20 ),
-			new ExpansionLootVariant( "FAL", fal_4, 0.20 ),
+			new ExpansionLootVariant( "FAL", fal_4, 0.20 )
 		};
 
 		array< ref ExpansionLootVariant > scoutVariants = {
@@ -188,7 +188,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "Scout", att_ReflexOptic, 0.2 ),
 			new ExpansionLootVariant( "Scout", att_ACOGOptic, 0.1 ),
 			new ExpansionLootVariant( "Scout", att_M68Optic, 0.15 ),
-			new ExpansionLootVariant( "Scout", att_M4_T3NRDSOptic, 0.1 ),
+			new ExpansionLootVariant( "Scout", att_M4_T3NRDSOptic, 0.1 )
 		};
 
 		array< ref ExpansionLootVariant > expansionAWMVariants = {
@@ -196,7 +196,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "Expansion_AWM", att_ReflexOptic, 0.2 ),
 			new ExpansionLootVariant( "Expansion_AWM", att_ACOGOptic, 0.1 ),
 			new ExpansionLootVariant( "Expansion_AWM", att_M68Optic, 0.15 ),
-			new ExpansionLootVariant( "Expansion_AWM", att_M4_T3NRDSOptic, 0.1 ),
+			new ExpansionLootVariant( "Expansion_AWM", att_M4_T3NRDSOptic, 0.1 )
 		};
 
 		array< ref ExpansionLootVariant > vssVariants = {
@@ -209,16 +209,16 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "ASVAL", att_ReflexOptic, 0.2 ),
 			new ExpansionLootVariant( "ASVAL", att_ACOGOptic, 0.1 ),
 			new ExpansionLootVariant( "ASVAL", att_M68Optic, 0.15 ),
-			new ExpansionLootVariant( "ASVAL", att_M4_T3NRDSOptic, 0.1 ),
+			new ExpansionLootVariant( "ASVAL", att_M4_T3NRDSOptic, 0.1 )
 		};
 
 		array< ref ExpansionLootVariant > svdVariants = {
 			new ExpansionLootVariant( "SVD", NULL, 0.642857 ),
-			new ExpansionLootVariant( "SVD", att_KazuarOptic, 0.082857 ),
+			new ExpansionLootVariant( "SVD", att_KazuarOptic, 0.082857 )
 		};
 
 		array< ref ExpansionLootVariant > saigaVariants = {
-			new ExpansionLootVariant( "Saiga", saiga_2, 0.545454 ),
+			new ExpansionLootVariant( "Saiga", saiga_2, 0.545454 )
 		};
 
 		Loot.Insert(new ExpansionLoot( "SKS", att_PUScopeOptic, 0.5, -1, sksVariants ));
@@ -268,17 +268,17 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Mag_FNX45_15Rnd", NULL, 1 ));
 		Loot.Insert(new ExpansionLoot( "Mag_UMP_25Rnd", NULL, 0.5 ));
 
-			#ifdef EXPANSIONMODWEAPONS
+	#ifdef EXPANSIONMODWEAPONS
 		Loot.Insert(new ExpansionLoot( "Expansion_Kedr", att_PistolSuppressor, 0.5, -1, kedrVariants ));
 		Loot.Insert(new ExpansionLoot( "Expansion_DT11", NULL, 0.3 ));
 		Loot.Insert(new ExpansionLoot( "Expansion_M9", att_TLRLight, 0.4, -1, fnxVariants ));
 
 		Loot.Insert(new ExpansionLoot( "Mag_Expansion_M9_15Rnd", NULL, 0.2 ));
 		Loot.Insert(new ExpansionLoot( "Mag_Expansion_Kedr_20Rnd", NULL, 0.4 ));
-			#endif
+	#endif
 	}
 
-	static void Weapons_Military(out array < ref ExpansionLoot > Loot)
+	static void Weapons_Military(array < ref ExpansionLoot > Loot)
 	{
 		//! General Variants
 		TStringArray battery = { "Battery9V" };
@@ -304,11 +304,11 @@ modded class ExpansionLootDefaults
 		TStringArray att_M68Optic 						= { "M68Optic" };
 		TStringArray att_M4_T3NRDSOptic 				= { "M4_T3NRDSOptic" };
 		TStringArray att_StarlightOptic 				= { "StarlightOptic" };
-		#ifdef EXPANSIONMODWEAPONS
+	#ifdef EXPANSIONMODWEAPONS
 		TStringArray att_ExpansionReflexMRSOptic 		= { "ExpansionReflexMRSOptic" };
 		TStringArray att_ExpansionEXPS3HoloOptic 		= { "ExpansionEXPS3HoloOptic" };
 		TStringArray att_ExpansionHAMROptic 			= { "ExpansionHAMROptic" };
-		#endif
+	#endif
 
 		TStringArray att_AKPlastic 						= { "AK_PlasticBttstck", "AK_PlasticHndgrd" };
 		TStringArray att_AK74 							= { "AK74_WoodBttstck", "AK74_Hndgrd" };
@@ -353,46 +353,46 @@ modded class ExpansionLootDefaults
 
 		array< ref ExpansionLootVariant > sksVariants = {
 			new ExpansionLootVariant( "SKS", sks_1, 0.2 ),
-			new ExpansionLootVariant( "SKS", NULL, 0.6 ),
+			new ExpansionLootVariant( "SKS", NULL, 0.6 )
 		};
 
 		array< ref ExpansionLootVariant > umpVariants = {
-			new ExpansionLootVariant( "UMP45", NULL, 0.6 ),
+			new ExpansionLootVariant( "UMP45", NULL, 0.6 )
 		};
 
 		array< ref ExpansionLootVariant > mosinVariants = {
 			new ExpansionLootVariant( "Mosin9130", mosin_3, 0.25 ),
 			new ExpansionLootVariant( "Mosin9130", mosin_2, 0.25 ),
 			new ExpansionLootVariant( "Mosin9130", mosin_1, 0.25 ),
-			new ExpansionLootVariant( "Mosin9130", NULL, 0.25 ),
+			new ExpansionLootVariant( "Mosin9130", NULL, 0.25 )
 		};
 
 		array< ref ExpansionLootVariant > b95Variants = {
-			new ExpansionLootVariant( "B95", NULL, 0.666667 ),
+			new ExpansionLootVariant( "B95", NULL, 0.666667 )
 		};
 
 		array< ref ExpansionLootVariant > cz527Variants = {
-			new ExpansionLootVariant( "CZ527", NULL, 0.4 ),
+			new ExpansionLootVariant( "CZ527", NULL, 0.4 )
 		};
 
 		array< ref ExpansionLootVariant > cz75Variants = {
 			new ExpansionLootVariant( "CZ75", att_TLRLightAndPistolSuppressor, 0.1 ),
 			new ExpansionLootVariant( "CZ75", att_PistolSuppressor, 0.2 ),
-			new ExpansionLootVariant( "CZ75", NULL, 0.5 ),
+			new ExpansionLootVariant( "CZ75", NULL, 0.5 )
 		};
 
 		array< ref ExpansionLootVariant > fnxVariants = {
 			new ExpansionLootVariant( "FNX45", att_TLRLightAndPistolSuppressor, 0.1 ),
 			new ExpansionLootVariant( "FNX45", att_PistolSuppressor, 0.15 ),
-			new ExpansionLootVariant( "FNX45", NULL, 0.5 ),
+			new ExpansionLootVariant( "FNX45", NULL, 0.5 )
 		};
 		
 		array< ref ExpansionLootVariant > kedrVariants = {
-			new ExpansionLootVariant( "Expansion_Kedr", NULL, 0.6 ),
+			new ExpansionLootVariant( "Expansion_Kedr", NULL, 0.6 )
 		};
 
 		array< ref ExpansionLootVariant > winchester70Variants = {
-			new ExpansionLootVariant( "Winchester70", NULL, 0.8 ),
+			new ExpansionLootVariant( "Winchester70", NULL, 0.8 )
 		};
 
 		array< ref ExpansionLootVariant > ak74Variants = {
@@ -402,7 +402,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "AK74", ak_4, 0.1 ),
 			new ExpansionLootVariant( "AK74", ak_5, 0.05 ),
 			new ExpansionLootVariant( "AK74", ak_6, 0.05 ),
-			new ExpansionLootVariant( "AK74", ak_7, 0.05 ),
+			new ExpansionLootVariant( "AK74", ak_7, 0.05 )
 		};
 		array< ref ExpansionLootVariant > akmVariants = {
 			new ExpansionLootVariant( "AKM", ak_1, 0.1 ),
@@ -411,7 +411,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "AKM", ak_4, 0.1 ),
 			new ExpansionLootVariant( "AKM", ak_5, 0.05 ),
 			new ExpansionLootVariant( "AKM", ak_6, 0.05 ),
-			new ExpansionLootVariant( "AKM", ak_7, 0.05 ),
+			new ExpansionLootVariant( "AKM", ak_7, 0.05 )
 		};
 		array< ref ExpansionLootVariant > ak101Variants = {
 			new ExpansionLootVariant( "AK101", ak_1, 0.1 ),
@@ -420,11 +420,11 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "AK101", ak_4, 0.1 ),
 			new ExpansionLootVariant( "AK101", ak_5, 0.05 ),
 			new ExpansionLootVariant( "AK101", ak_6, 0.05 ),
-			new ExpansionLootVariant( "AK101", ak_7, 0.05 ),
+			new ExpansionLootVariant( "AK101", ak_7, 0.05 )
 		};
 
 		array< ref ExpansionLootVariant > ak74uVariants = {
-			new ExpansionLootVariant( "AKS74U", ak74u_2, 0.545454 ),
+			new ExpansionLootVariant( "AKS74U", ak74u_2, 0.545454 )
 		};
 
 		array< ref ExpansionLootVariant > expansionm16Variants = {
@@ -434,19 +434,19 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "Expansion_M16", att_ACOGOptic_6x, 0.1 ),
 			new ExpansionLootVariant( "Expansion_M16", att_StarlightOptic, 0.05 ),
 			new ExpansionLootVariant( "Expansion_M16", NULL, 0.05 ),
-			new ExpansionLootVariant( "Expansion_M16", att_UniversalLight, 0.05 ),
+			new ExpansionLootVariant( "Expansion_M16", att_UniversalLight, 0.05 )
 		};
 
 		array< ref ExpansionLootVariant > m4a1Variants = {
 			new ExpansionLootVariant( "M4A1", m4a1_2, 0.220339 ),
 			new ExpansionLootVariant( "M4A1", m4a1_3, 0.237288 ),
-			new ExpansionLootVariant( "M4A1", m4a1_4, 0.305085 ),
+			new ExpansionLootVariant( "M4A1", m4a1_4, 0.305085 )
 		};
 
 		array< ref ExpansionLootVariant > falVariants = {
 			new ExpansionLootVariant( "FAL", fal_2, 0.40 ),
 			new ExpansionLootVariant( "FAL", fal_3, 0.20 ),
-			new ExpansionLootVariant( "FAL", fal_4, 0.20 ),
+			new ExpansionLootVariant( "FAL", fal_4, 0.20 )
 		};
 
 		array< ref ExpansionLootVariant > scoutVariants = {
@@ -454,7 +454,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "Scout", att_ReflexOptic, 0.2 ),
 			new ExpansionLootVariant( "Scout", att_ACOGOptic, 0.1 ),
 			new ExpansionLootVariant( "Scout", att_M68Optic, 0.15 ),
-			new ExpansionLootVariant( "Scout", att_M4_T3NRDSOptic, 0.1 ),
+			new ExpansionLootVariant( "Scout", att_M4_T3NRDSOptic, 0.1 )
 		};
 
 		array< ref ExpansionLootVariant > expansionAWMVariants = {
@@ -462,12 +462,12 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "Expansion_AWM", att_ReflexOptic, 0.2 ),
 			new ExpansionLootVariant( "Expansion_AWM", att_ACOGOptic, 0.1 ),
 			new ExpansionLootVariant( "Expansion_AWM", att_M68Optic, 0.15 ),
-			new ExpansionLootVariant( "Expansion_AWM", att_M4_T3NRDSOptic, 0.1 ),
+			new ExpansionLootVariant( "Expansion_AWM", att_M4_T3NRDSOptic, 0.1 )
 		};
 
 		array< ref ExpansionLootVariant > vssVariants = {
 			new ExpansionLootVariant( "VSS", NULL, 0.642857 ),
-			new ExpansionLootVariant( "VSS", att_KazuarOptic, 0.082857 ),
+			new ExpansionLootVariant( "VSS", att_KazuarOptic, 0.082857 )
 		};
 
 		array< ref ExpansionLootVariant > asvalVariants = {
@@ -475,16 +475,16 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "ASVAL", att_ReflexOptic, 0.2 ),
 			new ExpansionLootVariant( "ASVAL", att_ACOGOptic, 0.1 ),
 			new ExpansionLootVariant( "ASVAL", att_M68Optic, 0.15 ),
-			new ExpansionLootVariant( "ASVAL", att_M4_T3NRDSOptic, 0.1 ),
+			new ExpansionLootVariant( "ASVAL", att_M4_T3NRDSOptic, 0.1 )
 		};
 
 		array< ref ExpansionLootVariant > svdVariants = {
 			new ExpansionLootVariant( "SVD", NULL, 0.642857 ),
-			new ExpansionLootVariant( "SVD", att_KazuarOptic, 0.082857 ),
+			new ExpansionLootVariant( "SVD", att_KazuarOptic, 0.082857 )
 		};
 
 		array< ref ExpansionLootVariant > saigaVariants = {
-			new ExpansionLootVariant( "Saiga", saiga_2, 0.545454 ),
+			new ExpansionLootVariant( "Saiga", saiga_2, 0.545454 )
 		};
 
 		Loot.Insert(new ExpansionLoot( "SKS", att_PUScopeOptic, 0.5, -1, sksVariants ));
@@ -550,7 +550,7 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Mag_FNX45_15Rnd", NULL, 1 ));
 		Loot.Insert(new ExpansionLoot( "Mag_UMP_25Rnd", NULL, 0.5 ));
 
-			#ifdef EXPANSIONMODWEAPONS
+	#ifdef EXPANSIONMODWEAPONS
 		Loot.Insert(new ExpansionLoot( "Expansion_Kedr", att_PistolSuppressor, 0.5, -1, kedrVariants ));
 		Loot.Insert(new ExpansionLoot( "Expansion_DT11", NULL, 0.3 ));
 		Loot.Insert(new ExpansionLoot( "Expansion_M16", att_M4_T3NRDSOptic, 0.45, -1, expansionm16Variants ));
@@ -562,10 +562,10 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Mag_Expansion_AWM_5Rnd", NULL, 0.08 ));
 		Loot.Insert(new ExpansionLoot( "Mag_Expansion_M9_15Rnd", NULL, 0.25 ));
 		Loot.Insert(new ExpansionLoot( "Mag_Expansion_Kedr_20Rnd", NULL, 0.3 ));
-			#endif
+	#endif
 	}
 
-	static void Ammo_Civilian(out array < ref ExpansionLoot > Loot)
+	static void Ammo_Civilian(array < ref ExpansionLoot > Loot)
 	{
 		Loot.Insert(new ExpansionLoot( "AmmoBox_9x39_20Rnd", NULL, 0.5 ));
 		Loot.Insert(new ExpansionLoot( "AmmoBox_9x19_25Rnd", NULL, 1 ));
@@ -584,7 +584,7 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Ammo_12gaPellets", NULL,  0.5 ));
 	}
 
-	static void Ammo_Military(out array < ref ExpansionLoot > Loot)
+	static void Ammo_Military(array < ref ExpansionLoot > Loot)
 	{
 		Loot.Insert(new ExpansionLoot( "AmmoBox_762x54Tracer_20Rnd", NULL , 0.08));
 		Loot.Insert(new ExpansionLoot( "AmmoBox_762x54_20Rnd", NULL , 0.1));
@@ -603,7 +603,7 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Ammo_545x39Tracer", NULL , 0.07));
 		Loot.Insert(new ExpansionLoot( "Ammo_545x39", NULL , 0.10));
 
-			#ifdef EXPANSIONMODWEAPONS
+	#ifdef EXPANSIONMODWEAPONS
 		Loot.Insert(new ExpansionLoot( "Ammo_Expansion_M203_Smoke_White", NULL , 0.08));
 		Loot.Insert(new ExpansionLoot( "Ammo_Expansion_M203_Smoke_Red", NULL , 0.08));
 		Loot.Insert(new ExpansionLoot( "Ammo_Expansion_M203_Smoke_Green", NULL , 0.08));
@@ -618,12 +618,12 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Ammo_Expansion_M203_Sticky_Smoke_Teargas", NULL , 0.02));
 
 		Loot.Insert(new ExpansionLoot( "ExpansionAmmoRPG", NULL , 0.05));
-			#endif
+	#endif
 	}
 
-	static void Deployable_BaseBuilding(out array < ref ExpansionLoot > Loot)
+	static void Deployable_BaseBuilding(array < ref ExpansionLoot > Loot)
 	{
-			#ifdef EXPANSIONMODBASEBUILDING
+	#ifdef EXPANSIONMODBASEBUILDING
 		Loot.Insert(new ExpansionLoot( "ExpansionHescoKit", NULL , 0.05));
 		Loot.Insert(new ExpansionLoot( "ExpansionBarbedWireKit", NULL , 0.1));
 		Loot.Insert(new ExpansionLoot( "ExpansionCamoBoxKit", NULL , 0.18));
@@ -640,23 +640,26 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "ExpansionSafeLarge", NULL , 0.1));
 
 		Loot.Insert(new ExpansionLoot( "ExpansionCamoTentKit", NULL , 0.25));
-			#endif
+	#endif
+
 		Loot.Insert(new ExpansionLoot( "MediumTent", NULL , 0.2));
 		Loot.Insert(new ExpansionLoot( "LargeTent", NULL , 0.1));
 		Loot.Insert(new ExpansionLoot( "CarTent", NULL , 0.15));
 	}
 
-	static void Gear_BaseBuilding(out array < ref ExpansionLoot > Loot)
+	static void Gear_BaseBuilding(array < ref ExpansionLoot > Loot)
 	{
 		array< ref ExpansionLootVariant > combinationLockVariants = {
-			new ExpansionLootVariant( "CombinationLock4" ),
-			#ifdef EXPANSIONMODBASEBUILDING
-			new ExpansionLootVariant( "ExpansionCodeLock" ),
-			#endif
+			new ExpansionLootVariant( "CombinationLock4" )
 		};
+
+	#ifdef EXPANSIONMODBASEBUILDING
+		combinationLockVariants.Insert(new ExpansionLootVariant( "ExpansionCodeLock" ));
+	#endif
+
 		array< ref ExpansionLootVariant > gasCanisterVariants = {
 			new ExpansionLootVariant( "MediumGasCanister" ),
-			new ExpansionLootVariant( "LargeGasCanister" ),
+			new ExpansionLootVariant( "LargeGasCanister" )
 		};
 
 		TStringArray att_smallGasCanister = { "SmallGasCanister" };
@@ -687,7 +690,7 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "EpoxyPutty", NULL , 0.2));
 	}
 
-	static void Gear_Mechanic(out array < ref ExpansionLoot > Loot)
+	static void Gear_Mechanic(array < ref ExpansionLoot > Loot)
 	{
 		TStringArray att_smallGasCanister = { "SmallGasCanister" };
 		Loot.Insert(new ExpansionLoot( "Blowtorch", att_smallGasCanister , 0.15));
@@ -699,7 +702,7 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Crowbar", NULL , 0.2));
 	}
 
-	static void Attachments(out array < ref ExpansionLoot > Loot)
+	static void Attachments(array < ref ExpansionLoot > Loot)
 	{
 		TStringArray battery = { "Battery9V" };
 
@@ -729,13 +732,13 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "PSO1Optic", battery , 0.08));
 		Loot.Insert(new ExpansionLoot( "PSO11Optic", battery , 0.08));
 			
-			#ifdef EXPANSIONMODWEAPONS
+	#ifdef EXPANSIONMODWEAPONS
 		Loot.Insert(new ExpansionLoot( "ExpansionReflexMRSOptic", NULL , 0.1));
 		Loot.Insert(new ExpansionLoot( "ExpansionReflexMRSOptic", battery , 0.08));
-			#endif
+	#endif
 	}
 
-	static void Food(out array < ref ExpansionLoot > Loot)
+	static void Food(array < ref ExpansionLoot > Loot)
 	{
 		Loot.Insert(new ExpansionLoot( "BoxCerealCrunchin", NULL, 0.05 ));
 		Loot.Insert(new ExpansionLoot( "PeachesCan", NULL, 0.1 ));
@@ -751,16 +754,16 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "KitchenKnife", NULL, 0.3 ));
 	}
 
-	static void NBC(out array < ref ExpansionLoot > Loot)
+	static void NBC(array < ref ExpansionLoot > Loot)
 	{
 		TStringArray att_gasmask = { "GasMask_Filter" };
 
 		array< ref ExpansionLootVariant > airborneMaskVariants = {
-			new ExpansionLootVariant( "AirborneMask", NULL, 0.80 ),
+			new ExpansionLootVariant( "AirborneMask", NULL, 0.80 )
 		};
 
 		array< ref ExpansionLootVariant > gp5GasMaskVariants = {
-			new ExpansionLootVariant( "GP5GasMask", NULL, 0.80 ),
+			new ExpansionLootVariant( "GP5GasMask", NULL, 0.80 )
 		};
 
 		Loot.Insert(new ExpansionLoot( "NBCBootsGray", NULL,  0.05 ));
@@ -779,7 +782,7 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "GasMask", NULL,  0.05 ));
 	}
 
-	static void Gear_Medical(out array < ref ExpansionLoot > Loot)
+	static void Gear_Medical(array < ref ExpansionLoot > Loot)
 	{
 		TStringArray firstaidkit_1 = { "BandageDressing","BandageDressing" };
 		TStringArray firstaidkit_2 = { "BandageDressing","BandageDressing","BandageDressing","BandageDressing" };
@@ -812,7 +815,7 @@ modded class ExpansionLootDefaults
 			new ExpansionLootVariant( "FirstAidKit", firstaidkit_13, 0.063770 ),
 			new ExpansionLootVariant( "FirstAidKit", firstaidkit_14, 0.063770 ),
 			new ExpansionLootVariant( "FirstAidKit", firstaidkit_15, 0.033770 ),
-			new ExpansionLootVariant( "FirstAidKit", firstaidkit_16, 0.023770 ),
+			new ExpansionLootVariant( "FirstAidKit", firstaidkit_16, 0.023770 )
 		};
 		
 		Loot.Insert(new ExpansionLoot( "FirstAidKit", firstaidkit_1, 2.44, -1, firstaidkitVariants ));
@@ -845,26 +848,26 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "IodineTincture", NULL , 0.2));
 	}
 
-	static void Clothing_Medical(out array < ref ExpansionLoot > Loot)
+	static void Clothing_Medical(array < ref ExpansionLoot > Loot)
 	{
 		array< ref ExpansionLootVariant > medicalScrubsHatsVariants = {
 			new ExpansionLootVariant( "MedicalScrubsHat_White" ),
-			new ExpansionLootVariant( "MedicalScrubsHat_Green" ),
+			new ExpansionLootVariant( "MedicalScrubsHat_Green" )
 		};
 
 		array< ref ExpansionLootVariant > medicalScrubsPantsVariants = {
 			new ExpansionLootVariant( "MedicalScrubsPants_White" ),
-			new ExpansionLootVariant( "MedicalScrubsPants_Green" ),
+			new ExpansionLootVariant( "MedicalScrubsPants_Green" )
 		};
 
 		array< ref ExpansionLootVariant > medicalScrubsShirtsVariants = {
 			new ExpansionLootVariant( "MedicalScrubsShirt_White" ),
-			new ExpansionLootVariant( "MedicalScrubsShirt_Green" ),
+			new ExpansionLootVariant( "MedicalScrubsShirt_Green" )
 		};
 
 		array< ref ExpansionLootVariant > surgicalGlovesVariants = {
 			new ExpansionLootVariant( "SurgicalGloves_LightBlue" ),
-			new ExpansionLootVariant( "SurgicalGloves_Green" ),
+			new ExpansionLootVariant( "SurgicalGloves_Green" )
 		};
 
 		Loot.Insert(new ExpansionLoot( "MedicalScrubsHat_Blue", NULL, 0.24, -1, medicalScrubsHatsVariants ));
@@ -876,21 +879,19 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "SurgicalGloves_Blue", NULL, 0.24, -1, surgicalGlovesVariants ));
 	}
 
-	static void Clothing_Civilian(out array < ref ExpansionLoot > Loot)
+	static void Clothing_Civilian(array < ref ExpansionLoot > Loot)
 	{
-		array < ref ExpansionLoot > Loot;
-
 		TStringArray visor = { "DirtBikeHelmet_Visor" };
 
 		Loot.Insert(new ExpansionLoot( "DirtBikeHelmet_Chernarus", visor, 0.3 ));
 	}
 
-	static void Clothing_Worker(out array < ref ExpansionLoot > Loot)
+	static void Clothing_Worker(array < ref ExpansionLoot > Loot)
 	{
 
 	}
 
-	static void Clothing_Military(out array < ref ExpansionLoot > Loot)
+	static void Clothing_Military(array < ref ExpansionLoot > Loot)
 	{
 		TStringArray vest = { "PlateCarrierHolster","PlateCarrierPouches" };
 
@@ -927,14 +928,16 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "Binoculars", NULL, 0.3 ));
 		Loot.Insert(new ExpansionLoot( "Rangefinder", battery, 0.05 ));
 		Loot.Insert(new ExpansionLoot( "WeaponCleaningKit", NULL, 0.05 ));
-			#ifdef NAMALSK_SURVIVAL
+
+	#ifdef NAMALSK_SURVIVAL
 		Loot.Insert(new ExpansionLoot( "dzn_map_namalsk", NULL, 0.3 ));
-			#else
+	#else
 		Loot.Insert(new ExpansionLoot( "ChernarusMap", NULL, 0.3 ));
-			#endif
-			#ifdef EXPANSIONMODNAVIGATION
+	#endif
+
+	#ifdef EXPANSIONMODNAVIGATION
 		Loot.Insert(new ExpansionLoot( "ExpansionGPS", NULL, 0.05 ));
-			#endif
+	#endif
 
 		Weapons_Civilian(Loot);
 		Ammo_Civilian(Loot);
@@ -982,15 +985,15 @@ modded class ExpansionLootDefaults
 		Loot.Insert(new ExpansionLoot( "GhillieAtt_Mossy", NULL, 0.05 ));
 		Loot.Insert(new ExpansionLoot( "WeaponCleaningKit", NULL, 0.05 ));
 
-			#ifdef NAMALSK_SURVIVAL
+	#ifdef NAMALSK_SURVIVAL
 		Loot.Insert(new ExpansionLoot( "dzn_map_namalsk", NULL, 0.3 ));
-			#else
+	#else
 		Loot.Insert(new ExpansionLoot( "ChernarusMap", NULL, 0.3 ));
-			#endif
+	#endif
 
-			#ifdef EXPANSIONMODNAVIGATION
+	#ifdef EXPANSIONMODNAVIGATION
 		Loot.Insert(new ExpansionLoot( "ExpansionGPS", NULL, 0.05 ));
-			#endif
+	#endif
 
 		Weapons_Military(Loot);
 		Ammo_Military(Loot);
@@ -1016,7 +1019,7 @@ modded class ExpansionLootDefaults
 		TStringArray att_OffroadHatchback_Blue = {"HatchbackWheel", "HatchbackWheel", "HatchbackWheel", "HatchbackWheel", "HatchbackWheel", "CarBattery", "CarRadiator", "SparkPlug", "HatchbackHood", "HatchbackTrunk", "HatchbackDoors_Driver", "HatchbackDoors_CoDriver", "HeadlightH7", "HeadlightH7"};
 		array< ref ExpansionLootVariant > offroadHatchbackVariants = {
 			new ExpansionLootVariant( "OffroadHatchback_White", att_OffroadHatchback_White, 0.80 ),
-			new ExpansionLootVariant( "OffroadHatchback_Blue", att_OffroadHatchback_Blue, 0.80 ),
+			new ExpansionLootVariant( "OffroadHatchback_Blue", att_OffroadHatchback_Blue, 0.80 )
 		};
 		
 		Loot.Insert(new ExpansionLoot( "OffroadHatchback", att_OffroadHatchback,  0.65, -1, offroadHatchbackVariants ));

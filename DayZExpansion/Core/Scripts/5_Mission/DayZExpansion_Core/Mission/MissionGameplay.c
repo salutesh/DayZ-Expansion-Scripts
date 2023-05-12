@@ -15,7 +15,6 @@
  **/
 modded class MissionGameplay
 {
-	protected ref ExpansionUIMenuManager m_EXUIMenuManager;
 	protected static ref ExpansionItemTooltip m_EXItemTooltip;
 	protected static ref ExpansionItemInspection m_EXItemInspection;
 	
@@ -27,8 +26,6 @@ modded class MissionGameplay
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "MissionGameplay");
 #endif
-		
-		CreateExpansionUIMenuManager();
 	}
 
 	// ------------------------------------------------------------
@@ -40,7 +37,6 @@ modded class MissionGameplay
 		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "~MissionGameplay");
 #endif
 		
-		DestroyExpansionUIMenuManager();
 		DestroyNotificationSystem();
 	}
 	
@@ -82,45 +78,35 @@ modded class MissionGameplay
 			return;
 		}
 
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
+
+		bool isAliveConscious = player && player.GetPlayerState() == EPlayerStates.ALIVE && !player.IsUnconscious();
+
+		Input input = GetGame().GetInput();
+
 		//! Checking for keyboard focus
-		bool inputIsFocused = false;
-		
-		//! Reference to focused windget
-		Widget focusedWidget = GetFocus();
+		Widget focus = GetFocus();
+		bool inputIsFocused = focus && (focus.IsInherited(EditBoxWidget) || focus.IsInherited(MultilineEditBoxWidget)) && focus.IsVisible();
 
-		if (focusedWidget)
-		{
-			if (focusedWidget.ClassName().Contains("EditBoxWidget"))
-			{
-				inputIsFocused = true;
-			} 
-			else if (focusedWidget.ClassName().Contains("MultilineEditBoxWidget"))
-			{
-				inputIsFocused = true;
-			}
-		}
-
-		Man man = GetGame().GetPlayer(); 	//! Refernce to man
-		Input input = GetGame().GetInput(); 	//! Reference to input
-		ExpansionScriptViewMenu viewMenu = ExpansionScriptViewMenu.Cast(GetDayZExpansion().GetExpansionUIManager().GetMenu());
 		UIScriptedMenu menu = m_UIManager.GetMenu();
-		InventoryMenu inventory = InventoryMenu.Cast( m_UIManager.FindMenu(MENU_INVENTORY) );
-		
-		//! ToDo: Make ExpansionInputs class and handle stuff there to keep this clean
-		if (viewMenu && viewMenu.IsVisible())
+		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
+
+		Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
+	}
+
+	void Expansion_OnUpdate(float timeslice, PlayerBase player, bool isAliveConscious, Input input, bool inputIsFocused, UIScriptedMenu menu, ExpansionScriptViewMenuBase viewMenu)
+	{
+		//! Close current opened expansion script view menu when ESC is pressed
+		if (viewMenu && viewMenu.IsVisible() && input.LocalPress("UAUIBack", false))
 		{
-			//! Close current opened expansion script view menu when ESC is pressed
-			if (input.LocalPress("UAUIBack", false))
+			if (!m_EXItemInspection && viewMenu.CanClose())
 			{
-				if (!m_EXItemInspection && viewMenu.CanClose())
-				{
-					GetDayZExpansion().GetExpansionUIManager().CloseMenu();
-				}
-				else if (m_EXItemInspection)
-				{
-					Expansion_DestroyItemInspection();
-					viewMenu.GetLayoutRoot().Show(true);
-				}
+				GetDayZExpansion().GetExpansionUIManager().CloseMenu();
+			}
+			else if (m_EXItemInspection)
+			{
+				Expansion_DestroyItemInspection();
+				viewMenu.GetLayoutRoot().Show(true);
 			}
 		}
 	}
@@ -146,33 +132,6 @@ modded class MissionGameplay
 		if (GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu())
 			GetDayZGame().GetExpansionGame().GetExpansionUIManager().CloseAll();
 	}
-	
-	// ------------------------------------------------------------
-	// CreateExpansionUIMenuManager
-	// ------------------------------------------------------------	
-	void CreateExpansionUIMenuManager()
-	{
-		ExpansionUIManager exUIManager = GetDayZGame().GetExpansionGame().GetExpansionUIManager();
-		if (exUIManager && !m_EXUIMenuManager)
-			m_EXUIMenuManager = new ExpansionUIMenuManager(exUIManager);
-	}
-	
-	// ------------------------------------------------------------
-	// DestroyExpansionUIMenuManager
-	// ------------------------------------------------------------		
-	void DestroyExpansionUIMenuManager()
-	{
-		if (m_EXUIMenuManager)
-			m_EXUIMenuManager = null;
-	}
-	
-	// ------------------------------------------------------------
-	// GetExpansionUIMenuManager
-	// ------------------------------------------------------------	
-	ExpansionUIMenuManager GetExpansionUIMenuManager()
-	{
-		return m_EXUIMenuManager;
-	}
 
 	// ------------------------------------------------------------
 	// IsMenuOpened
@@ -185,6 +144,13 @@ modded class MissionGameplay
 		return false;
 	}
 	
+	override void OnMissionLoaded()
+	{
+		ExpansionGlobalID.s_IsMissionLoaded = true;
+
+		super.OnMissionLoaded();
+	}
+
 	// ------------------------------------------------------------
 	// OnMissionFinish
 	// ------------------------------------------------------------

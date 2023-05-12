@@ -62,7 +62,7 @@ class ExpansionWorld: ExpansionGame
 		ExpansionWorldObjectsModule.RPC_RemoveObjects(ctx);
 	}
 
-	static void CheckTreeContact(IEntity other, float impulse)
+	static void CheckTreeContact(IEntity other, float impulse, bool sendToClient = false)
 	{
 		if (impulse < 7500)
 			return;
@@ -71,8 +71,7 @@ class ExpansionWorld: ExpansionGame
 		if (!Plant.CastTo(plant, other))
 			return;
 
-		if (!GetGame().IsDedicatedServer())
-			PlayFellPlantSound(plant);
+		PlayFellPlantSound(plant, sendToClient);
 
 		if (GetGame().IsServer())
 			plant.SetHealth(0);
@@ -80,27 +79,30 @@ class ExpansionWorld: ExpansionGame
 		dBodyDestroy(plant);
 	}
 
-	static void PlayFellPlantSound(Object plant)
+	static void PlayFellPlantSound(Object plant, bool sendToClient = false)
 	{
-		EffectSound sound;
+#ifdef SERVER
+		if (!sendToClient)
+			return;
+#endif
+		
+		string soundSet;
 
-		if (plant.IsTree())
-		{
-			if (plant.IsInherited(TreeHard))
-				sound =	SEffectManager.PlaySound( "hardTreeFall_SoundSet", plant.GetPosition() );
-			else if (plant.IsInherited(TreeSoft))
-				sound =	SEffectManager.PlaySound( "softTreeFall_SoundSet", plant.GetPosition() );
-		}
+		if (plant.IsInherited(TreeHard))
+			soundSet =	"hardTreeFall_SoundSet";
+		else if (plant.IsInherited(TreeSoft))
+			soundSet =	"softTreeFall_SoundSet";
+		else if (plant.IsInherited(BushHard))
+			soundSet =	"hardBushFall_SoundSet";
+		else if (plant.IsInherited(BushSoft))
+			soundSet =	"softBushFall_SoundSet";
+		else
+			return;
 
-		if (plant.IsBush())
-		{
-			if (plant.IsInherited(BushHard))
-				sound =	SEffectManager.PlaySound( "hardBushFall_SoundSet", plant.GetPosition() );
-			else if (plant.IsInherited(BushSoft))
-				sound =	SEffectManager.PlaySound( "softBushFall_SoundSet", plant.GetPosition() );
-		}
-
-		if (sound)
-			sound.SetAutodestroy( true );
+#ifdef SERVER
+		ExpansionItemBaseModule.s_Instance.PlaySound(plant.GetPosition(), soundSet);
+#else
+		EffectSound sound =	SEffectManager.Expansion_PlaySound(soundSet, plant.GetPosition());
+#endif
 	}
 };
