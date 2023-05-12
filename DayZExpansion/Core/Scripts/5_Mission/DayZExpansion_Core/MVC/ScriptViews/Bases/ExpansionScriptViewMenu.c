@@ -174,7 +174,7 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		if (!m_UpdateTimer && GetUpdateTickRate() != -1)
 		{
 			m_UpdateTimer = new Timer(CALL_CATEGORY_GUI);
-			m_UpdateTimer.Run(GetUpdateTickRate(), this, "Update", NULL, true);
+			m_UpdateTimer.Run(GetUpdateTickRate(), this, "Expansion_Update", NULL, true);
 		}
 	}
 	
@@ -198,5 +198,5 @@ class ExpansionScriptViewMenu: ExpansionScriptViewMenuBase
 		}
 	}
 	
-	void Update();
+	void Expansion_Update();
 }

@@ -30,6 +30,8 @@ modded class MissionGameplay
 
 	void InitExpansionQuestHud()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+
 		if (!m_ExpansionQuestHUD)
 		{
 			m_ExpansionQuestHUD = new ExpansionQuestHUD();
@@ -41,7 +43,7 @@ modded class MissionGameplay
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (m_ExpansionQuestHUD)
+		if (m_ExpansionQuestHUD && player)
 		{
 			bool isCOTOpen;
 		#ifdef JM_COT

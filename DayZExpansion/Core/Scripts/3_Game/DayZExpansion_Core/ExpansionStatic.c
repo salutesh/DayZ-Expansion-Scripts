@@ -776,7 +776,7 @@ class ExpansionStatic
 	}
 
 	/*!
-	 * @brief format timestamp (value in seconds)
+	 * @brief format time (value in seconds)
 	 * @return one of the following formats as string (depending on arguments):
 	 * "HH:MM:SS.SSS" (default)
 	 * "HH:MM:SS"     (include_ms = false)
@@ -784,7 +784,7 @@ class ExpansionStatic
 	 * "MM:SS"        (include_ms = false, include_hours = false)
 	 * @note HH is the total number of hours and can exceed 24 unless `discard_days` is set to true!
 	*/
-	static string FormatTimestamp(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false, string delimHMS = ":")
+	static string FormatTime(float time, bool include_ms = true, bool include_hours = true, bool discard_days = false, string delimHMS = ":")
 	{
 		if (include_hours)
 		{
@@ -821,7 +821,7 @@ class ExpansionStatic
 		if ( include_ms && GetDayZGame() )
 		{
 			//! Accurate, including milliseconds
-			return FormatTimestamp(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true, delimHMS);
+			return FormatTime(GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime(), true, true, true, delimHMS);
 		}
 		else
 		{
@@ -837,6 +837,18 @@ class ExpansionStatic
 
 			return hour.ToStringLen(2) + delimHMS + minute.ToStringLen(2) + delimHMS + second.ToStringLen(2);
 		}
+	}
+
+	//! Fast timestamp, use this instead of CF_Date.Now().GetTimestamp() when performance counts
+	static int GetTimestamp(bool useUTC = false)
+	{
+		return GetDayZGame().ExpansionGetStartTimestamp(useUTC) + (int) GetDayZGame().GetTickTime();
+	}
+
+	//! Fast accurate time in seconds, not including years/months/days
+	static float GetTime(bool useUTC = false)
+	{
+		return GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime();
 	}
 
 	static string GetTimeString( float total_time )

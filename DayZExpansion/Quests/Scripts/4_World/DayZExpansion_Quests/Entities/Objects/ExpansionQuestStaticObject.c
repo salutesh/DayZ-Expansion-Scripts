@@ -29,14 +29,27 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
 
+	void ~ExpansionQuestStaticObject()
+	{
+		if (m_Expansion_QuestIndicator)
+		{
+			m_Expansion_QuestIndicator.StopParticle();
+			m_Expansion_QuestIndicator = null;
+		}
+	}
+
 	override void OnVariablesSynchronized()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "NPC ID: " + m_QuestNPCID);
-
 		super.OnVariablesSynchronized();
 
 		if (m_QuestNPCID > -1)
+		{
+		#ifdef DIAG
+			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestObjectByID(m_QuestNPCID))
+				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
+		#endif
 			ExpansionQuestModule.AddStaticQuestObject(m_QuestNPCID, this);
+		}
 
 		if (!m_Expansion_QuestIndicator)
 			ExpansionQuestModule.SetQuestNPCIndicator(m_QuestNPCID, this, m_Expansion_QuestIndicator);
@@ -72,7 +85,7 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 		ExpansionQuestModule.SetQuestNPCIndicator(this, m_Expansion_QuestIndicator, state);
 	}
 
-	void Expansion_SetQuestIndicator(Particle particle)
+	void Expansion_SetQuestIndicator(ParticleSource particle)
 	{
 		m_Expansion_QuestIndicator = particle;
 	}

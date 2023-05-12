@@ -100,7 +100,7 @@ modded class MissionGameplay
 	// ------------------------------------------------------------
 	void PlayerCheckNV(PlayerBase player)
 	{
-		if (!m_Hud)
+		if (!m_Hud || !player)
 			return;
 
 		DayZPlayerCameraBase camera;

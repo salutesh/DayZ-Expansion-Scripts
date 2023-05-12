@@ -295,9 +295,9 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		SetEntryObjective();
 	}
 	
-	override void Update()
+	override void Expansion_Update()
 	{
-		if (!m_Objective || !IsVisible())
+		if (!m_Objective || !IsVisible() || !GetGame().GetPlayer())
 			return;
 		
 		UpdateTimeLimit();
@@ -360,7 +360,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 		if (m_Objective.GetTimeLimit() > -1)
 		{
 			ObjectiveTime.Show(true);
-			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTimestamp(m_Objective.GetTimeLimit(), false);
+			m_QuestHUDObjectiveController.ObjectiveTimeLimit = "#STR_EXPANSION_QUEST_HUD_TIME " + ExpansionStatic.FormatTime(m_Objective.GetTimeLimit(), false);
 			m_QuestHUDObjectiveController.NotifyPropertyChanged("ObjectiveTimeLimit");
 
 			if (m_Objective.GetTimeLimit() > 60)

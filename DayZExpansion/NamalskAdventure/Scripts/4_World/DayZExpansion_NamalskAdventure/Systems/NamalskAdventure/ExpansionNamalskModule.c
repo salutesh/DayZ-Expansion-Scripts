@@ -1133,19 +1133,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		super.OnUpdate(sender, args);
 		
 		auto update = CF_EventUpdateArgs.Cast(args);
-
-		if (!GetGame())
-			return;
 		
-		if (GetGame().IsServer() && GetGame().IsMultiplayer())
-		{
-			OnUpdateServer(update.DeltaTime);
-		}
-		
-		if (GetGame().IsClient())
-		{
-			OnUpdateClient(update.DeltaTime);
-		}
+	#ifdef SERVER
+		OnUpdateServer(update.DeltaTime);
+	#else
+		OnUpdateClient(update.DeltaTime);
+	#endif
 	}
 	
 	protected void OnUpdateServer(float deltaTime)
@@ -1276,7 +1269,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
 		m_ClientUpdateTimer += deltaTime;
-		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME)
+		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && GetGame().GetPlayer())
 		{
 			float dist = vector.Distance(m_A1_Bunker_TeleporterPos, GetGame().GetPlayer().GetPosition());
 			if (dist < 200) 

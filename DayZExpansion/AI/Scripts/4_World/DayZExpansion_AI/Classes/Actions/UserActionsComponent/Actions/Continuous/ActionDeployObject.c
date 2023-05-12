@@ -5,6 +5,6 @@ modded class ActionDeployObject
 		super.OnStartServer(action_data);
 
 		if (action_data.m_MainItem.IsInherited(ExplosivesBase) || action_data.m_MainItem.IsInherited(TrapBase) || action_data.m_MainItem.IsKindOf("ExpansionExplosive"))
-			action_data.m_Player.m_eAI_LastAggressionTime = GetGame().GetTickTime();  //! Aggro guards in area (if any)
+			action_data.m_Player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
 	}
 }

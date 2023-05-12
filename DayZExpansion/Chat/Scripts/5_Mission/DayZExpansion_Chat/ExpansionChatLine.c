@@ -219,7 +219,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 		super.SetAlpha(alpha);
 
 		if (Time)
-			Time.SetAlpha(alpha);
+			Time.SetAlpha(alpha * 0.8);
 		if (SenderName)
 			SenderName.SetAlpha(alpha);
 		if (Message)

@@ -210,7 +210,7 @@ class ExpansionAirdropContainerBase: Container_Base
 
 		if (m_HasLanded)
 		{
-			if (velocity.LengthSq() < 0.001)
+			if (velocity.LengthSq() < 0.0001 && dBodyGetAngularVelocity(this).LengthSq() < 0.0001)
 			{
 				EnableDynamicCCD(false);
 				SetDynamicPhysicsLifeTime(0);

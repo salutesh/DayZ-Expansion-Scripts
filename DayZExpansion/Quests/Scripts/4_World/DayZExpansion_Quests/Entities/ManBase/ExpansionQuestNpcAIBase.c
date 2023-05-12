@@ -27,12 +27,27 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
 	
+	void ~ExpansionQuestNPCAIBase()
+	{
+		if (m_Expansion_QuestIndicator)
+		{
+			m_Expansion_QuestIndicator.StopParticle();
+			m_Expansion_QuestIndicator = null;
+		}
+	}
+
 	override void OnVariablesSynchronized()
 	{
 		super.OnVariablesSynchronized();
 
 		if (m_QuestNPCID > -1)
+		{
+		#ifdef DIAG
+			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestNPCAIByID(m_QuestNPCID))
+				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
+		#endif
 			ExpansionQuestModule.AddQuestNPCAI(m_QuestNPCID, this);
+		}
 
 		if (!m_Expansion_QuestIndicator)
 			ExpansionQuestModule.SetQuestNPCIndicator(m_QuestNPCID, this, m_Expansion_QuestIndicator);
@@ -77,7 +92,7 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 		ExpansionQuestModule.SetQuestNPCIndicator(this, m_Expansion_QuestIndicator, state);
 	}
 
-	void Expansion_SetQuestIndicator(Particle particle)
+	void Expansion_SetQuestIndicator(ParticleSource particle)
 	{
 		m_Expansion_QuestIndicator = particle;
 	}

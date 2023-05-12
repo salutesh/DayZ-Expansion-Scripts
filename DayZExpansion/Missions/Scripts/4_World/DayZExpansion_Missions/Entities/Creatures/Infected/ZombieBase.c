@@ -1,12 +1,12 @@
 modded class ZombieBase
 {
-	int m_Expansion_OverrideAlertLevel;
+	float m_Expansion_OverrideAlertLevel;
 
-	override void EOnInit(IEntity other, int extra)
+	void Expansion_OverrideAlertLevel(float level)
 	{
-		//! XXX: Need more info how OverrideAlertLevel is to be used
-		//if (m_Expansion_OverrideAlertLevel)
-			//GetInputController().OverrideAlertLevel(true, true, m_Expansion_OverrideAlertLevel, 1.0);
+		m_Expansion_OverrideAlertLevel = level;
+		//! XXX: Doesn't seem to affect mind state
+		//GetInputController().OverrideAlertLevel(true, true, 1, m_Expansion_OverrideAlertLevel);
 	}
 
 #ifdef DIAG

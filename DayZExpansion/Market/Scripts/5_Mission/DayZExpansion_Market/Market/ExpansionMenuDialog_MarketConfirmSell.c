@@ -193,7 +193,7 @@ class ExpansionMenuDialog_MarketConfirmSell: ExpansionDialogBase
 		return 0.25;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{		
 		if ((ExpansionStatic.Key_Y() || ExpansionStatic.Key_Z()) && !m_KeyInput)
 		{

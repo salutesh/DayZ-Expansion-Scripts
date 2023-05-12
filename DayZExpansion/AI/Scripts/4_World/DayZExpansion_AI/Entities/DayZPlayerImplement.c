@@ -196,10 +196,6 @@ modded class DayZPlayerImplement
 
 	override void OnVariablesSynchronized()
 	{
-#ifdef DIAG
-		auto trace = CF_Trace_0(EXTrace.AI, this);
-#endif
-
 		super.OnVariablesSynchronized();
 
 		if (m_eAI_GroupID == -1 && m_eAI_Group)
@@ -302,7 +298,7 @@ modded class DayZPlayerImplement
 
 		DayZPlayerImplement player;
 		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
-			player.m_eAI_LastAggressionTime = GetGame().GetTickTime();  //! Aggro guards in area (if any)
+			player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
 
 		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
@@ -339,7 +335,7 @@ modded class DayZPlayerImplement
 		if (!m_eAI_LastAggressionTime)
 			return false;
 
-		float time = GetGame().GetTickTime();
+		float time = ExpansionStatic.GetTime(true);
 		float timeout = timeThreshold - (time - m_eAI_LastAggressionTime);
 		bool active = timeout > 0;
 
@@ -354,7 +350,7 @@ modded class DayZPlayerImplement
 
 	float eAI_GetLastAggressionCooldown()
 	{
-		float cooldown = m_eAI_LastAggressionTimeout - GetGame().GetTickTime();
+		float cooldown = m_eAI_LastAggressionTimeout - ExpansionStatic.GetTime(true);
 		if (cooldown > 0)
 			return cooldown;
 

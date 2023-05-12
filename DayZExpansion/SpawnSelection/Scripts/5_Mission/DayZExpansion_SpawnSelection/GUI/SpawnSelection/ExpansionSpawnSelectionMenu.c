@@ -301,7 +301,7 @@ class ExpansionSpawnSelectionMenu: ExpansionScriptViewMenu
 		return 0.1;
 	}
 	
-	override void Update() 
+	override void Expansion_Update() 
 	{
 		for ( int i = 0; i < m_MapMarkers.Count(); i++ )
 		{

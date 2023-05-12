@@ -396,7 +396,7 @@ class ExpansionTeleporterMenu: ExpansionScriptViewMenu
 		return 0.1;
 	}
 	
-	override void Update()
+	override void Expansion_Update()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 		

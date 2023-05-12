@@ -113,7 +113,7 @@ class EXTrace
 
 	static bool TERRITORY;
 
-	static bool UI;
+	static bool UI = ENABLE;
 
 	static bool VEHICLES = ENABLE;
 

@@ -342,7 +342,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		return 10.0;
 	}
 	
-	override void Update()
+	override void Expansion_Update()
 	{
 		if (!IsVisible())
 			return;

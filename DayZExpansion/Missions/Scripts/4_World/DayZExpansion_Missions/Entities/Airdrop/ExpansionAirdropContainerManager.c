@@ -183,14 +183,17 @@ class ExpansionAirdropContainerManager
 
 			m_Infected.Insert( obj );
 
+			//! Alert Infected/animals instantly after spawning
+			//! See DZ\AI\config.cpp, CfgAIBehaviors -> AlertSystem
 			ZombieBase zombie;
+			AnimalBase animal;
 			if (Class.CastTo(zombie, obj))
-			{
-				zombie.m_Expansion_OverrideAlertLevel = 1;
+				zombie.Expansion_OverrideAlertLevel(21.0);
+			else if (Class.CastTo(animal, obj))
+				animal.GetInputController().OverrideAlertLevel(true, true, 1, 31.0);  //! Should work for wolf/bear
 
-				if (m_NoiseSystem)  //! Initial noise at spawnPos to alert Infected
-					m_NoiseSystem.AddNoiseTarget(spawnPos, 1.0, m_NoisePar);
-			}
+			if (m_NoiseSystem && m_Container)
+				m_NoiseSystem.AddNoiseTarget(m_Container.GetPosition(), 0.34, m_NoisePar);
 		} else
 		{
 			Print("[ExpansionAirdropContainerManager] Warning : '" + type + "' is not a valid type!");
@@ -217,7 +220,8 @@ class ExpansionAirdropContainerManager
 
 	void StopUpdateNoise()
 	{
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(UpdateNoise);
+		if (GetGame())
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(UpdateNoise);
 	}
 
 	void CreateServerMarker()

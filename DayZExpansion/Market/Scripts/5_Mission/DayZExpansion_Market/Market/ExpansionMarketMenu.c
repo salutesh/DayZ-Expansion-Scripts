@@ -3020,7 +3020,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		return 0.5;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 		//! Buy/Sell Shortcuts
 		if (GetFocus() != market_filter_box)

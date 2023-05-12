@@ -3386,10 +3386,10 @@ class ExpansionQuestModule: CF_ModuleWorld
 	}
 #endif
 
-	void QuestModulePrint(string text)
+	static void QuestModulePrint(string text)
 	{
 	//#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, this, text);
+		EXTrace.Print(EXTrace.QUESTS, s_ModuleInstance, text);
 	//#endif
 	}
 
@@ -3696,11 +3696,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 	
 	static void AddQuestNPCAI(int id, ExpansionQuestNPCAIBase questNPCAI)
 	{
-		if (!s_QuestNPCAIEntities.Contains(id))
-		{
-			s_QuestNPCAIEntities.Insert(id, questNPCAI);
+		if (!s_QuestNPCAIEntities[id])  //! Can be NULL if object was deleted because it was no longer in network bubble
+			s_QuestNPCAIEntities[id] = questNPCAI;
+
+		if (!s_QuestNPCIndicatorStates.Contains(id))  //! Don't override if already set
 			s_QuestNPCIndicatorStates[id] = ExpansionQuestIndicatorState.NOT_SET;
-		}
 	}
 	
 	static void RemoveQuestNPCAI(int id)
@@ -3795,11 +3795,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 	
 	static void AddStaticQuestObject(int id, ExpansionQuestStaticObject staticQustObject)
 	{
-		if (!s_QuestObjectEntities.Contains(id))
-		{
-			s_QuestObjectEntities.Insert(id, staticQustObject);
+		if (!s_QuestObjectEntities[id])  //! Can be NULL if object was deleted because it was no longer in network bubble
+			s_QuestObjectEntities[id] = staticQustObject;
+
+		if (!s_QuestNPCIndicatorStates.Contains(id))  //! Don't override if already set
 			s_QuestNPCIndicatorStates[id] = ExpansionQuestIndicatorState.NOT_SET;
-		}
 	}
 	
 	static void RemoveStaticQuestObject(int id)
@@ -3815,11 +3815,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 	
 	static void AddQuestNPC(int id, ExpansionQuestNPCBase questNPC)
 	{
-		if (!s_QuestNPCEntities.Contains(id))
-		{
-			s_QuestNPCEntities.Insert(id, questNPC);
+		if (!s_QuestNPCEntities[id])  //! Can be NULL if object was deleted because it was no longer in network bubble
+			s_QuestNPCEntities[id] = questNPC;
+
+		if (!s_QuestNPCIndicatorStates.Contains(id))  //! Don't override if already set
 			s_QuestNPCIndicatorStates[id] = ExpansionQuestIndicatorState.NOT_SET;
-		}
 	}
 	
 	static void RemoveQuestNPC(int id)
@@ -3860,22 +3860,28 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		foreach (int npcID, ExpansionQuestIndicatorState state: s_QuestNPCIndicatorStates)
 		{
+			QuestModulePrint("Resetting Quest indicator for NPC ID: " + npcID);
 			s_QuestNPCIndicatorStates[npcID] = ExpansionQuestIndicatorState.NOT_SET;
 		}
 
+		ExpansionQuestIndicatorState currentState;
+
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 
-		foreach (int questID, ExpansionQuestConfig config: questConfigs)
+		foreach (int index, ExpansionQuestConfig config: questConfigs)
 		{
 			int questState = playerQuestData.GetQuestStateByQuestID(config.GetID());
 
-			QuestModulePrint("Quest ID: " + questID + " \"" + config.Title + "\" | State: " + typename.EnumToString(ExpansionQuestState, questState));
+			QuestModulePrint("Quest ID: " + config.GetID() + " \"" + config.Title + "\" | State: " + typename.EnumToString(ExpansionQuestState, questState));
 
 			if (questState == ExpansionQuestState.CAN_TURNIN)
 			{
 				array<int> questTurnInIDs = config.GetQuestTurnInIDs();
 				foreach (int turnInID: questTurnInIDs)
 				{
+					if (s_QuestNPCIndicatorStates.Find(turnInID, currentState) && currentState == ExpansionQuestIndicatorState.QUESTION)
+						continue;
+
 					if (!QuestDisplayConditions(config, player, playerQuestData, turnInID, true))
 						continue;
 
@@ -3887,11 +3893,13 @@ class ExpansionQuestModule: CF_ModuleWorld
 				array<int> questGiverIDs = config.GetQuestGiverIDs();
 				foreach (int giverID: questGiverIDs)
 				{
+					if (s_QuestNPCIndicatorStates.Find(giverID, currentState) && currentState != ExpansionQuestIndicatorState.NOT_SET)
+						continue;
+
 					if (!QuestDisplayConditions(config, player, playerQuestData, giverID, true))
 						continue;
 
-					if (s_QuestNPCIndicatorStates[giverID] == ExpansionQuestIndicatorState.NOT_SET)
-						s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
+					s_QuestNPCIndicatorStates[giverID] = ExpansionQuestIndicatorState.EXCLAMATION;
 				}
 			}
 		}
@@ -3909,6 +3917,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 		
 		foreach (int npcID, ExpansionQuestIndicatorState indicatorState: s_QuestNPCIndicatorStates)
 		{
+			QuestModulePrint("Setting Quest indicator for NPC ID: " + npcID + " | State: " + typename.EnumToString(ExpansionQuestIndicatorState, indicatorState));
+
 			questNPC = GetQuestNPCByID(npcID);
 		#ifdef EXPANSIONMODAI
 			questAINPC = GetQuestNPCAIByID(npcID);
@@ -3934,25 +3944,73 @@ class ExpansionQuestModule: CF_ModuleWorld
 		
 	static void SetQuestNPCIndicator(Object obj, inout ParticleSource particle, ExpansionQuestIndicatorState state)
 	{
-		auto trace = EXTrace.StartStack(EXTrace.QUESTS, s_ModuleInstance, "SetQuestNPCIndicator " + obj.ToString() + " " + obj.GetPosition() + " | State: " + typename.EnumToString(ExpansionQuestIndicatorState, state));
+		auto trace = EXTrace.StartStack(EXTrace.QUESTS, s_ModuleInstance, obj.ToString() + " " + obj.GetPosition() + " | State: " + typename.EnumToString(ExpansionQuestIndicatorState, state));
 
 		if (GetGame().IsClient() || !GetGame().IsMultiplayer())
 		{
 			if (state != ExpansionQuestIndicatorState.NOT_SET)
 			{
-				vector localPos = "0 0.9 0";
-				if (ExpansionQuestStaticObject.Cast(obj))
-					localPos = "0 0.7 0";
+				vector minMax[2];
+				obj.GetCollisionBox(minMax);
+
+				Human human;
+				DayZInfected infected;
+				float offsetY;
+				float height;
+				if (Class.CastTo(human, obj))
+				{
+					offsetY = human.GetBonePositionMS(human.GetBoneIndexByName("Head"))[1];  //! Center of head in current stance
+					if (!offsetY)   //! This can happen when first entering network bubble under 1.21 :-(
+						offsetY = minMax[1][1];
+					offsetY += 0.2;
+					height = 1.8;  //! Standing
+				}
+				else if (Class.CastTo(infected, obj))
+				{
+					offsetY = infected.GetBonePositionMS(infected.GetBoneIndexByName("Head"))[1];  //! Center of head in current stance
+					if (!offsetY)   //! This can happen when first entering network bubble under 1.21 :-(
+						offsetY = minMax[1][1];
+					offsetY += 0.2;
+					height = 1.8;  //! Standing
+				}
+				else
+				{
+					offsetY = minMax[1][1];
+					height = offsetY - minMax[0][1];
+				}
+
+				float scale = height / 1.8;  //! 1.0 for human-sized object
+
+				offsetY += 0.15 * scale;
+
+				EXTrace.Add(trace, string.Format("| OffsetY: %1 Height: %2 Scale: %3", offsetY, height, scale));
 
 				if (!particle)
-					particle = ParticleManager.GetInstance().PlayOnObject(ParticleList.EXPANSION_PARTICLE_QUEST_MARKER, obj , localPos, "0 0 0", true);
+				{
+
+					particle = ParticleManager.GetInstance().PlayOnObject(ParticleList.EXPANSION_PARTICLE_QUEST_MARKER, obj , "0 0 0", "0 0 0", true);
+
+					float size;
+					particle.GetParameter(0, EmitorParam.SIZE, size);
+					particle.SetParameter(-1, EmitorParam.SIZE, size * scale * obj.GetScale());
+
+					float velocity;
+					particle.GetParameter(0, EmitorParam.VELOCITY, velocity);
+					particle.SetParameter(-1, EmitorParam.VELOCITY, velocity / obj.GetScale());
+				}
 				else if (!particle.IsParticlePlaying())
+				{
 					particle.PlayParticle();
+				}
 
 				if (state == ExpansionQuestIndicatorState.QUESTION)
 					SetQuestIndicator(particle, ExpansionQuestIndicatorState.EXCLAMATION, false);
 				else
 					SetQuestIndicator(particle, ExpansionQuestIndicatorState.QUESTION, false);
+
+				//! It may seem counter-intuitive, but we need to divide offset by object scale in case it's not 1.0,
+				//! otherwise the visual will be way off
+				SetParticleParm(particle, -1, EmitorParam.EMITOFFSET, Vector(0.0, offsetY / obj.GetScale(), 0.0));
 
 				SetQuestIndicator(particle, state, true);
 			}
@@ -3972,7 +4030,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	static void SetQuestIndicator(ParticleSource particle, int emitter, bool show)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, s_ModuleInstance, "SetQuestIndicator " + particle + " " + typename.EnumToString(ExpansionQuestIndicatorState, emitter) + " " + show);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, s_ModuleInstance, particle.ToString() + " " + typename.EnumToString(ExpansionQuestIndicatorState, emitter) + " " + show);
 
 		particle.SetParameter(emitter, EmitorParam.BIRTH_RATE, 1.0 * show);
 	}

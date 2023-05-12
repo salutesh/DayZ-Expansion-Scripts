@@ -20,27 +20,36 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 	void ExpansionQuestHUD()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
 		
 		m_QuestHUDController = ExpansionQuestHUDController.Cast(GetController());
 		
 		ExpansionQuestModule.GetModuleInstance().GetQuestHUDCallbackSI().Insert(UpdateView);
 	}
 
+	void ~ExpansionQuestHUD()
+	{
+		if (ExpansionQuestModule.GetModuleInstance())
+			ExpansionQuestModule.GetModuleInstance().GetQuestHUDCallbackSI().Remove(UpdateView);
+	}
+
 	void UpdateView()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
 		
+		if (!GetGame().GetPlayer())
+			return;
+
 		if (!IsVisible())
 		{
-			EXTrace.Print(EXTrace.QUESTS, this, "not visible - skipping");
+			EXTrace.Print(EXTrace.QUESTS & EXTrace.UI, this, "not visible - skipping");
 			return;
 		}
 
 		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerData)
 		{
-			EXTrace.Print(EXTrace.QUESTS, this, "no client quest data - skipping");
+			EXTrace.Print(EXTrace.QUESTS & EXTrace.UI, this, "no client quest data - skipping");
 			return;
 		}
 
@@ -102,7 +111,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void ShowHud(bool state)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
 		
 		if (state)
 		{
@@ -116,7 +125,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 	override void OnShow()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
 		
 		super.OnShow();
 		
@@ -125,7 +134,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 	
 	override void OnHide()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
 		
 		super.OnHide();
 	}

@@ -378,7 +378,7 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		return false;
 	}
 
-	override void Update()
+	override void Expansion_Update()
 	{
 		//! Scroll new messages into view, but only if chat input is not open
 		//! OR if mouse is not hovering chat area
