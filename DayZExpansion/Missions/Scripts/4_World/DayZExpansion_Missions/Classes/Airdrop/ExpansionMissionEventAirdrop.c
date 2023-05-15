@@ -183,7 +183,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	
 	override bool CanEnd()
 	{
-		return !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1500);
+		return !m_Container || !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1500);
 	}
 
 	// ------------------------------------------------------------

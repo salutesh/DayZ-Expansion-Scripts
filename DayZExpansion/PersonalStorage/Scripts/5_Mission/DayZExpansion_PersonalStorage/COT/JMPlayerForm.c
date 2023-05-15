@@ -33,9 +33,9 @@ modded class JMPlayerForm
 		Widget actions = m_Stamina.GetLayoutRoot().GetParent();
 		if (actions)
 		{
-			m_ExpansionEntityStorage = UIActionManager.CreateEditableText(actions, "Entity Storage ID:", this, "Click_RestoreEntityStorageObj", "", "");
+			m_ExpansionEntityStorage = UIActionManager.CreateEditableText(actions, "Storage ID:", this, "Click_RestoreEntityStorageObj", "", "");
 			#ifdef COT_UIACTIONS_SETWIDTH
-			m_ExpansionReputation.SetEditBoxWidth(0.5);
+			m_ExpansionEntityStorage.SetEditBoxWidth(0.5);
 			#endif
 			Widget spacer = UIActionManager.CreatePanel(actions, 0, 1);
 			int sort = spacer.GetSort();

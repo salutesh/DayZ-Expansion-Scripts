@@ -82,7 +82,7 @@ modded class ExpansionPartyData
 		ExpansionQuestModule.GetModuleInstance().AddPlayerGroupID(playerUID, player.GetParty().GetPartyID());
 
 		//! Send the updated persistent quest data to the client.
-		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerBase.GetIdentity());
+		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerQuestData, playerBase.GetIdentity());
 	}
 
 	//! We send all the group quests to the leaving member
@@ -139,7 +139,7 @@ modded class ExpansionPartyData
 		}
 
 		//! Send the updated persistent quest data to the client.
-		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerBase.GetIdentity());
+		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerQuestData, playerBase.GetIdentity());
 	}
 };
 #endif

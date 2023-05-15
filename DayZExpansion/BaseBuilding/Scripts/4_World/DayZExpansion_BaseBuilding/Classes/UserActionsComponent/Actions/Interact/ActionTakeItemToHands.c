@@ -1,5 +1,5 @@
 /**
- * ActionTakeItem.c
+ * ActionTakeItemToHands.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -17,13 +17,6 @@ modded class ActionTakeItemToHands
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
-		//! Disallow taking codelock if it is attached and has code
-		//! to prevent taking it accidentally
-		//! (have to go into inventory and drag from slot to remove)
-		ExpansionCodeLock codelock = ExpansionCodeLock.Cast( target.GetObject() );
-		if ( target.GetParent() && codelock && codelock.HasCode() )
-			return false;
-		
-		return true;
+		return ActionTakeItem.Expansion_TakeItemActionCondition(player, target, item);
 	}
 }

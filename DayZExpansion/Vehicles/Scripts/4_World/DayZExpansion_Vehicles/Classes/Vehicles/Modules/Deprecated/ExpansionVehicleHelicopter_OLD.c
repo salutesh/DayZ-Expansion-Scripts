@@ -1,7 +1,7 @@
-
 class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 {
 	static int HELICOPTER_CONTROLLER_INDEX = 1;
+	const int MAX_CYCLIC_CONTROL_POINTS = 5;
 
 	bool m_Initialized;
 
@@ -17,12 +17,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	float m_CyclicForceCoef;
 
 	// the rotation at which the forward cyclic moves (pitch)
-	float m_CyclicForwardSpeed; // (m/s) change per tick
+	int   m_CyclicForwardControlCount;
+	float m_CyclicForwardControlFluid[MAX_CYCLIC_CONTROL_POINTS];
+	float m_CyclicForwardControlDelta[MAX_CYCLIC_CONTROL_POINTS];
 	float m_CyclicForwardMax;	// (m) per tick
 	float m_CyclicForwardCoef;	// Coefficient for forward cyclic
 
 	// the rotation at which the side cyclic moves (roll)
-	float m_CyclicSideSpeed; // (m/s)
+	int   m_CyclicSideControlCount;
+	float m_CyclicSideControlFluid[MAX_CYCLIC_CONTROL_POINTS];
+	float m_CyclicSideControlDelta[MAX_CYCLIC_CONTROL_POINTS];
 	float m_CyclicSideMax;	 // (m)
 	float m_CyclicSideCoef;	 // Coefficient for side cyclic
 
@@ -56,11 +60,16 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 	float m_Bank;
 
+	float m_Hydraulic = 1.0;
+	float m_HydraulicPrev = -1.0; //! Set to -1 to ensure the coefficients are updated before first simulation
+
 	float m_CyclicForward;
 	float m_CyclicForwardTarget;
+	float m_CyclicForwardHydraulicCoef;
 
 	float m_CyclicSide;
 	float m_CyclicSideTarget;
+	float m_CyclicSideHydraulicCoef;
 
 	float m_AutoHoverAltitude;
 	bool m_AutoHover;
@@ -130,17 +139,31 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_MaxAutoRotateSpeed = heli.m_MaxAutoRotateSpeed;
 		m_BodyFrictionCoef = heli.m_BodyFrictionCoef;
 		m_LiftForceCoef = heli.m_LiftForceCoef;
+
 		m_CyclicForceCoef = heli.m_CyclicForceCoef;
-		m_CyclicForwardSpeed = heli.m_CyclicForwardSpeed;
+
 		m_CyclicForwardMax = heli.m_CyclicForwardMax;
 		m_CyclicForwardCoef = heli.m_CyclicForwardCoef;
-		m_CyclicSideSpeed = heli.m_CyclicSideSpeed;
+		m_CyclicForwardControlCount = 2;
+		m_CyclicForwardControlFluid[0] = 0.0;
+		m_CyclicForwardControlDelta[0] = 0.0;
+		m_CyclicForwardControlFluid[1] = 1.0;
+		m_CyclicForwardControlDelta[1] = heli.m_CyclicForwardSpeed;
+
 		m_CyclicSideMax = heli.m_CyclicSideMax;
 		m_CyclicSideCoef = heli.m_CyclicSideCoef;
+		m_CyclicSideControlCount = 2;
+		m_CyclicSideControlFluid[0] = 0.0;
+		m_CyclicSideControlDelta[0] = 0.0;
+		m_CyclicSideControlFluid[1] = 1.0;
+		m_CyclicSideControlDelta[1] = heli.m_CyclicSideSpeed;
+
 		m_AntiTorqueSpeed = heli.m_AntiTorqueSpeed;
 		m_AntiTorqueMax = heli.m_AntiTorqueMax;
+
 		m_BankForceCoef = heli.m_BankForceCoef;
 		m_TailForceCoef = heli.m_TailForceCoef;
+
 		m_EngineStartDuration = heli.m_EngineStartDuration;
 		m_LinearFrictionCoef = heli.m_LinearFrictionCoef;
 		m_AngularFrictionCoef = heli.m_AngularFrictionCoef;
@@ -159,6 +182,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		m_Initialized = true;
 
 		super.TEMP_DeferredInit();
+
+		array<float> curve();
+		int i;
+		int index;
 
 		string path;
 
@@ -212,7 +239,38 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward speed";
 		if (GetGame().ConfigIsExisting(path))
-			m_CyclicForwardSpeed = GetGame().ConfigGetFloat(path);
+		{
+			m_CyclicForwardControlCount = 2;
+			m_CyclicForwardControlFluid[0] = 0.0;
+			m_CyclicForwardControlDelta[0] = 0.0;
+			m_CyclicForwardControlFluid[1] = 1.0;
+			m_CyclicForwardControlDelta[1] = GetGame().ConfigGetFloat(path);
+		}
+
+		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward hydraulic";
+		if (GetGame().ConfigIsExisting(path))
+		{
+			GetGame().ConfigGetFloatArray(path, curve);
+
+			m_CyclicForwardControlCount = (curve.Count() / 2) + 1;
+
+			if (m_CyclicForwardControlCount > MAX_CYCLIC_CONTROL_POINTS)
+			{
+				Error("Maximum points in 'hydraulic' exceeded. Count is '" + m_CyclicForwardControlCount + "' and maximum is '" + MAX_CYCLIC_CONTROL_POINTS + "'.");
+
+				m_CyclicForwardControlCount = MAX_CYCLIC_CONTROL_POINTS;
+			}
+
+			m_CyclicForwardControlFluid[0] = 0;
+			m_CyclicForwardControlDelta[0] = 0;
+
+			for (i = 1; i < m_CyclicForwardControlCount; i++)
+			{
+				index = (i - 1) * 2;
+				m_CyclicForwardControlFluid[i] = curve[index + 0];
+				m_CyclicForwardControlDelta[i] = curve[index + 1];
+			}
+		}
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Forward max";
 		if (GetGame().ConfigIsExisting(path))
@@ -228,7 +286,38 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side speed";
 		if (GetGame().ConfigIsExisting(path))
-			m_CyclicSideSpeed = GetGame().ConfigGetFloat(path);
+		{
+			m_CyclicSideControlCount = 2;
+			m_CyclicSideControlFluid[0] = 0.0;
+			m_CyclicSideControlDelta[0] = 0.0;
+			m_CyclicSideControlFluid[1] = 1.0;
+			m_CyclicSideControlDelta[1] = GetGame().ConfigGetFloat(path);
+		}
+
+		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side hydraulic";
+		if (GetGame().ConfigIsExisting(path))
+		{
+			GetGame().ConfigGetFloatArray(path, curve);
+
+			m_CyclicSideControlCount = (curve.Count() / 2) + 1;
+
+			if (m_CyclicSideControlCount > MAX_CYCLIC_CONTROL_POINTS)
+			{
+				Error("Maximum points in 'hydraulic' exceeded. Count is '" + m_CyclicSideControlCount + "' and maximum is '" + MAX_CYCLIC_CONTROL_POINTS + "'.");
+
+				m_CyclicSideControlCount = MAX_CYCLIC_CONTROL_POINTS;
+			}
+
+			m_CyclicSideControlFluid[0] = 0;
+			m_CyclicSideControlDelta[0] = 0;
+
+			for (i = 1; i < m_CyclicSideControlCount; i++)
+			{
+				index = (i - 1) * 2;
+				m_CyclicSideControlFluid[i] = curve[index + 0];
+				m_CyclicSideControlDelta[i] = curve[index + 1];
+			}
+		}
 
 		path = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Cyclic Side max";
 		if (GetGame().ConfigIsExisting(path))
@@ -490,6 +579,20 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		}
 	}
 
+	static float LookUp(float value, int num, float inVals[], float outVals[])
+	{
+		for (int i = 0; i < num - 1; i++)
+		{
+			if (inVals[i] < value && value <= inVals[i + 1])
+			{
+				float delta = (value - inVals[i]) / (inVals[i + 1] - inVals[i]);
+				return Math.Lerp(outVals[i], outVals[i + 1], delta);
+			}
+		}
+
+		return 0;
+	}
+
 	override void Simulate(ExpansionPhysicsState pState)
 	{
 		if (!m_Initialized)
@@ -538,7 +641,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				m_BackRotorSpeedTarget = Math.RandomFloatInclusive(-1, 1);
 
 				m_CyclicSideTarget = Math.RandomFloatInclusive(-1, 1);
-				m_CyclicForwardSpeed = Math.RandomFloatInclusive(-1, 1);
+				m_CyclicForwardTarget = Math.RandomFloatInclusive(-1, 1);
 			}
 			else if (IsAutoHover())
 			{
@@ -641,12 +744,25 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			return;
 		}
 
+		//! TODO: Do something like the commented code below
+		// m_Hydraulic = m_Vehicle.GetCarFluid(CarFluid.HYDRALUIC);  
+
+		//! Don't be super responsive with the updating - better for performance like this and there is little use to looking up EVERY simulation step
+		if (m_Hydraulic != m_HydraulicPrev)
+		{
+			m_Hydraulic = Math.Clamp(m_Hydraulic, 0.0, 1.0);
+			m_HydraulicPrev = m_Hydraulic;
+
+			m_CyclicForwardHydraulicCoef	= LookUp(m_Hydraulic, m_CyclicForwardControlCount, m_CyclicForwardControlFluid, m_CyclicForwardControlDelta);
+			m_CyclicSideHydraulicCoef		= LookUp(m_Hydraulic, m_CyclicForwardControlCount, m_CyclicForwardControlFluid, m_CyclicForwardControlDelta);
+		}
+
 		if (pState.m_LinearVelocityMS.Length() > 0.05 || m_RotorSpeed != 0)
 		{
-			change = Math.Clamp(Math.Clamp(m_CyclicForwardTarget, -2, 2) - m_CyclicForward, -m_CyclicForwardSpeed * pDt, m_CyclicForwardSpeed * pDt);
+			change = Math.Clamp(Math.Clamp(m_CyclicForwardTarget, -2, 2) - m_CyclicForward, -m_CyclicForwardHydraulicCoef * pDt, m_CyclicForwardHydraulicCoef * pDt);
 			m_CyclicForward = Math.Clamp(m_CyclicForward + change, -m_CyclicForwardMax, m_CyclicForwardMax);
 
-			change = Math.Clamp(Math.Clamp(m_CyclicSideTarget, -2, 2) - m_CyclicSide, -m_CyclicSideSpeed * pDt, m_CyclicSideSpeed * pDt);
+			change = Math.Clamp(Math.Clamp(m_CyclicSideTarget, -2, 2) - m_CyclicSide, -m_CyclicSideHydraulicCoef * pDt, m_CyclicSideHydraulicCoef * pDt);
 			m_CyclicSide = Math.Clamp(m_CyclicSide + change, -m_CyclicSideMax, m_CyclicSideMax);
 
 			// collective
@@ -1018,7 +1134,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		instance.Add("Back Rotor Speed Target", m_BackRotorSpeedTarget);
 
 		instance.Add("Cyclic Forward", m_CyclicForward);
-		instance.Add("Cyclic Forward Target", m_CyclicForwardSpeed);
+		instance.Add("Cyclic Forward Target", m_CyclicForwardTarget);
 
 		instance.Add("Cyclic Side", m_CyclicSide);
 		instance.Add("Cyclic Side Target", m_CyclicSideTarget);

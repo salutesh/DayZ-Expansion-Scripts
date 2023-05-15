@@ -498,7 +498,11 @@ class ExpansionAirdropPlane: House
 		vector dropPosition = Vector( m_AirdropPosition[0], GetPosition()[1] - 10.0, m_AirdropPosition[2] );
 	
 		// ExpansionNotification( new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_TITLE" ), new StringLocaliser( "STR_EXPANSION_AIRDROP_SYSTEM_EVENT_DROP", m_AirdropName ), EXPANSION_NOTIFICATION_ICON_AIRDROP, COLOR_EXPANSION_NOTIFICATION_EXPANSION).Create();
-		Object obj = GetGame().CreateObjectEx( container, dropPosition, ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH|ECE_AIRBORNE );
+		int flags = ECE_CREATEPHYSICS | ECE_AIRBORNE | ECE_NOLIFETIME;
+		#ifndef DAYZ_1_20
+		flags |= ECE_DYNAMIC_PERSISTENCY;
+		#endif
+		Object obj = GetGame().CreateObjectEx(container, dropPosition, flags);
 
 		#ifdef DIAG
 		GetGame().CreateObjectEx("ExpansionDebugRodBig", ExpansionStatic.GetSurfacePosition(dropPosition), ECE_NOLIFETIME);
