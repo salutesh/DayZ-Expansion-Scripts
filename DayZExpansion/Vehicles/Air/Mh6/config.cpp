@@ -357,14 +357,14 @@ class CfgVehicles
 				forceCoefficient = 1.3;
 				class Forward
 				{
-					speed = 10.0;
+					hydraulic[] = {0.0,0.0,0.3,8.0,1.0,10.0};
 					max = 0.7;
 					coefficient = 1.0;
 					animation = "cyclicForward";
 				};
 				class Side
 				{
-					speed = 10.0;
+					hydraulic[] = {0.0,0.0,0.3,8.0,1.0,10.0};
 					max = 0.7;
 					coefficient = 1.0;
 					animation = "cyclicAside";

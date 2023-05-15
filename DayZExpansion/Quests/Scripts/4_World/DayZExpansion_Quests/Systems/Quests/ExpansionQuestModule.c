@@ -448,6 +448,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
+		bool sendConfigs;
+
 		string playerUID = identity.GetId();
 		ExpansionQuestPersistentData questPlayerData = GetPlayerQuestDataByUID(playerUID);
 		if (!questPlayerData)
@@ -463,20 +465,26 @@ class ExpansionQuestModule: CF_ModuleWorld
 			{
 				GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - InitQuestSystemClient - Created new persistent player quest data for player UID: " + playerUID);
 			}
+
+			sendConfigs = true;
 		}
 		else
 		{
 			GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - InitQuestSystemClient - Got cached player quest data for player with UID: " + playerUID);
+
+			sendConfigs = false;
 		}
 
-		InitClientQuests(questPlayerData, identity);
+		questPlayerData.m_SynchDirty = true;
+
+		InitClientQuests(questPlayerData, identity, sendConfigs);
 	}
 
 	//! Server
 	//! Handles reinitialisation of quests for a player from persistent data
 	//! We need to get and handle the persistent quest progress and objective data of the player
 	//! so the progress of the quest objectives contiues and no quest progress is lost.
-	protected void InitClientQuests(ExpansionQuestPersistentData playerData, PlayerIdentity identity)
+	protected void InitClientQuests(ExpansionQuestPersistentData playerData, PlayerIdentity identity, bool sendConfigs = true)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -528,7 +536,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		playerData.Save(playerUID);
 
 		//! Send all valid quest configurations and the players persistent quest data to the client.
-		SendClientQuestData(identity, true);
+		SendClientQuestData(playerData, identity, sendConfigs);
 
 		//! Call AfterClientInit method. Can be used to hook into the quest module and call events after client initalisation.
 		AfterClientInit(playerData, identity);
@@ -895,10 +903,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		int i;
 
-		if (!m_QuestClientConfigs)
-			m_QuestClientConfigs = new array<ref ExpansionQuestConfig>;
-		else
-			m_QuestClientConfigs.Clear();
+		m_QuestClientConfigs.Clear();
 
 		int questCount;
 		if (!ctx.Read(questCount))
@@ -925,7 +930,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 	//! Server
 	//! Called to send the persistent quest data from the server to the given client.
-	void SendClientQuestData(PlayerIdentity identity, bool sendConfigs = false)
+	void SendClientQuestData(ExpansionQuestPersistentData questPlayerData, PlayerIdentity identity, bool sendConfigs = false)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -955,7 +960,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Get existing player quest data if there is a exiting one in m_PlayerDatas
 		string playerUID = identity.GetId();
-		ExpansionQuestPersistentData questPlayerData = GetPlayerQuestDataByUID(playerUID);
 		bool sendData = questPlayerData && questPlayerData.m_SynchDirty;
 		if (sendData)
 		{
@@ -3251,7 +3255,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		//! Send persistent quest player data from the server to the client.
-		SendClientQuestData(player.GetIdentity());
+		SendClientQuestData(questData, player.GetIdentity());
 	}
 
 	//! Server

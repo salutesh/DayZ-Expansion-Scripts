@@ -17,13 +17,18 @@ modded class ActionTakeItem
 		if ( !super.ActionCondition( player, target, item ) )
 			return false;
 
+		return Expansion_TakeItemActionCondition(player, target, item);
+	}
+
+	static bool Expansion_TakeItemActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
+	{
 		//! Disallow taking codelock if it is attached and has code
 		//! to prevent taking it accidentally
 		//! (have to go into inventory and drag from slot to remove)
 		ExpansionCodeLock codelock = ExpansionCodeLock.Cast( target.GetObject() );
 		if ( target.GetParent() && codelock && codelock.HasCode() )
 			return false;
-		
+
 		return true;
 	}
 }

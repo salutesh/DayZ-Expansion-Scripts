@@ -236,7 +236,7 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		//! Check if a player is nearby any container in a 1000 meter radius
 		foreach (auto container: m_Containers)
 		{
-			if (ExpansionLootSpawner.IsPlayerNearby(container, 1000))
+			if (container && ExpansionLootSpawner.IsPlayerNearby(container, 1000))
 				return false;
 		}
 
