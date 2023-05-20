@@ -35,7 +35,7 @@ class ExpansionNetsyncData
 			m_Data[index] = value;
 		else
 			m_Data.Insert(value);
-		EXTrace.Print(EXTrace.ENABLE, m_Object, "Set netsync data " + index + " '" + m_Data[index] + "'");
+		EXTrace.Print(EXTrace.MISC, m_Object, "Set netsync data " + index + " '" + m_Data[index] + "'");
 	}
 
 	bool Get(int index, out string output)
@@ -56,7 +56,7 @@ class ExpansionNetsyncData
 	//! Request name override from server
 	void Request()
 	{
-		EXTrace.Print(EXTrace.ENABLE, m_Object, "Requesting netsync data");
+		EXTrace.Print(EXTrace.MISC, m_Object, "Requesting netsync data");
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Send(m_Object, ExpansionEntityRPC.NetsyncData, true, null);
 	}
@@ -67,7 +67,7 @@ class ExpansionNetsyncData
 		if (!m_Data || !m_Data.Count())
 			return;
 
-		EXTrace.Print(EXTrace.ENABLE, m_Object, "Sending " + m_Data.Count() + " netsync data entries to " + recipient.GetId());
+		EXTrace.Print(EXTrace.MISC, m_Object, "Sending " + m_Data.Count() + " netsync data entries to " + recipient.GetId());
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(m_Data.Count());
@@ -95,7 +95,7 @@ class ExpansionNetsyncData
 		if (SI_Receive)
 			SI_Receive.Invoke();
 
-		EXTrace.Print(EXTrace.ENABLE, m_Object, "Received " + m_Data.Count() + " netsync data entries");
+		EXTrace.Print(EXTrace.MISC, m_Object, "Received " + m_Data.Count() + " netsync data entries");
 	}
 
 	void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)

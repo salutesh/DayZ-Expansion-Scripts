@@ -262,7 +262,7 @@ class ExpansionMath
 	 */
 	static TVectorArray PathInterpolated(TVectorArray path, ECurveType curveType = ECurveType.CatmullRom, bool smooth = true)
 	{
-		auto trace = EXTrace.Start(EXTrace.PATH_INTERPOLATION);
+		auto trace = EXTrace.Start(EXTrace.PATH_INTERPOLATION, ExpansionMath);
 
 		if (path.Count() < 3)
 			return path;

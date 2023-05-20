@@ -3704,8 +3704,10 @@ class ExpansionVehicleBase: ItemBase
 
 		ctx.Write(m_Exploded);
 
+		#ifdef SERVER
 		if (!m_Expansion_GlobalID.m_IsSet)
 			m_Expansion_GlobalID.Acquire();
+		#endif
 
 		m_Expansion_GlobalID.OnStoreSave(ctx);
 	}

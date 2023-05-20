@@ -27,8 +27,6 @@ class Expansion_Teleporter_Base: BuildingSuper
 
 	void Expansion_Teleporter_Base()
 	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
 		if (IsMissionHost())
 			SetAllowDamage(false);
 		
@@ -43,8 +41,6 @@ class Expansion_Teleporter_Base: BuildingSuper
 	
 	void ~Expansion_Teleporter_Base()
 	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
 	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 		if (!m_ServerMarker)
@@ -201,15 +197,8 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	
 	void Expansion_Teleporter_Big()
 	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-
 		RegisterNetSyncVariableInt("m_TeleporterState", 0, 3);
 		RegisterNetSyncVariableInt("m_PrevTeleporterState", 0, 3);
-	}
-	
-	void ~Expansion_Teleporter_Big()
-	{
-		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 	}
 	
 	override void SetActive(bool state)

@@ -59,8 +59,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void Expansion_AnomalyCore_Base()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
 		m_Expansion_AnomalyCoreNode = s_Expansion_AllAnomalyCores.Add(this);
 
 		SetParticleExplosion(ParticleList.RGD5);
@@ -83,8 +81,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void ~Expansion_AnomalyCore_Base()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
 		CleanupAnomalyCore();
 	}
 
@@ -260,7 +256,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	override void OnCEUpdate()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
 
 		super.OnCEUpdate();
 	}
@@ -326,23 +322,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		super.OnWasAttached(parent, slot_id);
-	}
-
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnStoreSave(ctx);
-	}
-
-	override bool OnStoreLoad(ParamsReadContext ctx, int version)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!super.OnStoreLoad(ctx, version))
-			return false;
-
-		return true;
 	}
 
 	//! ------------------------------------------------------------------------------------------------------

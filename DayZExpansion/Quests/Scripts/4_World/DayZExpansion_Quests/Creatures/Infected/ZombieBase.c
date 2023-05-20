@@ -16,7 +16,7 @@ modded class ZombieBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, ZombieBase);
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
@@ -36,7 +36,7 @@ modded class ZombieBase
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, ZombieBase);
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)

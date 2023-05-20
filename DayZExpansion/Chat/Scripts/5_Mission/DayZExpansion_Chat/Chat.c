@@ -23,7 +23,7 @@ modded class Chat
 
 	override void Init(Widget root_widget)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_RootWidget = root_widget;
 

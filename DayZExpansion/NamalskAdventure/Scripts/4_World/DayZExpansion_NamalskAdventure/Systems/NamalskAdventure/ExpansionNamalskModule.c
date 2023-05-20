@@ -1191,7 +1191,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected void OnSupplyCrateCheck(Expansion_SupplyCrate_Base supplyCrate)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
 			
 		if (supplyCrate.HasLootDelay() && !supplyCrate.IsCrateOpened())
 		{
@@ -1216,7 +1216,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
 	protected void OnBunkerGeneratorCheck(Expansion_Bunker_Generator generator)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
 			
 		if (generator.IsActive())
 		{
@@ -1257,7 +1257,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	void OnEVRStormFinalBlowoutInfected(ZombieBase infected)
     {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		//! Gamble if infected gets killed by EVR Storm blowout or not
 		int gamble = Math.RandomIntInclusive(0, 2);

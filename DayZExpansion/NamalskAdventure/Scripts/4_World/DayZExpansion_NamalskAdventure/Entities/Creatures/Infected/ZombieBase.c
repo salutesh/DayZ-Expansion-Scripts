@@ -17,15 +17,11 @@ modded class ZombieBase
 
 	void ZombieBase()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
 		m_Expansion_InfectedNode = s_Expansion_AllInfected.Add(this);
 	}
 
 	void ~ZombieBase()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
 		if (s_Expansion_AllInfected)
 			s_Expansion_AllInfected.Remove(m_Expansion_InfectedNode);
 	}

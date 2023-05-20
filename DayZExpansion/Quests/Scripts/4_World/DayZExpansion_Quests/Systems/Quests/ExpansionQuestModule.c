@@ -83,9 +83,9 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		s_ModuleInstance = this;
 
-		m_QuestsNPCs = new map<int, ref ExpansionQuestNPCData>; //! Server & Client
-		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server & Client
-		m_PlayerDatas = new map<string, ref ExpansionQuestPersistentData>; //! Server & Client
+		m_QuestsNPCs = new map<int, ref ExpansionQuestNPCData>; //! Server
+		m_QuestConfigs = new map<int, ref ExpansionQuestConfig>; //! Server
+		m_PlayerDatas = new map<string, ref ExpansionQuestPersistentData>; //! Server
 
 	#ifdef EXPANSIONMODGROUPS
 		m_PlayerGroups = new map<string, ref array<int>>; //! Server & Client
@@ -401,8 +401,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
 
-		//! [Server] Player disconnects and we look for any existing ExpansionQuestPersistentData of the player with his UID.
-		//! If we find existing data we sync that data from the players client to the server and save it for the next session.
 		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetQuest().EnableQuests)
 			CleanupPlayerQuests(cArgs.UID);
 	}
@@ -861,14 +859,15 @@ class ExpansionQuestModule: CF_ModuleWorld
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();
-		SendClientQuestConfigs(rpc);
+		SendClientQuestConfigs(rpc, playerUID);
 
 		rpc.Send(NULL, ExpansionQuestModuleRPC.SendClientQuestConfigs, true, identity);
 	}
 
-	void SendClientQuestConfigs(ScriptRPC rpc)
+	void SendClientQuestConfigs(ScriptRPC rpc, string playerUID)
 	{
 		int questCount = m_QuestConfigs.Count();
+		EXPrint(this, "Sending " + questCount + " quest configs to client for UID: " + playerUID);
 		rpc.Write(questCount);
 		foreach (ExpansionQuestConfig questConfig: m_QuestConfigs)
 		{
@@ -925,6 +924,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 			m_QuestClientConfigs.Insert(questConfig);
 		}
 
+		if (m_QuestClientConfigs.Count())
+			EXPrint(this, "Received " + m_QuestClientConfigs.Count() + " quest configs");
+		else
+			EXPrint(this, "WARNING: Received zero quest configs!");
+
 		return true;
 	}
 
@@ -954,27 +958,33 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto rpc = ExpansionScriptRPC.Create();
 
+		string playerUID = identity.GetId();
 		rpc.Write(sendConfigs);
 		if (sendConfigs)
-			SendClientQuestConfigs(rpc);
+		{
+			SendClientQuestConfigs(rpc, playerUID);
+		}
+		else
+		{
+			EXPrint(this, "Quest configs already synched for UID: " + playerUID);
+		}
 
-		//! Get existing player quest data if there is a exiting one in m_PlayerDatas
-		string playerUID = identity.GetId();
-		bool sendData = questPlayerData && questPlayerData.m_SynchDirty;
+		bool sendData = questPlayerData.m_SynchDirty;
 		if (sendData)
 		{
-			QuestModulePrint("Send player quest data to client for UID: " + playerUID);
+			EXPrint(this, "Sending player quest data for " + questPlayerData.QuestDatas.Count() + " quests to client for UID: " + playerUID);
 			questPlayerData.OnWrite(rpc);
 		}
 		else if (sendConfigs)
 		{
+			EXPrint(this, "Quest data already synched for UID: " + playerUID);
 			rpc.Write(0);
 		}
 
 		if (sendConfigs || sendData)
 			rpc.Send(NULL, ExpansionQuestModuleRPC.SendClientQuestData, true, identity);
 		else
-			QuestModulePrint("SKIPPING SendClientQuestData (not sending configs, no data or already synched)");
+			EXPrint(this, "Quest configs and data already synched for UID: " + playerUID);
 	}
 
 	//! Client
@@ -998,8 +1008,18 @@ class ExpansionQuestModule: CF_ModuleWorld
 			return;
 		}
 
-		if (includeConfigs && !RPC_SendClientQuestConfigs(ctx))
-			return;
+		if (includeConfigs)
+		{
+			if (!RPC_SendClientQuestConfigs(ctx))
+				return;
+		}
+		else
+		{
+			if (m_QuestClientConfigs.Count())
+				EXPrint(this, "Quest configs already received (" + m_QuestClientConfigs.Count() + ")");
+			else
+				EXPrint(this, "WARNING: No quest configs!");
+		}
 
 		ExpansionQuestPersistentData data = new ExpansionQuestPersistentData();
 		if (!data.OnRead(ctx))
@@ -1010,6 +1030,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		m_ClientQuestData = data;
 		m_ClientQuestData.QuestDebug();
+
+		EXPrint(this, "Received quest data for " + m_ClientQuestData.QuestDatas.Count() + " quests");
 		
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Exec_DeferredSendClientQuestData, 1000);
 	}

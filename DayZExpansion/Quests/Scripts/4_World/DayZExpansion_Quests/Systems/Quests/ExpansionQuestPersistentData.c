@@ -25,7 +25,15 @@ class ExpansionQuestPersistentData
 
 	void ExpansionQuestPersistentData()
 	{
-		QuestDatas = new array<ref ExpansionQuestPersistentQuestData>
+		QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
+	}
+
+	void ~ExpansionQuestPersistentData()
+	{
+		if (QuestDatas)
+			EXPrint(this, "~ExpansionQuestPersistentData (" + QuestDatas.Count() + ")");
+		else
+			EXPrint(this, "~ExpansionQuestPersistentData");
 	}
 
 	void AddQuestData(int questID, ExpansionQuestState state)
@@ -293,6 +301,10 @@ class ExpansionQuestPersistentData
 			OnWrite(file, false);
 			file.Close();
 		}
+		else
+		{
+			Error("Could not open " + EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin" + " for writing!");
+		}
 	}
 
 	protected bool DataCheck()
@@ -308,7 +320,7 @@ class ExpansionQuestPersistentData
 				ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
 				if (!questConfig)
 				{
-					QuestDebugPrint("Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+					EXPrint(this, "ERROR: Could not get quest config for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 					continue;
@@ -320,12 +332,14 @@ class ExpansionQuestPersistentData
 					ExpansionQuestObjectiveData questObjectiveData = data.QuestObjectives[o];
 					ExpansionQuestObjectiveConfigBase questObjectiveConfig = questConfig.GetObjectives()[o];
 	
+				#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
 					if (questObjectiveData && questObjectiveConfig)
 						QuestDebugPrint("Check objective with index: " + o + " | Objective Config Type: " + questObjectiveData.GetObjectiveType() + " | Objective Data Type: " + questObjectiveConfig.GetObjectiveType() + " | Quest ID: " + data.QuestID);
+				#endif
 					
 					if (!questObjectiveConfig)
 					{
-						QuestDebugPrint("Could not get quest objective config!");
+						EXPrint(this, "ERROR: Could not get quest objective config!");
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -334,7 +348,7 @@ class ExpansionQuestPersistentData
 					
 					if (questObjectiveData && questObjectiveConfig && questObjectiveData.GetObjectiveType() != questObjectiveConfig.GetObjectiveType())
 					{
-						QuestDebugPrint("Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
+						EXPrint(this, "ERROR: Quest objectives type missmatch for quest ID: " + data.QuestID + ". Removed data for this quest! File: " + FileName);
 						RemoveQuestDataByQuestID(questID);
 						changed = true;
 						removedQuestData = true;
@@ -367,7 +381,7 @@ class ExpansionQuestPersistentData
 					if (questConfig.IsRepeatable() || !questConfig.IsRepeatable())
 						continue;
 	
-					QuestDebugPrint("Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
+					EXPrint(this, "Cleanup quest data for quest with ID:" + data.QuestID + " | State: " + data.State + " | File: " + FileName);
 					RemoveQuestDataByQuestID(questID);
 					changed = true;
 				}
@@ -457,7 +471,10 @@ class ExpansionQuestPersistentData
 
 		int dataCount;
 		if (!ctx.Read(dataCount))
+		{
+			Error(ToString() + "::OnRead - couldn't read persistent quest data count!");
 			return false;
+		}
 
 		EXTrace.Add(trace, "Count: " + dataCount);
 
@@ -466,7 +483,7 @@ class ExpansionQuestPersistentData
 			ExpansionQuestPersistentQuestData data = new ExpansionQuestPersistentQuestData();
 			if (!data.OnRead(ctx))
 			{
-				Error(ToString() + "::OnRead - ExpansionQuestPersistentQuestData");
+				Error(ToString() + "::OnRead - couldn't read persistent quest data!");
 				return false;
 			}
 

@@ -45,7 +45,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	
 	override void OnInit()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		super.OnInit();
 		
@@ -78,7 +78,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		super.OnRPC(sender, args);
 
@@ -115,7 +115,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void StartSpawnSelection(PlayerBase player, PlayerIdentity identity)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 	
 		if (!IsMissionHost())
 			return;
@@ -164,7 +164,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void CheckResumeSpawnSelection(PlayerBase player, PlayerIdentity identity)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!player)
 			return;
@@ -192,7 +192,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_ShowSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -248,7 +248,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		//! Game is ready to show menu
 
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		ExpansionSpawnSelectionMenu spawnSelectionMenu = ExpansionSpawnSelectionMenu.Cast(GetDayZExpansion().GetExpansionUIManager().CreateSVMenu("ExpansionSpawnSelectionMenu"));
 		//! In case spawn select menu could not be created, player will stay at original position and spawn select won't show
@@ -282,7 +282,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	array<ref ExpansionSpawnLocation> GetTerritoryList(string playerUID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		array<ref ExpansionSpawnLocation> SpawnLocations = new array<ref ExpansionSpawnLocation>;
 
@@ -331,7 +331,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void RequestPlacePlayerAtTempSafePosition()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		//! FIXME (or not): Moving the player causes desync. Just skip it for now.
 		return;
@@ -346,7 +346,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SelectSpawn(int index, int spawnPointIndex, bool isTerritory, bool useCooldown)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		m_SpawnSelected = true;
 		
@@ -365,7 +365,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	//! Return true if point index already had a cooldown (that hasn't expired), false otherwise.
 	bool ProcessCooldown(PlayerIdentity sender, int index, bool isTerritory, bool useCooldown, bool addCooldown = true)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		bool hasCooldown = false;
 
@@ -412,7 +412,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_SelectSpawn(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -440,7 +440,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_SelectSpawn(PlayerIdentity sender, int pointIndex, int spawnPointIndex)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		string playerUID = sender.GetId();
 
@@ -511,7 +511,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void EndSpawnSelection(PlayerBase player, ExpansionPlayerState state)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if ( !IsMissionHost() )
 			return;
@@ -549,7 +549,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	
 	void ResetItemWetness(EntityAI parent)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(parent.GetInventory().CountInventory());
@@ -569,7 +569,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_CloseSpawnMenu(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -587,7 +587,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void Exec_CloseSpawnMenu()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if ( !IsMissionClient() )
 			return;
@@ -604,7 +604,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void SetExpansionStartingGear(PlayerBase player)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!IsMissionHost())
 			return;
@@ -751,7 +751,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void ExpansionEquipCharacter(PlayerBase player)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if ( !IsMissionHost() )
 			return;
@@ -814,7 +814,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		super.OnMissionStart(sender, args);
 
@@ -851,7 +851,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	override void OnMissionFinish(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		super.OnMissionFinish(sender, args);
 
@@ -867,7 +867,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void Save()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		FileSerializer file = new FileSerializer;
 		if (file.Open(s_FileName, FileMode.WRITE))
@@ -889,7 +889,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 	void SaveCooldowns(string playerUID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		string cooldownsFile = s_CooldownsFolder + playerUID + ".bin";
 
@@ -922,7 +922,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void Load()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!FileExist(s_FileName))
 			return;
@@ -955,7 +955,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void AddCooldown(string playerUID, int index, bool isTerritory)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 		
 		bool hasCooldownEntry = false;
 		//! Check if player has a exiting cooldown entry for this spawn point index
@@ -1022,7 +1022,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	void RespawnCountdownCheck(string playerUID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 			return;
@@ -1087,7 +1087,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_CheckPlayerCooldowns(PlayerIdentity sender, ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
             return;
@@ -1132,7 +1132,7 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN);
+		auto trace = EXTrace.Start(ExpansionTracing.RESPAWN, this);
 
 		super.OnInvokeConnect(sender, args);
 

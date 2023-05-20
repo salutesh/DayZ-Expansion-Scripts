@@ -402,13 +402,13 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if (player.GetSingleAgentCount(eAgents.CHEMICAL_POISON) >= ContaminationStage2Mdfr.AGENT_THRESHOLD_ACTIVATE)
 		{
-			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Gas Mask", "#STR_EXPANSION_CHEMICAL_POISON"))
+			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Gas Mask", "STR_EXPANSION_CHEMICAL_POISON"))
 				return true;
 		}
 
 		if (player.GetSingleAgentCount(eAgents.WOUND_AGENT) >= WoundInfectStage2Mdfr.AGENT_THRESHOLD_ACTIVATE)
 		{
-			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Drip", "#STR_EXPANSION_WOUND_INFECTION"))
+			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Drip", "STR_EXPANSION_WOUND_INFECTION"))
 				return true;
 		}
 
@@ -416,7 +416,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		{
 			if (player.GetModifiersManager().IsModifierActive(eModifiers.MDF_HEMOLYTIC_REACTION))
 			{
-				if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Drip", "#STR_EXPANSION_HEMOLYTIC_REACTION"))
+				if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Drip", "STR_EXPANSION_HEMOLYTIC_REACTION"))
 					return true;
 			}
 
@@ -426,19 +426,19 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if (player.GetSingleAgentCountNormalized(eAgents.CHOLERA) >= 0.7)
 		{
-			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Human Skull", "#STR_EXPANSION_CHOLERA"))
+			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Human Skull", "STR_EXPANSION_CHOLERA"))
 				return true;
 		}
 
 		if (player.GetSingleAgentCountNormalized(eAgents.FOOD_POISON) >= 0.7)
 		{
-			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Human Skull", "#STR_EXPANSION_FOOD_POISON"))
+			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Human Skull", "STR_EXPANSION_FOOD_POISON"))
 				return true;
 		}
 
 		if (player.GetSingleAgentCountNormalized(eAgents.SALMONELLA) >= 0.7)
 		{
-			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Human Skull", "#STR_EXPANSION_SALMONELLA"))
+			if (DoKillfeed(ExpansionKillFeedMessageType.STATUSEFFECT, "Human Skull", "STR_EXPANSION_SALMONELLA"))
 				return true;
 		}
 
@@ -1020,10 +1020,10 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		string displayName4 = ExpansionStatic.GetItemDisplayNameWithType(kill_data.FeedParam4);
 
 		auto loc = new StringLocaliser(kill_data.Message);
-		loc.Set(0, displayName1, displayName1 != kill_data.FeedParam1);
-		loc.Set(1, displayName2, displayName2 != kill_data.FeedParam2);
-		loc.Set(2, displayName3, displayName3 != kill_data.FeedParam3);
-		loc.Set(3, displayName4, displayName4 != kill_data.FeedParam4);
+		loc.Set(0, displayName1);
+		loc.Set(1, displayName2);
+		loc.Set(2, displayName3);
+		loc.Set(3, displayName4);
 
 		return loc;
 	}

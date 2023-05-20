@@ -494,7 +494,7 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 
 	static ExpansionQuestConfig Load(string fileName)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, ExpansionQuestConfig);
 
 		bool save;
 		EXTrace.Print(EXTrace.QUESTS, null, "Load existing configuration file:" + fileName);

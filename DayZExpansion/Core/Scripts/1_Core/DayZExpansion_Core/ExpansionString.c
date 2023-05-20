@@ -14,8 +14,6 @@ class ExpansionString
 {
 	const string ZERO_WIDTH_SPACE = "​"; //! This may look like an empty string, but it is not. It's a zero-width space as UTF-8;
 
-	static ref map<string, int> s_ToAscii = new map<string, int>;
-
 	protected string m_String;
 
 	void ExpansionString(string str)
@@ -168,29 +166,49 @@ class ExpansionString
 		return lastIdx;
 	}
 
-	//! Reimplement ToAscii (vanilla string.ToAscii is broken...)
-	int ToAscii()
+	string JustifyLeft(int length, string pad)
 	{
-		return ToAscii(m_String[0]);
+		return JustifyLeft(m_String, length, pad);
 	}
 
-	static int ToAscii(string character)
+	static string JustifyLeft(string str, int length, string pad)
 	{
-		if (!character)
+		length = length - str.Length();
+
+		for (int index = 0; index < length; index++)
 		{
-			Error("Expected a character, but got a string of length 0");
-			return "nan".ToInt();
+			str += pad;
 		}
 
-		if (!s_ToAscii.Count())
+		return str;
+	}
+
+	string JustifyRight(int length, string pad)
+	{
+		return JustifyRight(m_String, length, pad);
+	}
+
+	static string JustifyRight(string str, int length, string pad)
+	{
+		length = length - str.Length();
+
+		for (int index = 0; index < length; index++)
 		{
-			for (int i = 0; i < 256; i++)
-			{
-				s_ToAscii.Insert(i.AsciiToString(), i);
-			}
+			str = pad + str;
 		}
 
-		return s_ToAscii.Get(character[0]);
+		return str;
+	}
+
+	//! Reimplement ToAscii (vanilla string.ToAscii is broken...)
+	int ToAscii(int index = 0)
+	{
+		return m_String[index].Hash();
+	}
+
+	static int ToAscii(string str, int index = 0)
+	{
+		return str[index].Hash();
 	}
 
 	/**

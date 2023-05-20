@@ -14,142 +14,197 @@
  * Call tracing that can be enabled on a per-ID basis.
  * Insert in each method at the top one of the following:
  *
- * auto trace = EXTrace.Start(EXTrace.<ID>);  //! Includes only 1st line of stack
- * auto trace = EXTrace.StartStack(EXTrace.<ID>);  //! Includes whole stack
- * auto trace = EXTrace.Start0(EXTrace.<ID>);  //! Excludes stack
+ * auto trace = EXTrace.Start(EXTrace.<ID>, <instance|typename|null>);  //! Includes only 1st line of stack
+ * auto trace = EXTrace.StartStack(EXTrace.<ID>, <instance|typename|null>);  //! Includes whole stack
+ * auto trace = EXTrace.Start0(EXTrace.<ID>, <instance|typename|null>);  //! Excludes stack
  *
  * Calling trace.Dump(<int> depth) will output the current stack with the desired depth (this happens automatically when the trace is destroyed).
  * Leave out the depth parameter to use default depth.
  * You can also change the default depth on-the-fly by calling trace.SetDepth(<int> depth).
  *
  * static bool EXTrace.<ID> needs to exist in Core\DayZExpansion_Core\3_Game\ExpansionTracing.c
- * and be set to ENABLE (will enable if DayZDiag or DayZ Experimental) or uncomment global define EXPANSIONTRACE in DayZExpansion_Core_Defines.c
+ * and be set to return value of IsEnabled() (will enable if DayZDiag, DayZ Experimental or CLI param `extrace` is set to true)
+ * or uncomment global define EXPANSIONTRACE in DayZExpansion_Core_Defines.c
  * DON'T use without wrapping in ifdef EXPANSIONTRACE ... #endif in OnUpdate or anywhere else it would get called rapidly!
  */
 class EXTrace
 {
-	//! Please keep these at the top and use below instead of true to enable tracing when using DayZDiag or DayZ Experimental
-#ifdef DIAG
-	static bool ENABLE = true;
-#else
-	#ifdef BUILD_EXPERIMENTAL
-		static bool ENABLE = true;
-	#else
-		static bool ENABLE = false;
-	#endif
-#endif
-
-	//! -----------------------------------------------------------------------
-
 	//! Please keep these alphabetically ordered when inserting new variables
 
-	static bool AI = ENABLE;
+	static bool AI = IsEnabled();
 
-	static bool BASEBUILDING = ENABLE;
+	static bool BASEBUILDING = IsEnabled();
 
 	static bool BOOK;
 
 	static bool CE;
 
-	static bool CHAT = ENABLE;
+	static bool CHAT = IsEnabled();
 
 	static bool CHICKEN;
 
-	static bool COT_GROUPS = ENABLE;
+	static bool COT_GROUPS = IsEnabled();
 
-	static bool DATACOLLECTION = ENABLE;
+	static bool DATACOLLECTION = IsEnabled();
 
-	static bool GENERAL_ITEMS = ENABLE;
+	static bool GENERAL_ITEMS = IsEnabled();
 
 	static bool GLOBAL;
 
-	static bool GROUPS = ENABLE;
+	static bool GROUPS = IsEnabled();
 	
-	static bool GARAGE = ENABLE;
+	static bool GARAGE = IsEnabled();
 
-	static bool HARDLINE = ENABLE;
+	static bool HARDLINE = IsEnabled();
 
-	static bool KILLFEED = ENABLE;
+	static bool KILLFEED = IsEnabled();
 
-	static bool LIGHTHOUSE = ENABLE;
+	static bool LIGHTHOUSE = IsEnabled();
 
 	static bool LIGHTS;
 
-	static bool MAPPING = ENABLE;
+	static bool MAPPING = IsEnabled();
 
 	static bool MARKER;
 
-	static bool MARKET = ENABLE;
+	static bool MARKET = IsEnabled();
 
-	static bool MISSIONS = ENABLE;
+	static bool MISC = IsEnabled();
+
+	static bool MISSIONS = IsEnabled();
 
 	static bool NOTIFICATIONS;
 	
-	static bool NAMALSKADVENTURE = ENABLE;
+	static bool NAMALSKADVENTURE = IsEnabled();
 	
-	static bool P2PMARKET = ENABLE;
+	static bool P2PMARKET = IsEnabled();
 
 	static bool PATH_INTERPOLATION;
 	
-	static bool PERSONALSTORAGE = ENABLE;
+	static bool PERSONALSTORAGE = IsEnabled();
 
-	static bool PLAYER = ENABLE;
+	static bool PLAYER = IsEnabled();
 
 	static bool PLAYER_CONSTANT = PLAYER && true; // Will fill up the logs
 
 	static bool PLAYER_MONITOR;
 
-	static bool QUESTS = ENABLE;
+	static bool PROFILING = IsEnabled();
 
-	static bool RESPAWN = ENABLE;
+	static bool QUESTS = IsEnabled();
 
-	static bool SETTINGS;
+	static bool RESPAWN = IsEnabled();
+
+	static bool SETTINGS = IsEnabled();
+
+	static bool CLIENT_SETTINGS = IsEnabled();
 
 	static bool SPAWNSELECTION;
 
 	static bool SKIN;
 	
-	static bool TELEPORTER = ENABLE;
+	static bool TELEPORTER = IsEnabled();
 
 	static bool TERRITORY;
 
-	static bool UI = ENABLE;
+	static bool UI = IsEnabled();
 
-	static bool VEHICLES = ENABLE;
+	static bool VEHICLES = IsEnabled();
 
-	static bool WEAPONS = ENABLE;
+	static bool WEAPONS = IsEnabled();
 
 	static bool ZONES;
 
 	//! -----------------------------------------------------------------------
 
+	protected static bool s_Initialized;
+	protected static bool s_Enabled;
+
+	static bool IsEnabled()
+	{
+		if (!s_Initialized)
+		{
+#ifdef DIAG
+			s_Enabled = true;
+#else
+	#ifdef BUILD_EXPERIMENTAL
+			s_Enabled = true;
+	#endif
+#endif
+
+			string extrace;
+			if (GetCLIParam("extrace", extrace))
+			{
+				s_Enabled = extrace != "0" && extrace != "false";
+				if (s_Enabled)
+					EXPrint("Command line parameter `extrace` found - enabling tracing");
+				else
+					EXPrint("Command line parameter `extrace` " + extrace + " found - disabling tracing");
+			}
+
+			if (s_Enabled)
+				CF_Log.Level = CF_LogLevel.TRACE;
+
+			s_Initialized = true;
+		}
+
+		return s_Enabled;
+	}
+
+	//! -----------------------------------------------------------------------
+
+	static const typename NULLTYPE;
+
 	static const string INDENT = "                        ";
 	static string s_Indent;
+
+	static ref CF_Date s_StartDate = CF_Date.Now();
+	static ref map<string, ref Param2<int, float>> s_Profiling = new map<string, ref Param2<int, float>>;
+
 	protected string m_Instance;
 	protected string m_Params[10];
 	protected int m_ParamsCount;
 	protected int m_Ticks;
-	protected int m_Depth;  //! Default depth = 1 (first line of stack). Set to -1 to include whole stack, set to 0 to exclude stack.
-	protected int m_Start;  //! Default start = 2 (second line of stack)
+	protected int m_Depth = 1;  //! Default depth = 1 (first line of stack). Set to -1 to include whole stack, set to 0 to exclude stack.
+	protected int m_Start = 2;  //! Default start = 2 (second line of stack)
 	protected bool m_End;
+	protected bool m_Silent;
+	protected string m_ClassName;
+	protected string m_FuncName;
 
-	private void EXTrace(Class instance = null, bool initialDump = true)
+	private void EXTrace(Class instance, typename typeName, bool initialDump = true)
 	{
 		if (instance)
+		{
 			m_Instance = instance.ToString();
-		m_Depth = 1;
-		m_Start = 2;
+			m_ClassName = instance.ClassName();
+		}
+		else if (typeName)
+		{
+			m_ClassName = typeName.ToString();
+		}
+
 		m_Ticks = TickCount(0);
+
 		if (initialDump)
 			InitialDump();
 	}
 
 	void ~EXTrace()
 	{
-		s_Indent = s_Indent.Substring(0, s_Indent.Length() - 1);
-		if (m_Depth == -1)
-			m_Depth = 1;
-		Dump(m_Depth, m_Start, true);
+		if (m_Silent)
+		{
+			float elapsed = TickCount(m_Ticks) * 0.0001;
+			ProcessStack(1, m_Start, true, false);
+			Profile(elapsed);
+		}
+		else
+		{
+			if (m_Depth == -1)
+				m_Depth = 1;
+			s_Indent = s_Indent.Substring(0, s_Indent.Length() - 1);
+			Dump(m_Depth, m_Start, true);
+		}
 	}
 
 	void InitialDump(int initialDumpStart = 1)
@@ -162,59 +217,143 @@ class EXTrace
 	{
 		if (m_End)
 			return;
+
 		m_End = end;
-		int elapsed = TickCount(m_Ticks);
+
+		float elapsed = TickCount(m_Ticks) * 0.0001;
 		string params;
+
 		for (int i = 0; i < m_ParamsCount; i++)
 		{
 			params += " " + m_Params[i];
 		}
+
 		string prefix;
+
 		if (m_Instance)
-		{
 			prefix = m_Instance;
+		else if (m_ClassName)
+			prefix = m_ClassName;
+
+		if (prefix)
+		{
 			if (depth != 0)
 				prefix += "::";
 		}
+
 		if (depth == 0)
 		{
 			DumpLine(prefix + params, elapsed, end);
 		}
 		else
 		{
-			string stack;
-			DumpStackString(stack);
-			TStringArray stacka();
-			stack.Split("\n", stacka);
-			int n = start;
-			while (depth != 0 && n < stacka.Count())
-			{
-				string line = stacka[n];
-				if (n > start)
-				{
-					PrintFormat("%1%2", s_Indent + INDENT, line);
-				}
-				else
-				{
-					if (end || m_Instance)
-						line = line.Substring(0, line.IndexOf("("));
-					DumpLine(prefix + line + params, elapsed, end);
-				}
-				n++;
-				if (depth > 0)
-					depth--;
-			}
+			ProcessStack(depth, start + 1, end, true, prefix, params, elapsed);
 		}
+
 		m_Ticks = TickCount(0);
 	}
 
+	void ProcessStack(int depth = 1, int start = 1, bool end = false, bool dump = true, string prefix = string.Empty, string params = string.Empty, float elapsed = 0)
+	{
+		string stack;
+		DumpStackString(stack);
+
+		TStringArray stacka();
+		stack.Split("\n", stacka);
+
+		int n = start;
+
+		while (depth != 0 && n < stacka.Count())
+		{
+			string line = stacka[n];
+
+			if (n > start)
+			{
+				PrintFormat("%1%2", s_Indent + INDENT, line);
+			}
+			else
+			{
+				if (end || m_ClassName)
+				{
+					line = line.Substring(0, line.IndexOf("("));
+					m_FuncName = line;
+				}
+
+				if (end)
+					Profile(elapsed);
+
+				if (dump)
+					DumpLine(prefix + line + params, elapsed, end);
+				else
+					break;
+			}
+
+			n++;
+
+			if (depth > 0)
+				depth--;
+		}
+	}
+
+	void Profile(float elapsed)
+	{
+		string name = m_ClassName;
+
+		if (m_FuncName)
+		{
+			if (name)
+				name += "::";
+			name += m_FuncName;
+		}
+
+		Param2<int, float> profile;
+		if (s_Profiling.Find(name, profile))
+		{
+			profile.param1 += 1;
+			profile.param2 += elapsed;
+		}
+		else
+		{
+			s_Profiling[name] = new Param2<int, float>(1, elapsed);
+		}
+	}
+
 	//! @note max script log line length 256 characters
-	void DumpLine(string line, int elapsed, bool end = false)
+	void DumpLine(string line, float elapsed, bool end = false)
 	{
 		if (end)
-			PrintFormat("%1 [EXTRACE] %2 %3 ms", ExpansionStatic.GetISOTime(), s_Indent + "-" + line, (elapsed / 10000.0).ToString());
+			PrintFormat("%1 [EXTRACE] %2 %3 ms", ExpansionStatic.GetISOTime(), s_Indent + "-" + line, elapsed.ToString());
 		else
 			PrintFormat("%1 [EXTRACE] %2", ExpansionStatic.GetISOTime(), s_Indent + "+" + line);
+	}
+
+	static void DumpProfilingData()
+	{
+		FileHandle file = OpenFile(string.Format("$profile:EXTrace_Profiling_%1.csv", s_StartDate.GetISODateTime("_", "-")), FileMode.WRITE);
+		if (!file)
+			return;
+
+		string calls = ExpansionString.JustifyRight(" CALLS", 10, "-");
+		string time = ExpansionString.JustifyRight(" TOTAL TIME MS", 16, "-");
+		string avg = ExpansionString.JustifyRight(" AVG TIME MS", 16, "-");
+
+		FPrintln(file, string.Format("%1 | %2 | %3 | %4", ExpansionString.JustifyLeft("NAME ", 90, "-"), calls, time, avg));
+
+		TStringArray names = s_Profiling.GetKeyArray();
+		names.Sort();
+
+		Param2<int, float> profile;
+
+		foreach (string name: names)
+		{
+			profile = s_Profiling[name];
+			calls = ExpansionString.JustifyRight(profile.param1.ToString(), 10, " ");
+			time = ExpansionString.JustifyRight(ExpansionStatic.FloatFixedDecimals(profile.param2, 4), 16, " ");
+			avg = ExpansionString.JustifyRight(ExpansionStatic.FloatFixedDecimals(profile.param2 / profile.param1, 4), 16, " ");
+			FPrintln(file, string.Format("%1 | %2 | %3 | %4", ExpansionString.JustifyLeft(name, 90, " "), calls, time, avg));
+		}
+
+		CloseFile(file);
 	}
 
 	EXTrace Add(bool param)
@@ -304,6 +443,11 @@ class EXTrace
 		m_Start = start;
 	}
 
+	void SetSilent(bool silent)
+	{
+		m_Silent = silent;
+	}
+
 	void Print(string msg)
 	{
 		PrintFormat("%1 [EXPRINT] %2", ExpansionStatic.GetISOTime(), s_Indent + msg);
@@ -317,10 +461,32 @@ class EXTrace
 			return;
 #endif
 
+		PrintEx(instance, NULLTYPE, msg);
+	}
+
+	static void Print(bool yes, typename typeName, string msg)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes || !msg)
+			return;
+#endif
+
+		PrintEx(null, typeName, msg);
+	}
+
+	static void PrintEx(Class instance, typename typeName, string msg)
+	{
 		string ts = ExpansionStatic.GetISOTime();
 
+		string prefix;
 		if (instance)
-			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent + instance.ToString(), msg);
+			prefix = instance.ToString();
+		else if (typeName)
+			prefix = typeName.ToString();
+		
+		if (prefix)
+			PrintFormat("%1 [EXPRINT] %2 %3", ts, s_Indent + prefix, msg);
 		else
 			PrintFormat("%1 [EXPRINT] %2", ts, s_Indent + msg);
 	}
@@ -364,7 +530,7 @@ class EXTrace
 			return null;
 #endif
 
-		auto trace = new EXTrace(instance, false);
+		auto trace = new EXTrace(instance, NULLTYPE, false);
 		if (param0)
 			trace.Add(param0);
 		if (param1)
@@ -417,6 +583,97 @@ class EXTrace
 		auto trace = Start(yes, instance, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
 		trace.SetDepth(0);
 		trace.InitialDump(1);
+		return trace;
+	}
+
+	//! Includes 1st line of stack
+	static EXTrace Start(bool yes, typename typeName, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "", int initialDumpStart = 1)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = new EXTrace(null, typeName, false);
+		if (param0)
+			trace.Add(param0);
+		if (param1)
+			trace.Add(param1);
+		if (param2)
+			trace.Add(param2);
+		if (param3)
+			trace.Add(param3);
+		if (param4)
+			trace.Add(param4);
+		if (param5)
+			trace.Add(param5);
+		if (param6)
+			trace.Add(param6);
+		if (param7)
+			trace.Add(param7);
+		if (param8)
+			trace.Add(param8);
+		if (param9)
+			trace.Add(param9);
+		if (initialDumpStart)
+			trace.InitialDump(initialDumpStart);
+		return trace;
+	}
+
+	//! Includes whole stack
+	static EXTrace StartStack(bool yes, typename typeName, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "")
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = Start(yes, typeName, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
+		trace.SetDepth(-1);
+		trace.InitialDump(1);
+		return trace;
+	}
+
+	//! Excludes stack
+	static EXTrace Start0(bool yes, typename typeName, string param0 = "", string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "")
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = Start(yes, typeName, param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, 0);
+		trace.SetDepth(0);
+		trace.InitialDump(1);
+		return trace;
+	}
+
+	static EXTrace Profile(bool yes, Class instance)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = new EXTrace(instance, NULLTYPE, false);
+		trace.SetSilent(true);
+		return trace;
+	}
+
+	static EXTrace Profile(bool yes, typename typeName)
+	{
+		//! Unconditionally conditionally enable if define not defined kappa
+#ifndef EXPANSIONTRACE
+		if (!yes)
+			return null;
+#endif
+
+		auto trace = new EXTrace(null, typeName, false);
+		trace.SetSilent(true);
 		return trace;
 	}
 }

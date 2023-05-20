@@ -10,21 +10,25 @@
  *
 */
 
-#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 modded class MainMenu
 {
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 	protected DayZIntroSceneExpansion m_Expansion_Scene;
+#endif
 
 	override Widget Init()
 	{
 		layoutRoot = super.Init();
 
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 		m_Expansion_Scene = m_Mission.GetIntroSceneExpansion();
+#endif
 
 		ImageWidget dayZLogo = ImageWidget.Cast(layoutRoot.FindAnyWidget("dayz_logo"));
 		dayZLogo.LoadImageFile(0, "set:expansion_iconset image:logo_expansion_white");
 		dayZLogo.SetFlags(dayZLogo.GetFlags() | WidgetFlags.STRETCH);
 
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 		ImageWidget tutorialButtonImage = ImageWidget.Cast(layoutRoot.FindAnyWidget("tutorial_button_image"));
 		tutorialButtonImage.LoadImageFile(0, "DayZExpansion\\Core\\GUI\\icons\\hud\\questionmark_64x64.edds");
 		tutorialButtonImage.SetFlags(tutorialButtonImage.GetFlags() | WidgetFlags.STRETCH);
@@ -40,6 +44,7 @@ modded class MainMenu
 		ImageWidget exitButtonImage = ImageWidget.Cast(layoutRoot.FindAnyWidget("exit_button_image"));
 		exitButtonImage.LoadImageFile(0, "DayZExpansion\\Core\\GUI\\icons\\hud\\switch_64x64.edds");
 		exitButtonImage.SetFlags(exitButtonImage.GetFlags() | WidgetFlags.STRETCH);
+#endif
 
 		Expansion_AdjustButtonsPanel();
 
@@ -66,13 +71,18 @@ modded class MainMenu
 		auto trace = CF_Trace_0(ExpansionTracing.UI, this, "Refresh");
 	#endif
 
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 		if (m_Expansion_Scene || m_ScenePC)
+#else
+		if (m_ScenePC)
+#endif
 			OnChangeCharacter();
 
 		GetDayZGame().Expansion_SetGameVersionText(m_Version);
 		Expansion_AdjustButtonsPanel();
 	}
 
+#ifndef EXPANSION_MAINMENU_NEW_DISABLE
 	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
 		if (w == m_CharacterRotationFrame)
@@ -267,5 +277,5 @@ modded class MainMenu
 			OpenMenuServerBrowser();
 		}
 	}
-};
 #endif
+};

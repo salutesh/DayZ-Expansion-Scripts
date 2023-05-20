@@ -14,7 +14,7 @@
 class ExpansionQuestHUD: ExpansionScriptView
 {
 	protected ref ExpansionQuestHUDController m_QuestHUDController;
-	protected ref array<int> m_HiddenIDs = new array<int>;
+	protected ref map<int, bool> m_QuestEntriesVisibilityPreference = new map<int, bool>;
 	protected WrapSpacerWidget QuestEntriesWraper;
 	protected ref map<int, ref ExpansionQuestHUDEntry> m_QuestEntries = new map<int, ref ExpansionQuestHUDEntry>;
 	
@@ -35,26 +35,30 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void UpdateView()
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS & EXTrace.UI, this);
+		auto trace = EXTrace.Start(true, this);
 		
 		if (!GetGame().GetPlayer())
+		{
+			EXTrace.Print(true, this, "no player - skipping");
 			return;
+		}
 
 		if (!IsVisible())
 		{
-			EXTrace.Print(EXTrace.QUESTS & EXTrace.UI, this, "not visible - skipping");
+			EXTrace.Print(true, this, "not visible - skipping");
 			return;
 		}
 
 		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerData)
 		{
-			EXTrace.Print(EXTrace.QUESTS & EXTrace.UI, this, "no client quest data - skipping");
+			EXTrace.Print(true, this, "no client quest data - skipping");
 			return;
 		}
 
 		array<ref ExpansionQuestPersistentQuestData> questDatas = playerData.GetQuestDatas();
 		array<int> updatedIDs = new array<int>;
+		bool isVisible;
 		foreach (ExpansionQuestPersistentQuestData data: questDatas)
 		{
 			int questID = data.QuestID;
@@ -84,9 +88,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 				m_QuestEntries.Insert(questConfig.GetID(), entry);
 				entry.SetEntry();
 	
-				int findeIndexHidden = -1;
-				findeIndexHidden = m_HiddenIDs.Find(questID);
-				if (findeIndexHidden == -1)
+				if (!m_QuestEntriesVisibilityPreference.Find(questID, isVisible) || isVisible)
 				{
 					entry.Show();
 				}
@@ -98,14 +100,21 @@ class ExpansionQuestHUD: ExpansionScriptView
 			
 			updatedIDs.Insert(questID);
 		}
-		
+
+		array<int> toRemoveIds = {};
 		foreach (int entryQuestID, ExpansionQuestHUDEntry hudEntry: m_QuestEntries)
 		{
 			if (updatedIDs.Find(entryQuestID) == -1)
 			{
 				hudEntry.Destroy();
-				m_QuestEntries.Remove(entryQuestID);
+				toRemoveIds.Insert(entryQuestID);
 			}
+		}
+
+		foreach (int toRemoveId: toRemoveIds)
+		{
+			m_QuestEntries.Remove(toRemoveId);
+			m_QuestEntriesVisibilityPreference.Remove(toRemoveId);
 		}
 	}
 
@@ -151,35 +160,23 @@ class ExpansionQuestHUD: ExpansionScriptView
 
 	void ToggleQuestEntryVisibilityByID(int questID)
 	{
-		ExpansionQuestHUDEntry entry;
-		int findIndex = -1;
-		if (!IsEntryHidden(questID, entry, findIndex))
+		ExpansionQuestHUDEntry entry = m_QuestEntries[questID];
+		if (!IsEntryHidden(questID))
 		{
-			m_HiddenIDs.Insert(questID);
+			m_QuestEntriesVisibilityPreference[questID] = false;
 			entry.Hide();
 		}
 		else
 		{
-			m_HiddenIDs.Remove(findIndex);
+			m_QuestEntriesVisibilityPreference[questID] = true;
 			entry.Show();
 		}
 	}
 
-	bool IsEntryHidden(int questID, out ExpansionQuestHUDEntry entry, out int findIndex)
+	bool IsEntryHidden(int questID)
 	{
-		findIndex = m_HiddenIDs.Find(questID);
-		foreach (ExpansionQuestHUDEntry hudEntry: m_QuestEntries)
-		{
-			if (hudEntry.GetEntryQuestID() == questID)
-			{
-				entry = hudEntry;
-				break;
-			}
-		}
-
-		if (findIndex == -1)
-			return false;
-		return true;
+		bool isVisible;
+		return m_QuestEntriesVisibilityPreference.Find(questID, isVisible) && !isVisible;
 	}
 };
 

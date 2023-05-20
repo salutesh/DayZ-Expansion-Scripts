@@ -20,7 +20,7 @@ class ExpansionChatMuteEntry: ExpansionScriptView
 
 	void ExpansionChatMuteEntry(ExpansionChatUIWindow chatWindow, SyncPlayer data)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.CHAT);
+		auto trace = EXTrace.Start(ExpansionTracing.CHAT, this);
 
 		m_ChatMuteController = ExpansionChatMuteEntryController.Cast(GetController());
 		m_ChatWindow = chatWindow;

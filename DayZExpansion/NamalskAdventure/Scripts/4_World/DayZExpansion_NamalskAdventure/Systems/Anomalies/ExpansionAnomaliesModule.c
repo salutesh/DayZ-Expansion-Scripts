@@ -367,7 +367,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	//! This reduces the number of collision checks and distance calculations required and should improve server performance.
 	static array<vector> GeneratePositions(vector center, float squareSize, int amount, int distanceToPos = 0)
 	{
-	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, ExpansionAnomaliesModule);
 
 	    array<vector> positions = new array<vector>;
 		vector position;
@@ -422,14 +422,14 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void OnEVRStormStartAnomaly(Expansion_Anomaly_Base anomaly)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		anomaly.SetAnomalyUnstable();
 	}
 
 	void OnEVRStormFinalBlowoutAnomaly(Expansion_Anomaly_Base anomaly)
     {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		if (anomaly.SurviviedEVRStormsCount() > 0)
 		{
@@ -456,7 +456,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void OnStabilizeAnomaly(Expansion_Anomaly_Base anomaly)
 	{
-	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+	    auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		if (anomaly.GetAnomalyState() >= ExpansionAnomalyState.UNSTABLE)
 		    anomaly.SetAnomalyStable();
@@ -464,14 +464,14 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	void OnEVRStormStartCore(Expansion_AnomalyCore_Base anomalyCore)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		anomalyCore.SetAnomalyCoreUnstable();
 	}
 
 	void OnEVRStormFinalBlowoutCore(Expansion_AnomalyCore_Base anomalyCore)
     {
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE);
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		if (!anomalyCore.CanUnsatabilize())
 			return;

@@ -60,7 +60,7 @@ class ExpansionMarketPlayerInventory
 
 	void Enumerate()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MARKET);
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this);
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(m_Player.GetInventory().CountInventory());

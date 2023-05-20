@@ -24,7 +24,7 @@ class ExpansionPersonalStoragePlayerInventory
 
 	void Enumerate()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MARKET);
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this);
 
 		array<EntityAI> items = new array<EntityAI>;
 		m_Player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);

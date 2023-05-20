@@ -119,7 +119,7 @@ class ExpansionClientSettings
 	// -----------------------------------------------------------
 	void ExpansionClientSettings()
 	{
-		auto trace = EXTrace.StartStack(ExpansionTracing.ENABLE, this);
+		auto trace = EXTrace.StartStack(EXTrace.CLIENT_SETTINGS, this);
 
 		#ifdef EXPANSIONMOD
 		m_ShouldShowHUDCategory = true;
@@ -150,7 +150,7 @@ class ExpansionClientSettings
 	private bool OnRead( ParamsReadContext ctx, int version, out bool settingsRepaired = false )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_2(ExpansionTracing.SETTINGS, this, "OnRead").Add(ctx).Add(version);
+		auto trace = CF_Trace_2(EXTrace.CLIENT_SETTINGS, this, "OnRead").Add(ctx).Add(version);
 #endif
 
 		// Vehicles
@@ -601,7 +601,7 @@ class ExpansionClientSettings
 	private void OnSave( ParamsWriteContext ctx )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this, "OnSave").Add(ctx);
+		auto trace = CF_Trace_1(EXTrace.CLIENT_SETTINGS, this, "OnSave").Add(ctx);
 #endif
 
 		// Vehicles
@@ -710,7 +710,7 @@ class ExpansionClientSettings
 	bool Load()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Load");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Load");
 #endif
 
 		FileSerializer file = new FileSerializer;
@@ -754,7 +754,7 @@ class ExpansionClientSettings
 	void Save()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Save");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Save");
 #endif
 
 		FileSerializer file = new FileSerializer;
@@ -775,7 +775,7 @@ class ExpansionClientSettings
 	void Defaults()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Defaults");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Defaults");
 #endif
 
 		CastLightShadows = true;
@@ -862,7 +862,7 @@ class ExpansionClientSettings
 	void Init()
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "Init");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "Init");
 #endif
 
 		CreateCategory( "VideoSettings", "#STR_EXPANSION_SETTINGS_CLIENT_VIDEO" );
@@ -1018,7 +1018,7 @@ class ExpansionClientSettings
 	void OnSettingsUpdated(typename type, ExpansionSettingSerializationBase setting)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "OnSettingsUpdated");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "OnSettingsUpdated");
 #endif
 
 		GetExpansionClientSettings().SI_UpdateSetting.Invoke();
@@ -1027,7 +1027,7 @@ class ExpansionClientSettings
 	private void CreateCategory( string name, string displayName )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateCategory");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateCategory");
 #endif
 
 		ExpansionClientSettingCategory category = new ExpansionClientSettingCategory;
@@ -1045,7 +1045,7 @@ class ExpansionClientSettings
 	private void CreateToggle( string variable, string name, string detailLabel, string detailContent )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateToggle");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateToggle");
 #endif
 
 		ExpansionSettingSerializationToggle setting = new ExpansionSettingSerializationToggle;
@@ -1065,7 +1065,7 @@ class ExpansionClientSettings
 	private void CreateSlider( string variable, string name, string detailLabel, string detailContent, float min, float max, float step = 0 )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateSlider");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateSlider");
 #endif
 
 		ExpansionSettingSerializationSlider setting = new ExpansionSettingSerializationSlider;
@@ -1089,7 +1089,7 @@ class ExpansionClientSettings
 	private void CreateInt( string variable, string name, string detailLabel, string detailContent )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateInt");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateInt");
 #endif
 
 		ExpansionSettingSerializationInt setting = new ExpansionSettingSerializationInt;
@@ -1109,7 +1109,7 @@ class ExpansionClientSettings
 	private void CreateEnum( string variable, typename enm, string name, string detailLabel, string detailContent )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateEnum");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateEnum");
 #endif
 
 		ExpansionSettingSerializationEnum setting = new ExpansionSettingSerializationEnum;
@@ -1137,7 +1137,7 @@ class ExpansionClientSettings
 	private void CreateString( string variable, string name, string detailLabel, string detailContent )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this, "CreateString");
+		auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, this, "CreateString");
 #endif
 
 		ExpansionSettingSerializationString setting = new ExpansionSettingSerializationString;
@@ -1157,7 +1157,7 @@ static ref ExpansionClientSettings g_ExClientSettings;
 static ExpansionClientSettings GetExpansionClientSettings()
 {
 #ifdef EXPANSIONTRACE
-	auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, "GetExpansionClientSettings");
+	auto trace = CF_Trace_0(EXTrace.CLIENT_SETTINGS, "GetExpansionClientSettings");
 #endif
 
 	if (GetGame().IsDedicatedServer())
