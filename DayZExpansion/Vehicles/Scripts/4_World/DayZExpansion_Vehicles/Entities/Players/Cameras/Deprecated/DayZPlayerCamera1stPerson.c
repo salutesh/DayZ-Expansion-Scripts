@@ -66,7 +66,7 @@ modded class DayZPlayerCamera1stPerson
 			heading -= car.GetOrientation()[0];
 		}
 
-		rot[0] = m_fLeftRightAngle - heading;
+		rot[0] = m_CurrentCameraYaw - heading;
 		rot[1] = m_CurrentCameraPitch;
 		rot[2] = 0;
 			

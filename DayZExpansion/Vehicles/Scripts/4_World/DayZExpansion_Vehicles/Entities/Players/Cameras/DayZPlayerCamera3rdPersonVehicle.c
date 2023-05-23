@@ -122,7 +122,7 @@ modded class DayZPlayerCamera3rdPersonVehicle
 
 		if (pIsFreeLook)
 		{
-			rotation[0] = m_fLeftRightAngle + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
+			rotation[0] = m_CurrentCameraYaw + CONST_ANGULAR_LAG_YAW_STRENGTH * m_LagOffsetOrientation[0];
 			rotation[1] = Limit(m_fUpDownAngle + m_fUpDownAngleAdd, CONST_UD_MIN, CONST_UD_MAX) + CONST_ANGULAR_LAG_PITCH_STRENGTH * m_LagOffsetOrientation[1];
 		#ifdef DAYZ_1_20
 			rotation[2] = m_fRoll;
