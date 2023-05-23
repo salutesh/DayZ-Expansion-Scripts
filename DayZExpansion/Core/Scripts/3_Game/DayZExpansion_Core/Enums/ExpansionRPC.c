@@ -402,6 +402,7 @@ enum ExpansionQuestModuleRPC
 {
 	INVALID = 40020,
 	RequestOpenQuestMenu,
+	ExitQuestMenu,
 	SendClientQuestData,
 	SendClientQuestConfigs,
 	RequestCreateQuestInstance,

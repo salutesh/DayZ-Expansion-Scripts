@@ -33,12 +33,8 @@ modded class DayZGame
 	// ------------------------------------------------------------
 	void DayZGame()
 	{
-#ifdef DIAG
-		CF_Log.Level = CF_LogLevel.TRACE;
-#endif
-
 #ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.GLOBAL, this, "DayZGame");
+		auto trace = EXTrace.Start(EXTrace.GLOBAL, this);
 #endif
 
 		auto now = CF_Date.Now();
@@ -61,6 +57,8 @@ modded class DayZGame
 		{
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
+
+		Expansion_FilterPlayerCharacters();
 	}
 
 	// ------------------------------------------------------------
@@ -72,12 +70,13 @@ modded class DayZGame
 		{
 			DeleteFile(EXPANSION_TEMP_INTERIORS);
 		}
+
+		if (EXTrace.PROFILING)
+			EXTrace.DumpProfilingData();
 	}
 
-    override void GlobalsInit()
+	void Expansion_FilterPlayerCharacters()
     {
-        super.GlobalsInit();
-
 		string child_name;
         for (int i = m_CharClassNames.Count() - 1; i >= 0; i--)
 		{
@@ -86,6 +85,7 @@ modded class DayZGame
 			if (child_name.IndexOf("Expansion") == 0 || child_name.IndexOf("eAI") == 0)
 			{
 				m_CharClassNames.RemoveOrdered(i);
+				EXTrace.Print(EXTrace.MISC, this, "Removed " + child_name + " from player character class names");
 			}
 		}
     }

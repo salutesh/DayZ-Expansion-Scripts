@@ -1,12 +1,5 @@
 modded class CF_Trace
 {
-#ifndef CF_TRACE_STACK_NAME_ASSUMPTION_FIX
-	bool IsLogged()
-	{
-		return m_DoLog;
-	}
-#endif
-
 	void Debug(string message, string param1 = "", string param2 = "", string param3 = "", string param4 = "", string param5 = "", string param6 = "", string param7 = "", string param8 = "", string param9 = "")
 	{
 		if (!IsLogged())

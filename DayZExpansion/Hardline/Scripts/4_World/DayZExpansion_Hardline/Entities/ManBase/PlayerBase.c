@@ -22,9 +22,6 @@ modded class PlayerBase
 
 		m_Expansion_Reputation = -1;
 
-		if (GetGame().IsServer())
-			m_Expansion_HardlineData = new ExpansionHardlinePlayerData();
-
 		RegisterNetSyncVariableInt("m_Expansion_Reputation");
 		RegisterNetSyncVariableInt("m_Expansion_PersonalStorageLevel", 0, 255);
 	}
@@ -44,37 +41,21 @@ modded class PlayerBase
 		}
 	}
 
-	void Expansion_LoadHardlineData(PlayerIdentity identity = null)
+	void Expansion_SetHardlineData(ExpansionHardlinePlayerData data)
 	{
-		if (!identity)
-			identity = GetIdentity();
-		//! Check if hardline player data file exists and load it
-		string playerUID = identity.GetId();
-		bool factionReset;
-		if (m_Expansion_HardlineData.Load(playerUID))
+		m_Expansion_HardlineData = data;
+	#ifdef EXPANSIONMODAI
+		//! @note this takes precedence over random faction from AISettings.json
+		if (m_Expansion_HardlineData.FactionID != -1)
 		{
-			EXPrint("ExpansionHardlineModule::SetupClientData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
-		#ifdef EXPANSIONMODAI
-			//! @note this takes precedence over random faction from AISettings.json
-			if (m_Expansion_HardlineData.FactionID != -1)
-			{
-				if (GetExpansionSettings().GetHardline().EnableFactionPersistence)
-				{
-					typename factionType = eAIFaction.GetTypeByID(m_Expansion_HardlineData.FactionID);
-					if (factionType)
-						SetGroup(eAIGroup.CreateGroup(eAIFaction.Cast(factionType.Spawn())));
-				}
-				else
-				{
-					m_Expansion_HardlineData.FactionID = -1;
-					factionReset = true;
-				}
-			}
-		#endif
+			typename factionType = eAIFaction.GetTypeByID(m_Expansion_HardlineData.FactionID);
+			if (factionType)
+				SetGroup(eAIGroup.CreateGroup(eAIFaction.Cast(factionType.Spawn())));
 		}
+	#endif
 		m_Expansion_PersonalStorageLevel = m_Expansion_HardlineData.PersonalStorageLevel;
 		//! If data was successfully loaded, player rep will be set to value from file, else zero
-		Expansion_SetReputation(m_Expansion_HardlineData.Reputation, factionReset);
+		Expansion_SetReputation(m_Expansion_HardlineData.Reputation);
 	}
 
 	//! Only to be called on server!

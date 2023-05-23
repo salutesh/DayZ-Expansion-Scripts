@@ -39,10 +39,8 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 
 		if (m_QuestNPCID > -1)
 		{
-		#ifdef DIAG
-			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestNPCAIByID(m_QuestNPCID))
-				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
-		#endif
+			if (!ExpansionQuestModule.GetQuestNPCByID(m_QuestNPCID))
+				EXPrint(this, "::OnVariablesSynchronized - NPC ID: " + m_QuestNPCID);
 			ExpansionQuestModule.AddQuestNPC(m_QuestNPCID, this);
 		}
 

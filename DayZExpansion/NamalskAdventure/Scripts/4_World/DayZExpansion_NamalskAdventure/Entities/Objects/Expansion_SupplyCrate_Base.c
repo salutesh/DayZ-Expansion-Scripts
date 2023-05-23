@@ -59,8 +59,6 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void ~Expansion_SupplyCrate_Base()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
 		CleanupSupplyCrate();
 	}
 

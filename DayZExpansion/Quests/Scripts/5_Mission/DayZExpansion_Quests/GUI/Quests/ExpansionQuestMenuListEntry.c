@@ -82,10 +82,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 		if (!questHUD)
 			return;
 
-		ExpansionQuestHUDEntry questEntry;
-		int findIndex = -1;
-
-		if (!questHUD.IsEntryHidden(m_Quest.GetID(), questEntry, findIndex))
+		if (!questHUD.IsEntryHidden(m_Quest.GetID()))
 		{
 			//HideCheckbox.SetChecked(true);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
@@ -163,10 +160,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		questHUD.ToggleQuestEntryVisibilityByID(m_Quest.GetID());
 
-		ExpansionQuestHUDEntry questEntry;
-		int findIndex = -1;
-
-		if (!questHUD.IsEntryHidden(m_Quest.GetID(), questEntry, findIndex))
+		if (!questHUD.IsEntryHidden(m_Quest.GetID()))
 		{
 			//HideCheckbox.SetChecked(true);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");

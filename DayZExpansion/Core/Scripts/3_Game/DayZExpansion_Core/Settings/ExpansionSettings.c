@@ -26,7 +26,7 @@ class ExpansionSettings
 
 	void ServerInit()
 	{
-		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
+		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
 
 		Init();
 
@@ -38,7 +38,7 @@ class ExpansionSettings
 
 	void Unload()
 	{
-		auto trace = EXTrace.StartStack(EXTrace.ENABLE, this);
+		auto trace = EXTrace.StartStack(EXTrace.SETTINGS, this);
 
 		foreach (ExpansionSettingBase setting: m_SettingsOrdered)
 		{
@@ -75,7 +75,7 @@ class ExpansionSettings
 
 	void Init()
 	{
-		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
+		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
 
 		Init(ExpansionDebugSettings);
 		Init(ExpansionLogSettings);
@@ -97,7 +97,7 @@ class ExpansionSettings
 
 	void GameInit()
 	{
-		auto trace = EXTrace.Start(EXTrace.ENABLE, this);
+		auto trace = EXTrace.Start(EXTrace.SETTINGS, this);
 
 		if (m_GameInit)
 		{
@@ -157,7 +157,7 @@ class ExpansionSettings
 
 	void Receive(typename type, ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(EXTrace.ENABLE, this, type.ToString());
+		auto trace = EXTrace.Start(EXTrace.SETTINGS, this, type.ToString());
 
 		if (GetGame().IsDedicatedServer())
 			return;
@@ -218,7 +218,7 @@ class ExpansionSettings
 				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
 			else
 				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been received!" + suffix);
-			EXTrace trace = EXTrace.StartStack(true);
+			EXTrace trace = EXTrace.StartStack(true, this);
 			trace.SetStart(5);
 		}
 	}

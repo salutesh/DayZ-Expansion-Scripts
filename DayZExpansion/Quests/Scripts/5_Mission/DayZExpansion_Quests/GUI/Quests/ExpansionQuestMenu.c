@@ -786,6 +786,13 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
 	}
 
+	override void OnHide()
+	{
+		ExpansionQuestModule.GetModuleInstance().ExitQuestMenu(m_CurrentNPCID);
+
+		super.OnHide();
+	}
+
 	override bool CanClose()
 	{
 		if (m_CancelQuestDialog)

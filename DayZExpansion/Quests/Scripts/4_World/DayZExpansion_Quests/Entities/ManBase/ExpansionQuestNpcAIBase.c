@@ -42,10 +42,8 @@ class ExpansionQuestNPCAIBase: eAINPCBase
 
 		if (m_QuestNPCID > -1)
 		{
-		#ifdef DIAG
-			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestNPCAIByID(m_QuestNPCID))
-				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
-		#endif
+			if (!ExpansionQuestModule.GetQuestNPCAIByID(m_QuestNPCID))
+				EXPrint(this, "::OnVariablesSynchronized - NPC ID: " + m_QuestNPCID);
 			ExpansionQuestModule.AddQuestNPCAI(m_QuestNPCID, this);
 		}
 

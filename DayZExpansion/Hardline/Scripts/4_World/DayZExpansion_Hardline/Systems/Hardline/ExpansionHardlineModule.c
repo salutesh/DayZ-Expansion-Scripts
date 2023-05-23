@@ -15,6 +15,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 {
 	protected static ExpansionHardlineModule m_Instance;
 	
+	protected ref map<string, ref ExpansionHardlinePlayerData> m_HardlinePlayerData = new map<string, ref ExpansionHardlinePlayerData>;
+
 	void ExpansionHardlineModule()
 	{
 		m_Instance = this;
@@ -24,7 +26,47 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	{
 		super.OnInit();
 
+/**
+ * Order of player-related mission events
+ * 
+ * On connect (new character):
+ * 1) OnClientPrepare
+ * 3) OnClientNew (calls CreateCharacter/EquipCharacter in vanilla)
+ * 3) OnInvokeConnect
+ * 
+ * On connect (existing character):
+ * 1) OnClientPrepare
+ * 2) OnClientReady
+ * 3) OnInvokeConnect
+ * 
+ * On respawn:
+ * 1) OnClientRespawn
+ * 2) OnClientPrepare
+ * 3) OnClientNew (calls CreateCharacter/EquipCharacter in vanilla)
+ * 4) OnInvokeConnect
+ * 
+ * On logout:
+ * 1) OnClientLogout
+ * 2) OnClientLogoutCancelled (if player cancels logout countdown)
+ * 
+ * On disconnect (if logout countdown runs out or player early disconnects):
+ * 1) OnClientDisconnect
+ * 2) OnInvokeDisconnect (only if player character not yet deleted)
+ */
+
+		EnableClientPrepare();
 		EnableInvokeConnect();
+		EnableClientDisconnect();
+	}
+
+	override void OnClientPrepare(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+
+		auto cArgs = CF_EventPlayerPrepareArgs.Cast(args);
+
+		if (GetExpansionSettings().GetHardline().UseReputation)
+			LoadPlayerData(cArgs.Identity);
 	}
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)
@@ -42,10 +84,58 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EXTrace.Add(trace, cArgs.Identity);
 	#endif
 
-		if (GetGame().IsServer() && GetGame().IsMultiplayer() && GetExpansionSettings().GetHardline().UseReputation)
-		{
+		if (GetExpansionSettings().GetHardline().UseReputation)
 			SetupClientData(cArgs.Player, cArgs.Identity);
+	}
+
+	override void OnClientDisconnect(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+
+		auto cArgs = CF_EventPlayerDisconnectedArgs.Cast(args);
+
+		//! Just to conserve some memory, not needed otherwise
+		m_HardlinePlayerData.Remove(cArgs.UID);
+	}
+
+	//! Load player data early so it's available in StartingEquipSetup
+	protected void LoadPlayerData(PlayerIdentity identity)
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+
+		//! Check if hardline player data file exists and load it
+		string playerUID = identity.GetId();
+		auto data = m_HardlinePlayerData[playerUID];
+
+		if (!data)
+		{
+			data = new ExpansionHardlinePlayerData;
+
+			if (data.Load(playerUID))
+			{
+				EXPrint(this, "::LoadPlayerData - Loaded player hardline data for player " + identity.GetName() + "[" + playerUID + "]");
+			#ifdef EXPANSIONMODAI
+				if (data.FactionID != -1 && !GetExpansionSettings().GetHardline().EnableFactionPersistence)
+				{
+					data.FactionID = -1;
+					data.Save(playerUID);
+				}
+			#endif
+			}
+	
+			m_HardlinePlayerData[playerUID] = data;
 		}
+	}
+
+	//! For use in init.c StartingEquipSetup (e.g. for reputation or faction specific starting gear) which runs before OnInvokeConnect
+	ExpansionHardlinePlayerData GetPlayerData(PlayerBase player)
+	{
+		PlayerIdentity identity = player.GetIdentity();
+		if (!identity)
+			return null;
+
+		string playerUID = identity.GetId();
+		return m_HardlinePlayerData[playerUID];
 	}
 
 	protected void SetupClientData(PlayerBase player, PlayerIdentity identity)
@@ -56,11 +146,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EXTrace.Add(trace, identity);
 	#endif
 
-		if (!player || !identity)
-			return;
-
-		//! Check if hardline player data file exists and load it
-		player.Expansion_LoadHardlineData(identity);
+		string playerUID = identity.GetId();
+		player.Expansion_SetHardlineData(m_HardlinePlayerData[playerUID]);
 	}
 	
 #ifdef EXPANSIONMODAI

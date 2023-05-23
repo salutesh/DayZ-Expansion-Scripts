@@ -207,9 +207,7 @@ class ExpansionFSM
 	 */
 	int Update(float pDt, int pSimulationPrecision)
 	{
-		#ifdef EAI_TRACE
-		auto trace = CF_Trace_2(this, "Update").Add(pDt).Add(pSimulationPrecision);
-		#endif
+		auto trace = EXTrace.Profile(EXTrace.AI, this);
 
 		if (!m_Owner)
 			return EXIT;

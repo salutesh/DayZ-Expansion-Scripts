@@ -304,6 +304,26 @@ class ExpansionStatic
 		return i.ToString() + tmp.Substring(1, tmp.Length() - 1);
 	}
 
+	static string FloatFixedDecimals(float f, int decimals = 4)
+	{
+		string str = f.ToString();
+		int i = str.IndexOf(".");
+
+		if (i > -1)
+		{
+			while (str.Length() - i < decimals + 1)
+			{
+				str += "0";
+			}
+
+			int len = str.Length() - i - 1;
+			if (len > decimals)
+				str = str.Substring(0, i + decimals + 1);
+		}
+
+		return str;
+	}
+
 	// -----------------------------------------------------------
 	// Expansion Float FloatNewPrecision
 	// -----------------------------------------------------------

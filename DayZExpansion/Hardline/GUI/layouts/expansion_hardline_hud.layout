@@ -93,8 +93,8 @@ FrameWidgetClass ExpansionHardlineHUD {
        visible 1
        clipchildren 0
        ignorepointer 1
-       position 0 60
-       size 60 20
+       position 0 -24
+       size 80 20
        halign center_ref
        hexactpos 1
        vexactpos 1
@@ -106,7 +106,7 @@ FrameWidgetClass ExpansionHardlineHUD {
          ignorepointer 1
          keepsafezone 1
          color 0.8627 0.8627 0.8627 0
-         position 0 0
+         position -4 0
          size 80 20
          hexactpos 1
          vexactpos 1

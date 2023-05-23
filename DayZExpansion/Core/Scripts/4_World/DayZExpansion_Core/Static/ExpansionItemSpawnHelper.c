@@ -255,7 +255,7 @@ class ExpansionItemSpawnHelper
 	static bool IsSpawnPositionFree(vector position, vector orientation, string className, out Object blockingObject = NULL)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, null);
+		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, ExpansionItemSpawnHelper);
 #endif
 
 		//className.ToLower();
@@ -314,7 +314,7 @@ class ExpansionItemSpawnHelper
 	static Object GetObjectBlockingPosition(vector position, vector orientation, vector size, array<Object> excluded_objects = null)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, null);
+		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, ExpansionItemSpawnHelper);
 #endif
 
 		array<Object> objects = new array<Object>;

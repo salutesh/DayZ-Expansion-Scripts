@@ -947,23 +947,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
     {
         return true;
     }
-	
-	override void OnStoreSave(ParamsWriteContext ctx)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnStoreSave(ctx);
-	}
-
-	override bool OnStoreLoad(ParamsReadContext ctx, int version)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!super.OnStoreLoad(ctx, version))
-			return false;
-
-		return true;
-	}
 
 	override void EEOnCECreate()
 	{

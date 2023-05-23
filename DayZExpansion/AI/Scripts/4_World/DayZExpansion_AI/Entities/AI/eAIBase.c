@@ -139,6 +139,8 @@ class eAIBase: PlayerBase
 	ref array<ItemBase> m_Expansion_ActiveVisibilityEnhancers = {};
 	bool m_Expansion_TriedTurningOnVisibilityEnhancers;
 
+	ref set<Man> m_eAI_InteractingPlayers = new set<Man>;
+
 	void eAIBase()
 	{
 #ifdef EAI_TRACE
@@ -736,7 +738,7 @@ class eAIBase: PlayerBase
 	//! Unlike GetMagazineToReload, this can be used to check if there is a mag/ammo for a weapon that is not in hands
 	EntityAI GetMagazineInInventory(EntityAI weapon)
 	{
-		auto trace = EXTrace.Start(EXTrace.AI, this, weapon.ToString());
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase, weapon.ToString());
 
 		Weapon_Base weapon_base = Weapon_Base.Cast(weapon);
 		eAIWeaponManager weapon_manager = eAIWeaponManager.Cast(GetWeaponManager());
@@ -848,7 +850,7 @@ class eAIBase: PlayerBase
 
 	void eAI_SetAccuracy(float accuracyMin, float accuracyMax)
 	{
-		auto trace = EXTrace.Start(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
 		EXTrace.Add(trace, accuracyMin);
 		EXTrace.Add(trace, accuracyMax);
 
@@ -868,7 +870,7 @@ class eAIBase: PlayerBase
 
 	void eAI_SetThreatDistanceLimit(float distance)
 	{
-		auto trace = EXTrace.Start(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
 		EXTrace.Add(trace, distance);
 
 		if (distance <= 0)
@@ -881,7 +883,7 @@ class eAIBase: PlayerBase
 
 	void eAI_SetDamageMultiplier(float multiplier)
 	{
-		auto trace = EXTrace.Start(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
 		EXTrace.Add(trace, multiplier);
 
 		if (multiplier <= 0)
@@ -1097,9 +1099,9 @@ class eAIBase: PlayerBase
 
 	void UpdateTargets(float pDt)
 	{
-#ifdef EAI_TRACE
-		auto trace = EXTrace.Start0(EXTrace.AI, this);
+		auto trace = EXTrace.Profile(EXTrace.AI, eAIBase);
 
+#ifdef EAI_TRACE
 		int ticks;
 		int elapsed;
 #endif
@@ -1290,9 +1292,7 @@ class eAIBase: PlayerBase
 
 	void eAI_PrioritizeTargets()
 	{
-#ifdef EAI_TRACE
-		auto trace = CF_Trace_0(this, "eAI_PrioritizeTargets");
-#endif
+		auto trace = EXTrace.Profile(EXTrace.AI, eAIBase);
 
 #ifdef DIAG
 		auto hitch = EXHitch(ToString() + "::eAI_PrioritizeTargets ", 20000);
@@ -2651,7 +2651,7 @@ class eAIBase: PlayerBase
 
 	void Expansion_TryTurningOnAnyLightsOrNVG(out float nightVisibility, bool skipNonNVG = false, bool skipNVG = false)
 	{
-		auto trace = EXTrace.Start(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
 
 		ItemBase itembs;
 		
@@ -2672,7 +2672,7 @@ class eAIBase: PlayerBase
 
 	void Expansion_TryTurningOffAnyLightsOrNVG(bool skipNVG = false)
 	{
-		auto trace = EXTrace.Start(EXTrace.AI, this);
+		auto trace = EXTrace.Start(EXTrace.AI, eAIBase);
 
 		ItemBase itembs;
 		
@@ -2875,9 +2875,26 @@ class eAIBase: PlayerBase
 		return m_WeaponRaisedTimer > 0.5;
 	}
 
-	bool IsTrading()
+	void eAI_AddInteractingPlayer(Man player)
 	{
-		return false;
+		m_eAI_InteractingPlayers.Insert(player);
+	}
+
+	void eAI_RemoveInteractingPlayer(Man player)
+	{
+#ifdef DAYZ_1_20
+		int remove_index = m_eAI_InteractingPlayers.Find(player);
+		if (remove_index >= 0)
+			m_eAI_InteractingPlayers.Remove(remove_index);
+#else
+		//! 1.21+
+		m_eAI_InteractingPlayers.RemoveItem(player);
+#endif
+	}
+
+	bool eAI_HasInteractingPlayers()
+	{
+		return m_eAI_InteractingPlayers.Count() > 0;
 	}
 
 	ActionBase StartAction(typename actionType, ActionTarget target)

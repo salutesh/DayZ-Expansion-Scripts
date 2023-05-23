@@ -116,7 +116,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	override void OnRPC( PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx )
 	#endif
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		switch ( rpc_type )
 		{
@@ -193,7 +193,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	void RequestGroups(int callBack)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (!IsMissionClient())
 			return;
@@ -214,7 +214,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void RPC_RequestGroups(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -260,7 +260,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void RPC_SendGroupsToClient(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -293,7 +293,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	bool OnReceiveGroupClient(ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return false;
@@ -322,7 +322,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void EditGroupName(int groupID, string groupName)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] EditGroupName shall only be called on client!"))
 			return;
@@ -342,7 +342,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_EditGroupName(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -386,7 +386,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void DeleteGroup(int partyID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] DeleteGroup shall only be called on client!"))
 			return;
@@ -408,7 +408,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_DeleteGroup(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -452,7 +452,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void ChangeOwner(string playerUID, int partyID, bool isMember)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] ChangeOwner shall only be called on client!"))
 			return;
@@ -473,7 +473,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_ChangeOwner(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -546,7 +546,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void InvitePlayer(string playerUID, int partyID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] InvitePlayer shall only be called on client!"))
 			return;
@@ -566,7 +566,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	private void RPC_InvitePlayer(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -591,7 +591,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private bool InvitePlayerServer(string playerUID, int partyID, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		ExpansionPartyModule partyModule;
 		if (!CF_Modules<ExpansionPartyModule>.Get(partyModule))
@@ -644,7 +644,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void UpdatePermissions(string playerUID, int partyID, int playerPerm)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] UpdatePermissions shall only be called on client!"))
 			return;
@@ -665,7 +665,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_UpdatePermissions(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -748,7 +748,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void ChangeMoney(int partyID, int value)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] ChangeMoney shall only be called on client!"))
 			return;
@@ -769,7 +769,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_ChangeMoney(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -828,7 +828,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void KickMember(int partyID, string playerUID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] KickMember shall only be called on client!"))
 			return;
@@ -848,7 +848,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_KickMember(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -927,7 +927,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	private void SendGroupUpdate(ExpansionPartyData party, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		int partyID = party.GetPartyID();
 		auto rpc = ExpansionScriptRPC.Create();
@@ -941,7 +941,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_SendGroupUpdate(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -957,7 +957,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void CreateGroupMarker(ExpansionMarkerData marker, int partyID)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateGroupMarker shall only be called on client!"))
 			return;
@@ -974,7 +974,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_CreateGroupMarker(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 		
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -1020,7 +1020,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	void Callback(int callBack, PlayerIdentity reciver)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(callBack);
@@ -1033,7 +1033,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	private void RPC_Callback(ParamsReadContext ctx, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
@@ -1065,7 +1065,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------
 	void SendNotificationToMembers(StringLocaliser text, ExpansionPartyData party, PlayerIdentity sender)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (Expansion_Assert_False(IsMissionHost(), "[" + this + "] SendNotificationToMembers shall only be called on server!"));
 			return;
@@ -1105,7 +1105,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------	
 	ExpansionPartyPlayerData GetGroupPlayerData(string uid)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		foreach (int i, ExpansionPartyData data : m_Parties)
 		{
@@ -1125,7 +1125,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	bool HasGroup(string uid)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		foreach (int i, ExpansionPartyData party : m_Parties)
 		{
@@ -1151,7 +1151,7 @@ class ExpansionCOTGroupModule: JMRenderableModuleBase
 	// ------------------------------------------------------------		
 	void AdminLog(string msg)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS);
+		auto trace = EXTrace.Start(ExpansionTracing.COT_GROUPS, this);
 
 		if (GetExpansionSettings().GetLog().Party)
 			GetExpansionSettings().GetLog().PrintLog("[COT] Expansion Groups Manager - " + msg);

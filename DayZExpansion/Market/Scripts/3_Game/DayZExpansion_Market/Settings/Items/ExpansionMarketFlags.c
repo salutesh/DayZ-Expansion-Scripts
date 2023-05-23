@@ -50,6 +50,12 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Flag_Refuge", 						15,		30,		1,		100);
 		AddItem("Flag_RSTA", 						15,		30,		1,		100);
 		AddItem("Flag_Snake", 						15,		30,		1,		100);
+	#ifndef DAYZ_1_20
+		//! New 1.21 flags
+		AddItem("Flag_Crook", 						15,		30,		1,		100);
+		AddItem("Flag_Rex", 						15,		30,		1,		100);
+		AddItem("Flag_Zagorky", 					15,		30,		1,		100);
+	#endif
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("Expansion_Flag_Expansion", 		15,		30,		1,		100);
 		AddItem("Expansion_Flag_White", 			15,		30,		1,		100);
@@ -62,7 +68,7 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Expansion_Flag_Luxembourg", 		15,		30,		1,		100);
 		AddItem("Expansion_Flag_Mexico", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Netherlands", 		15,		30,		1,		100);
-		AddItem("Expansion_Flag_Newzealand", 		15,		30,		1,		100);
+		AddItem("Expansion_Flag_NewZealand", 		15,		30,		1,		100);
 		AddItem("Expansion_Flag_Norway", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Poland", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Russia", 			15,		30,		1,		100);
@@ -83,8 +89,8 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Expansion_Flag_NATO", 				15,		30,		1,		100);
 		AddItem("Expansion_Flag_Pirate", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Chedaki", 			15,		30,		1,		100);
-		AddItem("Expansion_Flag_Napa", 				15,		30,		1,		100);
-		AddItem("Expansion_Flag_Cdf", 				15,		30,		1,		100);
+		AddItem("Expansion_Flag_NAPA", 				15,		30,		1,		100);
+		AddItem("Expansion_Flag_CDF", 				15,		30,		1,		100);
 		AddItem("Expansion_Flag_NuevoRico", 		15,		30,		1,		100);
 		AddItem("Expansion_Flag_Borduria", 			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Biohazard", 		15,		30,		1,		100);
@@ -92,11 +98,11 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Expansion_Flag_Ireland",			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Wales",				15,		30,		1,		100);
 		AddItem("Expansion_Flag_Switzerland",		15,		30,		1,		100);
-		AddItem("Expansion_Flag_Skilanka",			15,		30,		1,		100);
+		AddItem("Expansion_Flag_SriLanka",			15,		30,		1,		100);
 		AddItem("Expansion_Flag_SouthAfrica",		15,		30,		1,		100);
 		AddItem("Expansion_Flag_Sicily",			15,		30,		1,		100);
 		AddItem("Expansion_Flag_OffWithHead",		15,		30,		1,		100);
-		AddItem("Expansion_Flag_Gubraltar",			15,		30,		1,		100);
+		AddItem("Expansion_Flag_Gibraltar",			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Czechia",			15,		30,		1,		100);
 		AddItem("Expansion_Flag_Fari",				15,		30,		1,		100);
 		AddItem("Expansion_Flag_DayZWhite",			15,		30,		1,		100);

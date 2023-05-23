@@ -34,7 +34,7 @@ class ExpansionOwnedContainer: Container_Base
 #ifdef DIAG
 		string uid;
 		m_Expansion_NetsyncData.Get(0, uid);
-		EXTrace.Print(EXTrace.ENABLE, this, "ExpansionOwnedContainer::Expansion_OnOwnerSync - owner " + uid);
+		EXTrace.Print(EXTrace.MISC, this, "ExpansionOwnedContainer::Expansion_OnOwnerSync - owner " + uid);
 #endif
 	}
 
@@ -242,7 +242,7 @@ class ExpansionOwnedContainer: Container_Base
 
 		ExpansionSetContainerOwner(uid);
 
-		EXTrace.Print(EXTrace.ENABLE, this, "::CF_OnStoreLoad - owner " + uid);
+		EXTrace.Print(EXTrace.MISC, this, "::CF_OnStoreLoad - owner " + uid);
 
 		return true;
 	}
@@ -292,7 +292,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionCheckContainerOwner);
 
-		EXTrace.Print(EXTrace.ENABLE, this, "ExpansionTemporaryOwnedContainer::Expansion_OnOwnerSync - is owner? " + ExpansionIsContainerOwner());
+		EXTrace.Print(EXTrace.MISC, this, "ExpansionTemporaryOwnedContainer::Expansion_OnOwnerSync - is owner? " + ExpansionIsContainerOwner());
 
 		if (ExpansionIsContainerOwner())
 			SetFlags(EntityFlags.VISIBLE, false);
@@ -302,7 +302,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 	// allow other players to see the container while it's being carried (no more mimes!)
 	override void EEItemLocationChanged(notnull InventoryLocation oldLoc, notnull InventoryLocation newLoc)
 	{
-		EXTrace.Print(EXTrace.ENABLE, this, "EEItemLocationChanged " + typename.EnumToString(InventoryLocationType, oldLoc.GetType()) + " -> " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
+		EXTrace.Print(EXTrace.MISC, this, "EEItemLocationChanged " + typename.EnumToString(InventoryLocationType, oldLoc.GetType()) + " -> " + typename.EnumToString(InventoryLocationType, newLoc.GetType()));
 
 		super.EEItemLocationChanged(oldLoc, newLoc);
 

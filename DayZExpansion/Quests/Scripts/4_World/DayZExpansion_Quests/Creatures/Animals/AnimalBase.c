@@ -17,7 +17,7 @@ modded class AnimalBase
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, AnimalBase);
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index == -1)
@@ -37,7 +37,7 @@ modded class AnimalBase
 
 	static void DeassignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, AnimalBase);
 
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)

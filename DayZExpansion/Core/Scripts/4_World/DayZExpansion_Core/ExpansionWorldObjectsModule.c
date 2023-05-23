@@ -85,7 +85,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void RestoreRemovedObjects()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 
 		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
 		{
@@ -127,7 +127,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void WriteRemovedObjects(ParamsWriteContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 
 		ctx.Write(s_RemovedObjects.Count());
 		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
@@ -162,7 +162,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void RPC_RemoveObjects(ParamsReadContext ctx)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 		
 		//! Client only!
 		if (GetGame().IsDedicatedServer())
@@ -251,7 +251,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 	static void LoadObjectsFile(string filePath, array<Object> createdObjects = NULL)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, null, filePath);
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule, filePath);
 
 		FileHandle file = OpenFile( filePath, FileMode.READ );
 		if ( !file )
@@ -424,7 +424,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	static void ProcessObject(Object obj)
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 #endif
 
 		CF_Log.Debug("Try to process mapping object: " + obj.ClassName());
@@ -672,7 +672,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	static void LoadMissionTradersFile( string name )
 	{
 #ifdef EXPANSIONTRACE
-		auto trace = EXTrace.Start(ExpansionTracing.MAPPING);
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule);
 #endif
 
 		CF_Log.Debug( "Attempting to load mission trader file: " + name );

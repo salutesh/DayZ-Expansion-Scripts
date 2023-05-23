@@ -123,20 +123,18 @@ static const string EXPANSION_CLIENT_SETTINGS = EXPANSION_FOLDER + "settings.bin
 static const string EXPANSION_CLIENT_MARKERS = EXPANSION_FOLDER + "markers.bin";
 
 /**
- * InGame Menu
+ * Server Browser Menu
  * @{
  */
-const int EXPANSION_IDC_MAIN_OPTIONS	  	= 50000100;
-const int EXPANSION_IDC_Int_RETRY			= 50000101;
-const int EXPANSION_IDC_MAIN_QUIT		 	= 50000102;
-const int EXPANSION_IDC_MAIN_CONTINUE		= 50000103;
 const int EXPANSION_IDC_Int_DIRECT			= 50000104;
 
+/**
+ * Player attachment
+ * @{
+ */
 const int EXPANSION_INPUT_UDT_PLAYER_LINK	= 40003000;
 const int EXPANSION_INPUT_UDT_GET_IN_TRANSPORT_UNLINK	= 40003001;
 const int EXPANSION_INPUT_UDT_PERFORM_CLIMB	= 40003002;
-
-const int EXPANSION_INPUT_RPC_PLAYER_LINK	= 40003003;
 
 enum ExpansionPlayerLink
 {
@@ -155,6 +153,10 @@ enum ExpansionPlayerRaycastResult
 	DETACH
 }
 
+/**
+ * Item tooltips
+ * @{
+ */
 enum ExpansionItemQuantityType
 {
 	PC = 1,
@@ -212,117 +214,19 @@ static const string EXPANSION_NOTIFICATION_ICON_T_Gun = "Gun";
 static const string EXPANSION_NOTIFICATION_ICON_T_Walkie_Talkie = "Walkie Talkie";
 
 /**
- * Expansion Flags texture paths
+ * Expansion social media URLs
  * @{
  */
-//! Vanilla flags
-static const string EXPANSION_FLAG_DAYZ_CHERNARUS = "dz\\gear\\camping\\Data\\Flag_Chern_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CHEDAKI = "dz\\gear\\camping\\Data\\Flag_Ched_co.paa";
-static const string EXPANSION_FLAG_DAYZ_NAPA = "dz\\gear\\camping\\Data\\Flag_NAPA_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CDF = "dz\\gear\\camping\\Data\\Flag_CDF_co.paa";
-static const string EXPANSION_FLAG_DAYZ_LIVONIA = "dz\\gear\\camping\\Data\\Flag_Livo_co.paa";
-static const string EXPANSION_FLAG_DAYZ_ALTIS = "dz\\gear\\camping\\Data\\Flag_Alti_co.paa";
-static const string EXPANSION_FLAG_DAYZ_SSAHRANI = "dz\\gear\\camping\\Data\\Flag_KoS_co.paa";
-static const string EXPANSION_FLAG_DAYZ_NSAHRANI = "dz\\gear\\camping\\Data\\Flag_DRoS_co.paa";
-static const string EXPANSION_FLAG_DAYZ_DAYZ = "dz\\gear\\camping\\Data\\Flag_DAYZ_co.paa";
-static const string EXPANSION_FLAG_DAYZ_LIVONIA_ARMY = "dz\\gear\\camping\\Data\\Flag_LDF_co.paa";
-static const string EXPANSION_FLAG_DAYZ_WHITE = "dz\\gear\\camping\\Data\\Flag_white_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BOHEMIA = "dz\\gear\\camping\\Data\\Flag_BI_co.paa";
-static const string EXPANSION_FLAG_DAYZ_APA = "dz\\gear\\camping\\Data\\Flag_APA_co.paa";
-static const string EXPANSION_FLAG_DAYZ_UEC = "dz\\gear\\camping\\Data\\Flag_UEC_co.paa";
-static const string EXPANSION_FLAG_DAYZ_PIRATES = "dz\\gear\\camping\\Data\\Flag_jolly_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CANNIBALS = "dz\\gear\\camping\\Data\\Flag_jolly_c_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BEAR = "dz\\gear\\camping\\Data\\Flag_bear_co.paa";
-static const string EXPANSION_FLAG_DAYZ_WOLF = "dz\\gear\\camping\\Data\\Flag_wolf_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BABY_DEER = "dz\\gear\\camping\\Data\\Flag_Fawn_co.paa";
-static const string EXPANSION_FLAG_DAYZ_ROOSTER = "dz\\gear\\camping\\Data\\Flag_cock_co.paa";
-static const string EXPANSION_FLAG_DAYZ_LIVONIA_POLICE = "dz\\gear\\camping\\Data\\Flag_police_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CMC = "dz\\gear\\camping\\Data\\Flag_CMC_co.paa";
-static const string EXPANSION_FLAG_DAYZ_TEC = "dz\\gear\\camping\\Data\\Flag_TEC_co.paa";
-static const string EXPANSION_FLAG_DAYZ_CHEL = "dz\\gear\\camping\\Data\\Flag_CHEL_co.paa";
-static const string EXPANSION_FLAG_DAYZ_ZENIT = "dz\\gear\\camping\\Data\\Flag_Zenit_co.paa";
-static const string EXPANSION_FLAG_DAYZ_HUNTERZ = "dz\\gear\\camping\\Data\\Flag_zhunters_co.paa";
-static const string EXPANSION_FLAG_DAYZ_BRAINZ = "dz\\gear\\camping\\Data\\Flag_brain_co.paa";
-static const string EXPANSION_FLAG_DAYZ_REFUGE = "dz\\gear\\camping\\Data\\Flag_refuge_co.paa";
-static const string EXPANSION_FLAG_DAYZ_RSTA = "dz\\gear\\camping\\Data\\Flag_rsta_co.paa";
-static const string EXPANSION_FLAG_DAYZ_SNAKE = "dz\\gear\\camping\\Data\\Flag_snake_co.paa";
+static const string EXPANSION_DISCORD_URL = "https://discord.gg/WabhFUa";
+static const string EXPANSION_TWITTER_URL  = "https://twitter.com/DayZExpansion";
+static const string EXPANSION_WIKI_URL = "https://github.com/salutesh/DayZ-Expansion-Scripts/wiki";
 
-//! Expansion flags
-static const string EXPANSION_FLAG_LOGO_EXPANSION = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_expansion_co.paa";
-static const string EXPANSION_FLAG_COLOR_WHITE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_white_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_ARGENTINA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_argentina_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_AUSTRALIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_australia_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CANADA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_canada_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CHERNARUS = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_chernarus_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_FRANCE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_france_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_GERMANY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_germany_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_LATVIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_latvia_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_LUXEMBOURG = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_luxembourg_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_MEXICO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_mexico_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_NETHERLANDS = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_netherlands_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_NEWZEALAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_new_zealand_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_NORWAY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_norway_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_POLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_poland_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_RUSSIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_russia_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_TURKEY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_turkey_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_UK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_uk_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_UKRAINE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_ukraine_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_USA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_usa_co.paa";
-
-static const string EXPANSION_FLAG_COUNTRIES_SCOTLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_scotland_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SWEDEN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_sweden_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SPAIN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_spain_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_BRAZIL = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_brazil_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_PORTUGAL = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_portugal_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_BELGIUM = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_belgium_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_LIVONIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_livonia_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_JAPAN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_japan_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CHINA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_china_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SOUTHKOREA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_southkorea_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_UN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_un_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_NATO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_nato_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_PIRATE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_pirate_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CHEDAKI = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_chedaki_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_NAPA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_napa_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CDF = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_cdf_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_NUEVORICO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_nuevorico_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_BORDURIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_borduria_co.paa";
-static const string EXPANSION_FLAG_LOGO_BIOHAZARD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_biohazard_co.paa";
-static const string EXPANSION_FLAG_LOGO_ANYONEINCHERNO = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_anyoneincherno_co.paa";
-
-static const string EXPANSION_FLAG_COUNTRIES_IRELAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_ireland_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_ITALY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_italy_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_WALES = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_wales_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SWITZERLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_switzerland_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SKILAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_skilanka_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SOUTHAFRICA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_southafrica_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_SICILY = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_sicily_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_OFFWITHHEAD = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_offwithhead_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_GIBRALTAR = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_gibraltar_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_CZECHIA = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_czechia_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_FARI = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_fari_co.paa";
-static const string EXPANSION_FLAG_COUNTRIES_FINLAND = "DayZExpansion\\Objects\\Structures\\Flags\\data\\countries\\flag_finland_co.paa";
-static const string EXPANSION_FLAG_LOGO_DAYZWHITE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_dayzwhite_co.paa";
-static const string EXPANSION_FLAG_LOGO_DAYZBLACK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_dayzblack_co.paa";
-static const string EXPANSION_FLAG_LOGO_DOUBLEAXE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_doubleaxe_co.paa";
-static const string EXPANSION_FLAG_LOGO_GRENADE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\logos\\flag_grenade_co.paa";
-static const string EXPANSION_FLAG_COLOR_RED = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_red_co.paa";
-static const string EXPANSION_FLAG_COLOR_BLUE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_blue_co.paa";
-static const string EXPANSION_FLAG_COLOR_GREEN = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_green_co.paa";
-static const string EXPANSION_FLAG_COLOR_YELLOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_yellow_co.paa";
-static const string EXPANSION_FLAG_COLOR_ORANGE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_orange_co.paa";
-static const string EXPANSION_FLAG_COLOR_PINK = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_pink_co.paa";
-static const string EXPANSION_FLAG_COLOR_PURPLE = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_purple_co.paa";
-static const string EXPANSION_FLAG_COLOR_RAINBOW = "DayZExpansion\\Objects\\Structures\\Flags\\data\\colors\\flag_rainbow_co.paa";
-
-//! Storage save version
+/**
+ * Storage save version
+ * @{
+ */
 static const int EXPANSION_VERSION_CURRENT_SAVE = 49;
 
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 48;
 static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 39;  //! Also used for groups
-
-//! Expansion social media URLs
-static const string EXPANSION_DISCORD_URL = "https://discord.gg/WabhFUa";
-static const string EXPANSION_TWITTER_URL  = "https://twitter.com/DayZExpansion";
-static const string EXPANSION_WIKI_URL = "https://github.com/salutesh/DayZ-Expansion-Scripts/wiki";

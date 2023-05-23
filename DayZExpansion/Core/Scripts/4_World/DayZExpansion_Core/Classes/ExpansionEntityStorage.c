@@ -83,7 +83,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS);
+		auto trace = EXTrace.Start(ExpansionTracing.GENERAL_ITEMS, this);
 
 		super.OnMissionStart(sender, args);
 

@@ -319,7 +319,8 @@ class ExpansionPhysicsState
 			}
 			else if (!prevSync && !m_IsSync && m_TimeSinceDesync > vehicleResyncTimeout && !m_HaltPhysics)
 			{
-				trace = EXTrace.Start(EXTrace.VEHICLES && driver != NULL, m_Entity, "Client desynced for " + m_TimeSinceDesync + " - halting physics updates");
+				if (EXTrace.VEHICLES && driver != NULL)
+					trace = EXTrace.Start(true, m_Entity, "Client desynced for " + m_TimeSinceDesync + " - halting physics updates");
 
 				//! If <VehicleResyncTimeout> seconds after we desynced we are still desynced, halt vehicle physics updates on client
 				m_HaltPhysics = true;

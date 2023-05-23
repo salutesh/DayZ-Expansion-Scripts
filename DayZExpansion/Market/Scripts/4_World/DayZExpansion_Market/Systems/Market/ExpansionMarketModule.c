@@ -60,7 +60,7 @@ class ExpansionMarketPlayerInventory
 
 	void Enumerate()
 	{
-		auto trace = EXTrace.Start(ExpansionTracing.MARKET);
+		auto trace = EXTrace.Start(ExpansionTracing.MARKET, this);
 
 		array<EntityAI> items = new array<EntityAI>;
 		items.Reserve(m_Player.GetInventory().CountInventory());
@@ -3226,7 +3226,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		trader.m_TradingPlayers.Insert(senderRPC.GetId(), true);
+		trader.AddInteractingPlayer(senderRPC.GetPlayer());
 
 		auto hitch = EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
 
@@ -3636,7 +3636,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		trader.m_TradingPlayers.Remove(senderRPC.GetId());
+		trader.RemoveInteractingPlayer(senderRPC.GetPlayer());
 	}
 
 	bool IsMoney(string type)
