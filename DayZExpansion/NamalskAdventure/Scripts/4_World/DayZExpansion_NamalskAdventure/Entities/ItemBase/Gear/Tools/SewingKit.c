@@ -1,4 +1,4 @@
-class AmmoCleaningKit: Inventory_Base 
+modded class SewingKit
 {
 	override void InitItemVariables()
 	{

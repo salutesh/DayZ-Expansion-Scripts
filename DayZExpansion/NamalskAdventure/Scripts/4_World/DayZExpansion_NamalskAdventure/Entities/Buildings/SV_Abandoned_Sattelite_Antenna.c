@@ -86,8 +86,6 @@ class SV_Abandoned_Sattelite_Antenna: House
 	void OnSatelliteStateActiveStart()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		
 	}
 	
 	void OnSatelliteStateActiveEnd()
