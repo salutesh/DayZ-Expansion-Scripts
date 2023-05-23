@@ -14,6 +14,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 {
 	private ref ExpansionHardlineHUDController m_HardlineHUDController;
 	private int m_CurrentReputation = -1;
+	private int m_CurrentReputationChange;
 
 	protected Widget Reputation;
 	protected TextWidget ReputationVal;
@@ -25,7 +26,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	protected ref Timer m_ReputationChangeFadeOut;
 	protected bool m_ViewInit = false;
 	protected float m_StartPosX, m_StartPosY;
-	protected float m_LastYPos = 0;
+	protected float m_DeltaY = 0;
 	protected bool m_FadedOut = false;
 
 	protected IngameHud m_Hud;
@@ -94,49 +95,48 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		if (difference > 0)
 		{
 			text = "+" + difference.ToString();
-			ReputationChangeVal.SetColor(ARGB(200, 46, 204, 113));
+			ReputationChangeVal.SetColor(ARGB(0, 46, 204, 113));
 		}
 		else
 		{
 			text = difference.ToString();
-			ReputationChangeVal.SetColor(ARGB(200, 231, 76, 60));
+			ReputationChangeVal.SetColor(ARGB(0, 231, 76, 60));
 		}
+
+		m_CurrentReputationChange = m_CurrentReputation - difference;
 
 		m_HardlineHUDController.ReputationChangeValue = text;
 		m_HardlineHUDController.NotifyPropertyChanged("ReputationChangeValue");
-		m_ReputationChangeFadeTimer.FadeIn(ReputationChangeVal, 3.0, true);
-		m_ReputationChangeTimer.Run(0.01, this, "UpdateReputationChange", NULL, true);
+
+		m_ReputationChangeFadeTimer.FadeIn(ReputationChangeVal, 0.25, true);
+		m_ReputationChangeTimer.Run(1 / 60.0, this, "UpdateReputationChange", NULL, true);
 	}
 
 	void UpdateReputationChange()
 	{
-		float finalXPos, finalYPos;
-		ReputationVal.GetPos(finalXPos, finalYPos);
-
-		float x, y;
-		ReputationChange.GetPos(x, y);
-		m_LastYPos = y;
-
-		if (m_LastYPos > finalYPos)
+		if (m_DeltaY < 28.0)
 		{
-			float newY = m_LastYPos - 1.0;
-			ReputationChange.SetPos(x, newY, true);
+			m_DeltaY += 1.0;
+			ReputationChange.SetPos(m_StartPosX, m_StartPosY - m_DeltaY, true);
+		}
+		
+		if (m_CurrentReputationChange != m_CurrentReputation)
+		{
+			if (m_CurrentReputationChange < m_CurrentReputation)
+				m_CurrentReputationChange++;
+			else
+				m_CurrentReputationChange--;
 
-			m_HardlineHUDController.ReputationVal = Math.RandomInt(0, m_CurrentReputation).ToString();
+			m_HardlineHUDController.ReputationVal = m_CurrentReputationChange.ToString();
 			m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
 		}
-		else if (m_LastYPos <= finalYPos)
+		else if (ReputationChangeVal.GetAlpha() > 0.95)
 		{
-			ReputationVal.Show(false);
+			m_ReputationChangeFadeTimer.Stop();
+			m_ReputationChangeFadeTimer.FadeOut(ReputationChangeVal, 1.0, true);
 			m_ReputationChangeTimer.Stop();
-			m_ReputationChangeTimer.Run(1.0, this, "OnReputationChangeFadeOut");
+			m_ReputationChangeTimer.Run(1.0, this, "OnReputationChangeReset");
 		}
-	}
-
-	void OnReputationChangeFadeOut()
-	{
-		m_ReputationChangeFadeTimer.FadeOut(ReputationChangeVal, 3.0, true);
-		m_ReputationChangeFadeOut.Run(3.0, this, "OnReputationChangeReset");
 	}
 
 	void OnReputationChangeReset()
@@ -146,8 +146,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 		ReputationChangeVal.SetAlpha(0);
 		ReputationChange.SetPos(m_StartPosX, m_StartPosY);
-
-		ReputationVal.Show(true);
+		m_DeltaY = 0.0;
 
 		m_HardlineHUDController.ReputationVal = m_CurrentReputation.ToString();
 		m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
@@ -165,6 +164,9 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 	void ShowHud(bool state)
 	{
+		if (IsVisible() == state)
+			return;
+
 		if (state)
 		{
 			Show();

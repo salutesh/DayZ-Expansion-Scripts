@@ -44,10 +44,8 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 
 		if (m_QuestNPCID > -1)
 		{
-		#ifdef DIAG
-			if (EXTrace.QUESTS && !ExpansionQuestModule.GetQuestObjectByID(m_QuestNPCID))
-				EXTrace.Print(true, this, "NPC ID: " + m_QuestNPCID);
-		#endif
+			if (!ExpansionQuestModule.GetQuestObjectByID(m_QuestNPCID))
+				EXPrint(this, "::OnVariablesSynchronized - NPC ID: " + m_QuestNPCID);
 			ExpansionQuestModule.AddStaticQuestObject(m_QuestNPCID, this);
 		}
 
@@ -61,7 +59,6 @@ class ExpansionQuestStaticObject: ExpansionStaticObjectBase
 		
 		ExpansionQuestModule.AddStaticQuestObject(id, this);
 		
-		GetGame().RegisterNetworkStaticObject(this);
 		SetSynchDirty();
 	}
 

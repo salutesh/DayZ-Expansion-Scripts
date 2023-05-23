@@ -90,8 +90,6 @@ class ExpansionTraderObjectBase
 	protected ref ExpansionMarketTrader m_Trader;
 
 	private EntityAI m_TraderEntity;
-	
-	ref map<string, bool> m_TradingPlayers;
 
 	void ExpansionTraderObjectBase(EntityAI traderEntity, string fileName = "")
 	{
@@ -100,8 +98,6 @@ class ExpansionTraderObjectBase
 #endif
 		
 		m_allTraderObjects.Insert(this);
-
-		m_TradingPlayers = new map<string, bool>;
 
 		SetTraderEntity(traderEntity);
 		LoadTrader(fileName);
@@ -456,6 +452,24 @@ class ExpansionTraderObjectBase
 	{
 		return m_TraderEntity;
 	}
+
+	void AddInteractingPlayer(Man player)
+	{
+	#ifdef EXPANSIONMODAI
+		eAIBase ai;
+		if (Class.CastTo(ai, m_TraderEntity))
+			ai.eAI_AddInteractingPlayer(player);
+	#endif
+	}
+
+	void RemoveInteractingPlayer(Man player)
+	{
+	#ifdef EXPANSIONMODAI
+		eAIBase ai;
+		if (Class.CastTo(ai, m_TraderEntity))
+			ai.eAI_RemoveInteractingPlayer(player);
+	#endif
+	}
 }
 
 /**@class		ExpansionTraderStaticBase
@@ -679,13 +693,6 @@ class ExpansionTraderAIBase: eAIBase
 	override bool PlayerIsEnemy(PlayerBase other)
 	{
 		return false;
-	}
-#endif
-
-#ifdef EXPANSIONMODAI
-	override bool IsTrading()
-	{
-		return m_TraderObject && m_TraderObject.m_TradingPlayers.Count() > 0;
 	}
 #endif
 

@@ -139,6 +139,8 @@ class eAIBase: PlayerBase
 	ref array<ItemBase> m_Expansion_ActiveVisibilityEnhancers = {};
 	bool m_Expansion_TriedTurningOnVisibilityEnhancers;
 
+	ref set<Man> m_eAI_InteractingPlayers = new set<Man>;
+
 	void eAIBase()
 	{
 #ifdef EAI_TRACE
@@ -2873,9 +2875,26 @@ class eAIBase: PlayerBase
 		return m_WeaponRaisedTimer > 0.5;
 	}
 
-	bool IsTrading()
+	void eAI_AddInteractingPlayer(Man player)
 	{
-		return false;
+		m_eAI_InteractingPlayers.Insert(player);
+	}
+
+	void eAI_RemoveInteractingPlayer(Man player)
+	{
+#ifdef DAYZ_1_20
+		int remove_index = m_eAI_InteractingPlayers.Find(player);
+		if (remove_index >= 0)
+			m_eAI_InteractingPlayers.Remove(remove_index);
+#else
+		//! 1.21+
+		m_eAI_InteractingPlayers.RemoveItem(player);
+#endif
+	}
+
+	bool eAI_HasInteractingPlayers()
+	{
+		return m_eAI_InteractingPlayers.Count() > 0;
 	}
 
 	ActionBase StartAction(typename actionType, ActionTarget target)

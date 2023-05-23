@@ -71,6 +71,30 @@ class ExpansionString
 		return hash;
 	}
 
+	static string CamelCaseToWords(string str, string sep = " ")
+	{
+		string output;
+		string c;
+		string cUpper;
+		string cLower;
+		bool wasLower;
+
+		for (int j = 0; j < str.Length(); j++)
+		{
+			c = str[j];
+			cUpper = c;
+			cUpper.ToUpper();
+			cLower = c;
+			cLower.ToLower();
+			if (wasLower && c == cUpper && c != cLower)
+				output += sep;
+			output += c;
+			wasLower = c != cUpper && c == cLower;
+		}
+
+		return output;
+	}
+
 	bool StartsWith(string prefix)
 	{
 		return m_String.IndexOf(prefix) == 0;

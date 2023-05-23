@@ -64,7 +64,7 @@
 				return CONTINUE;
 			</event_update>
 		</state>
-		<state name="Trading">
+		<state name="Interacting">
 			<variables />
 			<editor_data>
 				<position x="646.85281251958" y="173.442104279785" />
@@ -75,7 +75,7 @@
 			</event_entry>
 			<event_exit />
 			<event_update>
-				if (unit.IsTrading())
+				if (unit.eAI_HasInteractingPlayers())
 				{
 					return CONTINUE;
 				}
@@ -500,13 +500,13 @@
 				<position_destination x="719.85281251958" y="173.442104279785" />
 			</editor_data>
 			<guard>
-				if (!(unit.IsTrading())) return FAIL;
+				if (!(unit.eAI_HasInteractingPlayers())) return FAIL;
 				
 				return SUCCESS;
 			</guard>
 			<event />
 			<from_state />
-			<to_state name="Trading" />
+			<to_state name="Interacting" />
 		</transition>
 		<transition>
 			<editor_data>
@@ -514,12 +514,12 @@
 				<position_destination x="637.094556721445" y="329" />
 			</editor_data>
 			<guard>
-				if (unit.IsTrading()) return FAIL;
+				if (unit.eAI_HasInteractingPlayers()) return FAIL;
 				
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Trading" />
+			<from_state name="Interacting" />
 			<to_state name="Idle" />
 		</transition>
 		<transition>

@@ -795,6 +795,11 @@ class ExpansionQuestModule: CF_ModuleWorld
 				RPC_RequestOpenQuestMenu(rpc.Context, rpc.Sender, rpc.Target);
 				break;
 			}
+			case ExpansionQuestModuleRPC.ExitQuestMenu:
+			{
+				RPC_ExitQuestMenu(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
 			case ExpansionQuestModuleRPC.RequestCreateQuestInstance:
 			{
 				RPC_RequestCreateQuestInstance(rpc.Context, rpc.Sender, rpc.Target);
@@ -1128,6 +1133,8 @@ class ExpansionQuestModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODAI
 		if (npcAI)
 		{
+			npcAI.eAI_AddInteractingPlayer(identity.GetPlayer());
+
 			EmoteManager npcEmoteManager = npcAI.GetEmoteManager();
 			if (!npcEmoteManager.IsEmotePlaying())
 			{
@@ -1212,6 +1219,32 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		//! Populate quest menu with needed client data.
 		m_QuestMenuInvoker.Invoke(displayName, defaultText, questNPCID, questID);
+	}
+
+	//! Client
+	void ExitQuestMenu(int questNPCID)
+	{
+	#ifdef EXPANSIONMODAI
+		auto npc = GetQuestNPCAIByID(questNPCID);
+		if (npc)
+		{
+			auto rpc = ExpansionScriptRPC.Create();
+			rpc.Send(npc, ExpansionQuestModuleRPC.ExitQuestMenu, true, null);
+		}
+	#endif
+	}
+
+	//! Server
+	void RPC_ExitQuestMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
+	#ifdef EXPANSIONMODAI
+		eAIBase npc;
+		if (Class.CastTo(npc, target))
+			npc.eAI_RemoveInteractingPlayer(senderRPC.GetPlayer());
+	#endif
 	}
 
 	//! Client

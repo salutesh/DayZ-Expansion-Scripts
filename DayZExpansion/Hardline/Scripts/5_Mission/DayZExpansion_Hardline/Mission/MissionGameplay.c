@@ -40,21 +40,14 @@ modded class MissionGameplay
 	{
 		super.Expansion_OnUpdate(timeslice, player, isAliveConscious, input, inputIsFocused, menu, viewMenu);
 
-		if (isAliveConscious)
+		InventoryMenu inventoryMenu;
+		if (viewMenu || (menu && !Class.CastTo(inventoryMenu, menu)) || m_Hud.IsHideHudPlayer())
 		{
-			InventoryMenu inventoryMenu;
-			if (viewMenu || (menu && !Class.CastTo(inventoryMenu, menu)) || m_Hud.IsHideHudPlayer())
-			{
-				m_ExpansionHardlineHUD.ShowHud(false);
-			}
-			else
-			{
-				m_ExpansionHardlineHUD.ShowHud(true);
-			}
+			m_ExpansionHardlineHUD.ShowHud(false);
 		}
 		else
 		{
-			m_ExpansionHardlineHUD.ShowHud(false);
+			m_ExpansionHardlineHUD.ShowHud(true);
 		}
 	}
 };
