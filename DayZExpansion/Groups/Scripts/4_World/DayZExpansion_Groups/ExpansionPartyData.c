@@ -272,7 +272,6 @@ class ExpansionPartyData
 		{
 			Players.RemoveItem(player);
 			PlayersMap.Remove(uid);
-			player.OnLeave();
 			OnLeave( player );
 			return true;
 		}
@@ -925,7 +924,7 @@ class ExpansionPartyData
 
 	void OnJoin(ExpansionPartyPlayerData player)
 	{
-		EXPrint(ToString() + "::OnJoin party " + PartyName + " player " + player.Name + " (ID " + player.GetID() + ")");
+		EXPrint(ToString() + "::OnJoin party " + PartyName + " (ID " + PartyID + ") player " + player.Name + " (ID " + player.GetID() + ")");
 	#ifdef EXPANSIONMODNAVIGATION
 		SyncMarkers_RemovePlayer(player);
 	#endif
@@ -936,10 +935,12 @@ class ExpansionPartyData
 
 	void OnLeave(ExpansionPartyPlayerData player)
 	{
-		EXPrint(ToString() + "::OnLeave party " + PartyName + " player " + player.Name + " (ID " + player.GetID() + ")");
+		EXPrint(ToString() + "::OnLeave party " + PartyName + " (ID " + PartyID + ") player " + player.Name + " (ID " + player.GetID() + ")");
 	#ifdef EXPANSIONMODNAVIGATION
 		SyncMarkers_RemovePlayer(player);
 	#endif
+
+		player.OnLeave();
 		
 		if (GetExpansionSettings().GetLog().Party)
 			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + player.Name + "\" (id=" + player.GetID() + ")" + " left the party \"" + PartyName + "\" (id=" + PartyID + " ownerUID=" + OwnerUID + " ownerName=" + OwnerName + ")");

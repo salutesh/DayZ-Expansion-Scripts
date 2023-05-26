@@ -17,7 +17,7 @@ enum Expansion_Satellite_Control_ERPCs
 };
 
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
-#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 class Expansion_Satellite_Control: House
 {
 #ifdef DIAG
@@ -232,7 +232,7 @@ class Expansion_Satellite_Control: House
 	override void OnVariablesSynchronized()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnVariablesSynchronized - Satellite active: " + m_IsSatelliteActive.ToString());
+		ExDebugPrint("::OnVariablesSynchronized - Satellite active: " + m_IsSatelliteActive.ToString());
 
 		super.OnVariablesSynchronized();
 	}
@@ -307,10 +307,10 @@ class Expansion_Satellite_Control: House
 #endif
 #endif
 	
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

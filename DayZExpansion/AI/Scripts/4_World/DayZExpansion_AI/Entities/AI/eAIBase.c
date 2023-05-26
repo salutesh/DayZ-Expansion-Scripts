@@ -1099,7 +1099,9 @@ class eAIBase: PlayerBase
 
 	void UpdateTargets(float pDt)
 	{
+#ifdef DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, eAIBase);
+#endif
 
 #ifdef EAI_TRACE
 		int ticks;
@@ -1292,9 +1294,9 @@ class eAIBase: PlayerBase
 
 	void eAI_PrioritizeTargets()
 	{
+#ifdef DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, eAIBase);
 
-#ifdef DIAG
 		auto hitch = EXHitch(ToString() + "::eAI_PrioritizeTargets ", 20000);
 #endif
 

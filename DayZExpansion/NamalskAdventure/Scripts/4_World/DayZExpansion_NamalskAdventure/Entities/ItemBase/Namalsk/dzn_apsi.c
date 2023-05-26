@@ -83,14 +83,14 @@ class ExpansionAnomalyHUDMarker: ScriptView
 		
 		GetLayoutRoot().SetPos(localPos[0], localPos[1], true);
 		
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Player position:" + playerPos.ToString());
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Player camera dir:" + camDir.ToString());
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Aligned anormaly position:" + alignedToAnomaly.ToString());
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Parent position:" + parentPos.ToString());
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Parent widget size Width:" + width + " | Height: " + height);
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Anomaly world to screen position:" + screenPos.ToString());
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Screen size Width:" + screen_width + " | Height: " + screen_height);
-		DebugTrace("::SetWidgetPositionFromWorldPosition - Local position X:" + localPos + " | Y: " + localPos);
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Player position:" + playerPos.ToString());
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Player camera dir:" + camDir.ToString());
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Aligned anormaly position:" + alignedToAnomaly.ToString());
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Parent position:" + parentPos.ToString());
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Parent widget size Width:" + width + " | Height: " + height);
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Anomaly world to screen position:" + screenPos.ToString());
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Screen size Width:" + screen_width + " | Height: " + screen_height);
+		ExDebugPrint("::SetWidgetPositionFromWorldPosition - Local position X:" + localPos + " | Y: " + localPos);
 	}
 	
 	protected float GetUpdateTickRate()
@@ -120,9 +120,9 @@ class ExpansionAnomalyHUDMarker: ScriptView
 		}
 	}
 	
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };
 class ExpansionAnomalyHUDMarkerController: ViewController {};
@@ -181,7 +181,7 @@ class ExpansionAnomalyHUD: ScriptView
 		while (node)
 		{
 		    Expansion_Anomaly_Base anomaly = node.m_Value;
-		    DebugTrace("::UpdateRadar - Anomaly: " + anomaly.ToString() + " | Position: " + anomaly.GetPosition());
+		    ExDebugPrint("::UpdateRadar - Anomaly: " + anomaly.ToString() + " | Position: " + anomaly.GetPosition());
 
 			anomalies.Insert(anomaly.GetType(), anomaly.GetPosition());
 		    node = node.m_Next;
@@ -211,9 +211,9 @@ class ExpansionAnomalyHUD: ScriptView
 		return MarkerPanel;
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };
 class ExpansionAnomalyHUDController: ViewController {};
@@ -260,9 +260,9 @@ modded class dzn_apsi
 		}
 	}
 	
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };
 #endif*/

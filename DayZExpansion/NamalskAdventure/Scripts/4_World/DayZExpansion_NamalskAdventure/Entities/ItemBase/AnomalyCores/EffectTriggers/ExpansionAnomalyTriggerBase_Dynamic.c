@@ -34,7 +34,7 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 	override void OnEnterClientEvent(TriggerInsider insider)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
 
 		if (insider.GetObject().IsInherited(PlayerBase))
 		{

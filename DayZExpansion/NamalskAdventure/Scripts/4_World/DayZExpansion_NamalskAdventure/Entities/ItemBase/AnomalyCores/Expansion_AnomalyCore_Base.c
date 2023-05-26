@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -180,7 +180,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override void EOnContact(IEntity other, Contact extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EOnContact - Entity: " + other.ToString());
+		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
 
 		if (GetGame().IsServer())
 		{
@@ -194,7 +194,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	void UpdateAnomalyCoreState(ExpansionAnomalyCoreState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::UpdateAnomalyCoreState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
+		ExDebugPrint("::UpdateAnomalyCoreState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
 
 		if (GetGame().IsServer())
 		{
@@ -357,7 +357,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	protected void UpdateVisualState(ExpansionAnomalyCoreState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::UpdateVisualState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
+		ExDebugPrint("::UpdateVisualState - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
 
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateAnomalyCoreVFX_Deferred, 0, false, state);
 	}
@@ -365,7 +365,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	protected void UpdateAnomalyCoreVFX_Deferred(ExpansionAnomalyCoreState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::UpdateAnomalyCoreVFX_Deferred - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
+		ExDebugPrint("::UpdateAnomalyCoreVFX_Deferred - Anomaly core state: " + typename.EnumToString(ExpansionAnomalyCoreState, state));
 		
 		switch (state)
 		{
@@ -486,7 +486,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override void OnItemLocationChanged(EntityAI old_owner, EntityAI new_owner)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnItemLocationChanged - Old owner : " + old_owner.ToString() + " | New owner: " + new_owner.ToString());
+		ExDebugPrint("::OnItemLocationChanged - Old owner : " + old_owner.ToString() + " | New owner: " + new_owner.ToString());
 
 		super.OnItemLocationChanged(old_owner, new_owner);
 
@@ -524,16 +524,16 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	void SetSunSelectionMaterial(string material_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetSunSelectionMaterial - Material: " + material_name);
+		ExDebugPrint("::SetSunSelectionMaterial - Material: " + material_name);
 	
 		SetObjectMaterial(1, material_name);
 		SetObjectTexture(1, "");
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

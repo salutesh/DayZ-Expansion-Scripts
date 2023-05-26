@@ -63,12 +63,12 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 		Expansion_SupplyCrate_Base crate = Expansion_SupplyCrate_Base.Cast(action_data.m_Target.GetObject());
 		if (crate)
 		{
-			DebugTrace("::OnExecuteServer - Crate: " + crate.ToString());
+			ExDebugPrint("::OnExecuteServer - Crate: " + crate.ToString());
 			int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionSupplyCrateKey");
 			crate.GetInventory().SetSlotLock(slot_id_key, false);
 
 			Expansion_SupplyCrate_Key_Base currentKey = Expansion_SupplyCrate_Key_Base.Cast(crate.GetInventory().FindAttachment(slot_id_key));
-			DebugTrace("::OnExecuteServer - Attached key: " + currentKey.ToString());
+			ExDebugPrint("::OnExecuteServer - Attached key: " + currentKey.ToString());
 			int healthLvl = currentKey.GetHealthLevel();
 			string keyType = currentKey.GetType();
 			GetGame().ObjectDelete(currentKey);
@@ -88,10 +88,10 @@ class ExpansionActionRemoveSupplyCrateKey: ActionInteractBase
 		}
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

@@ -226,10 +226,10 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		DebugTrace("---------============ Spawning items at pos:" + m_Position);
+		ExDebugPrint("---------============ Spawning items at pos:" + m_Position);
 		foreach (int j, string type:SPAWN_ITEM_TYPE)
 		{
-			DebugTrace("----------------------------------");
+			ExDebugPrint("----------------------------------");
 			for (int i = 0; i < SPAWN_ITEM_COUNT[j]; i++)
 			{
 				vector randomDir2d = vector.RandomDir2D();
@@ -240,7 +240,7 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 				Math3D.MatrixIdentity4(mat);
 				mat[3] = spawnPos;
 				il.SetGround(NULL, mat);
-				DebugTrace("::SpawnItems - Spawning item: " + type + " at position:" + il.GetPos());
+				ExDebugPrint("::SpawnItems - Spawning item: " + type + " at position:" + il.GetPos());
 				GetGame().CreateObjectEx(type, il.GetPos(), ECE_PLACE_ON_SURFACE);
 			}
 		}
@@ -397,8 +397,8 @@ class ExpansionAnomalyAreaBase_Dynamic : EffectArea
 		}
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };

@@ -75,8 +75,15 @@ modded class MissionMainMenu
 
 	override void PlayMusic()
 	{
-	#ifndef NAMALSK_SURVIVAL
-		if (!m_MenuMusic)
+		bool ex_PlayExpMusic = true;
+		#ifndef NAMALSK_SURVIVAL
+			ex_PlayExpMusic = false;
+		#endif
+		#ifndef FALLUJAH_MAP
+			ex_PlayExpMusic = false;
+		#endif
+		
+		if (ex_PlayExpMusic && !m_MenuMusic)
 		{
 			SoundParams soundParams = new SoundParams("Expansion_Music_2_SoundSet");
 			SoundObjectBuilder soundBuilder	= new SoundObjectBuilder(soundParams);
@@ -86,8 +93,9 @@ modded class MissionMainMenu
 			m_MenuMusic.Loop(true);
 			m_MenuMusic.Play();
 		}
-	#else
-		super.PlayMusic();
-	#endif
+		else
+		{
+			super.PlayMusic();
+		}
 	}
 };

@@ -17,6 +17,7 @@ class CfgSlots
 		name = "Att_ExpansionAnomalyCore";
 		displayName = "Anomaly Core";
 		selection = "att_anomaly_core";
+		ghostIcon = "set:expansion_inventory image:anomaly";
 	};
 	class Slot_Att_ExpansionSupplyCrateKey
 	{
@@ -350,7 +351,7 @@ class CfgVehicles
 				class Health
 				{
 					hitpoints = 70;
-					healthLevels[] = {{1,{"DZ\weapons\attachments\data\m4_flashlight.rvmat","dz\gear\tools\data\flashlight_glass.rvmat"}},{0.7,{}},{0.5,{"DZ\weapons\attachments\data\m4_flashlight_damage.rvmat","dz\gear\tools\data\flashlight_glass_damage.rvmat"}},{0.3,{}},{0,{"DZ\weapons\attachments\data\m4_flashlight_destruct.rvmat","dz\gear\tools\data\flashlight_glass_destruct.rvmat"}}};
+					healthLevels[] = {{1,{"DZ\weapons\attachments\data\m4_flashlight.rvmat","dz\gear\tools\data\flashlight_glass.rvmat"}},{0.7,{}},{0.5,{"DZ\weapons\attachments\data\m4_flashlight_damage.rvmat","dz\gear\tools\data\flashlight_old_damage.rvmat"}},{0.3,{}},{0,{"DZ\weapons\attachments\data\m4_flashlight_destruct.rvmat","dz\gear\tools\data\flashlight_old_destruct.rvmat"}}};
 				};
 			};
 		};
@@ -364,5 +365,49 @@ class CfgVehicles
 			energyUsagePerSecond = 0.0;
 		};
 		soundImpactType = "plastic";
+	};
+	class FxRound;
+	class FxRound_Expansion_BoltAnomaly: FxRound
+	{
+		model = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
+	};
+};
+class cfgAmmoTypes
+{
+	class AType_Bullet_Expansion_BoltAnomaly
+	{
+		name = "Bullet_Expansion_BoltAnomaly";
+	};
+};
+class CfgAmmo
+{
+	class Bullet_HuntingBolt;
+	class Bullet_Expansion_BoltAnomaly: Bullet_HuntingBolt
+	{
+		proxyShape = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
+		spawnPileType = "Expansion_Ammo_BoltAnomaly";
+		round = "FxRound_Expansion_BoltAnomaly";
+	};
+};
+class CfgMagazines
+{
+	class Ammo_HuntingBolt;
+	class Expansion_Ammo_BoltAnomaly: Ammo_HuntingBolt
+	{
+		displayName = "$STR_CfgMagazines_Ammo_HuntingBolt0";
+		descriptionShort = "$STR_CfgMagazines_Ammo_HuntingBolt1";
+		model = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
+		ammo = "Bullet_Expansion_BoltAnomaly";
+		attachments[] = {"Att_ExpansionAnomalyCore"};
+		class GUIInventoryAttachmentsProps
+		{
+			class Attachments
+			{
+				name = "$STR_attachment_accessories";
+				description = "";
+				attachmentSlots[] = {"Att_ExpansionAnomalyCore"};
+				icon = "set:expansion_inventory image:anomaly";
+			};
+		};
 	};
 };

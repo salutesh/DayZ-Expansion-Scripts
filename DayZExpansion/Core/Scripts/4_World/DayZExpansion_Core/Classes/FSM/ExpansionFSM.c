@@ -207,7 +207,9 @@ class ExpansionFSM
 	 */
 	int Update(float pDt, int pSimulationPrecision)
 	{
+#ifdef DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
+#endif
 
 		if (!m_Owner)
 			return EXIT;

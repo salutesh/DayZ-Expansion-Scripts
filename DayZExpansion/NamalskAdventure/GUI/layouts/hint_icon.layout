@@ -1,0 +1,11 @@
+ImageWidgetClass hint_icon {
+ size 48 48
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ mode blend
+ "src alpha" 1
+ "no wrap" 1
+ stretch 1
+}

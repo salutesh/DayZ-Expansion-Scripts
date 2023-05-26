@@ -67,7 +67,7 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 	protected bool EntityConditions(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EntityConditions - Entity: " + other.ToString());
+		ExDebugPrint("::EntityConditions - Entity: " + other.ToString());
 
 		PlayerBase player = PlayerBase.Cast(other);
 		if (player && m_TeleportingPlayers.Find(player) == -1)
@@ -75,7 +75,7 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 			return true;
 		}
 
-		DebugTrace("::EntityConditions - Return FALSE");
+		ExDebugPrint("::EntityConditions - Return FALSE");
 		return false;
 	}
 
@@ -85,10 +85,10 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 		SetCollisionSphere(radius);
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

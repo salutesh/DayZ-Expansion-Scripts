@@ -12,7 +12,7 @@ class CfgPatches
 };
 class CfgMods
 {
-	class DZ_Expansion_NamalskAdventure
+	class EXPANSION_NAMALSK_ADVENTURE
 	{
 		dir = "DayZExpansion/NamalskAdventure";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
@@ -29,6 +29,7 @@ class CfgMods
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
 		dependencies[] = {"Game","World","Mission"};
+		defines[] = {"EXPANSION_NAMALSK_ADVENTURE_DEBUG"};
 		class defs
 		{
 			class gameScriptModule

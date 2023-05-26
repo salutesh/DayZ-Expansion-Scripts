@@ -7,16 +7,13 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Characters","DZ_Gear_Containers","ns_dayz_gear_lehs","DayZExpansion_Core_Objects_CircuitBoard"};
+		requiredAddons[] = {"DZ_Data","DZ_Characters","DZ_Gear_Containers","ns_dayz_gear_lehs","ns_dayz_gear_head","DayZExpansion_Core_Objects_CircuitBoard"};
 	};
 };
 class CfgVehicles
 {
-	class Clothing;
-	class Container_Base;
 	class SmallProtectorCase;
-	class GUIInventoryAttachmentsProps;
-	class Inventory_Base;
+	class Clothing;
 	class dzn_apsi: Clothing
 	{
 		attachments[] += {"Att_ExpansionCircuitBoard"};

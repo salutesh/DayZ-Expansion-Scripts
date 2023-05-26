@@ -32,7 +32,7 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 	override void OnEnterServerEvent(TriggerInsider insider)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnEnterServerEvent(insider);
 
@@ -55,7 +55,7 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 	override void OnLeaveServerEvent(TriggerInsider insider)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnLeaveServerEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnLeaveServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnLeaveServerEvent(insider);
 
@@ -79,7 +79,7 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 	override void OnEnterClientEvent(TriggerInsider insider)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnEnterClientEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnEnterClientEvent(insider);
 	}
@@ -87,7 +87,7 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 	override void OnLeaveClientEvent(TriggerInsider insider)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnLeaveClientEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnLeaveClientEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnLeaveClientEvent(insider);
 	}
@@ -118,7 +118,7 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 	override void OnStayServerEvent(TriggerInsider insider, float deltaTime)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnStayServerEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnStayServerEvent - Insider: " + insider.GetObject().ToString());
 
 		if (m_DealDamageFlag)
 		{
@@ -136,8 +136,8 @@ class ExpansionAnormalAreaTriggerBase extends EffectTrigger
 		return "Expansion_AnomalyArea1_Soundset";
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };

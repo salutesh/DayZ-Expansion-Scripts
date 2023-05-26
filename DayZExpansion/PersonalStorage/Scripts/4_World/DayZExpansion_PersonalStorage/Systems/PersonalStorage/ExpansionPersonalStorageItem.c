@@ -33,6 +33,7 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 	{
 		super.SetFromItem(object, playerUID);
 
+#ifdef SERVER
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, object))
 		{
@@ -42,6 +43,7 @@ class ExpansionPersonalStorageItem: ExpansionPersonalStorageItemBase
 			for (int j = 0; j < 4; j++)
 				m_GlobalID[j] = globalID.m_ID[j];
 		}
+#endif
 	}
 
 	void SetFromContainerItem(ExpansionPersonalStorageContainerItem item, int storageID, TIntArray globalID, string playerUID, bool isStored)

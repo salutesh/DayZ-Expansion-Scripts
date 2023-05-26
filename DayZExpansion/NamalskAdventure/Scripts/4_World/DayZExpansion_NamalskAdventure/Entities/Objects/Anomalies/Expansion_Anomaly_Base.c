@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -275,7 +275,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	void SetAnomalyState(ExpansionAnomalyState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetAnomalyState - Set anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state));
+		ExDebugPrint("::SetAnomalyState - Set anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state));
 
 		m_PrevAnonmalyState = m_AnonmalyState;
 		m_AnonmalyState = state;
@@ -290,13 +290,13 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		SetAnomalyState(ExpansionAnomalyState.ACTIVATED);
-		DebugTrace("::OnAnomalyZoneEnter - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
+		ExDebugPrint("::OnAnomalyZoneEnter - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
 	}
 
 	protected void SetVisualState(ExpansionAnomalyState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetVisualState - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state));
+		ExDebugPrint("::SetVisualState - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state));
 
 		m_VisualState = state;
 	}
@@ -314,7 +314,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 			return;
 		}
 
-		DebugTrace("::SpawnCoreItem - Spawned amomaly core item: " + m_AnomalyCore.GetType() + " | Position: " + GetPosition().ToString());
+		ExDebugPrint("::SpawnCoreItem - Spawned amomaly core item: " + m_AnomalyCore.GetType() + " | Position: " + GetPosition().ToString());
 	}
 
 	Expansion_AnomalyCore_Base GetAnomalyCore()
@@ -361,7 +361,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected void UpdateVisualState(ExpansionAnomalyState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::UpdateVisualState - Anomaly state is: " + typename.EnumToString(ExpansionAnomalyState, state));
+		ExDebugPrint("::UpdateVisualState - Anomaly state is: " + typename.EnumToString(ExpansionAnomalyState, state));
 
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(UpdateAnomalyVFX_Deferred, 0, false, state);
 	}
@@ -370,7 +370,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected void UpdateAnomalyVFX_Deferred(ExpansionAnomalyState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::UpdateAnomalyVFX_Deferred - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state) + " | Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_PrevAnonmalyState));
+		ExDebugPrint("::UpdateAnomalyVFX_Deferred - Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, state) + " | Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_PrevAnonmalyState));
 
 		bool hasCore = true;
 		
@@ -591,15 +591,14 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		if (MiscGameplayFunctions.Expansion_HasAnyCargo(this) || m_AnomalyCore)
 		{
 			//! @note: Only call this if the entity has rly any cargo/attachment or the server crashes lol
-			//! For some reason this throws also a null pointer even if we only call it
 			MiscGameplayFunctions.ThrowAllItemsInInventory(this, ThrowEntityFlags.SPLIT);
 		}
 
-		DebugTrace("::DropAnormalyItems - Check if loot should spawn. Loot spawn type: " + typename.EnumToString(ExpansionAnomalyLootSpawnType, m_LootSpawnType) + " | Loot config: " + m_LootConfig.ToString() + " | Loot item min: " + m_LootItemsMin + " | Loot item max:" + m_LootItemsMax + " | Is loot spawned: " + IsLootSpawned());
+		ExDebugPrint("::DropAnormalyItems - Check if loot should spawn. Loot spawn type: " + typename.EnumToString(ExpansionAnomalyLootSpawnType, m_LootSpawnType) + " | Loot config: " + m_LootConfig.ToString() + " | Loot item min: " + m_LootItemsMin + " | Loot item max:" + m_LootItemsMax + " | Is loot spawned: " + IsLootSpawned());
 		
 		if (m_LootSpawnType == ExpansionAnomalyLootSpawnType.DYNAMIC && m_LootConfig && m_LootItemsMin > 0 && m_LootItemsMax && !IsLootSpawned())
 		{
-			DebugTrace("::DropAnormalyItems - Spawn configured loot: " + m_LootConfig.ToString());
+			ExDebugPrint("::DropAnormalyItems - Spawn configured loot: " + m_LootConfig.ToString());
 			SpawnLoot();
 		}
 	}
@@ -645,7 +644,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	void SetAnomalyExplosion(int explosionTime)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetAnomalyExplosion - Explosion time: " + explosionTime);
+		ExDebugPrint("::SetAnomalyExplosion - Explosion time: " + explosionTime);
 
 		if (MiscGameplayFunctions.Expansion_HasAnyCargo(this) || m_AnomalyCore || m_LootConfig && m_LootItemsMin > 0 && m_LootItemsMax)
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(DropAnormalyItems_Deferred, explosionTime);
@@ -673,7 +672,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		m_LootItemsMin = itemsMin;
 		m_LootItemsMax = itemsMax;
 		m_LootSpawnType = lootType;
-		DebugTrace("::SetLoot - Loot config: " + m_LootConfig.ToString() + " | Min: " + m_LootItemsMin + " | Max: " + m_LootItemsMax + " | Loot type: " + typename.EnumToString(ExpansionAnomalyLootSpawnType, m_LootSpawnType));
+		ExDebugPrint("::SetLoot - Loot config: " + m_LootConfig.ToString() + " | Min: " + m_LootItemsMin + " | Max: " + m_LootItemsMax + " | Loot type: " + typename.EnumToString(ExpansionAnomalyLootSpawnType, m_LootSpawnType));
 	}
 
 	void SpawnLoot()
@@ -688,14 +687,14 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		int randomLoot = Math.RandomInt(m_LootItemsMin, m_LootItemsMax);
-		DebugTrace("::SpawnLootItems - Spawn loot items from loot config: " + m_LootConfig.ToString() + " | Amount: " + randomLoot);
+		ExDebugPrint("::SpawnLootItems - Spawn loot items from loot config: " + m_LootConfig.ToString() + " | Amount: " + randomLoot);
 
 		ExpansionLootSpawner.SpawnLoot(this, m_LootConfig, randomLoot, m_LootItems);
 
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		foreach (EntityAI lootItem: m_LootItems)
 		{
-			DebugTrace("::SpawnLootItems - Spawned loot item from loot config: " + lootItem.GetType() + " | Position: " + lootItem.GetPosition());
+			ExDebugPrint("::SpawnLootItems - Spawned loot item from loot config: " + lootItem.GetType() + " | Position: " + lootItem.GetPosition());
 		}
 	#endif
 	}
@@ -775,7 +774,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		m_SurviviedEVRStorms = m_SurviviedEVRStorms + 1;
 
-		DebugTrace("::IncreaseEVRStormCount - Count: " + m_SurviviedEVRStorms);
+		ExDebugPrint("::IncreaseEVRStormCount - Count: " + m_SurviviedEVRStorms);
 	}
 
 	int SurviviedEVRStormsCount()
@@ -789,7 +788,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	/*override void EOnTouch(IEntity other, int extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EOnTouch - Entity: " + other.ToString());
+		ExDebugPrint("::EOnTouch - Entity: " + other.ToString());
 
 		if (GetGame().IsServer())
 		{
@@ -800,7 +799,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	override void EOnContact(IEntity other, Contact extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EOnContact - Entity: " + other.ToString());
+		ExDebugPrint("::EOnContact - Entity: " + other.ToString());
 
 		if (GetGame().IsServer())
 		{
@@ -811,12 +810,12 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	void ContactEvent(IEntity other, vector position)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::ContactEvent - Entity: " + other.ToString() + " | Position: " + position);
+		ExDebugPrint("::ContactEvent - Entity: " + other.ToString() + " | Position: " + position);
 
 		if (GetGame().IsServer() && !m_ContactEventProcessing)
 		{
 			m_ContactEventProcessing = true;
-			//MiscGameplayFunctions.ThrowAllItemsInInventory(this, 0);
+			//MiscGameplayFunctions.ThrowAllItemsInInventory(this, ThrowEntityFlags.NONE);
 			//CheckForDestroy();
 			m_ContactEventProcessing = false;
 		}
@@ -825,7 +824,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
+		ExDebugPrint("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
 
 		RefreshAnomalyCoreState(item, true);
 	}
@@ -833,7 +832,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
+		ExDebugPrint("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
 
 		RefreshAnomalyCoreState(item, false);
 	}
@@ -841,7 +840,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected void RefreshAnomalyCoreState(EntityAI item, bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::RefreshAnomalyCoreState - Item: " + item.ToString() + " | State:" + state);
+		ExDebugPrint("::RefreshAnomalyCoreState - Item: " + item.ToString() + " | State:" + state);
 
 		bool evrStormActive = ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive();
 		Expansion_AnomalyCore_Base anomalyCore = Expansion_AnomalyCore_Base.Cast(item);
@@ -888,7 +887,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	override void OnVariablesSynchronized()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnVariablesSynchronized - Current anomaly visual state: " + typename.EnumToString(ExpansionAnomalyState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
+		ExDebugPrint("::OnVariablesSynchronized - Current anomaly visual state: " + typename.EnumToString(ExpansionAnomalyState, m_VisualState) + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_AnonmalyState));
 
 		super.OnVariablesSynchronized();
 
@@ -964,10 +963,10 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		GetGame().ObjectDelete(this);
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

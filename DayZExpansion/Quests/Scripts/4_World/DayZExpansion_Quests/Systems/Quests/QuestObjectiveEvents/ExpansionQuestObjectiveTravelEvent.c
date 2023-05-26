@@ -79,7 +79,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 			//! Set the position of the group member that has the shortest distance to the target location
 			//! as our current position if the quest is a group quest.
 			array<vector> groupMemberPos = new array<vector>;
-			array<string> memberUIDs = m_Quest.GetPlayerUIDs();
+			set<string> memberUIDs = m_Quest.GetPlayerUIDs();
 			foreach (string memberUID: memberUIDs)
 			{
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);

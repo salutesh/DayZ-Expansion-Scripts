@@ -14,15 +14,6 @@
 #ifdef EXPANSIONMODGROUPS
 modded class ExpansionPartyData
 {
-	protected bool m_ManualLeave;
-
-	override bool RemoveMember(string uid)
-	{
-		m_ManualLeave = true;
-
-		return super.RemoveMember(uid);
-	}
-
 	//! We send all the group quests to the new group member
 	//! ToDo: Might want to check if the joned player has already
 	//! completed the quests that are active for this group so he cant
@@ -34,55 +25,20 @@ modded class ExpansionPartyData
 		if (!GetExpansionSettings().GetQuest().EnableQuests)
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnGroupMemberJoined, 1000, false, player);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnJoin_Deferred, 1000, false, player);
 	}
 
-	protected void OnGroupMemberJoined(ExpansionPartyPlayerData player)
+	protected void OnJoin_Deferred(ExpansionPartyPlayerData player)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		string playerUID = player.GetID();
-		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
-		if (!playerQuestData)
-		{
-			Error(ToString() + "::OnGroupMemberJoined - No player quest data!");
-			return;
-		}
 
-		array<ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests();
+		map<int, ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests(GetPartyID().ToString());
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
-		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			EXTrace.Print(EXTrace.QUESTS, this, "Quest: " + activeQuestInstance);
-		#endif
-			if (activeQuestInstance.GetQuestConfig().IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
-			{
-			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-				EXTrace.Print(EXTrace.QUESTS, this, "There is a active group quest instance for this player! Add quest.");
-			#endif
-				//! Make sure player has the correct quest state for this quest in his quest data.
-				if (!playerQuestData.HasDataForQuest(activeQuestInstance.GetQuestConfig().GetID()))
-					playerQuestData.AddQuestData(activeQuestInstance.GetQuestConfig().GetID(), activeQuestInstance.GetQuestState());
-
-				activeQuestInstance.UpdateQuest(true);
-				activeQuestInstance.OnGroupMemberJoined(playerUID);
-			}
+			activeQuestInstance.OnGroupMemberJoined(playerUID);
 		}
-
-		PlayerBase playerBase = PlayerBase.GetPlayerByUID(playerUID);
-		if (!playerBase)
-		{
-		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			EXTrace.Print(EXTrace.QUESTS, this, "Could not get player base. Player is offline!");
-		#endif
-			return;
-		}
-
-		//! Add the group ID to the player in to our group list in the quest module.
-		ExpansionQuestModule.GetModuleInstance().AddPlayerGroupID(playerUID, player.GetParty().GetPartyID());
-
-		//! Send the updated persistent quest data to the client.
-		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerQuestData, playerBase.GetIdentity());
 	}
 
 	//! We send all the group quests to the leaving member
@@ -99,47 +55,12 @@ modded class ExpansionPartyData
 			return;
 
 		string playerUID = player.GetID();
-		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
-		if (!playerQuestData)
-		{
-			Error(ToString() + "::OnLeave - No player quest data!");
-			return;
-		}
 
-		array<ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests();
+		map<int, ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests(GetPartyID().ToString());
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
-		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			EXTrace.Print(EXTrace.QUESTS, this, "Quest: " + activeQuestInstance);
-		#endif
-			if (activeQuestInstance.GetQuestConfig().IsGroupQuest() && GetPartyID() == activeQuestInstance.GetGroupID())
-			{
-			#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-				EXTrace.Print(EXTrace.QUESTS, this, "There is a active group quest instance for this player! Remove quest.");
-			#endif
-
-				if (m_ManualLeave)
-				{
-					playerQuestData.UpdateQuestState(activeQuestInstance.GetQuestConfig().GetID(), ExpansionQuestState.NONE);
-					m_ManualLeave = false;
-				}
-
-				playerQuestData.Save(playerUID);
-				activeQuestInstance.OnGroupMemberLeave(playerUID);
-			}
+			activeQuestInstance.OnGroupMemberLeave(playerUID);
 		}
-
-		PlayerBase playerBase = PlayerBase.GetPlayerByUID(playerUID);
-		if (!playerBase)
-		{
-		#ifdef EXPANSIONMODQUESTSMODULEDEBUG
-			EXTrace.Print(EXTrace.QUESTS, this, "Could not get player base. Player is offline!");
-		#endif
-			return;
-		}
-
-		//! Send the updated persistent quest data to the client.
-		ExpansionQuestModule.GetModuleInstance().SendClientQuestData(playerQuestData, playerBase.GetIdentity());
 	}
 };
 #endif

@@ -12,8 +12,7 @@
 
 modded class AnimalBase
 {
-	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new ref array<ExpansionQuestObjectiveEventBase>;
-	protected bool m_CalledObjectiveCheck = false;
+	protected static ref array<ref ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{
@@ -104,8 +103,7 @@ modded class AnimalBase
 		}
 	}
 
-	//! Not usable since 1.20 as the killer object always returns the killed entity.
-	/*override void EEKilled(Object killer)
+	override void EEKilled(Object killer)
 	{
 	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -113,33 +111,11 @@ modded class AnimalBase
 
 		super.EEKilled(killer);
 
-		EXTrace.Print(EXTrace.QUESTS, this, "Killed entity: " + GetType());
-		EXTrace.Print(EXTrace.QUESTS, this, "Killer entity: " + killer.GetType());
+		//! Workaround for vanilla EEKilled returning the killed entity as killer since 1.20
+		//! See VanillaFixes AnimalBase.c EEHitBy
+		if (killer == this)
+			killer = m_Expansion_LastDamageSource;
 
 		CheckAssignedObjectivesForEntity(killer);
-	}*/
-
-	//! Workaround for vanilla bug as EEKilled returns the killed entity always as the kill source since 1.20.
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
-	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-	#endif
-
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
-		if (!IsAlive() && !m_CalledObjectiveCheck)
-		{
-			CheckAssignedObjectivesForEntity(source);
-			m_CalledObjectiveCheck = true;
-		}
-
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		EXTrace.Print(EXTrace.QUESTS, this, "Damage type: " + damageType);
-		EXTrace.Print(EXTrace.QUESTS, this, "Source entity: " + source.GetType());
-		EXTrace.Print(EXTrace.QUESTS, this, "Damage Zone: " + dmgZone);
-		EXTrace.Print(EXTrace.QUESTS, this, "Ammo: " + ammo);
-		EXTrace.Print(EXTrace.QUESTS, this, "End");
-	#endif
 	}
 };

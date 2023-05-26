@@ -18,20 +18,18 @@ class ExpansionQuestPersistentData
 
 	static const int DATAVERSION = 2;
 	int DataVersion;
-	ref array<ref ExpansionQuestPersistentQuestData> QuestDatas;
+	ref map<int, ref ExpansionQuestPersistentQuestData> QuestData = new map<int, ref ExpansionQuestPersistentQuestData>;
 
 	[NonSerialized()];
 	bool m_SynchDirty;
 
-	void ExpansionQuestPersistentData()
-	{
-		QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
-	}
+	[NonSerialized()]
+	bool m_RemoveQuestData;
 
 	void ~ExpansionQuestPersistentData()
 	{
-		if (QuestDatas)
-			EXPrint(this, "~ExpansionQuestPersistentData (" + QuestDatas.Count() + ")");
+		if (QuestData)
+			EXPrint(this, "~ExpansionQuestPersistentData (" + QuestData.Count() + ")");
 		else
 			EXPrint(this, "~ExpansionQuestPersistentData");
 	}
@@ -41,9 +39,9 @@ class ExpansionQuestPersistentData
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		QuestDebugPrint("Quest ID: " + questID + " | State: " + state);
 
-		if (HasDataForQuest(questID))
+		if (QuestData.Contains(questID))
 		{
-			QuestDebugPrint("There is already a data set for the quest with ID: " + questID + ". Skip..");
+			QuestDebugPrint("There is already a data set for the quest with ID: " + questID + ". Skip...");
 			return;
 		}
 
@@ -51,7 +49,7 @@ class ExpansionQuestPersistentData
 		questData.QuestID = questID;
 		questData.State = state;
 		questData.UpdateLastUpdateTime();
-		QuestDatas.Insert(questData);
+		QuestData[questID] = questData;
 
 		m_SynchDirty = true;
 	}
@@ -60,76 +58,44 @@ class ExpansionQuestPersistentData
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		for (int i = QuestDatas.Count() - 1; i >= 0; i--)
+		ExpansionQuestPersistentQuestData currentData = QuestData[questID];
+		if (currentData)
 		{
-			ExpansionQuestPersistentQuestData currentData = QuestDatas[i];
-			QuestDebugPrint("Check data for quest with ID: " + currentData.QuestID);
-			if (currentData.QuestID == questID)
-			{
-				QuestDebugPrint("Remove data for quest ID: " + currentData.QuestID);
-				currentData.ClearObjectiveData();
-				QuestDatas.RemoveOrdered(i);
-				m_SynchDirty = true;
-			}
+			QuestDebugPrint("Remove data for quest ID: " + currentData.QuestID);
+			currentData.ClearObjectiveData();
+			QuestData.Remove(questID);
+			m_SynchDirty = true;
 		}
-	}
-
-	bool HasDataForQuest(int questID)
-	{
-		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
-		{
-			if (currentData.QuestID == questID)
-				return true;
-		}
-
-		return false;
 	}
 
 	ExpansionQuestState GetQuestStateByQuestID(int questID)
 	{
-		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
-		{
-			if (currentData.QuestID == questID)
-				return currentData.State;
-		}
+		ExpansionQuestPersistentQuestData currentData = QuestData[questID];
+		if (currentData)
+			return currentData.State;
 
 		return ExpansionQuestState.NONE;
 	}
 
 	int GetQuestCompletionCountByQuestID(int questID)
 	{
-		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
-		{
-			if (currentData.QuestID == questID)
-				return currentData.CompletionCount;
-		}
+		ExpansionQuestPersistentQuestData currentData = QuestData[questID];
+		if (currentData)
+			return currentData.CompletionCount;
 
 		return 0;
 	}
 
 	ExpansionQuestPersistentQuestData GetQuestDataByQuestID(int questID)
 	{
-		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
-		{
-			if (currentData.QuestID == questID)
-				return currentData;
-		}
-
-		return NULL;
-	}
-
-	array<ref ExpansionQuestPersistentQuestData> GetQuestDatas()
-	{
-		return QuestDatas;
+		return QuestData[questID];
 	}
 
 	int GetQuestTimestampByQuestID(int questID)
 	{
-		foreach (ExpansionQuestPersistentQuestData currentData: QuestDatas)
-		{
-			if (currentData.QuestID == questID)
-				return currentData.Timestamp;
-		}
+		ExpansionQuestPersistentQuestData currentData = QuestData[questID];
+		if (currentData)
+			return currentData.Timestamp;
 
 		return -1;
 	}
@@ -138,27 +104,18 @@ class ExpansionQuestPersistentData
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		array<ref ExpansionQuestObjectiveData> validObjectives = new array<ref ExpansionQuestObjectiveData>;
-		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
-		{
-			array<ref ExpansionQuestObjectiveData> dataObjectives = questData.QuestObjectives;
-			foreach (ExpansionQuestObjectiveData currentObjective: dataObjectives)
-			{
-				validObjectives.Insert(currentObjective);
-			}
-		}
+			return questData.QuestObjectives;
 
-		QuestDebugPrint("End and return objectives: " + validObjectives.Count());
-
-		return validObjectives;
+		return null;
 	}
 
 	ExpansionQuestObjectiveData GetQuestObjectiveByQuestIDAndIndex(int questID, int index)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
 		{
 			foreach (ExpansionQuestObjectiveData currentObjective: questData.QuestObjectives)
@@ -180,7 +137,7 @@ class ExpansionQuestPersistentData
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		QuestDebugPrint("Quest ID: " + questID + " | State: " + state);
 
-		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (!questData)
 		{
 			Error(ToString() + "::UpdateQuestState - Could not get persistent quest data!");
@@ -195,7 +152,7 @@ class ExpansionQuestPersistentData
 
 	void UpdateQuestTimestamp(int questID, int time)
 	{
-		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (!questData)
 		{
 			Error(ToString() + "::UpdateQuestTimestamp - Could not get persistent quest data!");
@@ -214,7 +171,7 @@ class ExpansionQuestPersistentData
 		QuestDebugPrint("New data:");
 		newData.QuestDebug();
 
-		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
 		{
 			questData.QuestObjectives.RemoveOrdered(objectiveIndex);
@@ -231,7 +188,7 @@ class ExpansionQuestPersistentData
 	bool UpdateCompletionCount(int questID)
 	{
 		QuestDebugPrint("Update quest completion count for quest: " + questID + " | File: " + FileName);		
-		ExpansionQuestPersistentQuestData questData = GetQuestDataByQuestID(questID);
+		ExpansionQuestPersistentQuestData questData = QuestData[questID];
 		if (questData)
 		{
 			questData.CompletionCount = (questData.CompletionCount + 1);
@@ -279,7 +236,7 @@ class ExpansionQuestPersistentData
 				save = true;
 
 			if (save)
-				Save(fileName, false);
+				Save(fileName);
 
 			m_SynchDirty = true;
 		}
@@ -287,12 +244,9 @@ class ExpansionQuestPersistentData
 		return true;
 	}
 
-	void Save(string fileName, bool doCheck = true)
+	void Save(string fileName)
 	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this, fileName, "doCheck: " + doCheck);
-
-		if (doCheck)
-			DataCheck();
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, fileName);
 
 		FileSerializer file = new FileSerializer();
 		if (file.Open(EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin", FileMode.WRITE))
@@ -310,7 +264,7 @@ class ExpansionQuestPersistentData
 	protected bool DataCheck()
 	{
 		bool changed = false;
-		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
+		foreach (ExpansionQuestPersistentQuestData data: QuestData)
 		{
 			if (data)
 			{
@@ -398,20 +352,10 @@ class ExpansionQuestPersistentData
 
 	bool HasCooldownOnQuest(int questID, out int remaining)
 	{
-		foreach (ExpansionQuestPersistentQuestData data: QuestDatas)
+		auto data = QuestData[questID];
+		if (data)
 		{
-			if (data.QuestID != questID)
-				continue;
-
-			ExpansionQuestConfig questConfig;
-			if (GetGame().IsClient())
-			{
-				questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigClientByID(data.QuestID);
-			}
-			else if (GetGame().IsServer() && GetGame().IsMultiplayer())
-			{
-				questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
-			}
+			ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(data.QuestID);
 
 			if (!questConfig)
 			{
@@ -434,22 +378,32 @@ class ExpansionQuestPersistentData
 		return false;
 	}
 
-	void OnWrite(ParamsWriteContext ctx, bool resetSynchDirty = true)
+	void OnWrite(ParamsWriteContext ctx, bool resetSynchDirty = true, int questID = -1)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		int dataCount = QuestDatas.Count();
-
-		EXTrace.Add(trace, "Count: " + dataCount);
-
-		ctx.Write(dataCount);
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		if (questID == -1)
 		{
-			ExpansionQuestPersistentQuestData data = QuestDatas[i];
-			if (!data)
-				continue;
-
-			data.OnWrite(ctx);
+			int dataCount = QuestData.Count();
+			EXTrace.Add(trace, "Count: " + dataCount);
+			ctx.Write(dataCount);
+			foreach (auto data: QuestData)
+			{
+				data.OnWrite(ctx);
+			}
+		}
+		else
+		{
+			auto questData = QuestData[questID];
+			if (questData)
+			{
+				ctx.Write(1);
+				questData.OnWrite(ctx);
+			}
+			else
+			{
+				ctx.Write(-1);
+			}
 		}
 
 		if (resetSynchDirty)
@@ -460,14 +414,7 @@ class ExpansionQuestPersistentData
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!QuestDatas)
-		{
-			QuestDatas = new array<ref ExpansionQuestPersistentQuestData>;
-		}
-		else
-		{
-			QuestDatas.Clear();
-		}
+		QuestData.Clear();
 
 		int dataCount;
 		if (!ctx.Read(dataCount))
@@ -475,6 +422,8 @@ class ExpansionQuestPersistentData
 			Error(ToString() + "::OnRead - couldn't read persistent quest data count!");
 			return false;
 		}
+
+		m_RemoveQuestData = dataCount == -1;
 
 		EXTrace.Add(trace, "Count: " + dataCount);
 
@@ -487,7 +436,7 @@ class ExpansionQuestPersistentData
 				return false;
 			}
 
-			QuestDatas.Insert(data);
+			QuestData[data.QuestID] = data;
 		}
 
 		return true;
@@ -503,18 +452,18 @@ class ExpansionQuestPersistentData
 	void QuestDebug()
 	{
 	#ifdef EXPANSIONMODQUESTSPLAYERDATADEBUG
-		if (GetGame().IsServer() || QuestDatas.Count())
+		if (GetGame().IsServer() || QuestData.Count())
 			Print("------------------------------------------------------------------------------------------------");
 		if (GetGame().IsServer())
 		{
 			Print(ToString() + "::QuestDebug - File name: " + FileName);
 			Print(ToString() + "::QuestDebug - Data version: " + DataVersion);
 		}
-		for (int i = 0; i < QuestDatas.Count(); i++)
+		foreach (auto data: QuestData)
 		{
-			QuestDatas.Get(i).QuestDebug();
+			data.QuestDebug();
 		}
-		if (GetGame().IsServer() || QuestDatas.Count())
+		if (GetGame().IsServer() || QuestData.Count())
 			Print("------------------------------------------------------------------------------------------------");
 	#endif
 	}

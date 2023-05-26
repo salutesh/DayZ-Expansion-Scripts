@@ -14,7 +14,6 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 {
 	protected int m_Count;
 	protected int m_Amount;
-	protected int m_UpdateCount;
 	protected ref ExpansionQuestObjectiveTargetConfig m_Config;
 	
 	override bool OnEventStart()
@@ -73,13 +72,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			if (m_Quest.GetQuestConfig().IsGroupQuest() && victimPlayer.GetIdentity())
 			{
 				string victimPlayerUID = victimPlayer.GetIdentity().GetId();
-				int groupID = m_Quest.GetGroupID();
-				ExpansionPartyModule partymodule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-				if (!partymodule)
-					return;
-
-				ExpansionPartyPlayerData victimPartyData = partymodule.GetPartyPlayerData(victimPlayerUID);
-				if (victimPartyData && victimPartyData.GetParty().GetPartyID() == groupID || ExpansionQuestModule.GetModuleInstance().WasPlayerInGroup(victimPlayerUID, groupID))
+				if (ExpansionQuestModule.GetModuleInstance().IsGroupPlayer(m_Quest.GetGroupID(), victimPlayerUID))
 					return;
 			}
 		#endif
@@ -101,17 +94,13 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		bool found = ExpansionStatic.IsAnyOf(victim, target.GetClassNames(), true);
 		if (found)
 		{
+			ObjectivePrint("Killed valid target " + victim + " " + ExpansionString.JoinStrings(target.GetClassNames()));
 			if (m_Count < m_Amount)
+			{
 				m_Count++;
+				m_Quest.QuestCompletionCheck(true);
+			}
 		}
-
-		if (m_UpdateCount != m_Count)
-		{
-			m_UpdateCount = m_Count;
-			m_Quest.QuestCompletionCheck(true);
-		}
-		
-		
 	}
 
 	override bool CanComplete()

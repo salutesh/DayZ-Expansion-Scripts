@@ -338,9 +338,9 @@ class ExpansionPathHandler
 
 	void OnUpdate(float pDt, int pSimulationPrecision)
 	{
+#ifdef DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
 
-#ifdef DIAG
 		auto hitch = EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
 #endif
 

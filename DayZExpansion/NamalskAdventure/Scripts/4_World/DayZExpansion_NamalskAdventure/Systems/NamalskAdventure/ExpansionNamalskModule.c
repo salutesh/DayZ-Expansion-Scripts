@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -72,9 +72,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected bool m_EVRStormActive;
 	protected bool m_EVRStormBlowout;
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected SV_Abandoned_Sattelite_Antenna m_AbdonedSatellite;
+#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
+#endif
 	protected Expansion_Satellite_Control m_SatelliteController;
 	
 	protected const float UPDATE_TICK_TIME = 0.500;
@@ -111,7 +113,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected const vector m_A1_Bunker_FakeEntranceLeaverPos = "1925.534912 242.507050 1202.186157";
 	protected const vector m_A1_Bunker_FakeEntranceLeaverOri = "-98.999931 0.000000 -0.000000";
 	
+#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_A1BunkerTeleporter;
+#endif
 	protected Expansion_Bunker_Generator m_A1BungerGenerator;
 	
 	protected Land_Underground_Panel m_A1BunkerEntrancePanel;
@@ -119,6 +123,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected Land_Underground_Panel_Lever m_A1BunkerFakeEntranceLeaver;
 	
 	protected ref array<ref ExpansionNamalskQuestHolder> m_QuestHolders;
+	
+	protected Land_Repair_Center m_SurvivorsRepairCenter;
 #endif
 	
 	protected const float SUPPLY_CRATES_CHECK_TIME = 60.0; //! 1 minute tick
@@ -129,6 +135,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected int m_Expansion_ProcessedInfected;
 	protected static ScriptCaller s_EVRStormBlowoutInfectedSC;
 	protected const int UPDATE_INFECTED_PER_TICK = 5;  //! Refresh up to 5 infected every UPDATE_TICK_TIME interval
+	
+	protected ref map<int, ref ExpansionCommunityGoal> m_CommunityGoals;
+	
+	protected ref ScriptInvoker m_WorkbenckMenuInvoker; //! Client
 	
 	void ExpansionNamalskModule()
 	{
@@ -152,7 +162,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		EnableMissionStart();
 		EnableMissionLoaded();
+		EnableRPC();
+		#ifdef SERVER
 		EnableUpdate();
+		#endif
 	}
 
 	protected void CreateDirectoryStructure()
@@ -176,41 +189,21 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			LoadNamalskAdventureServerData(); //! Load server data.
 		}
 	}
-
-	protected void LoadNamalskAdventureServerData()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		array<string> files = ExpansionStatic.FindFilesInLocation(s_dataFolderPath, ".json");
-		if (files && files.Count() > 0)
-		{
-			for (int i = 0; i < files.Count(); i++)
-			{
-				string fileName = files[i];
-				GetServerData(fileName, s_dataFolderPath);
-			}
-		}
-		else
-		{
-			m_ServerData = new ExpansionNamalskAdventureData();
-			m_ServerData.Save();
-		}
-	}
-
-	protected void GetServerData(string fileName, string path)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		m_ServerData = ExpansionNamalskAdventureData.Load(path + fileName);
-		if (!m_ServerData)
-			Error(ToString() + "::GetServerData - Could not get namalsk adventure server data!");
-	}
-
+	
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+			ServerModuleInit();
 
-		super.OnMissionLoaded(sender, args);
+		if (GetGame().IsClient())
+			ClientModuleInit();
+	}
+	
+	protected void ServerModuleInit()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		//! Server only
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
@@ -224,7 +217,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				CreateMerchant();
 		#endif
 
-		#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+		#ifdef EXPANSION_NAMALSK_ADVENTURE
 			SpawnSatelliteAntennaObjects(); //! @note - Not finished yet!
 			SpawnA1Bunker();
 		#endif
@@ -232,6 +225,196 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			if (GetExpansionSettings().GetNamalskAdventure().EnableSupplyCrates)
 				SpawnSupplyCrates();
 		}
+	}
+
+	protected void ClientModuleInit()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (GetGame().IsClient())
+		{
+			m_WorkbenckMenuInvoker = new ScriptInvoker();
+		}
+	}
+
+	protected void LoadNamalskAdventureServerData()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		bool fileExist = FileExist(s_dataFolderPath + "ServerData.json");
+		if (fileExist)
+		{
+			GetServerData(s_dataFolderPath + "ServerData.json");
+		}
+		else
+		{			
+			m_ServerData = new ExpansionNamalskAdventureData();
+			m_ServerData.Save();
+			
+			LoadCommunityGoals();
+		}
+	}
+
+	protected void GetServerData(string file)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		m_ServerData = ExpansionNamalskAdventureData.Load(file);
+		if (!m_ServerData)
+		{
+			Error(ToString() + "::GetServerData - Could not get namalsk adventure server data!");
+			return;
+		}
+		
+		LoadCommunityGoals();
+	}
+	
+	protected void LoadCommunityGoals()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		m_CommunityGoals = new map<int, ref ExpansionCommunityGoal>;
+		
+		if (m_ServerData.GetCommunityGoalsData() && m_ServerData.GetCommunityGoalsData().Count() > 0)
+		{
+			array<ref ExpansionCommunityGoal> goals = m_ServerData.GetCommunityGoalsData();
+			foreach (ExpansionCommunityGoal goalData: goals)
+			{
+			    m_CommunityGoals.Insert(goalData.GetID(), goalData);
+
+				//! Fire event logic on load if flagged as finished
+				if (goalData.IsFinished() || goalData.GetProgress() >= goalData.GetGoal())
+				{
+					OnCommunityGoalFinished(goalData.GetID(), goalData);
+				}
+			}
+		}
+		else
+		{
+			DefaultCommunityGoals();
+		}
+	}
+	
+	protected void DefaultCommunityGoals()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (!m_CommunityGoals)
+			return;
+		
+		ExpansionCommunityGoal communityGoal = new ExpansionCommunityGoal(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_1, 1);
+		m_CommunityGoals.Insert(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_1, communityGoal);
+		m_ServerData.SetCommunityGoal(communityGoal);
+		
+		communityGoal = new ExpansionCommunityGoal(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_REPAIR, 1);
+		m_CommunityGoals.Insert(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_REPAIR, communityGoal);
+		m_ServerData.SetCommunityGoal(communityGoal);
+	}
+	
+	void UpdateCommunityGoal(int id, int progress)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		ExpansionCommunityGoal communityGoal;
+		if (!m_CommunityGoals.Find(id, communityGoal))
+			return;
+		
+		communityGoal.AddProgress(progress);
+				
+		//! Update persistent community goal data.
+		m_ServerData.SetCommunityGoal(communityGoal);
+
+		//! Update module community goal data.
+		m_CommunityGoals.Set(id, communityGoal);
+		
+		//! Events when community goal is reached.
+		if (communityGoal.GetProgress() >= communityGoal.GetGoal())
+		{
+			OnCommunityGoalFinished(id, communityGoal);
+		}
+	}
+	
+	bool GetCommunityGoalState(int id)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		ExpansionCommunityGoal communityGoal;
+		if (!m_CommunityGoals.Find(id, communityGoal))
+			return false;
+		
+		return communityGoal.IsFinished();
+	}
+	
+	protected void OnCommunityGoalFinished(int id, inout ExpansionCommunityGoal communityGoal)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		switch (id)
+		{
+		#ifdef EXPANSIONMODMARKET
+			case NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_1:
+			{
+				auto traderObjects = ExpansionTraderObjectBase.GetAll();
+				for (int i = 0; i < traderObjects.Count(); i++)
+				{
+					ExpansionTraderObjectBase traderObj = traderObjects[i];
+					if (!traderObj)
+					{
+						Error(ToString() + "::OnCommunityGoalFinished - Could not get trader obj!");
+						continue;
+					}
+										
+					ExpansionMarketTraderZone traderZone = traderObj.GetTraderZone();
+					if (!traderZone)
+					{
+						Error(ToString() + "::OnCommunityGoalFinished - Could not get trader zone!");
+						continue;
+					}
+					
+					//! Update survivor camp supplies (market zone).
+					if (traderZone.m_FileName == "SurvivorsCamp")
+					{
+						ExpansionMarketTrader trader = traderObj.GetTraderMarket();
+						if (!trader)
+						{
+							Error(ToString() + "::OnCommunityGoalFinished - Could not get trader!");
+							continue;
+						}
+						
+						traderZone.AddStock("bandagedressing", 100);
+						traderZone.Save();
+						
+						ExpansionNotification(new StringLocaliser("Community Goal Reached"), new StringLocaliser("The Survivors faction has reached a community goal! The survivor camp trader has now new supplies!"), ExpansionIcons.GetPath("Info"), COLOR_EXPANSION_NOTIFICATION_MISSION, 7.0).Create();
+					}
+				}
+			}
+			break;
+		#endif
+			
+			case NamalskAdventureCommunityGoals.SURVIVORS_CAMP_REPAIR:
+			{
+				if (!m_SurvivorsRepairCenter)
+					m_SurvivorsRepairCenter = Land_Repair_Center.Cast(ExpansionWorldObjectsModule.SpawnObject("Land_Repair_Center", Vector(8615.047852, 17.235180, 10488.387695), Vector(117.000038, 0.000000, -0.000000), false, false));
+				
+				if (!m_SurvivorsRepairCenter)
+				{
+					Error(ToString() + "::OnCommunityGoalFinished - Could not create survivor camp repair center!");
+					return;
+				}
+				
+				m_SurvivorsRepairCenter.InitRepairBuilding();
+			}
+			break;
+		}
+		
+		//! Set goal to finished so the system knows on server restarts if it should fire the goal event on load.
+		communityGoal.SetFinished();
+		
+		//! Update persistent community goal data.
+		m_ServerData.SetCommunityGoal(communityGoal);
+
+		//! Update module community goal data.
+		m_CommunityGoals.Set(id, communityGoal);
 	}
 
 #ifdef EXPANSIONMODAI
@@ -714,7 +897,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 #endif
 */
 
-#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 	//! @note: Condition check if a EVR storm is currently active.
 	bool IsEVRStormActive()
 	{
@@ -836,10 +1019,12 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		return m_AbdonedSatellite;
 	}
 
+#ifdef EXPANSIONMODTELEPORTER
 	Expansion_Teleporter_Big GetSatelliteTeleporter()
 	{
 		return m_SatelliteTeleporter;
 	}
+#endif
 	
 	Expansion_Satellite_Control GetSatelliteController()
 	{
@@ -861,7 +1046,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker entrance trigger at position: " + trigger.GetPosition());
 		}
 		
-		//! Teleporter
+	#ifdef EXPANSIONMODTELEPORTER
 		m_A1BunkerTeleporter = Expansion_Teleporter_Big.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Teleporter_Big", m_A1_Bunker_TeleporterPos, m_A1_Bunker_TeleporterOri, false, false));
 		if (m_A1BunkerTeleporter)
 		{
@@ -884,17 +1069,21 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker teleporter object at position: " + m_A1BunkerTeleporter.GetPosition());
 		}
+	#endif
 		
 		//! Generator
 		m_A1BungerGenerator = Expansion_Bunker_Generator.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Bunker_Generator", m_A1_Bunker_GeneratorPos, m_A1_Bunker_GeneratorOri, false, false));
 		if (m_A1BungerGenerator)
 		{
+		#ifdef EXPANSIONMODTELEPORTER
 			if (m_A1BunkerTeleporter)
 				m_A1BungerGenerator.SetLinkedTeleporter(m_A1BunkerTeleporter);
+		#endif
 	
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker generator at position: " + m_A1BungerGenerator.GetPosition());
 		}
 		
+	#ifdef EXPANSIONMODQUESTS
 		//! Locker quest object - @note: Make this a config param class in the namalsk settings class you lazy ass!
 		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", 1000, true, "Closed Locker");
 		if (questHolder)
@@ -902,7 +1091,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("1908.662354 201.666977 1244.743164", "173.734970 0.000000 -0.000000");
 			questHolder.AddPosition(pos);
 			pos = new ExpansionNamalskQuestHolderPosition("1915.156006 201.659302 1231.404419", "81.000038 -0.000000 -0.000000");
-			questHolder.AddPosition(pos);
+		questHolder.AddPosition(pos);
 			pos = new ExpansionNamalskQuestHolderPosition("1899.852783 195.486664 1306.718994", "174.815613 0.000000 0.000000");
 			questHolder.AddPosition(pos);
 			pos = new ExpansionNamalskQuestHolderPosition("1906.268677 196.687729 1291.300415", "80.999977 -0.000000 -0.000000");
@@ -925,6 +1114,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 			travelObjective.SetPosition(randomPos.Position);
 		}
+	#endif
 		
 		//! Bunker fake entrance panel
 		m_A1BunkerFakeEntranceLeaver = Land_Underground_Panel_Lever.Cast(ExpansionWorldObjectsModule.SpawnObject("Land_Underground_Panel_Lever", m_A1_Bunker_FakeEntranceLeaverPos, m_A1_Bunker_FakeEntranceLeaverOri, false, false));
@@ -951,6 +1141,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	}
 #endif
 
+#ifdef EXPANSIONMODQUESTS
 	protected void SpawnQuestHolder(ExpansionNamalskQuestHolder questHolder, ExpansionNamalskQuestHolderPosition randomPos)
 	{
 		TStringArray questNPCs = {"ExpansionQuestNPCBase"};
@@ -1098,6 +1289,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		return questNPC;
 	}
 #endif
+#endif
 	
 	protected void SpawnSupplyCrates()
 	{
@@ -1143,7 +1335,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	
 	protected void OnUpdateServer(float deltaTime)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL		
+	#ifdef EXPANSION_NAMALSK_ADVENTURE		
 		m_SatelliteCryTimer += deltaTime;
 		if (m_SatelliteCryTimer >= SATELLITE_CRY_TIME)
 		{
@@ -1213,7 +1405,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 	}
 	
-#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+#ifdef EXPANSION_NAMALSK_ADVENTURE
 	protected void OnBunkerGeneratorCheck(Expansion_Bunker_Generator generator)
 	{
 		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
@@ -1265,9 +1457,118 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			infected.SetHealth("", "", 0);
     }
 	
+	override int GetRPCMin()
+	{
+		return ExpansionNamalskModuleRPC.INVALID;
+	}
+
+	override int GetRPCMax()
+	{
+		return ExpansionNamalskModuleRPC.COUNT;
+	}
+
+	override void OnRPC(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(EXTrace.P2PMARKET, this);
+		
+		super.OnRPC(sender, args);
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch (rpc.ID)
+		{
+			case ExpansionNamalskModuleRPC.SendWorkbenchData:
+			{
+				RPC_SendWorkbenchData(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
+		}
+	}
+
+	void SendWorkbenchData(Object target, PlayerIdentity identity)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+		{
+			Error(ToString() + "::SendWorkbenchData - Tried to call SendWorkbenchData on Client!");
+			return;
+		}
+
+		Land_Repair_Center repair_center;
+		if (!Class.CastTo(repair_center, target))
+		{
+			Error(ToString() + "::SendWorkbenchData - Invalid target for repair center object!");
+			return;
+		}
+		
+		RepairBenchGenerator repair_generator;
+		if (!Class.CastTo(repair_generator, repair_center.GetGenerator()))
+		{
+			Error(ToString() + "::SendWorkbenchData - Could not get repair center generator!");
+			return;
+		}
+		
+		int lowBitsGen, highBitsGen;
+		repair_generator.GetNetworkID(lowBitsGen, highBitsGen);
+		
+		auto rpc = ExpansionScriptRPC.Create();
+		rpc.Write(lowBitsGen);
+		rpc.Write(highBitsGen);
+		rpc.Send(repair_center, ExpansionNamalskModuleRPC.SendWorkbenchData, true, identity);
+	}
+
+	protected void RPC_SendWorkbenchData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+
+		if (!GetGame().IsClient())
+		{
+			Error(ToString() + "::RPC_SendWorkbenchData - Tried to call RPC_SendWorkbenchData on Server!");
+			return;
+		}
+		
+		int lowBitsGen;
+		if (!ctx.Read(lowBitsGen))
+		{
+			Error(ToString() + "::RPC_SendWorkbenchData - couldn't read lowBitsGen");
+			return;
+		}
+		
+		int highBitsGen;
+		if (!ctx.Read(highBitsGen))
+		{
+			Error(ToString() + "::RPC_SendWorkbenchData - couldn't read highBitsGen");
+			return;
+		}
+					
+		RepairBenchGenerator repair_generator;
+		if (!Class.CastTo(repair_generator, GetGame().GetObjectByNetworkId(lowBitsGen, highBitsGen)))
+		{
+			Error(ToString() + "::RPC_SendWorkbenchData - Could not get repair center generator!");
+			return;
+		}
+			
+		Land_Repair_Center repair_center;
+		if (!Class.CastTo(repair_center, target))
+		{
+			Error(ToString() + "::RPC_SendWorkbenchData - Invalid target for repair center object!");
+			return;
+		}
+		
+		m_WorkbenckMenuInvoker.Invoke(repair_center, repair_generator);
+	}
+	
+	ScriptInvoker GetWorkbenchMenuSI()
+	{
+		return m_WorkbenckMenuInvoker;
+	}
+	
 	protected void OnUpdateClient(float deltaTime)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_SURVIVAL
+	#ifdef EXPANSIONMODTELEPORTER
 		m_ClientUpdateTimer += deltaTime;
 		if (m_ClientUpdateTimer >= CLIENT_UPDATE_TIME && GetGame().GetPlayer())
 		{
