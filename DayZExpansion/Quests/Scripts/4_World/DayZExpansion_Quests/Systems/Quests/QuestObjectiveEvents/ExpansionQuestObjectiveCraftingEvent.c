@@ -142,7 +142,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			array<string> playerUIDs = m_Quest.GetPlayerUIDs();
+			set<string> playerUIDs = m_Quest.GetPlayerUIDs();
 			foreach (string playerUID: playerUIDs)
 			{
 				if (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)

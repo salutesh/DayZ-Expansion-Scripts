@@ -396,7 +396,7 @@ class ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			array<string> members = m_Quest.GetPlayerUIDs();
+			set<string> members = m_Quest.GetPlayerUIDs();
 			foreach (string memberUID: members)
 			{
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
@@ -424,7 +424,7 @@ class ExpansionQuestObjectiveEventBase
 	#ifdef EXPANSIONMODGROUPS
 		else
 		{
-			array<string> members = m_Quest.GetPlayerUIDs();
+			set<string> members = m_Quest.GetPlayerUIDs();
 			foreach (string memberUID: members)
 			{
 				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);

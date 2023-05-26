@@ -110,16 +110,10 @@ modded class PlayerBase
 
 	override void EEKilled(Object killer)
 	{
-		if (GetExpansionSettings().GetHardline().UseReputation)
-		{
-			ExpansionHardlineModule hardlineModule;
-			if (CF_Modules<ExpansionHardlineModule>.Get(hardlineModule))
-			{
-				hardlineModule.OnEntityKilled(this, killer);
-			}
-		}
-
 		super.EEKilled(killer);
+
+		if (GetExpansionSettings().GetHardline().UseReputation)
+			ExpansionHardlineModule.GetModuleInstance().OnEntityKilled(this, killer);
 	}
 
 #ifdef EXPANSION_MODSTORAGE

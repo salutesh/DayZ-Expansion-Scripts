@@ -1,0 +1,9 @@
+ProgressBarWidgetClass loading_bar {
+ size 600 3
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ style Quantity
+ current 0
+}

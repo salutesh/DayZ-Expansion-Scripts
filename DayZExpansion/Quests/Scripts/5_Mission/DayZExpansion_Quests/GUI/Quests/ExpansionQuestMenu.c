@@ -25,7 +25,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	protected bool m_InDetailView;
 	protected autoptr ExpansionDialog_QuestMenu_CancelQuest m_CancelQuestDialog;
 	protected autoptr ExpansionQuestPersistentData m_ClientQuestData;
-	protected autoptr array<ref ExpansionQuestConfig> m_ClientQuestConfigs;
+	protected ref map<int, ref ExpansionQuestConfig> m_ClientQuestConfigs;
 	
 	protected string m_CurrentNPCName;
 	protected string m_CurrentNPCText;
@@ -114,7 +114,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	void MenuCallback()
 	{
 		m_ClientQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
-		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
+		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigs();
 		
 		m_QuestMenuController.Quests.Clear();
 		
@@ -783,7 +783,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		GetUApi().UpdateControls();
 		
 		m_ClientQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
-		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
+		m_ClientQuestConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigs();
 	}
 
 	override void OnHide()

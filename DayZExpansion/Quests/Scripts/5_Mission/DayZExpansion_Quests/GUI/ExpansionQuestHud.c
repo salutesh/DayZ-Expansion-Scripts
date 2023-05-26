@@ -56,10 +56,9 @@ class ExpansionQuestHUD: ExpansionScriptView
 			return;
 		}
 
-		array<ref ExpansionQuestPersistentQuestData> questDatas = playerData.GetQuestDatas();
 		array<int> updatedIDs = new array<int>;
 		bool isVisible;
-		foreach (ExpansionQuestPersistentQuestData data: questDatas)
+		foreach (ExpansionQuestPersistentQuestData data: playerData.QuestData)
 		{
 			int questID = data.QuestID;
 			ExpansionQuestState state = data.State;
@@ -67,7 +66,7 @@ class ExpansionQuestHUD: ExpansionScriptView
 			if (state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED)
 				continue;
 
-			ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigClientByID(questID);
+			ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
 			if (!questConfig)
 			{
 				continue;

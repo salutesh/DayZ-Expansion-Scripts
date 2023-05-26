@@ -13,6 +13,8 @@
 [CF_RegisterModule(ExpansionPartyModule)]
 class ExpansionPartyModule: CF_ModuleWorld
 {
+	static ref ExpansionPartyModule s_Instance;
+
 	static ref ScriptInvoker SI_Callback = new ScriptInvoker();
 
 	//! Server and client side
@@ -36,6 +38,8 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	void ExpansionPartyModule()
 	{
+		s_Instance = this;
+
 		//! Used server and client side
 		m_Parties = new map<int, ref ExpansionPartyData>();
 		m_PartyIDs = new TIntArray();
@@ -152,6 +156,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 	private void AddParty(int partyID, ExpansionPartyData party)
 	{
+		EXTrace.Print(EXTrace.GROUPS, this, "AddParty ID " + partyID);
 		m_Parties.Insert(partyID, party);
 		m_PartyIDs.Insert(partyID);
 	}
@@ -382,15 +387,16 @@ class ExpansionPartyModule: CF_ModuleWorld
 	bool DeletePartyServer(notnull ExpansionPartyData party)
 	{
 		array<ref ExpansionPartyPlayerData> players = party.GetPlayers();
-		foreach (ExpansionPartyPlayerData currPlayer : players)
+		for (int i = players.Count() - 1; i >= 0; i--)
 		{
+			ExpansionPartyPlayerData currPlayer = players[i];
 			if (!currPlayer)
 			{
 				Error("ExpansionPartyModule::DeletePartyServer - party member player data is NULL!");
 				continue;
 			}
 
-			currPlayer.OnLeave();
+			party.RemoveMember(currPlayer.UID);
 
 			PlayerBase partyPlayer = PlayerBase.GetPlayerByUID(currPlayer.UID);
 			if (partyPlayer && partyPlayer.GetIdentity())
@@ -1229,7 +1235,6 @@ class ExpansionPartyModule: CF_ModuleWorld
 
 		if (party_player)
 		{
-			party_player.OnLeave();
 			party_player.GetParty().OnLeave(party_player);
 			
 			UpdatePartyMembersServer(party_player.GetParty());

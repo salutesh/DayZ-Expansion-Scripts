@@ -19,7 +19,7 @@ enum ExpansionQuestItemState
 
 modded class ItemBase
 {
-	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ExpansionQuestObjectiveEventBase>;
+	protected static ref array<ref ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;
 	protected int m_Expansion_QuestID = -1;
 	protected bool m_Expansion_IsQuestGiver;
 	protected static ref TTypenameArray s_ExpansionOjectiveItemExcludes = {FireplaceBase};
@@ -77,8 +77,7 @@ modded class ItemBase
 				if (m_Expansion_QuestID > -1 && !IsQuestGiver())
 				{
 					//! Delete this item when it has a quest ID assigned but the player who picks it up has not a active quest instance with that ID.
-					string playerUID = player.GetIdentity().GetId();
-					if (!ExpansionQuestModule.GetModuleInstance().HasActiveQuestWithID(playerUID, m_Expansion_QuestID))
+					if (!ExpansionQuestModule.GetModuleInstance().GetActiveQuestWithID(player, m_Expansion_QuestID))
 						GetGame().ObjectDelete(this);
 				}
 
@@ -98,8 +97,7 @@ modded class ItemBase
 				if (m_Expansion_QuestID > -1 && !IsQuestGiver())
 				{
 					//! Delete this item when it has a quest ID assigned but the player dropping it has not a active quest instance with that ID.
-					string playerUID = player.GetIdentity().GetId();
-					if (!ExpansionQuestModule.GetModuleInstance().HasActiveQuestWithID(playerUID, m_Expansion_QuestID))
+					if (!ExpansionQuestModule.GetModuleInstance().GetActiveQuestWithID(player, m_Expansion_QuestID))
 						GetGame().ObjectDelete(this);
 				}
 

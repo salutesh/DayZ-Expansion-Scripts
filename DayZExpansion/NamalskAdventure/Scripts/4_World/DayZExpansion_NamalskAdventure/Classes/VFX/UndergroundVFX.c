@@ -1,4 +1,4 @@
-#ifdef NAMALSK_TERRAIN
+#ifdef NAMALSK_ISLAND
 modded class UndergroundVFX
 {
 	override private void UndergroundCheck()

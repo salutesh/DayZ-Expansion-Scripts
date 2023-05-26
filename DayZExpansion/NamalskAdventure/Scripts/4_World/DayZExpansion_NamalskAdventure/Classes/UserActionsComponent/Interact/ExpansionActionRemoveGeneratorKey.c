@@ -63,12 +63,12 @@ class ExpansionActionRemoveGeneratorKey: ActionInteractBase
 		Expansion_Bunker_Generator generator = Expansion_Bunker_Generator.Cast(action_data.m_Target.GetObject());
 		if (generator)
 		{
-			DebugTrace("::OnExecuteServer - Crate: " + generator.ToString());
+			ExDebugPrint("::OnExecuteServer - Crate: " + generator.ToString());
 			int slot_id_key = InventorySlots.GetSlotIdFromString("Att_ExpansionGeneratorKey");
 			generator.GetInventory().SetSlotLock(slot_id_key, false);
 
 			Expansion_Bunker_Generator_Key currentKey = Expansion_Bunker_Generator_Key.Cast(generator.GetInventory().FindAttachment(slot_id_key));
-			DebugTrace("::OnExecuteServer - Attached key: " + currentKey.ToString());
+			ExDebugPrint("::OnExecuteServer - Attached key: " + currentKey.ToString());
 			int healthLvl = currentKey.GetHealthLevel();
 			GetGame().ObjectDelete(currentKey);
 
@@ -77,10 +77,10 @@ class ExpansionActionRemoveGeneratorKey: ActionInteractBase
 		}
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

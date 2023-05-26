@@ -187,7 +187,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 	override void PreAnimUpdate(float pDt)
 	{
+#ifdef DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
+#endif
 
 		super.PreAnimUpdate(pDt);
 

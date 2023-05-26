@@ -50,6 +50,8 @@ class ExpansionPartyPlayerData
 
 	void OnLeave()
 	{
+		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
+
 		if (Player)
 			Player.m_Expansion_PartyPlayerData = NULL;
 		Player = NULL;
@@ -57,6 +59,8 @@ class ExpansionPartyPlayerData
 
 	void OnJoin(PlayerBase player)
 	{
+		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
+
 		Name = player.GetIdentityName();
 		Player = player;
 		Player.m_Expansion_PartyPlayerData = this;

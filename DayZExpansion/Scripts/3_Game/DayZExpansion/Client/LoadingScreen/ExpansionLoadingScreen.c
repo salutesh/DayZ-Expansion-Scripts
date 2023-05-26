@@ -14,9 +14,17 @@ modded class LoadingScreen
 {
 	void LoadingScreen(DayZGame game)
 	{
-		if (m_ImageLogoMid)
-			m_ImageLogoMid.LoadImageFile(0, "set:expansion_iconset image:logo_expansion_white");
-		if (m_ImageLogoCorner)
-			m_ImageLogoCorner.LoadImageFile(0, "set:expansion_iconset image:logo_expansion_white");
+		bool ex_ShowExpLogo = true;
+		#ifdef FALLUJAH_MAP
+			ex_ShowExpLogo = false;
+		#endif
+		
+		if (ex_ShowExpLogo)
+		{
+			if (m_ImageLogoMid)
+				m_ImageLogoMid.LoadImageFile(0, "set:expansion_iconset image:logo_expansion_white");
+			if (m_ImageLogoCorner)
+				m_ImageLogoCorner.LoadImageFile(0, "set:expansion_iconset image:logo_expansion_white");
+		}
 	}
 }

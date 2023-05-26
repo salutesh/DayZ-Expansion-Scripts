@@ -43,7 +43,7 @@ class ExpansionAnomalyTriggerBase: Trigger
 	void SetAnomaly(Expansion_Anomaly_Base anomaly)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetAnomaly - Anomaly: " + anomaly.ToString());
+		ExDebugPrint("::SetAnomaly - Anomaly: " + anomaly.ToString());
 
 		m_Anomaly = anomaly;
 	}
@@ -51,7 +51,7 @@ class ExpansionAnomalyTriggerBase: Trigger
 	void SetActive(bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetActive - State: " + state);
+		ExDebugPrint("::SetActive - State: " + state);
 
 		m_IsActive = state;
 	}
@@ -66,7 +66,7 @@ class ExpansionAnomalyTriggerBase: Trigger
 	protected bool EntityConditions(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EntityConditions - Entity: " + other.ToString());
+		ExDebugPrint("::EntityConditions - Entity: " + other.ToString());
 
 		Object entityObj;
 		Object.CastTo(entityObj, other);
@@ -76,15 +76,15 @@ class ExpansionAnomalyTriggerBase: Trigger
 			PlayerBase player = PlayerBase.Cast(other);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
-				DebugTrace("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
+				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
 			}
 
-			DebugTrace("::EntityConditions - Return TRUE");
+			ExDebugPrint("::EntityConditions - Return TRUE");
 			return true;
 		}
 
-		DebugTrace("::EntityConditions - Return FALSE");
+		ExDebugPrint("::EntityConditions - Return FALSE");
 		return false;
 	}
 
@@ -103,17 +103,17 @@ class ExpansionAnomalyTriggerBase: Trigger
 	override void EOnEnter(IEntity other, int extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EOnEnter - Entity: " + other.ToString());
+		ExDebugPrint("::EOnEnter - Entity: " + other.ToString());
 
 		if (!EntityConditions(other))
 		{
-			DebugTrace("::EOnEnter - Entity conditions FALSE");
+			ExDebugPrint("::EOnEnter - Entity conditions FALSE");
 			return;
 		}
 
 		if (!m_IsActive)
 		{
-			DebugTrace("::EOnEnter - Trigger inactive");
+			ExDebugPrint("::EOnEnter - Trigger inactive");
 			return;
 		}
 
@@ -135,7 +135,7 @@ class ExpansionAnomalyTriggerBase: Trigger
 		if (!m_Anomaly)
 			return;
 
-		DebugTrace("::OnEnterAnomalyServer - Entity: " + other.ToString() + " | Anomaly: " + m_Anomaly.ToString() + " | Position: " + m_Anomaly.GetPosition() + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()) + "| Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()));
+		ExDebugPrint("::OnEnterAnomalyServer - Entity: " + other.ToString() + " | Anomaly: " + m_Anomaly.ToString() + " | Position: " + m_Anomaly.GetPosition() + " | Anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()) + "| Previous anomaly state: " + typename.EnumToString(ExpansionAnomalyState, m_Anomaly.GetAnomalyState()));
 
 		//! Inform anomaly about trigger activation so anomaly activation particle VFX is created and played.
 		m_Anomaly.OnAnomalyZoneEnter();
@@ -187,13 +187,13 @@ class ExpansionAnomalyTriggerBase: Trigger
 	void OnEnterAnomalyClient(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnEnterAnomalyClient - Entity: " + other.ToString());
+		ExDebugPrint("::OnEnterAnomalyClient - Entity: " + other.ToString());
 	}
 
 	/*override void EOnLeave(IEntity other, int extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EOnLeave - Entity: " + other.ToString());
+		ExDebugPrint("::EOnLeave - Entity: " + other.ToString());
 
 		if (!GetGame().IsDedicatedServer())
 			return;
@@ -202,10 +202,10 @@ class ExpansionAnomalyTriggerBase: Trigger
 			return;
 	}*/
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

@@ -7,17 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data"};
-	};
-};
-class CfgSlots
-{
-	class Slot_Att_ExpansionAnomalyCore
-	{
-		name = "Att_ExpansionAnomalyCore";
-		displayName = "Anomaly Core";
-		selection = "att_anomaly_core";
-		ghostIcon = "set:expansion_inventory image:anomaly";
+		requiredAddons[] = {"DZ_Data","DayZExpansion_NamalskAdventure_Items"};
 	};
 };
 class CfgVehicles
@@ -38,7 +28,6 @@ class CfgVehicles
 		itemSize[] = {5,5};
 		storageCategory = 1;
 		openable = 1;
-		lootCategory = "Containers";
 		vehicleClass = "Inventory";
 		mapSize = 1;
 		class DamageSystem

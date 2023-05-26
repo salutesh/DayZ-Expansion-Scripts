@@ -15,7 +15,7 @@ class ExpansionAnomalyTriggerSingularity_Dynamic : ExpansionAnomalyTriggerBase_D
 	override void OnStayServerEvent(TriggerInsider insider, float deltaTime)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnStayServerEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnStayServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnStayServerEvent(insider, deltaTime);
 

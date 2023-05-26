@@ -739,8 +739,7 @@ modded class IngameHud
 #ifdef EXPANSIONMODQUESTS
 	bool ShowQuestMarker(PlayerBase player, int questNPCID)
 	{
-		int validQuestsCount;
-		array<ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigsClient();
+		map<int, ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigs();
 		if (!questConfigs || questConfigs.Count() == 0)
 			return false;
 		
@@ -751,10 +750,10 @@ modded class IngameHud
 		foreach (ExpansionQuestConfig questConfig: questConfigs)
 		{
 			if (ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, playerQuestData, questNPCID))
-				validQuestsCount++;
+				return true;
 		}
 		
-		return (validQuestsCount > 0);
+		return false;
 	}
 #endif
 

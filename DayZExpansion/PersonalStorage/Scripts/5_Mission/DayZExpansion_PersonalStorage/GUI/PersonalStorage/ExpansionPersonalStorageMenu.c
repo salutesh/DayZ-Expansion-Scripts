@@ -1290,6 +1290,9 @@ class ExpansionPersonalStorageMenu: ExpansionScriptViewMenu
 		m_SelectedPreviewObject = null;
 		m_SelectedContainerItems = null;
 
+		if (!m_ItemDetailsView)
+			return;
+
 		m_ItemDetailsView.ShowConfirmButton(false);
 
 		if (m_PreviousViewState == ExpansionPersonalStorageMenuViewState.DetailViewPlayerItem || m_PreviousViewState == ExpansionPersonalStorageMenuViewState.DetailViewDepositedItem)

@@ -15,7 +15,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 	override void OnEnterAnomalyServer(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnEnterAnomalyServer - Entity: " + other.ToString());
+		ExDebugPrint("::OnEnterAnomalyServer - Entity: " + other.ToString());
 
 		super.OnEnterAnomalyServer(other);
 
@@ -27,7 +27,7 @@ class ExpansionAnomalySingularityTrigger: ExpansionAnomalyTriggerBase
 	protected void ProcessEntityEvents(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::ProcessEntityEvents - Entity: " + other.ToString());
+		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 
 		if (other)
 		{

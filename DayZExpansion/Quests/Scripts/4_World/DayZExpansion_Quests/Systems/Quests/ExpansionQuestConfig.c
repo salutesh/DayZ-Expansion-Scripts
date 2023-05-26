@@ -109,6 +109,11 @@ class ExpansionQuestConfig: ExpansionQuestConfigV15Base
 		ConfigVersion = CONFIGVERSION;
 	}
 
+	void ~ExpansionQuestConfig()
+	{
+		EXPrint(this, "~ExpansionQuestConfig");
+	}
+
 	void SetType(int type)
 	{
 		Type = type;

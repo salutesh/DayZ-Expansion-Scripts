@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -90,7 +90,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	override void EEItemAttached(EntityAI item, string slot_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
+		ExDebugPrint("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
 
 		super.EEItemAttached(item, slot_name);
 
@@ -114,7 +114,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
+		ExDebugPrint("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
 
 		super.EEItemDetached(item, slot_name);
 
@@ -138,7 +138,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	void SetLockState(bool state)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetLockState - State: " + state.ToString());
+		ExDebugPrint("::SetLockState - State: " + state.ToString());
 
 		m_IsLocked = state;
 		SetSynchDirty();
@@ -274,7 +274,7 @@ class Expansion_SupplyCrate_Base: Container_Base
 	void SetValidKeyType(ExpansionSupplyCrateKeyType keyType)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetValidKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
+		ExDebugPrint("::SetValidKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
 		
 		m_ValidKeyType = keyType;
 	}
@@ -364,9 +364,9 @@ class Expansion_SupplyCrate_Base: Container_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		DebugTrace("::UpdateSupplyCrateVFX_Deferred - Is locked: " + m_IsLocked.ToString());
-		DebugTrace("::UpdateSupplyCrateVFX_Deferred - Is opened: " + m_IsOpened.ToString());
-		DebugTrace("::UpdateSupplyCrateVFX_Deferred - Has loot delay: " + m_LootDelay.ToString());
+		ExDebugPrint("::UpdateSupplyCrateVFX_Deferred - Is locked: " + m_IsLocked.ToString());
+		ExDebugPrint("::UpdateSupplyCrateVFX_Deferred - Is opened: " + m_IsOpened.ToString());
+		ExDebugPrint("::UpdateSupplyCrateVFX_Deferred - Has loot delay: " + m_LootDelay.ToString());
 		
 		if (m_IsOpened)
 		{
@@ -383,10 +383,10 @@ class Expansion_SupplyCrate_Base: Container_Base
 		GetGame().ObjectDelete(this);
 	}
 
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };
@@ -458,7 +458,7 @@ class Expansion_SupplyCrate_Key_Base extends ItemBase
 	void SetKeyType(ExpansionSupplyCrateKeyType keyType)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::SetKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
+		ExDebugPrint("::SetKeyType - Key type: " + typename.EnumToString(ExpansionSupplyCrateKeyType, keyType));
 		
 		m_KeyType = keyType;
 	}
@@ -475,10 +475,10 @@ class Expansion_SupplyCrate_Key_Base extends ItemBase
 		return m_KeyType;
 	}
 	
-	protected void DebugTrace(string text)
+	protected void ExDebugPrint(string text)
 	{
 	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	#endif
 	}
 };

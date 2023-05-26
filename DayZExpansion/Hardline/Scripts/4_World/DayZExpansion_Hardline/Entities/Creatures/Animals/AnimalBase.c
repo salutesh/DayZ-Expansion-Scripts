@@ -12,20 +12,21 @@
 
 modded class AnimalBase
 {
-	// ------------------------------------------------------------
-	// Override EEKilled
-	// ------------------------------------------------------------
 	override void EEKilled(Object killer)
 	{
-		if  (GetExpansionSettings().GetHardline().UseReputation && GetExpansionSettings().GetHardline().ReputationOnKillAnimal)
-		{
-			ExpansionHardlineModule hardlineModule = ExpansionHardlineModule.Cast(CF_ModuleCoreManager.Get(ExpansionHardlineModule));
-			if (hardlineModule)
-			{
-				hardlineModule.OnEntityKilled(this, killer);
-			}
-		}
+#ifdef DIAG
+		auto trace = EXTrace.Start(EXTrace.MISC, this, "killer " + killer, "last dmg src " + m_Expansion_LastDamageSource);
+#endif
 
 		super.EEKilled(killer);
+
+		//! Workaround for vanilla EEKilled returning the killed entity as killer since 1.20
+		//! See VanillaFixes AnimalBase.c EEHitBy
+		if (killer == this)
+			killer = m_Expansion_LastDamageSource;
+
+		auto settings = GetExpansionSettings().GetHardline();
+		if  (settings.UseReputation && settings.ReputationOnKillAnimal)
+			ExpansionHardlineModule.GetModuleInstance().OnEntityKilled(this, killer);
 	}
 };

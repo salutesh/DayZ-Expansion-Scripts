@@ -20,6 +20,6 @@ modded class Weapon_Base
 	
 	void ExDebugPrint(string text)
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this, text);
+		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
 	}
 };

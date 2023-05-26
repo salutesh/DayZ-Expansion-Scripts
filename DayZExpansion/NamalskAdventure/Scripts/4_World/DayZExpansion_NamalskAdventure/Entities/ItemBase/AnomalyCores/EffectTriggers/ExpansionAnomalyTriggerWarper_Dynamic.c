@@ -22,7 +22,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	/*override void OnEnterServerEvent(TriggerInsider insider)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
+		ExDebugPrint("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
 
 		super.OnEnterServerEvent(insider);
 		
@@ -37,29 +37,29 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		DebugTrace("::EntityConditions - Entity: " + entityObj.GetType());
+		ExDebugPrint("::EntityConditions - Entity: " + entityObj.GetType());
 		
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
 		{
 			PlayerBase player = PlayerBase.Cast(entityObj);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
-				DebugTrace("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
+				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
 			}
 
-			DebugTrace("::EntityConditions - Return TRUE");
+			ExDebugPrint("::EntityConditions - Return TRUE");
 			return true;
 		}
 
-		DebugTrace("::EntityConditions - Return FALSE");
+		ExDebugPrint("::EntityConditions - Return FALSE");
 		return false;
 	}
 	
 	override void OnStayServerEvent(TriggerInsider insider, float deltaTime)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::OnStayServerEvent - Insider: " + insider.GetObject().GetType());
+		ExDebugPrint("::OnStayServerEvent - Insider: " + insider.GetObject().GetType());
 
 		super.OnStayServerEvent(insider, deltaTime);
 
@@ -72,7 +72,7 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	protected void ProcessEntityEvents(Object entityObj)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::ProcessEntityEvents - Entity: " + entityObj.GetType());
+		ExDebugPrint("::ProcessEntityEvents - Entity: " + entityObj.GetType());
 
 		vector position = entityObj.GetPosition();
 		float squareSize = Math.RandomFloat(200.0, 250.0);

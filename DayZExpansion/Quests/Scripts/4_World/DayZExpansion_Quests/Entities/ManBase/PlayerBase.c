@@ -12,7 +12,7 @@
 
 modded class PlayerBase
 {
-	protected static ref array<ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new ref array<ExpansionQuestObjectiveEventBase>;
+	protected static ref array<ref ExpansionQuestObjectiveEventBase> s_Expansion_AssignedQuestObjectives = new array<ref ExpansionQuestObjectiveEventBase>;
 
 	static void AssignQuestObjective(ExpansionQuestObjectiveEventBase objective)
 	{

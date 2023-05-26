@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -80,29 +80,29 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		if (!entityObj)
 			return false;
 		
-		DebugTrace("::EntityConditions - Entity: " + entityObj.GetType());
+		ExDebugPrint("::EntityConditions - Entity: " + entityObj.GetType());
 		
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
 		{
 			PlayerBase player = PlayerBase.Cast(other);
 			if (player && ExpansionAnomaliesModule.GetModuleInstance().HasActiveLEHSSuit(player))
 			{
-				DebugTrace("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
+				ExDebugPrint("::EntityConditions - Return FALSE. Entity is player and has LEHS suit!");
 				return false;
 			}
 
-			DebugTrace("::EntityConditions - Return TRUE");
+			ExDebugPrint("::EntityConditions - Return TRUE");
 			return true;
 		}
 
-		DebugTrace("::EntityConditions - Return FALSE");
+		ExDebugPrint("::EntityConditions - Return FALSE");
 		return false;
 	}
 
 	protected void ProcessEntityEvents(IEntity other)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		DebugTrace("::ProcessEntityEvents - Entity: " + other.ToString());
+		ExDebugPrint("::ProcessEntityEvents - Entity: " + other.ToString());
 
 		if (other)
 		{

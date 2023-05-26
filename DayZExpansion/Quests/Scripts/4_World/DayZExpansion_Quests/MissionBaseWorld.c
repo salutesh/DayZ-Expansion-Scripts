@@ -13,13 +13,18 @@
 modded class MissionBaseWorld
 {
 	//! This being here allows overriding in init.c
+	bool Expansion_CanStartQuest(ExpansionQuestConfig questConfig, PlayerIdentity identity)
+	{
+		return true;
+	}
+	
 	void Expansion_OnQuestStart(ExpansionQuest quest);
 
 	void Expansion_OnQuestContinue(ExpansionQuest quest);
 
 	void Expansion_OnQuestCancel(ExpansionQuest quest);
 
-	bool Expansion_CanCompleteQuest(ExpansionQuest quest)
+	bool Expansion_CanCompleteQuest(ExpansionQuest quest, PlayerIdentity identity)
 	{
 		return quest.CanCompleteQuest();
 	}
