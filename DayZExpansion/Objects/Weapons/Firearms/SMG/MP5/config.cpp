@@ -4,8 +4,8 @@ class CfgPatches
 {
 	class DayZExpansion_Weapons_SMG_MP5
 	{
-		units[] = {"Expansion_MP5_RailAtt"};
-		weapons[] = {"Expansion_MP5","Expansion_MP5SD"};
+		units[] = {};
+		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Weapons_Firearms"};
 	};
