@@ -101,6 +101,7 @@ class eAIBase: PlayerBase
 	private float m_eAI_SideStepTimeout;
 
 	private bool m_eAI_UnlimitedReload;
+	private float m_eAI_SniperProneDistanceThreshold;
 
 	// Path Finding
 #ifndef EAI_USE_LEGACY_PATHFINDING
@@ -140,6 +141,8 @@ class eAIBase: PlayerBase
 	bool m_Expansion_TriedTurningOnVisibilityEnhancers;
 
 	ref set<Man> m_eAI_InteractingPlayers = new set<Man>;
+
+	bool m_eAI_DespawnOnLoosingAggro;
 
 	void eAIBase()
 	{
@@ -201,6 +204,7 @@ class eAIBase: PlayerBase
 			eAI_SetAccuracy(-1, -1);
 			eAI_SetThreatDistanceLimit(-1);
 			eAI_SetDamageMultiplier(-1);
+			m_eAI_SniperProneDistanceThreshold = GetExpansionSettings().GetAI().SniperProneDistanceThreshold;
 
 #ifndef EAI_USE_LEGACY_PATHFINDING
 			m_PathFinding = new ExpansionPathHandler(this);
@@ -229,6 +233,8 @@ class eAIBase: PlayerBase
 		}
 
 		super.Expansion_Init();
+
+		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
 	}
 
 	//! Vanilla, can this AI be targeted by Zs/Animals?
@@ -1010,6 +1016,26 @@ class eAIBase: PlayerBase
 		return state;
 	}
 
+	void eAI_SetDespawnOnLoosingAggro(bool state)
+	{
+		m_eAI_DespawnOnLoosingAggro = state;
+	}
+
+	void eAI_Despawn()
+	{
+		ItemBase hands = GetItemInHands();
+		if (hands)
+		{
+			hands.Expansion_SetLootable(false);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 5000, false, hands);
+		}
+		SetAllowDamage(true);
+		//! Kill AI to remove collision
+		SetHealth(0);
+		//! Delete body after delay (don't remove it too early after death or invisible collision will still be there, five seconds seems to work well)
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 5000, false, this);
+	}
+
 	void ReactToThreatChange(float pDt)
 	{
 		if (m_eAI_CurrentThreatToSelf >= 0.2)
@@ -1046,7 +1072,11 @@ class eAIBase: PlayerBase
 				m_ThreatClearedTimeout -= pDt;
 				if (m_ThreatClearedTimeout <= 0)
 				{
-					if (m_eAI_CurrentThreatToSelf <= 0.2 && !GetExpansionSettings().GetAI().Manners)
+					if (m_eAI_DespawnOnLoosingAggro)
+					{
+						GetGroup().ClearAI();
+					}
+					else if (m_eAI_CurrentThreatToSelf <= 0.2 && !GetExpansionSettings().GetAI().Manners)
 					{
 						int emoteId;
 						switch (Math.RandomIntInclusive(1, 5))
@@ -1080,7 +1110,7 @@ class eAIBase: PlayerBase
 		if (IsRaised() && !GetWeaponManager().IsRunning())
 		{
 			//! During sidestep, CanRaiseWeapon will return false so we are able to lower weapon instantly
-			if (!CanRaiseWeapon())
+			if (!CanRaiseWeapon() || !eAI_HasLOS())
 			{
 				RaiseWeapon(false);
 			}
@@ -1474,10 +1504,71 @@ class eAIBase: PlayerBase
 		m_MovementDirection = pDirection;
 	}
 
-	void OverrideStance(int pStanceIdx)
+	//! @note returns whether stance was changed or not
+	bool OverrideStance(int pStanceIdx, bool force = false)
 	{
-		eAICommandMove move = StartCommand_MoveAI();
-		move.OverrideStance(pStanceIdx);
+		if (!DayZPlayerUtils.PlayerCanChangeStance(this, pStanceIdx))
+			return false;
+
+		eAICommandMove move = GetCommand_MoveAI();
+
+		if (!move && force)
+			move = StartCommand_MoveAI();
+
+		if (move)
+		{
+			if (move.OverrideStance(pStanceIdx))
+			{
+				if (EXTrace.AI)
+				{
+					string stance;
+					switch (pStanceIdx)
+					{
+						case DayZPlayerConstants.STANCEIDX_ERECT:
+							stance = "STANCEIDX_ERECT";
+							break;
+						case DayZPlayerConstants.STANCEIDX_CROUCH:
+							stance = "STANCEIDX_CROUCH";
+							break;
+						case DayZPlayerConstants.STANCEIDX_PRONE:
+							stance = "STANCEIDX_PRONE";
+							break;
+					}
+					EXTrace.Print(true, this, "OverrideStance " + stance + " " + force);
+				}
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool eAI_IsChangingStance()
+	{
+		auto cmd = GetCommand_MoveAI();
+		return cmd && cmd.IsChangingStance();
+	}
+
+	void eAI_SetSniperProneDistanceThreshold(float distance)
+	{
+		m_eAI_SniperProneDistanceThreshold = distance;
+	}
+
+	bool eAI_AdjustStance(Weapon_Base gun, float distToTargetSq)
+	{
+		//! Go prone if target is farther than threshold, we weren't hit in the last 10 s, we face the target, and we have a long range optic,
+		//! otherwise stand back up
+
+		float distThreshSq = m_eAI_SniperProneDistanceThreshold * m_eAI_SniperProneDistanceThreshold;
+		if (distThreshSq > 0.0 && distToTargetSq > distThreshSq && GetGame().GetTickTime() - m_eAI_LastHitTime > 10.0)
+		{
+			vector targetDirection = vector.Direction(GetPosition(), m_eAI_AimPosition_WorldSpace).Normalized();
+			ItemOptics optics;
+			if (vector.Dot(GetDirection(), targetDirection) > 0.9 && Class.CastTo(optics, gun.GetAttachedOptics()) && optics.GetZeroingDistanceZoomMax() >= 800)
+				return OverrideStance(DayZPlayerConstants.STANCEIDX_PRONE);
+		}
+
+		return OverrideStance(DayZPlayerConstants.STANCEIDX_ERECT);
 	}
 
 	void SetMovementSpeedLimit(int pSpeed)
@@ -1883,14 +1974,16 @@ class eAIBase: PlayerBase
 		if (m_eAI_DoorInteractionTimeout)
 			m_eAI_DoorInteractionTimeout -= pDt;
 
+		vector neck = GetBonePositionWS(GetBoneIndexByName("neck"));
+
 		if (m_eAI_LookDirection_Recalculate)
 		{
-			m_eAI_LookDirectionTarget_ModelSpace = vector.Direction(GetPosition() + "0 1.5 0", m_eAI_LookPosition_WorldSpace).Normalized().InvMultiply3(m_ExTransformPlayer);
+			m_eAI_LookDirectionTarget_ModelSpace = vector.Direction(neck, m_eAI_LookPosition_WorldSpace).Normalized().InvMultiply3(m_ExTransformPlayer);
 		}
 
 		if (m_eAI_AimDirection_Recalculate)
 		{
-			m_eAI_AimDirectionTarget_ModelSpace = vector.Direction(GetPosition() + "0 1.5 0", m_eAI_AimPosition_WorldSpace).Normalized().InvMultiply3(m_ExTransformPlayer);
+			m_eAI_AimDirectionTarget_ModelSpace = vector.Direction(neck, m_eAI_AimPosition_WorldSpace).Normalized().InvMultiply3(m_ExTransformPlayer);
 		}
 
 		HumanInputController hic = GetInputController();
@@ -2812,7 +2905,7 @@ class eAIBase: PlayerBase
 			//TODO: quaternion slerp instead for better, accurate results
 			m_eAI_AimRelAngles = ExpansionMath.InterpolateAngles(m_eAI_AimRelAngles, aimTargetRelAngles, pDt, Math.RandomFloat(3.0, 5.0), Math.RandomFloat(1.0, 3.0));
 
-			float dist = vector.Distance(GetPosition() + "0 1.5 0", m_eAI_AimPosition_WorldSpace);
+			float dist = vector.Distance(GetBonePositionWS(GetBoneIndexByName("neck")), m_eAI_AimPosition_WorldSpace);
 			dist = Math.Clamp(dist, 1.0, 360.0);
 
 			float aimX = ExpansionMath.RelAngle(ExpansionMath.AbsAngle(m_eAI_AimRelAngles[0]) + (-15.0 / dist));
@@ -2856,7 +2949,7 @@ class eAIBase: PlayerBase
 		if (IsClimbing() || IsFalling())
 			return false;
 
-		return eAI_HasLOS() && m_eAI_SideStepTimeout <= 0;
+		return m_eAI_SideStepTimeout <= 0 && !eAI_IsChangingStance();
 	}
 
 	// @param true to put weapon up, false to lower
@@ -3050,7 +3143,7 @@ class eAIBase: PlayerBase
 	{
 		super.OnUnconsciousStop(pCurrentCommandID);
 
-		Expansion_GetUp(true);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_GetUp, 3000, false, true);
 	}
 
 	void eAI_DropItemInHands(bool switchOff = true)
@@ -3137,21 +3230,24 @@ class eAIBase: PlayerBase
 		if (il_src.CompareLocationOnly(il_dst) && il_src.GetFlip() == il_dst.GetFlip())
 			return false;
 
-		if (il_dst.GetType() == InventoryLocationType.HANDS || il_src.GetType() == InventoryLocationType.HANDS)
+		if (il_dst.GetType() != InventoryLocationType.GROUND)
 		{
-			//! Forcing switch to HumanCommandMove before taking to/from hands,
-			//! and hiding/showing item in hands after, unbreaks hand anim state
-			if (!GetCommand_Move())
-				StartCommand_Move();
-			else
-				m_eAI_CommandTime = 0.0;
-		}
+			if (il_dst.GetType() == InventoryLocationType.HANDS || il_src.GetType() == InventoryLocationType.HANDS)
+			{
+				//! Forcing switch to HumanCommandMove before taking to/from hands,
+				//! and hiding/showing item in hands after, unbreaks hand anim state
+				if (!GetCommand_Move())
+					StartCommand_Move();
+				else
+					m_eAI_CommandTime = 0.0;
+			}
 
-		if (il_src.GetType() == InventoryLocationType.HANDS)
-		{
-			//! Forcing switch to HumanCommandMove before taking from hands,
-			//! and hiding item in hands before, unbreaks hand anim state
-			GetItemAccessor().HideItemInHands(true);
+			if (il_src.GetType() == InventoryLocationType.HANDS)
+			{
+				//! Forcing switch to HumanCommandMove before taking from hands,
+				//! and hiding item in hands before, unbreaks hand anim state
+				GetItemAccessor().HideItemInHands(true);
+			}
 		}
 
 		if (GetGame().IsMultiplayer())
@@ -3159,7 +3255,7 @@ class eAIBase: PlayerBase
 
 		bool result = LocalTakeToDst(il_src, il_dst);
 
-		if (il_src.GetType() == InventoryLocationType.HANDS)
+		if (il_src.GetType() == InventoryLocationType.HANDS && il_dst.GetType() != InventoryLocationType.GROUND)
 		{
 			//! Forcing switch to HumanCommandMove before taking from hands,
 			//! and showing item in hands after, unbreaks hand anim state
@@ -3197,32 +3293,15 @@ class eAIBase: PlayerBase
 		return result;
 	}
 
-	void Expansion_GetUp(bool force = false)
+	bool Expansion_GetUp(bool force = false)
 	{
 		if (!force)
 		{
 			if (IsPlayerInStance(DayZPlayerConstants.STANCEMASK_ERECT | DayZPlayerConstants.STANCEMASK_RAISEDERECT))
-				return;
-			if (m_EmoteManager.IsEmotePlaying())
-				return;
+				return false;
 		}
 
-		EXTrace.Print(EXTrace.AI, this, "Expansion_GetUp " + force);
-
-		//! XXX: Breaks collision box (will still be for prone stance)
-		//! Use HumanCommandMove to get up for now which doesn't have this problem.
-		//eAICommandMove move = StartCommand_MoveAI();
-		//move.GetUp();
-
-		HumanCommandMove cm = GetCommand_Move();
-		if (!cm)
-			cm = StartCommand_Move();
-		else
-			m_eAI_CommandTime = 0.0;
-		if (cm)
-		{
-			cm.ForceStanceUp(DayZPlayerConstants.STANCEIDX_ERECT);
-		}
+		return OverrideStance(DayZPlayerConstants.STANCEIDX_ERECT, force);
 	}
 
 	//! @brief Set emote for playing

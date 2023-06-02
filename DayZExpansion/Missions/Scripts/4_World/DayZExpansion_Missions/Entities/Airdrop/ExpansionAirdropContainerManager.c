@@ -81,11 +81,38 @@ class ExpansionAirdropContainerManager
 	{
 		if ( infected )
 		{
-			//! Make it drop dead
-			infected.SetHealth( 0 );
+			//! Only kill if not currently chasing/fighting
 
-			//! Remove dead body shortly after
-			GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveSingleInfected, 3000, false, infected );
+			ZombieBase zombie;
+			AnimalBase animal;
+		#ifdef EXPANSIONMODAI
+			eAIBase ai;
+		#endif
+			if (Class.CastTo(zombie, infected) && zombie.GetInputController().GetMindState() >= DayZInfectedConstants.MINDSTATE_CHASE)
+			{
+				zombie.SetLifetime(60.0);
+			}
+			else if (Class.CastTo(animal, infected) && animal.GetInputController().GetAlertLevel() > 1)
+			{
+				animal.SetLifetime(60.0);
+			}
+		#ifdef EXPANSIONMODAI
+			else if (Class.CastTo(ai, infected))
+			{
+				if (ai.GetThreatToSelf() >= 0.4)
+					ai.eAI_SetDespawnOnLoosingAggro(true);
+				else
+					ai.eAI_Despawn();
+			}
+		#endif
+			else
+			{
+				//! Make it drop dead
+				infected.SetHealth( 0 );
+
+				//! Remove dead body shortly after
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveSingleInfected, 3000, false, infected );
+			}
 		}
 
 		//! On to the next

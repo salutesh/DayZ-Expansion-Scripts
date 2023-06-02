@@ -16,6 +16,12 @@ modded class PowerGenerator
 	{
 		return m_FuelPercentage;
 	}
+	
+	void SetFuelPercentage(int fuelPercentage)
+	{
+		m_FuelPercentage = fuelPercentage;
+		SetSynchDirty();
+	}
 };
 
 class RepairBenchGenerator: PowerGenerator
@@ -72,6 +78,8 @@ class RepairBenchGenerator: PowerGenerator
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
+		SetFuelPercentage(0);
+		
 	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
@@ -357,6 +365,9 @@ class Land_Repair_Center: House
 
 	void ~Land_Repair_Center()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 	#ifdef DIAG

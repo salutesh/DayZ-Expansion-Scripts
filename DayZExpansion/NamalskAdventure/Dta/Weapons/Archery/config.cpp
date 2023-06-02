@@ -15,6 +15,6 @@ class cfgWeapons
 	class Archery_Base;
 	class Crossbow_Base: Archery_Base
 	{
-		chamberableFrom[] += {"Expansion_Ammo_BoltAnomaly"};
+		chamberableFrom[] += {"Expansion_Ammo_BoltAnomaly_Ice","Expansion_Ammo_BoltAnomaly_Warper"};
 	};
 };

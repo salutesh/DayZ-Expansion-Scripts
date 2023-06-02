@@ -720,6 +720,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			item.Expansion_ProcessWTD(elapsed);
 
 		entity.AfterStoreLoad();
+		entity.SetSynchDirty();
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(entity.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
 
 		return true;

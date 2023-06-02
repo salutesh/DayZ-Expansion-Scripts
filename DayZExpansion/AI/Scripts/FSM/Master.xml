@@ -48,6 +48,7 @@
 			<event_entry>
 				time = 0;
 				unit.OverrideTargetPosition(unit.GetPosition());
+				unit.OverrideMovementSpeed(true, 0);
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -404,9 +405,10 @@
 					timeout = UATimeSpent.BANDAGE / effectivity + 8.0;
 				else
 					timeout = 16.0;
+				if (unit.IsPlayerInStance(DayZPlayerConstants.STANCEMASK_PRONE | DayZPlayerConstants.STANCEMASK_RAISEDPRONE))
+					unit.OverrideStance(DayZPlayerConstants.STANCEIDX_CROUCH);
 			</event_entry>
 			<event_exit>
-				unit.Expansion_GetUp(true);
 				if (bandage)
 				{
 					if (bandage.IsDamageDestroyed() || !unit.eAI_TakeItemToInventory(bandage))
@@ -417,6 +419,9 @@
 			</event_exit>
 			<event_update>
 				if (unit.IsUnconscious()) return EXIT;
+				
+				if (unit.eAI_IsChangingStance())
+					return CONTINUE;
 				
 				if (unit.GetActionManager().GetRunningAction())
 				{
@@ -446,6 +451,9 @@
 						}
 					}
 				}
+				
+				if (unit.Expansion_GetUp(true))
+					return CONTINUE;
 				
 				return EXIT;
 			</event_update>
@@ -693,7 +701,7 @@
 				}
 				
 				//! First check if we want to switch to bandage
-				if (unit.IsBleeding() &amp;&amp; unit.GetThreatToSelf(true) &lt; 0.4)
+				if (unit.IsBleeding() &amp;&amp; unit.GetThreatToSelf() &lt; 0.4)
 				{
 					if (!hands || !hands.Expansion_CanBeUsedToBandage())
 					{
@@ -957,6 +965,7 @@
 			</editor_data>
 			<guard>
 				if (unit.IsRestrained()) return FAIL;
+				if (unit.eAI_IsChangingStance()) return FAIL;
 				
 				if (!unit.m_Expansion_EmoteID) return FAIL;
 				if (unit.GetEmoteManager().IsEmotePlaying() || unit.GetEmoteManager().Expansion_GetCurrentGesture() == unit.m_Expansion_EmoteID) return FAIL;

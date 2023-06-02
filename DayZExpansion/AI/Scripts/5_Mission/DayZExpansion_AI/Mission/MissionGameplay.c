@@ -43,7 +43,7 @@ modded class MissionGameplay
 #endif
 
 		// If we want to open the command menu, and nothing else is open
-		if (input.LocalPress("eAICommandMenu", false) && !menu && !viewMenu)
+		if (!inputIsFocused && input.LocalPress("eAICommandMenu", false) && !menu && !viewMenu)
 		{
 			if (GetExpansionSettings().GetAI().IsAdmin() || (player && player.GetGroup()))
 			{

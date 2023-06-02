@@ -33,6 +33,8 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 	protected JMWebhookModule m_Webhook;
 #endif
 
+	string m_Expansion_SurvivorDisplayName;
+
 	override void OnInit()
 	{
 		super.OnInit();
@@ -42,6 +44,8 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 #ifdef JM_COT
 		CF_Modules<JMWebhookModule>.Get(m_Webhook);
 #endif
+
+		m_Expansion_SurvivorDisplayName = GetGame().ConfigGetTextOut(CFG_VEHICLESPATH + " SurvivorBase displayName");
 	}
 
 #ifdef JM_COT
@@ -116,7 +120,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.KILLFEED, this, "" + player, "" + source);
 
 		m_Player = player;
-		m_PlayerName = GetIdentityName( player.GetIdentity() );
+		m_PlayerName = GetIdentityName( player );
 
 		#ifdef JM_COT
 		m_PlayerSteamWebhook = player.FormatSteamWebhook();
@@ -275,7 +279,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 				if (m_SourcePlayer)
 				{
-					m_PlayerName2 = GetIdentityName( m_SourcePlayer.GetIdentity() );
+					m_PlayerName2 = GetIdentityName( m_SourcePlayer );
 
 					#ifdef JM_COT
 					if ( m_SourcePlayer.GetIdentity() )
@@ -498,7 +502,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 					continue;
 
 				if (crew.GetIdentity().GetId() != player.GetIdentity().GetId())
-					passenger_names.Insert( GetIdentityName( crew.GetIdentity() ) );
+					passenger_names.Insert( GetIdentityName( crew ) );
 			}
 
 			//! Attached players
@@ -514,7 +518,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 				if (crew.GetIdentity().GetId() != player.GetIdentity().GetId())
 				{
-					string name = GetIdentityName( crew.GetIdentity() );
+					string name = GetIdentityName( crew );
 					if ( passenger_names.Find( name ) == -1 )
 						passenger_names.Insert( name );
 				}
@@ -618,7 +622,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if (m_SourcePlayer)
 		{
-			m_PlayerName2 = GetIdentityName( m_SourcePlayer.GetIdentity() );
+			m_PlayerName2 = GetIdentityName( m_SourcePlayer );
 	
 			#ifdef JM_COT
 			if ( m_SourcePlayer.GetIdentity() )
@@ -658,7 +662,7 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 
 		if (m_SourcePlayer)
 		{
-			m_PlayerName2 = GetIdentityName( m_SourcePlayer.GetIdentity() );
+			m_PlayerName2 = GetIdentityName( m_SourcePlayer );
 
 			#ifdef JM_COT
 			if ( m_SourcePlayer.GetIdentity() )
@@ -952,10 +956,25 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		return message;
 	}
 
-	private string GetIdentityName( PlayerIdentity identity )
+	private string GetIdentityName( Man player )
 	{
+		PlayerIdentity identity = player.GetIdentity();
+
 		if ( identity == NULL )
-			return "Survivor";
+		{
+			string displayName = player.GetDisplayName();
+			string name = displayName;
+		#ifdef EXPANSIONMODAI
+			eAIBase ai;
+			if (name == m_Expansion_SurvivorDisplayName && Class.CastTo(ai, player))
+			{
+				name = ai.GetGroup().GetName();
+				if (name == string.Empty)
+					name = string.Format("%1 (%2)", displayName, ai.GetGroup().GetFaction().GetDisplayName());
+			}
+		#endif
+			return name;
+		}
 
 		return identity.GetName();
 	}
@@ -1036,6 +1055,14 @@ class ExpansionKillFeedModule: CF_ModuleWorld
 		if (GetExpansionSettings().GetLog().Killfeed)
 		{
 			StringLocaliser loc = GetLocaliser(kill_data);
+			string param;
+			for (int i = 0; i < 4; i++)
+			{
+				param = loc.Get(i);
+				param.ToUpper();
+				if (param.Contains("#STR_"))
+					loc.SetTranslates(i, true);
+			}
 			GetExpansionSettings().GetLog().PrintLog("[Killfeed] " + loc.Format());
 		}
 	}

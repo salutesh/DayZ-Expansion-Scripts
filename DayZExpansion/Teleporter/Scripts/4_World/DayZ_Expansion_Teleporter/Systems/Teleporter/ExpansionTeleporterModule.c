@@ -334,9 +334,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			if (currentDistance > 3.0)
 				return;
 		}
-		
-		player.SetPosition(pos);
-		player.SetOrientation(ori);
+
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, pos, ori);
 		PlayTeleportSound(pos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
 	}

@@ -166,7 +166,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 				airdropCreatedMsg = new StringLocaliser( "STR_EXPANSION_MISSION_AIRDROP_SUPPLIES_DROPPED", DropLocation.Name );
 			}
 	
-			m_Plane = ExpansionAirdropPlane.CreatePlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, Speed, container, warningProximityMsg, airdropCreatedMsg );
+			m_Plane = ExpansionAirdropPlane.CreatePlane( Vector( DropLocation.x, 0, DropLocation.z ), DropLocation.Name, DropLocation.Radius, Height, Speed, container, warningProximityMsg, airdropCreatedMsg, MissionMaxTime );
 			
 			if ( m_Plane )
 			{
@@ -183,7 +183,7 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 	
 	override bool CanEnd()
 	{
-		return !m_Container || !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1500);
+		return !m_Container || !ExpansionLootSpawner.IsPlayerNearby(m_Container, 1100);
 	}
 
 	// ------------------------------------------------------------
@@ -198,12 +198,10 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 		
 		if ( IsMissionHost() )
 		{
-			if ( !m_Container )
+			if ( m_Container )
 			{
-				return;
+				GetGame().ObjectDelete(m_Container);
 			}
-			
-			GetGame().ObjectDelete(m_Container);
 
 			if ( GetExpansionSettings().GetNotification().ShowAirdropEnded && ShowNotification )
 			{
@@ -235,6 +233,13 @@ class ExpansionMissionEventAirdrop: ExpansionMissionEventBase
 						m_CurrentMissionTime = 0;
 					}
 				}
+			}
+
+			if (m_CurrentMissionTime >= MissionMaxTime && m_Container && m_Container.GetHealth("", "") > 0.0)
+			{
+				m_Container.SetHealth("", "", 0.0);
+				m_Container.SetLifetimeMax(0.0);
+				m_Container.ToggleLight();
 			}
 		}
 	}

@@ -20,6 +20,7 @@ class ExpansionQuestObjectiveEventBase
 	protected bool m_Active;
 	protected ref ExpansionQuestObjectiveConfig m_ObjectiveConfig;
 	protected int m_TimeLimit = -1;
+	protected bool m_IsAssigned;
 
 	void ExpansionQuestObjectiveEventBase(ExpansionQuest quest)
 	{
@@ -56,6 +57,11 @@ class ExpansionQuestObjectiveEventBase
 	bool IsActive()
 	{
 		return m_Active;
+	}
+
+	bool IsAssigned()
+	{
+		return m_IsAssigned;
 	}
 
 	void SetIsActive(bool state)
@@ -149,50 +155,42 @@ class ExpansionQuestObjectiveEventBase
 			switch (typeName)
 			{
 				case ActionBase:
-				{
 					ActionBase.AssignQuestObjective(this);
+					m_IsAssigned = true;
 					ObjectivePrint("Assign to ActionBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
-				}
-				break;
+					break;
 
 				case ZombieBase:
-				{
 					ZombieBase.AssignQuestObjective(this);
+					m_IsAssigned = true;
 					ObjectivePrint("Assign to ZombieBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
-				}
-				break;
+					break;
 
 				case AnimalBase:
-				{
 					AnimalBase.AssignQuestObjective(this);
+					m_IsAssigned = true;
 					ObjectivePrint("Assign to AnimalBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
-				}
-				break;
+					break;
 
 				case PlayerBase:
-				{
 					PlayerBase.AssignQuestObjective(this);
+					m_IsAssigned = true;
 					ObjectivePrint("Assign to PlayerBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
-				}
-				break;
+					break;
 
 				case ItemBase:
-				{
 					ItemBase.AssignQuestObjective(this);
+					m_IsAssigned = true;
 					ObjectivePrint("Assign to ItemBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
-				}
-				break;
+					break;
 
 				case RecipeBase:
-				{
 					RecipeBase.AssignQuestObjective(this);
+					m_IsAssigned = true;
 					ObjectivePrint("Assign to RecipeBase. Type: " + GetObjectiveType() + " | ID: " + m_ObjectiveConfig.GetID());
-				}
-				break;
+					break;
 			}
 		}
-
-		
 	}
 
 	//! Deassign objective from allocated classes.
@@ -210,40 +208,34 @@ class ExpansionQuestObjectiveEventBase
 			switch (typeName)
 			{
 				case ActionBase:
-				{
 					ActionBase.DeassignQuestObjective(this);
-				}
-				break;
+					m_IsAssigned = false;
+					break;
 
 				case ZombieBase:
-				{
 					ZombieBase.DeassignQuestObjective(this);
-				}
-				break;
+					m_IsAssigned = false;
+					break;
 
 				case AnimalBase:
-				{
 					AnimalBase.DeassignQuestObjective(this);
-				}
-				break;
+					m_IsAssigned = false;
+					break;
 
 				case PlayerBase:
-				{
 					PlayerBase.DeassignQuestObjective(this);
-				}
-				break;
+					m_IsAssigned = false;
+					break;
 
 				case ItemBase:
-				{
 					ItemBase.DeassignQuestObjective(this);
-				}
-				break;
+					m_IsAssigned = false;
+					break;
 
 				case RecipeBase:
-				{
 					RecipeBase.DeassignQuestObjective(this);
-				}
-				break;
+					m_IsAssigned = false;
+					break;
 			}
 		}
 	}

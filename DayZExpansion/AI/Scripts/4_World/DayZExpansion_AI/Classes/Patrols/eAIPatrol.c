@@ -107,8 +107,6 @@ class eAIPatrol : Managed
 
 		//DelayedStart();
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.DelayedStart, Math.RandomInt(1, 1000), false);
-
-		OnUpdate();
 	}
 
 	private void DelayedStart()
@@ -116,6 +114,8 @@ class eAIPatrol : Managed
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "DelayedStart");
 		#endif
+
+		OnUpdate();
 
 		if (!m_Timer) m_Timer = new Timer(CALL_CATEGORY_GAMEPLAY);
 		m_Timer.Run(UPDATE_RATE_IN_SECONDS, this, "OnUpdate", null, true);

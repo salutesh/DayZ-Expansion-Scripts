@@ -18,12 +18,14 @@ class eAIDynamicPatrol : eAIPatrol
 	ref eAIFormation m_Formation;
 	bool m_CanBeLooted;
 	bool m_UnlimitedReload;
+	float m_SniperProneDistanceThreshold;
 	float m_AccuracyMin; // zero or negative = use general setting
 	float m_AccuracyMax; // zero or negative = use general setting
 	float m_ThreatDistanceLimit; // zero or negative = use general setting
 	float m_DamageMultiplier; // zero or negative = use general setting
 
 	eAIGroup m_Group;
+	string m_GroupName;
 	float m_TimeSinceLastSpawn;
 	bool m_CanSpawn;
 	private bool m_WasGroupDestroyed;
@@ -106,6 +108,16 @@ class eAIDynamicPatrol : eAIPatrol
 		m_DamageMultiplier = multiplier;
 	}
 
+	void SetGroupName(string name)
+	{
+		m_GroupName = name;
+	}
+
+	void SetSniperProneDistanceThreshold(float distance)
+	{
+		m_SniperProneDistanceThreshold = distance;
+	}
+
 	private eAIBase SpawnAI(vector pos)
 	{
 		#ifdef EAI_TRACE
@@ -130,6 +142,7 @@ class eAIDynamicPatrol : eAIPatrol
 		ai.eAI_SetAccuracy(m_AccuracyMin, m_AccuracyMax);
 		ai.eAI_SetThreatDistanceLimit(m_ThreatDistanceLimit);
 		ai.eAI_SetDamageMultiplier(m_DamageMultiplier);
+		ai.eAI_SetSniperProneDistanceThreshold(m_SniperProneDistanceThreshold);
 
 		return ai;
 	}
@@ -168,7 +181,12 @@ class eAIDynamicPatrol : eAIPatrol
 		if (m_Group) return;
 
 		if (GetExpansionSettings().GetLog().AIPatrol)
-            GetExpansionSettings().GetLog().PrintLog("[AI Patrol] Spawning " + m_NumberOfAI + " " + m_Faction.ClassName().Substring(10, m_Faction.ClassName().Length() - 10) + " bots at " + m_Position);
+		{
+			string name = m_GroupName;
+			if (name == string.Empty)
+				name = m_Faction.ClassName().Substring(10, m_Faction.ClassName().Length() - 10);
+            GetExpansionSettings().GetLog().PrintLog("[AI Patrol] Spawning " + m_NumberOfAI + " " + name + " bots at " + m_Position);
+        }
 
 		m_TimeSinceLastSpawn = 0;
 		m_CanSpawn = false;
@@ -179,6 +197,7 @@ class eAIDynamicPatrol : eAIPatrol
 		m_Group.SetFaction(m_Faction);
 		m_Group.SetFormation(m_Formation);
 		m_Group.SetWaypointBehaviour(m_WaypointBehaviour);
+		m_Group.SetName(m_GroupName);
 		for (int idx = 0; idx < m_Waypoints.Count(); idx++)
 		{
 			m_Group.AddWaypoint(m_Waypoints[idx]);
@@ -199,7 +218,7 @@ class eAIDynamicPatrol : eAIPatrol
 		m_NumberOfDynamicPatrols++;
 	}
 
-	void Despawn()
+	void Despawn(bool deferDespawnUntilLoosingAggro = false)
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "Despawn");
@@ -209,7 +228,7 @@ class eAIDynamicPatrol : eAIPatrol
 
 		if (m_Group)
 		{
-			m_Group.ClearAI();
+			m_Group.ClearAI(true, deferDespawnUntilLoosingAggro);
 			m_Group = null;
 		}
 

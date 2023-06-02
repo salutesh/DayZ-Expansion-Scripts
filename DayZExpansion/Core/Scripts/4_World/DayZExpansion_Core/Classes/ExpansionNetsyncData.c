@@ -67,7 +67,10 @@ class ExpansionNetsyncData
 		if (!m_Data || !m_Data.Count())
 			return;
 
-		EXTrace.Print(EXTrace.MISC, m_Object, "Sending " + m_Data.Count() + " netsync data entries to " + recipient.GetId());
+		if (recipient)
+			EXTrace.Print(EXTrace.MISC, m_Object, "Sending " + m_Data.Count() + " netsync data entries to " + recipient.GetId());
+		else
+			EXTrace.Print(EXTrace.MISC, m_Object, "Sending " + m_Data.Count() + " netsync data entries to all players");
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(m_Data.Count());

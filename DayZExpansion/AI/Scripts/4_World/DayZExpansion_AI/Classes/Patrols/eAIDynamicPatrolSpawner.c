@@ -7,6 +7,7 @@ class eAIDynamicPatrolSpawner<Class T>
 
 	eAIDynamicPatrol m_ExpansionAIPatrol;
 	bool m_Initialized;
+	bool m_DeferDespawnUntilLoosingAggro;
 
 	T m_Object;
 
@@ -90,8 +91,13 @@ class eAIDynamicPatrolSpawner<Class T>
 
 		if (m_ExpansionAIPatrol)
 		{
-			m_ExpansionAIPatrol.Despawn();
+			m_ExpansionAIPatrol.Despawn(m_DeferDespawnUntilLoosingAggro);
 			m_ExpansionAIPatrol.Delete();
 		}
+	}
+
+	void SetDeferDespawnUntilLoosingAggro(bool state)
+	{
+		m_DeferDespawnUntilLoosingAggro = state;
 	}
 };

@@ -41,7 +41,7 @@ modded class ZombieBase
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
 		{
-			s_Expansion_AssignedQuestObjectives.Remove(index);
+			s_Expansion_AssignedQuestObjectives.RemoveOrdered(index);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			EXTrace.Print(EXTrace.QUESTS, null, "Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
@@ -71,25 +71,42 @@ modded class ZombieBase
 		if (killerUID == string.Empty)
 			return;
 
-		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
+		ExpansionQuest quest;
+		for (int i = 0; i < s_Expansion_AssignedQuestObjectives.Count();)
 		{
-			if (!objective.GetQuest())
+			ExpansionQuestObjectiveEventBase objective = s_Expansion_AssignedQuestObjectives[i];
+			if (!objective)
+			{
+				EXTrace.Print(EXTrace.QUESTS, this, "WARNING: Objective is NULL!");
+				s_Expansion_AssignedQuestObjectives.RemoveOrdered(i);
 				continue;
+			}
+
+			quest = objective.GetQuest();
+			if (!quest)
+			{
+				i++;
+				continue;
+			}
 			
-			if (!objective.GetQuest().IsQuestPlayer(killerUID))
+			if (!quest.IsQuestPlayer(killerUID))
+			{
+				i++;
 				continue;
+			}
 
 			int objectiveType = objective.GetObjectiveType();
 			switch (objectiveType)
 			{
 				case ExpansionQuestObjectiveType.TARGET:
-				{
 					ExpansionQuestObjectiveTargetEvent targetEvent;
 					if (Class.CastTo(targetEvent, objective))
 						targetEvent.OnEntityKilled(this, killSource, killerPlayer);
-				}
-				break;
+					break;
 			}
+
+			if (objective.IsAssigned())
+				i++;
 		}
 	}
 

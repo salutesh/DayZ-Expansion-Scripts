@@ -33,7 +33,9 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 		{
 			EntityAI objectEntity = EntityAI.Cast(other);
 			vector position = objectEntity.GetPosition();
-			vector randomPosition = Vector(position[0] + Math.RandomFloat(5, 10), position[1], position[2] + Math.RandomFloat(5, 10));
+			float offsetX = Math.RandomFloatInclusive(5.0, 10.0);
+			float offsetY = Math.RandomFloatInclusive(5.0, 10.0);
+			vector randomPosition = Vector(position[0] + offsetX, position[1], position[2] + offsetY);
 			randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
 			vector ori = objectEntity.GetOrientation();
 
@@ -78,9 +80,6 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 					player.GiveShock(Math.RandomFloatInclusive(MIN_SHOCK_INFLICTED, MAX_SHOCK_INFLICTED)); //! Apply random shock damage to the player.
 					player.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the player.
 					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
-
-					player.SetPosition(randomPosition);
-					player.SetOrientation(ori);
 					DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
 				}
 

@@ -20,16 +20,16 @@ enum Expansion_Satellite_Control_ERPCs
 #ifdef EXPANSION_NAMALSK_ADVENTURE
 class Expansion_Satellite_Control: House
 {
-#ifdef DIAG
-#ifdef EXPANSIONMODNAVIGATION
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
-#endif
-#endif
+	#endif
+	#endif
 
 	protected SV_Abandoned_Sattelite_Antenna m_LinkedSatellite;
-#ifdef EXPANSIONMODTELEPORTER
+	#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_LinkedTeleporter;
-#endif
+	#endif
 	protected bool m_CanActivate;
 	protected bool m_IsSatelliteActive;
 	protected bool m_IsSatelliteBooting;
@@ -47,17 +47,20 @@ class Expansion_Satellite_Control: House
 
 	void ~Expansion_Satellite_Control()
 	{
+		if (!GetGame())
+			return;
+
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
-			if (!m_ServerMarker)
-				return;
+		if (!m_ServerMarker)
+			return;
 
-			ExpansionMarkerModule markerModule;
-			CF_Modules<ExpansionMarkerModule>.Get(markerModule);
-			if (markerModule)
-				markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
+		ExpansionMarkerModule markerModule;
+		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
+		if (markerModule)
+			markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
 		#endif
 		#endif
 	}
@@ -75,31 +78,20 @@ class Expansion_Satellite_Control: House
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!GetGame().IsDedicatedServer())
-		{
-			InitSatelliteControlClient();
-		}
-
-		if (GetGame().IsServer())
-		{
-			InitSatelliteControlServer();
-		}
-	}
-
-	protected void InitSatelliteControlClient()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		#ifdef SERVER
+		InitSatelliteControlServer();
+		#endif
 	}
 
 	protected void InitSatelliteControlServer()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-	#ifdef DIAG
-	#ifdef EXPANSIONMODNAVIGATION
+		#ifdef DIAG
+		#ifdef EXPANSIONMODNAVIGATION
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreateDebugMarker, 500, false);
-	#endif
-	#endif
+		#endif
+		#endif
 	}
 	
 	void SetLinkedSatellite(SV_Abandoned_Sattelite_Antenna satellite)
@@ -109,14 +101,14 @@ class Expansion_Satellite_Control: House
 		m_LinkedSatellite = satellite;
 	}
 	
-#ifdef EXPANSIONMODTELEPORTER
+	#ifdef EXPANSIONMODTELEPORTER
 	void SetLinkedTeleporter(Expansion_Teleporter_Big teleporter)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		m_LinkedTeleporter = teleporter;
 	}
-#endif
+	#endif
 	
 	void SetActivateState(bool state)
 	{
@@ -195,10 +187,10 @@ class Expansion_Satellite_Control: House
 				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, null, true, player.GetIdentity());
 		}
 		
-	#ifdef EXPANSIONMODTELEPORTER
+		#ifdef EXPANSIONMODTELEPORTER
 		if (m_LinkedTeleporter)
 			m_LinkedTeleporter.SetActive(true);
-	#endif	
+		#endif	
 		
 		SetSatelliteState(true);
 		
@@ -220,10 +212,10 @@ class Expansion_Satellite_Control: House
 				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, null, true, player.GetIdentity());
 		}
 		
-	#ifdef EXPANSIONMODTELEPORTER
+		#ifdef EXPANSIONMODTELEPORTER
 		if (m_LinkedTeleporter)
 			m_LinkedTeleporter.SetActive(false);
-	#endif	
+		#endif	
 		
 		SetSatelliteState(false);
 		m_LinkedSatellite.SetSatelliteActive(false);
@@ -277,24 +269,24 @@ class Expansion_Satellite_Control: House
 			{
 				case Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX:
 				{
-				#ifndef EDITOR
+					#ifndef EDITOR
 					PlaySFXBoot();
-				#endif
+					#endif
 				}
 				break;
 				case Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX:
 				{
-				#ifndef EDITOR
+					#ifndef EDITOR
 					PlaySFXActive();
-				#endif
+					#endif
 				}
 				break;
 			}
 		}
 	}
 
-#ifdef DIAG
-#ifdef EXPANSIONMODNAVIGATION
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
 	void CreateDebugMarker()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -304,14 +296,14 @@ class Expansion_Satellite_Control: House
 		if (markerModule)
 			markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
 	}
-#endif
-#endif
+	#endif
+	#endif
 	
 	protected void ExDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };
 #endif

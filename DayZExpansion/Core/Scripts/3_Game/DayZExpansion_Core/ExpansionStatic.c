@@ -551,6 +551,16 @@ class ExpansionStatic
 		return false;
 	}
 
+	static bool IsAnyOf(string className, TTypenameArray parent_types)
+	{
+		foreach (typename parent_type: parent_types)
+		{
+			if (Is(className, parent_type.ToString()))
+				return true;
+		}
+		return false;
+	}
+
 	//! Inheritance check based on rvConfig class name or EnforceScript typename
 	//! @note `check_script_inheritance` is a legacy parameter and no longer used (script inheritance is always checked).
 	static bool IsAnyOf(Object obj, TStringArray parentNames, bool check_script_inheritance = false)

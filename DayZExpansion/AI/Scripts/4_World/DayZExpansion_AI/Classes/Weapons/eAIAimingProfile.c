@@ -1,7 +1,5 @@
 class eAIAimingProfile
 {
-	static vector s_Position = "0 1.5 0";
-
 	eAIBase m_Player;
 
 	void eAIAimingProfile(eAIBase ai)
@@ -20,7 +18,7 @@ class eAIAimingProfile
 		// m_Player.GetStatHeatComfort().Get(); <= freezing ?
 		// m_Player.GetAimingModel().GetSwayWeight();
 
-		position = s_Position.Multiply4(transform);
+		position = m_Player.GetBonePositionWS(m_Player.GetBoneIndexByName("neck"));
 
 		//! 100% guarantee to hit target
 		direction = vector.Direction(position, m_Player.GetAimPosition());

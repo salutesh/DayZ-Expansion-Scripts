@@ -12,11 +12,15 @@
 
 class ExpansionRemovedObject: OLinkT
 {
+	string Type;
+	vector Position;
 	int Flags;
 	int EventMask;
 
 	void ExpansionRemovedObject(Object init)
 	{
+		Type = init.GetType();
+		Position = init.GetPosition();
 		Flags = init.GetFlags();
 		EventMask = init.GetEventMask();
 	}
@@ -132,10 +136,8 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		ctx.Write(s_RemovedObjects.Count());
 		foreach (Object obj, ExpansionRemovedObject removedObj: s_RemovedObjects)
 		{
-			int low, high;
-			obj.GetNetworkID(low, high);
-			ctx.Write(low);
-			ctx.Write(high);
+			ctx.Write(removedObj.Type);
+			ctx.Write(removedObj.Position);
 		}
 	}
 
@@ -172,14 +174,13 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		ctx.Read(count);
 		while (count)
 		{
-			int low, high;
-			if (!ctx.Read(low))
+			string type;
+			if (!ctx.Read(type))
 				break;
-			if (!ctx.Read(high))
+			vector position;
+			if (!ctx.Read(position))
 				break;
-			Object obj = GetGame().GetObjectByNetworkId(low, high);
-			if (obj)
-				RemoveObject(obj);
+			RemoveObjects(type, position);
 			count--;
 		}
 	}

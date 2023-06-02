@@ -32,6 +32,7 @@ class ExpansionAirdropPlane: House
 	
 	ref ExpansionLootContainer m_LootContainer;
 	ExpansionAirdropContainerBase m_Container;
+	float m_ContainerLifetime;
 
 	protected vector m_AirdropPosition;
 	protected string m_AirdropName;
@@ -200,7 +201,7 @@ class ExpansionAirdropPlane: House
 	// ------------------------------------------------------------
 	// ExpansionAirdropPlane SetupPlane
 	// ------------------------------------------------------------
-	void SetupPlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
+	void SetupPlane(vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
 	{
 		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
@@ -220,6 +221,8 @@ class ExpansionAirdropPlane: House
 
 		m_WarningProximityMsg = warningProximityMsg;
 		m_AirdropCreatedMsg = airdropCreatedMsg;
+
+		m_ContainerLifetime = containerLifeTime;
 
 		m_SpawnRadius = maxRadius;
 
@@ -473,13 +476,13 @@ class ExpansionAirdropPlane: House
 		return false;
 	}
 
-	static ExpansionAirdropPlane CreatePlane( vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL )
+	static ExpansionAirdropPlane CreatePlane(vector dropPosition, string name, float maxRadius, float height, float speed, ExpansionLootContainer container, StringLocaliser warningProximityMsg = NULL, StringLocaliser airdropCreatedMsg = NULL, float containerLifeTime = 0.0)
 	{
 		vector spawnPoint = GetSpawnPoint( dropPosition, height );
 
 		ExpansionAirdropPlane plane = ExpansionAirdropPlane.Cast( GetGame().CreateObjectEx("ExpansionAirdropPlane", spawnPoint, ECE_AIRBORNE|ECE_CREATEPHYSICS) );
 
-		plane.SetupPlane( dropPosition, name, maxRadius, height, speed, container, warningProximityMsg, airdropCreatedMsg );
+		plane.SetupPlane( dropPosition, name, maxRadius, height, speed, container, warningProximityMsg, airdropCreatedMsg, containerLifeTime );
 
 		return plane;
 	}
@@ -522,6 +525,16 @@ class ExpansionAirdropPlane: House
 				ori[2] = 0.0;
 				drop.SetOrientation(ori);
 			}
+
+			//! @note container max lifetime is set to mission max time.
+			//! If mission max time reaches zero before container lifetime (e.g. because container was interacted with by players),
+			//! container health will be set to zero in ExpansionMissionEventAirdrop::Event_OnUpdate.
+			//! If no one interacts with the container and its lifetime is zero, the game's CE will clean it up once players move away
+			//! even if players are still in the larger 1100 m radius checked by ExpansionMissionEventAirdrop::CanEnd, which is intended.
+			//! This handling guarantees that a container which is not interacted with at all by players in the radius
+			//! doesn't stay around forever when the mission ends unless players are really close to it.
+			if (m_ContainerLifetime > 0)
+				drop.SetLifetimeMax(m_ContainerLifetime);
 
 			drop.InitAirdrop(m_LootContainer.Loot, m_LootContainer.Infected, m_LootContainer.ItemCount, m_LootContainer.InfectedCount, m_LootContainer.FallSpeed, Math.Min(m_SpawnRadius * 0.01, 1.0));
 		}

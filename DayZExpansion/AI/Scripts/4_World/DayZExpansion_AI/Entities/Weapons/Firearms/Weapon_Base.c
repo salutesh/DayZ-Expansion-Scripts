@@ -187,6 +187,8 @@ modded class Weapon_Base
 		if (Class.CastTo(player, hitObject) && !player.Expansion_CanBeDamaged())
 			return;
 
+		EXTrace.Print(true, this, "::EEFired hit " + hitObject);
+
 		Object source;
 #ifdef SERVER
 		source = this;
@@ -194,6 +196,13 @@ modded class Weapon_Base
 		vector surfNormal = hitNormal * -1;
 		vector inSpeed = dir.Normalized() * speed;
 		string surface = ExpansionStatic.GetImpactSurfaceType(hitObject, hitPosition, inSpeed);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_HandleFirearmEffects, source, hitObject, contactComponent, surface, hitPosition, surfNormal, inSpeed, ammoType);
+#endif
+	}
+
+	void Expansion_HandleFirearmEffects(Object source, Object hitObject, int contactComponent, string surface, vector hitPosition, vector surfNormal, vector inSpeed, string ammoType)
+	{
+		GetDayZGame().GetExpansionGame().m_eAI_FirearmEffectsCallCount++;
 		GetDayZGame().FirearmEffects(source, hitObject, contactComponent, surface, hitPosition, surfNormal, vector.Zero, inSpeed, vector.Zero, false, false, ammoType);
 
 #ifdef SERVER
@@ -203,8 +212,7 @@ modded class Weapon_Base
 		rpc.Write(surfNormal);
 		rpc.Write(inSpeed);
 		rpc.Write(ammoType);
-		PlayerBase.Expansion_SendNear(rpc, ExpansionRPC.FirearmEffects, ai.GetPosition(), 1000.0, hitObject);
-#endif
+		PlayerBase.Expansion_SendNear(rpc, ExpansionRPC.FirearmEffects, hitPosition, 1000.0, hitObject);
 #endif
 	}
 

@@ -12,6 +12,7 @@
 
 class ExpansionAISpawnBase
 {
+	string Name;  // user-definable name for easier recognition
 	string Faction;                     // Raiders, Mercenaries, West, East, Guards, Civilian, Passive
 	string Formation;                   // Column, File, Vee, Wall or RANDOM
 	float FormationLooseness;
@@ -22,6 +23,7 @@ class ExpansionAISpawnBase
 	string UnderThreatSpeed;            // 
 	bool CanBeLooted;                   // if enabled, the bots can be looted by the players
 	bool UnlimitedReload;               // should bots be able to reload indefinitely (still needs spare mag in inventory!)
+	float SniperProneDistanceThreshold;
 	float AccuracyMin;
 	float AccuracyMax;
 	float ThreatDistanceLimit;

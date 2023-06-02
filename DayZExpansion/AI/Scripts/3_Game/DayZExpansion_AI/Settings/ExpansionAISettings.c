@@ -15,7 +15,7 @@
  **/
 class ExpansionAISettings: ExpansionSettingBase
 {
-	static const int VERSION = 5;
+	static const int VERSION = 6;
 
 	float AccuracyMin;
 	float AccuracyMax;
@@ -28,6 +28,7 @@ class ExpansionAISettings: ExpansionSettingBase
 	int MaximumDynamicPatrols;
 
 	bool Vaulting;
+	float SniperProneDistanceThreshold;
 
 	bool Manners;
 
@@ -312,6 +313,7 @@ class ExpansionAISettings: ExpansionSettingBase
 
 		MaximumDynamicPatrols = -1;
 		Vaulting = true;
+		SniperProneDistanceThreshold = 0.0;
 		Manners = false;
 
 #ifdef DIAG

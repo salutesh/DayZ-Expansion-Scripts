@@ -13,6 +13,9 @@
 /**@class		ExpansionAirdropContainerBase
  * @brief		
  **/
+#ifdef EXPANSIONMODAI
+[eAIRegisterDynamicPatrolSpawner(ExpansionAirdropContainerBase)]
+#endif
 class ExpansionAirdropContainerBase: Container_Base
 {
 	const int EXPANSION_AIRDROP_RPC_ZSPAWN_PARTICLE = 120009009;
@@ -21,7 +24,7 @@ class ExpansionAirdropContainerBase: Container_Base
 	protected bool m_HasLanded;
 	protected bool m_IsLooted;
 	float m_Expansion_FallSpeed = 4.5;
-	float m_Expansion_WindImpactStrength;
+	float m_Expansion_WindImpactStrength = 0.15;
 	float m_Expansion_PreviousAltitude;
 	float m_Expansion_SimulationTimeAccumulator;
 	bool m_Expansion_HideCargoWhileParachuteIsDeployed;
@@ -36,6 +39,10 @@ class ExpansionAirdropContainerBase: Container_Base
 	Particle m_ParticleEfx;
 
 	vector m_SpawnPosition;  //! @note position where container is spawned, not necessarily where it lands!
+
+#ifdef EXPANSIONMODAI
+	ref eAIDynamicPatrolSpawner<ExpansionAirdropContainerBase> m_eAI_DynamicPatrolSpawner;
+#endif
 
 	// ------------------------------------------------------------
 	// Constructor
@@ -61,7 +68,14 @@ class ExpansionAirdropContainerBase: Container_Base
 		CreateSmoke();
 
 		if (GetGame().IsServer())
+		{
 			m_Expansion_HideCargoWhileParachuteIsDeployed = GetExpansionSettings().GetAirdrop().HideCargoWhileParachuteIsDeployed;
+
+		#ifdef EXPANSIONMODAI
+			m_eAI_DynamicPatrolSpawner = new eAIDynamicPatrolSpawner<ExpansionAirdropContainerBase>(this);
+			m_eAI_DynamicPatrolSpawner.SetDeferDespawnUntilLoosingAggro(true);
+		#endif
+		}
 	}
 	
 	override void EEInit()
@@ -80,6 +94,10 @@ class ExpansionAirdropContainerBase: Container_Base
 			SetDynamicPhysicsLifeTime( -1 );
 			
 			m_StartTime = GetGame().GetTime();
+
+			dBodySetDamping(this, 0.0, 1.0);
+
+			m_Expansion_PreviousAltitude = GetPosition()[1];
 		}
 	}
 
@@ -96,14 +114,9 @@ class ExpansionAirdropContainerBase: Container_Base
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Destructor
-	// ------------------------------------------------------------
-	void ~ExpansionAirdropContainerBase()
+	override void EEDelete( EntityAI parent )
 	{
-		#ifdef EXPANSION_MISSION_EVENT_DEBUG
 		auto trace = EXTrace.Start(EXTrace.MISSIONS, this);
-		#endif	
 		
 		DestroyLight();
 		
@@ -158,10 +171,6 @@ class ExpansionAirdropContainerBase: Container_Base
 				m_Expansion_WindImpactStrength = ExpansionMath.LinearConversion(3.0, 6.0, m_Expansion_FallSpeed, 0.2, 0.1) * windImpact;
 
 			EXLogPrint(this, "InitAirdrop - total weight (kg) " + totalWeightKg + " - nominal fall speed " + m_Expansion_FallSpeed + " m/s, wind impact strength " + m_Expansion_WindImpactStrength);
-
-			dBodySetDamping(this, 0.0, 1.0);
-
-			m_Expansion_PreviousAltitude = GetPosition()[1];
 		}
 	}
 
@@ -239,7 +248,7 @@ class ExpansionAirdropContainerBase: Container_Base
 					windImpact = windImpact - Vector(velocity[0], 0.0, velocity[2]);
 
 					//! Apply directional wind impact
-					dBodyApplyImpulse(this, windImpact * dt);
+					dBodyApplyImpulse(this, windImpact * dt * 0.5);
 
 					//! Get updated velocity
 					velocity = GetVelocity(this);
@@ -257,7 +266,7 @@ class ExpansionAirdropContainerBase: Container_Base
 
 			//! Apply fall speed accounting for gravitational acceleration
 			//! (effective fall speed will roughly match computed value from InitAirdrop)
-			velocity[1] = -m_Expansion_FallSpeed * 0.92;
+			velocity[1] = -m_Expansion_FallSpeed * 0.44;
 
 			SetVelocity(this, velocity);
 
@@ -271,7 +280,7 @@ class ExpansionAirdropContainerBase: Container_Base
 				m_Expansion_SimulationTimeAccumulator = 0.0;
 				vector position = transform[3];
 				float fallSpeed = m_Expansion_PreviousAltitude - position[1];
-				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - fall speed " + fallSpeed + " m/s");
+				EXTrace.Print(EXTrace.MISSIONS, this, "EOnSimulate - dt " + dt + " - fall speed " + fallSpeed + " m/s");
 				m_Expansion_PreviousAltitude = position[1];
 				GetGame().CreateObjectEx("ExpansionDebugRodBig", position, ECE_NOLIFETIME);
 			}
@@ -340,6 +349,13 @@ class ExpansionAirdropContainerBase: Container_Base
 			manager.SpawnInfected();
 		}
 
+	#ifdef EXPANSIONMODAI
+		m_eAI_DynamicPatrolSpawner.Init();
+	#endif
+
+		if (GetLifetime() <= 0)
+			EXPrint(this, "WARNING: " + GetType() + " lifetime was already zero when it landed! Check MissionMaxTime (for mission airdrops) or expansion_types.xml (for player-called airdrops).");
+
 		SetSynchDirty();
 	}
 
@@ -356,7 +372,7 @@ class ExpansionAirdropContainerBase: Container_Base
 		
 		UpdateLight();
 
-		if ( m_IsLooted )
+		if ( !m_LightOn )
 			StopSmokeEffect();
 	}
 	
@@ -489,7 +505,7 @@ class ExpansionAirdropContainerBase: Container_Base
 			{
 				m_ParticleEfx.Stop();
 
-				GetGame().ObjectDelete( m_ParticleEfx );
+				m_ParticleEfx = null;
 			}
 		}
 	}

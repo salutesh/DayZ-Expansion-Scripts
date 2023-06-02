@@ -59,7 +59,8 @@ class Expansion_SupplyCrate_Base: Container_Base
 	
 	void ~Expansion_SupplyCrate_Base()
 	{
-		CleanupSupplyCrate();
+		if (GetGame())
+			CleanupSupplyCrate();
 	}
 
 	void CleanupSupplyCrate()
@@ -69,8 +70,9 @@ class Expansion_SupplyCrate_Base: Container_Base
 		if (s_Expansion_AllSupplyCrates)
 			s_Expansion_AllSupplyCrates.Remove(m_Expansion_SupplyCrateNode);
 
-		if (IsMissionHost())
-			ClearCrateLoot();
+		#ifdef SERVER
+		ClearCrateLoot();
+		#endif
 	}
 
 	override void EEInit()
@@ -385,9 +387,9 @@ class Expansion_SupplyCrate_Base: Container_Base
 
 	protected void ExDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };
 
@@ -477,9 +479,9 @@ class Expansion_SupplyCrate_Key_Base extends ItemBase
 	
 	protected void ExDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };
 

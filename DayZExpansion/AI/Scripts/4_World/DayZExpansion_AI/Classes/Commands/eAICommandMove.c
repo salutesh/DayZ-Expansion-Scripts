@@ -72,8 +72,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private vector m_HitNormal;
 	private float m_HitFraction;
 
-	private bool m_GetUp;
-	private int m_Stance;
+	private int m_Stance = -1;
+	private int m_StancePrev = -1;
+	private float m_StanceChangeTimeout;
 
 	private bool m_LastBlockedForward;
 	private bool m_LastBlockedLeft;
@@ -175,14 +176,20 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_ForceMovementDirection = force;
 	}
 
-	void GetUp()
+	bool OverrideStance(int stance)
 	{
-		m_GetUp = true;
+		if (m_Stance != stance)
+		{
+			m_Stance = stance;
+			return true;
+		}
+
+		return false;
 	}
 
-	void OverrideStance(int stance)
+	bool IsChangingStance()
 	{
-		m_Stance = stance;
+		return m_StanceChangeTimeout > 0;
 	}
 
 	override void PreAnimUpdate(float pDt)
@@ -192,6 +199,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 #endif
 
 		super.PreAnimUpdate(pDt);
+
+		if (m_StanceChangeTimeout > 0)
+			m_StanceChangeTimeout -= pDt;
 
 #ifdef DIAG
 		auto hitch = EXHitch(m_Unit.ToString() + " eAICommandMove::PreAnimUpdate ", 20000);
@@ -716,8 +726,40 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_MovementDirection += ExpansionMath.AngleDiff2(m_MovementDirection, m_TargetMovementDirection) * dirChangeSpeed;
 		m_MovementDirection = Math.Clamp(m_MovementDirection, -180.0, 180.0);
 
+
+		if (m_Stance != m_StancePrev)
+		{
+			m_Table.SetStance(this, m_Stance);
+			m_StanceChangeTimeout = 0.5 * Math.AbsFloat(Math.Max(m_StancePrev, 0) - m_Stance);
+			m_StancePrev = m_Stance;
+		}
+
 		m_MovementSpeed = m_TargetSpeed;
-		if (m_MovementSpeed > m_SpeedLimit && m_SpeedLimit != -1) m_MovementSpeed = m_SpeedLimit;
+		int speedLimit;
+		if (m_StanceChangeTimeout > 0)
+		{
+			speedLimit = 0;  //! Have to stop moving else it breaks animation state
+		}
+		else
+		{
+			switch (m_Stance)
+			{
+				case DayZPlayerConstants.STANCEIDX_PRONE:
+					if (m_Unit.IsRaised() || m_Unit.GetWeaponManager().IsRunning() || m_Unit.GetActionManager().GetRunningAction())
+						speedLimit = 0;  //! Have to stop moving else it breaks animation state
+					else
+						speedLimit = Math.Min(1, m_SpeedLimit);
+					break;
+				case DayZPlayerConstants.STANCEIDX_CROUCH:
+					speedLimit = Math.Min(2, m_SpeedLimit);
+					break;
+				default:
+					speedLimit = m_SpeedLimit;
+					break;
+			}
+		}
+
+		if (m_MovementSpeed > speedLimit && speedLimit != -1) m_MovementSpeed = speedLimit;
 
 		m_Table.SetMovementDirection(this, m_MovementDirection);
 		m_Table.SetMovementSpeed(this, m_MovementSpeed);
@@ -776,16 +818,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
 
 			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
-		}
-
-		if (m_GetUp)
-		{
-			m_GetUp = false;
-			m_Table.SetStance(this, DayZPlayerConstants.STANCEIDX_ERECT);
-		}
-		else if (m_Stance)
-		{
-			m_Table.SetStance(this, m_Stance);
 		}
 	}
 

@@ -50,18 +50,8 @@ static const string EXPANSION_NAMALSKADVENTURE_SETTINGS = EXPANSION_MISSION_SETT
 /**@class		ExpansionNamalskAdventureSettingsBase
  * @brief		Spawn settings base class
  **/
-class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase {};
-
-/**@class		ExpansionSpawnSettings
- * @brief		Spawn settings class
- **/
-class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
+class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase 
 {
-	[NonSerialized()]
-	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 250;
-
-	static const int VERSION = 0;
-
 	bool EnableAnomalies;
 	ref array<ref ExpansionAnomalyDynamic> DynamicAnomalies;
 	ref array<ref ExpansionAnomalyStatic> StaticAnomalies;
@@ -81,6 +71,19 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 	bool EnableSupplyCrates;
 	ref array<ref ExpansionSupplyCrateSetup> SupplyCrateSpawns;
+};
+
+/**@class		ExpansionSpawnSettings
+ * @brief		Spawn settings class
+ **/
+class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
+{
+	[NonSerialized()]
+	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 250;
+
+	static const int VERSION = 1;
+	
+	bool EnableCommunityGoals;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -106,12 +109,6 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		/*if (!ctx.Read(BackgroundImagePath))
-		{
-			Error("ExpansionSpawnSettings::OnRecieve BackgroundImagePath");
-			return false;
-		}*/
-
 		m_IsLoaded = true;
 
 		return true;
@@ -120,8 +117,6 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	override void OnSend(ParamsWriteContext ctx)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		//ctx.Write( BackgroundImagePath );
 	}
 
 	override int Send(PlayerIdentity identity)
@@ -142,7 +137,25 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		//! Nothing to do here yet
+		EnableAnomalies = s.EnableAnomalies;
+		DynamicAnomalies = s.DynamicAnomalies;
+		StaticAnomalies = s.StaticAnomalies;
+		EnableDynamic = s.EnableDynamic;
+		EnableStatic = s.EnableStatic;
+		SpawnDynamicWithEVRStorms = s.SpawnDynamicWithEVRStorms;
+		SpawnStaticWithEVRStorms = s.SpawnStaticWithEVRStorms;
+	#ifdef EXPANSIONMODMARKET
+		EnableMerchant = s.EnableMerchant;
+		MerchantPositions = s.MerchantPositions;
+		MerchantItemSets = s.MerchantItemSets;
+	#endif
+	#ifdef EXPANSIONMODAI
+		EnableAISpawns = s.EnableAISpawns;
+		AISpawnPositions = s.AISpawnPositions;
+	#endif
+	
+		EnableSupplyCrates = s.EnableSupplyCrates;
+		SupplyCrateSpawns = s.SupplyCrateSpawns;
 	}
 
 	override bool IsLoaded()
@@ -178,9 +191,12 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 			{
 				EXPrint("[ExpansionNamalskAdventureSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMALSKADVENTURE_SETTINGS + "\" to v" + VERSION);
 				CopyInternal(settingsBase); //! Copy over old settings that have not changed.
-
-				//! Nothing else to do here yet
-
+			
+				if (settingsBase.m_Version < 1)
+				{
+					EnableCommunityGoals = settingsDefault.EnableCommunityGoals;
+				}
+				
 				m_Version = VERSION;
 				save = true;
 			}
@@ -246,6 +262,8 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 		EnableSupplyCrates = true;
 		DefaultSupplyCrates();
+		
+		EnableCommunityGoals = false;
 	}
 
 	protected void DefaultNamalskAnomalies()

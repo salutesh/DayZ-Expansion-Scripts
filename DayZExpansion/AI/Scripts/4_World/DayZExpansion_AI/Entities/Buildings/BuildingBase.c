@@ -1,3 +1,4 @@
+[eAIRegisterDynamicPatrolSpawner(BuildingBase)]
 modded class BuildingBase
 {
 	ref eAIDynamicPatrolSpawner<BuildingBase> m_eAI_DynamicPatrolSpawner;
@@ -37,4 +38,11 @@ modded class BuildingBase
 
 		m_eAI_DynamicPatrolSpawner.Init();
 	}
+};
+
+//! Bit annoying to have to do this, it's just for error checking of AI patrol settings which uses IsKindOf
+//! and BuildingBase is not an rVConfig type...
+[eAIRegisterDynamicPatrolSpawner(House)]
+modded class House
+{
 };

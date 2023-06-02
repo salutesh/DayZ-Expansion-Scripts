@@ -32,9 +32,9 @@ class Expansion_Bunker_Generator: House
 	protected ref UniversalTemperatureSourceSettings m_UTSSettings;
 	protected ref UniversalTemperatureSourceLambdaEngine m_UTSLEngine;
 
-#ifdef EXPANSIONMODTELEPORTER
+	#ifdef EXPANSIONMODTELEPORTER
 	protected Expansion_Teleporter_Big m_LinkedTeleporter;
-#endif
+	#endif
 	
 	protected int m_LastActivationTime;
 	protected bool m_IsActive;
@@ -62,44 +62,26 @@ class Expansion_Bunker_Generator: House
 
 		super.EEInit();
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
-		{
- 			m_UTSSettings = new UniversalTemperatureSourceSettings();
-			m_UTSSettings.m_ManualUpdate = true;
-			m_UTSSettings.m_TemperatureMin = 0;
-			m_UTSSettings.m_TemperatureMax = 80;
-			m_UTSSettings.m_RangeFull = 1;
-			m_UTSSettings.m_RangeMax = 2.5;
-			m_UTSSettings.m_TemperatureCap = 8;
+		#ifdef SERVER
+		m_UTSSettings = new UniversalTemperatureSourceSettings();
+		m_UTSSettings.m_ManualUpdate = true;
+		m_UTSSettings.m_TemperatureMin = 0;
+		m_UTSSettings.m_TemperatureMax = 80;
+		m_UTSSettings.m_RangeFull = 1;
+		m_UTSSettings.m_RangeMax = 2.5;
+		m_UTSSettings.m_TemperatureCap = 8;
 
-			m_UTSLEngine = new UniversalTemperatureSourceLambdaEngine();
-			m_UTSource = new UniversalTemperatureSource(this, m_UTSSettings, m_UTSLEngine);
-		}
-
-		InitGenerator();
+		m_UTSLEngine = new UniversalTemperatureSourceLambdaEngine();
+		m_UTSource = new UniversalTemperatureSource(this, m_UTSSettings, m_UTSLEngine);
+		#endif
 	}
 
-	protected void InitGenerator()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!GetGame().IsDedicatedServer())
-		{
-			InitGeneratorClient();
-		}
-
-		if (GetGame().IsServer())
-		{
-			InitGeneratorServer();
-		}
-	}
-
-#ifdef EXPANSIONMODTELEPORTER
+	#ifdef EXPANSIONMODTELEPORTER
 	void SetLinkedTeleporter(Expansion_Teleporter_Big teleporter)
 	{
 		m_LinkedTeleporter = teleporter;
 	}
-#endif
+	#endif
 
 	void StartLoopSound()
 	{
@@ -146,10 +128,10 @@ class Expansion_Bunker_Generator: House
 		{
 			m_UTSource.SetDefferedActive(true, 20.0);
 
-		#ifdef EXPANSIONMODTELEPORTER
+			#ifdef EXPANSIONMODTELEPORTER
 			if (m_LinkedTeleporter)
 				m_LinkedTeleporter.SetActive(true);
-		#endif
+			#endif
 			
 			SetLastActivationTime();
 			m_IsActive = true;
@@ -190,10 +172,10 @@ class Expansion_Bunker_Generator: House
 		{
 			m_UTSource.SetDefferedActive(false, 20.0);
 
-		#ifdef EXPANSIONMODTELEPORTER
+			#ifdef EXPANSIONMODTELEPORTER
 			if (m_LinkedTeleporter)
 				m_LinkedTeleporter.SetActive(false);
-		#endif
+			#endif
 			
 			m_IsActive = false;
 			SetSynchDirty();
@@ -293,16 +275,6 @@ class Expansion_Bunker_Generator: House
 		AddAction(ExpansionActionRemoveGeneratorKey);
 	}
 
-	protected void InitGeneratorClient()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
-
-	protected void InitGeneratorServer()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
-
 	override void OnVariablesSynchronized()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -361,9 +333,9 @@ class Expansion_Bunker_Generator: House
 
 	protected void ExDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };
 

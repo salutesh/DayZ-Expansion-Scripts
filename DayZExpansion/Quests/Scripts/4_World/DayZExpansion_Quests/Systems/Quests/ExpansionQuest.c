@@ -911,20 +911,16 @@ class ExpansionQuest
 
 		if (m_Config.IsGroupQuest())
 		{
+			PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerUID);
+			if (!groupPlayer)
+				return;
+
 			ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
 			if (!playerQuestData)
 			{
 				Error(ToString() + "::OnGroupMemberJoined - No player quest data!");
 				return;
 			}
-
-			PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(playerUID);
-			if (!groupPlayer)
-			{
-				Error(ToString() + "::OnGroupMemberLeave - Could not get player with UID: " + playerUID);
-				return;
-			}
-
 			if (m_Config.GetQuestItems().Count() > 0)
 			{
 				array<ItemBase> playerQuestItems = GetPlayerQuestItems(groupPlayer, m_Config.GetID(), null);

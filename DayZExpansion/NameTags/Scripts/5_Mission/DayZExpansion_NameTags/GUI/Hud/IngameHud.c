@@ -466,7 +466,7 @@ modded class IngameHud
 							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
-								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/questionmark_2_64x64.edds";
+								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds";
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
@@ -484,7 +484,7 @@ modded class IngameHud
 							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCAIBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
-								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/questionmark_2_64x64.edds";
+								icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds";
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
@@ -656,7 +656,7 @@ modded class IngameHud
 						bool showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), staticQuestObject.GetQuestNPCID());
 						if (showQuestMarker)
 						{
-							icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/questionmark_2_64x64.edds";
+							icon = "{2F55C3FCBE849589}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds";
 							iconColor = ARGB(255, 255, 180, 24);
 						}
 					}

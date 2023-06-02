@@ -46,7 +46,7 @@ class NA_CraftAnomalyBolt extends RecipeBase
 
 		//ingredient 2
 		InsertIngredient(1,"Expansion_AnomalyCore_Ice");//you can insert multiple ingredients this way
-		//InsertIngredient(1,"Expansion_AnomalyCore_Warper");//you can insert multiple ingredients this way
+		InsertIngredient(1,"Expansion_AnomalyCore_Warper");//you can insert multiple ingredients this way
 
 		m_IngredientAddHealth[1] = 0;// 0 = do nothing
 		m_IngredientSetHealth[1] = -1; // -1 = do nothing
@@ -54,32 +54,18 @@ class NA_CraftAnomalyBolt extends RecipeBase
 		m_IngredientDestroy[1] = false;// false = do nothing
 		m_IngredientUseSoftSkills[1] = false;// set 'true' to allow modification of the values by softskills on this ingredient
 		//----------------------------------------------------------------------------------------------------------------------
-
-		//result1
-		AddResult("Expansion_Ammo_BoltAnomaly");//add results here
-
-		m_ResultSetFullQuantity[0] = false;//true = set full quantity, false = do nothing
-		m_ResultSetQuantity[0] = 1;//-1 = do nothing
-		m_ResultSetHealth[0] = -1;//-1 = do nothing
-		m_ResultInheritsHealth[0] = -2;// (value) == -1 means do nothing; a (value) >= 0 means this result will inherit health from ingredient number (value);(value) == -2 means this result will inherit health from all ingredients averaged(result_health = combined_health_of_ingredients / number_of_ingredients)
-		m_ResultInheritsColor[0] = -1;// (value) == -1 means do nothing; a (value) >= 0 means this result classname will be a composite of the name provided in AddResult method and config value "color" of ingredient (value)
-		m_ResultToInventory[0] = -2;//(value) == -2 spawn result on the ground;(value) == -1 place anywhere in the players inventory, (value) >= 0 means switch position with ingredient number(value)
-		m_ResultUseSoftSkills[0] = false;// set 'true' to allow modification of the values by softskills on this result
-		m_ResultReplacesIngredient[0] = -1;// value == -1 means do nothing; a value >= 0 means this result will transfer item propertiesvariables, attachments etc.. from an ingredient value
 	}
 
-	override bool CanDo(ItemBase ingredients[], PlayerBase player)//final check for recipe's validity
-	{
-		return super.CanDo(ingredients, player);
-	}
-
-	override void Do(ItemBase ingredients[], PlayerBase player,array<ItemBase> results, float specialty_weight)//gets called upon recipe's completion
+	override void Do(ItemBase ingredients[], PlayerBase player, array<ItemBase> results, float specialty_weight)//gets called upon recipe's completion
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		float resultHealth;
 		
 		Magazine boltMag;
 		if (Class.CastTo(boltMag, ingredients[0]))
 		{
+			resultHealth = boltMag.GetHealth01("", "");
 			int ammoCount = boltMag.GetAmmoCount();
 			int newAmmoCount = ammoCount - 1;
 			if (newAmmoCount == 0)
@@ -95,6 +81,33 @@ class NA_CraftAnomalyBolt extends RecipeBase
 		Expansion_AnomalyCore_Base anomalyCore;
 		if (Class.CastTo(anomalyCore, ingredients[1]))
 		{
+			vector pos = player.GetPosition();
+			float surfaceY = GetGame().SurfaceY(pos[0], pos[2]);
+			Expansion_Ammo_BoltAnomaly_Base anomalyBolt;
+			
+			Expansion_AnomalyCore_Ice anomalyCoreIce;
+			if (Class.CastTo(anomalyCoreIce, anomalyCore))
+			{
+				anomalyBolt = Expansion_Ammo_BoltAnomaly_Base.Cast(GetGame().CreateObject("Expansion_Ammo_BoltAnomaly_Ice", Vector(pos[0], surfaceY, pos[2])));
+			}
+			
+			Expansion_AnomalyCore_Warper anomalyCoreWarper;
+			if (Class.CastTo(anomalyCoreWarper, anomalyCore))
+			{
+				anomalyBolt = Expansion_Ammo_BoltAnomaly_Base.Cast(GetGame().CreateObject("Expansion_Ammo_BoltAnomaly_Warper", Vector(pos[0], surfaceY, pos[2])));
+			}
+			
+			if (anomalyBolt)
+			{
+				anomalyBolt.SetHealth01("", "", resultHealth);
+			
+				Magazine newBoltMag;
+				if (Class.CastTo(newBoltMag, anomalyBolt))
+				{
+					newBoltMag.ServerSetAmmoCount(1);
+				}
+			}
+
 			GetGame().ObjectDelete(anomalyCore);
 		}
 	}

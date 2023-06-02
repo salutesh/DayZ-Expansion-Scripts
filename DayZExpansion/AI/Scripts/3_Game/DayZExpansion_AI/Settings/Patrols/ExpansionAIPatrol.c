@@ -12,7 +12,6 @@
 
 class ExpansionAIPatrol: ExpansionAIDynamicSpawnBase
 {
-	string Name;  // user-definable name for easier recognition
 	bool UseRandomWaypointAsStartPoint;
 	autoptr TVectorArray Waypoints;     // a list of positions to create a path to follow
 

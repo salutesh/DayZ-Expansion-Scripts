@@ -21,7 +21,7 @@ class Vehicle_Truck_01_Base: ExpansionVehicleCarBase
 		return false;
 	}
 
-	void Truck_01_Base()
+	void Vehicle_Truck_01_Base()
 	{
 		m_dmgContactCoef = 0.018;
 		m_enginePtcPos = "0 1.346 2.205";
