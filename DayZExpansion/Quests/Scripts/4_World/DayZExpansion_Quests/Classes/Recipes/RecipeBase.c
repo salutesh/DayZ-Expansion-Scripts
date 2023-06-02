@@ -41,7 +41,7 @@ modded class RecipeBase
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
 		{
-			s_Expansion_AssignedQuestObjectives.Remove(index);
+			s_Expansion_AssignedQuestObjectives.RemoveOrdered(index);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			EXTrace.Print(EXTrace.QUESTS, null, "Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
@@ -89,20 +89,32 @@ modded class RecipeBase
 		}
 
 		ExpansionQuest quest;
-		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
+		for (int i = 0; i < s_Expansion_AssignedQuestObjectives.Count();)
 		{
+			ExpansionQuestObjectiveEventBase objective = s_Expansion_AssignedQuestObjectives[i];
+			if (!objective)
+			{
+				EXTrace.Print(EXTrace.QUESTS, this, "WARNING: Objective is NULL!");
+				s_Expansion_AssignedQuestObjectives.RemoveOrdered(i);
+				continue;
+			}
+
 			//! Check if the current objective is active
 			if (!objective.IsActive())
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Objective is not active. Skip...");
 			#endif
+				i++;
 				continue;
 			}
 
 			quest = objective.GetQuest();
 			if (!quest)
+			{
+				i++;
 				continue;
+			}
 
 			//! Check if the current objective belongs to the item owner if we got the UID.
 			if (!quest.IsQuestPlayer(playerUID))
@@ -110,10 +122,14 @@ modded class RecipeBase
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + playerUID + "] is not a quest player of this quest objective. Skip...");
 			#endif
+				i++;
 				continue;
 			}
 
 			OnObjectiveActionExecuted(objective, player, spawned_objects);
+
+			if (objective.IsAssigned())
+				i++;
 		}
 	}
 

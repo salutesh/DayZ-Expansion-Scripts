@@ -21,6 +21,7 @@ class eAIGroup
 
 	// Group identity
 	private ref eAIFaction m_Faction;
+	private string m_Name;
 
 	private autoptr array<vector> m_Waypoints;
 	private eAIWaypointBehavior m_WaypointBehaviour = eAIWaypointBehavior.ALTERNATE;
@@ -246,6 +247,16 @@ class eAIGroup
 #endif
 
 		return m_Faction;
+	}
+
+	void SetName(string name)
+	{
+		m_Name = name;
+	}
+
+	string GetName()
+	{
+		return m_Name;
 	}
 
 	/**
@@ -583,7 +594,7 @@ class eAIGroup
 		}
 	}
 
-	void ClearAI(bool autodelete = true)
+	void ClearAI(bool autodelete = true, bool deferDespawnUntilLoosingAggro = false)
 	{
 		eAIBase ai;
 		for (int i = Count() - 1; i > -1; i--)
@@ -593,16 +604,10 @@ class eAIGroup
 				continue;
 			}
 
-			RemoveMember(i, autodelete);
-			auto hands = ai.GetHumanInventory().GetEntityInHands();
-			//! Prevent AI from dropping item in hands on death
-			if (hands)
-				GetGame().ObjectDelete(hands);
-			ai.SetAllowDamage(true);
-			//! Kill AI to remove collision
-			ai.SetHealth(0);
-			//! Delete body after delay (don't remove it too early after death or invisible collision will still be there, five seconds seems to work well)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(GetGame().ObjectDelete, 5000, false, ai);
+			if (deferDespawnUntilLoosingAggro && ai.GetThreatToSelf() >= 0.4)
+				ai.eAI_SetDespawnOnLoosingAggro(true);
+			else
+				ai.eAI_Despawn();
 		}
 	}
 };

@@ -153,6 +153,11 @@ class ExpansionFSMType
 
 		CF_XML_Document document;
 		CF_XML.ReadDocument(actualFilePath, document);
+
+		#ifdef DIAG
+		//! XXX: CF_XML_Document::Save doesn't write a proper representation of the parsed document
+		document.Save(EXPANSION_AI_UTILS_FOLDER + fileName + ".xml");
+		#endif
 		
 		string name = document.Get("fsm")[0].GetAttribute("name").ValueAsString();
 		string type = document.Get("fsm")[0].GetAttribute("type").ValueAsString();
@@ -222,40 +227,40 @@ class ExpansionFSMType
 				new_type.m_Variables.Insert(variable_name);
 
 				string variable_line = "" + variable_type + " " + variable_name;
-				if (variable_default != "") variable_line = variable_line + " = " + variable_default;
-				variable_line = variable_line + ";";
+				if (variable_default != "") variable_line += " = " + variable_default;
+				variable_line += ";";
 
-				FPrintln(file, variable_line);
+				FPrintln(file, "	" + variable_line);
 			}
 		}
 			
-		FPrintln(file, "void " + class_name + "(ExpansionFSMOwnerType owner, ExpansionState parentState) {");
-		FPrintln(file, "m_Name = \"" + name + "\";");
-		FPrintln(file, "m_DefaultState = \"" + defaultState + "\";");
-		FPrintln(file, "Setup();");
-		FPrintln(file, "}");
+		FPrintln(file, "	void " + class_name + "(ExpansionFSMOwnerType owner, ExpansionState parentState) {");
+		FPrintln(file, "		m_Name = \"" + name + "\";");
+		FPrintln(file, "		m_DefaultState = \"" + defaultState + "\";");
+		FPrintln(file, "		Setup();");
+		FPrintln(file, "	}");
 
-		FPrintln(file, "void Setup() {");
+		FPrintln(file, "	void Setup() {");
 #ifdef EAI_TRACE
-		FPrintln(file, "auto trace = CF_Trace_0(this, \"Setup\");");
+		FPrintln(file, "		auto trace = CF_Trace_0(this, \"Setup\");");
 #endif
 
 		foreach (auto stateType0 : new_type.m_States)
 		{
-			FPrintln(file, "AddState(new " + stateType0.m_ClassName + "(this));");
+			FPrintln(file, "		AddState(new " + stateType0.m_ClassName + "(this));");
 		}
 
 		foreach (auto transitionType0 : new_type.m_Transitions)
 		{
-			FPrintln(file, "AddTransition(new " + transitionType0.m_ClassName + "(this));");
+			FPrintln(file, "		AddTransition(new " + transitionType0.m_ClassName + "(this));");
 		}
 
-		FPrintln(file, "}");
+		FPrintln(file, "	}");
 
 		FPrintln(file, "}");
 
 		FPrintln(file, "ExpansionFSM Create_" + class_name + "(ExpansionFSMOwnerType owner, ExpansionState parentState) {");
-		FPrintln(file, "return new " + class_name + "(owner, parentState);");
+		FPrintln(file, "	return new " + class_name + "(owner, parentState);");
 		FPrintln(file, "}");
 
 		ExpansionFSMType.Add(new_type);

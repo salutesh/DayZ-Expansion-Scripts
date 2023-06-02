@@ -19,22 +19,42 @@ class ExpansionWorld: ExpansionGame
 
 	override void FirearmEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, vector exitPos, vector inSpeed, vector outSpeed, bool isWater, bool deflected, string ammoType) 
 	{
+		bool debugPrint;
 #ifdef DIAG
-		string msg = "::FirearmEffects ";
-		msg += "" + source + " ";
-		msg += "" + directHit + " ";
-		msg += "" + componentIndex + " ";
-		msg += "" + surface + " ";
-		msg += "" + pos + " ";
-		msg += "" + surfNormal + " ";
-		msg += "" + exitPos + " ";
-		msg += "" + inSpeed.Length() + " ";
-		msg += "" + outSpeed.Length() + " ";
-		msg += "" + isWater + " ";
-		msg += "" + deflected + " ";
-		msg += "" + ammoType;
-		EXTrace.Print(EXTrace.WEAPONS, this, msg);
+		debugPrint = EXTrace.WEAPONS;
+#else
+	#ifdef EXPANSIONMODAI
+		EntityAI sourceEntity;
+		if (Class.CastTo(sourceEntity, source))
+		{
+			Man player = sourceEntity.GetHierarchyRootPlayer();
+			if (player && player.IsInherited(eAIBase))
+			{
+				if (m_eAI_FirearmEffectsCallCount == m_eAI_FirearmEffectsCallCountPrev)  //! This should NOT happen
+					debugPrint = true;
+				else
+					m_eAI_FirearmEffectsCallCountPrev = m_eAI_FirearmEffectsCallCount;
+			}
+		}
+	#endif
 #endif
+		if (debugPrint)
+		{
+			string msg = "::FirearmEffects ";
+			msg += "" + source + " ";
+			msg += "" + directHit + " ";
+			msg += "" + componentIndex + " ";
+			msg += "" + surface + " ";
+			msg += "" + pos + " ";
+			msg += "" + surfNormal + " ";
+			msg += "" + exitPos + " ";
+			msg += "" + inSpeed.Length() + " ";
+			msg += "" + outSpeed.Length() + " ";
+			msg += "" + isWater + " ";
+			msg += "" + deflected + " ";
+			msg += "" + ammoType;
+			EXTrace.Print(true, this, msg);
+		}
 
 		if (GetGame().IsServer())
 		{

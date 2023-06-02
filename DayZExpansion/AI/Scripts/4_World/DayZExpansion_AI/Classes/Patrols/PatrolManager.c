@@ -45,7 +45,7 @@ class ExpansionAIPatrolManager
         {
             if ( patrol.NumberOfAI < 0 )
             {
-                aiSum = Math.RandomInt(1,-patrol.NumberOfAI);
+                aiSum = Math.RandomIntInclusive(1,-patrol.NumberOfAI);
             } else {
                 aiSum = patrol.NumberOfAI;
             }
@@ -150,6 +150,9 @@ class ExpansionAIPatrolManager
         dynPatrol.SetAccuracy(accuracyMin, accuracyMax);
         dynPatrol.SetThreatDistanceLimit(threatDistanceLimit);
         dynPatrol.SetDamageMultiplier(damageMultiplier);
+        dynPatrol.SetGroupName(patrol.Name);
+        dynPatrol.SetSniperProneDistanceThreshold(patrol.SniperProneDistanceThreshold);
+
         return dynPatrol;
     }
 

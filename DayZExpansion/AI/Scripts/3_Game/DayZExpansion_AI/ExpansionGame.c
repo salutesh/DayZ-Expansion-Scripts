@@ -4,6 +4,10 @@ modded class ExpansionGame
 
 	private bool m_InGroup;
 
+	//! Incremented by Weapon_Base::EEFired and related RPC if AI
+	int m_eAI_FirearmEffectsCallCount;
+	int m_eAI_FirearmEffectsCallCountPrev = -1;
+
 	eAICommandManager GetCommandManager()
 	{
 #ifdef EAI_TRACE
@@ -67,6 +71,7 @@ modded class ExpansionGame
 				bool isWater = surface == "Hit_Water";
 				bool deflected = Math.RandomIntInclusive(0, 1);
 				//! Call FirearmEffects the same way vanilla would (source = NULL on client)
+				m_eAI_FirearmEffectsCallCount++;
 				GetDayZGame().FirearmEffects(null, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
 				EffectSound sound = SEffectManager.Expansion_PlaySound("bulletFlyBy_SoundSet", pos);
 				//! FIXME: No impact sound :-(

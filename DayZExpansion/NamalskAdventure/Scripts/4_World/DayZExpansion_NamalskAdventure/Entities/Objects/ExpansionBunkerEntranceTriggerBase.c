@@ -47,8 +47,6 @@ class ExpansionBunkerEntranceTriggerBase: Trigger
 		PlayerBase player = PlayerBase.Cast(other);
 		if (player)
 		{
-			player.SetPosition(m_A3_Bunker_StartPos);
-			player.SetOrientation(m_A3_Bunker_StartOri);
 			DayZPlayerSyncJunctures.ExpansionTeleport(player, m_A3_Bunker_StartPos, m_A3_Bunker_StartOri);
 		}
 	}

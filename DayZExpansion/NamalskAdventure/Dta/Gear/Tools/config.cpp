@@ -66,4 +66,50 @@ class CfgVehicles
 		};
 		soundImpactType = "textile";
 	};
+	class MedicalSupplies: Inventory_Base
+	{
+		scope = 2;
+		displayName = "Medical Supplies";
+		descriptionShort = "PLACEHOLDER";
+		model = "\dz\gear\containers\FirstAidKit.p3d";
+		rotationFlags = 17;
+		weight = 140;
+		itemSize[] = {3,3};
+		allowOwnedCargoManipulation = 1;
+		randomQuantity = 2;
+		canBeDigged = 1;
+		repairableWithKits[] = {2};
+		repairCosts[] = {25};
+		isMeleeWeapon = 1;
+		hiddenSelections[] = {"zbytek"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Medical_Supplies_co.paa"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 80;
+					healthLevels[] = {{1,{"DZ\gear\containers\data\FirsAidKit.rvmat"}},{0.7,{"DZ\gear\containers\data\FirsAidKit.rvmat"}},{0.5,{"DZ\gear\containers\data\FirsAidKit_damage.rvmat"}},{0.3,{"DZ\gear\containers\data\FirsAidKit_damage.rvmat"}},{0,{"DZ\gear\containers\data\FirsAidKit_destruct.rvmat"}}};
+				};
+			};
+		};
+		soundImpactType = "textile";
+		class AnimEvents
+		{
+			class SoundWeapon
+			{
+				class pickUpItem_Light
+				{
+					soundSet = "pickUpCourierBag_Light_SoundSet";
+					id = 796;
+				};
+				class pickUpItem
+				{
+					soundSet = "pickUpCourierBag_SoundSet";
+					id = 797;
+				};
+			};
+		};
+	};
 };

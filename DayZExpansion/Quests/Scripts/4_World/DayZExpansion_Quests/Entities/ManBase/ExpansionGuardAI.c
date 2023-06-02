@@ -51,10 +51,6 @@ string GetRandomGuardAIMale()
 
 class ExpansionGuardAI: eAIBase
 {
-	void ExpansionGuardAI()
-	{
-		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-	}
 };
 
 class ExpansionGuardAIMirek: ExpansionGuardAI {};

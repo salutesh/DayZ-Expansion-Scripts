@@ -21,6 +21,8 @@ modded class DayZPlayerImplement
 	float m_eAI_LastAggressionTime;
 	float m_eAI_LastAggressionTimeout;
 
+	float m_eAI_LastHitTime;
+
 #ifdef DIAG
 #ifndef SERVER
 	autoptr array<Shape> m_Expansion_DebugShapes = new array<Shape>();
@@ -325,6 +327,8 @@ modded class DayZPlayerImplement
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
+		m_eAI_LastHitTime = GetGame().GetTickTime();
+
 		m_TargetInformation.OnHit();
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);

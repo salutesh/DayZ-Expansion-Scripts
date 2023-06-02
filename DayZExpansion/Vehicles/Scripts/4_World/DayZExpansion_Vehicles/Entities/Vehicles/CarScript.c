@@ -610,7 +610,6 @@ modded class CarScript
 		AddAction(ExpansionActionAdminUnpairKey);
 
 		AddAction(ExpansionActionLockVehicle);
-		AddAction(ExpansionActionUnlockVehicle);
 	}
 
 	bool Expansion_CanPlayerAttach()

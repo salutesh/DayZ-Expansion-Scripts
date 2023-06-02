@@ -65,11 +65,11 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected ExpansionAnomalyState m_PrevAnonmalyState = ExpansionAnomalyState.NONE;
 	protected ExpansionAnomalyState m_VisualState = ExpansionAnomalyState.NONE;
 
-#ifdef DIAG
-#ifdef EXPANSIONMODNAVIGATION
+	#ifdef DIAG
+	#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_ServerMarker;
-#endif
-#endif
+	#endif
+	#endif
 
 	protected ref array <ref ExpansionLoot> m_LootConfig;
 	protected ref array<EntityAI> m_LootItems;
@@ -85,11 +85,10 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		m_Expansion_AnomalyNode = s_Expansion_AllAnomalies.Add(this);
 		
-		if (GetGame() && GetGame().IsServer())
-		{
-			m_LootConfig = new array <ref ExpansionLoot>;
-			m_LootItems = new array<EntityAI>;
-		}
+		#ifdef SERVER
+		m_LootConfig = new array <ref ExpansionLoot>;
+		m_LootItems = new array<EntityAI>;
+		#endif
 
 		//! @note: Add this to the class of your anomaly when inhertiting from this base and you plan to use the EOnTouch and EOnContact methods.
 		//! Also make sure you anomaly has additonaly set the event flags "EntityEvent.CONTACT" & "EntityEvent.TOUCH" via "SetEventMask(EntityEvent.CONTACT | EntityEvent.TOUCH);".
@@ -103,9 +102,10 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	
 	void ~Expansion_Anomaly_Base()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		CleanupAnomaly();
+		#ifdef SERVER
+		if (GetGame())
+			CleanupAnomaly();
+		#endif
 	}
 	
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
@@ -124,13 +124,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		return false;
 	}
 
-	override void EEDelete(EntityAI parent)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		CleanupAnomaly();
-	}
-
 	void CleanupAnomaly()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -138,44 +131,42 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		if (s_Expansion_AllAnomalies)
 			s_Expansion_AllAnomalies.Remove(m_Expansion_AnomalyNode);
 		
-		if (GetGame() && GetGame().IsServer())
-		{
-			if (m_AnomalyTrigger)
-				GetGame().ObjectDelete(m_AnomalyTrigger);
+		#ifdef SERVER
+		if (m_AnomalyTrigger)
+			GetGame().ObjectDelete(m_AnomalyTrigger);
 
 		#ifdef DIAG
 		#ifdef EXPANSIONMODNAVIGATION
-			if (!m_ServerMarker)
-				return;
+		if (!m_ServerMarker)
+			return;
 
-			ExpansionMarkerModule markerModule;
-			CF_Modules<ExpansionMarkerModule>.Get(markerModule);
-			if (markerModule)
-				markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
+		ExpansionMarkerModule markerModule;
+		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
+		if (markerModule)
+			markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
 		#endif
 		#endif
 
-			foreach (EntityAI lootItem: m_LootItems)
-			{
-				if (!lootItem.GetParent())
-					GetGame().ObjectDelete(lootItem);
-			}
-		}
-
-		if (GetGame() && !GetGame().IsDedicatedServer())
+		foreach (EntityAI lootItem: m_LootItems)
 		{
-			if (m_ParticleIdle)
-				ParticleIdleStop();
-
-			if (m_ParticleActivated)
-				ParticleActivatedStop();
-
-			if (m_Light)
-				GetGame().ObjectDelete(m_Light);
-
-			if (m_Sound)
-				SoundStop();
+			if (!lootItem.GetParent())
+				GetGame().ObjectDelete(lootItem);
 		}
+		#endif
+	
+			#ifndef SERVER
+		if (m_ParticleIdle)
+			ParticleIdleStop();
+
+		if (m_ParticleActivated)
+			ParticleActivatedStop();
+
+		if (m_Light)
+			GetGame().ObjectDelete(m_Light);
+
+		if (m_Sound)
+			SoundStop();
+		#endif
 	}
 
 	override void EEInit()
@@ -193,21 +184,10 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	protected void InitAnomaly()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer())
-		{
-			InitAnomalyClient();
-		}
-
-		if (GetGame().IsServer())
-		{
-			InitAnomalyServer();
-		}
-	}
-
-	protected void InitAnomalyClient()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		#ifdef SERVER
+		InitAnomalyServer();
+		#endif
 	}
 
 	protected void InitAnomalyServer()
@@ -233,14 +213,14 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		GetGame().ObjectDelete(clutter_cutter);
 
-	#ifdef DIAG
-	#ifdef EXPANSIONMODNAVIGATION
+		#ifdef DIAG
+		#ifdef EXPANSIONMODNAVIGATION
 		ExpansionMarkerModule markerModule;
 		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
 		if (markerModule)
 			markerModule.CreateServerMarker(GetType(), "Anomaly", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 235, 59, 90), true);
-	#endif
-	#endif
+		#endif
+		#endif
 	}
 
 	protected bool PlayParticle(out Particle particle, int particle_type)
@@ -691,12 +671,12 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 		ExpansionLootSpawner.SpawnLoot(this, m_LootConfig, randomLoot, m_LootItems);
 
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		foreach (EntityAI lootItem: m_LootItems)
 		{
 			ExDebugPrint("::SpawnLootItems - Spawned loot item from loot config: " + lootItem.GetType() + " | Position: " + lootItem.GetPosition());
 		}
-	#endif
+		#endif
 	}
 
 	bool HasAnomalyCore()
@@ -894,13 +874,6 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		if (m_VisualState != m_AnonmalyState)
 			UpdateVisualState(m_AnonmalyState);
 	}
-	
-	/*override void SetActions()
-	{
-		super.SetActions();
-
-		AddAction(ActionAttach);
-	}*/
 
 	override bool IsHealthVisible()
 	{
@@ -965,8 +938,8 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 	protected void ExDebugPrint(string text)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
+		#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
 		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		#endif
 	}
 };

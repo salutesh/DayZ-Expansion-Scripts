@@ -29,7 +29,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	}
 
 	//! Event called when the player starts the quest.
-	protected override bool OnContinue()
+	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 

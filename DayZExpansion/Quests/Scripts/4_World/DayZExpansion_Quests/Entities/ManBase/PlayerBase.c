@@ -78,6 +78,9 @@ modded class PlayerBase
 		ExpansionQuest quest;
 		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
 		{
+			if (!objective)
+				continue;
+
 			quest = objective.GetQuest();
 			if (!quest)
 				continue;

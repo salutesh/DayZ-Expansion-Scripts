@@ -370,7 +370,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		bool isFriendly;
 		if (victim.GetGroup())
 		{
-			if (killer.GetGroup())
+			if (victim.GetGroup() == killer.GetGroup())
+				isFriendly = true;
+			else if (killer.GetGroup())
 				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
 			else
 				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer);

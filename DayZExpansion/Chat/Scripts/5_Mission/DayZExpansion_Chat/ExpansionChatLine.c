@@ -27,7 +27,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 	private TextWidget Time;
 	private TextWidget SenderName;
-	private TextWidget Message;
+	private RichTextWidget Message;
 	private ref Timer m_FadeOutLaterTimer;
 	private ref ExpansionScriptViewFadeTimer m_FadeTimer;
 	private Widget m_Parent;
@@ -124,8 +124,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 			break;
 		}
 
-		//BreakWords(message);
-		m_ChatLineController.Message = message.Text;
+		m_ChatLineController.Message = BreakLongWords(message);
 		m_ChatLineController.Time = message.Time;
 		m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 
@@ -137,6 +136,30 @@ class ExpansionChatLineBase: ExpansionScriptView
 		float sender_w, sender_h;
 		SenderName.GetScreenSize(sender_w, sender_h);
 		Message.SetSize(1.0 - (time_w + 4 + sender_w) / root_w, 1.0);
+	}
+
+	string BreakLongWords(ExpansionChatMessage message)
+	{
+		int maxWordCharacters = 5;
+
+		TStringArray words = {};
+		message.Text.Split(" ", words);
+		string messageText;
+		foreach (string word: words)
+		{
+			if (!word.Contains("#"))
+			{
+				while (word.Length() > maxWordCharacters)
+				{
+					//! @note have to use RichTextWidget and `<wbr />` tag because there is no support for zero-width space
+					messageText += word.Substring(0, maxWordCharacters) + "<wbr />";
+					word = word.Substring(maxWordCharacters, word.Length() - maxWordCharacters);
+				}
+			}
+			messageText += word + " ";
+		}
+
+		return messageText;
 	}
 
 	void FadeIn()

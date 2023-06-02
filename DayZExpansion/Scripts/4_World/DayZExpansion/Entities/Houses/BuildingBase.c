@@ -60,8 +60,8 @@ modded class BuildingBase
 #ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
-		if (GetGame().IsDedicatedServer())
-			SetGodMode();
+		if (GetGame().IsServer() && !IsFuelStation() && GetExpansionSettings().GetGeneral().DisableShootToUnlock)
+			SetAllowDamage(false);
 
 		if (!HasInterior() && !HasIvys())
 			return;
@@ -395,12 +395,6 @@ modded class BuildingBase
 
 	protected void SpawnInterior();
 	protected void SpawnIvys();
-
-	void SetGodMode()
-	{
-		if (GetExpansionSettings().GetGeneral().DisableShootToUnlock)
-			SetAllowDamage(false);
-	}
 
 	// ------------------------------------------------------------
 	// BuildingBase RemoveInterior

@@ -367,37 +367,48 @@ class CfgVehicles
 		soundImpactType = "plastic";
 	};
 	class FxRound;
-	class FxRound_Expansion_BoltAnomaly: FxRound
+	class FxRound_Expansion_BoltAnomaly_Ice: FxRound
+	{
+		model = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
+	};
+	class FxRound_Expansion_BoltAnomaly_Warper: FxRound
 	{
 		model = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
 	};
 };
 class cfgAmmoTypes
 {
-	class AType_Bullet_Expansion_BoltAnomaly
+	class AType_Bullet_Expansion_BoltAnomaly_Ice
 	{
-		name = "Bullet_Expansion_BoltAnomaly";
+		name = "Bullet_Expansion_BoltAnomaly_Ice";
+	};
+	class AType_Bullet_Expansion_BoltAnomaly_Warper
+	{
+		name = "Bullet_Expansion_BoltAnomaly_Warper";
 	};
 };
 class CfgAmmo
 {
 	class Bullet_HuntingBolt;
-	class Bullet_Expansion_BoltAnomaly: Bullet_HuntingBolt
+	class Bullet_Expansion_BoltAnomaly_Ice: Bullet_HuntingBolt
 	{
 		proxyShape = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
-		spawnPileType = "Expansion_Ammo_BoltAnomaly";
-		round = "FxRound_Expansion_BoltAnomaly";
+		spawnPileType = "Expansion_Ammo_BoltAnomaly_Ice";
+		round = "FxRound_Expansion_BoltAnomaly_Ice";
+	};
+	class Bullet_Expansion_BoltAnomaly_Warper: Bullet_HuntingBolt
+	{
+		proxyShape = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
+		spawnPileType = "Expansion_Ammo_BoltAnomaly_Warper";
+		round = "FxRound_Expansion_BoltAnomaly_Warper";
 	};
 };
 class CfgMagazines
 {
 	class Ammo_HuntingBolt;
-	class Expansion_Ammo_BoltAnomaly: Ammo_HuntingBolt
+	class Expansion_Ammo_BoltAnomaly_Base: Ammo_HuntingBolt
 	{
-		displayName = "$STR_CfgMagazines_Ammo_HuntingBolt0";
-		descriptionShort = "$STR_CfgMagazines_Ammo_HuntingBolt1";
 		model = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
-		ammo = "Bullet_Expansion_BoltAnomaly";
 		attachments[] = {"Att_ExpansionAnomalyCore"};
 		class GUIInventoryAttachmentsProps
 		{
@@ -409,5 +420,13 @@ class CfgMagazines
 				icon = "set:expansion_inventory image:anomaly";
 			};
 		};
+	};
+	class Expansion_Ammo_BoltAnomaly_Ice: Expansion_Ammo_BoltAnomaly_Base
+	{
+		ammo = "Bullet_Expansion_BoltAnomaly_Ice";
+	};
+	class Expansion_Ammo_BoltAnomaly_Warper: Expansion_Ammo_BoltAnomaly_Base
+	{
+		ammo = "Bullet_Expansion_BoltAnomaly_Warper";
 	};
 };

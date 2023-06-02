@@ -41,7 +41,7 @@ modded class AnimalBase
 		int index = s_Expansion_AssignedQuestObjectives.Find(objective);
 		if (index > -1)
 		{
-			s_Expansion_AssignedQuestObjectives.Remove(index);
+			s_Expansion_AssignedQuestObjectives.RemoveOrdered(index);
 		#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 			EXTrace.Print(EXTrace.QUESTS, null, "Deassigned quest objective: Type: " + objective.GetObjectiveType() + " | ID: " + objective.GetObjectiveConfig().GetID());
 		#endif
@@ -76,11 +76,22 @@ modded class AnimalBase
 			return;
 
 		ExpansionQuest quest;
-		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
+		for (int i = 0; i < s_Expansion_AssignedQuestObjectives.Count();)
 		{
+			ExpansionQuestObjectiveEventBase objective = s_Expansion_AssignedQuestObjectives[i];
+			if (!objective)
+			{
+				EXTrace.Print(EXTrace.QUESTS, this, "WARNING: Objective is NULL!");
+				s_Expansion_AssignedQuestObjectives.RemoveOrdered(i);
+				continue;
+			}
+
 			quest = objective.GetQuest();
 			if (!quest)
+			{
+				i++;
 				continue;
+			}
 			
 			//! Check if the current objective belongs to the quest player
 			if (!quest.IsQuestPlayer(killerUID))
@@ -88,18 +99,21 @@ modded class AnimalBase
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + killerUID + "] is not a quest player of this quest objective. Skip...");
 			#endif
+				i++;
 				continue;
 			}
 
 			switch (objective.GetObjectiveType())
 			{
 				case ExpansionQuestObjectiveType.TARGET:
-				{
 					ExpansionQuestObjectiveTargetEvent targetEvent;
 					if (Class.CastTo(targetEvent, objective))
 						targetEvent.OnEntityKilled(this, killSource, killerPlayer);
-				}
+					break;
 			}
+
+			if (objective.IsAssigned())
+				i++;
 		}
 	}
 

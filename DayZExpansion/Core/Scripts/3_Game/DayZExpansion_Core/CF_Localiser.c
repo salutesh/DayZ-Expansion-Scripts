@@ -34,4 +34,12 @@ modded class CF_Localiser
 		return super.Set(index, value, translates);
 	}
 #endif
+
+	void SetTranslates(int index, bool translates)
+	{
+		int realIndex = index + 1;
+		if (realIndex < 0 || realIndex >= m_Count)
+			return;
+		m_Translates[realIndex] = translates;
+	}
 }

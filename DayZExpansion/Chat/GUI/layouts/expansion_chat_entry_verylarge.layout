@@ -16,7 +16,7 @@ GridSpacerWidgetClass ChatItemWidget {
  Margin 0
  "Size To Content H" 1
  "Size To Content V" 1
- Columns 4
+ Columns 3
  Rows 1
  {
   ButtonWidgetClass ChatItemButton {
@@ -49,59 +49,80 @@ GridSpacerWidgetClass ChatItemWidget {
     }
    }
   }
-  TextWidgetClass Time {
+  GridSpacerWidgetClass Meta {
+   visible 1
+   clipchildren 1
+   inheritalpha 1
    ignorepointer 1
    position 0 0
-   size 0.2 1
-   valign center_ref
-   hexactpos 0
-   vexactpos 0
+   size 1 1
+   valign top
+   hexactpos 1
+   vexactpos 1
    hexactsize 0
    vexactsize 0
-   scaled 0
-   scriptclass "ViewBinding"
    style None
-   font "gui/fonts/etelkatextpro28"
-   "exact text" 1
-   "exact text size" 28
-   "size to text h" 1
-   "size to text v" 1
+   Padding 0
+   Margin 2
+   "Size To Content H" 1
+   "Size To Content V" 1
+   Columns 2
+   Rows 1
    {
-    ScriptParamsClass {
-     Binding_Name "Time"
+    TextWidgetClass Time {
+     ignorepointer 1
+     position 0 0
+     size 0.2 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 0
+     scriptclass "ViewBinding"
+     style None
+     font "gui/fonts/etelkatextpro28"
+     "exact text" 1
+     "exact text size" 28
+     "size to text h" 1
+     "size to text v" 1
+     {
+      ScriptParamsClass {
+       Binding_Name "Time"
+      }
+     }
+    }
+    TextWidgetClass SenderName {
+     ignorepointer 1
+     position 0 0
+     size 0.2 1
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 0
+     scriptclass "ViewBinding"
+     style None
+     font "gui/fonts/etelkatextpro28"
+     "exact text" 1
+     "exact text size" 28
+     "size to text h" 1
+     "size to text v" 1
+     {
+      ScriptParamsClass {
+       Binding_Name "SenderName"
+      }
+     }
     }
    }
   }
-  TextWidgetClass SenderName {
-   ignorepointer 1
-   position 0 0
-   size 0.2 1
-   valign center_ref
-   hexactpos 0
-   vexactpos 0
-   hexactsize 0
-   vexactsize 0
-   scaled 0
-   scriptclass "ViewBinding"
-   style None
-   font "gui/fonts/etelkatextpro28"
-   "exact text" 1
-   "exact text size" 28
-   "size to text h" 1
-   "size to text v" 1
-   {
-    ScriptParamsClass {
-     Binding_Name "SenderName"
-    }
-   }
-  }
-  MultilineTextWidgetClass Message {
+  RichTextWidgetClass Message {
    clipchildren 1
    ignorepointer 1
    position 0 0
-   size 0.75 1
-   halign right_ref
-   valign center_ref
+   size 0.55 1
+   valign top
    hexactpos 0
    vexactpos 0
    hexactsize 0
@@ -113,7 +134,7 @@ GridSpacerWidgetClass ChatItemWidget {
    "exact text size" 28
    "size to text h" 1
    "size to text v" 1
-   "text valign" center
+   "text valign" top
    wrap 1
    "condense whitespace" 1
    "strip newlines" 1

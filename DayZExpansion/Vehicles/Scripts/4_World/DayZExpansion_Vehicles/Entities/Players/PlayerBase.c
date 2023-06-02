@@ -54,6 +54,9 @@ modded class PlayerBase
 		AddAction( ExpansionActionNextEngine, InputActionMap );
 		AddAction( ExpansionActionNextEngineInput, InputActionMap );
 
+		//! Unlock action on player so we can use it inside vehicle as well
+		AddAction(ExpansionActionUnlockVehicle, InputActionMap);
+
 		AddAction( ExpansionActionPickVehicleLock, InputActionMap );
 		AddAction( ExpansionVehicleActionPickLock, InputActionMap );
 		AddAction( ExpansionActionChangeVehicleLock, InputActionMap );

@@ -9,7 +9,7 @@ class eAIFormationStarDot : eAIFormation
 		float z = 0;
 		float angle;
 		int count = m_Group.Count() - 1;
-		float radius = (count * 2.828427) / (Math.PI * 2);
+		float radius = Math.Max((count * 2.828427) / (Math.PI * 2), 4.0);
 
 		if (count)
 			angle = 360 / count * member_no;

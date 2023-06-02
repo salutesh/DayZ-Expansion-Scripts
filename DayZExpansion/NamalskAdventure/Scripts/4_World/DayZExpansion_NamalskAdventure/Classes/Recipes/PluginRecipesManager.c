@@ -17,6 +17,6 @@ modded class PluginRecipesManager
 		super.RegisterRecipies();
 
 		RegisterRecipe(new NA_CleanAmmo);
-		RegisterRecipe(new NA_CraftAnomalyBolt);
+		//RegisterRecipe(new NA_CraftAnomalyBolt);
 	}
 }

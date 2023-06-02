@@ -111,32 +111,32 @@ class ExpansionTransitionType
 
 		FPrintln(file, "class " + class_name + ": " + fsmType.m_Type + "Transition {");
 
-		FPrintln(file, "private " + from_state_class + " src;");
-		FPrintln(file, "private " + to_state_class + " dst;");
+		FPrintln(file, "	private " + from_state_class + " src;");
+		FPrintln(file, "	private " + to_state_class + " dst;");
 
-		FPrintln(file, "Expansion_" + fsmName + "_FSM_" + ExpansionFSMType.s_ReloadNumber + " fsm;");
+		FPrintln(file, "	Expansion_" + fsmName + "_FSM_" + ExpansionFSMType.s_ReloadNumber + " fsm;");
 
-		FPrintln(file, "void " + class_name + "(ExpansionFSM _fsm) {");
-		FPrintln(file, "Class.CastTo(fsm, _fsm);");
-		FPrintln(file, "m_ClassName = \"" + class_name + "\";");
-		FPrintln(file, "Class.CastTo(src, _fsm.GetState(\"" + from_state_class + "\"));");
-		FPrintln(file, "Class.CastTo(dst, _fsm.GetState(\"" + to_state_class + "\"));");
-		FPrintln(file, "}");
+		FPrintln(file, "	void " + class_name + "(ExpansionFSM _fsm) {");
+		FPrintln(file, "		Class.CastTo(fsm, _fsm);");
+		FPrintln(file, "		m_ClassName = \"" + class_name + "\";");
+		FPrintln(file, "		Class.CastTo(src, _fsm.GetState(\"" + from_state_class + "\"));");
+		FPrintln(file, "		Class.CastTo(dst, _fsm.GetState(\"" + to_state_class + "\"));");
+		FPrintln(file, "	}");
 
 		auto guard = xml_root_tag.GetTag("guard");
 		if (guard.Count() > 0)
 		{
-			FPrintln(file, "override int Guard() {");
+			FPrintln(file, "	override int Guard() {");
 #ifdef EAI_TRACE
-			FPrintln(file, "auto trace = CF_Trace_0(this, \"Guard\");");
+			FPrintln(file, "	auto trace = CF_Trace_0(this, \"Guard\");");
 #endif
-			FPrintln(file, guard[0].GetContent().GetContent());
-			FPrintln(file, "}");
+			ExpansionStateType.FPrintTag0(file, guard);
+			FPrintln(file, "	}");
 		}
 
-		FPrintln(file, "override ExpansionState GetSource() { return src; }");
-		FPrintln(file, "override ExpansionState GetDestination() { return dst; }");
-		FPrintln(file, "override string GetEvent() { return \"" + event_class + "\"; }");
+		FPrintln(file, "	override ExpansionState GetSource() { return src; }");
+		FPrintln(file, "	override ExpansionState GetDestination() { return dst; }");
+		FPrintln(file, "	override string GetEvent() { return \"" + event_class + "\"; }");
 
 		FPrintln(file, "}");
 

@@ -12,30 +12,18 @@
 
 class Expansion_EffectBolt_Base: Bolt_Base
 {
-	override void EEParentedTo(EntityAI parent)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		ExDebugPrint("::EEParentedTo - Parent: " + parent.ToString() + " | Position: " + parent.GetPosition());
+	protected ref ProjectileStoppedInfo m_Expansion_ProjectileStoppedInfo;
 
-		super.EEParentedTo(parent);
-		
-		ContactEvent(parent);
-	}
-	
-	void ContactEvent(EntityAI parent);
-	
-	protected void ExDebugPrint(string text)
+	override void SetFromProjectile(ProjectileStoppedInfo info)
 	{
-	#ifdef EXPANSION_NAMALSK_ADVENTURE_DEBUG
-		EXTrace.Print(EXTrace.NAMALSKADVENTURE, this, text);
-	#endif
+		super.SetFromProjectile(info);
+
+		m_Expansion_ProjectileStoppedInfo = info;
 	}
 };
 
-class Expansion_Ammo_BoltAnomaly: Expansion_EffectBolt_Base
+class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 {
-	protected bool m_ContactEventProcessing;
-
 	override void EEInit()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -49,25 +37,12 @@ class Expansion_Ammo_BoltAnomaly: Expansion_EffectBolt_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		//! Client only
-		if (!GetGame().IsServer() || !GetGame().IsMultiplayer())
-		{
-			InitBoltClient();
-		}
-		
 		//! Server only
-		if (GetGame().IsServer())
-		{
-			InitBoltServer();
-		}
+		#ifdef SERVER
+		InitBoltServer();
+		#endif
 	}
-	
-	//! Client
-	protected void InitBoltClient()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
-	
+
 	//! Server
 	protected void InitBoltServer()
 	{
@@ -84,18 +59,12 @@ class Expansion_Ammo_BoltAnomaly: Expansion_EffectBolt_Base
 		ExpansionItemSpawnHelper.SpawnInInventory(GetAmomalyCoreName(), this);
 	}
 	
-	//! Server
-	override void ContactEvent(EntityAI parent)
+	override void EEParentedTo(EntityAI parent)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		ExDebugPrint("::ContactEvent - Parent: " + parent.ToString() + " | Position: " + parent.GetPosition());
+		ExDebugPrint("::EEParentedTo - Parent: " + parent.ToString() + " | Position: " + parent.GetPosition());
 
-		if (GetGame().IsServer() && !m_ContactEventProcessing)
-		{
-			m_ContactEventProcessing = true;
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleBoltContact, 100, false);
-			m_ContactEventProcessing = false;
-		}
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleBoltParented, 100, false);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -104,14 +73,13 @@ class Expansion_Ammo_BoltAnomaly: Expansion_EffectBolt_Base
 		ExDebugPrint("::EEItemDetached - Item: " + item.ToString() + " | Slot:" + slot_name);
 		
 		//! Server only
-		if (GetGame().IsServer())
+		#ifdef SERVER
+		Expansion_AnomalyCore_Base anomalyCore;
+		if (Class.CastTo(anomalyCore, item))
 		{
-			Expansion_AnomalyCore_Base anomalyCore;
-			if (Class.CastTo(anomalyCore, item))
-			{
-				HandleAnomalyCoreDetach();
-			}
+			HandleAnomalyCoreDetach();
 		}
+		#endif
 	}
 	
 	//! Server
@@ -169,53 +137,34 @@ class Expansion_Ammo_BoltAnomaly: Expansion_EffectBolt_Base
 	}
 	
 	//! Server
-	protected void HandleBoltContact()
+	protected void HandleBoltParented()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		if (GetGame().IsServer())
 		{
-			float resultHealth = GetHealth01("", "");
 			vector pos = GetPosition();
 			vector ori = GetOrientation();
 			
 			//! Create anomaly core explosion
-			Expansion_AnomalyCore_Base anomalyCore = Expansion_AnomalyCore_Base.Cast(GetGame().CreateObject(GetAmomalyCoreName(), GetPosition()));
+			Expansion_AnomalyCore_Base anomalyCore = Expansion_AnomalyCore_Base.Cast(GetGame().CreateObject(GetAmomalyCoreName(), pos));
 			anomalyCore.SetPosition(pos);
 			anomalyCore.SetHealth01("", "", 0);
 
 			//! Create new bolt on impact position.
-			Ammo_HuntingBolt newBolt = Ammo_HuntingBolt.Cast(GetGame().CreateObject("Ammo_HuntingBolt", GetPosition()));
-			newBolt.SetHealth01("", "", resultHealth);
-			newBolt.SetPosition(pos);
+			Ammo_HuntingBolt newBolt = Ammo_HuntingBolt.Cast(GetGame().CreateObject("Ammo_HuntingBolt", pos));
 			newBolt.SetOrientation(ori);
+			newBolt.SetFromProjectile(m_Expansion_ProjectileStoppedInfo);
 			
-			//! Handle ammo
-			Magazine boltMag;
-			Magazine thisMag;
-			if (Class.CastTo(boltMag, newBolt) && Class.CastTo(thisMag, this))
-			{
-				string cartTypeName;
-				float health;
-				int ammoCount = thisMag.GetAmmoCount();
-				boltMag.ServerSetAmmoCount(0);
-				thisMag.GetCartridgeAtIndex(0, health, cartTypeName);
-				boltMag.ServerStoreCartridge(health, cartTypeName);
-			}
-			
-			//! Attach new bot to parent
-			EntityAI arrowParent;
+			//! Attach new bolt to parent
+			Object arrowParent;
 			if (Class.CastTo(arrowParent, GetParent()))
 			{
-				ExDebugPrint("::HandleBoltContact - Arrow parent: " + arrowParent.ToString());
-				ArrowManagerBase arrowManager = arrowParent.GetArrowManager();
-				if (arrowManager)
-				{
-					ExDebugPrint("::HandleBoltContact - Parent arrow manager: " + arrowManager.ToString());
-					arrowManager.AddArrow(newBolt);
-					arrowManager.RemoveArrow(this);	
-					//arrowParent.Update();
-				}
+				ExDebugPrint("::HandleBoltParented - Arrow parent: " + arrowParent.ToString());
+				arrowParent.RemoveChild(this);  //! Don't think this is necessary because we call ObjectDelete later anyway - lava76
+				ObjectCollisionInfo collisionInfo;
+				if (Class.CastTo(collisionInfo, m_Expansion_ProjectileStoppedInfo))
+					arrowParent.AddArrow(newBolt, collisionInfo.GetComponentIndex(), collisionInfo.GetHitObjPos(), collisionInfo.GetHitObjRot());
 			}
 			
 			GetGame().ObjectDelete(this);
@@ -224,13 +173,21 @@ class Expansion_Ammo_BoltAnomaly: Expansion_EffectBolt_Base
 
 	string GetAmomalyCoreName()
 	{
+		return "";
+	}
+};
+
+class Expansion_Ammo_BoltAnomaly_Ice: Expansion_Ammo_BoltAnomaly_Base
+{
+	override string GetAmomalyCoreName()
+	{
 		return "Expansion_AnomalyCore_Ice";
 	}
-	
-	override void AfterStoreLoad()
+};
+class Expansion_Ammo_BoltAnomaly_Warper: Expansion_Ammo_BoltAnomaly_Base
+{
+	override string GetAmomalyCoreName()
 	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		super.AfterStoreLoad();
+		return "Expansion_AnomalyCore_Warper";
 	}
 };

@@ -34,6 +34,9 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	ExpansionMarkerData m_ServerMarker;
 #endif
 
+	[NonSerialized()]
+	bool m_MissionEnd;
+
 	// ------------------------------------------------------------
 	// Expansion ExpansionMissionEventAI
 	// ------------------------------------------------------------
@@ -60,6 +63,8 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 	
 	override void Event_OnStart()
 	{
+		m_MissionEnd = false;
+
 		if ( GetExpansionSettings().GetNotification().ShowAIMissionStarted )
 			CreateNotif(MissionMeta.NotificationStart);
 
@@ -233,10 +238,10 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 	override bool CanEnd()
 	{
-		//! Check if a player is nearby any container in a 1000 meter radius
+		//! Check if a player is nearby any container in a 1100 meter radius
 		foreach (auto container: m_Containers)
 		{
-			if (container && ExpansionLootSpawner.IsPlayerNearby(container, 1000))
+			if (container && ExpansionLootSpawner.IsPlayerNearby(container, 1100))
 				return false;
 		}
 
@@ -253,7 +258,8 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 		{
 			foreach (auto container: m_Containers)
 			{
-				GetGame().ObjectDelete(container);
+				if (container)
+					GetGame().ObjectDelete(container);
 			}
 
 			m_Containers.Clear();
@@ -279,6 +285,26 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 				CreateNotif(MissionMeta.NotificationEnd);
 
 			MappingSet.Delete();
+		}
+	}
+
+	override void Event_OnUpdate( float delta )
+	{
+		if ( IsMissionHost() )
+		{
+			if (m_CurrentMissionTime >= MissionMaxTime && !m_MissionEnd)
+			{
+				m_MissionEnd = true;
+
+				foreach (auto container: m_Containers)
+				{
+					if (container && container.GetHealth("", "") > 0.0)
+					{
+						container.SetHealth("", "", 0.0);
+						container.SetLifetimeMax(0.0);
+					}
+				}
+			}
 		}
 	}
 
@@ -616,7 +642,11 @@ class ExpansionMissionEventAI: ExpansionMissionEventBase
 
 			if (lifetime != 0)
 			{
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( GetGame().ObjectDelete, lifetime * 60 * 1000, false, obj );
+				EntityAI entity;
+				if (Class.CastTo(entity, obj))
+					entity.SetLifetimeMax(lifetime);
+				else
+					GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater( GetGame().ObjectDelete, lifetime * 60 * 1000, false, obj );
 			}
 		}
 

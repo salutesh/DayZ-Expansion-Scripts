@@ -85,6 +85,10 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		ExpansionQuestModule.GetModuleInstance().GetQuestMenuCallbackSI().Remove(MenuCallback);
 		
 		m_QuestMenuController.Quests.Clear();
+		m_QuestMenuController.QuestLogs.Clear();
+		m_QuestMenuController.RewardEntries.Clear();
+		m_QuestMenuController.ObjectiveItems.Clear();
+		m_QuestMenuController.QuestItemEntries.Clear();
 		m_Quests.Clear();
 
 		m_QuestLogMode = false;
@@ -789,7 +793,7 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 	override void OnHide()
 	{
 		ExpansionQuestModule.GetModuleInstance().ExitQuestMenu(m_CurrentNPCID);
-
+		
 		super.OnHide();
 	}
 

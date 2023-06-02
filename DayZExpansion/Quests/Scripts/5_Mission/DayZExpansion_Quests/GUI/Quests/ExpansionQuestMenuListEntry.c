@@ -60,17 +60,17 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 		ExpansionQuestState questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
 		if (questState == ExpansionQuestState.NONE)
 		{
-			QuestIcon.SetImage(1);
+			QuestIcon.SetImage(0);
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.STARTED)
 		{
-			QuestIcon.SetImage(0);
+			QuestIcon.SetImage(1);
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.CAN_TURNIN)
 		{
-			QuestIcon.SetImage(0);
+			QuestIcon.SetImage(1);
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
 		}
 
@@ -234,17 +234,17 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		ExpansionQuestState questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
 		if (questState == ExpansionQuestState.NONE)
 		{
-			QuestIcon.SetImage(1);
+			QuestIcon.SetImage(0);
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.STARTED)
 		{
-			QuestIcon.SetImage(0);
+			QuestIcon.SetImage(1);
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.CAN_TURNIN)
 		{
-			QuestIcon.SetImage(0);
+			QuestIcon.SetImage(1);
 			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
 		}
 		

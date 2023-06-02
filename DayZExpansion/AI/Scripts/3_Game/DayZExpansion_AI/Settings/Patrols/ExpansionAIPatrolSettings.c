@@ -30,7 +30,7 @@ class ExpansionAIPatrolSettingsV4
  **/
 class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 {
-	static const int VERSION = 13;
+	static const int VERSION = 15;
 
 	float DespawnRadius;
 
@@ -279,9 +279,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 				{
 					Error("[ExpansionAIPatrolSettings] Ignoring empty object patrol classname!");
 				}
-				else if (!GetGame().IsKindOf(objectPatrol.ClassName, "House"))
+				else if (!ExpansionStatic.IsAnyOf(objectPatrol.ClassName, eAIRegisterDynamicPatrolSpawner.s_RegisteredTypes))
 				{
-					Error("[ExpansionAIPatrolSettings] Ignoring object patrol classname '" + objectPatrol.ClassName + "' because it is not a BuildingBase!");
+					Error("[ExpansionAIPatrolSettings] Ignoring object patrol classname '" + objectPatrol.ClassName + "' because it is not registered for dynamic patrol spawning!");
 				}
 			}
 

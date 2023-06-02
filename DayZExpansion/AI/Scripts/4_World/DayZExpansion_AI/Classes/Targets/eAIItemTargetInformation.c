@@ -54,6 +54,9 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 				{
 					if (Class.CastTo(gunInHands, itemInHands))
 					{
+						if (ai.IsRaised() || ai.GetWeaponManager().IsRunning() || ai.GetActionManager().GetRunningAction())
+							return 0.0;
+
 						if (gunInHands.Expansion_HasAmmo())
 							return 0.0;
 					}

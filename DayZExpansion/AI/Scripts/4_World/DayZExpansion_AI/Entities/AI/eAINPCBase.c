@@ -1,12 +1,5 @@
 class eAINPCBase: eAIBase
 {
-	override void Expansion_Init()
-	{
-		super.Expansion_Init();
-
-		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-	}
-
 	//! Vanilla, prevent being targeted by Zs/animals
 	override bool CanBeTargetedByAI(EntityAI ai)
 	{

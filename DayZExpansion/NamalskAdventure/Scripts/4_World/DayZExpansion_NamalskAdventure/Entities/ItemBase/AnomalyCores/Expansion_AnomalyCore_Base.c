@@ -81,7 +81,8 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 	void ~Expansion_AnomalyCore_Base()
 	{
-		CleanupAnomalyCore();
+		if (GetGame())
+			CleanupAnomalyCore();
 	}
 
 	void CleanupAnomalyCore()

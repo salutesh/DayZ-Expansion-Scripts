@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_ISLAND
 class CustomLoadingScreenBackground
 {
 	string ImagePath;
@@ -20,9 +21,9 @@ class CustomLoadingScreenData
 	bool ShowLogo = true;
 	string LogoPath = "DayZExpansion/NamalskAdventure/GUI/logo.edds";
 	bool RandomizeBackgounds = true;
-	int LoadingBarColor = ARGB(255, 199, 38, 81);
-	bool UseCustomHints = true;
-	string HintIconPath = "DayZExpansion/NamalskAdventure/GUI/icons/circle_info.edds";
+	int LoadingBarColor = ARGB(255, 63, 212, 252);
+	bool UseCustomHints = false;
+	string HintIconPath = "set:expansion_inventory image:anomaly";
 
 	ref array<ref CustomLoadingScreenBackground> m_ExBackgrounds;
 
@@ -147,14 +148,23 @@ modded class LoginScreenBase
 
 modded class LoginQueueBase
 {
+	protected Widget m_ExSeperatorLine;
+	protected ImageWidget m_ExHintIcon;
+	
 	override Widget Init()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		layoutRoot = super.Init();
 
+		m_ExSeperatorLine = layoutRoot.FindAnyWidget("SeparatorPanel");
+		m_ExSeperatorLine.SetColor(ARGB(255, 63, 212, 252));
 		m_ExBackground = ImageWidget.Cast(layoutRoot.FindAnyWidget("Background"));
-
+		m_btnLeave.SetColor(ARGB(255, 63, 212, 252));
+		
+		m_ExHintIcon = ImageWidget.Cast(layoutRoot.FindAnyWidget("hintIcon"));
+		m_ExHintIcon.LoadImageFile(0, m_ExCustomLoadingScreenData.HintIconPath);
+		
 		SetBackgroundImage(m_ExBackgroundIndex);
 		m_ExBackgroundIndex++;
 
@@ -164,14 +174,23 @@ modded class LoginQueueBase
 
 modded class LoginTimeBase
 {
+	protected Widget m_ExSeperatorLine;
+	protected ImageWidget m_ExHintIcon;
+	
 	override Widget Init()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		layoutRoot = super.Init();
-
+		
+		m_ExSeperatorLine = layoutRoot.FindAnyWidget("SeparatorPanel");
+		m_ExSeperatorLine.SetColor(ARGB(255, 63, 212, 252));
 		m_ExBackground = ImageWidget.Cast(layoutRoot.FindAnyWidget("Background"));
-
+		m_btnLeave.SetColor(ARGB(255, 63, 212, 252));
+		
+		m_ExHintIcon = ImageWidget.Cast(layoutRoot.FindAnyWidget("hintIcon"));
+		m_ExHintIcon.LoadImageFile(0, m_ExCustomLoadingScreenData.HintIconPath);
+		
 		SetBackgroundImage(m_ExBackgroundIndex);
 		m_ExBackgroundIndex++;
 
@@ -234,12 +253,14 @@ modded class LoadingScreen
 			m_ImageLogoCorner = ImageWidget.Cast(game.GetLoadingWorkspace().CreateWidgets(LOADING_SCREEN_LAYOUTS + "logo.layout", m_ExPanelWidget));
 			m_ImageLogoCorner.SetScreenPos(posLogoX, posLogoY, true);
 			m_ImageLogoCorner.LoadImageFile(0, m_ExCustomLoadingScreenData.LogoPath);
+			m_ImageLogoMid.Show(false);
 		}
 		//! Hide vanilla logo
 		else if (!m_ExCustomLoadingScreenData.ShowLogo)
 		{
 			Print(ToString() + "::LoadingScreen - Hide logo!");
 			m_ImageLogoCorner.Show(false);
+			m_ImageLogoMid.Show(false);
 		}
 
 		if (m_ExCustomLoadingScreenData.LoadingBarColor != 0)
@@ -256,6 +277,45 @@ modded class LoadingScreen
 
 			Print(ToString() + "::LoadingScreen - New progress bar: " + m_ProgressLoading.ToString());
 		}
+	}
+	
+	override void Show()
+	{
+		Widget lIcon = m_ImageBackground;
+		Widget pText = m_ProgressLoading;
+		m_ProgressText.SetText("");
+		m_ProgressLoading.SetCurrent(0.0);
+		m_ImageBackground.SetMaskProgress(0.0);
+		
+		if (!m_WidgetRoot.IsVisible())
+		{
+			if (m_DayZGame.GetUIManager().IsDialogVisible())
+			{
+				m_DayZGame.GetUIManager().HideDialog();
+			}
+			
+			if (m_DayZGame.GetMissionState() == DayZGame.MISSION_STATE_MAINMENU)
+			{
+				m_ImageLogoMid.Show(false);
+				m_ImageLogoCorner.Show(false);				
+				m_ImageWidgetBackground.Show(true);		
+				m_TextWidgetStatus.Show(true);
+			}
+			else
+			{
+				m_ImageLogoMid.Show(false);
+				m_ImageLogoCorner.Show(true);
+				m_ImageWidgetBackground.Show(true);
+				m_TextWidgetStatus.Show(false);
+			}
+			
+			m_WidgetRoot.Show(true);
+			m_TextWidgetTitle.SetText("");
+			m_TextWidgetStatus.SetText("");
+		}
+		
+		ProgressAsync.SetProgressData(pText);
+		ProgressAsync.SetUserData(lIcon);
 	}
 
 	//! Method called when loading progress has finished.
@@ -340,3 +400,4 @@ modded class LoadingScreen
 	#endif
 	}
 };
+#endif
