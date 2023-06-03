@@ -195,7 +195,7 @@ modded class Weapon_Base
 #endif
 		vector surfNormal = hitNormal * -1;
 		vector inSpeed = dir.Normalized() * speed;
-		string surface = ExpansionStatic.GetImpactSurfaceType(hitObject, hitPosition, inSpeed);
+		string surface = ExpansionStatic.GetImpactSurfaceTypeEx(hitObject, hitPosition, inSpeed);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_HandleFirearmEffects, source, hitObject, contactComponent, surface, hitPosition, surfNormal, inSpeed, ammoType);
 #endif
 	}
@@ -212,7 +212,7 @@ modded class Weapon_Base
 		rpc.Write(surfNormal);
 		rpc.Write(inSpeed);
 		rpc.Write(ammoType);
-		PlayerBase.Expansion_SendNear(rpc, ExpansionRPC.FirearmEffects, hitPosition, 1000.0, hitObject);
+		PlayerBase.Expansion_SendNear(rpc, ExpansionRPC.FirearmEffects, hitPosition, 100.0, hitObject);
 #endif
 	}
 

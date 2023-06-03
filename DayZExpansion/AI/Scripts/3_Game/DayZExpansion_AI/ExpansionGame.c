@@ -65,7 +65,7 @@ modded class ExpansionGame
 				if (!ctx.Read(ammoType))
 					break;
 				Object directHit = target;
-				string surface = ExpansionStatic.GetImpactSurfaceType(directHit, pos, inSpeed);
+				string surface = ExpansionStatic.GetImpactSurfaceTypeEx(directHit, pos, inSpeed);
 				vector exitPos;
 				vector outSpeed;
 				bool isWater = surface == "Hit_Water";

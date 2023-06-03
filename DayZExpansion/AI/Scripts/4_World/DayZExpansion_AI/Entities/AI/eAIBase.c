@@ -2105,7 +2105,10 @@ class eAIBase: PlayerBase
 				return;
 			}
 
-			StartCommand_MoveAI();
+			if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_UNCONSCIOUS)
+				StartCommand_Move();
+			else
+				StartCommand_MoveAI();
 
 			return;
 		}
@@ -3137,13 +3140,6 @@ class eAIBase: PlayerBase
 		eAI_DropItemInHands(false);
 
 		super.OnUnconsciousStart();
-	}
-
-	override void OnUnconsciousStop(int pCurrentCommandID)
-	{
-		super.OnUnconsciousStop(pCurrentCommandID);
-
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_GetUp, 3000, false, true);
 	}
 
 	void eAI_DropItemInHands(bool switchOff = true)

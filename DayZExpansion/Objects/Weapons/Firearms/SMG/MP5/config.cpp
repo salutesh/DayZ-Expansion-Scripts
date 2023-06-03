@@ -352,7 +352,17 @@ class cfgWeapons
 		model = "\DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\mp5sd.p3d";
 		ironsightsExcludingOptics[] = {"M4_CarryHandleOptic","BUISOptic","M68Optic","M4_T3NRDSOptic","ReflexOptic","ACOGOptic"};
 		attachments[] = {"Expansion_MP5ScopeRail","weaponOptics","weaponWrap"};
+		hiddenSelections[] = {"camo1","camo2"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Base.rvmat","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Chasis.rvmat"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\mp5sd_base_co.paa","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\mp5sd_chasis_co.paa"};
 		itemSize[] = {5,3};
+		recoilModifier[] = {0.8,0.8,0.8};
+		swayModifier[] = {0.85,0.85,0.85};
+		class NoiseShoot
+		{
+			strength = 5;
+			type = "sound";
+		};
 		class SemiAuto: Mode_SemiAuto
 		{
 			soundSetShot[] = {"MP5K_silencerPro_SoundSet","MP5K_silencerTail_SoundSet","MP5K_silencerInteriorTail_SoundSet"};
@@ -445,8 +455,8 @@ class cfgWeapons
 			{
 				class Health
 				{
-					hitpoints = 125;
-					healthLevels[] = {{1.0,{"DZ\weapons\firearms\MP5\data\mp5k_body.rvmat"}},{0.7,{"DZ\weapons\firearms\MP5\data\mp5k_body.rvmat"}},{0.5,{"DZ\weapons\firearms\MP5\data\mp5k_body_damage.rvmat"}},{0.3,{"DZ\weapons\firearms\MP5\data\mp5k_body_damage.rvmat"}},{0.0,{"DZ\weapons\firearms\MP5\data\mp5k_body_destruct.rvmat"}}};
+					hitpoints = 225;
+					healthLevels[] = {{1.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Base.rvmat","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Chasis.rvmat"}},{0.7,{"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Base.rvmat","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Chasis.rvmat"}},{0.5,{"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Base_damage.rvmat","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Chasis_damage.rvmat"}},{0.3,{"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Base_damage.rvmat","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Chasis_damage.rvmat"}},{0.0,{"DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Base_destruct.rvmat","DayZExpansion\Objects\Weapons\Firearms\SMG\MP5\data\MP5SD_Chasis_destruct.rvmat"}}};
 				};
 			};
 		};
@@ -464,7 +474,7 @@ class cfgVehicles
 		rotationFlags = 17;
 		reversed = 0;
 		weight = 330;
-		itemSize[] = {1,2};
+		itemSize[] = {2,1};
 		inventorySlot = "Expansion_MP5ScopeRail";
 		class DamageSystem
 		{
