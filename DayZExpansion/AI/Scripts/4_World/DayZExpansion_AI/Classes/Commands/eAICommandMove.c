@@ -681,7 +681,13 @@ class eAICommandMove: ExpansionHumanCommandScript
 		//! Clockwise: Positive, counter-clockwise: Negative
 		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
 
-		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal;
+		bool isFollowingFormation = m_Unit.GetFSM().IsInState("FollowFormation");
+
+		DayZPlayerImplement leader;
+		if (isFollowingFormation)
+			leader = m_Unit.GetGroup().GetLeader();
+
+		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal && (!isFollowingFormation || leader.Expansion_GetMovementSpeed() == 0.0);
 		if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
@@ -692,17 +698,25 @@ class eAICommandMove: ExpansionHumanCommandScript
 		}
 		else if (!m_SpeedOverrider)
 		{
-			auto state = m_Unit.GetFSM().GetState();
 			float distanceFactor = 4.0;
-			if ((state && state.GetName() == "FollowFormation") || (m_Unit.GetThreatToSelf() > 0.4 && m_Unit.eAI_HasLOS()))
+			if (isFollowingFormation || (m_Unit.GetThreatToSelf() > 0.4 && m_Unit.eAI_HasLOS()))
 				distanceFactor = 0.5;
+			float targetSpeed;
 			if (isFinal && m_WayPointDistance < 2.0 * distanceFactor)
 			{
-				SetTargetSpeed(1.0);
+				if (isFollowingFormation)
+					targetSpeed = leader.Expansion_GetMovementSpeed();
+				else
+					targetSpeed = 1.0;
+				SetTargetSpeed(Math.Lerp(m_MovementSpeed, targetSpeed, pDt * 2.0));
 			}
 			else if (isFinal && m_WayPointDistance < 5.0 * distanceFactor)
 			{
-				SetTargetSpeed(2.0);
+				if (isFollowingFormation)
+					targetSpeed = leader.Expansion_GetMovementSpeed();
+				else
+					targetSpeed = 2.0;
+				SetTargetSpeed(Math.Lerp(m_MovementSpeed, targetSpeed, pDt * 2.0));
 			}
 			else
 			{

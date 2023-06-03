@@ -149,11 +149,11 @@ class ExpansionChatLineBase: ExpansionScriptView
 		{
 			if (!word.Contains("#"))
 			{
-				while (word.Length() > maxWordCharacters)
+				while (word.LengthUtf8() > maxWordCharacters)
 				{
 					//! @note have to use RichTextWidget and `<wbr />` tag because there is no support for zero-width space
-					messageText += word.Substring(0, maxWordCharacters) + "<wbr />";
-					word = word.Substring(maxWordCharacters, word.Length() - maxWordCharacters);
+					messageText += word.SubstringUtf8(0, maxWordCharacters) + "<wbr />";
+					word = word.SubstringUtf8(maxWordCharacters, word.LengthUtf8() - maxWordCharacters);
 				}
 			}
 			messageText += word + " ";

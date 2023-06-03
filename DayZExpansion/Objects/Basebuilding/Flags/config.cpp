@@ -264,6 +264,21 @@ class CfgVehicles
 		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_finland_co.paa"};
 	};
 	class Expansion_Flag_Finnish: Expansion_Flag_Finland{};
+	class Expansion_Flag_Argentina: Flag_Base
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_argentina_co.paa"};
+	};
+	class Expansion_Flag_Turkey: Flag_Base
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_turkey_co.paa"};
+	};
+	class Expansion_Flag_Ukraine: Flag_Base
+	{
+		scope = 2;
+		hiddenSelectionsTextures[] = {"\DayZExpansion\Objects\Structures\Flags\data\countries\flag_ukraine_co.paa"};
+	};
 	class Expansion_Flag_DayZWhite: Flag_Base
 	{
 		scope = 2;
