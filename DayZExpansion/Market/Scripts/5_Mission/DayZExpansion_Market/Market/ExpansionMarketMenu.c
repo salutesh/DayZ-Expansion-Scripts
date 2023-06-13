@@ -572,7 +572,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 		
-		bool includeAttachments = m_SelectedMarketItemElement && m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0;
+		bool includeAttachments;
+		if (m_SelectedMarketItemElement && m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0)
+			includeAttachments = true;
 
 		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
 		{
@@ -2338,7 +2340,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			dialogData.ClassName = GetSelectedMarketItem().ClassName;
 			dialogData.Amount = m_Quantity;
 			dialogData.Price = m_BuyPrice;
-			dialogData.IncludeAttachments = m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0;
+			if (m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0)
+				dialogData.IncludeAttachments = true;
 			
 			m_PurchaseDialog = new ExpansionMenuDialog_MarketConfirmPurchase(this, dialogData);
 			m_PurchaseDialog.Show();
