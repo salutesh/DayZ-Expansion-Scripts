@@ -78,4 +78,12 @@ modded class ZombieBase
 		if (m_Expansion_NetsyncData)
 			m_Expansion_NetsyncData.OnRPC(sender, rpc_type, ctx);
 	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
+			ExpansionDamageSystem.OnExplosionHit(source, this, ammo, true, damageResult);
+	}
 }

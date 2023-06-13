@@ -79,7 +79,7 @@ class ExpansionAirdropContainerManager
 
 	void KillSingleInfected( Object infected )
 	{
-		if ( infected )
+		if ( infected && infected.IsAlive() )
 		{
 			//! Only kill if not currently chasing/fighting
 
@@ -111,7 +111,7 @@ class ExpansionAirdropContainerManager
 				infected.SetHealth( 0 );
 
 				//! Remove dead body shortly after
-				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( RemoveSingleInfected, 3000, false, infected );
+				GetGame().GetCallQueue( CALL_CATEGORY_SYSTEM ).CallLater( DeleteSingleInfected, 3000, false, infected );
 			}
 		}
 
@@ -136,9 +136,9 @@ class ExpansionAirdropContainerManager
 		}
 	}
 
-	void RemoveSingleInfected( Object infected )
+	void DeleteSingleInfected( Object infected )
 	{
-		Print("ExpansionAirdropContainerManager::RemoveSingleInfected");
+		Print("ExpansionAirdropContainerManager::DeleteSingleInfected");
 
 		if ( infected )
 			GetGame().ObjectDelete( infected );

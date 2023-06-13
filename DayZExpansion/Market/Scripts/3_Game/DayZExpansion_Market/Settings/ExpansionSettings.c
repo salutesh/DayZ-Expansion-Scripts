@@ -18,6 +18,11 @@ modded class ExpansionSettings
 	{
 		super.Init();
 
+	#ifdef EXPANSIONMODHARDLINE
+		//! Need to load hardline before market so we have access to rarity for market items
+		Init(ExpansionHardlineSettings);
+	#endif
+
 		Init(ExpansionMarketSettings);
 	}
 

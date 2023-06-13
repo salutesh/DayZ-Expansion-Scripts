@@ -6,5 +6,8 @@ modded class ActionConstructor
 
 		actions.Insert(eAIActionWeaponControl);
 		actions.Insert(eAIActionWeaponUnjam);
+
+		actions.Insert(ExpansionActionRecruitAI);
+		actions.Insert(ExpansionActionDismissAI);
 	}
 };

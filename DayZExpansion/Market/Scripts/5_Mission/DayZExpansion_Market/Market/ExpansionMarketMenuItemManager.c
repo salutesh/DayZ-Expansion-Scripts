@@ -373,7 +373,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 			string classNameToLower = attachment;
 			classNameToLower.ToLower();
 			
-			ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem(classNameToLower);
+			ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem(classNameToLower);
 			if (marketItem)
 			{
 				ExpansionMarketModule marketModule =  ExpansionMarketModule.Cast(CF_ModuleCoreManager.Get(ExpansionMarketModule));
@@ -563,7 +563,7 @@ class ExpansionMarketMenuItemManager: ExpansionScriptView
 	
 	void CreateNotification(string text)
 	{
-		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", text, EXPANSION_NOTIFICATION_ICON_T_Gun, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create();
+		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", text, EXPANSION_NOTIFICATION_ICON_T_Gun, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.MARKET).Create();
 	}
 	
 	void CreateErrorNotification(string text)

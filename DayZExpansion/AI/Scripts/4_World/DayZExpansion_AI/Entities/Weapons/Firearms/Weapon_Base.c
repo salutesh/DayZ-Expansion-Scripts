@@ -184,10 +184,11 @@ modded class Weapon_Base
 		//! Under 1.21+, call FirearmEffects the same way vanilla would (source = weapon on server, NULL on client)
 
 		DayZPlayerImplement player;
-		if (Class.CastTo(player, hitObject) && !player.Expansion_CanBeDamaged())
+		if (Class.CastTo(player, hitObject) && !player.Expansion_CanBeDamaged(ammoType))
 			return;
 
-		EXTrace.Print(true, this, "::EEFired hit " + hitObject);
+		if (EXTrace.AI)
+			EXPrint(this, "::EEFired hit " + hitObject);
 
 		Object source;
 #ifdef SERVER

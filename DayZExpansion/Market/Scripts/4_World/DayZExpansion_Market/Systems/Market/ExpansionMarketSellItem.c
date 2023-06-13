@@ -249,7 +249,7 @@ class ExpansionMarketSellDebugItem
 		if (!sellItem || !zone)
 			return;
 
-		ExpansionMarketItem item = GetExpansionSettings().GetMarket().GetItem(sellItem.ClassName);
+		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(sellItem.ClassName);
 		if (!item)
 			return;
 

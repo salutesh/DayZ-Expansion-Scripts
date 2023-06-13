@@ -54,13 +54,7 @@ class ExpansionActionOpenATMMenu: ActionInteractBase
 	override void OnStartServer(ActionData action_data)
 	{
 		super.OnStartServer(action_data);
-	}
 		
-	override void OnStartClient(ActionData action_data)
-	{
-		super.OnStartClient(action_data);
-		
-		m_MarketModule.RequestPlayerATMData();
-		m_MarketModule.OpenATMMenu();
+		m_MarketModule.SendPlayerATMData(action_data.m_Player.GetIdentity());
 	}
 }

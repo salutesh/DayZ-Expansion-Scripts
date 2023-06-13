@@ -542,4 +542,49 @@ class ExpansionMath
 	{
 		return (p2[0] - p1[0]) * (p[2] - p1[2]) - (p2[2] - p1[2]) * (p[0] - p1[0]);
 	}
+
+	//! @brief Test if a + b would overflow
+	//! @note despite naming, we test for both over- and underflow
+	static bool TestAdditionOverflow(int a, int b)
+	{
+		return ((b > 0 && a > int.MAX - b) || (b < 0 && a < int.MIN - b));
+	}
+
+	//! @brief Test if a - b would overflow
+	//! @note despite naming, we test for both over- and underflow
+	static bool TestSubtractionOverflow(int a, int b)
+	{
+		return ((b < 0 && a > int.MAX + b) || (b > 0 && a < int.MIN + b));
+	}
+
+	//! @brief Test if a * b would overflow
+	//! @note despite naming, we test for both over- and underflow
+	static bool TestMultiplicationOverflow(int a, int b)
+	{
+		if ((a == -1 && b == int.MIN) || (b == -1 && a == int.MIN))
+			return true;
+
+		if ((b != 0 && a > (int) int.MAX / b) || (b != 0 && a < (int) int.MIN / b))
+			return true;
+
+		return false;
+	}
+
+	static vector Direction2D(vector p1, vector p2)
+	{
+		p1[1] = p2[1];
+		return vector.Direction(p1, p2);
+	}
+
+	static float Distance2D(vector p1, vector p2)
+	{
+		p1[1] = p2[1];
+		return vector.Distance(p1, p2);
+	}
+
+	static float Distance2DSq(vector p1, vector p2)
+	{
+		p1[1] = p2[1];
+		return vector.DistanceSq(p1, p2);
+	}
 }

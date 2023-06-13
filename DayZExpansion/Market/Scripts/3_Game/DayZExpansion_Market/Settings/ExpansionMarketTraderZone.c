@@ -241,7 +241,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		item.AttachmentIDs = new array< int >;
 		foreach (string className: tItem.MarketItem.SpawnAttachments)
 		{
-			ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(className);
+			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(className);
 			if (attachment)
 				item.AttachmentIDs.Insert(attachment.ItemID);
 			else
@@ -288,7 +288,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 		
 		className.ToLower();
 
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className, false );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className, false );
 		if ( !marketItem )
 		{
 			#ifdef EXPANSIONMODMARKET_DEBUG
@@ -337,7 +337,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 
 		className.ToLower();
 
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className );
 		if ( !marketItem )
 			return;
 
@@ -381,7 +381,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 	
 		className.ToLower();
 
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className );
 		if ( !marketItem )
 			return;
 		
@@ -477,7 +477,7 @@ class ExpansionMarketTraderZone: ExpansionMarketTraderZoneBase
 			TStringArray toRemove = new TStringArray;
 			foreach (string className, int stock : Stock)
 			{
-				ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
+				ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className );
 				if ( !marketItem )
 				{
 					toRemove.Insert(className);

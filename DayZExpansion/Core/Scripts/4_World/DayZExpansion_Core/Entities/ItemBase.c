@@ -581,7 +581,7 @@ modded class ItemBase
 			//! Note that this only works as intended if damage source root is not a player,
 			//! else won't be able to get actual source's position in relation to target
 
-			if (source && !source.GetHierarchyRootPlayer())
+			if (!GetHierarchyParent() && source && !source.GetHierarchyRootPlayer())
 			{
 				float baseDmg = ExpansionDamageSystem.GetExplosionDamage(source, this, ammo);
 				if (baseDmg > dmg)
@@ -617,10 +617,10 @@ modded class ItemBase
 
 		if (root != this)
 		{
-			PlayerBase player;
+			DayZPlayerImplement player;
 			if (Class.CastTo(player, root))
 			{
-				if (!player.Expansion_CanBeDamaged())
+				if (!player.Expansion_CanBeDamaged(ammo))
 					return false;
 			}
 			else

@@ -1,6 +1,6 @@
 modded class Environment
 {
-	void Expansion_GetWeatherVisibility(out float fogVisibility, out float overcastVisibility, out float rainVisibility, out float daylightVisibility)
+	void Expansion_GetWeatherVisibility(out float fogVisibility, out float overcastVisibility, out float rainVisibility)
 	{
 		//! At 100% fog, visibility is around 50 m
 		//! At 50% fog, visibility is roughly 460 m
@@ -11,7 +11,5 @@ modded class Environment
 
 		//! At 100% rain, visibility is around 500 m
 		rainVisibility = 1.0 - m_Rain * 0.5;
-
-		daylightVisibility = m_DayOrNight;  //! 0/1 Night/Day
 	}
 }

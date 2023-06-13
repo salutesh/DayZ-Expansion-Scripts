@@ -21,10 +21,7 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 
 	void ExpansionTraderNPCBase()
 	{
-		if (IsMissionHost())
-		{
-			SetAllowDamage(false);
-		}
+		Expansion_SetAllowDamage(false);
 
 		m_allTraders.Insert(this);
 
@@ -642,14 +639,12 @@ class ExpansionTraderAIBase: eAIBase
 	
 	override void Expansion_Init()
 	{
+	#ifdef EXPANSIONMODAI
 		if (GetGame().IsServer())
-		{
-		#ifdef EXPANSIONMODAI
 			m_eAI_FactionType = eAIFactionInvincibleObservers;
-		#else
-			SetAllowDamage(false);
-		#endif
-		}
+	#else
+		Expansion_SetAllowDamage(false);
+	#endif
 
 		super.Expansion_Init();
 	}

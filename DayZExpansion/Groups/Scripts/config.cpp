@@ -16,6 +16,7 @@ class CfgMods
 	{
 		dir = "DayZExpansion/Groups";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
+		inputs = "DayZExpansion/Groups/Scripts/Data/Inputs.xml";
 		extra = 0;
 		type = "mod";
 		name = "DayZ Expansion - Groups";

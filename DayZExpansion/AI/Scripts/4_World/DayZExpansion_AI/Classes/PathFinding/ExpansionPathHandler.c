@@ -18,6 +18,7 @@ class ExpansionPathHandler
 	bool m_OverridingPosition;
 
 	int m_Count;
+	int m_PrevCount;
 	ref ExpansionPathPoint m_Next0;
 	ref ExpansionPathPoint m_Next1;
 
@@ -25,6 +26,7 @@ class ExpansionPathHandler
 
 	ref array<ref ExpansionPathPoint> m_Path = new array<ref ExpansionPathPoint>();
 	ref array<vector> m_Points = new array<vector>();
+	int m_PointIdx;
 
 	bool m_Recalculate;
 
@@ -240,11 +242,11 @@ class ExpansionPathHandler
 
 	void DrawDebug()
 	{
-#ifdef DIAG
 #ifdef EAI_TRACE
 		auto trace = CF_Trace_0(this, "DrawDebug");
 #endif
 
+#ifdef DIAG
 		ExpansionNavMesh navMesh = m_Current.NavMesh;
 		Object parent = m_Current.Parent;
 		if (!navMesh)
@@ -257,6 +259,7 @@ class ExpansionPathHandler
 		{
 			navMesh.DrawDebug(parent);
 		}
+#endif
 
 #ifdef EAI_DEBUG_PATH
 #ifndef SERVER
@@ -331,7 +334,23 @@ class ExpansionPathHandler
 			m_Unit.AddShape(Shape.CreateLines(0xAAFF0000, ShapeFlags.VISIBLE | ShapeFlags.NOZBUFFER | ShapeFlags.TRANSP, points, 2));
 			*/
 		}
-#endif
+#else
+		if (m_PointIdx >= m_Count)
+			m_PointIdx = 0;
+
+		vector origin;
+		if (m_PointIdx > 0)
+			origin = m_Points[m_PointIdx - 1];
+
+		if (m_Count)
+			m_Unit.Expansion_DebugObject(11111 + m_PointIdx, m_Points[m_PointIdx++], "ExpansionDebugConeSmall_White", vector.Zero, origin, 3, ShapeFlags.NOZBUFFER);
+
+		for (int i = m_PrevCount - 1; i > m_Count - 1; i--)
+		{
+			m_Unit.Expansion_DeleteDebugObject(11111 + i);
+		}
+
+		m_PrevCount = m_Count;
 #endif
 #endif
 	}
@@ -342,30 +361,26 @@ class ExpansionPathHandler
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
 
 		auto hitch = EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
+
+		if (m_Recalculate && EXTrace.AI)
+			EXPrint(m_Unit, ToString() + "::OnUpdate - m_Recalculate true");
 #endif
 
 		m_Time += pDt;
 
-		//SetPathFilter();
-
 		vector unitPosition = m_Unit.GetPosition();
 		vector unitDirection = m_Unit.GetDirection();
-		vector unitVelocity = GetVelocity(m_Unit);
 
 		vector targetPosition = m_TargetReference.GetPosition();
 
 		bool recalculate = m_Recalculate;
-		bool recalculateFromNext = false;
-
-//#ifdef DIAG
-		//recalculate = true;
-//#endif
 
 		int i;
 
 		if (pSimulationPrecision < 0)
 		{
 			recalculate = true;
+			//EXPrint(m_Unit, "recalculating because pSimulationPrecision < 0");
 
 			// HACK FIX for recalculating while climbing
 
@@ -384,19 +399,17 @@ class ExpansionPathHandler
 		if (!recalculate && m_Time >= ((pSimulationPrecision + 1.0) * 2.0))
 		{
 			recalculate = vector.DistanceSq(unitPosition, targetPosition) > 0.5;
+			//if (recalculate)
+				//EXPrint(m_Unit, "recalculating because dstSq to target ref > 0.5");
 		}
 
 		if (!recalculate && m_Count >= 1)
 		{
-			vector next0Position = m_Next0.GetPosition();
-
-			float d0 = vector.DistanceSq(unitPosition, next0Position);
-			float d1 = vector.DistanceSq(unitPosition + unitVelocity, next0Position);
-			if (d0 < d1)
+			vector unitVelocity = GetVelocity(m_Unit);
+			if (unitVelocity.LengthSq() > 0.0)
 			{
 				recalculate = true;
-
-				//recalculateFromNext
+				//EXPrint(m_Unit, "recalculating because velocity > 0.01, value " + unitVelocity);
 			}
 		}
 
@@ -480,9 +493,11 @@ class ExpansionPathHandler
 
 						m_Target.FindPathFrom(closestPositionOnAttachment, this, m_Points);
 
+#ifdef EAI_DEBUG_PATH
 						m_Path.RemoveOrdered(m_Count);
 
 						m_Path.Invert();
+#endif
 						m_Points.Invert();
 
 						m_Points.Remove(m_Points.Count() - 1);
@@ -541,13 +556,31 @@ class ExpansionPathHandler
 
 				if (m_Unit.AI_HANDLEVAULTING && !m_Next0.Parent && !m_Next1.Parent)
 				{
+					/**
+					 * Vanilla FindPath sometimes places fixed points around some vaultable objects even if AI is already closer to p2 than p1,
+					 * we need to deal with this so GetNext works correctly.
+					 * 
+					 *      x         <-- fixed point p1
+					 *      v         <-- AI moving towards p2
+					 * ------------   <-- vaultable object, e.g. a fence
+					 * 
+					 *      x         <-- fixed point p2
+					 */
+
 					vector hitPos, hitNormal;
 					if (IsBlocked(m_Next0.Position, m_Next1.Position, hitPos, hitNormal))
 					{
 						//! Move the waypoint closer to target to entice the AI to vault if possible
 						//! (otherwise might get stuck at e.g. wall_woodf_5.p3d which is easily vaultable)
 						if (vector.DistanceSq(hitPos, m_Next1.Position) < vector.DistanceSq(m_Next0.Position, m_Next1.Position))
-							m_Next0.Position = hitPos - vector.Direction(hitPos, m_Next0.Position).Normalized() * 0.5;
+						{
+							vector corrected = hitPos - vector.Direction(hitPos, m_Next0.Position).Normalized() * 0.5;
+						#ifdef DIAG
+							if (EXTrace.AI)
+								EXPrint(m_Unit, m_Count.ToString() + " total points, [1] " + m_Next0.Position + ", hitpos " + hitPos + ", corrected " + corrected + ", [2] " + m_Next1.Position);
+						#endif
+							m_Next0.Position = corrected;
+						}
 					}
 				}
 			}
@@ -566,6 +599,8 @@ class ExpansionPathHandler
 
 			//Print(F_STATE);
 			//Print(P_STATE);
+
+			m_Recalculate = false;
 		}
 
 		if (m_Count == 2)
@@ -573,6 +608,7 @@ class ExpansionPathHandler
 			UpdatePoint(m_Next0, m_TargetReference.GetPosition());
 		}
 
+#ifdef EAI_DEBUG_PATH
 		if (m_Path.Count() < 3)
 		{
 			m_Path.Resize(3);
@@ -601,6 +637,7 @@ class ExpansionPathHandler
 		{
 			m_Path[i].UpdateFlags(this);
 		}
+#endif
 
 #ifdef DIAG
 		DrawDebug();

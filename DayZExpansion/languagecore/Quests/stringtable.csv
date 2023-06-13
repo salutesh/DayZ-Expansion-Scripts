@@ -1,4 +1,6 @@
 LANGUAGE,ORIGINAL,ENGLISH,CZECH,GERMAN,RUSSIAN,POLISH,HUNGARIAN,ITALIAN,SPANISH,FRENCH,CHINESE,PORTUGUESE,JAPANESE,CHINESESIMP,
+STR_EXPANSION_QUEST,Quest,Quest,Quest,Quest,Quest,Quest,Quest,Quest,Quest,Quête,Quest,Quest,Quest,Quest,
+STR_EXPANSION_QUEST_REQUIRED_TRADER,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,You must finish the quest %1 first.,
 STR_EXPANSION_QUEST_ACCEPTED,Quest accepted!,Quest accepted!,Úkol přijat!,Aufgabe angenommen!,Задание принято!,Misja przyjęta!,Quest accepted!,Missione Accettata!,Misión aceptada,Quête acceptée !,Quest accepted!,Missão aceita!,Quest accepted!,接受任务！,
 STR_EXPANSION_QUEST_ACTION_READ,Read,Read,Read,Lese,Прочитать,Read,Read,Leggi,Read,Lire,Read,Read,Read,阅读,
 STR_EXPANSION_QUEST_ACTION_TALK,Talk to,Talk to,Talk to,Spreche mit,Поговорите с,Talk to,Talk to,Parla a,Talk to,Parler à,Talk to,Talk to,Talk to,交谈,

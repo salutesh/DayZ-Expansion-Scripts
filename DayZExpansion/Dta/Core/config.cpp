@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class DayZExpansion_Dta_Core
 	{
-		units[] = {"ExpansionPickup","ExpansionPickupCone","ExpansionDebugCone","ExpansionDebugConeSmall","ExplosionPoint","ExplosionSmall","ExpansionNPCDenis","ExpansionNPCBoris","ExpansionNPCCyril","ExpansionNPCElias","ExpansionNPCFrancis","ExpansionNPCGuo","ExpansionNPCHassan","ExpansionNPCIndar","ExpansionNPCJose","ExpansionNPCKaito","ExpansionNPCLewis","ExpansionNPCManua","ExpansionNPCNiki","ExpansionNPCOliver","ExpansionNPCPeter","ExpansionNPCQuinn","ExpansionNPCRolf","ExpansionNPCSeth","ExpansionNPCTaiki","ExpansionNPCLinda","ExpansionNPCMaria","ExpansionNPCFrida","ExpansionNPCGabi","ExpansionNPCHelga","ExpansionNPCIrena","ExpansionNPCJudy","ExpansionNPCKeiko","ExpansionNPCEva","ExpansionNPCNaomi","ExpansionNPCBaty","ExpansionSoldierMirek","ExpansionSoldierDenis","ExpansionSoldierBoris","ExpansionSoldierCyril","ExpansionSoldierElias","ExpansionSoldierFrancis","ExpansionSoldierGuo","ExpansionSoldierHassan","ExpansionSoldierIndar","ExpansionSoldierJose","ExpansionSoldierKaito","ExpansionSoldierLewis","ExpansionSoldierManua","ExpansionSoldierNiki","ExpansionSoldierOliver","ExpansionSoldierPeter","ExpansionSoldierQuinn","ExpansionSoldierRolf","ExpansionSoldierSeth","ExpansionSoldierTaiki","ExpansionSoldierLinda","ExpansionSoldierMaria","ExpansionSoldierFrida","ExpansionSoldierGabi","ExpansionSoldierHelga","ExpansionSoldierIrena","ExpansionSoldierJudy","ExpansionSoldierKeiko","ExpansionSoldierEva","ExpansionSoldierNaomi","ExpansionSoldierBaty","ExpansionSoldier2Mirek","ExpansionSoldier2Denis","ExpansionSoldier2Boris","ExpansionSoldier2Cyril","ExpansionSoldier2Elias","ExpansionSoldier2Francis","ExpansionSoldier2Guo","ExpansionSoldier2Hassan","ExpansionSoldier2Indar","ExpansionSoldier2Jose","ExpansionSoldier2Kaito","ExpansionSoldier2Lewis","ExpansionSoldier2Manua","ExpansionSoldier2Niki","ExpansionSoldier2Oliver","ExpansionSoldier2Peter","ExpansionSoldier2Quinn","ExpansionSoldier2Rolf","ExpansionSoldier2Seth","ExpansionSoldier2Taiki","ExpansionSoldier2Linda","ExpansionSoldier2Maria","ExpansionSoldier2Frida","ExpansionSoldier2Gabi","ExpansionSoldier2Helga","ExpansionSoldier2Irena","ExpansionSoldier2Judy","ExpansionSoldier2Keiko","ExpansionSoldier2Eva","ExpansionSoldier2Naomi","ExpansionSoldier2Baty"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Vehicles_Wheeled","DZ_Characters","DZ_Scripts","DZ_AI"};
@@ -373,20 +373,6 @@ class CfgVehicles
 	{
 		scope = 2;
 		model = "\DayZExpansion\Dta\Core\cone.p3d";
-	};
-	class ExpansionDebugCone: HouseNoDestruct
-	{
-		scope = 2;
-		model = "\DayZExpansion\Dta\Core\cone.p3d";
-		hiddenSelections[] = {"body"};
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,0.5,co)"};
-	};
-	class ExpansionDebugConeSmall: HouseNoDestruct
-	{
-		scope = 2;
-		model = "\DayZExpansion\Dta\Core\coneSmall.p3d";
-		hiddenSelections[] = {"body"};
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,0.5,co)"};
 	};
 	class ExplosionPoint: HouseNoDestruct
 	{

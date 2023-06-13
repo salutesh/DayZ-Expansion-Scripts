@@ -488,7 +488,13 @@ enum ExpansionAutoRunRPC
 #ifdef JM_COT
 enum Expansion_JMPlayerModuleRPC : JMPlayerModuleRPC
 {
+	// Hardline
 	SetReputation,
+
+	// AI
+	SetFaction,
+
+	// Personal Storage
 	RetriveEntityStorageObj,
 	EX_COUNT
 };

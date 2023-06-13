@@ -20,10 +20,12 @@ modded class DayZPlayerImplement
 
 	protected bool m_Expansion_IsInSafeZone;
 	protected bool m_Expansion_IsInSafeZone_DeprecationWarning;
+	protected bool m_Expansion_IsInSafeZoneSynchRemote;
 
 	ref ExpansionNetsyncData m_Expansion_NetsyncData;
 
 	ref map<string, bool> m_Expansion_DisabledAmmoDamage = new map<string, bool>;
+	bool m_Expansion_AllowDamage = true;
 
 	vector m_Expansion_HeadBonePositionMS;
 	float m_Expansion_HeadBoneIdleTime;
@@ -58,6 +60,7 @@ modded class DayZPlayerImplement
 
 	void Expansion_Init()
 	{
+		RegisterNetSyncVariableBool("m_Expansion_IsInSafeZoneSynchRemote");
 	}
 
 	bool Expansion_HasAdminToolGodMode()
@@ -79,6 +82,11 @@ modded class DayZPlayerImplement
 		if (type == ExpansionZoneType.SAFE)
 		{
 			m_Expansion_IsInSafeZone = true;
+
+		#ifdef SERVER
+			m_Expansion_IsInSafeZoneSynchRemote = true;
+			SetSynchDirty();
+		#endif
 		}
 	}
 
@@ -91,6 +99,35 @@ modded class DayZPlayerImplement
 		if (type == ExpansionZoneType.SAFE)
 		{
 			m_Expansion_IsInSafeZone = false;
+
+		#ifdef SERVER
+			m_Expansion_IsInSafeZoneSynchRemote = false;
+			SetSynchDirty();
+		#endif
+		}
+	}
+	
+	// ------------------------------------------------------------
+	// Expansion OnVariablesSynchronized
+	// ------------------------------------------------------------
+	override void OnVariablesSynchronized()
+	{
+#ifdef EXPANSIONTRACE
+		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnVariablesSynchronized");
+#endif
+
+		super.OnVariablesSynchronized();
+		
+		if (!GetGame().IsClient())
+			return;
+
+		if ( m_Expansion_IsInSafeZoneSynchRemote && !m_Expansion_IsInSafeZone )
+		{
+			OnEnterZone(ExpansionZoneType.SAFE);
+		} 
+		else if ( !m_Expansion_IsInSafeZoneSynchRemote && m_Expansion_IsInSafeZone )
+		{
+			OnExitZone(ExpansionZoneType.SAFE);
 		}
 	}
 
@@ -105,9 +142,29 @@ modded class DayZPlayerImplement
 		return m_Expansion_IsInSafeZone;
 	}
 
-	bool Expansion_CanBeDamaged()
+	//! Netsynced version of SetAllowDamage
+	void Expansion_SetAllowDamage(bool state)
 	{
-		return !m_Expansion_IsInSafeZone && GetAllowDamage();
+		if (GetGame().IsServer())
+			SetAllowDamage(state);
+		else
+			m_Expansion_AllowDamage = state;
+	}
+
+	void Expansion_SetAllowDamageEx(string ammoType, bool state)
+	{
+		//! @note State is inverted so we can easily check m_Expansion_DisabledAmmoDamage[ammoType] to see whether it's disabled
+		m_Expansion_DisabledAmmoDamage[ammoType] = !state;
+	}
+
+	bool Expansion_CanBeDamaged(string ammo = string.Empty)
+	{
+		bool canBeDamaged;
+		if (GetGame().IsServer())
+			canBeDamaged = GetAllowDamage();
+		else
+			canBeDamaged = m_Expansion_AllowDamage;
+		return canBeDamaged && !m_Expansion_IsInSafeZone && !m_Expansion_DisabledAmmoDamage[ammo];
 	}
 
 	void Expansion_SetCanBeLooted(bool canBeLooted)
@@ -120,24 +177,20 @@ modded class DayZPlayerImplement
 		return m_Expansion_CanBeLooted;
 	}
 
-	void Expansion_SetAllowDamage(string ammoType, bool state)
-	{
-		//! @note State is inverted so we can easily check m_Expansion_DisabledAmmoDamage[ammoType] to see whether it's disabled
-		m_Expansion_DisabledAmmoDamage[ammoType] = !state;
-	}
-
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
 			return false;
 
-		if (!Expansion_CanBeDamaged())
-			return false;
+		return Expansion_CanBeDamaged(ammo);
+	}
 
-		if (m_Expansion_DisabledAmmoDamage[ammo])
-			return false;
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		return true;
+		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
+			ExpansionDamageSystem.OnExplosionHit(source, this, ammo, true, damageResult);
 	}
 
 	override void EEKilled(Object killer)
@@ -225,14 +278,14 @@ modded class DayZPlayerImplement
 		return 0.0;
 	}
 
-	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
+	void Expansion_DebugObject_Deferred(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_DebugObject, 1, false, i, position, type, direction, origin, lifetime, flags);
 #endif
 	}
 
-	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero)
+	void Expansion_DebugObject(int i, vector position, string type = "ExpansionDebugBox", vector direction = vector.Zero, vector origin = vector.Zero, float lifetime = 300.0, int flags = 0)
 	{
 #ifdef DIAG
 		if (!m_Expansion_DebugObjects[i])
@@ -240,7 +293,7 @@ modded class DayZPlayerImplement
 			m_Expansion_DebugObjects[i] = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
 			EntityAI ent;
 			if (Class.CastTo(ent, m_Expansion_DebugObjects[i]))
-				ent.SetLifetime(300);
+				ent.SetLifetime(lifetime);
 		}
 		else
 		{
@@ -256,9 +309,21 @@ modded class DayZPlayerImplement
 		{
 			ExpansionDebugObject obj;
 			if (Class.CastTo(obj, m_Expansion_DebugObjects[i]))
+			{
 				obj.Expansion_DrawDebugLine(origin);
+				obj.Expansion_SetDebugLineFlags(flags);
+			}
 		}
 #endif
+	}
+
+	void Expansion_DeleteDebugObject(int i)
+	{
+		Object obj = m_Expansion_DebugObjects[i];
+		if (obj)
+			GetGame().ObjectDelete(obj);
+
+		m_Expansion_DebugObjects.Remove(i);
 	}
 
 	void Expansion_DeleteDebugObjects()
@@ -267,6 +332,8 @@ modded class DayZPlayerImplement
 		{
 			GetGame().ObjectDelete(obj);
 		}
+
+		m_Expansion_DebugObjects.Clear();
 	}
 
 	//! Uses head/barrel to determine direction, can be used on server

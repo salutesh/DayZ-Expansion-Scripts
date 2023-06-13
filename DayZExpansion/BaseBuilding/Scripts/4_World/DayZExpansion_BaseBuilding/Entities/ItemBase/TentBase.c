@@ -159,19 +159,6 @@ modded class TentBase
 
 		auto ctx = storage[DZ_Expansion_BaseBuilding];
 		if (!ctx) return;
-		
-		//! TODO: After DayZ 1.16 and CF 1.4 release, do no longer write this unneeded data.
-		//! Cannot bump Expansion save version right now because it would break storages that are using CF-Test
-		if ( EXPANSION_VERSION_CURRENT_SAVE >= 40 )
-			return;
-
-		ctx.Write(false);
-		ctx.Write(false);
-		ctx.Write(false);
-		ctx.Write(false);
-		ctx.Write(false);
-		ctx.Write(false);
-		ctx.Write(false);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)

@@ -4,11 +4,10 @@ class CfgPatches
 {
 	class DayZExpansion_BaseBuilding_Objects_Explosives
 	{
-		units[] = {"Expansion_C4_Explosion"};
+		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		ammo[] = {"ExpansionC4_Ammo"};
 	};
 };
 class CfgAmmo

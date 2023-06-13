@@ -110,7 +110,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		TStringArray currentAttachments = GetMarketItem().SpawnAttachments;
 
 		if (className)
-			m_Variant = GetExpansionSettings().GetMarket().GetItem(className);
+			m_Variant = ExpansionMarketCategory.GetGlobalItem(className);
 		else
 			m_Variant = NULL;
 
@@ -276,7 +276,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachmentName, parent, m_CurrentSelectedSkinIndex);
 			if (attachmentEntity && level < 3)
 			{
-				ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
+				ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName, false);
 				if (attachment)
 					SpawnAttachments(attachment, attachmentEntity, level + 1);
 			}

@@ -125,8 +125,7 @@ class eAIInventoryActionHandler
 		eAIActionManager mngr;
 		Class.CastTo(mngr, m_player.GetActionManager());
 		
-		// Since this unit is managed by the server we shouldn't actually ever see an action interrupted (perhaps by death, maybe?)
-		// regardless, I think this code will work. But it is untested.
+		// Actions can be interrupted by taking damage, falling, etc
 		mngr.Interrupt();
 	
 		//mngr.EjectAction(m_action);

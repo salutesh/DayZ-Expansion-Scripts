@@ -403,4 +403,12 @@ modded class CarScript
 
 		mat[3] = transform[3] + (velocity * pDt);
 	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
+			ExpansionDamageSystem.OnExplosionHit(source, this, ammo);
+	}
 };

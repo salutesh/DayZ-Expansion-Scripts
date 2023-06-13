@@ -125,7 +125,7 @@ class ExpansionNotificationTemplate<Class T>
 		if ( !m_Icon )
 			m_Icon = EXPANSION_NOTIFICATION_ICON_INFO;
 
-		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, identity );
+		Create( m_Icon, COLOR_EXPANSION_NOTIFICATION_SUCCESS, identity );
 	}
 }
 

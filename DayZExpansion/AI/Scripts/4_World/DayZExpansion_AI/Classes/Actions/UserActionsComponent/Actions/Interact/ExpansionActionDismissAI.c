@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionDismissAI)]
 class ExpansionActionDismissAI: ActionInteractBase
 {
 	void ExpansionActionDismissAI()

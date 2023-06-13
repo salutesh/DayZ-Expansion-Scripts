@@ -1,29 +1,22 @@
-//! 1.19
-modded class ActionCarHornBase
+modded class ActionCarHornLong
 {
-	override static bool ActionCondition(PlayerBase player)
+	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
+		if (!super.ActionCondition(player, target, item))
+			return false;
+
 		HumanCommandVehicle vehCommand = player.GetCommand_Vehicle();
 
 		if (vehCommand)
 		{
-			Transport trans = vehCommand.GetTransport();
-			if (trans)
+			CarScript car;
+			if (Class.CastTo(car, vehCommand.GetTransport()))
 			{
-				if (!PlayerIsDriver(trans, player))
-				{
-					return false;
-				}
-
-				CarScript car;
-				if (Class.CastTo(car, trans))
-				{
-					return BatteryIsVital(car.GetBattery()) && car.Expansion_HasVehicleHorn();
-				}
+				return car.Expansion_HasVehicleHorn();
 			}
 		}
-		
-		return false;
+
+		return true;
 	}
 };
 

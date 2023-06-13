@@ -15,6 +15,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	private ref ExpansionHardlineHUDController m_HardlineHUDController;
 	private int m_CurrentReputation = -1;
 	private int m_CurrentReputationChange;
+	private int m_DeltaPerTick;
 
 	protected Widget Reputation;
 	protected TextWidget ReputationVal;
@@ -76,21 +77,23 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			{
 				//! Update (animated)
 				OnReputationChangeReset();
-				OnReputationChange(reputation - m_CurrentReputation);
+				OnReputationChange(reputation);
 			}
 			else
 			{
 				//! Initial (static)
 				m_HardlineHUDController.ReputationVal = reputation.ToString();
 				m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
+				m_CurrentReputationChange = reputation;
 			}
 
 			m_CurrentReputation = reputation;
 		}
 	}
 
-	void OnReputationChange(int difference)
+	void OnReputationChange(int reputation)
 	{
+		int difference = reputation - m_CurrentReputation;
 		string text;
 		if (difference > 0)
 		{
@@ -103,12 +106,17 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			ReputationChangeVal.SetColor(ARGB(0, 231, 76, 60));
 		}
 
-		m_CurrentReputationChange = m_CurrentReputation - difference;
-
 		m_HardlineHUDController.ReputationChangeValue = text;
 		m_HardlineHUDController.NotifyPropertyChanged("ReputationChangeValue");
 
 		m_ReputationChangeFadeTimer.FadeIn(ReputationChangeVal, 0.25, true);
+
+		int absDiff = Math.AbsInt(reputation - m_CurrentReputationChange);
+		if (absDiff > 200)
+			m_DeltaPerTick = absDiff / 100;
+		else
+			m_DeltaPerTick = 1;
+		EXTrace.Print(EXTrace.HARDLINE, this, "OnReputationChange " + difference + " " + m_DeltaPerTick);
 		m_ReputationChangeTimer.Run(1 / 60.0, this, "UpdateReputationChange", NULL, true);
 	}
 
@@ -123,9 +131,17 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		if (m_CurrentReputationChange != m_CurrentReputation)
 		{
 			if (m_CurrentReputationChange < m_CurrentReputation)
-				m_CurrentReputationChange++;
+			{
+				m_CurrentReputationChange += m_DeltaPerTick;
+				if (m_CurrentReputationChange > m_CurrentReputation)
+					m_CurrentReputationChange = m_CurrentReputation;
+			}
 			else
-				m_CurrentReputationChange--;
+			{
+				m_CurrentReputationChange -= m_DeltaPerTick;
+				if (m_CurrentReputationChange < m_CurrentReputation)
+					m_CurrentReputationChange = m_CurrentReputation;
+			}
 
 			m_HardlineHUDController.ReputationVal = m_CurrentReputationChange.ToString();
 			m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
@@ -147,9 +163,6 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		ReputationChangeVal.SetAlpha(0);
 		ReputationChange.SetPos(m_StartPosX, m_StartPosY);
 		m_DeltaY = 0.0;
-
-		m_HardlineHUDController.ReputationVal = m_CurrentReputation.ToString();
-		m_HardlineHUDController.NotifyPropertyChanged("ReputationVal");
 	}
 
 	override typename GetControllerType()

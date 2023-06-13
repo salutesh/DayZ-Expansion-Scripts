@@ -76,7 +76,7 @@ modded class PlayerBase
 			#endif
 			
 				EntityAI handEntity = GetHumanInventory().GetEntityInHands();
-				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, 5000, false, handEntity);
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
 
 			#ifdef ENFUSION_AI_PROJECT
 			}

@@ -91,7 +91,6 @@ class eAIGroup
 
 		int index = s_AllGroups.Find(group);
 		s_AllGroups.Remove(index);
-		delete group;
 	}
 
 	private void eAIGroup(eAIFaction faction = null)
@@ -156,6 +155,11 @@ class eAIGroup
 #endif
 
 		return m_Waypoints;
+	}
+
+	vector GetCurrentWaypoint()
+	{
+		return m_Waypoints[m_CurrentWaypointIndex];
 	}
 
 	void ClearWaypoints()

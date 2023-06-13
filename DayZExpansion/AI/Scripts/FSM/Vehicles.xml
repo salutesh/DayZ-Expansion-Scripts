@@ -14,8 +14,10 @@
 			<event_entry>
 				entity = fsm.entity;
 				seat = fsm.seat;
-
+				
 				super.OnEntry(Event, null);
+				
+				unit.OverrideMovementSpeed(false, 0);
 			</event_entry>
 		</state>
 		<state name="GetInVehicle" class="ExpansionState_GetInVehicle">
@@ -73,6 +75,22 @@
 		</transition>
 		<transition>
 			<editor_data>
+				<position_source x="1260" y="491.533421790161" />
+				<position_destination x="1313" y="550.644739300538" />
+			</editor_data>
+			<guard>
+				if (vector.Distance(unit.GetPosition(), src.position) &lt; 0.5) return FAIL;
+				
+				if (unit.GetThreatToSelf() &gt; 0.4) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="GoToVehicle" />
+			<to_state name="GoToVehicle" />
+		</transition>
+		<transition>
+			<editor_data>
 				<position_source x="1312.25419083697" y="590.644739300538" />
 				<position_destination x="1312.25419083697" y="629.019715945429" />
 			</editor_data>
@@ -98,20 +116,6 @@
 			<event />
 			<from_state name="GetInVehicle" />
 			<to_state name="CloseVehicleDoor" />
-		</transition>
-		<transition>
-			<editor_data>
-				<position_source x="1312.12524297686" y="750.749953289782" />
-				<position_destination x="1313.68971690692" y="781.144645880103" />
-			</editor_data>
-			<guard>
-				if (!unit.IsInTransport()) return FAIL;
-				
-				return SUCCESS;
-			</guard>
-			<event />
-			<from_state name="CloseVehicleDoor" />
-			<to_state name="Sitting" />
 		</transition>
 		<transition>
 			<editor_data>
@@ -158,6 +162,20 @@
 			<event />
 			<from_state name="GetOutVehicle" />
 			<to_state name="CloseVehicleDoor" />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1312.12524297686" y="750.749953289782" />
+				<position_destination x="1313.68971690692" y="781.144645880103" />
+			</editor_data>
+			<guard>
+				if (!unit.IsInTransport()) return FAIL;
+				
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="CloseVehicleDoor,Sitting" />
+			<to_state name="Sitting" />
 		</transition>
 		<transition>
 			<editor_data>

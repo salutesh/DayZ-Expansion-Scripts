@@ -131,6 +131,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 		super.OnInit();
 
 		EnableMissionStart();
+		EnableMissionLoaded();
 		EnableMissionFinish();
 		EnableInvokeConnect();
 		EnableClientDisconnect();
@@ -378,10 +379,19 @@ class ExpansionQuestModule: CF_ModuleWorld
 				DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
 			}
 
-			SpawnQuestNPCs(); //! Server: Spawn all quest NPCs on the server based on the loaded data.
-
 			PlayerQuestDataCheck(); //! Server: Debug check method to scan persistent quest data.
 		}
+	}
+
+	override void OnMissionLoaded(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		super.OnMissionLoaded(sender, args);
+
+		//! Spawn NPCs late so mapping already loaded
+		if (GetGame().IsServer())
+			SpawnQuestNPCs();
 	}
 
 	override void OnInvokeConnect(Class sender, CF_EventArgs args)

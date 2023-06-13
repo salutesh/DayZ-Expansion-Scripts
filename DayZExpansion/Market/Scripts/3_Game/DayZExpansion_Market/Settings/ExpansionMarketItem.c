@@ -24,6 +24,9 @@ class ExpansionMarketItem
 	[NonSerialized()]
 	int CategoryID;
 
+	[NonSerialized()]
+	ExpansionMarketCategory Category;
+
 	string ClassName;
 
 	int MaxPriceThreshold;
@@ -179,7 +182,7 @@ class ExpansionMarketItem
 		SpawnAttachments.Clear();
 		foreach (int attachmentID: m_AttachmentIDs)
 		{
-			ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentID, false);
+			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentID, false);
 			if (attachment)
 				SpawnAttachments.Insert(attachment.ClassName);
 			else

@@ -80,6 +80,9 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 						return 0.0;
 				}
 
+				if (ai.eAI_GetItemThreatOverride(m_Item))
+					return 0.1;
+
 				float distance = GetDistanceSq(ai, true);
 
 				if (ai.GetPathFinding().IsBlocked(ai.GetPosition(), m_Item.GetPosition()))

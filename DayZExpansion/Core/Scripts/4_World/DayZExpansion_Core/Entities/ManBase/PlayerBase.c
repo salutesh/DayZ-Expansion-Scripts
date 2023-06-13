@@ -44,7 +44,6 @@ modded class PlayerBase
 	PlayerBase m_Expansion_NextPlayer;
 	PlayerBase m_Expansion_PrevPlayer;
 
-	protected bool m_Expansion_IsInSafeZoneSynchRemote;
 	protected bool m_Expansion_LeavingSafeZone;
 
 	static ref map<string, bool> s_Expansion_RegisteredInventoryItemTypes = new map<string, bool>;
@@ -424,41 +423,6 @@ modded class PlayerBase
 		if (IsAlive() && !m_Expansion_CanBeLooted)
 			//! 10134 = 2 | 4 | 16 | 128 | 256 | 512 | 1024 | 8192
 			ExpansionStatic.UnlockInventoryRecursive(this, 10134);
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion OnVariablesSynchronized
-	// ------------------------------------------------------------
-	override void OnVariablesSynchronized()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "OnVariablesSynchronized");
-#endif
-
-		super.OnVariablesSynchronized();
-		
-		if (!GetGame().IsClient())
-			return;
-
-		if ( m_Expansion_IsInSafeZoneSynchRemote && !m_Expansion_IsInSafeZone )
-		{
-			OnEnterZone(ExpansionZoneType.SAFE);
-		} 
-		else if ( !m_Expansion_IsInSafeZoneSynchRemote && m_Expansion_IsInSafeZone )
-		{
-			OnExitZone(ExpansionZoneType.SAFE);
-		}
-	}
-	
-	override void Init()
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.PLAYER, this, "Init");
-#endif
-		
-		super.Init();
-
-		RegisterNetSyncVariableBool("m_Expansion_IsInSafeZoneSynchRemote");
 	}
 
 	//! Need to override vanilla PlayerBase::IsInventoryVisible

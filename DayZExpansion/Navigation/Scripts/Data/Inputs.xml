@@ -10,7 +10,6 @@
 			<input name="UAExpansionGPSMapScaleUp" loc="STR_EXPANSION_GPS_MAP_SCALE_UP" />
 
 			<input name="UAExpansion3DMarkerToggle" loc="STR_EXPANSION_TOGGLE_3D_MARKER" />
-			<input name="UAExpansionServerMarkersToggle" loc="STR_EXPANSION_TOGGLE_ONLY_SERVER_MARKERS" />
 			
 			<input name="UAExpansionQuickMarker" loc="STR_EXPANSION_QUICK_MARKER" />
 		</actions>
@@ -32,7 +31,6 @@
 			<input name="UAExpansionGPSMapScaleDown" />
 			<input name="UAExpansionGPSMapScaleUp" />
 			<input name="UAExpansion3DMarkerToggle" />
-			<input name="UAExpansionServerMarkersToggle" />
 			<input name="UAExpansionQuickMarker" />
 		</sorting>
 	</inputs>
@@ -58,9 +56,6 @@
 		</input>
 		<input name="UAExpansion3DMarkerToggle">
 			<btn name="kK" />
-		</input>
-		<input name="UAExpansionServerMarkersToggle">
-			<btn name="kMultiply" />
 		</input>
 		<input name="UAExpansionQuickMarker">
 			<btn name="kH" />

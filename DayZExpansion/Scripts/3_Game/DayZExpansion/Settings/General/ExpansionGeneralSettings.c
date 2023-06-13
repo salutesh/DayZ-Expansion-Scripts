@@ -15,12 +15,13 @@
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
 	bool GravecrossDeleteBody;
-	int GravecrossTimeThreshold;
+	float GravecrossTimeThreshold;
+	float GravecrossSpawnTimeDelay;
 	ref ExpansionMapping Mapping;
 	LampModeEnum EnableLamps;										//! 0 - Disable Street-Lights | 1 - Will use and spawn Generators for Street-Lights | 2 - Street-Lights always on
 	bool EnableGenerators;
@@ -59,6 +60,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Read(EnableGravecross);
 		ctx.Read(GravecrossDeleteBody);
 		ctx.Read(GravecrossTimeThreshold);
+		ctx.Read(GravecrossSpawnTimeDelay);		
 
 		GetDayZGame().GetExpansionGame().ReadRemovedWorldObjects(ctx);
 
@@ -105,6 +107,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Write(EnableGravecross);
 		ctx.Write(GravecrossDeleteBody);
 		ctx.Write(GravecrossTimeThreshold);
+		ctx.Write(GravecrossSpawnTimeDelay);		
 
 		GetDayZGame().GetExpansionGame().WriteRemovedWorldObjects(ctx);
 
@@ -188,6 +191,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		DisableShootToUnlock = s.DisableShootToUnlock;
 		GravecrossDeleteBody = s.GravecrossDeleteBody;
 		GravecrossTimeThreshold = s.GravecrossTimeThreshold;
+		GravecrossSpawnTimeDelay = s.GravecrossSpawnTimeDelay;
 		Mapping.Copy( s.Mapping );
 		EnableLamps = s.EnableLamps;
 		EnableGenerators = s.EnableGenerators;
@@ -280,6 +284,11 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 					InGameMenuLogoPath = settingsDefault.InGameMenuLogoPath;
 				}
 
+				if (m_Version < 10)
+				{
+					GravecrossSpawnTimeDelay = settingsDefault.GravecrossSpawnTimeDelay;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -330,6 +339,7 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		EnableGravecross = false;
 		GravecrossDeleteBody = true;
 		GravecrossTimeThreshold = 1200;
+		GravecrossSpawnTimeDelay = 180;
 		
 		Mapping.Defaults();
 

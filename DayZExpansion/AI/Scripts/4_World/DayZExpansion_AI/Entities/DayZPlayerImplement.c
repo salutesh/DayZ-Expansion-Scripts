@@ -62,6 +62,18 @@ modded class DayZPlayerImplement
 		}
 	}
 
+	//! Vanilla, can this AI be targeted by Zs/Animals?
+	override bool CanBeTargetedByAI(EntityAI ai)
+	{
+		if (!super.CanBeTargetedByAI(ai))
+			return false;
+
+		if (GetGroup())
+			return !GetGroup().GetFaction().IsFriendly(ai);
+
+		return true;
+	}
+
 	protected eAITargetInformation CreateTargetInformation()
 	{
 #ifdef EAI_TRACE
@@ -280,9 +292,14 @@ modded class DayZPlayerImplement
 		return false;
 	}
 
-	override bool Expansion_CanBeDamaged()
+	bool eAI_IsSideSteppingObstacles()
 	{
-		if (!super.Expansion_CanBeDamaged())
+		return false;
+	}
+
+	override bool Expansion_CanBeDamaged(string ammo = string.Empty)
+	{
+		if (!super.Expansion_CanBeDamaged(ammo))
 			return false;
 
 		if (m_eAI_Group)

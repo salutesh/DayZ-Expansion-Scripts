@@ -15,14 +15,19 @@ class ExpansionDebugObject: Building
 	float m_Expansion_DebugOriginX;
 	float m_Expansion_DebugOriginY;
 	float m_Expansion_DebugOriginZ;
+	vector m_Expansion_DebugOrigin;
+	bool m_Expansion_DrawDebugSignal;
 	int m_Expansion_DebugColor;
 	Shape m_Expansion_DebugLine;
+	int m_Expansion_DebugLineFlags;
 
 	void ExpansionDebugObject()
 	{
 		RegisterNetSyncVariableFloat("m_Expansion_DebugOriginX", 0, 0, 2);
 		RegisterNetSyncVariableFloat("m_Expansion_DebugOriginY", 0, 0, 2);
 		RegisterNetSyncVariableFloat("m_Expansion_DebugOriginZ", 0, 0, 2);
+		RegisterNetSyncVariableInt("m_Expansion_DebugLineFlags");
+		RegisterNetSyncVariableBool("m_Expansion_DrawDebugSignal");
 
 #ifndef SERVER
 		ExpansionString es = new ExpansionString(GetType());
@@ -30,11 +35,15 @@ class ExpansionDebugObject: Building
 		if (es.EndsWith("_Red"))
 			m_Expansion_DebugColor = 0xFFFF0000;
 		else if (es.EndsWith("_Orange"))
-			m_Expansion_DebugColor = 0xFF800000;
+			m_Expansion_DebugColor = 0xFFFF8000;
 		else if (es.EndsWith("_Blue"))
 			m_Expansion_DebugColor = 0xFF0000FF;
 		else if (es.EndsWith("_Purple"))
 			m_Expansion_DebugColor = 0xFF8000FF;
+		else if (es.EndsWith("_White"))
+			m_Expansion_DebugColor = 0xFFFFFFFF;
+		else if (es.EndsWith("_Black"))
+			m_Expansion_DebugColor = 0xFF000000;
 		else
 			m_Expansion_DebugColor = 0xFF00FF00;
 #endif
@@ -59,7 +68,16 @@ class ExpansionDebugObject: Building
 	{
 		super.OnVariablesSynchronized();
 
-		Expansion_DrawDebugLine(Vector(m_Expansion_DebugOriginX, m_Expansion_DebugOriginY, m_Expansion_DebugOriginZ));
+		m_Expansion_DebugOrigin = Vector(m_Expansion_DebugOriginX, m_Expansion_DebugOriginY, m_Expansion_DebugOriginZ);
+
+		Expansion_DrawDebugLine(m_Expansion_DebugOrigin);
+	}
+
+	void Expansion_SetDebugLineFlags(int flags)
+	{
+		m_Expansion_DebugLineFlags = flags;
+
+		SetSynchDirty();
 	}
 
 	void Expansion_DrawDebugLine(vector origin)
@@ -69,48 +87,12 @@ class ExpansionDebugObject: Building
 		m_Expansion_DebugOriginY = origin[1];
 		m_Expansion_DebugOriginZ = origin[2];
 
+		m_Expansion_DrawDebugSignal = !m_Expansion_DrawDebugSignal;
+
 		SetSynchDirty();
 #else
 		Debug.RemoveShape(m_Expansion_DebugLine);
-		m_Expansion_DebugLine = Debug.DrawLine(origin, GetPosition(), m_Expansion_DebugColor);
+		m_Expansion_DebugLine = Debug.DrawLine(origin, GetPosition(), m_Expansion_DebugColor, m_Expansion_DebugLineFlags);
 #endif
 	}
 }
-
-class ExpansionDebugRod: ExpansionDebugObject {};
-class ExpansionDebugRod_Red: ExpansionDebugRod {};
-class ExpansionDebugRod_Orange: ExpansionDebugRod {};
-class ExpansionDebugRod_Blue: ExpansionDebugRod {};
-class ExpansionDebugRod_Purple: ExpansionDebugRod {};
-
-class ExpansionDebugRodBig: ExpansionDebugRod {};
-class ExpansionDebugRodBig_Red: ExpansionDebugRodBig {};
-class ExpansionDebugRodBig_Orange: ExpansionDebugRodBig {};
-class ExpansionDebugRodBig_Blue: ExpansionDebugRodBig {};
-class ExpansionDebugRodBig_Purple: ExpansionDebugRodBig {};
-
-class ExpansionDebugBox: ExpansionDebugObject {};
-class ExpansionDebugBox_Red: ExpansionDebugBox {};
-class ExpansionDebugBox_Orange: ExpansionDebugBox {};
-class ExpansionDebugBox_Blue: ExpansionDebugBox {};
-class ExpansionDebugBox_Purple: ExpansionDebugBox {};
-
-class ExpansionNetSyncDebugObject: ExpansionDebugObject {};
-
-class ExpansionDebugLine: ExpansionDebugObject {};
-class ExpansionDebugLine_Red: ExpansionDebugLine {};
-class ExpansionDebugLine_Orange: ExpansionDebugLine {};
-class ExpansionDebugLine_Blue: ExpansionDebugLine {};
-class ExpansionDebugLine_Purple: ExpansionDebugLine {};
-
-class ExpansionDebugNoticeMe: ExpansionDebugObject {};
-class ExpansionDebugNoticeMe_Red: ExpansionDebugNoticeMe {};
-class ExpansionDebugNoticeMe_Orange: ExpansionDebugNoticeMe {};
-class ExpansionDebugNoticeMe_Blue: ExpansionDebugNoticeMe {};
-class ExpansionDebugNoticeMe_Purple: ExpansionDebugNoticeMe {};
-
-class ExpansionDebugArrow: ExpansionDebugObject {};
-class ExpansionDebugArrow_Red: ExpansionDebugArrow {};
-class ExpansionDebugArrow_Orange: ExpansionDebugArrow {};
-class ExpansionDebugArrow_Blue: ExpansionDebugArrow {};
-class ExpansionDebugArrow_Purple: ExpansionDebugArrow {};

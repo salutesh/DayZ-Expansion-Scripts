@@ -400,7 +400,8 @@ modded class PlayerBase
 				return;
 
 			//! Temporarily disable fall damage
-			Expansion_SetAllowDamage("FallDamage", false);
+			//! @note `FallDamage` is just a placeholder we use, it doesn't actually exist as ammo since DayZ 1.21
+			Expansion_SetAllowDamageEx("FallDamage", false);
 
 			//! CallLater so vehicle attachment code etc has a chance to run first
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(PlacePlayerOnGround, 1500);
@@ -512,7 +513,7 @@ modded class PlayerBase
 			}
 
 			//! Enable fall damage again - after a delay or player may still die from it
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamage, 1500, false, "FallDamage", true);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(Expansion_SetAllowDamageEx, 1500, false, "FallDamage", true);
 		}
 	}
 	

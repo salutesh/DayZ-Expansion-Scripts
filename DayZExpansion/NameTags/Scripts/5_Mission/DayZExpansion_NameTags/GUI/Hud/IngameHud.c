@@ -389,7 +389,7 @@ modded class IngameHud
 
 					if (!m_IsEnemy && !m_IsMember)
 					{
-						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCESS);
 					}
 					else
 					{
@@ -515,7 +515,7 @@ modded class IngameHud
 
 					if (!m_IsEnemy)
 					{
-						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCESS);
 					}
 					else
 					{

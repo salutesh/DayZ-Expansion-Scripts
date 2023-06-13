@@ -128,6 +128,10 @@ modded class CarScript
 		m_Expansion_Connections[index].m_Parent = EntityAI.Cast(parent);
 		m_Expansion_Connections[index].m_Attached = true;
 
+		SetBrakesActivateWithoutDriver(1);
+		SetBrake(0, 0, false);
+		SetHandbrake(0);
+
 		if (GetGame().IsServer())
 			SetSynchDirty();
 
@@ -176,6 +180,10 @@ modded class CarScript
 
 		m_Expansion_TowConnectionSynchMask &= ~(1 << connectionIndex);
 		m_Expansion_TowConnectionMask = m_Expansion_TowConnectionSynchMask;
+
+		SetBrake(1, 0, false);
+		SetHandbrake(1);
+		SetBrakesActivateWithoutDriver(0);
 
 		if (GetGame().IsServer())
 			SetSynchDirty();
