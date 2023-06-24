@@ -876,7 +876,9 @@ modded class DayZPlayerImplement
 
 		m_ExPlayerLinkTypeFrameDelayed = m_ExPlayerLinkType;
 
-		bool notRemote = GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_REMOTE && GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_AI_REMOTE;
+		bool notRemote;
+		if (GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_REMOTE && GetInstanceType() != DayZPlayerInstanceType.INSTANCETYPE_AI_REMOTE)
+			notRemote = true;
 
 		// Attachment code
 		if (m_ExPlayerLinkType != ExpansionPlayerLink.NONE && notRemote)

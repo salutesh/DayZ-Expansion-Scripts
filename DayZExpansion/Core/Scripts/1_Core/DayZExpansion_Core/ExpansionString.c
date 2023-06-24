@@ -89,7 +89,11 @@ class ExpansionString
 			if (wasLower && c == cUpper && c != cLower)
 				output += sep;
 			output += c;
-			wasLower = c != cUpper && c == cLower;
+			//! https://feedback.bistudio.com/T173348
+			if (c != cUpper && c == cLower)
+				wasLower = true;
+			else
+				wasLower = false;
 		}
 
 		return output;

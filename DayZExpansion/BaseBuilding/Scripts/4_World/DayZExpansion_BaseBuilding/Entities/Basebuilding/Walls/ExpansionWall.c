@@ -168,14 +168,27 @@ class ExpansionWallBase: ExpansionBaseBuilding
 
 		super.OnVariablesSynchronized();
 
-		bool door_changed = m_HasDoor && m_WasOpen != m_Expansion_IsOpened;
-		bool door_opened = door_changed && m_Expansion_IsOpened;
+		bool door_changed;
+		//! https://feedback.bistudio.com/T173348
+		if (m_HasDoor && m_WasOpen != m_Expansion_IsOpened)
+			door_changed = true;
+		bool door_opened;
+		if (door_changed && m_Expansion_IsOpened)
+			door_opened = true;
 
-		bool gate_l_changed = m_HasGate && m_WasOpen1 != m_Expansion_IsOpened1;
-		bool gate_l_opened = gate_l_changed && m_Expansion_IsOpened1;
+		bool gate_l_changed;
+		if (m_HasGate && m_WasOpen1 != m_Expansion_IsOpened1)
+			gate_l_changed = true;
+		bool gate_l_opened;
+		if (gate_l_changed && m_Expansion_IsOpened1)
+			gate_l_opened = true;
 
-		bool gate_r_changed = m_HasGate && m_WasOpen2 != m_Expansion_IsOpened2;
-		bool gate_r_opened = gate_r_changed && m_Expansion_IsOpened2;
+		bool gate_r_changed;
+		if (m_HasGate && m_WasOpen2 != m_Expansion_IsOpened2)
+			gate_r_changed = true;
+		bool gate_r_opened;
+		if (gate_r_changed && m_Expansion_IsOpened2)
+			gate_r_opened = true;
 
 		if ( wasSynched && ( door_changed || gate_l_changed || gate_r_changed ) )
 		{
@@ -682,11 +695,16 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				SetAnimationPhase( m_CurrentBuild + "_window_rr_rotate", 0 );
 			}
 
-			m_Expansion_IsOpened = false;
-			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5;
-			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_lr_rotate" ) < 0.5;
-			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_rl_rotate" ) < 0.5;
-			m_Expansion_IsOpened = m_Expansion_IsOpened || GetAnimationPhase( m_CurrentBuild + "_window_rr_rotate" ) < 0.5;
+			if (GetAnimationPhase( m_CurrentBuild + "_window_ll_rotate" ) < 0.5)
+				m_Expansion_IsOpened = true;
+			else if (GetAnimationPhase( m_CurrentBuild + "_window_lr_rotate" ) < 0.5)
+				m_Expansion_IsOpened = true;
+			else if (GetAnimationPhase( m_CurrentBuild + "_window_rl_rotate" ) < 0.5)
+				m_Expansion_IsOpened = true;
+			else if (GetAnimationPhase( m_CurrentBuild + "_window_rr_rotate" ) < 0.5)
+				m_Expansion_IsOpened = true;
+			else
+				m_Expansion_IsOpened = false;
 		}
 
 		if ( IsMissionHost() && m_HasDoor )
@@ -694,7 +712,10 @@ class ExpansionWallBase: ExpansionBaseBuilding
 			if (selection == (m_CurrentBuild + "_door"))
 				SetAnimationPhase( m_CurrentBuild + "_door_rotate", 0 );
 
-			m_Expansion_IsOpened = GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) < 0.5;
+			if (GetAnimationPhase( m_CurrentBuild + "_door_rotate" ) < 0.5)
+				m_Expansion_IsOpened = true;
+			else
+				m_Expansion_IsOpened = false;
 		}
 
 		if ( IsMissionHost() && m_HasGate )
@@ -710,7 +731,10 @@ class ExpansionWallBase: ExpansionBaseBuilding
 				SetAnimationPhase( m_CurrentBuild + "_gate_r_rotate", 0 );
 			}
 
-			m_Expansion_IsOpened = GetAnimationPhase( m_CurrentBuild + "_gate_l_rotate" ) < 0.5 && GetAnimationPhase( m_CurrentBuild + "_gate_r_rotate" ) < 0.5;
+			if (GetAnimationPhase( m_CurrentBuild + "_gate_l_rotate" ) < 0.5 && GetAnimationPhase( m_CurrentBuild + "_gate_r_rotate" ) < 0.5)
+				m_Expansion_IsOpened = true;
+			else
+				m_Expansion_IsOpened = false;
 		}
 		
 		SetSynchDirty();

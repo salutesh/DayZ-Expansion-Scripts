@@ -448,7 +448,13 @@ class ExpansionChatUIWindow: ExpansionScriptView
 		foreach (ExpansionChatMessage message: m_ChatParams)
 		{
 			if (message.From == playerName)
-				message.IsMuted = mute && m_Chat.CanMute(message.Channel);
+			{
+				//! https://feedback.bistudio.com/T173348
+				if (mute && m_Chat.CanMute(message.Channel))
+					message.IsMuted = true;
+				else
+					message.IsMuted = false;
+			}
 		}
 
 		RefreshChatMessages();

@@ -107,9 +107,7 @@ class ExpansionQuestContainerBase: Container_Base
 
 	override void EECargoOut(EntityAI item)
 	{
-	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-	#endif
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + m_Expansion_QuestID);
 
 		super.EECargoOut(item);
 
@@ -122,6 +120,8 @@ class ExpansionQuestContainerBase: Container_Base
 
 	override void EEItemDetached(EntityAI item, string slot_name)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this, "Quest ID: " + m_Expansion_QuestID);
+
 		super.EEItemDetached(item, slot_name);
 
 		if (m_Expansion_QuestID > -1)
@@ -148,10 +148,24 @@ class ExpansionQuestContainerBase: Container_Base
 			return;
 		}
 
-		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
+		ExpansionQuest quest;
+		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
+		for (int i = 0, j = 0; i < s_Expansion_AssignedQuestObjectives.Count() && j < failSafe; j++)
 		{
-			if (!objective.GetQuest())
+			ExpansionQuestObjectiveEventBase objective = s_Expansion_AssignedQuestObjectives[i];
+			if (!objective)
+			{
+				EXTrace.Print(EXTrace.QUESTS, this, "WARNING: Objective is NULL!");
+				s_Expansion_AssignedQuestObjectives.RemoveOrdered(i);
 				continue;
+			}
+
+			quest = objective.GetQuest();
+			if (!quest)
+			{
+				i++;
+				continue;
+			}
 
 			int questID = objective.GetQuest().GetQuestConfig().GetID();
 			EXTrace.Print(EXTrace.QUESTS, this, "Objective quest ID: " + questID);
@@ -162,6 +176,7 @@ class ExpansionQuestContainerBase: Container_Base
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Objective quest ID mismatch! Skip..");
 			#endif
+				i++;
 				continue;
 			}
 
@@ -170,6 +185,7 @@ class ExpansionQuestContainerBase: Container_Base
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Objective type mismatch! Skip..");
 			#endif
+				i++;
 				continue;
 			}
 
@@ -177,25 +193,50 @@ class ExpansionQuestContainerBase: Container_Base
 			if (!Class.CastTo(treasureHuntEvent, objective))
 			{
 				EXTrace.Print(EXTrace.QUESTS, this, "Could not get Treasure Hunt objective!");
+				i++;
 				continue;
 			}
 
-			ExpansionQuestContainerBase objectiveChest = ExpansionQuestContainerBase.Cast(this);
-			if (treasureHuntEvent.GetChest() != objectiveChest)
+			if (treasureHuntEvent.GetChest() != this)
 			{
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Objective stash is not this stash! Skip..");
 			#endif
+				i++;
 				continue;
 			}
 
 			array<EntityAI> lootItems = treasureHuntEvent.GetLootItems();
 			if (lootItems.Find(item) == -1)
+			{
+				EXTrace.Print(EXTrace.QUESTS, this, "Item is not loot item: " + item);
+				if (EXTrace.QUESTS)
+				{
+					EXPrint(this, "Loot items: " + lootItems.Count());
+					foreach (EntityAI lootItem: lootItems)
+					{
+						EXPrint(this, "Loot item: " + lootItem);
+					}
+
+					map<string, int> lootItemsMap = treasureHuntEvent.GetLootItemsMap();
+					EXPrint(this, "Loot item counts: " + lootItemsMap.Count());
+					foreach (string className, int count: lootItemsMap)
+					{
+						EXPrint(this, "Loot item count: " + className + " " + count);
+					}
+				}
 				return;
+			}
 
 			if (!treasureHuntEvent.HasLootedItemFromChest())
 				treasureHuntEvent.LootedItemFromChest();
+
+			return;  //! There may only be one treasure hunt objective assigned per chest
 		}
+
+		//! @note should not happen, this could mean an objective was no longer marked assigned but still in the list
+		if (j == failSafe)
+			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 };
 

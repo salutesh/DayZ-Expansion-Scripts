@@ -360,9 +360,8 @@ class ExpansionMapMarker : ExpansionMapWidgetBase
 			bool canCreateParty = false;
 
 #ifdef EXPANSIONMODGROUPS
-			ExpansionPartyModule party;
-			if (CF_Modules<ExpansionPartyModule>.Get(party))
-				canCreateParty = party.HasParty() && GetExpansionSettings().GetParty().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties;
+			if (ExpansionPartyModule.s_Instance.HasParty() && GetExpansionSettings().GetParty().CanCreatePartyMarkers && GetExpansionSettings().GetParty().EnableParties)
+				canCreateParty = true;
 #endif
 
 			m_StatePartyContainer.Show(canCreateParty);

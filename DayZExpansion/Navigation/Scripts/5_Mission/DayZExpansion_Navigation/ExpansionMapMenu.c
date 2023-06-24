@@ -286,13 +286,22 @@ class ExpansionMapMenu: ExpansionUIScriptedMenu
 				m_MapNavigationBehaviour = player.GetMapNavigationBehaviour();
 				if (m_MapNavigationBehaviour)
 				{
-					m_HasGPS = (m_MapNavigationBehaviour.GetNavigationType() & EMapNavigationType.GPS|EMapNavigationType.ALL == 0);
-					m_HasCompass = (m_MapNavigationBehaviour.GetNavigationType() & EMapNavigationType.COMPASS|EMapNavigationType.ALL == 0);
+					if (m_MapNavigationBehaviour.GetNavigationType() & EMapNavigationType.GPS|EMapNavigationType.ALL == 0)
+						m_HasGPS = true;
+					else if (CfgGameplayHandler.GetMapIgnoreNavItemsOwnership())
+						m_HasGPS = true;
+					else
+						m_HasGPS = false;
+
+					if (m_MapNavigationBehaviour.GetNavigationType() & EMapNavigationType.COMPASS|EMapNavigationType.ALL == 0)
+						m_HasCompass = true;
+					else if (CfgGameplayHandler.GetMapIgnoreNavItemsOwnership())
+						m_HasCompass = true;
+					else
+						m_HasCompass = false;
+
 					m_HasExpansionGPS = player.HasItemGPS();
 
-					//! gameplay cfg json overrides handling
-					m_HasGPS = CfgGameplayHandler.GetMapIgnoreNavItemsOwnership() || m_HasGPS;
-					m_HasCompass = CfgGameplayHandler.GetMapIgnoreNavItemsOwnership() || m_HasCompass;
 
 					if (m_HasGPS || m_HasExpansionGPS)
 					{

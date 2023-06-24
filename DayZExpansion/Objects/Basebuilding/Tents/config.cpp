@@ -6,8 +6,6 @@ class CfgPatches
 	{
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Data"};
-		units[] = {"ExpansionCamoBox","ExpansionCamoTent"};
-		weapons[] = {};
 	};
 };
 class CfgVehicles
@@ -33,16 +31,71 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 1000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 				};
 			};
 			class GlobalArmor
 			{
 				class Projectile
 				{
-					Health = 0;
-					Blood = 0;
-					Shock = 0;
+					class Health
+					{
+						damage = 0.05;
+					};
+				};
+				class Melee
+				{
+					class Health
+					{
+						damage = 0.3;
+					};
+				};
+				class FragGrenade
+				{
+					class Health
+					{
+						damage = 8;
+					};
+				};
+			};
+			class DamageZones
+			{
+				class Body
+				{
+					class Health
+					{
+						hitpoints = 1000;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					class ArmorType
+					{
+						class Projectile
+						{
+							class Health
+							{
+								damage = 0.05;
+							};
+						};
+						class Melee
+						{
+							class Health
+							{
+								damage = 0.3;
+							};
+						};
+						class FragGrenade
+						{
+							class Health
+							{
+								damage = 8;
+							};
+						};
+					};
+					componentNames[] = {};
+					transferToZonesNames[] = {};
+					transferToZonesCoefs[] = {1.0};
+					fatalInjuryCoef = -1;
 				};
 			};
 		};
@@ -73,16 +126,71 @@ class CfgVehicles
 			{
 				class Health
 				{
-					hitpoints = 100;
+					hitpoints = 1000;
+					healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
 				};
 			};
 			class GlobalArmor
 			{
 				class Projectile
 				{
-					Health = 0;
-					Blood = 0;
-					Shock = 0;
+					class Health
+					{
+						damage = 0.05;
+					};
+				};
+				class Melee
+				{
+					class Health
+					{
+						damage = 0.3;
+					};
+				};
+				class FragGrenade
+				{
+					class Health
+					{
+						damage = 8;
+					};
+				};
+			};
+			class DamageZones
+			{
+				class Body
+				{
+					class Health
+					{
+						hitpoints = 1000;
+						healthLevels[] = {{1.0,{}},{0.7,{}},{0.5,{}},{0.3,{}},{0.0,{}}};
+					};
+					class ArmorType
+					{
+						class Projectile
+						{
+							class Health
+							{
+								damage = 0.05;
+							};
+						};
+						class Melee
+						{
+							class Health
+							{
+								damage = 0.3;
+							};
+						};
+						class FragGrenade
+						{
+							class Health
+							{
+								damage = 8;
+							};
+						};
+					};
+					componentNames[] = {};
+					transferToZonesNames[] = {};
+					transferToZonesCoefs[] = {1.0};
+					fatalInjuryCoef = -1;
 				};
 			};
 		};

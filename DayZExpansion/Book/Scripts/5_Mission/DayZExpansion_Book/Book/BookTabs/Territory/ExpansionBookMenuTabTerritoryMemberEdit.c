@@ -108,7 +108,10 @@ class ExpansionBookMenuTabTerritoryMemberEdit: ExpansionBookMenuTabBase
 		m_MemberEditController.MemberRank = m_Member.GetRankName();
 		m_MemberEditController.NotifyPropertyChanged("MemberRank");
 		
-		bool show = m_TerritoryTab.GetPlayerRank() != ExpansionTerritoryRank.MEMBER && m_Member.GetID() != GetGame().GetPlayer().GetIdentity().GetId();
+		bool show;
+		//! https://feedback.bistudio.com/T173348
+		if (m_TerritoryTab.GetPlayerRank() != ExpansionTerritoryRank.MEMBER && m_Member.GetID() != GetGame().GetPlayer().GetIdentity().GetId())
+			show = true;
 		option_promote_button.Show(show && m_Member.GetRank() != ExpansionTerritoryRank.MODERATOR);
 		option_demote_button.Show(show && m_Member.GetRank() != ExpansionTerritoryRank.MEMBER);
 		option_kick_button.Show(show);

@@ -332,40 +332,6 @@ class CfgVehicles
 		hiddenSelections[] = {"key"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Keys\data\keys_2_co.paa"};
 	};
-	class ExpansionPropUniversalLight: Inventory_Base
-	{
-		scope = 2;
-		displayName = "$STR_cfgVehicles_UniversalLight0";
-		descriptionShort = "$STR_cfgVehicles_UniversalLight1";
-		model = "\DZ\weapons\attachments\light\weaponlight_universal.p3d";
-		debug_ItemCategory = 3;
-		rotationFlags = 17;
-		reversed = 1;
-		weight = 80;
-		itemSize[] = {2,1};
-		inventorySlot[] = {"weaponFlashlight","helmetFlashlight"};
-		class DamageSystem
-		{
-			class GlobalHealth
-			{
-				class Health
-				{
-					hitpoints = 70;
-					healthLevels[] = {{1,{"DZ\weapons\attachments\data\m4_flashlight.rvmat","dz\gear\tools\data\flashlight_glass.rvmat"}},{0.7,{}},{0.5,{"DZ\weapons\attachments\data\m4_flashlight_damage.rvmat","dz\gear\tools\data\flashlight_old_damage.rvmat"}},{0.3,{}},{0,{"DZ\weapons\attachments\data\m4_flashlight_destruct.rvmat","dz\gear\tools\data\flashlight_old_destruct.rvmat"}}};
-				};
-			};
-		};
-		repairableWithKits[] = {7};
-		repairCosts[] = {25};
-		hiddenSelections[] = {"zbytek","reflector","glass","reflector_far"};
-		hiddenSelectionsTextures[] = {"dz\weapons\attachments\data\m4_flashlight_co.paa","dz\weapons\attachments\data\m4_flashlight_co.paa","dz\gear\tools\data\flashlight_glass.paa","dz\weapons\attachments\data\m4_flashlight_co.paa"};
-		hiddenSelectionsMaterials[] = {"dz\weapons\attachments\data\m4_flashlight.rvmat","dz\weapons\attachments\data\m4_flashlight.rvmat","dz\gear\tools\data\flashlight_glass.rvmat","dz\weapons\attachments\data\m4_flashlight.rvmat"};
-		class EnergyManager
-		{
-			energyUsagePerSecond = 0.0;
-		};
-		soundImpactType = "plastic";
-	};
 	class FxRound;
 	class FxRound_Expansion_BoltAnomaly_Ice: FxRound
 	{

@@ -32,9 +32,12 @@ modded class PlayerBase
 		if (!GetIdentity())
 			return;
 
-		bool save = force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation || m_Expansion_HardlineData.PersonalStorageLevel != m_Expansion_PersonalStorageLevel;
+		bool save;
+		if (force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation || m_Expansion_HardlineData.PersonalStorageLevel != m_Expansion_PersonalStorageLevel)
+			save = true;
 	#ifdef EXPANSIONMODAI
-		save |= m_Expansion_HardlineData.FactionID != eAI_GetFactionTypeID();
+		else if (m_Expansion_HardlineData.FactionID != eAI_GetFactionTypeID())
+			save = true;
 	#endif
 		if (save)
 		{

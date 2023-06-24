@@ -248,9 +248,12 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 				 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
 				 *************************************************************************************************************************/
 
-				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
+				bool isSupportedBB;
+				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
+					isSupportedBB = true;
 				#ifdef EXPANSIONMODBASEBUILDING
-				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
+				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
+					isSupportedBB = true;
 				#endif
 				if (isSupportedBB)
 				{

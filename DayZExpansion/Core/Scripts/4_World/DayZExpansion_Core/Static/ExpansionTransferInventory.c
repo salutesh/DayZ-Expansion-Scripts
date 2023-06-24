@@ -97,7 +97,8 @@ static void Expansion_PhysicsDropAttachments(EntityAI parent)
 #ifdef EXPANSIONMODVEHICLE
 	CarScript car;
 	ExpansionVehicleBase vehicle;
-	exploded = (Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded());
+	if ((Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded()))
+		exploded = true;
 #endif
 
 	//! Popping attachments off changes attachment count, so do this in reverse order

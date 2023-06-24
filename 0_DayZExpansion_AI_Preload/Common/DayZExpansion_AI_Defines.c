@@ -8,6 +8,7 @@
 #ifdef DIAG
 	#define EAI_DEBUG_TRANSITION
 	#define EAI_DEBUG_PATH
+	//#define EAI_DEBUG_MOVE
 #endif
 
 //! Disable AI attachment until server CTD when attaching is fixed

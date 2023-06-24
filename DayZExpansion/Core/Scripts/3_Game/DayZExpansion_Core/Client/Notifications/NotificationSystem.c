@@ -100,7 +100,10 @@ modded class NotificationSystem
 		if ( leaveNotif && !GetExpansionClientSettings().NotificationLeave )
 			return;
 		
-		bool leaveJoinNotif = joinNotif || leaveNotif;
+		bool leaveJoinNotif;
+		//! https://feedback.bistudio.com/T173348
+		if (joinNotif || leaveNotif)
+			leaveJoinNotif = true;
 
 		NotificationRuntimeData data = new NotificationRuntimeData( time, new NotificationData( icon, title.Format() ), text.Format() );
 		data.SetColor( color );

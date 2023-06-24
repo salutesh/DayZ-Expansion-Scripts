@@ -17,7 +17,9 @@ modded class MissionBase
 #ifdef SERVER
 		float updateTime = GetGame().GetTickTime();
 		float elapsed = updateTime - m_Expansion_UpdateTime;
-		bool update = elapsed >= 0.025;
+		bool update;
+		if (elapsed >= 0.025)
+			update = true;
 
 		if (update)
 		{

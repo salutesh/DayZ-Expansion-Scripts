@@ -18,8 +18,13 @@ modded class ActionUnmountBarbedWire
 			return false;
 
 		bool isInTerritory = player.IsInTerritory();
-		bool isInsideOwnTerritory = isInTerritory && player.IsInsideOwnTerritory();
-		bool dismantleOutsideTerritory = !isInTerritory && GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory;
+		bool isInsideOwnTerritory;
+		//! https://feedback.bistudio.com/T173348
+		if (isInTerritory && player.IsInsideOwnTerritory())
+			isInsideOwnTerritory = true;
+		bool dismantleOutsideTerritory;
+		if (!isInTerritory && GetExpansionSettings().GetBaseBuilding().DismantleOutsideTerritory)
+			dismantleOutsideTerritory = true;
 
 		if ( isInsideOwnTerritory || dismantleOutsideTerritory )
 		{

@@ -4,3 +4,12 @@ enum ExpansionNamalskModuleRPC
 	SendWorkbenchData,
 	COUNT
 };
+
+enum ExpansionCommunityGoalsModuleRPC
+{
+	INVALID = 200000,
+	SendCommunityGoalData,
+	RequestCommunityGoalDetails,
+	SendCommunityGoalDetails
+	COUNT
+};

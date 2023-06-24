@@ -251,15 +251,8 @@ class ExpansionNotificationModule: CF_ModuleWorld
 		if (!m_Expansion_Bind)
 		{
 			m_Expansion_Bind = true;
-#ifndef DAYZ_1_19
-			//! 1.20+
 			NotificationSystem.GetInstance().m_OnNotificationAdded.Insert(AddNotification);
 			NotificationSystem.GetInstance().m_OnNotificationRemoved.Insert(RemoveNotification);
-#else
-			//! 1.19
-			NotificationSystem.BindOnAdd(AddNotification);
-			NotificationSystem.BindOnRemove(RemoveNotification);
-#endif
 		}
 	}
 	

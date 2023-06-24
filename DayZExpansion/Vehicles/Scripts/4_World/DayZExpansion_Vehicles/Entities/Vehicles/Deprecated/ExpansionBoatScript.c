@@ -144,9 +144,7 @@ class ExpansionBoatScript: CarScript
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		bool isGlobal = !dmgZone || dmgZone == "GlobalHealth";
-
-		if (isGlobal)
+		if (!dmgZone || dmgZone == "GlobalHealth")
 		{
 			//! Always damage engine proportionally when taking global damage
 			float engineMaxHealth = GetMaxHealth("Engine", "");
@@ -687,7 +685,10 @@ class ExpansionBoatScript: CarScript
 		if (tideCorrection > 0)
 		{
 			//! If surface is sea, deactivate boat at roughly below half point of tide to make it easier to climb in again
-			result = tideCorrection > 0.2 && tideCorrection < 0.21;
+			if (tideCorrection > 0.2 && tideCorrection < 0.21)
+				result = true;
+			else
+				result = false;
 		}
 
 		if (result)

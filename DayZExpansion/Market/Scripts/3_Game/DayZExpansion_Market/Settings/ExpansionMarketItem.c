@@ -241,7 +241,8 @@ class ExpansionMarketItem
 			bool isMagAmmo = false;
 			if (!attachmentTypes.Find(attachmentName, isMagAmmo))
 			{
-				isMagAmmo = isMag && GetGame().IsKindOf(attachmentName, "Ammunition_Base");
+				if (isMag && GetGame().IsKindOf(attachmentName, "Ammunition_Base"))
+					isMagAmmo = true;
 				attachmentTypes.Insert(attachmentName, isMagAmmo);
 			}
 			if (isMagAmmo)

@@ -1,13 +1,19 @@
 class eAIAimingProfile
 {
 	eAIBase m_Unit;
+	vector m_AimDirection;
 
 	void eAIAimingProfile(eAIBase ai)
 	{
 		m_Unit = ai;
 	}
 
-	bool Get(out vector position, out vector direction)
+	vector GetAimDirection()
+	{
+		return m_AimDirection;
+	}
+
+	void Update()
 	{
 		vector transform[4];
 		m_Unit.GetTransform(transform);
@@ -18,10 +24,10 @@ class eAIAimingProfile
 		// m_Unit.GetStatHeatComfort().Get(); <= freezing ?
 		// m_Unit.GetAimingModel().GetSwayWeight();
 
-		position = m_Unit.GetBonePositionWS(m_Unit.GetBoneIndexByName("neck"));
+		vector position = m_Unit.GetBonePositionWS(m_Unit.GetBoneIndexByName("neck"));
 
 		//! 100% guarantee to hit target
-		direction = vector.Direction(position, m_Unit.GetAimPosition());
+		vector direction = vector.Direction(position, m_Unit.GetAimPosition());
 
 		PlayerBase targetPlayer;
 		if (Class.CastTo(targetPlayer, m_Unit.GetTarget().GetEntity()))
@@ -81,6 +87,6 @@ class eAIAimingProfile
 
 		direction.Normalize();
 
-		return true;
+		m_AimDirection = direction;
 	}
 };

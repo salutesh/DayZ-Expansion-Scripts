@@ -60,9 +60,6 @@ modded class BuildingBase
 #ifdef EXPANSIONTRACE
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, this);
 #endif
-		if (GetGame().IsServer() && !IsFuelStation() && GetExpansionSettings().GetGeneral().DisableShootToUnlock)
-			SetAllowDamage(false);
-
 		if (!HasInterior() && !HasIvys())
 			return;
 
@@ -71,7 +68,9 @@ modded class BuildingBase
 
 		auto mapping = GetExpansionSettings().GetGeneral().Mapping;
 
-		bool loadInterior = HasInterior() && mapping.BuildingInteriors && ExpansionStatic.IsAnyOf(this, mapping.Interiors, false);
+		bool loadInterior;
+		if (HasInterior() && mapping.BuildingInteriors && ExpansionStatic.IsAnyOf(this, mapping.Interiors, false))
+			loadInterior = true;
 		int loadIvys = mapping.BuildingIvys;
 
 		if (!loadInterior && loadIvys == 0)
@@ -92,6 +91,29 @@ modded class BuildingBase
 				s_Expansion_LoadCustomObjectsDelay = 1000;
 		}
 	}
+
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+		{
+			return false;
+		}
+
+		if (GetExpansionSettings().GetGeneral().DisableShootToUnlock)
+		{
+			component = Expansion_ConvertComponent(component, LOD.NAME_FIRE, LOD.NAME_VIEW);
+			if (component != -1)
+			{
+				int doorIndex = GetDoorIndex(component);
+				if (IsDoorLocked(doorIndex))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
 	
 	// ------------------------------------------------------------
 	// BuildingBase LoadCustomObjects
@@ -107,6 +129,22 @@ modded class BuildingBase
 	
 		if (loadIvys != 0)
 			LoadIvys(loadIvys);
+	}
+
+	protected int Expansion_ConvertComponent(int srcComponentIdx, string srcGeometry, string dstGeometry)
+	{
+		string selection = GetActionComponentName(srcComponentIdx, srcGeometry);
+
+		const int maxComponents = 512; //! no way to get a maximum, this seems safe
+		for (int componentIndex = 0; componentIndex < maxComponents; componentIndex++)
+		{
+			if (IsActionComponentPartOfSelection(componentIndex, selection, dstGeometry))
+			{
+				return componentIndex;
+			}
+		}
+
+		return -1;
 	}
 	
 	// ------------------------------------------------------------

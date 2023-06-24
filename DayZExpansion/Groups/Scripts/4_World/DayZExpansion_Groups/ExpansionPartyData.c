@@ -586,7 +586,9 @@ class ExpansionPartyData
 		}
 
 	#ifdef EXPANSIONMODNAVIGATION
-		bool syncMarkersPlayer = playerID && m_SyncMarkersPlayers.Find(playerID) > -1;
+		bool syncMarkersPlayer;
+		if (playerID && m_SyncMarkersPlayers.Find(playerID) > -1)
+			syncMarkersPlayer = true;
 		if (!syncMarkersPlayer && syncMarkers)
 		{
 			count = Markers.Count();

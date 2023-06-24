@@ -127,7 +127,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_LookLR = lookLR;
 		m_LookUD = lookUD;
 
-		m_Look = (Math.AbsFloat(m_LookLR) > 0.01) || (Math.AbsFloat(m_LookUD) > 0.01);
+		//! https://feedback.bistudio.com/T173348
+		if (Math.AbsFloat(m_LookLR) > 0.01 || Math.AbsFloat(m_LookUD) > 0.01)
+			m_Look = true;
+		else
+			m_Look = false;
 	}
 
 /*
@@ -217,7 +221,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_StanceChangeTimeout -= pDt;
 
 #ifdef DIAG
-		auto hitch = EXHitch(m_Unit.ToString() + " eAICommandMove::PreAnimUpdate ", 20000);
+		auto hitch = new EXHitch(m_Unit.ToString() + " eAICommandMove::PreAnimUpdate ", 20000);
 #endif
 
 		m_SpeedUpdateTime += pDt;
@@ -235,7 +239,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 		if (m_SpeedLimit)
 		{
 #ifndef EAI_USE_LEGACY_PATHFINDING
-			isFinal = m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal;
+			//! https://feedback.bistudio.com/T173348
+			if (m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal)
+				isFinal = true;
+			else
+				isFinal = false;
 			//m_WayPointDistance = vector.DistanceSq(position, wayPoint);
 			DBGDrawSphere(wayPoint, 0.05, 0xFFFF0000);
 			//DBGDrawLine(position, wayPoint, 0xFFFF0000);
@@ -335,8 +343,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			vector checkDir;
 
 			//! Only check bwd if we are moving bwd, else check fwd
-			bool movingBwd = Math.AbsFloat(m_MovementDirection) >= 135;
-			if (movingBwd)
+			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
 				checkDir = position - 0.5 * fb;
 				blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true);
@@ -375,7 +382,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 				}
 			}
 
-			bool blockedFwdOrBwd = blockedForward || blockedBackward;
+			bool blockedFwdOrBwd;
+			//! https://feedback.bistudio.com/T173348
+			if (blockedForward || blockedBackward)
+				blockedFwdOrBwd = true;
 
 			m_LastBlocked = blockedFwdOrBwd;
 
@@ -443,7 +453,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 					{
 						//! Go right if blocked left
 						moveRight = true;
-					#ifdef DIAG
+					#ifdef EAI_DEBUG_MOVE
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked left, move right");
 					#endif
 					}
@@ -455,11 +465,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 							if (m_OverrideTargetMovementDirection == 90)
 							{
 								moveRight = true;
-							#ifdef DIAG
+							#ifdef EAI_DEBUG_MOVE
 								EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, already moving right, keep moving right");
 							#endif
 							}
-						#ifdef DIAG
+						#ifdef EAI_DEBUG_MOVE
 							else
 							{
 								EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, already moving left, keep moving left");
@@ -470,18 +480,18 @@ class eAICommandMove: ExpansionHumanCommandScript
 						else if (Math.RandomIntInclusive(0, 1))
 						{
 							moveRight = true;
-						#ifdef DIAG
+						#ifdef EAI_DEBUG_MOVE
 							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move right");
 						#endif
 						}
-					#ifdef DIAG
+					#ifdef EAI_DEBUG_MOVE
 						else
 						{
 							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move left");
 						}
 					#endif
 					}
-				#ifdef DIAG
+				#ifdef EAI_DEBUG_MOVE
 					else
 					{
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked right, move left");
@@ -504,7 +514,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 						if (m_OverrideMovementTimeout <= 0)
 							m_OverrideMovementTimeout = 1.0;
 						m_OverrideWaypoint = backwardPos;
-					#ifdef DIAG
+					#ifdef EAI_DEBUG_MOVE
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked L+R, move bwd");
 					#endif
 					}
@@ -519,7 +529,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 						}
 						m_OverrideWaypoint = forwardPos;
 						m_TurnOverride = true;
-					#ifdef DIAG
+					#ifdef EAI_DEBUG_MOVE
 						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked L+R+B, turn " + m_TurnDirection);
 					#endif
 					}
@@ -768,7 +778,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 			}
 		}
 
-		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal && !matchLeaderSpeed;
+		//! https://feedback.bistudio.com/T173348
+		if (isFinal && m_WayPointDistance < minFinal && !matchLeaderSpeed)
+			m_Unit.m_eAI_PositionIsFinal = true;
+		else
+			m_Unit.m_eAI_PositionIsFinal = false;
 		if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
@@ -984,8 +998,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			vector position = m_Transform[3];
 			vector lr = m_Direction.Perpend();
 			vector checkDir = position + 0.5 * m_Direction;
-			bool movingBwd = Math.AbsFloat(m_MovementDirection) >= 135;
-			if (movingBwd)
+			if (Math.AbsFloat(m_MovementDirection) >= 135)
 				checkDir = checkDir * -1.0;
 			vector checkLeft = position + 0.25 * lr;
 			vector hitPosition;
@@ -1015,8 +1028,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			vector position = m_Transform[3];
 			vector lr = m_Direction.Perpend();
 			vector checkDir = position + 0.5 * m_Direction;
-			bool movingBwd = Math.AbsFloat(m_MovementDirection) >= 135;
-			if (movingBwd)
+			if (Math.AbsFloat(m_MovementDirection) >= 135)
 				checkDir = checkDir * -1.0;
 			vector checkRight = position - 0.25 * lr;
 			vector hitPosition;

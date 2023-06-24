@@ -36,7 +36,10 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
-			bool canBandage = ai.IsBleeding() && m_Item.Expansion_CanBeUsedToBandage();
+			bool canBandage;
+			//! https://feedback.bistudio.com/T173348
+			if (ai.IsBleeding() && m_Item.Expansion_CanBeUsedToBandage())
+				canBandage = true;
 
 			Magazine targetMag;
 

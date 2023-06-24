@@ -205,8 +205,13 @@ modded class MiscGameplayFunctions
 		#endif
 
 		//! If target object is item or transport, do additional obstruction check to prevent accessing vicinity through Expansion basebuilding
-		bool isTargetItemOrTransport = object.IsInherited( ItemBase ) || object.IsTransport();
-		bool doAdditionalCheck = ObstructingObjectsContainExpansionBaseBuildingOrTent && isTargetItemOrTransport;
+		bool isTargetItemOrTransport;
+		//! https://feedback.bistudio.com/T173348
+		if (object.IsInherited( ItemBase ) || object.IsTransport())
+			isTargetItemOrTransport = true;
+		bool doAdditionalCheck;
+		if (ObstructingObjectsContainExpansionBaseBuildingOrTent && isTargetItemOrTransport)
+			doAdditionalCheck = true;
 
 		foreach ( Object potentiallyObstructingObject : cache.HitObjects )
 		{

@@ -366,20 +366,24 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			string type;
 			g_Game.ObjectGetType(obj, type);
 			auto exType = new ExpansionString(type);
-			bool match;
+			bool match = false;
 			switch (doPartialMatch)
 			{
 				case 0:
-					match = type == className;
+					if (type == className)
+						match = true;
 					break;
 				case 1:
-					match = exType.EndsWith(className);
+					if (exType.EndsWith(className))
+						match = true;
 					break;
 				case 2:
-					match = exType.StartsWith(className);
+					if (exType.StartsWith(className))
+						match = true;
 					break;
 				case 3:
-					match = exType.StartsWith(classNameStart) && exType.EndsWith(classNameEnd);
+					if (exType.StartsWith(classNameStart) && exType.EndsWith(classNameEnd))
+						match = true;
 					break;
 			}
 			if (match)

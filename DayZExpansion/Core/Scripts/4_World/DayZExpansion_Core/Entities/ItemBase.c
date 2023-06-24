@@ -571,7 +571,9 @@ modded class ItemBase
 		float health = m_Expansion_HealthBeforeHit[dmgZone];
 		float dmg = damageResult.GetDamage(damageZone, "Health");
 
-		bool applyDamageCorrection = (damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM) && m_Expansion_DamageMultiplier != 1.0;
+		bool applyDamageCorrection;
+		if ((damageType == DT_EXPLOSION || damageType == DT_FIRE_ARM) && m_Expansion_DamageMultiplier != 1.0)
+			applyDamageCorrection = true;
 
 		if (damageType == DT_EXPLOSION && ExpansionDamageSystem.IsEnabledForExplosionTarget(this))
 		{
@@ -1374,9 +1376,16 @@ modded class ItemBase
 		
 		if ( wwtu || foodDecay )
 		{
-			bool processWetness = wwtu && CanHaveWetness();
-			bool processTemperature = wwtu && CanHaveTemperature();
-			bool processDecay  = foodDecay && CanDecay() && CanProcessDecay();
+			bool processWetness;
+			//! https://feedback.bistudio.com/T173348
+			if (wwtu && CanHaveWetness())
+				processWetness = true;
+			bool processTemperature;
+			if (wwtu && CanHaveTemperature())
+				processTemperature = true;
+			bool processDecay;
+			if (foodDecay && CanDecay() && CanProcessDecay())
+				processDecay = true;
 			
 			if ( processWetness || processTemperature || processDecay)
 			{

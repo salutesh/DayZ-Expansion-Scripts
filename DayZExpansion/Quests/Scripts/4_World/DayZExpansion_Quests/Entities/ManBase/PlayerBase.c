@@ -76,14 +76,23 @@ modded class PlayerBase
 			return;
 
 		ExpansionQuest quest;
-		foreach (ExpansionQuestObjectiveEventBase objective: s_Expansion_AssignedQuestObjectives)
+		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
+		for (int i = 0, j = 0; i < s_Expansion_AssignedQuestObjectives.Count() && j < failSafe; j++)
 		{
+			ExpansionQuestObjectiveEventBase objective = s_Expansion_AssignedQuestObjectives[i];
 			if (!objective)
+			{
+				EXTrace.Print(EXTrace.QUESTS, this, "WARNING: Objective is NULL!");
+				s_Expansion_AssignedQuestObjectives.RemoveOrdered(i);
 				continue;
+			}
 
 			quest = objective.GetQuest();
 			if (!quest)
+			{
+				i++;
 				continue;
+			}
 			
 			//! Check if the current objective belongs to the quest player
 			if (!quest.IsQuestPlayer(killerUID))
@@ -91,6 +100,7 @@ modded class PlayerBase
 			#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 				EXTrace.Print(EXTrace.QUESTS, this, "Player with UID [" + killerUID + "] is not a quest player of this quest objective. Skip...");
 			#endif
+				i++;
 				continue;
 			}
 
@@ -105,7 +115,14 @@ modded class PlayerBase
 					objective.OnEntityKilled(this, killSource, killerPlayer);
 					break;
 			}
+
+			if (objective.IsAssigned())
+				i++;
 		}
+
+		//! @note should not happen, this could mean an objective was no longer marked assigned but still in the list
+		if (j == failSafe)
+			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 
 	override void EEKilled(Object killer)

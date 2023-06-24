@@ -10,47 +10,12 @@
  *
 */
 
-class ExpansionSupplyCrateSetup
-{
-	string ClassName;
-	vector Position;
-	vector Orientation;
-	ref array<ref ExpansionLoot> CrateLoot;
-
-	void ExpansionSupplyCrateSetup(string className, vector pos, vector ori)
-	{
-		ClassName = className;
-		Position = pos;
-		Orientation = ori;
-		CrateLoot = new array<ref ExpansionLoot>;
-	}
-
-	void AddLoot(string name, TStringArray attachments = NULL, float chance = 1, int quantityPercent = -1, array<ref ExpansionLootVariant> variants = NULL, int max = -1, int min = 0)
-	{
-		ExpansionLoot loot = new ExpansionLoot(name, attachments, chance, quantityPercent, variants , max, min);
-		CrateLoot.Insert(loot);
-	}
-
-	void InsertLoot(array<ref ExpansionLoot> loots)
-	{
-		foreach (ExpansionLoot loot: loots)
-		{
-			CrateLoot.Insert(loot);
-		}
-	}
-
-	array<ref ExpansionLoot> GetLoot()
-	{
-		return CrateLoot;
-	}
-};
-
 static const string EXPANSION_NAMALSKADVENTURE_SETTINGS = EXPANSION_MISSION_SETTINGS_FOLDER + "NamalskAdventureSettings.json";
 
 /**@class		ExpansionNamalskAdventureSettingsBase
  * @brief		Spawn settings base class
  **/
-class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase 
+class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase
 {
 	bool EnableAnomalies;
 	ref array<ref ExpansionAnomalyDynamic> DynamicAnomalies;
@@ -59,15 +24,17 @@ class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase
 	bool EnableStatic;
 	bool SpawnDynamicWithEVRStorms;
 	bool SpawnStaticWithEVRStorms;
-#ifdef EXPANSIONMODMARKET
+	
+	#ifdef EXPANSIONMODMARKET
 	bool EnableMerchant;
 	ref array<ref ExpansionMerchantPosition> MerchantPositions; //! Server
 	ref array<ref ExpansionMerchantItemSet> MerchantItemSets; //! Server
-#endif
-#ifdef EXPANSIONMODAI
+	#endif
+	
+	#ifdef EXPANSIONMODAI
 	bool EnableAISpawns;
 	ref array<ref ExpansionAISpawnPosition> AISpawnPositions; //! Server
-#endif
+	#endif
 
 	bool EnableSupplyCrates;
 	ref array<ref ExpansionSupplyCrateSetup> SupplyCrateSpawns;
@@ -81,9 +48,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	[NonSerialized()]
 	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 250;
 
-	static const int VERSION = 1;
-	
-	bool EnableCommunityGoals;
+	static const int VERSION = 4;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -94,13 +59,15 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 		DynamicAnomalies = new array<ref ExpansionAnomalyDynamic>;
 		StaticAnomalies = new array<ref ExpansionAnomalyStatic>;
-	#ifdef EXPANSIONMODMARKET
+		
+		#ifdef EXPANSIONMODMARKET
 		MerchantPositions = new array<ref ExpansionMerchantPosition>;
 		MerchantItemSets = new array<ref ExpansionMerchantItemSet>;
-	#endif
-	#ifdef EXPANSIONMODAI
+		#endif
+		
+		#ifdef EXPANSIONMODAI
 		AISpawnPositions = new array<ref ExpansionAISpawnPosition>;
-	#endif
+		#endif
 
 		SupplyCrateSpawns = new array<ref ExpansionSupplyCrateSetup>;
 	}
@@ -144,16 +111,18 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		EnableStatic = s.EnableStatic;
 		SpawnDynamicWithEVRStorms = s.SpawnDynamicWithEVRStorms;
 		SpawnStaticWithEVRStorms = s.SpawnStaticWithEVRStorms;
-	#ifdef EXPANSIONMODMARKET
+		
+		#ifdef EXPANSIONMODMARKET
 		EnableMerchant = s.EnableMerchant;
 		MerchantPositions = s.MerchantPositions;
 		MerchantItemSets = s.MerchantItemSets;
-	#endif
-	#ifdef EXPANSIONMODAI
+		#endif
+		
+		#ifdef EXPANSIONMODAI
 		EnableAISpawns = s.EnableAISpawns;
 		AISpawnPositions = s.AISpawnPositions;
-	#endif
-	
+		#endif
+
 		EnableSupplyCrates = s.EnableSupplyCrates;
 		SupplyCrateSpawns = s.SupplyCrateSpawns;
 	}
@@ -191,12 +160,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 			{
 				EXPrint("[ExpansionNamalskAdventureSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMALSKADVENTURE_SETTINGS + "\" to v" + VERSION);
 				CopyInternal(settingsBase); //! Copy over old settings that have not changed.
-			
-				if (settingsBase.m_Version < 1)
-				{
-					EnableCommunityGoals = settingsDefault.EnableCommunityGoals;
-				}
-				
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -250,20 +214,19 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		SpawnDynamicWithEVRStorms = true;
 		SpawnStaticWithEVRStorms = false;
 
-	#ifdef EXPANSIONMODMARKET
+		#ifdef EXPANSIONMODMARKET
 		EnableMerchant = true;
 		DefaultNamalskMerchantData();
 		DefaultNamalskMerchantItemData();
-	#endif
-	#ifdef EXPANSIONMODAI
+		#endif
+		
+		#ifdef EXPANSIONMODAI
 		EnableAISpawns = true;
 		DefaultAISpawnPositions();
-	#endif
+		#endif
 
 		EnableSupplyCrates = true;
 		DefaultSupplyCrates();
-		
-		EnableCommunityGoals = false;
 	}
 
 	protected void DefaultNamalskAnomalies()
@@ -315,22 +278,22 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4962.06, 50, 7988.59), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
-		
+
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
-		
+
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
-		
+
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3937.58, 5.72824, 10020.3), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
-		
+
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5489.87, 101.82, 7892.35), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
 
 		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5015.51, 47.1122, 6555.13), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
 		DynamicAnomalies.Insert(anomaly);
-		
+
 		//! Static spawns
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4320.681152, 77.882248, 8105.860352)));
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(4238.989746, 77.928940, 8120.389648)));
@@ -345,7 +308,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5712.300293, 21.977049, 9917.190430)));
 	}
 
-#ifdef EXPANSIONMODMARKET
+	#ifdef EXPANSIONMODMARKET
 	protected void DefaultNamalskMerchantData()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -365,9 +328,9 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		itemSet.AddItem("nvgoggles", 5, ExpansionMarketTraderBuySell.CanOnlyBuy);
 		MerchantItemSets.Insert(itemSet);
 	}
-#endif
+	#endif
 
-#ifdef EXPANSIONMODAI
+	#ifdef EXPANSIONMODAI
 	protected void DefaultAISpawnPositions()
 	{
 		array<vector> shelterPositions = {"8551.87 15.7033 10530.6", "8553.74 15.7033 10533.4"};
@@ -490,13 +453,13 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		waypoints.Insert(Vector(4148.98, 2209.99, 8386.47));
 		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(4148.98, 2209.99, 8386.47), Vector(289.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));*/
 	}
-#endif
+	#endif
 
 	protected void DefaultSupplyCrates()
 	{
 		TStringArray nacPlateCarrierAtt = {"dzn_platecarrierpouches_nac", "dzn_platecarrierholster_nac"};
 		TStringArray nvgAtt = {"NVGoggles"};
-		
+
 		//! A1 Bunker supply crates
 		ExpansionSupplyCrateSetup supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Bunker_Green", "1898.079956 197.143005 1318.750000", "-4.545284 0.000000 0.000000");
 		supplyCrate.AddLoot("ExpansionAnomalyCoreProtectiveCase", NULL, 0.3, -1, NULL, 1, 1);
@@ -517,7 +480,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_Bunker_Green", "1874.483887 197.182037 1290.613403", "-89.999901 0.000000 0.000000");
 		supplyCrate.InsertLoot(ExpansionLootDefaults.SupplyCrate_Military());
 		SupplyCrateSpawns.Insert(supplyCrate);
-		
+
 		//! World military supply crates
 		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_World_T1_Green", "4582.287598 43.907669 8819.691406", "53.999985 -0.000000 -0.000000");
 		supplyCrate.AddLoot("Expansion_KeyCard_A1_B1", NULL, 0.55, -1, NULL, 1, 1);
@@ -548,24 +511,24 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		supplyCrate.AddLoot("Expansion_KeyCard_A1_B1", NULL, 0.55, -1, NULL, 1, 1);
 		supplyCrate.InsertLoot(ExpansionLootDefaults.SupplyCrate_Military());
 		SupplyCrateSpawns.Insert(supplyCrate);
-		
+
 		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_World_T1_Green", "5994.645020 37.987732 6632.409668", "81.000008 -0.000000 -0.000000");
 		supplyCrate.AddLoot("Expansion_KeyCard_A1_B1", NULL, 0.55, -1, NULL, 1, 1);
 		supplyCrate.InsertLoot(ExpansionLootDefaults.SupplyCrate_Military());
 		SupplyCrateSpawns.Insert(supplyCrate);
-		
+
 		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_World_T1_Green", "4154.082520 74.418991 7756.675293", "125.999924 0.000000 -0.000000");
 		supplyCrate.AddLoot("Expansion_KeyCard_A1_B1", NULL, 0.55, -1, NULL, 1, 1);
 		supplyCrate.InsertLoot(ExpansionLootDefaults.SupplyCrate_Military());
 		SupplyCrateSpawns.Insert(supplyCrate);
-		
+
 		supplyCrate = new ExpansionSupplyCrateSetup("Expansion_SupplyCrate_World_T1_Green", "3635.906006 99.478661 7498.728027", "0.000000 -0.000000 -0.000000");
 		supplyCrate.AddLoot("Expansion_KeyCard_A1_B1", NULL, 0.55, -1, NULL, 1, 1);
 		supplyCrate.InsertLoot(ExpansionLootDefaults.SupplyCrate_Military());
 		SupplyCrateSpawns.Insert(supplyCrate);
 	}
 
-#ifdef EXPANSIONMODMARKET
+	#ifdef EXPANSIONMODMARKET
 	ExpansionMerchantPosition GetMerchantPosition()
 	{
 		return MerchantPositions.GetRandomElement();
@@ -575,7 +538,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	{
 		return MerchantItemSets.GetRandomElement();
 	}
-#endif
+	#endif
 
 	array<ref ExpansionSupplyCrateSetup> GetSupplyCrateSpawns()
 	{

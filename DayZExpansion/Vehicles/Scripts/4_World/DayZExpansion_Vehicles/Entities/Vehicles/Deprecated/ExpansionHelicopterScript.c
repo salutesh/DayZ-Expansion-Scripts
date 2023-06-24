@@ -187,7 +187,9 @@ class ExpansionHelicopterScript: CarScript
 		if (!m_IsInitialized)
 			return;
 
-		bool resetImpulse = GetGame().IsServer() && !IsDamageDestroyed();
+		bool resetImpulse;
+		if (GetGame().IsServer() && !IsDamageDestroyed())
+			resetImpulse = true;
 
 		vector transform[4];
 		GetTransform(transform);
@@ -235,7 +237,9 @@ class ExpansionHelicopterScript: CarScript
 	{
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		bool isGlobal = !dmgZone || dmgZone == "GlobalHealth";
+		bool isGlobal;
+		if (!dmgZone || dmgZone == "GlobalHealth")
+			isGlobal = true;
 
 		float dmg = damageResult.GetDamage(dmgZone, "");
 
@@ -255,14 +259,16 @@ class ExpansionHelicopterScript: CarScript
 				break;
 			default:
 				//! Explode if base dmg exceeded heli max health, or 1 in 50 chance if it exceeded current heli health
-				explode = isGlobal && (dmg > GetMaxHealth(dmgZone, "") || (Math.RandomInt(0, 50) < 1 && IsDamageDestroyed()));
+				if (isGlobal && (dmg > GetMaxHealth(dmgZone, "") || (Math.RandomInt(0, 50) < 1 && IsDamageDestroyed())))
+					explode = true;
 				break;
 		}
 
 		if (additionalDmg)
 		{
 			//! Explode if additional dmg exceeds current health
-			explode = isGlobal && additionalDmg > GetHealth(dmgZone, "");
+			if (isGlobal && additionalDmg > GetHealth(dmgZone, ""))
+				explode = true;
 
 			DecreaseHealth(dmgZone, "", additionalDmg);
 		}

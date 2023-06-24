@@ -250,7 +250,11 @@ class eAIDynamicPatrol : eAIPatrol
 		if (!m_CanSpawn && (!m_Group || m_WasGroupDestroyed))
 		{
 			m_TimeSinceLastSpawn += eAIPatrol.UPDATE_RATE_IN_SECONDS;
-			m_CanSpawn = m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime;
+			//! https://feedback.bistudio.com/T173348
+			if (m_RespawnTime > -1 && m_TimeSinceLastSpawn >= m_RespawnTime)
+				m_CanSpawn = true;
+			else
+				m_CanSpawn = false;
 		}
 
 		if (!m_Group)

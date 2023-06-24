@@ -163,8 +163,8 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 			bool isOpenable;
 #ifdef EXPANSIONMODBASEBUILDING
 			ItemBase itemParent;
-			if (Class.CastTo(itemParent, parent))
-				isOpenable = itemParent.ExpansionIsOpenable() || itemParent.IsNonExpansionOpenable();
+			if (Class.CastTo(itemParent, parent) && (itemParent.ExpansionIsOpenable() || itemParent.IsNonExpansionOpenable()))
+				isOpenable = true;
 #endif
 			if (isOpenable || parent.GetInventory().GetSlotLock(il.GetSlot()) || entity.IsKindOf("CombinationLock") || entity.IsKindOf("ExpansionCodeLock"))
 			{
@@ -401,7 +401,10 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		//! @note order of operations matters! DO NOT CHANGE!
 
-		bool createEntity = level || !entity;
+		bool createEntity;
+		//! https://feedback.bistudio.com/T173348
+		if (level || !entity)
+			createEntity = true;
 		if (createEntity)
 		{
 			int result = Restore_Phase1(ctx, entity, parent, player, entityStorageVersion, type, level);
@@ -753,7 +756,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		Now = CF_Date.Now(true).DateToEpoch();
 
-		auto hitch = EXHitch("[ExpansionEntityStorage] ");
+		auto hitch = new EXHitch("[ExpansionEntityStorage] ");
 
 		string basePath;
 		TStringArray orphanedFiles;
@@ -791,7 +794,7 @@ class ExpansionEntityStorageModule: CF_ModuleWorld
 
 		Now = CF_Date.Now(true).DateToEpoch();
 
-		auto hitch = EXHitch("[ExpansionEntityStorage] ");
+		auto hitch = new EXHitch("[ExpansionEntityStorage] ");
 
 		string basePath;
 		auto exFileName = new ExpansionString(fileName);

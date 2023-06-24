@@ -27,5 +27,7 @@ modded class ActionConstructor
 		
 		actions.Insert(ActionTurnOnWorkbenchGenerator);
 		actions.Insert(ActionTurnOffWorkbenchGenerator);
+		
+		actions.Insert(ExpansionActionOpenCommunityGoalsMenu);
 	}
 };

@@ -69,6 +69,8 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			distance = 0.1;
 		}
 
+		CarScript cs = CarScript.Cast(transport);
+
 		if (!ai.eAI_IsSideStepping())
 		{
 			vector vehicleDir = transport.GetDirection();
@@ -86,8 +88,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 			if (distance < speedAbs * 0.833333)
 			{
 				vector transform[4];
-				CarScript cs;
-				if (Class.CastTo(cs, transport))
+				if (cs)
 					cs.Expansion_EstimateTransform(0.25, transform);  //! Quarter second ahead
 				else
 					transport.GetTransform(transform);
@@ -138,8 +139,7 @@ class eAIVehicleTargetInformation: eAIEntityTargetInformation
 		}
 
 		//! Invincible AI will only sidestep unless they have been hit by this vehicle
-		CarScript vehicle;
-		if (!ai.Expansion_CanBeDamaged() && (!Class.CastTo(vehicle, transport) || !vehicle.GetTargetInformation().IsTargettedBy(ai)))
+		if (!ai.Expansion_CanBeDamaged() && (!cs || !cs.GetTargetInformation().IsTargettedBy(ai)))
 			return ExpansionMath.LinearConversion(0.5, 100, distance, 0.199999, 0.15);
 
 		float levelFactor = speedAbs / 20.0;  //! 0.4 at 8 km/h

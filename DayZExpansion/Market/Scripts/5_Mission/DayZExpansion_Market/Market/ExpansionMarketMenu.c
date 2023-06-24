@@ -397,7 +397,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				string displayName = GetDisplayName(GetPreviewClassName(currentItem.ClassName, true));
 				
-				currentItem.m_ShowInMenu = (!currentItem.m_IsVariant || (!currentItem.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search) && ShouldShowItem(currentItem, displayName, search);
+				//! https://feedback.bistudio.com/T173348
+				if ((!currentItem.m_IsVariant || (!currentItem.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search) && ShouldShowItem(currentItem, displayName, search))
+					currentItem.m_ShowInMenu = true;
+				else
+					currentItem.m_ShowInMenu = false;
 				
 				TempInsertItem(displayName, currentItem, tempItems);
 				
@@ -564,7 +568,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		//! and sets whether items should be shown or not
 		foreach (ExpansionMarketItem item : m_TraderItems)
 		{
-			item.m_ShowInMenu = !isFiltered && !item.m_IsVariant;
+			//! https://feedback.bistudio.com/T173348
+			if (!isFiltered && !item.m_IsVariant)
+				item.m_ShowInMenu = true;
+			else
+				item.m_ShowInMenu = false;
 			if (!item.m_ShowInMenu && (!item.m_IsVariant || (!item.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search))
 			{
 				string displayName = GetDisplayName(GetPreviewClassName(item.ClassName, true));

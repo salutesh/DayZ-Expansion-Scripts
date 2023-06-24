@@ -28,8 +28,7 @@ modded class MissionGameplay
 				GetExpansionClientSettings().ShowPartyMemberHUD = !GetExpansionClientSettings().ShowPartyMemberHUD;
 			}
 
-			bool showPartyHUDSetting = GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD);
-			if (showPartyHUDSetting)
+			if (GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD))
 			{
 				bool isChatInputMenu;
 				if (menu)

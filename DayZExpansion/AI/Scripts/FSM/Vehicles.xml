@@ -17,6 +17,7 @@
 				
 				super.OnEntry(Event, null);
 				
+				unit.OverrideMovementDirection(false, 0);
 				unit.OverrideMovementSpeed(false, 0);
 			</event_entry>
 		</state>
@@ -66,6 +67,9 @@
 			</editor_data>
 			<guard>
 				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
+				if (!src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
+				CarScript cs;
+				if (src.transport.CrewMember(src.seat) || (Class.CastTo(cs, src.transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.seat, unit))) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -98,6 +102,9 @@
 				if (vector.Distance(unit.GetPosition(), src.position) &gt; 0.5) return FAIL;
 				if (unit.IsInTransport()) return FAIL;
 				if (src.entity.IsKindOf("ExpansionBus")) return FAIL;  //! Hard block bus until seating CTD is fixed
+				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
+				CarScript cs;
+				if (src.transport.CrewMember(src.seat) || (Class.CastTo(cs, src.transport) &amp;&amp; cs.Expansion_IsSeatReservedByOther(src.seat, unit))) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -124,12 +131,16 @@
 			</editor_data>
 			<guard>
 				auto group = unit.GetGroup();
-				if (!group) return SUCCESS;
+				if (!group) return FAIL;
 				
 				auto leader = group.GetLeader();
-				if (!leader || leader == unit) return SUCCESS;
+				if (leader &amp;&amp; leader != unit)
+				{
+					if (group.GetFormationState() != eAIGroupFormationState.IN || leader.GetParent() == unit.GetParent())
+						return FAIL;
+				}
 				
-				if (group.GetFormationState() != eAIGroupFormationState.IN || leader.GetParent() == unit.GetParent()) return FAIL;
+				if (!dst.transport.IsAreaAtDoorFree(dst.seat)) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -144,6 +155,8 @@
 			</editor_data>
 			<guard>
 				if (!unit.IsInTransport()) return FAIL;
+				
+				if (!src.transport.CrewCanGetThrough(src.seat) || !src.transport.IsAreaAtDoorFree(src.seat)) return FAIL;
 				
 				return SUCCESS;
 			</guard>
@@ -174,7 +187,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="CloseVehicleDoor,Sitting" />
+			<from_state name="CloseVehicleDoor,Sitting,OpenVehicleDoor" />
 			<to_state name="Sitting" />
 		</transition>
 		<transition>
@@ -188,7 +201,19 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="CloseVehicleDoor" />
+			<from_state name="CloseVehicleDoor,OpenVehicleDoor" />
+			<to_state />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="1307.4738019182" y="1060.27987125479" />
+				<position_destination x="1305.61352816716" y="1108.33240728083" />
+			</editor_data>
+			<guard>
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state name="GoToVehicle" />
 			<to_state />
 		</transition>
 	</transitions>

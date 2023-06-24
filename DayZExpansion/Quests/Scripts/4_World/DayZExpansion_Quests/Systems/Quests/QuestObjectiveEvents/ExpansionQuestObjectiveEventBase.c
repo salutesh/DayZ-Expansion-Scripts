@@ -31,7 +31,8 @@ class ExpansionQuestObjectiveEventBase
 
 	void ~ExpansionQuestObjectiveEventBase()
 	{
-		DeassignObjectiveOnClasses();
+		if (GetGame())
+			DeassignObjectiveOnClasses();
 	}
 
 	void SetIndex(int index)

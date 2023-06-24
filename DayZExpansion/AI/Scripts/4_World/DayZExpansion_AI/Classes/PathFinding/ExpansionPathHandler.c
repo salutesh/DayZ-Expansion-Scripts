@@ -1,11 +1,10 @@
-#include "0_DayZExpansion_AI_Preload/Common/DayZExpansion_AI_Defines.c"
-
 class ExpansionPathHandler
 {
 	static bool ATTACHMENT_PATH_FINDING = true;
 
 	eAIBase m_Unit;
 	float m_Time;
+	float m_MinTimeUntilNextUpdate;
 
 	autoptr PGFilter m_PathFilter;
 	autoptr PGFilter m_CheckFilter;
@@ -247,6 +246,7 @@ class ExpansionPathHandler
 #endif
 
 #ifdef DIAG
+#ifndef SERVER
 		ExpansionNavMesh navMesh = m_Current.NavMesh;
 		Object parent = m_Current.Parent;
 		if (!navMesh)
@@ -259,6 +259,7 @@ class ExpansionPathHandler
 		{
 			navMesh.DrawDebug(parent);
 		}
+#endif
 #endif
 
 #ifdef EAI_DEBUG_PATH
@@ -360,10 +361,9 @@ class ExpansionPathHandler
 #ifdef DIAG
 		auto trace = EXTrace.Profile(EXTrace.AI, this);
 
-		auto hitch = EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
-
-		if (m_Recalculate && EXTrace.AI)
-			EXPrint(m_Unit, ToString() + "::OnUpdate - m_Recalculate true");
+		auto hitch = new EXHitch(m_Unit.ToString() + " ExpansionPathHandler::OnUpdate ", 20000);
+#else
+		auto hitch = new EXTimeIt();
 #endif
 
 		m_Time += pDt;
@@ -403,13 +403,17 @@ class ExpansionPathHandler
 				//EXPrint(m_Unit, "recalculating because dstSq to target ref > 0.5");
 		}
 
-		if (!recalculate && m_Count >= 1)
+		if (!recalculate && m_Count >= 1 && m_Time >= m_MinTimeUntilNextUpdate)
 		{
 			vector unitVelocity = GetVelocity(m_Unit);
-			if (unitVelocity.LengthSq() > 0.0)
+			vector next0Position = m_Next0.GetPosition();
+
+			float d0 = vector.DistanceSq(unitPosition, next0Position);
+			float d1 = vector.DistanceSq(unitPosition + unitVelocity, next0Position);
+			if (d0 < d1)
 			{
 				recalculate = true;
-				//EXPrint(m_Unit, "recalculating because velocity > 0.01, value " + unitVelocity);
+				//EXPrint(m_Unit, "recalculating because d0 < d1 (overshoot), diff " + ExpansionStatic.FloatToString(d1 - d0) + ", velocity " + unitVelocity);
 			}
 		}
 
@@ -468,9 +472,7 @@ class ExpansionPathHandler
 
 					float heightDiff = Math.AbsFloat(m_Target.Position[1] - checkingIfAlreadyOnPathsPosition[1]) * 2.0;
 
-					bool isAlreadyOnPaths = vector.Distance(checkingIfAlreadyOnPathsPosition, m_Target.Position) < heightDiff;
-
-					if (isAlreadyOnPaths)
+					if (vector.Distance(checkingIfAlreadyOnPathsPosition, m_Target.Position) < heightDiff)  //! Already on path
 					{
 						m_Target.Copy(m_TargetReference);
 
@@ -494,9 +496,11 @@ class ExpansionPathHandler
 						m_Target.FindPathFrom(closestPositionOnAttachment, this, m_Points);
 
 #ifdef EAI_DEBUG_PATH
+#ifndef SERVER
 						m_Path.RemoveOrdered(m_Count);
 
 						m_Path.Invert();
+#endif
 #endif
 						m_Points.Invert();
 
@@ -608,7 +612,10 @@ class ExpansionPathHandler
 			UpdatePoint(m_Next0, m_TargetReference.GetPosition());
 		}
 
+		m_MinTimeUntilNextUpdate = pDt + hitch.GetElapsed() * 0.0002;
+
 #ifdef EAI_DEBUG_PATH
+#ifndef SERVER
 		if (m_Path.Count() < 3)
 		{
 			m_Path.Resize(3);
@@ -637,6 +644,7 @@ class ExpansionPathHandler
 		{
 			m_Path[i].UpdateFlags(this);
 		}
+#endif
 #endif
 
 #ifdef DIAG

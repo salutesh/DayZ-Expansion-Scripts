@@ -44,14 +44,21 @@ modded class ActionOpenFence
 				m_Expansion_CanOpen = fence.ExpansionCanOpen( player, "" );
 
 				//! Not locked by combination lock, but locked by Expansion codelock
-				m_Expansion_IsLocked = !fence.IsLocked() && fence.ExpansionIsLocked();
+				if (!fence.IsLocked() && fence.ExpansionIsLocked())
+					m_Expansion_IsLocked = true;
+				else
+					m_Expansion_IsLocked = false;
 
 				if (m_Expansion_IsLocked && m_Expansion_CanOpen)
 				{
 					string type = fence.GetType();
 					type.ToLower();
 
-					m_Expansion_HasGate = type == "fence" || type.Contains("gate");
+					//! https://feedback.bistudio.com/T173348
+					if (type == "fence" || type.Contains("gate"))
+						m_Expansion_HasGate = true;
+					else
+						m_Expansion_HasGate = false;
 				}
 			}
 			else

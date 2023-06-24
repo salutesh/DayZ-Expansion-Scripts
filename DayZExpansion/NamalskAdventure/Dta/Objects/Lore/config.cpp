@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","ns2_build_a3"};
+		requiredAddons[] = {"DZ_Data","DZ_Structures_Residential","ns2_build_a3"};
 	};
 };
 class CfgVehicles
@@ -26,5 +26,10 @@ class CfgVehicles
 		physLayer = "item_large";
 		carveNavmesh = 1;
 		storageCategory = 10;
+	};
+	class Expansion_CommunityGoals_Board: HouseNoDestruct
+	{
+		scope = 2;
+		model = "DZ\structures\Residential\Misc\Misc_NoticeBoard2.p3d";
 	};
 };

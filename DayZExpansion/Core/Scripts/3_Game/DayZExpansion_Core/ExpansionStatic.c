@@ -200,15 +200,28 @@ static void EXPrintHitch( string msgPrefix, float startTime, float threshold = 0
 		EXPrint(msgPrefix + "HITCH: " + (elapsedTime * 1000) + "ms");
 }
 
-class EXHitch
+class EXTimeIt
 {
 	protected int m_Ticks;
+
+	void EXTimeIt()
+	{
+		m_Ticks = TickCount(0);
+	}
+
+	int GetElapsed()
+	{
+		return TickCount(m_Ticks);
+	}
+}
+
+class EXHitch: EXTimeIt
+{
 	protected int m_Threshold;
 	protected string m_MsgPrefix;
 
 	void EXHitch(string msgPrefix, int threshold = 125000)
 	{
-		m_Ticks = TickCount(0);
 		m_Threshold = threshold;
 		m_MsgPrefix = msgPrefix;
 	}
@@ -1416,10 +1429,6 @@ class ExpansionStatic
 
 		if (directHit)
 		{
-			//vector mins, maxs;
-			//directHit.GetWorldBounds(mins, maxs);
-			//vector size = maxs - mins;		
-			//vector add = relativeVelocityBefore.Normalized() * size.Length();
 			vector add = relativeVelocityBefore.Normalized() * 0.1;
 			if (DayZPhysics.GetHitSurface(
 				directHit,

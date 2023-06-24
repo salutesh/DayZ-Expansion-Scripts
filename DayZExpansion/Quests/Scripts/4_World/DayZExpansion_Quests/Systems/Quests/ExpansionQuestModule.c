@@ -378,8 +378,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 				MakeDirectory(EXPANSION_QUESTS_NPCS_FOLDER);
 				DefaultQuestNPCData(); //! Server: Create default quest NPCs data on the server and load them into m_QuestsNPCs.
 			}
-
-			PlayerQuestDataCheck(); //! Server: Debug check method to scan persistent quest data.
 		}
 	}
 
@@ -476,14 +474,21 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! If we don't have cached player quest data, check if file exists and load it, else use fresh instance as-is
 			questPlayerData = new ExpansionQuestPersistentData();
 			m_PlayerDatas.Insert(playerUID, questPlayerData);
-			if (questPlayerData.Load(playerUID))
+			string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + playerUID + ".bin";
+			if (!FileExist(path))
+			{
+				GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - InitQuestSystemClient - Created new persistent player quest data for player UID: " + playerUID);
+			}
+			else if (questPlayerData.Load(playerUID))
 			{
 				GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - InitQuestSystemClient - Loaded existing player quest data for player with UID: " + playerUID);
 			}
 			else
 			{
-				GetExpansionSettings().GetLog().PrintLog("[Expansion Quests] - InitQuestSystemClient - Created new persistent player quest data for player UID: " + playerUID);
+				Error(ToString() + "::InitQuestSystemClient - Loading existing quest data for player with UID " + playerUID + " failed!");
 			}
+
+			questPlayerData.QuestDebug();
 
 			sendConfigs = true;
 		}
@@ -4161,28 +4166,6 @@ class ExpansionQuestModule: CF_ModuleWorld
 		auto trace = EXTrace.Start(EXTrace.QUESTS, s_ModuleInstance, particle.ToString() + " " + typename.EnumToString(ExpansionQuestIndicatorState, emitter) + " " + show);
 
 		particle.SetParameter(emitter, EmitorParam.BIRTH_RATE, 1.0 * show);
-	}
-
-	void PlayerQuestDataCheck()
-	{
-		array<string> playerDataFiles = new array<string>;
-		playerDataFiles = ExpansionStatic.FindFilesInLocation(EXPANSION_QUESTS_PLAYERDATA_FOLDER, ".bin");
-		if (playerDataFiles.Count() > 0)
-		{
-			foreach (string file: playerDataFiles)
-			{
-				file.Replace(".bin", "");
-				QuestModulePrint("Check player data file: " + file);
-				ExpansionQuestPersistentData questPlayerData = new ExpansionQuestPersistentData();
-				if (!questPlayerData.Load(file))
-				{
-					Error(ToString() + "::PlayerQuestDataCheck - Check for player data file: " + file + " failed. Deleting file!");
-					DeleteFile(EXPANSION_QUESTS_PLAYERDATA_FOLDER + file + ".bin");
-				}
-
-				questPlayerData.QuestDebug();
-			}
-		}
 	}
 
 	static int GetQuestColor(ExpansionQuestConfig quest)

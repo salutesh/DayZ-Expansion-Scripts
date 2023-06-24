@@ -295,8 +295,12 @@ modded class ItemBase
 			Print( veh );
 			#endif
 
-			bool carAttach = car && car.Expansion_CanObjectAttach( this );
-			bool vehAttach = veh && veh.Expansion_CanObjectAttach( this );
+			bool carAttach;
+			if (car && car.Expansion_CanObjectAttach( this ))
+				carAttach = true;
+			bool vehAttach;
+			if (veh && veh.Expansion_CanObjectAttach( this ))
+				vehAttach = true;
 
 			#ifdef EXPANSION_ITEM_ATTACHING_LOGGING
 			Print( carAttach );
@@ -487,7 +491,9 @@ modded class ItemBase
 
 		CarScript car;
 		ExpansionVehicleBase vehicle;
-		bool exploded = (Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded());
+		bool exploded;
+		if ((Class.CastTo(car, parent) && car.IsExploded()) || (Class.CastTo(vehicle, parent) && vehicle.IsExploded()))
+			exploded = true;
 
 		//! If parent is exploded vehicle, make parts fly off violently
 		if (exploded)

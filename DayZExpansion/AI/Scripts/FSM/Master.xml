@@ -220,17 +220,13 @@
 				if (!group) return EXIT;
 				
 				auto leader = group.GetLeader();
-				if (!leader) return EXIT;
-
-				if (leader == unit)
-				{
-					if (!sub_fsm.entity) return EXIT;
-
-					//! TODO: Allow for exit vehicle since this AI is the leader
-					return CONTINUE;
-				}
+				//! @note leader can only briefly be null (disconnected/killed).
+				//! We wait until a new leader has been determined (which may be the current unit).
+				if (!leader) return CONTINUE;
 				
-				if ((leader.IsInTransport() &amp;&amp; leader.GetParent() == sub_fsm.entity) || unit.IsInTransport()) return CONTINUE;
+				if (!sub_fsm.entity) return EXIT;
+				
+				if ((leader != unit &amp;&amp; leader.IsInTransport() &amp;&amp; leader.GetParent() == sub_fsm.entity) || unit.IsInTransport()) return CONTINUE;
 				
 				//! Wait until AI has left the vehicle and closed the door (if any)
 				bool hasDoor;
@@ -882,7 +878,7 @@
 				//Prevents looping through the crew and insteads just compares a bool.
 				for (int i = 1; i &lt; car.CrewSize(); i++)
 				{
-					if (car.CrewMember(i) == null &amp;&amp; !car.Expansion_IsSeatReservedByOther(i, unit))
+					if (car.CrewMember(i) == null &amp;&amp; !car.Expansion_IsSeatReservedByOther(i, unit) &amp;&amp; car.IsAreaAtDoorFree(i))
 					{
 						dst.sub_fsm.seat = i;
 						dst.sub_fsm.entity = car;
@@ -1020,7 +1016,7 @@
 				return SUCCESS;
 			</guard>
 			<event />
-			<from_state name="Idle" />
+			<from_state />
 			<to_state name="Idle" />
 		</transition>
 	</transitions>

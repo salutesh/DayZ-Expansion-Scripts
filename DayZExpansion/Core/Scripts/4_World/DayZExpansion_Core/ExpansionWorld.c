@@ -21,9 +21,14 @@ class ExpansionWorld: ExpansionGame
 	{
 		bool debugPrint;
 #ifdef DIAG
-		debugPrint = EXTrace.WEAPONS;
-#else
 	#ifdef EXPANSIONMODAI
+		if (m_eAI_FirearmEffectsRecurseCount < 100)
+	#endif
+			debugPrint = EXTrace.WEAPONS;
+#endif
+
+	#ifdef EXPANSIONMODAI
+		EXTrace trace;
 		EntityAI sourceEntity;
 		if (Class.CastTo(sourceEntity, source))
 		{
@@ -31,13 +36,20 @@ class ExpansionWorld: ExpansionGame
 			if (player && player.IsInherited(eAIBase))
 			{
 				if (m_eAI_FirearmEffectsCallCount == m_eAI_FirearmEffectsCallCountPrev)  //! This should NOT happen
-					debugPrint = true;
+				{
+					m_eAI_FirearmEffectsRecurseCount++;
+					if (m_eAI_FirearmEffectsRecurseCount <= 100)
+						debugPrint = true;
+				}
 				else
+				{
 					m_eAI_FirearmEffectsCallCountPrev = m_eAI_FirearmEffectsCallCount;
+					m_eAI_FirearmEffectsRecurseCount = 0;
+				}
 			}
 		}
 	#endif
-#endif
+
 		if (debugPrint)
 		{
 			string msg = "::FirearmEffects ";
@@ -54,6 +66,10 @@ class ExpansionWorld: ExpansionGame
 			msg += "" + deflected + " ";
 			msg += "" + ammoType;
 			EXTrace.Print(true, this, msg);
+		#ifdef EXPANSIONMODAI
+			if (m_eAI_FirearmEffectsRecurseCount == 100)
+				EXPrint(this, "::FirearmEffects recursed 100 times, omitting further logging");
+		#endif
 		}
 
 		if (GetGame().IsServer())

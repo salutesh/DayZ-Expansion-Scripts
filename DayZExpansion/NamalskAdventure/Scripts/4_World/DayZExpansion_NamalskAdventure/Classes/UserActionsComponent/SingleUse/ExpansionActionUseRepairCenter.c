@@ -43,9 +43,13 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 			return false;
 		}
 
-		bool is_in_range = vector.Distance(repair_center.WorldToModel(player.GetPosition()), "0.0 -1.5 0.0") < 1.5;
+		bool is_in_range;
+		if (vector.Distance(repair_center.WorldToModel(player.GetPosition()), "0.0 -1.5 0.0") < 1.5)
+			is_in_range = true;
 		bool is_active = repair_center.GetActiveState();
-		return (is_in_range && is_active);
+		if (is_in_range && is_active)
+			return true;
+		return false;
 	}
 	
 	override void OnExecuteClient(ActionData action_data)

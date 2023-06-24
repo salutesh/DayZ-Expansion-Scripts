@@ -21,7 +21,6 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
   }
   ImageWidgetClass QuestIcon {
    ignorepointer 1
-   color 1 0.7059 0.0941 0.7843
    position 0.013 0
    size 36 36
    hexactpos 0
@@ -29,13 +28,12 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    hexactsize 1
    vexactsize 1
    scriptclass "ViewBinding"
-   imageTexture "{1595828A6EA76F98}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds"
    mode blend
    "src alpha" 1
    stretch 1
    {
     ScriptParamsClass {
-     Binding_Name "QuestIcon"
+     Binding_Name "QuestIconPath"
     }
    }
   }
@@ -78,7 +76,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    visible 0
    ignorepointer 1
    position 0 0
-   size 0.5 26
+   size 0.3 26
    halign right_ref
    valign center_ref
    hexactpos 0

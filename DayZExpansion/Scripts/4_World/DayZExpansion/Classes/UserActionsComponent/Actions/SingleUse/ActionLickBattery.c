@@ -65,7 +65,9 @@ class ActionLickBattery: ActionSingleUseBase
 
 	override void OnExecute( ActionData action_data )
 	{
-		bool canDo = !m_Battery.IsInherited( VehicleBattery ) || GetWire() != NULL;
+		bool canDo;
+		if (!m_Battery.IsInherited( VehicleBattery ) || GetWire() != NULL)
+			canDo = true;
 
 		if ( m_Battery.IsInherited( VehicleBattery ) && m_Quantity > 0 && canDo )
 		{

@@ -89,9 +89,10 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		bool conditionsResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount) && m_DestinationReached;
 	#ifdef EXPANSIONMODNAVIGATION
-		bool markerConditionResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount);
+		bool markerConditionResult;
+		if (m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount))
+			markerConditionResult = true;
 	#endif
 		
 	#ifdef EXPANSIONMODNAVIGATION
@@ -107,7 +108,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		}
 	#endif
 		
-		if (!conditionsResult)
+		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount < m_ObjectiveItemsAmount || !m_DestinationReached)
 		{
 			ObjectivePrint("End and return: FALSE");
 			return false;
@@ -131,8 +132,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 			RemoveObjectiveMarkers();
 			m_CreatedMarker = false;
 
-			bool markerConditionResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount);
-			if (markerConditionResult && m_Config.GetMarkerName() != string.Empty)
+			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && m_Config.GetMarkerName() != string.Empty)
 			{
 				CreateMarkers();
 				m_CreatedMarker = true;

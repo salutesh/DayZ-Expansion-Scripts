@@ -205,8 +205,10 @@ class ExpansionHardlineHUD: ExpansionScriptView
 		if (!GetGame().GetPlayer())
 			return;
 
-		bool underRoof = GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(GetGame().GetPlayer());
-		CoveredIndicator.Show(underRoof);
+		if (GetExpansionClientSettings().ShowUnderRoofIndicator && MiscGameplayFunctions.IsUnderRoof(GetGame().GetPlayer()))
+			CoveredIndicator.Show(true);
+		else
+			CoveredIndicator.Show(false);
 	}
 };
 

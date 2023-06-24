@@ -315,7 +315,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		bool isFriendly;
 	#ifdef EXPANSIONMODAI
 		  //! If the animal was friendly to the killer the killer will lose reputation
-        isFriendly = killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(animal);
+        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(animal))
+			isFriendly = true;
 	#endif
 		if (isFriendly)
 			killerReputation = -killerReputation;
@@ -333,7 +334,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		bool isFriendly;
 	#ifdef EXPANSIONMODAI
 		  //! If the animal was friendly to the killer the killer will lose reputation.
-        isFriendly = killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(infected);
+        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(infected))
+			isFriendly = true;
 	#endif
 		if (isFriendly)
 			killerReputation = -killerReputation;

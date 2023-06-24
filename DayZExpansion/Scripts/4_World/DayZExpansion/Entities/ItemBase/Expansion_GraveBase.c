@@ -31,7 +31,7 @@ class Expansion_GraveBase extends Inventory_Base
 
 	void ~Expansion_GraveBase()
 	{
-		if ( GetGame().IsServer() )
+		if ( GetGame() && GetGame().IsServer() )
 		{
 			m_Lifetime = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(RemoveGrave);
 		}

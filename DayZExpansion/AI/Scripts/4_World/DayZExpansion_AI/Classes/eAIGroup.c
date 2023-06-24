@@ -414,7 +414,9 @@ class eAIGroup
 			{
 				vector position = m_Form.GetPosition(index);
 				auto leader = GetLeader();
-				bool isMoving = leader && leader.Expansion_GetMovementSpeed() > 0;
+				bool isMoving;
+				if (leader && leader.Expansion_GetMovementSpeed() > 0)
+					isMoving = true;
 				if (isMoving || isInitialUpdate)
 				{
 					for (int i = 0; i < 3; i++)

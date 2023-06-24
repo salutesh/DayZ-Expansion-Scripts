@@ -21,7 +21,10 @@ modded class DayZPlayerImplement
 		if ( m_WasRaisedIronsight == ( m_MovementState.IsRaised() && m_CameraIronsight && !m_CameraOptics ) )
 			return;
 
-		m_WasRaisedIronsight = m_MovementState.IsRaised() && m_CameraIronsight && !m_CameraOptics;
+		if (m_MovementState.IsRaised() && m_CameraIronsight && !m_CameraOptics)
+			m_WasRaisedIronsight = true;
+		else
+			m_WasRaisedIronsight = false;
 
 		Weapon_Base weapon = Weapon_Base.Cast( pInHands );
 		if ( weapon )

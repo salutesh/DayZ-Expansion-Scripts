@@ -83,7 +83,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
     WrapSpacerWidgetClass ObjectiveWrapper {
      visible 1
      ignorepointer 1
-     size 0.95 1
+     size 1 1
      hexactpos 0
      vexactpos 0
      hexactsize 0
@@ -96,7 +96,7 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
       RichTextWidgetClass ObjectiveTarget {
        ignorepointer 1
        position 0.007 0.714
-       size 0.8 1
+       size 0.79 1
        hexactpos 0
        vexactpos 0
        hexactsize 0
@@ -153,7 +153,6 @@ WrapSpacerWidgetClass ExpansionQuestHudObjective {
      scriptclass "ViewBinding"
      Padding 0
      Margin 0
-     "Size To Content H" 1
      "Size To Content V" 1
      {
       ScriptParamsClass {

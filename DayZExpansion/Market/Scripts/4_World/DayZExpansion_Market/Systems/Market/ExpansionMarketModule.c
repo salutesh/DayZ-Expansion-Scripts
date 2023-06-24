@@ -172,9 +172,10 @@ class ExpansionMarketPlayerInventory
 	{
 		float maxDistance = GetExpansionSettings().GetMarket().GetMaxVehicleDistanceToTrader(vehicle.GetType());
 
-		bool isNear = vector.Distance(m_Player.GetPosition(), vehicle.GetPosition()) <= maxDistance;
+		if (vector.Distance(m_Player.GetPosition(), vehicle.GetPosition()) <= maxDistance)
+			return true;
 
-		return isNear;
+		return false;
 	}
 }
 
@@ -945,7 +946,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 				{
 					case FoodStageType.RAW:
 						//! Let quantity and condition influence stock increment modifier
-						incrementStockModifier = conditionModifier == 1 && quantityModifier >= 0.75;  //! 0.0 or 1.0
+						if (conditionModifier == 1 && quantityModifier >= 0.75)  //! 0.0 or 1.0
+							incrementStockModifier = 1.0;
+						else
+							incrementStockModifier = 0.0;
 						break;
 
 					//! Selling non-raw food shall not increase stock
@@ -986,9 +990,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		if (!trader.Items.Contains(itemClassName))
 		{
-			bool isCfgVehicleSkin = GetGame().ConfigIsExisting("CfgVehicles " + itemClassName + " skinBase");
-			bool isCfgWeaponSkin = !isCfgVehicleSkin && GetGame().ConfigIsExisting("CfgWeapons " + itemClassName + " skinBase");
-			bool isCfgMagazineSkin = !isCfgVehicleSkin && !isCfgWeaponSkin && GetGame().ConfigIsExisting("CfgMagazines " + itemClassName + " skinBase");
+			bool isCfgVehicleSkin;
+			if (GetGame().ConfigIsExisting("CfgVehicles " + itemClassName + " skinBase"))
+				isCfgVehicleSkin = true;
+			bool isCfgWeaponSkin;
+			if (!isCfgVehicleSkin && GetGame().ConfigIsExisting("CfgWeapons " + itemClassName + " skinBase"))
+				isCfgWeaponSkin = true;
+			bool isCfgMagazineSkin;
+			if (!isCfgVehicleSkin && !isCfgWeaponSkin && GetGame().ConfigIsExisting("CfgMagazines " + itemClassName + " skinBase"))
+				isCfgMagazineSkin = true;
 
 			if (isCfgVehicleSkin || isCfgWeaponSkin || isCfgMagazineSkin)
 			{
@@ -3305,7 +3315,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		trader.AddInteractingPlayer(identity.GetPlayer());
 
-		auto hitch = EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
+		auto hitch = new EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(trader.GetTraderZone().BuyPricePercent);
@@ -3333,7 +3343,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		array<ref ExpansionMarketNetworkItem> networkItemsTmp = new array<ref ExpansionMarketNetworkItem>;
 
-		auto hitch = EXHitch(ToString() + "::LoadTraderItems - GetNetworkSerialization ");
+		auto hitch = new EXHitch(ToString() + "::LoadTraderItems - GetNetworkSerialization ");
 		
 		TIntArray itemIDsTmp;
 		if (itemIDs && itemIDs.Count())
@@ -3546,7 +3556,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		EXPrint("RPC_LoadTraderItems - received batch total: " + next + " remaining: " + (count - next));
 
-		auto hitch = EXHitch(ToString() + "::RPC_LoadTraderItems - update market items ");
+		auto hitch = new EXHitch(ToString() + "::RPC_LoadTraderItems - update market items ");
 	
 		array<ref ExpansionMarketNetworkBaseItem> networkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
 		if (!ctx.Read(networkBaseItems))

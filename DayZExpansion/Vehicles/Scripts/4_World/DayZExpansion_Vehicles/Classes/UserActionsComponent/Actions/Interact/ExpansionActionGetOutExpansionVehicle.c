@@ -176,7 +176,9 @@ class ExpansionActionGetOutExpansionVehicle : ActionInteractBase
 			ExpansionVehicleBase veh = vehCommand.GetExpansionVehicle();
 
 			float speed = Math.AbsFloat(veh.GetSpeedometer());
-			bool keepInVehicleSpaceAfterLeave = veh.Expansion_CanObjectAttach(action_data.m_Player) && veh.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat());
+			bool keepInVehicleSpaceAfterLeave;
+			if (veh.Expansion_CanObjectAttach(action_data.m_Player) && veh.LeavingSeatDoesAttachment(vehCommand.GetVehicleSeat()))
+				keepInVehicleSpaceAfterLeave = true;
 
 			auto got_action_data = ExpansionActionGetOutExpansionVehicleActionData.Cast(action_data);
 			got_action_data.m_StartLocation = got_action_data.m_Player.GetPosition();
