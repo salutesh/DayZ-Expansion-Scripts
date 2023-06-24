@@ -315,7 +315,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		bool isFriendly;
 	#ifdef EXPANSIONMODAI
 		  //! If the animal was friendly to the killer the killer will lose reputation
-        isFriendly = killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(animal);
+        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(animal))
+			isFriendly = true;
 	#endif
 		if (isFriendly)
 			killerReputation = -killerReputation;
@@ -333,7 +334,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		bool isFriendly;
 	#ifdef EXPANSIONMODAI
 		  //! If the animal was friendly to the killer the killer will lose reputation.
-        isFriendly = killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(infected);
+        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(infected))
+			isFriendly = true;
 	#endif
 		if (isFriendly)
 			killerReputation = -killerReputation;
@@ -351,10 +353,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 #endif
 	
 	protected void HandlePlayerKilledPlayer(PlayerBase killer, PlayerBase victim)
-	{
-		if (!killer.GetIdentity() || !victim.GetIdentity())
-			return;
-					
+	{			
 		int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillPlayer;	
 		
 		HandlePlayerKill(killer, victim, killerReputation);
@@ -386,7 +385,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	}
 		
 	protected void HandlePlayerDeath(PlayerBase victim)
-	{
+	{	
 		int reputationLoss = GetExpansionSettings().GetHardline().ReputationLossOnDeath;
 		
 		if (!reputationLoss)
@@ -398,9 +397,6 @@ class ExpansionHardlineModule: CF_ModuleWorld
 #ifdef EXPANSIONMODAI
 	protected void HandlePlayerKilledByAI(PlayerBase victim, PlayerBase killer)
 	{
-		if (!victim.GetIdentity())
-			return;
-		
 		HandlePlayerDeath(victim);
 	}
 #endif

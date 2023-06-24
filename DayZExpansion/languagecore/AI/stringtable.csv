@@ -1,6 +1,8 @@
 LANGUAGE,ORIGINAL,ENGLISH,CZECH,GERMAN,RUSSIAN,POLISH,HUNGARIAN,ITALIAN,SPANISH,FRENCH,CHINESE,PORTUGUESE,JAPANESE,CHINESESIMP,
 STR_EXPANSION_AI_COMMAND_MENU,AI Command Menu,AI Command Menu,AI Command Menu,AI Command Menu,Меню команд ИИ,AI Command Menu,AI Command Menu,Menu di Comando IA,AI Command Menu,Menu de commande IA,AI Command Menu,AI Command Menu,AI Command Menu,人工智能命令菜单,
 STR_EXPANSION_AI_DISMISS,Dismiss,Dismiss,Dismiss,Entlassen,Отклонить,Dismiss,Dismiss,Congeda,Dismiss,Renvoyer,Dismiss,Dismiss,Dismiss,开除,
+STR_EXPANSION_AI_FACTION,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,Faction,
+STR_EXPANSION_AI_REQUIRED_FACTION_TRADER,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,You must be a member of the %1 faction.,
 STR_EXPANSION_AI_FACTION_CIVILIAN,Civilian,Civilian,Civilian,Zivilisten,Гражданский,Civilian,Civilian,Civile,Civilian,Civil,Civilian,Civilian,Civilian,平民,
 STR_EXPANSION_AI_FACTION_EAST,East,East,East,Ost,Восток,East,East,Est,East,Est,East,East,East,向东,
 STR_EXPANSION_AI_FACTION_FREETRADERS,Free Traders,Free Traders,Free Traders,Freie Händler,Свободные торговцы,Free Traders,Free Traders,Commercianti Liberi,Free Traders,Marchant libres,Free Traders,Free Traders,Free Traders,自由贸易商,

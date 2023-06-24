@@ -334,7 +334,6 @@ class eAITargetInformation
 		}
 
 		m_Groups.Remove(group_id);
-		delete target;
 	}
 
 	/**

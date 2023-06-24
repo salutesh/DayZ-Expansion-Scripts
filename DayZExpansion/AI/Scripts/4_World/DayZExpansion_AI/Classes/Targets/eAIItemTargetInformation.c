@@ -36,7 +36,10 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 
 		if (ai)
 		{
-			bool canBandage = ai.IsBleeding() && m_Item.Expansion_CanBeUsedToBandage();
+			bool canBandage;
+			//! https://feedback.bistudio.com/T173348
+			if (ai.IsBleeding() && m_Item.Expansion_CanBeUsedToBandage())
+				canBandage = true;
 
 			Magazine targetMag;
 
@@ -79,6 +82,9 @@ class eAIItemTargetInformation: eAIEntityTargetInformation
 					if (!ai.eAI_HasAmmoForFirearm(gun, mag, false))
 						return 0.0;
 				}
+
+				if (ai.eAI_GetItemThreatOverride(m_Item))
+					return 0.1;
 
 				float distance = GetDistanceSq(ai, true);
 

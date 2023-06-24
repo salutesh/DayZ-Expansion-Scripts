@@ -97,8 +97,10 @@ modded class IngameHud
 
 		if (m_PartyHUD)
 		{
-			bool showPartyHUD = m_HudState && m_ExpansionPartyHUDState;
-			m_PartyHUD.Show(showPartyHUD);
+			if (m_IsHudVisible && m_ExpansionPartyHUDState)
+				m_PartyHUD.Show(true);
+			else
+				m_PartyHUD.Show(false);
 		}
 	}
 };

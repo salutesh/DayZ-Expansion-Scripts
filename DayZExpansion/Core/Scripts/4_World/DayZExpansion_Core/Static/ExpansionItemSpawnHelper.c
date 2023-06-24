@@ -154,7 +154,10 @@ class ExpansionItemSpawnHelper
 		bool canSpawnInInventory = ExpansionStatic.IsInventoryItem(className);
 
 		if (!canSpawnInInventory)
+		{
+			Error("Not an inventory item: " + className);
 			return NULL;
+		}
 
 		Object obj;
 		ExpansionTemporaryOwnedContainer newStorage;
@@ -324,10 +327,13 @@ class ExpansionItemSpawnHelper
 
 		foreach (Object obj: objects)
 		{
-			bool match = obj.IsInherited(Man) || (obj.IsInherited(ItemBase) && obj.ConfigGetString("physLayer") == "item_large") || obj.IsInherited(CarScript);
-
+			bool match = false;
+			//! https://feedback.bistudio.com/T173348
+			if (obj.IsInherited(Man) || (obj.IsInherited(ItemBase) && obj.ConfigGetString("physLayer") == "item_large") || obj.IsInherited(CarScript))
+				match = true;
 			#ifdef EXPANSIONMODVEHICLE
-			match |= obj.IsInherited(ExpansionVehicleBase);
+			else if (obj.IsInherited(ExpansionVehicleBase))
+				match = true;
 			#endif
 
 			if (match)
@@ -348,7 +354,10 @@ class ExpansionItemSpawnHelper
 
 		int flags = ECE_CREATEPHYSICS|ECE_UPDATEPATHGRAPH;
 
-		bool placeOnSurface = !GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase");
+		bool placeOnSurface;
+		//! https://feedback.bistudio.com/T173348
+		if (!GetGame().IsKindOf(className, "ExpansionBoatScript") && !GetGame().IsKindOf(className, "ExpansionVehicleBoatBase"))
+			placeOnSurface = true;
 		if (placeOnSurface)
 			flags |= ECE_TRACE;
 

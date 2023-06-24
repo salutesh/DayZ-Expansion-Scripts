@@ -143,7 +143,9 @@ class ExpansionAIPatrolSettings: ExpansionAIPatrolSettingsBase
 		{
 			EXPrint("[ExpansionAIPatrolSettings] Load existing setting file:" + EXPANSION_AIPATROL_SETTINGS);
 
-			bool loadSuccessful = ExpansionJsonFileParser<ExpansionAIPatrolSettings>.Load(EXPANSION_AIPATROL_SETTINGS, this);
+			bool loadSuccessful;
+			if (ExpansionJsonFileParser<ExpansionAIPatrolSettings>.Load(EXPANSION_AIPATROL_SETTINGS, this))
+				loadSuccessful = true;
 
 			int version = m_Version;
 

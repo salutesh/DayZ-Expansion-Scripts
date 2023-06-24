@@ -1,0 +1,355 @@
+FrameWidgetClass NA_CommunityGoalsMenu {
+ size 1 1
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scriptclass "NA_CommunityGoalsMenuController"
+ {
+  PanelWidgetClass main_panel {
+   visible 1
+   clipchildren 0
+   color 0.1176 0.1176 0.1176 1
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style rover_sim_colorable
+   {
+    ImageWidgetClass background_image {
+     visible 1
+     position 0 0
+     size 0.16 0.09
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     fixaspect outside
+     image0 ""
+     imageTexture "{0DBE2630AF5047FD}gui/textures/loading_screens/loading_screen_3_co.edds"
+     mode blend
+     "src alpha" 0
+     stretch 1
+     Mask "{F2CEA7E35B785FB7}gui/textures/loading_screens/loading_screen_3_mask.edds"
+     "Transition width" 1
+     Progress 0
+    }
+    PanelWidgetClass header {
+     visible 1
+     clipchildren 0
+     ignorepointer 1
+     color 0.1059 0.1059 0.1059 0.9412
+     size 1 0.059
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style UIDefaultPanel
+     "no focus" 1
+     {
+      TextWidgetClass title_text {
+       visible 1
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.05 0
+       size 0.3 26
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass ""
+       style Bold
+       text "Community Goals"
+       "bold text" 0
+       "text sharpness" 1.014
+       "exact text" 0
+       "text valign" center
+      }
+      ImageWidgetClass title_icon {
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.01 0
+       size 46 46
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       scriptclass "ViewBinding"
+       imageTexture "{0A89BEAE6091772B}DayZExpansion/Core/GUI/icons/misc/T_Wakie-Talkie_256x256.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       {
+        ScriptParamsClass {
+         Binding_Name "MarketIcon"
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass goals_panel {
+     visible 1
+     ignorepointer 1
+     color 0.0745 0.0902 0.1059 1
+     position 0.01 0.08
+     size 0.98 0.8
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     style DayZDefaultPanel
+     {
+      WrapSpacerWidgetClass goals_header {
+       visible 1
+       ignorepointer 1
+       position 0 0.02
+       size 0.97 48
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       content_halign center
+       content_valign center
+       {
+        ScriptParamsClass {
+         Binding_Name "ItemListings"
+        }
+       }
+      }
+      ScrollWidgetClass goals_scroller {
+       visible 1
+       clipchildren 1
+       ignorepointer 0
+       keepsafezone 1
+       position 0 0.01
+       size 0.97 0.86
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass goals_content {
+         visible 1
+         ignorepointer 1
+         size 1 0.5
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         "Size To Content V" 1
+         content_halign center
+         content_valign center
+         {
+          ScriptParamsClass {
+           Binding_Name "CommunityGoals"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass contributors_panel {
+     visible 0
+     ignorepointer 1
+     color 0.0745 0.0902 0.1059 1
+     position 0.01 0.08
+     size 0.98 0.8
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 2
+     style DayZDefaultPanel
+     {
+      WrapSpacerWidgetClass contributors_header {
+       visible 1
+       ignorepointer 1
+       position 0 0.02
+       size 0.97 48
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       content_halign center
+       content_valign center
+       {
+        ScriptParamsClass {
+         Binding_Name "ItemListings"
+        }
+       }
+      }
+      ScrollWidgetClass contributors_scroller {
+       visible 1
+       clipchildren 1
+       ignorepointer 0
+       keepsafezone 1
+       position 0 0.01
+       size 0.97 0.86
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style blank
+       "Scrollbar V" 1
+       {
+        WrapSpacerWidgetClass contributors_content {
+         visible 1
+         ignorepointer 1
+         size 1 0.5
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         "Size To Content V" 1
+         content_halign center
+         content_valign center
+         {
+          ScriptParamsClass {
+           Binding_Name "CommunityGoalContributers"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass exit_button_panel {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.01 0.05
+     size 0.1 32
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     scriptclass ""
+     style Expansion_01
+     Padding 0
+     Margin 0
+     Columns 1
+     Rows 1
+     {
+      ButtonWidgetClass exit_button {
+       color 0 0 0 1
+       position 0.01 0.05
+       size 0.1 32
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       priority 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass exit_button_text {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_MOD_EXPANSION_CLOSE_UPPERCASE"
+         font "gui/fonts/etelkatextpro22"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnExitClick"
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass back_button_panel {
+     visible 0
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.12 0.05
+     size 0.1 32
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     scriptclass ""
+     style Expansion_01
+     Padding 0
+     Margin 0
+     Columns 1
+     Rows 1
+     {
+      ButtonWidgetClass back_button {
+       color 0 0 0 1
+       position 0.01 0.05
+       size 0.1 32
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       priority 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass back_button_text {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "BACK"
+         font "gui/fonts/etelkatextpro22"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnBackClick"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

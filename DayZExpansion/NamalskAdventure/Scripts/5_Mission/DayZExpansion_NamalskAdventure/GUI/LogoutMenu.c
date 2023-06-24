@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_ISLAND
 modded class LogoutMenu
 {
 	protected Widget m_SeperatorLine;
@@ -27,3 +28,4 @@ modded class LogoutMenu
 		return layoutRoot;
 	}
 };
+#endif

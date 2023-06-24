@@ -221,7 +221,11 @@ class ExpansionVehicleBikeBase: ExpansionVehicleBase
 		m_GroundStabilizer = Math.Max(m_FrontSuspFraction, m_BackSuspFraction); //! we can lean so long 1 wheel is on the ground
 
 		m_AirControl = m_GroundStabilizer < 0.1;
-		m_GroundControl = yUp > 0.5 && m_GroundStabilizer > 0.1;
+		//! https://feedback.bistudio.com/T173348
+		if (yUp > 0.5 && m_GroundStabilizer > 0.1)
+			m_GroundControl = true;
+		else
+			m_GroundControl = false;
 	}
 
 	override void OnAnimationUpdate(float pDt)

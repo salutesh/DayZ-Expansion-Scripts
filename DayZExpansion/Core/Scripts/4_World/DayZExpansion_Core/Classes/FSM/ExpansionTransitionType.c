@@ -43,24 +43,45 @@ class ExpansionTransitionType
 		return m_Types[type];
 	}
 
-	static ExpansionTransitionType LoadXML(ExpansionFSMType fsmType, CF_XML_Tag xml_root_tag, FileHandle file)
+	static array<autoptr ExpansionTransitionType> LoadXML(ExpansionFSMType fsmType, CF_XML_Tag xml_root_tag, FileHandle file)
 	{
 #ifdef EAI_TRACE
-		auto trace = CF_Trace_1("ExpansionTransitionType", "LoadXML").Add(fsmName);
+		auto trace = CF_Trace_1("ExpansionTransitionType", "LoadXML").Add(fsmType.m_Name);
 #endif
 
-		string fsmName = fsmType.m_Name;
-
-		string from_state_name;
+		TStringArray from_state_names = {};
 		auto from_state = xml_root_tag.GetTag("from_state");
 		if (from_state.Count() > 0)
 		{
 			auto from_state_name_attr = from_state[0].GetAttribute("name");
 			if (from_state_name_attr)
 			{
-				from_state_name = from_state_name_attr.ValueAsString();
+				from_state_name_attr.ValueAsString().Split(",", from_state_names);
 			}
 		}
+
+		array<autoptr ExpansionTransitionType> transitionTypes = {};
+
+		if (from_state_names.Count())
+		{
+			foreach (string from_state_name: from_state_names)
+			{
+				from_state_name.Trim();
+				transitionTypes.Insert(CreateTransition(fsmType, xml_root_tag, file, from_state_name));
+			}
+		}
+		else
+		{
+			transitionTypes.Insert(CreateTransition(fsmType, xml_root_tag, file));
+		}
+
+		return transitionTypes;
+	}
+
+	static ExpansionTransitionType CreateTransition(ExpansionFSMType fsmType, CF_XML_Tag xml_root_tag, FileHandle file, string from_state_name = string.Empty)
+	{
+		string fsmName = fsmType.m_Name;
+
 		string from_state_class = "ExpansionState";
 		if (from_state_name != "")
 		{

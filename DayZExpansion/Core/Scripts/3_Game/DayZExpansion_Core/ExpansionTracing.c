@@ -85,7 +85,7 @@ class EXTrace
 
 	static bool PLAYER = IsEnabled();
 
-	static bool PLAYER_CONSTANT = PLAYER && true; // Will fill up the logs
+	static bool PLAYER_CONSTANT; // Will fill up the logs
 
 	static bool PLAYER_MONITOR;
 
@@ -135,7 +135,8 @@ class EXTrace
 			string extrace;
 			if (GetCLIParam("extrace", extrace))
 			{
-				s_Enabled = extrace != "0" && extrace != "false";
+				if (extrace != "0" && extrace != "false")
+					s_Enabled = true;
 				if (s_Enabled)
 					EXPrint("Command line parameter `extrace` found - enabling tracing");
 				else

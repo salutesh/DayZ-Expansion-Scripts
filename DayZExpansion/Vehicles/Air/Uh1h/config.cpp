@@ -222,15 +222,15 @@ class CfgVehicles
 			{
 				actionSel = "seat_driver";
 				proxyPos = "crewDriver";
-				getInPos = "pos Codriver";
-				getInDir = "pos Codriver dir";
+				getInPos = "pos driver";
+				getInDir = "pos driver dir";
 			};
 			class CoDriver: CoDriver
 			{
 				actionSel = "seat_codriver";
 				proxyPos = "crewCoDriver";
-				getInPos = "pos Driver";
-				getInDir = "pos Driver dir";
+				getInPos = "pos codriver";
+				getInDir = "pos codriver dir";
 			};
 			class Cargo1
 			{
@@ -243,22 +243,22 @@ class CfgVehicles
 			{
 				actionSel = "seat_cargo2";
 				proxyPos = "crewCargo2";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
+				getInPos = "pos_cargo2";
+				getInDir = "pos_cargo2_dir";
 			};
 			class Cargo3
 			{
 				actionSel = "seat_cargo3";
 				proxyPos = "crewCargo3";
-				getInPos = "pos_cargo1";
-				getInDir = "pos_cargo1_dir";
+				getInPos = "pos_cargo3";
+				getInDir = "pos_cargo3_dir";
 			};
 			class Cargo4
 			{
 				actionSel = "seat_cargo4";
 				proxyPos = "crewCargo4";
-				getInPos = "pos_cargo2";
-				getInDir = "pos_cargo2_dir";
+				getInPos = "pos_cargo4";
+				getInDir = "pos_cargo4_dir";
 			};
 		};
 		class SimulationModule: SimulationModule

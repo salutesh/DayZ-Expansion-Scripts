@@ -103,7 +103,9 @@ class eAITarget
 			return false;
 
 		Weapon_Base weapon;
-		bool hasAmmo = Class.CastTo(weapon, entityInHands) && weapon.Expansion_HasAmmo();
+		bool hasAmmo;
+		if (Class.CastTo(weapon, entityInHands) && weapon.Expansion_HasAmmo())
+			hasAmmo = true;
 		if (distSq > 1.0 && hasAmmo)
 			return false;
 

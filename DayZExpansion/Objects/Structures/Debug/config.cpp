@@ -15,11 +15,6 @@ class CfgVehicles
 	class Hammer;
 	class HouseNoDestruct;
 	class Inventory_Base;
-	class ExpansionDebugCylinder: HouseNoDestruct
-	{
-		scope = 1;
-		model = "DayZExpansion\Objects\Structures\Debug\DebugCylinder.p3d";
-	};
 	class ExpansionAdminHammer: Hammer
 	{
 		scope = 2;
@@ -30,115 +25,6 @@ class CfgVehicles
 	{
 		hiddenSelections[] = {"texture"};
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,1,0,1,co)"};
-	};
-	class ExpansionDebugRod: ExpansionDebugObject
-	{
-		scope = 2;
-		model = "DayZExpansion\Objects\Structures\Debug\DebugRod.p3d";
-	};
-	class ExpansionDebugRod_Red: ExpansionDebugRod
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
-	};
-	class ExpansionDebugRod_Orange: ExpansionDebugRod
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
-	};
-	class ExpansionDebugRod_Blue: ExpansionDebugRod
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
-	};
-	class ExpansionDebugRod_Purple: ExpansionDebugRod
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
-	};
-	class ExpansionDebugRodBig: ExpansionDebugRod
-	{
-		model = "DayZExpansion\Objects\Structures\Debug\DebugRodBig.p3d";
-	};
-	class ExpansionDebugRodBig_Red: ExpansionDebugRodBig
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
-	};
-	class ExpansionDebugRodBig_Orange: ExpansionDebugRodBig
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
-	};
-	class ExpansionDebugRodBig_Blue: ExpansionDebugRodBig
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
-	};
-	class ExpansionDebugRodBig_Purple: ExpansionDebugRodBig
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
-	};
-	class ExpansionDebugBox: ExpansionDebugObject
-	{
-		scope = 2;
-		model = "DayZExpansion\Objects\Structures\Debug\DebugBox.p3d";
-	};
-	class ExpansionDebugBox_Red: ExpansionDebugBox
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
-	};
-	class ExpansionDebugBox_Orange: ExpansionDebugBox
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
-	};
-	class ExpansionDebugBox_Blue: ExpansionDebugBox
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
-	};
-	class ExpansionDebugBox_Purple: ExpansionDebugBox
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
-	};
-	class ExpansionNetSyncDebugObject: ExpansionDebugObject
-	{
-		model = "DayZExpansion\Objects\Structures\Debug\DebugCube.p3d";
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
-	};
-	class ExpansionDebugLine: ExpansionDebugObject
-	{
-		scope = 2;
-		model = "DayZExpansion\Objects\Structures\Debug\DebugLine.p3d";
-	};
-	class ExpansionDebugLine_Red: ExpansionDebugLine
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
-	};
-	class ExpansionDebugLine_Orange: ExpansionDebugLine
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
-	};
-	class ExpansionDebugLine_Blue: ExpansionDebugLine
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
-	};
-	class ExpansionDebugLine_Purple: ExpansionDebugLine
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
-	};
-	class ExpansionDebugNoticeMe: ExpansionDebugObject
-	{
-		scope = 2;
-		model = "DayZExpansion\Objects\Structures\Debug\DebugNoticeMe.p3d";
-	};
-	class ExpansionDebugNoticeMe_Red: ExpansionDebugNoticeMe
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
-	};
-	class ExpansionDebugNoticeMe_Orange: ExpansionDebugNoticeMe
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
-	};
-	class ExpansionDebugNoticeMe_Blue: ExpansionDebugNoticeMe
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
-	};
-	class ExpansionDebugNoticeMe_Purple: ExpansionDebugNoticeMe
-	{
-		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
 	};
 	class ExpansionDebugArrow: ExpansionDebugObject
 	{
@@ -169,6 +55,277 @@ class CfgVehicles
 	class ExpansionDebugArrow_Purple: ExpansionDebugArrow
 	{
 		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugArrow_White: ExpansionDebugArrow
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugArrow_Black: ExpansionDebugArrow
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugBox: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugBox.p3d";
+	};
+	class ExpansionDebugBox_Red: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugBox_Orange: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugBox_Blue: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugBox_Purple: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugBox_White: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugBox_Black: ExpansionDebugBox
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugCone: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "\DayZExpansion\Dta\Core\cone.p3d";
+		hiddenSelections[] = {"body"};
+	};
+	class ExpansionDebugCone_Red: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugCone_Orange: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugCone_Blue: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugCone_Purple: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugCone_White: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugCone_Black: ExpansionDebugCone
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugConeSmall: ExpansionDebugCone
+	{
+		scope = 2;
+		model = "\DayZExpansion\Dta\Core\coneSmall.p3d";
+		hiddenSelections[] = {"body"};
+	};
+	class ExpansionDebugConeSmall_Red: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugConeSmall_Orange: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugConeSmall_Blue: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugConeSmall_Purple: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugConeSmall_White: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugConeSmall_Black: ExpansionDebugConeSmall
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugCube: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugCube.p3d";
+	};
+	class ExpansionDebugCube_Red: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugCube_Orange: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugCube_Blue: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugCube_Purple: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugCube_White: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugCube_Black: ExpansionDebugCube
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugCylinder: ExpansionDebugObject
+	{
+		scope = 2;
+		hiddenSelections[] = {"color"};
+		model = "DayZExpansion\Objects\Structures\Debug\DebugCylinder.p3d";
+	};
+	class ExpansionDebugCylinder_Red: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugCylinder_Orange: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugCylinder_Blue: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugCylinder_Purple: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugCylinder_White: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugCylinder_Black: ExpansionDebugCylinder
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugLine: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugLine.p3d";
+	};
+	class ExpansionDebugLine_Red: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugLine_Orange: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugLine_Blue: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugLine_Purple: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugLine_White: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugLine_Black: ExpansionDebugLine
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugNoticeMe: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugNoticeMe.p3d";
+	};
+	class ExpansionDebugNoticeMe_Red: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugNoticeMe_Orange: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugNoticeMe_Blue: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugNoticeMe_Purple: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugNoticeMe_White: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugNoticeMe_Black: ExpansionDebugNoticeMe
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugRod: ExpansionDebugObject
+	{
+		scope = 2;
+		model = "DayZExpansion\Objects\Structures\Debug\DebugRod.p3d";
+	};
+	class ExpansionDebugRod_Red: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugRod_Orange: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugRod_Blue: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugRod_Purple: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugRod_White: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugRod_Black: ExpansionDebugRod
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
+	};
+	class ExpansionDebugRodBig: ExpansionDebugRod
+	{
+		model = "DayZExpansion\Objects\Structures\Debug\DebugRodBig.p3d";
+	};
+	class ExpansionDebugRodBig_Red: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0,0,1,co)"};
+	};
+	class ExpansionDebugRodBig_Orange: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,0.5,0,1,co)"};
+	};
+	class ExpansionDebugRodBig_Blue: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,1,1,co)"};
+	};
+	class ExpansionDebugRodBig_Purple: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0.5,0,1,1,co)"};
+	};
+	class ExpansionDebugRodBig_White: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(1,1,1,1,co)"};
+	};
+	class ExpansionDebugRodBig_Black: ExpansionDebugRodBig
+	{
+		hiddenSelectionsTextures[] = {"#(argb,8,8,3)color(0,0,0,1,co)"};
 	};
 	class ExpansionDebugGoat: Inventory_Base
 	{

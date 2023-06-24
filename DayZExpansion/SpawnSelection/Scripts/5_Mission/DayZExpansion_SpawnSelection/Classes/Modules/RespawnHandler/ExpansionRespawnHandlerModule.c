@@ -495,7 +495,6 @@ class ExpansionRespawnHandlerModule: CF_ModuleWorld
 
 		if (spawnPoint[1] == 0)  //! If Y is zero, use surface Y instead
 			spawnPoint[1] = GetGame().SurfaceY(spawnPoint[0], spawnPoint[2]);
-		spawnPoint[1] = spawnPoint[1] + 1;  //! Hack fix for inability to open inv after spawn: Let them fall a bit, that'll unlock it
 
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, spawnPoint);
 					

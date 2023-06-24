@@ -58,6 +58,7 @@ class ExpansionUIManager
 		}
 
 		m_ActiveMenus.Clear();
+		m_CurrentMenu = NULL;
 	}
 	
 	ExpansionScriptViewMenuBase CreateSVMenu(string viewName)

@@ -21,7 +21,7 @@ class ExpansionQuestPersistentData
 	ref map<int, ref ExpansionQuestPersistentQuestData> QuestData = new map<int, ref ExpansionQuestPersistentQuestData>;
 
 	[NonSerialized()];
-	bool m_SynchDirty;
+	bool m_SynchDirty = true;
 
 	[NonSerialized()]
 	bool m_RemoveQuestData;
@@ -208,38 +208,39 @@ class ExpansionQuestPersistentData
 		FileName = fileName;
 
 		string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + fileName + ".bin";
-		if (FileExist(path))
+		FileSerializer file = new FileSerializer();
+		bool save;
+		if (file.Open(path, FileMode.READ))
 		{
-			FileSerializer file = new FileSerializer();
-			bool save;
-			if (file.Open(path, FileMode.READ))
+			file.Read(DataVersion);
+			EXTrace.Print(EXTrace.QUESTS, this, "::Load - Data version of file " + fileName + " is " + DataVersion + ".");
+
+			bool success = OnRead(file);
+
+			file.Close();
+
+			if (!success)
+				return false;
+
+			if (DataVersion < DATAVERSION)
 			{
-				file.Read(DataVersion);
-				EXTrace.Print(EXTrace.QUESTS, this, "::Load - Data version of file " + fileName + " is " + DataVersion + ".");
-
-				bool success = OnRead(file);
-
-				file.Close();
-
-				if (!success)
-					return false;
-
-				if (DataVersion < DATAVERSION)
-				{
-					EXTrace.Print(EXTrace.QUESTS, this, "::Load - Data conversion from version " + DataVersion + " to version " + DATAVERSION + " completed for file: " + fileName);
-					save = true;
-					DataVersion = DATAVERSION;
-				}
-			}
-
-			if (DataCheck())
+				EXTrace.Print(EXTrace.QUESTS, this, "::Load - Data conversion from version " + DataVersion + " to version " + DATAVERSION + " completed for file: " + fileName);
 				save = true;
-
-			if (save)
-				Save(fileName);
-
-			m_SynchDirty = true;
+				DataVersion = DATAVERSION;
+			}
 		}
+		else
+		{
+			return false;
+		}
+
+		if (DataCheck())
+			save = true;
+
+		if (save)
+			Save(fileName);
+
+		m_SynchDirty = true;
 
 		return true;
 	}

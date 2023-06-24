@@ -1,15 +1,12 @@
 class eAIZombieTargetInformation: eAIEntityTargetInformation
 {
 	private ZombieBase m_Zombie;
-	private DayZInfectedInputController m_DIIP;
 
 	bool m_Crawling;
 
 	void eAIZombieTargetInformation(EntityAI target)
 	{
 		Class.CastTo(m_Zombie, target);
-
-		m_DIIP = m_Zombie.GetInputController();
 	}
 
 	override bool IsCrawling()
@@ -33,7 +30,8 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		float levelFactor;
 
 		// TODO: check to see if ::GetMindState() returns int of 0->4
-		int level = m_DIIP.GetMindState();
+		DayZInfectedInputController diip = m_Zombie.GetInputController();
+		int level = diip.GetMindState();
 		switch (level)
 		{
 		case DayZInfectedConstants.MINDSTATE_CALM:
@@ -56,7 +54,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 		if (ai)
 		{
 #ifdef DIAG
-			auto hitch = EXHitch(ai.ToString() + " eAIZombieTargetInformation::CalculateThreat ", 20000);
+			auto hitch = new EXHitch(ai.ToString() + " eAIZombieTargetInformation::CalculateThreat ", 20000);
 #endif
 
 			// the further away the zombie, the less likely it will be a threat
@@ -65,7 +63,7 @@ class eAIZombieTargetInformation: eAIEntityTargetInformation
 			if (levelFactor > 1.0)
 				levelFactor = Math.Pow(levelFactor, 2.0);
 
-			if (m_DIIP.GetTargetEntity() == ai)
+			if (diip.GetTargetEntity() == ai)
 			{
 				levelFactor *= 2.0;
 				auto hands = ai.GetHumanInventory().GetEntityInHands();

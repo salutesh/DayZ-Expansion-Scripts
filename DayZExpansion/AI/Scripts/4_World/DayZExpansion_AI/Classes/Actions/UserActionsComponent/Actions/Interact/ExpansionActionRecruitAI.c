@@ -10,7 +10,6 @@
  *
 */
 
-[RegisterAction(ExpansionActionRecruitAI)]
 class ExpansionActionRecruitAI: ActionInteractBase
 {
 	void ExpansionActionRecruitAI()

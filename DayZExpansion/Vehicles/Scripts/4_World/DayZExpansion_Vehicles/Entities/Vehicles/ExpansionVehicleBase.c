@@ -1369,7 +1369,10 @@ class ExpansionVehicleBase: ItemBase
 			m_IsPhysicsHost = driver == GetGame().GetPlayer();
 		}
 
-		m_HasDriver = driver && m_IsPhysicsHost;
+		if (driver && m_IsPhysicsHost)
+			m_HasDriver = true;
+		else
+			m_HasDriver = false;
 
 		dBodyEnableGravity(this, false);
 
@@ -1389,7 +1392,10 @@ class ExpansionVehicleBase: ItemBase
 
 		OnPreSimulation(dt);
 
-		m_State.m_HasDriver = driver && m_IsPhysicsHost;
+		if (driver && m_IsPhysicsHost)
+			m_State.m_HasDriver = true;
+		else
+			m_State.m_HasDriver = false;
 		m_State.m_Exploded = m_Exploded;
 
 		if (m_IsPhysicsHost)

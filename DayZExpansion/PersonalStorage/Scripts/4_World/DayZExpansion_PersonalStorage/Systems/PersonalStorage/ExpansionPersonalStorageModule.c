@@ -529,7 +529,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 		RemoveItemByGlobalID(playerUID, globalID);
 		SendItemData(senderRPC, storageID, "", "", ExpansionPersonalStorageModuleCallback.ItemRetrieved);
 
-		ExpansionNotification(new StringLocaliser("Item Retrieved!"), new StringLocaliser("You have retrieved a %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
+		ExpansionNotification(new StringLocaliser("Item Retrieved!"), new StringLocaliser("You have retrieved a %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 	}
 
 	void RequestDepositItem(int storageID, Entity item)
@@ -630,7 +630,7 @@ class ExpansionPersonalStorageModule: CF_ModuleWorld
 
 		SendItemData(senderRPC, storageID, "", "", ExpansionPersonalStorageModuleCallback.ItemStored);
 
-		ExpansionNotification(new StringLocaliser("Item Deposited!"), new StringLocaliser("You have deposited the item %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
+		ExpansionNotification(new StringLocaliser("Item Deposited!"), new StringLocaliser("You have deposited the item %1.", displayName), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_SUCCESS, 7, ExpansionNotificationType.TOAST).Create(senderRPC);
 	}
 
 	void StorePersonalStorageCase(PlayerBase player)

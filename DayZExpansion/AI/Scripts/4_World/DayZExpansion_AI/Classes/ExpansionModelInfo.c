@@ -51,6 +51,9 @@ class ExpansionModelInfo
 											
 		foreach (auto lod : LODs)
 		{
+			if (!lod)
+				continue;
+
 			string lodName = lod.GetName(object);
 			//Print("" + lodName + ": " + lod.GetPropertyCount());
 

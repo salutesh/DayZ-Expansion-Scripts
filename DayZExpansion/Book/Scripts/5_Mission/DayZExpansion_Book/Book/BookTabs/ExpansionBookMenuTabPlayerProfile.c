@@ -53,11 +53,19 @@ class ExpansionBookMenuTabPlayerProfile: ExpansionBookMenuTabBase
 	#endif
 
 	#ifdef HEROESANDBANDITSMOD
-		m_ShowHaBStats = g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats;
+		//! https://feedback.bistudio.com/T173348
+		if (g_HeroesAndBanditsPlayer && GetExpansionSettings().GetBook().ShowHaBStats)
+			m_ShowHaBStats = true;
+		else
+			m_ShowHaBStats = false;
 	#endif
 
 	#ifdef EXPANSIONMODHARDLINE
-		m_ShowHardlineStats = (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation);
+		//! https://feedback.bistudio.com/T173348
+		if (GetExpansionSettings().GetHardline(false).IsLoaded() && GetExpansionSettings().GetHardline().UseReputation)
+			m_ShowHardlineStats = true;
+		else
+			m_ShowHardlineStats = false;
 	#endif
 	#ifdef EXPANSIONMODAI
 		m_ShowPlayerFaction = GetExpansionSettings().GetBook().ShowPlayerFaction;

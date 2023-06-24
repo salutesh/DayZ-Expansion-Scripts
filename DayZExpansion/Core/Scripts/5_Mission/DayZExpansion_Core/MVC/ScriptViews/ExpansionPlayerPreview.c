@@ -181,8 +181,13 @@ class ExpansionPlayerPreview
 		bool isEyewearSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Eyewear");
 		bool isArmbandSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Armband");
 		bool isGlovesSlot = m_SelectedItemSlot == InventorySlots.GetSlotIdFromString("Gloves");
-		bool isTopSlot = isVestSlot || isBodySlot || isBackSlot || isArmbandSlot;
-		bool isHeadSlot = isHeadgearSlot || isMaskSlot || isEyewearSlot;
+		bool isTopSlot;
+		//! https://feedback.bistudio.com/T173348
+		if (isVestSlot || isBodySlot || isBackSlot || isArmbandSlot)
+			isTopSlot = true;
+		bool isHeadSlot;
+		if (isHeadgearSlot || isMaskSlot || isEyewearSlot)
+			isHeadSlot = true;
 
 		float v = POSITION_PLAYER_PREVIEW_Y_OFFSET;
 		if (isTopSlot)

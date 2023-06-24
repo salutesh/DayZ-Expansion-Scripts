@@ -44,11 +44,19 @@ class ExpansionMarketTraderV9: ExpansionMarketTraderBase
 
 class ExpansionMarketTrader : ExpansionMarketTraderBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 11;
 
 	#ifdef EXPANSIONMODHARDLINE
 	int MinRequiredReputation;
 	int MaxRequiredReputation;
+	#endif
+
+	#ifdef EXPANSIONMODAI
+	string RequiredFaction;
+	#endif
+
+	#ifdef EXPANSIONMODQUESTS
+	int RequiredCompletedQuestID;
 	#endif
 
 	string TraderIcon;
@@ -141,6 +149,17 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 				settings.MaxRequiredReputation = settings_v9.MaxRequiredHumanity;
 			}
 		#endif
+
+			if (settingsBase.m_Version < 11)
+			{	
+				#ifdef EXPANSIONMODAI
+				settings.RequiredFaction = settingsDefault.RequiredFaction;
+				#endif
+
+				#ifdef EXPANSIONMODQUESTS
+				settings.RequiredCompletedQuestID = settingsDefault.RequiredCompletedQuestID;
+				#endif
+			}
 			
 			settings.m_Version = VERSION;
 			settings.m_FileName = name;
@@ -199,6 +218,14 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		MaxRequiredReputation = int.MAX;
 		#endif
 
+		#ifdef EXPANSIONMODAI
+		RequiredFaction = "";
+		#endif
+
+		#ifdef EXPANSIONMODQUESTS
+		RequiredCompletedQuestID = -1;
+		#endif
+		
 		DefaultCurrencies();
 	}
 
@@ -220,7 +247,7 @@ class ExpansionMarketTrader : ExpansionMarketTraderBase
 		if (Items.Contains(item))
 			return NULL;  //! Already added, possibly implicitly by adding a variant before the parent (which will add the parent first)
 
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( item );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( item );
 		if ( marketItem )
 		{
 			CF_Log.Debug("ExpansionMarketTrader::AddItem - Added item " + item + " to trader " + m_FileName + " items array");

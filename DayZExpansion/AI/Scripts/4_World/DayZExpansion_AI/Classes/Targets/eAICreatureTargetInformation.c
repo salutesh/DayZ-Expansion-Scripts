@@ -30,7 +30,7 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 		if (ai)
 		{
 #ifdef DIAG
-			auto hitch = EXHitch(ai.ToString() + " eAICreatureTargetInformation::CalculateThreat ", 20000);
+			auto hitch = new EXHitch(ai.ToString() + " eAICreatureTargetInformation::CalculateThreat ", 20000);
 #endif
 
 			// the further away the creature, the less likely it will be a threat

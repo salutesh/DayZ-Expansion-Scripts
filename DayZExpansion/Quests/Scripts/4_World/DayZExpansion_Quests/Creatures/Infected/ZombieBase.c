@@ -72,7 +72,8 @@ modded class ZombieBase
 			return;
 
 		ExpansionQuest quest;
-		for (int i = 0; i < s_Expansion_AssignedQuestObjectives.Count();)
+		int failSafe = s_Expansion_AssignedQuestObjectives.Count() + 1;
+		for (int i = 0, j = 0; i < s_Expansion_AssignedQuestObjectives.Count() && j < failSafe; j++)
 		{
 			ExpansionQuestObjectiveEventBase objective = s_Expansion_AssignedQuestObjectives[i];
 			if (!objective)
@@ -108,6 +109,10 @@ modded class ZombieBase
 			if (objective.IsAssigned())
 				i++;
 		}
+
+		//! @note should not happen, this could mean an objective was no longer marked assigned but still in the list
+		if (j == failSafe)
+			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
 
 	override void EEKilled(Object killer)

@@ -17,6 +17,8 @@ class ExpansionFSM
 	protected string m_Name;
 	protected string m_DefaultState;
 
+	int m_NoTransitionCount;
+
 	void ExpansionFSM(ExpansionFSMOwnerType owner, ExpansionState parentState)
 	{
 		#ifdef EAI_TRACE
@@ -122,6 +124,11 @@ class ExpansionFSM
 
 		return null;
 	}
+
+	bool IsInState(string name)
+	{
+		return m_CurrentState && m_CurrentState.GetName() == name;
+	}
 	
 	bool StartDefault()
 	{
@@ -136,7 +143,7 @@ class ExpansionFSM
 
 		if (src)
 		{
-			CF_Log.Debug("Exiting state: " + src);
+			CF_Log.Debug("StartDefault - Exiting state: " + src);
 			src.OnExit("", true, dst);
 		}
 	
@@ -144,12 +151,12 @@ class ExpansionFSM
 		
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("Starting state: " + m_CurrentState);
+			CF_Log.Debug("StartDefault - Starting state: " + m_CurrentState);
 			m_CurrentState.OnEntry("", src);
 			return true;
 		}
 		
-		CF_Log.Warn("No valid state found.");
+		CF_Log.Warn("StartDefault - No valid state found.");
 		
 		return false;
 	}
@@ -160,14 +167,14 @@ class ExpansionFSM
 		auto trace = CF_Trace_1(this, "Start").Add(e);
 		#endif
 
-		Param2<ExpansionState, bool> new_state = FindSuitableTransition(m_CurrentState, "");
+		ExpansionState new_state = FindSuitableTransition(m_CurrentState, "");
 
 		ExpansionState src = m_CurrentState;
-		ExpansionState dst = new_state.param1;
+		ExpansionState dst = new_state;
 
 		if (m_CurrentState && m_CurrentState != dst)
 		{
-			CF_Log.Debug("Exiting state: " + m_CurrentState);
+			CF_Log.Debug("Start - Exiting state: " + m_CurrentState);
 			m_CurrentState.OnExit(e, true, dst);
 		}
 
@@ -175,12 +182,12 @@ class ExpansionFSM
 
 		if (m_CurrentState && src != m_CurrentState)
 		{
-			CF_Log.Debug("Starting state: " + m_CurrentState);
+			CF_Log.Debug("Start - Starting state: " + m_CurrentState);
 			m_CurrentState.OnEntry(e, src);
 			return true;
 		}
 
-		CF_Log.Warn("No valid state found.");
+		CF_Log.Warn("Start - No valid state found.");
 
 		return false;
 	}
@@ -193,7 +200,7 @@ class ExpansionFSM
 
 		if (m_CurrentState)
 		{
-			CF_Log.Debug("Exiting state: " + m_CurrentState);
+			CF_Log.Debug("Abort - Exiting state: " + m_CurrentState);
 			m_CurrentState.OnExit(e, true, null);
 			return true;
 		}
@@ -215,61 +222,51 @@ class ExpansionFSM
 			return EXIT;
 
 #ifdef DIAG
-		auto hitch = EXHitch(m_Owner.ToString() + " ExpansionFSM::Update ", 20000);
+		auto hitch = new EXHitch(m_Owner.ToString() + " " + this + "::Update ", 20000);
 #endif
 
 		//CF_Log.Debug("m_CurrentState: %1", "" + m_CurrentState);
 
-		int update = EXIT;
-
 		if (m_CurrentState)
 		{
-			update = m_CurrentState.OnUpdate(pDt, pSimulationPrecision);
-		}
+			switch (m_CurrentState.OnUpdate(pDt, pSimulationPrecision))
+			{
+				case RESTART:
+					m_CurrentState.OnEntry("", m_CurrentState);
+					return CONTINUE;
 
-		if (update == RESTART)
-		{
-			m_CurrentState.OnEntry("", m_CurrentState);
-
-			update = CONTINUE;
-		}
-
-		if (update == CONTINUE)
-		{
-			return CONTINUE;
+				case CONTINUE:
+					return CONTINUE;
+			}
 		}
 		
-		Param2<ExpansionState, bool> new_state = FindSuitableTransition(m_CurrentState, "");
-		if (!new_state.param2 || m_CurrentState == new_state.param1)
-		{	
-			if (!m_CurrentState)
-			{
-				return EXIT;
-			}
-
+		ExpansionState new_state = FindSuitableTransition(m_CurrentState, "");
+		if (new_state && m_CurrentState == new_state)
+		{
 			return CONTINUE;
 		}
 
 		ExpansionState src = m_CurrentState;
 
-		if (m_CurrentState) m_CurrentState.OnExit("", false, new_state.param1);
+		if (m_CurrentState) m_CurrentState.OnExit("", false, new_state);
 
-		m_CurrentState = new_state.param1;
+		m_CurrentState = new_state;
 
 		if (m_CurrentState == null)
 		{
-			CF_Log.Info("State transition exit " + src.GetName());
+			if (src)
+				CF_Log.Info("State transition exit " + src);
 			return EXIT;
 		}
 		
-		CF_Log.Info("State transition " + src.GetName() + " -> " + m_CurrentState.GetName());
+		CF_Log.Info("State transition " + src + " -> " + m_CurrentState.GetName());
 
 		m_CurrentState.OnEntry("", src);
 
 		return CONTINUE;
 	}
 	
-	Param2<ExpansionState, bool> FindSuitableTransition(ExpansionState s, string e = "")
+	ExpansionState FindSuitableTransition(ExpansionState s, string e = "")
 	{
 		#ifdef EAI_TRACE
 		auto trace = CF_Trace_2(this, "FindSuitableTransition").Add(s).Add(e);
@@ -289,14 +286,31 @@ class ExpansionFSM
 #ifdef EAI_DEBUG_TRANSITION
 					if (s != t.GetDestination())
 						EXPrint(m_Owner.ToString() + " transition " + s + " -> " + t.GetDestination());
+					m_NoTransitionCount = 0;
 #endif
-					return new Param2<ExpansionState, bool>(t.GetDestination(), true);
+					return t.GetDestination();
 				case ExpansionTransition.FAIL:
 					break;
 				}
 			}
+#ifdef EAI_DEBUG_TRANSITION
+			if (m_NoTransitionCount > 0)
+				EXPrint(m_Owner.ToString() + " not a suitable transition: " + t.GetSource() + " -> " + t.GetDestination());
+#endif
 		}
 
-		return new Param2<ExpansionState, bool>(null, false);
+#ifdef EAI_DEBUG_TRANSITION
+		if (m_NoTransitionCount == 0)
+		{
+			m_NoTransitionCount++;
+			EXPrint(m_Owner.ToString() + " no suitable transition found in " + m_Transitions.Count() + " transitions!");
+		}
+		else
+		{
+			m_NoTransitionCount = -1;
+		}
+#endif
+
+		return null;
 	}
 };

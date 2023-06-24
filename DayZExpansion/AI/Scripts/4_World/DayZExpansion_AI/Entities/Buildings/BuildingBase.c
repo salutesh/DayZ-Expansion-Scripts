@@ -1,7 +1,11 @@
 [eAIRegisterDynamicPatrolSpawner(BuildingBase)]
 modded class BuildingBase
 {
+	static autoptr TStringArray s_eAI_PreventClimb = {"Land_House", "Land_Mil_Airfield_HQ"};
+
 	ref eAIDynamicPatrolSpawner<BuildingBase> m_eAI_DynamicPatrolSpawner;
+	ref map<int, int> m_eAI_LastDoorInteractionTime = new map<int, int>;
+	bool m_eAI_PreventClimb;
 
 	void BuildingBase()
 	{
@@ -9,6 +13,16 @@ modded class BuildingBase
 			return;
 
 		m_eAI_DynamicPatrolSpawner = new eAIDynamicPatrolSpawner<BuildingBase>(this);
+
+		string type = GetType();
+		foreach (string preventClimb: s_eAI_PreventClimb)
+		{
+			if (type.IndexOf(preventClimb) == 0)
+			{
+				m_eAI_PreventClimb = true;
+				break;
+			}
+		}
 	}
 
 	override void DeferredInit()

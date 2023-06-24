@@ -155,9 +155,13 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 			BaseBuildingBase baseBuilding = BaseBuildingBase.Cast(m_Object);
 			if (baseBuilding && baseBuilding.CanUseConstruction())
 			{
-				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
+				bool isSupportedBB;
+				//! https://feedback.bistudio.com/T173348
+				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
+					isSupportedBB = true;
 				#ifdef EXPANSIONMODBASEBUILDING
-				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
+				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
+					isSupportedBB = true;
 				#endif
 				if (isSupportedBB)
 				{

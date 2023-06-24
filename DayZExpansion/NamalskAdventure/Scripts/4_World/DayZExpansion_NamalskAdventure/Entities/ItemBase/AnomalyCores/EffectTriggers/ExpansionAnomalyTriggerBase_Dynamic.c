@@ -47,7 +47,9 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 				if (!m_Manager.IsPlayerInTriggerType(playerInsider, this))
 				{
 					//! We check if we are not in the standard LIVE state
-					bool nonDefaultState = m_AreaState > eAreaDecayStage.LIVE;
+					bool nonDefaultState;
+					if (m_AreaState > eAreaDecayStage.LIVE)
+						nonDefaultState = true;
 					if (nonDefaultState)
 					{
 						//! if not we check the specific state and update local effect values
@@ -86,7 +88,9 @@ class ExpansionAnomalyTriggerBase_Dynamic : ExpansionAnormalAreaTriggerBase
 				if (playerInsider.IsControlledPlayer())
 				{
 					//! Update Local particle effects
-					bool nonDefaultState = m_AreaState > eAreaDecayStage.LIVE;
+					bool nonDefaultState;
+					if (m_AreaState > eAreaDecayStage.LIVE)
+						nonDefaultState = true;
 					if (nonDefaultState)
 					{
 						int localPartBirthRate;

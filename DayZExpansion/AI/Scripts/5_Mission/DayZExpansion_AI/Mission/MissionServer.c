@@ -25,8 +25,6 @@ modded class MissionServer
 #endif
 
 		ExpansionHumanLoadout.Init();
-
-		ExpansionAIPatrolManager.InitPatrols();
 	}
 
 	override void InvokeOnConnect(PlayerBase player, PlayerIdentity identity)
@@ -58,5 +56,13 @@ modded class MissionServer
 		}
 
 		super.SyncRespawnModeInfo(identity);
+	}
+
+	override void OnMissionLoaded()
+	{
+		super.OnMissionLoaded();
+
+		//! Init patrols late so mapping already loaded
+		ExpansionAIPatrolManager.InitPatrols();
 	}
 };

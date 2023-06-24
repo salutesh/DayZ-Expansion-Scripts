@@ -376,8 +376,13 @@ class ExpansionHumanCommandVehicle : ExpansionHumanCommandScript
 		//Print(angularMagnitude);
 		//Print(angularSpeed);
 		
-		bool linearCheck = linearMagnitude <= linearSpeed || linearSpeed == 0.0;
-		bool angularCheck = angularMagnitude <= angularSpeed || angularSpeed == 0.0;
+		bool linearCheck;
+		//! https://feedback.bistudio.com/T173348
+		if (linearMagnitude <= linearSpeed || linearSpeed == 0.0)
+			linearCheck = true;
+		bool angularCheck;
+		if (angularMagnitude <= angularSpeed || angularSpeed == 0.0)
+			angularCheck = true;
 		
 		if (linearCheck && angularCheck)
 		{

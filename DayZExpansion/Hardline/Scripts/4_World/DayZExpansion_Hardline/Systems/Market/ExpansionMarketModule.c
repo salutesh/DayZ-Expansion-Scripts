@@ -13,6 +13,29 @@
 #ifdef EXPANSIONMODMARKET
 modded class ExpansionMarketModule
 {
+	override bool CheckCanUseTrader(PlayerBase player, ExpansionTraderObjectBase trader)
+	{
+		if (!super.CheckCanUseTrader(player, trader))
+			return false;
+
+		if (GetGame().IsServer() && GetExpansionSettings().GetHardline().UseReputation)
+		{
+			int minRep = trader.GetTraderMarket().MinRequiredReputation;
+			int maxRep = trader.GetTraderMarket().MaxRequiredReputation;
+			if (!Math.IsInRangeInt(player.Expansion_GetReputation(), minRep, maxRep))
+			{
+				if (player.GetIdentity())
+				{
+					ExpansionNotification("STR_EXPANSION_HARDLINE_REPUTATION_OUTOFRANGE", new StringLocaliser("STR_EXPANSION_HARDLINE_REPUTATION_OUTOFRANGE_TRADER", minRep.ToString(), maxRep.ToString()), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
+				}
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	override private void Exec_RequestPurchase(notnull PlayerBase player, string itemClassName, int count, int currentPrice, ExpansionTraderObjectBase trader, bool includeAttachments = true, int skinIndex = -1, TIntArray attachmentIDs = NULL)
 	{
 		if (!player)

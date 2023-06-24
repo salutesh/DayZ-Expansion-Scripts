@@ -53,6 +53,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private float m_MovementDirection;
 	private bool m_ForceMovementDirection;
 	private float m_TargetMovementDirection;
+	private vector m_PrevPosition;
+	private float m_PositionTime;
 
 	private bool m_Look;
 	private float m_LookLR;
@@ -82,6 +84,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private bool m_LastBlockedRight;
 	private float m_BlockedRightDist;
 	private bool m_LastBlockedBackward;
+	private bool m_LastBlocked;
+	private float m_TurnDirection = 45.0;
+	private bool m_TurnOverride;
 
 	private float m_OverrideMovementTimeout;
 	private float m_OverrideTargetMovementDirection;
@@ -122,7 +127,11 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_LookLR = lookLR;
 		m_LookUD = lookUD;
 
-		m_Look = (Math.AbsFloat(m_LookLR) > 0.01) || (Math.AbsFloat(m_LookUD) > 0.01);
+		//! https://feedback.bistudio.com/T173348
+		if (Math.AbsFloat(m_LookLR) > 0.01 || Math.AbsFloat(m_LookUD) > 0.01)
+			m_Look = true;
+		else
+			m_Look = false;
 	}
 
 /*
@@ -187,6 +196,14 @@ class eAICommandMove: ExpansionHumanCommandScript
 		return false;
 	}
 
+	int GetStance()
+	{
+		if (m_Stance == -1)
+			return 0;
+
+		return m_Stance;
+	}
+
 	bool IsChangingStance()
 	{
 		return m_StanceChangeTimeout > 0;
@@ -204,7 +221,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_StanceChangeTimeout -= pDt;
 
 #ifdef DIAG
-		auto hitch = EXHitch(m_Unit.ToString() + " eAICommandMove::PreAnimUpdate ", 20000);
+		auto hitch = new EXHitch(m_Unit.ToString() + " eAICommandMove::PreAnimUpdate ", 20000);
 #endif
 
 		m_SpeedUpdateTime += pDt;
@@ -217,11 +234,16 @@ class eAICommandMove: ExpansionHumanCommandScript
 		vector wayPoint = position;
 		bool isFinal = true;
 		vector pathDir2D;
-		vector fb;
+		vector fb = m_Transform[2];
+		m_Direction = fb;
 		if (m_SpeedLimit)
 		{
 #ifndef EAI_USE_LEGACY_PATHFINDING
-			isFinal = m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal;
+			//! https://feedback.bistudio.com/T173348
+			if (m_PathFinding.GetNext(wayPoint) <= 2 && m_Unit.m_eAI_TargetPositionIsFinal)
+				isFinal = true;
+			else
+				isFinal = false;
 			//m_WayPointDistance = vector.DistanceSq(position, wayPoint);
 			DBGDrawSphere(wayPoint, 0.05, 0xFFFF0000);
 			//DBGDrawLine(position, wayPoint, 0xFFFF0000);
@@ -239,7 +261,6 @@ class eAICommandMove: ExpansionHumanCommandScript
 #endif
 
 			pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
-			fb = pathDir2D.Normalized();
 
 			bool halt;
 
@@ -278,6 +299,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 		bool blockedRight;
 		bool blockedBackward;
 
+		bool moveRight;
+		bool backPedal;
+		bool turnOverride;
+
 		if (m_OverrideMovementTimeout > 0)
 		{
 			m_OverrideMovementTimeout -= pDt;
@@ -288,10 +313,15 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_PathFinding.StopOverride();
 			if (m_DebugTime > 0)
 				m_DebugTime -= pDt;
+			m_LastBlockedForward = false;
+			m_LastBlockedBackward = false;
+			m_LastBlockedLeft = false;
+			m_LastBlockedRight = false;
+			m_TurnOverride = false;
 		}
 
 		//! Try and avoid obstacles if we are moving and not climbing
-		if (m_MovementSpeed && !m_PathFinding.GetOverride() && /*!m_Unit.eAI_HasLOS() &&*/ !m_Unit.IsClimbing())
+		if (m_MovementSpeed && !m_Unit.IsClimbing() && !m_Unit.IsFalling() && !m_Unit.IsFighting())
 		{
 			vector leftPos;
 			vector rightPos;
@@ -305,73 +335,81 @@ class eAICommandMove: ExpansionHumanCommandScript
 			string msg;
 #endif
 
-			//! Always check fwd
-			vector checkFwd = position + 0.5 * fb;
-			vector checkBwd = position - 0.5 * fb;
-			blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkFwd + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true);
-			//if (blockedForward)
-			//{
-				//vector forwardBlockedDir = vector.Direction(position, forwardPos);
-				//vector forwardBlockedDirNorm = forwardBlockedDir.Normalized();
-				//blockedForward = forwardBlockedDir.LengthSq() > 0.1 && vector.Dot(fb, forwardBlockedDirNorm) > 0.75;
-			//}
-			if (blockedForward)
+			if (vector.DistanceSq(m_PrevPosition, position) < 0.0016)
+				m_PositionTime += pDt;  //! We don't seem to be actually moving
+			else
+				m_PositionTime = 0;
+
+			vector checkDir;
+
+			//! Only check bwd if we are moving bwd, else check fwd
+			if (Math.AbsFloat(m_MovementDirection) >= 135)
 			{
-				m_Unit.Expansion_DebugObject_Deferred(BLOCKED_FORWARD_HITPOSITION, forwardPos, "ExpansionDebugBox_Purple");
-				m_Unit.Expansion_DebugObject_Deferred(CHECK_ORIGIN, position + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugBox_Blue", fb);
-				m_Unit.Expansion_DebugObject_Deferred(CHECK_FORWARD_BLOCKED, position + 0.5 * fb + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", fb);
+				checkDir = position - 0.5 * fb;
+				blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkDir + CHECK_MIN_HEIGHT, 0.5, true);
+
+				if (!blockedBackward && m_PositionTime > 0.3)
+					blockedBackward = true;
+
+				if (blockedBackward)
+					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_BACKWARD_HITPOSITION, backwardPos, "ExpansionDebugBox_Purple", outNormal);
+
+				if (blockedBackward != m_LastBlockedBackward)
+				{
+					m_LastBlockedBackward = blockedBackward;
+					chg = true;
+				}
+			}
+			else
+			{
+				checkDir = position + 0.5 * fb;
+				blockedForward = Raycast(position + CHECK_MIN_HEIGHT, checkDir + CHECK_MIN_HEIGHT, forwardPos, outNormal, hitFraction, position + fb * m_MovementSpeed + CHECK_MIN_HEIGHT, 1.0, true);
+
+				if (!blockedForward && m_PositionTime > 0.3)
+					blockedForward = true;
+
+				if (blockedForward)
+				{
+					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_FORWARD_HITPOSITION, forwardPos, "ExpansionDebugBox_Purple");
+					m_Unit.Expansion_DebugObject_Deferred(CHECK_ORIGIN, position + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugBox_Blue", fb);
+					m_Unit.Expansion_DebugObject_Deferred(CHECK_FORWARD_BLOCKED, position + 0.5 * fb + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Red", fb);
+				}
+
+				if (blockedForward != m_LastBlockedForward)
+				{
+					m_LastBlockedForward = blockedForward;
+					chg = true;
+				}
 			}
 
-			if (blockedForward != m_LastBlockedForward)
-			{
-				m_LastBlockedForward = blockedForward;
-				chg = true;
-			}
+			bool blockedFwdOrBwd;
+			//! https://feedback.bistudio.com/T173348
+			if (blockedForward || blockedBackward)
+				blockedFwdOrBwd = true;
 
-			//! If during movement overriding we are no longer blocked in the fwd direction, stop overriding imediately
-			if (!blockedForward && m_OverrideMovementTimeout > 0)
+			m_LastBlocked = blockedFwdOrBwd;
+
+			float overrideTargetMovementDirection = m_OverrideTargetMovementDirection;
+
+			//! If during movement overriding we are no longer blocked in any direction, stop overriding imediately
+			if (!blockedFwdOrBwd && m_OverrideMovementTimeout > 0)
 			{
 				m_OverrideMovementTimeout = 0;
 				m_OverrideTargetMovementDirection = 0;
 				m_ForceMovementDirection = true;
 			}
 			//! Check left/right/bwd if blocked forward or already overriding movement
-			else if (blockedForward || m_OverrideMovementTimeout > 0)
+			else if (blockedFwdOrBwd || m_OverrideMovementTimeout > 0)
 			{
-				//! Ready to play pinball
-
 				vector lr = fb.Perpend();
 				vector checkLeft = position + 0.25 * lr;
 				vector checkRight = position - 0.25 * lr;
-				blockedLeft = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction, checkFwd + lr + CHECK_MIN_HEIGHT, 0.5);
+				blockedLeft = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, leftPos, outNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
 				if (blockedLeft)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_LEFT_HITPOSITION, leftPos, "ExpansionDebugBox_Purple", outNormal);
-				blockedRight = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction, checkFwd - lr + CHECK_MIN_HEIGHT, 0.5);
+				blockedRight = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, rightPos, outNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
 				if (blockedRight)
 					m_Unit.Expansion_DebugObject_Deferred(BLOCKED_RIGHT_HITPOSITION, rightPos, "ExpansionDebugBox_Purple", outNormal);
-
-				//! Only check bwd if we were backpedaling
-				bool movingBwd = Math.AbsFloat(m_OverrideTargetMovementDirection) >= -135;
-				if (movingBwd && m_OverrideMovementTimeout <= 0)
-				{
-					blockedBackward = Raycast(position + CHECK_MIN_HEIGHT, checkBwd + CHECK_MIN_HEIGHT, backwardPos, outNormal, hitFraction, checkBwd + CHECK_MIN_HEIGHT, 0.5, true);
-					//if (blockedBackward)
-					//{
-						//vector backwardBlockedDir = vector.Direction(position, backwardPos);
-						//vector backwardBlockedDirNorm = backwardBlockedDir.Normalized();
-						//blockedBackward = backwardBlockedDir.LengthSq() > 0.1 && vector.Dot(fb, backwardBlockedDirNorm) <= 0.0;
-					//}
-					if (blockedBackward)
-					{
-						float blockedForwardDist = vector.DistanceSq(position, forwardPos);
-						float blockedBackwardDist = vector.DistanceSq(position, backwardPos);
-						blockedBackward = blockedForwardDist - blockedBackwardDist >= 0.0;
-					}
-					if (blockedBackward)
-						m_Unit.Expansion_DebugObject_Deferred(BLOCKED_BACKWARD_HITPOSITION, backwardPos, "ExpansionDebugBox_Purple", outNormal);
-
-					backwardPos = position - 0.5 * fb;
-				}
 
 				if (blockedLeft && blockedRight)
 				{
@@ -381,17 +419,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 						m_BlockedLeftDist = vector.DistanceSq(position, leftPos);
 					if (blockedRight)
 						m_BlockedRightDist = vector.DistanceSq(position, rightPos);
-					//if (Math.Max(leftDist, rightDist) - Math.Min(leftDist, rightDist) > 0.25)
-					//{
-						//blockedLeft = leftDist < rightDist;
-						//blockedRight = leftDist > rightDist;
-					//}
 				}
 
-				//if (blockedLeft && !m_PathFinding.IsBlocked(position, position - 0.5 * lr, rightPos, outNormal))
-					rightPos = position - 0.5 * lr;
-				//if (blockedRight && !m_PathFinding.IsBlocked(position, position + 0.5 * lr, leftPos, outNormal))
-					leftPos = position + 0.5 * lr;
+				rightPos = position - 0.5 * lr;
+				leftPos = position + 0.5 * lr;
 
 				if (blockedLeft != m_LastBlockedLeft)
 				{
@@ -405,65 +436,26 @@ class eAICommandMove: ExpansionHumanCommandScript
 					chg = true;
 				}
 
-				if (blockedBackward != m_LastBlockedBackward)
-				{
-					m_LastBlockedBackward = blockedBackward;
-					chg = true;
-				}
+				//! Make sure the normal waypoint distance speed adjustments run
+				m_SpeedOverrider = false;
 
 				//! If change in blocked directions or currently not overriding movement, adjust movement direction
-				if (blockedForward || chg)
+				if (blockedFwdOrBwd || (chg && (blockedLeft || blockedRight)))
 				{
-					if (m_MovementSpeed > 2)
-					{
-						//! Limiting speed to jog helps obstacle avoidance while strafing
-						//! This will be reset in eAIBase::CommandHandler next update
-						SetSpeedOverrider(true);
-						SetTargetSpeed(2.0);
-						m_MovementSpeed = 2;
-					}
+					//! Ready to play pinball
 
 					//! Check which direction we want to move. Moving left is always the fall-through case
-					bool moveRight;
-					bool backPedal;
-					bool moveFwd;
-					if (blockedLeft && blockedRight)
+					if ((blockedLeft && blockedRight) || m_TurnOverride)
 					{
-						if (blockedBackward)
-						{
-							if (m_OverrideMovementTimeout > 0)
-							{
-								//! If already moving right, keep moving right
-								if (m_OverrideTargetMovementDirection == 90)
-									moveRight = true;
-								//! If already backpedaling, keep backpedaling
-								else if (movingBwd)
-									backPedal = true;
-								//! If already moving fwd, keep moving fwd
-								else if (m_OverrideTargetMovementDirection == 0)
-									moveFwd = true;
-							}
-							else
-							{
-								//! 25% chance move any direction if all directions blocked (because what choice do we have)
-								int roll = Math.RandomIntInclusive(0, 3);
-								if (roll == 1)
-									moveRight = true;
-								else if (roll == 2)
-									backPedal = true;
-								else if (roll == 3)
-									moveFwd = true;
-							}
-						}
-						else
-						{
-							backPedal = true;
-						}
+						turnOverride = true;
 					}
 					else if (blockedLeft && !blockedRight)
 					{
 						//! Go right if blocked left
 						moveRight = true;
+					#ifdef EAI_DEBUG_MOVE
+						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked left, move right");
+					#endif
 					}
 					else if (!blockedLeft && !blockedRight)
 					{
@@ -471,14 +463,40 @@ class eAICommandMove: ExpansionHumanCommandScript
 						{
 							//! If already moving right, keep moving right
 							if (m_OverrideTargetMovementDirection == 90)
+							{
 								moveRight = true;
+							#ifdef EAI_DEBUG_MOVE
+								EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, already moving right, keep moving right");
+							#endif
+							}
+						#ifdef EAI_DEBUG_MOVE
+							else
+							{
+								EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, already moving left, keep moving left");
+							}
+						#endif
 						}
 						//! 50% chance move right if neither blocked left/right
 						else if (Math.RandomIntInclusive(0, 1))
 						{
 							moveRight = true;
+						#ifdef EAI_DEBUG_MOVE
+							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move right");
+						#endif
 						}
+					#ifdef EAI_DEBUG_MOVE
+						else
+						{
+							EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " not blocked L+R, move left");
+						}
+					#endif
 					}
+				#ifdef EAI_DEBUG_MOVE
+					else
+					{
+						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked right, move left");
+					}
+				#endif
 
 					if (backPedal)
 					{
@@ -496,13 +514,24 @@ class eAICommandMove: ExpansionHumanCommandScript
 						if (m_OverrideMovementTimeout <= 0)
 							m_OverrideMovementTimeout = 1.0;
 						m_OverrideWaypoint = backwardPos;
+					#ifdef EAI_DEBUG_MOVE
+						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked L+R, move bwd");
+					#endif
 					}
-					else if (moveFwd)
+					else if (turnOverride)
 					{
 						m_OverrideTargetMovementDirection = 0.0;
 						if (m_OverrideMovementTimeout <= 0)
-							m_OverrideMovementTimeout = 1.0;
+						{
+							m_OverrideMovementTimeout = 3.0;
+							if (Math.RandomIntInclusive(0, 1))
+								m_TurnDirection = -m_TurnDirection;
+						}
 						m_OverrideWaypoint = forwardPos;
+						m_TurnOverride = true;
+					#ifdef EAI_DEBUG_MOVE
+						EXTrace.Print(EXTrace.AI, this, m_Unit.ToString() + " blocked L+R+B, turn " + m_TurnDirection);
+					#endif
 					}
 					else if (moveRight)
 					{
@@ -552,7 +581,7 @@ class eAICommandMove: ExpansionHumanCommandScript
 					m_Unit.Expansion_DebugObject_Deferred(OVERRIDDEN_WAYPOINT, m_OverrideWaypoint, "ExpansionDebugBox_Orange");
 				}
 
-				if (backPedal || moveFwd)
+				if (backPedal || turnOverride)
 				{
 					m_Unit.Expansion_DebugObject_Deferred(CHECK_LEFT_BLOCKED, position + 0.5 * lr + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", lr);
 					m_Unit.Expansion_DebugObject_Deferred(CHECK_RIGHT_BLOCKED, position - 0.5 * lr + CHECK_MIN_HEIGHT * 0.5, "ExpansionDebugArrow_Orange", -lr);
@@ -580,6 +609,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 			}
 
 #ifdef DIAG
+			if (m_OverrideTargetMovementDirection != overrideTargetMovementDirection)
+				chg = true;
+
 			if (chg)
 			{
 				if (blockedForward || blockedLeft || blockedRight || blockedBackward)
@@ -604,6 +636,8 @@ class eAICommandMove: ExpansionHumanCommandScript
 			}
 #endif
 		}
+
+		m_PrevPosition = position;
 
 #ifdef DIAG
 		if (m_OverrideMovementTimeout <= 0 && !blockedForward && !blockedLeft && !blockedRight && !blockedBackward && m_DebugTime <= 0)
@@ -644,14 +678,52 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 		float minFinal = 0.3;
 
+		int speedLimit;
+		if (m_StanceChangeTimeout > 0)
+		{
+			speedLimit = 0;  //! Have to stop moving else it breaks animation state
+		}
+		else
+		{
+			switch (m_Stance)
+			{
+				case DayZPlayerConstants.STANCEIDX_PRONE:
+					if (m_Unit.IsRaised() || m_Unit.GetWeaponManager().IsRunning() || m_Unit.GetActionManager().GetRunningAction())
+						speedLimit = 0;  //! Have to stop moving else it breaks animation state
+					else
+						speedLimit = Math.Min(1, m_SpeedLimit);
+					break;
+				case DayZPlayerConstants.STANCEIDX_CROUCH:
+					speedLimit = Math.Min(2, m_SpeedLimit);
+					break;
+				default:
+					speedLimit = m_SpeedLimit;
+					break;
+			}
+
+			//! Limit speed to jog when moving bwd or avoiding obstacles
+			if ((Math.AbsFloat(m_MovementDirection) > 90 || m_OverrideMovementTimeout > 0) && speedLimit > 2)
+				speedLimit = 2;
+		}
+
 		if (m_MovementSpeed != 0)
 		{
 			m_WayPointDistance2D = pathDir2D.LengthSq();
 			if (m_WayPointDistance2D >= 0.04)  //! 0.2 m
 			{
 				m_PrevWaypoint = wayPoint;
-				if (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget)
+				if (!m_TurnOverride && (m_OverrideMovementTimeout > 0 || !m_ForceTurnTarget))
 					m_TurnTarget = pathDir2D.Normalized().VectorToAngles()[0];
+			}
+
+			if (m_TurnOverride)
+			{
+				speedLimit = 1;
+				m_TurnTarget = orientation[0] + m_TurnDirection;
+				if (m_TurnTarget >= 360.0)
+					m_TurnTarget -= 360.0;
+				else if (m_TurnTarget < 0)
+					m_TurnTarget += 360.0;
 			}
 		}
 
@@ -681,13 +753,36 @@ class eAICommandMove: ExpansionHumanCommandScript
 		//! Clockwise: Positive, counter-clockwise: Negative
 		m_TurnDifference = ExpansionMath.AngleDiff2(m_Turn, m_TurnTarget);
 
-		bool isFollowingFormation = m_Unit.GetFSM().IsInState("FollowFormation");
+		bool matchLeaderSpeed;
 
 		DayZPlayerImplement leader;
-		if (isFollowingFormation)
+		if (m_Unit.GetFSM().IsInState("FollowFormation"))
+		{
 			leader = m_Unit.GetGroup().GetLeader();
+			if (leader && !leader.eAI_IsSideSteppingObstacles() && Math.AbsFloat(leader.Expansion_GetMovementAngle()) <= 90.0)
+			{
+				float leaderSpeed = GetVelocity(leader).LengthSq();
+				//if (EXTrace.AI && leaderSpeed > 0.0)
+					//EXPrint(leader, "velocity " + leaderSpeed);
+				/**
+				 * Movement speeds (approx)
+				 * 
+				 * Empty handed, walk: 2.3 m/s
+				 * Rifle in hand, walk: 1.87733 m/s
+				 * Axe in hand, walk: 2.37429 m/s
+				 * Pistol in hand, walk: 2.3 m/s
+				 * Knife in hand, walk: 2.3 m/s
+				 */
+				if (leaderSpeed > 1.8)
+					matchLeaderSpeed = true;
+			}
+		}
 
-		m_Unit.m_eAI_PositionIsFinal = isFinal && m_WayPointDistance < minFinal && (!isFollowingFormation || leader.Expansion_GetMovementSpeed() == 0.0);
+		//! https://feedback.bistudio.com/T173348
+		if (isFinal && m_WayPointDistance < minFinal && !matchLeaderSpeed)
+			m_Unit.m_eAI_PositionIsFinal = true;
+		else
+			m_Unit.m_eAI_PositionIsFinal = false;
 		if (m_Unit.m_eAI_PositionIsFinal)
 		{
 			SetTargetSpeed(0.0);
@@ -699,34 +794,32 @@ class eAICommandMove: ExpansionHumanCommandScript
 		else if (!m_SpeedOverrider)
 		{
 			float distanceFactor = 4.0;
-			if (isFollowingFormation || (m_Unit.GetThreatToSelf() > 0.4 && m_Unit.eAI_HasLOS()))
+			if (matchLeaderSpeed || (m_Unit.GetThreatToSelf() > 0.4 && m_Unit.eAI_HasLOS()))
 				distanceFactor = 0.5;
 			float targetSpeed;
 			if (isFinal && m_WayPointDistance < 2.0 * distanceFactor)
 			{
-				if (isFollowingFormation)
+				if (matchLeaderSpeed)
 					targetSpeed = leader.Expansion_GetMovementSpeed();
 				else
 					targetSpeed = 1.0;
-				SetTargetSpeed(Math.Lerp(m_MovementSpeed, targetSpeed, pDt * 2.0));
 			}
 			else if (isFinal && m_WayPointDistance < 5.0 * distanceFactor)
 			{
-				if (isFollowingFormation)
+				if (matchLeaderSpeed)
 					targetSpeed = leader.Expansion_GetMovementSpeed();
 				else
 					targetSpeed = 2.0;
-				SetTargetSpeed(Math.Lerp(m_MovementSpeed, targetSpeed, pDt * 2.0));
 			}
 			else
 			{
-				float maxSpeed;
 				if (Math.AbsFloat(m_TargetMovementDirection) > 90)
-					maxSpeed = 2.0;  //! Can't sprint backwards
+					targetSpeed = 2.0;  //! Can't sprint backwards
 				else
-					maxSpeed = 3.0;
-				SetTargetSpeed(Math.Lerp(m_MovementSpeed, maxSpeed, pDt * 2.0));
+					targetSpeed = 3.0;
 			}
+
+			SetTargetSpeed(Math.Lerp(m_MovementSpeed, targetSpeed, pDt * 2.0));
 		}
 
 		DBGDrawSphere(wayPoint, 0.05, 0xFF00FF00);
@@ -748,32 +841,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 			m_StancePrev = m_Stance;
 		}
 
-		m_MovementSpeed = m_TargetSpeed;
-		int speedLimit;
-		if (m_StanceChangeTimeout > 0)
-		{
-			speedLimit = 0;  //! Have to stop moving else it breaks animation state
-		}
+		if (m_TargetSpeed > speedLimit && speedLimit != -1)
+			m_MovementSpeed = speedLimit;
 		else
-		{
-			switch (m_Stance)
-			{
-				case DayZPlayerConstants.STANCEIDX_PRONE:
-					if (m_Unit.IsRaised() || m_Unit.GetWeaponManager().IsRunning() || m_Unit.GetActionManager().GetRunningAction())
-						speedLimit = 0;  //! Have to stop moving else it breaks animation state
-					else
-						speedLimit = Math.Min(1, m_SpeedLimit);
-					break;
-				case DayZPlayerConstants.STANCEIDX_CROUCH:
-					speedLimit = Math.Min(2, m_SpeedLimit);
-					break;
-				default:
-					speedLimit = m_SpeedLimit;
-					break;
-			}
-		}
-
-		if (m_MovementSpeed > speedLimit && speedLimit != -1) m_MovementSpeed = speedLimit;
+			m_MovementSpeed = m_TargetSpeed;
 
 		m_Table.SetMovementDirection(this, m_MovementDirection);
 		m_Table.SetMovementSpeed(this, m_MovementSpeed);
@@ -831,7 +902,10 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
 
-			PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
+			if (m_WayPointDistance < 8.0 && m_OverrideMovementTimeout <= 0)
+				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
+			else
+				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
 		}
 	}
 
@@ -895,17 +969,79 @@ class eAICommandMove: ExpansionHumanCommandScript
 		return m_WayPointDistance;
 	}
 
-	bool IsStuck()
+	bool IsSideSteppingObstacles()
 	{
-		if (!m_MovementSpeed)
+		return m_LastBlocked || m_LastBlockedLeft || m_LastBlockedRight;
+	}
+
+	bool CheckStuck()
+	{
+		if (!m_MovementSpeed || m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
 			return false;
 
-		if (!m_LastBlockedForward /*&& !m_LastBlockedLeft && !m_LastBlockedRight*/)
+		if (!m_LastBlocked || !CheckBlockedLeft() || !CheckBlockedRight())
 			return false;
 
-		//if (m_BlockedLeftDist > 0.16 && m_BlockedRightDist > 0.16)
-			//return false;
+		return true;
+	}
 
-		return !m_Unit.IsClimbing();
+	bool CheckBlockedLeft()
+	{
+		if (!m_MovementSpeed || m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
+			return false;
+
+		bool isBlocked = m_LastBlockedLeft;
+		float blockDistSq = m_BlockedRightDist;
+
+		if (!m_LastBlockedLeft)
+		{
+			vector position = m_Transform[3];
+			vector lr = m_Direction.Perpend();
+			vector checkDir = position + 0.5 * m_Direction;
+			if (Math.AbsFloat(m_MovementDirection) >= 135)
+				checkDir = checkDir * -1.0;
+			vector checkLeft = position + 0.25 * lr;
+			vector hitPosition;
+			vector hitNormal;
+			float hitFraction;
+			isBlocked = Raycast(position + CHECK_MIN_HEIGHT, checkLeft + CHECK_MIN_HEIGHT, hitPosition, hitNormal, hitFraction, checkDir + lr + CHECK_MIN_HEIGHT, 0.5);
+			if (isBlocked)
+				blockDistSq = vector.DistanceSq(position, hitPosition);
+		}
+
+		if (isBlocked && blockDistSq > 0.16)
+			return false;
+
+		return isBlocked;
+	}
+
+	bool CheckBlockedRight()
+	{
+		if (!m_MovementSpeed || m_Unit.IsClimbing() || m_Unit.IsFalling() || m_Unit.IsFighting())
+			return false;
+
+		bool isBlocked = m_LastBlockedRight;
+		float blockDistSq = m_BlockedLeftDist;
+
+		if (!m_LastBlockedRight)
+		{
+			vector position = m_Transform[3];
+			vector lr = m_Direction.Perpend();
+			vector checkDir = position + 0.5 * m_Direction;
+			if (Math.AbsFloat(m_MovementDirection) >= 135)
+				checkDir = checkDir * -1.0;
+			vector checkRight = position - 0.25 * lr;
+			vector hitPosition;
+			vector hitNormal;
+			float hitFraction;
+			isBlocked = Raycast(position + CHECK_MIN_HEIGHT, checkRight + CHECK_MIN_HEIGHT, hitPosition, hitNormal, hitFraction, checkDir - lr + CHECK_MIN_HEIGHT, 0.5);
+			if (isBlocked)
+				blockDistSq = vector.DistanceSq(position, hitPosition);
+		}
+
+		if (isBlocked && blockDistSq > 0.16)
+			return false;
+
+		return isBlocked;
 	}
 };

@@ -21,7 +21,7 @@ modded class JMPlayerForm
 		super.OnClientPermissionsUpdated();
 
 		// idk unify naming for the permission? rest of player permissions are parented here
-		UpdatePermission(m_ExpansionEntityStorage, "Admin.Player.Set.ExpansionReputation");
+		UpdatePermission(m_ExpansionEntityStorage, "Admin.Player.Set.ExpansionEntityStorage");
 	}
 
 	override private Widget InitActionWidgetsStats(Widget actionsParent)

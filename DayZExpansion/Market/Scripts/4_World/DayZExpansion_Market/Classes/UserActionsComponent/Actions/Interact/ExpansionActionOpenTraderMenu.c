@@ -13,7 +13,6 @@
 class ExpansionActionOpenTraderMenu: ActionInteractBase
 {
 	private ref ExpansionTraderObjectBase m_TraderObject;
-	private ExpansionMarketModule m_MarketModule;
 	
 	void ExpansionActionOpenTraderMenu()
 	{
@@ -29,27 +28,22 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 			
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		m_TraderObject = ExpansionMarketModule.GetTraderFromObject(target.GetObject(), false);
+		ExpansionTraderObjectBase trader = ExpansionMarketModule.GetTraderFromObject(target.GetObject(), false);
 
-		if (!m_TraderObject)
-			return false;
-
-		if (!CF_Modules<ExpansionMarketModule>.Get(m_MarketModule))
-			return false;
-
-		if (!m_MarketModule.CanOpenMenu())
+		if (!trader)
 			return false;
 
 		if (!GetExpansionSettings().GetMarket().MarketSystemEnabled)
 			return false;
-		
-		if (!GetGame().IsDedicatedServer())
-		{
-			if ( !m_TraderObject || !m_TraderObject.GetTraderMarket() )
-				return false;
 
-			m_Text = "#STR_USRACT_TRADE" + " - " + m_TraderObject.GetDisplayName();
-		}
+		if (!ExpansionMarketModule.s_Instance.CanOpenMenu())
+			return false;
+		
+		if (!trader.GetTraderMarket() || !ExpansionMarketModule.s_Instance.CheckCanUseTrader(player, trader))
+			return false;
+
+		if (!GetGame().IsDedicatedServer())
+			m_Text = "#STR_USRACT_TRADE" + " - " + trader.GetDisplayName();
 
 		return true;
 	}
@@ -64,36 +58,31 @@ class ExpansionActionOpenTraderMenu: ActionInteractBase
 		
 		if (!player)
 		{
-			Error("ExpansionActionOpenTraderMenu::OnExecuteServer - Player base is NULL!");
+			Error("ExpansionActionOpenTraderMenu::OnStartServer - Player base is NULL!");
 			return;
 		}
 		
 		if (!player.GetIdentity())
 		{
-			Error("ExpansionActionOpenTraderMenu::OnExecuteServer - Player identity is NULL!");
+			Error("ExpansionActionOpenTraderMenu::OnStartServer - Player identity is NULL!");
 			return;
 		}
-	}
-		
-	override void OnStartClient(ActionData action_data)
-	{
-		super.OnStartClient(action_data);
-		
-		Print("ExpansionActionOpenTraderMenu::OnStartClient - Start");
-		
+
+		ExpansionTraderObjectBase trader = ExpansionMarketModule.GetTraderFromObject(action_data.m_Target.GetObject());
+
+		if (!trader)
+			return;
+
 		/**
 		 * Client/server handshake
 		 * 
-		 * Client: RequestTraderData
-		 * Server: RPC_RequestTraderData
-		 * Server: LoadTraderData
+		 * Server: StartTrading
 		 * Client: RPC_LoadTraderData
 		 * Client: RequestTraderItems
 		 * Server: RPC_RequestTraderItems
 		 * Server: LoadTraderItems
 		 * Client: RPC_LoadTraderItems
 		 **/
-		m_MarketModule.RequestTraderData(m_TraderObject);
-		m_MarketModule.OpenTraderMenu();
+		ExpansionMarketModule.s_Instance.StartTrading(trader, player.GetIdentity());
 	}
 }

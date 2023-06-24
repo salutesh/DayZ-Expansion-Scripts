@@ -15,6 +15,8 @@
 			</editor_data>
 			<event_entry>
 				fsm.last_attempt_time = GetGame().GetTime();
+				
+				unit.OverrideMovementSpeed(false, 0);
 			</event_entry>
 			<event_exit />
 			<event_update>
@@ -32,11 +34,11 @@
 			</editor_data>
 			<event_entry>
 				time = 0;
-				unit.RaiseWeapon(true);
+				unit.RaiseWeapon(false);
 				unit.ReloadWeaponAI(fsm.weapon, magazine);
 			</event_entry>
 			<event_exit>
-				unit.OverrideMovementDirection(false, 0);
+				unit.eAI_CancelSidestep();
 			</event_exit>
 			<event_update>
 				if (!unit.GetWeaponManager() || unit.IsUnconscious()) return EXIT;
@@ -51,19 +53,56 @@
 						return EXIT;
 					}
 					
+					vector position;
+					
 					auto target = unit.GetTarget();
-					if (target &amp;&amp; target.GetDistanceSq(unit, true) &lt;= 2.25)
+					if (target &amp;&amp; unit.GetThreatToSelf() &gt; 0.4)
 					{
-						unit.OverrideMovementDirection(true, -180);
+						if (!unit.eAI_IsSideStepping() &amp;&amp; unit.eAI_HasLOS())
+						{
+							float distSq = target.GetDistanceSq(unit, true);
+							if (distSq &lt;= 2.25)
+							{
+								float movementDirection;
+								if (Math.RandomIntInclusive(0, 1))
+									movementDirection = Math.RandomFloat(135, 180);
+								else
+									movementDirection = Math.RandomFloat(-135, -180);
+								unit.eAI_ForceSideStep(Math.RandomFloat(1, 1.5), null, movementDirection);
+							}
+							else if (distSq &lt; 100.0)
+							{
+								unit.eAI_ForceSideStep(Math.RandomFloat(1, 1.5), null, 0.0, false);
+							}
+						}
+						
+						position = target.GetPosition(unit, false);
 					}
+					else
+					{
+						auto group = unit.GetGroup();
+						if (group)
+						{
+							if (group.GetLeader() != unit)
+								position = group.GetFormationPosition(unit);
+							else
+								position = group.GetCurrentWaypoint();
+						}
+					}
+					
+					if (position != vector.Zero)
+						unit.OverrideTargetPosition(position);
 				
 					return CONTINUE;
 				}
 				
 				if (!fsm.weapon) return EXIT;
 				
-				int mi = fsm.weapon.GetCurrentMuzzle();
-				if (fsm.weapon.IsChamberEmpty(mi))
+				if (fsm.weapon.IsDamageDestroyed())
+				{
+					unit.eAI_DropItem(fsm.weapon);
+				}
+				else if (fsm.weapon.IsChamberEmpty(fsm.weapon.GetCurrentMuzzle()))
 				{
 					fsm.failed_attempts++;
 					EXTrace.Print(true, unit, "Weapon_Reloading - Reloading - failed (" + fsm.failed_attempts + ")");
@@ -190,6 +229,18 @@
 			<event />
 			<from_state name="Removing" />
 			<to_state />
+		</transition>
+		<transition>
+			<editor_data>
+				<position_source x="720.925619834711" y="697.735537190083" />
+				<position_destination x="721.09671470528" y="730.613824192337" />
+			</editor_data>
+			<guard>
+				return SUCCESS;
+			</guard>
+			<event />
+			<from_state />
+			<to_state name="Start" />
 		</transition>
 	</transitions>
 </fsm>

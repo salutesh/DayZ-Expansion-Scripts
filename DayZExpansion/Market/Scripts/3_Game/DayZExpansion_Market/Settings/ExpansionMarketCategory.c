@@ -17,7 +17,8 @@ class ExpansionMarketCategory
 	int m_Version;
 
 	protected static ref map<string, int> m_CategoryIDs = new map<string, int>;
-	protected static ref map<string, int> s_GlobalItems = new map<string, int>;
+	protected static ref map<string, ref ExpansionMarketItem> s_GlobalItems = new map<string, ref ExpansionMarketItem>;
+	protected static ref map<int, ref ExpansionMarketItem> s_GlobalItemsByID = new map<int, ref ExpansionMarketItem>;
 
 	[NonSerialized()]
 	string m_FileName;
@@ -211,21 +212,17 @@ class ExpansionMarketCategory
 	
 	bool CheckDuplicate(string className)
 	{
-		int categoryID;
-		if (s_GlobalItems.Find(className, categoryID))
+		ExpansionMarketItem item;
+		if (s_GlobalItems.Find(className, item))
 		{
-			ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(categoryID);
+			ExpansionMarketCategory cat = GetExpansionSettings().GetMarket().GetCategory(item.CategoryID);
 			string catInfo;
 			if (cat)
-				catInfo = cat.m_FileName + " (ID " + categoryID + ")";
+				catInfo = cat.m_FileName + " (ID " + item.CategoryID + ")";
 			else
-				catInfo = "ID " + categoryID;
+				catInfo = "ID " + item.CategoryID;
 			Error("Item " + className + " has already been added to category " + catInfo);
 			return true;
-		}
-		else
-		{
-			s_GlobalItems.Insert(className, CategoryID);
 		}
 
 		return false;
@@ -233,10 +230,13 @@ class ExpansionMarketCategory
 
 	void AddItemInternal(ExpansionMarketItem item, bool addToList = true)
 	{
+		item.Category = this;
 		if (addToList)
 			Items.Insert( item );
 		m_Items.Insert(item.ClassName, item);
 		m_ItemsByID.Insert(item.ItemID, item);
+		s_GlobalItems.Insert(item.ClassName, item);
+		s_GlobalItemsByID.Insert(item.ItemID, item);
 		m_HasItems = true;
 		m_Finalized = false;
 	}
@@ -316,7 +316,8 @@ class ExpansionMarketCategory
 		if (!m_HasItems)
 			return NULL;
 
-		CheckFinalized(checkFinalized);
+		if (checkFinalized)
+			CheckFinalized();
 
 		return m_Items.Get(clsName);
 	}
@@ -326,32 +327,44 @@ class ExpansionMarketCategory
 		if (!m_HasItems)
 			return NULL;
 
-		CheckFinalized(checkFinalized);
+		if (checkFinalized)
+			CheckFinalized();
 
 		return m_ItemsByID.Get(itemID);
 	}
 
-	protected void CheckFinalized(bool checkFinalized)
+	void CheckFinalized()
 	{
-		if (checkFinalized && !m_Finalized)
+		if (!m_Finalized)
 			Error("[WARNING] GetItem called on unfinalized category ID " + CategoryID + " (" + m_FileName + "), " + m_Items.Count() + " items");
 	}
 
-	array<ref ExpansionMarketItem> GetItems()
+	static ExpansionMarketItem GetGlobalItem(string className, bool checkCategoryFinalized = true)
 	{
-		EXPrint("WARNING: ExpansionMarketCategory::GetItems is inefficient, use m_Items instead");
-		array<ref ExpansionMarketItem> items = new array< ref ExpansionMarketItem >;
-		foreach (ExpansionMarketItem item : m_Items)
-		{
-			items.Insert(item);
-		}
-		return items;
+		auto trace = EXTrace.Profile(EXTrace.MARKET, ExpansionMarketCategory);
+
+		ExpansionMarketItem item = s_GlobalItems[className];
+		if (item && checkCategoryFinalized)
+			item.Category.CheckFinalized();
+
+		return item;
 	}
 
-	array<string> GetClassNames()
+	static ExpansionMarketItem GetGlobalItem(int itemID, bool checkCategoryFinalized = true)
 	{
-		EXPrint("WARNING: ExpansionMarketCategory::GetClassNames is inefficient, use m_Items instead");
-		return m_Items.GetKeyArray();
+		auto trace = EXTrace.Profile(EXTrace.MARKET, ExpansionMarketCategory);
+
+		ExpansionMarketItem item = s_GlobalItemsByID[itemID];
+		if (item && checkCategoryFinalized)
+			item.Category.CheckFinalized();
+
+		return item;
+	}
+
+	static void ClearGlobalItems()
+	{
+		s_GlobalItems.Clear();
+		s_GlobalItemsByID.Clear();
 	}
 
 	void Copy(ExpansionMarketNetworkCategory cat)

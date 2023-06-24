@@ -4,6 +4,7 @@
 	<variables>
 		<variable name="LastFireTime" type="int" />
 		<variable name="TimeBetweenFiring" type="int" default="5000" />
+		<variable name="TimeBetweenFiringAndGettingUp" type="int" default="15000" />
 		<variable name="LastEvadeTime" type="int" />
 		<variable name="DistanceToTargetSq" type="float" />
 	</variables>
@@ -21,7 +22,9 @@
 			<event_entry>
 				time = 0;
 			</event_entry>
-			<event_exit />
+			<event_exit>
+				unit.OverrideMovementDirection(false, 0);
+			</event_exit>
 			<event_update>
 				if (unit.eAI_IsChangingStance())
 					return CONTINUE;
@@ -29,7 +32,8 @@
 				bool wantsLower = false;
 				bool wantsRaise = false;
 				
-				if (GetGame().GetTime() - fsm.LastFireTime &gt; fsm.TimeBetweenFiring)
+				int timeSinceLastFire = GetGame().GetTime() - fsm.LastFireTime;
+				if (fsm.LastFireTime &gt; 0 &amp;&amp; timeSinceLastFire &gt; fsm.TimeBetweenFiring)
 				{
 					wantsLower = true;
 				}
@@ -117,6 +121,7 @@
 				{
 					unit.OverrideMovementDirection(false, 0);
 					unit.OverrideMovementSpeed(false, 0);
+					unit.OverrideTargetPosition(unit.GetPosition());
 				}
 				
 				if (wantsRaise &amp;&amp; unit.CanRaiseWeapon())
@@ -126,7 +131,7 @@
 				else if (wantsLower || !unit.CanRaiseWeapon() || !unit.eAI_HasLOS())
 				{
 					unit.RaiseWeapon(false);
-					unit.Expansion_GetUp();
+					unit.eAI_AdjustStance(fsm.LastFireTime, timeSinceLastFire, fsm.TimeBetweenFiringAndGettingUp);
 				}
 				
 				return EXIT;
@@ -155,6 +160,7 @@
 			<variables>
 				<variable name="time" type="float" />
 				<variable name="target" type="eAITarget" />
+				<variable name="weapon" type="Weapon_Base" />
 			</variables>
 			<editor_data>
 				<position x="618.636363636364" y="715.727272727273" />
@@ -166,9 +172,15 @@
 				time = 0;
 				
 				fsm.LastFireTime = GetGame().GetTime();
+				
+				if (unit.eAI_AdjustStance(weapon, fsm.DistanceToTargetSq))
+					EXTrace.Print(EXTrace.AI, unit, "eAI_AdjustStance " + typename.EnumToString(eAIStance, unit.eAI_GetStance()));
 			</event_entry>
 			<event_exit />
 			<event_update>
+				if (unit.eAI_IsChangingStance())
+					return CONTINUE;
+				
 				if (!target)
 					return EXIT;
 				
@@ -236,8 +248,13 @@
 					unit.eAI_TakeItemToInventory(hands);
 				}
 			</event_entry>
-			<event_exit />
+			<event_exit>
+				unit.OverrideMovementDirection(false, 0);
+			</event_exit>
 			<event_update>
+				if (unit.eAI_IsChangingStance())
+					return CONTINUE;
+				
 				if (!target)
 					return EXIT;
 				
@@ -389,17 +406,13 @@
 				
 				if (unit.IsFighting()) return FAIL;
 				
-				// we are holding a weapon
-				Weapon_Base weapon;
-				if (!Class.CastTo(weapon, unit.GetItemInHands())) return FAIL;
+				if (!Class.CastTo(dst.weapon, unit.GetItemInHands()) || dst.weapon.IsDamageDestroyed()) return FAIL;
 				
 				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return FAIL;
 				
-				if (!weapon.Expansion_IsChambered()) return FAIL;
+				if (!dst.weapon.Expansion_IsChambered()) return FAIL;
 				
-				if (unit.GetWeaponManager().CanUnjam(weapon)) return FAIL;
-				
-				if (unit.eAI_AdjustStance(weapon, fsm.DistanceToTargetSq)) return FAIL;
+				if (unit.GetWeaponManager().CanUnjam(dst.weapon)) return FAIL;
 				
 				return SUCCESS;
 			</guard>

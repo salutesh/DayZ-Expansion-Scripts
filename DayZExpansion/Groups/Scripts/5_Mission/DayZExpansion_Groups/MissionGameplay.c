@@ -22,8 +22,13 @@ modded class MissionGameplay
 		
 		if (isAliveConscious)
 		{
-			bool showPartyHUDSetting = GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD);
-			if (showPartyHUDSetting)
+			if (input.LocalPress("UAExpansionPartyHUDToggle", false) && !viewMenu)
+			{
+				ExpansionNotification("STR_EXPANSION_PARTYHUD_TITLE", "STR_EXPANSION_PARTYHUD_TOGGLE", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+				GetExpansionClientSettings().ShowPartyMemberHUD = !GetExpansionClientSettings().ShowPartyMemberHUD;
+			}
+
+			if (GetExpansionSettings().GetParty(false).IsLoaded() && (GetExpansionSettings().GetParty().ShowPartyMemberHUD && GetExpansionClientSettings().ShowPartyMemberHUD))
 			{
 				bool isChatInputMenu;
 				if (menu)
@@ -39,6 +44,10 @@ modded class MissionGameplay
 					if (!m_Hud.GetPartyHUDState())
 						m_Hud.PartyHUDShow();
 				}
+			}
+			else if (m_Hud.GetPartyHUDState())
+			{
+				m_Hud.PartyHUDHide();
 			}
 		}
 	}

@@ -15,11 +15,4 @@ class eAIFSM : ExpansionFSM
 
 		return m_Unit;
 	}
-
-	//! TODO: Move to Core
-	bool IsInState(string name)
-	{
-		auto state = GetState();
-		return state && state.GetName() == name;
-	}
 };

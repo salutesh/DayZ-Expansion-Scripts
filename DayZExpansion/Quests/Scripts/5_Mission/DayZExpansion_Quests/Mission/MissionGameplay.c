@@ -50,7 +50,9 @@ modded class MissionGameplay
 			isCOTOpen = GetCommunityOnlineTools().IsOpen();
 		#endif
 
-			bool show = isAliveConscious && !menu && !viewMenu && !m_Expansion_HideQuestHUD && !isCOTOpen;
+			bool show;
+			if (isAliveConscious && !menu && !viewMenu && !m_Expansion_HideQuestHUD && !isCOTOpen)
+				show = true;
 			if (m_ExpansionQuestHUD.IsVisible() != show)
 				m_ExpansionQuestHUD.ShowHud(show);
 		}

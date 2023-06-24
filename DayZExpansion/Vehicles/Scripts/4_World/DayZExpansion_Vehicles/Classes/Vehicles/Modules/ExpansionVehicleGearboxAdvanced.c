@@ -31,7 +31,9 @@ class ExpansionVehicleGearboxAdvanced : ExpansionVehicleGearbox
 			GetGame().ConfigGetTextArray(path, m_Gears);
 
 		string clutchRootPath = rootPath;
-		bool clutch_119 = clutchRootPath.Replace("Gearbox", "Clutch") == 1 && GetGame().ConfigIsExisting(clutchRootPath);
+		bool clutch_119;
+		if (clutchRootPath.Replace("Gearbox", "Clutch") == 1 && GetGame().ConfigIsExisting(clutchRootPath))
+			clutch_119 = true;
 
 		if (clutch_119)
 			path = clutchRootPath + " uncoupleTime";
@@ -94,7 +96,9 @@ class ExpansionVehicleGearboxAdvanced : ExpansionVehicleGearbox
 
 	override void PreSimulate(ExpansionPhysicsState pState)
 	{
-		bool requiresClutch = m_Engine.m_RPM < m_Engine.m_RPMClutch;
+		bool requiresClutch;
+		if (m_Engine.m_RPM < m_Engine.m_RPMClutch)
+			requiresClutch = true;
 		if (m_ClutchState < 2 && requiresClutch)
 			m_ClutchState = 2;
 

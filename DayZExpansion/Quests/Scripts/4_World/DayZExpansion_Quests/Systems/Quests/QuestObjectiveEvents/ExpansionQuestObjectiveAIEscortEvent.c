@@ -18,6 +18,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	protected ExpansionEscortObjectiveSphereTrigger m_ObjectiveTrigger;
 	protected bool m_DestinationReached;
 	protected ref ExpansionQuestObjectiveAIEscortConfig m_Config;
+	protected vector m_ObjectivePos;
 
 	//! Event called when the player starts the quest.
 	override bool OnEventStart()
@@ -30,6 +31,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
+		m_ObjectivePos = m_Config.GetPosition();
+		
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -37,7 +40,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		if (!m_ObjectiveTrigger)
-			CreateTrigger(m_Config.GetPosition());
+			CreateTrigger(m_ObjectivePos);
 
 		ObjectivePrint("End and return TRUE.");
 
@@ -55,13 +58,15 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
+		m_ObjectivePos = m_Config.GetPosition();
+		
 		//! Only create the VIP and trigger when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
 		{
 			CreateVIP();
 	
 			if (!m_ObjectiveTrigger)
-				CreateTrigger(m_Config.GetPosition());
+				CreateTrigger(m_ObjectivePos);
 			
 		#ifdef EXPANSIONMODNAVIGATION
 			CreateMarkers();
@@ -90,7 +95,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		m_Group.SetLeader(m_VIP);
-		m_Group.AddWaypoint(m_Config.GetPosition());
+		m_Group.AddWaypoint(m_ObjectivePos);
 
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(DeleteVIP, 10000);
 
@@ -148,7 +153,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return;
 
-		vector markerPosition = m_Config.GetPosition();
+		vector markerPosition = m_ObjectivePos;
 		string markerName = m_Config.GetMarkerName();
 		CreateObjectiveMarker(markerPosition, markerName);
 	}
@@ -223,7 +228,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	vector GetPosition()
 	{
-		return m_Config.GetPosition();
+		return m_ObjectivePos;
 	}
 
 	eAIBase GetAIVIP()

@@ -140,13 +140,16 @@ class ExpansionLootSpawner
 
 			if ( attachments )
 			{
-				//! Yes this is needed, otherwise you get NULL pointers if there is more than one attachment :-(
+				//! Need to copy the attachments array because passing in NULL in the recursive call below
+				//! nulls our original attachments array in caller :-(
+				//! https://feedback.bistudio.com/T173458
 				TStringArray attachmentsTmp();
 				attachmentsTmp.Copy(attachments);
 
 				foreach ( string attachment: attachmentsTmp )
 				{
-					Spawn( attachment, item, quantityPercent, NULL, NULL, NULL, false, damagePercentMin, damagePercentMax );
+					//! Need to pass in spawnedEntities and spawnedEntitiesMap due to T173458 as well
+					Spawn( attachment, item, quantityPercent, NULL, spawnedEntities, spawnedEntitiesMap, false, damagePercentMin, damagePercentMax );
 				}
 			}
 			

@@ -2541,7 +2541,11 @@ modded class CarScript
 
 		OnPreSimulation(dt);
 
-		m_State.m_HasDriver = driver && m_IsPhysicsHost;
+		//! https://feedback.bistudio.com/T173348
+		if (driver && m_IsPhysicsHost)
+			m_State.m_HasDriver = true;
+		else
+			m_State.m_HasDriver = false;
 		m_State.m_Exploded = m_Exploded;
 
 		if (m_IsPhysicsHost)
@@ -3375,7 +3379,9 @@ modded class CarScript
 			}
 		}
 
-		bool isGlobalOrEngineRuined = (!zone || zone == "GlobalHealth" || zone == "Engine") && newLevel == GameConstants.STATE_RUINED;
+		bool isGlobalOrEngineRuined;
+		if ((!zone || zone == "GlobalHealth" || zone == "Engine") && newLevel == GameConstants.STATE_RUINED)
+			isGlobalOrEngineRuined = true;
 
 		if (IsMissionClient())
 		{
@@ -3900,7 +3906,9 @@ modded class CarScript
 		if (GetGame().IsServer() && (!m_Expansion_CollisionDamageIfEngineOff || m_Expansion_CollisionDamageMinSpeed))
 		{
 			CarScript otherVehicle;
-			bool otherVehicleEngineOn = Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsOn();
+			bool otherVehicleEngineOn;
+			if (Class.CastTo(otherVehicle, other) && otherVehicle.Expansion_EngineIsOn())
+				otherVehicleEngineOn = true;
 
 			if (!m_Expansion_CollisionDamageIfEngineOff)
 			{

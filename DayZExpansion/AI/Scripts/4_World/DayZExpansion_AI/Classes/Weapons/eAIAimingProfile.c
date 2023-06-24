@@ -1,41 +1,47 @@
 class eAIAimingProfile
 {
-	eAIBase m_Player;
+	eAIBase m_Unit;
+	vector m_AimDirection;
 
 	void eAIAimingProfile(eAIBase ai)
 	{
-		m_Player = ai;
+		m_Unit = ai;
 	}
 
-	bool Get(out vector position, out vector direction)
+	vector GetAimDirection()
+	{
+		return m_AimDirection;
+	}
+
+	void Update()
 	{
 		vector transform[4];
-		m_Player.GetTransform(transform);
+		m_Unit.GetTransform(transform);
 
 		//! TODO: Accuracy could be influenced by stamina and status effects
-		// m_Player.GetStatStamina().Get();
-		// m_Player.GetHealth("","");
-		// m_Player.GetStatHeatComfort().Get(); <= freezing ?
-		// m_Player.GetAimingModel().GetSwayWeight();
+		// m_Unit.GetStatStamina().Get();
+		// m_Unit.GetHealth("","");
+		// m_Unit.GetStatHeatComfort().Get(); <= freezing ?
+		// m_Unit.GetAimingModel().GetSwayWeight();
 
-		position = m_Player.GetBonePositionWS(m_Player.GetBoneIndexByName("neck"));
+		vector position = m_Unit.GetBonePositionWS(m_Unit.GetBoneIndexByName("neck"));
 
 		//! 100% guarantee to hit target
-		direction = vector.Direction(position, m_Player.GetAimPosition());
+		vector direction = vector.Direction(position, m_Unit.GetAimPosition());
 
 		PlayerBase targetPlayer;
-		if (Class.CastTo(targetPlayer, m_Player.GetTarget().GetEntity()))
+		if (Class.CastTo(targetPlayer, m_Unit.GetTarget().GetEntity()))
 		{
 			//! More complex accuracy if target is a player/AI
 
 			float distSq = direction.LengthSq();
 
-			float accuracyMin = m_Player.m_eAI_AccuracyMin;
-			float accuracyMax = m_Player.m_eAI_AccuracyMax;
+			float accuracyMin = m_Unit.m_eAI_AccuracyMin;
+			float accuracyMax = m_Unit.m_eAI_AccuracyMax;
 
 			Weapon_Base weapon;
 			ItemOptics optics;
-			if (accuracyMin < 1 && Class.CastTo(weapon, m_Player.GetHumanInventory().GetEntityInHands()) && Class.CastTo(optics, weapon.GetAttachedOptics()))
+			if (accuracyMin < 1 && Class.CastTo(weapon, m_Unit.GetHumanInventory().GetEntityInHands()) && Class.CastTo(optics, weapon.GetAttachedOptics()))
 			{
 				float zoomMin = optics.GetZeroingDistanceZoomMin();
 				float zoomMax = optics.GetZeroingDistanceZoomMax();
@@ -56,8 +62,8 @@ class eAIAimingProfile
 			float inaccuracyUD = 1.0 - Math.RandomFloat(accuracyMin, accuracyMax);
 
 			//! Accuracy influenced by target movement speed and angle
-			//vector aimOrientation = direction.Normalized().InvMultiply3(transform).VectorToAngles();
-			vector aimOrientation = m_Player.GetAimRelAngles();
+			//vector aimOrientation = direction.InvMultiply3(transform).VectorToAngles();
+			vector aimOrientation = m_Unit.GetAimRelAngles();
 			float distClamped = Math.Clamp(Math.Sqrt(distSq), 100, 1000);
 			float targetSpeedMult = targetPlayer.Expansion_GetMovementSpeed() / 3.0;
 			float targetMovementAngle = targetPlayer.Expansion_GetMovementAngle();
@@ -81,6 +87,6 @@ class eAIAimingProfile
 
 		direction.Normalize();
 
-		return true;
+		m_AimDirection = direction;
 	}
 };

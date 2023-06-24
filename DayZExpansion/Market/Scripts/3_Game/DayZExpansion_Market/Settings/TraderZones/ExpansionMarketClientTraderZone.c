@@ -28,7 +28,7 @@ class ExpansionMarketClientTraderZone: ExpansionMarketTraderZone
 
 		//! Print("[ExpansionMarketClientTraderZone] RemoveStock " + m_FileName + " " + className + " " + stock);
 
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className );
 		if ( !marketItem )
 			return;
 

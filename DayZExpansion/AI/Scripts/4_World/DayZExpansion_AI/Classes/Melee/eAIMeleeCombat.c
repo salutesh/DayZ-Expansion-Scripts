@@ -36,7 +36,11 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 			m_AI.SetOrientation(ori);
 		}
 
-		m_eAI_MeleeHeavy = m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB;
+		//! https://feedback.bistudio.com/T173348
+		if (m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB)
+			m_eAI_MeleeHeavy = true;
+		else
+			m_eAI_MeleeHeavy = false;
 
 		return true;
 	}
@@ -81,9 +85,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 
 	EMeleeHitType GetMeleeHitType()
 	{
-		bool isFireWeapon = m_Hands && m_Hands.IsWeapon();
-		
-		if (isFireWeapon)
+		if (m_Hands && m_Hands.IsWeapon())
 		{
 			//if (m_AI.CanConsumeStamina(EStaminaConsumers.MELEE_HEAVY))
 			{

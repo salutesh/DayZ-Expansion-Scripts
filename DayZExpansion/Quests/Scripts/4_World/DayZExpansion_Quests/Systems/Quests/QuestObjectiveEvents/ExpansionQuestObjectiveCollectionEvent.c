@@ -83,14 +83,17 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 	#endif
 		if (!m_Config.NeedAnyCollection())
 		{
-			conditionsResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount) && m_DestinationReached;
+			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && m_DestinationReached)
+				conditionsResult = true;
 		#ifdef EXPANSIONMODNAVIGATION
-			markerConditionResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount);
+			if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
+				markerConditionResult = true;
 		#endif
 		}
 		else
 		{
-			conditionsResult = HasAnyCollectionCompleted() && m_DestinationReached;
+			if (HasAnyCollectionCompleted() && m_DestinationReached)
+				conditionsResult = true;
 		#ifdef EXPANSIONMODNAVIGATION
 			markerConditionResult = HasAnyCollectionCompleted();
 		#endif
@@ -136,7 +139,8 @@ class ExpansionQuestObjectiveCollectionEvent: ExpansionQuestObjectiveCollectionE
 			bool markerConditionResult;
 			if (!m_Config.NeedAnyCollection() || m_Config.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY)
 			{
-				markerConditionResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount);
+				if ( m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
+					markerConditionResult = true;
 			}
 			else if (m_Config.NeedAnyCollection() && m_Config.GetObjectiveType() == ExpansionQuestObjectiveType.COLLECT)
 			{

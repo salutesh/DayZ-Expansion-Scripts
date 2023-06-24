@@ -40,7 +40,9 @@ modded class DayZPlayerImplement
 
 	override bool IsShootingFromCamera()
 	{
-		bool disableMagicCrosshair = GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().DisableMagicCrosshair;
-		return !disableMagicCrosshair;
+		if (GetExpansionSettings().GetGeneral(false).IsLoaded() && GetExpansionSettings().GetGeneral().DisableMagicCrosshair)
+			return false;
+		else
+			return true;
 	}
 }

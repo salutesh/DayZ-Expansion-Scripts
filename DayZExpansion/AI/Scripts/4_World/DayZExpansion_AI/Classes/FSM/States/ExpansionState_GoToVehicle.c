@@ -43,6 +43,16 @@ class ExpansionState_GoToVehicle : eAIState
 	{
 		if (transport)
 		{
+			if (transport.CrewMember(seat))
+			{
+				CarScript cs;
+				if (Class.CastTo(cs, transport))
+				{
+					cs.Expansion_ReserveSeat(seat, null);
+					return EXIT;
+				}
+			}
+
 			vector direction;
 			transport.CrewEntryWS(seat, position, direction);
 				

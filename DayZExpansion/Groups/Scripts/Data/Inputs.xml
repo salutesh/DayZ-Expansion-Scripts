@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<modded_inputs>
+	<inputs>
+		<actions>			
+			<input name="UAExpansionPartyHUDToggle" loc="STR_EXPANSION_TOGGLE_PARTYHUD" />
+		</actions>
+		
+		<exclude name="chatexpansion">
+			<input name="UAExpansionPartyHUDToggle" />
+		</exclude>
+
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
+			<input name="UAExpansionPartyHUDToggle" />
+		</sorting>
+	</inputs>
+
+	<preset>
+		<input name="UAExpansionPartyHUDToggle">
+			<btn name="kMultiply" />
+		</input>
+	</preset>
+</modded_inputs>

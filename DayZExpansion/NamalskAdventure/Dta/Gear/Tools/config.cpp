@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Gear_Tools"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Gear_Containers","DZ_Gear_Tools"};
 	};
 };
 class CfgVehicles
@@ -64,7 +64,7 @@ class CfgVehicles
 				range = 2.8;
 			};
 		};
-		soundImpactType = "textile";
+		soundImpactType = "wood";
 	};
 	class MedicalSupplies: Inventory_Base
 	{
@@ -74,15 +74,11 @@ class CfgVehicles
 		model = "\dz\gear\containers\FirstAidKit.p3d";
 		rotationFlags = 17;
 		weight = 140;
-		itemSize[] = {3,3};
-		allowOwnedCargoManipulation = 1;
+		itemSize[] = {2,2};
 		randomQuantity = 2;
-		canBeDigged = 1;
-		repairableWithKits[] = {2};
-		repairCosts[] = {25};
 		isMeleeWeapon = 1;
 		hiddenSelections[] = {"zbytek"};
-		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Medical_Supplies_co.paa"};
+		hiddenSelectionsTextures[] = {"\dz\gear\containers\data\firstaidkit_co.paa"};
 		class DamageSystem
 		{
 			class GlobalHealth
@@ -108,6 +104,64 @@ class CfgVehicles
 				{
 					soundSet = "pickUpCourierBag_SoundSet";
 					id = 797;
+				};
+			};
+		};
+	};
+	class AmmunitionSupplies: Inventory_Base
+	{
+		scope = 2;
+		displayName = "Ammunition Supplies";
+		descriptionShort = "PLACEHOLDER";
+		model = "\dz\gear\tools\cleaning_kit_wood.p3d";
+		rotationFlags = 17;
+		weight = 140;
+		itemSize[] = {2,2};
+		randomQuantity = 2;
+		isMeleeWeapon = 1;
+		hiddenSelections[] = {"zbytek"};
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit.rvmat"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 100;
+					healthLevels[] = {{1,{"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit.rvmat"}},{0.7,{"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit.rvmat"}},{0.5,{"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit_damage.rvmat"}},{0.3,{"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit_damage.rvmat"}},{0,{"DayZExpansion\NamalskAdventure\Dta\Gear\Tools\data\Ammo_Cleaning_Kit_destruct.rvmat"}}};
+				};
+			};
+		};
+		soundImpactType = "wood";
+	};
+	class Paper;
+	class CommunityGoalTicket: Paper
+	{
+		scope = 2;
+		displayName = "Community Goal Ticket";
+		descriptionShort = "PLACEHOLDER";
+		model = "\dz\gear\consumables\PunchedCard.p3d";
+		weight = 10;
+		itemSize[] = {1,1};
+		destroyOnEmpty = 1;
+		canBeSplit = 1;
+		isMeleeWeapon = 1;
+		varQuantityInit = 1;
+		varQuantityMin = 0;
+		varQuantityMax = 100;
+		varQuantityDestroyOnMin = 1;
+		varStackMax = 100;
+		hiddenSelections[] = {"zbytek"};
+		hiddenSelectionsTextures[] = {"\dz\gear\consumables\data\punchedcard_co.paa"};
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 15;
+					healthLevels[] = {{1,{"DZ\gear\consumables\data\PunchedCard.rvmat"}},{0.7,{"DZ\gear\consumables\data\PunchedCard.rvmat"}},{0.5,{"DZ\gear\consumables\data\PunchedCard_damage.rvmat"}},{0.3,{"DZ\gear\consumables\data\PunchedCard_damage.rvmat"}},{0,{"DZ\gear\consumables\data\PunchedCard_destruct.rvmat"}}};
 				};
 			};
 		};

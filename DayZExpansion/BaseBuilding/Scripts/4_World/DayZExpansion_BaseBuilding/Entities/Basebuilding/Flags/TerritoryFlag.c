@@ -145,10 +145,7 @@ modded class TerritoryFlag
 		else if ( category_name == "Pole" && GetConstruction().IsPartConstructed("support") && !GetConstruction().IsPartConstructed("pole") )
 			return !GetExpansionSettings().GetBaseBuilding().SimpleTerritory;
 		else if ( category_name == "Flag" && GetConstruction().IsPartConstructed("pole") )
-			if( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.Enabled )
-				return true;
-			else
-				return false;
+			return true;
 		else
 			return false;
 	}

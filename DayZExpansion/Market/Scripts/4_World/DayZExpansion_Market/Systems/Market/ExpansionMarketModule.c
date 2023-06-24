@@ -36,7 +36,9 @@ enum ExpansionMarketResult
 	FailedNotInPlayerPossession,
 	FailedItemDoesNotExistInTrader,
 	FailedItemSpawn,
-	FailedSellListMismatch
+	FailedSellListMismatch,
+
+	IntegerOverflow
 }
 
 class ExpansionMarketPlayerInventory
@@ -170,9 +172,10 @@ class ExpansionMarketPlayerInventory
 	{
 		float maxDistance = GetExpansionSettings().GetMarket().GetMaxVehicleDistanceToTrader(vehicle.GetType());
 
-		bool isNear = vector.Distance(m_Player.GetPosition(), vehicle.GetPosition()) <= maxDistance;
+		if (vector.Distance(m_Player.GetPosition(), vehicle.GetPosition()) <= maxDistance)
+			return true;
 
-		return isNear;
+		return false;
 	}
 }
 
@@ -180,6 +183,8 @@ class ExpansionMarketPlayerInventory
 class ExpansionMarketModule: CF_ModuleWorld
 {
 	static const float MAX_TRADER_INTERACTION_DISTANCE = 5;
+
+	static ref ExpansionMarketModule s_Instance;
 
 	static ref ScriptInvoker SI_SetTraderInvoker = new ScriptInvoker();
 	static ref ScriptInvoker SI_SelectedItemUpdatedInvoker = new ScriptInvoker();
@@ -215,6 +220,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------	
 	void ExpansionMarketModule()
 	{
+		s_Instance = this;
+
 		m_TmpVariantIds = new TIntArray;
 		m_TmpNetworkCats = new map<int, ref ExpansionMarketCategory>;
 		m_TmpNetworkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
@@ -604,6 +611,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				}
 
 				int price = 0;
+				int singleItemPrice;
 				for (int j = 0; j < amountTaken; j++)
 				{
 					if (canSell && !sell.Item.IsStaticStock())
@@ -612,17 +620,46 @@ class ExpansionMarketModule: CF_ModuleWorld
 					if (ExpansionGame.IsMultiplayerServer())
 						MarketModulePrint(ToString() + "::FindSellPrice - " + sell.Item.ClassName + " stock " + stock + " increment stock " + curAddedStock);
 
-					price += sell.Item.CalculatePrice(stock + curAddedStock, modifier);
+					singleItemPrice = sell.Item.CalculatePrice(stock + curAddedStock, modifier);
+
+					if (ExpansionMath.TestAdditionOverflow(price, singleItemPrice))
+					{
+						result = ExpansionMarketResult.IntegerOverflow;
+						return false;
+					}
+
+					price += singleItemPrice;
 				}
 
 				if (canSell)
 				{
+					if (ExpansionMath.TestAdditionOverflow(sell.Price, price))
+					{
+						result = ExpansionMarketResult.IntegerOverflow;
+						return false;
+					}
+
 					sell.Price += price;
 				}
 				else
 				{
 					int unsellableAttachmentsPrice = sell.Price - currentPrice;
-					unsellablePrice += price + unsellableAttachmentsPrice;
+
+					if (ExpansionMath.TestAdditionOverflow(price, unsellableAttachmentsPrice))
+					{
+						result = ExpansionMarketResult.IntegerOverflow;
+						return false;
+					}
+
+					int currentUnsellablePrice = price + unsellableAttachmentsPrice;
+
+					if (ExpansionMath.TestAdditionOverflow(unsellablePrice, currentUnsellablePrice))
+					{
+						result = ExpansionMarketResult.IntegerOverflow;
+						return false;
+					}
+
+					unsellablePrice += currentUnsellablePrice;
 					sell.Price -= unsellableAttachmentsPrice;
 				}
 
@@ -643,6 +680,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		else if (result == ExpansionMarketResult.FailedCannotSell && !sell.Price)
 		{
+			if (ExpansionMath.TestAdditionOverflow(sell.Price, unsellablePrice))
+				result = ExpansionMarketResult.IntegerOverflow;
+
 			sell.Price += unsellablePrice;
 			MarketModulePrint("FindSellPrice - cannot sell");
 		}
@@ -698,7 +738,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 				{
 					string ammoClassName = GetGame().ConfigGetTextOut("CfgAmmo " + bulletClassName + " spawnPileType");
 					ammoClassName.ToLower();
-					ammoItem = GetExpansionSettings().GetMarket().GetItem(ammoClassName, false);
+					ammoItem = ExpansionMarketCategory.GetGlobalItem(ammoClassName, false);
 					if (!ammoItem)
 					{
 						EXPrint("FindAttachmentsSellPrice - market item " + ammoClassName + " (" + bulletClassName + ") does not exist");
@@ -747,7 +787,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 			attachmentName = GetMarketItemClassName(sell.Trader.GetTraderMarket(), attachmentName);
 
-			ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
+			ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName, false);
 
 			if (!attachment)
 				continue;
@@ -814,6 +854,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			sell.AddItem(0, amount, incrementStockModifier, attachmentEntity, attachment.ClassName);
 
 		int price = 0;
+		int singleAttachmentPrice;
 		for (int j = 0; j < amount; j++)
 		{
 			if (canSell && !attachment.IsStaticStock())
@@ -822,8 +863,18 @@ class ExpansionMarketModule: CF_ModuleWorld
 			if (ExpansionGame.IsMultiplayerServer())
 				MarketModulePrint(ToString() + "::FindAttachmentsSellPriceInternal - " + attachment.ClassName + " stock " + stock + " increment stock " + curAddedStock);
 
-			price += attachment.CalculatePrice(stock + curAddedStock, modifier);
+			singleAttachmentPrice = attachment.CalculatePrice(stock + curAddedStock, modifier);
+
+			//! TODO: Need to carry IntegerOverflow result back through call chain so it can be passed along
+			if (ExpansionMath.TestAdditionOverflow(price, singleAttachmentPrice))
+				return false;
+
+			price += singleAttachmentPrice;
 		}
+
+		//! TODO: Need to carry IntegerOverflow result back through call chain so it can be passed along
+		if (ExpansionMath.TestAdditionOverflow(sell.Price, price))
+			return false;
 
 		sell.Price += price;
 
@@ -895,7 +946,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 				{
 					case FoodStageType.RAW:
 						//! Let quantity and condition influence stock increment modifier
-						incrementStockModifier = conditionModifier == 1 && quantityModifier >= 0.75;  //! 0.0 or 1.0
+						if (conditionModifier == 1 && quantityModifier >= 0.75)  //! 0.0 or 1.0
+							incrementStockModifier = 1.0;
+						else
+							incrementStockModifier = 0.0;
 						break;
 
 					//! Selling non-raw food shall not increase stock
@@ -936,9 +990,15 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		if (!trader.Items.Contains(itemClassName))
 		{
-			bool isCfgVehicleSkin = GetGame().ConfigIsExisting("CfgVehicles " + itemClassName + " skinBase");
-			bool isCfgWeaponSkin = !isCfgVehicleSkin && GetGame().ConfigIsExisting("CfgWeapons " + itemClassName + " skinBase");
-			bool isCfgMagazineSkin = !isCfgVehicleSkin && !isCfgWeaponSkin && GetGame().ConfigIsExisting("CfgMagazines " + itemClassName + " skinBase");
+			bool isCfgVehicleSkin;
+			if (GetGame().ConfigIsExisting("CfgVehicles " + itemClassName + " skinBase"))
+				isCfgVehicleSkin = true;
+			bool isCfgWeaponSkin;
+			if (!isCfgVehicleSkin && GetGame().ConfigIsExisting("CfgWeapons " + itemClassName + " skinBase"))
+				isCfgWeaponSkin = true;
+			bool isCfgMagazineSkin;
+			if (!isCfgVehicleSkin && !isCfgWeaponSkin && GetGame().ConfigIsExisting("CfgMagazines " + itemClassName + " skinBase"))
+				isCfgMagazineSkin = true;
 
 			if (isCfgVehicleSkin || isCfgWeaponSkin || isCfgMagazineSkin)
 			{
@@ -1030,7 +1090,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		int price;
 		if (!FindPriceOfPurchase(item, zone, trader, amountWanted, price, includeAttachments, result, reserved))
 		{
-			MarketModulePrint("FindPurchasePriceAndReserve - ExpansionMarketItem " + item.ClassName + " is out of stock or item is set to not be buyable! End and return false!");
+			MarketModulePrint("FindPurchasePriceAndReserve - ExpansionMarketItem " + item.ClassName + " is out of stock, item is set to not be buyable or integer overflow! End and return false!");
 			return false;
 		}
 
@@ -1084,9 +1144,19 @@ class ExpansionMarketModule: CF_ModuleWorld
 		float priceModifier = zone.BuyPricePercent / 100;
 
 		int itemPrice;  //! Item price (chosen amount, no atts)
+		int singleItemPrice;
 		for (int i = 0; i < amountWanted; i++)
 		{
-			itemPrice += item.CalculatePrice(stock - curRemovedStock, 1.0, true);
+
+			singleItemPrice = item.CalculatePrice(stock - curRemovedStock, 1.0, true);
+
+			if (ExpansionMath.TestAdditionOverflow(itemPrice, singleItemPrice))
+			{
+				result = ExpansionMarketResult.IntegerOverflow;
+				return false;
+			}
+
+			itemPrice += singleItemPrice;
 
 			if (!item.IsStaticStock())
 			{
@@ -1103,7 +1173,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 				foreach (string attachmentName: item.SpawnAttachments)
 				{
-					ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
+					ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName, false);
 					if (attachment)
 					{
 						int quantity = 1;
@@ -1119,10 +1189,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 						if (!FindPriceOfPurchase(attachment, zone, trader, quantity, price, !isMagAmmo, result, reserved, removedStock, outOfStockList, level + 1))
 						{
-							if (result == ExpansionMarketResult.FailedOutOfStock)
+							switch (result)
 							{
-								result = ExpansionMarketResult.FailedAttachmentOutOfStock;
-								outOfStockList.Insert(attachmentName);
+								case ExpansionMarketResult.FailedOutOfStock:
+									result = ExpansionMarketResult.FailedAttachmentOutOfStock;
+									outOfStockList.Insert(attachmentName);
+									break;
+								case ExpansionMarketResult.IntegerOverflow:
+									return false;
 							}
 						}
 					}
@@ -1133,6 +1207,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("FindPriceOfPurchase - " + item.ClassName + " - stock " + (stock - curRemovedStock) + " item price " + itemPrice);
 
 		itemPrice = Math.Round(itemPrice * priceModifier);
+
+		if (ExpansionMath.TestAdditionOverflow(price, itemPrice))
+		{
+			result = ExpansionMarketResult.IntegerOverflow;
+			return false;
+		}
+
 		price += itemPrice;
 
 		if (result == ExpansionMarketResult.Success && reserved)
@@ -1235,7 +1316,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 				foreach (string attachmentName: item.SpawnAttachments)
 				{
-					ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName);
+					ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName);
 					if (attachment)
 					{
 						bool isMagAmmoTmp = attachmentTypes.Get(attachmentName);
@@ -2308,6 +2389,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!player)
 			return;
 			
+		if (!CheckCanUseTrader(player, trader))
+			return;
+
 		Exec_RequestPurchase(player, itemClassName, count, currentPrice, trader, includeAttachments, skinIndex, attachmentIDs);
 		
 		MarketModulePrint("RPC_RequestPurchase - End");
@@ -2380,15 +2464,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("Exec_RequestPurchase - currentPrice: " + string.ToString(currentPrice));
 		
 		//! Get current market Trader Zone from given trader
-		ExpansionMarketSettings market = GetExpansionSettings().GetMarket();
-		if (!market)
-		{	
-			MarketModulePrint("Exec_RequestPurchase - Callback_FailedUnknown: 2");			
-
-			Callback(itemClassName, ExpansionMarketResult.FailedUnknown, player.GetIdentity());
-			return;
-		}
-
 		ExpansionMarketTraderZone zone = trader.GetTraderZone();
 		if (!zone)
 		{			
@@ -2405,7 +2480,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		MarketModulePrint("Exec_RequestPurchase - reservedList: " + reservedList);
 		MarketModulePrint("Exec_RequestPurchase - reservedList.Trader: " + reservedList.Trader);
 		
-		ExpansionMarketItem item = market.GetItem(itemClassName);
+		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(itemClassName);
 		if (!item /* || !reservedList.Valid*/)
 		{		
 			MarketModulePrint("Exec_RequestPurchase - Callback_FailedUnknown: 4 itemClassName " + itemClassName);
@@ -2832,6 +2907,9 @@ class ExpansionMarketModule: CF_ModuleWorld
 		PlayerBase player = PlayerBase.GetPlayerByUID(senderRPC.GetId());
 		if (!player) 
 			return;
+			
+		if (!CheckCanUseTrader(player, trader))
+			return;
 
 		Exec_RequestSell(player, itemClassName, count, currentPrice, trader, playerSentSellDebug);
 		
@@ -2851,16 +2929,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 		
 		ExpansionMarketTraderZone zone = trader.GetTraderZone();
-		ExpansionMarketSettings market = GetExpansionSettings().GetMarket();
-		
-		if (!market)
-		{
-			MarketModulePrint("Callback_FailedUnknown: 6");
-			
-			Callback(itemClassName, ExpansionMarketResult.FailedUnknown, player.GetIdentity());
-			return;
-		}
-		
 		if (!zone)
 		{
 			MarketModulePrint("Callback_FailedUnknown: 7");
@@ -2873,7 +2941,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		ExpansionMarketSell sellList = player.GetMarketSell();
 		sellList.Trader = trader;
 
-		sellList.Item = market.GetItem( itemClassName );
+		sellList.Item = ExpansionMarketCategory.GetGlobalItem( itemClassName );
 		if (!sellList.Item /*|| !sellList.Valid*/)
 		{
 			MarketModulePrint("Callback_FailedUnknown: 8");
@@ -3193,8 +3261,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 				Error("ExpansionMarketModule::RequestTraderData - Trader is NULL!");
 				return;
 			}
-			
-			m_OpenedClientTrader = trader;
 
 			auto rpc = ExpansionScriptRPC.Create();
 			rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.RequestTraderData, true, NULL);
@@ -3203,13 +3269,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 		}
 	}
 	
-	// ------------------------------------------------------------
-	// Expansion RPC_RequestTraderData - server
-	// ------------------------------------------------------------
+	//! @note server
 	private void RPC_RequestTraderData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
-		MarketModulePrint("RPC_RequestTraderData - Sart");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
+		if (!GetGame().IsServer())
+			return;
+
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
@@ -3226,36 +3293,35 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 
-		trader.AddInteractingPlayer(senderRPC.GetPlayer());
-
-		auto hitch = EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
-
-		LoadTraderData(trader, senderRPC);
-
-		MarketModulePrint("RPC_RequestTraderData - End");
+		StartTrading(trader, senderRPC);
 	}
 
-	// ------------------------------------------------------------
-	// Expansion LoadTraderData - server
-	// ------------------------------------------------------------
-	//! Send trader data to client
-	void LoadTraderData(ExpansionTraderObjectBase trader, PlayerIdentity ident)
+	//! @note server
+	void StartTrading(ExpansionTraderObjectBase trader, PlayerIdentity identity)
 	{
-		MarketModulePrint("LoadTraderData - Sart");
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
 
-		if (!ident)
+		if (!trader)
 		{
-			Error("ExpansionMarketModule::SendTraderData - Player identity is NULL!");
+			Error("ExpansionMarketModule::StartTrading - Trader object is NULL!");
 			return;
 		}
+
+		if (!identity)
+		{
+			Error("ExpansionMarketModule::StartTrading - Player identity is NULL!");
+			return;
+		}
+
+		trader.AddInteractingPlayer(identity.GetPlayer());
+
+		auto hitch = new EXHitch(ToString() + "::RPC_RequestTraderData - LoadTraderData ");
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(trader.GetTraderZone().BuyPricePercent);
 		rpc.Write(trader.GetTraderZone().SellPricePercent);
 
-		rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.LoadTraderData, true, ident);
-
-		MarketModulePrint("LoadTraderData - End");
+		rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.LoadTraderData, true, identity);
 	}
 	
 	//! Send trader items to client in batches
@@ -3277,7 +3343,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 
 		array<ref ExpansionMarketNetworkItem> networkItemsTmp = new array<ref ExpansionMarketNetworkItem>;
 
-		auto hitch = EXHitch(ToString() + "::LoadTraderItems - GetNetworkSerialization ");
+		auto hitch = new EXHitch(ToString() + "::LoadTraderItems - GetNetworkSerialization ");
 		
 		TIntArray itemIDsTmp;
 		if (itemIDs && itemIDs.Count())
@@ -3344,12 +3410,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not get ExpansionTraderObjectBase!");
 			return;
 		}
-
-		if (trader != m_OpenedClientTrader)
-		{
-			EXPrint("ExpansionMarketModule::RPC_LoadTraderData - ignoring items received for different trader");
-			return;
-		}
 		
 		if (!ctx.Read(m_ClientMarketZone.BuyPricePercent))
 		{
@@ -3362,6 +3422,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 			Error("ExpansionMarketModule::RPC_LoadTraderData - Could not read sell price percent!");
 			return;
 		}
+
+		m_OpenedClientTrader = trader;
+
+		if (!OpenTraderMenu())
+			return;
 
 		bool stockOnly = trader.GetTraderMarket().m_StockOnly;  //! If already netsynched, request stock only
 		RequestTraderItems(trader, 0, stockOnly);
@@ -3461,6 +3526,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(start))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read items start index!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 
@@ -3468,6 +3534,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(next))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read items next index!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 
@@ -3475,6 +3542,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(count))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read items count!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 
@@ -3482,17 +3550,19 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(stockOnly))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read stockOnly!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 
 		EXPrint("RPC_LoadTraderItems - received batch total: " + next + " remaining: " + (count - next));
 
-		auto hitch = EXHitch(ToString() + "::RPC_LoadTraderItems - update market items ");
+		auto hitch = new EXHitch(ToString() + "::RPC_LoadTraderItems - update market items ");
 	
 		array<ref ExpansionMarketNetworkBaseItem> networkBaseItems = new array<ref ExpansionMarketNetworkBaseItem>;
 		if (!ctx.Read(networkBaseItems))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkBaseItems array!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 
@@ -3500,12 +3570,14 @@ class ExpansionMarketModule: CF_ModuleWorld
 		if (!ctx.Read(networkItems))
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - Could not read networkItems array!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 	
 		if (networkBaseItems.Count() + networkItems.Count() <= 0)
 		{
 			Error("ExpansionMarketModule::RPC_LoadTraderItems - networkBaseItems + networkItems count is 0!");
+			SI_SetTraderInvoker.Invoke(trader, true);
 			return;
 		}
 
@@ -3588,7 +3660,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 			EXPrint(ToString() + "::RPC_LoadTraderItems - Setting stock for " + m_TmpNetworkBaseItems.Count() + " items");
 			foreach (ExpansionMarketNetworkBaseItem tmpNetworkBaseItem: m_TmpNetworkBaseItems)
 			{
-				item = GetExpansionSettings().GetMarket().GetItem(tmpNetworkBaseItem.ItemID, false);
+				item = ExpansionMarketCategory.GetGlobalItem(tmpNetworkBaseItem.ItemID, false);
 				if (!item)
 				{
 					EXPrint(ToString() + "::RPC_LoadTraderItems - WARNING - item ID " + tmpNetworkBaseItem.ItemID + " does not exist!");
@@ -3617,15 +3689,18 @@ class ExpansionMarketModule: CF_ModuleWorld
 	}
 
 	//! Exit trader - client
-	void ExitTrader(ExpansionTraderObjectBase trader, PlayerIdentity ident)
+	void ExitTrader()
 	{
 		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Send(trader.GetTraderEntity(), ExpansionMarketModuleRPC.ExitTrader, true, NULL);
+		rpc.Send(m_OpenedClientTrader.GetTraderEntity(), ExpansionMarketModuleRPC.ExitTrader, true, NULL);
 	}
 	
 	//! Exit trader - server
 	void RPC_ExitTrader(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
+		if (!GetGame().IsServer())
+			return;
+
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
@@ -3773,26 +3848,57 @@ class ExpansionMarketModule: CF_ModuleWorld
 		return true;
 	}
 	
+	bool CheckCanUseTrader(PlayerBase player, ExpansionTraderObjectBase trader)
+	{
+	#ifdef ENFUSION_AI_PROJECT
+		if (GetGame().IsServer() && trader.GetTraderMarket().RequiredFaction != "")
+		{
+			if (!player.GetGroup() || player.GetGroup().GetFaction().GetName() != trader.GetTraderMarket().RequiredFaction)
+			{
+				if (player.GetIdentity())
+				{
+					string factionDisplayname;
+				#ifdef EXPANSIONMODAI
+					eAIFaction faction = eAIFaction.Create(trader.GetTraderMarket().RequiredFaction);
+					factionDisplayname = faction.GetDisplayName();
+				#else
+					factionDisplayname = trader.GetTraderMarket().RequiredFaction;
+				#endif
+					ExpansionNotification("STR_EXPANSION_AI_FACTION", new StringLocaliser("STR_EXPANSION_AI_REQUIRED_FACTION_TRADER", factionDisplayname), EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 7, ExpansionNotificationType.TOAST).Create(player.GetIdentity());
+				}
+
+				return false;
+			}
+		}
+	#endif
+
+		return true;
+	}
+
 	// ------------------------------------------------------------
 	// Expansion OpenTraderMenu
 	// ------------------------------------------------------------
-	void OpenTraderMenu()
+	bool OpenTraderMenu()
 	{
 		if (!MoneyCheck())
-			return;
+			return false;
 
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionMarketMenu");
+
+		return true;
 	}
 	
 	// ------------------------------------------------------------
 	// Expansion OpenTraderMenu
 	// ------------------------------------------------------------
-	void OpenATMMenu()
+	bool OpenATMMenu()
 	{
 		if (!MoneyCheck())
-			return;
+			return false;
 
 		GetDayZGame().GetExpansionGame().GetExpansionUIManager().CreateSVMenu("ExpansionATMMenu");
+
+		return true;
 	}
 
 	// ------------------------------------------------------------
@@ -3809,7 +3915,7 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		if (parent != player || attachmentNotAttached)
 		{
-			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "STR_EXPANSION_TEMPORARY_STORAGE_INFO", EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 6, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
+			ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "STR_EXPANSION_TEMPORARY_STORAGE_INFO", EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 6, ExpansionNotificationType.MARKET).Create(player.GetIdentity());
 		}
 	}
 	
@@ -3922,8 +4028,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	private void RPC_RequestPlayerATMData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
-		MarketModulePrint("RPC_RequestPlayerATMData - Start");
-		
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
+		if (!GetGame().IsServer())
+			return;
+
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
@@ -3933,34 +4042,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 		
-		Exec_RequestPlayerATMData(senderRPC);
-		
-		MarketModulePrint("RPC_RequestPlayerATMData - End");
+		SendPlayerATMData(senderRPC);
 	}
-	
-	// ------------------------------------------------------------
-	// Expansion Exec_RequestTraderData
-	// ------------------------------------------------------------
-	private void Exec_RequestPlayerATMData(PlayerIdentity ident)
-	{
-		MarketModulePrint("Exec_RequestPlayerATMData - Start");
-		
-		if (!ident)
-		{
-			Error("ExpansionMarketModule::Exec_RequestPlayerATMData - Could not get sender indentity!");
-			return;
-		}
-		
-		SendPlayerATMData(ident);
-		
-		MarketModulePrint("Exec_RequestPlayerATMData - End");
-	}
-	
-	// ------------------------------------------------------------
-	// Expansion SendPlayerATMData
-	// ------------------------------------------------------------
+
 	void SendPlayerATMData(PlayerIdentity ident)
 	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
 		if (!ident)
 		{
 			Error("ExpansionMarketModule::SendPlayerATMData - Could not get sender indentity!");
@@ -3986,6 +4074,10 @@ class ExpansionMarketModule: CF_ModuleWorld
 	{
 		MarketModulePrint("RPC_SendPlayerATMData - Start");
 
+	#ifdef SERVER
+		return;
+	#endif
+
 		if (!GetExpansionSettings().GetMarket().ATMSystemEnabled)
 			return;
 
@@ -4008,12 +4100,13 @@ class ExpansionMarketModule: CF_ModuleWorld
 	// Expansion Exec_SendPlayerATMData
 	// ------------------------------------------------------------
 	private void Exec_SendPlayerATMData(ExpansionMarketATM_Data data)
-	{		
-		MarketModulePrint("Exec_SendPlayerATMData - Start");
-				
+	{
+		auto trace = EXTrace.Start(EXTrace.MARKET, this);
+
+		if (!OpenATMMenu())
+			return;
+
 		SetPlayerATMData(data);
-		
-		MarketModulePrint("Exec_SendPlayerATMData - End");
 	}
 	
 	// ------------------------------------------------------------
@@ -4466,30 +4559,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 			return;
 		}
 		
-		//! TODO: Something in the commented out code section below potentially caused the identity bug
-		//! (player gets same identity as another player, eventually the server crashes) which was fixed with
-		//! one (or both) of the following commits:
-		//! b90cbd9518b1fcf2b20e41d0bd038b043585ebb7 (Only get identity once)
-		//! 466db038831ea4191208fb7e2169c7c619494ce8 (We only use this for logging, comment it for now until ID bug is found)
-		//! GetPlayerByUID doesn't seem to have issues elsewhere (it's used extensively by the party module).
-		//! Are RPCs in DayZ running in a separate thread? Maybe something is not thread-safe?
-		//! Then party module would be affected as well though, which it seemingly isn't.
-		//! As we only use this for logging, commented out for now.
-
-		//PlayerBase receiverPlayer = PlayerBase.GetPlayerByUID(receiverID);
-		
-		//if (!receiverPlayer)
-		//{
-			//Error("ExpansionMarketModule::Exec_RequestTransferMoneyToPlayer - Could not get player base enity!");
-			//return;
-		//}
-		
-		//if (!receiverPlayer.GetIdentity())
-		//{
-			//Error("ExpansionMarketModule::Exec_RequestTransferMoneyToPlayer - Could not get player identity!");
-			//return;
-		//}
-		
 		//! Remove the money from the sender players deposit
 		data_sender.RemoveMoney(amount);
 		data_sender.Save();
@@ -4497,8 +4566,6 @@ class ExpansionMarketModule: CF_ModuleWorld
 		//! Add the money to the receiver players deposit
 		data_receiver.AddMoney(amount);
 		data_receiver.Save();
-		
-		//ExpansionLogATM(string.Format("Player \"%1\" (id=%2) has transfered %3 to the player \"%4\" (id=%5).", ident.GetName(), ident.GetId(), amount, receiverPlayer.GetIdentity().GetName(), receiverPlayer.GetIdentity().GetId()));
 		
 		ConfirmTransferMoneyToPlayer(ident, data_sender);
 		
@@ -4518,8 +4585,8 @@ class ExpansionMarketModule: CF_ModuleWorld
 		StringLocaliser senderText = new StringLocaliser("STR_EXPANSION_ATM_TRANSFER_SENDER", amount.ToString(), revicerName);
 		StringLocaliser reciverText = new StringLocaliser("STR_EXPANSION_ATM_TRANSFER_RECEIVER", amount.ToString(), senderName);
 		
-		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", senderText, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create(ident);
-		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", reciverText, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 3, ExpansionNotificationType.MARKET).Create(receiverPlayer.GetIdentity());
+		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", senderText, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.MARKET).Create(ident);
+		ExpansionNotification("STR_EXPANSION_MARKET_TITLE", reciverText, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 3, ExpansionNotificationType.MARKET).Create(receiverPlayer.GetIdentity());
 		
 		//! This could potentaly cause an identity issue (need to test)
 		ExpansionLogATM(string.Format("Player %1 (id=%2) has transfered %3 to the player %4 (id=%5).", senderName, senderID, amount.ToString(), revicerName, receiverID));

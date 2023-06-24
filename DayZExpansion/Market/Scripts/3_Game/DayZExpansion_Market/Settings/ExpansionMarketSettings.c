@@ -101,6 +101,9 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	[NonSerialized()]
 	private bool m_IsLoaded;
 	
+	[NonSerialized()]
+	bool m_GetItemDeprecationCheck;
+
 	// ------------------------------------------------------------
 	void ExpansionMarketSettings()
 	{
@@ -1128,30 +1131,20 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	// ------------------------------------------------------------
 	ExpansionMarketItem GetItem(string clsName, bool checkCategoryFinalized = true)
 	{
-		ExpansionMarketItem item;
+		Expansion_Error("DEPRECATED, please use ExpansionMarketCategory::GetGlobalItem", m_GetItemDeprecationCheck);
 
-		foreach (int categoryID, ExpansionMarketCategory currentCategory : m_Categories)
-		{
-			item = currentCategory.GetItem(clsName, checkCategoryFinalized);
-			if (item)
-				return item;
-		}
+		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(clsName, checkCategoryFinalized);
 
-		return NULL;
+		return item;
 	}
 
 	ExpansionMarketItem GetItem(int itemID, bool checkCategoryFinalized = true)
 	{
-		ExpansionMarketItem item;
+		Expansion_Error("DEPRECATED, please use ExpansionMarketCategory::GetGlobalItem", m_GetItemDeprecationCheck);
 
-		foreach (int categoryID, ExpansionMarketCategory currentCategory : m_Categories)
-		{
-			item = currentCategory.GetItem(itemID, checkCategoryFinalized);
-			if (item)
-				return item;
-		}
+		ExpansionMarketItem item = ExpansionMarketCategory.GetGlobalItem(itemID, checkCategoryFinalized);
 
-		return NULL;
+		return item;
 	}
 
 	// ------------------------------------------------------------
@@ -1254,6 +1247,7 @@ class ExpansionMarketSettings: ExpansionMarketSettingsBase
 	{
 		EXPrint("Clearing cached categories " + m_Categories.Count());
 		m_Categories.Clear();
+		ExpansionMarketCategory.ClearGlobalItems();
 		EXPrint("Clearing cached traders " + m_Traders.Count());
 		m_Traders.Clear();
 	}

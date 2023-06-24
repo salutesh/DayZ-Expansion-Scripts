@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_ISLAND
 modded class InGameMenu
 {
 	protected ImageWidget m_DayZLogo;
@@ -44,3 +45,4 @@ modded class InGameMenu
 		ButtonSetTextColor(w, ARGB(255, 63, 212, 252));
 	}
 };
+#endif

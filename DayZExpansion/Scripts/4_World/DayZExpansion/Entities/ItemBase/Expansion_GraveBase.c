@@ -12,10 +12,29 @@
 class Expansion_GraveBase extends Inventory_Base
 {
 	protected bool m_ReceivedAttachments;
+	protected int m_Lifetime;
 
 	void Expansion_GraveBase()
 	{
 		RegisterNetSyncVariableBool("m_ReceivedAttachments");
+
+		if ( m_ReceivedAttachments && GetGame().IsServer() )
+		{
+			if (GetInventory().AttachmentCount() < 1 || m_Lifetime < 60)
+			{
+				RemoveGrave();
+			} else {
+				SetSelfDestructCountDown(m_Lifetime);
+			}
+		}
+	}
+
+	void ~Expansion_GraveBase()
+	{
+		if ( GetGame() && GetGame().IsServer() )
+		{
+			m_Lifetime = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(RemoveGrave);
+		}
 	}
 
 	#ifdef EXPANSION_MODSTORAGE
@@ -27,6 +46,7 @@ class Expansion_GraveBase extends Inventory_Base
 		if (!ctx) return;
 
 		ctx.Write(m_ReceivedAttachments);
+		ctx.Write(m_Lifetime);
 	}
 	
 	override bool CF_OnStoreLoad(CF_ModStorageMap storage)
@@ -40,9 +60,39 @@ class Expansion_GraveBase extends Inventory_Base
 		if (!ctx.Read(m_ReceivedAttachments))
 			return false;
 
+		if (ctx.GetVersion() < 50)
+			return true;
+
+		if (!ctx.Read(m_Lifetime))
+			return false;
+
 		return true;
 	}
 	#endif
+
+	void StartSelfDestructCountDown()
+	{
+		float lifetime = 0;
+
+		if (GetEconomyProfile())
+			lifetime = GetLifetimeMax() * 1000;
+		
+		if ( lifetime == 0 )
+			lifetime = GetDefaultLifetime();
+		
+		SetSelfDestructCountDown(lifetime);
+	}
+
+	void SetSelfDestructCountDown(int lifetime)
+	{
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(RemoveGrave, lifetime, false);
+	}
+
+	// Probably not needed, but in case if we need to mod it or change it's deletion behaviour here ya go
+    void RemoveGrave()
+    {
+		Delete();
+    }
 
 	override bool CanPutIntoHands(EntityAI parent)
 	{
@@ -85,6 +135,7 @@ class Expansion_GraveBase extends Inventory_Base
 			AddItem(handEntity, handEntity, ground, orientation);
 
 		m_ReceivedAttachments = true;
+		StartSelfDestructCountDown();
 		SetSynchDirty();
 	}
 	
@@ -119,7 +170,25 @@ class Expansion_GraveBase extends Inventory_Base
 		if (GetGame().IsServer())
 			item.SetHealth(health);
 	}
-}
 
-class Expansion_Gravecross extends Expansion_GraveBase {}
-class Expansion_Gravecross_LowLifetime extends Expansion_GraveBase {}
+	float GetDefaultLifetime()
+	{
+		return 300000; // ms
+	}
+};
+
+class Expansion_Gravecross extends Expansion_GraveBase
+{
+	override float GetDefaultLifetime()
+	{
+		return 3600000;
+	}
+};
+
+class Expansion_Gravecross_LowLifetime extends Expansion_GraveBase
+{
+	override float GetDefaultLifetime()
+	{
+		return 300000;
+	}
+};

@@ -264,8 +264,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 			return false;
 		
 		//! @note need to check for zero here because m_TotalUnitsAmount will be zero until set
-		bool conditionsResult = (m_TotalUnitsAmount > 0 && m_TotalKillCount == m_TotalUnitsAmount);
-		if (!conditionsResult)
+		if (m_TotalUnitsAmount <= 0 || m_TotalKillCount != m_TotalUnitsAmount)
 		{
 			ObjectivePrint("End and return: FALSE");
 			return false;

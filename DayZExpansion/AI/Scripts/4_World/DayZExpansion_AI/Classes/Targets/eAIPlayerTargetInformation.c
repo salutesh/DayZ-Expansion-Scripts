@@ -20,7 +20,7 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 				return 0.0;
 
 #ifdef DIAG
-			auto hitch = EXHitch(ai.ToString() + " eAIPlayerTargetInformation::CalculateThreat ", 20000);
+			auto hitch = new EXHitch(ai.ToString() + " eAIPlayerTargetInformation::CalculateThreat ", 20000);
 #endif
 
 			// the further away the player, the less likely they will be a threat

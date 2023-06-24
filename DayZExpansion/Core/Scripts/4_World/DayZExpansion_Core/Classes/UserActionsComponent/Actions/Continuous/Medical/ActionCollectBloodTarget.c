@@ -17,7 +17,7 @@ modded class ActionCollectBloodTarget
 		if (!super.ActionCondition(player, target, item))
 			return false;
 
-		PlayerBase targetPlayer;
+		DayZPlayerImplement targetPlayer;
 		if (Class.CastTo(targetPlayer, target.GetObject()) && !targetPlayer.Expansion_CanBeDamaged())
 			return false;
 

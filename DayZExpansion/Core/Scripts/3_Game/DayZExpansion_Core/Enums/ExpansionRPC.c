@@ -394,7 +394,8 @@ enum ExpansionRPC
 	INVALID = 40010,
 	SyncOwnedContainerUID,
 	CreateNotification,
-	FirearmEffects,
+	FirearmEffects,  //! Legacy, no longer used, remove after next update
+	SyncCurrentAITarget,
 	COUNT
 };
 
@@ -488,7 +489,13 @@ enum ExpansionAutoRunRPC
 #ifdef JM_COT
 enum Expansion_JMPlayerModuleRPC : JMPlayerModuleRPC
 {
+	// Hardline
 	SetReputation,
+
+	// AI
+	SetFaction,
+
+	// Personal Storage
 	RetriveEntityStorageObj,
 	EX_COUNT
 };

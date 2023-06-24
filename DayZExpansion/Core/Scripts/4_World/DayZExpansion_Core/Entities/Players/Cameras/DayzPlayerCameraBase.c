@@ -33,7 +33,10 @@ modded class DayZPlayerCameraBase
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
 		ExpansionScriptViewMenuBase viewMenu = GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu();
-		m_ExpansionIsScriptViewMenuVisible = viewMenu && viewMenu.IsVisible();
+		if (viewMenu && viewMenu.IsVisible())
+			m_ExpansionIsScriptViewMenuVisible = true;
+		else
+			m_ExpansionIsScriptViewMenuVisible = false;
 
 		super.OnUpdate( pDt, pOutResult );
 	}

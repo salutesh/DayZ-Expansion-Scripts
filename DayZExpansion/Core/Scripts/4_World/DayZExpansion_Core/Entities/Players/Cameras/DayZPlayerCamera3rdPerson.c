@@ -15,7 +15,11 @@ modded class DayZPlayerCamera3rdPerson
 	override void OnUpdate( float pDt, out DayZPlayerCameraResult pOutResult )
 	{
 		ExpansionScriptViewMenuBase viewMenu = GetDayZGame().GetExpansionGame().GetExpansionUIManager().GetMenu();
-		m_ExpansionIsScriptViewMenuVisible = viewMenu && viewMenu.IsVisible();
+		//! https://feedback.bistudio.com/T173348
+		if (viewMenu && viewMenu.IsVisible())
+			m_ExpansionIsScriptViewMenuVisible = true;
+		else
+			m_ExpansionIsScriptViewMenuVisible = false;
 
 		super.OnUpdate( pDt, pOutResult );
 	}

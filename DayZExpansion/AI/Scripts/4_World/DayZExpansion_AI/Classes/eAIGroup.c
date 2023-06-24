@@ -91,7 +91,6 @@ class eAIGroup
 
 		int index = s_AllGroups.Find(group);
 		s_AllGroups.Remove(index);
-		delete group;
 	}
 
 	private void eAIGroup(eAIFaction faction = null)
@@ -156,6 +155,11 @@ class eAIGroup
 #endif
 
 		return m_Waypoints;
+	}
+
+	vector GetCurrentWaypoint()
+	{
+		return m_Waypoints[m_CurrentWaypointIndex];
 	}
 
 	void ClearWaypoints()
@@ -410,7 +414,9 @@ class eAIGroup
 			{
 				vector position = m_Form.GetPosition(index);
 				auto leader = GetLeader();
-				bool isMoving = leader && leader.Expansion_GetMovementSpeed() > 0;
+				bool isMoving;
+				if (leader && leader.Expansion_GetMovementSpeed() > 0)
+					isMoving = true;
 				if (isMoving || isInitialUpdate)
 				{
 					for (int i = 0; i < 3; i++)

@@ -67,7 +67,7 @@ class eAITargetInformationState
 		if (force || m_LOS || time - m_SearchPositionUpdateTimestamp > Math.RandomIntInclusive(250, 300))
 		{
 #ifdef DIAG
-			auto hitch = EXHitch(m_AI.ToString() + " eAITargetInformationState::UpdatePosition ", 20000);
+			auto hitch = new EXHitch(m_AI.ToString() + " eAITargetInformationState::UpdatePosition ", 20000);
 #endif
 
 			if (force || m_LOS)

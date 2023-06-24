@@ -110,7 +110,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 		TStringArray currentAttachments = GetMarketItem().SpawnAttachments;
 
 		if (className)
-			m_Variant = GetExpansionSettings().GetMarket().GetItem(className);
+			m_Variant = ExpansionMarketCategory.GetGlobalItem(className);
 		else
 			m_Variant = NULL;
 
@@ -248,9 +248,12 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 				 * Do NOT add other classnames unless they are GUARANTEED to work properly in market menu!
 				 *************************************************************************************************************************/
 
-				bool isSupportedBB = baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag";
+				bool isSupportedBB;
+				if (baseBuilding.GetType() == "Fence" || baseBuilding.GetType() == "Watchtower" || baseBuilding.GetType() == "TerritoryFlag")
+					isSupportedBB = true;
 				#ifdef EXPANSIONMODBASEBUILDING
-				isSupportedBB |= baseBuilding.IsInherited(ExpansionBaseBuilding);
+				else if (baseBuilding.IsInherited(ExpansionBaseBuilding))
+					isSupportedBB = true;
 				#endif
 				if (isSupportedBB)
 				{
@@ -276,7 +279,7 @@ class ExpansionMarketMenuItem: ExpansionScriptView
 			EntityAI attachmentEntity = ExpansionItemSpawnHelper.SpawnAttachment(attachmentName, parent, m_CurrentSelectedSkinIndex);
 			if (attachmentEntity && level < 3)
 			{
-				ExpansionMarketItem attachment = GetExpansionSettings().GetMarket().GetItem(attachmentName, false);
+				ExpansionMarketItem attachment = ExpansionMarketCategory.GetGlobalItem(attachmentName, false);
 				if (attachment)
 					SpawnAttachments(attachment, attachmentEntity, level + 1);
 			}

@@ -198,6 +198,20 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		m_Chest.ExpansionSetCanReceiveItems(true);
 		ExpansionLootSpawner.SpawnLoot(m_Chest, m_Config.GetLoot(), m_Config.GetLootItemsAmount(), m_LootItems, m_LootItemsMap);
+		if (EXTrace.QUESTS)
+		{
+			EXPrint(this, "Spawned loot items: " + m_LootItems.Count());
+			foreach (EntityAI lootItem: m_LootItems)
+			{
+				EXPrint(this, "Spawned loot item: " + lootItem);
+			}
+
+			EXPrint(this, "Spawned loot item counts: " + m_LootItemsMap.Count());
+			foreach (string className, int count: m_LootItemsMap)
+			{
+				EXPrint(this, "Spawned loot item count: " + className + " " + count);
+			}
+		}
 		m_Chest.ExpansionSetCanReceiveItems(false);	
 
 		
@@ -313,8 +327,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 		ObjectivePrint("m_LootedItemFromChest: " + m_LootedItemFromChest);
 
-		bool conditionsResult = m_DestinationReached && m_LootedItemFromChest;
-		if (!conditionsResult)
+		if (!m_DestinationReached || !m_LootedItemFromChest)
 		{
 			ObjectivePrint("End and return: FALSE");
 			return false;
@@ -338,6 +351,11 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	array<EntityAI> GetLootItems()
 	{
 		return m_LootItems;
+	}
+
+	map<string, int> GetLootItemsMap()
+	{
+		return m_LootItemsMap;
 	}
 
 	override int GetObjectiveType()

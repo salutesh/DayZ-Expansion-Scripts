@@ -223,7 +223,9 @@ class ExpansionMarketMenuCategory: ExpansionScriptView
 			return;
 		}
 
-		bool addItems = m_ItemUpdateIdx < m_TempItems.Count();
+		bool addItems;
+		if (m_ItemUpdateIdx < m_TempItems.Count())
+			addItems = true;
 
 		if (addItems)
 		{

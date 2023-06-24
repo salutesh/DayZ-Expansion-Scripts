@@ -305,8 +305,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		bool conditionsResult = m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount == m_ObjectiveItemsAmount) && GetCraftingState();
-		if (!conditionsResult)
+		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount || !GetCraftingState())
 		{
 			ObjectivePrint("End and return: FALSE");
 			return false;

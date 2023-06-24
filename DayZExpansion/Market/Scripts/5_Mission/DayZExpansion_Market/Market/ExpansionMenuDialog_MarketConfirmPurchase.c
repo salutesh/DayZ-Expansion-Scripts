@@ -91,9 +91,12 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionDialogBase
 
 	override void Expansion_Update()
 	{
+		if (!m_MarketMenu)
+			return;
+
 		if ((ExpansionStatic.Key_Y() || ExpansionStatic.Key_Z()) && !m_KeyInput)
 		{
-			GetMarketMenu().OnConfirmBuyButtonClick();
+			m_MarketMenu.OnConfirmBuyButtonClick();
 			m_KeyInput = true;
 			return;
 		}
@@ -101,7 +104,7 @@ class ExpansionMenuDialog_MarketConfirmPurchase: ExpansionDialogBase
 		if (ExpansionStatic.Key_C() && !m_KeyInput)
 		{
 			Hide();
-			GetMarketMenu().SetMenuState(ExpansionMarketMenuState.NONE);
+			m_MarketMenu.SetMenuState(ExpansionMarketMenuState.NONE);
 			m_KeyInput = true;
 			return;
 		}

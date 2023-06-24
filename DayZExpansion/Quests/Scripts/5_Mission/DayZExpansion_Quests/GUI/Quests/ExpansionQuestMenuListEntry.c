@@ -14,7 +14,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 {
 	protected ref ExpansionQuestMenuLogEntryController m_QuestMenuLogEntryController;
 	protected ref ExpansionQuestConfig m_Quest;
-	protected ExpansionQuestMenu m_QuestMenu;
+	protected ref ExpansionQuestMenu m_QuestMenu;
 	protected ExpansionQuestModule m_QuestModule;
 
 	protected Widget Background;
@@ -23,7 +23,6 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 	protected ImageWidget HideIcon;
 	protected TextWidget Text;
 	protected ImageWidget QuestIcon;
-	protected CheckBoxWidget HideCheckbox;
 
 	void ExpansionQuestMenuLogEntry(ExpansionQuestConfig quest, ExpansionQuestMenu menu)
 	{
@@ -51,28 +50,27 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 		if (!m_Quest || !m_QuestModule || !m_QuestModule.GetClientQuestData())
 			return;
 
-		QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Exclamationmark"));
-		QuestIcon.LoadImageFile(1, ExpansionIcons.GetPath("Questionmark 2"));
-
 		m_QuestMenuLogEntryController.QuestTitle = m_Quest.GetTitle();
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("QuestTitle");
 
-		ExpansionQuestState questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
+		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
 		if (questState == ExpansionQuestState.NONE)
 		{
-			QuestIcon.SetImage(0);
+			m_QuestMenuLogEntryController.QuestIconPath = ExpansionIcons.GetPath("Exclamationmark");
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.STARTED)
 		{
-			QuestIcon.SetImage(1);
+			m_QuestMenuLogEntryController.QuestIconPath = ExpansionIcons.GetPath("Questionmark 2");
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.CAN_TURNIN)
 		{
-			QuestIcon.SetImage(1);
-			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
+			m_QuestMenuLogEntryController.QuestIconPath = ExpansionIcons.GetPath("Questionmark 2");
+			QuestIcon.SetColor(ARGB(255, 160, 223, 59));
 		}
+
+		m_QuestMenuLogEntryController.NotifyPropertyChanged("QuestIconPath");
 
 		MissionGameplay mission;
 		if (!Class.CastTo(mission, GetGame().GetMission()))
@@ -84,12 +82,10 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		if (!questHUD.IsEntryHidden(m_Quest.GetID()))
 		{
-			//HideCheckbox.SetChecked(true);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
 		}
 		else
 		{
-			//HideCheckbox.SetChecked(false);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
@@ -162,12 +158,10 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 
 		if (!questHUD.IsEntryHidden(m_Quest.GetID()))
 		{
-			//HideCheckbox.SetChecked(true);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Eye");
 		}
 		else
 		{
-			//HideCheckbox.SetChecked(false);
 			m_QuestMenuLogEntryController.HideIcon = ExpansionIcons.GetPath("Cross");
 		}
 		m_QuestMenuLogEntryController.NotifyPropertyChanged("HideIcon");
@@ -175,7 +169,7 @@ class ExpansionQuestMenuLogEntry: ExpansionScriptView
 };
 class ExpansionQuestMenuLogEntryController: ExpansionViewController
 {
-	string QuestIcon;
+	string QuestIconPath;
 	string QuestTitle;
 	string HideIcon;
 };
@@ -183,8 +177,8 @@ class ExpansionQuestMenuLogEntryController: ExpansionViewController
 class ExpansionQuestMenuListEntry: ExpansionScriptView
 {
 	protected ref ExpansionQuestMenuListEntryController m_QuestMenuListEntryController;
-	protected ExpansionQuestConfig m_Quest;
-	protected ExpansionQuestMenu m_QuestMenu;
+	protected ref ExpansionQuestConfig m_Quest;
+	protected ref ExpansionQuestMenu m_QuestMenu;
 	protected ExpansionQuestModule m_QuestModule;
 
 	protected Widget Background;
@@ -225,28 +219,27 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 		if (!m_Quest || !m_QuestModule || !m_QuestModule.GetClientQuestData())
 			return;
 
-		QuestIcon.LoadImageFile(0, ExpansionIcons.GetPath("Exclamationmark"));
-		QuestIcon.LoadImageFile(1, ExpansionIcons.GetPath("Questionmark 2"));
-
 		m_QuestMenuListEntryController.QuestTitle = m_Quest.GetTitle();
 		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestTitle");
 
-		ExpansionQuestState questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
+		int questState = m_QuestModule.GetClientQuestData().GetQuestStateByQuestID(m_Quest.GetID());
 		if (questState == ExpansionQuestState.NONE)
 		{
-			QuestIcon.SetImage(0);
+			m_QuestMenuListEntryController.QuestIconPath = ExpansionIcons.GetPath("Exclamationmark");
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.STARTED)
 		{
-			QuestIcon.SetImage(1);
+			m_QuestMenuListEntryController.QuestIconPath = ExpansionIcons.GetPath("Questionmark 2");
 			QuestIcon.SetColor(ExpansionQuestModule.GetQuestColor(m_Quest));
 		}
 		else if (questState == ExpansionQuestState.CAN_TURNIN)
 		{
-			QuestIcon.SetImage(1);
-			QuestIcon.SetColor(ARGB(200, 160, 223, 59));
+			m_QuestMenuListEntryController.QuestIconPath = ExpansionIcons.GetPath("Questionmark 2");
+			QuestIcon.SetColor(ARGB(255, 160, 223, 59));
 		}
+		
+		m_QuestMenuListEntryController.NotifyPropertyChanged("QuestIconPath");
 		
 		SetCooldown();
 	}
@@ -347,7 +340,7 @@ class ExpansionQuestMenuListEntry: ExpansionScriptView
 
 class ExpansionQuestMenuListEntryController: ExpansionViewController
 {
-	string QuestIcon;
+	string QuestIconPath;
 	string QuestTitle;
 	string Cooldown;
 };

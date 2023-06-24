@@ -62,17 +62,19 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 		if ( IsMissionHost() )
 		{
 			PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
-			bool canSendMessage = true;
+			bool canSendMessage;
 			string channelName = "";
 			
 			switch ( data.param1 )
 			{
 				case ExpansionChatChannels.CCAdmin:
-					canSendMessage = GetPermissionsManager().HasPermission( "Admin.Chat", sender );
+					if (GetPermissionsManager().HasPermission( "Admin.Chat", sender ))
+						canSendMessage = true;
 					channelName = "Admin";
 					break;
 				case ExpansionChatChannels.CCGlobal:
-					canSendMessage = GetExpansionSettings().GetChat().EnableGlobalChat;
+					if (GetExpansionSettings().GetChat().EnableGlobalChat)
+						canSendMessage = true;
 					channelName = "Global";
 					break;
 #ifdef EXPANSIONMODGROUPS
@@ -80,14 +82,19 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 					if (!m_PartyModule) break;
 					if (player) partyID = m_PartyModule.GetPartyID(player);
 
-					canSendMessage = partyID >= 0 && GetExpansionSettings().GetChat().EnablePartyChat;
+					if (partyID >= 0 && GetExpansionSettings().GetChat().EnablePartyChat)
+						canSendMessage = true;
 					channelName = "Team";
 					break;
 #endif
 				case ExpansionChatChannels.CCTransport:
 					if (player) parent = Object.Cast( player.GetParent() );
-					canSendMessage = parent && parent.IsTransport() && GetExpansionSettings().GetChat().EnableTransportChat;
+					if (parent && parent.IsTransport() && GetExpansionSettings().GetChat().EnableTransportChat)
+						canSendMessage = true;
 					channelName = "Transport";
+					break;
+				default:
+					canSendMessage = true;
 					break;
 			}
 

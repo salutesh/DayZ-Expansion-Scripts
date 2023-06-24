@@ -202,6 +202,11 @@ class eAIActionManager: ActionManagerBase
 			}
 		}
 	}
+	
+	override void Interrupt()
+	{
+		m_Interrupted = true;
+	}
 
 	void UnlockInventory(ActionData action_data)
 	{

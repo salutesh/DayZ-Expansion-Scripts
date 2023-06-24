@@ -312,14 +312,17 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		//! @note call to ClearFlags needs to be delayed one frame, else other clients won't see other items taken to hand afterwards
 		//! Can't use ScriptCallQueue::Call to call ClearFlags directly, CTDs other clients
 		if (!ExpansionIsContainerOwner() && newLoc.GetType() == InventoryLocationType.GROUND)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_SetInvisible);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_SetInvisible, this, true);
 		else
 			SetFlags(EntityFlags.VISIBLE, false);
 	}
 
-	void Expansion_SetInvisible()
+	void Expansion_SetInvisible(EntityAI item, bool invisible = true)
 	{
-		ClearFlags(EntityFlags.VISIBLE, false);
+		if (invisible)
+			item.ClearFlags(EntityFlags.VISIBLE, false);
+		else
+			item.SetFlags(EntityFlags.VISIBLE, true);
 	}
 
 	override void EECargoOut(EntityAI item)
@@ -328,6 +331,8 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 		if (IsEmpty())
 			ExpansionDeleteStorage();
+
+		Expansion_SetInvisible(item, false);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -336,6 +341,8 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 
 		if (IsEmpty())
 			ExpansionDeleteStorage();
+
+		Expansion_SetInvisible(item, false);
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)

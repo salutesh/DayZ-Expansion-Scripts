@@ -180,9 +180,13 @@ modded class IngameHud
 		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
 		PlayerBase playerB;
 
-		bool isInSafeZone = safeZone && playerA && playerA.Expansion_IsInSafeZone();
+		bool isInSafeZone;
+		if (safeZone && playerA && playerA.Expansion_IsInSafeZone())
+			isInSafeZone = true;
 	#ifdef EXPANSIONMODBASEBUILDING
-		bool isInTerritory = territory && playerA && playerA.IsInTerritory();
+		bool isInTerritory;
+		if (territory && playerA && playerA.IsInTerritory())
+			isInTerritory = true;
 	#endif
 
 		foreach (Man player : ClientData.m_PlayerBaseList)
@@ -191,13 +195,15 @@ modded class IngameHud
 			if (player.IsAlive() && player != GetGame().GetPlayer())
 			{
 				Class.CastTo(playerB, player);
-				bool check = !safeZone && !territory;
 
-				if (safeZone && isInSafeZone && playerB && playerB.Expansion_IsInSafeZone())
+				bool check = false;
+
+				if (!safeZone && !territory)
 					check = true;
-
+				else if (safeZone && isInSafeZone && playerB && playerB.Expansion_IsInSafeZone())
+					check = true;
 			#ifdef EXPANSIONMODBASEBUILDING
-				if (territory && isInTerritory && playerB && playerB.IsInTerritory())
+				else if (territory && isInTerritory && playerB && playerB.IsInTerritory())
 					check = true;
 			#endif
 				
@@ -389,7 +395,7 @@ modded class IngameHud
 
 					if (!m_IsEnemy && !m_IsMember)
 					{
-						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCESS);
 					}
 					else
 					{
@@ -515,7 +521,7 @@ modded class IngameHud
 
 					if (!m_IsEnemy)
 					{
-						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCSESS);
+						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCESS);
 					}
 					else
 					{

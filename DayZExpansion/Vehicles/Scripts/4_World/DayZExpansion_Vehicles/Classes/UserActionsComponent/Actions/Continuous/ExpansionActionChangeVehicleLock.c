@@ -53,9 +53,15 @@ class ExpansionActionChangeVehicleLock: ExpansionActionToolBase
 
 		bool canChangeLock;
 		if ( carScript )
-			canChangeLock = carScript.HasKey() && !carScript.IsLocked();
+		{
+			if (carScript.HasKey() && !carScript.IsLocked())
+				canChangeLock = true;
+		}
 		else
-			canChangeLock = vehicleBase.HasKey() && !vehicleBase.IsLocked();
+		{
+			if (vehicleBase.HasKey() && !vehicleBase.IsLocked())
+				canChangeLock = true;
+		}
 
 		if ( canChangeLock )
 		{

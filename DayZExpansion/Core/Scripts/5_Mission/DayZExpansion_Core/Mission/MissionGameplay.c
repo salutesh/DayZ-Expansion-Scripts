@@ -39,6 +39,29 @@ modded class MissionGameplay
 		
 		DestroyNotificationSystem();
 	}
+
+	void Expansion_ForceEnableMovementInputs()
+	{
+		const array<string> inputs = 
+		{
+			"UAMoveForward",
+			"UAMoveBack",
+			"UAMoveLeft",
+			"UAMoveRight",
+			"UATurbo",
+			"UAWalkRunTemp",
+			"UAWalkRunToggle",
+			"UALeanLeft",
+			"UALeanRight"
+		};
+
+		foreach (string input : inputs)
+		{
+			GetUApi().GetInputByName(input).ForceDisable(false);
+		}
+
+		GetUApi().UpdateControls();
+	}
 	
 	// ------------------------------------------------------------
 	// Override PlayerControlDisable
@@ -80,13 +103,17 @@ modded class MissionGameplay
 
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 
-		bool isAliveConscious = player && player.GetPlayerState() == EPlayerStates.ALIVE && !player.IsUnconscious();
+		bool isAliveConscious;
+		if (player && player.GetPlayerState() == EPlayerStates.ALIVE && !player.IsUnconscious())
+			isAliveConscious = true;
 
 		Input input = GetGame().GetInput();
 
 		//! Checking for keyboard focus
 		Widget focus = GetFocus();
-		bool inputIsFocused = focus && (focus.IsInherited(EditBoxWidget) || focus.IsInherited(MultilineEditBoxWidget)) && focus.IsVisible();
+		bool inputIsFocused;
+		if (focus && (focus.IsInherited(EditBoxWidget) || focus.IsInherited(MultilineEditBoxWidget)) && focus.IsVisible())
+			inputIsFocused = true;
 
 		UIScriptedMenu menu = m_UIManager.GetMenu();
 		ExpansionScriptViewMenuBase viewMenu = GetDayZExpansion().GetExpansionUIManager().GetMenu();
@@ -165,6 +192,8 @@ modded class MissionGameplay
 		{
 			manager.CloseMenu();
 		}
+
+        Expansion_ForceEnableMovementInputs();
 	}
 	
 	static ExpansionItemTooltip Expansion_GetItemTooltip()

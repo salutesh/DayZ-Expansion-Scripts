@@ -64,18 +64,13 @@ FrameWidgetClass Na_WorkbenchMenu {
        vexactpos 0
        hexactsize 0
        vexactsize 1
-       scriptclass "ViewBinding"
+       scriptclass ""
        style Bold
        text "Workbench"
        "bold text" 0
        "text sharpness" 1.014
        "exact text" 0
        "text valign" center
-       {
-        ScriptParamsClass {
-         Binding_Name "TraderName"
-        }
-       }
       }
       ImageWidgetClass workbench_icon {
        ignorepointer 1

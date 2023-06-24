@@ -115,12 +115,12 @@ class ExpansionStateType
 				string variable_line = "" + variable_type + " " + variable_name;
 				if (variable_default != "")
 				{
-					variable_line = variable_line + " = " + variable_default;
+					variable_line += " = " + variable_default;
 				}
 
-				variable_line = variable_line + ";";
+				variable_line += ";";
 
-				FPrintln(file, variable_line);
+				FPrintln(file, "	" + variable_line);
 			}
 		}
 

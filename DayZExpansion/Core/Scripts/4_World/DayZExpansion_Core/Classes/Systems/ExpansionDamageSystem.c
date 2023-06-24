@@ -142,7 +142,14 @@ class ExpansionDamageSystem
 			GetGame().GetObjectsAtPosition3D(position, explosionRange, nearest_objects, proxy_cargos);
 		//}
 
+		ItemBase nearest_item;
+		DayZPlayerImplement player;
+		CarScript vehicle;
+		EntityAI nearest_entity;
+
 		bool checkForBlockingObj = GetExpansionSettings().GetDamageSystem().CheckForBlockingObjects;
+		bool targetHit;
+		Object blockingObject;
 
 		foreach (Object nearest_object: nearest_objects)
 		{
@@ -152,8 +159,30 @@ class ExpansionDamageSystem
 			if (!nearest_object.GetAllowDamage())
 				continue;
 
-			ItemBase nearest_item;
-			if (!Class.CastTo(nearest_item, nearest_object) || !nearest_item.CanBeDamaged())
+			if (Class.CastTo(nearest_item, nearest_object))
+			{
+				if (!nearest_item.CanBeDamaged())
+					continue;
+				nearest_entity = nearest_item;
+			}
+			else if (Class.CastTo(player, nearest_object))
+			{
+				if (!player.Expansion_CanBeDamaged(ammoType))
+					continue;
+				nearest_entity = player;
+			}
+			else if (Class.CastTo(vehicle, nearest_object))
+			{
+				if (!vehicle.CanBeDamaged())
+					continue;
+				nearest_entity = vehicle;
+			}
+			else if (!Class.CastTo(nearest_entity, nearest_object))
+			{
+				continue;
+			}
+
+			if (!IsEnabledForExplosionTarget(nearest_entity))
 				continue;
 
 			if (directional)
@@ -199,13 +228,8 @@ class ExpansionDamageSystem
 				}
 			}
 
-			if (!IsEnabledForExplosionTarget(nearest_item))
-				continue;
-
-			float explosionDamageNormalized = GetExplosionDamageNormalized(source, nearest_item, explosionRange, explosionDropoffRange, position);
-			bool targetHit;
-			Object blockingObject;
-			if (!explosionDamageNormalized || (checkForBlockingObj && !Raycast(source, nearest_item, position, targetHit, blockingObject)))
+			float explosionDamageNormalized = GetExplosionDamageNormalized(source, nearest_entity, explosionRange, explosionDropoffRange, position);
+			if (!explosionDamageNormalized)
 			{
 #ifdef DIAG
 				Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is NOT a target for " + source + " at " + ExpansionStatic.VectorToString(position) + " (too far away)");
@@ -213,13 +237,16 @@ class ExpansionDamageSystem
 				continue;
 			}
 
+			if (checkForBlockingObj)
+				Raycast(source, nearest_entity, position, targetHit, blockingObject);
+
 			if (!blockingObject)
 			{
 #ifdef DIAG
 				Log(nearest_object.ToString() + " at " + ExpansionStatic.VectorToString(nearest_object.GetPosition()) + " is a target for " + source + " at " + ExpansionStatic.VectorToString(position));
 #endif
-				targets.Insert(nearest_item, explosionDamageNormalized);
-				QueueExplosion(nearest_item, source.ToString(), ammoType);
+				targets.Insert(nearest_entity, explosionDamageNormalized);
+				QueueExplosion(nearest_entity, source.ToString(), ammoType);
 			}
 #ifdef DIAG
 			else
@@ -239,11 +266,11 @@ class ExpansionDamageSystem
 		int contactComponent;
 		set<Object> results();
 
-		if (!DayZPhysics.RaycastRV(position, target.GetPosition(), hitPosition, hitNormal, contactComponent, results, null, source, true, false, ObjIntersectView, 0.1, CollisionFlags.ALLOBJECTS))
-			return false;
-
 		targetHit = false;
 		blockingObject = null;
+
+		if (!DayZPhysics.RaycastRV(position, target.GetPosition(), hitPosition, hitNormal, contactComponent, results, null, source, true, false, ObjIntersectView, 0.1, CollisionFlags.ALLOBJECTS))
+			return false;  //! Ray didn't hit anything, but this also means nothing is in the way
 
 		vector offsetPos = position - source.GetDirection();
 		vector targetDir = vector.Direction(position, target.GetPosition());
@@ -280,7 +307,7 @@ class ExpansionDamageSystem
 
 			if (GetQueuedExplosionCount(target, sourceIdentifier, ammoType))
 			{
-				Log(target.ToString() + " at " + ExpansionStatic.VectorToString(target.GetPosition()) + " was not hit by " + ammoType + " from " + sourceIdentifier + " at " + sourcePosition + " - applying direct " + typename.EnumToString(DamageType, damageType) + " damage");
+				Log(target.ToString() + " at " + ExpansionStatic.VectorToString(target.GetPosition()) + " was not hit by " + ammoType + " from " + sourceIdentifier + " at " + sourcePosition + " - applying direct " + typename.EnumToString(DamageType, damageType) + " damage coef " + dmg);
 				if (!source)
 				{
 					directDamageSource = target;
@@ -291,9 +318,29 @@ class ExpansionDamageSystem
 		}
 	}
 
-	static void OnExplosionHit(EntityAI source, EntityAI target, string ammoType)
+	static void OnExplosionHit(EntityAI source, EntityAI target, string ammoType, bool applyDamageCorrection = false, TotalDamageResult damageResult = null, string dmgZone = string.Empty)
 	{
 		DequeueExplosion(target, source.ToString(), ammoType);
+
+		if (applyDamageCorrection && !target.IsDamageDestroyed() && !target.GetHierarchyParent() && source && !source.GetHierarchyRootPlayer())
+		{
+			//! Use our own damage system for consistent explosion damage
+			//! Note that this only works as intended if damage source root is not a player,
+			//! else won't be able to get actual source's position in relation to target
+
+			if (dmgZone == string.Empty)
+				dmgZone = "GlobalHealth";
+
+			float dmg = damageResult.GetDamage(dmgZone, "Health");
+
+			float baseDmg = GetExplosionDamage(source, target, ammoType);
+			if (baseDmg > dmg)
+			{
+				Log("Overriding " + source.ToString() + " damage dealt to " + target.ToString() + " at " + target.GetPosition() + " " + dmg.ToString() + " -> " + baseDmg.ToString());
+
+				target.DecreaseHealth(dmgZone, "Health", baseDmg - dmg);
+			}
+		}
 	}
 
 	static int GetQueuedExplosionCount(EntityAI target, string sourceIdentifier, string ammoType)

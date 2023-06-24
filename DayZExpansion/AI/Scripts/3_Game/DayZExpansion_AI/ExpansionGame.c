@@ -4,9 +4,10 @@ modded class ExpansionGame
 
 	private bool m_InGroup;
 
-	//! Incremented by Weapon_Base::EEFired and related RPC if AI
+	//! Incremented by Weapon_Base::EEFired
 	int m_eAI_FirearmEffectsCallCount;
 	int m_eAI_FirearmEffectsCallCountPrev = -1;
+	int m_eAI_FirearmEffectsRecurseCount;
 
 	eAICommandManager GetCommandManager()
 	{
@@ -40,45 +41,4 @@ modded class ExpansionGame
 
 		m_InGroup = group;
 	}
-
-#ifndef SERVER
-	override bool OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
-	{
-		switch (rpc_type)
-		{
-			case ExpansionRPC.FirearmEffects:
-				if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-					break;
-				int componentIndex;
-				vector pos;
-				vector surfNormal;
-				vector inSpeed;
-				string ammoType;
-				if (!ctx.Read(componentIndex))
-					break;
-				if (!ctx.Read(pos))
-					break;
-				if (!ctx.Read(surfNormal))
-					break;
-				if (!ctx.Read(inSpeed))
-					break;
-				if (!ctx.Read(ammoType))
-					break;
-				Object directHit = target;
-				string surface = ExpansionStatic.GetImpactSurfaceTypeEx(directHit, pos, inSpeed);
-				vector exitPos;
-				vector outSpeed;
-				bool isWater = surface == "Hit_Water";
-				bool deflected = Math.RandomIntInclusive(0, 1);
-				//! Call FirearmEffects the same way vanilla would (source = NULL on client)
-				m_eAI_FirearmEffectsCallCount++;
-				GetDayZGame().FirearmEffects(null, directHit, componentIndex, surface, pos, surfNormal, exitPos, inSpeed, outSpeed, isWater, deflected, ammoType);
-				EffectSound sound = SEffectManager.Expansion_PlaySound("bulletFlyBy_SoundSet", pos);
-				//! FIXME: No impact sound :-(
-				return true;
-		}
-
-		return super.OnRPC(sender, target, rpc_type, ctx);
-	}
-#endif
 };

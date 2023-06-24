@@ -1,5 +1,3 @@
-#include "0_DayZExpansion_AI_Preload/Common/DayZExpansion_AI_Defines.c"
-
 class ExpansionPathPoint
 {
 	vector Position;

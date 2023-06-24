@@ -1,6 +1,7 @@
 class ExpansionFSMType
 {
 	static int s_ReloadNumber = 0;
+	static ref map<string, bool> s_Loaded = new map<string, bool>;
 	
 	private static autoptr map<string, ExpansionFSMType> m_SpawnableTypes = new map<string, ExpansionFSMType>();
 	private static autoptr array<autoptr ExpansionFSMType> m_Types = new array<autoptr ExpansionFSMType>();
@@ -26,6 +27,7 @@ class ExpansionFSMType
 	static void UnloadAll()
 	{
 		s_ReloadNumber++;
+		s_Loaded.Clear();
 		
 		m_Types.Clear();
 		m_SpawnableTypes.Clear();
@@ -99,17 +101,21 @@ class ExpansionFSMType
 			return ExpansionFSMType.Get(fileName);
 		}
 
+		bool success;
+		if (s_Loaded.Find(path + "/" + fileName, success) && !success)
+			return null;
+
 		if (!FileExist(EXPANSION_AI_FOLDER))
 		{
 			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_AI_FOLDER);
 		}
 
-		if (!FileExist(EXPANSION_AI_UTILS_FOLDER))
+		if (!FileExist(EXPANSION_AI_FSM_FOLDER))
 		{
-			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_AI_UTILS_FOLDER);
+			ExpansionStatic.MakeDirectoryRecursive(EXPANSION_AI_FSM_FOLDER);
 		}
 			
-		string script_path = EXPANSION_AI_UTILS_FOLDER + fileName + ".c";
+		string script_path = EXPANSION_AI_FSM_FOLDER + fileName + ".c";
 		FileHandle file = OpenFile(script_path, FileMode.WRITE);
 		if (!file)
 		{
@@ -124,9 +130,12 @@ class ExpansionFSMType
 		new_type.m_Module = ScriptModule.LoadScript(module, script_path, false);
 		if (new_type.m_Module == null)
 		{
-			Error("There was an error loading in the fsm.");
+			Error("There was an error loading in the FSM generated from " + path + "/" + fileName + ".xml, check " + script_path);
+			s_Loaded[path + "/" + fileName] = false;
 			return null;
 		}
+
+		s_Loaded[path + "/" + fileName] = true;
 
 #ifdef DIAG
 		//! Create a backup to ease debugging
@@ -156,7 +165,7 @@ class ExpansionFSMType
 
 		#ifdef DIAG
 		//! XXX: CF_XML_Document::Save doesn't write a proper representation of the parsed document
-		document.Save(EXPANSION_AI_UTILS_FOLDER + fileName + ".xml");
+		document.Save(EXPANSION_AI_FSM_FOLDER + fileName + ".xml");
 		#endif
 		
 		string name = document.Get("fsm")[0].GetAttribute("name").ValueAsString();
@@ -203,8 +212,11 @@ class ExpansionFSMType
 		transitions = transitions[0].GetTag("transition");
 		foreach (auto transition : transitions)
 		{
-			ExpansionTransitionType transitionType = ExpansionTransitionType.LoadXML(new_type, transition, file);
-			new_type.m_Transitions.Insert(transitionType);
+			array<autoptr ExpansionTransitionType> transitionTypes = ExpansionTransitionType.LoadXML(new_type, transition, file);
+			foreach (auto transitionType: transitionTypes)
+			{
+				new_type.m_Transitions.Insert(transitionType);
+			}
 		}
 
 		FPrintln(file, "class " + class_name + ": " + type + "FSM {");

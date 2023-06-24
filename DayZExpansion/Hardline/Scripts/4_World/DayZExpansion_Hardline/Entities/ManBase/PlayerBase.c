@@ -29,11 +29,17 @@ modded class PlayerBase
 	//! Only to be called on server!
 	void Expansion_SaveHardlineData(bool force = false)
 	{
-		bool save = force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation || m_Expansion_HardlineData.PersonalStorageLevel != m_Expansion_PersonalStorageLevel;
+		if (!GetIdentity())
+			return;
+
+		bool save;
+		if (force || m_Expansion_HardlineData.Reputation != m_Expansion_Reputation || m_Expansion_HardlineData.PersonalStorageLevel != m_Expansion_PersonalStorageLevel)
+			save = true;
 	#ifdef EXPANSIONMODAI
-		save |= m_Expansion_HardlineData.FactionID != eAI_GetFactionTypeID();
+		else if (m_Expansion_HardlineData.FactionID != eAI_GetFactionTypeID())
+			save = true;
 	#endif
-		if (GetIdentity() && save)
+		if (save)
 		{
 			m_Expansion_HardlineData.Reputation = m_Expansion_Reputation;
 			m_Expansion_HardlineData.PersonalStorageLevel = m_Expansion_PersonalStorageLevel;

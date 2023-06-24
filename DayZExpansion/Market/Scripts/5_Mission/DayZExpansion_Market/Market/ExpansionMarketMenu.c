@@ -397,7 +397,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				
 				string displayName = GetDisplayName(GetPreviewClassName(currentItem.ClassName, true));
 				
-				currentItem.m_ShowInMenu = (!currentItem.m_IsVariant || (!currentItem.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search) && ShouldShowItem(currentItem, displayName, search);
+				//! https://feedback.bistudio.com/T173348
+				if ((!currentItem.m_IsVariant || (!currentItem.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search) && ShouldShowItem(currentItem, displayName, search))
+					currentItem.m_ShowInMenu = true;
+				else
+					currentItem.m_ShowInMenu = false;
 				
 				TempInsertItem(displayName, currentItem, tempItems);
 				
@@ -564,7 +568,11 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		//! and sets whether items should be shown or not
 		foreach (ExpansionMarketItem item : m_TraderItems)
 		{
-			item.m_ShowInMenu = !isFiltered && !item.m_IsVariant;
+			//! https://feedback.bistudio.com/T173348
+			if (!isFiltered && !item.m_IsVariant)
+				item.m_ShowInMenu = true;
+			else
+				item.m_ShowInMenu = false;
 			if (!item.m_ShowInMenu && (!item.m_IsVariant || (!item.m_Parent.m_ShowInMenu && ShowPurchasables()) || ShowSellables() || search))
 			{
 				string displayName = GetDisplayName(GetPreviewClassName(item.ClassName, true));
@@ -572,7 +580,9 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 		}
 		
-		bool includeAttachments = m_SelectedMarketItemElement && m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0;
+		bool includeAttachments;
+		if (m_SelectedMarketItemElement && m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0)
+			includeAttachments = true;
 
 		for (int i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
 		{
@@ -1638,9 +1648,19 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			}
 
 			int price = 0;
-			ExpansionMarketResult result;
+			ExpansionMarketResult result = ExpansionMarketResult.Success;
 			m_MarketModule.FindPriceOfPurchase(GetSelectedMarketItem(), m_MarketModule.GetClientZone(), m_TraderMarket, m_Quantity, price, GetSelectedMarketItemElement().GetIncludeAttachments(), result);
-			m_BuyPrice = price;
+			if (result == ExpansionMarketResult.IntegerOverflow)
+			{
+				m_BuyPrice = -1;
+				m_MarketMenuController.MarketItemTotalBuyPrice = "";
+				ExpansionNotification("STR_EXPANSION_MARKET_TITLE", "Integer overflow. Reduce the quantity you are trying to buy or sell.", EXPANSION_NOTIFICATION_ICON_ERROR, COLOR_EXPANSION_NOTIFICATION_ERROR, 3, ExpansionNotificationType.MARKET).Create();
+			}
+			else
+			{
+				m_BuyPrice = price;
+				m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
+			}
 
 			if (m_MarketModule.GetPlayerWorth() >= m_BuyPrice)
 				color = GetExpansionSettings().GetMarket().MarketMenuColors.Get("BaseColorText");
@@ -1649,8 +1669,6 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 			market_item_buy_price_text.SetColor(color); 
 			market_item_buy_price_icon.SetColor(color);
-
-			m_MarketMenuController.MarketItemTotalBuyPrice = ExpansionStatic.IntToCurrencyString(m_BuyPrice, ",");
 		}
 		else
 		{
@@ -2016,7 +2034,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 					loc = new StringLocaliser("STR_EXPANSION_TRADER_" + msgId + "_SUCCESS_TEXT", GetDisplayName(itemClassName), formattedAmount, formattedPrice);
 					text = loc.Format();
 					icon = EXPANSION_NOTIFICATION_ICON_INFO;
-					color = COLOR_EXPANSION_NOTIFICATION_SUCCSESS;
+					color = COLOR_EXPANSION_NOTIFICATION_SUCCESS;
 				}
 
 				break;
@@ -2085,7 +2103,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				ExpansionMarketReserve reserve;
 				map<string, int> removedStock;
 				m_OutOfStockList.Clear();
-				m_MarketModule.FindPriceOfPurchase(GetExpansionSettings().GetMarket().GetItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
+				m_MarketModule.FindPriceOfPurchase(ExpansionMarketCategory.GetGlobalItem(itemClassName), m_MarketModule.GetClientZone(), m_TraderMarket, amount, price, includeAttachments, resultTmp, reserve, removedStock, m_OutOfStockList);
 				if (m_OutOfStockList.Count())
 				{
 					loc = new StringLocaliser(text);
@@ -2236,6 +2254,15 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 				break;
 			}
 			
+			case ExpansionMarketResult.IntegerOverflow:
+			{
+				MarketPrint("MenuCallback - integer overflow");
+				
+				title = "STR_EXPANSION_MARKET_TITLE";
+				text = "Integer overflow. Reduce the quantity you are trying to buy or sell.";
+				break;
+			}
+
 			default:
 			{
 				MarketPrint("MenuCallback - unknown error");
@@ -2249,8 +2276,18 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		if (notify)
 			ExpansionNotification(title, text, icon, color, 3, ExpansionNotificationType.MARKET).Create();
 	
-		if (result != ExpansionMarketResult.FailedItemDoesNotExistInTrader && result != ExpansionMarketResult.FailedItemSpawn)
-			RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
+		switch (result)
+		{
+			case ExpansionMarketResult.FailedItemDoesNotExistInTrader:
+			case ExpansionMarketResult.FailedItemSpawn:
+			case ExpansionMarketResult.IntegerOverflow:
+				//! Do nothing
+				break;
+
+			default:
+				RequestSelectedItem(ExpansionMarketMenuState.LOADING, itemClassName, sale);
+				break;
+		}
 				
 		MarketPrint("MenuCallback - End");
 	}
@@ -2268,7 +2305,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			{
 				string className = sellItem.ClassName;
 				className.ToLower();
-				item = GetExpansionSettings().GetMarket().GetItem(className, false);
+				item = ExpansionMarketCategory.GetGlobalItem(className, false);
 				if (item && itemIDs.Find(item.ItemID) == -1)
 					itemIDs.Insert(item.ItemID);
 			}
@@ -2276,7 +2313,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 		else
 		{
 			//! Last action was not a sale. Request stock info for selected item and its attachments
-			item = GetExpansionSettings().GetMarket().GetItem(itemClassName, false);
+			item = ExpansionMarketCategory.GetGlobalItem(itemClassName, false);
 			itemIDs.Insert(item.ItemID);
 			TIntArray attachmentIDs = GetCurrentSelectedAttachmentIDs(true, item);
 			foreach (int attachmentID: attachmentIDs)
@@ -2311,7 +2348,8 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			dialogData.ClassName = GetSelectedMarketItem().ClassName;
 			dialogData.Amount = m_Quantity;
 			dialogData.Price = m_BuyPrice;
-			dialogData.IncludeAttachments = m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0;
+			if (m_SelectedMarketItemElement.GetIncludeAttachments() && m_SelectedMarketItem.SpawnAttachments.Count() > 0)
+				dialogData.IncludeAttachments = true;
 			
 			m_PurchaseDialog = new ExpansionMenuDialog_MarketConfirmPurchase(this, dialogData);
 			m_PurchaseDialog.Show();
@@ -2452,7 +2490,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 	{
 		MarketPrint("OnHide - Start");
 				
-		m_MarketModule.ExitTrader(m_TraderObject, GetGame().GetPlayer().GetIdentity());
+		m_MarketModule.ExitTrader();
 
 		ExpansionMarketModule.SI_SetTraderInvoker.Remove(SetTraderObject);
 		ExpansionMarketModule.SI_SelectedItemUpdatedInvoker.Remove(OnNetworkItemUpdate);
@@ -2990,6 +3028,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 
 		//! This takes a player expanding/collapsing single categories into account
 		bool toggleState = CategoriesExpanded == 0;
+		GetExpansionClientSettings().MarketMenuCategoriesState = toggleState;
 		
 		for (i = 0; i < m_MarketMenuController.MarketCategories.Count(); i++)
 		{
@@ -3196,7 +3235,7 @@ class ExpansionMarketMenu: ExpansionScriptViewMenu
 			item = GetSelectedMarketItem();
 		foreach (string attachment: item.SpawnAttachments)
 		{
-			ExpansionMarketItem attachmentItem = GetExpansionSettings().GetMarket().GetItem(attachment);
+			ExpansionMarketItem attachmentItem = ExpansionMarketCategory.GetGlobalItem(attachment);
 			attachmentIDs.Insert(attachmentItem.ItemID);
 			if (recursive)
 				attachmentIDs.InsertAll(GetCurrentSelectedAttachmentIDs(recursive, attachmentItem));

@@ -20,6 +20,8 @@ modded class MissionGameplay
 	ref MapMenu m_Expansion_MapMenu;
 	ref ExpansionMapMenu m_Expansion_ExpansionMapMenu;
 
+	private int m_MarkerVisibilityMode;
+
 	void MissionGameplay()
 	{
 		CF_Modules<ExpansionMarkerModule>.Get(m_MarkerModule);
@@ -117,66 +119,54 @@ modded class MissionGameplay
 			{
 				if (input.LocalPress("UAExpansion3DMarkerToggle", false) && !viewMenu)
 				{
-					int visibility;
-					int previousVisibility;
-
-					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER);
-					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PARTY);
-					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PLAYER);
-					visibility |= m_MarkerModule.GetVisibility(ExpansionMapMarkerType.PERSONAL);
-					visibility &= EXPANSION_MARKER_VIS_WORLD;
-
-					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.SERVER);
-					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PARTY);
-					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PLAYER);
-					previousVisibility |= m_MarkerModule.GetPreviousVisibility(ExpansionMapMarkerType.PERSONAL);
-					previousVisibility &= EXPANSION_MARKER_VIS_WORLD;
-
-					if (!visibility)
+					switch (m_MarkerVisibilityMode)
 					{
-						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
-					}
-
-					if (!visibility && !previousVisibility)
-					{
-						//! No 3D markers visible currently and previously, toggle all on
-						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-					}
-					else if (!visibility)
-					{
-						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.RestoreVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
-					}
-					else
-					{
-						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
-						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
-						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+						// Stage 0: "Enabled all 3D Markers" 
+						// enable ALL 3D Markers again, doesnt matter which one
+						case 0:							
+							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+						break;
+						// Stage 1: "Disabled all Server 3D Markers" 
+						// hide ONLY Server 3D Markers
+						case 1:
+							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+						break;
+						// Stage 2: "Disabled all Personal Party 3D Markers" 
+						// hide ONLY server and all personal markers from the Party (except Member 3D Markers and privat personal 3D Markers)
+						// TO ONLY SEE MEMBER 3D AND YOUR OWN PERSONAL 3D MARKERS!
+						case 2:
+							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEPARTY_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+						break;
+						// Stage 3: "Disabled all Personal 3D Markers" 
+						// hide ONLY server and all personal and party markers (except Member 3D Markers)
+						// TO ONLY SEE MEMBER 3D MARKERS!
+						case 3:
+							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEPERSONAL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+						break;
+						// Stage 4: "Disabled all 3D Markers" 
+						// hide ALL 3D Markers, doesnt matter which one
+						case 4:
+							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
+							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
+						break;
 					}
 
 					if (m_Expansion_ExpansionMapMenu)
 						m_Expansion_ExpansionMapMenu.GetMarkerList().UpdateToggleStates();
-				}
 
-				if (input.LocalPress("UAExpansionServerMarkersToggle", false) && !viewMenu)
-				{
-					if ((m_MarkerModule.GetVisibility(ExpansionMapMarkerType.SERVER) & EXPANSION_MARKER_VIS_WORLD) == 0)
-					{
-						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
-						m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-					}
-					else
-					{
-						ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCSESS, 5).Info(player.GetIdentity());
-						m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
-					}
+					m_MarkerVisibilityMode++;
+					if ( m_MarkerVisibilityMode > 4 )
+						m_MarkerVisibilityMode = 0;
 				}
 			}
 		}

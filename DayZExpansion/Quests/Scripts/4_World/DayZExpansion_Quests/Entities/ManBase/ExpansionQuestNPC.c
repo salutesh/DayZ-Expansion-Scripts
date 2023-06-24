@@ -18,8 +18,7 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 	
 	void ExpansionQuestNPCBase()
 	{
-		if (IsMissionHost())
-			SetAllowDamage(false);
+		Expansion_SetAllowDamage(false);
 
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}

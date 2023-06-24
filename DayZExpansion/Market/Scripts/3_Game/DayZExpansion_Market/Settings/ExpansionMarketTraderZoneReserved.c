@@ -23,7 +23,7 @@ class ExpansionMarketTraderZoneReserved
 	{
 		className.ToLower();
 
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className );
 		if ( !marketItem )
 			return;
 		
@@ -41,7 +41,7 @@ class ExpansionMarketTraderZoneReserved
 	{
 		className.ToLower();
 		
-		ExpansionMarketItem marketItem = GetExpansionSettings().GetMarket().GetItem( className );
+		ExpansionMarketItem marketItem = ExpansionMarketCategory.GetGlobalItem( className );
 		if ( !marketItem )
 			return -1;
 		

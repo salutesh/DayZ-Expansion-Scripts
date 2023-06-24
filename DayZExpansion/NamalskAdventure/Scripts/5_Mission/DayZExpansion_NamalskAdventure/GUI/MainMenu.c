@@ -10,6 +10,7 @@
  *
 */
 
+#ifdef NAMALSK_ISLAND
 modded class MainMenu
 {
 	protected ImageWidget m_DayZLogo;
@@ -49,3 +50,4 @@ modded class MainMenu
 		ImagenSetColor(w, color_img);
 	}
 };
+#endif

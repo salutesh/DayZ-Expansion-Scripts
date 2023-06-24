@@ -175,8 +175,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		if (m_ExecutionCount == 0)
 			return false;
 		
-		bool conditionsResult = m_ActionState && (m_ExecutionCount == m_ExecutionAmount);
-		if (!conditionsResult)
+		if (!m_ActionState || m_ExecutionCount != m_ExecutionAmount)
 		{
 			ObjectivePrint("End and return: FALSE");
 			return false;

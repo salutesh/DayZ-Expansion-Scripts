@@ -333,12 +333,7 @@ class ExpansionFlagMenu: ExpansionUIScriptedMenu
 		{
 			m_TerritoryDialogWindow.Show( false );
 			
-			if ( GetExpansionSettings().GetBaseBuilding().FlagMenuMode == ExpansionFlagMenuMode.NoFlagChoice )
-			{
-				m_TerritoryWindow.Show( true );
-			} else {
-				m_TerritoryWindow.Show( true );
-			}
+			m_TerritoryWindow.Show( true );
 						
 			return true;
 		}

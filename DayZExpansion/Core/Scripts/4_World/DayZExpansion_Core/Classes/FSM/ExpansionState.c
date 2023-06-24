@@ -2,6 +2,7 @@ class ExpansionState
 {
 	static const int EXIT = 0;
 	static const int CONTINUE = 1;
+	static const int RESTART = 2;
 
 	string m_Name;
 	string m_ClassName;
