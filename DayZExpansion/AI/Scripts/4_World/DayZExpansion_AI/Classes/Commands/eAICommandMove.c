@@ -93,6 +93,9 @@ class eAICommandMove: ExpansionHumanCommandScript
 	private vector m_OverrideWaypoint;
 	private float m_DebugTime;
 
+	bool m_IsTagWeaponFire;
+	bool m_WeaponFire;
+
 	void eAICommandMove(DayZPlayerImplement player, ExpansionHumanST st)
 	{
 		Class.CastTo(m_Unit, player);
@@ -148,11 +151,21 @@ class eAICommandMove: ExpansionHumanCommandScript
 		m_ForceTurnTarget = force;
 	}
 
+	void SetWeaponFire(bool state)
+	{
+		m_WeaponFire = state;
+	}
+
 	void SetSpeedLimit(float pSpeedIdx)
 	{
 		m_SpeedLimit = pSpeedIdx;
 
 		if (m_SpeedLimit < 0 || m_SpeedLimit > 3) m_SpeedLimit = 3;
+	}
+
+	float GetSpeedLimit()
+	{
+		return m_SpeedLimit;
 	}
 
 	void SetTargetSpeed(float pTarget)
@@ -262,35 +275,29 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			pathDir2D = vector.Direction(position, Vector(wayPoint[0], position[1], wayPoint[2]));
 
-			bool halt;
-
-			//! Hack fix so AI doesn't fall from a large height (e.g. building top) and die
-			if (position[1] - wayPoint[1] > 2.5)
+			if (isFinal && m_PathFinding.m_IsUnreachable)
 			{
+				bool halt;
+
+				//! Prevent fall from a large height (e.g. building top)
 				vector checkDirection = fb * 2;
 				if (!m_Unit.eAI_IsFallSafe(checkDirection))
+				{
 					halt = true;
-			}
+				}
+				else
+				{
+					//! Don't go into deep water
+					if (GetGame().GetWaterDepth(position + fb - "0 1 0") > 0.5)
+						halt = true;
+				}
 
-			//! Hack fix so AI doesn't go into deep water
-			vector begPos = Vector(position[0], Math.Max(position[1], wayPoint[1]), position[2]) + fb;
-			vector contactPos;
-			vector contactDir;
-			int contactComponent;
-			set<Object> results();
-			if (DayZPhysics.RaycastRV(begPos, position + fb - "0 10 0", contactPos, contactDir, contactComponent, results, NULL, m_Unit, false, false, ObjIntersectView, 0.25))
-			{
-				float waterDepth = GetGame().GetWaterDepth(contactPos);
-				if (waterDepth > 0.5)
-					halt = true;
-			}
-
-			if (halt)
-			{
-				wayPoint = position;
-				isFinal = true;
-				m_MovementSpeed = 0;
-				m_OverrideMovementTimeout = 0.0;
+				if (halt)
+				{
+					wayPoint = position;
+					m_MovementSpeed = 0;
+					m_OverrideMovementTimeout = 0.0;
+				}
 			}
 		}
 
@@ -902,15 +909,30 @@ class eAICommandMove: ExpansionHumanCommandScript
 
 			if (turnTargetActual > 180.0) turnTargetActual = turnTargetActual - 360.0;
 
-			if (m_WayPointDistance < 8.0 && m_OverrideMovementTimeout <= 0)
+			bool isAboveGround;
+			if (position[1] - GetGame().SurfaceY(position[0], position[2]) > 0.5)
+				isAboveGround = true;
+
+			//! Enable sharper turns if above ground or waypoint is close and not avoiding obstacles
+			if (isAboveGround || (m_WayPointDistance < 8.0 && m_OverrideMovementTimeout <= 0))
 				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.15, 30.0);
 			else
 				PreAnim_SetFilteredHeading(-turnTargetActual * Math.DEG2RAD, 0.3, 30.0);
+		}
+
+		if (m_WeaponFire && !m_IsTagWeaponFire)
+		{
+			m_Table.CallWeaponFire(this);
+			m_WeaponFire = false;
 		}
 	}
 
 	override void PrePhysUpdate(float pDt)
 	{
+		if (PrePhys_IsTag(m_Table.m_TAG_WeaponFire))
+			m_IsTagWeaponFire = true;
+		else
+			m_IsTagWeaponFire = false;
 	}
 
 	override bool PostPhysUpdate(float pDt)

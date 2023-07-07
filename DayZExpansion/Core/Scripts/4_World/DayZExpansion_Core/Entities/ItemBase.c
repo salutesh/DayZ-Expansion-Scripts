@@ -347,7 +347,8 @@ modded class ItemBase
 			m_SkinModule.RetrieveSkins( GetType(), m_Skins, m_CurrentSkinName );
 		}
 
-		m_CanBeSkinned = m_Skins.Count() != 0;
+		if (m_Skins.Count() != 0)
+			m_CanBeSkinned = true;
 
 		if ( m_CanBeSkinned )
 		{
@@ -732,12 +733,6 @@ modded class ItemBase
 			if (!magazine)
 				return NULL;
 
-			if (GetGame().IsServer())
-			{
-				GetGame().RemoteObjectDelete(magazine);
-				GetGame().RemoteObjectTreeDelete(weapon);
-			}
-
 			//! Important: Needs to be called BEFORE pushing bullet to chamber, otherwise save will occur in FSM transition
 			int stateId = weapon.ExpansionGetMagAttachedFSMStateID();
 
@@ -757,15 +752,9 @@ modded class ItemBase
 				weapon.LoadCurrentFSMState(ctx.GetReadContext(), GetGame().SaveVersion());
 			}
 
-			if (GetGame().IsServer())
-			{
-				GetGame().RemoteObjectTreeCreate(weapon);
-				GetGame().RemoteObjectCreate(magazine);
-			}
-			else
-			{
-				weapon.ShowMagazine();
-			}
+		#ifndef SERVER
+			weapon.ShowMagazine();
+		#endif
 
 			//! We are done
 			return magazine;

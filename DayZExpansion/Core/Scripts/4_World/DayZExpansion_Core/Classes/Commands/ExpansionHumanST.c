@@ -19,6 +19,8 @@ class ExpansionHumanST
 	int m_CMD_Turn;
 	int m_CMD_StopTurn;
 
+	int m_CMD_WeaponFire;
+
 	//int m_CMD_Expansion_Parachute_Pull;
 	//int m_CMD_Expansion_Parachute_Cut;
 
@@ -63,6 +65,8 @@ class ExpansionHumanST
 	int m_VAR_Raised;
 	int m_VAR_Stance;
 
+	int m_TAG_WeaponFire;
+
 	void ExpansionHumanST( Human human )
 	{
 		HumanAnimInterface hai = human.GetAnimInterface();
@@ -74,6 +78,8 @@ class ExpansionHumanST
 		m_CMD_Turn = hai.BindCommand( "CMD_Turn" );
 		m_CMD_StopTurn = hai.BindCommand( "CMD_StopTurn" );
 		
+		m_CMD_WeaponFire = hai.BindCommand( "CMD_WeaponFire" );
+
 		//m_CMD_Expansion_Parachute_Pull = hai.BindCommand( "CMD_Expansion_Parachute_Pull" );
 		//m_CMD_Expansion_Parachute_Cut = hai.BindCommand( "CMD_Expansion_Parachute_Cut" );
 
@@ -121,6 +127,8 @@ class ExpansionHumanST
 
 		m_VAR_Raised = hai.BindVariableBool( "Raised" );
 		m_VAR_Stance = hai.BindVariableInt( "Stance" );
+
+		m_TAG_WeaponFire = hai.BindTag("TagWeaponFire");
 	}
 
 	void CallFall( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
@@ -146,6 +154,11 @@ class ExpansionHumanST
 	void CallStopTurn( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
 	{
 		script.PreAnim_CallCommand( m_CMD_StopTurn, pParamInt, pParamFloat );
+	}
+
+	void CallWeaponFire( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )
+	{
+		script.PreAnim_CallCommand( m_CMD_WeaponFire, pParamInt, pParamFloat );
 	}
 
 	//void CallParachutePull( HumanCommandScript script, int pParamInt = 0, float pParamFloat = 0 )

@@ -84,6 +84,8 @@ modded class Hologram
 
 	protected float m_projDirection;
 
+	protected float m_ExTimeSlice;
+
 	void Hologram( PlayerBase player, vector pos, ItemBase item )
 	{
 		#ifdef EXPANSION_DEBUG_UI_HOLOGRAM
@@ -167,9 +169,9 @@ modded class Hologram
 
 	private Object CreateDebugObject( string name, vector pos )
 	{
-		//! Change to false to see debug boxes
-		if ( true )
-			return NULL;
+	#ifndef EXPANSION_DEBUG_SNAPPING
+		return NULL;
+	#endif
 
 		return GetGame().CreateObject( name, pos, true );
 	}
@@ -225,54 +227,36 @@ modded class Hologram
 
 	override void UpdateHologram( float timeslice )
 	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.BASEBUILDING, this, "UpdateHologram");
-#endif
+		m_ExTimeSlice = timeslice;
 
-		if ( !m_Parent )
-		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call( m_Player.TogglePlacingLocal );
-			return;
-		}
-		
-		if ( m_Player.IsSwimming() || m_Player.IsClimbingLadder() || m_Player.IsRaised() || m_Player.IsClimbing() || m_Player.IsRestrained() || m_Player.IsUnconscious() )
-		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call( m_Player.TogglePlacingLocal );
-			return;
-		}
-		
-		EvaluateCollision();
-		RefreshTrigger();
-		CheckPowerSource();	
-		RefreshVisual();
+		super.UpdateHologram(timeslice);
+	}
 
-		if ( !GetUpdatePosition() )
-		{
-			return;
-		}
-		
-		m_ExProjectionPosition = GetProjectionEntityPosition( m_Player );
+	override void SetProjectionPosition(vector position)
+	{
+		m_ExProjectionPosition = position;
 
 		GenerateSnappingPosition( m_Projection );
 
 		if ( m_BBCanSnap )
 		{
-			m_ExProjectionOrientation = AlignProjectionOnTerrain( timeslice );
+			m_ExProjectionOrientation = AlignProjectionOnTerrain( m_ExTimeSlice );
 			HandleSnapping( m_ExProjectionPosition, m_ExProjectionOrientation );
 
 			m_Projection.SetPosition( m_ExProjectionPosition );
 		}
 		else
 		{
-			SetProjectionPosition( m_ExProjectionPosition );
-			
-			//! NOTE: Calling AlignProjectionOnTerrain depends on SetProjectionPosition being called FIRST for correct result!
-			m_ExProjectionOrientation = AlignProjectionOnTerrain( timeslice );
+			super.SetProjectionPosition(position);
 		}
+	}
 
-		SetProjectionOrientation( m_ExProjectionOrientation );
+	override void SetProjectionOrientation(vector orientation)
+	{
+		if ( !m_BBCanSnap )
+			m_ExProjectionOrientation = orientation;
 
-		m_Projection.OnHologramBeingPlaced( m_Player );
+		super.SetProjectionOrientation( m_ExProjectionOrientation );
 	}
 
 	override EntityAI PlaceEntity( EntityAI entity_for_placing )
@@ -547,11 +531,6 @@ modded class Hologram
 
 	bool CanWallBePlacedAtDirection()
 	{
-		if ( vector.Dot( m_PlayerHeadPosition - m_SnapWP, m_SnapWVector ) < 0 )
-		{
-			return false;
-		}
-
 		return true;
 	}
 
@@ -805,17 +784,20 @@ modded class Hologram
 		if ( index >= m_DebugPositions.Count() )
 		{
 			m_DebugPositions.Insert( CreateDebugObject( type, position ) );
-		} else
+		}
+		else if ( m_DebugPositions[index] )
 		{
-			if ( m_DebugPositions[index] && m_DebugPositions[index].GetType() != type )
+			if ( m_DebugPositions[index].GetType() != type )
 			{
 				GetGame().ObjectDelete( m_DebugPositions[index] );
 				m_DebugPositions.Set( index, CreateDebugObject( type, position ) );
 			}
+			else
+			{
+				m_DebugPositions[index].SetPosition( position );
+			}
 		}
 
-		if ( m_DebugPositions[index] )
-			m_DebugPositions[index].SetPosition( position );
 	}
 
 	void DrawDebugDir( vector position, int index, bool block )

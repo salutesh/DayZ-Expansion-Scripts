@@ -552,15 +552,16 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 #ifdef EXPANSIONMODAI
 			if (token.IndexOf("faction:") == 0)
 			{
-				string factionName = token.Substring(8, token.Length() - 8);
-				eAIFaction faction = eAIFaction.Create(factionName);
-				if (faction)
+				if (Class.CastTo(ai, entity))
 				{
-					if (Class.CastTo(ai, entity))
+					string factionName = token.Substring(8, token.Length() - 8);
+					eAIFaction faction = eAIFaction.Create(factionName);
+					if (faction)
 					{
 						EXTrace.Print(EXTrace.AI, ai, "Setting faction " + faction.ToString());
-						eAIGroup group = eAIGroup.GetGroupByLeader(ai);
-						group.SetFaction(faction);
+						eAIGroup group = eAIGroup.GetGroupByLeader(ai, true, faction);
+						if (group.GetFaction().Type() != faction.Type())
+							group.SetFaction(faction);
 						ai.eAI_SetPassive(false);
 					}
 				}

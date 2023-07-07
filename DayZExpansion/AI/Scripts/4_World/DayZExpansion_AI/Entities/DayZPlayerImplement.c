@@ -312,14 +312,20 @@ modded class DayZPlayerImplement
 
 	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
-		//! Ignore hit from bullet we create in WeaponBase::EEFired for bullet impact effect to prevent NULL pointers
-		//! due to source not being set when trying to determine damage animation
-		if (damageType == DT_FIRE_ARM && !source)
-			return false;
+	#ifdef DIAG
+		EXTrace.PrintHit(EXTrace.AI, this, "EEOnDamageCalculated", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	#endif
 
 		DayZPlayerImplement player;
 		if (Class.CastTo(player, source.GetHierarchyRootPlayer()) && player != this)
 			player.m_eAI_LastAggressionTime = ExpansionStatic.GetTime(true);  //! Aggro guards in area (if any)
+
+		if (damageType == DT_FIRE_ARM && player && player.IsAI() && player == this)
+		{
+			//! This shouldn't be possible because AI don't use suicide emote
+			EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
+			return false;
+		}
 
 		return super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
@@ -349,6 +355,14 @@ modded class DayZPlayerImplement
 	#ifdef DIAG
 		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	#endif
+
+		eAIBase ai;
+		if (damageType == DT_FIRE_ARM && Class.CastTo(ai, source.GetHierarchyRootPlayer()) && ai == this)
+		{
+			//! This shouldn't be possible because AI don't use suicide emote
+			EXPrint(this, "WARNING: Game encountered an impossible state (AI damage source is firearm in AI's own hands)");
+			return;
+		}
 
 		m_eAI_LastHitTime = GetGame().GetTickTime();
 

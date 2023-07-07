@@ -6,7 +6,7 @@ modded class ExpansionGame
 
 	//! Incremented by Weapon_Base::EEFired
 	int m_eAI_FirearmEffectsCallCount;
-	int m_eAI_FirearmEffectsCallCountPrev = -1;
+	int m_eAI_FirearmEffectsCallCountPrev;
 	int m_eAI_FirearmEffectsRecurseCount;
 
 	eAICommandManager GetCommandManager()

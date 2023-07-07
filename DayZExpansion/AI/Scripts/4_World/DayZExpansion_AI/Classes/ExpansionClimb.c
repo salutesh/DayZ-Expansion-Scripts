@@ -18,7 +18,7 @@ class ExpansionClimb
 	// float m_fClimbOverMaxWidth = 0.5
 	// float m_fClimbOverMinHeight = 0.6
 
-	static bool DoClimbTest(PlayerBase pPlayer, SHumanCommandClimbResult pResult)
+	static bool DoClimbTest(PlayerBase pPlayer, SHumanCommandClimbResult pResult, bool alwaysAllowClimb = false)
 	{
 		CopyClimbResult(new SHumanCommandClimbResult(), pResult);
 
@@ -165,7 +165,7 @@ class ExpansionClimb
 		{
 			SHumanCommandClimbResult climbResult();
 			climbResult.m_ClimbGrabPointNormal = pResult.m_ClimbGrabPointNormal;
-			if (ValidateHeight(rayInfo, pPlayer, climbResult))
+			if (ValidateHeight(rayInfo, pPlayer, climbResult, alwaysAllowClimb))
 			{
 				position = climbResult.m_ClimbGrabPoint;
 				distance = vector.DistanceSq(position, pPos);
@@ -185,7 +185,7 @@ class ExpansionClimb
 		return processed != 0;
 	}
 
-	static bool ValidateHeight(RaycastRVResult rayInfo, PlayerBase pPlayer, SHumanCommandClimbResult pResult)
+	static bool ValidateHeight(RaycastRVResult rayInfo, PlayerBase pPlayer, SHumanCommandClimbResult pResult, bool alwaysAllowClimb = false)
 	{
 		// The below checks should no longer be needed as we don't cast a ray for those layers
 		Object rayHitObject = rayInfo.obj;
@@ -200,10 +200,14 @@ class ExpansionClimb
 			return false;
 		}
 
-		ExpansionModelInfo modelInfo = ExpansionModelInfo.Get(rayHitObject);
-		if (!modelInfo || !modelInfo.CanClimb)
+		if (!alwaysAllowClimb)
 		{
-			return false;
+			ExpansionModelInfo modelInfo = ExpansionModelInfo.Get(rayHitObject);
+			if (!modelInfo || !modelInfo.CanClimb)
+			{
+				EXTrace.Print(EXTrace.AI, pPlayer, "Cannot climb " + Debug.GetDebugName(rayHitObject));
+				return false;
+			}
 		}
 
 		SHumanCommandClimbSettings hcls = pPlayer.GetDayZPlayerType().CommandClimbSettingsW();
@@ -350,8 +354,6 @@ class ExpansionClimb
 			{
 				return false;
 			}
-
-			processed = 0;
 		}
 
 		if (freeStepPoint[1] >= freeStepMaxHeight)

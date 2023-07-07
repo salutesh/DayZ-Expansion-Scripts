@@ -39,6 +39,21 @@ modded class PluginAdminLog
 	override void PlayerHitBy(TotalDamageResult damageResult, int damageType, PlayerBase player, EntityAI source, int component, string dmgZone, string ammo)
 	{
 		if (player.IsAI()) return;
+
+		if (!PlayerBase.Cast(source.GetHierarchyParent()))
+		{
+			switch (damageType)
+			{
+				case DamageType.CLOSE_COMBAT:
+					if (source.IsMeleeWeapon())
+						return;
+					break;
+				case DamageType.FIRE_ARM:
+					if (source.IsWeapon())
+						return;
+					break;
+			}
+		}
 		
 		super.PlayerHitBy(damageResult, damageType, player, source, component, dmgZone, ammo);
 	}

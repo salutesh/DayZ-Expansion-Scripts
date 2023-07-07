@@ -295,6 +295,11 @@ class cfgWeapons
 		scope = 2;
 		hiddenSelectionsTextures[] = {"dz\weapons\nonlethal\shockpistol\data\shockpistol_main_bk_co.paa"};
 	};
+	class Expansion_Taser_Debug: Expansion_Taser_Yellow
+	{
+		displayName = "Debug Taser";
+		scope = 2;
+	};
 };
 class CfgMagazines
 {

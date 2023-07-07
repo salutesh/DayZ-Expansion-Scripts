@@ -204,7 +204,12 @@ class eAIPlayerTargetInformation: eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		vector pos = m_Player.GetBonePositionWS(m_Player.GetBoneIndexByName("neck"));
+		string boneName;
+		if (ai && Weapon_Base.Cast(ai.GetHumanInventory().GetEntityInHands()))
+			boneName = "neck";
+		else
+			boneName = "spine3";  //! Aim lower for melee
+		vector pos = m_Player.GetBonePositionWS(m_Player.GetBoneIndexByName(boneName));
 		pos = pos - m_Player.GetPosition();
 		return pos;
 	}
