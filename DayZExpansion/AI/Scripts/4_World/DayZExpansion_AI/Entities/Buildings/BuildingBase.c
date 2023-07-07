@@ -52,6 +52,15 @@ modded class BuildingBase
 
 		m_eAI_DynamicPatrolSpawner.Init();
 	}
+
+#ifdef DIAG
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{
+		EXTrace.PrintHit(EXTrace.AI, this, "EEHitBy", damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	}
+#endif
 };
 
 //! Bit annoying to have to do this, it's just for error checking of AI patrol settings which uses IsKindOf

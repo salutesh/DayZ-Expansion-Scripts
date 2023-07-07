@@ -9,8 +9,139 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 	{
 		Class.CastTo(m_AI, player);
 	}
+	
+	override protected void TargetSelection()
+	{
+		auto trace = EXTrace.Profile(EXTrace.AI, this);
 
-	float eAI_SetupMelee()
+		vector hitPos;
+
+		// Calculate max distances
+		float dist = GetRange();
+		float dist2 = Math.SqrFloat(dist);
+		
+		// There's generally 2 TargetSelection calls per animation
+		// First to obtain target to move towards during animation
+		// Second one is to see if that target is still in range before applying damage to it
+		// m_WasHit means the hit event occured, so this is the second call
+
+		if (m_WasHit && GetFinisherType() == -1 && CanObjectBeTargeted(m_TargetObject))
+		{
+			hitPos = m_TargetObject.GetDamageZonePos(m_HitZoneName);
+
+			// See if the component is still in range
+			if (vector.DistanceSq(m_RayStart, hitPos) <= dist2)
+			{
+				m_AllTargetObjects.Insert(m_TargetObject);
+				// This result should still be cached, so no need to fill it in again
+
+				eAI_DebugHit(true, hitPos, m_RayStart);
+
+				return;
+			}
+		}
+		
+		// Find a new target
+		InternalResetTarget();
+		
+		Object target;
+		int hitZone;
+		
+		if (HitZoneSelectionRaycastHelper(hitPos, hitZone, target))
+		{
+			if (m_ForceUntargetable)
+			{
+				SetTarget(target, hitPos, hitZone);
+				return;
+			}
+
+			if (CanObjectBeTargeted(target) && vector.DistanceSq(m_RayStart, hitPos) <= dist2)
+			{
+				m_AllTargetObjects.Insert(target);
+				
+				SetTarget(target, hitPos, hitZone);
+
+				eAI_DebugHit(true, hitPos, m_RayStart);
+
+				return;
+			}
+		}
+
+		eAI_DebugHit(false, m_RayEnd, m_RayStart);
+	}
+
+	void eAI_DebugHit(bool hit, vector position, vector origin)
+	{
+		if (EXTrace.AI)
+		{
+			vector dir = vector.Direction(origin, position);
+
+			if (hit)
+			{
+				m_AI.Expansion_DebugObject_Deferred(18, position, "ExpansionDebugBox", dir, origin);
+				m_AI.Expansion_DebugObject_Deferred(19, "0 0 0", "ExpansionDebugBox_Red");
+			}
+			else
+			{
+				m_AI.Expansion_DebugObject_Deferred(18, "0 0 0", "ExpansionDebugBox");
+				m_AI.Expansion_DebugObject_Deferred(19, position, "ExpansionDebugBox_Red", dir, origin);
+			}
+		}
+	}
+
+	override protected bool HitZoneSelectionRaycast(out vector hitPos, out int hitZone, out Object target, bool useCamera)
+	{
+		auto trace = EXTrace.Profile(EXTrace.AI, this);
+
+		vector pos;
+		vector playerDir = m_AI.GetDirection();
+		MiscGameplayFunctions.GetHeadBonePos(m_AI, pos);
+		vector dir = vector.Direction(pos, m_AI.GetAimPosition()).Normalized();
+		
+		//! Prevents targeting of objects behind player
+		if (vector.Dot(dir, playerDir) < 0.5)
+		{
+			return false;
+		}
+
+		m_RayStart = pos;
+		m_RayEnd = m_RayStart + GetRange() * dir;
+		
+		// raycast
+		set<Object> hitObjects = new set<Object>;
+		vector hitNormal;
+
+		if (DayZPhysics.RaycastRV(m_RayStart, m_RayEnd, hitPos, hitNormal, hitZone, hitObjects, null, m_AI, true, false, ObjIntersectIFire, 0.0, CollisionFlags.ALLOBJECTS) && hitObjects.Count() > 0)
+		{
+			foreach (Object hitObject: hitObjects)
+			{
+				if (hitObject.IsBush())
+					continue;
+
+				target = hitObject;
+				m_ForceUntargetable = false;
+
+				//! Opponent is inside car - targeting range is shorter in that case
+				PlayerBase playerTarget = PlayerBase.Cast(target);
+				if (playerTarget && playerTarget.IsInVehicle())
+				{
+					if (vector.DistanceSq(m_RayStart, hitPos) > Math.SqrFloat(GetRange() * 0.5))
+					{
+						m_ForceUntargetable = true;
+						target = null;
+						hitPos = vector.Zero;
+						hitZone = -1;
+					}
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool eAI_SetupMelee()
 	{
 		m_Hands = m_AI.GetHumanInventory().GetEntityInHands();
 
@@ -27,14 +158,7 @@ class eAIMeleeCombat : DayZPlayerImplementMeleeCombat
 			m_eAI_MeleeAttackType = 0.0;
 		}
 
-		if (m_TargetObject)
-		{
-			vector dir = vector.Direction(m_AI.GetPosition(), m_TargetObject.GetPosition());
-			vector angles = dir.VectorToAngles();
-			vector ori = m_AI.GetOrientation();
-			ori[0] = angles[0];
-			m_AI.SetOrientation(ori);
-		}
+		m_AI.SetOrientation(m_AI.GetOrientation());
 
 		//! https://feedback.bistudio.com/T173348
 		if (m_HitType == EMeleeHitType.HEAVY || m_HitType == EMeleeHitType.WPN_STAB)

@@ -1,6 +1,7 @@
 class eAITarget
 {
 	eAIGroup group;
+	int groupID;
 	int found_at_time;
 	int max_time;
 	autoptr set<eAIBase> ai_list;
@@ -9,6 +10,7 @@ class eAITarget
 	void eAITarget(eAIGroup _group, int _found_at_time, int _max_time, eAITargetInformation _info)
 	{
 		group = _group;
+		groupID = group.GetID();
 		found_at_time = _found_at_time;
 		if (_max_time != -1)
 			max_time = _max_time;
@@ -40,9 +42,10 @@ class eAITarget
 
 		if (CountAI() == 0)
 		{
-			group.OnTargetRemoved(info);
+			if (group)
+				group.OnTargetRemoved(info);
 
-			info.m_Groups.Remove(ai.GetGroup().GetID());
+			info.m_Groups.Remove(groupID);
 		}
 
 		return true;
@@ -89,10 +92,6 @@ class eAITarget
 			return false;
 
 		EntityAI entityInHands = ai.GetHumanInventory().GetEntityInHands();
-
-		//! Can't hit low targets if no weapon
-		if (!entityInHands && info.GetAimOffset(ai)[1] < 1.0)
-			return false;
 
 		float distSq = GetDistanceSq(ai, true);
 		if (distSq > 3.24)

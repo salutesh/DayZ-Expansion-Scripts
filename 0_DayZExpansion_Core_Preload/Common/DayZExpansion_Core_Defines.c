@@ -23,6 +23,8 @@
 #define EXPANSION_GEQ_1_8_11
 #define EXPANSION_GEQ_1_8_12
 #define EXPANSION_GEQ_1_8_18
+#define EXPANSION_GEQ_1_8_19
+#define EXPANSION_GEQ_1_8_20
 
 //! Enable it if you want to enable logging with EXPrint
 //#define EXPANSIONEXPRINT

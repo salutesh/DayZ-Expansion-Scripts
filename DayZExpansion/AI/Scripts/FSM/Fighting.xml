@@ -48,7 +48,8 @@
 					bool shouldBeMeleeing = false;
 				
 					auto hands = unit.GetHumanInventory().GetEntityInHands();
-					if (target.GetEntity().IsInherited(ItemBase))
+					bool isItemTarget = target.GetEntity().IsInherited(ItemBase);
+					if (isItemTarget)
 					{
 						wantsLower = true;
 					}
@@ -84,7 +85,7 @@
 					auto player = PlayerBase.Cast(target.GetEntity());
 					if (player &amp;&amp; player.IsUnconscious())
 						minDist = 4.0;
-					if (fsm.DistanceToTargetSq &lt;= minDist)
+					if (!isItemTarget &amp;&amp; fsm.DistanceToTargetSq &lt;= minDist)
 					{
 						time += DeltaTime;
 						if (!movementDirection || time &gt; Math.RandomIntInclusive(1, 3))
@@ -281,7 +282,7 @@
 				}
 				
 				auto direction = vector.Direction(unit.GetPosition(), lowPosition).Normalized();
-				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.75)
+				if (vector.Dot(unit.GetDirection(), direction) &lt; 0.97)
 				{
 					if (time &gt;= Math.RandomIntInclusive(1, 3))
 					{
@@ -327,7 +328,7 @@
 			<guard>
 				if (unit.IsRestrained()) return FAIL;
 				
-				if (!unit.CanRaiseWeapon()) return FAIL;
+				if (!unit.CanRaiseWeapon() || !unit.eAI_HasLOS()) return FAIL;
 				
 				// we are targetting an entity?
 				dst.target = unit.GetTarget();

@@ -351,9 +351,9 @@ class ExpansionPrefabObject : Managed
 							if (humanInventory)
 							{
 								child = attachment.Spawn(humanInventory.CreateInHands(attachment.ClassName));
+								if (child != null)
+									slotTaken = true;
 							}
-
-							slotTaken = child != null;
 							break;
 						case InventorySlots.MAGAZINE:
 							int quantMag = attachment.Quantity.GetRandom();
@@ -361,11 +361,14 @@ class ExpansionPrefabObject : Managed
 							{
 								quantMag = -1;
 							}
-							slotTaken = weapon.CF_SpawnMagazine(attachment.ClassName, quantMag);
+							child = weapon.ExpansionCreateInInventory(attachment.ClassName);
+							if (child != null)
+								slotTaken = true;
 							break;
 						default:
 							child = attachment.Spawn(inventory.CreateAttachmentEx(attachment.ClassName, currentSlotId));
-							slotTaken = child != null;
+							if (child != null)
+								slotTaken = true;
 							break;
 						}
 

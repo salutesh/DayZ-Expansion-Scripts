@@ -586,6 +586,16 @@ class ExpansionItemSpawnHelper
 		src.OnStoreSave(ctx.GetWriteContext());
 		dst.OnStoreLoad(ctx.GetReadContext(), GetGame().SaveVersion());
 
+		//! 4b) Volatile variables
+		ItemBase srcItem;
+		ItemBase dstItem;
+		if (Class.CastTo(srcItem, src) && Class.CastTo(dstItem, dst))
+		{
+			if (!srcItem.Expansion_IsLootable())
+				dstItem.Expansion_SetLootable(false);
+			dstItem.m_Expansion_PreviousOwner = srcItem.m_Expansion_PreviousOwner;
+		}
+
 		//! 5) special treatment for mags
 		Magazine srcMag;
 		Magazine dstMag;

@@ -336,14 +336,21 @@
 			<event_entry>
 				EXTrace.Print(EXTrace.AI, unit, "TakeItemToHands " + item.ToString());
 				time = 0;
-				
-				if (item.Expansion_IsInventoryLocked())
-					ExpansionStatic.UnlockInventoryRecursive(item, 10134);
-				
-				unit.eAI_TakeItemToHands(item);
 			</event_entry>
 			<event_exit />
 			<event_update>
+				if (!item)
+					return EXIT;
+				
+				if (unit.GetItemInHands() != item)
+				{
+					if (item.Expansion_IsInventoryLocked())
+						ExpansionStatic.UnlockInventoryRecursive(item, 10134);
+					
+					if (!unit.eAI_TakeItemToHands(item))
+						return EXIT;
+				}
+				
 				if (time &lt; 0.5)
 				{
 					time += DeltaTime;
@@ -552,6 +559,8 @@
 				
 				if (!hands.Expansion_CanBeUsedToBandage() || hands.IsDamageDestroyed()) return FAIL;
 				
+				if (!unit.GetCommand_MoveAI()) return FAIL;
+				
 				dst.bandage = hands;
 				
 				return SUCCESS;
@@ -629,7 +638,7 @@
 				}
 				
 				//! First check if we want to switch to bandage
-				if (unit.IsBleeding() &amp;&amp; unit.GetThreatToSelf() &lt; 0.4)
+				if (unit.IsBleeding() &amp;&amp; (unit.GetThreatToSelf() &lt; 0.4 || (unit.GetHealth01("", "Blood") &lt; 0.7 &amp;&amp; GetGame().GetTickTime() - unit.m_eAI_LastHitTime &gt; 10)))
 				{
 					if (!hands || !hands.Expansion_CanBeUsedToBandage())
 					{
@@ -901,6 +910,7 @@
 			</editor_data>
 			<guard>
 				if (unit.IsRestrained()) return FAIL;
+				if (!unit.GetCommand_MoveAI()) return FAIL;
 				if (unit.eAI_IsChangingStance()) return FAIL;
 				
 				if (!unit.m_Expansion_EmoteID) return FAIL;

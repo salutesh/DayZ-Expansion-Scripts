@@ -320,11 +320,15 @@ class eAIBase: PlayerBase
 
 	protected override void EOnInit(IEntity other, int extra)
 	{
+		EXTrace.Print(EXTrace.AI, this, "EOnInit");
+
 		OnSelectPlayer();
 	}
 
 	override void OnSelectPlayer()
 	{
+		EXTrace.Print(EXTrace.AI, this, "OnSelectPlayer");
+
 		m_QuickBarBase.updateSlotsCount();
 
 		m_PlayerSelected = true;
@@ -333,8 +337,6 @@ class eAIBase: PlayerBase
 
 		if (GetGame().IsServer())
 		{
-			EXTrace.Print(EXTrace.AI, this, "OnSelectPlayer");
-
 			//! add callbacks for ai target system
 			SetAITargetCallbacks(new AITargetCallbacksPlayer(this));
 
@@ -1683,6 +1685,15 @@ class eAIBase: PlayerBase
 		return m_MovementSpeedLimit;
 	}
 
+	float eAI_GetCurrentMovementSpeedLimit()
+	{
+		auto cmd = GetCommand_MoveAI();
+		if (cmd)
+			return cmd.GetSpeedLimit();
+
+		return -1;
+	}
+
 	static int eAI_GetMovementSpeed(eAIMovementSpeed pSpeed)
 	{
 		switch (pSpeed)
@@ -1753,6 +1764,9 @@ class eAIBase: PlayerBase
 
 	EntityAI Expansion_CloneItemToLocation(EntityAI src, InventoryLocation location)
 	{
+		if (!src || src.IsSetForDeletion())
+			return null;
+
 		if (location.GetType() == InventoryLocationType.HANDS)
 		{
 			//! Forcing switch to HumanCommandMove before taking to hands,
@@ -1767,8 +1781,13 @@ class eAIBase: PlayerBase
 		if (dst)
 		{
 			ItemBase item;
-			if (Class.CastTo(item, src))
+			if (Class.CastTo(item, src) && item.GetHierarchyRootPlayer() == this)
 				eAI_RemoveItem(item);
+
+			ItemBase dstItem;
+			if (Class.CastTo(dstItem, dst))
+				dstItem.m_Expansion_IsOwnerPlayer = item.m_Expansion_IsOwnerPlayer;
+
 			GetGame().ObjectDelete(src);
 
 			if (location.GetType() == InventoryLocationType.HANDS)
@@ -1780,8 +1799,7 @@ class eAIBase: PlayerBase
 			}
 			else if (location.GetType() == InventoryLocationType.GROUND && !m_Expansion_CanBeLooted)
 			{
-				ItemBase dstItem;
-				if (Class.CastTo(dstItem, dst) && !dstItem.m_Expansion_IsOwnerPlayer)
+				if (dstItem && !dstItem.m_Expansion_IsOwnerPlayer)
 				{
 					ExpansionItemBaseModule.SetLootable(dst, false);
 					dst.SetLifetimeMax(120);  //! Make sure it despawns quickly when left alone
@@ -1804,7 +1822,7 @@ class eAIBase: PlayerBase
 			return;
 		}
 
-		if (item.Expansion_IsMeleeWeapon())
+		if (item.Expansion_IsMeleeWeapon() && !item.GetInventory().IsAttachment())
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - melee weapon " + item);
 			m_MeleeWeapons.Insert(item);
@@ -1819,7 +1837,7 @@ class eAIBase: PlayerBase
 		}
 
 		//! Ammo/magazines
-		if (item.IsInherited(Magazine))
+		if (item.IsInherited(Magazine) && !item.GetInventory().IsAttachment())
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - mag " + item);
 			//! Force re-evaluation of any gun (loot) targets/guns in inventory
@@ -2265,57 +2283,58 @@ class eAIBase: PlayerBase
 		// taken from vanilla DayZPlayerImplement
 		if (pCurrentCommandID == DayZPlayerConstants.COMMANDID_FALL)
 		{
-			int landType = 0;
 			HumanCommandFall fall = GetCommand_Fall();
-
 			if (fall && fall.PhysicsLanded())
 			{
 				DayZPlayerType type = GetDayZPlayerType();
 				NoiseParams npar;
 
+				FallDamageData fallDamageData = new FallDamageData();
+				fallDamageData.m_Height = m_FallYDiff - GetPosition()[1];
+
 				// land
-				m_FallYDiff = m_FallYDiff - GetPosition()[1];
-				// CF_Log.Debug(m_FallYDiff);
-				if (m_FallYDiff < 0.5)
+				if (fallDamageData.m_Height < 0.5)
 				{
-					landType = HumanCommandFall.LANDTYPE_NONE;
-					fall.Land(landType);
+					fallDamageData.m_LandType = HumanCommandFall.LANDTYPE_NONE; 
+					fall.Land(fallDamageData.m_LandType);
 					npar = type.GetNoiseParamsLandLight();
 					AddNoise(npar);
 				}
-				else if (m_FallYDiff < 1.0)
+				else if (fallDamageData.m_Height < 3.0)
 				{
 					if (m_MovementState.IsInProne() || m_MovementState.IsInRaisedProne())
-						landType = HumanCommandFall.LANDTYPE_NONE;
+						fallDamageData.m_LandType = HumanCommandFall.LANDTYPE_NONE;
 					else
-						landType = HumanCommandFall.LANDTYPE_LIGHT;
-					fall.Land(landType);
+						fallDamageData.m_LandType = HumanCommandFall.LANDTYPE_LIGHT;
+					
+					fall.Land(fallDamageData.m_LandType);
 					npar = type.GetNoiseParamsLandLight();
 					AddNoise(npar);
 				}
-				else if (m_FallYDiff < 2.0)
+				else if (fallDamageData.m_Height < 5.0)
 				{
-					landType = HumanCommandFall.LANDTYPE_MEDIUM;
-					fall.Land(landType);
+					fallDamageData.m_LandType = HumanCommandFall.LANDTYPE_MEDIUM;
+					fall.Land(fallDamageData.m_LandType);
 					npar = type.GetNoiseParamsLandHeavy();
 					AddNoise(npar);
 				}
 				else
 				{
-					landType = HumanCommandFall.LANDTYPE_HEAVY;
-					fall.Land(landType);
+					fallDamageData.m_LandType = HumanCommandFall.LANDTYPE_HEAVY;
+					fall.Land(fallDamageData.m_LandType);
 					npar = type.GetNoiseParamsLandHeavy();
 					AddNoise(npar);
 				}
-
-				if (m_FallYDiff >= DayZPlayerImplementFallDamage.FD_DMG_FROM_HEIGHT && GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_CLIENT)
+				
+				if (fallDamageData.m_Height >= DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW && GetInstanceType() == DayZPlayerInstanceType.INSTANCETYPE_CLIENT)
 				{
-					this.SpawnDamageDealtEffect();
+					OnPlayerRecievedHit();
 				}
 
-				m_FallDamage.HandleFallDamage(m_FallYDiff);
-				m_JumpClimb.CheckAndFinishJump(landType);
+				m_FallDamage.HandleFallDamage(fallDamageData);
+				m_JumpClimb.CheckAndFinishJump(fallDamageData.m_LandType);
 			}
+
 			// return;
 		}
 		else if (PhysicsIsFalling(false))
@@ -3205,18 +3224,30 @@ class eAIBase: PlayerBase
 		return m_eAI_InteractingPlayers.Count() > 0;
 	}
 
-	ActionBase StartAction(typename actionType, ActionTarget target)
+	override void SetActions(out TInputActionMap InputActionMap)
+	{
+		super.SetActions(InputActionMap);
+
+		AddAction(eAIActionTakeItemToHands, InputActionMap);
+		AddAction(eAIActionTakeItem, InputActionMap);
+		AddAction(eAIActionDropItem, InputActionMap);
+	}
+
+	ActionBase StartAction(typename actionType, ActionTarget target, ItemBase mainItem = null)
 	{
 		ActionBase action = m_eActionManager.GetAction(actionType);
 
-		m_eActionManager.PerformActionStart(action, target, GetItemInHands());
+		if (!mainItem)
+			mainItem = GetItemInHands();
+
+		m_eActionManager.PerformActionStart(action, target, mainItem);
 
 		return action;
 	}
 
-	ActionBase StartActionObject(typename actionType, Object target)
+	ActionBase StartActionObject(typename actionType, Object target, ItemBase mainItem = null)
 	{
-		return StartAction(actionType, new ActionTarget(target, null, -1, vector.Zero, -1.0));
+		return StartAction(actionType, new ActionTarget(target, null, -1, vector.Zero, -1.0), mainItem);
 	}
 
 	// @param LookWS a position in WorldSpace to look at
@@ -3355,7 +3386,7 @@ class eAIBase: PlayerBase
 
 	override void OnUnconsciousStart()
 	{
-		eAI_DropItemInHands(false);
+		eAI_DropItemInHandsImpl();
 
 		super.OnUnconsciousStart();
 	}
@@ -3367,16 +3398,19 @@ class eAIBase: PlayerBase
 			eAI_DropItem(itemInHands, switchOff);
 	}
 
+	void eAI_DropItemInHandsImpl()
+	{
+		ItemBase itemInHands = GetItemInHands();
+		if (itemInHands)
+			eAI_DropItemImpl(itemInHands);
+	}
+
 	void eAI_DropItem(ItemBase item, bool switchOff = true)
 	{
-		InventoryLocation il_dst = new InventoryLocation();
-
-		GameInventory.SetGroundPosByOwner(this, item, il_dst);
-
 		if (switchOff)
 			item.Expansion_TryTurningOffAnyLightsOrNVG(this);
 
-		eAI_TakeItemToLocation(item, il_dst);
+		StartAction(eAIActionDropItem, null, item);
 
 		m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
 
@@ -3384,17 +3418,41 @@ class eAIBase: PlayerBase
 			Expansion_UpdateVisibility(true);
 	}
 
+	void eAI_DropItemImpl(ItemBase item)
+	{
+		InventoryLocation il_dst = new InventoryLocation();
+
+		GameInventory.SetGroundPosByOwner(this, item, il_dst);
+
+		//eAI_TakeItemToLocation(item, il_dst);
+		Expansion_CloneItemToLocation(item, il_dst);
+	}
+
 	bool eAI_TakeItemToHands(ItemBase item)
+	{
+		bool result;
+
+		if (item.GetHierarchyRootPlayer() == this)
+			result = eAI_TakeItemToHandsImpl(item);
+		else if (StartActionObject(eAIActionTakeItemToHands, item))
+			result = true;
+
+		Expansion_UpdateVisibility(true);
+
+		return result;
+	}
+
+	bool eAI_TakeItemToHandsImpl(ItemBase item)
 	{
 		InventoryLocation il_dst = new InventoryLocation();
 
 		il_dst.SetHands(this, item);
 
-		bool result = eAI_TakeItemToLocation(item, il_dst);
+		//return eAI_TakeItemToLocation(item, il_dst);
+		if (Expansion_CloneItemToLocation(item, il_dst))
+			return true;
 
-		Expansion_UpdateVisibility(true);
-
-		return result;
+		return false;
 	}
 
 	bool eAI_FindFreeInventoryLocationFor(ItemBase item, FindInventoryLocationType flags = 0, out InventoryLocation il_dst = null)
@@ -3425,7 +3483,18 @@ class eAIBase: PlayerBase
 
 		item.Expansion_TryTurningOffAnyLightsOrNVG(this);
 
-		bool result = eAI_TakeItemToLocation(item, il_dst);
+		bool result;
+
+		if (item == GetItemInHands())
+		{
+			//result = eAI_TakeItemToLocation(item, il_dst);
+			if (Expansion_CloneItemToLocation(item, il_dst))
+				result = true;
+		}
+		else if (StartActionObject(eAIActionTakeItem, item))
+		{
+			result = true;
+		}
 
 		if (result)
 			m_Expansion_ActiveVisibilityEnhancers.RemoveItemUnOrdered(item);
@@ -3433,6 +3502,20 @@ class eAIBase: PlayerBase
 		Expansion_UpdateVisibility(true);
 
 		return result;
+	}
+
+	bool eAI_TakeItemToInventoryImpl(ItemBase item, FindInventoryLocationType flags = 0)
+	{
+		InventoryLocation il_dst;
+
+		if (!eAI_FindFreeInventoryLocationFor(item, flags, il_dst))
+			return false;
+
+		//return eAI_TakeItemToLocation(item, il_dst);
+		if (Expansion_CloneItemToLocation(item, il_dst))
+			return true;
+
+		return false;
 	}
 
 	bool eAI_TakeItemToLocation(ItemBase item, InventoryLocation il_dst)
@@ -3630,14 +3713,21 @@ class eAIBase: PlayerBase
 
 		SetOrientation(GetOrientation());
 		HumanCommandClimb.DoClimbTest(this, m_ExClimbResult, 0);
-		//ExpansionClimb.DoClimbTest(this, m_ExClimbResult);
 
-		if (!m_ExClimbResult.m_bIsClimb && !m_ExClimbResult.m_bIsClimbOver)
+		if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
+			return true;
+
+		//! As we are essentially using Zombie pathfinding, we may encounter situations where the path will go through a fence
+		//! that Zs would be able to jump (e.g. wall_indfnc_9.p3d) but player AI would not due to HumanCommandClimb.DoClimbTest not letting us.
+		//! Use ExpansionClimb.DoClimbTest with alwaysAllowClimb = true instead.
+		if (m_PathFinding.m_IsBlocked)
 		{
-			return false;
+			ExpansionClimb.DoClimbTest(this, m_ExClimbResult, true);
+			if (m_ExClimbResult.m_bIsClimb || m_ExClimbResult.m_bIsClimbOver)
+				return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	override bool CanJump()
@@ -3785,7 +3875,8 @@ class eAIBase: PlayerBase
 				return false;
 		}
 
-		EXTrace.Print(EXTrace.AI, this, "eAI_CanClimbOn " + Debug.GetDebugName(parent));
+		if (EXTrace.AI && parent)
+			EXTrace.Print(true, this, "eAI_CanClimbOn " + Debug.GetDebugName(parent));
 
 		return true;
 	}
@@ -3812,9 +3903,9 @@ class eAIBase: PlayerBase
 
 		float fallHeight = position[1] - checkPosition[1];
 
-		bool isFallSafe;
 		//! https://feedback.bistudio.com/T173348
-		if (fallHeight <= 2.5 || (fallHeight <= 7.0 && GetHealth() >= 64.0))
+		bool isFallSafe;
+		if (fallHeight <= DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW || (GetHealth01() - Math.InverseLerp(DayZPlayerImplementFallDamage.HEALTH_HEIGHT_LOW, DayZPlayerImplementFallDamage.HEALTH_HEIGHT_HIGH, fallHeight) >= 0.7))
 			isFallSafe = true;
 
 		//EXPrint("position " + position + " checkDirection " + checkDirection + " " + checkDirection.VectorToAngles() + " checkPosition " + checkPosition + " " + isFallSafe);
@@ -3929,7 +4020,7 @@ class eAIBase: PlayerBase
 				eAI_ForceSideStep(1.5, null, -180);
 				delay = 1500;
 			}
-			if (speedLimit > targetSpeedLimit || speedLimitThreat > targetSpeedLimit)
+			if ((isStuck || !isWreck) && (speedLimit > targetSpeedLimit || speedLimitThreat > targetSpeedLimit))
 			{
 				SetMovementSpeedLimits(targetSpeedLimit, targetSpeedLimit);
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SetMovementSpeedLimits, delay, false, speedLimit, speedLimitThreat);

@@ -23,6 +23,35 @@ class Expansion_Taser_Base: FNX45_Base
 	}
 };
 
+class Expansion_Taser_Debug: Expansion_Taser_Base
+{
+#ifdef DIAG
+	void Expansion_Taser_Debug()
+	{
+		if (GetGame().IsServer())
+			SetAllowDamage(false);
+	}
+
+	override void EEFired(int muzzleType, int mode, string ammoType)
+	{
+		super.EEFired(muzzleType, mode, ammoType);
+
+		//! Always have unlimited ammo, even if vanilla debug option is disabled
+		if ((ItemBase.GetDebugActionsMask() & DebugActionType.UNLIMITED_AMMO) == 0)
+		{
+			Magazine magazine = GetMagazine(GetCurrentMuzzle());
+			if (magazine)
+			{
+				if (GetGame().IsServer())
+					magazine.ServerSetAmmoMax();
+				else
+					magazine.LocalSetAmmoMax();
+			}
+		}
+	}
+#endif
+};
+
 class Mag_Expansion_Taser: Mag_FNX45_15Rnd
 {
 	override void SetActions()

@@ -443,141 +443,20 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 	protected void OnCommunityGoalReached(int id, inout ExpansionCommunityGoal communityGoal)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		int i;
-
-		#ifdef EXPANSIONMODMARKET
-		auto traderObjects = ExpansionTraderObjectBase.GetAll();
-		ExpansionTraderObjectBase traderObj;
-		ExpansionMarketTraderZone traderZone;
-		ExpansionMarketTrader trader;
-		#endif
-
-		PluginRecipesManager module_recipesManager;
-
-		switch (id)
+		
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnCommunityGoalReached(id, communityGoal);
+		
+		if (!communityGoal.IsFinished())
 		{
-			case NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_1:
-			{
-				if (!communityGoal.IsFinished())
-				{
-					#ifdef EXPANSIONMODMARKET
-					for (i = 0; i < traderObjects.Count(); i++)
-					{
-						traderObj = traderObjects[i];
-						if (!traderObj)
-						{
-							Error(ToString() + "::OnCommunityGoalFinished - Could not get trader obj!");
-							continue;
-						}
+			//! Set goal to finished
+			communityGoal.SetFinished();
 
-						traderZone = traderObj.GetTraderZone();
-						if (!traderZone)
-						{
-							Error(ToString() + "::OnCommunityGoalFinished - Could not get trader zone!");
-							continue;
-						}
-
-						//! Update survivor camp supplies (market zone).
-						if (traderZone.m_FileName == "SurvivorsCamp")
-						{
-							trader = traderObj.GetTraderMarket();
-							if (!trader)
-							{
-								Error(ToString() + "::OnCommunityGoalFinished - Could not get trader!");
-								continue;
-							}
-
-							traderZone.AddStock("bandagedressing", 100);
-							traderZone.AddStock("epinephrine", 50);
-							traderZone.AddStock("morphine", 50);
-							traderZone.AddStock("salinebag", 50);
-							traderZone.AddStock("bloodbagempty", 50);
-							traderZone.Save();
-
-							ExpansionNotification(new StringLocaliser("Community Goal Reached"), new StringLocaliser("The Survivors faction has reached a community goal! The survivor camp trader has now new supplies!"), ExpansionIcons.GetPath("Info"), COLOR_EXPANSION_NOTIFICATION_MISSION, 7.0).Create();
-						}
-					}
-					#endif
-				}
-
-				//! Unregister the event recipes
-				if (Class.CastTo(module_recipesManager, GetPlugin(PluginRecipesManager)))
-					module_recipesManager.UnregisterRecipeEx("NA_CraftMedicalSupplies");
-
-			}
-			break;
-			case NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_2:
-			{
-				if (!communityGoal.IsFinished())
-				{
-					#ifdef EXPANSIONMODMARKET
-					for (i = 0; i < traderObjects.Count(); i++)
-					{
-						traderObj = traderObjects[i];
-						if (!traderObj)
-						{
-							Error(ToString() + "::OnCommunityGoalFinished - Could not get trader obj!");
-							continue;
-						}
-
-						traderZone = traderObj.GetTraderZone();
-						if (!traderZone)
-						{
-							Error(ToString() + "::OnCommunityGoalFinished - Could not get trader zone!");
-							continue;
-						}
-
-						//! Update survivor camp supplies (market zone).
-						if (traderZone.m_FileName == "SurvivorsCamp")
-						{
-							trader = traderObj.GetTraderMarket();
-							if (!trader)
-							{
-								Error(ToString() + "::OnCommunityGoalFinished - Could not get trader!");
-								continue;
-							}
-
-							traderZone.AddStock("weaponcleaningkit", 50);
-							traderZone.AddStock("ammocleaningkit", 50);
-							traderZone.Save();
-
-							ExpansionNotification(new StringLocaliser("Community Goal Reached"), new StringLocaliser("The Survivors faction has reached a community goal! The survivor camp trader has now new supplies!"), ExpansionIcons.GetPath("Info"), COLOR_EXPANSION_NOTIFICATION_MISSION, 7.0).Create();
-						}
-					}
-					#endif
-				}
-
-				//! Unregister the event recipes
-				if (Class.CastTo(module_recipesManager, GetPlugin(PluginRecipesManager)))
-					module_recipesManager.UnregisterRecipeEx("NA_CraftAmmunitionSupplies");
-
-			}
-			break;
-			/*case NamalskAdventureCommunityGoals.SURVIVORS_CAMP_REPAIR:
-			{
-				if (!m_SurvivorsRepairCenter)
-					m_SurvivorsRepairCenter = Land_Repair_Center.Cast(ExpansionWorldObjectsModule.SpawnObject("Land_Repair_Center", Vector(8615.047852, 17.235180, 10488.387695), Vector(117.000038, 0.000000, -0.000000), false, false));
-
-				if (!m_SurvivorsRepairCenter)
-				{
-					Error(ToString() + "::OnCommunityGoalFinished - Could not create survivor camp repair center!");
-					return;
-				}
-
-				m_SurvivorsRepairCenter.InitRepairBuilding();
-			}
-			break;*/
+			//! Update persistent community goal data.
+			m_ServerData.SetCommunityGoal(communityGoal);
+	
+			//! Update module community goal data.
+			m_CommunityGoals.Set(id, communityGoal);
 		}
-
-		//! Set goal to finished so the system knows on server restarts if it should fire the goal event on load.
-		communityGoal.SetFinished();
-
-		//! Update persistent community goal data.
-		m_ServerData.SetCommunityGoal(communityGoal);
-
-		//! Update module community goal data.
-		m_CommunityGoals.Set(id, communityGoal);
 	}
 
 	protected void SpawnCommunityGoalBoards()

@@ -28,6 +28,8 @@ class ExpansionPathHandler
 	int m_PointIdx;
 
 	bool m_Recalculate;
+	bool m_IsBlocked;
+	bool m_IsUnreachable;
 
 	void ExpansionPathHandler(eAIBase unit)
 	{
@@ -398,7 +400,8 @@ class ExpansionPathHandler
 
 		if (!recalculate && m_Time >= ((pSimulationPrecision + 1.0) * 2.0))
 		{
-			recalculate = vector.DistanceSq(unitPosition, targetPosition) > 0.5;
+			if (vector.DistanceSq(unitPosition, targetPosition) > 0.5)
+				recalculate = true;
 			//if (recalculate)
 				//EXPrint(m_Unit, "recalculating because dstSq to target ref > 0.5");
 		}
@@ -416,6 +419,8 @@ class ExpansionPathHandler
 				//EXPrint(m_Unit, "recalculating because d0 < d1 (overshoot), diff " + ExpansionStatic.FloatToString(d1 - d0) + ", velocity " + unitVelocity);
 			}
 		}
+
+		m_IsBlocked = false;
 
 		if (recalculate)
 		{
@@ -482,7 +487,7 @@ class ExpansionPathHandler
 					}
 					else
 					{
-						m_Target.FindPathFrom(m_TargetReference.GetPosition(), this, tempPath);
+						m_Target.FindPathFrom(targetPosition, this, tempPath);
 						m_Count = tempPath.Count();
 
 						// Find the path to the entry
@@ -584,15 +589,29 @@ class ExpansionPathHandler
 								EXPrint(m_Unit, m_Count.ToString() + " total points, [1] " + m_Next0.Position + ", hitpos " + hitPos + ", corrected " + corrected + ", [2] " + m_Next1.Position);
 						#endif
 							m_Next0.Position = corrected;
+							m_IsBlocked = true;
 						}
 					}
 				}
 			}
 			else if (m_Count != 0)
 			{
+				//! We have two path points
+
 				P_STATE = 2;
 
-				UpdatePoint(m_Next0, m_Points[1]);
+				if (m_Points[1] != targetPosition && vector.DistanceSq(unitPosition, m_Points[1]) < 0.5)
+				{
+					//! We couldn't determine a path to target position (unreachable) and are close to final path point
+					//! Set point to target position (whether or not it is actually safely reachable is dealt with in eAICommandMove)
+					UpdatePoint(m_Next0, targetPosition);
+					m_IsUnreachable = true;
+				}
+				else
+				{
+					UpdatePoint(m_Next0, m_Points[1]);
+					m_IsUnreachable = false;
+				}
 			}
 			else
 			{
@@ -605,11 +624,6 @@ class ExpansionPathHandler
 			//Print(P_STATE);
 
 			m_Recalculate = false;
-		}
-
-		if (m_Count == 2)
-		{
-			UpdatePoint(m_Next0, m_TargetReference.GetPosition());
 		}
 
 		m_MinTimeUntilNextUpdate = pDt + hitch.GetElapsed() * 0.0002;

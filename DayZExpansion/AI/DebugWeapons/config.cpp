@@ -40,7 +40,7 @@ class CfgAmmo
 			};
 			class Shock
 			{
-				damage = 0;
+				damage = 1;
 			};
 		};
 	};
@@ -53,16 +53,14 @@ class CfgMagazines
 	{
 		scope = 2;
 		displayName = "Expansion AI Debug AKM Tracer Ammo";
-		descriptionShort = "Special ammo that does no damage.";
-		count = 999;
+		descriptionShort = "Special ammo that does no health damage.";
 		ammo = "Bullet_762x39Tracer_eAI_Debug";
 	};
 	class Mag_AKM_Drum_eAI_Debug: Mag_AKM_Drum75Rnd
 	{
 		scope = 2;
 		displayName = "Expansion AI Debug AKM Mag";
-		descriptionShort = "Uses special ammo that does no damage.";
-		count = 999;
+		descriptionShort = "Uses special ammo that does no health damage.";
 		ammo = "Bullet_762x39Tracer_eAI_Debug";
 		ammoItems[] = {"Ammo_762x39Tracer_eAI_Debug"};
 	};
@@ -74,7 +72,7 @@ class CfgWeapons
 	{
 		scope = 2;
 		displayName = "Expansion AI Debug AKM";
-		descriptionShort = "Uses special ammo that does no damage.";
+		descriptionShort = "Uses special ammo that does no health damage.";
 		model = "\dz\weapons\firearms\AKM\AKM.p3d";
 		attachments[] = {"weaponButtstockAK","WeaponHandguardAK","weaponWrap","weaponOpticsAK","weaponFlashlight","weaponMuzzleAK","weaponBayonetAK"};
 		itemSize[] = {8,3};

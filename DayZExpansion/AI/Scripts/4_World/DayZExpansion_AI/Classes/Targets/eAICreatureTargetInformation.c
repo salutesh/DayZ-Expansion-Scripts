@@ -9,12 +9,17 @@ class eAICreatureTargetInformation: eAIEntityTargetInformation
 
 	override vector GetAimOffset(eAIBase ai = null)
 	{
-		//! TODO: Use collision box
-
+		vector pos;
 		if (m_Creature.IsInherited(Animal_UrsusArctos))
-			return "0 1.3 0";
-
-		return "0 0.4 0";
+			pos = "0 1.2 0";
+		else
+			pos = "0 0.6 0";
+		//pos = pos + m_Creature.GetDirection() * 0.5;
+	#ifdef DIAG
+		if (EXTrace.AI && ai)
+			ai.Expansion_DebugObject(1234567890, m_Creature.GetPosition() + pos, "ExpansionDebugBox_Orange", m_Creature.GetDirection(), ai.GetPosition() + "0 1.5 0", 3.0, ShapeFlags.NOZBUFFER);
+	#endif
+		return pos;
 	}
 
 	override float CalculateThreat(eAIBase ai = null)
