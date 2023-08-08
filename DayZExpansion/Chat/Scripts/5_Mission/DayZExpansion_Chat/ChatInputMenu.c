@@ -66,7 +66,6 @@ modded class ChatInputMenu
 				case ExpansionChatChannels.CCTeam:
 				case ExpansionChatChannels.CCTransport:
 				case ExpansionChatChannels.CCAdmin:
-				case ExpansionChatChannels.CCDirect:
 					useExpansionChat = true;
 					break;
 			}

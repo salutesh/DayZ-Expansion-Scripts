@@ -23,6 +23,7 @@ modded class DebugMonitor
 	{
 		return m_WidgetRoot.IsVisible();
 	}
+
 #ifdef DAYZ_1_21
 	void Show()
 	{

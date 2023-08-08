@@ -47,6 +47,12 @@ class ExpansionActionRepairVehicleBase: ExpansionActionToolBase
 			float factor = Math.RandomFloatInclusive( 0.05, 0.15);  //! Matches vanilla ActionRepairCarEngine value
 			vehicle.AddHealth("", "Health", vehicle.GetMaxHealth("", "Health") * factor);
 			vehicle.AddHealth("Engine", "Health", vehicle.GetMaxHealth("Engine", "Health") * factor);
+			for (int i = 0; i < vehicle.GetInventory().AttachmentCount(); i++)
+			{
+				auto att = vehicle.GetInventory().GetAttachmentFromIndex(i);
+				if (att && !att.IsDamageDestroyed() && att.GetHealth01() < 1.0)
+					att.AddHealth("", "Health", att.GetMaxHealth("", "Health") * factor);
+			}
 			super.OnFinishProgressServer( action_data );
 		}
 	}
@@ -67,7 +73,17 @@ class ExpansionActionRepairVehicle: ExpansionActionRepairVehicleBase
 		if (vehicle.Expansion_EngineIsOn())
 			return false;
 
-		return vehicle.GetHealthLevel() != GameConstants.STATE_PRISTINE || vehicle.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE;
+		if (vehicle.GetHealthLevel() != GameConstants.STATE_PRISTINE)
+			return true;
+
+		if (vehicle.GetHealthLevel("Engine") != GameConstants.STATE_PRISTINE)
+			return true;
+
+		ExpansionHelicopterScript heli;
+		if (Class.CastTo(heli, vehicle) && heli.Expansion_IsRotorDamaged())
+			return true;
+
+		return false;
 	}
 }
 

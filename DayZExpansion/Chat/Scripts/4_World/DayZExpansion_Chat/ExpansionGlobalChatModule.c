@@ -61,7 +61,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 		
 		if ( IsMissionHost() )
 		{
-			PlayerBase player = PlayerBase.Cast(sender.GetPlayer());
+			PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
 			bool canSendMessage;
 			string channelName = "";
 			
@@ -100,15 +100,7 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 
 			if ( canSendMessage )
 			{
-#ifdef EXPANSIONMODGROUPS
-				ExpansionPartyData party = player.Expansion_GetParty();
-				if ( party.GetPartyTag() != "" )
-					data.param2 = party.GetPartyTagFormatted() + sender.GetName();
-				else
-					data.param2 = sender.GetName();
-#else
 				data.param2 = sender.GetName();
-#endif
 				string steamid = sender.GetPlainId();
 				string biuid = sender.GetId();
 				string idtable = sender.GetPlayerId().ToString();
@@ -202,19 +194,5 @@ class ExpansionGlobalChatModule: CF_ModuleWorld
 				AddChatMessage( rpc.Context, rpc.Sender, rpc.Target );
 			break;
 		}
-	}
-
-	static string GetPlayerNameWithoutGroupTag(string playerName)
-	{
-#ifdef EXPANSIONMODGROUPS
-		int end = playerName.IndexOf(ExpansionPartyData.GROUP_TAG_END);
-		if (playerName.IndexOf(ExpansionPartyData.GROUP_TAG_START) == 0 && end > 1)
-		{
-			int offset = end + ExpansionPartyData.GROUP_TAG_END.Length();
-			return playerName.Substring(offset, playerName.Length() - offset);
-		}
-#endif
-
-		return playerName;
 	}
 };

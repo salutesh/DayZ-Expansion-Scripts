@@ -585,6 +585,11 @@ class ExpansionHelicopterScript: CarScript
 		return m_Simulation.m_RotorSpeed > 0;
 	}
 
+	bool Expansion_IsRotorDamaged()
+	{
+		return m_Simulation.IsRotorDamaged();
+	}
+
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)
 	{
 #ifdef EXPANSIONTRACE

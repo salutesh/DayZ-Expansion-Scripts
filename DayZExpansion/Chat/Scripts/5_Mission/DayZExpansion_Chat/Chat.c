@@ -101,11 +101,9 @@ modded class Chat
 		if (clientSettings.MutedPlayers.Count() == 0)
 			return false;
 
-		string playerNameSansGroupTag = ExpansionGlobalChatModule.GetPlayerNameWithoutGroupTag(playerName);
-
 		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
 		{
-			if (player.m_PlayerName == playerNameSansGroupTag)
+			if (player.m_PlayerName == playerName)
 			{
 				return clientSettings.MutedPlayers.Find(player.m_RUID) > -1;
 			}

@@ -960,7 +960,7 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 				float tailRotorMalfunction = 0.0;
 				if (m_EnableTailRotorDamage)
 				{
-					tailRotorMalfunction = m_Tail.GetHealth01();
+					tailRotorMalfunction = 1.0 - m_Tail.GetHealth01();
 				//	tailRotorMalfunction = m_Vehicle.GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
 				}
 
@@ -1258,6 +1258,18 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		
 		m_Main.OnDetach(slot, entity);
 		m_Tail.OnDetach(slot, entity);
+	}
+
+	//! Returns true if main or tail rotor are damaged (but not destroyed)
+	bool IsRotorDamaged()
+	{
+		if (m_Main.m_Entity && !m_Main.m_Entity.IsDamageDestroyed() && m_Main.m_Entity.GetHealthLevel() != GameConstants.STATE_PRISTINE)
+			return true;
+
+		if (m_Tail.m_Entity && !m_Tail.m_Entity.IsDamageDestroyed() && m_Tail.m_Entity.GetHealthLevel() != GameConstants.STATE_PRISTINE)
+			return true;
+
+		return false;
 	}
 
 #ifdef CF_DebugUI

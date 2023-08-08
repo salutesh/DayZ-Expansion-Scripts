@@ -33,6 +33,10 @@ modded class ServerBrowserMenuNew
 		EXPANSION_DIRECT_TAB_INDEX = m_Tabber.AddTab("DIRECT");
 		m_DirectTab = new ExpansionDirectConnectTab(layoutRoot.FindAnyWidget("Tab_" + EXPANSION_DIRECT_TAB_INDEX), this, ExpansionTabType.DIRECT);
 
+#ifdef DAYZ_1_21
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
+#endif
+
 		return layoutRoot;
 	}
 		
@@ -56,6 +60,16 @@ modded class ServerBrowserMenuNew
 		ServerBrowserTab tab = super.GetSelectedTab();
 		return tab;
 	}
+
+#ifdef DAYZ_1_21
+	override void Refresh()
+	{
+		super.Refresh();
+		
+		GetDayZGame().Expansion_SetGameVersionText(m_Version);
+	}
+#endif
+
 	// ------------------------------------------------------------
 	// Expansion ShowPlayPanel
 	// ------------------------------------------------------------

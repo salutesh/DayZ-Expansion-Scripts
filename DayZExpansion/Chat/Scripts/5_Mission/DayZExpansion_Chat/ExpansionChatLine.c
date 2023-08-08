@@ -118,7 +118,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 			break;
 #endif
 		default:
-			SenderSetColour(ARGB(255, 255, 255, 255));
+			SenderSetColour(ARGB(255, 88, 195, 255));
 			SetTextColor(GetExpansionSettings().GetChat().ChatColors.Get("DirectChatColor"));
 			SetSenderName(message);
 			break;
@@ -126,7 +126,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 
 		m_ChatLineController.Message = BreakLongWords(message);
 		m_ChatLineController.Time = message.Time;
-		m_ChatLineController.NotifyPropertiesChanged({"Time", "SenderName", "Message"});
+		m_ChatLineController.NotifyPropertiesChanged({"Time","SenderName", "Message"});
 
 		//! Adjust message size so it actually fits and doesn't get cut off
 		float root_w, root_h;
@@ -302,9 +302,7 @@ class ExpansionChatLineBase: ExpansionScriptView
 		if (!m_Message)
 			return false;
 
-		string playerNameSansGroupTag = ExpansionGlobalChatModule.GetPlayerNameWithoutGroupTag(m_Message.From);
-
-		if (playerNameSansGroupTag == GetGame().GetPlayer().GetIdentity().GetName())
+		if (m_Message.From == GetGame().GetPlayer().GetIdentity().GetName())
 			return false;
 
 		return m_Chat.CanMute(m_Message.Channel);
