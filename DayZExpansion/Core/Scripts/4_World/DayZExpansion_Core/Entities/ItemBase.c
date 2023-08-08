@@ -718,8 +718,8 @@ modded class ItemBase
 		if (!GetInventory())
 			return NULL;
 
-		//! NOTE: Both actual magazines and ammo inherit from Magazine_Base, so we check destroyOnEmpty if it's actually a mag or not
-		if (IsInherited(Weapon_Base) && GetGame().ConfigIsExisting("CfgMagazines " + className) && !GetGame().ConfigGetInt("CfgMagazines " + className + " destroyOnEmpty"))
+		//! NOTE: Both actual magazines and ammo inherit from Magazine_Base
+		if (IsInherited(Weapon_Base) && GetGame().IsKindOf(className, "Magazine_Base") && !GetGame().IsKindOf(className, "Ammunition_Base"))
 		{
 			//! It's an actual magazine
 			Weapon_Base weapon = Weapon_Base.Cast(this);

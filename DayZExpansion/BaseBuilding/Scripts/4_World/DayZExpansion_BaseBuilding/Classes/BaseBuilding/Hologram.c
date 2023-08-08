@@ -232,6 +232,7 @@ modded class Hologram
 		super.UpdateHologram(timeslice);
 	}
 
+#ifndef SERVER
 	override void SetProjectionPosition(vector position)
 	{
 		m_ExProjectionPosition = position;
@@ -258,6 +259,7 @@ modded class Hologram
 
 		super.SetProjectionOrientation( m_ExProjectionOrientation );
 	}
+#endif
 
 	override EntityAI PlaceEntity( EntityAI entity_for_placing )
 	{

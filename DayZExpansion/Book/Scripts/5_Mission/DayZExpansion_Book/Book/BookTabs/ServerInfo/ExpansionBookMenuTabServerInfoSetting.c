@@ -110,6 +110,16 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 				m_Name = "#STR_EXPANSION_SETTINGS_BB_PROJECTILEDAMAGEMULTIPLIER";
 				m_Setting = GetExpansionSettings().GetRaid().ProjectileDamageMultiplier.ToString();
 				break;
+			
+			//! Territory
+			case "Expansion.Settings.Territory.TerritorySize":
+				m_Name = "#STR_EXPANSION_SETTINGS_T_TERRITORYSIZE";
+				m_Setting = GetExpansionSettings().GetTerritory().TerritorySize.ToString();
+				break;
+			case "Expansion.Settings.Territory.UseWholeMapForInviteList":
+				m_Name = "#STR_EXPANSION_SETTINGS_P_USEWHOLEMAPFORINVITELIST";
+				m_Setting = BoolToString(GetExpansionSettings().GetTerritory().UseWholeMapForInviteList);
+				break;
 			#endif
 
 			#ifdef EXPANSIONMODNAVIGATION
@@ -133,18 +143,6 @@ class ExpansionBookMenuTabServerInfoSetting: ExpansionScriptView
 			case "Expansion.Settings.Party.UseWholeMapForInviteList":
 				m_Name = "#STR_EXPANSION_SETTINGS_P_USEWHOLEMAPFORINVITELIST";
 				m_Setting = BoolToString(GetExpansionSettings().GetParty().UseWholeMapForInviteList);
-				break;
-			#endif
-
-			#ifdef EXPANSIONMODBASEBUILDING
-			//! Territory
-			case "Expansion.Settings.Territory.TerritorySize":
-				m_Name = "#STR_EXPANSION_SETTINGS_T_TERRITORYSIZE";
-				m_Setting = GetExpansionSettings().GetTerritory().TerritorySize.ToString();
-				break;
-			case "Expansion.Settings.Territory.UseWholeMapForInviteList":
-				m_Name = "#STR_EXPANSION_SETTINGS_P_USEWHOLEMAPFORINVITELIST";
-				m_Setting = BoolToString(GetExpansionSettings().GetTerritory().UseWholeMapForInviteList);
 				break;
 			#endif
 

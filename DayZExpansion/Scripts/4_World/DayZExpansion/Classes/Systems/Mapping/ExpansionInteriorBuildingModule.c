@@ -232,7 +232,7 @@ class ExpansionInteriorBuildingModule: CF_ModuleWorld
 		if ( !GetExpansionSettings().GetGeneral() )
 			return;
 
-		if ( !GetExpansionSettings().GetGeneral().Mapping.BuildingIvys )
+		if ( GetExpansionSettings().GetGeneral().Mapping.BuildingIvys != 1 )
 			return;
 
 		if ( !m_WhereIviesObjectsSpawn ) {

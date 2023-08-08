@@ -581,8 +581,55 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 		if (!m_SelectedQuest)
 			return;
 
-		ExpansionQuestModule.GetModuleInstance().RequestCreateQuestInstance(m_SelectedQuest.GetID());
+		if ( HasTooManyQuests() )
+		{
+			ExpansionNotification(new StringLocaliser("STR_EXPANSION_QUEST_MAXREACHED_TITLE"), new StringLocaliser("STR_EXPANSION_QUEST_MAXREACHED_DESC"), EXPANSION_NOTIFICATION_ICON_INFO, COLOR_EXPANSION_NOTIFICATION_ERROR).Create();
+		}
+		else
+		{
+			ExpansionQuestModule.GetModuleInstance().RequestCreateQuestInstance(m_SelectedQuest.GetID());
+		}
+
 		CloseMenu();
+	}
+
+	bool HasTooManyQuests()
+	{
+		ExpansionQuestPersistentData playerData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
+		if (!playerData)
+		{
+			EXTrace.Print(true, this, "no client quest data - skipping");
+			return false;
+		}
+		int maxAllowed = GetExpansionSettings().GetQuest().MaxActiveQuests;
+		if ( maxAllowed == -1 )
+			return false;
+
+		int questCount;
+		foreach (ExpansionQuestPersistentQuestData data: playerData.QuestData)
+		{
+			if ( questCount >= maxAllowed )
+				return true;
+
+			int questID = data.QuestID;
+			ExpansionQuestState state = data.State;
+
+			if (state == ExpansionQuestState.NONE || state == ExpansionQuestState.COMPLETED)
+				continue;
+
+			ExpansionQuestConfig questConfig = ExpansionQuestModule.GetModuleInstance().GetQuestConfigByID(questID);
+			if (!questConfig)
+			{
+				continue;
+			}
+
+			if (questConfig.IsAchievement())
+				continue;
+			
+			questCount++;
+		}
+
+		return false;
 	}
 
 	void OnCancelButtonClick()

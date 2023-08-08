@@ -50,12 +50,10 @@ class ExpansionMarketFlags: ExpansionMarketCategory
 		AddItem("Flag_Refuge", 						15,		30,		1,		100);
 		AddItem("Flag_RSTA", 						15,		30,		1,		100);
 		AddItem("Flag_Snake", 						15,		30,		1,		100);
-	#ifndef DAYZ_1_20
 		//! New 1.21 flags
 		AddItem("Flag_Crook", 						15,		30,		1,		100);
 		AddItem("Flag_Rex", 						15,		30,		1,		100);
 		AddItem("Flag_Zagorky", 					15,		30,		1,		100);
-	#endif
 	#ifdef EXPANSIONMODBASEBUILDING
 		AddItem("Expansion_Flag_Expansion", 		15,		30,		1,		100);
 		AddItem("Expansion_Flag_White", 			15,		30,		1,		100);

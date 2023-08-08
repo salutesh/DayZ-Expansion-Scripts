@@ -44,10 +44,12 @@ class ExpansionMarketGloves: ExpansionMarketCategory
 		AddItem("NBCGlovesGray", 					80,		160,	1,		100, null, {"NBCGlovesYellow"});
 		AddItem("NBCGlovesYellow", 					65,		130,	1,		100);
 		
-	#ifndef DAYZ_1_20
 		//! 1.21+
 		AddItem("WoolGloves_Green", 			35,		70,		1,		100, null, {"WoolGloves_Black", "WoolGloves_Tan", "WoolGloves_White"});
-		AddItem("WoolGlovesFingerless_Green", 			35,		70,		1,		100, null, {"WoolGlovesFingerless_Black", "WoolGlovesFingerless_Tan"});
+	#ifndef DAYZ_1_21
+		AddItem("WoolGlovesFingerless_Green", 	35,		70,		1,		100, null, {"WoolGlovesFingerless_Black", "WoolGlovesFingerless_Tan", "WoolGlovesFingerless_White"});
+	#else
+		AddItem("WoolGlovesFingerless_Green", 	35,		70,		1,		100, null, {"WoolGlovesFingerless_Black", "WoolGlovesFingerless_Tan"});
 	#endif
 	}
 };

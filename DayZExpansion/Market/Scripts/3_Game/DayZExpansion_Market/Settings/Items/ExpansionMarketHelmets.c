@@ -96,10 +96,8 @@ class ExpansionMarketHelmets: ExpansionMarketCategory
 		AddItem("BallisticHelmet_Black", 			300,	600,	1,		100);
 		AddItem("BallisticHelmet_Green", 			350,	700,	1,		100);
 
-	#ifndef DAYZ_1_20
 		//! 1.21+
 		AddItem("Chainmail_Coif", 					350,	500,	1,		100);
 		AddItem("NorseHelm", 						450,	800,	1,		100);
-	#endif
 	}
 };

@@ -63,6 +63,8 @@ modded class MissionServer
 		super.OnMissionLoaded();
 
 		//! Init patrols late so mapping already loaded
-		ExpansionAIPatrolManager.InitPatrols();
+        GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionAIPatrolManager.InitPatrols, 10000, false);
+		//! According to the community this fix the issue of zombies not aggroing
+		//! Dont ask how, dont ask why
 	}
 };

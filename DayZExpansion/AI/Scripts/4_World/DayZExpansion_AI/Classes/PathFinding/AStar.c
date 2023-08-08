@@ -7,7 +7,7 @@ class AStar<Class NodeType>
 
 	static void Perform(NodeType start, NodeType goal, PGFilter filter, inout array<NodeType> path)
 	{
-		PriorityQueue<NodeType> queue = new PriorityQueue<NodeType>();
+		ExpansionPriorityQueue<NodeType> queue = new ExpansionPriorityQueue<NodeType>();
 		queue.Enqueue(start, 0);
 
 		map<NodeType, NodeType> mappedPath();
@@ -39,7 +39,7 @@ class AStar<Class NodeType>
 			{
 				break;
 			}
-			
+
 			foreach (auto neighbour : current.m_Neighbours)
 			{
 				Class.CastTo(next, neighbour);
@@ -70,7 +70,7 @@ class AStar<Class NodeType>
 			path.Insert(current);
 			current = mappedPath[current];
 		}
-		
+
 		if (path.Count() <= 1)
 		{
 			path.Clear();

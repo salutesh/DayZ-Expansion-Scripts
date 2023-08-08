@@ -233,4 +233,4 @@ static const int EXPANSION_VERSION_CURRENT_SAVE = 49;  //! DEPRECATED, NO LONGER
  */
 //! Starting with client settings v38, client and map marker save version are no longer linked to storage save version
 static const int EXPANSION_VERSION_CLIENT_SETTING_SAVE = 48;
-static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 39;  //! Also used for groups
+static const int EXPANSION_VERSION_MAP_MARKER_SAVE = 40;  //! Also used for groups

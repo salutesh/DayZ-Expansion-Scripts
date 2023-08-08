@@ -22,5 +22,8 @@ class ExpansionMarketBelts: ExpansionMarketCategory
 
 		AddItem("CivilianBelt",		100,	200,	1,		100);
 		AddItem("MilitaryBelt", 	100,	200,	1,		100);
+	#ifndef DAYZ_1_21
+		AddItem("HipPack_Black", 	100,	200,	1,		100, null, {"HipPack_Green", "HipPack_Medical", "HipPack_Party"});
+	#endif
 	}
 };

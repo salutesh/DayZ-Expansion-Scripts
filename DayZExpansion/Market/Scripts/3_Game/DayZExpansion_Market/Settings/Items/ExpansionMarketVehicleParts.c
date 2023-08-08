@@ -93,7 +93,6 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		AddItem("Truck_01_Wheel", 							600,	1200,	1,		100);
 		AddItem("Truck_01_WheelDouble", 					1000,	2000,	1,		100);
 	
-#ifndef DAYZ_1_18
 		AddItem("Offroad_02_Hood",		 				300,	600,	1,		100);
 
 		AddItem("Offroad_02_Trunk",		 				380,	760,	1,		100);
@@ -107,7 +106,6 @@ class ExpansionMarketVehicleParts: ExpansionMarketCategory
 		AddItem("Offroad_02_Door_2_2",		 			450,	900,	1,		100);
 		
 		AddItem("Offroad_02_Wheel", 					500,	1000,	1,		100);
-#endif
 		//! Vanilla - Not released yet
 		//AddItem("Truck_02_Hood",		 					400,	800,	1,		100);
 		//AddItem("Truck_02_Door_1_1",		 				500,	1000,	1,		100);

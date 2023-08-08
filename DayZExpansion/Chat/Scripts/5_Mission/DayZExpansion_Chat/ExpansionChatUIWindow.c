@@ -410,10 +410,12 @@ class ExpansionChatUIWindow: ExpansionScriptView
 
 	void Mute(string playerName)
 	{
+		string playerNameSansGroupTag = ExpansionGlobalChatModule.GetPlayerNameWithoutGroupTag(playerName);
+
 		ExpansionClientSettings clientSettings = GetExpansionClientSettings();
 		foreach (SyncPlayer player: ClientData.m_PlayerList.m_PlayerList)
 		{
-			if (player.m_PlayerName == playerName)
+			if (player.m_PlayerName == playerNameSansGroupTag)
 			{
 				if (clientSettings.MutedPlayers.Find(player.m_RUID) == -1)
 				{

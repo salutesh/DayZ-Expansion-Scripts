@@ -395,6 +395,11 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		category.AddSetting("Expansion.Settings.Raid.ExplosionDamageMultiplier");
 		category.AddSetting("Expansion.Settings.Raid.ProjectileDamageMultiplier");
 		SettingCategories.Insert(category);
+		
+		category = new ExpansionBookSettingCategory("Territory Settings");
+		category.AddSetting("Expansion.Settings.Territory.TerritorySize");
+		category.AddSetting("Expansion.Settings.Territory.UseWholeMapForInviteList");
+		SettingCategories.Insert(category);
 	#endif
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -408,13 +413,6 @@ class ExpansionBookSettings: ExpansionBookSettingsBase
 		category = new ExpansionBookSettingCategory("Party Settings");
 		category.AddSetting("Expansion.Settings.Party.MaxMembersInParty");
 		category.AddSetting("Expansion.Settings.Party.UseWholeMapForInviteList");
-		SettingCategories.Insert(category);
-	#endif
-
-	#ifdef EXPANSIONMODBASEBUILDING
-		category = new ExpansionBookSettingCategory("Territory Settings");
-		category.AddSetting("Expansion.Settings.Territory.TerritorySize");
-		category.AddSetting("Expansion.Settings.Territory.UseWholeMapForInviteList");
 		SettingCategories.Insert(category);
 	#endif
 	}

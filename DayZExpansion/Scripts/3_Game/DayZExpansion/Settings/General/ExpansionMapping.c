@@ -18,7 +18,7 @@ class ExpansionMapping
 	
 	bool BuildingInteriors;				// Interior inside building mapping switch. It's not linked to UseCustomMappingModule
 	autoptr TStringArray Interiors;
-	bool BuildingIvys;					// Exterior Ivies mapping switch
+	int BuildingIvys;					// Exterior Ivies mapping switch | 0 = OFF | 1 = Chernarus Pre defined pos | 2 = Everywhere
 
 	// ------------------------------------------------------------
 	// Expansion ExpansionMapping
@@ -108,7 +108,7 @@ class ExpansionMapping
 		//! Keep at false so it will create less troubles for new server starting to setup everything
 		UseCustomMappingModule 			= false;
 		BuildingInteriors 				= false;
-		BuildingIvys					= false;
+		BuildingIvys					= 0;
 	}
 
 	// ------------------------------------------------------------

@@ -62,7 +62,7 @@ class ExpansionQuestSettingsV5: ExpansionQuestSettingsV5Base
  **/
 class ExpansionQuestSettings: ExpansionQuestSettingsBase
 {
-	static const int VERSION = 9;
+	static const int VERSION = 10;
 
 	[NonSerialized()]
 	protected bool m_IsLoaded;
@@ -77,6 +77,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 	int DailyResetMinute;
 	bool UseUTCTime;
 	bool UseQuestNPCIndicators;
+	int MaxActiveQuests;
 
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
@@ -201,6 +202,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		DailyResetMinute = s.DailyResetMinute;
 		UseUTCTime = s.UseUTCTime;
 		UseQuestNPCIndicators = s.UseQuestNPCIndicators;
+		MaxActiveQuests = s.MaxActiveQuests;
 
 		ExpansionQuestSettingsBase sb = s;
 		CopyInternal( sb );
@@ -273,6 +275,11 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 				if (settingsBase.m_Version < 9)
 				{
 					UseQuestNPCIndicators = settingsDefault.UseQuestNPCIndicators;
+				}
+				
+				if (settingsBase.m_Version < 10)
+				{
+					MaxActiveQuests = settingsDefault.MaxActiveQuests;
 				}
 
 				m_Version = VERSION;
@@ -370,6 +377,7 @@ class ExpansionQuestSettings: ExpansionQuestSettingsBase
 		UseUTCTime = false;
 		
 		UseQuestNPCIndicators = true;
+		MaxActiveQuests = -1;
 
 	#ifdef EXPANSIONMODGROUPS
 		GroupQuestMode = 0;

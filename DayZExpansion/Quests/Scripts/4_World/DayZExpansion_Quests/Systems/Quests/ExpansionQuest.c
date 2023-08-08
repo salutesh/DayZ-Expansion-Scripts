@@ -990,6 +990,12 @@ class ExpansionQuest
 
 	#ifdef EXPANSIONMODNAVIGATION
 		RemoveQuestMarkers();
+
+		//! Recreate objective markers.
+		foreach (ExpansionQuestObjectiveEventBase objective: m_QuestObjectives)
+		{
+			objective.CreateMarkers();
+		}
 	#endif
 		SetInitialized(false);
 		

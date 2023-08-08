@@ -56,10 +56,8 @@ class ExpansionMarketAmmo: ExpansionMarketCategory
 
 		AddItem("Ammo_40mm_Explosive", 						500,    1000,	1,	    500, null, {"Ammo_40mm_ChemGas", "Ammo_40mm_Smoke_Black", "Ammo_40mm_Smoke_Green", "Ammo_40mm_Smoke_White", "Ammo_40mm_Smoke_Red"});
 
-	#ifndef DAYZ_1_20
 		//! 1.21+
 		AddItem("Ammo_HuntingBolt", 						5,		10,		1,		500);
-	#endif
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Ammo_ArrowBolt", 				5,		10,		1,		500);
 

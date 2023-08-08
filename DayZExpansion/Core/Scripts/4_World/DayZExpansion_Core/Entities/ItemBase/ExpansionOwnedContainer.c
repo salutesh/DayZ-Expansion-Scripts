@@ -265,15 +265,15 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 			SetAllowDamage(false);
 
 			//! Delete after 20 minutes
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionDeleteStorage, 1000 * 60 * 20, false);
 		}
 
 		if (!GetGame().IsDedicatedServer())  //! Client or SP
 		{
 			//! Warn about pending deletion after 15 minutes
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionStorageNotification, 1000 * 60 * 15, false, "STR_EXPANSION_TEMPORARY_STORAGE_EXPIRATION_WARNING");
 
-			ClearFlags(EntityFlags.VISIBLE, false);
+			Expansion_SetInvisible(this);
 		}
 	}
 
@@ -282,7 +282,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		super.Expansion_OnOwnerSync();
 
 		//! @note GetGame().GetPlayer() will only be non-NULL after player has fully loaded in
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ExpansionCheckContainerOwner, 1000, true);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(ExpansionCheckContainerOwner, 1000, true);
 	}
 
 	void ExpansionCheckContainerOwner()
@@ -290,12 +290,12 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (!GetGame().GetPlayer())
 			return;
 
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(ExpansionCheckContainerOwner);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(ExpansionCheckContainerOwner);
 
 		EXTrace.Print(EXTrace.MISC, this, "ExpansionTemporaryOwnedContainer::Expansion_OnOwnerSync - is owner? " + ExpansionIsContainerOwner());
 
 		if (ExpansionIsContainerOwner())
-			SetFlags(EntityFlags.VISIBLE, false);
+			Expansion_SetInvisible(this, false);
 	}
 
 	// default to visible unless on ground, owner will always see it once netsync received
@@ -312,17 +312,21 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		//! @note call to ClearFlags needs to be delayed one frame, else other clients won't see other items taken to hand afterwards
 		//! Can't use ScriptCallQueue::Call to call ClearFlags directly, CTDs other clients
 		if (!ExpansionIsContainerOwner() && newLoc.GetType() == InventoryLocationType.GROUND)
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(Expansion_SetInvisible, this, true);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, true);
 		else
-			SetFlags(EntityFlags.VISIBLE, false);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
 	}
 
 	void Expansion_SetInvisible(EntityAI item, bool invisible = true)
 	{
-		if (invisible)
-			item.ClearFlags(EntityFlags.VISIBLE, false);
-		else
-			item.SetFlags(EntityFlags.VISIBLE, true);
+		//! Client or SP
+		if (!GetGame().IsDedicatedServer())
+		{
+			if (invisible)
+				item.ClearFlags(EntityFlags.VISIBLE, false);
+			else
+				item.SetFlags(EntityFlags.VISIBLE, false);
+		}
 	}
 
 	override void EECargoOut(EntityAI item)
@@ -332,7 +336,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			ExpansionDeleteStorage();
 
-		Expansion_SetInvisible(item, false);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
 	}
 
 	override void EEItemDetached(EntityAI item, string slot_name)
@@ -342,7 +346,7 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		if (IsEmpty())
 			ExpansionDeleteStorage();
 
-		Expansion_SetInvisible(item, false);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Call(Expansion_SetInvisible, this, false);
 	}
 
 	override bool CanCombineAttachment(notnull EntityAI e, int slot, bool stack_max_limit = false)
@@ -385,13 +389,6 @@ class ExpansionTemporaryOwnedContainer: ExpansionOwnedContainer
 		StringLocaliser text = new StringLocaliser(msg);
 
 		ExpansionNotification(title, text, EXPANSION_NOTIFICATION_ICON_TRADER, COLOR_EXPANSION_NOTIFICATION_ORANGE).Create(player.GetIdentity());
-	}
-
-	//! TODO: Remove ExpansionCheckStorage once Quests got updated
-	void ExpansionCheckStorage()
-	{
-		if (IsEmpty())
-			ExpansionDeleteStorage();
 	}
 
 	void ExpansionDeleteStorage()

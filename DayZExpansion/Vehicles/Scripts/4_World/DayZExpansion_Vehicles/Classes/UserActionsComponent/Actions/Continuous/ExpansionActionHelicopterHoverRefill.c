@@ -17,7 +17,7 @@ class ExpansionActionHelicopterHoverRefillCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
-		m_ActionData.m_ActionComponent = new CAContinuousFillFuel(UAQuantityConsumed.FUEL, 0.5);
+		m_ActionData.m_ActionComponent = new CAContinuousHoverFillFuel(UAQuantityConsumed.FUEL * LIQUID_THROUGHPUT_FUELSTATION, 0.5);
 	}
 }
 
@@ -30,9 +30,9 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 	{
 		m_CallbackClass = ExpansionActionHelicopterHoverRefillCB;
 
-		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_OPENITEM;
-		m_StanceMask = DayZPlayerConstants.STANCEMASK_ALL;
-		m_SpecialtyWeight = UASoftSkillsWeight.ROUGH_LOW;
+		m_CommandUID 		= DayZPlayerConstants.CMD_ACTIONMOD_OPENITEM;
+		m_StanceMask 		= DayZPlayerConstants.STANCEMASK_ALL;
+		m_SpecialtyWeight 	= UASoftSkillsWeight.ROUGH_LOW;
 	}
 
 	override void CreateConditionComponents()
@@ -96,22 +96,22 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 			for (int i = 0; i < results.Count(); ++i)
 			{
 				if (results[i].obj == NULL)
-					return false;
+					continue;
 
-				if (results[i].obj.GetType() == "Land_FuelStation_Feed")
+				if (results[i].obj.IsKindOf("Land_FuelStation_Feed"))
 					return true;
 
-				if (results[i].obj.GetType() == "Land_FuelStation_Feed")
+				if (results[i].obj.IsKindOf("Land_FuelStation_Feed_Enoch"))
 					return true;
-
-				if (results[i].obj.GetType() == "Static_FuelStation_Shed_Enoch")
-					return true;
-
-				return false;
 			}
 		}
 
 		return false;
+	}
+	
+	override bool ActionConditionContinue( ActionData action_data )
+	{
+		return true;
 	}
 
 	override void OnFinishProgressServer(ActionData action_data)
@@ -139,7 +139,6 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 				return;
 
 			helicopter.Fill(CarFluid.FUEL, 5.0);
-			return;
 		}
 	}
-}
+};
