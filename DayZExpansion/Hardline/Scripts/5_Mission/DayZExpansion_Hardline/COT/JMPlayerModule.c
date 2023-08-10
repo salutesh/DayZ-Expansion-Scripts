@@ -23,7 +23,11 @@ modded class JMPlayerModule
 		return Expansion_JMPlayerModuleRPC.EX_COUNT; // needs to have an int higher than the useable ones
 	}
 
+#ifdef CF_BUGFIX_REF
+	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
+#else
 	override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ref ParamsReadContext ctx)
+#endif
 	{
 		super.OnRPC(sender, target, rpc_type, ctx);
 
@@ -69,7 +73,7 @@ modded class JMPlayerModule
 		}
 	}
 
-	private void RPC_SetExpansionReputation(ref ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	private void RPC_SetExpansionReputation(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		int reputation;
 		if (!ctx.Read(reputation))

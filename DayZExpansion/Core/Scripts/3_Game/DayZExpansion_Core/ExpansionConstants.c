@@ -32,7 +32,8 @@ enum ExpansionChatChannels
 };
 
 /**
- * Expansion liquids types
+ * Expansion liquid types - needs to match in config.cpp where used,
+ * e.g. Objects/Gear/Consumables/config.cpp, CfgLiquidDefinitions `type`, CfgVehicles `varLiquidTypeInit` & `liquidContainerType`
  * @{
  */
 const int EXPANSION_LIQUID_MILK = 65536;

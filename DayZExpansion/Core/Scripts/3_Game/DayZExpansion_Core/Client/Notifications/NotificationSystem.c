@@ -116,6 +116,9 @@ modded class NotificationSystem
 	
 	#ifdef CF_BUGFIX_REF
 	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
+	#else
+	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
+	#endif
 	{
 		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
 #ifdef EXPANSIONTRACE
@@ -151,64 +154,21 @@ modded class NotificationSystem
 	// ------------------------------------------------------------
 	// NotificationSystem AddNotif
 	// ------------------------------------------------------------
+	#ifdef CF_BUGFIX_REF
 	override void AddNotif(  NotificationRuntimeData data )
-	{
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");
-#endif
-		
-		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
-
-		m_ExNotifications.Insert( data );
-		m_OnNotificationAdded.Invoke( data );
-	}
 	#else
-	
-	override static void RPC_CreateNotification( PlayerIdentity sender, Object target, ref ParamsReadContext ctx )
-	{
-		//! This is only here to make all CF notifications (non-Expansion mods) use Expansion visual style for consistency
-#ifdef EXPANSIONTRACE
-		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, "NotificationSystem", "RPC_CreateNotification");
-#endif
-		
-		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
-			return;
-		
-		StringLocaliser title = new StringLocaliser( "" );
-		if ( !ctx.Read( title ) )
-			return;
-
-		StringLocaliser text = new StringLocaliser( "" );
-		if ( !ctx.Read( text ) )
-			return;
-
-		string icon;
-		if ( !ctx.Read( icon ) )
-			return;
-
-		int color;
-		if ( !ctx.Read( color ) )
-			return;
-
-		float time;
-		if ( !ctx.Read( time ) )
-			return;
-
-		Exec_ExpansionCreateNotification( title, text, icon, color, time );
-	}
-
 	override void AddNotif( ref NotificationRuntimeData data )
+	#endif
 	{
 #ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.NOTIFICATIONS, this, "AddNotif");
 #endif
-
+		
 		data.SetTime( data.GetTime() - NOTIFICATION_FADE_TIME );
 
 		m_ExNotifications.Insert( data );
 		m_OnNotificationAdded.Invoke( data );
 	}
-	#endif
 	
 	static void RPC_ExpansionCreateNotification( PlayerIdentity sender, Object target, ParamsReadContext ctx )
 	{
