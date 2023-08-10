@@ -549,10 +549,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout.Chance = 0.02;
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Gloves");
-			loadout.SetHealth(0.7, 1.0);
-			loadout.Chance = 0.8;
-			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("Balaclava3Holes_Black", "MASK");
 			loadout.SetHealth(0.7, 1.0);
@@ -654,8 +650,6 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("Crowbar", "Melee");
 			loadout.SetHealth(0.7, 1.0);
 			loadout.Chance = 0.1;
-			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Melee");
 			loadout = loadout.End();
 			
 			DefaultSurvivorWeapon(loadout);
@@ -1315,10 +1309,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout.Chance = 0.02;
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Gloves");
-			loadout.SetHealth(0.7, 1.0);
-			loadout.Chance = 0.8;
-			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("MilitaryBelt", "Hips");
 			loadout.SetHealth(0.7, 1.0);
@@ -1355,8 +1345,6 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("Crowbar", "Melee");
 			loadout.SetHealth(0.7, 1.0);
 			loadout.Chance = 0.1;
-			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Melee");
 			loadout = loadout.End();
 			
 			DefaultSurvivorWeapon(loadout);
@@ -1521,10 +1509,6 @@ class ExpansionHumanLoadout
 				loadout.Chance = 0.1;
 				loadout = loadout.End();
 			loadout = loadout.End();
-
-			loadout = loadout.BeginAttachment("", "Back");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("PlateCarrierVest", "Vest");
 			loadout.SetHealth(0.7, 1.0);
@@ -1539,9 +1523,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
-			loadout = loadout.BeginAttachment("", "Headgear");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("BallisticHelmet_Black", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
@@ -1565,9 +1546,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("TacticalGloves_Green", "Gloves");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Gloves");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
@@ -1981,10 +1959,6 @@ class ExpansionHumanLoadout
 				loadout.Chance = 0.1;
 				loadout = loadout.End();
 			loadout = loadout.End();
-
-			loadout = loadout.BeginAttachment("", "Back");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("SmershVest", "Vest");
 			loadout.SetHealth(0.7, 1.0);
@@ -2005,16 +1979,13 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("Ssh68Helmet", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Headgear");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("TankerHelmet", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("PilotkaCap", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("OfficierHat", "Headgear");
+			loadout = loadout.BeginAttachment("OfficerHat", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("GorkaHelmet", "Headgear");
@@ -2029,9 +2000,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("OMNOGloves_Gray", "Gloves");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Gloves");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
@@ -2416,10 +2384,6 @@ class ExpansionHumanLoadout
 				loadout.Chance = 0.1;
 				loadout = loadout.End();
 			loadout = loadout.End();
-
-			loadout = loadout.BeginAttachment("", "Back");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			
 			loadout = loadout.BeginAttachment("SmershVest", "Vest");
 			loadout.SetHealth(0.7, 1.0);
@@ -2437,16 +2401,13 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("Ssh68Helmet", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Headgear");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("TankerHelmet", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("PilotkaCap", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("OfficierHat", "Headgear");
+			loadout = loadout.BeginAttachment("OfficerHat", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("GorkaHelmet", "Headgear");
@@ -2461,9 +2422,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("OMNOGloves_Gray", "Gloves");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Gloves");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
@@ -2558,16 +2516,13 @@ class ExpansionHumanLoadout
 			loadout = loadout.BeginAttachment("Ssh68Helmet", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Headgear");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("TankerHelmet", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("PilotkaCap", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("OfficierHat", "Headgear");
+			loadout = loadout.BeginAttachment("OfficerHat", "Headgear");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			
@@ -2575,9 +2530,6 @@ class ExpansionHumanLoadout
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			loadout = loadout.BeginAttachment("OMNOGloves_Gray", "Gloves");
-			loadout.SetHealth(0.7, 1.0);
-			loadout = loadout.End();
-			loadout = loadout.BeginAttachment("", "Gloves");
 			loadout.SetHealth(0.7, 1.0);
 			loadout = loadout.End();
 			

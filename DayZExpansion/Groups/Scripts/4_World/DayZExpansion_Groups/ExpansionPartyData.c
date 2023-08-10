@@ -12,9 +12,14 @@
 
 class ExpansionPartyData
 {
+	static const int GROUP_TAG_LENGTH = 4;
+	static const string GROUP_TAG_START = "[";
+	static const string GROUP_TAG_END = "] ";
+
 	protected int PartyID;
 
 	protected string PartyName;
+	protected string PartyTag;
 	protected string OwnerUID;
 	protected string OwnerName;
 
@@ -123,6 +128,35 @@ class ExpansionPartyData
 	}
 
 	// ------------------------------------------------------------
+	// Expansion ChangePartyTag
+	// ------------------------------------------------------------
+	void SetPartyTag(string tag)
+	{
+		PartyTag = tag;
+	}
+
+	// ------------------------------------------------------------
+	// Expansion GetPartyTag
+	// ------------------------------------------------------------
+	string GetPartyTag()
+	{
+		return PartyTag;
+	}
+
+	/**
+	 * @brief If set, return party tag truncated to GROUP_TAG_LENGTH and enclosed in GROUP_TAG_START/END, else empty string
+	 */
+	string GetPartyTagFormatted()
+	{
+		if (!PartyTag)
+			return "";
+
+		string tag = PartyTag.Substring(0, GROUP_TAG_LENGTH);
+
+		return GROUP_TAG_START + tag + GROUP_TAG_END;
+	}
+
+	// ------------------------------------------------------------
 	// Expansion ChangePartyName
 	// ------------------------------------------------------------
 	void SetPartyName(string name)
@@ -151,9 +185,10 @@ class ExpansionPartyData
 	// ------------------------------------------------------------
 	// Expansion SetupExpansionPartyData
 	// ------------------------------------------------------------
-	void SetupExpansionPartyData( PlayerBase pPb, string partyName )
+	void SetupExpansionPartyData( PlayerBase pPb, string partyName, string partyTag )
 	{
 		PartyName = partyName;
+		PartyTag = partyTag;
 
 	   	ExpansionPartyPlayerData player = AddPlayer( pPb, true );
 
@@ -407,7 +442,7 @@ class ExpansionPartyData
 #endif
 
 	// ------------------------------------------------------------
-	// Expansion GetPartyName
+	// Expansion GetOwnerName
 	// ------------------------------------------------------------
 	string GetOwnerName()
 	{
@@ -611,6 +646,8 @@ class ExpansionPartyData
 	#ifdef EXPANSIONMODMARKET
 		ctx.Write( MoneyDeposited );
 	#endif
+
+		ctx.Write( PartyTag );
 	}
 
 	bool OnRecieve( ParamsReadContext ctx )
@@ -808,6 +845,9 @@ class ExpansionPartyData
 			return false;
 	#endif
 
+		if ( !ctx.Read( PartyTag ) )
+			return false;
+
 		return true;
 	}
 
@@ -841,6 +881,7 @@ class ExpansionPartyData
 
 		//! Always write money deposited so it doesn't cause issues when market is added later
 		ctx.Write( MoneyDeposited );
+		ctx.Write(PartyTag);
 	}
 
 	// ------------------------------------------------------------
@@ -920,6 +961,16 @@ class ExpansionPartyData
 	#endif
 		if ( readMoneyDeposited && Expansion_Assert_False( ctx.Read( MoneyDeposited ), "Failed reading party money deposit data" ) )
 			return false;
+
+		if ( version >= 40 )
+		{
+			if ( Expansion_Assert_False( ctx.Read( PartyTag ), "Failed reading party tag" ) )
+				return false;
+		}
+		else if ( GetExpansionSettings().GetParty().ForcePartyToHaveTags )
+		{
+			PartyTag = PartyName.Substring(0, GROUP_TAG_LENGTH);
+		}
 
 		return true;
 	}

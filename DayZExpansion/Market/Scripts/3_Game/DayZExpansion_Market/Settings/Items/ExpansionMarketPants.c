@@ -81,10 +81,7 @@ class ExpansionMarketPants: ExpansionMarketCategory
 		
 		AddItem("NBCPantsGray", 					250,	500,	1,		100, null, {"NBCPantsYellow"});
 		AddItem("NBCPantsYellow", 					200,	400,	1,		100);
-		
-	#ifndef DAYZ_1_20
 		//! 1.21+
 		AddItem("Chainmail_Leggings", 				350,	600,	1,		100);
-	#endif
 	}
 };

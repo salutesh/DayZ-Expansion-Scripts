@@ -1266,7 +1266,7 @@ modded class CarScript
 	override ItemBase GetBattery()
 	{
 		if (IsVitalHelicopterBattery())
-			return ItemBase.Cast(FindAttachmentBySlotName("HelicopterBattery"));
+			return ItemBase.Cast(FindAttachmentBySlotName("ExpansionHelicopterBattery"));
 		if (IsVitalAircraftBattery())
 			return ItemBase.Cast(FindAttachmentBySlotName("ExpansionAircraftBattery"));
 

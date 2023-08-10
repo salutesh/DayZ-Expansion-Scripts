@@ -66,5 +66,13 @@ class ExpansionMarketBackpacks: ExpansionMarketCategory
 		AddItem("AliceBag_Green", 					400,		800,		1,		100, null, {"AliceBag_Black", "AliceBag_Camo"});
 		//AddItem("AliceBag_Black", 				400,		800,		1,		100);
 		AddItem("AliceBag_Camo", 					500,		1000,		1,		100);
+		
+	#ifndef DAYZ_1_21
+		AddItem("Slingbag_Black", 					120,		300,		1,		100, null, {"Slingbag_Brown", "Slingbag_Gray"});
+		AddItem("DuffelBagSmall_Camo", 				120,		300,		1,		100, null, {"DuffelBagSmall_Green", "DuffelBagSmall_Medical"});
+		AddItem("CanvasBag_Medical", 				120,		300,		1,		100, null, {"CanvasBag_Olive"});
+		AddItem("ArmyPouch_Beige", 					120,		300,		1,		100, null, {"ArmyPouch_Black", "ArmyPouch_Camo", "ArmyPouch_Green"});
+		AddItem("DrysackBag_Green", 				120,		300,		1,		100, null, {"DrysackBag_Orange", "DrysackBag_Yellow"});
+	#endif
 	}
 };

@@ -25,9 +25,7 @@ class ExpansionMarketShotguns: ExpansionMarketCategory
 		
 		AddItem("Mp133Shotgun", 			500,	1000,	1,		100);
 		AddItem("Izh43Shotgun", 			900,	1800,	1,		100);
-#ifndef DAYZ_1_18
 		AddItem("Izh18Shotgun", 			350,	700,	1,		100);
-#endif
 		AddItem("Saiga", 					1500,	3000,	1,		100,	{"Saiga_Bttstck","Mag_Saiga_8Rnd"});
 	#ifdef EXPANSIONMODWEAPONS	
 		AddItem("Expansion_BenelliM4", 		1500,	3000,	1,		100);

@@ -33,9 +33,7 @@ class ExpansionMarketNavigation: ExpansionMarketCategory
 		}
 
 		AddItem("Binoculars", 					30,		60,		1,		100);
-#ifndef DAYZ_1_18
 		AddItem("GPSReceiver", 					300,	600,	1,		100,	{"Battery9V"});
-#endif
 	#ifdef EXPANSIONMODNAVIGATION
 		AddItem("ExpansionGPS", 				300,	600,	1,		100,	{"Battery9V"});
 	#endif

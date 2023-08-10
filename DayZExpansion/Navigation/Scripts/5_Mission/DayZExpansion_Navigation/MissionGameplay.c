@@ -123,8 +123,9 @@ modded class MissionGameplay
 					{
 						// Stage 0: "Enabled all 3D Markers" 
 						// enable ALL 3D Markers again, doesnt matter which one
-						case 0:							
-							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_OFF", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+						case 0:
+						
+							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEALL_OFF", ""));
 							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 							m_MarkerModule.SetVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);
@@ -133,27 +134,27 @@ modded class MissionGameplay
 						// Stage 1: "Disabled all Server 3D Markers" 
 						// hide ONLY Server 3D Markers
 						case 1:
-							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLESERVER_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLESERVER_ON", ""));
 							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 						break;
 						// Stage 2: "Disabled all Personal Party 3D Markers" 
 						// hide ONLY server and all personal markers from the Party (except Member 3D Markers and privat personal 3D Markers)
 						// TO ONLY SEE MEMBER 3D AND YOUR OWN PERSONAL 3D MARKERS!
 						case 2:
-							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEPARTY_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEPARTY_ON", ""));
 							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 						break;
 						// Stage 3: "Disabled all Personal 3D Markers" 
 						// hide ONLY server and all personal and party markers (except Member 3D Markers)
 						// TO ONLY SEE MEMBER 3D MARKERS!
 						case 3:
-							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEPERSONAL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEPERSONAL_ON", ""));
 							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD);
 						break;
 						// Stage 4: "Disabled all 3D Markers" 
 						// hide ALL 3D Markers, doesnt matter which one
 						case 4:
-							ExpansionNotification("STR_EXPANSION_MARKERTOGGLE_TITLE", "STR_EXPANSION_MARKERTOGGLEALL_ON", EXPANSION_NOTIFICATION_ICON_MARKER, COLOR_EXPANSION_NOTIFICATION_SUCCESS, 5).Info(player.GetIdentity());
+							GetGame().GetMission().OnEvent(ChatMessageEventTypeID, new ChatMessageEventParams(CCDirect, "", "#STR_EXPANSION_MARKERTOGGLEALL_ON", ""));
 							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD);
 							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD);
 							m_MarkerModule.RemoveVisibility(ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD);

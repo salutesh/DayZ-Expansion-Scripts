@@ -1,3 +1,116 @@
+
+class ExpansionHelicopterScriptRotor : CollisionOverlapCallback
+{
+	EntityAI m_Vehicle;
+
+	bool m_Setup = false;
+
+	string m_InventorySlot;
+	float m_ContactDamage;
+
+	float m_Radius;
+	float m_Height;
+
+	EntityAI m_Entity;
+
+	float m_HealthSync; //! Health of rotor [0,1]
+
+	void ExpansionHelicopterScriptRotor(EntityAI vehicle, string rotor)
+	{
+		m_Vehicle = vehicle;
+
+		string path;
+		string rootPath = "CfgVehicles " + m_Vehicle.GetType() + " SimulationModule Rotors " + rotor;
+		m_Setup = GetGame().ConfigIsExisting(rootPath);
+
+		m_HealthSync = 1.0;
+
+		if (m_Setup)
+		{
+			path = rootPath + " inventorySlot";
+			if (GetGame().ConfigIsExisting(path))
+				m_InventorySlot = GetGame().ConfigGetTextOut(path);
+
+			path = rootPath + " contactDamage";
+			if (GetGame().ConfigIsExisting(path))
+				m_ContactDamage = GetGame().ConfigGetFloat(path);
+
+			path = rootPath + " radius";
+			if (GetGame().ConfigIsExisting(path))
+				m_Radius = GetGame().ConfigGetFloat(path);
+
+			path = rootPath + " height";
+			if (GetGame().ConfigIsExisting(path))
+				m_Height = GetGame().ConfigGetFloat(path);
+
+			m_InventorySlot.ToLower();
+		}
+	}
+
+	void OnAttach(string slot, EntityAI entity)
+	{
+		if (slot != m_InventorySlot)
+		{
+			return;
+		}
+
+		m_Entity = entity;
+	}
+
+	void OnDetach(string slot, EntityAI entity)
+	{
+		if (slot != m_InventorySlot)
+		{
+			return;
+		}
+		
+		m_Entity = null;
+	}
+
+	void Update(float time)
+	{
+		if (GetGame().IsClient() || !m_Entity || !m_Setup)
+		{
+			return;
+		}
+
+		m_HealthSync = m_Entity.GetHealth01();
+
+		if (m_HealthSync > 0.0)
+		{
+			vector transform[4];
+			m_Entity.GetTransform(transform);
+
+			int layers = PhxInteractionLayers.BUILDING | PhxInteractionLayers.VEHICLE | PhxInteractionLayers.TERRAIN;
+
+			bool collided = DayZPhysics.CylinderOverlapBullet(transform, Vector(m_Radius, m_Height, m_Radius), layers, this);
+
+			if (collided)
+			{
+				m_Entity.DecreaseHealth(m_ContactDamage * time, false);
+			}
+		}
+
+		m_HealthSync = m_Entity.GetHealth01();
+	}
+
+	override bool OnContact(IEntity other, Contact contact)
+	{
+		if (other == m_Vehicle)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	float GetHealth01()
+	{
+		return m_HealthSync;
+	}
+
+};
+
 class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 {
 	static int HELICOPTER_CONTROLLER_INDEX = 1;
@@ -103,12 +216,18 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 	Particle m_DustParticle;
 	Particle m_WaterParticle;
 
+	ref ExpansionHelicopterScriptRotor m_Main;
+	ref ExpansionHelicopterScriptRotor m_Tail;
+
 	void ExpansionVehicleHelicopter_OLD(EntityAI pVehicle)
 	{
 		m_NoiseParams = new NoiseParams();
 		m_NoiseParams.Load("HeliExpansionNoise");
 
 		m_SelfDebugWindow = true;
+
+		m_Main = new ExpansionHelicopterScriptRotor(pVehicle, "Main");
+		m_Tail = new ExpansionHelicopterScriptRotor(pVehicle, "Tail");
 	}
 
 	void ~ExpansionVehicleHelicopter_OLD()
@@ -577,6 +696,9 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 		{
 			m_WindSpeedSync = "0 0 0";
 		}
+
+		m_Main.Update(pState.m_DeltaTime);
+		m_Tail.Update(pState.m_DeltaTime);
 	}
 
 	static float LookUp(float value, int num, float inVals[], float outVals[])
@@ -837,7 +959,10 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 			{
 				float tailRotorMalfunction = 0.0;
 				if (m_EnableTailRotorDamage)
-					tailRotorMalfunction = m_Vehicle.GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
+				{
+					tailRotorMalfunction = 1.0 - m_Tail.GetHealth01();
+				//	tailRotorMalfunction = m_Vehicle.GetHealthLevel() / 5.0; // GetHealthLevel( "TailRotor" ) / 5.0;
+				}
 
 				float tailRotorMalfunctionNeg = 1.0 - tailRotorMalfunction;
 				float tailRotorMalfunctionTorque = 0.5 * tailRotorMalfunction * m_RotorSpeed * (m_RotorSpeed + 0.1);
@@ -1117,6 +1242,34 @@ class ExpansionVehicleHelicopter_OLD : ExpansionVehicleModule
 #endif
 
 		return m_IsFreeLook;
+	}
+
+	void OnAttach(string slot, EntityAI entity)
+	{
+		slot.ToLower();
+
+		m_Main.OnAttach(slot, entity);
+		m_Tail.OnAttach(slot, entity);
+	}
+
+	void OnDetach(string slot, EntityAI entity)
+	{
+		slot.ToLower();
+		
+		m_Main.OnDetach(slot, entity);
+		m_Tail.OnDetach(slot, entity);
+	}
+
+	//! Returns true if main or tail rotor are damaged (but not destroyed)
+	bool IsRotorDamaged()
+	{
+		if (m_Main.m_Entity && !m_Main.m_Entity.IsDamageDestroyed() && m_Main.m_Entity.GetHealthLevel() != GameConstants.STATE_PRISTINE)
+			return true;
+
+		if (m_Tail.m_Entity && !m_Tail.m_Entity.IsDamageDestroyed() && m_Tail.m_Entity.GetHealthLevel() != GameConstants.STATE_PRISTINE)
+			return true;
+
+		return false;
 	}
 
 #ifdef CF_DebugUI

@@ -817,7 +817,7 @@ class ExpansionClientSettings
 		HUDChatToggle = true;
 		HUDChatMessageTimeThreshold = 10.0;
 		HUDChatSize = ExpansionClientUIChatSize.MEDIUM;
-		HUDChatFadeOut = 1.0;
+		HUDChatFadeOut = 3.0;
 
 		MemberMarkerType = ExpansionClientUIMemberMarkerType.PERSON;
 		MarkerSize = ExpansionClientUIMarkerSize.MEDIUM;

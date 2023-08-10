@@ -271,7 +271,7 @@ class ExpansionPrefabObject : Managed
 				{
 					foreach (ExpansionPrefabObject thisCargo: InventoryCargo)
 					{
-						if (thisCargo.CanSpawn())
+						if (thisCargo.ClassName && thisCargo.CanSpawn())
 							inventoryCargo.Insert(thisCargo);
 					}
 				}
@@ -298,7 +298,7 @@ class ExpansionPrefabObject : Managed
 						selectedSet.Spawn(self, true);
 						foreach (ExpansionPrefabObject setCargo: selectedSet.InventoryCargo)
 						{
-							if (setCargo.CanSpawn())
+							if (setCargo.ClassName && setCargo.CanSpawn())
 								inventoryCargo.Insert(setCargo);
 						}
 						if (selectedSet.ClassName)
@@ -324,7 +324,7 @@ class ExpansionPrefabObject : Managed
 					//! Select attachments by chance
 					foreach (ExpansionPrefabObject attachment : attachments)
 					{
-						if (attachment.CanSpawn())
+						if (attachment.ClassName && attachment.CanSpawn())
 							candidates.Insert(attachment);
 					}
 
@@ -346,29 +346,49 @@ class ExpansionPrefabObject : Managed
 						{
 						case InventorySlots.INVALID:
 							child = attachment.Spawn(inventory.CreateAttachment(attachment.ClassName));
+							if (child)
+								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created attachment " + attachment.ClassName + " on " + entity);
+							else
+								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create attachment " + attachment.ClassName + " on " + entity);
 							break;
 						case InventorySlots.HANDS:
 							if (humanInventory)
 							{
 								child = attachment.Spawn(humanInventory.CreateInHands(attachment.ClassName));
 								if (child != null)
+								{
 									slotTaken = true;
+									EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created " + attachment.ClassName + " in hands of " + entity);
+								}
+								else
+								{
+									EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create " + attachment.ClassName + " in hands of " + entity);
+								}
 							}
 							break;
 						case InventorySlots.MAGAZINE:
-							int quantMag = attachment.Quantity.GetRandom();
-							if (quantMag == 0)
-							{
-								quantMag = -1;
-							}
-							child = weapon.ExpansionCreateInInventory(attachment.ClassName);
+							child = attachment.Spawn(item.ExpansionCreateInInventory(attachment.ClassName));
 							if (child != null)
+							{
 								slotTaken = true;
+								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created mag " + attachment.ClassName + " on " + entity);
+							}
+							else
+							{
+								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create mag " + attachment.ClassName + " on " + entity);
+							}
 							break;
 						default:
 							child = attachment.Spawn(inventory.CreateAttachmentEx(attachment.ClassName, currentSlotId));
 							if (child != null)
+							{
 								slotTaken = true;
+								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created attachment " + attachment.ClassName + " on " + entity + " in slot " + slotName);
+							}
+							else
+							{
+								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create attachment " + attachment.ClassName + " on " + entity + " in slot " + slotName);
+							}
 							break;
 						}
 
@@ -390,7 +410,10 @@ class ExpansionPrefabObject : Managed
 					cargo = inventoryCargo[index];
 					inventoryCargo.Remove(index);
 
-					cargo.Spawn(inventory.CreateInInventory(cargo.ClassName));
+					if (cargo.Spawn(inventory.CreateInInventory(cargo.ClassName)))
+						EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created " + cargo.ClassName + " on " + entity);
+					else
+						EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create " + cargo.ClassName + " on " + entity);
 				}
 			}
 		}

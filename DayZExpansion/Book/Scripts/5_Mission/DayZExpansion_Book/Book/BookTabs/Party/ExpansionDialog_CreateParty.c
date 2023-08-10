@@ -11,60 +11,41 @@
 */
 
 #ifdef EXPANSIONMODGROUPS
-class ExpansionDialog_CreateParty: ExpansionDialogBookBase
+class ExpansionDialog_CreateParty: ExpansionScriptView
 {
-	ref ExpansionDialogContent_Text m_Text;
-	ref ExpansionDialogBookContent_Editbox m_Editbox;
-	ref ExpansionDialogButton_Text_CreateParty_Accept m_AcceptButton;
-	ref ExpansionDialogButton_Text_CreateParty_Cancel m_CancelButton;
+	protected EditBoxWidget dialog_editbox_name;
+	protected EditBoxWidget dialog_editbox_tag;
+	
+	protected ButtonWidget button_create_button;
+	protected TextWidget button_create_text;
+	
+	protected ButtonWidget button_cancel_button;
+	protected TextWidget button_cancel_text; 
+	
 	ref ExpansionBookMenuTabParty m_PartyTab;
+	ref ExpansionPartyModule m_PartyModule;
+	ref ExpansionDialog_CreatePartyController m_DialogController;
 
 	void ExpansionDialog_CreateParty(ScriptView parentView)
-	{
-		m_ParentView = parentView;
-		
-		if (!Class.CastTo(m_PartyTab, m_ParentView))
+	{		
+		if (!Class.CastTo(m_PartyTab, parentView))
 			return;
 		
-		if (!m_Text)
-		{
-			m_Text = new ExpansionDialogContent_Text(this);
-			AddContent(m_Text);
-			m_Text.SetText("#STR_EXPANSION_BOOK_GROUP_ENTER_PARTYNAME");
-			m_Text.SetTextColor(ARGB(255,0,0,0));
-			m_Text.Show();
-		}
+		m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
+		m_DialogController = ExpansionDialog_CreatePartyController.Cast(GetController());
 		
-		if (!m_Editbox)
-		{
-			m_Editbox = new ExpansionDialogBookContent_Editbox(this);
-			AddContent(m_Editbox);
-			m_Editbox.Show();
-		}
-		
-		if (!m_AcceptButton)
-		{
-			m_AcceptButton = new ExpansionDialogButton_Text_CreateParty_Accept(this, parentView);
-			AddButton(m_AcceptButton);
-			m_AcceptButton.Show();
-		}
-		
-		if (!m_CancelButton)
-		{
-			m_CancelButton = ExpansionDialogButton_Text_CreateParty_Cancel(this, parentView);
-			AddButton(m_CancelButton);
-			m_CancelButton.Show();
-		}
-	}
-		
-	override string GetDialogTitle()
-	{
-		return "#STR_EXPANSION_BOOK_GROUP_PAGE_TITLE";
+		m_DialogController.DialogTitle = "#STR_EXPANSION_BOOK_GROUP_PAGE_TITLE";
+		m_DialogController.NotifyPropertyChanged("DialogTitle");
 	}
 	
-	ExpansionDialogBookContent_Editbox GetEditbox()
+	override string GetLayoutFile() 
 	{
-		return m_Editbox;
+		return "DayZExpansion/Book/GUI/layouts/dialogs/expansion_dialog_create_group.layout";
+	}
+
+	override typename GetControllerType()
+	{
+		return ExpansionDialog_CreatePartyController;
 	}
 	
 	override void OnShow()
@@ -78,82 +59,112 @@ class ExpansionDialog_CreateParty: ExpansionDialogBookBase
 		SwitchMovementLockState(false);
 		super.OnHide();	
 	}
-};
-
-class ExpansionDialogButton_Text_CreateParty_Accept: ExpansionDialogBookButton_Text
-{
-	ref ExpansionDialog_CreateParty m_CreatePartyDialog;
-	ref ExpansionPartyModule m_PartyModule;
-	ref ExpansionBookMenuTabParty m_PartyTab;
 	
-	void ExpansionDialogButton_Text_CreateParty_Accept(ExpansionDialogBase dialog, ScriptView parentView)
+	protected void SwitchMovementLockState(bool lockMovement)
 	{
-		m_Dialog = dialog;
-		
-		if (!Class.CastTo(m_PartyTab, parentView))
-			return;
-		
-		if (!m_CreatePartyDialog)
-			m_CreatePartyDialog = ExpansionDialog_CreateParty.Cast(m_Dialog);
-		
-		if (!m_PartyModule)
-			m_PartyModule = ExpansionPartyModule.Cast(CF_ModuleCoreManager.Get(ExpansionPartyModule));
-		
-		SetButtonText("#STR_EXPANSION_ACCEPT");
-		SetTextColor(ARGB(255,0,0,0));
-	}
-	
-	override void OnButtonClick()
-	{
-		if (m_CreatePartyDialog.GetEditbox().GetEditboxText() != "")
+		if (m_PartyTab)
 		{
-			string party_name = m_CreatePartyDialog.GetEditbox().GetEditboxText();
-			TStringArray allCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," ","'","\""};
-			if (party_name.Length() < 3 || party_name.Length() > 32)
-			{
-				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_SYSTEM_NAME").Error();
+			ExpansionBookMenuTabBase tabBase = m_PartyTab;
+			if (!tabBase)
 				return;
-			}
 			
-			for (int i = 0; i < party_name.Length(); i++)
-			{
-				if (allCharacters.Find(party_name.Get(i)) == -1)
-				{
-					ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_SYSTEM_ALPHANUMERIC").Error();
-					return;
-				}
-			}
-	
-		   	m_PartyModule.CreateParty(party_name);
-			m_CreatePartyDialog.Hide();
-			m_PartyTab.Hide();
+			tabBase.GetBookMenu().SwitchMovementLockState(lockMovement);
 		}
 	}
-};
-
-class ExpansionDialogButton_Text_CreateParty_Cancel: ExpansionDialogBookButton_Text
-{
-	ref ExpansionDialog_CreateParty m_CreatePartyDialog;
-	ref ExpansionBookMenuTabParty m_PartyTab;
 	
-	void ExpansionDialogButton_Text_CreateParty_Cancel(ExpansionDialogBase dialog, ScriptView parentView)
+	protected void OnCreateButtonClick()
 	{
-		m_Dialog = dialog;
-		
-		if (!Class.CastTo(m_PartyTab, parentView))
+		if (dialog_editbox_name.GetText() == "")
 			return;
-			
-		if (!m_CreatePartyDialog)
-			m_CreatePartyDialog = ExpansionDialog_CreateParty.Cast(m_Dialog);
+
+		if (dialog_editbox_name.GetText() == "")
+			return;
+
+		string party_name = dialog_editbox_name.GetText();
+		if (party_name.Length() < 3 || party_name.Length() > 32)
+		{
+			ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_SYSTEM_NAME").Error();
+			return;
+		}
+
+		if (!HasValidCharacters(party_name))
+			return;
 		
-		SetButtonText("#STR_EXPANSION_CANCEL");
-		SetTextColor(ARGB(255,0,0,0));
-	}
-	
-	override void OnButtonClick()
-	{
-		m_CreatePartyDialog.Hide();
+		string party_tag = dialog_editbox_tag.GetText();
+		if (party_tag.Length() != ExpansionPartyData.GROUP_TAG_LENGTH )
+		{
+			if ( GetExpansionSettings().GetParty().ForcePartyToHaveTags && party_tag.Length() == 0 )
+			{
+				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", string.Format("Your party tag need to be %1 characters!", ExpansionPartyData.GROUP_TAG_LENGTH)).Error();
+				return;
+			}
+		}
+
+		if (!HasValidCharacters(party_tag))
+			return;
+
+		m_PartyModule.CreateParty(party_name, party_tag);
+		Hide();
 		m_PartyTab.Hide();
 	}
+	
+	private bool HasValidCharacters(string word)
+	{
+		TStringArray allCharacters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","_"," ","'","\""};
+		for (int i = 0; i < word.Length(); i++)
+		{
+			if (allCharacters.Find(word.Get(i)) == -1)
+			{
+				ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_SYSTEM_ALPHANUMERIC").Error();
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	protected void OnCancelButtonClick()
+	{
+		Hide();
+		m_PartyTab.Hide();
+	}
+	
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if (w != null)
+		{
+			if (w == button_create_button)
+			{
+				button_create_text.SetColor(ARGB(255,255,255,255));
+			}
+			else if (w == button_create_button)
+			{
+				button_cancel_text.SetColor(ARGB(255,255,255,255));
+			}
+		}
+		
+		return false;
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if (w != null)
+		{
+			if (w == button_create_button)
+			{
+				button_create_text.SetColor(ARGB(255,0,0,0));
+			}
+			else if (w == button_create_button)
+			{
+				button_cancel_text.SetColor(ARGB(255,0,0,0));
+			}
+		}
+
+		return false;
+	}
+};
+class ExpansionDialog_CreatePartyController: ExpansionViewController 
+{
+	string DialogTitle;
 };
 #endif

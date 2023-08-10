@@ -50,7 +50,10 @@ class ExpansionCOTGroupsListEntry: ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	void SetEntry()
 	{
-		m_GroupName.SetText(m_PartyData.GetPartyName() + " - ");
+		if ( m_PartyData.GetPartyTag() != "" )
+			m_GroupName.SetText(m_PartyData.GetPartyTagFormatted() + m_PartyData.GetPartyName() + " - ");
+		else
+			m_GroupName.SetText(m_PartyData.GetPartyName() + " - ");
 		m_GroupID.SetText("ID: " + m_PartyData.GetPartyID().ToString());
 	}
 	

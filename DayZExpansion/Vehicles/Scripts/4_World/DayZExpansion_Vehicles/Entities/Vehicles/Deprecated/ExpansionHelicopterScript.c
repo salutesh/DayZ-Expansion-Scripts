@@ -170,6 +170,20 @@ class ExpansionHelicopterScript: CarScript
 		Error("Not implemented!");
 	}
 
+	override void EEItemAttached(EntityAI item, string slot_name)
+	{
+		super.EEItemAttached(item, slot_name);
+
+		m_Simulation.OnAttach(slot_name, item);
+	}
+
+	override void EEItemDetached(EntityAI item, string slot_name)
+	{
+		super.EEItemDetached(item, slot_name);
+
+		m_Simulation.OnDetach(slot_name, item);
+	}
+
 	//! Expansion helis do not seem to receive vanilla OnContact for frontal collisions, but some 3rd party ones do.
 	//! Expansion helis: Receive EOnContact, no OnContact
 	//! 3rd party helis: Receive OnContact, then EOnContact
@@ -569,6 +583,11 @@ class ExpansionHelicopterScript: CarScript
 	override bool Expansion_EngineIsSpinning()
 	{
 		return m_Simulation.m_RotorSpeed > 0;
+	}
+
+	bool Expansion_IsRotorDamaged()
+	{
+		return m_Simulation.IsRotorDamaged();
 	}
 
 	override float OnSound(CarSoundCtrl ctrl, float oldValue)

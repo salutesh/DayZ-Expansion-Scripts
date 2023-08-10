@@ -122,9 +122,7 @@ class ExpansionMarketCoatsAndJackets: ExpansionMarketCategory
 		AddItem("NBCJacketGray", 						250,	500,	1,		100);
 		AddItem("NBCJacketYellow", 						250,	500,	1,		100);
 		
-	#ifndef DAYZ_1_20
 	//! 1.21+
 		AddItem("Chainmail", 							375,	650,	1,		100);
-	#endif
 	}
 };

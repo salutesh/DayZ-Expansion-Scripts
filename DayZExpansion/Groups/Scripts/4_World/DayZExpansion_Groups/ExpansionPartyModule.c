@@ -262,13 +262,14 @@ class ExpansionPartyModule: CF_ModuleWorld
 		SI_Callback.Invoke(ExpansionPartyModuleRPC.SyncPlayerInvites);
 	}
 
-	void CreateParty(string partyName)
+	void CreateParty(string partyName, string partyTag)
 	{
 		if (Expansion_Assert_False(IsMissionClient(), "[" + this + "] CreateParty shall only be called on client!"))
 			return;
 
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(partyName);
+		rpc.Write(partyTag);
 		rpc.Send(NULL, ExpansionPartyModuleRPC.CreateParty, true, NULL);
 	}
 
@@ -279,6 +280,10 @@ class ExpansionPartyModule: CF_ModuleWorld
 		
 		string partyName;
 		if (!ctx.Read(partyName))
+			return;
+		
+		string partyTag;
+		if (!ctx.Read(partyTag))
 			return;
 
 		PlayerBase player = PlayerBase.GetPlayerByUID(sender.GetId());
@@ -295,7 +300,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		}
 
 		ExpansionPartyData newParty = new ExpansionPartyData(m_NextPartyID);
-		newParty.SetupExpansionPartyData(player, partyName);
+		newParty.SetupExpansionPartyData(player, partyName, partyTag);
 		newParty.Save();
 
 		AddParty(m_NextPartyID, newParty);
@@ -303,7 +308,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		UpdatePartyMembersServer(m_NextPartyID++);
 
 		if (GetExpansionSettings().GetLog().Party)
-			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " created a party named " + partyName);
+			GetExpansionSettings().GetLog().PrintLog("[Party] Player \"" + sender.GetName() + "\" (id=" + sender.GetId() + ")" + " created a party named " + partyName + " ("+partyTag+")");
 
 		ExpansionNotification("STR_EXPANSION_PARTY_NOTIF_TITLE", "STR_EXPANSION_PARTY_SYSTEM_PARTY_CREATED").Success(sender);
 	}

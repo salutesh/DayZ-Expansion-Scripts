@@ -40,9 +40,7 @@ class ExpansionMarketVests: ExpansionMarketCategory
 		AddItem("PlateCarrierVest", 			250,		500,		1,		100, null, {"PlateCarrierVest_Green", "PlateCarrierVest_Black", "PlateCarrierVest_Camo"});
 		AddItem("PlateCarrierVest_Camo", 		275,		500,		1,		100);
 		AddItem("HuntingVest", 					90,			500,		1,		100);
-	#ifndef DAYZ_1_20
 		//! 1.21+
 		AddItem("Chestplate", 					150,	500,	1,		100);
-	#endif
 	}
 };
