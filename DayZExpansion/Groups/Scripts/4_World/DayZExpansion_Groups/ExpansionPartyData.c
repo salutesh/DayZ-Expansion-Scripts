@@ -569,6 +569,10 @@ class ExpansionPartyData
 		int count = 0;
 		int index = 0;
 
+	#ifdef EXPANSIONMODNAVIGATION
+		auto settings = GetExpansionSettings().GetParty();
+	#endif
+
 		count = Players.Count();
 		ctx.Write( count );
 		for ( index = 0; index < count; ++index )
@@ -578,7 +582,7 @@ class ExpansionPartyData
 			ctx.Write( Players[index].Permissions );
 
 		#ifdef EXPANSIONMODNAVIGATION
-			if ( Players[index].Marker )
+			if ( Players[index].Marker && (settings.ShowPartyMemberMapMarkers || settings.ShowPartyMember3DMarkers) )
 			{
 				bool hasMarker = true;
 				if ( !Players[index].Marker.GetObject() )
@@ -586,10 +590,10 @@ class ExpansionPartyData
 					hasMarker = false;
 					// todo: update marker, maybe player respawned?
 				}
-
-				if ( Players[index].Marker.GetObject() )
+				else
 				{
 					Players[index].Marker.Update();
+					Players[index].Marker.Set3D(settings.ShowPartyMember3DMarkers);
 				}
 
 				ctx.Write( hasMarker );
@@ -601,7 +605,7 @@ class ExpansionPartyData
 				ctx.Write( false );
 			}
 
-			if ( Players[index].QuickMarker )
+			if ( Players[index].QuickMarker && settings.EnableQuickMarker )
 			{
 				ctx.Write( true );
 
@@ -621,17 +625,24 @@ class ExpansionPartyData
 		}
 
 	#ifdef EXPANSIONMODNAVIGATION
-		bool syncMarkersPlayer;
-		if (playerID && m_SyncMarkersPlayers.Find(playerID) > -1)
-			syncMarkersPlayer = true;
-		if (!syncMarkersPlayer && syncMarkers)
+		if (settings.CanCreatePartyMarkers)
 		{
-			count = Markers.Count();
-			m_SyncMarkersPlayers.Insert(playerID);
+			bool syncMarkersPlayer;
+			if (playerID && m_SyncMarkersPlayers.Find(playerID) > -1)
+				syncMarkersPlayer = true;
+			if (!syncMarkersPlayer && syncMarkers)
+			{
+				count = Markers.Count();
+				m_SyncMarkersPlayers.Insert(playerID);
+			}
+			else
+			{
+				count = -1;
+			}
 		}
 		else
 		{
-			count = -1;
+			count = 0;
 		}
 
 		ctx.Write( count );
@@ -712,7 +723,6 @@ class ExpansionPartyData
 
 				if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowMemberNameMarker)
 					player.Marker.SetName(player.Name);
-				player.Marker.Set3D(true);
 				player.Marker.SetIcon(ExpansionIcons.Get("Persona"));
 			} else
 			{

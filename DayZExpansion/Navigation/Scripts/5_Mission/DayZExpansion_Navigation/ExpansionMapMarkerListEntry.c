@@ -119,6 +119,16 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 				m_3DToggle.ClearFlags(WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS);
 			}
 
+			if (m_Marker.GetMarkerData().IsInherited(ExpansionPlayerMarkerData) && !GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers)
+			{
+				m_2DToggleIcon.Show(false);
+				m_2DToggle.SetFlags(WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS);
+			} else
+			{
+				m_2DToggleIcon.Show(true);
+				m_2DToggle.ClearFlags(WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS);
+			}
+
 			if (!m_Marker.CanEdit())
 			{
 				m_DeleteEntryIcon.Show(false);
@@ -205,6 +215,8 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 			
 			m_MarkerModule.Refresh();
 			UpdateToggleStates();
+
+			return true;
 		}
 		
 		if (m_DeleteEntry && w == m_DeleteEntry)
@@ -220,6 +232,8 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 				m_DeleteEntryIcon.SetColor(ARGB(255, 240, 240, 240));
 				m_DeleteEntryIcon.SetImage(1);
 			}
+
+			return true;
 		}
 
 		return false;

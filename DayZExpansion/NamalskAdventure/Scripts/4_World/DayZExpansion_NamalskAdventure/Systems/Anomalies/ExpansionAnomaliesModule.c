@@ -18,7 +18,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 	protected static const int ANOMALY_SPAWN_DISTANCE = 250;
 	protected const float UPDATE_TICK_TIME = 0.200;
 	protected const int UPDATE_ANOMALIES_PER_TICK = 5;  //! Refresh up to 5 anomalies and amomaliycores every UPDATE_TICK_TIME interval
-	protected const int SPAWN_ANOMALIES_PER_TICK = 1;  //! Spawn up to 1 anomalies every UPDATE_TICK_TIME interval
 
 	static ref array<vector> m_AnomalyPositions;
 	protected bool m_DynamicSpawned;
@@ -52,8 +51,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 
 	protected static ScriptCaller s_EVRStormStartCoresSC;
 	protected static ScriptCaller s_EVRStormBlowoutCoresSC;
-	
-	protected int m_SpawnedAnomaliesInTick;
+
 	protected int m_DynamicAnomaliesToSpawn;
 	protected int m_SpawnedDynamicAnomaliesCount;
 	protected int m_StaticAnomaliesToSpawn;
@@ -130,6 +128,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 						SpawnAnomalyDynamic(dynamicSpawn, pos);
 					}
 				}
+				
+				m_DynamicSpawned = true;
 			}
 		}
 
@@ -141,6 +141,8 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 				{				
 					SpawnAnomalyStatic(staticSpawn);
 				}
+				
+				m_StaticSpawned = true;
 			}
 		}
 	}
@@ -164,7 +166,7 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 				anomalyObj.SpawnLoot();
 		}
 		
-		//! @note: We increase the survived EVR storms count for the static spawned anomalies on spawn so the OnEVRStormFinalBlowout method
+		//! @note: We increase the EVR storms count for the static spawned anomalies on spawn so the OnEVRStormFinalBlowout method
 		//! takes these anomalies into account for the anomaly implosion event gamble on the next EVR storm event that hits the server.
 		anomalyObj.IncreaseEVRStormsCount();
         m_AnomalyPositions.Insert(anomaly.CenterPosition);
@@ -590,19 +592,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 				foreach (vector pos: positions)
 				{
 					SpawnAnomalyDynamic(dynamicSpawn, pos, true);
-					m_SpawnedAnomaliesInTick++;
-					
-					if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-					{
-						m_SpawnedAnomaliesInTick = 0;
-						break;
-					}
-				}
-				
-				if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-				{
-					m_SpawnedAnomaliesInTick = 0;
-					break;
 				}
 			}
 		}
@@ -612,13 +601,6 @@ class ExpansionAnomaliesModule: CF_ModuleWorld
 			foreach (ExpansionAnomalyStatic staticSpawn: m_StaticAnomalySpawns)
 			{
 				SpawnAnomalyStatic(staticSpawn, true);
-				m_SpawnedAnomaliesInTick++;
-
-				if (m_SpawnedAnomaliesInTick >= SPAWN_ANOMALIES_PER_TICK) 
-				{
-					m_SpawnedAnomaliesInTick = 0;
-					break;
-				}
 			}
 		}
 		

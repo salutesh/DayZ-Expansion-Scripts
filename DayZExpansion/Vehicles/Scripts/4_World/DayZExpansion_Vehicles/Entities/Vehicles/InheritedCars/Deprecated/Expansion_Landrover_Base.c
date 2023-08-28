@@ -563,6 +563,16 @@ class Expansion_Landrover_Base: CarScript
 
 		return super.OnSound(ctrl, oldValue);
 	}
+
+	override float GetTransportCameraDistance()
+	{
+		return 6.0;
+	}
+
+	override vector GetTransportCameraOffset()
+	{
+		return "0 1.6 0";
+	}
 	
 	override void OnDebugSpawn()
 	{
@@ -643,5 +653,246 @@ modded class WoodenCrate
 		super.SetActions();
 		
 		AddAction(ActionDetach);
+	}
+};
+
+class Expansion_Landrover_Yellow: Expansion_Landrover_Base
+{
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("SeaChest");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("CanisterGasoline");
+			
+
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Hood_Yellow");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Driverdoor_Yellow");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Codriverdoor_Yellow");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Left_Yellow");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Right_Yellow");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Trunk_Yellow");
+			
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
+};
+
+class Expansion_Landrover_Green: Expansion_Landrover_Base
+{
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("SeaChest");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("CanisterGasoline");
+			
+
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Hood_Green");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Driverdoor_Green");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Codriverdoor_Green");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Left_Green");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Right_Green");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Trunk_Green");	
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
+};
+
+class Expansion_Landrover_Red: Expansion_Landrover_Base
+{
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("SeaChest");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("CanisterGasoline");
+			
+
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Hood_Red");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Driverdoor_Red");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Codriverdoor_Red");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Left_Red");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Right_Red");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Trunk_Red");		
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
+};
+
+class Expansion_Landrover_Grey: Expansion_Landrover_Base
+{
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("SeaChest");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("CanisterGasoline");
+			
+
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Hood_Grey");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Driverdoor_Grey");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Codriverdoor_Grey");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Left_Grey");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Right_Grey");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Trunk_Grey");	
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
+};
+
+class Expansion_Landrover_Blue: Expansion_Landrover_Base
+{
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("SeaChest");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("CanisterGasoline");
+			
+
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Hood_Blue");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Driverdoor_Blue");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Codriverdoor_Blue");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Left_Blue");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Right_Blue");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Trunk_Blue");
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
+	}
+};
+
+class Expansion_Landrover_Orange: Expansion_Landrover_Base
+{
+	override void OnDebugSpawn()
+	{
+		EntityAI entity;
+
+		if (Class.CastTo(entity, this))
+		{
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Wheel");
+
+			entity.GetInventory().CreateInInventory("CarBattery");
+			entity.GetInventory().CreateInInventory("SparkPlug");
+			entity.GetInventory().CreateInInventory("CarRadiator");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("HeadlightH7");
+			entity.GetInventory().CreateInInventory("SeaChest");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("WoodenCrate");
+			entity.GetInventory().CreateInInventory("CanisterGasoline");
+			
+
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Hood_Orange");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Driverdoor_Orange");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Codriverdoor_Orange");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Left_Orange");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Right_Orange");
+			entity.GetInventory().CreateInInventory("Expansion_Landrover_Trunk_Orange");
+		}
+
+		Fill(CarFluid.FUEL, 50);
+		Fill(CarFluid.COOLANT, 6.0);
+		Fill(CarFluid.OIL, 4.0);
 	}
 };

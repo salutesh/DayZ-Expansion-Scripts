@@ -17,7 +17,7 @@ class ExpansionActionHelicopterHoverRefillCB : ActionContinuousBaseCB
 {
 	override void CreateActionComponent()
 	{
-		m_ActionData.m_ActionComponent = new CAContinuousHoverFillFuel(UAQuantityConsumed.FUEL * LIQUID_THROUGHPUT_FUELSTATION, 0.5);
+		m_ActionData.m_ActionComponent = new CAContinuousHoverFillFuel(UAQuantityConsumed.FUEL, 0.5);
 	}
 }
 
@@ -54,6 +54,16 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 	override bool CanBeUsedInVehicle()
 	{
 		return true;
+	}
+
+	override bool UseMainItem()
+	{
+		return false;
+	}
+
+	override bool HasTarget()
+	{
+		return false;
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
@@ -112,33 +122,5 @@ class ExpansionActionHelicopterHoverRefill : ActionContinuousBase
 	override bool ActionConditionContinue( ActionData action_data )
 	{
 		return true;
-	}
-
-	override void OnFinishProgressServer(ActionData action_data)
-	{
-		super.OnFinishProgressServer(action_data);
-
-		float capacity;
-		float add;
-		float fuel;
-
-		ExpansionHelicopterScript d_helicopter;
-		if ( Class.CastTo( d_helicopter, action_data.m_Player.GetParent() ) )
-		{
-			if (d_helicopter.GetFluidFraction(CarFluid.FUEL) >= 0.98)
-				return;
-
-			d_helicopter.Fill(CarFluid.FUEL, 5.0);
-			return;
-		}
-
-		ExpansionVehicleHelicopterBase helicopter;
-		if ( Class.CastTo( helicopter, action_data.m_Player.GetParent() ) )
-		{
-			if (helicopter.GetFluidFraction(CarFluid.FUEL) >= 0.98)
-				return;
-
-			helicopter.Fill(CarFluid.FUEL, 5.0);
-		}
 	}
 };

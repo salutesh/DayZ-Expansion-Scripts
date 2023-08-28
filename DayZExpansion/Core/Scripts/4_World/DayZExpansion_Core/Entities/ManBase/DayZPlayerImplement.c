@@ -290,9 +290,12 @@ modded class DayZPlayerImplement
 #ifdef DIAG
 		if (!m_Expansion_DebugObjects[i])
 		{
-			m_Expansion_DebugObjects[i] = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
+			Object obj = GetGame().CreateObjectEx(type, position, ECE_NOLIFETIME);
+			if (!obj)
+				return;
+			m_Expansion_DebugObjects[i] = obj;
 			EntityAI ent;
-			if (Class.CastTo(ent, m_Expansion_DebugObjects[i]))
+			if (Class.CastTo(ent, obj))
 				ent.SetLifetime(lifetime);
 		}
 		else
@@ -307,11 +310,11 @@ modded class DayZPlayerImplement
 
 		if (origin != vector.Zero)
 		{
-			ExpansionDebugObject obj;
-			if (Class.CastTo(obj, m_Expansion_DebugObjects[i]))
+			ExpansionDebugObject dbgObj;
+			if (Class.CastTo(dbgObj, m_Expansion_DebugObjects[i]))
 			{
-				obj.Expansion_DrawDebugLine(origin);
-				obj.Expansion_SetDebugLineFlags(flags);
+				dbgObj.Expansion_DrawDebugLine(origin);
+				dbgObj.Expansion_SetDebugLineFlags(flags);
 			}
 		}
 #endif

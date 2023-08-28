@@ -18,19 +18,6 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 	}
-	
-	/*override void OnEnterServerEvent(TriggerInsider insider)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		ExDebugPrint("::OnEnterServerEvent - Insider: " + insider.GetObject().ToString());
-
-		super.OnEnterServerEvent(insider);
-		
-		if (EntityConditions(insider.GetObject()))
-		{
-			ProcessEntityEvents(insider.GetObject());
-		}
-	}*/
 
 	//! Condition checks on given entity.
 	protected bool EntityConditions(Object entityObj)
@@ -76,22 +63,35 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 
 		vector position = entityObj.GetPosition();
 		float squareSize = Math.RandomFloat(200.0, 250.0);
-		array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, squareSize, 1);
-		vector randomPosition = positions[0];
-		vector ori = entityObj.GetOrientation();
+		array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, squareSize, 10);
+		vector randomPosition;
 
-		//! Get wind values and use it to let the entity fly - TEST
-		float mass;
-		vector wind = GetGame().GetWeather().GetWind();
-		wind[0] = ((wind[0] + 0.1) * 2) / 100;
-		wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
-		wind[2] = ((wind[2] + 0.1) * 2) / 100;
+		foreach (vector pos: positions)
+		{
+			if (!ExpansionStatic.SurfaceIsWater(pos))
+			{
+				randomPosition = pos;
+				break;
+			}
+			
+			randomPosition = position;
+		}
+		
+		randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
+		vector ori = entityObj.GetOrientation();
 
 		if (ExpansionStatic.IsAnyOf(entityObj, m_Items, true))
 		{
 			ItemBase item = ItemBase.Cast(entityObj);
 			if (!item)
                	return;
+			
+			//! Get wind values and use it to let the entity fly - TEST
+			float mass;
+			vector wind = GetGame().GetWeather().GetWind();
+			wind[0] = ((wind[0] + 0.1) * 2) / 100;
+			wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
+			wind[2] = ((wind[2] + 0.1) * 2) / 100;
 
 			item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
 			ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
@@ -102,6 +102,8 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 			//! Let the entity fly - TEST
 			mass = dBodyGetMass(item);
 			item.dBodyApplyImpulse(item, mass * wind);
+			
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
 		else if (ExpansionStatic.IsAnyOf(entityObj, m_Players, true))
 		{
@@ -120,8 +122,9 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 
 				DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
-				
 				PlayFXTarget(randomPosition, player.GetIdentity());
+				
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 			}
 		}
 		else if (ExpansionStatic.IsAnyOf(entityObj, m_Vehicles, true))
@@ -139,6 +142,8 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 		#ifdef JM_COT
 			car.COT_PlaceOnSurfaceAtPosition(randomPosition);
 		#endif
+			
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
 		else if (ExpansionStatic.IsAnyOf(entityObj, m_Animals, true))
 		{
@@ -161,6 +166,8 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 
 			zombie.SetPosition(randomPosition);
 			zombie.SetOrientation(ori);
+			
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, entityObj, position);
 		}
 	}
 
@@ -220,6 +227,26 @@ class ExpansionAnomalyTriggerWarper_Dynamic : ExpansionAnomalyTriggerBase_Dynami
 				#endif
 				}
 				break;
+			}
+		}
+	}
+	
+	protected void CheckEntityPos(EntityAI objectEntity, vector oldPos)
+	{
+		float dist = vector.Distance(objectEntity.GetPosition(), Vector(0, 0, 0));
+		if (dist < 100)
+		{
+			if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			{
+				DayZPlayerSyncJunctures.ExpansionTeleport(DayZPlayer.Cast(objectEntity), oldPos, objectEntity.GetOrientation());
+			}
+			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
+			{
+				CarScript.Cast(objectEntity).COT_PlaceOnSurfaceAtPosition(oldPos);
+			}
+			else
+			{
+				objectEntity.SetPosition(oldPos);
 			}
 		}
 	}

@@ -303,11 +303,22 @@ class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
 		DebugTrace("::UpdateTeleporterVFX_Deferred - Teleporter state: " + typename.EnumToString(ExpansionTeleporterState, state) + " | Previous teleporter state: " + typename.EnumToString(ExpansionTeleporterState, m_PrevTeleporterState));
 		
-		//! Stop current particle effects
-		ParticleIdleStop();
-
+		//! Stop current effects
+		if (m_ParticleIdle)
+			ParticleIdleStop();
+		
+		if (m_Sound)
+			SoundStop();
+		
 		switch (state)
 		{
+			case ExpansionTeleporterState.OFF:
+			{
+				TurnOffUnstableEmitor();
+				TurnOffActivatedEmitor();
+				SetVisualState(state);
+			}
+			break;
 			case ExpansionTeleporterState.IDLE:
 			{
 				//! Create idle VFX particle

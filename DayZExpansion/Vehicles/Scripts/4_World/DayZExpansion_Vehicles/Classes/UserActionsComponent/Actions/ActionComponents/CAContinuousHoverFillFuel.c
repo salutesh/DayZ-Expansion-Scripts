@@ -18,16 +18,8 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 	//---------------------------------------------------------------------------
 	override void Setup( ActionData action_data )
 	{
-		ExpansionHelicopterScript car = ExpansionHelicopterScript.Cast(action_data.m_Target.GetObject());
-		ExpansionVehicleHelicopterBase Expcar = ExpansionVehicleHelicopterBase.Cast(action_data.m_Target.GetObject());
-
-		action_data.m_MainItem.AddQuantity( -m_SpentQuantity );
-		
-		if ( car )
-			car.Fill( CarFluid.FUEL, (m_SpentQuantity * 0.001) );
-		
-		if ( Expcar )
-			Expcar.Fill( CarFluid.FUEL, (m_SpentQuantity * 0.001) );
+		ExpansionHelicopterScript car = ExpansionHelicopterScript.Cast(action_data.m_Player.GetParent());
+		ExpansionVehicleHelicopterBase Expcar = ExpansionVehicleHelicopterBase.Cast(action_data.m_Player.GetParent());
 		
 		m_TimeElpased = 0;
 		m_SpentQuantity = 0;
@@ -49,7 +41,6 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 			
 			fuelCapacity = car.GetFluidCapacity( CarFluid.FUEL );
 			currentFuel = car.GetFluidFraction( CarFluid.FUEL );
-			currentFuel = currentFuel * fuelCapacity;
 		}
 		else if ( Expcar )
 		{
@@ -57,8 +48,8 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 			
 			fuelCapacity = Expcar.GetFluidCapacity( CarFluid.FUEL );
 			currentFuel = Expcar.GetFluidFraction( CarFluid.FUEL );
-			currentFuel = currentFuel * fuelCapacity;
 		}
+		currentFuel = currentFuel * fuelCapacity;
 
 		m_EmptySpace = (fuelCapacity - currentFuel) * 1000;
 	}
@@ -125,10 +116,8 @@ class CAContinuousHoverFillFuel : CAContinuousBase
 		
 		if ( GetGame().IsServer() )
 		{
-			ExpansionHelicopterScript car = ExpansionHelicopterScript.Cast(action_data.m_Target.GetObject());
-			ExpansionVehicleHelicopterBase Expcar = ExpansionVehicleHelicopterBase.Cast(action_data.m_Target.GetObject());
-
-			action_data.m_MainItem.AddQuantity( -m_SpentQuantity );
+			ExpansionHelicopterScript car = ExpansionHelicopterScript.Cast(action_data.m_Player.GetParent());
+			ExpansionVehicleHelicopterBase Expcar = ExpansionVehicleHelicopterBase.Cast(action_data.m_Player.GetParent());
 			
 			if ( car )
 				car.Fill( CarFluid.FUEL, (m_SpentQuantity * 0.001) );

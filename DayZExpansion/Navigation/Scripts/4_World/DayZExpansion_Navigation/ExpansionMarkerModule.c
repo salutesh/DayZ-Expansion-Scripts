@@ -83,53 +83,6 @@ class ExpansionMarkerModule: CF_ModuleWorld
 	}
 	
 	// ------------------------------------------------------------
-	// ExpansionMarkerModule OnMissionStart
-	// ------------------------------------------------------------
-	override void OnMissionStart(Class sender, CF_EventArgs args)
-	{
-		super.OnMissionStart(sender, args);
-		
-		//! Initialize all markers one by one
-		//! Personal marker
-		if ( GetExpansionSettings().GetMap().CanCreateMarker )
-			SetVisibility( ExpansionMapMarkerType.PERSONAL, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-
-		//! Server marker
-		if ( GetExpansionSettings().GetMap().EnableServerMarkers )
-			SetVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-
-	#ifdef EXPANSIONMODGROUPS
-		//! Party marker
-		if ( GetExpansionSettings().GetParty().CanCreatePartyMarkers )
-			SetVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-		
-		//! Party Member marker
-		if ( GetExpansionSettings().GetParty().ShowPartyMember3DMarkers )
-		{
-			if ( GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers )
-			{
-				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP ); // 2D and 3D
-			} 
-			else 
-			{
-				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD ); // 3D only
-			}
-		}
-		else 
-		{
-			if ( GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers )
-			{
-				SetVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP ); // 2D only
-			}
-		}
-
-		//! Party Quickmarker
-		if ( GetExpansionSettings().GetParty().EnableQuickMarker )
-			SetVisibility( ExpansionMapMarkerType.PARTY_QUICK, EXPANSION_MARKER_VIS_WORLD | EXPANSION_MARKER_VIS_MAP );
-	#endif
-	}
-	
-	// ------------------------------------------------------------
 	// ExpansionMarkerModule OnMissionLoaded
 	// ------------------------------------------------------------
 	override void OnMissionLoaded(Class sender, CF_EventArgs args)
@@ -901,6 +854,12 @@ class ExpansionMarkerModule: CF_ModuleWorld
 
 		if ( type == ExpansionMapMarkerType.SERVER && !GetExpansionSettings().GetMap().EnableServerMarkers )
 			return false;
+	#ifdef EXPANSIONMODGROUPS
+		if ( type == ExpansionMapMarkerType.PARTY_QUICK && !GetExpansionSettings().GetParty().EnableQuickMarker )
+			return false;
+		if ( type == ExpansionMapMarkerType.PLAYER && !GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers )
+			return false;
+	#endif
 
 		return (m_Visibility[type] & EXPANSION_MARKER_VIS_MAP) != 0;
 	}

@@ -4,7 +4,7 @@ class CfgPatches
 {
 	class Expansion_Tops
 	{
-		units[] = {"ExpansionTee","ExpansionRidersJacketBrown","ExpansionRidersJacketDarkBlue","ExpansionRidersJacketFogEaters","ExpansionTommy"};
+		units[] = {"Shirt_CheckRed","Hoodie_Blue","Hoodie_Black","Hoodie_Brown","Hoodie_Green","Hoodie_Grey","Hoodie_Red","MaleTorso","FemaleTorso"};
 		weapons[] = {};
 		requiredVersion = 0.1;
 		requiredAddons[] = {"DZ_Characters"};
@@ -12,19 +12,7 @@ class CfgPatches
 };
 class CfgVehicles
 {
-	class Armband_ColorBase;
-	class BomberJacket_ColorBase;
-	class BDUJacket;
 	class TShirt_ColorBase;
-	class TacticalShirt_ColorBase;
-	class M65Jacket_ColorBase;
-	class MiniDress_ColorBase;
-	class Hoodie_ColorBase;
-	class Sweater_ColorBase;
-	class TrackSuitJacket_ColorBase;
-	class QuiltedJacket_ColorBase;
-	class HuntingJacket_ColorBase;
-	class GorkaEJacket_ColorBase;
 	class Shirt_ColorBase;
 	class RidersJacket_ColorBase;
 	class ExpansionTee: TShirt_ColorBase

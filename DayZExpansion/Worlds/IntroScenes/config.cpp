@@ -30,6 +30,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = 1054;
 			HandItem = "";
 			CanRotate = 0;
+			CanUseInCharacterCreation = 1;
 		};
 		class Cherno
 		{
@@ -47,6 +48,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
 		};
 		class Kamyshovo
 		{
@@ -64,6 +66,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
 		};
 		class twospooky
 		{
@@ -81,6 +84,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 0;
 		};
 		class campfire_guitar
 		{
@@ -98,6 +102,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = 1051;
 			HandItem = "Expansion_Guitar";
 			CanRotate = 0;
+			CanUseInCharacterCreation = 1;
 		};
 		class expansion_market_update
 		{
@@ -111,10 +116,50 @@ class cfgExpansionCharacterScenes
 			rain = 0.0;
 			fog = 0.0;
 			windspeed = 0.1;
-			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/main_menu_scenes/TraderUpdateSzene"};
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/ChernarusPlus/main_menu_scenes/TraderUpdateScene"};
 			CustomPose = -1;
-			HandItem = "ExpansionGoldnugget";
+			HandItem = "ExpansionBanknoteHryvnia";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 0;
+		};
+	};
+	class Enoch
+	{
+		class enoch_bunker_entrance
+		{
+			CameraPosition[] = {748.079,532.669,1227.05};
+			CameraOrientation[] = {284.0,0.0,0.0};
+			PlayerPosition[] = {745.652,531.457,1227.6};
+			PlayerOrientation[] = {98.0,0,0};
+			fov = 1.0;
+			date[] = {2011,8,10,1,11};
+			overcast = 0.0;
+			rain = 0.0;
+			fog = 0.0;
+			windspeed = 0.0;
+			MappingFiles[] = {"DayZExpansion/Scripts/Data/Mapping/Enoch/main_menu_scenes/MainMenu_Enoch_Bunker_Entrance"};
+			CustomPose = -1;
+			HandItem = "";
+			CanRotate = 1;
+			CanUseInCharacterCreation = 0;
+		};
+		class enoch_swarog
+		{
+			CameraPosition[] = {4823.63,514.371,2088.09};
+			CameraOrientation[] = {77.0,0.0,0.0};
+			PlayerPosition[] = {4826.56,512.78,2088.61};
+			PlayerOrientation[] = {256.0,0,0};
+			fov = 1.0;
+			date[] = {2011,8,10,11,20};
+			overcast = 0.0;
+			rain = 0.0;
+			fog = 0.0;
+			windspeed = 0.0;
+			MappingFiles[] = {};
+			CustomPose = -1;
+			HandItem = "Binoculars";
+			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
 		};
 	};
 	class Namalsk
@@ -135,6 +180,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = 1052;
 			HandItem = "";
 			CanRotate = 0;
+			CanUseInCharacterCreation = 0;
 		};
 		class namalsk_sub
 		{
@@ -152,6 +198,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
 		};
 		class namalsk_thething
 		{
@@ -175,6 +222,7 @@ class cfgExpansionCharacterScenes
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
 		};
 		class namalsk_mountainview
 		{
@@ -198,6 +246,31 @@ class cfgExpansionCharacterScenes
 			CustomPose = -1;
 			HandItem = "";
 			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
+		};
+		class namalsk_skat12
+		{
+			CameraPosition[] = {11918.3,8.45195,12014};
+			CameraOrientation[] = {25.0,0.0,0.0};
+			PlayerPosition[] = {11919.4,7.0333,12016.5};
+			PlayerOrientation[] = {199.0,0,0};
+			fov = 1;
+			DOFDistance = 0;
+			DOFBlur = 0;
+			Blur = 0;
+			Vignette = 0;
+			Sharpness = 0;
+			NearPlane = 0.07;
+			date[] = {2011,11,3,11,40};
+			overcast = 0.48;
+			rain = 0.141;
+			fog = 0;
+			windspeed = 0.00828907;
+			MappingFiles[] = {};
+			CustomPose = -1;
+			HandItem = "";
+			CanRotate = 1;
+			CanUseInCharacterCreation = 1;
 		};
 	};
 };

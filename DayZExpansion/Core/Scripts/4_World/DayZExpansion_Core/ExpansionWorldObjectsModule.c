@@ -250,6 +250,16 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		CF_Log.Debug( "Created all objects from mission object file: " + filePath );
 	}
 
+	static void LoadObjects(array<string> files, bool addExtension = false)
+	{
+		foreach (string filePath: files)
+		{
+			if (addExtension && !ExpansionString.EndsWithIgnoreCase(filePath, EXPANSION_MAPPING_EXT))
+				filePath += EXPANSION_MAPPING_EXT;
+			LoadObjectsFile(filePath);
+		}
+	}
+
 	static void LoadObjectsFile(string filePath, array<Object> createdObjects = NULL)
 	{
 		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule, filePath);
@@ -266,8 +276,9 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		bool takeable;
 		bool shouldRemove;
 		float radius;
+		string attachments;
 		
-		while ( GetObjectFromFile( file, className, position, rotation, special, takeable, shouldRemove, radius ) )
+		while ( GetObjectFromFile( file, className, position, rotation, special, takeable, shouldRemove, radius, attachments ) )
 		{
 			if (shouldRemove)
 			{
@@ -280,6 +291,14 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 				CF_Log.Debug( "Attempt to create object " + className + " at " + position + " from file:" + filePath + ".");
 
 				obj = SpawnObject(className, position, rotation, special, takeable);
+				
+				if (attachments)
+				{
+					EntityAI itemWithAttachment = EntityAI.Cast(obj);
+					if (itemWithAttachment)
+						ProcessGear(itemWithAttachment, attachments);
+				}
+
 				if (obj && createdObjects)
 					createdObjects.Insert(obj);
 			}
@@ -502,6 +521,13 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 			CF_Log.Debug("Processed mapping object: " + obj.ClassName() + "!");
 		}
 		#endif
+		#ifdef NAMALSK_SURVIVAL
+		vfx_the_thing theThing;
+		if (Class.CastTo(theThing, obj))
+		{
+			theThing.SetStable(true);
+		}
+		#endif
 	}
 
 	static void ProcessFireplace(Object obj, bool addStones = true)
@@ -629,7 +655,7 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 	// ------------------------------------------------------------
 	// Expansion GetObjectFromFile
 	// ------------------------------------------------------------
-	static bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out bool special = false, out bool takeable = true, out bool shouldRemove = false, out float radius = 0.1 )
+	static bool GetObjectFromFile( FileHandle file, out string name, out vector position, out vector rotation, out bool special = false, out bool takeable = true, out bool shouldRemove = false, out float radius = 0.1, out string attachments = "" )
 	{
 		string line;
 		int lineSize = FGets( file, line );
@@ -654,7 +680,14 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		{
 			rotation = tokens.Get( 2 ).ToVector();
 			special = tokens.Get( 3 ) == "true";
-			takeable = tokens.Get( 4 ) != "false";
+			string token = tokens[4];
+			takeable = token != "false";
+			if (token == "false" || token == "true")
+				token = token[5];
+			if (token)
+				attachments = token;
+			else
+				attachments = "";
 		}
 		
 		return true;
@@ -683,6 +716,20 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 
 		CF_Log.Debug( "Attempting to load mission trader file: " + name );
 
+		string filePath = MISSION_TRADER_FILES_FOLDER + name;
+		LoadTradersFile(filePath);
+
+		CF_Log.Debug( "Created all traders from mission trader file: " + filePath );
+	}
+
+	static void LoadTradersFile( string filePath )
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.MAPPING, ExpansionWorldObjectsModule, filePath);
+
+		FileHandle file = OpenFile( filePath, FileMode.READ );
+		if ( !file )
+			return;
+
 		Object obj;
 		EntityAI trader;
 		string traderName;
@@ -692,12 +739,6 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		vector position;
 		vector rotation;
 		string gear;
-
-		string filePath = MISSION_TRADER_FILES_FOLDER + name;
-		FileHandle file = OpenFile( filePath, FileMode.READ );
-
-		if ( !file )
-			return;
 		
 		int i, j;
 
@@ -769,8 +810,6 @@ class ExpansionWorldObjectsModule: CF_ModuleWorld
 		}
 
 		CloseFile( file );
-
-		CF_Log.Debug( "Created all traders from mission trader file: " + filePath );
 	}
 
 	// ------------------------------------------------------------

@@ -48,17 +48,7 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 		}
 
 		UpdatePreviewObject();
-		
-		string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetClassName());
-		string displayText = displayName;
-		if (m_Item.GetContainerItems().Count() > 0)
-			displayText = "[+] " + displayName;
-		
-		if (m_Item.GetQuantityType() == ExpansionItemQuantityType.PC || m_Item.GetQuantityType() == ExpansionItemQuantityType.MAGAZINE)
-			displayText = displayText + " - [" + Math.Round(m_Item.GetQuantity()) + "]";
-
-		m_PersonalStorageMenuItemController.ItemName = displayText;
-		m_PersonalStorageMenuItemController.NotifyPropertyChanged("ItemName");
+		UpdateItemName();
 
 	#ifdef EXPANSIONMODHARDLINE
 		SetRarityColor(m_Item.GetRarity());
@@ -108,6 +98,25 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 		}
 
 		m_PersonalStorageMenuItemController.NotifyPropertyChanged("ButtonText");
+	}
+	
+	protected void UpdateItemName()
+	{
+		string displayName = ExpansionStatic.GetItemDisplayNameWithType(m_Item.GetClassName());
+		string displayText = displayName;
+		if (m_Item.GetContainerItems().Count() > 0)
+		{
+			if (!m_CargoDisplayState)
+				displayText = "[+] " + displayName;
+			else
+				displayText = "[-] " + displayName;
+		}
+		
+		if (m_Item.GetQuantityType() == ExpansionItemQuantityType.PC || m_Item.GetQuantityType() == ExpansionItemQuantityType.MAGAZINE)
+			displayText = displayText + " - [" + Math.Round(m_Item.GetQuantity()) + "]";
+
+		m_PersonalStorageMenuItemController.ItemName = displayText;
+		m_PersonalStorageMenuItemController.NotifyPropertyChanged("ItemName");
 	}
 
 	override string GetLayoutFile()
@@ -268,6 +277,8 @@ class ExpansionPersonalStorageMenuItem: ExpansionPersonalStorageMenuItemBase
 					cargo_content.Show(false);
 					m_CargoDisplayState = false;
 				}
+				
+				UpdateItemName();
 			}
 		}
 	}

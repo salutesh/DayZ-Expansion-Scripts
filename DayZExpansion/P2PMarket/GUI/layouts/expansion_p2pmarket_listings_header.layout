@@ -1,0 +1,323 @@
+WrapSpacerWidgetClass ExpansionP2PMarketMenuListHeader {
+ color 0 0 0 1
+ size 0.99 48
+ halign center_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 1
+ priority 2
+ scriptclass "ExpansionP2PMarketMenuListHeaderController"
+ style DayZDefaultPanel
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ {
+  PanelWidgetClass item_panel {
+   size 1 48
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 1
+   scriptclass ""
+   style blank
+   {
+    WrapSpacerWidgetClass header_panel {
+     ignorepointer 1
+     position 0.01 0
+     size 0.99 48
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     Padding 0
+     Margin 0
+     "Size To Content H" 1
+     {
+      PanelWidgetClass spacer10 {
+       ignorepointer 1
+       position 10 10
+       size 56 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 0
+      }
+      ButtonWidgetClass item_name_button {
+       ignorepointer 0
+       color 0 0 0 1
+       size 0.2 48
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Colorable
+       {
+        TextWidgetClass item_name_text {
+         ignorepointer 1
+         size 0.5 48
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass ""
+         text "#STR_EXPANSION_MARKET_P2P_BROWSE_NAME_LABEL"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "text valign" center
+        }
+        ImageWidgetClass item_name_icon {
+         ignorepointer 1
+         position 5 0
+         size 26 26
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         imageTexture "{27505255AD921029}DayZExpansion/Core/GUI/icons/hud/sort_simple_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnNameSortClick"
+        }
+       }
+      }
+      PanelWidgetClass spacer {
+       ignorepointer 1
+       position 10 10
+       size 10 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 0
+       {
+        PanelWidgetClass spacer_line {
+         ignorepointer 1
+         size 2 0.6
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         style DayZDefaultPanel
+        }
+       }
+      }
+      ButtonWidgetClass time_button {
+       ignorepointer 0
+       color 0 0 0 1
+       size 0.25 48
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Colorable
+       {
+        TextWidgetClass time_text {
+         ignorepointer 1
+         size 0.5 48
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass ""
+         text "#STR_EXPANSION_MARKET_P2P_BROWSE_TIME_LABEL"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "size to text h" 0
+         "size to text v" 1
+         "text valign" center
+        }
+        ImageWidgetClass time_icon {
+         ignorepointer 1
+         position 5 0
+         size 26 26
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         imageTexture "{27505255AD921029}DayZExpansion/Core/GUI/icons/hud/sort_simple_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnTimeSortClick"
+        }
+       }
+      }
+      PanelWidgetClass spacer0 {
+       ignorepointer 1
+       position 10 10
+       size 10 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 0
+       {
+        PanelWidgetClass spacer_line0 {
+         ignorepointer 1
+         size 2 0.6
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         style DayZDefaultPanel
+        }
+       }
+      }
+      ButtonWidgetClass player_name_button {
+       ignorepointer 0
+       color 0 0 0 1
+       size 0.15 48
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Colorable
+       {
+        TextWidgetClass player_name_text {
+         ignorepointer 1
+         size 0.5 48
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass ""
+         text "#STR_EXPANSION_MARKET_P2P_BROWSE_OWNER_LABEL"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+        }
+        ImageWidgetClass player_name_icon {
+         ignorepointer 1
+         position 5 0
+         size 26 26
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         imageTexture "{27505255AD921029}DayZExpansion/Core/GUI/icons/hud/sort_simple_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnOwnerNameSortClick"
+        }
+       }
+      }
+      PanelWidgetClass spacer1 {
+       ignorepointer 1
+       position 10 10
+       size 10 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 0
+       {
+        PanelWidgetClass spacer_line1 {
+         ignorepointer 1
+         size 2 0.6
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 0
+         style DayZDefaultPanel
+        }
+       }
+      }
+      ButtonWidgetClass price_button {
+       ignorepointer 0
+       color 0 0 0 1
+       size 0.22 48
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Colorable
+       {
+        TextWidgetClass price_text {
+         ignorepointer 1
+         size 0.5 48
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass ""
+         text "#STR_EXPANSION_MARKET_P2P_BROWSE_PRICE_LABEL"
+         font "gui/fonts/etelkatextpro22"
+         "text offset" 5 0
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+        }
+        ImageWidgetClass price_icon {
+         ignorepointer 1
+         position 5 0
+         size 26 26
+         halign right_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 1
+         vexactsize 1
+         imageTexture "{27505255AD921029}DayZExpansion/Core/GUI/icons/hud/sort_simple_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 0
+         "flip v" 0
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnPriceSortClick"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

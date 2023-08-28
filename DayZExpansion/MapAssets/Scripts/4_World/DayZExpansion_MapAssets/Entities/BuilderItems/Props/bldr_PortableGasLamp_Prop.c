@@ -1,7 +1,12 @@
 class bldr_PortableGasLamp_Prop: House
 {
 	protected ScriptedLightBase m_Light;
-
+	
+	void bldr_PortableGasLamp_Prop()
+	{
+		SetAllowDamage(false);
+	}
+	
 	override void EEInit()
 	{
 		super.EEInit();

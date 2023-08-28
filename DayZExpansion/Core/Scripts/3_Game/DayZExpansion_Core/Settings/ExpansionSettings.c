@@ -187,15 +187,17 @@ class ExpansionSettings
 	ExpansionSettingBase Get(typename type, bool checkLoaded = true)
 	{
 		auto setting = m_Settings[type];
-		if (checkLoaded && setting && !setting.IsLoaded() && (!GetGame().GetMission() || GetGame().GetMission().IsMissionGameplay() || GetGame().GetMission().IsServer() || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())))
+		if (setting && !setting.IsLoaded())
 		{
-			
-#ifdef DEVELOPER_DIAG
-			if (!IsMissionOffline())
-			{
+			if (checkLoaded && (GetGame().IsDedicatedServer() || !GetGame().GetMission() || (GetGame().GetMission().IsMissionGameplay() && GetGame().IsMultiplayer()) || (GetDayZGame().IsLoading() && !GetDayZGame().Expansion_IsMissionMainMenu())))
 				WarnNotLoaded(type);
+
+			if (!setting.IsUsingDefaults())
+			{
+				EXTrace.Print(true, type, "Using defaults");
+				setting.Defaults();
+				setting.SetIsUsingDefaults();
 			}
-#endif
 		}
 
 		return setting;
@@ -218,6 +220,15 @@ class ExpansionSettings
 				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been loaded!" + suffix);
 			else
 				EXTrace.Print(true, null, "WARNING: Trying to access " + type.ToString() + " before it has been received!" + suffix);
+		#ifdef DIAG
+			EXTrace.Print(true, null, "Dedicated server: " + GetGame().IsDedicatedServer());
+			EXTrace.Print(true, null, "Mission: " + GetGame().GetMission());
+			if (GetGame().GetMission())
+				EXTrace.Print(true, null, "Is mission gameplay: " + GetGame().GetMission().IsMissionGameplay());
+			EXTrace.Print(true, null, "Is multiplayer: " + GetGame().IsMultiplayer());
+			EXTrace.Print(true, null, "Is loading: " + GetDayZGame().IsLoading());
+			EXTrace.Print(true, null, "Is mission main menu: " + GetDayZGame().Expansion_IsMissionMainMenu());
+		#endif
 			EXTrace trace = EXTrace.StartStack(true, this);
 			trace.SetStart(5);
 		}

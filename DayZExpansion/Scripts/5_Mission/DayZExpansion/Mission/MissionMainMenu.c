@@ -12,67 +12,6 @@
 
 modded class MissionMainMenu
 {
-#ifndef EXPANSION_MAINMENU_NEW_DISABLE
-	protected ref DayZIntroSceneExpansion m_IntroSceneExpansion;
-
-	void ~MissionMainMenu()
-	{
-		DestroyExpansionIntroScene();
-	}
-
-	override void OnInit()
-	{
-		bool customScene = true;
-		string root_path = "cfgExpansionCharacterScenes " + g_Game.GetWorldName();
-
-		int count = g_Game.ConfigGetChildrenCount(root_path);
-		if (count == 0)
-			customScene = false;
-
-		if (!m_NoCutscene)
-		{
-			if (customScene)
-				CreateExpansionIntroScene();
-			else
-				CreateIntroScene();
-		}
-
-		if (!m_mainmenu)
-			m_mainmenu = UIScriptedMenu.Cast(g_Game.GetUIManager().EnterScriptedMenu(MENU_MAIN, null));
-	}
-
-	override void Reset()
-	{
-		DestroyExpansionIntroScene();
-		CreateExpansionIntroScene();
-	}
-
-	override void OnUpdate(float timeslice)
-	{
-		if (g_Game.IsLoading())
-			return;
-
-		if (m_IntroSceneExpansion)
-			m_IntroSceneExpansion.Update();
-	}
-
-	void CreateExpansionIntroScene()
-	{
-		m_IntroSceneExpansion = new DayZIntroSceneExpansion;
-	}
-
-	void DestroyExpansionIntroScene()
-	{
-		if (m_IntroSceneExpansion)
-			m_IntroSceneExpansion = null;
-	}
-
-	DayZIntroSceneExpansion GetIntroSceneExpansion()
-	{
-		return m_IntroSceneExpansion;
-	}
-#endif
-
 	override void PlayMusic()
 	{
 		bool ex_PlayExpMusic = true;

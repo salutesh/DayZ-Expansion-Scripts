@@ -129,9 +129,8 @@ class bldr_Candle: Candle
 
 	void CreateLight()
 	{
-		if (GetGame().IsClient())
-		{
+		#ifndef SERVER
 			m_Light = CandleLight.Cast(ScriptedLightBase.CreateLight( CandleLight, GetPosition() + "0 0.15 0"));
-		}
+		#endif
 	}
 };

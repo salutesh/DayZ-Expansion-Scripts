@@ -15,7 +15,7 @@
  **/
 class ExpansionGeneralSettings: ExpansionSettingBase
 {
-	static const int VERSION = 10;
+	static const int VERSION = 12;
 
 	bool DisableShootToUnlock;
 	bool EnableGravecross;
@@ -32,6 +32,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 	bool UnlimitedStamina;
 	bool UseDeathScreen;
 	bool UseDeathScreenStatistics;
+	bool UseExpansionMainMenuLogo;
+	bool UseExpansionMainMenuIcons;
+	bool UseExpansionMainMenuIntroScene;
 	bool UseNewsFeedInGameMenu;
 
 	ref ExpansionHudIndicatorColors HUDColors;
@@ -86,6 +89,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Read(UnlimitedStamina);
 		ctx.Read(UseDeathScreen);
 		ctx.Read(UseDeathScreenStatistics);
+		ctx.Read(UseExpansionMainMenuLogo);
+		ctx.Read(UseExpansionMainMenuIcons);
+		ctx.Read(UseExpansionMainMenuIntroScene);
 		ctx.Read(UseNewsFeedInGameMenu);
 
 		HUDColors.OnReceive(ctx);
@@ -137,6 +143,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		ctx.Write(UnlimitedStamina);
 		ctx.Write(UseDeathScreen);
 		ctx.Write(UseDeathScreenStatistics);
+		ctx.Write(UseExpansionMainMenuLogo);
+		ctx.Write(UseExpansionMainMenuIcons);
+		ctx.Write(UseExpansionMainMenuIntroScene);
 		ctx.Write(UseNewsFeedInGameMenu);
 
 		HUDColors.OnSend(ctx);
@@ -289,6 +298,13 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 					GravecrossSpawnTimeDelay = settingsDefault.GravecrossSpawnTimeDelay;
 				}
 
+				if (m_Version < 11)
+				{
+					UseExpansionMainMenuLogo = settingsDefault.UseExpansionMainMenuLogo;
+					UseExpansionMainMenuIcons = settingsDefault.UseExpansionMainMenuIcons;
+					UseExpansionMainMenuIntroScene = settingsDefault.UseExpansionMainMenuIntroScene;
+				}
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -357,6 +373,9 @@ class ExpansionGeneralSettings: ExpansionSettingBase
 		UseDeathScreen = true;
 		UseDeathScreenStatistics = true;
 		
+		UseExpansionMainMenuLogo = true;
+		UseExpansionMainMenuIcons = true;
+		UseExpansionMainMenuIntroScene = true;
 		UseNewsFeedInGameMenu = true;
 
 		HUDColors.Update();

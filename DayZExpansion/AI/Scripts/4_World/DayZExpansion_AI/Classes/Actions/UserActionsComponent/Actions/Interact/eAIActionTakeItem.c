@@ -66,6 +66,9 @@ class eAIActionTakeItem: ActionInteractBase
 	override void OnExecuteServer( ActionData action_data )
 	{
 		ItemBase ntarget = ItemBase.Cast(action_data.m_Target.GetObject());
+
+		if (!ntarget)
+			return;
 		
 		float stackable = ntarget.GetTargetQuantityMax(-1);
 		
