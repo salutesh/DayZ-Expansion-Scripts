@@ -118,7 +118,8 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 				m_3DToggleIcon.Show(true);
 				m_3DToggle.ClearFlags(WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS);
 			}
-
+			
+		#ifdef EXPANSIONMODGROUPS
 			if (m_Marker.GetMarkerData().IsInherited(ExpansionPlayerMarkerData) && !GetExpansionSettings().GetParty().ShowPartyMemberMapMarkers)
 			{
 				m_2DToggleIcon.Show(false);
@@ -128,6 +129,7 @@ class ExpansionMapMarkerListEntry: ScriptedWidgetEventHandler
 				m_2DToggleIcon.Show(true);
 				m_2DToggle.ClearFlags(WidgetFlags.IGNOREPOINTER | WidgetFlags.NOFOCUS);
 			}
+		#endif
 
 			if (!m_Marker.CanEdit())
 			{
