@@ -543,6 +543,10 @@ class ExpansionMapMarkerList: ScriptedWidgetEventHandler
 	// ------------------------------------------------------------
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
+	#ifdef EXPANSIONMODGROUPS
+		auto settings = GetExpansionSettings().GetParty();
+	#endif
+
 		switch (w)
 		{
 			case m_MarkerListToggle:
@@ -577,12 +581,14 @@ class ExpansionMapMarkerList: ScriptedWidgetEventHandler
 				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PARTY, EXPANSION_MARKER_VIS_WORLD );
 				break;
 			case  m_MemberMarkers2DToggle:
-				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
+				if (settings.ShowPartyMemberMapMarkers)
+					m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_MAP );
 				break;
 			case m_MemberMarkers3DToggle:
-				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
+				if (settings.ShowPartyMember3DMarkers)
+					m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.PLAYER, EXPANSION_MARKER_VIS_WORLD );
 				break;
-			#endif
+		#endif
 			case m_ServerMarkers2DToggle:
 				m_MarkerModule.FlipVisibility( ExpansionMapMarkerType.SERVER, EXPANSION_MARKER_VIS_MAP );
 				break;

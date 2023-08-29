@@ -18,8 +18,6 @@ class ExpansionQuestNPCBase: ExpansionNPCBase
 	
 	void ExpansionQuestNPCBase()
 	{
-		Expansion_SetAllowDamage(false);
-
 		RegisterNetSyncVariableInt("m_QuestNPCID", 1, int.MAX);
 	}
 

@@ -21,8 +21,6 @@ class ExpansionTraderNPCBase: ExpansionNPCBase
 
 	void ExpansionTraderNPCBase()
 	{
-		Expansion_SetAllowDamage(false);
-
 		m_allTraders.Insert(this);
 
 		if (GetGame() && GetGame().IsClient())

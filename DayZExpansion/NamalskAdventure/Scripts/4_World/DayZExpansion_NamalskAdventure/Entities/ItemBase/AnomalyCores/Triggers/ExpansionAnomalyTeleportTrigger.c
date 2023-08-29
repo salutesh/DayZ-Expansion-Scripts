@@ -33,24 +33,36 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 		{
 			EntityAI objectEntity = EntityAI.Cast(other);
 			vector position = objectEntity.GetPosition();
-			float offsetX = Math.RandomFloatInclusive(5.0, 10.0);
-			float offsetY = Math.RandomFloatInclusive(5.0, 10.0);
-			vector randomPosition = Vector(position[0] + offsetX, position[1], position[2] + offsetY);
+			float squareSize = Math.RandomFloat(200.0, 250.0);
+			array<vector> positions = ExpansionAnomaliesModule.GetModuleInstance().GeneratePositions(position, squareSize, 10);
+			vector randomPosition;
+	
+			foreach (vector pos: positions)
+			{
+				if (!ExpansionStatic.SurfaceIsWater(pos))
+				{
+					randomPosition = pos;
+					break;
+				}
+				
+				randomPosition = position;
+			}
+			
 			randomPosition[1] = GetGame().SurfaceY(randomPosition[0], randomPosition[2]);
 			vector ori = objectEntity.GetOrientation();
-
-			//! Get wind values and use it to let the entity fly - TEST
-			float mass;
-			vector wind = GetGame().GetWeather().GetWind();
-			wind[0] = ((wind[0] + 0.1) * 2) / 100;
-			wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
-			wind[2] = ((wind[2] + 0.1) * 2) / 100;
 
 			if (ExpansionStatic.IsAnyOf(objectEntity, m_Items, true))
 			{
 				ItemBase item = ItemBase.Cast(objectEntity);
 				if (!item)
                 	return;
+				
+				//! Get wind values and use it to let the entity fly - TEST
+				float mass;
+				vector wind = GetGame().GetWeather().GetWind();
+				wind[0] = ((wind[0] + 0.1) * 2) / 100;
+				wind[1] = 12.0; //! Let the entity fly 12 meters into the air.
+				wind[2] = ((wind[2] + 0.1) * 2) / 100;
 
 				item.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED)); //! Apply random damage to the item.
 				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(item, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);
@@ -61,11 +73,12 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 				//! Let the entity fly - TEST
 				mass = dBodyGetMass(item);
 				item.dBodyApplyImpulse(item, mass * wind);
-
+				
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
+				
 				m_IsActive = false;
 			}
-			else
-			if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
 			{
 				PlayerBase player = PlayerBase.Cast(objectEntity);
 				if (!player || !player.IsAlive())
@@ -82,6 +95,8 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 					DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
 				}
+				
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
 
 				m_IsActive = false;
 			}
@@ -114,7 +129,9 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 
 				animal.SetPosition(randomPosition);
 				animal.SetOrientation(ori);
-
+				
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
+				
 				m_IsActive = false;
 			}
 			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Infected, true))
@@ -127,8 +144,30 @@ class ExpansionAnomalyTeleportTrigger: ExpansionAnomalyTriggerBase
 
 				zombie.SetPosition(randomPosition);
 				zombie.SetOrientation(ori);
-
+				
+				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CheckEntityPos, 3000, false, objectEntity, position);
+				
 				m_IsActive = false;
+			}
+		}
+	}
+	
+	protected void CheckEntityPos(EntityAI objectEntity, vector oldPos)
+	{
+		float dist = vector.Distance(objectEntity.GetPosition(), Vector(0, 0, 0));
+		if (dist < 100)
+		{
+			if (ExpansionStatic.IsAnyOf(objectEntity, m_Players, true))
+			{
+				DayZPlayerSyncJunctures.ExpansionTeleport(DayZPlayer.Cast(objectEntity), oldPos, objectEntity.GetOrientation());
+			}
+			else if (ExpansionStatic.IsAnyOf(objectEntity, m_Vehicles, true))
+			{
+				CarScript.Cast(objectEntity).COT_PlaceOnSurfaceAtPosition(oldPos);
+			}
+			else
+			{
+				objectEntity.SetPosition(oldPos);
 			}
 		}
 	}

@@ -21,6 +21,7 @@ class ExpansionHardlineHUD: ExpansionScriptView
 	protected TextWidget ReputationVal;
 	protected Widget ReputationChange;
 	protected TextWidget ReputationChangeVal;
+	protected ImageWidget ReputationIcon;
 
 	protected ref WidgetFadeTimer m_ReputationChangeFadeTimer;
 	protected ref Timer m_ReputationChangeTimer;
@@ -89,6 +90,10 @@ class ExpansionHardlineHUD: ExpansionScriptView
 
 			m_CurrentReputation = reputation;
 		}
+		
+	#ifdef EXPANSIONMOD
+		SetIndicatorColor();
+	#endif
 	}
 
 	void OnReputationChange(int reputation)
@@ -118,6 +123,10 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			m_DeltaPerTick = 1;
 		EXTrace.Print(EXTrace.HARDLINE, this, "OnReputationChange " + difference + " " + m_DeltaPerTick);
 		m_ReputationChangeTimer.Run(1 / 60.0, this, "UpdateReputationChange", NULL, true);
+		
+	#ifdef EXPANSIONMOD
+		SetIndicatorColor();
+	#endif
 	}
 
 	void UpdateReputationChange()
@@ -189,7 +198,28 @@ class ExpansionHardlineHUD: ExpansionScriptView
 			Hide();
 		}
 	}
-
+	
+#ifdef EXPANSIONMOD
+	protected void SetIndicatorColor()
+	{
+		int color = GetExpansionSettings().GetGeneral().HUDColors.Get("ReputationBaseColor");
+		if (GetExpansionSettings().GetHardline().MaxReputation > 0)
+		{
+			if (m_CurrentReputation == GetExpansionSettings().GetHardline().MaxReputation)
+			{
+				color = GetExpansionSettings().GetGeneral().HUDColors.Get("ReputationHighColor");
+			}
+			else if (m_CurrentReputation >= GetExpansionSettings().GetHardline().MaxReputation / 2)
+			{
+				color = GetExpansionSettings().GetGeneral().HUDColors.Get("ReputationMedColor");
+			}
+		}
+		
+		ReputationIcon.SetColor(color);
+	}
+#endif
+	
+	//! @note: Replace this with a proper event handler fired from the hardline module?!
 	override float GetUpdateTickRate()
 	{
 		return 1.0;

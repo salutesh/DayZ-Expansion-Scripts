@@ -91,11 +91,6 @@ class ExpansionItemTooltip: ExpansionScriptView
 		UpdateItemInfoFoodStage();
 		UpdateItemInfoCleanness();
 		UpdateItemInfoCargoSize(m_Item.GetType());
-		
-	#ifdef EXPANSIONMODHARDLINE
-		if (GetExpansionSettings().GetHardline().EnableItemRarity)
-			UpdateItemRarity();
-	#endif
 	}
 
 	bool ShowContent()
@@ -754,32 +749,6 @@ class ExpansionItemTooltip: ExpansionScriptView
 			m_ItemTooltipController.ItemStatsElements.Insert(element);
 		}
 	}
-	
-#ifdef EXPANSIONMODHARDLINE
-	protected void UpdateItemRarity()
-	{
-		ItemBase itemBase;
-		if (Class.CastTo(itemBase, m_Item))
-		{	
-			UpdateItemRarity(itemBase.Expansion_GetRarity());
-		}
-	}
-	
-	void UpdateItemRarity(ExpansionHardlineItemRarity rarity)
-	{
-		if (rarity == ExpansionHardlineItemRarity.NONE)
-			return;
-
-		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
-		string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
-		int color;
-		typename type = ExpansionHardlineItemRarityColor;
-		ExpansionStatic.GetVariableIntByName(type, rarityName, color);
-
-        ExpansionItemTooltipStatElement element = new ExpansionItemTooltipStatElement(text, color);
-        m_ItemTooltipController.ItemStatsElements.Insert(element);
-	}
-#endif
 
 	override void Show()
 	{
@@ -806,7 +775,7 @@ class ExpansionItemTooltip: ExpansionScriptView
 	{
 		m_UpdateStatsOnShow = state;
 	}
-}
+};
 
 class ExpansionItemTooltipController: ExpansionViewController
 {
@@ -823,7 +792,7 @@ class ExpansionItemTooltipController: ExpansionViewController
 	string ItemCleanness;
 	string ItemDescription;
 	Object ItemPreview;
-}
+};
 
 class ExpansionItemTooltipStatElement: ExpansionScriptView
 {
@@ -860,12 +829,12 @@ class ExpansionItemTooltipStatElement: ExpansionScriptView
 		m_TooltipStatElementController.NotifyPropertyChanged("StatText");
 		Background.SetColor(m_Color | 0x7F000000);
 	}
-}
+};
 
 class ExpansionItemTooltipStatElementController: ExpansionViewController
 {
 	string StatText;
-}
+};
 
 class ExpansionItemPreviewTooltip: ExpansionScriptView
 {
@@ -921,10 +890,10 @@ class ExpansionItemPreviewTooltip: ExpansionScriptView
 		GetGame().GetMousePos(x, y);
 		GetLayoutRoot().SetPos(x + m_ContentOffsetX, y + m_ContentOffsetY, true);
 	}
-}
+};
 
 class ExpansionItemPreviewTooltipController: ExpansionViewController
 {
 	string ItemName;
 	Object ItemPreview;
-}
+};

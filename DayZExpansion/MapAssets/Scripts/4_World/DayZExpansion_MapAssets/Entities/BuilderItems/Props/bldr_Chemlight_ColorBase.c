@@ -3,6 +3,12 @@ class bldr_Chemlight_ColorBase: Chemlight_ColorBase
 	void bldr_Chemlight_ColorBase()
 	{
 		SetAllowDamage(false);
+	}
+
+	override void DeferredInit()
+	{
+		super.DeferredInit();
+
 		CreateLight();
 	}
 
@@ -122,8 +128,7 @@ class bldr_Chemlight_ColorBase: Chemlight_ColorBase
 	{
 		SetObjectMaterial(0, GetMaterialForDamageState(true)); // Must be server side!
 
-		if (GetGame().IsClient())
-		{
+		#ifndef SERVER
 			m_Light = ChemlightLight.Cast(ScriptedLightBase.CreateLight( ChemlightLight, "0 0 0"));
 			m_Light.AttachOnMemoryPoint(this, "light");
 
@@ -147,7 +152,7 @@ class bldr_Chemlight_ColorBase: Chemlight_ColorBase
 					break;
 				default: {m_Light.SetColorToWhite();};
 			}
-		}
+		#endif
 	}
 };
 

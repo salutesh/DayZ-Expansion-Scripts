@@ -5,4 +5,9 @@ class eAIFactionPassive : eAIFactionCivilian
 	{
 		m_IsPassive = true;
 	}
+
+	override bool IsFriendly(EntityAI other)
+	{
+		return other.IsInherited(DayZCreatureAI);
+	}
 };

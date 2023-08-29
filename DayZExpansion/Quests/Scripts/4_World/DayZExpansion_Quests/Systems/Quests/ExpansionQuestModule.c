@@ -932,7 +932,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RPC_SendClientQuestConfigs - Tryed to call RPC_SendClientQuestConfigs on Server!");
 			return;
@@ -1043,7 +1043,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RPC_SendClientQuestData - Tryed to call RPC_SendClientQuestData on Server!");
 			return;
@@ -1252,7 +1252,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RPC_RequestOpenQuestMenu - Tryed to call RPC_RequestOpenQuestMenu on Server!");
 			return;
@@ -1328,7 +1328,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RequestCreateQuestInstance - Tryed to call RequestCreateQuestInstance on Server!");
 			return;
@@ -1489,7 +1489,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::CompleteQuestClient - Tryed to call CompleteQuestClient on Server!");
 			return;
@@ -1538,7 +1538,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RPC_CreateClientMarker - Tryed to call RPC_CreateClientMarker on Server!");
 			return;
@@ -1679,7 +1679,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RPC_RemoveClientMarkers - Tryed to call RPC_RemoveClientMarkers on Server!");
 			return;
@@ -1750,7 +1750,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::CancelQuest - Tryed to call CancelQuest on Server!");
 			return;
@@ -1858,7 +1858,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!GetGame().IsClient())
+		if (GetGame().IsDedicatedServer())
 		{
 			Error(ToString() + "::RPC_CallbackClient - Tryed to call RPC_CallbackClient on Server!");
 			return;

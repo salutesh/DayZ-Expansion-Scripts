@@ -5,6 +5,6 @@ class ExpansionInputCarRefill : ContinuousDefaultActionInput
 		SetInput( "UAExpansionCarRefill" );
 		
 		m_InputType = ActionInputType.AIT_CONTINUOUS;
-		m_DetectFromTarget = true;
+		m_DetectFromItem = false;
 	}
 };

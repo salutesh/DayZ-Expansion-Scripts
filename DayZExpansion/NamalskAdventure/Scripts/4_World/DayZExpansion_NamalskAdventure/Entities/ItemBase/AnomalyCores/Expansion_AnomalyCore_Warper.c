@@ -245,19 +245,6 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 			soundEffect.SetSoundAutodestroy(true);
 		}
 	}
-	
-	/*override void OnVariablesSynchronized()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
-		super.OnVariablesSynchronized();
-		
-		if (m_Exploded)
-		{
-			PlayVFX();
-			PlaySFX();
-		}
-	}*/
 
 	override void EOnTouch(IEntity other, int extra)
 	{
@@ -301,17 +288,6 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	{
 		return ExpansionAnomalyCoreLightWarper;
 	}
-	
-	/*override void OnInventoryExit(Man player)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-	}
-
-	override void OnInventoryEnter(Man player)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		//! Make sure to stop particles once in inventory
-	}*/
 	
 	//! On server -> client synchronization
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)

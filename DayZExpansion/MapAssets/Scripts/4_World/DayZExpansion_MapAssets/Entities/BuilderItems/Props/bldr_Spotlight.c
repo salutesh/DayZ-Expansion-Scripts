@@ -7,11 +7,10 @@ class bldr_Spotlight: Spotlight
 		SetAllowDamage(false);
 		Unfold();
 
-		if (GetGame().IsClient())
-		{
+		#ifndef SERVER
 			m_LightProp = SpotlightLightProp.Cast( ScriptedLightBase.CreateLight( SpotlightLightProp, "0 0 0") );
 			m_LightProp.AttachOnObject(this, m_LightLocalPosition, m_LightLocalOrientation);
-		}
+		#endif
 
 		UpdateAllSelections();
 	}
@@ -63,10 +62,9 @@ class bldr_Spotlight: Spotlight
 
 	void CreateLight()
 	{
-		if (GetGame().IsClient())
-		{
+		#ifndef SERVER
 			m_LightProp = SpotlightLightProp.Cast(ScriptedLightBase.CreateLight( SpotlightLightProp, "0 0 0"));
 			m_LightProp.AttachOnObject(this, m_LightLocalPosition, m_LightLocalOrientation);
-		}
+		#endif
 	}
 };

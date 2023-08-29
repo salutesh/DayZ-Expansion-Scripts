@@ -14,6 +14,9 @@ class ExpansionSettingBase
 {
 	int m_Version;
 
+	[NonSerialized()]
+	protected bool m_IsUsingDefaults;
+
 	void ExpansionSettingBase()
 	{
 	}
@@ -85,6 +88,16 @@ class ExpansionSettingBase
 	void Defaults()
 	{
 		Error("Not implemented");
+	}
+
+	void SetIsUsingDefaults(bool isUsingDefaults = true)
+	{
+		m_IsUsingDefaults = isUsingDefaults;
+	}
+
+	bool IsUsingDefaults()
+	{
+		return m_IsUsingDefaults;
 	}
 
 	bool IsLoaded()

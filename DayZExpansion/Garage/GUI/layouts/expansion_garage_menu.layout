@@ -1,0 +1,561 @@
+FrameWidgetClass ExpansionGarageMenu {
+ visible 1
+ clipchildren 1
+ ignorepointer 1
+ keepsafezone 1
+ position 0 0
+ size 1 1
+ valign bottom_ref
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionGarageMenuController"
+ {
+  PanelWidgetClass garage_menu_content {
+   visible 1
+   ignorepointer 1
+   keepsafezone 1
+   size 0.78 0.98
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   "no focus" 1
+   {
+    PanelWidgetClass garage_panel {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 0
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     style blank
+     "no focus" 1
+     {
+      PanelWidgetClass garage_frame {
+       visible 1
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       "no focus" 1
+       {
+        PanelWidgetClass garage_header {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0.1059 0.1059 0.1059 0.9412
+         size 1 0.059
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+         "no focus" 1
+         {
+          TextWidgetClass garage_text {
+           visible 1
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           position 0.05 0
+           size 0.59 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass ""
+           style Bold
+           text "#STR_EXPANSION_GARAGE_MENU_TITLE"
+           "bold text" 0
+           "text sharpness" 1.014
+           "exact text" 0
+           "text valign" center
+          }
+          ImageWidgetClass garage_icon {
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           position 0.01 0
+           size 46 46
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           scriptclass ""
+           imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
+           mode blend
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+          }
+         }
+        }
+        ScrollWidgetClass garage_world_vehicles_scroller {
+         visible 1
+         clipchildren 1
+         ignorepointer 0
+         color 1 1 1 0.549
+         position 0 0.06
+         size 0.5 0.86
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style blank
+         "Scrollbar V" 1
+         {
+          WrapSpacerWidgetClass garage_world_vehicles_wrapper {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           Padding 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           {
+            PanelWidgetClass garage_world_vehicles_panel {
+             ignorepointer 1
+             color 0.1059 0.1059 0.1059 0.9412
+             size 1 48
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             style UIDefaultPanel
+             {
+              TextWidgetClass garage_world_vehicles_text {
+               visible 1
+               ignorepointer 1
+               color 0.8627 0.8627 0.8627 1
+               position 0.05 0
+               size 0.59 26
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 1
+               scriptclass ""
+               style Bold
+               text "#STR_EXPANSION_GARAGE_MENU_WORLD_VEHICLES"
+               "bold text" 0
+               "text sharpness" 1.014
+               "exact text" 0
+               "text valign" center
+              }
+             }
+            }
+            GridSpacerWidgetClass garage_world_vehicles_container {
+             visible 1
+             ignorepointer 1
+             size 1 0.5
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             "Size To Content V" 1
+             Rows 100
+             {
+              ScriptParamsClass {
+               Binding_Name "WorldVehicles"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        ScrollWidgetClass garage_stored_vehicles_scroller {
+         visible 1
+         clipchildren 1
+         ignorepointer 0
+         keepsafezone 1
+         color 1 1 1 0.549
+         position 0 0.06
+         size 0.5 0.86
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style blank
+         "Scrollbar V" 1
+         {
+          WrapSpacerWidgetClass garage_stored_vehicles_wrapper {
+           ignorepointer 1
+           size 1 1
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           Padding 0
+           "Size To Content H" 1
+           "Size To Content V" 1
+           {
+            PanelWidgetClass garage_stored_vehicles_panel {
+             ignorepointer 1
+             color 0.1059 0.1059 0.1059 0.9412
+             size 1 48
+             hexactpos 1
+             vexactpos 1
+             hexactsize 0
+             vexactsize 1
+             style UIDefaultPanel
+             {
+              TextWidgetClass garage_stored_vehicles_text {
+               visible 1
+               ignorepointer 1
+               color 0.8627 0.8627 0.8627 1
+               position 0.05 0
+               size 0.59 26
+               valign center_ref
+               hexactpos 0
+               vexactpos 0
+               hexactsize 0
+               vexactsize 1
+               scriptclass ""
+               style Bold
+               text "#STR_EXPANSION_GARAGE_MENU_STORED_VEHICLES"
+               "bold text" 0
+               "text sharpness" 1.014
+               "exact text" 0
+               "text valign" center
+              }
+             }
+            }
+            GridSpacerWidgetClass garage_stored_vehicles_container {
+             visible 1
+             ignorepointer 1
+             size 1 0.5
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             "Size To Content V" 1
+             Rows 100
+             {
+              ScriptParamsClass {
+               Binding_Name "StoredVehicles"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass garage_header_options {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0.1059 0.1059 0.1059 0.9412
+         position 0 0.04
+         size 1 0.04
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+        }
+        PanelWidgetClass garage_footer {
+         visible 1
+         clipchildren 0
+         ignorepointer 1
+         color 0 0 0 0.9412
+         size 1 0.04
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style UIDefaultPanel
+        }
+        PanelWidgetClass garage_frame_spacer {
+         ignorepointer 1
+         color 0.1059 0.1059 0.1059 0.9412
+         position -0.002 0.06
+         size 6 0.86
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 0
+         style DayZDefaultPanel
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass garage_loading {
+   visible 0
+   ignorepointer 0
+   keepsafezone 1
+   color 0.0588 0.0588 0.0588 0.7843
+   position 0 0
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1000
+   style rover_sim_colorable
+   {
+    TextWidgetClass garage_loading_text {
+     visible 1
+     ignorepointer 1
+     position 0 0
+     size 1 64
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style Bold
+     text "LOADING"
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+    }
+   }
+  }
+  ImageWidgetClass vignette {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0 0 0 0.7843
+   position 0 0
+   size 1.5 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   fixaspect outside
+   imageTexture "{E6B3EF816E067499}Gui/textures/inventory_bgvignette.edds"
+   mode blend
+   "src alpha" 1
+   "no wrap" 1
+   stretch 1
+   filter 0
+   nocache 1
+  }
+  PanelWidgetClass background {
+   visible 1
+   clipchildren 0
+   ignorepointer 1
+   color 0 0 0 0.7843
+   position 0 0
+   size 1.5 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   fixaspect outside
+   style rover_sim_colorable
+  }
+  PanelWidgetClass garage_menu_info {
+   visible 1
+   disabled 0
+   ignorepointer 0
+   keepsafezone 1
+   position 0 0.01
+   size 0.22 0.98
+   halign right_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   {
+    PanelWidgetClass garage_stored_vehicles_panel0 {
+     ignorepointer 1
+     color 0.1059 0.1059 0.1059 0.9412
+     size 1 62
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style UIDefaultPanel
+     {
+      TextWidgetClass garage_stored_vehicles_text0 {
+       visible 1
+       ignorepointer 1
+       color 0.1922 0.5059 0.549 1
+       position 0.16 0
+       size 0.59 26
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass ""
+       style Bold
+       text "#STR_EXPANSION_GARAGE_MENU_INFO"
+       "bold text" 0
+       "text sharpness" 1.014
+       "exact text" 0
+       "text valign" center
+      }
+      ImageWidgetClass garage_icon0 {
+       ignorepointer 1
+       color 0.1922 0.5059 0.549 1
+       position 0.04 0
+       size 36 36
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       scriptclass ""
+       imageTexture "{1595828A6EA76F98}DayZExpansion/Core/GUI/icons/hud/exclamationmark_64x64.edds"
+       mode blend
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+      }
+     }
+    }
+    PanelWidgetClass player_money_panel {
+     visible 0
+     clipchildren 0
+     ignorepointer 1
+     color 0.1059 0.1059 0.1059 0.9412
+     position 0 0.06
+     size 1 48
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     style UIDefaultPanel
+     {
+      ButtonWidgetClass player_money_content {
+       visible 1
+       ignorepointer 0
+       size 0.97 32
+       halign center_ref
+       valign center_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       priority 1
+       style Empty
+       {
+        ImageWidgetClass player_money_background {
+         ignorepointer 1
+         color 0.2667 0.2667 0.2667 0.9412
+         position 0 0
+         size 1 31
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         imageTexture "{5CCDBAA76FB55F9B}DayZExpansion/Market/GUI/textures/panel_background_01.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+         "flip u" 1
+         "flip v" 1
+        }
+        PanelWidgetClass player_money_header_panel {
+         visible 1
+         ignorepointer 1
+         position 0 0
+         size 0.94 1
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         style blank
+         {
+          TextWidgetClass player_money_text {
+           visible 1
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           style Bold
+           text "#STR_EXPANSION_GARAGE_MENU_CURRENCY"
+           "text offset" 0 0
+           "exact text" 0
+           "size to text v" 0
+           "text valign" center
+          }
+          TextWidgetClass player_money_value {
+           ignorepointer 1
+           color 0.8627 0.8627 0.8627 1
+           size 0.5 0.8
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           scriptclass "ViewBinding"
+           "exact text" 0
+           "size to text v" 0
+           "text halign" right
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "PlayerMoney"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass garage_menu_info_spacer {
+     ignorepointer 1
+     position 0 0.11
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass ""
+     "Size To Content V" 1
+     Columns 1
+     Rows 100
+    }
+   }
+  }
+ }
+}

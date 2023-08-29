@@ -516,13 +516,13 @@ class CfgVehicles
 		rotationFlags = 8;
 		physLayer = "item_large";
 		radiusByDamage[] = {0,0.408,0.3,0.4,0.9998,0.25,0.9999,0.2};
-		radius = 0.41;
+		radius = 0.369;
 		width = 0.15;
 		friction = 0.85;
-		tyre = "TYRE_DEFAULT";
-		tyreRollDrag = 5;
 		tyreRollResistance = 0.014;
 		tyreTread = 0.95;
+		tyreOffroadResistance = 1;
+		tyreGrip = 1;
 		hiddenSelections[] = {"bottom","dmgzone_rim","dmgzone_tire"};
 		hiddenSelectionsTextures[] = {"","",""};
 		hiddenSelectionsMaterials[] = {"","dayzexpansion\vehicles\ground\landrover\data\lr_bottom_metal.rvmat","dayzexpansion\vehicles\ground\landrover\data\lr_bottom.rvmat"};
@@ -685,8 +685,8 @@ class CfgVehicles
 			class Gearbox
 			{
 				type = "GEARBOX_MANUAL";
-				reverse = 3.726;
-				ratios[] = {5.077,3.426,2.601,2.188,1.775};
+				reverse = 3.926;
+				ratios[] = {5.077,3.426,2.601,2.188,1.775,1.305};
 			};
 			class CentralDifferential
 			{
@@ -700,7 +700,7 @@ class CfgVehicles
 					maxBrakeTorque = 4000;
 					maxHandbrakeTorque = 5000;
 					wheelHubMass = 5;
-					wheelHubRadius = 0.15;
+					wheelHubRadius = 0.17;
 					class Differential
 					{
 						ratio = 2.73;
@@ -708,11 +708,11 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						stiffness = 35000;
-						compression = 2100;
+						stiffness = 30000;
+						compression = 4000;
 						damping = 7400;
-						travelMaxUp = 0.06;
-						travelMaxDown = 0.07;
+						travelMaxUp = 0.13;
+						travelMaxDown = 0.13;
 					};
 					class Wheels: Wheels
 					{
@@ -739,7 +739,7 @@ class CfgVehicles
 					maxBrakeTorque = 3800;
 					maxHandbrakeTorque = 5000;
 					wheelHubMass = 5;
-					wheelHubRadius = 0.15;
+					wheelHubRadius = 0.17;
 					class Differential
 					{
 						ratio = 2.73;
@@ -747,11 +747,11 @@ class CfgVehicles
 					};
 					class Suspension
 					{
-						stiffness = 37000;
-						compression = 2200;
+						stiffness = 32000;
+						compression = 4000;
 						damping = 7600;
-						travelMaxUp = 0.06;
-						travelMaxDown = 0.07;
+						travelMaxUp = 0.13;
+						travelMaxDown = 0.13;
 					};
 					class Wheels: Wheels
 					{

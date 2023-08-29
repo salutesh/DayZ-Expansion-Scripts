@@ -26,6 +26,12 @@ class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 	string NotifiersHalfColor;		//! Yellow
 	string NotifiersLowColor;		//! Red
 
+#ifdef EXPANSIONMODHARDLINE
+	string ReputationBaseColor;
+	string ReputationMedColor;
+	string ReputationHighColor;
+#endif
+
 	override void Update()
 	{
 		super.Update();
@@ -36,31 +42,42 @@ class ExpansionHudIndicatorColors: ExpansionColorSettingsBase
 
 		if (!Get("NotifierDividerColor"))
 			Set("NotifierDividerColor", ARGB(255, 220, 220, 220));
-			
-		// Temperatures			
+
+		// Temperatures
 		if (!Get("TemperatureBurningColor"))
 			Set("TemperatureBurningColor", ARGB(255, 220, 0, 0));
 
 		if (!Get("TemperatureHotColor"))
 			Set("TemperatureHotColor", ARGB(255, 220, 220, 0));
-			
+
 		if (!Get("TemperatureIdealColor"))
 			Set("TemperatureIdealColor", ARGB(255, 220, 220, 220));
-			
+
 		if (!Get("TemperatureColdColor"))
 			Set("TemperatureColdColor", ARGB(255, 0, 206, 209));
-			
+
 		if (!Get("TemperatureFreezingColor"))
 			Set("TemperatureFreezingColor", ARGB(255, 30, 144, 220));
 
 		// Notifiers
 		if (!Get("NotifiersIdealColor"))
 			Set("NotifiersIdealColor", ARGB(255, 220, 220, 220));
-			
+
 		if (!Get("NotifiersHalfColor"))
 			Set("NotifiersHalfColor", ARGB(255, 220, 220, 0));
-			
+
 		if (!Get("NotifiersLowColor"))
 			Set("NotifiersLowColor", ARGB(255, 220, 0, 0));
+
+	#ifdef EXPANSIONMODHARDLINE
+		if (!Get("ReputationBaseColor"))
+			Set("ReputationBaseColor", ARGB(255, 220, 220, 220));
+
+		if (!Get("ReputationMedColor"))
+			Set("ReputationMedColor", ARGB(255, 220, 220, 0));
+
+		if (!Get("ReputationHighColor"))
+			Set("ReputationHighColor", ARGB(255, 220, 0, 0));
+	#endif
 	}
 }

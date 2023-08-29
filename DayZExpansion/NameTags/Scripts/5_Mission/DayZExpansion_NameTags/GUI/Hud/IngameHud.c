@@ -31,7 +31,7 @@ modded class IngameHud
 	protected EntityAI m_CurrentTaggedObject;
 	protected float m_MaxViewRange;
 	protected bool m_IsMember = false;
-	protected bool m_IsEnemy = true;
+	protected bool m_IsFriendly = false;
 #ifdef EXPANSIONMODAI
 	protected bool m_ShowFaction;
 	protected string m_FactionName; 
@@ -175,7 +175,7 @@ modded class IngameHud
 	#endif
 		
 		m_IsMember = false;
-		m_IsEnemy = true;
+		m_IsFriendly = false;
 
 		PlayerBase playerA = PlayerBase.Cast(GetGame().GetPlayer());
 		PlayerBase playerB;
@@ -393,7 +393,7 @@ modded class IngameHud
 					}
 				#endif
 
-					if (!m_IsEnemy && !m_IsMember)
+					if (m_IsFriendly || m_IsMember)
 					{
 						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCESS);
 					}
@@ -519,7 +519,7 @@ modded class IngameHud
 					}
 				#endif
 
-					if (!m_IsEnemy)
+					if (m_IsFriendly)
 					{
 						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_SUCCESS);
 					}
@@ -697,34 +697,28 @@ modded class IngameHud
 	{
 		eAIGroup localGroup;
 		eAIFaction localFaction;
-		string factionName = "N/A";
-		PlayerBase localPlayer = PlayerBase.Cast(GetGame().GetPlayer());
-		eAIGroup playerGroup = player.GetGroup();
 		eAIFaction playerFaction;
-		
-		if (playerGroup)
-		{
-			playerFaction = playerGroup.GetFaction();
-			if (playerFaction)
-				factionName = playerFaction.GetDisplayName();
-			m_FactionName = factionName;
-		}
+		string factionName = "N/A";
+		DayZPlayerImplement localPlayer = DayZPlayerImplement.Cast(GetGame().GetPlayer());
+		eAIGroup playerGroup = player.GetGroup();		
+		if (!playerGroup)
+			return;
+
+		playerFaction = playerGroup.GetFaction();
+		if (playerFaction)
+			factionName = playerFaction.GetDisplayName();
+		m_FactionName = factionName;
 
 		localGroup = localPlayer.GetGroup();
-		if (localGroup)
-		{
-			localFaction = localGroup.GetFaction();
-			if (localFaction && playerFaction)
-			{
-				if (playerFaction.IsFriendly(localFaction))
-					m_IsEnemy = false;
-			}
-		}
+		if (!localGroup)
+			return;
 		
-		localGroup = null;
-		localFaction = null;
-		playerGroup = null;
-		playerFaction = null;
+		localFaction = localGroup.GetFaction();
+		if (!localFaction || !playerFaction)
+			return;
+
+		if (playerFaction.IsFriendly(localFaction))
+			m_IsFriendly = true;
 	}
 #endif
 	

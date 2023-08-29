@@ -25,34 +25,27 @@ class ActionInviteToGroup: ActionInteractBase
 		m_ConditionItem = new CCINone;
 	}
 
-	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
-	{
+	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
+	{		
 		PlayerBase targetPlayer = PlayerBase.Cast(target.GetParentOrObject());
-		
 		if (!targetPlayer || !targetPlayer.IsAlive())
 			return false;
-
-	#ifdef ENFUSION_AI_PROJECT
-		if (targetPlayer.IsAI())
-			return false;  //! TODO: Maybe integrate with AI group system?
-	#endif
-		
-	#ifdef EXPANSIONMODMARKET
-		if (targetPlayer.IsInherited(ExpansionTraderNPCBase))
-			return false;
-	#endif
 		
 		if (!targetPlayer.GetIdentity())
 			return false;
 		
-		ExpansionPartyModule partyModule;
-		if (GetGame().IsClient() && CF_Modules<ExpansionPartyModule>.Get(partyModule))
-			return partyModule.GetParty() != null;
+		bool hasTargetParty;
+		if (targetPlayer.Expansion_GetPartyID() > -1)
+			hasTargetParty = true;
+		
+		bool hasPlayerParty;
+		if (player.Expansion_GetPartyID() > -1)
+			hasPlayerParty = true;
 
-		return player.Expansion_GetParty() && !targetPlayer.Expansion_GetParty();
+		return hasPlayerParty && !hasTargetParty;
 	}
 	
-	override void OnExecuteClient( ActionData action_data )
+	override void OnExecuteClient(ActionData action_data)
 	{
 		Object target = action_data.m_Target.GetParentOrObject();
 		PlayerBase targetPlayer = PlayerBase.Cast(target);

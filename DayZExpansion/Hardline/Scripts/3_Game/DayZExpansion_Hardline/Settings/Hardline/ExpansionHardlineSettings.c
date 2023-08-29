@@ -131,6 +131,14 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			Error(ToString() + "::OnRecieve EnableItemRarity");
 			return false;
 		}
+		
+	#ifdef EXPANSIONMOD
+		if (!ctx.Read(MaxReputation))
+		{
+			Error(ToString() + "::OnRecieve MaxReputation");
+			return false;
+		}
+	#endif
 
 		m_IsLoaded = true;
 
@@ -147,6 +155,9 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
 		ctx.Write(EnableItemRarity);
+	#ifdef EXPANSIONMOD
+		ctx.Write(MaxReputation);
+	#endif
 	}
 
 	// ------------------------------------------------------------

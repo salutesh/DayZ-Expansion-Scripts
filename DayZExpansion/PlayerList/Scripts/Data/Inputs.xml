@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<modded_inputs>
+	<inputs>
+		<actions>
+			<input name="UAExpansionPlayerListToggle" loc="STR_EXPANSION_TOGGLE_PLAYER_LIST" />
+		</actions>
+		
+		<exclude name="chatexpansion">
+			<input name="UAExpansionPlayerListToggle" />
+		</exclude>
+
+		<sorting name="expansion" loc="STR_EXPANSION_LABEL">
+			<input name="UAExpansionPlayerListToggle" />
+		</sorting>
+	</inputs>
+
+	<preset>
+		<input name="UAExpansionPlayerListToggle">
+			<btn name="kPause" />
+		</input>
+	</preset>
+</modded_inputs>

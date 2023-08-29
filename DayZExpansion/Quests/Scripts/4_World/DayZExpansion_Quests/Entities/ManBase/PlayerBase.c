@@ -127,10 +127,10 @@ modded class PlayerBase
 
 	override void EEKilled(Object killer)
 	{
+		super.EEKilled(killer);
+
 		ExpansionQuestModule.GetModuleInstance().CheckActivePlayerQuests(this);
 		CheckAssignedObjectivesForEntity(killer);
-
-		super.EEKilled(killer);
 	}
 
 	override void SetActions(out TInputActionMap InputActionMap)

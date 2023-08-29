@@ -238,7 +238,7 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override protected void Activate()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		//we don't want base functionality here
+		//! We don't want base functionality here
 	}
 
 	override void EEDelete(EntityAI parent)
@@ -477,9 +477,6 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 
 		if (m_CoreState == ExpansionAnomalyCoreState.UNSTABLE)
 			return false;
-
-		/*if (GetHierarchyRoot() && Expansion_Anomaly_Base.Cast(GetHierarchyRoot()))
-			return false;*/
 
 		return true;
 	}

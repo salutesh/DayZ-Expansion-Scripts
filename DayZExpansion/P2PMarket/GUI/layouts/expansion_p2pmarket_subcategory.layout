@@ -1,0 +1,136 @@
+WrapSpacerWidgetClass ExpansionP2PMarketMenuSubCategoryElement {
+ ignorepointer 1
+ color 0 0 0 1
+ size 1 26
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 1
+ priority 2
+ scriptclass "ExpansionP2PMarketMenuSubCategoryElementController"
+ style Expansion_01
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ content_halign right
+ {
+  ButtonWidgetClass button_element {
+   color 0 0 0 1
+   size 1 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   scriptclass "ViewBinding"
+   style Expansion_01
+   {
+    PanelWidgetClass tree_elements {
+     visible 1
+     ignorepointer 1
+     position 16 0
+     size 26 26
+     hexactpos 1
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     {
+      PanelWidgetClass tree_panel_1 {
+       ignorepointer 1
+       color 1 1 1 0.1961
+       position 0 2
+       size 2 11
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass tree_panel_2 {
+       ignorepointer 1
+       color 1 1 1 0.1961
+       position 2 13
+       size 14 2
+       valign bottom_ref
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+      }
+      PanelWidgetClass tree_panel_3 {
+       visible 0
+       ignorepointer 1
+       color 1 1 1 0.1961
+       position 0 13
+       size 2 11
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       style rover_sim_colorable
+      }
+     }
+    }
+    ImageWidgetClass category_icon {
+     visible 1
+     ignorepointer 1
+     position 0.14 0
+     size 24 24
+     valign center_ref
+     hexactpos 0
+     vexactpos 1
+     hexactsize 1
+     vexactsize 1
+     image0 ""
+     imageTexture "{EC8EDC01E1CEFBB0}DayZExpansion/Core/GUI/icons/hud/menu_64x64.edds"
+     mode blend
+     "src alpha" 1
+     "no wrap" 1
+     stretch 1
+    }
+    TextWidgetClass button_element_text {
+     ignorepointer 1
+     position 0.23 0
+     size 0.42 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "SubCategoryName"
+      }
+     }
+    }
+    TextWidgetClass category_items_count {
+     ignorepointer 1
+     position 0.03 0
+     size 0.15 1
+     halign right_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "SubCategoryItemsCount"
+      }
+     }
+    }
+   }
+   {
+    ScriptParamsClass {
+     Relay_Command "OnElementButtonClick"
+    }
+   }
+  }
+ }
+}

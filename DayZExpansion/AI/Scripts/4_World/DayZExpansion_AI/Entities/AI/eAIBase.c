@@ -1822,7 +1822,9 @@ class eAIBase: PlayerBase
 			return;
 		}
 
-		if (item.Expansion_IsMeleeWeapon() && !item.GetInventory().IsAttachment())
+		//! When item is cloned to a shoulder slot or similar, GetInventory().IsAttachment() is true, but GetHierarchyRootPlayer() is NULL
+		//! GetHierarchyRoot() is the item itself in that case
+		if (item.Expansion_IsMeleeWeapon() && (!item.GetInventory().IsAttachment() || !item.GetHierarchyRootPlayer() || item.GetHierarchyRootPlayer() == this))
 		{
 			EXTrace.Print(EXTrace.AI, this, "eAI_AddItem - melee weapon " + item);
 			m_MeleeWeapons.Insert(item);

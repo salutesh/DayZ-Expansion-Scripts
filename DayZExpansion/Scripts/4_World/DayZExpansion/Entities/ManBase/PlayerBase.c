@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -19,17 +19,11 @@ modded class PlayerBase
 	ExpansionKillFeedModule m_KillfeedModule;
 	ItemBase m_Expansion_SuicideItem;
 
-	// ------------------------------------------------------------
-	// PlayerBase Constructor
-	// ------------------------------------------------------------
 	void PlayerBase()
 	{
 		m_HasCalledKillFeed = false;
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase Destructor
-	// ------------------------------------------------------------
 	void ~PlayerBase()
 	{
 		//! Making sure we remove tha call for CreateGraveCross when ever the player base entity gets destroyed
@@ -42,9 +36,6 @@ modded class PlayerBase
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Override Init
-	// ------------------------------------------------------------
 	override void Init()
 	{
 		super.Init();
@@ -52,9 +43,6 @@ modded class PlayerBase
 		CF_Modules<ExpansionKillFeedModule>.Get(m_KillfeedModule);
 	}
 
-	// ------------------------------------------------------------
-	// Override SetSuicide
-	// ------------------------------------------------------------
 	override void SetSuicide(bool state)
 	{
 		super.SetSuicide(state);
@@ -63,9 +51,6 @@ modded class PlayerBase
 			m_Expansion_SuicideItem = GetItemInHands();
 	}
 
-	// ------------------------------------------------------------
-	// Override EEKilled
-	// ------------------------------------------------------------
 	override void EEKilled( Object killer )
 	{
 		if ( GetExpansionSettings().GetGeneral().EnableGravecross )
@@ -74,7 +59,7 @@ modded class PlayerBase
 			if (!IsAI())
 			{
 			#endif
-			
+
 				EntityAI handEntity = GetHumanInventory().GetEntityInHands();
 				GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(CreateGraveCross, GetExpansionSettings().GetGeneral().GravecrossSpawnTimeDelay * 1000, false, handEntity);
 
@@ -94,9 +79,6 @@ modded class PlayerBase
 		}
 	}
 
-	// ------------------------------------------------------------
-	// Override EEHitBy
-	// ------------------------------------------------------------
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
 	{
 		if ( GetExpansionSettings().GetNotification().EnableKillFeed && GetIdentity() )
@@ -111,25 +93,16 @@ modded class PlayerBase
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase IsPlayerAlreadyDeadAndCalledKillFeed IPADACK
-	// ------------------------------------------------------------
 	bool IPADACK()
 	{
 		return m_HasCalledKillFeed;
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase UpdateIsPlayerAlreadyDeadAndCalledKillFeed UpdateIPADACK
-	// ------------------------------------------------------------
 	void UpdateIPADACK(bool state = true)
 	{
 		m_HasCalledKillFeed = state;
 	}
 
-	// ------------------------------------------------------------
-	// Expansion SpawnGraveCross
-	// ------------------------------------------------------------
 	void CreateGraveCross(EntityAI handEntity)
 	{
 		int lifetimeThreshhold = GetExpansionSettings().GetGeneral().GravecrossTimeThreshold;
@@ -202,9 +175,6 @@ modded class PlayerBase
 		}
 	}
 
-	// ------------------------------------------------------------
-	// PlayerBase Debug_PlayerForward
-	// ------------------------------------------------------------
 	void Debug_PlayerForward()
 	{
 #ifdef EXPANSIONTRACE
@@ -223,15 +193,4 @@ modded class PlayerBase
 		m_PlayerHeadingDir.SetPosition( pos );
 		m_PlayerHeadingDir.SetDirection( direction );
 	}
-
-	// ------------------------------------------------------------
-	// PlayerBase CanReleaseAttachment
-	// ------------------------------------------------------------
-	//override bool CanReleaseAttachment(EntityAI attachment)
-	//{
-		//if (attachment.IsKindOf("ExpansionHardlineArmband"))
-			//return false;
-
-		//return super.CanReleaseAttachment(attachment);
-	//}
 };

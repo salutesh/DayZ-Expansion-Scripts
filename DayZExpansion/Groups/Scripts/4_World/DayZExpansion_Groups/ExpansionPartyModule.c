@@ -1279,7 +1279,7 @@ class ExpansionPartyModule: CF_ModuleWorld
 		{
 			PlayerBase player = PlayerBase.GetPlayerByUID(uid);
 			if (player)
-				return player.m_Expansion_PartyPlayerData;
+				return player.Expansion_GetPartyPlayerData();
 		}
 
 		//! @note at this point, player may be NULL or PlayerBase::m_Expansion_PlayerPartyData may have not yet been set. Look for party in array

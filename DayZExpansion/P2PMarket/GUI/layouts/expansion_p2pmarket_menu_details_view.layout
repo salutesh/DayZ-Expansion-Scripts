@@ -1,0 +1,1441 @@
+FrameWidgetClass ExpansionP2PMarketMenuDetailsView {
+ visible 1
+ ignorepointer 1
+ size 1 1
+ hexactpos 1
+ vexactpos 1
+ hexactsize 0
+ vexactsize 0
+ priority 1
+ scriptclass "ExpansionP2PMarketMenuDetailsViewController"
+ {
+  PanelWidgetClass list_panel {
+   visible 1
+   ignorepointer 1
+   size 0.33 1
+   halign right_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   {
+    PanelWidgetClass list_panel_background {
+     ignorepointer 1
+     color 0.0745 0.0902 0.1059 1
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+    }
+    PanelWidgetClass list_panel_header {
+     ignorepointer 1
+     color 0 0 0 0.9412
+     position 0 0
+     size 1 48
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass list_panel_header_text {
+       visible 1
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       position 0.025 0
+       size 0.9 26
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass ""
+       style Bold
+       text "#STR_EXPANSION_MARKET_P2P_PREVIEW_LABEL"
+       "bold text" 0
+       "text sharpness" 1.014
+       "exact text" 0
+       "size to text h" 1
+       "text valign" center
+      }
+     }
+    }
+    TextWidgetClass info_title {
+     ignorepointer 1
+     color 0.9451 0.7686 0.0588 1
+     position 0 0.07
+     size 0.95 48
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     text "#STR_EXPANSION_MARKET_P2P_INFOBOX_WARNING_TITLE"
+     font "gui/fonts/MetronBook-BoldItalic48"
+     "text color" 0.9451 0.7686 0.0588 1
+     "size to text h" 0
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+    }
+    GridSpacerWidgetClass info_grid {
+     ignorepointer 1
+     position 0 0.13
+     size 0.95 0.43
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     "Size To Content V" 1
+     Columns 1
+     Rows 6
+     {
+      TextWidgetClass info_1_title {
+       ignorepointer 1
+       color 0.9451 0.7686 0.0588 1
+       size 1 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       text "#STR_EXPANSION_MARKET_P2P_INFOBOX_EXPIREDSALES_TITLE"
+       font "gui/fonts/MetronBook-Bold22"
+       "size to text h" 0
+       "size to text v" 1
+       "text valign" center
+      }
+      RichTextWidgetClass info_1_text {
+       ignorepointer 1
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       wrap 1
+       "condense whitespace" 1
+       "strip newlines" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "InfoTextOne"
+        }
+       }
+      }
+      PanelWidgetClass PanelWidget0 {
+       ignorepointer 1
+       size 48 26
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       scriptclass ""
+      }
+      TextWidgetClass info_2_title {
+       ignorepointer 1
+       color 0.9451 0.7686 0.0588 1
+       size 1 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       text "#STR_EXPANSION_MARKET_P2P_INFOBOX_EXPIREDLISTING_TITLE"
+       font "gui/fonts/MetronBook-Bold22"
+       "size to text h" 0
+       "size to text v" 1
+       "text valign" center
+      }
+      RichTextWidgetClass info_2_text {
+       ignorepointer 1
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       wrap 1
+       "condense whitespace" 1
+       "strip newlines" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "InfoTextTwo"
+        }
+       }
+      }
+      PanelWidgetClass PanelWidget1 {
+       ignorepointer 1
+       size 48 26
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+      }
+      TextWidgetClass info_3_title {
+       ignorepointer 1
+       color 0.9451 0.7686 0.0588 1
+       size 1 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       text "#STR_EXPANSION_MARKET_P2P_INFOBOX_LISTINGFEE_TITLE"
+       font "gui/fonts/MetronBook-Bold22"
+       "size to text h" 0
+       "size to text v" 1
+       "text valign" center
+      }
+      RichTextWidgetClass info_3_text {
+       ignorepointer 1
+       size 1 1
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       wrap 1
+       "condense whitespace" 1
+       "strip newlines" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "InfoTextThree"
+        }
+       }
+      }
+      PanelWidgetClass PanelWidget3 {
+       ignorepointer 1
+       size 48 26
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+      }
+      MultilineTextWidgetClass info_4_text {
+       ignorepointer 1
+       color 0.9451 0.7686 0.0588 1
+       position 0 0
+       size 1 24
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       text "#STR_EXPANSION_MARKET_P2P_INFOBOX_GENERALWARNING_DESC"
+       font "gui/fonts/MetronBook-Bold22"
+       "exact text" 1
+       "size to text h" 1
+       "size to text v" 1
+       "text valign" center
+       wrap 1
+       "condense whitespace" 1
+      }
+     }
+    }
+    RichTextWidgetClass item_description {
+     visible 0
+     clipchildren 1
+     ignorepointer 1
+     color 0.9451 0.7686 0.0588 1
+     position 0 0.13
+     size 0.95 0.43
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     font "gui/fonts/etelkatextpro28"
+     "text offset" 0 5
+     "exact text" 1
+     "size to text h" 0
+     "size to text v" 0
+     wrap 1
+     "condense whitespace" 1
+     "strip newlines" 1
+     {
+      ScriptParamsClass {
+       Binding_Name "ItemDescription"
+      }
+     }
+    }
+    TextWidgetClass selected_name {
+     ignorepointer 1
+     position 0 0.64
+     size 0.95 46
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     text "#STR_EXPANSION_MARKET_P2P_ITEMNAME"
+     font "gui/fonts/etelkatextpro48"
+     "text halign" center
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "SelectedName"
+      }
+     }
+    }
+    WrapSpacerWidgetClass price_panel {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0.7
+     size 0.95 142
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style Expansion_01
+     Padding 4
+     Margin 10
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     {
+      PanelWidgetClass price_spacer_panel {
+       visible 1
+       ignorepointer 1
+       size 1 26
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass price_text {
+         visible 0
+         ignorepointer 1
+         position 0.07 0
+         size 0.45 26
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         font "gui/fonts/etelkatextpro"
+         "exact text" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ListingPrice"
+          }
+         }
+        }
+        EditBoxWidgetClass listing_price_editbox {
+         color 0.9451 0.7686 0.0588 1
+         position 0.07 0
+         size 0.45 26
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         style Editor
+         font "gui/fonts/etelkatextpro"
+         {
+          ScriptParamsClass {
+           Binding_Name "PriceEditBox"
+          }
+         }
+        }
+        TextWidgetClass listing_price_text {
+         ignorepointer 1
+         position 0.07 0
+         size 0.4 26
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "#STR_EXPANSION_MARKET_P2P_PRICE_LABEL"
+         font "gui/fonts/etelkatextpro28"
+         "exact text" 0
+         "size to text h" 0
+         "size to text v" 0
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass listing_cost_panel {
+       visible 1
+       ignorepointer 1
+       position 0 30
+       size 1 26
+       hexactpos 0
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass listing_cost_text {
+         ignorepointer 1
+         position 0.07 0
+         size 0.4 26
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "#STR_EXPANSION_MARKET_P2P_LISTINGCOST_LABEL"
+         font "gui/fonts/etelkatextpro28"
+         "size to text h" 0
+         "text valign" center
+        }
+        TextWidgetClass listing_cost {
+         ignorepointer 1
+         position 0.07 0
+         size 0.45 26
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "#STR_EXPANSION_MARKET_P2P_NAN"
+         font "gui/fonts/etelkatextpro"
+         "exact text" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ListCost"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass listing_lowest_panel {
+       visible 1
+       ignorepointer 1
+       position 0 60
+       size 1 26
+       hexactpos 0
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass listing_lowest_text {
+         ignorepointer 1
+         position 0.07 0
+         size 0.4 26
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "#STR_EXPANSION_MARKET_P2P_LOWESTPRICE_LABEL"
+         font "gui/fonts/etelkatextpro28"
+         "size to text h" 0
+         "text valign" center
+        }
+        TextWidgetClass listing_lowest_val {
+         ignorepointer 1
+         position 0.07 0
+         size 0.45 26
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "#STR_EXPANSION_MARKET_P2P_NAN"
+         font "gui/fonts/etelkatextpro"
+         "exact text" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "LowestPrice"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass listing_highest_panel {
+       visible 1
+       ignorepointer 1
+       position 0 90
+       size 1 26
+       hexactpos 0
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass listing_highest_text {
+         ignorepointer 1
+         position 0.07 0
+         size 0.4 26
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "#STR_EXPANSION_MARKET_P2P_HIGHESTPRICE_LABEL"
+         font "gui/fonts/etelkatextpro28"
+         "size to text h" 0
+         "text valign" center
+        }
+        TextWidgetClass listing_highest_val {
+         ignorepointer 0
+         position 0.07 0
+         size 0.45 26
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "#STR_EXPANSION_MARKET_P2P_NAN"
+         font "gui/fonts/etelkatextpro"
+         "exact text" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "HighestPrice"
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass listing_market_panel {
+       visible 1
+       ignorepointer 0
+       position 0 116
+       size 1 26
+       hexactpos 0
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       {
+        TextWidgetClass listing_market_text {
+         ignorepointer 1
+         position 0.07 0
+         size 0.4 26
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         text "#STR_EXPANSION_MARKET_P2P_MARKETPRICE_LABEL"
+         font "gui/fonts/etelkatextpro28"
+         "size to text h" 0
+         "text valign" center
+        }
+        TextWidgetClass listing_market_val {
+         ignorepointer 1
+         position 0.07 0
+         size 0.45 26
+         halign right_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass "ViewBinding"
+         text "#STR_EXPANSION_MARKET_P2P_NAN"
+         font "gui/fonts/etelkatextpro"
+         "exact text" 0
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "MarketPrice"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    GridSpacerWidgetClass back_button_panel {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.15 0.02
+     size 0.3 32
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     style Expansion_01
+     Padding 0
+     Margin 0
+     Columns 1
+     Rows 1
+     {
+      ButtonWidgetClass back_button {
+       color 0 0 0 1
+       position 0.15 0.02
+       size 0.3 32
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass back_button_text {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "#STR_EXPANSION_MARKET_P2P_BACK_BUTTON_LABEL"
+         font "gui/fonts/etelkatextpro22"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnBackClick"
+        }
+       }
+      }
+     }
+     {
+      ScriptParamsClass {
+       Relay_Command "OnBackClick"
+      }
+     }
+    }
+    GridSpacerWidgetClass confirm_button_panel {
+     visible 0
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.15 0.02
+     size 0.3 32
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     style Expansion_01
+     Padding 0
+     Margin 0
+     Columns 1
+     Rows 1
+     {
+      ButtonWidgetClass confirm_button {
+       visible 1
+       color 0 0 0 1
+       position 0.15 0.02
+       size 0.3 32
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass confirm_button_text {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         font "gui/fonts/etelkatextpro22"
+         "text halign" center
+         "text valign" center
+         {
+          ScriptParamsClass {
+           Binding_Name "ConfirmButtonText"
+          }
+         }
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnConfirmButtonClick"
+        }
+       }
+      }
+     }
+     {
+      ScriptParamsClass {
+       Relay_Command "OnConfirmButtonClick"
+      }
+     }
+    }
+   }
+  }
+  FrameWidgetClass details_panel {
+   visible 1
+   ignorepointer 1
+   position 0 0
+   size 0.33 1
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   scriptclass ""
+   {
+    PanelWidgetClass item_details_panel {
+     ignorepointer 1
+     size 1 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      PanelWidgetClass item_details_panel_background {
+       ignorepointer 1
+       color 0.0745 0.0902 0.1059 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style DayZDefaultPanel
+      }
+      PanelWidgetClass item_details_panel_header {
+       ignorepointer 1
+       color 0 0 0 0.9412
+       position 0 0
+       size 1 48
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass item_details_panel_header_text {
+         visible 1
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0.025 0
+         size 0.9 26
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass ""
+         style Bold
+         text "#STR_EXPANSION_MARKET_P2P_ITEMDETAILS_LABEL"
+         "bold text" 0
+         "text sharpness" 1.014
+         "exact text" 0
+         "size to text h" 1
+         "text valign" center
+        }
+       }
+      }
+      WrapSpacerWidgetClass WrapSpacerWidget0 {
+       ignorepointer 1
+       color 1 0.7059 0.0941 1
+       position 0 0.09
+       size 0.95 0.3
+       halign center_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style Outline
+       Padding 5
+       Margin 10
+       "Size To Content H" 1
+       "Size To Content V" 1
+       content_halign center
+       {
+        PanelWidgetClass item_health {
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass health_text {
+           ignorepointer 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_HEALTH_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+          }
+          ImageWidgetClass health_image {
+           visible 1
+           clipchildren 0
+           inheritalpha 0
+           ignorepointer 1
+           color 0 1 0 1
+           position 0.44 0
+           size 24 24
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 1
+           vexactsize 1
+           image0 ""
+           imageTexture "{0FCACAAF0A99273C}DayZExpansion/Core/GUI/icons/hud/ellipse_64x64.edds"
+           mode additive
+           "src alpha" 1
+           "no wrap" 1
+           stretch 1
+           filter 1
+          }
+          TextWidgetClass health_value {
+           ignorepointer 1
+           size 0.43 26
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "ItemHealth"
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass item_cargo_count {
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass cargo_count_text {
+           ignorepointer 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_CARGO_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+          }
+          TextWidgetClass cargo_count_value {
+           ignorepointer 1
+           size 0.5 26
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "CargoItemsCount"
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass item_attachments_count {
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass cargo_attachments_text {
+           ignorepointer 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_ATTACHMENTS_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+          }
+          TextWidgetClass cargo_attachments_value {
+           ignorepointer 1
+           size 0.5 26
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "AttachmentItemsCount"
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass item_quantity {
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          PanelWidgetClass quantity_bar_panel {
+           ignorepointer 1
+           position 0 0
+           size 0.5 26
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           {
+            ProgressBarWidgetClass quantity_bar {
+             visible 0
+             ignorepointer 1
+             size 1 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style Quantity
+            }
+            PanelWidgetClass quantity_color {
+             visible 0
+             ignorepointer 1
+             color 0.2471 0.8314 0.9882 1
+             size 1 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             style rover_sim_colorable
+            }
+           }
+          }
+          TextWidgetClass quantity_text {
+           ignorepointer 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_QUANTITY_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "QuantityText"
+            }
+           }
+          }
+          TextWidgetClass quantity_value {
+           visible 0
+           ignorepointer 1
+           size 0.5 26
+           halign right_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           scriptclass "ViewBinding"
+           text "#STR_EXPANSION_MARKET_P2P_NAN"
+           font "gui/fonts/etelkatextpro"
+           "text halign" center
+           "text valign" center
+           {
+            ScriptParamsClass {
+             Binding_Name "ItemQuantity"
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass item_liquid {
+         visible 1
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass liquid_text {
+           ignorepointer 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_LIQUID_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+          }
+          PanelWidgetClass liquid_color {
+           ignorepointer 1
+           color 0.2471 0.8314 0.9882 1
+           size 0.5 1
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style rover_sim_colorable
+           {
+            TextWidgetClass liquid_value {
+             ignorepointer 1
+             size 1 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro"
+             "text halign" center
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "LiquidType"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass item_foodstate {
+         visible 1
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass foodstate_text {
+           ignorepointer 1
+           size 0.5 26
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_FOOD_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+          }
+          PanelWidgetClass foodstate_color {
+           ignorepointer 1
+           color 0.2471 0.8314 0.9882 1
+           size 0.5 1
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style rover_sim_colorable
+           {
+            TextWidgetClass foodstate_value {
+             ignorepointer 1
+             size 1 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro"
+             "text halign" center
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "FoodState"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        PanelWidgetClass item_rarity {
+         visible 0
+         ignorepointer 1
+         size 0.9 26
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         {
+          TextWidgetClass rarity_text {
+           ignorepointer 1
+           size 0.5 1
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           text "#STR_EXPANSION_MARKET_P2P_ITEMINFO_RARITY_LABEL"
+           font "gui/fonts/etelkatextpro"
+           "text valign" center
+          }
+          PanelWidgetClass rarity_color {
+           ignorepointer 1
+           color 0.2471 0.8314 0.9882 1
+           size 0.5 1
+           halign right_ref
+           valign center_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           style rover_sim_colorable
+           {
+            TextWidgetClass rarity_value {
+             ignorepointer 1
+             size 1 1
+             halign right_ref
+             valign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             font "gui/fonts/etelkatextpro"
+             "text halign" center
+             "text valign" center
+             {
+              ScriptParamsClass {
+               Binding_Name "Rarity"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      WrapSpacerWidgetClass WrapSpacerWidget1 {
+       ignorepointer 1
+       color 0 0 0 1
+       position 0 0.1
+       size 0.95 0.48553
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style DayZDefaultPanel
+       Padding 5
+       Margin 5
+       content_halign center
+       content_valign center
+       {
+        PanelWidgetClass item_details_attachments_panel {
+         visible 1
+         ignorepointer 1
+         color 0 0 0 1
+         size 0.98 0.47
+         halign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          ScrollWidgetClass item_details_attachments_scroller {
+           visible 1
+           clipchildren 1
+           ignorepointer 0
+           keepsafezone 1
+           position 0 0
+           size 1 0.85
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           style blank
+           "Scrollbar V" 1
+           {
+            WrapSpacerWidgetClass item_details_attachments_content {
+             visible 1
+             ignorepointer 1
+             size 1 0.5
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             "Size To Content V" 1
+             {
+              ScriptParamsClass {
+               Binding_Name "AttachmentItems"
+              }
+             }
+            }
+           }
+          }
+          TextWidgetClass item_details_attachments_text {
+           ignorepointer 1
+           size 1 26
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_ATTACHMENTS_LABEL"
+          }
+         }
+        }
+        PanelWidgetClass PanelWidget2 {
+         ignorepointer 1
+         position 10 10
+         size 0.98 2
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 1
+         style rover_sim_colorable
+        }
+        PanelWidgetClass item_details_cargo_panel {
+         ignorepointer 1
+         size 0.98 0.47
+         halign center_ref
+         valign bottom_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         {
+          ScrollWidgetClass item_details_cargo_scroller {
+           visible 1
+           clipchildren 1
+           ignorepointer 0
+           keepsafezone 1
+           size 1 0.85
+           halign center_ref
+           valign bottom_ref
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 0
+           priority 1
+           style blank
+           "Scrollbar V" 1
+           {
+            WrapSpacerWidgetClass item_details_cargo_content {
+             visible 1
+             ignorepointer 1
+             size 1 0.5
+             halign center_ref
+             hexactpos 0
+             vexactpos 0
+             hexactsize 0
+             vexactsize 0
+             scriptclass "ViewBinding"
+             "Size To Content V" 1
+             {
+              ScriptParamsClass {
+               Binding_Name "CargoItems"
+              }
+             }
+            }
+           }
+          }
+          TextWidgetClass item_details_cargo_text {
+           ignorepointer 1
+           position 0 0
+           size 1 26
+           hexactpos 0
+           vexactpos 0
+           hexactsize 0
+           vexactsize 1
+           text "#STR_EXPANSION_MARKET_P2P_CARGO_LABEL"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  FrameWidgetClass preview_panel {
+   visible 1
+   ignorepointer 1
+   size 0.33 1
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   scriptclass ""
+   {
+    PanelWidgetClass preview_frame {
+     ignorepointer 1
+     size 1 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     {
+      PanelWidgetClass preview_panel_background {
+       ignorepointer 1
+       color 0.0745 0.0902 0.1059 1
+       position 0 0
+       size 1 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       style DayZDefaultPanel
+      }
+      PanelWidgetClass preview_panel_header {
+       ignorepointer 1
+       color 0 0 0 0.9412
+       position 0 0
+       size 1 48
+       hexactpos 1
+       vexactpos 1
+       hexactsize 0
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass preview_panel_header_text {
+         visible 1
+         ignorepointer 1
+         color 0.8627 0.8627 0.8627 1
+         position 0.025 0
+         size 0.9 26
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 1
+         scriptclass ""
+         style Bold
+         text "#STR_EXPANSION_MARKET_P2P_INFORMATION_LABEL"
+         "bold text" 0
+         "text sharpness" 1.014
+         "exact text" 0
+         "size to text h" 1
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass preview_container {
+       clipchildren 1
+       ignorepointer 1
+       position 0 0.02
+       size 0.95 0.9
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 1
+       style blank
+       {
+        ItemPreviewWidgetClass view_item_preview {
+         visible 1
+         clipchildren 0
+         ignorepointer 0
+         keepsafezone 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         "force flip enable" 1
+         {
+          ScriptParamsClass {
+           Binding_Name "ViewItemPreview"
+          }
+         }
+        }
+        PlayerPreviewWidgetClass view_player_preview {
+         visible 0
+         clipchildren 0
+         ignorepointer 0
+         keepsafezone 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         hexactpos 1
+         vexactpos 1
+         hexactsize 0
+         vexactsize 0
+         scriptclass "ViewBinding"
+         {
+          ScriptParamsClass {
+           Binding_Name "ViewPlayerPreview"
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -574,6 +574,11 @@ modded class PlayerBase
 		m_Expansion_IsInSafeZone = true;
 		m_Expansion_LeavingSafeZone = false;
 
+		#ifdef SERVER
+		m_Expansion_IsInSafeZoneSynchRemote = true;
+		SetSynchDirty();
+		#endif
+
 		#ifdef ENFUSION_AI_PROJECT
 		if (IsAI())
 		{
@@ -595,8 +600,6 @@ modded class PlayerBase
 			if (item_in_hands)
 				MiscGameplayFunctions.TransformRestrainItem(item_in_hands, null, null, this);
 		}
-
-		m_Expansion_IsInSafeZoneSynchRemote = true;
 		
 		if ( GetIdentity() )
 		{
@@ -605,8 +608,6 @@ modded class PlayerBase
 			if ( GetExpansionSettings().GetLog().Safezone )
 				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Entered the safezone" );
 		}
-	
-		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------
@@ -632,14 +633,17 @@ modded class PlayerBase
 
 		m_Expansion_IsInSafeZone = false;
 
+		#ifdef SERVER
+		m_Expansion_IsInSafeZoneSynchRemote = false;
+		SetSynchDirty();
+		#endif
+
 		#ifdef ENFUSION_AI_PROJECT
 		if (IsAI())
 		{
 			return;
 		}
 		#endif
-
-		m_Expansion_IsInSafeZoneSynchRemote = false;
 
 		SetCanRaise(true);
 	
@@ -650,8 +654,6 @@ modded class PlayerBase
 			if ( GetExpansionSettings().GetLog().Safezone )
 				GetExpansionSettings().GetLog().PrintLog("[Safezone] Player \"" + GetIdentity().GetName() + "\" (id=" + GetIdentity().GetId() + " pos=" + GetPosition() + ")" + " Left the safezone" );
 		}
-	
-		SetSynchDirty();
 	}
 
 	// ------------------------------------------------------------

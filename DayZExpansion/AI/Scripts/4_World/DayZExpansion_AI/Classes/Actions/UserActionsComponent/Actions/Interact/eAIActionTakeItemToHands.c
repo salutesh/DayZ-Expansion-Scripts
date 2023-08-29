@@ -41,6 +41,9 @@ class eAIActionTakeItemToHands: ActionInteractBase
 	{
 		ItemBase ntarget = ItemBase.Cast(action_data.m_Target.GetObject());
 		ClearInventoryReservationEx(action_data);
+
+		if (!ntarget)
+			return;
 		
 		float stackable = ntarget.GetTargetQuantityMax(-1);
 		

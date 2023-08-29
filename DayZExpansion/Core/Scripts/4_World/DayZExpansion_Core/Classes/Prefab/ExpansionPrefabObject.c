@@ -3,7 +3,6 @@ class ExpansionPrefabObject : Managed
 	// Config class name of the item
 	string ClassName = "";
 
-	// Number of items in the stack
 	float Chance = 1.0;
 
 	// Number of items in the stack
@@ -316,7 +315,7 @@ class ExpansionPrefabObject : Managed
 					int slotId = InventorySlots.GetSlotIdFromString(slotName);
 					int currentSlotId;
 
-					bool slotTaken = false;
+					map<int, bool> slotTaken = new map<int, bool>;
 					Object child = null;
 
 					candidates.Clear();
@@ -325,7 +324,14 @@ class ExpansionPrefabObject : Managed
 					foreach (ExpansionPrefabObject attachment : attachments)
 					{
 						if (attachment.ClassName && attachment.CanSpawn())
+						{
 							candidates.Insert(attachment);
+							EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - selected candidate attachment " + attachment.ClassName + " for " + entity);
+						}
+						else
+						{
+							EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - discarded candidate attachment " + attachment.ClassName + " for " + entity);
+						}
 					}
 
 					//! Spawn candidate attachments in random order. If no valid inventory slot given, spawn all candidates.
@@ -340,6 +346,11 @@ class ExpansionPrefabObject : Managed
 						{
 							if (GetGame().IsKindOf(attachment.ClassName, "Magazine_Base") && !GetGame().IsKindOf(attachment.ClassName, "Ammunition_Base"))
 								currentSlotId = InventorySlots.MAGAZINE;
+						}
+
+						if (currentSlotId != InventorySlots.INVALID && slotTaken[currentSlotId])
+						{
+							continue;
 						}
 
 						switch (currentSlotId)
@@ -357,7 +368,7 @@ class ExpansionPrefabObject : Managed
 								child = attachment.Spawn(humanInventory.CreateInHands(attachment.ClassName));
 								if (child != null)
 								{
-									slotTaken = true;
+									slotTaken[currentSlotId] = true;
 									EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created " + attachment.ClassName + " in hands of " + entity);
 								}
 								else
@@ -370,7 +381,7 @@ class ExpansionPrefabObject : Managed
 							child = attachment.Spawn(item.ExpansionCreateInInventory(attachment.ClassName));
 							if (child != null)
 							{
-								slotTaken = true;
+								slotTaken[currentSlotId] = true;
 								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created mag " + attachment.ClassName + " on " + entity);
 							}
 							else
@@ -382,18 +393,13 @@ class ExpansionPrefabObject : Managed
 							child = attachment.Spawn(inventory.CreateAttachmentEx(attachment.ClassName, currentSlotId));
 							if (child != null)
 							{
-								slotTaken = true;
+								slotTaken[currentSlotId] = true;
 								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - created attachment " + attachment.ClassName + " on " + entity + " in slot " + slotName);
 							}
 							else
 							{
 								EXTrace.Print(EXTrace.GENERAL_ITEMS, ExpansionPrefabObject, "::Spawn - couldn't create attachment " + attachment.ClassName + " on " + entity + " in slot " + slotName);
 							}
-							break;
-						}
-
-						if (slotTaken)
-						{
 							break;
 						}
 					}

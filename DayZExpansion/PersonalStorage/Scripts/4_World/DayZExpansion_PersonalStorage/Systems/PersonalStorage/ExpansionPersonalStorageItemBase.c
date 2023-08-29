@@ -315,7 +315,6 @@ class ExpansionPersonalStorageItemBase
 			if (item == m_Object)
 				continue;
 
-			bool excluded = false;
 			if (item.GetInventory().IsAttachment() && m_Object.GetInventory().HasAttachment(item) || item.GetInventory().IsInCargo() && m_Object.GetInventory().HasEntityInCargo(item))
 			{
 				//! Skip attachments without cargo on vehicles
@@ -334,14 +333,16 @@ class ExpansionPersonalStorageItemBase
 					continue;
 
 				if (!ExpansionPersonalStorageModule.ItemCheck(item))
-				{
-					excluded = true;
 					m_IsExcluded = true;
-				}
 
 				ExpansionPersonalStorageContainerItem containerItem = new ExpansionPersonalStorageContainerItem();
 				containerItem.SetFromItem(item, m_OwnerUID);
-				containerItem.SetExcluded(excluded);
+				
+				if (!containerItem.IsExcluded() && m_IsExcluded)
+					containerItem.SetExcluded(true);
+				else if (!m_IsExcluded && containerItem.IsExcluded())
+					m_IsExcluded = true;
+				
 				m_ContainerItems.Insert(containerItem);
 				m_ContainerItemsCount++;
 

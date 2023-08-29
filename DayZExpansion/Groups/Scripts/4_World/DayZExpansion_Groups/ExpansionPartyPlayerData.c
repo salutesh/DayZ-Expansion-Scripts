@@ -53,7 +53,11 @@ class ExpansionPartyPlayerData
 		auto trace = EXTrace.Start(EXTrace.GROUPS, this);
 
 		if (Player)
-			Player.m_Expansion_PartyPlayerData = NULL;
+		{
+			Player.Expansion_SetPartyPlayerData(NULL);
+			Player.Expansion_SetPartyID(-1); 
+		}
+		
 		Player = NULL;
 	}
 
@@ -63,7 +67,8 @@ class ExpansionPartyPlayerData
 
 		Name = player.GetIdentityName();
 		Player = player;
-		Player.m_Expansion_PartyPlayerData = this;
+		player.Expansion_SetPartyPlayerData(this);
+		player.Expansion_SetPartyID(m_Party.GetPartyID());
 	}
 	
 	void OnStoreSave(ParamsWriteContext ctx)

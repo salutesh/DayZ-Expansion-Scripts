@@ -1,0 +1,322 @@
+PanelWidgetClass ExpansionGarageMenuVehicle {
+ visible 1
+ position 0 0
+ size 1 0.5
+ hexactpos 0
+ vexactpos 0
+ hexactsize 0
+ vexactsize 0
+ scriptclass "ExpansionGarageMenuVehicleController"
+ style blank
+ {
+  ButtonWidgetClass garage_vehicle_element_button {
+   color 0.8627 0.8627 0.8627 1
+   size 1 1
+   halign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 1
+   scriptclass ""
+   style Empty
+   {
+    PanelWidgetClass garage_vehicle_preview_container {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 -0.11
+     size 0.9 0.5
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style UIDefaultPanel
+     {
+      ItemPreviewWidgetClass garage_vehicle_preview {
+       visible 1
+       clipchildren 1
+       ignorepointer 1
+       position 0 0
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       priority 100
+       scriptclass "ViewBinding"
+       {
+        ScriptParamsClass {
+         Debug_Logging 0
+         Binding_Name "Preview"
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass garage_vehicle_header_panel {
+     visible 1
+     ignorepointer 1
+     position 0 0.01
+     size 1 0.1
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style blank
+     {
+      PanelWidgetClass garage_vehicle_header_background {
+       visible 1
+       color 0.1059 0.1059 0.1059 0.9412
+       size 1 1
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass ""
+       style UIDefaultPanel
+      }
+      TextWidgetClass garage_vehicle_header_text {
+       visible 1
+       ignorepointer 1
+       size 1 26
+       halign center_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style Normal
+       text "ITEM DISPLAY NAME"
+       "exact text" 0
+       "size to text h" 0
+       "size to text v" 0
+       "text halign" center
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "VehicleName"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass garage_vehicle_background {
+   visible 1
+   color 0.1059 0.1059 0.1059 0.7843
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass ""
+   style DayZDefaultPanel
+  }
+  PanelWidgetClass garage_vehicle_highlight_panel {
+   visible 0
+   ignorepointer 1
+   color 0.102 0.102 0.102 1
+   size 1 1
+   halign center_ref
+   valign center_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   scriptclass ""
+   style DayZDefaultPanel
+  }
+  PanelWidgetClass garage_vehicle_button_panel {
+   visible 1
+   disabled 0
+   color 0.1804 0.8 0.4431 0.1569
+   position 0 0.24
+   size 0.9 0.1
+   halign center_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   priority 2
+   scriptclass ""
+   style blank
+   {
+    PanelWidgetClass garage_vehicle_button_background {
+     visible 1
+     ignorepointer 1
+     color 0 0 0 1
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style UIDefaultPanel
+    }
+    ButtonWidgetClass garage_vehicle_button {
+     visible 1
+     disabled 0
+     color 0.9059 0.298 0.2353 0.1569
+     size 1 1
+     halign right_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scriptclass "ViewBinding"
+     style Expansion_01
+     {
+      ScriptParamsClass {
+       Relay_Command "OnButtonClick"
+      }
+     }
+    }
+    TextWidgetClass garage_vehicle_button_text {
+     disabled 0
+     ignorepointer 1
+     size 1 26
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     scriptclass "ViewBinding"
+     text "DEPOSIT"
+     "bold text" 0
+     "exact text" 0
+     "size to text h" 0
+     "size to text v" 0
+     "text halign" center
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Binding_Name "ButtonLabel"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass garage_vehicle_price_info_panel {
+   visible 1
+   disabled 0
+   position 0 0.01
+   size 1 0.1
+   halign center_ref
+   valign bottom_ref
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style blank
+   {
+    PanelWidgetClass garage_vehicle_price_info_panel_background {
+     visible 1
+     ignorepointer 1
+     color 0.1059 0.1059 0.1059 0.9412
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style UIDefaultPanel
+    }
+    GridSpacerWidgetClass garage_vehicle__price_panel {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     size 0 0
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     fixaspect fixwidth
+     style Colorable
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     Columns 2
+     Rows 1
+     {
+      PanelWidgetClass garage_vehicle_price_icon_panel {
+       visible 1
+       clipchildren 0
+       ignorepointer 1
+       position 0 0
+       size 28 28
+       halign left_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       style blank
+       {
+        ImageWidgetClass garage_price_icon {
+         clipchildren 0
+         ignorepointer 1
+         keepsafezone 0
+         size 16 16
+         halign center_ref
+         valign center_ref
+         hexactpos 0
+         vexactpos 0
+         hexactsize 1
+         vexactsize 1
+         scriptclass ""
+         image0 ""
+         imageTexture "{79F1FD17D4148B74}DayZExpansion/Core/GUI/icons/misc/coinstack2_64x64.edds"
+         mode blend
+         "src alpha" 1
+         "no wrap" 1
+         stretch 1
+        }
+       }
+      }
+      TextWidgetClass garage_vehicle_price {
+       visible 1
+       ignorepointer 1
+       position 0 0
+       size 1 28
+       halign right_ref
+       valign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       scriptclass "ViewBinding"
+       style None
+       text "0"
+       font "gui/fonts/etelkatextpro22"
+       "text offset" 0 0
+       "exact text" 0
+       "size to text h" 1
+       "text halign" right
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "Price"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

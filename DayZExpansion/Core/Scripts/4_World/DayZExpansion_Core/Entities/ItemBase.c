@@ -752,7 +752,9 @@ modded class ItemBase
 				weapon.LoadCurrentFSMState(ctx.GetReadContext(), GetGame().SaveVersion());
 			}
 
-		#ifndef SERVER
+		#ifdef SERVER
+			weapon.Synchronize();
+		#else
 			weapon.ShowMagazine();
 		#endif
 
@@ -1410,4 +1412,8 @@ modded class ItemBase
 	bool Expansion_StoreContents();
 
 	bool Expansion_RestoreContents(PlayerBase player = null);
+	
+	void Expansion_SwitchItemSelectionTextureEx(EItemManipulationContext context, Param par = null)
+	{
+	}
 };

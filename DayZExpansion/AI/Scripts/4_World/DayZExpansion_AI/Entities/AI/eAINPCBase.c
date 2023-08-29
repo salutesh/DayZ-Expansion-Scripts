@@ -1,10 +1,5 @@
 class eAINPCBase: eAIBase
 {
-	//! Vanilla, prevent being targeted by Zs/animals
-	override bool CanBeTargetedByAI(EntityAI ai)
-	{
-		return false;
-	}
 }
 
 class eAINPCPassive: eAINPCBase

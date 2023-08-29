@@ -1,0 +1,162 @@
+WrapSpacerWidgetClass ExpansionGarageMenuTooltip {
+ visible 0
+ ignorepointer 1
+ position 0 0
+ size 450 40
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ priority 901
+ scriptclass "ExpansionGarageMenuTooltipController"
+ style Colorable
+ Padding 0
+ Margin 0
+ "Size To Content H" 1
+ "Size To Content V" 1
+ {
+  WrapSpacerWidgetClass tooltip_spacer {
+   ignorepointer 1
+   color 0.1059 0.1059 0.1059 1
+   position 0 0
+   size 1 1
+   hexactpos 0
+   vexactpos 0
+   hexactsize 0
+   vexactsize 0
+   style Expansion_01
+   "Size To Content H" 1
+   "Size To Content V" 1
+   content_halign center
+   content_valign center
+   {
+    PanelWidgetClass tooltip_header {
+     visible 1
+     clipchildren 1
+     ignorepointer 1
+     color 0 0 0 0.9412
+     size 1 40
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     style blank
+     {
+      ImageWidgetClass tooltip_icon {
+       visible 1
+       clipchildren 0
+       inheritalpha 0
+       ignorepointer 1
+       color 0.2471 0.8314 0.9882 1
+       position 6 0
+       size 34 34
+       valign center_ref
+       hexactpos 1
+       vexactpos 0
+       hexactsize 1
+       vexactsize 1
+       image0 ""
+       imageTexture "{BFA98ACC416B4CAF}DayZExpansion/Core/GUI/icons/hud/info_64x64.edds"
+       mode additive
+       "src alpha" 1
+       "no wrap" 1
+       stretch 1
+       filter 1
+      }
+      HtmlWidgetClass tooltip_title {
+       clipchildren 0
+       ignorepointer 1
+       position 44.1087 3
+       size 390 34
+       hexactpos 1
+       vexactpos 1
+       hexactsize 1
+       vexactsize 1
+       priority 1
+       scriptclass "ViewBinding"
+       style DayZNormal
+       text " "
+       font "gui/fonts/etelkatextpro22"
+       "exact text" 1
+       "exact text size" 16
+       "size to text h" 0
+       "size to text v" 0
+       "text valign" center
+       {
+        ScriptParamsClass {
+         Binding_Name "TooltipTitle"
+        }
+       }
+      }
+     }
+    }
+    WrapSpacerWidgetClass tooltip_content {
+     visible 0
+     ignorepointer 1
+     color 0.1059 0.1059 0.1059 0.9412
+     size 0.97 1
+     halign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style Empty
+     Padding 5
+     Margin 0
+     "Size To Content H" 1
+     "Size To Content V" 1
+     content_halign center
+     content_valign center
+     {
+      HtmlWidgetClass tooltip_text {
+       visible 0
+       ignorepointer 1
+       color 0.8627 0.8627 0.8627 1
+       size 0.96 1.455
+       halign center_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       style DayZNormal
+       font "gui/fonts/etelkatextpro22"
+       "text color" 0.8627 0.8627 0.8627 1
+       "exact text" 1
+       "exact text size" 16
+       "size to text h" 1
+       "size to text v" 1
+       wrap 1
+       {
+        ScriptParamsClass {
+         Debug_Logging 0
+         Binding_Name "TooltipText"
+        }
+       }
+      }
+      WrapSpacerWidgetClass spacer_content {
+       visible 1
+       ignorepointer 1
+       size 0.96 1
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 0
+       scriptclass "ViewBinding"
+       style Empty
+       Padding 0
+       Margin 0
+       "Size To Content H" 1
+       "Size To Content V" 1
+       {
+        ScriptParamsClass {
+         Binding_Name "TooltipEntries"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

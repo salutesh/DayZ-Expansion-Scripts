@@ -46,7 +46,9 @@ class ExpansionNamalskAdventureSettingsBase: ExpansionSettingBase
 class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 {
 	[NonSerialized()]
-	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 250;
+	protected const float DEFAULT_ANOMALY_SQUARE_SIZE = 400;
+	[NonSerialized()]
+	protected const float DEFAULT_ANOMALY_SPAWN_AMOUNT = 7;
 
 	static const int VERSION = 4;
 
@@ -240,58 +242,58 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		anomaly_loot.Insert(loot_1);
 
 		//! Dynamic spawns
-		ExpansionAnomalyDynamic anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(1225.67, 2.00018, 11837.4), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		ExpansionAnomalyDynamic anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(1225.67, 2.00018, 11837.4), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3774.44, 144.313, 8244.01), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3774.44, 144.313, 8244.01), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4706.39, 85.6586, 8477.48), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5549.58, 43.0471, 9543.73), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5549.58, 43.0471, 9543.73), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5744.57, 17.2946, 10770.0), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5744.57, 17.2946, 10770.0), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4502.5, 19.5023, 10854), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4502.5, 19.5023, 10854), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6708.11, 15.0, 11202.7), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6708.11, 15.0, 11202.7), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7047.19, 40.0, 5817.77), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7047.19, 40.0, 5817.77), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7263.92, 238.711, 7058.66), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7263.92, 238.711, 7058.66), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7312.8, 84.37, 7994.47), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(7312.8, 84.37, 7994.47), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6273.98, 21.0682, 9351.2), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(6273.98, 21.0682, 9351.2), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4962.06, 50, 7988.59), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(4962.06, 50, 7988.59), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(8170.71, 15.1869, 10824.1), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3937.58, 5.72824, 10020.3), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(3937.58, 5.72824, 10020.3), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5489.87, 101.82, 7892.35), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5489.87, 101.82, 7892.35), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
-		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5015.51, 47.1122, 6555.13), DEFAULT_ANOMALY_SQUARE_SIZE, 5);
+		anomaly = new ExpansionAnomalyDynamic(anomalies, Vector(5015.51, 47.1122, 6555.13), DEFAULT_ANOMALY_SQUARE_SIZE, DEFAULT_ANOMALY_SPAWN_AMOUNT);
 		DynamicAnomalies.Insert(anomaly);
 
 		//! Static spawns
@@ -306,6 +308,10 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5697.937500, 21.480026, 9973.298828)));
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5680.349609, 21.919327, 9994.563477)));
 		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(5712.300293, 21.977049, 9917.190430)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(6683.45, 15.0424, 11396.9)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(6830.53, 15.1924, 11271.2)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(6629.39, 15.0425, 11300.1)));
+		StaticAnomalies.Insert(new ExpansionAnomalyStatic(anomalies, Vector(8166.83, 15.9024, 10791.1)));
 	}
 
 	#ifdef EXPANSIONMODMARKET

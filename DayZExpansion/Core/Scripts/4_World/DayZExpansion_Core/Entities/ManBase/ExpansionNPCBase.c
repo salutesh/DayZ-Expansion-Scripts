@@ -10,14 +10,12 @@
  *
 */
 
-class ExpansionNPCBase: DayZPlayerImplement
+class ExpansionNPCBase: ExpansionNotPlayerBase
 {
-	protected ref TInputActionMap m_InputActionMap;
-
-	bool m_ActionsInitialize;
-
 	override void Expansion_Init()
 	{
+		Expansion_SetAllowDamage(false);
+
 		#ifdef EXPANSIONMODAI
 		if (GetGame().IsServer())
 		{
@@ -29,70 +27,6 @@ class ExpansionNPCBase: DayZPlayerImplement
 		super.Expansion_Init();
 
 		m_Expansion_NetsyncData = new ExpansionNetsyncData(this);
-	}
-
-	void SetActions()
-	{
-	}
-
-	void InitializeActions()
-	{
-		m_InputActionMap = new TInputActionMap;
-		SetActions();
-	}
-
-	override void GetActions(typename action_input_type, out array<ActionBase_Basic> actions)
-	{
-		if (!m_ActionsInitialize)
-		{
-			m_ActionsInitialize = true;
-			InitializeActions();
-		}
-		
-		actions = m_InputActionMap.Get(action_input_type);
-	}
-
-	void AddAction(typename actionName)
-	{
-		ActionBase action = ActionManagerBase.GetAction(actionName);
-
-		typename ai = action.GetInputType();
-		if (!ai)
-		{
-			m_ActionsInitialize = false;
-			return;
-		}
-
-		array<ActionBase_Basic> action_array = m_InputActionMap.Get(ai);
-		
-		if (!action_array)
-		{
-			action_array = new array<ActionBase_Basic>;
-			m_InputActionMap.Insert(ai, action_array);
-		}
-
-		action_array.Insert(action); 
-	}
-
-	void RemoveAction(typename actionName)
-	{
-		ActionBase action = ActionManagerBase.GetAction(actionName);
-		typename ai = action.GetInputType();
-		array<ActionBase_Basic> action_array = m_InputActionMap.Get(ai);
-		
-		if (action_array)
-		{
-			for (int i = 0; i < action_array.Count(); i++)
-			{
-				if (action == action_array.Get(i))
-				{
-					action_array.Remove(i);
-				}
-			}
-			action_array = new array<ActionBase_Basic>;
-			m_InputActionMap.Insert(ai, action_array);
-		}
-		action_array.Insert(action); 
 	}
 
 	override bool IsInventoryVisible()

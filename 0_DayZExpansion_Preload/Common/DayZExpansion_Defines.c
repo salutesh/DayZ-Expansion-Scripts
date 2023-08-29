@@ -17,9 +17,6 @@
 
 //#define EXPANSION_INTERIOR_RANDONMIZATION
 
-//! Enable to disable character szene main menu changes
-#define EXPANSION_MAINMENU_NEW_DISABLE
-
 #define EXPANSION_LOADING_SCREEN_REMOVED
 
 #ifndef EXPANSIONMONITORMODULE
