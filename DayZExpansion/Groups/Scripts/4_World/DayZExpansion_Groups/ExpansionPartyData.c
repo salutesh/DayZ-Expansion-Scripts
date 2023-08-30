@@ -593,7 +593,6 @@ class ExpansionPartyData
 				else
 				{
 					Players[index].Marker.Update();
-					Players[index].Marker.Set3D(settings.ShowPartyMember3DMarkers);
 				}
 
 				ctx.Write( hasMarker );
@@ -678,6 +677,10 @@ class ExpansionPartyData
 		if ( !ctx.Read( count ) )
 			return false;
 
+	#ifdef EXPANSIONMODNAVIGATION
+		auto settings = GetExpansionSettings().GetParty();
+	#endif
+
 		ExpansionPartyPlayerData player;
 		checkArr = PlayersMap.GetKeyArray();
 		for ( index = 0; index < count; ++index )
@@ -723,6 +726,7 @@ class ExpansionPartyData
 
 				if (GetExpansionClientSettings() && GetExpansionClientSettings().ShowMemberNameMarker)
 					player.Marker.SetName(player.Name);
+				player.Marker.Set3D(settings.ShowPartyMember3DMarkers);
 				player.Marker.SetIcon(ExpansionIcons.Get("Persona"));
 			} else
 			{
