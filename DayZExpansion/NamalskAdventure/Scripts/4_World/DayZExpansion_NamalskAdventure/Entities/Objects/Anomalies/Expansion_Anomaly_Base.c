@@ -39,7 +39,7 @@ class ExpansionAnomalyLightBase extends PointLightBase
 	}
 };
 
-class Expansion_Anomaly_Base: WorldContainer_Base
+class Expansion_Anomaly_Base: ItemBase
 {
 	protected const string SOUND_IDLE = "Expansion_AnomalyRumble_Soundset";
 	protected const string SOUND_ACTIVATED = "Expansion_AnomalyWindBlowActivated_Soundset";
@@ -154,7 +154,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 		}
 		#endif
 	
-			#ifndef SERVER
+		#ifndef SERVER
 		if (m_ParticleIdle)
 			ParticleIdleStop();
 
@@ -805,7 +805,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		ExDebugPrint("::EEItemAttached - Item: " + item.ToString() + " | Slot:" + slot_name);
-
+		
 		RefreshAnomalyCoreState(item, true);
 	}
 
@@ -892,7 +892,7 @@ class Expansion_Anomaly_Base: WorldContainer_Base
 
 	override bool CanPutInCargo(EntityAI parent)
 	{
-		return true;
+		return false;
 	}
 
 	override bool CanPutIntoHands(EntityAI player)

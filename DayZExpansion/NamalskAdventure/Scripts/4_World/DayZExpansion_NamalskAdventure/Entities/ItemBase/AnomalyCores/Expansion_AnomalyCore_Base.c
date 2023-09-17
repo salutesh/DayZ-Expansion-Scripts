@@ -224,59 +224,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	#endif
 	}
 
-	//! ------------------------------------------------------------------------------------------------------
-	//! TESTING
-	//! ------------------------------------------------------------------------------------------------------
-
-	override void OnExplosionEffects(Object source, Object directHit, int componentIndex, string surface, vector pos, vector surfNormal, float energyFactor, float explosionFactor, bool isWater, string ammoType)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnExplosionEffects(source, directHit, componentIndex, surface, pos, surfNormal, energyFactor, explosionFactor, isWater, ammoType);
-	}
-
 	override protected void Activate()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		//! We don't want base functionality here
-	}
-
-	override void EEDelete(EntityAI parent)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.EEDelete(parent);
-	}
-
-	override void EEKilled(Object killer)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.EEKilled(killer);
-	}
-
-	override void OnCEUpdate()
-	{
-		auto trace = EXTrace.Profile(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnCEUpdate();
-	}
-
-	override void SetActions()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.SetActions();
-	}
-
-	override bool IsInventoryVisible()
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		if (!super.IsInventoryVisible())
-			return false;
-
-		return true;
 	}
 
 	override bool IsTakeable()
@@ -304,7 +255,9 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override void OnInventoryExit(Man player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
+		
+		super.OnInventoryExit(player);
+		
 		//! @note: Make sure state is properly synchronized or VFX might bug out
 		SetSynchDirty();
 	}
@@ -312,17 +265,12 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 	override void OnInventoryEnter(Man player)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		super.OnInventoryEnter(player);
 
 		//! @note:  Make sure to stop particles once in inventory
 		if (m_ParticleEffect)
 			StopParticle(m_ParticleEffect);
-	}
-
-	override void OnWasAttached(EntityAI parent, int slot_id)
-	{
-		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		super.OnWasAttached(parent, slot_id);
 	}
 
 	//! ------------------------------------------------------------------------------------------------------
@@ -489,14 +437,10 @@ class Expansion_AnomalyCore_Base: Grenade_Base
 		super.OnItemLocationChanged(old_owner, new_owner);
 
 		if (m_CoreState != ExpansionAnomalyCoreState.UNSTABLE && (GetParent() == null && ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive()))
-		{
 			SetAnomalyCoreUnstable();
-		}
-		else
-		{
-			if (m_CoreState != ExpansionAnomalyCoreState.STABLE && (ExpansionAnomalyCoreProtectiveCase.Cast(GetParent()) || !ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive()))
-				SetAnomalyCoreStable();
-		}
+
+		if (m_CoreState != ExpansionAnomalyCoreState.STABLE && (ExpansionAnomalyCoreProtectiveCase.Cast(GetParent()) || !ExpansionNamalskModule.GetModuleInstance().IsEVRStormActive()))
+			SetAnomalyCoreStable();
 	}
 
 	//! @note: Event after core explosion.

@@ -7,7 +7,7 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Weapons_Lights","DZ_Weapons_Melee"};
+		requiredAddons[] = {"DZ_Data","DZ_Gear_Consumables","DZ_Weapons_Lights","DZ_Weapons_Melee","DayZExpansion_Quests_Dta_Core"};
 	};
 };
 class CfgSlots
@@ -131,10 +131,12 @@ class CfgVehicles
 			class Sun_Shown: AnimSourceShown{};
 		};
 	};
-	class Expansion_AnomalyCore_RedExample: Expansion_AnomalyCore_Base
+	class Expansion_AnomalyCore_Fire: Expansion_AnomalyCore_Base
 	{
-		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_red_co.paa"};
-		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_red_Energy.rvmat"};
+		scope = 2;
+		displayName = "Fire Plasma";
+		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\anomaly_core_energy_fire_co.paa"};
+		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\data\Expansion_Anomaly_Core_Fire_Energy.rvmat"};
 	};
 	class Expansion_AnomalyCore_Ice: Expansion_AnomalyCore_Base
 	{
@@ -160,6 +162,10 @@ class CfgVehicles
 		scope = 2;
 	};
 	class ExpansionAnomalyAreaWarper_Local: ExpansionAnomalyAreaBase_Dynamic
+	{
+		scope = 2;
+	};
+	class ExpansionAnomalyAreaFire_Local: ExpansionAnomalyAreaBase_Dynamic
 	{
 		scope = 2;
 	};
@@ -341,6 +347,8 @@ class CfgVehicles
 	{
 		model = "DayZExpansion\NamalskAdventure\Dta\Items\Anomaly_Core\bolt_anomaly.p3d";
 	};
+	class ExpansionQuestItemBook;
+	class ExpansionQuestItem_StashNote: ExpansionQuestItemBook{};
 };
 class cfgAmmoTypes
 {

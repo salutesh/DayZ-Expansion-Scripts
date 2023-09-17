@@ -1,5 +1,5 @@
 /**
- * Expansion_Anomaly_Teleport.c
+ * Expansion_Anomaly_Fire.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,43 +10,43 @@
  *
 */
 
-class ExpansionAnomalyTeleporterLightBase extends ExpansionAnomalyLightBase
+class ExpansionAnomalyFireLightBase extends ExpansionAnomalyLightBase
 {
-	void ExpansionAnomalyTeleporterLightBase()
+	void ExpansionAnomalyFireLightBase()
 	{
 		SetDiffuseColor(0.751, 0.196, 0.890);
 		SetAmbientColor(0.751, 0.196, 0.890);
 	}
 };
 
-class Expansion_Anomaly_Teleport: Expansion_Anomaly_Base
+class Expansion_Anomaly_Fire: Expansion_Anomaly_Base
 {
 	//! Particles
-	protected const int PARTICLE_WARPER_IDLE = ParticleList.EXPANSION_PARTICLE_WARPER;
-	protected const int PARTICLE_WARPER_ACTIVATED = ParticleList.EXPANSION_PARTICLE_WARPER_ACTIVATE;
+	protected const int PARTICLE_FIRE_IDLE = ParticleList.EXPANSION_PARTICLE_FIRE;
+	protected const int PARTICLE_FIRE_ACTIVATED = ParticleList.EXPANSION_PARTICLE_FIRE_ACTIVATE;
 
 	override int GetAnomalyIdleParticle()
 	{
-		return PARTICLE_WARPER_IDLE;
+		return PARTICLE_FIRE_IDLE;
 	}
 
 	override int GetAnomalyActivatedParticle()
 	{
-		return PARTICLE_WARPER_ACTIVATED;
+		return PARTICLE_FIRE_ACTIVATED;
 	}
 
 	override typename GetAnomalyLight()
 	{
-		return ExpansionAnomalyTeleporterLightBase;
+		return ExpansionAnomalyFireLightBase;
 	}
 
 	override string GetAnomalyTriggerName()
 	{
-		return "ExpansionAnomalyTeleportTrigger";
+		return "ExpansionAnomalyFireTrigger";
 	}
 
 	override string GetAmomalyCoreName()
 	{
-		return "Expansion_AnomalyCore_Warper";
+		return "Expansion_AnomalyCore_Fire";
 	}
 };

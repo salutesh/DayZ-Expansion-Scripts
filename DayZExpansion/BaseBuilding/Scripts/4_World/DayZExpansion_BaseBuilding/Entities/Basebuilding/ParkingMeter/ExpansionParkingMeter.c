@@ -22,8 +22,6 @@ enum ExpansionParkingMeterState
 
 class ExpansionParkingMeter: ExpansionDeployableConstruction
 {
-	private static ref set<ExpansionParkingMeter> s_Expansion_ParkingMeters = new set<ExpansionParkingMeter>;
-
 	static const string CAR_BATTERY_ATTACH_SOUND = "carbattery_attach_SoundSet";
 	static const string CAR_BATTERY_DETACH_SOUND = "carbattery_detach_SoundSet";
 	static const string RED_LIGHT_GLOW = "dz\\gear\\camping\\data\\battery_charger_light_r.rvmat";
@@ -46,7 +44,6 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 		m_TerritoryID = -1;
 
 		RegisterNetSyncVariableInt("m_TerritoryID");
-		s_Expansion_ParkingMeters.Insert(this);
 	}
 
 	void ~ExpansionParkingMeter()
@@ -60,12 +57,6 @@ class ExpansionParkingMeter: ExpansionDeployableConstruction
 				ExpansionGarageModule.s_Instance.RemoveTerritoryParkingMeter(m_TerritoryID);
 			else
 				ExpansionGarageModule.s_Instance.RemoveParkingMeter(this);
-		}
-
-		int i = s_Expansion_ParkingMeters.Find(this);
-		if (i >= 0)
-		{
-			s_Expansion_ParkingMeters.Remove(i);
 		}
 	}
 

@@ -16,12 +16,14 @@ class ExpansionMerchantPosition
 	int ID = -1;
 	vector Position;
 	vector Orientation;
+	string ObjectSetFile;
 
-	void ExpansionMerchantPosition(int id, vector pos, vector ori)
+	void ExpansionMerchantPosition(int id, vector pos, vector ori, string file = "")
 	{
 		ID = id;
 		Position = pos;
 		Orientation = ori;
+		ObjectSetFile = file;
 	}
 };
 #endif

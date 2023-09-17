@@ -25,5 +25,10 @@ class eAIFactionNAC : eAIFaction
 		if (other.IsInherited(eAIFactionNAC)) return true;
 		return false;
 	}
+
+	override bool IsFriendly(EntityAI other)
+	{
+		return other.IsInherited(DayZCreatureAI);
+	}
 };
 #endif

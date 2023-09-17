@@ -32,11 +32,7 @@ class NA_CraftMedicalSupplies extends RecipeBase
 		
 		
 		//ingredient 1
-		InsertIngredient(0,"SalineBag");//you can insert multiple ingredients this way
-		InsertIngredient(0,"BloodBagEmpty");
-		InsertIngredient(0,"Epinephrine");
-		InsertIngredient(0,"Morphine");
-		InsertIngredient(0,"AntiChemInjector");
+		InsertIngredient(0,"dzn_FirstAidKit");//you can insert multiple ingredients this way
 
 		m_IngredientAddHealth[0] = 0;
 		m_IngredientSetHealth[0] = -1; // -1 = do nothing

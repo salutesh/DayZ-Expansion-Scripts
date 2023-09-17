@@ -20,6 +20,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	#ifdef EXPANSIONMODNAVIGATION
 	protected ExpansionMarkerData m_MerchantServerMarker;
 	#endif
+	protected ref ExpansionObjectSet m_MerchantObjectSet;	//! Server
 
 	#ifdef EXPANSIONMODAI
 	protected ref map<eAIBase, ref array<vector>> m_SpawnedAI;
@@ -88,6 +89,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 	protected Land_Repair_Center m_SurvivorsRepairCenter;
 	#endif
+	
+	protected Expansion_Fusion_Core m_FusionCoreResistance;
 
 	protected const float SUPPLY_CRATES_CHECK_TIME = 60.0; //! 1 minute tick
 	protected float m_SupplyCratesCheckTimer;
@@ -182,6 +185,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#ifdef EXPANSION_NAMALSK_ADVENTURE
 		SpawnSatelliteAntennaObjects(); //! @note: Secret antenna event objects. Not finished yet!
 		SpawnA1Bunker(); //! @note: A1 bunker event objects.
+		SpawnFusionCores();
 		#endif
 	}
 
@@ -409,14 +413,16 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		m_ServerData.GetUsedMerchantItemSets().Insert(itemSetToUse.ID);
 		m_ServerData.Save();
-
+		
+		//! Create the temporary market zone for the merchant
 		ExpansionMarketTraderZone traderZone = new ExpansionMarketTraderZone();
 		traderZone.m_DisplayName = "Merchant";
 		traderZone.Position = positionToUse.Position;
 		traderZone.Radius = 10.0;
 		traderZone.BuyPricePercent = 100.0;
 		traderZone.SellPricePercent = -1.0;
-
+		
+		//! Create the temporary trader data
 		ExpansionMarketTrader trader = new ExpansionMarketTrader();
 		trader.DisplayName = "Merchant";
 		#ifdef EXPANSIONMODHARDLINE
@@ -425,7 +431,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#endif
 		trader.TraderIcon = "Deliver";
 		trader.Currencies.Insert("expansionbanknotehryvnia");
-
+		
+		//! Add the items this trader will sell to the temporary market zone
 		string className;
 		int amount;
 		ExpansionMarketTraderBuySell buySell;
@@ -445,10 +452,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			traderZone.AddStock(className, amount);
 			trader.AddItem(className, buySell);
 		}
-
+		
 		marketSettings.AddMarketZone(traderZone);
 		marketSettings.AddMarketTrader(trader);
-
+		
+		//! Create the temporary trader entity
 		Object obj = GetGame().CreateObject("ExpansionTraderMirek", positionToUse.Position);
 		ExpansionTraderNPCBase npcTrader = ExpansionTraderNPCBase.Cast(obj);
 		if (!npcTrader)
@@ -477,9 +485,17 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		npcTrader.SetOrientation(positionToUse.Orientation);
 		traderBase.UpdateTraderZone();
 
-		/*#ifdef EXPANSIONMODNAVIGATION
+		#ifdef EXPANSIONMODNAVIGATION
+		//! Create a server marker on the trader position
 		m_MerchantServerMarker = ExpansionMarkerModule.GetModuleInstance().CreateServerMarker("Merchant", "Coins 2", positionToUse.Position, ARGB(255, 15, 185, 177), false);
-		#endif*/
+		#endif
+		
+		//! Spawn the map objects set for this trader entry
+		if (FileExist("$mission:expansion\\namalsk_adventure\\objects\\" + positionToUse.ObjectSetFile + ".map"))
+		{
+			m_MerchantObjectSet = new ExpansionObjectSet("$mission:expansion\\namalsk_adventure\\objects\\" + positionToUse.ObjectSetFile + ".map", positionToUse.ObjectSetFile);
+			m_MerchantObjectSet.SpawnObjects();
+		}
 	}
 	#endif
 
@@ -611,18 +627,17 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (shelterPositions)
 		{
 			array<vector> waypoints = new array<vector>;
-
 			waypoints.Copy(aiGroup.GetWaypoints());
-
 			m_SpawnedAI.Set(ai, waypoints);
-
-			aiGroup.ClearWaypoints();
-
-			aiGroup.AddWaypoint(shelterPositions.GetRandomElement());
-
-			aiGroup.m_CurrentWaypointIndex = 0;
-			ai.SetMovementSpeedLimit(eAIMovementSpeed.JOG);
-			m_AISpeed = ai.GetMovementSpeedLimit();
+			
+			if (shelterPositions.Count() > 0 && !MiscGameplayFunctions.IsUnderRoof(ai))
+			{
+				aiGroup.ClearWaypoints();
+				aiGroup.AddWaypoint(shelterPositions.GetRandomElement());
+				aiGroup.m_CurrentWaypointIndex = 0;
+				ai.SetMovementSpeedLimit(eAIMovementSpeed.JOG);
+				m_AISpeed = ai.GetMovementSpeedLimit();
+			}
 		}
 	}
 
@@ -643,7 +658,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		array<vector> waypoints = m_SpawnedAI.Get(ai);
 		ModuleDebugPrint("::ResetSpawnedAIWaypoints - Waypoints: " + waypoints.ToString());
-
 		for (int i = 0; i < waypoints.Count(); i++)
 		{
 			vector pos = waypoints[i];
@@ -653,7 +667,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 
 		aiGroup.m_CurrentWaypointIndex = 0;
-
 		ai.SetMovementSpeedLimit(m_AISpeed);
 	}
 	#endif
@@ -826,6 +839,14 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	Expansion_Satellite_Control GetSatelliteController()
 	{
 		return m_SatelliteController;
+	}
+	
+	protected void SpawnFusionCores()
+	{
+		//! Resistance Camp
+		m_FusionCoreResistance = Expansion_Fusion_Core.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Fusion_Core", Vector(5990.666016, 7.455487, 10012.241211), Vector(-159.684494, 0.000000, -0.000000), false, false));
+		m_FusionCoreResistance.SetPosition(Vector(5990.666016, 7.455487, 10012.241211));
+		m_FusionCoreResistance.Update();
 	}
 
 	protected void SpawnA1Bunker()

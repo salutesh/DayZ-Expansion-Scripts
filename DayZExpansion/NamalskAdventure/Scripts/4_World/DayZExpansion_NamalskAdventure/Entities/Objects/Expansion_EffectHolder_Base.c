@@ -238,7 +238,7 @@ class Expansion_EffectHolder_Base: House
 
 class Expansion_EffectHolder_Teleport: Expansion_EffectHolder_Base
 {
-	protected const int PARTICLE_TELEPORT_IDLE = ParticleList.EXPANSION_PARTICLE_TELEPORT;
+	protected const int PARTICLE_TELEPORT_IDLE = ParticleList.EXPANSION_PARTICLE_WARPER;
 	
 	override int GetEffectIdleParticle()
 	{

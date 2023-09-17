@@ -50,7 +50,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 	[NonSerialized()]
 	protected const float DEFAULT_ANOMALY_SPAWN_AMOUNT = 7;
 
-	static const int VERSION = 4;
+	static const int VERSION = 5;
 
 	[NonSerialized()]
 	private bool m_IsLoaded;
@@ -162,7 +162,7 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 			{
 				EXPrint("[ExpansionNamalskAdventureSettings] Load - Converting v" + settingsBase.m_Version + " \"" + EXPANSION_NAMALSKADVENTURE_SETTINGS + "\" to v" + VERSION);
 				CopyInternal(settingsBase); //! Copy over old settings that have not changed.
-
+				
 				m_Version = VERSION;
 				save = true;
 			}

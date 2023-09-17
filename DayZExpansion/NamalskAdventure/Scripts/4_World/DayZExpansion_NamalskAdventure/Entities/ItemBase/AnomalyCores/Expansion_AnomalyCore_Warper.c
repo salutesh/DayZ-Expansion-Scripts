@@ -12,7 +12,7 @@
 
 class ExpansionAnomalyCoreLightWarper extends ExpansionAnomalyCoreLightBase
 {
-	void ExpansionAnomalySingularityLightBase()
+	void ExpansionAnomalyCoreLightWarper()
 	{
 		SetDiffuseColor(0.751, 0.196, 0.890);
 		SetAmbientColor(0.751, 0.196, 0.890);
@@ -38,7 +38,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	protected Particle m_ParticleActivated;
 	protected Particle m_ParticleTarget;
 	protected EffectSound m_ActivatedSound;
-	
+
 	void Expansion_AnomalyCore_Warper()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
@@ -50,7 +50,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	override protected void OnExplode()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (GetGame().IsServer())
 		{
 			GetGame().CreateObject("ExpansionAnomalyAreaWarper_Local", GetPosition());
@@ -61,7 +61,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	override void OnActivateFinished()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (GetGame().IsServer())
 		{
 			UpdateAnomalyCoreState(ExpansionAnomalyCoreState.DESTROYED);
@@ -79,9 +79,9 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 		Object.CastTo(entityObj, other);
 		if (!entityObj)
 			return false;
-		
+
 		ExDebugPrint("::EntityConditions - Entity: " + entityObj.GetType());
-		
+
 		if (ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Items) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Players) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Animals) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Vehicles) || ExpansionStatic.IsAnyOf(entityObj.GetType(), m_Infected))
 		{
 			PlayerBase player = PlayerBase.Cast(other);
@@ -153,7 +153,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 					ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(player, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED);	//! Apply random damage to the players gear items.
 
 					DayZPlayerSyncJunctures.ExpansionTeleport(player, randomPosition, ori);
-					
+
 					PlayTeleportSFX(randomPosition, player.GetIdentity());
 				}
 			}
@@ -169,7 +169,7 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 
 				car.AddHealth("", "", Math.RandomFloatInclusive(MIN_DMG_INFLICTED, MAX_DMG_INFLICTED));	//! Apply random damage to the vehicle.
 				ExpansionAnomaliesModule.GetModuleInstance().ProcessCargoDamage(car, MIN_CARGODMG_INFLICTED, MAX_CARGODMG_INFLICTED); //! Apply random damage to the vehicle cargo items.
-				
+
 			#ifdef JM_COT
 				car.COT_PlaceOnSurfaceAtPosition(randomPosition);
 			#endif
@@ -198,11 +198,11 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 			}
 		}
 	}
-	
+
 	protected void PlayVFX()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			//! Ideally play a one time effect such as an explosion
@@ -210,19 +210,19 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 			m_ParticleActivated.SetWiggle(7, 0.3);
 		}
 	}
-	
+
 	protected void PlaySFX()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 			PlaySoundSet(m_ActivatedSound, "EasterEgg_Catch_SoundSet", 0, 0);
 	}
-	
+
 	protected void PlayVFXTarget(vector pos)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			//! Ideally play a one time effect such as an explosion
@@ -230,17 +230,17 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 			m_ParticleTarget.SetWiggle(7, 0.3);
 		}
 	}
-	
+
 	protected void PlaySFXTarget(vector pos)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			EffectSound soundEffect = SEffectManager.PlaySound("Blowout_Teleport", pos, 0, 0, false);
 			if (!soundEffect)
 				return;
-	
+
 			soundEffect.SetParent(GetGame().GetPlayer());
 			soundEffect.SetSoundAutodestroy(true);
 		}
@@ -249,15 +249,15 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	override void EOnTouch(IEntity other, int extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (m_CoreState != ExpansionAnomalyCoreState.DESTROYED)
 			return;
-		
+
 		if (GetGame().IsServer())
 		{
 			if (!EntityConditions(other))
 				return;
-	
+
 			ProcessEntityEvents(other);
 		}
 	}
@@ -265,14 +265,14 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	override void EOnContact(IEntity other, Contact extra)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-		
+
 		if (m_CoreState != ExpansionAnomalyCoreState.ACTIVATED)
 			return;
 
 		PlayVFX();
 		PlaySFX();
 	}
-	
+
 	protected void PlayTeleportSFX(vector pos, PlayerIdentity identity)
 	{
 		Param1<vector> p = new Param1<vector>(pos);
@@ -288,12 +288,12 @@ class Expansion_AnomalyCore_Warper: Expansion_AnomalyCore_Base
 	{
 		return ExpansionAnomalyCoreLightWarper;
 	}
-	
+
 	//! On server -> client synchronization
 	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx)
 	{
 		super.OnRPC(sender, rpc_type, ctx);
-		
+
 		if (!GetGame().IsDedicatedServer())
 		{
 			switch (rpc_type)

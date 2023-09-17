@@ -30,7 +30,6 @@ class NA_CraftAmmunitionSupplies extends RecipeBase
 		m_MinQuantityIngredient[1] = -1;
 		m_MaxQuantityIngredient[1] = -1;
 
-
 		//ingredient 1
 		InsertIngredient(0,"AmmoCleaningKit");//you can insert multiple ingredients this way
 		InsertIngredient(0,"WeaponCleaningKit");
@@ -42,8 +41,21 @@ class NA_CraftAmmunitionSupplies extends RecipeBase
 		m_IngredientUseSoftSkills[1] = false;// set 'true' to allow modification of the values by softskills on this ingredient
 
 		//ingredient 2
-		InsertIngredient(1,"AmmoCleaningKit");
-		InsertIngredient(1,"WeaponCleaningKit");
+		InsertIngredient(0,"AmmoBox_22_50Rnd");
+		InsertIngredient(0,"AmmoBox_380_35rnd");
+		InsertIngredient(0,"AmmoBox_357_20Rnd");
+		InsertIngredient(0,"AmmoBox_9x39_20Rnd");
+		InsertIngredient(0,"AmmoBox_9x19_25rnd");
+		InsertIngredient(0,"AmmoBox_45ACP_25rnd");
+		InsertIngredient(0,"AmmoBox_00buck_10rnd");
+		InsertIngredient(0,"AmmoBox_762x54_20Rnd");
+		InsertIngredient(0,"AmmoBox_545x39_20Rnd");
+		InsertIngredient(0,"AmmoBox_308Win_20Rnd");
+		InsertIngredient(0,"AmmoBox_556x45_20Rnd");
+		InsertIngredient(0,"AmmoBox_12gaSlug_10Rnd");
+		InsertIngredient(0,"AmmoBox_762x39Tracer_20Rnd");
+		InsertIngredient(0,"AmmoBox_762x54Tracer_20Rnd");
+		InsertIngredient(0,"AmmoBox_556x45Tracer_20Rnd");
 
 		m_IngredientAddHealth[1] = 0;
 		m_IngredientSetHealth[1] = -1; // -1 = do nothing
