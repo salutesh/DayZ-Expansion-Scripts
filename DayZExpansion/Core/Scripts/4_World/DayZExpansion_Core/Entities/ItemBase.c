@@ -1184,6 +1184,12 @@ modded class ItemBase
 		return GetHealthLevel(zone) == GameConstants.STATE_RUINED;
 	}
 
+	int Expansion_GetItemSize()
+	{
+		vector itemSize = ConfigGetVector("itemSize");
+		return itemSize[0] * itemSize[1];
+	}
+
 	bool Expansion_IsStackable()
 	{
 		return m_CanThisBeSplit && !m_HasQuantityBar;

@@ -21,5 +21,9 @@ modded class ActionConstructor
 
 		actions.Insert(ExpansionActionOpenTraderMenu);
 		actions.Insert(ExpansionActionOpenATMMenu);
+
+		#ifdef EXPANSIONMODVEHICLE
+		actions.Insert(ExpansionActionPayParkingFine);
+		#endif
 	}
 }

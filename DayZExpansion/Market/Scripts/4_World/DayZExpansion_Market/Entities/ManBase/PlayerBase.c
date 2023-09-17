@@ -29,6 +29,10 @@ modded class PlayerBase
 		super.SetActions(InputActionMap);
 
 		AddAction(ExpansionActionOpenTraderMenu, InputActionMap);
+
+		#ifdef EXPANSIONMODVEHICLE
+		AddAction(ExpansionActionPayParkingFine, InputActionMap);
+		#endif
 	}
 
 	// ------------------------------------------------------------

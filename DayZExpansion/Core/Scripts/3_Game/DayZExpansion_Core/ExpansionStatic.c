@@ -894,13 +894,13 @@ class ExpansionStatic
 		return GetDayZGame().ExpansionGetStartTime(useUTC) + GetDayZGame().GetTickTime();
 	}
 
-	static string GetTimeString( float total_time )
+	static string GetTimeString( float total_time, bool include_seconds = false )
 	{
 		string time_string;
 
-		if ( total_time < 0 )
+		if ( total_time <= 0 )
 		{
-			time_string =  "0 #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";
+			time_string =  "0 #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_SECONDS";
 			return time_string;
 		}
 
@@ -910,18 +910,34 @@ class ExpansionStatic
 		if ( days > 0 )
 		{
 			time_string += GetValueString( days ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_DAYS";	//! Days
-			time_string += " ";	//! Separator
 		}
 
 		int hours = ( time_seconds % 86400 ) / 3600;
 		if ( hours > 0 )
 		{
+			if (time_string)
+				time_string += " ";	//! Separator
 			time_string += GetValueString( hours ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_HOURS";	//! Hours
-			time_string += " ";	//! Separator
 		}
 
 		int minutes = ( time_seconds % 3600 ) / 60;
-		time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";	//! Minutes
+		if ( minutes > 0 )
+		{
+			if (time_string)
+				time_string += " ";	//! Separator
+			time_string += GetValueString( minutes ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_MINUTES";	//! Minutes
+		}
+
+		if ( include_seconds )
+		{
+			int seconds = time_seconds - days * 86400 - hours * 3600 - minutes * 60;
+			if ( seconds > 0 )
+			{
+				if (time_string)
+					time_string += " ";	//! Separator
+				time_string += GetValueString( seconds ) + " #STR_EXPANSION_BOOK_STATUS_CHARACTER_STATS_SECONDS";
+			}
+		}
 
 		return time_string;
 	}

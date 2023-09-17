@@ -34,12 +34,14 @@ class ExpansionSafeZoneSettingsV0: ExpansionSafeZoneSettingsBase
  **/
 class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 {
-	static const int VERSION = 8;
+	static const int VERSION = 9;
 
 	int ActorsPerTick;
 	bool DisableVehicleDamageInSafeZone;
 	bool EnableForceSZCleanup;
 	float ItemLifetimeInSafeZone;
+	bool EnableForceSZCleanupVehicles;
+	float VehicleLifetimeInSafeZone;
 	autoptr TStringArray ForceSZCleanup_ExcludedItems = new TStringArray;
 
 	[NonSerialized()]
@@ -103,6 +105,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		DisableVehicleDamageInSafeZone = s.DisableVehicleDamageInSafeZone;
 		EnableForceSZCleanup = s.EnableForceSZCleanup;
 		ItemLifetimeInSafeZone = s.ItemLifetimeInSafeZone;
+		EnableForceSZCleanupVehicles = s.EnableForceSZCleanupVehicles;
+		VehicleLifetimeInSafeZone = s.VehicleLifetimeInSafeZone;
 		
 		ExpansionSafeZoneSettingsBase sb = s;
 		CopyInternal( sb );
@@ -207,6 +211,9 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 				if (settingsBase.m_Version < 8)
 					ForceSZCleanup_ExcludedItems.Insert("ExpansionVehicleCover");
 
+				if (settingsBase.m_Version < 9 && !VehicleLifetimeInSafeZone)
+					VehicleLifetimeInSafeZone = settingsDefault.VehicleLifetimeInSafeZone;
+
 				m_Version = VERSION;
 				save = true;
 			}
@@ -263,6 +270,8 @@ class ExpansionSafeZoneSettings: ExpansionSafeZoneSettingsBase
 		ActorsPerTick = 5;
 		EnableForceSZCleanup = true;
 		ItemLifetimeInSafeZone = 15 * 60;  //! 15 Minutes
+		EnableForceSZCleanupVehicles = false;
+		VehicleLifetimeInSafeZone = 60 * 60;  //! 60 Minutes
 
 	#ifdef CARCOVER
 		ForceSZCleanup_ExcludedItems = {"CarCoverBase", "ExpansionVehicleCover"};

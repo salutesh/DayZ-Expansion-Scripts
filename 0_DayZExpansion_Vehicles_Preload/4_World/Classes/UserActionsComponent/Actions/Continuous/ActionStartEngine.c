@@ -47,11 +47,14 @@ modded class ActionStartEngine
 
 				if (m_Car.CrewMemberIndex(player) == DayZPlayerConstants.VEHICLESEAT_DRIVER)
 				{
-					if (m_Car.GetLockedState() == ExpansionVehicleLockState.FORCEDUNLOCKED)
-						return true;
-
-					if (!m_Car.HasKey())
-						return true;
+					switch (m_Car.GetLockedState())
+					{
+						case ExpansionVehicleLockState.NOLOCK:
+						case ExpansionVehicleLockState.FORCEDUNLOCKED:
+							return true;
+						case ExpansionVehicleLockState.FORCEDLOCKED:
+							return false;
+					}
 
 					ExpansionCarKey key;
 					if (GetExpansionSettings().GetVehicle().VehicleRequireKeyToStart == 1)

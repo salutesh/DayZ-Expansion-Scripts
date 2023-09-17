@@ -236,6 +236,11 @@ class ExpansionMarketModule: CF_ModuleWorld
 		m_ATMData = new array<ref ExpansionMarketATM_Data>;
 	}
 	
+	static ExpansionMarketModule GetInstance()
+	{
+		return s_Instance;
+	}
+
 	// ------------------------------------------------------------
 	// ExpansionMarketModule OnInit
 	// ------------------------------------------------------------	

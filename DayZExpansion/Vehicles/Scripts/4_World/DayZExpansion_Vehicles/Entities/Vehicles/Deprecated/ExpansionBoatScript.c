@@ -529,7 +529,7 @@ class ExpansionBoatScript: CarScript
 	{
 		super.OnUpdate( dt );
 
-		if ( AllDoorsClosed() && !m_Expansion_CollisionDamageIfEngineOff )
+		if ( AllDoorsClosed() )
 			m_DrownTime = 0;  //! Prevent vanilla engine drown damage
 	}
 

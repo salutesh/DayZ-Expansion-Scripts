@@ -638,7 +638,7 @@ modded class CarScript
 		return m_Expansion_LockComplexity;
 	}
 
-	ExpansionVehicleLockState GetLockedState()
+	override ExpansionVehicleLockState GetLockedState()
 	{
 		return m_VehicleLockedState;
 	}
@@ -658,13 +658,25 @@ modded class CarScript
 
 	bool IsLocked()
 	{
-		if (HasKey())
+		switch (m_VehicleLockedState)
 		{
-			KeyMessage("CarScript::IsLocked HasKey() true and " + (m_VehicleLockedState == ExpansionVehicleLockState.LOCKED));
-			return m_VehicleLockedState == ExpansionVehicleLockState.LOCKED;
+			case ExpansionVehicleLockState.LOCKED:
+			case ExpansionVehicleLockState.FORCEDLOCKED:
+				return true;
 		}
 
-		KeyMessage("CarScript::IsLocked false");
+		return false;
+	}
+
+	bool Expansion_IsReadyToLock()
+	{
+		switch (m_VehicleLockedState)
+		{
+			case ExpansionVehicleLockState.READY_TO_LOCK:
+			case ExpansionVehicleLockState.READY_TO_FORCELOCK:
+				return true;
+		}
+
 		return false;
 	}
 
@@ -725,9 +737,11 @@ modded class CarScript
 		m_PersistentIDD = newIDD;
 	}
 
-	void SetLockedState(ExpansionVehicleLockState newLockState)
+	override void SetLockedState(ExpansionVehicleLockState newLockState)
 	{
 		m_VehicleLockedState = newLockState;
+
+		SetSynchDirty();
 	}
 
 	bool HasKey()
@@ -745,9 +759,7 @@ modded class CarScript
 		{
 			key.PairToVehicle(this);
 
-			m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
-
-			SetSynchDirty();
+			SetLockedState(ExpansionVehicleLockState.UNLOCKED);
 		}
 
 		KeyMessage("PairKeyTo (" + this + ", " + key + ")");
@@ -769,9 +781,7 @@ modded class CarScript
 			m_PersistentIDC = 0;
 			m_PersistentIDD = 0;
 
-			m_VehicleLockedState = ExpansionVehicleLockState.NOLOCK;
-
-			SetSynchDirty();
+			SetLockedState(ExpansionVehicleLockState.NOLOCK);
 		}
 	}
 
@@ -786,10 +796,8 @@ modded class CarScript
 		{
 			if (m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK)
 			{
-				m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
+				SetLockedState(ExpansionVehicleLockState.UNLOCKED);
 				KeyMessage("OnCarDoorOpened::UNLOCKED");
-
-				SetSynchDirty();
 			}
 		}
 	}
@@ -824,10 +832,8 @@ modded class CarScript
 		if (key && !IsCarKeys(key) && !key.IsInherited(ExpansionCarAdminKey))
 			return;
 
-		m_VehicleLockedState = ExpansionVehicleLockState.READY_TO_LOCK;
+		SetLockedState(ExpansionVehicleLockState.READY_TO_LOCK);
 		KeyMessage("LockCar::READY_TO_LOCK");
-
-		SetSynchDirty();
 	}
 
 	void UnlockCar(ExpansionCarKey key)
@@ -835,19 +841,17 @@ modded class CarScript
 		if (key && !IsCarKeys(key) && !key.IsInherited(ExpansionCarAdminKey))
 			return;
 
-		m_VehicleLockedState = ExpansionVehicleLockState.UNLOCKED;
+		SetLockedState(ExpansionVehicleLockState.UNLOCKED);
 		KeyMessage("UnlockCar::UNLOCKED");
 
 		OnCarUnlocked();
-		SetSynchDirty();
 	}
 
-	void UnlockCarWithoutKey()
+	void UnlockCarWithoutKey(ExpansionVehicleLockState lockState = ExpansionVehicleLockState.FORCEDUNLOCKED)
 	{
-		m_VehicleLockedState = ExpansionVehicleLockState.FORCEDUNLOCKED;
+		SetLockedState(lockState);
 
 		OnCarUnlocked();
-		SetSynchDirty();
 	}
 
 	void OnCarLocked()
@@ -1581,7 +1585,13 @@ modded class CarScript
 
 	bool CanUpdateCarLock(float pDt)
 	{
-		return (HasKey() && m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_LOCK && IsMissionHost());
+		if (!GetGame().IsServer())
+			return false;
+
+		if (Expansion_IsReadyToLock())
+			return true;
+
+		return false;
 	}
 
 	bool DoorCount()
@@ -1604,14 +1614,20 @@ modded class CarScript
 
 	void UpdateCarLock(float pDt)
 	{
-		if (AllDoorsClosed() || GetExpansionSettings() && !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
-		{
-			m_VehicleLockedState = ExpansionVehicleLockState.LOCKED;
+		ExpansionVehicleLockState lockState;
 
-			KeyMessage("OnCarDoorClosed::LOCKED");
+		if (m_VehicleLockedState == ExpansionVehicleLockState.READY_TO_FORCELOCK)
+			lockState = ExpansionVehicleLockState.FORCEDLOCKED;
+		else if (AllDoorsClosed() || GetExpansionSettings() && !GetExpansionSettings().GetVehicle().VehicleRequireAllDoors)
+			lockState = ExpansionVehicleLockState.LOCKED;
+
+		if (lockState)
+		{
+			SetLockedState(lockState);
+
+			KeyMessage("UpdateCarLock::" + typename.EnumToString(ExpansionVehicleLockState, m_VehicleLockedState));
 
 			OnCarLocked();
-			SetSynchDirty();
 		}
 	}
 
@@ -3573,7 +3589,10 @@ modded class CarScript
 		if (attachment.IsInherited(CarWheel))
 			return true;
 
-		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
+		if (IsLocked())
+			return false;
+
+		return true;
 	}
 
 	override bool CanReleaseAttachment(EntityAI attachment)
@@ -3585,12 +3604,19 @@ modded class CarScript
 		if (!super.CanReleaseAttachment(attachment))
 			return false;
 
-		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
+		if (IsLocked())
+			return false;
+
+		return true;
 	}
 
 	override bool IsInventoryVisible()
 	{
 		if (!super.IsInventoryVisible())
+			return false;
+
+		//! @note never allow inventory access while forced locked
+		if (m_VehicleLockedState == ExpansionVehicleLockState.FORCEDLOCKED)
 			return false;
 
 		if (GetExpansionSettings() && GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccess)
@@ -3599,7 +3625,11 @@ modded class CarScript
 		if (GetExpansionSettings().GetVehicle().VehicleLockedAllowInventoryAccessWithoutDoors && !AllDoorsClosed())
 			return true;
 
-		return m_VehicleLockedState != ExpansionVehicleLockState.LOCKED;
+		//! @note we explicitly check for LOCKED state instead of IsLocked() as we don't want to be able to access inventory if forced locked
+		if (m_VehicleLockedState == ExpansionVehicleLockState.LOCKED)
+			return false;
+
+		return true;
 	}
 
 	bool HasGear()
