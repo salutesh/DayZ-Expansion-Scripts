@@ -15,9 +15,7 @@
 modded class ExpansionPartyData
 {
 	//! We send all the group quests to the new group member
-	//! ToDo: Might want to check if the joned player has already
-	//! completed the quests that are active for this group so he cant
-	//! redo it again?!
+	//! With the ExpansionQuestModule::QuestDisplayConditions method we check if the joining player can participate on each active group quest for this group. 
 	override void OnJoin(ExpansionPartyPlayerData player)
 	{
 		super.OnJoin(player);
@@ -31,13 +29,29 @@ modded class ExpansionPartyData
 	protected void OnJoin_Deferred(ExpansionPartyPlayerData player)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
+		
+		ExpansionQuestModule.GetModuleInstance().LoadGroupQuestData(PartyID.ToString());
+		
 		string playerUID = player.GetID();
-
+		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetPlayerQuestDataByUID(playerUID);
+		if (!playerQuestData)
+		{
+			Error(ToString() + "::OnJoin_Deferred - Could not get persistent quest data for player with UID: " + playerUID);
+			return;
+		}
+		
+		PlayerBase playerPB = PlayerBase.GetPlayerByUID(playerUID);
+		if (!playerPB)
+		{
+			Error(ToString() + "::OnJoin_Deferred - Could not get player instance with UID: " + playerUID);
+			return;
+		}
+		
 		map<int, ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests(GetPartyID().ToString());
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
-			activeQuestInstance.OnGroupMemberJoined(playerUID);
+			if (ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(activeQuestInstance.GetQuestConfig(), playerPB, playerQuestData, -1, true))
+				activeQuestInstance.OnGroupMemberJoined(playerUID);
 		}
 	}
 
@@ -59,7 +73,8 @@ modded class ExpansionPartyData
 		map<int, ref ExpansionQuest> activeQuests = ExpansionQuestModule.GetModuleInstance().GetActiveQuests(GetPartyID().ToString());
 		foreach (ExpansionQuest activeQuestInstance: activeQuests)
 		{
-			activeQuestInstance.OnGroupMemberLeave(playerUID);
+			if (activeQuestInstance.IsQuestPlayer(playerUID))
+				activeQuestInstance.OnGroupMemberLeave(playerUID);
 		}
 	}
 };

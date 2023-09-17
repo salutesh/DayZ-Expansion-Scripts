@@ -15,9 +15,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	protected int m_Count;
 	protected int m_Amount;
 	protected ref ExpansionQuestObjectiveTargetConfig m_Config;
-	
+
 	override bool OnEventStart()
-	{
+	{		
 		if (!super.OnEventStart())
 			return false;
 		
@@ -28,7 +28,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	}
 
 	override bool OnContinue()
-	{
+	{		
 		if (!super.OnContinue())
 			return false;
 		
@@ -47,8 +47,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
 			return;
-
-		if (ExpansionStatic.IsAnyOf(victim, target.GetExcludedClassNames(), true))
+		
+		array<string> excludedClassNames = target.GetExcludedClassNames();
+		if (ExpansionStatic.IsAnyOf(victim, excludedClassNames, true))
 			return;
 
 		bool maxRangeCheck = false;
@@ -61,8 +62,30 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				return;
 
 		#ifdef EXPANSIONMODAI
+			//! Check if player is AI and if we can count it
 			if (victimPlayer.IsAI() && !target.CountAIPlayers())
 				return;
+			
+			//! Check if target faction is in allowed factions of this objective
+			array<string> allowedTargetFactions = target.GetAllowedTargetFactions();
+			if (allowedTargetFactions && allowedTargetFactions.Count() > 0)
+			{
+				bool foundFaction = false;
+				eAIGroup victimGroup = victimPlayer.GetGroup();
+				if (victimGroup)
+				{
+					eAIFaction victimFaction = victimGroup.GetFaction();
+					if (victimFaction)
+					{	
+						string victimFactionName = victimFaction.GetName();
+						if (allowedTargetFactions.Find(victimFactionName) > -1)
+							foundFaction = true;
+					}
+				}
+				
+				if (!foundFaction)
+					return;
+			}
 		#endif
 
 			//! PvP quest objective. Check if the victim is a quest player
@@ -85,13 +108,15 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		//! If the target need to be killed with a special weapon check incoming killer class type
-		if (target.NeedSpecialWeapon() && !ExpansionStatic.IsAnyOf(killer, target.GetAllowedWeapons(), true))
+		array<string> allowedWeapons = target.GetAllowedWeapons();
+		if (target.NeedSpecialWeapon() && !ExpansionStatic.IsAnyOf(killer, allowedWeapons, true))
 		{
 			ObjectivePrint("Entity got not killed with any allowed weapon! Skip..");
 			return;
 		}
-
-		bool found = ExpansionStatic.IsAnyOf(victim, target.GetClassNames(), true);
+		
+		array<string> allowedClassNames = target.GetClassNames();
+		bool found = ExpansionStatic.IsAnyOf(victim, allowedClassNames, true);
 		if (found)
 		{
 			ObjectivePrint("Killed valid target " + victim + " " + ExpansionString.JoinStrings(target.GetClassNames()));

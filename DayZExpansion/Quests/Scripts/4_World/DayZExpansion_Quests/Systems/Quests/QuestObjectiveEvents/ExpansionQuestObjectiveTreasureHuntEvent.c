@@ -29,7 +29,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnEventStart())
 			return false;
-
+		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -44,8 +44,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			CreateMarkers();
 	#endif
 
-		ObjectivePrint("End and return TRUE.");
-
 		return true;
 	}
 
@@ -56,7 +54,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnContinue())
 			return false;
-
+		
 		//! Only create the stash trigger when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
 		{
@@ -76,8 +74,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		}
 
 		m_Quest.QuestCompletionCheck();
-
-		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -166,7 +162,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			m_Stash.SetPosition(m_StashPos);
 			vector ori = GetGame().GetSurfaceOrientation(m_StashPos[0], m_StashPos[2]);
 			m_Stash.SetOrientation(ori);
-			m_Stash.SetQuestID(m_Quest.GetQuestConfig().GetID());
+			m_Stash.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
 		}
 
 		//! Spawn the chest in the underground stash
@@ -190,11 +186,11 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!m_Chest)
 		{
-			GetGame().ObjectDelete(m_Chest);
+			GetGame().ObjectDelete(chestObj);
 			return;
 		}
 
-		m_Chest.SetQuestID(m_Quest.GetQuestConfig().GetID());
+		m_Chest.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
 
 		m_Chest.ExpansionSetCanReceiveItems(true);
 		ExpansionLootSpawner.SpawnLoot(m_Chest, m_Config.GetLoot(), m_Config.GetLootItemsAmount(), m_LootItems, m_LootItemsMap);
@@ -311,7 +307,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (itemAmount != amount)
 		{
 			m_LootedItemFromChest = true;
-
 			m_Quest.QuestCompletionCheck(true);
 		}
 	}
@@ -361,10 +356,5 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	override int GetObjectiveType()
 	{
 		return ExpansionQuestObjectiveType.TREASUREHUNT;
-	}
-
-	override bool HasDynamicState()
-	{
-		return true;
 	}
 };

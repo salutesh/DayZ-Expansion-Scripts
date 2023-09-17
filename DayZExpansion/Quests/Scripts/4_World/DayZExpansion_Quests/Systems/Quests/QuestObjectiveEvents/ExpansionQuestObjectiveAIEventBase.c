@@ -22,7 +22,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 	{
 		if (!super.OnEventStart())
 			return false;
-
+		
 		CheckQuestAIPatrol();
 
 		return true;
@@ -35,7 +35,7 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnContinue())
 			return false;
-
+		
 		//! Only check and create the AI patrol when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
 		{

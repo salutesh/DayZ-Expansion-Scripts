@@ -12,6 +12,8 @@
 
 modded class MissionBaseWorld
 {
+	void Expansion_OnQuestPlayerInit(ExpansionQuestPersistentData playerQuestData, PlayerIdentity identity);
+	
 	//! This being here allows overriding in init.c
 	bool Expansion_CanStartQuest(ExpansionQuestConfig questConfig, PlayerIdentity identity)
 	{

@@ -30,11 +30,12 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 	bool AddItemsToNearbyMarketZone = false;
 #endif
 
-	void AddCollection(int amount, string name)
+	void AddCollection(int amount, string name, int quantityPercent = -1)
 	{
 		ExpansionQuestObjectiveDelivery collection = new ExpansionQuestObjectiveDelivery();
 		collection.SetAmount(amount);
 		collection.SetClassName(name);
+		collection.SetQuantity(quantityPercent);
 		Collections.Insert(collection);
 	}
 
@@ -91,6 +92,7 @@ class ExpansionQuestObjectiveDeliveryConfigBase: ExpansionQuestObjectiveConfig
 		ObjectiveType = configBase.ObjectiveType;
 		ObjectiveText = configBase.ObjectiveText;
 		TimeLimit = configBase.TimeLimit;
+
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
@@ -194,11 +196,19 @@ class ExpansionQuestObjectiveDeliveryConfig: ExpansionQuestObjectiveDeliveryConf
 				if (!ExpansionJsonFileParser<ExpansionQuestObjectiveDeliveryConfig_v17>.Load(EXPANSION_QUESTS_OBJECTIVES_DELIVERY_FOLDER + fileName, configV17))
 					return NULL;
 				
-				foreach (ExpansionQuestObjectiveDelivery delivery: configV17.Deliveries)
+				foreach (ExpansionQuestObjectiveDelivery deliveryV17: configV17.Deliveries)
 				{
-					string className = delivery.GetClassName();
-					int amount = delivery.GetAmount();
+					string className = deliveryV17.GetClassName();
+					int amount = deliveryV17.GetAmount();
 					config.AddCollection(amount, className);
+				}
+			}
+			
+			if (configBase.ConfigVersion < 19)
+			{
+				foreach (ExpansionQuestObjectiveDelivery deliveryV18: config.Collections)
+				{
+					deliveryV18.SetQuantity(-1);
 				}
 			}
 			

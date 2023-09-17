@@ -129,7 +129,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 					{
 						int currentDeliveryCount = m_Objective.GetDeliveryCountByIndex(i);
 						ExpansionQuestObjectiveDelivery delivery = deliveries[i];
-						ExpansionQuestHUDDeliveryObjective deliveryEntry = new ExpansionQuestHUDDeliveryObjective(delivery, currentDeliveryCount);
+						ExpansionQuestHUDDeliveryEntry deliveryEntry = new ExpansionQuestHUDDeliveryEntry(delivery, currentDeliveryCount);
 						m_QuestHUDObjectiveController.DeliveryEnties.Insert(deliveryEntry);
 						
 					}
@@ -140,7 +140,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 			case ExpansionQuestObjectiveType.COLLECT:
 			{
 				ExpansionQuestObjectiveCollectionConfig collectionObjective;
-				ExpansionQuestHUDDeliveryObjective collectionEntry;
+				ExpansionQuestHUDDeliveryEntry collectionEntry;
 				ExpansionQuestObjectiveDelivery collection;
 				int currentCollectionCount;
 
@@ -169,7 +169,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 						collection = collections[i];									
 						if (!collectionObjective.NeedAnyCollection())
 						{
-							collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
+							collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
 							m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 						}
 						else if (collectionObjective.NeedAnyCollection() && currentCollectionCount >= collection.GetAmount())
@@ -189,7 +189,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								if (!collection)
 									continue;
 
-								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, collectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, collectionCount);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -200,7 +200,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 								currentCollectionCount = m_Objective.GetDeliveryCountByIndex(i);				
 								collection = collections[i];
 
-								collectionEntry = new ExpansionQuestHUDDeliveryObjective(collection, currentCollectionCount);					
+								collectionEntry = new ExpansionQuestHUDDeliveryEntry(collection, currentCollectionCount);					
 								m_QuestHUDObjectiveController.DeliveryEnties.Insert(collectionEntry);
 							}
 						}
@@ -297,12 +297,22 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 	
 	override void Expansion_Update()
 	{
-		if (!m_Objective || !IsVisible() || !GetGame().GetPlayer())
+		if (!m_Objective || !m_Quest || !IsVisible() || !GetGame().GetPlayer())
 			return;
 		
 		UpdateTimeLimit();
+		
+		array<ref ExpansionQuestObjectiveConfigBase> questObjectives = m_Quest.GetObjectives();
+		if (!questObjectives || questObjectives.Count() == 0)
+			return;
+		
+		int objectiveIndex = -1;
+		objectiveIndex = m_Objective.GetObjectiveIndex();
+		
+		if (objectiveIndex == -1)
+			return;
 
-		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(m_Quest.GetObjectives()[m_Objective.GetObjectiveIndex()]);
+		ExpansionQuestObjectiveConfig objectiveConfig = ExpansionQuestObjectiveConfig.Cast(questObjectives[objectiveIndex]);
 		if (!objectiveConfig)
 			return;
 		
@@ -395,7 +405,7 @@ class ExpansionQuestHUDObjective: ExpansionScriptView
 
 class ExpansionQuestHUDObjectiveController: ExpansionViewController
 {
-	ref ObservableCollection<ref ExpansionQuestHUDDeliveryObjective> DeliveryEnties = new ObservableCollection<ref ExpansionQuestHUDDeliveryObjective>(this);
+	ref ObservableCollection<ref ExpansionQuestHUDDeliveryEntry> DeliveryEnties = new ObservableCollection<ref ExpansionQuestHUDDeliveryEntry>(this);
 	string ObjectiveName;
 	string ObjectiveTarget;
 	string ObjectiveValue;

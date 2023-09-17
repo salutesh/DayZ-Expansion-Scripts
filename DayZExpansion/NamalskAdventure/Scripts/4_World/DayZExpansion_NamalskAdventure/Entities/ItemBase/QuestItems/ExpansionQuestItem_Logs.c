@@ -18,8 +18,8 @@ modded class dzn_athena_planning
 	{
 		super.DeferredInit();
 
-		SetQuestID(800);
-		SetIsQuestGiver(true);
+		Expansion_SetQuestID(800);
+		Expansion_SetIsQuestGiver(true);
 	}
 };
 modded class dzn_athena_action1

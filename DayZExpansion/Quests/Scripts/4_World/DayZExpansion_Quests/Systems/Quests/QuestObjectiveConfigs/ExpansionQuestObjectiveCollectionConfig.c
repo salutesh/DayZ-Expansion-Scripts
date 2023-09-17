@@ -15,14 +15,13 @@ class ExpansionQuestObjectiveCollectionConfig_V10: ExpansionQuestObjectiveCollec
 	ref ExpansionQuestObjectiveCollection Collection = new ExpansionQuestObjectiveCollection();
 };
 
-class ExpansionQuestObjectiveCollectionConfigBase: ExpansionQuestObjectiveDeliveryConfigBase
+class ExpansionQuestObjectiveCollectionConfigBase: ExpansionQuestObjectiveDeliveryConfigBase 
 {
+	bool NeedAnyCollection = false;
 };
 
 class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollectionConfigBase
-{
-	bool NeedAnyCollection = false;
-	
+{	
 	override bool NeedAnyCollection()
 	{
 		return NeedAnyCollection;
@@ -55,6 +54,14 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 
 				config.AddCollection(configV10.Collection.GetAmount(), configV10.Collection.GetClassName());
 			}
+			
+			if (configBase.ConfigVersion < 19)
+			{
+				foreach (ExpansionQuestObjectiveDelivery deliveryV18: config.Collections)
+				{
+					deliveryV18.SetQuantity(-1);
+				}
+			}
 
 			config.ConfigVersion = CONFIGVERSION;
 			save = true;
@@ -71,6 +78,21 @@ class ExpansionQuestObjectiveCollectionConfig: ExpansionQuestObjectiveCollection
 		}
 
 		return config;
+	}
+	
+	void CopyConfig(ExpansionQuestObjectiveCollectionConfigBase configBase)
+	{
+		ID = configBase.ID;
+		ObjectiveType = configBase.ObjectiveType;
+		ObjectiveText = configBase.ObjectiveText;
+		TimeLimit = configBase.TimeLimit;
+
+		MaxDistance = configBase.MaxDistance;
+		MarkerName = configBase.MarkerName;
+		ShowDistance = configBase.ShowDistance;
+		Collections = configBase.Collections;
+
+		NeedAnyCollection = configBase.NeedAnyCollection;
 	}
 
 	override void Save(string fileName)

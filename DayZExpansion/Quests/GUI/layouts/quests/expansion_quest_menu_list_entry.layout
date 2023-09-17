@@ -76,7 +76,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
    visible 0
    ignorepointer 1
    position 0 0
-   size 0.3 26
+   size 0.32 26
    halign right_ref
    valign center_ref
    hexactpos 0
@@ -91,6 +91,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
     ImageWidgetClass CooldownIcon {
      visible 1
      ignorepointer 1
+     ignoregloballv 0
      color 0.8863 0.2549 0.2588 1
      size 26 26
      valign center_ref
@@ -121,7 +122,7 @@ PanelWidgetClass ExpansionQuestMenuListEntry {
     TextWidgetClass CooldownText {
      ignorepointer 1
      color 0.8627 0.8627 0.8627 1
-     size 0.98 1
+     size 0.8 1
      hexactpos 0
      vexactpos 0
      hexactsize 0

@@ -21,14 +21,12 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	override bool OnEventStart()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+				
 		if (!super.OnEventStart())
 			return false;
 		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-
-		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}
@@ -36,7 +34,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
+		
 		if (!super.OnContinue())
 			return false;
 		
@@ -44,8 +42,6 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 			return false;
 
 		m_Quest.QuestCompletionCheck();
-
-		ObjectivePrint("End and return TRUE.");
 		
 		return true;
 	}

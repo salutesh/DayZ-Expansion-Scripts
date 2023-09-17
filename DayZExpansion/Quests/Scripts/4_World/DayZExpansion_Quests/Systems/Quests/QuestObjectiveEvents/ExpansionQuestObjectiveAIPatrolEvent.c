@@ -19,13 +19,11 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 	
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return false;
-		
 		if (!super.OnEventStart())
 			return false;
-
-		ObjectivePrint("::OnEventStart - End and return TRUE.");
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 		
 		return true;
 	}
@@ -34,21 +32,19 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 				
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return false;
-				
 		if (!super.OnContinue())
 			return false;
-
-		ObjectivePrint("End and return TRUE.");
 		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
+
 		return true;
 	}
 	
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!m_Config)
 			return;
 
 		ExpansionQuestObjectiveAIPatrol aiPatrol = m_Config.GetAIPatrol();
@@ -56,8 +52,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 			return;
 
 		string markerName = m_Config.GetObjectiveText();
-		if (markerName != string.Empty)
-			CreateObjectiveMarker(aiPatrol.GetWaypoints()[0], markerName);
+		CreateObjectiveMarker(aiPatrol.GetWaypoints()[0], markerName);
 	}
 #endif
 	
@@ -89,7 +84,7 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!m_Config)
 			return;
 
 		CheckQuestAIPatrol(1);
@@ -118,7 +113,8 @@ class ExpansionQuestObjectiveAIPatrolEvent: ExpansionQuestObjectiveAIEventBase
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
 		
 	#ifdef EXPANSIONMODNAVIGATION
-		CreateMarkers();
+		if (m_Config.GetObjectiveText() != string.Empty)
+			CreateMarkers();
 	#endif
 	}
 

@@ -15,13 +15,12 @@ class ExpansionQuestObjectiveTravelConfigBase: ExpansionQuestObjectiveConfig
 	float MaxDistance = 10.0;
 	string MarkerName = string.Empty;
 	bool ShowDistance = true;
+	bool TriggerOnEnter = true;
+	bool TriggerOnExit = false;
 };
 
 class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBase
 {
-	bool TriggerOnEnter = true;
-	bool TriggerOnExit = true;
-
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -134,6 +133,9 @@ class ExpansionQuestObjectiveTravelConfig: ExpansionQuestObjectiveTravelConfigBa
 		MaxDistance = configBase.MaxDistance;
 		MarkerName = configBase.MarkerName;
 		ShowDistance = configBase.ShowDistance;
+		
+		TriggerOnEnter = configBase.TriggerOnEnter;
+		TriggerOnExit = configBase.TriggerOnExit;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

@@ -22,6 +22,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 #ifdef EXPANSIONMODNAVIGATION
 	protected bool m_CreatedMarker;
 #endif
+	protected vector m_Position;
 
 	protected ref ExpansionQuestObjectiveDeliveryConfigBase m_Config;
 
@@ -84,34 +85,36 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			}
 
 			ObjectivePrint("Check objective items for item " + typeName + " | Needed: " + needed);
+			int remainingNeeded = needed;
 			int remove = 0;
 			foreach (ExpansionQuestObjectiveItem objItem: m_ObjectiveItems)
 			{
-				if (objItem.GetClassName() == typeName)
-				{
-					int amount = objItem.GetItem().Expansion_GetStackAmount();
-					int remaining;
-					ObjectivePrint("Check objective item " + typeName + " | Amount: " + amount);
-					if (amount <= needed)
-					{
-						remaining = amount - amount;
-						ObjectivePrint("Item amount is lower or exacly the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: " + remaining);
-						objItem.SetRemaining(remaining);
-						remove += amount;
-						changedItems.Insert(objItem);
-					}
-					else if (amount > needed)
-					{
-						remaining = amount - needed;
-						ObjectivePrint("Item amount is higher then the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: " + remaining);
-						objItem.SetRemaining(remaining);
-						remove += needed;
-						changedItems.Insert(objItem);
-					}
-				}
-
-				if (remove >= needed)
-					break;
+			    if (objItem.GetClassName() == typeName)
+			    {
+			        int amount = objItem.GetItem().Expansion_GetStackAmount();
+			        int remaining;
+			        ObjectivePrint("Check objective item " + typeName + " | Amount: " + amount);
+			        if (amount <= remainingNeeded)
+			        {
+			            remainingNeeded -= amount;
+			            ObjectivePrint("Item amount is lower or exacly the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: 0");
+			            objItem.SetRemaining(0);
+			            remove += amount;
+			            changedItems.Insert(objItem);
+			        }
+			        else
+			        {
+			            remaining = amount - remainingNeeded;
+			            ObjectivePrint("Item amount is higher then the needed amount for item " + typeName + " | Amount: " + amount + " | Needed: " + needed + " | Remaining: " + remaining);
+			            objItem.SetRemaining(remaining);
+			            remove += remainingNeeded;
+						remainingNeeded = 0;
+			            changedItems.Insert(objItem);
+			        }
+			    }
+			
+			    if (remainingNeeded == 0)
+			        break;
 			}
 
 			if (!m_Config.NeedAnyCollection() && remove < needed)
@@ -160,7 +163,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		if (!super.OnCleanup())
 			return false;
-		
+
 		DeleteObjectiveTrigger();
 
 		return true;
@@ -181,7 +184,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 	}
 
 	bool GetLocationState()
@@ -200,11 +203,11 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		if (!m_Quest || !m_Quest.GetQuestConfig())
 			return false;
-		
+
 		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();
 		if (!questNPCTurnInIDs || questNPCTurnInIDs.Count() == 0)
 			return false;
-		
+
 		PlayerBase player = m_Quest.GetPlayer();
 		if (!player || !player.GetIdentity())
 			return false;
@@ -222,14 +225,19 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		vector worldPos;
 		if (npcPos[0] < worldSize * 0.5)
 			worldPos[0] = worldSize;
+
 		worldPos[1] = npcPos[1];
+
 		if (npcPos[2] < worldSize * 0.5)
 			worldPos[2] = worldSize;
+
 		if (m_Config.GetMaxDistance() <= 0 || m_Config.GetMaxDistance() >= vector.Distance(npcPos, worldPos))
 		{
 			m_DestinationReached = true;
 			return true;
 		}
+
+		m_Position = npcPos;
 
 		Object trigger = GetGame().CreateObjectEx("ExpansionTravelObjectiveSphereTrigger", npcPos, ECE_NONE);
 		if (!Class.CastTo(m_ObjectiveTrigger, trigger))
@@ -240,16 +248,16 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		m_ObjectiveTrigger.SetObjectiveData(this);
 		m_ObjectiveTrigger.SetPosition(npcPos);
-		
+
 		return true;
 	}
-	
+
 	protected bool GetObjectiveDataFromConfig()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		m_ObjectiveItemsMap.Clear();
-		
+
 		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
 		if (!objectiveDeliveries || objectiveDeliveries.Count() == 0)
 		{
@@ -257,13 +265,13 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			Error(ToString() + "::GetObjectiveDataFromConfig - Collection objective with ID " + objectiveID + " has no collections defined!");
 			return false;
 		}
-		
+
 		foreach (ExpansionQuestObjectiveDelivery objectiveDelivery: objectiveDeliveries)
 		{
 			string typeName = objectiveDelivery.GetClassName();
 			int amount = objectiveDelivery.GetAmount();
 			ObjectivePrint("Add collection data for type name: " + typeName + " | Amount: " + amount);
-			
+
 			m_ObjectiveItemsAmount += amount;
 
 			int current;
@@ -278,9 +286,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 				m_ObjectiveItemsMap.Set(typeName, neededNew);
 			}
 		}
-		
+
 		ObjectivePrint("End and return TRUE");
-		
+
 		return true;
 	}
 
@@ -332,17 +340,29 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		foreach (string typeName, int needed: m_ObjectiveItemsMap)
 		{
-			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);
+			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);			
 			ExpansionInventoryItemType itemType = player.Expansion_GetInventoryItemType(typeName);
 			if (itemType)
 			{
+				int remainingNeeded = needed;
 				foreach (ItemBase item: itemType.Items)
-				{
-					if (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
-						break;
+				{	
+					if (item.IsRuined())
+						continue;
 
-					if (CanAddObjectiveItem(item))
-						AddObjectiveItem(item);
+					int amount = item.Expansion_GetStackAmount();			  
+			        if (amount <= remainingNeeded)
+			        {
+			            remainingNeeded -= amount;
+			            AddObjectiveItem(item);
+			        }
+			        else
+			        {
+			            remainingNeeded = 0;
+			        }
+					
+					if (remainingNeeded == 0)
+                    	break;
 				}
 			}
 		}
@@ -352,12 +372,15 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected bool CanAddObjectiveItem(ItemBase item)
 	{
+		if (item.IsRuined())
+			return false;
+		
 		switch (m_Config.GetObjectiveType())
 		{
 			case ExpansionQuestObjectiveType.COLLECT:
-				return !item.IsQuestItem();
+				return !item.Expansion_IsQuestItem();
 			case ExpansionQuestObjectiveType.DELIVERY:
-				return item.GetQuestID() == m_Quest.GetQuestConfig().GetID();
+				return (item.Expansion_GetQuestID() == m_Quest.GetQuestConfig().GetID());
 		}
 
 		return true;
@@ -365,6 +388,9 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 	protected void AddObjectiveItem(ItemBase item)
 	{
+		if (m_Config.GetObjectiveType() == ExpansionQuestObjectiveType.DELIVERY)
+			item.Expansion_SetIsDeliveryItem(true);
+
 		int amount = item.Expansion_GetStackAmount();
 		EXTrace.Print(EXTrace.QUESTS, this, "add: " + amount);
 		ExpansionQuestObjectiveItem objItem = new ExpansionQuestObjectiveItem(item);
@@ -404,17 +430,17 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		}
 	}
 
-	void OnInventoryItemLocationChange(ItemBase item, Man player, ExpansionQuestItemState state)
+	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		string typeName = item.GetType();
-
-		if (!m_ObjectiveItemsMap.Contains(typeName))
+		int needed = 0;
+		if (!m_ObjectiveItemsMap.Find(typeName, needed))
 			return;
-	
-		ObjectivePrint("Item: " + typeName);
-		ObjectivePrint("Inventory location state: " + typename.EnumToString(ExpansionQuestItemState, state));
+
+		ObjectivePrint("::OnInventoryItemLocationChange - Item: " + typeName);
+		ObjectivePrint("::OnInventoryItemLocationChange - Inventory location state: " + typename.EnumToString(ExpansionQuestItemState, state));
 
 		int amount = item.Expansion_GetStackAmount();
 		switch (state)
@@ -423,27 +449,24 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			int foundIndex;
 			if (IsObjectiveItem(item, foundIndex))
 			{
-				ObjectivePrint("Found item in current objective items array, removing: " + typeName + " | Amount: " + amount + " | Index: " + foundIndex);
+				ObjectivePrint("::OnInventoryItemLocationChange - Found item in current objective items array, removing: " + typeName + " | Amount: " + amount + " | Index: " + foundIndex);
 				m_ObjectiveItemsCount -= amount;
 				m_ObjectiveItems.Remove(foundIndex);
 				UpdateDeliveryData();
 			}
 			break;
 		case ExpansionQuestItemState.INV_ENTER:
-			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
+			if (amount <= needed && m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
 			{
-				ObjectivePrint("Item is not in objective items array: " + typeName + ", adding");
+				ObjectivePrint("::OnInventoryItemLocationChange - Item is not in objective items array: " + typeName + ", adding");
 				AddObjectiveItem(item);
 				UpdateDeliveryData();
 			}
 			break;
 		case ExpansionQuestItemState.QUANTITY_CHANGED:
-			if (IsObjectiveItem(item))
-			{
-				ObjectivePrint("The quantity of a objective item has changed: " + typeName + " | Amount: " + amount);
-				CheckQuestPlayersForObjectiveItems();
-				UpdateDeliveryData();
-			}
+			ObjectivePrint("::OnInventoryItemLocationChange - The quantity of a objective item has changed: " + typeName + " | Amount: " + amount);
+			CheckQuestPlayersForObjectiveItems();
+			UpdateDeliveryData();
 			break;
 		}
 
@@ -476,7 +499,12 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		string markerName = m_Config.GetMarkerName();
-		vector npcPos = m_Quest.GetClosestQuestNPCPosition(m_Quest.GetQuestConfig().GetQuestTurnInIDs(), m_Quest.GetPlayer().GetPosition());
+		array<int> questNPCTurnInIDs = m_Quest.GetQuestConfig().GetQuestTurnInIDs();
+		if (!questNPCTurnInIDs || questNPCTurnInIDs.Count() == 0)
+			return;
+
+		vector playerPos = m_Quest.GetPlayer().GetPosition();
+		vector npcPos = m_Quest.GetClosestQuestNPCPosition(questNPCTurnInIDs, playerPos);
 		CreateObjectiveMarker(npcPos, markerName);
 	}
 #endif
@@ -548,8 +576,73 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 	}
 #endif
 
-	override bool HasDynamicState()
+	protected void DestinationCheck()
 	{
-		return true;
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		float currentDistance;
+		if (!GetQuest().GetQuestConfig().IsGroupQuest())
+		{
+			vector playerPos = GetQuest().GetPlayer().GetPosition();
+			currentDistance = vector.Distance(playerPos, m_Position);
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			//! Set the position of the group member that has the shortest distance to the target location
+			//! as our current position if the quest is a group quest.
+			array<vector> groupMemberPos = new array<vector>;
+			set<string> memberUIDs = m_Quest.GetPlayerUIDs();
+			foreach (string memberUID: memberUIDs)
+			{
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
+				if (!groupPlayer)
+					continue;
+
+				groupMemberPos.Insert(groupPlayer.GetPosition());
+			}
+
+			float smallestDistance;
+			int posIndex;
+			bool firstSet = false;
+			for (int p = 0; p < groupMemberPos.Count(); p++)
+			{
+				vector pos = groupMemberPos[p];
+				float dist = vector.Distance(pos, m_Position);
+				if (!firstSet)
+				{
+					smallestDistance = dist;
+					posIndex = p;
+					firstSet = true;
+				}
+				else if (firstSet && dist < smallestDistance)
+				{
+					smallestDistance = dist;
+					posIndex = p;
+				}
+			}
+
+			currentDistance = vector.Distance(groupMemberPos[posIndex], m_Position);
+		}
+	#endif
+
+		float maxDistance = m_Config.GetMaxDistance();
+		if (currentDistance <= maxDistance)
+		{
+			ObjectivePrint("End and return TRUE");
+			SetReachedLocation(true);
+			return;
+		}
+
+		ObjectivePrint("End and return FALSE");
+		SetReachedLocation(false);
+	}
+	
+	protected void ObjectiveCheck()
+	{
+		DestinationCheck();
+		CheckQuestPlayersForObjectiveItems();
+		UpdateDeliveryData();		
+		m_Quest.QuestCompletionCheck(true);
 	}
 };

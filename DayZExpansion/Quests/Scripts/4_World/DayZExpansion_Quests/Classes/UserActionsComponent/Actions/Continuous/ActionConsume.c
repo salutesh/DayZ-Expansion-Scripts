@@ -1,5 +1,5 @@
 /**
- * ActionForceConsumeSingle.c
+ * ActionConsume.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
@@ -10,20 +10,12 @@
  *
 */
 
-modded class ActionForceConsumeSingle
+modded class ActionConsume
 {
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
 		if (item.Expansion_IsQuestItem() && item.Expansion_IsDeliveryItem())
 			return false;
-
-		if (target.GetObject().IsInherited(ExpansionQuestNPCBase))
-			return false;
-
-	#ifdef EXPANSIONMODAI
-		if (target.GetObject().IsInherited(ExpansionQuestNPCAIBase))
-			return false;
-	#endif
 
 		return super.ActionCondition(player, target, item);
 	}

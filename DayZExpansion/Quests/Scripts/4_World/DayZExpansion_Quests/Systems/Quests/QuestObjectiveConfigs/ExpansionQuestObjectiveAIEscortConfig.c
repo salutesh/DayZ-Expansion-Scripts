@@ -17,12 +17,11 @@ class ExpansionQuestObjectiveAIEscortConfigBase: ExpansionQuestObjectiveConfig
 	float MaxDistance = 0;
 	ref ExpansionQuestObjectiveAIVIP AIVIP;
 	string MarkerName = string.Empty;
+	bool ShowDistance = true;
 };
 
 class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConfigBase
 {
-	bool ShowDistance = true;
-
 	void SetPosition(vector pos)
 	{
 		Position = pos;
@@ -132,6 +131,7 @@ class ExpansionQuestObjectiveAIEscortConfig: ExpansionQuestObjectiveAIEscortConf
 		MaxDistance = configBase.MaxDistance;
 		AIVIP = configBase.AIVIP;
 		MarkerName = configBase.MarkerName;
+		ShowDistance = configBase.ShowDistance;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)

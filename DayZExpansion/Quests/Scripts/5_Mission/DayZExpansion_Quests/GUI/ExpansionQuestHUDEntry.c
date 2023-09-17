@@ -35,6 +35,9 @@ class ExpansionQuestHUDEntry: ExpansionScriptView
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		
+		if (!m_QuestConfig)
+			return;
+		
 		m_QuestHUDEntryController.QuestName = m_QuestConfig.GetTitle();
 		m_QuestHUDEntryController.NotifyPropertyChanged("QuestName");
 

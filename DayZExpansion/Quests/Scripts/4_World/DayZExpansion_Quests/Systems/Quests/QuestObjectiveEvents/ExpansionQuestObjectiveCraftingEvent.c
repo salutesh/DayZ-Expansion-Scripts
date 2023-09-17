@@ -32,9 +32,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!super.OnEventStart())
-			return false;
-
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -48,8 +45,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			objEntry++;
 		}
 	#endif
-
-		ObjectivePrint("End and return TRUE.");
+		
+		if (!super.OnEventStart())
+			return false;
 
 		return true;
 	}
@@ -57,9 +55,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!super.OnContinue())
-			return false;
 		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
@@ -78,7 +73,8 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		CheckQuestPlayersForObjectiveItems();
 		m_Quest.QuestCompletionCheck();
 
-		ObjectivePrint("End and return TRUE.");
+		if (!super.OnContinue())
+			return false;
 
 		return true;
 	}
@@ -178,6 +174,9 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			{
 				foreach (ItemBase item: itemType.Items)
 				{
+					if (item.IsRuined())
+						continue;
+					
 					int current = m_ObjectiveInventoryItemsMap[typeName];
 					EXTrace.Print(EXTrace.QUESTS, this, typeName + " current: " + current);
 					if (current >= needed)
@@ -242,7 +241,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		m_Quest.QuestCompletionCheck(true);
 	}
 
-	void OnInventoryItemLocationChange(ItemBase item, Man player, ExpansionQuestItemState state)
+	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
@@ -277,7 +276,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			ObjectivePrint("Check m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 			ObjectivePrint("Check m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount)
+			if (m_ObjectiveItemsCount < m_ObjectiveItemsAmount && CanAddObjectiveItem(item))
 			{
 				ObjectivePrint("Add " + item.GetType() + " to objective items. Item amount: " + amount);
 				m_ObjectiveItemsCount += amount;
@@ -297,6 +296,14 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			ObjectivePrint("Objective items count: " + m_ObjectiveItemsCount);
 			m_Quest.QuestCompletionCheck(true);
 		}
+	}
+	
+	protected bool CanAddObjectiveItem(ItemBase item)
+	{
+		if (item.IsRuined())
+			return false;
+
+		return true;
 	}
 
 	override bool CanComplete()
@@ -334,11 +341,6 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	int GetObjectiveItemsCount()
 	{
 		return m_ObjectiveItemsCount;
-	}
-
-	override bool HasDynamicState()
-	{
-		return true;
 	}
 
 	override int GetObjectiveType()

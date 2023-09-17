@@ -13,13 +13,14 @@
 class ExpansionQuestObjectiveTarget
 {
 	protected int Amount = -1;
-	protected autoptr array<string> ClassNames = new array<string>;
+	protected ref array<string> ClassNames = new array<string>;
 	protected bool CountSelfKill;
 	protected bool SpecialWeapon = false;
-	protected autoptr array<string> AllowedWeapons = new array<string>;
-	protected autoptr array<string> ExcludedClassNames = new array<string>;
+	protected ref array<string> AllowedWeapons = new array<string>;
+	protected ref array<string> ExcludedClassNames = new array<string>;
 #ifdef EXPANSIONMODAI
 	protected bool CountAIPlayers = false;
+	protected ref array<string> AllowedTargetFactions = new array<string>;
 #endif
 
 	void SetAmount(int amount)
@@ -91,6 +92,16 @@ class ExpansionQuestObjectiveTarget
 	bool CountAIPlayers()
 	{
 		return CountAIPlayers;
+	}
+	
+	void AddAllowedFaction(string factionName)
+	{
+		AllowedTargetFactions.Insert(factionName);
+	}
+
+	array<string> GetAllowedTargetFactions()
+	{
+		return AllowedTargetFactions;
 	}
 #endif
 

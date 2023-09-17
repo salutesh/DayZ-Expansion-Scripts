@@ -27,7 +27,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnEventStart())
 			return false;
-
+		
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
@@ -36,13 +36,12 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
-		CreateMarkers();
+		if (m_Config.GetMarkerName() != string.Empty)
+			CreateMarkers();
 	#endif
 
 		if (!m_ObjectiveTrigger)
 			CreateTrigger(m_ObjectivePos);
-
-		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -51,7 +50,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
+		
 		if (!super.OnContinue())
 			return false;
 		
@@ -69,13 +68,12 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 				CreateTrigger(m_ObjectivePos);
 			
 		#ifdef EXPANSIONMODNAVIGATION
-			CreateMarkers();
+			if (m_Config.GetMarkerName() != string.Empty)
+				CreateMarkers();
 		#endif
 		}
 
 		m_Quest.QuestCompletionCheck();
-		
-		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
@@ -120,28 +118,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		if (m_ObjectiveTrigger)
 			GetGame().ObjectDelete(m_ObjectiveTrigger);
 
-		ObjectivePrint("End and return TRUE.");
-
-		return true;
-	}
-
-	//! Event called when the quest gets canceled by the player.
-	override bool OnCancel()
-	{
-		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
-		if (!super.OnCancel())
-			return false;
-
-		m_VIP.SetPosition("0 0 0");  //! Make sure to move AI out of the way, otherwise invisible collision box will be left behind when deleting
-		GetGame().ObjectDelete(m_VIP);
-
-		if (m_ObjectiveTrigger)
-			GetGame().ObjectDelete(m_ObjectiveTrigger);
-
 		auto player = m_Quest.GetPlayer();
 		player.SetGroup(player.Expansion_GetFormerGroup());
-
+		
 		ObjectivePrint("End and return TRUE.");
 
 		return true;
@@ -150,7 +129,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!m_Config)
 			return;
 
 		vector markerPosition = m_ObjectivePos;
@@ -163,6 +142,9 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
+		if (killer == victim || killer == null)
+			return;
+		
 		eAIBase victimAI = eAIBase.Cast(victim);
 		if (victimAI && victim == m_VIP)
 		{
@@ -173,6 +155,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 	protected void DeleteVIP()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		if (!m_VIP)
 			return;
 
@@ -190,28 +174,34 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			return;
 
 		m_Group = eAIGroup.GetGroupByLeader(m_Quest.GetPlayer(), true, null, false);
-
-		m_VIP = SpawnAI_VIP(m_Quest.GetPlayer(), vip.GetNPCLoadoutFile());
+		m_VIP = SpawnAI_VIP(m_Quest.GetPlayer(), vip.GetNPCLoadoutFile(), vip.GetNPCClassName());
 		if (!m_VIP)
 			return;
 
 		m_VIP.eAI_SetPassive();
-
-	#ifdef EXPANSIONMODAI
 		m_Group.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
-	#else
-		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(m_VIP.RequestTransition, 10000, false, "Rejoin");
-		m_VIP.SetAI(m_Group);
-	#endif
 	}
 
-	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout")
+	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout", string className = "")
 	{
+		TStringArray validAITypes = {"eAIBase"};
+		
+		if (className != string.Empty)
+		{
+			if (!ExpansionStatic.IsAnyOf(className, validAITypes))
+				className = GetRandomAI();
+		}
+		else
+		{
+			className = GetRandomAI();
+		}
+		
 		eAIBase ai;
-		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), owner.GetPosition())))
+		if (!Class.CastTo(ai, GetGame().CreateObject(className, owner.GetPosition())))
 			return null;
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
+		ai.Expansion_SetCanBeLooted(false);
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
 
 		return ai;

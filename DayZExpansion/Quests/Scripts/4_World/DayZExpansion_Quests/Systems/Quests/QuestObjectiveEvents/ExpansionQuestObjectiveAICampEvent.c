@@ -20,13 +20,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return false;
-		
 		if (!super.OnEventStart())
 			return false;
-
-		ObjectivePrint("End and return TRUE.");
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 		
 		return true;
 	}
@@ -35,13 +33,11 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
-			return false;
-		
 		if (!super.OnContinue())
 			return false;
-
-		ObjectivePrint("End and return TRUE.");
+		
+		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+			return false;
 		
 		return true;
 	}
@@ -127,7 +123,8 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			CreateTrigger(aiCamp.GetPositions()[0], m_Config.GetInfectedDeletionRadius());
 
 	#ifdef EXPANSIONMODNAVIGATION
-		CreateMarkers();
+		if (m_Config.GetObjectiveText() != string.Empty)
+			CreateMarkers();
 	#endif
 	}
 	
@@ -141,7 +138,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
-		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
+		if (!m_Config)
 			return;
 
 		ExpansionQuestObjectiveAICamp aiCamp = m_Config.GetAICamp();
@@ -149,8 +146,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			return;
 
 		string markerName = m_Config.GetObjectiveText();
-		if (markerName != string.Empty)
-			CreateObjectiveMarker(aiCamp.GetPositions()[0], markerName);
+		CreateObjectiveMarker(aiCamp.GetPositions()[0], markerName);
 	}
 #endif
 

@@ -85,8 +85,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected Land_Underground_Panel_Lever m_A1BunkerEntranceLeaver;
 	protected Land_Underground_Panel_Lever m_A1BunkerFakeEntranceLeaver;
 
-	protected ref array<ref ExpansionNamalskQuestHolder> m_QuestHolders;
-
 	protected Land_Repair_Center m_SurvivorsRepairCenter;
 	#endif
 	
@@ -905,35 +903,31 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		#ifdef EXPANSIONMODQUESTS
 		//! Bunker event locker quest object
 		//! @note: Make this a config param class in the namalsk settings class you lazy ass!
-		ExpansionNamalskQuestHolder questHolder = new ExpansionNamalskQuestHolder(1000, "ExpansionQuestObjectLocker", 1000, true, "Closed Locker");
-		if (questHolder)
-		{
-			ExpansionNamalskQuestHolderPosition pos = new ExpansionNamalskQuestHolderPosition("1908.662354 201.666977 1244.743164", "173.734970 0.000000 -0.000000");
-			questHolder.AddPosition(pos);
-			pos = new ExpansionNamalskQuestHolderPosition("1915.156006 201.659302 1231.404419", "81.000038 -0.000000 -0.000000");
-			questHolder.AddPosition(pos);
-			pos = new ExpansionNamalskQuestHolderPosition("1899.852783 195.486664 1306.718994", "174.815613 0.000000 0.000000");
-			questHolder.AddPosition(pos);
-			pos = new ExpansionNamalskQuestHolderPosition("1906.268677 196.687729 1291.300415", "80.999977 -0.000000 -0.000000");
-			questHolder.AddPosition(pos);
+		ExpansionTempQuestHolder questHolder = new ExpansionTempQuestHolder(1000, "ExpansionQuestObjectLocker", "Closed Locker");
+		if (!questHolder)
+			return;
 
-			if (!m_QuestHolders)
-				m_QuestHolders = new array<ref ExpansionNamalskQuestHolder>;
+		ExpansionTempQuestHolderPosition pos = new ExpansionTempQuestHolderPosition("1908.662354 201.666977 1244.743164", "173.734970 0.000000 -0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionTempQuestHolderPosition("1915.156006 201.659302 1231.404419", "81.000038 -0.000000 -0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionTempQuestHolderPosition("1899.852783 195.486664 1306.718994", "174.815613 0.000000 0.000000");
+		questHolder.AddPosition(pos);
+		pos = new ExpansionTempQuestHolderPosition("1906.268677 196.687729 1291.300415", "80.999977 -0.000000 -0.000000");
+		questHolder.AddPosition(pos);
 
-			m_QuestHolders.Insert(questHolder);
-			ExpansionNamalskQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
-			if (!randomPos)
-				return;
+		ExpansionTempQuestHolderPosition randomPos = questHolder.Positions.GetRandomElement();
+		if (!randomPos)
+			return;
 
-			SpawnQuestHolder(questHolder, randomPos);
+		ExpansionQuestModule.GetModuleInstance().SpawnQuestHolder(questHolder, randomPos);
 
-			//! Modify quest objective position
-			ExpansionQuestObjectiveTravelConfig travelObjective = ExpansionQuestModule.GetModuleInstance().GetTravelObjectiveConfigByID(questHolder.ObjectiveID);
-			if (!travelObjective)
-				return;
+		//! Modify quest travel objective position
+		ExpansionQuestObjectiveTravelConfig travelObjective = ExpansionQuestModule.GetModuleInstance().GetTravelObjectiveConfigByID(1000);
+		if (!travelObjective)
+			return;
 
-			travelObjective.SetPosition(randomPos.Position);
-		}
+		travelObjective.SetPosition(randomPos.Position);
 		#endif
 
 		//! Bunker fake entrance panel
@@ -959,156 +953,6 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			Print(ToString() + "::SpawnA1Bunker - Spanwed A1 Bunker fake entrance panel at position: " + m_A1BunkerEntranceLeaver.GetPosition());
 		}
 	}
-	#endif
-
-	#ifdef EXPANSIONMODQUESTS
-	protected void SpawnQuestHolder(ExpansionNamalskQuestHolder questHolder, ExpansionNamalskQuestHolderPosition randomPos)
-	{
-		TStringArray questNPCs = {"ExpansionQuestNPCBase"};
-		TStringArray questAINPCs = {"ExpansionQuestNPCAIBase"};
-		TStringArray questObject = {"ExpansionQuestStaticObject"};
-
-		ExpansionQuestNPCData questNPCData = new ExpansionQuestNPCData;
-		questNPCData.SetID(questHolder.ID); //! Unique NPC ID
-		questNPCData.SetClassName(questHolder.ClassName); //! Class name of the NPC entity
-		questNPCData.SetIsStatic(questHolder.IsStatic);
-		questNPCData.SetNPCName(questHolder.Name);
-		questNPCData.SetDefaultNPCText(questHolder.DefaultText);
-
-		questNPCData.SetPosition(randomPos.Position); //! Quest NPC position
-		questNPCData.SetOrientation(randomPos.Orientation); //! Quest NPC orientation
-
-		ExpansionQuestModule.GetModuleInstance().AddQuestNPCData(questHolder.ID, questNPCData);
-
-		if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questObject))
-		{
-			ExpansionQuestStaticObject object = SpawnQuestObject(questNPCData);
-			if (object)
-			{
-				object.SetQuestNPCID(questHolder.ID);
-				object.SetQuestNPCData(questNPCData);
-				ExpansionQuestModule.GetModuleInstance().AddStaticQuestObject(questHolder.ID, object);
-
-				Print(ToString() + "::SpawnQuestHolder - A1 Bunker quest holder spawned at possition: " + object.GetPosition());
-			}
-		}
-		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questNPCs))
-		{
-			ExpansionQuestNPCBase questNPC = SpawnQuestNPC(questNPCData);
-			if (questNPC)
-			{
-				questNPC.SetQuestNPCID(questHolder.ID);
-				questNPC.SetQuestNPCData(questNPCData);
-				ExpansionQuestModule.GetModuleInstance().AddQuestNPC(questHolder.ID, questNPC);
-
-				Print(ToString() + "::SpawnQuestHolder - A1 Bunker quest holder spawned at possition: " + questNPC.GetPosition());
-			}
-		}
-		#ifdef EXPANSIONMODAI
-		else if (ExpansionStatic.IsAnyOf(questHolder.ClassName, questAINPCs))
-		{
-			ExpansionQuestNPCAIBase questNPCAI = SpawnQuestNPCAI(questNPCData);
-			if (questNPCAI)
-			{
-				questNPCAI.SetQuestNPCID(questHolder.ID);
-				questNPCAI.SetQuestNPCData(questNPCData);
-				ExpansionQuestModule.GetModuleInstance().AddQuestNPCAI(questHolder.ID, questNPCAI);
-
-				Print(ToString() + "::SpawnQuestHolder - A1 Bunker quest holder spawned at possition: " + questNPCAI.GetPosition());
-			}
-		}
-		#endif
-	}
-
-	protected ExpansionQuestStaticObject SpawnQuestObject(ExpansionQuestNPCData questNPCData)
-	{
-	    Object obj = GetGame().CreateObjectEx(questNPCData.GetClassName(), questNPCData.GetPosition(), ECE_KEEPHEIGHT | ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
-	    ExpansionQuestStaticObject questObject;
-	    if (!ExpansionQuestStaticObject.CastTo(questObject, obj))
-	    {
-			GetGame().ObjectDelete(obj);
-	        return null;
-	    }
-
-	    questObject.SetPosition(questNPCData.GetPosition());
-	    questObject.SetOrientation(questNPCData.GetOrientation());
-
-		if (questNPCData.GetNPCName() != string.Empty)
-	    	questObject.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
-
-	    return questObject;
-	}
-
-	protected ExpansionQuestNPCBase SpawnQuestNPC(ExpansionQuestNPCData questNPCData)
-	{
-		Object obj = GetGame().CreateObject(questNPCData.GetClassName(), questNPCData.GetPosition());
- 		ExpansionQuestNPCBase questNPC;
-		if (!ExpansionQuestNPCBase.CastTo(questNPC, obj))
-	    {
-			GetGame().ObjectDelete(obj);
-	        return null;
-	    }
-
-	    questNPC.SetPosition(questNPCData.GetPosition());
-	    questNPC.SetOrientation(questNPCData.GetOrientation());
-
-		if (questNPCData.GetNPCName() != string.Empty)
-			questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
-
-		if (questNPCData.GetLoadoutFile() != string.Empty)
-			ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
-
-		return questNPC;
-	}
-
-	#ifdef EXPANSIONMODAI
-	protected ExpansionQuestNPCAIBase SpawnQuestNPCAI(ExpansionQuestNPCData questNPCData)
-	{
-		vector position = ExpansionAIPatrol.GetPlacementPosition(questNPCData.GetPosition());
-
-		Object obj = GetGame().CreateObject(questNPCData.GetClassName(), position);
-		if (!obj)
-			return null;
-
-		ExpansionQuestNPCAIBase questNPC = ExpansionQuestNPCAIBase.Cast(obj);
-		if (!questNPC)
-		{
-			GetGame().ObjectDelete(obj);
-			return null;
-		}
-
-		questNPC.SetPosition(position);
-		questNPC.SetOrientation(questNPCData.GetOrientation());
-		questNPC.m_Expansion_NetsyncData.Set(0, questNPCData.GetNPCName());
-		ExpansionHumanLoadout.Apply(questNPC, questNPCData.GetLoadoutFile(), false);
-		questNPC.Expansion_SetCanBeLooted(false);
-		questNPC.eAI_SetUnlimitedReload(true);
-		questNPC.eAI_SetAccuracy(1.0, 1.0);
-		questNPC.eAI_SetThreatDistanceLimit(800);
-
-		eAIGroup aiGroup = questNPC.GetGroup();
-
-		if (questNPCData.GetFaction() != string.Empty)
-		{
-			eAIFaction faction = eAIFaction.Create(questNPCData.GetFaction());
-			if (faction && aiGroup.GetFaction().Type() != faction.Type())
-				aiGroup.SetFaction(faction);
-		}
-
-		aiGroup.SetFormation(new eAIFormationColumn(aiGroup));
-		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
-
-		array<vector> waypoints = questNPCData.GetWaypoints();
-		for (int idx = 0; idx < waypoints.Count(); idx++)
-		{
-			aiGroup.AddWaypoint(waypoints[idx]);
-			if (waypoints[idx] == position)
-				aiGroup.m_CurrentWaypointIndex = idx;
-		}
-
-		return questNPC;
-	}
-	#endif
 	#endif
 
 	//! @note: Method that handles spawning of configured supply crates in the ExpansionNamalskAdventureSettings class with there loot on mission load.

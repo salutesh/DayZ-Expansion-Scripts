@@ -18,7 +18,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		
 		if (!super.OnEventStart())
 			return false;
-		
+			
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 		
@@ -30,17 +30,13 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		
 		if (!SpawnObjectiveDeliveryItems())
 			return false;
-		
-		CheckQuestPlayersForObjectiveItems();
-
-		UpdateDeliveryData();
 
 	#ifdef EXPANSIONMODNAVIGATION
 		if (m_Config.GetMarkerName() != string.Empty)
 			CreateMarkers();
 	#endif
 		
-		m_Quest.QuestCompletionCheck(true);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 		
 		return true;
 	}
@@ -48,37 +44,25 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
+		
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
-		//! Only create the trigger if not already completed!
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
-		{
-			if (!CreateObjectiveTrigger())
-				return false;
-		}
+
+		if (!CreateObjectiveTrigger())
+			return false;
 		
 		if (!GetObjectiveDataFromConfig())
 			return false;
-		
-		CheckQuestPlayersForObjectiveItems();
-		
-		UpdateDeliveryData();
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
-		//! Only create the marker if not already completed!
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
-		{
-			if (m_Config.GetMarkerName() != string.Empty)
-				CreateMarkers();
-		}
+		if (m_Config.GetMarkerName() != string.Empty)
+			CreateMarkers();
 	#endif
 		
-		m_Quest.QuestCompletionCheck(true);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
 		
 		return true;
 	}
@@ -88,10 +72,18 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
+		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 
+		bool conditionsResult;
 	#ifdef EXPANSIONMODNAVIGATION
 		bool markerConditionResult;
-		if (m_ObjectiveItemsAmount != 0 && (m_ObjectiveItemsCount >= m_ObjectiveItemsAmount))
+	#endif
+
+		if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount && m_DestinationReached)
+			conditionsResult = true;
+
+	#ifdef EXPANSIONMODNAVIGATION
+		if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
 			markerConditionResult = true;
 	#endif
 		
@@ -107,16 +99,8 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 			m_CreatedMarker = false;
 		}
 	#endif
-		
-		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount < m_ObjectiveItemsAmount || !m_DestinationReached)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
 
-		ObjectivePrint("End and return: TRUE");
-
-		return true;
+		return conditionsResult;
 	}
 	
 	override bool OnIncomplete()
@@ -147,11 +131,11 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
-		CheckQuestPlayersForObjectiveItems();
-		DeleteRemainingObjectiveItems();
-		
 		if (!super.OnCancel())
 			return false;
+		
+		CheckQuestPlayersForObjectiveItems();
+		DeleteRemainingObjectiveItems();
 		
 		return true;
 	}
@@ -161,6 +145,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		for (int i = m_ObjectiveItems.Count() - 1; i >= 0; i--)
 		{
 			ExpansionQuestObjectiveItem objItem = m_ObjectiveItems[i];
+			objItem.GetItem().Expansion_SetQuestID(-1);
 			GetGame().ObjectDelete(objItem.GetItem());
 			m_ObjectiveItems.RemoveOrdered(i);
 		}
@@ -194,10 +179,11 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (m_Quest.GetQuestConfig().GetID() == -1)
 			return false;
 		
+		int quantityPercent = delivery.GetQuantity();
 	    int amountToSpawn = delivery.GetAmount();
 		while (amountToSpawn > 0)
 	    {
-	        Object obj = ExpansionItemSpawnHelper.SpawnOnParent(delivery.GetClassName(), player, parent, amountToSpawn);
+	        Object obj = ExpansionItemSpawnHelper.SpawnOnParent(delivery.GetClassName(), player, parent, amountToSpawn, quantityPercent, null, -1, false);
 	        if (!obj)
 	            break;
 
@@ -207,10 +193,15 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	            GetGame().ObjectDelete(obj);
 	            return false;
 	        }
+			
+			Magazine mag;
+			if (Class.CastTo(mag, questItem))
+			{
+				if (!mag.IsAmmoPile())
+					mag.ServerSetAmmoCount(0);
+			}
 
-	        questItem.SetQuestID(m_Quest.GetQuestConfig().GetID());
-			ExpansionQuestObjectiveItem objItem = new ExpansionQuestObjectiveItem(questItem);
-			m_ObjectiveItems.Insert(objItem);
+	        questItem.Expansion_SetQuestID(m_Quest.GetQuestConfig().GetID());
 	    }
 
 		return true;

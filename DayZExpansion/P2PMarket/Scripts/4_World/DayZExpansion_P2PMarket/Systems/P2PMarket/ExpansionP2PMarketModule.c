@@ -1687,7 +1687,7 @@ class ExpansionP2PMarketModule: CF_ModuleWorld
 		ItemBase itemIB;
 		if (Class.CastTo(itemIB, item))
 		{
-			if (itemIB.IsQuestItem() || itemIB.IsQuestGiver())
+			if (itemIB.Expansion_IsQuestItem() || itemIB.Expansion_IsQuestGiver())
 				return false;
 		}
 	#endif

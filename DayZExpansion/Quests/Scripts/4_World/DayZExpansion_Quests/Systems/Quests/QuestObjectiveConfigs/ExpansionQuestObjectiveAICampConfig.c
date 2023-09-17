@@ -18,12 +18,11 @@ class ExpansionQuestObjectiveAICampConfigBase: ExpansionQuestObjectiveConfig
 	float MaxDistRadius = 150;
 	float DespawnRadius = 880;
 	bool CanLootAI = true;
-}
+	int InfectedDeletionRadius = 500;
+};
 
 class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBase
-{
-	int InfectedDeletionRadius = 500;
-	
+{	
 	void SetAICamp(ExpansionQuestObjectiveAICamp camp)
 	{
 		AICamp = camp;
@@ -161,6 +160,7 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 		MaxDistRadius = configBase.MaxDistRadius;
 		DespawnRadius = configBase.DespawnRadius;
 		CanLootAI = configBase.CanLootAI;
+		InfectedDeletionRadius = configBase.InfectedDeletionRadius;
 	}
 
 	override void OnSend(ParamsWriteContext ctx)
@@ -182,6 +182,9 @@ class ExpansionQuestObjectiveAICampConfig: ExpansionQuestObjectiveAICampConfigBa
 			return false;
 
 		if (!AICamp)
+			return false;
+		
+		if (!AICamp.Validate())
 			return false;
 
 		return true;

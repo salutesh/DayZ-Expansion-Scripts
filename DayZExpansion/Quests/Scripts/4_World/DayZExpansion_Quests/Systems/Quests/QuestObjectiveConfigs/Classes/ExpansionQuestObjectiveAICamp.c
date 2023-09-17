@@ -103,6 +103,29 @@ class ExpansionQuestObjectiveAICamp
 	{
 		return AllowedWeapons;
 	}
+	
+	bool Validate()
+	{
+		if (!Positions || Positions.Count() <= 0)
+		{
+			Error(ToString() + "::Validate - Positions array is empty!");
+			return false;
+		}
+		
+		if (NPCLoadoutFile == string.Empty)
+		{
+			Error(ToString() + "::Validate - NPCLoadoutFile parameter is empty!");
+			return false;
+		}
+		
+		if (!ClassNames || ClassNames.Count() <= 0)
+		{
+			Error(ToString() + "::Validate - Class names array is empty!");
+			return false;
+		}
+		
+		return true;
+	}
 
 	void QuestDebug()
 	{

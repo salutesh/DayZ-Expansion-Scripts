@@ -51,8 +51,9 @@ modded class MissionGameplay
 		#endif
 
 			bool show;
-			if (isAliveConscious && !menu && !viewMenu && !m_Expansion_HideQuestHUD && !isCOTOpen)
+			if (isAliveConscious && !menu && !viewMenu && !m_Expansion_HideQuestHUD && !isCOTOpen && !m_Hud.IsHideHudPlayer())
 				show = true;
+
 			if (m_ExpansionQuestHUD.IsVisible() != show)
 				m_ExpansionQuestHUD.ShowHud(show);
 		}
@@ -67,8 +68,9 @@ modded class MissionGameplay
 					m_Expansion_QuestHUDTogglePressed = true;
 					ToggleQuestHUD();
 				}
-				else if (input.LocalRelease("UAExpansionQuestToggle", false) || input.LocalValue("UAExpansionQuestToggle", false) == 0)
-				{
+				
+				if (input.LocalRelease("UAExpansionQuestToggle", false) || input.LocalValue("UAExpansionQuestToggle", false) == 0)
+				{					
 					m_Expansion_QuestHUDTogglePressed = false;
 				}
 			}

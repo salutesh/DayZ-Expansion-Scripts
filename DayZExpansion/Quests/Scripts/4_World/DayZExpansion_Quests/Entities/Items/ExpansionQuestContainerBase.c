@@ -238,6 +238,15 @@ class ExpansionQuestContainerBase: Container_Base
 		if (j == failSafe)
 			EXPrint(this, "::CheckAssignedObjectivesForEntity - WARNING: Reached end of loop unexpectedly!");
 	}
+	
+	override void AfterStoreLoad()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		super.AfterStoreLoad();
+
+		GetGame().ObjectDelete(this);
+	}
 };
 
 class ExpansionQuestSeaChest: ExpansionQuestContainerBase {};

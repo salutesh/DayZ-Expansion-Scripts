@@ -12,9 +12,40 @@
 
 modded class Ammunition_Base
 {
+	override bool CanAddCartridges(int count)
+	{
+		if (!super.CanAddCartridges(count))
+			return false;
+
+		if (Expansion_IsQuestItem())
+			return false;
+
+		return true;
+	}
+
+	override bool IsCompatiableAmmo( ItemBase ammo )
+	{
+		if (!super.IsCompatiableAmmo(ammo))
+			return false;
+
+		if (Expansion_IsQuestItem() || ammo.Expansion_IsQuestItem())
+		{
+			if (Expansion_IsDeliveryItem() || ammo.Expansion_IsDeliveryItem())
+				return false;
+			
+			if (Expansion_GetQuestID() != ammo.Expansion_GetQuestID())
+				return false;
+		}
+
+		return true;
+	}
+	
 	override bool CanBeSplit()
 	{
-		if (IsQuestItem())
+		if (!super.CanBeSplit())
+			return false;
+		
+		if (Expansion_IsQuestItem())
 		{
 			Man itemOwner = GetHierarchyRootPlayer();
 			if (itemOwner && itemOwner.GetIdentity())
@@ -26,6 +57,6 @@ modded class Ammunition_Base
 			return false;
 		}
 
-		return super.CanBeSplit();
+		return true;
 	}
 };

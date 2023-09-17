@@ -1,4 +1,4 @@
-WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
+WrapSpacerWidgetClass ExpansionQuestHudDeliveryEntry {
  clipchildren 1
  ignorepointer 1
  size 264 0.025
@@ -6,7 +6,7 @@ WrapSpacerWidgetClass ExpansionQuestHudDeliveryObjective {
  vexactpos 0
  hexactsize 1
  vexactsize 0
- scriptclass "ExpansionQuestHUDDeliveryObjectiveController"
+ scriptclass "ExpansionQuestHUDDeliveryEntryController"
  style Empty
  Padding 0
  Margin 0

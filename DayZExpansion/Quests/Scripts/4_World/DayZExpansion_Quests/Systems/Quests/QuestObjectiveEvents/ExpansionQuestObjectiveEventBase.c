@@ -31,6 +31,8 @@ class ExpansionQuestObjectiveEventBase
 
 	void ~ExpansionQuestObjectiveEventBase()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		if (GetGame())
 			DeassignObjectiveOnClasses();
 	}
@@ -103,26 +105,38 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when objective time-limit is reached.
 	void OnTimeLimitReached()
 	{
-		m_Quest.CancelQuest();
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
+		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
+		m_TimeLimit = -1;
+		
+		//! @Steve - Note: We call this in the next frame because otherwise calling m_Quest.CancelQuest() in the same frame causes a server crash for no simple reason?!
+		//! Lava said it might be infinite recursion but i cant see the source.
+		if (m_Quest)
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(m_Quest.CancelQuest);
 	}
 
 	//! Event called when objective has a time-limit to update the current remainig time in the persistent quest data of the quest players.
 	void SyncTimeLimitTime()
 	{
-		m_TimeLimit = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(OnTimeLimitReached) / 1000;
-		m_Quest.UpdateQuest(false);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		m_TimeLimit = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.OnTimeLimitReached) / 1000;
+		
+		if (m_Quest)
+			m_Quest.UpdateQuest(false);
 	}
 
 	//! Event called when the player starts or continues the quest.
 	bool OnStart(bool continues)
 	{
-		SetInitialized(true);
-		SetIsActive(true);
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (m_TimeLimit > -1)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(OnTimeLimitReached, m_TimeLimit * 1000);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(SyncTimeLimitTime, 10 * 1000, true);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.OnTimeLimitReached, m_TimeLimit * 1000);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(this.SyncTimeLimitTime, 10 * 1000, true);
 		}
 
 		AssignObjectiveOnClasses();
@@ -130,12 +144,20 @@ class ExpansionQuestObjectiveEventBase
 		if (!continues)
 		{
 			if (!OnEventStart())
+			{
+				SetInitialized(false);
+				SetIsActive(false);
 				return false;
+			}
 		}
 		else
 		{
 			if (!OnContinue())
+			{
+				SetInitialized(false);
+				SetIsActive(false);
 				return false;
+			}
 		}
 
 		return true;
@@ -244,12 +266,19 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when the player starts the quest.
 	bool OnEventStart()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		SetInitialized(true);
+		SetIsActive(true);
+		
 		return true;
 	}
 
 	//! Event called when the player continues the quest after a server restart/reconnect.
 	bool OnContinue()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		SetInitialized(true);
 		SetIsActive(true);
 
@@ -261,6 +290,8 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when quest is completed and turned-in.
 	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		SetInitialized(false);
 		SetIsActive(false);
 
@@ -277,16 +308,27 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when objective is completed
 	bool OnComplete()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		SetCompleted(true);
 	#ifdef EXPANSIONMODNAVIGATION
 		RemoveObjectiveMarkers();
 	#endif
+		
+		if (m_TimeLimit > -1)
+		{
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
+			m_TimeLimit = -1;
+		}
 
 		return true;
 	}
 
 	bool OnIncomplete()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		SetCompleted(false);
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateMarkers();
@@ -297,6 +339,8 @@ class ExpansionQuestObjectiveEventBase
 
 	bool OnCancel()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		SetInitialized(false);
 		SetIsActive(false);
 
@@ -311,19 +355,19 @@ class ExpansionQuestObjectiveEventBase
 	//! Event called when the quest gets cleaned up.
 	bool OnCleanup()
 	{
-		SetInitialized(false);
-	#ifdef EXPANSIONMODNAVIGATION
-		RemoveObjectiveMarkers();
-	#endif
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (m_TimeLimit > -1)
 		{
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(OnTimeLimitReached);
-			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(SyncTimeLimitTime);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
+			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
 			m_TimeLimit = -1;
 		}
 
 		DeassignObjectiveOnClasses();
+	#ifdef EXPANSIONMODNAVIGATION
+		RemoveObjectiveMarkers();
+	#endif
 
 		return true;
 	}
@@ -339,11 +383,6 @@ class ExpansionQuestObjectiveEventBase
 	ExpansionQuestObjectiveConfig GetObjectiveConfig()
 	{
 		return m_ObjectiveConfig;
-	}
-
-	bool HasDynamicState()
-	{
-		return false;
 	}
 
 	void QuestDebug()
@@ -363,9 +402,9 @@ class ExpansionQuestObjectiveEventBase
 
 	void ObjectivePrint(string text)
 	{
-	//#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
+	#ifdef EXPANSIONMODQUESTSOBJECTIVEDEBUG
 		EXTrace.Print(EXTrace.QUESTS, null, text);
-	//#endif
+	#endif
 	}
 
 	int GetObjectiveType()
