@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -22,10 +22,10 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		return true;
 	}
 
@@ -35,13 +35,13 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		return true;
 	}
-	
+
 	override bool OnCleanup()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -54,7 +54,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 
 		return true;
 	}
-	
+
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
@@ -118,7 +118,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 		}
 
 		ExpansionQuestModule.GetModuleInstance().SetQuestPatrols(m_Quest.GetQuestConfig().GetID(), questPatrols);
-		
+
 		if (m_Config.GetInfectedDeletionRadius() > 0 && !m_ObjectiveTrigger)
 			CreateTrigger(aiCamp.GetPositions()[0], m_Config.GetInfectedDeletionRadius());
 
@@ -127,7 +127,7 @@ class ExpansionQuestObjectiveAICampEvent: ExpansionQuestObjectiveAIEventBase
 			CreateMarkers();
 	#endif
 	}
-	
+
 	protected void CreateTrigger(vector pos, int radius)
 	{
 		Class.CastTo(m_ObjectiveTrigger, GetGame().CreateObjectEx("ExpansionAICampObjectiveSphereTrigger", pos, ECE_NONE));

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -112,7 +112,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			            changedItems.Insert(objItem);
 			        }
 			    }
-			
+
 			    if (remainingNeeded == 0)
 			        break;
 			}
@@ -340,17 +340,17 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 
 		foreach (string typeName, int needed: m_ObjectiveItemsMap)
 		{
-			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);			
+			EXTrace.Print(EXTrace.QUESTS, this, typeName + " needed: " + needed);
 			ExpansionInventoryItemType itemType = player.Expansion_GetInventoryItemType(typeName);
 			if (itemType)
 			{
 				int remainingNeeded = needed;
 				foreach (ItemBase item: itemType.Items)
-				{	
+				{
 					if (item.IsRuined())
 						continue;
 
-					int amount = item.Expansion_GetStackAmount();			  
+					int amount = item.Expansion_GetStackAmount();
 			        if (amount <= remainingNeeded)
 			        {
 			            remainingNeeded -= amount;
@@ -360,7 +360,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 			        {
 			            remainingNeeded = 0;
 			        }
-					
+
 					if (remainingNeeded == 0)
                     	break;
 				}
@@ -374,7 +374,7 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 	{
 		if (item.IsRuined())
 			return false;
-		
+
 		switch (m_Config.GetObjectiveType())
 		{
 			case ExpansionQuestObjectiveType.COLLECT:
@@ -637,12 +637,12 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 		ObjectivePrint("End and return FALSE");
 		SetReachedLocation(false);
 	}
-	
+
 	protected void ObjectiveCheck()
 	{
 		DestinationCheck();
 		CheckQuestPlayersForObjectiveItems();
-		UpdateDeliveryData();		
+		UpdateDeliveryData();
 		m_Quest.QuestCompletionCheck(true);
 	}
 };

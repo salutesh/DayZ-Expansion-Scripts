@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -15,19 +15,19 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	override bool OnEventStart()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		if (!super.OnEventStart())
 			return false;
-			
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		if (!CreateObjectiveTrigger())
 			return false;
-		
+
 		if (!GetObjectiveDataFromConfig())
 			return false;
-		
+
 		if (!SpawnObjectiveDeliveryItems())
 			return false;
 
@@ -35,16 +35,16 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (m_Config.GetMarkerName() != string.Empty)
 			CreateMarkers();
 	#endif
-		
+
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
-		
+
 		return true;
 	}
-	
+
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		if (!super.OnContinue())
 			return false;
 
@@ -53,7 +53,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 
 		if (!CreateObjectiveTrigger())
 			return false;
-		
+
 		if (!GetObjectiveDataFromConfig())
 			return false;
 
@@ -61,9 +61,9 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (m_Config.GetMarkerName() != string.Empty)
 			CreateMarkers();
 	#endif
-		
+
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(ObjectiveCheck, 500);
-		
+
 		return true;
 	}
 
@@ -86,7 +86,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 		if (m_ObjectiveItemsAmount != 0 && m_ObjectiveItemsCount >= m_ObjectiveItemsAmount)
 			markerConditionResult = true;
 	#endif
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		if (markerConditionResult && !m_CreatedMarker && m_Config.GetMarkerName() != string.Empty)
 		{
@@ -102,14 +102,14 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 
 		return conditionsResult;
 	}
-	
+
 	override bool OnIncomplete()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		if (!super.OnIncomplete())
 			return false;
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		if (m_Config.GetMarkerName() != string.Empty)
 		{
@@ -133,10 +133,10 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 
 		if (!super.OnCancel())
 			return false;
-		
+
 		CheckQuestPlayersForObjectiveItems();
 		DeleteRemainingObjectiveItems();
-		
+
 		return true;
 	}
 
@@ -154,21 +154,21 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	protected bool SpawnObjectiveDeliveryItems()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		PlayerBase player = m_Quest.GetPlayer();
 		if (!player || !player.GetIdentity())
 			return false;
-		
+
 		vector position = player.GetPosition();
 		vector orientation = player.GetOrientation();
-		
+
 		array<ref ExpansionQuestObjectiveDelivery> objectiveDeliveries = m_Config.GetCollections();
 		foreach (ExpansionQuestObjectiveDelivery delivery: objectiveDeliveries)
 		{
 			if (!SpawnDeliveryItems(delivery, player, player, position, orientation))
 				return false;
 		}
-		
+
 		return true;
 	}
 
@@ -178,7 +178,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 
 		if (m_Quest.GetQuestConfig().GetID() == -1)
 			return false;
-		
+
 		int quantityPercent = delivery.GetQuantity();
 	    int amountToSpawn = delivery.GetAmount();
 		while (amountToSpawn > 0)
@@ -193,7 +193,7 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 	            GetGame().ObjectDelete(obj);
 	            return false;
 	        }
-			
+
 			Magazine mag;
 			if (Class.CastTo(mag, questItem))
 			{
@@ -206,19 +206,19 @@ class ExpansionQuestObjectiveDeliveryEvent: ExpansionQuestObjectiveCollectionEve
 
 		return true;
 	}
-	
+
 	override protected bool CheckQuestPlayersForObjectiveItems(bool continues = false)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-			
+
 		if (!super.CheckQuestPlayersForObjectiveItems(continues))
 			return false;
-		
+
 		if (continues && m_ObjectiveItemsCount < m_ObjectiveItemsAmount)
 			return false;
-		
+
 		ObjectivePrint("End and return TRUE");
-		
+
 		return true;
 	}
 

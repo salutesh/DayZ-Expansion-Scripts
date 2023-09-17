@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -21,28 +21,28 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 	override bool OnEventStart()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-				
+
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		return true;
 	}
 
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
 		m_Quest.QuestCompletionCheck();
-		
+
 		return true;
 	}
 
@@ -59,7 +59,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		if (actionData.m_Target || actionData.m_MainItem)
 		{
 			array<Object> objects = {};
-	
+
 			if (actionData.m_Target)
 			{
 				Object targetObject = actionData.m_Target.GetObject();
@@ -127,7 +127,7 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_ExecutionCount = count;
-		
+
 		ObjectivePrint("m_ExecutionCount: " + m_ExecutionCount);
 	}
 
@@ -167,17 +167,12 @@ class ExpansionQuestObjectiveActionEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint("m_ExecutionCount: " + m_ExecutionCount);
 		ObjectivePrint("m_ExecutionAmount: " + m_ExecutionAmount);
 		ObjectivePrint("m_ActionState: " + m_ActionState);
-		
+
 		if (m_ExecutionCount == 0)
 			return false;
-		
-		if (!m_ActionState || m_ExecutionCount != m_ExecutionAmount)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
 
-		return super.CanComplete();
+		bool conditionsResult = (!m_ActionState || m_ExecutionCount != m_ExecutionAmount);
+		return conditionsResult;
 	}
 
 	override int GetObjectiveType()

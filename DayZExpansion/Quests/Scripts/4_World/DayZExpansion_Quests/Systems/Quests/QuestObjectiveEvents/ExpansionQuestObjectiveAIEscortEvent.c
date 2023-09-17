@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -27,12 +27,12 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		m_ObjectivePos = m_Config.GetPosition();
-		
+
 		CreateVIP();
 
 	#ifdef EXPANSIONMODNAVIGATION
@@ -50,23 +50,23 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		m_ObjectivePos = m_Config.GetPosition();
-		
+
 		//! Only create the VIP and trigger when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
 		{
 			CreateVIP();
-	
+
 			if (!m_ObjectiveTrigger)
 				CreateTrigger(m_ObjectivePos);
-			
+
 		#ifdef EXPANSIONMODNAVIGATION
 			if (m_Config.GetMarkerName() != string.Empty)
 				CreateMarkers();
@@ -120,12 +120,12 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		auto player = m_Quest.GetPlayer();
 		player.SetGroup(player.Expansion_GetFormerGroup());
-		
+
 		ObjectivePrint("End and return TRUE.");
 
 		return true;
 	}
-	
+
 #ifdef EXPANSIONMODNAVIGATION
 	override void CreateMarkers()
 	{
@@ -144,7 +144,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		if (killer == victim || killer == null)
 			return;
-		
+
 		eAIBase victimAI = eAIBase.Cast(victim);
 		if (victimAI && victim == m_VIP)
 		{
@@ -156,7 +156,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	protected void DeleteVIP()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		if (!m_VIP)
 			return;
 
@@ -185,7 +185,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	protected eAIBase SpawnAI_VIP(PlayerBase owner, string loadout = "HumanLoadout", string className = "")
 	{
 		TStringArray validAITypes = {"eAIBase"};
-		
+
 		if (className != string.Empty)
 		{
 			if (!ExpansionStatic.IsAnyOf(className, validAITypes))
@@ -195,7 +195,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		{
 			className = GetRandomAI();
 		}
-		
+
 		eAIBase ai;
 		if (!Class.CastTo(ai, GetGame().CreateObject(className, owner.GetPosition())))
 			return null;
@@ -229,19 +229,8 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 	override bool CanComplete()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-
 		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
-
-		bool conditionsResult = m_DestinationReached;
-		if (!conditionsResult)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
-
-		ObjectivePrint("End and return: TRUE");
-
-		return super.CanComplete();
+		return m_DestinationReached;
 	}
 
 	//! Used by the trigger

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -45,7 +45,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			objEntry++;
 		}
 	#endif
-		
+
 		if (!super.OnEventStart())
 			return false;
 
@@ -55,7 +55,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	override bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -85,10 +85,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnCancel())
 			return false;
-		
+
 		CheckQuestPlayersForObjectiveItems();
 		DeleteObjectiveItems();
-		
+
 		return true;
 	}
 
@@ -176,7 +176,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 				{
 					if (item.IsRuined())
 						continue;
-					
+
 					int current = m_ObjectiveInventoryItemsMap[typeName];
 					EXTrace.Print(EXTrace.QUESTS, this, typeName + " current: " + current);
 					if (current >= needed)
@@ -197,7 +197,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		DeleteObjectiveItems();
-	
+
 		if (!super.OnTurnIn(playerUID, selectedObjItemIndex))
 			return false;
 
@@ -297,7 +297,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 			m_Quest.QuestCompletionCheck(true);
 		}
 	}
-	
+
 	protected bool CanAddObjectiveItem(ItemBase item)
 	{
 		if (item.IsRuined())
@@ -312,15 +312,8 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount || !GetCraftingState())
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
-
-		ObjectivePrint("End and return: TRUE");
-
-		return super.CanComplete();
+		bool conditionsResult = (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount || !GetCraftingState());
+		return conditionsResult;
 	}
 
 	void SetExecutionAmount(int amount)

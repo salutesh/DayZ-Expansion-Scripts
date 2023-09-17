@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -17,21 +17,21 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	protected ref ExpansionQuestObjectiveTargetConfig m_Config;
 
 	override bool OnEventStart()
-	{		
+	{
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
-		
+
 		return true;
 	}
 
 	override bool OnContinue()
-	{		
+	{
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -43,11 +43,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	override void OnEntityKilled(EntityAI victim, EntityAI killer, Man killerPlayer = NULL)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		ExpansionQuestObjectiveTarget target = m_Config.GetTarget();
 		if (!target)
 			return;
-		
+
 		array<string> excludedClassNames = target.GetExcludedClassNames();
 		if (ExpansionStatic.IsAnyOf(victim, excludedClassNames, true))
 			return;
@@ -65,7 +65,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			//! Check if player is AI and if we can count it
 			if (victimPlayer.IsAI() && !target.CountAIPlayers())
 				return;
-			
+
 			//! Check if target faction is in allowed factions of this objective
 			array<string> allowedTargetFactions = target.GetAllowedTargetFactions();
 			if (allowedTargetFactions && allowedTargetFactions.Count() > 0)
@@ -76,13 +76,13 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 				{
 					eAIFaction victimFaction = victimGroup.GetFaction();
 					if (victimFaction)
-					{	
+					{
 						string victimFactionName = victimFaction.GetName();
 						if (allowedTargetFactions.Find(victimFactionName) > -1)
 							foundFaction = true;
 					}
 				}
-				
+
 				if (!foundFaction)
 					return;
 			}
@@ -114,7 +114,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 			ObjectivePrint("Entity got not killed with any allowed weapon! Skip..");
 			return;
 		}
-		
+
 		array<string> allowedClassNames = target.GetClassNames();
 		bool found = ExpansionStatic.IsAnyOf(victim, allowedClassNames, true);
 		if (found)
@@ -136,17 +136,9 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 
 		if (m_Amount == 0)
 			return false;
-		
+
 		bool conditionsResult = (m_Count == m_Amount);
-		if (!conditionsResult)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
-
-		ObjectivePrint("End and return: TRUE");
-
-		return super.CanComplete();
+		return conditionsResult;
 	}
 
 	protected bool IsInMaxRange(vector playerPos)
@@ -172,11 +164,11 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 	void SetCount(int count)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		m_Count = count;
-		
-		ObjectivePrint("Count: " + m_Count);		
-		
+
+		ObjectivePrint("Count: " + m_Count);
+
 	}
 
 	int GetCount()

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -35,6 +35,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 	protected void Init()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
 		//! Set objective position.
 		m_Position = m_Config.GetPosition();
 		if (m_Position == vector.Zero)
@@ -130,20 +132,22 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnContinue())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		EXTrace.Print(EXTrace.QUESTS, this, "OnContinue - quest state: " + typename.EnumToString(ExpansionQuestState, m_Quest.GetQuestState()) + " trigger on exit: " + m_Config.TriggerOnExit());
+		EXTrace.Print(EXTrace.QUESTS, this, "OnContinue - Quest state: " + typename.EnumToString(ExpansionQuestState, m_Quest.GetQuestState()) + " | Objective state: " + IsCompleted() + " | Trigger on exit: " + m_Config.TriggerOnExit());
 
-		if (!IsCompleted() || m_Config.TriggerOnExit())
+		if (IsCompleted())
 		{
-			Init();
+			if (!m_Config.TriggerOnExit())
+			{
+				SetReachedLocation(true);
+				return true;
+			}
 		}
-		else
-		{
-			SetReachedLocation(true);
-		}
+
+		Init();
 
 		return true;
 	}
@@ -164,21 +168,8 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 	override bool CanComplete()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		ObjectivePrint("m_DestinationReached: " + m_DestinationReached);
 
-		if (!super.CanComplete())
-			return false;
-
-		bool conditionsResult = m_DestinationReached;
-		if (!conditionsResult)
-		{
-			ObjectivePrint("End and return: FALSE");
-			return false;
-		}
-
-		ObjectivePrint("End and return: TRUE");
-
-		return true;
+		return m_DestinationReached;
 	}
 
 	#ifdef EXPANSIONMODNAVIGATION

@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -29,7 +29,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnEventStart())
 			return false;
-		
+
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
@@ -38,7 +38,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!m_ObjectiveTrigger)
 			CreateTrigger(m_StashPos);
-		
+
 	#ifdef EXPANSIONMODNAVIGATION
 		if (m_Config.GetMarkerName() != string.Empty)
 			CreateMarkers();
@@ -54,7 +54,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!super.OnContinue())
 			return false;
-		
+
 		//! Only create the stash trigger when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
 		{
@@ -66,7 +66,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 			if (!m_ObjectiveTrigger)
 				CreateTrigger(m_StashPos);
-			
+
 		#ifdef EXPANSIONMODNAVIGATION
 			if (m_Config.GetMarkerName() != string.Empty)
 				CreateMarkers();
@@ -141,12 +141,12 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 
 		if (!m_Config)
 			return;
-		
+
 		bool useStash = m_Config.DigInStash();
 		string containerName = m_Config.GetContainerName();
 		if (!containerName.ToType().IsInherited(ExpansionQuestContainerBase))
 			return;
-		
+
 		//m_StashPos[1] = GetGame().SurfaceY(m_StashPos[0], m_StashPos[2]);
 
 		if (useStash)
@@ -169,7 +169,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(m_Quest.GetPlayerUID());
 		if (!questPlayer)
 			return;
-		
+
 		Object chestObj;
 		if (useStash)
 		{
@@ -179,7 +179,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		{
 			chestObj = GetGame().CreateObjectEx(containerName, m_StashPos, ECE_PLACE_ON_SURFACE);
 		}
-			
+
 
 		if (!Class.CastTo(m_Chest, chestObj))
 			return;
@@ -208,9 +208,9 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 				EXPrint(this, "Spawned loot item count: " + className + " " + count);
 			}
 		}
-		m_Chest.ExpansionSetCanReceiveItems(false);	
+		m_Chest.ExpansionSetCanReceiveItems(false);
 
-		
+
 	}
 
 #ifdef EXPANSIONMODNAVIGATION
@@ -222,10 +222,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		string markerName = m_Config.GetMarkerName();
 		CreateObjectiveMarker(m_StashPos, markerName, m_Config.GetMarkerVisibility());
-		
+
 	}
-#endif	
-	
+#endif
+
 	Object Spawn(string name, int amount, PlayerBase player, EntityAI parent, vector position, vector orientation)
 	{
 		Object obj = ExpansionItemSpawnHelper.SpawnOnParent(name, player, parent, amount);
@@ -258,7 +258,7 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		ObjectivePrint("State: " + state);
-		
+
 		if (state)
 		{
 			CreateTreasure();
@@ -271,10 +271,10 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 			if (m_Stash)
 				GetGame().ObjectDelete(m_Stash);
 		}
-		
+
 		if (!m_DestinationReached)
 			SetLocationState(state);
-		
+
 		m_Quest.QuestCompletionCheck(true);
 	}
 
@@ -288,21 +288,21 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		m_LootedItemFromChest = true;
 		m_Quest.QuestCompletionCheck(true);
-		
+
 	}
 
 	void OnInventoryItemLocationChange(ItemBase item, ExpansionQuestItemState state)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 		ObjectivePrint("State: " + typename.EnumToString(ExpansionQuestItemState, state));
-		
+
 		if (m_LootItems.Find(item) == -1)
 			return;
-		
+
 		int amount;
 		if (!m_LootItemsMap.Find(item.GetType(), amount))
 			return;
-		
+
 		int itemAmount = item.Expansion_GetStackAmount();
 		if (itemAmount != amount)
 		{

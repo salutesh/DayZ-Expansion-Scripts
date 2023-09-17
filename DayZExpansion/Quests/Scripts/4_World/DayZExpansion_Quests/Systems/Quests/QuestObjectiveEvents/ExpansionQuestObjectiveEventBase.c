@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2022 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -110,7 +110,7 @@ class ExpansionQuestObjectiveEventBase
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.SyncTimeLimitTime);
 		m_TimeLimit = -1;
-		
+
 		//! @Steve - Note: We call this in the next frame because otherwise calling m_Quest.CancelQuest() in the same frame causes a server crash for no simple reason?!
 		//! Lava said it might be infinite recursion but i cant see the source.
 		if (m_Quest)
@@ -123,7 +123,7 @@ class ExpansionQuestObjectiveEventBase
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		m_TimeLimit = GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).GetRemainingTime(this.OnTimeLimitReached) / 1000;
-		
+
 		if (m_Quest)
 			m_Quest.UpdateQuest(false);
 	}
@@ -270,7 +270,7 @@ class ExpansionQuestObjectiveEventBase
 
 		SetInitialized(true);
 		SetIsActive(true);
-		
+
 		return true;
 	}
 
@@ -278,7 +278,7 @@ class ExpansionQuestObjectiveEventBase
 	bool OnContinue()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		SetInitialized(true);
 		SetIsActive(true);
 
@@ -291,7 +291,7 @@ class ExpansionQuestObjectiveEventBase
 	bool OnTurnIn(string playerUID, int selectedObjItemIndex = -1)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		SetInitialized(false);
 		SetIsActive(false);
 
@@ -309,12 +309,12 @@ class ExpansionQuestObjectiveEventBase
 	bool OnComplete()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		SetCompleted(true);
 	#ifdef EXPANSIONMODNAVIGATION
 		RemoveObjectiveMarkers();
 	#endif
-		
+
 		if (m_TimeLimit > -1)
 		{
 			GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Remove(this.OnTimeLimitReached);
@@ -328,7 +328,7 @@ class ExpansionQuestObjectiveEventBase
 	bool OnIncomplete()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		SetCompleted(false);
 	#ifdef EXPANSIONMODNAVIGATION
 		CreateMarkers();
@@ -340,7 +340,7 @@ class ExpansionQuestObjectiveEventBase
 	bool OnCancel()
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
-		
+
 		SetInitialized(false);
 		SetIsActive(false);
 
