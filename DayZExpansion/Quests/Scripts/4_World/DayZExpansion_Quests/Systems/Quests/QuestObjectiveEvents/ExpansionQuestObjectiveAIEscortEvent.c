@@ -73,7 +73,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		#endif
 		}
 
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
 		return true;
 	}
@@ -240,7 +240,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 
 		ObjectivePrint("State: " + state);
 		m_DestinationReached = state;
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 	}
 
 	void OnDissmissAIGroup()

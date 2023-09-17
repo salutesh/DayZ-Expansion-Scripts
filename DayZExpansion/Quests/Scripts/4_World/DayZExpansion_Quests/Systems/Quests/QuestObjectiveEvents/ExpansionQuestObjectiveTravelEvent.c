@@ -142,7 +142,7 @@ class ExpansionQuestObjectiveTravelEvent: ExpansionQuestObjectiveEventBase
 		{
 			if (!m_Config.TriggerOnExit())
 			{
-				SetReachedLocation(true);
+				m_DestinationReached = true;
 				return true;
 			}
 		}

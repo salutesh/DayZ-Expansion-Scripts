@@ -682,8 +682,6 @@ class ExpansionQuest
 
 		delete inhibitor;
 
-		UpdateQuest(false);
-
 		if (m_Config.IsAutocomplete() && m_QuestState == ExpansionQuestState.CAN_TURNIN)
 		{
 			m_QuestModule.RequestCompleteQuestServer(m_Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);

@@ -35,7 +35,7 @@ class ExpansionQuestObjectiveTargetEvent: ExpansionQuestObjectiveEventBase
 		if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 			return false;
 
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
 		return true;
 	}

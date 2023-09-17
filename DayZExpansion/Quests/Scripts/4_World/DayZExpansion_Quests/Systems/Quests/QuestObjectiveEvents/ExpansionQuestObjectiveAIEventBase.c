@@ -38,11 +38,9 @@ class ExpansionQuestObjectiveAIEventBase: ExpansionQuestObjectiveEventBase
 
 		//! Only check and create the AI patrol when not already completed!
 		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
-		{
 			CheckQuestAIPatrol();
-		}
-
-		m_Quest.QuestCompletionCheck();
+		
+		m_Quest.QuestCompletionCheck(true);
 
 		return true;
 	}

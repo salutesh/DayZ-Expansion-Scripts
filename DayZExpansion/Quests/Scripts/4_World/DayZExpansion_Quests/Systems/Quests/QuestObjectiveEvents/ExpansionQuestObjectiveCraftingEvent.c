@@ -71,7 +71,7 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 	#endif
 
 		CheckQuestPlayersForObjectiveItems();
-		m_Quest.QuestCompletionCheck();
+		m_Quest.QuestCompletionCheck(true);
 
 		if (!super.OnContinue())
 			return false;
@@ -312,8 +312,10 @@ class ExpansionQuestObjectiveCraftingEvent: ExpansionQuestObjectiveEventBase
 		ObjectivePrint("m_ObjectiveItemsCount: " + m_ObjectiveItemsCount);
 		ObjectivePrint("m_ObjectiveItemsAmount: " + m_ObjectiveItemsAmount);
 
-		bool conditionsResult = (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount || !GetCraftingState());
-		return conditionsResult;
+		if (m_ObjectiveItemsAmount == 0 || m_ObjectiveItemsCount != m_ObjectiveItemsAmount)
+			return false;
+
+		return GetCraftingState();
 	}
 
 	void SetExecutionAmount(int amount)

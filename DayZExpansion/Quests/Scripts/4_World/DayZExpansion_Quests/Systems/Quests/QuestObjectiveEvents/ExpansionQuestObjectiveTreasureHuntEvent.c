@@ -72,8 +72,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 				CreateMarkers();
 		#endif
 		}
-
-		m_Quest.QuestCompletionCheck();
+		
+		m_Quest.QuestCompletionCheck(true);
 
 		return true;
 	}

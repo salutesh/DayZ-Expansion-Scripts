@@ -25,9 +25,9 @@ modded class ItemBase
 	protected bool m_Expansion_IsQuestGiver = false;
 	protected bool m_Expansion_DeletedByQuest = false;
 	protected bool m_Expansion_IsDeliveryItem = false;
-	
+
 	protected const ref array<string> m_Expansion_ExcludedFromCombine = {"Ammunition_Base", "Edible_Base"};
-	
+
 	void ItemBase()
 	{
 		RegisterNetSyncVariableInt("m_Expansion_QuestID");
@@ -60,17 +60,17 @@ modded class ItemBase
 		m_Expansion_IsQuestGiver = state;
 		SetSynchDirty();
 	}
-	
+
 	void Expansion_SetDeletedByQuest(bool state)
 	{
 		m_Expansion_DeletedByQuest = state;
 	}
-	
+
 	void Expansion_SetIsDeliveryItem(bool state)
 	{
 		m_Expansion_IsDeliveryItem = state;
 	}
-	
+
 	bool Expansion_IsDeliveryItem()
 	{
 		return m_Expansion_IsDeliveryItem;
@@ -85,6 +85,21 @@ modded class ItemBase
 			if (!GetHierarchyRootPlayer())
 				GetGame().ObjectDelete(this);
 		}
+	}
+	
+	//! @Note: This is mainly here because i cant fucking override the class Edible_Base::ReplaceEdibleWithNew method.
+	//! Makes sure item is removed from a active quest objective when it is deleted for example by a lambada based on ReplaceItemWithNewLambdaBase
+	//! For example SpaghettiCan gets replaced with SpaghettiCan_Opened when opened with a knife (no EEItemLocationChanged event is called in this szenario). 
+	override void DeleteSafe()
+	{
+		if (GetGame().IsServer() && GetGame().IsMultiplayer())
+		{
+			PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
+			if (player && player.GetIdentity())
+				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, player);
+		}
+		
+		super.DeleteSafe();
 	}
 
 	override void OnInventoryEnter(Man player)
@@ -133,7 +148,7 @@ modded class ItemBase
 							questInstance.CancelQuest();
 					}
 				}
-				
+
 				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT);
 			}
 		}
@@ -162,7 +177,7 @@ modded class ItemBase
 	{
 		if (!super.CanBeSplit())
 			return false;
-		
+
 		if (Expansion_IsQuestItem())
 		{
 			Man itemOwner = GetHierarchyRootPlayer();
@@ -177,31 +192,31 @@ modded class ItemBase
 
 		return true;
 	}
-	
+
 	override bool CanBeCombined(EntityAI other_item, bool reservation_check = true, bool stack_max_limit = false)
 	{
 		if (!super.CanBeCombined(other_item, reservation_check, stack_max_limit))
 			return false;
-		
+
 		ItemBase otherIB = ItemBase.Cast(other_item);
 		if (Expansion_IsQuestItem() || otherIB.Expansion_IsQuestItem())
 		{
 			//! Never allow quest delivery items to be combined with anything
 			if (Expansion_IsDeliveryItem() || otherIB.Expansion_IsDeliveryItem())
 				return false;
-			
+
 			//! If both items are quest items only allow combining them when they share the same quest ID.
 			if (Expansion_IsQuestItem() && otherIB.Expansion_IsQuestItem() && Expansion_GetQuestID() != otherIB.Expansion_GetQuestID())
 				return false;
-			
+
 			//! Only allow combining of quest items that are not excluded in general
 			if (Expansion_IsQuestItem() && ExpansionStatic.IsAnyOf(this, m_Expansion_ExcludedFromCombine))
 				return false;
-			
+
 			if (otherIB.Expansion_IsQuestItem() && ExpansionStatic.IsAnyOf(otherIB, m_Expansion_ExcludedFromCombine))
 				return false;
 		}
-		
+
 		return true;
 	}
 
@@ -378,7 +393,7 @@ modded class ItemBase
 		return m_Expansion_Rarity;
 	}
 #endif
-	
+
 #ifdef EXPANSION_MODSTORAGE
 	override void CF_OnStoreSave(CF_ModStorageMap storage)
 	{
