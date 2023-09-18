@@ -360,7 +360,7 @@ class ExpansionClimb
 		{
 			return false;
 		}
-		else if (freeStepPoint[1] >= freeStepMinHeight)
+		else if (freeStepParent && freeStepPoint[1] >= freeStepMinHeight)
 		{
 			pResult.m_bIsClimbOver = false;
 			pResult.m_ClimbStandPointParent = freeStepParent;

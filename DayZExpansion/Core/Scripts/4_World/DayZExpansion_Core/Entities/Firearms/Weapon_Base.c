@@ -1,5 +1,5 @@
 /**
- * WeaponFSM.c
+ * Weapon_Base.c
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com

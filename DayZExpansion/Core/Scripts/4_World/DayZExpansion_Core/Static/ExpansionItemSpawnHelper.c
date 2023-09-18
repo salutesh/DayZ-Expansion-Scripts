@@ -493,7 +493,7 @@ class ExpansionItemSpawnHelper
 	{
 		int i;
 
-		//! 1) create entity
+		//! 1-2) create entity at location
 		EntityAI dst;
 		switch (location.GetType())
 		{
@@ -526,32 +526,6 @@ class ExpansionItemSpawnHelper
 		EXPrint("ExpansionItemSpawnHelper::Clone - created " + Object.GetDebugName(dst) + " at location " + DumpLocationToString(location));
 
 		//! @note order of operations matters! DO NOT CHANGE!
-
-		//! 2) attachments + cargo
-		if (recursively)
-		{
-			EntityAI cSrc;
-			InventoryLocation cLocation();
-			InventoryLocation dLocation();
-			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
-			{
-				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
-				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
-				Clone(cSrc, recursively, dLocation);
-			}
-
-			if (src.GetInventory().GetCargo())
-			{
-				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
-				{
-					cSrc = src.GetInventory().GetCargo().GetItem(i);
-					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
-					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
-					Clone(cSrc, recursively, dLocation);
-				}
-			}
-		}
 
 		//! 3) special treatment for weapons
 		Weapon_Base srcWeapon;
@@ -633,7 +607,37 @@ class ExpansionItemSpawnHelper
 			dst.SetHealth(dmgZone, "Health", src.GetHealth(dmgZone, "Health"));
 		}
 
+		//! 8) attachments + cargo
+		if (recursively)
+		{
+			EntityAI cSrc;
+			InventoryLocation cLocation();
+			InventoryLocation dLocation();
+			for (i = 0; i < src.GetInventory().AttachmentCount(); i++)
+			{
+				cSrc = src.GetInventory().GetAttachmentFromIndex(i);
+				cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+                dLocation.SetAttachment(dst, null, cLocation.GetSlot());
+				Clone(cSrc, recursively, dLocation);
+			}
+
+			if (src.GetInventory().GetCargo())
+			{
+				for (i = 0; i < src.GetInventory().GetCargo().GetItemCount(); i++)
+				{
+					cSrc = src.GetInventory().GetCargo().GetItem(i);
+					cSrc.GetInventory().GetCurrentInventoryLocation(cLocation);
+					dLocation.SetCargo(dst, null, cLocation.GetIdx(), cLocation.GetRow(), cLocation.GetCol(), cLocation.GetFlip());
+					Clone(cSrc, recursively, dLocation);
+				}
+			}
+		}
+
+		//! FINAL
 		dst.AfterStoreLoad();
+		dst.SetSynchDirty();
+		if (dstWeapon)
+			dstWeapon.Synchronize();
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).Call(dst.EEOnAfterLoad);  //! Make sure EEOnAfterLoad gets called AFTER whole hierarchy has loaded
 
 		return dst;
