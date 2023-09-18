@@ -77,9 +77,9 @@ modded class PlayerBase
 			if (maxRep > 0 && rep > maxRep)
 				rep = maxRep;
 		}
-		
+
 		m_Expansion_Reputation = rep;
-		
+
 		SetSynchDirty();
 		Expansion_SaveHardlineData(forceSave);
 	}

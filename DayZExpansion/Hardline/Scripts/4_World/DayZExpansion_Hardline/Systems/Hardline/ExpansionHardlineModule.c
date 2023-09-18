@@ -3,7 +3,7 @@
  *
  * DayZ Expansion Mod
  * www.dayzexpansion.com
- * © 2020 DayZ Expansion Mod Team
+ * © 2023 DayZ Expansion Mod Team
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
@@ -13,13 +13,13 @@
 [CF_RegisterModule(ExpansionHardlineModule)]
 class ExpansionHardlineModule: CF_ModuleWorld
 {
-	protected static ExpansionHardlineModule m_Instance;
+	protected static ExpansionHardlineModule s_Instance;
 	
 	protected ref map<string, ref ExpansionHardlinePlayerData> m_HardlinePlayerData = new map<string, ref ExpansionHardlinePlayerData>;
-
+	
 	void ExpansionHardlineModule()
 	{
-		m_Instance = this;
+		s_Instance = this;
 	}
 	
 	override void OnInit()
@@ -192,8 +192,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 				}
 
 				player.m_Expansion_HardlineData.FactionID = newFactionID;
-
 				player.Expansion_SaveHardlineData();
+				MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerFactionChange(player, oldFactionID, newFactionID);
 			}
 		}
 	}
@@ -201,28 +201,54 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	void OnEntityKilled(EntityAI victim, Object killer)
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
+	#ifdef DIAG
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		EXTrace.Add(trace, victim.GetType());
+		EXTrace.Add(trace, killer.GetType());
+	#endif
+
+		int reputation;
+		string matchingClass;
+		foreach (string cls, int rep: GetExpansionSettings().GetHardline().EntityReputation)
+		{
+		    if (ExpansionStatic.Is(victim, cls))
+		    {
+				matchingClass = cls;
+		        reputation = rep;
+		        break;
+		    }
+		}
+		
+	#ifdef EXPANSIONMODAI
+		if ((matchingClass == "PlayerBase" || matchingClass == "SurvivorBase" || matchingClass == "ManBase") && victim.GetType().IndexOf("eAI") > -1)
+		{
+			if (!GetExpansionSettings().GetHardline().EntityReputation.Find("eAIBase", reputation))
+				Error("[Hardline] No invalid reputation configuration in Hardline settings for class eAIBase!");
+		}
+	#endif
+	
+	#ifdef DIAG
+		if (matchingClass != string.Empty)
+			ModulePrint(ToString() + "::OnEntityKilled - Match <Class name: " + matchingClass + " | Reputation:" + reputation + " | Victim entity type:" + victim.GetType() + ">");
+	#endif
+
+		if (reputation == 0)
+		{
+			GetExpansionSettings().GetLog().PrintLog("[Hardline] Entity %1 has no invalid reputation configuration in Hardline settings!", victim.GetType());
 			return;
+		}
 		
 		EntityAI killerEntity;
 		if (!Class.CastTo(killerEntity, killer))
 			return;
 
 		PlayerBase killerPlayer;
-		ZombieBase killerInfected;
-		AnimalBase killerAnimal;
 		PlayerBase victimPlayer;
-		ZombieBase victimInfected;
-		AnimalBase victimAnimal;
 		
 		bool killerIsPlayer = false;
 		bool killerIsAI = false;
-		bool killerIsInfected = false;
-		bool killerIsAnimal = false;
 		bool victimIsPlayer = false;
 		bool victimIsAI = false;
-		bool victimIsInfected = false;
-		bool victimIsAnimal = false;
 		
 		//! Set killer entity
 		if (Class.CastTo(killerPlayer, killerEntity.GetHierarchyRootPlayer()))
@@ -234,15 +260,7 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		#endif
 			killerIsPlayer = true;
 		}
-		else if (Class.CastTo(killerInfected, killerEntity))
-		{
-			killerIsInfected = true;
-		}
-		else if (Class.CastTo(killerAnimal, killerEntity))
-		{
-			killerIsAnimal = true;
-		}
-		
+
 		//! Set victim entity
 		if (Class.CastTo(victimPlayer, victim.GetHierarchyRootPlayer()))
 		{
@@ -253,49 +271,25 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		#endif
 			victimIsPlayer = true;
 		}
-		else if (Class.CastTo(victimInfected, victim))
-		{
-			victimIsInfected = true;
-		}
-		else if (Class.CastTo(victimAnimal, victim))
-		{
-			victimIsAnimal = true;
-		}
-		
-		if (!victimPlayer && !killerPlayer)
-			return;
-		
+
 		//! Killer was a normal player
-		if (killerIsPlayer && killerPlayer != victimPlayer)
+		if (killerIsPlayer && victimPlayer != killerPlayer)
 		{
 			//! Victim was a normal player.
-			if (victimIsPlayer)
+			if (victimIsPlayer || victimIsAI)
 			{
-				HandlePlayerKilledPlayer(killerPlayer, victimPlayer);
+				HandlePlayerKilledPlayer(killerPlayer, victimPlayer, reputation, victimIsAI);
 			}
-			//! Victim was a infected.
-			else if (victimIsInfected)	
+			else
 			{
-				HandlePlayerKilledInfected(killerPlayer, victimInfected);
+				HandlePlayerKilledEntity(killerPlayer, victim, reputation);
 			}
-			//! Victim was an animal.
-			else if (victimIsAnimal)	
-			{
-				HandlePlayerKilledAnimal(killerPlayer, victimAnimal);
-			}
-		#ifdef EXPANSIONMODAI
-			 //! Victim was an AI.
-			else if (victimIsAI)
-			{
-				HandlePlayerKilledAI(killerPlayer, victimPlayer);
-			}
-		#endif
 		}
 	#ifdef EXPANSIONMODAI
 		//! Killer was an AI and victim was player
 		else if (victimIsPlayer && killerIsAI) 
 		{
-			HandlePlayerKilledByAI(victimPlayer, killerPlayer);
+			HandlePlayerKilledByAI(victimPlayer, killerPlayer, reputation);
 		}
 	#endif
 		//! Victim was a normal player
@@ -305,104 +299,100 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		}
 	}
 	
-	protected void HandlePlayerKilledAnimal(PlayerBase killer, AnimalBase animal)
-	{
-		int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillAnimal;
-		
-		if (!killerReputation)
-			return;
-		
-		bool isFriendly;
-	#ifdef EXPANSIONMODAI
-		  //! If the animal was friendly to the killer the killer will lose reputation
-        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(animal))
-			isFriendly = true;
-	#endif
-		if (isFriendly)
-			killerReputation = -killerReputation;
-		
-		killer.Expansion_AddReputation(killerReputation);
+	protected void HandlePlayerKilledEntity(PlayerBase killer, EntityAI victim, int reputation)
+	{		
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+
+		killer.Expansion_AddReputation(reputation);
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerKilledEntity(killer, victim, reputation);
 	}
 	
-	protected void HandlePlayerKilledInfected(PlayerBase killer, ZombieBase infected)
+	protected void HandlePlayerKilledPlayer(PlayerBase killer, PlayerBase victim, int reputation, bool victimIsAI = false)
 	{
-		int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillInfected;
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 		
-		if (!killerReputation)
-			return;
+		bool isFriendly = false;
 		
-		bool isFriendly;
-	#ifdef EXPANSIONMODAI
-		  //! If the animal was friendly to the killer the killer will lose reputation.
-        if (killer.GetGroup() && killer.GetGroup().GetFaction().IsFriendly(infected))
-			isFriendly = true;
-	#endif
-		if (isFriendly)
-			killerReputation = -killerReputation;
-		
-		killer.Expansion_AddReputation(killerReputation);
-	}
-	
-#ifdef EXPANSIONMODAI
-	protected void HandlePlayerKilledAI(PlayerBase killer, PlayerBase victim)
-	{
-		int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillAI;
-		
-		HandlePlayerKill(killer, victim, killerReputation);
-	}
-#endif
-	
-	protected void HandlePlayerKilledPlayer(PlayerBase killer, PlayerBase victim)
-	{			
-		int killerReputation = GetExpansionSettings().GetHardline().ReputationOnKillPlayer;	
-		
-		HandlePlayerKill(killer, victim, killerReputation);
-	}
-	
-	protected void HandlePlayerKill(PlayerBase killer, PlayerBase victim, int killerReputation)
-	{
-		if (killerReputation == 0)
-			return;
+		//! Calculate and add the percantage amount based on the victims reputation and settings param "ReputationPercent" to the given reputation value.
+		if (killer.GetIdentity())
+		{
+			int victimRep = victim.Expansion_GetReputation();
+			int bonusRep = ((victimRep / 100) * GetExpansionSettings().GetHardline().ReputationBonusPercent);
+			if (reputation >= 0)
+			{
+				reputation += bonusRep;
+			}
+			else
+			{
+				reputation -= bonusRep;	
+			}
+			
+		#ifdef EXPANSIONMODGROUPS
+			//! Check if killer and victim are in the same party/group.
+			if (victim.GetIdentity())
+			{
+				if (killer.Expansion_GetPartyID() == victim.Expansion_GetPartyID())
+					isFriendly = true;
+			}
+		#endif
+		}
 
 	#ifdef EXPANSIONMODAI
-		//! If the other player was friendly to the killer the killer will lose reputation.
-		bool isFriendly;
-		if (victim.GetGroup())
+		//! Check if killer player or AI enties are in a faction.
+		if (victim.GetGroup() && !isFriendly)
 		{
 			if (victim.GetGroup() == killer.GetGroup())
+			{
 				isFriendly = true;
+			}
 			else if (killer.GetGroup())
+			{
 				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer.GetGroup().GetFaction());
+			}
 			else
+			{
 				isFriendly = victim.GetGroup().GetFaction().IsFriendly(killer);
+			}
 		}
-		
-		if (isFriendly)
-			killerReputation = -killerReputation;
 	#endif
 		
-		killer.Expansion_AddReputation(killerReputation);
+	#ifdef DIAG
+		ModulePrint(ToString() + "::HandlePlayerKilledPlayer - Killer and victim are friendly to each other: " + isFriendly);
+	#endif
+		
+		//! If player killed a friendly player because they share the same faction or same party then we remove instead of add the reputation.
+		if (isFriendly)
+			reputation = -reputation;
+		
+		killer.Expansion_AddReputation(reputation);
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerKilledPlayer(killer, victim, reputation, victimIsAI);
 	}
 		
 	protected void HandlePlayerDeath(PlayerBase victim)
-	{	
-		int reputationLoss = GetExpansionSettings().GetHardline().ReputationLossOnDeath;
+	{
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
 		
-		if (!reputationLoss)
-			return;
-
-		victim.Expansion_DecreaseReputation(reputationLoss);
+		int victimRep = victim.Expansion_GetReputation();
+		int repToRemove = ((victimRep / 100) * GetExpansionSettings().GetHardline().ReputationLossPercent);
+		
+		victim.Expansion_DecreaseReputation(repToRemove);
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerDeath(victim, repToRemove);
 	}
 	
 #ifdef EXPANSIONMODAI
-	protected void HandlePlayerKilledByAI(PlayerBase victim, PlayerBase killer)
+	protected void HandlePlayerKilledByAI(PlayerBase victim, PlayerBase killer, int reputation)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+
 		HandlePlayerDeath(victim);
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnPlayerKilledAI(killer, victim, reputation);
 	}
 #endif
 
 	void OnPlayerAction(PlayerBase player, int reputation)
 	{
+		auto trace = EXTrace.Start(ExpansionTracing.HARDLINE, this);
+		
 		if (reputation == 0)
 			return;
 		
@@ -416,6 +406,14 @@ class ExpansionHardlineModule: CF_ModuleWorld
 	
 	static ExpansionHardlineModule GetModuleInstance()
 	{
-		return m_Instance;
+		return s_Instance;
 	}
+	
+	static void ModulePrint(string text)
+	{
+	#ifdef DIAG
+		EXTrace.Print(EXTrace.HARDLINE, s_Instance, text);
+	#endif
+	}
+	
  };

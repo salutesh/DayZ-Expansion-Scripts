@@ -10,65 +10,13 @@
  *
 */
 
-
-
-/**@class		ExpansionHardlineSettingsV5 (legacy)
- **/
-class ExpansionHardlineSettingsV5: ExpansionSettingBase
-{
-	//! Rank requirements
-	int RankBambi;
-	int RankSurvivor;
-
-	//! Hero ranks
-	int RankScout;
-	int RankPathfinder;
-	int RankHero;
-	int RankSuperhero;
-	int RankLegend;
-
-	//! Bandit ranks
-	int RankKleptomaniac;
-	int RankBully;
-	int RankBandit;
-	int RankKiller;
-	int RankMadman;
-
-	//! Actions
-	int HumanityBandageTarget;
-	int HumanityDestroySafe;
-	int HumanityDestroyBarbedWire;
-	int HumanityDestroyBaseBuilding;
-	int HumanityDestroyLock;
-
-	//! Targets
-	int HumanityOnKillInfected;
-	int HumanityOnKillAI;
-	int HumanityOnKillAnimal;
-	int HumanityOnKillBambi;
-	int HumanityOnKillHero;
-	int HumanityOnKillBandit;
-
-	//! Events
-	int HumanityLossOnDeath;
-
-	bool UseHumanity;
-}
-
 /**@class		ExpansionHardlineSettings
  * @brief		Hardline settings class
  **/
 class ExpansionHardlineSettings: ExpansionSettingBase
 {
-	static const int VERSION = 8;
-	
-	int ReputationOnKillInfected;
-	int ReputationOnKillPlayer;
-	int ReputationOnKillAnimal;
-	int ReputationOnKillAI;
-	
-	int ReputationLossOnDeath;
-	
+	static const int VERSION = 9;
+
 	int PoorItemRequirement;
 	int CommonItemRequirement;
 	int UncommonItemRequirement;
@@ -77,37 +25,40 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 	int LegendaryItemRequirement;
 	int MythicItemRequirement;
 	int ExoticItemRequirement;
-	
+
 	bool ShowHardlineHUD;
 	bool UseReputation;
 #ifdef EXPANSIONMODAI
 	bool UseFactionReputation;
 	bool EnableFactionPersistence;
 #endif
-	
+
 	bool EnableItemRarity;
+	bool UseItemRarityOnInventoryIcons;
 	bool UseItemRarityForMarketPurchase;
 	bool UseItemRarityForMarketSell;
-	
-	int MaxReputation;
 
-	//! Needs to be always last
+	int MaxReputation;
+	int ReputationLossPercent;
+	int ReputationBonusPercent;
+	//! Maps need to be always set as the last params
+	ref map<string, int> EntityReputation;
+
 	ref map<string, ExpansionHardlineItemRarity> ItemRarity;
-	
+
 	[NonSerialized()]
 	private bool m_IsLoaded;
 
-	// ------------------------------------------------------------
 	void ExpansionHardlineSettings()
 	{
 	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_0(ExpansionTracing.SETTINGS, this);
 	#endif
 
+		EntityReputation = new map<string, int>;
 		ItemRarity = new map<string, ExpansionHardlineItemRarity>;
 	}
 
-	// ------------------------------------------------------------
 	override bool OnRecieve( ParamsReadContext ctx )
 	{
 	#ifdef EXPANSIONTRACE
@@ -131,7 +82,12 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			Error(ToString() + "::OnRecieve EnableItemRarity");
 			return false;
 		}
-		
+
+		if (!ctx.Read(UseItemRarityOnInventoryIcons))
+		{
+			Error(ToString() + "::OnRecieve UseItemRarityOnInventoryIcons");
+			return false;
+		}
 	#ifdef EXPANSIONMOD
 		if (!ctx.Read(MaxReputation))
 		{
@@ -145,7 +101,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override void OnSend( ParamsWriteContext ctx )
 	{
 	#ifdef EXPANSIONTRACE
@@ -155,12 +110,12 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		ctx.Write(ShowHardlineHUD);
 		ctx.Write(UseReputation);
 		ctx.Write(EnableItemRarity);
+		ctx.Write(UseItemRarityOnInventoryIcons);
 	#ifdef EXPANSIONMOD
 		ctx.Write(MaxReputation);
 	#endif
 	}
 
-	// ------------------------------------------------------------
 	override int Send( PlayerIdentity identity )
 	{
 	#ifdef EXPANSIONTRACE
@@ -180,17 +135,10 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 	private void CopyInternal( ExpansionHardlineSettings s )
 	{
-#ifdef EXPANSIONTRACE
+	#ifdef EXPANSIONTRACE
 		auto trace = CF_Trace_1(ExpansionTracing.SETTINGS, this).Add(s);
-#endif
-		
-		ReputationOnKillInfected = s.ReputationOnKillInfected;
-		ReputationOnKillPlayer = s.ReputationOnKillPlayer;
-		ReputationOnKillAnimal = s.ReputationOnKillAnimal;
-		ReputationOnKillAI = s.ReputationOnKillAI;
+	#endif
 
-		ReputationLossOnDeath = s.ReputationLossOnDeath;
-		
 		PoorItemRequirement = s.PoorItemRequirement;
 		CommonItemRequirement = s.CommonItemRequirement;
 		UncommonItemRequirement = s.UncommonItemRequirement;
@@ -202,29 +150,30 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		ShowHardlineHUD = s.ShowHardlineHUD;
 		UseReputation = s.UseReputation;
-		
+
 		EnableItemRarity = s.EnableItemRarity;
+		UseItemRarityOnInventoryIcons = s.UseItemRarityOnInventoryIcons;
 		UseItemRarityForMarketPurchase = s.UseItemRarityForMarketPurchase;
 		UseItemRarityForMarketSell = s.UseItemRarityForMarketSell;
-		
+
 		MaxReputation = s.MaxReputation;
-		
+		ReputationLossPercent = s.ReputationLossPercent;
+		ReputationBonusPercent = s.ReputationBonusPercent;
+		EntityReputation = s.EntityReputation;
+
 		ItemRarity = s.ItemRarity;
 	}
 
-	// ------------------------------------------------------------
 	override bool IsLoaded()
 	{
 		return m_IsLoaded;
 	}
 
-	// ------------------------------------------------------------
 	override void Unload()
 	{
 		m_IsLoaded = false;
 	}
 
-	// ------------------------------------------------------------
 	override bool OnLoad()
 	{
 	#ifdef EXPANSIONTRACE
@@ -248,19 +197,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 			{
 				EXPrint("[ExpansionHardlineSettings] Load - Converting v" + m_Version + " \"" + EXPANSION_HARDLINE_SETTINGS + "\" to v" + VERSION);
 
-				if (m_Version < 6)
-				{
-					ExpansionHardlineSettingsV5 settingsV5;
-					if (ExpansionJsonFileParser<ExpansionHardlineSettingsV5>.Load(EXPANSION_HARDLINE_SETTINGS, settingsV5))
-					{
-						ReputationOnKillInfected = settingsV5.HumanityOnKillInfected;
-						ReputationOnKillPlayer = (settingsV5.HumanityOnKillBambi + settingsV5.HumanityOnKillBandit + settingsV5.HumanityOnKillHero) / 3;
-						ReputationOnKillAnimal = settingsV5.HumanityOnKillAnimal;
-						ReputationOnKillAI = settingsV5.HumanityOnKillAI;
-						UseReputation = settingsV5.UseHumanity;
-					}
-				}
-
 			#ifdef EXPANSIONMODAI
 				if (m_Version < 7)
 				{
@@ -268,9 +204,17 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 					EnableFactionPersistence = settingsDefault.EnableFactionPersistence;
 				}
 			#endif
-				
+
 				if (m_Version < 8)
 					MaxReputation = settingsDefault.MaxReputation;
+
+				if (m_Version < 9)
+				{
+					UseItemRarityOnInventoryIcons = settingsDefault.UseItemRarityOnInventoryIcons;
+					ReputationLossPercent = settingsDefault.ReputationLossPercent;
+					ReputationBonusPercent = settingsDefault.ReputationBonusPercent;
+					DefaultEntityReputation();
+				}
 
 				m_Version = VERSION;
 				save = true;
@@ -284,7 +228,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		}
 
 		//! Make sure item classnames are lowercase
-		map<string, ExpansionHardlineItemRarity> itemRarity();
+		map<string, ExpansionHardlineItemRarity> itemRarity = new map<string, ExpansionHardlineItemRarity>;
 		itemRarity.Copy(ItemRarity);
 		ItemRarity.Clear();
 		foreach (string className, ExpansionHardlineItemRarity rarity: itemRarity)
@@ -298,7 +242,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		return hardlineSettingsExist;
 	}
 
-	// ------------------------------------------------------------
 	override bool OnSave()
 	{
 		Print("[ExpansionHardlineSettings] Saving settings");
@@ -308,7 +251,6 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		return true;
 	}
 
-	// ------------------------------------------------------------
 	override void Update( ExpansionSettingBase setting )
 	{
 	#ifdef EXPANSIONTRACE
@@ -320,18 +262,10 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		ExpansionSettings.SI_Hardline.Invoke();
 	}
 
-	// ------------------------------------------------------------
 	override void Defaults()
 	{
 		m_Version = VERSION;
 
-		ReputationOnKillInfected = 5;
-		ReputationOnKillPlayer = 10;
-		ReputationOnKillAnimal = 5;
-		ReputationOnKillAI = 10;
-		
-		ReputationLossOnDeath = 100;
-		
 		//! Item rarity rank requirements
 		PoorItemRequirement = 0;
 		CommonItemRequirement = 0;
@@ -349,22 +283,124 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		EnableFactionPersistence = false;
 	#endif
 		EnableItemRarity = true;
+		UseItemRarityOnInventoryIcons = true;
 		UseItemRarityForMarketPurchase = true;
 		UseItemRarityForMarketSell = true;
-		
+
 		MaxReputation = 0;
-		
+
+		ReputationLossPercent = 10;
+		ReputationBonusPercent = 10;
+
+		DefaultEntityReputation();
+
 		DefaultItemRarity();
 	}
 
-	// -----------------------------------------------------------
-	// ExpansionHardlineModule DefaultItemRarity
-	// -----------------------------------------------------------
-	void DefaultItemRarity()
+	protected void DefaultEntityReputation()
 	{
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-			return;
+		//! Player
+		EntityReputation.Insert("PlayerBase", 100);
 
+		//! Animals
+		EntityReputation.Insert("Animal_BosTaurus", 10);
+		EntityReputation.Insert("Animal_CanisLupus", 10);
+		EntityReputation.Insert("Animal_CapraHircus", 10);
+		EntityReputation.Insert("Animal_CapreolusCapreolus", 10);
+		EntityReputation.Insert("Animal_CervusElaphus", 10);
+		EntityReputation.Insert("Animal_GallusGallusDomesticus", 1);
+		EntityReputation.Insert("Animal_OvisAries", 10);
+		EntityReputation.Insert("Animal_SusDomesticus", 10);
+		EntityReputation.Insert("Animal_SusScrofa", 10);
+		EntityReputation.Insert("Animal_UrsusArctos", 10);
+
+		//! Civilian Infected
+		EntityReputation.Insert("ZmbM_CitizenASkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_CitizenASkinny_LT_Base", 10);
+		EntityReputation.Insert("ZmbM_CitizenBFat_Base", 10);
+		EntityReputation.Insert("ZmbM_ClerkFat_Base", 10);
+		EntityReputation.Insert("ZmbM_ClerkFat_LT_Base", 10);
+		EntityReputation.Insert("ZmbM_CommercialPilotOld_Base", 10);
+		EntityReputation.Insert("ZmbM_CommercialPilotOld_LT_Base", 10);
+		EntityReputation.Insert("ZmbM_ConstrWorkerNormal_Base", 10);
+		EntityReputation.Insert("ZmbM_DoctorFat_Base", 10);
+		EntityReputation.Insert("ZmbM_FarmerFat_Base", 10);
+		EntityReputation.Insert("ZmbM_FarmerFat_LT_Base", 10);
+		EntityReputation.Insert("ZmbM_FirefighterNormal_Base", 10);
+		EntityReputation.Insert("ZmbM_FishermanOld_Base", 10);
+		EntityReputation.Insert("ZmbM_HandymanNormal_Base", 10);
+		EntityReputation.Insert("ZmbM_HeavyIndustryWorker_Base", 10);
+		EntityReputation.Insert("ZmbM_HermitSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_HikerSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_HunterOld_Base", 10);
+		EntityReputation.Insert("ZmbM_Jacket_Base", 10);
+		EntityReputation.Insert("ZmbM_Jacket_LT_Base", 10);
+		EntityReputation.Insert("ZmbM_JoggerSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM__Runner_Base", 10);
+		EntityReputation.Insert("ZmbM_JournalistSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_MechanicSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_MotobikerFat_Base", 10);
+		EntityReputation.Insert("ZmbM_OffshoreWorker_Base", 10);
+		EntityReputation.Insert("ZmbM_ParamedicNormal_Base", 10);
+		EntityReputation.Insert("ZmbM_PatientSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_PolicemanFat_Base", 10);
+		EntityReputation.Insert("ZmbM_PolicemanSpecForce_Base", 10);
+		EntityReputation.Insert("ZmbM_priestPopSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_PrisonerSkinny_Base", 10);
+		EntityReputation.Insert("ZmbM_SkaterYoung_Base", 10);
+		EntityReputation.Insert("ZmbM_SkaterYoung_LT_Base", 10);
+		EntityReputation.Insert("ZmbM_SurvivorDean_Base", 10);
+		EntityReputation.Insert("ZmbM_VillagerOld_Base", 10);
+		EntityReputation.Insert("ZmbM_VillagerOld_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_BlueCollarFat_Base", 10);
+		EntityReputation.Insert("ZmbF_CitizenANormal_Base", 10);
+		EntityReputation.Insert("ZmbF_CitizenANormal_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_CitizenBSkinny_Base", 10);
+		EntityReputation.Insert("ZmbF_Clerk_Normal_Base", 10);
+		EntityReputation.Insert("ZmbF_ClerkFat_Base", 10);
+		EntityReputation.Insert("ZmbF_Clerk_Normal_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_DoctorSkinny_Base", 10);
+		EntityReputation.Insert("ZmbF_HikerSkinny_Base", 10);
+		EntityReputation.Insert("ZmbF_JoggerSkinny_Base", 10);
+		EntityReputation.Insert("ZmbF_Runner_Base", 10);
+		EntityReputation.Insert("ZmbF_JournalistNormal_Base", 10);
+		EntityReputation.Insert("ZmbF_JournalistNormal_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_MechanicNormal_Base", 10);
+		EntityReputation.Insert("ZmbF_MilkMaidOld_Base", 10);
+		EntityReputation.Insert("ZmbF_MilkMaidOld_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_NurseFat_Base", 10);
+		EntityReputation.Insert("ZmbF_ParamedicNormal_Base", 10);
+		EntityReputation.Insert("ZmbF_PatientOld_Base", 10);
+		EntityReputation.Insert("ZmbF_PoliceWomanNormal_Base", 10);
+		EntityReputation.Insert("ZmbF_ShortSkirt_Base", 10);
+		EntityReputation.Insert("ZmbF_ShortSkirt_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_SkaterYoung_Base", 10);
+		EntityReputation.Insert("ZmbF_SkaterYoung_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_SurvivorNormal_Base", 10);
+		EntityReputation.Insert("ZmbF_SurvivorNormal_LT_Base", 10);
+		EntityReputation.Insert("ZmbF_VillagerOld_Base", 10);
+		EntityReputation.Insert("ZmbF_VillagerOld_LT_Base", 10);
+
+		//! Military Infected
+		EntityReputation.Insert("ZmbM_PatrolNormal_Base", 20);
+		EntityReputation.Insert("ZmbM_Soldier_Base", 20);
+		EntityReputation.Insert("ZmbM_SoldierNormal_Base", 20);
+		EntityReputation.Insert("ZmbM_usSoldier_normal_Base", 20);
+
+		//! Imune Infected
+		EntityReputation.Insert("ZmbM_NBC_Yellow", 20);
+
+		//! Imune Military Infected
+		EntityReputation.Insert("ZmbM_NBC_Grey", 20);
+
+	#ifdef EXPANSIONMODAI
+		//! AI
+		EntityReputation.Insert("eAIBase", 100);
+	#endif
+	}
+
+	protected void DefaultItemRarity()
+	{
 	#ifdef NAMALSK_SURVIVAL
 		AddItem("dzn_module_card", ExpansionHardlineItemRarity.Exotic);
 		AddItem("dzn_module_lantia", ExpansionHardlineItemRarity.Exotic);
@@ -373,14 +409,14 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("dzn_module_ext2", ExpansionHardlineItemRarity.Exotic);
 		AddItem("dzn_lehs", ExpansionHardlineItemRarity.Exotic);
 		AddItem("dzn_lehs_helmet", ExpansionHardlineItemRarity.Exotic);
-		
+
 		AddItem("dzn_printer_filament_abs", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_printer_filament_tpc", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_printer_filament_nylon", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_blueprint_lehs", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_lehs_battery", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_lehs_o2tank", ExpansionHardlineItemRarity.Mythic);
-		
+
 		AddItem("dzn_athena_planning", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_athena_action1", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_athena_action2", ExpansionHardlineItemRarity.Mythic);
@@ -396,12 +432,12 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("dzn_phoenix_log_5", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_lantia_december", ExpansionHardlineItemRarity.Mythic);
 		AddItem("dzn_lantia_vega7", ExpansionHardlineItemRarity.Mythic);
-		
+
 		AddItem("dzn_apsi", ExpansionHardlineItemRarity.Legendary);
 		AddItem("dzn_vinyl_bubson", ExpansionHardlineItemRarity.Legendary);
 
 		AddItem("dzn_detector", ExpansionHardlineItemRarity.Epic);
-		
+
 		AddItem("dzn_tool_watch", ExpansionHardlineItemRarity.Uncommon);
 	#endif
 
@@ -1274,7 +1310,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 
 		return ExpansionHardlineItemRarity.NONE;
 	}
-	
+
 	int GetReputationForRarity(ExpansionHardlineItemRarity rarity)
 	{
 		string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
@@ -1282,7 +1318,7 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		EnScript.GetClassVar(this, rarityName + "ItemRequirement", 0, rarityReq);
 		return rarityReq;
 	}
-	
+
 	int GetLimitByReputation(int reputation, int reputationToUnlock, int minVal, int increment)
 	{
 		Print(ToString() + "::GetLimitByReputation - Start");

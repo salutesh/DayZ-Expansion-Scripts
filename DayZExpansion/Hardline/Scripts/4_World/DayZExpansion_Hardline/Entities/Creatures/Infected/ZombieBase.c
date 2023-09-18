@@ -17,7 +17,7 @@ modded class ZombieBase
 		super.EEKilled(killer);
 
 		auto settings = GetExpansionSettings().GetHardline();
-		if (settings.UseReputation && settings.ReputationOnKillInfected)
+		if (settings.UseReputation)
 			ExpansionHardlineModule.GetModuleInstance().OnEntityKilled(this, killer);
 	}
 };

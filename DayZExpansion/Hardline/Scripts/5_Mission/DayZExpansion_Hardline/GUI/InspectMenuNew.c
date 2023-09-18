@@ -20,12 +20,12 @@ modded class InspectMenuNew
 
 	override void SetItem(EntityAI item)
 	{
-		InspectMenuNew.UpdateItemInfoRarity(layoutRoot, item);
+		InspectMenuNew.Expansion_UpdateItemInfoRarity(layoutRoot, item);
 		
 		super.SetItem(item);
 	}
 	
-	static void UpdateItemInfoRarity(Widget root_widget, EntityAI item)
+	static void Expansion_UpdateItemInfoRarity(Widget root_widget, EntityAI item)
 	{
 		ImageWidget rarityElement = ImageWidget.Cast(root_widget.FindAnyWidget("ItemRarityWidgetBackground"));
 		if (!rarityElement)
@@ -45,9 +45,7 @@ modded class InspectMenuNew
 			string rarityName = typename.EnumToString(ExpansionHardlineItemRarity, rarity);
 			string text = "#" + "STR_EXPANSION_HARDLINE_" + rarityName;
 			int color;
-			typename type = ExpansionHardlineItemRarityColor;
-			ExpansionStatic.GetVariableIntByName(type, rarityName, color);
-
+			ExpansionStatic.GetVariableIntByName(ExpansionHardlineItemRarityColor, rarityName, color);
 			rarityElement.Show(true);
 			WidgetTrySetText(root_widget, "ItemRarityWidget", text, color);
 

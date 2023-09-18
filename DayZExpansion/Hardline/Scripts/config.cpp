@@ -12,7 +12,7 @@ class CfgPatches
 };
 class CfgMods
 {
-	class DZ_Expansion_Hardline
+	class EXPANSIONMODHARDLINE
 	{
 		dir = "DayZExpansion/Hardline";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
@@ -29,16 +29,9 @@ class CfgMods
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
 		dependencies[] = {"Game","World","Mission"};
+		defines[] = {"EXPANSION_COT_BUGFIX_REF_UIACTIONS"};
 		class defs
 		{
-			class widgetStyles
-			{
-				files[] = {};
-			};
-			class imageSets
-			{
-				files[] = {};
-			};
 			class engineScriptModule
 			{
 				value = "";
