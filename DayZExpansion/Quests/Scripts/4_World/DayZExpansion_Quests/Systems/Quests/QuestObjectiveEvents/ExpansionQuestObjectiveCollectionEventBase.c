@@ -349,9 +349,16 @@ class ExpansionQuestObjectiveCollectionEventBase: ExpansionQuestObjectiveEventBa
 				{
 					if (item.IsRuined())
 						continue;
+					
+					if (item.CanDecay())
+					{
+						Edible_Base edibleIB;
+						if (Class.CastTo(edibleIB, item) && (edibleIB.GetFoodStageType() == FoodStageType.BURNED || edibleIB.GetFoodStageType() == FoodStageType.ROTTEN))
+							continue;
+					}
 
 					int amount = item.Expansion_GetStackAmount();
-			        if (amount <= remainingNeeded)
+			        if (amount >= remainingNeeded)
 			        {
 			            remainingNeeded -= amount;
 			            AddObjectiveItem(item);

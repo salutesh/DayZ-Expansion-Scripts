@@ -12,7 +12,7 @@ class CfgPatches
 };
 class CfgMods
 {
-	class EXPANSIONMODQUESTS
+	class DZ_Expansion_Quests
 	{
 		dir = "DayZExpansion/Quests";
 		credits = "$STR_MOD_EXPANSION_AUTHOR";
@@ -30,7 +30,7 @@ class CfgMods
 		author = "$STR_MOD_EXPANSION_AUTHOR";
 		authorID = "";
 		dependencies[] = {"Game","World","Mission"};
-		defines[] = {"EXPANSIONMODQUESTS_HUD_ENABLE"};
+		defines[] = {"EXPANSIONMODQUESTS","EXPANSIONMODQUESTS_HUD_ENABLE"};
 		class defs
 		{
 			class gameScriptModule

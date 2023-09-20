@@ -55,8 +55,13 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnContinue())
 			return false;
 
-		//! Only create the stash trigger when not already completed!
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
+		if (IsCompleted())
+		{
+			m_LootedItemFromChest = true;
+			m_DestinationReached = true;
+			return true;
+		}
+		else
 		{
 			if (!Class.CastTo(m_Config, m_ObjectiveConfig))
 				return false;
@@ -85,8 +90,8 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		if (!super.OnCleanup())
 			return false;
 
-		//! Only cleanup the loot and stash if quest is not completed
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
+		//! Only cleanup the loot and stash if objective is not completed
+		if (!IsCompleted())
 		{
 			foreach (EntityAI obj: m_LootItems)
 			{
@@ -146,8 +151,6 @@ class ExpansionQuestObjectiveTreasureHuntEvent: ExpansionQuestObjectiveEventBase
 		string containerName = m_Config.GetContainerName();
 		if (!containerName.ToType().IsInherited(ExpansionQuestContainerBase))
 			return;
-
-		//m_StashPos[1] = GetGame().SurfaceY(m_StashPos[0], m_StashPos[2]);
 
 		if (useStash)
 		{

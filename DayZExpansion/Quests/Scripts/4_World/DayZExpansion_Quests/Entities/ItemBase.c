@@ -165,6 +165,22 @@ modded class ItemBase
 				CheckAssignedObjectivesForEntity(ExpansionQuestItemState.QUANTITY_CHANGED, player);
 		}
 	}
+	
+	override void EEHealthLevelChanged(int oldLevel, int newLevel, string zone)
+	{
+		super.EEHealthLevelChanged(oldLevel,newLevel,zone);
+		
+		if (GetGame().IsServer())
+		{
+			//! If item state is ruined then check if it is a quest objective item and remove it from the certain objective.
+			if (newLevel == GameConstants.STATE_RUINED)
+			{
+				PlayerBase player = PlayerBase.Cast(GetHierarchyRootPlayer());
+				if (player && player.GetIdentity())
+					CheckAssignedObjectivesForEntity(ExpansionQuestItemState.INV_EXIT, player);
+			}
+		}
+	}
 
 	override void SetActions()
 	{

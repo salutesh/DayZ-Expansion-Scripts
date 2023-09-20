@@ -153,10 +153,6 @@ class ExpansionQuest
 				treasureHuntObjectiveEvent.SetTimeLimit(treasureHuntConfig.GetTimeLimit());
 				m_QuestObjectives.Insert(treasureHuntObjectiveEvent);
 				
-				//! Set every quest with a treasure-hunt objective to autocomplete.
-				if (!m_Config.IsAutocomplete())
-					m_Config.SetAutocomplete(true);
-				
 				return true;
 			}
 			case ExpansionQuestObjectiveType.ACTION:
@@ -478,10 +474,10 @@ class ExpansionQuest
 		{
 			m_QuestModule.RequestCompleteQuestServer(m_Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
 		}
-		else
+		
+		if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_Config.GetQuestTurnInIDs().Count() == 0)
 		{
-			if (m_Config.GetQuestTurnInIDs().Count() > 0 && m_Config.GetQuestTurnInIDs()[0] == -1 && !m_Config.IsAchievement())
-				ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());
+			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());
 		}
 	}
 
@@ -568,7 +564,7 @@ class ExpansionQuest
 
 			SetIsCompleted(true);
 
-			if (m_Config.GetFollowUpQuestID() > -1)
+			if (m_Config.GetFollowUpQuestID() > 0)
 			{
 				PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
 				if (!questPlayer || !questPlayer.GetIdentity())
@@ -616,7 +612,7 @@ class ExpansionQuest
 		}
 
 		//! Call on quest cleanup event when quest is canceled.
-		OnQuestCleanup();
+		OnQuestCleanup(false, true);
 
 		if (!m_Config.IsAchievement())
 			SendNotification(new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledTitle), new StringLocaliser(GetExpansionSettings().GetQuest().QuestCanceledText, m_Config.GetTitle()), ExpansionIcons.GetPath("Exclamationmark"), COLOR_EXPANSION_NOTIFICATION_EXPANSION);
@@ -672,10 +668,16 @@ class ExpansionQuest
 		SeachAndSetQuestGiverItem();
 
 		//! Check if quest players still have all the configured quest items.
-		if (m_Config.GetQuestItems() && m_Config.GetQuestItems().Count() > 0 && m_Config.NeedQuestItems())
+		if (m_Config.GetQuestItems() && m_Config.GetQuestItems().Count() > 0 /*&& m_Config.NeedQuestItems()*/)
 		{
-			if (!CheckQuestPlayersForQuestItems())
+			if (m_Config.NeedQuestItems() && !CheckQuestPlayersForQuestItems())
+			{
 				return false;
+			}
+			else if (!m_Config.NeedQuestItems())
+			{
+				CheckQuestPlayersForQuestItems();
+			}
 		}
 
 		SetInitialized(true);
@@ -683,13 +685,10 @@ class ExpansionQuest
 		delete inhibitor;
 
 		if (m_Config.IsAutocomplete() && m_QuestState == ExpansionQuestState.CAN_TURNIN)
-		{
 			m_QuestModule.RequestCompleteQuestServer(m_Config.GetID(), GetPlayerUID(), m_Player.GetIdentity(), true);
-		}
-		else if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
-		{
-			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity());
-		}
+		
+		/*if (!m_Config.IsAutocomplete() && !m_Config.IsAchievement() && m_QuestState == ExpansionQuestState.CAN_TURNIN && m_Config.GetQuestTurnInIDs().Count() == 0)
+			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());*/
 
 		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestContinue(this);
 
@@ -806,6 +805,42 @@ class ExpansionQuest
 			GetGame().ObjectDelete(item);
 			m_QuestItems.RemoveOrdered(i);
 		}
+		
+		if (!m_Config.IsGroupQuest())
+		{
+			CleanupAllItemsWithQuestID(m_Player);
+		}
+	#ifdef EXPANSIONMODGROUPS
+		else
+		{
+			foreach (string memberUID: m_PlayerUIDs)
+			{
+				PlayerBase groupPlayer = PlayerBase.GetPlayerByUID(memberUID);
+				if (!groupPlayer)
+					continue;
+
+				CleanupAllItemsWithQuestID(groupPlayer);
+			}
+		}
+	#endif
+	}
+	
+	protected void CleanupAllItemsWithQuestID(PlayerBase player)
+	{
+		array<EntityAI> items = new array<EntityAI>;
+		items.Reserve(player.GetInventory().CountInventory());
+
+	   	player.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+
+		foreach (EntityAI item : items)
+		{
+			ItemBase itemIB;
+			if (!Class.CastTo(itemIB, item))
+				continue;
+			
+			if (!itemIB.Expansion_IsQuestGiver() && itemIB.Expansion_GetQuestID() == m_Config.GetID())
+				GetGame().ObjectDelete(item);
+		}
 	}
 
 	void SetQuestItemsToNormalItems()
@@ -822,6 +857,8 @@ class ExpansionQuest
 
 	void CreateQuestItems()
 	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+		
 		array<ref ExpansionQuestItemConfig> questItemConfigs = m_Config.GetQuestItems();
 		if (!m_Config.IsGroupQuest() && m_Player)
 		{
@@ -997,18 +1034,18 @@ class ExpansionQuest
 #endif
 
 	//! Event called when quest instance is destroyed/cleaned-up
-	bool OnQuestCleanup(bool callObjectiveCleanup = false)
+	bool OnQuestCleanup(bool callObjectiveCleanup = false, bool canceledQuest = false)
 	{
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		//! Cleanup all spawned static quest objects from the object set
 		m_QuestModule.CheckAndDeleteObjectSet(m_Config.GetID());
 
-		if (m_QuestState == ExpansionQuestState.NONE || m_QuestState == ExpansionQuestState.COMPLETED && m_Config.DeleteQuestItems())
+		if ((canceledQuest || m_Config.DeleteQuestItems()) && (m_QuestState == ExpansionQuestState.NONE || m_QuestState == ExpansionQuestState.COMPLETED))
 		{
 			CleanupQuestItems();
 		}
-		else if (m_QuestState == ExpansionQuestState.COMPLETED && !m_Config.DeleteQuestItems())
+		else if (!m_Config.DeleteQuestItems() && m_QuestState == ExpansionQuestState.COMPLETED)
 		{
 			SetQuestItemsToNormalItems();
 		}

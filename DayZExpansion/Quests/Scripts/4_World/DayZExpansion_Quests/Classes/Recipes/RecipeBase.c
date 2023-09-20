@@ -161,7 +161,25 @@ modded class RecipeBase
 
 	override void SpawnItems(ItemBase ingredients[], PlayerBase player, array<ItemBase> spawned_objects)
 	{
+		int questID = -1;
+		ItemBase ingredient1 = ingredients[0];
+		ItemBase ingredient2 = ingredients[1];
+		if (ingredient1 && ingredient1.Expansion_IsQuestItem())
+			questID = ingredient1.Expansion_GetQuestID();
+		
+		if (questID == -1 && ingredient2 && ingredient2.Expansion_IsQuestItem())
+			questID = ingredient2.Expansion_GetQuestID();
+		
 		super.SpawnItems(ingredients, player, spawned_objects);
+		
+		if (questID > -1)
+		{
+			foreach (ItemBase resultIB: spawned_objects)
+			{
+				resultIB.Expansion_SetQuestID(questID);
+			}
+		}
+		
 		CheckAssignedObjectives(player, spawned_objects);
 	}
 }
