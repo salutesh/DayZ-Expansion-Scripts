@@ -41,6 +41,6 @@ class ExpansionMarketMasks: ExpansionMarketCategory
 		AddItem("GP5GasMask", 						120,	240,	1,		100);
 		AddItem("AirborneMask", 					200,	400,	1,		100);
 
-		AddItem("MimeMask_Female", 					60,		160,	1,		100, null, {"MimeMask_Female"});
+		AddItem("MimeMask_Female", 					60,		160,	1,		100, null, {"MimeMask_Male"});
 	}
 };

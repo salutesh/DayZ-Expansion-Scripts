@@ -71,7 +71,7 @@ class ExpansionMarketPants: ExpansionMarketCategory
 
 		AddItem("PolicePantsOrel", 					70,		140,	1,		100);
 
-		AddItem("HunterPants_Winter", 				90,		180,	1,		100, null, {"HunterPants_Autumn", "HunterPants_Brown", "HunterPants_Spring", "Jeans_Green", "HunterPants_Summer"});	
+		AddItem("HunterPants_Winter", 				90,		180,	1,		100, null, {"HunterPants_Autumn", "HunterPants_Brown", "HunterPants_Spring", "HunterPants_Summer"});	
 		AddItem("HunterPants_Autumn", 				100,	200,	1,		100);
 		AddItem("HunterPants_Brown", 				100,	200,	1,		100);
 		AddItem("HunterPants_Spring", 				100,	200,	1,		100);
