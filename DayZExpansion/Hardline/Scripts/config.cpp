@@ -32,30 +32,20 @@ class CfgMods
 		defines[] = {"EXPANSION_COT_BUGFIX_REF_UIACTIONS"};
 		class defs
 		{
-			class engineScriptModule
-			{
-				value = "";
-				files[] = {"DayZExpansion/Hardline/Scripts/Common","DayZExpansion/Hardline/Scripts/1_Core"};
-			};
-			class gameLibScriptModule
-			{
-				value = "";
-				files[] = {"DayZExpansion/Hardline/Scripts/Common","DayZExpansion/Hardline/Scripts/2_GameLib"};
-			};
 			class gameScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Hardline/Scripts/Common","DayZExpansion/Hardline/Scripts/3_Game"};
+				files[] = {"DayZExpansion/Hardline/Scripts/3_Game"};
 			};
 			class worldScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Hardline/Scripts/Common","DayZExpansion/Hardline/Scripts/4_World"};
+				files[] = {"DayZExpansion/Hardline/Scripts/4_World"};
 			};
 			class missionScriptModule
 			{
 				value = "";
-				files[] = {"DayZExpansion/Hardline/Scripts/Common","DayZExpansion/Hardline/Scripts/5_Mission"};
+				files[] = {"DayZExpansion/Hardline/Scripts/5_Mission"};
 			};
 		};
 	};

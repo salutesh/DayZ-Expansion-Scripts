@@ -1,0 +1,158 @@
+FrameWidgetClass ExpansionBookMenuTabFactionEntry {
+ inheritalpha 0
+ ignorepointer 1
+ position 0 0
+ size 435 64
+ hexactpos 1
+ vexactpos 1
+ hexactsize 1
+ vexactsize 1
+ fixaspect fixwidth
+ scriptclass "ExpansionBookMenuTabFactionEntryController"
+ {
+  PanelWidgetClass PanelWidget0 {
+   ignorepointer 1
+   color 0 0 0 1
+   size 1 2
+   halign center_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 0
+   vexactsize 1
+   style rover_sim_colorable
+  }
+  PanelWidgetClass faction_entry {
+   color 0.6863 0.2588 0.2588 1
+   position 0 0
+   size 435 32
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    TextWidgetClass faction_name {
+     ignorepointer 1
+     color 0 0 0 1
+     position 0 0
+     size 0.9 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     priority 1
+     scriptclass "ViewBinding"
+     text "Faction Name"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 5 1
+     "exact text" 0
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "FactionName"
+      }
+     }
+    }
+    ImageWidgetClass faction_background {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 435 32
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     image0 "set:book_assets image:menu_element_1"
+     mode blend
+     "src alpha" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "Background"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass faction_entry0 {
+   color 0.6863 0.2588 0.2588 1
+   position 0 2
+   size 435 32
+   valign bottom_ref
+   hexactpos 1
+   vexactpos 1
+   hexactsize 1
+   vexactsize 1
+   style blank
+   {
+    ImageWidgetClass faction_background0 {
+     visible 0
+     ignorepointer 1
+     position 0 0
+     size 435 32
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 1
+     vexactsize 1
+     scriptclass "ViewBinding"
+     image0 "set:book_assets image:menu_element_4"
+     mode blend
+     "src alpha" 1
+     stretch 1
+     {
+      ScriptParamsClass {
+       Binding_Name "Background"
+      }
+     }
+    }
+    ProgressBarWidgetClass faction_progress {
+     ignorepointer 1
+     size 0.9 26
+     halign center_ref
+     valign center_ref
+     hexactpos 1
+     vexactpos 1
+     hexactsize 0
+     vexactsize 1
+     style Stamina
+     current 0
+    }
+    TextWidgetClass faction_reputation {
+     ignorepointer 1
+     color 0 0 0 1
+     size 0.9 31
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     scriptclass "ViewBinding"
+     text "0"
+     font "gui/fonts/etelkatextpro22"
+     "text color" 0 0 0 1
+     "text offset" 5 1
+     "exact text" 0
+     "text halign" center
+     "text valign" center
+     {
+      ScriptParamsClass {
+       Debug_Logging 0
+       Binding_Name "FactionReputation"
+      }
+     }
+    }
+   }
+  }
+ }
+}

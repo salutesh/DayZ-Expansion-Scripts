@@ -15,7 +15,9 @@ class ExpansionHardlineModule: CF_ModuleWorld
 {
 	protected static ExpansionHardlineModule s_Instance;
 	
-	protected ref map<string, ref ExpansionHardlinePlayerData> m_HardlinePlayerData = new map<string, ref ExpansionHardlinePlayerData>;
+	protected ref map<string, ref ExpansionHardlinePlayerData> m_HardlinePlayerData = new map<string, ref ExpansionHardlinePlayerData>; //! Server
+	
+	protected ref ExpansionHardlinePlayerData m_ClientData; //! Client
 	
 	void ExpansionHardlineModule()
 	{
@@ -57,8 +59,121 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EnableClientPrepare();
 		EnableInvokeConnect();
 		EnableClientDisconnect();
+		EnableRPC();
+	}
+	
+	override int GetRPCMin()
+	{
+		return ExpansionHardlineModuleRPC.INVALID;
 	}
 
+	override int GetRPCMax()
+	{
+		return ExpansionHardlineModuleRPC.COUNT;
+	}
+
+	override void OnRPC(Class sender, CF_EventArgs args)
+	{
+		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
+
+		super.OnRPC(sender, args);
+
+		auto rpc = CF_EventRPCArgs.Cast(args);
+
+		switch ( rpc.ID )
+		{
+			case ExpansionHardlineModuleRPC.RequestHardlineData:
+			{
+				RPC_RequestHardlineData(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
+			case ExpansionHardlineModuleRPC.SendHardlineData:
+			{
+				RPC_SendHardlineData(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
+		}
+	}
+	
+	//! Client
+	void RequestHardlineDataClient()
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+		
+		auto rpc = ExpansionScriptRPC.Create();
+		rpc.Send(NULL, ExpansionHardlineModuleRPC.RequestHardlineData, true);
+	}
+
+	//! Server
+	protected void RPC_RequestHardlineData(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
+		
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+		
+		if (!identity)
+			return;
+		
+		RequestHardlineDataServer(identity);
+	}
+	
+	//! Server
+	void RequestHardlineDataServer(PlayerIdentity identity)
+	{
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+		
+		string playerUID = identity.GetId();
+		ExpansionHardlinePlayerData playerData = m_HardlinePlayerData[playerUID];
+		if (!playerData)
+		{
+			Error(ToString() + "::RequestHardlineDataServer - Could not get ExpansionHardlinePlayerData for player with UID: " + playerUID);
+			return;
+		}
+		
+		auto rpc = ExpansionScriptRPC.Create();
+		playerData.OnWrite(rpc);
+		rpc.Send(NULL, ExpansionHardlineModuleRPC.SendHardlineData, true, identity);
+	}
+	
+	//! Client
+	protected void RPC_SendHardlineData(ParamsReadContext ctx, PlayerIdentity identity, Object target)
+	{
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+            return;
+		
+		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
+		
+		m_ClientData = new ExpansionHardlinePlayerData();
+		if (!m_ClientData.OnRead(ctx))
+		{
+			Error(ToString() + "::RPC_SendHardlineData - Could not get ExpansionHardlinePlayerData!");
+			return;
+		}
+		
+		PlayerBase clientPB = PlayerBase.Cast(GetGame().GetPlayer());
+		if (clientPB)
+			clientPB.Expansion_SetHardlineData(m_ClientData);
+		
+		Print("--------------------------------------------------------------------------------");
+		foreach (int id, typename factionType: eAIRegisterFaction.s_FactionTypes)
+		{
+			string displayName;
+			int factionRep = m_ClientData.GetReputationByFactionID(id);
+			if (factionRep > 0)
+			{
+				eAIFaction faction = eAIFaction.Cast(factionType.Spawn());
+				if (faction)
+					displayName = faction.GetDisplayName();
+			
+				faction = null;
+				
+				Print(ToString() + "::RPC_SendHardlineData - Faction Reputation [Faction Type: " + factionType.ToString() + " | Faction Name: " + displayName + " | Reputation: " + factionRep + "]");
+			}
+		}
+		Print("--------------------------------------------------------------------------------");
+	}
+	
 	override void OnClientPrepare(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.HARDLINE, this);
@@ -137,6 +252,12 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		string playerUID = identity.GetId();
 		return m_HardlinePlayerData[playerUID];
 	}
+	
+	//! Client only
+	ExpansionHardlinePlayerData GetPlayerDataClient()
+	{
+		return m_ClientData;
+	}
 
 	protected void SetupClientData(PlayerBase player, PlayerIdentity identity)
 	{
@@ -148,6 +269,8 @@ class ExpansionHardlineModule: CF_ModuleWorld
 
 		string playerUID = identity.GetId();
 		player.Expansion_SetHardlineData(m_HardlinePlayerData[playerUID]);
+		
+		RequestHardlineDataServer(identity);
 	}
 	
 #ifdef EXPANSIONMODAI
@@ -415,5 +538,4 @@ class ExpansionHardlineModule: CF_ModuleWorld
 		EXTrace.Print(EXTrace.HARDLINE, s_Instance, text);
 	#endif
 	}
-	
  };

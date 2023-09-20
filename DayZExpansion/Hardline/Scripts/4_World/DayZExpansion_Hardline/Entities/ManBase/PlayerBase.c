@@ -82,7 +82,63 @@ modded class PlayerBase
 
 		SetSynchDirty();
 		Expansion_SaveHardlineData(forceSave);
+		
+	#ifdef SERVER
+		ExpansionHardlineModule.GetModuleInstance().RequestHardlineDataServer(GetIdentity());
+	#endif
 	}
+	
+#ifdef EXPANSIONMODAI
+	//! Only to be called on server!
+	void Expansion_SetFactionReputation(int rep, int factionID, bool forceSave = false)
+	{
+		if (rep < 0)
+		{
+			rep = 0;
+		}
+		else
+		{
+			int maxRep = GetExpansionSettings().GetHardline().MaxReputation;
+			if (maxRep > 0 && rep > maxRep)
+				rep = maxRep;
+		}
+		
+		m_Expansion_HardlineData.SetFactionReputation(factionID, rep);
+		if (m_Expansion_HardlineData.FactionID == factionID)
+		{
+			m_Expansion_Reputation = rep;
+			m_Expansion_HardlineData.Reputation = rep;
+		}
+
+		m_Expansion_HardlineData.Save(GetIdentity().GetId());
+		
+	#ifdef SERVER
+		ExpansionHardlineModule.GetModuleInstance().RequestHardlineDataServer(GetIdentity());
+	#endif
+	}
+	
+	//! Only to be called on server!
+	void Expansion_AddFactionReputation(int rep, int factionID)
+	{
+		int currentRep = m_Expansion_HardlineData.GetReputationByFactionID(factionID);
+		Expansion_SetFactionReputation(currentRep + rep, factionID);
+	}
+	
+	//! Only to be called on server!
+	void Expansion_DecreaseFactionReputation(int rep, int factionID)
+	{
+		Expansion_AddFactionReputation(-rep, factionID);
+	}
+	
+	int GetFactionReputation(int factionID)
+	{
+		int rep = m_Expansion_HardlineData.GetReputationByFactionID(factionID);
+		if (rep > 0)
+			return rep;
+		
+		return 0;
+	}
+#endif
 
 	//! Only to be called on server!
 	void Expansion_AddReputation(int rep)

@@ -234,8 +234,13 @@ class ExpansionHardlinePlayerData
 		return true;
 	}
 	
-	protected int GetReputationByFactionID(int factionID)
+	int GetReputationByFactionID(int factionID)
 	{
 		return FactionReputation[factionID];
+	}
+	
+	void SetFactionReputation(int factionID, int rep)
+	{
+		FactionReputation[factionID] = rep;
 	}
 };

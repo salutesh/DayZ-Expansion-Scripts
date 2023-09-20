@@ -467,6 +467,14 @@ enum ExpansionTeleporterModuleRPC
 	COUNT
 };
 
+enum ExpansionHardlineModuleRPC
+{
+	INVALID = 40110,
+	RequestHardlineData,
+	SendHardlineData,
+	COUNT
+};
+
 enum ExpansionLockRPC
 {
 	LOCK = 5464150,
