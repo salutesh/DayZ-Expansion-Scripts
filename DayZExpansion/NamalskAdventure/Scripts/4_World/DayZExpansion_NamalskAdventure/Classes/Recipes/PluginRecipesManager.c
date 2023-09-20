@@ -18,8 +18,6 @@ modded class PluginRecipesManager
 
 		RegisterRecipe(new NA_CleanAmmo);
 		//RegisterRecipe(new NA_CraftAnomalyBolt);
-		RegisterRecipe(new NA_CraftMedicalSupplies);
-		RegisterRecipe(new NA_CraftAmmunitionSupplies);
 		RegisterRecipe(new NA_CraftFingerlessWoolGloves);
 	}
 

@@ -1921,7 +1921,8 @@ class ExpansionHardlineSettings: ExpansionSettingBase
 		AddItem("CZ550", ExpansionHardlineItemRarity.Rare);
 		AddItem("Winchester70", ExpansionHardlineItemRarity.Rare);
 		AddItem("SSG82", ExpansionHardlineItemRarity.Rare);
-
+		AddItem("SKS", ExpansionHardlineItemRarity.Rare);
+		
 	#ifdef EXPANSIONMODWEAPONS
 		AddItem("Expansion_Kar98", ExpansionHardlineItemRarity.Rare);
 		AddItem("Expansion_M14", ExpansionHardlineItemRarity.Rare);
