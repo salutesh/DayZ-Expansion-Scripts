@@ -30,6 +30,10 @@ modded class MissionBaseWorld
 	{
 		return quest.CanCompleteQuest();
 	}
+	
+	void Expansion_OnQuestObjectivesComplete(ExpansionQuest quest);
+	
+	void Expansion_OnQuestObjectivesIncomplete(ExpansionQuest quest);
 
 	void Expansion_OnQuestCompletion(ExpansionQuest quest);
 }

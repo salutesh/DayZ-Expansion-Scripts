@@ -479,6 +479,8 @@ class ExpansionQuest
 		{
 			ExpansionQuestModule.GetModuleInstance().RequestOpenQuestMenuForQuest(m_Player.GetIdentity(), m_Config.GetID());
 		}
+		
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesIncomplete(this);
 	}
 
 	//! Event called when a quest objective state has changed to incomplete after it was completed once
@@ -504,6 +506,8 @@ class ExpansionQuest
 	#endif
 
 		SetQuestState(ExpansionQuestState.STARTED);
+		
+		MissionBaseWorld.Cast(GetGame().GetMission()).Expansion_OnQuestObjectivesComplete(this);
 	}
 
 	//! Event called when ever a quest is completed and turned-in
