@@ -12,7 +12,8 @@
 
 modded class MissionGameplay
 {
-	ref ExpansionHardlineHUD m_ExpansionHardlineHUD;
+	protected ref ExpansionHardlineHUD m_ExpansionHardlineHUD;
+	protected bool m_ExpansionUseRarityColor;
 
 	// ------------------------------------------------------------
 	// OnInit
@@ -20,6 +21,8 @@ modded class MissionGameplay
 	override void OnInit()
 	{
 		super.OnInit();
+		
+		GetExpansionClientSettings().SI_UpdateSetting.Insert(Expansion_OnSettingsChanged);
 		
 		//! Expansion Hardline Hud
 		InitExpansionHardlineHud();
@@ -48,6 +51,15 @@ modded class MissionGameplay
 		else
 		{
 			m_ExpansionHardlineHUD.ShowHud(true);
+		}
+	}
+	
+	void Expansion_OnSettingsChanged()
+	{
+		if (m_ExpansionUseRarityColor != GetExpansionClientSettings().RarityColorToggle)
+		{
+			m_ExpansionUseRarityColor = GetExpansionClientSettings().RarityColorToggle;
+			GetExpansionClientSettings().Save();
 		}
 	}
 };

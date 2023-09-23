@@ -113,6 +113,7 @@ class ExpansionClientSettings
 	ref array<string> MutedPlayers;
 
 	bool ShowUnderRoofIndicator;
+	bool RarityColorToggle;
 
 	// -----------------------------------------------------------
 	// ExpansionClientSettings Constructor
@@ -128,6 +129,9 @@ class ExpansionClientSettings
 		m_ShouldShowHUDCategory = true;
 		#endif
 		#ifdef EXPANSIONMODCHAT
+		m_ShouldShowHUDCategory = true;
+		#endif
+		#ifdef EXPANSIONMODHARDLINE
 		m_ShouldShowHUDCategory = true;
 		#endif
 
@@ -591,6 +595,16 @@ class ExpansionClientSettings
 
 		if (version < 48)
 			HUDChatFadeOut /= 10.0;
+		
+		if (version < 49)
+			return true;		
+		
+		if ( !ctx.Read( RarityColorToggle ) )
+		{
+			EXPrint(ToString() + "::OnRead - ERROR: Couldn't read RarityColorToggle!");
+			return false;
+		}
+		
 
 		return true;
 	}
@@ -702,6 +716,8 @@ class ExpansionClientSettings
 
 		ctx.Write( HUDChatToggle );
 		ctx.Write( HUDChatMessageTimeThreshold );
+		
+		ctx.Write( RarityColorToggle );
 	}
 
 	// -----------------------------------------------------------
@@ -975,6 +991,8 @@ class ExpansionClientSettings
 
 	#ifdef EXPANSIONMODHARDLINE
 		CreateToggle( "ShowUnderRoofIndicator", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR", "#STR_EXPANSION_SETTINGS_HUD", "#STR_EXPANSION_HUD_SHOW_ROOF_INDICATOR_DESC" );
+		CreateCategory( "Inventory", "INVENTORY" );
+		CreateToggle( "RarityColorToggle", "RARITY COLOR", "RARITY COLOR", "Display rarity color on slot- and inventory item backgrounds." );
 	#endif
 
 	#ifdef EXPANSIONMODVEHICLE
