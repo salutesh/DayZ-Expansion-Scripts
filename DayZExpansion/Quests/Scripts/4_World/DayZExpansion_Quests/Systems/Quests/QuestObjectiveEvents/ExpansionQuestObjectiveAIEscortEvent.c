@@ -60,7 +60,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 		m_ObjectivePos = m_Config.GetPosition();
 
 		//! Only create the VIP and trigger when not already completed!
-		if (m_Quest.GetQuestState() == ExpansionQuestState.STARTED)
+		if (!IsCompleted())
 		{
 			CreateVIP();
 
@@ -71,6 +71,10 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			if (m_Config.GetMarkerName() != string.Empty)
 				CreateMarkers();
 		#endif
+		}
+		else
+		{
+			m_DestinationReached = true;
 		}
 
 		m_Quest.QuestCompletionCheck(true);

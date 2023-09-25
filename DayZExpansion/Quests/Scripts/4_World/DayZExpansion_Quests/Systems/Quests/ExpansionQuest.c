@@ -1679,6 +1679,9 @@ class ExpansionQuest
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		eAIGroup playerGroup = eAIGroup.GetGroupByLeader(player);
+		eAIFaction currentFaction = playerGroup.GetFaction();
+		if (currentFaction && currentFaction.GetName() == factionName)
+			return;
 
 		QuestDebugPrint("Found player group! Change faction to: " + factionName);
 		eAIFaction faction = eAIFaction.Create(factionName);
