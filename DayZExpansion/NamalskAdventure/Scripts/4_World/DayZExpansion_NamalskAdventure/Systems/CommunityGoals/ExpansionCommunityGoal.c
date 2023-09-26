@@ -103,7 +103,9 @@ class ExpansionCommunityGoal
 		auto trace = EXTrace.Start(EXTrace.QUESTS, this);
 
 		ctx.Write(ID);
+		#ifdef EXPANSIONMODAI
 		ctx.Write(FactionID);
+		#endif
 		ctx.Write(GoalValue);
 		ctx.Write(GoalProgress);
 		ctx.Write(Name);
@@ -118,11 +120,13 @@ class ExpansionCommunityGoal
 			return false;
 		}
 
+		#ifdef EXPANSIONMODAI
 		if (!ctx.Read(FactionID))
 		{
 			Error(ToString() + "::OnRecieve - FactionID");
 			return false;
 		}
+		#endif
 
 		if (!ctx.Read(GoalValue))
 		{

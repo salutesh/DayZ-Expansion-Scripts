@@ -304,7 +304,9 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 
 			goalsBoardObj.SetPosition(communityGoalsBoard.Position);
 			goalsBoardObj.SetOrientation(communityGoalsBoard.Orientation);
+		#ifdef EXPANSIONMODAI
 			goalsBoardObj.SetFactionID(communityGoalsBoard.FactionID);
+		#endif
 			goalsBoardObj.Update();
 		}
 	}
@@ -363,22 +365,25 @@ class ExpansionCommunityGoalsModule: CF_ModuleWorld
 			return;
 		}
 
+	#ifdef EXPANSIONMODAI
 		int factionID = community_goal_board.GetFactionID();
 		if (factionID == 0)
 		{
 			Error(ToString() + "::SendCommunityGoalData - Invalid faction ID");
 			return;
 		}
+	#endif
 
 		array<ExpansionCommunityGoal> goalsToSend = new array<ExpansionCommunityGoal>;
 		int goalsCount;
 		foreach (int id, ExpansionCommunityGoal goal: m_CommunityGoals)
 		{
+		#ifdef EXPANSIONMODAI
 			if (goal.GetFactionID() == factionID)
-			{
+		#else
 				goalsToSend.Insert(goal);
 				goalsCount++;
-			}
+		#endif
 		}
 
 		auto rpc = ExpansionScriptRPC.Create();

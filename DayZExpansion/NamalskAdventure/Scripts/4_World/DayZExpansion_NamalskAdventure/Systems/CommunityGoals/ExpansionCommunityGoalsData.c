@@ -151,7 +151,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 		ExpansionCommunityGoal communityGoal = new ExpansionCommunityGoal();
 		communityGoal.SetID(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_1);
+	#ifdef EXPANSIONMODAI
 		communityGoal.SetFactionID(ExpansionNamalskAdventureFaction.SURVIVORS);
+	#endif
 		communityGoal.SetGoalValue(100);
 		communityGoal.SetName("Medical Supplies Delivery");
 		communityGoal.SetDescription("Craft and deliver Medical Supplies to the Survivors camp to restock certain items at the trader.");
@@ -159,7 +161,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 		communityGoal = new ExpansionCommunityGoal();
 		communityGoal.SetID(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_SUPPLIES_2);
+	#ifdef EXPANSIONMODAI
 		communityGoal.SetFactionID(ExpansionNamalskAdventureFaction.SURVIVORS);
+	#endif
 		communityGoal.SetGoalValue(100);
 		communityGoal.SetName("Ammunition Supplies Delivery");
 		communityGoal.SetDescription("Craft and deliver Ammunition Supplies to the Survivors camp to restock certain items at the trader.");
@@ -167,7 +171,9 @@ class ExpansionCommunityGoalsData: ExpansionCommunityGoalsDataBase
 
 		/*communityGoal = new ExpansionCommunityGoal();
 		communityGoal.SetID(NamalskAdventureCommunityGoals.SURVIVORS_CAMP_REPAIR);
+	#ifdef EXPANSIONMODAI
 		communityGoal.SetFactionID(ExpansionNamalskAdventureFaction.SURVIVORS);
+	#endif
 		communityGoal.SetGoalValue(1);
 		communityGoal.SetName("");
 		communityGoal.SetDescription("");
