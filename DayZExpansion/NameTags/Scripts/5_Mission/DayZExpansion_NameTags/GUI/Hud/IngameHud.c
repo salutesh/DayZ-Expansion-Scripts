@@ -17,7 +17,7 @@ modded class IngameHud
 	protected float MEMBER_RANGE = 500.0;
 	protected float SCREEN_X = 0.5615;
 	protected float SCREEN_Y = 0.55;
-	
+
 	//! Player Tag
 	protected ImageWidget m_PlayerTagIcon;
 	protected ImageWidget m_PlayerTagBackground;
@@ -34,7 +34,7 @@ modded class IngameHud
 	protected bool m_IsFriendly = false;
 #ifdef EXPANSIONMODAI
 	protected bool m_ShowFaction;
-	protected string m_FactionName; 
+	protected string m_FactionName;
 #endif
 
 #ifdef EXPANSIONMODHARDLINE
@@ -143,7 +143,7 @@ modded class IngameHud
 	#ifdef EXPANSIONMODAI
 		m_ShowFaction = GetExpansionSettings().GetNameTags().ShowPlayerFaction;
 	#endif
-		
+
 		bool showPlayerTags = GetExpansionSettings().GetNameTags().EnablePlayerTags;
 		bool showNPCTags = GetExpansionSettings().GetNameTags().ShowNPCTags;
 		bool useRarityColor;
@@ -169,11 +169,11 @@ modded class IngameHud
 	#ifdef EXPANSIONMODHARDLINE
 		m_CurrentTaggedItemRarity = -1;
 	#endif
-		
+
 	#ifdef EXPANSIONMODAI
 		m_FactionName = "";
 	#endif
-		
+
 		m_IsMember = false;
 		m_IsFriendly = false;
 
@@ -206,13 +206,13 @@ modded class IngameHud
 				else if (territory && isInTerritory && playerB && playerB.IsInTerritory())
 					check = true;
 			#endif
-				
+
 				if (!check)
 					continue;
-				
+
 				if (showPlayerItem && player.GetHumanInventory().GetEntityInHands())
 					entityInHands = player.GetHumanInventory().GetEntityInHands();
-				
+
 				end_pos = head_pos + GetGame().GetCurrentCameraDirection() * RAYCAST_RANGE;
 				params = new RaycastRVParams(head_pos, end_pos, GetGame().GetPlayer(), 0);
 				params.sorted = true;
@@ -347,7 +347,7 @@ modded class IngameHud
 		if (m_PlayerTag)
 			Expansion_ClearPlayerTagWidgets(timeslice);
 	}
-	
+
 	//! Players
 	protected bool HandleCurrentTaggedPlayer(float timeslice)
 	{
@@ -356,27 +356,27 @@ modded class IngameHud
 		float distance = vector.Distance(head_pos, target_pos);
 		float range = m_MaxViewRange;
 		bool isMember;
-		
+
 		if (distance > range)
 			return false;
-		
+
 		if (!m_PlayerTag)
 		{
 			Expansion_CreatePlayerTagWigets();
 			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
 		}
-		
+
 	#ifdef EXPANSIONMODAI
 		if (m_ShowFaction)
 			GetFaction(m_CurrentTaggedPlayer);
 	#endif
-		
+
 		m_PlayerSpineIndex = m_CurrentTaggedPlayer.GetBoneIndex("Spine2");
 		vector player_pos = m_CurrentTaggedPlayer.GetBonePositionWS(m_PlayerSpineIndex);
 		vector screen_pos = GetGame().GetScreenPosRelative(player_pos);
 		string nameText = m_CurrentTaggedPlayer.GetIdentityName();
 		int iconColor = ARGB(255, 230, 230, 230);
-		
+
 		if (screen_pos[2] > 0)
 		{
 			if (screen_pos[0] > 0 && screen_pos[0] < 1)
@@ -385,7 +385,7 @@ modded class IngameHud
 				{
 					m_PlayerTagText.SetColor(ARGB(255, 230, 230, 230));
 					m_PlayerTagText.SetAlpha(Math.Clamp(m_PlayerTagText.GetAlpha() + timeslice * 10, 0, 1));
-					
+
 				#ifdef EXPANSIONMODAI
 					if (m_FactionName != string.Empty)
 					{
@@ -401,7 +401,7 @@ modded class IngameHud
 					{
 						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
 					}
-					
+
 					m_PlayerTagIcon.LoadImageFile(0, m_PlayerTagIconPath);
 					m_PlayerTagText.SetText(nameText);
 					m_PlayerTagIcon.SetImage(0);
@@ -414,10 +414,10 @@ modded class IngameHud
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	//! NPC/AI
 	protected bool HandleCurrentTaggedNPC(float timeslice)
 	{
@@ -426,7 +426,7 @@ modded class IngameHud
 			Expansion_CreatePlayerTagWigets();
 			m_PlayerTag.SetPos(SCREEN_X, SCREEN_Y);
 		}
-		
+
 	#ifdef EXPANSIONMODAI
 		if (m_ShowFaction)
 			GetFaction(m_CurrentTaggedNPC);
@@ -463,12 +463,12 @@ modded class IngameHud
 
 					if (expNPCBase)
 					{
-						expNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
-						expNPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					#ifdef EXPANSIONMODQUESTS
 						ExpansionQuestNPCBase expQuestNPCBase;
 						if (Class.CastTo(expQuestNPCBase, expNPCBase))
 						{
+							expQuestNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+							expQuestNPCBase.m_Expansion_NetsyncData.Get(1, icon);
 							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
@@ -476,17 +476,20 @@ modded class IngameHud
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
+						else
 					#endif
+							expNPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+							expNPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					}
 				#ifdef EXPANSIONMODAI
 					else if (expAINPCBase)
 					{
-						expAINPCBase.m_Expansion_NetsyncData.Get(0, npcName);
-						expAINPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					#ifdef EXPANSIONMODQUESTS
 						ExpansionQuestNPCAIBase expQuestNPCAIBase;
 						if (Class.CastTo(expQuestNPCAIBase, expAINPCBase))
 						{
+							expQuestNPCAIBase.m_Expansion_NetsyncData.Get(0, npcName);
+							expQuestNPCAIBase.m_Expansion_NetsyncData.Get(1, icon);
 							showQuestMarker = ShowQuestMarker(PlayerBase.Cast(GetGame().GetPlayer()), expQuestNPCAIBase.GetQuestNPCID());
 							if (showQuestMarker)
 							{
@@ -494,24 +497,27 @@ modded class IngameHud
 								iconColor = ARGB(255, 255, 180, 24);
 							}
 						}
+						else
 					#endif
+							expAINPCBase.m_Expansion_NetsyncData.Get(0, npcName);
+							expAINPCBase.m_Expansion_NetsyncData.Get(1, icon);
 					}
-					else if (eAI)
+					/*else if (eAI)
 					{
 						//! ToDo: eAIBase enities need a name!
 						//eAI.m_Expansion_NetsyncData.Get(0, npcName);
 						//eAI.m_Expansion_NetsyncData.Get(1, icon);
 						icon = "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds";
-					}
+					}*/
 				#endif
 					else if (npcPlayer)
 					{
 						npcPlayer.m_Expansion_NetsyncData.Get(0, npcName);
 						npcPlayer.m_Expansion_NetsyncData.Get(1, icon);
 					}
-					
+
 					nameText = npcName;
-					
+
 				#ifdef EXPANSIONMODAI
 					if (m_FactionName != string.Empty)
 					{
@@ -527,7 +533,7 @@ modded class IngameHud
 					{
 						m_PlayerTagText.SetColor(COLOR_EXPANSION_NOTIFICATION_ERROR);
 					}
-					
+
 					if (icon != string.Empty)
 					{
 						iconPath = ExpansionIcons.GetPath(icon);
@@ -547,10 +553,10 @@ modded class IngameHud
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	//! Entity in hands
 	protected bool HandleCurrentTaggedItem(float timeslice)
 	{
@@ -560,7 +566,7 @@ modded class IngameHud
 
 		if (distance > m_MaxViewRange)
 			return false;
-		
+
 		if (!m_PlayerTag)
 		{
 			Expansion_CreatePlayerTagWigets();
@@ -595,7 +601,7 @@ modded class IngameHud
 		{
 			iconPath = m_CurrentTaggedItemIcon;
 		}
-		
+
 		if (screen_pos[2] > 0)
 		{
 			if (screen_pos[0] > 0 && screen_pos[0] < 1)
@@ -615,20 +621,20 @@ modded class IngameHud
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	//! Object
 	protected bool HandleCurrentTaggedObject(float timeslice)
 	{
 		vector target_pos = m_CurrentTaggedObject.GetPosition();
 		vector head_pos = GetGame().GetCurrentCameraPosition();
 		float distance = vector.Distance(head_pos, target_pos);
-		
+
 		if (distance > m_MaxViewRange)
 			return false;
-		
+
 		if (!m_PlayerTag)
 		{
 			Expansion_CreatePlayerTagWigets();
@@ -654,7 +660,7 @@ modded class IngameHud
 						staticObject.m_Expansion_NetsyncData.Get(0, nameText);
 						staticObject.m_Expansion_NetsyncData.Get(1, icon);
 					}
-					
+
 				#ifdef EXPANSIONMODQUESTS
 					ExpansionQuestStaticObject staticQuestObject;
 					if (Class.CastTo(staticQuestObject, staticObject))
@@ -688,10 +694,10 @@ modded class IngameHud
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 #ifdef EXPANSIONMODAI
 	protected void GetFaction(DayZPlayerImplement player)
 	{
@@ -700,7 +706,7 @@ modded class IngameHud
 		eAIFaction playerFaction;
 		string factionName = "N/A";
 		DayZPlayerImplement localPlayer = DayZPlayerImplement.Cast(GetGame().GetPlayer());
-		eAIGroup playerGroup = player.GetGroup();		
+		eAIGroup playerGroup = player.GetGroup();
 		if (!playerGroup)
 			return;
 
@@ -712,7 +718,7 @@ modded class IngameHud
 		localGroup = localPlayer.GetGroup();
 		if (!localGroup)
 			return;
-		
+
 		localFaction = localGroup.GetFaction();
 		if (!localFaction || !playerFaction)
 			return;
@@ -721,7 +727,7 @@ modded class IngameHud
 			m_IsFriendly = true;
 	}
 #endif
-	
+
 #ifdef EXPANSIONMODGROUPS
 	protected void GetGroup(Man player)
 	{
@@ -732,27 +738,27 @@ modded class IngameHud
 			ExpansionPartyData party = partyModule.GetParty();
 			if (party && party.IsMember(playerUID))
 				m_IsMember = true;
-		}		
+		}
 	}
 #endif
-	
+
 #ifdef EXPANSIONMODQUESTS
 	bool ShowQuestMarker(PlayerBase player, int questNPCID)
 	{
 		map<int, ref ExpansionQuestConfig> questConfigs = ExpansionQuestModule.GetModuleInstance().GetQuestConfigs();
 		if (!questConfigs || questConfigs.Count() == 0)
 			return false;
-		
+
 		ExpansionQuestPersistentData playerQuestData = ExpansionQuestModule.GetModuleInstance().GetClientQuestData();
 		if (!playerQuestData)
 			return false;
-		
+
 		foreach (ExpansionQuestConfig questConfig: questConfigs)
 		{
 			if (ExpansionQuestModule.GetModuleInstance().QuestDisplayConditions(questConfig, player, playerQuestData, questNPCID))
 				return true;
 		}
-		
+
 		return false;
 	}
 #endif
@@ -777,6 +783,6 @@ modded class IngameHud
 				Expansion_ShowPlayerTagEx(timeslice);
 			}
 		}
-		
+
 	}
 };

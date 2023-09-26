@@ -482,7 +482,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			//! If we don't have cached player quest data, check if file exists and load it, else use fresh instance as-is
 			questPlayerData = new ExpansionQuestPersistentData();
 			m_PlayerDatas.Insert(playerUID, questPlayerData);
-			
+
 			string path = EXPANSION_QUESTS_PLAYERDATA_FOLDER + playerUID + ".bin";
 			if (!FileExist(path))
 			{
@@ -668,7 +668,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			ExpansionQuestState questState = data.State;
 			string questStateName = typename.EnumToString(ExpansionQuestState, questState);
 			QuestModulePrint("::InitClientQuests_Stage1 - Check quest init for quest with ID: " + questID + " | State: " + questStateName);
-			
+
 			//! Check if we want to create a already active group quest
 		#ifdef EXPANSIONMODGROUPS
 			if (activeGroupQuests)
@@ -711,14 +711,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 				{
 					ExpansionQuestState groupQuestState = groupQuestData.GetQuestStateByQuestID(questID);
 					string groupQuestStateName = typename.EnumToString(ExpansionQuestState, groupQuestState);
-					
+
 					//! If the quest has been completed by the group while this member was offline we delete the quest data for this certain quest from the players
-					//! persistent quest data so no old progress is left and he can accept the quest again.					
+					//! persistent quest data so no old progress is left and he can accept the quest again.
 					if (playerData.GetQuestCompletionCountByQuestID(questID) < groupQuestData.GetQuestCompletionCountByQuestID(questID))
 					{
 						questDatasToCleanUp.Insert(questID);
 					}
-					
+
 					QuestModulePrint("::InitClientQuests_Stage1 - Use quest state from persistent group data [Quest ID: " + questID + " | State: " + groupQuestStateName);
 					questState = groupQuestState;
 				}
@@ -1560,7 +1560,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 			foreach (ExpansionPartyPlayerData member: groupMembers)
 			{
 				string memberUID = member.GetID();
-				
+
 				//! We add a data set to the persistent quest data of each group member that can accept the quest.
 				ExpansionQuestPersistentData memberQuestData = GetPlayerQuestDataByUID(memberUID);
 				if (!memberQuestData)
@@ -1934,7 +1934,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					Error(ToString() + "::RPC_CancelQuest - Could get valid group ID from player with UID: " + playerUID + " | Group ID: " + instanceKey);
 					return;
 				}
-				
+
 				instanceKey = groupID.ToString();
 			}
 		}
@@ -2163,7 +2163,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 					Error(ToString() + "::RequestCompleteQuestServer - Could get valid group ID from player with UID: " + playerUID + " | Group ID: " + instanceKey);
 					return;
 				}
-				
+
 				instanceKey = groupID.ToString();
 			}
 		}
@@ -2642,15 +2642,14 @@ class ExpansionQuestModule: CF_ModuleWorld
 					npcAI.SetOrientation(questNPCData.GetOrientation());
 					npcAI.Expansion_SetEmote(questNPCData.GetEmoteID(), !questNPCData.IsEmoteStatic());
 
-					eAIGroup ownerGrp = npcAI.GetGroup();
-
+					eAIGroup npcAIGroup = npcAI.GetGroup();
 					array<vector> waypoints = questNPCData.GetWaypoints();
 					foreach (vector point: waypoints)
 					{
-						ownerGrp.AddWaypoint(point);
+						npcAIGroup.AddWaypoint(point);
 					}
 
-					ownerGrp.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
+					npcAIGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
 				}
 				break;
 			#endif
@@ -4470,7 +4469,7 @@ class ExpansionQuestModule: CF_ModuleWorld
 				QuestModulePrint("::QuestDisplayConditions - Return FALSE. Quest already completed!");
 				return false;
 			}
-			
+
 			array<int> questGiverIDs = config.GetQuestGiverIDs();
 			if (questState < ExpansionQuestState.CAN_TURNIN && (!questGiverIDs || questGiverIDs.Count() == 0 || questGiverIDs.Find(questNPCID) == -1))
 			{

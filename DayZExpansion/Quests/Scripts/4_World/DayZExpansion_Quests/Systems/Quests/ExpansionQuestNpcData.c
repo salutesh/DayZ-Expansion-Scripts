@@ -214,8 +214,20 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 	        questNPC.SetOrientation(Orientation);
 
 		questNPC.Update();
+		if (!questNPC.m_Expansion_NetsyncData)
+			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, GetLoadoutFile(), false);
+		
+	#ifdef EXPANSIONMODAI
+		eAIGroup aiGroup = questNPC.GetGroup();
+		if (NPCFaction != string.Empty)
+		{
+			eAIFaction faction = eAIFaction.Create(NPCFaction);
+			if (faction && aiGroup.GetFaction().Type() != faction.Type())
+				aiGroup.SetFaction(faction);
+		}
+	#endif
 
 		return questNPC;
 	}
@@ -239,6 +251,8 @@ class ExpansionQuestNPCData: ExpansionQuestNPCDataBase
 		questNPC.SetPosition(Position);
 		questNPC.SetOrientation(Orientation);
 		questNPC.Update();
+		if (!questNPC.m_Expansion_NetsyncData)
+			questNPC.m_Expansion_NetsyncData = new ExpansionNetsyncData(questNPC);
 		questNPC.m_Expansion_NetsyncData.Set(0, NPCName);
 		ExpansionHumanLoadout.Apply(questNPC, NPCLoadoutFile, false);
 		questNPC.Expansion_SetCanBeLooted(false);
