@@ -13,23 +13,23 @@
 #ifdef EXPANSIONMODAI
 class ExpansionAISpawnPosition
 {
-	string NPCName = "Unknown";
-	vector Position = vector.Zero;
-	vector Orientation = vector.Zero;
-	ref array<vector> Waypoints = {vector.Zero};
-	string Loadout = "GorkaLoadout";
-	string Faction = "InvincibleSurvivors";
-	float MinSpeed = 1.0;
-	float MaxSpeed = 3.0;
-	float MinAccuracy = 0.5;
-	float MaxAccuracy = 1.0;
-	bool CanBeLooted = true;
-	bool UnlimtedReload = true;
-	float ThreatDistanceLimit = 800.0;
-	float DamageMultiplier = 1.0;
-	ref array<vector> ShelterPositions;
+	string NPCName;
+	vector Position;
+	vector Orientation;
+	ref array<vector> Waypoints = new array<vector>;
+	string Loadout;
+	string Faction;
+	float MinSpeed;
+	float MaxSpeed;
+	float MinAccuracy;
+	float MaxAccuracy;
+	bool CanBeLooted;
+	bool UnlimtedReload;
+	float ThreatDistanceLimit;
+	float DamageMultiplier;
+	ref array<vector> ShelterPositions = new array<vector>;
 
-	void ExpansionAISpawnPosition(string name, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 3.0, float maxSpeed = 5.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true, float threatDistLimit = 850.0, float damageMultiplier = 1.0)
+	void Set(string name, vector pos, vector ori, array<vector> waypoints, string loadout, string factionName, float minSpeed = 3.0, float maxSpeed = 5.0, float minAccuracy = 0.5, float maxAccuracy = 1.0, bool canBeLooted = true, bool unlimtedReload = true, float threatDistLimit = 850.0, float damageMultiplier = 1.0)
 	{
 		NPCName = name;
 		Position = pos;

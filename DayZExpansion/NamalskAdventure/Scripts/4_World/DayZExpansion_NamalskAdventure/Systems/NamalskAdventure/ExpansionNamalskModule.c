@@ -249,11 +249,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (!Class.CastTo(ai, GetGame().CreateObject(GetRandomAI(), pos)))
 			return;
 
-		if (ai.m_Expansion_NetsyncData)
-		{
-			ai.m_Expansion_NetsyncData.Set(0, aiSpawn.NPCName);
-			ai.m_Expansion_NetsyncData.Set(1, "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds");
-		}
+		if (!ai.m_Expansion_NetsyncData)
+			ai.m_Expansion_NetsyncData = new ExpansionNetsyncData(ai);	
+		
+		ai.m_Expansion_NetsyncData.Set(0, aiSpawn.NPCName);
+		ai.m_Expansion_NetsyncData.Set(1, "{3364F58EF7F7FBE3}DayZExpansion/Core/GUI/icons/misc/T_Soldier_256x256.edds");
 
 		ai.SetPosition(pos);
 		ai.SetOrientation(aiSpawn.Orientation);
@@ -277,7 +277,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		aiGroup.SetFaction(faction);
 		aiGroup.SetFormation(eAIFormation.Create("Column"));
-		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.ALTERNATE);
+		aiGroup.SetWaypointBehaviour(eAIWaypointBehavior.HALT_OR_ALTERNATE);
 
 		for (int idx = 0; idx < aiSpawn.Waypoints.Count(); idx++)
 		{

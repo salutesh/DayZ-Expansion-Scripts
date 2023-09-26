@@ -32,7 +32,7 @@ class eAIFactionInvincibleScienceSociety : eAIFactionInvincibleGuards
 
 	override string GetDisplayName()
 	{
-		return "#STR_EXPANSION_AI_FACTION_SCIENCE_SOCIETY";
+		return "Science Society";
 	}
 };
 #endif

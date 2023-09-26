@@ -21,8 +21,15 @@ class eAIFactionResistance : eAIFaction
 
 	override bool IsFriendly(notnull eAIFaction other)
 	{
+		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionResistance)) return true;
+		if (other.IsInherited(eAIFactionPassive)) return true;
 		return false;
+	}
+
+	override string GetDisplayName()
+	{
+		return "Resistance";
 	}
 };
 #endif

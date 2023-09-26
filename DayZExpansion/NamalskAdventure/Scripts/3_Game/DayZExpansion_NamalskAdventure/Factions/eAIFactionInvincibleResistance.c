@@ -23,6 +23,7 @@ class eAIFactionInvincibleResistance : eAIFactionInvincibleGuards
 	{
 		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionInvincibleResistance)) return true;
+		if (other.IsInherited(eAIFactionScienceSociety)) return true;
 		if (other.IsInherited(eAIFactionResistance)) return true;
 		if (other.IsInherited(eAIFactionSurvivors)) return true;
 		if (other.IsInherited(eAIFactionPassive)) return true;
@@ -31,7 +32,7 @@ class eAIFactionInvincibleResistance : eAIFactionInvincibleGuards
 
 	override string GetDisplayName()
 	{
-		return "#STR_EXPANSION_AI_FACTION_RESISTANCE";
+		return "Resistance";
 	}
 };
 #endif

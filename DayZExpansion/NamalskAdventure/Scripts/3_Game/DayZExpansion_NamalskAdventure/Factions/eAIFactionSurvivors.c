@@ -21,8 +21,9 @@ class eAIFactionSurvivors : eAIFaction
 
 	override bool IsFriendly(notnull eAIFaction other)
 	{
-		if (other.IsInherited(eAIFactionPassive)) return true;
+		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionSurvivors)) return true;
+		if (other.IsInherited(eAIFactionPassive)) return true;
 		return false;
 	}
 };

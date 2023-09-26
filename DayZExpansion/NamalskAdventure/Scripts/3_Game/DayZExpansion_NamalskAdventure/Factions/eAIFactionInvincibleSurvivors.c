@@ -23,6 +23,7 @@ class eAIFactionInvincibleSurvivors : eAIFactionInvincibleGuards
 	{
 		if (super.IsFriendly(other)) return true;
 		if (other.IsInherited(eAIFactionInvincibleSurvivors)) return true;
+		if (other.IsInherited(eAIFactionScienceSociety)) return true;
 		if (other.IsInherited(eAIFactionSurvivors)) return true;
 		if (other.IsInherited(eAIFactionResistance)) return true;
 		if (other.IsInherited(eAIFactionPassive)) return true;

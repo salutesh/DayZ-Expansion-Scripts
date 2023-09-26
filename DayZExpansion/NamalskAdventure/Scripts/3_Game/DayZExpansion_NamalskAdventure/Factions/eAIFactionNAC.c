@@ -30,5 +30,10 @@ class eAIFactionNAC : eAIFaction
 	{
 		return other.IsInherited(DayZCreatureAI);
 	}
+	
+	override string GetDisplayName()
+	{
+		return "NAC";
+	}
 };
 #endif

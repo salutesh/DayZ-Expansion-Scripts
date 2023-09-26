@@ -345,106 +345,119 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		//! AI guards - Jalovisco - Survivors Camp
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8597.78, 14.7325, 10529.7));
-		ExpansionAISpawnPosition aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		ExpansionAISpawnPosition aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8597.78, 14.7325, 10529.7), Vector(215.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		aiSpawn.SetShelterPositions(shelterPositions);
 		AISpawnPositions.Insert(aiSpawn);
 
 		shelterPositions = {"8579.5 14.7433 10545.3", "8583.97 14.7324 10542.4"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8619.11, 34.9968, 10479.6));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8619.11, 34.9968, 10479.6), Vector(335.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8634.89, 35.0096, 10512.5));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8634.89, 35.0096, 10512.5), Vector(280.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8566.56, 35.1376, 10554.2));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8566.56, 35.1376, 10554.2), Vector(150.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8539.49, 35.1852, 10512.8));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8539.49, 35.1852, 10512.8), Vector(100.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		AISpawnPositions.Insert(aiSpawn);
 
 		shelterPositions = {"8609.96 14.7887 10522.3"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8583.78, 14.7504, 10496.2));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8583.78, 14.7504, 10496.2), Vector(35.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		aiSpawn.SetShelterPositions(shelterPositions);
 		AISpawnPositions.Insert(aiSpawn);
 
 		shelterPositions = {"8601.2 15.0546 10485.7"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8618.76, 14.7886, 10516.2));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8618.76, 14.7886, 10516.2), Vector(330.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		aiSpawn.SetShelterPositions(shelterPositions);
 		AISpawnPositions.Insert(aiSpawn);
 
 		shelterPositions = {"8599.39 15.0545 10489"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8559.18, 15.682, 10528.2));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8559.18, 15.682, 10528.2), Vector(345.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		aiSpawn.SetShelterPositions(shelterPositions);
 		AISpawnPositions.Insert(aiSpawn);
 
 		shelterPositions = {"8563.82 15.7036 10541.3"};
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(8578.85, 14.7807, 10489.5));
-		aiSpawn = new ExpansionAISpawnPosition(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(8578.85, 14.7807, 10489.5), Vector(230.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleSurvivors", 3.0, 5.0, 1.0, 1.0, false, true);
 		aiSpawn.SetShelterPositions(shelterPositions);
 		AISpawnPositions.Insert(aiSpawn);
 
 		//! AI guards - Sebjan Reservoir - Resistance Camp
+		npcName = "Resistance Guard";
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(5999.97, 5.74131, 10082.5));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(5999.97, 5.74131, 10082.5), Vector(320.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(5999.97, 5.74131, 10082.5), Vector(320.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(6001.02, 5.78099, 10068.3));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(6001.02, 5.78099, 10068.3), Vector(195.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(6001.02, 5.78099, 10068.3), Vector(195.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(5980.95, 5.79031, 10040.9));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(5980.95, 5.79031, 10040.9), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(5980.95, 5.79031, 10040.9), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(6019.13, 5.80883, 10026.7));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(6019.13, 5.80883, 10026.7), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true));
-
-		//! Spawn NAC AI Soldier Units at A3
-		/*npcName = "NAC Soldier";
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(3596.59, 170.731, 6659.7));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3596.59, 170.731, 6659.7), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(3605.11, 155.144, 6659.77));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3605.11, 155.144, 6659.77), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
-
-		waypoints = new array<vector>;
-		waypoints.Insert(Vector(3591.66, 143.823, 6718.72));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(3591.66, 143.823, 6718.72), Vector(15.0, 0, 0), waypoints, "Namalsk_NAC", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));*/
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(6019.13, 5.80883, 10026.7), Vector(105.0, 0, 0), waypoints, "GorkaLoadout", "InvincibleResistance", 1.0, 1.0, 1.0, 1.0, false, true);
+		AISpawnPositions.Insert(aiSpawn);
 
 		//! Spawn NAC AI Soldier Units at A1 Bunker
+		npcName = "NAC Soldier";
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(1927.28, 211.538, 1242.27));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(1927.28, 211.538, 1242.27), Vector(257.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(1927.28, 211.538, 1242.27), Vector(257.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(1918.3, 211.528, 1298.24));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(1918.3, 211.528, 1298.24), Vector(263.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(1918.3, 211.528, 1298.24), Vector(263.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(1884.75, 196.7, 1315.69));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(1884.75, 196.7, 1315.69), Vector(173.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(1884.75, 196.7, 1315.69), Vector(173.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(1850.79, 206.575, 1391.69));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(1850.79, 206.575, 1391.69), Vector(284.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(1850.79, 206.575, 1391.69), Vector(284.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0);
+		AISpawnPositions.Insert(aiSpawn);
 
 		waypoints = new array<vector>;
 		waypoints.Insert(Vector(1836.86, 206.579, 1343.54));
@@ -453,11 +466,9 @@ class ExpansionNamalskAdventureSettings: ExpansionNamalskAdventureSettingsBase
 		waypoints.Insert(Vector(1831.8, 206.603, 1390.23));
 		waypoints.Insert(Vector(1829.13, 206.591, 1384.53));
 		waypoints.Insert(Vector(1832.58, 206.581, 1351.4));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(1836.86, 206.579, 1343.54), Vector(359.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));
-
-		/*waypoints = new array<vector>;
-		waypoints.Insert(Vector(4148.98, 2209.99, 8386.47));
-		AISpawnPositions.Insert(new ExpansionAISpawnPosition(npcName, Vector(4148.98, 2209.99, 8386.47), Vector(289.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0));*/
+		aiSpawn = new ExpansionAISpawnPosition();
+		aiSpawn.Set(npcName, Vector(1836.86, 206.579, 1343.54), Vector(359.0, 0, 0), waypoints, "Namalsk_NAC_Bunker", "NAC", 3.0, 5.0, 0.5, 1.0, true, true, 800.0, 1.0);
+		AISpawnPositions.Insert(aiSpawn);
 	}
 	#endif
 
