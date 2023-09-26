@@ -205,7 +205,7 @@ class ExpansionQuestObjectiveAIEscortEvent: ExpansionQuestObjectiveEventBase
 			return null;
 
 		ai.SetGroup(eAIGroup.GetGroupByLeader(owner));
-		ai.Expansion_SetCanBeLooted(false);
+		ai.Expansion_SetCanBeLooted(m_Config.CanLootAI());
 		ExpansionHumanLoadout.Apply(ai, loadout, false);
 
 		return ai;
