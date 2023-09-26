@@ -13,7 +13,8 @@
 enum Expansion_Satellite_Control_ERPCs
 {
 	PLAY_BOOT_SFX = 3000101,
-	PLAY_RUNNING_SFX = 3000102
+	PLAY_RUNNING_SFX = 3000102,
+	PLAY_SHUTDOWN_SFX = 3000103
 };
 
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
@@ -35,6 +36,7 @@ class Expansion_Satellite_Control: House
 	protected bool m_IsSatelliteBooting;
 	protected ref Timer m_ActiveBootTimer;
 	protected ref Timer m_ActiveTimer;
+	protected EffectSound m_RunSFX;
 
 	void Expansion_Satellite_Control()
 	{
@@ -195,7 +197,7 @@ class Expansion_Satellite_Control: House
 		SetSatelliteState(true);
 		
 		m_ActiveTimer = new Timer();
-		m_ActiveTimer.Run(522, this, "StopSatellite"); 
+		m_ActiveTimer.Run(120, this, "StopSatellite"); 
 	}
 	
 	void StopSatellite()
@@ -209,7 +211,7 @@ class Expansion_Satellite_Control: House
 		{
 			PlayerBase player = PlayerBase.Cast(objects[i]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, null, true, player.GetIdentity());
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX, null, true, player.GetIdentity());
 		}
 		
 		#ifdef EXPANSIONMODTELEPORTER
@@ -248,14 +250,15 @@ class Expansion_Satellite_Control: House
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		if (!GetGame().IsDedicatedServer())
+		if (!GetGame().IsDedicatedServer() && !m_RunSFX)
 		{
-			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", GetPosition(), 0, 0, false);
-			if (!soundEffect)
+			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", GetPosition(), 0, 0, false);
+			if (!m_RunSFX)
 				return;
 	
-			soundEffect.SetParent(this);
-			soundEffect.SetSoundAutodestroy(true);
+			m_RunSFX.SetParent(this);
+			m_RunSFX.SetSoundAutodestroy(true);
+			m_RunSFX.SetSoundFadeOut(1.0);
 		}
 	}
 	
@@ -278,6 +281,16 @@ class Expansion_Satellite_Control: House
 				{
 					#ifndef EDITOR
 					PlaySFXActive();
+					#endif
+				}
+				break;
+				case Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX:
+				{
+					#ifndef EDITOR
+					if (m_RunSFX)
+						m_RunSFX.SoundStop();
+
+					PlaySFXBoot();
 					#endif
 				}
 				break;

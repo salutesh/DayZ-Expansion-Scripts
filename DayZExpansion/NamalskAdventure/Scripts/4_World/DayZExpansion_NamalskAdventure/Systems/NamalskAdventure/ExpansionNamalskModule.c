@@ -520,7 +520,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (eventType == EVRStorm || eventType == EVRStormDeadly)
 		{
 			m_EVRStormActive = false;
-			SetSatelitteActive(false);
+			//SetSatelitteActive(false);
 		}
 	}
 
@@ -535,7 +535,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		SetSatelitteActive(true);
+		//SetSatelitteActive(true);
 
 		#ifdef EXPANSIONMODAI
 		SetAIBuildingPositions();
@@ -565,7 +565,7 @@ class ExpansionNamalskModule: CF_ModuleWorld
 
 		m_LastNamalskEvent = event_manager.GetLastEventType();
 
-		SetSatelitteActive(false);
+		//SetSatelitteActive(false);
 	}
 
 	//! @note: Handles events that should start when ever a EVR storm event ended.
@@ -766,6 +766,8 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			if (m_SatelliteTeleporter)
 				m_SatelliteController.SetLinkedTeleporter(m_SatelliteTeleporter);
 			#endif
+			
+			SetSatelitteActive(true);
 		}
 	}
 
@@ -801,21 +803,24 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!m_AbdonedSatellite)
+		if (!m_AbdonedSatellite || !m_SatelliteController)
 			return;
-
-		m_SatelliteController.SetActivateState(true);
-		m_AbdonedSatellite.SetSatelliteActive(true);
+		
+		if (!m_SatelliteController.IsActive())
+		{
+			m_SatelliteController.SetActivateState(true);
+			m_AbdonedSatellite.SetSatelliteActive(true);
+		}
 	}
 
 	void DeactivateSatellite()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!m_AbdonedSatellite)
+		if (!m_AbdonedSatellite || !m_SatelliteController)
 			return;
 
-		if (!m_SatelliteController.IsActive())
+		if (m_SatelliteController.IsActive())
 		{
 			m_SatelliteController.SetActivateState(false);
 			m_AbdonedSatellite.SetSatelliteActive(false);

@@ -32,11 +32,11 @@ class ExpansionActionUseSatelliteControl: ActionSingleUseBase
 		if (item.IsDamageDestroyed())
 			return false;
 
-		Expansion_Satellite_Control trgt = Expansion_Satellite_Control.Cast(target.GetObject());
-		if (!trgt) 
+		Expansion_Satellite_Control satControl = Expansion_Satellite_Control.Cast(target.GetObject());
+		if (!satControl) 
 			return false;
 		
-		return trgt.CanActivate();
+		return satControl.CanActivate();
 	}
 
 	override void OnStartServer(ActionData action_data)

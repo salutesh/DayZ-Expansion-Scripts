@@ -14,10 +14,6 @@ class CfgVehicles
 {
 	class SmallProtectorCase;
 	class Clothing;
-	class dzn_apsi: Clothing
-	{
-		attachments[] += {"Att_ExpansionCircuitBoard"};
-	};
 	class dzn_lehs: Clothing
 	{
 		attachments[] += {"Att_ExpansionCircuitBoard"};

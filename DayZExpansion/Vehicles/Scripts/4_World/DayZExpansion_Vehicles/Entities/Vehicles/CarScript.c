@@ -155,8 +155,6 @@ modded class CarScript
 
 	bool m_Expansion_Killed;
 
-	bool m_Expansion_EOnPostSimulate;
-
 	float m_Expansion_VehicleAutoCoverTimestamp;
 	bool m_Expansion_HasLifetime;
 
@@ -1814,13 +1812,6 @@ modded class CarScript
 		//! Prevent vanilla fluid checks from running
 		m_Time = -1;
 
-		//! All the vanilla cars call super in EOnPostSimulate :-(
-		//! https://feedback.bistudio.com/T164047
-		if (!m_Expansion_EOnPostSimulate)
-			return;
-
-		m_Expansion_EOnPostSimulate = false; //! Reset in EOnSimulate
-
 		if (CanUpdateHorn(timeSlice))
 		{
 			UpdateHorn(timeSlice);
@@ -2400,8 +2391,6 @@ modded class CarScript
 	{
 		if (!m_Initialized)
 			return;
-
-		m_Expansion_EOnPostSimulate = true;
 
 		int i;
 

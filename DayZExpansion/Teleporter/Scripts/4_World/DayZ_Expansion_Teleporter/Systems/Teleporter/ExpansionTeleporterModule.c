@@ -31,14 +31,14 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	void ExpansionTeleporterModule()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		s_Instance = this;
 	}
 
 	override void OnInit()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		EnableMissionStart();
 		EnableRPC();
 	}
@@ -52,7 +52,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	override void OnMissionStart(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		m_TeleporterData = new map<int, ref ExpansionTeleportData>;
 
 		if (GetGame().IsServer() && GetGame().IsMultiplayer())
@@ -82,7 +82,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	protected void LoadTeleporterServerData()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		array<string> teleporterFiles = ExpansionStatic.FindFilesInLocation(s_TeleporterDataFolderPath, ".json");
 		if (teleporterFiles && teleporterFiles.Count() > 0)
 		{
@@ -100,7 +100,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	protected void CreateDefaultTeleporterData()
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		ExpansionTeleportData teleporterData = new ExpansionTeleportData();
 		teleporterData.SetID(1);
 		teleporterData.SetDisplayName("Sebjan Reservoir");
@@ -116,12 +116,12 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		teleportPos.AddPosition(Vector(6021.498047, 5.871239, 10050.499023), Vector(-81.172432, 0.000000, 0.000000));
 
 		teleporterData.AddTeleportPosition(teleportPos);
-		
+
 		AddTeleporterData(teleporterData);
-		
+
 		teleporterData.Save();
 		teleporterData.SpawnTeleporter();
-		
+
 	#ifdef EXPANSION_NAMALSK_ADVENTURE
 		teleporterData = new ExpansionTeleportData();
 		teleporterData.SetID(2);
@@ -140,7 +140,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		teleporterData.AddTeleportPosition(teleportPos);
 
 		AddTeleporterData(teleporterData);
-		
+
 		teleporterData.Save();
 		teleporterData.SpawnTeleporter();
 	#endif
@@ -149,7 +149,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	protected void GetTeleporterData(string fileName, string path)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		ExpansionTeleportData teleporterData = ExpansionTeleportData.Load(path + fileName);
 		if (!teleporterData)
 			return;
@@ -171,7 +171,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	override void OnRPC(Class sender, CF_EventArgs args)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		super.OnRPC(sender, args);
 		auto rpc = CF_EventRPCArgs.Cast(args);
 
@@ -233,7 +233,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	protected void RPC_RequestOpenTeleporterMenu(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
@@ -245,7 +245,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 
 		if (m_TeleporterClientData)
 			m_TeleporterClientData = null;
-		
+
 		m_TeleporterClientData = new ExpansionTeleportData();
 		if (!m_TeleporterClientData.OnRecieve(ctx))
 		{
@@ -262,57 +262,57 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		//! Populate teleporter menu with needed client data.
 		m_TeleporterMenuInvoker.Invoke();
 	}
-	
+
 	//! Client
 	void RequestTeleport(ExpansionTeleportPositionEntry pos, vector teleporterObjPos)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (!GetGame().IsClient())
 		{
 			Error(ToString() + "::RequestTeleport - Tryed to call RequestTeleport on Server!");
 			return;
 		}
-		
+
 		auto rpc = ExpansionScriptRPC.Create();
 		rpc.Write(teleporterObjPos);
 		pos.OnSend(rpc);
 		rpc.Send(null, ExpansionTeleporterModuleRPC.RequestTeleport, true);
 	}
-	
+
 	//! Server
 	protected void RPC_RequestTeleport(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
-		
+
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
 			Error(ToString() + "::RPC_RequestTeleport - Tryed to call RPC_RequestTeleport on Client!");
 			return;
 		}
-		
+
 		PlayerBase player = PlayerBase.ExpansionGetPlayerByIdentity(senderRPC);
 		if (!player)
 			return;
-		
+
 		vector teleporterObjPos;
 		if (!ctx.Read(teleporterObjPos))
 		{
 			Error(ToString() + "::RPC_PlayTeleportSound - Could not read teleporterObjPos");
 			return;
 		}
-				
+
 		ExpansionTeleportPositionEntry pos = new ExpansionTeleportPositionEntry();
 		if (!pos.OnRecieve(ctx))
 		{
 			Error(ToString() + "::RPC_RequestTeleport - Could not get teleport position!");
 			return;
 		}
-		
-		vector playerPos = player.GetPosition();	
+
+		vector playerPos = player.GetPosition();
 		vector position = pos.GetPosition();
 		vector orientation = pos.GetOrientation();
 		if (position[1] == 0)
@@ -322,11 +322,11 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		PlayTeleportSound(position, ExpansionTeleporterSound.TELEPORT_ACTIVE);
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 9000, false, position, orientation, player, teleporterObjPos);
 	}
-	
+
 	void TeleportPlayer(vector pos, vector ori, PlayerBase player, vector teleporterObjPos = vector.Zero)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (teleporterObjPos != vector.Zero)
 		{
 			vector playerPos = player.GetPosition();
@@ -336,9 +336,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		}
 
 		DayZPlayerSyncJunctures.ExpansionTeleport(player, pos, ori);
+		PlayTeleportSound(teleporterObjPos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
 		PlayTeleportSound(pos, ExpansionTeleporterSound.TELEPORT_DESTINATION);
 	}
-	
+
 	//! Server
 	void ExitTeleport(PlayerBase player, ExpansionTeleportData teleportData)
 	{
@@ -349,15 +350,15 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			Error(ToString() + "::ExitTeleport - Tryed to call ExitTeleport on Client!");
 			return;
 		}
-		
+
 		array<ref ExpansionTeleportPosition> teleportPositions = teleportData.GetTeleportPositions();
 		if (!teleportPositions)
 			return;
-		
+
 		ExpansionTeleportPosition randomTeleportPos = teleportPositions.GetRandomElement();
 		if (!randomTeleportPos)
 			return;
-		
+
 		array<ref ExpansionTeleportPositionEntry> positions = randomTeleportPos.GetPositions();
 		if (!positions)
 			return;
@@ -372,10 +373,10 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(TeleportPlayer, 200, false, position, orientation, player);
 	}
 
-	void PlayTeleportSound(vector position, ExpansionTeleporterSound sound)
+	void PlayTeleportSound(vector position, int sound)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
 		{
 			Error(ToString() + "::PlayTeleportSound - Tryed to call PlayTeleportSound on Client!");
@@ -387,7 +388,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 		rpc.Write(sound);
 
 		array<Object> objects = new array<Object>;
-		GetGame().GetObjectsAtPosition3D(position, 300, objects, null);
+		GetGame().GetObjectsAtPosition(position, 300, objects, null);
 
 		foreach (Object obj: objects)
 		{
@@ -400,7 +401,7 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 	protected void RPC_PlayTeleportSound(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 		{
 			Error(ToString() + "::RPC_PlayTeleportSound - Magic number check failed!");
@@ -412,21 +413,21 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 			Error(ToString() + "::RPC_PlayTeleportSound - Tryed to call RPC_PlayTeleportSound on Server!");
 			return;
 		}
-		
+
 		vector position;
 		if (!ctx.Read(position))
 		{
 			Error(ToString() + "::RPC_PlayTeleportSound - Could not read position");
 			return;
 		}
-		
-		ExpansionTeleporterSound sound;
+
+		int sound;
 		if (!ctx.Read(sound))
 		{
 			Error(ToString() + "::RPC_PlayTeleportSound - Could not read sound");
 			return;
 		}
-		
+
 		string soundShader;
 		switch (sound)
 		{
@@ -437,21 +438,21 @@ class ExpansionTeleporterModule: CF_ModuleWorld
 				soundShader = "Blowout_Teleport";
 				break;
 		}
-		
+
 	#ifndef EDITOR
 		EffectSound soundEffect = SEffectManager.PlaySound(soundShader, position, 0, 0, false);
 		if (!soundEffect)
 			return;
 
-		soundEffect.SetParent(target);
+		//soundEffect.SetParent(target);
 		soundEffect.SetSoundAutodestroy(true);
 	#endif
 	}
-	
+
 	void AddTeleporterData(ExpansionTeleportData data)
 	{
 		auto trace = EXTrace.Start(EXTrace.TELEPORTER, this);
-		
+
 		if (!m_TeleporterData.Contains(data.GetID()))
 			m_TeleporterData.Insert(data.GetID(), data);
 	}
