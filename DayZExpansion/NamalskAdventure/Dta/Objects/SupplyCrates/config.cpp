@@ -19,11 +19,16 @@ class CfgVehicles
 	{
 		scope = 1;
 		displayName = "Supply Crate";
+		descriptionShort = "Not needed.";
+		handheld = "false";
+		weight = 50000;
+		physLayer = "item_large";
+		carveNavmesh = 1;
+		storageCategory = 10;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_medic.p3d";
 		hiddenSelections[] = {"door1",""};
 		hiddenSelectionsMaterials[] = {"nst\ns3\structures\crates\data\lantia_supply_crate.rvmat","nst\ns3\structures\crates\data\lantia_supply_crate_em.rvmat"};
 		heavyItem = 1;
-		weight = 50000;
 		absorbency = 0.1;
 		itemSize[] = {10,5};
 		attachments[] = {"Shoulder","Melee","Vest","Body","Hips","Legs","Back","Headgear","Mask","Eyewear","Gloves","Feet","Armband","Att_ExpansionSupplyCrateKey"};
@@ -148,26 +153,32 @@ class CfgVehicles
 	};
 	class Expansion_SupplyCrate_Bunker_Orange: Expansion_SupplyCrate_Base
 	{
+		scope = 2;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_medic.p3d";
 	};
 	class Expansion_SupplyCrate_Bunker_Green: Expansion_SupplyCrate_Base
 	{
+		scope = 2;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_military.p3d";
 	};
 	class Expansion_SupplyCrate_Bunker_Brown: Expansion_SupplyCrate_Base
 	{
+		scope = 2;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_tools.p3d";
 	};
 	class Expansion_SupplyCrate_World_T1_Orange: Expansion_SupplyCrate_Base
 	{
+		scope = 2;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_medic.p3d";
 	};
 	class Expansion_SupplyCrate_World_T1_Green: Expansion_SupplyCrate_Base
 	{
+		scope = 2;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_military.p3d";
 	};
 	class Expansion_SupplyCrate_World_T1_Brown: Expansion_SupplyCrate_Base
 	{
+		scope = 2;
 		model = "\nst\ns3\structures\crates\supplycrates_spawn_tools.p3d";
 	};
 };

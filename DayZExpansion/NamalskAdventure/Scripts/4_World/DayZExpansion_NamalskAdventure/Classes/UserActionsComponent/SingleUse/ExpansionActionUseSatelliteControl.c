@@ -10,33 +10,40 @@
  *
 */
 
-class ExpansionActionUseSatelliteControl: ActionSingleUseBase
+class ExpansionActionUseSatelliteControl: ActionInteractBase
 {
 	void ExpansionActionUseSatelliteControl()
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
-
-		m_Text = "#use";
+		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
+		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+		m_HUDCursorIcon = CursorIcons.CloseDoors;
+	}
+	
+	override string GetText()
+	{
+		return "Activate Antenna";
 	}
 
 	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTCursor;
-		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_ATTACHITEM;
-		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
+	}
+	
+	override typename GetInputType()
+	{
+		return InteractActionInput;
 	}
 
 	override bool ActionCondition(PlayerBase player, ActionTarget target, ItemBase item)
 	{
-		if (item.IsDamageDestroyed())
-			return false;
-
 		Expansion_Satellite_Control satControl = Expansion_Satellite_Control.Cast(target.GetObject());
 		if (!satControl) 
 			return false;
 		
-		return satControl.CanActivate();
+		bool is_in_range = vector.Distance(satControl.WorldToModel(player.GetPosition()), "0.0 0.7 0.4") < 2;
+		return (is_in_range && satControl.CanActivate());
 	}
 
 	override void OnStartServer(ActionData action_data)
@@ -47,9 +54,9 @@ class ExpansionActionUseSatelliteControl: ActionSingleUseBase
 		if (satControl)
 			satControl.StartSatellite();
 		
-		Expansion_KeyCard_NA_Antenna card = Expansion_KeyCard_NA_Antenna.Cast(action_data.m_MainItem);
-		if (card)
-			card.OnCardUsed();
+		Expansion_KeyCard_NA_Antenna keyCard = Expansion_KeyCard_NA_Antenna.Cast(satControl.FindAttachmentBySlotName("Att_ExpansionKeyCard"));
+		if (keyCard)
+			keyCard.OnCardUsed();
 	}
 	
 	protected void ExDebugPrint(string text)

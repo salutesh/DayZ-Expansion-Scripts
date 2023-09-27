@@ -12,13 +12,6 @@
 
 class Expansion_KeyCard_NA_Antenna extends ItemBase
 {
-	override void SetActions()
-	{
-		super.SetActions();
-
-		AddAction(ExpansionActionUseSatelliteControl);
-	}
-
 	void OnCardUsed()
 	{
 		AddHealthLevel(1);

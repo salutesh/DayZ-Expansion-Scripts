@@ -72,8 +72,8 @@ class CfgVehicles
 		{
 			class Attachments
 			{
-				name = "$STR_attachment_accessories";
-				description = "";
+				name = "Anomaly Core";
+				description = "Not needed.";
 				attachmentSlots[] = {"Att_ExpansionAnomalyCore"};
 				icon = "set:expansion_inventory image:anomaly";
 			};

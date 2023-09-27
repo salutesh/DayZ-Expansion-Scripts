@@ -33,6 +33,13 @@ class CfgSlots
 		selection = "att_generator_key";
 		ghostIcon = "set:expansion_inventory image:icon_options";
 	};
+	class Slot_Att_ExpansionKeyCard
+	{
+		name = "Att_ExpansionKeyCard";
+		displayName = "Key Card";
+		selection = "att_key_card";
+		ghostIcon = "set:dayz_inventory image:cat_fp_tents";
+	};
 };
 class CfgVehicles
 {
@@ -211,10 +218,11 @@ class CfgVehicles
 		scope = 2;
 		model = "DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\Key_Card.p3d";
 		displayName = "Satellite Control Access Card";
-		descriptionShort = "PLACEHOLDER";
+		descriptionShort = "A security access card. The printing shows a sattelite antenna.";
 		hiddenSelections[] = {"chip","keycard"};
 		hiddenSelectionsTextures[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\chip_co.paa","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\keycard_SAT_co.paa"};
 		hiddenSelectionsMaterials[] = {"DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card_Chip.rvmat","DayZExpansion\NamalskAdventure\Dta\Items\Key_Cards\data\Expansion_Key_Card.rvmat"};
+		inventorySlot[] = {"Att_ExpansionKeyCard"};
 	};
 	class Expansion_KeyCard_Teleporter: Expansion_KeyCard_Base
 	{

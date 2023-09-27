@@ -732,12 +732,20 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(ExpansionWorldObjectsModule.SpawnObject("SV_Abandoned_Sattelite_Antenna", Vector(1202.799561, 14.207986, 11784.280273), Vector(81.209969, -0.000000, -0.000000), false, false));
+		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(GetGame().CreateObject("SV_Abandoned_Sattelite_Antenna", Vector(1202.799561, 14.207986, 11784.280273)));
+		if (m_AbdonedSatellite)
+		{
+			m_AbdonedSatellite.SetPosition(Vector(1202.799561, 14.207986, 11784.280273));
+			m_AbdonedSatellite.SetOrientation(Vector(81.209969, -0.000000, -0.000000));
+			m_AbdonedSatellite.Update();
+		}
 
 		#ifdef EXPANSIONMODTELEPORTER
-		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508), Vector(-100.711388, -0.000000, -0.000000), false, false));
+		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(GetGame().CreateObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508)));
 		if (m_SatelliteTeleporter)
 		{
+			m_SatelliteTeleporter.SetPosition(Vector(1200.880127, 4.619668, 11780.145508));
+			m_SatelliteTeleporter.SetOrientation(Vector(-100.711388, -0.000000, -0.000000));
 			m_SatelliteTeleporter.SetTeleporterID(100);
 			m_SatelliteTeleporter.SetActive(false);
 
@@ -754,20 +762,23 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			teleporterData.AddTeleportPosition(teleportPos);
 
 			ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
+			m_SatelliteTeleporter.Update();
 		}
 		#endif
 
-		m_SatelliteController = Expansion_Satellite_Control.Cast(ExpansionWorldObjectsModule.SpawnObject("Expansion_Satellite_Control", Vector(1204.062256, 5.146724, 11782.631836), Vector(171.544205, 0.000000, 0.000000), false, false));
+		m_SatelliteController = Expansion_Satellite_Control.Cast(GetGame().CreateObject("Expansion_Satellite_Control", Vector(1204.16, 5.16302, 11782.6)));
 		if (m_SatelliteController)
 		{
+			m_SatelliteController.SetOrientation(Vector(-7.455, 0, -0));
+			m_SatelliteController.SetPosition(Vector(1204.16, 5.16302, 11782.6));
 			if (m_AbdonedSatellite)
 				m_SatelliteController.SetLinkedSatellite(m_AbdonedSatellite);
 			#ifdef EXPANSIONMODTELEPORTER
 			if (m_SatelliteTeleporter)
 				m_SatelliteController.SetLinkedTeleporter(m_SatelliteTeleporter);
 			#endif
-			
 			SetSatelitteActive(true);
+			m_SatelliteController.Update();
 		}
 	}
 
@@ -969,12 +980,10 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		array<ref ExpansionSupplyCrateSetup> supplyCrateSpawns = GetExpansionSettings().GetNamalskAdventure().GetSupplyCrateSpawns();
 		foreach (ExpansionSupplyCrateSetup supplyCrate: supplyCrateSpawns)
 		{
-			Object obj = GetGame().CreateObjectEx(supplyCrate.ClassName, supplyCrate.Position, ECE_UPDATEPATHGRAPH | ECE_CREATEPHYSICS | ECE_NOLIFETIME);
-			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(obj);
+			Expansion_SupplyCrate_Base supplyCareObj = Expansion_SupplyCrate_Base.Cast(GetGame().CreateObject(supplyCrate.ClassName, supplyCrate.Position));
 			if (!supplyCareObj)
 			{
 				Error(ToString() + "::SpawnSupplyCrates - Could not spawn supply crate object!");
-				GetGame().ObjectDelete(obj);
 				continue;
 			}
 

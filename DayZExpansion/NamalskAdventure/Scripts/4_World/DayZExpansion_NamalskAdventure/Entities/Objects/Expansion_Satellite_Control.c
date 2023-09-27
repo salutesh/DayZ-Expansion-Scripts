@@ -19,7 +19,7 @@ enum Expansion_Satellite_Control_ERPCs
 
 //! @note: Can only be used when the BuildingsModPack mod by Starlv is loaded: https://steamcommunity.com/sharedfiles/filedetails/?id=2270098553
 #ifdef EXPANSION_NAMALSK_ADVENTURE
-class Expansion_Satellite_Control: House
+class Expansion_Satellite_Control: ItemBase
 {
 	#ifdef DIAG
 	#ifdef EXPANSIONMODNAVIGATION
@@ -144,7 +144,7 @@ class Expansion_Satellite_Control: House
 	
 	bool CanActivate()
 	{		
-		if (m_IsSatelliteActive || m_IsSatelliteBooting || !m_CanActivate)
+		if (m_IsSatelliteActive || m_IsSatelliteBooting || !m_CanActivate || !HasKeyCard())
 			return false;
 
 		return true;
@@ -296,6 +296,31 @@ class Expansion_Satellite_Control: House
 				break;
 			}
 		}
+	}
+	
+	bool HasKeyCard()
+	{
+		ItemBase keyCard = ItemBase.Cast(FindAttachmentBySlotName("Att_ExpansionKeyCard"));		
+		if (keyCard && !keyCard.IsDamageDestroyed())
+			return true;
+		
+		return false;
+	}
+	
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ExpansionActionUseSatelliteControl);
+	}
+	
+	override bool CanPutInCargo(EntityAI parent)
+	{
+		return false;
+	}
+
+	override bool CanPutIntoHands(EntityAI parent)
+	{
+		return false;
 	}
 
 	#ifdef DIAG
