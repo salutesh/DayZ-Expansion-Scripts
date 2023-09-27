@@ -1331,20 +1331,65 @@ class ExpansionQuest
 	{
 		array<ref ExpansionQuestRewardConfig> questRewards = m_Config.GetRewards();
 		PlayerBase questPlayer = PlayerBase.GetPlayerByUID(playerUID);
+		array<float> chances;
+		int index = -1;
+		
+		int lootItemsSpawned = 0;
+		int itemCount = 0;
+		
+		//! Collect reward chances from config if reward is random
+		if (m_Config.RandomReward() && questRewards.Count() > 1)
+		{
+			itemCount = m_Config.GetRandomRewardAmount();
+			chances = new array<float>;
+			foreach (ExpansionQuestRewardConfig rewardConfig: questRewards)
+			{
+				chances.Insert(rewardConfig.GetChance());
+			}
+		}
+		
 		if (!m_Config.IsGroupQuest())
 		{
-			if (m_Config.NeedToSelectReward())
+			if (m_Config.NeedToSelectReward() && reward)
 			{
-				if (reward)
+				QuestDebugPrint("Spawn selected reward: " + reward.ToString());
+				SpawnReward(reward, questPlayer, questPlayer, questPlayer.GetPosition(), questPlayer.GetOrientation());
+			}
+			else if (m_Config.RandomReward() && questRewards.Count() > 1)
+			{
+				ExpansionQuestRewardConfig radomReward;
+				
+				if (itemCount > 0)
 				{
-					QuestDebugPrint("Spawn selected reward: " + reward.ToString());
-					SpawnReward(reward, questPlayer, questPlayer, questPlayer.GetPosition(), questPlayer.GetOrientation());
+					while (lootItemsSpawned < itemCount)
+					{
+						index = ExpansionStatic.GetWeightedRandom(chances);
+						if (index > -1)
+						{
+							radomReward = questRewards[index];
+							SpawnReward(radomReward, questPlayer, questPlayer, questPlayer.GetPosition(), questPlayer.GetOrientation());
+							lootItemsSpawned++;
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					index = ExpansionStatic.GetWeightedRandom(chances);
+					if (index > -1)
+					{
+						radomReward = questRewards[index];
+						SpawnReward(radomReward, questPlayer, questPlayer, questPlayer.GetPosition(), questPlayer.GetOrientation());
+					}
 				}
 			}
 			else
 			{
 				if (questRewards && questRewards.Count() > 0)
-				{
+				{					
 					foreach (ExpansionQuestRewardConfig questReward: questRewards)
 					{
 						SpawnReward(questReward, questPlayer, questPlayer, questPlayer.GetPosition(), questPlayer.GetOrientation());
@@ -1378,7 +1423,7 @@ class ExpansionQuest
 				//! ToDo: Notification to online group- aka quest-members.
 				return;
 			}
-
+			
 			foreach (string memberUID: m_PlayerUIDs)
 			{
 				if (m_Config.RewardsForGroupOwnerOnly())
@@ -1399,10 +1444,41 @@ class ExpansionQuest
 					continue;
 				}
 
-				if (m_Config.NeedToSelectReward && reward)
+				if (m_Config.NeedToSelectReward() && reward)
 				{
 					QuestDebugPrint("Spawn selected reward: " + reward.ToString());
 					SpawnReward(reward, groupPlayer, groupPlayer, groupPlayer.GetPosition(), m_Player.GetOrientation());
+				}
+				else if (m_Config.RandomReward() && questRewards.Count() > 1)
+				{
+					ExpansionQuestRewardConfig groupPlayerReward;
+					
+					if (itemCount > 0)
+					{
+						while (lootItemsSpawned < itemCount)
+						{
+							index = ExpansionStatic.GetWeightedRandom(chances);
+							if (index > -1)
+							{
+								groupPlayerReward = questRewards[index];
+								SpawnReward(groupPlayerReward, groupPlayer, groupPlayer, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
+								lootItemsSpawned++;
+							}
+							else
+							{
+								break;
+							}
+						}
+					}
+					else
+					{
+						index = ExpansionStatic.GetWeightedRandom(chances);
+						if (index > -1)
+						{
+							groupPlayerReward = questRewards[index];
+							SpawnReward(groupPlayerReward, groupPlayer, groupPlayer, groupPlayer.GetPosition(), groupPlayer.GetOrientation());
+						}
+					}
 				}
 				else
 				{

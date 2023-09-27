@@ -534,6 +534,11 @@ class ExpansionQuestMenu: ExpansionScriptViewMenu
 			{
 				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARD_LABEL");
 			}
+			else if (quest.RandomReward() && quest.GetRewards().Count() > 1)
+			{
+				StringLocaliser loc = new StringLocaliser("STR_EXPANSION_QUEST_MENU_RANDOMREWARD_LABEL", quest.GetRandomRewardAmount().ToString());
+				Reward.SetText(loc.Format());
+			}
 			else
 			{
 				Reward.SetText("#STR_EXPANSION_QUEST_MENU_REWARDS_LABEL");
