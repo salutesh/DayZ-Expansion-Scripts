@@ -32,6 +32,8 @@ modded class ModItemRegisterCallbacks
 		pType.AddItemInHandsProfileIK("AmmunitionSupplies", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/cleaning_kit_wood.anm");
 		pType.AddItemInHandsProfileIK("NA_Dokuments_AthenaOneBunker1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
 		pType.AddItemInHandsProfileIK("NA_Dokuments_AthenaOneBunker2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
-		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna1", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna2", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
+		pType.AddItemInHandsProfileIK("NA_Dokuments_Antenna3", "dz/anims/workspaces/player/player_main/player_main_1h.asi", pBehavior, "dz/anims/anm/player/ik/gear/paper.anm");
 	}
 };

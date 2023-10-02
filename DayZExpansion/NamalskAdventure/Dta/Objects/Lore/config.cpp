@@ -7,13 +7,72 @@ class CfgPatches
 		units[] = {};
 		weapons[] = {};
 		requiredVersion = 0.1;
-		requiredAddons[] = {"DZ_Data","DZ_Structures_Residential","ns2_build_a3"};
+		requiredAddons[] = {"DZ_Data","DZ_Structures_Residential","ns2_build_a3","DayZExpansion_Objects_Gear_Electricity"};
 	};
 };
 class CfgVehicles
 {
 	class HouseNoDestruct;
 	class Inventory_Base;
+	class ExpansionGenerator_Base;
+	class Expansion_Satellite_Generator: ExpansionGenerator_Base
+	{
+		scope = 2;
+		displayName = "$STR_EXPANSION_MOBILE_GENERATOR";
+		descriptionShort = "Not needed.";
+		model = "\DayZExpansion\Objects\Gear\Electricity\NewGenerator.p3d";
+		inputRange = 24;
+		fuelTankCapacity = 7000;
+		handheld = "false";
+		weight = 50000;
+		physLayer = "item_large";
+		carveNavmesh = 1;
+		storageCategory = 10;
+		class EnergyManager
+		{
+			hasIcon = 1;
+			autoSwitchOff = 1;
+			energyStorageMax = 10000;
+			energyUsagePerSecond = 0.28;
+			reduceMaxEnergyByDamageCoef = 0.5;
+			energyAtSpawn = 5000;
+			powerSocketsCount = 4;
+			compatiblePlugTypes[] = {2,"PLUG_PAS_TERMINAL",6};
+		};
+		class AnimationSources
+		{
+			class socket_1_plugged
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class socket_2_plugged
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class socket_3_plugged
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class socket_4_plugged
+			{
+				source = "user";
+				animPeriod = 0.01;
+				initPhase = 1;
+			};
+			class dial_fuel
+			{
+				source = "user";
+				animPeriod = 1;
+				initPhase = 0;
+			};
+		};
+	};
 	class Expansion_Satellite_Control: Inventory_Base
 	{
 		scope = 2;
@@ -216,14 +275,66 @@ class CfgVehicles
 			};
 		};
 	};
-	class NA_Dokuments_Antenna: Inventory_Base
+	class NA_Dokuments_Antenna1: Inventory_Base
 	{
 		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
 		scope = 2;
-		title = "PLACEHOLDER";
+		title = "Outpost Expedition";
 		author = "NAC";
 		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\secret_antenna.html";
-		displayName = "PLACEHOLDER";
+		displayName = "Outpost Expedition";
+		descriptionShort = "PLACEHOLDER";
+		hiddenSelections[] = {"camoGround"};
+		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};
+		rotationFlags = 1;
+		weight = 100;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 100;
+					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
+					healthLevels[] = {{1.0,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.7,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.5,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.3,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.0,{"nst\ns_dayz\gear\lore\data\lore_paper_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class NA_Dokuments_Antenna2: Inventory_Base
+	{
+		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
+		scope = 2;
+		title = "Outpost Attack";
+		author = "NAC";
+		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\antenna_attack.html";
+		displayName = "Outpost Attack";
+		descriptionShort = "PLACEHOLDER";
+		hiddenSelections[] = {"camoGround"};
+		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};
+		rotationFlags = 1;
+		weight = 100;
+		class DamageSystem
+		{
+			class GlobalHealth
+			{
+				class Health
+				{
+					hitpoints = 100;
+					healthLabels[] = {1.0,0.7,0.5,0.3,0.0};
+					healthLevels[] = {{1.0,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.7,{"nst\ns_dayz\gear\lore\data\lore_paper.rvmat"}},{0.5,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.3,{"nst\ns_dayz\gear\lore\data\lore_paper_damage.rvmat"}},{0.0,{"nst\ns_dayz\gear\lore\data\lore_paper_destruct.rvmat"}}};
+				};
+			};
+		};
+	};
+	class NA_Dokuments_Antenna3: Inventory_Base
+	{
+		model = "\nst\ns_dayz\gear\lore\paper_files.p3d";
+		scope = 2;
+		title = "Outpost Research";
+		author = "NAC";
+		file = "DayZExpansion\NamalskAdventure\Dta\Objects\Lore\data\antenna_research.html";
+		displayName = "Outpost Research";
 		descriptionShort = "PLACEHOLDER";
 		hiddenSelections[] = {"camoGround"};
 		hiddenSelectionsTextures[] = {"nst\ns_dayz\gear\lore\data\paper_files2_co.paa"};

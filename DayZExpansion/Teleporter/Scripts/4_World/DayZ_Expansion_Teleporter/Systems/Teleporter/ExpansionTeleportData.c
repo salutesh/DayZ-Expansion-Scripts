@@ -205,6 +205,7 @@ class ExpansionTeleportData: ExpansionTeleportDataBase
 		teleportObj.SetPosition(m_ObjectPosition);
 		teleportObj.SetOrientation(m_ObjectOrientation);
 		teleportObj.SetTeleporterID(m_ID);
+		teleportObj.SetActive(true);
 	}
 
 	void OnSend(ParamsWriteContext ctx)

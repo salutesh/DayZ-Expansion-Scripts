@@ -498,7 +498,9 @@ class ExpansionItemSpawnHelper
 		switch (location.GetType())
 		{
 			case InventoryLocationType.GROUND:
-				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
+				//! XXX: LocationCreateEntity with ECE_PLACE_ON_SURFACE broke somewhere around 1.20 (object rotation isn't applied)
+				//dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_PLACE_ON_SURFACE, RF_DEFAULT);
+				dst = EntityAI.Cast(GetGame().CreateObjectEx(src.GetType(), location.GetPos(), ECE_PLACE_ON_SURFACE));
 				break;
 			case InventoryLocationType.ATTACHMENT:
 				dst = GameInventory.LocationCreateEntity(location, src.GetType(), ECE_IN_INVENTORY, RF_DEFAULT);

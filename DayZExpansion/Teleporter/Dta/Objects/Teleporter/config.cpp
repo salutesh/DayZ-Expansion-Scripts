@@ -13,12 +13,16 @@ class CfgPatches
 class CfgVehicles
 {
 	class HouseNoDestruct;
+	class Expansion_Teleporter_Base: HouseNoDestruct
+	{
+		scope = 1;
+	};
 	class Expansion_Teleporter_Pad: HouseNoDestruct
 	{
 		scope = 2;
 		model = "\DayZExpansion\Teleporter\Dta\Objects\Teleporter\Teleporter_Pad.p3d";
 	};
-	class Expansion_Teleporter_Big: HouseNoDestruct
+	class Expansion_Teleporter_Big: Expansion_Teleporter_Base
 	{
 		scope = 2;
 		model = "\DayZExpansion\Teleporter\Dta\Objects\Teleporter\teleporter.p3d";

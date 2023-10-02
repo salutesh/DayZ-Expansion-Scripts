@@ -60,10 +60,14 @@ class Expansion_Satellite_Control: ItemBase
 			return;
 
 		ExpansionMarkerModule markerModule;
-		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
-		if (markerModule)
+		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))
 			markerModule.RemoveServerMarker(m_ServerMarker.GetUID());
 		#endif
+		#endif
+		
+		#ifndef SERVER
+		if (m_RunSFX)
+			StopSoundSet(m_RunSFX);
 		#endif
 	}
 
@@ -143,8 +147,8 @@ class Expansion_Satellite_Control: ItemBase
 	}
 	
 	bool CanActivate()
-	{		
-		if (m_IsSatelliteActive || m_IsSatelliteBooting || !m_CanActivate || !HasKeyCard())
+	{
+		if (m_IsSatelliteActive || m_IsSatelliteBooting || !m_CanActivate || !HasKeyCard() || !HasEnergy())
 			return false;
 
 		return true;
@@ -166,7 +170,10 @@ class Expansion_Satellite_Control: ItemBase
 		{
 			PlayerBase player = PlayerBase.Cast(objects[i]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, null, true, player.GetIdentity());
+			{
+				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX, param, true, player.GetIdentity());
+			}
 		}
 		
 		SetSatelliteBooting(true);
@@ -186,7 +193,10 @@ class Expansion_Satellite_Control: ItemBase
 		{
 			PlayerBase player = PlayerBase.Cast(objects[j]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, null, true, player.GetIdentity());
+			{
+				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX, param, true, player.GetIdentity());
+			}
 		}
 		
 		#ifdef EXPANSIONMODTELEPORTER
@@ -211,7 +221,10 @@ class Expansion_Satellite_Control: ItemBase
 		{
 			PlayerBase player = PlayerBase.Cast(objects[i]);
 			if (player && player.GetIdentity())
-				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX, null, true, player.GetIdentity());
+			{
+				Param1<EntityAI> param = new Param1<EntityAI>(m_LinkedSatellite);
+				GetGame().RPCSingleParam(this, Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX, param, true, player.GetIdentity());
+			}
 		}
 		
 		#ifdef EXPANSIONMODTELEPORTER
@@ -221,6 +234,7 @@ class Expansion_Satellite_Control: ItemBase
 		
 		SetSatelliteState(false);
 		m_LinkedSatellite.SetSatelliteActive(false);
+		ExpansionNamalskModule.GetModuleInstance().OverloadSatelliteGenerator();
 	}
 	
 	override void OnVariablesSynchronized()
@@ -231,32 +245,32 @@ class Expansion_Satellite_Control: ItemBase
 		super.OnVariablesSynchronized();
 	}
 	
-	protected void PlaySFXBoot()
+	protected void PlaySFXBoot(EntityAI satellite)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		if (!GetGame().IsDedicatedServer())
 		{
-			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", GetPosition(), 0, 0, false);
+			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", satellite.GetPosition(), 0, 0, false);
 			if (!soundEffect)
 				return;
 	
-			soundEffect.SetParent(this);
+			soundEffect.SetParent(satellite);
 			soundEffect.SetSoundAutodestroy(true);
 		}
 	}
 	
-	protected void PlaySFXActive()
+	protected void PlaySFXActive(EntityAI satellite)
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
 		if (!GetGame().IsDedicatedServer() && !m_RunSFX)
 		{
-			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", GetPosition(), 0, 0, false);
+			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", satellite.GetPosition(), 0, 0, false);
 			if (!m_RunSFX)
 				return;
 	
-			m_RunSFX.SetParent(this);
+			m_RunSFX.SetParent(satellite);
 			m_RunSFX.SetSoundAutodestroy(true);
 			m_RunSFX.SetSoundFadeOut(1.0);
 		}
@@ -272,30 +286,54 @@ class Expansion_Satellite_Control: ItemBase
 			{
 				case Expansion_Satellite_Control_ERPCs.PLAY_BOOT_SFX:
 				{
-					#ifndef EDITOR
-					PlaySFXBoot();
-					#endif
+				#ifndef EDITOR
+					Param1<EntityAI> paramBoot = new Param1<EntityAI>(null);
+					if (!ctx.Read(paramBoot))
+						return;
+					
+					PlaySFXBoot(paramBoot.param1);
+				#endif
 				}
 				break;
 				case Expansion_Satellite_Control_ERPCs.PLAY_RUNNING_SFX:
 				{
-					#ifndef EDITOR
-					PlaySFXActive();
-					#endif
+				#ifndef EDITOR
+					Param1<EntityAI> paramRun = new Param1<EntityAI>(null);
+					if (!ctx.Read(paramRun))
+						return;
+
+					PlaySFXActive(paramRun.param1);
+				#endif
 				}
 				break;
 				case Expansion_Satellite_Control_ERPCs.PLAY_SHUTDOWN_SFX:
 				{
-					#ifndef EDITOR
+				#ifndef EDITOR
 					if (m_RunSFX)
 						m_RunSFX.SoundStop();
+					
+					Param1<EntityAI> paramStop = new Param1<EntityAI>(null);
+					if (!ctx.Read(paramStop))
+						return;
 
-					PlaySFXBoot();
-					#endif
+					PlaySFXBoot(paramStop.param1);
+				#endif
 				}
 				break;
 			}
 		}
+	}
+	
+	bool HasEnergy()
+	{
+		ExpansionNamalskModule namalskModule;
+		if (CF_Modules<ExpansionNamalskModule>.Get(namalskModule))
+		{
+			if (namalskModule.HasSatelliteFacilityPower())
+				return true;
+		}
+		
+		return false;
 	}
 	
 	bool HasKeyCard()
@@ -330,8 +368,7 @@ class Expansion_Satellite_Control: ItemBase
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
 		ExpansionMarkerModule markerModule;
-		CF_Modules<ExpansionMarkerModule>.Get(markerModule);
-		if (markerModule)
+		if (CF_Modules<ExpansionMarkerModule>.Get(markerModule))
 			markerModule.CreateServerMarker(GetType(), "Options", Vector(GetPosition()[0], GetPosition()[1] + 1.0, GetPosition()[2]), ARGB(255, 44, 62, 80), true);
 	}
 	#endif

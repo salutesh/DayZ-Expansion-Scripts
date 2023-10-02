@@ -111,7 +111,25 @@ class NA_Dokuments_AthenaOneBunker2 extends ItemBase
 	}
 };
 
-class NA_Dokuments_Antenna extends ItemBase
+class NA_Dokuments_Antenna1 extends ItemBase
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ActionReadBook);
+	}
+};
+
+class NA_Dokuments_Antenna2 extends ItemBase
+{
+	override void SetActions()
+	{
+		super.SetActions();
+		AddAction(ActionReadBook);
+	}
+};
+
+class NA_Dokuments_Antenna3 extends ItemBase
 {
 	override void SetActions()
 	{

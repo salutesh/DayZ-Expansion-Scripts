@@ -41,6 +41,9 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	protected Expansion_Teleporter_Big m_SatelliteTeleporter;
 	#endif
 	protected Expansion_Satellite_Control m_SatelliteController;
+	protected Expansion_Satellite_Generator m_SatelliteGenerator;
+	
+	protected bool m_SatelliteFacilityHasPower = false;
 
 	protected const float UPDATE_TICK_TIME = 0.500;
 	protected float m_UpdateQueueTimer;
@@ -732,27 +735,35 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(GetGame().CreateObject("SV_Abandoned_Sattelite_Antenna", Vector(1202.799561, 14.207986, 11784.280273)));
+		m_AbdonedSatellite = SV_Abandoned_Sattelite_Antenna.Cast(GetGame().CreateObject("SV_Abandoned_Sattelite_Antenna", "1227.198242 14.356772 11766.359375"));
 		if (m_AbdonedSatellite)
 		{
-			m_AbdonedSatellite.SetPosition(Vector(1202.799561, 14.207986, 11784.280273));
-			m_AbdonedSatellite.SetOrientation(Vector(81.209969, -0.000000, -0.000000));
+			m_AbdonedSatellite.SetPosition("1227.198242 14.356772 11766.359375");
+			m_AbdonedSatellite.SetOrientation("81.432739 0.000000 -0.000000");
 			m_AbdonedSatellite.Update();
 		}
+		
+		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(GetGame().CreateObject("Expansion_Satellite_Generator", "1178.422852 1.904593 11814.569336"));
+		if (m_SatelliteGenerator)
+		{
+			m_SatelliteGenerator.SetPosition("1178.422852 1.904593 11814.569336");
+			m_SatelliteGenerator.SetOrientation("-107.350060 0.000000 -0.000000");
+			m_SatelliteGenerator.Update();
+		}
 
-		#ifdef EXPANSIONMODTELEPORTER
-		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(GetGame().CreateObject("Expansion_Teleporter_Big", Vector(1200.880127, 4.619668, 11780.145508)));
+	#ifdef EXPANSIONMODTELEPORTER
+		m_SatelliteTeleporter = Expansion_Teleporter_Big.Cast(GetGame().CreateObject("Expansion_Teleporter_Big", "1211.435059 2.206216 11724.829102"));
 		if (m_SatelliteTeleporter)
 		{
-			m_SatelliteTeleporter.SetPosition(Vector(1200.880127, 4.619668, 11780.145508));
-			m_SatelliteTeleporter.SetOrientation(Vector(-100.711388, -0.000000, -0.000000));
+			m_SatelliteTeleporter.SetPosition("1211.435059 2.206216 11724.829102");
+			m_SatelliteTeleporter.SetOrientation("-95.745811 0.000000 0.000000");
 			m_SatelliteTeleporter.SetTeleporterID(100);
 			m_SatelliteTeleporter.SetActive(false);
 
 			ExpansionTeleportData teleporterData = new ExpansionTeleportData();
 			teleporterData.SetID(100);
 			teleporterData.SetDisplayName("???");
-			teleporterData.SetObjectPosition(Vector(1200.880127, 4.619668, 11780.145508));
+			teleporterData.SetObjectPosition("1211.435059 2.206216 11724.829102");
 
 			ExpansionTeleportPosition teleportPos = new ExpansionTeleportPosition();
 			teleportPos.SetData("???");
@@ -764,13 +775,13 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			ExpansionTeleporterModule.GetModuleInstance().AddTeleporterData(teleporterData);
 			m_SatelliteTeleporter.Update();
 		}
-		#endif
+	#endif
 
-		m_SatelliteController = Expansion_Satellite_Control.Cast(GetGame().CreateObject("Expansion_Satellite_Control", Vector(1204.16, 5.16302, 11782.6)));
+		m_SatelliteController = Expansion_Satellite_Control.Cast(GetGame().CreateObject("Expansion_Satellite_Control", "1224.994385 2.595994 11725.995117"));
 		if (m_SatelliteController)
 		{
-			m_SatelliteController.SetOrientation(Vector(-7.455, 0, -0));
-			m_SatelliteController.SetPosition(Vector(1204.16, 5.16302, 11782.6));
+			m_SatelliteController.SetPosition("1224.994385 2.595994 11725.995117");
+			m_SatelliteController.SetOrientation("-100.212784 0.000000 -0.000000");
 			if (m_AbdonedSatellite)
 				m_SatelliteController.SetLinkedSatellite(m_AbdonedSatellite);
 			#ifdef EXPANSIONMODTELEPORTER
@@ -790,6 +801,58 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		Param3<bool, vector, int> satelliteCry = new Param3<bool, vector, int>(true, Vector(1202, 14, 11784), soundSet.Hash());
 		GetGame().RPCSingleParam(null, ERPCs.RPC_SOUND_HELICRASH, satelliteCry, true);
 	}
+	
+	void SetSatelliteFacilityPower(bool state)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (state == m_SatelliteFacilityHasPower)
+			return;
+		
+		if (state)
+		{
+			ActivateSatelliteFacility();
+		}
+		else
+		{
+			DeactivateSatelliteFacility();
+		}
+		
+		m_SatelliteFacilityHasPower = state;
+	}
+	
+	void ActivateSatelliteFacility()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	}
+	
+	void DeactivateSatelliteFacility()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+	}
+	
+	void OverloadSatelliteGenerator()
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		if (m_SatelliteGenerator)
+		{
+			if (m_SatelliteGenerator.GetCompEM().CanSwitchOff())
+			{
+				m_SatelliteGenerator.GetCompEM().SwitchOff();
+				m_SatelliteGenerator.GetCompEM().InteractBranch(m_SatelliteGenerator);
+			}
+			
+			ItemBase sparkPlug = ItemBase.Cast(m_SatelliteGenerator.FindAttachmentBySlotName("SparkPlug"));
+			if (sparkPlug)
+				sparkPlug.AddHealthLevel(4);
+		}
+	}
+	
+	bool HasSatelliteFacilityPower()
+	{
+		return m_SatelliteFacilityHasPower;
+	}
 
 	void SetSatelitteActive(bool state)
 	{
@@ -808,6 +871,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 
 		m_SatelliteState = state;
+	}
+	
+	bool GetSatelliteState()
+	{
+		return m_SatelliteState;
 	}
 
 	void ActivateSatellite()
@@ -853,6 +921,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	Expansion_Satellite_Control GetSatelliteController()
 	{
 		return m_SatelliteController;
+	}
+	
+	Expansion_Satellite_Generator GetSatelliteGenerator()
+	{
+		return m_SatelliteGenerator;
 	}
 	
 	protected void SpawnFusionCores()
