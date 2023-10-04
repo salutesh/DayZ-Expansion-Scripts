@@ -743,11 +743,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 			m_AbdonedSatellite.Update();
 		}
 		
-		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(GetGame().CreateObject("Expansion_Satellite_Generator", "1178.422852 1.904593 11814.569336"));
+		m_SatelliteGenerator = Expansion_Satellite_Generator.Cast(GetGame().CreateObject("Expansion_Satellite_Generator", "1193.147095 1.941499 11813.058594"));
 		if (m_SatelliteGenerator)
 		{
-			m_SatelliteGenerator.SetPosition("1178.422852 1.904593 11814.569336");
-			m_SatelliteGenerator.SetOrientation("-107.350060 0.000000 -0.000000");
+			m_SatelliteGenerator.SetPosition("1193.147095 1.941499 11813.058594");
+			m_SatelliteGenerator.SetOrientation("-98.999878 0.000000 -0.000000");
 			m_SatelliteGenerator.Update();
 		}
 
@@ -777,11 +777,11 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		}
 	#endif
 
-		m_SatelliteController = Expansion_Satellite_Control.Cast(GetGame().CreateObject("Expansion_Satellite_Control", "1224.994385 2.595994 11725.995117"));
+		m_SatelliteController = Expansion_Satellite_Control.Cast(GetGame().CreateObject("Expansion_Satellite_Control", "1221.751343 2.596711 11723.593750"));
 		if (m_SatelliteController)
 		{
-			m_SatelliteController.SetPosition("1224.994385 2.595994 11725.995117");
-			m_SatelliteController.SetOrientation("-100.212784 0.000000 -0.000000");
+			m_SatelliteController.SetPosition("1221.751343 2.596711 11723.593750");
+			m_SatelliteController.SetOrientation("-10.577682 0.000000 -0.000000");
 			if (m_AbdonedSatellite)
 				m_SatelliteController.SetLinkedSatellite(m_AbdonedSatellite);
 			#ifdef EXPANSIONMODTELEPORTER
@@ -1267,6 +1267,16 @@ class ExpansionNamalskModule: CF_ModuleWorld
 				RPC_SendWorkbenchData(rpc.Context, rpc.Sender, rpc.Target);
 				break;
 			}
+			case ExpansionNamalskModuleRPC.SendWorkbenchResult:
+			{
+				RPC_SendWorkbenchResult(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
+			case ExpansionNamalskModuleRPC.SetWorkbenchState:
+			{
+				RPC_SetWorkbenchState(rpc.Context, rpc.Sender, rpc.Target);
+				break;
+			}
 		}
 	}
 
@@ -1274,33 +1284,15 @@ class ExpansionNamalskModule: CF_ModuleWorld
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 
-		if (!GetGame().IsServer() && !GetGame().IsMultiplayer())
-		{
-			Error(ToString() + "::SendWorkbenchData - Tried to call SendWorkbenchData on Client!");
-			return;
-		}
-
-		Land_Repair_Center repair_center;
-		if (!Class.CastTo(repair_center, target))
+		Expansion_3DPrinter printer;
+		if (!Class.CastTo(printer, target))
 		{
 			Error(ToString() + "::SendWorkbenchData - Invalid target for repair center object!");
 			return;
 		}
 
-		RepairBenchGenerator repair_generator;
-		if (!Class.CastTo(repair_generator, repair_center.GetGenerator()))
-		{
-			Error(ToString() + "::SendWorkbenchData - Could not get repair center generator!");
-			return;
-		}
-
-		int lowBitsGen, highBitsGen;
-		repair_generator.GetNetworkID(lowBitsGen, highBitsGen);
-
 		auto rpc = ExpansionScriptRPC.Create();
-		rpc.Write(lowBitsGen);
-		rpc.Write(highBitsGen);
-		rpc.Send(repair_center, ExpansionNamalskModuleRPC.SendWorkbenchData, true, identity);
+		rpc.Send(printer, ExpansionNamalskModuleRPC.SendWorkbenchData, true, identity);
 	}
 
 	protected void RPC_SendWorkbenchData(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
@@ -1310,43 +1302,131 @@ class ExpansionNamalskModule: CF_ModuleWorld
 		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
 			return;
 
-		if (!GetGame().IsClient())
+		Expansion_3DPrinter printer;
+		if (!Class.CastTo(printer, target))
 		{
-			Error(ToString() + "::RPC_SendWorkbenchData - Tried to call RPC_SendWorkbenchData on Server!");
+			Error(ToString() + "::RPC_SendWorkbenchData - Invalid target for 3D printer object!");
 			return;
 		}
 
+		m_WorkbenchMenuInvoker.Invoke(printer);
+	}
+	
+	void SendWorkbenchResult(Expansion_3DPrinter printer, NA_WorkbenchRecipe recipe)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		int lowBitsGen, highBitsGen;
+		printer.GetNetworkID(lowBitsGen, highBitsGen);
+		
+		auto rpc = ExpansionScriptRPC.Create();
+		rpc.Write(lowBitsGen);
+		rpc.Write(highBitsGen);
+		recipe.OnSend(rpc);
+		rpc.Send(printer, ExpansionNamalskModuleRPC.SendWorkbenchResult, true);
+		
+		EffectSound effect_confirm;
+		effect_confirm = SEffectManager.PlaySound("printer_confirm_soundset", printer.GetPosition(), 0, 0, false);
+		effect_confirm.SetParent(printer);
+		effect_confirm.GetSoundObject().SetVolume(1.0);
+		effect_confirm.SetSoundAutodestroy(true);
+	}
+	
+	protected void RPC_SendWorkbenchResult(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
 		int lowBitsGen;
 		if (!ctx.Read(lowBitsGen))
 		{
-			Error(ToString() + "::RPC_SendWorkbenchData - couldn't read lowBitsGen");
+			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't read lowBitsGen");
 			return;
 		}
 
 		int highBitsGen;
 		if (!ctx.Read(highBitsGen))
 		{
-			Error(ToString() + "::RPC_SendWorkbenchData - couldn't read highBitsGen");
+			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't read highBitsGen");
 			return;
 		}
-
-		RepairBenchGenerator repair_generator;
-		if (!Class.CastTo(repair_generator, GetGame().GetObjectByNetworkId(lowBitsGen, highBitsGen)))
+		
+		Expansion_3DPrinter printer;
+		if (!Class.CastTo(printer, GetGame().GetObjectByNetworkId(lowBitsGen, highBitsGen)))
 		{
-			Error(ToString() + "::RPC_SendWorkbenchData - Could not get repair center generator!");
+			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't get 3D printer object!");
 			return;
 		}
-
-		Land_Repair_Center repair_center;
-		if (!Class.CastTo(repair_center, target))
+				
+		NA_WorkbenchRecipe recipe = new NA_WorkbenchRecipe();
+		if (!recipe.OnRecieve(ctx))
 		{
-			Error(ToString() + "::RPC_SendWorkbenchData - Invalid target for repair center object!");
+			Error(ToString() + "::RPC_SendWorkbenchResult - Couldn't get recipe data!");
 			return;
 		}
-
-		m_WorkbenchMenuInvoker.Invoke(repair_center, repair_generator);
+		
+		//! Set recipe on printer object
+		printer.SetRecipe(recipe);
+		printer.ActivatePrinter();
+		
+		//! Finalize printing
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(printer.CompletePrinting, (printer.PRINTING_LENGTH * 1000));
 	}
 
+	void SetWorkbenchState(Expansion_3DPrinter printer, bool state)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
+		int lowBitsGen, highBitsGen;
+		printer.GetNetworkID(lowBitsGen, highBitsGen);
+		
+		auto rpc = ExpansionScriptRPC.Create();
+		rpc.Write(lowBitsGen);
+		rpc.Write(highBitsGen);
+		rpc.Write(state);
+		rpc.Send(null, ExpansionNamalskModuleRPC.SetWorkbenchState, true);
+	}
+	
+	protected void RPC_SetWorkbenchState(ParamsReadContext ctx, PlayerIdentity senderRPC, Object target)
+	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+
+		if (!ExpansionScriptRPC.CheckMagicNumber(ctx))
+			return;
+		
+		int lowBitsGen;
+		if (!ctx.Read(lowBitsGen))
+		{
+			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't read lowBitsGen");
+			return;
+		}
+
+		int highBitsGen;
+		if (!ctx.Read(highBitsGen))
+		{
+			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't read highBitsGen");
+			return;
+		}
+		
+		Expansion_3DPrinter printer;
+		if (!Class.CastTo(printer, GetGame().GetObjectByNetworkId(lowBitsGen, highBitsGen)))
+		{
+			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't get 3D printer object!");
+			return;
+		}
+		
+		bool state;
+		if (!ctx.Read(state))
+		{
+			Error(ToString() + "::RPC_SetWorkbenchState - Couldn't read state");
+			return;
+		}
+		
+		printer.SetCanViewCargo(state);
+	}
+	
 	ScriptInvoker GetWorkbenchMenuSI()
 	{
 		return m_WorkbenchMenuInvoker;

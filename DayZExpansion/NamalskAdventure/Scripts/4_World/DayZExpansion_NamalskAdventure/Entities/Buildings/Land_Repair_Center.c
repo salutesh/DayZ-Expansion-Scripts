@@ -450,7 +450,7 @@ class Land_Repair_Center: House
 	{
 		super.SetActions();
 
-        AddAction(ExpansionActionUseRepairCenter);
+        //AddAction(ExpansionActionUseRepairCenter);
 	}
 	
 	override void OnVariablesSynchronized()

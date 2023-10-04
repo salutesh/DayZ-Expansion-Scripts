@@ -112,6 +112,9 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 		
 		newBolt.Update();
 		
+		Rope rope = Rope.Cast(GetGame().CreateObject("Rope", Vector(pos[0] + offsetX, surfaceY, pos[2] + offsetY)));
+		rope.SetHealth01("", "", resultHealth);
+		
 		GetGame().GetCallQueue(CALL_CATEGORY_SYSTEM).CallLater(HandleDisassemble, 100, false);
 	}
 	
@@ -133,6 +136,8 @@ class Expansion_Ammo_BoltAnomaly_Base: Expansion_EffectBolt_Base
 			{
 				boltMag.ServerSetAmmoCount(newAmmoCount);
 			}
+			
+			boltMag.Update();
 		}
 	}
 	

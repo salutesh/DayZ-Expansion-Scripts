@@ -67,7 +67,7 @@ class Expansion_Satellite_Control: ItemBase
 		
 		#ifndef SERVER
 		if (m_RunSFX)
-			StopSoundSet(m_RunSFX);
+			m_RunSFX.SoundStop();
 		#endif
 	}
 
@@ -243,6 +243,11 @@ class Expansion_Satellite_Control: ItemBase
 		ExDebugPrint("::OnVariablesSynchronized - Satellite active: " + m_IsSatelliteActive.ToString());
 
 		super.OnVariablesSynchronized();
+		
+	#ifndef SERVER
+		if (!m_IsSatelliteActive && m_RunSFX)
+			m_RunSFX.SoundStop();
+	#endif
 	}
 	
 	protected void PlaySFXBoot(EntityAI satellite)
@@ -251,7 +256,7 @@ class Expansion_Satellite_Control: ItemBase
 		
 		if (!GetGame().IsDedicatedServer())
 		{
-			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", satellite.GetPosition(), 0, 0, false);
+			EffectSound soundEffect = SEffectManager.PlaySound("Expansion_Satellite_Boot_Soundset", satellite.GetPosition());
 			if (!soundEffect)
 				return;
 	
@@ -266,13 +271,12 @@ class Expansion_Satellite_Control: ItemBase
 		
 		if (!GetGame().IsDedicatedServer() && !m_RunSFX)
 		{
-			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", satellite.GetPosition(), 0, 0, false);
+			m_RunSFX = SEffectManager.PlaySound("Expansion_Satellite_Active_Soundset", satellite.GetPosition());
 			if (!m_RunSFX)
 				return;
 	
 			m_RunSFX.SetParent(satellite);
 			m_RunSFX.SetSoundAutodestroy(true);
-			m_RunSFX.SetSoundFadeOut(1.0);
 		}
 	}
 	

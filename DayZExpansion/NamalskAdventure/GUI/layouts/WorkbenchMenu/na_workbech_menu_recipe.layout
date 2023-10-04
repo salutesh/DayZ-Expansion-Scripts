@@ -184,7 +184,7 @@ PanelWidgetClass Na_WorkbenchMenuRecipe {
      style Expansion_01
      {
       ScriptParamsClass {
-       Relay_Command "OnFastBuyButtonClick"
+       Relay_Command "OnSelectRecipe"
       }
      }
     }
@@ -198,7 +198,7 @@ PanelWidgetClass Na_WorkbenchMenuRecipe {
      vexactpos 0
      hexactsize 0
      vexactsize 1
-     text "Craft"
+     text "Select"
      "bold text" 0
      "exact text" 0
      "size to text h" 0

@@ -14,20 +14,22 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 {
 	void ExpansionActionUseRepairCenter()
 	{
+		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
+		
 		m_CommandUID = DayZPlayerConstants.CMD_ACTIONMOD_INTERACTONCE;
 		m_StanceMask = DayZPlayerConstants.STANCEMASK_CROUCH | DayZPlayerConstants.STANCEMASK_ERECT;
 		m_HUDCursorIcon = CursorIcons.CloseDoors;
 	}
 
-	override void CreateConditionComponents()
+	override string GetText()
+	{
+		return "Use 3D Printer";
+	}
+
+	override void CreateConditionComponents()  
 	{
 		m_ConditionItem = new CCINone;
 		m_ConditionTarget = new CCTCursor;
-	}
-
-	override string GetText()
-	{
-		return "Use Workbench";
 	}
 
 	override typename GetInputType()
@@ -36,20 +38,15 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 	}
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
-	{
-		Land_Repair_Center repair_center;
-		if (!Class.CastTo(repair_center, target.GetObject()))
+	{		
+		Expansion_3DPrinter printer;
+		if (!Class.CastTo(printer, target.GetObject()))
 		{
 			return false;
 		}
-
-		bool is_in_range;
-		if (vector.Distance(repair_center.WorldToModel(player.GetPosition()), "0.0 -1.5 0.0") < 1.5)
-			is_in_range = true;
-		bool is_active = repair_center.GetActiveState();
-		if (is_in_range && is_active)
-			return true;
-		return false;
+					
+		bool is_in_range = vector.Distance( printer.WorldToModel( player.GetPosition() ), printer.GetMemoryPointPos( "printer_control" ) ) < 1.5;
+		return (is_in_range && !printer.GetActivation());
 	}
 	
 	override void OnExecuteClient(ActionData action_data)
@@ -64,18 +61,14 @@ class ExpansionActionUseRepairCenter: ActionInteractBase
 	{
 		auto trace = EXTrace.Start(EXTrace.NAMALSKADVENTURE, this);
 		
-		Land_Repair_Center repair_center;
-		if (!Class.CastTo(repair_center, action_data.m_Target.GetObject()))
-		{
-			return;
-		}
-		
 		PlayerBase player;
 		if (!Class.CastTo(player, action_data.m_Player))
-		{
 			return;
-		}
 		
-		ExpansionNamalskModule.GetModuleInstance().SendWorkbenchData(repair_center, player.GetIdentity());
+		Expansion_3DPrinter printer;
+		if (Class.CastTo(printer, action_data.m_Target.GetObject()))
+			ExpansionNamalskModule.GetModuleInstance().SendWorkbenchData(printer, player.GetIdentity());
+		
+		printer.SetCanViewCargo(false);
 	}
 }

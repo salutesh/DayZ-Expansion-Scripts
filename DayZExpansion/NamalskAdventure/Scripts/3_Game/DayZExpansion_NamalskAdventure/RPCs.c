@@ -2,6 +2,8 @@ enum ExpansionNamalskModuleRPC
 {
 	INVALID = 100000,
 	SendWorkbenchData,
+	SendWorkbenchResult,
+	SetWorkbenchState,
 	COUNT
 };
 

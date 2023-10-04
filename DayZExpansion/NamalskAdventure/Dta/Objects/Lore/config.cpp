@@ -365,4 +365,77 @@ class CfgVehicles
 			};
 		};
 	};
+	class Expansion_3DPrinter: Inventory_Base
+	{
+		scope = 2;
+		displayName = "Advanced 3D Printer";
+		descriptionShort = "Not needed.";
+		handheld = "false";
+		weight = 50000;
+		physLayer = "item_large";
+		carveNavmesh = 1;
+		storageCategory = 10;
+		itemsCargoSize[] = {10,10};
+		model = "\nst\ns3\structures\oilrig\sea_oilrig_printer.p3d";
+		class DamageSystem
+		{
+			class GlobalArmor
+			{
+				class Projectile
+				{
+					class Health
+					{
+						damage = 0;
+					};
+					class Blood
+					{
+						damage = 0;
+					};
+					class Shock
+					{
+						damage = 0;
+					};
+				};
+				class Melee
+				{
+					class Health
+					{
+						damage = 0;
+					};
+					class Blood
+					{
+						damage = 0;
+					};
+					class Shock
+					{
+						damage = 0;
+					};
+				};
+				class FragGrenade
+				{
+					class Health
+					{
+						damage = 0;
+					};
+					class Blood
+					{
+						damage = 0;
+					};
+					class Shock
+					{
+						damage = 0;
+					};
+				};
+			};
+		};
+		class AnimationSources
+		{
+			class PrinterHead
+			{
+				source = "user";
+				animPeriod = 1;
+				initPhase = 0;
+			};
+		};
+	};
 };

@@ -66,7 +66,7 @@ FrameWidgetClass Na_WorkbenchMenu {
        vexactsize 1
        scriptclass ""
        style Bold
-       text "Workbench"
+       text "Printer OS 1.0"
        "bold text" 0
        "text sharpness" 1.014
        "exact text" 0
@@ -168,7 +168,7 @@ FrameWidgetClass Na_WorkbenchMenu {
       }
      }
     }
-    GridSpacerWidgetClass exit_button_panel {
+    PanelWidgetClass exit_button_panel {
      ignorepointer 1
      color 0 0 0 1
      position 0.01 0.05
@@ -182,15 +182,12 @@ FrameWidgetClass Na_WorkbenchMenu {
      priority 1
      scriptclass ""
      style Expansion_01
-     Padding 0
-     Margin 0
-     Columns 1
-     Rows 1
      {
       ButtonWidgetClass exit_button {
+       visible 1
        color 0 0 0 1
        position 0.01 0.05
-       size 0.1 32
+       size 1 32
        halign right_ref
        valign bottom_ref
        hexactpos 0
@@ -208,7 +205,7 @@ FrameWidgetClass Na_WorkbenchMenu {
          vexactpos 0
          hexactsize 0
          vexactsize 0
-         text "#STR_MOD_EXPANSION_CLOSE_UPPERCASE"
+         text "CLOSE"
          font "gui/fonts/etelkatextpro22"
          "text halign" center
          "text valign" center
@@ -236,7 +233,7 @@ FrameWidgetClass Na_WorkbenchMenu {
      priority 2
      style DayZDefaultPanel
      {
-      WrapSpacerWidgetClass recipes_header {
+      TextWidgetClass recipes_header {
        visible 1
        ignorepointer 1
        position 0 0.02
@@ -247,11 +244,10 @@ FrameWidgetClass Na_WorkbenchMenu {
        hexactsize 0
        vexactsize 1
        scriptclass "ViewBinding"
-       content_halign center
-       content_valign center
+       text "Test Result: N/A"
        {
         ScriptParamsClass {
-         Binding_Name "ItemListings"
+         Binding_Name "TestResult"
         }
        }
       }
@@ -362,7 +358,6 @@ FrameWidgetClass Na_WorkbenchMenu {
        mode blend
        "src alpha" 1
        filter 1
-       rotation 0 0 120
        pivot 0.5 0.7
       }
       ImageWidgetClass fuel_light {
@@ -382,6 +377,58 @@ FrameWidgetClass Na_WorkbenchMenu {
        stretch 1
        filter 1
        nocache 0
+      }
+     }
+    }
+    PanelWidgetClass print_button_panel {
+     visible 0
+     ignorepointer 1
+     color 0 0 0 1
+     position 0.13 0.05
+     size 0.1 32
+     halign right_ref
+     valign bottom_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 1
+     priority 1
+     scriptclass ""
+     style Expansion_01
+     {
+      ButtonWidgetClass print_button {
+       visible 1
+       color 0 0 0 1
+       position 0.01 0.05
+       size 1 32
+       halign right_ref
+       valign bottom_ref
+       hexactpos 0
+       vexactpos 0
+       hexactsize 0
+       vexactsize 1
+       priority 1
+       scriptclass "ViewBinding"
+       style Expansion_01
+       {
+        TextWidgetClass print_button_text {
+         ignorepointer 1
+         size 1 1
+         hexactpos 0
+         vexactpos 0
+         hexactsize 0
+         vexactsize 0
+         text "PRINT"
+         font "gui/fonts/etelkatextpro22"
+         "text halign" center
+         "text valign" center
+        }
+       }
+       {
+        ScriptParamsClass {
+         Relay_Command "OnPrintClick"
+        }
+       }
       }
      }
     }
